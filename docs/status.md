@@ -33,3 +33,9 @@ Status: cloud and macOS Apple Silicon CLI build probes verified; private GitHub 
 - Native build and automated model/CLI checks passed on macOS 15.3.1 arm64 with Rust 1.98.1 and Command Line Tools. Detailed commands and review results are in [EVIDENCE.md](../experiments/editor-trial/EVIDENCE.md).
 - Native computer-use inspection was blocked by the locked Mac. The user was asked to unlock; real selection/focus, clipboard, scrolling, resize, undo and visual acceptance remain unverified. GPUI and the document model are still provisional candidates.
 - Next acceptance step: unlock and exercise the runnable editor, then gather the user's own feedback. The retrieval adapter trial remains a separate pending Phase A task.
+
+## Retrieval adapter trial (roadmap 03)
+
+Implemented and verified on `trial/retrieval-adapters`, based on editor checkpoint `d422e192`. This standalone experiment uses synthetic fixture documents only; it does not import the user’s vault or choose production architecture. Real local FastEmbed/LanceDB semantic retrieval, keyword ranking, hybrid fusion, typed filters and separate-process reopening passed the recorded checks. Eight contract tests, three native state tests, seven actual-state failure checks, build/format/Clippy and the existing provider/editor regressions passed. Astra source review and scoped re-review found no blocking issues. See [evidence](retrieval-trial-evidence.md) for measured ranking, timings, limitations and reproduction.
+
+Next: complete the locked-Mac editor interaction/user evaluation gate, then prepare roadmap 04’s architecture checkpoint for user review. Retrieval quality on a representative approved corpus, production indexing and packaging remain unverified.

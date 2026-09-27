@@ -1,6 +1,6 @@
 # BRN Rust desktop trials
 
-This repository is the isolated Rust starting point for the planned BRN desktop application. The production workspace remains a dependency-free build probe: a single `brn` command that accepts `--help` and `--version`. Separate experiments evaluate the subscription provider and a native Markdown/comment editor; they are not integrated into a production app. Retrieval, authoritative storage, and migration from the existing TypeScript project remain pending.
+This repository is the isolated Rust starting point for the planned BRN desktop application. The production workspace remains a dependency-free build probe: a single `brn` command that accepts `--help` and `--version`. Separate experiments evaluate the subscription provider, a native Markdown/comment editor, and local retrieval; they are not integrated into a production app. Production retrieval, authoritative storage, and migration from the existing TypeScript project remain pending.
 
 The intended application target is macOS on Apple Silicon. This initial command is platform-neutral so a Rust-capable cloud runner can verify the source build before native macOS work begins. The eventual architecture will be chosen through later trials, with Rig/Codex considered first for agent integration and interchangeable retrieval approaches evaluated separately.
 
@@ -19,3 +19,5 @@ cargo run -p brn -- --version
 Only those two flags succeed. Other invocations exit unsuccessfully. See [docs/status.md](docs/status.md) for native macOS verification, and [the chunk 01 provider trial](experiments/codex-app-server/README.md) for the separate experimental Rust harness.
 
 The [native editor trial](experiments/editor-trial/README.md) builds on Apple Silicon and provides in-memory editing, selected-passage comments and revision diffs. Native interaction and user acceptance remain separate verification gates; see [its evidence](experiments/editor-trial/EVIDENCE.md).
+
+The [retrieval adapter trial](experiments/retrieval-trial/README.md) exercises keyword, real FastEmbed/LanceDB semantic, and hybrid search on synthetic documents. [Evidence and limitations](docs/retrieval-trial-evidence.md) include local reopening, version/status filters, corruption checks, timings and dependency findings.

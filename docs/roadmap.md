@@ -64,6 +64,8 @@ Deliverable: common query/evidence types plus keyword and semantic/hybrid adapte
 Done: changing a profile does not alter caller code; all methods return source/version/passage references and obey the same filters. Record quality, latency, disk use, and model download needs.
 Where: cloud on sample data; local performance check later.
 
+2026-09-27: retrieval adapter trial is implemented and verified on `trial/retrieval-adapters`, using only synthetic fixtures. All three profiles, consistent filters, provenance and local reopening were exercised. This establishes integration feasibility, not representative-corpus quality or production readiness. Native editor interaction acceptance remains blocked. See [trial evidence](retrieval-trial-evidence.md).
+
 ### 04. Architecture checkpoint
 Prerequisite: 01–03.
 Deliverable: concise design fixing the chosen UI, provider seam, document model, persistence responsibilities, and retrieval contract; dependency versions and licenses recorded.
@@ -157,7 +159,7 @@ Defer multi-user collaboration, sync, plugin marketplaces, generic agent orchest
 
 ## Immediate next step
 
-Chunk 00's macOS CLI build and chunk 01's Codex App Server subscription route are verified in [status.md](status.md) and [the provider trial](../experiments/codex-app-server/README.md). Complete the native editor interaction/user acceptance checks, then continue Phase A with the retrieval adapter trial. Do not install every candidate framework in the main app before those trials. Re-estimate scope after Phase A using actual build and integration evidence rather than a guessed total duration.
+Chunk 00's macOS CLI build and chunk 01's Codex App Server subscription route are verified in [status.md](status.md) and [the provider trial](../experiments/codex-app-server/README.md). The synthetic retrieval adapter trial is now verified. Complete native editor interaction/user acceptance, then prepare the architecture checkpoint for user review. Do not install every candidate framework in the main app before those trials. Re-estimate scope after Phase A using actual build and integration evidence rather than a guessed total duration.
 
 ## References
 

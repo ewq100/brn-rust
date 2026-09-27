@@ -2,3 +2,6 @@
 /experiments/codex-app-server/target/
 
 /experiments/editor-trial/target/
+
+/experiments/retrieval-trial/target/
+/experiments/retrieval-trial/.cache/
