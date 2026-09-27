@@ -181,8 +181,15 @@ fn start_turn(
     Ok((turn_id, state))
 }
 
-fn live() -> Result<(), String> {
-    let mut client = Client::start()?;
+fn validate_resumed_thread(response: &Value, expected: &str) -> Result<(), String> {
+    if response["thread"]["id"].as_str() == Some(expected) {
+        Ok(())
+    } else {
+        Err("thread/resume returned a different thread id".into())
+    }
+}
+
+fn initialize(client: &mut Client) -> Result<(), String> {
     let mut state = ProbeState::default();
     client.request("initialize", json!({
         "clientInfo":{"name":"brn_rust_trial","title":"BRN Rust provider trial","version":"0.1.0"},
@@ -195,6 +202,13 @@ fn live() -> Result<(), String> {
             "ChatGPT managed subscription login is unavailable; no model request sent".into(),
         );
     }
+    Ok(())
+}
+
+fn live() -> Result<(), String> {
+    let mut client = Client::start()?;
+    let mut state = ProbeState::default();
+    initialize(&mut client)?;
     println!("account: managed ChatGPT (credentials omitted)");
     let root = std::env::temp_dir().join("brn-app-server-fixtures");
     std::fs::create_dir_all(&root).map_err(|e| e.to_string())?;
@@ -268,12 +282,66 @@ fn live() -> Result<(), String> {
     Ok(())
 }
 
-fn main() {
-    if std::env::args().nth(1).as_deref() != Some("live") {
-        eprintln!("usage: brn-app-server-trial live (run cargo test for credential-free checks)");
-        std::process::exit(2);
+fn resume_live() -> Result<(), String> {
+    let root = std::env::temp_dir().join("brn-app-server-fixtures");
+    std::fs::create_dir_all(&root).map_err(|e| e.to_string())?;
+    let mut first = Client::start()?;
+    initialize(&mut first)?;
+    let mut state = ProbeState::default();
+    let created = first.request(
+        "thread/start",
+        json!({"cwd":root,"ephemeral":false,"approvalPolicy":"never","sandbox":"read-only"}),
+        &mut state,
+    )?;
+    let thread_id = created["thread"]["id"]
+        .as_str()
+        .ok_or("thread/start missing id")?
+        .to_owned();
+    let (_, mut first_turn) = start_turn(
+        &mut first,
+        &thread_id,
+        "Synthetic persistence check. Reply exactly BRN_RESUME_47.",
+    )?;
+    first.wait_turn(&mut first_turn)?;
+    if first_turn.outcome()? != "completed" || !first_turn.text.contains("BRN_RESUME_47") {
+        return Err("initial persisted turn failed".into());
     }
-    if let Err(error) = live() {
+    drop(first);
+
+    let mut second = Client::start()?;
+    initialize(&mut second)?;
+    let mut resumed_state = ProbeState::default();
+    let response = second.request(
+        "thread/resume",
+        json!({"threadId":thread_id}),
+        &mut resumed_state,
+    )?;
+    validate_resumed_thread(&response, &thread_id)?;
+    let (_, mut next_turn) = start_turn(
+        &mut second,
+        &thread_id,
+        "What exact marker did you output in the previous turn? Reply with only that marker.",
+    )?;
+    second.wait_turn(&mut next_turn)?;
+    if next_turn.outcome()? != "completed" || !next_turn.text.contains("BRN_RESUME_47") {
+        return Err("resumed conversation did not recall synthetic marker".into());
+    }
+    println!("persisted thread resume: confirmed across App Server process restart");
+    Ok(())
+}
+
+fn main() {
+    let result = match std::env::args().nth(1).as_deref() {
+        Some("live") => live(),
+        Some("resume-live") => resume_live(),
+        _ => {
+            eprintln!(
+                "usage: brn-app-server-trial [live|resume-live] (run cargo test for credential-free checks)"
+            );
+            std::process::exit(2);
+        }
+    };
+    if let Err(error) = result {
         eprintln!("trial failed: {error}");
         std::process::exit(1);
     }
@@ -326,5 +394,13 @@ mod tests {
         assert_eq!(state.tool_calls, 1);
         assert!(state.ingest(&json!({"id":20,"method":"item/tool/call","params":{"tool":"fixture_lookup","arguments":{"key":"unknown"}}})).is_err());
         assert_eq!(state.tool_calls, 1);
+    }
+
+    #[test]
+    fn resume_must_return_the_requested_thread() {
+        let response = json!({"thread":{"id":"different"}});
+        assert!(validate_resumed_thread(&response, "expected").is_err());
+        let response = json!({"thread":{"id":"expected"}});
+        assert!(validate_resumed_thread(&response, "expected").is_ok());
     }
 }

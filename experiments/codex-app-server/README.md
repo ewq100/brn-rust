@@ -19,13 +19,14 @@ PATH=/opt/homebrew/opt/rustup/bin:$PATH cargo +1.98.1 test --offline
 PATH=/opt/homebrew/opt/rustup/bin:$PATH cargo +1.98.1 fmt --check
 PATH=/opt/homebrew/opt/rustup/bin:$PATH cargo +1.98.1 clippy --offline --all-targets -- -D warnings
 PATH=/opt/homebrew/opt/rustup/bin:$PATH cargo +1.98.1 run --offline -- live
+PATH=/opt/homebrew/opt/rustup/bin:$PATH cargo +1.98.1 run --offline -- resume-live
 ```
 
 The live command requires an existing **managed ChatGPT** Codex login. It calls `account/read` with `refreshToken: false` and refuses to start a model turn unless `account.type` is `chatgpt`. It never asks for, logs, or sends an API key. On this Mac, running the live command inside Codex's restricted command sandbox could not start App Server; an approved unrestricted run succeeded. A packaged BRN app will need the normal process and filesystem access required by the Codex sidecar.
 
 ## Results
 
-Credential-free unit tests passed: (1) deltas concatenate but incomplete streams fail, (2) a locally cancelled run stays unconfirmed until the server reports `interrupted`, and (3) only the fixed `alpha` fixture can be returned, once. These tests use synthetic protocol messages; they do not prove a real model or server.
+Four credential-free unit tests passed: (1) deltas concatenate but incomplete streams fail, (2) a locally cancelled run stays unconfirmed until the server reports `interrupted`, (3) the fixed `alpha` fixture is returned while unknown keys fail, and (4) a resume response must identify the requested thread. These tests use synthetic protocol messages; they do not prove a real model or server.
 
 One short managed-ChatGPT run then reported:
 
@@ -35,8 +36,9 @@ One short managed-ChatGPT run then reported:
 | Read-only tool | One `fixture_lookup({"key":"alpha"})` request was answered with `alpha: fixture value 17`; response mentioned `17`. |
 | Continuation | A later turn on the same thread recalled `17`. |
 | Interruption | `turn/interrupt` returned successfully and the server emitted `turn/completed` with `status: interrupted`. |
+| Resume after restart | `resume-live` created a stored synthetic thread, completed a marker turn, stopped App Server, started a second App Server process, called `thread/resume` with the original ID, and received the marker in a new turn. |
 
-The final check is server-confirmed interruption of the Codex turn, not proof that all upstream computation stopped at a particular instant. The probe has no retry loop. Token refresh was not tested: `account/read` explicitly used `refreshToken: false`, and the run was too short to observe expiry. Account sign-in was already present, so no new login flow was tested. Continuation used the same live process and an ephemeral thread; persisted resume across launches was not tested. It did not test remote network cancellation or macOS app packaging.
+The interruption check is server-confirmed interruption of the Codex turn, not proof that all upstream computation stopped at a particular instant. The probe has no retry loop. Token refresh was not tested: `account/read` explicitly used `refreshToken: false`, and the runs were too short to observe expiry. ChatGPT account sign-in was already present, so no new ChatGPT login flow was tested. Persisted resume was checked across two App Server processes, not a macOS reboot. It did not test remote network cancellation or macOS app packaging.
 
 ## Recommendation
 
