@@ -33,4 +33,4 @@ Owner: parent, with independent Astra review. Run native dependency build and ac
 - [x] Contract, tests and real adapters implemented.
 - [x] Native evaluation and verification recorded.
 - [x] Independent Astra review and scoped re-review.
-- [ ] Commit, push and remote verification.
+- [x] Commit, push and remote verification: implementation `95b5bb5f6d5e6fcca49f8fe192b2ec2b5741b08d`; documentation delivery follow-up recorded in evidence.

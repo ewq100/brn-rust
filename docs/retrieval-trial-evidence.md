@@ -76,3 +76,7 @@ Each public `native::search` currently reloads/verifies model and state, even fo
 
 No user corpus, provider credentials or model service were used. No UI acceptance, architecture approval, merge, installer or release is implied. Git delivery will be verified against the private remote and reported with the final commit.
 
+
+## Verified delivery
+
+Implementation commit `95b5bb5f6d5e6fcca49f8fe192b2ec2b5741b08d` was pushed to private `origin` on `trial/retrieval-adapters`. `git ls-remote origin refs/heads/trial/retrieval-adapters` returned the identical SHA; the worktree was clean. A secret-pattern scan covered all 16 changed/authored files with no findings; all 578 lockfile dependency sources were crates.io. `git diff --check` passed. This documentation-only follow-up records completed delivery; its final remote-verified commit is reported in the task response. Nothing was merged or released.
