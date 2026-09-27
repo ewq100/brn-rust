@@ -35,6 +35,8 @@ Local full development is optional if CI supplies test installers. If editing/bu
 
 ## Phase A — remove architectural risks
 
+**2026-09-27 sequencing update:** the current requested **Chunk 02 provider lifecycle follow-up** extends provider trial 01 with harness-process persistence, managed-auth recovery checks, and Apple Silicon sidecar supervision. Its [plan](chunk-02-plan.md) and [evidence](../experiments/codex-app-server/CHUNK-02.md) use that delivery label. The originally numbered editor trial 02 below remains a separate pending roadmap item; this follow-up does not implement or complete it.
+
 ### 00. Reproducible build route
 Prerequisite: macOS Apple Silicon selected; identify available repository/runner access.
 Deliverable: pinned Rust toolchain, minimal build probe, setup instructions, CI proposal or configuration when authorized.

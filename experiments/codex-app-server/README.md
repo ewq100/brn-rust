@@ -1,6 +1,8 @@
 # Experimental Codex App Server provider trial
 
-This is a disposable Rust protocol probe for BRN Rust chunk 01. It is not part of the production `brn` binary. It sends only synthetic prompts and one hard-coded, read-only fixture response. No user documents or credentials are read by this program.
+This is a disposable Rust protocol probe for BRN Rust chunk 01 and the Chunk 02 provider lifecycle follow-up. It is not part of the production `brn` binary. It sends only synthetic prompts and one hard-coded, read-only fixture response. No user documents or credentials are read by this program.
+
+Chunk 02 implementation, reproducible commands and verification results are recorded in [CHUNK-02.md](CHUNK-02.md). Sidecar distribution and signing limits are recorded in [PACKAGING.md](PACKAGING.md). The results below describe the pre-Chunk-02 baseline unless stated otherwise.
 
 ## Mac and tool versions (2026-09-27)
 
