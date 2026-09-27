@@ -56,6 +56,8 @@ Candidate: GPUI Kit for native Markdown editing/review. If formatted in-place ed
 Done: user tries the selection/comment flow on the target OS; resizing, clipboard, Unicode, undo, and deleted anchor behavior are understood. Select one UI and document model.
 Where: implementation in cloud where builds permit; early local interaction test required.
 
+2026-09-27: [Native editor implementation](../experiments/editor-trial/README.md) and automated checks are available. Native inspection was blocked by the locked Mac, so interaction acceptance and the framework/document-model decision are still pending; see [evidence](../experiments/editor-trial/EVIDENCE.md).
+
 ### 03. Retrieval adapter trial
 Prerequisite: 00; approved sample documents.
 Deliverable: common query/evidence types plus keyword and semantic/hybrid adapters; fixed comparison queries and expected sources. Trial LanceDB and FastEmbed; evaluate Swiftide only where it reduces ingestion work.
@@ -155,7 +157,7 @@ Defer multi-user collaboration, sync, plugin marketplaces, generic agent orchest
 
 ## Immediate next step
 
-Chunk 00's macOS CLI build and chunk 01's Codex App Server subscription route are verified in [status.md](status.md) and [the provider trial](../experiments/codex-app-server/README.md). Continue Phase A with the target-OS editor and retrieval adapter trials. Do not install every candidate framework in the main app before those trials. Re-estimate scope after Phase A using actual build and integration evidence rather than a guessed total duration.
+Chunk 00's macOS CLI build and chunk 01's Codex App Server subscription route are verified in [status.md](status.md) and [the provider trial](../experiments/codex-app-server/README.md). Complete the native editor interaction/user acceptance checks, then continue Phase A with the retrieval adapter trial. Do not install every candidate framework in the main app before those trials. Re-estimate scope after Phase A using actual build and integration evidence rather than a guessed total duration.
 
 ## References
 
