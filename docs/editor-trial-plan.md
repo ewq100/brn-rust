@@ -41,7 +41,7 @@ Files owned by implementer: `experiments/editor-trial/src/lib.rs`, `src/main.rs`
 - [ ] Launch native app and inspect UI with computer-use tools; exercise real selection/comment/edit/diff, scrolling, resize, Unicode, clipboard, undo and deleted anchors as tooling permits.
 - [x] Record exact automated versus observed versus user-unverified outcomes; do not mark human acceptance or framework selection complete on the user's behalf.
 - [x] Whole-branch Astra review and secret/diff scan (implementation checkpoint approved; native acceptance still blocked).
-- [ ] Commit/push trial branch and verify remote SHA.
+- [x] Commit/push trial branch and verify remote SHA (implementation checkpoint; native acceptance still blocked).
 
 ## Review focus
 
@@ -54,3 +54,5 @@ Repeated text must not steal anchors. A selection must belong to the text snapsh
 - Astra architecture review recommends conservative anchor mapping and explicit human acceptance boundary.
 
 - Task 1 source review and two scoped correction passes approved. Native build, format, Clippy, 11 model tests and five CLI checks passed. Native acceptance is BLOCKED by the locked Mac, not complete; unlock requested.
+
+- Implementation checkpoint `8a81268aff6b7f401b63d815b00cf62fdb63a1c3` pushed; `git ls-remote origin refs/heads/trial/editor-selection-comments` matched exactly. This documentation-only follow-up records the delivery. Nothing merged or released.
