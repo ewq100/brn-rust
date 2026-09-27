@@ -1,0 +1,13 @@
+[package]
+name = "brn-desktop"
+version = "0.1.0"
+edition = "2024"
+publish = false
+
+[features]
+default = []
+native-ui = ["dep:gpui-kit"]
+
+[dependencies]
+brn-core = { path = "../brn-core" }
+gpui-kit = { version = "=0.6.6", optional = true }

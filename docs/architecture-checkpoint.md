@@ -1,6 +1,6 @@
-# Architecture checkpoint — proposed decision
+# Architecture checkpoint — accepted baseline
 
-27 September 2026 · Roadmap 04 · **For user review; not approved**
+Prepared 27 September 2026 · Roadmap 04 · **Approved by the user on 28 September 2026; native editor acceptance explicitly deferred**
 
 [Observed dependency versions and licenses](architecture-dependencies.md).
 
@@ -58,9 +58,12 @@ Durable operation IDs bind a command payload hash: duplicates return existing st
 
 Chunk 05 implements only one window, navigation, typed core commands/events, a selected data directory and a deterministic cancellable background task. No live provider, retrieval integration or authoritative document storage. Acceptance requires observed native launch/responsiveness, cancellation, stale-result rejection and bounded close-during-work behavior; deterministic queue/lifecycle tests complement native checks.
 
-## Approval gate
+## Approval gate and recorded decision
 
-Roadmap 04 remains open until native editor acceptance **or explicit user deferral**, concrete design approval, and dependency/version/license recording are complete. Approval accepts these boundaries and permits the bounded chunk 05 shell work under the existing authorization to plan, delegate, implement, test and push trial changes. Before coding, record and review the exact implementation plan; routine execution does not need a second permission round. It does not accept unobserved trials or authorize release, merge, account changes or vault migration. Deferring native acceptance preserves GPUI's provisional status and the native gate before chunk 05 acceptance.
+On 2026-09-28 the user replied “Ok” to the explicit request to approve this design and defer native editor acceptance so desktop-shell implementation could begin. This satisfies the architecture decision gate and authorizes the bounded chunk 05 scope below. It does not claim native editor verification or select GPUI irrevocably.
+
+
+The checkpoint requires native editor acceptance **or explicit user deferral**, concrete design approval, and dependency/version/license recording. Those requirements are now recorded; the deferred native checks remain open. Approval accepts these boundaries and permits the bounded chunk 05 shell work under the existing authorization to plan, delegate, implement, test and push trial changes. Before coding, record and review the exact implementation plan; routine execution does not need a second permission round. It does not accept unobserved trials or authorize release, merge, account changes or vault migration. Deferring native acceptance preserves GPUI's provisional status and the native gate before chunk 05 acceptance.
 
 ## Preparation and review record
 

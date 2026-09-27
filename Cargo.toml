@@ -1,3 +1,4 @@
 [workspace]
-members = ["crates/brn"]
+members = ["crates/brn", "crates/brn-core", "crates/brn-desktop"]
+default-members = ["crates/brn"]
 resolver = "2"

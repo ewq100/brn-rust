@@ -4,10 +4,10 @@ Status: cloud and macOS Apple Silicon CLI build probes verified; private GitHub 
 
 ## Design and implementation record
 
-- A virtual Cargo workspace contains one `brn` binary crate. It has no external dependencies.
-- The CLI accepts exactly one `--help` or `--version` argument. Missing, extra, and unknown arguments return a failure exit code and print an error.
+- The Cargo workspace contains the original dependency-free `brn` probe, a UI-independent `brn-core` crate, and a `brn-desktop` shell with an optional GPUI native feature.
+- The original `brn` probe accepts exactly one `--help` or `--version` argument. Missing, extra, and unknown arguments return a failure exit code and print an error.
 - Rust 1.98.1 is pinned in `rust-toolchain.toml`; the official stable manifest version was verified before recording it. The profile is minimal, with rustfmt and Clippy components.
-- The existing TypeScript BRN remains separate. The production workspace has no UI framework, agent runtime, storage, retrieval adapter, or user data migration; experimental crates are recorded separately below.
+- The existing TypeScript BRN remains separate. The desktop shell has no integrated provider, authoritative storage, retrieval adapter or user data migration; experimental crates remain separate.
 
 ## Verification and next step
 
@@ -38,8 +38,14 @@ Status: cloud and macOS Apple Silicon CLI build probes verified; private GitHub 
 
 Implemented and verified on `trial/retrieval-adapters`, based on editor checkpoint `d422e192`. This standalone experiment uses synthetic fixture documents only; it does not import the user’s vault or choose production architecture. Real local FastEmbed/LanceDB semantic retrieval, keyword ranking, hybrid fusion, typed filters and separate-process reopening passed the recorded checks. Eight contract tests, three native state tests, seven actual-state failure checks, build/format/Clippy and the existing provider/editor regressions passed. Astra source review and scoped re-review found no blocking issues. See [evidence](retrieval-trial-evidence.md) for measured ranking, timings, limitations and reproduction.
 
-Next: complete the locked-Mac editor interaction/user evaluation gate, then review and approve roadmap 04’s prepared architecture proposal. Retrieval quality on a representative approved corpus, production indexing and packaging remain unverified.
+Next: complete the deferred native editor and shell interaction/user evaluation gates; the architecture has since been approved as recorded below. Retrieval quality on a representative approved corpus, production indexing and packaging remain unverified.
 
 ## Architecture checkpoint (roadmap 04)
 
-A concrete [architecture proposal](architecture-checkpoint.md) and [dependency record](architecture-dependencies.md) are prepared on `trial/architecture-checkpoint`, based on retrieval checkpoint `0e70a90`. This is a review artifact, not accepted product architecture. Native editor interaction remains blocked by the locked Mac; user design approval and the editor acceptance gate (or explicit deferral) remain required before product implementation. No production dependency or account setting has changed.
+A concrete [architecture proposal](architecture-checkpoint.md) and [dependency record](architecture-dependencies.md) are prepared on `trial/architecture-checkpoint`, based on retrieval checkpoint `0e70a90`. This was initially a review artifact. On 2026-09-28 the user approved the design and explicitly deferred native editor acceptance, as recorded below. No account setting changed.
+
+## Desktop shell (chunk 05)
+
+On 2026-09-28 the user approved the concrete architecture and explicitly deferred native editor acceptance. The architecture checkpoint is accepted with GPUI provisional; native acceptance is not implied. Bounded desktop-shell implementation is complete on `trial/desktop-shell`, based on `199d8c5`. See [implementation plan](desktop-shell-plan.md). No provider, retrieval or authoritative storage integration is part of this chunk.
+
+Shell implementation verification: native build, formatting, Clippy, 12 core tests, five CLI tests, three headless scenarios and the existing provider/starter regressions passed. Astra review and scoped re-reviews found no remaining Critical or Important source issues. [Commands and limitations](desktop-shell-evidence.md) preserve the still-open native shell/editor acceptance gates. The production workflow is not yet integrated.

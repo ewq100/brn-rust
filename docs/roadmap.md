@@ -73,12 +73,16 @@ Done: critical uncertainties resolved or explicitly deferred; user approves the 
 
 2026-09-27: [Concrete checkpoint proposal](architecture-checkpoint.md) and [observed dependency record](architecture-dependencies.md) prepared from the trials. Status remains proposed: editor acceptance is pending, and user approval is required before product implementation.
 
+2026-09-28: user approved the concrete architecture and explicitly deferred native editor acceptance. Roadmap 04 is accepted on that basis; GPUI remains provisional and deferred native checks remain required. Bounded chunk 05 work has started; see [plan](desktop-shell-plan.md).
+
 ## Phase B — first usable desktop workflow
 
 ### 05. Desktop shell and application core
 Prerequisite: 04.
 Deliverable: one app window, navigation, typed commands/events, background task ownership, selected data directory.
 Done: window opens on the target OS; UI stays responsive while a deterministic background operation runs. Closing during work has defined behavior.
+
+2026-09-28: bounded shell implementation and deterministic verification are available on `trial/desktop-shell`; [evidence](desktop-shell-evidence.md) records lifecycle/review results. Native launch/interaction/close acceptance is still open because the Mac is locked. This is an implementation checkpoint, not accepted completion of chunk 05.
 
 ### 06. Authoritative storage and recovery
 Prerequisite: 05.
@@ -161,7 +165,7 @@ Defer multi-user collaboration, sync, plugin marketplaces, generic agent orchest
 
 ## Immediate next step
 
-Chunk 00's macOS CLI build and chunk 01's Codex App Server subscription route are verified in [status.md](status.md) and [the provider trial](../experiments/codex-app-server/README.md). The synthetic retrieval adapter trial is now verified. Complete native editor interaction/user acceptance, then review and approve the prepared architecture checkpoint. Do not install every candidate framework in the main app before those trials. Re-estimate scope after Phase A using actual build and integration evidence rather than a guessed total duration.
+Chunk 00's macOS CLI build and chunk 01's Codex App Server subscription route are verified in [status.md](status.md) and [the provider trial](../experiments/codex-app-server/README.md). The synthetic retrieval adapter trial is now verified. The user approved the architecture with native editor acceptance explicitly deferred on 2026-09-28. The bounded shell implementation is now available; complete its native interaction checks alongside editor acceptance when the Mac is unlocked. Do not install every candidate framework in the main app before those trials. Re-estimate scope after Phase A using actual build and integration evidence rather than a guessed total duration.
 
 ## References
 
