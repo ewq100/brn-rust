@@ -41,7 +41,7 @@ Files: trial README, `docs/status.md`, roadmap clarification, this record, repro
 - [x] Launch installed Apple Silicon sidecar, check managed auth, request supported refresh once, then run independent start/resume processes against synthetic data.
 - [x] Record what was observed versus unverified expiry/revocation, reboot, packaging, signing, and crash recovery.
 - [x] Review complete diff for correctness and secrets with Astra; resolve important findings.
-- [ ] Commit, push the new trial branch, verify remote SHA, leave original checkout untouched.
+- [x] Commit, push the new trial branch, verify remote SHA, leave original checkout untouched.
 
 ## Review focus
 
@@ -55,3 +55,5 @@ Partial/corrupt state must not erase a prior conversation. A lost turn response 
 - Baseline Rust 1.98.1 offline tests: starter 0 tests, harness 4 tests, all passed.
 
 - Final verification: offline script passed all gates, 16 harness tests and 9 smoke cases; final transport code passed live regressions and saved-state resume. Astra whole-branch review approved with no findings.
+
+- Delivery verified: implementation checkpoint `7c49770407a84b4bb62eb5047fcc4a2f48964323` was pushed to the private remote and matched `git ls-remote`. A documentation-only follow-up records this result; no merge or release occurred.
