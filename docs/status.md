@@ -7,7 +7,7 @@ Status: cloud and macOS Apple Silicon CLI build probes verified; private GitHub 
 - A virtual Cargo workspace contains one `brn` binary crate. It has no external dependencies.
 - The CLI accepts exactly one `--help` or `--version` argument. Missing, extra, and unknown arguments return a failure exit code and print an error.
 - Rust 1.98.1 is pinned in `rust-toolchain.toml`; the official stable manifest version was verified before recording it. The profile is minimal, with rustfmt and Clippy components.
-- The existing TypeScript BRN remains separate. No UI framework, agent runtime, storage, retrieval adapter, or user data migration is included.
+- The existing TypeScript BRN remains separate. The production workspace has no UI framework, agent runtime, storage, retrieval adapter, or user data migration; experimental crates are recorded separately below.
 
 ## Verification and next step
 
@@ -32,10 +32,14 @@ Status: cloud and macOS Apple Silicon CLI build probes verified; private GitHub 
 - The editor captures real selected passages, holds in-memory comments and an immutable opened revision, conservatively marks ambiguous/deleted anchors unresolved, and displays a revision diff. No source-file save/overwrite flow is included.
 - Native build and automated model/CLI checks passed on macOS 15.3.1 arm64 with Rust 1.98.1 and Command Line Tools. Detailed commands and review results are in [EVIDENCE.md](../experiments/editor-trial/EVIDENCE.md).
 - Native computer-use inspection was blocked by the locked Mac. The user was asked to unlock; real selection/focus, clipboard, scrolling, resize, undo and visual acceptance remain unverified. GPUI and the document model are still provisional candidates.
-- Next acceptance step: unlock and exercise the runnable editor, then gather the user's own feedback. The retrieval adapter trial remains a separate pending Phase A task.
+- Next acceptance step: unlock and exercise the runnable editor, then gather the user's own feedback. The retrieval adapter trial is now independently verified on synthetic fixtures; see below.
 
 ## Retrieval adapter trial (roadmap 03)
 
 Implemented and verified on `trial/retrieval-adapters`, based on editor checkpoint `d422e192`. This standalone experiment uses synthetic fixture documents only; it does not import the user’s vault or choose production architecture. Real local FastEmbed/LanceDB semantic retrieval, keyword ranking, hybrid fusion, typed filters and separate-process reopening passed the recorded checks. Eight contract tests, three native state tests, seven actual-state failure checks, build/format/Clippy and the existing provider/editor regressions passed. Astra source review and scoped re-review found no blocking issues. See [evidence](retrieval-trial-evidence.md) for measured ranking, timings, limitations and reproduction.
 
-Next: complete the locked-Mac editor interaction/user evaluation gate, then prepare roadmap 04’s architecture checkpoint for user review. Retrieval quality on a representative approved corpus, production indexing and packaging remain unverified.
+Next: complete the locked-Mac editor interaction/user evaluation gate, then review and approve roadmap 04’s prepared architecture proposal. Retrieval quality on a representative approved corpus, production indexing and packaging remain unverified.
+
+## Architecture checkpoint (roadmap 04)
+
+A concrete [architecture proposal](architecture-checkpoint.md) and [dependency record](architecture-dependencies.md) are prepared on `trial/architecture-checkpoint`, based on retrieval checkpoint `0e70a90`. This is a review artifact, not accepted product architecture. Native editor interaction remains blocked by the locked Mac; user design approval and the editor acceptance gate (or explicit deferral) remain required before product implementation. No production dependency or account setting has changed.

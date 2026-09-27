@@ -27,7 +27,7 @@ Start with macOS on Apple Silicon and the user's Codex subscription as the first
 
 Cloud is suitable for source editing, backend builds, deterministic tests, indexing benchmarks on an approved sample corpus, database migration tests, and crash/recovery tests, once a Rust-capable environment is available.
 
-The initial inspected chat workspace was Linux and lacked Rust and Cargo. Rust 1.98.1 is pinned for chunk 00, but build verification is recorded separately in [status.md](status.md). Network access is restricted. Running native macOS UI builds has not been demonstrated. Chunk 00 must establish the actual build route; if the current workspace cannot support it, use a configured cloud runner or local environment rather than claiming unexecuted checks passed.
+The initial inspected chat workspace was Linux and lacked Rust and Cargo. Rust 1.98.1 is pinned for chunk 00, but build verification is recorded separately in [status.md](status.md). That initial environment had restricted network access. The subsequent macOS trials established native UI and retrieval builds on Apple Silicon using Command Line Tools; see the trial evidence. Native editor interaction still requires an unlocked target Mac.
 
 The target desktop is needed early for editor selection, keyboard shortcuts, clipboard, input methods, font scaling, accessibility, file dialogs, credential storage, provider login, and actual perceived performance. Target-OS build runners can automate compilation and packaging, but do not replace human interaction testing. A Linux build does not verify a macOS or Windows app.
 
@@ -70,6 +70,8 @@ Where: cloud on sample data; local performance check later.
 Prerequisite: 01–03.
 Deliverable: concise design fixing the chosen UI, provider seam, document model, persistence responsibilities, and retrieval contract; dependency versions and licenses recorded.
 Done: critical uncertainties resolved or explicitly deferred; user approves the concrete design before product implementation. Graph remains a required later capability, not a dependency blocking useful hybrid retrieval.
+
+2026-09-27: [Concrete checkpoint proposal](architecture-checkpoint.md) and [observed dependency record](architecture-dependencies.md) prepared from the trials. Status remains proposed: editor acceptance is pending, and user approval is required before product implementation.
 
 ## Phase B — first usable desktop workflow
 
@@ -159,7 +161,7 @@ Defer multi-user collaboration, sync, plugin marketplaces, generic agent orchest
 
 ## Immediate next step
 
-Chunk 00's macOS CLI build and chunk 01's Codex App Server subscription route are verified in [status.md](status.md) and [the provider trial](../experiments/codex-app-server/README.md). The synthetic retrieval adapter trial is now verified. Complete native editor interaction/user acceptance, then prepare the architecture checkpoint for user review. Do not install every candidate framework in the main app before those trials. Re-estimate scope after Phase A using actual build and integration evidence rather than a guessed total duration.
+Chunk 00's macOS CLI build and chunk 01's Codex App Server subscription route are verified in [status.md](status.md) and [the provider trial](../experiments/codex-app-server/README.md). The synthetic retrieval adapter trial is now verified. Complete native editor interaction/user acceptance, then review and approve the prepared architecture checkpoint. Do not install every candidate framework in the main app before those trials. Re-estimate scope after Phase A using actual build and integration evidence rather than a guessed total duration.
 
 ## References
 
