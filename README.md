@@ -16,4 +16,4 @@ cargo run -p brn -- --help
 cargo run -p brn -- --version
 ```
 
-Only those two flags succeed. Other invocations exit unsuccessfully. See [docs/status.md](docs/status.md) for what has been verified in this workspace and what remains for a Rust-capable runner.
+Only those two flags succeed. Other invocations exit unsuccessfully. See [docs/status.md](docs/status.md) for native macOS verification, and [the chunk 01 provider trial](experiments/codex-app-server/README.md) for the separate experimental Rust harness.

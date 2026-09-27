@@ -10,7 +10,7 @@ Build an installable, local-first desktop application for importing knowledge, a
 
 Retrieval is switchable between keyword, semantic, hybrid, and graph profiles. BRN owns source identity, versioning, approval status, and the common evidence contract. Retrieval indexes are replaceable derived data. Cloud model access does not make the application cloud-hosted; local retrieval and stored documents remain usable offline where their dependencies are present.
 
-Start with macOS on Apple Silicon and the user's Codex subscription as the first model access route to investigate with Rig. The chunk 01 trial must verify that authentication and integration actually work. Add other platforms and providers after the first complete workflow is proven.
+Start with macOS on Apple Silicon and the user's Codex subscription as the first model access route. Chunk 01 compares direct Rig integration with the official Codex App Server; the latter is the leading candidate after the live trial recorded in [its README](../experiments/codex-app-server/README.md). Add other platforms and providers after the first complete workflow is proven.
 
 ## Working method
 
@@ -41,10 +41,10 @@ Deliverable: pinned Rust toolchain, minimal build probe, setup instructions, CI 
 Done: a clean environment builds and tests a tiny Rust target; target-OS compilation has an identified route. Record unavailable dependencies explicitly.
 Where: cloud; target-OS runner or local machine for native build proof.
 
-### 01. Provider and Rig trial
-Prerequisite: 00; test Codex subscription access through Rig first.
-Deliverable: disposable integration harness for login/configuration, streaming, one read-only tool, cancellation, and history replay.
-Done: deterministic fake-provider tests pass, and an authorized live account check proves the required authentication route. Account access and token refresh limitations are recorded.
+### 01. Provider trial
+Prerequisite: 00; compare direct Rig integration with official Codex App Server for subscription access.
+Deliverable: disposable integration harness for account state, streaming, one read-only tool, cancellation, and conversation continuation.
+Done: deterministic credential-free tests pass, and an authorized live account check proves the required authentication route. Account access and token refresh limitations are recorded.
 Where: cloud for fake-provider work; local or otherwise approved environment for login/live checks.
 
 ### 02. Desktop editor trial
@@ -153,7 +153,7 @@ Defer multi-user collaboration, sync, plugin marketplaces, generic agent orchest
 
 ## Immediate next step
 
-Verify chunk 00's Rust build route, then execute only Phase A initially, beginning with Codex/Rig access and the target-OS editor trial. Do not install every candidate framework in the main app before the trials. Re-estimate scope after Phase A using actual build and integration evidence rather than a guessed total duration.
+Chunk 00's macOS CLI build and chunk 01's Codex App Server subscription route are verified in [status.md](status.md) and [the provider trial](../experiments/codex-app-server/README.md). Continue Phase A with the target-OS editor and retrieval adapter trials. Do not install every candidate framework in the main app before those trials. Re-estimate scope after Phase A using actual build and integration evidence rather than a guessed total duration.
 
 ## References
 

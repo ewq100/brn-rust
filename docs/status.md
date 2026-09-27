@@ -1,6 +1,6 @@
-# Chunk 00 status
+# BRN Rust development status
 
-Status: cloud build probe verified; private GitHub repository created; macOS verification pending. Target: macOS on Apple Silicon. First agent/provider trial: Rig with the user's Codex subscription, subject to verifying an actual authentication route in chunk 01.
+Status: cloud and macOS Apple Silicon CLI build probes verified; private GitHub repository created. The chunk 01 provider trial is recorded in [the experimental App Server harness](../experiments/codex-app-server/README.md). No desktop app build has been attempted.
 
 ## Design and implementation record
 
@@ -14,5 +14,6 @@ Status: cloud build probe verified; private GitHub repository created; macOS ver
 - Verified on Linux x86_64 using an isolated installation of Rust 1.98.1: `cargo build --workspace --locked`, `cargo fmt --all -- --check`, and `cargo clippy --workspace --all-targets --locked -- -D warnings` all passed.
 - `cargo test --workspace --locked` passed with zero unit tests. Five subprocess smoke checks passed: help and version succeed; missing, unknown, and extra arguments fail. The version output is `brn 0.0.0`.
 - Private repository `ewq100/brn-rust` was created on GitHub on 2026-09-27. This starter records the verified cloud build probe and the remaining native verification work.
-- macOS Apple Silicon compilation and desktop interaction remain unverified. Identify a target-OS runner for native build proof and the later editor trial.
-- After build verification, chunk 01 can test the Codex subscription route with Rig. The desktop window and editor belong to later chunks.
+- Verified on macOS Apple Silicon (`Darwin arm64`) using Rust/Cargo 1.98.1: `cargo build --workspace --locked`, `cargo fmt --all -- --check`, `cargo clippy --workspace --all-targets --locked -- -D warnings`, and `cargo test --workspace --locked` passed. Five CLI smoke checks passed: help and version succeeded; missing, unknown, and extra arguments failed.
+- The App Server trial demonstrated managed-ChatGPT streamed text, one read-only fixture tool call, conversation continuation, and server-reported interruption. Three credential-free protocol tests passed. See its README for versions, commands, security limits, and the App Server versus Rig recommendation.
+- Desktop interaction and packaging remain unverified. The desktop window and editor belong to later chunks.
