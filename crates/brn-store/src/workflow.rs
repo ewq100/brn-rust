@@ -57,7 +57,7 @@ pub struct ChatTurn {
     pub usage_json: Option<String>,
 }
 
-fn bind_operation(
+pub(super) fn bind_operation(
     tx: &Transaction<'_>,
     op: Uuid,
     kind: &str,

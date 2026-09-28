@@ -11,11 +11,13 @@ use std::{
     path::{Path, PathBuf},
 };
 use uuid::Uuid;
+mod drafts;
 mod workflow;
+pub use drafts::{Draft, DraftRevision, DraftStamp, MAX_DRAFT_BYTES, RevisionKind};
 pub use workflow::{Approval, ChatTurn, ImportResult, SourceDocument};
 
 const APPLICATION_ID: u32 = 0x4252_4e31; // BRN1
-const SCHEMA_VERSION: u32 = 3;
+const SCHEMA_VERSION: u32 = 4;
 const V1: &str = "CREATE TABLE sources (id TEXT PRIMARY KEY, title TEXT NOT NULL);\
 CREATE TABLE versions (id TEXT PRIMARY KEY, source_id TEXT NOT NULL REFERENCES sources(id), parent_id TEXT REFERENCES versions(id), bytes BLOB NOT NULL, sha256 BLOB NOT NULL);";
 const V2: &str = "CREATE TABLE operations (id TEXT PRIMARY KEY, kind TEXT NOT NULL, payload_hash BLOB NOT NULL, status TEXT NOT NULL CHECK(status IN ('pending','running','completed','failed','interrupted')), terminal_data BLOB);\
@@ -29,6 +31,9 @@ CREATE UNIQUE INDEX source_origin_unique ON sources(origin);\
 UPDATE sources SET current_version_id=(SELECT id FROM versions WHERE versions.source_id=sources.id ORDER BY rowid DESC LIMIT 1);\
 CREATE TABLE imports (operation_id TEXT PRIMARY KEY REFERENCES operations(id), source_id TEXT NOT NULL REFERENCES sources(id), version_id TEXT NOT NULL REFERENCES versions(id), changed INTEGER NOT NULL CHECK(changed IN (0,1)));\
 CREATE TABLE chat_turns (operation_id TEXT PRIMARY KEY REFERENCES operations(id), session_id TEXT NOT NULL REFERENCES sessions(id), question TEXT NOT NULL, profile TEXT NOT NULL, evidence_json TEXT NOT NULL, answer TEXT, provider_turn_id TEXT, usage_json TEXT);";
+const V4: &str = "CREATE TABLE drafts (id TEXT PRIMARY KEY, title TEXT NOT NULL, base_revision_id TEXT NOT NULL, generation INTEGER NOT NULL CHECK(generation >= 0), text TEXT NOT NULL, sha256 BLOB NOT NULL);\
+CREATE TABLE draft_revisions (id TEXT PRIMARY KEY, draft_id TEXT NOT NULL REFERENCES drafts(id), parent_id TEXT REFERENCES draft_revisions(id), kind TEXT NOT NULL CHECK(kind IN ('checkpoint','candidate')), text TEXT NOT NULL, sha256 BLOB NOT NULL, origin_turn TEXT REFERENCES chat_turns(operation_id));\
+CREATE TABLE draft_results (operation_id TEXT PRIMARY KEY REFERENCES operations(id), result_kind TEXT NOT NULL CHECK(result_kind IN ('draft','revision')), result_json BLOB NOT NULL);";
 
 #[derive(Debug)]
 pub enum Error {
@@ -211,6 +216,7 @@ impl Store {
                 tx.execute_batch(V1)?;
                 tx.execute_batch(V2)?;
                 tx.execute_batch(V3)?;
+                tx.execute_batch(V4)?;
                 tx.pragma_update(None, "application_id", APPLICATION_ID)?;
                 tx.pragma_update(None, "user_version", SCHEMA_VERSION)?;
                 tx.commit()?;
@@ -222,6 +228,9 @@ impl Store {
                 } else if version == 2 {
                     migrate_v2(&mut conn)?;
                     report.migrated_from = Some(2);
+                } else if version == 3 {
+                    migrate_v3(&mut conn, || Ok(()))?;
+                    report.migrated_from = Some(3);
                 }
             }
         }
@@ -621,6 +630,10 @@ fn is_local_kind(kind: &str) -> bool {
             | "source.approval"
             | "session.attach"
             | "chat.turn"
+            | "draft.create"
+            | "draft.save"
+            | "draft.checkpoint"
+            | "draft.candidate"
     )
 }
 fn encode_args(items: &[&[u8]]) -> Vec<u8> {
@@ -677,6 +690,7 @@ fn migrate_v1(conn: &mut Connection, after_ddl: impl FnOnce() -> Result<()>) -> 
     let tx = conn.transaction()?;
     tx.execute_batch(V2)?;
     tx.execute_batch(V3)?;
+    tx.execute_batch(V4)?;
     after_ddl()?;
     tx.pragma_update(None, "user_version", SCHEMA_VERSION)?;
     tx.commit()?;
@@ -685,6 +699,15 @@ fn migrate_v1(conn: &mut Connection, after_ddl: impl FnOnce() -> Result<()>) -> 
 fn migrate_v2(conn: &mut Connection) -> Result<()> {
     let tx = conn.transaction()?;
     tx.execute_batch(V3)?;
+    tx.execute_batch(V4)?;
+    tx.pragma_update(None, "user_version", SCHEMA_VERSION)?;
+    tx.commit()?;
+    Ok(())
+}
+fn migrate_v3(conn: &mut Connection, after_ddl: impl FnOnce() -> Result<()>) -> Result<()> {
+    let tx = conn.transaction()?;
+    tx.execute_batch(V4)?;
+    after_ddl()?;
     tx.pragma_update(None, "user_version", SCHEMA_VERSION)?;
     tx.commit()?;
     Ok(())
@@ -714,6 +737,9 @@ fn validate_schema(conn: &Connection, version: u32) -> Result<()> {
     }
     if version >= 3 {
         expected.execute_batch(V3)?;
+    }
+    if version >= 4 {
+        expected.execute_batch(V4)?;
     }
     if schema_map(conn)? != schema_map(&expected)? {
         return Err(invalid("unexpected database schema"));
@@ -823,5 +849,52 @@ mod tests {
             store.session(session).unwrap().unwrap().provider_store,
             "store-a"
         );
+    }
+    #[test]
+    fn version_three_migrates_atomically_and_preserves_rows() {
+        let dir = tempfile::tempdir().unwrap();
+        let db = dir.path().join("brn.sqlite3");
+        let mut conn = Connection::open(&db).unwrap();
+        conn.execute_batch(V1).unwrap();
+        conn.execute_batch(V2).unwrap();
+        conn.execute_batch(V3).unwrap();
+        conn.pragma_update(None, "application_id", APPLICATION_ID)
+            .unwrap();
+        conn.pragma_update(None, "user_version", 3).unwrap();
+        let source = Uuid::new_v4();
+        let version = Uuid::new_v4();
+        conn.execute(
+            "INSERT INTO sources(id,title,origin,approval) VALUES(?1,'old','file-a','approved')",
+            [source.to_string()],
+        )
+        .unwrap();
+        conn.execute(
+            "INSERT INTO versions(id,source_id,bytes,sha256) VALUES(?1,?2,?3,?4)",
+            params![
+                version.to_string(),
+                source.to_string(),
+                b"exact\r\n",
+                hash(b"exact\r\n").as_slice()
+            ],
+        )
+        .unwrap();
+        conn.execute(
+            "UPDATE sources SET current_version_id=?2 WHERE id=?1",
+            params![source.to_string(), version.to_string()],
+        )
+        .unwrap();
+        assert!(migrate_v3(&mut conn, || Err(invalid("injected migration failure"))).is_err());
+        assert_eq!(
+            conn.query_row("PRAGMA user_version", [], |r| r.get::<_, u32>(0))
+                .unwrap(),
+            3
+        );
+        validate_schema(&conn, 3).unwrap();
+        drop(conn);
+        let (store, report) = Store::open(dir.path()).unwrap();
+        assert_eq!(report.migrated_from, Some(3));
+        assert_eq!(store.version(version).unwrap().unwrap().bytes, b"exact\r\n");
+        assert_eq!(store.documents().unwrap()[0].approval, Approval::Approved);
+        assert!(store.drafts().unwrap().is_empty());
     }
 }
