@@ -99,12 +99,12 @@ The native page offers Capture selection, a comment composer with captured quote
 
 **Interfaces:** implement the mapping/trace types and functions above without SQL or GPUI. Add a pure replay helper taking initial text, trace, final text, comment projections and immutable recovery references; return validated final mappings. Deriving edits and replay share exactly one mapping implementation.
 
-- [ ] Write failing tests for insert/delete strictly before and after a range; insertion at both boundaries; overlap and whole-range deletion; duplicate originals and new duplicates; overlapping quote occurrences; Unicode/emoji/combining marks, CRLF and final newline. Assert exact byte offsets and location tags.
-- [ ] Add repeated-character alignment regressions (e.g. selecting a unique multi-character quote adjacent to a run that can move a minimal insertion across its boundary); every competing identity yields ambiguity. Add broad multi-region replacement conservative failure, no-op preservation and invalid boundary/range checks.
-- [ ] Add delete/reinsert trace, original/checkpoint exact undo recovery, redo invalidation, conflicting snapshot range, HistoryLost, malformed reconstruction, intermediate oversize and step/byte limit cases. A unique quote in a different document must never resurrect an unresolved anchor.
-- [ ] Run `cargo +1.98.1 test -p brn-store --locked --offline` and record expected missing-feature failures.
-- [ ] Implement the pure contract, with bounded scans and checked arithmetic. Do not use a fuzzy/diff alignment to assign identity.
-- [ ] Rerun the focused mapping tests and request Astra review of the mapping rules before persistence wiring.
+- [x] Write failing tests for insert/delete strictly before and after a range; insertion at both boundaries; overlap and whole-range deletion; duplicate originals and new duplicates; overlapping quote occurrences; Unicode/emoji/combining marks, CRLF and final newline. Assert exact byte offsets and location tags.
+- [x] Add repeated-character alignment regressions (e.g. selecting a unique multi-character quote adjacent to a run that can move a minimal insertion across its boundary); every competing identity yields ambiguity. Add broad multi-region replacement conservative failure, no-op preservation and invalid boundary/range checks.
+- [x] Add delete/reinsert trace, original/checkpoint exact undo recovery, redo invalidation, conflicting snapshot range, HistoryLost, malformed reconstruction, intermediate oversize and step/byte limit cases. A unique quote in a different document must never resurrect an unresolved anchor.
+- [x] Run `cargo +1.98.1 test -p brn-store --locked --offline` and record expected missing-feature failures.
+- [x] Implement the pure contract, with bounded scans and checked arithmetic. Do not use a fuzzy/diff alignment to assign identity.
+- [x] Rerun the focused mapping tests and request Astra review of the mapping rules before persistence wiring.
 
 #### 1b. Durable comments, draft integration and migration
 
@@ -112,12 +112,12 @@ The native page offers Capture selection, a comment composer with captured quote
 
 **Interfaces:** produce the schema-v5 store APIs/receipts above. Refactor the existing draft transaction internals just enough to share checkpoint/save work inside comment creation; do not nest transactions or invoke a separately committed public save.
 
-- [ ] Write failing tests for atomic dirty-buffer capture with exact original quote/revision/hash; clean capture; two comments on separate checkpoints; empty/non-boundary/out-of-bounds/body-limit cases; stale base/generation; and forced failure after checkpoint insertion with complete rollback.
-- [ ] Add save/checkpoint tests replaying multiple edits, deletion/reinsertion, Unicode and HistoryLost. Assert working mappings and immutable checkpoint mappings commit together. Exercise existing untraced public save/checkpoint calls so they cannot bypass mapping updates.
-- [ ] Test resolve/reopen CAS and no-op, cross-draft/comment IDs, generation/status overflow, original tampering, wrong hash/range, and invalid serialized receipt identities. Lifecycle writes cannot alter text, provenance or location.
-- [ ] Test identical operation replay after later text and lifecycle writes; changed request/trace/op-kind conflicts fail. Validate old schema-v4 draft retry receipts remain usable. All replay tests assert database rows remain unchanged.
-- [ ] Add populated v4 migration/reopen plus injected migration rollback, and retain v1/v2/v3/newer/corrupt schema coverage. Add a separate-process reopen fixture for comments/mappings/status after acknowledged saves.
-- [ ] Run store tests to confirm missing behavior, implement the transaction/migration contract, then run `cargo +1.98.1 test -p brn-store --locked --offline` to green. Astra reviews schema, transaction and retry integrity before native wiring.
+- [x] Write failing tests for atomic dirty-buffer capture with exact original quote/revision/hash; clean capture; two comments on separate checkpoints; empty/non-boundary/out-of-bounds/body-limit cases; stale base/generation; and forced failure after checkpoint insertion with complete rollback.
+- [x] Add save/checkpoint tests replaying multiple edits, deletion/reinsertion, Unicode and HistoryLost. Assert working mappings and immutable checkpoint mappings commit together. Exercise existing untraced public save/checkpoint calls so they cannot bypass mapping updates.
+- [x] Test resolve/reopen CAS and no-op, cross-draft/comment IDs, generation/status overflow, original tampering, wrong hash/range, and invalid serialized receipt identities. Lifecycle writes cannot alter text, provenance or location.
+- [x] Test identical operation replay after later text and lifecycle writes; changed request/trace/op-kind conflicts fail. Validate old schema-v4 draft retry receipts remain usable. All replay tests assert database rows remain unchanged.
+- [x] Add populated v4 migration/reopen plus injected migration rollback, and retain v1/v2/v3/newer/corrupt schema coverage. Add a separate-process reopen fixture for comments/mappings/status after acknowledged saves.
+- [x] Run store tests to confirm missing behavior, implement the transaction/migration contract, then run `cargo +1.98.1 test -p brn-store --locked --offline` to green. Astra reviews schema, transaction and retry integrity before native wiring.
 
 ### Task 2: Workflow and worker
 
@@ -125,9 +125,9 @@ The native page offers Capture selection, a comment composer with captured quote
 
 **Interfaces:** consume Task 1 store APIs with matching Workspace wrapper signatures. Worker actions carry the request structs above; outcomes carry matching receipts. Open/refresh and traced write outcomes include the matching draft/comment projection and immutable recovery references. Existing untraced worker callers remain supported.
 
-- [ ] Write failing worker tests for capture/save/status/reopen with no provider configured, stamp-matched projections, operation/job correlation and original revision ownership. Existing candidate behavior remains separate and unchanged.
-- [ ] Run `cargo +1.98.1 test -p brn-workflow --locked --offline` to demonstrate missing behavior; implement wrappers and worker messages without UI or model dependencies.
-- [ ] Rerun the workflow suite to green and request controller/Astra boundary review before native wiring.
+- [x] Write failing worker tests for capture/save/status/reopen with no provider configured, stamp-matched projections, operation/job correlation and original revision ownership. Existing candidate behavior remains separate and unchanged.
+- [x] Run `cargo +1.98.1 test -p brn-workflow --locked --offline` to demonstrate missing behavior; implement wrappers and worker messages without UI or model dependencies.
+- [x] Rerun the workflow suite to green and request controller/Astra boundary review before native wiring.
 
 ### Task 3: Native state and persistent review UI
 
@@ -135,16 +135,16 @@ The native page offers Capture selection, a comment composer with captured quote
 
 **Interfaces:** consume Task 2 messages; produce pure native state for captures, trace prefixes/suffixes and preview mappings. Native GPUI code owns focus and entities only.
 
-- [ ] Write pure native tests for stale capture after edit/undo, add acknowledgement after further typing, save suffix replay, failed submission/worker failure preserving trace and composer, unrelated results ignored, stale list projection, resolve completion during dirty editing, trace overflow, discard, composer typing during commit and guarded dirty-composer/pending close/switch. Assert no acknowledgement calls for replacing live text or selection.
-- [ ] Run focused native tests to demonstrate missing behavior; implement pure state first, then wire the UI controls and preview described above. Preserve all existing draft lifecycle guards and scrolling patterns.
-- [ ] Run native desktop tests/build/all-target Clippy; commands use `--features native-retrieval --locked --offline`, pinned toolchain and the controller's shared target directory. Keep build jobs bounded and use `CARGO_INCREMENTAL=0` if the shared cache requires it.
+- [x] Write pure native tests for stale capture after edit/undo, add acknowledgement after further typing, save suffix replay, failed submission/worker failure preserving trace and composer, unrelated results ignored, stale list projection, resolve completion during dirty editing, trace overflow, discard, composer typing during commit and guarded dirty-composer/pending close/switch. Assert no acknowledgement calls for replacing live text or selection.
+- [x] Run focused native tests to demonstrate missing behavior; implement pure state first, then wire the UI controls and preview described above. Preserve all existing draft lifecycle guards and scrolling patterns.
+- [x] Run native desktop tests/build/all-target Clippy; commands use `--features native-retrieval --locked --offline`, pinned toolchain and the controller's shared target directory. Keep build jobs bounded and use `CARGO_INCREMENTAL=0` if the shared cache requires it.
 - [ ] Controller exercises fresh disposable native data: keyboard and mouse capture, Unicode clipboard quote/body, dirty capture checkpoint, two comments, Show passage/original, before/after insertions, full deletion, duplicate paste, undo/redo exact recovery, resolve/reopen, additional typing during a save, narrow-window and long-quote scrolling. Confirm actual SQLite provenance through read-only inspection and then restart a separate process to verify exact text/status/location.
 
 ### Task 4: Evidence and full review
 
 **Files:** create `docs/anchored-comments-evidence.md`; update `docs/status.md`, `docs/roadmap.md`, and relevant launcher/use instructions.
 
-- [ ] Run `bash scripts/verify-end-to-end.sh`, provider harness offline tests, editor trial tests, native desktop test/build/Clippy, launcher regressions and `git diff --check`. Rerun only affected checks after corrections.
+- [x] Run `bash scripts/verify-end-to-end.sh`, provider harness offline tests, editor trial tests, native desktop test/build/Clippy, launcher regressions and `git diff --check`. Rerun only affected checks after corrections.
 - [ ] Record command results, disposable workspace paths, native observations, separate-process reopening and conservative mapping/undo limits. Distinguish agent observation from subjective user acceptance and do not claim keyboard undo history persists across restart.
-- [ ] Obtain independent Astra review of the full change, especially edit ambiguity, replay receipts, migrations, trace/ack races and lifecycle/location independence. Sol resolves material findings; Luna runs bounded checks as directed.
+- [x] Obtain independent Astra review of the full change, especially edit ambiguity, replay receipts, migrations, trace/ack races and lifecycle/location independence. Sol resolves material findings; Luna runs bounded checks as directed.
 - [ ] Controller commits and pushes the reviewed feature branch only under the existing task authorization, and verifies remote SHA. No merge or release.
