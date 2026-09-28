@@ -23,6 +23,43 @@ enum Page {
     Activity,
     Settings,
 }
+
+fn compact_title(title: &str) -> String {
+    let single_line = title.split_whitespace().collect::<Vec<_>>().join(" ");
+    let mut chars = single_line.chars();
+    let prefix: String = chars.by_ref().take(36).collect();
+    if chars.next().is_some() {
+        format!("{prefix}…")
+    } else {
+        prefix
+    }
+}
+
+fn passage_button_label(index: usize, hit: &Evidence, sources: &[SourceDocument]) -> String {
+    let title = sources
+        .iter()
+        .find(|source| source.source_id.to_string() == hit.source_id)
+        .map(|source| compact_title(&source.title))
+        .unwrap_or_else(|| "Source".into());
+    format!(
+        "[{}] {} · bytes {}..{}",
+        index + 1,
+        title,
+        hit.start_byte,
+        hit.end_byte
+    )
+}
+
+fn saved_evidence_button_label(index: usize, hit: &Evidence) -> String {
+    let revision: String = hit.version_id.chars().take(8).collect();
+    format!(
+        "[{}] Saved evidence · rev {} · {}..{}",
+        index + 1,
+        revision,
+        hit.start_byte,
+        hit.end_byte
+    )
+}
 struct Desktop {
     worker: Worker,
     query: Entity<EditorState>,
@@ -434,14 +471,7 @@ impl Render for Desktop {
                         let evidence = hit.clone();
                         body = body.child(
                             Button::new(format!("passage-{i}"))
-                                .label(format!(
-                                    "[{}] revision {} bytes {}..{} · {}",
-                                    i + 1,
-                                    hit.version_id,
-                                    hit.start_byte,
-                                    hit.end_byte,
-                                    hit.quote.chars().take(100).collect::<String>()
-                                ))
+                                .label(passage_button_label(i, hit, &self.sources))
                                 .on_click(cx.listener(move |this, _, _, cx| {
                                     this.selected_evidence = Some(evidence.clone());
                                     cx.notify();
@@ -520,13 +550,7 @@ impl Render for Desktop {
                             let saved = hit.clone();
                             body = body.child(
                                 Button::new(format!("saved-evidence-{i}"))
-                                    .label(format!(
-                                        "[{}] Inspect saved evidence · revision {} · bytes {}..{}",
-                                        i + 1,
-                                        hit.version_id,
-                                        hit.start_byte,
-                                        hit.end_byte
-                                    ))
+                                    .label(saved_evidence_button_label(i, hit))
                                     .on_click(cx.listener(move |this, _, _, cx| {
                                         this.selected_saved_evidence = Some(saved.clone());
                                         cx.notify();
@@ -614,4 +638,43 @@ pub fn run(path: PathBuf, config: Config) {
             })
             .detach();
         });
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    #[test]
+    fn evidence_rows_keep_quotes_out_of_fixed_height_buttons() {
+        let source_id = Uuid::new_v4();
+        let version_id = Uuid::new_v4();
+        let hit = Evidence {
+            source_id: source_id.to_string(),
+            version_id: version_id.to_string(),
+            source_hash: "hash".into(),
+            start_byte: 12,
+            end_byte: 47,
+            quote: "first line\nsecond line".into(),
+            passage_id: "passage".into(),
+            generation: "generation".into(),
+            score: 1.0,
+            score_kind: "keyword".into(),
+        };
+        let source = SourceDocument {
+            source_id,
+            version_id,
+            title: "Field\nnotes on the northern map".into(),
+            origin: "/tmp/source.md".into(),
+            bytes: Vec::new(),
+            sha256: [0; 32],
+            approval: Approval::Approved,
+        };
+        for label in [
+            passage_button_label(0, &hit, &[source]),
+            saved_evidence_button_label(0, &hit),
+        ] {
+            assert!(!label.contains('\n'));
+            assert!(!label.contains("first line"));
+            assert!(label.contains("12..47"));
+        }
+    }
 }

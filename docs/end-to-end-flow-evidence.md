@@ -34,7 +34,23 @@ Final verification on macOS arm64 passed:
 
 Native builds reused the existing retrieval target directory with four build jobs. The dev/test profiles omit debug information to keep combined native artifacts manageable. The source diff and staged files were checked for whitespace errors, accidental local state and credential material before commit. The integrated workflow tests include provider-side read-only assertions that a saved thread and pending question already exist before `turn/start`, unchanged/changed imports, stale and wrong-generation rejection, reopening, conflicting request IDs, uncertain outcomes, cancellation and provider-store mismatch.
 
-The live fixture data is retained locally outside the repository. This is synthetic trial state, not a private-vault import. Native GUI interaction was attempted through computer-use on 2026-09-28, but the Mac remains locked. **Native rendering, real input, visual source inspection and close-during-work acceptance remain unverified.** Headless flow evidence is not presented as native interaction evidence.
+The live fixture data is retained locally outside the repository. This is synthetic trial state, not a private-vault import. The initial native attempt was blocked by the locked Mac. After the user unlocked it, the native acceptance checks below ran through supported computer-use.
+
+## Native acceptance after unlock (2026-09-28)
+
+A local, unsigned `.app` launcher invoked the built `brn-desktop` binary with an isolated temporary data directory, the explicitly selected installed Codex executable, and the existing verified model directory. It did not copy or bundle Codex or model files. All input and window actions used Computer Use; database/process inspection was read-only verification of the synthetic trial.
+
+Observed on macOS arm64:
+
+1. Entered the path to a newly created 98-byte Markdown fixture and clicked **Import and approve for search**. One approved source appeared. **Build index** completed.
+2. Entered a question and selected **Hybrid**, then **Search**. One exact passage appeared. Clicking it showed the complete quote, source/revision identifiers and bytes `0..98`.
+3. **Ask from sources** completed using the existing sign-in. Activity showed the answer that Aurora launches Tuesday with code BLUE-HERON, citation `[1]`, completed status and a provider turn identifier. Clicking the saved citation showed the frozen passage labeled as potentially historical.
+4. Closed the window and confirmed the app process exited. Reopened the same workspace; its session and answer were visible. Submitted a semantic follow-up asking who the botanist is. Activity showed Niko, citation `[1]`, and two completed turns in the same session.
+5. Started a longer synthetic answer and confirmed a running acknowledged provider turn. **Cancel** returned the app to idle and saved an interrupted turn with its partial answer.
+6. Started another acknowledged turn, then closed the window. The recorded app and direct sidecar process IDs no longer existed on the following check. SQLite retained the fourth turn as interrupted with partial text. Reopening displayed two completed and two interrupted turns, with no automatic replay.
+7. On the rebuilt UI, keyword search and passage selection worked with an unclipped single-line result button. **Withdraw** cleared current evidence; Search clearly reported a stale index. Reapproved the synthetic source and rebuilt the index.
+
+The initial search button embedded a multiline quote in a fixed-height control and visibly clipped its first line. The fix uses a compact source title/range label and preserves the complete quote/revision in the detail view. Saved citation labels are similarly compact. A multiline-label regression test accompanies the fix. The rebuilt native app was visually checked; the native-feature desktop test suite passed six tests (one unit regression and five CLI tests). Formatting and native Clippy/build checks passed. Astra approved the scoped label fix with no material findings. This closes the previously blocked first-flow native acceptance gate, without claiming a packaged release or comprehensive UI accessibility qualification. Static text was visually readable but was not exposed in the observed accessibility tree, so screen-reader acceptance remains open.
 
 ## Reproduction
 
@@ -72,7 +88,7 @@ Use a fresh operation UUID for a deliberate new question. Reusing one retrieves 
 
 ## Remaining limits
 
-This is a personal-trial implementation, not a release. Native UI acceptance is still blocked by the locked Mac. Native model initialization and individual inference calls are not internally cancellable; local work may finish on an owned background reaper after window close, and cannot then enter the provider phase. Provider-active shutdown waits for cancellation and owned child cleanup. Actual native close latency still needs observation.
+This is a personal-trial implementation, not a release. Native acceptance now covers the synthetic workflow below; broad usability, smaller-window layouts and assistive-technology coverage remain open. Native model initialization and individual inference calls are not internally cancellable; local work may finish on an owned background reaper after window close, and cannot then enter the provider phase. Provider-active shutdown waits for cancellation and owned child cleanup. Closing during an active provider turn was observed to terminate the app and owned sidecar and retain an interrupted record; this was not a timing benchmark or a native-inference shutdown test.
 
 Natural credential expiry/revocation, clean-machine sidecar installation, model acquisition UX, signing/notarization, power-loss/disk-exhaustion behavior, backup/restore and representative-corpus ranking remain unqualified. The known large unwind-table linker warning remains for the combined retrieval binary. Keyword ranking is a deterministic term-match baseline; semantic quality is not established by two synthetic documents. No merge, release, publication or private-document migration occurred.
 

@@ -185,3 +185,5 @@ Chunk 00's macOS CLI build and chunk 01's Codex App Server subscription route ar
 - Cloud environment configuration: https://learn.chatgpt.com/docs/environments/cloud-environment
 
 Dependency choices remain candidates until the trials pass. Prior research established documented capabilities, not successful integration or measured quality on the user's corpus.
+
+Native follow-up (2026-09-28): the first useful flow through chunk 10 has now passed the synthetic native acceptance described in [the evidence](end-to-end-flow-evidence.md#native-acceptance-after-unlock-2026-09-28), including restart, cancellation and active-turn close. Earlier locked-Mac notes are historical; this does not qualify release packaging or all editor interactions.
