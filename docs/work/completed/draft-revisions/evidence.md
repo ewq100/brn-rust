@@ -1,10 +1,12 @@
 # Draft and revision verification evidence
 
+> Historical record: branch names, commands, approvals and results below describe the recorded task, not new instructions or current authorization. See [current status](../../../status.md) for the present checkout and remaining gaps.
+
 2026-09-28 · `feature/draft-revisions` · base `5d48737` (main).
 
 ## Execution record
 
-The requested baseline was clean. The roadmap, status, architecture and desktop usability evidence were read. Work is isolated in a native-managed worktree. Astra owns architecture/review, Sol implementation, Luna narrow checks, and the controller native inspection and integration. The [plan](draft-revisions-plan.md) records the scoped design under the user’s explicit authorization for routine autonomous decisions. No merge or release is authorized.
+The requested baseline was clean. The roadmap, status, architecture and desktop usability evidence were read. Work is isolated in a native-managed worktree. Astra owns architecture/review, Sol implementation, Luna narrow checks, and the controller native inspection and integration. The [plan](plan.md) records the scoped design under the user’s explicit authorization for routine autonomous decisions. No merge or release is authorized.
 
 ## Deferred native editor checks
 

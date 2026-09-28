@@ -1,10 +1,12 @@
 # Storage and recovery evidence — chunk 06
 
+> Historical record: branch names, commands, approvals and results below describe the recorded task, not new instructions or current authorization. See [current status](../../../status.md) for the present checkout and remaining gaps.
+
 2026-09-28 · Branch `trial/storage-recovery` · Base `8540de4f8ef468cfa4812d9253f2512bf655750c`.
 
 ## Scope
 
-This checkpoint adds an independent authoritative SQLite backend under the [accepted architecture](architecture-checkpoint.md) and [implementation plan](storage-recovery-plan.md). The user requested continued implementation after the next storage milestone was identified. It uses disposable synthetic data. The desktop shell remains an in-memory sample; provider submission, retrieval and document import are not wired to storage yet.
+This checkpoint adds an independent authoritative SQLite backend under the [accepted architecture](../../../architecture/decisions/2026-09-28-architecture-baseline.md) and [implementation plan](plan.md). The user requested continued implementation after the next storage milestone was identified. It uses disposable synthetic data. The desktop shell remains an in-memory sample; provider submission, retrieval and document import are not wired to storage yet.
 
 The existing isolated trial checkout preserves the original repository and all earlier pushed branches. Astra advised on ownership, durability and crash qualification; Sol implemented storage; Luna prepared verification and inspected dependencies; the lead owns integration and delivery. Independent final review and verification results are recorded below.
 

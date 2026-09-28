@@ -1,5 +1,7 @@
 # Desktop shell implementation plan — chunk 05
 
+> Historical record: branch names, commands, approvals and results below describe the recorded task, not new instructions or current authorization. See [current status](../../../status.md) for the present checkout and remaining gaps.
+
 Approved scope: user accepted the architecture and explicitly deferred native editor acceptance on 2026-09-28. GPUI remains provisional. Implement the bounded first production shell, not provider/retrieval/storage integration. Existing authorization covers delegation, routine implementation, tests, review and trial push.
 
 ## Structure and ownership
@@ -26,4 +28,4 @@ Implementation can be pushed while Mac is locked, but chunk05 native acceptance 
 
 ## Execution record
 
-Implementation, headless/native compilation checks, original provider regression checks and independent Astra source review are complete. Review corrections cover oversized visible input, deterministic cancellation/shutdown races, explicit quit hooks and legacy root command compatibility. See [evidence](desktop-shell-evidence.md). Native interaction acceptance remains open under the user's explicit deferral. Delivery is a trial-branch checkpoint, not completion of the native acceptance gate.
+Implementation, headless/native compilation checks, original provider regression checks and independent Astra source review are complete. Review corrections cover oversized visible input, deterministic cancellation/shutdown races, explicit quit hooks and legacy root command compatibility. See [evidence](evidence.md). Native interaction acceptance remains open under the user's explicit deferral. Delivery is a trial-branch checkpoint, not completion of the native acceptance gate.

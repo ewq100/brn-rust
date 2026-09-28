@@ -1,5 +1,7 @@
 # Focused native usability milestone
 
+> Historical record: branch names, commands, approvals and results below describe the recorded task, not new instructions or current authorization. See [current status](../../../status.md) for the present checkout and remaining gaps.
+
 2026-09-28 · `trial/end-to-end-flow` · baseline `7380b63`.
 
 ## Intent and design

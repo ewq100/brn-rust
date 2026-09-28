@@ -1,5 +1,7 @@
 # Retrieval adapter trial implementation plan
 
+> Historical record: branch names, commands, approvals and results below describe the recorded task, not new instructions or current authorization. See [current status](../../../status.md) for the present checkout and remaining gaps.
+
 Goal: qualify local Rust retrieval with synthetic documents and shared source/version/passage evidence. This is roadmap 03, independent of the still-blocked editor acceptance gate. User authorized autonomous implementation, delegation, verification and trial push; no production framework decision or private corpus ingestion is implied.
 
 ## Design

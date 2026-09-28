@@ -1,5 +1,7 @@
 # Retrieval adapter trial evidence
 
+> Historical record: branch names, commands, approvals and results below describe the recorded task, not new instructions or current authorization. See [current status](../../../status.md) for the present checkout and remaining gaps.
+
 Date: 2026-09-27. Branch: `trial/retrieval-adapters`. Base: `d422e192120dad778b181aba8d9367361689a229`. Worktree: `/private/tmp/brn-editor-trial` (reused isolated worktree; earlier editor branch remains at its pushed checkpoint).
 
 ## Scope and environment

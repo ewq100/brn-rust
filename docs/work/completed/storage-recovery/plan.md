@@ -1,10 +1,12 @@
 # Storage and recovery implementation plan — chunk 06
 
+> Historical record: branch names, commands, approvals and results below describe the recorded task, not new instructions or current authorization. See [current status](../../../status.md) for the present checkout and remaining gaps.
+
 2026-09-28 · Branch `trial/storage-recovery` · Base `8540de4f8ef468cfa4812d9253f2512bf655750c`.
 
 ## Scope and ownership
 
-Implement the authoritative storage boundary selected in the [approved architecture](architecture-checkpoint.md): a new UI-independent `brn-store` workspace crate with SQLite migrations, immutable source versions, local session/message projections and durable operation identities. The user requested continued building after storage was identified as the next chunk. Native shell/editor acceptance remains deferred; this backend can be qualified independently, without importing private documents or changing the shell's sample task.
+Implement the authoritative storage boundary selected in the [approved architecture](../../../architecture/decisions/2026-09-28-architecture-baseline.md): a new UI-independent `brn-store` workspace crate with SQLite migrations, immutable source versions, local session/message projections and durable operation identities. The user requested continued building after storage was identified as the next chunk. Native shell/editor acceptance remains deferred; this backend can be qualified independently, without importing private documents or changing the shell's sample task.
 
 Astra supplies architecture advice and an independent final review. Sol owns the storage crate and workspace dependency changes; Luna owns its verification script and dependency inspection. The lead owns integration, documentation, final checks and the trial push. These scopes share the existing isolated trial checkout without overlapping edits. Original and earlier pushed trial branches remain unchanged.
 

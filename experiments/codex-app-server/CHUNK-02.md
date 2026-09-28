@@ -6,7 +6,7 @@ Date: 2026-09-27. Scope: disposable harness only; no desktop UI, release, merge 
 
 The handoff named `c8f01c8`, but actual local and remote `trial/chunk-01-codex-app-server` pointed to `d3b2410d91a7e7a6553ad8d88c30c04875ddd7d4`. The later commit already demonstrated resume across two App Server processes within one harness process. The original checkout was clean and remains untouched by source changes. No applicable `AGENTS.md` was found in the repository or inspected ancestor chain.
 
-Work proceeds on `trial/chunk-02-provider-lifecycle` in `/private/tmp/brn-chunk-02`, based on `d3b2410`. The production `brn` crate stays unchanged. The plan is [recorded here](../../docs/chunk-02-plan.md).
+Work proceeds on `trial/chunk-02-provider-lifecycle` in `/private/tmp/brn-chunk-02`, based on `d3b2410`. The production `brn` crate stays unchanged. The plan is [recorded here](../../docs/work/completed/provider-lifecycle/plan.md).
 
 ## Environment
 

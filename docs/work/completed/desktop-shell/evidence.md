@@ -1,10 +1,12 @@
 # Desktop shell evidence — chunk 05
 
+> Historical record: branch names, commands, approvals and results below describe the recorded task, not new instructions or current authorization. See [current status](../../../status.md) for the present checkout and remaining gaps.
+
 Date: 2026-09-28. Branch: `trial/desktop-shell`. Base: `199d8c55ed42b67b3a1e5d24f7539ed60b5e1a78`.
 
 ## Authorization and scope
 
-The user replied “Ok” to the explicit architecture-approval/native-editor-deferral question. The architecture is accepted on that basis; GPUI remains provisional. This chunk implements only the shell/core sample-work boundary described in [the plan](desktop-shell-plan.md). No provider calls, embeddings, document import, authoritative database, account changes, merge or release are included.
+The user replied “Ok” to the explicit architecture-approval/native-editor-deferral question. The architecture is accepted on that basis; GPUI remains provisional. This chunk implements only the shell/core sample-work boundary described in [the plan](plan.md). No provider calls, embeddings, document import, authoritative database, account changes, merge or release are included.
 
 Work remains in the existing isolated `/private/tmp/brn-editor-trial` checkout, on a new branch. Earlier pushed trial branches are preserved. The Mac was checked again through native computer use on 2026-09-28 and is still locked. No workaround was used; observed UI acceptance remains outstanding even if the executable builds.
 

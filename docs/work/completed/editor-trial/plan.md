@@ -1,5 +1,7 @@
 # Native editor trial implementation plan
 
+> Historical record: branch names, commands, approvals and results below describe the recorded task, not new instructions or current authorization. See [current status](../../../status.md) for the present checkout and remaining gaps.
+
 Date: 2026-09-27. Base: eb62bfc. Branch: trial/editor-selection-comments.
 
 The user authorized continuing with best judgment after the completed provider trial. This implements the original roadmap editor trial 02, not another provider lifecycle chunk.

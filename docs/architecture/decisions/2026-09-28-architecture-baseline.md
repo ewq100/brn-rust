@@ -1,8 +1,10 @@
 # Architecture checkpoint — accepted baseline
 
+> Historical record: branch names, commands, approvals and results below describe the recorded task, not new instructions or current authorization. See [current status](../../status.md) for the present checkout and remaining gaps.
+
 Prepared 27 September 2026 · Roadmap 04 · **Approved by the user on 28 September 2026; native editor acceptance explicitly deferred**
 
-[Observed dependency versions and licenses](architecture-dependencies.md).
+[Observed dependency versions and licenses](../dependencies.md).
 
 ## Recommendation and evidence
 
@@ -12,9 +14,9 @@ This selects boundaries, not trial code for wholesale promotion. Direct Rig subs
 
 Observed evidence:
 
-- [Provider lifecycle trial](../experiments/codex-app-server/CHUNK-02.md): managed ChatGPT streaming, read-only tool execution, interruption, separate-process thread resume and proactive refresh; 16 deterministic tests. Natural expiry/revocation and force-crash cleanup remain unverified.
-- [Editor trial](../experiments/editor-trial/EVIDENCE.md): native build and 11 model tests; repeated native inspection attempts were blocked by the locked Mac. Rendering, actual input and user acceptance are **not verified**.
-- [Retrieval trial](retrieval-trial-evidence.md): keyword, semantic and hybrid profiles share filters/provenance; local reopening and corruption rejection passed on seven synthetic passages. This establishes feasibility, not corpus relevance, production chunking or desktop performance.
+- [Provider lifecycle trial](../../../experiments/codex-app-server/CHUNK-02.md): managed ChatGPT streaming, read-only tool execution, interruption, separate-process thread resume and proactive refresh; 16 deterministic tests. Natural expiry/revocation and force-crash cleanup remain unverified.
+- [Editor trial](../../../experiments/editor-trial/EVIDENCE.md): native build and 11 model tests; repeated native inspection attempts were blocked by the locked Mac. Rendering, actual input and user acceptance are **not verified**.
+- [Retrieval trial](../../work/completed/retrieval-trial/evidence.md): keyword, semantic and hybrid profiles share filters/provenance; local reopening and corruption rejection passed on seven synthetic passages. This establishes feasibility, not corpus relevance, production chunking or desktop performance.
 
 ## Proposed ownership and UI seam
 
@@ -38,7 +40,7 @@ One asynchronous provider actor owns one BRN-launched App Server child, initiali
 
 Codex owns credentials, managed refresh and authoritative provider conversation history. BRN stores provider/store association, thread/turn IDs and application records, with any displayed transcript clearly a local projection. Do not duplicate, inspect or migrate credential caches. Missing history or changed store/account association requires explicit recovery; never silently start a replacement thread or replay a possibly accepted turn.
 
-Resolve an explicitly selected absolute executable path and validate supported version/schema before readiness. The observed ChatGPT bundle path is not a distribution contract. Sidecar bundling, login UI, signing and credential integration require later qualification under [packaging boundaries](../experiments/codex-app-server/PACKAGING.md).
+Resolve an explicitly selected absolute executable path and validate supported version/schema before readiness. The observed ChatGPT bundle path is not a distribution contract. Sidecar bundling, login UI, signing and credential integration require later qualification under [packaging boundaries](../../../experiments/codex-app-server/PACKAGING.md).
 
 ## Retrieval contract and lifecycle
 

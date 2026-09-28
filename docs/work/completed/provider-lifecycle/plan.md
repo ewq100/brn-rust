@@ -1,5 +1,7 @@
 # Chunk 02 provider lifecycle trial
 
+> Historical record: branch names, commands, approvals and results below describe the recorded task, not new instructions or current authorization. See [current status](../../../status.md) for the present checkout and remaining gaps.
+
 Date: 2026-09-27. Base: `d3b2410` (already pushed, newer than the supplied `c8f01c8` handoff).
 
 ## Design and scope
@@ -34,7 +36,7 @@ Interfaces: keep `live` and `resume-live`; add `persist-start STATE_PATH`, `pers
 
 ## Task 2: Central integration, evidence, and delivery
 
-Files: trial README, `docs/status.md`, roadmap clarification, this record, reproducible verification scripts where useful.
+Files: trial README, `docs/work/completed/early-checkpoints/status-history.md`, roadmap clarification, this record, reproducible verification scripts where useful.
 
 - [x] Check official docs and distribution terms; record exact sources and remaining packaging gates.
 - [x] Run starter build/fmt/Clippy/tests and five CLI smoke cases; harness equivalents and failure smoke cases.

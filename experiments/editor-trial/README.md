@@ -49,4 +49,4 @@ Official references checked on 2026-09-27: [installation](https://gpui-kit.com/d
 
 Build/test success alone does not establish native editing quality. The evidence report must distinguish deterministic tests, agent-observed macOS interaction and the user's own acceptance. Before choosing this UI/document model for production, the user should try selection, commenting, nearby edits, diff review, Unicode, clipboard, undo/redo, deletion, repeated text, scrolling and window resizing. IME, accessibility, large-file performance and signed packaging require their own evidence.
 
-See [EVIDENCE.md](EVIDENCE.md) for commands and observed results, and [the plan](../../docs/editor-trial-plan.md) for the scoped design.
+See [EVIDENCE.md](EVIDENCE.md) for commands and observed results, and [the plan](../../docs/work/completed/editor-trial/plan.md) for the scoped design.

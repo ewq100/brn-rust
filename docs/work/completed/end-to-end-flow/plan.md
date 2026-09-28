@@ -1,10 +1,12 @@
 # First end-to-end workflow implementation plan
 
+> Historical record: branch names, commands, approvals and results below describe the recorded task, not new instructions or current authorization. See [current status](../../../status.md) for the present checkout and remaining gaps.
+
 2026-09-28 · `trial/end-to-end-flow` · Base `a2fa7d5aff7c4c6bfb5875eed11915fa246a872c`.
 
 **Goal:** Selected Markdown/text import → approve for search → index → keyword/semantic/hybrid search → inspect exact source passages → grounded streamed question → close/reopen persisted conversation.
 
-**Architecture:** Follow the [approved architecture](architecture-checkpoint.md), connecting the independently verified storage, provider and retrieval boundaries. A workflow owner serializes authoritative storage and loaded retrieval resources; native handlers enqueue work, poll bounded/coalesced state, and cancel independently. Provider thread association and pending question/evidence commit before external turn submission. No uncertain operation is automatically replayed.
+**Architecture:** Follow the [approved architecture](../../../architecture/decisions/2026-09-28-architecture-baseline.md), connecting the independently verified storage, provider and retrieval boundaries. A workflow owner serializes authoritative storage and loaded retrieval resources; native handlers enqueue work, poll bounded/coalesced state, and cancel independently. Provider thread association and pending question/evidence commit before external turn submission. No uncertain operation is automatically replayed.
 
 **Authorization:** The user asked to continue until an end-to-end flow exists and previously authorized routine design, implementation, delegation, tests and private trial pushes. This implements the roadmap's first useful personal-trial flow through chunk 10. Publication, comments and graph work remain later milestones. Native acceptance was deferred; a successful build or headless flow does not substitute for native interaction evidence.
 

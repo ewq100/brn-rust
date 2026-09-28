@@ -1,5 +1,7 @@
 # Drafts and immutable revisions implementation plan
 
+> Historical record: branch names, commands, approvals and results below describe the recorded task, not new instructions or current authorization. See [current status](../../../status.md) for the present checkout and remaining gaps.
+
 > **For agentic workers:** Use `superpowers:executing-plans` for the Sol implementation, with Astra architecture/review and Luna narrow checks as explicitly requested. Steps use checkboxes for tracking.
 
 **Goal:** Complete the deferred native editor observations, then let a user create/edit a draft, persist its working copy, make immutable checkpoints, reopen and compare revisions, and retain grounded AI answers as separate candidates.
@@ -8,7 +10,7 @@
 
 **Tech stack:** Rust 1.98.1, existing rusqlite/UUID/SHA-256/serde dependencies, GPUI Kit 0.6.6, `similar` 2.7 already qualified by the editor trial.
 
-**Spec:** The design below implements chunk 11 of [roadmap.md](roadmap.md) and the [approved architecture](architecture-checkpoint.md), continuing `main` at `5d48737`. Read [status.md](status.md), [desktop-usability-evidence.md](desktop-usability-evidence.md) and [editor trial evidence](../experiments/editor-trial/EVIDENCE.md) with it.
+**Spec:** The design below implements chunk 11 of [roadmap.md](../early-checkpoints/roadmap-history.md) and the [approved architecture](../../../architecture/decisions/2026-09-28-architecture-baseline.md), continuing `main` at `5d48737`. Read [status.md](../early-checkpoints/status-history.md), [desktop-usability-evidence.md](../desktop-usability/evidence.md) and [editor trial evidence](../../../../experiments/editor-trial/EVIDENCE.md) with it.
 
 ## Authorization and scope
 
@@ -135,7 +137,7 @@ GPUI 0.6.6's bundled `Window::on_window_should_close` supports veto; `on_app_qui
 
 ### Task 4: Final evidence, review and branch publication
 
-**Files:** create `docs/draft-revisions-evidence.md`; update `docs/status.md`, `docs/roadmap.md`, and relevant launch/use instructions. Native editor prerequisite evidence is owned by the controller.
+**Files:** create `docs/work/completed/draft-revisions/evidence.md`; update `docs/work/completed/early-checkpoints/status-history.md`, `docs/work/completed/early-checkpoints/roadmap-history.md`, and relevant launch/use instructions. Native editor prerequisite evidence is owned by the controller.
 
 - [x] Run `bash scripts/verify-end-to-end.sh`, store/workflow draft tests, `cargo +1.98.1 test --manifest-path experiments/codex-app-server/Cargo.toml --locked --offline`, and the existing editor trial tests. No live call is needed for regression checks.
 - [x] Run native desktop build/test/all-target Clippy with `--features native-retrieval --locked --offline`, launcher regressions and `git diff --check`. Re-run only affected checks after corrections.

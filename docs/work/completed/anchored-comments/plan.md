@@ -1,5 +1,7 @@
 # Persistent anchored comments implementation plan
 
+> Historical record: branch names, commands, approvals and results below describe the recorded task, not new instructions or current authorization. See [current status](../../../status.md) for the present checkout and remaining gaps.
+
 > **For agentic workers:** Use `superpowers:executing-plans` for Sol implementation, with Astra architecture/review and Luna narrow checks as requested. Steps use checkboxes for tracking. Routine design choices are authorized; no additional approval pause is required.
 
 **Goal:** Select a passage in a working draft, persist a comment with immutable provenance, resolve/reopen it, and conservatively track its location through editing and restart.
@@ -8,7 +10,7 @@
 
 **Tech stack:** Rust 1.98.1; GPUI Kit `=0.6.6`; existing rusqlite, UUID, SHA-256, serde and `similar` dependencies. No CRDT or additional runtime.
 
-**Spec:** Chunk 12 in [roadmap.md](roadmap.md), [architecture-checkpoint.md](architecture-checkpoint.md), [status.md](status.md), and chunk 11's [plan](draft-revisions-plan.md)/[evidence](draft-revisions-evidence.md). Base: main `1b6623a`; branch `feature/anchored-comments` in the managed worktree. The editor experiment proves selection/focus and conservative mapping feasibility; its in-memory whole-document-per-comment representation is not the persistence design.
+**Spec:** Chunk 12 in [roadmap.md](../early-checkpoints/roadmap-history.md), [architecture-checkpoint.md](../../../architecture/decisions/2026-09-28-architecture-baseline.md), [status.md](../early-checkpoints/status-history.md), and chunk 11's [plan](../draft-revisions/plan.md)/[evidence](../draft-revisions/evidence.md). Base: main `1b6623a`; branch `feature/anchored-comments` in the managed worktree. The editor experiment proves selection/focus and conservative mapping feasibility; its in-memory whole-document-per-comment representation is not the persistence design.
 
 ## Global constraints
 
@@ -142,7 +144,7 @@ The native page offers Capture selection, a comment composer with captured quote
 
 ### Task 4: Evidence and full review
 
-**Files:** create `docs/anchored-comments-evidence.md`; update `docs/status.md`, `docs/roadmap.md`, and relevant launcher/use instructions.
+**Files:** create `docs/work/completed/anchored-comments/evidence.md`; update `docs/work/completed/early-checkpoints/status-history.md`, `docs/work/completed/early-checkpoints/roadmap-history.md`, and relevant launcher/use instructions.
 
 - [x] Run `bash scripts/verify-end-to-end.sh`, provider harness offline tests, editor trial tests, native desktop test/build/Clippy, launcher regressions and `git diff --check`. Rerun only affected checks after corrections.
 - [x] Record command results, disposable workspace paths, native observations, separate-process reopening and conservative mapping/undo limits. Distinguish agent observation from subjective user acceptance and do not claim keyboard undo history persists across restart.

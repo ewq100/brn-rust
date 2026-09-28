@@ -1,10 +1,12 @@
 # First end-to-end workflow evidence
 
+> Historical record: branch names, commands, approvals and results below describe the recorded task, not new instructions or current authorization. See [current status](../../../status.md) for the present checkout and remaining gaps.
+
 2026-09-28 · Branch `trial/end-to-end-flow` · Base `a2fa7d5aff7c4c6bfb5875eed11915fa246a872c`.
 
 ## Demonstrated flow
 
-The shared application workflow now connects selected Markdown/text import, explicit search approval, immutable version storage, index construction, keyword/semantic/hybrid retrieval, a grounded Codex App Server answer, evidence inspection and saved-session reopening. [The plan](end-to-end-flow-plan.md) scopes this to the roadmap's first useful flow through chunk 10. Publication, writing/comments and graph work remain later milestones.
+The shared application workflow now connects selected Markdown/text import, explicit search approval, immutable version storage, index construction, keyword/semantic/hybrid retrieval, a grounded Codex App Server answer, evidence inspection and saved-session reopening. [The plan](plan.md) scopes this to the roadmap's first useful flow through chunk 10. Publication, writing/comments and graph work remain later milestones.
 
 A native-feature `brn-flow` executable imported two newly created synthetic documents, built a real FastEmbed/LanceDB index from those documents, and retrieved attributable passages through all three profiles. Each search ran in a separate process and reopened the saved generation. Build took approximately 2.54 seconds; observed keyword search was 0.02 seconds and semantic/hybrid reopening plus query about 2.15–2.16 seconds. These are two tiny documents, not representative-corpus performance measurements.
 

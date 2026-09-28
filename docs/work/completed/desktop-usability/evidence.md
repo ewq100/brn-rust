@@ -1,8 +1,10 @@
 # Native usability trial evidence
 
+> Historical record: branch names, commands, approvals and results below describe the recorded task, not new instructions or current authorization. See [current status](../../../status.md) for the present checkout and remaining gaps.
+
 2026-09-28 · `trial/end-to-end-flow` · baseline `7380b63`.
 
-Scope: [focused usability plan](desktop-usability-plan.md). This continues the [successful synthetic native flow](end-to-end-flow-evidence.md#native-acceptance-after-unlock-2026-09-28), without merging or releasing it.
+Scope: [focused usability plan](plan.md). This continues the [successful synthetic native flow](../end-to-end-flow/evidence.md#native-acceptance-after-unlock-2026-09-28), without merging or releasing it.
 
 ## Baseline and review
 
