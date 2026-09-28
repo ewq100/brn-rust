@@ -1,6 +1,6 @@
 # BRN Rust desktop trials
 
-This repository is the isolated Rust starting point for the planned BRN desktop application. The workspace now contains the original dependency-free `brn` build probe, a UI-independent `brn-core`, an optional native `brn-desktop` shell, and an independent `brn-store` SQLite backend. Separate experiments evaluate the subscription provider, a native Markdown/comment editor, and local retrieval; they are not integrated into the desktop shell. Production retrieval, desktop storage integration, and migration from the existing TypeScript project remain pending.
+This repository contains the Rust BRN personal desktop trial: selected Markdown/text import, explicit search approval, persistent versions, keyword/semantic/hybrid retrieval, grounded Codex App Server answers, exact source evidence and saved conversation reopening. The native UI and headless driver share the same workflow. The original CLI probe and standalone experiments remain available for regression and historical evidence. Writing/comments, publication, graph integration and migration from the existing TypeScript application are still later work.
 
 The intended application target is macOS on Apple Silicon. This initial command is platform-neutral so a Rust-capable cloud runner can verify the source build before native macOS work begins. The [approved architecture](docs/architecture-checkpoint.md) selects the application boundaries, with Codex App Server as the first provider route and replaceable local retrieval adapters. Native UI acceptance remains deferred.
 
@@ -22,24 +22,34 @@ The [native editor trial](experiments/editor-trial/README.md) builds on Apple Si
 
 The [retrieval adapter trial](experiments/retrieval-trial/README.md) exercises keyword, real FastEmbed/LanceDB semantic, and hybrid search on synthetic documents. [Evidence and limitations](docs/retrieval-trial-evidence.md) include local reopening, version/status filters, corruption checks, timings and dependency findings.
 
-## Desktop shell (chunk 05)
+## End-to-end personal trial
 
-The shell provides Workspace, Activity and Settings navigation and an in-memory sample task with progress/cancellation. It does not yet import documents, query models or persist work. Native UI acceptance remains pending; GPUI is provisional under the approved architecture.
+Build and verify the local flow without credentials or model downloads:
 
 ```sh
-# All lightweight core/CLI checks; no window opens.
-bash scripts/verify-desktop-shell.sh
-# Native build and the same headless checks; still no window opens.
-bash scripts/verify-desktop-shell.sh --native
-# Native launch. Explicit data directories must already exist.
-cargo run -p brn-desktop --features native-ui -- --data-dir /absolute/existing/directory
+bash scripts/verify-end-to-end.sh
 ```
 
-Without `--data-dir`, native launch creates `~/Library/Application Support/BRN`. The shell checks writability with a temporary file that it removes; no documents or database are written. Headless checks require an explicit directory. [Shell plan](docs/desktop-shell-plan.md) and [verification/remaining native checks](docs/desktop-shell-evidence.md) record the current status.
+For the native application, create an absolute data directory first, then supply the installed Codex executable and a verified local model directory from the retrieval trial:
+
+```sh
+cargo run -p brn-desktop --features native-retrieval -- \
+  --data-dir /absolute/existing/trial-data \
+  --codex /absolute/path/to/codex \
+  --model-dir /absolute/path/to/verified/model
+```
+
+Enter a `.md`/`.txt` file path, choose **Import and approve for search**, build the index, select a profile, search and inspect passages, then ask from sources. Activity provides saved conversations and evidence snapshots. Reopen the same data directory to continue. Search approval does not authorize publication.
+
+The headless `brn-flow` driver exposes the same operations; `cargo run -p brn-workflow --features native-retrieval --bin brn-flow -- --help` lists its commands. Keyword-only builds work without model assets; semantic/hybrid never silently fall back when their resources are unavailable.
+
+[Plan](docs/end-to-end-flow-plan.md) and [live evidence, commands and limitations](docs/end-to-end-flow-evidence.md) record the integrated flow. Live subscription answers and separate-process resume are verified on synthetic sources. Native rendering/input/close acceptance remains blocked by the locked Mac; GPUI remains provisional. This is not a signed or released application.
+
+The earlier sample-shell checks remain available through `scripts/verify-desktop-shell.sh`. Without `--data-dir`, native launch uses `~/Library/Application Support/BRN` and now opens authoritative storage there. Use a disposable explicit directory for trials. Headless sample checks still require an explicit directory and perform no document writes.
 
 ## Storage and recovery (chunk 06)
 
-`brn-store` provides authoritative source revisions, local session/message records, durable operation identities and recovery in an existing data directory. It is a library boundary; the desktop sample does not yet persist through it. The verification script builds the workspace, runs storage tests with disposable databases, and exercises existing CLI/headless paths:
+`brn-store` provides authoritative source revisions, local session/message records, durable operation identities and recovery in an existing data directory. The shared workflow now uses this library for imported versions and conversation projections. The verification script builds the workspace, runs storage tests with disposable databases, and exercises existing CLI/headless paths:
 
 ```sh
 bash scripts/verify-storage.sh

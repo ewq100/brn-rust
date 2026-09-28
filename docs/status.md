@@ -7,7 +7,7 @@ Status: cloud and macOS Apple Silicon CLI build probes verified; private GitHub 
 - The Cargo workspace contains the original dependency-free `brn` probe, a UI-independent `brn-core` crate, a `brn-desktop` shell with an optional GPUI native feature, and an independent `brn-store` SQLite backend.
 - The original `brn` probe accepts exactly one `--help` or `--version` argument. Missing, extra, and unknown arguments return a failure exit code and print an error.
 - Rust 1.98.1 is pinned in `rust-toolchain.toml`; the official stable manifest version was verified before recording it. The profile is minimal, with rustfmt and Clippy components.
-- The existing TypeScript BRN remains separate. The desktop shell has no integrated provider, authoritative storage, retrieval adapter or user data migration; experimental crates remain separate.
+- The existing TypeScript BRN remains separate. The desktop and headless driver now share integrated storage, retrieval and provider work; no private-vault or user-data migration has run. Earlier experiment crates remain separate historical probes.
 
 ## Verification and next step
 
@@ -57,3 +57,10 @@ The independent `brn-store` backend is implemented on `trial/storage-recovery`, 
 Workspace build/format/Clippy, one storage unit test plus 13 integration entries, existing core/CLI checks and starter/provider regressions passed. Forced-process tests preserve acknowledged records, roll back spilled uncommitted writes and prevent uncertain operations from replaying. Migration-header recovery includes an explicit fault-injection fixture; power-loss durability is not claimed. The desktop shell still uses its in-memory sample and is not wired to this backend.
 
 Next implementation work: chunk 07 Markdown/text import and version tracking over the storage boundary. Native shell/editor acceptance remains open; no vault import, merge or release has occurred.
+
+
+## First end-to-end personal trial (chunks 07–10)
+
+On `trial/end-to-end-flow`, based on `a2fa7d5`, the shared workflow now connects selected text/Markdown imports, stable versions and explicit retrieval approval, durable derived generations, all three search profiles, exact source evidence, grounded streamed answers and persisted session reopening. [Evidence](end-to-end-flow-evidence.md) records the live synthetic-source run and remaining qualification. A new process continued the same server-side conversation; repeating a completed operation returned saved data without a provider executable configured.
+
+Native UI controls are implemented over the same worker/workflow. Native interaction acceptance is still blocked by the locked Mac; this does not establish a fully accepted desktop or release. Writing/comments, publication, graph integration, backup/restore and distributable packaging remain later milestones. No original documents, credentials or account settings were modified.

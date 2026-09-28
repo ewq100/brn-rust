@@ -1,6 +1,7 @@
 //! SQLite authority for local BRN records. A `Store` owns the data directory lock
 //! and a single connection; writes require `&mut self` and a durable operation ID.
 use rusqlite::{Connection, OpenFlags, OptionalExtension, params};
+use serde::{Deserialize, Serialize};
 use sha2::{Digest, Sha256};
 use std::{
     collections::BTreeMap,
@@ -10,15 +11,24 @@ use std::{
     path::{Path, PathBuf},
 };
 use uuid::Uuid;
+mod workflow;
+pub use workflow::{Approval, ChatTurn, ImportResult, SourceDocument};
 
 const APPLICATION_ID: u32 = 0x4252_4e31; // BRN1
-const SCHEMA_VERSION: u32 = 2;
+const SCHEMA_VERSION: u32 = 3;
 const V1: &str = "CREATE TABLE sources (id TEXT PRIMARY KEY, title TEXT NOT NULL);\
 CREATE TABLE versions (id TEXT PRIMARY KEY, source_id TEXT NOT NULL REFERENCES sources(id), parent_id TEXT REFERENCES versions(id), bytes BLOB NOT NULL, sha256 BLOB NOT NULL);";
 const V2: &str = "CREATE TABLE operations (id TEXT PRIMARY KEY, kind TEXT NOT NULL, payload_hash BLOB NOT NULL, status TEXT NOT NULL CHECK(status IN ('pending','running','completed','failed','interrupted')), terminal_data BLOB);\
 CREATE TABLE sessions (id TEXT PRIMARY KEY, provider TEXT NOT NULL, provider_store TEXT NOT NULL, provider_account TEXT, thread_id TEXT, metadata BLOB NOT NULL);\
 CREATE TABLE messages (id TEXT PRIMARY KEY, session_id TEXT NOT NULL REFERENCES sessions(id), ordinal INTEGER NOT NULL, role TEXT NOT NULL, content BLOB NOT NULL, UNIQUE(session_id,ordinal));\
 CREATE TABLE operation_results (operation_id TEXT NOT NULL REFERENCES operations(id), action TEXT NOT NULL, args_hash BLOB NOT NULL, entity_id TEXT NOT NULL, PRIMARY KEY(operation_id,action));";
+const V3: &str = "ALTER TABLE sources ADD COLUMN origin TEXT;\
+ALTER TABLE sources ADD COLUMN current_version_id TEXT REFERENCES versions(id);\
+ALTER TABLE sources ADD COLUMN approval TEXT NOT NULL DEFAULT 'draft' CHECK(approval IN ('approved','draft','withdrawn'));\
+CREATE UNIQUE INDEX source_origin_unique ON sources(origin);\
+UPDATE sources SET current_version_id=(SELECT id FROM versions WHERE versions.source_id=sources.id ORDER BY rowid DESC LIMIT 1);\
+CREATE TABLE imports (operation_id TEXT PRIMARY KEY REFERENCES operations(id), source_id TEXT NOT NULL REFERENCES sources(id), version_id TEXT NOT NULL REFERENCES versions(id), changed INTEGER NOT NULL CHECK(changed IN (0,1)));\
+CREATE TABLE chat_turns (operation_id TEXT PRIMARY KEY REFERENCES operations(id), session_id TEXT NOT NULL REFERENCES sessions(id), question TEXT NOT NULL, profile TEXT NOT NULL, evidence_json TEXT NOT NULL, answer TEXT, provider_turn_id TEXT, usage_json TEXT);";
 
 #[derive(Debug)]
 pub enum Error {
@@ -62,12 +72,12 @@ pub struct RecoveryReport {
     pub interrupted_operations: usize,
     pub migrated_from: Option<u32>,
 }
-#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize, Deserialize)]
 pub enum BeginOperation {
     New,
     Existing,
 }
-#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize, Deserialize)]
 pub enum OperationStatus {
     Pending,
     Running,
@@ -200,6 +210,7 @@ impl Store {
                 let tx = conn.transaction()?;
                 tx.execute_batch(V1)?;
                 tx.execute_batch(V2)?;
+                tx.execute_batch(V3)?;
                 tx.pragma_update(None, "application_id", APPLICATION_ID)?;
                 tx.pragma_update(None, "user_version", SCHEMA_VERSION)?;
                 tx.commit()?;
@@ -208,6 +219,9 @@ impl Store {
                 if version == 1 {
                     migrate_v1(&mut conn, || Ok(()))?;
                     report.migrated_from = Some(1);
+                } else if version == 2 {
+                    migrate_v2(&mut conn)?;
+                    report.migrated_from = Some(2);
                 }
             }
         }
@@ -309,16 +323,19 @@ impl Store {
     }
     fn transition(&mut self, id: Uuid, next: OperationStatus, data: Option<&[u8]>) -> Result<()> {
         let tx = self.conn.transaction()?;
-        let old: Option<(String, Option<Vec<u8>>)> = tx
+        let old: Option<(String, String, Option<Vec<u8>>)> = tx
             .query_row(
-                "SELECT status,terminal_data FROM operations WHERE id=?1",
+                "SELECT kind,status,terminal_data FROM operations WHERE id=?1",
                 [id.to_string()],
-                |r| Ok((r.get(0)?, r.get(1)?)),
+                |r| Ok((r.get(0)?, r.get(1)?, r.get(2)?)),
             )
             .optional()?;
-        let Some((status, old_data)) = old else {
+        let Some((kind, status, old_data)) = old else {
             return Err(invalid("operation does not exist"));
         };
+        if kind == "chat.turn" {
+            return Err(invalid("chat turns require workflow transitions"));
+        }
         let old = OperationStatus::parse(&status)?;
         if old == next && (old == OperationStatus::Running || old_data.as_deref() == data) {
             return Ok(());
@@ -596,7 +613,14 @@ impl Store {
 fn is_local_kind(kind: &str) -> bool {
     matches!(
         kind,
-        "source.create" | "version.add" | "session.create" | "message.add"
+        "source.create"
+            | "version.add"
+            | "session.create"
+            | "message.add"
+            | "source.import"
+            | "source.approval"
+            | "session.attach"
+            | "chat.turn"
     )
 }
 fn encode_args(items: &[&[u8]]) -> Vec<u8> {
@@ -652,7 +676,15 @@ fn validate_integrity(conn: &Connection) -> Result<()> {
 fn migrate_v1(conn: &mut Connection, after_ddl: impl FnOnce() -> Result<()>) -> Result<()> {
     let tx = conn.transaction()?;
     tx.execute_batch(V2)?;
+    tx.execute_batch(V3)?;
     after_ddl()?;
+    tx.pragma_update(None, "user_version", SCHEMA_VERSION)?;
+    tx.commit()?;
+    Ok(())
+}
+fn migrate_v2(conn: &mut Connection) -> Result<()> {
+    let tx = conn.transaction()?;
+    tx.execute_batch(V3)?;
     tx.pragma_update(None, "user_version", SCHEMA_VERSION)?;
     tx.commit()?;
     Ok(())
@@ -677,8 +709,11 @@ fn schema_map(conn: &Connection) -> Result<BTreeMap<String, (String, String)>> {
 fn validate_schema(conn: &Connection, version: u32) -> Result<()> {
     let expected = Connection::open_in_memory()?;
     expected.execute_batch(V1)?;
-    if version == SCHEMA_VERSION {
+    if version >= 2 {
         expected.execute_batch(V2)?;
+    }
+    if version >= 3 {
+        expected.execute_batch(V3)?;
     }
     if schema_map(conn)? != schema_map(&expected)? {
         return Err(invalid("unexpected database schema"));
@@ -748,6 +783,45 @@ mod tests {
         assert_eq!(
             store.source_title(source).unwrap().as_deref(),
             Some("preserved")
+        );
+    }
+    #[test]
+    fn version_two_migrates_without_losing_history_or_sessions() {
+        let dir = tempfile::tempdir().unwrap();
+        let db = dir.path().join("brn.sqlite3");
+        let conn = Connection::open(&db).unwrap();
+        conn.execute_batch(V1).unwrap();
+        conn.execute_batch(V2).unwrap();
+        conn.pragma_update(None, "application_id", APPLICATION_ID)
+            .unwrap();
+        conn.pragma_update(None, "user_version", 2).unwrap();
+        let source = Uuid::new_v4();
+        let version = Uuid::new_v4();
+        let session = Uuid::new_v4();
+        conn.execute(
+            "INSERT INTO sources(id,title) VALUES(?1,'old')",
+            [source.to_string()],
+        )
+        .unwrap();
+        conn.execute(
+            "INSERT INTO versions(id,source_id,parent_id,bytes,sha256) VALUES(?1,?2,NULL,?3,?4)",
+            params![
+                version.to_string(),
+                source.to_string(),
+                b"old",
+                hash(b"old").as_slice()
+            ],
+        )
+        .unwrap();
+        conn.execute("INSERT INTO sessions(id,provider,provider_store,metadata) VALUES(?1,'codex','store-a',?2)",params![session.to_string(),b"{}"] ).unwrap();
+        drop(conn);
+        let (store, report) = Store::open(dir.path()).unwrap();
+        assert_eq!(report.migrated_from, Some(2));
+        assert_eq!(store.version(version).unwrap().unwrap().bytes, b"old");
+        assert_eq!(store.source_title(source).unwrap().as_deref(), Some("old"));
+        assert_eq!(
+            store.session(session).unwrap().unwrap().provider_store,
+            "store-a"
         );
     }
 }

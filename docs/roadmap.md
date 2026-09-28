@@ -112,6 +112,8 @@ Deliverable: streamed answers using retrieved evidence, clickable source referen
 Done: import → search → ask → inspect sources → close/reopen succeeds. Provider failure and client/UI detachment do not duplicate requests or falsely report success.
 Milestone: first useful desktop build for personal trial.
 
+2026-09-28: the implementation slice spanning 07–10 is integrated on `trial/end-to-end-flow`. [Evidence](end-to-end-flow-evidence.md) records real imports, all three profiles, grounded subscription answers and separate-process continuation. The native UI exposes the same workflow, but actual native interaction remains unverified while the Mac is locked. These are first-flow implementation results, not representative-corpus search qualification or accepted native completion.
+
 ## Phase C — writing and review
 
 ### 11. Drafts and immutable revisions
@@ -167,7 +169,7 @@ Defer multi-user collaboration, sync, plugin marketplaces, generic agent orchest
 
 ## Immediate next step
 
-Chunk 00's macOS CLI build and chunk 01's Codex App Server subscription route are verified in [status.md](status.md) and [the provider trial](../experiments/codex-app-server/README.md). The synthetic retrieval adapter trial is now verified. The user approved the architecture with native editor acceptance explicitly deferred on 2026-09-28. The bounded shell and independent storage backend implementations are now available. Next implement chunk 07 Markdown/text import and version tracking; complete native shell interaction checks alongside editor acceptance when the Mac is unlocked. Do not install every candidate framework in the main app before those trials. Re-estimate scope after Phase A using actual build and integration evidence rather than a guessed total duration.
+Chunk 00's macOS CLI build and chunk 01's Codex App Server subscription route are verified in [status.md](status.md) and [the provider trial](../experiments/codex-app-server/README.md). The synthetic retrieval adapter trial is now verified. The user approved the architecture with native editor acceptance explicitly deferred on 2026-09-28. The bounded shell and independent storage backend implementations are now available. The first end-to-end import/search/grounded-answer workflow is now implemented and exercised headlessly with the live subscription provider. Complete native flow interaction checks alongside editor acceptance when the Mac is unlocked; then proceed to writing/review milestones. Do not install every candidate framework in the main app before those trials. Re-estimate scope after Phase A using actual build and integration evidence rather than a guessed total duration.
 
 ## References
 

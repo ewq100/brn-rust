@@ -1,4 +1,10 @@
 [workspace]
-members = ["crates/brn", "crates/brn-core", "crates/brn-store", "crates/brn-desktop"]
+members = ["crates/brn", "crates/brn-core", "crates/brn-store", "crates/brn-provider", "crates/brn-retrieval", "crates/brn-workflow", "crates/brn-desktop"]
 default-members = ["crates/brn"]
 resolver = "2"
+
+# Native retrieval/UI graphs are large; keep trial debug artifacts bounded.
+[profile.dev]
+debug = 0
+[profile.test]
+debug = 0

@@ -6,17 +6,21 @@ use std::time::{Duration, Instant};
 #[cfg(feature = "native-ui")]
 mod native;
 
-const HELP: &str = "BRN desktop shell (sample work only)\n\nUsage: brn-desktop [--data-dir ABSOLUTE_EXISTING_DIRECTORY] [--headless-check completion|cancellation|stale]\n       brn-desktop --help\n\nThe native shell opens Workspace, Activity and Settings. Explicit data directories must exist and be writable. If omitted, native launch creates ~/Library/Application Support/BRN. The sample task keeps its input and result in memory; no documents or database are written.";
+const HELP: &str = "BRN desktop\n\nUsage: brn-desktop [--data-dir ABSOLUTE_DIRECTORY] [--codex ABSOLUTE_EXECUTABLE] [--model-dir ABSOLUTE_DIRECTORY]\n       brn-desktop --data-dir ABSOLUTE_DIRECTORY --headless-check completion|cancellation|stale\n       brn-desktop --help\n\nThe native workspace imports Markdown/text, builds search, and answers from approved sources. The headless checks preserve the original deterministic shell fixture.";
 
 struct Options {
     data_dir: PathBuf,
     explicit: bool,
     check: Option<String>,
+    codex: Option<PathBuf>,
+    model_dir: Option<PathBuf>,
 }
 fn parse_args() -> Result<Option<Options>, String> {
     let mut args = std::env::args().skip(1);
     let mut data_dir = None;
     let mut check = None;
+    let mut codex = None;
+    let mut model_dir = None;
     while let Some(arg) = args.next() {
         match arg.as_str() {
             "--help" if data_dir.is_none() && check.is_none() && args.next().is_none() => {
@@ -34,6 +38,18 @@ fn parse_args() -> Result<Option<Options>, String> {
                     args.next()
                         .ok_or("--headless-check needs completion, cancellation, or stale")?,
                 )
+            }
+            "--codex" if codex.is_none() => {
+                codex = Some(PathBuf::from(
+                    args.next()
+                        .ok_or("--codex needs an absolute executable path")?,
+                ))
+            }
+            "--model-dir" if model_dir.is_none() => {
+                model_dir = Some(PathBuf::from(
+                    args.next()
+                        .ok_or("--model-dir needs an absolute directory path")?,
+                ))
             }
             _ => {
                 return Err(format!(
@@ -60,10 +76,18 @@ fn parse_args() -> Result<Option<Options>, String> {
     {
         return Err(format!("unknown headless check: {check}"));
     }
+    if codex.as_ref().is_some_and(|path| !path.is_absolute()) {
+        return Err("--codex must be absolute".into());
+    }
+    if model_dir.as_ref().is_some_and(|path| !path.is_absolute()) {
+        return Err("--model-dir must be absolute".into());
+    }
     Ok(Some(Options {
         data_dir,
         explicit,
         check,
+        codex,
+        model_dir,
     }))
 }
 fn validate_data_dir(path: &Path, create_default: bool) -> Result<(), String> {
@@ -165,12 +189,24 @@ fn run() -> Result<(), String> {
     #[cfg(feature = "native-ui")]
     {
         validate_data_dir(&options.data_dir, !options.explicit)?;
-        native::run(options.data_dir);
+        native::run(
+            options.data_dir,
+            brn_workflow::Config {
+                codex: options.codex,
+                model_dir: options.model_dir,
+                codex_home: None,
+            },
+        );
         Ok(())
     }
     #[cfg(not(feature = "native-ui"))]
     {
-        let _ = (options.data_dir, options.explicit);
+        let _ = (
+            options.data_dir,
+            options.explicit,
+            options.codex,
+            options.model_dir,
+        );
         Err("native UI is unavailable in this build; rebuild with --features native-ui or use --headless-check".into())
     }
 }
