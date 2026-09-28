@@ -443,29 +443,41 @@ pub(super) fn apply_draft_write(
     Ok(draft)
 }
 
+fn receipt_digest(op: Uuid, kind: &str, bytes: &[u8]) -> [u8; 32] {
+    hash(&encode_args(&[
+        b"brn.comment.receipt.v1",
+        op.as_bytes(),
+        kind.as_bytes(),
+        bytes,
+    ]))
+}
 fn receipt<T: serde::de::DeserializeOwned>(
     tx: &Transaction<'_>,
     op: Uuid,
     kind: &str,
 ) -> Result<T> {
-    let (actual, bytes): (String, Vec<u8>) = tx
+    let (actual, bytes, stored_digest): (String, Vec<u8>, Vec<u8>) = tx
         .query_row(
-            "SELECT result_kind,result_json FROM comment_results WHERE operation_id=?1",
+            "SELECT result_kind,result_json,result_sha256 FROM comment_results WHERE operation_id=?1",
             [op.to_string()],
-            |r| Ok((r.get(0)?, r.get(1)?)),
+            |r| Ok((r.get(0)?, r.get(1)?, r.get(2)?)),
         )
         .optional()?
         .ok_or_else(|| invalid("comment operation has no result"))?;
     if actual != kind {
         return Err(invalid("comment result kind mismatch"));
     }
+    if stored_digest.as_slice() != receipt_digest(op, kind, &bytes) {
+        return Err(invalid("comment receipt integrity mismatch"));
+    }
     serde_json::from_slice(&bytes).map_err(|_| invalid("invalid stored comment receipt"))
 }
 fn finish<T: Serialize>(tx: &Transaction<'_>, op: Uuid, kind: &str, value: &T) -> Result<()> {
     let bytes = serde_json::to_vec(value).map_err(|_| invalid("cannot encode comment receipt"))?;
+    let digest = receipt_digest(op, kind, &bytes);
     tx.execute(
-        "INSERT INTO comment_results(operation_id,result_kind,result_json) VALUES(?1,?2,?3)",
-        params![op.to_string(), kind, bytes],
+        "INSERT INTO comment_results(operation_id,result_kind,result_json,result_sha256) VALUES(?1,?2,?3,?4)",
+        params![op.to_string(), kind, bytes, digest.as_slice()],
     )?;
     tx.execute(
         "UPDATE operations SET status='completed' WHERE id=?1",

@@ -636,6 +636,150 @@ fn checkpoint_receipt_cannot_name_another_valid_quote_occurrence() {
 }
 
 #[test]
+fn ordinary_save_retry_rejects_any_changed_frozen_projection() {
+    let (_dir, mut store, draft) = setup("TWO x TWO");
+    let created = capture(&mut store, &draft, 0..3, "TWO");
+    let request = DraftWriteWithComments {
+        op: Uuid::new_v4(),
+        draft_id: draft.id,
+        expected: created.saved.draft.stamp,
+        generation: 1,
+        text: draft.text.clone(),
+        edits: EditTrace::Steps(vec![]),
+        checkpoint: false,
+    };
+    let saved = store.write_draft_with_comments(request.clone()).unwrap();
+    let conn = Connection::open(store.database_path()).unwrap();
+    let original: Vec<u8> = conn
+        .query_row(
+            "SELECT result_json FROM comment_results WHERE operation_id=?1",
+            [request.op.to_string()],
+            |r| r.get(0),
+        )
+        .unwrap();
+    for mutation in 0..4 {
+        let mut receipt: serde_json::Value = serde_json::from_slice(&original).unwrap();
+        match mutation {
+            0 => {
+                receipt["comments"][0]["anchor"]["Anchored"]["start"] = serde_json::json!(6);
+                receipt["comments"][0]["anchor"]["Anchored"]["end"] = serde_json::json!(9);
+            }
+            1 => {
+                receipt["comments"] = serde_json::json!([]);
+            }
+            2 => {
+                receipt["comments"][0]["anchor"] = serde_json::json!("Deleted");
+            }
+            3 => {
+                receipt["comments"][0]["comment"]["status"] = serde_json::json!("Resolved");
+            }
+            _ => unreachable!(),
+        }
+        conn.execute(
+            "UPDATE comment_results SET result_json=?2 WHERE operation_id=?1",
+            rusqlite::params![
+                request.op.to_string(),
+                serde_json::to_vec(&receipt).unwrap()
+            ],
+        )
+        .unwrap();
+        assert!(
+            store.write_draft_with_comments(request.clone()).is_err(),
+            "mutation {mutation}"
+        );
+        conn.execute(
+            "UPDATE comment_results SET result_json=?2 WHERE operation_id=?1",
+            rusqlite::params![request.op.to_string(), &original],
+        )
+        .unwrap();
+        assert_eq!(store.draft_comments(draft.id).unwrap(), saved);
+    }
+    assert_eq!(store.write_draft_with_comments(request).unwrap(), saved);
+}
+
+#[test]
+fn sqlite_rejects_ambiguous_null_reason_in_current_and_checkpoint_tables() {
+    let (_dir, mut store, draft) = setup("a TWO b");
+    let created = capture(&mut store, &draft, 2..5, "TWO");
+    let conn = Connection::open(store.database_path()).unwrap();
+    assert!(conn.execute("UPDATE draft_comment_anchors SET location='ambiguous',reason=NULL,start=NULL,end=NULL WHERE comment_id=?1", [created.comment_id.to_string()]).is_err());
+    assert!(conn.execute("UPDATE draft_revision_comment_anchors SET location='ambiguous',reason=NULL,start=NULL,end=NULL WHERE comment_id=?1", [created.comment_id.to_string()]).is_err());
+    assert_eq!(conn.execute("UPDATE draft_comment_anchors SET location='ambiguous',reason='touched',start=NULL,end=NULL WHERE comment_id=?1", [created.comment_id.to_string()]).unwrap(), 1);
+    assert_eq!(conn.execute("UPDATE draft_revision_comment_anchors SET location='ambiguous',reason='touched',start=NULL,end=NULL WHERE comment_id=?1", [created.comment_id.to_string()]).unwrap(), 1);
+}
+
+#[test]
+fn capture_status_and_write_retries_verify_persisted_receipt_digest() {
+    let (_dir, mut store, draft) = setup("a TWO b");
+    let capture = CommentCapture {
+        op: Uuid::new_v4(),
+        draft_id: draft.id,
+        expected: draft.stamp,
+        generation: 0,
+        text: draft.text.clone(),
+        edits: EditTrace::Steps(vec![]),
+        range: 2..5,
+        quote: "TWO".into(),
+        body: "note".into(),
+    };
+    let created = store.create_draft_comment(capture.clone()).unwrap();
+    let status = CommentStatusChange {
+        op: Uuid::new_v4(),
+        draft_id: draft.id,
+        comment_id: created.comment_id,
+        expected_status_version: 0,
+        status: CommentStatus::Resolved,
+    };
+    let changed = store.set_comment_status(status.clone()).unwrap();
+    let write = DraftWriteWithComments {
+        op: Uuid::new_v4(),
+        draft_id: draft.id,
+        expected: created.saved.draft.stamp,
+        generation: 1,
+        text: "x a TWO b".into(),
+        edits: EditTrace::Steps(vec![TextEdit {
+            start: 0,
+            end: 0,
+            replacement: "x ".into(),
+        }]),
+        checkpoint: false,
+    };
+    let saved = store.write_draft_with_comments(write.clone()).unwrap();
+    let conn = Connection::open(store.database_path()).unwrap();
+    for op in [capture.op, status.op, write.op] {
+        let original: Vec<u8> = conn
+            .query_row(
+                "SELECT result_sha256 FROM comment_results WHERE operation_id=?1",
+                [op.to_string()],
+                |r| r.get(0),
+            )
+            .unwrap();
+        conn.execute(
+            "UPDATE comment_results SET result_sha256=?2 WHERE operation_id=?1",
+            rusqlite::params![op.to_string(), vec![0u8; 32]],
+        )
+        .unwrap();
+        let retry = if op == capture.op {
+            store.create_draft_comment(capture.clone()).map(|_| ())
+        } else if op == status.op {
+            store.set_comment_status(status.clone()).map(|_| ())
+        } else {
+            store.write_draft_with_comments(write.clone()).map(|_| ())
+        };
+        assert!(retry.is_err());
+        conn.execute(
+            "UPDATE comment_results SET result_sha256=?2 WHERE operation_id=?1",
+            rusqlite::params![op.to_string(), original],
+        )
+        .unwrap();
+    }
+    assert_eq!(store.create_draft_comment(capture).unwrap(), created);
+    assert_eq!(store.set_comment_status(status).unwrap(), changed);
+    assert_eq!(store.write_draft_with_comments(write).unwrap(), saved);
+    assert_eq!(store.draft_comments(draft.id).unwrap().draft, saved.draft);
+}
+
+#[test]
 fn separate_process_reopens_comment_mapping_and_lifecycle() {
     let (dir, mut store, draft) = setup("a TWO b");
     let created = capture(&mut store, &draft, 2..5, "TWO");
@@ -724,6 +868,10 @@ fn v4_draft_save_retry_receipt_survives_v5_migration() {
         saved
     );
     assert_eq!(store.draft_comments(draft.id).unwrap().draft, saved);
+    let created = capture(&mut store, &saved, 0..3, "new");
+    let conn = Connection::open(store.database_path()).unwrap();
+    assert!(conn.execute("UPDATE draft_comment_anchors SET location='ambiguous',reason=NULL,start=NULL,end=NULL WHERE comment_id=?1", [created.comment_id.to_string()]).is_err());
+    assert!(conn.execute("UPDATE draft_revision_comment_anchors SET location='ambiguous',reason=NULL,start=NULL,end=NULL WHERE comment_id=?1", [created.comment_id.to_string()]).is_err());
 }
 
 #[test]
