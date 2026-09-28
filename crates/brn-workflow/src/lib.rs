@@ -1,4 +1,5 @@
 //! Shared authoritative workflow used by the desktop and headless driver.
+mod drafts;
 pub mod worker;
 use brn_provider::{Client, Config as ProviderConfig, TurnStatus};
 use brn_retrieval::{Document, Evidence, Index, Profile};

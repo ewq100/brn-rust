@@ -1,7 +1,9 @@
 //! Single owned workflow worker for the native UI. No store or provider call runs on the GUI thread.
 use crate::{Config, SearchResult, SessionSummary, Workspace};
 pub use brn_retrieval::{Evidence, Profile};
-pub use brn_store::{Approval, ChatTurn, ImportResult, SourceDocument};
+pub use brn_store::{
+    Approval, ChatTurn, Draft, DraftRevision, DraftStamp, ImportResult, SourceDocument,
+};
 use std::{
     collections::VecDeque,
     path::PathBuf,
@@ -43,6 +45,47 @@ pub enum Action {
     History {
         session: Uuid,
     },
+    ListDrafts,
+    OpenDraft {
+        id: Uuid,
+    },
+    CreateDraft {
+        op: Uuid,
+        title: String,
+        text: String,
+    },
+    SaveDraft {
+        op: Uuid,
+        id: Uuid,
+        expected: DraftStamp,
+        generation: u64,
+        text: String,
+    },
+    CheckpointDraft {
+        op: Uuid,
+        id: Uuid,
+        expected: DraftStamp,
+        generation: u64,
+        text: String,
+    },
+    ListDraftRevisions {
+        id: Uuid,
+    },
+    OpenDraftRevision {
+        draft: Uuid,
+        revision: Uuid,
+    },
+    CompareDraftRevisions {
+        draft: Uuid,
+        before: Uuid,
+        after: Uuid,
+    },
+    SaveCandidate {
+        op: Uuid,
+        draft: Uuid,
+        parent: Uuid,
+        turn: Uuid,
+    },
 }
 impl Action {
     pub fn generation(&self) -> Option<u64> {
@@ -80,6 +123,48 @@ pub enum Outcome {
     History {
         session: Uuid,
         turns: Vec<ChatTurn>,
+    },
+    DraftsListed {
+        drafts: Vec<Draft>,
+    },
+    DraftOpened {
+        id: Uuid,
+        draft: Draft,
+    },
+    DraftCreated {
+        draft: Draft,
+    },
+    DraftSaved {
+        op: Uuid,
+        id: Uuid,
+        draft: Draft,
+        submitted_generation: u64,
+        submitted_text: String,
+    },
+    DraftCheckpointed {
+        op: Uuid,
+        id: Uuid,
+        draft: Draft,
+        submitted_generation: u64,
+        submitted_text: String,
+    },
+    DraftRevisions {
+        id: Uuid,
+        revisions: Vec<DraftRevision>,
+    },
+    DraftRevisionOpened {
+        draft: Uuid,
+        revision: DraftRevision,
+    },
+    DraftCompared {
+        draft: Uuid,
+        before: Uuid,
+        after: Uuid,
+        diff: String,
+    },
+    CandidateSaved {
+        draft: Uuid,
+        revision: DraftRevision,
     },
 }
 #[derive(Debug, Clone)]
@@ -415,6 +500,81 @@ fn execute(
         Action::History { session } => workspace
             .history(session)
             .map(|turns| Outcome::History { session, turns }),
+        Action::ListDrafts => workspace
+            .drafts()
+            .map(|drafts| Outcome::DraftsListed { drafts }),
+        Action::OpenDraft { id } => workspace
+            .draft(id)?
+            .ok_or("draft does not exist".into())
+            .map(|draft| Outcome::DraftOpened { id, draft }),
+        Action::CreateDraft { op, title, text } => workspace
+            .create_draft(op, &title, &text)
+            .map(|draft| Outcome::DraftCreated { draft }),
+        Action::SaveDraft {
+            op,
+            id,
+            expected,
+            generation,
+            text,
+        } => workspace
+            .save_draft(op, id, expected, generation, &text)
+            .map(|draft| Outcome::DraftSaved {
+                op,
+                id,
+                draft,
+                submitted_generation: generation,
+                submitted_text: text,
+            }),
+        Action::CheckpointDraft {
+            op,
+            id,
+            expected,
+            generation,
+            text,
+        } => workspace
+            .checkpoint_draft(op, id, expected, generation, &text)
+            .map(|draft| Outcome::DraftCheckpointed {
+                op,
+                id,
+                draft,
+                submitted_generation: generation,
+                submitted_text: text,
+            }),
+        Action::ListDraftRevisions { id } => workspace
+            .draft_revisions(id)
+            .map(|revisions| Outcome::DraftRevisions { id, revisions }),
+        Action::OpenDraftRevision { draft, revision } => {
+            let found = workspace
+                .draft_revision(revision)?
+                .ok_or("revision does not exist")?;
+            if found.draft_id != draft {
+                return Err("revision does not belong to selected draft".into());
+            }
+            Ok(Outcome::DraftRevisionOpened {
+                draft,
+                revision: found,
+            })
+        }
+        Action::CompareDraftRevisions {
+            draft,
+            before,
+            after,
+        } => workspace
+            .compare_draft_revisions(draft, before, after)
+            .map(|diff| Outcome::DraftCompared {
+                draft,
+                before,
+                after,
+                diff,
+            }),
+        Action::SaveCandidate {
+            op,
+            draft,
+            parent,
+            turn,
+        } => workspace
+            .candidate_from_turn(op, draft, parent, turn)
+            .map(|revision| Outcome::CandidateSaved { draft, revision }),
     }
 }
 
