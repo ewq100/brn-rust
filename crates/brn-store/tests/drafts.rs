@@ -207,3 +207,91 @@ fn candidate_wrong_draft_parent_and_failed_turn_leave_no_result() {
     assert!(store.operation(failed_turn).unwrap().is_none());
     assert_eq!(store.draft_revisions(d.id).unwrap().len(), 1);
 }
+
+#[test]
+fn unchanged_generation_checkpoint_rejects_changed_text_atomically() {
+    let (_dir, mut store) = open();
+    let d = store.create_draft(Uuid::new_v4(), "title", "one").unwrap();
+    let bad = Uuid::new_v4();
+    assert!(
+        store
+            .checkpoint_draft(bad, d.id, d.stamp, 0, "two")
+            .is_err()
+    );
+    assert!(store.operation(bad).unwrap().is_none());
+    assert_eq!(store.draft(d.id).unwrap().unwrap(), d);
+    assert_eq!(store.draft_revisions(d.id).unwrap().len(), 1);
+    let same = store
+        .checkpoint_draft(Uuid::new_v4(), d.id, d.stamp, 0, "one")
+        .unwrap();
+    assert_ne!(same.stamp.base_revision, d.stamp.base_revision);
+    assert_eq!(same.stamp.generation, 0);
+}
+
+#[test]
+fn corrupted_draft_and_revision_retry_snapshots_are_rejected() {
+    let (dir, mut store) = open();
+    let create_op = Uuid::new_v4();
+    let d = store.create_draft(create_op, "title", "root").unwrap();
+    let save_op = Uuid::new_v4();
+    let saved = store
+        .save_draft(save_op, d.id, d.stamp, 1, "working")
+        .unwrap();
+    let session = store
+        .create_session(
+            Uuid::new_v4(),
+            "codex",
+            "local",
+            None,
+            Some("thread"),
+            b"{}",
+        )
+        .unwrap();
+    let turn = Uuid::new_v4();
+    store
+        .prepare_turn(turn, session, "question", "grounded", "[]")
+        .unwrap();
+    store
+        .complete_turn(turn, OperationStatus::Completed, "answer", None)
+        .unwrap();
+    let candidate_op = Uuid::new_v4();
+    store
+        .candidate_from_turn(candidate_op, d.id, d.stamp.base_revision, turn)
+        .unwrap();
+    drop(store);
+    let conn = rusqlite::Connection::open(dir.path().join("brn.sqlite3")).unwrap();
+    for (op, field, replacement) in [
+        (create_op, "title", serde_json::json!("wrong")),
+        (save_op, "text", serde_json::json!("tampered")),
+        (candidate_op, "text", serde_json::json!("tampered")),
+    ] {
+        let raw: Vec<u8> = conn
+            .query_row(
+                "SELECT result_json FROM draft_results WHERE operation_id=?1",
+                [op.to_string()],
+                |r| r.get(0),
+            )
+            .unwrap();
+        let mut value: serde_json::Value = serde_json::from_slice(&raw).unwrap();
+        value[field] = replacement;
+        conn.execute(
+            "UPDATE draft_results SET result_json=?2 WHERE operation_id=?1",
+            rusqlite::params![op.to_string(), serde_json::to_vec(&value).unwrap()],
+        )
+        .unwrap();
+    }
+    drop(conn);
+    let (mut store, _) = Store::open(dir.path()).unwrap();
+    assert!(store.create_draft(create_op, "title", "root").is_err());
+    assert!(
+        store
+            .save_draft(save_op, d.id, d.stamp, 1, "working")
+            .is_err()
+    );
+    assert!(
+        store
+            .candidate_from_turn(candidate_op, d.id, d.stamp.base_revision, turn)
+            .is_err()
+    );
+    assert_eq!(store.draft(d.id).unwrap().unwrap(), saved);
+}

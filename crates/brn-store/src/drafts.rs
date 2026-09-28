@@ -160,6 +160,34 @@ fn saved_result<T: serde::de::DeserializeOwned>(
     }
     serde_json::from_slice(&bytes).map_err(|_| invalid("invalid stored draft result"))
 }
+fn saved_draft_result(tx: &Transaction<'_>, op: Uuid) -> Result<Draft> {
+    let draft: Draft = saved_result(tx, op, "draft")?;
+    if draft.title.trim().is_empty()
+        || checked_generation(draft.stamp.generation).is_err()
+        || stored_hash(&draft.text, draft.sha256.to_vec())? != draft.sha256
+    {
+        return Err(invalid("invalid saved draft result"));
+    }
+    let current = read_draft(tx, draft.id)?.ok_or_else(|| invalid("saved draft does not exist"))?;
+    if current.title != draft.title {
+        return Err(invalid("saved draft title mismatch"));
+    }
+    let base = read_revision(tx, draft.stamp.base_revision)?
+        .ok_or_else(|| invalid("saved draft base does not exist"))?;
+    if base.draft_id != draft.id || base.kind != RevisionKind::Checkpoint {
+        return Err(invalid("saved draft base mismatch"));
+    }
+    Ok(draft)
+}
+fn saved_revision_result(tx: &Transaction<'_>, op: Uuid) -> Result<DraftRevision> {
+    let revision: DraftRevision = saved_result(tx, op, "revision")?;
+    let actual =
+        read_revision(tx, revision.id)?.ok_or_else(|| invalid("saved revision does not exist"))?;
+    if actual != revision {
+        return Err(invalid("saved revision mismatch"));
+    }
+    Ok(revision)
+}
 fn finish_result<T: Serialize>(
     tx: &Transaction<'_>,
     op: Uuid,
@@ -187,7 +215,19 @@ impl Store {
         let args = encode_args(&[title.as_bytes(), text.as_bytes()]);
         let tx = self.conn.transaction()?;
         if workflow::bind_operation(&tx, op, "draft.create", &args)? == BeginOperation::Existing {
-            return saved_result(&tx, op, "draft");
+            let result = saved_draft_result(&tx, op)?;
+            let root = read_revision(&tx, result.stamp.base_revision)?
+                .ok_or_else(|| invalid("saved root missing"))?;
+            if result.title != title
+                || result.text != text
+                || result.stamp.generation != 0
+                || root.parent_id.is_some()
+                || root.text != text
+                || root.sha256 != result.sha256
+            {
+                return Err(invalid("saved create result does not match request"));
+            }
+            return Ok(result);
         }
         let id = Uuid::new_v4();
         let root = Uuid::new_v4();
@@ -268,15 +308,39 @@ impl Store {
         ]);
         let tx = self.conn.transaction()?;
         if workflow::bind_operation(&tx, op, action, &args)? == BeginOperation::Existing {
-            return saved_result(&tx, op, "draft");
+            let result = saved_draft_result(&tx, op)?;
+            if result.id != id
+                || result.stamp.generation != generation
+                || result.text != text
+                || result.sha256 != digest
+            {
+                return Err(invalid("saved write result does not match request"));
+            }
+            if checkpoint {
+                let revision = read_revision(&tx, result.stamp.base_revision)?
+                    .ok_or_else(|| invalid("saved checkpoint missing"))?;
+                if revision.parent_id != Some(expected.base_revision)
+                    || revision.text != text
+                    || revision.sha256 != digest
+                {
+                    return Err(invalid("saved checkpoint does not match request"));
+                }
+            } else if result.stamp.base_revision != expected.base_revision {
+                return Err(invalid("saved write base does not match request"));
+            }
+            return Ok(result);
         }
         let current = read_draft(&tx, id)?.ok_or_else(|| invalid("draft does not exist"))?;
         if current.stamp != expected {
             return Err(invalid("draft changed before write"));
         }
         if checkpoint {
-            if generation < expected.generation {
-                return Err(invalid("checkpoint generation moved backward"));
+            if generation < expected.generation
+                || generation == expected.generation && text != current.text
+            {
+                return Err(invalid(
+                    "checkpoint changed text without advancing generation",
+                ));
             }
         } else if generation <= expected.generation {
             return Err(invalid("save generation must advance"));
@@ -335,7 +399,15 @@ impl Store {
         let tx = self.conn.transaction()?;
         if workflow::bind_operation(&tx, op, "draft.candidate", &args)? == BeginOperation::Existing
         {
-            return saved_result(&tx, op, "revision");
+            let revision = saved_revision_result(&tx, op)?;
+            if revision.draft_id != id
+                || revision.parent_id != Some(parent)
+                || revision.kind != RevisionKind::Candidate
+                || revision.origin_turn != Some(turn)
+            {
+                return Err(invalid("saved candidate does not match request"));
+            }
+            return Ok(revision);
         }
         if read_draft(&tx, id)?.is_none() {
             return Err(invalid("draft does not exist"));
