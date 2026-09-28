@@ -647,11 +647,6 @@ impl Desktop {
             cx.notify();
         }
     }
-    fn quit_guarded(&mut self, cx: &mut Context<Self>) {
-        if self.close_guard(cx) {
-            cx.quit();
-        }
-    }
     fn save_candidate(&mut self, turn: Uuid, cx: &mut Context<Self>) {
         if !self.phase.can_submit() {
             return;
@@ -1349,7 +1344,6 @@ impl Render for Desktop {
         };
         div()
             .id("brn-desktop")
-            .on_action(cx.listener(|this, _: &Quit, _, cx| this.quit_guarded(cx)))
             .size_full()
             .flex()
             .flex_col()
@@ -1438,6 +1432,15 @@ pub fn run(path: PathBuf, config: Config) {
                     },
                     |window, cx| {
                         let desktop = cx.new(|cx| Desktop::new(path, config, window, cx));
+                        let quit_target = desktop.downgrade();
+                        cx.on_action::<Quit>(move |_, cx| {
+                            let allow = quit_target
+                                .update(cx, |this, cx| this.close_guard(cx))
+                                .unwrap_or(true);
+                            if allow {
+                                cx.quit();
+                            }
+                        });
                         let weak = desktop.downgrade();
                         window.on_window_should_close(cx, move |_, cx| {
                             weak.update(cx, |this, cx| this.close_guard(cx))

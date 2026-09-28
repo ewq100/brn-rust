@@ -1,6 +1,6 @@
 //! Disposable native UI fixture. Run only on a fresh /private/tmp/brn-draft-native-* workspace.
 use brn_store::{OperationStatus, Store};
-use std::path::PathBuf;
+use std::path::{Path, PathBuf};
 use uuid::Uuid;
 
 fn id(value: &str) -> Uuid {
@@ -13,14 +13,19 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
             .nth(1)
             .ok_or("expected disposable data directory")?,
     );
+    let disposable_parent = path.parent();
     if std::env::var("BRN_SEED_DISPOSABLE").as_deref() != Ok("1")
-        || !path
-            .to_string_lossy()
-            .starts_with("/private/tmp/brn-draft-native-")
+        || path.file_name().is_none_or(|name| name != "data")
+        || disposable_parent
+            .and_then(|parent| parent.file_name())
+            .is_none_or(|name| !name.to_string_lossy().starts_with("brn-draft-native-"))
+        || disposable_parent.and_then(Path::parent) != Some(Path::new("/private/tmp"))
+        || path.is_symlink()
         || path.join("brn.sqlite3").exists()
     {
-        return Err("fixture requires BRN_SEED_DISPOSABLE=1 and a fresh /private/tmp/brn-draft-native-* directory".into());
+        return Err("fixture requires BRN_SEED_DISPOSABLE=1 and a fresh /private/tmp/brn-draft-native-*/data directory".into());
     }
+    std::fs::create_dir_all(&path)?;
     let (mut store, _) = Store::open(&path)?;
     let draft = store.create_draft(
         id("00000000-0000-4000-8000-000000000101"),
