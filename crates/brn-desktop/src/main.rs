@@ -4,6 +4,8 @@ use std::process::ExitCode;
 use std::time::{Duration, Instant};
 
 #[cfg(feature = "native-ui")]
+mod comments;
+#[cfg(feature = "native-ui")]
 mod drafts;
 #[cfg(feature = "native-ui")]
 mod native;

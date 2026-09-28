@@ -1,17 +1,18 @@
 use crate::drafts::DraftEditor;
 use brn_workflow::worker::{
-    Action, Approval, ChatTurn, Draft, DraftRevision, Evidence, Outcome, Profile, SourceDocument,
-    Worker,
+    Action, Approval, ChatTurn, CommentStatusChange, Draft, DraftRevision, DraftWriteWithComments,
+    Evidence, Outcome, Profile, SourceDocument, Worker,
 };
-use brn_workflow::{Config, SearchResult, SessionSummary};
+use brn_workflow::{AnchorState, CommentStatus, Config, SearchResult, SessionSummary};
 use gpui_kit::{
     AppContext, Bounds, Context, Entity, KeyBinding, Menu, MenuItem, PathPromptOptions,
-    Subscription, Task, Window, WindowBounds, WindowOptions,
+    ScrollAnchor, ScrollHandle, Subscription, Task, Window, WindowBounds, WindowOptions,
     base::Disableable,
     component::{
         Root,
         button::Button,
         input::{Editor, EditorState, Input, InputEvent, InputState},
+        scroll::ScrollableElement,
     },
     div, point,
     prelude::*,
@@ -119,14 +120,19 @@ struct Desktop {
     query: Entity<EditorState>,
     draft_title: Entity<InputState>,
     draft_editor: Entity<EditorState>,
+    comment_input: Entity<EditorState>,
     draft_state: Option<DraftEditor>,
     drafts: Vec<Draft>,
     revisions: Vec<DraftRevision>,
     review: Option<DraftRevision>,
+    comment_original: Option<DraftRevision>,
     compare_before: Option<Uuid>,
     compare_after: Option<Uuid>,
     diff: Option<String>,
     pending_draft_job: Option<(u64, Uuid)>,
+    pending_status_job: Option<(u64, Uuid, Uuid)>,
+    draft_scroll: ScrollHandle,
+    draft_editor_anchor: ScrollAnchor,
     import_path: Option<PathBuf>,
     choosing_file: bool,
     phase: Phase,
@@ -162,6 +168,7 @@ impl Desktop {
                 .language("markdown")
                 .default_value("")
         });
+        let comment_input = cx.new(|cx| EditorState::new(window, cx).default_value(""));
         let query_subscription = cx.subscribe(&query, |this, _, event: &InputEvent, cx| {
             if matches!(event, InputEvent::Change) {
                 this.generation = this.generation.wrapping_add(1);
@@ -175,11 +182,25 @@ impl Desktop {
             cx.subscribe(&draft_editor, |this, editor, event: &InputEvent, cx| {
                 if matches!(event, InputEvent::Change) {
                     if let Some(state) = &mut this.draft_state {
-                        state.edit(editor.read(cx).value().to_string());
+                        let text = editor.read(cx).value().to_string();
+                        if state.text() != text {
+                            state.edit(text);
+                        }
                     }
                     cx.notify();
                 }
             });
+        let comment_subscription =
+            cx.subscribe(&comment_input, |this, editor, event: &InputEvent, cx| {
+                if matches!(event, InputEvent::Change) {
+                    if let Some(state) = &mut this.draft_state {
+                        state.set_composer(editor.read(cx).value().to_string());
+                    }
+                    cx.notify();
+                }
+            });
+        let draft_scroll = ScrollHandle::new();
+        let draft_editor_anchor = ScrollAnchor::for_handle(draft_scroll.clone());
         let quit_subscription = cx.on_app_quit(|this, _| {
             this.worker.shutdown();
             async {}
@@ -202,14 +223,19 @@ impl Desktop {
             query,
             draft_title,
             draft_editor,
+            comment_input,
             draft_state: None,
             drafts: Vec::new(),
             revisions: Vec::new(),
             review: None,
+            comment_original: None,
             compare_before: None,
             compare_after: None,
             diff: None,
             pending_draft_job: None,
+            pending_status_job: None,
+            draft_scroll,
+            draft_editor_anchor,
             import_path: None,
             choosing_file: false,
             phase: Phase::Opening,
@@ -233,7 +259,12 @@ impl Desktop {
             progress: String::new(),
             last_elapsed: 0,
             last_update: 0,
-            _subscriptions: vec![query_subscription, draft_subscription, quit_subscription],
+            _subscriptions: vec![
+                query_subscription,
+                draft_subscription,
+                comment_subscription,
+                quit_subscription,
+            ],
             _poll_task: poll_task,
         }
     }
@@ -262,6 +293,12 @@ impl Desktop {
                         && let Some(state) = &mut self.draft_state
                     {
                         state.fail(op);
+                    }
+                    if self
+                        .pending_status_job
+                        .is_some_and(|(id, _, _)| id == terminal.id)
+                    {
+                        self.pending_status_job = None;
                     }
                     self.streamed_text.clear();
                     self.message = error;
@@ -371,8 +408,11 @@ impl Desktop {
                         self.draft_editor.update(cx, |editor, cx| {
                             editor.set_value(draft.text.clone(), window, cx)
                         });
+                        self.comment_input
+                            .update(cx, |editor, cx| editor.set_value("", window, cx));
                         self.revisions.clear();
                         self.review = None;
+                        self.comment_original = None;
                         self.diff = None;
                         self.compare_before = None;
                         self.compare_after = None;
@@ -380,6 +420,147 @@ impl Desktop {
                         self.submit(Action::ListDraftRevisions { id }, "Revision list", cx);
                     } else {
                         self.message = "Draft opened in storage, but newer edits remain in the current editor. Save or discard them before switching.".into();
+                    }
+                }
+                Ok(Outcome::DraftCommentsOpened {
+                    id,
+                    saved,
+                    snapshots,
+                }) => {
+                    if saved.draft.id != id {
+                        continue;
+                    }
+                    let may_open = if let Some(state) = &mut self.draft_state {
+                        state.replace_comments(saved.clone(), snapshots)
+                    } else {
+                        self.draft_state =
+                            Some(DraftEditor::from_comments(saved.clone(), snapshots));
+                        true
+                    };
+                    if may_open {
+                        self.draft_editor.update(cx, |editor, cx| {
+                            editor.set_value(saved.draft.text.clone(), window, cx)
+                        });
+                        self.comment_input
+                            .update(cx, |editor, cx| editor.set_value("", window, cx));
+                        self.revisions.clear();
+                        self.review = None;
+                        self.comment_original = None;
+                        self.diff = None;
+                        self.compare_before = None;
+                        self.compare_after = None;
+                        if let Some(old) = self.drafts.iter_mut().find(|d| d.id == id) {
+                            *old = saved.draft.clone();
+                        } else {
+                            self.drafts.push(saved.draft.clone());
+                        }
+                        self.message = "Draft and comments opened.".into();
+                        self.submit(Action::ListDraftRevisions { id }, "Revision list", cx);
+                    } else {
+                        self.message = "Current draft has unsaved text or comment. Save or discard before switching.".into();
+                    }
+                }
+                Ok(Outcome::DraftCommentsRefreshed {
+                    id,
+                    saved,
+                    snapshots,
+                }) => {
+                    if self
+                        .draft_state
+                        .as_mut()
+                        .is_some_and(|s| s.id() == id && s.refresh_comments(saved, snapshots))
+                    {
+                        self.message = "Comment list refreshed.".into();
+                    }
+                }
+                Ok(Outcome::DraftCommentCreated { result, snapshots }) => {
+                    let op = result.op;
+                    let id = result.saved.draft.id;
+                    let matched = self.pending_draft_job == Some((terminal.id, op));
+                    if matched {
+                        self.pending_draft_job = None;
+                    }
+                    if matched
+                        && self.draft_state.as_mut().is_some_and(|s| {
+                            s.id() == id
+                                && s.acknowledge_comments(op, result.saved.clone(), snapshots)
+                        })
+                    {
+                        if let Some(old) = self.drafts.iter_mut().find(|d| d.id == id) {
+                            *old = result.saved.draft;
+                        }
+                        if self
+                            .draft_state
+                            .as_ref()
+                            .is_some_and(|s| s.composer().is_empty())
+                        {
+                            self.comment_input
+                                .update(cx, |editor, cx| editor.set_value("", window, cx));
+                        }
+                        self.message = if self.draft_state.as_ref().is_some_and(DraftEditor::dirty)
+                        {
+                            "Comment saved; newer draft edits remain unsaved.".into()
+                        } else {
+                            "Comment saved with a checkpoint.".into()
+                        };
+                        self.submit(Action::ListDraftRevisions { id }, "Revision list", cx);
+                    }
+                }
+                Ok(Outcome::DraftWrittenWithComments {
+                    op,
+                    draft_id,
+                    submitted_generation,
+                    submitted_text,
+                    saved,
+                    snapshots,
+                }) => {
+                    let matched = self.pending_draft_job == Some((terminal.id, op));
+                    if matched {
+                        self.pending_draft_job = None;
+                    }
+                    if matched
+                        && saved.draft.stamp.generation == submitted_generation
+                        && saved.draft.text == submitted_text
+                        && self.draft_state.as_mut().is_some_and(|s| {
+                            s.id() == draft_id
+                                && s.acknowledge_comments(op, saved.clone(), snapshots)
+                        })
+                    {
+                        if let Some(old) = self.drafts.iter_mut().find(|d| d.id == draft_id) {
+                            *old = saved.draft;
+                        }
+                        self.message = if self.draft_state.as_ref().is_some_and(DraftEditor::dirty)
+                        {
+                            "Saved submitted snapshot; newer edits remain unsaved.".into()
+                        } else {
+                            "Working copy saved.".into()
+                        };
+                        self.submit(
+                            Action::ListDraftRevisions { id: draft_id },
+                            "Revision list",
+                            cx,
+                        );
+                    }
+                }
+                Ok(Outcome::CommentStatusChanged {
+                    result,
+                    saved,
+                    snapshots,
+                }) => {
+                    let matched = self.pending_status_job
+                        == Some((terminal.id, result.op, result.comment.id));
+                    if matched {
+                        self.pending_status_job = None;
+                    }
+                    if matched
+                        && let Some(state) = &mut self.draft_state
+                        && state.id() == result.comment.draft_id
+                    {
+                        let refreshed = state.refresh_comments(saved, snapshots);
+                        let applied = state.apply_status(&result);
+                        if refreshed || applied {
+                            self.message = format!("Comment {:?}.", result.comment.status);
+                        }
                     }
                 }
                 Ok(Outcome::DraftSaved {
@@ -537,7 +718,7 @@ impl Desktop {
             .as_ref()
             .is_some_and(|state| !state.can_replace())
         {
-            self.message = "Save the draft and wait for acknowledgement, or choose Discard edits, before switching or closing.".into();
+            self.message = "Save or discard draft edits and unsaved comment text, then wait for any pending save before switching.".into();
             cx.notify();
             false
         } else {
@@ -550,7 +731,7 @@ impl Desktop {
             .as_ref()
             .is_some_and(|state| !state.can_close())
         {
-            self.message = "Draft has unsaved edits or a save awaiting acknowledgement. Save or explicitly discard before closing.".into();
+            self.message = "Draft edits, comment text, or a save are still pending. Save or discard them before closing.".into();
             cx.notify();
             false
         } else {
@@ -561,7 +742,7 @@ impl Desktop {
         if !self.phase.can_submit() || !self.draft_guard(cx) {
             return;
         }
-        self.submit(Action::OpenDraft { id }, "Open draft", cx);
+        self.submit(Action::OpenDraftComments { id }, "Open draft", cx);
     }
     fn create_draft(&mut self, cx: &mut Context<Self>) {
         if !self.phase.can_submit() || !self.draft_guard(cx) {
@@ -598,22 +779,16 @@ impl Desktop {
         let Some(submitted) = state.begin_save(Uuid::new_v4()) else {
             return;
         };
-        let action = if checkpoint {
-            Action::CheckpointDraft {
+        let action = Action::WriteDraftWithComments {
+            request: DraftWriteWithComments {
                 op: submitted.op,
-                id: submitted.id,
+                draft_id: submitted.id,
                 expected: submitted.expected,
                 generation: submitted.generation,
                 text: submitted.text.clone(),
-            }
-        } else {
-            Action::SaveDraft {
-                op: submitted.op,
-                id: submitted.id,
-                expected: submitted.expected,
-                generation: submitted.generation,
-                text: submitted.text.clone(),
-            }
+                edits: submitted.edits.clone(),
+                checkpoint,
+            },
         };
         if let Some(job) = self.submit(
             action,
@@ -646,6 +821,140 @@ impl Desktop {
             self.message = "Unsaved edits discarded; acknowledged working copy restored.".into();
             cx.notify();
         }
+    }
+    fn capture_comment(&mut self, cx: &mut Context<Self>) {
+        let editor = self.draft_editor.read(cx);
+        let text = editor.value().to_string();
+        let range = editor.selected_range();
+        let Some(state) = &mut self.draft_state else {
+            return;
+        };
+        if state.text() != text {
+            self.message = "Editor changed; select the passage again.".into();
+        } else {
+            self.message = match state.capture(range) {
+                Ok(()) => "Passage captured. Write a comment, then save its checkpoint.".into(),
+                Err(error) => error,
+            };
+        }
+        cx.notify();
+    }
+    fn add_comment(&mut self, cx: &mut Context<Self>) {
+        if !self.phase.can_submit() {
+            return;
+        }
+        let Some(state) = &mut self.draft_state else {
+            return;
+        };
+        let Some((submitted, request)) = state.begin_comment(Uuid::new_v4()) else {
+            self.message = "Capture a current passage and enter a comment (up to 64 KiB).".into();
+            cx.notify();
+            return;
+        };
+        if let Some(job) = self.submit(
+            Action::CreateDraftComment { request },
+            "Save checkpoint + add comment",
+            cx,
+        ) {
+            self.pending_draft_job = Some((job, submitted.op));
+            self.message = "Saving captured snapshot; you may continue typing.".into();
+        } else if let Some(state) = &mut self.draft_state {
+            state.fail(submitted.op);
+        }
+        cx.notify();
+    }
+    fn discard_comment(&mut self, window: &mut Window, cx: &mut Context<Self>) {
+        if let Some(state) = &mut self.draft_state {
+            if state.pending() {
+                return;
+            }
+            state.discard_composer();
+            self.comment_input
+                .update(cx, |editor, cx| editor.set_value("", window, cx));
+            self.message = "Unsaved comment discarded.".into();
+            cx.notify();
+        }
+    }
+    fn change_comment_status(&mut self, id: Uuid, cx: &mut Context<Self>) {
+        if !self.phase.can_submit() {
+            return;
+        }
+        let Some(state) = &self.draft_state else {
+            return;
+        };
+        let Some(view) = state.comments().iter().find(|v| v.comment.id == id) else {
+            return;
+        };
+        let status = if view.comment.status == CommentStatus::Open {
+            CommentStatus::Resolved
+        } else {
+            CommentStatus::Open
+        };
+        let request = CommentStatusChange {
+            op: Uuid::new_v4(),
+            draft_id: state.id(),
+            comment_id: id,
+            expected_status_version: view.comment.status_version,
+            status,
+        };
+        if let Some(job) = self.submit(
+            Action::SetCommentStatus {
+                request: request.clone(),
+            },
+            "Update comment status",
+            cx,
+        ) {
+            self.pending_status_job = Some((job, request.op, id));
+        }
+    }
+    fn show_comment_passage(&mut self, id: Uuid, window: &mut Window, cx: &mut Context<Self>) {
+        let Some(state) = &self.draft_state else {
+            return;
+        };
+        if self.draft_editor.read(cx).value() != state.text() {
+            self.message = "Editor changed; passage selection needs a refreshed preview.".into();
+            cx.notify();
+            return;
+        }
+        let Some(index) = state.comments().iter().position(|v| v.comment.id == id) else {
+            return;
+        };
+        let Ok(states) = state.preview_states() else {
+            self.message = "Current comment locations could not be validated.".into();
+            cx.notify();
+            return;
+        };
+        let AnchorState::Anchored { start, end } = states[index] else {
+            self.message = "This comment has no safe current passage.".into();
+            cx.notify();
+            return;
+        };
+        if state.text().get(start..end)
+            != Some(state.comments()[index].comment.original_quote.as_str())
+        {
+            self.message = "Current passage no longer matches the original quote.".into();
+            cx.notify();
+            return;
+        }
+        self.draft_editor.update(cx, |editor, cx| {
+            editor.set_selected_range(start..end, cx);
+            editor.focus(window, cx);
+        });
+        self.draft_editor_anchor.scroll_to(window, cx);
+        self.message = "Current passage selected.".into();
+        cx.notify();
+    }
+    fn show_comment_original(&mut self, id: Uuid, cx: &mut Context<Self>) {
+        let Some(state) = &self.draft_state else {
+            return;
+        };
+        if let Some(revision) = state.original_revision(id) {
+            self.comment_original = Some(revision);
+            self.message = "Read-only original revision shown with this comment.".into();
+        } else {
+            self.message = "Original revision unavailable in this projection.".into();
+        }
+        cx.notify();
     }
     fn save_candidate(&mut self, turn: Uuid, cx: &mut Context<Self>) {
         if !self.phase.can_submit() {
@@ -806,6 +1115,8 @@ impl Render for Desktop {
             .gap_3()
             .p_3()
             .overflow_y_scroll()
+            .track_scroll(&self.draft_scroll)
+            .vertical_scrollbar(&self.draft_scroll)
             .child(self.message.clone());
         if matches!(self.phase, Phase::Failed(_)) {
             body = body.child("Workspace unavailable. Review the error above, correct the workspace, then relaunch.");
@@ -1147,10 +1458,15 @@ impl Render for Desktop {
                                 state.generation()
                             ))
                             .child(
-                                Editor::new(&self.draft_editor)
-                                    .h(px(250.))
-                                    .flex_shrink_0()
-                                    .aria_label("Markdown working copy"),
+                                div()
+                                    .id("draft-editor-anchor")
+                                    .anchor_scroll(Some(self.draft_editor_anchor.clone()))
+                                    .child(
+                                        Editor::new(&self.draft_editor)
+                                            .h(px(250.))
+                                            .flex_shrink_0()
+                                            .aria_label("Markdown working copy"),
+                                    ),
                             )
                             .child(
                                 div()
@@ -1193,6 +1509,237 @@ impl Render for Desktop {
                             )
                             .child(format!("Base checkpoint: {}", state.stamp().base_revision))
                             .child(format!("Revision history: {}", self.revisions.len()));
+                    let mut comment_panel = div()
+                        .min_w(px(0.))
+                        .flex()
+                        .flex_col()
+                        .gap_2()
+                        .child("Comments")
+                        .child(
+                            div()
+                                .flex()
+                                .flex_wrap()
+                                .gap_2()
+                                .child(
+                                    Button::new("capture-comment-selection")
+                                        .label("Capture selection")
+                                        .disabled(state.pending())
+                                        .on_click(
+                                            cx.listener(|this, _, _, cx| this.capture_comment(cx)),
+                                        ),
+                                )
+                                .child(
+                                    Button::new("refresh-comments")
+                                        .label("Refresh comments")
+                                        .disabled(!self.phase.can_submit())
+                                        .on_click(cx.listener(move |this, _, _, cx| {
+                                            this.submit(
+                                                Action::RefreshDraftComments { id: draft_id },
+                                                "Refresh comments",
+                                                cx,
+                                            );
+                                        })),
+                                ),
+                        );
+                    if let Some(quote) = state.capture_quote() {
+                        comment_panel = comment_panel.child("Captured exact quote:").child(
+                            div()
+                                .id("captured-quote-scroll")
+                                .h(px(90.))
+                                .min_w(px(0.))
+                                .flex_shrink_0()
+                                .border_1()
+                                .overflow_y_scroll()
+                                .child(
+                                    div()
+                                        .w_full()
+                                        .font_family("Menlo")
+                                        .flex()
+                                        .flex_col()
+                                        .children(
+                                            quote
+                                                .split('\n')
+                                                .map(|line| div().child(line.to_owned())),
+                                        ),
+                                ),
+                        );
+                    } else {
+                        comment_panel =
+                            comment_panel.child("Select a passage in the editor, then capture it.");
+                    }
+                    comment_panel = comment_panel
+                        .child(
+                            Editor::new(&self.comment_input)
+                                .h(px(95.))
+                                .flex_shrink_0()
+                                .aria_label("Comment body"),
+                        )
+                        .child(
+                            div()
+                                .flex()
+                                .flex_wrap()
+                                .gap_2()
+                                .child(
+                                    Button::new("add-draft-comment")
+                                        .label("Save checkpoint + add comment")
+                                        .disabled(
+                                            !self.phase.can_submit()
+                                                || !state.can_add_comment(state.composer()),
+                                        )
+                                        .on_click(
+                                            cx.listener(|this, _, _, cx| this.add_comment(cx)),
+                                        ),
+                                )
+                                .child(
+                                    Button::new("discard-draft-comment")
+                                        .label("Discard comment")
+                                        .disabled(state.composer().is_empty() || state.pending())
+                                        .on_click(cx.listener(|this, _, window, cx| {
+                                            this.discard_comment(window, cx)
+                                        })),
+                                ),
+                        );
+                    let preview = state.preview_states();
+                    if let Err(error) = &preview {
+                        comment_panel =
+                            comment_panel.child(format!("Preview unavailable: {error}"));
+                    }
+                    if state.comments().is_empty() {
+                        comment_panel = comment_panel.child("No comments yet.");
+                    }
+                    for (index, view) in state.comments().iter().enumerate() {
+                        let id = view.comment.id;
+                        let anchor = preview.as_ref().ok().and_then(|states| states.get(index));
+                        let location = match anchor {
+                            Some(AnchorState::Anchored { start, end }) => {
+                                format!("Anchored at bytes {start}..{end}")
+                            }
+                            Some(AnchorState::Deleted) => "Deleted passage".into(),
+                            Some(AnchorState::Ambiguous { reason }) => {
+                                format!("Location ambiguous: {reason:?}")
+                            }
+                            None => "Location unavailable".into(),
+                        };
+                        let toggle = if view.comment.status == CommentStatus::Open {
+                            "Resolve"
+                        } else {
+                            "Reopen"
+                        };
+                        let mut card = div()
+                            .min_w(px(0.))
+                            .flex()
+                            .flex_col()
+                            .gap_2()
+                            .p_2()
+                            .border_1()
+                            .child(format!(
+                                "Comment {}… · {:?} · {location}",
+                                &id.to_string()[..8],
+                                view.comment.status
+                            ))
+                            .child("Original quote:")
+                            .child(
+                                div()
+                                    .id(format!("quote-scroll-{id}"))
+                                    .h(px(128.))
+                                    .min_w(px(0.))
+                                    .flex_shrink_0()
+                                    .border_1()
+                                    .overflow_y_scroll()
+                                    .child(
+                                        div()
+                                            .w_full()
+                                            .font_family("Menlo")
+                                            .flex()
+                                            .flex_col()
+                                            .children(
+                                                view.comment
+                                                    .original_quote
+                                                    .split('\n')
+                                                    .map(|line| div().child(line.to_owned())),
+                                            ),
+                                    ),
+                            )
+                            .child("Comment body:")
+                            .child(
+                                div()
+                                    .id(format!("comment-body-scroll-{id}"))
+                                    .h(px(105.))
+                                    .min_w(px(0.))
+                                    .flex_shrink_0()
+                                    .overflow_y_scroll()
+                                    .child(
+                                        div().w_full().flex().flex_col().children(
+                                            view.comment
+                                                .body
+                                                .split('\n')
+                                                .map(|line| div().child(line.to_owned())),
+                                        ),
+                                    ),
+                            )
+                            .child(
+                                div()
+                                    .flex()
+                                    .flex_wrap()
+                                    .gap_2()
+                                    .child(
+                                        Button::new(format!("show-passage-{id}"))
+                                            .label("Show passage")
+                                            .disabled(!matches!(
+                                                anchor,
+                                                Some(AnchorState::Anchored { .. })
+                                            ))
+                                            .on_click(cx.listener(move |this, _, window, cx| {
+                                                this.show_comment_passage(id, window, cx)
+                                            })),
+                                    )
+                                    .child(
+                                        Button::new(format!("show-original-{id}"))
+                                            .label("Show original revision")
+                                            .on_click(cx.listener(move |this, _, _, cx| {
+                                                this.show_comment_original(id, cx)
+                                            })),
+                                    )
+                                    .child(
+                                        Button::new(format!("toggle-comment-{id}"))
+                                            .label(toggle)
+                                            .disabled(!self.phase.can_submit())
+                                            .on_click(cx.listener(move |this, _, _, cx| {
+                                                this.change_comment_status(id, cx)
+                                            })),
+                                    ),
+                            );
+                        if let Some(original) = &self.comment_original
+                            && original.id == view.comment.original_revision_id
+                        {
+                            card = card
+                                .child(format!("Original checkpoint {} · read-only", original.id))
+                                .child(
+                                    div()
+                                        .id(format!("comment-original-scroll-{id}"))
+                                        .h(px(170.))
+                                        .min_w(px(0.))
+                                        .flex_shrink_0()
+                                        .border_1()
+                                        .overflow_y_scroll()
+                                        .child(
+                                            div()
+                                                .w_full()
+                                                .font_family("Menlo")
+                                                .flex()
+                                                .flex_col()
+                                                .children(
+                                                    original
+                                                        .text
+                                                        .split('\n')
+                                                        .map(|line| div().child(line.to_owned())),
+                                                ),
+                                        ),
+                                );
+                        }
+                        comment_panel = comment_panel.child(card);
+                    }
+                    panel = panel.child(comment_panel);
                     for revision in &self.revisions {
                         let id = revision.id;
                         let label = format!(

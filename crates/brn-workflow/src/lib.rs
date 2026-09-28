@@ -19,10 +19,12 @@ use uuid::Uuid;
 
 pub use brn_retrieval::Profile as SearchProfile;
 pub use brn_store::Approval as SearchApproval;
+pub use brn_store::anchors::{MAX_EDIT_STEPS, MAX_TRACE_REPLACEMENT_BYTES};
 pub use brn_store::{
-    AmbiguityReason, AnchorState, CommentAnchorSnapshot, CommentCapture, CommentCreated,
-    CommentStatus, CommentStatusChange, CommentStatusChanged, DraftComment, DraftCommentView,
-    DraftComments, DraftWriteWithComments, EditTrace, TextEdit,
+    AmbiguityReason, AnchorProjection, AnchorState, CommentAnchorSnapshot, CommentCapture,
+    CommentCreated, CommentStatus, CommentStatusChange, CommentStatusChanged, DraftComment,
+    DraftCommentView, DraftComments, DraftWriteWithComments, EditTrace, OriginalAnchor,
+    RecoveryReference, TextEdit, derive_edit, replay_trace,
 };
 pub type Result<T> = std::result::Result<T, String>;
 pub const MAX_IMPORT_BYTES: usize = 1024 * 1024;

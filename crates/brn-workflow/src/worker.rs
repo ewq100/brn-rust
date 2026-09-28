@@ -4,7 +4,7 @@ pub use brn_retrieval::{Evidence, Profile};
 pub use brn_store::{
     Approval, ChatTurn, CommentAnchorSnapshot, CommentCapture, CommentCreated, CommentStatusChange,
     CommentStatusChanged, Draft, DraftComments, DraftRevision, DraftStamp, DraftWriteWithComments,
-    ImportResult, MAX_DRAFT_BYTES, OperationStatus, SourceDocument,
+    ImportResult, MAX_DRAFT_BYTES, OperationStatus, RevisionKind, SourceDocument,
 };
 use std::{
     collections::VecDeque,
