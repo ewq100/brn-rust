@@ -150,9 +150,9 @@ fn parse_reason(s: &str) -> Result<AmbiguityReason> {
         _ => Err(invalid("invalid anchor ambiguity reason")),
     }
 }
-fn state_sql(
-    state: &AnchorState,
-) -> Result<(&'static str, Option<&'static str>, Option<i64>, Option<i64>)> {
+type SqlState = (&'static str, Option<&'static str>, Option<i64>, Option<i64>);
+type SnapshotEntry = (String, String, Option<String>, Option<i64>, Option<i64>);
+fn state_sql(state: &AnchorState) -> Result<SqlState> {
     Ok(match state {
         AnchorState::Anchored { start, end } if start < end => (
             "anchored",
@@ -288,7 +288,7 @@ fn snapshot_rows(conn: &Connection, draft_id: Uuid) -> Result<Vec<CommentAnchorS
             return Err(invalid("invalid anchor checkpoint revision"));
         }
         let mut rows = conn.prepare("SELECT comment_id,location,reason,start,end FROM draft_revision_comment_anchors WHERE revision_id=?1 ORDER BY rowid")?;
-        let entries: Vec<(String, String, Option<String>, Option<i64>, Option<i64>)> = rows
+        let entries: Vec<SnapshotEntry> = rows
             .query_map([revision.id.to_string()], |r| {
                 Ok((r.get(0)?, r.get(1)?, r.get(2)?, r.get(3)?, r.get(4)?))
             })?

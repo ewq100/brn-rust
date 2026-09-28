@@ -313,17 +313,15 @@ fn recover(text: &str, projection: &AnchorProjection, state: AnchorState) -> Anc
     }
     let mut candidate = None;
     for reference in &projection.checkpoints {
-        if reference.text == text {
-            if let AnchorState::Anchored { .. } = reference.state {
-                if let Some(old) = &candidate {
-                    if old != &reference.state {
-                        return AnchorState::Ambiguous {
-                            reason: AmbiguityReason::ConflictingSnapshot,
-                        };
-                    }
-                } else {
-                    candidate = Some(reference.state.clone());
+        if reference.text == text && matches!(reference.state, AnchorState::Anchored { .. }) {
+            if let Some(old) = &candidate {
+                if old != &reference.state {
+                    return AnchorState::Ambiguous {
+                        reason: AmbiguityReason::ConflictingSnapshot,
+                    };
                 }
+            } else {
+                candidate = Some(reference.state.clone());
             }
         }
     }
@@ -352,11 +350,9 @@ pub fn replay_trace(
     let mut states: Vec<_> = projections.iter().map(|p| p.state.clone()).collect();
     match trace {
         EditTrace::HistoryLost => {
-            for state in &mut states {
-                *state = AnchorState::Ambiguous {
-                    reason: AmbiguityReason::HistoryLimit,
-                };
-            }
+            states.fill(AnchorState::Ambiguous {
+                reason: AmbiguityReason::HistoryLimit,
+            });
         }
         EditTrace::Steps(steps) => {
             if steps.len() > MAX_EDIT_STEPS {
@@ -606,7 +602,7 @@ mod tests {
                 "a TWO b",
                 &EditTrace::HistoryLost,
                 "x TWO b",
-                &[projection.clone()]
+                std::slice::from_ref(&projection)
             )
             .unwrap(),
             vec![anchored(2, 5)]
@@ -701,7 +697,7 @@ mod tests {
                     replacement: "z".into()
                 }]),
                 "wrong",
-                &[projection.clone()]
+                std::slice::from_ref(&projection)
             )
             .is_err()
         );
@@ -714,7 +710,7 @@ mod tests {
                     replacement: "x".repeat(MAX_TEXT_BYTES)
                 }]),
                 "x",
-                &[projection.clone()]
+                std::slice::from_ref(&projection)
             )
             .is_err()
         );
@@ -730,7 +726,7 @@ mod tests {
                     MAX_EDIT_STEPS + 1
                 ]),
                 "a TWO b",
-                &[projection.clone()]
+                std::slice::from_ref(&projection)
             )
             .is_err()
         );
@@ -743,7 +739,7 @@ mod tests {
                     replacement: "x".repeat(MAX_TRACE_REPLACEMENT_BYTES + 1)
                 }]),
                 "a TWO b",
-                &[projection.clone()]
+                std::slice::from_ref(&projection)
             )
             .is_err()
         );
