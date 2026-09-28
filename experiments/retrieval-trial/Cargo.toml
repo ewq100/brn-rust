@@ -1,0 +1,30 @@
+[package]
+name = "brn-retrieval-trial"
+version = "0.1.0"
+edition = "2021"
+rust-version = "1.88"
+publish = false
+
+[features]
+default = []
+native = ["dep:lancedb", "dep:fastembed", "dep:arrow-array", "dep:arrow-schema", "dep:tokio", "dep:futures"]
+
+[dependencies]
+sha2 = "0.10"
+hex = "0.4"
+serde = { version = "1", features = ["derive"] }
+serde_json = "1"
+thiserror = "2"
+lancedb = { version = "=0.39.0", default-features = false, features = ["remote"], optional = true }
+fastembed = { version = "=7.1.0", default-features = false, features = ["ort-download-binaries-rustls-tls", "hf-hub-rustls-tls"], optional = true }
+arrow-array = { version = "58", optional = true }
+arrow-schema = { version = "58", optional = true }
+tokio = { version = "1", features = ["rt-multi-thread", "macros"], optional = true }
+futures = { version = "0.3", optional = true }
+
+[profile.dev]
+debug = 0
+[profile.test]
+debug = 0
+
+[workspace]

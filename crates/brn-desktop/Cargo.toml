@@ -1,0 +1,17 @@
+[package]
+name = "brn-desktop"
+version = "0.1.0"
+edition = "2024"
+publish = false
+
+[features]
+default = []
+native-ui = ["dep:gpui-kit", "dep:brn-workflow", "dep:uuid", "dep:serde_json"]
+native-retrieval = ["native-ui", "brn-workflow/native-retrieval"]
+
+[dependencies]
+brn-core = { path = "../brn-core" }
+gpui-kit = { version = "=0.6.6", optional = true }
+brn-workflow = { path = "../brn-workflow", optional = true }
+uuid = { version = "1", features = ["v4"], optional = true }
+serde_json = { version = "1", optional = true }

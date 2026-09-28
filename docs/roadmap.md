@@ -10,7 +10,7 @@ Build an installable, local-first desktop application for importing knowledge, a
 
 Retrieval is switchable between keyword, semantic, hybrid, and graph profiles. BRN owns source identity, versioning, approval status, and the common evidence contract. Retrieval indexes are replaceable derived data. Cloud model access does not make the application cloud-hosted; local retrieval and stored documents remain usable offline where their dependencies are present.
 
-Start with macOS on Apple Silicon and the user's Codex subscription as the first model access route to investigate with Rig. The chunk 01 trial must verify that authentication and integration actually work. Add other platforms and providers after the first complete workflow is proven.
+Start with macOS on Apple Silicon and the user's Codex subscription as the first model access route. Chunk 01 compares direct Rig integration with the official Codex App Server; the latter is the leading candidate after the live trial recorded in [its README](../experiments/codex-app-server/README.md). Add other platforms and providers after the first complete workflow is proven.
 
 ## Working method
 
@@ -27,7 +27,7 @@ Start with macOS on Apple Silicon and the user's Codex subscription as the first
 
 Cloud is suitable for source editing, backend builds, deterministic tests, indexing benchmarks on an approved sample corpus, database migration tests, and crash/recovery tests, once a Rust-capable environment is available.
 
-The initial inspected chat workspace was Linux and lacked Rust and Cargo. Rust 1.98.1 is pinned for chunk 00, but build verification is recorded separately in [status.md](status.md). Network access is restricted. Running native macOS UI builds has not been demonstrated. Chunk 00 must establish the actual build route; if the current workspace cannot support it, use a configured cloud runner or local environment rather than claiming unexecuted checks passed.
+The initial inspected chat workspace was Linux and lacked Rust and Cargo. Rust 1.98.1 is pinned for chunk 00, but build verification is recorded separately in [status.md](status.md). That initial environment had restricted network access. The subsequent macOS trials established native UI and retrieval builds on Apple Silicon using Command Line Tools; see the trial evidence. Native editor interaction still requires an unlocked target Mac.
 
 The target desktop is needed early for editor selection, keyboard shortcuts, clipboard, input methods, font scaling, accessibility, file dialogs, credential storage, provider login, and actual perceived performance. Target-OS build runners can automate compilation and packaging, but do not replace human interaction testing. A Linux build does not verify a macOS or Windows app.
 
@@ -35,16 +35,18 @@ Local full development is optional if CI supplies test installers. If editing/bu
 
 ## Phase A — remove architectural risks
 
+**2026-09-27 sequencing update:** the current requested **Chunk 02 provider lifecycle follow-up** extends provider trial 01 with harness-process persistence, managed-auth recovery checks, and Apple Silicon sidecar supervision. Its [plan](chunk-02-plan.md) and [evidence](../experiments/codex-app-server/CHUNK-02.md) use that delivery label. The originally numbered editor trial 02 below remains a separate pending roadmap item; this follow-up does not implement or complete it.
+
 ### 00. Reproducible build route
 Prerequisite: macOS Apple Silicon selected; identify available repository/runner access.
 Deliverable: pinned Rust toolchain, minimal build probe, setup instructions, CI proposal or configuration when authorized.
 Done: a clean environment builds and tests a tiny Rust target; target-OS compilation has an identified route. Record unavailable dependencies explicitly.
 Where: cloud; target-OS runner or local machine for native build proof.
 
-### 01. Provider and Rig trial
-Prerequisite: 00; test Codex subscription access through Rig first.
-Deliverable: disposable integration harness for login/configuration, streaming, one read-only tool, cancellation, and history replay.
-Done: deterministic fake-provider tests pass, and an authorized live account check proves the required authentication route. Account access and token refresh limitations are recorded.
+### 01. Provider trial
+Prerequisite: 00; compare direct Rig integration with official Codex App Server for subscription access.
+Deliverable: disposable integration harness for account state, streaming, one read-only tool, cancellation, and conversation continuation.
+Done: deterministic credential-free tests pass, and an authorized live account check proves the required authentication route. Account access and token refresh limitations are recorded.
 Where: cloud for fake-provider work; local or otherwise approved environment for login/live checks.
 
 ### 02. Desktop editor trial
@@ -54,16 +56,24 @@ Candidate: GPUI Kit for native Markdown editing/review. If formatted in-place ed
 Done: user tries the selection/comment flow on the target OS; resizing, clipboard, Unicode, undo, and deleted anchor behavior are understood. Select one UI and document model.
 Where: implementation in cloud where builds permit; early local interaction test required.
 
+2026-09-27: [Native editor implementation](../experiments/editor-trial/README.md) and automated checks are available. Native inspection was blocked by the locked Mac, so interaction acceptance and the framework/document-model decision are still pending; see [evidence](../experiments/editor-trial/EVIDENCE.md).
+
 ### 03. Retrieval adapter trial
 Prerequisite: 00; approved sample documents.
 Deliverable: common query/evidence types plus keyword and semantic/hybrid adapters; fixed comparison queries and expected sources. Trial LanceDB and FastEmbed; evaluate Swiftide only where it reduces ingestion work.
 Done: changing a profile does not alter caller code; all methods return source/version/passage references and obey the same filters. Record quality, latency, disk use, and model download needs.
 Where: cloud on sample data; local performance check later.
 
+2026-09-27: retrieval adapter trial is implemented and verified on `trial/retrieval-adapters`, using only synthetic fixtures. All three profiles, consistent filters, provenance and local reopening were exercised. This establishes integration feasibility, not representative-corpus quality or production readiness. Native editor interaction acceptance remains blocked. See [trial evidence](retrieval-trial-evidence.md).
+
 ### 04. Architecture checkpoint
 Prerequisite: 01–03.
 Deliverable: concise design fixing the chosen UI, provider seam, document model, persistence responsibilities, and retrieval contract; dependency versions and licenses recorded.
 Done: critical uncertainties resolved or explicitly deferred; user approves the concrete design before product implementation. Graph remains a required later capability, not a dependency blocking useful hybrid retrieval.
+
+2026-09-27: [Concrete checkpoint proposal](architecture-checkpoint.md) and [observed dependency record](architecture-dependencies.md) prepared from the trials. Status remains proposed: editor acceptance is pending, and user approval is required before product implementation.
+
+2026-09-28: user approved the concrete architecture and explicitly deferred native editor acceptance. Roadmap 04 is accepted on that basis; GPUI remains provisional and deferred native checks remain required. Bounded chunk 05 work has started; see [plan](desktop-shell-plan.md).
 
 ## Phase B — first usable desktop workflow
 
@@ -72,10 +82,14 @@ Prerequisite: 04.
 Deliverable: one app window, navigation, typed commands/events, background task ownership, selected data directory.
 Done: window opens on the target OS; UI stays responsive while a deterministic background operation runs. Closing during work has defined behavior.
 
+2026-09-28: bounded shell implementation and deterministic verification are available on `trial/desktop-shell`; [evidence](desktop-shell-evidence.md) records lifecycle/review results. Native launch/interaction/close acceptance is still open because the Mac is locked. This is an implementation checkpoint, not accepted completion of chunk 05.
+
 ### 06. Authoritative storage and recovery
 Prerequisite: 05.
 Deliverable: SQLite migrations, source/version records, session/message records, operation IDs and state transitions.
 Done: acknowledged data survives restart; repeated request IDs do not start new work; uncertain in-flight work is marked interrupted after a crash; corrupt/newer databases are not silently replaced.
+
+2026-09-28: independent backend implementation and process-crash verification are available on `trial/storage-recovery`; [evidence](storage-recovery-evidence.md) records migrations, operation semantics, forced-process tests and limits. Native shell acceptance remains open; this backend checkpoint does not imply desktop integration or power-loss qualification.
 
 ### 07. Import and version tracking
 Prerequisite: 06.
@@ -97,6 +111,8 @@ Prerequisite: 01, 06, 09.
 Deliverable: streamed answers using retrieved evidence, clickable source references, usage where available, cancellation and session reopening.
 Done: import → search → ask → inspect sources → close/reopen succeeds. Provider failure and client/UI detachment do not duplicate requests or falsely report success.
 Milestone: first useful desktop build for personal trial.
+
+2026-09-28: the implementation slice spanning 07–10 is integrated on `trial/end-to-end-flow`. [Evidence](end-to-end-flow-evidence.md) records real imports, all three profiles, grounded subscription answers and separate-process continuation. The native UI exposes the same workflow, but actual native interaction remains unverified while the Mac is locked. These are first-flow implementation results, not representative-corpus search qualification or accepted native completion.
 
 ## Phase C — writing and review
 
@@ -153,7 +169,7 @@ Defer multi-user collaboration, sync, plugin marketplaces, generic agent orchest
 
 ## Immediate next step
 
-Verify chunk 00's Rust build route, then execute only Phase A initially, beginning with Codex/Rig access and the target-OS editor trial. Do not install every candidate framework in the main app before the trials. Re-estimate scope after Phase A using actual build and integration evidence rather than a guessed total duration.
+Chunk 00's macOS CLI build and chunk 01's Codex App Server subscription route are verified in [status.md](status.md) and [the provider trial](../experiments/codex-app-server/README.md). The synthetic retrieval adapter trial is now verified. The user approved the architecture with native editor acceptance explicitly deferred on 2026-09-28. The bounded shell and independent storage backend implementations are now available. The first end-to-end import/search/grounded-answer workflow is now implemented and exercised headlessly with the live subscription provider. Complete native flow interaction checks alongside editor acceptance when the Mac is unlocked; then proceed to writing/review milestones. Do not install every candidate framework in the main app before those trials. Re-estimate scope after Phase A using actual build and integration evidence rather than a guessed total duration.
 
 ## References
 
@@ -169,3 +185,11 @@ Verify chunk 00's Rust build route, then execute only Phase A initially, beginni
 - Cloud environment configuration: https://learn.chatgpt.com/docs/environments/cloud-environment
 
 Dependency choices remain candidates until the trials pass. Prior research established documented capabilities, not successful integration or measured quality on the user's corpus.
+
+Native follow-up (2026-09-28): the first useful flow through chunk 10 has now passed the synthetic native acceptance described in [the evidence](end-to-end-flow-evidence.md#native-acceptance-after-unlock-2026-09-28), including restart, cancellation and active-turn close. Earlier locked-Mac notes are historical; this does not qualify release packaging or all editor interactions.
+
+## Focused desktop usability follow-up
+
+2026-09-28: the user requested native file selection, usable window layouts, clear progress/errors and repeatable local launching on `trial/end-to-end-flow`, continuing `7380b63`. This is a focused follow-up to the accepted synthetic flow, before writing/review work. See the [plan](desktop-usability-plan.md) and [verification record](desktop-usability-evidence.md). It does not include a merge, release, storage migration or provider replacement.
+
+The usability follow-up now has verified native selection, small-window scrolling, clearer progress/error presentation, saved-answer discovery and same-workspace local relaunch. Automated checks and Astra review passed; [evidence](desktop-usability-evidence.md) records native observations and remaining qualification. This is still a personal trial, not roadmap 18 release acceptance.

@@ -1,0 +1,19 @@
+[package]
+name = "brn-editor-trial"
+version = "0.1.0"
+edition = "2024"
+
+[features]
+default = []
+native-ui = ["dep:gpui-kit"]
+
+[dependencies]
+similar = "2.7"
+gpui-kit = { version = "=0.6.6", optional = true, features = ["tree-sitter-markdown"] }
+
+[[bin]]
+name = "brn-editor-trial"
+path = "src/main.rs"
+required-features = ["native-ui"]
+
+[workspace]
