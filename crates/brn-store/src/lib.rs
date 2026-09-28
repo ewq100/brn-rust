@@ -11,8 +11,13 @@ use std::{
     path::{Path, PathBuf},
 };
 use uuid::Uuid;
+pub mod anchors;
 mod drafts;
 mod workflow;
+pub use anchors::{
+    AmbiguityReason, AnchorProjection, AnchorState, EditTrace, OriginalAnchor, RecoveryReference,
+    TextEdit, apply_edit, derive_edit, map_anchor, replay_trace,
+};
 pub use drafts::{Draft, DraftRevision, DraftStamp, MAX_DRAFT_BYTES, RevisionKind};
 pub use workflow::{Approval, ChatTurn, ImportResult, SourceDocument};
 
