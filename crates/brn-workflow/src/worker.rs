@@ -2,8 +2,9 @@
 use crate::{Config, SearchResult, SessionSummary, Workspace};
 pub use brn_retrieval::{Evidence, Profile};
 pub use brn_store::{
-    Approval, ChatTurn, Draft, DraftRevision, DraftStamp, ImportResult, MAX_DRAFT_BYTES,
-    OperationStatus, SourceDocument,
+    Approval, ChatTurn, CommentAnchorSnapshot, CommentCapture, CommentCreated, CommentStatusChange,
+    CommentStatusChanged, Draft, DraftComments, DraftRevision, DraftStamp, DraftWriteWithComments,
+    ImportResult, MAX_DRAFT_BYTES, OperationStatus, SourceDocument,
 };
 use std::{
     collections::VecDeque,
@@ -50,6 +51,21 @@ pub enum Action {
     OpenDraft {
         id: Uuid,
     },
+    OpenDraftComments {
+        id: Uuid,
+    },
+    RefreshDraftComments {
+        id: Uuid,
+    },
+    CreateDraftComment {
+        request: CommentCapture,
+    },
+    WriteDraftWithComments {
+        request: DraftWriteWithComments,
+    },
+    SetCommentStatus {
+        request: CommentStatusChange,
+    },
     CreateDraft {
         op: Uuid,
         title: String,
@@ -92,6 +108,8 @@ impl Action {
     pub fn generation(&self) -> Option<u64> {
         match self {
             Self::Search { generation, .. } | Self::Ask { generation, .. } => Some(*generation),
+            Self::CreateDraftComment { request } => Some(request.generation),
+            Self::WriteDraftWithComments { request } => Some(request.generation),
             _ => None,
         }
     }
@@ -131,6 +149,33 @@ pub enum Outcome {
     DraftOpened {
         id: Uuid,
         draft: Draft,
+    },
+    DraftCommentsOpened {
+        id: Uuid,
+        saved: DraftComments,
+        snapshots: Vec<CommentAnchorSnapshot>,
+    },
+    DraftCommentsRefreshed {
+        id: Uuid,
+        saved: DraftComments,
+        snapshots: Vec<CommentAnchorSnapshot>,
+    },
+    DraftCommentCreated {
+        result: CommentCreated,
+        snapshots: Vec<CommentAnchorSnapshot>,
+    },
+    DraftWrittenWithComments {
+        op: Uuid,
+        draft_id: Uuid,
+        submitted_generation: u64,
+        submitted_text: String,
+        saved: DraftComments,
+        snapshots: Vec<CommentAnchorSnapshot>,
+    },
+    CommentStatusChanged {
+        result: CommentStatusChanged,
+        saved: DraftComments,
+        snapshots: Vec<CommentAnchorSnapshot>,
     },
     DraftCreated {
         draft: Draft,
@@ -508,6 +553,48 @@ fn execute(
             .draft(id)?
             .ok_or("draft does not exist".into())
             .map(|draft| Outcome::DraftOpened { id, draft }),
+        Action::OpenDraftComments { id } => Ok(Outcome::DraftCommentsOpened {
+            id,
+            saved: workspace.draft_comments(id)?,
+            snapshots: workspace.comment_anchor_snapshots(id)?,
+        }),
+        Action::RefreshDraftComments { id } => Ok(Outcome::DraftCommentsRefreshed {
+            id,
+            saved: workspace.draft_comments(id)?,
+            snapshots: workspace.comment_anchor_snapshots(id)?,
+        }),
+        Action::CreateDraftComment { request } => {
+            let id = request.draft_id;
+            let result = workspace.create_draft_comment(request)?;
+            Ok(Outcome::DraftCommentCreated {
+                result,
+                snapshots: workspace.comment_anchor_snapshots(id)?,
+            })
+        }
+        Action::WriteDraftWithComments { request } => {
+            let op = request.op;
+            let draft_id = request.draft_id;
+            let submitted_generation = request.generation;
+            let submitted_text = request.text.clone();
+            let saved = workspace.write_draft_with_comments(request)?;
+            Ok(Outcome::DraftWrittenWithComments {
+                op,
+                draft_id,
+                submitted_generation,
+                submitted_text,
+                saved,
+                snapshots: workspace.comment_anchor_snapshots(draft_id)?,
+            })
+        }
+        Action::SetCommentStatus { request } => {
+            let id = request.draft_id;
+            let result = workspace.set_comment_status(request)?;
+            Ok(Outcome::CommentStatusChanged {
+                result,
+                saved: workspace.draft_comments(id)?,
+                snapshots: workspace.comment_anchor_snapshots(id)?,
+            })
+        }
         Action::CreateDraft { op, title, text } => workspace
             .create_draft(op, &title, &text)
             .map(|draft| Outcome::DraftCreated { draft }),

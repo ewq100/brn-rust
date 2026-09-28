@@ -1,4 +1,5 @@
 //! Shared authoritative workflow used by the desktop and headless driver.
+mod comments;
 mod drafts;
 pub mod worker;
 use brn_provider::{Client, Config as ProviderConfig, TurnStatus};
@@ -18,6 +19,11 @@ use uuid::Uuid;
 
 pub use brn_retrieval::Profile as SearchProfile;
 pub use brn_store::Approval as SearchApproval;
+pub use brn_store::{
+    AmbiguityReason, AnchorState, CommentAnchorSnapshot, CommentCapture, CommentCreated,
+    CommentStatus, CommentStatusChange, CommentStatusChanged, DraftComment, DraftCommentView,
+    DraftComments, DraftWriteWithComments, EditTrace, TextEdit,
+};
 pub type Result<T> = std::result::Result<T, String>;
 pub const MAX_IMPORT_BYTES: usize = 1024 * 1024;
 const MAX_CONTEXT_BYTES: usize = 20_000;
