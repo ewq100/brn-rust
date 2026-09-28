@@ -3,18 +3,20 @@ use brn_workflow::worker::{
 };
 use brn_workflow::{Config, SearchResult, SessionSummary};
 use gpui_kit::{
-    AppContext, Context, Entity, Subscription, Task, Window, WindowOptions,
+    AppContext, Bounds, Context, Entity, PathPromptOptions, Subscription, Task, Window,
+    WindowBounds, WindowOptions,
+    base::Disableable,
     component::{
         Root,
         button::Button,
         input::{Editor, EditorState, InputEvent},
     },
-    div,
+    div, point,
     prelude::*,
-    px,
+    px, size,
 };
 use std::path::PathBuf;
-use std::time::Duration;
+use std::time::{Duration, Instant};
 use uuid::Uuid;
 
 #[derive(Clone, Copy, PartialEq, Eq)]
@@ -22,6 +24,41 @@ enum Page {
     Workspace,
     Activity,
     Settings,
+}
+
+#[derive(Debug, Clone)]
+enum Phase {
+    Opening,
+    Idle,
+    Running { label: String, since: Instant },
+    Cancelling { label: String, since: Instant },
+    Failed(String),
+}
+impl Phase {
+    fn can_submit(&self) -> bool {
+        matches!(self, Self::Idle)
+    }
+    fn terminal(&mut self, initial: bool, error: Option<&str>) {
+        *self = if initial {
+            match error {
+                Some(error) => Self::Failed(error.to_string()),
+                None => Self::Idle,
+            }
+        } else {
+            Self::Idle
+        };
+    }
+    fn cancel(&mut self) {
+        if let Self::Running { label, since } = self {
+            *self = Self::Cancelling {
+                label: label.clone(),
+                since: *since,
+            };
+        }
+    }
+    fn shows_live_answer(&self) -> bool {
+        matches!(self, Self::Running { label, .. } | Self::Cancelling { label, .. } if label == "Answer")
+    }
 }
 
 fn compact_title(title: &str) -> String {
@@ -60,10 +97,25 @@ fn saved_evidence_button_label(index: usize, hit: &Evidence) -> String {
         hit.end_byte
     )
 }
+fn spaced_identifier(value: &str) -> String {
+    value
+        .chars()
+        .enumerate()
+        .flat_map(|(i, c)| {
+            if i > 0 && i % 32 == 0 {
+                vec!['\u{200b}', c]
+            } else {
+                vec![c]
+            }
+        })
+        .collect()
+}
 struct Desktop {
     worker: Worker,
     query: Entity<EditorState>,
-    import_path: Entity<EditorState>,
+    import_path: Option<PathBuf>,
+    choosing_file: bool,
+    phase: Phase,
     page: Page,
     path: PathBuf,
     config: Config,
@@ -82,6 +134,7 @@ struct Desktop {
     active_generation: Option<u64>,
     streamed_text: String,
     progress: String,
+    last_elapsed: u64,
     last_update: u64,
     _subscriptions: Vec<Subscription>,
     _poll_task: Task<()>,
@@ -89,7 +142,6 @@ struct Desktop {
 impl Desktop {
     fn new(path: PathBuf, config: Config, window: &mut Window, cx: &mut Context<Self>) -> Self {
         let query = cx.new(|cx| EditorState::new(window, cx).default_value(""));
-        let import_path = cx.new(|cx| EditorState::new(window, cx).default_value(""));
         let query_subscription = cx.subscribe(&query, |this, _, event: &InputEvent, cx| {
             if matches!(event, InputEvent::Change) {
                 this.generation = this.generation.wrapping_add(1);
@@ -116,7 +168,9 @@ impl Desktop {
         Self {
             worker: Worker::start(path.clone(), config.clone()),
             query,
-            import_path,
+            import_path: None,
+            choosing_file: false,
+            phase: Phase::Opening,
             page: Page::Workspace,
             path,
             config,
@@ -135,6 +189,7 @@ impl Desktop {
             active_generation: None,
             streamed_text: String::new(),
             progress: String::new(),
+            last_elapsed: 0,
             last_update: 0,
             _subscriptions: vec![query_subscription, quit_subscription],
             _poll_task: poll_task,
@@ -153,8 +208,14 @@ impl Desktop {
         }
         while let Some(terminal) = self.worker.take_terminal() {
             changed = true;
+            let initial = terminal.id == 0;
+            self.phase
+                .terminal(initial, terminal.outcome.as_ref().err().map(String::as_str));
             match terminal.outcome {
-                Err(error) => self.message = error,
+                Err(error) => {
+                    self.streamed_text.clear();
+                    self.message = error;
+                }
                 Ok(Outcome::Ready {
                     sources,
                     sessions,
@@ -240,32 +301,52 @@ impl Desktop {
                 }
             }
         }
+        let elapsed = match &self.phase {
+            Phase::Running { since, .. } | Phase::Cancelling { since, .. } => {
+                since.elapsed().as_secs()
+            }
+            _ => 0,
+        };
+        if elapsed != self.last_elapsed {
+            self.last_elapsed = elapsed;
+            changed = true;
+        }
         if changed {
             cx.notify();
         }
     }
     fn submit(&mut self, action: Action, label: &str, cx: &mut Context<Self>) {
+        if !self.phase.can_submit() {
+            return;
+        }
         let generation = action.generation();
         match self.worker.submit(action) {
             Ok(id) => {
                 self.active = Some(id);
+                self.phase = Phase::Running {
+                    label: label.into(),
+                    since: Instant::now(),
+                };
                 self.active_generation = generation;
                 self.progress.clear();
                 self.streamed_text.clear();
                 self.message = format!("{label} started.");
             }
-            Err(error) => self.message = error,
+            Err(error) => {
+                if error == "workspace worker unavailable" {
+                    self.phase = Phase::Failed(error.clone());
+                }
+                self.message = error;
+            }
         }
         cx.notify();
     }
     fn import(&mut self, cx: &mut Context<Self>) {
-        let path = self.import_path.read(cx).value().trim().to_string();
-        if path.is_empty() {
-            self.message = "Enter an absolute .md or .txt file path.".into();
+        let Some(path) = self.import_path.clone() else {
+            self.message = "Choose a UTF-8 .md or .txt file first.".into();
             cx.notify();
             return;
-        }
-        let path = PathBuf::from(path);
+        };
         if !path.is_absolute() {
             self.message = "Import path must be absolute.".into();
             cx.notify();
@@ -279,6 +360,39 @@ impl Desktop {
             "Import",
             cx,
         );
+    }
+    fn choose_file(&mut self, cx: &mut Context<Self>) {
+        if self.choosing_file || !self.phase.can_submit() {
+            return;
+        }
+        self.choosing_file = true;
+        let receiver = cx.prompt_for_paths(PathPromptOptions {
+            files: true,
+            directories: false,
+            multiple: false,
+            prompt: Some("Choose source".into()),
+        });
+        cx.spawn(async move |this, cx| {
+            let selection = receiver.await;
+            let _ = this.update(cx, |this, cx| {
+                this.choosing_file = false;
+                match selection {
+                    Ok(Ok(Some(paths))) => {
+                        if let Some(path) = paths.into_iter().next() {
+                            this.import_path = Some(path);
+                            this.message =
+                                "File selected. Import and approve it when ready.".into();
+                        }
+                    }
+                    Ok(Ok(None)) => {}
+                    Ok(Err(error)) => this.message = format!("File chooser failed: {error}"),
+                    Err(error) => this.message = format!("File chooser closed: {error}"),
+                }
+                cx.notify();
+            });
+        })
+        .detach();
+        cx.notify();
     }
     fn query(&self, cx: &Context<Self>) -> String {
         self.query.read(cx).value().trim().to_string()
@@ -329,6 +443,9 @@ impl Desktop {
         cx.notify();
     }
     fn choose_session(&mut self, session: Option<Uuid>, cx: &mut Context<Self>) {
+        if !self.phase.can_submit() {
+            return;
+        }
         self.selected_session = session;
         self.generation = self.generation.wrapping_add(1);
         self.search = None;
@@ -352,18 +469,31 @@ impl Render for Desktop {
             .id("workspace-body")
             .flex()
             .flex_col()
+            .flex_1()
+            .min_h(px(0.))
+            .min_w(px(0.))
             .gap_3()
             .p_3()
-            .overflow_y_scroll();
+            .overflow_y_scroll()
+            .child(self.message.clone());
+        if matches!(self.phase, Phase::Failed(_)) {
+            body = body.child("Workspace unavailable. Review the error above, correct the workspace, then relaunch.");
+        }
+        if !self.progress.is_empty()
+            && matches!(self.phase, Phase::Running { .. } | Phase::Cancelling { .. })
+        {
+            body = body.child(format!("Progress: {}", self.progress));
+        }
         match self.page {
             Page::Workspace => {
                 body = body.child("Grounded workspace")
                     .child("Import a UTF-8 Markdown or text file and explicitly approve it for search.")
-                    .child(Editor::new(&self.import_path).h(px(56.)).aria_label("Absolute source file path"))
-                    .child(Button::new("import-approved").label("Import and approve for search").on_click(cx.listener(|this, _, _, cx| this.import(cx))))
-                    .child(div().flex().gap_2()
-                        .child(Button::new("build-index").label("Build index").on_click(cx.listener(|this, _, _, cx| this.submit(Action::Build, "Index build", cx))))
-                        .child(Button::new("refresh").label("Refresh").on_click(cx.listener(|this, _, _, cx| this.submit(Action::Refresh { session: this.selected_session }, "Refresh", cx)))));
+                    .child(div().flex().flex_wrap().gap_2()
+                        .child(Button::new("choose-file").label(if self.choosing_file { "Choosing…" } else { "Choose file…" }).disabled(self.choosing_file || !self.phase.can_submit()).on_click(cx.listener(|this, _, _, cx| this.choose_file(cx))))
+                        .child(Button::new("import-approved").label("Import and approve").disabled(!self.phase.can_submit() || self.import_path.is_none()).on_click(cx.listener(|this, _, _, cx| this.import(cx))))
+                        .child(Button::new("build-index").label("Build index").disabled(!self.phase.can_submit()).on_click(cx.listener(|this, _, _, cx| this.submit(Action::Build, "Index build", cx))))
+                        .child(Button::new("refresh").label("Refresh").disabled(!self.phase.can_submit()).on_click(cx.listener(|this, _, _, cx| this.submit(Action::Refresh { session: this.selected_session }, "Refresh", cx)))))
+                    .child(div().min_w(px(0.)).child(format!("Selected file: {}", self.import_path.as_ref().map_or("none".into(), |p| spaced_identifier(&p.display().to_string())))));
                 body = body.child(format!("Sources: {}", self.sources.len()));
                 for source in &self.sources {
                     let source_id = source.source_id;
@@ -371,43 +501,56 @@ impl Render for Desktop {
                     body = body.child(
                         div()
                             .flex()
+                            .flex_col()
+                            .min_w(px(0.))
                             .gap_2()
                             .child(format!(
-                                "{} · {:?} · revision {} · {} bytes",
+                                "{} · {:?} · {} bytes",
                                 source.title,
                                 source.approval,
-                                version,
                                 source.bytes.len()
                             ))
+                            .child(format!(
+                                "Revision: {}",
+                                spaced_identifier(&version.to_string())
+                            ))
                             .child(
-                                Button::new(format!("approve-{source_id}"))
-                                    .label("Approve")
-                                    .on_click(cx.listener(move |this, _, _, cx| {
-                                        this.submit(
-                                            Action::SetApproval {
-                                                source: source_id,
-                                                version,
-                                                approval: Approval::Approved,
-                                            },
-                                            "Approve",
-                                            cx,
-                                        )
-                                    })),
-                            )
-                            .child(
-                                Button::new(format!("withdraw-{source_id}"))
-                                    .label("Withdraw")
-                                    .on_click(cx.listener(move |this, _, _, cx| {
-                                        this.submit(
-                                            Action::SetApproval {
-                                                source: source_id,
-                                                version,
-                                                approval: Approval::Withdrawn,
-                                            },
-                                            "Withdraw",
-                                            cx,
-                                        )
-                                    })),
+                                div()
+                                    .flex()
+                                    .flex_wrap()
+                                    .gap_2()
+                                    .child(
+                                        Button::new(format!("approve-{source_id}"))
+                                            .label("Approve")
+                                            .disabled(!self.phase.can_submit())
+                                            .on_click(cx.listener(move |this, _, _, cx| {
+                                                this.submit(
+                                                    Action::SetApproval {
+                                                        source: source_id,
+                                                        version,
+                                                        approval: Approval::Approved,
+                                                    },
+                                                    "Approve",
+                                                    cx,
+                                                )
+                                            })),
+                                    )
+                                    .child(
+                                        Button::new(format!("withdraw-{source_id}"))
+                                            .label("Withdraw")
+                                            .disabled(!self.phase.can_submit())
+                                            .on_click(cx.listener(move |this, _, _, cx| {
+                                                this.submit(
+                                                    Action::SetApproval {
+                                                        source: source_id,
+                                                        version,
+                                                        approval: Approval::Withdrawn,
+                                                    },
+                                                    "Withdraw",
+                                                    cx,
+                                                )
+                                            })),
+                                    ),
                             ),
                     );
                 }
@@ -416,11 +559,13 @@ impl Render for Desktop {
                     .child(
                         Editor::new(&self.query)
                             .h(px(110.))
+                            .flex_shrink_0()
                             .aria_label("Question for approved sources"),
                     )
                     .child(
                         div()
                             .flex()
+                            .flex_wrap()
                             .gap_2()
                             .child(Button::new("profile-keyword").label("Keyword").on_click(
                                 cx.listener(|this, _, _, cx| {
@@ -442,28 +587,20 @@ impl Render for Desktop {
                     .child(
                         div()
                             .flex()
+                            .flex_wrap()
                             .gap_2()
                             .child(
                                 Button::new("search")
                                     .label("Search")
+                                    .disabled(!self.phase.can_submit())
                                     .on_click(cx.listener(|this, _, _, cx| this.search(cx))),
                             )
                             .child(
                                 Button::new("ask")
                                     .label("Ask from sources")
+                                    .disabled(!self.phase.can_submit())
                                     .on_click(cx.listener(|this, _, _, cx| this.ask(cx))),
-                            )
-                            .child(Button::new("cancel").label("Cancel").on_click(cx.listener(
-                                |this, _, _, cx| {
-                                    this.message = if this.worker.cancel() {
-                                        "Cancellation requested; awaiting safe stop."
-                                    } else {
-                                        "No running action."
-                                    }
-                                    .into();
-                                    cx.notify();
-                                },
-                            ))),
+                            ),
                     );
                 if let Some(search) = &self.search {
                     body = body.child(format!("Search passages for: {}", search.query));
@@ -485,8 +622,27 @@ impl Render for Desktop {
                         hit.source_id, hit.version_id, hit.start_byte, hit.end_byte, hit.quote
                     ));
                 }
-                if !self.streamed_text.is_empty() {
-                    body = body.child(format!("Answer in progress:\n{}", self.streamed_text));
+                if self.phase.shows_live_answer() && !self.streamed_text.is_empty() {
+                    let heading = if matches!(self.phase, Phase::Cancelling { .. }) {
+                        "Partial answer while cancellation finishes (not saved)"
+                    } else {
+                        "Answer in progress (not saved)"
+                    };
+                    body = body.child(format!("{heading}:\n{}", self.streamed_text));
+                }
+                if let Some(turn) = self.selected_turn.and_then(|i| self.history.get(i))
+                    && let Some(answer) = &turn.answer
+                {
+                    body = body
+                        .child(format!("Saved answer ({:?}):\n{}", turn.status, answer))
+                        .child(
+                            Button::new("view-saved-answer")
+                                .label("View saved answer and evidence")
+                                .on_click(cx.listener(|this, _, _, cx| {
+                                    this.page = Page::Activity;
+                                    cx.notify();
+                                })),
+                        );
                 }
             }
             Page::Activity => {
@@ -495,6 +651,7 @@ impl Render for Desktop {
                     .child(
                         Button::new("new-session")
                             .label("New session")
+                            .disabled(!self.phase.can_submit())
                             .on_click(cx.listener(|this, _, _, cx| this.choose_session(None, cx))),
                     )
                     .child(format!(
@@ -508,8 +665,8 @@ impl Render for Desktop {
                         body.child(
                             Button::new(format!("session-{id}"))
                                 .label(format!(
-                                    "{} · {} turns{}",
-                                    id,
+                                    "{}… · {} turns{}",
+                                    &id.to_string()[..8],
                                     session.turns,
                                     if session.has_thread {
                                         " · provider linked"
@@ -517,6 +674,7 @@ impl Render for Desktop {
                                         " · recovery needed"
                                     }
                                 ))
+                                .disabled(!self.phase.can_submit())
                                 .on_click(cx.listener(move |this, _, _, cx| {
                                     this.choose_session(Some(id), cx)
                                 })),
@@ -527,7 +685,9 @@ impl Render for Desktop {
                         Button::new(format!("turn-{i}"))
                             .label(format!(
                                 "{} · {} · {:?}",
-                                turn.question, turn.profile, turn.status
+                                compact_title(&turn.question),
+                                turn.profile,
+                                turn.status
                             ))
                             .on_click(cx.listener(move |this, _, _, cx| {
                                 this.selected_turn = Some(i);
@@ -542,7 +702,7 @@ impl Render for Desktop {
                         turn.question,
                         turn.answer.as_deref().unwrap_or("No answer saved"),
                         turn.status,
-                        turn.provider_turn_id.as_deref().unwrap_or("none")
+                        spaced_identifier(turn.provider_turn_id.as_deref().unwrap_or("none"))
                     ));
                     if let Ok(evidence) = serde_json::from_str::<Vec<Evidence>>(&turn.evidence_json)
                     {
@@ -565,16 +725,25 @@ impl Render for Desktop {
             }
             Page::Settings => {
                 body = body.child("Local settings")
-                    .child(format!("Data directory: {}", self.path.display()))
-                    .child(format!("Codex executable: {}", self.config.codex.as_ref().map_or("not selected".into(), |p| p.display().to_string())))
-                    .child(format!("Retrieval model directory: {}", self.config.model_dir.as_ref().map_or("not selected".into(), |p| p.display().to_string())))
+                    .child(format!("Data directory: {}", spaced_identifier(&self.path.display().to_string())))
+                    .child(format!("Codex executable: {}", self.config.codex.as_ref().map_or("not selected".into(), |p| spaced_identifier(&p.display().to_string()))))
+                    .child(format!("Retrieval model directory: {}", self.config.model_dir.as_ref().map_or("not selected".into(), |p| spaced_identifier(&p.display().to_string()))))
                     .child("Model access uses the existing managed ChatGPT sign-in in Codex. Select an absolute executable with --codex before asking.");
             }
         }
-        let status = if self.active.is_some() {
-            format!("Working · {}", self.progress)
-        } else {
-            "Idle".into()
+        let status = match &self.phase {
+            Phase::Opening => "Opening workspace…".into(),
+            Phase::Idle => "Ready".into(),
+            Phase::Running { label, since } => {
+                format!("{label} · {}s elapsed", since.elapsed().as_secs())
+            }
+            Phase::Cancelling { label, since } => format!(
+                "Cancelling {label} · {}s elapsed · awaiting safe stop",
+                since.elapsed().as_secs()
+            ),
+            Phase::Failed(error) => {
+                format!("Workspace failed to open · {}", compact_title(error))
+            }
         };
         div()
             .id("brn-desktop")
@@ -587,6 +756,7 @@ impl Render for Desktop {
             .child(
                 div()
                     .flex()
+                    .flex_wrap()
                     .gap_2()
                     .child(
                         Button::new("workspace-page")
@@ -614,7 +784,23 @@ impl Render for Desktop {
                     ),
             )
             .child(status)
-            .child(self.message.clone())
+            .child(if matches!(self.phase, Phase::Failed(_)) {
+                "Review details below".into()
+            } else {
+                compact_title(&self.message)
+            })
+            .child(
+                Button::new("cancel")
+                    .label("Cancel current action")
+                    .disabled(!matches!(self.phase, Phase::Running { .. }))
+                    .on_click(cx.listener(|this, _, _, cx| {
+                        if this.worker.cancel() {
+                            this.phase.cancel();
+                            this.message = "Cancellation requested; awaiting safe stop.".into();
+                            cx.notify();
+                        }
+                    })),
+            )
             .child(body)
     }
 }
@@ -630,10 +816,18 @@ pub fn run(path: PathBuf, config: Config) {
             })
             .detach();
             cx.spawn(async move |cx| {
-                cx.open_window(WindowOptions::default(), |window, cx| {
-                    let desktop = cx.new(|cx| Desktop::new(path, config, window, cx));
-                    cx.new(|cx| Root::new(desktop, window, cx))
-                })
+                let bounds = Bounds::new(point(px(80.), px(80.)), size(px(1100.), px(800.)));
+                cx.open_window(
+                    WindowOptions {
+                        window_bounds: Some(WindowBounds::Windowed(bounds)),
+                        window_min_size: Some(size(px(800.), px(600.))),
+                        ..Default::default()
+                    },
+                    |window, cx| {
+                        let desktop = cx.new(|cx| Desktop::new(path, config, window, cx));
+                        cx.new(|cx| Root::new(desktop, window, cx))
+                    },
+                )
                 .expect("failed to open BRN desktop window");
             })
             .detach();
@@ -643,6 +837,29 @@ pub fn run(path: PathBuf, config: Config) {
 #[cfg(test)]
 mod tests {
     use super::*;
+    #[test]
+    fn phase_blocks_actions_until_open_and_through_cancellation() {
+        let mut phase = Phase::Opening;
+        assert!(!phase.can_submit());
+        phase.terminal(true, Some("database is newer"));
+        assert!(matches!(phase, Phase::Failed(ref error) if error == "database is newer"));
+        assert!(!phase.can_submit());
+        phase = Phase::Opening;
+        phase.terminal(true, None);
+        assert!(phase.can_submit());
+        phase = Phase::Running {
+            label: "Answer".into(),
+            since: Instant::now(),
+        };
+        assert!(phase.shows_live_answer());
+        phase.cancel();
+        assert!(matches!(phase, Phase::Cancelling { .. }));
+        assert!(phase.shows_live_answer());
+        assert!(!phase.can_submit());
+        phase.terminal(false, Some("cancelled"));
+        assert!(phase.can_submit());
+        assert!(!phase.shows_live_answer());
+    }
     #[test]
     fn evidence_rows_keep_quotes_out_of_fixed_height_buttons() {
         let source_id = Uuid::new_v4();
@@ -676,5 +893,14 @@ mod tests {
             assert!(!label.contains("first line"));
             assert!(label.contains("12..47"));
         }
+    }
+    #[test]
+    fn compact_title_keeps_long_multiline_turns_on_one_short_button_line() {
+        let label = compact_title(
+            "  A very long question about the northern map\nand every route to the cobalt lantern",
+        );
+        assert!(!label.contains('\n'));
+        assert!(label.chars().count() <= 37);
+        assert!(label.ends_with('…'));
     }
 }

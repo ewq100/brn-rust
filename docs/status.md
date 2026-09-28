@@ -68,3 +68,9 @@ Native UI controls are implemented over the same worker/workflow. Native interac
 ### Native end-to-end acceptance (2026-09-28, after unlock)
 
 The first-flow native gate is now observed: import/approval, real indexing, exact passage inspection, hybrid answer, process restart and semantic conversation continuation, cancellation, and closing during an active provider turn. Two completed and two interrupted synthetic turns survived reopening; the closed app and its owned sidecar were reaped. A clipped search label was corrected and visually rechecked. See [native acceptance evidence](end-to-end-flow-evidence.md#native-acceptance-after-unlock-2026-09-28). Packaging/signing, clean-machine installation, natural authentication expiry, broader layouts and screen-reader acceptance remain open.
+
+## Focused desktop usability follow-up
+
+The next requested milestone continues `trial/end-to-end-flow` from `7380b63`: native file selection, scrollable layouts, clear operation/error states and a repeatable unsigned local launcher. The [plan](desktop-usability-plan.md) tracks implementation and the [evidence](desktop-usability-evidence.md) separates automated checks from observed native behavior. Earlier locked-Mac notes above remain historical.
+
+Usability implementation and native checks passed: single-file selection/cancel/validation, wrapped small-window layout with persistent controls, visible saved answers, progress/disabled actions, same-session restart/follow-up and cancellation from Activity. Workspace/native/launcher regressions passed, and Astra final review found no remaining issues. The durable local launcher is `~/Applications/BRN Usability Trial.app`; see the evidence for its explicit workspace/model paths and qualification limits.

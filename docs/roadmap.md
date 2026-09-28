@@ -187,3 +187,9 @@ Chunk 00's macOS CLI build and chunk 01's Codex App Server subscription route ar
 Dependency choices remain candidates until the trials pass. Prior research established documented capabilities, not successful integration or measured quality on the user's corpus.
 
 Native follow-up (2026-09-28): the first useful flow through chunk 10 has now passed the synthetic native acceptance described in [the evidence](end-to-end-flow-evidence.md#native-acceptance-after-unlock-2026-09-28), including restart, cancellation and active-turn close. Earlier locked-Mac notes are historical; this does not qualify release packaging or all editor interactions.
+
+## Focused desktop usability follow-up
+
+2026-09-28: the user requested native file selection, usable window layouts, clear progress/errors and repeatable local launching on `trial/end-to-end-flow`, continuing `7380b63`. This is a focused follow-up to the accepted synthetic flow, before writing/review work. See the [plan](desktop-usability-plan.md) and [verification record](desktop-usability-evidence.md). It does not include a merge, release, storage migration or provider replacement.
+
+The usability follow-up now has verified native selection, small-window scrolling, clearer progress/error presentation, saved-answer discovery and same-workspace local relaunch. Automated checks and Astra review passed; [evidence](desktop-usability-evidence.md) records native observations and remaining qualification. This is still a personal trial, not roadmap 18 release acceptance.
