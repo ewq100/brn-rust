@@ -35,3 +35,8 @@ The editor lockfile also contains `gpui-pre-reqwest 0.12.15` (MIT OR Apache-2.0)
 The proposed first desktop shell should depend only on the UI/core it needs; defer embedding/vector libraries until the search integration chunk. Keep provider and retrieval libraries out of domain types. This avoids treating a successful trial as permission to load every native dependency into the first app window.
 
 Initial development continues with the installed sidecar and explicit model acquisition. A future distributable needs pinned artifact provenance, license/notice inventory, signed/notarized app and sidecar, model acquisition/update rules, and clean-machine/offline acceptance. No signing credentials, account settings or redistribution action is part of this checkpoint.
+
+
+## Storage checkpoint additions (2026-09-28)
+
+Chunk 06 adds `brn-store` independently of the desktop dependency graph. The root lockfile pins rusqlite 0.40.2 (MIT), libsqlite3-sys 0.38.2 (MIT), SHA-256 via sha2 0.10.9 (MIT OR Apache-2.0), UUID generation via uuid 1.26.1 (Apache-2.0 OR MIT), and test-only tempfile 3.27.0 (MIT OR Apache-2.0). These declarations were read from Cargo metadata and downloaded package manifests. Rusqlite uses `default-features = false` with `bundled`, compiling SQLite 3.53.2 from the pinned package (version read from its bundled header) instead of relying on macOS's system SQLite. [Rusqlite features](https://docs.rs/crate/rusqlite/0.40.2/features) document that build choice. No additional paid service or database server is introduced. The original checkpoint table above remains the historical inventory; [storage evidence](storage-recovery-evidence.md) records qualification and remaining limits.

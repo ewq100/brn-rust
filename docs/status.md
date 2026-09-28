@@ -4,7 +4,7 @@ Status: cloud and macOS Apple Silicon CLI build probes verified; private GitHub 
 
 ## Design and implementation record
 
-- The Cargo workspace contains the original dependency-free `brn` probe, a UI-independent `brn-core` crate, and a `brn-desktop` shell with an optional GPUI native feature.
+- The Cargo workspace contains the original dependency-free `brn` probe, a UI-independent `brn-core` crate, a `brn-desktop` shell with an optional GPUI native feature, and an independent `brn-store` SQLite backend.
 - The original `brn` probe accepts exactly one `--help` or `--version` argument. Missing, extra, and unknown arguments return a failure exit code and print an error.
 - Rust 1.98.1 is pinned in `rust-toolchain.toml`; the official stable manifest version was verified before recording it. The profile is minimal, with rustfmt and Clippy components.
 - The existing TypeScript BRN remains separate. The desktop shell has no integrated provider, authoritative storage, retrieval adapter or user data migration; experimental crates remain separate.
@@ -49,3 +49,11 @@ A concrete [architecture proposal](architecture-checkpoint.md) and [dependency r
 On 2026-09-28 the user approved the concrete architecture and explicitly deferred native editor acceptance. The architecture checkpoint is accepted with GPUI provisional; native acceptance is not implied. Bounded desktop-shell implementation is complete on `trial/desktop-shell`, based on `199d8c5`. See [implementation plan](desktop-shell-plan.md). No provider, retrieval or authoritative storage integration is part of this chunk.
 
 Shell implementation verification: native build, formatting, Clippy, 12 core tests, five CLI tests, three headless scenarios and the existing provider/starter regressions passed. Astra review and scoped re-reviews found no remaining Critical or Important source issues. [Commands and limitations](desktop-shell-evidence.md) preserve the still-open native shell/editor acceptance gates. The production workflow is not yet integrated.
+
+## Authoritative storage and recovery (chunk 06)
+
+The independent `brn-store` backend is implemented on `trial/storage-recovery`, based on shell checkpoint `8540de4`. It provides transactional schema migrations, exact immutable source versions, session/message projections, UUID operation deduplication, single-owner exclusion and interrupted-state recovery. Full [plan](storage-recovery-plan.md) and [verification evidence](storage-recovery-evidence.md) record commands, crash tests, review and limitations.
+
+Workspace build/format/Clippy, one storage unit test plus 13 integration entries, existing core/CLI checks and starter/provider regressions passed. Forced-process tests preserve acknowledged records, roll back spilled uncommitted writes and prevent uncertain operations from replaying. Migration-header recovery includes an explicit fault-injection fixture; power-loss durability is not claimed. The desktop shell still uses its in-memory sample and is not wired to this backend.
+
+Next implementation work: chunk 07 Markdown/text import and version tracking over the storage boundary. Native shell/editor acceptance remains open; no vault import, merge or release has occurred.

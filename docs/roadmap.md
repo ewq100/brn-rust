@@ -89,6 +89,8 @@ Prerequisite: 05.
 Deliverable: SQLite migrations, source/version records, session/message records, operation IDs and state transitions.
 Done: acknowledged data survives restart; repeated request IDs do not start new work; uncertain in-flight work is marked interrupted after a crash; corrupt/newer databases are not silently replaced.
 
+2026-09-28: independent backend implementation and process-crash verification are available on `trial/storage-recovery`; [evidence](storage-recovery-evidence.md) records migrations, operation semantics, forced-process tests and limits. Native shell acceptance remains open; this backend checkpoint does not imply desktop integration or power-loss qualification.
+
 ### 07. Import and version tracking
 Prerequisite: 06.
 Deliverable: Markdown/text import, stable IDs, source hashes, ingestion status, duplicate/change handling.
@@ -165,7 +167,7 @@ Defer multi-user collaboration, sync, plugin marketplaces, generic agent orchest
 
 ## Immediate next step
 
-Chunk 00's macOS CLI build and chunk 01's Codex App Server subscription route are verified in [status.md](status.md) and [the provider trial](../experiments/codex-app-server/README.md). The synthetic retrieval adapter trial is now verified. The user approved the architecture with native editor acceptance explicitly deferred on 2026-09-28. The bounded shell implementation is now available; complete its native interaction checks alongside editor acceptance when the Mac is unlocked. Do not install every candidate framework in the main app before those trials. Re-estimate scope after Phase A using actual build and integration evidence rather than a guessed total duration.
+Chunk 00's macOS CLI build and chunk 01's Codex App Server subscription route are verified in [status.md](status.md) and [the provider trial](../experiments/codex-app-server/README.md). The synthetic retrieval adapter trial is now verified. The user approved the architecture with native editor acceptance explicitly deferred on 2026-09-28. The bounded shell and independent storage backend implementations are now available. Next implement chunk 07 Markdown/text import and version tracking; complete native shell interaction checks alongside editor acceptance when the Mac is unlocked. Do not install every candidate framework in the main app before those trials. Re-estimate scope after Phase A using actual build and integration evidence rather than a guessed total duration.
 
 ## References
 
