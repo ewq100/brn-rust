@@ -153,40 +153,47 @@ impl Render for Trial {
                 }
                 Anchor::Unresolved(reason) => format!("Unresolved: {reason}"),
             };
-            comments =
-                comments.child(
-                    div()
-                        .p_2()
-                        .border_1()
-                        .flex()
-                        .flex_col()
-                        .gap_1()
-                        .child(format!("#{id} · {status}"))
-                        .child(format!(
-                            "Original quote ({} bytes):",
-                            comment.original_quote.len()
-                        ))
-                        .child(
-                            div()
-                                .h(px(128.))
-                                .border_1()
-                                .overflow_scrollbar()
-                                .id(format!("quote-scroll-{id}"))
-                                .child(div().font_family("Menlo").flex().flex_col().children(
-                                    comment.original_quote.split('\n').map(|line| {
-                                        div().whitespace_nowrap().child(line.to_owned())
-                                    }),
-                                )),
-                        )
-                        .child(format!("Comment: {}", comment.body))
-                        .child(
-                            Button::new(format!("focus-{id}"))
-                                .label("Show passage")
-                                .on_click(cx.listener(move |this, _, window, cx| {
-                                    this.focus_comment(id, window, cx)
-                                })),
-                        ),
-                );
+            comments = comments.child(
+                div()
+                    .p_2()
+                    .border_1()
+                    .flex()
+                    .flex_col()
+                    .gap_1()
+                    .child(format!("#{id} · {status}"))
+                    .child(format!(
+                        "Original quote ({} bytes):",
+                        comment.original_quote.len()
+                    ))
+                    .child(
+                        div()
+                            .id(format!("quote-scroll-{id}"))
+                            .h(px(128.))
+                            .border_1()
+                            .overflow_y_scroll()
+                            .child(
+                                div()
+                                    .w_full()
+                                    .font_family("Menlo")
+                                    .flex()
+                                    .flex_col()
+                                    .children(
+                                        comment
+                                            .original_quote
+                                            .split('\n')
+                                            .map(|line| div().child(line.to_owned())),
+                                    ),
+                            ),
+                    )
+                    .child(format!("Comment: {}", comment.body))
+                    .child(
+                        Button::new(format!("focus-{id}"))
+                            .label("Show passage")
+                            .on_click(cx.listener(move |this, _, window, cx| {
+                                this.focus_comment(id, window, cx)
+                            })),
+                    ),
+            );
         }
         let pending = self
             .pending

@@ -48,3 +48,7 @@ After the last UI-only review fixes, native build, formatting and native Clippy 
 Delivery is an implementation checkpoint on `trial/editor-selection-comments`; nothing is merged or released. Native acceptance remains blocked on an unlocked Mac. Once unlocked, quit any earlier trial window and relaunch the final binary before following the unchecked native acceptance checklist.
 
 Delivery observation: implementation commit `8a81268aff6b7f401b63d815b00cf62fdb63a1c3` was pushed with `git push -u origin trial/editor-selection-comments`; `git ls-remote origin refs/heads/trial/editor-selection-comments` returned the identical SHA and the worktree was clean. This documentation-only follow-up records that result; the final response reports the final remote-verified HEAD.
+
+## Deferred native follow-up — 2026-09-28
+
+The current-source editor has now been exercised on the unlocked Mac as the prerequisite to draft/revision work. Keyboard/mouse capture and focus handoff, nearby edits, deletion/duplication warnings, full retained quotes, Show passage, Unicode clipboard, undo/redo, long-document scrolling, narrow resizing and diff rendering were observed. A long-quote scrolling defect was corrected and natively rechecked. See [the new detailed evidence](../../docs/draft-revisions-evidence.md#deferred-native-editor-checks). Earlier locked-Mac notes are historical. Agent-observable checks are complete; user subjective acceptance, IME and accessibility qualification remain distinct.
