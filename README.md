@@ -1,8 +1,8 @@
 # BRN Rust desktop trials
 
-This repository contains the Rust BRN personal desktop trial: selected Markdown/text import, explicit search approval, persistent versions, keyword/semantic/hybrid retrieval, grounded Codex App Server answers, exact source evidence and saved conversation reopening. The native UI and headless driver share the same workflow. The original CLI probe and standalone experiments remain available for regression and historical evidence. Writing/comments, publication, graph integration and migration from the existing TypeScript application are still later work.
+This repository contains the Rust BRN personal desktop trial: selected Markdown/text import, explicit search approval, persistent versions, keyword/semantic/hybrid retrieval, grounded Codex App Server answers, exact source evidence and saved conversation reopening. The native UI and headless driver share the same workflow. The original CLI probe and standalone experiments remain available for regression and historical evidence. Draft editing, saved working copies, immutable revisions and comparisons are implemented; see the [chunk 11 evidence](docs/draft-revisions-evidence.md). Production anchored comments, publication, graph integration and migration from the existing TypeScript application remain later work.
 
-The intended application target is macOS on Apple Silicon. This initial command is platform-neutral so a Rust-capable cloud runner can verify the source build before native macOS work begins. The [approved architecture](docs/architecture-checkpoint.md) selects the application boundaries, with Codex App Server as the first provider route and replaceable local retrieval adapters. The synthetic native workflow has passed import, retrieval, grounded answers, restart, cancellation and active-turn shutdown; broader editor and accessibility acceptance remains deferred.
+The intended application target is macOS on Apple Silicon. This initial command is platform-neutral so a Rust-capable cloud runner can verify the source build before native macOS work begins. The [approved architecture](docs/architecture-checkpoint.md) selects the application boundaries, with Codex App Server as the first provider route and replaceable local retrieval adapters. The synthetic native workflow has passed import, retrieval, grounded answers, restart, cancellation and active-turn shutdown; the deferred synthetic editor checks have now been observed, while user subjective suitability, IME and accessibility qualification remain separate.
 
 The source lives in the separate private repository `ewq100/brn-rust`. No license or public release decision has been made.
 
@@ -70,3 +70,11 @@ bash scripts/verify-storage.sh
 ```
 
 [Storage plan](docs/storage-recovery-plan.md) and [evidence/recovery limits](docs/storage-recovery-evidence.md) describe the checkpoint. No original documents or provider credentials are used.
+
+## Drafts and revisions (chunk 11)
+
+The Drafts page separates a mutable working copy from immutable checkpoints. **Save working copy** persists the current text; **Save checkpoint** also creates a revision that later editing cannot change. Only acknowledged saves are durable. Unsaved edits are visibly marked and guarded against ordinary draft switching, window close and application quit. Force termination does not promise preservation of unsaved text.
+
+Revision content and comparisons are read-only. Choose two revisions of the same draft to compare; inspecting older text leaves the current editor intact. A completed saved answer can be explicitly retained as an AI candidate under a selected draft revision. Candidates retain their originating answer and do not replace the working copy. Candidate adoption and production comments are later milestones.
+
+Draft editing and reopening require no model assets or provider connection. Build with `--features native-ui` and launch against an explicit existing disposable data directory for a local writing-only trial. Drafts remain separate from imported retrieval sources. [Plan](docs/draft-revisions-plan.md) and [verification evidence](docs/draft-revisions-evidence.md) track implementation status and observed limitations.

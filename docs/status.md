@@ -1,6 +1,6 @@
 # BRN Rust development status
 
-Status: cloud and macOS Apple Silicon CLI build probes verified; private GitHub repository created. The chunk 01 provider trial is recorded in [the experimental App Server harness](../experiments/codex-app-server/README.md). The requested Chunk 02 provider lifecycle follow-up is recorded in [its evidence report](../experiments/codex-app-server/CHUNK-02.md). The [native editor experiment](../experiments/editor-trial/README.md) now builds on Apple Silicon; native interaction and user acceptance remain pending.
+Status: cloud and macOS Apple Silicon CLI build probes verified; private GitHub repository created. The chunk 01 provider trial is recorded in [the experimental App Server harness](../experiments/codex-app-server/README.md). The requested Chunk 02 provider lifecycle follow-up is recorded in [its evidence report](../experiments/codex-app-server/CHUNK-02.md). The [native editor experiment](../experiments/editor-trial/README.md) now has agent-observed native interaction checks, including a repaired retained-quote scroller; user subjective acceptance remains separate. Chunk 11 draft editing, immutable revisions, restart persistence and comparison are implemented on `feature/draft-revisions` from main `5d48737`; automated/native checks and independent Astra review passed. See [evidence](draft-revisions-evidence.md).
 
 ## Design and implementation record
 
@@ -74,3 +74,9 @@ The first-flow native gate is now observed: import/approval, real indexing, exac
 The next requested milestone continues `trial/end-to-end-flow` from `7380b63`: native file selection, scrollable layouts, clear operation/error states and a repeatable unsigned local launcher. The [plan](desktop-usability-plan.md) tracks implementation and the [evidence](desktop-usability-evidence.md) separates automated checks from observed native behavior. Earlier locked-Mac notes above remain historical.
 
 Usability implementation and native checks passed: single-file selection/cancel/validation, wrapped small-window layout with persistent controls, visible saved answers, progress/disabled actions, same-session restart/follow-up and cancellation from Activity. Workspace/native/launcher regressions passed, and Astra final review found no remaining issues. The durable local launcher is `~/Applications/BRN Usability Trial.app`; see the evidence for its explicit workspace/model paths and qualification limits.
+
+## Drafts and immutable revisions (chunk 11)
+
+Continuing main at `5d48737`, the deferred native editor checks are now complete for the synthetic trial. The discovered long retained-quote scrolling/readability defect was fixed, verified natively and reviewed by Astra before draft implementation began. [Evidence](draft-revisions-evidence.md) distinguishes agent observations from user subjective acceptance and later IME/accessibility qualification.
+
+The [implementation plan](draft-revisions-plan.md) defines separate mutable working copies and immutable checkpoints/candidates, guarded saves, persistent revision review and comparisons. The implementation and native acceptance now cover working-copy saves, immutable checkpoints/candidates, exact reopening, read-only revision comparisons and dirty-state protection. The [evidence](draft-revisions-evidence.md) records verification, discovered fixes and review. Production anchored comments, candidate adoption, publication and releases remain later work.

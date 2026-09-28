@@ -104,11 +104,11 @@ GPUI 0.6.6's bundled `Window::on_window_should_close` supports veto; `on_app_qui
 
 **Interfaces:** produce the store types/methods specified above. Existing operation records, `encode_args`, SHA-256 and transaction helpers remain the foundation; extend reserved local-operation kinds.
 
-- [ ] Write failing tests `draft_working_copy_and_checkpoints_survive_reopen`, `stale_stamp_is_rejected_without_changes`, `retry_returns_original_result_after_newer_save`, `conflicting_operation_reuse_is_rejected`, and `candidate_preserves_working_copy_and_requires_completed_turn`. Assert exact text/hash, root/parent IDs, preserved previous checkpoint bytes, generation/base state and unchanged working text for candidate creation.
-- [ ] Add boundary tests for empty content, Unicode/CRLF/final newline, wrong-draft parent, overflow, oversized save and failure rollback. Assert no new revision or operation result appears on failed writes. Add populated v3 migration preservation and v3 injected rollback tests; retain v1/v2 migration coverage.
-- [ ] Run `cargo test -p brn-store --locked --offline` to observe the missing-feature failures before implementing.
-- [ ] Implement schema/migrations and transactional API. Use persisted result snapshots for mutable-return idempotency. Keep exact schema validation in sync with all migration routes.
-- [ ] Run `cargo test -p brn-store --locked --offline`; all storage and new draft tests pass. Have the controller review this boundary before native wiring.
+- [x] Write failing tests `draft_working_copy_and_checkpoints_survive_reopen`, `stale_stamp_is_rejected_without_changes`, `retry_returns_original_result_after_newer_save`, `conflicting_operation_reuse_is_rejected`, and `candidate_preserves_working_copy_and_requires_completed_turn`. Assert exact text/hash, root/parent IDs, preserved previous checkpoint bytes, generation/base state and unchanged working text for candidate creation.
+- [x] Add boundary tests for empty content, Unicode/CRLF/final newline, wrong-draft parent, overflow, oversized save and failure rollback. Assert no new revision or operation result appears on failed writes. Add populated v3 migration preservation and v3 injected rollback tests; retain v1/v2 migration coverage.
+- [x] Run `cargo test -p brn-store --locked --offline` to observe the missing-feature failures before implementing.
+- [x] Implement schema/migrations and transactional API. Use persisted result snapshots for mutable-return idempotency. Keep exact schema validation in sync with all migration routes.
+- [x] Run `cargo test -p brn-store --locked --offline`; all storage and new draft tests pass. Have the controller review this boundary before native wiring.
 
 ### Task 2: Workflow, worker and revision comparison
 
@@ -116,10 +116,10 @@ GPUI 0.6.6's bundled `Window::on_window_should_close` supports veto; `on_app_qui
 
 **Interfaces:** consume Task 1 types/methods; produce Workspace wrappers and `compare_draft_revisions` as above, plus correlated worker actions/outcomes.
 
-- [ ] Write failing tests `revision_diff_preserves_newline_only_changes`, `comparison_rejects_cross_draft_revisions`, `worker_saves_checkpoints_and_reopens_without_provider`, and `candidate_is_separate_from_concurrent_user_edits`. The candidate test advances the working copy after freezing its parent, then asserts both saved edits and candidate provenance survive reopening.
-- [ ] Run `cargo test -p brn-workflow --locked --offline` and observe the missing behavior.
-- [ ] Add `similar = "2.7"`, resolve the lockfile using cached dependencies, implement the wrappers/diff and typed worker messages. Return operation/draft/stamp/generation information needed by the UI; never replace editor text in worker code.
-- [ ] Run `cargo test -p brn-workflow --locked --offline`; existing retrieval/provider behavior and all new workflow/worker cases pass without live provider access.
+- [x] Write failing tests `revision_diff_preserves_newline_only_changes`, `comparison_rejects_cross_draft_revisions`, `worker_saves_checkpoints_and_reopens_without_provider`, and `candidate_is_separate_from_concurrent_user_edits`. The candidate test advances the working copy after freezing its parent, then asserts both saved edits and candidate provenance survive reopening.
+- [x] Run `cargo test -p brn-workflow --locked --offline` and observe the missing behavior.
+- [x] Add `similar = "2.7"`, resolve the lockfile using cached dependencies, implement the wrappers/diff and typed worker messages. Return operation/draft/stamp/generation information needed by the UI; never replace editor text in worker code.
+- [x] Run `cargo test -p brn-workflow --locked --offline`; existing retrieval/provider behavior and all new workflow/worker cases pass without live provider access.
 
 ### Task 3: Native draft editing and safe review
 
@@ -127,18 +127,18 @@ GPUI 0.6.6's bundled `Window::on_window_should_close` supports veto; `on_app_qui
 
 **Interfaces:** consume Task 2 worker messages. Produce a pure editor-state helper for persisted stamp, generation, dirty state and pending submitted snapshot, with native view code owning the GPUI entity only.
 
-- [ ] Write pure state tests for `save_ack_preserves_later_edits`, `checkpoint_ack_advances_base_without_replacing_newer_text`, `unrelated_draft_result_is_ignored`, `save_failure_keeps_dirty_text`, `undo_advances_generation`, and dirty switch/close/pending-save guards. Assert next-save expected stamp after an older successful acknowledgement.
-- [ ] Run the focused native-UI test target and observe missing behavior before implementing the state helper and UI.
-- [ ] Implement Drafts page, explicit working-copy/checkpoint saves, read-only revision view, two-revision comparison and completed-answer candidate creation. Clearly label candidate origin, target and parent. Never add implicit adoption or revision restore.
-- [ ] Register normal close protection and an application-owned Cmd-Q/menu Quit action sharing the dirty/pending-save guard; verify editor focus does not bypass it. Preserve existing shutdown/cancellation semantics. Make dirty/pending/saved/error feedback visible and keep controls reachable at 800×600.
-- [ ] Run native build, tests and Clippy with the same pinned/offline shared-target setup as existing usability evidence. The controller exercises real typing, clipboard, undo/redo, a save with further typing, revision inspection, diff, unsaved switch/close protection, restart, and candidate preservation on disposable data.
+- [x] Write pure state tests for `save_ack_preserves_later_edits`, `checkpoint_ack_advances_base_without_replacing_newer_text`, `unrelated_draft_result_is_ignored`, `save_failure_keeps_dirty_text`, `undo_advances_generation`, and dirty switch/close/pending-save guards. Assert next-save expected stamp after an older successful acknowledgement.
+- [x] Run the focused native-UI test target and observe missing behavior before implementing the state helper and UI.
+- [x] Implement Drafts page, explicit working-copy/checkpoint saves, read-only revision view, two-revision comparison and completed-answer candidate creation. Clearly label candidate origin, target and parent. Never add implicit adoption or revision restore.
+- [x] Register normal close protection and an application-owned Cmd-Q/menu Quit action sharing the dirty/pending-save guard; verify editor focus does not bypass it. Preserve existing shutdown/cancellation semantics. Make dirty/pending/saved/error feedback visible and keep controls reachable at 800×600.
+- [x] Run native build, tests and Clippy with the same pinned/offline shared-target setup as existing usability evidence. The controller exercises real typing, clipboard, undo/redo, a save with further typing, revision inspection, diff, unsaved switch/close protection, restart, and candidate preservation on disposable data.
 
 ### Task 4: Final evidence, review and branch publication
 
 **Files:** create `docs/draft-revisions-evidence.md`; update `docs/status.md`, `docs/roadmap.md`, and relevant launch/use instructions. Native editor prerequisite evidence is owned by the controller.
 
-- [ ] Run `bash scripts/verify-end-to-end.sh`, store/workflow draft tests, `cargo +1.98.1 test --manifest-path experiments/codex-app-server/Cargo.toml --locked --offline`, and the existing editor trial tests. No live call is needed for regression checks.
-- [ ] Run native desktop build/test/all-target Clippy with `--features native-retrieval --locked --offline`, launcher regressions and `git diff --check`. Re-run only affected checks after corrections.
-- [ ] Exercise a separate process restart after acknowledged working-copy and checkpoint writes; assert working text, both immutable checkpoints and a candidate reopen exactly. Record command/native observations and remaining limits, distinguishing agent observation from user acceptance.
-- [ ] Obtain independent Astra review of storage transactions, migration routes, idempotency, stale-result safety and UI lifecycle. Sol resolves material findings; Luna checks bounded commands/docs as directed.
-- [ ] Commit the reviewed implementation and evidence on the feature branch, push that branch, and verify its remote SHA. Do not merge or release.
+- [x] Run `bash scripts/verify-end-to-end.sh`, store/workflow draft tests, `cargo +1.98.1 test --manifest-path experiments/codex-app-server/Cargo.toml --locked --offline`, and the existing editor trial tests. No live call is needed for regression checks.
+- [x] Run native desktop build/test/all-target Clippy with `--features native-retrieval --locked --offline`, launcher regressions and `git diff --check`. Re-run only affected checks after corrections.
+- [x] Exercise a separate process restart after acknowledged working-copy and checkpoint writes; assert working text, both immutable checkpoints and a candidate reopen exactly. Record command/native observations and remaining limits, distinguishing agent observation from user acceptance.
+- [x] Obtain independent Astra review of storage transactions, migration routes, idempotency, stale-result safety and UI lifecycle. Sol resolves material findings; Luna checks bounded commands/docs as directed.
+- Publication: commit the reviewed implementation and evidence on `feature/draft-revisions`, push that branch, and verify its remote SHA in the final task record. Do not merge or release.
