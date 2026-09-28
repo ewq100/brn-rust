@@ -1,20 +1,23 @@
+use crate::drafts::DraftEditor;
 use brn_workflow::worker::{
-    Action, Approval, ChatTurn, Evidence, Outcome, Profile, SourceDocument, Worker,
+    Action, Approval, ChatTurn, Draft, DraftRevision, Evidence, Outcome, Profile, SourceDocument,
+    Worker,
 };
 use brn_workflow::{Config, SearchResult, SessionSummary};
 use gpui_kit::{
-    AppContext, Bounds, Context, Entity, PathPromptOptions, Subscription, Task, Window,
-    WindowBounds, WindowOptions,
+    AppContext, Bounds, Context, Entity, KeyBinding, Menu, MenuItem, PathPromptOptions,
+    Subscription, Task, Window, WindowBounds, WindowOptions,
     base::Disableable,
     component::{
         Root,
         button::Button,
-        input::{Editor, EditorState, InputEvent},
+        input::{Editor, EditorState, Input, InputEvent, InputState},
     },
     div, point,
     prelude::*,
     px, size,
 };
+gpui_kit::actions!(brn, [Quit]);
 use std::path::PathBuf;
 use std::time::{Duration, Instant};
 use uuid::Uuid;
@@ -23,6 +26,7 @@ use uuid::Uuid;
 enum Page {
     Workspace,
     Activity,
+    Drafts,
     Settings,
 }
 
@@ -113,6 +117,16 @@ fn spaced_identifier(value: &str) -> String {
 struct Desktop {
     worker: Worker,
     query: Entity<EditorState>,
+    draft_title: Entity<InputState>,
+    draft_editor: Entity<EditorState>,
+    draft_state: Option<DraftEditor>,
+    drafts: Vec<Draft>,
+    revisions: Vec<DraftRevision>,
+    review: Option<DraftRevision>,
+    compare_before: Option<Uuid>,
+    compare_after: Option<Uuid>,
+    diff: Option<String>,
+    pending_draft_job: Option<(u64, Uuid)>,
     import_path: Option<PathBuf>,
     choosing_file: bool,
     phase: Phase,
@@ -142,6 +156,12 @@ struct Desktop {
 impl Desktop {
     fn new(path: PathBuf, config: Config, window: &mut Window, cx: &mut Context<Self>) -> Self {
         let query = cx.new(|cx| EditorState::new(window, cx).default_value(""));
+        let draft_title = cx.new(|cx| InputState::new(window, cx).placeholder("New draft title"));
+        let draft_editor = cx.new(|cx| {
+            EditorState::new(window, cx)
+                .language("markdown")
+                .default_value("")
+        });
         let query_subscription = cx.subscribe(&query, |this, _, event: &InputEvent, cx| {
             if matches!(event, InputEvent::Change) {
                 this.generation = this.generation.wrapping_add(1);
@@ -151,6 +171,15 @@ impl Desktop {
                 cx.notify();
             }
         });
+        let draft_subscription =
+            cx.subscribe(&draft_editor, |this, editor, event: &InputEvent, cx| {
+                if matches!(event, InputEvent::Change) {
+                    if let Some(state) = &mut this.draft_state {
+                        state.edit(editor.read(cx).value().to_string());
+                    }
+                    cx.notify();
+                }
+            });
         let quit_subscription = cx.on_app_quit(|this, _| {
             this.worker.shutdown();
             async {}
@@ -160,7 +189,10 @@ impl Desktop {
                 cx.background_executor()
                     .timer(Duration::from_millis(60))
                     .await;
-                if this.update_in(cx, |this, _, cx| this.poll(cx)).is_err() {
+                if this
+                    .update_in(cx, |this, window, cx| this.poll(window, cx))
+                    .is_err()
+                {
                     break;
                 }
             }
@@ -168,6 +200,16 @@ impl Desktop {
         Self {
             worker: Worker::start(path.clone(), config.clone()),
             query,
+            draft_title,
+            draft_editor,
+            draft_state: None,
+            drafts: Vec::new(),
+            revisions: Vec::new(),
+            review: None,
+            compare_before: None,
+            compare_after: None,
+            diff: None,
+            pending_draft_job: None,
             import_path: None,
             choosing_file: false,
             phase: Phase::Opening,
@@ -191,11 +233,11 @@ impl Desktop {
             progress: String::new(),
             last_elapsed: 0,
             last_update: 0,
-            _subscriptions: vec![query_subscription, quit_subscription],
+            _subscriptions: vec![query_subscription, draft_subscription, quit_subscription],
             _poll_task: poll_task,
         }
     }
-    fn poll(&mut self, cx: &mut Context<Self>) {
+    fn poll(&mut self, window: &mut Window, cx: &mut Context<Self>) {
         let mut changed = false;
         if let Some(snapshot) = self.worker.snapshot(self.last_update) {
             self.last_update = snapshot.update;
@@ -213,6 +255,14 @@ impl Desktop {
                 .terminal(initial, terminal.outcome.as_ref().err().map(String::as_str));
             match terminal.outcome {
                 Err(error) => {
+                    if self
+                        .pending_draft_job
+                        .is_some_and(|(id, _)| id == terminal.id)
+                        && let Some((_, op)) = self.pending_draft_job.take()
+                        && let Some(state) = &mut self.draft_state
+                    {
+                        state.fail(op);
+                    }
                     self.streamed_text.clear();
                     self.message = error;
                 }
@@ -239,6 +289,7 @@ impl Desktop {
                     } else {
                         "Workspace ready.".into()
                     };
+                    self.submit(Action::ListDrafts, "Draft list", cx);
                 }
                 Ok(Outcome::Imported { result, sources }) => {
                     self.sources = sources;
@@ -299,6 +350,142 @@ impl Desktop {
                         self.selected_saved_evidence = None;
                     }
                 }
+                Ok(Outcome::DraftsListed { drafts }) => {
+                    self.drafts = drafts;
+                    self.message = "Draft list ready.".into();
+                }
+                Ok(Outcome::DraftCreated { draft }) | Ok(Outcome::DraftOpened { draft, .. }) => {
+                    let id = draft.id;
+                    let may_open = if let Some(state) = &mut self.draft_state {
+                        state.replace(draft.clone())
+                    } else {
+                        self.draft_state = Some(DraftEditor::new(draft.clone()));
+                        true
+                    };
+                    if let Some(old) = self.drafts.iter_mut().find(|d| d.id == id) {
+                        *old = draft.clone();
+                    } else {
+                        self.drafts.push(draft.clone());
+                    }
+                    if may_open {
+                        self.draft_editor.update(cx, |editor, cx| {
+                            editor.set_value(draft.text.clone(), window, cx)
+                        });
+                        self.revisions.clear();
+                        self.review = None;
+                        self.diff = None;
+                        self.compare_before = None;
+                        self.compare_after = None;
+                        self.message = "Draft opened. Working copy saved.".into();
+                        self.submit(Action::ListDraftRevisions { id }, "Revision list", cx);
+                    } else {
+                        self.message = "Draft opened in storage, but newer edits remain in the current editor. Save or discard them before switching.".into();
+                    }
+                }
+                Ok(Outcome::DraftSaved {
+                    op,
+                    id,
+                    draft,
+                    submitted_generation,
+                    submitted_text,
+                })
+                | Ok(Outcome::DraftCheckpointed {
+                    op,
+                    id,
+                    draft,
+                    submitted_generation,
+                    submitted_text,
+                }) => {
+                    let matched = self.pending_draft_job == Some((terminal.id, op));
+                    if matched {
+                        self.pending_draft_job = None;
+                    }
+                    if matched
+                        && self.draft_state.as_mut().is_some_and(|state| {
+                            state.id() == id
+                                && state.generation() >= submitted_generation
+                                && state.acknowledge(op, draft.clone())
+                        })
+                    {
+                        if let Some(old) = self.drafts.iter_mut().find(|d| d.id == id) {
+                            *old = draft;
+                        }
+                        self.message = if self.draft_state.as_ref().is_some_and(DraftEditor::dirty)
+                        {
+                            "Saved submitted snapshot; newer edits remain unsaved.".into()
+                        } else {
+                            "Working copy saved.".into()
+                        };
+                        let _ = submitted_text;
+                        self.submit(Action::ListDraftRevisions { id }, "Revision list", cx);
+                    }
+                }
+                Ok(Outcome::DraftRevisions { id, revisions }) => {
+                    if self
+                        .draft_state
+                        .as_ref()
+                        .is_some_and(|state| state.id() == id)
+                    {
+                        self.revisions = revisions;
+                        if self.compare_before.is_none() {
+                            self.compare_before = self.revisions.first().map(|r| r.id);
+                        }
+                        if self.compare_after.is_none() {
+                            self.compare_after = self.revisions.last().map(|r| r.id);
+                        }
+                        self.message = if self.draft_state.as_ref().is_some_and(DraftEditor::dirty)
+                        {
+                            "Revision history ready; working copy has unsaved edits.".into()
+                        } else {
+                            "Revision history ready; working copy saved.".into()
+                        };
+                    }
+                }
+                Ok(Outcome::DraftRevisionOpened { draft, revision }) => {
+                    if self
+                        .draft_state
+                        .as_ref()
+                        .is_some_and(|state| state.id() == draft)
+                    {
+                        self.review = Some(revision);
+                        self.message = "Read-only revision ready below the history.".into();
+                    }
+                }
+                Ok(Outcome::DraftCompared {
+                    draft,
+                    before,
+                    after,
+                    diff,
+                }) => {
+                    if self
+                        .draft_state
+                        .as_ref()
+                        .is_some_and(|state| state.id() == draft)
+                        && self.compare_before == Some(before)
+                        && self.compare_after == Some(after)
+                    {
+                        self.diff = Some(diff);
+                        self.message = "Revision comparison ready below the selectors.".into();
+                    }
+                }
+                Ok(Outcome::CandidateSaved { draft, revision }) => {
+                    if self
+                        .draft_state
+                        .as_ref()
+                        .is_some_and(|state| state.id() == draft)
+                    {
+                        self.message = format!(
+                            "Candidate saved from answer {} under parent {}.",
+                            revision.origin_turn.unwrap(),
+                            revision.parent_id.unwrap()
+                        );
+                        self.submit(
+                            Action::ListDraftRevisions { id: draft },
+                            "Revision list",
+                            cx,
+                        );
+                    }
+                }
             }
         }
         let elapsed = match &self.phase {
@@ -315,9 +502,9 @@ impl Desktop {
             cx.notify();
         }
     }
-    fn submit(&mut self, action: Action, label: &str, cx: &mut Context<Self>) {
+    fn submit(&mut self, action: Action, label: &str, cx: &mut Context<Self>) -> Option<u64> {
         if !self.phase.can_submit() {
-            return;
+            return None;
         }
         let generation = action.generation();
         match self.worker.submit(action) {
@@ -331,15 +518,164 @@ impl Desktop {
                 self.progress.clear();
                 self.streamed_text.clear();
                 self.message = format!("{label} started.");
+                cx.notify();
+                Some(id)
             }
             Err(error) => {
                 if error == "workspace worker unavailable" {
                     self.phase = Phase::Failed(error.clone());
                 }
                 self.message = error;
+                cx.notify();
+                None
             }
         }
+    }
+    fn draft_guard(&mut self, cx: &mut Context<Self>) -> bool {
+        if self
+            .draft_state
+            .as_ref()
+            .is_some_and(|state| !state.can_replace())
+        {
+            self.message = "Save the draft and wait for acknowledgement, or choose Discard edits, before switching or closing.".into();
+            cx.notify();
+            false
+        } else {
+            true
+        }
+    }
+    fn close_guard(&mut self, cx: &mut Context<Self>) -> bool {
+        if self
+            .draft_state
+            .as_ref()
+            .is_some_and(|state| !state.can_close())
+        {
+            self.message = "Draft has unsaved edits or a save awaiting acknowledgement. Save or explicitly discard before closing.".into();
+            cx.notify();
+            false
+        } else {
+            true
+        }
+    }
+    fn choose_draft(&mut self, id: Uuid, cx: &mut Context<Self>) {
+        if !self.phase.can_submit() || !self.draft_guard(cx) {
+            return;
+        }
+        self.submit(Action::OpenDraft { id }, "Open draft", cx);
+    }
+    fn create_draft(&mut self, cx: &mut Context<Self>) {
+        if !self.phase.can_submit() || !self.draft_guard(cx) {
+            return;
+        }
+        let title = self.draft_title.read(cx).value().to_string();
+        if title.trim().is_empty() {
+            self.message = "Enter a draft title first.".into();
+            cx.notify();
+            return;
+        }
+        self.submit(
+            Action::CreateDraft {
+                op: Uuid::new_v4(),
+                title,
+                text: String::new(),
+            },
+            "Create draft",
+            cx,
+        );
+    }
+    fn save_draft(&mut self, checkpoint: bool, cx: &mut Context<Self>) {
+        if !self.phase.can_submit() {
+            return;
+        }
+        let Some(state) = &mut self.draft_state else {
+            return;
+        };
+        if state.text().len() > brn_workflow::worker::MAX_DRAFT_BYTES {
+            self.message = "Draft exceeds 1 MiB; shorten it before saving.".into();
+            cx.notify();
+            return;
+        }
+        let Some(submitted) = state.begin_save(Uuid::new_v4()) else {
+            return;
+        };
+        let action = if checkpoint {
+            Action::CheckpointDraft {
+                op: submitted.op,
+                id: submitted.id,
+                expected: submitted.expected,
+                generation: submitted.generation,
+                text: submitted.text.clone(),
+            }
+        } else {
+            Action::SaveDraft {
+                op: submitted.op,
+                id: submitted.id,
+                expected: submitted.expected,
+                generation: submitted.generation,
+                text: submitted.text.clone(),
+            }
+        };
+        if let Some(job) = self.submit(
+            action,
+            if checkpoint {
+                "Save checkpoint"
+            } else {
+                "Save working copy"
+            },
+            cx,
+        ) {
+            self.pending_draft_job = Some((job, submitted.op));
+            self.message="Saving submitted snapshot; keep typing if needed. Close waits for acknowledgement.".into();
+        } else if let Some(state) = &mut self.draft_state {
+            state.fail(submitted.op);
+        }
         cx.notify();
+    }
+    fn discard_draft(&mut self, window: &mut Window, cx: &mut Context<Self>) {
+        if !self.phase.can_submit() {
+            self.message = "Wait for the current action before discarding.".into();
+            cx.notify();
+            return;
+        }
+        if let Some(state) = &mut self.draft_state
+            && state.discard()
+        {
+            let text = state.text().to_owned();
+            self.draft_editor
+                .update(cx, |editor, cx| editor.set_value(text, window, cx));
+            self.message = "Unsaved edits discarded; acknowledged working copy restored.".into();
+            cx.notify();
+        }
+    }
+    fn quit_guarded(&mut self, cx: &mut Context<Self>) {
+        if self.close_guard(cx) {
+            cx.quit();
+        }
+    }
+    fn save_candidate(&mut self, turn: Uuid, cx: &mut Context<Self>) {
+        if !self.phase.can_submit() {
+            return;
+        }
+        let Some(state) = &self.draft_state else {
+            self.message = "Open a target draft before saving a candidate.".into();
+            cx.notify();
+            return;
+        };
+        let parent = self
+            .review
+            .as_ref()
+            .map(|revision| revision.id)
+            .unwrap_or(state.stamp().base_revision);
+        self.submit(
+            Action::SaveCandidate {
+                op: Uuid::new_v4(),
+                draft: state.id(),
+                parent,
+                turn,
+            },
+            "Save candidate",
+            cx,
+        );
     }
     fn import(&mut self, cx: &mut Context<Self>) {
         let Some(path) = self.import_path.clone() else {
@@ -491,8 +827,8 @@ impl Render for Desktop {
                     .child(div().flex().flex_wrap().gap_2()
                         .child(Button::new("choose-file").label(if self.choosing_file { "Choosing…" } else { "Choose file…" }).disabled(self.choosing_file || !self.phase.can_submit()).on_click(cx.listener(|this, _, _, cx| this.choose_file(cx))))
                         .child(Button::new("import-approved").label("Import and approve").disabled(!self.phase.can_submit() || self.import_path.is_none()).on_click(cx.listener(|this, _, _, cx| this.import(cx))))
-                        .child(Button::new("build-index").label("Build index").disabled(!self.phase.can_submit()).on_click(cx.listener(|this, _, _, cx| this.submit(Action::Build, "Index build", cx))))
-                        .child(Button::new("refresh").label("Refresh").disabled(!self.phase.can_submit()).on_click(cx.listener(|this, _, _, cx| this.submit(Action::Refresh { session: this.selected_session }, "Refresh", cx)))))
+                        .child(Button::new("build-index").label("Build index").disabled(!self.phase.can_submit()).on_click(cx.listener(|this, _, _, cx| { this.submit(Action::Build, "Index build", cx); })))
+                        .child(Button::new("refresh").label("Refresh").disabled(!self.phase.can_submit()).on_click(cx.listener(|this, _, _, cx| { this.submit(Action::Refresh { session: this.selected_session }, "Refresh", cx); }))))
                     .child(div().min_w(px(0.)).child(format!("Selected file: {}", self.import_path.as_ref().map_or("none".into(), |p| spaced_identifier(&p.display().to_string())))));
                 body = body.child(format!("Sources: {}", self.sources.len()));
                 for source in &self.sources {
@@ -532,7 +868,7 @@ impl Render for Desktop {
                                                     },
                                                     "Approve",
                                                     cx,
-                                                )
+                                                );
                                             })),
                                     )
                                     .child(
@@ -548,7 +884,7 @@ impl Render for Desktop {
                                                     },
                                                     "Withdraw",
                                                     cx,
-                                                )
+                                                );
                                             })),
                                     ),
                             ),
@@ -718,10 +1054,276 @@ impl Render for Desktop {
                             );
                         }
                     }
+                    if turn.status == brn_workflow::worker::OperationStatus::Completed
+                        && turn.answer.is_some()
+                        && let Some(state) = &self.draft_state
+                    {
+                        let turn_id = turn.operation_id;
+                        let parent = self
+                            .review
+                            .as_ref()
+                            .map(|r| r.id)
+                            .unwrap_or(state.stamp().base_revision);
+                        body = body
+                            .child(format!(
+                                "Candidate target: {} · parent revision {} · answer {}",
+                                state.title(),
+                                parent,
+                                turn_id
+                            ))
+                            .child(
+                                Button::new("save-candidate")
+                                    .label("Save as candidate")
+                                    .disabled(!self.phase.can_submit())
+                                    .on_click(cx.listener(move |this, _, _, cx| {
+                                        this.save_candidate(turn_id, cx)
+                                    })),
+                            );
+                    }
                 }
                 if let Some(hit) = &self.selected_saved_evidence {
                     body = body.child(format!("Saved evidence snapshot (may be historical) · source {} · revision {} · bytes {}..{}\n{}", hit.source_id, hit.version_id, hit.start_byte, hit.end_byte, hit.quote));
                 }
+            }
+            Page::Drafts => {
+                let mut panel = div()
+                    .flex()
+                    .flex_col()
+                    .flex_shrink_0()
+                    .min_w(px(0.))
+                    .gap_3();
+                panel = panel
+                    .child("Drafts · exact Markdown working copies")
+                    .child(
+                        div()
+                            .flex()
+                            .flex_wrap()
+                            .gap_2()
+                            .child(
+                                Input::new(&self.draft_title)
+                                    .w(px(260.))
+                                    .aria_label("New draft title"),
+                            )
+                            .child(
+                                Button::new("create-draft")
+                                    .label("Create blank draft")
+                                    .disabled(!self.phase.can_submit())
+                                    .on_click(cx.listener(|this, _, _, cx| this.create_draft(cx))),
+                            )
+                            .child(
+                                Button::new("refresh-drafts")
+                                    .label("Refresh list")
+                                    .disabled(!self.phase.can_submit())
+                                    .on_click(cx.listener(|this, _, _, cx| {
+                                        this.submit(Action::ListDrafts, "Draft list", cx);
+                                    })),
+                            ),
+                    )
+                    .child(format!("{} drafts", self.drafts.len()));
+                for draft in &self.drafts {
+                    let id = draft.id;
+                    panel = panel.child(
+                        Button::new(format!("draft-{id}"))
+                            .label(format!(
+                                "{} · {}…",
+                                compact_title(&draft.title),
+                                &id.to_string()[..8]
+                            ))
+                            .disabled(!self.phase.can_submit())
+                            .on_click(cx.listener(move |this, _, _, cx| this.choose_draft(id, cx))),
+                    );
+                }
+                if let Some(state) = &self.draft_state {
+                    let status = if state.pending() {
+                        "Saving snapshot; edits remain editable"
+                    } else if state.dirty() {
+                        "Unsaved changes"
+                    } else {
+                        "Saved"
+                    };
+                    let draft_id = state.id();
+                    panel =
+                        panel
+                            .child(format!(
+                                "Working copy: {} · {} · {} bytes · generation {}",
+                                state.title(),
+                                status,
+                                state.text().len(),
+                                state.generation()
+                            ))
+                            .child(
+                                Editor::new(&self.draft_editor)
+                                    .h(px(250.))
+                                    .flex_shrink_0()
+                                    .aria_label("Markdown working copy"),
+                            )
+                            .child(
+                                div()
+                                    .flex()
+                                    .flex_wrap()
+                                    .gap_2()
+                                    .child(
+                                        Button::new("save-working-copy")
+                                            .label("Save working copy")
+                                            .disabled(
+                                                !self.phase.can_submit()
+                                                    || !state.dirty()
+                                                    || state.text().len()
+                                                        > brn_workflow::worker::MAX_DRAFT_BYTES,
+                                            )
+                                            .on_click(cx.listener(|this, _, _, cx| {
+                                                this.save_draft(false, cx)
+                                            })),
+                                    )
+                                    .child(
+                                        Button::new("save-checkpoint")
+                                            .label("Save checkpoint")
+                                            .disabled(
+                                                !self.phase.can_submit()
+                                                    || state.text().len()
+                                                        > brn_workflow::worker::MAX_DRAFT_BYTES,
+                                            )
+                                            .on_click(cx.listener(|this, _, _, cx| {
+                                                this.save_draft(true, cx)
+                                            })),
+                                    )
+                                    .child(
+                                        Button::new("discard-draft-edits")
+                                            .label("Discard edits")
+                                            .disabled(!self.phase.can_submit() || !state.dirty())
+                                            .on_click(cx.listener(|this, _, window, cx| {
+                                                this.discard_draft(window, cx)
+                                            })),
+                                    ),
+                            )
+                            .child(format!("Base checkpoint: {}", state.stamp().base_revision))
+                            .child(format!("Revision history: {}", self.revisions.len()));
+                    for revision in &self.revisions {
+                        let id = revision.id;
+                        let label = format!(
+                            "{:?} · {}…{}",
+                            revision.kind,
+                            &id.to_string()[..8],
+                            revision.origin_turn.map_or(String::new(), |turn| format!(
+                                " · answer {}…",
+                                &turn.to_string()[..8]
+                            ))
+                        );
+                        panel = panel.child(
+                            div()
+                                .flex()
+                                .flex_wrap()
+                                .gap_2()
+                                .child(
+                                    Button::new(format!("review-{id}"))
+                                        .label(format!("View {label}"))
+                                        .disabled(!self.phase.can_submit())
+                                        .on_click(cx.listener(move |this, _, _, cx| {
+                                            this.submit(
+                                                Action::OpenDraftRevision {
+                                                    draft: draft_id,
+                                                    revision: id,
+                                                },
+                                                "Review revision",
+                                                cx,
+                                            );
+                                        })),
+                                )
+                                .child(
+                                    Button::new(format!("before-{id}"))
+                                        .label("Use as before")
+                                        .on_click(cx.listener(move |this, _, _, cx| {
+                                            this.compare_before = Some(id);
+                                            this.diff = None;
+                                            cx.notify();
+                                        })),
+                                )
+                                .child(
+                                    Button::new(format!("after-{id}"))
+                                        .label("Use as after")
+                                        .on_click(cx.listener(move |this, _, _, cx| {
+                                            this.compare_after = Some(id);
+                                            this.diff = None;
+                                            cx.notify();
+                                        })),
+                                ),
+                        );
+                    }
+                    if let Some(revision) = &self.review {
+                        panel = panel
+                            .child(format!(
+                                "Read-only {:?} {} · parent {} · origin answer {}",
+                                revision.kind,
+                                revision.id,
+                                revision
+                                    .parent_id
+                                    .map_or("none".into(), |id| id.to_string()),
+                                revision
+                                    .origin_turn
+                                    .map_or("none".into(), |id| id.to_string())
+                            ))
+                            .child(
+                                div()
+                                    .id("revision-content")
+                                    .h(px(170.))
+                                    .flex_shrink_0()
+                                    .min_w(px(0.))
+                                    .overflow_y_scroll()
+                                    .border_1()
+                                    .child(
+                                        div()
+                                            .w_full()
+                                            .font_family("Menlo")
+                                            .child(revision.text.clone()),
+                                    ),
+                            );
+                    }
+                    panel = panel
+                        .child(format!(
+                            "Compare: before {} · after {}",
+                            self.compare_before
+                                .map_or("none".into(), |id| id.to_string()),
+                            self.compare_after
+                                .map_or("none".into(), |id| id.to_string())
+                        ))
+                        .child(
+                            Button::new("compare-revisions")
+                                .label("Compare revisions")
+                                .disabled(
+                                    !self.phase.can_submit()
+                                        || self.compare_before.is_none()
+                                        || self.compare_after.is_none(),
+                                )
+                                .on_click(cx.listener(move |this, _, _, cx| {
+                                    if let (Some(before), Some(after)) =
+                                        (this.compare_before, this.compare_after)
+                                    {
+                                        this.submit(
+                                            Action::CompareDraftRevisions {
+                                                draft: draft_id,
+                                                before,
+                                                after,
+                                            },
+                                            "Compare revisions",
+                                            cx,
+                                        );
+                                    }
+                                })),
+                        );
+                    if let Some(diff) = &self.diff {
+                        panel = panel.child(
+                            div()
+                                .id("revision-diff")
+                                .h(px(220.))
+                                .flex_shrink_0()
+                                .min_w(px(0.))
+                                .overflow_y_scroll()
+                                .border_1()
+                                .child(div().w_full().font_family("Menlo").child(diff.clone())),
+                        );
+                    }
+                }
+                body = body.child(panel);
             }
             Page::Settings => {
                 body = body.child("Local settings")
@@ -747,6 +1349,7 @@ impl Render for Desktop {
         };
         div()
             .id("brn-desktop")
+            .on_action(cx.listener(|this, _: &Quit, _, cx| this.quit_guarded(cx)))
             .size_full()
             .flex()
             .flex_col()
@@ -771,6 +1374,14 @@ impl Render for Desktop {
                             .label("Activity")
                             .on_click(cx.listener(|this, _, _, cx| {
                                 this.page = Page::Activity;
+                                cx.notify();
+                            })),
+                    )
+                    .child(
+                        Button::new("drafts-page")
+                            .label("Drafts")
+                            .on_click(cx.listener(|this, _, _, cx| {
+                                this.page = Page::Drafts;
                                 cx.notify();
                             })),
                     )
@@ -809,6 +1420,8 @@ pub fn run(path: PathBuf, config: Config) {
         .with_assets(gpui_kit::assets::Assets)
         .run(move |cx| {
             gpui_kit::init(cx);
+            cx.bind_keys([KeyBinding::new("cmd-q", Quit, None)]);
+            cx.set_menus([Menu::new("BRN").items(vec![MenuItem::action("Quit BRN", Quit)])]);
             cx.on_window_closed(|cx, _| {
                 if cx.windows().is_empty() {
                     cx.quit();
@@ -825,6 +1438,11 @@ pub fn run(path: PathBuf, config: Config) {
                     },
                     |window, cx| {
                         let desktop = cx.new(|cx| Desktop::new(path, config, window, cx));
+                        let weak = desktop.downgrade();
+                        window.on_window_should_close(cx, move |_, cx| {
+                            weak.update(cx, |this, cx| this.close_guard(cx))
+                                .unwrap_or(true)
+                        });
                         cx.new(|cx| Root::new(desktop, window, cx))
                     },
                 )

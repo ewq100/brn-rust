@@ -4,6 +4,8 @@ use std::process::ExitCode;
 use std::time::{Duration, Instant};
 
 #[cfg(feature = "native-ui")]
+mod drafts;
+#[cfg(feature = "native-ui")]
 mod native;
 
 const HELP: &str = "BRN desktop\n\nUsage: brn-desktop [--data-dir ABSOLUTE_DIRECTORY] [--codex ABSOLUTE_EXECUTABLE] [--model-dir ABSOLUTE_DIRECTORY]\n       brn-desktop --data-dir ABSOLUTE_DIRECTORY --headless-check completion|cancellation|stale\n       brn-desktop --help\n\nThe native workspace imports Markdown/text, builds search, and answers from approved sources. The headless checks preserve the original deterministic shell fixture.";

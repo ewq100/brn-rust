@@ -2,7 +2,8 @@
 use crate::{Config, SearchResult, SessionSummary, Workspace};
 pub use brn_retrieval::{Evidence, Profile};
 pub use brn_store::{
-    Approval, ChatTurn, Draft, DraftRevision, DraftStamp, ImportResult, SourceDocument,
+    Approval, ChatTurn, Draft, DraftRevision, DraftStamp, ImportResult, MAX_DRAFT_BYTES,
+    OperationStatus, SourceDocument,
 };
 use std::{
     collections::VecDeque,
