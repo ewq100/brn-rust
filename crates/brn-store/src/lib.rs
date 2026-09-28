@@ -12,17 +12,22 @@ use std::{
 };
 use uuid::Uuid;
 pub mod anchors;
+mod comments;
 mod drafts;
 mod workflow;
 pub use anchors::{
     AmbiguityReason, AnchorProjection, AnchorState, EditTrace, OriginalAnchor, RecoveryReference,
     TextEdit, apply_edit, derive_edit, map_anchor, replay_trace,
 };
+pub use comments::{
+    CommentAnchorSnapshot, CommentCapture, CommentCreated, CommentStatus, CommentStatusChange,
+    CommentStatusChanged, DraftComment, DraftCommentView, DraftComments, DraftWriteWithComments,
+};
 pub use drafts::{Draft, DraftRevision, DraftStamp, MAX_DRAFT_BYTES, RevisionKind};
 pub use workflow::{Approval, ChatTurn, ImportResult, SourceDocument};
 
 const APPLICATION_ID: u32 = 0x4252_4e31; // BRN1
-const SCHEMA_VERSION: u32 = 4;
+const SCHEMA_VERSION: u32 = 5;
 const V1: &str = "CREATE TABLE sources (id TEXT PRIMARY KEY, title TEXT NOT NULL);\
 CREATE TABLE versions (id TEXT PRIMARY KEY, source_id TEXT NOT NULL REFERENCES sources(id), parent_id TEXT REFERENCES versions(id), bytes BLOB NOT NULL, sha256 BLOB NOT NULL);";
 const V2: &str = "CREATE TABLE operations (id TEXT PRIMARY KEY, kind TEXT NOT NULL, payload_hash BLOB NOT NULL, status TEXT NOT NULL CHECK(status IN ('pending','running','completed','failed','interrupted')), terminal_data BLOB);\
@@ -39,6 +44,10 @@ CREATE TABLE chat_turns (operation_id TEXT PRIMARY KEY REFERENCES operations(id)
 const V4: &str = "CREATE TABLE drafts (id TEXT PRIMARY KEY, title TEXT NOT NULL, base_revision_id TEXT NOT NULL, generation INTEGER NOT NULL CHECK(generation >= 0), text TEXT NOT NULL, sha256 BLOB NOT NULL);\
 CREATE TABLE draft_revisions (id TEXT PRIMARY KEY, draft_id TEXT NOT NULL REFERENCES drafts(id), parent_id TEXT REFERENCES draft_revisions(id), kind TEXT NOT NULL CHECK(kind IN ('checkpoint','candidate')), text TEXT NOT NULL, sha256 BLOB NOT NULL, origin_turn TEXT REFERENCES chat_turns(operation_id));\
 CREATE TABLE draft_results (operation_id TEXT PRIMARY KEY REFERENCES operations(id), result_kind TEXT NOT NULL CHECK(result_kind IN ('draft','revision')), result_json BLOB NOT NULL);";
+const V5: &str = "CREATE TABLE draft_comments (id TEXT PRIMARY KEY, draft_id TEXT NOT NULL REFERENCES drafts(id), original_revision_id TEXT NOT NULL REFERENCES draft_revisions(id), original_sha256 BLOB NOT NULL, original_start INTEGER NOT NULL CHECK(original_start >= 0), original_end INTEGER NOT NULL CHECK(original_end > original_start), original_quote TEXT NOT NULL, body TEXT NOT NULL, status TEXT NOT NULL CHECK(status IN ('open','resolved')), status_version INTEGER NOT NULL CHECK(status_version >= 0));\
+CREATE TABLE draft_comment_anchors (comment_id TEXT PRIMARY KEY REFERENCES draft_comments(id), target_base_revision_id TEXT NOT NULL REFERENCES draft_revisions(id), target_generation INTEGER NOT NULL CHECK(target_generation >= 0), target_sha256 BLOB NOT NULL, location TEXT NOT NULL CHECK(location IN ('anchored','deleted','ambiguous')), reason TEXT, start INTEGER, end INTEGER, CHECK((location='anchored' AND reason IS NULL AND start IS NOT NULL AND end IS NOT NULL AND start >= 0 AND end > start) OR (location='deleted' AND reason IS NULL AND start IS NULL AND end IS NULL) OR (location='ambiguous' AND reason IN ('touched','duplicate','missing_unsupported','boundary_ambiguity','conflicting_snapshot','history_limit') AND start IS NULL AND end IS NULL)));\
+CREATE TABLE draft_revision_comment_anchors (comment_id TEXT NOT NULL REFERENCES draft_comments(id), revision_id TEXT NOT NULL REFERENCES draft_revisions(id), location TEXT NOT NULL CHECK(location IN ('anchored','deleted','ambiguous')), reason TEXT, start INTEGER, end INTEGER, PRIMARY KEY(comment_id,revision_id), CHECK((location='anchored' AND reason IS NULL AND start IS NOT NULL AND end IS NOT NULL AND start >= 0 AND end > start) OR (location='deleted' AND reason IS NULL AND start IS NULL AND end IS NULL) OR (location='ambiguous' AND reason IN ('touched','duplicate','missing_unsupported','boundary_ambiguity','conflicting_snapshot','history_limit') AND start IS NULL AND end IS NULL)));\
+CREATE TABLE comment_results (operation_id TEXT PRIMARY KEY REFERENCES operations(id), result_kind TEXT NOT NULL CHECK(result_kind IN ('capture','status','write')), result_json BLOB NOT NULL);";
 
 #[derive(Debug)]
 pub enum Error {
@@ -222,6 +231,7 @@ impl Store {
                 tx.execute_batch(V2)?;
                 tx.execute_batch(V3)?;
                 tx.execute_batch(V4)?;
+                tx.execute_batch(V5)?;
                 tx.pragma_update(None, "application_id", APPLICATION_ID)?;
                 tx.pragma_update(None, "user_version", SCHEMA_VERSION)?;
                 tx.commit()?;
@@ -236,6 +246,9 @@ impl Store {
                 } else if version == 3 {
                     migrate_v3(&mut conn, || Ok(()))?;
                     report.migrated_from = Some(3);
+                } else if version == 4 {
+                    migrate_v4(&mut conn, || Ok(()))?;
+                    report.migrated_from = Some(4);
                 }
             }
         }
@@ -639,6 +652,9 @@ fn is_local_kind(kind: &str) -> bool {
             | "draft.save"
             | "draft.checkpoint"
             | "draft.candidate"
+            | "draft.write.comments"
+            | "comment.capture"
+            | "comment.status"
     )
 }
 fn encode_args(items: &[&[u8]]) -> Vec<u8> {
@@ -696,6 +712,7 @@ fn migrate_v1(conn: &mut Connection, after_ddl: impl FnOnce() -> Result<()>) -> 
     tx.execute_batch(V2)?;
     tx.execute_batch(V3)?;
     tx.execute_batch(V4)?;
+    tx.execute_batch(V5)?;
     after_ddl()?;
     tx.pragma_update(None, "user_version", SCHEMA_VERSION)?;
     tx.commit()?;
@@ -705,6 +722,7 @@ fn migrate_v2(conn: &mut Connection) -> Result<()> {
     let tx = conn.transaction()?;
     tx.execute_batch(V3)?;
     tx.execute_batch(V4)?;
+    tx.execute_batch(V5)?;
     tx.pragma_update(None, "user_version", SCHEMA_VERSION)?;
     tx.commit()?;
     Ok(())
@@ -712,6 +730,15 @@ fn migrate_v2(conn: &mut Connection) -> Result<()> {
 fn migrate_v3(conn: &mut Connection, after_ddl: impl FnOnce() -> Result<()>) -> Result<()> {
     let tx = conn.transaction()?;
     tx.execute_batch(V4)?;
+    tx.execute_batch(V5)?;
+    after_ddl()?;
+    tx.pragma_update(None, "user_version", SCHEMA_VERSION)?;
+    tx.commit()?;
+    Ok(())
+}
+fn migrate_v4(conn: &mut Connection, after_ddl: impl FnOnce() -> Result<()>) -> Result<()> {
+    let tx = conn.transaction()?;
+    tx.execute_batch(V5)?;
     after_ddl()?;
     tx.pragma_update(None, "user_version", SCHEMA_VERSION)?;
     tx.commit()?;
@@ -745,6 +772,9 @@ fn validate_schema(conn: &Connection, version: u32) -> Result<()> {
     }
     if version >= 4 {
         expected.execute_batch(V4)?;
+    }
+    if version >= 5 {
+        expected.execute_batch(V5)?;
     }
     if schema_map(conn)? != schema_map(&expected)? {
         return Err(invalid("unexpected database schema"));
@@ -901,5 +931,54 @@ mod tests {
         assert_eq!(store.version(version).unwrap().unwrap().bytes, b"exact\r\n");
         assert_eq!(store.documents().unwrap()[0].approval, Approval::Approved);
         assert!(store.drafts().unwrap().is_empty());
+    }
+
+    #[test]
+    fn populated_version_four_migrates_atomically_and_retains_draft_result() {
+        let dir = tempfile::tempdir().unwrap();
+        let db = dir.path().join("brn.sqlite3");
+        let mut conn = Connection::open(&db).unwrap();
+        for ddl in [V1, V2, V3, V4] {
+            conn.execute_batch(ddl).unwrap();
+        }
+        conn.pragma_update(None, "application_id", APPLICATION_ID)
+            .unwrap();
+        conn.pragma_update(None, "user_version", 4).unwrap();
+        let draft = Uuid::new_v4();
+        let root = Uuid::new_v4();
+        let op = Uuid::new_v4();
+        let text = "exact\r\n🙂";
+        let digest = hash(text.as_bytes());
+        conn.execute("INSERT INTO drafts(id,title,base_revision_id,generation,text,sha256) VALUES(?1,'old',?2,0,?3,?4)", params![draft.to_string(),root.to_string(),text,digest.as_slice()]).unwrap();
+        conn.execute("INSERT INTO draft_revisions(id,draft_id,parent_id,kind,text,sha256) VALUES(?1,?2,NULL,'checkpoint',?3,?4)", params![root.to_string(),draft.to_string(),text,digest.as_slice()]).unwrap();
+        conn.execute("INSERT INTO operations(id,kind,payload_hash,status) VALUES(?1,'draft.create',?2,'completed')", params![op.to_string(),hash(&encode_args(&[b"old",text.as_bytes()])).as_slice()]).unwrap();
+        let old = Draft {
+            id: draft,
+            title: "old".into(),
+            stamp: DraftStamp {
+                base_revision: root,
+                generation: 0,
+            },
+            text: text.into(),
+            sha256: digest,
+        };
+        conn.execute(
+            "INSERT INTO draft_results(operation_id,result_kind,result_json) VALUES(?1,'draft',?2)",
+            params![op.to_string(), serde_json::to_vec(&old).unwrap()],
+        )
+        .unwrap();
+        assert!(migrate_v4(&mut conn, || Err(invalid("injected after v5 DDL"))).is_err());
+        assert_eq!(
+            conn.query_row("PRAGMA user_version", [], |r| r.get::<_, u32>(0))
+                .unwrap(),
+            4
+        );
+        validate_schema(&conn, 4).unwrap();
+        drop(conn);
+        let (mut store, report) = Store::open(dir.path()).unwrap();
+        assert_eq!(report.migrated_from, Some(4));
+        assert_eq!(store.draft(draft).unwrap().unwrap(), old);
+        assert_eq!(store.create_draft(op, "old", text).unwrap(), old);
+        assert!(store.draft_comments(draft).unwrap().comments.is_empty());
     }
 }

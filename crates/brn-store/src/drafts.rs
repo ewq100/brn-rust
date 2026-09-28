@@ -45,13 +45,13 @@ pub struct DraftRevision {
     pub origin_turn: Option<Uuid>,
 }
 
-fn checked_text(text: &str) -> Result<[u8; 32]> {
+pub(super) fn checked_text(text: &str) -> Result<[u8; 32]> {
     if text.len() > MAX_DRAFT_BYTES {
         return Err(invalid("draft text exceeds 1 MiB"));
     }
     Ok(hash(text.as_bytes()))
 }
-fn checked_generation(generation: u64) -> Result<i64> {
+pub(super) fn checked_generation(generation: u64) -> Result<i64> {
     i64::try_from(generation).map_err(|_| invalid("draft generation exceeds SQLite range"))
 }
 fn stored_hash(text: &str, digest: Vec<u8>) -> Result<[u8; 32]> {
@@ -63,7 +63,7 @@ fn stored_hash(text: &str, digest: Vec<u8>) -> Result<[u8; 32]> {
     }
     Ok(stored)
 }
-fn read_draft(conn: &Connection, id: Uuid) -> Result<Option<Draft>> {
+pub(super) fn read_draft(conn: &Connection, id: Uuid) -> Result<Option<Draft>> {
     type Row = (String, String, i64, String, Vec<u8>);
     let row: Option<Row> = conn
         .query_row(
@@ -100,7 +100,7 @@ fn read_draft(conn: &Connection, id: Uuid) -> Result<Option<Draft>> {
     })
     .transpose()
 }
-fn read_revision(conn: &Connection, id: Uuid) -> Result<Option<DraftRevision>> {
+pub(super) fn read_revision(conn: &Connection, id: Uuid) -> Result<Option<DraftRevision>> {
     type Row = (
         String,
         Option<String>,
@@ -292,8 +292,8 @@ impl Store {
         checkpoint: bool,
     ) -> Result<Draft> {
         let digest = checked_text(text)?;
-        let generation_sql = checked_generation(generation)?;
-        let expected_sql = checked_generation(expected.generation)?;
+        checked_generation(generation)?;
+        checked_generation(expected.generation)?;
         let action = if checkpoint {
             "draft.checkpoint"
         } else {
@@ -330,43 +330,9 @@ impl Store {
             }
             return Ok(result);
         }
-        let current = read_draft(&tx, id)?.ok_or_else(|| invalid("draft does not exist"))?;
-        if current.stamp != expected {
-            return Err(invalid("draft changed before write"));
-        }
-        if checkpoint {
-            if generation < expected.generation
-                || generation == expected.generation && text != current.text
-            {
-                return Err(invalid(
-                    "checkpoint changed text without advancing generation",
-                ));
-            }
-        } else if generation <= expected.generation {
-            return Err(invalid("save generation must advance"));
-        }
-        let base = if checkpoint {
-            Uuid::new_v4()
-        } else {
-            expected.base_revision
-        };
-        if checkpoint {
-            tx.execute("INSERT INTO draft_revisions(id,draft_id,parent_id,kind,text,sha256) VALUES(?1,?2,?3,'checkpoint',?4,?5)", params![base.to_string(),id.to_string(),expected.base_revision.to_string(),text,digest.as_slice()])?;
-        }
-        let changed = tx.execute("UPDATE drafts SET base_revision_id=?2,generation=?3,text=?4,sha256=?5 WHERE id=?1 AND base_revision_id=?6 AND generation=?7", params![id.to_string(),base.to_string(),generation_sql,text,digest.as_slice(),expected.base_revision.to_string(),expected_sql])?;
-        if changed != 1 {
-            return Err(invalid("draft changed before write"));
-        }
-        let result = Draft {
-            id,
-            title: current.title,
-            stamp: DraftStamp {
-                base_revision: base,
-                generation,
-            },
-            text: text.to_owned(),
-            sha256: digest,
-        };
+        let result = crate::comments::apply_draft_write(
+            &tx, id, expected, generation, text, checkpoint, None,
+        )?;
         finish_result(&tx, op, "draft", &result)?;
         tx.commit()?;
         Ok(result)
