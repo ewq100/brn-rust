@@ -1,4 +1,6 @@
-use crate::comments::{self, Capture};
+#[cfg(test)]
+use crate::comments;
+use crate::comments::{Capture, RecoveryCache};
 use brn_workflow::worker::{Draft, DraftStamp};
 use brn_workflow::{
     AnchorState, CommentAnchorSnapshot, CommentCapture, CommentStatusChanged, DraftCommentView,
@@ -24,6 +26,7 @@ pub struct Submitted {
 pub struct DraftEditor {
     acknowledged: DraftComments,
     snapshots: Vec<CommentAnchorSnapshot>,
+    recovery: Result<RecoveryCache, String>,
     generation: u64,
     text: String,
     trace: EditTrace,
@@ -47,16 +50,23 @@ impl DraftEditor {
         acknowledged: DraftComments,
         snapshots: Vec<CommentAnchorSnapshot>,
     ) -> Self {
-        let preview = Ok(acknowledged
-            .comments
-            .iter()
-            .map(|view| view.anchor.clone())
-            .collect());
+        let recovery = RecoveryCache::new(&acknowledged, &snapshots);
+        let preview = recovery
+            .as_ref()
+            .map(|_| {
+                acknowledged
+                    .comments
+                    .iter()
+                    .map(|view| view.anchor.clone())
+                    .collect()
+            })
+            .map_err(Clone::clone);
         Self {
             generation: acknowledged.draft.stamp.generation,
             text: acknowledged.draft.text.clone(),
             acknowledged,
             snapshots,
+            recovery,
             trace: EditTrace::Steps(vec![]),
             preview,
             pending: None,
@@ -189,13 +199,19 @@ impl DraftEditor {
         }) {
             return false;
         }
-        self.acknowledged = saved;
-        self.snapshots = snapshots;
+        let recovery = match RecoveryCache::new(&saved, &snapshots) {
+            Ok(cache) => cache,
+            Err(_) => return false,
+        };
         let trace = match &self.pending {
             Some(p) => merge_traces(&p.edits, &self.trace),
             None => self.trace.clone(),
         };
-        self.preview = comments::preview(&self.acknowledged, &self.snapshots, &self.text, &trace);
+        let initial_states: Vec<_> = saved.comments.iter().map(|v| v.anchor.clone()).collect();
+        self.preview = recovery.replay(&saved.draft.text, &trace, &self.text, &initial_states);
+        self.acknowledged = saved;
+        self.snapshots = snapshots;
+        self.recovery = Ok(recovery);
         true
     }
     pub fn edit(&mut self, text: String) {
@@ -228,22 +244,27 @@ impl DraftEditor {
         } else {
             next.as_ref()
         };
-        self.preview = match &self.preview {
-            Ok(states) => comments::advance(
-                &self.acknowledged,
-                &self.snapshots,
-                &before,
-                &text,
-                states,
-                step,
-            ),
-            Err(_) => {
+        self.preview = match (&self.recovery, &self.preview) {
+            (Ok(recovery), Ok(states)) => recovery.advance(&before, &text, states, step),
+            (Ok(recovery), Err(_)) => {
                 let trace = match &self.pending {
                     Some(p) => merge_traces(&p.edits, &self.trace),
                     None => self.trace.clone(),
                 };
-                comments::preview(&self.acknowledged, &self.snapshots, &text, &trace)
+                let initial_states: Vec<_> = self
+                    .acknowledged
+                    .comments
+                    .iter()
+                    .map(|v| v.anchor.clone())
+                    .collect();
+                recovery.replay(
+                    &self.acknowledged.draft.text,
+                    &trace,
+                    &text,
+                    &initial_states,
+                )
             }
+            (Err(error), _) => Err(error.clone()),
         };
         self.generation = self
             .generation
@@ -316,10 +337,15 @@ impl DraftEditor {
         {
             return false;
         }
+        let recovery = match RecoveryCache::new(&saved, &snapshots) {
+            Ok(cache) => cache,
+            Err(_) => return false,
+        };
+        let initial_states: Vec<_> = saved.comments.iter().map(|v| v.anchor.clone()).collect();
+        self.preview = recovery.replay(&saved.draft.text, &self.trace, &self.text, &initial_states);
         self.acknowledged = saved;
         self.snapshots = snapshots;
-        self.preview =
-            comments::preview(&self.acknowledged, &self.snapshots, &self.text, &self.trace);
+        self.recovery = Ok(recovery);
         if submitted.capture
             && self.composer_generation == submitted.composer_generation
             && self.composer == submitted.composer
@@ -357,6 +383,21 @@ impl DraftEditor {
         {
             let submitted = self.pending.take().unwrap();
             self.trace = merge_traces(&submitted.edits, &self.trace);
+            let initial_states: Vec<_> = self
+                .acknowledged
+                .comments
+                .iter()
+                .map(|v| v.anchor.clone())
+                .collect();
+            self.preview = match &self.recovery {
+                Ok(recovery) => recovery.replay(
+                    &self.acknowledged.draft.text,
+                    &self.trace,
+                    &self.text,
+                    &initial_states,
+                ),
+                Err(error) => Err(error.clone()),
+            };
             true
         } else {
             false
@@ -369,12 +410,17 @@ impl DraftEditor {
         self.generation = self.acknowledged.draft.stamp.generation;
         self.text = self.acknowledged.draft.text.clone();
         self.trace = EditTrace::Steps(vec![]);
-        self.preview = Ok(self
-            .acknowledged
-            .comments
-            .iter()
-            .map(|v| v.anchor.clone())
-            .collect());
+        self.preview = self
+            .recovery
+            .as_ref()
+            .map(|_| {
+                self.acknowledged
+                    .comments
+                    .iter()
+                    .map(|v| v.anchor.clone())
+                    .collect()
+            })
+            .map_err(Clone::clone);
         self.capture = None;
         true
     }
@@ -431,6 +477,7 @@ mod tests {
             0xcd, 0x88, 0x87, 0x12, 0x32, 0x34, 0xea, 0x0c, 0x6e, 0x71, 0x43, 0xc0, 0xad, 0xd7,
             0x3f, 0xf4, 0x31, 0xed,
         ];
+        d.sha256 = digest;
         let anchor = AnchorState::Anchored { start, end };
         let comment = DraftComment {
             id,
@@ -719,5 +766,45 @@ mod tests {
                 comments::preview(&saved, &snapshots, text, state.trace())
             );
         }
+    }
+    #[test]
+    fn failed_save_overflow_recomputes_history_limit_preview() {
+        let (saved, snapshots) = saved_comment("one", 0, 3);
+        let mut state = DraftEditor::from_comments(saved.clone(), snapshots.clone());
+        for i in 0..MAX_EDIT_STEPS {
+            state.edit(if i % 2 == 0 { "Xone" } else { "Yone" }.into());
+        }
+        let submitted = state.begin_save(Uuid::new_v4()).unwrap();
+        state.edit("Zone".into());
+        assert!(state.fail(submitted.op));
+        assert!(matches!(state.trace(), EditTrace::HistoryLost));
+        let expected = comments::preview(&saved, &snapshots, state.text(), state.trace());
+        assert_eq!(state.preview_states(), expected);
+        assert_eq!(
+            state.preview_states().unwrap(),
+            vec![AnchorState::Ambiguous {
+                reason: brn_workflow::AmbiguityReason::HistoryLimit
+            }]
+        );
+    }
+    #[test]
+    fn failed_save_overflow_allows_exact_original_recovery() {
+        let (saved, snapshots) = saved_comment("one", 0, 3);
+        let mut state = DraftEditor::from_comments(saved.clone(), snapshots.clone());
+        for i in 0..MAX_EDIT_STEPS {
+            state.edit(if i % 2 == 0 { "Xone" } else { "Yone" }.into());
+        }
+        let submitted = state.begin_save(Uuid::new_v4()).unwrap();
+        state.edit("one".into());
+        assert!(state.fail(submitted.op));
+        assert!(matches!(state.trace(), EditTrace::HistoryLost));
+        assert_eq!(
+            state.preview_states(),
+            comments::preview(&saved, &snapshots, state.text(), state.trace())
+        );
+        assert_eq!(
+            state.preview_states().unwrap(),
+            vec![AnchorState::Anchored { start: 0, end: 3 }]
+        );
     }
 }
