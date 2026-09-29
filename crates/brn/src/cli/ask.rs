@@ -141,9 +141,10 @@ fn ask(invocation: &Invocation) -> Result<Output, CliError> {
         unreachable!("ask command only");
     };
     // Refuse before the workspace opens: a fresh operation UUID must never be
-    // durably recorded for an invocation that cannot reach a provider.
+    // durably recorded for an invocation that cannot reach a provider. A
+    // missing required option is a usage error, not an operational failure.
     if invocation.codex.is_none() {
-        return Err(CliError::Workflow(
+        return Err(CliError::Usage(
             "ask requires --codex ABSOLUTE_EXECUTABLE".into(),
         ));
     }

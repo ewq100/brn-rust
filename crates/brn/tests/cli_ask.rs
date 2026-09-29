@@ -223,6 +223,18 @@ fn conversations_list_and_show_expose_history_and_unknown_session_is_not_found()
 }
 
 #[test]
+fn conversations_list_on_fresh_workspace_is_empty() {
+    let dir = tempdir().unwrap();
+    let root = dir.path();
+    let (c, envelope) = {
+        let out = brn_json(root, &["conversations", "list"]);
+        (code(&out), one_json(&out))
+    };
+    let data = data_ok(c, &envelope, "fresh conversations list");
+    assert_eq!(data["sessions"], serde_json::json!([]));
+}
+
+#[test]
 fn provider_failure_reports_operational_workflow_error() {
     let dir = tempdir().unwrap();
     let root = dir.path();
@@ -294,10 +306,11 @@ fn ask_without_codex_fails_before_workspace_init_identically() {
         let out = brn_json(root, &["ask", QUESTION]);
         (code(&out), one_json(&out))
     };
+    // A missing required option is a usage error (exit 2, code USAGE).
     let (c, envelope) = run();
-    assert_eq!(c, 1, "{envelope}");
+    assert_eq!(c, 2, "{envelope}");
     assert_eq!(envelope["ok"], false);
-    assert_eq!(envelope["error"]["code"], "WORKFLOW_ERROR");
+    assert_eq!(envelope["error"]["code"], "USAGE");
     let message = envelope["error"]["message"].as_str().unwrap().to_string();
     assert!(message.contains("--codex"), "{message}");
     // No workspace state may have been created for the refused invocation.
@@ -307,7 +320,7 @@ fn ask_without_codex_fails_before_workspace_init_identically() {
     );
     let (c2, envelope2) = run();
     assert_eq!(c2, c);
-    assert_eq!(envelope2["error"]["code"], "WORKFLOW_ERROR");
+    assert_eq!(envelope2["error"]["code"], "USAGE");
     assert_eq!(
         envelope2["error"]["message"].as_str().unwrap(),
         message,

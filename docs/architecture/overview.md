@@ -6,7 +6,7 @@ This describes the implemented workspace at the baseline in [status](../status.m
 
 | Crate | Current responsibility | Workspace dependencies |
 | --- | --- | --- |
-| [brn](../../crates/brn/README.md) | Minimal help/version build probe | None |
+| [brn](../../crates/brn/README.md) | Agent-facing `brn` CLI over the shared workflow | Workflow |
 | [brn-core](../../crates/brn-core/README.md) | In-memory shell, generation correlation and sample worker | None |
 | [brn-store](../../crates/brn-store/README.md) | SQLite records, migrations, exact revisions, drafts, comments and recovery | None |
 | [brn-provider](../../crates/brn-provider/README.md) | App Server client and owned process lifecycle | None |

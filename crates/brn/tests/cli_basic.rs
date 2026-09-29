@@ -144,6 +144,7 @@ fn status_json_on_fresh_empty_dir() {
     assert_eq!(data["active_index"]["present"], false);
     assert!(data["active_index"]["fingerprint"].is_null());
     assert!(data["active_index"]["error"].is_null());
+    // Holds under the default feature set only; --features native-retrieval flips it to true.
     assert_eq!(data["capabilities"]["native_retrieval"], false);
     assert_eq!(data["capabilities"]["codex_configured"], false);
     let expected_dir = dir.path().canonicalize().unwrap();

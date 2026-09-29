@@ -15,6 +15,7 @@ use crate::cli::error::{classify_workflow, CliError};
 use brn_workflow::SearchProfile;
 use std::path::PathBuf;
 use std::process::ExitCode;
+use std::sync::atomic::Ordering;
 use uuid::Uuid;
 
 /// A fully validated invocation, ready to execute.
@@ -26,8 +27,6 @@ pub struct Invocation {
     pub command: Command,
 }
 
-// Fields of stub commands are parsed and validated now; later phases consume them.
-#[allow(dead_code)]
 pub enum Command {
     Status,
     Import {
@@ -130,9 +129,6 @@ Commands:
   brn revisions list --draft DRAFT_ID
   brn revisions show REVISION_ID
   brn revisions diff --draft DRAFT_ID --from REVISION_ID --to REVISION_ID
-
-Implemented in this build: status, documents list, documents show. Other
-commands are recognized and report a clear not-implemented error.
 
 Exit codes: 0 success; 1 operational failure; 2 usage error; 124 deadline;
 130 interrupted.
@@ -579,7 +575,10 @@ fn parse_inner(
             }
             _ => unreachable!(),
         },
-        "index" => Command::IndexBuild,
+        "index" => {
+            expect_positionals(&scanned, 0)?;
+            Command::IndexBuild
+        }
         "search" => {
             let query = required_positional(&scanned, "search QUERY")?.to_string();
             expect_positionals(&scanned, 1)?;
@@ -742,6 +741,22 @@ pub fn report_error(json: bool, command: Option<&str>, error: &CliError) {
     }
 }
 
+/// A silent SIGINT during a non-ask command must not look like success: once
+/// the command result arrives, a set `CANCEL` flag escalates an `Ok` result to
+/// `INTERRUPTED` (exit 130). Ask classifies its own cancellation — a durably
+/// completed turn stays a success — and errors pass through unchanged.
+pub(crate) fn escalate_interrupt(
+    result: Result<Output, CliError>,
+    is_ask: bool,
+) -> Result<Output, CliError> {
+    if !is_ask && result.is_ok() && crate::CANCEL.load(Ordering::SeqCst) {
+        return Err(CliError::Interrupted(
+            "interrupted before completion".into(),
+        ));
+    }
+    result
+}
+
 /// Map a command result to process exit, honoring the output mode.
 pub fn finish(json: bool, command: &str, result: Result<Output, CliError>) -> ExitCode {
     match result {
@@ -800,5 +815,43 @@ pub fn execute(invocation: &Invocation) -> Result<Output, CliError> {
         Command::DocumentsList => documents::list(invocation, &workspace),
         Command::DocumentsShow { source } => documents::show(invocation, &workspace, *source),
         _ => unreachable!("stub commands returned above"),
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    fn ok_result() -> Result<Output, CliError> {
+        Ok(Output {
+            text: String::new(),
+            data: serde_json::json!(null),
+        })
+    }
+
+    /// One sequential test: CANCEL is process-global, so all cases share a
+    /// single thread and the prior flag value is restored at the end.
+    #[test]
+    fn escalation_only_fires_for_cancelled_non_ask_successes() {
+        let was = crate::CANCEL.load(Ordering::SeqCst);
+        crate::CANCEL.store(false, Ordering::SeqCst);
+        // Ok without CANCEL: unchanged.
+        assert!(escalate_interrupt(ok_result(), false).is_ok());
+        // Err passes through even with CANCEL set.
+        crate::CANCEL.store(true, Ordering::SeqCst);
+        assert_eq!(
+            escalate_interrupt(Err(CliError::Usage("u".into())), false).err(),
+            Some(CliError::Usage("u".into()))
+        );
+        // Ok + CANCEL + non-ask: escalated to INTERRUPTED.
+        assert_eq!(
+            escalate_interrupt(ok_result(), false).err(),
+            Some(CliError::Interrupted(
+                "interrupted before completion".into()
+            ))
+        );
+        // Ok + CANCEL + ask: unchanged (ask classifies its own cancellation).
+        assert!(escalate_interrupt(ok_result(), true).is_ok());
+        crate::CANCEL.store(was, Ordering::SeqCst);
     }
 }

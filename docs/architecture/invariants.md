@@ -31,3 +31,5 @@ Search approval does not authorize publication. When publication is implemented,
 ## Scope and qualification
 
 Use explicit disposable directories and synthetic fixtures for verification. Keep the original vault separate. Automated tests, agent-observed native interactions, subjective user acceptance and release qualification are distinct evidence categories.
+
+Every new domain/workflow capability should be usable headlessly. A visual-only interaction does not require a CLI command.

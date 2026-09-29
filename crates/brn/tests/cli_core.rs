@@ -151,8 +151,8 @@ fn semantic_and_hybrid_are_unavailable_without_fallback() {
         assert_eq!(env["ok"], false, "{profile}");
         assert_eq!(env["error"]["code"], "PROFILE_UNAVAILABLE", "{profile}");
         assert!(
-            env.get("data").is_none() || env["data"]["evidence"].is_null(),
-            "no keyword fallback for {profile}"
+            env.get("data").is_none(),
+            "no data at all on the failure envelope (no keyword fallback) for {profile}"
         );
     }
 }
@@ -294,6 +294,19 @@ fn withdrawn_source_fails_search() {
     let (c, env) = run_json(root, &["search", "body"]);
     assert_eq!(c, 1, "{env}");
     assert_eq!(env["ok"], false);
+    // Observed behavior: withdrawing approval stales the index, so the search
+    // refuses with INDEX_STALE until a rebuild.
+    assert_eq!(env["error"]["code"], "INDEX_STALE");
+}
+
+#[test]
+fn index_build_rejects_extra_positionals_as_usage() {
+    let out = brn(&["index", "build", "junk", "--json"]);
+    assert_eq!(code(&out), 2, "{}", text(&out));
+    let envelope = one_json(&out);
+    assert_eq!(envelope["ok"], false);
+    assert_eq!(envelope["error"]["code"], "USAGE");
+    assert_eq!(envelope["command"], "index.build");
 }
 
 #[test]

@@ -11,10 +11,7 @@ pub enum CliError {
     IndexInvalid(String),
     ProfileUnavailable(String),
     OperationConflict(String),
-    // Wired for later phases (deadline flag, SIGINT flag); not produced yet.
-    #[allow(dead_code)]
     Timeout(String),
-    #[allow(dead_code)]
     Interrupted(String),
     Workflow(String),
 }

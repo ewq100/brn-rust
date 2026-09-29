@@ -17,6 +17,12 @@ extern "C" fn on_sigint(_signal: libc::c_int) {
 }
 
 fn main() -> ExitCode {
+    // SAFETY: restores the default SIGPIPE disposition (process terminate) so
+    // `brn ... | head` exits quietly instead of panicking on a closed stdout;
+    // the Rust runtime ignores SIGPIPE by default. No handler is installed.
+    unsafe {
+        libc::signal(libc::SIGPIPE, libc::SIG_DFL);
+    }
     // SAFETY: replaces the default SIGINT disposition with a handler that only
     // sets an atomic flag (async-signal-safe). It never returns, so normal
     // teardown is unaffected. Restoring the prior handler is not attempted.
@@ -42,7 +48,9 @@ fn run(args: &[String]) -> ExitCode {
         }
         Ok(Outcome::Run(invocation)) => {
             let command = command_name(&invocation.command);
-            cli::finish(invocation.json, command, cli::execute(&invocation))
+            let is_ask = matches!(invocation.command, cli::Command::Ask { .. });
+            let result = cli::escalate_interrupt(cli::execute(&invocation), is_ask);
+            cli::finish(invocation.json, command, result)
         }
         Err(failure) => {
             cli::report_error(failure.json, failure.command, &failure.error);
