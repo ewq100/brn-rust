@@ -1,5 +1,5 @@
 //! `brn status`: workspace report without starting providers or building indexes.
-use crate::cli::{error::CliError, Invocation, Output};
+use crate::cli::{error::CliError, CliFailure, Invocation, Output};
 use brn_workflow::Workspace;
 use std::path::Path;
 
@@ -11,7 +11,7 @@ fn canonical_dir(path: &Path) -> Result<String, CliError> {
         .map_err(|_| CliError::Workflow("data directory path is not UTF-8".into()))
 }
 
-pub fn run(invocation: &Invocation, workspace: &Workspace) -> Result<Output, CliError> {
+pub fn run(invocation: &Invocation, workspace: &Workspace) -> Result<Output, CliFailure> {
     let st = workspace.workspace_status();
     let data_dir = canonical_dir(&invocation.data_dir)?;
     let native = brn_workflow::native_retrieval_compiled();

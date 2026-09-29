@@ -2,8 +2,8 @@
 //! All commands only read store state; lists preserve insertion order and
 //! unknown objects are rejected by construction with `NOT_FOUND`.
 use crate::cli::{
-    documents::sha256_hex, error::classify_workflow, error::CliError, open_workspace, Command,
-    Invocation, Output,
+    documents::sha256_hex, error::classify_workflow, error::CliError, open_workspace, CliFailure,
+    Command, Invocation, Output,
 };
 use brn_workflow::worker::RevisionKind;
 use brn_workflow::{
@@ -12,7 +12,7 @@ use brn_workflow::{
 use serde_json::json;
 use uuid::Uuid;
 
-pub fn run(invocation: &Invocation) -> Result<Output, CliError> {
+pub fn run(invocation: &Invocation) -> Result<Output, CliFailure> {
     let workspace = open_workspace(invocation)?;
     match &invocation.command {
         Command::DraftsList => drafts_list(&workspace),
@@ -134,7 +134,7 @@ fn ensure_trailing_newline(mut text: String) -> String {
     text
 }
 
-fn drafts_list(workspace: &Workspace) -> Result<Output, CliError> {
+fn drafts_list(workspace: &Workspace) -> Result<Output, CliFailure> {
     let drafts = workspace.drafts().map_err(classify_workflow)?;
     let mut text = String::new();
     for draft in &drafts {
@@ -149,7 +149,7 @@ fn drafts_list(workspace: &Workspace) -> Result<Output, CliError> {
     })
 }
 
-fn drafts_show(workspace: &Workspace, id: Uuid) -> Result<Output, CliError> {
+fn drafts_show(workspace: &Workspace, id: Uuid) -> Result<Output, CliFailure> {
     let draft = require_draft(workspace, id)?;
     let mut data = draft_summary(&draft);
     if let serde_json::Value::Object(map) = &mut data {
@@ -167,7 +167,7 @@ fn drafts_show(workspace: &Workspace, id: Uuid) -> Result<Output, CliError> {
     Ok(Output { text, data })
 }
 
-fn comments_list(workspace: &Workspace, draft_id: Uuid) -> Result<Output, CliError> {
+fn comments_list(workspace: &Workspace, draft_id: Uuid) -> Result<Output, CliFailure> {
     require_draft(workspace, draft_id)?;
     let comments = workspace
         .draft_comments(draft_id)
@@ -198,7 +198,7 @@ fn comments_list(workspace: &Workspace, draft_id: Uuid) -> Result<Output, CliErr
     })
 }
 
-fn revisions_list(workspace: &Workspace, draft_id: Uuid) -> Result<Output, CliError> {
+fn revisions_list(workspace: &Workspace, draft_id: Uuid) -> Result<Output, CliFailure> {
     require_draft(workspace, draft_id)?;
     let revisions = workspace
         .draft_revisions(draft_id)
@@ -225,7 +225,7 @@ fn revisions_list(workspace: &Workspace, draft_id: Uuid) -> Result<Output, CliEr
     })
 }
 
-fn revisions_show(workspace: &Workspace, id: Uuid) -> Result<Output, CliError> {
+fn revisions_show(workspace: &Workspace, id: Uuid) -> Result<Output, CliFailure> {
     let revision = require_revision(workspace, id)?;
     let mut data = revision_summary(&revision);
     if let serde_json::Value::Object(map) = &mut data {
@@ -253,7 +253,7 @@ fn revisions_diff(
     draft: Uuid,
     from: Uuid,
     to: Uuid,
-) -> Result<Output, CliError> {
+) -> Result<Output, CliFailure> {
     require_draft(workspace, draft)?;
     require_revision(workspace, from)?;
     require_revision(workspace, to)?;

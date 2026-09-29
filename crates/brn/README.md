@@ -41,7 +41,18 @@ Accepted before or after the command: `--data-dir DIR` (required for commands; m
 {"schema_version": 1, "command": "search", "ok": false, "error": {"code": "INDEX_MISSING", "message": "no active index; build it first"}}
 ```
 
-Exit codes: `0` success; `2` usage (`USAGE`); `1` operational failure (`WORKSPACE_BUSY`, `NOT_FOUND`, `INDEX_MISSING`, `INDEX_STALE`, `INDEX_INVALID`, `PROFILE_UNAVAILABLE`, `OPERATION_CONFLICT`, `WORKFLOW_ERROR`); `124` deadline (`TIMEOUT`); `130` interrupted (`INTERRUPTED`).
+The error object may carry an **additive-optional `context` field** (schema_version stays 1):
+
+```json
+{"schema_version": 1, "command": "ask", "ok": false,
+ "error": {"code": "TIMEOUT", "message": "ask timed out after 2s; operation …",
+   "context": {"operation_id": "…", "session_id": "…", "recorded_status": "interrupted", "provider_outcome": "unknown"}}}
+```
+
+`context` currently appears only on `ask` failures; consumers must treat its
+absence as normal for every command and every other error.
+
+Exit codes: `0` success; `2` usage (`USAGE`); `1` operational failure (`WORKSPACE_BUSY`, `NOT_FOUND`, `INDEX_MISSING`, `INDEX_STALE`, `INDEX_INVALID`, `PROFILE_UNAVAILABLE`, `OPERATION_CONFLICT`, `WORKFLOW_ERROR`); `124` deadline (`TIMEOUT`); `130` interrupted (`INTERRUPTED`). Codes are derived from typed workflow error categories at the source, never from matching message wording; uncategorized failures are an honest `WORKFLOW_ERROR`.
 
 ## Semantics
 
@@ -57,6 +68,23 @@ Exit codes: `0` success; `2` usage (`USAGE`); `1` operational failure (`WORKSPAC
 ## Ask and the provider
 
 `ask` requires `--codex`; without it the invocation is a usage error and the workspace is never opened. Provider deltas stream to stderr so stdout stays one envelope. `--timeout-seconds` defaults to 300 and is bounded 1..=3600; deadline exit is 124, SIGINT exit is 130, and completed, failed or interrupted turn outcomes are preserved honestly. Tests use fake providers; a live Codex is never verified by the test suite.
+
+### Ask failure context
+
+`ask` failures carry an `error.context` object with machine-readable
+identifiers and an honest split between the durable local record and the
+provider outcome:
+
+- `operation_id`: the BRN-generated or caller-supplied id for this attempt.
+- `session_id`: the session established during the run (created by it, or the caller's validated `--session`); `null` when no session was established.
+- `recorded_status`: the durable local record state (`completed`/`failed`/`interrupted`/`running`/`pending`); `null` when no turn record is known to exist.
+- `provider_outcome`: what BRN knows about the provider side. `"unknown"` means BRN could not observe the provider outcome — transport loss or an interrupted record is **not** proof of cancellation. `"completed"`/`"failed"` imply a provider-confirmed outcome. `"interrupted"` means an interrupted record exists, ambiguous between a server-confirmed interruption and uncertain transport loss.
+
+Resubmitting the SAME operation id returns the recorded state without a new
+external submission. After an unknown provider outcome, a NEW operation id is
+not known to be safe (it may duplicate the external turn). Nothing is ever
+auto-replayed. USAGE (missing `--codex`) and NOT_FOUND (unknown `--session`)
+failures happen before an operation id exists and carry no context.
 
 ## Dependencies and features
 

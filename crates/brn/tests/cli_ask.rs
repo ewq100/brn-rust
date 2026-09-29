@@ -19,7 +19,8 @@ const FIXTURE: &str =
     "The synthetic Aurora mission launches on Tuesday. Its crew includes Mira and Niko.\r\n";
 const QUESTION: &str = "When does the Aurora mission launch?";
 
-/// Write the fake provider executable for `mode` (success|fail|stall|cancel).
+/// Write the fake provider executable for `mode`
+/// (success|fail|stall|cancel|stall-init|server-fail).
 fn fake(dir: &Path, mode: &str) -> PathBuf {
     use std::os::unix::fs::PermissionsExt;
     let exe = dir.join(format!("fake-{mode}"));
@@ -29,11 +30,16 @@ fn fake(dir: &Path, mode: &str) -> PathBuf {
 import json,sys,os,sqlite3
 if '--version' in sys.argv:
  print('codex-cli 0.155.0-alpha.16.4');sys.exit(0)
-mode=os.path.basename(sys.argv[0]).split('-')[-1]
+mode=os.path.basename(sys.argv[0])[len('fake-'):]
 def send(x):print(json.dumps(x),flush=True)
 for line in sys.stdin:
  q=json.loads(line);m=q.get('method');rid=q.get('id')
- if m=='initialize':send({'id':rid,'result':{'userAgent':'codex/0.155.0-alpha.16.4','codexHome':os.environ.get('CODEX_HOME','/tmp/fake'),'platformFamily':'unix','platformOs':'macos'}})
+ if m=='initialize':
+  if mode=='stall-init':
+   with open('../init-stalled.log','w') as f:f.write('stalled\n')
+   import time
+   while True:time.sleep(1)
+  send({'id':rid,'result':{'userAgent':'codex/0.155.0-alpha.16.4','codexHome':os.environ.get('CODEX_HOME','/tmp/fake'),'platformFamily':'unix','platformOs':'macos'}})
  elif m=='account/read':send({'id':rid,'result':{'account':{'type':'chatgpt'},'workspaceRouting':{'chatgptAccountId':'synthetic-account'}}})
  elif m in ['thread/start','thread/resume']:
   tid=q.get('params',{}).get('threadId','thr_synthetic');send({'id':rid,'result':{'thread':{'id':tid,'sessionId':tid}}})
@@ -46,6 +52,7 @@ for line in sys.stdin:
   send({'id':rid,'result':{'turn':{'id':'turn_synthetic'}}})
   if mode=='fail':sys.exit(0)
   if mode=='stall':continue
+  if mode=='server-fail':send({'method':'turn/completed','params':{'threadId':tid,'turn':{'id':'turn_synthetic','status':'failed'}}});continue
   send({'method':'item/agentMessage/delta','params':{'threadId':tid,'turnId':'turn_synthetic','delta':'Aurora launches Tuesday [1].'}})
   if mode=='cancel':continue
   send({'method':'turn/completed','params':{'threadId':tid,'turn':{'id':'turn_synthetic','status':'completed'}}})
@@ -119,6 +126,19 @@ fn data_ok<'a>(exit: i32, envelope: &'a Value, context: &str) -> &'a Value {
     &envelope["data"]
 }
 
+/// Block until `name` exists under `root` (bounded, no busy loop).
+fn wait_for_marker(root: &Path, name: &str) {
+    let log = root.join(name);
+    let deadline = Instant::now() + Duration::from_secs(10);
+    while Instant::now() < deadline {
+        if fs::read_to_string(&log).is_ok() {
+            return;
+        }
+        std::thread::sleep(Duration::from_millis(20));
+    }
+    panic!("{name} never appeared: {}", log.display());
+}
+
 /// Block until the fake provider logged its turn/start (bounded, no sleeps).
 fn wait_for_log(root: &Path) {
     let log = root.join("submitted.log");
@@ -130,6 +150,51 @@ fn wait_for_log(root: &Path) {
         std::thread::sleep(Duration::from_millis(20));
     }
     panic!("submitted.log never appeared: {}", log.display());
+}
+
+/// Spawn `brn ask` with the fake executable and extra flags, stdout/stderr piped.
+fn spawn_ask(root: &Path, exe: &Path, extra: &[&str]) -> std::process::Child {
+    Command::new(env!("CARGO_BIN_EXE_brn"))
+        .args(["ask", QUESTION, "--codex"])
+        .arg(exe)
+        .args(extra)
+        .arg("--data-dir")
+        .arg(root)
+        .arg("--json")
+        .env("CODEX_HOME", root.join("synthetic-home"))
+        .stdin(Stdio::null())
+        .stdout(Stdio::piped())
+        .stderr(Stdio::piped())
+        .spawn()
+        .expect("brn ask spawns")
+}
+
+/// Wait for a spawned run to finish and capture its output.
+fn wait_exit(child: std::process::Child) -> Output {
+    child.wait_with_output().expect("brn ask waits")
+}
+
+/// The additive machine-readable error context of a failure envelope.
+fn error_context(envelope: &Value) -> &Value {
+    &envelope["error"]["context"]
+}
+
+/// Parse a context identifier string as a UUID.
+fn uuid_of(value: &Value, what: &str) -> Uuid {
+    value
+        .as_str()
+        .unwrap_or_else(|| panic!("{what} is a string: {value}"))
+        .parse()
+        .unwrap_or_else(|_| panic!("{what} is a UUID: {value}"))
+}
+
+/// Count the submitted external turn requests in submitted.log.
+fn submitted_count(root: &Path) -> usize {
+    fs::read_to_string(root.join("submitted.log"))
+        .unwrap()
+        .lines()
+        .filter(|l| l.contains("turn"))
+        .count()
 }
 
 /// Poll until no process matches the fake executable path any more.
@@ -254,18 +319,7 @@ fn sigint_reports_interrupted_with_exit_130() {
     let root = dir.path();
     seed(root);
     let exe = fake(root, "cancel");
-    let child = Command::new(env!("CARGO_BIN_EXE_brn"))
-        .args(["ask", QUESTION, "--codex"])
-        .arg(&exe)
-        .arg("--data-dir")
-        .arg(root)
-        .arg("--json")
-        .env("CODEX_HOME", root.join("synthetic-home"))
-        .stdin(Stdio::null())
-        .stdout(Stdio::piped())
-        .stderr(Stdio::piped())
-        .spawn()
-        .expect("brn ask spawns");
+    let child = spawn_ask(root, &exe, &[]);
     wait_for_log(root);
     let status = Command::new("/bin/kill")
         .arg("-INT")
@@ -278,6 +332,13 @@ fn sigint_reports_interrupted_with_exit_130() {
     assert_eq!(code(&out), 130, "{envelope}");
     assert_eq!(envelope["ok"], false, "{envelope}");
     assert_eq!(envelope["error"]["code"], "INTERRUPTED");
+    // Honesty rule: this turn was durably recorded as interrupted, but the
+    // record itself is ambiguous — the provider did confirm the interruption
+    // here, yet a recorded interrupted turn alone (as after transport loss)
+    // is never proof of cancellation, so provider_outcome reports "unknown".
+    let context = error_context(&envelope);
+    assert_eq!(context["recorded_status"], "interrupted", "{envelope}");
+    assert_eq!(context["provider_outcome"], "unknown", "{envelope}");
 }
 
 #[test]
@@ -400,4 +461,217 @@ fn timeout_bounds_outside_valid_range_are_usage_errors() {
             .unwrap()
             .contains("--timeout-seconds"));
     }
+}
+
+#[test]
+fn transport_loss_after_submission_reports_structured_context() {
+    let dir = tempdir().unwrap();
+    let root = dir.path();
+    seed(root);
+    let exe = fake(root, "fail");
+    let out = ask(root, &exe, &[]);
+    let envelope = one_json(&out);
+    assert_eq!(code(&out), 1, "{envelope}");
+    assert_eq!(envelope["error"]["code"], "WORKFLOW_ERROR");
+    let context = error_context(&envelope);
+    let op = uuid_of(&context["operation_id"], "context operation_id");
+    let session = uuid_of(&context["session_id"], "context session_id");
+    assert_eq!(context["recorded_status"], "interrupted", "{envelope}");
+    assert_eq!(context["provider_outcome"], "unknown", "{envelope}");
+    // The reported identifiers must match the durable local record.
+    let show = brn_json(root, &["conversations", "show", &session.to_string()]);
+    let show_envelope = one_json(&show);
+    let data = data_ok(code(&show), &show_envelope, "conversations show");
+    let turns = data["turns"].as_array().unwrap();
+    assert_eq!(turns.len(), 1);
+    assert_eq!(turns[0]["operation_id"].as_str().unwrap(), op.to_string());
+    assert_eq!(turns[0]["status"], "interrupted");
+}
+
+#[test]
+fn deadline_after_submission_timeout_context() {
+    let dir = tempdir().unwrap();
+    let root = dir.path();
+    seed(root);
+    let exe = fake(root, "stall");
+    let op = Uuid::new_v4().to_string();
+    // Generous deadline, and only start judging after the turn was actually
+    // submitted: the assertions must not depend on machine load racing the
+    // deadline before submission.
+    let child = spawn_ask(root, &exe, &["--operation", &op, "--timeout-seconds", "5"]);
+    wait_for_log(root);
+    let out = wait_exit(child);
+    let envelope = one_json(&out);
+    assert_eq!(code(&out), 124, "{envelope}");
+    assert_eq!(envelope["error"]["code"], "TIMEOUT");
+    let context = error_context(&envelope);
+    assert_eq!(context["operation_id"].as_str().unwrap(), op);
+    assert_eq!(context["recorded_status"], "interrupted", "{envelope}");
+    assert_eq!(context["provider_outcome"], "unknown", "{envelope}");
+}
+
+#[test]
+fn deadline_before_submission_timeout_context() {
+    let dir = tempdir().unwrap();
+    let root = dir.path();
+    seed(root);
+    let exe = fake(root, "stall-init");
+    let out = ask(root, &exe, &["--timeout-seconds", "1"]);
+    // Make the stall deterministic before the deadline fires.
+    wait_for_marker(root, "init-stalled.log");
+    let envelope = one_json(&out);
+    assert_eq!(code(&out), 124, "{envelope}");
+    assert_eq!(envelope["error"]["code"], "TIMEOUT");
+    let context = error_context(&envelope);
+    assert!(context["operation_id"].as_str().is_some(), "{envelope}");
+    assert_eq!(context["session_id"], serde_json::json!(null), "{envelope}");
+    assert_eq!(
+        context["recorded_status"],
+        serde_json::json!(null),
+        "{envelope}"
+    );
+    assert_eq!(context["provider_outcome"], "unknown", "{envelope}");
+    assert_provider_gone(&exe);
+}
+
+#[test]
+fn sigint_before_submission_reports_unestablished_context() {
+    let dir = tempdir().unwrap();
+    let root = dir.path();
+    seed(root);
+    let exe = fake(root, "stall-init");
+    let child = spawn_ask(root, &exe, &[]);
+    wait_for_marker(root, "init-stalled.log");
+    let status = Command::new("/bin/kill")
+        .arg("-INT")
+        .arg(child.id().to_string())
+        .status()
+        .expect("/bin/kill runs");
+    assert!(status.success(), "SIGINT delivered");
+    let out = child.wait_with_output().expect("brn ask waits");
+    let envelope = one_json(&out);
+    assert_eq!(code(&out), 130, "{envelope}");
+    assert_eq!(envelope["error"]["code"], "INTERRUPTED");
+    let context = error_context(&envelope);
+    assert_eq!(context["session_id"], serde_json::json!(null), "{envelope}");
+    assert_eq!(
+        context["recorded_status"],
+        serde_json::json!(null),
+        "{envelope}"
+    );
+    assert_eq!(context["provider_outcome"], "unknown", "{envelope}");
+}
+
+#[test]
+fn server_confirmed_failed_outcome_is_reported_as_confirmed() {
+    let dir = tempdir().unwrap();
+    let root = dir.path();
+    seed(root);
+    let exe = fake(root, "server-fail");
+    let out = ask(root, &exe, &[]);
+    let envelope = one_json(&out);
+    assert_eq!(code(&out), 1, "{envelope}");
+    assert_eq!(envelope["error"]["code"], "WORKFLOW_ERROR");
+    let context = error_context(&envelope);
+    assert_eq!(context["recorded_status"], "failed", "{envelope}");
+    assert_eq!(context["provider_outcome"], "failed", "{envelope}");
+}
+
+#[test]
+fn connect_failure_reports_unestablished_context() {
+    let dir = tempdir().unwrap();
+    let root = dir.path();
+    seed(root);
+    let out = ask(root, Path::new("/nonexistent/absolute/codex"), &[]);
+    let envelope = one_json(&out);
+    assert_eq!(code(&out), 1, "{envelope}");
+    assert_eq!(envelope["error"]["code"], "WORKFLOW_ERROR");
+    let context = error_context(&envelope);
+    assert!(context["operation_id"].as_str().is_some(), "{envelope}");
+    assert_eq!(context["session_id"], serde_json::json!(null), "{envelope}");
+    assert_eq!(
+        context["recorded_status"],
+        serde_json::json!(null),
+        "{envelope}"
+    );
+    assert_eq!(context["provider_outcome"], "unknown", "{envelope}");
+}
+
+#[test]
+fn generated_and_supplied_ids_appear_in_context() {
+    // One workspace per run: the fake provider hardcodes a single synthetic
+    // thread id per workspace, so a second stall run in the same workspace
+    // would die on the fake's own consistency assert.
+    fn stall_context() -> (tempfile::TempDir, Value) {
+        let dir = tempdir().unwrap();
+        let root = dir.path();
+        seed(root);
+        let exe = fake(root, "stall");
+        let out = ask(root, &exe, &["--timeout-seconds", "2"]);
+        let envelope = one_json(&out);
+        assert_eq!(code(&out), 124, "{envelope}");
+        (dir, error_context(&envelope).clone())
+    }
+    let (_d1, first) = stall_context();
+    let op1 = uuid_of(&first["operation_id"], "first operation_id");
+    let (_d2, second) = stall_context();
+    let op2 = uuid_of(&second["operation_id"], "second operation_id");
+    assert_ne!(op1, op2, "generated operation ids differ between runs");
+    // A caller-supplied id is echoed verbatim in the context.
+    let dir = tempdir().unwrap();
+    let root = dir.path();
+    seed(root);
+    let exe = fake(root, "stall");
+    let supplied = Uuid::new_v4().to_string();
+    let out = ask(
+        root,
+        &exe,
+        &["--operation", &supplied, "--timeout-seconds", "2"],
+    );
+    let envelope = one_json(&out);
+    assert_eq!(code(&out), 124, "{envelope}");
+    assert_eq!(
+        error_context(&envelope)["operation_id"].as_str().unwrap(),
+        supplied
+    );
+}
+
+#[test]
+fn same_operation_retry_returns_recorded_without_resubmission() {
+    let dir = tempdir().unwrap();
+    let root = dir.path();
+    seed(root);
+    let op = Uuid::new_v4().to_string();
+    let stalled = fake(root, "stall");
+    // Only judge after the turn was actually submitted: a too-tight deadline
+    // under load could fire before submission, which would honestly report
+    // recorded_status null instead.
+    let first = spawn_ask(
+        root,
+        &stalled,
+        &["--operation", &op, "--timeout-seconds", "5"],
+    );
+    wait_for_log(root);
+    let first = wait_exit(first);
+    let envelope = one_json(&first);
+    assert_eq!(code(&first), 124, "{envelope}");
+    let context = error_context(&envelope);
+    assert_eq!(context["recorded_status"], "interrupted", "{envelope}");
+    assert_eq!(context["provider_outcome"], "unknown", "{envelope}");
+
+    // Same operation id: the recorded state is returned without a new
+    // external submission, even though the provider now works.
+    let working = fake(root, "success");
+    let retry = ask(root, &working, &["--operation", &op]);
+    let envelope = one_json(&retry);
+    assert_eq!(code(&retry), 1, "{envelope}");
+    assert_eq!(envelope["error"]["code"], "WORKFLOW_ERROR");
+    assert!(envelope["error"]["message"]
+        .as_str()
+        .unwrap()
+        .contains("turn ended as interrupted"));
+    let context = error_context(&envelope);
+    assert_eq!(context["recorded_status"], "interrupted", "{envelope}");
+    assert_eq!(context["provider_outcome"], "unknown", "{envelope}");
+    assert_eq!(submitted_count(root), 1, "no second external submission");
 }

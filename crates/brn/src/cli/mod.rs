@@ -85,6 +85,23 @@ pub struct Output {
     pub data: serde_json::Value,
 }
 
+/// A command failure plus optional additive machine-readable context. When
+/// present, the JSON envelope renders it as an additive-optional `context`
+/// field inside the existing `error` object; schema_version stays 1.
+pub struct CliFailure {
+    pub error: CliError,
+    pub context: Option<serde_json::Value>,
+}
+
+impl From<CliError> for CliFailure {
+    fn from(error: CliError) -> Self {
+        Self {
+            error,
+            context: None,
+        }
+    }
+}
+
 /// Parse failure bundled with the flags needed for a correct envelope.
 pub struct ParseFailure {
     pub error: CliError,
@@ -727,24 +744,37 @@ pub fn envelope_ok(command: &str, data: serde_json::Value) -> String {
 }
 
 /// Pretty-printed failure envelope; `command` is null when unidentified.
-pub fn envelope_err(command: Option<&str>, error: &CliError) -> String {
+/// `context` is additive-optional and nested inside the existing error object.
+pub fn envelope_err(
+    command: Option<&str>,
+    error: &CliError,
+    context: Option<&serde_json::Value>,
+) -> String {
+    let mut err = serde_json::json!({ "code": error.code(), "message": error.message() });
+    if let Some(context) = context {
+        err["context"] = context.clone();
+    }
     serde_json::to_string_pretty(&serde_json::json!({
         "schema_version": 1,
         "command": command,
         "ok": false,
-        "error": { "code": error.code(), "message": error.message() },
+        "error": err,
     }))
     .expect("envelope serializes")
 }
 
 /// Print an error in the mode-appropriate surface. Best-effort: a closed
 /// consumer pipe is not a domain failure, so write errors are ignored.
-pub fn report_error(json: bool, command: Option<&str>, error: &CliError) {
+pub fn report_error(json: bool, command: Option<&str>, failure: &CliFailure) {
     use std::io::Write as _;
     if json {
-        let _ = writeln!(std::io::stdout(), "{}", envelope_err(command, error));
+        let _ = writeln!(
+            std::io::stdout(),
+            "{}",
+            envelope_err(command, &failure.error, failure.context.as_ref())
+        );
     } else {
-        let _ = writeln!(std::io::stderr(), "error: {}", error.message());
+        let _ = writeln!(std::io::stderr(), "error: {}", failure.error.message());
     }
 }
 
@@ -756,7 +786,7 @@ pub fn report_error(json: bool, command: Option<&str>, error: &CliError) {
 /// that closed its pipe. The error path reports best-effort and still returns
 /// the error's exit code. Progress/delta writes to stderr are best-effort and
 /// never affect lifecycle or outcome handling.
-pub fn finish(json: bool, command: &str, result: Result<Output, CliError>) -> ExitCode {
+pub fn finish(json: bool, command: &str, result: Result<Output, CliFailure>) -> ExitCode {
     use std::io::Write as _;
     match result {
         Ok(output) => {
@@ -768,9 +798,9 @@ pub fn finish(json: bool, command: &str, result: Result<Output, CliError>) -> Ex
             let _ = std::io::stdout().flush();
             ExitCode::SUCCESS
         }
-        Err(error) => {
-            report_error(json, Some(command), &error);
-            ExitCode::from(error.exit_code())
+        Err(failure) => {
+            report_error(json, Some(command), &failure);
+            ExitCode::from(failure.error.exit_code())
         }
     }
 }
@@ -790,7 +820,7 @@ pub fn open_workspace(invocation: &Invocation) -> Result<brn_workflow::Workspace
 
 /// Route a validated invocation. Stubs short-circuit before the workspace is
 /// opened so they never create, lock or recover a data directory.
-pub fn execute(invocation: &Invocation) -> Result<Output, CliError> {
+pub fn execute(invocation: &Invocation) -> Result<Output, CliFailure> {
     match &invocation.command {
         Command::Import { .. }
         | Command::DocumentsSetApproval { .. }

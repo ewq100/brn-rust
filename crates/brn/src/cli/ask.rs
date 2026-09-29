@@ -2,9 +2,12 @@
 //! deadline watching and SIGINT classification.
 use crate::cli::{
     error::{classify_workflow, CliError},
-    open_workspace, Command, Invocation, Output,
+    open_workspace, CliFailure, Command, Invocation, Output,
 };
-use brn_workflow::{worker::OperationStatus, ChatTurn, Workspace};
+use brn_workflow::{
+    provider_outcome_of_recorded, worker::OperationStatus, AskFailure, ChatTurn, ProviderOutcome,
+    Workspace,
+};
 use serde_json::{json, Value};
 use std::{
     io::Write as _,
@@ -16,7 +19,7 @@ use std::{
 };
 use uuid::Uuid;
 
-pub fn run(invocation: &Invocation) -> Result<Output, CliError> {
+pub fn run(invocation: &Invocation) -> Result<Output, CliFailure> {
     match &invocation.command {
         Command::ConversationsList => conversations_list(invocation),
         Command::ConversationsShow { session } => conversations_show(invocation, *session),
@@ -25,7 +28,7 @@ pub fn run(invocation: &Invocation) -> Result<Output, CliError> {
     }
 }
 
-/// Lowercase stable status string for history surfaces.
+/// Lowercase stable status string for history surfaces and error context.
 fn status_str(status: OperationStatus) -> &'static str {
     match status {
         OperationStatus::Pending => "pending",
@@ -70,7 +73,7 @@ fn require_session(workspace: &Workspace, session: Uuid) -> Result<(), CliError>
     }
 }
 
-fn conversations_list(invocation: &Invocation) -> Result<Output, CliError> {
+fn conversations_list(invocation: &Invocation) -> Result<Output, CliFailure> {
     let workspace = open_workspace(invocation)?;
     let sessions = workspace.sessions().map_err(classify_workflow)?;
     let mut text = String::new();
@@ -92,7 +95,7 @@ fn conversations_list(invocation: &Invocation) -> Result<Output, CliError> {
     })
 }
 
-fn conversations_show(invocation: &Invocation, session: Uuid) -> Result<Output, CliError> {
+fn conversations_show(invocation: &Invocation, session: Uuid) -> Result<Output, CliFailure> {
     let workspace = open_workspace(invocation)?;
     require_session(&workspace, session)?;
     let turns = workspace.history(session).map_err(classify_workflow)?;
@@ -130,7 +133,38 @@ fn interrupted_error(op: Uuid, session: Option<Uuid>) -> CliError {
     CliError::Interrupted(format!("ask interrupted; operation {op}{session}"))
 }
 
-fn ask(invocation: &Invocation) -> Result<Output, CliError> {
+/// Additive machine-readable context for ask failures: identifiers of the
+/// attempt plus the honest split between the durable local record and the
+/// (possibly unobservable) provider outcome.
+fn failure_context(failure: &AskFailure) -> Value {
+    json!({
+        "operation_id": failure.operation_id,
+        "session_id": failure.session_id,
+        "recorded_status": failure.recorded_status.map(status_str),
+        "provider_outcome": outcome_str(&failure.provider_outcome),
+    })
+}
+
+/// Context built from a durably recorded turn. An interrupted record is
+/// ambiguous — written either from a server-confirmed interruption or after
+/// uncertain transport loss — so its provider outcome reports "unknown".
+fn turn_context(turn: &ChatTurn) -> Value {
+    json!({
+        "operation_id": turn.operation_id,
+        "session_id": turn.session_id,
+        "recorded_status": status_str(turn.status),
+        "provider_outcome": outcome_str(&provider_outcome_of_recorded(turn.status)),
+    })
+}
+
+fn outcome_str(outcome: &ProviderOutcome) -> &'static str {
+    match outcome {
+        ProviderOutcome::Unknown => "unknown",
+        ProviderOutcome::Confirmed(status) => status_str(*status),
+    }
+}
+
+fn ask(invocation: &Invocation) -> Result<Output, CliFailure> {
     let Command::Ask {
         question,
         profile,
@@ -144,10 +178,9 @@ fn ask(invocation: &Invocation) -> Result<Output, CliError> {
     // Refuse before the workspace opens: a fresh operation UUID must never be
     // durably recorded for an invocation that cannot reach a provider. A
     // missing required option is a usage error, not an operational failure.
+    // No operation id exists yet, so the context stays empty.
     if invocation.codex.is_none() {
-        return Err(CliError::Usage(
-            "ask requires --codex ABSOLUTE_EXECUTABLE".into(),
-        ));
+        return Err(CliError::Usage("ask requires --codex ABSOLUTE_EXECUTABLE".into()).into());
     }
     let mut workspace = open_workspace(invocation)?;
     if let Some(session) = session {
@@ -175,23 +208,28 @@ fn ask(invocation: &Invocation) -> Result<Output, CliError> {
     };
     // Deltas stream to stderr so stdout stays exactly one envelope object;
     // the write is best-effort (a closed stderr is not a lifecycle event).
-    let result = workspace.ask(op, *session, question, *profile, &crate::CANCEL, |delta| {
-        let _ = write!(std::io::stderr(), "{delta}");
-    });
+    let result =
+        workspace.ask_detailed(op, *session, question, *profile, &crate::CANCEL, |delta| {
+            let _ = write!(std::io::stderr(), "{delta}");
+        });
     let _ = done.send(());
     watcher.join().expect("deadline watcher thread");
     // Classification order: a durably completed turn stays a success even if
     // the deadline flag fired in the slice window after completion — the
     // outcome is accurate and a same-operation rerun would return it anyway.
     match result {
-        Err(error) => {
-            if timed_out.load(Ordering::SeqCst) {
-                Err(timeout_error(op, *session, *timeout_seconds))
+        Err(failure) => {
+            let error = if timed_out.load(Ordering::SeqCst) {
+                timeout_error(op, *session, *timeout_seconds)
             } else if crate::CANCEL.load(Ordering::SeqCst) {
-                Err(interrupted_error(op, *session))
+                interrupted_error(op, *session)
             } else {
-                Err(classify_workflow(error))
-            }
+                classify_workflow(failure.clone().into())
+            };
+            Err(CliFailure {
+                error,
+                context: Some(failure_context(&failure)),
+            })
         }
         Ok(turn) => {
             let session = turn.session_id;
@@ -201,16 +239,23 @@ fn ask(invocation: &Invocation) -> Result<Output, CliError> {
                     data: turn_json(&turn),
                 });
             }
-            if timed_out.load(Ordering::SeqCst) {
-                return Err(timeout_error(op, Some(session), *timeout_seconds));
-            }
-            if crate::CANCEL.load(Ordering::SeqCst) {
-                return Err(interrupted_error(op, Some(session)));
-            }
-            Err(CliError::Workflow(format!(
-                "turn ended as {}; operation {op} session {session}",
-                status_str(turn.status)
-            )))
+            // The turn is durably recorded even though it did not complete;
+            // report its identifiers and honest provider outcome.
+            let context = turn_context(&turn);
+            let error = if timed_out.load(Ordering::SeqCst) {
+                timeout_error(op, Some(session), *timeout_seconds)
+            } else if crate::CANCEL.load(Ordering::SeqCst) {
+                interrupted_error(op, Some(session))
+            } else {
+                CliError::Workflow(format!(
+                    "turn ended as {}; operation {op} session {session}",
+                    status_str(turn.status)
+                ))
+            };
+            Err(CliFailure {
+                error,
+                context: Some(context),
+            })
         }
     }
 }

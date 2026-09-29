@@ -57,12 +57,6 @@ impl WorkflowError {
             message: message.into(),
         }
     }
-    pub(crate) fn operation_conflict(message: impl Into<String>) -> Self {
-        Self {
-            kind: ErrorKind::OperationConflict,
-            message: message.into(),
-        }
-    }
     /// Genuine cancellation of an in-flight operation.
     pub(crate) fn cancelled() -> Self {
         Self {

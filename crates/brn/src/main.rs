@@ -59,15 +59,18 @@ fn run(args: &[String]) -> ExitCode {
                     command,
                     Err(cli::error::CliError::Interrupted(
                         "interrupted before the command started; no operation was attempted".into(),
-                    )),
+                    )
+                    .into()),
                 );
             }
             let result = cli::execute(&invocation);
             cli::finish(invocation.json, command, result)
         }
         Err(failure) => {
-            cli::report_error(failure.json, failure.command, &failure.error);
-            ExitCode::from(failure.error.exit_code())
+            let code = failure.error.exit_code();
+            // Parse failures carry no context.
+            cli::report_error(failure.json, failure.command, &failure.error.into());
+            ExitCode::from(code)
         }
     }
 }

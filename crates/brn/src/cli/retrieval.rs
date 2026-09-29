@@ -2,14 +2,14 @@
 use crate::cli::{
     documents::approval_str,
     error::{classify_workflow, CliError},
-    open_workspace, Command, Invocation, Output,
+    open_workspace, CliFailure, Command, Invocation, Output,
 };
 use brn_workflow::{profile_name, ErrorKind, SearchApproval, WorkflowError, Workspace};
 use serde_json::json;
 use std::io::Write as _;
 use uuid::Uuid;
 
-pub fn run(invocation: &Invocation) -> Result<Output, CliError> {
+pub fn run(invocation: &Invocation) -> Result<Output, CliFailure> {
     let mut workspace = open_workspace(invocation)?;
     match &invocation.command {
         Command::Import {
@@ -35,7 +35,7 @@ fn import(
     path: &std::path::Path,
     approve_for_search: bool,
     operation: Option<Uuid>,
-) -> Result<Output, CliError> {
+) -> Result<Output, CliFailure> {
     let approval = if approve_for_search {
         SearchApproval::Approved
     } else {
@@ -76,7 +76,7 @@ fn set_approval(
     version: Uuid,
     state: SearchApproval,
     operation: Option<Uuid>,
-) -> Result<Output, CliError> {
+) -> Result<Output, CliFailure> {
     let docs = workspace.sources().map_err(classify_workflow)?;
     let doc = docs
         .iter()
@@ -85,7 +85,8 @@ fn set_approval(
     if doc.version_id != version {
         return Err(CliError::NotFound(format!(
             "version {version} is not the current version of source {source}"
-        )));
+        ))
+        .into());
     }
     let op = operation.unwrap_or_else(Uuid::new_v4);
     workspace
@@ -105,7 +106,7 @@ fn set_approval(
     })
 }
 
-fn build(workspace: &mut Workspace) -> Result<Output, CliError> {
+fn build(workspace: &mut Workspace) -> Result<Output, CliFailure> {
     let generation = workspace
         .build_index(&crate::CANCEL, |p| {
             // Best-effort progress: a closed stderr never affects the build.
@@ -132,7 +133,7 @@ fn search(
     workspace: &mut Workspace,
     query: &str,
     profile: brn_workflow::SearchProfile,
-) -> Result<Output, CliError> {
+) -> Result<Output, CliFailure> {
     let result = workspace
         .search(query, profile)
         .map_err(cancelled_or_classified)?;

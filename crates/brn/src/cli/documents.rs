@@ -1,5 +1,5 @@
 //! `brn documents list|show`: read-only source document surfaces.
-use crate::cli::{error::classify_workflow, error::CliError, Invocation, Output};
+use crate::cli::{error::classify_workflow, CliFailure, Invocation, Output};
 use brn_workflow::{SearchApproval, SourceDocument, Workspace};
 use serde_json::json;
 use uuid::Uuid;
@@ -27,7 +27,7 @@ fn summary(doc: &SourceDocument) -> serde_json::Value {
     })
 }
 
-pub fn list(_invocation: &Invocation, workspace: &Workspace) -> Result<Output, CliError> {
+pub fn list(_invocation: &Invocation, workspace: &Workspace) -> Result<Output, CliFailure> {
     let docs = workspace.sources().map_err(classify_workflow)?;
     let summaries: Vec<_> = docs.iter().map(summary).collect();
     let mut text = String::new();
@@ -50,7 +50,7 @@ pub fn show(
     _invocation: &Invocation,
     workspace: &Workspace,
     source: Uuid,
-) -> Result<Output, CliError> {
+) -> Result<Output, CliFailure> {
     let docs = workspace.sources().map_err(classify_workflow)?;
     let doc = docs.iter().find(|d| d.source_id == source).ok_or_else(|| {
         crate::cli::error::CliError::NotFound(format!("source {source} not found"))
