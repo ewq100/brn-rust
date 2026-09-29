@@ -7,6 +7,7 @@ use crate::cli::{
 use brn_workflow::{worker::OperationStatus, ChatTurn, Workspace};
 use serde_json::{json, Value};
 use std::{
+    io::Write as _,
     sync::{
         atomic::{AtomicBool, Ordering},
         mpsc, Arc,
@@ -172,9 +173,10 @@ fn ask(invocation: &Invocation) -> Result<Output, CliError> {
             crate::CANCEL.store(true, Ordering::SeqCst);
         })
     };
-    // Deltas stream to stderr so stdout stays exactly one envelope object.
+    // Deltas stream to stderr so stdout stays exactly one envelope object;
+    // the write is best-effort (a closed stderr is not a lifecycle event).
     let result = workspace.ask(op, *session, question, *profile, &crate::CANCEL, |delta| {
-        eprint!("{delta}");
+        let _ = write!(std::io::stderr(), "{delta}");
     });
     let _ = done.send(());
     watcher.join().expect("deadline watcher thread");

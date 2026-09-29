@@ -6,7 +6,7 @@ use crate::cli::{
 };
 use brn_workflow::{profile_name, SearchApproval, Workspace};
 use serde_json::json;
-use std::sync::atomic::Ordering;
+use std::{io::Write as _, sync::atomic::Ordering};
 use uuid::Uuid;
 
 pub fn run(invocation: &Invocation) -> Result<Output, CliError> {
@@ -107,7 +107,10 @@ fn set_approval(
 
 fn build(workspace: &mut Workspace) -> Result<Output, CliError> {
     let generation = workspace
-        .build_index(&crate::CANCEL, |p| eprintln!("index: {p}"))
+        .build_index(&crate::CANCEL, |p| {
+            // Best-effort progress: a closed stderr never affects the build.
+            let _ = writeln!(std::io::stderr(), "index: {p}");
+        })
         .map_err(cancelled_or_classified)?;
     Ok(Output {
         text: format!("index generation {generation}\n"),

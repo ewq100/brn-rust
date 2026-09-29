@@ -15,7 +15,6 @@ use crate::cli::error::{classify_workflow, CliError};
 use brn_workflow::SearchProfile;
 use std::path::PathBuf;
 use std::process::ExitCode;
-use std::sync::atomic::Ordering;
 use uuid::Uuid;
 
 /// A fully validated invocation, ready to execute.
@@ -738,41 +737,34 @@ pub fn envelope_err(command: Option<&str>, error: &CliError) -> String {
     .expect("envelope serializes")
 }
 
-/// Print an error in the mode-appropriate surface.
+/// Print an error in the mode-appropriate surface. Best-effort: a closed
+/// consumer pipe is not a domain failure, so write errors are ignored.
 pub fn report_error(json: bool, command: Option<&str>, error: &CliError) {
+    use std::io::Write as _;
     if json {
-        println!("{}", envelope_err(command, error));
+        let _ = writeln!(std::io::stdout(), "{}", envelope_err(command, error));
     } else {
-        eprintln!("error: {}", error.message());
+        let _ = writeln!(std::io::stderr(), "error: {}", error.message());
     }
-}
-
-/// A silent SIGINT during a non-ask command must not look like success: once
-/// the command result arrives, a set `CANCEL` flag escalates an `Ok` result to
-/// `INTERRUPTED` (exit 130). Ask classifies its own cancellation — a durably
-/// completed turn stays a success — and errors pass through unchanged.
-pub(crate) fn escalate_interrupt(
-    result: Result<Output, CliError>,
-    is_ask: bool,
-) -> Result<Output, CliError> {
-    if !is_ask && result.is_ok() && crate::CANCEL.load(Ordering::SeqCst) {
-        return Err(CliError::Interrupted(
-            "interrupted before completion".into(),
-        ));
-    }
-    result
 }
 
 /// Map a command result to process exit, honoring the output mode.
+///
+/// Output policy: a closed or broken consumer pipe is not a domain failure.
+/// Write errors on stdout/stderr are ignored — a completed operation still
+/// exits 0 quietly, because we never promise envelope delivery to a consumer
+/// that closed its pipe. The error path reports best-effort and still returns
+/// the error's exit code. Progress/delta writes to stderr are best-effort and
+/// never affect lifecycle or outcome handling.
 pub fn finish(json: bool, command: &str, result: Result<Output, CliError>) -> ExitCode {
+    use std::io::Write as _;
     match result {
         Ok(output) => {
             if json {
-                println!("{}", envelope_ok(command, output.data));
+                let _ = writeln!(std::io::stdout(), "{}", envelope_ok(command, output.data));
             } else {
-                print!("{}", output.text);
+                let _ = write!(std::io::stdout(), "{}", output.text);
             }
-            use std::io::Write;
             let _ = std::io::stdout().flush();
             ExitCode::SUCCESS
         }
@@ -821,43 +813,5 @@ pub fn execute(invocation: &Invocation) -> Result<Output, CliError> {
         Command::DocumentsList => documents::list(invocation, &workspace),
         Command::DocumentsShow { source } => documents::show(invocation, &workspace, *source),
         _ => unreachable!("stub commands returned above"),
-    }
-}
-
-#[cfg(test)]
-mod tests {
-    use super::*;
-
-    fn ok_result() -> Result<Output, CliError> {
-        Ok(Output {
-            text: String::new(),
-            data: serde_json::json!(null),
-        })
-    }
-
-    /// One sequential test: CANCEL is process-global, so all cases share a
-    /// single thread and the prior flag value is restored at the end.
-    #[test]
-    fn escalation_only_fires_for_cancelled_non_ask_successes() {
-        let was = crate::CANCEL.load(Ordering::SeqCst);
-        crate::CANCEL.store(false, Ordering::SeqCst);
-        // Ok without CANCEL: unchanged.
-        assert!(escalate_interrupt(ok_result(), false).is_ok());
-        // Err passes through even with CANCEL set.
-        crate::CANCEL.store(true, Ordering::SeqCst);
-        assert_eq!(
-            escalate_interrupt(Err(CliError::Usage("u".into())), false).err(),
-            Some(CliError::Usage("u".into()))
-        );
-        // Ok + CANCEL + non-ask: escalated to INTERRUPTED.
-        assert_eq!(
-            escalate_interrupt(ok_result(), false).err(),
-            Some(CliError::Interrupted(
-                "interrupted before completion".into()
-            ))
-        );
-        // Ok + CANCEL + ask: unchanged (ask classifies its own cancellation).
-        assert!(escalate_interrupt(ok_result(), true).is_ok());
-        crate::CANCEL.store(was, Ordering::SeqCst);
     }
 }

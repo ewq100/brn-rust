@@ -17,12 +17,10 @@ extern "C" fn on_sigint(_signal: libc::c_int) {
 }
 
 fn main() -> ExitCode {
-    // SAFETY: restores the default SIGPIPE disposition (process terminate) so
-    // `brn ... | head` exits quietly instead of panicking on a closed stdout;
-    // the Rust runtime ignores SIGPIPE by default. No handler is installed.
-    unsafe {
-        libc::signal(libc::SIGPIPE, libc::SIG_DFL);
-    }
+    // SIGPIPE keeps Rust's default disposition (ignored → pipe writes return
+    // EPIPE errors instead of killing the process): a broken provider stdin
+    // pipe or a closed stdout must surface as a structured error or quiet
+    // success, never terminate brn. The SIGINT handler only sets a flag.
     // SAFETY: replaces the default SIGINT disposition with a handler that only
     // sets an atomic flag (async-signal-safe). It never returns, so normal
     // teardown is unaffected. Restoring the prior handler is not attempted.
@@ -36,20 +34,35 @@ fn main() -> ExitCode {
     run(&args)
 }
 
+/// Dispatch policy around cancellation: a SIGINT requested before a command
+/// starts prevents it (checked below, before `execute` — no operation is
+/// attempted). Once a command returns, its result is durably committed: the
+/// completed result and its IDs stand, even if a signal arrived during the
+/// run. Ask classifies its own cancellation.
 fn run(args: &[String]) -> ExitCode {
+    use std::io::Write as _;
     match cli::parse(args) {
         Ok(Outcome::Help) => {
-            println!("{}", cli::HELP);
+            let _ = writeln!(std::io::stdout(), "{}", cli::HELP);
             ExitCode::SUCCESS
         }
         Ok(Outcome::Version) => {
-            println!("{}", cli::version_line());
+            let _ = writeln!(std::io::stdout(), "{}", cli::version_line());
             ExitCode::SUCCESS
         }
         Ok(Outcome::Run(invocation)) => {
             let command = command_name(&invocation.command);
             let is_ask = matches!(invocation.command, cli::Command::Ask { .. });
-            let result = cli::escalate_interrupt(cli::execute(&invocation), is_ask);
+            if !is_ask && crate::CANCEL.load(Ordering::SeqCst) {
+                return cli::finish(
+                    invocation.json,
+                    command,
+                    Err(cli::error::CliError::Interrupted(
+                        "interrupted before the command started; no operation was attempted".into(),
+                    )),
+                );
+            }
+            let result = cli::execute(&invocation);
             cli::finish(invocation.json, command, result)
         }
         Err(failure) => {
@@ -79,5 +92,48 @@ fn command_name(command: &cli::Command) -> &'static str {
         cli::Command::RevisionsList { .. } => "revisions.list",
         cli::Command::RevisionsShow { .. } => "revisions.show",
         cli::Command::RevisionsDiff { .. } => "revisions.diff",
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use crate::cli::Output;
+    use std::sync::atomic::Ordering;
+
+    /// One sequential test: CANCEL is process-global, so all cases share a
+    /// single thread and the prior flag value is restored at the end.
+    #[test]
+    fn cancel_before_dispatch_prevents_and_after_completion_preserves() {
+        let was = crate::CANCEL.load(Ordering::SeqCst);
+        let dir = tempfile::tempdir().unwrap();
+        let root = dir.path();
+
+        // (a) CANCEL set before a non-ask command: refused before any work,
+        // exit 130, and the data directory is never even initialized.
+        crate::CANCEL.store(true, Ordering::SeqCst);
+        let args: Vec<String> = ["status", "--data-dir", root.to_str().unwrap(), "--json"]
+            .iter()
+            .map(|s| s.to_string())
+            .collect();
+        assert_eq!(run(&args), ExitCode::from(130), "pre-dispatch refusal");
+        assert!(
+            !root.join("brn.sqlite3").exists(),
+            "no operation was attempted"
+        );
+
+        // (b) A signal that arrives after completion must not convert a
+        // finished result into INTERRUPTED: finish keeps it a success.
+        let code = cli::finish(
+            false,
+            "status",
+            Ok(Output {
+                text: String::new(),
+                data: serde_json::json!(null),
+            }),
+        );
+        assert_eq!(code, ExitCode::SUCCESS, "completed result stands");
+
+        crate::CANCEL.store(was, Ordering::SeqCst);
     }
 }
