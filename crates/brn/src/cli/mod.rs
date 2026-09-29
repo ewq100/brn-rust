@@ -181,7 +181,6 @@ struct Globals {
     data_dir: Option<String>,
     codex: Option<String>,
     model_dir: Option<String>,
-    help: bool,
     version: bool,
 }
 
@@ -230,12 +229,12 @@ fn global_option(
 ) -> Result<bool, CliError> {
     match name {
         "help" | "version" => {
+            // A bare "--help" token never reaches the parser (exact-token
+            // pre-scan in `parse`); this arm still rejects "--help=value".
             if inline.is_some() {
                 return Err(usage(format!("{token} does not take a value")));
             }
-            if name == "help" {
-                g.help = true;
-            } else {
+            if name == "version" {
                 g.version = true;
             }
         }
@@ -421,9 +420,6 @@ fn parse_inner(
         break;
     }
     let Some(word) = command_word else {
-        if g.help {
-            return Ok(Outcome::Help);
-        }
         if g.version {
             return Ok(Outcome::Version);
         }
@@ -687,10 +683,7 @@ fn parse_inner(
         _ => unreachable!(),
     };
 
-    // Post-parse help/version short-circuits (textual, exit 0, no --data-dir needed).
-    if g.help {
-        return Ok(Outcome::Help);
-    }
+    // Post-parse version short-circuit (textual, exit 0, no --data-dir needed).
     if g.version {
         return Ok(Outcome::Version);
     }

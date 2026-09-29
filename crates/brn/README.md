@@ -77,8 +77,8 @@ provider outcome:
 
 - `operation_id`: the BRN-generated or caller-supplied id for this attempt.
 - `session_id`: the session established during the run (created by it, or the caller's validated `--session`); `null` when no session was established.
-- `recorded_status`: the durable local record state (`completed`/`failed`/`interrupted`/`running`/`pending`); `null` when no turn record is known to exist.
-- `provider_outcome`: what BRN knows about the provider side. `"unknown"` means BRN could not observe the provider outcome — transport loss or an interrupted record is **not** proof of cancellation. `"completed"`/`"failed"` imply a provider-confirmed outcome. `"interrupted"` means an interrupted record exists, ambiguous between a server-confirmed interruption and uncertain transport loss.
+- `recorded_status`: the durable local record state (`completed`/`failed`/`interrupted`/`running`/`pending`); `null` means no durable turn-record state is known — including the rare case where a record exists but the outcome of its final write is unknown (for example, the completing store write itself failed).
+- `provider_outcome`: what BRN knows about the provider side; the reachable values are `"unknown" | "completed" | "failed"`. `"unknown"` means BRN could not observe the provider outcome — transport loss or an interrupted record is **not** proof of cancellation. An interrupted record always reports `"unknown"`, because it is ambiguous between a server-confirmed interruption and uncertain transport loss. `"completed"`/`"failed"` imply a provider-confirmed outcome. `"interrupted"` is reserved: it would mean a provider-confirmed interrupted outcome, which the current CLI never claims from an ambiguous record.
 
 Resubmitting the SAME operation id returns the recorded state without a new
 external submission. After an unknown provider outcome, a NEW operation id is

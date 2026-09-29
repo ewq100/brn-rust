@@ -17,13 +17,9 @@ extern "C" fn on_sigint(_signal: libc::c_int) {
 }
 
 fn main() -> ExitCode {
-    // SIGPIPE keeps Rust's default disposition (ignored → pipe writes return
-    // EPIPE errors instead of killing the process): a broken provider stdin
-    // pipe or a closed stdout must surface as a structured error or quiet
-    // success, never terminate brn. The SIGINT handler only sets a flag.
-    // SAFETY: replaces the default SIGINT disposition with a handler that only
-    // sets an atomic flag (async-signal-safe). It never returns, so normal
-    // teardown is unaffected. Restoring the prior handler is not attempted.
+    // SAFETY: replaces the default SIGINT disposition with `on_sigint`, which
+    // only stores to a lock-free atomic (async-signal-safe) and never returns.
+    // Normal teardown is unaffected; the prior handler is not restored.
     unsafe {
         libc::signal(
             libc::SIGINT,
