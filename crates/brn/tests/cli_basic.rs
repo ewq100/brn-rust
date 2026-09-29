@@ -259,37 +259,3 @@ fn documents_show_unknown_source_is_not_found() {
     assert_eq!(envelope["ok"], false);
     assert_eq!(envelope["error"]["code"], "NOT_FOUND");
 }
-
-#[test]
-fn stub_commands_report_not_implemented() {
-    // ask and conversations are the remaining stubs; the other command
-    // groups are implemented and covered by their own test files.
-    let dir = tempdir().unwrap();
-    let root = dir.path().to_str().unwrap().to_string();
-    let cases: Vec<Vec<&str>> = vec![
-        vec!["ask", "why", "--data-dir", &root],
-        vec!["conversations", "list", "--data-dir", &root],
-    ];
-    for args in cases {
-        let mut json_args = args.clone();
-        json_args.push("--json");
-        let out = brn(&json_args);
-        assert_eq!(code(&out), 1, "{args:?}");
-        let envelope = one_json(&out);
-        assert_eq!(envelope["ok"], false, "{args:?}");
-        assert_eq!(envelope["error"]["code"], "WORKFLOW_ERROR", "{args:?}");
-        assert!(
-            envelope["error"]["message"]
-                .as_str()
-                .unwrap()
-                .contains("not implemented"),
-            "{args:?}"
-        );
-    }
-    let out = brn(&["ask", "why", "--data-dir", &root]);
-    assert_eq!(code(&out), 1);
-    assert!(text(&out).is_empty());
-    assert!(String::from_utf8(out.stderr)
-        .unwrap()
-        .contains("not implemented"));
-}

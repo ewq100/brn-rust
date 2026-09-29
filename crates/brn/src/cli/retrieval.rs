@@ -25,7 +25,7 @@ pub fn run(invocation: &Invocation) -> Result<Output, CliError> {
         } => set_approval(&mut workspace, *source, *version, *state, *operation),
         Command::IndexBuild => build(&mut workspace),
         Command::Search { query, profile } => search(&mut workspace, query, *profile),
-        _ => Err(not_implemented()),
+        _ => unreachable!("retrieval module handles import, approval, build and search only"),
     }
 }
 
@@ -151,8 +151,4 @@ fn search(
             "evidence": result.evidence,
         }),
     })
-}
-
-fn not_implemented() -> CliError {
-    CliError::Workflow("not implemented in this build".into())
 }
