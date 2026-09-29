@@ -182,9 +182,25 @@ impl Store {
             .write(true)
             .open(&lock_path)?;
         check_regular_single_link(&lock_path)?;
-        owner
-            .try_lock()
-            .map_err(|e| Error::Invalid(format!("data directory is already owned: {e}")))?;
+        // A concurrent fork+exec in this process (subprocess spawn) briefly
+        // duplicates this open lock descriptor into the child until exec
+        // closes it, so a lock released moments ago can transiently report
+        // busy. Retry within a short bounded grace before reporting ownership;
+        // exclusivity itself is never weakened.
+        let lock_deadline = std::time::Instant::now() + std::time::Duration::from_secs(1);
+        loop {
+            match owner.try_lock() {
+                Ok(()) => break,
+                Err(e) => {
+                    if std::time::Instant::now() >= lock_deadline {
+                        return Err(Error::Invalid(format!(
+                            "data directory is already owned: {e}"
+                        )));
+                    }
+                    std::thread::sleep(std::time::Duration::from_millis(5));
+                }
+            }
+        }
         let db_path = dir.join("brn.sqlite3");
         let exists = db_path.exists();
         let prior = if exists {

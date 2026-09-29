@@ -4,9 +4,7 @@ mod drafts;
 pub mod worker;
 use brn_provider::{Client, Config as ProviderConfig, TurnStatus};
 use brn_retrieval::{Document, Evidence, Index, Profile};
-use brn_store::{
-    Approval, BeginOperation, ChatTurn, ImportResult, OperationStatus, SourceDocument, Store,
-};
+use brn_store::{Approval, BeginOperation, OperationStatus, Store};
 use serde::{Deserialize, Serialize};
 use sha2::{Digest, Sha256};
 use std::{
@@ -21,10 +19,11 @@ pub use brn_retrieval::Profile as SearchProfile;
 pub use brn_store::Approval as SearchApproval;
 pub use brn_store::anchors::{MAX_EDIT_STEPS, MAX_TRACE_REPLACEMENT_BYTES};
 pub use brn_store::{
-    AmbiguityReason, AnchorProjection, AnchorState, CommentAnchorSnapshot, CommentCapture,
-    CommentCreated, CommentStatus, CommentStatusChange, CommentStatusChanged, DraftComment,
-    DraftCommentView, DraftComments, DraftWriteWithComments, EditTrace, OriginalAnchor,
-    RecoveryReference, TextEdit, apply_edit, derive_edit, map_anchor, replay_trace,
+    AmbiguityReason, AnchorProjection, AnchorState, ChatTurn, CommentAnchorSnapshot,
+    CommentCapture, CommentCreated, CommentStatus, CommentStatusChange, CommentStatusChanged,
+    Draft, DraftComment, DraftCommentView, DraftComments, DraftRevision, DraftWriteWithComments,
+    EditTrace, ImportResult, OriginalAnchor, RecoveryReference, SourceDocument, TextEdit,
+    apply_edit, derive_edit, map_anchor, replay_trace,
 };
 pub type Result<T> = std::result::Result<T, String>;
 pub const MAX_IMPORT_BYTES: usize = 1024 * 1024;
@@ -52,6 +51,17 @@ pub struct SessionSummary {
     pub id: Uuid,
     pub has_thread: bool,
     pub turns: usize,
+}
+/// Read-only snapshot of derived index state for status surfaces.
+#[derive(Debug, Clone)]
+pub struct WorkspaceStatus {
+    pub active_present: bool,
+    pub active_fingerprint: Option<String>,
+    pub index_error: Option<String>,
+}
+/// Whether this build compiles the native retrieval backend.
+pub fn native_retrieval_compiled() -> bool {
+    cfg!(feature = "native-retrieval")
 }
 pub struct Workspace {
     store: Store,
@@ -113,6 +123,13 @@ impl Workspace {
     }
     pub fn sources(&self) -> Result<Vec<SourceDocument>> {
         self.store.documents().map_err(error)
+    }
+    pub fn workspace_status(&self) -> WorkspaceStatus {
+        WorkspaceStatus {
+            active_present: self.active.is_some(),
+            active_fingerprint: self.active.as_ref().map(|a| a.fingerprint.clone()),
+            index_error: self.index_error.clone(),
+        }
     }
     pub fn import_file(
         &mut self,
