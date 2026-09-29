@@ -260,3 +260,71 @@ fn documents_show_unknown_source_is_not_found() {
     assert_eq!(envelope["ok"], false);
     assert_eq!(envelope["error"]["code"], "NOT_FOUND");
 }
+
+/// Every command level prints the exact global help text, exit 0, even when
+/// required arguments are missing. One representative case also carries
+/// --json: help stays textual.
+#[test]
+fn help_wins_before_required_arguments_at_every_level() {
+    let reference = text(&brn(&["--help"]));
+    let cases: &[&[&str]] = &[
+        &["--help"],
+        &["status", "--help"],
+        &["import", "--help"],
+        &["documents", "--help"],
+        &["documents", "show", "--help"],
+        &["documents", "set-search-approval", "--help"],
+        &["index", "build", "--help"],
+        &["search", "--help"],
+        &["ask", "--help"],
+        &["conversations", "show", "--help"],
+        &["drafts", "show", "--help"],
+        &["comments", "list", "--help"],
+        &["revisions", "list", "--help"],
+        &["revisions", "show", "--help"],
+        &["revisions", "diff", "--help"],
+        // Representative --json case: help remains textual, exit 0.
+        &["ask", "--help", "--json"],
+    ];
+    for args in cases {
+        let out = brn(args);
+        assert_eq!(code(&out), 0, "{args:?}");
+        assert_eq!(text(&out), reference, "{args:?}");
+        assert!(out.stderr.is_empty(), "{args:?}");
+        assert!(
+            serde_json::from_str::<Value>(&text(&out)).is_err(),
+            "help stays textual: {args:?}"
+        );
+    }
+}
+
+/// A --help request must not open, create or lock a workspace: no files may
+/// appear in the data directory.
+#[test]
+fn help_touches_no_files_in_data_dir() {
+    let dir = tempdir().unwrap();
+    let root = dir.path().to_str().unwrap().to_string();
+    let out = brn(&["ask", "--help", "--data-dir", &root]);
+    assert_eq!(code(&out), 0, "{}", text(&out));
+    let entries: Vec<_> = fs::read_dir(dir.path()).unwrap().collect();
+    assert!(
+        entries.is_empty(),
+        "help created files: {:?}",
+        entries.iter().map(|e| e.as_ref().unwrap().path())
+    );
+}
+
+/// Guards: without --help, the existing usage errors are unchanged.
+#[test]
+fn usage_errors_without_help_are_unchanged() {
+    let out = brn(&["import"]);
+    assert_eq!(code(&out), 2);
+    let stderr = String::from_utf8(out.stderr).unwrap();
+    assert!(stderr.contains("missing import PATH"), "{stderr}");
+
+    let out = brn(&["documents", "--json"]);
+    assert_eq!(code(&out), 2);
+    let envelope = one_json(&out);
+    assert_eq!(envelope["ok"], false);
+    assert_eq!(envelope["error"]["code"], "USAGE");
+}

@@ -144,6 +144,12 @@ pub fn parse(args: &[String]) -> Result<Outcome, ParseFailure> {
     // never be an option value (values starting with "--" are rejected), so an
     // exact match is unambiguous.
     let json_requested = args.iter().any(|a| a == "--json");
+    // An exact "--help" token wins before all validation (group words, required
+    // arguments, --data-dir checks) at every command level. Same exactness
+    // argument as --json: "--help=value" stays a usage error.
+    if args.iter().any(|a| a == "--help") {
+        return Ok(Outcome::Help);
+    }
     let mut g = Globals::default();
     let mut command: Option<&'static str> = None;
     parse_inner(&mut g, &mut command, args).map_err(|error| ParseFailure {
