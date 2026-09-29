@@ -99,11 +99,21 @@ mod tests {
     use super::*;
     use crate::cli::Output;
     use std::sync::atomic::Ordering;
+    use std::sync::{Mutex, MutexGuard};
+
+    /// Serializes every test that flips the process-global CANCEL flag: the
+    /// parallel test harness would otherwise interleave the mutations.
+    static CANCEL_TESTS: Mutex<()> = Mutex::new(());
+
+    fn cancel_lock() -> MutexGuard<'static, ()> {
+        CANCEL_TESTS.lock().unwrap_or_else(|e| e.into_inner())
+    }
 
     /// One sequential test: CANCEL is process-global, so all cases share a
     /// single thread and the prior flag value is restored at the end.
     #[test]
     fn cancel_before_dispatch_prevents_and_after_completion_preserves() {
+        let _guard = cancel_lock();
         let was = crate::CANCEL.load(Ordering::SeqCst);
         let dir = tempfile::tempdir().unwrap();
         let root = dir.path();
@@ -132,6 +142,65 @@ mod tests {
             }),
         );
         assert_eq!(code, ExitCode::SUCCESS, "completed result stands");
+
+        crate::CANCEL.store(was, Ordering::SeqCst);
+    }
+
+    /// A signal that arrives after a mutation committed must not rewrite the
+    /// durable result: finish keeps the success and the persisted state
+    /// carries exactly the returned ids. CANCEL is process-global, so this
+    /// runs inside the same sequential test and restores the prior value.
+    #[test]
+    fn cancelled_after_completed_mutation_preserves_result() {
+        let _guard = cancel_lock();
+        let was = crate::CANCEL.load(Ordering::SeqCst);
+        let dir = tempfile::tempdir().unwrap();
+        let root = dir.path();
+        let file = root.join("note.md");
+        std::fs::write(
+            &file,
+            "The synthetic Aurora mission launches on Tuesday.\r\n",
+        )
+        .unwrap();
+
+        crate::CANCEL.store(false, Ordering::SeqCst);
+        let args: Vec<String> = [
+            "import",
+            file.to_str().unwrap(),
+            "--data-dir",
+            root.to_str().unwrap(),
+            "--json",
+        ]
+        .iter()
+        .map(|s| s.to_string())
+        .collect();
+        let invocation = match cli::parse(&args) {
+            Ok(cli::Outcome::Run(invocation)) => invocation,
+            _ => panic!("import parses into a runnable invocation"),
+        };
+        let output = match cli::execute(&invocation) {
+            Ok(output) => output,
+            Err(_) => panic!("import runs while CANCEL is clear"),
+        };
+        let source_id: uuid::Uuid = output.data["source_id"]
+            .as_str()
+            .and_then(|s| s.parse().ok())
+            .expect("source id in envelope");
+        let version_id: uuid::Uuid = output.data["version_id"]
+            .as_str()
+            .and_then(|s| s.parse().ok())
+            .expect("version id in envelope");
+
+        crate::CANCEL.store(true, Ordering::SeqCst);
+        let code = cli::finish(invocation.json, "import", Ok(output));
+        assert_eq!(code, ExitCode::SUCCESS, "completed result stands");
+
+        let workspace = brn_workflow::Workspace::open(root, brn_workflow::Config::default())
+            .expect("workspace reopens");
+        let sources = workspace.sources().unwrap();
+        assert_eq!(sources.len(), 1, "exactly the committed import");
+        assert_eq!(sources[0].source_id, source_id);
+        assert_eq!(sources[0].version_id, version_id);
 
         crate::CANCEL.store(was, Ordering::SeqCst);
     }

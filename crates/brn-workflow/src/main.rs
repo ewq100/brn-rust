@@ -77,6 +77,7 @@ fn run() -> Result<(), String> {
                 _ => return Err("--approve must be yes or no".into()),
             };
             serde_json::to_value(workspace.import_file(
+                &cancel,
                 op()?,
                 &PathBuf::from(get("file")?),
                 approval,
@@ -91,7 +92,7 @@ fn run() -> Result<(), String> {
                 "withdrawn" => Approval::Withdrawn,
                 _ => return Err("invalid approval state".into()),
             };
-            workspace.set_approval(op()?, id("source")?, id("version")?, state)?;
+            workspace.set_approval(&cancel, op()?, id("source")?, id("version")?, state)?;
             serde_json::json!({"updated":true})
         }
         "build" => {

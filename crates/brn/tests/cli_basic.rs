@@ -9,6 +9,7 @@ use std::{
     path::{Path, PathBuf},
     process::Stdio,
     process::{Command, Output},
+    sync::atomic::AtomicBool,
 };
 use tempfile::tempdir;
 use uuid::Uuid;
@@ -41,7 +42,12 @@ fn seed(dir: &Path, name: &str, contents: &str) -> (Uuid, Uuid, PathBuf) {
     fs::write(&file, contents).unwrap();
     let mut workspace = Workspace::open(dir, Config::default()).unwrap();
     let result = workspace
-        .import_file(Uuid::new_v4(), &file, SearchApproval::Draft)
+        .import_file(
+            &AtomicBool::new(false),
+            Uuid::new_v4(),
+            &file,
+            SearchApproval::Draft,
+        )
         .unwrap();
     drop(workspace);
     (result.source_id, result.version_id, file)
@@ -172,6 +178,7 @@ fn documents_list_json_matches_seed_order_and_fields() {
     let mut workspace = Workspace::open(root, Config::default()).unwrap();
     workspace
         .set_approval(
+            &AtomicBool::new(false),
             Uuid::new_v4(),
             second_id,
             second_version,

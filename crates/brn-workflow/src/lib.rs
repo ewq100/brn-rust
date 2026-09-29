@@ -203,10 +203,12 @@ impl Workspace {
     }
     pub fn import_file(
         &mut self,
+        cancel: &AtomicBool,
         op: Uuid,
         path: &Path,
         approval: Approval,
     ) -> Result<ImportResult> {
+        cancelled(cancel)?;
         let extension = path
             .extension()
             .and_then(|e| e.to_str())
@@ -237,17 +239,20 @@ impl Workspace {
             .file_name()
             .and_then(|s| s.to_str())
             .ok_or("invalid source filename")?;
+        cancelled(cancel)?;
         self.store
             .import_text(op, origin, title, &bytes, approval)
             .map_err(WorkflowError::from)
     }
     pub fn set_approval(
         &mut self,
+        cancel: &AtomicBool,
         op: Uuid,
         source: Uuid,
         version: Uuid,
         approval: Approval,
     ) -> Result<()> {
+        cancelled(cancel)?;
         self.store
             .set_approval(op, source, version, approval)
             .map_err(WorkflowError::from)
@@ -766,7 +771,8 @@ mod ask_failure_tests {
         .unwrap();
         let mut w = Workspace::open(dir.path(), Config::default()).unwrap();
         let op = Uuid::new_v4();
-        w.import_file(op, &file, Approval::Approved).unwrap();
+        w.import_file(&AtomicBool::new(false), op, &file, Approval::Approved)
+            .unwrap();
         let failure = w
             .ask_full(
                 op,

@@ -1,0 +1,231 @@
+//! Subprocess tests for SIGINT arriving while the command is blocked in the
+//! workspace-acquisition wait: the exclusive owner lock is held in-process,
+//! the child is proven (via `lsof`) to be inside `Store::open`'s bounded
+//! retry loop, then SIGINT is delivered and the lock is released within the
+//! remaining retry window. The requested mutation must not occur.
+//! Workspaces are disposable temp dirs; no provider is involved.
+use brn_workflow::{Config, Workspace};
+use serde_json::Value;
+use std::{
+    fs,
+    io::Read,
+    os::unix::process::ExitStatusExt,
+    path::Path,
+    process::{Command, Output, Stdio},
+    time::{Duration, Instant},
+};
+use tempfile::tempdir;
+
+const FIXTURE: &str =
+    "The synthetic Aurora mission launches on Tuesday. Its crew includes Mira and Niko.\r\n";
+
+/// Kills and reaps the child on drop unless it was already waited, so test
+/// failures never leak a brn process holding or waiting on the lock.
+struct ChildGuard(Option<std::process::Child>);
+
+impl ChildGuard {
+    fn spawn(root: &Path, args: &[&str]) -> Self {
+        ChildGuard(Some(
+            Command::new(env!("CARGO_BIN_EXE_brn"))
+                .args(args)
+                .arg("--data-dir")
+                .arg(root)
+                .arg("--json")
+                .stdin(Stdio::null())
+                .stdout(Stdio::piped())
+                .stderr(Stdio::piped())
+                .spawn()
+                .expect("brn binary spawns"),
+        ))
+    }
+
+    fn id(&self) -> u32 {
+        self.0.as_ref().expect("child alive").id()
+    }
+
+    /// Waits the child under a bound and collects piped output; taking the
+    /// child out disarms the kill-on-drop guard.
+    fn wait_output(mut self) -> Output {
+        let mut child = self.0.take().expect("child not yet waited");
+        let deadline = Instant::now() + Duration::from_secs(15);
+        let status = loop {
+            match child.try_wait().expect("brn child polls") {
+                Some(status) => break status,
+                None => {
+                    assert!(
+                        Instant::now() < deadline,
+                        "brn child did not exit before the bound"
+                    );
+                    std::thread::sleep(Duration::from_millis(20));
+                }
+            }
+        };
+        let mut stdout = Vec::new();
+        let mut stderr = Vec::new();
+        if let Some(mut s) = child.stdout.take() {
+            let _ = s.read_to_end(&mut stdout);
+        }
+        if let Some(mut s) = child.stderr.take() {
+            let _ = s.read_to_end(&mut stderr);
+        }
+        Output {
+            status,
+            stdout,
+            stderr,
+        }
+    }
+}
+
+impl Drop for ChildGuard {
+    fn drop(&mut self) {
+        if let Some(child) = &mut self.0 {
+            // SAFETY: kill with SIGKILL on an owned child pid only.
+            unsafe { libc::kill(child.id() as libc::c_int, libc::SIGKILL) };
+            let _ = child.wait();
+        }
+    }
+}
+
+/// The child provably cannot pass `Store::open` while the exclusive lock is
+/// held elsewhere, so its open `brn.owner.lock` descriptor proves it reached
+/// the acquisition wait. Matched by file name: lsof reports the resolved
+/// symlink path (/private/var/...) while tempdir hands out /var/....
+fn wait_until_waiting_on_lock(pid: u32) {
+    let deadline = Instant::now() + Duration::from_secs(5);
+    while Instant::now() < deadline {
+        if let Ok(out) = Command::new("lsof").arg("-p").arg(pid.to_string()).output() {
+            if String::from_utf8_lossy(&out.stdout).contains("brn.owner.lock") {
+                return;
+            }
+        }
+        std::thread::sleep(Duration::from_millis(50));
+    }
+    panic!("child never reached the workspace-acquisition wait");
+}
+
+/// SIGINT during the acquisition wait, with the lock released inside the
+/// retry window, must end the command without performing the import.
+#[test]
+fn import_cancelled_during_workspace_wait_does_not_mutate() {
+    let dir = tempdir().unwrap();
+    let root = dir.path();
+    // Hold the exclusive owner lock in this process.
+    let holder = Workspace::open(root, Config::default()).unwrap();
+    let file = root.join("note.md");
+    fs::write(&file, FIXTURE).unwrap();
+
+    let child = ChildGuard::spawn(root, &["import", file.to_str().unwrap()]);
+    wait_until_waiting_on_lock(child.id());
+    assert_eq!(
+        // SAFETY: kill with SIGINT on an owned child pid only.
+        unsafe { libc::kill(child.id() as libc::c_int, libc::SIGINT) },
+        0,
+        "SIGINT is delivered to the waiting child"
+    );
+    drop(holder); // Release well inside the child's remaining retry window.
+
+    let out = child.wait_output();
+    assert_eq!(
+        out.status.code(),
+        Some(130),
+        "interrupted exit code, stdout: {} stderr: {}",
+        String::from_utf8_lossy(&out.stdout),
+        String::from_utf8_lossy(&out.stderr)
+    );
+    assert!(
+        out.status.signal().is_none(),
+        "brn must exit, not die by signal: {:?}",
+        out.status.signal()
+    );
+    let envelope: Value =
+        serde_json::from_slice(&out.stdout).expect("exactly one JSON envelope on stdout");
+    assert_eq!(envelope["ok"], false, "{envelope}");
+    assert_eq!(envelope["error"]["code"], "INTERRUPTED", "{envelope}");
+
+    // `Store::import_text` creates the source and its operation in one
+    // transaction, so an empty sources() is the honest observable that the
+    // requested import never committed.
+    let workspace = Workspace::open(root, Config::default()).unwrap();
+    let sources = workspace.sources().unwrap();
+    assert!(
+        sources.is_empty(),
+        "the cancelled import must not persist: {sources:?}"
+    );
+}
+
+/// The same lock-wait/SIGINT/release sequence against the approval mutation:
+/// the originally seeded state must survive untouched.
+#[test]
+fn approval_cancelled_during_workspace_wait_is_not_applied() {
+    let dir = tempdir().unwrap();
+    let root = dir.path();
+    // Seed the known state while the lock is free, then drop the workspace.
+    let file = root.join("note.md");
+    fs::write(&file, FIXTURE).unwrap();
+    let source_id;
+    {
+        let mut seeder = Workspace::open(root, Config::default()).unwrap();
+        let seeded = seeder
+            .import_file(
+                &std::sync::atomic::AtomicBool::new(false),
+                uuid::Uuid::new_v4(),
+                &file,
+                brn_workflow::SearchApproval::Draft,
+            )
+            .unwrap();
+        source_id = seeded.source_id;
+        let version_id = seeded.version_id;
+        drop(seeder);
+
+        // Hold the exclusive owner lock in this process.
+        let holder = Workspace::open(root, Config::default()).unwrap();
+        let child = ChildGuard::spawn(
+            root,
+            &[
+                "documents",
+                "set-search-approval",
+                &source_id.to_string(),
+                "--version-id",
+                &version_id.to_string(),
+                "--state",
+                "approved",
+            ],
+        );
+        wait_until_waiting_on_lock(child.id());
+        assert_eq!(
+            // SAFETY: kill with SIGINT on an owned child pid only.
+            unsafe { libc::kill(child.id() as libc::c_int, libc::SIGINT) },
+            0,
+            "SIGINT is delivered to the waiting child"
+        );
+        drop(holder); // Release well inside the child's remaining retry window.
+
+        let out = child.wait_output();
+        assert_eq!(
+            out.status.code(),
+            Some(130),
+            "interrupted exit code, stdout: {} stderr: {}",
+            String::from_utf8_lossy(&out.stdout),
+            String::from_utf8_lossy(&out.stderr)
+        );
+        assert!(
+            out.status.signal().is_none(),
+            "brn must exit, not die by signal: {:?}",
+            out.status.signal()
+        );
+        let envelope: Value =
+            serde_json::from_slice(&out.stdout).expect("exactly one JSON envelope on stdout");
+        assert_eq!(envelope["ok"], false, "{envelope}");
+        assert_eq!(envelope["error"]["code"], "INTERRUPTED", "{envelope}");
+    }
+
+    let workspace = Workspace::open(root, Config::default()).unwrap();
+    let sources = workspace.sources().unwrap();
+    assert_eq!(sources.len(), 1, "the seeded source stands: {sources:?}");
+    assert_eq!(sources[0].source_id, source_id);
+    assert_eq!(
+        sources[0].approval,
+        brn_workflow::SearchApproval::Draft,
+        "the cancelled approval must not be applied"
+    );
+}

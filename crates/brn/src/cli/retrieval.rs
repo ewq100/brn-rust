@@ -6,11 +6,20 @@ use crate::cli::{
 };
 use brn_workflow::{profile_name, ErrorKind, SearchApproval, WorkflowError, Workspace};
 use serde_json::json;
-use std::io::Write as _;
+use std::{io::Write as _, sync::atomic::Ordering};
 use uuid::Uuid;
 
 pub fn run(invocation: &Invocation) -> Result<Output, CliFailure> {
     let mut workspace = open_workspace(invocation)?;
+    // Opening the workspace can block up to the store's lock retry window;
+    // a signal arriving during that wait must still prevent the command,
+    // matching the pre-dispatch refusal policy.
+    if crate::CANCEL.load(Ordering::SeqCst) {
+        return Err(CliError::Interrupted(
+            "interrupted while acquiring the workspace; the command was not run".into(),
+        )
+        .into());
+    }
     match &invocation.command {
         Command::Import {
             path,
@@ -43,8 +52,8 @@ fn import(
     };
     let op = operation.unwrap_or_else(Uuid::new_v4);
     let result = workspace
-        .import_file(op, path, approval)
-        .map_err(classify_workflow)?;
+        .import_file(&crate::CANCEL, op, path, approval)
+        .map_err(cancelled_or_classified)?;
     Ok(Output {
         text: format!(
             "imported {} {} {} approval={} operation={}\n",
@@ -90,8 +99,8 @@ fn set_approval(
     }
     let op = operation.unwrap_or_else(Uuid::new_v4);
     workspace
-        .set_approval(op, source, version, state)
-        .map_err(classify_workflow)?;
+        .set_approval(&crate::CANCEL, op, source, version, state)
+        .map_err(cancelled_or_classified)?;
     Ok(Output {
         text: format!(
             "source {source} version {version} search approval set to {} operation={op}\n",

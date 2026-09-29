@@ -73,7 +73,12 @@ fn seed(root: &Path) {
     fs::write(&file, FIXTURE).unwrap();
     let mut workspace = Workspace::open(root, Config::default()).unwrap();
     workspace
-        .import_file(Uuid::new_v4(), &file, SearchApproval::Approved)
+        .import_file(
+            &AtomicBool::new(false),
+            Uuid::new_v4(),
+            &file,
+            SearchApproval::Approved,
+        )
         .unwrap();
     workspace
         .build_index(&AtomicBool::new(false), |_| {})

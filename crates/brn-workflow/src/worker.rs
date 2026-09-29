@@ -490,7 +490,7 @@ fn run_action(
             })
         }
         Action::Import { path, approval } => {
-            let result = workspace.import_file(Uuid::new_v4(), &path, approval)?;
+            let result = workspace.import_file(cancel, Uuid::new_v4(), &path, approval)?;
             Ok(Outcome::Imported {
                 result,
                 sources: workspace.sources()?,
@@ -501,7 +501,7 @@ fn run_action(
             version,
             approval,
         } => {
-            workspace.set_approval(Uuid::new_v4(), source, version, approval)?;
+            workspace.set_approval(cancel, Uuid::new_v4(), source, version, approval)?;
             Ok(Outcome::ApprovalChanged {
                 sources: workspace.sources()?,
             })
