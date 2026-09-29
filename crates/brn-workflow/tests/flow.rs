@@ -45,6 +45,7 @@ fn import_index_search_reopen_change_and_withdrawal() {
     assert!(
         w.search("Aurora", SearchProfile::Keyword)
             .unwrap_err()
+            .message
             .contains("stale")
     );
     assert!(w.validate_evidence(&result.evidence[0]).is_err());
@@ -294,6 +295,7 @@ fn intact_but_wrong_generation_cannot_supply_search_results() {
     assert!(
         w.search("Aurora", SearchProfile::Keyword)
             .unwrap_err()
+            .message
             .contains("snapshot")
     );
 }
@@ -330,6 +332,7 @@ fn changed_provider_store_never_replaces_saved_thread() {
             |_| {}
         )
         .unwrap_err()
+        .message
         .contains("association")
     );
     assert_eq!(w.sessions().unwrap().len(), 1);

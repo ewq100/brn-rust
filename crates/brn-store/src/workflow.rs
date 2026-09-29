@@ -75,8 +75,8 @@ pub(super) fn bind_operation(
         Some((old_kind, old_hash)) if old_kind == kind && old_hash == digest => {
             Ok(BeginOperation::Existing)
         }
-        Some(_) => Err(invalid(
-            "operation ID conflicts with existing kind or payload",
+        Some(_) => Err(Error::OperationConflict(
+            "operation ID conflicts with existing kind or payload".into(),
         )),
         None => {
             tx.execute(

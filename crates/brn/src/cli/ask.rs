@@ -184,13 +184,13 @@ fn ask(invocation: &Invocation) -> Result<Output, CliError> {
     // the deadline flag fired in the slice window after completion — the
     // outcome is accurate and a same-operation rerun would return it anyway.
     match result {
-        Err(message) => {
+        Err(error) => {
             if timed_out.load(Ordering::SeqCst) {
                 Err(timeout_error(op, *session, *timeout_seconds))
             } else if crate::CANCEL.load(Ordering::SeqCst) {
                 Err(interrupted_error(op, *session))
             } else {
-                Err(classify_workflow(message))
+                Err(classify_workflow(error))
             }
         }
         Ok(turn) => {

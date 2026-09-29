@@ -4,9 +4,9 @@ use crate::cli::{
     error::{classify_workflow, CliError},
     open_workspace, Command, Invocation, Output,
 };
-use brn_workflow::{profile_name, SearchApproval, Workspace};
+use brn_workflow::{profile_name, ErrorKind, SearchApproval, WorkflowError, Workspace};
 use serde_json::json;
-use std::{io::Write as _, sync::atomic::Ordering};
+use std::io::Write as _;
 use uuid::Uuid;
 
 pub fn run(invocation: &Invocation) -> Result<Output, CliError> {
@@ -118,12 +118,13 @@ fn build(workspace: &mut Workspace) -> Result<Output, CliError> {
     })
 }
 
-/// Errors after a SIGINT are reported as interruptions, not workflow faults.
-fn cancelled_or_classified(message: String) -> CliError {
-    if crate::CANCEL.load(Ordering::SeqCst) {
-        CliError::Interrupted(message)
-    } else {
-        classify_workflow(message)
+/// Classification is kind-based: a typed `Cancelled` from the workflow is an
+/// interruption; unrelated errors are never relabeled by the global CANCEL
+/// flag merely because a signal coincided with them.
+fn cancelled_or_classified(error: WorkflowError) -> CliError {
+    match error.kind {
+        ErrorKind::Cancelled => CliError::Interrupted(error.message),
+        _ => classify_workflow(error),
     }
 }
 

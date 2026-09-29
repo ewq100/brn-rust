@@ -1,6 +1,7 @@
 //! Shared authoritative workflow used by the desktop and headless driver.
 mod comments;
 mod drafts;
+pub mod error;
 pub mod worker;
 use brn_provider::{Client, Config as ProviderConfig, TurnStatus};
 use brn_retrieval::{Document, Evidence, Index, Profile};
@@ -25,7 +26,8 @@ pub use brn_store::{
     EditTrace, ImportResult, OriginalAnchor, RecoveryReference, SourceDocument, TextEdit,
     apply_edit, derive_edit, map_anchor, replay_trace,
 };
-pub type Result<T> = std::result::Result<T, String>;
+pub type Result<T> = std::result::Result<T, error::WorkflowError>;
+pub use error::{ErrorKind, WorkflowError};
 pub const MAX_IMPORT_BYTES: usize = 1024 * 1024;
 const MAX_CONTEXT_BYTES: usize = 20_000;
 #[derive(Clone, Debug, Default)]
@@ -72,8 +74,8 @@ pub struct Workspace {
     index_error: Option<String>,
     pub recovered_operations: usize,
 }
-fn error(e: impl std::fmt::Display) -> String {
-    e.to_string()
+fn error(e: impl std::fmt::Display) -> WorkflowError {
+    WorkflowError::msg(e.to_string())
 }
 fn digest(bytes: &[u8]) -> String {
     format!("{:x}", Sha256::digest(bytes))
@@ -83,7 +85,7 @@ fn docs_fingerprint(docs: &[Document]) -> Result<String> {
 }
 fn cancelled(cancel: &AtomicBool) -> Result<()> {
     if cancel.load(Ordering::Acquire) {
-        Err("operation cancelled".into())
+        Err(WorkflowError::cancelled())
     } else {
         Ok(())
     }
@@ -94,7 +96,7 @@ impl Workspace {
             return Err("data directory must be absolute".into());
         }
         let path = fs::canonicalize(path).map_err(error)?;
-        let (store, recovery) = Store::open(&path).map_err(error)?;
+        let (store, recovery) = Store::open(&path).map_err(WorkflowError::from)?;
         // Indexes are derived. Delay opening until search so corrupt derived data cannot prevent history access.
         let active_path = path.join("active-index.json");
         let (active, index_error) = if active_path.exists() {
@@ -169,7 +171,7 @@ impl Workspace {
             .ok_or("invalid source filename")?;
         self.store
             .import_text(op, origin, title, &bytes, approval)
-            .map_err(error)
+            .map_err(WorkflowError::from)
     }
     pub fn set_approval(
         &mut self,
@@ -180,7 +182,7 @@ impl Workspace {
     ) -> Result<()> {
         self.store
             .set_approval(op, source, version, approval)
-            .map_err(error)
+            .map_err(WorkflowError::from)
     }
     fn documents(&self) -> Result<Vec<Document>> {
         let mut docs: Vec<_> = self
@@ -232,10 +234,12 @@ impl Workspace {
             cancel,
             progress,
         )
-        .map_err(error)?;
+        .map_err(WorkflowError::from)?;
         cancelled(cancel)?;
         if fingerprint != docs_fingerprint(&self.documents()?)? {
-            return Err("sources changed during indexing; rebuild".into());
+            return Err(WorkflowError::index_stale(
+                "sources changed during indexing; rebuild",
+            ));
         }
         let active = ActiveIndex {
             format: 1,
@@ -274,21 +278,26 @@ impl Workspace {
     pub fn search(&mut self, query: &str, profile: Profile) -> Result<SearchResult> {
         let docs = self.documents()?;
         if let Some(e) = &self.index_error {
-            return Err(e.clone());
+            return Err(WorkflowError::index_invalid(e.clone()));
         }
         let active = self
             .active
             .as_ref()
-            .ok_or("no active index; build it first")?;
+            .ok_or_else(|| WorkflowError::index_missing("no active index; build it first"))?;
         if active.format != 1 || Uuid::parse_str(&active.directory).is_err() {
-            return Err("invalid active index pointer; rebuild".into());
+            return Err(WorkflowError::index_invalid(
+                "invalid active index pointer; rebuild",
+            ));
         }
         if active.fingerprint != docs_fingerprint(&docs)? {
-            return Err("index is stale after source changes; rebuild it".into());
+            return Err(WorkflowError::index_stale(
+                "index is stale after source changes; rebuild it",
+            ));
         }
         if self.index.is_none() {
             self.index = Some(
-                Index::open(&self.path.join("indexes").join(&active.directory)).map_err(error)?,
+                Index::open(&self.path.join("indexes").join(&active.directory))
+                    .map_err(WorkflowError::from)?,
             );
         }
         if self.index.as_ref().unwrap().fingerprint() != active.fingerprint {
@@ -299,7 +308,7 @@ impl Workspace {
             .as_mut()
             .unwrap()
             .search(query, profile, 5)
-            .map_err(error)?;
+            .map_err(WorkflowError::from)?;
         for e in &evidence {
             self.validate_evidence(e)?;
         }
@@ -378,15 +387,17 @@ impl Workspace {
                             || t.profile != profile_name(profile)
                             || session.is_some_and(|id| id != t.session_id)
                         {
-                            return Err(
-                                "operation ID conflicts with question/session/profile".into()
-                            );
+                            return Err(WorkflowError::operation_conflict(
+                                "operation ID conflicts with question/session/profile",
+                            ));
                         }
                         return Ok(t);
                     }
                 }
             }
-            return Err("operation ID already belongs to another command".into());
+            return Err(WorkflowError::operation_conflict(
+                "operation ID already belongs to another command",
+            ));
         }
         cancelled(cancel)?;
         let found = self.search(query, profile)?;
@@ -496,7 +507,7 @@ impl Workspace {
             &thread,
             &prompt,
             cancel,
-            |turn_id| self.store.record_turn_started(op, turn_id).map_err(error),
+            |turn_id| Ok(self.store.record_turn_started(op, turn_id).map_err(error)?),
             |delta| on_delta(delta),
         );
         drop(client); // Reap the sidecar before final database writes or history projection.
@@ -518,7 +529,8 @@ impl Workspace {
                     .map_err(error)?;
                 return Err(format!(
                     "{e}; operation {op} was saved as interrupted and will not replay"
-                ));
+                )
+                .into());
             }
         }
         self.store

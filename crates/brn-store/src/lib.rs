@@ -54,13 +54,19 @@ pub enum Error {
     Io(std::io::Error),
     Sql(rusqlite::Error),
     Invalid(String),
+    /// The data directory lock is held by another live process.
+    WorkspaceBusy(String),
+    /// A durable operation ID was reused with different kind or payload.
+    OperationConflict(String),
 }
 impl std::fmt::Display for Error {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         match self {
             Self::Io(e) => write!(f, "I/O: {e}"),
             Self::Sql(e) => write!(f, "SQLite: {e}"),
-            Self::Invalid(e) => f.write_str(e),
+            Self::Invalid(e) | Self::WorkspaceBusy(e) | Self::OperationConflict(e) => {
+                f.write_str(e)
+            }
         }
     }
 }
@@ -193,7 +199,7 @@ impl Store {
                 Ok(()) => break,
                 Err(e) => {
                     if std::time::Instant::now() >= lock_deadline {
-                        return Err(Error::Invalid(format!(
+                        return Err(Error::WorkspaceBusy(format!(
                             "data directory is already owned: {e}"
                         )));
                     }
@@ -312,8 +318,8 @@ impl Store {
                 BeginOperation::Existing
             }
             Some(_) => {
-                return Err(invalid(
-                    "operation ID conflicts with existing kind or payload",
+                return Err(Error::OperationConflict(
+                    "operation ID conflicts with existing kind or payload".into(),
                 ));
             }
             None => {
@@ -629,7 +635,11 @@ impl Store {
             Some((kind, payload_hash, status)) if kind == action && payload_hash == digest => {
                 status
             }
-            Some(_) => return Err(invalid("operation ID conflicts with local mutation")),
+            Some(_) => {
+                return Err(Error::OperationConflict(
+                    "operation ID conflicts with local mutation".into(),
+                ));
+            }
         };
         let old:Option<(Vec<u8>,String)>=tx.query_row("SELECT args_hash,entity_id FROM operation_results WHERE operation_id=?1 AND action=?2",params![op.to_string(),action],|r|Ok((r.get(0)?,r.get(1)?))).optional()?;
         if let Some((old_hash, old_id)) = old {

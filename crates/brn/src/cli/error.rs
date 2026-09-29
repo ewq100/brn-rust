@@ -1,5 +1,6 @@
-//! CLI error taxonomy: stable SCREAMING_SNAKE codes, exit codes, and
-//! classification of workflow `String` errors by documented sentinel prefix.
+//! CLI error taxonomy: stable SCREAMING_SNAKE codes, exit codes, and mapping
+//! of typed workflow error categories to those codes.
+use brn_workflow::{ErrorKind, WorkflowError};
 
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub enum CliError {
@@ -59,30 +60,33 @@ impl CliError {
     }
 }
 
-/// Classify a workflow `String` error by its exact documented sentinel prefix;
-/// anything unrecognized is an honest `WORKFLOW_ERROR`.
-pub fn classify_workflow(message: String) -> CliError {
-    let starts = |prefix: &str| message.starts_with(prefix);
-    if starts("data directory is already owned") {
-        CliError::WorkspaceBusy(message)
-    } else if starts("no active index") {
-        CliError::IndexMissing(message)
-    } else if starts("index is stale") || starts("sources changed during indexing") {
-        CliError::IndexStale(message)
-    } else if starts("invalid active index pointer") {
-        CliError::IndexInvalid(message)
-    } else if starts("retrieval profile unavailable") {
-        CliError::ProfileUnavailable(message)
-    } else if starts("operation ID conflicts") || starts("operation ID already belongs") {
-        CliError::OperationConflict(message)
-    } else {
-        CliError::Workflow(message)
+/// Map a typed workflow failure to its stable CLI code. The category was
+/// decided at the source; wording is never inspected, so uncategorized
+/// failures are an honest `WORKFLOW_ERROR`.
+pub fn classify_workflow(error: WorkflowError) -> CliError {
+    match error.kind {
+        ErrorKind::WorkspaceBusy => CliError::WorkspaceBusy(error.message),
+        ErrorKind::IndexMissing => CliError::IndexMissing(error.message),
+        ErrorKind::IndexStale => CliError::IndexStale(error.message),
+        ErrorKind::IndexInvalid => CliError::IndexInvalid(error.message),
+        ErrorKind::ProfileUnavailable => CliError::ProfileUnavailable(error.message),
+        ErrorKind::OperationConflict => CliError::OperationConflict(error.message),
+        ErrorKind::Cancelled => CliError::Interrupted(error.message),
+        ErrorKind::Other => CliError::Workflow(error.message),
     }
 }
 
 #[cfg(test)]
 mod tests {
     use super::*;
+
+    #[test]
+    fn uncategorized_codes_stay_stable() {
+        assert_eq!(
+            classified(ErrorKind::Other, "data directory must be absolute").code(),
+            "WORKFLOW_ERROR"
+        );
+    }
 
     #[test]
     fn codes_and_exit_codes_map_stably() {
@@ -120,60 +124,101 @@ mod tests {
         assert_eq!(CliError::Workflow("w".into()).code(), "WORKFLOW_ERROR");
     }
 
+    fn classified(kind: ErrorKind, message: &str) -> CliError {
+        classify_workflow(WorkflowError {
+            kind,
+            message: message.into(),
+        })
+    }
+
     #[test]
-    fn sentinel_prefixes_classify_exactly() {
+    fn typed_kinds_map_to_exact_stable_variants() {
         assert_eq!(
-            classify_workflow("data directory is already owned: boom".into()),
+            classified(
+                ErrorKind::WorkspaceBusy,
+                "data directory is already owned: boom"
+            ),
             CliError::WorkspaceBusy("data directory is already owned: boom".into())
         );
         assert_eq!(
-            classify_workflow("no active index; build it first".into()),
+            classified(ErrorKind::IndexMissing, "no active index; build it first"),
             CliError::IndexMissing("no active index; build it first".into())
         );
         assert_eq!(
-            classify_workflow("index is stale after source changes; rebuild it".into()),
+            classified(
+                ErrorKind::IndexStale,
+                "index is stale after source changes; rebuild it"
+            ),
             CliError::IndexStale("index is stale after source changes; rebuild it".into())
         );
         assert_eq!(
-            classify_workflow("sources changed during indexing; rebuild".into()),
+            classified(
+                ErrorKind::IndexStale,
+                "sources changed during indexing; rebuild"
+            ),
             CliError::IndexStale("sources changed during indexing; rebuild".into())
         );
         assert_eq!(
-            classify_workflow("invalid active index pointer; rebuild".into()),
+            classified(
+                ErrorKind::IndexInvalid,
+                "invalid active index pointer; rebuild"
+            ),
             CliError::IndexInvalid("invalid active index pointer; rebuild".into())
         );
         assert_eq!(
-            classify_workflow("retrieval profile unavailable: semantic".into()),
+            classified(
+                ErrorKind::ProfileUnavailable,
+                "retrieval profile unavailable: semantic"
+            ),
             CliError::ProfileUnavailable("retrieval profile unavailable: semantic".into())
         );
         assert_eq!(
-            classify_workflow("operation ID conflicts with question/session/profile".into()),
+            classified(
+                ErrorKind::OperationConflict,
+                "operation ID conflicts with question/session/profile"
+            ),
             CliError::OperationConflict(
                 "operation ID conflicts with question/session/profile".into()
             )
         );
         assert_eq!(
-            classify_workflow("operation ID already belongs to another command".into()),
+            classified(
+                ErrorKind::OperationConflict,
+                "operation ID already belongs to another command"
+            ),
             CliError::OperationConflict("operation ID already belongs to another command".into())
+        );
+        assert_eq!(
+            classified(ErrorKind::Cancelled, "operation cancelled"),
+            CliError::Interrupted("operation cancelled".into())
         );
     }
 
     #[test]
-    fn non_matching_and_non_prefixed_messages_fall_back() {
+    fn kind_decides_not_wording() {
+        // Same kind with different messages must yield the same code.
         assert_eq!(
-            classify_workflow("data directory must be absolute".into()).code(),
+            classified(
+                ErrorKind::WorkspaceBusy,
+                "data directory is already owned: a"
+            )
+            .code(),
+            classified(ErrorKind::WorkspaceBusy, "lock held by another process").code()
+        );
+        // Uncategorized failures are an honest WORKFLOW_ERROR.
+        assert_eq!(
+            classified(ErrorKind::Other, "boom").code(),
             "WORKFLOW_ERROR"
         );
-        assert_eq!(classify_workflow("boom".into()).code(), "WORKFLOW_ERROR");
-        assert_eq!(classify_workflow(String::new()).code(), "WORKFLOW_ERROR");
-        // Exact prefix only: different case or embedded position does not match.
+        assert_eq!(classified(ErrorKind::Other, "").code(), "WORKFLOW_ERROR");
+        // The key anti-string-matching regression: wording that resembles a
+        // category must never classify when the kind is Other. This is exactly
+        // what a store `Invalid` carrying "already owned" text becomes.
+        let lookalike = classified(ErrorKind::Other, "data directory is already owned: fake");
+        assert_eq!(lookalike.code(), "WORKFLOW_ERROR");
         assert_eq!(
-            classify_workflow("Data directory is already owned: x".into()).code(),
-            "WORKFLOW_ERROR"
-        );
-        assert_eq!(
-            classify_workflow("prefix data directory is already owned".into()).code(),
-            "WORKFLOW_ERROR"
+            lookalike,
+            CliError::Workflow("data directory is already owned: fake".into())
         );
     }
 }

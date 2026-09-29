@@ -468,6 +468,16 @@ fn execute(
     shared: &Mutex<Shared>,
     phase: &Mutex<PhaseState>,
 ) -> Result<Outcome, String> {
+    run_action(workspace, action, cancel, shared, phase).map_err(String::from)
+}
+
+fn run_action(
+    workspace: &mut Workspace,
+    action: Action,
+    cancel: &AtomicBool,
+    shared: &Mutex<Shared>,
+    phase: &Mutex<PhaseState>,
+) -> crate::Result<Outcome> {
     match action {
         Action::Refresh { session } => {
             let (sources, sessions, history, selected) = refresh(workspace, session)?;
