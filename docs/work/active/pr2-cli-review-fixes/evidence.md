@@ -41,3 +41,41 @@ Per-crate implementer runs (same tree, before the final docs-only commit): brn 4
 - Late-SIGINT-after-commit preservation is covered by the deterministic unit test on the dispatch path, not a subprocess race test (import commits too fast to signal deterministically from outside).
 - Native retrieval, live-provider behavior, publication and user acceptance remain unqualified, as before.
 - The five commits are local only. Push when authorized: `git push origin feature/agent-cli-foundation` (fast-forward; no force). PR #2 left open and unmerged; no independent reviewer approval of these fixes is claimed beyond the recorded Flash review.
+
+## Second pass: F1–F3 (follow-up review findings)
+
+Tested code head: `9b33058` on `feature/agent-cli-foundation` (base `a1c06f8` = PR #2 head at pass start; first-pass commits `cb1c454..14696b3` unchanged beneath). Environment: macOS arm64 (target Mac), rust 1.98.1 pinned toolchain, offline Cargo, no native features; synthetic tempdir workspaces, in-process lock holders and lsof observation only — no credentials, live providers, model downloads or real vault access. Baseline re-measured fresh at `a1c06f8`: fmt/build/clippy clean, workspace tests **178 passed / 0 failed**.
+
+### Finding disposition
+
+| Finding | Status | Fix commit | Regression evidence |
+| --- | --- | --- | --- |
+| F1 cancellation after workspace wait still mutates | Confirmed; fixed | `7fb9fdd` | Lead live-reproduced at baseline: lock held externally, `brn import` provably waiting (lsof-confirmed open `brn.owner.lock` fd), SIGINT delivered, lock released inside the retry window → child imported anyway (exit 0, ok:true, source persisted). Fix: post-acquisition CANCEL recheck in `cli/retrieval.rs::run` + typed pre-mutation guards in `Workspace::import_file` (entry and pre-`import_text`) and `set_approval`, matching the existing `build_index` pattern (all callers updated, incl. worker and brn-flow driver, which pass an always-false flag). Subprocess tests (cli_cancel.rs): import and approval both → exit 130, INTERRUPTED envelope, no persisted mutation; workflow flag-guard test in flow.rs; completed-mutation-preservation test through the real `execute` path in main.rs tests. Red for the import subprocess test observed on unfixed code (exit 0 + persisted import). |
+| F2 every stdout write/flush error ignored | Confirmed; fixed | `9b33058` | Source-confirmed (`let _ =` on all output paths). Fix: `cli/out.rs` `deliver` (write+flush; BrokenPipe → quiet success) + injectable `finish_ok_to`/`report_error_to` cores. Non-pipe delivery failure of a completed result → exit 1 + stderr `OUTPUT_DELIVERY_ERROR` diagnostic stating the operation completed but its result could not be delivered, with `operation_id` when the data carries one; never claims the operation failed or suggests retry; nothing further written to stdout. Error path keeps its original exit code when reporting also fails; help/version share the policy; stderr progress/delta untouched; SIGPIPE disposition untouched. 14 injected-writer tests (partial write, flush error, pipe-vs-other on both paths, wording, committed-import-not-misdescribed with persisted-state recheck). Unit tests green-by-construction on the new seam (old code had none); no pre-fix red observable without it — stated honestly. |
+| F3 every try_lock failure labeled WORKSPACE_BUSY | Confirmed; fixed | `9e83142` | Source-confirmed. Pinned-toolchain API verified by probe: `File::try_lock` returns `Result<(), std::fs::TryLockError>` with variants `WouldBlock` (contention) and `Error(io::Error)` (lock I/O failure). Fix classifies by variant only: WouldBlock keeps the existing bounded 1s/5ms retry → WorkspaceBusy; `Error(e)` returns `Error::Io(e)` immediately (no retry, never "already owned"); store Io → workflow Other → CLI WORKFLOW_ERROR exit 1. 5 injected-closure tests incl. variant-not-text (an Error whose message says "would block" stays Io). Green-by-construction on the new helper — forcing a real non-WouldBlock lock I/O error deterministically is not portable; stated honestly. |
+
+`7d06a85` (lead fix, test-only): the two cli_cancel subprocess tests flaked under full-suite load — a single lsof sweep can outlast the child's ~1s acquisition window. Retry-with-fresh-child on missed observation is sound because the child provably cannot pass `Store::open` while the holder lives; the two tests are serialized and every wait is bounded.
+
+### Verification (all at `9b33058`, run by the lead on the integrated branch)
+
+- `cargo fmt --all -- --check` — pass.
+- `cargo build --workspace --locked` — pass.
+- `cargo clippy --workspace --all-targets --locked -- -D warnings` — pass.
+- `cargo test --workspace --locked` — **201 passed / 0 failed** (baseline 178/0 at `a1c06f8`; net +23).
+- Targeted: `-p brn` bin unit 20/0 (incl. out.rs + main.rs delivery tests), cli_cancel 2/2 (stable across repeated runs), cli_signals 3/3 (closed stdout/stderr and broken provider pipe unchanged), cli_ownership 1/1, cli_ask 18/18, cli_basic 11/11, cli_core 10/10, cli_review 8/8; `-p brn-store` 68/0 (incl. 5 new lock-classification tests and existing cross-process exclusion); `-p brn-workflow` 22/0 (flow 9/0 incl. new guard test).
+- `bash scripts/verify-end-to-end.sh` — pass (brn-flow fixture behavior unchanged).
+- `git diff --check` — clean; working tree clean.
+
+### Second-pass review
+
+A fresh GLM 5.3 Flash agent (no implementation involvement) reviewed `a1c06f8..9b33058` read-only: verdict APPROVE, no blocking findings. Five non-blocking findings with lead rulings: (1) residual load-dependent flake window if lsof spots the fd at the very end of the child's retry window — accepted and documented; outcome assertions stay strict so a real regression can never retry its way to green; (2) hard lsof dependency in cli_cancel — accepted, consistent with the existing suite's pgrep dependency (unix/macOS-targeted); (3) negative "failed"-wording assertion spans the embedded io error text — accepted, the embedded text is fully controlled by the scripted test writers; (4) SeqCst vs Acquire load-ordering split between CLI and workflow cancellation checks — pre-existing and semantically fine; (5) docs update — done in this commit.
+
+### Implementation credits and limitations
+
+F3, F1 and F2 were implemented by GLM 5.3 Flash subagents (`zai/glm-5.3-flash`) under GLM 5.3 lead direction (root-cause validation incl. live F1 reproduction and TryLockError API probe, boundary/ownership decisions, integration, the test-robustness fix, safety review, verification). F1 and F3 ran concurrently in isolated git worktrees with disjoint file ownership; F2 ran on the integrated branch.
+
+- Signal/process tests are unix-only and require `lsof` (macOS verified). No Linux results are claimed.
+- The pre-mutation guard window between the final cancellation check and the SQLite commit is a signal race that would require signal-blocking around the transaction to close; per the documented dispatch policy, a mutation that commits stands. Import commits source+operation atomically, so no torn state exists.
+- Non-pipe stdout delivery failure is covered by injected-writer unit tests plus the real `execute`-path persistence test; there is no portable macOS way to force a real non-pipe stdout failure in a subprocess (no /dev/full) — no such end-to-end subprocess test is claimed.
+- F3's non-contention lock I/O path is exercised through the injected-closure helper; a genuine OS-level lock I/O failure was not reproduced.
+- Commits remain local at doc-writing time; push when authorized: `git push origin feature/agent-cli-foundation` (fast-forward; no force). PR #2 left open and unmerged.

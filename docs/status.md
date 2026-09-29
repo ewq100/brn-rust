@@ -14,7 +14,7 @@ Updated 2026-09-29. Code baseline: branch `feature/agent-cli-foundation` at `7a3
 | Anchored comments | Exact original provenance, conservative mapping, resolve/reopen and native review; 116 workspace tests and native/restart observations recorded | [Comments](work/completed/anchored-comments/evidence.md) |
 | Agent-facing CLI | `brn` binary exposes import, approval, index, search, ask, conversations, drafts, comments and revisions over the shared workflow with a versioned JSON envelope and subprocess tests | [CLI](work/completed/agent-cli-foundation/evidence.md) |
 
-PR #2 review fixes (signals and pipe recoverability, durable-outcome reporting after SIGINT, help before argument validation, structured ask failure context, typed error codes) are implemented and verified on the PR branch; see [active work](work/active/README.md). The PR itself remains unmerged.
+PR #2 review fixes (signals and pipe recoverability, durable-outcome reporting after SIGINT, help before argument validation, structured ask failure context, typed error codes) are implemented and verified on the PR branch, as are the follow-up findings F1–F3 (cancellation after workspace acquisition, output-delivery failure vs BrokenPipe, lock-error classification); see [active work](work/active/README.md). The PR itself remains unmerged.
 
 All implementation listed above is present in the inspected local `main` baseline, including anchored comments. Older feature-branch-only statements remain historical in completed records. Inclusion in main and agent-observed verification do not establish user acceptance or release readiness.
 

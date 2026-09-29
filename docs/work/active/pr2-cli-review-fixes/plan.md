@@ -3,6 +3,8 @@
 Status: implemented and verified; acceptance pending independent PR re-review and merge.
 Date: 2026-09-29. Branch `feature/agent-cli-foundation`, base `df47114` (PR #2 reviewed head), resulting head `14696b3`. Remote `origin/feature/agent-cli-foundation` was still at `df47114` when checked; the fix commits are local, ready to push.
 
+Follow-up pass (same day): the three remaining findings F1 (cancellation after workspace wait), F2 (output delivery vs BrokenPipe) and F3 (lock-error classification) were fixed at `9e83142..9b33058` on the same branch; see the "Second pass" section in [evidence](evidence.md). PR #2 still unmerged.
+
 ## Outcome
 
 Fix the five review findings on the agent-facing CLI foundation without changing the architecture (`brn` CLI → `brn-workflow` → store/retrieval/provider), brn-flow output, or the desktop worker contract.
