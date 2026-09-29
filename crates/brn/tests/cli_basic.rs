@@ -262,26 +262,13 @@ fn documents_show_unknown_source_is_not_found() {
 
 #[test]
 fn stub_commands_report_not_implemented() {
+    // ask and conversations are the remaining stubs; the other command
+    // groups are implemented and covered by their own test files.
     let dir = tempdir().unwrap();
     let root = dir.path().to_str().unwrap().to_string();
-    let draft_id = Uuid::new_v4().to_string();
-    let revision_id = Uuid::new_v4().to_string();
     let cases: Vec<Vec<&str>> = vec![
-        vec!["search", "x", "--data-dir", &root],
-        vec!["--data-dir", &root, "import", "some-file.md"],
-        vec!["index", "build", "--data-dir", &root],
         vec!["ask", "why", "--data-dir", &root],
         vec!["conversations", "list", "--data-dir", &root],
-        vec!["drafts", "list", "--data-dir", &root],
-        vec![
-            "comments",
-            "list",
-            "--draft",
-            &draft_id,
-            "--data-dir",
-            &root,
-        ],
-        vec!["revisions", "show", &revision_id, "--data-dir", &root],
     ];
     for args in cases {
         let mut json_args = args.clone();
@@ -299,7 +286,7 @@ fn stub_commands_report_not_implemented() {
             "{args:?}"
         );
     }
-    let out = brn(&["search", "x", "--data-dir", &root]);
+    let out = brn(&["ask", "why", "--data-dir", &root]);
     assert_eq!(code(&out), 1);
     assert!(text(&out).is_empty());
     assert!(String::from_utf8(out.stderr)
