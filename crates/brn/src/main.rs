@@ -36,16 +36,9 @@ fn main() -> ExitCode {
 /// completed result and its IDs stand, even if a signal arrived during the
 /// run. Ask classifies its own cancellation.
 fn run(args: &[String]) -> ExitCode {
-    use std::io::Write as _;
     match cli::parse(args) {
-        Ok(Outcome::Help) => {
-            let _ = writeln!(std::io::stdout(), "{}", cli::HELP);
-            ExitCode::SUCCESS
-        }
-        Ok(Outcome::Version) => {
-            let _ = writeln!(std::io::stdout(), "{}", cli::version_line());
-            ExitCode::SUCCESS
-        }
+        Ok(Outcome::Help) => deliver_stdout(&format!("{}\n", cli::HELP), "help"),
+        Ok(Outcome::Version) => deliver_stdout(&format!("{}\n", cli::version_line()), "version"),
         Ok(Outcome::Run(invocation)) => {
             let command = command_name(&invocation.command);
             let is_ask = matches!(invocation.command, cli::Command::Ask { .. });
@@ -67,6 +60,22 @@ fn run(args: &[String]) -> ExitCode {
             // Parse failures carry no context.
             cli::report_error(failure.json, failure.command, &failure.error.into());
             ExitCode::from(code)
+        }
+    }
+}
+
+/// Deliver one static stdout payload (help, version) under the shared
+/// output-delivery policy: closed pipe exits 0 quietly, any other write or
+/// flush failure exits 1 with a best-effort stderr diagnostic.
+fn deliver_stdout(payload: &str, what: &str) -> ExitCode {
+    use std::io::Write as _;
+    let mut stdout = std::io::stdout();
+    match cli::out::deliver(&mut stdout, payload) {
+        cli::out::Delivery::Delivered | cli::out::Delivery::ClosedPipe => ExitCode::SUCCESS,
+        cli::out::Delivery::Failed(e) => {
+            let diagnostic = cli::out::delivery_failure_diag(what, None, &e);
+            let _ = writeln!(std::io::stderr(), "{diagnostic}");
+            ExitCode::from(1)
         }
     }
 }
@@ -203,5 +212,87 @@ mod tests {
         assert_eq!(sources[0].version_id, version_id);
 
         crate::CANCEL.store(was, Ordering::SeqCst);
+    }
+
+    /// A stdout that cannot take the envelope must not rewrite the durable
+    /// result: the finish core exits 1 with a completed-but-undelivered
+    /// diagnostic carrying the real operation id, and the committed import
+    /// is still on disk with exactly the returned ids.
+    #[test]
+    fn failed_delivery_after_completed_import_exits_1_and_keeps_result() {
+        let dir = tempfile::tempdir().unwrap();
+        let root = dir.path();
+        let file = root.join("note.md");
+        std::fs::write(
+            &file,
+            "The synthetic Aurora mission launches on Tuesday.\r\n",
+        )
+        .unwrap();
+
+        let args: Vec<String> = [
+            "import",
+            file.to_str().unwrap(),
+            "--data-dir",
+            root.to_str().unwrap(),
+            "--json",
+        ]
+        .iter()
+        .map(|s| s.to_string())
+        .collect();
+        let invocation = match cli::parse(&args) {
+            Ok(cli::Outcome::Run(invocation)) => invocation,
+            _ => panic!("import parses into a runnable invocation"),
+        };
+        let output = match cli::execute(&invocation) {
+            Ok(output) => output,
+            Err(_) => panic!("import runs on a fresh workspace"),
+        };
+        let source_id = output.data["source_id"]
+            .as_str()
+            .expect("source id")
+            .to_string();
+        let version_id = output.data["version_id"]
+            .as_str()
+            .expect("version id")
+            .to_string();
+        let operation_id = output.data["operation_id"]
+            .as_str()
+            .expect("operation id")
+            .to_string();
+
+        struct Dead;
+        impl std::io::Write for Dead {
+            fn write(&mut self, _: &[u8]) -> std::io::Result<usize> {
+                Err(std::io::Error::new(
+                    std::io::ErrorKind::PermissionDenied,
+                    "sink unavailable",
+                ))
+            }
+            fn flush(&mut self) -> std::io::Result<()> {
+                Ok(())
+            }
+        }
+        let (code, diagnostic) =
+            cli::out::finish_ok_to(invocation.json, "import", output, &mut Dead);
+        assert_eq!(
+            code,
+            ExitCode::from(1),
+            "undelivered completed result exits 1"
+        );
+        let diagnostic = diagnostic.expect("diagnostic accompanies the undelivered result");
+        assert!(diagnostic.contains("OUTPUT_DELIVERY_ERROR"), "{diagnostic}");
+        assert!(diagnostic.contains("completed"), "{diagnostic}");
+        assert!(diagnostic.contains(&operation_id), "{diagnostic}");
+        assert!(
+            !diagnostic.to_lowercase().contains("failed"),
+            "{diagnostic}"
+        );
+
+        let workspace = brn_workflow::Workspace::open(root, brn_workflow::Config::default())
+            .expect("workspace reopens");
+        let sources = workspace.sources().unwrap();
+        assert_eq!(sources.len(), 1, "exactly the committed import");
+        assert_eq!(sources[0].source_id.to_string(), source_id);
+        assert_eq!(sources[0].version_id.to_string(), version_id);
     }
 }

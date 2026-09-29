@@ -7,6 +7,7 @@
 pub mod ask;
 pub mod documents;
 pub mod error;
+pub(crate) mod out;
 pub mod retrieval;
 pub mod review;
 pub mod status;
@@ -147,7 +148,9 @@ Commands:
   brn revisions diff --draft DRAFT_ID --from REVISION_ID --to REVISION_ID
 
 Exit codes: 0 success; 1 operational failure; 2 usage error; 124 deadline;
-130 interrupted.
+130 interrupted. A completed operation whose stdout result cannot be
+delivered exits 1 with an OUTPUT_DELIVERY_ERROR diagnostic on stderr; a
+closed pipe stays a quiet 0.
 ";
 
 pub fn version_line() -> String {
@@ -756,44 +759,52 @@ pub fn envelope_err(
     .expect("envelope serializes")
 }
 
-/// Print an error in the mode-appropriate surface. Best-effort: a closed
-/// consumer pipe is not a domain failure, so write errors are ignored.
+/// Print an error in the mode-appropriate surface. The error's exit code is
+/// unaffected by report delivery (callers apply it); in `--json` mode a
+/// non-pipe failure of the envelope write adds a best-effort stderr
+/// `OUTPUT_DELIVERY_ERROR` line, and a closed consumer pipe stays quiet.
 pub fn report_error(json: bool, command: Option<&str>, failure: &CliFailure) {
-    use std::io::Write as _;
-    if json {
-        let _ = writeln!(
-            std::io::stdout(),
-            "{}",
-            envelope_err(command, &failure.error, failure.context.as_ref())
-        );
+    let (_, diagnostic) = if json {
+        let mut stdout = std::io::stdout();
+        out::report_error_to(true, command, failure, &mut stdout)
     } else {
-        let _ = writeln!(std::io::stderr(), "error: {}", failure.error.message());
+        let mut stderr = std::io::stderr();
+        out::report_error_to(false, command, failure, &mut stderr)
+    };
+    emit_delivery_diagnostic(diagnostic.as_deref());
+}
+
+/// Best-effort stderr emit; a failing stderr never changes the outcome.
+fn emit_delivery_diagnostic(diagnostic: Option<&str>) {
+    use std::io::Write as _;
+    if let Some(diagnostic) = diagnostic {
+        let _ = writeln!(std::io::stderr(), "{diagnostic}");
     }
 }
 
 /// Map a command result to process exit, honoring the output mode.
 ///
-/// Output policy: a closed or broken consumer pipe is not a domain failure.
-/// Write errors on stdout/stderr are ignored — a completed operation still
-/// exits 0 quietly, because we never promise envelope delivery to a consumer
-/// that closed its pipe. The error path reports best-effort and still returns
-/// the error's exit code. Progress/delta writes to stderr are best-effort and
-/// never affect lifecycle or outcome handling.
+/// Output policy: a closed or broken consumer pipe is not a domain failure —
+/// a completed operation exits 0 quietly. Any other stdout write or flush
+/// error after a completed operation exits 1 with a best-effort stderr
+/// diagnostic identifying `OUTPUT_DELIVERY_ERROR`, saying the operation
+/// completed but its result could not be delivered (with the operation id
+/// when one is a string); nothing further is written to stdout. The error
+/// path keeps the original nonzero exit code whatever happens to the report
+/// write. Progress/delta writes to stderr are best-effort and never affect
+/// lifecycle or outcome handling.
 pub fn finish(json: bool, command: &str, result: Result<Output, CliFailure>) -> ExitCode {
-    use std::io::Write as _;
     match result {
         Ok(output) => {
-            if json {
-                let _ = writeln!(std::io::stdout(), "{}", envelope_ok(command, output.data));
-            } else {
-                let _ = write!(std::io::stdout(), "{}", output.text);
-            }
-            let _ = std::io::stdout().flush();
-            ExitCode::SUCCESS
+            let mut stdout = std::io::stdout();
+            let (code, diagnostic) = out::finish_ok_to(json, command, output, &mut stdout);
+            emit_delivery_diagnostic(diagnostic.as_deref());
+            code
         }
         Err(failure) => {
+            let code = failure.error.exit_code();
             report_error(json, Some(command), &failure);
-            ExitCode::from(failure.error.exit_code())
+            ExitCode::from(code)
         }
     }
 }
