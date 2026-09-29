@@ -19,11 +19,27 @@ use tempfile::tempdir;
 const FIXTURE: &str =
     "The synthetic Aurora mission launches on Tuesday. Its crew includes Mira and Niko.\r\n";
 
+/// The two sequence tests run one at a time: both spawn children and poll
+/// `lsof`, and serialization keeps observation latency inside the child's
+/// bounded acquisition window.
+static SEQUENCE: std::sync::Mutex<()> = std::sync::Mutex::new(());
+
 /// Kills and reaps the child on drop unless it was already waited, so test
 /// failures never leak a brn process holding or waiting on the lock.
 struct ChildGuard(Option<std::process::Child>);
 
 impl ChildGuard {
+    /// True once the child has exited (and been reaped): this attempt missed
+    /// the acquisition window and can be retried with a fresh child.
+    fn has_exited(&mut self) -> bool {
+        self.0
+            .as_mut()
+            .expect("child alive")
+            .try_wait()
+            .expect("brn child polls")
+            .is_some()
+    }
+
     fn spawn(root: &Path, args: &[&str]) -> Self {
         ChildGuard(Some(
             Command::new(env!("CARGO_BIN_EXE_brn"))
@@ -86,45 +102,70 @@ impl Drop for ChildGuard {
     }
 }
 
-/// The child provably cannot pass `Store::open` while the exclusive lock is
-/// held elsewhere, so its open `brn.owner.lock` descriptor proves it reached
-/// the acquisition wait. Matched by file name: lsof reports the resolved
-/// symlink path (/private/var/...) while tempdir hands out /var/....
-fn wait_until_waiting_on_lock(pid: u32) {
-    let deadline = Instant::now() + Duration::from_secs(5);
-    while Instant::now() < deadline {
-        if let Ok(out) = Command::new("lsof").arg("-p").arg(pid.to_string()).output() {
-            if String::from_utf8_lossy(&out.stdout).contains("brn.owner.lock") {
-                return;
+/// Runs the full lock-wait/SIGINT/release sequence and returns the child's
+/// output. Readiness is proven with `lsof`: the child provably cannot pass
+/// `Store::open` while the exclusive lock is held elsewhere, so its open
+/// `brn.owner.lock` descriptor proves it is inside the bounded retry loop
+/// (matched by file name: lsof reports the resolved symlink path
+/// /private/var/... while tempdir hands out /var/...). Under load a single
+/// `lsof` sweep can be slower than the child's ~1s acquisition window; a
+/// missed observation ends that attempt (the child exits WORKSPACE_BUSY on
+/// its own) and a fresh child is tried — the retry is sound because the
+/// child can never reach the mutation while the holder lives.
+fn cancel_during_workspace_wait(
+    root: &Path,
+    args: &[&str],
+    holder: &mut Option<Workspace>,
+) -> Output {
+    for _ in 0..5 {
+        let mut child = ChildGuard::spawn(root, args);
+        let deadline = Instant::now() + Duration::from_secs(6);
+        loop {
+            if let Ok(out) = Command::new("lsof")
+                .arg("-p")
+                .arg(child.id().to_string())
+                .output()
+            {
+                if String::from_utf8_lossy(&out.stdout).contains("brn.owner.lock") {
+                    assert_eq!(
+                        // SAFETY: kill with SIGINT on an owned child pid only.
+                        unsafe { libc::kill(child.id() as libc::c_int, libc::SIGINT) },
+                        0,
+                        "SIGINT is delivered to the waiting child"
+                    );
+                    // Release well inside the child's remaining retry window.
+                    drop(holder.take().expect("lock holder alive"));
+                    return child.wait_output();
+                }
             }
+            if child.has_exited() {
+                break; // missed the window this attempt; retry with fresh child
+            }
+            assert!(
+                Instant::now() < deadline,
+                "acquisition wait not observed in time"
+            );
+            std::thread::sleep(Duration::from_millis(10));
         }
-        std::thread::sleep(Duration::from_millis(50));
     }
-    panic!("child never reached the workspace-acquisition wait");
+    panic!("could not observe the child inside the workspace-acquisition wait");
 }
 
 /// SIGINT during the acquisition wait, with the lock released inside the
 /// retry window, must end the command without performing the import.
 #[test]
 fn import_cancelled_during_workspace_wait_does_not_mutate() {
+    let _sequential = SEQUENCE
+        .lock()
+        .unwrap_or_else(|poisoned| poisoned.into_inner());
     let dir = tempdir().unwrap();
     let root = dir.path();
     // Hold the exclusive owner lock in this process.
-    let holder = Workspace::open(root, Config::default()).unwrap();
+    let mut holder = Some(Workspace::open(root, Config::default()).unwrap());
     let file = root.join("note.md");
     fs::write(&file, FIXTURE).unwrap();
 
-    let child = ChildGuard::spawn(root, &["import", file.to_str().unwrap()]);
-    wait_until_waiting_on_lock(child.id());
-    assert_eq!(
-        // SAFETY: kill with SIGINT on an owned child pid only.
-        unsafe { libc::kill(child.id() as libc::c_int, libc::SIGINT) },
-        0,
-        "SIGINT is delivered to the waiting child"
-    );
-    drop(holder); // Release well inside the child's remaining retry window.
-
-    let out = child.wait_output();
+    let out = cancel_during_workspace_wait(root, &["import", file.to_str().unwrap()], &mut holder);
     assert_eq!(
         out.status.code(),
         Some(130),
@@ -157,6 +198,9 @@ fn import_cancelled_during_workspace_wait_does_not_mutate() {
 /// the originally seeded state must survive untouched.
 #[test]
 fn approval_cancelled_during_workspace_wait_is_not_applied() {
+    let _sequential = SEQUENCE
+        .lock()
+        .unwrap_or_else(|poisoned| poisoned.into_inner());
     let dir = tempdir().unwrap();
     let root = dir.path();
     // Seed the known state while the lock is free, then drop the workspace.
@@ -178,8 +222,8 @@ fn approval_cancelled_during_workspace_wait_is_not_applied() {
         drop(seeder);
 
         // Hold the exclusive owner lock in this process.
-        let holder = Workspace::open(root, Config::default()).unwrap();
-        let child = ChildGuard::spawn(
+        let mut holder = Some(Workspace::open(root, Config::default()).unwrap());
+        let out = cancel_during_workspace_wait(
             root,
             &[
                 "documents",
@@ -190,17 +234,8 @@ fn approval_cancelled_during_workspace_wait_is_not_applied() {
                 "--state",
                 "approved",
             ],
+            &mut holder,
         );
-        wait_until_waiting_on_lock(child.id());
-        assert_eq!(
-            // SAFETY: kill with SIGINT on an owned child pid only.
-            unsafe { libc::kill(child.id() as libc::c_int, libc::SIGINT) },
-            0,
-            "SIGINT is delivered to the waiting child"
-        );
-        drop(holder); // Release well inside the child's remaining retry window.
-
-        let out = child.wait_output();
         assert_eq!(
             out.status.code(),
             Some(130),
