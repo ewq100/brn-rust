@@ -79,3 +79,29 @@ F3, F1 and F2 were implemented by GLM 5.3 Flash subagents (`zai/glm-5.3-flash`) 
 - Non-pipe stdout delivery failure is covered by injected-writer unit tests plus the real `execute`-path persistence test; there is no portable macOS way to force a real non-pipe stdout failure in a subprocess (no /dev/full) — no such end-to-end subprocess test is claimed.
 - F3's non-contention lock I/O path is exercised through the injected-closure helper; a genuine OS-level lock I/O failure was not reproduced.
 - Commits remain local at doc-writing time; push when authorized: `git push origin feature/agent-cli-foundation` (fast-forward; no force). PR #2 left open and unmerged.
+
+## Third pass: T1–T2 (test-only cleanup findings)
+
+Starting head `2e0467a` (PR #2 head; matches remote). Fix commit `9ccf664` (code) plus this documentation commit; no production code changed — the diff touches only the `#[cfg(test)]` module of `crates/brn/src/main.rs` and `crates/brn/tests/cli_cancel.rs`. Environment: macOS 26.5 arm64 (target Mac), rust 1.98.1 pinned toolchain (default matches pin), `--locked`, no native features, disposable tempdir fixtures; no credentials, live providers or model downloads.
+
+| Finding | Status | Fix commit | Change |
+| --- | --- | --- | --- |
+| T1 process-global CANCEL not isolated in every test | Confirmed; fixed | `9ccf664` | `failed_delivery_after_completed_import_exits_1_and_keeps_result` called `cli::execute()` with no synchronization while sibling tests flip the flag: a parallel `CANCEL=true` made its import return interrupted and the test fail nondeterministically. All three CANCEL-sensitive bin tests now take a test-only RAII `CancelTestGuard` that acquires the existing `CANCEL_TESTS` mutex, installs the required initial value and restores the prior one on `Drop` (panic-safe; restore happens while the lock is still held). No `--test-threads=1`, no sleeps, no global resets, no production cancellation changes. |
+| T2 `ChildGuard::wait_output` leaks the child on timeout/panic | Confirmed; fixed | `9ccf664` | The old helper took the child out of the guard before the bounded wait, disarming kill-on-drop. New `wait_output_with_timeout(Duration) -> Result<Output, TimedOut>` polls through `self.0.as_mut()`, takes the child only after `try_wait` confirms exit, and on timeout returns `Err` so dropping the guard SIGKILLs and reaps the still-owned child before the caller sees the error; `wait_output()` keeps the 15s default (panic on timeout, child already reaped). A `child.wait()` after the confirmed exit satisfies `clippy::zombie_processes` (returns the cached status). |
+
+Regression coverage added: `wait_timeout_kills_and_reaps_the_owned_child` (cli_cancel.rs) spawns a disposable `sleep 30` child under a 200ms injected bound and proves the exact owned pid is killed **and** reaped (`kill(pid,0) == -1` + `ESRCH`; a zombie would still answer 0). The test cannot leak on its own assertion failures: cleanup completes inside `wait_output_with_timeout` before any assertion runs.
+
+### Verification (at `9ccf664`, run by the lead; fresh results, earlier sections not rerun)
+
+- `cargo test -p brn --bin brn --locked` — 20/0; `cargo test -p brn --test cli_cancel --locked` — 3/0.
+- `for i in $(seq 1 30); do cargo test -p brn --locked; done` under normal parallel execution — **30/30 runs passed**, 74 tests per run (bin 20, cli_ask 18, cli_basic 11, cli_cancel 3, cli_core 10, cli_ownership 1, cli_review 8, cli_signals 3). No suite forces single-threaded execution.
+- Leak check after the loop (read-only): no `sleep 30` and no `target/debug/brn` processes remain; unrelated long-running node services on this machine were untouched.
+- `cargo fmt --all -- --check`, `cargo build --workspace --locked`, `cargo clippy --workspace --all-targets --locked -- -D warnings` — pass.
+- `cargo test --workspace --locked` — **202 passed / 0 failed** (prior pass 201/0 at `9b33058`; net +1 = the new regression test).
+- `bash scripts/verify-end-to-end.sh` — pass (brn-flow fixture unchanged). `git diff --check` — clean.
+
+Third-pass review: a fresh GLM 5.3 Flash agent reviewed the uncommitted diff read-only (lock coverage across all CANCEL uses crate-wide, panic-safe restoration, every timeout/panic path guarded, regression-test leak safety, production-unchanged check): verdict **APPROVE**, no blocking findings. Non-blocking with lead rulings: (1) test 1's mid-test `CANCEL.store(true)` is now redundant with the guard's installed value — kept as an explicit statement of sub-case (a)'s precondition; (2) theoretical pid-reuse between reap and the ESRCH probe can only fail the test, never false-pass — accepted, same exposure as the pre-existing lsof observation tests.
+
+Implementation credits: T1+T2 and the regression test were implemented by a GLM 5.3 Flash subagent (`zai/glm-5.3-flash`) under GLM 5.3 lead direction (root-cause validation, design, integration, rulings, verification). Commits remain local at doc-writing time; push when authorized: `git push origin feature/agent-cli-foundation` (fast-forward; no force). PR #2 left open and unmerged.
+
+Limitations: signal/process tests remain unix-only (macOS verified; no Linux claimed); the regression test proves the guard's timeout cleanup, not new brn runtime behavior (subprocess cancellation behavior unchanged from the second pass); the 30× repeat loop is strong evidence of isolation on this machine, not a formal proof.
