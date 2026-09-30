@@ -110,7 +110,7 @@ fn revision_summary(revision: &DraftRevision) -> serde_json::Value {
     })
 }
 
-fn comment_json(view: &DraftCommentView) -> serde_json::Value {
+pub(crate) fn comment_json(view: &DraftCommentView) -> serde_json::Value {
     let comment = &view.comment;
     json!({
         "id": comment.id,
