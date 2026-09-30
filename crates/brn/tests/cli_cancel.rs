@@ -337,6 +337,68 @@ fn draft_create_cancelled_during_workspace_wait_does_not_mutate() {
     assert!(drafts.is_empty(), "the cancelled create must not persist");
 }
 
+/// The same lock-wait/SIGINT sequence against a working-draft save must stop
+/// after workspace ownership is released and before the shared save path, so
+/// the original text, base and generation remain intact.
+#[test]
+fn draft_save_cancelled_during_workspace_wait_does_not_mutate() {
+    let _sequential = SEQUENCE
+        .lock()
+        .unwrap_or_else(|poisoned| poisoned.into_inner());
+    let dir = tempdir().unwrap();
+    let root = dir.path();
+    let mut seeder = Workspace::open(root, Config::default()).unwrap();
+    let draft = seeder
+        .create_draft(uuid::Uuid::new_v4(), "cancelled save", "original")
+        .unwrap();
+    drop(seeder);
+
+    let file = root.join("save.txt");
+    fs::write(&file, "must not save").unwrap();
+    let draft_id = draft.id.to_string();
+    let base = draft.stamp.base_revision.to_string();
+    let generation = draft.stamp.generation.to_string();
+
+    // Hold the exclusive owner lock in this process.
+    let mut holder = Some(Workspace::open(root, Config::default()).unwrap());
+    let out = cancel_during_workspace_wait(
+        root,
+        &[
+            "drafts",
+            "save",
+            &draft_id,
+            "--base-revision",
+            &base,
+            "--expected-generation",
+            &generation,
+            "--generation",
+            "1",
+            "--text-file",
+            file.to_str().unwrap(),
+        ],
+        &mut holder,
+    );
+    assert_eq!(
+        out.status.code(),
+        Some(130),
+        "interrupted exit code, stdout: {} stderr: {}",
+        String::from_utf8_lossy(&out.stdout),
+        String::from_utf8_lossy(&out.stderr)
+    );
+    assert!(
+        out.status.signal().is_none(),
+        "brn must exit, not die by signal: {:?}",
+        out.status.signal()
+    );
+    let envelope: Value =
+        serde_json::from_slice(&out.stdout).expect("exactly one JSON envelope on stdout");
+    assert_eq!(envelope["ok"], false, "{envelope}");
+    assert_eq!(envelope["error"]["code"], "INTERRUPTED", "{envelope}");
+
+    let workspace = Workspace::open(root, Config::default()).unwrap();
+    assert_eq!(workspace.draft(draft.id).unwrap().unwrap(), draft);
+}
+
 /// The timeout path must kill and reap the owned child: after the bounded
 /// wait gives up, the exact owned pid is gone (signal-0 probe on that pid
 /// only; reaped, not a zombie). The test cannot leak its child: cleanup

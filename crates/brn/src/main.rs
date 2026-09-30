@@ -97,6 +97,7 @@ fn command_name(command: &cli::Command) -> &'static str {
         cli::Command::DraftsList => "drafts.list",
         cli::Command::DraftsCreate { .. } => "drafts.create",
         cli::Command::DraftsCheckpoint { .. } => "drafts.checkpoint",
+        cli::Command::DraftsSave { .. } => "drafts.save",
         cli::Command::DraftsShow { .. } => "drafts.show",
         cli::Command::CommentsList { .. } => "comments.list",
         cli::Command::RevisionsList { .. } => "revisions.list",

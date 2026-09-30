@@ -35,6 +35,22 @@ pub fn run(invocation: &Invocation) -> Result<Output, CliFailure> {
             text_file,
             *operation,
         ),
+        Command::DraftsSave {
+            draft,
+            base_revision,
+            expected_generation,
+            generation,
+            text_file,
+            operation,
+        } => save_run(
+            invocation,
+            *draft,
+            *base_revision,
+            *expected_generation,
+            *generation,
+            text_file,
+            *operation,
+        ),
         _ => unreachable!("drafts module handles mutations only"),
     }
 }
@@ -71,6 +87,32 @@ fn checkpoint_run(
     let text = read_text_file(text_file)?;
     let mut workspace = prepared_workspace(invocation)?;
     checkpoint(
+        &mut workspace,
+        draft,
+        brn_workflow::DraftStamp {
+            base_revision,
+            generation: expected_generation,
+        },
+        generation,
+        &text,
+        operation,
+    )
+}
+
+fn save_run(
+    invocation: &Invocation,
+    draft: Uuid,
+    base_revision: Uuid,
+    expected_generation: u64,
+    generation: u64,
+    text_file: &Path,
+    operation: Option<Uuid>,
+) -> Result<Output, CliFailure> {
+    // The submitted text is captured before opening the workspace; operation
+    // replay therefore remains bound to the caller's original payload.
+    let text = read_text_file(text_file)?;
+    let mut workspace = prepared_workspace(invocation)?;
+    save(
         &mut workspace,
         draft,
         brn_workflow::DraftStamp {
@@ -159,6 +201,33 @@ fn checkpoint(
     })
 }
 
+fn save(
+    workspace: &mut Workspace,
+    draft_id: Uuid,
+    expected: brn_workflow::DraftStamp,
+    generation: u64,
+    text: &str,
+    operation: Option<Uuid>,
+) -> Result<Output, CliFailure> {
+    let op = operation.unwrap_or_else(Uuid::new_v4);
+    let draft = workspace
+        .save_draft(op, draft_id, expected, generation, text)
+        .map_err(classify_workflow)?;
+    Ok(Output {
+        text: format!(
+            "saved draft {} generation={} base={} operation={}\n",
+            draft.id, draft.stamp.generation, draft.stamp.base_revision, op
+        ),
+        data: {
+            let mut data = draft_summary(&draft);
+            if let serde_json::Value::Object(map) = &mut data {
+                map.insert("operation_id".into(), json!(op));
+            }
+            data
+        },
+    })
+}
+
 /// Bounded read of a regular UTF-8 file at most `MAX_DRAFT_BYTES` long,
 /// following the shared `import_file` read pattern. Exact bytes are kept:
 /// no newline or Unicode normalization. Empty text stays permitted (the
@@ -170,7 +239,7 @@ fn read_text_file(path: &Path) -> Result<String, CliError> {
     let meta = fs::metadata(path).map_err(io)?;
     if !meta.is_file() || meta.len() > MAX_DRAFT_BYTES as u64 {
         return Err(CliError::Workflow(
-            "drafts create requires a regular UTF-8 text file up to 1 MiB".into(),
+            "draft text requires a regular UTF-8 text file up to 1 MiB".into(),
         ));
     }
     let mut file = fs::File::open(path).map_err(io)?;

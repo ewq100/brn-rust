@@ -26,7 +26,7 @@ impl Workspace {
     ) -> Result<Draft> {
         self.store
             .save_draft(op, id, expected, generation, text)
-            .map_err(error)
+            .map_err(WorkflowError::from)
     }
     pub fn checkpoint_draft(
         &mut self,

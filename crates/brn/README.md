@@ -20,6 +20,7 @@ Agent-facing CLI for BRN workspaces: parsing, JSON envelopes and exit codes over
   brn conversations show SESSION_ID
   brn drafts create --title TITLE --text-file PATH [--operation UUID]
   brn drafts checkpoint DRAFT_ID --base-revision UUID --expected-generation N --generation N --text-file PATH [--operation UUID]
+  brn drafts save DRAFT_ID --base-revision UUID --expected-generation N --generation N --text-file PATH [--operation UUID]
   brn drafts list
   brn drafts show DRAFT_ID
   brn comments list --draft DRAFT_ID
@@ -61,6 +62,7 @@ Exit codes: `0` success; `2` usage (`USAGE`); `1` operational failure (`WORKSPAC
 - Import defaults to draft approval; `--approve-for-search` is explicit and is not publication approval.
 - `drafts create` reads a regular UTF-8 text file up to the 1 MiB draft limit with a bounded read and preserves exact bytes (no Unicode or line-ending normalization). Empty text is permitted; a blank title is rejected. The envelope carries the operation id and the created draft (id, title, base revision, generation, sha256). Reusing the same operation id with the same title and text replays the recorded draft; conflicting payload reuse fails with `OPERATION_CONFLICT`.
 - `drafts checkpoint DRAFT_ID` uses the exact flags `--base-revision UUID`, `--expected-generation N`, `--generation N`, and `--text-file PATH` (plus optional `--operation UUID`). These are the CLI's checkpoint spellings; the command reads the bounded UTF-8 text explicitly, maps the caller-supplied expected state to the existing `DraftStamp`, and calls the shared checkpoint workflow. The success envelope includes `operation_id`, `checkpoint_id` (the resulting `base_revision`), and the resulting draft stamp. Existing generation rules apply, including unchanged text at the expected generation; stale state is rejected. Same-payload operation replay returns the original receipt after restart or later edits, while conflicting reuse fails with `OPERATION_CONFLICT`.
+- `drafts save DRAFT_ID` uses the same `--base-revision UUID`, `--expected-generation N`, `--generation N`, `--text-file PATH`, and optional `--operation UUID` conventions as checkpoint. Its submitted `--generation` must be strictly greater than `--expected-generation`. It reads bounded exact UTF-8 text, preserves the caller's expected base/generation, and calls the shared comment-safe working-draft save path. The success envelope includes the actual `operation_id` and resulting draft stamp; it does not create a checkpoint. Unchanged text is allowed, stale state is rejected, same-payload operation replay returns the original receipt after restart or later edits, and conflicting operation reuse fails with `OPERATION_CONFLICT`.
 - Search never builds the index; a missing or stale index is an error, not a trigger.
 - Semantic/hybrid profiles never fall back to keyword; they fail with `PROFILE_UNAVAILABLE` in this build.
 - Approval binds the exact source version; superseded versions reject approval.
