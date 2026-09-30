@@ -14,7 +14,7 @@ This guide applies throughout this repository. Follow the user's current task an
 
 | Path | Responsibility |
 | --- | --- |
-| `crates/brn` | Minimal CLI build probe |
+| `crates/brn` | Agent-facing `brn` CLI over the shared workflow |
 | `crates/brn-core` | UI-independent sample shell and worker lifecycle |
 | `crates/brn-store` | SQLite authority, revisions, drafts, comments and recovery |
 | `crates/brn-provider` | Owned Codex App Server process and protocol |

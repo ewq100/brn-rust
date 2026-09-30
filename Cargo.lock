@@ -1133,6 +1133,14 @@ dependencies = [
 [[package]]
 name = "brn"
 version = "0.0.0"
+dependencies = [
+ "brn-workflow",
+ "libc",
+ "serde",
+ "serde_json",
+ "tempfile",
+ "uuid",
+]
 
 [[package]]
 name = "brn-core"

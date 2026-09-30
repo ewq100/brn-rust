@@ -13,5 +13,6 @@ These folders preserve bounded implementation history. A completed record does n
 | Desktop usability | [Plan](desktop-usability/plan.md) | [Evidence](desktop-usability/evidence.md) |
 | Drafts and revisions | [Plan](draft-revisions/plan.md) | [Evidence](draft-revisions/evidence.md) |
 | Anchored comments | [Plan](anchored-comments/plan.md) | [Evidence](anchored-comments/evidence.md) |
+| Agent-facing CLI foundation | [Plan](agent-cli-foundation/plan.md) | [Evidence](agent-cli-foundation/evidence.md) |
 
 The [early status ledger](early-checkpoints/status-history.md) and [original annotated roadmap](early-checkpoints/roadmap-history.md) preserve superseded summaries and sequencing notes. The initial provider trial lives in its [experiment README](../../../experiments/codex-app-server/README.md). The [architecture decision](../../architecture/decisions/2026-09-28-architecture-baseline.md) retains the original approved baseline.

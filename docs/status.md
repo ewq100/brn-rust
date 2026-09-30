@@ -1,6 +1,6 @@
 # Current development status
 
-Updated 2026-09-28. Code baseline: local `main` at `d6784aa` (anchored-comment native verification). Branch and HEAD were inspected during the documentation reorganization; remote state was not checked. Verification results below are recorded historical results, not tests rerun for this documentation change.
+Updated 2026-09-29. Code baseline: branch `feature/agent-cli-foundation` at `7a37069` (agent-facing CLI foundation) based on local `main` at `18f3891`; not merged. Remote state was not checked. Verification results below are recorded historical results, not tests rerun for this documentation change.
 
 ## Implemented baseline
 
@@ -12,6 +12,9 @@ Updated 2026-09-28. Code baseline: local `main` at `d6784aa` (anchored-comment n
 | Desktop usability | File selection, small-window scrolling, progress/errors and unsigned local launcher exercised | [Usability](work/completed/desktop-usability/evidence.md) |
 | Drafts and revisions | Working copies, immutable checkpoints/candidates, comparison and dirty-state protection; native and restart checks recorded | [Drafts](work/completed/draft-revisions/evidence.md) |
 | Anchored comments | Exact original provenance, conservative mapping, resolve/reopen and native review; 116 workspace tests and native/restart observations recorded | [Comments](work/completed/anchored-comments/evidence.md) |
+| Agent-facing CLI | `brn` binary exposes import, approval, index, search, ask, conversations, drafts, comments and revisions over the shared workflow with a versioned JSON envelope and subprocess tests | [CLI](work/completed/agent-cli-foundation/evidence.md) |
+
+PR #2 review fixes (signals and pipe recoverability, durable-outcome reporting after SIGINT, help before argument validation, structured ask failure context, typed error codes) are implemented and verified on the PR branch, as are the follow-up findings F1–F3 (cancellation after workspace acquisition, output-delivery failure vs BrokenPipe, lock-error classification) and the test-only cleanup pass T1–T2 (process-global CANCEL test isolation, child-guard timeout cleanup); see [active work](work/active/README.md). The PR itself remains unmerged.
 
 All implementation listed above is present in the inspected local `main` baseline, including anchored comments. Older feature-branch-only statements remain historical in completed records. Inclusion in main and agent-observed verification do not establish user acceptance or release readiness.
 

@@ -54,13 +54,19 @@ pub enum Error {
     Io(std::io::Error),
     Sql(rusqlite::Error),
     Invalid(String),
+    /// The data directory lock is held by another live process.
+    WorkspaceBusy(String),
+    /// A durable operation ID was reused with different kind or payload.
+    OperationConflict(String),
 }
 impl std::fmt::Display for Error {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         match self {
             Self::Io(e) => write!(f, "I/O: {e}"),
             Self::Sql(e) => write!(f, "SQLite: {e}"),
-            Self::Invalid(e) => f.write_str(e),
+            Self::Invalid(e) | Self::WorkspaceBusy(e) | Self::OperationConflict(e) => {
+                f.write_str(e)
+            }
         }
     }
 }
@@ -164,6 +170,30 @@ pub struct Store {
     _owner_lock: File,
     db_path: PathBuf,
 }
+/// Acquires the owner lock: `WouldBlock` is genuine contention (including
+/// the transient fork+exec window) and is retried until `deadline`; any other
+/// lock failure is an I/O error and returns immediately. Classification is
+/// the enum variant, never the error text.
+fn acquire_owner_lock(
+    mut attempt: impl FnMut() -> std::result::Result<(), std::fs::TryLockError>,
+    deadline: std::time::Instant,
+) -> Result<()> {
+    loop {
+        match attempt() {
+            Ok(()) => return Ok(()),
+            Err(e @ std::fs::TryLockError::WouldBlock) => {
+                if std::time::Instant::now() >= deadline {
+                    return Err(Error::WorkspaceBusy(format!(
+                        "data directory is already owned: {e}"
+                    )));
+                }
+                std::thread::sleep(std::time::Duration::from_millis(5));
+            }
+            Err(std::fs::TryLockError::Error(e)) => return Err(Error::Io(e)),
+        }
+    }
+}
+
 impl Store {
     /// Opens an existing directory. Creates the database once if absent; never replaces an existing file.
     pub fn open(data_dir: impl AsRef<Path>) -> Result<(Self, RecoveryReport)> {
@@ -182,9 +212,15 @@ impl Store {
             .write(true)
             .open(&lock_path)?;
         check_regular_single_link(&lock_path)?;
-        owner
-            .try_lock()
-            .map_err(|e| Error::Invalid(format!("data directory is already owned: {e}")))?;
+        // A concurrent fork+exec in this process (subprocess spawn) briefly
+        // duplicates this open lock descriptor into the child until exec
+        // closes it, so a lock released moments ago can transiently report
+        // busy. Transient busy is WouldBlock and is retried within a short
+        // bounded grace before reporting ownership; any non-contention lock
+        // failure is an I/O error and surfaces immediately. Exclusivity
+        // itself is never weakened.
+        let lock_deadline = std::time::Instant::now() + std::time::Duration::from_secs(1);
+        acquire_owner_lock(|| owner.try_lock(), lock_deadline)?;
         let db_path = dir.join("brn.sqlite3");
         let exists = db_path.exists();
         let prior = if exists {
@@ -296,8 +332,8 @@ impl Store {
                 BeginOperation::Existing
             }
             Some(_) => {
-                return Err(invalid(
-                    "operation ID conflicts with existing kind or payload",
+                return Err(Error::OperationConflict(
+                    "operation ID conflicts with existing kind or payload".into(),
                 ));
             }
             None => {
@@ -613,7 +649,11 @@ impl Store {
             Some((kind, payload_hash, status)) if kind == action && payload_hash == digest => {
                 status
             }
-            Some(_) => return Err(invalid("operation ID conflicts with local mutation")),
+            Some(_) => {
+                return Err(Error::OperationConflict(
+                    "operation ID conflicts with local mutation".into(),
+                ));
+            }
         };
         let old:Option<(Vec<u8>,String)>=tx.query_row("SELECT args_hash,entity_id FROM operation_results WHERE operation_id=?1 AND action=?2",params![op.to_string(),action],|r|Ok((r.get(0)?,r.get(1)?))).optional()?;
         if let Some((old_hash, old_id)) = old {
@@ -980,5 +1020,101 @@ mod tests {
         assert_eq!(store.draft(draft).unwrap().unwrap(), old);
         assert_eq!(store.create_draft(op, "old", text).unwrap(), old);
         assert!(store.draft_comments(draft).unwrap().comments.is_empty());
+    }
+
+    #[test]
+    fn owner_lock_succeeds_on_first_attempt() {
+        use std::time::{Duration, Instant};
+        let mut calls = 0;
+        let result = acquire_owner_lock(
+            || {
+                calls += 1;
+                Ok(())
+            },
+            Instant::now() + Duration::from_secs(1),
+        );
+        assert!(result.is_ok());
+        assert_eq!(calls, 1);
+    }
+
+    #[test]
+    fn owner_lock_retries_would_block_then_succeeds() {
+        use std::fs::TryLockError;
+        use std::time::{Duration, Instant};
+        let mut calls = 0;
+        let result = acquire_owner_lock(
+            || {
+                calls += 1;
+                if calls < 4 {
+                    Err(TryLockError::WouldBlock)
+                } else {
+                    Ok(())
+                }
+            },
+            Instant::now() + Duration::from_secs(10),
+        );
+        assert!(result.is_ok());
+        assert_eq!(calls, 4);
+    }
+
+    #[test]
+    fn owner_lock_would_block_past_deadline_is_workspace_busy() {
+        use std::fs::TryLockError;
+        use std::time::Instant;
+        let mut calls = 0;
+        let err = acquire_owner_lock(
+            || {
+                calls += 1;
+                Err(TryLockError::WouldBlock)
+            },
+            Instant::now(),
+        )
+        .unwrap_err();
+        assert!(matches!(err, Error::WorkspaceBusy(ref msg) if msg.contains("already owned")));
+        assert_eq!(calls, 1);
+    }
+
+    #[test]
+    fn owner_lock_io_error_returns_immediately_without_retry() {
+        use std::fs::TryLockError;
+        use std::io::ErrorKind;
+        use std::time::{Duration, Instant};
+        let mut calls = 0;
+        let err = acquire_owner_lock(
+            || {
+                calls += 1;
+                Err(TryLockError::Error(std::io::Error::new(
+                    ErrorKind::PermissionDenied,
+                    "lock file not writable",
+                )))
+            },
+            Instant::now() + Duration::from_secs(10),
+        )
+        .unwrap_err();
+        assert!(matches!(err, Error::Io(ref e) if e.kind() == ErrorKind::PermissionDenied));
+        assert_eq!(calls, 1);
+    }
+
+    #[test]
+    fn owner_lock_classifies_by_variant_not_error_text() {
+        use std::fs::TryLockError;
+        use std::io::ErrorKind;
+        use std::time::{Duration, Instant};
+        // An Error variant whose text claims contention must still be Io.
+        let mut calls = 0;
+        let err = acquire_owner_lock(
+            || {
+                calls += 1;
+                Err(TryLockError::Error(std::io::Error::other(
+                    "lock acquisition failed because the operation would block",
+                )))
+            },
+            Instant::now() + Duration::from_secs(10),
+        )
+        .unwrap_err();
+        assert!(matches!(err, Error::Io(ref e) if e.kind() == ErrorKind::Other));
+        assert_eq!(calls, 1);
+        // WouldBlock carries no text and is always contention (covered by the
+        // retry and deadline tests above).
     }
 }
