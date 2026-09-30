@@ -765,11 +765,18 @@ fn parse_inner(
             }
             "drafts.save" => {
                 expect_positionals(&scanned, 1)?;
+                let expected_generation = scanned.require_generation("expected-generation")?;
+                let generation = scanned.require_generation("generation")?;
+                if generation <= expected_generation {
+                    return Err(usage(
+                        "--generation must be greater than --expected-generation",
+                    ));
+                }
                 Command::DraftsSave {
                     draft: positional_uuid(&scanned, 0, "DRAFT_ID")?,
                     base_revision: scanned.require_uuid("base-revision")?,
-                    expected_generation: scanned.require_generation("expected-generation")?,
-                    generation: scanned.require_generation("generation")?,
+                    expected_generation,
+                    generation,
                     text_file: PathBuf::from(
                         scanned
                             .value("text-file")

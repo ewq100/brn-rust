@@ -511,6 +511,45 @@ fn fresh_save_input() -> FreshSaveInput {
     }
 }
 
+fn assert_non_advancing_generation_rejected(expected: &str, generation: &str) {
+    let input = fresh_save_input();
+    let file = input._fixtures.path().join("save.txt");
+    fs::write(&file, "save").unwrap();
+    let args = save_args_raw(
+        &Uuid::new_v4().to_string(),
+        &Uuid::new_v4().to_string(),
+        expected,
+        generation,
+        &file,
+        Some(&Uuid::new_v4().to_string()),
+    );
+
+    let (exit, envelope) = run_owned_args(&input.data, &args);
+    assert!(
+        fs::read_dir(&input.data).unwrap().next().is_none(),
+        "workspace was opened: {envelope}"
+    );
+    assert_eq!(exit, 2, "{envelope}");
+    assert_eq!(envelope["command"], "drafts.save");
+    assert_eq!(envelope["ok"], false);
+    assert_eq!(envelope["error"]["code"], "USAGE");
+}
+
+#[test]
+fn save_rejects_equal_zero_generation_before_workspace_access() {
+    assert_non_advancing_generation_rejected("0", "0");
+}
+
+#[test]
+fn save_rejects_equal_one_generation_before_workspace_access() {
+    assert_non_advancing_generation_rejected("1", "1");
+}
+
+#[test]
+fn save_rejects_decreasing_generation_before_workspace_access() {
+    assert_non_advancing_generation_rejected("2", "1");
+}
+
 #[test]
 fn save_rejects_generation_out_of_range_before_workspace_access() {
     let input = fresh_save_input();
