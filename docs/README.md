@@ -5,6 +5,7 @@ Start with [AGENTS.md](../AGENTS.md), then [current status](status.md). Read onl
 | Need | Read |
 | --- | --- |
 | Understand the product or run it | [Root README](../README.md), [setup](development/setup.md) |
+| Operate a workspace headlessly as an agent | [brn CLI](../crates/brn/README.md): what `brn` is, how to run it, `--json` envelopes and the command reference; it shares the application workflow, it does not bypass it |
 | Find implemented work and open gaps | [Status](status.md) |
 | Choose future work | [Roadmap](roadmap.md) |
 | Understand code ownership | [Architecture overview](architecture/overview.md), relevant crate README |

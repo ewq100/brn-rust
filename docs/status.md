@@ -1,6 +1,6 @@
 # Current development status
 
-Updated 2026-09-29. Code baseline: branch `feature/agent-cli-foundation` at `7a37069` (agent-facing CLI foundation) based on local `main` at `18f3891`; not merged. Remote state was not checked. Verification results below are recorded historical results, not tests rerun for this documentation change.
+Updated 2026-09-30. Code baseline: local `main` at `1b49378`, which merges PR #2 (`feature/agent-cli-foundation`, agent-facing CLI) into `main`; merge state checked against `origin/main`. Verification results below are recorded historical results, not tests rerun for this documentation change.
 
 ## Implemented baseline
 
@@ -14,7 +14,17 @@ Updated 2026-09-29. Code baseline: branch `feature/agent-cli-foundation` at `7a3
 | Anchored comments | Exact original provenance, conservative mapping, resolve/reopen and native review; 116 workspace tests and native/restart observations recorded | [Comments](work/completed/anchored-comments/evidence.md) |
 | Agent-facing CLI | `brn` binary exposes import, approval, index, search, ask, conversations, drafts, comments and revisions over the shared workflow with a versioned JSON envelope and subprocess tests | [CLI](work/completed/agent-cli-foundation/evidence.md) |
 
-PR #2 review fixes (signals and pipe recoverability, durable-outcome reporting after SIGINT, help before argument validation, structured ask failure context, typed error codes) are implemented and verified on the PR branch, as are the follow-up findings F1–F3 (cancellation after workspace acquisition, output-delivery failure vs BrokenPipe, lock-error classification) and the test-only cleanup pass T1–T2 (process-global CANCEL test isolation, child-guard timeout cleanup); see [active work](work/active/README.md). The PR itself remains unmerged.
+PR #2 (including the review fixes for signals and pipe recoverability, durable-outcome reporting after SIGINT, help before argument validation, structured ask failure context, typed error codes, follow-up findings F1–F3 and test-only cleanup T1–T2) is merged to `main` at `1b49378`; the implementation record is closed under [completed work](work/completed/agent-cli-foundation/plan.md) and [PR #2 CLI review fixes](work/completed/pr2-cli-review-fixes/plan.md). No product task is currently recorded in [active work](work/active/README.md).
+
+### Agent-facing CLI (`brn`)
+
+`crates/brn` provides the `brn` CLI: another interface over the shared application workflow, with the dependency direction `brn -> brn-workflow -> {store, retrieval, provider}`. It owns no SQL, retrieval, provider or separate business logic; the desktop drives the same workflow. Available surfaces: `status`, `import`, `documents`, `index build`, `search`, `ask`, `conversations`, and read-only drafts/revisions/comments surfaces. `--json` emits a versioned envelope per call; the command reference is [crates/brn/README.md](../crates/brn/README.md).
+
+Current limitations to keep in view:
+
+- Workspace ownership is exclusive: the CLI and the desktop (or any other process) cannot operate the same data directory at the same time.
+- Native retrieval qualification is separate from the default/headless verification that covers the CLI; `status` reports `native_retrieval: false` in default builds.
+- The CLI foundation does not implement Markdown-first storage, archive behavior, graph retrieval, publication/approval, or the future UI redesign; those remain [roadmap](roadmap.md) work.
 
 All implementation listed above is present in the inspected local `main` baseline, including anchored comments. Older feature-branch-only statements remain historical in completed records. Inclusion in main and agent-observed verification do not establish user acceptance or release readiness.
 

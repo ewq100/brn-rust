@@ -105,3 +105,7 @@ Third-pass review: a fresh GLM 5.3 Flash agent reviewed the uncommitted diff rea
 Implementation credits: T1+T2 and the regression test were implemented by a GLM 5.3 Flash subagent (`zai/glm-5.3-flash`) under GLM 5.3 lead direction (root-cause validation, design, integration, rulings, verification). Commits remain local at doc-writing time; push when authorized: `git push origin feature/agent-cli-foundation` (fast-forward; no force). PR #2 left open and unmerged.
 
 Limitations: signal/process tests remain unix-only (macOS verified; no Linux claimed); the regression test proves the guard's timeout cleanup, not new brn runtime behavior (subprocess cancellation behavior unchanged from the second pass); the 30× repeat loop is strong evidence of isolation on this machine, not a formal proof.
+
+## Closure (2026-09-30)
+
+Branch `feature/agent-cli-foundation` (through `f064ce3`) merged to `main` as PR #2, merge commit `1b49378`. Earlier statements above that the commits were local-only and PR #2 was open describe the state at their writing time; integration state is as recorded here.

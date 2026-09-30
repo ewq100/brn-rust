@@ -8,7 +8,7 @@ Build a local-first, single-user Rust desktop application for importing knowledg
 
 ## Existing foundations
 
-Milestones 00–12 cover build/provider/editor/retrieval trials, the accepted architecture baseline, desktop/storage, import/search/chat, drafts and anchored comments. Their bounded implementations and observations are indexed in [completed work](work/completed/README.md). This does not close broader corpus-quality, user acceptance or release qualification gaps.
+Milestones 00–12 cover build/provider/editor/retrieval trials, the accepted architecture baseline, desktop/storage, import/search/chat, drafts and anchored comments. Their bounded implementations and observations are indexed in [completed work](work/completed/README.md). The agent-facing `brn` CLI (PR #2) is existing infrastructure, not future work: agent and headless operations use the shared workflow through `brn` ([command reference](../crates/brn/README.md)), not a separate implementation path. This does not close broader corpus-quality, user acceptance or release qualification gaps, and none of the milestones below are implemented early.
 
 ## Next writing and review outcomes
 
