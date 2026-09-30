@@ -75,6 +75,14 @@ pub enum Command {
         text_file: PathBuf,
         operation: Option<Uuid>,
     },
+    DraftsSave {
+        draft: Uuid,
+        base_revision: Uuid,
+        expected_generation: u64,
+        generation: u64,
+        text_file: PathBuf,
+        operation: Option<Uuid>,
+    },
     DraftsShow {
         draft: Uuid,
     },
@@ -156,6 +164,7 @@ Commands:
   brn conversations show SESSION_ID
   brn drafts create --title TITLE --text-file PATH [--operation UUID]
   brn drafts checkpoint DRAFT_ID --base-revision UUID --expected-generation N --generation N --text-file PATH [--operation UUID]
+  brn drafts save DRAFT_ID --base-revision UUID --expected-generation N --generation N --text-file PATH [--operation UUID]
   brn drafts list
   brn drafts show DRAFT_ID
   brn comments list --draft DRAFT_ID
@@ -550,7 +559,7 @@ fn parse_inner(
             }
         }
         "drafts" => {
-            let sub = sub_word(&mut tokens, "drafts", "list|show|create|checkpoint")?;
+            let sub = sub_word(&mut tokens, "drafts", "list|show|create|checkpoint|save")?;
             match sub.as_str() {
                 "list" => {
                     *command = Some("drafts.list");
@@ -566,6 +575,20 @@ fn parse_inner(
                 }
                 "checkpoint" => {
                     *command = Some("drafts.checkpoint");
+                    scan(
+                        &mut tokens,
+                        g,
+                        &[
+                            ("base-revision", true),
+                            ("expected-generation", true),
+                            ("generation", true),
+                            ("text-file", true),
+                            ("operation", true),
+                        ],
+                    )?
+                }
+                "save" => {
+                    *command = Some("drafts.save");
                     scan(
                         &mut tokens,
                         g,
@@ -728,6 +751,21 @@ fn parse_inner(
             "drafts.checkpoint" => {
                 expect_positionals(&scanned, 1)?;
                 Command::DraftsCheckpoint {
+                    draft: positional_uuid(&scanned, 0, "DRAFT_ID")?,
+                    base_revision: scanned.require_uuid("base-revision")?,
+                    expected_generation: scanned.require_generation("expected-generation")?,
+                    generation: scanned.require_generation("generation")?,
+                    text_file: PathBuf::from(
+                        scanned
+                            .value("text-file")
+                            .ok_or_else(|| usage("missing --text-file"))?,
+                    ),
+                    operation: scanned.uuid("operation")?,
+                }
+            }
+            "drafts.save" => {
+                expect_positionals(&scanned, 1)?;
+                Command::DraftsSave {
                     draft: positional_uuid(&scanned, 0, "DRAFT_ID")?,
                     base_revision: scanned.require_uuid("base-revision")?,
                     expected_generation: scanned.require_generation("expected-generation")?,
@@ -933,9 +971,9 @@ pub fn execute(invocation: &Invocation) -> Result<Output, CliFailure> {
         | Command::RevisionsList { .. }
         | Command::RevisionsShow { .. }
         | Command::RevisionsDiff { .. } => return review::run(invocation),
-        Command::DraftsCreate { .. } | Command::DraftsCheckpoint { .. } => {
-            return drafts::run(invocation)
-        }
+        Command::DraftsCreate { .. }
+        | Command::DraftsCheckpoint { .. }
+        | Command::DraftsSave { .. } => return drafts::run(invocation),
         Command::Status | Command::DocumentsList | Command::DocumentsShow { .. } => {}
     }
     let workspace = open_workspace(invocation)?;
