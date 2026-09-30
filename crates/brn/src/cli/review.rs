@@ -7,7 +7,8 @@ use crate::cli::{
 };
 use brn_workflow::worker::RevisionKind;
 use brn_workflow::{
-    AmbiguityReason, AnchorState, CommentStatus, Draft, DraftCommentView, DraftRevision, Workspace,
+    AmbiguityReason, AnchorState, CommentStatus, Draft, DraftComment, DraftCommentView,
+    DraftRevision, Workspace,
 };
 use serde_json::json;
 use uuid::Uuid;
@@ -110,8 +111,7 @@ fn revision_summary(revision: &DraftRevision) -> serde_json::Value {
     })
 }
 
-pub(crate) fn comment_json(view: &DraftCommentView) -> serde_json::Value {
-    let comment = &view.comment;
+pub(crate) fn comment_fields(comment: &DraftComment) -> serde_json::Value {
     json!({
         "id": comment.id,
         "original_revision_id": comment.original_revision_id,
@@ -122,8 +122,15 @@ pub(crate) fn comment_json(view: &DraftCommentView) -> serde_json::Value {
         "body": comment.body,
         "status": status_str(comment.status),
         "status_version": comment.status_version,
-        "anchor": anchor_json(&view.anchor),
     })
+}
+
+pub(crate) fn comment_json(view: &DraftCommentView) -> serde_json::Value {
+    let mut data = comment_fields(&view.comment);
+    if let serde_json::Value::Object(map) = &mut data {
+        map.insert("anchor".into(), anchor_json(&view.anchor));
+    }
+    data
 }
 
 /// Human text must be self-terminated; only the terminator is ever added.

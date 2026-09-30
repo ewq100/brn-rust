@@ -5,15 +5,37 @@
 //! operation receipt, expected-state check, exact anchor validation and the
 //! checkpoint/comment transaction.
 use crate::cli::{
-    error::classify_workflow, error::CliError, open_workspace, review::comment_json,
-    review::draft_summary, CliFailure, Command, Invocation, Output,
+    error::classify_workflow, error::CliError, open_workspace, review::comment_fields,
+    review::comment_json, review::draft_summary, CliFailure, Command, Invocation, Output,
 };
-use brn_workflow::{CommentCapture, EditTrace, MAX_COMMENT_BODY_BYTES, MAX_DRAFT_BYTES};
+use brn_workflow::{
+    CommentCapture, CommentStatus, CommentStatusChange, EditTrace, MAX_COMMENT_BODY_BYTES,
+    MAX_DRAFT_BYTES,
+};
 use serde_json::json;
 use std::{fs, io::Read, ops::Range, path::Path, sync::atomic::Ordering};
 use uuid::Uuid;
 
 pub fn run(invocation: &Invocation) -> Result<Output, CliFailure> {
+    match &invocation.command {
+        Command::CommentsAdd { .. } => add(invocation),
+        Command::CommentsResolve {
+            comment,
+            draft,
+            expected_status_version,
+            operation,
+        } => resolve(
+            invocation,
+            *comment,
+            *draft,
+            *expected_status_version,
+            *operation,
+        ),
+        _ => unreachable!("comments module handles mutations only"),
+    }
+}
+
+fn add(invocation: &Invocation) -> Result<Output, CliFailure> {
     let Command::CommentsAdd {
         draft,
         base_revision,
@@ -27,7 +49,7 @@ pub fn run(invocation: &Invocation) -> Result<Output, CliFailure> {
         operation,
     } = &invocation.command
     else {
-        unreachable!("comments module handles mutations only")
+        unreachable!("comments module handles add")
     };
 
     let text = read_utf8_file(
@@ -95,6 +117,44 @@ pub fn run(invocation: &Invocation) -> Result<Output, CliFailure> {
             "submitted_generation": result.submitted_generation,
             "draft": draft_summary(&result.saved.draft),
             "comments": result.saved.comments.iter().map(comment_json).collect::<Vec<_>>(),
+        }),
+    })
+}
+
+fn resolve(
+    invocation: &Invocation,
+    comment_id: Uuid,
+    draft_id: Uuid,
+    expected_status_version: u64,
+    operation: Option<Uuid>,
+) -> Result<Output, CliFailure> {
+    let mut workspace = open_workspace(invocation)?;
+    if crate::CANCEL.load(Ordering::SeqCst) {
+        return Err(CliError::Interrupted(
+            "interrupted while acquiring the workspace; the command was not run".into(),
+        )
+        .into());
+    }
+
+    let op = operation.unwrap_or_else(Uuid::new_v4);
+    let result = workspace
+        .set_comment_status(CommentStatusChange {
+            op,
+            draft_id,
+            comment_id,
+            expected_status_version,
+            status: CommentStatus::Resolved,
+        })
+        .map_err(classify_workflow)?;
+
+    Ok(Output {
+        text: format!(
+            "resolved comment {} status_version={} operation={}\n",
+            result.comment.id, result.comment.status_version, result.op
+        ),
+        data: json!({
+            "operation_id": result.op,
+            "comment": comment_fields(&result.comment),
         }),
     })
 }
