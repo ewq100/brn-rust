@@ -30,21 +30,63 @@ human_size() {
   }'
 }
 
-absolute_lexical_path() {
+without_trailing_separators() {
   local path="$1"
+
+  if [[ -z "$path" ]]; then
+    printf '%s\n' "$path"
+    return
+  fi
+
+  while [[ "$path" == */ && "$path" != "/" ]]; do
+    path="${path%/}"
+  done
+  if [[ -z "$path" ]]; then
+    path="/"
+  fi
+
+  printf '%s\n' "$path"
+}
+
+absolute_path_operand() {
+  local path
   local absolute
 
+  path="$(without_trailing_separators "$1")"
   case "$path" in
     /*) absolute="$path" ;;
     *) absolute="$PWD/$path" ;;
   esac
 
-  case "$absolute" in
-    /) ;;
-    */) absolute="${absolute%/}" ;;
-  esac
-
   printf '%s\n' "$absolute"
+}
+
+lexical_overlap_path() {
+  local path="$1"
+  local old_ifs="$IFS"
+  local component
+  local normalized=''
+  local components=()
+
+  IFS='/'
+  read -r -a components <<< "$path"
+  IFS="$old_ifs"
+
+  for component in "${components[@]}"; do
+    case "$component" in
+      ''|.) continue ;;
+    esac
+    if [[ -z "$normalized" ]]; then
+      normalized="/$component"
+    else
+      normalized="$normalized/$component"
+    fi
+  done
+
+  if [[ -z "$normalized" ]]; then
+    normalized="/"
+  fi
+  printf '%s\n' "$normalized"
 }
 
 label_for_kind() {
@@ -60,6 +102,11 @@ kinds=()
 paths=()
 
 add_entry() {
+  if [[ -z "$2" ]]; then
+    printf 'Paths must be non-empty\n' >&2
+    usage >&2
+    exit 2
+  fi
   kinds[${#kinds[@]}]="$1"
   paths[${#paths[@]}]="$2"
 }
@@ -109,9 +156,12 @@ if ((${#paths[@]} == 0)); then
   exit 0
 fi
 
-absolute_paths=()
+operands=()
+overlap_paths=()
 for path in "${paths[@]}"; do
-  absolute_paths[${#absolute_paths[@]}]="$(absolute_lexical_path "$path")"
+  operand="$(absolute_path_operand "$path")"
+  operands[${#operands[@]}]="$operand"
+  overlap_paths[${#overlap_paths[@]}]="$(lexical_overlap_path "$operand")"
 done
 
 printf 'Measurement policy: allocated usage from du -skP; symbolic links are not followed.\n'
@@ -122,7 +172,8 @@ for ((index = 0; index < ${#paths[@]}; index++)); do
   path="${paths[index]}"
   kind="${kinds[index]}"
   label="$(label_for_kind "$kind")"
-  absolute="${absolute_paths[index]}"
+  operand="${operands[index]}"
+  overlap_path="${overlap_paths[index]}"
   overlap=''
   symlink_note=''
 
@@ -130,24 +181,24 @@ for ((index = 0; index < ${#paths[@]}; index++)); do
     if ((other == index)); then
       continue
     fi
-    other_absolute="${absolute_paths[other]}"
-    if [[ "$absolute" == "$other_absolute" || "$absolute" == "$other_absolute"/* || "$other_absolute" == "$absolute"/* ]]; then
+    other_overlap_path="${overlap_paths[other]}"
+    if [[ "$overlap_path" == "$other_overlap_path" || "$overlap_path" == "$other_overlap_path"/* || "$other_overlap_path" == "$overlap_path"/* ]]; then
       overlap="; overlap with ${paths[other]}"
       break
     fi
   done
 
-  if [[ -L "$path" ]]; then
+  if [[ -L "$operand" ]]; then
     symlink_note='; symlink not followed'
   fi
 
-  if [[ ! -e "$path" && ! -L "$path" ]]; then
+  if [[ ! -e "$operand" && ! -L "$operand" ]]; then
     printf '%s | %s | unavailable: missing%s\n' "$label" "$path" "$overlap"
     failures=1
     continue
   fi
 
-  du_output="$(du -skP "$path" 2>&1)"
+  du_output="$(du -skP "$operand" 2>&1)"
   du_exit=$?
   if ((du_exit != 0)) || [[ ! "$du_output" =~ ^([0-9]+)[[:space:]] ]]; then
     printf '%s | %s | unavailable: permission or measurement failure%s%s\n' "$label" "$path" "$overlap" "$symlink_note"
