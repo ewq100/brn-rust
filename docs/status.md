@@ -18,7 +18,7 @@ PR #2 (including the review fixes for signals and pipe recoverability, durable-o
 
 ### Agent-facing CLI (`brn`)
 
-`crates/brn` provides the `brn` CLI: another interface over the shared application workflow, with the dependency direction `brn -> brn-workflow -> {store, retrieval, provider}`. It owns no SQL, retrieval, provider or separate business logic; the desktop drives the same workflow. Available surfaces: `status`, `import`, `documents`, `index build`, `search`, `ask`, `conversations`, and read-only drafts/revisions/comments surfaces. `--json` emits a versioned envelope per call; the command reference is [crates/brn/README.md](../crates/brn/README.md).
+`crates/brn` provides the `brn` CLI: another interface over the shared application workflow, with the dependency direction `brn -> brn-workflow -> {store, retrieval, provider}`. It owns no SQL, retrieval, provider or separate business logic; the desktop drives the same workflow. Available surfaces: `status`, `import`, `documents`, `index build`, `search`, `ask`, `conversations`, and read-only drafts/revisions/comments surfaces. `--json` emits a versioned envelope for command results and errors; help and version output remain plain text even when `--json` is supplied. The command reference is [crates/brn/README.md](../crates/brn/README.md).
 
 Current limitations to keep in view:
 
