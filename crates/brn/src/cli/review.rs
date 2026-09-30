@@ -89,7 +89,7 @@ fn anchor_text(anchor: &AnchorState) -> String {
     }
 }
 
-fn draft_summary(draft: &Draft) -> serde_json::Value {
+pub(crate) fn draft_summary(draft: &Draft) -> serde_json::Value {
     json!({
         "id": draft.id,
         "title": draft.title,

@@ -1,10 +1,14 @@
-use crate::{Result, Workspace, error};
+use crate::{Result, Workspace, error, error::WorkflowError};
 use brn_store::{Draft, DraftRevision, DraftStamp};
 use uuid::Uuid;
 
 impl Workspace {
     pub fn create_draft(&mut self, op: Uuid, title: &str, text: &str) -> Result<Draft> {
-        self.store.create_draft(op, title, text).map_err(error)
+        // Preserve the store's typed categories (notably OperationConflict for
+        // operation replay/reuse) instead of flattening them to `Other`.
+        self.store
+            .create_draft(op, title, text)
+            .map_err(WorkflowError::from)
     }
     pub fn drafts(&self) -> Result<Vec<Draft>> {
         self.store.drafts().map_err(error)

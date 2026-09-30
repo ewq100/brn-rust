@@ -6,6 +6,7 @@
 //! before any workspace is opened.
 pub mod ask;
 pub mod documents;
+pub mod drafts;
 pub mod error;
 pub(crate) mod out;
 pub mod retrieval;
@@ -61,6 +62,11 @@ pub enum Command {
         session: Uuid,
     },
     DraftsList,
+    DraftsCreate {
+        title: String,
+        text_file: PathBuf,
+        operation: Option<Uuid>,
+    },
     DraftsShow {
         draft: Uuid,
     },
@@ -140,6 +146,7 @@ Commands:
   brn ask QUESTION [--profile keyword|semantic|hybrid] [--session UUID] [--operation UUID] [--timeout-seconds N]
   brn conversations list
   brn conversations show SESSION_ID
+  brn drafts create --title TITLE --text-file PATH [--operation UUID]
   brn drafts list
   brn drafts show DRAFT_ID
   brn comments list --draft DRAFT_ID
@@ -508,11 +515,19 @@ fn parse_inner(
             }
         }
         "drafts" => {
-            let sub = sub_word(&mut tokens, "drafts", "list|show")?;
+            let sub = sub_word(&mut tokens, "drafts", "list|show|create")?;
             match sub.as_str() {
                 "list" => {
                     *command = Some("drafts.list");
                     scan(&mut tokens, g, &[])?
+                }
+                "create" => {
+                    *command = Some("drafts.create");
+                    scan(
+                        &mut tokens,
+                        g,
+                        &[("title", true), ("text-file", true), ("operation", true)],
+                    )?
                 }
                 "show" => {
                     *command = Some("drafts.show");
@@ -645,6 +660,21 @@ fn parse_inner(
             "drafts.list" => {
                 expect_positionals(&scanned, 0)?;
                 Command::DraftsList
+            }
+            "drafts.create" => {
+                expect_positionals(&scanned, 0)?;
+                let title = scanned
+                    .value("title")
+                    .ok_or_else(|| usage("missing --title"))?
+                    .to_string();
+                let text_file = scanned
+                    .value("text-file")
+                    .ok_or_else(|| usage("missing --text-file"))?;
+                Command::DraftsCreate {
+                    title,
+                    text_file: PathBuf::from(text_file),
+                    operation: scanned.uuid("operation")?,
+                }
             }
             "drafts.show" => {
                 expect_positionals(&scanned, 1)?;
@@ -839,6 +869,7 @@ pub fn execute(invocation: &Invocation) -> Result<Output, CliFailure> {
         | Command::RevisionsList { .. }
         | Command::RevisionsShow { .. }
         | Command::RevisionsDiff { .. } => return review::run(invocation),
+        Command::DraftsCreate { .. } => return drafts::run(invocation),
         Command::Status | Command::DocumentsList | Command::DocumentsShow { .. } => {}
     }
     let workspace = open_workspace(invocation)?;

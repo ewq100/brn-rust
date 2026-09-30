@@ -288,6 +288,55 @@ fn approval_cancelled_during_workspace_wait_is_not_applied() {
     );
 }
 
+/// The same lock-wait/SIGINT/release sequence against the draft-creation
+/// mutation: the command must be refused after acquiring the workspace and
+/// before the create, leaving no draft behind.
+#[test]
+fn draft_create_cancelled_during_workspace_wait_does_not_mutate() {
+    let _sequential = SEQUENCE
+        .lock()
+        .unwrap_or_else(|poisoned| poisoned.into_inner());
+    let dir = tempdir().unwrap();
+    let root = dir.path();
+    let file = root.join("note.txt");
+    fs::write(&file, FIXTURE).unwrap();
+
+    // Hold the exclusive owner lock in this process.
+    let mut holder = Some(Workspace::open(root, Config::default()).unwrap());
+    let out = cancel_during_workspace_wait(
+        root,
+        &[
+            "drafts",
+            "create",
+            "--title",
+            "cancelled draft",
+            "--text-file",
+            file.to_str().unwrap(),
+        ],
+        &mut holder,
+    );
+    assert_eq!(
+        out.status.code(),
+        Some(130),
+        "interrupted exit code, stdout: {} stderr: {}",
+        String::from_utf8_lossy(&out.stdout),
+        String::from_utf8_lossy(&out.stderr)
+    );
+    assert!(
+        out.status.signal().is_none(),
+        "brn must exit, not die by signal: {:?}",
+        out.status.signal()
+    );
+    let envelope: Value =
+        serde_json::from_slice(&out.stdout).expect("exactly one JSON envelope on stdout");
+    assert_eq!(envelope["ok"], false, "{envelope}");
+    assert_eq!(envelope["error"]["code"], "INTERRUPTED", "{envelope}");
+
+    let workspace = Workspace::open(root, Config::default()).unwrap();
+    let drafts = workspace.drafts().unwrap();
+    assert!(drafts.is_empty(), "the cancelled create must not persist");
+}
+
 /// The timeout path must kill and reap the owned child: after the bounded
 /// wait gives up, the exact owned pid is gone (signal-0 probe on that pid
 /// only; reaped, not a zombie). The test cannot leak its child: cleanup
