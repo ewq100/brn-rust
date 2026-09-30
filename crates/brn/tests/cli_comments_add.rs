@@ -70,12 +70,13 @@ fn create_via_cli(root: &Path, text: &str) -> (String, String) {
 fn add_args(
     draft: &str,
     base: &str,
-    generation: u64,
+    generations: (u64, u64),
     text_file: &Path,
     quote_file: &Path,
     body_file: &Path,
     operation: Option<&str>,
 ) -> Vec<String> {
+    let (expected_generation, generation) = generations;
     let mut args = vec![
         "comments".to_string(),
         "add".to_string(),
@@ -84,7 +85,7 @@ fn add_args(
         "--base-revision".to_string(),
         base.to_string(),
         "--expected-generation".to_string(),
-        generation.to_string(),
+        expected_generation.to_string(),
         "--generation".to_string(),
         generation.to_string(),
         "--text-file".to_string(),
@@ -109,6 +110,14 @@ fn run_owned_args(root: &Path, args: &[String]) -> (i32, Value) {
     run_json(root, &borrowed)
 }
 
+fn run_owned_output(root: &Path, args: &[String]) -> (i32, Output) {
+    let borrowed: Vec<&str> = args.iter().map(String::as_str).collect();
+    let mut all = borrowed;
+    all.extend_from_slice(&["--data-dir", root.to_str().unwrap(), "--json"]);
+    let out = brn(&all);
+    (code(&out), out)
+}
+
 #[test]
 fn add_preserves_estonian_provenance_and_reopens_comments() {
     let dir = tempdir().unwrap();
@@ -124,7 +133,7 @@ fn add_preserves_estonian_provenance_and_reopens_comments() {
     let args = add_args(
         &draft,
         &base,
-        0,
+        (0, 0),
         &text_file,
         &quote_file,
         &body_file,
@@ -187,7 +196,7 @@ fn add_rejects_stale_and_wrong_draft_state_without_extra_comments() {
     let unsaved_edit = add_args(
         &draft,
         &base,
-        0,
+        (0, 0),
         &edited_text_file,
         &quote_file,
         &body_file,
@@ -200,7 +209,7 @@ fn add_rejects_stale_and_wrong_draft_state_without_extra_comments() {
     let wrong_draft = add_args(
         &draft,
         &other_base,
-        0,
+        (0, 0),
         &text_file,
         &quote_file,
         &body_file,
@@ -210,10 +219,26 @@ fn add_rejects_stale_and_wrong_draft_state_without_extra_comments() {
     assert_eq!(exit, 1, "{wrong}");
     assert_eq!(wrong["error"]["code"], "WORKFLOW_ERROR");
 
-    let first = add_args(&draft, &base, 0, &text_file, &quote_file, &body_file, None);
+    let first = add_args(
+        &draft,
+        &base,
+        (0, 0),
+        &text_file,
+        &quote_file,
+        &body_file,
+        None,
+    );
     let (exit, first_added) = run_owned_args(root, &first);
     let first_data = data_ok(exit, &first_added, "first comment").clone();
-    let stale = add_args(&draft, &base, 0, &text_file, &quote_file, &body_file, None);
+    let stale = add_args(
+        &draft,
+        &base,
+        (0, 0),
+        &text_file,
+        &quote_file,
+        &body_file,
+        None,
+    );
     let (exit, stale_result) = run_owned_args(root, &stale);
     assert_eq!(exit, 1, "{stale_result}");
     assert_eq!(stale_result["error"]["code"], "WORKFLOW_ERROR");
@@ -244,7 +269,15 @@ fn add_rejects_invalid_ranges_and_mismatched_quotes() {
         (START, 100, QUOTE),
         (START, END, "jõgi voolab!"),
     ] {
-        let mut args = add_args(&draft, &base, 0, &text_file, &quote_file, &body_file, None);
+        let mut args = add_args(
+            &draft,
+            &base,
+            (0, 0),
+            &text_file,
+            &quote_file,
+            &body_file,
+            None,
+        );
         let start_pos = args.iter().position(|arg| arg == "--start-byte").unwrap() + 1;
         let end_pos = args.iter().position(|arg| arg == "--end-byte").unwrap() + 1;
         args[start_pos] = start.to_string();
@@ -279,7 +312,7 @@ fn add_rejects_empty_and_oversize_bodies_before_workspace_access() {
         let args = add_args(
             &Uuid::new_v4().to_string(),
             &Uuid::new_v4().to_string(),
-            0,
+            (0, 0),
             &text_file,
             &quote_file,
             body_file,
@@ -290,6 +323,74 @@ fn add_rejects_empty_and_oversize_bodies_before_workspace_access() {
         assert_eq!(envelope["error"]["code"], "WORKFLOW_ERROR");
         assert!(fs::read_dir(&root).unwrap().next().is_none());
     }
+}
+
+#[test]
+fn add_rejects_decreasing_generation_before_workspace_access() {
+    for (expected_generation, generation) in [(1, 0), (2, 1)] {
+        let parent = tempdir().unwrap();
+        let root = parent.path().join("data");
+        fs::create_dir(&root).unwrap();
+        let fixtures = tempdir().unwrap();
+        let text_file = fixtures.path().join("text.txt");
+        let quote_file = fixtures.path().join("quote.txt");
+        let body_file = fixtures.path().join("body.txt");
+        fs::write(&text_file, TEXT).unwrap();
+        fs::write(&quote_file, QUOTE).unwrap();
+        fs::write(&body_file, "Märkus.").unwrap();
+        let draft = Uuid::new_v4().to_string();
+        let base = Uuid::new_v4().to_string();
+        let operation = Uuid::new_v4().to_string();
+        let args = add_args(
+            &draft,
+            &base,
+            (expected_generation, generation),
+            &text_file,
+            &quote_file,
+            &body_file,
+            Some(&operation),
+        );
+
+        let (exit, output) = run_owned_output(&root, &args);
+        assert!(
+            fs::read_dir(&root).unwrap().next().is_none(),
+            "decreasing generation must not open the workspace"
+        );
+        let envelope = json(&output);
+        assert_eq!(exit, 2, "{envelope}");
+        assert_eq!(envelope["command"], "comments.add");
+        assert_eq!(envelope["ok"], false);
+        assert_eq!(envelope["error"]["code"], "USAGE");
+    }
+}
+
+#[test]
+fn add_accepts_greater_generation_for_unchanged_text() {
+    let dir = tempdir().unwrap();
+    let root = dir.path();
+    let (draft, base) = create_via_cli(root, TEXT);
+    let text_file = root.join("submitted.txt");
+    let quote_file = root.join("quote.txt");
+    let body_file = root.join("body.txt");
+    fs::write(&text_file, TEXT).unwrap();
+    fs::write(&quote_file, QUOTE).unwrap();
+    fs::write(&body_file, "Märkus.").unwrap();
+
+    let (exit, envelope) = run_owned_args(
+        root,
+        &add_args(
+            &draft,
+            &base,
+            (0, 1),
+            &text_file,
+            &quote_file,
+            &body_file,
+            None,
+        ),
+    );
+    let data = data_ok(exit, &envelope, "greater generation comment");
+    assert_eq!(data["submitted_generation"], 1);
+    assert_eq!(data["draft"]["generation"], 1);
 }
 
 #[test]
@@ -307,7 +408,7 @@ fn add_replays_after_later_save_and_rejects_conflicting_operation_reuse() {
     let args = add_args(
         &draft,
         &base,
-        0,
+        (0, 0),
         &text_file,
         &quote_file,
         &body_file,
@@ -345,7 +446,7 @@ fn add_replays_after_later_save_and_rejects_conflicting_operation_reuse() {
     let conflicting = add_args(
         &draft,
         &base,
-        0,
+        (0, 0),
         &text_file,
         &quote_file,
         &conflicting_body,
@@ -378,7 +479,15 @@ fn generated_operation_id_is_returned() {
 
     let (exit, envelope) = run_owned_args(
         root,
-        &add_args(&draft, &base, 0, &text_file, &quote_file, &body_file, None),
+        &add_args(
+            &draft,
+            &base,
+            (0, 0),
+            &text_file,
+            &quote_file,
+            &body_file,
+            None,
+        ),
     );
     let data = data_ok(exit, &envelope, "generated operation");
     assert!(data["operation_id"]
