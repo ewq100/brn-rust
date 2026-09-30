@@ -7,6 +7,7 @@ Start with [AGENTS.md](../AGENTS.md), then [current status](status.md). Read onl
 | Understand the product or run it | [Root README](../README.md), [setup](development/setup.md) |
 | Find implemented work and open gaps | [Status](status.md) |
 | Choose future work | [Roadmap](roadmap.md) |
+| Review the proposed Markdown-first direction | [Design note: finite AI workspaces](superpowers/specs/2026-09-30-markdown-first-ai-workspace-design.md) (direction approved; detailed defaults under review, not implemented) |
 | Understand code ownership | [Architecture overview](architecture/overview.md), relevant crate README |
 | Change storage, revisions, comments or retrieval | [Invariants](architecture/invariants.md), [completed task records](work/completed/README.md) |
 | Change provider behavior | [Provider README](../crates/brn-provider/README.md), [sidecar packaging boundary](../experiments/codex-app-server/PACKAGING.md) |
