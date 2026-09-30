@@ -287,6 +287,11 @@ struct Scanned {
 }
 
 impl Scanned {
+    // The store persists generations as signed 64-bit integers. The input is
+    // parsed as u64 so values above this bound can be rejected as usage errors
+    // before any workspace access.
+    const MAX_GENERATION: u64 = i64::MAX as u64;
+
     fn flag(&self, name: &str) -> bool {
         self.flags.iter().any(|f| f == name)
     }
@@ -308,17 +313,25 @@ impl Scanned {
         self.uuid(name)?
             .ok_or_else(|| usage(format!("missing --{name}")))
     }
-    fn u64(&self, name: &str) -> Result<Option<u64>, CliError> {
+    fn generation(&self, name: &str) -> Result<Option<u64>, CliError> {
         match self.value(name) {
-            Some(raw) => raw
-                .parse()
-                .map(Some)
-                .map_err(|_| usage(format!("invalid --{name} integer: {raw}"))),
+            Some(raw) => {
+                let generation = raw
+                    .parse::<u64>()
+                    .map_err(|_| usage(format!("invalid --{name} integer: {raw}")))?;
+                if generation > Self::MAX_GENERATION {
+                    return Err(usage(format!(
+                        "invalid --{name} integer: {raw} (must be at most {})",
+                        Self::MAX_GENERATION
+                    )));
+                }
+                Ok(Some(generation))
+            }
             None => Ok(None),
         }
     }
-    fn require_u64(&self, name: &str) -> Result<u64, CliError> {
-        self.u64(name)?
+    fn require_generation(&self, name: &str) -> Result<u64, CliError> {
+        self.generation(name)?
             .ok_or_else(|| usage(format!("missing --{name}")))
     }
 }
@@ -717,8 +730,8 @@ fn parse_inner(
                 Command::DraftsCheckpoint {
                     draft: positional_uuid(&scanned, 0, "DRAFT_ID")?,
                     base_revision: scanned.require_uuid("base-revision")?,
-                    expected_generation: scanned.require_u64("expected-generation")?,
-                    generation: scanned.require_u64("generation")?,
+                    expected_generation: scanned.require_generation("expected-generation")?,
+                    generation: scanned.require_generation("generation")?,
                     text_file: PathBuf::from(
                         scanned
                             .value("text-file")
@@ -931,5 +944,62 @@ pub fn execute(invocation: &Invocation) -> Result<Output, CliFailure> {
         Command::DocumentsList => documents::list(invocation, &workspace),
         Command::DocumentsShow { source } => documents::show(invocation, &workspace, *source),
         _ => unreachable!("stub commands returned above"),
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn checkpoint_generation_parser_accepts_store_boundaries() {
+        let data_dir = tempfile::tempdir().unwrap();
+        let max = i64::MAX.to_string();
+        let cases = [
+            ("0", "0"),
+            (max.as_str(), "0"),
+            ("0", max.as_str()),
+            (max.as_str(), max.as_str()),
+        ];
+
+        for (expected_generation, generation) in cases {
+            let args: Vec<String> = [
+                "drafts",
+                "checkpoint",
+                "00000000-0000-0000-0000-000000000001",
+                "--base-revision",
+                "00000000-0000-0000-0000-000000000002",
+                "--expected-generation",
+                expected_generation,
+                "--generation",
+                generation,
+                "--text-file",
+                "/tmp/checkpoint-input.txt",
+                "--data-dir",
+                data_dir.path().to_str().unwrap(),
+                "--json",
+            ]
+            .iter()
+            .map(|value| (*value).to_string())
+            .collect();
+
+            let parsed = match parse(&args) {
+                Ok(outcome) => outcome,
+                Err(_) => panic!("boundary values parse"),
+            };
+            let Outcome::Run(invocation) = parsed else {
+                panic!("checkpoint parses into a runnable invocation");
+            };
+            let Command::DraftsCheckpoint {
+                expected_generation: parsed_expected,
+                generation: parsed_generation,
+                ..
+            } = invocation.command
+            else {
+                panic!("parsed command is drafts checkpoint");
+            };
+            assert_eq!(parsed_expected, expected_generation.parse::<u64>().unwrap());
+            assert_eq!(parsed_generation, generation.parse::<u64>().unwrap());
+        }
     }
 }

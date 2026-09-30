@@ -8,7 +8,7 @@ use std::{
     path::Path,
     process::{Command, Output, Stdio},
 };
-use tempfile::tempdir;
+use tempfile::{tempdir, TempDir};
 use uuid::Uuid;
 
 fn brn(args: &[&str]) -> Output {
@@ -66,11 +66,11 @@ fn create_via_cli(root: &Path, text: &str) -> (String, String) {
     )
 }
 
-fn checkpoint_args(
+fn checkpoint_args_raw(
     draft: &str,
     base: &str,
-    expected_generation: u64,
-    generation: u64,
+    expected_generation: &str,
+    generation: &str,
     text_file: &Path,
     operation: Option<&str>,
 ) -> Vec<String> {
@@ -93,9 +93,104 @@ fn checkpoint_args(
     args
 }
 
+fn checkpoint_args(
+    draft: &str,
+    base: &str,
+    expected_generation: u64,
+    generation: u64,
+    text_file: &Path,
+    operation: Option<&str>,
+) -> Vec<String> {
+    checkpoint_args_raw(
+        draft,
+        base,
+        &expected_generation.to_string(),
+        &generation.to_string(),
+        text_file,
+        operation,
+    )
+}
+
 fn run_owned_args(root: &Path, args: &[String]) -> (i32, Value) {
     let borrowed: Vec<&str> = args.iter().map(String::as_str).collect();
     run_json(root, &borrowed)
+}
+
+struct FreshCheckpointInput {
+    _data_parent: TempDir,
+    data: std::path::PathBuf,
+    _fixtures: TempDir,
+    text_file: std::path::PathBuf,
+}
+
+fn fresh_checkpoint_input() -> FreshCheckpointInput {
+    let data_parent = tempdir().unwrap();
+    let data = data_parent.path().join("data");
+    fs::create_dir(&data).unwrap();
+    let fixtures = tempdir().unwrap();
+    let text_file = fixtures.path().join("checkpoint.txt");
+    fs::write(&text_file, "checkpoint\n").unwrap();
+    FreshCheckpointInput {
+        _data_parent: data_parent,
+        data,
+        _fixtures: fixtures,
+        text_file,
+    }
+}
+
+fn assert_out_of_range_generation_rejected(flag: &str, value: &str, input: &FreshCheckpointInput) {
+    let draft = Uuid::new_v4().to_string();
+    let base = Uuid::new_v4().to_string();
+    let expected_generation = if flag == "expected-generation" {
+        value
+    } else {
+        "0"
+    };
+    let generation = if flag == "generation" { value } else { "1" };
+    let args = checkpoint_args_raw(
+        &draft,
+        &base,
+        expected_generation,
+        generation,
+        &input.text_file,
+        Some(&Uuid::new_v4().to_string()),
+    );
+
+    let (exit, envelope) = run_owned_args(&input.data, &args);
+    let entries: Vec<_> = fs::read_dir(&input.data)
+        .unwrap()
+        .map(|entry| entry.unwrap().file_name().to_string_lossy().into_owned())
+        .collect();
+    assert!(
+        entries.is_empty(),
+        "{flag}={value} opened the workspace: exit={exit}, envelope={envelope}, entries={entries:?}"
+    );
+    assert_eq!(exit, 2, "{envelope}");
+    assert_eq!(envelope["error"]["code"], "USAGE");
+}
+
+#[test]
+fn expected_generation_i64_max_plus_one_is_rejected_before_workspace_access() {
+    let input = fresh_checkpoint_input();
+    assert_out_of_range_generation_rejected("expected-generation", "9223372036854775808", &input);
+}
+
+#[test]
+fn expected_generation_u64_max_is_rejected_before_workspace_access() {
+    let input = fresh_checkpoint_input();
+    assert_out_of_range_generation_rejected("expected-generation", "18446744073709551615", &input);
+}
+
+#[test]
+fn generation_i64_max_plus_one_is_rejected_before_workspace_access() {
+    let input = fresh_checkpoint_input();
+    assert_out_of_range_generation_rejected("generation", "9223372036854775808", &input);
+}
+
+#[test]
+fn generation_u64_max_is_rejected_before_workspace_access() {
+    let input = fresh_checkpoint_input();
+    assert_out_of_range_generation_rejected("generation", "18446744073709551615", &input);
 }
 
 #[test]

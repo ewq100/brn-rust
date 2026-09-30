@@ -227,7 +227,7 @@ mod tests {
     }
 
     #[test]
-    fn cancel_after_workspace_acquisition_prevents_checkpoint_mutation() {
+    fn cancel_before_checkpoint_workspace_access_prevents_mutation() {
         let dir = tempfile::tempdir().unwrap();
         let root = dir.path();
         let input = tempfile::tempdir().unwrap();
