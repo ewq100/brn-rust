@@ -399,6 +399,80 @@ fn draft_save_cancelled_during_workspace_wait_does_not_mutate() {
     assert_eq!(workspace.draft(draft.id).unwrap().unwrap(), draft);
 }
 
+/// The comment capture mutation must perform the same post-acquisition
+/// cancellation check as draft creation and save, so releasing the owner
+/// lock after SIGINT cannot let a new comment commit.
+#[test]
+fn comment_add_cancelled_during_workspace_wait_does_not_mutate() {
+    let _sequential = SEQUENCE
+        .lock()
+        .unwrap_or_else(|poisoned| poisoned.into_inner());
+    let dir = tempdir().unwrap();
+    let root = dir.path();
+    let mut seeder = Workspace::open(root, Config::default()).unwrap();
+    let draft = seeder
+        .create_draft(
+            uuid::Uuid::new_v4(),
+            "cancelled comment",
+            "Eesti jõgi voolab.\n",
+        )
+        .unwrap();
+    drop(seeder);
+
+    let text_file = root.join("comment-text.txt");
+    let quote_file = root.join("comment-quote.txt");
+    let body_file = root.join("comment-body.txt");
+    fs::write(&text_file, "Eesti jõgi voolab.\n").unwrap();
+    fs::write(&quote_file, "jõgi").unwrap();
+    fs::write(&body_file, "Märkus.").unwrap();
+    let draft_id = draft.id.to_string();
+    let base = draft.stamp.base_revision.to_string();
+    let mut holder = Some(Workspace::open(root, Config::default()).unwrap());
+    let out = cancel_during_workspace_wait(
+        root,
+        &[
+            "comments",
+            "add",
+            "--draft",
+            &draft_id,
+            "--base-revision",
+            &base,
+            "--expected-generation",
+            "0",
+            "--generation",
+            "0",
+            "--text-file",
+            text_file.to_str().unwrap(),
+            "--start-byte",
+            "6",
+            "--end-byte",
+            "11",
+            "--quote-file",
+            quote_file.to_str().unwrap(),
+            "--body-file",
+            body_file.to_str().unwrap(),
+        ],
+        &mut holder,
+    );
+    assert_eq!(out.status.code(), Some(130), "{out:?}");
+    assert!(
+        out.status.signal().is_none(),
+        "brn must exit, not die by signal"
+    );
+    let envelope: Value =
+        serde_json::from_slice(&out.stdout).expect("exactly one JSON envelope on stdout");
+    assert_eq!(envelope["ok"], false, "{envelope}");
+    assert_eq!(envelope["error"]["code"], "INTERRUPTED", "{envelope}");
+
+    let workspace = Workspace::open(root, Config::default()).unwrap();
+    assert_eq!(workspace.draft(draft.id).unwrap().unwrap(), draft);
+    assert!(workspace
+        .draft_comments(draft.id)
+        .unwrap()
+        .comments
+        .is_empty());
+}
+
 /// The timeout path must kill and reap the owned child: after the bounded
 /// wait gives up, the exact owned pid is gone (signal-0 probe on that pid
 /// only; reaped, not a zombie). The test cannot leak its child: cleanup

@@ -23,8 +23,9 @@ pub use brn_store::{
     AmbiguityReason, AnchorProjection, AnchorState, ChatTurn, CommentAnchorSnapshot,
     CommentCapture, CommentCreated, CommentStatus, CommentStatusChange, CommentStatusChanged,
     Draft, DraftComment, DraftCommentView, DraftComments, DraftRevision, DraftStamp,
-    DraftWriteWithComments, EditTrace, ImportResult, MAX_DRAFT_BYTES, OriginalAnchor,
-    RecoveryReference, SourceDocument, TextEdit, apply_edit, derive_edit, map_anchor, replay_trace,
+    DraftWriteWithComments, EditTrace, ImportResult, MAX_COMMENT_BODY_BYTES, MAX_DRAFT_BYTES,
+    OriginalAnchor, RecoveryReference, SourceDocument, TextEdit, apply_edit, derive_edit,
+    map_anchor, replay_trace,
 };
 pub type Result<T> = std::result::Result<T, error::WorkflowError>;
 pub use error::{ErrorKind, WorkflowError};

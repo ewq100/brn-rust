@@ -5,6 +5,7 @@
 //! may appear before or after the subcommand. All arguments are validated
 //! before any workspace is opened.
 pub mod ask;
+pub mod comments;
 pub mod documents;
 pub mod drafts;
 pub mod error;
@@ -89,6 +90,18 @@ pub enum Command {
     CommentsList {
         draft: Uuid,
     },
+    CommentsAdd {
+        draft: Uuid,
+        base_revision: Uuid,
+        expected_generation: u64,
+        generation: u64,
+        text_file: PathBuf,
+        start_byte: usize,
+        end_byte: usize,
+        quote_file: PathBuf,
+        body_file: PathBuf,
+        operation: Option<Uuid>,
+    },
     RevisionsList {
         draft: Uuid,
     },
@@ -168,6 +181,7 @@ Commands:
   brn drafts list
   brn drafts show DRAFT_ID
   brn comments list --draft DRAFT_ID
+  brn comments add --draft DRAFT_ID --base-revision UUID --expected-generation N --generation N --text-file PATH --start-byte N --end-byte N --quote-file PATH --body-file PATH [--operation UUID]
   brn revisions list --draft DRAFT_ID
   brn revisions show REVISION_ID
   brn revisions diff --draft DRAFT_ID --from REVISION_ID --to REVISION_ID
@@ -342,6 +356,13 @@ impl Scanned {
     fn require_generation(&self, name: &str) -> Result<u64, CliError> {
         self.generation(name)?
             .ok_or_else(|| usage(format!("missing --{name}")))
+    }
+
+    fn require_byte_offset(&self, name: &str) -> Result<usize, CliError> {
+        self.value(name)
+            .ok_or_else(|| usage(format!("missing --{name}")))?
+            .parse::<usize>()
+            .map_err(|_| usage(format!("invalid --{name} integer")))
     }
 }
 
@@ -609,11 +630,30 @@ fn parse_inner(
             }
         }
         "comments" => {
-            let sub = sub_word(&mut tokens, "comments", "list")?;
+            let sub = sub_word(&mut tokens, "comments", "list|add")?;
             match sub.as_str() {
                 "list" => {
                     *command = Some("comments.list");
                     scan(&mut tokens, g, &[("draft", true)])?
+                }
+                "add" => {
+                    *command = Some("comments.add");
+                    scan(
+                        &mut tokens,
+                        g,
+                        &[
+                            ("draft", true),
+                            ("base-revision", true),
+                            ("expected-generation", true),
+                            ("generation", true),
+                            ("text-file", true),
+                            ("start-byte", true),
+                            ("end-byte", true),
+                            ("quote-file", true),
+                            ("body-file", true),
+                            ("operation", true),
+                        ],
+                    )?
                 }
                 other => return Err(usage(format!("unknown comments subcommand: {other}"))),
             }
@@ -793,12 +833,49 @@ fn parse_inner(
             }
             _ => unreachable!(),
         },
-        "comments" => {
-            expect_positionals(&scanned, 0)?;
-            Command::CommentsList {
-                draft: scanned.require_uuid("draft")?,
+        "comments" => match command.unwrap() {
+            "comments.list" => {
+                expect_positionals(&scanned, 0)?;
+                Command::CommentsList {
+                    draft: scanned.require_uuid("draft")?,
+                }
             }
-        }
+            "comments.add" => {
+                expect_positionals(&scanned, 0)?;
+                let expected_generation = scanned.require_generation("expected-generation")?;
+                let generation = scanned.require_generation("generation")?;
+                if generation < expected_generation {
+                    return Err(usage(
+                        "--generation must be at least --expected-generation for comments add",
+                    ));
+                }
+                Command::CommentsAdd {
+                    draft: scanned.require_uuid("draft")?,
+                    base_revision: scanned.require_uuid("base-revision")?,
+                    expected_generation,
+                    generation,
+                    text_file: PathBuf::from(
+                        scanned
+                            .value("text-file")
+                            .ok_or_else(|| usage("missing --text-file"))?,
+                    ),
+                    start_byte: scanned.require_byte_offset("start-byte")?,
+                    end_byte: scanned.require_byte_offset("end-byte")?,
+                    quote_file: PathBuf::from(
+                        scanned
+                            .value("quote-file")
+                            .ok_or_else(|| usage("missing --quote-file"))?,
+                    ),
+                    body_file: PathBuf::from(
+                        scanned
+                            .value("body-file")
+                            .ok_or_else(|| usage("missing --body-file"))?,
+                    ),
+                    operation: scanned.uuid("operation")?,
+                }
+            }
+            _ => unreachable!(),
+        },
         "revisions" => match command.unwrap() {
             "revisions.list" => {
                 expect_positionals(&scanned, 0)?;
@@ -978,6 +1055,7 @@ pub fn execute(invocation: &Invocation) -> Result<Output, CliFailure> {
         | Command::RevisionsList { .. }
         | Command::RevisionsShow { .. }
         | Command::RevisionsDiff { .. } => return review::run(invocation),
+        Command::CommentsAdd { .. } => return comments::run(invocation),
         Command::DraftsCreate { .. }
         | Command::DraftsCheckpoint { .. }
         | Command::DraftsSave { .. } => return drafts::run(invocation),

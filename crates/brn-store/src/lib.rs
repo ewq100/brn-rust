@@ -22,6 +22,7 @@ pub use anchors::{
 pub use comments::{
     CommentAnchorSnapshot, CommentCapture, CommentCreated, CommentStatus, CommentStatusChange,
     CommentStatusChanged, DraftComment, DraftCommentView, DraftComments, DraftWriteWithComments,
+    MAX_COMMENT_BODY_BYTES,
 };
 pub use drafts::{Draft, DraftRevision, DraftStamp, MAX_DRAFT_BYTES, RevisionKind};
 pub use workflow::{Approval, ChatTurn, ImportResult, SourceDocument};

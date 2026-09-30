@@ -1,4 +1,4 @@
-use crate::{Result, Workspace, error};
+use crate::{Result, Workspace, error, error::WorkflowError};
 use brn_store::{
     CommentAnchorSnapshot, CommentCapture, CommentCreated, CommentStatusChange,
     CommentStatusChanged, DraftComments, DraftWriteWithComments,
@@ -15,7 +15,9 @@ impl Workspace {
     }
 
     pub fn create_draft_comment(&mut self, request: CommentCapture) -> Result<CommentCreated> {
-        self.store.create_draft_comment(request).map_err(error)
+        self.store
+            .create_draft_comment(request)
+            .map_err(WorkflowError::from)
     }
 
     pub fn write_draft_with_comments(
