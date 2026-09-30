@@ -2,7 +2,7 @@
 
 Date: 30 September 2026
 
-Status: Design direction approved in conversation; detailed defaults proposed for review.
+Status: Design direction and editing behavior (D1) approved in conversation; other detailed defaults proposed for review.
 
 Scope: Design note only. No implementation, data migration, history deletion, or merge is authorized by this document.
 
@@ -32,9 +32,21 @@ The database is not a competing master copy of the current saved note. It is aut
 
 Proposed storage default: keep application databases and caches outside the note folder, associated with that folder. Do not insert mandatory Brain-specific IDs into Markdown or change existing frontmatter. Metadata-based identity must handle renames conservatively; a path or matching hash alone must not prove note identity. Ambiguous external moves require relinking or create a new identity, never guessed comment reassignment.
 
-## 3. Proposed writing experience — decision D1 remains open
+## 2.1. Permanent file-status registry, separate from expiring history
 
-| Stage | Proposed behavior |
+Markdown-first does not mean all database records expire. Keep a durable current-state record for each managed note: its internal identity, vault/path association, observed content fingerprint, and application decisions such as review state and search eligibility. Completion or cleanup of a writing session must not delete or reset that record.
+
+Current status is not the same as status history. Brain can retain the latest state without retaining every previous state, full text revision, rejected candidate, or review conversation. A finished review may update a note's current status; later cleanup removes its eligible working history, not the resulting current-state record. Durable records may still be changed or removed through explicit lifecycle and reconciliation rules; “permanent” does not mean immutable or impossible to delete.
+
+Keep three meanings separate: document lifecycle/review state, writing-session state, and retrieval-processing state. Example lifecycle labels such as “needs review” or “reviewed” are illustrative, not an approved status taxonomy. Do not equate a completed writing session, permission to use a file for search, and permission to apply a particular AI rewrite. An approval applies only to the content and purpose actually approved; a content change must not inherit an old version-bound approval automatically.
+
+User decisions and permissions are durable metadata, not reconstructible from Markdown alone under the proposed no-mandatory-frontmatter default. Observations such as an indexed content fingerprint or a pending reindex can be recomputed and reconciled. Losing the registry must not lose the saved note, but may lose its workflow decisions; a rebuild must not invent approval. Include durable metadata in the backup design.
+
+This is a logical separation, not a requirement for multiple physical database files. A single SQLite database may hold persistent registry tables and separately managed session/history tables, with distinct retention rules. Exact table layout and mapping of the original TypeScript statuses remain implementation-design work; feature parity is not asserted here.
+
+## 3. Approved writing experience — D1
+
+| Stage | Approved behavior |
 | --- | --- |
 | Ordinary editing | Manual edits save directly to the Markdown file, with bounded recovery. No formal AI review is required. |
 | Start an AI review | Freeze the starting file bytes and identity, then create a durable working session. The saved file remains visible in other editors. |
@@ -46,7 +58,7 @@ Proposed storage default: keep application databases and caches outside the note
 
 The interface must distinguish **Draft saved in Brain** from **Saved to Markdown**. Reopening a completed note starts a fresh session from the file; it does not depend on the full previous editing history.
 
-D1: Confirm whether ordinary editing should save directly while a formal AI review stages all its edits, as above, or whether every editing session should wait for an explicit final approval. The former is the recommendation. Neither choice permits an unapproved AI candidate to overwrite the note.
+D1 approved by the user on 30 September 2026: ordinary manual editing saves directly to Markdown; an explicit AI review stages both manual edits and AI suggestions until Apply and finish. Accepting an individual suggestion changes the review draft only. Closing Brain preserves unfinished work. This approval settles editing behavior, not the remaining defaults, implementation, or migration.
 
 ## 4. Safe file handoff and external edits
 
@@ -97,7 +109,7 @@ The existing provider boundary keeps provider credentials and authoritative prov
 
 | ID | Choice | Recommendation / status |
 | --- | --- | --- |
-| D1 | When do edits reach Markdown? | Direct saves outside review; staged edits inside an explicit AI review. Needs a user decision now. |
+| D1 | When do edits reach Markdown? | Approved 30 September 2026: direct saves outside review; staged edits inside an explicit AI review, applied only on final approval. |
 | D2 | How much closed history? | Seven-day maximum age and provisional 100 MiB per-vault budget, with optional pinning. Proposed; configurable. |
 | D3 | Where is Brain-only state? | Outside the note folder; preserve existing Markdown/frontmatter. Proposed. Full identity/relink behavior belongs in the implementation design. |
 | D4 | Multi-device scope? | Markdown remains portable; active Brain sessions do not sync in the first implementation. No shared live SQLite database or simultaneous-writer guarantee. Proposed initial scope. |
@@ -125,6 +137,7 @@ No application source files or existing architecture contracts are changed by th
 | Exact application | Only the exact approved snapshot is applied; later user edits and late AI results cannot replace it silently. |
 | Completion vs pause | Closing, inactivity, cancellation, and failed saves do not start deletion of unfinished work. |
 | Cleanup | Eligible history expires by age/budget, active and pinned dependencies survive, and disk-space reclamation is measured. |
+| File-status durability | Completed-session cleanup preserves current note identity, review state, and eligibility; content changes do not inherit stale approvals; registry loss never fabricates permissions. |
 | Evidence | Retained quotes remain interpretable; missing old full revisions are explicit; no dangling or silently retargeted references. |
 | Search | External edits/deletions and approval changes cannot grant stale evidence eligibility; indexes can be rebuilt from allowed content. |
 | Migration and rollback | Verified copies are produced without modifying the original vault or silently promoting unaccepted drafts. |
@@ -134,7 +147,7 @@ These are future acceptance criteria, not checks already passed. This note is gr
 
 ## Sources and decision provenance
 
-The Markdown-first direction was explicitly accepted by the user in this conversation on 30 September 2026. Numeric retention defaults and the remaining choices above are proposals for review.
+The Markdown-first direction and D1 editing behavior were explicitly accepted by the user in this conversation on 30 September 2026. The user also raised the original TypeScript app's permanent file-status database; section 2.1 clarifies that durable file metadata remains part of this design. No exact TypeScript status schema or migration mapping has been established by this note. Numeric retention defaults and the remaining choices above are proposals for review.
 
 Repository references are pinned to the inspected remote commit, not unverified local work or other branches:
 
