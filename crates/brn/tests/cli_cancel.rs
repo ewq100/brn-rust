@@ -24,6 +24,11 @@ const FIXTURE: &str =
 /// bounded acquisition window.
 static SEQUENCE: std::sync::Mutex<()> = std::sync::Mutex::new(());
 
+/// Marks that the bounded wait gave up before the child exited; the guard
+/// has already killed and reaped the child by the time the caller sees it.
+#[derive(Debug)]
+struct TimedOut;
+
 /// Kills and reaps the child on drop unless it was already waited, so test
 /// failures never leak a brn process holding or waiting on the lock.
 struct ChildGuard(Option<std::process::Child>);
@@ -59,23 +64,33 @@ impl ChildGuard {
         self.0.as_ref().expect("child alive").id()
     }
 
-    /// Waits the child under a bound and collects piped output; taking the
-    /// child out disarms the kill-on-drop guard.
-    fn wait_output(mut self) -> Output {
-        let mut child = self.0.take().expect("child not yet waited");
-        let deadline = Instant::now() + Duration::from_secs(15);
+    /// Waits the child under a bound and collects piped output. The child
+    /// stays inside the guard until `try_wait` confirms it has exited, so a
+    /// timeout or panic still kills and reaps the owned child on drop; it is
+    /// only taken out after exit, when the kill-on-drop guard is not needed.
+    fn wait_output_with_timeout(mut self, bound: Duration) -> Result<Output, TimedOut> {
+        let deadline = Instant::now() + bound;
         let status = loop {
-            match child.try_wait().expect("brn child polls") {
+            match self
+                .0
+                .as_mut()
+                .expect("child alive")
+                .try_wait()
+                .expect("brn child polls")
+            {
                 Some(status) => break status,
                 None => {
-                    assert!(
-                        Instant::now() < deadline,
-                        "brn child did not exit before the bound"
-                    );
+                    if Instant::now() >= deadline {
+                        // Returning drops `self`: the guard kills and reaps
+                        // the still-owned child before the caller sees the
+                        // error.
+                        return Err(TimedOut);
+                    }
                     std::thread::sleep(Duration::from_millis(20));
                 }
             }
         };
+        let mut child = self.0.take().expect("child exited but not yet taken");
         let mut stdout = Vec::new();
         let mut stderr = Vec::new();
         if let Some(mut s) = child.stdout.take() {
@@ -84,11 +99,19 @@ impl ChildGuard {
         if let Some(mut s) = child.stderr.take() {
             let _ = s.read_to_end(&mut stderr);
         }
-        Output {
+        // `try_wait` above already reaped the child; this returns the cached
+        // status and proves the child is fully collected on this path.
+        let _ = child.wait();
+        Ok(Output {
             status,
             stdout,
             stderr,
-        }
+        })
+    }
+
+    fn wait_output(self) -> Output {
+        self.wait_output_with_timeout(Duration::from_secs(15))
+            .expect("brn child exits before the bound")
     }
 }
 
@@ -262,5 +285,38 @@ fn approval_cancelled_during_workspace_wait_is_not_applied() {
         sources[0].approval,
         brn_workflow::SearchApproval::Draft,
         "the cancelled approval must not be applied"
+    );
+}
+
+/// The timeout path must kill and reap the owned child: after the bounded
+/// wait gives up, the exact owned pid is gone (signal-0 probe on that pid
+/// only; reaped, not a zombie). The test cannot leak its child: cleanup
+/// happens inside `wait_output_with_timeout` before the error is returned.
+#[test]
+fn wait_timeout_kills_and_reaps_the_owned_child() {
+    let child = Command::new("sleep")
+        .arg("30")
+        .stdin(Stdio::null())
+        .stdout(Stdio::null())
+        .stderr(Stdio::null())
+        .spawn()
+        .expect("sleep spawns");
+    let guard = ChildGuard(Some(child));
+    let pid = guard.id() as libc::c_int;
+    let outcome = guard.wait_output_with_timeout(Duration::from_millis(200));
+    assert!(
+        outcome.is_err(),
+        "the non-exiting child hits the injected bound"
+    );
+    // SAFETY: signal-0 probe on an owned child pid only.
+    assert_eq!(
+        unsafe { libc::kill(pid, 0) },
+        -1,
+        "owned child killed, not left running"
+    );
+    assert_eq!(
+        std::io::Error::last_os_error().raw_os_error(),
+        Some(libc::ESRCH),
+        "owned child reaped: the pid is gone, not a zombie"
     );
 }

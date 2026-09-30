@@ -118,12 +118,34 @@ mod tests {
         CANCEL_TESTS.lock().unwrap_or_else(|e| e.into_inner())
     }
 
-    /// One sequential test: CANCEL is process-global, so all cases share a
-    /// single thread and the prior flag value is restored at the end.
+    /// Holds the shared cancellation lock for the whole test, installs the
+    /// required initial CANCEL value and restores the prior one on drop, so a
+    /// panicking test cannot poison the process-global flag for the others.
+    struct CancelTestGuard {
+        previous: bool,
+        _lock: MutexGuard<'static, ()>,
+    }
+
+    impl CancelTestGuard {
+        fn with(value: bool) -> Self {
+            let _lock = cancel_lock();
+            let previous = crate::CANCEL.swap(value, Ordering::SeqCst);
+            Self { previous, _lock }
+        }
+    }
+
+    impl Drop for CancelTestGuard {
+        fn drop(&mut self) {
+            crate::CANCEL.store(self.previous, Ordering::SeqCst);
+        }
+    }
+
+    /// One sequential test: CANCEL is process-global, so the guard
+    /// serializes with the other CANCEL tests and restores the prior flag
+    /// on drop, panic-safe.
     #[test]
     fn cancel_before_dispatch_prevents_and_after_completion_preserves() {
-        let _guard = cancel_lock();
-        let was = crate::CANCEL.load(Ordering::SeqCst);
+        let _cancel = CancelTestGuard::with(true);
         let dir = tempfile::tempdir().unwrap();
         let root = dir.path();
 
@@ -151,18 +173,16 @@ mod tests {
             }),
         );
         assert_eq!(code, ExitCode::SUCCESS, "completed result stands");
-
-        crate::CANCEL.store(was, Ordering::SeqCst);
     }
 
     /// A signal that arrives after a mutation committed must not rewrite the
     /// durable result: finish keeps the success and the persisted state
-    /// carries exactly the returned ids. CANCEL is process-global, so this
-    /// runs inside the same sequential test and restores the prior value.
+    /// carries exactly the returned ids. CANCEL is process-global, so the
+    /// guard installs the required clear flag and restores the prior value
+    /// on drop, panic-safe.
     #[test]
     fn cancelled_after_completed_mutation_preserves_result() {
-        let _guard = cancel_lock();
-        let was = crate::CANCEL.load(Ordering::SeqCst);
+        let _cancel = CancelTestGuard::with(false);
         let dir = tempfile::tempdir().unwrap();
         let root = dir.path();
         let file = root.join("note.md");
@@ -172,7 +192,6 @@ mod tests {
         )
         .unwrap();
 
-        crate::CANCEL.store(false, Ordering::SeqCst);
         let args: Vec<String> = [
             "import",
             file.to_str().unwrap(),
@@ -210,8 +229,6 @@ mod tests {
         assert_eq!(sources.len(), 1, "exactly the committed import");
         assert_eq!(sources[0].source_id, source_id);
         assert_eq!(sources[0].version_id, version_id);
-
-        crate::CANCEL.store(was, Ordering::SeqCst);
     }
 
     /// A stdout that cannot take the envelope must not rewrite the durable
@@ -220,6 +237,10 @@ mod tests {
     /// is still on disk with exactly the returned ids.
     #[test]
     fn failed_delivery_after_completed_import_exits_1_and_keeps_result() {
+        // CANCEL is process-global: the guard installs the required clear
+        // flag and restores it on drop, serializing with the other CANCEL
+        // tests.
+        let _cancel = CancelTestGuard::with(false);
         let dir = tempfile::tempdir().unwrap();
         let root = dir.path();
         let file = root.join("note.md");
