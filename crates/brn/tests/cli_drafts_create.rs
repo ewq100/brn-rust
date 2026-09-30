@@ -51,6 +51,40 @@ fn data_ok<'a>(exit: i32, envelope: &'a Value, context: &str) -> &'a Value {
     &envelope["data"]
 }
 
+/// One fresh empty data directory plus a fixture directory outside it.
+struct FreshInput {
+    /// Keeps the parent of `data` alive for the whole test.
+    _parent: tempfile::TempDir,
+    /// Fresh, empty data directory: must stay free of BRN artifacts when
+    /// the invocation's input is invalid.
+    data: std::path::PathBuf,
+    /// Fixture directory, deliberately outside `data`.
+    fixtures: tempfile::TempDir,
+}
+
+fn fresh_input() -> FreshInput {
+    let parent = tempdir().unwrap();
+    let data = parent.path().join("data");
+    fs::create_dir(&data).unwrap();
+    FreshInput {
+        _parent: parent,
+        data,
+        fixtures: tempdir().unwrap(),
+    }
+}
+
+/// A data directory handed to an invocation with invalid input must remain
+/// completely empty: no database, owner-lock file, SQLite sidecars or any
+/// other BRN initialization artifact may have appeared. Asserted directly
+/// on the filesystem, before any workspace-opening command runs.
+fn assert_workspace_never_initialized(data: &Path) {
+    let entries: Vec<String> = fs::read_dir(data)
+        .unwrap()
+        .map(|e| e.unwrap().file_name().to_string_lossy().into_owned())
+        .collect();
+    assert!(entries.is_empty(), "workspace was initialized: {entries:?}");
+}
+
 /// Exact bytes survive: Estonian text, CRLF line endings, a path containing
 /// spaces; the caller-supplied operation id and the draft stamp are in the
 /// envelope; `drafts show` reopens the same exact content.
@@ -145,15 +179,15 @@ fn create_allows_empty_text() {
     assert_eq!(env["data"]["content"], "");
 }
 
-/// Invalid UTF-8 input is rejected and creates no draft.
+/// Invalid UTF-8 input is rejected before the workspace is opened: the
+/// data directory stays completely free of initialization artifacts.
 #[test]
-fn create_rejects_invalid_utf8_without_creating_draft() {
-    let dir = tempdir().unwrap();
-    let root = dir.path();
-    let file = root.join("binary.bin");
+fn create_rejects_invalid_utf8_without_initializing_workspace() {
+    let input = fresh_input();
+    let file = input.fixtures.path().join("binary.bin");
     fs::write(&file, [b'f', b'e', 0xFF, b'\n']).unwrap();
     let (c, env) = run_json(
-        root,
+        &input.data,
         &[
             "drafts",
             "create",
@@ -166,19 +200,17 @@ fn create_rejects_invalid_utf8_without_creating_draft() {
     assert_eq!(c, 1, "{env}");
     assert_eq!(env["ok"], false);
     assert_eq!(env["error"]["code"], "WORKFLOW_ERROR");
-    let (_, env) = run_json(root, &["drafts", "list"]);
-    assert_eq!(env["data"]["drafts"].as_array().unwrap().len(), 0);
+    assert_workspace_never_initialized(&input.data);
 }
 
-/// Exactly the limit succeeds; one byte over is rejected without a draft.
+/// Exactly the limit succeeds: the full 1 MiB body is stored intact.
 #[test]
-fn create_rejects_oversize_file() {
-    let dir = tempdir().unwrap();
-    let root = dir.path();
-    let boundary = root.join("boundary.txt");
+fn create_accepts_exactly_at_limit() {
+    let input = fresh_input();
+    let boundary = input.fixtures.path().join("boundary.txt");
     fs::write(&boundary, vec![b'a'; MAX_DRAFT_BYTES]).unwrap();
     let (c, env) = run_json(
-        root,
+        &input.data,
         &[
             "drafts",
             "create",
@@ -188,12 +220,25 @@ fn create_rejects_oversize_file() {
             boundary.to_str().unwrap(),
         ],
     );
-    data_ok(c, &env, "exactly 1 MiB succeeds");
+    let data = data_ok(c, &env, "exactly 1 MiB succeeds");
+    let id = data["id"].as_str().unwrap().to_string();
+    let (c, env) = run_json(&input.data, &["drafts", "show", &id]);
+    assert_eq!(c, 0, "{env}");
+    assert_eq!(
+        env["data"]["content"].as_str().unwrap().len(),
+        MAX_DRAFT_BYTES,
+        "the full body is stored"
+    );
+}
 
-    let over = root.join("over.txt");
+/// One byte over the limit is rejected before the workspace is opened.
+#[test]
+fn create_rejects_oversize_text_file_without_initializing_workspace() {
+    let input = fresh_input();
+    let over = input.fixtures.path().join("over.txt");
     fs::write(&over, vec![b'a'; MAX_DRAFT_BYTES + 1]).unwrap();
     let (c, env) = run_json(
-        root,
+        &input.data,
         &[
             "drafts",
             "create",
@@ -205,41 +250,64 @@ fn create_rejects_oversize_file() {
     );
     assert_eq!(c, 1, "{env}");
     assert_eq!(env["error"]["code"], "WORKFLOW_ERROR");
-
-    let (_, env) = run_json(root, &["drafts", "list"]);
-    let drafts = env["data"]["drafts"].as_array().unwrap();
-    assert_eq!(drafts.len(), 1, "only the boundary draft exists");
-    assert_eq!(drafts[0]["title"], "at the limit");
+    assert_workspace_never_initialized(&input.data);
 }
 
-/// Missing and non-regular-file inputs are rejected (no draft).
+/// A missing text file is rejected before the workspace is opened.
 #[test]
-fn create_rejects_missing_and_non_file_text_file() {
-    let dir = tempdir().unwrap();
-    let root = dir.path();
-    let missing = root.join("does-not-exist.txt");
-    for path in [missing.to_str().unwrap(), root.to_str().unwrap()] {
-        let (c, env) = run_json(
-            root,
-            &["drafts", "create", "--title", "t", "--text-file", path],
-        );
-        assert_eq!(c, 1, "{path}: {env}");
-        assert_eq!(env["ok"], false, "{path}");
-        assert_eq!(env["error"]["code"], "WORKFLOW_ERROR", "{path}");
-    }
-    let (_, env) = run_json(root, &["drafts", "list"]);
-    assert_eq!(env["data"]["drafts"].as_array().unwrap().len(), 0);
+fn create_rejects_missing_text_file_without_initializing_workspace() {
+    let input = fresh_input();
+    let missing = input.fixtures.path().join("does-not-exist.txt");
+    let (c, env) = run_json(
+        &input.data,
+        &[
+            "drafts",
+            "create",
+            "--title",
+            "t",
+            "--text-file",
+            missing.to_str().unwrap(),
+        ],
+    );
+    assert_eq!(c, 1, "{env}");
+    assert_eq!(env["ok"], false);
+    assert_eq!(env["error"]["code"], "WORKFLOW_ERROR");
+    assert_workspace_never_initialized(&input.data);
 }
 
-/// A blank title follows the existing workflow rule (rejected; no draft).
+/// A directory (non-file) text-file path is rejected before the workspace
+/// is opened.
 #[test]
-fn create_rejects_blank_title_without_creating_draft() {
-    let dir = tempdir().unwrap();
-    let root = dir.path();
-    let file = root.join("note.txt");
+fn create_rejects_directory_text_file_without_initializing_workspace() {
+    let input = fresh_input();
+    let nested = input.fixtures.path().join("nested");
+    fs::create_dir(&nested).unwrap();
+    let (c, env) = run_json(
+        &input.data,
+        &[
+            "drafts",
+            "create",
+            "--title",
+            "t",
+            "--text-file",
+            nested.to_str().unwrap(),
+        ],
+    );
+    assert_eq!(c, 1, "{env}");
+    assert_eq!(env["ok"], false);
+    assert_eq!(env["error"]["code"], "WORKFLOW_ERROR");
+    assert_workspace_never_initialized(&input.data);
+}
+
+/// A blank title follows the existing workflow rule and is rejected before
+/// the workspace is opened.
+#[test]
+fn create_rejects_blank_title_without_initializing_workspace() {
+    let input = fresh_input();
+    let file = input.fixtures.path().join("note.txt");
     fs::write(&file, "body\n").unwrap();
     let (c, env) = run_json(
-        root,
+        &input.data,
         &[
             "drafts",
             "create",
@@ -251,8 +319,9 @@ fn create_rejects_blank_title_without_creating_draft() {
     );
     assert_eq!(c, 1, "{env}");
     assert_eq!(env["ok"], false);
-    let (_, env) = run_json(root, &["drafts", "list"]);
-    assert_eq!(env["data"]["drafts"].as_array().unwrap().len(), 0);
+    assert_eq!(env["error"]["code"], "WORKFLOW_ERROR");
+    assert_eq!(env["error"]["message"], "draft title is required");
+    assert_workspace_never_initialized(&input.data);
 }
 
 /// Invalid independent arguments are usage errors (exit 2) and never

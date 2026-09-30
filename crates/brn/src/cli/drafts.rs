@@ -1,9 +1,11 @@
 //! `drafts create --title TITLE --text-file PATH [--operation UUID]`: the
-//! draft-creation mutation over the shared workflow. The text file is read
-//! with a bounded read under the existing draft-size limit; bytes are
-//! preserved exactly (no Unicode or line-ending normalization). Empty text
-//! and blank-title rules are the workflow's own: empty text is permitted and
-//! a blank title is rejected by the store.
+//! draft-creation mutation over the shared workflow. Input is fully prepared
+//! and validated BEFORE the workspace is opened, so invalid independent
+//! input never initializes it; the text file is read with a bounded read
+//! under the existing draft-size limit and the exact bytes are carried in
+//! memory into `Workspace::create_draft` (no reread, no Unicode or
+//! line-ending normalization). Empty text is permitted; the blank-title rule
+//! is the workflow's own and is re-checked by the store.
 use crate::cli::{
     error::classify_workflow, error::CliError, open_workspace, review::draft_summary, CliFailure,
     Command, Invocation, Output,
@@ -14,36 +16,53 @@ use std::{fs, io::Read, path::Path, sync::atomic::Ordering};
 use uuid::Uuid;
 
 pub fn run(invocation: &Invocation) -> Result<Output, CliFailure> {
+    let Command::DraftsCreate {
+        title,
+        text_file,
+        operation,
+    } = &invocation.command
+    else {
+        unreachable!("drafts module handles drafts create only");
+    };
+    // Input preparation happens before anything is opened: an invalid title
+    // or input file must never initialize a workspace. The title rule is the
+    // store's own create_draft rule; the store re-checks it at the source of
+    // truth, so persistence semantics are unchanged.
+    if title.trim().is_empty() {
+        return Err(CliError::Workflow("draft title is required".into()).into());
+    }
+    // The exact validated text is held in memory and passed on unchanged.
+    let text = read_text_file(text_file)?;
+    // A signal that has arrived by the end of input preparation must prevent
+    // the workspace from even being opened.
+    if crate::CANCEL.load(Ordering::SeqCst) {
+        return Err(CliError::Interrupted(
+            "interrupted during input preparation; the command was not run".into(),
+        )
+        .into());
+    }
     let mut workspace = open_workspace(invocation)?;
     // Opening the workspace can block up to the store's lock retry window;
-    // a signal arriving during that wait must still prevent the mutation,
-    // matching the pre-dispatch refusal policy of the other mutations.
+    // a signal arriving during that wait must still prevent the mutation.
+    // This is the last check before the mutation starts.
     if crate::CANCEL.load(Ordering::SeqCst) {
         return Err(CliError::Interrupted(
             "interrupted while acquiring the workspace; the command was not run".into(),
         )
         .into());
     }
-    match &invocation.command {
-        Command::DraftsCreate {
-            title,
-            text_file,
-            operation,
-        } => create(&mut workspace, title, text_file, *operation),
-        _ => unreachable!("drafts module handles drafts create only"),
-    }
+    create(&mut workspace, title, &text, *operation)
 }
 
 fn create(
     workspace: &mut Workspace,
     title: &str,
-    path: &Path,
+    text: &str,
     operation: Option<Uuid>,
 ) -> Result<Output, CliFailure> {
-    let text = read_text_file(path)?;
     let op = operation.unwrap_or_else(Uuid::new_v4);
     let draft = workspace
-        .create_draft(op, title, &text)
+        .create_draft(op, title, text)
         .map_err(classify_workflow)?;
     Ok(Output {
         text: format!(
