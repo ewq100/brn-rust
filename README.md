@@ -17,7 +17,7 @@ cargo run -p brn-workflow --bin brn-flow -- --help
 bash scripts/verify-end-to-end.sh
 ```
 
-`brn` is a help/version build probe. `brn-flow` is the integrated headless driver. The verification script uses cached dependencies, synthetic data and no live provider or model assets. See [setup](docs/development/setup.md) for prerequisites and [verification](docs/development/verification.md) for feature-specific checks.
+`brn` is the agent-facing CLI over the shared workflow; see its [command reference](crates/brn/README.md) for subcommands and the `--json` envelope. `brn-flow` is the integrated headless driver. The verification script uses cached dependencies, synthetic data and no live provider or model assets. See [setup](docs/development/setup.md) for prerequisites and [verification](docs/development/verification.md) for feature-specific checks.
 
 ## Native personal trial
 

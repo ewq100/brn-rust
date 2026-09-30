@@ -62,7 +62,7 @@ Exit codes: `0` success; `2` usage (`USAGE`); `1` operational failure (`WORKSPAC
 - Approval binds the exact source version; superseded versions reject approval.
 - `--data-dir` must already exist and be absolute; opening it may initialize or recover per store semantics.
 - Workspace ownership is exclusive: when the desktop or another process holds the directory, the command fails with `WORKSPACE_BUSY`. There is no bypass.
-- SIGPIPE default disposition is restored at startup, so piping (`brn documents show X | head`) exits quietly.
+- Closed stdout pipes are handled quietly through explicit BrokenPipe handling, without restoring process-wide SIGPIPE termination; piping (`brn documents show X | head`) exits quietly.
 - Lists report store insertion order; document content is preserved as exact bytes with no Unicode or line-ending normalization.
 
 ## Ask and the provider

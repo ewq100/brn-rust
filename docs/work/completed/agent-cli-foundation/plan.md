@@ -1,6 +1,6 @@
 # Agent-facing CLI foundation
 
-Status: active (implementation). Baseline: `main` at `18f3891`, branch `feature/agent-cli-foundation`. Baseline `cargo build`/`cargo test --workspace --locked --offline` passed 2026-09-29.
+Status: implemented, verified and merged as PR #2 (merge commit `1b49378` on `main`, 2026-09-30). Baseline: `main` at `18f3891`, branch `feature/agent-cli-foundation`. Baseline `cargo build`/`cargo test --workspace --locked --offline` passed 2026-09-29.
 
 ## Outcome
 
