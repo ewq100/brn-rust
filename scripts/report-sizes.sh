@@ -107,6 +107,11 @@ add_entry() {
     usage >&2
     exit 2
   fi
+  if [[ "$2" == *$'\n'* ]]; then
+    printf 'Paths containing newline characters are unsupported\n' >&2
+    usage >&2
+    exit 2
+  fi
   kinds[${#kinds[@]}]="$1"
   paths[${#paths[@]}]="$2"
 }
