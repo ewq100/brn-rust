@@ -1,11 +1,8 @@
-//! `drafts create --title TITLE --text-file PATH [--operation UUID]`: the
-//! draft-creation mutation over the shared workflow. Input is fully prepared
-//! and validated BEFORE the workspace is opened, so invalid independent
-//! input never initializes it; the text file is read with a bounded read
-//! under the existing draft-size limit and the exact bytes are carried in
-//! memory into `Workspace::create_draft` (no reread, no Unicode or
-//! line-ending normalization). Empty text is permitted; the blank-title rule
-//! is the workflow's own and is re-checked by the store.
+//! Draft mutations over the shared workflow. Input is fully prepared and
+//! validated BEFORE the workspace is opened, so invalid independent input
+//! never initializes it; text files are read with a bounded read under the
+//! existing draft-size limit and the exact bytes are carried in memory into
+//! the workflow (no reread, no Unicode or line-ending normalization).
 use crate::cli::{
     error::classify_workflow, error::CliError, open_workspace, review::draft_summary, CliFailure,
     Command, Invocation, Output,
@@ -16,14 +13,38 @@ use std::{fs, io::Read, path::Path, sync::atomic::Ordering};
 use uuid::Uuid;
 
 pub fn run(invocation: &Invocation) -> Result<Output, CliFailure> {
-    let Command::DraftsCreate {
-        title,
-        text_file,
-        operation,
-    } = &invocation.command
-    else {
-        unreachable!("drafts module handles drafts create only");
-    };
+    match &invocation.command {
+        Command::DraftsCreate {
+            title,
+            text_file,
+            operation,
+        } => create_run(invocation, title, text_file, *operation),
+        Command::DraftsCheckpoint {
+            draft,
+            base_revision,
+            expected_generation,
+            generation,
+            text_file,
+            operation,
+        } => checkpoint_run(
+            invocation,
+            *draft,
+            *base_revision,
+            *expected_generation,
+            *generation,
+            text_file,
+            *operation,
+        ),
+        _ => unreachable!("drafts module handles mutations only"),
+    }
+}
+
+fn create_run(
+    invocation: &Invocation,
+    title: &str,
+    text_file: &Path,
+    operation: Option<Uuid>,
+) -> Result<Output, CliFailure> {
     // Input preparation happens before anything is opened: an invalid title
     // or input file must never initialize a workspace. The title rule is the
     // store's own create_draft rule; the store re-checks it at the source of
@@ -31,8 +52,38 @@ pub fn run(invocation: &Invocation) -> Result<Output, CliFailure> {
     if title.trim().is_empty() {
         return Err(CliError::Workflow("draft title is required".into()).into());
     }
-    // The exact validated text is held in memory and passed on unchanged.
     let text = read_text_file(text_file)?;
+    let mut workspace = prepared_workspace(invocation)?;
+    create(&mut workspace, title, &text, operation)
+}
+
+fn checkpoint_run(
+    invocation: &Invocation,
+    draft: Uuid,
+    base_revision: Uuid,
+    expected_generation: u64,
+    generation: u64,
+    text_file: &Path,
+    operation: Option<Uuid>,
+) -> Result<Output, CliFailure> {
+    // The submitted text is explicit input captured before opening the
+    // workspace; replay never rereads current draft content as its payload.
+    let text = read_text_file(text_file)?;
+    let mut workspace = prepared_workspace(invocation)?;
+    checkpoint(
+        &mut workspace,
+        draft,
+        brn_workflow::DraftStamp {
+            base_revision,
+            generation: expected_generation,
+        },
+        generation,
+        &text,
+        operation,
+    )
+}
+
+fn prepared_workspace(invocation: &Invocation) -> Result<Workspace, CliFailure> {
     // A signal that has arrived by the end of input preparation must prevent
     // the workspace from even being opened.
     if crate::CANCEL.load(Ordering::SeqCst) {
@@ -41,17 +92,17 @@ pub fn run(invocation: &Invocation) -> Result<Output, CliFailure> {
         )
         .into());
     }
-    let mut workspace = open_workspace(invocation)?;
-    // Opening the workspace can block up to the store's lock retry window;
-    // a signal arriving during that wait must still prevent the mutation.
-    // This is the last check before the mutation starts.
+    let workspace = open_workspace(invocation)?;
+    // Opening the workspace can block up to the store's lock retry window; a
+    // signal arriving during that wait must still prevent the mutation. This
+    // is the last check before the workflow mutation starts.
     if crate::CANCEL.load(Ordering::SeqCst) {
         return Err(CliError::Interrupted(
             "interrupted while acquiring the workspace; the command was not run".into(),
         )
         .into());
     }
-    create(&mut workspace, title, &text, *operation)
+    Ok(workspace)
 }
 
 fn create(
@@ -72,6 +123,35 @@ fn create(
         data: {
             let mut data = draft_summary(&draft);
             if let serde_json::Value::Object(map) = &mut data {
+                map.insert("operation_id".into(), json!(op));
+            }
+            data
+        },
+    })
+}
+
+fn checkpoint(
+    workspace: &mut Workspace,
+    draft_id: Uuid,
+    expected: brn_workflow::DraftStamp,
+    generation: u64,
+    text: &str,
+    operation: Option<Uuid>,
+) -> Result<Output, CliFailure> {
+    let op = operation.unwrap_or_else(Uuid::new_v4);
+    let draft = workspace
+        .checkpoint_draft(op, draft_id, expected, generation, text)
+        .map_err(classify_workflow)?;
+    let checkpoint_id = draft.stamp.base_revision;
+    Ok(Output {
+        text: format!(
+            "checkpointed draft {} generation={} checkpoint={} operation={}\n",
+            draft.id, draft.stamp.generation, checkpoint_id, op
+        ),
+        data: {
+            let mut data = draft_summary(&draft);
+            if let serde_json::Value::Object(map) = &mut data {
+                map.insert("checkpoint_id".into(), json!(checkpoint_id));
                 map.insert("operation_id".into(), json!(op));
             }
             data

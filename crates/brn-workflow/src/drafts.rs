@@ -38,7 +38,7 @@ impl Workspace {
     ) -> Result<Draft> {
         self.store
             .checkpoint_draft(op, id, expected, generation, text)
-            .map_err(error)
+            .map_err(WorkflowError::from)
     }
     pub fn draft_revisions(&self, id: Uuid) -> Result<Vec<DraftRevision>> {
         self.store.draft_revisions(id).map_err(error)

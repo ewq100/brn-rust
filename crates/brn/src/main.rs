@@ -96,6 +96,7 @@ fn command_name(command: &cli::Command) -> &'static str {
         cli::Command::ConversationsShow { .. } => "conversations.show",
         cli::Command::DraftsList => "drafts.list",
         cli::Command::DraftsCreate { .. } => "drafts.create",
+        cli::Command::DraftsCheckpoint { .. } => "drafts.checkpoint",
         cli::Command::DraftsShow { .. } => "drafts.show",
         cli::Command::CommentsList { .. } => "comments.list",
         cli::Command::RevisionsList { .. } => "revisions.list",
@@ -223,6 +224,62 @@ mod tests {
         );
         let entries: Vec<_> = std::fs::read_dir(&data).unwrap().collect();
         assert!(entries.is_empty(), "workspace was initialized: {entries:?}");
+    }
+
+    #[test]
+    fn cancel_before_checkpoint_workspace_access_prevents_mutation() {
+        let dir = tempfile::tempdir().unwrap();
+        let root = dir.path();
+        let input = tempfile::tempdir().unwrap();
+        let file = input.path().join("checkpoint.txt");
+        std::fs::write(&file, "next\n").unwrap();
+
+        let mut workspace =
+            brn_workflow::Workspace::open(root, brn_workflow::Config::default()).unwrap();
+        let draft = workspace
+            .create_draft(uuid::Uuid::new_v4(), "checkpoint", "base\n")
+            .unwrap();
+        drop(workspace);
+
+        let _cancel = CancelTestGuard::with(true);
+        let args: Vec<String> = [
+            "drafts",
+            "checkpoint",
+            &draft.id.to_string(),
+            "--base-revision",
+            &draft.stamp.base_revision.to_string(),
+            "--expected-generation",
+            "0",
+            "--generation",
+            "1",
+            "--text-file",
+            file.to_str().unwrap(),
+            "--data-dir",
+            root.to_str().unwrap(),
+            "--json",
+        ]
+        .iter()
+        .map(|s| s.to_string())
+        .collect();
+        let invocation = match cli::parse(&args) {
+            Ok(cli::Outcome::Run(invocation)) => invocation,
+            _ => panic!("checkpoint parses into a runnable invocation"),
+        };
+        let failure = match cli::execute(&invocation) {
+            Ok(_) => panic!("cancelled checkpoint must not run"),
+            Err(failure) => failure,
+        };
+        assert!(
+            matches!(failure.error, crate::cli::error::CliError::Interrupted(_)),
+            "expected INTERRUPTED, got {:?}",
+            failure.error
+        );
+
+        let workspace =
+            brn_workflow::Workspace::open(root, brn_workflow::Config::default()).unwrap();
+        let unchanged = workspace.draft(draft.id).unwrap().unwrap();
+        assert_eq!(unchanged, draft);
+        assert_eq!(workspace.draft_revisions(draft.id).unwrap().len(), 1);
     }
 
     /// A signal that arrives after a mutation committed must not rewrite the
