@@ -31,6 +31,8 @@ impl Workspace {
         &mut self,
         request: CommentStatusChange,
     ) -> Result<CommentStatusChanged> {
-        self.store.set_comment_status(request).map_err(error)
+        self.store
+            .set_comment_status(request)
+            .map_err(crate::WorkflowError::from)
     }
 }
