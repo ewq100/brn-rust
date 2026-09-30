@@ -108,6 +108,12 @@ pub enum Command {
         expected_status_version: u64,
         operation: Option<Uuid>,
     },
+    CommentsReopen {
+        comment: Uuid,
+        draft: Uuid,
+        expected_status_version: u64,
+        operation: Option<Uuid>,
+    },
     RevisionsList {
         draft: Uuid,
     },
@@ -189,6 +195,7 @@ Commands:
   brn comments list --draft DRAFT_ID
   brn comments add --draft DRAFT_ID --base-revision UUID --expected-generation N --generation N --text-file PATH --start-byte N --end-byte N --quote-file PATH --body-file PATH [--operation UUID]
   brn comments resolve COMMENT_ID --draft DRAFT_ID --expected-status-version N [--operation UUID]
+  brn comments reopen COMMENT_ID --draft DRAFT_ID --expected-status-version N [--operation UUID]
   brn revisions list --draft DRAFT_ID
   brn revisions show REVISION_ID
   brn revisions diff --draft DRAFT_ID --from REVISION_ID --to REVISION_ID
@@ -637,7 +644,7 @@ fn parse_inner(
             }
         }
         "comments" => {
-            let sub = sub_word(&mut tokens, "comments", "list|add|resolve")?;
+            let sub = sub_word(&mut tokens, "comments", "list|add|resolve|reopen")?;
             match sub.as_str() {
                 "list" => {
                     *command = Some("comments.list");
@@ -664,6 +671,18 @@ fn parse_inner(
                 }
                 "resolve" => {
                     *command = Some("comments.resolve");
+                    scan(
+                        &mut tokens,
+                        g,
+                        &[
+                            ("draft", true),
+                            ("expected-status-version", true),
+                            ("operation", true),
+                        ],
+                    )?
+                }
+                "reopen" => {
+                    *command = Some("comments.reopen");
                     scan(
                         &mut tokens,
                         g,
@@ -903,6 +922,16 @@ fn parse_inner(
                     operation: scanned.uuid("operation")?,
                 }
             }
+            "comments.reopen" => {
+                expect_positionals(&scanned, 1)?;
+                Command::CommentsReopen {
+                    comment: positional_uuid(&scanned, 0, "COMMENT_ID")?,
+                    draft: scanned.require_uuid("draft")?,
+                    expected_status_version: scanned
+                        .require_generation("expected-status-version")?,
+                    operation: scanned.uuid("operation")?,
+                }
+            }
             _ => unreachable!(),
         },
         "revisions" => match command.unwrap() {
@@ -1084,9 +1113,9 @@ pub fn execute(invocation: &Invocation) -> Result<Output, CliFailure> {
         | Command::RevisionsList { .. }
         | Command::RevisionsShow { .. }
         | Command::RevisionsDiff { .. } => return review::run(invocation),
-        Command::CommentsAdd { .. } | Command::CommentsResolve { .. } => {
-            return comments::run(invocation)
-        }
+        Command::CommentsAdd { .. }
+        | Command::CommentsResolve { .. }
+        | Command::CommentsReopen { .. } => return comments::run(invocation),
         Command::DraftsCreate { .. }
         | Command::DraftsCheckpoint { .. }
         | Command::DraftsSave { .. } => return drafts::run(invocation),

@@ -31,6 +31,18 @@ pub fn run(invocation: &Invocation) -> Result<Output, CliFailure> {
             *expected_status_version,
             *operation,
         ),
+        Command::CommentsReopen {
+            comment,
+            draft,
+            expected_status_version,
+            operation,
+        } => reopen(
+            invocation,
+            *comment,
+            *draft,
+            *expected_status_version,
+            *operation,
+        ),
         _ => unreachable!("comments module handles mutations only"),
     }
 }
@@ -150,6 +162,44 @@ fn resolve(
     Ok(Output {
         text: format!(
             "resolved comment {} status_version={} operation={}\n",
+            result.comment.id, result.comment.status_version, result.op
+        ),
+        data: json!({
+            "operation_id": result.op,
+            "comment": comment_fields(&result.comment),
+        }),
+    })
+}
+
+fn reopen(
+    invocation: &Invocation,
+    comment_id: Uuid,
+    draft_id: Uuid,
+    expected_status_version: u64,
+    operation: Option<Uuid>,
+) -> Result<Output, CliFailure> {
+    let mut workspace = open_workspace(invocation)?;
+    if crate::CANCEL.load(Ordering::SeqCst) {
+        return Err(CliError::Interrupted(
+            "interrupted while acquiring the workspace; the command was not run".into(),
+        )
+        .into());
+    }
+
+    let op = operation.unwrap_or_else(Uuid::new_v4);
+    let result = workspace
+        .set_comment_status(CommentStatusChange {
+            op,
+            draft_id,
+            comment_id,
+            expected_status_version,
+            status: CommentStatus::Open,
+        })
+        .map_err(classify_workflow)?;
+
+    Ok(Output {
+        text: format!(
+            "reopened comment {} status_version={} operation={}\n",
             result.comment.id, result.comment.status_version, result.op
         ),
         data: json!({

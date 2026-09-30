@@ -585,6 +585,114 @@ fn comment_resolve_cancelled_during_workspace_wait_does_not_mutate() {
     assert_eq!(comment.status_version, 0);
 }
 
+/// Reopening a comment must perform the same post-acquisition cancellation
+/// check as resolving it: releasing the owner lock after SIGINT cannot let
+/// the status change commit.
+#[test]
+fn comment_reopen_cancelled_during_workspace_wait_does_not_mutate() {
+    let _sequential = SEQUENCE
+        .lock()
+        .unwrap_or_else(|poisoned| poisoned.into_inner());
+    let dir = tempdir().unwrap();
+    let root = dir.path();
+    let text_file = root.join("reopen-draft.txt");
+    let quote_file = root.join("reopen-quote.txt");
+    let body_file = root.join("reopen-body.txt");
+    fs::write(&text_file, "Eesti jõgi voolab.\n").unwrap();
+    fs::write(&quote_file, "jõgi").unwrap();
+    fs::write(&body_file, "Märkus.").unwrap();
+
+    let created = run_json(
+        root,
+        &[
+            "drafts",
+            "create",
+            "--title",
+            "cancelled reopen",
+            "--text-file",
+            text_file.to_str().unwrap(),
+        ],
+    );
+    let draft_id = created["data"]["id"].as_str().unwrap().to_string();
+    let base_revision = created["data"]["base_revision"]
+        .as_str()
+        .unwrap()
+        .to_string();
+    let added = run_json(
+        root,
+        &[
+            "comments",
+            "add",
+            "--draft",
+            &draft_id,
+            "--base-revision",
+            &base_revision,
+            "--expected-generation",
+            "0",
+            "--generation",
+            "0",
+            "--text-file",
+            text_file.to_str().unwrap(),
+            "--start-byte",
+            "6",
+            "--end-byte",
+            "11",
+            "--quote-file",
+            quote_file.to_str().unwrap(),
+            "--body-file",
+            body_file.to_str().unwrap(),
+        ],
+    );
+    let comment_id = added["data"]["comment_id"].as_str().unwrap().to_string();
+    let resolved = run_json(
+        root,
+        &[
+            "comments",
+            "resolve",
+            &comment_id,
+            "--draft",
+            &draft_id,
+            "--expected-status-version",
+            "0",
+        ],
+    );
+    assert_eq!(resolved["ok"], true, "{resolved}");
+
+    let mut holder = Some(Workspace::open(root, Config::default()).unwrap());
+    let out = cancel_during_workspace_wait(
+        root,
+        &[
+            "comments",
+            "reopen",
+            &comment_id,
+            "--draft",
+            &draft_id,
+            "--expected-status-version",
+            "1",
+        ],
+        &mut holder,
+    );
+    assert_eq!(out.status.code(), Some(130), "{out:?}");
+    assert!(
+        out.status.signal().is_none(),
+        "brn must exit, not die by signal"
+    );
+    let envelope: Value =
+        serde_json::from_slice(&out.stdout).expect("exactly one JSON envelope on stdout");
+    assert_eq!(envelope["ok"], false, "{envelope}");
+    assert_eq!(envelope["error"]["code"], "INTERRUPTED", "{envelope}");
+
+    let workspace = Workspace::open(root, Config::default()).unwrap();
+    let comment = &workspace
+        .draft_comments(draft_id.parse().unwrap())
+        .unwrap()
+        .comments[0]
+        .comment;
+    assert_eq!(comment.id, comment_id.parse::<uuid::Uuid>().unwrap());
+    assert_eq!(comment.status, brn_workflow::CommentStatus::Resolved);
+    assert_eq!(comment.status_version, 1);
+}
+
 /// The timeout path must kill and reap the owned child: after the bounded
 /// wait gives up, the exact owned pid is gone (signal-0 probe on that pid
 /// only; reaped, not a zombie). The test cannot leak its child: cleanup
