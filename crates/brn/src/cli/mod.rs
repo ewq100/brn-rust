@@ -67,6 +67,14 @@ pub enum Command {
         text_file: PathBuf,
         operation: Option<Uuid>,
     },
+    DraftsCheckpoint {
+        draft: Uuid,
+        base_revision: Uuid,
+        expected_generation: u64,
+        generation: u64,
+        text_file: PathBuf,
+        operation: Option<Uuid>,
+    },
     DraftsShow {
         draft: Uuid,
     },
@@ -147,6 +155,7 @@ Commands:
   brn conversations list
   brn conversations show SESSION_ID
   brn drafts create --title TITLE --text-file PATH [--operation UUID]
+  brn drafts checkpoint DRAFT_ID --base-revision UUID --expected-generation N --generation N --text-file PATH [--operation UUID]
   brn drafts list
   brn drafts show DRAFT_ID
   brn comments list --draft DRAFT_ID
@@ -297,6 +306,19 @@ impl Scanned {
     }
     fn require_uuid(&self, name: &str) -> Result<Uuid, CliError> {
         self.uuid(name)?
+            .ok_or_else(|| usage(format!("missing --{name}")))
+    }
+    fn u64(&self, name: &str) -> Result<Option<u64>, CliError> {
+        match self.value(name) {
+            Some(raw) => raw
+                .parse()
+                .map(Some)
+                .map_err(|_| usage(format!("invalid --{name} integer: {raw}"))),
+            None => Ok(None),
+        }
+    }
+    fn require_u64(&self, name: &str) -> Result<u64, CliError> {
+        self.u64(name)?
             .ok_or_else(|| usage(format!("missing --{name}")))
     }
 }
@@ -515,7 +537,7 @@ fn parse_inner(
             }
         }
         "drafts" => {
-            let sub = sub_word(&mut tokens, "drafts", "list|show|create")?;
+            let sub = sub_word(&mut tokens, "drafts", "list|show|create|checkpoint")?;
             match sub.as_str() {
                 "list" => {
                     *command = Some("drafts.list");
@@ -527,6 +549,20 @@ fn parse_inner(
                         &mut tokens,
                         g,
                         &[("title", true), ("text-file", true), ("operation", true)],
+                    )?
+                }
+                "checkpoint" => {
+                    *command = Some("drafts.checkpoint");
+                    scan(
+                        &mut tokens,
+                        g,
+                        &[
+                            ("base-revision", true),
+                            ("expected-generation", true),
+                            ("generation", true),
+                            ("text-file", true),
+                            ("operation", true),
+                        ],
                     )?
                 }
                 "show" => {
@@ -673,6 +709,21 @@ fn parse_inner(
                 Command::DraftsCreate {
                     title,
                     text_file: PathBuf::from(text_file),
+                    operation: scanned.uuid("operation")?,
+                }
+            }
+            "drafts.checkpoint" => {
+                expect_positionals(&scanned, 1)?;
+                Command::DraftsCheckpoint {
+                    draft: positional_uuid(&scanned, 0, "DRAFT_ID")?,
+                    base_revision: scanned.require_uuid("base-revision")?,
+                    expected_generation: scanned.require_u64("expected-generation")?,
+                    generation: scanned.require_u64("generation")?,
+                    text_file: PathBuf::from(
+                        scanned
+                            .value("text-file")
+                            .ok_or_else(|| usage("missing --text-file"))?,
+                    ),
                     operation: scanned.uuid("operation")?,
                 }
             }
@@ -869,7 +920,9 @@ pub fn execute(invocation: &Invocation) -> Result<Output, CliFailure> {
         | Command::RevisionsList { .. }
         | Command::RevisionsShow { .. }
         | Command::RevisionsDiff { .. } => return review::run(invocation),
-        Command::DraftsCreate { .. } => return drafts::run(invocation),
+        Command::DraftsCreate { .. } | Command::DraftsCheckpoint { .. } => {
+            return drafts::run(invocation)
+        }
         Command::Status | Command::DocumentsList | Command::DocumentsShow { .. } => {}
     }
     let workspace = open_workspace(invocation)?;

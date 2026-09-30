@@ -22,9 +22,9 @@ pub use brn_store::anchors::{MAX_EDIT_STEPS, MAX_TRACE_REPLACEMENT_BYTES};
 pub use brn_store::{
     AmbiguityReason, AnchorProjection, AnchorState, ChatTurn, CommentAnchorSnapshot,
     CommentCapture, CommentCreated, CommentStatus, CommentStatusChange, CommentStatusChanged,
-    Draft, DraftComment, DraftCommentView, DraftComments, DraftRevision, DraftWriteWithComments,
-    EditTrace, ImportResult, MAX_DRAFT_BYTES, OriginalAnchor, RecoveryReference, SourceDocument,
-    TextEdit, apply_edit, derive_edit, map_anchor, replay_trace,
+    Draft, DraftComment, DraftCommentView, DraftComments, DraftRevision, DraftStamp,
+    DraftWriteWithComments, EditTrace, ImportResult, MAX_DRAFT_BYTES, OriginalAnchor,
+    RecoveryReference, SourceDocument, TextEdit, apply_edit, derive_edit, map_anchor, replay_trace,
 };
 pub type Result<T> = std::result::Result<T, error::WorkflowError>;
 pub use error::{ErrorKind, WorkflowError};
