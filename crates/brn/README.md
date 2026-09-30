@@ -18,6 +18,7 @@ Agent-facing CLI for BRN workspaces: parsing, JSON envelopes and exit codes over
   brn ask QUESTION [--profile keyword|semantic|hybrid] [--session UUID] [--operation UUID] [--timeout-seconds N]
   brn conversations list
   brn conversations show SESSION_ID
+  brn drafts create --title TITLE --text-file PATH [--operation UUID]
   brn drafts list
   brn drafts show DRAFT_ID
   brn comments list --draft DRAFT_ID
@@ -57,6 +58,7 @@ Exit codes: `0` success; `2` usage (`USAGE`); `1` operational failure (`WORKSPAC
 ## Semantics
 
 - Import defaults to draft approval; `--approve-for-search` is explicit and is not publication approval.
+- `drafts create` reads a regular UTF-8 text file up to the 1 MiB draft limit with a bounded read and preserves exact bytes (no Unicode or line-ending normalization). Empty text is permitted; a blank title is rejected. The envelope carries the operation id and the created draft (id, title, base revision, generation, sha256). Reusing the same operation id with the same title and text replays the recorded draft; conflicting payload reuse fails with `OPERATION_CONFLICT`.
 - Search never builds the index; a missing or stale index is an error, not a trigger.
 - Semantic/hybrid profiles never fall back to keyword; they fail with `PROFILE_UNAVAILABLE` in this build.
 - Approval binds the exact source version; superseded versions reject approval.

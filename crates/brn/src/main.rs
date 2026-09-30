@@ -95,6 +95,7 @@ fn command_name(command: &cli::Command) -> &'static str {
         cli::Command::ConversationsList => "conversations.list",
         cli::Command::ConversationsShow { .. } => "conversations.show",
         cli::Command::DraftsList => "drafts.list",
+        cli::Command::DraftsCreate { .. } => "drafts.create",
         cli::Command::DraftsShow { .. } => "drafts.show",
         cli::Command::CommentsList { .. } => "comments.list",
         cli::Command::RevisionsList { .. } => "revisions.list",
@@ -173,6 +174,55 @@ mod tests {
             }),
         );
         assert_eq!(code, ExitCode::SUCCESS, "completed result stands");
+    }
+
+    /// A signal that has arrived by the end of input preparation must
+    /// prevent the workspace from being opened at all: drafts create
+    /// validates the title, reads the file and only then checks cancellation
+    /// BEFORE acquiring the workspace — so the data directory stays free of
+    /// initialization artifacts and no mutation is attempted. Deterministic:
+    /// CANCEL is set before execute() runs, no sleeps; the guard serializes
+    /// with the other CANCEL tests and restores the prior flag on drop.
+    #[test]
+    fn cancel_after_input_preparation_prevents_workspace_and_mutation() {
+        let _cancel = CancelTestGuard::with(true);
+        let dir = tempfile::tempdir().unwrap();
+        let data = dir.path().join("data");
+        std::fs::create_dir(&data).unwrap();
+        // The input fixture lives outside the data directory.
+        let fixtures = tempfile::tempdir().unwrap();
+        let file = fixtures.path().join("note.txt");
+        std::fs::write(&file, "body\n").unwrap();
+
+        let args: Vec<String> = [
+            "drafts",
+            "create",
+            "--title",
+            "t",
+            "--text-file",
+            file.to_str().unwrap(),
+            "--data-dir",
+            data.to_str().unwrap(),
+            "--json",
+        ]
+        .iter()
+        .map(|s| s.to_string())
+        .collect();
+        let invocation = match cli::parse(&args) {
+            Ok(cli::Outcome::Run(invocation)) => invocation,
+            _ => panic!("drafts create parses into a runnable invocation"),
+        };
+        let failure = match cli::execute(&invocation) {
+            Ok(_) => panic!("cancelled command must not run"),
+            Err(failure) => failure,
+        };
+        assert!(
+            matches!(failure.error, crate::cli::error::CliError::Interrupted(_)),
+            "expected INTERRUPTED, got {:?}",
+            failure.error
+        );
+        let entries: Vec<_> = std::fs::read_dir(&data).unwrap().collect();
+        assert!(entries.is_empty(), "workspace was initialized: {entries:?}");
     }
 
     /// A signal that arrives after a mutation committed must not rewrite the
