@@ -1284,6 +1284,7 @@ pub fn run(path: PathBuf, config: Config) {
                 KeyBinding::new("cmd-n", NewChat, None),
                 KeyBinding::new("cmd-,", OpenSettings, None),
                 KeyBinding::new("cmd-.", CancelRunning, None),
+                KeyBinding::new("cmd-.", CancelRunning, Some("Input")),
             ]);
             cx.set_menus([
                 Menu::new("BRN").items(vec![
