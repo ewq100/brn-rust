@@ -15,7 +15,7 @@ Updated 2026-10-01. Code baseline: local `main` at `a82dd25954cbd809b290d88676ae
 | Agent-facing CLI | `brn` binary exposes import, approval, index, search, ask, conversations, drafts, comments and revisions over the shared workflow with a versioned JSON envelope and subprocess tests | [CLI](work/completed/agent-cli-foundation/evidence.md) |
 | CLI writing primitives | `brn` exposes draft creation, checkpoint/save and comment add/resolve/reopen commands over the shared workflow; the combined default-feature headless integration result is recorded separately | [Integration](work/completed/cli-writing-primitives/evidence.md) |
 
-PR #2 (including the review fixes for signals and pipe recoverability, durable-outcome reporting after SIGINT, help before argument validation, structured ask failure context, typed error codes, follow-up findings F1–F3 and test-only cleanup T1–T2) is merged to `main` at `1b49378`; the implementation record is closed under [completed work](work/completed/agent-cli-foundation/plan.md) and [PR #2 CLI review fixes](work/completed/pr2-cli-review-fixes/plan.md). No product task is currently recorded in [active work](work/active/README.md).
+PR #2 (including the review fixes for signals and pipe recoverability, durable-outcome reporting after SIGINT, help before argument validation, structured ask failure context, typed error codes, follow-up findings F1–F3 and test-only cleanup T1–T2) is merged to `main` at `1b49378`; the implementation record is closed under [completed work](work/completed/agent-cli-foundation/plan.md) and [PR #2 CLI review fixes](work/completed/pr2-cli-review-fixes/plan.md). [Active work](work/active/README.md) now records Markdown note-editing planning; its implementation has not started.
 
 ### Agent-facing CLI (`brn`)
 
@@ -40,7 +40,7 @@ All implementation listed above is present in the inspected local `main` baselin
 
 ## Next work
 
-The next proposed feature is [opening and safely editing real Markdown notes](superpowers/specs/2026-10-01-open-and-safely-edit-markdown-notes-design.md): explicit Save to a local vault, separate editing-buffer recovery, conservative external-conflict handling, and current-evidence invalidation. Its four design sections are approved; the written specification awaits review before implementation planning. No application code or vault migration has started, and no product implementation task is currently recorded in [active work](work/active/README.md).
+The next proposed feature is [opening and safely editing real Markdown notes](superpowers/specs/2026-10-01-open-and-safely-edit-markdown-notes-design.md): explicit Save to a local vault, separate editing-buffer recovery, conservative external-conflict handling, and current-evidence invalidation. Its written specification is approved; the [implementation plan](work/active/markdown-note-editing/plan.md) is prepared with execution choice pending. No application code or vault migration has started; [active work](work/active/README.md) records planning separately from implementation.
 
 [13: revision from a comment batch](roadmap.md#13-revision-from-a-comment-batch) remains a future roadmap outcome. Neither a roadmap item nor a design approval authorizes implementation beyond its agreed scope.
 

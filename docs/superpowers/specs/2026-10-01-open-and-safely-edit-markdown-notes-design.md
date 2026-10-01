@@ -2,7 +2,7 @@
 
 Date: 1 October 2026
 
-Status: Four design sections approved during brainstorming. Written specification awaiting user review; implementation and verification have not started.
+Status: Four design sections and the written specification approved on 1 October 2026. [Implementation plan](../../work/active/markdown-note-editing/plan.md) prepared; execution choice pending. Implementation and product verification have not started.
 
 Inspected baseline: local `main` at `4f059881f5a34d22ffdf1bb53e79954c94c8608f`, with a clean worktree before this documentation change.
 
@@ -208,7 +208,7 @@ Before implementation, create its plan/evidence under [active work](../../work/a
 
 The user selected explicit Save, a local vault, no force overwrite, and coordinated journaled exchange with its concurrency limitation. The user then approved ownership/scope, save/recovery, current evidence, and interaction/acceptance separately on 1 October 2026. The visual companion was declined; review remains text-only.
 
-Written-spec review is still required before implementation planning. This document records intended behavior, not passing checks, native usability, an implemented Markdown editor, or approval of the broader design's remaining history/archive defaults.
+The user explicitly approved the written specification committed at `32077d8` and requested implementation planning. This document records intended behavior, not passing checks, native usability, an implemented Markdown editor, or approval of the broader design's remaining history/archive defaults.
 
 Technical grounding:
 
