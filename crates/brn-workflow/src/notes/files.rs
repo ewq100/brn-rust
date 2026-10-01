@@ -353,6 +353,41 @@ impl MacFiles {
         component_key(relative).map(|_| ())
     }
 
+    /// A reserved namespace cannot be enrolled merely because its occupant changed.
+    /// This guard does not apply destination-name restrictions to ordinary opens.
+    pub(super) fn reserved_copy_path_matches(
+        &self,
+        candidate: &Path,
+        reserved: &Path,
+    ) -> NoteResult<bool> {
+        validate_relative(candidate)?;
+        validate_relative(reserved)?;
+        if candidate == reserved {
+            return Ok(true);
+        }
+        let (Ok(candidate_key), Ok(reserved_key)) =
+            (component_key(candidate), component_key(reserved))
+        else {
+            return Ok(false);
+        };
+        if candidate_key.last() != reserved_key.last() {
+            return Ok(false);
+        }
+        let candidate_parent = self.parent_identity(candidate)?;
+        match self.parent_identity(reserved) {
+            Ok(parent) => Ok(parent == candidate_parent),
+            Err(error)
+                if matches!(
+                    error.code,
+                    NoteErrorCode::Missing | NoteErrorCode::Unsupported
+                ) =>
+            {
+                Ok(false)
+            }
+            Err(error) => Err(error),
+        }
+    }
+
     /// Equality here is a conservative veto, never proof of logical note identity.
     pub(super) fn aliases_original(&self, candidate: &Path, original: &Path) -> NoteResult<bool> {
         let candidate_key = component_key(candidate)?;
@@ -393,8 +428,15 @@ impl MacFiles {
         let original_key = match component_key(original) {
             Ok(key) => key,
             // Registered names need not meet the stricter destination rules.
-            // Without qualified keys or two existing identities, fail closed.
-            Err(error) if error.code == NoteErrorCode::Unsupported => return Ok(true),
+            // An unqualified basename can only alias within the same parent.
+            // An unresolved original parent cannot disprove that possibility.
+            Err(error) if error.code == NoteErrorCode::Unsupported => {
+                let candidate_parent = self.parent_identity(candidate)?;
+                return Ok(match self.parent_identity(original) {
+                    Ok(parent) => parent == candidate_parent,
+                    Err(_) => true,
+                });
+            }
             Err(error) => return Err(error),
         };
         if candidate_key == original_key {
@@ -1000,6 +1042,11 @@ impl MacFiles {
             "managed notes require macOS filesystem coordination",
         ))
     }
+    pub(super) fn reserved_copy_path_matches(&self, _: &Path, _: &Path) -> NoteResult<bool> {
+        Err(note_unsupported(
+            "managed notes require macOS filesystem coordination",
+        ))
+    }
     pub(super) fn prepare_copy(
         &self,
         _: Uuid,
@@ -1111,11 +1158,17 @@ mod tests {
         )
         .unwrap();
         std::fs::write(vault.path().join("plain.md"), "plain").unwrap();
+        std::fs::create_dir(vault.path().join("different")).unwrap();
         for original in ["❤️.md", "👩‍💻.md"] {
             std::fs::write(vault.path().join(original), "emoji").unwrap();
             assert!(
                 !files
                     .aliases_original(Path::new("plain.md"), Path::new(original))
+                    .unwrap()
+            );
+            assert!(
+                !files
+                    .aliases_original(Path::new("different/copy.md"), Path::new(original))
                     .unwrap()
             );
             assert!(
@@ -1132,11 +1185,70 @@ mod tests {
             );
             std::fs::remove_file(vault.path().join(original)).unwrap();
             assert!(
+                !files
+                    .aliases_original(Path::new("different/copy.md"), Path::new(original))
+                    .unwrap()
+            );
+            assert!(
                 files
                     .aliases_original(Path::new("absent.md"), Path::new(original))
                     .unwrap()
             );
+            assert!(
+                files
+                    .aliases_original(
+                        Path::new("different/copy.md"),
+                        &Path::new("missing").join(original)
+                    )
+                    .unwrap()
+            );
         }
+    }
+
+    #[test]
+    fn copy_reservations_match_paths_without_requiring_matching_file_identity() {
+        let vault = directory();
+        let data = directory();
+        let record = registered(vault.path());
+        let files = MacFiles::open(
+            &record,
+            data.path(),
+            Arc::new(Mutex::new(NoteNoticeQueue::default())),
+        )
+        .unwrap();
+        std::fs::create_dir(vault.path().join("same")).unwrap();
+        std::fs::create_dir(vault.path().join("different")).unwrap();
+        // No recorded prepared identity or successful content observation is needed.
+        std::fs::write(vault.path().join("same/rescue.md"), [0xff]).unwrap();
+        assert!(
+            files
+                .reserved_copy_path_matches(
+                    Path::new("same/rescue.md"),
+                    Path::new("same/rescue.md")
+                )
+                .unwrap()
+        );
+        assert!(
+            files
+                .reserved_copy_path_matches(
+                    Path::new("same/RESCUE.md"),
+                    Path::new("same/rescue.md")
+                )
+                .unwrap()
+        );
+        assert!(
+            !files
+                .reserved_copy_path_matches(
+                    Path::new("different/rescue.md"),
+                    Path::new("same/rescue.md")
+                )
+                .unwrap()
+        );
+        assert!(
+            !files
+                .reserved_copy_path_matches(Path::new("same/❤️.md"), Path::new("same/rescue.md"))
+                .unwrap()
+        );
     }
 
     #[test]

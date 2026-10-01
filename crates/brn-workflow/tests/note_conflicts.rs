@@ -49,7 +49,7 @@ fn ambiguous_copy_and_relink_candidates_are_refused_even_without_other_registry_
 }
 
 #[test]
-fn unqualified_registered_names_use_identity_or_conservative_conflict_not_unsupported() {
+fn unqualified_registered_names_only_veto_same_or_unresolved_parent_destinations() {
     let mut f = Fixture::new();
     fs::write(f.vault.path().join("❤️.md"), "emoji").unwrap();
     let emoji =
@@ -87,12 +87,77 @@ fn unqualified_registered_names_use_identity_or_conservative_conflict_not_unsupp
             .unwrap_err();
         assert_eq!(failure.code, NoteErrorCode::Conflict);
         assert!(failure.recovery_available);
-        assert_eq!(f.w.note_recoveries().unwrap().len(), 2);
+        let directory = if missing { "missing-rescue" } else { "rescue" };
+        fs::create_dir(f.vault.path().join(directory)).unwrap();
+        let current = f.w.note(relinked.id).unwrap();
+        let destination = Path::new(directory).join("copy.md");
+        let copy =
+            f.w.save_note_copy(
+                NoteSubmission {
+                    expected: current.stamp,
+                    generation: current.stamp.generation + 1,
+                    ..f.request()
+                },
+                &destination,
+            )
+            .unwrap();
+        assert_eq!(copy.source_note_id, f.opened.id);
+        assert_ne!(copy.note_id, f.opened.id);
+        assert_eq!(
+            f.w.note(copy.note_id).unwrap().saved.as_deref(),
+            Some("recover me")
+        );
     }
     assert_eq!(
         f.w.note(emoji.id).unwrap().availability,
         NoteAvailability::Missing
     );
+}
+
+#[test]
+fn emoji_notes_can_be_copied_or_relinked_into_a_distinct_parent() {
+    for name in ["❤️.md", "👩‍💻.md"] {
+        let mut f = Fixture::new();
+        fs::write(f.vault.path().join(name), "emoji").unwrap();
+        let emoji =
+            f.w.open_note(Uuid::new_v4(), f.vault.path(), Path::new(name))
+                .unwrap();
+        fs::create_dir(f.vault.path().join("elsewhere")).unwrap();
+        let copy =
+            f.w.save_note_copy(
+                NoteSubmission {
+                    operation_id: Uuid::new_v4(),
+                    note_id: emoji.id,
+                    expected: emoji.stamp,
+                    generation: 1,
+                    text: "emoji recovery".into(),
+                },
+                Path::new("elsewhere/copy.md"),
+            )
+            .unwrap();
+        assert_eq!(copy.source_note_id, emoji.id);
+        assert_eq!(
+            f.w.note(copy.note_id).unwrap().saved.as_deref(),
+            Some("emoji recovery")
+        );
+        fs::remove_file(f.vault.path().join(name)).unwrap();
+        fs::rename(
+            f.vault.path().join("plan.md"),
+            f.vault.path().join("elsewhere/moved.md"),
+        )
+        .unwrap();
+        let moved =
+            f.w.relink_note(
+                Uuid::new_v4(),
+                f.opened.id,
+                f.opened.stamp,
+                Path::new("elsewhere/moved.md"),
+                true,
+            )
+            .unwrap();
+        assert_eq!(moved.id, f.opened.id);
+        assert_eq!(moved.relative_path, Path::new("elsewhere/moved.md"));
+    }
 }
 
 #[test]

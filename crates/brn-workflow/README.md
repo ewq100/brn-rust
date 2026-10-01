@@ -39,6 +39,10 @@ and zero-width joiners, regardless of registration order. Copy/relink destinatio
 qualification is not applied to unrelated ordinary opens. Confirmed relink also
 vetoes identities belonging to another note's baseline, durable observation or
 fresh registered-path observation, including externally moved files.
+Pending copy destinations remain reserved by exact path and computable
+same-parent name aliases even if an external occupant has a different inode or
+unsupported bytes. Enrollment cannot consume the preallocated copy identity's
+namespace or prevent later reconciliation.
 
 `save_note(NoteSubmission)` explicitly saves the original Markdown path:
 durable recovery intent, exclusive staging, coordinated baseline revalidation,
@@ -100,8 +104,11 @@ Qualified local APFS/HFS volumes advertise the required capabilities; other
 volume families and unqualified invisible/control names are rejected.
 That rejection applies only to copy/relink candidates. For a registered original
 with an unqualified name, validated existing identities can disprove aliasing;
-otherwise reservation checks conservatively veto the destination with Conflict,
-not an Unsupported error propagating from the registered name.
+otherwise reservation checks conservatively veto only candidates in the same
+resolved parent (or when the original parent cannot be resolved). Copies into
+a distinct validated directory remain available, including recovery of the
+emoji-named note itself. A conservative veto is Conflict, not an Unsupported
+error propagating from the registered name.
 Case-sensitive volumes may be deliberately over-rejected. Replays bind their
 recorded destination, even after relink or completed-payload pruning.
 

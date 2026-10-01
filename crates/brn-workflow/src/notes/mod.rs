@@ -55,7 +55,33 @@ impl crate::Workspace {
                 }
             }
             self.open_note_vault(&selected)?;
+            let reserved_copies: Vec<_> = self
+                .store
+                .note_save_intents()?
+                .into_iter()
+                .filter(|intent| {
+                    intent.kind == NoteWriteKind::Copy
+                        && matches!(
+                            intent.resolution,
+                            NoteResolution::Unresolved
+                                | NoteResolution::Applied
+                                | NoteResolution::AcceptedCurrent
+                        )
+                })
+                .collect();
             let files = &self.notes.vault.as_ref().unwrap().1;
+            for intent in &reserved_copies {
+                if files.reserved_copy_path_matches(relative, &intent.destination)? {
+                    return Err(note_failure(
+                        NoteErrorCode::Conflict,
+                        format!(
+                            "path is reserved by copy operation {} at {}; reconcile that copy operation first",
+                            intent.request.operation_id,
+                            intent.destination.display()
+                        ),
+                    ));
+                }
+            }
             let observed = files.observe(relative)?;
             if let Some(error) = registered_note_identity_conflict(
                 &self.store,
@@ -66,20 +92,12 @@ impl crate::Workspace {
             )? {
                 return Err(error);
             }
-            for intent in self.store.note_save_intents()? {
-                if intent.kind == NoteWriteKind::Copy
-                    && matches!(
-                        intent.resolution,
-                        NoteResolution::Unresolved
-                            | NoteResolution::Applied
-                            | NoteResolution::AcceptedCurrent
-                    )
-                    && (intent.staged.as_ref().is_some_and(|prepared| {
-                        same_file_identity(&prepared.fingerprint, &observed.fingerprint)
-                    }) || files.observe(&intent.destination).is_ok_and(|current| {
-                        same_file_identity(&current.fingerprint, &observed.fingerprint)
-                    }))
-                {
+            for intent in reserved_copies {
+                if intent.staged.as_ref().is_some_and(|prepared| {
+                    same_file_identity(&prepared.fingerprint, &observed.fingerprint)
+                }) || files.observe(&intent.destination).is_ok_and(|current| {
+                    same_file_identity(&current.fingerprint, &observed.fingerprint)
+                }) {
                     return Err(note_failure(
                         NoteErrorCode::Conflict,
                         "file belongs to a reserved copy destination; reconcile that copy operation first",

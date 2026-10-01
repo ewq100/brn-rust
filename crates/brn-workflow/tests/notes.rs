@@ -9,6 +9,107 @@ use tempfile::{TempDir, tempdir};
 use uuid::Uuid;
 
 #[test]
+fn external_occupants_cannot_enroll_at_reserved_copy_destinations_or_break_reconciliation() {
+    use brn_store::notes::{
+        DestinationPrecondition, FileFingerprint, NoteWriteKind, PreparedFile, VaultIdentity,
+    };
+    use sha2::{Digest, Sha256};
+    use std::os::unix::fs::MetadataExt;
+
+    for (installed, external) in [
+        (false, b"external unrelated inode".to_vec()),
+        (true, b"external unrelated inode".to_vec()),
+        (true, vec![0xff]),
+    ] {
+        let data = tempfile::tempdir_in(".").unwrap();
+        let vault = tempfile::tempdir_in(".").unwrap();
+        fs::write(vault.path().join("plan.md"), "base").unwrap();
+        let mut w = Workspace::open(data.path(), Config::default()).unwrap();
+        let original = w
+            .open_note(Uuid::new_v4(), vault.path(), Path::new("plan.md"))
+            .unwrap();
+        drop(w);
+        let request = NoteSubmission {
+            operation_id: Uuid::new_v4(),
+            note_id: original.id,
+            expected: original.stamp,
+            generation: 1,
+            text: "copy text".into(),
+        };
+        let (mut store, _) = brn_store::Store::open(data.path()).unwrap();
+        let parent = fs::metadata(vault.path()).unwrap();
+        let intent = store
+            .begin_note_save(
+                &request,
+                Path::new("rescue.md"),
+                NoteWriteKind::Copy,
+                &DestinationPrecondition::Absent {
+                    parent: VaultIdentity {
+                        device: parent.dev(),
+                        inode: parent.ino(),
+                    },
+                },
+            )
+            .unwrap();
+        let stage = vault.path().join(&intent.staging_relative);
+        fs::write(&stage, &request.text).unwrap();
+        let metadata = fs::metadata(&stage).unwrap();
+        store
+            .record_note_prepared(
+                request.operation_id,
+                &PreparedFile {
+                    relative: intent.staging_relative.clone(),
+                    fingerprint: FileFingerprint {
+                        device: metadata.dev(),
+                        inode: metadata.ino(),
+                        len: metadata.len(),
+                        sha256: Sha256::digest(request.text.as_bytes()).into(),
+                    },
+                },
+            )
+            .unwrap();
+        let destination = vault.path().join("rescue.md");
+        let protected_install = vault.path().join(".protected-install");
+        if installed {
+            // Construct the durable Prepared + consumed-stage restart row, then
+            // simulate an external namespace change without losing the installed object.
+            fs::rename(&stage, &destination).unwrap();
+            fs::rename(&destination, &protected_install).unwrap();
+        }
+        fs::write(&destination, &external).unwrap();
+        drop(store);
+        let mut w = Workspace::open(data.path(), Config::default()).unwrap();
+        for spelling in ["rescue.md", "RESCUE.md"] {
+            let error = w
+                .open_note(Uuid::new_v4(), vault.path(), Path::new(spelling))
+                .unwrap_err();
+            assert_eq!(error.code, NoteErrorCode::Conflict);
+            assert_eq!(w.note_recoveries().unwrap().len(), 1);
+            assert_eq!(fs::read(&destination).unwrap(), external);
+        }
+        // Restore the recorded prepared identity as a fixture state, not through
+        // an app overwrite/retry. Metadata reconciliation must still enroll its reserved ID.
+        fs::rename(
+            if installed {
+                &protected_install
+            } else {
+                &stage
+            },
+            &destination,
+        )
+        .unwrap();
+        let receipt = w.reconcile_note_save(request.operation_id).unwrap();
+        assert_eq!(receipt.note_id, intent.target_note_id);
+        assert_eq!(receipt.source_note_id, original.id);
+        assert_eq!(w.note_recoveries().unwrap().len(), 2);
+        assert_eq!(
+            w.save_note_copy(request, Path::new("rescue.md")).unwrap(),
+            receipt
+        );
+    }
+}
+
+#[test]
 fn emoji_note_names_open_in_either_registration_order() {
     for emoji in ["❤️.md", "👩‍💻.md"] {
         for emoji_first in [false, true] {
