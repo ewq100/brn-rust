@@ -635,6 +635,22 @@ impl Store {
                 |r| r.get(0),
             )
             .optional()?;
+        let reserved: Option<String> = tx
+            .query_row(
+                "SELECT target_note_id FROM note_save_intents WHERE vault_id=?1 AND destination=?2 AND write_kind='copy' AND resolution IN ('unresolved','applied','accepted_current')",
+                params![vault_id.to_string(), path_str],
+                |r| r.get(0),
+            )
+            .optional()?;
+        if reserved
+            .as_ref()
+            .is_some_and(|target| existing.as_ref() != Some(target))
+        {
+            return Err(failure(
+                NoteErrorCode::Conflict,
+                "note path is reserved by a copy intent",
+            ));
+        }
         let recovered = if let Some(existing) = existing {
             recovery(&tx, parse_id(existing)?)?
                 .ok_or_else(|| failure(NoteErrorCode::Storage, "registered note lacks buffer"))?
@@ -909,6 +925,11 @@ impl Store {
             Ok(acknowledged)
         })();
         result.map_err(|mut storage| {
+            storage.code = NoteErrorCode::Storage;
+            storage.message = format!(
+                "could not record note refusal ({:?}: {}): {}",
+                error.code, error.message, storage.message
+            );
             storage.operation_id = Some(request.operation_id);
             storage.note_id = Some(request.note_id);
             storage.phase = error.phase;
@@ -1501,12 +1522,6 @@ fn commit_reconciliation(
                     record.observed_destination.as_ref().unwrap(),
                 )?;
             }
-            let baseline = match &value.expected_destination {
-                DestinationPrecondition::Existing { baseline_text, .. } => baseline_text.as_str(),
-                DestinationPrecondition::Absent { .. } => "",
-            };
-            tx.execute("INSERT INTO note_recovery_pairs(note_id,operation_id,baseline,baseline_sha256,submitted,submitted_sha256) VALUES(?1,?2,?3,?4,?5,?6) ON CONFLICT(note_id) DO UPDATE SET operation_id=excluded.operation_id,baseline=excluded.baseline,baseline_sha256=excluded.baseline_sha256,submitted=excluded.submitted,submitted_sha256=excluded.submitted_sha256",
-                params![value.target_note_id.to_string(),op.to_string(),baseline.as_bytes(),hash(baseline.as_bytes()).as_slice(),value.request.text.as_bytes(),hash(value.request.text.as_bytes()).as_slice()])?;
         }
         NoteRecordedResult::Failure(error) => {
             if error.operation_id != Some(op)
@@ -1543,6 +1558,14 @@ fn commit_reconciliation(
                 )?;
             }
         }
+    }
+    if record.resolution == NoteResolution::Applied {
+        let baseline = match &value.expected_destination {
+            DestinationPrecondition::Existing { baseline_text, .. } => baseline_text.as_str(),
+            DestinationPrecondition::Absent { .. } => "",
+        };
+        tx.execute("INSERT INTO note_recovery_pairs(note_id,operation_id,baseline,baseline_sha256,submitted,submitted_sha256) VALUES(?1,?2,?3,?4,?5,?6) ON CONFLICT(note_id) DO UPDATE SET operation_id=excluded.operation_id,baseline=excluded.baseline,baseline_sha256=excluded.baseline_sha256,submitted=excluded.submitted,submitted_sha256=excluded.submitted_sha256",
+            params![value.target_note_id.to_string(),op.to_string(),baseline.as_bytes(),hash(baseline.as_bytes()).as_slice(),value.request.text.as_bytes(),hash(value.request.text.as_bytes()).as_slice()])?;
     }
     if value.prior_result.is_none() {
         insert_result(

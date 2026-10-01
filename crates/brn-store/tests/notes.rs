@@ -364,7 +364,7 @@ fn turn_currentness_is_atomic_and_replay_cannot_change_it() {
 fn prepare(store: &mut Store, intent: &NoteSaveIntent) -> NoteVerification {
     let prepared = PreparedFile {
         relative: intent.staging_relative.clone(),
-        fingerprint: fingerprint(&intent.request.text, 4),
+        fingerprint: fingerprint(&intent.request.text, 3 + intent.request.generation),
     };
     store
         .record_note_prepared(intent.request.operation_id, &prepared)
@@ -642,6 +642,10 @@ fn oversized_submission_and_invalid_stamp_refusal_do_not_acknowledge_recovery() 
             &failure,
         )
         .unwrap_err();
+    assert_eq!(error.code, NoteErrorCode::Storage);
+    assert!(error.message.contains(&failure.message));
+    assert_eq!(error.phase, failure.phase);
+    assert_eq!(error.filesystem_outcome, failure.filesystem_outcome);
     assert!(!error.recovery_available);
     assert!(store.operation(request.operation_id).unwrap().is_none());
     assert_eq!(
@@ -655,7 +659,7 @@ fn oversized_submission_and_invalid_stamp_refusal_do_not_acknowledge_recovery() 
 }
 
 #[test]
-fn completed_noop_payloads_retire_but_receipts_latest_pair_and_unresolved_survive() {
+fn completed_noop_payloads_retire_but_receipts_buffer_and_unresolved_survive() {
     let (_data, _vault, mut store, opened) = fixture();
     let mut completed = Vec::new();
     for _ in 0..2 {
@@ -714,7 +718,7 @@ fn completed_noop_payloads_retire_but_receipts_latest_pair_and_unresolved_surviv
         store
             .note_save_intent(completed[1].operation_id)
             .unwrap()
-            .is_some()
+            .is_none()
     );
     assert!(
         store
@@ -932,6 +936,423 @@ fn historical_failure_reconciliation_preserves_result_and_rebases_known_applied_
     assert_eq!(recovered.baseline, request.text);
     assert_ne!(recovered.stamp.file_state, opened.stamp.file_state);
     assert_eq!(recovered.stamp.generation, 1);
+    assert_eq!(
+        recovery_pair(&store, opened.note_id),
+        Some((
+            request.operation_id,
+            opened.baseline.as_bytes().to_vec(),
+            request.text.as_bytes().to_vec(),
+        ))
+    );
+}
+
+fn recovery_pair(store: &Store, note: Uuid) -> Option<(Uuid, Vec<u8>, Vec<u8>)> {
+    use rusqlite::OptionalExtension;
+    let conn = rusqlite::Connection::open(store.database_path()).unwrap();
+    conn.query_row(
+        "SELECT operation_id,baseline,submitted FROM note_recovery_pairs WHERE note_id=?1",
+        [note.to_string()],
+        |r| {
+            Ok((
+                r.get::<_, String>(0)?,
+                r.get::<_, Vec<u8>>(1)?,
+                r.get::<_, Vec<u8>>(2)?,
+            ))
+        },
+    )
+    .optional()
+    .unwrap()
+    .map(|(op, baseline, submitted)| (Uuid::parse_str(&op).unwrap(), baseline, submitted))
+}
+
+#[test]
+fn enrollment_cannot_adopt_a_reserved_copy_after_startup_interruption() {
+    let (data, _vault, mut store, opened) = fixture();
+    let vault = store.note_vault(opened.note_id).unwrap();
+    let request = submission(&opened);
+    let intent = store
+        .begin_note_save(
+            &request,
+            Path::new("copy.md"),
+            NoteWriteKind::Copy,
+            &DestinationPrecondition::Absent {
+                parent: vault.identity.clone(),
+            },
+        )
+        .unwrap();
+    let verification = prepare(&mut store, &intent);
+    drop(store);
+    let (mut store, report) = Store::open(data.path()).unwrap();
+    assert_eq!(report.interrupted_operations, 1);
+    let enrollment = Uuid::new_v4();
+    let error = store
+        .enroll_note(
+            enrollment,
+            &vault,
+            Path::new("copy.md"),
+            fingerprint(&request.text, 4),
+            &request.text,
+        )
+        .unwrap_err();
+    assert_eq!(error.code, NoteErrorCode::Conflict);
+    assert!(store.operation(enrollment).unwrap().is_none());
+    assert!(
+        store
+            .note_recovery(intent.target_note_id)
+            .unwrap()
+            .is_none()
+    );
+    let receipt = receipt(&intent);
+    store
+        .reconcile_note_operation(
+            request.operation_id,
+            &NoteReconciliation {
+                resolution: NoteResolution::Applied,
+                observed_destination: Some(fingerprint(&request.text, 4)),
+                verification: Some(verification),
+                result: NoteRecordedResult::Receipt(receipt),
+            },
+        )
+        .unwrap();
+    assert_eq!(
+        store
+            .note_recovery(intent.target_note_id)
+            .unwrap()
+            .unwrap()
+            .working,
+        request.text
+    );
+    let reopened = store
+        .enroll_note(
+            Uuid::new_v4(),
+            &vault,
+            Path::new("copy.md"),
+            fingerprint(&request.text, 4),
+            &request.text,
+        )
+        .unwrap();
+    assert_eq!(reopened.note_id, intent.target_note_id);
+}
+
+#[test]
+fn failed_refusal_recording_is_storage_with_original_context_and_no_mutation() {
+    let (_data, _vault, mut store, opened) = fixture();
+    let request = submission(&opened);
+    let intent = store
+        .begin_note_save(
+            &request,
+            Path::new("plan.md"),
+            NoteWriteKind::Replace,
+            &precondition(&opened),
+        )
+        .unwrap();
+    prepare(&mut store, &intent);
+    let before = store
+        .note_save_intent(request.operation_id)
+        .unwrap()
+        .unwrap();
+    let failure = NoteFailure {
+        code: NoteErrorCode::Conflict,
+        message: "late conflict after exchange".into(),
+        operation_id: Some(request.operation_id),
+        note_id: Some(opened.note_id),
+        phase: Some(SavePhase::Exchanged),
+        filesystem_outcome: FileOutcome::Unknown,
+        recovery_available: false,
+    };
+    let conn = rusqlite::Connection::open(store.database_path()).unwrap();
+    conn.execute_batch("CREATE TRIGGER reject_note_receipt BEFORE INSERT ON note_receipts BEGIN SELECT RAISE(ABORT,'injected receipt failure'); END;").unwrap();
+    let error = store
+        .record_note_write_failure(
+            &request,
+            Path::new("plan.md"),
+            NoteWriteKind::Replace,
+            &failure,
+        )
+        .unwrap_err();
+    assert_eq!(error.code, NoteErrorCode::Storage);
+    assert!(error.message.contains(&failure.message));
+    assert!(error.message.contains("injected receipt failure"));
+    assert_eq!(error.phase, Some(SavePhase::Exchanged));
+    assert_eq!(error.filesystem_outcome, FileOutcome::Unknown);
+    assert!(!error.recovery_available);
+    assert_eq!(
+        store
+            .note_save_intent(request.operation_id)
+            .unwrap()
+            .unwrap(),
+        before
+    );
+    assert!(
+        store
+            .note_write_result(&request, Path::new("plan.md"), NoteWriteKind::Replace)
+            .unwrap()
+            .is_none()
+    );
+    conn.execute_batch("DROP TRIGGER reject_note_receipt;")
+        .unwrap();
+}
+
+#[test]
+fn refused_payload_recording_reports_storage_for_operation_conflicts_and_unsupported_paths() {
+    for conflict in [false, true] {
+        let (_data, _vault, mut store, opened) = fixture();
+        let request = submission(&opened);
+        if conflict {
+            store
+                .create_source(request.operation_id, "unrelated operation")
+                .unwrap();
+        }
+        let before = store.operation(request.operation_id).unwrap();
+        let refusal = NoteFailure {
+            code: NoteErrorCode::VaultUnavailable,
+            message: "the selected vault is unavailable".into(),
+            operation_id: Some(request.operation_id),
+            note_id: Some(opened.note_id),
+            phase: None,
+            filesystem_outcome: FileOutcome::NotApplied,
+            recovery_available: false,
+        };
+        let path = if conflict {
+            Path::new("plan.md")
+        } else {
+            Path::new("../plan.md")
+        };
+        let error = store
+            .record_note_write_failure(&request, path, NoteWriteKind::Replace, &refusal)
+            .unwrap_err();
+        assert_eq!(error.code, NoteErrorCode::Storage);
+        assert!(error.message.contains(&refusal.message));
+        assert_eq!(error.phase, refusal.phase);
+        assert_eq!(error.filesystem_outcome, refusal.filesystem_outcome);
+        assert!(!error.recovery_available);
+        assert_eq!(store.operation(request.operation_id).unwrap(), before);
+        assert_eq!(
+            store.note_recovery(opened.note_id).unwrap().unwrap(),
+            opened
+        );
+    }
+}
+
+#[test]
+fn noop_and_reconciled_not_applied_preserve_the_last_applied_recovery_pair() {
+    let (data, _vault, mut store, opened) = fixture();
+    let request = submission(&opened);
+    let intent = store
+        .begin_note_save(
+            &request,
+            Path::new("plan.md"),
+            NoteWriteKind::Replace,
+            &precondition(&opened),
+        )
+        .unwrap();
+    let verification = prepare(&mut store, &intent);
+    store
+        .record_note_verification(request.operation_id, &verification)
+        .unwrap();
+    let saved_receipt = receipt(&intent);
+    store
+        .finish_note_save(request.operation_id, &saved_receipt)
+        .unwrap();
+    store
+        .record_note_cleanup(request.operation_id, ArtifactCleanup::Retired)
+        .unwrap();
+    let expected_pair = Some((
+        request.operation_id,
+        b"\xef\xbb\xbf# plan\r\n".to_vec(),
+        b"updated\r\n".to_vec(),
+    ));
+    assert_eq!(recovery_pair(&store, opened.note_id), expected_pair);
+    let recovered = store.note_recovery(opened.note_id).unwrap().unwrap();
+    let expected = DestinationPrecondition::Existing {
+        fingerprint: fingerprint(&recovered.baseline, 4),
+        baseline_text: recovered.baseline.clone(),
+    };
+    let mut noop = NoteSubmission {
+        operation_id: Uuid::new_v4(),
+        note_id: opened.note_id,
+        expected: recovered.stamp,
+        generation: 1,
+        text: recovered.working.clone(),
+    };
+    store
+        .begin_note_save(
+            &noop,
+            Path::new("plan.md"),
+            NoteWriteKind::Replace,
+            &expected,
+        )
+        .unwrap();
+    store
+        .finish_note_save(
+            noop.operation_id,
+            &NoteReceipt {
+                operation_id: noop.operation_id,
+                source_note_id: noop.note_id,
+                note_id: noop.note_id,
+                submitted_generation: 1,
+                stamp: recovered.stamp,
+                filesystem_outcome: FileOutcome::NotApplied,
+                recovery_available: true,
+            },
+        )
+        .unwrap();
+    assert_eq!(
+        recovery_pair(&store, opened.note_id),
+        expected_pair,
+        "no-op cannot replace the real pre-save bytes"
+    );
+    store.prune_completed_note_payloads(opened.note_id).unwrap();
+    assert!(
+        store
+            .note_save_intent(request.operation_id)
+            .unwrap()
+            .is_some()
+    );
+
+    noop.operation_id = Uuid::new_v4();
+    noop.generation = 2;
+    noop.text = "never installed\r\n".into();
+    store
+        .begin_note_save(
+            &noop,
+            Path::new("plan.md"),
+            NoteWriteKind::Replace,
+            &expected,
+        )
+        .unwrap();
+    drop(store);
+    let (mut store, _) = Store::open(data.path()).unwrap();
+    store
+        .reconcile_note_operation(
+            noop.operation_id,
+            &NoteReconciliation {
+                resolution: NoteResolution::NotApplied,
+                observed_destination: Some(fingerprint("updated\r\n", 4)),
+                verification: None,
+                result: NoteRecordedResult::Receipt(NoteReceipt {
+                    operation_id: noop.operation_id,
+                    source_note_id: noop.note_id,
+                    note_id: noop.note_id,
+                    submitted_generation: 2,
+                    stamp: NoteStamp {
+                        file_state: recovered.stamp.file_state,
+                        generation: 2,
+                    },
+                    filesystem_outcome: FileOutcome::NotApplied,
+                    recovery_available: true,
+                }),
+            },
+        )
+        .unwrap();
+    assert_eq!(
+        recovery_pair(&store, opened.note_id),
+        expected_pair,
+        "unsaved input cannot become the successful-save pair"
+    );
+    store
+        .record_note_cleanup(noop.operation_id, ArtifactCleanup::Retired)
+        .unwrap();
+    store.prune_completed_note_payloads(opened.note_id).unwrap();
+    assert!(
+        store
+            .note_save_intent(request.operation_id)
+            .unwrap()
+            .is_some()
+    );
+    assert_eq!(
+        store
+            .note_recovery(opened.note_id)
+            .unwrap()
+            .unwrap()
+            .working,
+        "never installed\r\n"
+    );
+}
+
+#[test]
+fn applied_historical_failure_advances_the_successful_save_pair() {
+    let (_data, _vault, mut store, opened) = fixture();
+    let request = submission(&opened);
+    let first = store
+        .begin_note_save(
+            &request,
+            Path::new("plan.md"),
+            NoteWriteKind::Replace,
+            &precondition(&opened),
+        )
+        .unwrap();
+    let verification = prepare(&mut store, &first);
+    store
+        .record_note_verification(request.operation_id, &verification)
+        .unwrap();
+    store
+        .finish_note_save(request.operation_id, &receipt(&first))
+        .unwrap();
+    let recovered = store.note_recovery(opened.note_id).unwrap().unwrap();
+    let second_request = NoteSubmission {
+        operation_id: Uuid::new_v4(),
+        note_id: opened.note_id,
+        expected: recovered.stamp,
+        generation: 2,
+        text: "applied after uncertainty\r\n".into(),
+    };
+    let second = store
+        .begin_note_save(
+            &second_request,
+            Path::new("plan.md"),
+            NoteWriteKind::Replace,
+            &DestinationPrecondition::Existing {
+                fingerprint: fingerprint(&recovered.baseline, 4),
+                baseline_text: recovered.baseline,
+            },
+        )
+        .unwrap();
+    let verification = prepare(&mut store, &second);
+    let failure = NoteFailure {
+        code: NoteErrorCode::SaveUncertain,
+        message: "completion initially uncertain".into(),
+        operation_id: Some(second_request.operation_id),
+        note_id: Some(opened.note_id),
+        phase: Some(SavePhase::Exchanged),
+        filesystem_outcome: FileOutcome::Unknown,
+        recovery_available: false,
+    };
+    let failure = store
+        .record_note_write_failure(
+            &second_request,
+            Path::new("plan.md"),
+            NoteWriteKind::Replace,
+            &failure,
+        )
+        .unwrap();
+    let record = NoteReconciliation {
+        resolution: NoteResolution::Applied,
+        observed_destination: Some(fingerprint(&second_request.text, 5)),
+        verification: Some(verification),
+        result: NoteRecordedResult::Failure(failure.clone()),
+    };
+    store
+        .reconcile_note_operation(second_request.operation_id, &record)
+        .unwrap();
+    assert_eq!(
+        recovery_pair(&store, opened.note_id),
+        Some((
+            second_request.operation_id,
+            b"updated\r\n".to_vec(),
+            b"applied after uncertainty\r\n".to_vec(),
+        ))
+    );
+    assert_eq!(
+        store
+            .note_write_result(
+                &second_request,
+                Path::new("plan.md"),
+                NoteWriteKind::Replace
+            )
+            .unwrap(),
+        Some(NoteRecordedResult::Failure(failure))
+    );
 }
 
 #[test]

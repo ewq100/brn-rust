@@ -27,6 +27,10 @@ their recorded receipt/failure and never acquire permission to write again.
 One unresolved original-path intent blocks another original save even after
 startup interruption; independently reserved copies remain allowed.
 Only note-specific completion/reconciliation can resolve these writes.
+Enrollment cannot allocate a competing identity at a reserved copy destination;
+it may reopen the already registered reserved target. Failed refusal recording
+returns `Storage` with the original refusal context, actual phase/outcome and
+no recovery acknowledgement.
 
 This crate performs **no vault filesystem operations**. The workflow must
 verify prepared/installed/displaced identities and durability before supplying
@@ -40,7 +44,10 @@ uncertain/unknown outcomes cannot authorize retirement.
 `prune_completed_note_payloads` removes only superseded, successfully completed
 payloads with retired artifacts and no protected dependency. The latest
 recovery pair/buffer, unresolved work, unexpected artifacts and receipts
-survive. Pruned operations remain replayable through `note_write_result`;
+survive. Only verified Applied outcomes advance the successful-save recovery
+pair, including Applied reconciliation that preserves a historical failure
+result; no-op and reconciled NotApplied outcomes leave that pair unchanged.
+Pruned operations remain replayable through `note_write_result`;
 their full intent is no longer returned by intent reads/lists. A normal
 unchanged-save completion creates no artifact; interrupted intent
 reconciliation cannot infer artifact absence merely from missing metadata.
