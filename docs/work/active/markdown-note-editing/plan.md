@@ -1,5 +1,7 @@
 # Safe Markdown Note Editing Implementation Plan
 
+**Execution paused:** The [Rig-first reset](../../../superpowers/specs/2026-10-01-rig-first-architecture-reset-design.md) replaces this plan's required macOS coordination/atomic-exchange protocol with basic editor-grade saving and changes provider/conversation assumptions. This plan is retained as prior planning evidence, not current execution instructions. Revise it before implementation; the historical approvals below do not authorize running it unchanged.
+
 > **For agentic workers:** REQUIRED SUB-SKILL: Use superpowers:subagent-driven-development or superpowers:executing-plans to implement this plan task-by-task. Follow the current user's delegation preference; inline execution is the repository default. Steps use checkbox (`- [ ]`) syntax for tracking.
 
 **Goal:** Open an existing local Markdown note, protect unfinished edits, save to the real file, and safely reconcile external changes or interrupted saves.
@@ -706,4 +708,4 @@ Coverage: spec sections 1-3 map to Tasks 1-3/8; original saves/restart to Task 4
 
 Self-review must verify type/member consistency, exact-byte/native editor behavior, startup interruption versus dedicated save phases, operation replay before fresh-state validation, current evidence on every related surface, and copy-specific versus exchange-specific recovery. The implementation snippets are targeted contracts/algorithms, not prewritten substitutes for the red-green cycles.
 
-Written spec approved; implementation has not been selected or started. After plan review, offer inline execution with checkpoints or explicitly authorized subagent-driven execution. Use the chosen execution skill and isolated worktree at that time.
+Historical gate: the written spec was approved, but implementation was not selected or started. Execution is now paused under the Rig-first reset. Revise this plan for the new saving/provider scope and obtain current review before offering execution.

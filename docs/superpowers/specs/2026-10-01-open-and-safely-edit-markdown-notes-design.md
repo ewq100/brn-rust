@@ -4,6 +4,8 @@ Date: 1 October 2026
 
 Status: Four design sections and the written specification approved on 1 October 2026. [Implementation plan](../../work/active/markdown-note-editing/plan.md) prepared; execution choice pending. Implementation and product verification have not started.
 
+Supersession: The [Rig-first reset specification](2026-10-01-rig-first-architecture-reset-design.md) replaces this document's stronger coordination/exchange save protocol with basic editor-grade saving for the reset. The implementation plan is paused and requires revision. This document retains the earlier approved design as history; its stronger guarantees must not be attributed to the reset.
+
 Inspected baseline: local `main` at `4f059881f5a34d22ffdf1bb53e79954c94c8608f`, with a clean worktree before this documentation change.
 
 This is the first implementation-design slice of the [Markdown-first direction](2026-09-30-markdown-first-ai-workspace-design.md), not authorization to migrate a vault, run a live provider, merge, or release. The current [architecture](../../architecture/overview.md) and [invariants](../../architecture/invariants.md) still describe the implemented SQLite-first baseline. Implementation of this design must explicitly update the authority contract for newly managed notes without rewriting historical evidence.

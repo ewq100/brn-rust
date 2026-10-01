@@ -33,3 +33,7 @@ Default desktop features are empty. `native-ui` enables GPUI and the integrated 
 The desktop's layout.json in the data directory is presentation state only; deleting it restores default layout without affecting authoritative data.
 
 Read [invariants](invariants.md) before changing a boundary, and [dependencies](dependencies.md) for dated dependency observations and distribution limits.
+
+## Planned reset, not implemented architecture
+
+The [Rig-first reset specification](../superpowers/specs/2026-10-01-rig-first-architecture-reset-design.md) proposes replacing App Server with direct Rig subscription integrations, Markdown-authoritative current notes, FTS5/sqlite-vec retrieval and protected file credential caches. It includes macOS distribution qualification and defers Windows. Its basic editor-grade save protocol supersedes the earlier coordination/exchange design for the reset. This section records approved design intent, not implementation, live-provider qualification or release readiness; the ownership and data flow above remain the implemented baseline.
