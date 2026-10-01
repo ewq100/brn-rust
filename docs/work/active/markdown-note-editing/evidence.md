@@ -416,3 +416,112 @@ above; no crate/code/script/manifest/lockfile changes. `git merge-base
 This qualification is recorded by the child commit with subject
 `docs: record safe Markdown editing qualification` and the required Copilot
 trailer; no merge, push or release is authorized or performed.
+
+## Final review fix wave — 2026-10-01
+
+Baseline: clean `feat/markdown-note-editing@29792a0`, in its existing isolated
+worktree. Fix commit: `3348d9b` — `fix(workflow): resolve proven not-applied copy
+and staging failures`. This evidence is recorded by the following commit,
+`docs: record final Markdown review fix-wave evidence`; both include the required
+Copilot trailer and pass `cargo check --workspace --locked` before commit.
+Implementation of this fix wave: **implemented**; targeted automated verification:
+**verified**; native/user acceptance: **pending**, not observed. No merge/push.
+
+### Findings and rulings
+
+- **I-1 / R25:** live copies with no installation attempted resolve NotApplied
+  only after a fresh destination absence/non-prepared-identity observation.
+  An EEXIST collision resolves using the exact recorded unconsumed prepared
+  stage through additive store API `reconcile_note_copy_not_installed`.
+  Reservation release changes only metadata; the occupant and stage remain
+  untouched, and submitted recovery and the original failure replay survive.
+  Interrupted-copy classification accepts this same stage proof. Explicit
+  reconciliation can also resolve a previously recorded transient observation
+  failure after proof becomes available, replaying that historical failure
+  byte-for-byte unchanged. Without proof, copies remain reserved.
+- **I-2 / R24 (revises R15):** when live progress proves exchange was never
+  attempted, the matching destination baseline alone resolves an original save
+  NotApplied. A stage whose creation failed before identity recording remains
+  RetainedUnexpected; it does not turn execution disproof into Unknown.
+  The original typed failure is preserved. An externally changed destination
+  still reports Conflict/NotApplied with an Unresolved intent (R15); restart
+  cannot infer live progress from phase alone.
+- **Minor:** CLI/desktop READMEs and the pending native checklist explicitly
+  distinguish in-place external edits from atomic-save inode replacement
+  (for example TextEdit). Reload refuses the latter; confirmed same-path Relink
+  retains edits, then a separately confirmed Reload may discard them.
+  Reload semantics were not changed.
+
+### RED before production fixes
+
+Commands used `TMPDIR="$PWD/.superpowers/sdd/plan/tmp"` inside this worktree.
+The new private cfg(test) staging-failure seam was present; production save/store
+behavior was still unchanged.
+
+```text
+cargo test -p brn-workflow --lib notes::crash_tests::staging_io_failures --locked
+assertion `left == right` failed: false/write: pre-exchange refusal has
+unproven staging state: filesystem outcome is uncertain: injected staging I/O failure
+  left: SaveUncertain
+ right: Io
+test result: FAILED. 0 passed; 1 failed; 0 ignored; 51 filtered out
+exit 101
+
+cargo test -p brn-workflow --lib notes::crash_tests::copy_eexist --locked
+assertion `left == right` failed
+  left: Unresolved
+ right: NotApplied
+test result: FAILED. 0 passed; 1 failed; 0 ignored; 51 filtered out
+exit 101
+```
+
+### GREEN and final gates
+
+Final commands ran with the same worktree-local TMPDIR, default features and
+pinned lockfile on macOS 26.5 (25F71), arm64; rustc 1.98.1
+(`48a229cea`, 2026-09-01), cargo 1.98.1 (`797e8a9bc`, 2026-08-05).
+Each command exited 0:
+
+| Command | Actual result |
+| --- | --- |
+| `cargo test -p brn-workflow --lib notes:: --locked` | 42 passed, 0 failed/ignored; 12 unrelated lib tests filtered. |
+| `cargo test -p brn-workflow --test notes --test note_recovery --test note_conflicts --locked` | 21 notes + 9 recovery + 16 conflicts = 46 passed, 0 failed/ignored. |
+| `cargo test -p brn-store --test notes --locked` | 42 passed, 0 failed/ignored. |
+| `cargo test -p brn --test cli_notes --locked` | 11 passed, 0 failed/ignored. |
+| `cargo check --workspace --locked` | Passed before the fix commit; repeated before this documentation commit. |
+| `cargo fmt --all` | Passed; final format check also passed. |
+| `cargo clippy --workspace --all-targets --locked -- -D warnings` | Passed, warnings denied. |
+| `git diff --check` | Passed. |
+
+New regressions cover replace write/attribute/file-sync/directory-sync failures
+after stage creation, copy write/file-sync/directory-sync failures, successful
+subsequent saves/copies, preserved unrecorded staging metadata, restart replay,
+EEXIST with subsequent enrollment, live uncertain-copy reservation, and transient
+observation-error reconciliation both before staging and after preparation.
+Additive store tests exercise proof validation (wrong stage path/fingerprint,
+unprepared intent, Replace kind, recorded exchange), atomic refusal, immutable
+historical Unknown replay, independent enrollment after reservation release and
+protected submitted recovery.
+
+Local ignored logs: `.superpowers/sdd/plan/fix-red-staging.log`,
+`fix-red-copy.log`, `fix-green-workflow-lib.log`,
+`fix-green-workflow-integration.log`, `fix-green-store.log`, `fix-green-cli.log`,
+`fix-check.log`, and `fix-clippy.log`. An intermediate workflow compile failed
+because the new helper was an associated function but called without `Self::`;
+that was corrected before all final gates above.
+
+### Self-review and remaining qualification
+
+No failure is rewritten into success; store result/hash/replay rules remain
+unchanged. SQLite transitions are additive and transactional. No enum variants,
+schema/manifest/lockfile changes, filename-based deletions, weaker filesystem
+writes, real-vault access, provider calls, model acquisition or nested agents.
+The new reconciliation paths only observe files and commit metadata; they do
+not rename, create, unlink or alter content. RetainedUnexpected artifacts remain
+intentionally present/protected, and historical Unknown results still do not
+authorize cleanup even after reservation release.
+
+**The integrated script was not run or rerun in this fix wave.** The controller
+must rerun `scripts/verify-end-to-end.sh` and record its result separately.
+Existing native-user acceptance, optional native-retrieval prerequisite,
+power-loss/other-volume and arbitrary-writer limitations above remain unchanged.
