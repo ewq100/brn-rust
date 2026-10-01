@@ -1,4 +1,5 @@
 //! Shared Markdown observation, durable editing recovery and explicit original-path saves.
+mod conflicts;
 #[cfg(all(test, target_os = "macos"))]
 mod crash_tests;
 mod files;
@@ -64,7 +65,8 @@ impl crate::Workspace {
             };
             for record in registered_notes {
                 if record.vault_id == selected.id
-                    && (same_file(&record.baseline)
+                    && (files.aliases_original(relative, &record.relative_path)?
+                        || same_file(&record.baseline)
                         || record.observed.as_ref().is_some_and(|(_, file)| same_file(file))
                         // An external replacement may not have a durable observation yet.
                         || files.observe(&record.relative_path)
@@ -73,13 +75,19 @@ impl crate::Workspace {
                     let mut error = note_failure(
                         NoteErrorCode::Conflict,
                         format!(
-                            "file is already registered as {}; use that registered path",
+                            "file is already registered as {}; use explicit relink to confirm a move or replacement",
                             record.relative_path.display()
                         ),
                     );
                     error.note_id = Some(record.id);
                     return Err(error);
                 }
+            }
+            if self.registry_path_is_reserved(relative)? {
+                return Err(note_failure(
+                    NoteErrorCode::Conflict,
+                    "path aliases a reserved copy destination; reconcile that copy operation first",
+                ));
             }
             let recovered = self.store.enroll_note_at(
                 op,
@@ -131,27 +139,13 @@ impl crate::Workspace {
                             .record_note_observation(id, &observed.fingerprint)?,
                     );
                     view.search_approval = self.store.note_record(id)?.search_approval;
-                    if !recovery.pending_operations.is_empty() {
-                        let mut uncertain = false;
-                        for op in &recovery.pending_operations {
-                            if !matches!(
-                                self.store.note_save_intent(*op)?.and_then(|intent| intent.prior_result),
-                                Some(NoteRecordedResult::Failure(error)) if error.filesystem_outcome == FileOutcome::NotApplied
-                            ) {
-                                uncertain = true;
-                                break;
-                            }
-                        }
-                        view.availability = if uncertain {
-                            NoteAvailability::Uncertain
-                        } else {
+                    if let Some(blocker) = self.store.note_original_save_blocker(id)? {
+                        view.availability = if blocker.code == NoteErrorCode::Conflict {
                             NoteAvailability::Conflict
-                        };
-                        view.availability_message = Some(if uncertain {
-                            "note has unresolved recovery operations with uncertain outcomes"
                         } else {
-                            "note has an unresolved not-applied refusal; explicit resolution is required"
-                        }.into());
+                            NoteAvailability::Uncertain
+                        };
+                        view.availability_message = Some(blocker.message);
                     } else if observed.fingerprint != record.baseline {
                         view.availability = NoteAvailability::Conflict;
                         view.availability_message = Some("saved file differs from the editing baseline; explicit reconciliation is required".into());

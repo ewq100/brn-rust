@@ -116,7 +116,9 @@ fn pre_exchange_external_conflict_is_not_applied_and_stays_blocked() {
                 ..f.request.clone()
             })
             .unwrap_err();
-        assert_eq!(second.code, NoteErrorCode::SaveUncertain);
+        assert_eq!(second.code, NoteErrorCode::Conflict);
+        assert!(second.message.contains("compare"));
+        assert!(second.message.contains("accept"));
         assert_eq!(
             w.note(f.request.note_id).unwrap().availability,
             NoteAvailability::Conflict
@@ -243,7 +245,7 @@ use std::{
     sync::mpsc,
     time::Duration,
 };
-use tempfile::{TempDir, tempdir};
+use tempfile::TempDir;
 
 fn metadata(path: &Path) -> Option<(u64, u64, i64, i64, u32, u64)> {
     use std::os::unix::fs::MetadataExt;
@@ -317,7 +319,12 @@ fn child_worker() {
     let request: NoteSubmission =
         serde_json::from_slice(&fs::read(root.join("request.json")).unwrap()).unwrap();
     let race = fs::read_to_string(root.join("race")).ok();
-    let destination = root.join("vault/plan.md");
+    let is_copy = root.join("copy").exists();
+    let destination = root.join(if is_copy {
+        "vault/rescue.md"
+    } else {
+        "vault/plan.md"
+    });
     let staging = root.join(format!("vault/.brn-{}.stage", request.operation_id));
     let vault = root.join("vault");
     let away = root.join("vault-away");
@@ -390,7 +397,11 @@ fn child_worker() {
             }
         }));
     });
-    let result = w.save_note(request);
+    let result = if is_copy {
+        w.save_note_copy(request, Path::new("rescue.md"))
+    } else {
+        w.save_note(request)
+    };
     if target == "refusal" {
         assert!(result.is_err());
         save::checkpoint("refusal");
@@ -405,9 +416,319 @@ struct Fixture {
     request: NoteSubmission,
 }
 
+#[test]
+fn copy_crashes_reconcile_without_displacement_or_new_identity_on_replay() {
+    for phase in [
+        "intent",
+        "stage_created",
+        "stage",
+        "prepared",
+        "prechecked",
+        "exchange_returned",
+        "synced",
+        "verified",
+        "receipt",
+    ] {
+        let f = Fixture::new();
+        fs::write(f.root.path().join("copy"), "").unwrap();
+        f.crash(phase);
+        let mut w = f.reopen();
+        let intent = w
+            .store
+            .note_save_intent(f.request.operation_id)
+            .unwrap()
+            .unwrap();
+        let target = intent.target_note_id;
+        assert_ne!(target, f.request.note_id);
+        assert!(intent.displaced.is_none());
+        let result = w.reconcile_note_save(f.request.operation_id);
+        match phase {
+            "exchange_returned" | "synced" | "verified" | "receipt" => {
+                let receipt = result.unwrap();
+                assert_eq!(receipt.source_note_id, f.request.note_id);
+                assert_eq!(receipt.note_id, target);
+                assert_eq!(receipt.filesystem_outcome, FileOutcome::Applied);
+                assert_eq!(
+                    w.note(target).unwrap().search_approval,
+                    brn_store::Approval::Draft
+                );
+                assert_eq!(
+                    w.save_note_copy(f.request.clone(), Path::new("rescue.md"))
+                        .unwrap(),
+                    receipt
+                );
+                assert_eq!(w.note_recoveries().unwrap().len(), 2);
+            }
+            _ => {
+                let failure = result.unwrap_err();
+                assert!(failure.recovery_available);
+                assert_eq!(
+                    failure.filesystem_outcome,
+                    if matches!(phase, "intent" | "prepared" | "prechecked") {
+                        FileOutcome::NotApplied
+                    } else {
+                        FileOutcome::Unknown
+                    }
+                );
+                assert_eq!(
+                    w.save_note_copy(f.request.clone(), Path::new("rescue.md"))
+                        .unwrap_err(),
+                    failure
+                );
+                assert_eq!(w.note_recoveries().unwrap().len(), 1);
+            }
+        }
+        assert_eq!(
+            fs::read(f.root.path().join("vault/plan.md")).unwrap(),
+            b"base"
+        );
+        assert_eq!(
+            w.store
+                .note_save_intent(f.request.operation_id)
+                .unwrap()
+                .unwrap()
+                .target_note_id,
+            target
+        );
+    }
+}
+
+#[test]
+fn reviewed_disk_acceptance_is_metadata_only_and_does_not_resolve_by_reload_or_copy() {
+    let f = Fixture::new();
+    f.crash("stage");
+    let mut w = f.reopen();
+    let original = w.reconcile_note_save(f.request.operation_id).unwrap_err();
+    assert_eq!(original.code, NoteErrorCode::SaveUncertain);
+    let compared = w.compare_note(f.request.note_id).unwrap();
+    let ack = Uuid::new_v4();
+    fs::write(f.root.path().join("vault/plan.md"), "external").unwrap();
+    let stamp = w.note(f.request.note_id).unwrap().stamp;
+    let blocked = w
+        .save_note(NoteSubmission {
+            operation_id: Uuid::new_v4(),
+            expected: stamp,
+            generation: 3,
+            text: "blocked".into(),
+            ..f.request.clone()
+        })
+        .unwrap_err();
+    assert_eq!(blocked.code, NoteErrorCode::SaveUncertain);
+    assert!(blocked.message.contains("compare") && blocked.message.contains("accept"));
+    assert_eq!(
+        w.accept_note_disk_state(
+            ack,
+            f.request.operation_id,
+            compared.observed_file_state.unwrap()
+        )
+        .unwrap_err()
+        .code,
+        NoteErrorCode::StateChanged
+    );
+    let current = w.note(f.request.note_id).unwrap();
+    let reloaded = w
+        .reload_note(Uuid::new_v4(), current.id, current.stamp, true)
+        .unwrap();
+    assert_eq!(
+        w.store
+            .note_save_intent(f.request.operation_id)
+            .unwrap()
+            .unwrap()
+            .resolution,
+        NoteResolution::Unresolved
+    );
+    let copy = w
+        .save_note_copy(
+            NoteSubmission {
+                operation_id: Uuid::new_v4(),
+                expected: reloaded.stamp,
+                generation: 4,
+                text: "rescue".into(),
+                ..f.request.clone()
+            },
+            Path::new("rescue.md"),
+        )
+        .unwrap();
+    assert_ne!(copy.note_id, f.request.note_id);
+    assert_eq!(
+        w.store
+            .note_save_intent(f.request.operation_id)
+            .unwrap()
+            .unwrap()
+            .resolution,
+        NoteResolution::Unresolved
+    );
+    let review = w.compare_note(f.request.note_id).unwrap();
+    let before = (
+        metadata(&f.root.path().join("vault/plan.md")),
+        metadata(&f.stage()),
+        fs::read(f.stage()).unwrap(),
+    );
+    let accepted = w
+        .accept_note_disk_state(
+            ack,
+            f.request.operation_id,
+            review.observed_file_state.unwrap(),
+        )
+        .unwrap();
+    assert_eq!(accepted.buffer, "rescue");
+    assert_eq!(accepted.stamp.generation, 4);
+    assert_eq!(accepted.saved.as_deref(), Some("external"));
+    assert_eq!(accepted.availability, NoteAvailability::Available);
+    assert_eq!(
+        (
+            metadata(&f.root.path().join("vault/plan.md")),
+            metadata(&f.stage()),
+            fs::read(f.stage()).unwrap()
+        ),
+        before
+    );
+    assert_eq!(w.save_note(f.request.clone()).unwrap_err(), original);
+    assert_eq!(
+        w.reconcile_note_save(f.request.operation_id).unwrap_err(),
+        original
+    );
+    w.cleanup_note_artifacts(f.request.operation_id).unwrap();
+    assert!(f.stage().exists());
+    assert_eq!(
+        w.accept_note_disk_state(
+            ack,
+            f.request.operation_id,
+            review.observed_file_state.unwrap()
+        )
+        .unwrap()
+        .stamp,
+        accepted.stamp
+    );
+    w.save_note(NoteSubmission {
+        operation_id: Uuid::new_v4(),
+        expected: accepted.stamp,
+        generation: 5,
+        text: "resolved".into(),
+        ..f.request.clone()
+    })
+    .unwrap();
+}
+
+#[test]
+fn copy_reservation_and_late_collision_preserve_both_files_and_independent_source() {
+    for phase in ["prepared", "refusal"] {
+        let f = Fixture::new();
+        fs::write(f.root.path().join("copy"), "").unwrap();
+        if phase == "refusal" {
+            fs::write(f.root.path().join("race"), "content").unwrap();
+        }
+        f.crash(phase);
+        let mut w = f.reopen();
+        let original = w.note(f.request.note_id).unwrap();
+        assert_eq!(original.availability, NoteAvailability::Available);
+        let refused = w
+            .save_note_copy(
+                NoteSubmission {
+                    operation_id: Uuid::new_v4(),
+                    expected: original.stamp,
+                    generation: 3,
+                    text: "new recovery".into(),
+                    ..f.request.clone()
+                },
+                Path::new("RESCUE.md"),
+            )
+            .unwrap_err();
+        assert_eq!(refused.code, NoteErrorCode::Conflict);
+        assert!(refused.recovery_available);
+        assert_eq!(w.store.note_save_intents().unwrap().len(), 1);
+        if phase == "refusal" {
+            let failure = w
+                .save_note_copy(f.request.clone(), Path::new("rescue.md"))
+                .unwrap_err();
+            assert_eq!(failure.code, NoteErrorCode::Conflict);
+            assert_eq!(failure.filesystem_outcome, FileOutcome::NotApplied);
+            assert_eq!(
+                fs::read(f.root.path().join("vault/rescue.md")).unwrap(),
+                b"external"
+            );
+            assert_eq!(fs::read(f.stage()).unwrap(), b"mine");
+        }
+        assert_eq!(
+            fs::read(f.root.path().join("vault/plan.md")).unwrap(),
+            b"base"
+        );
+    }
+}
+
+#[test]
+fn matching_copy_bytes_without_installed_identity_never_enroll_a_new_note() {
+    let f = Fixture::new();
+    fs::write(f.root.path().join("copy"), "").unwrap();
+    f.crash("exchange_returned");
+    let destination = f.root.path().join("vault/rescue.md");
+    fs::write(destination.with_extension("replacement"), b"mine").unwrap();
+    fs::rename(destination.with_extension("replacement"), &destination).unwrap();
+    let before = metadata(&destination);
+    let mut w = f.reopen();
+    let attempted = w.open_note(
+        Uuid::new_v4(),
+        &f.root.path().join("vault"),
+        Path::new("RESCUE.md"),
+    );
+    assert_eq!(attempted.unwrap_err().code, NoteErrorCode::Conflict);
+    let failure = w.reconcile_note_save(f.request.operation_id).unwrap_err();
+    assert_eq!(failure.code, NoteErrorCode::SaveUncertain);
+    assert_eq!(failure.filesystem_outcome, FileOutcome::Unknown);
+    assert_eq!(w.note_recoveries().unwrap().len(), 1);
+    assert_eq!(metadata(&destination), before);
+    assert_eq!(
+        w.save_note_copy(f.request.clone(), Path::new("rescue.md"))
+            .unwrap_err(),
+        failure
+    );
+    assert_eq!(
+        w.note(f.request.note_id).unwrap().availability,
+        NoteAvailability::Available
+    );
+}
+
+#[test]
+fn confirmed_relink_does_not_resolve_uncertainty_but_reviewed_acceptance_can() {
+    let f = Fixture::new();
+    f.crash("stage");
+    let mut w = f.reopen();
+    let original = w.reconcile_note_save(f.request.operation_id).unwrap_err();
+    fs::rename(
+        f.root.path().join("vault/plan.md"),
+        f.root.path().join("vault/moved.md"),
+    )
+    .unwrap();
+    let stamp = w.note(f.request.note_id).unwrap().stamp;
+    let relinked = w
+        .relink_note(
+            Uuid::new_v4(),
+            f.request.note_id,
+            stamp,
+            Path::new("moved.md"),
+            true,
+        )
+        .unwrap();
+    assert_eq!(relinked.availability, NoteAvailability::Uncertain);
+    assert_eq!(relinked.buffer, "mine");
+    let comparison = w.compare_note(f.request.note_id).unwrap();
+    let accepted = w
+        .accept_note_disk_state(
+            Uuid::new_v4(),
+            f.request.operation_id,
+            comparison.observed_file_state.unwrap(),
+        )
+        .unwrap();
+    assert_eq!(accepted.availability, NoteAvailability::Available);
+    assert_eq!(accepted.relative_path, Path::new("moved.md"));
+    assert_eq!(w.save_note(f.request.clone()).unwrap_err(), original);
+    assert!(!f.root.path().join("vault/plan.md").exists());
+    assert!(f.stage().exists());
+}
+
 impl Fixture {
     fn new() -> Self {
-        let root = tempdir().unwrap();
+        let root = tempfile::tempdir_in(".").unwrap();
         fs::create_dir(root.path().join("vault")).unwrap();
         fs::create_dir(root.path().join("data")).unwrap();
         fs::write(root.path().join("vault/plan.md"), "base").unwrap();

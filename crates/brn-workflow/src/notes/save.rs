@@ -12,9 +12,9 @@ use brn_store::{
 use std::cell::Cell;
 
 #[derive(Default)]
-struct SaveProgress {
-    staging_attempted: Cell<bool>,
-    exchange_attempted: Cell<bool>,
+pub(super) struct SaveProgress {
+    pub(super) staging_attempted: Cell<bool>,
+    pub(super) exchange_attempted: Cell<bool>,
 }
 
 struct NoteSaveObservations {
@@ -24,7 +24,7 @@ struct NoteSaveObservations {
 }
 
 enum RecoveryDecision {
-    NotApplied(FileFingerprint),
+    NotApplied(Option<FileFingerprint>),
     Applied(NoteVerification),
     MatchingContentUnproven,
     Conflict,
@@ -37,17 +37,28 @@ impl crate::Workspace {
     pub fn save_note(&mut self, request: NoteSubmission) -> NoteResult<NoteReceipt> {
         let result = (|| {
             let record = self.store.note_record(request.note_id)?;
-            if let Some(result) = self.store.note_write_result(
-                &request,
-                &record.relative_path,
-                NoteWriteKind::Replace,
-            )? {
+            let destination = self
+                .store
+                .note_write_destination(request.operation_id)?
+                .unwrap_or_else(|| record.relative_path.clone());
+            if let Some(result) =
+                self.store
+                    .note_write_result(&request, &destination, NoteWriteKind::Replace)?
+            {
                 return replay(result);
             }
             if self.store.note_save_intent(request.operation_id)?.is_some() {
                 return self.reconcile_note_save(request.operation_id);
             }
             self.store.validate_note_submission(&request)?;
+            if let Some(error) = self.store.note_original_save_blocker(request.note_id)? {
+                return Err(self.store.record_note_write_failure(
+                    &request,
+                    &record.relative_path,
+                    NoteWriteKind::Replace,
+                    &error,
+                )?);
+            }
             let preflight = self.acquire_note_vault(request.note_id).and_then(|()| {
                 let observed = self
                     .notes
@@ -87,7 +98,12 @@ impl crate::Workspace {
                 },
             ) {
                 Ok(intent) => intent,
-                Err(error) if error.code == NoteErrorCode::SaveUncertain => {
+                Err(error)
+                    if matches!(
+                        error.code,
+                        NoteErrorCode::SaveUncertain | NoteErrorCode::Conflict
+                    ) =>
+                {
                     return Err(self.store.record_note_write_failure(
                         &request,
                         &record.relative_path,
@@ -136,7 +152,7 @@ impl crate::Workspace {
         })
     }
 
-    fn record_note_save_failure(
+    pub(super) fn record_note_save_failure(
         &mut self,
         intent: NoteSaveIntent,
         error: NoteFailure,
@@ -164,7 +180,15 @@ impl crate::Workspace {
         let mut error = context(error, &current, FileOutcome::Unknown);
         // Live progress proves whether creation/exchange was attempted; the journal
         // phase alone is never such proof after a crash or an uncertain exchange.
-        if !progress.exchange_attempted.get() {
+        let copy_not_installed = current.kind == NoteWriteKind::Copy
+            && current.phase == SavePhase::Prepared
+            && error.code == NoteErrorCode::Conflict
+            && current.staged.as_ref().is_some_and(|prepared| {
+                files
+                    .observe(&current.staging_relative)
+                    .is_ok_and(|observed| observed.fingerprint == prepared.fingerprint)
+            });
+        if !progress.exchange_attempted.get() || copy_not_installed {
             let stage_known = !progress.staging_attempted.get()
                 || match files.artifact(&current.staging_relative) {
                     Ok(None) => true,
@@ -205,7 +229,7 @@ impl crate::Workspace {
                 return Err(self.store.record_note_write_failure(
                     &current.request,
                     &current.destination,
-                    NoteWriteKind::Replace,
+                    current.kind,
                     &known_failure,
                 )?);
             }
@@ -218,7 +242,7 @@ impl crate::Workspace {
         Err(self.store.record_note_write_failure(
             &current.request,
             &current.destination,
-            NoteWriteKind::Replace,
+            current.kind,
             &error,
         )?)
     }
@@ -267,6 +291,14 @@ impl crate::Workspace {
 
     fn observe_note_intent(&self, intent: &NoteSaveIntent) -> NoteResult<NoteSaveObservations> {
         let files = &self.notes.vault.as_ref().unwrap().1;
+        if let DestinationPrecondition::Absent { parent } = &intent.expected_destination
+            && files.parent_identity(&intent.destination)? != *parent
+        {
+            return Err(note_failure(
+                NoteErrorCode::Conflict,
+                "copy destination parent changed",
+            ));
+        }
         observe_intent(files, intent)
     }
 
@@ -458,7 +490,28 @@ fn execute_save(
 
 fn observe_intent(files: &MacFiles, intent: &NoteSaveIntent) -> NoteResult<NoteSaveObservations> {
     files.coordinate(&intent.destination, || {
-        observe_intent_uncoordinated(files, intent)
+        let observations = observe_intent_uncoordinated(files, intent)?;
+        if intent.kind == NoteWriteKind::Copy
+            && matches!(
+                classify_note_save(intent, &observations)?,
+                RecoveryDecision::Applied(_)
+            )
+        {
+            // A process may have died immediately after exclusive installation,
+            // before flushing. Identity proof does not itself establish durability.
+            files.flush_artifact(&intent.destination)?;
+            let DestinationPrecondition::Absent { parent } = &intent.expected_destination else {
+                unreachable!()
+            };
+            if files.parent_identity(&intent.destination)? != *parent {
+                return Err(note_failure(
+                    NoteErrorCode::Conflict,
+                    "copy destination parent changed",
+                ));
+            }
+            return observe_intent_uncoordinated(files, intent);
+        }
+        Ok(observations)
     })
 }
 
@@ -490,10 +543,41 @@ fn classify_note_save(
         baseline_text,
     } = &intent.expected_destination
     else {
-        return Err(note_failure(
-            NoteErrorCode::Unsupported,
-            "copy reconciliation belongs to save-copy",
-        ));
+        let destination = observations.destination.as_ref();
+        if let (Some(prepared), Some(destination), None) =
+            (&intent.staged, destination, &observations.retained)
+            && destination.fingerprint == prepared.fingerprint
+            && destination.text == intent.request.text
+        {
+            return Ok(RecoveryDecision::Applied(NoteVerification::Copy {
+                installed: destination.fingerprint.clone(),
+            }));
+        }
+        if destination.is_none() && matches!(intent.phase, SavePhase::Intent | SavePhase::Prepared)
+        {
+            return Ok(
+                match (
+                    &intent.staged,
+                    &observations.staging,
+                    &observations.retained,
+                ) {
+                    (None, None, None) => RecoveryDecision::NotApplied(None),
+                    (Some(prepared), Some(stage), Some(_))
+                        if stage.fingerprint == prepared.fingerprint =>
+                    {
+                        RecoveryDecision::NotApplied(None)
+                    }
+                    _ => RecoveryDecision::Uncertain,
+                },
+            );
+        }
+        return Ok(
+            if destination.is_some_and(|value| value.text == intent.request.text) {
+                RecoveryDecision::MatchingContentUnproven
+            } else {
+                RecoveryDecision::Conflict
+            },
+        );
     };
     let destination = observations.destination.as_ref();
     let staging = observations.staging.as_ref();
@@ -515,9 +599,9 @@ fn classify_note_save(
         && destination.is_some_and(|value| value.fingerprint == *original)
     {
         match (&intent.staged, staging, &observations.retained) {
-            (None, None, None) => return Ok(RecoveryDecision::NotApplied(original.clone())),
+            (None, None, None) => return Ok(RecoveryDecision::NotApplied(Some(original.clone()))),
             (Some(prepared), Some(stage), Some(_)) if stage.fingerprint == prepared.fingerprint => {
-                return Ok(RecoveryDecision::NotApplied(original.clone()));
+                return Ok(RecoveryDecision::NotApplied(Some(original.clone())));
             }
             // A synced but unjournaled stage remains unproven even with expected bytes.
             _ => return Ok(RecoveryDecision::Uncertain),
@@ -532,8 +616,9 @@ fn classify_note_save(
 fn reconciliation(intent: &NoteSaveIntent, decision: RecoveryDecision) -> NoteReconciliation {
     match decision {
         RecoveryDecision::Applied(verification) => {
-            let NoteVerification::Replace { installed, .. } = &verification else {
-                unreachable!()
+            let installed = match &verification {
+                NoteVerification::Replace { installed, .. }
+                | NoteVerification::Copy { installed } => installed,
             };
             NoteReconciliation {
                 resolution: NoteResolution::Applied,
@@ -544,9 +629,20 @@ fn reconciliation(intent: &NoteSaveIntent, decision: RecoveryDecision) -> NoteRe
         }
         RecoveryDecision::NotApplied(original) => NoteReconciliation {
             resolution: NoteResolution::NotApplied,
-            observed_destination: Some(original),
+            observed_destination: original,
             verification: None,
-            result: NoteRecordedResult::Receipt(receipt(intent, FileOutcome::NotApplied)),
+            result: if intent.kind == NoteWriteKind::Copy {
+                NoteRecordedResult::Failure(context(
+                    note_failure(
+                        NoteErrorCode::Conflict,
+                        "copy was not installed; input remains protected",
+                    ),
+                    intent,
+                    FileOutcome::NotApplied,
+                ))
+            } else {
+                NoteRecordedResult::Receipt(receipt(intent, FileOutcome::NotApplied))
+            },
         },
         decision => {
             let (code, message) = match decision {
@@ -577,7 +673,7 @@ fn reconciliation(intent: &NoteSaveIntent, decision: RecoveryDecision) -> NoteRe
     }
 }
 
-fn receipt(intent: &NoteSaveIntent, outcome: FileOutcome) -> NoteReceipt {
+pub(super) fn receipt(intent: &NoteSaveIntent, outcome: FileOutcome) -> NoteReceipt {
     NoteReceipt {
         operation_id: intent.request.operation_id,
         source_note_id: intent.request.note_id,
@@ -596,14 +692,18 @@ fn receipt(intent: &NoteSaveIntent, outcome: FileOutcome) -> NoteReceipt {
     }
 }
 
-fn replay(result: NoteRecordedResult) -> NoteResult<NoteReceipt> {
+pub(super) fn replay(result: NoteRecordedResult) -> NoteResult<NoteReceipt> {
     match result {
         NoteRecordedResult::Receipt(receipt) => Ok(receipt),
         NoteRecordedResult::Failure(error) => Err(error),
     }
 }
 
-fn context(mut error: NoteFailure, intent: &NoteSaveIntent, outcome: FileOutcome) -> NoteFailure {
+pub(super) fn context(
+    mut error: NoteFailure,
+    intent: &NoteSaveIntent,
+    outcome: FileOutcome,
+) -> NoteFailure {
     if outcome == FileOutcome::Unknown
         && matches!(
             error.code,

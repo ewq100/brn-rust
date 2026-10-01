@@ -81,12 +81,34 @@ reconciliation cannot infer artifact absence merely from missing metadata.
 
 `validate_note_submission` provides read-only preflight using the same rules
 rechecked by submission transactions. `note_save_result(operation_id)` reads
-compact original-save results after pruning (without binding a new payload);
+compact original-save/copy results after pruning (without binding a new payload);
 new submissions still use payload-bound `note_write_result` first.
 `note_cleanup_candidate` returns exact artifact proof only for known terminal
 original saves with durable recovery and no other artifact reference.
 It grants no filesystem authority: workflow must freshly verify the occupant,
 unlink only the proven regular object, sync its parent, and record retirement.
+
+`note_write_destination` retains a hash-checked compact destination binding
+after payload pruning, so a later relink cannot break identical save replay.
+`note_original_save_blocker` reports the blocking intent's known-not-applied
+Conflict versus uncertain SaveUncertain and directs callers to compare/accept.
+Copies remain independent of that original-write block.
+
+`NoteDecision`, `note_decision_replay` and `record_note_decision` bind
+reload/relink caller inputs before fresh validation. Decisions check the
+editing stamp, active jobs, discard/identity confirmation and exact observations;
+they atomically establish a new baseline token without lowering generation.
+Relink retains local text; reload replaces it only with the confirmed disk
+baseline. Neither decision resolves an outstanding save.
+
+`accept_note_disk_state(ack_op, save_op, observed_file_state, fingerprint, text)`
+checks the bound inactive original intent and reviewed observation, sets
+`AcceptedCurrent`/`acknowledged_by` in one transaction, retains local
+text/generation and leaves the original failure and artifacts untouched.
+`note_decision_recovery(ack_op)` reads its hash-checked protected pre-acknowledgement
+baseline/local snapshot. Ordinary confirmed reloads do not accumulate historical
+buffer snapshots. These additive tables amend the unreleased V6 schema; no
+filesystem operation or search approval is performed by the store.
 
 ## Dependencies and features
 

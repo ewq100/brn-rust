@@ -61,7 +61,39 @@ Matching bytes without execution identity proof remain uncertain. Compact
 receipts/refusals replay even without a vault or full retained intent.
 Artifact cleanup is separate, best-effort bookkeeping after terminal proof
 and durable recovery, preserving unexpected occupants and unresolved inputs.
-Copy, compare, reload/relink and accept-current are not implemented here.
+`compare_note(id)` shows exact baseline/local/fresh disk bytes (or deletion)
+and an `observed_file_state` token without rebasing or writing files.
+`reload_note(op, id, expected, discard)` checks the editing stamp and requires
+confirmation before discarding dirty/pending work. Changed identities require
+`relink_note(op, id, expected, relative, confirm_identity)` instead; relink
+retains local text/generation and never guesses identity from content hashes.
+Both decisions establish a new baseline token, invalidating queued old edits.
+They do not resolve an unresolved original save.
+
+`accept_note_disk_state(ack_op, save_op, observed_file_state)` explicitly
+acknowledges a reviewed, freshly revalidated disk state after an original
+save's recorded conflict/uncertainty (use reconciliation first for an interrupted
+intent without a result). It cannot acknowledge an active job. This is
+metadata-only, preserves local work/generation and protected recovery, and
+does not rewrite the original outcome, retire uncertain artifacts or grant
+search permission. After a confirmed relink it reviews the current registered
+location, leaving the original intent's destination and artifacts unchanged.
+
+`save_note_copy(submission, relative)` reserves an independent destination/new
+note ID before staging and installs only with `RENAME_EXCL`. Occupied,
+registered-missing and possibly aliased destinations are refused with protected
+input; no overwrite fallback exists. Copies never inherit search approval.
+Copy receipts identify the source and new target separately. An unresolved
+original can be rescued without resolving it or suspending the original's
+otherwise unchanged eligibility. Copy restart classification requires the
+recorded prepared identity and consumed stage, not matching bytes alone.
+
+Name reservations use canonical Unicode decomposition/full case folding plus
+resolved parent identity as conservative **vetoes**, never identity proofs.
+Qualified local APFS/HFS volumes advertise the required capabilities; other
+volume families and unqualified invisible/control names are rejected.
+Case-sensitive volumes may be deliberately over-rejected. Replays bind their
+recorded destination, even after relink or completed-payload pruning.
 
 ## Dependencies and features
 
@@ -82,6 +114,10 @@ ownership and recovery. Run the note checks with
 Save/restart checks are `cargo test -p brn-workflow --test note_recovery --locked`
 and `cargo test -p brn-workflow --lib notes:: --locked`; lib tests kill/reap
 their own checkpoint-acknowledging children, with no production crash switches.
+Conflict/copy decisions are covered by
+`cargo test -p brn-workflow --test note_conflicts --locked`; this records the
+fixture volume's actual case/normalization equivalence instead of silently
+skipping name-collision assertions.
 Keep durable authority in store and coordinate provider/retrieval through their
 adapters. Preserve evidence validation, operation identity and late-response safety.
 

@@ -341,6 +341,150 @@ impl MacFiles {
         Ok(prepared)
     }
 
+    pub(super) fn parent_identity(
+        &self,
+        relative: &Path,
+    ) -> NoteResult<brn_store::notes::VaultIdentity> {
+        let (parent, _) = self.parent(relative)?;
+        Ok(identity(&parent.metadata().map_err(note_io_failure)?))
+    }
+
+    /// Equality here is a conservative veto, never proof of logical note identity.
+    pub(super) fn aliases_original(&self, candidate: &Path, original: &Path) -> NoteResult<bool> {
+        let candidate_key = component_key(candidate)?;
+        let original_key = component_key(original)?;
+        let optional = |path: &Path| -> NoteResult<Option<VaultIdentity>> {
+            let result = (|| {
+                let (parent, name) = self.parent(path)?;
+                let file = open_at(&parent, OsStr::from_bytes(name.as_bytes()), 0, 0)?;
+                let metadata = file.metadata().map_err(note_io_failure)?;
+                validate_regular(&metadata)?;
+                self.validate_parent(path, &parent)?;
+                let current = open_at(&parent, OsStr::from_bytes(name.as_bytes()), 0, 0)?;
+                if identity(&current.metadata().map_err(note_io_failure)?) != identity(&metadata) {
+                    return Err(failure(
+                        NoteErrorCode::Conflict,
+                        "file replaced during alias validation",
+                    ));
+                }
+                Ok(identity(&metadata))
+            })();
+            match result {
+                Ok(value) => Ok(Some(value)),
+                Err(error)
+                    if matches!(
+                        error.code,
+                        NoteErrorCode::Missing | NoteErrorCode::Unsupported
+                    ) =>
+                {
+                    Ok(None)
+                }
+                Err(error) => Err(error),
+            }
+        };
+        if let Some(left) = optional(candidate)?
+            && let Some(right) = optional(original)?
+        {
+            return Ok(left == right);
+        }
+        if candidate_key == original_key {
+            return Ok(true);
+        }
+        let candidate_parent = self.parent_identity(candidate)?;
+        match self.parent_identity(original) {
+            Ok(parent)
+                if parent == candidate_parent && candidate_key.last() == original_key.last() =>
+            {
+                return Ok(true);
+            }
+            Ok(_) => (),
+            Err(error) if error.code == NoteErrorCode::Missing => {
+                // A vanished parent cannot be resolved; veto a potentially moved
+                // equivalent basename rather than infer a distinct namespace.
+                if candidate_key.last() == original_key.last() {
+                    return Ok(true);
+                }
+            }
+            Err(error) => return Err(error),
+        }
+        Ok(false)
+    }
+
+    pub(super) fn prepare_copy(
+        &self,
+        op: Uuid,
+        staging: &Path,
+        destination: &Path,
+        bytes: &[u8],
+    ) -> NoteResult<PreparedFile> {
+        if bytes.len() > crate::MAX_IMPORT_BYTES || std::str::from_utf8(bytes).is_err() {
+            return Err(note_unsupported(
+                "submitted note must be UTF-8 and at most 1 MiB",
+            ));
+        }
+        let expected = format!(".brn-{op}.stage");
+        if staging.file_name() != Some(OsStr::new(&expected))
+            || staging.parent() != destination.parent()
+            || staging == destination
+        {
+            return Err(note_unsupported(
+                "copy staging must use its operation-owned sibling path",
+            ));
+        }
+        let (parent, _) = self.parent(destination)?;
+        let mut stage = open_at(
+            &parent,
+            staging.file_name().unwrap(),
+            libc::O_RDWR | libc::O_CREAT | libc::O_EXCL,
+            0o600,
+        )?;
+        #[cfg(test)]
+        super::save::checkpoint("stage_created");
+        stage.write_all(bytes).map_err(note_io_failure)?;
+        full_sync(&stage)?;
+        sync_directory(&parent)?;
+        self.validate_parent(destination, &parent)?;
+        let observed = read_file(&stage)?;
+        if observed.text.as_bytes() != bytes
+            || self.observe_uncoordinated(staging)?.fingerprint != observed.fingerprint
+        {
+            return Err(failure(NoteErrorCode::Conflict, "prepared copy changed"));
+        }
+        Ok(PreparedFile {
+            relative: staging.to_owned(),
+            fingerprint: observed.fingerprint,
+        })
+    }
+
+    pub(super) fn install_exclusive(
+        &self,
+        prepared: &PreparedFile,
+        destination: &Path,
+    ) -> NoteResult<()> {
+        if prepared.relative.parent() != destination.parent() || prepared.relative == destination {
+            return Err(note_unsupported(
+                "exclusive installation requires distinct sibling paths",
+            ));
+        }
+        if self.observe_uncoordinated(&prepared.relative)?.fingerprint != prepared.fingerprint {
+            return Err(failure(NoteErrorCode::Conflict, "prepared copy changed"));
+        }
+        let (parent, target) = self.parent(destination)?;
+        let (_, stage) = self.parent(&prepared.relative)?;
+        self.validate_parent(destination, &parent)?;
+        rename_flags(&parent, &stage, &target, libc::RENAME_EXCL).map_err(|error| {
+            if error.code == NoteErrorCode::Io
+                && self
+                    .artifact(destination)
+                    .is_ok_and(|value| value.is_some())
+            {
+                failure(NoteErrorCode::Conflict, "copy destination is occupied")
+            } else {
+                error
+            }
+        })
+    }
+
     pub(super) fn exchange(&self, prepared: &PreparedFile, destination: &Path) -> NoteResult<()> {
         if prepared.relative.parent() != destination.parent() || prepared.relative == destination {
             return Err(note_unsupported(
@@ -645,7 +789,116 @@ fn qualify_volume(directory: &File) -> NoteResult<()> {
             "only local vault filesystems are supported",
         ));
     }
+    // Only these local volume families have qualified canonical-name equivalence.
+    // The veto folds more than the volume may do (including case-sensitive APFS).
+    let filesystem = unsafe { std::ffi::CStr::from_ptr(volume.f_fstypename.as_ptr()) };
+    let format = libc::VOL_CAPABILITIES_FORMAT;
+    let name_capabilities = libc::VOL_CAP_FMT_CASE_SENSITIVE | libc::VOL_CAP_FMT_CASE_PRESERVING;
+    if !matches!(filesystem.to_bytes(), b"apfs" | b"hfs")
+        || capabilities.volume.valid[format] & name_capabilities != name_capabilities
+    {
+        return Err(note_unsupported(
+            "volume name equivalence is not qualified for safe copy reservations",
+        ));
+    }
     sync_directory(directory)
+}
+
+#[cfg(target_os = "macos")]
+fn component_key(path: &Path) -> NoteResult<Vec<String>> {
+    validate_relative(path)?;
+    path.components()
+        .map(|component| {
+            let Component::Normal(name) = component else {
+                unreachable!()
+            };
+            let name = name
+                .to_str()
+                .ok_or_else(|| note_unsupported("copy path is not UTF-8"))?;
+            // HFS has ignorable scalars and different historical Unicode tables. Refuse
+            // invisible/control names rather than claiming a key proves equivalence.
+            if name.chars().any(|c| {
+                c.is_control()
+                    || matches!(c as u32,
+            0x00ad | 0x034f | 0x061c | 0x115f..=0x1160 | 0x17b4..=0x17b5 |
+            0x180b..=0x180f | 0x200b..=0x200f | 0x202a..=0x202e | 0x2060..=0x206f |
+            0x3164 | 0xfe00..=0xfe0f | 0xfeff | 0xffa0 | 0xfff0..=0xfff8 | 0x1bca0..=0x1bca3 |
+            0x1d173..=0x1d17a | 0xe0000..=0xe0fff)
+            }) {
+                return Err(note_unsupported("ambiguous invisible copy-path component"));
+            }
+            canonical_case_fold(name)
+        })
+        .collect()
+}
+
+#[cfg(target_os = "macos")]
+fn canonical_case_fold(value: &str) -> NoteResult<String> {
+    use std::ffi::c_void;
+    #[link(name = "CoreFoundation", kind = "framework")]
+    unsafe extern "C" {
+        fn CFStringCreateWithBytes(
+            allocator: *const c_void,
+            bytes: *const u8,
+            len: isize,
+            encoding: u32,
+            external: u8,
+        ) -> *const c_void;
+        fn CFStringCreateMutableCopy(
+            allocator: *const c_void,
+            capacity: isize,
+            string: *const c_void,
+        ) -> *mut c_void;
+        fn CFStringNormalize(string: *mut c_void, form: isize);
+        fn CFStringFold(string: *mut c_void, flags: usize, locale: *const c_void);
+        fn CFStringGetLength(string: *const c_void) -> isize;
+        fn CFStringGetMaximumSizeForEncoding(length: isize, encoding: u32) -> isize;
+        fn CFStringGetCString(
+            string: *const c_void,
+            buffer: *mut i8,
+            size: isize,
+            encoding: u32,
+        ) -> u8;
+        fn CFRelease(value: *const c_void);
+    }
+    const UTF8: u32 = 0x08000100;
+    // SAFETY: immutable UTF-8 input is valid for creation; owned CF objects are
+    // released on every path. Normalize(D) + full case fold + Normalize(D) is a
+    // canonical Unicode component veto, not NSString's lowercase-only mapping.
+    unsafe {
+        let string = CFStringCreateWithBytes(
+            std::ptr::null(),
+            value.as_ptr(),
+            value.len() as isize,
+            UTF8,
+            0,
+        );
+        if string.is_null() {
+            return Err(note_unsupported("cannot qualify Unicode copy name"));
+        }
+        let folded = CFStringCreateMutableCopy(std::ptr::null(), 0, string);
+        CFRelease(string);
+        if folded.is_null() {
+            return Err(note_unsupported("cannot qualify Unicode copy name"));
+        }
+        CFStringNormalize(folded, 0);
+        CFStringFold(folded, 1, std::ptr::null());
+        CFStringNormalize(folded, 0);
+        let size = CFStringGetMaximumSizeForEncoding(CFStringGetLength(folded), UTF8) + 1;
+        let mut bytes = vec![0u8; size as usize];
+        let success = CFStringGetCString(folded, bytes.as_mut_ptr().cast(), size, UTF8);
+        CFRelease(folded);
+        if success == 0 {
+            return Err(note_unsupported("cannot qualify Unicode copy name"));
+        }
+        bytes.truncate(
+            bytes
+                .iter()
+                .position(|byte| *byte == 0)
+                .unwrap_or(bytes.len()),
+        );
+        String::from_utf8(bytes).map_err(note_utf8_failure)
+    }
 }
 
 #[cfg(target_os = "macos")]
@@ -718,6 +971,32 @@ impl MacFiles {
         ))
     }
     pub(super) fn validate_root(&self) -> NoteResult<()> {
+        Err(note_unsupported(
+            "managed notes require macOS filesystem coordination",
+        ))
+    }
+    pub(super) fn aliases_original(&self, _: &Path, _: &Path) -> NoteResult<bool> {
+        Err(note_unsupported(
+            "managed notes require macOS filesystem coordination",
+        ))
+    }
+    pub(super) fn parent_identity(&self, _: &Path) -> NoteResult<brn_store::notes::VaultIdentity> {
+        Err(note_unsupported(
+            "managed notes require macOS filesystem coordination",
+        ))
+    }
+    pub(super) fn prepare_copy(
+        &self,
+        _: Uuid,
+        _: &Path,
+        _: &Path,
+        _: &[u8],
+    ) -> NoteResult<PreparedFile> {
+        Err(note_unsupported(
+            "managed notes require macOS filesystem coordination",
+        ))
+    }
+    pub(super) fn install_exclusive(&self, _: &PreparedFile, _: &Path) -> NoteResult<()> {
         Err(note_unsupported(
             "managed notes require macOS filesystem coordination",
         ))

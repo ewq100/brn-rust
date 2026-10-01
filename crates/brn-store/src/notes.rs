@@ -178,6 +178,36 @@ pub struct NoteComparison {
     pub observed_file_state: Option<Uuid>,
     pub availability: NoteAvailability,
 }
+
+/// Caller-visible inputs only: observations are revalidated, not bound into replay.
+#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
+pub enum NoteDecision {
+    Reload {
+        note_id: Uuid,
+        expected: NoteStamp,
+        discard: bool,
+    },
+    Relink {
+        note_id: Uuid,
+        expected: NoteStamp,
+        relative: PathBuf,
+        confirm_identity: bool,
+    },
+    AcceptCurrent {
+        save_operation_id: Uuid,
+        observed_file_state: Uuid,
+    },
+}
+
+impl NoteDecision {
+    fn operation_kind(&self) -> &'static str {
+        match self {
+            Self::Reload { .. } => "note.reload",
+            Self::Relink { .. } => "note.relink",
+            Self::AcceptCurrent { .. } => "note.accept-current",
+        }
+    }
+}
 #[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
 pub struct PreparedFile {
     pub relative: PathBuf,
@@ -280,6 +310,8 @@ CREATE UNIQUE INDEX one_reserved_copy_destination ON note_save_intents(vault_id,
 CREATE TABLE note_recovery_pairs (note_id TEXT PRIMARY KEY REFERENCES notes(id), operation_id TEXT NOT NULL REFERENCES operations(id), baseline BLOB NOT NULL, baseline_sha256 BLOB NOT NULL CHECK(length(baseline_sha256)=32), submitted BLOB NOT NULL, submitted_sha256 BLOB NOT NULL CHECK(length(submitted_sha256)=32));
 CREATE TABLE note_shadowed_sources (note_id TEXT NOT NULL REFERENCES notes(id), source_id TEXT NOT NULL REFERENCES sources(id), PRIMARY KEY(note_id,source_id));
 CREATE TABLE note_receipts (operation_id TEXT PRIMARY KEY REFERENCES operations(id), note_id TEXT NOT NULL, result_json BLOB NOT NULL, result_sha256 BLOB NOT NULL CHECK(length(result_sha256)=32));
+CREATE TABLE note_write_destinations (operation_id TEXT PRIMARY KEY REFERENCES operations(id), destination_json BLOB NOT NULL, destination_sha256 BLOB NOT NULL CHECK(length(destination_sha256)=32));
+CREATE TABLE note_decision_recoveries (operation_id TEXT PRIMARY KEY REFERENCES operations(id), recovery_json BLOB NOT NULL, recovery_sha256 BLOB NOT NULL CHECK(length(recovery_sha256)=32));
 ";
 
 fn failure(code: NoteErrorCode, message: impl Into<String>) -> NoteFailure {
@@ -555,10 +587,13 @@ fn insert_buffer(
         params![note.to_string(),stamp.file_state.to_string(),generation(stamp.generation)?,baseline.as_bytes(),hash(baseline.as_bytes()).as_slice(),working.as_bytes(),hash(working.as_bytes()).as_slice()])?;
     Ok(())
 }
-fn retain_input(tx: &Transaction<'_>, request: &NoteSubmission) -> NoteResult<()> {
+fn retain_input(tx: &Transaction<'_>, request: &NoteSubmission, path: &Path) -> NoteResult<()> {
     let bytes = json(request)?;
     tx.execute("INSERT INTO note_write_inputs(operation_id,note_id,request_json,request_sha256) VALUES(?1,?2,?3,?4)",
         params![request.operation_id.to_string(),request.note_id.to_string(),bytes,hash(&bytes).as_slice()])?;
+    let bytes = json(&path)?;
+    tx.execute("INSERT INTO note_write_destinations(operation_id,destination_json,destination_sha256) VALUES(?1,?2,?3)",
+        params![request.operation_id.to_string(),bytes,hash(&bytes).as_slice()])?;
     Ok(())
 }
 fn phase_str(phase: SavePhase) -> &'static str {
@@ -653,7 +688,245 @@ fn failure_context(
     error
 }
 
+fn original_save_blocker(conn: &Connection, id: Uuid) -> NoteResult<Option<NoteFailure>> {
+    let blocker: Option<String> = conn.query_row(
+        "SELECT operation_id FROM note_save_intents WHERE source_note_id=?1 AND write_kind='replace' AND resolution='unresolved'",
+        [id.to_string()], |r| r.get(0),
+    ).optional()?;
+    let Some(blocker) = blocker else {
+        return Ok(None);
+    };
+    let value = require_intent(conn, parse_id(blocker)?)?;
+    let code = if matches!(value.prior_result, Some(NoteRecordedResult::Failure(error)) if error.code == NoteErrorCode::Conflict && error.filesystem_outcome == FileOutcome::NotApplied)
+    {
+        NoteErrorCode::Conflict
+    } else {
+        NoteErrorCode::SaveUncertain
+    };
+    Ok(Some(failure(
+        code,
+        format!(
+            "original-path write {} remains unresolved; compare then explicitly accept-current",
+            value.request.operation_id
+        ),
+    )))
+}
+
 impl Store {
+    pub fn note_original_save_blocker(&self, id: Uuid) -> NoteResult<Option<NoteFailure>> {
+        original_save_blocker(&self.conn, id)
+    }
+    /// Compact destination binding survives payload pruning and later relinks.
+    pub fn note_write_destination(&self, op: Uuid) -> NoteResult<Option<PathBuf>> {
+        let row: Option<(Vec<u8>, Vec<u8>)> = self.conn.query_row(
+            "SELECT destination_json,destination_sha256 FROM note_write_destinations WHERE operation_id=?1",
+            [op.to_string()], |r| Ok((r.get(0)?, r.get(1)?)),
+        ).optional()?;
+        row.map(|(bytes, digest)| decode(bytes, digest)).transpose()
+    }
+
+    pub fn note_decision_replay(
+        &self,
+        op: Uuid,
+        decision: &NoteDecision,
+    ) -> NoteResult<Option<Uuid>> {
+        if !bound(&self.conn, op, decision.operation_kind(), &json(decision)?)? {
+            return Ok(None);
+        }
+        stored_result(&self.conn, "note_results", op)
+    }
+
+    /// Protected snapshot retained by an uncertain-outcome acknowledgement.
+    pub fn note_decision_recovery(&self, op: Uuid) -> NoteResult<Option<NoteRecovery>> {
+        let row: Option<(Vec<u8>, Vec<u8>)> = self.conn.query_row(
+            "SELECT recovery_json,recovery_sha256 FROM note_decision_recoveries WHERE operation_id=?1",
+            [op.to_string()], |r| Ok((r.get(0)?, r.get(1)?)),
+        ).optional()?;
+        row.map(|(bytes, digest)| decode(bytes, digest)).transpose()
+    }
+
+    pub fn record_note_decision(
+        &mut self,
+        op: Uuid,
+        decision: &NoteDecision,
+        file: &FileFingerprint,
+        text: &str,
+    ) -> NoteResult<NoteRecovery> {
+        let tx = self.conn.transaction()?;
+        if workflow::bind_operation(&tx, op, decision.operation_kind(), &json(decision)?)?
+            == BeginOperation::Existing
+        {
+            let id: Uuid = stored_result(&tx, "note_results", op)?
+                .ok_or_else(|| failure(NoteErrorCode::Storage, "decision has no result"))?;
+            return recovery(&tx, id)?
+                .ok_or_else(|| failure(NoteErrorCode::Storage, "decision note lacks recovery"));
+        }
+        valid_text(text)?;
+        if !matches_text(file, text) {
+            return Err(failure(
+                NoteErrorCode::StateChanged,
+                "decision observation bytes differ",
+            ));
+        }
+        let (id, expected, path, discard, mut accepted) = match decision {
+            NoteDecision::Reload {
+                note_id,
+                expected,
+                discard,
+            } => (*note_id, Some(*expected), None, *discard, None),
+            NoteDecision::Relink {
+                note_id,
+                expected,
+                relative,
+                confirm_identity,
+            } => {
+                if !confirm_identity {
+                    return Err(failure(
+                        NoteErrorCode::Conflict,
+                        "relink requires explicit identity confirmation",
+                    ));
+                }
+                destination(relative)?;
+                (*note_id, Some(*expected), Some(relative), false, None)
+            }
+            NoteDecision::AcceptCurrent {
+                save_operation_id,
+                observed_file_state,
+            } => {
+                let value = require_intent(&tx, *save_operation_id)?;
+                let status: String = tx.query_row(
+                    "SELECT status FROM operations WHERE id=?1",
+                    [save_operation_id.to_string()],
+                    |r| r.get(0),
+                )?;
+                if matches!(status.as_str(), "pending" | "running") {
+                    return Err(failure(
+                        NoteErrorCode::WorkspaceBusy,
+                        "save job is still active",
+                    ));
+                }
+                if value.kind != NoteWriteKind::Replace
+                    || value.resolution != NoteResolution::Unresolved
+                    || !matches!(value.prior_result, Some(NoteRecordedResult::Failure(_)))
+                {
+                    return Err(failure(
+                        NoteErrorCode::StateChanged,
+                        "accept-current requires an unresolved original save outcome",
+                    ));
+                }
+                let record = note_record(&tx, value.request.note_id)?;
+                if record.observed.as_ref() != Some(&(*observed_file_state, file.clone())) {
+                    return Err(failure(
+                        NoteErrorCode::StateChanged,
+                        "reviewed disk observation changed; compare again",
+                    ));
+                }
+                (value.request.note_id, None, None, false, Some(value))
+            }
+        };
+        let record = note_record(&tx, id)?;
+        let before = recovery(&tx, id)?
+            .ok_or_else(|| failure(NoteErrorCode::Storage, "note lacks recovery"))?;
+        if expected.is_some_and(|expected| expected != before.stamp) {
+            return Err(failure(
+                NoteErrorCode::StateChanged,
+                "note buffer stamp changed",
+            ));
+        }
+        // A metadata decision cannot race a live writer, even if its phase looks early.
+        let active: bool = tx.query_row(
+            "SELECT EXISTS(SELECT 1 FROM note_save_intents i JOIN operations o ON o.id=i.operation_id WHERE i.source_note_id=?1 AND o.status IN ('pending','running'))",
+            [id.to_string()], |r| r.get(0),
+        )?;
+        if active {
+            return Err(failure(
+                NoteErrorCode::WorkspaceBusy,
+                "save job is still active",
+            ));
+        }
+        if matches!(decision, NoteDecision::Reload { .. }) {
+            if record.baseline.device != file.device || record.baseline.inode != file.inode {
+                return Err(failure(
+                    NoteErrorCode::Conflict,
+                    "file identity changed; use confirmed relink",
+                ));
+            }
+            if !discard
+                && (before.working != before.baseline || !before.pending_operations.is_empty())
+            {
+                return Err(failure(
+                    NoteErrorCode::Conflict,
+                    "reload requires explicit discard confirmation",
+                ));
+            }
+        }
+        if let Some(path) = path {
+            let reserved: bool = tx.query_row(
+                "SELECT EXISTS(SELECT 1 FROM notes WHERE vault_id=?1 AND relative=?2 AND id!=?3 UNION ALL SELECT 1 FROM note_save_intents WHERE vault_id=?1 AND destination=?2 AND write_kind='copy' AND resolution IN ('unresolved','applied','accepted_current'))",
+                params![record.vault_id.to_string(), destination(path)?, id.to_string()], |r| r.get(0),
+            )?;
+            if reserved {
+                return Err(failure(
+                    NoteErrorCode::Conflict,
+                    "relink path is registered or reserved",
+                ));
+            }
+            tx.execute(
+                "UPDATE notes SET relative=?2 WHERE id=?1",
+                params![id.to_string(), destination(path)?],
+            )?;
+        }
+        if accepted.is_some() {
+            let bytes = json(&before)?;
+            tx.execute("INSERT INTO note_decision_recoveries(operation_id,recovery_json,recovery_sha256) VALUES(?1,?2,?3)",
+                params![op.to_string(),bytes,hash(&bytes).as_slice()])?;
+        }
+        // Even an unchanged-disk discard must invalidate queued pre-decision edits.
+        let state = Uuid::new_v4();
+        let bytes = json(file)?;
+        tx.execute("UPDATE notes SET file_state=?2,fingerprint_json=?3,fingerprint_sha256=?4,observed_file_state=?2,observed_fingerprint_json=?3,observed_fingerprint_sha256=?4,approval='draft' WHERE id=?1",
+            params![id.to_string(),state.to_string(),bytes,hash(&bytes).as_slice()])?;
+        let working = if matches!(decision, NoteDecision::Reload { .. }) {
+            text
+        } else {
+            &before.working
+        };
+        tx.execute("UPDATE note_buffers SET file_state=?2,baseline=?3,baseline_sha256=?4,working=?5,working_sha256=?6 WHERE note_id=?1",
+            params![id.to_string(),state.to_string(),text.as_bytes(),hash(text.as_bytes()).as_slice(),working.as_bytes(),hash(working.as_bytes()).as_slice()])?;
+        if let Some(value) = &mut accepted {
+            value.resolution = NoteResolution::AcceptedCurrent;
+            value.acknowledged_by = Some(op);
+            update_intent(&tx, value)?;
+        }
+        insert_result(&tx, "note_results", op, id, &id)?;
+        tx.execute(
+            "UPDATE operations SET status='completed' WHERE id=?1",
+            [op.to_string()],
+        )?;
+        let result = recovery(&tx, id)?.unwrap();
+        tx.commit()?;
+        Ok(result)
+    }
+
+    pub fn accept_note_disk_state(
+        &mut self,
+        ack_op: Uuid,
+        save_op: Uuid,
+        token: Uuid,
+        file: &FileFingerprint,
+        text: &str,
+    ) -> NoteResult<NoteRecovery> {
+        self.record_note_decision(
+            ack_op,
+            &NoteDecision::AcceptCurrent {
+                save_operation_id: save_op,
+                observed_file_state: token,
+            },
+            file,
+            text,
+        )
+    }
+
     pub fn enroll_note(
         &mut self,
         op: Uuid,
@@ -943,10 +1216,10 @@ impl Store {
             .optional()?;
         match kind.as_deref() {
             None => Ok(None),
-            Some("note.save") => stored_result(&self.conn, "note_receipts", op),
+            Some("note.save" | "note.copy") => stored_result(&self.conn, "note_receipts", op),
             Some(_) => Err(failure(
                 NoteErrorCode::OperationConflict,
-                "operation is not an original note save",
+                "operation is not a note save/copy",
             )),
         }
     }
@@ -981,13 +1254,10 @@ impl Store {
             )
             .optional()?
             .ok_or_else(|| failure(NoteErrorCode::Missing, "note does not exist"))?;
-        let blocked: bool = tx.query_row("SELECT EXISTS(SELECT 1 FROM note_save_intents WHERE source_note_id=?1 AND write_kind='replace' AND resolution='unresolved')",
-            [request.note_id.to_string()],|r|r.get(0))?;
-        if kind == NoteWriteKind::Replace && blocked {
-            return Err(failure(
-                NoteErrorCode::SaveUncertain,
-                "original-path write remains unresolved",
-            ));
+        if kind == NoteWriteKind::Replace
+            && let Some(error) = original_save_blocker(&tx, request.note_id)?
+        {
+            return Err(error);
         }
         let before = accept_submission(&tx, request)?;
         match (kind, expected) {
@@ -1053,7 +1323,7 @@ impl Store {
         let bytes = json(&value)?;
         tx.execute("INSERT INTO note_save_intents(operation_id,source_note_id,target_note_id,vault_id,destination,write_kind,phase,resolution,cleanup,intent_json,intent_sha256) VALUES(?1,?2,?3,?4,?5,?6,'intent','unresolved','pending',?7,?8)",
             params![request.operation_id.to_string(),request.note_id.to_string(),value.target_note_id.to_string(),vault_id,dest,kind.as_str(),bytes,hash(&bytes).as_slice()])?;
-        retain_input(&tx, request)?;
+        retain_input(&tx, request, path)?;
         tx.commit()?;
         Ok(value)
     }
@@ -1087,7 +1357,7 @@ impl Store {
             destination(path)?;
             if state == BeginOperation::New {
                 accept_submission(&tx, request)?;
-                retain_input(&tx, request)?;
+                retain_input(&tx, request, path)?;
             } else if intent(&tx, request.operation_id)?.is_none() {
                 return Err(failure(
                     NoteErrorCode::Storage,

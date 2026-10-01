@@ -4,6 +4,202 @@ use std::path::Path;
 use uuid::Uuid;
 
 #[test]
+fn reload_and_relink_bind_caller_decisions_and_only_discard_confirmed_work() {
+    let (_data, _vault, mut store, opened) = fixture();
+    let request = submission(&opened);
+    let dirty = store.save_note_buffer(&request).unwrap();
+    let op = Uuid::new_v4();
+    let stale = NoteDecision::Reload {
+        note_id: opened.note_id,
+        expected: opened.stamp,
+        discard: true,
+    };
+    let observed = fingerprint("external\r\n", 3);
+    assert_eq!(
+        store
+            .record_note_decision(op, &stale, &observed, "external\r\n")
+            .unwrap_err()
+            .code,
+        NoteErrorCode::StateChanged
+    );
+    let unconfirmed = NoteDecision::Reload {
+        note_id: opened.note_id,
+        expected: dirty.stamp,
+        discard: false,
+    };
+    assert_eq!(
+        store
+            .record_note_decision(op, &unconfirmed, &observed, "external\r\n")
+            .unwrap_err()
+            .code,
+        NoteErrorCode::Conflict
+    );
+    let confirmed = NoteDecision::Reload {
+        note_id: opened.note_id,
+        expected: dirty.stamp,
+        discard: true,
+    };
+    assert_eq!(
+        store
+            .record_note_decision(
+                op,
+                &confirmed,
+                &fingerprint("external\r\n", 8),
+                "external\r\n"
+            )
+            .unwrap_err()
+            .code,
+        NoteErrorCode::Conflict
+    );
+    let refreshed = store
+        .record_note_decision(op, &confirmed, &observed, "external\r\n")
+        .unwrap();
+    assert_eq!(refreshed.working, "external\r\n");
+    assert_eq!(refreshed.stamp.generation, dirty.stamp.generation);
+    assert!(store.note_decision_recovery(op).unwrap().is_none());
+    assert_eq!(
+        store.note_decision_replay(op, &confirmed).unwrap(),
+        Some(opened.note_id)
+    );
+    assert_eq!(
+        store
+            .note_decision_replay(op, &unconfirmed)
+            .unwrap_err()
+            .code,
+        NoteErrorCode::OperationConflict
+    );
+    let relink = NoteDecision::Relink {
+        note_id: opened.note_id,
+        expected: refreshed.stamp,
+        relative: "moved.md".into(),
+        confirm_identity: true,
+    };
+    let result = store
+        .record_note_decision(
+            Uuid::new_v4(),
+            &relink,
+            &fingerprint("new identity", 8),
+            "new identity",
+        )
+        .unwrap();
+    assert_eq!(result.working, "external\r\n");
+    assert_eq!(result.baseline, "new identity");
+    assert_eq!(
+        store.note_record(opened.note_id).unwrap().relative_path,
+        Path::new("moved.md")
+    );
+}
+
+#[test]
+fn accept_current_checks_active_job_and_reviewed_observation_preserving_original_result() {
+    let (_data, _vault, mut store, opened) = fixture();
+    let request = submission(&opened);
+    let intent = store
+        .begin_note_save(
+            &request,
+            Path::new("plan.md"),
+            NoteWriteKind::Replace,
+            &precondition(&opened),
+        )
+        .unwrap();
+    let observed = fingerprint("external", 9);
+    let token = store
+        .record_note_observation(opened.note_id, &observed)
+        .unwrap();
+    let ack = Uuid::new_v4();
+    assert_eq!(
+        store
+            .accept_note_disk_state(ack, request.operation_id, token, &observed, "external")
+            .unwrap_err()
+            .code,
+        NoteErrorCode::WorkspaceBusy
+    );
+    let original = store
+        .record_note_write_failure(
+            &request,
+            &intent.destination,
+            intent.kind,
+            &NoteFailure {
+                code: NoteErrorCode::SaveUncertain,
+                message: "unknown".into(),
+                operation_id: None,
+                note_id: None,
+                phase: Some(intent.phase),
+                filesystem_outcome: FileOutcome::Unknown,
+                recovery_available: false,
+            },
+        )
+        .unwrap();
+    assert_eq!(
+        store
+            .accept_note_disk_state(
+                ack,
+                request.operation_id,
+                token,
+                &fingerprint("later", 9),
+                "later"
+            )
+            .unwrap_err()
+            .code,
+        NoteErrorCode::StateChanged
+    );
+    let current = store
+        .accept_note_disk_state(ack, request.operation_id, token, &observed, "external")
+        .unwrap();
+    assert_eq!(current.baseline, "external");
+    assert_eq!(current.working, request.text);
+    assert_eq!(current.stamp.generation, request.generation);
+    assert_eq!(
+        store
+            .accept_note_disk_state(ack, request.operation_id, token, &observed, "external")
+            .unwrap(),
+        current
+    );
+    let accepted = store
+        .note_save_intent(request.operation_id)
+        .unwrap()
+        .unwrap();
+    assert_eq!(accepted.resolution, NoteResolution::AcceptedCurrent);
+    assert_eq!(accepted.acknowledged_by, Some(ack));
+    assert_eq!(
+        accepted.prior_result,
+        Some(NoteRecordedResult::Failure(original.clone()))
+    );
+    assert_eq!(accepted.expected_destination, intent.expected_destination);
+    let retained = store.note_decision_recovery(ack).unwrap().unwrap();
+    assert_eq!(retained.baseline, opened.baseline);
+    assert_eq!(retained.working, request.text);
+    assert!(
+        store
+            .record_note_cleanup(request.operation_id, ArtifactCleanup::Retired)
+            .is_err()
+    );
+    assert_eq!(
+        store
+            .note_write_result(&request, Path::new("plan.md"), NoteWriteKind::Replace)
+            .unwrap(),
+        Some(NoteRecordedResult::Failure(original))
+    );
+    store
+        .begin_note_save(
+            &NoteSubmission {
+                operation_id: Uuid::new_v4(),
+                expected: current.stamp,
+                generation: 2,
+                text: "next".into(),
+                ..request
+            },
+            Path::new("plan.md"),
+            NoteWriteKind::Replace,
+            &DestinationPrecondition::Existing {
+                fingerprint: observed,
+                baseline_text: "external".into(),
+            },
+        )
+        .unwrap();
+}
+
+#[test]
 fn recorded_pre_exchange_failure_resolves_not_applied_without_changing_replay() {
     let (_data, _vault, mut store, opened) = fixture();
     let request = submission(&opened);
@@ -823,6 +1019,9 @@ fn verified_completion_rebases_but_never_overwrites_later_edits() {
 fn applied_copy_uses_reserved_identity_and_does_not_acknowledge_source() {
     let (data, _vault, mut store, opened) = fixture();
     let request = submission(&opened);
+    let conn = rusqlite::Connection::open(store.database_path()).unwrap();
+    conn.execute("UPDATE notes SET approval='approved'", [])
+        .unwrap();
     let intent = store
         .begin_note_save(
             &request,
@@ -861,6 +1060,17 @@ fn applied_copy_uses_reserved_identity_and_does_not_acknowledge_source() {
     assert_eq!(source.baseline, opened.baseline);
     assert_eq!(source.stamp.file_state, opened.stamp.file_state);
     assert_ne!(receipt.note_id, receipt.source_note_id);
+    assert_eq!(
+        store
+            .note_record(intent.target_note_id)
+            .unwrap()
+            .search_approval,
+        brn_store::Approval::Draft
+    );
+    assert_eq!(
+        store.note_record(opened.note_id).unwrap().search_approval,
+        brn_store::Approval::Approved
+    );
 }
 
 #[test]
