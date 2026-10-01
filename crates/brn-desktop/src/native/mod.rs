@@ -1,5 +1,7 @@
 use crate::drafts::DraftEditor;
 use crate::layout::{self, LayoutState, Loaded, Rail, ResolvedLayout};
+use crate::notes::{CloseRoute, NoteEditor, NoteObservations, NoteScheduler};
+use brn_workflow::notes::{NoteComparison, NoteRecovery, NoteView};
 use brn_workflow::worker::{
     Action, Approval, ChatTurn, CommentStatusChange, Draft, DraftRevision, DraftWriteWithComments,
     Evidence, Outcome, Profile, SourceDocument, Worker,
@@ -30,7 +32,8 @@ gpui_kit::actions!(
         FocusComposer,
         NewChat,
         OpenSettings,
-        CancelRunning
+        CancelRunning,
+        SaveNote
     ]
 );
 use std::path::PathBuf;
@@ -44,6 +47,7 @@ mod theme;
 enum DocRef {
     Draft,
     Source(Uuid),
+    Note(Uuid),
 }
 
 #[derive(Clone, Copy, Debug, PartialEq, Eq)]
@@ -52,12 +56,13 @@ enum CentreTab {
     Chat,
 }
 
-/// Correlates a draft-open completion with the navigation that requested it,
+/// Correlates a document-open completion with the navigation that requested it,
 /// so a late completion cannot override a newer Close or source selection.
 #[derive(Debug, Default)]
 struct DocNavigation {
     generation: u64,
     pending_draft: Option<u64>,
+    pending_note: Option<u64>,
 }
 
 impl DocNavigation {
@@ -70,6 +75,49 @@ impl DocNavigation {
     fn take_draft_completion(&mut self) -> bool {
         self.pending_draft.take() == Some(self.generation)
     }
+    fn request_note(&mut self, generation: u64) -> bool {
+        if generation != self.generation {
+            return false;
+        }
+        self.pending_note = Some(generation);
+        true
+    }
+    fn take_note_completion(&mut self) -> bool {
+        self.pending_note.take() == Some(self.generation)
+    }
+}
+
+enum NoteControl {
+    Open {
+        op: Uuid,
+        vault: PathBuf,
+        relative: PathBuf,
+        generation: u64,
+    },
+    Select {
+        id: Uuid,
+        generation: u64,
+    },
+    Navigate(Option<DocRef>),
+    OpenDraft(Uuid),
+    CreateDraft,
+    Save,
+    Compare,
+    Reload,
+    Relink(PathBuf),
+    Copy(PathBuf),
+    Accept {
+        save_op: Uuid,
+        file_state: Uuid,
+    },
+    Approve {
+        file_state: Uuid,
+    },
+}
+struct PendingNoteOpen {
+    job: u64,
+    op: Option<Uuid>,
+    id: Option<Uuid>,
 }
 
 #[derive(Debug, Clone)]
@@ -163,6 +211,24 @@ struct Desktop {
     draft_editor: Entity<EditorState>,
     comment_input: Entity<EditorState>,
     draft_state: Option<DraftEditor>,
+    note_editor: Entity<EditorState>,
+    note_path: Entity<InputState>,
+    note_open_path: Entity<InputState>,
+    note_scroll: ScrollHandle,
+    note_state: Option<NoteEditor>,
+    note_schedule: NoteScheduler,
+    note_views: Vec<NoteView>,
+    note_recoveries: Vec<NoteRecovery>,
+    note_observations: NoteObservations,
+    note_control: Option<NoteControl>,
+    pending_note_job: Option<(u64, Uuid)>,
+    pending_note_open: Option<PendingNoteOpen>,
+    note_comparison: Option<NoteComparison>,
+    note_copy: Option<NoteView>,
+    original_note_operation: Option<Uuid>,
+    note_sources_changed: bool,
+    last_note_failure: Option<brn_workflow::notes::NoteFailure>,
+    vault_path: Option<PathBuf>,
     drafts: Vec<Draft>,
     revisions: Vec<DraftRevision>,
     review: Option<DraftRevision>,
@@ -199,6 +265,7 @@ struct Desktop {
     profile: Profile,
     selected_session: Option<Uuid>,
     sources: Vec<SourceDocument>,
+    source_states: Vec<brn_workflow::SourceStateSummary>,
     sessions: Vec<SessionSummary>,
     history: Vec<ChatTurn>,
     selected_turn: Option<usize>,
@@ -224,6 +291,47 @@ impl Desktop {
                 .default_value("")
         });
         let comment_input = cx.new(|cx| EditorState::new(window, cx).default_value(""));
+        let note_editor = cx.new(|cx| {
+            EditorState::new(window, cx)
+                .language("markdown")
+                .default_value("")
+        });
+        let note_path =
+            cx.new(|cx| InputState::new(window, cx).placeholder("Vault-relative .md destination"));
+        let note_open_path =
+            cx.new(|cx| InputState::new(window, cx).placeholder("Vault-relative .md note"));
+        let note_subscription = cx.subscribe_in(
+            &note_editor,
+            window,
+            |this, editor, event: &InputEvent, window, cx| {
+                match event {
+                    InputEvent::Change => {
+                        if let Some(state) = &mut this.note_state {
+                            let text = editor.read(cx).value().to_string();
+                            if state.text() != text {
+                                match state.edit_input(text) {
+                                    Ok(()) => this.note_schedule.edited(Instant::now()),
+                                    Err(error) => {
+                                        this.message = error.message;
+                                        let retained = state.input_text();
+                                        editor.update(cx, |editor, cx| {
+                                            editor.set_value(retained, window, cx)
+                                        });
+                                    }
+                                }
+                            }
+                        }
+                    }
+                    InputEvent::Focus => {
+                        if let Some(state) = &this.note_state {
+                            this.note_observations.insert(state.id());
+                        }
+                    }
+                    _ => {}
+                }
+                cx.notify();
+            },
+        );
         let query_subscription = cx.subscribe(&query, |this, _, event: &InputEvent, cx| {
             if matches!(event, InputEvent::Change) {
                 this.generation = this.generation.wrapping_add(1);
@@ -290,7 +398,11 @@ impl Desktop {
             cx.notify();
         });
         let activation_subscription = cx.observe_window_activation(window, |this, window, cx| {
-            if !window.is_window_active() {
+            if window.is_window_active() {
+                this.note_observations
+                    .extend(this.note_views.iter().map(|view| view.id));
+                cx.notify();
+            } else {
                 this.end_divider_drag(cx);
             }
         });
@@ -301,6 +413,24 @@ impl Desktop {
             draft_editor,
             comment_input,
             draft_state: None,
+            note_editor,
+            note_path,
+            note_open_path,
+            note_scroll: ScrollHandle::new(),
+            note_state: None,
+            note_schedule: NoteScheduler::default(),
+            note_views: vec![],
+            note_recoveries: vec![],
+            note_observations: NoteObservations::default(),
+            note_control: None,
+            pending_note_job: None,
+            pending_note_open: None,
+            note_comparison: None,
+            note_copy: None,
+            original_note_operation: None,
+            note_sources_changed: false,
+            last_note_failure: None,
+            vault_path: None,
             drafts: Vec::new(),
             revisions: Vec::new(),
             review: None,
@@ -341,6 +471,7 @@ impl Desktop {
             profile: Profile::Keyword,
             selected_session: None,
             sources: Vec::new(),
+            source_states: Vec::new(),
             sessions: Vec::new(),
             history: Vec::new(),
             selected_turn: None,
@@ -358,6 +489,7 @@ impl Desktop {
                 draft_subscription,
                 comment_subscription,
                 quit_subscription,
+                note_subscription,
                 appearance_subscription,
                 activation_subscription,
             ],
@@ -366,6 +498,10 @@ impl Desktop {
     }
     fn poll(&mut self, window: &mut Window, cx: &mut Context<Self>) {
         let mut changed = false;
+        while let Some(notice) = self.worker.take_note_notice() {
+            self.note_observations.notice(&notice, &self.note_views);
+            changed = true;
+        }
         if let Some(snapshot) = self.worker.snapshot(self.last_update) {
             self.last_update = snapshot.update;
             self.active = snapshot.active;
@@ -383,6 +519,42 @@ impl Desktop {
             match terminal.outcome {
                 Err(error) => {
                     if self
+                        .pending_note_job
+                        .is_some_and(|(id, _)| id == terminal.id)
+                    {
+                        let (_, op) = self.pending_note_job.take().unwrap();
+                        if let Some(state) = &mut self.note_state {
+                            self.note_schedule.note_failed(state);
+                            if let Some(detail) = terminal.note_failure.clone()
+                                && state.pending()
+                                && let Err(error) = state.fail(op, detail)
+                            {
+                                self.message = error.message;
+                            }
+                            self.note_observations.insert(state.id());
+                        }
+                    }
+                    if self
+                        .pending_note_open
+                        .as_ref()
+                        .is_some_and(|pending| pending.job == terminal.id)
+                    {
+                        self.pending_note_open = None;
+                    }
+                    if let Some(detail) = terminal.note_failure {
+                        self.message = format!(
+                            "{:?}: {} (phase {:?}, effect {:?}, recovery confirmed: {})",
+                            detail.code,
+                            detail.message,
+                            detail.phase,
+                            detail.filesystem_outcome,
+                            detail.recovery_available
+                        );
+                        self.last_note_failure = Some(detail);
+                    } else {
+                        self.message = error.clone();
+                    }
+                    if self
                         .pending_draft_job
                         .is_some_and(|(id, _)| id == terminal.id)
                         && let Some((_, op)) = self.pending_draft_job.take()
@@ -397,16 +569,17 @@ impl Desktop {
                         self.pending_status_job = None;
                     }
                     self.streamed_text.clear();
-                    self.message = error;
                 }
                 Ok(Outcome::Ready {
                     sources,
+                    source_states,
                     sessions,
                     history,
                     selected,
                     recovered_operations,
                 }) => {
                     self.sources = sources;
+                    self.source_states = source_states;
                     self.sessions = sessions;
                     self.history = history;
                     self.search = None;
@@ -424,8 +597,13 @@ impl Desktop {
                     };
                     self.submit(Action::ListDrafts, "Draft list", cx);
                 }
-                Ok(Outcome::Imported { result, sources }) => {
+                Ok(Outcome::Imported {
+                    result,
+                    sources,
+                    source_states,
+                }) => {
                     self.sources = sources;
+                    self.source_states = source_states;
                     self.search = None;
                     self.selected_evidence = None;
                     self.generation = self.generation.wrapping_add(1);
@@ -435,8 +613,12 @@ impl Desktop {
                         "Source was already current; approval updated.".into()
                     };
                 }
-                Ok(Outcome::ApprovalChanged { sources }) => {
+                Ok(Outcome::ApprovalChanged {
+                    sources,
+                    source_states,
+                }) => {
                     self.sources = sources;
+                    self.source_states = source_states;
                     self.search = None;
                     self.selected_evidence = None;
                     self.generation = self.generation.wrapping_add(1);
@@ -486,6 +668,7 @@ impl Desktop {
                 Ok(Outcome::DraftsListed { drafts }) => {
                     self.drafts = drafts;
                     self.message = "Draft list ready.".into();
+                    self.submit(Action::ListNoteRecoveries, "Note recovery list", cx);
                 }
                 Ok(Outcome::DraftCreated { draft }) | Ok(Outcome::DraftOpened { draft, .. }) => {
                     let id = draft.id;
@@ -502,7 +685,7 @@ impl Desktop {
                     }
                     if may_open {
                         if self.nav.take_draft_completion() {
-                            self.show_document(DocRef::Draft);
+                            self.show_document(DocRef::Draft, cx);
                         }
                         self.draft_editor.update(cx, |editor, cx| {
                             editor.set_value(draft.text.clone(), window, cx)
@@ -538,7 +721,7 @@ impl Desktop {
                     };
                     if may_open {
                         if self.nav.take_draft_completion() {
-                            self.show_document(DocRef::Draft);
+                            self.show_document(DocRef::Draft, cx);
                         }
                         self.draft_editor.update(cx, |editor, cx| {
                             editor.set_value(saved.draft.text.clone(), window, cx)
@@ -769,8 +952,26 @@ impl Desktop {
                         );
                     }
                 }
+                Ok(
+                    note @ (Outcome::NoteOpened { .. }
+                    | Outcome::NotesObserved { .. }
+                    | Outcome::NoteRecovery { .. }
+                    | Outcome::NoteRecoveries { .. }
+                    | Outcome::NoteBufferSaved { .. }
+                    | Outcome::NoteSaved { .. }
+                    | Outcome::NoteReconciled { .. }
+                    | Outcome::NoteCompared { .. }
+                    | Outcome::NoteReloaded { .. }
+                    | Outcome::NoteRelinked { .. }
+                    | Outcome::NoteCopySaved { .. }
+                    | Outcome::NoteDiskAccepted { .. }
+                    | Outcome::NoteApproved { .. }),
+                ) => {
+                    self.note_outcome(terminal.id, note, window, cx);
+                }
             }
         }
+        self.poll_notes(window, cx);
         let elapsed = match &self.phase {
             Phase::Running { since, .. } | Phase::Cancelling { since, .. } => {
                 since.elapsed().as_secs()
@@ -827,13 +1028,26 @@ impl Desktop {
             true
         }
     }
-    fn close_guard(&mut self, cx: &mut Context<Self>) -> bool {
+    fn close_guard(&mut self, route: CloseRoute, cx: &mut Context<Self>) -> bool {
         if self
             .draft_state
             .as_ref()
             .is_some_and(|state| !state.can_close())
         {
             self.message = "Draft edits, comment text, or a save are still pending. Save or discard them before closing.".into();
+            cx.notify();
+            false
+        } else if self
+            .note_state
+            .as_ref()
+            .is_some_and(|state| !state.can_close())
+            || self.pending_note_job.is_some()
+            || self.pending_note_open.is_some()
+            || self.worker.critical_note_pending()
+        {
+            self.note_schedule.request_close(route);
+            self.note_control = None;
+            self.message = "Close deferred: waiting for the latest note buffer recovery acknowledgement. Markdown is not saved by closing.".into();
             cx.notify();
             false
         } else {
@@ -844,11 +1058,17 @@ impl Desktop {
         if !self.phase.can_submit() || !self.draft_guard(cx) {
             return;
         }
+        if self.defer_note_navigation(NoteControl::OpenDraft(id), cx) {
+            return;
+        }
         self.nav.request_draft();
         self.submit(Action::OpenDraftComments { id }, "Open draft", cx);
     }
     fn create_draft(&mut self, cx: &mut Context<Self>) {
         if !self.phase.can_submit() || !self.draft_guard(cx) {
+            return;
+        }
+        if self.defer_note_navigation(NoteControl::CreateDraft, cx) {
             return;
         }
         let title = self.draft_title.read(cx).value().to_string();
@@ -1207,13 +1427,621 @@ impl Desktop {
             cx.notify();
         }
     }
-    fn show_document(&mut self, doc: DocRef) {
+    fn remember_note(&mut self, view: NoteView) {
+        if let Some(old) = self.note_views.iter_mut().find(|old| old.id == view.id) {
+            *old = view;
+        } else {
+            self.note_views.push(view);
+        }
+    }
+    fn install_note(&mut self, view: NoteView, window: &mut Window, cx: &mut Context<Self>) {
+        if self
+            .note_state
+            .as_ref()
+            .is_some_and(|state| !state.can_close())
+        {
+            self.message = "Opened in storage; later edits in the current note remain protected. Flush them before switching.".into();
+            return;
+        }
+        let id = view.id;
+        self.note_state = Some(NoteEditor::new(view));
+        let text = self.note_state.as_ref().unwrap().input_text();
+        self.note_editor
+            .update(cx, |editor, cx| editor.set_value(text, window, cx));
+        self.note_schedule = NoteScheduler::default();
+        self.note_comparison = None;
+        self.note_copy = None;
+        self.original_note_operation = None;
+        self.show_document(DocRef::Note(id), cx);
+        self.message =
+            "Note opened. Save writes Markdown; recovery only protects work in BRN.".into();
+    }
+    fn note_outcome(
+        &mut self,
+        job: u64,
+        outcome: Outcome,
+        window: &mut Window,
+        cx: &mut Context<Self>,
+    ) {
+        let mut acknowledged = Ok(());
+        match outcome {
+            Outcome::NoteOpened { op, view } => {
+                self.note_sources_changed = true;
+                self.remember_note(view.clone());
+                if self
+                    .pending_note_open
+                    .as_ref()
+                    .is_some_and(|pending| pending.job == job && pending.op == Some(op))
+                {
+                    self.pending_note_open = None;
+                    if self.nav.take_note_completion() {
+                        self.install_note(view, window, cx);
+                    }
+                }
+            }
+            Outcome::NotesObserved { views } => {
+                for view in views {
+                    self.note_sources_changed |= self
+                        .note_views
+                        .iter()
+                        .find(|old| old.id == view.id)
+                        .is_none_or(|old| {
+                            old.current_file_state != view.current_file_state
+                                || old.availability != view.availability
+                                || old.search_approval != view.search_approval
+                        });
+                    self.remember_note(view.clone());
+                    if self
+                        .pending_note_open
+                        .as_ref()
+                        .is_some_and(|pending| pending.job == job && pending.id == Some(view.id))
+                    {
+                        self.pending_note_open = None;
+                        if self.nav.take_note_completion() {
+                            self.install_note(view, window, cx);
+                        }
+                    } else if let Some(state) = &mut self.note_state
+                        && state.id() == view.id
+                        && !state.pending()
+                    {
+                        acknowledged = state.observe(view);
+                    }
+                }
+            }
+            Outcome::NoteRecoveries { recoveries } => {
+                self.note_observations
+                    .extend(recoveries.iter().map(|recovery| recovery.note_id));
+                self.note_recoveries = recoveries;
+            }
+            Outcome::NoteRecovery { id, recovery } => {
+                if let Some(recovery) = recovery.filter(|recovery| recovery.note_id == id) {
+                    self.message = format!(
+                        "Recovery baseline:\n{}\n\nDurable working text:\n{}\n\nPending operations: {:?}",
+                        recovery.baseline, recovery.working, recovery.pending_operations
+                    );
+                    self.note_recoveries.retain(|old| old.note_id != id);
+                    self.note_recoveries.push(recovery);
+                } else {
+                    self.message = "No recovery exists for that note.".into();
+                }
+            }
+            Outcome::NoteBufferSaved {
+                submission,
+                receipt,
+            } => {
+                if self.pending_note_job == Some((job, submission.operation_id))
+                    && let Some(state) = &mut self.note_state
+                    && state.id() == submission.note_id
+                {
+                    self.pending_note_job = None;
+                    acknowledged = state.acknowledge_recovery(submission.operation_id, receipt);
+                    self.message =
+                        "Submitted buffer is recoverable in BRN; Markdown was not written.".into();
+                }
+            }
+            Outcome::NoteSaved {
+                submission,
+                receipt,
+            } => {
+                if self.pending_note_job == Some((job, submission.operation_id))
+                    && let Some(state) = &mut self.note_state
+                    && state.id() == submission.note_id
+                {
+                    self.pending_note_job = None;
+                    acknowledged = state.acknowledge(submission.operation_id, receipt);
+                    self.note_observations.insert(state.id());
+                    self.message = "Submitted snapshot saved to Markdown; any later typing remains in the editor.".into();
+                }
+            }
+            Outcome::NoteCopySaved {
+                submission,
+                receipt,
+                destination,
+            } => {
+                if self.pending_note_job == Some((job, submission.operation_id))
+                    && let Some(state) = &mut self.note_state
+                    && state.id() == submission.note_id
+                {
+                    self.pending_note_job = None;
+                    acknowledged =
+                        state.acknowledge_copy(submission.operation_id, receipt, &destination);
+                    if acknowledged.is_ok() {
+                        self.note_copy = Some(destination.clone());
+                        self.remember_note(destination);
+                        self.message = "Separate copy verified. The original editor and any uncertain original save are unchanged.".into();
+                    }
+                }
+            }
+            Outcome::NoteReloaded {
+                op,
+                id,
+                expected,
+                view,
+            } => {
+                if self.pending_note_job == Some((job, op))
+                    && let Some(state) = &mut self.note_state
+                    && state.id() == id
+                    && state.stamp() == expected
+                {
+                    self.pending_note_job = None;
+                    acknowledged = state.acknowledge_discard(op, view.clone());
+                    if acknowledged.is_ok() {
+                        let text = state.input_text();
+                        self.note_editor
+                            .update(cx, |editor, cx| editor.set_value(text, window, cx));
+                        self.remember_note(view);
+                        self.note_comparison = None;
+                        self.message =
+                            "Confirmed reload replaced local text with a fresh disk baseline."
+                                .into();
+                    }
+                }
+            }
+            Outcome::NoteRelinked {
+                op,
+                id,
+                expected,
+                view,
+            } => {
+                if self.pending_note_job == Some((job, op))
+                    && let Some(state) = &mut self.note_state
+                    && state.id() == id
+                    && state.stamp() == expected
+                {
+                    self.pending_note_job = None;
+                    acknowledged = state.acknowledge_rebase(op, view.clone());
+                    self.remember_note(view);
+                    self.note_comparison = None;
+                    self.message = "Confirmed relink established the selected identity; local edits were retained.".into();
+                }
+            }
+            Outcome::NoteDiskAccepted { op, save_op, view } => {
+                if self.pending_note_job == Some((job, op))
+                    && self.original_note_operation == Some(save_op)
+                    && let Some(state) = &mut self.note_state
+                    && state.id() == view.id
+                {
+                    self.pending_note_job = None;
+                    acknowledged = state.acknowledge_rebase(op, view.clone());
+                    self.remember_note(view);
+                    self.note_comparison = None;
+                    self.message = "Reviewed disk state accepted. Original outcome and recovery remain retained; no Markdown write or approval occurred.".into();
+                }
+            }
+            Outcome::NoteCompared { comparison } => {
+                if self
+                    .note_state
+                    .as_ref()
+                    .is_some_and(|state| state.id() == comparison.note_id)
+                {
+                    self.note_comparison = Some(comparison);
+                    self.message = "Read-only comparison: starting bytes, local work, and newly observed disk/deletion. Unexpected displacement remains protected by the save operation.".into();
+                }
+            }
+            Outcome::NoteReconciled { op, receipt } => {
+                if self.pending_note_job != Some((job, op)) {
+                    return;
+                }
+                self.message = format!(
+                    "Operation {op}: {:?}; recovery confirmed: {}. This receipt does not prove the file is still current.",
+                    receipt.filesystem_outcome, receipt.recovery_available
+                );
+                self.note_observations.insert(receipt.source_note_id);
+                if self.pending_note_job == Some((job, op)) {
+                    self.pending_note_job = None;
+                }
+            }
+            Outcome::NoteApproved { receipt } => {
+                if self.pending_note_job == Some((job, receipt.operation_id))
+                    && self
+                        .note_state
+                        .as_ref()
+                        .is_some_and(|state| state.id() == receipt.note_id)
+                {
+                    self.pending_note_job = None;
+                    self.note_observations.insert(receipt.note_id);
+                    self.message = "Saved snapshot explicitly approved for search, not publication. Rebuild the index.".into();
+                    self.note_sources_changed = true;
+                }
+            }
+            _ => unreachable!("only note outcomes are routed here"),
+        }
+        if let Err(error) = acknowledged {
+            self.message = format!("Note state refused receipt: {}", error.message);
+            if let Some(state) = &self.note_state {
+                self.note_schedule.note_failed(state);
+            }
+        }
+    }
+    fn queue_note_control(&mut self, mut control: NoteControl, cx: &mut Context<Self>) {
+        if matches!(
+            control,
+            NoteControl::Open { .. } | NoteControl::Select { .. }
+        ) && !self.draft_guard(cx)
+        {
+            return;
+        }
+        if self.note_schedule.closing() {
+            self.message = "A note flush/close decision is already pending. Finish it or cancel it before another action.".into();
+            cx.notify();
+            return;
+        }
+        if matches!(
+            control,
+            NoteControl::Open { .. }
+                | NoteControl::Select { .. }
+                | NoteControl::Navigate(_)
+                | NoteControl::OpenDraft(_)
+                | NoteControl::CreateDraft
+        ) {
+            self.nav.moved();
+        }
+        match &mut control {
+            NoteControl::Open { generation, .. } | NoteControl::Select { generation, .. } => {
+                *generation = self.nav.generation;
+            }
+            _ => {}
+        }
+        self.note_control = Some(control);
+        self.note_schedule.request_close(CloseRoute::Switch);
+        self.message =
+            "Waiting for the worker and the latest buffer recovery before the note action.".into();
+        cx.notify();
+    }
+    fn run_note_control(&mut self, control: NoteControl, cx: &mut Context<Self>) {
+        match control {
+            NoteControl::Navigate(doc) => {
+                if let Some(doc) = doc {
+                    self.show_document(doc, cx);
+                } else {
+                    self.close_document(cx);
+                }
+                cx.notify();
+                return;
+            }
+            NoteControl::OpenDraft(id) => {
+                self.choose_draft(id, cx);
+                return;
+            }
+            NoteControl::CreateDraft => {
+                self.create_draft(cx);
+                return;
+            }
+            _ => {}
+        }
+        if let NoteControl::Open {
+            op,
+            vault,
+            relative,
+            generation,
+        } = control
+        {
+            if !self.nav.request_note(generation) {
+                return;
+            }
+            if let Some(job) = self.submit(
+                Action::OpenNote {
+                    op,
+                    vault,
+                    relative,
+                },
+                "Open Markdown note",
+                cx,
+            ) {
+                self.pending_note_open = Some(PendingNoteOpen {
+                    job,
+                    op: Some(op),
+                    id: None,
+                });
+            }
+            return;
+        }
+        if let NoteControl::Select { id, generation } = control {
+            if !self.nav.request_note(generation) {
+                return;
+            }
+            if let Some(job) = self.submit(
+                Action::ObserveNotes { ids: vec![id] },
+                "Open registered note",
+                cx,
+            ) {
+                self.pending_note_open = Some(PendingNoteOpen {
+                    job,
+                    op: None,
+                    id: Some(id),
+                });
+            }
+            return;
+        }
+        let Some(state) = &mut self.note_state else {
+            self.message = "Open a Markdown note first.".into();
+            return;
+        };
+        let id = state.id();
+        let op = Uuid::new_v4();
+        let request = match &control {
+            NoteControl::Save => state.begin_save(op),
+            NoteControl::Copy(_) => state.begin_copy(op),
+            NoteControl::Reload => state.begin_discard(op),
+            NoteControl::Relink(_) | NoteControl::Accept { .. } => state.begin_rebase(op),
+            _ => Ok(brn_workflow::notes::NoteSubmission {
+                operation_id: op,
+                note_id: id,
+                expected: state.stamp(),
+                generation: state.stamp().generation,
+                text: state.text().into(),
+            }),
+        };
+        let request = match request {
+            Ok(request) => request,
+            Err(error) => {
+                self.message = error.message;
+                return;
+            }
+        };
+        let action = match control {
+            NoteControl::Save => {
+                self.original_note_operation = Some(op);
+                Action::SaveNote { request }
+            }
+            NoteControl::Copy(relative) => Action::SaveNoteCopy { request, relative },
+            NoteControl::Compare => Action::CompareNote { id },
+            NoteControl::Reload => Action::ReloadNote {
+                op,
+                id,
+                expected: request.expected,
+                discard: true,
+            },
+            NoteControl::Relink(relative) => Action::RelinkNote {
+                op,
+                id,
+                expected: request.expected,
+                relative,
+                confirm_identity: true,
+            },
+            NoteControl::Accept {
+                save_op,
+                file_state,
+            } => Action::AcceptNoteDiskState {
+                op,
+                save_op,
+                file_state,
+            },
+            NoteControl::Approve { file_state } => {
+                Action::ApproveNoteSnapshot { op, id, file_state }
+            }
+            NoteControl::Open { .. }
+            | NoteControl::Select { .. }
+            | NoteControl::Navigate(_)
+            | NoteControl::OpenDraft(_)
+            | NoteControl::CreateDraft => unreachable!(),
+        };
+        let tracked = !matches!(action, Action::CompareNote { .. });
+        self.note_sources_changed |= tracked;
+        if let Some(job) = self.submit(action, "Note action", cx) {
+            if tracked {
+                self.pending_note_job = Some((job, op));
+            }
+        } else {
+            self.refuse_note_admission(op);
+        }
+        self.note_observations.insert(id);
+    }
+    fn refuse_note_admission(&mut self, op: Uuid) {
+        if let Some(state) = &mut self.note_state
+            && state.pending()
+        {
+            self.note_schedule.note_failed(state);
+            let failure = brn_workflow::notes::NoteFailure {
+                code: brn_workflow::notes::NoteErrorCode::WorkspaceBusy,
+                message: self.message.clone(),
+                operation_id: Some(op),
+                note_id: Some(state.id()),
+                phase: None,
+                filesystem_outcome: brn_workflow::notes::FileOutcome::NotApplied,
+                recovery_available: false,
+            };
+            if let Err(error) = state.fail(op, failure) {
+                self.message = error.message;
+            }
+        }
+    }
+    fn poll_notes(&mut self, window: &mut Window, cx: &mut Context<Self>) {
+        let idle = self.phase.can_submit()
+            && self.pending_note_job.is_none()
+            && self.pending_note_open.is_none();
+        if !idle {
+            return;
+        }
+        let registered: Vec<_> = self
+            .note_recoveries
+            .iter()
+            .map(|recovery| recovery.note_id)
+            .chain(self.note_views.iter().map(|view| view.id))
+            .collect();
+        // After a refused save, observe the durable input stamp before retrying recovery.
+        if let Some(ids) = self.note_observations.take(idle, &registered) {
+            if self
+                .submit(
+                    Action::ObserveNotes { ids: ids.clone() },
+                    "Observe registered notes",
+                    cx,
+                )
+                .is_none()
+            {
+                self.note_observations.extend(ids);
+            }
+            return;
+        }
+        if let Some(state) = &mut self.note_state
+            && self
+                .note_schedule
+                .wants_recovery(Instant::now(), state, idle)
+        {
+            match state.begin_recovery(Uuid::new_v4()) {
+                Ok(request) => {
+                    let op = request.operation_id;
+                    if let Some(job) = self.submit(
+                        Action::SaveNoteBuffer { request },
+                        "Recover note buffer (not Markdown)",
+                        cx,
+                    ) {
+                        self.pending_note_job = Some((job, op));
+                    } else {
+                        self.refuse_note_admission(op);
+                    }
+                }
+                Err(error) => {
+                    self.message = error.message;
+                    self.note_schedule.recovery_failed();
+                }
+            }
+            return;
+        }
+        let ready = self
+            .note_state
+            .as_ref()
+            .is_none_or(|state| self.note_schedule.can_finish(state, idle));
+        if self.note_schedule.closing()
+            && ready
+            && let Some(route) = self.note_schedule.take_close()
+        {
+            match route {
+                CloseRoute::Switch => {
+                    if let Some(control) = self.note_control.take() {
+                        self.run_note_control(control, cx);
+                    }
+                }
+                CloseRoute::Quit | CloseRoute::Window => {
+                    if !self.close_guard(route, cx) {
+                        return;
+                    }
+                    if route == CloseRoute::Quit {
+                        cx.quit();
+                    } else {
+                        window.remove_window();
+                    }
+                }
+            }
+            return;
+        }
+        if self.note_sources_changed
+            && self
+                .submit(
+                    Action::Refresh {
+                        session: self.selected_session,
+                    },
+                    "Refresh saved source states",
+                    cx,
+                )
+                .is_some()
+        {
+            self.note_sources_changed = false;
+        }
+    }
+    fn choose_note_path(&mut self, vault: bool, cx: &mut Context<Self>) {
+        if self.choosing_file {
+            return;
+        }
+        if !vault && self.vault_path.is_none() {
+            self.message = "Choose the registered vault root first.".into();
+            cx.notify();
+            return;
+        }
+        self.choosing_file = true;
+        let receiver = cx.prompt_for_paths(PathPromptOptions {
+            files: !vault,
+            directories: vault,
+            multiple: false,
+            prompt: Some(
+                if vault {
+                    "Choose local vault"
+                } else {
+                    "Open Markdown note"
+                }
+                .into(),
+            ),
+        });
+        cx.spawn(async move |this, cx| {
+            let selection = receiver.await;
+            let _ = this.update(cx, |this, cx| {
+                this.choosing_file = false;
+                match selection {
+                    Ok(Ok(Some(paths))) => if let Some(path) = paths.into_iter().next() {
+                        if vault {
+                            this.vault_path = Some(path);
+                            this.message = "Vault selected. A different registered root requires a separate data directory.".into();
+                        } else if let Some(root) = &this.vault_path {
+                            match path.strip_prefix(root) {
+                                Ok(relative) => this.queue_note_control(NoteControl::Open {
+                                    op: Uuid::new_v4(), vault: root.clone(), relative: relative.to_owned(),
+                                    generation: this.nav.generation,
+                                }, cx),
+                                Err(_) => this.message = "Choose a Markdown file within the selected vault.".into(),
+                            }
+                        }
+                    },
+                    Ok(Ok(None)) => {}
+                    Ok(Err(error)) => this.message = format!("Note chooser failed: {error}"),
+                    Err(error) => this.message = format!("Note chooser closed: {error}"),
+                }
+                cx.notify();
+            });
+        }).detach();
+        cx.notify();
+    }
+    fn defer_note_navigation(&mut self, control: NoteControl, cx: &mut Context<Self>) -> bool {
+        if matches!(self.open_doc, Some(DocRef::Note(_)))
+            && (self
+                .note_state
+                .as_ref()
+                .is_some_and(|state| !state.can_close())
+                || self.pending_note_job.is_some()
+                || self.pending_note_open.is_some()
+                || self.worker.critical_note_pending()
+                || self.note_schedule.closing())
+        {
+            self.queue_note_control(control, cx);
+            true
+        } else {
+            false
+        }
+    }
+    fn show_document(&mut self, doc: DocRef, cx: &mut Context<Self>) {
+        if self.open_doc != Some(doc)
+            && self.defer_note_navigation(NoteControl::Navigate(Some(doc)), cx)
+        {
+            return;
+        }
         self.nav.moved();
         self.open_doc = Some(doc);
         self.centre_tab = CentreTab::Document;
     }
     /// Hides the document pane. A draft's in-memory editor state is kept.
-    fn close_document(&mut self) {
+    fn close_document(&mut self, cx: &mut Context<Self>) {
+        if self.defer_note_navigation(NoteControl::Navigate(None), cx) {
+            return;
+        }
         self.nav.moved();
         self.open_doc = None;
         self.centre_tab = CentreTab::Chat;
@@ -1224,7 +2052,7 @@ impl Desktop {
             .as_ref()
             .is_some_and(|state| state.id() == id)
         {
-            self.show_document(DocRef::Draft);
+            self.show_document(DocRef::Draft, cx);
             cx.notify();
             return;
         }
@@ -1285,10 +2113,12 @@ pub fn run(path: PathBuf, config: Config) {
                 KeyBinding::new("cmd-,", OpenSettings, None),
                 KeyBinding::new("cmd-.", CancelRunning, None),
                 KeyBinding::new("cmd-.", CancelRunning, Some("Input")),
+                KeyBinding::new("cmd-s", SaveNote, Some("MarkdownNote")),
             ]);
             cx.set_menus([
                 Menu::new("BRN").items(vec![
                     MenuItem::action("Settings…", OpenSettings),
+                    MenuItem::action("Save to Markdown", SaveNote),
                     MenuItem::separator(),
                     MenuItem::action("Quit BRN", Quit),
                 ]),
@@ -1322,7 +2152,7 @@ pub fn run(path: PathBuf, config: Config) {
                         let quit_target = desktop.downgrade();
                         cx.on_action::<Quit>(move |_, cx| {
                             let allow = quit_target
-                                .update(cx, |this, cx| this.close_guard(cx))
+                                .update(cx, |this, cx| this.close_guard(CloseRoute::Quit, cx))
                                 .unwrap_or(true);
                             if allow {
                                 cx.quit();
@@ -1352,9 +2182,14 @@ pub fn run(path: PathBuf, config: Config) {
                         route::<CancelRunning>(cx, desktop.downgrade(), |this, cx| {
                             this.cancel_running(cx)
                         });
+                        route::<SaveNote>(cx, desktop.downgrade(), |this, cx| {
+                            if matches!(this.open_doc, Some(DocRef::Note(_))) {
+                                this.queue_note_control(NoteControl::Save, cx);
+                            }
+                        });
                         let weak = desktop.downgrade();
                         window.on_window_should_close(cx, move |_, cx| {
-                            weak.update(cx, |this, cx| this.close_guard(cx))
+                            weak.update(cx, |this, cx| this.close_guard(CloseRoute::Window, cx))
                                 .unwrap_or(true)
                         });
                         cx.new(|cx| Root::new(desktop, window, cx))
@@ -1386,6 +2221,54 @@ mod tests {
         nav.request_draft();
         nav.moved();
         assert!(!nav.take_draft_completion());
+    }
+
+    #[test]
+    fn note_completion_navigates_only_without_newer_navigation() {
+        let mut nav = DocNavigation::default();
+        assert!(!nav.take_note_completion());
+        assert!(nav.request_note(nav.generation));
+        assert!(nav.take_note_completion());
+        assert!(!nav.take_note_completion());
+        for _ in [
+            DocRef::Draft,
+            DocRef::Source(Uuid::new_v4()),
+            DocRef::Note(Uuid::new_v4()),
+        ] {
+            assert!(nav.request_note(nav.generation));
+            nav.moved();
+            assert!(!nav.take_note_completion());
+        }
+        assert!(nav.request_note(nav.generation));
+        nav.moved(); // Close also invalidates the in-flight open.
+        assert!(!nav.take_note_completion());
+    }
+
+    #[test]
+    fn document_navigation_correlates_note_and_draft_requests_independently() {
+        let mut nav = DocNavigation::default();
+        nav.request_draft();
+        nav.moved();
+        assert!(nav.request_note(nav.generation));
+        assert!(!nav.take_draft_completion());
+        assert!(nav.take_note_completion());
+        assert!(nav.request_note(nav.generation));
+        nav.moved();
+        nav.request_draft();
+        assert!(!nav.take_note_completion());
+        assert!(nav.take_draft_completion());
+    }
+
+    #[test]
+    fn queued_note_open_cannot_rebind_to_newer_source_navigation() {
+        let mut nav = DocNavigation::default();
+        nav.moved();
+        let queued_generation = nav.generation;
+        nav.moved();
+        assert!(!nav.request_note(queued_generation));
+        assert!(!nav.take_note_completion());
+        assert!(nav.request_note(nav.generation));
+        assert!(nav.take_note_completion());
     }
 
     #[test]

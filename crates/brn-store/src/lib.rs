@@ -14,6 +14,7 @@ use uuid::Uuid;
 pub mod anchors;
 mod comments;
 mod drafts;
+pub mod notes;
 mod workflow;
 pub use anchors::{
     AmbiguityReason, AnchorProjection, AnchorState, EditTrace, OriginalAnchor, RecoveryReference,
@@ -25,10 +26,11 @@ pub use comments::{
     MAX_COMMENT_BODY_BYTES,
 };
 pub use drafts::{Draft, DraftRevision, DraftStamp, MAX_DRAFT_BYTES, RevisionKind};
-pub use workflow::{Approval, ChatTurn, ImportResult, SourceDocument};
+pub use workflow::{Approval, ChatTurn, EvidenceCurrentness, ImportResult, SourceDocument};
 
 const APPLICATION_ID: u32 = 0x4252_4e31; // BRN1
-const SCHEMA_VERSION: u32 = 5;
+const SCHEMA_VERSION: u32 = 6;
+use notes::V6;
 const V1: &str = "CREATE TABLE sources (id TEXT PRIMARY KEY, title TEXT NOT NULL);\
 CREATE TABLE versions (id TEXT PRIMARY KEY, source_id TEXT NOT NULL REFERENCES sources(id), parent_id TEXT REFERENCES versions(id), bytes BLOB NOT NULL, sha256 BLOB NOT NULL);";
 const V2: &str = "CREATE TABLE operations (id TEXT PRIMARY KEY, kind TEXT NOT NULL, payload_hash BLOB NOT NULL, status TEXT NOT NULL CHECK(status IN ('pending','running','completed','failed','interrupted')), terminal_data BLOB);\
@@ -269,6 +271,7 @@ impl Store {
                 tx.execute_batch(V3)?;
                 tx.execute_batch(V4)?;
                 tx.execute_batch(V5)?;
+                tx.execute_batch(V6)?;
                 tx.pragma_update(None, "application_id", APPLICATION_ID)?;
                 tx.pragma_update(None, "user_version", SCHEMA_VERSION)?;
                 tx.commit()?;
@@ -286,6 +289,9 @@ impl Store {
                 } else if version == 4 {
                     migrate_v4(&mut conn, || Ok(()))?;
                     report.migrated_from = Some(4);
+                } else if version == 5 {
+                    migrate_v5(&mut conn, || Ok(()))?;
+                    report.migrated_from = Some(5);
                 }
             }
         }
@@ -377,6 +383,12 @@ impl Store {
         status: OperationStatus,
         data: &[u8],
     ) -> Result<()> {
+        if self
+            .operation(id)?
+            .is_some_and(|op| op.kind.starts_with("note."))
+        {
+            return Err(invalid("note operations require dedicated transitions"));
+        }
         if !matches!(
             status,
             OperationStatus::Completed | OperationStatus::Failed | OperationStatus::Interrupted
@@ -696,6 +708,10 @@ fn is_local_kind(kind: &str) -> bool {
             | "draft.write.comments"
             | "comment.capture"
             | "comment.status"
+            | "note.enroll"
+            | "note.buffer"
+            | "note.save"
+            | "note.copy"
     )
 }
 fn encode_args(items: &[&[u8]]) -> Vec<u8> {
@@ -754,6 +770,7 @@ fn migrate_v1(conn: &mut Connection, after_ddl: impl FnOnce() -> Result<()>) -> 
     tx.execute_batch(V3)?;
     tx.execute_batch(V4)?;
     tx.execute_batch(V5)?;
+    tx.execute_batch(V6)?;
     after_ddl()?;
     tx.pragma_update(None, "user_version", SCHEMA_VERSION)?;
     tx.commit()?;
@@ -764,6 +781,7 @@ fn migrate_v2(conn: &mut Connection) -> Result<()> {
     tx.execute_batch(V3)?;
     tx.execute_batch(V4)?;
     tx.execute_batch(V5)?;
+    tx.execute_batch(V6)?;
     tx.pragma_update(None, "user_version", SCHEMA_VERSION)?;
     tx.commit()?;
     Ok(())
@@ -772,6 +790,7 @@ fn migrate_v3(conn: &mut Connection, after_ddl: impl FnOnce() -> Result<()>) -> 
     let tx = conn.transaction()?;
     tx.execute_batch(V4)?;
     tx.execute_batch(V5)?;
+    tx.execute_batch(V6)?;
     after_ddl()?;
     tx.pragma_update(None, "user_version", SCHEMA_VERSION)?;
     tx.commit()?;
@@ -780,6 +799,15 @@ fn migrate_v3(conn: &mut Connection, after_ddl: impl FnOnce() -> Result<()>) -> 
 fn migrate_v4(conn: &mut Connection, after_ddl: impl FnOnce() -> Result<()>) -> Result<()> {
     let tx = conn.transaction()?;
     tx.execute_batch(V5)?;
+    tx.execute_batch(V6)?;
+    after_ddl()?;
+    tx.pragma_update(None, "user_version", SCHEMA_VERSION)?;
+    tx.commit()?;
+    Ok(())
+}
+fn migrate_v5(conn: &mut Connection, after_ddl: impl FnOnce() -> Result<()>) -> Result<()> {
+    let tx = conn.transaction()?;
+    tx.execute_batch(V6)?;
     after_ddl()?;
     tx.pragma_update(None, "user_version", SCHEMA_VERSION)?;
     tx.commit()?;
@@ -816,6 +844,9 @@ fn validate_schema(conn: &Connection, version: u32) -> Result<()> {
     }
     if version >= 5 {
         expected.execute_batch(V5)?;
+    }
+    if version >= 6 {
+        expected.execute_batch(V6)?;
     }
     if schema_map(conn)? != schema_map(&expected)? {
         return Err(invalid("unexpected database schema"));
@@ -857,6 +888,37 @@ fn verify_pragmas(conn: &Connection) -> Result<()> {
 #[cfg(test)]
 mod tests {
     use super::*;
+    #[test]
+    fn version_five_migration_is_atomic_and_defaults_existing_turn_currentness() {
+        let dir = tempfile::tempdir_in(".").unwrap();
+        let db = dir.path().join("brn.sqlite3");
+        let mut conn = Connection::open(&db).unwrap();
+        for ddl in [V1, V2, V3, V4, V5] {
+            conn.execute_batch(ddl).unwrap();
+        }
+        conn.pragma_update(None, "application_id", APPLICATION_ID)
+            .unwrap();
+        conn.pragma_update(None, "user_version", 5).unwrap();
+        let session = Uuid::new_v4();
+        let op = Uuid::new_v4();
+        conn.execute("INSERT INTO sessions(id,provider,provider_store,thread_id,metadata) VALUES(?1,'test','test','thread',x'7b7d')", [session.to_string()]).unwrap();
+        conn.execute("INSERT INTO operations(id,kind,payload_hash,status) VALUES(?1,'chat.turn',zeroblob(32),'completed')", [op.to_string()]).unwrap();
+        conn.execute("INSERT INTO chat_turns(operation_id,session_id,question,profile,evidence_json,answer) VALUES(?1,?2,'q','keyword','[]','a')", params![op.to_string(),session.to_string()]).unwrap();
+        assert!(migrate_v5(&mut conn, || Err(invalid("injected V6 failure"))).is_err());
+        validate_schema(&conn, 5).unwrap();
+        assert_eq!(
+            conn.query_row("PRAGMA user_version", [], |r| r.get::<_, u32>(0))
+                .unwrap(),
+            5
+        );
+        drop(conn);
+        let (store, report) = Store::open(dir.path()).unwrap();
+        assert_eq!(report.migrated_from, Some(5));
+        let turn = &store.turns(session).unwrap()[0];
+        assert_eq!(turn.answer.as_deref(), Some("a"));
+        assert_eq!(turn.evidence_currentness, EvidenceCurrentness::Unqualified);
+    }
+
     #[test]
     fn version_one_migrates_and_injected_failure_rolls_back_schema_and_version() {
         let dir = tempfile::tempdir().unwrap();

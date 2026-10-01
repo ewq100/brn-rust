@@ -8,11 +8,11 @@ Date: 2026-10-01.
 | --- | --- |
 | Written reset specification | User-approved; committed at `ecc0c97`, approval recorded at `19f180c`. |
 | Implementation plan | Initial pack at `347fd38`, review corrections at `db18da8`; user approved the revised plan on 2026-10-01. |
-| Product implementation | Not started; the subsequent execution-choice prompt was skipped, so execution confirmation remains pending. |
+| Reset implementation | Not started; execution confirmation remains pending. Reconciliation with PR #13's implemented notes/schema is required before execution. |
 | Dependency/provider/retrieval qualification | Not run; inspected source is not a compiled or live result. |
 | Live login/calls, model acquisition, signing, release | Not authorized or performed. |
 
-Planning baseline: `19f180c80cd607b47f22473841971ffc5065ac91`, branch `evokessler-ericcp-rig-architecture-reset`. Baseline Rust/store/retrieval implementation remains unchanged.
+Historical planning baseline: `19f180c80cd607b47f22473841971ffc5065ac91`, branch `evokessler-ericcp-rig-architecture-reset`. Rust/store/retrieval implementation was unchanged during plan preparation; subsequent main integration is recorded below.
 
 ## Planning inspection
 
@@ -43,7 +43,7 @@ Primary source links and source-level limitations are in the [specification](../
 | G1a candidate dependency/API | Not run | Published manifests, candidate lockfile, compiled interfaces and linked native probe. |
 | G1b actual production native graph | Not run | A1 actual root-locked desktop builds/tests/tree with Rig, repeated after dependency changes. |
 | G2 both subscriptions | Not run; live phase unauthorized | Deterministic auth/agent matrix and separately authorized selected-account live results. |
-| G3 current notes | Not implemented/not run | Exact-save/recovery/currentness tests and disposable native observations. |
+| G3 current notes | Reset acceptance not run; earlier managed-note qualification is separate | Reset-specific exact-save/recovery/currentness tests and disposable native observations. |
 | G4 retrieval | Not implemented/not measured | Frozen baseline/corpus/qrels, SQLite vector measurements, explicit acceptance. |
 | G5 distribution | Blocked on all prerequisites | Terms/support-risk review, declared target, signed/notarized clean-Mac evidence and both direct providers. |
 
@@ -83,6 +83,14 @@ Revision validation passed: `git diff --check` and the read-only documentation c
 
 The user approved the revised implementation plan at `db18da8c482a173e666ec23b9d6f00ca4ddd05c3` on 2026-10-01. No execution option was selected in the subsequent prompt. This records plan acceptance, not implementation results or permission for live/account/resource/release actions.
 
-Start with [Q1](qualification.md#q1-resolve-the-actual-dependency-graph-and-pin-usable-interfaces) only after execution authorization. Treat exact published/native graph/API findings as a mandatory decision gate before downstream implementation.
+Reconcile and review the plan against the integration baseline before execution. Then start with [Q1](qualification.md#q1-resolve-the-actual-dependency-graph-and-pin-usable-interfaces) only after execution authorization. Treat exact published/native graph/API findings as a mandatory decision gate before downstream implementation.
 
-Inline execution with checkpoints is the default; per-task delegation requires explicit user selection. Do not execute the older paused Markdown save plan. Respect separate authorization for live calls, models, credentials, signing, release and real data.
+Inline execution with checkpoints is the default; per-task delegation requires explicit user selection. Do not re-execute the historical Markdown save plan. Respect separate authorization for live calls, models, credentials, signing, release and real data.
+
+## Main integration reconciliation
+
+The user authorized merging and pushing remote `main`, with local-main checkout synchronization left to the user. The integration target is `6323e535eebb0bef2dbf180f1e6fe6b2bff5321e`, which includes PR #13's managed Markdown implementation. The reset documentation tip before integration was `cef208d891ac20ad93a82911f81b377b89175ec2`.
+
+Conflicts in the documentation index, status and active-work index were resolved by preserving both the implemented Markdown baseline and the approved, unimplemented reset. Historical qualification observations remain historical, not fresh test results. The current store source declares schema V6, so the reset's proposed new V6 and earlier interface assumptions require reconciliation and review before execution. No migration, Rust source, manifest, lockfile, product saving behavior or live qualification is changed by this documentation integration relative to the target main.
+
+Integration validation: whitespace checks passed; the read-only checker covered all 14 changed Markdown files, 121 local links/fragments, 14 task IDs and 92 checkbox steps with zero errors. The complete difference against the target main is documentation-only, with no unresolved merge entries. Unchanged product code was not rebuilt or retested; these checks establish documentation structure, not renewed product qualification.

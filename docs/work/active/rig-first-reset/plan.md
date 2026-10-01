@@ -12,9 +12,11 @@
 
 Status/date: User approved the reviewed/revised plan at `db18da8` on 2026-10-01. The execution-choice prompt was skipped; implementation remains unstarted pending execution confirmation. New interfaces below are proposed contracts, not existing APIs; Q1 must freeze the compiled Rig-specific seams and any necessary pin/adapter revision before downstream execution.
 
+**Integration prerequisite:** `main@6323e53` now includes PR #13's managed-note store/workflow/CLI/native implementation and schema V6. The approval above applies to the recorded planning baseline, not a verified adaptation to those later changes. Before execution, reconcile the proposed interfaces and N1-N4 steps with existing note modules, check every affected consumer, and allocate unused migration versions for N1/A2/A4 rather than running the proposed new V6 unchanged. Reuse existing mechanisms where appropriate while preserving durable work and provenance. Record and review the adapted plan before implementation; this documentation merge changes no product code or saving guarantees.
+
 ## Global constraints
 
-- Planning baseline: `19f180c80cd607b47f22473841971ffc5065ac91`; existing store schema version is `5`.
+- Historical planning baseline: `19f180c80cd607b47f22473841971ffc5065ac91`; store schema version was `5`. The integration prerequisite above takes precedence over the migration numbers and assumed existing APIs below.
 - Plan creation/commit is authorized. Product implementation, live authentication/calls, original-vault access, model acquisition, signing/notarization and release are not authorized by this document.
 - "ChatGPT/Codex and GitHub Copilot, both directly through Rig."
 - "None: no Codex App Server, Copilot CLI/SDK, alternate account or paid-API substitution."

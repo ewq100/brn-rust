@@ -1,6 +1,6 @@
 # Safe Markdown Note Editing Implementation Plan
 
-**Execution paused:** The [Rig-first reset](../../../superpowers/specs/2026-10-01-rig-first-architecture-reset-design.md) replaces this plan's required macOS coordination/atomic-exchange protocol with basic editor-grade saving and changes provider/conversation assumptions. This plan is retained as prior planning evidence, not current execution instructions. Revise it before implementation; the historical approvals below do not authorize running it unchanged.
+**Implementation record:** This earlier plan's implementation landed on `main@6323e53` through PR #13; [qualification evidence](evidence.md) retains its observations and pending native acceptance. The [Rig-first reset](../../../superpowers/specs/2026-10-01-rig-first-architecture-reset-design.md) proposes replacing its macOS coordination/atomic-exchange protocol with basic editor-grade saving and changes provider/conversation assumptions. That reset is not implemented. Retain this plan as historical implementation/design evidence, not instructions to re-execute it or implement the reset unchanged.
 
 > **For agentic workers:** REQUIRED SUB-SKILL: Use superpowers:subagent-driven-development or superpowers:executing-plans to implement this plan task-by-task. Follow the current user's delegation preference; inline execution is the repository default. Steps use checkbox (`- [ ]`) syntax for tracking.
 
@@ -14,7 +14,7 @@
 
 ## Global Constraints
 
-- Baseline: `main` at `32077d8`; written specification approved on 1 October 2026. Planning only; implementation/verification have not started.
+- Historical planning baseline: `main` at `32077d8`; written specification approved on 1 October 2026. Implementation/verification had not started at that planning checkpoint; see the current implementation record above.
 - Review revision: Opus 5.5/high reviewed `dca2b98`; this update was checked against local `main` at `de0eb45621f9d724cf0fa60be74f36a6ab5c08ae`. Later workspace-shell planning is independent and is not implementation authorization here.
 - "Explicit Save/Cmd-S writes Markdown; automatic editing-buffer recovery does not publish."
 - "One local vault on this Mac; other local editors may edit its files."
@@ -708,4 +708,4 @@ Coverage: spec sections 1-3 map to Tasks 1-3/8; original saves/restart to Task 4
 
 Self-review must verify type/member consistency, exact-byte/native editor behavior, startup interruption versus dedicated save phases, operation replay before fresh-state validation, current evidence on every related surface, and copy-specific versus exchange-specific recovery. The implementation snippets are targeted contracts/algorithms, not prewritten substitutes for the red-green cycles.
 
-Historical gate: the written spec was approved, but implementation was not selected or started. Execution is now paused under the Rig-first reset. Revise this plan for the new saving/provider scope and obtain current review before offering execution.
+Historical planning gate: the written spec was approved before implementation was selected or started. Implementation subsequently landed through PR #13. Do not re-execute this historical plan; reconcile the separate Rig reset plan with the implemented baseline and obtain current review before reset execution.

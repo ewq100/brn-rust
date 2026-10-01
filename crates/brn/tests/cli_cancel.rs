@@ -226,7 +226,7 @@ fn import_cancelled_during_workspace_wait_does_not_mutate() {
     // `Store::import_text` creates the source and its operation in one
     // transaction, so an empty sources() is the honest observable that the
     // requested import never committed.
-    let workspace = Workspace::open(root, Config::default()).unwrap();
+    let mut workspace = Workspace::open(root, Config::default()).unwrap();
     let sources = workspace.sources().unwrap();
     assert!(
         sources.is_empty(),
@@ -294,7 +294,7 @@ fn approval_cancelled_during_workspace_wait_is_not_applied() {
         assert_eq!(envelope["error"]["code"], "INTERRUPTED", "{envelope}");
     }
 
-    let workspace = Workspace::open(root, Config::default()).unwrap();
+    let mut workspace = Workspace::open(root, Config::default()).unwrap();
     let sources = workspace.sources().unwrap();
     assert_eq!(sources.len(), 1, "the seeded source stands: {sources:?}");
     assert_eq!(sources[0].source_id, source_id);

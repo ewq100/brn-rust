@@ -7,6 +7,8 @@ Status: Three design sections and the written specification approved on 1 Octobe
 Inspected repository baseline: `1a30db049b7ed82d285614e598bb95676cbf5ec2`.
 Inspected Rig candidate: upstream tag `v0.43.0`, released 30 September 2026.
 
+Integration update: `main@6323e53` subsequently added managed Markdown editing and store schema V6 through PR #13. Section 2 retains observations from the inspected baseline, not a claim that these existing capabilities remain unimplemented. The [reset plan](../../work/active/rig-first-reset/plan.md) requires baseline reconciliation before execution; the reset itself remains unimplemented.
+
 This specification revises the user-supplied "BRN Rust --- Rig-First Architecture Reset" handoff. That handoff was supplied in conversation, not present in the inspected checkout. Repository source and pinned upstream source were inspected rather than treating its claims as evidence.
 
 ## 1. Decisions and scope
@@ -31,10 +33,10 @@ Excluded: Windows release, cross-device collaboration, lossless simultaneous edi
 
 ## 2. Verified baseline and corrections
 
-The [architecture overview](../../architecture/overview.md) and Rust source describe the implementation, not this target design:
+The following repository observations describe the inspected `1a30db0` baseline, not the later integration baseline or this target design. The [architecture overview](../../architecture/overview.md) describes current implementation:
 
 - `brn-workflow::Workspace::ask_full` retrieves evidence before connecting to Codex App Server, persists local session/thread associations, and records known or uncertain execution outcomes.
-- `brn-store` currently owns imported content and immutable versions. The live Markdown registry/save design is approved but not implemented.
+- At the inspected baseline, `brn-store` owned imported content and immutable versions; the live Markdown registry/save design was approved but not implemented. PR #13 subsequently implemented that earlier design, separately from this reset.
 - `brn-retrieval::Index::keyword` uses substring matches. Its `fuse` function already implements reciprocal-rank fusion; replacement retrieval should reuse that behavior and its provenance contracts.
 - Native retrieval uses FastEmbed `7.1.0` and LanceDB `0.39.0`. Store pins rusqlite `0.40.2`.
 - Rig `v0.43.0` includes direct ChatGPT subscription and Copilot implementations. This establishes source-level capability, not successful BRN authentication, account entitlement or distribution qualification.
@@ -208,7 +210,7 @@ The reset can be implemented and deterministically verified while release remain
 
 The earlier Markdown-first direction remains: current files, bounded working state, exact provenance, archive/history exclusion and explicit adoption.
 
-For this reset, the earlier note-editing specification's coordination/exchange requirements are replaced by section 5. Its retained historical observations are not rewritten. The prepared note-editing plan is paused and must be revised before execution.
+For this reset, the earlier note-editing specification's coordination/exchange requirements are replaced by section 5. Its implementation subsequently landed through PR #13; retained historical observations are not rewritten. Reconcile the reset plan with that implemented baseline before execution, without changing current saving behavior in this documentation merge.
 
 Current architecture/invariants still describe implemented SQLite/App Server behavior until production changes land. Update them at implementation checkpoints, not by declaring an unimplemented reset complete. Retain credential/account continuity and operation honesty as product requirements while retiring Codex-specific representations.
 

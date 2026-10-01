@@ -68,7 +68,12 @@ python3 - "$scratch/sources.json" "$scratch/sessions.json" <<'PY'
 import json
 import sys
 
-assert len(json.load(open(sys.argv[1], encoding="utf-8"))) == 1
+projection = json.load(open(sys.argv[1], encoding="utf-8"))
+sources = projection["sources"]
+states = projection["source_states"]
+assert len(sources) == len(states) == 1, projection
+assert states[0]["source_id"] == sources[0]["source_id"], projection
+assert states[0]["current_state"] == "Current", projection
 assert json.load(open(sys.argv[2], encoding="utf-8")) == []
 PY
 
