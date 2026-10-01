@@ -12,7 +12,7 @@ This describes the implemented workspace at the baseline in [status](../status.m
 | [brn-provider](../../crates/brn-provider/README.md) | App Server client and owned process lifecycle | None |
 | [brn-retrieval](../../crates/brn-retrieval/README.md) | Derived indexes, search profiles and evidence validation | None |
 | [brn-workflow](../../crates/brn-workflow/README.md) | Integrated application operations, worker commands/events and `brn-flow` CLI | Store, provider, retrieval |
-| [brn-desktop](../../crates/brn-desktop/README.md) | GPUI views, interaction state and sample headless checks | Core; workflow with native UI enabled |
+| [brn-desktop](../../crates/brn-desktop/README.md) | GPUI workspace shell (history, document/chat, vault), interaction state, presentation-only layout preferences and sample headless checks | Core; workflow with native UI enabled |
 
 `brn-desktop` sends integrated application work through `brn-workflow::worker`. The headless `brn-flow` driver uses the same workflow. Workflow coordinates authoritative storage, derived retrieval and provider calls; views do not implement those operations themselves.
 
@@ -29,5 +29,7 @@ Comment-batch generation and publication are future interfaces, not capabilities
 ## Build boundaries
 
 Default desktop features are empty. `native-ui` enables GPUI and the integrated workflow; `native-retrieval` additionally enables workflow native retrieval. Workflow's `native-retrieval` enables retrieval's `native` feature. Keyword paths do not require model assets. Experiments are standalone manifests with separate lockfiles, outside the root workspace.
+
+The desktop's layout.json in the data directory is presentation state only; deleting it restores default layout without affecting authoritative data.
 
 Read [invariants](invariants.md) before changing a boundary, and [dependencies](dependencies.md) for dated dependency observations and distribution limits.

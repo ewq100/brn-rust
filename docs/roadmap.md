@@ -45,6 +45,10 @@ Prerequisite: 10 for early test installers; 14, 16, 17 for full planned release.
 Deliverable: installer/application bundle, model resource handling, credential integration, installation/update instructions, target-OS smoke checks.
 Done: install on a clean target machine and complete the full workflow; no development toolchain or Node/Python service required at runtime. Validate graphics, input, offline reopening, sleep/wake, and uninstall data policy. Signing/notarization, if required for distribution, uses the user's release credentials through the appropriate secure workflow.
 
+## UI redesign slices
+
+The handoff workspace is delivered in slices: 1 workspace shell ([design](superpowers/specs/2026-10-01-workspace-shell-design.md)), 2 chat polish, 3 vault rail and note editor, 4 history and diff, 5 review and publication. Hidden handoff features and their prerequisites are tracked in the [UI feature backlog](ui/feature-backlog.md). Slices after 1 need their own design approval.
+
 ## Scope and sequencing
 
 Critical path: 00 → trials 01/02/03 → 04 → 05/06 → 07/08/09 → 10 → 11/12/13/14 → 17/18. Graph qualification/integration 15/16 follows the retrieval contract and joins before the full planned release. Installer work starts early enough to supply desktop trials.
