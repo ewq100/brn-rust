@@ -4,7 +4,7 @@ use crate::layout::{Appearance, Scheme};
 use crate::tokens;
 use gpui_kit::{
     App, Hsla, Window, WindowAppearance,
-    component::{Theme, ThemeConfig},
+    component::{Theme, ThemeConfig, highlighter::HighlightTheme},
     rgb,
 };
 use std::rc::Rc;
@@ -26,11 +26,25 @@ pub fn color(hex: u32) -> Hsla {
 
 pub fn config(scheme: Scheme) -> Result<ThemeConfig, String> {
     let mut config = tokens::theme_config_json(scheme);
-    // gpui-component 0.6.6 requires a syntax map even without syntax overrides.
-    config["highlight"]["syntax"] = serde_json::json!({});
-    serde_json::from_value(config).map_err(|error| {
+    config.as_object_mut().unwrap().remove("highlight");
+    let mut config: ThemeConfig = serde_json::from_value(config).map_err(|error| {
         format!("Theme tokens could not be applied ({error}); using the default theme.")
-    })
+    })?;
+    // Theme::change replaces the entire highlight style, so keep the toolkit's
+    // scheme-matched syntax and override only the handoff editor colours.
+    let mut highlight = match scheme {
+        Scheme::Dark => HighlightTheme::default_dark(),
+        Scheme::Light => HighlightTheme::default_light(),
+    }
+    .style
+    .clone();
+    let p = tokens::palette(scheme);
+    highlight.editor_background = Some(color(p.paper));
+    highlight.editor_foreground = Some(color(p.text));
+    highlight.editor_active_line = Some(color(p.active));
+    highlight.editor_line_number = Some(color(p.muted));
+    config.highlight = Some(highlight);
+    Ok(config)
 }
 
 /// Installs the handoff light and dark configs, then lets `Theme::change` resolve
@@ -71,5 +85,41 @@ mod tests {
         assert_eq!(dark.radius, Some(0));
         assert!(dark.highlight.is_some());
         assert!(!config(Scheme::Light).unwrap().mode.is_dark());
+    }
+
+    #[test]
+    fn handoff_editors_retain_syntax_colours_for_both_schemes() {
+        for scheme in [Scheme::Dark, Scheme::Light] {
+            let highlight = config(scheme).unwrap().highlight.unwrap();
+            let syntax = serde_json::to_value(&highlight.syntax).unwrap();
+            assert!(
+                syntax
+                    .as_object()
+                    .unwrap()
+                    .values()
+                    .any(|style| !style.is_null())
+            );
+            assert_eq!(
+                highlight.editor_background,
+                Some(color(tokens::palette(scheme).paper))
+            );
+            assert_eq!(
+                highlight.editor_foreground,
+                Some(color(tokens::palette(scheme).text))
+            );
+            assert_eq!(
+                highlight.editor_active_line,
+                Some(color(tokens::palette(scheme).active))
+            );
+            assert_eq!(
+                highlight.editor_line_number,
+                Some(color(tokens::palette(scheme).muted))
+            );
+            let default = match scheme {
+                Scheme::Dark => HighlightTheme::default_dark(),
+                Scheme::Light => HighlightTheme::default_light(),
+            };
+            assert_eq!(highlight.syntax, default.style.syntax);
+        }
     }
 }

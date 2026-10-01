@@ -1,7 +1,7 @@
 //! Workspace shell: region composition and layout preference changes.
 
 mod centre;
-mod divider;
+pub(super) mod divider;
 mod header;
 mod history_rail;
 mod settings;
@@ -35,9 +35,11 @@ impl Desktop {
     }
 
     pub(super) fn persist_layout(&mut self, cx: &mut Context<Self>) {
-        self.layout_note = None;
-        if let Err(error) = layout::save(&self.path, &self.layout) {
-            self.message = format!("Layout preferences were not saved: {error}");
+        match layout::save(&self.path, &self.layout) {
+            Ok(()) => self.layout_note = None,
+            Err(error) => {
+                self.message = format!("Layout preferences were not saved: {error}");
+            }
         }
         cx.notify();
     }

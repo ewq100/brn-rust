@@ -1,5 +1,5 @@
 use crate::drafts::DraftEditor;
-use crate::layout::{self, Divider, LayoutState, Loaded, Rail, ResolvedLayout};
+use crate::layout::{self, LayoutState, Loaded, Rail, ResolvedLayout};
 use brn_workflow::worker::{
     Action, Approval, ChatTurn, CommentStatusChange, Draft, DraftRevision, DraftWriteWithComments,
     Evidence, Outcome, Profile, SourceDocument, Worker,
@@ -191,7 +191,7 @@ struct Desktop {
     vault_scroll: ScrollHandle,
     chat_scroll: ScrollHandle,
     source_scroll: ScrollHandle,
-    dragging: Option<Divider>,
+    dragging: Option<shell::divider::DividerDrag>,
     divider_focus: [FocusHandle; 3],
     focus_composer: bool,
     message: String,

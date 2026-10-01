@@ -665,6 +665,7 @@ impl Desktop {
         let mut body = div()
             .id("chat-transcript")
             .track_scroll(&self.chat_scroll)
+            .vertical_scrollbar(&self.chat_scroll)
             .flex()
             .flex_col()
             .flex_1()
