@@ -591,7 +591,12 @@ fn full_sync(file: &File) -> NoteResult<()> {
 
 #[cfg(target_os = "macos")]
 fn sync_directory(directory: &File) -> NoteResult<()> {
-    directory.sync_all().map_err(note_io_failure)
+    // Directory durability deliberately uses fsync; Apple's File::sync_all uses F_FULLFSYNC.
+    // SAFETY: directory is a live descriptor retained throughout the call.
+    if unsafe { libc::fsync(directory.as_raw_fd()) } != 0 {
+        return Err(note_io_failure(std::io::Error::last_os_error()));
+    }
+    Ok(())
 }
 
 #[cfg(target_os = "macos")]
@@ -1030,6 +1035,29 @@ mod tests {
         println!(
             "APFS directory flock: same/nested/reverse-nested/aliased roots excluded across subprocesses"
         );
+    }
+
+    #[test]
+    fn explicit_directory_fsync_and_failure_propagation() {
+        let vault = directory();
+        let parent = open_directory(vault.path()).unwrap();
+        sync_directory(&parent).unwrap();
+
+        let mut descriptors = [-1; 2];
+        // SAFETY: the two-element output buffer is live and correctly sized.
+        assert_eq!(unsafe { libc::pipe(descriptors.as_mut_ptr()) }, 0);
+        // SAFETY: pipe returned two new descriptors; each is owned exactly once.
+        let (reader, _writer) = unsafe {
+            (
+                File::from_raw_fd(descriptors[0]),
+                File::from_raw_fd(descriptors[1]),
+            )
+        };
+        assert_eq!(
+            sync_directory(&reader).unwrap_err(),
+            note_io_failure(std::io::Error::from_raw_os_error(libc::EINVAL))
+        );
+        println!("APFS: explicit libc::fsync accepted read-only directory; pipe EINVAL propagated");
     }
 
     #[test]
