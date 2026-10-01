@@ -1201,9 +1201,13 @@ dependencies = [
 name = "brn-workflow"
 version = "0.1.0"
 dependencies = [
+ "block2 0.6.2",
  "brn-provider",
  "brn-retrieval",
  "brn-store",
+ "libc",
+ "objc2 0.6.4",
+ "objc2-foundation 0.3.2",
  "serde",
  "serde_json",
  "sha2 0.10.9",

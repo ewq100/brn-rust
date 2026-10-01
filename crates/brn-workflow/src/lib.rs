@@ -2,6 +2,7 @@
 mod comments;
 mod drafts;
 pub mod error;
+mod notes;
 pub mod worker;
 use brn_provider::{Client, Config as ProviderConfig, TurnStatus};
 use brn_retrieval::{Document, Evidence, Index, Profile};
