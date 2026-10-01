@@ -2,6 +2,7 @@
 mod comments;
 mod drafts;
 pub mod error;
+pub mod notes;
 pub mod worker;
 use brn_provider::{Client, Config as ProviderConfig, TurnStatus};
 use brn_retrieval::{Document, Evidence, Index, Profile};
@@ -29,6 +30,8 @@ pub use brn_store::{
 };
 pub type Result<T> = std::result::Result<T, error::WorkflowError>;
 pub use error::{ErrorKind, WorkflowError};
+pub use notes::eligibility::{SourceCurrentState, SourceStateSummary};
+use notes::eligibility::{note_workflow_error, stale};
 
 /// Whether the provider outcome is confirmed or unobservable. Transport loss
 /// is never proof of cancellation, so it stays `Unknown`.
@@ -52,6 +55,8 @@ pub struct AskFailure {
     /// Durable local record state known to exist (`None`: no turn record known).
     pub recorded_status: Option<OperationStatus>,
     pub provider_outcome: ProviderOutcome,
+    /// Historical receipt, never a successful current answer.
+    pub receipt: Option<Box<ChatTurn>>,
 }
 
 /// Honesty rule for a durably recorded turn status: completed and failed are
@@ -91,6 +96,7 @@ fn ask_failure(
         session_id: session,
         recorded_status: None,
         provider_outcome: ProviderOutcome::Unknown,
+        receipt: None,
     }
 }
 
@@ -110,6 +116,8 @@ struct ActiveIndex {
     format: u32,
     directory: String,
     fingerprint: String,
+    #[serde(default)]
+    eligibility_fingerprint: Option<String>,
 }
 #[derive(Debug, Serialize, Deserialize, Clone)]
 pub struct SearchResult {
@@ -136,6 +144,7 @@ pub fn native_retrieval_compiled() -> bool {
 }
 pub struct Workspace {
     store: Store,
+    notes: notes::NoteState,
     path: PathBuf,
     config: Config,
     index: Option<Index>,
@@ -184,6 +193,7 @@ impl Workspace {
         };
         Ok(Self {
             store,
+            notes: notes::NoteState::default(),
             path,
             config,
             index: None,
@@ -191,9 +201,6 @@ impl Workspace {
             index_error,
             recovered_operations: recovery.interrupted_operations,
         })
-    }
-    pub fn sources(&self) -> Result<Vec<SourceDocument>> {
-        self.store.documents().map_err(error)
     }
     pub fn workspace_status(&self) -> WorkspaceStatus {
         WorkspaceStatus {
@@ -218,7 +225,30 @@ impl Workspace {
         if !matches!(extension.as_str(), "md" | "txt") {
             return Err("select a .md or .txt file".into());
         }
-        let path = fs::canonicalize(path).map_err(error)?;
+        let selected = self.managed_note_for_path(path)?;
+        let requested = path.to_path_buf();
+        let path = if selected.is_some() {
+            path.to_path_buf()
+        } else {
+            fs::canonicalize(path).map_err(error)?
+        };
+        if let Some(id) = selected.or(self.managed_note_for_path(&path)?) {
+            let (receipt, changed) = self
+                .note_snapshot_operation(
+                    op,
+                    &brn_store::notes::NoteSearchRequest::Import {
+                        note_id: id,
+                        path: requested,
+                        approval,
+                    },
+                )
+                .map_err(note_workflow_error)?;
+            return Ok(ImportResult {
+                source_id: receipt.source_id,
+                version_id: receipt.version_id,
+                changed,
+            });
+        }
         let mut file = File::open(&path).map_err(error)?;
         let meta = file.metadata().map_err(error)?;
         if !meta.is_file() || meta.len() > MAX_IMPORT_BYTES as u64 {
@@ -255,14 +285,36 @@ impl Workspace {
     ) -> Result<()> {
         cancelled(cancel)?;
         self.store
+            .reconcile_note_sources()
+            .map_err(note_workflow_error)?;
+        let associations = self
+            .store
+            .note_source_associations()
+            .map_err(note_workflow_error)?;
+        if let Some((id, _, shadowed)) = associations.iter().find(|(_, s, _)| *s == source) {
+            if *shadowed {
+                return Err(stale(
+                    "shadowed imports cannot be independently approved; explicitly approve the managed note",
+                ));
+            }
+            let request = brn_store::notes::NoteSearchRequest::SetApproval {
+                note_id: *id,
+                source_id: source,
+                version_id: version,
+                approval,
+            };
+            self.note_snapshot_operation(op, &request)
+                .map_err(note_workflow_error)?;
+            return Ok(());
+        }
+        self.store
             .set_approval(op, source, version, approval)
             .map_err(WorkflowError::from)
     }
-    fn documents(&self) -> Result<Vec<Document>> {
+    fn documents(&mut self) -> Result<Vec<Document>> {
         let mut docs: Vec<_> = self
-            .store
-            .documents()
-            .map_err(error)?
+            .source_projection()?
+            .0
             .into_iter()
             .filter(|d| d.approval == Approval::Approved)
             .map(|d| {
@@ -298,6 +350,7 @@ impl Workspace {
             return Err("import and approve at least one source for search".into());
         }
         let fingerprint = docs_fingerprint(&docs)?;
+        let eligibility_fingerprint = self.eligibility_fingerprint(&docs)?;
         let root = self.path.join("indexes");
         fs::create_dir_all(&root).map_err(error)?;
         let directory = Uuid::new_v4().to_string();
@@ -310,7 +363,10 @@ impl Workspace {
         )
         .map_err(WorkflowError::from)?;
         cancelled(cancel)?;
-        if fingerprint != docs_fingerprint(&self.documents()?)? {
+        let current = self.documents()?;
+        if fingerprint != docs_fingerprint(&current)?
+            || eligibility_fingerprint != self.eligibility_fingerprint(&current)?
+        {
             return Err(WorkflowError::index_stale(
                 "sources changed during indexing; rebuild",
             ));
@@ -319,6 +375,7 @@ impl Workspace {
             format: 1,
             directory,
             fingerprint,
+            eligibility_fingerprint: Some(eligibility_fingerprint),
         };
         let tmp = self
             .path
@@ -333,6 +390,15 @@ impl Workspace {
                 .map_err(error)?;
             f.sync_all().map_err(error)?;
             cancelled(cancel)?;
+            let current = self.documents()?;
+            if active.fingerprint != docs_fingerprint(&current)?
+                || active.eligibility_fingerprint.as_deref()
+                    != Some(self.eligibility_fingerprint(&current)?.as_str())
+            {
+                return Err(WorkflowError::index_stale(
+                    "sources changed before index publication; rebuild",
+                ));
+            }
             fs::rename(&tmp, self.path.join("active-index.json")).map_err(error)?;
             File::open(&self.path)
                 .and_then(|f| f.sync_all())
@@ -351,6 +417,7 @@ impl Workspace {
     }
     pub fn search(&mut self, query: &str, profile: Profile) -> Result<SearchResult> {
         let docs = self.documents()?;
+        let eligibility_fingerprint = self.eligibility_fingerprint(&docs)?;
         if let Some(e) = &self.index_error {
             return Err(WorkflowError::index_invalid(e.clone()));
         }
@@ -363,10 +430,29 @@ impl Workspace {
                 "invalid active index pointer; rebuild",
             ));
         }
-        if active.fingerprint != docs_fingerprint(&docs)? {
-            return Err(WorkflowError::index_stale(
-                "index is stale after source changes; rebuild it",
-            ));
+        if active.fingerprint != docs_fingerprint(&docs)?
+            || active
+                .eligibility_fingerprint
+                .as_ref()
+                .is_some_and(|f| f != &eligibility_fingerprint)
+        {
+            let reasons = self
+                .source_states()?
+                .into_iter()
+                .filter(|s| s.current_state != SourceCurrentState::Current)
+                .map(|s| {
+                    format!(
+                        "{} {:?}: {}",
+                        s.source_id,
+                        s.current_state,
+                        s.message.unwrap_or_default()
+                    )
+                })
+                .collect::<Vec<_>>()
+                .join("; ");
+            return Err(WorkflowError::index_stale(format!(
+                "index is stale after source changes; rebuild it; {reasons}"
+            )));
         }
         if self.index.is_none() {
             self.index = Some(
@@ -386,13 +472,22 @@ impl Workspace {
         for e in &evidence {
             self.validate_evidence(e)?;
         }
+        let current = self.documents()?;
+        if docs_fingerprint(&current)? != docs_fingerprint(&docs)?
+            || self.eligibility_fingerprint(&current)? != eligibility_fingerprint
+        {
+            return Err(WorkflowError::index_stale(
+                "sources changed before search return; rebuild",
+            ));
+        }
         Ok(SearchResult {
             query: query.into(),
             profile,
             evidence,
         })
     }
-    pub fn validate_evidence(&self, evidence: &Evidence) -> Result<()> {
+    pub fn validate_evidence(&mut self, evidence: &Evidence) -> Result<()> {
+        self.validate_current_note_evidence(evidence)?;
         let source = Uuid::parse_str(&evidence.source_id).map_err(error)?;
         let version = Uuid::parse_str(&evidence.version_id).map_err(error)?;
         let doc = self
@@ -403,7 +498,7 @@ impl Workspace {
             .find(|d| {
                 d.source_id == source && d.version_id == version && d.approval == Approval::Approved
             })
-            .ok_or("evidence is no longer current and approved")?;
+            .ok_or_else(|| stale("evidence is no longer current and approved"))?;
         let text = std::str::from_utf8(&doc.bytes).map_err(error)?;
         if digest(&doc.bytes) != evidence.source_hash
             || text.get(evidence.start_byte..evidence.end_byte) != Some(evidence.quote.as_str())
@@ -513,6 +608,33 @@ impl Workspace {
                                 session_id,
                             ));
                         }
+                        if t.evidence_currentness
+                            == brn_store::EvidenceCurrentness::StaleAtCompletion
+                        {
+                            return Err(AskFailure {
+                                kind: ErrorKind::EvidenceStale,
+                                message: "recorded answer is stale history; operation was not resubmitted".into(),
+                                operation_id:op,session_id:Some(t.session_id),recorded_status:Some(t.status),
+                                provider_outcome:ProviderOutcome::Confirmed(t.status),receipt:Some(Box::new(t)),
+                            });
+                        }
+                        if matches!(
+                            t.status,
+                            OperationStatus::Completed
+                                | OperationStatus::Failed
+                                | OperationStatus::Interrupted
+                        ) && let Err(e) = self.validate_managed_turn_evidence(&t)
+                        {
+                            return Err(AskFailure {
+                                kind: e.kind,
+                                message: e.message,
+                                operation_id: op,
+                                session_id: Some(t.session_id),
+                                recorded_status: Some(t.status),
+                                provider_outcome: provider_outcome_of_recorded(t.status),
+                                receipt: Some(Box::new(t)),
+                            });
+                        }
                         return Ok(t);
                     }
                 }
@@ -525,6 +647,9 @@ impl Workspace {
             ));
         }
         ctx_err!(cancelled(cancel));
+        if let Some(id) = session {
+            ctx_err!(self.validate_current_session(id));
+        }
         let found = ctx_err!(self.search(query, profile));
         ctx_err!(cancelled(cancel));
         if found.evidence.is_empty() {
@@ -553,6 +678,8 @@ impl Workspace {
                 session_id,
             ));
         }
+        let source_ids = ctx_err!(self.context_source_ids(&evidence, session));
+        let evidence_epochs = ctx_err!(self.evidence_epochs(source_ids.iter().copied()));
         let codex = self.config.codex.clone().ok_or_else(|| {
             ask_failure(
                 ErrorKind::Other,
@@ -568,8 +695,22 @@ impl Workspace {
         ctx_err!(cancelled(cancel));
         ctx_err!(before_provider());
         ctx_err!(cancelled(cancel));
+        if let Some(id) = session {
+            ctx_err!(self.validate_current_session(id));
+        }
+        for e in &evidence {
+            ctx_err!(self.validate_evidence(e));
+        }
+        if ctx_err!(self.evidence_epochs(source_ids.iter().copied())) != evidence_epochs {
+            return Err(ask_failure_from(
+                stale("evidence epochs changed before provider access"),
+                op,
+                session_id,
+            ));
+        }
         let mut client = ctx_err!(Client::connect_with_cancel(config, cancel).map_err(error));
         let thread = if let Some(id) = session {
+            ctx_err!(self.validate_current_session(id));
             let stored = ctx_err!(self.store.session(id).map_err(error))
                 .ok_or_else(|| ask_failure(ErrorKind::Other, "session not found", op, Some(id)))?;
             if stored.provider != "codex"
@@ -625,8 +766,18 @@ impl Workspace {
             thread
         };
         ctx_err!(cancelled(cancel));
+        if let Some(id) = session {
+            ctx_err!(self.validate_current_session(id));
+        }
         for e in &evidence {
             ctx_err!(self.validate_evidence(e));
+        }
+        if ctx_err!(self.evidence_epochs(source_ids.iter().copied())) != evidence_epochs {
+            return Err(ask_failure_from(
+                stale("evidence epochs changed before submission"),
+                op,
+                session_id,
+            ));
         }
         let evidence_json = ctx_err!(serde_json::to_string(&evidence).map_err(error));
         // A session is always established before turn preparation.
@@ -665,6 +816,49 @@ impl Workspace {
             ));
         }
         prompt.push_str(&format!("\nQUESTION: {query}"));
+        let submission_validation: Result<()> = (|| {
+            if let Some(id) = session {
+                self.validate_current_session(id)?;
+            }
+            for hit in &evidence {
+                self.validate_evidence(hit)?;
+            }
+            if self.evidence_epochs(source_ids.iter().copied())? != evidence_epochs {
+                return Err(stale(
+                    "evidence epochs changed immediately before submission",
+                ));
+            }
+            Ok(())
+        })();
+        if let Err(e) = submission_validation {
+            // Preparation is durable, but no provider turn was submitted.
+            let recorded = self
+                .store
+                .complete_turn(op, OperationStatus::Interrupted, "", None);
+            return Err(match recorded {
+                Ok(()) => AskFailure {
+                    kind: e.kind,
+                    message: e.message,
+                    operation_id: op,
+                    session_id,
+                    recorded_status: Some(OperationStatus::Interrupted),
+                    provider_outcome: ProviderOutcome::Unknown,
+                    receipt: None,
+                },
+                Err(store_error) => AskFailure {
+                    kind: ErrorKind::Other,
+                    message: format!(
+                        "{}; could not record the pre-submission refusal: {store_error}",
+                        e.message
+                    ),
+                    operation_id: op,
+                    session_id,
+                    recorded_status: None,
+                    provider_outcome: ProviderOutcome::Unknown,
+                    receipt: None,
+                },
+            });
+        }
         let result = client.turn(
             &thread,
             &prompt,
@@ -681,16 +875,87 @@ impl Workspace {
                     TurnStatus::Failed => OperationStatus::Failed,
                 };
                 let usage = turn.usage.map(|u| u.to_string());
-                ctx_err!(
-                    self.store
-                        .complete_turn(op, status, &turn.text, usage.as_deref())
-                        .map_err(error)
-                );
+                let validation: Result<()> = (|| {
+                    for e in &evidence {
+                        self.validate_evidence(e)?;
+                    }
+                    if let Some(id) = session {
+                        self.validate_current_session(id)?;
+                    }
+                    if self.evidence_epochs(source_ids.iter().copied())? != evidence_epochs {
+                        return Err(stale(
+                            "evidence permission/content changed during the provider turn",
+                        ));
+                    }
+                    Ok(())
+                })();
+                let currentness = if validation.is_ok() {
+                    brn_store::EvidenceCurrentness::CurrentAtCompletion
+                } else {
+                    brn_store::EvidenceCurrentness::StaleAtCompletion
+                };
+                if let Err(e) = self.store.complete_turn_with_currentness(
+                    op,
+                    status,
+                    &turn.text,
+                    usage.as_deref(),
+                    currentness,
+                ) {
+                    return Err(AskFailure {
+                        kind: ErrorKind::Other,
+                        message: e.to_string(),
+                        operation_id: op,
+                        session_id,
+                        recorded_status: None,
+                        provider_outcome: ProviderOutcome::Confirmed(status),
+                        receipt: None,
+                    });
+                }
+                let receipt = self
+                    .store
+                    .turns(established)
+                    .map_err(|store_error| AskFailure {
+                        kind: ErrorKind::Other,
+                        message: store_error.to_string(),
+                        operation_id: op,
+                        session_id,
+                        recorded_status: Some(status),
+                        provider_outcome: ProviderOutcome::Confirmed(status),
+                        receipt: None,
+                    })?
+                    .into_iter()
+                    .find(|t| t.operation_id == op)
+                    .ok_or_else(|| AskFailure {
+                        kind: ErrorKind::Other,
+                        message: "saved turn missing".into(),
+                        operation_id: op,
+                        session_id,
+                        recorded_status: Some(status),
+                        provider_outcome: ProviderOutcome::Confirmed(status),
+                        receipt: None,
+                    })?;
+                if let Err(e) = validation {
+                    Err(AskFailure {
+                        kind: if e.kind == ErrorKind::ContextStale {
+                            ErrorKind::EvidenceStale
+                        } else {
+                            e.kind
+                        },
+                        message: e.message,
+                        operation_id: op,
+                        session_id,
+                        recorded_status: Some(status),
+                        provider_outcome: ProviderOutcome::Confirmed(status),
+                        receipt: Some(Box::new(receipt)),
+                    })
+                } else {
+                    Ok(receipt)
+                }
             }
             Err(e) => {
                 // The record is only claimed when the durable write succeeded;
                 // a failed write leaves recorded_status unknown-honest (None).
-                return Err(
+                Err(
                     match self
                         .store
                         .complete_turn(op, OperationStatus::Interrupted, "", None)
@@ -705,16 +970,13 @@ impl Workspace {
                             recorded_status: Some(OperationStatus::Interrupted),
                             // Transport loss is never proof of cancellation.
                             provider_outcome: ProviderOutcome::Unknown,
+                            receipt: None,
                         },
                         Err(store_error) => ask_failure_from(error(store_error), op, session_id),
                     },
-                );
+                )
             }
         }
-        ctx_err!(self.store.turns(established).map_err(error))
-            .into_iter()
-            .find(|t| t.operation_id == op)
-            .ok_or_else(|| ask_failure(ErrorKind::Other, "saved turn missing", op, session_id))
     }
 }
 pub fn profile_name(profile: Profile) -> &'static str {

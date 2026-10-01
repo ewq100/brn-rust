@@ -61,6 +61,7 @@ fn turn_json(turn: &ChatTurn) -> Value {
         "provider_turn_id": turn.provider_turn_id,
         "evidence": parse_or_raw(&turn.evidence_json),
         "usage": usage,
+        "evidence_currentness": turn.evidence_currentness,
     })
 }
 
@@ -102,11 +103,12 @@ fn conversations_show(invocation: &Invocation, session: Uuid) -> Result<Output, 
     let mut text = String::new();
     for turn in &turns {
         text.push_str(&format!(
-            "operation {} session {} status {} profile {}\nquestion: {}\nanswer: {}\n\n",
+            "historical operation {} session {} status {} profile {} evidence_currentness {:?}\nquestion: {}\nanswer: {}\n\n",
             turn.operation_id,
             turn.session_id,
             status_str(turn.status),
             turn.profile,
+            turn.evidence_currentness,
             turn.question,
             turn.answer.as_deref().unwrap_or("(none)"),
         ));
@@ -115,6 +117,7 @@ fn conversations_show(invocation: &Invocation, session: Uuid) -> Result<Output, 
         text,
         data: json!({
             "session_id": session,
+            "historical": true,
             "turns": turns.iter().map(turn_json).collect::<Vec<_>>(),
         }),
     })
@@ -142,6 +145,7 @@ fn failure_context(failure: &AskFailure) -> Value {
         "session_id": failure.session_id,
         "recorded_status": failure.recorded_status.map(status_str),
         "provider_outcome": outcome_str(&failure.provider_outcome),
+        "receipt": failure.receipt.as_deref().map(turn_json),
     })
 }
 

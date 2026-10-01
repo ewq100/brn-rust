@@ -857,7 +857,18 @@ fn v4_draft_save_retry_receipt_survives_v5_migration() {
         .unwrap();
     drop(store);
     let conn = Connection::open(dir.path().join("brn.sqlite3")).unwrap();
-    conn.execute_batch("DROP TABLE comment_results; DROP TABLE draft_revision_comment_anchors; DROP TABLE draft_comment_anchors; DROP TABLE draft_comments; PRAGMA user_version=4;").unwrap();
+    conn.execute_batch(
+        "DROP TABLE note_search_results; DROP TABLE note_search_snapshots;
+         DROP TABLE note_decision_recoveries; DROP TABLE note_write_destinations;
+         DROP TABLE note_receipts; DROP TABLE note_shadowed_sources; DROP TABLE note_recovery_pairs;
+         DROP TABLE note_save_intents; DROP TABLE note_write_inputs; DROP TABLE note_results;
+         DROP TABLE note_buffers; DROP TABLE notes; DROP TABLE note_vaults;
+         DROP TABLE chat_turns;
+         CREATE TABLE chat_turns (operation_id TEXT PRIMARY KEY REFERENCES operations(id), session_id TEXT NOT NULL REFERENCES sessions(id), question TEXT NOT NULL, profile TEXT NOT NULL, evidence_json TEXT NOT NULL, answer TEXT, provider_turn_id TEXT, usage_json TEXT);
+         DROP TABLE comment_results; DROP TABLE draft_revision_comment_anchors;
+         DROP TABLE draft_comment_anchors; DROP TABLE draft_comments;
+         PRAGMA user_version=4;"
+    ).unwrap();
     drop(conn);
     let (mut store, report) = Store::open(dir.path()).unwrap();
     assert_eq!(report.migrated_from, Some(4));

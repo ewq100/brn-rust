@@ -9,7 +9,7 @@ pub enum Approval {
     Withdrawn,
 }
 impl Approval {
-    fn as_str(self) -> &'static str {
+    pub(super) fn as_str(self) -> &'static str {
         match self {
             Self::Approved => "approved",
             Self::Draft => "draft",
@@ -55,6 +55,33 @@ pub struct ChatTurn {
     pub status: OperationStatus,
     pub provider_turn_id: Option<String>,
     pub usage_json: Option<String>,
+    #[serde(default)]
+    pub evidence_currentness: EvidenceCurrentness,
+}
+
+#[derive(Debug, Default, Clone, Copy, PartialEq, Eq, Serialize, Deserialize)]
+pub enum EvidenceCurrentness {
+    #[default]
+    Unqualified,
+    CurrentAtCompletion,
+    StaleAtCompletion,
+}
+impl EvidenceCurrentness {
+    fn as_str(self) -> &'static str {
+        match self {
+            Self::Unqualified => "unqualified",
+            Self::CurrentAtCompletion => "current_at_completion",
+            Self::StaleAtCompletion => "stale_at_completion",
+        }
+    }
+    fn parse(value: &str) -> Result<Self> {
+        match value {
+            "unqualified" => Ok(Self::Unqualified),
+            "current_at_completion" => Ok(Self::CurrentAtCompletion),
+            "stale_at_completion" => Ok(Self::StaleAtCompletion),
+            _ => Err(invalid("invalid evidence currentness")),
+        }
+    }
 }
 
 pub(super) fn bind_operation(
@@ -401,6 +428,23 @@ impl Store {
         answer: &str,
         usage_json: Option<&str>,
     ) -> Result<()> {
+        self.complete_turn_with_currentness(
+            op,
+            status,
+            answer,
+            usage_json,
+            EvidenceCurrentness::Unqualified,
+        )
+    }
+
+    pub fn complete_turn_with_currentness(
+        &mut self,
+        op: Uuid,
+        status: OperationStatus,
+        answer: &str,
+        usage_json: Option<&str>,
+        currentness: EvidenceCurrentness,
+    ) -> Result<()> {
         if !matches!(
             status,
             OperationStatus::Completed | OperationStatus::Failed | OperationStatus::Interrupted
@@ -408,8 +452,9 @@ impl Store {
             return Err(invalid("turn completion requires terminal status"));
         }
         let tx = self.conn.transaction()?;
-        let row:Option<(String,String,Option<String>,Option<String>)>=tx.query_row("SELECT o.status,t.session_id,t.answer,t.usage_json FROM chat_turns t JOIN operations o ON o.id=t.operation_id WHERE t.operation_id=?1",[op.to_string()],|r|Ok((r.get(0)?,r.get(1)?,r.get(2)?,r.get(3)?))).optional()?;
-        let Some((old_status, session, old_answer, old_usage)) = row else {
+        type CompletionRow = (String, String, Option<String>, Option<String>, String);
+        let row:Option<CompletionRow>=tx.query_row("SELECT o.status,t.session_id,t.answer,t.usage_json,t.evidence_currentness FROM chat_turns t JOIN operations o ON o.id=t.operation_id WHERE t.operation_id=?1",[op.to_string()],|r|Ok((r.get(0)?,r.get(1)?,r.get(2)?,r.get(3)?,r.get(4)?))).optional()?;
+        let Some((old_status, session, old_answer, old_usage, old_currentness)) = row else {
             return Err(invalid("chat turn does not exist"));
         };
         let old_status = OperationStatus::parse(&old_status)?;
@@ -420,6 +465,7 @@ impl Store {
             if old_status == status
                 && old_answer.as_deref() == Some(answer)
                 && old_usage.as_deref() == usage_json
+                && EvidenceCurrentness::parse(&old_currentness)? == currentness
             {
                 return Ok(());
             }
@@ -430,8 +476,8 @@ impl Store {
                 params![Uuid::new_v4().to_string(),session,answer.as_bytes()])?;
         }
         tx.execute(
-            "UPDATE chat_turns SET answer=?2,usage_json=?3 WHERE operation_id=?1",
-            params![op.to_string(), answer, usage_json],
+            "UPDATE chat_turns SET answer=?2,usage_json=?3,evidence_currentness=?4 WHERE operation_id=?1",
+            params![op.to_string(), answer, usage_json, currentness.as_str()],
         )?;
         tx.execute(
             "UPDATE operations SET status=?2,terminal_data=?3 WHERE id=?1",
@@ -450,7 +496,7 @@ impl Store {
     }
 
     pub fn turns(&self, session: Uuid) -> Result<Vec<ChatTurn>> {
-        let mut stmt=self.conn.prepare("SELECT t.operation_id,t.question,t.profile,t.evidence_json,t.answer,o.status,t.provider_turn_id,t.usage_json FROM chat_turns t JOIN operations o ON o.id=t.operation_id WHERE t.session_id=?1 ORDER BY t.rowid")?;
+        let mut stmt=self.conn.prepare("SELECT t.operation_id,t.question,t.profile,t.evidence_json,t.answer,o.status,t.provider_turn_id,t.usage_json,t.evidence_currentness FROM chat_turns t JOIN operations o ON o.id=t.operation_id WHERE t.session_id=?1 ORDER BY t.rowid")?;
         let rows = stmt.query_map([session.to_string()], |r| {
             Ok((
                 r.get::<_, String>(0)?,
@@ -461,6 +507,7 @@ impl Store {
                 r.get::<_, String>(5)?,
                 r.get::<_, Option<String>>(6)?,
                 r.get::<_, Option<String>>(7)?,
+                r.get::<_, String>(8)?,
             ))
         })?;
         rows.map(|row| {
@@ -473,6 +520,7 @@ impl Store {
                 status,
                 provider_turn_id,
                 usage_json,
+                evidence_currentness,
             ) = row?;
             Ok(ChatTurn {
                 operation_id: parse_id(id)?,
@@ -484,6 +532,7 @@ impl Store {
                 status: OperationStatus::parse(&status)?,
                 provider_turn_id,
                 usage_json,
+                evidence_currentness: EvidenceCurrentness::parse(&evidence_currentness)?,
             })
         })
         .collect()

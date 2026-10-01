@@ -103,10 +103,20 @@ impl Desktop {
                 ),
                 self.render_source_reader(id, cx),
             ),
+            Some(DocRef::Note(_)) => (
+                format!(
+                    "Notes / {}",
+                    self.note_state.as_ref().map_or("opening…".into(), |state| {
+                        state.view().relative_path.display().to_string()
+                    })
+                ),
+                self.render_note_document(cx),
+            ),
             None => (String::new(), div().into_any_element()),
         };
         let scroll = match self.open_doc {
             Some(DocRef::Source(_)) => self.source_scroll.clone(),
+            Some(DocRef::Note(_)) => self.note_scroll.clone(),
             _ => self.draft_scroll.clone(),
         };
         div()
@@ -138,7 +148,7 @@ impl Desktop {
                             .label("Close")
                             .compact()
                             .on_click(cx.listener(|this, _, _, cx| {
-                                this.close_document();
+                                this.close_document(cx);
                                 cx.notify();
                             })),
                     ),
@@ -157,6 +167,189 @@ impl Desktop {
                     .vertical_scrollbar(&scroll)
                     .child(body),
             )
+    }
+
+    // Interim note document integration; UI slice 3 will redesign these controls.
+    fn render_note_document(&mut self, cx: &mut Context<Self>) -> AnyElement {
+        let mut body = div().flex().flex_col().min_w(px(0.)).gap_3()
+            .child("Explicit Save/Cmd-S writes Markdown. Recovery in BRN is not publication or search approval.");
+        if let Some(failure) = &self.last_note_failure {
+            body = body.child(format!("Recorded note failure: operation {:?}, note {:?}, {:?}, phase {:?}, filesystem {:?}, recovery confirmed: {}. {}",
+                        failure.operation_id, failure.note_id, failure.code, failure.phase,
+                        failure.filesystem_outcome, failure.recovery_available, failure.message))
+                        .child(Button::new("dismiss-note-error").label("Dismiss error display (does not resolve operation)")
+                            .on_click(cx.listener(|this, _, _, cx| {
+                                this.last_note_failure = None;
+                                cx.notify();
+                            })));
+        }
+        if let Some(state) = &self.note_state {
+            let id = state.id();
+            body = body
+                .child(format!(
+                    "{} - {}",
+                    state.view().relative_path.display(),
+                    state.display_state()
+                ))
+                .child(format!(
+                    "Availability: {:?}; last observed search approval: {:?}",
+                    state.view().availability,
+                    state.view().search_approval
+                ));
+            if let Some(message) = &state.view().availability_message {
+                body = body.child(message.clone());
+            }
+            if let Some(failure) = state.failure() {
+                body = body.child(format!(
+                    "Retained operation {:?}: {:?}, phase {:?}, effect {:?}; {}",
+                    failure.operation_id,
+                    failure.code,
+                    failure.phase,
+                    failure.filesystem_outcome,
+                    failure.message
+                ));
+            }
+            if let Some(failure) = state.copy_failure() {
+                body = body.child(format!(
+                    "Separate copy outcome {:?}: {:?}; {}",
+                    failure.operation_id, failure.filesystem_outcome, failure.message
+                ));
+            }
+            if state.needs_recovery() || state.pending() || self.note_schedule.closing() {
+                body = body.child("Recovery/operation pending. The 500 ms timer schedules work; only an acknowledged commit protects the latest typing. Busy provider work may delay it.");
+            }
+            body = body
+                        .child(div().key_context("MarkdownNote").child(
+                            Editor::new(&self.note_editor).h(px(300.)).flex_shrink_0()
+                                .disabled(self.pending_note_open.is_some() || state.discard_pending())
+                                .aria_label("Markdown note editor")))
+                        .child(div().flex().flex_wrap().gap_2()
+                            .child(Button::new("save-note").label("Save to Markdown (Cmd-S)")
+                                .disabled(self.note_schedule.closing())
+                                .on_click(cx.listener(|this, _, _, cx| this.queue_note_control(NoteControl::Save, cx))))
+                            .child(Button::new("retry-note-recovery").label("Flush / retry recovery")
+                                .on_click(cx.listener(|this, _, _, cx| {
+                                    this.note_schedule.retry();
+                                    cx.notify();
+                                })))
+                            .child(Button::new("cancel-note-close").label("Cancel pending close/action")
+                                .disabled(!self.note_schedule.closing())
+                                .on_click(cx.listener(|this, _, _, cx| {
+                                    this.note_schedule.take_close();
+                                    this.note_control = None;
+                                    this.message = "Close/action cancelled; note work remains accessible.".into();
+                                    cx.notify();
+                                })))
+                            .child(Button::new("compare-note").label("Compare baseline / local / disk")
+                                .disabled(self.note_schedule.closing())
+                                .on_click(cx.listener(|this, _, _, cx| this.queue_note_control(NoteControl::Compare, cx))))
+                            .child(Button::new("reload-note").label("Confirm reload: discard local edits")
+                                .disabled(!self.phase.can_submit() || state.pending() || self.pending_note_job.is_some())
+                                .on_click(cx.listener(|this, _, _, cx| {
+                                    this.note_schedule.take_close();
+                                    this.note_control = None;
+                                    this.run_note_control(NoteControl::Reload, cx);
+                                })))
+                            .child(Button::new("discard-unrecovered-note").label("Confirm discard ONLY unrecovered typing")
+                                .disabled(state.pending() || self.pending_note_job.is_some())
+                                .on_click(cx.listener(|this, _, window, cx| {
+                                    if let Some(state) = &mut this.note_state {
+                                        let result = state.begin_discard(Uuid::new_v4())
+                                            .and_then(|request| state.discard_unrecovered(request.operation_id));
+                                        match result {
+                                            Ok(()) => {
+                                                let text = state.input_text();
+                                                this.note_editor.update(cx, |editor, cx| editor.set_value(text, window, cx));
+                                                this.message = "Unrecovered typing explicitly discarded; acknowledged recovery and any uncertain operation remain retained.".into();
+                                            }
+                                            Err(error) => this.message = error.message,
+                                        }
+                                    }
+                                    cx.notify();
+                                })))
+                            .child(Button::new("inspect-note-recovery").label("Inspect retained recovery")
+                                .disabled(!self.phase.can_submit())
+                                .on_click(cx.listener(move |this, _, _, cx| {
+                                    this.submit(Action::NoteRecovery { id }, "Inspect note recovery", cx);
+                                }))))
+                        .child(Input::new(&self.note_path))
+                        .child(div().flex().flex_wrap().gap_2()
+                            .child(Button::new("copy-note").label("Save separate copy to chosen path")
+                                .disabled(self.note_schedule.closing())
+                                .on_click(cx.listener(|this, _, _, cx| {
+                                    let path = PathBuf::from(this.note_path.read(cx).value().to_string());
+                                    this.queue_note_control(NoteControl::Copy(path), cx);
+                                })))
+                            .child(Button::new("relink-note").label("Confirm selected path identity; retain edits")
+                                .disabled(self.note_schedule.closing())
+                                .on_click(cx.listener(|this, _, _, cx| {
+                                    let path = PathBuf::from(this.note_path.read(cx).value().to_string());
+                                    this.queue_note_control(NoteControl::Relink(path), cx);
+                                }))));
+            if let Some(token) = state.view().current_file_state {
+                body = body.child(
+                    Button::new("approve-note")
+                        .label("Explicitly approve saved snapshot for search (not Save)")
+                        .disabled(
+                            self.note_schedule.closing()
+                                || state.view().availability
+                                    != brn_workflow::notes::NoteAvailability::Available,
+                        )
+                        .on_click(cx.listener(move |this, _, _, cx| {
+                            this.queue_note_control(NoteControl::Approve { file_state: token }, cx);
+                        })),
+                );
+            }
+            if let Some(recovery) = self
+                .note_recoveries
+                .iter()
+                .find(|recovery| recovery.note_id == id)
+            {
+                for op in &recovery.pending_operations {
+                    let op = *op;
+                    body = body.child(
+                        Button::new(format!("reconcile-note-{op}"))
+                            .label(format!(
+                                "Inspect/reconcile operation {op} (no filesystem replay)"
+                            ))
+                            .disabled(!self.phase.can_submit() || state.pending())
+                            .on_click(cx.listener(move |this, _, _, cx| {
+                                this.original_note_operation = Some(op);
+                                if let Some(job) = this.submit(
+                                    Action::ReconcileNoteSave { op },
+                                    "Reconcile note save",
+                                    cx,
+                                ) {
+                                    this.pending_note_job = Some((job, op));
+                                }
+                            })),
+                    );
+                }
+            }
+        }
+        if let Some(comparison) = &self.note_comparison {
+            let local = self
+                .note_state
+                .as_ref()
+                .map_or(comparison.working.as_str(), NoteEditor::text);
+            body = body.child(format!("Starting snapshot:\n{}\n\nLocal editor:\n{}\n\nObserved disk:\n{}\n\nUnexpected displacement, if any, remains protected in the operation recovery; comparison does not delete it.",
+                        comparison.baseline, local, comparison.observed.as_deref().unwrap_or("[deleted or unavailable]")));
+            if let (Some(save_op), Some(file_state)) =
+                (self.original_note_operation, comparison.observed_file_state)
+            {
+                body = body.child(Button::new("accept-note-disk")
+                            .label("Accept reviewed current disk state; KEEP recovery and original outcome")
+                            .disabled(self.note_schedule.closing())
+                            .on_click(cx.listener(move |this, _, _, cx| {
+                                this.queue_note_control(NoteControl::Accept { save_op, file_state }, cx);
+                            })));
+            }
+        }
+        if let Some(copy) = &self.note_copy {
+            body = body.child(format!("Verified separate copy: {} ({}) - {:?}. Original editor retained; copy has no inherited search approval.",
+                        copy.relative_path.display(), copy.id, copy.availability));
+        }
+        body.into_any_element()
     }
 
     fn render_draft_document(&mut self, cx: &mut Context<Self>) -> AnyElement {
@@ -604,7 +797,7 @@ impl Desktop {
                     .child(source.title.clone()),
             )
             .child(div().text_color(color(p.muted)).child(format!(
-                "Source · read only · {} · {} bytes",
+                "Source · read only · Current at last observation · {} · {} bytes",
                 approval_tag(source.approval),
                 source.bytes.len()
             )))

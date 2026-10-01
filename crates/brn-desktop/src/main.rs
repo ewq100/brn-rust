@@ -17,8 +17,10 @@ mod comments;
 mod drafts;
 #[cfg(feature = "native-ui")]
 mod native;
+#[cfg(feature = "native-ui")]
+mod notes;
 
-const HELP: &str = "BRN desktop\n\nUsage: brn-desktop [--data-dir ABSOLUTE_DIRECTORY] [--codex ABSOLUTE_EXECUTABLE] [--model-dir ABSOLUTE_DIRECTORY]\n       brn-desktop --data-dir ABSOLUTE_DIRECTORY --headless-check completion|cancellation|stale\n       brn-desktop --help\n\nThe native workspace imports Markdown/text, builds search, and answers from approved sources. The headless checks preserve the original deterministic shell fixture.";
+const HELP: &str = "BRN desktop\n\nUsage: brn-desktop [--data-dir ABSOLUTE_DIRECTORY] [--codex ABSOLUTE_EXECUTABLE] [--model-dir ABSOLUTE_DIRECTORY]\n       brn-desktop --data-dir ABSOLUTE_DIRECTORY --headless-check completion|cancellation|stale\n       brn-desktop --help\n\nThe native Notes page opens local Markdown notes in one chosen vault. Explicit Save/Cmd-S writes Markdown; automatic buffer recovery only protects edits in BRN. The workspace also imports Markdown/text, builds search, and answers from approved sources. The headless checks preserve the original deterministic shell fixture.";
 
 struct Options {
     data_dir: PathBuf,
