@@ -10,7 +10,7 @@
 
 **Spec:** [Approved reset specification](../../../superpowers/specs/2026-10-01-rig-first-architecture-reset-design.md). Read both spec and this master plan before a task plan.
 
-Status/date: Reviewed and revised on 2026-10-01 following the user-requested GPT-6.1 Sol/high review. Execution remains unapproved and unstarted. New interfaces below are proposed contracts, not existing APIs; Q1 must freeze the compiled Rig-specific seams and any necessary pin/adapter revision before downstream execution.
+Status/date: User approved the reviewed/revised plan at `db18da8` on 2026-10-01. The execution-choice prompt was skipped; implementation remains unstarted pending execution confirmation. New interfaces below are proposed contracts, not existing APIs; Q1 must freeze the compiled Rig-specific seams and any necessary pin/adapter revision before downstream execution.
 
 ## Global constraints
 
@@ -142,6 +142,6 @@ Before accepting the plan, check every type/signature used below against the tas
 
 ## Execution handoff
 
-Status: Review findings addressed in the plan; user acceptance and execution choice pending. No implementation or product verification performed.
+Status: Revised plan accepted by the user at `db18da8`; execution choice remains unconfirmed. No implementation or product verification performed.
 
 Default execution is inline with checkpoints, respecting the repository's delegation preference. Fresh per-task subagents are an option only if the user selects delegation. In either mode, review each deliverable and stop at human/account/resource gates. Plan approval is not authorization for live calls, model downloads, signing or release.

@@ -7,8 +7,8 @@ Date: 2026-10-01.
 | Scope | State |
 | --- | --- |
 | Written reset specification | User-approved; committed at `ecc0c97`, approval recorded at `19f180c`. |
-| Implementation plan | Initial pack committed at `347fd38`; user requested technical review, then authorized these documentation corrections. Execution acceptance remains pending. |
-| Product implementation | Not authorized or started for this reset. |
+| Implementation plan | Initial pack at `347fd38`, review corrections at `db18da8`; user approved the revised plan on 2026-10-01. |
+| Product implementation | Not started; the subsequent execution-choice prompt was skipped, so execution confirmation remains pending. |
 | Dependency/provider/retrieval qualification | Not run; inspected source is not a compiled or live result. |
 | Live login/calls, model acquisition, signing, release | Not authorized or performed. |
 
@@ -80,6 +80,8 @@ Review baseline: `347fd3891e8b6ddc74d15d7470f735b5a3ba8358`. The user requested 
 Revision validation passed: `git diff --check` and the read-only documentation checker covered all seven revised Markdown files, 46 local links/fragments, 14 task IDs and 92 checkbox steps with zero errors. Structural checks confirmed all five corrections, the A2 prerequisite and documentation-only scope. Future test selectors and G1a/G1b commands remain unexecuted implementation instructions. No Rust/manifests/lockfiles were changed and no product qualification was performed.
 
 ## Execution handoff
+
+The user approved the revised implementation plan at `db18da8c482a173e666ec23b9d6f00ca4ddd05c3` on 2026-10-01. No execution option was selected in the subsequent prompt. This records plan acceptance, not implementation results or permission for live/account/resource/release actions.
 
 Start with [Q1](qualification.md#q1-resolve-the-actual-dependency-graph-and-pin-usable-interfaces) only after execution authorization. Treat exact published/native graph/API findings as a mandatory decision gate before downstream implementation.
 
