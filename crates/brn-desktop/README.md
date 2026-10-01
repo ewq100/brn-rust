@@ -28,19 +28,28 @@ availability and typed failure details.
 Recovery is scheduled after **500 ms** without an edit and coalesces to the
 latest text. This is not a durability deadline: the single worker can be busy
 with provider/model work. Only an acknowledged commit establishes recoverability.
-Window close, the application Quit action/menu/Cmd-Q and note-switch/actions defer for pending note
-mutations and flush the latest buffer asynchronously. Failed recovery keeps work
-accessible until explicit retry or confirmed discard of unrecovered typing.
+Window close, the application Quit action/menu/Cmd-Q and note-switch/actions
+defer for pending note mutations and flush the latest buffer asynchronously.
+Failed recovery keeps work accessible until explicit retry or confirmed discard
+of unrecovered typing.
 That discard preserves acknowledged recovery and uncertain operations; confirmed
 reload is a separate workflow decision that discards local text in favor of disk.
 Standalone draft/comment close guards remain independent.
 
 Direct macOS termination, such as Dock Quit, does not pass through those action
 guards in the pinned GPUI implementation. Its final `on_app_quit` hook cannot
-veto termination: it defensively joins admitted note mutations, but does not
-flush unadmitted typing or keep the window open on recovery failure. This route
-still needs a cancellable native termination-request integration before all
-intentional close paths can be qualified as recovery-safe.
+veto termination. It dispatches no new recovery flush: even an idle worker's
+SQLite commit has no guaranteed completion bound, and an admitted critical job
+must be joined rather than abandoned at GPUI's 200 ms quit-future deadline.
+The existing hook drains and joins already-admitted critical note jobs,
+including queued saves/copies/buffer commits; they never use the 250 ms detached
+reaper. That synchronous defensive join can exceed the GPUI future deadline.
+It does not flush the latest coalesced UI submission if it was not already
+admitted, and cannot keep the window open on recovery failure. Unacknowledged
+typing can be lost. Restart reconciliation classifies interrupted save intents
+without replaying their filesystem writes; it cannot recover typing that was
+never durably recorded. This limitation does not extend to the guarded routes
+listed above, and no protection is claimed for unadmitted typing on termination.
 
 Presenter notices are drained even while a job is running, then coalesced into
 idle worker observations. Root/rescan notices observe all registered notes;
