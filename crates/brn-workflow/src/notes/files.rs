@@ -349,10 +349,13 @@ impl MacFiles {
         Ok(identity(&parent.metadata().map_err(note_io_failure)?))
     }
 
+    pub(super) fn validate_copy_destination(&self, relative: &Path) -> NoteResult<()> {
+        component_key(relative).map(|_| ())
+    }
+
     /// Equality here is a conservative veto, never proof of logical note identity.
     pub(super) fn aliases_original(&self, candidate: &Path, original: &Path) -> NoteResult<bool> {
         let candidate_key = component_key(candidate)?;
-        let original_key = component_key(original)?;
         let optional = |path: &Path| -> NoteResult<Option<VaultIdentity>> {
             let result = (|| {
                 let (parent, name) = self.parent(path)?;
@@ -387,6 +390,13 @@ impl MacFiles {
         {
             return Ok(left == right);
         }
+        let original_key = match component_key(original) {
+            Ok(key) => key,
+            // Registered names need not meet the stricter destination rules.
+            // Without qualified keys or two existing identities, fail closed.
+            Err(error) if error.code == NoteErrorCode::Unsupported => return Ok(true),
+            Err(error) => return Err(error),
+        };
         if candidate_key == original_key {
             return Ok(true);
         }
@@ -985,6 +995,11 @@ impl MacFiles {
             "managed notes require macOS filesystem coordination",
         ))
     }
+    pub(super) fn validate_copy_destination(&self, _: &Path) -> NoteResult<()> {
+        Err(note_unsupported(
+            "managed notes require macOS filesystem coordination",
+        ))
+    }
     pub(super) fn prepare_copy(
         &self,
         _: Uuid,
@@ -1081,6 +1096,46 @@ mod tests {
                 device: metadata.dev(),
                 inode: metadata.ino(),
             },
+        }
+    }
+
+    #[test]
+    fn ambiguous_registered_names_fall_back_without_rejecting_known_distinct_identities() {
+        let vault = directory();
+        let data = directory();
+        let record = registered(vault.path());
+        let files = MacFiles::open(
+            &record,
+            data.path(),
+            Arc::new(Mutex::new(NoteNoticeQueue::default())),
+        )
+        .unwrap();
+        std::fs::write(vault.path().join("plain.md"), "plain").unwrap();
+        for original in ["❤️.md", "👩‍💻.md"] {
+            std::fs::write(vault.path().join(original), "emoji").unwrap();
+            assert!(
+                !files
+                    .aliases_original(Path::new("plain.md"), Path::new(original))
+                    .unwrap()
+            );
+            assert!(
+                files
+                    .aliases_original(Path::new("absent.md"), Path::new(original))
+                    .unwrap()
+            );
+            assert_eq!(
+                files
+                    .aliases_original(Path::new(original), Path::new("plain.md"))
+                    .unwrap_err()
+                    .code,
+                NoteErrorCode::Unsupported
+            );
+            std::fs::remove_file(vault.path().join(original)).unwrap();
+            assert!(
+                files
+                    .aliases_original(Path::new("absent.md"), Path::new(original))
+                    .unwrap()
+            );
         }
     }
 

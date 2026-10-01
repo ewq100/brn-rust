@@ -98,14 +98,39 @@ impl crate::Workspace {
             let path = relative.unwrap_or(&record.relative_path);
             validate_note_path(path)?;
             self.acquire_note_vault(id)?;
-            if relative.is_some() && self.registry_path_is_reserved_except(path, Some(id))? {
-                return Err(note_copy_conflict(
-                    "relink destination is registered or reserved",
-                ));
+            if relative.is_some() {
+                let files = &self.notes.vault.as_ref().unwrap().1;
+                files.validate_copy_destination(path)?;
+                let observed = files.observe(path)?;
+                if let Some(error) = registered_note_identity_conflict(
+                    &self.store,
+                    files,
+                    record.vault_id,
+                    &observed.fingerprint,
+                    Some(id),
+                )? {
+                    return Err(error);
+                }
+                if self.registry_path_is_reserved_except(path, Some(id))? {
+                    return Err(note_copy_conflict(
+                        "relink destination is registered or reserved",
+                    ));
+                }
             }
             let files = &self.notes.vault.as_ref().unwrap().1;
             files.coordinate(path, || {
                 let observed = files.observe_uncoordinated(path)?;
+                if relative.is_some()
+                    && let Some(error) = registered_note_identity_conflict(
+                        &self.store,
+                        files,
+                        record.vault_id,
+                        &observed.fingerprint,
+                        Some(id),
+                    )?
+                {
+                    return Err(error);
+                }
                 self.store.record_note_decision(
                     op,
                     &decision,
@@ -164,7 +189,7 @@ impl crate::Workspace {
         })
     }
 
-    pub(super) fn registry_path_is_reserved(&self, relative: &Path) -> NoteResult<bool> {
+    fn registry_path_is_reserved(&self, relative: &Path) -> NoteResult<bool> {
         self.registry_path_is_reserved_except(relative, None)
     }
 
@@ -222,6 +247,7 @@ impl crate::Workspace {
                 self.acquire_note_vault(request.note_id)?;
                 let record = self.store.note_record(request.note_id)?;
                 let files = &self.notes.vault.as_ref().unwrap().1;
+                files.validate_copy_destination(relative)?;
                 if files.artifact(relative)?.is_some() {
                     return Err(note_copy_conflict(
                         "copy destination is occupied; no overwrite is available",

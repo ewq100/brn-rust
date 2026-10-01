@@ -34,6 +34,12 @@ the registered path, based on device/inode identity rather than content hashes;
 they cannot allocate a second editing buffer. Worker notice draining remains
 a later task.
 
+Plain enrollment still supports emoji filenames, including variation selectors
+and zero-width joiners, regardless of registration order. Copy/relink destination
+qualification is not applied to unrelated ordinary opens. Confirmed relink also
+vetoes identities belonging to another note's baseline, durable observation or
+fresh registered-path observation, including externally moved files.
+
 `save_note(NoteSubmission)` explicitly saves the original Markdown path:
 durable recovery intent, exclusive staging, coordinated baseline revalidation,
 atomic exchange, installed/displaced identity verification, then a durable
@@ -92,6 +98,10 @@ Name reservations use canonical Unicode decomposition/full case folding plus
 resolved parent identity as conservative **vetoes**, never identity proofs.
 Qualified local APFS/HFS volumes advertise the required capabilities; other
 volume families and unqualified invisible/control names are rejected.
+That rejection applies only to copy/relink candidates. For a registered original
+with an unqualified name, validated existing identities can disprove aliasing;
+otherwise reservation checks conservatively veto the destination with Conflict,
+not an Unsupported error propagating from the registered name.
 Case-sensitive volumes may be deliberately over-rejected. Replays bind their
 recorded destination, even after relink or completed-payload pruning.
 

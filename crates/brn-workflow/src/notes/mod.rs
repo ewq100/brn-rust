@@ -7,12 +7,12 @@ mod files;
 mod macos;
 mod save;
 
-use brn_store::notes::VaultRecord;
 pub use brn_store::notes::{
     ArtifactCleanup, FileOutcome, NoteAvailability, NoteBufferReceipt, NoteComparison,
     NoteErrorCode, NoteFailure, NoteReceipt, NoteRecordedResult, NoteRecovery, NoteResolution,
     NoteResult, NoteStamp, NoteSubmission, NoteView, SavePhase,
 };
+use brn_store::notes::{FileFingerprint, NoteWriteKind, VaultRecord};
 use files::{MacFiles, NoteNoticeSink, note_unsupported};
 use std::{
     path::{Component, Path},
@@ -40,7 +40,6 @@ impl crate::Workspace {
                     .as_ref()
                     .or_else(|| self.notes.vault.as_ref().map(|(owned, _)| owned)),
             )?;
-            let mut registered_notes = Vec::new();
             for recovery in self.store.note_recoveries()? {
                 let record = self.store.note_record(recovery.note_id)?;
                 if record.relative_path == relative {
@@ -54,40 +53,38 @@ impl crate::Workspace {
                     )?;
                     return self.note(record.id);
                 }
-                registered_notes.push(record);
             }
             self.open_note_vault(&selected)?;
             let files = &self.notes.vault.as_ref().unwrap().1;
             let observed = files.observe(relative)?;
-            let same_file = |file: &brn_store::notes::FileFingerprint| {
-                file.device == observed.fingerprint.device
-                    && file.inode == observed.fingerprint.inode
-            };
-            for record in registered_notes {
-                if record.vault_id == selected.id
-                    && (files.aliases_original(relative, &record.relative_path)?
-                        || same_file(&record.baseline)
-                        || record.observed.as_ref().is_some_and(|(_, file)| same_file(file))
-                        // An external replacement may not have a durable observation yet.
-                        || files.observe(&record.relative_path)
-                            .is_ok_and(|current| same_file(&current.fingerprint)))
-                {
-                    let mut error = note_failure(
-                        NoteErrorCode::Conflict,
-                        format!(
-                            "file is already registered as {}; use explicit relink to confirm a move or replacement",
-                            record.relative_path.display()
-                        ),
-                    );
-                    error.note_id = Some(record.id);
-                    return Err(error);
-                }
+            if let Some(error) = registered_note_identity_conflict(
+                &self.store,
+                files,
+                selected.id,
+                &observed.fingerprint,
+                None,
+            )? {
+                return Err(error);
             }
-            if self.registry_path_is_reserved(relative)? {
-                return Err(note_failure(
-                    NoteErrorCode::Conflict,
-                    "path aliases a reserved copy destination; reconcile that copy operation first",
-                ));
+            for intent in self.store.note_save_intents()? {
+                if intent.kind == NoteWriteKind::Copy
+                    && matches!(
+                        intent.resolution,
+                        NoteResolution::Unresolved
+                            | NoteResolution::Applied
+                            | NoteResolution::AcceptedCurrent
+                    )
+                    && (intent.staged.as_ref().is_some_and(|prepared| {
+                        same_file_identity(&prepared.fingerprint, &observed.fingerprint)
+                    }) || files.observe(&intent.destination).is_ok_and(|current| {
+                        same_file_identity(&current.fingerprint, &observed.fingerprint)
+                    }))
+                {
+                    return Err(note_failure(
+                        NoteErrorCode::Conflict,
+                        "file belongs to a reserved copy destination; reconcile that copy operation first",
+                    ));
+                }
             }
             let recovered = self.store.enroll_note_at(
                 op,
@@ -211,6 +208,43 @@ impl crate::Workspace {
         self.notes.vault = Some((vault.clone(), files));
         Ok(())
     }
+}
+
+fn same_file_identity(left: &FileFingerprint, right: &FileFingerprint) -> bool {
+    left.device == right.device && left.inode == right.inode
+}
+
+fn registered_note_identity_conflict(
+    store: &brn_store::Store,
+    files: &MacFiles,
+    vault_id: Uuid,
+    observed: &FileFingerprint,
+    except: Option<Uuid>,
+) -> NoteResult<Option<NoteFailure>> {
+    for recovery in store.note_recoveries()? {
+        if Some(recovery.note_id) == except {
+            continue;
+        }
+        let record = store.note_record(recovery.note_id)?;
+        if record.vault_id == vault_id
+            && (same_file_identity(&record.baseline, observed)
+                || record.observed.as_ref().is_some_and(|(_, file)| same_file_identity(file, observed))
+                // A replacement at the registered location may not have a durable observation yet.
+                || files.observe(&record.relative_path).is_ok_and(|current| same_file_identity(&current.fingerprint, observed)))
+        {
+            let mut error = note_failure(
+                NoteErrorCode::Conflict,
+                format!(
+                    "file belongs to registered note {} ({}); use explicit relink of that note to confirm a move or replacement",
+                    record.id,
+                    record.relative_path.display()
+                ),
+            );
+            error.note_id = Some(record.id);
+            return Ok(Some(error));
+        }
+    }
+    Ok(None)
 }
 
 fn note_failure(code: NoteErrorCode, message: impl Into<String>) -> NoteFailure {

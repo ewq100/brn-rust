@@ -8,6 +8,39 @@ use std::{fs, path::Path};
 use tempfile::{TempDir, tempdir};
 use uuid::Uuid;
 
+#[test]
+fn emoji_note_names_open_in_either_registration_order() {
+    for emoji in ["❤️.md", "👩‍💻.md"] {
+        for emoji_first in [false, true] {
+            let data = tempfile::tempdir_in(".").unwrap();
+            let vault = tempfile::tempdir_in(".").unwrap();
+            fs::write(vault.path().join(emoji), "emoji").unwrap();
+            fs::write(vault.path().join("plain.md"), "plain").unwrap();
+            let mut w = Workspace::open(data.path(), Config::default()).unwrap();
+            let paths = if emoji_first {
+                [emoji, "plain.md"]
+            } else {
+                ["plain.md", emoji]
+            };
+            let first = w
+                .open_note(Uuid::new_v4(), vault.path(), Path::new(paths[0]))
+                .unwrap();
+            let second = w
+                .open_note(Uuid::new_v4(), vault.path(), Path::new(paths[1]))
+                .unwrap();
+            assert_ne!(first.id, second.id);
+            assert_eq!(w.note_recoveries().unwrap().len(), 2);
+            assert_eq!(
+                w.open_note(Uuid::new_v4(), vault.path(), Path::new(emoji))
+                    .unwrap()
+                    .saved
+                    .as_deref(),
+                Some("emoji")
+            );
+        }
+    }
+}
+
 struct Fixture {
     data: TempDir,
     vault: TempDir,

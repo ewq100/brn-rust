@@ -6,6 +6,176 @@ use std::{fs, path::Path};
 use tempfile::TempDir;
 use uuid::Uuid;
 
+#[test]
+fn ambiguous_copy_and_relink_candidates_are_refused_even_without_other_registry_paths() {
+    for name in ["❤️.md", "👩‍💻.md"] {
+        let mut f = Fixture::new();
+        let failure =
+            f.w.save_note_copy(f.request(), Path::new(name))
+                .unwrap_err();
+        assert_eq!(failure.code, NoteErrorCode::Unsupported);
+        assert!(failure.recovery_available);
+        assert!(!f.vault.path().join(name).exists());
+        fs::write(f.vault.path().join(name), "candidate").unwrap();
+        let current = f.w.note(f.opened.id).unwrap();
+        let failure =
+            f.w.save_note_copy(
+                NoteSubmission {
+                    expected: current.stamp,
+                    generation: current.stamp.generation + 1,
+                    ..f.request()
+                },
+                Path::new(name),
+            )
+            .unwrap_err();
+        assert_eq!(failure.code, NoteErrorCode::Unsupported);
+        assert!(failure.recovery_available);
+        let current = f.w.note(f.opened.id).unwrap();
+        let failure =
+            f.w.relink_note(
+                Uuid::new_v4(),
+                current.id,
+                current.stamp,
+                Path::new(name),
+                true,
+            )
+            .unwrap_err();
+        assert_eq!(failure.code, NoteErrorCode::Unsupported);
+        assert_eq!(
+            f.w.note(current.id).unwrap().relative_path,
+            Path::new("plan.md")
+        );
+    }
+}
+
+#[test]
+fn unqualified_registered_names_use_identity_or_conservative_conflict_not_unsupported() {
+    let mut f = Fixture::new();
+    fs::write(f.vault.path().join("❤️.md"), "emoji").unwrap();
+    let emoji =
+        f.w.open_note(Uuid::new_v4(), f.vault.path(), Path::new("❤️.md"))
+            .unwrap();
+    fs::rename(
+        f.vault.path().join("plan.md"),
+        f.vault.path().join("moved.md"),
+    )
+    .unwrap();
+    let relinked =
+        f.w.relink_note(
+            Uuid::new_v4(),
+            f.opened.id,
+            f.opened.stamp,
+            Path::new("moved.md"),
+            true,
+        )
+        .unwrap();
+    assert_eq!(relinked.id, f.opened.id);
+    for missing in [false, true] {
+        if missing {
+            fs::remove_file(f.vault.path().join("❤️.md")).unwrap();
+        }
+        let current = f.w.note(relinked.id).unwrap();
+        let failure =
+            f.w.save_note_copy(
+                NoteSubmission {
+                    expected: current.stamp,
+                    generation: current.stamp.generation + 1,
+                    ..f.request()
+                },
+                Path::new("rescue.md"),
+            )
+            .unwrap_err();
+        assert_eq!(failure.code, NoteErrorCode::Conflict);
+        assert!(failure.recovery_available);
+        assert_eq!(f.w.note_recoveries().unwrap().len(), 2);
+    }
+    assert_eq!(
+        f.w.note(emoji.id).unwrap().availability,
+        NoteAvailability::Missing
+    );
+}
+
+#[test]
+fn relink_refuses_another_registered_notes_moved_baseline_or_observed_inode() {
+    for replaced in [false, true] {
+        let mut f = Fixture::new();
+        fs::write(f.vault.path().join("other.md"), "other").unwrap();
+        let other =
+            f.w.open_note(Uuid::new_v4(), f.vault.path(), Path::new("other.md"))
+                .unwrap();
+        if replaced {
+            fs::write(f.vault.path().join("replacement"), "replacement").unwrap();
+            fs::rename(
+                f.vault.path().join("replacement"),
+                f.vault.path().join("other.md"),
+            )
+            .unwrap();
+            f.w.note(other.id).unwrap();
+        }
+        fs::rename(
+            f.vault.path().join("other.md"),
+            f.vault.path().join("moved.md"),
+        )
+        .unwrap();
+        let failure =
+            f.w.relink_note(
+                Uuid::new_v4(),
+                f.opened.id,
+                f.opened.stamp,
+                Path::new("moved.md"),
+                true,
+            )
+            .unwrap_err();
+        assert_eq!(failure.code, NoteErrorCode::Conflict);
+        assert_eq!(failure.note_id, Some(other.id));
+        assert!(failure.message.contains(&other.id.to_string()));
+        assert!(failure.message.contains("other.md"));
+        assert_eq!(
+            f.w.note(f.opened.id).unwrap().relative_path,
+            Path::new("plan.md")
+        );
+        assert_eq!(
+            f.w.note(other.id).unwrap().availability,
+            NoteAvailability::Missing
+        );
+        assert_eq!(
+            fs::read(f.vault.path().join("moved.md")).unwrap(),
+            if replaced {
+                b"replacement".as_slice()
+            } else {
+                b"other".as_slice()
+            }
+        );
+    }
+}
+
+#[test]
+fn relink_refuses_another_registered_notes_fresh_replacement_inode() {
+    let mut f = Fixture::new();
+    fs::write(f.vault.path().join("other.md"), "other").unwrap();
+    let other =
+        f.w.open_note(Uuid::new_v4(), f.vault.path(), Path::new("other.md"))
+            .unwrap();
+    fs::write(f.vault.path().join("replacement"), "fresh replacement").unwrap();
+    fs::rename(
+        f.vault.path().join("replacement"),
+        f.vault.path().join("other.md"),
+    )
+    .unwrap();
+    let failure =
+        f.w.relink_note(
+            Uuid::new_v4(),
+            f.opened.id,
+            f.opened.stamp,
+            Path::new("other.md"),
+            true,
+        )
+        .unwrap_err();
+    assert_eq!(failure.code, NoteErrorCode::Conflict);
+    assert_eq!(failure.note_id, Some(other.id));
+    assert!(failure.message.contains(&other.id.to_string()));
+}
+
 struct Fixture {
     _data: TempDir,
     vault: TempDir,
