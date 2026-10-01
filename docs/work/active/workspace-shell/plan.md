@@ -38,6 +38,9 @@
 
   Dividers move 8 pt with ←/→ and 32 pt with ⇧.
 - Hide every handoff element without a backend. Do not ship fixture data as connected behaviour.
+- Open rails are budgeted with their 5 pt divider in `LayoutState::resolve`. Rendered widths must equal resolved widths.
+- Visible selection uses `Selectable::selected`. `Button::toggled` is accessibility metadata only in the pinned toolkit, so use it in addition for genuine toggles (Focus, Vault).
+- Each scrollable region owns a persistent `ScrollHandle` in `Desktop`. Draft and source documents use separate handles.
 - If a GPUI Kit signature named here differs slightly from the pinned crate, adapt the call to compile without changing the described behaviour, and note it in evidence.
 - Use disposable explicit data directories for native checks. No live provider calls, model downloads, original-vault access, merge or release.
 - Respect the pinned toolchain and lockfiles. Only `crates/brn-desktop/Cargo.toml` and the `brn-desktop` entry in `Cargo.lock` may change.
@@ -75,7 +78,7 @@ Tasks run in order. Each ends with a commit that builds and passes its checks.
   - `enum Appearance { System, Dark, Light }` with `fn scheme(self, system_dark: bool) -> Scheme`
   - `enum Scheme { Dark, Light }`, `enum Rail { History, Vault }`, `enum Divider { History, Document, Vault }`
   - `enum RailDisplay { Open, Collapsed, AutoCollapsed, Hidden }`, `enum CentreMode { ChatOnly, Split, Tabs }`
-  - `struct ResolvedLayout { history, vault: RailDisplay, history_w, vault_w, centre_x, centre_w, doc_w, chat_w: f32, mode: CentreMode }`. Here `history_w`/`vault_w` are the space occupied.
+  - `struct ResolvedLayout { history, vault: RailDisplay, history_w, vault_w, centre_x, centre_w, doc_w, chat_w: f32, mode: CentreMode }`. Here `history_w`/`vault_w` are the space occupied: an open rail's width plus its 5 pt divider, or `COLLAPSED_RAIL`, or 0.
   - `struct LayoutState { history_w, vault_w, doc_share: f32, history_collapsed, vault_collapsed, focus: bool, appearance: Appearance }` with:
     - `Default`
     - `fn sanitized(self) -> Self`
@@ -115,7 +118,9 @@ Expected: success. `git diff Cargo.lock` shows only `"serde",` added to the `brn
 In `crates/brn-desktop/src/main.rs`, after the existing `use` lines and before `#[cfg(feature = "native-ui")] mod comments;`, add:
 
 ```rust
-#[cfg_attr(not(feature = "native-ui"), allow(dead_code))]
+// Temporarily unconditional: native code consumes this module gradually (Tasks 3–5).
+// Task 5 Step 5 narrows it to non-native builds.
+#[allow(dead_code)]
 mod layout;
 ```
 
@@ -149,10 +154,10 @@ mod tests {
         let r = LayoutState::default().resolve(1400.0, true);
         assert_eq!((r.history, r.vault), (RailDisplay::Open, RailDisplay::Open));
         assert_eq!(r.mode, CentreMode::Split);
-        assert!(close(r.centre_x, 220.0));
-        assert!(close(r.centre_w, 920.0));
-        assert!(close(r.doc_w, 915.0 * 0.58));
-        assert!(close(r.doc_w + DIVIDER + r.chat_w, 920.0));
+        assert!(close(r.centre_x, 220.0 + DIVIDER));
+        assert!(close(r.centre_w, 1400.0 - 220.0 - 260.0 - 2.0 * DIVIDER));
+        assert!(close(r.doc_w, (r.centre_w - DIVIDER) * 0.58));
+        assert!(close(r.doc_w + DIVIDER + r.chat_w, r.centre_w));
     }
 
     #[test]
@@ -161,7 +166,7 @@ mod tests {
         assert_eq!(r.vault, RailDisplay::AutoCollapsed);
         assert_eq!(r.history, RailDisplay::Open);
         assert_eq!(r.mode, CentreMode::Split);
-        assert!(close(r.centre_w, 1000.0 - 220.0 - COLLAPSED_RAIL));
+        assert!(close(r.centre_w, 1000.0 - 220.0 - DIVIDER - COLLAPSED_RAIL));
     }
 
     #[test]
@@ -179,8 +184,19 @@ mod tests {
         assert_eq!(r.mode, CentreMode::ChatOnly);
         assert_eq!(r.vault, RailDisplay::AutoCollapsed);
         assert_eq!(r.history, RailDisplay::Open);
-        assert!(close(r.chat_w, 600.0 - 220.0 - COLLAPSED_RAIL));
+        assert!(close(r.chat_w, 600.0 - 220.0 - DIVIDER - COLLAPSED_RAIL));
         assert_eq!(r.doc_w, 0.0);
+    }
+
+    #[test]
+    fn boundary_widths_include_rail_dividers() {
+        let exact = 220.0 + DIVIDER + 260.0 + DIVIDER + DOC_MIN + DIVIDER + CHAT_MIN;
+        let r = LayoutState::default().resolve(exact, true);
+        assert_eq!((r.history, r.vault, r.mode), (RailDisplay::Open, RailDisplay::Open, CentreMode::Split));
+        assert!(close(r.doc_w, DOC_MIN) && close(r.chat_w, CHAT_MIN));
+        assert!(close(r.history_w + r.centre_w + r.vault_w, exact));
+        let r = LayoutState::default().resolve(exact - 1.0, true);
+        assert_eq!(r.vault, RailDisplay::AutoCollapsed);
     }
 
     #[test]
@@ -240,7 +256,7 @@ mod tests {
     #[test]
     fn split_respects_minimums_for_extreme_shares() {
         let state = LayoutState { doc_share: DOC_SHARE_MAX, ..LayoutState::default() };
-        let r = state.resolve(220.0 + 260.0 + 640.0, true);
+        let r = state.resolve(220.0 + 260.0 + 2.0 * DIVIDER + 640.0, true);
         assert_eq!(r.mode, CentreMode::Split);
         assert!(r.chat_w >= CHAT_MIN - 0.01);
         let state = LayoutState { doc_share: DOC_SHARE_MIN, ..LayoutState::default() };
@@ -432,7 +448,8 @@ pub enum RailDisplay {
 impl RailDisplay {
     fn occupied(self, open_width: f32) -> f32 {
         match self {
-            Self::Open => open_width,
+            // An open rail is always rendered with its divider beside it.
+            Self::Open => open_width + DIVIDER,
             Self::Collapsed | Self::AutoCollapsed => COLLAPSED_RAIL,
             Self::Hidden => 0.0,
         }
@@ -618,7 +635,7 @@ impl LayoutState {
 - [ ] **Step 6: Run the tests to verify they pass**
 
 Run: `cargo +1.98.1 test -p brn-desktop --locked --offline layout::`
-Expected: 20 tests pass.
+Expected: 21 tests pass.
 
 Then run: `cargo +1.98.1 fmt --all -- --check && cargo +1.98.1 clippy -p brn-desktop --all-targets --locked --offline -- -D warnings && cargo +1.98.1 clippy -p brn-desktop --features native-ui --all-targets --locked --offline -- -D warnings`
 Expected: success. If `fmt` reports differences, run `cargo +1.98.1 fmt --all` and re-check.
@@ -649,7 +666,7 @@ Co-authored-by: Copilot <223556219+Copilot@users.noreply.github.com>"
   - `fn path(data_dir: &Path) -> PathBuf`
   - `fn load(data_dir: &Path) -> (LayoutState, Loaded)`
   - `fn save(data_dir: &Path, layout: &LayoutState) -> std::io::Result<()>`
-  - `crate::tokens::{Palette { background, panel, paper, text, muted, line, active, cyan, amber, purple, green: u32 }, DARK, LIGHT, fn palette(Scheme) -> Palette, CHROME_FONT, READING_FONT}`
+  - `crate::tokens::{Palette { background, panel, paper, text, muted, line, active, cyan, amber, purple, green: u32 }, DARK, LIGHT, fn palette(Scheme) -> Palette, fn hex(u32) -> String, fn theme_config_json(Scheme) -> serde_json::Value, CHROME_FONT, READING_FONT}`
 
 - [ ] **Step 1: Write the failing persistence tests**
 
@@ -774,20 +791,43 @@ mod tests {
         assert_eq!(palette(Scheme::Dark), DARK);
         assert_eq!(palette(Scheme::Light), LIGHT);
     }
+
+    #[test]
+    fn hex_formats_six_lowercase_digits() {
+        assert_eq!(hex(0x006772), "#006772");
+        assert_eq!(hex(0xE4ECEF), "#e4ecef");
+    }
+
+    #[test]
+    fn theme_config_covers_component_and_editor_colours() {
+        let dark = theme_config_json(Scheme::Dark);
+        assert_eq!(dark["mode"], "dark");
+        assert_eq!(dark["radius"], 0);
+        assert_eq!(dark["colors"]["background"], "#101619");
+        assert_eq!(dark["colors"]["button.background"], "#141c20");
+        assert_eq!(dark["colors"]["ring"], "#71d8e7");
+        assert_eq!(dark["colors"]["base.magenta"], "#c4acf2");
+        assert_eq!(dark["highlight"]["editor.background"], "#141c20");
+        let light = theme_config_json(Scheme::Light);
+        assert_eq!(light["mode"], "light");
+        assert_eq!(light["colors"]["foreground"], "#24363c");
+        assert_eq!(light["highlight"]["editor.foreground"], "#24363c");
+    }
 }
 ```
 
 In `main.rs`, below `mod layout;`, add:
 
 ```rust
-#[cfg_attr(not(feature = "native-ui"), allow(dead_code))]
+// Temporarily unconditional; Task 5 Step 5 narrows it to non-native builds.
+#[allow(dead_code)]
 mod tokens;
 ```
 
 - [ ] **Step 3: Run the tests to verify they fail**
 
 Run: `cargo +1.98.1 test -p brn-desktop --locked --offline -- layout:: tokens::`
-Expected: compile errors for `load`, `save`, `path`, `Loaded`, `FILE_NAME`, `Palette`, `DARK`, `LIGHT` and `palette`.
+Expected: compile errors for `load`, `save`, `path`, `Loaded`, `FILE_NAME`, `Palette`, `DARK`, `LIGHT`, `palette`, `hex` and `theme_config_json`.
 
 - [ ] **Step 4: Implement persistence**
 
@@ -919,12 +959,93 @@ pub fn palette(scheme: Scheme) -> Palette {
         Scheme::Light => LIGHT,
     }
 }
+
+pub fn hex(value: u32) -> String {
+    format!("#{value:06x}")
+}
+
+/// A gpui-component `ThemeConfig` document for the scheme. Installing it through
+/// `Theme::change` resolves component colours, cached tokens and editor colours together.
+pub fn theme_config_json(scheme: Scheme) -> serde_json::Value {
+    let p = palette(scheme);
+    let (name, mode) = match scheme {
+        Scheme::Dark => ("BRN Dark", "dark"),
+        Scheme::Light => ("BRN Light", "light"),
+    };
+    serde_json::json!({
+        "is_default": false,
+        "name": name,
+        "mode": mode,
+        "radius": 0,
+        "radius.lg": 0,
+        "shadow": false,
+        "mono_font.family": CHROME_FONT,
+        "colors": {
+            "background": hex(p.background),
+            "foreground": hex(p.text),
+            "border": hex(p.line),
+            "input.border": hex(p.line),
+            "accent.background": hex(p.active),
+            "accent.foreground": hex(p.text),
+            "muted.background": hex(p.panel),
+            "muted.foreground": hex(p.muted),
+            "ring": hex(p.cyan),
+            "caret": hex(p.cyan),
+            "link": hex(p.cyan),
+            "link.hover": hex(p.cyan),
+            "link.active": hex(p.cyan),
+            "selection.background": hex(p.active),
+            "primary.background": hex(p.cyan),
+            "primary.foreground": hex(p.background),
+            "primary.hover.background": hex(p.cyan),
+            "primary.active.background": hex(p.cyan),
+            "secondary.background": hex(p.paper),
+            "secondary.foreground": hex(p.text),
+            "secondary.hover.background": hex(p.active),
+            "secondary.active.background": hex(p.active),
+            "button.background": hex(p.paper),
+            "button.foreground": hex(p.text),
+            "button.hover.background": hex(p.active),
+            "button.active.background": hex(p.active),
+            "list.background": hex(p.panel),
+            "list.hover.background": hex(p.active),
+            "list.active.background": hex(p.active),
+            "list.active.border": hex(p.cyan),
+            "popover.background": hex(p.panel),
+            "popover.foreground": hex(p.text),
+            "sidebar.background": hex(p.panel),
+            "sidebar.foreground": hex(p.text),
+            "sidebar.border": hex(p.line),
+            "title_bar.background": hex(p.panel),
+            "title_bar.border": hex(p.line),
+            "tab.background": hex(p.panel),
+            "tab.foreground": hex(p.muted),
+            "tab.active.background": hex(p.paper),
+            "tab.active.foreground": hex(p.cyan),
+            "tab_bar.background": hex(p.panel),
+            "success.background": hex(p.green),
+            "warning.background": hex(p.amber),
+            "info.background": hex(p.cyan),
+            "base.cyan": hex(p.cyan),
+            "base.green": hex(p.green),
+            "base.yellow": hex(p.amber),
+            "base.magenta": hex(p.purple),
+            "window.border": hex(p.line)
+        },
+        "highlight": {
+            "editor.background": hex(p.paper),
+            "editor.foreground": hex(p.text),
+            "editor.active_line.background": hex(p.active),
+            "editor.line_number": hex(p.muted)
+        }
+    })
+}
 ```
 
 - [ ] **Step 6: Run the tests to verify they pass**
 
 Run: `cargo +1.98.1 test -p brn-desktop --locked --offline -- layout:: tokens::`
-Expected: 28 tests pass (20 layout, 5 persistence, 3 tokens).
+Expected: 31 tests pass (21 layout, 5 persistence, 5 tokens).
 
 Run the same `fmt`/`clippy` (default and `native-ui`) commands as Task 1 Step 6. Expected: success.
 
@@ -949,7 +1070,7 @@ Co-authored-by: Copilot <223556219+Copilot@users.noreply.github.com>"
 **Interfaces:**
 - Consumes: `layout::{load, Loaded, LayoutState, Appearance, Scheme, WINDOW_MIN}`, `tokens::{palette, Palette, CHROME_FONT}`.
 - Produces:
-  - `native::theme::{fn is_dark(WindowAppearance) -> bool, fn system_dark(&Window) -> bool, fn color(u32) -> Hsla, fn apply(Appearance, &mut Window, &mut App)}`
+  - `native::theme::{fn is_dark(WindowAppearance) -> bool, fn system_dark(&Window) -> bool, fn color(u32) -> Hsla, fn config(Scheme) -> Result<ThemeConfig, String>, fn apply(Appearance, &mut Window, &mut App) -> Result<(), String>}`
   - new `Desktop` fields: `layout: LayoutState`, `system_dark: bool`, `layout_note: Option<String>`
 
 - [ ] **Step 1: Move the module without changes**
@@ -980,13 +1101,22 @@ mod tests {
         assert!(!is_dark(WindowAppearance::Light));
         assert!(!is_dark(WindowAppearance::VibrantLight));
     }
+
+    #[test]
+    fn handoff_theme_configs_deserialize_for_both_schemes() {
+        let dark = config(Scheme::Dark).unwrap();
+        assert!(dark.mode.is_dark());
+        assert_eq!(dark.radius, Some(0));
+        assert!(dark.highlight.is_some());
+        assert!(!config(Scheme::Light).unwrap().mode.is_dark());
+    }
 }
 ```
 
 Add `mod theme;` at the top of `native/mod.rs`, below the existing `use` block.
 
 Run: `cargo +1.98.1 test -p brn-desktop --features native-ui --locked --offline theme::`
-Expected: compile error, `is_dark` not found.
+Expected: compile errors, `is_dark` and `config` not found.
 
 - [ ] **Step 3: Implement the theme module**
 
@@ -997,9 +1127,10 @@ use crate::layout::{Appearance, Scheme};
 use crate::tokens;
 use gpui_kit::{
     App, Hsla, Window, WindowAppearance,
-    component::{Theme, ThemeMode},
-    px, rgb,
+    component::{Theme, ThemeConfig},
+    rgb,
 };
+use std::rc::Rc;
 
 pub fn is_dark(appearance: WindowAppearance) -> bool {
     matches!(appearance, WindowAppearance::Dark | WindowAppearance::VibrantDark)
@@ -1013,52 +1144,32 @@ pub fn color(hex: u32) -> Hsla {
     rgb(hex).into()
 }
 
-/// Selects the gpui-component base mode, then overrides it with the handoff tokens.
-pub fn apply(appearance: Appearance, window: &mut Window, cx: &mut App) {
-    let scheme = appearance.scheme(system_dark(window));
-    let mode = match scheme {
-        Scheme::Dark => ThemeMode::Dark,
-        Scheme::Light => ThemeMode::Light,
+pub fn config(scheme: Scheme) -> Result<ThemeConfig, String> {
+    serde_json::from_value(tokens::theme_config_json(scheme))
+        .map_err(|error| format!("Theme tokens could not be applied ({error}); using the default theme."))
+}
+
+/// Installs the handoff light and dark configs, then lets `Theme::change` resolve
+/// component colours, cached tokens, editor highlight colours and the Base projection together.
+pub fn apply(appearance: Appearance, window: &mut Window, cx: &mut App) -> Result<(), String> {
+    let dark = Rc::new(config(Scheme::Dark)?);
+    let light = Rc::new(config(Scheme::Light)?);
+    {
+        let theme = Theme::global_mut(cx);
+        theme.dark_theme = dark;
+        theme.light_theme = light;
+        theme.font_family = tokens::CHROME_FONT.into();
+    }
+    let mode = match appearance.scheme(system_dark(window)) {
+        Scheme::Dark => gpui_kit::component::ThemeMode::Dark,
+        Scheme::Light => gpui_kit::component::ThemeMode::Light,
     };
-    Theme::change(mode, Some(&mut *window), cx);
-    let p = tokens::palette(scheme);
-    let theme = Theme::global_mut(cx);
-    theme.radius = px(0.);
-    theme.radius_lg = px(0.);
-    theme.shadow = false;
-    theme.mono_font_family = tokens::CHROME_FONT.into();
-    theme.background = color(p.background);
-    theme.foreground = color(p.text);
-    theme.border = color(p.line);
-    theme.input = color(p.line);
-    theme.muted = color(p.panel);
-    theme.muted_foreground = color(p.muted);
-    theme.accent = color(p.active);
-    theme.accent_foreground = color(p.text);
-    theme.ring = color(p.cyan);
-    theme.caret = color(p.cyan);
-    theme.link = color(p.cyan);
-    theme.primary = color(p.cyan);
-    theme.primary_foreground = color(p.background);
-    theme.secondary = color(p.paper);
-    theme.secondary_foreground = color(p.text);
-    theme.secondary_hover = color(p.active);
-    theme.secondary_active = color(p.active);
-    theme.sidebar = color(p.panel);
-    theme.sidebar_border = color(p.line);
-    theme.sidebar_foreground = color(p.text);
-    theme.title_bar = color(p.panel);
-    theme.title_bar_border = color(p.line);
-    theme.popover = color(p.panel);
-    theme.popover_foreground = color(p.text);
-    theme.list_active = color(p.active);
-    theme.list_active_border = color(p.cyan);
-    theme.success = color(p.green);
-    theme.warning = color(p.amber);
-    theme.info = color(p.cyan);
-    window.refresh();
+    Theme::change(mode, Some(window), cx);
+    Ok(())
 }
 ```
+
+`Theme::change` calls `apply_config` for the selected config and rebuilds the Base theme, so no field is written after it. If `ThemeConfig` is not re-exported at `gpui_kit::component`, import it from `gpui_kit::component::theme`.
 
 Run: `cargo +1.98.1 test -p brn-desktop --features native-ui --locked --offline theme::`
 Expected: PASS.
@@ -1092,10 +1203,13 @@ In `native/mod.rs`:
                Loaded::Missing | Loaded::Restored => None,
            };
            let system_dark = theme::system_dark(window);
-           theme::apply(layout.appearance, window, cx);
+           let theme_error = theme::apply(layout.appearance, window, cx).err();
+           let layout_note = layout_note.or(theme_error);
            let appearance_subscription = cx.observe_window_appearance(window, |this, window, cx| {
                this.system_dark = theme::system_dark(window);
-               theme::apply(this.layout.appearance, window, cx);
+               if let Err(error) = theme::apply(this.layout.appearance, window, cx) {
+                   this.message = error;
+               }
                cx.notify();
            });
    ```
@@ -1227,11 +1341,11 @@ This task replaces the `Page` switcher. The moved code keeps its `self.` referen
   - `Desktop` fields `layout`, `system_dark`, `layout_note` (Task 3).
 - Produces (used by Task 5):
   - `enum DocRef { Draft, Source(Uuid) }`, `enum CentreTab { Document, Chat }`
-  - `Desktop` fields `resolved: ResolvedLayout`, `open_doc: Option<DocRef>`, `centre_tab: CentreTab`, `settings_open: bool`
-  - methods `Desktop::{show_document, close_document, open_draft_from_list, cancel_running, phase_status, persist_layout, toggle_rail, toggle_focus, palette, render_shell, render_chat, render_document}`
+  - `Desktop` fields `resolved: ResolvedLayout`, `open_doc: Option<DocRef>`, `centre_tab: CentreTab`, `nav: DocNavigation`, `settings_requested: bool`, `history_scroll`/`vault_scroll`/`chat_scroll`/`source_scroll: ScrollHandle`
+  - methods `Desktop::{show_document, close_document, open_draft_from_list, cancel_running, phase_status, persist_layout, toggle_rail, toggle_focus, palette, render_shell, render_separator, open_settings, render_chat, render_document}`
   - `shell::{approval_tag, section_label}`
 
-- [ ] **Step 1: Write the failing pure test**
+- [ ] **Step 1: Write the failing pure tests**
 
 Append to the existing `mod tests` in `native/mod.rs`:
 
@@ -1242,15 +1356,29 @@ Append to the existing `mod tests` in `native/mod.rs`:
         assert_eq!(shell::approval_tag(Approval::Draft), "○ not approved");
         assert_eq!(shell::approval_tag(Approval::Withdrawn), "– withdrawn");
     }
+
+    #[test]
+    fn draft_completion_navigates_only_without_newer_navigation() {
+        let mut nav = DocNavigation::default();
+        assert!(!nav.take_draft_completion());
+        nav.request_draft();
+        assert!(nav.take_draft_completion());
+        assert!(!nav.take_draft_completion());
+        nav.request_draft();
+        nav.moved();
+        assert!(!nav.take_draft_completion());
+    }
 ```
 
-Run: `cargo +1.98.1 test -p brn-desktop --features native-ui --locked --offline approval_tags`
-Expected: compile error, `shell` not found.
+Run: `cargo +1.98.1 test -p brn-desktop --features native-ui --locked --offline -- approval_tags draft_completion`
+Expected: compile errors, `shell` and `DocNavigation` not found.
 
-- [ ] **Step 2: Add centre state and helper methods to `native/mod.rs`**
+- [ ] **Step 2: Add centre state, navigation and helper methods to `native/mod.rs`**
+
+Keep `enum Page`, the `page` field and the old `render` body until Step 9, so every intermediate edit still compiles.
 
 1. Add `mod shell;` next to `mod theme;`. Change the import to `use crate::layout::{self, LayoutState, Loaded, ResolvedLayout};`.
-2. Delete `enum Page { ... }` and add:
+2. Add, next to `enum Page`:
 
    ```rust
    #[derive(Clone, Copy, Debug, PartialEq, Eq)]
@@ -1264,27 +1392,68 @@ Expected: compile error, `shell` not found.
        Document,
        Chat,
    }
+
+   /// Correlates a draft-open completion with the navigation that requested it,
+   /// so a late completion cannot override a newer Close or source selection.
+   #[derive(Debug, Default)]
+   struct DocNavigation {
+       generation: u64,
+       pending_draft: Option<u64>,
+   }
+
+   impl DocNavigation {
+       fn moved(&mut self) {
+           self.generation = self.generation.wrapping_add(1);
+       }
+       fn request_draft(&mut self) {
+           self.pending_draft = Some(self.generation);
+       }
+       fn take_draft_completion(&mut self) -> bool {
+           self.pending_draft.take() == Some(self.generation)
+       }
+   }
    ```
 
-3. In `struct Desktop`, delete `page: Page,` and add after `layout_note: Option<String>,`:
+3. In `struct Desktop`, add after `layout_note: Option<String>,`:
 
    ```rust
        resolved: ResolvedLayout,
        open_doc: Option<DocRef>,
        centre_tab: CentreTab,
-       settings_open: bool,
+       nav: DocNavigation,
+       settings_requested: bool,
+       history_scroll: ScrollHandle,
+       vault_scroll: ScrollHandle,
+       chat_scroll: ScrollHandle,
+       source_scroll: ScrollHandle,
    ```
 
-4. In `Desktop::new`, add `let resolved = layout.resolve(1100.0, false);` after the `layout::load` line. In the literal, delete `page: Page::Workspace,` and add `resolved, open_doc: None, centre_tab: CentreTab::Chat, settings_open: false,`.
+4. In `Desktop::new`, add `let resolved = layout.resolve(1100.0, false);` after the `layout::load` line. In the literal, add:
+
+   ```rust
+               resolved,
+               open_doc: None,
+               centre_tab: CentreTab::Chat,
+               nav: DocNavigation::default(),
+               settings_requested: false,
+               history_scroll: ScrollHandle::new(),
+               vault_scroll: ScrollHandle::new(),
+               chat_scroll: ScrollHandle::new(),
+               source_scroll: ScrollHandle::new(),
+   ```
+
+   Each region owns a persistent scroll handle, so collapsing, Focus and tab switches restore its position. Sources and drafts no longer share one.
 5. Add these methods to the main `impl Desktop` block, after `choose_session`:
 
    ```rust
        fn show_document(&mut self, doc: DocRef) {
+           self.nav.moved();
            self.open_doc = Some(doc);
            self.centre_tab = CentreTab::Document;
        }
        /// Hides the document pane. A draft's in-memory editor state is kept.
        fn close_document(&mut self) {
+           self.nav.moved();
            self.open_doc = None;
            self.centre_tab = CentreTab::Chat;
        }
@@ -1305,7 +1474,7 @@ Expected: compile error, `shell` not found.
        }
    ```
 
-6. Move the `let status = match &self.phase { ... };` expression out of `render` into a new method with the same match arms, unchanged:
+6. Move the `let status = match &self.phase { ... };` expression out of `render` into a new method with the same match arms, unchanged. Make the old render use `let status = self.phase_status();` until Step 9:
 
    ```rust
        fn phase_status(&self) -> String {
@@ -1326,10 +1495,19 @@ Expected: compile error, `shell` not found.
        }
    ```
 
-7. In `poll`, inside both `if may_open {` blocks, add `self.show_document(DocRef::Draft);` as the first statement. One block is in the `Ok(Outcome::DraftCreated { draft }) | Ok(Outcome::DraftOpened { draft, .. })` arm; the other is in the `Ok(Outcome::DraftCommentsOpened { .. })` arm.
-8. In `choose_session`, after `self.selected_session = session;`, add `self.centre_tab = CentreTab::Chat;`.
+7. Request navigation with each draft open:
+   - in `choose_draft`, immediately before `self.submit(Action::OpenDraftComments { id }, "Open draft", cx);`, add `self.nav.request_draft();`;
+   - in `create_draft`, immediately before its `self.submit(Action::CreateDraft { ... }, ...)` call, add `self.nav.request_draft();`.
+8. In `poll`, inside both `if may_open {` blocks, add as the first statement:
 
-Do not delete the old `render` body yet. Step 9 replaces it once the region modules contain the moved code.
+   ```rust
+                           if self.nav.take_draft_completion() {
+                               self.show_document(DocRef::Draft);
+                           }
+   ```
+
+   One block is in the `Ok(Outcome::DraftCreated { draft }) | Ok(Outcome::DraftOpened { draft, .. })` arm; the other is in the `Ok(Outcome::DraftCommentsOpened { .. })` arm. `may_open` still protects edits; `nav` protects newer navigation.
+9. In `choose_session`, after `self.selected_session = session;`, add `self.centre_tab = CentreTab::Chat;`.
 
 - [ ] **Step 3: Create `shell/mod.rs`**
 
@@ -1346,7 +1524,7 @@ use super::theme::{self, color};
 use super::*;
 use crate::layout::{Appearance, CentreMode, Rail, RailDisplay};
 use crate::tokens::{self, Palette};
-use gpui_kit::AnyElement;
+use gpui_kit::{AnyElement, component::Selectable, relative};
 
 pub(super) fn approval_tag(approval: Approval) -> &'static str {
     match approval {
@@ -1401,8 +1579,19 @@ impl Desktop {
 
     fn set_appearance(&mut self, appearance: Appearance, window: &mut Window, cx: &mut Context<Self>) {
         self.layout.appearance = appearance;
-        theme::apply(appearance, window, cx);
+        if let Err(error) = theme::apply(appearance, window, cx) {
+            self.message = error;
+        }
         self.persist_layout(cx);
+    }
+
+    /// Static 5 pt separator budgeted by `LayoutState::resolve`; Task 5 makes it interactive.
+    fn render_separator(&self) -> impl IntoElement {
+        div()
+            .w(px(layout::DIVIDER))
+            .h_full()
+            .flex_shrink_0()
+            .bg(color(self.palette().line))
     }
 
     pub(super) fn render_shell(&mut self, window: &mut Window, cx: &mut Context<Self>) -> impl IntoElement {
@@ -1410,15 +1599,29 @@ impl Desktop {
         self.resolved = self.layout.resolve(width, self.open_doc.is_some());
         let resolved = self.resolved;
         let p = self.palette();
-        let row = div()
+        if std::mem::take(&mut self.settings_requested) {
+            let desktop = cx.entity().downgrade();
+            window.defer(cx, move |window, cx| {
+                if let Some(desktop) = desktop.upgrade() {
+                    desktop.update(cx, |this, cx| this.open_settings(window, cx));
+                }
+            });
+        }
+        let mut row = div()
             .flex()
             .flex_1()
             .min_h(px(0.))
             .min_w(px(0.))
-            .child(self.render_rail_slot(Rail::History, resolved.history, cx))
-            .child(self.render_centre(&resolved, window, cx))
-            .child(self.render_rail_slot(Rail::Vault, resolved.vault, cx));
-        let mut root = div()
+            .child(self.render_rail_slot(Rail::History, resolved.history, cx));
+        if resolved.history == RailDisplay::Open {
+            row = row.child(self.render_separator());
+        }
+        row = row.child(self.render_centre(&resolved, window, cx));
+        if resolved.vault == RailDisplay::Open {
+            row = row.child(self.render_separator());
+        }
+        row = row.child(self.render_rail_slot(Rail::Vault, resolved.vault, cx));
+        let root = div()
             .id("brn-desktop")
             .relative()
             .size_full()
@@ -1431,9 +1634,6 @@ impl Desktop {
             .child(self.render_header(&resolved, cx))
             .child(self.render_status_line())
             .child(row);
-        if self.settings_open {
-            root = root.child(self.render_settings(cx));
-        }
         root
     }
 
@@ -1526,6 +1726,7 @@ impl Desktop {
                 Button::new("toggle-focus")
                     .label("Focus")
                     .compact()
+                    .selected(self.layout.focus)
                     .toggled(self.layout.focus)
                     .on_click(cx.listener(|this, _, _, cx| this.toggle_focus(cx))),
             )
@@ -1533,6 +1734,7 @@ impl Desktop {
                 Button::new("toggle-vault")
                     .label("Vault")
                     .compact()
+                    .selected(resolved.vault == RailDisplay::Open)
                     .toggled(resolved.vault == RailDisplay::Open)
                     .on_click(cx.listener(|this, _, _, cx| this.toggle_rail(Rail::Vault, cx))),
             );
@@ -1542,10 +1744,7 @@ impl Desktop {
                     .label("⚙")
                     .compact()
                     .tooltip("Settings (⌘,)")
-                    .on_click(cx.listener(|this, _, _, cx| {
-                        this.settings_open = true;
-                        cx.notify();
-                    })),
+                    .on_click(cx.listener(|this, _, window, cx| this.open_settings(window, cx))),
             );
         }
         TitleBar::new().child(bar)
@@ -1582,11 +1781,11 @@ impl Desktop {
 }
 ```
 
-Also extend the `shell/mod.rs` imports to `use gpui_kit::{AnyElement, MouseButton, hsla, relative};` so the region files below can use them through `use super::*;`.
+Also extend the `shell/mod.rs` imports to `use gpui_kit::{AnyElement, component::Selectable, relative};` so the region files below can use them through `use super::*;`. Task 5 adds `MouseButton`.
 
 - [ ] **Step 5: Create `shell/history_rail.rs`**
 
-The session button label and handler come from the former `Page::Activity` arm, unchanged apart from `.toggled(...)`.
+The session button label and handler come from the former `Page::Activity` arm, unchanged apart from `.selected(...)`.
 
 ```rust
 use super::*;
@@ -1601,6 +1800,7 @@ impl Desktop {
             .map(|state| state.id());
         let mut list = div()
             .id("history-rail-list")
+            .track_scroll(&self.history_scroll)
             .flex()
             .flex_col()
             .flex_1()
@@ -1625,7 +1825,7 @@ impl Desktop {
                         session.turns,
                         if session.has_thread { " · provider linked" } else { " · recovery needed" }
                     ))
-                    .toggled(self.selected_session == Some(id))
+                    .selected(self.selected_session == Some(id))
                     .disabled(!self.phase.can_submit())
                     .on_click(cx.listener(move |this, _, _, cx| this.choose_session(Some(id), cx))),
             );
@@ -1636,7 +1836,7 @@ impl Desktop {
             list = list.child(
                 Button::new(format!("history-draft-{id}"))
                     .label(compact_title(&draft.title))
-                    .toggled(open_draft == Some(id))
+                    .selected(open_draft == Some(id))
                     .disabled(!self.phase.can_submit())
                     .on_click(cx.listener(move |this, _, _, cx| this.open_draft_from_list(id, cx))),
             );
@@ -1648,17 +1848,12 @@ impl Desktop {
             .flex()
             .flex_col()
             .bg(color(p.panel))
-            .border_r_1()
-            .border_color(color(p.line))
             .child(list)
             .child(
                 div().flex_shrink_0().border_t_1().border_color(color(p.line)).p_2().child(
                     Button::new("settings-footer")
                         .label("⚙ Settings")
-                        .on_click(cx.listener(|this, _, _, cx| {
-                            this.settings_open = true;
-                            cx.notify();
-                        })),
+                        .on_click(cx.listener(|this, _, window, cx| this.open_settings(window, cx))),
                 ),
             )
     }
@@ -1682,6 +1877,7 @@ impl Desktop {
             .map(|state| state.id());
         let mut list = div()
             .id("vault-rail-list")
+            .track_scroll(&self.vault_scroll)
             .flex()
             .flex_col()
             .flex_1()
@@ -1696,8 +1892,11 @@ impl Desktop {
             list = list.child(
                 Button::new(format!("source-{id}"))
                     .label(format!("{} · {}", compact_title(&source.title), approval_tag(source.approval)))
-                    .toggled(self.open_doc == Some(DocRef::Source(id)))
+                    .selected(self.open_doc == Some(DocRef::Source(id)))
                     .on_click(cx.listener(move |this, _, _, cx| {
+                        if this.open_doc != Some(DocRef::Source(id)) {
+                            this.source_scroll.set_offset(point(px(0.), px(0.)));
+                        }
                         this.show_document(DocRef::Source(id));
                         cx.notify();
                     })),
@@ -1726,7 +1925,7 @@ impl Desktop {
             list = list.child(
                 Button::new(format!("vault-draft-{id}"))
                     .label(format!("{} · {}…", compact_title(&draft.title), &id.to_string()[..8]))
-                    .toggled(open_draft == Some(id))
+                    .selected(open_draft == Some(id))
                     .disabled(!self.phase.can_submit())
                     .on_click(cx.listener(move |this, _, _, cx| this.open_draft_from_list(id, cx))),
             );
@@ -1779,8 +1978,6 @@ impl Desktop {
             .flex()
             .flex_col()
             .bg(color(p.panel))
-            .border_l_1()
-            .border_color(color(p.line))
             .child(list)
     }
 }
@@ -1822,7 +2019,7 @@ impl Desktop {
                         Button::new("tab-document")
                             .label("Document")
                             .compact()
-                            .toggled(tab == CentreTab::Document)
+                            .selected(tab == CentreTab::Document)
                             .on_click(cx.listener(|this, _, _, cx| {
                                 this.centre_tab = CentreTab::Document;
                                 cx.notify();
@@ -1832,7 +2029,7 @@ impl Desktop {
                         Button::new("tab-chat")
                             .label("Chat")
                             .compact()
-                            .toggled(tab == CentreTab::Chat)
+                            .selected(tab == CentreTab::Chat)
                             .on_click(cx.listener(|this, _, _, cx| {
                                 this.centre_tab = CentreTab::Chat;
                                 cx.notify();
@@ -1847,9 +2044,9 @@ impl Desktop {
         }
     }
 
-    /// Static separator. Task 5 replaces it with the interactive divider.
+    /// Task 5 replaces this static separator with the interactive divider.
     fn render_document_divider(&mut self, _window: &mut Window, _cx: &mut Context<Self>) -> impl IntoElement {
-        div().w(px(layout::DIVIDER)).h_full().flex_shrink_0().bg(color(self.palette().line))
+        self.render_separator()
     }
 
     fn render_document(&mut self, cx: &mut Context<Self>) -> impl IntoElement {
@@ -1873,6 +2070,10 @@ impl Desktop {
                 self.render_source_reader(id, cx),
             ),
             None => (String::new(), div().into_any_element()),
+        };
+        let scroll = match self.open_doc {
+            Some(DocRef::Source(_)) => self.source_scroll.clone(),
+            _ => self.draft_scroll.clone(),
         };
         div()
             .flex()
@@ -1911,8 +2112,8 @@ impl Desktop {
                     .gap_3()
                     .p_3()
                     .overflow_y_scroll()
-                    .track_scroll(&self.draft_scroll)
-                    .vertical_scrollbar(&self.draft_scroll)
+                    .track_scroll(&scroll)
+                    .vertical_scrollbar(&scroll)
                     .child(body),
             )
     }
@@ -1995,6 +2196,7 @@ impl Desktop {
         let p = self.palette();
         let mut body = div()
             .id("chat-transcript")
+            .track_scroll(&self.chat_scroll)
             .flex()
             .flex_col()
             .flex_1()
@@ -2035,21 +2237,21 @@ impl Desktop {
                         Button::new("profile-keyword")
                             .label("Keyword")
                             .compact()
-                            .toggled(matches!(self.profile, Profile::Keyword))
+                            .selected(matches!(self.profile, Profile::Keyword))
                             .on_click(cx.listener(|this, _, _, cx| this.choose_profile(Profile::Keyword, cx))),
                     )
                     .child(
                         Button::new("profile-semantic")
                             .label("Semantic")
                             .compact()
-                            .toggled(matches!(self.profile, Profile::Semantic))
+                            .selected(matches!(self.profile, Profile::Semantic))
                             .on_click(cx.listener(|this, _, _, cx| this.choose_profile(Profile::Semantic, cx))),
                     )
                     .child(
                         Button::new("profile-hybrid")
                             .label("Hybrid")
                             .compact()
-                            .toggled(matches!(self.profile, Profile::Hybrid))
+                            .selected(matches!(self.profile, Profile::Hybrid))
                             .on_click(cx.listener(|this, _, _, cx| this.choose_profile(Profile::Hybrid, cx))),
                     )
                     .child(div().flex_1())
@@ -2079,121 +2281,120 @@ Moved blocks, pasted verbatim at the marked comments:
 
 Intentionally dropped:
 - the `Page::Workspace` "Saved answer…" block with its `view-saved-answer` button, because Block A now shows saved answers inline;
-- the "Selected profile" and "Selected session" text lines, replaced by `.toggled(...)` state;
+- the "Selected profile" and "Selected session" text lines, replaced by `.selected(...)` styling, which is visible; `.toggled` is accessibility-only in the pinned toolkit;
 - the "Grounded workspace" heading, now the vault Import hint;
 - the page-switch buttons.
 
 Record these removals in evidence.
 
-- [ ] **Step 8: Create `shell/settings.rs`**
+- [ ] **Step 8: Create `shell/settings.rs` (toolkit modal dialog)**
 
-The Connection lines come from the former `Page::Settings` arm, unchanged.
+Settings uses gpui-component's modal host via `WindowExt::open_dialog`. That host traps focus, closes on Escape and on overlay click, and returns focus afterwards; `Root::new` already wraps `Desktop` in `run`. The Connection lines come from the former `Page::Settings` arm, unchanged.
 
 ```rust
 use super::*;
+use gpui_kit::{App, Entity, component::WindowExt};
 
 impl Desktop {
-    pub(super) fn render_settings(&mut self, cx: &mut Context<Self>) -> impl IntoElement {
-        let p = self.palette();
-        let current = self.layout.appearance;
-        let appearance_button = |id: &'static str, label: &'static str, value: Appearance, cx: &mut Context<Self>| {
-            Button::new(id)
-                .label(label)
-                .compact()
-                .toggled(current == value)
-                .on_click(cx.listener(move |this, _, window, cx| this.set_appearance(value, window, cx)))
-        };
-        let size_row = |rail: Rail, label: &'static str, width: f32, cx: &mut Context<Self>| {
-            let (narrower, wider) = match rail {
-                Rail::History => ("history-narrower", "history-wider"),
-                Rail::Vault => ("vault-narrower", "vault-wider"),
-            };
+    pub(super) fn open_settings(&mut self, window: &mut Window, cx: &mut Context<Self>) {
+        if window.has_active_dialog(cx) {
+            return;
+        }
+        let desktop = cx.entity();
+        window.open_dialog(cx, move |dialog, _, cx| {
+            dialog.title("Settings").w(px(460.)).child(settings_body(&desktop, cx))
+        });
+    }
+}
+
+/// Rebuilt on every dialog render from the current `Desktop` state.
+fn settings_body(desktop: &Entity<Desktop>, cx: &App) -> impl IntoElement {
+    let this = desktop.read(cx);
+    let p = this.palette();
+    let prefs = this.layout.clone();
+    let data_dir = spaced_identifier(&this.path.display().to_string());
+    let codex = this
+        .config
+        .codex
+        .as_ref()
+        .map_or("not selected".into(), |path| spaced_identifier(&path.display().to_string()));
+    let model_dir = this
+        .config
+        .model_dir
+        .as_ref()
+        .map_or("not selected".into(), |path| spaced_identifier(&path.display().to_string()));
+    let appearance_button = |id: &'static str, label: &'static str, value: Appearance| {
+        let target = desktop.downgrade();
+        Button::new(id)
+            .label(label)
+            .compact()
+            .selected(prefs.appearance == value)
+            .on_click(move |_, window, cx| {
+                let _ = target.update(cx, |this, cx| this.set_appearance(value, window, cx));
+            })
+    };
+    let resize_button = |id: &'static str, label: &'static str, rail: Rail, delta: f32| {
+        let target = desktop.downgrade();
+        Button::new(id).label(label).compact().on_click(move |_, _, cx| {
+            let _ = target.update(cx, |this, cx| {
+                this.layout.resize_rail(rail, delta);
+                this.persist_layout(cx);
+            });
+        })
+    };
+    let reset_target = desktop.downgrade();
+    div()
+        .flex()
+        .flex_col()
+        .gap_3()
+        .child(section_label("Workspace", p))
+        .child(
             div()
                 .flex()
                 .items_center()
                 .gap_2()
-                .child(div().w(px(160.)).child(format!("{label}: {} pt", width.round() as i32)))
-                .child(Button::new(narrower).label("−").compact().on_click(cx.listener(move |this, _, _, cx| {
-                    this.layout.resize_rail(rail, -layout::KEY_STEP);
-                    this.persist_layout(cx);
-                })))
-                .child(Button::new(wider).label("+").compact().on_click(cx.listener(move |this, _, _, cx| {
-                    this.layout.resize_rail(rail, layout::KEY_STEP);
-                    this.persist_layout(cx);
-                })))
-        };
-        let dialog = div()
-            .id("settings-dialog")
-            .w(px(460.))
-            .max_w(relative(0.9))
-            .max_h(relative(0.9))
-            .overflow_y_scroll()
-            .flex()
-            .flex_col()
-            .gap_3()
-            .p_4()
-            .bg(color(p.panel))
-            .border_1()
-            .border_color(color(p.line))
-            .on_mouse_down(MouseButton::Left, |_, _, cx| cx.stop_propagation())
-            .child(
-                div()
-                    .flex()
-                    .items_center()
-                    .child(div().flex_1().text_size(px(14.)).child("Settings"))
-                    .child(Button::new("close-settings").label("Close").compact().on_click(cx.listener(|this, _, _, cx| {
-                        this.settings_open = false;
-                        cx.notify();
-                    }))),
-            )
-            .child(section_label("Workspace", p))
-            .child(
-                div()
-                    .flex()
-                    .items_center()
-                    .gap_2()
-                    .child(div().w(px(160.)).child("Appearance"))
-                    .child(appearance_button("appearance-system", "System", Appearance::System, cx))
-                    .child(appearance_button("appearance-dark", "Dark", Appearance::Dark, cx))
-                    .child(appearance_button("appearance-light", "Light", Appearance::Light, cx)),
-            )
-            .child(size_row(Rail::History, "History width", self.layout.history_w, cx))
-            .child(size_row(Rail::Vault, "Vault width", self.layout.vault_w, cx))
-            .child(div().text_color(color(p.muted)).child(format!(
-                "Document share: {}% of the centre",
-                (self.layout.doc_share * 100.0).round() as i32
-            )))
-            .child(Button::new("reset-layout").label("Reset layout").on_click(cx.listener(|this, _, _, cx| {
+                .child(div().w(px(140.)).child("Appearance"))
+                .child(appearance_button("appearance-system", "System", Appearance::System))
+                .child(appearance_button("appearance-dark", "Dark", Appearance::Dark))
+                .child(appearance_button("appearance-light", "Light", Appearance::Light)),
+        )
+        .child(
+            div()
+                .flex()
+                .items_center()
+                .gap_2()
+                .child(div().w(px(140.)).child(format!("History: {} pt", prefs.history_w.round() as i32)))
+                .child(resize_button("history-narrower", "−", Rail::History, -layout::KEY_STEP))
+                .child(resize_button("history-wider", "+", Rail::History, layout::KEY_STEP)),
+        )
+        .child(
+            div()
+                .flex()
+                .items_center()
+                .gap_2()
+                .child(div().w(px(140.)).child(format!("Vault: {} pt", prefs.vault_w.round() as i32)))
+                .child(resize_button("vault-narrower", "−", Rail::Vault, -layout::KEY_STEP))
+                .child(resize_button("vault-wider", "+", Rail::Vault, layout::KEY_STEP)),
+        )
+        .child(div().text_color(color(p.muted)).child(format!(
+            "Document share: {}% of the centre",
+            (prefs.doc_share * 100.0).round() as i32
+        )))
+        .child(Button::new("reset-layout").label("Reset layout").on_click(move |_, _, cx| {
+            let _ = reset_target.update(cx, |this, cx| {
                 this.layout.reset_layout();
                 this.persist_layout(cx);
-            })))
-            .child(section_label("Connection", p))
-            .child(format!("Data directory: {}", spaced_identifier(&self.path.display().to_string())))
-            .child(format!(
-                "Codex executable: {}",
-                self.config.codex.as_ref().map_or("not selected".into(), |path| spaced_identifier(&path.display().to_string()))
-            ))
-            .child(format!(
-                "Retrieval model directory: {}",
-                self.config.model_dir.as_ref().map_or("not selected".into(), |path| spaced_identifier(&path.display().to_string()))
-            ))
-            .child("Model access uses the existing managed ChatGPT sign-in in Codex. Select an absolute executable with --codex before asking.");
-        div()
-            .id("settings-overlay")
-            .absolute()
-            .inset_0()
-            .flex()
-            .items_center()
-            .justify_center()
-            .bg(hsla(0., 0., 0., 0.45))
-            .on_mouse_down(MouseButton::Left, cx.listener(|this, _, _, cx| {
-                this.settings_open = false;
-                cx.notify();
-            }))
-            .child(dialog)
-    }
+            });
+        }))
+        .child(section_label("Connection", p))
+        .child(format!("Data directory: {data_dir}"))
+        .child(format!("Codex executable: {codex}"))
+        .child(format!("Retrieval model directory: {model_dir}"))
+        .child("Model access uses the existing managed ChatGPT sign-in in Codex. Select an absolute executable with --codex before asking.")
 }
 ```
+
+The header gear and History footer call `this.open_settings(window, cx)` directly. App-level ⌘, (Task 5) sets `settings_requested`; `render_shell` then opens the dialog through `window.defer`, outside the current render.
 
 - [ ] **Step 9: Replace the old render body**
 
@@ -2207,7 +2408,7 @@ impl Render for Desktop {
 }
 ```
 
-This deletes the Task 3 temporary root, the page buttons, the old Cancel button and the `match self.page` body. Remove any import that becomes unused, such as `TitleBar` if it is only used in `header.rs`. Move it to `use` there instead, or keep it in `mod.rs` if `run` uses it.
+This deletes the Task 3 temporary root, the page buttons, the old Cancel button and the `match self.page` body. Now also delete `enum Page`, the `page: Page` field and its `page: Page::Workspace` initialiser; no other code references them. Remove any import that becomes unused, such as `TitleBar` if it is only used in `header.rs`. Move it to `use` there instead, or keep it in `mod.rs` if `run` uses it.
 
 - [ ] **Step 10: Verify automated checks**
 
@@ -2220,7 +2421,7 @@ cargo +1.98.1 test -p brn-desktop --features native-ui --locked --offline
 cargo +1.98.1 test -p brn-desktop --locked --offline
 ```
 
-Expected: all pass, including `approval_tags_pair_text_with_state`, the existing `drafts`/`comments` tests and the layout/tokens tests.
+Expected: all pass, including `approval_tags_pair_text_with_state`, `draft_completion_navigates_only_without_newer_navigation`, `handoff_theme_configs_deserialize_for_both_schemes`, the existing `drafts`/`comments` tests and the layout/tokens tests.
 
 - [ ] **Step 11: Manual native check (disposable data)**
 
@@ -2231,8 +2432,10 @@ Launch as in Task 3 Step 7. Create a small fixture: `printf '# Sample\n\nIndexes
 4. Select text, capture and add a comment. Compare two revisions.
 5. Open the source. The reader shows title, approval, revision and text. Withdraw, then Approve.
 6. Toggle Vault and Focus from the header; History collapses via the `›` rail. Shrink the window to 1000, 700 and 500 pt. The vault auto-collapses first (amber rail), then history, then Document | Chat tabs appear. Widen it again and the rails return.
-7. Open Settings from the footer and from the header gear (history collapsed). Switch appearance among System, Dark and Light, adjust widths, and Reset layout. Typed composer text survives.
-8. Quit and relaunch with the same `--data-dir`. The layout is restored.
+7. Open Settings from the footer and from the header gear (history collapsed). Tab stays inside the dialog, Escape closes it, and focus returns. Switch appearance among System, Dark and Light (the label, button and editor colours all change), adjust widths (the labels update), and Reset layout. Typed composer text survives untouched.
+8. Scroll History, Vault and the chat transcript. Collapse and restore each rail, enter and exit Focus, and switch Chat → Document → Chat in tabs mode; each scroll position is restored. Scroll a long draft, open a short source, reopen the draft: the draft position is kept.
+9. Click a draft, then immediately click a source before the draft finishes opening. The source stays displayed and the draft does not take over.
+10. Quit and relaunch with the same `--data-dir`. The layout is restored.
 
 Record the observations, and anything that did not behave as described, in `evidence.md`.
 
@@ -2253,17 +2456,16 @@ Co-authored-by: Copilot <223556219+Copilot@users.noreply.github.com>"
 - Create: `crates/brn-desktop/src/native/shell/divider.rs`
 - Modify: `crates/brn-desktop/src/native/shell/mod.rs` (`mod divider;`, row composition, root mouse handlers, composer focus)
 - Modify: `crates/brn-desktop/src/native/shell/centre.rs` (use the interactive document divider)
-- Modify: `crates/brn-desktop/src/native/shell/history_rail.rs`, `vault_rail.rs` (drop the inner edge border now drawn by dividers)
 - Modify: `crates/brn-desktop/src/native/mod.rs` (actions, fields, `run` bindings, menus, routing)
 
 **Interfaces:**
 - Consumes:
   - `LayoutState::{drag, nudge, resolve}`, `layout::{Divider, KEY_STEP, KEY_STEP_LARGE, DIVIDER}` (Task 1);
-  - `Desktop::{toggle_rail, toggle_focus, cancel_running, choose_session, persist_layout, render_shell}` and the fields `resolved`, `centre_tab`, `settings_open` (Task 4).
+  - `Desktop::{toggle_rail, toggle_focus, cancel_running, choose_session, persist_layout, render_shell, render_separator}` and the fields `resolved`, `centre_tab`, `settings_requested` (Task 4).
 - Produces:
   - `Desktop` fields `dragging: Option<Divider>`, `divider_focus: [FocusHandle; 3]`, `focus_composer: bool`
-  - `Desktop::{render_divider, drag_divider, end_divider_drag}`
-  - actions `ToggleHistory`, `ToggleVault`, `ToggleFocus`, `FocusComposer`, `NewChat`, `OpenSettings`, `CancelRunning`, `CloseDialog`
+  - `Desktop::{render_divider, drag_divider}` (`pub(super)`), `Desktop::end_divider_drag` (`pub(in crate::native)`, called from the window-activation observer)
+  - actions `ToggleHistory`, `ToggleVault`, `ToggleFocus`, `FocusComposer`, `NewChat`, `OpenSettings`, `CancelRunning`. Escape is handled by the toolkit dialog; there is no global Escape action.
 
 - [ ] **Step 1: Add fields and actions**
 
@@ -2274,12 +2476,12 @@ In `native/mod.rs`:
    ```rust
    gpui_kit::actions!(
        brn,
-       [Quit, ToggleHistory, ToggleVault, ToggleFocus, FocusComposer, NewChat, OpenSettings, CancelRunning, CloseDialog]
+       [Quit, ToggleHistory, ToggleVault, ToggleFocus, FocusComposer, NewChat, OpenSettings, CancelRunning]
    );
    ```
 
 2. Add `FocusHandle`, `Focusable`, `WeakEntity` and `App` to the `gpui_kit::{...}` import, along with `crate::layout::{Divider, Rail}`.
-3. Add these fields to `struct Desktop` after `settings_open: bool,`:
+3. Add these fields to `struct Desktop` after `source_scroll: ScrollHandle,`:
 
    ```rust
        dragging: Option<Divider>,
@@ -2297,6 +2499,16 @@ In `native/mod.rs`:
                    cx.focus_handle().tab_stop(true),
                ],
                focus_composer: false,
+   ```
+
+   Also end any divider drag when the window deactivates, so a release outside the app still persists the width. Add this before `Self {` and push it into `_subscriptions`:
+
+   ```rust
+           let activation_subscription = cx.observe_window_activation(window, |this, window, cx| {
+               if !window.is_window_active() {
+                   this.end_divider_drag(cx);
+               }
+           });
    ```
 
 5. Confirm `palette`, `persist_layout`, `toggle_rail`, `toggle_focus` and `render_shell` are `pub(super)` in `shell/mod.rs` (Task 4), so `run` and `render` in `native/mod.rs` can call them.
@@ -2367,7 +2579,7 @@ impl Desktop {
         cx.notify();
     }
 
-    pub(super) fn end_divider_drag(&mut self, cx: &mut Context<Self>) {
+    pub(in crate::native) fn end_divider_drag(&mut self, cx: &mut Context<Self>) {
         if self.dragging.take().is_some() {
             self.persist_layout(cx);
         }
@@ -2390,39 +2602,25 @@ In `shell/mod.rs` `render_shell`:
            }
    ```
 
-2. Replace the `let row = ...` expression with:
+2. Replace the two `row.child(self.render_separator())` calls with `row.child(self.render_divider(crate::layout::Divider::History, window, cx))` and `row.child(self.render_divider(crate::layout::Divider::Vault, window, cx))`, respectively.
 
-   ```rust
-           let mut row = div()
-               .flex()
-               .flex_1()
-               .min_h(px(0.))
-               .min_w(px(0.))
-               .child(self.render_rail_slot(Rail::History, resolved.history, cx));
-           if resolved.history == RailDisplay::Open {
-               row = row.child(self.render_divider(crate::layout::Divider::History, window, cx));
-           }
-           row = row.child(self.render_centre(&resolved, window, cx));
-           if resolved.vault == RailDisplay::Open {
-               row = row.child(self.render_divider(crate::layout::Divider::Vault, window, cx));
-           }
-           row = row.child(self.render_rail_slot(Rail::Vault, resolved.vault, cx));
-   ```
-
-3. Add the drag handlers on `root` before `.child(self.render_header(...))`:
+3. Add the drag handlers on `root` before `.child(self.render_header(...))`. Releasing over the window ends the drag through `on_mouse_up`; releasing outside the root ends it through `on_mouse_up_out`; a later move without the button or window deactivation also ends it:
 
    ```rust
                .on_mouse_move(cx.listener(|this, event: &gpui_kit::MouseMoveEvent, window, cx| {
                    this.drag_divider(event, window, cx)
                }))
                .on_mouse_up(MouseButton::Left, cx.listener(|this, _, _, cx| this.end_divider_drag(cx)))
+               .on_mouse_up_out(MouseButton::Left, cx.listener(|this, _, _, cx| this.end_divider_drag(cx)))
    ```
+
+   Add `MouseButton` to the `gpui_kit::{...}` import in `shell/mod.rs`.
 
 In `shell/centre.rs`:
 - delete `render_document_divider`;
 - in `render_centre`, replace `.child(self.render_document_divider(window, cx))` with `.child(self.render_divider(crate::layout::Divider::Document, window, cx))`.
 
-In `history_rail.rs`, remove `.border_r_1()` from the outer rail container. In `vault_rail.rs`, remove `.border_l_1()` from the outer rail container. Keep `.border_color(...)`; it is harmless, or remove it too.
+Then delete `render_separator` from `shell/mod.rs`; nothing else uses it.
 
 - [ ] **Step 4: Bind shortcuts, menus and action routing**
 
@@ -2438,7 +2636,6 @@ In `run`, replace the `cx.bind_keys([...])` and `cx.set_menus([...])` lines with
                 KeyBinding::new("cmd-n", NewChat, None),
                 KeyBinding::new("cmd-,", OpenSettings, None),
                 KeyBinding::new("cmd-.", CancelRunning, None),
-                KeyBinding::new("escape", CloseDialog, None),
             ]);
             cx.set_menus([
                 Menu::new("BRN").items(vec![
@@ -2483,40 +2680,44 @@ Inside the `open_window` closure, directly after the existing `cx.on_action::<Qu
                         });
                         route::<NewChat>(cx, desktop.downgrade(), |this, cx| this.choose_session(None, cx));
                         route::<OpenSettings>(cx, desktop.downgrade(), |this, cx| {
-                            this.settings_open = true;
+                            this.settings_requested = true;
                             cx.notify();
                         });
                         route::<CancelRunning>(cx, desktop.downgrade(), |this, cx| this.cancel_running(cx));
-                        route::<CloseDialog>(cx, desktop.downgrade(), |this, cx| {
-                            if this.settings_open {
-                                this.settings_open = false;
-                                cx.notify();
-                            }
-                        });
 ```
 
 `choose_session` already returns early unless `phase.can_submit()`, so ⌘N cannot interrupt running work. `cancel_running` acts only while `Running`.
 
-- [ ] **Step 5: Verify automated checks**
+- [ ] **Step 5: Narrow the dead-code allowances**
+
+Every layout and token item now has a native consumer. In `main.rs`, replace both temporary `#[allow(dead_code)]` attributes (and their comments) with:
+
+```rust
+#[cfg_attr(not(feature = "native-ui"), allow(dead_code))]
+```
+
+Run `cargo +1.98.1 clippy -p brn-desktop --features native-ui --all-targets --locked --offline -- -D warnings`. For any item still reported as never used, delete it if no task needs it. If it is reserved for a later slice, give it an item-level `#[allow(dead_code)]` with a one-line reason. Record which in evidence.
+
+- [ ] **Step 6: Verify automated checks**
 
 Run the four commands from Task 4 Step 10, then `bash scripts/verify-desktop-shell.sh --native`.
 Expected: all pass.
 
-- [ ] **Step 6: Manual native check (disposable data)**
+- [ ] **Step 7: Manual native check (disposable data)**
 
 Record each of the following in evidence:
 1. Drag the history, document and vault dividers. Widths clamp at the bounds and the cursor shows column-resize.
 2. Click a divider (it highlights in cyan), then use ←/→ (8 pt) and ⇧←/→ (32 pt). Tab can reach the dividers.
 3. Use ⌘0, ⌥⌘0 and ⇧⌘↩. On an auto-collapsed rail, the "Widen the window…" message appears.
-4. ⌘L focuses the composer and switches to the Chat tab in tabs mode. ⌘N starts a new chat when idle. ⌘, opens Settings and Esc closes it. ⌘. cancels a running index build.
+4. ⌘L focuses the composer and switches to the Chat tab in tabs mode. ⌘N starts a new chat when idle. ⌘, opens Settings and Esc closes it. Esc inside the composer and the draft editor keeps its normal editor behaviour. ⌘. cancels a running index build.
 5. The View, Navigate and BRN menus list the items above.
-6. Relaunch: dragged widths persist.
+6. Start a divider drag, release outside the window, and relaunch: the width persists. Also drag, then switch apps mid-drag: the drag ends. Relaunch: dragged widths persist.
 7. ⌘Q with a dirty draft is still blocked by the guard.
 
-- [ ] **Step 7: Commit**
+- [ ] **Step 8: Commit**
 
 ```bash
-git add crates/brn-desktop/src/native
+git add crates/brn-desktop/src/main.rs crates/brn-desktop/src/native
 git commit -m "desktop: add resizable dividers, shortcuts and menus
 
 Co-authored-by: Copilot <223556219+Copilot@users.noreply.github.com>"
@@ -2684,5 +2885,7 @@ Co-authored-by: Copilot <223556219+Copilot@users.noreply.github.com>"
 
 - **GPUI API drift:** Signatures were checked against the cached gpui-pre 0.3.6 and gpui-component 0.6.6 sources. Adapt minor differences without changing behaviour, and note each one in evidence.
 - **Guard regressions from moved code:** Blocks A–C are pasted verbatim. Task 4 Step 11 exercises dirty switching, closing and comments natively.
-- **Global Esc binding:** Inputs with more specific key contexts keep their own Escape handling. `CloseDialog` acts only when Settings is open.
+- **Escape and modality:** Settings uses the toolkit modal host, which owns focus trapping and Escape. No global Escape binding is registered, so editor Escape handling is unaffected.
+- **Theme coverage:** Handoff colours are installed as gpui-component `ThemeConfig`s, so cached tokens and editor highlight colours resolve together. Any control still showing toolkit defaults needs a key added to `tokens::theme_config_json`, not a post-hoc field write.
+- **Intermediate warning gates:** The layout and tokens modules carry a temporary `#[allow(dead_code)]` until Task 5 Step 5, because native consumers arrive across Tasks 3–5.
 - **Tab focus on dividers:** If Tab traversal does not reach a divider, clicking still focuses it for arrow keys. Record the observed behaviour; do not add a custom focus manager in this slice.
