@@ -1,13 +1,14 @@
 use crate::drafts::DraftEditor;
-use crate::layout::{self, LayoutState, Loaded, ResolvedLayout};
+use crate::layout::{self, Divider, LayoutState, Loaded, Rail, ResolvedLayout};
 use brn_workflow::worker::{
     Action, Approval, ChatTurn, CommentStatusChange, Draft, DraftRevision, DraftWriteWithComments,
     Evidence, Outcome, Profile, SourceDocument, Worker,
 };
 use brn_workflow::{AnchorState, CommentStatus, Config, SearchResult, SessionSummary};
 use gpui_kit::{
-    AppContext, Bounds, Context, Entity, KeyBinding, Menu, MenuItem, PathPromptOptions,
-    ScrollAnchor, ScrollHandle, Subscription, Task, Window, WindowBounds, WindowOptions,
+    App, AppContext, Bounds, Context, Entity, FocusHandle, Focusable, KeyBinding, Menu, MenuItem,
+    PathPromptOptions, ScrollAnchor, ScrollHandle, Subscription, Task, WeakEntity, Window,
+    WindowBounds, WindowOptions,
     base::Disableable,
     component::{
         Root, TitleBar,
@@ -19,7 +20,19 @@ use gpui_kit::{
     prelude::*,
     px, size,
 };
-gpui_kit::actions!(brn, [Quit]);
+gpui_kit::actions!(
+    brn,
+    [
+        Quit,
+        ToggleHistory,
+        ToggleVault,
+        ToggleFocus,
+        FocusComposer,
+        NewChat,
+        OpenSettings,
+        CancelRunning
+    ]
+);
 use std::path::PathBuf;
 use std::time::{Duration, Instant};
 use uuid::Uuid;
@@ -178,6 +191,9 @@ struct Desktop {
     vault_scroll: ScrollHandle,
     chat_scroll: ScrollHandle,
     source_scroll: ScrollHandle,
+    dragging: Option<Divider>,
+    divider_focus: [FocusHandle; 3],
+    focus_composer: bool,
     message: String,
     generation: u64,
     profile: Profile,
@@ -273,6 +289,11 @@ impl Desktop {
             }
             cx.notify();
         });
+        let activation_subscription = cx.observe_window_activation(window, |this, window, cx| {
+            if !window.is_window_active() {
+                this.end_divider_drag(cx);
+            }
+        });
         Self {
             worker: Worker::start(path.clone(), config.clone()),
             query,
@@ -308,6 +329,13 @@ impl Desktop {
             vault_scroll: ScrollHandle::new(),
             chat_scroll: ScrollHandle::new(),
             source_scroll: ScrollHandle::new(),
+            dragging: None,
+            divider_focus: [
+                cx.focus_handle().tab_stop(true),
+                cx.focus_handle().tab_stop(true),
+                cx.focus_handle().tab_stop(true),
+            ],
+            focus_composer: false,
             message: "Opening workspace…".into(),
             generation: 0,
             profile: Profile::Keyword,
@@ -331,6 +359,7 @@ impl Desktop {
                 comment_subscription,
                 quit_subscription,
                 appearance_subscription,
+                activation_subscription,
             ],
             _poll_task: poll_task,
         }
@@ -1230,13 +1259,49 @@ impl Render for Desktop {
         self.render_shell(window, cx)
     }
 }
+/// Routes an app-level action to the desktop entity, like the existing Quit handler.
+fn route<A: gpui_kit::Action>(
+    cx: &mut App,
+    target: WeakEntity<Desktop>,
+    apply: fn(&mut Desktop, &mut Context<Desktop>),
+) {
+    cx.on_action::<A>(move |_, cx| {
+        let _ = target.update(cx, apply);
+    });
+}
+
 pub fn run(path: PathBuf, config: Config) {
     gpui_kit::application()
         .with_assets(gpui_kit::assets::Assets)
         .run(move |cx| {
             gpui_kit::init(cx);
-            cx.bind_keys([KeyBinding::new("cmd-q", Quit, None)]);
-            cx.set_menus([Menu::new("BRN").items(vec![MenuItem::action("Quit BRN", Quit)])]);
+            cx.bind_keys([
+                KeyBinding::new("cmd-q", Quit, None),
+                KeyBinding::new("cmd-0", ToggleHistory, None),
+                KeyBinding::new("alt-cmd-0", ToggleVault, None),
+                KeyBinding::new("shift-cmd-enter", ToggleFocus, None),
+                KeyBinding::new("cmd-l", FocusComposer, None),
+                KeyBinding::new("cmd-n", NewChat, None),
+                KeyBinding::new("cmd-,", OpenSettings, None),
+                KeyBinding::new("cmd-.", CancelRunning, None),
+            ]);
+            cx.set_menus([
+                Menu::new("BRN").items(vec![
+                    MenuItem::action("Settings…", OpenSettings),
+                    MenuItem::separator(),
+                    MenuItem::action("Quit BRN", Quit),
+                ]),
+                Menu::new("View").items(vec![
+                    MenuItem::action("Toggle History", ToggleHistory),
+                    MenuItem::action("Toggle Vault", ToggleVault),
+                    MenuItem::action("Toggle Focus", ToggleFocus),
+                ]),
+                Menu::new("Navigate").items(vec![
+                    MenuItem::action("New Chat", NewChat),
+                    MenuItem::action("Focus Composer", FocusComposer),
+                    MenuItem::action("Cancel Running Action", CancelRunning),
+                ]),
+            ]);
             cx.on_window_closed(|cx, _| {
                 if cx.windows().is_empty() {
                     cx.quit();
@@ -1261,6 +1326,30 @@ pub fn run(path: PathBuf, config: Config) {
                             if allow {
                                 cx.quit();
                             }
+                        });
+                        route::<ToggleHistory>(cx, desktop.downgrade(), |this, cx| {
+                            this.toggle_rail(Rail::History, cx)
+                        });
+                        route::<ToggleVault>(cx, desktop.downgrade(), |this, cx| {
+                            this.toggle_rail(Rail::Vault, cx)
+                        });
+                        route::<ToggleFocus>(cx, desktop.downgrade(), |this, cx| {
+                            this.toggle_focus(cx)
+                        });
+                        route::<FocusComposer>(cx, desktop.downgrade(), |this, cx| {
+                            this.centre_tab = CentreTab::Chat;
+                            this.focus_composer = true;
+                            cx.notify();
+                        });
+                        route::<NewChat>(cx, desktop.downgrade(), |this, cx| {
+                            this.choose_session(None, cx)
+                        });
+                        route::<OpenSettings>(cx, desktop.downgrade(), |this, cx| {
+                            this.settings_requested = true;
+                            cx.notify();
+                        });
+                        route::<CancelRunning>(cx, desktop.downgrade(), |this, cx| {
+                            this.cancel_running(cx)
                         });
                         let weak = desktop.downgrade();
                         window.on_window_should_close(cx, move |_, cx| {

@@ -29,7 +29,7 @@ impl Desktop {
                             .h_full()
                             .child(self.render_document(cx)),
                     )
-                    .child(self.render_document_divider(window, cx))
+                    .child(self.render_divider(crate::layout::Divider::Document, window, cx))
                     .child(
                         div()
                             .flex_1()
@@ -77,15 +77,6 @@ impl Desktop {
                     .child(div().flex_1().min_h(px(0.)).child(pane))
             }
         }
-    }
-
-    /// Task 5 replaces this static separator with the interactive divider.
-    fn render_document_divider(
-        &mut self,
-        _window: &mut Window,
-        _cx: &mut Context<Self>,
-    ) -> impl IntoElement {
-        self.render_separator()
     }
 
     pub(super) fn render_document(&mut self, cx: &mut Context<Self>) -> impl IntoElement {

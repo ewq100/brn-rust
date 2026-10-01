@@ -13,6 +13,14 @@ newer document navigation. Settings uses the toolkit modal host for appearance,
 rail widths and layout reset. Layout preferences are stored separately from the
 authoritative workflow data.
 
+The three dividers support pointer dragging and keyboard resizing: Tab to focus,
+then ←/→ for 8 pt or ⇧←/→ for 32 pt. Widths persist when a drag ends, including
+when the window deactivates. The BRN, View and Navigate menus expose Settings
+(⌘,), Quit (⌘Q), History (⌘0), Vault (⌥⌘0), Focus (⇧⌘↩), New Chat (⌘N),
+Focus Composer (⌘L) and Cancel Running Action (⌘.). New Chat is idle-only;
+Quit still respects dirty drafts. Escape remains local to editors and the
+toolkit Settings dialog.
+
 ## Dependencies and features
 
 Always depends on `brn-core`. Default features are empty; `native-ui` enables GPUI and `brn-workflow`; `native-retrieval` includes native UI and workflow native retrieval.

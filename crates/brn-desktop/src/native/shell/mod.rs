@@ -1,6 +1,7 @@
 //! Workspace shell: region composition and layout preference changes.
 
 mod centre;
+mod divider;
 mod header;
 mod history_rail;
 mod settings;
@@ -10,7 +11,7 @@ use super::theme::{self, color};
 use super::*;
 use crate::layout::{Appearance, CentreMode, Rail, RailDisplay};
 use crate::tokens::{self, Palette};
-use gpui_kit::{AnyElement, component::Selectable, relative};
+use gpui_kit::{AnyElement, MouseButton, component::Selectable, relative};
 
 pub(super) fn approval_tag(approval: Approval) -> &'static str {
     match approval {
@@ -76,20 +77,15 @@ impl Desktop {
         self.persist_layout(cx);
     }
 
-    /// Static 5 pt separator budgeted by `LayoutState::resolve`; Task 5 makes it interactive.
-    fn render_separator(&self) -> impl IntoElement {
-        div()
-            .w(px(layout::DIVIDER))
-            .h_full()
-            .flex_shrink_0()
-            .bg(color(self.palette().line))
-    }
-
     pub(super) fn render_shell(
         &mut self,
         window: &mut Window,
         cx: &mut Context<Self>,
     ) -> impl IntoElement {
+        if std::mem::take(&mut self.focus_composer) {
+            let handle = self.query.read(cx).focus_handle(cx);
+            handle.focus(window, cx);
+        }
         let width = f32::from(window.viewport_size().width);
         self.resolved = self.layout.resolve(width, self.open_doc.is_some());
         let resolved = self.resolved;
@@ -109,11 +105,11 @@ impl Desktop {
             .min_w(px(0.))
             .child(self.render_rail_slot(Rail::History, resolved.history, cx));
         if resolved.history == RailDisplay::Open {
-            row = row.child(self.render_separator());
+            row = row.child(self.render_divider(crate::layout::Divider::History, window, cx));
         }
         row = row.child(self.render_centre(&resolved, window, cx));
         if resolved.vault == RailDisplay::Open {
-            row = row.child(self.render_separator());
+            row = row.child(self.render_divider(crate::layout::Divider::Vault, window, cx));
         }
         row = row.child(self.render_rail_slot(Rail::Vault, resolved.vault, cx));
         div()
@@ -126,6 +122,19 @@ impl Desktop {
             .text_color(color(p.text))
             .font_family(tokens::CHROME_FONT)
             .text_size(px(12.))
+            .on_mouse_move(
+                cx.listener(|this, event: &gpui_kit::MouseMoveEvent, window, cx| {
+                    this.drag_divider(event, window, cx)
+                }),
+            )
+            .on_mouse_up(
+                MouseButton::Left,
+                cx.listener(|this, _, _, cx| this.end_divider_drag(cx)),
+            )
+            .on_mouse_up_out(
+                MouseButton::Left,
+                cx.listener(|this, _, _, cx| this.end_divider_drag(cx)),
+            )
             .child(self.render_header(&resolved, cx))
             .child(self.render_status_line())
             .child(row)
