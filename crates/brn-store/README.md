@@ -21,6 +21,28 @@ generations must fit SQLite's signed integer range. Buffer acknowledgements
 establish SQLite recovery, not Markdown publication. Recovery baseline bytes
 are not a fresh observation of the saved file.
 
+`note_record(id)` reads the validated registry path, baseline fingerprint,
+editing stamp, approval and optional latest observation. `registered_vault()`
+reads the singleton vault without requiring a note ID. `note_recoveries()`
+lists **all** registered notes, including clean notes and every unresolved
+recovery. Neither inspection method needs the filesystem.
+
+`record_note_observation` persists a separately hash-checked observation
+fingerprint/token without changing the baseline, buffer or editing stamp.
+Identical consecutive observations reuse their token; returning to the
+baseline fingerprint uses its file-state token; other changes allocate a new
+UUID and invalidate prior version-bound approval. Baseline fingerprints are
+also hash-checked. These columns amend the unreleased V6 schema in place;
+expected-schema validation derives from the same V6 definition.
+
+Enrollment binds only the caller-visible root spelling and relative path,
+not freshly observed bytes. `note_enrollment_replay` checks that binding before
+filesystem access and returns the recorded note ID; differing inputs or
+operation kinds return OperationConflict. Existing `enroll_note` callers bind
+`vault.root`; `enroll_note_at` additionally accepts the original root spelling
+so workflow can retain a canonical registry while binding aliases exactly.
+Reopening an enrolled path never replaces its protected editing baseline.
+
 Check `note_write_result` before accessing the vault or validating fresh state.
 Operation IDs bind submissions, destinations and write kinds. Replays return
 their recorded receipt/failure and never acquire permission to write again.

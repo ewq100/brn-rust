@@ -2,7 +2,7 @@
 mod comments;
 mod drafts;
 pub mod error;
-mod notes;
+pub mod notes;
 pub mod worker;
 use brn_provider::{Client, Config as ProviderConfig, TurnStatus};
 use brn_retrieval::{Document, Evidence, Index, Profile};
@@ -137,6 +137,7 @@ pub fn native_retrieval_compiled() -> bool {
 }
 pub struct Workspace {
     store: Store,
+    notes: notes::NoteState,
     path: PathBuf,
     config: Config,
     index: Option<Index>,
@@ -185,6 +186,7 @@ impl Workspace {
         };
         Ok(Self {
             store,
+            notes: notes::NoteState::default(),
             path,
             config,
             index: None,

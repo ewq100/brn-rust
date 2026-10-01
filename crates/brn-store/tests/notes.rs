@@ -12,6 +12,173 @@ fn fingerprint(text: &str, inode: u64) -> FileFingerprint {
     }
 }
 
+#[test]
+fn durable_observations_are_separate_from_the_protected_baseline() {
+    let (data, _vault, mut store, opened) = fixture();
+    let record = store.note_record(opened.note_id).unwrap();
+    assert_eq!(record.relative_path, Path::new("plan.md"));
+    assert_eq!(record.baseline, fingerprint(&opened.baseline, 3));
+    assert_eq!(record.stamp, opened.stamp);
+    assert_eq!(store.note_recoveries().unwrap(), vec![opened.clone()]);
+    assert_eq!(
+        store.registered_vault().unwrap(),
+        Some(store.note_vault(opened.note_id).unwrap())
+    );
+    let original = store
+        .record_note_observation(opened.note_id, &record.baseline)
+        .unwrap();
+    assert_eq!(original, opened.stamp.file_state);
+    let external = fingerprint("external", 4);
+    let token = store
+        .record_note_observation(opened.note_id, &external)
+        .unwrap();
+    assert_ne!(token, original);
+    assert_eq!(
+        store
+            .record_note_observation(opened.note_id, &external)
+            .unwrap(),
+        token
+    );
+    let request = submission(&opened);
+    store.save_note_buffer(&request).unwrap();
+    drop(store);
+    let (mut store, _) = Store::open(data.path()).unwrap();
+    let record = store.note_record(opened.note_id).unwrap();
+    assert_eq!(record.baseline, fingerprint(&opened.baseline, 3));
+    assert_eq!(record.stamp.file_state, original);
+    assert_eq!(record.stamp.generation, 1);
+    assert_eq!(record.observed, Some((token, external.clone())));
+    assert_eq!(
+        store
+            .record_note_observation(opened.note_id, &external)
+            .unwrap(),
+        token
+    );
+    assert_eq!(
+        store
+            .note_recovery(opened.note_id)
+            .unwrap()
+            .unwrap()
+            .baseline,
+        opened.baseline
+    );
+    assert_eq!(
+        store
+            .record_note_observation(opened.note_id, &record.baseline)
+            .unwrap(),
+        original
+    );
+    store
+        .begin_note_save(
+            &NoteSubmission {
+                operation_id: Uuid::new_v4(),
+                expected: record.stamp,
+                ..request
+            },
+            Path::new("plan.md"),
+            NoteWriteKind::Replace,
+            &precondition(&opened),
+        )
+        .unwrap();
+}
+
+#[test]
+fn observation_payload_corruption_is_a_typed_storage_failure() {
+    let (data, _vault, mut store, opened) = fixture();
+    store
+        .record_note_observation(opened.note_id, &fingerprint("external", 4))
+        .unwrap();
+    let conn = rusqlite::Connection::open(data.path().join("brn.sqlite3")).unwrap();
+    conn.execute(
+        "UPDATE notes SET observed_fingerprint_json=?1",
+        [b"{}".as_slice()],
+    )
+    .unwrap();
+    assert_eq!(
+        store.note_record(opened.note_id).unwrap_err().code,
+        NoteErrorCode::Storage
+    );
+}
+
+#[test]
+fn only_a_changed_observation_invalidates_version_bound_approval() {
+    let (data, _vault, mut store, opened) = fixture();
+    let external = fingerprint("external", 4);
+    store
+        .record_note_observation(opened.note_id, &external)
+        .unwrap();
+    let conn = rusqlite::Connection::open(data.path().join("brn.sqlite3")).unwrap();
+    conn.execute("UPDATE notes SET approval='approved'", [])
+        .unwrap();
+    store
+        .record_note_observation(opened.note_id, &external)
+        .unwrap();
+    assert_eq!(
+        store.note_record(opened.note_id).unwrap().search_approval,
+        brn_store::Approval::Approved
+    );
+    store
+        .record_note_observation(opened.note_id, &fingerprint(&opened.baseline, 3))
+        .unwrap();
+    assert_eq!(
+        store.note_record(opened.note_id).unwrap().search_approval,
+        brn_store::Approval::Draft
+    );
+}
+
+#[test]
+fn enrollment_replays_caller_paths_before_validating_new_observations() {
+    let (_data, _vault, mut store, opened) = fixture();
+    let vault = store.note_vault(opened.note_id).unwrap();
+    let op = Uuid::new_v4();
+    assert_eq!(
+        store
+            .note_enrollment_replay(op, &vault.root, Path::new("plan.md"))
+            .unwrap(),
+        None
+    );
+    let enrolled = store
+        .enroll_note(
+            op,
+            &vault,
+            Path::new("plan.md"),
+            fingerprint("external", 9),
+            "external",
+        )
+        .unwrap();
+    assert_eq!(enrolled.note_id, opened.note_id);
+    assert_eq!(
+        store
+            .note_enrollment_replay(op, &vault.root, Path::new("plan.md"))
+            .unwrap(),
+        Some(opened.note_id)
+    );
+    assert_eq!(
+        store
+            .enroll_note(
+                op,
+                &vault,
+                Path::new("plan.md"),
+                fingerprint("different", 10),
+                "different"
+            )
+            .unwrap(),
+        enrolled
+    );
+    for (root, path) in [
+        (vault.root.clone(), Path::new("other.md")),
+        (vault.root.join("other"), Path::new("plan.md")),
+    ] {
+        assert_eq!(
+            store
+                .note_enrollment_replay(op, &root, path)
+                .unwrap_err()
+                .code,
+            NoteErrorCode::OperationConflict
+        );
+    }
+}
+
 fn fixture() -> (tempfile::TempDir, tempfile::TempDir, Store, NoteRecovery) {
     let data = tempfile::tempdir_in(".").unwrap();
     let vault = tempfile::tempdir_in(".").unwrap();

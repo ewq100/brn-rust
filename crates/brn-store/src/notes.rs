@@ -151,6 +151,16 @@ pub struct VaultRecord {
     pub identity: VaultIdentity,
 }
 #[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
+pub struct NoteRecord {
+    pub id: Uuid,
+    pub vault_id: Uuid,
+    pub relative_path: PathBuf,
+    pub baseline: FileFingerprint,
+    pub stamp: NoteStamp,
+    pub observed: Option<(Uuid, FileFingerprint)>,
+    pub search_approval: Approval,
+}
+#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
 pub struct NoteRecovery {
     pub note_id: Uuid,
     pub stamp: NoteStamp,
@@ -260,7 +270,7 @@ pub struct NoteReconciliation {
 pub(super) const V6: &str = "
 ALTER TABLE chat_turns ADD COLUMN evidence_currentness TEXT NOT NULL DEFAULT 'unqualified' CHECK(evidence_currentness IN ('unqualified','current_at_completion','stale_at_completion'));
 CREATE TABLE note_vaults (id TEXT PRIMARY KEY, singleton INTEGER NOT NULL UNIQUE CHECK(singleton=1), record_json BLOB NOT NULL, record_sha256 BLOB NOT NULL CHECK(length(record_sha256)=32));
-CREATE TABLE notes (id TEXT PRIMARY KEY, vault_id TEXT NOT NULL REFERENCES note_vaults(id), relative TEXT NOT NULL, file_state TEXT NOT NULL, fingerprint_json BLOB NOT NULL, approval TEXT NOT NULL DEFAULT 'draft' CHECK(approval IN ('approved','draft','withdrawn')), UNIQUE(vault_id,relative));
+CREATE TABLE notes (id TEXT PRIMARY KEY, vault_id TEXT NOT NULL REFERENCES note_vaults(id), relative TEXT NOT NULL, file_state TEXT NOT NULL, fingerprint_json BLOB NOT NULL, fingerprint_sha256 BLOB NOT NULL CHECK(length(fingerprint_sha256)=32), observed_file_state TEXT, observed_fingerprint_json BLOB, observed_fingerprint_sha256 BLOB CHECK(observed_fingerprint_sha256 IS NULL OR length(observed_fingerprint_sha256)=32), approval TEXT NOT NULL DEFAULT 'draft' CHECK(approval IN ('approved','draft','withdrawn')), CHECK((observed_file_state IS NULL AND observed_fingerprint_json IS NULL AND observed_fingerprint_sha256 IS NULL) OR (observed_file_state IS NOT NULL AND observed_fingerprint_json IS NOT NULL AND observed_fingerprint_sha256 IS NOT NULL)), UNIQUE(vault_id,relative));
 CREATE TABLE note_buffers (note_id TEXT PRIMARY KEY REFERENCES notes(id), file_state TEXT NOT NULL, generation INTEGER NOT NULL CHECK(generation>=0), baseline BLOB NOT NULL, baseline_sha256 BLOB NOT NULL CHECK(length(baseline_sha256)=32), working BLOB NOT NULL, working_sha256 BLOB NOT NULL CHECK(length(working_sha256)=32));
 CREATE TABLE note_results (operation_id TEXT PRIMARY KEY REFERENCES operations(id), result_json BLOB NOT NULL, result_sha256 BLOB NOT NULL CHECK(length(result_sha256)=32));
 CREATE TABLE note_write_inputs (operation_id TEXT PRIMARY KEY REFERENCES operations(id), note_id TEXT NOT NULL REFERENCES notes(id), request_json BLOB NOT NULL, request_sha256 BLOB NOT NULL CHECK(length(request_sha256)=32));
@@ -437,6 +447,73 @@ fn recovery(conn: &Connection, id: Uuid) -> NoteResult<Option<NoteRecovery>> {
         pending_operations,
     }))
 }
+fn note_record(conn: &Connection, id: Uuid) -> NoteResult<NoteRecord> {
+    type Row = (
+        String,
+        String,
+        String,
+        Vec<u8>,
+        Vec<u8>,
+        Option<String>,
+        Option<Vec<u8>>,
+        Option<Vec<u8>>,
+        String,
+    );
+    let row: Option<Row> = conn.query_row(
+        "SELECT vault_id,relative,file_state,fingerprint_json,fingerprint_sha256,observed_file_state,observed_fingerprint_json,observed_fingerprint_sha256,approval FROM notes WHERE id=?1",
+        [id.to_string()], |r| Ok((r.get(0)?,r.get(1)?,r.get(2)?,r.get(3)?,r.get(4)?,r.get(5)?,r.get(6)?,r.get(7)?,r.get(8)?)),
+    ).optional()?;
+    let (
+        vault,
+        path,
+        state,
+        bytes,
+        digest,
+        observed_state,
+        observed_bytes,
+        observed_digest,
+        approval,
+    ) = row.ok_or_else(|| failure(NoteErrorCode::Missing, "note does not exist"))?;
+    let recovered = recovery(conn, id)?
+        .ok_or_else(|| failure(NoteErrorCode::Storage, "registered note lacks recovery"))?;
+    let baseline: FileFingerprint = decode(bytes, digest)?;
+    let relative_path = PathBuf::from(path);
+    if destination(&relative_path).is_err()
+        || parse_id(state)? != recovered.stamp.file_state
+        || !matches_text(&baseline, &recovered.baseline)
+    {
+        return Err(failure(
+            NoteErrorCode::Storage,
+            "invalid registered note baseline or path",
+        ));
+    }
+    let observed = match (observed_state, observed_bytes, observed_digest) {
+        (None, None, None) => None,
+        (Some(state), Some(bytes), Some(digest)) => {
+            Some((parse_id(state)?, decode(bytes, digest)?))
+        }
+        _ => {
+            return Err(failure(
+                NoteErrorCode::Storage,
+                "incomplete note observation",
+            ));
+        }
+    };
+    Ok(NoteRecord {
+        id,
+        vault_id: parse_id(vault)?,
+        relative_path,
+        baseline,
+        stamp: recovered.stamp,
+        observed,
+        search_approval: match approval.as_str() {
+            "draft" => Approval::Draft,
+            "approved" => Approval::Approved,
+            "withdrawn" => Approval::Withdrawn,
+            _ => return Err(failure(NoteErrorCode::Storage, "invalid note approval")),
+        },
+    })
+}
 fn accept_submission(tx: &Transaction<'_>, request: &NoteSubmission) -> NoteResult<NoteRecovery> {
     valid_text(&request.text)?;
     let stored_generation = generation(request.generation)?;
@@ -581,7 +658,20 @@ impl Store {
         file: FileFingerprint,
         text: &str,
     ) -> NoteResult<NoteRecovery> {
-        let payload = json(&(vault, path, &file, text))?;
+        self.enroll_note_at(op, &vault.root, vault, path, file, text)
+    }
+
+    /// Uses the caller's exact root spelling for replay, independently of the canonical registry.
+    pub fn enroll_note_at(
+        &mut self,
+        op: Uuid,
+        root: &Path,
+        vault: &VaultRecord,
+        path: &Path,
+        file: FileFingerprint,
+        text: &str,
+    ) -> NoteResult<NoteRecovery> {
+        let payload = json(&(root, path))?;
         let tx = self.conn.transaction()?;
         if workflow::bind_operation(&tx, op, "note.enroll", &payload)? == BeginOperation::Existing {
             return stored_result(&tx, "note_results", op)?
@@ -660,8 +750,9 @@ impl Store {
                 file_state: Uuid::new_v4(),
                 generation: 0,
             };
-            tx.execute("INSERT INTO notes(id,vault_id,relative,file_state,fingerprint_json) VALUES(?1,?2,?3,?4,?5)",
-                params![note_id.to_string(),vault_id.to_string(),path_str,stamp.file_state.to_string(),json(&file)?])?;
+            let bytes = json(&file)?;
+            tx.execute("INSERT INTO notes(id,vault_id,relative,file_state,fingerprint_json,fingerprint_sha256) VALUES(?1,?2,?3,?4,?5,?6)",
+                params![note_id.to_string(),vault_id.to_string(),path_str,stamp.file_state.to_string(),bytes,hash(&bytes).as_slice()])?;
             insert_buffer(&tx, note_id, stamp, text, text)?;
             // Path provenance, never matching bytes, identifies shadowed legacy imports.
             let origin = vault.root.join(path).to_string_lossy().into_owned();
@@ -720,13 +811,97 @@ impl Store {
         recovery(&self.conn, id)
     }
 
+    pub fn note_enrollment_replay(
+        &self,
+        op: Uuid,
+        root: &Path,
+        relative: &Path,
+    ) -> NoteResult<Option<Uuid>> {
+        if !bound(&self.conn, op, "note.enroll", &json(&(root, relative))?)? {
+            return Ok(None);
+        }
+        let result: NoteRecovery = stored_result(&self.conn, "note_results", op)?
+            .ok_or_else(|| failure(NoteErrorCode::Storage, "enrollment has no result"))?;
+        Ok(Some(result.note_id))
+    }
+
+    pub fn registered_vault(&self) -> NoteResult<Option<VaultRecord>> {
+        let row: Option<(String, Vec<u8>, Vec<u8>)> = self
+            .conn
+            .query_row(
+                "SELECT id,record_json,record_sha256 FROM note_vaults",
+                [],
+                |r| Ok((r.get(0)?, r.get(1)?, r.get(2)?)),
+            )
+            .optional()?;
+        row.map(|(id, bytes, digest)| {
+            let record: VaultRecord = decode(bytes, digest)?;
+            if record.id != parse_id(id)? || !record.root.is_absolute() {
+                return Err(failure(NoteErrorCode::Storage, "invalid registered vault"));
+            }
+            Ok(record)
+        })
+        .transpose()
+    }
+
+    pub fn note_record(&self, id: Uuid) -> NoteResult<NoteRecord> {
+        note_record(&self.conn, id)
+    }
+
+    /// Includes clean notes as well as every protected or unresolved recovery.
+    pub fn note_recoveries(&self) -> NoteResult<Vec<NoteRecovery>> {
+        let mut stmt = self.conn.prepare("SELECT id FROM notes ORDER BY rowid")?;
+        let ids = stmt.query_map([], |r| r.get::<_, String>(0))?;
+        ids.map(|row| {
+            recovery(&self.conn, parse_id(row?)?)?
+                .ok_or_else(|| failure(NoteErrorCode::Storage, "registered note lacks recovery"))
+        })
+        .collect()
+    }
+
+    pub fn record_note_observation(
+        &mut self,
+        id: Uuid,
+        file: &FileFingerprint,
+    ) -> NoteResult<Uuid> {
+        let tx = self.conn.transaction()?;
+        let record = note_record(&tx, id)?;
+        let token = if let Some((token, old)) = &record.observed
+            && old == file
+        {
+            *token
+        } else if &record.baseline == file {
+            record.stamp.file_state
+        } else {
+            Uuid::new_v4()
+        };
+        let bytes = json(file)?;
+        let changed = record
+            .observed
+            .as_ref()
+            .map(|(_, old)| old)
+            .unwrap_or(&record.baseline)
+            != file;
+        tx.execute(
+            "UPDATE notes SET observed_file_state=?2,observed_fingerprint_json=?3,observed_fingerprint_sha256=?4,approval=CASE WHEN ?5 THEN 'draft' ELSE approval END WHERE id=?1",
+            params![id.to_string(),token.to_string(),bytes,hash(&bytes).as_slice(),changed],
+        )?;
+        tx.commit()?;
+        Ok(token)
+    }
+
     pub fn note_vault(&self, id: Uuid) -> NoteResult<VaultRecord> {
-        let row: Option<(Vec<u8>,Vec<u8>)> = self.conn.query_row(
-            "SELECT v.record_json,v.record_sha256 FROM note_vaults v JOIN notes n ON n.vault_id=v.id WHERE n.id=?1",
-            [id.to_string()],|r|Ok((r.get(0)?,r.get(1)?))).optional()?;
-        let (bytes, digest) =
-            row.ok_or_else(|| failure(NoteErrorCode::Missing, "note vault does not exist"))?;
-        decode(bytes, digest)
+        let note = self.note_record(id)?;
+        let vault = self
+            .registered_vault()?
+            .ok_or_else(|| failure(NoteErrorCode::Storage, "registered note has no vault"))?;
+        if vault.id != note.vault_id {
+            return Err(failure(
+                NoteErrorCode::Storage,
+                "note vault identity does not match registry",
+            ));
+        }
+        Ok(vault)
     }
 
     pub fn note_write_result(
@@ -768,11 +943,11 @@ impl Store {
             return Ok(value);
         }
         let dest = destination(path)?;
-        let (vault_id, original, file_json): (String, String, Vec<u8>) = tx
+        let (vault_id, original, file_json, file_hash): (String, String, Vec<u8>, Vec<u8>) = tx
             .query_row(
-                "SELECT vault_id,relative,fingerprint_json FROM notes WHERE id=?1",
+                "SELECT vault_id,relative,fingerprint_json,fingerprint_sha256 FROM notes WHERE id=?1",
                 [request.note_id.to_string()],
-                |r| Ok((r.get(0)?, r.get(1)?, r.get(2)?)),
+                |r| Ok((r.get(0)?, r.get(1)?, r.get(2)?, r.get(3)?)),
             )
             .optional()?
             .ok_or_else(|| failure(NoteErrorCode::Missing, "note does not exist"))?;
@@ -793,8 +968,7 @@ impl Store {
                     baseline_text,
                 },
             ) => {
-                let registered: FileFingerprint = serde_json::from_slice(&file_json)
-                    .map_err(|e| failure(NoteErrorCode::Storage, e.to_string()))?;
+                let registered: FileFingerprint = decode(file_json, file_hash)?;
                 if dest != original
                     || baseline_text != &before.baseline
                     || fingerprint != &registered
@@ -1598,14 +1772,15 @@ fn apply_registry(
     stamp: NoteStamp,
     file: &FileFingerprint,
 ) -> NoteResult<()> {
+    let bytes = json(file)?;
     if value.kind == NoteWriteKind::Copy {
         let vault: String = tx.query_row(
             "SELECT vault_id FROM notes WHERE id=?1",
             [value.request.note_id.to_string()],
             |r| r.get(0),
         )?;
-        tx.execute("INSERT INTO notes(id,vault_id,relative,file_state,fingerprint_json) VALUES(?1,?2,?3,?4,?5)",
-            params![value.target_note_id.to_string(),vault,relative(&value.destination)?,stamp.file_state.to_string(),json(file)?])?;
+        tx.execute("INSERT INTO notes(id,vault_id,relative,file_state,fingerprint_json,fingerprint_sha256,observed_file_state,observed_fingerprint_json,observed_fingerprint_sha256) VALUES(?1,?2,?3,?4,?5,?6,?4,?5,?6)",
+            params![value.target_note_id.to_string(),vault,relative(&value.destination)?,stamp.file_state.to_string(),bytes,hash(&bytes).as_slice()])?;
         insert_buffer(
             tx,
             value.target_note_id,
@@ -1624,8 +1799,8 @@ fn apply_registry(
                 "note baseline changed during save",
             ));
         }
-        tx.execute("UPDATE notes SET file_state=?2,fingerprint_json=?3,approval=CASE WHEN ?4 THEN 'draft' ELSE approval END WHERE id=?1",
-            params![value.target_note_id.to_string(),stamp.file_state.to_string(),json(file)?, value.request.text != current.baseline])?;
+        tx.execute("UPDATE notes SET file_state=?2,fingerprint_json=?3,fingerprint_sha256=?5,observed_file_state=?2,observed_fingerprint_json=?3,observed_fingerprint_sha256=?5,approval=CASE WHEN ?4 THEN 'draft' ELSE approval END WHERE id=?1",
+            params![value.target_note_id.to_string(),stamp.file_state.to_string(),bytes, value.request.text != current.baseline,hash(&bytes).as_slice()])?;
         tx.execute(
             "UPDATE note_buffers SET file_state=?2,baseline=?3,baseline_sha256=?4 WHERE note_id=?1",
             params![

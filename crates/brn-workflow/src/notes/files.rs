@@ -52,6 +52,8 @@ impl NoteNoticeQueue {
         }
     }
 
+    // Task 8 exposes notice draining through the worker.
+    #[allow(dead_code)]
     pub(super) fn drain(&mut self) -> Vec<NoteFileNotice> {
         self.pending.drain(..).collect()
     }
@@ -176,18 +178,28 @@ impl MacFiles {
         self.locks.last().unwrap()
     }
 
-    fn validate_root(&self) -> NoteResult<()> {
+    pub(super) fn validate_root(&self) -> NoteResult<()> {
         let changed = || {
             failure(
                 NoteErrorCode::VaultUnavailable,
                 "registered vault root unavailable or changed",
             )
         };
-        let canonical = std::fs::canonicalize(&self.registered_root).map_err(|_| changed())?;
+        let canonical = std::fs::canonicalize(&self.registered_root).map_err(|error| {
+            failure(
+                NoteErrorCode::VaultUnavailable,
+                format!("registered vault root unavailable: {error}"),
+            )
+        })?;
         if canonical != self.root {
             return Err(changed());
         }
-        let file = open_directory(&canonical).map_err(|_| changed())?;
+        let file = open_directory(&canonical).map_err(|error| {
+            failure(
+                NoteErrorCode::VaultUnavailable,
+                format!("registered vault root unavailable: {}", error.message),
+            )
+        })?;
         if identity(&file.metadata().map_err(note_io_failure)?) != self.identity {
             return Err(changed());
         }
@@ -256,6 +268,8 @@ impl MacFiles {
         Ok(observation)
     }
 
+    // Task 4 coordinates the save protocol.
+    #[allow(dead_code)]
     pub(super) fn coordinate<T>(
         &self,
         relative: &Path,
@@ -268,6 +282,8 @@ impl MacFiles {
         })
     }
 
+    // Task 4 prepares durable save artifacts.
+    #[allow(dead_code)]
     pub(super) fn prepare_replace(
         &self,
         op: Uuid,
@@ -326,6 +342,8 @@ impl MacFiles {
         Ok(prepared)
     }
 
+    // Task 4 exchanges prepared save artifacts.
+    #[allow(dead_code)]
     pub(super) fn exchange(&self, prepared: &PreparedFile, destination: &Path) -> NoteResult<()> {
         if prepared.relative.parent() != destination.parent() || prepared.relative == destination {
             return Err(note_unsupported(
@@ -346,6 +364,8 @@ impl MacFiles {
         rename_flags(&parent, &stage, &target, libc::RENAME_SWAP)
     }
 
+    // Task 4 verifies save artifact durability.
+    #[allow(dead_code)]
     pub(super) fn flush_artifact(&self, relative: &Path) -> NoteResult<()> {
         let (parent, name) = self.parent(relative)?;
         let artifact = open_at(&parent, OsStr::from_bytes(name.as_bytes()), 0, 0)?;
@@ -627,11 +647,18 @@ impl MacFiles {
             "managed notes require macOS filesystem coordination",
         ))
     }
+    pub(super) fn validate_root(&self) -> NoteResult<()> {
+        Err(note_unsupported(
+            "managed notes require macOS filesystem coordination",
+        ))
+    }
     pub(super) fn observe(&self, _: &Path) -> NoteResult<FileObservation> {
         Err(note_unsupported(
             "managed notes require macOS filesystem coordination",
         ))
     }
+    // Task 4 coordinates the save protocol.
+    #[allow(dead_code)]
     pub(super) fn coordinate<T>(
         &self,
         _: &Path,
@@ -641,6 +668,8 @@ impl MacFiles {
             "managed notes require macOS filesystem coordination",
         ))
     }
+    // Task 4 prepares durable save artifacts.
+    #[allow(dead_code)]
     pub(super) fn prepare_replace(
         &self,
         _: Uuid,
@@ -652,11 +681,15 @@ impl MacFiles {
             "managed notes require macOS filesystem coordination",
         ))
     }
+    // Task 4 exchanges prepared save artifacts.
+    #[allow(dead_code)]
     pub(super) fn exchange(&self, _: &PreparedFile, _: &Path) -> NoteResult<()> {
         Err(note_unsupported(
             "managed notes require macOS filesystem coordination",
         ))
     }
+    // Task 4 verifies save artifact durability.
+    #[allow(dead_code)]
     pub(super) fn flush_artifact(&self, _: &Path) -> NoteResult<()> {
         Err(note_unsupported(
             "managed notes require macOS filesystem coordination",
