@@ -2,7 +2,7 @@
 
 Date: 1 October 2026
 
-Status: Three design sections approved in conversation, including the revised credential-storage and distribution requirements. Written specification awaiting user review. Documentation only; implementation, live authentication, model acquisition and release are not authorized.
+Status: Three design sections and the written specification approved on 1 October 2026, including the revised credential-storage and distribution requirements. Approval is for the specification only; implementation planning, product code, live authentication, model acquisition and release are not authorized.
 
 Inspected repository baseline: `1a30db049b7ed82d285614e598bb95676cbf5ec2`.
 Inspected Rig candidate: upstream tag `v0.43.0`, released 30 September 2026.
