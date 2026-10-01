@@ -10,7 +10,7 @@
 
 **Spec:** [Approved reset specification](../../../superpowers/specs/2026-10-01-rig-first-architecture-reset-design.md). Read both spec and this master plan before a task plan.
 
-Status/date: Prepared for user review on 2026-10-01. Implementation remains unstarted. New interfaces below are proposed contracts, not existing APIs; Q1 must freeze the compiled Rig-specific seams and any necessary pin/adapter revision before downstream execution.
+Status/date: Reviewed and revised on 2026-10-01 following the user-requested GPT-6.1 Sol/high review. Execution remains unapproved and unstarted. New interfaces below are proposed contracts, not existing APIs; Q1 must freeze the compiled Rig-specific seams and any necessary pin/adapter revision before downstream execution.
 
 ## Global constraints
 
@@ -50,16 +50,17 @@ Tasks correspond to PR-sized review gates; their steps are smaller test/implemen
 ## Dependencies
 
 ```text
-Q1 --> Q2 --> Q3 ----------------------> A1
- |                                      |
- +--> N1 --> N2 --> N3 --> N4            +--> A2 --> A3 --> A4
-                    |                         ^      ^      ^
-                    +-------------------------+------+------+
-                    +--> N5 ------------------------------> D1 --> D2
-                         Q1 ------------------> N5           ^
-                         A4 ---------------------------------+
-                         N4 ---------------------------------+
+Q1 -> Q2 -> Q3
+Q1 -> N1 -> N2 -> N3 -> N4
+Q1 + Q2 + Q3 -> A1
+A1 + N1 -> A2
+A1 + A2 + N3 -> A3
+A3 + N2 -> A4
+Q1 + N3 -> N5
+N4 + N5 + A4 -> D1 -> D2
 ```
+
+`+` joins required inputs; it does not denote a new task. In particular, A2 consumes N1, not N3.
 
 - Q1 fixes dependency choices shared by A1/N3/N5. N1 has no model dependency but starts after Q1 so manifest/schema ownership is settled.
 - Q2 builds secure auth in the disposable harness; Q3 qualifies execution. A1 cannot claim provider qualification without both.
@@ -68,6 +69,8 @@ Q1 --> Q2 --> Q3 ----------------------> A1
 - A1 consumes Q1-Q3. A2 consumes A1's selected-provider/history contracts and N1's schema extension; serialize migration commits.
 - A3 consumes A1/A2/N3. A4 consumes A3/N2 and existing comment/revision primitives.
 - D1 consumes N4/N5/A4. D2 consumes D1 and explicit distribution authorization.
+
+G1 is staged to avoid a circular prerequisite: Q1 closes G1a (candidate resolution, interfaces and linked native probe), allowing the qualification harness and foundation work. A1 must close G1b on the actual root-locked desktop integration before completing; A3 cannot replace production ask without both G1 stages and G2. An isolated proxy check never closes G1b.
 
 N4 and A1/A2 can run independently after their actual prerequisites. N5 and A3 can run independently. Avoid concurrent edits to `brn-store/src/lib.rs`, workspace manifests, `worker.rs` and CLI dispatch; land interface/migration changes sequentially.
 
@@ -104,12 +107,15 @@ Task plans contain exact new interfaces. These rules resolve cross-task ownershi
 5. The workflow worker remains the store owner. A private bounded channel bridges Rig's async callbacks to it; the worker services these requests while a scoped Rig runtime drives the agent. Never have a Rig callback await the same worker command queue that is blocked waiting for Rig.
 6. Persist dispatch intent before acknowledging network/tool dispatch. Persist tool results before returning them to Rig. Returned final text/history becomes durable only after a single workflow transaction commits the final outcome.
 7. Model cancellation/drop is not confirmation of remote cancellation. Keep remote outcome, durable local status and evidence currentness as independent recorded facts.
+8. Current-note dependencies exist independently of passage citations. Listing identity/title results, including empty notes, retain exact note-state/metadata dependencies through restart and history windowing.
+9. Bind every ask input, including vault and retrieval profile, before replay or dispatch. Expose retained editor-baseline bytes through workflow; UI/CLI never reconstruct them from historical snapshots.
 
 ## Gate policy and execution stop conditions
 
 | Gate | Evidence required | If it fails |
 | --- | --- | --- |
-| G1 dependency/API | Published candidate manifests, isolated and full native graph, exact hook/history/tool/stream types, compiled qualification tests. | Record diagnostics; use an allowed thin adapter or reviewed pinned upstream fix. No blanket downgrade or claimed pass. |
+| G1a candidate dependency/API | Q1 published manifests, selected lockfile, compiled hook/history/tool/stream interfaces and linked native probe tests. | Stop candidate qualification; record diagnostics and review a thin adapter or pinned fix. |
+| G1b production native integration | A1 builds/tests the actual root-locked desktop with native UI/retrieval and Rig wired through workflow; record its resolved tree. Repeat after relevant dependency changes. | Keep A1 incomplete and production ask replacement blocked. Proxy/check-only evidence does not pass. |
 | G2 both subscriptions | Q2/Q3 deterministic matrix plus separately authorized live completion, stream, tools, typed output and restart for each selected provider/model/account. | Keep production replacement blocked; do not select another route. |
 | G3 current notes | N1-N4 exact-byte/conflict/recovery/exclusion/consumer tests, plus manual disposable native editing observations. | Do not describe Markdown-first currentness or native usability as delivered. |
 | G4 retrieval | N5 frozen-fixture measurements and explicit acceptance of the comparison. | Keep LanceDB out of the deletion task; no silent semantic fallback. |
@@ -136,6 +142,6 @@ Before accepting the plan, check every type/signature used below against the tas
 
 ## Execution handoff
 
-Status: Plan prepared; user review and execution choice pending. No implementation or product verification performed.
+Status: Review findings addressed in the plan; user acceptance and execution choice pending. No implementation or product verification performed.
 
 Default execution is inline with checkpoints, respecting the repository's delegation preference. Fresh per-task subagents are an option only if the user selects delegation. In either mode, review each deliverable and stop at human/account/resource gates. Plan approval is not authorization for live calls, model downloads, signing or release.

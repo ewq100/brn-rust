@@ -26,12 +26,12 @@
 
 **Files:**
 - Create: `experiments/rig-qualification/Cargo.toml`, `Cargo.lock`, `README.md`.
-- Create: `experiments/rig-qualification/src/lib.rs`, `tests/graph.rs`.
+- Create: `experiments/rig-qualification/src/lib.rs`, `tests/{graph.rs,native_graph.rs}`.
 - Modify only after evidence: this plan's evidence record and approved dependency choice; no production downgrade.
 
 **Consumes:** Root/store/retrieval/workflow/desktop manifests and locked baseline; tagged Rig manifests and source.
 
-**Produces:** Committed candidate lockfile, `graph.rs` compile tests and G1 evidence recording exact package versions, features, SQLite/ONNX linkage and the chosen direct/adapted companion route.
+**Produces:** Committed candidate lockfile, compiled interface tests and G1a evidence recording exact package versions/features, a linked native probe and the chosen direct/adapted companion route. This is candidate evidence, not qualification of the actual desktop/root lockfile; G1b belongs to A1.
 
 - [ ] **1. Add the failing compile test** before dependencies. `tests/graph.rs`:
 
@@ -58,6 +58,7 @@ publish = false
 [dependencies]
 rig = { version = "=0.43.0", default-features = false, features = ["agent", "derive", "reqwest", "rustls", "memory"] }
 brn-workflow = { path = "../../crates/brn-workflow" }
+brn-retrieval = { path = "../../crates/brn-retrieval" }
 gpui-kit = { version = "=0.6.6", optional = true }
 tokio = { version = "1", features = ["rt-multi-thread", "macros", "sync", "time"] }
 serde = { version = "1", features = ["derive"] }
@@ -68,7 +69,12 @@ tempfile = "3"
 
 [features]
 default = []
-native-graph = ["brn-workflow/native-retrieval", "dep:gpui-kit"]
+native-graph = ["brn-workflow/native-retrieval", "brn-retrieval/native", "dep:gpui-kit"]
+
+[[test]]
+name = "native_graph"
+path = "tests/native_graph.rs"
+required-features = ["native-graph"]
 
 [workspace]
 ```
@@ -86,15 +92,45 @@ cargo check --manifest-path experiments/rig-qualification/Cargo.toml --features 
 
 Optional conflicting candidates are experiments, not required successful combinations. Do not expose rejected companion features on the selected root manifest or invoke `--all-features`. Record each native-linkage diagnostic, then regenerate the lockfile and repeat the chosen graph without the rejected facade feature.
 
-- [ ] **5. Choose the graph explicitly:** keep rusqlite `0.40.2` and FastEmbed `7.1.0` unless a separately reviewed reason changes them. If companions conflict, omit their facade features and use N3's direct SQLite module/N5's Rig local transport adapter. If the base Rig/GPUI graph fails, stop G1 and review a precise patched/new pin; do not proceed on an uncompiled guessed interface.
+- [ ] **5. Choose the graph explicitly:** keep rusqlite `0.40.2` and FastEmbed `7.1.0` unless a separately reviewed reason changes them. If companions conflict, omit their facade features and use N3's direct SQLite module/N5's Rig local transport adapter. If the base Rig/GPUI graph fails, stop G1a and review a precise patched/new pin; do not proceed on an uncompiled guessed interface.
 
 - [ ] **6. Record source/API proofs:** facade package is `rig`, not the historical `rig-core` alias; agents use `AgentBuilder::new(model)`, `.prompt(...).await` and `.prompt(...).stream()`. Inspect the pinned `Tool`, `AgentHook`, dispatch action, stream terminal and Rig message serialization interfaces. Add compile-only tests for each selected public type. Companion docs with older version examples are not the manifest.
 
-- [ ] **7. Green/commit:** repeat selected graph tests with `--locked`; record limitations in `evidence.md`. Commit experiment manifest/lock/tests and dependency evidence as `test: qualify pinned Rig dependency graph`, with the master trailer. G1 closes only for the selected graph; no provider success claim.
+Produce `pub fn construct_agent_link_probe() -> Result<(), String>` in experiment `src/lib.rs` using those exact compiled interfaces: construct a selected transport/model with a synthetic credential, register a synthetic typed tool/hook, construct the actual Rig agent and its prompt stream, then drop the unpolled stream/agent. Do not resolve auth or poll/dispatch a request. Its compiled body is retained by the native test's function address; stop qualification if these constructors cannot compile rather than replace the body with a no-op.
+
+- [ ] **7. Link the native probe:** add this test to `tests/native_graph.rs`; retain function addresses without initializing GPUI, loading model files or contacting a provider:
+
+```rust
+use std::{path::Path, sync::atomic::AtomicBool};
+
+fn native_index_factory(path: &Path) -> brn_retrieval::Result<brn_retrieval::Index> {
+    brn_retrieval::Index::build(path, &[], Some(path), &AtomicBool::new(false), |_| {})
+}
+
+#[test]
+fn links_selected_native_dependency_symbols() {
+    let gui_factory: fn() -> _ = gpui_kit::application;
+    std::hint::black_box(gui_factory);
+    std::hint::black_box(
+        native_index_factory as fn(&Path) -> brn_retrieval::Result<brn_retrieval::Index>
+    );
+    std::hint::black_box(
+        brn_rig_qualification::construct_agent_link_probe as fn() -> Result<(), String>
+    );
+    std::hint::black_box(rig::providers::openai::OpenAIConfig::with_key(
+        &rig::providers::chatgpt::DIALECT,
+        "synthetic-not-a-credential",
+    ));
+}
+```
+
+The step-6 function address retains the compiled agent/tool/stream construction body, not just configuration-only code. Run `cargo test --manifest-path experiments/rig-qualification/Cargo.toml --locked --features native-graph --test native_graph`. Unlike `cargo check`, this generates and links the selected native test executable. The referenced factories are never called; no model directory is opened and no GUI is initialized. Record actual exit status, target and linker diagnostics.
+
+- [ ] **8. Green/commit:** repeat selected graph tests and the linked native probe with `--locked`; record limitations in `evidence.md`. Commit experiment manifest/lock/tests and dependency evidence as `test: qualify pinned Rig dependency graph`, with the master trailer. Only G1a closes here; G1b remains pending the actual production desktop integration in A1. No native usability or provider success claim.
 
 ## Q2: Qualify protected OAuth caches and explicit identity
 
-**Prerequisite:** Q1/G1.
+**Prerequisite:** Q1/G1a. G1b is not a harness prerequisite; it is established by A1.
 
 **Files:**
 - Create: `experiments/rig-qualification/src/auth.rs`, `credentials.rs`, `tests/auth.rs`, `tests/support/mod.rs`.
@@ -243,6 +279,7 @@ For Copilot use `CopilotConfig::from_auth(&auth)` and the pinned `.connect(http)
 ```sh
 cargo test --manifest-path experiments/rig-qualification/Cargo.toml --locked
 cargo check --manifest-path experiments/rig-qualification/Cargo.toml --locked --features native-graph
+cargo test --manifest-path experiments/rig-qualification/Cargo.toml --locked --features native-graph --test native_graph
 ```
 
 Commit as `test: qualify direct Rig agent and stream parity`.

@@ -119,6 +119,7 @@ Implement recovery compaction transactionally: retain one rolling buffer and the
 - Create: `crates/brn-workflow/src/notes/{mod.rs,files.rs,macos.rs,save.rs,eligibility.rs}`.
 - Create: `crates/brn-workflow/tests/{notes.rs,note_recovery.rs}`.
 - Modify: workflow `src/lib.rs`, `src/error.rs`, `Cargo.toml`, `README.md`.
+- Modify: `crates/brn/src/cli/error.rs` and its unit tests, plus existing exhaustive consumers of the new error variants.
 
 **Consumes:** N1 types and transactional store methods; current `MAX_IMPORT_BYTES`, hash and cancellation conventions.
 
@@ -128,6 +129,7 @@ Implement recovery compaction transactionally: retain one rolling buffer and the
 pub enum NoteState { Ready, Changed, Missing, Uncertain }
 pub struct NoteView {
     pub note: brn_store::NoteRecord,
+    pub baseline: String,
     pub disk_state: Option<uuid::Uuid>,
     pub disk: Option<String>,
     pub working: String,
@@ -153,7 +155,31 @@ pub struct CopyReceipt {
 // reconcile_note(&mut self, note: Uuid) -> Result<NoteView>
 ```
 
-Add typed `ErrorKind::{NoteConflict,NoteUnavailable,SaveUncertain}`; propagate them through worker/CLI in N4. Mutation errors are errors, not a success-shaped default receipt.
+`baseline` is the exact retained UTF-8 text associated with `note.stamp.file_state`, not fresh disk content or a guessed historical snapshot. Return it from open/state/recovery/reconciliation on restart. Missing/corrupt baseline recovery is an explicit error; an empty file is a valid baseline, not a missing-data default.
+
+Add typed `ErrorKind::{NoteConflict,NoteUnavailable,SaveUncertain}` and update all existing exhaustive consumers in N2. Add matching `CliError` variants, stable codes `NOTE_CONFLICT`, `NOTE_UNAVAILABLE`, `SAVE_UNCERTAIN`, message mapping and ordinary failure exit code `1`. Mutation errors are errors, not a success-shaped default receipt. N4 owns new commands/richer worker presentation, not the minimum mappings needed to compile N2.
+
+Add this red test to CLI error unit tests, then implement the variants/matches before the N2 workspace check:
+
+```rust
+#[test]
+fn note_errors_keep_stable_codes() {
+    for (kind, code) in [
+        (ErrorKind::NoteConflict, "NOTE_CONFLICT"),
+        (ErrorKind::NoteUnavailable, "NOTE_UNAVAILABLE"),
+        (ErrorKind::SaveUncertain, "SAVE_UNCERTAIN"),
+    ] {
+        let error = classify_workflow(WorkflowError {
+            kind, message: "synthetic note failure".into(),
+        });
+        assert_eq!(error.code(), code);
+        assert_eq!(error.message(), "synthetic note failure");
+        assert_eq!(error.exit_code(), 1);
+    }
+}
+```
+
+Run `cargo test -p brn --locked note_errors_keep_stable_codes` alongside the N2 checks.
 
 - [ ] **1. Red exact-save/replay test:** all fixtures are outside the data directory:
 
@@ -196,9 +222,11 @@ Temporary names are operation-owned, non-`.md`, and exclusive. Remove only artif
 
 - [ ] **5. Implement reload/copy/reconciliation:** comparison exposes original working baseline, recoverable edits and fresh disk observation. Reload requires matching editor/disk tokens plus explicit discard. Copy uses exclusive installation and its own `CopyReceipt`/new identity; it never acknowledges the original buffer, overwrites or implicitly approves. Persist the neutral copy result in N1's operation result journal. On restart, inspect journal phase and prepared/destination identity; without proof retain uncertain state and never replay the mutation. Even matching hashes alone do not establish execution provenance.
 
+Add `#[test] fn restart_comparison_retains_three_distinct_texts()` to `tests/note_recovery.rs`: open baseline `"\u{feff}baseline\r\n"` and retain its stamp; recover `"working é\r\n"` at a newer generation; externally replace the file with `"external\n"`; drop/reopen Workspace and call `note_state`. Assert `baseline` equals the exact original text, `note.stamp.file_state` equals its retained baseline token, `working` equals recovered edits, `disk` equals the external text and `disk_state` differs from the baseline token. Also test missing disk (`None`) while baseline/working remain available. The comparison obtains all three through workflow only.
+
 - [ ] **6. Test interruption/races through a private test seam:** stop child processes after intent, staging, final precheck, replacement, verification and before receipt. Assert durable inputs, no blind second replacement, explicit uncertainty and cleanup exclusions. Inject an external write/delete after precheck: document that replacement can overwrite/recreate; don't assert prevention. Verify subsequent ambiguous state is not announced as a safe concurrent-save success.
 
-- [ ] **7. Green/commit:** `cargo test -p brn-store -p brn-workflow --locked`; `cargo check --workspace --locked`. Commit as `feat(workflow): add basic recoverable Markdown saving`.
+- [ ] **7. Green/commit:** `cargo test -p brn-store -p brn-workflow --locked`; `cargo test -p brn --locked note_errors_keep_stable_codes`; `cargo check --workspace --locked`. Commit as `feat(workflow): add basic recoverable Markdown saving`. Do not defer an exhaustive-match failure to N4.
 
 ## N3: Current-only snapshots and FTS5/BM25
 
@@ -322,6 +350,8 @@ All commands also require the existing `--data-dir`; `--json` retains envelope v
 
 - [ ] **3. Add a pure editor-state reducer** in desktop `notes.rs`: `NoteEditor::from_view(view: NoteView)`, `edit(text: String)`, `submission(op: Uuid) -> NoteSubmission`, `acknowledge(receipt: &SaveReceipt) -> Result<(), String>`. It retains dirty later text; receipt baseline/generation changes never call a blanket set-value over newer content.
 
+Use `view.baseline` for comparison and tie it to the baseline stamp. A matching save acknowledgement advances the baseline to the recorded submitted bytes, not whatever was typed later; correlate it with the retained pending submission. CLI `notes show` exposes baseline/working/disk separately in JSON. Native conflict comparison consumes the same DTO without SQL or historical-revision reads.
+
 Red reducer test:
 
 ```rust
@@ -336,6 +366,7 @@ let view = NoteView {
         stamp: NoteStamp { file_state: initial_state, generation: 0 },
         lifecycle: NoteLifecycle::Active,
     },
+    baseline: "baseline".into(),
     disk_state: Some(initial_state), disk: Some("baseline".into()),
     working: "baseline".into(), recovered_generation: None, state: NoteState::Ready,
 };

@@ -23,7 +23,7 @@
 
 ## D1: Retire App Server and Lance production surfaces
 
-**Prerequisite:** N4/N5/A4 accepted at their bounded gates; G1-G4 evidence reviewed.
+**Prerequisite:** N4/N5/A4 accepted at their bounded gates; G1a/G1b and G2-G4 evidence reviewed. G1b must describe the integrated dependency graph after N5, not only A1's earlier root lockfile.
 
 **Files:**
 - Remove from production workspace: `crates/brn-provider` source/manifest/tests and root membership.

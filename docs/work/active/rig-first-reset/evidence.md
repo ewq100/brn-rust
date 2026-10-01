@@ -7,7 +7,7 @@ Date: 2026-10-01.
 | Scope | State |
 | --- | --- |
 | Written reset specification | User-approved; committed at `ecc0c97`, approval recorded at `19f180c`. |
-| Implementation plan | User authorized preparation and commit after asking why no plan existed; pack prepared for review. |
+| Implementation plan | Initial pack committed at `347fd38`; user requested technical review, then authorized these documentation corrections. Execution acceptance remains pending. |
 | Product implementation | Not authorized or started for this reset. |
 | Dependency/provider/retrieval qualification | Not run; inspected source is not a compiled or live result. |
 | Live login/calls, model acquisition, signing, release | Not authorized or performed. |
@@ -40,7 +40,8 @@ Primary source links and source-level limitations are in the [specification](../
 
 | Gate | Current result | Evidence needed |
 | --- | --- | --- |
-| G1 dependency/API | Not run | Published manifests, selected locked default/native graph, compiled API probes. |
+| G1a candidate dependency/API | Not run | Published manifests, candidate lockfile, compiled interfaces and linked native probe. |
+| G1b actual production native graph | Not run | A1 actual root-locked desktop builds/tests/tree with Rig, repeated after dependency changes. |
 | G2 both subscriptions | Not run; live phase unauthorized | Deterministic auth/agent matrix and separately authorized selected-account live results. |
 | G3 current notes | Not implemented/not run | Exact-save/recovery/currentness tests and disposable native observations. |
 | G4 retrieval | Not implemented/not measured | Frozen baseline/corpus/qrels, SQLite vector measurements, explicit acceptance. |
@@ -59,9 +60,24 @@ Self-review mapped all specification sections to Q1-Q3, N1-N5, A1-A4 and D1-D2. 
 - Named debug-only replay seams/feature selectors and kept them out of release builds.
 - Preserved the candidate byte limit on final output rather than an intermediate reverse-edit state.
 
-Documentation-only validation passed: `git diff --check` and a read-only Python local-link/heading-fragment, placeholder and task-ID check over all 10 changed Markdown files. The final check covered 88 local links/fragments, 14 unique task IDs and 90 checkbox steps, with zero errors. New files were included through intent-to-add before whitespace checking.
+Initial plan validation at `347fd38` passed: `git diff --check` and a read-only Python local-link/heading-fragment, placeholder and task-ID check over all 10 changed Markdown files. That check covered 88 local links/fragments, 14 unique task IDs and 90 checkbox steps, with zero errors. These counts describe the initial pack, not fresh validation of this revision.
 
 These checks validate documentation structure/coherence, not product feasibility, compiled future APIs, native usability or provider qualification. Commands/feature selectors were compared with existing manifests/scripts; intentionally new tests/features/files are explicitly produced by their task.
+
+## User-requested review corrections
+
+Review baseline: `347fd3891e8b6ddc74d15d7470f735b5a3ba8358`. The user requested GPT-6.1 Sol at high reasoning, asked whether the findings were sound, then directed the plan update. The author checked the cited contracts/source and accepted all five findings plus the diagram mismatch.
+
+| Finding | Plan correction and required future evidence |
+| --- | --- |
+| Listing-only currentness | A2 note-state/metadata dependencies with optional passage evidence; A3 listing-only empty-note archive/withdrawal/restart/windowed-history tests. |
+| Incomplete replay binding | A2/A3 bind every ask input, including vault/profile, before existing-result replay; changed-scope conflict and zero-extra-dispatch tests. |
+| Proxy native evidence | Q1 linked native probe closes only G1a; actual root-locked desktop integration in A1 closes G1b. D1 requires the post-N5 integrated graph. |
+| N2 buildability | Minimal typed CLI codes/message mappings and exhaustive consumers move into N2, with a named unit selector; richer presentation stays in N4. |
+| Missing baseline interface | N2 `NoteView.baseline` exposes exact retained bytes tied to the editor stamp; restart comparison and N4 consumers distinguish baseline/working/disk. |
+| Dependency mismatch | Diagram/text consistently require N1 for A2; N3 remains an A3 prerequisite. |
+
+Revision validation passed: `git diff --check` and the read-only documentation checker covered all seven revised Markdown files, 46 local links/fragments, 14 task IDs and 92 checkbox steps with zero errors. Structural checks confirmed all five corrections, the A2 prerequisite and documentation-only scope. Future test selectors and G1a/G1b commands remain unexecuted implementation instructions. No Rust/manifests/lockfiles were changed and no product qualification was performed.
 
 ## Execution handoff
 

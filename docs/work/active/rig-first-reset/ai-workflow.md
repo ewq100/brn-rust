@@ -24,7 +24,7 @@
 
 ## A1: Thin production Rig runtime and explicit settings
 
-**Prerequisite:** Q1-Q3/G1/G2.
+**Prerequisite:** Q1-Q3/G1a/G2. A1 establishes G1b; requiring it before A1 would be circular.
 
 **Files:**
 - Create: `crates/brn-ai/Cargo.toml`, `src/{lib.rs,config.rs,auth.rs,credentials.rs,run.rs,history.rs,tools.rs}`, `README.md`, `tests/{auth.rs,run.rs}`.
@@ -104,7 +104,18 @@ New `rig_*` workflow/CLI integration tests declare `required-features = ["test-s
 
 - [ ] **5. Red runtime test:** refuse a second potential network dispatch after injected loss with unknown outcome. Ensure cancellation while a tool awaits acknowledgement is bounded, channel closure drops futures and scoped threads join. The bounded bridge is Tokio `mpsc` capacity `16`; callbacks await send/oneshot rather than entering the worker queue. Workflow services it via `try_recv`/bounded waits so cancellation remains observable.
 
-- [ ] **6. Green/commit:** `cargo test -p brn-ai -p brn-workflow -p brn -p brn-desktop --locked`; `cargo test -p brn-ai --locked --features test-support --test auth --test run`; `cargo check --workspace --locked`; native graph from Q1. Commit as `feat(ai): add qualified direct Rig runtime and settings`.
+- [ ] **6. Qualify actual production linkage (G1b):** resolve the changed root manifest/lockfile, compare selected package versions/features with Q1's candidate evidence and record unexpected graph changes for review. With Rig wired through the real workflow dependency, run:
+
+```sh
+cargo build --workspace --locked
+cargo build -p brn-desktop --locked --features native-ui,native-retrieval
+cargo test -p brn-desktop --locked --features native-ui,native-retrieval
+cargo tree -p brn-desktop --locked --features native-ui,native-retrieval
+```
+
+Record commit, target/toolchain, root lockfile identity and resolved Rig/SQLite/ONNX/GPUI versions. Inspect the actual `desktop -> workflow -> brn-ai -> Rig` dependency path; a bare GPUI harness or `cargo check` is insufficient. No window, login or model download is needed for linkage. Report any asset-gated tests separately. A1 is incomplete on failure; do not switch production ask in A3. Requalify G1b after N5 or another dependency change alters the integrated graph.
+
+- [ ] **7. Green/commit:** `cargo test -p brn-ai -p brn-workflow -p brn -p brn-desktop --locked`; `cargo test -p brn-ai --locked --features test-support --test auth --test run`; `cargo check --workspace --locked`; require recorded G1b build/test evidence above. Commit as `feat(ai): add qualified direct Rig runtime and settings`.
 
 ## A2: Durable BRN conversations and independent execution facts
 
@@ -121,13 +132,24 @@ New `rig_*` workflow/CLI integration tests declare `required-features = ["test-s
 
 ```rust
 pub enum Currentness { Current, Stale, NotEvaluated }
-pub struct EvidenceDependency {
+pub struct NoteDependency {
     pub note_id: uuid::Uuid,
-    pub evidence: brn_retrieval::Evidence,
+    pub vault_id: uuid::Uuid,
+    pub file_state: uuid::Uuid,
+    pub source_id: String,
+    pub version_id: String,
+    pub source_hash: String,
+    pub metadata_hash: String,
+}
+pub struct EvidenceDependency {
+    pub note: NoteDependency,
+    pub evidence: Option<brn_retrieval::Evidence>,
 }
 pub struct AiTurnStart {
     pub operation_id: uuid::Uuid,
     pub conversation_id: Option<uuid::Uuid>,
+    pub vault_id: uuid::Uuid,
+    pub profile: brn_retrieval::Profile,
     pub selection: brn_ai::ProviderSelection,
     pub question: String,
     pub review_context: Option<uuid::Uuid>,
@@ -162,7 +184,11 @@ pub struct AiTurnView {
 }
 ```
 
-To preserve crate direction, put store's serialized provider/identity/history/outcome DTOs in `brn-store::ai` using identical fields/value spellings, with checked conversion in workflow. Store must not depend on brn-ai or retrieval: store `EvidenceDependency` embeds its own exact evidence DTO (existing strings/ranges/hash fields), not `brn_retrieval::Evidence`. Above shapes describe workflow-facing records; store methods below take their store-owned counterpart types, not dependency inversions.
+`NoteDependency` binds a fresh approved note observation independently of any quote. `metadata_hash` hashes the canonical UTF-8 JSON tuple `(note_id, vault_id, visible_title)` with SHA-256, including exact title bytes. Validate registration/location, active lifecycle, no unresolved save, exact current approval/file-state/source/hash and current metadata. `evidence: None` means metadata-only knowledge, not permission to skip validation. With `Some`, also validate exact passage ranges/quote and agreement with the note's source/version/hash. Never manufacture an empty range to represent listing knowledge.
+
+Every returned `list_notes` identity/title, including a zero-byte note, contributes one such metadata-only dependency. Tool results and derived answers retain the dependency union in durable conversation records, even after Rig windows messages out. Nonempty read/search results must carry the same note dependency plus `Some` exact citation evidence; `None` cannot stand in for provenance of supplied body text.
+
+To preserve crate direction, put store's serialized provider/identity/history/outcome DTOs in `brn-store::ai` using identical fields/value spellings, with checked conversion in workflow. Store must not depend on brn-ai or retrieval: store `EvidenceDependency` embeds its own optional exact evidence DTO (existing strings/ranges/hash fields), not `brn_retrieval::Evidence`. Store owns `SearchProfile { Keyword, Semantic, Hybrid }` with Serde lowercase spellings; the store counterpart of `AiTurnStart.profile` uses it, converted from the workflow-facing retrieval enum. Derive Clone/Serde for turn-start records. Above shapes describe workflow-facing records; store methods below take their store-owned counterpart types, not dependency inversions.
 
 Store methods: `prepare_ai_turn(start: &AiTurnStart) -> Result<AiTurnView>`, `append_ai_event(op: Uuid, sequence: u64, event: &AiEvent) -> Result<()>`, `finish_ai_turn(op: Uuid, final_record: &AiTurnFinal) -> Result<AiTurnView>`, `ai_conversation(id: Uuid) -> Result<Option<AiConversation>>`, `ai_turn(op: Uuid) -> Result<Option<AiTurnView>>`.
 
@@ -170,20 +196,23 @@ Store methods: `prepare_ai_turn(start: &AiTurnStart) -> Result<AiTurnView>`, `ap
 
 `note_review_drafts` binds `(note_id, draft_id, base_version_id, base_hash)` with a unique draft ID. Add store `create_note_review_draft(op: Uuid, note: Uuid, base: Uuid, hash: [u8;32], text: &str) -> Result<Draft>`: create the existing draft/original revision and explicit association in one transaction using extracted existing draft helpers. Standalone pre-reset drafts have no inferred note association; matching text/title is not identity.
 
-- [ ] **1. Red store replay test:** construct `AiTurnStart` with fresh operation/no conversation, synthetic provider/account/model and `"Synthetic question"`; `prepare_ai_turn` twice returns same conversation ID. Changing the same operation's question/account/model/review-context/transfer approval returns `OperationConflict`. A different local operation can append a new turn, not mutate the old one.
+- [ ] **1. Red store replay test:** construct `AiTurnStart` with fresh operation/no conversation, a registered vault, profile, synthetic provider/account/model and `"Synthetic question"`; `prepare_ai_turn` twice returns same conversation ID. Changing the same operation's vault/profile/question/account/model/review-context/transfer approval returns `OperationConflict`. A different local operation can append a new turn, not mutate the old one.
 
 ```rust
 #[test]
 fn ai_turn_preparation_replays_its_conversation() {
-    use brn_store::ai::AiTurnStart;
+    use brn_store::ai::{AiTurnStart, SearchProfile};
     let data = tempfile::tempdir().unwrap();
+    let vault = tempfile::tempdir().unwrap();
     let (mut store, _) = brn_store::Store::open(data.path()).unwrap();
+    let registered = store.register_vault(uuid::Uuid::new_v4(), vault.path()).unwrap();
     let selection = serde_json::from_value(serde_json::json!({
         "provider": "chatgpt", "model": "synthetic-model",
         "account": {"provider": "chatgpt", "subject": "synthetic", "display": "Fixture"}
     })).unwrap();
     let request = AiTurnStart {
         operation_id: uuid::Uuid::new_v4(), conversation_id: None, selection,
+        vault_id: registered.id, profile: SearchProfile::Keyword,
         question: "Synthetic question".into(), review_context: None,
         context_transfer_approved: false,
     };
@@ -192,12 +221,28 @@ fn ai_turn_preparation_replays_its_conversation() {
         store.prepare_ai_turn(&request).unwrap().conversation_id,
         first.conversation_id
     );
+    let other_root = tempfile::tempdir().unwrap();
+    let other = store.register_vault(uuid::Uuid::new_v4(), other_root.path()).unwrap();
+    let mut changed = request.clone();
+    changed.vault_id = other.id;
+    assert!(matches!(
+        store.prepare_ai_turn(&changed),
+        Err(brn_store::Error::OperationConflict(_))
+    ));
+    changed = request.clone();
+    changed.profile = SearchProfile::Hybrid;
+    assert!(matches!(
+        store.prepare_ai_turn(&changed),
+        Err(brn_store::Error::OperationConflict(_))
+    ));
 }
 ```
 
 Run `cargo test -p brn-store --locked --test ai`; expect missing interface/schema.
 
-- [ ] **2. Add V7 migration/checks:** existing V1-V6 content unchanged; old sessions/threads read-only and distinctly historical. New conversations use BRN UUIDs. Persist selection/review scope per turn, bound payload hash, sequence, history format/pin, usage when available and dependencies including source/version/hash/ranges/generation.
+- [ ] **2. Add V7 migration/checks:** existing V1-V6 content unchanged; old sessions/threads read-only and distinctly historical. New conversations use BRN UUIDs. Persist vault/profile/selection/review scope per turn, bound payload hash, sequence, history format/pin, usage when available and note-state/metadata dependencies with optional passage provenance.
+
+Canonical operation payload includes every `AskRequest` field plus the resolved explicit provider/model/account selection. Compare it through `bind_operation` before returning any existing result; never hash only the question or omit vault/profile. Store vault foreign keys/profile values and inspectable bound scope. Initial `conversation_id: None` stays part of that original request payload; don't substitute the newly allocated ID during replay.
 
 Implement workflow `select_provider(&mut self, selection: ProviderSelection) -> Result<()>` here: verify account cache/capability, persist nonsecret settings and only then update in-memory config. Add `brn ai select --provider chatgpt|copilot --model MODEL --account SUBJECT`; restart must recover exact selection. No choice if not configured, no selection after disconnect until reconnect/reselect, and no startup device login.
 
@@ -207,6 +252,8 @@ Implement workflow `select_provider(&mut self, selection: ProviderSelection) -> 
 
 - [ ] **5. History tests:** round-trip actual qualified Rig messages/tool pairs, corrupted bytes, newer unsupported format/pin, missing tool result and unchanged replay. Selecting another provider/account for a conversation requires matching explicit transfer approval; no consent inferred from selection alone. Retain dependency union for all application-supplied note evidence, even when Rig windows messages out.
 
+Round-trip metadata-only dependencies with `evidence: None`, including a hash of an empty approved note, without passing them through the nonempty-passage validator. Reject missing/malformed note-state or metadata hashes. Preserve these records independently of serialized/windowed Rig history.
+
 Review provenance has a separate dependency list and durable conversation scope. Scope mismatch on continuation is denied even with provider-transfer consent; choose a fresh conversation rather than treating a review-history quote as current knowledge.
 
 - [ ] **6. Wire inspection consumers:** new `conversations list/show` includes backend/history label and independent fields, never fake `has_thread`/provider turn IDs. Keep old history distinctly inspectable. Do not resume old Codex sessions as Rig. Native history rail/centre and JSON DTOs reflect this distinction.
@@ -215,7 +262,7 @@ Review provenance has a separate dependency list and durable conversation scope.
 
 ## A3: Complete guarded ask, read tools and shared cancellation
 
-**Prerequisite:** A1/A2/N3. Read tools/conversations/currentness ship together.
+**Prerequisite:** A1/A2/N3, completed G1a/G1b and G2. Read tools/conversations/currentness ship together.
 
 **Files:**
 - Create: workflow `src/{ask.rs,tools.rs}`, `tests/{rig_ask.rs,rig_tools.rs,rig_recovery.rs}`.
@@ -244,6 +291,7 @@ pub enum AskEvent { Delta(String), ToolStatus(String), Terminal(AiTurnView) }
 // create_note_review(&mut self, op: Uuid, note: Uuid, observed: Uuid) -> Result<Draft>
 // create_review_context(&mut self, op: Uuid, note: Uuid,
 //                       source_version: &str, comments: &[Uuid]) -> Result<Uuid>
+// current_note_dependency(&mut self, note: Uuid) -> Result<NoteDependency>
 ```
 
 `AskFailure` retains operation/conversation, known recorded local status, independent remote outcome/currentness and typed message/category. Reuse the existing CLI error-context behavior while replacing sidecar-specific inference; keep legacy conversions only until D1.
@@ -254,7 +302,7 @@ Tools have strict Serde argument structs, byte/result limits and no uncontrolled
 | --- | --- | --- |
 | `search_vault` | query, profile, limit `1..=10` | Current validated evidence, bounded total bytes, reindex/approval errors explicit. |
 | `read_note` | note UUID, start/end bytes | At most 16 KiB UTF-8 slice of approved current snapshot; exact provenance and byte boundaries. |
-| `list_notes` | cursor, limit `1..=50` | Current eligible identity/title only; stable pagination. |
+| `list_notes` | cursor, limit `1..=50` | Current eligible identity/title only; each returned note contributes a metadata-only durable dependency; stable pagination. |
 | `list_comments` | review-context UUID, cursor, limit `1..=50` | Allowed comments for explicitly selected note/base/review, labeled original provenance. |
 | `read_comment` | review-context UUID, comment UUID | Same ownership/permission; original and mapped anchors distinguished. |
 
@@ -262,7 +310,7 @@ Tool schemas use `deny_unknown_fields`. The private bridge carries parsed closed
 
 `create_note_review` validates an approved current note and calls A2's explicitly linked draft creation. Expose `brn notes review NOTE_ID --observed-state UUID --operation UUID` and native review selection; add comments through existing draft comment commands. `create_review_context` verifies this association and each selected comment, captures the current approved base and maps old anchors conservatively through existing projection utilities. It never invents a note association for an old arbitrary draft. No original comment anchor is overwritten; ambiguous mappings remain unresolved.
 
-- [ ] **1. Red deterministic ask test:** use disposable registered/opened/approved notes and Q3 replay HTTP, not fake sidecar. Assert one BRN operation/conversation, provisional deltas, real read/search tool result, terminal current answer and committed reloadable Rig history. Repeat identical operation: return existing recorded result without a completion request. Reuse with different input: fail before dispatch.
+- [ ] **1. Red deterministic ask test:** use disposable registered/opened/approved notes and Q3 replay HTTP, not fake sidecar. Assert one BRN operation/conversation, provisional deltas, real read/search tool result, terminal current answer and committed reloadable Rig history. Repeat identical operation: return existing recorded result without a completion request. Reuse with another registered vault or profile: return `OperationConflict`, no old answer and unchanged `test_dispatch_count`, including after restart. Bind/compare the complete request before replay selection, retrieval or model dispatch.
 
 Run `cargo test -p brn-workflow --locked --test rig_ask`; expect missing `ask_rig`.
 
@@ -270,7 +318,9 @@ Run `cargo test -p brn-workflow --locked --test rig_ask`; expect missing `ask_ri
 
 Coalesce provisional deltas to at most 32 KiB/200 ms per journal append; flush before any ordered effect/terminal. Output errors or queue closure cancel local futures, but don't erase already known durable/remote facts. No blocking native model inference on the runtime event loop.
 
-- [ ] **3. Guard retained history:** validate the full dependency union before current-mode continuation, including note-derived assistant answers, tool outputs and any selected history window. If stale, return `StaleContext` before any completion request and require a fresh conversation. Preserve the old history with a visible historical label. Never solve this by dropping a citation/filter error and handing the same answer back to Rig.
+- [ ] **3. Guard retained history:** validate the full dependency union before current-mode continuation, including listing-derived identities/titles, note-derived assistant answers, tool outputs and any selected history window. Validate note-state/metadata even when passage evidence is absent. If stale, return `StaleContext` before any completion request and require a fresh conversation. Preserve the old history with a visible historical label. Never solve this by dropping a citation/filter error and handing the same answer back to Rig.
+
+In `tests/rig_tools.rs`, add `listing_only_history_blocks_after_archive` and `listing_only_history_blocks_after_withdrawal`: approve a named zero-byte note, replay a turn whose only note tool is `list_notes`, and persist an answer using its title. Assert a metadata-only dependency and zero read/search calls. Archive/withdraw through workflow, then attempt continuation; assert `StaleContext`, no returned current answer and no additional dispatch. Repeat after reopening Workspace and after windowing out the original listing message while retaining the answer. A changed visible title also invalidates metadata provenance. Valid unchanged listing-only history remains continuable.
 
 Review context is explicit, durable, exact-note/base/comment scoped, and available only to comment tools in the selected review conversation. Historical original anchors are labeled review provenance, not ordinary current-note evidence. Keep their scope separate from current dependencies; current-mode conversations cannot gain these quoted bytes by guessing a review UUID.
 
