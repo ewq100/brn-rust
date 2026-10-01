@@ -97,8 +97,12 @@ impl NotePresenter {
             .and_then(|path| path.strip_prefix(&state.root).ok().map(Path::to_owned));
         let notice = NoteFileNotice {
             vault_id: state.vault_id,
+            kind: if url.is_some() && relative_path.is_none() {
+                NoteNoticeKind::RescanRequired
+            } else {
+                kind
+            },
             relative_path,
-            kind,
         };
         // Preserve the observation requirement even if an earlier consumer panicked.
         let mut notices = state
@@ -400,6 +404,32 @@ mod tests {
         queue.push(notice.clone());
         queue.push(notice);
         assert_eq!(queue.drain().len(), 1);
+    }
+
+    #[test]
+    fn unmapped_subitem_url_requires_rescan_instead_of_a_root_event() {
+        let root = tempfile::tempdir().unwrap();
+        let outside = tempfile::tempdir().unwrap();
+        let notices = Arc::new(Mutex::new(NoteNoticeQueue::default()));
+        let vault_id = Uuid::new_v4();
+        let coordination = Coordination::new(vault_id, root.path(), notices.clone()).unwrap();
+        let outside_url = file_url(&outside.path().join("outside.md"), false).unwrap();
+        coordination
+            .presenter
+            .enqueue(Some(&outside_url), NoteNoticeKind::Changed);
+        let drained = notices.lock().unwrap().drain();
+        assert_eq!(
+            drained,
+            vec![NoteFileNotice {
+                vault_id,
+                relative_path: None,
+                kind: NoteNoticeKind::RescanRequired,
+            }]
+        );
+        coordination.presenter.enqueue(None, NoteNoticeKind::Moved);
+        let drained = notices.lock().unwrap().drain();
+        assert_eq!(drained[0].kind, NoteNoticeKind::Moved);
+        drop(coordination);
     }
 
     #[test]

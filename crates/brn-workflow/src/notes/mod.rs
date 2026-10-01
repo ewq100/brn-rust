@@ -14,7 +14,9 @@ pub use brn_store::notes::{
     NoteResult, NoteSearchReceipt, NoteStamp, NoteSubmission, NoteView, SavePhase,
 };
 use brn_store::notes::{FileFingerprint, NoteWriteKind, VaultRecord};
-use files::{MacFiles, NoteNoticeSink, note_unsupported};
+pub(crate) use files::NoteNoticeSink;
+use files::{MacFiles, note_unsupported};
+pub use files::{NoteFileNotice, NoteNoticeKind};
 use std::{
     path::{Component, Path},
     sync::Arc,
@@ -24,7 +26,7 @@ use uuid::Uuid;
 #[derive(Default)]
 pub(super) struct NoteState {
     vault: Option<(VaultRecord, MacFiles)>,
-    notices: NoteNoticeSink,
+    pub(super) notices: NoteNoticeSink,
 }
 
 impl crate::Workspace {

@@ -65,8 +65,34 @@ replay binds the caller's exact root/path inputs before filesystem checks and
 then returns a fresh view, not stale saved bytes. Alternate case or Unicode
 spellings of an already registered file are rejected with typed Conflict naming
 the registered path, based on device/inode identity rather than content hashes;
-they cannot allocate a second editing buffer. Worker notice draining remains
-a later task.
+they cannot allocate a second editing buffer.
+
+The owned worker exposes open/observe, recovery list/show/buffer save, Markdown
+save/reconcile/compare, confirmed reload/relink, exclusive copy, accept-current
+and saved-snapshot approval actions. Outcomes retain submitted requests or
+decision preconditions and their operation identity. Failed note terminals remain
+`Err` and add typed `note_failure` detail, including phase, known filesystem
+outcome and confirmed recovery; post-copy observation errors preserve the
+already verified copy's outcome.
+
+`Worker::take_note_notice` drains the Workspace's presenter queue independently
+of terminals and progress snapshots. Consumers must schedule workflow observation
+in the next idle slot, not read files on the GUI thread or infer eligibility from
+a notice. Never drop the adapter/Workspace while holding that queue's mutex:
+presenter Drop waits for callbacks that may be waiting for the same mutex.
+
+Critical note-mutation admission is serialized with shutdown before queueing.
+Admitted open/save/copy/buffer/reload/relink/accept/approval/reconciliation jobs
+are drained and their owner joined, including queued jobs after closing begins.
+Existing Import/SetApproval actions are conservatively admitted as critical too,
+because managed paths/sources route through the same note-snapshot mutations.
+`critical_note_pending` lets native close guard those jobs even without an open
+note editor.
+Cancellation does not abandon a filesystem handoff. Normal native close waits
+asynchronously for durable acknowledgements; defensive shutdown/Drop still joins
+the critical owner. The existing bounded detached reaper remains available only
+for non-critical local work such as native model loading; provider cancellation
+and owned-child joining retain their existing semantics.
 
 Plain enrollment still supports emoji filenames, including variation selectors
 and zero-width joiners, regardless of registration order. Copy/relink destination
@@ -156,6 +182,7 @@ Run from the repository root:
 
 ```sh
 cargo test -p brn-workflow --locked
+cargo test -p brn-workflow --lib worker:: --locked
 bash scripts/verify-end-to-end.sh
 ```
 

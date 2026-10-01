@@ -10,7 +10,7 @@ use std::{
 use uuid::Uuid;
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
-pub(super) enum NoteNoticeKind {
+pub enum NoteNoticeKind {
     Changed,
     Moved,
     Deleted,
@@ -18,23 +18,23 @@ pub(super) enum NoteNoticeKind {
 }
 
 #[derive(Debug, Clone, PartialEq, Eq)]
-pub(super) struct NoteFileNotice {
+pub struct NoteFileNotice {
     pub vault_id: Uuid,
     pub relative_path: Option<PathBuf>,
     pub kind: NoteNoticeKind,
 }
 
-pub(super) type NoteNoticeSink = Arc<Mutex<NoteNoticeQueue>>;
+pub(crate) type NoteNoticeSink = Arc<Mutex<NoteNoticeQueue>>;
 
 #[derive(Debug, Default)]
-pub(super) struct NoteNoticeQueue {
+pub(crate) struct NoteNoticeQueue {
     pending: VecDeque<NoteFileNotice>,
 }
 
 impl NoteNoticeQueue {
     const CAPACITY: usize = 256;
 
-    pub(super) fn push(&mut self, notice: NoteFileNotice) {
+    pub(crate) fn push(&mut self, notice: NoteFileNotice) {
         if self.pending.iter().any(|old| {
             old.vault_id == notice.vault_id
                 && (old.kind == NoteNoticeKind::RescanRequired || *old == notice)
@@ -53,9 +53,7 @@ impl NoteNoticeQueue {
         }
     }
 
-    // Task 8 exposes notice draining through the worker.
-    #[allow(dead_code)]
-    pub(super) fn drain(&mut self) -> Vec<NoteFileNotice> {
+    pub(crate) fn drain(&mut self) -> Vec<NoteFileNotice> {
         self.pending.drain(..).collect()
     }
 }
