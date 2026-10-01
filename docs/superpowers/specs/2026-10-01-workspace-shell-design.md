@@ -53,7 +53,7 @@ The existing `drafts.rs` and `comments.rs` views are kept and hosted in the cent
   - Document open:
     - document and chat panes with a draggable divider;
     - a **draft** shows the existing editor, Save working copy, Save checkpoint, Discard edits, the comments panel and revision compare;
-    - a **source** shows a read-only reader with title, approval, revision and bytes, plus Approve and Revoke.
+    - a **source** shows a read-only reader with title, approval, revision and bytes, plus Approve and Withdraw (the existing approval actions).
   - Closing the document returns to chat-first.
 - **Vault rail:**
   - Sources, with an approval tag in text and never colour alone.

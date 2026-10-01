@@ -42,6 +42,8 @@ All implementation listed above is present in the inspected local `main` baselin
 
 The next proposed feature is [opening and safely editing real Markdown notes](superpowers/specs/2026-10-01-open-and-safely-edit-markdown-notes-design.md): explicit Save to a local vault, separate editing-buffer recovery, conservative external-conflict handling, and current-evidence invalidation. Its written specification is approved; the [implementation plan](work/active/markdown-note-editing/plan.md) is prepared with execution choice pending. No application code or vault migration has started; [active work](work/active/README.md) records planning separately from implementation.
 
+The UI redesign's first slice, the [workspace shell](superpowers/specs/2026-10-01-workspace-shell-design.md), has an approved specification and an [implementation plan](work/active/workspace-shell/plan.md); execution has not started.
+
 [13: revision from a comment batch](roadmap.md#13-revision-from-a-comment-batch) remains a future roadmap outcome. Neither a roadmap item nor a design approval authorizes implementation beyond its agreed scope.
 
 The [historical status ledger](work/completed/early-checkpoints/status-history.md) preserves prior checkpoints and superseded next-step notes. Use [completed work](work/completed/README.md) to locate individual plans and evidence.
