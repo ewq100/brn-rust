@@ -167,8 +167,10 @@ brn comments list --draft DRAFT_ID --data-dir /tmp/brn-data --json
 - Search never builds the index; a missing or stale index is an error, not a trigger.
 - Semantic/hybrid profiles never fall back to keyword; they fail with `PROFILE_UNAVAILABLE` in this build.
 - Approval binds the exact source version; superseded versions reject approval.
-- `documents list` retains valid rows' legacy fields and adds `note_id`,
-  `current_state` and `message`. Excluded managed rows contain identity/title
+- `documents list` JSON retains valid rows' legacy fields and adds `note_id`,
+  `current_state` and `message`. Human Current rows retain the exact legacy
+  `SOURCE_ID VERSION_ID APPROVAL TITLE` line; only non-current managed rows
+  include state and reason. Excluded managed rows contain identity/title
   and state/reason only, not current bytes/version/hash/approval. `documents show`
   freshly validates its snapshot; a known shadowed, changed or unavailable row
   fails `EVIDENCE_STALE`, not `NOT_FOUND`. Explicit revision/history access keeps

@@ -207,6 +207,7 @@ fn documents_list_json_matches_seed_order_and_fields() {
     assert_eq!(docs[1]["source_id"], second_id.to_string());
     assert_eq!(docs[1]["approval"], "approved");
     for doc in docs {
+        assert_eq!(doc["current_state"], "Current");
         let hash = doc["sha256_hex"].as_str().unwrap();
         assert_eq!(hash.len(), 64);
         assert!(hash
@@ -217,9 +218,9 @@ fn documents_list_json_matches_seed_order_and_fields() {
     let out = brn(&["documents", "list", "--data-dir", root.to_str().unwrap()]);
     assert_eq!(code(&out), 0);
     let stdout = text(&out);
-    assert!(
-        stdout.starts_with(&format!("{first_id} {first_version} draft alpha.md\n")),
-        "{stdout}"
+    assert_eq!(
+        stdout,
+        format!("{first_id} {first_version} draft alpha.md\n{second_id} {second_version} approved beta.md\n")
     );
 }
 

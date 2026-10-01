@@ -47,6 +47,23 @@ fn documents_surfaces_label_shadowed_changed_and_missing_without_old_current_byt
     assert!(shadowed["message"].as_str().is_some_and(|s| !s.is_empty()));
     assert!(shadowed.get("sha256_hex").is_none());
     assert!(shadowed.get("content").is_none());
+    let human = brn(&[
+        "documents",
+        "list",
+        "--data-dir",
+        data.path().to_str().unwrap(),
+    ]);
+    assert_eq!(code(&human), 0);
+    let human = text(&human);
+    assert!(
+        human.starts_with(&format!(
+            "{} {} approved plan.md\n",
+            managed.source_id, managed.version_id
+        )),
+        "{human}"
+    );
+    assert!(human.contains(&format!("{} Shadowed plan.md: ", imported.source_id)));
+    assert!(!human.contains("oldterm"));
     let (c, envelope) = run_json(
         data.path(),
         &["documents", "show", &managed.source_id.to_string()],
@@ -72,6 +89,17 @@ fn documents_surfaces_label_shadowed_changed_and_missing_without_old_current_byt
     assert_eq!(changed["current_state"], "Changed");
     assert!(changed["message"].as_str().is_some_and(|s| !s.is_empty()));
     assert!(changed.get("version_id").is_none());
+    let human = brn(&[
+        "documents",
+        "list",
+        "--data-dir",
+        data.path().to_str().unwrap(),
+    ]);
+    assert_eq!(code(&human), 0);
+    let human = text(&human);
+    assert!(human.contains(&format!("{} Changed plan.md: ", managed.source_id)));
+    assert!(!human.contains("oldterm"));
+    assert!(!human.contains(&managed.version_id.to_string()));
     fs::remove_file(&file).unwrap();
     let (_, envelope) = run_json(data.path(), &["documents", "list"]);
     assert!(envelope["data"]["documents"]
@@ -79,6 +107,16 @@ fn documents_surfaces_label_shadowed_changed_and_missing_without_old_current_byt
         .unwrap()
         .iter()
         .any(|d| d["current_state"] == "Missing"));
+    let human = brn(&[
+        "documents",
+        "list",
+        "--data-dir",
+        data.path().to_str().unwrap(),
+    ]);
+    assert_eq!(code(&human), 0);
+    let human = text(&human);
+    assert!(human.contains(&format!("{} Missing plan.md: ", managed.source_id)));
+    assert!(!human.contains("oldterm"));
     let (c, envelope) = run_json(
         data.path(),
         &["documents", "show", &managed.source_id.to_string()],

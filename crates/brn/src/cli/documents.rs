@@ -46,7 +46,7 @@ pub fn list(_invocation: &Invocation, workspace: &mut Workspace) -> Result<Outpu
     let mut text = String::new();
     for doc in &docs {
         text.push_str(&format!(
-            "{} {} {} {} Current\n",
+            "{} {} {} {}\n",
             doc.source_id,
             doc.version_id,
             approval_str(doc.approval),
