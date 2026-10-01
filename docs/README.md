@@ -12,7 +12,7 @@ Start with [AGENTS.md](../AGENTS.md), then [current status](status.md). Read onl
 | Review safe local Markdown editing | [Earlier approved open/save/recovery design](superpowers/specs/2026-10-01-open-and-safely-edit-markdown-notes-design.md), [implementation plan](work/active/markdown-note-editing/plan.md) (execution paused; reset supersedes the stronger save protocol; not implemented) |
 | Review the UI redesign | [Workspace shell design](superpowers/specs/2026-10-01-workspace-shell-design.md), [UI feature backlog](ui/feature-backlog.md), [shell decision](architecture/decisions/2026-10-01-workspace-shell.md) |
 | Understand code ownership | [Architecture overview](architecture/overview.md), relevant crate README |
-| Review the Rig-first reset | [Revised reset specification](superpowers/specs/2026-10-01-rig-first-architecture-reset-design.md): direct subscriptions, macOS distribution, basic Markdown saves and protected file credentials; design only |
+| Review the Rig-first reset | [Approved specification](superpowers/specs/2026-10-01-rig-first-architecture-reset-design.md), [implementation plan pack](work/active/rig-first-reset/plan.md), [evidence/gates](work/active/rig-first-reset/evidence.md): planning authorized; product execution and live qualification not started |
 | Change storage, revisions, comments or retrieval | [Invariants](architecture/invariants.md), [completed task records](work/completed/README.md) |
 | Change provider behavior | [Provider README](../crates/brn-provider/README.md), [sidecar packaging boundary](../experiments/codex-app-server/PACKAGING.md) |
 | Choose and report checks | [Verification](development/verification.md) |
