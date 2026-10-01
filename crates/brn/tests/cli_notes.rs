@@ -615,7 +615,7 @@ fn bounded_input_rejects_oversize_nonregular_and_missing_before_workspace_open()
     }
 }
 #[test]
-fn accept_current_requires_explicit_review_and_never_claims_original_save_success() {
+fn accept_current_unknown_save_operation_returns_typed_missing_failure() {
     let data = directory();
     let vault = directory();
     let path = vault.path().join("plan.md");
@@ -702,4 +702,311 @@ fn empty_note_noop_save_returns_verified_not_applied_receipt() {
     assert_eq!(receipt["stamp"], view["stamp"]);
     assert_eq!(receipt["recovery_available"], true);
     assert_eq!(fs::read(&path).unwrap(), b"");
+}
+
+#[test]
+fn save_copy_replay_after_destination_and_source_edits_preserves_original_receipt() {
+    let data = directory();
+    let vault = directory();
+    let path = vault.path().join("plan.md");
+    fs::write(&path, "source baseline\r\n").unwrap();
+    let view = ok(
+        data.path(),
+        &[
+            "notes",
+            "open",
+            path.to_str().unwrap(),
+            "--vault",
+            vault.path().to_str().unwrap(),
+        ],
+    );
+    let id = view["id"].as_str().unwrap();
+    let state = view["stamp"]["file_state"].as_str().unwrap();
+    let text = data.path().join("copy.txt");
+    fs::write(&text, "submitted copy\r\n").unwrap();
+    let operation = uuid::Uuid::new_v4().to_string();
+    let args = [
+        "notes",
+        "save-copy",
+        id,
+        "--path",
+        "copy.md",
+        "--base-file-state",
+        state,
+        "--expected-generation",
+        "0",
+        "--generation",
+        "1",
+        "--text-file",
+        text.to_str().unwrap(),
+        "--operation",
+        &operation,
+    ];
+    let receipt = ok(data.path(), &args);
+    assert_eq!(receipt["operation_id"], operation);
+    assert_eq!(receipt["source_note_id"], id);
+    assert_ne!(receipt["note_id"], id);
+    let copy_path = vault.path().join("copy.md");
+    assert_eq!(fs::read(&copy_path).unwrap(), b"submitted copy\r\n");
+    fs::write(&copy_path, "external copy edit\r\n").unwrap();
+    let copy_before = file_snapshot(&copy_path);
+    let source = ok(data.path(), &["notes", "show", id]);
+    let later = data.path().join("later.txt");
+    fs::write(&later, "later source buffer\r\n").unwrap();
+    let generation = source["stamp"]["generation"].as_u64().unwrap();
+    let expected_generation = generation.to_string();
+    let next_generation = (generation + 1).to_string();
+    ok(
+        data.path(),
+        &[
+            "notes",
+            "buffer",
+            "save",
+            id,
+            "--base-file-state",
+            source["stamp"]["file_state"].as_str().unwrap(),
+            "--expected-generation",
+            &expected_generation,
+            "--generation",
+            &next_generation,
+            "--text-file",
+            later.to_str().unwrap(),
+        ],
+    );
+    let source_before = ok(data.path(), &["notes", "recovery", "show", id]);
+    assert_eq!(source_before["working"], "later source buffer\r\n");
+    assert_eq!(ok(data.path(), &args), receipt);
+    assert_eq!(
+        ok(
+            data.path(),
+            &["notes", "recovery", "reconcile", "--operation", &operation,]
+        ),
+        receipt
+    );
+    assert_eq!(file_snapshot(&copy_path), copy_before);
+    assert_eq!(fs::read(&path).unwrap(), b"source baseline\r\n");
+    assert_eq!(
+        ok(data.path(), &["notes", "recovery", "show", id]),
+        source_before
+    );
+}
+
+fn file_snapshot(path: &Path) -> (u64, u64, i64, i64, Vec<u8>) {
+    use std::os::unix::fs::MetadataExt;
+    let metadata = fs::metadata(path).unwrap();
+    (
+        metadata.dev(),
+        metadata.ino(),
+        metadata.mtime(),
+        metadata.mtime_nsec(),
+        fs::read(path).unwrap(),
+    )
+}
+
+#[test]
+fn interrupted_save_accept_current_revalidates_token_preserves_recovery_and_allows_new_save() {
+    use brn_store::{
+        notes::{DestinationPrecondition, NoteResolution, NoteWriteKind},
+        Store,
+    };
+    use brn_workflow::{notes::NoteSubmission, Config, Workspace};
+    use uuid::Uuid;
+
+    let data = directory();
+    let vault = directory();
+    let path = vault.path().join("plan.md");
+    fs::write(&path, "baseline\r\n").unwrap();
+    let mut workspace = Workspace::open(data.path(), Config::default()).unwrap();
+    let view = workspace
+        .open_note(Uuid::new_v4(), vault.path(), Path::new("plan.md"))
+        .unwrap();
+    workspace
+        .approve_note_snapshot(Uuid::new_v4(), view.id, view.current_file_state.unwrap())
+        .unwrap();
+    let request = NoteSubmission {
+        operation_id: Uuid::new_v4(),
+        note_id: view.id,
+        expected: view.stamp,
+        generation: 1,
+        text: "submitted recovery\r\n".into(),
+    };
+    drop(workspace);
+
+    // R19: public store intent commit simulates a crash before workflow file execution.
+    let (mut store, _) = Store::open(data.path()).unwrap();
+    let record = store.note_record(view.id).unwrap();
+    let intent = store
+        .begin_note_save(
+            &request,
+            &record.relative_path,
+            NoteWriteKind::Replace,
+            &DestinationPrecondition::Existing {
+                fingerprint: record.baseline,
+                baseline_text: "baseline\r\n".into(),
+            },
+        )
+        .unwrap();
+    assert_eq!(intent.resolution, NoteResolution::Unresolved);
+    drop(store);
+    let stage = vault.path().join(&intent.staging_relative);
+    fs::write(&stage, "unproven interrupted artifact\r\n").unwrap();
+    fs::write(&path, "first external state\r\n").unwrap();
+    let id = view.id.to_string();
+    let save_op = request.operation_id.to_string();
+    let reconcile = ["notes", "recovery", "reconcile", "--operation", &save_op];
+    let (exit, original) = run(data.path(), &reconcile);
+    assert_eq!(exit, 1);
+    assert_eq!(original["ok"], false);
+    assert_eq!(original["error"]["code"], "NOTE_CONFLICT");
+    assert_eq!(original["error"]["context"]["operation_id"], save_op);
+    assert_eq!(original["error"]["context"]["note_id"], id);
+    assert_eq!(original["error"]["context"]["phase"], "Intent");
+    assert_eq!(
+        original["error"]["context"]["filesystem_outcome"],
+        "Unknown"
+    );
+    assert_eq!(original["error"]["context"]["recovery_available"], true);
+    assert!(original.get("data").is_none());
+    let (store, _) = Store::open(data.path()).unwrap();
+    assert_eq!(
+        store
+            .note_save_intent(request.operation_id)
+            .unwrap()
+            .unwrap()
+            .resolution,
+        NoteResolution::Unresolved
+    );
+    drop(store);
+
+    let compared = ok(data.path(), &["notes", "compare", &id]);
+    assert_eq!(compared["baseline"], "baseline\r\n");
+    assert_eq!(compared["working"], request.text);
+    assert_eq!(compared["observed"], "first external state\r\n");
+    let stale_token = compared["observed_file_state"].as_str().unwrap();
+    fs::write(&path, "reviewed external state\r\n").unwrap();
+    let before = (file_snapshot(&path), file_snapshot(&stage));
+    let stale_ack = Uuid::new_v4().to_string();
+    let (exit, stale) = run(
+        data.path(),
+        &[
+            "notes",
+            "recovery",
+            "accept-current",
+            "--save-operation",
+            &save_op,
+            "--file-state",
+            stale_token,
+            "--keep-recovery",
+            "--operation",
+            &stale_ack,
+        ],
+    );
+    assert_eq!(exit, 1);
+    assert_eq!(stale["error"]["code"], "NOTE_STATE_CHANGED");
+    assert_eq!(stale["error"]["context"]["operation_id"], stale_ack);
+    assert!(stale.get("data").is_none());
+    assert_eq!((file_snapshot(&path), file_snapshot(&stage)), before);
+
+    let compared = ok(data.path(), &["notes", "compare", &id]);
+    let fresh_token = compared["observed_file_state"].as_str().unwrap();
+    assert_ne!(fresh_token, stale_token);
+    let ack_id = Uuid::new_v4();
+    let ack_op = ack_id.to_string();
+    let acceptance = [
+        "notes",
+        "recovery",
+        "accept-current",
+        "--save-operation",
+        &save_op,
+        "--file-state",
+        fresh_token,
+        "--keep-recovery",
+        "--operation",
+        &ack_op,
+    ];
+    let accepted = ok(data.path(), &acceptance);
+    assert_eq!(accepted["id"], id);
+    assert_eq!(accepted["operation_id"], ack_op);
+    assert_eq!(accepted["save_operation_id"], save_op);
+    assert_eq!(accepted["saved"], "reviewed external state\r\n");
+    assert_eq!(accepted["buffer"], request.text);
+    assert_eq!(accepted["availability"], "Available");
+    assert_eq!(accepted["search_approval"], "Draft");
+    assert_eq!(accepted["stamp"]["generation"], 1);
+    assert_ne!(accepted["stamp"]["file_state"], fresh_token);
+    assert_ne!(
+        accepted["stamp"]["file_state"],
+        view.stamp.file_state.to_string()
+    );
+    assert_eq!(
+        accepted["stamp"]["file_state"],
+        accepted["current_file_state"]
+    );
+    assert!(accepted.get("filesystem_outcome").is_none());
+    assert_eq!((file_snapshot(&path), file_snapshot(&stage)), before);
+    assert_eq!(ok(data.path(), &acceptance), accepted);
+    let recovery = ok(data.path(), &["notes", "recovery", "show", &id]);
+    assert_eq!(recovery["working"], request.text);
+    assert_eq!(recovery["baseline"], "reviewed external state\r\n");
+    assert_eq!(ok(data.path(), &["notes", "recovery", "list"])[0], recovery);
+    let (store, _) = Store::open(data.path()).unwrap();
+    let retained = store
+        .note_save_intent(request.operation_id)
+        .unwrap()
+        .unwrap();
+    assert_eq!(retained.resolution, NoteResolution::AcceptedCurrent);
+    assert_eq!(retained.acknowledged_by, Some(ack_id));
+    let protected = store.note_decision_recovery(ack_id).unwrap().unwrap();
+    assert_eq!(protected.working, request.text);
+    assert_eq!(protected.baseline, "baseline\r\n");
+    assert_eq!(protected.stamp.file_state, view.stamp.file_state);
+    drop(store);
+    assert_eq!(run(data.path(), &reconcile), (1, original.clone()));
+    let input = data.path().join("submitted.txt");
+    fs::write(&input, &request.text).unwrap();
+    let baseline = request.expected.file_state.to_string();
+    let save = [
+        "notes",
+        "save",
+        &id,
+        "--base-file-state",
+        &baseline,
+        "--expected-generation",
+        "0",
+        "--generation",
+        "1",
+        "--text-file",
+        input.to_str().unwrap(),
+        "--operation",
+        &save_op,
+    ];
+    let (exit, replay) = run(data.path(), &save);
+    assert_eq!(exit, 1);
+    assert_eq!(replay["error"], original["error"]);
+    assert!(replay.get("data").is_none());
+    assert_eq!((file_snapshot(&path), file_snapshot(&stage)), before);
+    let new_save = ok(
+        data.path(),
+        &[
+            "notes",
+            "save",
+            &id,
+            "--base-file-state",
+            accepted["stamp"]["file_state"].as_str().unwrap(),
+            "--expected-generation",
+            "1",
+            "--generation",
+            "1",
+            "--text-file",
+            input.to_str().unwrap(),
+        ],
+    );
+    assert_eq!(new_save["filesystem_outcome"], "Applied");
+    assert_eq!(new_save["source_note_id"], id);
+    assert_eq!(new_save["note_id"], id);
+    assert_eq!(new_save["submitted_generation"], 1);
+    assert_eq!(new_save["recovery_available"], true);
+    assert_eq!(fs::read(&path).unwrap(), request.text.as_bytes());
+    assert_eq!(file_snapshot(&stage), before.1);
+    assert_eq!(run(data.path(), &reconcile), (1, original));
 }
