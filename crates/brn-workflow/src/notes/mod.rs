@@ -132,9 +132,26 @@ impl crate::Workspace {
                     );
                     view.search_approval = self.store.note_record(id)?.search_approval;
                     if !recovery.pending_operations.is_empty() {
-                        view.availability = NoteAvailability::Uncertain;
-                        view.availability_message =
-                            Some("note has unresolved recovery operations".into());
+                        let mut uncertain = false;
+                        for op in &recovery.pending_operations {
+                            if !matches!(
+                                self.store.note_save_intent(*op)?.and_then(|intent| intent.prior_result),
+                                Some(NoteRecordedResult::Failure(error)) if error.filesystem_outcome == FileOutcome::NotApplied
+                            ) {
+                                uncertain = true;
+                                break;
+                            }
+                        }
+                        view.availability = if uncertain {
+                            NoteAvailability::Uncertain
+                        } else {
+                            NoteAvailability::Conflict
+                        };
+                        view.availability_message = Some(if uncertain {
+                            "note has unresolved recovery operations with uncertain outcomes"
+                        } else {
+                            "note has an unresolved not-applied refusal; explicit resolution is required"
+                        }.into());
                     } else if observed.fingerprint != record.baseline {
                         view.availability = NoteAvailability::Conflict;
                         view.availability_message = Some("saved file differs from the editing baseline; explicit reconciliation is required".into());

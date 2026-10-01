@@ -165,8 +165,18 @@ impl crate::Workspace {
         // Live progress proves whether creation/exchange was attempted; the journal
         // phase alone is never such proof after a crash or an uncertain exchange.
         if !progress.exchange_attempted.get() {
-            let original = if !progress.staging_attempted.get() {
-                files
+            let stage_known = !progress.staging_attempted.get()
+                || match files.artifact(&current.staging_relative) {
+                    Ok(None) => true,
+                    Ok(Some(_)) => current.staged.as_ref().is_some_and(|prepared| {
+                        files
+                            .observe(&current.staging_relative)
+                            .is_ok_and(|observed| observed.fingerprint == prepared.fingerprint)
+                    }),
+                    Err(_) => false,
+                };
+            if stage_known {
+                let original = files
                     .observe(&current.destination)
                     .ok()
                     .and_then(|observed| match &current.expected_destination {
@@ -176,34 +186,32 @@ impl crate::Workspace {
                             Some(observed.fingerprint)
                         }
                         _ => None,
-                    })
-            } else {
-                self.observe_note_intent(&current)
-                    .ok()
-                    .and_then(|observations| classify_note_save(&current, &observations).ok())
-                    .and_then(|decision| match decision {
-                        RecoveryDecision::NotApplied(original) => Some(original),
-                        _ => None,
-                    })
-            };
-            if let Some(original) = original {
-                return replay(
-                    self.store
-                        .reconcile_note_operation(
-                            current.request.operation_id,
-                            &NoteReconciliation {
-                                resolution: NoteResolution::NotApplied,
-                                observed_destination: Some(original),
-                                verification: None,
-                                result: NoteRecordedResult::Failure(known_failure),
-                            },
-                        )
-                        .map_err(|storage| context(storage, &current, FileOutcome::Unknown))?,
-                );
+                    });
+                if let Some(original) = original {
+                    return replay(
+                        self.store
+                            .reconcile_note_operation(
+                                current.request.operation_id,
+                                &NoteReconciliation {
+                                    resolution: NoteResolution::NotApplied,
+                                    observed_destination: Some(original),
+                                    verification: None,
+                                    result: NoteRecordedResult::Failure(known_failure),
+                                },
+                            )
+                            .map_err(|storage| context(storage, &current, FileOutcome::Unknown))?,
+                    );
+                }
+                return Err(self.store.record_note_write_failure(
+                    &current.request,
+                    &current.destination,
+                    NoteWriteKind::Replace,
+                    &known_failure,
+                )?);
             }
             error.code = NoteErrorCode::SaveUncertain;
             error.message = format!(
-                "pre-exchange refusal lacks not-applied proof: {}",
+                "pre-exchange refusal has unproven staging state: {}",
                 error.message
             );
         }

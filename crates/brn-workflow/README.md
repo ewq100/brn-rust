@@ -48,7 +48,12 @@ Pre-exchange refusals resolve NotApplied only with freshly observed original
 baseline proof and no stage creation or an exact recorded unexchanged stage.
 The failure result remains the immutable replay result; submitted recovery and
 unexpected staging occupants stay protected, but a new original save is allowed.
-Missing proof remains SaveUncertain/Unknown and blocks later original saves.
+When live progress proves no exchange and a created stage is absent or exactly
+the recorded unexchanged stage, an observed external change remains
+Conflict/NotApplied. Its intent stays Unresolved and blocks later original
+saves pending explicit resolution; its note view reports Conflict, not an
+uncertain execution outcome. A possibly attempted exchange or unproven created
+artifact remains SaveUncertain/Unknown.
 
 `reconcile_note_save(operation_id)` classifies interrupted writes and commits
 metadata only: it never retries exchange, creates, renames or unlinks files.

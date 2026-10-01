@@ -9,6 +9,80 @@ use tempfile::tempdir;
 use uuid::Uuid;
 
 #[test]
+fn unresolved_recorded_external_refusal_is_conflict_not_uncertain_on_reopen() {
+    use brn_store::{
+        Store,
+        notes::{DestinationPrecondition, NoteFailure, NoteWriteKind, SavePhase},
+    };
+    let data = tempdir().unwrap();
+    let vault = tempdir().unwrap();
+    let path = vault.path().join("plan.md");
+    fs::write(&path, "base").unwrap();
+    let mut w = Workspace::open(data.path(), Config::default()).unwrap();
+    let opened = w
+        .open_note(Uuid::new_v4(), vault.path(), Path::new("plan.md"))
+        .unwrap();
+    let request = NoteSubmission {
+        operation_id: Uuid::new_v4(),
+        note_id: opened.id,
+        expected: opened.stamp,
+        generation: 1,
+        text: "mine".into(),
+    };
+    drop(w);
+    let (mut store, _) = Store::open(data.path()).unwrap();
+    let record = store.note_record(opened.id).unwrap();
+    store
+        .begin_note_save(
+            &request,
+            &record.relative_path,
+            NoteWriteKind::Replace,
+            &DestinationPrecondition::Existing {
+                fingerprint: record.baseline,
+                baseline_text: "base".into(),
+            },
+        )
+        .unwrap();
+    fs::write(&path, "external").unwrap();
+    let failure = store
+        .record_note_write_failure(
+            &request,
+            &record.relative_path,
+            NoteWriteKind::Replace,
+            &NoteFailure {
+                code: NoteErrorCode::Conflict,
+                message: "destination changed before exchange".into(),
+                operation_id: None,
+                note_id: None,
+                phase: Some(SavePhase::Intent),
+                filesystem_outcome: FileOutcome::NotApplied,
+                recovery_available: false,
+            },
+        )
+        .unwrap();
+    drop(store);
+    let mut w = Workspace::open(data.path(), Config::default()).unwrap();
+    let view = w.note(opened.id).unwrap();
+    assert_eq!(view.availability, NoteAvailability::Conflict);
+    assert_eq!(view.saved.as_deref(), Some("external"));
+    assert_eq!(view.buffer, "mine");
+    assert_eq!(view.stamp.file_state, opened.stamp.file_state);
+    assert_eq!(w.save_note(request.clone()).unwrap_err(), failure);
+    assert_eq!(
+        w.reconcile_note_save(request.operation_id).unwrap_err(),
+        failure
+    );
+    assert_eq!(fs::read(&path).unwrap(), b"external");
+    fs::write(&path, "base").unwrap();
+    assert_eq!(
+        w.note(opened.id).unwrap().availability,
+        NoteAvailability::Conflict
+    );
+    assert_eq!(w.save_note(request).unwrap_err(), failure);
+    assert_eq!(fs::read(&path).unwrap(), b"base");
+}
+
+#[test]
 fn invalid_generations_are_state_changed_even_when_the_vault_is_unavailable() {
     let data = tempdir().unwrap();
     let vault = tempdir().unwrap();
