@@ -3,6 +3,105 @@ use sha2::{Digest, Sha256};
 use std::path::Path;
 use uuid::Uuid;
 
+#[test]
+fn recorded_pre_exchange_failure_resolves_not_applied_without_changing_replay() {
+    let (_data, _vault, mut store, opened) = fixture();
+    let request = submission(&opened);
+    let intent = store
+        .begin_note_save(
+            &request,
+            Path::new("plan.md"),
+            NoteWriteKind::Replace,
+            &precondition(&opened),
+        )
+        .unwrap();
+    store
+        .record_note_cleanup(request.operation_id, ArtifactCleanup::RetainedUnexpected)
+        .unwrap();
+    let failure = store
+        .record_note_write_failure(
+            &request,
+            &intent.destination,
+            NoteWriteKind::Replace,
+            &NoteFailure {
+                code: NoteErrorCode::Io,
+                message: "pre-exchange failure".into(),
+                operation_id: None,
+                note_id: None,
+                phase: Some(SavePhase::Intent),
+                filesystem_outcome: FileOutcome::NotApplied,
+                recovery_available: false,
+            },
+        )
+        .unwrap();
+    let mut record = NoteReconciliation {
+        resolution: NoteResolution::NotApplied,
+        observed_destination: None,
+        verification: None,
+        result: NoteRecordedResult::Failure(failure.clone()),
+    };
+    assert!(
+        store
+            .reconcile_note_operation(request.operation_id, &record)
+            .is_err()
+    );
+    assert_eq!(
+        store
+            .note_save_intent(request.operation_id)
+            .unwrap()
+            .unwrap()
+            .resolution,
+        NoteResolution::Unresolved
+    );
+    record.observed_destination = Some(fingerprint(&opened.baseline, 3));
+    let mut changed = record.clone();
+    if let NoteRecordedResult::Failure(error) = &mut changed.result {
+        error.message = "different failure".into();
+    }
+    assert_eq!(
+        store
+            .reconcile_note_operation(request.operation_id, &changed)
+            .unwrap_err()
+            .code,
+        NoteErrorCode::OperationConflict
+    );
+    assert_eq!(
+        store
+            .reconcile_note_operation(request.operation_id, &record)
+            .unwrap(),
+        record.result
+    );
+    let resolved = store
+        .note_save_intent(request.operation_id)
+        .unwrap()
+        .unwrap();
+    assert_eq!(resolved.resolution, NoteResolution::NotApplied);
+    assert_eq!(resolved.cleanup, ArtifactCleanup::RetainedUnexpected);
+    assert_eq!(
+        store
+            .note_write_result(&request, &intent.destination, NoteWriteKind::Replace)
+            .unwrap(),
+        Some(NoteRecordedResult::Failure(failure))
+    );
+    let recovered = store.note_recovery(opened.note_id).unwrap().unwrap();
+    assert_eq!(recovered.working, request.text);
+    assert!(recovered.pending_operations.is_empty());
+    store
+        .begin_note_save(
+            &NoteSubmission {
+                operation_id: Uuid::new_v4(),
+                expected: recovered.stamp,
+                generation: 2,
+                text: "next".into(),
+                ..request
+            },
+            &intent.destination,
+            NoteWriteKind::Replace,
+            &precondition(&opened),
+        )
+        .unwrap();
+}
+
 fn fingerprint(text: &str, inode: u64) -> FileFingerprint {
     FileFingerprint {
         device: 1,

@@ -1,6 +1,109 @@
 use super::*;
 
 #[test]
+fn proven_pre_exchange_refusals_do_not_block_later_original_saves() {
+    for race in [
+        "noop_refusal",
+        "pre_stage_refusal",
+        "prepared_refusal",
+        "root_refusal",
+    ] {
+        let mut f = Fixture::new();
+        if race == "noop_refusal" {
+            f.request.text = "base".into();
+            fs::write(
+                f.root.path().join("request.json"),
+                serde_json::to_vec(&f.request).unwrap(),
+            )
+            .unwrap();
+        }
+        fs::write(f.root.path().join("race"), race).unwrap();
+        f.crash("refusal");
+        let mut w = f.reopen();
+        let error = w.save_note(f.request.clone()).unwrap_err();
+        assert_eq!(
+            error.filesystem_outcome,
+            FileOutcome::NotApplied,
+            "{race}: {error}"
+        );
+        let intent = w
+            .store
+            .note_save_intent(f.request.operation_id)
+            .unwrap()
+            .unwrap();
+        assert_eq!(intent.resolution, NoteResolution::NotApplied, "{race}");
+        let recovered = w.note_recoveries().unwrap().remove(0);
+        assert_eq!(recovered.working, f.request.text);
+        assert!(recovered.pending_operations.is_empty());
+        assert_eq!(
+            w.note(f.request.note_id).unwrap().availability,
+            NoteAvailability::Available
+        );
+        w.save_note(NoteSubmission {
+            operation_id: Uuid::new_v4(),
+            expected: recovered.stamp,
+            generation: 3,
+            text: "second save".into(),
+            ..f.request.clone()
+        })
+        .unwrap();
+        assert_eq!(w.save_note(f.request.clone()).unwrap_err(), error);
+        assert_eq!(
+            w.reconcile_note_save(f.request.operation_id).unwrap_err(),
+            error
+        );
+        assert_eq!(
+            fs::read(f.root.path().join("vault/plan.md")).unwrap(),
+            b"second save"
+        );
+    }
+}
+
+#[test]
+fn pre_exchange_failure_without_baseline_proof_is_unknown_and_stays_blocked() {
+    let f = Fixture::new();
+    fs::write(f.root.path().join("race"), "precheck_unrestored").unwrap();
+    f.crash("refusal");
+    let mut w = f.reopen();
+    let error = w.save_note(f.request.clone()).unwrap_err();
+    assert_eq!(error.code, NoteErrorCode::SaveUncertain);
+    assert_eq!(error.filesystem_outcome, FileOutcome::Unknown);
+    assert_eq!(
+        w.store
+            .note_save_intent(f.request.operation_id)
+            .unwrap()
+            .unwrap()
+            .resolution,
+        NoteResolution::Unresolved
+    );
+    assert_eq!(
+        fs::read(f.root.path().join("vault/plan.md")).unwrap(),
+        b"external"
+    );
+    fs::write(f.root.path().join("vault/plan.md"), "base").unwrap();
+    let recovered = w.note_recoveries().unwrap().remove(0);
+    let second = w
+        .save_note(NoteSubmission {
+            operation_id: Uuid::new_v4(),
+            expected: recovered.stamp,
+            generation: 3,
+            text: "second".into(),
+            ..f.request.clone()
+        })
+        .unwrap_err();
+    assert_eq!(second.code, NoteErrorCode::SaveUncertain);
+    assert_eq!(
+        w.note(f.request.note_id).unwrap().availability,
+        NoteAvailability::Uncertain
+    );
+    assert_eq!(w.save_note(f.request.clone()).unwrap_err(), error);
+    assert_eq!(
+        fs::read(f.root.path().join("vault/plan.md")).unwrap(),
+        b"base"
+    );
+}
+
+#[test]
 fn terminal_no_stage_attempts_coalesce_and_later_saves_retry_pending_cleanup() {
     for phase in ["intent", "cleanup_pending"] {
         let f = Fixture::new();
@@ -39,7 +142,8 @@ fn failure_after_exclusive_create_protects_unjournaled_artifact() {
     f.crash("refusal");
     let mut w = f.reopen();
     let error = w.save_note(f.request.clone()).unwrap_err();
-    assert_eq!(error.filesystem_outcome, FileOutcome::NotApplied);
+    assert_eq!(error.filesystem_outcome, FileOutcome::Unknown);
+    assert_eq!(error.code, NoteErrorCode::SaveUncertain);
     assert_eq!(error.phase, Some(SavePhase::Intent));
     assert!(error.recovery_available);
     let intent = w
@@ -185,10 +289,42 @@ fn child_worker() {
     let race = fs::read_to_string(root.join("race")).ok();
     let destination = root.join("vault/plan.md");
     let staging = root.join(format!("vault/.brn-{}.stage", request.operation_id));
+    let vault = root.join("vault");
+    let away = root.join("vault-away");
     let target = phase.clone();
     let mut w = crate::Workspace::open(&root.join("data"), crate::Config::default()).unwrap();
     save::TEST_HOOK.with(|hook| {
         *hook.borrow_mut() = Some(Box::new(move |current| {
+            if current == "intent" {
+                match race.as_deref() {
+                    Some("noop_refusal") => fs::write(&destination, "external").unwrap(),
+                    Some("root_refusal") => fs::rename(&vault, &away).unwrap(),
+                    _ => (),
+                }
+            }
+            if current == "before_stage" && race.as_deref() == Some("pre_stage_refusal") {
+                fs::rename(&destination, destination.with_extension("removed")).unwrap();
+            }
+            if current == "prepared"
+                && matches!(
+                    race.as_deref(),
+                    Some("prepared_refusal" | "precheck_unrestored")
+                )
+            {
+                fs::write(&destination, "external").unwrap();
+            }
+            if current == "save_failed" {
+                match race.as_deref() {
+                    Some("noop_refusal" | "prepared_refusal") => {
+                        fs::write(&destination, "base").unwrap()
+                    }
+                    Some("pre_stage_refusal") => {
+                        fs::rename(destination.with_extension("removed"), &destination).unwrap()
+                    }
+                    Some("root_refusal") => fs::rename(&away, &vault).unwrap(),
+                    _ => (),
+                }
+            }
             if current == "stage_created" && race.as_deref() == Some("stage_replace") {
                 fs::remove_file(&staging).unwrap();
                 fs::create_dir(&staging).unwrap();

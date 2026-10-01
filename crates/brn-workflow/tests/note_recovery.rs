@@ -2,7 +2,7 @@
 
 use brn_workflow::{
     Config, Workspace,
-    notes::{FileOutcome, NoteErrorCode, NoteSubmission},
+    notes::{FileOutcome, NoteAvailability, NoteErrorCode, NoteSubmission},
 };
 use std::{fs, path::Path};
 use tempfile::tempdir;
@@ -109,7 +109,25 @@ fn an_unexpected_staging_occupant_is_never_deleted() {
     assert_eq!(fs::read(&destination).unwrap(), b"base");
     drop(w);
     let mut w = Workspace::open(data.path(), Config::default()).unwrap();
+    assert_eq!(w.save_note(request.clone()).unwrap_err(), error);
+    let recovered = w.note_recoveries().unwrap().remove(0);
+    assert!(recovered.pending_operations.is_empty());
+    assert_eq!(
+        w.note(request.note_id).unwrap().availability,
+        NoteAvailability::Available
+    );
+    let receipt = w
+        .save_note(NoteSubmission {
+            operation_id: Uuid::new_v4(),
+            expected: recovered.stamp,
+            generation: 2,
+            text: "second save".into(),
+            ..request.clone()
+        })
+        .unwrap();
+    assert_eq!(receipt.filesystem_outcome, FileOutcome::Applied);
     assert_eq!(w.save_note(request).unwrap_err(), error);
+    assert_eq!(fs::read(&destination).unwrap(), b"second save");
     assert_eq!(fs::read(&stage).unwrap(), b"external artifact");
 }
 

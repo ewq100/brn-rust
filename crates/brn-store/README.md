@@ -63,6 +63,11 @@ resolved known terminal outcome, or `RetainedUnexpected`; terminal values
 cannot be reversed or exchanged. Unresolved, accepted-current and
 uncertain/unknown outcomes cannot authorize retirement.
 
+The dedicated `reconcile_note_operation` transition can resolve a proven
+pre-exchange failure NotApplied while preserving its exact recorded failure.
+A refusal alone is not proof: workflow must supply the matching original
+destination observation; missing proof or a substituted result is rejected.
+
 `prune_completed_note_payloads` removes only superseded, successfully completed
 payloads with retired artifacts and no protected dependency. The latest
 recovery pair/buffer, unresolved work, unexpected artifacts and receipts

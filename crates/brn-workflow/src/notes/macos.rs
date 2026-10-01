@@ -140,8 +140,6 @@ impl Coordination {
         self.access(path, false, action)
     }
 
-    // Task 4 coordinates filesystem writes.
-    #[allow(dead_code)]
     pub(super) fn write<T>(
         &self,
         path: &Path,

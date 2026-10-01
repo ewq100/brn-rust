@@ -9,6 +9,13 @@ use brn_store::{
         NoteVerification, NoteWriteKind, RetainedArtifact,
     },
 };
+use std::cell::Cell;
+
+#[derive(Default)]
+struct SaveProgress {
+    staging_attempted: Cell<bool>,
+    exchange_attempted: Cell<bool>,
+}
 
 struct NoteSaveObservations {
     destination: Option<FileObservation>,
@@ -92,8 +99,9 @@ impl crate::Workspace {
             };
             checkpoint("intent");
             let files = &self.notes.vault.as_ref().unwrap().1;
+            let progress = SaveProgress::default();
             let result = files.coordinate(&intent.destination, || {
-                execute_save(&mut self.store, files, intent.clone())
+                execute_save(&mut self.store, files, intent.clone(), &progress)
             });
             match result {
                 Ok(receipt) => {
@@ -118,29 +126,7 @@ impl crate::Workspace {
                     checkpoint("pruned");
                     Ok(receipt)
                 }
-                Err(mut error) => {
-                    let current = self
-                        .load_note_intent(request.operation_id)
-                        .map_err(|storage| context(storage, &intent, error.filesystem_outcome))?;
-                    error.phase = Some(current.phase);
-                    error.operation_id = Some(request.operation_id);
-                    error.note_id = Some(request.note_id);
-                    // Any artifact without a committed identity is not cleanup proof.
-                    if current.staged.is_none()
-                        && !matches!(files.artifact(&current.staging_relative), Ok(None))
-                    {
-                        self.store.record_note_cleanup(
-                            request.operation_id,
-                            ArtifactCleanup::RetainedUnexpected,
-                        )?;
-                    }
-                    Err(self.store.record_note_write_failure(
-                        &request,
-                        &intent.destination,
-                        NoteWriteKind::Replace,
-                        &error,
-                    )?)
-                }
+                Err(error) => self.record_note_save_failure(intent, error, &progress),
             }
         })();
         result.map_err(|mut error: NoteFailure| {
@@ -148,6 +134,85 @@ impl crate::Workspace {
             error.note_id.get_or_insert(request.note_id);
             error
         })
+    }
+
+    fn record_note_save_failure(
+        &mut self,
+        intent: NoteSaveIntent,
+        error: NoteFailure,
+        progress: &SaveProgress,
+    ) -> NoteResult<NoteReceipt> {
+        checkpoint("save_failed");
+        let current = self
+            .load_note_intent(intent.request.operation_id)
+            .map_err(|storage| context(storage, &intent, FileOutcome::Unknown))?;
+        if let Some(result) = current.prior_result.clone() {
+            return replay(result);
+        }
+        let files = &self.notes.vault.as_ref().unwrap().1;
+        if current.staged.is_none()
+            && !matches!(files.artifact(&current.staging_relative), Ok(None))
+        {
+            self.store
+                .record_note_cleanup(
+                    current.request.operation_id,
+                    ArtifactCleanup::RetainedUnexpected,
+                )
+                .map_err(|storage| context(storage, &current, FileOutcome::Unknown))?;
+        }
+        let known_failure = context(error.clone(), &current, FileOutcome::NotApplied);
+        let mut error = context(error, &current, FileOutcome::Unknown);
+        // Live progress proves whether creation/exchange was attempted; the journal
+        // phase alone is never such proof after a crash or an uncertain exchange.
+        if !progress.exchange_attempted.get() {
+            let original = if !progress.staging_attempted.get() {
+                files
+                    .observe(&current.destination)
+                    .ok()
+                    .and_then(|observed| match &current.expected_destination {
+                        DestinationPrecondition::Existing { fingerprint, .. }
+                            if observed.fingerprint == *fingerprint =>
+                        {
+                            Some(observed.fingerprint)
+                        }
+                        _ => None,
+                    })
+            } else {
+                self.observe_note_intent(&current)
+                    .ok()
+                    .and_then(|observations| classify_note_save(&current, &observations).ok())
+                    .and_then(|decision| match decision {
+                        RecoveryDecision::NotApplied(original) => Some(original),
+                        _ => None,
+                    })
+            };
+            if let Some(original) = original {
+                return replay(
+                    self.store
+                        .reconcile_note_operation(
+                            current.request.operation_id,
+                            &NoteReconciliation {
+                                resolution: NoteResolution::NotApplied,
+                                observed_destination: Some(original),
+                                verification: None,
+                                result: NoteRecordedResult::Failure(known_failure),
+                            },
+                        )
+                        .map_err(|storage| context(storage, &current, FileOutcome::Unknown))?,
+                );
+            }
+            error.code = NoteErrorCode::SaveUncertain;
+            error.message = format!(
+                "pre-exchange refusal lacks not-applied proof: {}",
+                error.message
+            );
+        }
+        Err(self.store.record_note_write_failure(
+            &current.request,
+            &current.destination,
+            NoteWriteKind::Replace,
+            &error,
+        )?)
     }
 
     /// Classifies interrupted writes from exact identity pairs; never writes or removes files.
@@ -264,6 +329,7 @@ fn execute_save(
     store: &mut Store,
     files: &MacFiles,
     mut intent: NoteSaveIntent,
+    progress: &SaveProgress,
 ) -> NoteResult<NoteReceipt> {
     let op = intent.request.operation_id;
     let DestinationPrecondition::Existing {
@@ -293,6 +359,14 @@ fn execute_save(
         checkpoint("receipt");
         return Ok(receipt);
     }
+    if files.artifact(&intent.staging_relative)?.is_some() {
+        return Err(note_failure(
+            NoteErrorCode::Conflict,
+            "staging path is already occupied",
+        ));
+    }
+    checkpoint("before_stage");
+    progress.staging_attempted.set(true);
     let prepared = files.prepare_replace(
         op,
         &intent.staging_relative,
@@ -318,6 +392,7 @@ fn execute_save(
     }
     checkpoint("prechecked");
     // Even an exchange error cannot be treated as execution disproof.
+    progress.exchange_attempted.set(true);
     files
         .exchange(&prepared, &intent.destination)
         .map_err(|error| context(error, &intent, FileOutcome::Unknown))?;

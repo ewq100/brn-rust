@@ -44,6 +44,12 @@ baseline without overwriting later typing. File flushing requires
 Late external races retain the actual displaced object and report conflict or
 uncertainty, never automatic rollback.
 
+Pre-exchange refusals resolve NotApplied only with freshly observed original
+baseline proof and no stage creation or an exact recorded unexchanged stage.
+The failure result remains the immutable replay result; submitted recovery and
+unexpected staging occupants stay protected, but a new original save is allowed.
+Missing proof remains SaveUncertain/Unknown and blocks later original saves.
+
 `reconcile_note_save(operation_id)` classifies interrupted writes and commits
 metadata only: it never retries exchange, creates, renames or unlinks files.
 Matching bytes without execution identity proof remain uncertain. Compact
