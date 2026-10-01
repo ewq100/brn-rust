@@ -43,6 +43,92 @@ impl Fixture {
     }
 }
 
+fn assert_alternate_spelling_is_not_reenrolled(registered: &str, alternate: &str, replace: bool) {
+    use std::os::unix::fs::MetadataExt;
+
+    let data = tempdir().unwrap();
+    let vault = tempdir().unwrap();
+    let original = vault.path().join(registered);
+    let alternative = vault.path().join(alternate);
+    fs::write(&original, "base").unwrap();
+    let mut w = Workspace::open(data.path(), Config::default()).unwrap();
+    let opened = w
+        .open_note(Uuid::new_v4(), vault.path(), Path::new(registered))
+        .unwrap();
+    w.save_note_buffer(NoteSubmission {
+        operation_id: Uuid::new_v4(),
+        note_id: opened.id,
+        expected: opened.stamp,
+        generation: 1,
+        text: "protected draft".into(),
+    })
+    .unwrap();
+    drop(w);
+    let mut w = Workspace::open(data.path(), Config::default()).unwrap();
+    if replace {
+        fs::write(vault.path().join("replacement"), "external").unwrap();
+        fs::rename(vault.path().join("replacement"), &original).unwrap();
+    }
+    let original_identity = fs::metadata(&original).unwrap();
+    match fs::metadata(&alternative) {
+        Ok(alias) => {
+            assert_eq!(
+                (alias.dev(), alias.ino()),
+                (original_identity.dev(), original_identity.ino())
+            );
+            eprintln!("fixture treats {registered:?} and {alternate:?} as the same file identity");
+            let error = w
+                .open_note(Uuid::new_v4(), vault.path(), Path::new(alternate))
+                .unwrap_err();
+            assert_eq!(error.code, NoteErrorCode::Conflict);
+            assert_eq!(error.note_id, Some(opened.id));
+            assert!(error.message.contains(registered), "{error}");
+            assert_eq!(w.note_recoveries().unwrap().len(), 1);
+        }
+        Err(error) if error.kind() == std::io::ErrorKind::NotFound => {
+            eprintln!(
+                "fixture distinguishes {registered:?} and {alternate:?}; testing separate identities rather than skipping"
+            );
+            fs::write(&alternative, fs::read(&original).unwrap()).unwrap();
+            let distinct = w
+                .open_note(Uuid::new_v4(), vault.path(), Path::new(alternate))
+                .unwrap();
+            assert_ne!(distinct.id, opened.id);
+            assert_eq!(w.note_recoveries().unwrap().len(), 2);
+        }
+        other => panic!("unexpected alias probe: {other:?}"),
+    }
+    assert_eq!(w.note(opened.id).unwrap().buffer, "protected draft");
+    assert_eq!(w.note(opened.id).unwrap().stamp.generation, 1);
+}
+
+#[test]
+fn case_alias_cannot_allocate_a_second_note_after_restart() {
+    assert_alternate_spelling_is_not_reenrolled("plan.md", "PLAN.md", false);
+}
+
+#[test]
+fn unicode_alias_cannot_allocate_a_second_note_after_restart() {
+    assert_alternate_spelling_is_not_reenrolled("café.md", "cafe\u{301}.md", false);
+}
+
+#[test]
+fn case_alias_of_an_unobserved_replacement_cannot_allocate_a_second_note() {
+    assert_alternate_spelling_is_not_reenrolled("plan.md", "PLAN.md", true);
+}
+
+#[test]
+fn identical_content_in_distinct_files_does_not_identify_the_same_note() {
+    let mut f = Fixture::new("base");
+    fs::write(f.vault.path().join("copy.md"), "base").unwrap();
+    let copied = f
+        .workspace
+        .open_note(Uuid::new_v4(), f.vault.path(), Path::new("copy.md"))
+        .unwrap();
+    assert_ne!(copied.id, f.opened.id);
+    assert_eq!(f.workspace.note_recoveries().unwrap().len(), 2);
+}
+
 #[test]
 fn acknowledged_buffer_survives_reopen_without_writing_markdown() {
     let mut f = Fixture::new("# base\r\n");

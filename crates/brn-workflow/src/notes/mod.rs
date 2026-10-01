@@ -36,6 +36,7 @@ impl crate::Workspace {
                     .as_ref()
                     .or_else(|| self.notes.vault.as_ref().map(|(owned, _)| owned)),
             )?;
+            let mut registered_notes = Vec::new();
             for recovery in self.store.note_recoveries()? {
                 let record = self.store.note_record(recovery.note_id)?;
                 if record.relative_path == relative {
@@ -49,9 +50,34 @@ impl crate::Workspace {
                     )?;
                     return self.note(record.id);
                 }
+                registered_notes.push(record);
             }
             self.open_note_vault(&selected)?;
-            let observed = self.notes.vault.as_ref().unwrap().1.observe(relative)?;
+            let files = &self.notes.vault.as_ref().unwrap().1;
+            let observed = files.observe(relative)?;
+            let same_file = |file: &brn_store::notes::FileFingerprint| {
+                file.device == observed.fingerprint.device
+                    && file.inode == observed.fingerprint.inode
+            };
+            for record in registered_notes {
+                if record.vault_id == selected.id
+                    && (same_file(&record.baseline)
+                        || record.observed.as_ref().is_some_and(|(_, file)| same_file(file))
+                        // An external replacement may not have a durable observation yet.
+                        || files.observe(&record.relative_path)
+                            .is_ok_and(|current| same_file(&current.fingerprint)))
+                {
+                    let mut error = note_failure(
+                        NoteErrorCode::Conflict,
+                        format!(
+                            "file is already registered as {}; use that registered path",
+                            record.relative_path.display()
+                        ),
+                    );
+                    error.note_id = Some(record.id);
+                    return Err(error);
+                }
+            }
             let recovered = self.store.enroll_note_at(
                 op,
                 vault,

@@ -28,7 +28,10 @@ OwnedElsewhere views with explanatory messages and no fresh saved bytes.
 Buffer edits and history remain available offline. A workspace is bound to one
 vault; selecting a different root requires a separate data directory. Open
 replay binds the caller's exact root/path inputs before filesystem checks and
-then returns a fresh view, not stale saved bytes. Worker notice draining and
+then returns a fresh view, not stale saved bytes. Alternate case or Unicode
+spellings of an already registered file are rejected with typed Conflict naming
+the registered path, based on device/inode identity rather than content hashes;
+they cannot allocate a second editing buffer. Worker notice draining and
 Markdown publication are later tasks, not provided by these methods.
 
 ## Dependencies and features
