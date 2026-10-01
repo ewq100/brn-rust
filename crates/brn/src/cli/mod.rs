@@ -9,6 +9,8 @@ pub mod comments;
 pub mod documents;
 pub mod drafts;
 pub mod error;
+mod input;
+pub mod notes;
 pub(crate) mod out;
 pub mod retrieval;
 pub mod review;
@@ -30,6 +32,7 @@ pub struct Invocation {
 }
 
 pub enum Command {
+    Notes(notes::NoteCommand),
     Status,
     Import {
         path: PathBuf,
@@ -177,6 +180,19 @@ Global options (accepted before or after the command):
   --version          Show the version (works without --data-dir)
 
 Commands:
+  brn notes open PATH --vault DIR [--operation UUID]
+  brn notes show NOTE_ID
+  brn notes buffer save NOTE_ID --base-file-state UUID --expected-generation N --generation N --text-file PATH [--operation UUID]
+  brn notes save NOTE_ID --base-file-state UUID --expected-generation N --generation N --text-file PATH [--operation UUID]
+  brn notes recovery list
+  brn notes recovery show NOTE_ID
+  brn notes recovery reconcile --operation UUID
+  brn notes recovery accept-current --save-operation UUID --file-state UUID --keep-recovery [--operation UUID]
+  brn notes compare NOTE_ID
+  brn notes reload NOTE_ID --base-file-state UUID --expected-generation N --discard-local-edits [--operation UUID]
+  brn notes relink NOTE_ID --path PATH --base-file-state UUID --expected-generation N --confirm-identity [--operation UUID]
+  brn notes save-copy NOTE_ID --path PATH --base-file-state UUID --expected-generation N --generation N --text-file PATH [--operation UUID]
+  brn notes approve-for-search NOTE_ID --file-state UUID [--operation UUID]
   brn status
   brn import PATH [--approve-for-search] [--operation UUID]
   brn documents list
@@ -518,6 +534,7 @@ fn parse_inner(
     // Pass 2: subcommand words, command-specific options and positionals.
     let scanned = match word.as_str() {
         "help" => return Ok(Outcome::Help),
+        "notes" => notes::scan_command(&mut tokens, g, command)?,
         "status" => {
             *command = Some("status");
             scan(&mut tokens, g, &[])?
@@ -871,6 +888,7 @@ fn parse_inner(
             }
             _ => unreachable!(),
         },
+        "notes" => Command::Notes(notes::parse_command(command.unwrap(), &scanned)?),
         "comments" => match command.unwrap() {
             "comments.list" => {
                 expect_positionals(&scanned, 0)?;
@@ -1100,6 +1118,7 @@ pub fn open_workspace(invocation: &Invocation) -> Result<brn_workflow::Workspace
 /// opened so they never create, lock or recover a data directory.
 pub fn execute(invocation: &Invocation) -> Result<Output, CliFailure> {
     match &invocation.command {
+        Command::Notes(command) => return notes::run(invocation, command),
         Command::Import { .. }
         | Command::DocumentsSetApproval { .. }
         | Command::IndexBuild

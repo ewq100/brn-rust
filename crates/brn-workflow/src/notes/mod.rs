@@ -208,6 +208,11 @@ impl crate::Workspace {
         self.store.note_recoveries()
     }
 
+    /// Inspect durable editing recovery without acquiring vault ownership.
+    pub fn note_recovery(&self, id: Uuid) -> NoteResult<Option<NoteRecovery>> {
+        self.store.note_recovery(id)
+    }
+
     fn acquire_note_vault(&mut self, note_id: Uuid) -> NoteResult<()> {
         let vault = self.store.note_vault(note_id)?;
         self.open_note_vault(&vault)

@@ -84,6 +84,7 @@ fn deliver_stdout(payload: &str, what: &str) -> ExitCode {
 /// the variant is sufficient.
 fn command_name(command: &cli::Command) -> &'static str {
     match command {
+        cli::Command::Notes(command) => command.name(),
         cli::Command::Status => "status",
         cli::Command::Import { .. } => "import",
         cli::Command::DocumentsList => "documents.list",
@@ -179,6 +180,66 @@ mod tests {
             }),
         );
         assert_eq!(code, ExitCode::SUCCESS, "completed result stands");
+    }
+
+    #[cfg(target_os = "macos")]
+    #[test]
+    fn note_save_durable_receipt_survives_signal_after_completion() {
+        let _cancel = CancelTestGuard::with(false);
+        let data = tempfile::Builder::new()
+            .tempdir_in(std::env::current_dir().unwrap())
+            .unwrap();
+        let vault = tempfile::Builder::new()
+            .tempdir_in(std::env::current_dir().unwrap())
+            .unwrap();
+        let path = vault.path().join("plan.md");
+        std::fs::write(&path, "base").unwrap();
+        let mut workspace =
+            brn_workflow::Workspace::open(data.path(), brn_workflow::Config::default()).unwrap();
+        let view = workspace
+            .open_note(
+                uuid::Uuid::new_v4(),
+                vault.path(),
+                std::path::Path::new("plan.md"),
+            )
+            .unwrap();
+        drop(workspace);
+        let file = data.path().join("text.txt");
+        std::fs::write(&file, "saved\r\n").unwrap();
+        let operation = uuid::Uuid::new_v4();
+        let invocation = cli::Invocation {
+            json: true,
+            data_dir: data.path().to_owned(),
+            codex: None,
+            model_dir: None,
+            command: cli::Command::Notes(cli::notes::NoteCommand::Write {
+                kind: cli::notes::WriteKind::Save,
+                note: view.id,
+                expected: view.stamp,
+                generation: 1,
+                text_file: file,
+                operation: Some(operation),
+            }),
+        };
+        let result = cli::execute(&invocation).unwrap_or_else(|_| panic!("note save completes"));
+        on_sigint(libc::SIGINT);
+        let mut bytes = Vec::new();
+        let (exit, diagnostic) = cli::out::finish_ok_to(true, "notes.save", result, &mut bytes);
+        assert_eq!(exit, ExitCode::SUCCESS);
+        assert!(diagnostic.is_none());
+        let envelope: serde_json::Value = serde_json::from_slice(&bytes).unwrap();
+        assert_eq!(envelope["data"]["filesystem_outcome"], "Applied");
+        assert_eq!(envelope["data"]["operation_id"], operation.to_string());
+        assert_eq!(std::fs::read(&path).unwrap(), b"saved\r\n");
+        let mut workspace =
+            brn_workflow::Workspace::open(data.path(), brn_workflow::Config::default()).unwrap();
+        assert_eq!(
+            workspace
+                .reconcile_note_save(operation)
+                .unwrap()
+                .filesystem_outcome,
+            brn_workflow::notes::FileOutcome::Applied
+        );
     }
 
     /// A signal that has arrived by the end of input preparation must

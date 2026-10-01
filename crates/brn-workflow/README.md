@@ -18,7 +18,8 @@ are durable and distinct from the editing baseline.
 
 `save_note_buffer(NoteSubmission)` acknowledges generation-checked SQLite
 recovery only; it does not write Markdown. `note_recoveries()` includes clean
-notes and unresolved work and requires no vault access. Note operations return
+notes and unresolved work; `note_recovery(id)` inspects one note (or returns
+`None`). Both require no vault access. Note operations return
 typed `NoteResult` failures independently of generic workflow errors.
 
 `approve_note_snapshot(operation_id, note_id, current_file_state)` freezes exact

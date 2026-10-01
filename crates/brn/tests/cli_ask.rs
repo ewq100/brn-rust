@@ -123,6 +123,7 @@ fn stale_completed_answer_and_failure_envelope_replay_preserve_receipt_and_provi
         "StaleAtCompletion"
     );
     assert_eq!(context["receipt"]["answer"], "Aurora launches Tuesday [1].");
+    fs::remove_file(&exe).unwrap(); // Replay and stale-session refusal cannot launch this provider.
     let replay = ask(data.path(), &exe, &["--operation", &op]);
     assert_eq!(code(&replay), 1);
     let replay = one_json(&replay);
@@ -130,6 +131,7 @@ fn stale_completed_answer_and_failure_envelope_replay_preserve_receipt_and_provi
     assert_eq!(replay["error"]["context"], first["error"]["context"]);
     let session = context["session_id"].as_str().unwrap();
     let resumed = ask(data.path(), &exe, &["--session", session]);
+    assert_eq!(code(&resumed), 1);
     assert_eq!(one_json(&resumed)["error"]["code"], "CONTEXT_STALE");
     let history = brn_json(data.path(), &["conversations", "show", session]);
     let history = one_json(&history);

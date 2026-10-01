@@ -4,12 +4,12 @@
 //! existing draft-size limit and the exact bytes are carried in memory into
 //! the workflow (no reread, no Unicode or line-ending normalization).
 use crate::cli::{
-    error::classify_workflow, error::CliError, open_workspace, review::draft_summary, CliFailure,
-    Command, Invocation, Output,
+    error::classify_workflow, error::CliError, input::prepared_workspace, review::draft_summary,
+    CliFailure, Command, Invocation, Output,
 };
-use brn_workflow::{Workspace, MAX_DRAFT_BYTES};
+use brn_workflow::Workspace;
 use serde_json::json;
-use std::{fs, io::Read, path::Path, sync::atomic::Ordering};
+use std::path::Path;
 use uuid::Uuid;
 
 pub fn run(invocation: &Invocation) -> Result<Output, CliFailure> {
@@ -125,28 +125,6 @@ fn save_run(
     )
 }
 
-fn prepared_workspace(invocation: &Invocation) -> Result<Workspace, CliFailure> {
-    // A signal that has arrived by the end of input preparation must prevent
-    // the workspace from even being opened.
-    if crate::CANCEL.load(Ordering::SeqCst) {
-        return Err(CliError::Interrupted(
-            "interrupted during input preparation; the command was not run".into(),
-        )
-        .into());
-    }
-    let workspace = open_workspace(invocation)?;
-    // Opening the workspace can block up to the store's lock retry window; a
-    // signal arriving during that wait must still prevent the mutation. This
-    // is the last check before the workflow mutation starts.
-    if crate::CANCEL.load(Ordering::SeqCst) {
-        return Err(CliError::Interrupted(
-            "interrupted while acquiring the workspace; the command was not run".into(),
-        )
-        .into());
-    }
-    Ok(workspace)
-}
-
 fn create(
     workspace: &mut Workspace,
     title: &str,
@@ -228,29 +206,6 @@ fn save(
     })
 }
 
-/// Bounded read of a regular UTF-8 file at most `MAX_DRAFT_BYTES` long,
-/// following the shared `import_file` read pattern. Exact bytes are kept:
-/// no newline or Unicode normalization. Empty text stays permitted (the
-/// import-only nonempty rule is deliberately not imported here).
 fn read_text_file(path: &Path) -> Result<String, CliError> {
-    fn io(error: std::io::Error) -> CliError {
-        CliError::Workflow(error.to_string())
-    }
-    let meta = fs::metadata(path).map_err(io)?;
-    if !meta.is_file() || meta.len() > MAX_DRAFT_BYTES as u64 {
-        return Err(CliError::Workflow(
-            "draft text requires a regular UTF-8 text file up to 1 MiB".into(),
-        ));
-    }
-    let mut file = fs::File::open(path).map_err(io)?;
-    let mut bytes = Vec::new();
-    Read::by_ref(&mut file)
-        .take((MAX_DRAFT_BYTES + 1) as u64)
-        .read_to_end(&mut bytes)
-        .map_err(io)?;
-    if bytes.len() > MAX_DRAFT_BYTES {
-        return Err(CliError::Workflow("draft text exceeds 1 MiB".into()));
-    }
-    String::from_utf8(bytes)
-        .map_err(|_| CliError::Workflow("draft text file is not valid UTF-8".into()))
+    super::input::read_text_file(path, "draft")
 }

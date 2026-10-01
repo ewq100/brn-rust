@@ -44,6 +44,7 @@ fn documents_surfaces_label_shadowed_changed_and_missing_without_old_current_byt
         .unwrap();
     assert_eq!(shadowed["current_state"], "Shadowed");
     assert_eq!(shadowed["note_id"], note.id.to_string());
+    assert!(shadowed["message"].as_str().is_some_and(|s| !s.is_empty()));
     assert!(shadowed.get("sha256_hex").is_none());
     assert!(shadowed.get("content").is_none());
     let (c, envelope) = run_json(
@@ -69,6 +70,7 @@ fn documents_surfaces_label_shadowed_changed_and_missing_without_old_current_byt
         .find(|d| d["source_id"] == managed.source_id.to_string())
         .unwrap();
     assert_eq!(changed["current_state"], "Changed");
+    assert!(changed["message"].as_str().is_some_and(|s| !s.is_empty()));
     assert!(changed.get("version_id").is_none());
     fs::remove_file(&file).unwrap();
     let (_, envelope) = run_json(data.path(), &["documents", "list"]);
@@ -77,6 +79,13 @@ fn documents_surfaces_label_shadowed_changed_and_missing_without_old_current_byt
         .unwrap()
         .iter()
         .any(|d| d["current_state"] == "Missing"));
+    let (c, envelope) = run_json(
+        data.path(),
+        &["documents", "show", &managed.source_id.to_string()],
+    );
+    assert_eq!(c, 1);
+    assert_eq!(envelope["error"]["code"], "EVIDENCE_STALE");
+    assert!(envelope.get("data").is_none());
     let (c, envelope) = run_json(
         data.path(),
         &[

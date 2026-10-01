@@ -8,6 +8,19 @@ Agent-facing CLI for BRN workspaces: parsing, JSON envelopes and exit codes over
 
 ## Commands
 
+  brn notes open PATH --vault DIR [--operation UUID]
+  brn notes show NOTE_ID
+  brn notes buffer save NOTE_ID --base-file-state UUID --expected-generation N --generation N --text-file PATH [--operation UUID]
+  brn notes save NOTE_ID --base-file-state UUID --expected-generation N --generation N --text-file PATH [--operation UUID]
+  brn notes recovery list
+  brn notes recovery show NOTE_ID
+  brn notes recovery reconcile --operation UUID
+  brn notes recovery accept-current --save-operation UUID --file-state UUID --keep-recovery [--operation UUID]
+  brn notes compare NOTE_ID
+  brn notes reload NOTE_ID --base-file-state UUID --expected-generation N --discard-local-edits [--operation UUID]
+  brn notes relink NOTE_ID --path PATH --base-file-state UUID --expected-generation N --confirm-identity [--operation UUID]
+  brn notes save-copy NOTE_ID --path PATH --base-file-state UUID --expected-generation N --generation N --text-file PATH [--operation UUID]
+  brn notes approve-for-search NOTE_ID --file-state UUID [--operation UUID]
   brn status
   brn import PATH [--approve-for-search] [--operation UUID]
   brn documents list
@@ -55,10 +68,82 @@ The error object may carry an **additive-optional `context` field** (schema_vers
    "context": {"operation_id": "…", "session_id": "…", "recorded_status": "interrupted", "provider_outcome": "unknown"}}}
 ```
 
-`context` currently appears only on `ask` failures; consumers must treat its
-absence as normal for every command and every other error.
+`context` appears on typed note and `ask` failures; consumers must also handle
+errors without context (including usage, input preparation and workspace opening).
 
 Exit codes: `0` success; `2` usage (`USAGE`); `1` operational failure (`WORKSPACE_BUSY`, `NOT_FOUND`, `INDEX_MISSING`, `INDEX_STALE`, `INDEX_INVALID`, `EVIDENCE_STALE`, `CONTEXT_STALE`, `PROFILE_UNAVAILABLE`, `OPERATION_CONFLICT`, `WORKFLOW_ERROR`); `124` deadline (`TIMEOUT`); `130` interrupted (`INTERRUPTED`). Codes are derived from typed workflow error categories at the source, never from matching message wording; uncategorized failures are an honest `WORKFLOW_ERROR`.
+
+Note failures also exit `1`: `NOTE_STATE_CHANGED`, `NOTE_CONFLICT`,
+`NOTE_MISSING`, `NOTE_UNSUPPORTED`, `NOTE_SAVE_UNCERTAIN`, `NOTE_IO_ERROR`,
+`NOTE_STORAGE_ERROR`, `VAULT_BUSY`, `VAULT_UNAVAILABLE`; operation/workspace
+conflicts retain `OPERATION_CONFLICT`/`WORKSPACE_BUSY`.
+
+## Safe Markdown notes
+
+[`notes`](src/cli/notes.rs) calls the shared workflow; no CLI filesystem-write
+fallback exists. The vault root and `notes open PATH` must be explicit absolute
+paths; PATH must be contained in that root. Relink/copy destinations are
+contained vault-relative `.md` paths. A workspace binds one vault; use another
+data directory for a different vault. Vault ownership is exclusive across
+workspaces, independently of data-directory ownership.
+
+`open`/`show` return the `NoteView`: exact freshly observed `saved` bytes,
+durable `buffer`, editing `stamp`, separate `current_file_state`, availability
+and search approval. Missing/unavailable/owned-elsewhere views never pass
+recovery bytes off as saved content. ID-only commands work after process
+restart without another `open`. Recovery list/show require no vault access.
+
+Buffer save recovers text in SQLite **without saving Markdown**. Save explicitly
+writes the original file, and save-copy creates a separate note with a separate
+ID and no inherited approval. Their request uses exactly the supplied
+`--base-file-state` and `--expected-generation`, never a fetched replacement.
+Higher generations update text; equal generations require identical bytes
+(saving an already recovered buffer needs no artificial generation increment).
+Text inputs are regular UTF-8 files, bounded to 1 MiB in bytes, read before
+workspace access; empty files, BOMs and CRLF are preserved.
+
+Save/copy receipts include `operation_id`, `source_note_id`, `note_id`,
+`submitted_generation`, `stamp`, `filesystem_outcome` and `recovery_available`.
+`Applied` acknowledges verified saving; a verified no-op is `NotApplied`.
+Same-payload operation replay returns the original receipt/refusal even after
+later edits, not proof that its old state remains current. Reconciliation
+selects the original save with required `--operation` and never retries a write.
+
+Compare returns baseline/working/fresh observed text and its observation token.
+Reload requires `--discard-local-edits`; relink requires `--confirm-identity`
+and retains local work. Accept-current names the unresolved original through
+`--save-operation`; optional `--operation` is a separate acknowledgement.
+It requires a reviewed `--file-state` and explicit `--keep-recovery`, preserves
+uncertain recovery/artifacts, and neither writes disk nor grants approval nor
+turns the original failure into a successful save. The success result is a
+note view, not an original-save receipt.
+Open/reload/relink views also identify their `operation_id`; accept-current
+identifies its acknowledgement as `operation_id` and the original as
+`save_operation_id`.
+
+Approval requires the reviewed `current_file_state`, **not** a possibly older
+editing baseline. It freezes saved bytes only. Changed files/saves withdraw
+eligibility; after reconciliation, explicitly reapprove and rebuild the index.
+Search approval is not publication approval.
+
+Typed note failures carry `error.context` with nullable `operation_id`,
+`note_id`, `phase`, known `filesystem_outcome`
+(`NotApplied`/`Applied`/`Unknown`) and boolean `recovery_available`.
+`true` confirms the submitted snapshot is retained; `false` does not prove
+there is no older recovery. A possible write is never reported as cancelled
+merely because SIGINT arrives afterward; its durable result stands.
+
+Example (directories already exist; replace IDs/tokens with returned values):
+
+```text
+brn notes open /absolute/disposable-vault/plan.md --vault /absolute/disposable-vault --data-dir /absolute/disposable-data --json
+brn notes buffer save NOTE_ID --base-file-state FILE_STATE --expected-generation 0 --generation 1 --text-file /absolute/edited.txt --data-dir /absolute/disposable-data --json
+brn notes save NOTE_ID --base-file-state FILE_STATE --expected-generation 1 --generation 1 --text-file /absolute/edited.txt --operation SAVE_UUID --data-dir /absolute/disposable-data --json
+brn notes recovery reconcile --operation SAVE_UUID --data-dir /absolute/disposable-data --json
+brn notes show NOTE_ID --data-dir /absolute/disposable-data --json
+brn notes approve-for-search NOTE_ID --file-state CURRENT_FILE_STATE --data-dir /absolute/disposable-data --json
+brn index build --data-dir /absolute/disposable-data --json
+```
 
 ## Semantics
 

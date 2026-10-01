@@ -17,11 +17,29 @@ pub enum CliError {
     Timeout(String),
     Interrupted(String),
     Workflow(String),
+    NoteStateChanged(String),
+    NoteConflict(String),
+    NoteMissing(String),
+    NoteUnsupported(String),
+    NoteSaveUncertain(String),
+    NoteIo(String),
+    NoteStorage(String),
+    VaultBusy(String),
+    VaultUnavailable(String),
 }
 
 impl CliError {
     pub fn code(&self) -> &'static str {
         match self {
+            Self::NoteStateChanged(_) => "NOTE_STATE_CHANGED",
+            Self::NoteConflict(_) => "NOTE_CONFLICT",
+            Self::NoteMissing(_) => "NOTE_MISSING",
+            Self::NoteUnsupported(_) => "NOTE_UNSUPPORTED",
+            Self::NoteSaveUncertain(_) => "NOTE_SAVE_UNCERTAIN",
+            Self::NoteIo(_) => "NOTE_IO_ERROR",
+            Self::NoteStorage(_) => "NOTE_STORAGE_ERROR",
+            Self::VaultBusy(_) => "VAULT_BUSY",
+            Self::VaultUnavailable(_) => "VAULT_UNAVAILABLE",
             Self::Usage(_) => "USAGE",
             Self::WorkspaceBusy(_) => "WORKSPACE_BUSY",
             Self::NotFound(_) => "NOT_FOUND",
@@ -52,6 +70,15 @@ impl CliError {
             | Self::OperationConflict(m)
             | Self::Timeout(m)
             | Self::Interrupted(m)
+            | Self::NoteStateChanged(m)
+            | Self::NoteConflict(m)
+            | Self::NoteMissing(m)
+            | Self::NoteUnsupported(m)
+            | Self::NoteSaveUncertain(m)
+            | Self::NoteIo(m)
+            | Self::NoteStorage(m)
+            | Self::VaultBusy(m)
+            | Self::VaultUnavailable(m)
             | Self::Workflow(m) => m,
         }
     }
