@@ -2,9 +2,9 @@
 
 Date: 1 October 2026
 
-Implementation: implemented (slice 1). Verification: partial — automated verified, manual native pending. Acceptance: pending (design approval is not native/user acceptance). Integration: branch `feat/workspace-shell`, final commit is the documentation commit containing this record (`git log -1 --format='%h %s' -- docs/work/completed/workspace-shell/evidence.md`); code at `90b34c6`, not merged. No release.
+Implementation: implemented (slice 1, including the final whole-branch review fix wave). Verification: partial — automated verified, manual native pending. Acceptance: pending (design approval is not native/user acceptance). Integration: branch `feat/workspace-shell`, final commit is the documentation commit containing this record (`git log -1 --format='%h %s' -- docs/work/completed/workspace-shell/evidence.md`); code at `4c3ddd4`, not merged. No release.
 
-Tested code HEAD: `90b34c60e5eeec44cba4f5ae6c5149a943120856` on 1 October 2026, before documentation edits. Worktree: `.worktrees/workspace-shell`; actual implementation baseline `9786d2d` supersedes the plan's `9af18f5` (intervening changes were documentation-only). No Rust, manifest or lockfile changes in Task 6. Verification-script scratch allocation was temporarily changed and restored, as recorded below.
+Latest tested code: `4c3ddd4513c49ee5d6613085c422b83ac987c611` on 1 October 2026 (verified as uncommitted changes over `863db5e`, then committed without code changes). Task 6 previously tested `90b34c60e5eeec44cba4f5ae6c5149a943120856` before its documentation edits. Worktree: `.worktrees/workspace-shell`; actual implementation baseline `9786d2d` supersedes the plan's `9af18f5` (intervening changes were documentation-only). No manifest or lockfile changes in this fix wave. Verification-script scratch allocation was temporarily changed and restored, as recorded below.
 
 ## Design and planning (historical)
 
@@ -128,7 +128,7 @@ An environment probe using `/opt/homebrew/opt/rustup/bin/rustc +1.98.1 --version
 ## Compatibility adaptations and dead-code decisions
 
 - Task 2: `#![recursion_limit = "256"]` in `main.rs` is required by the supplied large `serde_json::json!` theme macro; initial compilation hit the default recursion limit. No runtime change.
-- Task 3: `theme::config` adds `highlight.syntax: {}` to its local JSON before deserializing. gpui-component 0.6.6 requires `HighlightThemeStyle.syntax`; direct deserialization failed with `missing field syntax`. Handoff palette/editor values remain unchanged, but an empty syntax map replaces the toolkit highlight theme: visible Markdown syntax colours remain a manual qualification gap.
+- Task 3 (historical, superseded by the final fix wave below): `theme::config` added `highlight.syntax: {}` before deserializing because gpui-component 0.6.6 requires `HighlightThemeStyle.syntax`. The empty map replaced the toolkit syntax styles; this regression is now fixed. Visible Markdown colours still require human observation.
 - Task 3: ThemeConfig re-export, Theme::change, TitleBar::window_options and observe_window_appearance used the specified signatures unchanged. No post-change field mutation.
 - Task 4: open_dialog, has_active_dialog, Selectable::selected, ScrollHandle::set_offset, Window::defer and TitleBar APIs worked unchanged; Context coerces to App. Returned the root `div()` chain directly instead of a needless final binding. `render_document` uses `pub(super)` to satisfy the exported shell interface. Intermediate approval/region scaffolds were removed; rustfmt-only chain/closure reformatting preserves moved content.
 - Task 5: FocusHandle::tab_stop, observe_window_activation/is_window_active, on_mouse_up_out, pressed_button, keystroke/modifier fields, cursor_col_resize, editor Focusable handle and MenuItem::separator worked unchanged. `target.update(cx, apply)` replaces the redundant `|this, cx| apply(this, cx)` closure rejected by Clippy.
@@ -144,6 +144,39 @@ An environment probe using `/opt/homebrew/opt/rustup/bin/rustc +1.98.1 --version
 4. `workspace-page` / Workspace, `activity-page` / Activity, `drafts-page` / Drafts and `settings-page` / Settings page-switch buttons: replaced by regions/navigation.
 
 Other superseded chrome: Saved conversations → History Conversations; New session → + New chat; Drafts · exact Markdown working copies → Working drafts/document breadcrumb; old draft rows → distinct History/Vault rows; Question → fixed composer with retained accessibility label; Local settings → Settings Workspace/Connection sections; inline source metadata → source reader with textual approval tags. The temporary `brn / workspace` strip, duplicate compact message / “Review details below” line and disabled Cancel current action control became the phase header, full status line and running-only Cancel. No A/B/C lines or draft/comment/provenance actions were dropped.
+
+## Final whole-branch review fix wave
+
+Code commit: `4c3ddd4` (`fix(desktop): preserve syntax colours and stable divider drags`), over reviewed branch HEAD `863db5e`. All six controller-scoped findings are addressed:
+
+1. `native/theme.rs` now builds a complete typed highlight style from the matching toolkit `HighlightTheme::default_dark()/default_light()`, overriding only the four handoff editor colours. This replaces the empty-syntax JSON patch. The native test checks actual non-null syntax styles (a serialized all-null map is not sufficient), equality with each scheme's default syntax, and all four editor colours including the paper background.
+2. `native/shell/divider.rs` records the pointer grab offset relative to the edge expected by the unchanged pure `LayoutState::drag`. This covers History and Document left edges and Vault's right edge. A stationary pointer is ignored, preventing document-share normalization on a click.
+3. The same native drag state snapshots `LayoutState` at mouse-down; drag end persists only when the final layout differs. Clicks and fully clamped moves do not rewrite `layout.json`; drag-end still notifies to remove active styling.
+4. `native/shell/mod.rs` clears `layout_note` only after a successful save; failures retain the recovery note and still report the save error.
+5. The manual checklist and crate README now distinguish chrome Tab navigation from editor-local indentation. Keyboard users leave editors via ⌘L, menus, Escape or other applicable shortcuts; Tab/Shift-Tab inside multiline composer/draft/comment editors indent/outdent (toolkit behaviour).
+6. `native/shell/centre.rs` adds `.vertical_scrollbar(&self.chat_scroll)` to the transcript, preserving its existing persistent scroll handle.
+
+GPUI adaptations: `MouseDownEvent` needs an explicit listener parameter type in the pinned toolkit (initial compilation reported E0282). `HighlightTheme` is available under `gpui_kit::component::highlighter`; typed editor overrides avoid depending on highlight JSON deserialization. The initial editor-background assertion also found `None` in the former config, so the final test verifies real typed paper/editor values, not merely token JSON. The existing scrollbar API compiles unchanged. No workflow, guard, poll, keyboard action or pure layout API changes.
+
+### Fresh automated verification
+
+Commands ran on Darwin arm64 with the pinned 1.98.1 toolchain, from this worktree, using `TMPDIR="$PWD/target/final-fix-check-data"` and `CARGO_TARGET_DIR="$PWD/target"`.
+
+| Command/check | Fresh result |
+| --- | --- |
+| `cargo +1.98.1 test -p brn-desktop --features native-ui --locked --offline -- handoff_editors_retain_syntax_colours_for_both_schemes` | RED exit 101: former syntax styles all unset; final native suite GREEN |
+| `cargo +1.98.1 test -p brn-desktop --features native-ui --locked --offline -- native::shell::divider::tests` | Initial missing `DividerDrag` compile failure; GREEN exit 0: 2 tests covering all 3 dividers at left/middle/right grab positions, 10 pt movement, unchanged-click and clamped-move detection |
+| `cargo +1.98.1 fmt --all`; `cargo +1.98.1 fmt --all -- --check` | Final exit 0; intermediate test-module placement parse error corrected |
+| `cargo +1.98.1 clippy -p brn-desktop --features native-ui --all-targets --locked --offline -- -D warnings` | Final exit 0; initial `items_after_test_module` lint corrected by moving tests after implementation |
+| `cargo +1.98.1 test -p brn-desktop --features native-ui --locked --offline` | Exit 0: 63 unit + 5 CLI tests, none failed/ignored |
+| `cargo +1.98.1 test -p brn-desktop --locked --offline` | Exit 0: 31 unit + 5 CLI tests, none failed/ignored |
+| `bash scripts/verify-desktop-shell.sh --native` | Exit 0: complete workspace format/build/Clippy/tests, native build/Clippy/tests, argument/path smoke checks and synthetic completion/cancellation/stale headless checks; native window not launched |
+| `git diff --exit-code -- scripts` after restoration | Exit 0; script restored, empty diff |
+| `git diff --check`; `git diff --cached --check` | Exit 0 |
+
+The script used the same reversible scratch accommodation as Tasks 5/6: only its allocation line was replaced with `scratch="$repo_root/target/final-fix-shell-smoke"` plus `mkdir "$scratch"`. No `mktemp` was attempted. The EXIT trap removed that smoke directory, the script was restored, and project-local check fixtures were removed at handoff. No other script operations changed.
+
+The known `block v0.1.6` future-incompatibility notice remains. Native event delivery, save-error presentation and visible scrollbars/colours are not established by these automated checks; their human checklist stays pending. No network, GUI launch, live provider call, model acquisition, original-vault access, merge or release occurred. Acceptance remains pending and the branch is not merged.
 
 ## Manual native checklist — all pending
 
@@ -169,28 +202,30 @@ Every row below has status **pending — requires a human operator on an unlocke
 | Task 4 Step 11.9 | Late draft-open completion does not replace newer source navigation | pending — requires a human operator on an unlocked Mac |
 | Task 4 Step 11.10 | Quit/relaunch same data directory restores layout | pending — requires a human operator on an unlocked Mac |
 | Task 5 Step 7.1 | All three dividers drag, clamp and show column-resize cursor | pending — requires a human operator on an unlocked Mac |
-| Task 5 Step 7.2 | Cyan focus/drag, Tab reachability, ←/→ 8 pt and ⇧←/→ 32 pt | pending — requires a human operator on an unlocked Mac |
+| Task 5 Step 7.2 | Cyan focus/drag, Tab navigation among chrome controls/dividers, ←/→ 8 pt and ⇧←/→ 32 pt; leave editors via ⌘L, menus, Escape or other applicable shortcuts — Tab/Shift-Tab inside composer/draft/comment editors indent/outdent (toolkit behaviour) | pending — requires a human operator on an unlocked Mac |
 | Task 5 Step 7.3 | ⌘0, ⌥⌘0, ⇧⌘↩; auto-collapsed rail reports “Widen the window…” | pending — requires a human operator on an unlocked Mac |
 | Task 5 Step 7.4 | ⌘L focuses Chat composer, idle ⌘N, ⌘, Settings and Escape; editor-local Escape; ⌘. cancels index build | pending — requires a human operator on an unlocked Mac |
 | Task 5 Step 7.5 | BRN/View/Navigate menu presentation and action dispatch | pending — requires a human operator on an unlocked Mac |
 | Task 5 Step 7.6 | Release outside window/app switch ends drag; widths persist across relaunch | pending — requires a human operator on an unlocked Mac |
 | Task 5 Step 7.7 | ⌘Q with dirty draft remains blocked | pending — requires a human operator on an unlocked Mac |
 | Controller addition | ⌘. with the composer, draft editor or comment editor focused cancels a running action | pending — requires a human operator on an unlocked Mac |
-| Controller addition | draft editor Markdown syntax colours are still visible under both themes (the handoff highlight config replaces the toolkit highlight theme) | pending — requires a human operator on an unlocked Mac |
-| Controller addition | vault divider drag does not jump ~5 pt at drag start | pending — requires a human operator on an unlocked Mac |
+| Controller addition | Draft editor Markdown syntax colours are visible under both themes after restoring scheme-matched toolkit syntax with handoff paper/editor colours | pending — requires a human operator on an unlocked Mac |
+| Controller addition | Vault, History and Document divider grabs at different points in the 5 pt hit area do not jump after native grab-offset compensation | pending — requires a human operator on an unlocked Mac |
+| Final review fix | Clicks/fully clamped drags leave layout.json unchanged (including a corrupt file); changed drags save on release/deactivation; a failed save retains the recovery note | pending — requires a human operator on an unlocked Mac |
+| Final review fix | Long chat transcript has a visible, usable vertical scrollbar and retains its position across tab/Focus switches | pending — requires a human operator on an unlocked Mac |
 
 Ask: **skipped — no authorized live provider access**. Headless synthetic checks are not native GUI observations.
 
 ## Remaining limitations and deferred review notes
 
 - VoiceOver hierarchy/announcements and high-contrast qualification remain open; IME, native usability and user acceptance remain pending. GPUI remains provisional. Design acceptance alone does not accept the implemented shell.
-- Vault pointer convention uses the divider's right edge versus History's left, so an initial ~5 pt vault jump is a known deferred concern. Document nudges depend on render refreshing resolved layout; rapid repeats need human observation.
+- Grab-offset compensation fixes the divider-edge jump; native observation remains pending. Document nudges depend on render refreshing resolved layout; rapid repeats need human observation.
 - Non-shift modifiers also nudge dividers; a release over an occluding overlay may end a drag only on the next move/deactivation. Key/route wiring lacks automated event-delivery coverage.
 - Pure layout gaps: non-finite viewport width, document drag outside Split, focus-exit into auto-collapse; resolve trusts sanitized doc_share and repeated nudges require re-resolution.
 - Preference save can leave layout.json.tmp on failure and does not fsync the parent after rename; unreadable/malformed envelope branches lack direct tests. Test-created fixture subdirectories were cleaned with their enclosing check directories.
-- Empty syntax-map adaptation is split from token generation; theme observer errors can replace the current message, and startup layout-note precedence can hide a simultaneous theme error.
+- Complete highlight generation now retains toolkit syntax with typed handoff editor overrides. Theme observer errors can replace the current message, and startup layout-note precedence can hide a simultaneous theme error.
 - Duplicate open-draft lookup in both rails remains; asynchronous poll wiring is qualified by pure navigation tests, not native interaction.
-- These deferred findings were not authorized for code changes in this documentation task. Unbacked controls remain hidden in the [backlog](../../../ui/feature-backlog.md); no publication capability or Pi SDK integration is implied.
+- Remaining deferred findings are outside the controller-scoped final fix wave. Unbacked controls remain hidden in the [backlog](../../../ui/feature-backlog.md); no publication capability or Pi SDK integration is implied.
 
 ## Documentation verification
 
@@ -203,5 +238,6 @@ Task 6 moved this bounded record with `git mv`, repaired active-path references,
 | Local Python link checker | Initial Task 6: exit 0, 134 links across 13 files. Fix round 1: exit 0, 4 links across the 2 changed files; all local targets/fragments resolve |
 | `git diff --exit-code -- scripts` | Exit 0; no committed verification-script change |
 | `grep -n 'src/native.rs' crates/brn-desktop/README.md` | No matches; old source link removed |
+| Final fix-wave local Python 3 link checker | Exit 0; 39 local links across the 3 changed documents and local fix report; targets/fragments resolve. `python` was unavailable (exit 127); `python3` succeeded |
 
 The link checker enumerates unstaged/staged added, changed or renamed Markdown files and untracked Markdown, resolves relative targets from each document, and checks fragments against locally generated GitHub-style heading slugs (including duplicate suffixes). Fenced examples and inline code are excluded because their embedded paths are literal historical instructions, not document links. No network is used. All rendered links in the moved plan and evidence are included; the Markdown note-editing active-index row is unchanged.

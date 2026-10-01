@@ -13,9 +13,13 @@ newer document navigation. Settings uses the toolkit modal host for appearance,
 rail widths and layout reset. Layout preferences are stored separately from the
 authoritative workflow data.
 
-The three dividers support pointer dragging and keyboard resizing: Tab to focus,
-then ←/→ for 8 pt or ⇧←/→ for 32 pt. Widths persist when a drag ends, including
-when the window deactivates. The BRN, View and Navigate menus expose Settings
+The three dividers support pointer dragging and keyboard resizing: Tab among
+chrome controls to focus, then ←/→ for 8 pt or ⇧←/→ for 32 pt. Grabs preserve
+the pointer offset within the divider; only changed layouts persist when a drag
+ends, including when the window deactivates. Tab/Shift-Tab inside multiline
+composer/draft/comment editors indent/outdent (toolkit behaviour); leave editors
+via ⌘L, menus, Escape or other applicable shortcuts.
+The BRN, View and Navigate menus expose Settings
 (⌘,), Quit (⌘Q), History (⌘0), Vault (⌥⌘0), Focus (⇧⌘↩), New Chat (⌘N),
 Focus Composer (⌘L) and Cancel Running Action (⌘.). New Chat is idle-only;
 Quit still respects dirty drafts. Escape remains local to editors and the

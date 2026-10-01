@@ -1,6 +1,6 @@
 # Current development status
 
-Updated 2026-10-01. Main baseline: local `main` at `a82dd25954cbd809b290d88676aec6344fb326ac`, which includes the reviewed CLI writing batch and merged size-report task; merge state checked against `origin/main` at that checkpoint. Workspace shell code is implemented separately on `feat/workspace-shell` at `90b34c6`, branched from `9786d2d`, not merged. Shell automated checks were rerun for this documentation change; other verification results below remain historical.
+Updated 2026-10-01. Main baseline: local `main` at `a82dd25954cbd809b290d88676aec6344fb326ac`, which includes the reviewed CLI writing batch and merged size-report task; merge state checked against `origin/main` at that checkpoint. Workspace shell code is implemented separately on `feat/workspace-shell` at `4c3ddd4`, branched from `9786d2d`, not merged. Shell automated checks were rerun for the final whole-branch review fix wave; other verification results below remain historical.
 
 ## Implemented baseline
 
