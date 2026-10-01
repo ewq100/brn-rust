@@ -26,6 +26,7 @@ Agent-facing CLI for BRN workspaces: parsing, JSON envelopes and exit codes over
   brn comments list --draft DRAFT_ID
   brn comments add --draft DRAFT_ID --base-revision UUID --expected-generation N --generation N --text-file PATH --start-byte N --end-byte N --quote-file PATH --body-file PATH [--operation UUID]
   brn comments resolve COMMENT_ID --draft DRAFT_ID --expected-status-version N [--operation UUID]
+  brn comments reopen COMMENT_ID --draft DRAFT_ID --expected-status-version N [--operation UUID]
   brn revisions list --draft DRAFT_ID
   brn revisions show REVISION_ID
   brn revisions diff --draft DRAFT_ID --from REVISION_ID --to REVISION_ID
@@ -68,6 +69,16 @@ Exit codes: `0` success; `2` usage (`USAGE`); `1` operational failure (`WORKSPAC
 - `comments add` uses `--draft`, the same expected base/generation flags, `--text-file`, and explicit UTF-8 `--quote-file`/`--body-file` inputs with a half-open UTF-8 byte range. This first CLI command accepts only already-saved, unchanged draft text; it uses the existing empty edit trace and creates the comment checkpoint through the shared workflow. It does not combine comment creation with unsaved text edits. The success envelope includes the actual `operation_id` and `comment_id`; same-payload operation replay returns the original receipt, while conflicting reuse fails with `OPERATION_CONFLICT`.
 - For `comments add`, `--generation` must be at least `--expected-generation`; equality is valid for unchanged text, and greater generations remain supported. The comparison uses only the supplied values and happens before the workspace is opened.
 - `comments resolve COMMENT_ID` requires the caller-supplied `--draft` and `--expected-status-version` and maps to the shared status workflow with `resolved`. The success envelope returns the actual `operation_id` and resulting comment, including its `status` and `status_version`; the comment body, original quote/provenance and draft text are unchanged. Same-status resolution is a no-op with the existing status version. Same-payload operation replay returns its recorded result even after a later status change, while conflicting operation reuse fails with `OPERATION_CONFLICT`; stale status versions and wrong draft/comment identities fail without mutation. Resolving a comment is not document approval, search approval, AI-suggestion application or publication.
+- `comments reopen COMMENT_ID` uses the same precondition, receipt and replay rules as resolve, mapping to `open`. Reopening changes only lifecycle status; the status version advances when the state changes, stays unchanged for an already-open no-op, and the body, original quote/provenance and current draft text remain intact.
+
+Verified lifecycle example (each command uses the same existing workspace and the listed status version):
+
+```text
+brn comments resolve COMMENT_ID --draft DRAFT_ID --expected-status-version 0 --data-dir /tmp/brn-data --json
+brn comments reopen COMMENT_ID --draft DRAFT_ID --expected-status-version 1 --data-dir /tmp/brn-data --json
+brn comments list --draft DRAFT_ID --data-dir /tmp/brn-data --json
+# list reports status "open" and status_version 2; original evidence and draft text are unchanged
+```
 - Search never builds the index; a missing or stale index is an error, not a trigger.
 - Semantic/hybrid profiles never fall back to keyword; they fail with `PROFILE_UNAVAILABLE` in this build.
 - Approval binds the exact source version; superseded versions reject approval.
