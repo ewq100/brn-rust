@@ -31,8 +31,26 @@ replay binds the caller's exact root/path inputs before filesystem checks and
 then returns a fresh view, not stale saved bytes. Alternate case or Unicode
 spellings of an already registered file are rejected with typed Conflict naming
 the registered path, based on device/inode identity rather than content hashes;
-they cannot allocate a second editing buffer. Worker notice draining and
-Markdown publication are later tasks, not provided by these methods.
+they cannot allocate a second editing buffer. Worker notice draining remains
+a later task.
+
+`save_note(NoteSubmission)` explicitly saves the original Markdown path:
+durable recovery intent, exclusive staging, coordinated baseline revalidation,
+atomic exchange, installed/displaced identity verification, then a durable
+receipt. Equal-generation recovered text is accepted; no-op saves preserve
+identity, timestamps and permissions. Successful saves rebase the editing
+baseline without overwriting later typing. File flushing requires
+`F_FULLFSYNC`; directory durability uses plain `fsync`, with no power-loss claim.
+Late external races retain the actual displaced object and report conflict or
+uncertainty, never automatic rollback.
+
+`reconcile_note_save(operation_id)` classifies interrupted writes and commits
+metadata only: it never retries exchange, creates, renames or unlinks files.
+Matching bytes without execution identity proof remain uncertain. Compact
+receipts/refusals replay even without a vault or full retained intent.
+Artifact cleanup is separate, best-effort bookkeeping after terminal proof
+and durable recovery, preserving unexpected occupants and unresolved inputs.
+Copy, compare, reload/relink and accept-current are not implemented here.
 
 ## Dependencies and features
 
@@ -50,6 +68,9 @@ bash scripts/verify-end-to-end.sh
 Tests cover flow, drafts, comments and provider-free Markdown note observation,
 ownership and recovery. Run the note checks with
 `cargo test -p brn-store -p brn-workflow --test notes --locked`.
+Save/restart checks are `cargo test -p brn-workflow --test note_recovery --locked`
+and `cargo test -p brn-workflow --lib notes:: --locked`; lib tests kill/reap
+their own checkpoint-acknowledging children, with no production crash switches.
 Keep durable authority in store and coordinate provider/retrieval through their
 adapters. Preserve evidence validation, operation identity and late-response safety.
 

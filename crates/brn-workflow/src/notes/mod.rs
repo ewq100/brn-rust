@@ -1,7 +1,10 @@
-//! Shared Markdown observation and durable editing-buffer recovery, without publication.
+//! Shared Markdown observation, durable editing recovery and explicit original-path saves.
+#[cfg(all(test, target_os = "macos"))]
+mod crash_tests;
 mod files;
 #[cfg(target_os = "macos")]
 mod macos;
+mod save;
 
 use brn_store::notes::VaultRecord;
 pub use brn_store::notes::{

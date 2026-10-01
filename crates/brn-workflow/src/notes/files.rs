@@ -1,5 +1,6 @@
 use brn_store::notes::{
-    FileFingerprint, FileOutcome, NoteErrorCode, NoteFailure, NoteResult, PreparedFile, VaultRecord,
+    ArtifactIdentity, ArtifactKind, FileFingerprint, FileOutcome, NoteErrorCode, NoteFailure,
+    NoteResult, PreparedFile, RetainedArtifact, VaultRecord,
 };
 use std::{
     collections::VecDeque,
@@ -245,7 +246,7 @@ impl MacFiles {
         })
     }
 
-    fn observe_uncoordinated(&self, relative: &Path) -> NoteResult<FileObservation> {
+    pub(super) fn observe_uncoordinated(&self, relative: &Path) -> NoteResult<FileObservation> {
         let (parent, name) = self.parent(relative)?;
         let file = open_at(&parent, OsStr::from_bytes(name.as_bytes()), 0, 0)?;
         if file.metadata().map_err(note_io_failure)?.dev() != self.identity.device {
@@ -268,8 +269,6 @@ impl MacFiles {
         Ok(observation)
     }
 
-    // Task 4 coordinates the save protocol.
-    #[allow(dead_code)]
     pub(super) fn coordinate<T>(
         &self,
         relative: &Path,
@@ -282,8 +281,6 @@ impl MacFiles {
         })
     }
 
-    // Task 4 prepares durable save artifacts.
-    #[allow(dead_code)]
     pub(super) fn prepare_replace(
         &self,
         op: Uuid,
@@ -320,6 +317,8 @@ impl MacFiles {
             libc::O_RDWR | libc::O_CREAT | libc::O_EXCL,
             0o600,
         )?;
+        #[cfg(test)]
+        super::save::checkpoint("stage_created");
         stage.write_all(bytes).map_err(note_io_failure)?;
         preserve_attributes(&original, &stage)?;
         full_sync(&stage)?;
@@ -342,8 +341,6 @@ impl MacFiles {
         Ok(prepared)
     }
 
-    // Task 4 exchanges prepared save artifacts.
-    #[allow(dead_code)]
     pub(super) fn exchange(&self, prepared: &PreparedFile, destination: &Path) -> NoteResult<()> {
         if prepared.relative.parent() != destination.parent() || prepared.relative == destination {
             return Err(note_unsupported(
@@ -364,8 +361,6 @@ impl MacFiles {
         rename_flags(&parent, &stage, &target, libc::RENAME_SWAP)
     }
 
-    // Task 4 verifies save artifact durability.
-    #[allow(dead_code)]
     pub(super) fn flush_artifact(&self, relative: &Path) -> NoteResult<()> {
         let (parent, name) = self.parent(relative)?;
         let artifact = open_at(&parent, OsStr::from_bytes(name.as_bytes()), 0, 0)?;
@@ -373,6 +368,81 @@ impl MacFiles {
         full_sync(&artifact)?;
         sync_directory(&parent)?;
         self.validate_parent(relative, &parent)
+    }
+
+    pub(super) fn artifact(&self, relative: &Path) -> NoteResult<Option<RetainedArtifact>> {
+        let (parent, name) = self.parent(relative)?;
+        let mut stat = std::mem::MaybeUninit::<libc::stat>::uninit();
+        // SAFETY: parent/name are live; fstatat initializes stat on success and never follows links.
+        if unsafe {
+            libc::fstatat(
+                parent.as_raw_fd(),
+                name.as_ptr(),
+                stat.as_mut_ptr(),
+                libc::AT_SYMLINK_NOFOLLOW,
+            )
+        } != 0
+        {
+            let error = note_io_failure(std::io::Error::last_os_error());
+            return if error.code == NoteErrorCode::Missing {
+                Ok(None)
+            } else {
+                Err(error)
+            };
+        }
+        // SAFETY: successful fstatat initialized the entire struct.
+        let stat = unsafe { stat.assume_init() };
+        let kind = match stat.st_mode & libc::S_IFMT {
+            libc::S_IFREG => ArtifactKind::Regular,
+            libc::S_IFDIR => ArtifactKind::Directory,
+            libc::S_IFLNK => ArtifactKind::Symlink,
+            _ => ArtifactKind::Other,
+        };
+        let sha256 = if kind == ArtifactKind::Regular {
+            match self.observe_uncoordinated(relative) {
+                Ok(value)
+                    if value.fingerprint.device == stat.st_dev as u64
+                        && value.fingerprint.inode == stat.st_ino
+                        && value.fingerprint.len == stat.st_size as u64 =>
+                {
+                    Some(value.fingerprint.sha256)
+                }
+                Ok(_) => {
+                    return Err(failure(
+                        NoteErrorCode::Conflict,
+                        "artifact replaced during observation",
+                    ));
+                }
+                Err(error) if error.code == NoteErrorCode::Unsupported => None,
+                Err(error) => return Err(error),
+            }
+        } else {
+            None
+        };
+        self.validate_parent(relative, &parent)?;
+        Ok(Some(RetainedArtifact {
+            relative: relative.to_owned(),
+            identity: ArtifactIdentity {
+                device: stat.st_dev as u64,
+                inode: stat.st_ino,
+                len: stat.st_size as u64,
+                kind,
+            },
+            sha256,
+        }))
+    }
+
+    pub(super) fn remove_artifact(&self, expected: &RetainedArtifact) -> NoteResult<()> {
+        let (parent, name) = self.parent(&expected.relative)?;
+        if self.artifact(&expected.relative)?.as_ref() != Some(expected) {
+            return Err(failure(NoteErrorCode::Conflict, "cleanup occupant changed"));
+        }
+        self.validate_parent(&expected.relative, &parent)?;
+        // SAFETY: the proven regular artifact is relative to a validated parent; no recursive removal.
+        if unsafe { libc::unlinkat(parent.as_raw_fd(), name.as_ptr(), 0) } != 0 {
+            return Err(note_io_failure(std::io::Error::last_os_error()));
+        }
+        sync_directory(&parent)
     }
 }
 
@@ -657,8 +727,6 @@ impl MacFiles {
             "managed notes require macOS filesystem coordination",
         ))
     }
-    // Task 4 coordinates the save protocol.
-    #[allow(dead_code)]
     pub(super) fn coordinate<T>(
         &self,
         _: &Path,
@@ -668,8 +736,6 @@ impl MacFiles {
             "managed notes require macOS filesystem coordination",
         ))
     }
-    // Task 4 prepares durable save artifacts.
-    #[allow(dead_code)]
     pub(super) fn prepare_replace(
         &self,
         _: Uuid,
@@ -681,16 +747,28 @@ impl MacFiles {
             "managed notes require macOS filesystem coordination",
         ))
     }
-    // Task 4 exchanges prepared save artifacts.
-    #[allow(dead_code)]
     pub(super) fn exchange(&self, _: &PreparedFile, _: &Path) -> NoteResult<()> {
         Err(note_unsupported(
             "managed notes require macOS filesystem coordination",
         ))
     }
-    // Task 4 verifies save artifact durability.
-    #[allow(dead_code)]
     pub(super) fn flush_artifact(&self, _: &Path) -> NoteResult<()> {
+        Err(note_unsupported(
+            "managed notes require macOS filesystem coordination",
+        ))
+    }
+
+    pub(super) fn artifact(&self, _: &Path) -> NoteResult<Option<RetainedArtifact>> {
+        Err(note_unsupported(
+            "managed notes require macOS filesystem coordination",
+        ))
+    }
+    pub(super) fn remove_artifact(&self, _: &RetainedArtifact) -> NoteResult<()> {
+        Err(note_unsupported(
+            "managed notes require macOS filesystem coordination",
+        ))
+    }
+    pub(super) fn observe_uncoordinated(&self, _: &Path) -> NoteResult<FileObservation> {
         Err(note_unsupported(
             "managed notes require macOS filesystem coordination",
         ))

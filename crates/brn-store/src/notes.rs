@@ -514,11 +514,11 @@ fn note_record(conn: &Connection, id: Uuid) -> NoteResult<NoteRecord> {
         },
     })
 }
-fn accept_submission(tx: &Transaction<'_>, request: &NoteSubmission) -> NoteResult<NoteRecovery> {
+fn checked_submission(conn: &Connection, request: &NoteSubmission) -> NoteResult<NoteRecovery> {
     valid_text(&request.text)?;
-    let stored_generation = generation(request.generation)?;
+    generation(request.generation)?;
     generation(request.expected.generation)?;
-    let current = recovery(tx, request.note_id)?
+    let current = recovery(conn, request.note_id)?
         .ok_or_else(|| failure(NoteErrorCode::Missing, "note does not exist"))?;
     if current.stamp != request.expected
         || request.generation < current.stamp.generation
@@ -529,11 +529,15 @@ fn accept_submission(tx: &Transaction<'_>, request: &NoteSubmission) -> NoteResu
             "note buffer stamp or generation changed",
         ));
     }
+    Ok(current)
+}
+fn accept_submission(tx: &Transaction<'_>, request: &NoteSubmission) -> NoteResult<NoteRecovery> {
+    let current = checked_submission(tx, request)?;
     tx.execute(
         "UPDATE note_buffers SET generation=?2,working=?3,working_sha256=?4 WHERE note_id=?1",
         params![
             request.note_id.to_string(),
-            stored_generation,
+            generation(request.generation)?,
             request.text.as_bytes(),
             hash(request.text.as_bytes()).as_slice()
         ],
@@ -919,6 +923,32 @@ impl Store {
             return Ok(None);
         }
         stored_result(&self.conn, "note_receipts", request.operation_id)
+    }
+
+    /// Metadata-only validation; acceptance is rechecked inside each write transaction.
+    pub fn validate_note_submission(&self, request: &NoteSubmission) -> NoteResult<()> {
+        checked_submission(&self.conn, request).map(|_| ())
+    }
+
+    /// Reads a compact original-save result even after its full intent is pruned.
+    /// ID-only reconciliation does not submit or bind a new write payload.
+    pub fn note_save_result(&self, op: Uuid) -> NoteResult<Option<NoteRecordedResult>> {
+        let kind: Option<String> = self
+            .conn
+            .query_row(
+                "SELECT kind FROM operations WHERE id=?1",
+                [op.to_string()],
+                |row| row.get(0),
+            )
+            .optional()?;
+        match kind.as_deref() {
+            None => Ok(None),
+            Some("note.save") => stored_result(&self.conn, "note_receipts", op),
+            Some(_) => Err(failure(
+                NoteErrorCode::OperationConflict,
+                "operation is not an original note save",
+            )),
+        }
     }
 
     pub fn begin_note_save(
@@ -1361,6 +1391,80 @@ impl Store {
             Ok(result)
         })();
         result.map_err(|e| failure_context(e, op, context.as_ref()))
+    }
+
+    /// Returns exact retirement proof only after recovery and terminal outcome checks.
+    /// The workflow must still observe and verify the occupant before unlinking it.
+    pub fn note_cleanup_candidate(&self, op: Uuid) -> NoteResult<Option<RetainedArtifact>> {
+        let value = require_intent(&self.conn, op)?;
+        if value.kind != NoteWriteKind::Replace
+            || value.cleanup != ArtifactCleanup::Pending
+            || !matches!(
+                value.resolution,
+                NoteResolution::Applied | NoteResolution::NotApplied
+            )
+            || value.prior_result.as_ref().is_none_or(result_is_uncertain)
+        {
+            return Ok(None);
+        }
+        let current = recovery(&self.conn, value.request.note_id)?
+            .ok_or_else(|| failure(NoteErrorCode::Storage, "cleanup requires durable recovery"))?;
+        // Loading the intent/recovery verifies the hashes of both protected snapshots.
+        if current.stamp.generation < value.request.generation {
+            return Err(failure(
+                NoteErrorCode::Storage,
+                "cleanup recovery generation is stale",
+            ));
+        }
+        let candidate = match value.resolution {
+            NoteResolution::Applied => {
+                let verification = load_verification(&self.conn, op)?.ok_or_else(|| {
+                    failure(
+                        NoteErrorCode::SaveUncertain,
+                        "cleanup lacks displaced recovery proof",
+                    )
+                })?;
+                verify(&value, &verification)?;
+                let NoteVerification::Replace { displaced, .. } = verification else {
+                    return Ok(None);
+                };
+                displaced
+            }
+            NoteResolution::NotApplied => {
+                let Some(prepared) = value.staged else {
+                    return Ok(None);
+                };
+                RetainedArtifact {
+                    relative: prepared.relative,
+                    identity: ArtifactIdentity {
+                        device: prepared.fingerprint.device,
+                        inode: prepared.fingerprint.inode,
+                        len: prepared.fingerprint.len,
+                        kind: ArtifactKind::Regular,
+                    },
+                    sha256: Some(prepared.fingerprint.sha256),
+                }
+            }
+            _ => return Ok(None),
+        };
+        for other in self.note_save_intents()? {
+            if other.request.operation_id == op || other.cleanup == ArtifactCleanup::Retired {
+                continue;
+            }
+            let referenced = other.staging_relative == candidate.relative
+                || other.staged.as_ref().is_some_and(|file| {
+                    file.fingerprint.device == candidate.identity.device
+                        && file.fingerprint.inode == candidate.identity.inode
+                })
+                || other.displaced.as_ref().is_some_and(|file| {
+                    file.identity.device == candidate.identity.device
+                        && file.identity.inode == candidate.identity.inode
+                });
+            if referenced {
+                return Ok(None);
+            }
+        }
+        Ok(Some(candidate))
     }
 
     /// Records the workflow's verified artifact bookkeeping; never performs disk cleanup.

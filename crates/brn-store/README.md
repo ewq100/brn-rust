@@ -74,6 +74,15 @@ their full intent is no longer returned by intent reads/lists. A normal
 unchanged-save completion creates no artifact; interrupted intent
 reconciliation cannot infer artifact absence merely from missing metadata.
 
+`validate_note_submission` provides read-only preflight using the same rules
+rechecked by submission transactions. `note_save_result(operation_id)` reads
+compact original-save results after pruning (without binding a new payload);
+new submissions still use payload-bound `note_write_result` first.
+`note_cleanup_candidate` returns exact artifact proof only for known terminal
+original saves with durable recovery and no other artifact reference.
+It grants no filesystem authority: workflow must freshly verify the occupant,
+unlink only the proven regular object, sync its parent, and record retirement.
+
 ## Dependencies and features
 
 No workspace dependencies. Uses bundled SQLite through rusqlite; consumed by `brn-workflow`.

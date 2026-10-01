@@ -13,6 +13,67 @@ fn fingerprint(text: &str, inode: u64) -> FileFingerprint {
 }
 
 #[test]
+fn cleanup_candidate_requires_terminal_proof_and_preserved_recovery() {
+    let (_data, _vault, mut store, opened) = fixture();
+    let request = submission(&opened);
+    let intent = store
+        .begin_note_save(
+            &request,
+            Path::new("plan.md"),
+            NoteWriteKind::Replace,
+            &precondition(&opened),
+        )
+        .unwrap();
+    assert_eq!(
+        store.note_cleanup_candidate(request.operation_id).unwrap(),
+        None
+    );
+    let prepared = PreparedFile {
+        relative: intent.staging_relative.clone(),
+        fingerprint: fingerprint(&request.text, 8),
+    };
+    store
+        .record_note_prepared(request.operation_id, &prepared)
+        .unwrap();
+    let receipt = NoteReceipt {
+        operation_id: request.operation_id,
+        source_note_id: request.note_id,
+        note_id: request.note_id,
+        submitted_generation: request.generation,
+        stamp: NoteStamp {
+            file_state: request.expected.file_state,
+            generation: request.generation,
+        },
+        filesystem_outcome: FileOutcome::NotApplied,
+        recovery_available: true,
+    };
+    store
+        .reconcile_note_operation(
+            request.operation_id,
+            &NoteReconciliation {
+                resolution: NoteResolution::NotApplied,
+                observed_destination: Some(fingerprint(&opened.baseline, 3)),
+                verification: None,
+                result: NoteRecordedResult::Receipt(receipt),
+            },
+        )
+        .unwrap();
+    let candidate = store
+        .note_cleanup_candidate(request.operation_id)
+        .unwrap()
+        .unwrap();
+    assert_eq!(candidate.relative, prepared.relative);
+    assert_eq!(candidate.identity.inode, 8);
+    assert_eq!(candidate.sha256, Some(prepared.fingerprint.sha256));
+    store
+        .record_note_cleanup(request.operation_id, ArtifactCleanup::RetainedUnexpected)
+        .unwrap();
+    assert_eq!(
+        store.note_cleanup_candidate(request.operation_id).unwrap(),
+        None
+    );
+}
+#[test]
 fn durable_observations_are_separate_from_the_protected_baseline() {
     let (data, _vault, mut store, opened) = fixture();
     let record = store.note_record(opened.note_id).unwrap();
@@ -80,6 +141,38 @@ fn durable_observations_are_separate_from_the_protected_baseline() {
             &precondition(&opened),
         )
         .unwrap();
+}
+
+#[test]
+fn submission_preflight_is_read_only_and_uses_transaction_generation_rules() {
+    let (_data, _vault, mut store, opened) = fixture();
+    let request = submission(&opened);
+    store.validate_note_submission(&request).unwrap();
+    assert_eq!(
+        store.note_recovery(opened.note_id).unwrap().unwrap(),
+        opened
+    );
+    let buffer = store.save_note_buffer(&request).unwrap();
+    assert_eq!(
+        store.validate_note_submission(&request).unwrap_err().code,
+        NoteErrorCode::StateChanged
+    );
+    let equal = NoteSubmission {
+        operation_id: Uuid::new_v4(),
+        expected: buffer.stamp,
+        ..request
+    };
+    store.validate_note_submission(&equal).unwrap();
+    assert_eq!(
+        store
+            .validate_note_submission(&NoteSubmission {
+                text: "changed".into(),
+                ..equal
+            })
+            .unwrap_err()
+            .code,
+        NoteErrorCode::StateChanged
+    );
 }
 
 #[test]
@@ -869,6 +962,14 @@ fn completed_noop_payloads_retire_but_receipts_buffer_and_unresolved_survive() {
         )
         .unwrap();
     store.prune_completed_note_payloads(opened.note_id).unwrap();
+    assert!(
+        store
+            .note_save_result(completed[0].operation_id)
+            .unwrap()
+            .is_some()
+    );
+    assert!(store.note_save_result(Uuid::new_v4()).unwrap().is_none());
+    assert_eq!(store.note_save_result(pending.operation_id).unwrap(), None,);
     assert!(
         store
             .note_save_intent(completed[0].operation_id)
