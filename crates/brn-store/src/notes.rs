@@ -133,6 +133,56 @@ pub enum NoteErrorCode {
 pub type NoteResult<T> = std::result::Result<T, NoteFailure>;
 
 #[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
+pub struct NoteSearchReceipt {
+    pub operation_id: Uuid,
+    pub note_id: Uuid,
+    pub file_state: Uuid,
+    pub source_id: Uuid,
+    pub version_id: Uuid,
+}
+
+/// Caller-visible identity, checked before filesystem access on replay.
+#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
+pub enum NoteSearchRequest {
+    Approve {
+        note_id: Uuid,
+        file_state: Uuid,
+    },
+    Import {
+        note_id: Uuid,
+        path: PathBuf,
+        approval: Approval,
+    },
+    SetApproval {
+        note_id: Uuid,
+        source_id: Uuid,
+        version_id: Uuid,
+        approval: Approval,
+    },
+}
+impl NoteSearchRequest {
+    pub fn note_id(&self) -> Uuid {
+        match self {
+            Self::Approve { note_id, .. }
+            | Self::Import { note_id, .. }
+            | Self::SetApproval { note_id, .. } => *note_id,
+        }
+    }
+    pub fn approval(&self) -> Approval {
+        match self {
+            Self::Approve { .. } => Approval::Approved,
+            Self::Import { approval, .. } | Self::SetApproval { approval, .. } => *approval,
+        }
+    }
+}
+
+#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
+pub struct NoteSearchSnapshot {
+    pub receipt: NoteSearchReceipt,
+    pub fingerprint: FileFingerprint,
+}
+
+#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
 pub struct FileFingerprint {
     pub device: u64,
     pub inode: u64,
@@ -312,6 +362,10 @@ CREATE TABLE note_shadowed_sources (note_id TEXT NOT NULL REFERENCES notes(id), 
 CREATE TABLE note_receipts (operation_id TEXT PRIMARY KEY REFERENCES operations(id), note_id TEXT NOT NULL, result_json BLOB NOT NULL, result_sha256 BLOB NOT NULL CHECK(length(result_sha256)=32));
 CREATE TABLE note_write_destinations (operation_id TEXT PRIMARY KEY REFERENCES operations(id), destination_json BLOB NOT NULL, destination_sha256 BLOB NOT NULL CHECK(length(destination_sha256)=32));
 CREATE TABLE note_decision_recoveries (operation_id TEXT PRIMARY KEY REFERENCES operations(id), recovery_json BLOB NOT NULL, recovery_sha256 BLOB NOT NULL CHECK(length(recovery_sha256)=32));
+ALTER TABLE notes ADD COLUMN content_epoch INTEGER NOT NULL DEFAULT 0 CHECK(typeof(content_epoch)='integer' AND content_epoch>=0);
+ALTER TABLE notes ADD COLUMN approval_epoch INTEGER NOT NULL DEFAULT 0 CHECK(typeof(approval_epoch)='integer' AND approval_epoch>=0);
+CREATE TABLE note_search_snapshots (note_id TEXT PRIMARY KEY REFERENCES notes(id), source_id TEXT NOT NULL UNIQUE REFERENCES sources(id), snapshot_json BLOB NOT NULL, snapshot_sha256 BLOB NOT NULL CHECK(length(snapshot_sha256)=32));
+CREATE TABLE note_search_results (operation_id TEXT PRIMARY KEY REFERENCES operations(id), result_json BLOB NOT NULL, result_sha256 BLOB NOT NULL CHECK(length(result_sha256)=32));
 ";
 
 fn failure(code: NoteErrorCode, message: impl Into<String>) -> NoteFailure {
@@ -713,6 +767,283 @@ fn original_save_blocker(conn: &Connection, id: Uuid) -> NoteResult<Option<NoteF
 }
 
 impl Store {
+    /// Exact registered-path provenance only; immutable legacy identities are not reassigned.
+    pub fn reconcile_note_sources(&mut self) -> NoteResult<()> {
+        let Some(vault) = self.registered_vault()? else {
+            return Ok(());
+        };
+        let paths: Vec<_> = self
+            .note_recoveries()?
+            .into_iter()
+            .map(|r| {
+                let n = self.note_record(r.note_id)?;
+                Ok((n.id, vault.root.join(n.relative_path)))
+            })
+            .collect::<NoteResult<_>>()?;
+        let tx = self.conn.transaction()?;
+        for (id, path) in paths {
+            let origin = path
+                .to_str()
+                .ok_or_else(|| failure(NoteErrorCode::Storage, "registered path is not UTF-8"))?;
+            tx.execute("INSERT OR IGNORE INTO note_shadowed_sources(note_id,source_id) SELECT ?1,id FROM sources WHERE origin=?2", params![id.to_string(), origin])?;
+        }
+        tx.commit()?;
+        Ok(())
+    }
+
+    /// (note, source, shadowed). Association ambiguity is never guessed.
+    pub fn note_source_associations(&self) -> NoteResult<Vec<(Uuid, Uuid, bool)>> {
+        let mut stmt = self.conn.prepare("SELECT note_id,source_id,1 FROM note_shadowed_sources UNION ALL SELECT note_id,source_id,0 FROM note_search_snapshots")?;
+        let rows = stmt.query_map([], |r| {
+            Ok((
+                r.get::<_, String>(0)?,
+                r.get::<_, String>(1)?,
+                r.get::<_, bool>(2)?,
+            ))
+        })?;
+        rows.map(|r| {
+            let (note, source, shadowed) = r?;
+            Ok((parse_id(note)?, parse_id(source)?, shadowed))
+        })
+        .collect()
+    }
+
+    pub fn note_search_snapshot(&self, id: Uuid) -> NoteResult<Option<NoteSearchSnapshot>> {
+        self.conn
+            .query_row(
+                "SELECT source_id,snapshot_json,snapshot_sha256 FROM note_search_snapshots WHERE note_id=?1",
+                [id.to_string()],
+                |r| Ok((r.get::<_, String>(0)?, r.get(1)?, r.get(2)?)),
+            )
+            .optional()?
+            .map(|(source, bytes, digest)| {
+                let snapshot: NoteSearchSnapshot = decode(bytes, digest)?;
+                if snapshot.receipt.note_id != id || snapshot.receipt.source_id != parse_id(source)? {
+                    return Err(failure(NoteErrorCode::Storage,"managed snapshot identity mismatch"));
+                }
+                let version = self.checked_search_revision(&snapshot.receipt)?;
+                if snapshot.fingerprint.len != version.bytes.len() as u64 || snapshot.fingerprint.sha256 != version.sha256 {
+                    return Err(failure(NoteErrorCode::Storage,"managed snapshot fingerprint mismatch"));
+                }
+                Ok(snapshot)
+            })
+            .transpose()
+    }
+
+    fn checked_search_revision(&self, receipt: &NoteSearchReceipt) -> NoteResult<Version> {
+        let version = self
+            .version(receipt.version_id)?
+            .ok_or_else(|| failure(NoteErrorCode::Storage, "managed search revision missing"))?;
+        let origin: Option<String> = self.conn.query_row(
+            "SELECT origin FROM sources WHERE id=?1",
+            [receipt.source_id.to_string()],
+            |r| r.get(0),
+        )?;
+        if version.source_id != receipt.source_id
+            || origin.as_deref() != Some(format!("brn-note:{}", receipt.note_id).as_str())
+        {
+            return Err(failure(
+                NoteErrorCode::Storage,
+                "managed search revision identity mismatch",
+            ));
+        }
+        Ok(version)
+    }
+
+    pub fn note_evidence_epochs(&self, id: Uuid) -> NoteResult<(u64, u64)> {
+        let (content, approval): (i64, i64) = self.conn.query_row(
+            "SELECT content_epoch,approval_epoch FROM notes WHERE id=?1",
+            [id.to_string()],
+            |r| Ok((r.get(0)?, r.get(1)?)),
+        )?;
+        Ok((
+            u64::try_from(content)
+                .map_err(|_| failure(NoteErrorCode::Storage, "invalid content epoch"))?,
+            u64::try_from(approval)
+                .map_err(|_| failure(NoteErrorCode::Storage, "invalid approval epoch"))?,
+        ))
+    }
+
+    pub fn note_search_replay(
+        &self,
+        op: Uuid,
+        request: &NoteSearchRequest,
+    ) -> NoteResult<Option<(NoteSearchReceipt, bool)>> {
+        let args = json(request)?;
+        if !bound(&self.conn, op, "note.search", &args)? {
+            return Ok(None);
+        }
+        let (bytes, digest) = self.conn.query_row(
+            "SELECT result_json,result_sha256 FROM note_search_results WHERE operation_id=?1",
+            [op.to_string()],
+            |r| Ok((r.get(0)?, r.get(1)?)),
+        )?;
+        let result: (NoteSearchReceipt, bool) = decode(bytes, digest)?;
+        let receipt = &result.0;
+        let precondition_matches = match request {
+            NoteSearchRequest::Approve { file_state, .. } => *file_state == receipt.file_state,
+            NoteSearchRequest::SetApproval {
+                source_id,
+                version_id,
+                ..
+            } => *source_id == receipt.source_id && *version_id == receipt.version_id,
+            NoteSearchRequest::Import { .. } => true,
+        };
+        if receipt.operation_id != op
+            || receipt.note_id != request.note_id()
+            || !precondition_matches
+        {
+            return Err(failure(
+                NoteErrorCode::Storage,
+                "managed search receipt identity mismatch",
+            ));
+        }
+        self.checked_search_revision(receipt)?;
+        Ok(Some(result))
+    }
+
+    /// Freezes only the reconciled observation; buffer recovery is never evidence.
+    pub fn freeze_note_search_snapshot(
+        &mut self,
+        op: Uuid,
+        request: &NoteSearchRequest,
+        state: Uuid,
+        file: &FileFingerprint,
+        text: &str,
+    ) -> NoteResult<(NoteSearchReceipt, bool)> {
+        if let Some(result) = self.note_search_replay(op, request)? {
+            return Ok(result);
+        }
+        let id = request.note_id();
+        if text.len() > MAX_NOTE_BYTES
+            || hash(text.as_bytes()) != file.sha256
+            || text.len() as u64 != file.len
+        {
+            return Err(failure(
+                NoteErrorCode::Storage,
+                "snapshot bytes differ from observation",
+            ));
+        }
+        let args = json(request)?;
+        let previous_snapshot = self.note_search_snapshot(id)?;
+        let tx = self.conn.transaction()?;
+        let record = note_record(&tx, id)?;
+        if original_save_blocker(&tx, id)?.is_some()
+            || record.baseline != *file
+            || record.observed.as_ref() != Some(&(state, file.clone()))
+        {
+            return Err(failure(
+                NoteErrorCode::StateChanged,
+                "note must be reconciled before search approval",
+            ));
+        }
+        if let NoteSearchRequest::Approve { file_state, .. } = request
+            && *file_state != state
+        {
+            return Err(failure(
+                NoteErrorCode::StateChanged,
+                "saved file changed before approval",
+            ));
+        }
+        workflow::bind_operation(&tx, op, "note.search", &args)?;
+        let origin = format!("brn-note:{id}");
+        let prior: Option<(String, Option<String>)> = tx
+            .query_row(
+                "SELECT id,current_version_id FROM sources WHERE origin=?1",
+                [&origin],
+                |r| Ok((r.get(0)?, r.get(1)?)),
+            )
+            .optional()?;
+        let (source, prior_version) = match prior {
+            Some((s, v)) => (parse_id(s)?, v.map(parse_id).transpose()?),
+            None => {
+                let source = Uuid::new_v4();
+                tx.execute(
+                    "INSERT INTO sources(id,title,origin,approval) VALUES(?1,?2,?3,'draft')",
+                    params![
+                        source.to_string(),
+                        record.relative_path.to_string_lossy(),
+                        origin
+                    ],
+                )?;
+                (source, None)
+            }
+        };
+        if let NoteSearchRequest::SetApproval {
+            source_id,
+            version_id,
+            ..
+        } = request
+            && (*source_id != source || Some(*version_id) != prior_version)
+        {
+            return Err(failure(
+                NoteErrorCode::StateChanged,
+                "managed snapshot version changed before approval",
+            ));
+        }
+        let unchanged = if let Some(version) = prior_version {
+            let bytes: Vec<u8> = tx.query_row(
+                "SELECT bytes FROM versions WHERE id=?1",
+                [version.to_string()],
+                |r| r.get(0),
+            )?;
+            bytes == text.as_bytes()
+                && previous_snapshot.as_ref().is_some_and(|snapshot| {
+                    snapshot.fingerprint == *file && snapshot.receipt.file_state == state
+                })
+        } else {
+            false
+        };
+        let version = if unchanged {
+            prior_version.unwrap()
+        } else {
+            let version = Uuid::new_v4();
+            tx.execute(
+                "INSERT INTO versions(id,source_id,parent_id,bytes,sha256) VALUES(?1,?2,?3,?4,?5)",
+                params![
+                    version.to_string(),
+                    source.to_string(),
+                    prior_version.map(|v| v.to_string()),
+                    text.as_bytes(),
+                    file.sha256.as_slice()
+                ],
+            )?;
+            version
+        };
+        let approval = request.approval().as_str();
+        tx.execute(
+            "UPDATE sources SET current_version_id=?2,approval=?3,title=?4 WHERE id=?1",
+            params![
+                source.to_string(),
+                version.to_string(),
+                approval,
+                record.relative_path.to_string_lossy()
+            ],
+        )?;
+        tx.execute("UPDATE notes SET approval_epoch=approval_epoch+CASE WHEN approval<>?2 THEN 1 ELSE 0 END,approval=?2 WHERE id=?1",params![id.to_string(),approval])?;
+        let receipt = NoteSearchReceipt {
+            operation_id: op,
+            note_id: id,
+            file_state: state,
+            source_id: source,
+            version_id: version,
+        };
+        let snapshot = json(&NoteSearchSnapshot {
+            receipt: receipt.clone(),
+            fingerprint: file.clone(),
+        })?;
+        tx.execute("INSERT INTO note_search_snapshots(note_id,source_id,snapshot_json,snapshot_sha256) VALUES(?1,?2,?3,?4) ON CONFLICT(note_id) DO UPDATE SET snapshot_json=excluded.snapshot_json,snapshot_sha256=excluded.snapshot_sha256",params![id.to_string(),source.to_string(),snapshot,hash(&snapshot).as_slice()])?;
+        let result = (receipt, !unchanged);
+        let bytes = json(&result)?;
+        tx.execute("INSERT INTO note_search_results(operation_id,result_json,result_sha256) VALUES(?1,?2,?3)",params![op.to_string(),bytes,hash(&bytes).as_slice()])?;
+        tx.execute(
+            "UPDATE operations SET status='completed' WHERE id=?1",
+            [op.to_string()],
+        )?;
+        tx.commit()?;
+        Ok(result)
+    }
+
     pub fn note_original_save_blocker(&self, id: Uuid) -> NoteResult<Option<NoteFailure>> {
         original_save_blocker(&self.conn, id)
     }
@@ -884,7 +1215,7 @@ impl Store {
         // Even an unchanged-disk discard must invalidate queued pre-decision edits.
         let state = Uuid::new_v4();
         let bytes = json(file)?;
-        tx.execute("UPDATE notes SET file_state=?2,fingerprint_json=?3,fingerprint_sha256=?4,observed_file_state=?2,observed_fingerprint_json=?3,observed_fingerprint_sha256=?4,approval='draft' WHERE id=?1",
+        tx.execute("UPDATE notes SET file_state=?2,fingerprint_json=?3,fingerprint_sha256=?4,observed_file_state=?2,observed_fingerprint_json=?3,observed_fingerprint_sha256=?4,content_epoch=content_epoch+1,approval_epoch=approval_epoch+1,approval='draft' WHERE id=?1",
             params![id.to_string(),state.to_string(),bytes,hash(&bytes).as_slice()])?;
         let working = if matches!(decision, NoteDecision::Reload { .. }) {
             text
@@ -1160,7 +1491,7 @@ impl Store {
             .unwrap_or(&record.baseline)
             != file;
         tx.execute(
-            "UPDATE notes SET observed_file_state=?2,observed_fingerprint_json=?3,observed_fingerprint_sha256=?4,approval=CASE WHEN ?5 THEN 'draft' ELSE approval END WHERE id=?1",
+            "UPDATE notes SET observed_file_state=?2,observed_fingerprint_json=?3,observed_fingerprint_sha256=?4,content_epoch=content_epoch+CASE WHEN ?5 THEN 1 ELSE 0 END,approval_epoch=approval_epoch+CASE WHEN ?5 AND approval='approved' THEN 1 ELSE 0 END,approval=CASE WHEN ?5 THEN 'draft' ELSE approval END WHERE id=?1",
             params![id.to_string(),token.to_string(),bytes,hash(&bytes).as_slice(),changed],
         )?;
         tx.commit()?;
@@ -2173,7 +2504,7 @@ fn apply_registry(
                 "note baseline changed during save",
             ));
         }
-        tx.execute("UPDATE notes SET file_state=?2,fingerprint_json=?3,fingerprint_sha256=?5,observed_file_state=?2,observed_fingerprint_json=?3,observed_fingerprint_sha256=?5,approval=CASE WHEN ?4 THEN 'draft' ELSE approval END WHERE id=?1",
+        tx.execute("UPDATE notes SET file_state=?2,fingerprint_json=?3,fingerprint_sha256=?5,observed_file_state=?2,observed_fingerprint_json=?3,observed_fingerprint_sha256=?5,content_epoch=content_epoch+CASE WHEN ?4 THEN 1 ELSE 0 END,approval_epoch=approval_epoch+CASE WHEN ?4 AND approval='approved' THEN 1 ELSE 0 END,approval=CASE WHEN ?4 THEN 'draft' ELSE approval END WHERE id=?1",
             params![value.target_note_id.to_string(),stamp.file_state.to_string(),bytes, value.request.text != current.baseline,hash(&bytes).as_slice()])?;
         tx.execute(
             "UPDATE note_buffers SET file_state=?2,baseline=?3,baseline_sha256=?4 WHERE note_id=?1",

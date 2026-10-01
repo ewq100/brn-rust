@@ -357,7 +357,8 @@ fn killed_v6_migration_rolls_back_to_v5_then_upgrades_without_losing_rows() {
     drop(store);
     let conn = rusqlite::Connection::open(&db).unwrap();
     conn.execute_batch(
-        "DROP TABLE note_decision_recoveries; DROP TABLE note_write_destinations;
+        "DROP TABLE note_search_results; DROP TABLE note_search_snapshots;
+         DROP TABLE note_decision_recoveries; DROP TABLE note_write_destinations;
          DROP TABLE note_receipts; DROP TABLE note_shadowed_sources; DROP TABLE note_recovery_pairs;
          DROP TABLE note_save_intents; DROP TABLE note_write_inputs; DROP TABLE note_results;
          DROP TABLE note_buffers; DROP TABLE notes; DROP TABLE note_vaults;

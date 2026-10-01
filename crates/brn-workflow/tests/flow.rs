@@ -163,6 +163,10 @@ fn grounded_question_commits_before_submission_reopens_and_never_duplicates() {
         )
         .unwrap();
     assert_eq!(t.status, OperationStatus::Completed);
+    assert_eq!(
+        t.evidence_currentness,
+        brn_store::EvidenceCurrentness::CurrentAtCompletion
+    );
     assert_eq!(Some(streamed), t.answer);
     assert!(t.evidence_json.contains("Tuesday"));
     let session = t.session_id;

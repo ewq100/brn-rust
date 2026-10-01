@@ -1121,11 +1121,11 @@ pub fn execute(invocation: &Invocation) -> Result<Output, CliFailure> {
         | Command::DraftsSave { .. } => return drafts::run(invocation),
         Command::Status | Command::DocumentsList | Command::DocumentsShow { .. } => {}
     }
-    let workspace = open_workspace(invocation)?;
+    let mut workspace = open_workspace(invocation)?;
     match &invocation.command {
         Command::Status => status::run(invocation, &workspace),
-        Command::DocumentsList => documents::list(invocation, &workspace),
-        Command::DocumentsShow { source } => documents::show(invocation, &workspace, *source),
+        Command::DocumentsList => documents::list(invocation, &mut workspace),
+        Command::DocumentsShow { source } => documents::show(invocation, &mut workspace, *source),
         _ => unreachable!("stub commands returned above"),
     }
 }

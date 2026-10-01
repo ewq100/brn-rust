@@ -55,6 +55,9 @@ for line in sys.stdin:
   if mode=='server-fail':send({'method':'turn/completed','params':{'threadId':tid,'turn':{'id':'turn_synthetic','status':'failed'}}});continue
   send({'method':'item/agentMessage/delta','params':{'threadId':tid,'turnId':'turn_synthetic','delta':'Aurora launches Tuesday [1].'}})
   if mode=='cancel':continue
+  if mode=='change-note':
+   with open('../change-note-path') as f:path=f.read()
+   with open(path,'w') as f:f.write('current changed note')
   send({'method':'turn/completed','params':{'threadId':tid,'turn':{'id':'turn_synthetic','status':'completed'}}})
  elif m=='turn/interrupt':
   if mode=='stall':continue
@@ -83,6 +86,65 @@ fn seed(root: &Path) {
     workspace
         .build_index(&AtomicBool::new(false), |_| {})
         .unwrap();
+}
+
+#[cfg(target_os = "macos")]
+#[test]
+fn stale_completed_answer_and_failure_envelope_replay_preserve_receipt_and_provider_outcome() {
+    let data = tempdir().unwrap();
+    let vault = tempdir().unwrap();
+    let path = vault.path().join("plan.md");
+    fs::write(&path, FIXTURE).unwrap();
+    let mut w = Workspace::open(data.path(), Config::default()).unwrap();
+    let note = w
+        .open_note(Uuid::new_v4(), vault.path(), Path::new("plan.md"))
+        .unwrap();
+    w.approve_note_snapshot(Uuid::new_v4(), note.id, note.current_file_state.unwrap())
+        .unwrap();
+    w.build_index(&AtomicBool::new(false), |_| {}).unwrap();
+    assert!(!w
+        .search("Aurora", brn_workflow::SearchProfile::Keyword)
+        .unwrap()
+        .evidence
+        .is_empty());
+    drop(w);
+    fs::write(data.path().join("change-note-path"), path.to_str().unwrap()).unwrap();
+    let exe = fake(data.path(), "change-note");
+    let op = Uuid::new_v4().to_string();
+    let out = ask(data.path(), &exe, &["--operation", &op]);
+    assert_eq!(code(&out), 1);
+    let first = one_json(&out);
+    assert_eq!(first["error"]["code"], "EVIDENCE_STALE");
+    let context = &first["error"]["context"];
+    assert_eq!(context["recorded_status"], "completed");
+    assert_eq!(context["provider_outcome"], "completed");
+    assert_eq!(
+        context["receipt"]["evidence_currentness"],
+        "StaleAtCompletion"
+    );
+    assert_eq!(context["receipt"]["answer"], "Aurora launches Tuesday [1].");
+    let replay = ask(data.path(), &exe, &["--operation", &op]);
+    assert_eq!(code(&replay), 1);
+    let replay = one_json(&replay);
+    assert_eq!(replay["error"]["code"], "EVIDENCE_STALE");
+    assert_eq!(replay["error"]["context"], first["error"]["context"]);
+    let session = context["session_id"].as_str().unwrap();
+    let resumed = ask(data.path(), &exe, &["--session", session]);
+    assert_eq!(one_json(&resumed)["error"]["code"], "CONTEXT_STALE");
+    let history = brn_json(data.path(), &["conversations", "show", session]);
+    let history = one_json(&history);
+    assert_eq!(history["data"]["historical"], true);
+    assert_eq!(
+        history["data"]["turns"][0]["evidence_currentness"],
+        "StaleAtCompletion"
+    );
+    assert_eq!(
+        fs::read_to_string(data.path().join("submitted.log"))
+            .unwrap()
+            .lines()
+            .count(),
+        1
+    );
 }
 
 /// Run `brn` with `--data-dir root --json` and a synthetic CODEX_HOME.

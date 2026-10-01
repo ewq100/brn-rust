@@ -1,5 +1,5 @@
 //! Single owned workflow worker for the native UI. No store or provider call runs on the GUI thread.
-use crate::{Config, SearchResult, SessionSummary, Workspace};
+use crate::{Config, SearchResult, SessionSummary, SourceStateSummary, Workspace};
 pub use brn_retrieval::{Evidence, Profile};
 pub use brn_store::{
     Approval, ChatTurn, CommentAnchorSnapshot, CommentCapture, CommentCreated, CommentStatusChange,
@@ -118,6 +118,7 @@ impl Action {
 pub enum Outcome {
     Ready {
         sources: Vec<SourceDocument>,
+        source_states: Vec<SourceStateSummary>,
         sessions: Vec<SessionSummary>,
         history: Vec<ChatTurn>,
         selected: Option<Uuid>,
@@ -126,9 +127,11 @@ pub enum Outcome {
     Imported {
         result: ImportResult,
         sources: Vec<SourceDocument>,
+        source_states: Vec<SourceStateSummary>,
     },
     ApprovalChanged {
         sources: Vec<SourceDocument>,
+        source_states: Vec<SourceStateSummary>,
     },
     Indexed {
         generation: String,
@@ -288,15 +291,16 @@ impl Worker {
                     return;
                 }
             };
-            let ready = refresh(&workspace, None).map(|(sources, sessions, history, selected)| {
-                Outcome::Ready {
+            let ready = refresh(&mut workspace, None).map(
+                |(sources, source_states, sessions, history, selected)| Outcome::Ready {
                     sources,
+                    source_states,
                     sessions,
                     history,
                     selected,
                     recovered_operations: workspace.recovered_operations,
-                }
-            });
+                },
+            );
             complete(
                 &shared_worker,
                 &busy_worker,
@@ -445,12 +449,13 @@ fn complete(shared: &Mutex<Shared>, busy: &AtomicBool, terminal: Terminal) {
 }
 type Refreshed = (
     Vec<SourceDocument>,
+    Vec<SourceStateSummary>,
     Vec<SessionSummary>,
     Vec<ChatTurn>,
     Option<Uuid>,
 );
-fn refresh(workspace: &Workspace, preferred: Option<Uuid>) -> Result<Refreshed, String> {
-    let sources = workspace.sources()?;
+fn refresh(workspace: &mut Workspace, preferred: Option<Uuid>) -> Result<Refreshed, String> {
+    let (sources, source_states) = workspace.source_projection()?;
     let sessions = workspace.sessions()?;
     let selected = preferred
         .filter(|id| sessions.iter().any(|s| s.id == *id))
@@ -459,7 +464,7 @@ fn refresh(workspace: &Workspace, preferred: Option<Uuid>) -> Result<Refreshed, 
         .map(|id| workspace.history(id))
         .transpose()?
         .unwrap_or_default();
-    Ok((sources, sessions, history, selected))
+    Ok((sources, source_states, sessions, history, selected))
 }
 fn execute(
     workspace: &mut Workspace,
@@ -480,9 +485,11 @@ fn run_action(
 ) -> crate::Result<Outcome> {
     match action {
         Action::Refresh { session } => {
-            let (sources, sessions, history, selected) = refresh(workspace, session)?;
+            let (sources, source_states, sessions, history, selected) =
+                refresh(workspace, session)?;
             Ok(Outcome::Ready {
                 sources,
+                source_states,
                 sessions,
                 history,
                 selected,
@@ -491,9 +498,11 @@ fn run_action(
         }
         Action::Import { path, approval } => {
             let result = workspace.import_file(cancel, Uuid::new_v4(), &path, approval)?;
+            let (sources, source_states) = workspace.source_projection()?;
             Ok(Outcome::Imported {
                 result,
-                sources: workspace.sources()?,
+                sources,
+                source_states,
             })
         }
         Action::SetApproval {
@@ -502,8 +511,10 @@ fn run_action(
             approval,
         } => {
             workspace.set_approval(cancel, Uuid::new_v4(), source, version, approval)?;
+            let (sources, source_states) = workspace.source_projection()?;
             Ok(Outcome::ApprovalChanged {
-                sources: workspace.sources()?,
+                sources,
+                source_states,
             })
         }
         Action::Build => {

@@ -144,6 +144,7 @@ struct Desktop {
     profile: Profile,
     selected_session: Option<Uuid>,
     sources: Vec<SourceDocument>,
+    source_states: Vec<brn_workflow::SourceStateSummary>,
     sessions: Vec<SessionSummary>,
     history: Vec<ChatTurn>,
     selected_turn: Option<usize>,
@@ -247,6 +248,7 @@ impl Desktop {
             profile: Profile::Keyword,
             selected_session: None,
             sources: Vec::new(),
+            source_states: Vec::new(),
             sessions: Vec::new(),
             history: Vec::new(),
             selected_turn: None,
@@ -305,12 +307,14 @@ impl Desktop {
                 }
                 Ok(Outcome::Ready {
                     sources,
+                    source_states,
                     sessions,
                     history,
                     selected,
                     recovered_operations,
                 }) => {
                     self.sources = sources;
+                    self.source_states = source_states;
                     self.sessions = sessions;
                     self.history = history;
                     self.search = None;
@@ -328,8 +332,13 @@ impl Desktop {
                     };
                     self.submit(Action::ListDrafts, "Draft list", cx);
                 }
-                Ok(Outcome::Imported { result, sources }) => {
+                Ok(Outcome::Imported {
+                    result,
+                    sources,
+                    source_states,
+                }) => {
                     self.sources = sources;
+                    self.source_states = source_states;
                     self.search = None;
                     self.selected_evidence = None;
                     self.generation = self.generation.wrapping_add(1);
@@ -339,8 +348,12 @@ impl Desktop {
                         "Source was already current; approval updated.".into()
                     };
                 }
-                Ok(Outcome::ApprovalChanged { sources }) => {
+                Ok(Outcome::ApprovalChanged {
+                    sources,
+                    source_states,
+                }) => {
                     self.sources = sources;
+                    self.source_states = source_states;
                     self.search = None;
                     self.selected_evidence = None;
                     self.generation = self.generation.wrapping_add(1);
@@ -1136,7 +1149,22 @@ impl Render for Desktop {
                         .child(Button::new("build-index").label("Build index").disabled(!self.phase.can_submit()).on_click(cx.listener(|this, _, _, cx| { this.submit(Action::Build, "Index build", cx); })))
                         .child(Button::new("refresh").label("Refresh").disabled(!self.phase.can_submit()).on_click(cx.listener(|this, _, _, cx| { this.submit(Action::Refresh { session: this.selected_session }, "Refresh", cx); }))))
                     .child(div().min_w(px(0.)).child(format!("Selected file: {}", self.import_path.as_ref().map_or("none".into(), |p| spaced_identifier(&p.display().to_string())))));
-                body = body.child(format!("Sources: {}", self.sources.len()));
+                body = body.child(format!(
+                    "Sources (last validated observation): {}",
+                    self.source_states.len()
+                ));
+                for state in self
+                    .source_states
+                    .iter()
+                    .filter(|s| s.current_state != brn_workflow::SourceCurrentState::Current)
+                {
+                    body = body.child(div().min_w(px(0.)).child(format!(
+                        "{} · {:?} · {}",
+                        state.title,
+                        state.current_state,
+                        state.message.as_deref().unwrap_or("not current")
+                    )));
+                }
                 for source in &self.sources {
                     let source_id = source.source_id;
                     let version = source.version_id;
@@ -1147,7 +1175,7 @@ impl Render for Desktop {
                             .min_w(px(0.))
                             .gap_2()
                             .child(format!(
-                                "{} · {:?} · {} bytes",
+                                "{} · Current at last observation · {:?} · {} bytes",
                                 source.title,
                                 source.approval,
                                 source.bytes.len()
@@ -1260,15 +1288,15 @@ impl Render for Desktop {
                 }
                 if let Some(hit) = &self.selected_evidence {
                     body = body.child(format!(
-                        "Selected passage · source {} · revision {} · bytes {}..{}\n{}",
+                        "Passage from last validated search · source {} · revision {} · bytes {}..{}\n{}",
                         hit.source_id, hit.version_id, hit.start_byte, hit.end_byte, hit.quote
                     ));
                 }
                 if self.phase.shows_live_answer() && !self.streamed_text.is_empty() {
                     let heading = if matches!(self.phase, Phase::Cancelling { .. }) {
-                        "Partial answer while cancellation finishes (not saved)"
+                        "Provisional partial answer while cancellation finishes (not saved)"
                     } else {
-                        "Answer in progress (not saved)"
+                        "Provisional answer in progress (not saved)"
                     };
                     body = body.child(format!("{heading}:\n{}", self.streamed_text));
                 }
@@ -1326,10 +1354,11 @@ impl Render for Desktop {
                     body = body.child(
                         Button::new(format!("turn-{i}"))
                             .label(format!(
-                                "{} · {} · {:?}",
+                                "Historical: {} · {} · {:?} · {:?}",
                                 compact_title(&turn.question),
                                 turn.profile,
-                                turn.status
+                                turn.status,
+                                turn.evidence_currentness
                             ))
                             .on_click(cx.listener(move |this, _, _, cx| {
                                 this.selected_turn = Some(i);
@@ -1340,10 +1369,11 @@ impl Render for Desktop {
                 }
                 if let Some(turn) = self.selected_turn.and_then(|i| self.history.get(i)) {
                     body = body.child(format!(
-                        "Question: {}\nAnswer: {}\nStatus: {:?}\nProvider turn: {}",
+                        "Historical question: {}\nAnswer: {}\nStatus: {:?}\nEvidence at completion: {:?}\nProvider turn: {}",
                         turn.question,
                         turn.answer.as_deref().unwrap_or("No answer saved"),
                         turn.status,
+                        turn.evidence_currentness,
                         spaced_identifier(turn.provider_turn_id.as_deref().unwrap_or("none"))
                     ));
                     if let Ok(evidence) = serde_json::from_str::<Vec<Evidence>>(&turn.evidence_json)

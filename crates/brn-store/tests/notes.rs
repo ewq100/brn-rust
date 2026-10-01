@@ -4,6 +4,161 @@ use std::path::Path;
 use uuid::Uuid;
 
 #[test]
+fn search_snapshot_receipts_bind_state_preserve_originals_and_track_permission_epochs() {
+    use brn_store::Approval;
+    let (_data, _vault, mut store, opened) = fixture();
+    let record = store.note_record(opened.note_id).unwrap();
+    let recovery = store.note_recovery(opened.note_id).unwrap().unwrap();
+    let origin = store
+        .note_vault(opened.note_id)
+        .unwrap()
+        .root
+        .join("plan.md");
+    let imported = store
+        .import_text(
+            Uuid::new_v4(),
+            origin.to_str().unwrap(),
+            "plan.md",
+            recovery.baseline.as_bytes(),
+            Approval::Approved,
+        )
+        .unwrap();
+    store.reconcile_note_sources().unwrap();
+    assert_eq!(
+        store.note_source_associations().unwrap(),
+        vec![(opened.note_id, imported.source_id, true)]
+    );
+    let state = store
+        .record_note_observation(opened.note_id, &record.baseline)
+        .unwrap();
+    let request = NoteSearchRequest::Approve {
+        note_id: opened.note_id,
+        file_state: state,
+    };
+    let op = Uuid::new_v4();
+    let (receipt, changed) = store
+        .freeze_note_search_snapshot(op, &request, state, &record.baseline, &recovery.baseline)
+        .unwrap();
+    assert!(changed);
+    assert_ne!(receipt.source_id, imported.source_id);
+    assert_eq!(
+        store.version(imported.version_id).unwrap().unwrap().bytes,
+        recovery.baseline.as_bytes()
+    );
+    let epochs = store.note_evidence_epochs(opened.note_id).unwrap();
+    assert_eq!(epochs, (0, 1));
+    store
+        .record_note_observation(opened.note_id, &record.baseline)
+        .unwrap();
+    assert_eq!(store.note_evidence_epochs(opened.note_id).unwrap(), epochs);
+    let changed_file = fingerprint("changed", 3);
+    store
+        .record_note_observation(opened.note_id, &changed_file)
+        .unwrap();
+    assert_eq!(store.note_evidence_epochs(opened.note_id).unwrap(), (1, 2));
+    store
+        .record_note_observation(opened.note_id, &changed_file)
+        .unwrap();
+    assert_eq!(store.note_evidence_epochs(opened.note_id).unwrap(), (1, 2));
+    assert_eq!(
+        store.note_search_replay(op, &request).unwrap(),
+        Some((receipt.clone(), changed))
+    );
+    assert_eq!(
+        store
+            .freeze_note_search_snapshot(op, &request, state, &record.baseline, &recovery.baseline)
+            .unwrap(),
+        (receipt, true)
+    );
+    assert_eq!(
+        store.note_record(opened.note_id).unwrap().search_approval,
+        Approval::Draft
+    );
+    assert_eq!(
+        store
+            .note_search_replay(
+                op,
+                &NoteSearchRequest::Approve {
+                    note_id: opened.note_id,
+                    file_state: Uuid::new_v4()
+                }
+            )
+            .unwrap_err()
+            .code,
+        NoteErrorCode::OperationConflict
+    );
+}
+
+#[test]
+fn observation_epoch_overflow_is_rejected_atomically() {
+    let (data, _vault, mut store, opened) = fixture();
+    let conn = rusqlite::Connection::open(data.path().join("brn.sqlite3")).unwrap();
+    conn.execute(
+        "UPDATE notes SET content_epoch=9223372036854775807 WHERE id=?1",
+        [opened.note_id.to_string()],
+    )
+    .unwrap();
+    let before = store.note_record(opened.note_id).unwrap();
+    assert_eq!(
+        store
+            .record_note_observation(opened.note_id, &fingerprint("changed", 3))
+            .unwrap_err()
+            .code,
+        NoteErrorCode::Storage
+    );
+    assert_eq!(store.note_record(opened.note_id).unwrap(), before);
+}
+
+#[test]
+fn search_snapshot_and_receipt_identity_mismatches_fail_visibly() {
+    for snapshot in [false, true] {
+        let (data, _vault, mut store, opened) = fixture();
+        let file = store.note_record(opened.note_id).unwrap().baseline;
+        let state = store
+            .record_note_observation(opened.note_id, &file)
+            .unwrap();
+        let request = NoteSearchRequest::Approve {
+            note_id: opened.note_id,
+            file_state: state,
+        };
+        let op = Uuid::new_v4();
+        let (mut receipt, changed) = store
+            .freeze_note_search_snapshot(op, &request, state, &file, &opened.baseline)
+            .unwrap();
+        let conn = rusqlite::Connection::open(data.path().join("brn.sqlite3")).unwrap();
+        if snapshot {
+            receipt.note_id = Uuid::new_v4();
+            let bytes = serde_json::to_vec(&NoteSearchSnapshot {
+                receipt,
+                fingerprint: file,
+            })
+            .unwrap();
+            conn.execute(
+                "UPDATE note_search_snapshots SET snapshot_json=?1,snapshot_sha256=?2",
+                rusqlite::params![bytes, Sha256::digest(&bytes).as_slice()],
+            )
+            .unwrap();
+            assert_eq!(
+                store.note_search_snapshot(opened.note_id).unwrap_err().code,
+                NoteErrorCode::Storage
+            );
+        } else {
+            receipt.operation_id = Uuid::new_v4();
+            let bytes = serde_json::to_vec(&(receipt, changed)).unwrap();
+            conn.execute(
+                "UPDATE note_search_results SET result_json=?1,result_sha256=?2",
+                rusqlite::params![bytes, Sha256::digest(&bytes).as_slice()],
+            )
+            .unwrap();
+            assert_eq!(
+                store.note_search_replay(op, &request).unwrap_err().code,
+                NoteErrorCode::Storage
+            );
+        }
+    }
+}
+
+#[test]
 fn reload_and_relink_bind_caller_decisions_and_only_discard_confirmed_work() {
     let (_data, _vault, mut store, opened) = fixture();
     let request = submission(&opened);

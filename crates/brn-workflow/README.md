@@ -21,6 +21,39 @@ recovery only; it does not write Markdown. `note_recoveries()` includes clean
 notes and unresolved work and requires no vault access. Note operations return
 typed `NoteResult` failures independently of generic workflow errors.
 
+`approve_note_snapshot(operation_id, note_id, current_file_state)` freezes exact
+reconciled saved bytes into a dedicated managed source, never the recovery
+buffer. Enrollment/copies do not inherit permission. Changed observations and
+changed saves withdraw permission; unchanged saves preserve it. Unavailability
+excludes a snapshot without treating stored permission as live eligibility.
+Reload/relink/accept-current still reset permission even for equal bytes.
+Reapproval uses a fresh saved observation and requires an index rebuild when
+content/permission epochs changed. Replaying approval returns its old receipt,
+not a new permission grant.
+
+[`notes/eligibility.rs`](src/notes/eligibility.rs) owns the live predicate and
+`source_projection`: freshly validated documents paired with explicit
+Current/Shadowed/Changed/Missing/Unavailable/OwnedElsewhere/Uncertain summaries.
+`source_states` delegates to that single observation pass. The mutable
+documents-only `sources` wrapper fails with EvidenceStale rather than hiding
+excluded rows. Exact-path legacy imports stay immutable but become shadowed;
+managed-path imports/approval use the same snapshot helper, with no independent
+shadowed-source reapproval. Unrelated legacy imports retain snapshot semantics.
+Index/search deliberately use the valid approved subset; changed corpus or
+epochs preserve whole-index IndexStale behavior with exclusion reasons.
+`brn-flow sources` returns `sources` and `source_states`; worker/native rows
+pair those same projections and label their last validated observation.
+
+Provider handoff validates selected evidence and managed prior session evidence
+before authentication/resume, again before submission, and at completion.
+Streaming is provisional. Completion atomically retains provider status/text
+and CurrentAtCompletion/StaleAtCompletion. A stale completed answer returns
+EvidenceStale with its historical receipt and confirmed provider outcome,
+including same-operation replay without provider access. New operations on
+stale threads fail ContextStale and require a fresh conversation. History is
+readable and labeled; Unqualified legacy history alone does not block resume.
+Storage/integrity failures remain visible rather than becoming exclusions.
+
 Opening the workspace itself does not open the vault. ID-only observations
 lazily validate/acquire the registered root and hold ownership until workspace
 drop; missing/replaced roots and another BRN owner produce Unavailable or

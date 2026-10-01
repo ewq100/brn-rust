@@ -9,6 +9,8 @@ pub enum CliError {
     NotFound(String),
     IndexMissing(String),
     IndexStale(String),
+    EvidenceStale(String),
+    ContextStale(String),
     IndexInvalid(String),
     ProfileUnavailable(String),
     OperationConflict(String),
@@ -25,6 +27,8 @@ impl CliError {
             Self::NotFound(_) => "NOT_FOUND",
             Self::IndexMissing(_) => "INDEX_MISSING",
             Self::IndexStale(_) => "INDEX_STALE",
+            Self::EvidenceStale(_) => "EVIDENCE_STALE",
+            Self::ContextStale(_) => "CONTEXT_STALE",
             Self::IndexInvalid(_) => "INDEX_INVALID",
             Self::ProfileUnavailable(_) => "PROFILE_UNAVAILABLE",
             Self::OperationConflict(_) => "OPERATION_CONFLICT",
@@ -41,6 +45,8 @@ impl CliError {
             | Self::NotFound(m)
             | Self::IndexMissing(m)
             | Self::IndexStale(m)
+            | Self::EvidenceStale(m)
+            | Self::ContextStale(m)
             | Self::IndexInvalid(m)
             | Self::ProfileUnavailable(m)
             | Self::OperationConflict(m)
@@ -68,6 +74,8 @@ pub fn classify_workflow(error: WorkflowError) -> CliError {
         ErrorKind::WorkspaceBusy => CliError::WorkspaceBusy(error.message),
         ErrorKind::IndexMissing => CliError::IndexMissing(error.message),
         ErrorKind::IndexStale => CliError::IndexStale(error.message),
+        ErrorKind::EvidenceStale => CliError::EvidenceStale(error.message),
+        ErrorKind::ContextStale => CliError::ContextStale(error.message),
         ErrorKind::IndexInvalid => CliError::IndexInvalid(error.message),
         ErrorKind::ProfileUnavailable => CliError::ProfileUnavailable(error.message),
         ErrorKind::OperationConflict => CliError::OperationConflict(error.message),
@@ -79,6 +87,22 @@ pub fn classify_workflow(error: WorkflowError) -> CliError {
 #[cfg(test)]
 mod tests {
     use super::*;
+
+    #[test]
+    fn stale_evidence_and_context_have_stable_codes() {
+        for (kind, code) in [
+            (ErrorKind::EvidenceStale, "EVIDENCE_STALE"),
+            (ErrorKind::ContextStale, "CONTEXT_STALE"),
+        ] {
+            let mapped = classify_workflow(WorkflowError {
+                kind,
+                message: "exact message".into(),
+            });
+            assert_eq!(mapped.code(), code);
+            assert_eq!(mapped.message(), "exact message");
+            assert_eq!(mapped.exit_code(), 1);
+        }
+    }
 
     #[test]
     fn uncategorized_codes_stay_stable() {

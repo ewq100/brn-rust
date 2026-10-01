@@ -84,7 +84,10 @@ fn run() -> Result<(), String> {
             )?)
             .map_err(|e| e.to_string())?
         }
-        "sources" => serde_json::to_value(workspace.sources()?).map_err(|e| e.to_string())?,
+        "sources" => {
+            let (sources, states) = workspace.source_projection()?;
+            serde_json::json!({"sources":sources,"source_states":states})
+        }
         "approve" => {
             let state = match get("state")?.as_str() {
                 "approved" => Approval::Approved,

@@ -11,6 +11,8 @@ pub enum ErrorKind {
     WorkspaceBusy,
     IndexMissing,
     IndexStale,
+    EvidenceStale,
+    ContextStale,
     IndexInvalid,
     ProfileUnavailable,
     OperationConflict,

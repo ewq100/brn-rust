@@ -58,7 +58,7 @@ The error object may carry an **additive-optional `context` field** (schema_vers
 `context` currently appears only on `ask` failures; consumers must treat its
 absence as normal for every command and every other error.
 
-Exit codes: `0` success; `2` usage (`USAGE`); `1` operational failure (`WORKSPACE_BUSY`, `NOT_FOUND`, `INDEX_MISSING`, `INDEX_STALE`, `INDEX_INVALID`, `PROFILE_UNAVAILABLE`, `OPERATION_CONFLICT`, `WORKFLOW_ERROR`); `124` deadline (`TIMEOUT`); `130` interrupted (`INTERRUPTED`). Codes are derived from typed workflow error categories at the source, never from matching message wording; uncategorized failures are an honest `WORKFLOW_ERROR`.
+Exit codes: `0` success; `2` usage (`USAGE`); `1` operational failure (`WORKSPACE_BUSY`, `NOT_FOUND`, `INDEX_MISSING`, `INDEX_STALE`, `INDEX_INVALID`, `EVIDENCE_STALE`, `CONTEXT_STALE`, `PROFILE_UNAVAILABLE`, `OPERATION_CONFLICT`, `WORKFLOW_ERROR`); `124` deadline (`TIMEOUT`); `130` interrupted (`INTERRUPTED`). Codes are derived from typed workflow error categories at the source, never from matching message wording; uncategorized failures are an honest `WORKFLOW_ERROR`.
 
 ## Semantics
 
@@ -82,6 +82,13 @@ brn comments list --draft DRAFT_ID --data-dir /tmp/brn-data --json
 - Search never builds the index; a missing or stale index is an error, not a trigger.
 - Semantic/hybrid profiles never fall back to keyword; they fail with `PROFILE_UNAVAILABLE` in this build.
 - Approval binds the exact source version; superseded versions reject approval.
+- `documents list` retains valid rows' legacy fields and adds `note_id`,
+  `current_state` and `message`. Excluded managed rows contain identity/title
+  and state/reason only, not current bytes/version/hash/approval. `documents show`
+  freshly validates its snapshot; a known shadowed, changed or unavailable row
+  fails `EVIDENCE_STALE`, not `NOT_FOUND`. Explicit revision/history access keeps
+  immutable originals. Managed-path import and permission changes cannot revive
+  shadowed copies or approve recovered buffers.
 - `--data-dir` must already exist and be absolute; opening it may initialize or recover per store semantics.
 - Workspace ownership is exclusive: when the desktop or another process holds the directory, the command fails with `WORKSPACE_BUSY`. There is no bypass.
 - Closed stdout pipes are handled quietly through explicit BrokenPipe handling, without restoring process-wide SIGPIPE termination; piping (`brn documents show X | head`) exits quietly.
@@ -107,6 +114,17 @@ external submission. After an unknown provider outcome, a NEW operation id is
 not known to be safe (it may duplicate the external turn). Nothing is ever
 auto-replayed. USAGE (missing `--codex`) and NOT_FOUND (unknown `--session`)
 failures happen before an operation id exists and carry no context.
+
+Managed evidence is revalidated before provider access/submission and at
+completion. Deltas are provisional. `EVIDENCE_STALE` may accompany an actually
+completed provider response: `recorded_status` and `provider_outcome` stay
+`completed`, with the preserved historical `receipt` in failure context.
+Same-operation stale replay returns that receipt/outcome without resubmission;
+a new operation resuming stale managed context fails `CONTEXT_STALE` and
+requires a fresh conversation. Turn JSON adds `evidence_currentness`
+(`Unqualified`, `CurrentAtCompletion`, `StaleAtCompletion`); these describe
+completion, not permanent current eligibility. `conversations show` is labeled
+historical and remains readable offline.
 
 ## Dependencies and features
 

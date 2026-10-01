@@ -86,12 +86,31 @@ fn set_approval(
     state: SearchApproval,
     operation: Option<Uuid>,
 ) -> Result<Output, CliFailure> {
-    let docs = workspace.sources().map_err(classify_workflow)?;
+    let (docs, states) = workspace.source_projection().map_err(classify_workflow)?;
+    if let Some(summary) = states.iter().find(|s| {
+        s.source_id == source && s.current_state != brn_workflow::SourceCurrentState::Current
+    }) {
+        return Err(CliError::EvidenceStale(format!(
+            "source {source} is {:?}: {}",
+            summary.current_state,
+            summary.message.as_deref().unwrap_or("not current")
+        ))
+        .into());
+    }
     let doc = docs
         .iter()
         .find(|d| d.source_id == source)
         .ok_or_else(|| CliError::NotFound(format!("source {source} not found")))?;
     if doc.version_id != version {
+        if states
+            .iter()
+            .any(|s| s.source_id == source && s.note_id.is_some())
+        {
+            return Err(CliError::EvidenceStale(
+                "managed snapshot version is no longer current".into(),
+            )
+            .into());
+        }
         return Err(CliError::NotFound(format!(
             "version {version} is not the current version of source {source}"
         ))

@@ -9,7 +9,7 @@ pub enum Approval {
     Withdrawn,
 }
 impl Approval {
-    fn as_str(self) -> &'static str {
+    pub(super) fn as_str(self) -> &'static str {
         match self {
             Self::Approved => "approved",
             Self::Draft => "draft",

@@ -35,6 +35,17 @@ UUID and invalidate prior version-bound approval. Baseline fingerprints are
 also hash-checked. These columns amend the unreleased V6 schema in place;
 expected-schema validation derives from the same V6 definition.
 
+V6 also persists checked content/approval epochs, dedicated note/search-snapshot
+associations and hash-checked `NoteSearchReceipt` results. Workflow supplies
+revalidated reconciled observations to `freeze_note_search_snapshot`; SQLite
+atomically freezes immutable bytes and grants only that state's permission.
+A different file state receives a new revision even for identical text;
+unchanged explicit approval reuses the snapshot. Exact-path imported originals
+remain unchanged in `note_shadowed_sources`, including after relink. Observation
+withdrawal is durable; replaying a receipt cannot restore withdrawn approval.
+Epoch overflow fails atomically, rather than coercing SQLite integers to REAL.
+These additions amend the unreleased V6 schema, not shipped databases.
+
 Enrollment binds only the caller-visible root spelling and relative path,
 not freshly observed bytes. `note_enrollment_replay` checks that binding before
 filesystem access and returns the recorded note ID; differing inputs or

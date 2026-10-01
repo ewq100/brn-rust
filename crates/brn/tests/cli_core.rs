@@ -10,6 +10,89 @@ use std::{
 use tempfile::tempdir;
 use uuid::Uuid;
 
+#[cfg(target_os = "macos")]
+#[test]
+fn documents_surfaces_label_shadowed_changed_and_missing_without_old_current_bytes() {
+    use brn_workflow::{Config, SearchApproval, Workspace};
+    use std::sync::atomic::AtomicBool;
+    let data = tempdir().unwrap();
+    let vault = tempdir().unwrap();
+    let file = write(vault.path(), "plan.md", "oldterm");
+    let mut w = Workspace::open(data.path(), Config::default()).unwrap();
+    let imported = w
+        .import_file(
+            &AtomicBool::new(false),
+            Uuid::new_v4(),
+            &file,
+            SearchApproval::Approved,
+        )
+        .unwrap();
+    let note = w
+        .open_note(Uuid::new_v4(), vault.path(), Path::new("plan.md"))
+        .unwrap();
+    let managed = w
+        .approve_note_snapshot(Uuid::new_v4(), note.id, note.current_file_state.unwrap())
+        .unwrap();
+    drop(w);
+    let (c, envelope) = run_json(data.path(), &["documents", "list"]);
+    let docs = data_ok(c, &envelope, "managed list")["documents"]
+        .as_array()
+        .unwrap();
+    let shadowed = docs
+        .iter()
+        .find(|d| d["source_id"] == imported.source_id.to_string())
+        .unwrap();
+    assert_eq!(shadowed["current_state"], "Shadowed");
+    assert_eq!(shadowed["note_id"], note.id.to_string());
+    assert!(shadowed.get("sha256_hex").is_none());
+    assert!(shadowed.get("content").is_none());
+    let (c, envelope) = run_json(
+        data.path(),
+        &["documents", "show", &managed.source_id.to_string()],
+    );
+    let shown = data_ok(c, &envelope, "managed show");
+    assert_eq!(shown["content"], "oldterm");
+    assert_eq!(shown["current_state"], "Current");
+    for source in [imported.source_id, managed.source_id] {
+        if source == managed.source_id {
+            fs::write(&file, "newterm").unwrap();
+        }
+        let (c, envelope) = run_json(data.path(), &["documents", "show", &source.to_string()]);
+        assert_eq!(c, 1);
+        assert_eq!(envelope["error"]["code"], "EVIDENCE_STALE");
+        assert!(envelope.get("data").is_none());
+    }
+    let (_, envelope) = run_json(data.path(), &["documents", "list"]);
+    let docs = envelope["data"]["documents"].as_array().unwrap();
+    let changed = docs
+        .iter()
+        .find(|d| d["source_id"] == managed.source_id.to_string())
+        .unwrap();
+    assert_eq!(changed["current_state"], "Changed");
+    assert!(changed.get("version_id").is_none());
+    fs::remove_file(&file).unwrap();
+    let (_, envelope) = run_json(data.path(), &["documents", "list"]);
+    assert!(envelope["data"]["documents"]
+        .as_array()
+        .unwrap()
+        .iter()
+        .any(|d| d["current_state"] == "Missing"));
+    let (c, envelope) = run_json(
+        data.path(),
+        &[
+            "documents",
+            "set-search-approval",
+            &imported.source_id.to_string(),
+            "--version-id",
+            &imported.version_id.to_string(),
+            "--state",
+            "approved",
+        ],
+    );
+    assert_eq!(c, 1);
+    assert_eq!(envelope["error"]["code"], "EVIDENCE_STALE");
+}
+
 fn brn(args: &[&str]) -> Output {
     Command::new(env!("CARGO_BIN_EXE_brn"))
         .args(args)

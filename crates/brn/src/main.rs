@@ -334,7 +334,7 @@ mod tests {
         let code = cli::finish(invocation.json, "import", Ok(output));
         assert_eq!(code, ExitCode::SUCCESS, "completed result stands");
 
-        let workspace = brn_workflow::Workspace::open(root, brn_workflow::Config::default())
+        let mut workspace = brn_workflow::Workspace::open(root, brn_workflow::Config::default())
             .expect("workspace reopens");
         let sources = workspace.sources().unwrap();
         assert_eq!(sources.len(), 1, "exactly the committed import");
@@ -420,7 +420,7 @@ mod tests {
             "{diagnostic}"
         );
 
-        let workspace = brn_workflow::Workspace::open(root, brn_workflow::Config::default())
+        let mut workspace = brn_workflow::Workspace::open(root, brn_workflow::Config::default())
             .expect("workspace reopens");
         let sources = workspace.sources().unwrap();
         assert_eq!(sources.len(), 1, "exactly the committed import");
