@@ -10,6 +10,7 @@ Start with [AGENTS.md](../AGENTS.md), then [current status](status.md). Read onl
 | Choose future work | [Roadmap](roadmap.md) |
 | Review the proposed Markdown-first direction | [Design note: finite AI workspaces](superpowers/specs/2026-09-30-markdown-first-ai-workspace-design.md) (direction approved; detailed defaults under review, not implemented) |
 | Review safe local Markdown editing | [Approved open/save/recovery design](superpowers/specs/2026-10-01-open-and-safely-edit-markdown-notes-design.md), [implementation plan](work/active/markdown-note-editing/plan.md), [qualification](work/active/markdown-note-editing/evidence.md) (implemented on feature branch; native acceptance pending) |
+| Review the UI redesign | [Workspace shell design](superpowers/specs/2026-10-01-workspace-shell-design.md), [UI feature backlog](ui/feature-backlog.md), [shell decision](architecture/decisions/2026-10-01-workspace-shell.md) |
 | Understand code ownership | [Architecture overview](architecture/overview.md), relevant crate README |
 | Change storage, revisions, comments or retrieval | [Invariants](architecture/invariants.md), [completed task records](work/completed/README.md) |
 | Change provider behavior | [Provider README](../crates/brn-provider/README.md), [sidecar packaging boundary](../experiments/codex-app-server/PACKAGING.md) |

@@ -1,5 +1,7 @@
 # Workspace Shell Implementation Plan
 
+Archived 1 October 2026: slice 1 implemented on `feat/workspace-shell`; automated verification recorded in [evidence](evidence.md), manual native verification and user acceptance pending, not merged. The original steps, unchecked planning boxes and expected results below are historical instructions, not observations. Implementation began at `9786d2d` rather than `9af18f5` (documentation-only intervening changes). Controller rulings supersede Task 6's expected “native observations recorded” status text: all manual observations remain pending. This folder was moved from active to completed with `git mv`; completion closes bounded implementation scope, not product qualification.
+
 > **For agentic workers:** REQUIRED SUB-SKILL: Use superpowers:subagent-driven-development or superpowers:executing-plans to implement this plan task-by-task. Follow the current user's delegation preference; inline execution is the repository default. Steps use checkbox (`- [ ]`) syntax for tracking.
 
 **Goal:** Replace the single-column page switcher in `brn-desktop` with the handoff's combined workspace. History is on the left, the document and chat share the centre, and the vault is on the right, all in the refined-terminal design. Existing workflow behaviour does not change.

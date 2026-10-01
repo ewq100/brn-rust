@@ -525,3 +525,56 @@ authorize cleanup even after reservation release.
 must rerun `scripts/verify-end-to-end.sh` and record its result separately.
 Existing native-user acceptance, optional native-retrieval prerequisite,
 power-loss/other-volume and arbitrary-writer limitations above remain unchanged.
+
+## Merge with main@1a30db0 — 1 October 2026
+
+Qualification now covers the staged, uncommitted merge of
+`feat/markdown-note-editing` (pre-merge head `4a95dc2`) with `main@1a30db0`,
+which merged the workspace shell in PR #12. The conflict was our monolithic
+native Notes page versus main's split history/document-chat/vault shell,
+plus conflicting status wording.
+
+The user selected **minimal interim integration**, not a new design:
+vault selection, vault-relative Markdown opening, registered notes/recoveries
+and source-state labels live in `crates/brn-desktop/src/native/shell/vault_rail.rs`;
+the editor and Save, comparison, reload/discard, relink, accept-current,
+save-copy and separate search-approval controls live in
+`native/shell/centre.rs` as a `DocRef::Note` centre document.
+`native/mod.rs` retains the worker wiring, note close/recovery guards and
+navigation correlation. Main's shell/theme/layout and draft behavior remain;
+the controls are explicitly interim until UI slice 3.
+
+Controller-run integrated evidence, using the same R21 worktree-local TMPDIR
+and grep-backed `rg` shim substitutions as above:
+
+| Result | Ignored local log |
+| --- | --- |
+| Final-fix-wave run at `4a95dc2`: `EXIT=0`, **435 tests passed, 0 failed**, provider-free fixture passed. This records the controller's subsequent run that the preceding fix-wave entry had left pending. | `.superpowers/sdd/plan/verify-e2e-3.log` |
+| Staged merge result: `EXIT=0`, **466 tests passed, 0 failed**, provider-free fixture passed. | `.superpowers/sdd/plan/verify-e2e-merge.log` |
+
+The port implementer ran `cargo fmt --all`, workspace check, native desktop
+build, native desktop tests (**89 unit + 5 CLI passed, 0 failed**),
+native and workspace Clippy with `-D warnings`, worker tests (**6 passed,
+0 failed**) and whitespace/conflict checks. All passed; exact commands/output
+are in ignored `.superpowers/sdd/plan/merge-port-checks.log` and
+`merge-port-report.md`. Cargo's existing `block v0.1.6` future-incompatibility
+notice remains, not a Clippy failure.
+
+No GUI behavior was observed. Native acceptance remains pending; optional
+native-retrieval qualification remains unavailable because `protoc` is missing.
+The historical `a82dd25` main verification is not current merge qualification.
+No provider call, original-vault access, dependency acquisition, merge commit,
+push or release is claimed. The controller owns integrated-script execution;
+the port implementer inspected its logs rather than rerunning that script.
+
+The subsequent review fixes capture queued Open/Select navigation generations
+before worker admission, reject superseded requests without replacing note
+work, and remove the nonmatching `MarkdownNote && Input` Cmd-S binding.
+The focused navigation regression failed before the fix and passed afterward.
+Review-fix gates passed: `cargo fmt --all`, `cargo check --workspace --locked`,
+`cargo test -p brn-desktop --features native-ui --locked` (**90 unit + 5 CLI
+passed, 0 failed**), native Clippy with `--all-targets --locked -- -D warnings`,
+and `git diff --check`. A local checker validated **33 file/fragment links**
+across the changed status, evidence and active-work index. Ignored output log:
+`.superpowers/sdd/plan/merge-port-review-checks.log`. The 466-test integrated
+result precedes these three review fixes; it was not rerun by the implementer.

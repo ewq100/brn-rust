@@ -1,4 +1,5 @@
 use crate::drafts::DraftEditor;
+use crate::layout::{self, LayoutState, Loaded, Rail, ResolvedLayout};
 use crate::notes::{CloseRoute, NoteEditor, NoteObservations, NoteScheduler};
 use brn_workflow::notes::{NoteComparison, NoteRecovery, NoteView};
 use brn_workflow::worker::{
@@ -7,11 +8,12 @@ use brn_workflow::worker::{
 };
 use brn_workflow::{AnchorState, CommentStatus, Config, SearchResult, SessionSummary};
 use gpui_kit::{
-    AppContext, Bounds, Context, Entity, KeyBinding, Menu, MenuItem, PathPromptOptions,
-    ScrollAnchor, ScrollHandle, Subscription, Task, Window, WindowBounds, WindowOptions,
+    App, AppContext, Bounds, Context, Entity, FocusHandle, Focusable, KeyBinding, Menu, MenuItem,
+    PathPromptOptions, ScrollAnchor, ScrollHandle, Subscription, Task, WeakEntity, Window,
+    WindowBounds, WindowOptions,
     base::Disableable,
     component::{
-        Root,
+        Root, TitleBar,
         button::Button,
         input::{Editor, EditorState, Input, InputEvent, InputState},
         scroll::ScrollableElement,
@@ -20,18 +22,69 @@ use gpui_kit::{
     prelude::*,
     px, size,
 };
-gpui_kit::actions!(brn, [Quit, SaveNote]);
+gpui_kit::actions!(
+    brn,
+    [
+        Quit,
+        ToggleHistory,
+        ToggleVault,
+        ToggleFocus,
+        FocusComposer,
+        NewChat,
+        OpenSettings,
+        CancelRunning,
+        SaveNote
+    ]
+);
 use std::path::PathBuf;
 use std::time::{Duration, Instant};
 use uuid::Uuid;
 
-#[derive(Clone, Copy, PartialEq, Eq)]
-enum Page {
-    Workspace,
-    Activity,
-    Drafts,
-    Notes,
-    Settings,
+mod shell;
+mod theme;
+
+#[derive(Clone, Copy, Debug, PartialEq, Eq)]
+enum DocRef {
+    Draft,
+    Source(Uuid),
+    Note(Uuid),
+}
+
+#[derive(Clone, Copy, Debug, PartialEq, Eq)]
+enum CentreTab {
+    Document,
+    Chat,
+}
+
+/// Correlates a document-open completion with the navigation that requested it,
+/// so a late completion cannot override a newer Close or source selection.
+#[derive(Debug, Default)]
+struct DocNavigation {
+    generation: u64,
+    pending_draft: Option<u64>,
+    pending_note: Option<u64>,
+}
+
+impl DocNavigation {
+    fn moved(&mut self) {
+        self.generation = self.generation.wrapping_add(1);
+    }
+    fn request_draft(&mut self) {
+        self.pending_draft = Some(self.generation);
+    }
+    fn take_draft_completion(&mut self) -> bool {
+        self.pending_draft.take() == Some(self.generation)
+    }
+    fn request_note(&mut self, generation: u64) -> bool {
+        if generation != self.generation {
+            return false;
+        }
+        self.pending_note = Some(generation);
+        true
+    }
+    fn take_note_completion(&mut self) -> bool {
+        self.pending_note.take() == Some(self.generation)
+    }
 }
 
 enum NoteControl {
@@ -39,8 +92,15 @@ enum NoteControl {
         op: Uuid,
         vault: PathBuf,
         relative: PathBuf,
+        generation: u64,
     },
-    Select(Uuid),
+    Select {
+        id: Uuid,
+        generation: u64,
+    },
+    Navigate(Option<DocRef>),
+    OpenDraft(Uuid),
+    CreateDraft,
     Save,
     Compare,
     Reload,
@@ -153,6 +213,8 @@ struct Desktop {
     draft_state: Option<DraftEditor>,
     note_editor: Entity<EditorState>,
     note_path: Entity<InputState>,
+    note_open_path: Entity<InputState>,
+    note_scroll: ScrollHandle,
     note_state: Option<NoteEditor>,
     note_schedule: NoteScheduler,
     note_views: Vec<NoteView>,
@@ -181,9 +243,23 @@ struct Desktop {
     import_path: Option<PathBuf>,
     choosing_file: bool,
     phase: Phase,
-    page: Page,
     path: PathBuf,
     config: Config,
+    layout: LayoutState,
+    system_dark: bool,
+    layout_note: Option<String>,
+    resolved: ResolvedLayout,
+    open_doc: Option<DocRef>,
+    centre_tab: CentreTab,
+    nav: DocNavigation,
+    settings_requested: bool,
+    history_scroll: ScrollHandle,
+    vault_scroll: ScrollHandle,
+    chat_scroll: ScrollHandle,
+    source_scroll: ScrollHandle,
+    dragging: Option<shell::divider::DividerDrag>,
+    divider_focus: [FocusHandle; 3],
+    focus_composer: bool,
     message: String,
     generation: u64,
     profile: Profile,
@@ -222,6 +298,8 @@ impl Desktop {
         });
         let note_path =
             cx.new(|cx| InputState::new(window, cx).placeholder("Vault-relative .md destination"));
+        let note_open_path =
+            cx.new(|cx| InputState::new(window, cx).placeholder("Vault-relative .md note"));
         let note_subscription = cx.subscribe_in(
             &note_editor,
             window,
@@ -290,13 +368,6 @@ impl Desktop {
             this.worker.shutdown();
             async {}
         });
-        let activation_subscription = cx.observe_window_activation(window, |this, window, cx| {
-            if window.is_window_active() {
-                this.note_observations
-                    .extend(this.note_views.iter().map(|view| view.id));
-                cx.notify();
-            }
-        });
         let poll_task = cx.spawn_in(window, async move |this, cx| {
             loop {
                 cx.background_executor()
@@ -310,6 +381,31 @@ impl Desktop {
                 }
             }
         });
+        let (layout, loaded) = layout::load(&path);
+        let resolved = layout.resolve(1100.0, false);
+        let layout_note = match loaded {
+            Loaded::Reset(note) => Some(note),
+            Loaded::Missing | Loaded::Restored => None,
+        };
+        let system_dark = theme::system_dark(window);
+        let theme_error = theme::apply(layout.appearance, window, cx).err();
+        let layout_note = layout_note.or(theme_error);
+        let appearance_subscription = cx.observe_window_appearance(window, |this, window, cx| {
+            this.system_dark = theme::system_dark(window);
+            if let Err(error) = theme::apply(this.layout.appearance, window, cx) {
+                this.message = error;
+            }
+            cx.notify();
+        });
+        let activation_subscription = cx.observe_window_activation(window, |this, window, cx| {
+            if window.is_window_active() {
+                this.note_observations
+                    .extend(this.note_views.iter().map(|view| view.id));
+                cx.notify();
+            } else {
+                this.end_divider_drag(cx);
+            }
+        });
         Self {
             worker: Worker::start(path.clone(), config.clone()),
             query,
@@ -319,6 +415,8 @@ impl Desktop {
             draft_state: None,
             note_editor,
             note_path,
+            note_open_path,
+            note_scroll: ScrollHandle::new(),
             note_state: None,
             note_schedule: NoteScheduler::default(),
             note_views: vec![],
@@ -347,9 +445,27 @@ impl Desktop {
             import_path: None,
             choosing_file: false,
             phase: Phase::Opening,
-            page: Page::Workspace,
             path,
             config,
+            layout,
+            system_dark,
+            layout_note,
+            resolved,
+            open_doc: None,
+            centre_tab: CentreTab::Chat,
+            nav: DocNavigation::default(),
+            settings_requested: false,
+            history_scroll: ScrollHandle::new(),
+            vault_scroll: ScrollHandle::new(),
+            chat_scroll: ScrollHandle::new(),
+            source_scroll: ScrollHandle::new(),
+            dragging: None,
+            divider_focus: [
+                cx.focus_handle().tab_stop(true),
+                cx.focus_handle().tab_stop(true),
+                cx.focus_handle().tab_stop(true),
+            ],
+            focus_composer: false,
             message: "Opening workspace…".into(),
             generation: 0,
             profile: Profile::Keyword,
@@ -374,6 +490,7 @@ impl Desktop {
                 comment_subscription,
                 quit_subscription,
                 note_subscription,
+                appearance_subscription,
                 activation_subscription,
             ],
             _poll_task: poll_task,
@@ -567,6 +684,9 @@ impl Desktop {
                         self.drafts.push(draft.clone());
                     }
                     if may_open {
+                        if self.nav.take_draft_completion() {
+                            self.show_document(DocRef::Draft, cx);
+                        }
                         self.draft_editor.update(cx, |editor, cx| {
                             editor.set_value(draft.text.clone(), window, cx)
                         });
@@ -600,6 +720,9 @@ impl Desktop {
                         true
                     };
                     if may_open {
+                        if self.nav.take_draft_completion() {
+                            self.show_document(DocRef::Draft, cx);
+                        }
                         self.draft_editor.update(cx, |editor, cx| {
                             editor.set_value(saved.draft.text.clone(), window, cx)
                         });
@@ -935,10 +1058,17 @@ impl Desktop {
         if !self.phase.can_submit() || !self.draft_guard(cx) {
             return;
         }
+        if self.defer_note_navigation(NoteControl::OpenDraft(id), cx) {
+            return;
+        }
+        self.nav.request_draft();
         self.submit(Action::OpenDraftComments { id }, "Open draft", cx);
     }
     fn create_draft(&mut self, cx: &mut Context<Self>) {
         if !self.phase.can_submit() || !self.draft_guard(cx) {
+            return;
+        }
+        if self.defer_note_navigation(NoteControl::CreateDraft, cx) {
             return;
         }
         let title = self.draft_title.read(cx).value().to_string();
@@ -947,6 +1077,7 @@ impl Desktop {
             cx.notify();
             return;
         }
+        self.nav.request_draft();
         self.submit(
             Action::CreateDraft {
                 op: Uuid::new_v4(),
@@ -1280,6 +1411,7 @@ impl Desktop {
             return;
         }
         self.selected_session = session;
+        self.centre_tab = CentreTab::Chat;
         self.generation = self.generation.wrapping_add(1);
         self.search = None;
         self.selected_evidence = None;
@@ -1311,6 +1443,7 @@ impl Desktop {
             self.message = "Opened in storage; later edits in the current note remain protected. Flush them before switching.".into();
             return;
         }
+        let id = view.id;
         self.note_state = Some(NoteEditor::new(view));
         let text = self.note_state.as_ref().unwrap().input_text();
         self.note_editor
@@ -1319,7 +1452,7 @@ impl Desktop {
         self.note_comparison = None;
         self.note_copy = None;
         self.original_note_operation = None;
-        self.page = Page::Notes;
+        self.show_document(DocRef::Note(id), cx);
         self.message =
             "Note opened. Save writes Markdown; recovery only protects work in BRN.".into();
     }
@@ -1341,7 +1474,9 @@ impl Desktop {
                     .is_some_and(|pending| pending.job == job && pending.op == Some(op))
                 {
                     self.pending_note_open = None;
-                    self.install_note(view, window, cx);
+                    if self.nav.take_note_completion() {
+                        self.install_note(view, window, cx);
+                    }
                 }
             }
             Outcome::NotesObserved { views } => {
@@ -1362,7 +1497,9 @@ impl Desktop {
                         .is_some_and(|pending| pending.job == job && pending.id == Some(view.id))
                     {
                         self.pending_note_open = None;
-                        self.install_note(view, window, cx);
+                        if self.nav.take_note_completion() {
+                            self.install_note(view, window, cx);
+                        }
                     } else if let Some(state) = &mut self.note_state
                         && state.id() == view.id
                         && !state.pending()
@@ -1536,9 +1673,11 @@ impl Desktop {
             }
         }
     }
-    fn queue_note_control(&mut self, control: NoteControl, cx: &mut Context<Self>) {
-        if matches!(control, NoteControl::Open { .. } | NoteControl::Select(_))
-            && !self.draft_guard(cx)
+    fn queue_note_control(&mut self, mut control: NoteControl, cx: &mut Context<Self>) {
+        if matches!(
+            control,
+            NoteControl::Open { .. } | NoteControl::Select { .. }
+        ) && !self.draft_guard(cx)
         {
             return;
         }
@@ -1547,6 +1686,22 @@ impl Desktop {
             cx.notify();
             return;
         }
+        if matches!(
+            control,
+            NoteControl::Open { .. }
+                | NoteControl::Select { .. }
+                | NoteControl::Navigate(_)
+                | NoteControl::OpenDraft(_)
+                | NoteControl::CreateDraft
+        ) {
+            self.nav.moved();
+        }
+        match &mut control {
+            NoteControl::Open { generation, .. } | NoteControl::Select { generation, .. } => {
+                *generation = self.nav.generation;
+            }
+            _ => {}
+        }
         self.note_control = Some(control);
         self.note_schedule.request_close(CloseRoute::Switch);
         self.message =
@@ -1554,12 +1709,36 @@ impl Desktop {
         cx.notify();
     }
     fn run_note_control(&mut self, control: NoteControl, cx: &mut Context<Self>) {
+        match control {
+            NoteControl::Navigate(doc) => {
+                if let Some(doc) = doc {
+                    self.show_document(doc, cx);
+                } else {
+                    self.close_document(cx);
+                }
+                cx.notify();
+                return;
+            }
+            NoteControl::OpenDraft(id) => {
+                self.choose_draft(id, cx);
+                return;
+            }
+            NoteControl::CreateDraft => {
+                self.create_draft(cx);
+                return;
+            }
+            _ => {}
+        }
         if let NoteControl::Open {
             op,
             vault,
             relative,
+            generation,
         } = control
         {
+            if !self.nav.request_note(generation) {
+                return;
+            }
             if let Some(job) = self.submit(
                 Action::OpenNote {
                     op,
@@ -1577,7 +1756,10 @@ impl Desktop {
             }
             return;
         }
-        if let NoteControl::Select(id) = control {
+        if let NoteControl::Select { id, generation } = control {
+            if !self.nav.request_note(generation) {
+                return;
+            }
             if let Some(job) = self.submit(
                 Action::ObserveNotes { ids: vec![id] },
                 "Open registered note",
@@ -1648,7 +1830,11 @@ impl Desktop {
             NoteControl::Approve { file_state } => {
                 Action::ApproveNoteSnapshot { op, id, file_state }
             }
-            NoteControl::Open { .. } | NoteControl::Select(_) => unreachable!(),
+            NoteControl::Open { .. }
+            | NoteControl::Select { .. }
+            | NoteControl::Navigate(_)
+            | NoteControl::OpenDraft(_)
+            | NoteControl::CreateDraft => unreachable!(),
         };
         let tracked = !matches!(action, Action::CompareNote { .. });
         self.note_sources_changed |= tracked;
@@ -1809,6 +1995,7 @@ impl Desktop {
                             match path.strip_prefix(root) {
                                 Ok(relative) => this.queue_note_control(NoteControl::Open {
                                     op: Uuid::new_v4(), vault: root.clone(), relative: relative.to_owned(),
+                                    generation: this.nav.generation,
                                 }, cx),
                                 Err(_) => this.message = "Choose a Markdown file within the selected vault.".into(),
                             }
@@ -1823,1014 +2010,63 @@ impl Desktop {
         }).detach();
         cx.notify();
     }
-}
-impl Render for Desktop {
-    fn render(&mut self, _: &mut Window, cx: &mut Context<Self>) -> impl IntoElement {
-        let mut body = div()
-            .id("workspace-body")
-            .flex()
-            .flex_col()
-            .flex_1()
-            .min_h(px(0.))
-            .min_w(px(0.))
-            .gap_3()
-            .p_3()
-            .overflow_y_scroll()
-            .track_scroll(&self.draft_scroll)
-            .vertical_scrollbar(&self.draft_scroll)
-            .child(self.message.clone());
-        if matches!(self.phase, Phase::Failed(_)) {
-            body = body.child("Workspace unavailable. Review the error above, correct the workspace, then relaunch.");
-        }
-        if !self.progress.is_empty()
-            && matches!(self.phase, Phase::Running { .. } | Phase::Cancelling { .. })
+    fn defer_note_navigation(&mut self, control: NoteControl, cx: &mut Context<Self>) -> bool {
+        if matches!(self.open_doc, Some(DocRef::Note(_)))
+            && (self
+                .note_state
+                .as_ref()
+                .is_some_and(|state| !state.can_close())
+                || self.pending_note_job.is_some()
+                || self.pending_note_open.is_some()
+                || self.worker.critical_note_pending()
+                || self.note_schedule.closing())
         {
-            body = body.child(format!("Progress: {}", self.progress));
+            self.queue_note_control(control, cx);
+            true
+        } else {
+            false
         }
-        match self.page {
-            Page::Notes => {
-                body = body
-                    .child("Local Markdown notes")
-                    .child("Explicit Save/Cmd-S writes Markdown. Recovery in BRN is not publication or search approval.")
-                    .child(
-                        div().flex().flex_wrap().gap_2()
-                            .child(Button::new("choose-vault").label("Choose vault...")
-                                .disabled(self.choosing_file || self.note_schedule.closing())
-                                .on_click(cx.listener(|this, _, _, cx| this.choose_note_path(true, cx))))
-                            .child(Button::new("open-note").label("Open Markdown note...")
-                                .disabled(self.choosing_file || self.note_schedule.closing())
-                                .on_click(cx.listener(|this, _, _, cx| this.choose_note_path(false, cx))))
-                            .child(Button::new("note-recoveries").label("Refresh recovery list")
-                                .disabled(!self.phase.can_submit())
-                                .on_click(cx.listener(|this, _, _, cx| {
-                                    this.submit(Action::ListNoteRecoveries, "Note recoveries", cx);
-                                }))),
-                    )
-                    .child(format!("Selected vault: {}", self.vault_path.as_ref().map_or(
-                        "not selected (registered notes can still be reopened below)".into(),
-                        |path| path.display().to_string()
-                    )));
-                if let Some(failure) = &self.last_note_failure {
-                    body = body.child(format!("Recorded note failure: operation {:?}, note {:?}, {:?}, phase {:?}, filesystem {:?}, recovery confirmed: {}. {}",
-                        failure.operation_id, failure.note_id, failure.code, failure.phase,
-                        failure.filesystem_outcome, failure.recovery_available, failure.message))
-                        .child(Button::new("dismiss-note-error").label("Dismiss error display (does not resolve operation)")
-                            .on_click(cx.listener(|this, _, _, cx| {
-                                this.last_note_failure = None;
-                                cx.notify();
-                            })));
-                }
-                for view in &self.note_views {
-                    let id = view.id;
-                    body = body.child(
-                        Button::new(format!("registered-note-{id}"))
-                            .label(format!(
-                                "{} - {:?} - search {:?}",
-                                view.relative_path.display(),
-                                view.availability,
-                                view.search_approval
-                            ))
-                            .disabled(self.note_schedule.closing())
-                            .on_click(cx.listener(move |this, _, _, cx| {
-                                this.queue_note_control(NoteControl::Select(id), cx);
-                            })),
-                    );
-                }
-                if let Some(state) = &self.note_state {
-                    let id = state.id();
-                    body = body
-                        .child(format!(
-                            "{} - {}",
-                            state.view().relative_path.display(),
-                            state.display_state()
-                        ))
-                        .child(format!(
-                            "Availability: {:?}; last observed search approval: {:?}",
-                            state.view().availability,
-                            state.view().search_approval
-                        ));
-                    if let Some(message) = &state.view().availability_message {
-                        body = body.child(message.clone());
-                    }
-                    if let Some(failure) = state.failure() {
-                        body = body.child(format!(
-                            "Retained operation {:?}: {:?}, phase {:?}, effect {:?}; {}",
-                            failure.operation_id,
-                            failure.code,
-                            failure.phase,
-                            failure.filesystem_outcome,
-                            failure.message
-                        ));
-                    }
-                    if let Some(failure) = state.copy_failure() {
-                        body = body.child(format!(
-                            "Separate copy outcome {:?}: {:?}; {}",
-                            failure.operation_id, failure.filesystem_outcome, failure.message
-                        ));
-                    }
-                    if state.needs_recovery() || state.pending() || self.note_schedule.closing() {
-                        body = body.child("Recovery/operation pending. The 500 ms timer schedules work; only an acknowledged commit protects the latest typing. Busy provider work may delay it.");
-                    }
-                    body = body
-                        .child(Editor::new(&self.note_editor).h(px(300.)).flex_shrink_0()
-                            .disabled(self.pending_note_open.is_some() || state.discard_pending())
-                            .aria_label("Markdown note editor"))
-                        .child(div().flex().flex_wrap().gap_2()
-                            .child(Button::new("save-note").label("Save to Markdown (Cmd-S)")
-                                .disabled(self.note_schedule.closing())
-                                .on_click(cx.listener(|this, _, _, cx| this.queue_note_control(NoteControl::Save, cx))))
-                            .child(Button::new("retry-note-recovery").label("Flush / retry recovery")
-                                .on_click(cx.listener(|this, _, _, cx| {
-                                    this.note_schedule.retry();
-                                    cx.notify();
-                                })))
-                            .child(Button::new("cancel-note-close").label("Cancel pending close/action")
-                                .disabled(!self.note_schedule.closing())
-                                .on_click(cx.listener(|this, _, _, cx| {
-                                    this.note_schedule.take_close();
-                                    this.note_control = None;
-                                    this.message = "Close/action cancelled; note work remains accessible.".into();
-                                    cx.notify();
-                                })))
-                            .child(Button::new("compare-note").label("Compare baseline / local / disk")
-                                .disabled(self.note_schedule.closing())
-                                .on_click(cx.listener(|this, _, _, cx| this.queue_note_control(NoteControl::Compare, cx))))
-                            .child(Button::new("reload-note").label("Confirm reload: discard local edits")
-                                .disabled(!self.phase.can_submit() || state.pending() || self.pending_note_job.is_some())
-                                .on_click(cx.listener(|this, _, _, cx| {
-                                    this.note_schedule.take_close();
-                                    this.note_control = None;
-                                    this.run_note_control(NoteControl::Reload, cx);
-                                })))
-                            .child(Button::new("discard-unrecovered-note").label("Confirm discard ONLY unrecovered typing")
-                                .disabled(state.pending() || self.pending_note_job.is_some())
-                                .on_click(cx.listener(|this, _, window, cx| {
-                                    if let Some(state) = &mut this.note_state {
-                                        let result = state.begin_discard(Uuid::new_v4())
-                                            .and_then(|request| state.discard_unrecovered(request.operation_id));
-                                        match result {
-                                            Ok(()) => {
-                                                let text = state.input_text();
-                                                this.note_editor.update(cx, |editor, cx| editor.set_value(text, window, cx));
-                                                this.message = "Unrecovered typing explicitly discarded; acknowledged recovery and any uncertain operation remain retained.".into();
-                                            }
-                                            Err(error) => this.message = error.message,
-                                        }
-                                    }
-                                    cx.notify();
-                                })))
-                            .child(Button::new("inspect-note-recovery").label("Inspect retained recovery")
-                                .disabled(!self.phase.can_submit())
-                                .on_click(cx.listener(move |this, _, _, cx| {
-                                    this.submit(Action::NoteRecovery { id }, "Inspect note recovery", cx);
-                                }))))
-                        .child(Input::new(&self.note_path))
-                        .child(div().flex().flex_wrap().gap_2()
-                            .child(Button::new("copy-note").label("Save separate copy to chosen path")
-                                .disabled(self.note_schedule.closing())
-                                .on_click(cx.listener(|this, _, _, cx| {
-                                    let path = PathBuf::from(this.note_path.read(cx).value().to_string());
-                                    this.queue_note_control(NoteControl::Copy(path), cx);
-                                })))
-                            .child(Button::new("relink-note").label("Confirm selected path identity; retain edits")
-                                .disabled(self.note_schedule.closing())
-                                .on_click(cx.listener(|this, _, _, cx| {
-                                    let path = PathBuf::from(this.note_path.read(cx).value().to_string());
-                                    this.queue_note_control(NoteControl::Relink(path), cx);
-                                }))));
-                    if let Some(token) = state.view().current_file_state {
-                        body = body.child(
-                            Button::new("approve-note")
-                                .label("Explicitly approve saved snapshot for search (not Save)")
-                                .disabled(
-                                    self.note_schedule.closing()
-                                        || state.view().availability
-                                            != brn_workflow::notes::NoteAvailability::Available,
-                                )
-                                .on_click(cx.listener(move |this, _, _, cx| {
-                                    this.queue_note_control(
-                                        NoteControl::Approve { file_state: token },
-                                        cx,
-                                    );
-                                })),
-                        );
-                    }
-                    if let Some(recovery) = self
-                        .note_recoveries
-                        .iter()
-                        .find(|recovery| recovery.note_id == id)
-                    {
-                        for op in &recovery.pending_operations {
-                            let op = *op;
-                            body = body.child(
-                                Button::new(format!("reconcile-note-{op}"))
-                                    .label(format!(
-                                        "Inspect/reconcile operation {op} (no filesystem replay)"
-                                    ))
-                                    .disabled(!self.phase.can_submit() || state.pending())
-                                    .on_click(cx.listener(move |this, _, _, cx| {
-                                        this.original_note_operation = Some(op);
-                                        if let Some(job) = this.submit(
-                                            Action::ReconcileNoteSave { op },
-                                            "Reconcile note save",
-                                            cx,
-                                        ) {
-                                            this.pending_note_job = Some((job, op));
-                                        }
-                                    })),
-                            );
-                        }
-                    }
-                }
-                if let Some(comparison) = &self.note_comparison {
-                    let local = self
-                        .note_state
-                        .as_ref()
-                        .map_or(comparison.working.as_str(), NoteEditor::text);
-                    body = body.child(format!("Starting snapshot:\n{}\n\nLocal editor:\n{}\n\nObserved disk:\n{}\n\nUnexpected displacement, if any, remains protected in the operation recovery; comparison does not delete it.",
-                        comparison.baseline, local, comparison.observed.as_deref().unwrap_or("[deleted or unavailable]")));
-                    if let (Some(save_op), Some(file_state)) =
-                        (self.original_note_operation, comparison.observed_file_state)
-                    {
-                        body = body.child(Button::new("accept-note-disk")
-                            .label("Accept reviewed current disk state; KEEP recovery and original outcome")
-                            .disabled(self.note_schedule.closing())
-                            .on_click(cx.listener(move |this, _, _, cx| {
-                                this.queue_note_control(NoteControl::Accept { save_op, file_state }, cx);
-                            })));
-                    }
-                }
-                if let Some(copy) = &self.note_copy {
-                    body = body.child(format!("Verified separate copy: {} ({}) - {:?}. Original editor retained; copy has no inherited search approval.",
-                        copy.relative_path.display(), copy.id, copy.availability));
-                }
-            }
-            Page::Workspace => {
-                body = body.child("Grounded workspace")
-                    .child("Import a UTF-8 Markdown or text file and explicitly approve it for search.")
-                    .child(div().flex().flex_wrap().gap_2()
-                        .child(Button::new("choose-file").label(if self.choosing_file { "Choosing…" } else { "Choose file…" }).disabled(self.choosing_file || !self.phase.can_submit()).on_click(cx.listener(|this, _, _, cx| this.choose_file(cx))))
-                        .child(Button::new("import-approved").label("Import and approve").disabled(!self.phase.can_submit() || self.import_path.is_none()).on_click(cx.listener(|this, _, _, cx| this.import(cx))))
-                        .child(Button::new("build-index").label("Build index").disabled(!self.phase.can_submit()).on_click(cx.listener(|this, _, _, cx| { this.submit(Action::Build, "Index build", cx); })))
-                        .child(Button::new("refresh").label("Refresh").disabled(!self.phase.can_submit()).on_click(cx.listener(|this, _, _, cx| { this.submit(Action::Refresh { session: this.selected_session }, "Refresh", cx); }))))
-                    .child(div().min_w(px(0.)).child(format!("Selected file: {}", self.import_path.as_ref().map_or("none".into(), |p| spaced_identifier(&p.display().to_string())))));
-                body = body.child(format!(
-                    "Sources (last validated observation): {}",
-                    self.source_states.len()
-                ));
-                for state in self
-                    .source_states
-                    .iter()
-                    .filter(|s| s.current_state != brn_workflow::SourceCurrentState::Current)
-                {
-                    body = body.child(div().min_w(px(0.)).child(format!(
-                        "{} · {:?} · {}",
-                        state.title,
-                        state.current_state,
-                        state.message.as_deref().unwrap_or("not current")
-                    )));
-                }
-                for source in &self.sources {
-                    let source_id = source.source_id;
-                    let version = source.version_id;
-                    body = body.child(
-                        div()
-                            .flex()
-                            .flex_col()
-                            .min_w(px(0.))
-                            .gap_2()
-                            .child(format!(
-                                "{} · Current at last observation · {:?} · {} bytes",
-                                source.title,
-                                source.approval,
-                                source.bytes.len()
-                            ))
-                            .child(format!(
-                                "Revision: {}",
-                                spaced_identifier(&version.to_string())
-                            ))
-                            .child(
-                                div()
-                                    .flex()
-                                    .flex_wrap()
-                                    .gap_2()
-                                    .child(
-                                        Button::new(format!("approve-{source_id}"))
-                                            .label("Approve")
-                                            .disabled(!self.phase.can_submit())
-                                            .on_click(cx.listener(move |this, _, _, cx| {
-                                                this.submit(
-                                                    Action::SetApproval {
-                                                        source: source_id,
-                                                        version,
-                                                        approval: Approval::Approved,
-                                                    },
-                                                    "Approve",
-                                                    cx,
-                                                );
-                                            })),
-                                    )
-                                    .child(
-                                        Button::new(format!("withdraw-{source_id}"))
-                                            .label("Withdraw")
-                                            .disabled(!self.phase.can_submit())
-                                            .on_click(cx.listener(move |this, _, _, cx| {
-                                                this.submit(
-                                                    Action::SetApproval {
-                                                        source: source_id,
-                                                        version,
-                                                        approval: Approval::Withdrawn,
-                                                    },
-                                                    "Withdraw",
-                                                    cx,
-                                                );
-                                            })),
-                                    ),
-                            ),
-                    );
-                }
-                body = body
-                    .child("Question")
-                    .child(
-                        Editor::new(&self.query)
-                            .h(px(110.))
-                            .flex_shrink_0()
-                            .aria_label("Question for approved sources"),
-                    )
-                    .child(
-                        div()
-                            .flex()
-                            .flex_wrap()
-                            .gap_2()
-                            .child(Button::new("profile-keyword").label("Keyword").on_click(
-                                cx.listener(|this, _, _, cx| {
-                                    this.choose_profile(Profile::Keyword, cx)
-                                }),
-                            ))
-                            .child(Button::new("profile-semantic").label("Semantic").on_click(
-                                cx.listener(|this, _, _, cx| {
-                                    this.choose_profile(Profile::Semantic, cx)
-                                }),
-                            ))
-                            .child(Button::new("profile-hybrid").label("Hybrid").on_click(
-                                cx.listener(|this, _, _, cx| {
-                                    this.choose_profile(Profile::Hybrid, cx)
-                                }),
-                            )),
-                    )
-                    .child(format!("Selected profile: {:?}", self.profile))
-                    .child(
-                        div()
-                            .flex()
-                            .flex_wrap()
-                            .gap_2()
-                            .child(
-                                Button::new("search")
-                                    .label("Search")
-                                    .disabled(!self.phase.can_submit())
-                                    .on_click(cx.listener(|this, _, _, cx| this.search(cx))),
-                            )
-                            .child(
-                                Button::new("ask")
-                                    .label("Ask from sources")
-                                    .disabled(!self.phase.can_submit())
-                                    .on_click(cx.listener(|this, _, _, cx| this.ask(cx))),
-                            ),
-                    );
-                if let Some(search) = &self.search {
-                    body = body.child(format!("Search passages for: {}", search.query));
-                    for (i, hit) in search.evidence.iter().enumerate() {
-                        let evidence = hit.clone();
-                        body = body.child(
-                            Button::new(format!("passage-{i}"))
-                                .label(passage_button_label(i, hit, &self.sources))
-                                .on_click(cx.listener(move |this, _, _, cx| {
-                                    this.selected_evidence = Some(evidence.clone());
-                                    cx.notify();
-                                })),
-                        );
-                    }
-                }
-                if let Some(hit) = &self.selected_evidence {
-                    body = body.child(format!(
-                        "Passage from last validated search · source {} · revision {} · bytes {}..{}\n{}",
-                        hit.source_id, hit.version_id, hit.start_byte, hit.end_byte, hit.quote
-                    ));
-                }
-                if self.phase.shows_live_answer() && !self.streamed_text.is_empty() {
-                    let heading = if matches!(self.phase, Phase::Cancelling { .. }) {
-                        "Provisional partial answer while cancellation finishes (not saved)"
-                    } else {
-                        "Provisional answer in progress (not saved)"
-                    };
-                    body = body.child(format!("{heading}:\n{}", self.streamed_text));
-                }
-                if let Some(turn) = self.selected_turn.and_then(|i| self.history.get(i))
-                    && let Some(answer) = &turn.answer
-                {
-                    body = body
-                        .child(format!("Saved answer ({:?}):\n{}", turn.status, answer))
-                        .child(
-                            Button::new("view-saved-answer")
-                                .label("View saved answer and evidence")
-                                .on_click(cx.listener(|this, _, _, cx| {
-                                    this.page = Page::Activity;
-                                    cx.notify();
-                                })),
-                        );
-                }
-            }
-            Page::Activity => {
-                body = body
-                    .child("Saved conversations")
-                    .child(
-                        Button::new("new-session")
-                            .label("New session")
-                            .disabled(!self.phase.can_submit())
-                            .on_click(cx.listener(|this, _, _, cx| this.choose_session(None, cx))),
-                    )
-                    .child(format!(
-                        "Selected session: {}",
-                        self.selected_session
-                            .map_or("new".into(), |id| id.to_string())
-                    ));
-                for session in &self.sessions {
-                    let id = session.id;
-                    body =
-                        body.child(
-                            Button::new(format!("session-{id}"))
-                                .label(format!(
-                                    "{}… · {} turns{}",
-                                    &id.to_string()[..8],
-                                    session.turns,
-                                    if session.has_thread {
-                                        " · provider linked"
-                                    } else {
-                                        " · recovery needed"
-                                    }
-                                ))
-                                .disabled(!self.phase.can_submit())
-                                .on_click(cx.listener(move |this, _, _, cx| {
-                                    this.choose_session(Some(id), cx)
-                                })),
-                        );
-                }
-                for (i, turn) in self.history.iter().enumerate() {
-                    body = body.child(
-                        Button::new(format!("turn-{i}"))
-                            .label(format!(
-                                "Historical: {} · {} · {:?} · {:?}",
-                                compact_title(&turn.question),
-                                turn.profile,
-                                turn.status,
-                                turn.evidence_currentness
-                            ))
-                            .on_click(cx.listener(move |this, _, _, cx| {
-                                this.selected_turn = Some(i);
-                                this.selected_saved_evidence = None;
-                                cx.notify();
-                            })),
-                    );
-                }
-                if let Some(turn) = self.selected_turn.and_then(|i| self.history.get(i)) {
-                    body = body.child(format!(
-                        "Historical question: {}\nAnswer: {}\nStatus: {:?}\nEvidence at completion: {:?}\nProvider turn: {}",
-                        turn.question,
-                        turn.answer.as_deref().unwrap_or("No answer saved"),
-                        turn.status,
-                        turn.evidence_currentness,
-                        spaced_identifier(turn.provider_turn_id.as_deref().unwrap_or("none"))
-                    ));
-                    if let Ok(evidence) = serde_json::from_str::<Vec<Evidence>>(&turn.evidence_json)
-                    {
-                        for (i, hit) in evidence.iter().enumerate() {
-                            let saved = hit.clone();
-                            body = body.child(
-                                Button::new(format!("saved-evidence-{i}"))
-                                    .label(saved_evidence_button_label(i, hit))
-                                    .on_click(cx.listener(move |this, _, _, cx| {
-                                        this.selected_saved_evidence = Some(saved.clone());
-                                        cx.notify();
-                                    })),
-                            );
-                        }
-                    }
-                    if turn.status == brn_workflow::worker::OperationStatus::Completed
-                        && turn.answer.is_some()
-                        && let Some(state) = &self.draft_state
-                    {
-                        let turn_id = turn.operation_id;
-                        let parent = self
-                            .review
-                            .as_ref()
-                            .map(|r| r.id)
-                            .unwrap_or(state.stamp().base_revision);
-                        body = body
-                            .child(format!(
-                                "Candidate target: {} · parent revision {} · answer {}",
-                                state.title(),
-                                parent,
-                                turn_id
-                            ))
-                            .child(
-                                Button::new("save-candidate")
-                                    .label("Save as candidate")
-                                    .disabled(!self.phase.can_submit())
-                                    .on_click(cx.listener(move |this, _, _, cx| {
-                                        this.save_candidate(turn_id, cx)
-                                    })),
-                            );
-                    }
-                }
-                if let Some(hit) = &self.selected_saved_evidence {
-                    body = body.child(format!("Saved evidence snapshot (may be historical) · source {} · revision {} · bytes {}..{}\n{}", hit.source_id, hit.version_id, hit.start_byte, hit.end_byte, hit.quote));
-                }
-            }
-            Page::Drafts => {
-                let mut panel = div()
-                    .flex()
-                    .flex_col()
-                    .flex_shrink_0()
-                    .min_w(px(0.))
-                    .gap_3();
-                panel = panel
-                    .child("Drafts · exact Markdown working copies")
-                    .child(
-                        div()
-                            .flex()
-                            .flex_wrap()
-                            .gap_2()
-                            .child(
-                                Input::new(&self.draft_title)
-                                    .w(px(260.))
-                                    .aria_label("New draft title"),
-                            )
-                            .child(
-                                Button::new("create-draft")
-                                    .label("Create blank draft")
-                                    .disabled(!self.phase.can_submit())
-                                    .on_click(cx.listener(|this, _, _, cx| this.create_draft(cx))),
-                            )
-                            .child(
-                                Button::new("refresh-drafts")
-                                    .label("Refresh list")
-                                    .disabled(!self.phase.can_submit())
-                                    .on_click(cx.listener(|this, _, _, cx| {
-                                        this.submit(Action::ListDrafts, "Draft list", cx);
-                                    })),
-                            ),
-                    )
-                    .child(format!("{} drafts", self.drafts.len()));
-                for draft in &self.drafts {
-                    let id = draft.id;
-                    panel = panel.child(
-                        Button::new(format!("draft-{id}"))
-                            .label(format!(
-                                "{} · {}…",
-                                compact_title(&draft.title),
-                                &id.to_string()[..8]
-                            ))
-                            .disabled(!self.phase.can_submit())
-                            .on_click(cx.listener(move |this, _, _, cx| this.choose_draft(id, cx))),
-                    );
-                }
-                if let Some(state) = &self.draft_state {
-                    let status = if state.pending() {
-                        "Saving snapshot; edits remain editable"
-                    } else if state.dirty() {
-                        "Unsaved changes"
-                    } else {
-                        "Saved"
-                    };
-                    let draft_id = state.id();
-                    panel =
-                        panel
-                            .child(format!(
-                                "Working copy: {} · {} · {} bytes · generation {}",
-                                state.title(),
-                                status,
-                                state.text().len(),
-                                state.generation()
-                            ))
-                            .child(
-                                div()
-                                    .id("draft-editor-anchor")
-                                    .anchor_scroll(Some(self.draft_editor_anchor.clone()))
-                                    .child(
-                                        Editor::new(&self.draft_editor)
-                                            .h(px(250.))
-                                            .flex_shrink_0()
-                                            .aria_label("Markdown working copy"),
-                                    ),
-                            )
-                            .child(
-                                div()
-                                    .flex()
-                                    .flex_wrap()
-                                    .gap_2()
-                                    .child(
-                                        Button::new("save-working-copy")
-                                            .label("Save working copy")
-                                            .disabled(
-                                                !self.phase.can_submit()
-                                                    || !state.dirty()
-                                                    || state.text().len()
-                                                        > brn_workflow::worker::MAX_DRAFT_BYTES,
-                                            )
-                                            .on_click(cx.listener(|this, _, _, cx| {
-                                                this.save_draft(false, cx)
-                                            })),
-                                    )
-                                    .child(
-                                        Button::new("save-checkpoint")
-                                            .label("Save checkpoint")
-                                            .disabled(
-                                                !self.phase.can_submit()
-                                                    || state.text().len()
-                                                        > brn_workflow::worker::MAX_DRAFT_BYTES,
-                                            )
-                                            .on_click(cx.listener(|this, _, _, cx| {
-                                                this.save_draft(true, cx)
-                                            })),
-                                    )
-                                    .child(
-                                        Button::new("discard-draft-edits")
-                                            .label("Discard edits")
-                                            .disabled(!self.phase.can_submit() || !state.dirty())
-                                            .on_click(cx.listener(|this, _, window, cx| {
-                                                this.discard_draft(window, cx)
-                                            })),
-                                    ),
-                            )
-                            .child(format!("Base checkpoint: {}", state.stamp().base_revision))
-                            .child(format!("Revision history: {}", self.revisions.len()));
-                    let mut comment_panel = div()
-                        .min_w(px(0.))
-                        .flex()
-                        .flex_col()
-                        .gap_2()
-                        .child("Comments")
-                        .child(
-                            div()
-                                .flex()
-                                .flex_wrap()
-                                .gap_2()
-                                .child(
-                                    Button::new("capture-comment-selection")
-                                        .label("Capture selection")
-                                        .disabled(state.pending())
-                                        .on_click(
-                                            cx.listener(|this, _, _, cx| this.capture_comment(cx)),
-                                        ),
-                                )
-                                .child(
-                                    Button::new("refresh-comments")
-                                        .label("Refresh comments")
-                                        .disabled(!self.phase.can_submit())
-                                        .on_click(cx.listener(move |this, _, _, cx| {
-                                            this.submit(
-                                                Action::RefreshDraftComments { id: draft_id },
-                                                "Refresh comments",
-                                                cx,
-                                            );
-                                        })),
-                                ),
-                        );
-                    if let Some(quote) = state.capture_quote() {
-                        comment_panel = comment_panel.child("Captured exact quote:").child(
-                            div()
-                                .id("captured-quote-scroll")
-                                .h(px(90.))
-                                .min_w(px(0.))
-                                .flex_shrink_0()
-                                .border_1()
-                                .overflow_y_scroll()
-                                .child(
-                                    div()
-                                        .w_full()
-                                        .font_family("Menlo")
-                                        .flex()
-                                        .flex_col()
-                                        .children(
-                                            quote
-                                                .split('\n')
-                                                .map(|line| div().child(line.to_owned())),
-                                        ),
-                                ),
-                        );
-                    } else {
-                        comment_panel =
-                            comment_panel.child("Select a passage in the editor, then capture it.");
-                    }
-                    comment_panel = comment_panel
-                        .child(
-                            Editor::new(&self.comment_input)
-                                .h(px(95.))
-                                .flex_shrink_0()
-                                .aria_label("Comment body"),
-                        )
-                        .child(
-                            div()
-                                .flex()
-                                .flex_wrap()
-                                .gap_2()
-                                .child(
-                                    Button::new("add-draft-comment")
-                                        .label("Save checkpoint + add comment")
-                                        .disabled(
-                                            !self.phase.can_submit()
-                                                || !state.can_add_comment(state.composer()),
-                                        )
-                                        .on_click(
-                                            cx.listener(|this, _, _, cx| this.add_comment(cx)),
-                                        ),
-                                )
-                                .child(
-                                    Button::new("discard-draft-comment")
-                                        .label("Discard comment")
-                                        .disabled(state.composer().is_empty() || state.pending())
-                                        .on_click(cx.listener(|this, _, window, cx| {
-                                            this.discard_comment(window, cx)
-                                        })),
-                                ),
-                        );
-                    let preview = state.preview_states();
-                    if let Err(error) = &preview {
-                        comment_panel =
-                            comment_panel.child(format!("Preview unavailable: {error}"));
-                    }
-                    if state.comments().is_empty() {
-                        comment_panel = comment_panel.child("No comments yet.");
-                    }
-                    for (index, view) in state.comments().iter().enumerate() {
-                        let id = view.comment.id;
-                        let anchor = preview.as_ref().ok().and_then(|states| states.get(index));
-                        let location = match anchor {
-                            Some(AnchorState::Anchored { start, end }) => {
-                                format!("Anchored at bytes {start}..{end}")
-                            }
-                            Some(AnchorState::Deleted) => "Deleted passage".into(),
-                            Some(AnchorState::Ambiguous { reason }) => {
-                                format!("Location ambiguous: {reason:?}")
-                            }
-                            None => "Location unavailable".into(),
-                        };
-                        let toggle = if view.comment.status == CommentStatus::Open {
-                            "Resolve"
-                        } else {
-                            "Reopen"
-                        };
-                        let mut card = div()
-                            .min_w(px(0.))
-                            .flex()
-                            .flex_col()
-                            .gap_2()
-                            .p_2()
-                            .border_1()
-                            .child(format!(
-                                "Comment {}… · {:?} · {location}",
-                                &id.to_string()[..8],
-                                view.comment.status
-                            ))
-                            .child("Original quote:")
-                            .child(
-                                div()
-                                    .id(format!("quote-scroll-{id}"))
-                                    .h(px(128.))
-                                    .min_w(px(0.))
-                                    .flex_shrink_0()
-                                    .border_1()
-                                    .overflow_y_scroll()
-                                    .child(
-                                        div()
-                                            .w_full()
-                                            .font_family("Menlo")
-                                            .flex()
-                                            .flex_col()
-                                            .children(
-                                                view.comment
-                                                    .original_quote
-                                                    .split('\n')
-                                                    .map(|line| div().child(line.to_owned())),
-                                            ),
-                                    ),
-                            )
-                            .child("Comment body:")
-                            .child(
-                                div()
-                                    .id(format!("comment-body-scroll-{id}"))
-                                    .h(px(105.))
-                                    .min_w(px(0.))
-                                    .flex_shrink_0()
-                                    .overflow_y_scroll()
-                                    .child(
-                                        div().w_full().flex().flex_col().children(
-                                            view.comment
-                                                .body
-                                                .split('\n')
-                                                .map(|line| div().child(line.to_owned())),
-                                        ),
-                                    ),
-                            )
-                            .child(
-                                div()
-                                    .flex()
-                                    .flex_wrap()
-                                    .gap_2()
-                                    .child(
-                                        Button::new(format!("show-passage-{id}"))
-                                            .label("Show passage")
-                                            .disabled(!matches!(
-                                                anchor,
-                                                Some(AnchorState::Anchored { .. })
-                                            ))
-                                            .on_click(cx.listener(move |this, _, window, cx| {
-                                                this.show_comment_passage(id, window, cx)
-                                            })),
-                                    )
-                                    .child(
-                                        Button::new(format!("show-original-{id}"))
-                                            .label("Show original revision")
-                                            .on_click(cx.listener(move |this, _, _, cx| {
-                                                this.show_comment_original(id, cx)
-                                            })),
-                                    )
-                                    .child(
-                                        Button::new(format!("toggle-comment-{id}"))
-                                            .label(toggle)
-                                            .disabled(!self.phase.can_submit())
-                                            .on_click(cx.listener(move |this, _, _, cx| {
-                                                this.change_comment_status(id, cx)
-                                            })),
-                                    ),
-                            );
-                        if let Some(original) = &self.comment_original
-                            && original.id == view.comment.original_revision_id
-                        {
-                            card = card
-                                .child(format!("Original checkpoint {} · read-only", original.id))
-                                .child(
-                                    div()
-                                        .id(format!("comment-original-scroll-{id}"))
-                                        .h(px(170.))
-                                        .min_w(px(0.))
-                                        .flex_shrink_0()
-                                        .border_1()
-                                        .overflow_y_scroll()
-                                        .child(
-                                            div()
-                                                .w_full()
-                                                .font_family("Menlo")
-                                                .flex()
-                                                .flex_col()
-                                                .children(
-                                                    original
-                                                        .text
-                                                        .split('\n')
-                                                        .map(|line| div().child(line.to_owned())),
-                                                ),
-                                        ),
-                                );
-                        }
-                        comment_panel = comment_panel.child(card);
-                    }
-                    panel = panel.child(comment_panel);
-                    for revision in &self.revisions {
-                        let id = revision.id;
-                        let label = format!(
-                            "{:?} · {}…{}",
-                            revision.kind,
-                            &id.to_string()[..8],
-                            revision.origin_turn.map_or(String::new(), |turn| format!(
-                                " · answer {}…",
-                                &turn.to_string()[..8]
-                            ))
-                        );
-                        panel = panel.child(
-                            div()
-                                .flex()
-                                .flex_wrap()
-                                .gap_2()
-                                .child(
-                                    Button::new(format!("review-{id}"))
-                                        .label(format!("View {label}"))
-                                        .disabled(!self.phase.can_submit())
-                                        .on_click(cx.listener(move |this, _, _, cx| {
-                                            this.submit(
-                                                Action::OpenDraftRevision {
-                                                    draft: draft_id,
-                                                    revision: id,
-                                                },
-                                                "Review revision",
-                                                cx,
-                                            );
-                                        })),
-                                )
-                                .child(
-                                    Button::new(format!("before-{id}"))
-                                        .label("Use as before")
-                                        .on_click(cx.listener(move |this, _, _, cx| {
-                                            this.compare_before = Some(id);
-                                            this.diff = None;
-                                            cx.notify();
-                                        })),
-                                )
-                                .child(
-                                    Button::new(format!("after-{id}"))
-                                        .label("Use as after")
-                                        .on_click(cx.listener(move |this, _, _, cx| {
-                                            this.compare_after = Some(id);
-                                            this.diff = None;
-                                            cx.notify();
-                                        })),
-                                ),
-                        );
-                    }
-                    if let Some(revision) = &self.review {
-                        panel = panel
-                            .child(format!(
-                                "Read-only {:?} {} · parent {} · origin answer {}",
-                                revision.kind,
-                                revision.id,
-                                revision
-                                    .parent_id
-                                    .map_or("none".into(), |id| id.to_string()),
-                                revision
-                                    .origin_turn
-                                    .map_or("none".into(), |id| id.to_string())
-                            ))
-                            .child(
-                                div()
-                                    .id("revision-content")
-                                    .h(px(170.))
-                                    .flex_shrink_0()
-                                    .min_w(px(0.))
-                                    .overflow_y_scroll()
-                                    .border_1()
-                                    .child(
-                                        div()
-                                            .w_full()
-                                            .font_family("Menlo")
-                                            .child(revision.text.clone()),
-                                    ),
-                            );
-                    }
-                    panel = panel
-                        .child(format!(
-                            "Compare: before {} · after {}",
-                            self.compare_before
-                                .map_or("none".into(), |id| id.to_string()),
-                            self.compare_after
-                                .map_or("none".into(), |id| id.to_string())
-                        ))
-                        .child(
-                            Button::new("compare-revisions")
-                                .label("Compare revisions")
-                                .disabled(
-                                    !self.phase.can_submit()
-                                        || self.compare_before.is_none()
-                                        || self.compare_after.is_none(),
-                                )
-                                .on_click(cx.listener(move |this, _, _, cx| {
-                                    if let (Some(before), Some(after)) =
-                                        (this.compare_before, this.compare_after)
-                                    {
-                                        this.submit(
-                                            Action::CompareDraftRevisions {
-                                                draft: draft_id,
-                                                before,
-                                                after,
-                                            },
-                                            "Compare revisions",
-                                            cx,
-                                        );
-                                    }
-                                })),
-                        );
-                    if let Some(diff) = &self.diff {
-                        panel = panel.child(
-                            div()
-                                .id("revision-diff")
-                                .h(px(220.))
-                                .flex_shrink_0()
-                                .min_w(px(0.))
-                                .overflow_y_scroll()
-                                .border_1()
-                                .child(div().w_full().font_family("Menlo").child(diff.clone())),
-                        );
-                    }
-                }
-                body = body.child(panel);
-            }
-            Page::Settings => {
-                body = body.child("Local settings")
-                    .child(format!("Data directory: {}", spaced_identifier(&self.path.display().to_string())))
-                    .child(format!("Codex executable: {}", self.config.codex.as_ref().map_or("not selected".into(), |p| spaced_identifier(&p.display().to_string()))))
-                    .child(format!("Retrieval model directory: {}", self.config.model_dir.as_ref().map_or("not selected".into(), |p| spaced_identifier(&p.display().to_string()))))
-                    .child("Model access uses the existing managed ChatGPT sign-in in Codex. Select an absolute executable with --codex before asking.");
-            }
+    }
+    fn show_document(&mut self, doc: DocRef, cx: &mut Context<Self>) {
+        if self.open_doc != Some(doc)
+            && self.defer_note_navigation(NoteControl::Navigate(Some(doc)), cx)
+        {
+            return;
         }
-        let status = match &self.phase {
+        self.nav.moved();
+        self.open_doc = Some(doc);
+        self.centre_tab = CentreTab::Document;
+    }
+    /// Hides the document pane. A draft's in-memory editor state is kept.
+    fn close_document(&mut self, cx: &mut Context<Self>) {
+        if self.defer_note_navigation(NoteControl::Navigate(None), cx) {
+            return;
+        }
+        self.nav.moved();
+        self.open_doc = None;
+        self.centre_tab = CentreTab::Chat;
+    }
+    fn open_draft_from_list(&mut self, id: Uuid, cx: &mut Context<Self>) {
+        if self
+            .draft_state
+            .as_ref()
+            .is_some_and(|state| state.id() == id)
+        {
+            self.show_document(DocRef::Draft, cx);
+            cx.notify();
+            return;
+        }
+        self.choose_draft(id, cx);
+    }
+    fn cancel_running(&mut self, cx: &mut Context<Self>) {
+        if matches!(self.phase, Phase::Running { .. }) && self.worker.cancel() {
+            self.phase.cancel();
+            self.message = "Cancellation requested; awaiting safe stop.".into();
+            cx.notify();
+        }
+    }
+    fn phase_status(&self) -> String {
+        match &self.phase {
             Phase::Opening => "Opening workspace…".into(),
             Phase::Idle => "Ready".into(),
             Phase::Running { label, since } => {
@@ -2843,95 +2079,60 @@ impl Render for Desktop {
             Phase::Failed(error) => {
                 format!("Workspace failed to open · {}", compact_title(error))
             }
-        };
-        div()
-            .id("brn-desktop")
-            .size_full()
-            .flex()
-            .flex_col()
-            .gap_3()
-            .p_3()
-            .child("BRN · local grounded research")
-            .child(
-                div()
-                    .flex()
-                    .flex_wrap()
-                    .gap_2()
-                    .child(
-                        Button::new("workspace-page")
-                            .label("Workspace")
-                            .on_click(cx.listener(|this, _, _, cx| {
-                                this.page = Page::Workspace;
-                                cx.notify();
-                            })),
-                    )
-                    .child(
-                        Button::new("activity-page")
-                            .label("Activity")
-                            .on_click(cx.listener(|this, _, _, cx| {
-                                this.page = Page::Activity;
-                                cx.notify();
-                            })),
-                    )
-                    .child(
-                        Button::new("drafts-page")
-                            .label("Drafts")
-                            .on_click(cx.listener(|this, _, _, cx| {
-                                this.page = Page::Drafts;
-                                cx.notify();
-                            })),
-                    )
-                    .child(
-                        Button::new("notes-page")
-                            .label("Notes")
-                            .on_click(cx.listener(|this, _, _, cx| {
-                                this.page = Page::Notes;
-                                if let Some(state) = &this.note_state {
-                                    this.note_observations.insert(state.id());
-                                }
-                                cx.notify();
-                            })),
-                    )
-                    .child(
-                        Button::new("settings-page")
-                            .label("Settings")
-                            .on_click(cx.listener(|this, _, _, cx| {
-                                this.page = Page::Settings;
-                                cx.notify();
-                            })),
-                    ),
-            )
-            .child(status)
-            .child(if matches!(self.phase, Phase::Failed(_)) {
-                "Review details below".into()
-            } else {
-                compact_title(&self.message)
-            })
-            .child(
-                Button::new("cancel")
-                    .label("Cancel current action")
-                    .disabled(!matches!(self.phase, Phase::Running { .. }))
-                    .on_click(cx.listener(|this, _, _, cx| {
-                        if this.worker.cancel() {
-                            this.phase.cancel();
-                            this.message = "Cancellation requested; awaiting safe stop.".into();
-                            cx.notify();
-                        }
-                    })),
-            )
-            .child(body)
+        }
     }
 }
+impl Render for Desktop {
+    fn render(&mut self, window: &mut Window, cx: &mut Context<Self>) -> impl IntoElement {
+        self.render_shell(window, cx)
+    }
+}
+/// Routes an app-level action to the desktop entity, like the existing Quit handler.
+fn route<A: gpui_kit::Action>(
+    cx: &mut App,
+    target: WeakEntity<Desktop>,
+    apply: fn(&mut Desktop, &mut Context<Desktop>),
+) {
+    cx.on_action::<A>(move |_, cx| {
+        let _ = target.update(cx, apply);
+    });
+}
+
 pub fn run(path: PathBuf, config: Config) {
     gpui_kit::application()
         .with_assets(gpui_kit::assets::Assets)
         .run(move |cx| {
             gpui_kit::init(cx);
-            cx.bind_keys([KeyBinding::new("cmd-q", Quit, None), KeyBinding::new("cmd-s", SaveNote, None)]);
-            cx.set_menus([Menu::new("BRN").items(vec![
-                MenuItem::action("Save to Markdown", SaveNote),
-                MenuItem::action("Quit BRN", Quit),
-            ])]);
+            cx.bind_keys([
+                KeyBinding::new("cmd-q", Quit, None),
+                KeyBinding::new("cmd-0", ToggleHistory, None),
+                KeyBinding::new("alt-cmd-0", ToggleVault, None),
+                KeyBinding::new("shift-cmd-enter", ToggleFocus, None),
+                KeyBinding::new("cmd-l", FocusComposer, None),
+                KeyBinding::new("cmd-n", NewChat, None),
+                KeyBinding::new("cmd-,", OpenSettings, None),
+                KeyBinding::new("cmd-.", CancelRunning, None),
+                KeyBinding::new("cmd-.", CancelRunning, Some("Input")),
+                KeyBinding::new("cmd-s", SaveNote, Some("MarkdownNote")),
+            ]);
+            cx.set_menus([
+                Menu::new("BRN").items(vec![
+                    MenuItem::action("Settings…", OpenSettings),
+                    MenuItem::action("Save to Markdown", SaveNote),
+                    MenuItem::separator(),
+                    MenuItem::action("Quit BRN", Quit),
+                ]),
+                Menu::new("View").items(vec![
+                    MenuItem::action("Toggle History", ToggleHistory),
+                    MenuItem::action("Toggle Vault", ToggleVault),
+                    MenuItem::action("Toggle Focus", ToggleFocus),
+                ]),
+                Menu::new("Navigate").items(vec![
+                    MenuItem::action("New Chat", NewChat),
+                    MenuItem::action("Focus Composer", FocusComposer),
+                    MenuItem::action("Cancel Running Action", CancelRunning),
+                ]),
+            ]);
             cx.on_window_closed(|cx, _| {
                 if cx.windows().is_empty() {
                     cx.quit();
@@ -2943,8 +2144,8 @@ pub fn run(path: PathBuf, config: Config) {
                 cx.open_window(
                     WindowOptions {
                         window_bounds: Some(WindowBounds::Windowed(bounds)),
-                        window_min_size: Some(size(px(800.), px(600.))),
-                        ..Default::default()
+                        window_min_size: Some(size(px(layout::WINDOW_MIN), px(layout::WINDOW_MIN))),
+                        ..TitleBar::window_options()
                     },
                     |window, cx| {
                         let desktop = cx.new(|cx| Desktop::new(path, config, window, cx));
@@ -2957,16 +2158,34 @@ pub fn run(path: PathBuf, config: Config) {
                                 cx.quit();
                             }
                         });
-                        let save_target = desktop.downgrade();
-                        cx.on_action::<SaveNote>(move |_, cx| {
-                            let _ = save_target.update(cx, |this, cx| {
-                                if this.page == Page::Notes {
-                                    this.queue_note_control(NoteControl::Save, cx);
-                                } else {
-                                    this.message = "Cmd-S writes the open Markdown note on the Notes page; standalone drafts remain separate.".into();
-                                    cx.notify();
-                                }
-                            });
+                        route::<ToggleHistory>(cx, desktop.downgrade(), |this, cx| {
+                            this.toggle_rail(Rail::History, cx)
+                        });
+                        route::<ToggleVault>(cx, desktop.downgrade(), |this, cx| {
+                            this.toggle_rail(Rail::Vault, cx)
+                        });
+                        route::<ToggleFocus>(cx, desktop.downgrade(), |this, cx| {
+                            this.toggle_focus(cx)
+                        });
+                        route::<FocusComposer>(cx, desktop.downgrade(), |this, cx| {
+                            this.centre_tab = CentreTab::Chat;
+                            this.focus_composer = true;
+                            cx.notify();
+                        });
+                        route::<NewChat>(cx, desktop.downgrade(), |this, cx| {
+                            this.choose_session(None, cx)
+                        });
+                        route::<OpenSettings>(cx, desktop.downgrade(), |this, cx| {
+                            this.settings_requested = true;
+                            cx.notify();
+                        });
+                        route::<CancelRunning>(cx, desktop.downgrade(), |this, cx| {
+                            this.cancel_running(cx)
+                        });
+                        route::<SaveNote>(cx, desktop.downgrade(), |this, cx| {
+                            if matches!(this.open_doc, Some(DocRef::Note(_))) {
+                                this.queue_note_control(NoteControl::Save, cx);
+                            }
                         });
                         let weak = desktop.downgrade();
                         window.on_window_should_close(cx, move |_, cx| {
@@ -2985,6 +2204,73 @@ pub fn run(path: PathBuf, config: Config) {
 #[cfg(test)]
 mod tests {
     use super::*;
+    #[test]
+    fn approval_tags_pair_text_with_state() {
+        assert_eq!(shell::approval_tag(Approval::Approved), "✓ approved");
+        assert_eq!(shell::approval_tag(Approval::Draft), "○ not approved");
+        assert_eq!(shell::approval_tag(Approval::Withdrawn), "– withdrawn");
+    }
+
+    #[test]
+    fn draft_completion_navigates_only_without_newer_navigation() {
+        let mut nav = DocNavigation::default();
+        assert!(!nav.take_draft_completion());
+        nav.request_draft();
+        assert!(nav.take_draft_completion());
+        assert!(!nav.take_draft_completion());
+        nav.request_draft();
+        nav.moved();
+        assert!(!nav.take_draft_completion());
+    }
+
+    #[test]
+    fn note_completion_navigates_only_without_newer_navigation() {
+        let mut nav = DocNavigation::default();
+        assert!(!nav.take_note_completion());
+        assert!(nav.request_note(nav.generation));
+        assert!(nav.take_note_completion());
+        assert!(!nav.take_note_completion());
+        for _ in [
+            DocRef::Draft,
+            DocRef::Source(Uuid::new_v4()),
+            DocRef::Note(Uuid::new_v4()),
+        ] {
+            assert!(nav.request_note(nav.generation));
+            nav.moved();
+            assert!(!nav.take_note_completion());
+        }
+        assert!(nav.request_note(nav.generation));
+        nav.moved(); // Close also invalidates the in-flight open.
+        assert!(!nav.take_note_completion());
+    }
+
+    #[test]
+    fn document_navigation_correlates_note_and_draft_requests_independently() {
+        let mut nav = DocNavigation::default();
+        nav.request_draft();
+        nav.moved();
+        assert!(nav.request_note(nav.generation));
+        assert!(!nav.take_draft_completion());
+        assert!(nav.take_note_completion());
+        assert!(nav.request_note(nav.generation));
+        nav.moved();
+        nav.request_draft();
+        assert!(!nav.take_note_completion());
+        assert!(nav.take_draft_completion());
+    }
+
+    #[test]
+    fn queued_note_open_cannot_rebind_to_newer_source_navigation() {
+        let mut nav = DocNavigation::default();
+        nav.moved();
+        let queued_generation = nav.generation;
+        nav.moved();
+        assert!(!nav.request_note(queued_generation));
+        assert!(!nav.take_note_completion());
+        assert!(nav.request_note(nav.generation));
+        assert!(nav.take_note_completion());
+    }
+
     #[test]
     fn phase_blocks_actions_until_open_and_through_cancellation() {
         let mut phase = Phase::Opening;

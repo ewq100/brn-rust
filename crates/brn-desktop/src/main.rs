@@ -1,7 +1,15 @@
+// The complete handoff theme JSON exceeds the default macro recursion limit.
+#![recursion_limit = "256"]
+
 use brn_core::{Shell, WorkConfig};
 use std::path::{Path, PathBuf};
 use std::process::ExitCode;
 use std::time::{Duration, Instant};
+
+#[cfg_attr(not(feature = "native-ui"), allow(dead_code))]
+mod layout;
+#[cfg_attr(not(feature = "native-ui"), allow(dead_code))]
+mod tokens;
 
 #[cfg(feature = "native-ui")]
 mod comments;
