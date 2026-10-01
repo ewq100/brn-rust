@@ -40,6 +40,8 @@ All implementation listed above is present in the inspected local `main` baselin
 
 ## Next work
 
-The next sequential roadmap outcome is [13: revision from a comment batch](roadmap.md#13-revision-from-a-comment-batch). Define its concrete scope and acceptance criteria before implementation. No product task is currently recorded in [active work](work/active/README.md); a roadmap item is not authorization to start it.
+The next proposed feature is [opening and safely editing real Markdown notes](superpowers/specs/2026-10-01-open-and-safely-edit-markdown-notes-design.md): explicit Save to a local vault, separate editing-buffer recovery, conservative external-conflict handling, and current-evidence invalidation. Its four design sections are approved; the written specification awaits review before implementation planning. No application code or vault migration has started, and no product implementation task is currently recorded in [active work](work/active/README.md).
+
+[13: revision from a comment batch](roadmap.md#13-revision-from-a-comment-batch) remains a future roadmap outcome. Neither a roadmap item nor a design approval authorizes implementation beyond its agreed scope.
 
 The [historical status ledger](work/completed/early-checkpoints/status-history.md) preserves prior checkpoints and superseded next-step notes. Use [completed work](work/completed/README.md) to locate individual plans and evidence.
