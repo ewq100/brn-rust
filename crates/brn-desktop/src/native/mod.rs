@@ -1,4 +1,5 @@
 use crate::drafts::DraftEditor;
+use crate::layout::{self, LayoutState, Loaded};
 use brn_workflow::worker::{
     Action, Approval, ChatTurn, CommentStatusChange, Draft, DraftRevision, DraftWriteWithComments,
     Evidence, Outcome, Profile, SourceDocument, Worker,
@@ -9,7 +10,7 @@ use gpui_kit::{
     ScrollAnchor, ScrollHandle, Subscription, Task, Window, WindowBounds, WindowOptions,
     base::Disableable,
     component::{
-        Root,
+        Root, TitleBar,
         button::Button,
         input::{Editor, EditorState, Input, InputEvent, InputState},
         scroll::ScrollableElement,
@@ -22,6 +23,8 @@ gpui_kit::actions!(brn, [Quit]);
 use std::path::PathBuf;
 use std::time::{Duration, Instant};
 use uuid::Uuid;
+
+mod theme;
 
 #[derive(Clone, Copy, PartialEq, Eq)]
 enum Page {
@@ -139,6 +142,9 @@ struct Desktop {
     page: Page,
     path: PathBuf,
     config: Config,
+    layout: LayoutState,
+    system_dark: bool,
+    layout_note: Option<String>,
     message: String,
     generation: u64,
     profile: Profile,
@@ -218,6 +224,21 @@ impl Desktop {
                 }
             }
         });
+        let (layout, loaded) = layout::load(&path);
+        let layout_note = match loaded {
+            Loaded::Reset(note) => Some(note),
+            Loaded::Missing | Loaded::Restored => None,
+        };
+        let system_dark = theme::system_dark(window);
+        let theme_error = theme::apply(layout.appearance, window, cx).err();
+        let layout_note = layout_note.or(theme_error);
+        let appearance_subscription = cx.observe_window_appearance(window, |this, window, cx| {
+            this.system_dark = theme::system_dark(window);
+            if let Err(error) = theme::apply(this.layout.appearance, window, cx) {
+                this.message = error;
+            }
+            cx.notify();
+        });
         Self {
             worker: Worker::start(path.clone(), config.clone()),
             query,
@@ -242,6 +263,9 @@ impl Desktop {
             page: Page::Workspace,
             path,
             config,
+            layout,
+            system_dark,
+            layout_note,
             message: "Opening workspace…".into(),
             generation: 0,
             profile: Profile::Keyword,
@@ -264,6 +288,7 @@ impl Desktop {
                 draft_subscription,
                 comment_subscription,
                 quit_subscription,
+                appearance_subscription,
             ],
             _poll_task: poll_task,
         }
@@ -1889,71 +1914,70 @@ impl Render for Desktop {
                 format!("Workspace failed to open · {}", compact_title(error))
             }
         };
+        let mut content = div().flex().flex_col().flex_1().min_h(px(0.)).gap_3().p_3();
+        if let Some(note) = &self.layout_note {
+            content = content.child(note.clone());
+        }
         div()
             .id("brn-desktop")
             .size_full()
             .flex()
             .flex_col()
-            .gap_3()
-            .p_3()
-            .child("BRN · local grounded research")
+            .font_family(crate::tokens::CHROME_FONT)
+            .child(TitleBar::new().child("brn / workspace"))
             .child(
-                div()
-                    .flex()
-                    .flex_wrap()
-                    .gap_2()
+                content
                     .child(
-                        Button::new("workspace-page")
-                            .label("Workspace")
+                        div()
+                            .flex()
+                            .flex_wrap()
+                            .gap_2()
+                            .child(Button::new("workspace-page").label("Workspace").on_click(
+                                cx.listener(|this, _, _, cx| {
+                                    this.page = Page::Workspace;
+                                    cx.notify();
+                                }),
+                            ))
+                            .child(Button::new("activity-page").label("Activity").on_click(
+                                cx.listener(|this, _, _, cx| {
+                                    this.page = Page::Activity;
+                                    cx.notify();
+                                }),
+                            ))
+                            .child(Button::new("drafts-page").label("Drafts").on_click(
+                                cx.listener(|this, _, _, cx| {
+                                    this.page = Page::Drafts;
+                                    cx.notify();
+                                }),
+                            ))
+                            .child(Button::new("settings-page").label("Settings").on_click(
+                                cx.listener(|this, _, _, cx| {
+                                    this.page = Page::Settings;
+                                    cx.notify();
+                                }),
+                            )),
+                    )
+                    .child(status)
+                    .child(if matches!(self.phase, Phase::Failed(_)) {
+                        "Review details below".into()
+                    } else {
+                        compact_title(&self.message)
+                    })
+                    .child(
+                        Button::new("cancel")
+                            .label("Cancel current action")
+                            .disabled(!matches!(self.phase, Phase::Running { .. }))
                             .on_click(cx.listener(|this, _, _, cx| {
-                                this.page = Page::Workspace;
-                                cx.notify();
+                                if this.worker.cancel() {
+                                    this.phase.cancel();
+                                    this.message =
+                                        "Cancellation requested; awaiting safe stop.".into();
+                                    cx.notify();
+                                }
                             })),
                     )
-                    .child(
-                        Button::new("activity-page")
-                            .label("Activity")
-                            .on_click(cx.listener(|this, _, _, cx| {
-                                this.page = Page::Activity;
-                                cx.notify();
-                            })),
-                    )
-                    .child(
-                        Button::new("drafts-page")
-                            .label("Drafts")
-                            .on_click(cx.listener(|this, _, _, cx| {
-                                this.page = Page::Drafts;
-                                cx.notify();
-                            })),
-                    )
-                    .child(
-                        Button::new("settings-page")
-                            .label("Settings")
-                            .on_click(cx.listener(|this, _, _, cx| {
-                                this.page = Page::Settings;
-                                cx.notify();
-                            })),
-                    ),
+                    .child(body),
             )
-            .child(status)
-            .child(if matches!(self.phase, Phase::Failed(_)) {
-                "Review details below".into()
-            } else {
-                compact_title(&self.message)
-            })
-            .child(
-                Button::new("cancel")
-                    .label("Cancel current action")
-                    .disabled(!matches!(self.phase, Phase::Running { .. }))
-                    .on_click(cx.listener(|this, _, _, cx| {
-                        if this.worker.cancel() {
-                            this.phase.cancel();
-                            this.message = "Cancellation requested; awaiting safe stop.".into();
-                            cx.notify();
-                        }
-                    })),
-            )
-            .child(body)
     }
 }
 pub fn run(path: PathBuf, config: Config) {
@@ -1974,8 +1998,8 @@ pub fn run(path: PathBuf, config: Config) {
                 cx.open_window(
                     WindowOptions {
                         window_bounds: Some(WindowBounds::Windowed(bounds)),
-                        window_min_size: Some(size(px(800.), px(600.))),
-                        ..Default::default()
+                        window_min_size: Some(size(px(layout::WINDOW_MIN), px(layout::WINDOW_MIN))),
+                        ..TitleBar::window_options()
                     },
                     |window, cx| {
                         let desktop = cx.new(|cx| Desktop::new(path, config, window, cx));
