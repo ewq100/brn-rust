@@ -1,6 +1,6 @@
 # Current development status
 
-Updated 2026-10-01. Code baseline: local `main` at `a82dd25954cbd809b290d88676aec6344fb326ac`, which includes the reviewed CLI writing batch and merged size-report task; merge state checked against `origin/main`. Verification results below are recorded historical results, not tests rerun for this documentation change.
+Updated 2026-10-01. Main baseline: local `main` at `a82dd25954cbd809b290d88676aec6344fb326ac`, which includes the reviewed CLI writing batch and merged size-report task; merge state checked against `origin/main` at that checkpoint. Workspace shell code is implemented separately on `feat/workspace-shell` at `90b34c6`, branched from `9786d2d`, not merged. Shell automated checks were rerun for this documentation change; other verification results below remain historical.
 
 ## Implemented baseline
 
@@ -10,6 +10,7 @@ Updated 2026-10-01. Code baseline: local `main` at `a82dd25954cbd809b290d88676ae
 | Storage | Authoritative SQLite, exact revisions, operation recovery; deterministic and process-crash checks recorded | [Storage](work/completed/storage-recovery/evidence.md) |
 | Import, retrieval, grounded chat | Shared desktop/headless flow; keyword, semantic and hybrid search; synthetic native flow, restart, cancellation and owned-sidecar close observed | [End-to-end](work/completed/end-to-end-flow/evidence.md) |
 | Desktop usability | File selection, small-window scrolling, progress/errors and unsigned local launcher exercised | [Usability](work/completed/desktop-usability/evidence.md) |
+| Workspace shell | Combined history/document-chat/vault shell, handoff theme, system appearance, persisted layout, reflow, dividers and shortcuts; default and native automated checks pass; manual native observations pending | [Shell](work/completed/workspace-shell/evidence.md) |
 | Drafts and revisions | Working copies, immutable checkpoints/candidates, comparison and dirty-state protection; native and restart checks recorded | [Drafts](work/completed/draft-revisions/evidence.md) |
 | Anchored comments | Exact original provenance, conservative mapping, resolve/reopen and native review; 116 workspace tests and native/restart observations recorded | [Comments](work/completed/anchored-comments/evidence.md) |
 | Agent-facing CLI | `brn` binary exposes import, approval, index, search, ask, conversations, drafts, comments and revisions over the shared workflow with a versioned JSON envelope and subprocess tests | [CLI](work/completed/agent-cli-foundation/evidence.md) |
@@ -28,10 +29,11 @@ Current limitations to keep in view:
 - The CLI writing integration record is default-feature/headless evidence only; it does not qualify native UI/retrieval, live provider calls, model assets, GUI startup, real-vault access or native size-report behavior.
 - The CLI foundation does not implement Markdown-first storage, archive behavior, graph retrieval, publication/approval, or the future UI redesign; those remain [roadmap](roadmap.md) work.
 
-All implementation listed above is present in the inspected local `main` baseline, including anchored comments and the CLI writing batch. Older feature-branch-only statements remain historical in completed records. Inclusion in main and agent-observed verification do not establish user acceptance or release readiness.
+Except for the workspace shell on `feat/workspace-shell`, implementation listed above is present in the inspected local `main` baseline, including anchored comments and the CLI writing batch. Older feature-branch-only statements remain historical in completed records. Inclusion in main and agent-observed verification do not establish user acceptance or release readiness.
 
 ## Open qualification and scope
 
+- Workspace shell manual native verification, VoiceOver qualification and user acceptance remain open; automated checks do not establish native usability.
 - User subjective suitability, IME, accessibility and sustained near-limit editor performance remain unqualified.
 - Search relevance on a representative approved corpus and production-scale indexing remain unqualified; synthetic results are not corpus-quality evidence.
 - Natural authentication expiry/revocation, clean-machine installation, distributable sidecar/model handling and signing remain open.
@@ -42,7 +44,7 @@ All implementation listed above is present in the inspected local `main` baselin
 
 The next proposed feature is [opening and safely editing real Markdown notes](superpowers/specs/2026-10-01-open-and-safely-edit-markdown-notes-design.md): explicit Save to a local vault, separate editing-buffer recovery, conservative external-conflict handling, and current-evidence invalidation. Its written specification is approved; the [implementation plan](work/active/markdown-note-editing/plan.md) is prepared with execution choice pending. No application code or vault migration has started; [active work](work/active/README.md) records planning separately from implementation.
 
-The UI redesign's first slice, the [workspace shell](superpowers/specs/2026-10-01-workspace-shell-design.md), has an approved specification and an [implementation plan](work/active/workspace-shell/plan.md); execution has not started.
+The UI redesign's first slice, the [workspace shell](superpowers/specs/2026-10-01-workspace-shell-design.md), is implemented on its unmerged branch with [automated evidence and a pending human checklist](work/completed/workspace-shell/evidence.md). UI slice 2 (chat polish) is a candidate needing its own design approval; hidden features and prerequisites are tracked in the [UI feature backlog](ui/feature-backlog.md).
 
 [13: revision from a comment batch](roadmap.md#13-revision-from-a-comment-batch) remains a future roadmap outcome. Neither a roadmap item nor a design approval authorizes implementation beyond its agreed scope.
 

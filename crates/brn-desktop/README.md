@@ -4,7 +4,7 @@ Desktop entry point, GPUI views and transient interaction state. Also retains sa
 
 ## Interfaces and source
 
-[Entry point](src/main.rs), [native views](src/native/mod.rs), [workspace shell](src/native/shell/mod.rs), [draft UI](src/drafts.rs), [comment UI](src/comments.rs), [CLI tests](tests/cli.rs).
+[Entry point](src/main.rs), [layout model](src/layout.rs) and [tokens](src/tokens.rs) (GPUI-free, default-feature tests), [native shell](src/native/mod.rs) with [theme](src/native/theme.rs) and [regions](src/native/shell/mod.rs), [draft UI](src/drafts.rs), [comment UI](src/comments.rs), [CLI tests](tests/cli.rs). Layout and appearance persist to `layout.json` in the data directory. See the [workspace shell decision](../../docs/architecture/decisions/2026-10-01-workspace-shell.md) and the [UI feature backlog](../../docs/ui/feature-backlog.md).
 
 The native workspace has History and Vault rails around a document/chat centre.
 Narrow windows collapse rails and use Document/Chat tabs; Focus hides the rails.
