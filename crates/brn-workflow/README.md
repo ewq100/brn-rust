@@ -114,16 +114,17 @@ baseline without overwriting later typing. File flushing requires
 Late external races retain the actual displaced object and report conflict or
 uncertainty, never automatic rollback.
 
-Pre-exchange refusals resolve NotApplied only with freshly observed original
-baseline proof and no stage creation or an exact recorded unexchanged stage.
+Live pre-exchange refusals resolve NotApplied with freshly observed original
+baseline proof, even when staging creation failed before its identity was recorded.
 The failure result remains the immutable replay result; submitted recovery and
 unexpected staging occupants stay protected, but a new original save is allowed.
-When live progress proves no exchange and a created stage is absent or exactly
-the recorded unexchanged stage, an observed external change remains
+When live progress proves no exchange, an observed external change remains
 Conflict/NotApplied. Its intent stays Unresolved and blocks later original
 saves pending explicit resolution; its note view reports Conflict, not an
-uncertain execution outcome. A possibly attempted exchange or unproven created
-artifact remains SaveUncertain/Unknown.
+uncertain execution outcome. An unrecorded artifact is retained as
+RetainedUnexpected, never removed by filename. After restart, journal phase alone
+cannot establish that exchange was never attempted; missing execution proof
+remains uncertain.
 
 `reconcile_note_save(operation_id)` classifies interrupted writes and commits
 metadata only: it never retries exchange, creates, renames or unlinks files.
@@ -157,6 +158,12 @@ Copy receipts identify the source and new target separately. An unresolved
 original can be rescued without resolving it or suspending the original's
 otherwise unchanged eligibility. Copy restart classification requires the
 recorded prepared identity and consumed stage, not matching bytes alone.
+Live failures release a copy reservation only when installation was not attempted
+and the destination is absent/not the prepared identity, or the exact recorded
+stage is proven unconsumed. The latter also permits metadata-only reconciliation
+after a collision or transient observation failure. Recorded failures replay
+unchanged, including historical Unknown outcomes; submitted recovery and artifacts
+remain protected. Missing proof leaves the destination reserved.
 
 Name reservations use canonical Unicode decomposition/full case folding plus
 resolved parent identity as conservative **vetoes**, never identity proofs.

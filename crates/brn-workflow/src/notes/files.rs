@@ -9,6 +9,20 @@ use std::{
 };
 use uuid::Uuid;
 
+#[cfg(test)]
+thread_local! {
+    pub(super) static PREPARE_FAILURE: std::cell::Cell<Option<&'static str>> = const { std::cell::Cell::new(None) };
+}
+
+#[cfg(test)]
+fn prepare_failure(step: &str) -> NoteResult<()> {
+    if PREPARE_FAILURE.with(|selected| selected.get() == Some(step)) {
+        Err(failure(NoteErrorCode::Io, "injected staging I/O failure"))
+    } else {
+        Ok(())
+    }
+}
+
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub enum NoteNoticeKind {
     Changed,
@@ -317,9 +331,17 @@ impl MacFiles {
         )?;
         #[cfg(test)]
         super::save::checkpoint("stage_created");
+        #[cfg(test)]
+        prepare_failure("write")?;
         stage.write_all(bytes).map_err(note_io_failure)?;
+        #[cfg(test)]
+        prepare_failure("attributes")?;
         preserve_attributes(&original, &stage)?;
+        #[cfg(test)]
+        prepare_failure("file_sync")?;
         full_sync(&stage)?;
+        #[cfg(test)]
+        prepare_failure("directory_sync")?;
         sync_directory(&parent)?;
         self.validate_parent(destination, &parent)?;
         let observed = read_file(&stage)?;
@@ -490,8 +512,14 @@ impl MacFiles {
         )?;
         #[cfg(test)]
         super::save::checkpoint("stage_created");
+        #[cfg(test)]
+        prepare_failure("write")?;
         stage.write_all(bytes).map_err(note_io_failure)?;
+        #[cfg(test)]
+        prepare_failure("file_sync")?;
         full_sync(&stage)?;
+        #[cfg(test)]
+        prepare_failure("directory_sync")?;
         sync_directory(&parent)?;
         self.validate_parent(destination, &parent)?;
         let observed = read_file(&stage)?;

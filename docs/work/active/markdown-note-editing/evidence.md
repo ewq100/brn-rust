@@ -263,6 +263,10 @@ or model resources.
    (`rm "$case_root/vault/plan.md"`) and inode replacement (write
    `plan.replacement`, then `mv` onto `plan.md`). A deleted original must not be
    recreated by Save; equal-byte replacement must still require reconciliation.
+   Reload refuses an inode change. Atomic-save editors such as TextEdit commonly
+   replace the inode: observe that Reload refuses, then explicitly confirm Relink
+   to the same path (retains local edits) before Reload with discard if desired.
+   Do not treat atomic-save replacement as an ordinary in-place external edit.
    Never reuse an unresolved fixture as if clean: use explicit confirmed
    reload/relink/accept-current or a new case root.
 4. Attempt Save a separate copy to an occupied `collision.md` containing a

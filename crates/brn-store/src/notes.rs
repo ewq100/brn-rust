@@ -1959,6 +1959,7 @@ impl Store {
                     verification,
                     result: NoteRecordedResult::Receipt(receipt.clone()),
                 },
+                None,
             )?;
             tx.commit()?;
             Ok(())
@@ -1970,6 +1971,36 @@ impl Store {
         &mut self,
         op: Uuid,
         record: &NoteReconciliation,
+    ) -> NoteResult<NoteRecordedResult> {
+        self.reconcile_note_operation_with_stage(op, record, None)
+    }
+
+    /// An exclusive copy installation consumes its prepared stage. The caller must
+    /// freshly observe this exact unconsumed stage; no destination absence is inferred.
+    /// This records metadata only and preserves any previously recorded failure.
+    pub fn reconcile_note_copy_not_installed(
+        &mut self,
+        op: Uuid,
+        observed_staging: &PreparedFile,
+        result: &NoteRecordedResult,
+    ) -> NoteResult<NoteRecordedResult> {
+        self.reconcile_note_operation_with_stage(
+            op,
+            &NoteReconciliation {
+                resolution: NoteResolution::NotApplied,
+                observed_destination: None,
+                verification: None,
+                result: result.clone(),
+            },
+            Some(observed_staging),
+        )
+    }
+
+    fn reconcile_note_operation_with_stage(
+        &mut self,
+        op: Uuid,
+        record: &NoteReconciliation,
+        unconsumed_staging: Option<&PreparedFile>,
     ) -> NoteResult<NoteRecordedResult> {
         let context = intent(&self.conn, op)?;
         let result = (|| {
@@ -1987,7 +2018,7 @@ impl Store {
                     ))
                 };
             }
-            let result = commit_reconciliation(&tx, value, record)?;
+            let result = commit_reconciliation(&tx, value, record, unconsumed_staging)?;
             tx.commit()?;
             Ok(result)
         })();
@@ -2279,8 +2310,21 @@ fn commit_reconciliation(
     tx: &Transaction<'_>,
     mut value: NoteSaveIntent,
     record: &NoteReconciliation,
+    unconsumed_staging: Option<&PreparedFile>,
 ) -> NoteResult<NoteRecordedResult> {
     let op = value.request.operation_id;
+    if let Some(stage) = unconsumed_staging
+        && (value.kind != NoteWriteKind::Copy
+            || value.phase != SavePhase::Prepared
+            || value.staged.as_ref() != Some(stage)
+            || record.resolution != NoteResolution::NotApplied
+            || record.verification.is_some())
+    {
+        return Err(failure(
+            NoteErrorCode::SaveUncertain,
+            "not-applied copy lacks recorded unconsumed-stage proof",
+        ));
+    }
     if record.resolution == NoteResolution::AcceptedCurrent {
         return Err(failure(
             NoteErrorCode::StateChanged,

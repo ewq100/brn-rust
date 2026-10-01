@@ -36,6 +36,9 @@ Other note-action failures, including save conflicts and uncertain
 reconciliation, do not pause automatic buffer recovery or deferred-close flushes.
 That discard preserves acknowledged recovery and uncertain operations; confirmed
 reload is a separate workflow decision that discards local text in favor of disk.
+Reload refuses an inode change. Atomic-save editors such as TextEdit replace the
+inode; use confirmed Relink to the same path first, then Reload with explicit
+discard if desired. Relink alone retains local edits.
 Standalone draft/comment close guards remain independent.
 
 Direct macOS termination, such as Dock Quit, does not pass through those action

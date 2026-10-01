@@ -13,7 +13,6 @@ use std::cell::Cell;
 
 #[derive(Default)]
 pub(super) struct SaveProgress {
-    pub(super) staging_attempted: Cell<bool>,
     pub(super) exchange_attempted: Cell<bool>,
 }
 
@@ -177,55 +176,48 @@ impl crate::Workspace {
                 .map_err(|storage| context(storage, &current, FileOutcome::Unknown))?;
         }
         let known_failure = context(error.clone(), &current, FileOutcome::NotApplied);
-        let mut error = context(error, &current, FileOutcome::Unknown);
-        // Live progress proves whether creation/exchange was attempted; the journal
+        let error = context(error, &current, FileOutcome::Unknown);
+        // Live progress proves whether exchange was attempted; the journal
         // phase alone is never such proof after a crash or an uncertain exchange.
-        let copy_not_installed = current.kind == NoteWriteKind::Copy
-            && current.phase == SavePhase::Prepared
-            && error.code == NoteErrorCode::Conflict
-            && current.staged.as_ref().is_some_and(|prepared| {
-                files
-                    .observe(&current.staging_relative)
-                    .is_ok_and(|observed| observed.fingerprint == prepared.fingerprint)
-            });
-        if !progress.exchange_attempted.get() || copy_not_installed {
-            let stage_known = !progress.staging_attempted.get()
-                || match files.artifact(&current.staging_relative) {
-                    Ok(None) => true,
-                    Ok(Some(_)) => current.staged.as_ref().is_some_and(|prepared| {
-                        files
-                            .observe(&current.staging_relative)
-                            .is_ok_and(|observed| observed.fingerprint == prepared.fingerprint)
-                    }),
-                    Err(_) => false,
-                };
-            if stage_known {
-                let original = files
+        if !progress.exchange_attempted.get() {
+            // Unjournaled staging affects cleanup, not live execution disproof.
+            let destination_proof = match &current.expected_destination {
+                DestinationPrecondition::Existing { fingerprint, .. } => files
                     .observe(&current.destination)
                     .ok()
-                    .and_then(|observed| match &current.expected_destination {
-                        DestinationPrecondition::Existing { fingerprint, .. }
-                            if observed.fingerprint == *fingerprint =>
+                    .filter(|observed| observed.fingerprint == *fingerprint)
+                    .map(|observed| Some(observed.fingerprint)),
+                DestinationPrecondition::Absent { .. } => {
+                    match files.artifact(&current.destination) {
+                        Ok(None) => Some(None),
+                        Ok(Some(actual))
+                            if current.staged.as_ref().is_none_or(|prepared| {
+                                actual.identity.device != prepared.fingerprint.device
+                                    || actual.identity.inode != prepared.fingerprint.inode
+                            }) =>
                         {
-                            Some(observed.fingerprint)
+                            Some(None)
                         }
                         _ => None,
-                    });
-                if let Some(original) = original {
-                    return replay(
-                        self.store
-                            .reconcile_note_operation(
-                                current.request.operation_id,
-                                &NoteReconciliation {
-                                    resolution: NoteResolution::NotApplied,
-                                    observed_destination: Some(original),
-                                    verification: None,
-                                    result: NoteRecordedResult::Failure(known_failure),
-                                },
-                            )
-                            .map_err(|storage| context(storage, &current, FileOutcome::Unknown))?,
-                    );
+                    }
                 }
+            };
+            if let Some(observed_destination) = destination_proof {
+                return replay(
+                    self.store
+                        .reconcile_note_operation(
+                            current.request.operation_id,
+                            &NoteReconciliation {
+                                resolution: NoteResolution::NotApplied,
+                                observed_destination,
+                                verification: None,
+                                result: NoteRecordedResult::Failure(known_failure),
+                            },
+                        )
+                        .map_err(|storage| context(storage, &current, FileOutcome::Unknown))?,
+                );
+            }
+            if current.kind == NoteWriteKind::Replace {
                 return Err(self.store.record_note_write_failure(
                     &current.request,
                     &current.destination,
@@ -233,10 +225,16 @@ impl crate::Workspace {
                     &known_failure,
                 )?);
             }
-            error.code = NoteErrorCode::SaveUncertain;
-            error.message = format!(
-                "pre-exchange refusal has unproven staging state: {}",
-                error.message
+        }
+        if let Some(prepared) = Self::unconsumed_copy_stage(files, &current) {
+            return replay(
+                self.store
+                    .reconcile_note_copy_not_installed(
+                        current.request.operation_id,
+                        &prepared,
+                        &NoteRecordedResult::Failure(known_failure),
+                    )
+                    .map_err(|storage| context(storage, &current, FileOutcome::Unknown))?,
             );
         }
         Err(self.store.record_note_write_failure(
@@ -249,11 +247,40 @@ impl crate::Workspace {
 
     /// Classifies interrupted writes from exact identity pairs; never writes or removes files.
     pub fn reconcile_note_save(&mut self, op: Uuid) -> NoteResult<NoteReceipt> {
-        if let Some(result) = self.store.note_save_result(op)? {
+        if let Some(result) = self.store.note_save_result(op)?
+            && self.store.note_save_intent(op)?.is_none()
+        {
             return replay(result);
         }
         let intent = self.load_note_intent(op)?;
         if let Some(result) = intent.prior_result.clone() {
+            if intent.resolution == NoteResolution::Unresolved
+                && intent.kind == NoteWriteKind::Copy
+                && self.acquire_note_vault(intent.request.note_id).is_ok()
+            {
+                let files = &self.notes.vault.as_ref().unwrap().1;
+                if let Some(prepared) = Self::unconsumed_copy_stage(files, &intent) {
+                    self.store
+                        .reconcile_note_copy_not_installed(op, &prepared, &result)
+                        .map_err(|error| context(error, &intent, FileOutcome::Unknown))?;
+                } else if intent.phase == SavePhase::Intent
+                    && intent.staged.is_none()
+                    && matches!(files.artifact(&intent.destination), Ok(None))
+                    && matches!(files.artifact(&intent.staging_relative), Ok(None))
+                {
+                    self.store
+                        .reconcile_note_operation(
+                            op,
+                            &NoteReconciliation {
+                                resolution: NoteResolution::NotApplied,
+                                observed_destination: None,
+                                verification: None,
+                                result: result.clone(),
+                            },
+                        )
+                        .map_err(|error| context(error, &intent, FileOutcome::Unknown))?;
+                }
+            }
             return replay(result);
         }
         self.acquire_note_vault(intent.request.note_id)
@@ -278,6 +305,25 @@ impl crate::Workspace {
         };
         let decision = classify_note_save(&intent, &observations)?;
         self.commit_note_reconciliation(intent, decision)
+    }
+
+    fn unconsumed_copy_stage(
+        files: &MacFiles,
+        intent: &NoteSaveIntent,
+    ) -> Option<brn_store::notes::PreparedFile> {
+        if intent.kind != NoteWriteKind::Copy || intent.phase != SavePhase::Prepared {
+            return None;
+        }
+        let prepared = intent.staged.as_ref()?;
+        let destination = files.artifact(&intent.destination).ok()?;
+        if destination.is_some_and(|actual| {
+            actual.identity.device == prepared.fingerprint.device
+                && actual.identity.inode == prepared.fingerprint.inode
+        }) {
+            return None;
+        }
+        let stage = files.observe(&intent.staging_relative).ok()?;
+        (stage.fingerprint == prepared.fingerprint).then(|| prepared.clone())
     }
 
     fn load_note_intent(&self, op: Uuid) -> NoteResult<NoteSaveIntent> {
@@ -308,6 +354,20 @@ impl crate::Workspace {
         decision: RecoveryDecision,
     ) -> NoteResult<NoteReceipt> {
         let record = reconciliation(&intent, decision);
+        if record.resolution == NoteResolution::NotApplied
+            && intent.kind == NoteWriteKind::Copy
+            && let Some(prepared) = &intent.staged
+        {
+            return replay(
+                self.store
+                    .reconcile_note_copy_not_installed(
+                        intent.request.operation_id,
+                        prepared,
+                        &record.result,
+                    )
+                    .map_err(|error| context(error, &intent, FileOutcome::Unknown))?,
+            );
+        }
         replay(
             self.store
                 .reconcile_note_operation(intent.request.operation_id, &record)
@@ -406,7 +466,6 @@ fn execute_save(
         ));
     }
     checkpoint("before_stage");
-    progress.staging_attempted.set(true);
     let prepared = files.prepare_replace(
         op,
         &intent.staging_relative,
@@ -552,6 +611,16 @@ fn classify_note_save(
             return Ok(RecoveryDecision::Applied(NoteVerification::Copy {
                 installed: destination.fingerprint.clone(),
             }));
+        }
+        if intent.phase == SavePhase::Prepared
+            && let (Some(prepared), Some(stage)) = (&intent.staged, &observations.staging)
+            && stage.fingerprint == prepared.fingerprint
+            && destination.is_none_or(|value| {
+                value.fingerprint.device != prepared.fingerprint.device
+                    || value.fingerprint.inode != prepared.fingerprint.inode
+            })
+        {
+            return Ok(RecoveryDecision::NotApplied(None));
         }
         if destination.is_none() && matches!(intent.phase, SavePhase::Intent | SavePhase::Prepared)
         {

@@ -4,6 +4,179 @@ use std::path::Path;
 use uuid::Uuid;
 
 #[test]
+fn unconsumed_copy_stage_resolves_failure_releases_reservation_and_preserves_replay() {
+    let (data, _vault, mut store, opened) = fixture();
+    let vault = store.note_vault(opened.note_id).unwrap();
+    let request = submission(&opened);
+    let intent = store
+        .begin_note_save(
+            &request,
+            Path::new("copy.md"),
+            NoteWriteKind::Copy,
+            &DestinationPrecondition::Absent {
+                parent: vault.identity.clone(),
+            },
+        )
+        .unwrap();
+    let stage = PreparedFile {
+        relative: intent.staging_relative.clone(),
+        fingerprint: fingerprint(&request.text, 4),
+    };
+    store
+        .record_note_prepared(request.operation_id, &stage)
+        .unwrap();
+    let error = store
+        .record_note_write_failure(
+            &request,
+            Path::new("copy.md"),
+            NoteWriteKind::Copy,
+            &NoteFailure {
+                code: NoteErrorCode::SaveUncertain,
+                message: "transient observation failure".into(),
+                operation_id: Some(request.operation_id),
+                note_id: Some(request.note_id),
+                phase: Some(SavePhase::Prepared),
+                filesystem_outcome: FileOutcome::Unknown,
+                recovery_available: true,
+            },
+        )
+        .unwrap();
+    let result = NoteRecordedResult::Failure(error.clone());
+    drop(store);
+    let (mut store, _) = Store::open(data.path()).unwrap();
+    assert_eq!(
+        store
+            .reconcile_note_copy_not_installed(request.operation_id, &stage, &result)
+            .unwrap(),
+        result
+    );
+    assert_eq!(
+        store
+            .note_save_intent(request.operation_id)
+            .unwrap()
+            .unwrap()
+            .resolution,
+        NoteResolution::NotApplied
+    );
+    assert_eq!(
+        store.note_save_result(request.operation_id).unwrap(),
+        Some(result.clone())
+    );
+    assert_eq!(
+        store
+            .note_recovery(request.note_id)
+            .unwrap()
+            .unwrap()
+            .working,
+        request.text
+    );
+    let occupant = fingerprint("external", 5);
+    store
+        .enroll_note(
+            Uuid::new_v4(),
+            &vault,
+            Path::new("copy.md"),
+            occupant,
+            "external",
+        )
+        .unwrap();
+    assert_eq!(
+        store
+            .reconcile_note_copy_not_installed(request.operation_id, &stage, &result)
+            .unwrap(),
+        result
+    );
+    let mut changed = error;
+    changed.message = "not the original failure".into();
+    assert_eq!(
+        store
+            .reconcile_note_copy_not_installed(
+                request.operation_id,
+                &stage,
+                &NoteRecordedResult::Failure(changed)
+            )
+            .unwrap_err()
+            .code,
+        NoteErrorCode::OperationConflict
+    );
+}
+
+#[test]
+fn copy_not_installed_requires_exact_recorded_stage_and_unexchanged_copy_phase() {
+    for invalid in ["unprepared", "fingerprint", "path", "exchanged", "replace"] {
+        let (_data, _vault, mut store, opened) = fixture();
+        let request = submission(&opened);
+        let (kind, destination, expected) = if invalid == "replace" {
+            (
+                NoteWriteKind::Replace,
+                Path::new("plan.md"),
+                precondition(&opened),
+            )
+        } else {
+            (
+                NoteWriteKind::Copy,
+                Path::new("copy.md"),
+                DestinationPrecondition::Absent {
+                    parent: store.note_vault(opened.note_id).unwrap().identity,
+                },
+            )
+        };
+        let intent = store
+            .begin_note_save(&request, destination, kind, &expected)
+            .unwrap();
+        let mut stage = PreparedFile {
+            relative: intent.staging_relative.clone(),
+            fingerprint: fingerprint(&request.text, 4),
+        };
+        if invalid != "unprepared" {
+            store
+                .record_note_prepared(request.operation_id, &stage)
+                .unwrap();
+        }
+        match invalid {
+            "fingerprint" => stage.fingerprint.inode += 1,
+            "path" => stage.relative = "other.stage".into(),
+            "exchanged" => store.mark_note_exchanged(request.operation_id).unwrap(),
+            _ => (),
+        }
+        let before = store
+            .note_save_intent(request.operation_id)
+            .unwrap()
+            .unwrap();
+        let result = NoteRecordedResult::Failure(NoteFailure {
+            code: NoteErrorCode::Conflict,
+            message: "collision".into(),
+            operation_id: Some(request.operation_id),
+            note_id: Some(request.note_id),
+            phase: Some(before.phase),
+            filesystem_outcome: FileOutcome::NotApplied,
+            recovery_available: true,
+        });
+        assert_eq!(
+            store
+                .reconcile_note_copy_not_installed(request.operation_id, &stage, &result)
+                .unwrap_err()
+                .code,
+            NoteErrorCode::SaveUncertain,
+            "{invalid}"
+        );
+        assert_eq!(
+            store
+                .note_save_intent(request.operation_id)
+                .unwrap()
+                .unwrap(),
+            before
+        );
+        assert!(
+            store
+                .note_save_result(request.operation_id)
+                .unwrap()
+                .is_none()
+        );
+    }
+}
+
+#[test]
 fn search_snapshot_receipts_bind_state_preserve_originals_and_track_permission_epochs() {
     use brn_store::Approval;
     let (_data, _vault, mut store, opened) = fixture();

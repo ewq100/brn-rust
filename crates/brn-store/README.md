@@ -78,6 +78,14 @@ The dedicated `reconcile_note_operation` transition can resolve a proven
 pre-exchange failure NotApplied while preserving its exact recorded failure.
 A refusal alone is not proof: workflow must supply the matching original
 destination observation; missing proof or a substituted result is rejected.
+`reconcile_note_copy_not_installed` additionally accepts a freshly observed exact
+recorded prepared stage for an unexchanged copy: exclusive installation would have
+consumed it, so an occupied destination need not be mistaken for absence. Wrong
+stage paths/fingerprints, unprepared intents, replacements and recorded exchanges
+are refused. NotApplied releases the destination reservation without deleting any
+file, replacing the recorded failure or discarding submitted recovery. A later
+proof can resolve a historical Unknown failure while leaving its replay unchanged;
+that historical outcome still cannot authorize artifact retirement.
 
 `prune_completed_note_payloads` removes only superseded, successfully completed
 payloads with retired artifacts and no protected dependency. The latest

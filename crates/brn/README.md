@@ -111,7 +111,10 @@ selects the original save with required `--operation` and never retries a write.
 
 Compare returns baseline/working/fresh observed text and its observation token.
 Reload requires `--discard-local-edits`; relink requires `--confirm-identity`
-and retains local work. Accept-current names the unresolved original through
+and retains local work. Reload refuses an inode change: external editors that
+save atomically (for example TextEdit) replace the inode, so use confirmed Relink
+to the same path before reloading/discarding local edits. Relink alone retains
+those edits. Accept-current names the unresolved original through
 `--save-operation`; optional `--operation` is a separate acknowledgement.
 It requires a reviewed `--file-state` and explicit `--keep-recovery`, preserves
 uncertain recovery/artifacts, and neither writes disk nor grants approval nor

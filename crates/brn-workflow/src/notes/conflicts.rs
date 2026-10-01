@@ -335,7 +335,6 @@ fn execute_copy(
         return Err(note_copy_conflict("copy staging path is occupied"));
     }
     save::checkpoint("before_stage");
-    progress.staging_attempted.set(true);
     let prepared = files.prepare_copy(
         op,
         &intent.staging_relative,
