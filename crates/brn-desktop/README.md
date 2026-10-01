@@ -4,7 +4,14 @@ Desktop entry point, GPUI views and transient interaction state. Also retains sa
 
 ## Interfaces and source
 
-[Entry point](src/main.rs), [native views](src/native.rs), [draft UI](src/drafts.rs), [comment UI](src/comments.rs), [CLI tests](tests/cli.rs).
+[Entry point](src/main.rs), [native views](src/native/mod.rs), [workspace shell](src/native/shell/mod.rs), [draft UI](src/drafts.rs), [comment UI](src/comments.rs), [CLI tests](tests/cli.rs).
+
+The native workspace has History and Vault rails around a document/chat centre.
+Narrow windows collapse rails and use Document/Chat tabs; Focus hides the rails.
+Closing a document retains draft edits, and late draft-open results cannot replace
+newer document navigation. Settings uses the toolkit modal host for appearance,
+rail widths and layout reset. Layout preferences are stored separately from the
+authoritative workflow data.
 
 ## Dependencies and features
 

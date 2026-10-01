@@ -1,5 +1,5 @@
 use crate::drafts::DraftEditor;
-use crate::layout::{self, LayoutState, Loaded};
+use crate::layout::{self, LayoutState, Loaded, ResolvedLayout};
 use brn_workflow::worker::{
     Action, Approval, ChatTurn, CommentStatusChange, Draft, DraftRevision, DraftWriteWithComments,
     Evidence, Outcome, Profile, SourceDocument, Worker,
@@ -24,14 +24,39 @@ use std::path::PathBuf;
 use std::time::{Duration, Instant};
 use uuid::Uuid;
 
+mod shell;
 mod theme;
 
-#[derive(Clone, Copy, PartialEq, Eq)]
-enum Page {
-    Workspace,
-    Activity,
-    Drafts,
-    Settings,
+#[derive(Clone, Copy, Debug, PartialEq, Eq)]
+enum DocRef {
+    Draft,
+    Source(Uuid),
+}
+
+#[derive(Clone, Copy, Debug, PartialEq, Eq)]
+enum CentreTab {
+    Document,
+    Chat,
+}
+
+/// Correlates a draft-open completion with the navigation that requested it,
+/// so a late completion cannot override a newer Close or source selection.
+#[derive(Debug, Default)]
+struct DocNavigation {
+    generation: u64,
+    pending_draft: Option<u64>,
+}
+
+impl DocNavigation {
+    fn moved(&mut self) {
+        self.generation = self.generation.wrapping_add(1);
+    }
+    fn request_draft(&mut self) {
+        self.pending_draft = Some(self.generation);
+    }
+    fn take_draft_completion(&mut self) -> bool {
+        self.pending_draft.take() == Some(self.generation)
+    }
 }
 
 #[derive(Debug, Clone)]
@@ -139,12 +164,20 @@ struct Desktop {
     import_path: Option<PathBuf>,
     choosing_file: bool,
     phase: Phase,
-    page: Page,
     path: PathBuf,
     config: Config,
     layout: LayoutState,
     system_dark: bool,
     layout_note: Option<String>,
+    resolved: ResolvedLayout,
+    open_doc: Option<DocRef>,
+    centre_tab: CentreTab,
+    nav: DocNavigation,
+    settings_requested: bool,
+    history_scroll: ScrollHandle,
+    vault_scroll: ScrollHandle,
+    chat_scroll: ScrollHandle,
+    source_scroll: ScrollHandle,
     message: String,
     generation: u64,
     profile: Profile,
@@ -225,6 +258,7 @@ impl Desktop {
             }
         });
         let (layout, loaded) = layout::load(&path);
+        let resolved = layout.resolve(1100.0, false);
         let layout_note = match loaded {
             Loaded::Reset(note) => Some(note),
             Loaded::Missing | Loaded::Restored => None,
@@ -260,12 +294,20 @@ impl Desktop {
             import_path: None,
             choosing_file: false,
             phase: Phase::Opening,
-            page: Page::Workspace,
             path,
             config,
             layout,
             system_dark,
             layout_note,
+            resolved,
+            open_doc: None,
+            centre_tab: CentreTab::Chat,
+            nav: DocNavigation::default(),
+            settings_requested: false,
+            history_scroll: ScrollHandle::new(),
+            vault_scroll: ScrollHandle::new(),
+            chat_scroll: ScrollHandle::new(),
+            source_scroll: ScrollHandle::new(),
             message: "Opening workspace…".into(),
             generation: 0,
             profile: Profile::Keyword,
@@ -430,6 +472,9 @@ impl Desktop {
                         self.drafts.push(draft.clone());
                     }
                     if may_open {
+                        if self.nav.take_draft_completion() {
+                            self.show_document(DocRef::Draft);
+                        }
                         self.draft_editor.update(cx, |editor, cx| {
                             editor.set_value(draft.text.clone(), window, cx)
                         });
@@ -463,6 +508,9 @@ impl Desktop {
                         true
                     };
                     if may_open {
+                        if self.nav.take_draft_completion() {
+                            self.show_document(DocRef::Draft);
+                        }
                         self.draft_editor.update(cx, |editor, cx| {
                             editor.set_value(saved.draft.text.clone(), window, cx)
                         });
@@ -767,6 +815,7 @@ impl Desktop {
         if !self.phase.can_submit() || !self.draft_guard(cx) {
             return;
         }
+        self.nav.request_draft();
         self.submit(Action::OpenDraftComments { id }, "Open draft", cx);
     }
     fn create_draft(&mut self, cx: &mut Context<Self>) {
@@ -779,6 +828,7 @@ impl Desktop {
             cx.notify();
             return;
         }
+        self.nav.request_draft();
         self.submit(
             Action::CreateDraft {
                 op: Uuid::new_v4(),
@@ -1112,6 +1162,7 @@ impl Desktop {
             return;
         }
         self.selected_session = session;
+        self.centre_tab = CentreTab::Chat;
         self.generation = self.generation.wrapping_add(1);
         self.search = None;
         self.selected_evidence = None;
@@ -1127,780 +1178,38 @@ impl Desktop {
             cx.notify();
         }
     }
-}
-impl Render for Desktop {
-    fn render(&mut self, _: &mut Window, cx: &mut Context<Self>) -> impl IntoElement {
-        let mut body = div()
-            .id("workspace-body")
-            .flex()
-            .flex_col()
-            .flex_1()
-            .min_h(px(0.))
-            .min_w(px(0.))
-            .gap_3()
-            .p_3()
-            .overflow_y_scroll()
-            .track_scroll(&self.draft_scroll)
-            .vertical_scrollbar(&self.draft_scroll)
-            .child(self.message.clone());
-        if matches!(self.phase, Phase::Failed(_)) {
-            body = body.child("Workspace unavailable. Review the error above, correct the workspace, then relaunch.");
-        }
-        if !self.progress.is_empty()
-            && matches!(self.phase, Phase::Running { .. } | Phase::Cancelling { .. })
+    fn show_document(&mut self, doc: DocRef) {
+        self.nav.moved();
+        self.open_doc = Some(doc);
+        self.centre_tab = CentreTab::Document;
+    }
+    /// Hides the document pane. A draft's in-memory editor state is kept.
+    fn close_document(&mut self) {
+        self.nav.moved();
+        self.open_doc = None;
+        self.centre_tab = CentreTab::Chat;
+    }
+    fn open_draft_from_list(&mut self, id: Uuid, cx: &mut Context<Self>) {
+        if self
+            .draft_state
+            .as_ref()
+            .is_some_and(|state| state.id() == id)
         {
-            body = body.child(format!("Progress: {}", self.progress));
+            self.show_document(DocRef::Draft);
+            cx.notify();
+            return;
         }
-        match self.page {
-            Page::Workspace => {
-                body = body.child("Grounded workspace")
-                    .child("Import a UTF-8 Markdown or text file and explicitly approve it for search.")
-                    .child(div().flex().flex_wrap().gap_2()
-                        .child(Button::new("choose-file").label(if self.choosing_file { "Choosing…" } else { "Choose file…" }).disabled(self.choosing_file || !self.phase.can_submit()).on_click(cx.listener(|this, _, _, cx| this.choose_file(cx))))
-                        .child(Button::new("import-approved").label("Import and approve").disabled(!self.phase.can_submit() || self.import_path.is_none()).on_click(cx.listener(|this, _, _, cx| this.import(cx))))
-                        .child(Button::new("build-index").label("Build index").disabled(!self.phase.can_submit()).on_click(cx.listener(|this, _, _, cx| { this.submit(Action::Build, "Index build", cx); })))
-                        .child(Button::new("refresh").label("Refresh").disabled(!self.phase.can_submit()).on_click(cx.listener(|this, _, _, cx| { this.submit(Action::Refresh { session: this.selected_session }, "Refresh", cx); }))))
-                    .child(div().min_w(px(0.)).child(format!("Selected file: {}", self.import_path.as_ref().map_or("none".into(), |p| spaced_identifier(&p.display().to_string())))));
-                body = body.child(format!("Sources: {}", self.sources.len()));
-                for source in &self.sources {
-                    let source_id = source.source_id;
-                    let version = source.version_id;
-                    body = body.child(
-                        div()
-                            .flex()
-                            .flex_col()
-                            .min_w(px(0.))
-                            .gap_2()
-                            .child(format!(
-                                "{} · {:?} · {} bytes",
-                                source.title,
-                                source.approval,
-                                source.bytes.len()
-                            ))
-                            .child(format!(
-                                "Revision: {}",
-                                spaced_identifier(&version.to_string())
-                            ))
-                            .child(
-                                div()
-                                    .flex()
-                                    .flex_wrap()
-                                    .gap_2()
-                                    .child(
-                                        Button::new(format!("approve-{source_id}"))
-                                            .label("Approve")
-                                            .disabled(!self.phase.can_submit())
-                                            .on_click(cx.listener(move |this, _, _, cx| {
-                                                this.submit(
-                                                    Action::SetApproval {
-                                                        source: source_id,
-                                                        version,
-                                                        approval: Approval::Approved,
-                                                    },
-                                                    "Approve",
-                                                    cx,
-                                                );
-                                            })),
-                                    )
-                                    .child(
-                                        Button::new(format!("withdraw-{source_id}"))
-                                            .label("Withdraw")
-                                            .disabled(!self.phase.can_submit())
-                                            .on_click(cx.listener(move |this, _, _, cx| {
-                                                this.submit(
-                                                    Action::SetApproval {
-                                                        source: source_id,
-                                                        version,
-                                                        approval: Approval::Withdrawn,
-                                                    },
-                                                    "Withdraw",
-                                                    cx,
-                                                );
-                                            })),
-                                    ),
-                            ),
-                    );
-                }
-                body = body
-                    .child("Question")
-                    .child(
-                        Editor::new(&self.query)
-                            .h(px(110.))
-                            .flex_shrink_0()
-                            .aria_label("Question for approved sources"),
-                    )
-                    .child(
-                        div()
-                            .flex()
-                            .flex_wrap()
-                            .gap_2()
-                            .child(Button::new("profile-keyword").label("Keyword").on_click(
-                                cx.listener(|this, _, _, cx| {
-                                    this.choose_profile(Profile::Keyword, cx)
-                                }),
-                            ))
-                            .child(Button::new("profile-semantic").label("Semantic").on_click(
-                                cx.listener(|this, _, _, cx| {
-                                    this.choose_profile(Profile::Semantic, cx)
-                                }),
-                            ))
-                            .child(Button::new("profile-hybrid").label("Hybrid").on_click(
-                                cx.listener(|this, _, _, cx| {
-                                    this.choose_profile(Profile::Hybrid, cx)
-                                }),
-                            )),
-                    )
-                    .child(format!("Selected profile: {:?}", self.profile))
-                    .child(
-                        div()
-                            .flex()
-                            .flex_wrap()
-                            .gap_2()
-                            .child(
-                                Button::new("search")
-                                    .label("Search")
-                                    .disabled(!self.phase.can_submit())
-                                    .on_click(cx.listener(|this, _, _, cx| this.search(cx))),
-                            )
-                            .child(
-                                Button::new("ask")
-                                    .label("Ask from sources")
-                                    .disabled(!self.phase.can_submit())
-                                    .on_click(cx.listener(|this, _, _, cx| this.ask(cx))),
-                            ),
-                    );
-                if let Some(search) = &self.search {
-                    body = body.child(format!("Search passages for: {}", search.query));
-                    for (i, hit) in search.evidence.iter().enumerate() {
-                        let evidence = hit.clone();
-                        body = body.child(
-                            Button::new(format!("passage-{i}"))
-                                .label(passage_button_label(i, hit, &self.sources))
-                                .on_click(cx.listener(move |this, _, _, cx| {
-                                    this.selected_evidence = Some(evidence.clone());
-                                    cx.notify();
-                                })),
-                        );
-                    }
-                }
-                if let Some(hit) = &self.selected_evidence {
-                    body = body.child(format!(
-                        "Selected passage · source {} · revision {} · bytes {}..{}\n{}",
-                        hit.source_id, hit.version_id, hit.start_byte, hit.end_byte, hit.quote
-                    ));
-                }
-                if self.phase.shows_live_answer() && !self.streamed_text.is_empty() {
-                    let heading = if matches!(self.phase, Phase::Cancelling { .. }) {
-                        "Partial answer while cancellation finishes (not saved)"
-                    } else {
-                        "Answer in progress (not saved)"
-                    };
-                    body = body.child(format!("{heading}:\n{}", self.streamed_text));
-                }
-                if let Some(turn) = self.selected_turn.and_then(|i| self.history.get(i))
-                    && let Some(answer) = &turn.answer
-                {
-                    body = body
-                        .child(format!("Saved answer ({:?}):\n{}", turn.status, answer))
-                        .child(
-                            Button::new("view-saved-answer")
-                                .label("View saved answer and evidence")
-                                .on_click(cx.listener(|this, _, _, cx| {
-                                    this.page = Page::Activity;
-                                    cx.notify();
-                                })),
-                        );
-                }
-            }
-            Page::Activity => {
-                body = body
-                    .child("Saved conversations")
-                    .child(
-                        Button::new("new-session")
-                            .label("New session")
-                            .disabled(!self.phase.can_submit())
-                            .on_click(cx.listener(|this, _, _, cx| this.choose_session(None, cx))),
-                    )
-                    .child(format!(
-                        "Selected session: {}",
-                        self.selected_session
-                            .map_or("new".into(), |id| id.to_string())
-                    ));
-                for session in &self.sessions {
-                    let id = session.id;
-                    body =
-                        body.child(
-                            Button::new(format!("session-{id}"))
-                                .label(format!(
-                                    "{}… · {} turns{}",
-                                    &id.to_string()[..8],
-                                    session.turns,
-                                    if session.has_thread {
-                                        " · provider linked"
-                                    } else {
-                                        " · recovery needed"
-                                    }
-                                ))
-                                .disabled(!self.phase.can_submit())
-                                .on_click(cx.listener(move |this, _, _, cx| {
-                                    this.choose_session(Some(id), cx)
-                                })),
-                        );
-                }
-                for (i, turn) in self.history.iter().enumerate() {
-                    body = body.child(
-                        Button::new(format!("turn-{i}"))
-                            .label(format!(
-                                "{} · {} · {:?}",
-                                compact_title(&turn.question),
-                                turn.profile,
-                                turn.status
-                            ))
-                            .on_click(cx.listener(move |this, _, _, cx| {
-                                this.selected_turn = Some(i);
-                                this.selected_saved_evidence = None;
-                                cx.notify();
-                            })),
-                    );
-                }
-                if let Some(turn) = self.selected_turn.and_then(|i| self.history.get(i)) {
-                    body = body.child(format!(
-                        "Question: {}\nAnswer: {}\nStatus: {:?}\nProvider turn: {}",
-                        turn.question,
-                        turn.answer.as_deref().unwrap_or("No answer saved"),
-                        turn.status,
-                        spaced_identifier(turn.provider_turn_id.as_deref().unwrap_or("none"))
-                    ));
-                    if let Ok(evidence) = serde_json::from_str::<Vec<Evidence>>(&turn.evidence_json)
-                    {
-                        for (i, hit) in evidence.iter().enumerate() {
-                            let saved = hit.clone();
-                            body = body.child(
-                                Button::new(format!("saved-evidence-{i}"))
-                                    .label(saved_evidence_button_label(i, hit))
-                                    .on_click(cx.listener(move |this, _, _, cx| {
-                                        this.selected_saved_evidence = Some(saved.clone());
-                                        cx.notify();
-                                    })),
-                            );
-                        }
-                    }
-                    if turn.status == brn_workflow::worker::OperationStatus::Completed
-                        && turn.answer.is_some()
-                        && let Some(state) = &self.draft_state
-                    {
-                        let turn_id = turn.operation_id;
-                        let parent = self
-                            .review
-                            .as_ref()
-                            .map(|r| r.id)
-                            .unwrap_or(state.stamp().base_revision);
-                        body = body
-                            .child(format!(
-                                "Candidate target: {} · parent revision {} · answer {}",
-                                state.title(),
-                                parent,
-                                turn_id
-                            ))
-                            .child(
-                                Button::new("save-candidate")
-                                    .label("Save as candidate")
-                                    .disabled(!self.phase.can_submit())
-                                    .on_click(cx.listener(move |this, _, _, cx| {
-                                        this.save_candidate(turn_id, cx)
-                                    })),
-                            );
-                    }
-                }
-                if let Some(hit) = &self.selected_saved_evidence {
-                    body = body.child(format!("Saved evidence snapshot (may be historical) · source {} · revision {} · bytes {}..{}\n{}", hit.source_id, hit.version_id, hit.start_byte, hit.end_byte, hit.quote));
-                }
-            }
-            Page::Drafts => {
-                let mut panel = div()
-                    .flex()
-                    .flex_col()
-                    .flex_shrink_0()
-                    .min_w(px(0.))
-                    .gap_3();
-                panel = panel
-                    .child("Drafts · exact Markdown working copies")
-                    .child(
-                        div()
-                            .flex()
-                            .flex_wrap()
-                            .gap_2()
-                            .child(
-                                Input::new(&self.draft_title)
-                                    .w(px(260.))
-                                    .aria_label("New draft title"),
-                            )
-                            .child(
-                                Button::new("create-draft")
-                                    .label("Create blank draft")
-                                    .disabled(!self.phase.can_submit())
-                                    .on_click(cx.listener(|this, _, _, cx| this.create_draft(cx))),
-                            )
-                            .child(
-                                Button::new("refresh-drafts")
-                                    .label("Refresh list")
-                                    .disabled(!self.phase.can_submit())
-                                    .on_click(cx.listener(|this, _, _, cx| {
-                                        this.submit(Action::ListDrafts, "Draft list", cx);
-                                    })),
-                            ),
-                    )
-                    .child(format!("{} drafts", self.drafts.len()));
-                for draft in &self.drafts {
-                    let id = draft.id;
-                    panel = panel.child(
-                        Button::new(format!("draft-{id}"))
-                            .label(format!(
-                                "{} · {}…",
-                                compact_title(&draft.title),
-                                &id.to_string()[..8]
-                            ))
-                            .disabled(!self.phase.can_submit())
-                            .on_click(cx.listener(move |this, _, _, cx| this.choose_draft(id, cx))),
-                    );
-                }
-                if let Some(state) = &self.draft_state {
-                    let status = if state.pending() {
-                        "Saving snapshot; edits remain editable"
-                    } else if state.dirty() {
-                        "Unsaved changes"
-                    } else {
-                        "Saved"
-                    };
-                    let draft_id = state.id();
-                    panel =
-                        panel
-                            .child(format!(
-                                "Working copy: {} · {} · {} bytes · generation {}",
-                                state.title(),
-                                status,
-                                state.text().len(),
-                                state.generation()
-                            ))
-                            .child(
-                                div()
-                                    .id("draft-editor-anchor")
-                                    .anchor_scroll(Some(self.draft_editor_anchor.clone()))
-                                    .child(
-                                        Editor::new(&self.draft_editor)
-                                            .h(px(250.))
-                                            .flex_shrink_0()
-                                            .aria_label("Markdown working copy"),
-                                    ),
-                            )
-                            .child(
-                                div()
-                                    .flex()
-                                    .flex_wrap()
-                                    .gap_2()
-                                    .child(
-                                        Button::new("save-working-copy")
-                                            .label("Save working copy")
-                                            .disabled(
-                                                !self.phase.can_submit()
-                                                    || !state.dirty()
-                                                    || state.text().len()
-                                                        > brn_workflow::worker::MAX_DRAFT_BYTES,
-                                            )
-                                            .on_click(cx.listener(|this, _, _, cx| {
-                                                this.save_draft(false, cx)
-                                            })),
-                                    )
-                                    .child(
-                                        Button::new("save-checkpoint")
-                                            .label("Save checkpoint")
-                                            .disabled(
-                                                !self.phase.can_submit()
-                                                    || state.text().len()
-                                                        > brn_workflow::worker::MAX_DRAFT_BYTES,
-                                            )
-                                            .on_click(cx.listener(|this, _, _, cx| {
-                                                this.save_draft(true, cx)
-                                            })),
-                                    )
-                                    .child(
-                                        Button::new("discard-draft-edits")
-                                            .label("Discard edits")
-                                            .disabled(!self.phase.can_submit() || !state.dirty())
-                                            .on_click(cx.listener(|this, _, window, cx| {
-                                                this.discard_draft(window, cx)
-                                            })),
-                                    ),
-                            )
-                            .child(format!("Base checkpoint: {}", state.stamp().base_revision))
-                            .child(format!("Revision history: {}", self.revisions.len()));
-                    let mut comment_panel = div()
-                        .min_w(px(0.))
-                        .flex()
-                        .flex_col()
-                        .gap_2()
-                        .child("Comments")
-                        .child(
-                            div()
-                                .flex()
-                                .flex_wrap()
-                                .gap_2()
-                                .child(
-                                    Button::new("capture-comment-selection")
-                                        .label("Capture selection")
-                                        .disabled(state.pending())
-                                        .on_click(
-                                            cx.listener(|this, _, _, cx| this.capture_comment(cx)),
-                                        ),
-                                )
-                                .child(
-                                    Button::new("refresh-comments")
-                                        .label("Refresh comments")
-                                        .disabled(!self.phase.can_submit())
-                                        .on_click(cx.listener(move |this, _, _, cx| {
-                                            this.submit(
-                                                Action::RefreshDraftComments { id: draft_id },
-                                                "Refresh comments",
-                                                cx,
-                                            );
-                                        })),
-                                ),
-                        );
-                    if let Some(quote) = state.capture_quote() {
-                        comment_panel = comment_panel.child("Captured exact quote:").child(
-                            div()
-                                .id("captured-quote-scroll")
-                                .h(px(90.))
-                                .min_w(px(0.))
-                                .flex_shrink_0()
-                                .border_1()
-                                .overflow_y_scroll()
-                                .child(
-                                    div()
-                                        .w_full()
-                                        .font_family("Menlo")
-                                        .flex()
-                                        .flex_col()
-                                        .children(
-                                            quote
-                                                .split('\n')
-                                                .map(|line| div().child(line.to_owned())),
-                                        ),
-                                ),
-                        );
-                    } else {
-                        comment_panel =
-                            comment_panel.child("Select a passage in the editor, then capture it.");
-                    }
-                    comment_panel = comment_panel
-                        .child(
-                            Editor::new(&self.comment_input)
-                                .h(px(95.))
-                                .flex_shrink_0()
-                                .aria_label("Comment body"),
-                        )
-                        .child(
-                            div()
-                                .flex()
-                                .flex_wrap()
-                                .gap_2()
-                                .child(
-                                    Button::new("add-draft-comment")
-                                        .label("Save checkpoint + add comment")
-                                        .disabled(
-                                            !self.phase.can_submit()
-                                                || !state.can_add_comment(state.composer()),
-                                        )
-                                        .on_click(
-                                            cx.listener(|this, _, _, cx| this.add_comment(cx)),
-                                        ),
-                                )
-                                .child(
-                                    Button::new("discard-draft-comment")
-                                        .label("Discard comment")
-                                        .disabled(state.composer().is_empty() || state.pending())
-                                        .on_click(cx.listener(|this, _, window, cx| {
-                                            this.discard_comment(window, cx)
-                                        })),
-                                ),
-                        );
-                    let preview = state.preview_states();
-                    if let Err(error) = &preview {
-                        comment_panel =
-                            comment_panel.child(format!("Preview unavailable: {error}"));
-                    }
-                    if state.comments().is_empty() {
-                        comment_panel = comment_panel.child("No comments yet.");
-                    }
-                    for (index, view) in state.comments().iter().enumerate() {
-                        let id = view.comment.id;
-                        let anchor = preview.as_ref().ok().and_then(|states| states.get(index));
-                        let location = match anchor {
-                            Some(AnchorState::Anchored { start, end }) => {
-                                format!("Anchored at bytes {start}..{end}")
-                            }
-                            Some(AnchorState::Deleted) => "Deleted passage".into(),
-                            Some(AnchorState::Ambiguous { reason }) => {
-                                format!("Location ambiguous: {reason:?}")
-                            }
-                            None => "Location unavailable".into(),
-                        };
-                        let toggle = if view.comment.status == CommentStatus::Open {
-                            "Resolve"
-                        } else {
-                            "Reopen"
-                        };
-                        let mut card = div()
-                            .min_w(px(0.))
-                            .flex()
-                            .flex_col()
-                            .gap_2()
-                            .p_2()
-                            .border_1()
-                            .child(format!(
-                                "Comment {}… · {:?} · {location}",
-                                &id.to_string()[..8],
-                                view.comment.status
-                            ))
-                            .child("Original quote:")
-                            .child(
-                                div()
-                                    .id(format!("quote-scroll-{id}"))
-                                    .h(px(128.))
-                                    .min_w(px(0.))
-                                    .flex_shrink_0()
-                                    .border_1()
-                                    .overflow_y_scroll()
-                                    .child(
-                                        div()
-                                            .w_full()
-                                            .font_family("Menlo")
-                                            .flex()
-                                            .flex_col()
-                                            .children(
-                                                view.comment
-                                                    .original_quote
-                                                    .split('\n')
-                                                    .map(|line| div().child(line.to_owned())),
-                                            ),
-                                    ),
-                            )
-                            .child("Comment body:")
-                            .child(
-                                div()
-                                    .id(format!("comment-body-scroll-{id}"))
-                                    .h(px(105.))
-                                    .min_w(px(0.))
-                                    .flex_shrink_0()
-                                    .overflow_y_scroll()
-                                    .child(
-                                        div().w_full().flex().flex_col().children(
-                                            view.comment
-                                                .body
-                                                .split('\n')
-                                                .map(|line| div().child(line.to_owned())),
-                                        ),
-                                    ),
-                            )
-                            .child(
-                                div()
-                                    .flex()
-                                    .flex_wrap()
-                                    .gap_2()
-                                    .child(
-                                        Button::new(format!("show-passage-{id}"))
-                                            .label("Show passage")
-                                            .disabled(!matches!(
-                                                anchor,
-                                                Some(AnchorState::Anchored { .. })
-                                            ))
-                                            .on_click(cx.listener(move |this, _, window, cx| {
-                                                this.show_comment_passage(id, window, cx)
-                                            })),
-                                    )
-                                    .child(
-                                        Button::new(format!("show-original-{id}"))
-                                            .label("Show original revision")
-                                            .on_click(cx.listener(move |this, _, _, cx| {
-                                                this.show_comment_original(id, cx)
-                                            })),
-                                    )
-                                    .child(
-                                        Button::new(format!("toggle-comment-{id}"))
-                                            .label(toggle)
-                                            .disabled(!self.phase.can_submit())
-                                            .on_click(cx.listener(move |this, _, _, cx| {
-                                                this.change_comment_status(id, cx)
-                                            })),
-                                    ),
-                            );
-                        if let Some(original) = &self.comment_original
-                            && original.id == view.comment.original_revision_id
-                        {
-                            card = card
-                                .child(format!("Original checkpoint {} · read-only", original.id))
-                                .child(
-                                    div()
-                                        .id(format!("comment-original-scroll-{id}"))
-                                        .h(px(170.))
-                                        .min_w(px(0.))
-                                        .flex_shrink_0()
-                                        .border_1()
-                                        .overflow_y_scroll()
-                                        .child(
-                                            div()
-                                                .w_full()
-                                                .font_family("Menlo")
-                                                .flex()
-                                                .flex_col()
-                                                .children(
-                                                    original
-                                                        .text
-                                                        .split('\n')
-                                                        .map(|line| div().child(line.to_owned())),
-                                                ),
-                                        ),
-                                );
-                        }
-                        comment_panel = comment_panel.child(card);
-                    }
-                    panel = panel.child(comment_panel);
-                    for revision in &self.revisions {
-                        let id = revision.id;
-                        let label = format!(
-                            "{:?} · {}…{}",
-                            revision.kind,
-                            &id.to_string()[..8],
-                            revision.origin_turn.map_or(String::new(), |turn| format!(
-                                " · answer {}…",
-                                &turn.to_string()[..8]
-                            ))
-                        );
-                        panel = panel.child(
-                            div()
-                                .flex()
-                                .flex_wrap()
-                                .gap_2()
-                                .child(
-                                    Button::new(format!("review-{id}"))
-                                        .label(format!("View {label}"))
-                                        .disabled(!self.phase.can_submit())
-                                        .on_click(cx.listener(move |this, _, _, cx| {
-                                            this.submit(
-                                                Action::OpenDraftRevision {
-                                                    draft: draft_id,
-                                                    revision: id,
-                                                },
-                                                "Review revision",
-                                                cx,
-                                            );
-                                        })),
-                                )
-                                .child(
-                                    Button::new(format!("before-{id}"))
-                                        .label("Use as before")
-                                        .on_click(cx.listener(move |this, _, _, cx| {
-                                            this.compare_before = Some(id);
-                                            this.diff = None;
-                                            cx.notify();
-                                        })),
-                                )
-                                .child(
-                                    Button::new(format!("after-{id}"))
-                                        .label("Use as after")
-                                        .on_click(cx.listener(move |this, _, _, cx| {
-                                            this.compare_after = Some(id);
-                                            this.diff = None;
-                                            cx.notify();
-                                        })),
-                                ),
-                        );
-                    }
-                    if let Some(revision) = &self.review {
-                        panel = panel
-                            .child(format!(
-                                "Read-only {:?} {} · parent {} · origin answer {}",
-                                revision.kind,
-                                revision.id,
-                                revision
-                                    .parent_id
-                                    .map_or("none".into(), |id| id.to_string()),
-                                revision
-                                    .origin_turn
-                                    .map_or("none".into(), |id| id.to_string())
-                            ))
-                            .child(
-                                div()
-                                    .id("revision-content")
-                                    .h(px(170.))
-                                    .flex_shrink_0()
-                                    .min_w(px(0.))
-                                    .overflow_y_scroll()
-                                    .border_1()
-                                    .child(
-                                        div()
-                                            .w_full()
-                                            .font_family("Menlo")
-                                            .child(revision.text.clone()),
-                                    ),
-                            );
-                    }
-                    panel = panel
-                        .child(format!(
-                            "Compare: before {} · after {}",
-                            self.compare_before
-                                .map_or("none".into(), |id| id.to_string()),
-                            self.compare_after
-                                .map_or("none".into(), |id| id.to_string())
-                        ))
-                        .child(
-                            Button::new("compare-revisions")
-                                .label("Compare revisions")
-                                .disabled(
-                                    !self.phase.can_submit()
-                                        || self.compare_before.is_none()
-                                        || self.compare_after.is_none(),
-                                )
-                                .on_click(cx.listener(move |this, _, _, cx| {
-                                    if let (Some(before), Some(after)) =
-                                        (this.compare_before, this.compare_after)
-                                    {
-                                        this.submit(
-                                            Action::CompareDraftRevisions {
-                                                draft: draft_id,
-                                                before,
-                                                after,
-                                            },
-                                            "Compare revisions",
-                                            cx,
-                                        );
-                                    }
-                                })),
-                        );
-                    if let Some(diff) = &self.diff {
-                        panel = panel.child(
-                            div()
-                                .id("revision-diff")
-                                .h(px(220.))
-                                .flex_shrink_0()
-                                .min_w(px(0.))
-                                .overflow_y_scroll()
-                                .border_1()
-                                .child(div().w_full().font_family("Menlo").child(diff.clone())),
-                        );
-                    }
-                }
-                body = body.child(panel);
-            }
-            Page::Settings => {
-                body = body.child("Local settings")
-                    .child(format!("Data directory: {}", spaced_identifier(&self.path.display().to_string())))
-                    .child(format!("Codex executable: {}", self.config.codex.as_ref().map_or("not selected".into(), |p| spaced_identifier(&p.display().to_string()))))
-                    .child(format!("Retrieval model directory: {}", self.config.model_dir.as_ref().map_or("not selected".into(), |p| spaced_identifier(&p.display().to_string()))))
-                    .child("Model access uses the existing managed ChatGPT sign-in in Codex. Select an absolute executable with --codex before asking.");
-            }
+        self.choose_draft(id, cx);
+    }
+    fn cancel_running(&mut self, cx: &mut Context<Self>) {
+        if matches!(self.phase, Phase::Running { .. }) && self.worker.cancel() {
+            self.phase.cancel();
+            self.message = "Cancellation requested; awaiting safe stop.".into();
+            cx.notify();
         }
-        let status = match &self.phase {
+    }
+    fn phase_status(&self) -> String {
+        match &self.phase {
             Phase::Opening => "Opening workspace…".into(),
             Phase::Idle => "Ready".into(),
             Phase::Running { label, since } => {
@@ -1913,71 +1222,12 @@ impl Render for Desktop {
             Phase::Failed(error) => {
                 format!("Workspace failed to open · {}", compact_title(error))
             }
-        };
-        let mut content = div().flex().flex_col().flex_1().min_h(px(0.)).gap_3().p_3();
-        if let Some(note) = &self.layout_note {
-            content = content.child(note.clone());
         }
-        div()
-            .id("brn-desktop")
-            .size_full()
-            .flex()
-            .flex_col()
-            .font_family(crate::tokens::CHROME_FONT)
-            .child(TitleBar::new().child("brn / workspace"))
-            .child(
-                content
-                    .child(
-                        div()
-                            .flex()
-                            .flex_wrap()
-                            .gap_2()
-                            .child(Button::new("workspace-page").label("Workspace").on_click(
-                                cx.listener(|this, _, _, cx| {
-                                    this.page = Page::Workspace;
-                                    cx.notify();
-                                }),
-                            ))
-                            .child(Button::new("activity-page").label("Activity").on_click(
-                                cx.listener(|this, _, _, cx| {
-                                    this.page = Page::Activity;
-                                    cx.notify();
-                                }),
-                            ))
-                            .child(Button::new("drafts-page").label("Drafts").on_click(
-                                cx.listener(|this, _, _, cx| {
-                                    this.page = Page::Drafts;
-                                    cx.notify();
-                                }),
-                            ))
-                            .child(Button::new("settings-page").label("Settings").on_click(
-                                cx.listener(|this, _, _, cx| {
-                                    this.page = Page::Settings;
-                                    cx.notify();
-                                }),
-                            )),
-                    )
-                    .child(status)
-                    .child(if matches!(self.phase, Phase::Failed(_)) {
-                        "Review details below".into()
-                    } else {
-                        compact_title(&self.message)
-                    })
-                    .child(
-                        Button::new("cancel")
-                            .label("Cancel current action")
-                            .disabled(!matches!(self.phase, Phase::Running { .. }))
-                            .on_click(cx.listener(|this, _, _, cx| {
-                                if this.worker.cancel() {
-                                    this.phase.cancel();
-                                    this.message =
-                                        "Cancellation requested; awaiting safe stop.".into();
-                                    cx.notify();
-                                }
-                            })),
-                    )
-                    .child(body),
-            )
+    }
+}
+impl Render for Desktop {
+    fn render(&mut self, window: &mut Window, cx: &mut Context<Self>) -> impl IntoElement {
+        self.render_shell(window, cx)
     }
 }
 pub fn run(path: PathBuf, config: Config) {
@@ -2029,6 +1279,25 @@ pub fn run(path: PathBuf, config: Config) {
 #[cfg(test)]
 mod tests {
     use super::*;
+    #[test]
+    fn approval_tags_pair_text_with_state() {
+        assert_eq!(shell::approval_tag(Approval::Approved), "✓ approved");
+        assert_eq!(shell::approval_tag(Approval::Draft), "○ not approved");
+        assert_eq!(shell::approval_tag(Approval::Withdrawn), "– withdrawn");
+    }
+
+    #[test]
+    fn draft_completion_navigates_only_without_newer_navigation() {
+        let mut nav = DocNavigation::default();
+        assert!(!nav.take_draft_completion());
+        nav.request_draft();
+        assert!(nav.take_draft_completion());
+        assert!(!nav.take_draft_completion());
+        nav.request_draft();
+        nav.moved();
+        assert!(!nav.take_draft_completion());
+    }
+
     #[test]
     fn phase_blocks_actions_until_open_and_through_cancellation() {
         let mut phase = Phase::Opening;

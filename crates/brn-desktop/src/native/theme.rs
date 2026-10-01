@@ -20,8 +20,6 @@ pub fn system_dark(window: &Window) -> bool {
     is_dark(window.appearance())
 }
 
-// Consumed in Task 4.
-#[allow(dead_code)]
 pub fn color(hex: u32) -> Hsla {
     rgb(hex).into()
 }
