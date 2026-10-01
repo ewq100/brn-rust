@@ -3,6 +3,11 @@ use std::path::{Path, PathBuf};
 use std::process::ExitCode;
 use std::time::{Duration, Instant};
 
+// Temporarily unconditional: native code consumes this module gradually (Tasks 3–5).
+// Task 5 Step 5 narrows it to non-native builds.
+#[allow(dead_code)]
+mod layout;
+
 #[cfg(feature = "native-ui")]
 mod comments;
 #[cfg(feature = "native-ui")]
