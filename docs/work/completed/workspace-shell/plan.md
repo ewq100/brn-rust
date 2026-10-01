@@ -2732,7 +2732,7 @@ Co-authored-by: Copilot <223556219+Copilot@users.noreply.github.com>"
 **Files:**
 - Create: `docs/ui/feature-backlog.md`
 - Create: `docs/architecture/decisions/2026-10-01-workspace-shell.md`
-- Modify: `docs/architecture/decisions/README.md`, `docs/architecture/overview.md`, `crates/brn-desktop/README.md`, `docs/roadmap.md`, `docs/README.md`, `docs/status.md`, `docs/superpowers/specs/2026-10-01-workspace-shell-design.md` (status line), `docs/work/completed/workspace-shell/evidence.md`, `docs/work/active/README.md`
+- Modify: `docs/architecture/decisions/README.md`, `docs/architecture/overview.md`, `crates/brn-desktop/README.md`, `docs/roadmap.md`, `docs/README.md`, `docs/status.md`, `docs/superpowers/specs/2026-10-01-workspace-shell-design.md` (status line), `docs/work/active/workspace-shell/evidence.md`, `docs/work/active/README.md`
 
 **Interfaces:**
 - Consumes: the implemented module layout from Tasks 1–5 and the observations recorded in evidence.
@@ -2833,7 +2833,7 @@ Append to `docs/architecture/decisions/README.md` after the existing bullet:
 
 - [ ] **Step 4: Record evidence and status**
 
-1. Complete `docs/work/completed/workspace-shell/evidence.md` with:
+1. Complete `docs/work/active/workspace-shell/evidence.md` with:
    - the date, tested commit(s) and worktree branch;
    - toolchain and features;
    - every command run, with its result;
@@ -2843,13 +2843,13 @@ Append to `docs/architecture/decisions/README.md` after the existing bullet:
    - remaining limitations: VoiceOver unqualified, Ask not exercised without authorised provider access, and user acceptance pending.
 2. `docs/status.md`, add an **Implemented baseline** row: `| Workspace shell | Combined history/document-chat/vault shell, handoff theme, system appearance, persisted layout, reflow, dividers and shortcuts; default and native tests plus native observations recorded | [Shell](work/completed/workspace-shell/evidence.md) |`. Update **Next work** to mention UI slice 2 as a candidate needing design approval. Add the limitation that VoiceOver and user acceptance of the shell remain open.
 3. Spec status line: `Status: Implemented (slice 1); verification recorded in the workspace shell evidence. User acceptance pending.`
-4. Move the workspace-shell task folder from active to completed with `git mv` (done). Remove its row from `docs/work/active/README.md` and add it to `docs/work/completed/README.md`, following that file's existing format. Repair any relative links in the moved files: from `completed/workspace-shell/`, the spec is `../../../superpowers/specs/...`, which is unchanged.
+4. Move the task folder: `git mv docs/work/active/workspace-shell docs/work/completed/workspace-shell`. Remove its row from `docs/work/active/README.md` and add it to `docs/work/completed/README.md`, following that file's existing format. Repair any relative links in the moved files: from `completed/workspace-shell/`, the spec is `../../../superpowers/specs/...`, which is unchanged.
 
 - [ ] **Step 5: Documentation checks**
 
 ```bash
 git diff --check
-# Search docs, crates, README.md and AGENTS.md for the superseded active task path.
+grep -rn "work/active/workspace-shell" docs crates README.md AGENTS.md
 ```
 
 Expected: no whitespace errors. The grep finds no stale links except historical text inside the moved evidence, if any. Validate every new or changed relative link resolves, including heading fragments such as `roadmap.md#13-revision-from-a-comment-batch`, with a local link check script or by opening each target.

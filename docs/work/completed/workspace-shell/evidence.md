@@ -199,8 +199,8 @@ Task 6 moved this bounded record with `git mv`, repaired active-path references,
 | Command/check | Result |
 | --- | --- |
 | `git diff --check`; `git diff --cached --check` | Exit 0; no whitespace errors |
-| Stale-path grep (`grep -rn` over docs, crates, README.md and AGENTS.md for the former active workspace-shell path) | No matches; grep exit 1, as expected |
-| Local Python link checker | Exit 0; 134 local links across 13 new/changed/moved Markdown files resolve, including roadmap 13/14 heading fragments |
+| Stale-path grep (`grep -rn` over docs, crates, README.md and AGENTS.md for the former active workspace-shell path) | Exit 0; four matches only in historical instruction text in the archived plan (Files list, Step 4.1, Step 4.4 and Step 5); no live links |
+| Local Python link checker | Initial Task 6: exit 0, 134 links across 13 files. Fix round 1: exit 0, 4 links across the 2 changed files; all local targets/fragments resolve |
 | `git diff --exit-code -- scripts` | Exit 0; no committed verification-script change |
 | `grep -n 'src/native.rs' crates/brn-desktop/README.md` | No matches; old source link removed |
 
