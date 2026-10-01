@@ -1,6 +1,8 @@
 //! Window layout preferences and pure layout resolution for the desktop shell.
 
 use serde::{Deserialize, Serialize};
+use std::io::Write;
+use std::path::{Path, PathBuf};
 
 #[derive(Clone, Copy, Debug, PartialEq)]
 pub struct WidthBounds {
@@ -286,6 +288,73 @@ impl LayoutState {
     }
 }
 
+pub const FILE_NAME: &str = "layout.json";
+pub const FILE_VERSION: u32 = 1;
+
+#[derive(Serialize, Deserialize)]
+struct LayoutFile {
+    version: u32,
+    layout: LayoutState,
+}
+
+#[derive(Clone, Debug, PartialEq, Eq)]
+pub enum Loaded {
+    Missing,
+    Restored,
+    /// Defaults are in use; the note explains why. The file is left untouched.
+    Reset(String),
+}
+
+pub fn path(data_dir: &Path) -> PathBuf {
+    data_dir.join(FILE_NAME)
+}
+
+pub fn load(data_dir: &Path) -> (LayoutState, Loaded) {
+    let reset = |note: String| (LayoutState::default(), Loaded::Reset(note));
+    let corrupt = || reset("Layout preferences were corrupt; using default layout.".into());
+    let bytes = match std::fs::read(path(data_dir)) {
+        Ok(bytes) => bytes,
+        Err(error) if error.kind() == std::io::ErrorKind::NotFound => {
+            return (LayoutState::default(), Loaded::Missing);
+        }
+        Err(error) => {
+            return reset(format!(
+                "Layout preferences were unreadable ({error}); using default layout."
+            ));
+        }
+    };
+    let Ok(value) = serde_json::from_slice::<serde_json::Value>(&bytes) else {
+        return corrupt();
+    };
+    match value.get("version").and_then(serde_json::Value::as_u64) {
+        Some(version) if version == u64::from(FILE_VERSION) => {}
+        Some(version) => {
+            return reset(format!(
+                "Layout preferences version {version} is not supported; using default layout."
+            ));
+        }
+        None => return corrupt(),
+    }
+    match serde_json::from_value::<LayoutFile>(value) {
+        Ok(file) => (file.layout.sanitized(), Loaded::Restored),
+        Err(_) => corrupt(),
+    }
+}
+
+/// Writes atomically: a synced temporary file is renamed over `layout.json`.
+pub fn save(data_dir: &Path, layout: &LayoutState) -> std::io::Result<()> {
+    let file = LayoutFile {
+        version: FILE_VERSION,
+        layout: layout.clone().sanitized(),
+    };
+    let bytes = serde_json::to_vec_pretty(&file).map_err(std::io::Error::other)?;
+    let temp = data_dir.join(format!("{FILE_NAME}.tmp"));
+    let mut handle = std::fs::File::create(&temp)?;
+    handle.write_all(&bytes)?;
+    handle.sync_all()?;
+    std::fs::rename(&temp, path(data_dir))
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;
@@ -544,5 +613,69 @@ mod tests {
         assert_eq!(Appearance::System.scheme(false), Scheme::Light);
         assert_eq!(Appearance::Dark.scheme(false), Scheme::Dark);
         assert_eq!(Appearance::Light.scheme(true), Scheme::Light);
+    }
+
+    fn scratch(name: &str) -> std::path::PathBuf {
+        let dir = std::env::temp_dir().join(format!("brn-layout-{name}-{}", std::process::id()));
+        let _ = std::fs::remove_dir_all(&dir);
+        std::fs::create_dir_all(&dir).unwrap();
+        dir
+    }
+
+    #[test]
+    fn missing_file_loads_defaults_silently() {
+        let dir = scratch("missing");
+        assert_eq!(load(&dir), (LayoutState::default(), Loaded::Missing));
+    }
+
+    #[test]
+    fn saved_layout_round_trips_without_leaving_a_temp_file() {
+        let dir = scratch("round-trip");
+        let state = LayoutState {
+            history_w: 250.0,
+            vault_collapsed: true,
+            focus: true,
+            appearance: Appearance::Dark,
+            ..LayoutState::default()
+        };
+        save(&dir, &state).unwrap();
+        assert_eq!(load(&dir), (state, Loaded::Restored));
+        assert!(!dir.join(format!("{FILE_NAME}.tmp")).exists());
+        let text = std::fs::read_to_string(path(&dir)).unwrap();
+        assert!(text.contains("\"version\": 1"));
+    }
+
+    #[test]
+    fn corrupt_file_resets_with_a_note_and_is_not_rewritten() {
+        let dir = scratch("corrupt");
+        std::fs::write(path(&dir), b"{not json").unwrap();
+        let (state, loaded) = load(&dir);
+        assert_eq!(state, LayoutState::default());
+        assert!(matches!(loaded, Loaded::Reset(ref note) if note.contains("corrupt")));
+        assert_eq!(std::fs::read(path(&dir)).unwrap(), b"{not json");
+    }
+
+    #[test]
+    fn unknown_version_resets_with_a_note() {
+        let dir = scratch("version");
+        std::fs::write(path(&dir), br#"{"version":2,"layout":{}}"#).unwrap();
+        let (state, loaded) = load(&dir);
+        assert_eq!(state, LayoutState::default());
+        assert!(matches!(loaded, Loaded::Reset(ref note) if note.contains("version 2")));
+    }
+
+    #[test]
+    fn partial_or_out_of_range_fields_are_defaulted_and_clamped() {
+        let dir = scratch("partial");
+        std::fs::write(
+            path(&dir),
+            br#"{"version":1,"layout":{"history_w":9999,"appearance":"light"}}"#,
+        )
+        .unwrap();
+        let (state, loaded) = load(&dir);
+        assert_eq!(loaded, Loaded::Restored);
+        assert_eq!(state.history_w, HISTORY.max);
+        assert_eq!(state.vault_w, VAULT.default);
+        assert_eq!(state.appearance, Appearance::Light);
     }
 }
