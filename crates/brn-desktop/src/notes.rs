@@ -78,6 +78,11 @@ impl NoteScheduler {
     pub fn recovery_failed(&mut self) {
         self.failed = true;
     }
+    pub fn note_failed(&mut self, editor: &NoteEditor) {
+        if editor.pending_kind == Some(PendingKind::Recovery) {
+            self.recovery_failed();
+        }
+    }
     pub fn retry(&mut self) {
         self.failed = false;
         self.last_edit = Some(Instant::now() - Duration::from_millis(500));
@@ -664,6 +669,138 @@ mod tests {
             )
             .unwrap();
         assert!(editor.can_close());
+    }
+
+    #[test]
+    fn save_conflict_keeps_later_edits_scheduled_for_recovery() {
+        let now = Instant::now();
+        let mut schedule = NoteScheduler::default();
+        let mut editor = NoteEditor::new(opened("base"));
+        editor.edit("save input".into()).unwrap();
+        let save = editor.begin_save(Uuid::new_v4()).unwrap();
+        let mut failure = note_state_changed("external change");
+        failure.code = NoteErrorCode::Conflict;
+        schedule.note_failed(&editor);
+        editor.fail(save.operation_id, failure).unwrap();
+        editor.edit("later typing".into()).unwrap();
+        schedule.edited(now);
+        assert!(!schedule.wants_recovery(now + Duration::from_millis(499), &editor, true));
+        assert!(schedule.wants_recovery(now + Duration::from_millis(500), &editor, true));
+        let recovery = editor.begin_recovery(Uuid::new_v4()).unwrap();
+        assert_eq!(recovery.text, "later typing");
+        assert_eq!(recovery.generation, 2);
+    }
+
+    #[test]
+    fn uncertain_reconcile_failure_keeps_edits_scheduled_for_recovery() {
+        let now = Instant::now();
+        let mut schedule = NoteScheduler::default();
+        let mut view = opened("base");
+        view.availability = NoteAvailability::Uncertain;
+        let mut editor = NoteEditor::new(view);
+        // Reconciliation has no pending editor submission to acknowledge.
+        schedule.note_failed(&editor);
+        editor
+            .edit("protected after reconciliation".into())
+            .unwrap();
+        schedule.edited(now);
+        assert!(!schedule.wants_recovery(now + Duration::from_millis(499), &editor, true));
+        assert!(schedule.wants_recovery(now + Duration::from_millis(500), &editor, true));
+        let recovery = editor.begin_recovery(Uuid::new_v4()).unwrap();
+        assert_eq!(recovery.text, "protected after reconciliation");
+        assert_eq!(editor.display_state(), "Save outcome uncertain");
+    }
+
+    #[test]
+    fn close_after_save_failure_flushes_and_finishes_on_recovery_acknowledgement() {
+        for route in [CloseRoute::Window, CloseRoute::Quit, CloseRoute::Switch] {
+            let now = Instant::now();
+            let mut schedule = NoteScheduler::default();
+            let mut editor = NoteEditor::new(opened("base"));
+            editor.edit("save input".into()).unwrap();
+            let save = editor.begin_save(Uuid::new_v4()).unwrap();
+            editor.edit("latest typing".into()).unwrap();
+            schedule.edited(now);
+            schedule.request_close(route);
+            assert!(!schedule.can_finish(&editor, true));
+            schedule.note_failed(&editor);
+            editor
+                .fail(save.operation_id, note_state_changed("save refused"))
+                .unwrap();
+            assert!(!schedule.wants_recovery(now, &editor, false));
+            assert!(schedule.wants_recovery(now, &editor, true));
+            let recovery = editor.begin_recovery(Uuid::new_v4()).unwrap();
+            assert_eq!(recovery.text, "latest typing");
+            assert!(!schedule.can_finish(&editor, true));
+            editor
+                .acknowledge_recovery(
+                    recovery.operation_id,
+                    NoteBufferReceipt {
+                        operation_id: recovery.operation_id,
+                        note_id: recovery.note_id,
+                        stamp: NoteStamp {
+                            file_state: recovery.expected.file_state,
+                            generation: recovery.generation,
+                        },
+                    },
+                )
+                .unwrap();
+            assert!(!schedule.can_finish(&editor, false));
+            assert!(schedule.can_finish(&editor, true));
+            assert_eq!(schedule.take_close(), Some(route));
+            assert_eq!(editor.text(), "latest typing");
+            assert!(editor.dirty());
+        }
+    }
+
+    #[test]
+    fn refused_reload_acknowledgement_keeps_later_text_scheduled() {
+        let now = Instant::now();
+        let mut schedule = NoteScheduler::default();
+        let mut editor = NoteEditor::new(opened("base"));
+        let reload = editor.begin_discard(Uuid::new_v4()).unwrap();
+        editor.edit("later typing".into()).unwrap();
+        schedule.edited(now);
+        let mut reloaded = editor.view().clone();
+        reloaded.saved = Some("new disk".into());
+        reloaded.buffer = "new disk".into();
+        reloaded.stamp.file_state = Uuid::new_v4();
+        assert!(
+            editor
+                .acknowledge_discard(reload.operation_id, reloaded)
+                .is_err()
+        );
+        schedule.note_failed(&editor);
+        assert!(schedule.wants_recovery(now + Duration::from_millis(500), &editor, true));
+        let recovery = editor.begin_recovery(Uuid::new_v4()).unwrap();
+        assert_eq!(recovery.text, "later typing");
+    }
+
+    #[test]
+    fn recovery_failure_still_requires_explicit_retry_after_later_typing() {
+        let now = Instant::now();
+        let mut schedule = NoteScheduler::default();
+        let mut editor = NoteEditor::new(opened("base"));
+        editor.edit("recovery input".into()).unwrap();
+        let recovery = editor.begin_recovery(Uuid::new_v4()).unwrap();
+        schedule.note_failed(&editor);
+        editor
+            .fail(
+                recovery.operation_id,
+                note_state_changed("recovery refused"),
+            )
+            .unwrap();
+        editor.edit("later typing".into()).unwrap();
+        schedule.edited(now);
+        schedule.request_close(CloseRoute::Window);
+        assert!(!schedule.wants_recovery(now + Duration::from_secs(1), &editor, true));
+        assert!(!schedule.can_finish(&editor, true));
+        schedule.retry();
+        assert!(schedule.wants_recovery(Instant::now(), &editor, true));
+        assert_eq!(
+            editor.begin_recovery(Uuid::new_v4()).unwrap().text,
+            "later typing"
+        );
     }
 
     #[test]

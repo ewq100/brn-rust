@@ -407,6 +407,7 @@ impl Desktop {
                     {
                         let (_, op) = self.pending_note_job.take().unwrap();
                         if let Some(state) = &mut self.note_state {
+                            self.note_schedule.note_failed(state);
                             if let Some(detail) = terminal.note_failure.clone()
                                 && state.pending()
                                 && let Err(error) = state.fail(op, detail)
@@ -415,7 +416,6 @@ impl Desktop {
                             }
                             self.note_observations.insert(state.id());
                         }
-                        self.note_schedule.recovery_failed();
                     }
                     if self
                         .pending_note_open
@@ -1531,7 +1531,9 @@ impl Desktop {
         }
         if let Err(error) = acknowledged {
             self.message = format!("Note state refused receipt: {}", error.message);
-            self.note_schedule.recovery_failed();
+            if let Some(state) = &self.note_state {
+                self.note_schedule.note_failed(state);
+            }
         }
     }
     fn queue_note_control(&mut self, control: NoteControl, cx: &mut Context<Self>) {
@@ -1663,6 +1665,7 @@ impl Desktop {
         if let Some(state) = &mut self.note_state
             && state.pending()
         {
+            self.note_schedule.note_failed(state);
             let failure = brn_workflow::notes::NoteFailure {
                 code: brn_workflow::notes::NoteErrorCode::WorkspaceBusy,
                 message: self.message.clone(),
@@ -1675,7 +1678,6 @@ impl Desktop {
             if let Err(error) = state.fail(op, failure) {
                 self.message = error.message;
             }
-            self.note_schedule.recovery_failed();
         }
     }
     fn poll_notes(&mut self, window: &mut Window, cx: &mut Context<Self>) {

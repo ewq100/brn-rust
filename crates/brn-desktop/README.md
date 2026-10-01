@@ -32,6 +32,8 @@ Window close, the application Quit action/menu/Cmd-Q and note-switch/actions
 defer for pending note mutations and flush the latest buffer asynchronously.
 Failed recovery keeps work accessible until explicit retry or confirmed discard
 of unrecovered typing.
+Other note-action failures, including save conflicts and uncertain
+reconciliation, do not pause automatic buffer recovery or deferred-close flushes.
 That discard preserves acknowledged recovery and uncertain operations; confirmed
 reload is a separate workflow decision that discards local text in favor of disk.
 Standalone draft/comment close guards remain independent.
