@@ -1,6 +1,7 @@
 //! Disposable search index over the vault's notes (`index.sqlite`): note
 //! metadata, passages, FTS5 keyword search and local embeddings. It can be
 //! deleted at any time and rebuilt from the vault.
+mod embeddings;
 mod schema;
 mod search;
 
@@ -9,6 +10,7 @@ use rusqlite::{Connection, OptionalExtension, Row, params};
 use sha2::{Digest, Sha256};
 use std::path::Path;
 
+pub use embeddings::{Embedder, EmbeddingProgress};
 pub use search::{NoteHit, check_query, fuse_hits};
 
 /// A note as last seen in the vault.
