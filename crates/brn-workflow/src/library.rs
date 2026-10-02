@@ -72,8 +72,7 @@ pub enum SearchMode {
 #[derive(Debug, Clone, PartialEq)]
 pub struct SearchResults {
     pub hits: Vec<NoteHit>,
-    /// Semantic search was requested but no embedding model is installed, so
-    /// only keyword search ran. Callers must tell the user.
+    /// No embedding model is installed, so only keyword search ran. Callers must tell the user.
     pub keyword_only: bool,
 }
 
@@ -104,6 +103,8 @@ impl Library {
 
     /// Brings the index in step with the vault. Files whose size and
     /// modification time are unchanged are not read again.
+    /// A note edited without changing its size or modification time is not noticed until its next change.
+    /// Hits carry the note hash seen at indexing time; callers that need current text must read the note again.
     pub fn refresh(&mut self) -> LibraryResult<RefreshReport> {
         let scan = vault::scan(&self.root)?;
         let mut report = RefreshReport::default();
@@ -199,7 +200,7 @@ impl Library {
             (SearchMode::Keyword, _) | (_, None) => {
                 return Ok(SearchResults {
                     hits: self.index.keyword(query, limit)?,
-                    keyword_only: mode != SearchMode::Keyword,
+                    keyword_only: self.embedder.is_none(),
                 });
             }
             (_, Some(embedder)) => embedder,
@@ -235,14 +236,27 @@ fn unreadable_reason(error: &ReadError) -> Option<&'static str> {
     }
 }
 
-/// The first level-1 Markdown heading in the first 50 lines, or the file name without `.md`.
+/// The first nonempty level-1 Markdown heading in the first 50 lines, excluding
+/// leading YAML frontmatter, or the file name without `.md`.
 fn title(text: &str, path: &VaultPath) -> String {
     let text = text.strip_prefix('\u{feff}').unwrap_or(text);
-    text.lines()
-        .take(50)
-        .find_map(|line| line.strip_prefix("# "))
-        .map(str::trim)
-        .filter(|heading| !heading.is_empty())
+    let lines = text.lines().take(50);
+    let skip = if lines.clone().next() == Some("---") {
+        lines
+            .clone()
+            .skip(1)
+            .position(|line| line == "---")
+            .map_or(0, |closing| closing + 2)
+    } else {
+        0
+    };
+    lines
+        .skip(skip)
+        .find_map(|line| {
+            line.strip_prefix("# ")
+                .map(str::trim)
+                .filter(|heading| !heading.is_empty())
+        })
         .map(str::to_owned)
         .unwrap_or_else(|| {
             let name = path.as_str().rsplit('/').next().unwrap_or(path.as_str());

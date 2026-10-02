@@ -119,6 +119,40 @@ fn refresh_tracks_added_changed_unchanged_and_removed_notes() {
 }
 
 #[test]
+fn title_skips_frontmatter_and_handles_crlf() {
+    let s = Setup::new();
+    let cases = [
+        (
+            "frontmatter.md",
+            "---\r\ntitle: x\r\nsummary: |\r\n  # not a heading\r\n---\r\n# Real Title\r\nbody",
+            "Real Title",
+        ),
+        ("plain.md", "#NoSpace\nbody", "plain"),
+        (
+            "bom.md",
+            "\u{feff}---\r\n# Not the title\r\n---\r\n# BOM Title\r\nbody",
+            "BOM Title",
+        ),
+        (
+            "unclosed.md",
+            "---\n# Unclosed Title\nbody",
+            "Unclosed Title",
+        ),
+        ("empty.md", "# \n# Nonempty Title\nbody", "Nonempty Title"),
+    ];
+    for (path, text, _) in cases {
+        write(s.vault.path(), path, text.as_bytes());
+    }
+    let mut library = s.open(None);
+    library.refresh().unwrap();
+    let notes = library.notes().unwrap();
+    for (path, _, expected) in cases {
+        let note = notes.iter().find(|note| note.path == path).unwrap();
+        assert_eq!(note.title, expected, "{path}");
+    }
+}
+
+#[test]
 fn touched_but_identical_note_is_not_reindexed() {
     let s = Setup::new();
     write(s.vault.path(), "a.md", b"same");
@@ -177,8 +211,11 @@ fn search_without_a_model_is_keyword_only_and_says_so() {
     library.refresh().unwrap();
     assert_eq!(library.embed_pending(10).unwrap(), None);
     let keyword = library.search("apples", SearchMode::Keyword, 10).unwrap();
-    assert!(!keyword.keyword_only);
+    assert!(keyword.keyword_only);
     assert_eq!(keyword.hits[0].path, "fruit.md");
+    let semantic = library.search("apples", SearchMode::Semantic, 10).unwrap();
+    assert!(semantic.keyword_only);
+    assert_eq!(semantic.hits[0].path, "fruit.md");
     let hybrid = library.search("apples", SearchMode::Hybrid, 10).unwrap();
     assert!(hybrid.keyword_only);
     assert_eq!(hybrid.hits[0].path, "fruit.md");
@@ -210,6 +247,8 @@ fn semantic_and_hybrid_search_use_embedded_passages() {
     assert_eq!(semantic.hits[0].path, "fruit.md");
     let hybrid = library.search("trains", SearchMode::Hybrid, 2).unwrap();
     assert_eq!(hybrid.hits[0].path, "travel.md");
+    let keyword = library.search("apples", SearchMode::Keyword, 10).unwrap();
+    assert!(!keyword.keyword_only);
 }
 
 #[test]
