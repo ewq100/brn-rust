@@ -50,7 +50,8 @@ Check: the step 2 store and vault code and tests from the revised plan were copi
 - 2026-10-02; commits `ad6753c`, `b9f2c80`, `8281224`, `2cfa465`, `307c58a`, `1fd4051`, `131e241`, plus the commit containing this entry (`docs: adopt simple notes app rules for new code`).
 - Platform/toolchain: macOS `26.5` (`sw_vers -productVersion`); `rustc 1.98.1 (48a229cea 2026-09-01)` (`rustc --version`).
 - Implemented beside existing code: `brn_store::work::WorkStore` (open/check/restore/backups/settings/unsaved edits) and `brn_workflow::vault` (paths/scan/exact-byte reads); updated new-code rules and transition documentation.
-- Review fix round 1: foreign/newer databases refused before opening.
+- Review fix round 1: header-branded foreign or newer databases are refused before SQLite opens them; unbranded foreign databases are opened before being refused (their WAL may be checkpointed; accepted limit).
+- final review fix: empty live database is restored from the newest backup.
 - Review fix round 2: vault read size bound and hidden non-UTF-8 names.
 - `cargo fmt --all -- --check`: **PASS**, exit 0.
 - `cargo clippy --workspace --all-targets --locked -- -D warnings`: **PASS**, exit 0, no warnings.

@@ -232,6 +232,47 @@ fn corrupt_database_is_restored_from_newest_backup() {
 }
 
 #[test]
+fn empty_database_is_restored_from_newest_backup() {
+    let dir = tempfile::tempdir().unwrap();
+    let (mut store, _) = WorkStore::open(dir.path()).unwrap();
+    store.set_setting("k", "kept").unwrap();
+    drop(store);
+    let (store, report) = WorkStore::open(dir.path()).unwrap();
+    let newest = report.backup;
+    drop(store);
+    for suffix in ["-wal", "-shm"] {
+        let sidecar = dir.path().join(format!("brn.sqlite{suffix}"));
+        if sidecar.exists() {
+            std::fs::remove_file(sidecar).unwrap();
+        }
+    }
+    std::fs::write(dir.path().join("brn.sqlite"), []).unwrap();
+
+    let (store, report) = WorkStore::open(dir.path()).unwrap();
+    assert_eq!(report.restored_from, Some(newest));
+    assert_eq!(store.setting("k").unwrap().as_deref(), Some("kept"));
+    assert!(report.corrupt_moved_to.unwrap().exists());
+    drop(store);
+
+    for _ in 0..5 {
+        let (store, _) = WorkStore::open(dir.path()).unwrap();
+        assert_eq!(store.setting("k").unwrap().as_deref(), Some("kept"));
+    }
+}
+
+#[test]
+fn empty_database_without_backups_starts_fresh() {
+    let dir = tempfile::tempdir().unwrap();
+    std::fs::write(dir.path().join("brn.sqlite"), []).unwrap();
+    let (mut store, report) = WorkStore::open(dir.path()).unwrap();
+    assert_eq!(report.restored_from, None);
+    assert_eq!(report.corrupt_moved_to, None);
+    assert_eq!(store.setting("k").unwrap(), None);
+    store.set_setting("k", "fresh").unwrap();
+    assert_eq!(store.setting("k").unwrap().as_deref(), Some("fresh"));
+}
+
+#[test]
 fn corrupt_database_without_backups_starts_fresh() {
     let dir = tempfile::tempdir().unwrap();
     corrupt(dir.path());

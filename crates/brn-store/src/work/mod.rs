@@ -81,10 +81,12 @@ impl WorkStore {
         let mut corrupt_moved_to = None;
         let mut restored_from = None;
         let mut conn = match existing {
-            Some(Checked::Brn(conn) | Checked::Empty(conn)) => conn,
+            Some(Checked::Brn(conn)) => conn,
+            Some(Checked::Empty(conn)) if backup::list(data_dir)?.is_empty() => conn,
             Some(Checked::Foreign(reason)) => return Err(invalid(reason)),
-            // Missing or corrupt: restore the newest usable backup, or start fresh.
-            Some(Checked::Corrupt) | None => {
+            // Missing, corrupt or empty with backups: restore, or start fresh.
+            unusable => {
+                drop(unusable);
                 corrupt_moved_to = backup::move_aside(&db)?;
                 let (conn, from) = backup::restore_newest(data_dir, &db)?;
                 restored_from = from;
