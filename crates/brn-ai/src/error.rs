@@ -5,7 +5,7 @@ use rig::providers::chatgpt::auth::AuthError;
 const MAX_DELAY_SECONDS: u64 = 365 * 24 * 60 * 60;
 
 impl AiError {
-    pub(crate) fn new(kind: AiErrorKind) -> Self {
+    pub fn new(kind: AiErrorKind) -> Self {
         Self {
             kind,
             retry_after_seconds: None,

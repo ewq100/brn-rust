@@ -6,6 +6,11 @@ Agent-facing CLI for BRN workspaces: parsing, JSON envelopes and exit codes over
 
 [Entry point](src/main.rs), [CLI modules](src/cli/mod.rs), [error taxonomy](src/cli/error.rs).
 
+The default/headless build is keyword-only. Build the full CLI with
+`cargo build -p brn --features native-retrieval --locked`; this enables the
+shared workflow's native model support, not automatic model downloading.
+Simple App/AI command dispatch remains a separate consumer-cutover task.
+
 ## Commands
 
   brn notes open PATH --vault DIR [--operation UUID]

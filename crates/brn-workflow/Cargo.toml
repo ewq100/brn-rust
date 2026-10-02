@@ -9,6 +9,7 @@ default = []
 native-retrieval = ["brn-retrieval/native"]
 
 [dependencies]
+brn-ai = { path = "../brn-ai" }
 brn-store = { path = "../brn-store" }
 brn-provider = { path = "../brn-provider" }
 brn-retrieval = { path = "../brn-retrieval" }
@@ -25,6 +26,7 @@ objc2-foundation = { version = "=0.3.2", default-features = false, features = ["
 block2 = "=0.6.2"
 
 [dev-dependencies]
+rusqlite = { version = "=0.40.2", default-features = false, features = ["bundled"] }
 tempfile = "3"
 
 [[bin]]

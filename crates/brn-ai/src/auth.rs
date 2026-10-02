@@ -51,6 +51,10 @@ impl Provider {
 }
 
 impl Auth {
+    /// Checked folder location only; does not inspect credential caches.
+    pub fn credentials_dir(&self) -> &Path {
+        &self.dir
+    }
     #[cfg(test)]
     pub(crate) fn with_http(mut self, http: impl HttpClientExt + 'static) -> Self {
         self.http = DynHttpClient::new(http);

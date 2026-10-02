@@ -1,8 +1,17 @@
 //! Shared authoritative workflow used by the desktop and headless driver.
+pub mod ai_tools;
+pub mod app;
 mod comments;
 mod drafts;
 pub mod error;
 pub mod library;
+pub mod models;
+#[cfg(all(test, feature = "native-retrieval"))]
+mod models_tests;
+pub use brn_ai::{
+    AccountStatus, AiError, AiErrorKind, Auth, HistoryPair, ModelOption, NoteEntry, NotePage,
+    Passage, Provider, ReadTools, Selection, ToolNote, ToolSearch,
+};
 pub mod notes;
 pub mod vault;
 pub mod worker;

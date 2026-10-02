@@ -6,6 +6,24 @@ Authoritative SQLite storage: sources/versions, durable operations, local sessio
 
 [Store API](src/lib.rs), [drafts](src/drafts.rs), [comments](src/comments.rs), [anchor mapping](src/anchors.rs), [managed-note records](src/notes.rs).
 
+## Mutually exclusive workspace modes
+
+Legacy `Store` (`brn.sqlite3`, schema V6) and simple `WorkStore`
+(`brn.sqlite`, schema V2) acquire the same `brn.owner.lock` **before** checking
+opposite-mode markers and **before** opening SQLite. Both refuse the other
+database and its `-wal`, `-shm` and `-journal` sidecars. Legacy Store also refuses
+recognized `backups/brn-<decimal>.sqlite` backups (including their sidecars);
+a missing simple database awaiting restore is still a simple workspace.
+Dangling symlink markers count as present. `WorkspaceModeConflict` leaves both
+authorities unchanged; an already held lock takes precedence as `WorkspaceBusy`.
+Frontend dispatch is advisory, not the exclusion mechanism. No migration or
+parallel database authority is introduced.
+
+WorkStore integrity checks, V1-to-V2 upgrades, turn reconciliation and online
+backups retain their existing behavior. Tests in
+[`workspace_modes`](tests/workspace_modes.rs) exercise both owners directly;
+workflow also verifies legacy `brn-flow sessions` refuses a simple folder.
+
 ## Managed-note storage contract
 
 Schema V6 adds a single registered vault, note/path identities, one exact-byte

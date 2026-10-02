@@ -1,6 +1,6 @@
 use super::NoteIndex;
 use crate::{Error, Result};
-use rusqlite::{Row, params};
+use rusqlite::{Connection, Row, params};
 
 /// One matching passage, with its note's path and content hash at indexing time.
 #[derive(Debug, Clone, PartialEq)]
@@ -33,6 +33,9 @@ pub(super) fn to_hit(
     (passage_id, path, sha, start, end, quote): HitRow,
     score: f32,
 ) -> Result<NoteHit> {
+    if start < 0 || end < start {
+        return Err(Error::Corrupt("index passage byte range"));
+    }
     let note_sha256 = sha
         .try_into()
         .map_err(|_| Error::Corrupt("index note hash"))?;
@@ -40,8 +43,9 @@ pub(super) fn to_hit(
         passage_id,
         path,
         note_sha256,
-        start_byte: start.max(0) as usize,
-        end_byte: end.max(0) as usize,
+        start_byte: usize::try_from(start)
+            .map_err(|_| Error::Corrupt("index passage byte range"))?,
+        end_byte: usize::try_from(end).map_err(|_| Error::Corrupt("index passage byte range"))?,
         quote,
         score,
     })
@@ -69,23 +73,27 @@ fn fts_query(query: &str) -> Option<String> {
 impl NoteIndex {
     /// Passages containing any query word, best BM25 score first.
     pub fn keyword(&self, query: &str, limit: usize) -> Result<Vec<NoteHit>> {
-        check_query(query, limit)?;
-        let fts = fts_query(query).ok_or(Error::Invalid("query has no search terms"))?;
-        let mut statement = self.conn.prepare(&format!(
-            "SELECT {HIT_COLUMNS}, bm25(passages_fts) AS rank FROM passages_fts \
+        keyword(&self.conn, query, limit)
+    }
+}
+
+pub(super) fn keyword(conn: &Connection, query: &str, limit: usize) -> Result<Vec<NoteHit>> {
+    check_query(query, limit)?;
+    let fts = fts_query(query).ok_or(Error::Invalid("query has no search terms"))?;
+    let mut statement = conn.prepare(&format!(
+        "SELECT {HIT_COLUMNS}, bm25(passages_fts) AS rank FROM passages_fts \
              JOIN passages p ON p.id = passages_fts.rowid \
              JOIN notes n ON n.path = p.path \
              WHERE passages_fts MATCH ?1 ORDER BY rank, p.id LIMIT ?2"
-        ))?;
-        let rows = statement.query_map(params![fts, limit as i64], |row| {
-            Ok((hit_row(row)?, row.get::<_, f64>(6)?))
-        })?;
-        rows.map(|row| {
-            let (hit, rank) = row?;
-            to_hit(hit, -rank as f32)
-        })
-        .collect()
-    }
+    ))?;
+    let rows = statement.query_map(params![fts, limit as i64], |row| {
+        Ok((hit_row(row)?, row.get::<_, f64>(6)?))
+    })?;
+    rows.map(|row| {
+        let (hit, rank) = row?;
+        to_hit(hit, -rank as f32)
+    })
+    .collect()
 }
 
 /// Reciprocal-rank fusion (k = 60) of ranked lists; ties are broken by passage id.

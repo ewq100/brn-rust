@@ -20,6 +20,13 @@ pub enum Error {
     Corrupt(&'static str),
     #[error("retrieval profile unavailable: {0}")]
     Unavailable(&'static str),
+    #[error("embedding model identity or dimension does not match the index")]
+    ModelMismatch,
+    #[error("shared embedding model lock is poisoned")]
+    EmbedderPoisoned,
+    #[cfg(feature = "native")]
+    #[error("{0}")]
+    ModelInstall(#[from] native::download::ModelInstallError),
     #[error("retrieval build cancelled")]
     Cancelled,
     #[error("retrieval I/O: {0}")]

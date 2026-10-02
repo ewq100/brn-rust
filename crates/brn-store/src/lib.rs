@@ -17,6 +17,7 @@ mod drafts;
 pub mod notes;
 pub mod work;
 mod workflow;
+mod workspace_mode;
 pub use anchors::{
     AmbiguityReason, AnchorProjection, AnchorState, EditTrace, OriginalAnchor, RecoveryReference,
     TextEdit, apply_edit, derive_edit, map_anchor, replay_trace,
@@ -61,6 +62,8 @@ pub enum Error {
     Invalid(String),
     /// The data directory lock is held by another live process.
     WorkspaceBusy(String),
+    /// The folder contains markers for the other database authority.
+    WorkspaceModeConflict(String),
     /// A durable operation ID was reused with different kind or payload.
     OperationConflict(String),
     /// A requested durable record does not exist.
@@ -73,6 +76,7 @@ impl std::fmt::Display for Error {
             Self::Sql(e) => write!(f, "SQLite: {e}"),
             Self::Invalid(e)
             | Self::WorkspaceBusy(e)
+            | Self::WorkspaceModeConflict(e)
             | Self::OperationConflict(e)
             | Self::NotFound(e) => f.write_str(e),
         }
@@ -229,6 +233,7 @@ impl Store {
         // itself is never weakened.
         let lock_deadline = std::time::Instant::now() + std::time::Duration::from_secs(1);
         acquire_owner_lock(|| owner.try_lock(), lock_deadline)?;
+        workspace_mode::refuse_simple(dir)?;
         let db_path = dir.join("brn.sqlite3");
         let exists = db_path.exists();
         let prior = if exists {

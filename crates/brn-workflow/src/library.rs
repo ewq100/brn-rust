@@ -1,10 +1,11 @@
 //! The vault's notes as a searchable library: keeps `index.sqlite` in step
 //! with the vault and answers keyword, semantic and hybrid searches.
 use crate::vault::{self, ReadError, SkipReason, VaultPath};
-use brn_retrieval::note_index::{NoteIndex, check_query, fuse_hits};
+use brn_retrieval::note_index::{NoteIndex, NoteSearch, check_query, fuse_hits};
 use std::{
     collections::{HashMap, HashSet},
     path::{Path, PathBuf},
+    sync::{Arc, Mutex},
 };
 
 #[cfg(feature = "native-retrieval")]
@@ -79,7 +80,80 @@ pub struct SearchResults {
 pub struct Library {
     root: PathBuf,
     index: NoteIndex,
-    embedder: Option<Box<dyn Embedder + Send>>,
+    embedder: Option<SharedEmbedder>,
+}
+
+#[derive(Clone)]
+pub struct SharedEmbedder {
+    inner: Arc<Mutex<Box<dyn Embedder + Send>>>,
+    identity: String,
+    dimension: usize,
+}
+
+impl SharedEmbedder {
+    pub fn new(embedder: Box<dyn Embedder + Send>) -> Self {
+        Self {
+            identity: embedder.identity().to_owned(),
+            dimension: embedder.dimension(),
+            inner: Arc::new(Mutex::new(embedder)),
+        }
+    }
+}
+
+impl Embedder for SharedEmbedder {
+    fn identity(&self) -> &str {
+        &self.identity
+    }
+    fn dimension(&self) -> usize {
+        self.dimension
+    }
+    fn embed(&mut self, texts: &[&str]) -> brn_retrieval::Result<Vec<Vec<f32>>> {
+        self.inner
+            .lock()
+            .map_err(|_| brn_retrieval::Error::EmbedderPoisoned)?
+            .embed(texts)
+    }
+}
+
+pub fn search_index(
+    index: &dyn NoteSearch,
+    embedder: Option<&mut dyn Embedder>,
+    query: &str,
+    mode: SearchMode,
+    limit: usize,
+) -> LibraryResult<SearchResults> {
+    check_query(query, limit)?;
+    let Some(embedder) = embedder else {
+        return Ok(SearchResults {
+            hits: index.keyword(query, limit)?,
+            keyword_only: true,
+        });
+    };
+    if mode == SearchMode::Keyword {
+        return Ok(SearchResults {
+            hits: index.keyword(query, limit)?,
+            keyword_only: false,
+        });
+    }
+    let mut vectors = embedder.embed(&[query])?;
+    if vectors.len() != 1 || vectors[0].len() != embedder.dimension() {
+        return Err(brn_retrieval::Error::Invalid(
+            "embedder returned the wrong count or dimension",
+        )
+        .into());
+    }
+    let vector = vectors.remove(0);
+    let hits = if mode == SearchMode::Semantic {
+        index.semantic_for_model(&vector, embedder.identity(), limit)?
+    } else {
+        let keyword = index.keyword(query, FUSION_DEPTH)?;
+        let semantic = index.semantic_for_model(&vector, embedder.identity(), FUSION_DEPTH)?;
+        fuse_hits(&[&keyword, &semantic], limit)
+    };
+    Ok(SearchResults {
+        hits,
+        keyword_only: false,
+    })
 }
 
 impl Library {
@@ -89,6 +163,15 @@ impl Library {
         vault_root: &Path,
         index_path: &Path,
         embedder: Option<Box<dyn Embedder + Send>>,
+    ) -> LibraryResult<Self> {
+        Self::open_shared(vault_root, index_path, embedder.map(SharedEmbedder::new))
+    }
+
+    /// Uses the same loaded model as read tools; no second model load.
+    pub fn open_shared(
+        vault_root: &Path,
+        index_path: &Path,
+        embedder: Option<SharedEmbedder>,
     ) -> LibraryResult<Self> {
         let (mut index, _) = NoteIndex::open(index_path)?;
         if let Some(embedder) = &embedder {
@@ -180,7 +263,7 @@ impl Library {
     /// Embeds up to `batch` passages that have none yet. Call repeatedly in
     /// the background until `embedded == total`. `None` without an embedder.
     pub fn embed_pending(&mut self, batch: usize) -> LibraryResult<Option<EmbeddingProgress>> {
-        match self.embedder.as_deref_mut() {
+        match self.embedder.as_mut() {
             Some(embedder) => Ok(Some(self.index.embed_pending(embedder, batch)?)),
             None => Ok(None),
         }
@@ -195,31 +278,20 @@ impl Library {
         mode: SearchMode,
         limit: usize,
     ) -> LibraryResult<SearchResults> {
-        check_query(query, limit)?;
-        let embedder = match (mode, self.embedder.as_deref_mut()) {
-            (SearchMode::Keyword, _) | (_, None) => {
-                return Ok(SearchResults {
-                    hits: self.index.keyword(query, limit)?,
-                    keyword_only: self.embedder.is_none(),
-                });
-            }
-            (_, Some(embedder)) => embedder,
-        };
-        let vector = embedder
-            .embed(&[query])?
-            .pop()
-            .ok_or(brn_retrieval::Error::Invalid("embedder returned no vector"))?;
-        let hits = if mode == SearchMode::Semantic {
-            self.index.semantic(&vector, limit)?
-        } else {
-            let keyword = self.index.keyword(query, FUSION_DEPTH)?;
-            let semantic = self.index.semantic(&vector, FUSION_DEPTH)?;
-            fuse_hits(&[&keyword, &semantic], limit)
-        };
-        Ok(SearchResults {
-            hits,
-            keyword_only: false,
-        })
+        search_index(
+            &self.index,
+            self.embedder.as_mut().map(|e| e as &mut dyn Embedder),
+            query,
+            mode,
+            limit,
+        )
+    }
+
+    pub fn replace_embedder(&mut self, embedder: SharedEmbedder) -> LibraryResult<()> {
+        self.index
+            .use_embedding_model(embedder.identity(), embedder.dimension())?;
+        self.embedder = Some(embedder);
+        Ok(())
     }
 
     /// All indexed notes, ordered by path.

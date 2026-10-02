@@ -6,6 +6,78 @@ Shared authoritative application flow for desktop and headless use: imports, eli
 
 [Workspace API](src/lib.rs), [worker commands/events](src/worker.rs), [draft workflow](src/drafts.rs), [comment workflow](src/comments.rs), [brn-flow CLI](src/main.rs).
 
+## Simple app owner and read tools
+
+[`App`](src/app.rs) opens one `WorkStore` in a new explicit data folder and
+exposes its `OpenReport`, including the restored backup. History and settings
+work without a vault. A missing initial vault stays unbound; an unavailable
+previously bound vault returns `VaultUnavailable` for reads. The first
+`bind_vault` persists the canonical root only after Library refresh and reader
+initialization succeed. A different root needs a different data folder. Vault
+and data folders cannot overlap.
+
+Credentials must be absolute, outside Git repositories, the data folder and
+the vault. `default_credentials_dir(data_dir)` supplies a canonical sibling
+`<data-name>-credentials`; `Auth::open` checks only that safe folder, never
+provider caches. There is no default provider/model. Selection is validated and
+saved atomically in one `ai.selection` setting. Explicit Copilot discovery
+results go through `record_models`; `validate_selection` checks membership
+without network or cache access.
+
+`notes` and `search` refresh before returning CLI reads; `note` reads exact
+current vault bytes. Call `refresh` on explicit Refresh, focus and application
+writes. `embed_pending(batch)` provides bounded-batch progress for the future
+application lane. [`AiTools`](src/ai_tools.rs) is `Send + Sync`, with a mutexed,
+retrieval-owned read-only reader and a clone of Library's one
+[`SharedEmbedder`](src/library.rs). Both use `search_index`: absent models flag
+**every mode** keyword-only; present models keep Keyword non-downgraded, embed
+Semantic once and fuse Hybrid's top 50 keyword/semantic passages. Model
+identity/dimension mismatches are errors, never fallback.
+
+Every tool revalidates visibility and fresh bytes. Search checks the hash,
+UTF-8 range and exact quote before exposing any candidate; stale/removed
+notes return safe `IndexStale`. Unsafe arguments return `ToolRejected`.
+Reads preserve the exact UTF-8 prefix up to 50,000 bytes, including BOM/CRLF.
+Lists validate component-only folders and note-path cursors, use exclusive
+path-sorted keyset pagination and return at most 200 entries. `"work"` never
+matches `"workshop"`. These APIs never write vault files.
+
+## Explicit model installation
+
+[`models`](src/models.rs) exposes the pinned source, approximately 87 MiB cost
+and destination. `prepare_model_download(consent, target)` persists
+`model.download_decision` as approved/declined. Only a **fresh explicit
+approval** creates a non-cloneable `ModelInstallRequest`; startup, search and
+persisted approval never download. A later explicit action can override decline.
+The default target is `<simple-data-dir>/models/minilm`; targets cannot overlap
+the vault or a repository.
+
+Consume the request's synchronous `install(cancel, progress)` on an owned
+blocking job, not on the GUI/application lane. Task 5 owns job lifetime,
+cancellation and events: report `ModelDownloaded` on install success, drain
+and detach idle chat/tool handles, then call `App::activate_model` on the
+application lane. External tool handles cause `ToolsBusy`, rather than swapping
+an active snapshot. Activation loads once, replaces both shared adapters and
+invalidates vectors by model identity; subsequent bounded `embed_pending`
+calls rebuild them. Emit `ModelInstalled` only after successful activation.
+Invalid installed models remain `ModelInvalid`, not model absence.
+
+Headless/default builds are keyword-only: a supplied model directory or
+approved download returns typed `SemanticUnavailableInBuild`
+(`SEMANTIC_UNAVAILABLE_IN_BUILD`). Native builds enable `native-retrieval`.
+The current CLI/desktop still use the legacy workflow until their separate
+cutover tasks; this owner does not add `AppWorker` or `ChatWorker` dispatch.
+
+Focused offline checks:
+
+```sh
+cargo test -p brn-workflow --test library --test app --test ai_tools --test models --test app_mode_cli --locked --offline
+cargo test -p brn-workflow --features native-retrieval --lib --test models --locked --offline
+```
+
+Native installer/workflow checks use synthetic assets and fake embedding
+vectors, not production downloads or ONNX inference qualification.
+
 ## Markdown notes
 
 [`notes`](src/notes/mod.rs) re-exports the public editing types from

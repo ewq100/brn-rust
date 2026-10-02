@@ -1,0 +1,195 @@
+//! Consent and owned installation work; the application lane activates only after tools drain.
+use crate::{ErrorKind, Result, WorkflowError, app::App};
+use std::{
+    path::{Component, Path, PathBuf},
+    sync::atomic::AtomicBool,
+};
+
+pub const MODEL_SOURCE: &str = "https://huggingface.co/Xenova/all-MiniLM-L6-v2/resolve/751bff37182d3f1213fa05d7196b954e230abad9/";
+pub const MODEL_BYTES: u64 = 91_100_408;
+
+#[derive(Debug, Clone, Copy, PartialEq, Eq, serde::Serialize, serde::Deserialize)]
+#[serde(rename_all = "lowercase")]
+pub enum DownloadDecision {
+    Approved,
+    Declined,
+}
+
+#[derive(Debug, Clone, serde::Serialize, serde::Deserialize)]
+pub struct ModelDownloadPrompt {
+    pub source: String,
+    pub bytes: u64,
+    pub cost: String,
+    pub destination: PathBuf,
+}
+
+#[derive(Debug, Clone, PartialEq, Eq, serde::Serialize, serde::Deserialize)]
+pub struct ModelInstallReport {
+    pub directory: PathBuf,
+    pub downloaded_bytes: u64,
+}
+
+/// Non-cloneable fresh approval, consumed by one owned blocking install job.
+pub struct ModelInstallRequest {
+    target: PathBuf,
+}
+
+impl ModelInstallRequest {
+    pub fn target(&self) -> &Path {
+        &self.target
+    }
+
+    pub fn install(
+        self,
+        cancel: &AtomicBool,
+        progress: impl Fn(u64, u64),
+    ) -> Result<ModelInstallReport> {
+        #[cfg(feature = "native-retrieval")]
+        {
+            self.install_with(cancel, progress, |target, cancel, progress| {
+                let report =
+                    brn_retrieval::native::download::download_model(target, cancel, progress)?;
+                Ok(ModelInstallReport {
+                    directory: report.directory,
+                    downloaded_bytes: report.downloaded_bytes,
+                })
+            })
+        }
+        #[cfg(not(feature = "native-retrieval"))]
+        {
+            let _ = (cancel, progress);
+            Err(unavailable())
+        }
+    }
+
+    #[cfg(feature = "native-retrieval")]
+    pub(super) fn install_with(
+        self,
+        cancel: &AtomicBool,
+        progress: impl Fn(u64, u64),
+        install: impl FnOnce(&Path, &AtomicBool, &dyn Fn(u64, u64)) -> Result<ModelInstallReport>,
+    ) -> Result<ModelInstallReport> {
+        install(&self.target, cancel, &progress)
+    }
+}
+
+impl App {
+    pub fn model_download_decision(&self) -> Result<Option<DownloadDecision>> {
+        self.work_store()
+            .setting("model.download_decision")?
+            .map(|decision| match decision.as_str() {
+                "approved" => Ok(DownloadDecision::Approved),
+                "declined" => Ok(DownloadDecision::Declined),
+                _ => Err(WorkflowError::typed(
+                    ErrorKind::ModelInvalid,
+                    "stored model consent is invalid",
+                )),
+            })
+            .transpose()
+    }
+
+    pub fn model_download_prompt(&self) -> Result<Option<ModelDownloadPrompt>> {
+        if self.model_installed() || self.model_download_decision()?.is_some() {
+            return Ok(None);
+        }
+        Ok(Some(ModelDownloadPrompt {
+            source: MODEL_SOURCE.into(),
+            bytes: MODEL_BYTES,
+            cost: "Approximately 87 MiB of network transfer and installed storage".into(),
+            destination: self.work_store().data_dir().join("models/minilm"),
+        }))
+    }
+
+    /// Never runs network work, even for persisted approval. Every retry needs a new explicit action.
+    pub fn prepare_model_download(
+        &mut self,
+        consent: bool,
+        target: &Path,
+    ) -> Result<Option<ModelInstallRequest>> {
+        if !consent {
+            self.work_store_mut()
+                .set_setting("model.download_decision", "declined")?;
+            return Ok(None);
+        }
+        self.validate_model_target(target)?;
+        self.work_store_mut()
+            .set_setting("model.download_decision", "approved")?;
+        #[cfg(not(feature = "native-retrieval"))]
+        {
+            Err(unavailable())
+        }
+        #[cfg(feature = "native-retrieval")]
+        {
+            Ok(Some(ModelInstallRequest {
+                target: target.to_owned(),
+            }))
+        }
+    }
+
+    /// Caller emits ModelDownloaded before this and ModelInstalled only on success.
+    /// Drop idle chat/tool handles before calling; an active snapshot is never swapped.
+    pub fn activate_model(&mut self, directory: &Path) -> Result<()> {
+        self.validate_model_target(directory)?;
+        self.ensure_tools_drained()?;
+        let embedder = crate::app::load_model(self.work_store().data_dir(), Some(directory))?
+            .ok_or_else(|| {
+                WorkflowError::typed(
+                    ErrorKind::ModelInvalid,
+                    "downloaded model directory is missing",
+                )
+            })?;
+        self.activate_embedder(embedder)?;
+        self.work_store_mut().set_setting(
+            "model.directory",
+            directory.to_str().ok_or_else(|| {
+                WorkflowError::typed(ErrorKind::ModelInvalid, "model directory is not UTF-8")
+            })?,
+        )?;
+        Ok(())
+    }
+
+    fn validate_model_target(&self, target: &Path) -> Result<()> {
+        let invalid = || {
+            WorkflowError::typed(
+                ErrorKind::ModelInvalid,
+                "model destination must be absolute, outside repositories and the vault, without symlinks",
+            )
+        };
+        if !target.is_absolute()
+            || target.file_name().is_none()
+            || target
+                .components()
+                .any(|c| !matches!(c, Component::RootDir | Component::Normal(_)))
+        {
+            return Err(invalid());
+        }
+        for ancestor in target.ancestors() {
+            match ancestor.join(".git").symlink_metadata() {
+                Ok(_) => return Err(invalid()),
+                Err(e) if e.kind() == std::io::ErrorKind::NotFound => {}
+                Err(_) => return Err(invalid()),
+            }
+            match ancestor.symlink_metadata() {
+                Ok(meta) if meta.file_type().is_symlink() => return Err(invalid()),
+                Ok(_) => {}
+                Err(e) if e.kind() == std::io::ErrorKind::NotFound => {}
+                Err(_) => return Err(invalid()),
+            }
+        }
+        if self
+            .vault_root()
+            .is_some_and(|root| target.starts_with(root) || root.starts_with(target))
+        {
+            return Err(invalid());
+        }
+        Ok(())
+    }
+}
+
+#[cfg(not(feature = "native-retrieval"))]
+fn unavailable() -> WorkflowError {
+    WorkflowError::typed(
+        ErrorKind::SemanticUnavailableInBuild,
+        "SEMANTIC_UNAVAILABLE_IN_BUILD",
+    )
+}

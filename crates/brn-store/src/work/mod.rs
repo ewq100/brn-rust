@@ -94,6 +94,7 @@ impl WorkStore {
             return Err(invalid("data directory must already exist"));
         }
         let lock = lock_dir(data_dir)?;
+        crate::workspace_mode::refuse_legacy(data_dir)?;
         let db = data_dir.join(DB_NAME);
         let existing = if db.exists() {
             check_regular_single_link(&db)?;

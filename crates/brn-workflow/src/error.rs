@@ -9,6 +9,15 @@ use brn_store as store;
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub enum ErrorKind {
     WorkspaceBusy,
+    WorkspaceModeConflict,
+    VaultNotBound,
+    VaultUnavailable,
+    ToolRejected,
+    UnsafeCredentials,
+    ModelRefused,
+    ModelInvalid,
+    SemanticUnavailableInBuild,
+    ToolsBusy,
     IndexMissing,
     IndexStale,
     EvidenceStale,
@@ -32,8 +41,15 @@ impl std::fmt::Display for WorkflowError {
         f.write_str(&self.message)
     }
 }
+impl std::error::Error for WorkflowError {}
 
 impl WorkflowError {
+    pub(crate) fn typed(kind: ErrorKind, message: impl Into<String>) -> Self {
+        Self {
+            kind,
+            message: message.into(),
+        }
+    }
     /// Uncategorized workflow failure (honest CLI `WORKFLOW_ERROR` fallback).
     pub fn msg(message: impl Into<String>) -> Self {
         Self {
@@ -90,11 +106,38 @@ impl From<store::Error> for WorkflowError {
                 kind: ErrorKind::WorkspaceBusy,
                 message,
             },
+            store::Error::WorkspaceModeConflict(message) => Self {
+                kind: ErrorKind::WorkspaceModeConflict,
+                message,
+            },
             store::Error::OperationConflict(message) => Self {
                 kind: ErrorKind::OperationConflict,
                 message,
             },
             other => Self::msg(other.to_string()),
+        }
+    }
+}
+
+impl From<brn_ai::AiError> for WorkflowError {
+    fn from(e: brn_ai::AiError) -> Self {
+        use brn_ai::AiErrorKind;
+        let kind = match e.kind {
+            AiErrorKind::UnsafeCredentials => ErrorKind::UnsafeCredentials,
+            AiErrorKind::ModelRefused => ErrorKind::ModelRefused,
+            AiErrorKind::ToolRejected => ErrorKind::ToolRejected,
+            AiErrorKind::IndexStale => ErrorKind::IndexStale,
+            _ => ErrorKind::Other,
+        };
+        Self::typed(kind, e.to_string())
+    }
+}
+
+impl From<crate::library::LibraryError> for WorkflowError {
+    fn from(e: crate::library::LibraryError) -> Self {
+        match e {
+            crate::library::LibraryError::Index(e) => e.into(),
+            crate::library::LibraryError::Io(e) => Self::msg(e.to_string()),
         }
     }
 }
@@ -108,6 +151,14 @@ impl From<retrieval::Error> for WorkflowError {
             },
             retrieval::Error::Cancelled => Self {
                 kind: ErrorKind::Cancelled,
+                message,
+            },
+            retrieval::Error::ModelMismatch => Self {
+                kind: ErrorKind::IndexStale,
+                message,
+            },
+            retrieval::Error::EmbedderPoisoned => Self {
+                kind: ErrorKind::ModelInvalid,
                 message,
             },
             _ => Self::msg(message),

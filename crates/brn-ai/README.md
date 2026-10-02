@@ -82,6 +82,11 @@ login expiry. Response-less transport failures map to Network. Cache safety,
 storage and login-expiry failures remain distinct. Rig's fixed ChatGPT
 string-wrapped auth failures are interpreted narrowly and immediately discarded.
 
+`AiError::new(kind)` is public so workflow's `ReadTools` adapter can construct
+safe typed failures without raw diagnostics. `Auth::credentials_dir()` exposes
+only the configured checked folder location for workflow containment checks;
+it never reads caches or authenticates.
+
 Transport injection is crate-private and test-only (`Auth::with_http`); tests
 exercise the **real pinned authenticators** with synthetic Rig HTTP transports.
 There is no production fake-provider feature or dynamic provider registry.

@@ -108,6 +108,15 @@ pub fn classify_workflow(error: WorkflowError) -> CliError {
         ErrorKind::OperationConflict => CliError::OperationConflict(error.message),
         ErrorKind::Cancelled => CliError::Interrupted(error.message),
         ErrorKind::Other => CliError::Workflow(error.message),
+        ErrorKind::WorkspaceModeConflict
+        | ErrorKind::VaultNotBound
+        | ErrorKind::VaultUnavailable
+        | ErrorKind::ToolRejected
+        | ErrorKind::UnsafeCredentials
+        | ErrorKind::ModelRefused
+        | ErrorKind::ModelInvalid
+        | ErrorKind::SemanticUnavailableInBuild
+        | ErrorKind::ToolsBusy => CliError::Workflow(error.message),
     }
 }
 

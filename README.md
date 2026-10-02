@@ -25,13 +25,16 @@ Create an explicit disposable data directory, then launch the writing/keyword-ca
 
 ```sh
 trial_data="$(mktemp -d "${TMPDIR:-/tmp}/brn-local.XXXXXX")"
-cargo run -p brn-desktop --features native-ui --locked -- --data-dir "$trial_data"
+cargo run -p brn-desktop --features native-ui,native-retrieval --locked -- --data-dir "$trial_data"
 ```
 
-For semantic/hybrid search and live grounded answers, use `--features native-retrieval` and provide the installed Codex executable and verified local model directory:
+The normal native desktop includes `native-ui,native-retrieval`; enabling the
+installer does not download a model. For the legacy semantic/hybrid search and
+live grounded answers, provide the installed Codex executable and verified local
+model directory:
 
 ```sh
-cargo run -p brn-desktop --features native-retrieval --locked -- \
+cargo run -p brn-desktop --features native-ui,native-retrieval --locked -- \
   --data-dir /absolute/existing/trial-data \
   --codex /absolute/path/to/codex \
   --model-dir /absolute/path/to/verified/model
@@ -46,7 +49,7 @@ Draft working copies are separate from immutable checkpoints and AI candidates. 
 After building, create a new unsigned local app bundle with explicit paths:
 
 ```sh
-cargo build -p brn-desktop --features native-retrieval --locked
+cargo build -p brn-desktop --features native-ui,native-retrieval --locked
 bash scripts/make-macos-app.sh \
   --output /absolute/path/BRN-Trial.app \
   --binary /absolute/path/to/target/debug/brn-desktop \
