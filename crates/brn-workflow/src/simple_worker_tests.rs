@@ -1141,6 +1141,195 @@ fn one_model_adapter_is_shared_and_indexing_uses_bounded_batches_between_command
     worker.shutdown().unwrap();
 }
 
+fn synthetic_loader() -> LoadHook {
+    Arc::new(|_, _| {
+        Ok(crate::library::SharedEmbedder::new(Box::new(
+            SyntheticEmbedder(Arc::new(Mutex::new(Vec::new()))),
+        )))
+    })
+}
+
+fn assert_idle_without_failure(worker: &AppWorker) {
+    app_worker::wait_test_idle(worker);
+    while let Some((_, reply)) = worker.try_event() {
+        if let AppEvent::Failed(error) = reply {
+            panic!("unexpected idle failure: {error}");
+        }
+    }
+}
+
+fn bind_and_verify_semantic_index(worker: &AppWorker, fixture: &Fixture, refresh: bool) {
+    let bind = Uuid::new_v4();
+    worker
+        .submit(
+            bind,
+            if refresh {
+                AppCommand::Refresh
+            } else {
+                AppCommand::BindVault(fixture.base.path().join("vault"))
+            },
+        )
+        .unwrap();
+    let (id, reply) = event(worker);
+    assert_eq!(id, bind);
+    assert!(matches!(
+        (refresh, reply),
+        (false, AppEvent::VaultBound) | (true, AppEvent::Refreshed(_))
+    ));
+    assert!(
+        matches!(event(worker), (id, AppEvent::Indexing { embedded: 1, total: 1 }) if id == bind)
+    );
+    let search = Uuid::new_v4();
+    worker
+        .submit(
+            search,
+            AppCommand::Search {
+                query: "current".into(),
+                mode: crate::library::SearchMode::Semantic,
+                limit: 10,
+            },
+        )
+        .unwrap();
+    assert!(
+        matches!(event(worker), (id, AppEvent::Search(result)) if id == search && !result.keyword_only && result.hits.len() == 1)
+    );
+}
+
+#[test]
+fn installed_model_startup_without_available_vault_has_no_indexing_failure() {
+    for missing_bound in [true, false] {
+        let fixture = Fixture::new();
+        let vault = fixture.base.path().join("vault");
+        if missing_bound {
+            let mut app =
+                crate::app::App::open(&fixture.base.path().join("data"), fixture.config()).unwrap();
+            app.work_store_mut()
+                .begin_turn(Uuid::new_v4(), None, "history", "chatgpt", "gpt-5.5")
+                .unwrap();
+            drop(app);
+            std::fs::rename(&vault, fixture.base.path().join("parked-vault")).unwrap();
+        }
+        let mut config = fixture.config();
+        config.vault_root = None;
+        config.model_dir = Some(fixture.base.path().join("synthetic-model"));
+        let mut worker = app_worker::start_test(
+            fixture.base.path().join("data"),
+            config,
+            Hooks::default(),
+            None,
+            Some(synthetic_loader()),
+        )
+        .unwrap();
+        assert!(
+            matches!(event(&worker).1, AppEvent::Ready { vault_bound, model_installed: true } if vault_bound == missing_bound)
+        );
+        assert_idle_without_failure(&worker);
+        let history = Uuid::new_v4();
+        worker.submit(history, AppCommand::Conversations).unwrap();
+        assert!(
+            matches!(event(&worker), (id, AppEvent::Conversations(items)) if id == history && items.len() == usize::from(missing_bound))
+        );
+        let status = Uuid::new_v4();
+        worker.submit(status, AppCommand::Status).unwrap();
+        assert!(
+            matches!(event(&worker), (id, AppEvent::Status(reply)) if id == status && reply.model_installed)
+        );
+        if missing_bound {
+            std::fs::rename(fixture.base.path().join("parked-vault"), &vault).unwrap();
+        }
+        bind_and_verify_semantic_index(&worker, &fixture, missing_bound);
+        worker.shutdown().unwrap();
+    }
+}
+
+struct FailingEmbedder;
+
+impl crate::library::Embedder for FailingEmbedder {
+    fn identity(&self) -> &str {
+        "worker-failing-model"
+    }
+    fn dimension(&self) -> usize {
+        2
+    }
+    fn embed(&mut self, _: &[&str]) -> brn_retrieval::Result<Vec<Vec<f32>>> {
+        Err(brn_retrieval::Error::ModelMismatch)
+    }
+}
+
+#[test]
+fn available_vault_indexing_errors_remain_correlated_failures() {
+    let fixture = Fixture::new();
+    let mut config = fixture.config();
+    config.model_dir = Some(fixture.base.path().join("synthetic-model"));
+    let mut worker = app_worker::start_test(
+        fixture.base.path().join("data"),
+        config,
+        Hooks::default(),
+        None,
+        Some(Arc::new(|_, _| {
+            Ok(crate::library::SharedEmbedder::new(Box::new(
+                FailingEmbedder,
+            )))
+        })),
+    )
+    .unwrap();
+    let (startup, reply) = event(&worker);
+    assert!(matches!(
+        reply,
+        AppEvent::Ready {
+            vault_bound: true,
+            model_installed: true
+        }
+    ));
+    assert!(
+        matches!(event(&worker), (id, AppEvent::Failed(error)) if id == startup && error.kind == ErrorKind::IndexStale)
+    );
+    assert_idle_without_failure(&worker);
+    worker.shutdown().unwrap();
+}
+
+#[test]
+fn fresh_model_activation_without_vault_installs_without_later_failure() {
+    let fixture = Fixture::new();
+    let mut config = fixture.config();
+    config.vault_root = None;
+    let install: InstallHook = Arc::new(|request, _, _| {
+        Ok(ModelInstallReport {
+            directory: request.target().to_owned(),
+            downloaded_bytes: 0,
+        })
+    });
+    let mut worker = app_worker::start_test(
+        fixture.base.path().join("data"),
+        config,
+        Hooks::default(),
+        Some(install),
+        Some(synthetic_loader()),
+    )
+    .unwrap();
+    assert!(matches!(event(&worker).1, AppEvent::Ready { .. }));
+    let model = Uuid::new_v4();
+    worker
+        .submit(
+            model,
+            AppCommand::DownloadModel {
+                consent: true,
+                target: fixture.base.path().join("model"),
+            },
+        )
+        .unwrap();
+    assert!(matches!(event(&worker), (id, AppEvent::ModelDownloaded(_)) if id == model));
+    assert!(matches!(event(&worker), (id, AppEvent::ModelInstalled) if id == model));
+    assert_idle_without_failure(&worker);
+    let status = Uuid::new_v4();
+    worker.submit(status, AppCommand::Status).unwrap();
+    assert!(
+        matches!(event(&worker), (id, AppEvent::Status(reply)) if id == status && reply.model_installed && reply.model_download.is_none())
+    );
+    bind_and_verify_semantic_index(&worker, &fixture, false);
+    worker.shutdown().unwrap();
+}
+
 #[test]
 fn shutdown_reports_credential_finalization_failure_instead_of_cancelled_success() {
     let fixture = Fixture::new();

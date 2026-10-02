@@ -125,6 +125,8 @@ enum Message {
     ModelProgress(Uuid, u64, u64),
     ModelDone(Uuid),
     ChatIdle,
+    #[cfg(test)]
+    IdleBarrier(mpsc::Sender<()>),
     Shutdown,
 }
 
@@ -356,6 +358,25 @@ struct InstallJob {
     join: Option<JoinHandle<Result<ModelInstallReport>>>,
     downloaded: Option<ModelInstallReport>,
 }
+
+fn indexing_job(app: &App, id: Uuid) -> Result<Option<Uuid>> {
+    if !app.model_installed() {
+        return Ok(None);
+    }
+    match app.tools() {
+        Ok(_) => Ok(Some(id)),
+        Err(error)
+            if matches!(
+                error.kind,
+                ErrorKind::VaultNotBound | ErrorKind::VaultUnavailable
+            ) =>
+        {
+            Ok(None)
+        }
+        Err(error) => Err(error),
+    }
+}
+
 impl Drop for InstallJob {
     fn drop(&mut self) {
         self.cancel.store(true, Ordering::Release);
@@ -377,6 +398,15 @@ fn app_lane(
     startup: Uuid,
     hooks: Hooks,
 ) -> Result<()> {
+    #[cfg(test)]
+    let mut app = App::open_with_model_loader(&data, config, |data, selected| {
+        if let (Some(load), Some(directory)) = (&hooks.load, selected) {
+            load(directory, &AtomicBool::new(false)).map(Some)
+        } else {
+            crate::app::load_model(data, selected)
+        }
+    })?;
+    #[cfg(not(test))]
     let mut app = App::open(&data, config)?;
     if let Some(backup) = &app.open_report().restored_from {
         let _ = emit.send((
@@ -424,11 +454,13 @@ fn app_lane(
             model_installed: app.model_installed(),
         },
     ));
-    let mut indexing = app.model_installed().then_some(startup);
+    let mut indexing = indexing_job(&app, startup)?;
     let mut model: Option<InstallJob> = None;
     let mut model_ledger = HashMap::<Uuid, (bool, PathBuf)>::new();
     let mut ask_ledger = HashMap::<Uuid, AskRequest>::new();
     let mut final_error: Option<WorkflowError> = None;
+    #[cfg(test)]
+    let mut idle_barriers: Vec<mpsc::Sender<()>> = Vec::new();
     loop {
         // One bounded batch only when commands are not queued.
         let message = match rx.try_recv() {
@@ -436,6 +468,9 @@ fn app_lane(
             Err(mpsc::TryRecvError::Disconnected) => break,
             Err(mpsc::TryRecvError::Empty) => {
                 if let Some(id) = indexing.take() {
+                    if indexing_job(&app, id)?.is_none() {
+                        continue;
+                    }
                     match app.embed_pending(16) {
                         Ok(Some(progress)) => {
                             let _ = emit.send((
@@ -446,7 +481,7 @@ fn app_lane(
                                 },
                             ));
                             if progress.embedded < progress.total {
-                                indexing = Some(id);
+                                indexing = indexing_job(&app, id)?;
                             }
                         }
                         Ok(None) => {}
@@ -455,6 +490,10 @@ fn app_lane(
                         }
                     }
                     continue;
+                }
+                #[cfg(test)]
+                for barrier in idle_barriers.drain(..) {
+                    let _ = barrier.send(());
                 }
                 match rx.recv() {
                     Ok(message) => message,
@@ -516,6 +555,8 @@ fn app_lane(
                 }
             }
             Message::ChatIdle => {}
+            #[cfg(test)]
+            Message::IdleBarrier(barrier) => idle_barriers.push(barrier),
             Message::Command(id, command) => {
                 if stopping.load(Ordering::Acquire) {
                     let _ = emit.send((id, cancelled_command(command)));
@@ -585,7 +626,7 @@ fn app_lane(
                     match activation {
                         Ok(()) => {
                             let _ = emit.send((id, AppEvent::ModelInstalled));
-                            indexing = Some(id);
+                            indexing = indexing_job(&app, id)?;
                         }
                         Err(error) => {
                             let _ = emit.send((id, AppEvent::Failed(error)));
@@ -678,16 +719,20 @@ fn dispatch(
         AppCommand::BindVault(root) => {
             app.bind_vault(&root)?;
             chat.set_tools(Some(app.tools()?))?;
-            if app.model_installed() {
-                *indexing = Some(id);
-            }
+            *indexing = indexing_job(app, id)?;
             AppEvent::VaultBound
         }
         AppCommand::Refresh => {
-            let report = app.refresh()?;
-            if app.model_installed() {
-                *indexing = Some(id);
+            if let Err(error) = app.tools() {
+                if error.kind != ErrorKind::VaultUnavailable {
+                    return Err(error);
+                }
+                let root = app.vault_root().ok_or(error)?.to_owned();
+                app.bind_vault(&root)?;
+                chat.set_tools(Some(app.tools()?))?;
             }
+            let report = app.refresh()?;
+            *indexing = indexing_job(app, id)?;
             AppEvent::Refreshed(report)
         }
         AppCommand::Selection => AppEvent::Selection(app.selection()?),
@@ -847,4 +892,11 @@ pub(crate) fn start_test(
             load,
         },
     )
+}
+
+#[cfg(test)]
+pub(crate) fn wait_test_idle(worker: &AppWorker) {
+    let (tx, rx) = mpsc::channel();
+    worker.tx.send(Message::IdleBarrier(tx)).unwrap();
+    rx.recv_timeout(Duration::from_secs(10)).unwrap();
 }

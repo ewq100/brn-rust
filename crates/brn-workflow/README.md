@@ -62,6 +62,11 @@ an active snapshot. Activation loads once, replaces both shared adapters and
 invalidates vectors by model identity; subsequent bounded `embed_pending`
 calls rebuild them. Emit `ModelInstalled` only after successful activation.
 Invalid installed models remain `ModelInvalid`, not model absence.
+Worker indexing is scheduled only with a loaded model and an available bound
+vault, including between batches. Startup and activation still succeed without
+a vault; missing indexing prerequisites do not produce a later correlated
+failure. Binding an available vault or refreshing a restored bound vault resumes
+bounded indexing. Actual embedding/index errors remain explicit `Failed` events.
 
 Headless/default builds are keyword-only and ignore any saved `model.directory`
 without changing the setting or assets. Only an explicitly supplied model

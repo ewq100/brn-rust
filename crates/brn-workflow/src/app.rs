@@ -36,6 +36,14 @@ pub struct App {
 
 impl App {
     pub fn open(data_dir: &Path, config: AppConfig) -> Result<Self> {
+        Self::open_with_model_loader(data_dir, config, load_model)
+    }
+
+    pub(crate) fn open_with_model_loader(
+        data_dir: &Path,
+        config: AppConfig,
+        load: impl FnOnce(&Path, Option<&Path>) -> Result<Option<SharedEmbedder>>,
+    ) -> Result<Self> {
         if !data_dir.is_absolute() {
             return Err(WorkflowError::msg("data directory must be absolute"));
         }
@@ -78,7 +86,7 @@ impl App {
         let saved_model = store.setting("model.directory")?.map(PathBuf::from);
         #[cfg(not(feature = "native-retrieval"))]
         let saved_model: Option<PathBuf> = None;
-        let embedder = load_model(
+        let embedder = load(
             &data_dir,
             config.model_dir.as_deref().or(saved_model.as_deref()),
         )?;
