@@ -41,7 +41,12 @@ rust-version = "1.98.1"
 publish = false
 
 [dependencies]
-rig = { version = "=0.43.0", default-features = false, features = ["agent", "derive", "reqwest", "rustls"] }
+# The facade's `rustls` feature names `rig-fastembed?/...`; Cargo resolves such weak
+# references into the lockfile, pulling fastembed 4.5 whose `ort` conflicts with
+# fastembed 7.1. Enable TLS on rig-core and rig-reqwest directly instead.
+rig = { version = "=0.43.0", default-features = false, features = ["agent", "derive", "reqwest"] }
+rig-core = { version = "=0.43.0", default-features = false, features = ["rustls"] }
+rig-reqwest = { version = "=0.43.0", default-features = false, features = ["rustls"] }
 rusqlite = { version = "=0.40.2", default-features = false, features = ["bundled"] }
 fastembed = { version = "=7.1.0", default-features = false, features = ["ort-download-binaries-rustls-tls", "hf-hub-rustls-tls"] }
 gpui-kit = "=0.6.6"
