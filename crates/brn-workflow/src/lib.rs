@@ -2,6 +2,7 @@
 mod comments;
 mod drafts;
 pub mod error;
+pub mod library;
 pub mod notes;
 pub mod vault;
 pub mod worker;
