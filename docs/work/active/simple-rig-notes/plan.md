@@ -19,7 +19,7 @@
 - Credentials live in an owner-only folder; never in SQLite, logs, fixtures or errors.
 - Default tests are deterministic and offline with temporary folders. Live provider calls and model downloads only when the user asks.
 - Old data folders, the original vault and existing trial workspaces are never modified.
-- Every commit ends with `Co-authored-by: Copilot App <223556219+Copilot@users.noreply.github.com>`.
+- Every implementation commit ends with `Co-authored-by: Copilot <223556219+Copilot@users.noreply.github.com>`.
 - Use `--locked` for Cargo commands on existing manifests; after adding a dependency, run once without `--locked` to update the lockfile, then commit it.
 
 ---
@@ -31,14 +31,15 @@
 | 1 | [Spike](spike.md) | Go/no-go: Rig login, streamed chat and a tool call for both providers in BRN's dependency graph. Throwaway code. | — |
 | 2 | [Store and vault](store.md) | `WorkStore` (`brn.sqlite`, backups, restore, settings, unsaved edits) and the vault module (path rules, scan, read). Updated repository rules. | — |
 | 3 | [Search](search.md) | `index.sqlite`: notes, passages, FTS5, local embeddings, fusion; non-UTF-8 notes listed as unreadable; workflow `Library`; LanceDB removed. | 2 |
-| 4 | AI chat (written after the spike) | `brn-ai`, Connect/Disconnect/select, read tools, saved conversations; CLI moves to the new data folder with `notes list`, `search`, `ask`; model download with consent; `brn-provider` removed. | 1, 2 |
+| 4 | [AI chat](chat.md) | `brn-ai`, Connect/Disconnect/select, read tools, saved conversations; CLI moves to the new data folder with `notes list`, `search`, `ask`; model download with consent; `brn-provider` removed. | 1, 2; step 3 Library for read/search tools |
 | 5 | Writing (written after step 4) | Comments, review mode, Address comments, new-note proposals, CLI `comments`/`review`. | 3, 4 |
 | 6 | Cleanup (written after step 5) | Simple save path, removal of old import/approval/drafts/revisions/operation code and `brn-core`, documentation. | 5 |
 
-Steps 1 and 2 can run in parallel. Plans for steps 4–6 are written when their inputs exist, because they depend on the spike's confirmed Rig APIs and the store/vault interfaces from step 2.
+Steps 1 and 2 can run in parallel. Plans for steps 4–6 are written when their inputs exist, because they depend on the spike's confirmed Rig APIs and the store/vault interfaces from step 2. Steps 1–3 are implemented through `e24b104` with [evidence](evidence.md); local-model inference was skipped without assets. Step 4's plan is written, reviewed by Claude Opus 5.5 (high reasoning) and revised to reuse the completed Library/LocalEmbedder. Step 4 implementation and user acceptance remain pending.
 
 ## Execution notes
 
 - Execute on the branch the user chooses. Do not push or open PRs without explicit instruction.
 - Record actual commands and results in [evidence](evidence.md) at the end of each step.
 - The spike's live login and chat (step 1, tasks 3–4) need the user at the keyboard to enter the device codes.
+- Step 4's plan distinguishes offline implementation from live acceptance. ChatGPT remains conditional after the spike's quota-blocked chat checks; a later quota reset does not authorize a live recheck.

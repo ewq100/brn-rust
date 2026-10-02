@@ -63,6 +63,17 @@ Check: the step 2 store and vault code and tests from the revised plan were copi
 - Accepted read race limit: a folder swapped for a symlink during a note read can still lead outside the vault; this needs write access inside the vault.
 - Checks used repository-local disposable fixtures via `TMPDIR`; no original vault/old data, live provider calls, model downloads or native usability acceptance exercised.
 
+## Step 4: AI chat planning
+
+- 2026-10-02: [AI chat implementation plan](chat.md) written and linked from the roadmap, active-work index and current-status transition note. Eight test-first slices cover protected subscription login, WorkStore V2 conversations, Rig read tools/stream policy, current-vault adapters, an independent chat lane, CLI/desktop cutover and App Server retirement.
+- Planning baseline: `main@99013df`. Other Step 3 retrieval edits appeared in the shared worktree during planning and HEAD advanced to `10cd354`; those changes and the pre-existing UI slice 2 documentation remain untouched by this task. Reconcile newer Step 3 inputs before execution.
+- Inputs read: approved simple-notes spec, spike findings/evidence, WorkStore/vault and note-index source, current workflow/CLI/native ownership, search plan and BRN theme tokens. Pinned public Rig `v0.43.0` source confirms `DeviceCodeHandler::new`, prompt `history`/`max_turns`, `on_model_turn_finished` and mock-model support. Proposed product interfaces have not been compiled.
+- Gates retained: Step 3 Library/local-embedder completion before real read/search integration; ChatGPT live chat/restart/cancel recheck only on a separate request after its observed quota-reset time. Unsaved-edit concurrency can be checked in Step 4; actual simple Markdown Save concurrency is a Step 6 acceptance check.
+- Documentation checks: `git diff --check` **PASS**; inline local Markdown file/fragment checker **PASS** (57 links across chat plan, roadmap, active index and status; final pass 61 including this evidence file); new-file whitespace checks **PASS**; eight-task/spec-coverage and placeholder self-review performed. No Rust builds or product tests run for these documentation/artifact changes.
+- Local review surface: `.lavish/task-4-ai-chat.html`, with a copy of the complete plan as `chat-plan.md`. Uses BRN's existing Menlo/Georgia light/dark palette, local-only assets, annotated SVG architecture and an explicit plan-only feedback form. `lavish-axi .lavish/task-4-ai-chat.html` returned `status: opened`; no third-party publication.
+- Artifact checks: cached offline Playwright lookup initially failed (`ENOTCACHED`); package restored through npm after that missing-dependency failure. Headless dark/light/375px render and screenshot inspection **PASS**; no horizontal page overflow/page errors; theme control works; changing a choice sends nothing, submitting queues exactly one feedback prompt. The full-plan asset matches the source.
+- This task changes documentation and a local review artifact only: no product implementation, account actions, live calls, model downloads, original-vault access, migration, commits, push, merge or acceptance claimed.
+
 ## Step 3: search
 
 Final review fixes: index open checks the file's identity before damage and refuses anything not ours; semantic hits are read in one statement; embeddings are stored only for unchanged passages and model; the model identity covers all five files.
@@ -81,3 +92,32 @@ Final review fixes: index open checks the file's identity before damage and refu
 - `cargo check -p brn-desktop --locked --features native-ui,native-retrieval`: **PASS**, exit 0 without `protoc` (unavailable); confirms Task 4's earlier build report after LanceDB removal. Upstream GPUI dependency `block v0.1.6` future-incompatibility warning remains.
 - `git diff --check`: **PASS**, exit 0; final staged whitespace and relative-link checks recorded in the Task 6 report.
 - No live provider calls, original-vault/old-data access, model inference, native usability acceptance or release qualification claimed.
+
+## Step 4: Opus plan review and revisions
+
+- 2026-10-02: the user requested Claude Opus 5.5 with high reasoning to review [the chat plan](chat.md), then apply improvements agreed with. One read-only reviewer returned R1–R10; its initial verdict was not ready to execute because ownership, authentication, concurrency and dispatch contracts were incomplete. The revisions below are the author's verified dispositions, not a second reviewer approval or user acceptance.
+- Reviewed baseline advanced from `b0d6b17` to `main@e24b104` during this task. Read and preserved the concurrent retrieval correction: foreign-file refusal, consistent semantic rows, unchanged-passage/model insertion and five-file model identity. No Rust source, original vault, old data or unrelated UI-slice-2 records were changed by this task.
+
+| Finding | Disposition | Plan change |
+| --- | --- | --- |
+| R1: stale Step 3 baseline and download promise | Adopted; trailer sub-suggestion declined | Completed Library/LocalEmbedder are inputs; historical skipped inference stays explicit. Model installation is planned rather than silently deferred. Keep the currently required `Copilot` trailer, not the historical `Copilot App` name. |
+| R2: undefined query embedder ownership/policy | Adopted | One SharedEmbedder, shared Library/tool search helper, retrieval-owned read-only queries and model-identity/dimension checks. |
+| R3: mutable Auth held across stream/login | Adopted | Owned provider clients release per-provider guards before streaming; responsive dispatch, other-provider concurrency and target-provider Disconnect fence/cancel/join/delete. |
+| R4: frontend-only mixed-store guard | Adopted | Symmetric Store/WorkStore checks after the shared owner lock, before SQLite; sidecars and recognized work backups included. |
+| R5: CLI command collisions/UUID regression | Adopted | Explicit command-by-mode matrix; preserve `notes show UUID`, legacy search/history and empty-folder choice; retire `ask --profile` with documented usage failure. |
+| R6: undefined desktop owner/default/vault choice | Adopted | AppWorker-only views; BRN-simple default, explicit legacy route and first BindVault action. CLI Ask also uses the owner lane, not a preflight-bypassing direct chat call. |
+| R7: begin-turn and attached-lock lifetime | Adopted | None allocates; unknown Some fails before insertion; ChatStore holds the owner's Arc<File>; owned shutdown/Drop joins. |
+| R8: cancellation/tool failures/refresh ambiguity | Adopted | Typed budget flag, safe model-visible failed tool results, bound-vault/refresh preflight and no network on terminal replay. |
+| R9: missing consent/native download wiring | Adopted | Pinned five-asset installer, explicit consent/decline/cancel/progress, size/digest/exclusive-install checks, offline fixtures and typed non-native refusal. |
+| R10: mock transport cannot test continuations | Adopted with correction | Recording client has a fixed response; sequenced streaming helper serves one stream's chunks. Use a private queue-backed multi-completion transport, not that helper alone. |
+
+- Verification basis for the decisions: current store/workflow/CLI/desktop source and manifests; pinned public Rig `v0.43.0` auth, transport, runner/hook and test-helper source. Authenticate captures credentials into an owned client; the model-finished hook precedes tool dispatch. These observations do not compile the proposed interfaces.
+- Installer manifest was pinned from public Hugging Face metadata only: immutable revision `751bff37182d3f1213fa05d7196b954e230abad9`, ONNX LFS SHA-256 and small-file Git blob IDs/sizes. No model assets fetched or inference run. Synthetic installer tests are future instructions, not completed qualification.
+- Roadmap/status/active index and saved `.lavish` review files were synchronized. The earlier interactive review session had been explicitly ended; it was not reopened. Product implementation, account actions, live calls, migration, commits/push/merge/release and user acceptance remain pending.
+- Fresh documentation checks on `main@e24b104` with this planning diff: `git diff --check` **PASS**; inline local Markdown file/fragment checker **PASS**, 64 links across chat/roadmap/evidence/status/active index; `git diff --no-index --check /dev/null FILE` checks for the new plan/HTML/copied plan **PASS**, with no whitespace diagnostics. Eight tasks, no TODO/TBD/FIXME placeholders, revised interface/dispatch/feature contracts and 91,100,408-byte asset total checked; complete-plan copy matches byte-for-byte.
+- Fresh saved-artifact check: cached `npm exec --offline --yes --package=playwright -c 'command -v playwright'`, then the session's `render-chat-plan.cjs` **PASS** for dark/light/375px layouts, theme control, no page errors/horizontal overflow and exactly one mock feedback queue on submit. Narrow/light diagram screenshots inspected; shortened a diagram label to stay inside its box. This is headless artifact rendering, not native product acceptance. No Rust build/tests run for documentation-only changes.
+
+## Step 4: implementation execution
+
+- 2026-10-02: user authorized implementation with GPT-6.1 Sol (medium reasoning) and Claude Opus 5.5 (medium reasoning) reviews, then explicitly approved isolated worktree/branch `task-4-ai-chat` from `e24b104`. The original main checkout and unrelated dirty records remain untouched; only task-owned planning records were imported. Execution does not authorize live logins/provider calls, model downloads, old-data migration, push/merge/release or native acceptance.
+- Fresh isolated baseline: `cargo build --workspace --locked --offline --quiet` and `cargo test --workspace --locked --offline --quiet` **PASS**, exit 0, default features, explicit disposable TMPDIR. Some existing tests emit their expected CLI JSON. No native/UI/inference/provider qualification claimed.

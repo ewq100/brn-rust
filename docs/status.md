@@ -1,5 +1,7 @@
 # Current development status
 
+2026-10-02 transition update: the approved [simple Rig-based notes design](superpowers/specs/2026-10-02-simple-rig-notes-design.md) supersedes the Rig-first reset. At `main@e24b104`, the spike, WorkStore/vault and Step 3 search/Library/LocalEmbedder are implemented; model inference remains unverified without assets. The [Step 4 AI chat plan](work/active/simple-rig-notes/chat.md) was reviewed by Claude Opus 5.5 (high reasoning) and revised, not implemented or user-accepted. ChatGPT live chat remains conditional; see [active work](work/active/README.md) and [evidence](work/active/simple-rig-notes/evidence.md). The baseline/verification summary below remains historical.
+
 Updated 2026-10-01. Implementation baseline: `main@6323e53`, including the
 workspace shell (PR #12) and managed Markdown editing (PR #13). The Rig reset
 documentation is integrated against that baseline without changing product
