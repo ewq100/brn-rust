@@ -15,6 +15,7 @@ pub mod anchors;
 mod comments;
 mod drafts;
 pub mod notes;
+pub mod work;
 mod workflow;
 pub use anchors::{
     AmbiguityReason, AnchorProjection, AnchorState, EditTrace, OriginalAnchor, RecoveryReference,
@@ -26,6 +27,7 @@ pub use comments::{
     MAX_COMMENT_BODY_BYTES,
 };
 pub use drafts::{Draft, DraftRevision, DraftStamp, MAX_DRAFT_BYTES, RevisionKind};
+pub use work::{MAX_NOTE_BYTES, OpenReport, UnsavedEdit, WorkStore};
 pub use workflow::{Approval, ChatTurn, EvidenceCurrentness, ImportResult, SourceDocument};
 
 const APPLICATION_ID: u32 = 0x4252_4e31; // BRN1

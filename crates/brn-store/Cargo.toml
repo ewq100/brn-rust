@@ -5,7 +5,7 @@ edition = "2024"
 publish = false
 
 [dependencies]
-rusqlite = { version = "=0.40.2", default-features = false, features = ["bundled"] }
+rusqlite = { version = "=0.40.2", default-features = false, features = ["bundled", "backup"] }
 uuid = { version = "1", features = ["v4", "serde"] }
 sha2 = "0.10"
 serde = { version = "1", features = ["derive"] }
