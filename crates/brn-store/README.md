@@ -129,6 +129,47 @@ baseline/local snapshot. Ordinary confirmed reloads do not accumulate historical
 buffer snapshots. These additive tables amend the unreleased V6 schema; no
 filesystem operation or search approval is performed by the store.
 
+## Simple notes WorkStore
+
+[`work`](src/work/mod.rs) owns the separate `brn.sqlite` database, application
+ID `BRN2`. V1 settings and unsaved edits are preserved by the appended V2
+conversations/messages migration; the legacy `Store` V6 schema is unchanged.
+Every open retains the owner lock, checks integrity, upgrades supported schemas,
+reconciles Running chat pairs to Interrupted, then creates the startup backup
+and keeps the five newest copies. Foreign and newer databases remain refused.
+
+[`chat`](src/work/chat.rs) persists only local text-only user/assistant pairs.
+`begin_turn` atomically inserts both rows with the same UUID, conversation
+sequence, provider and model. `None` creates a conversation; an unknown supplied
+conversation returns `Error::NotFound` without inserts. Exact UUID replay returns
+the recorded Running or terminal result, never permission to repeat external
+work; changed payloads return `Error::OperationConflict`.
+
+`finish_turn` atomically records both rows' terminal status/error category,
+the assistant's final or partial text, and the first question as the title.
+Terminal records are immutable except for identical replay. Question and answer
+bytes (including Unicode and line endings) are preserved. Questions must be
+nonblank; providers are `chatgpt` or `copilot`; model identifiers are 1–128 ASCII
+bytes using letters, digits and `-_.:/`. Optional error codes are limited to
+`reconnect_needed`, `code_expired`, `rate_limited`, `network`, `model_refused`,
+`invalid_tool_use`, `tool_limit_reached`, `unsafe_credentials`, `tool_rejected`,
+`index_stale`, `storage` and `other`. There is no dependency on AI/Rig types and
+no column or API for raw provider bodies, tool history or credential metadata.
+Callers supply only safe user/assistant text, never tokens or device codes.
+
+`turns` returns **all** local pairs in sequence order; workflow limits outbound
+history to 20 earlier pairs. Restart preserves only already durable text: there
+is no per-token crash recovery, automatic retry or provider resubmission.
+Connection-based begin/finish helpers are reusable by the later chat lane;
+this slice does not attach additional connections or implement workers.
+
+Focused offline checks, using disposable synthetic fixtures:
+
+```sh
+cargo test -p brn-store --test work --test work_chat --locked
+cargo clippy -p brn-store --all-targets --locked -- -D warnings
+```
+
 ## Dependencies and features
 
 No workspace dependencies. Uses bundled SQLite through rusqlite; consumed by `brn-workflow`.

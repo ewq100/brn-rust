@@ -2,6 +2,7 @@
 //! on every open, restored from the newest backup when corrupt, and backed
 //! up after every successful open. Notes themselves live in the vault.
 mod backup;
+mod chat;
 mod edits;
 
 use crate::{Result, acquire_owner_lock, check_regular_single_link, invalid};
@@ -13,6 +14,7 @@ use std::{
     time::{Duration, Instant, SystemTime, UNIX_EPOCH},
 };
 
+pub use chat::{WorkConversation, WorkTurn, WorkTurnStatus};
 pub use edits::UnsavedEdit;
 
 /// Largest note, unsaved edit or proposal text, in bytes.
@@ -20,7 +22,8 @@ pub const MAX_NOTE_BYTES: usize = 1024 * 1024;
 const APPLICATION_ID: i64 = 0x4252_4e32; // BRN2
 const DB_NAME: &str = "brn.sqlite";
 /// Each entry upgrades the schema by one version; `user_version` is the number applied.
-const MIGRATIONS: &[&str] = &["CREATE TABLE settings (
+const MIGRATIONS: &[&str] = &[
+    "CREATE TABLE settings (
         key TEXT PRIMARY KEY,
         value TEXT NOT NULL
     );
@@ -29,7 +32,27 @@ const MIGRATIONS: &[&str] = &["CREATE TABLE settings (
         base_sha256 BLOB NOT NULL CHECK(length(base_sha256) = 32),
         text TEXT NOT NULL,
         updated_at_ms INTEGER NOT NULL
-    );"];
+    );",
+    "CREATE TABLE conversations (
+        id TEXT PRIMARY KEY,
+        title TEXT NOT NULL,
+        created_at_ms INTEGER NOT NULL
+    );
+    CREATE TABLE messages (
+        turn_id TEXT NOT NULL,
+        conversation_id TEXT NOT NULL REFERENCES conversations(id) ON DELETE CASCADE,
+        sequence INTEGER NOT NULL,
+        role TEXT NOT NULL CHECK(role IN ('user','assistant')),
+        text TEXT NOT NULL,
+        provider TEXT NOT NULL CHECK(provider IN ('chatgpt','copilot')),
+        model TEXT NOT NULL,
+        status TEXT NOT NULL CHECK(status IN ('running','completed','interrupted','failed')),
+        error_code TEXT,
+        PRIMARY KEY(turn_id, role),
+        UNIQUE(conversation_id, sequence, role)
+    );
+    CREATE INDEX messages_conversation ON messages(conversation_id, sequence);",
+];
 
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub struct OpenReport {
@@ -95,6 +118,7 @@ impl WorkStore {
         };
         configure(&conn)?;
         migrate(&mut conn)?;
+        chat::reconcile(&mut conn)?;
         let backup = backup::create(data_dir, &conn)?;
         backup::prune(data_dir)?;
         Ok((

@@ -63,15 +63,18 @@ pub enum Error {
     WorkspaceBusy(String),
     /// A durable operation ID was reused with different kind or payload.
     OperationConflict(String),
+    /// A requested durable record does not exist.
+    NotFound(String),
 }
 impl std::fmt::Display for Error {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         match self {
             Self::Io(e) => write!(f, "I/O: {e}"),
             Self::Sql(e) => write!(f, "SQLite: {e}"),
-            Self::Invalid(e) | Self::WorkspaceBusy(e) | Self::OperationConflict(e) => {
-                f.write_str(e)
-            }
+            Self::Invalid(e)
+            | Self::WorkspaceBusy(e)
+            | Self::OperationConflict(e)
+            | Self::NotFound(e) => f.write_str(e),
         }
     }
 }
