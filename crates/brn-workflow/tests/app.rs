@@ -268,8 +268,14 @@ fn default_credential_sibling_is_checked_without_creating_or_reading_caches() {
     let data = fixture.path().join("data");
     std::fs::create_dir(&data).unwrap();
     let credentials = brn_workflow::app::default_credentials_dir(&data).unwrap();
-    assert_eq!(credentials, fixture.path().join("data-credentials"));
+    assert_eq!(credentials, fixture.path().join("data.credentials"));
     assert!(!credentials.exists());
+    let desktop_data = fixture.path().join("BRN-simple");
+    std::fs::create_dir(&desktop_data).unwrap();
+    assert_eq!(
+        brn_workflow::app::default_credentials_dir(&desktop_data).unwrap(),
+        fixture.path().join("BRN-simple.credentials")
+    );
     std::fs::write(fixture.path().join(".git"), b"synthetic repository").unwrap();
     assert_eq!(
         brn_workflow::app::default_credentials_dir(&data)
@@ -278,4 +284,81 @@ fn default_credential_sibling_is_checked_without_creating_or_reading_caches() {
         ErrorKind::UnsafeCredentials
     );
     assert!(!credentials.exists());
+}
+
+#[cfg(not(feature = "native-retrieval"))]
+#[test]
+fn default_restart_ignores_saved_native_model_without_changing_assets_or_user_work() {
+    use brn_store::work::WorkTurnStatus;
+    let data = base();
+    let creds = base();
+    let vault = base();
+    let model = data.path().join("models/saved-native");
+    let note = b"# Apple\r\nexact vault bytes\r\n";
+    std::fs::write(vault.path().join("a.md"), note).unwrap();
+    std::fs::create_dir_all(&model).unwrap();
+    let asset = model.join("config.json");
+    std::fs::write(&asset, b"synthetic native asset sentinel").unwrap();
+    let mut app = App::open(data.path(), config(creds.path())).unwrap();
+    app.bind_vault(vault.path()).unwrap();
+    app.work_store_mut()
+        .set_setting("model.directory", model.to_str().unwrap())
+        .unwrap();
+    app.work_store_mut().set_setting("theme", "dark").unwrap();
+    let turn = app
+        .work_store_mut()
+        .begin_turn(uuid::Uuid::new_v4(), None, "question", "chatgpt", "gpt-5.5")
+        .unwrap();
+    app.work_store_mut()
+        .finish_turn(turn.id, WorkTurnStatus::Completed, "saved answer", None)
+        .unwrap();
+    drop(app);
+
+    let mut app = App::open(data.path(), config(creds.path())).unwrap();
+    assert!(!app.model_installed());
+    assert_eq!(
+        app.work_store()
+            .setting("model.directory")
+            .unwrap()
+            .as_deref(),
+        model.to_str()
+    );
+    assert_eq!(
+        app.work_store().setting("theme").unwrap().as_deref(),
+        Some("dark")
+    );
+    assert_eq!(app.conversations().unwrap()[0].id, turn.conversation_id);
+    assert_eq!(
+        app.turns(turn.conversation_id).unwrap()[0].answer,
+        "saved answer"
+    );
+    assert_eq!(app.notes(None, None).unwrap().notes[0].path, "a.md");
+    assert_eq!(app.note("a.md").unwrap().text.as_bytes(), note);
+    for mode in [
+        SearchMode::Keyword,
+        SearchMode::Semantic,
+        SearchMode::Hybrid,
+    ] {
+        let results = app.search("apple", mode, 10).unwrap();
+        assert!(results.keyword_only);
+        assert_eq!(results.hits.len(), 1);
+    }
+    assert!(
+        brn_workflow::ReadTools::search_notes(&*app.tools().unwrap(), "apple", 10)
+            .unwrap()
+            .keyword_only
+    );
+    assert_eq!(
+        std::fs::read(&asset).unwrap(),
+        b"synthetic native asset sentinel"
+    );
+    assert_eq!(std::fs::read_dir(&model).unwrap().count(), 1);
+    assert_eq!(std::fs::read(vault.path().join("a.md")).unwrap(), note);
+    drop(app);
+    let mut explicit = config(creds.path());
+    explicit.model_dir = Some(model);
+    assert_eq!(
+        App::open(data.path(), explicit).err().unwrap().kind,
+        ErrorKind::SemanticUnavailableInBuild
+    );
 }

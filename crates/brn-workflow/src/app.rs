@@ -74,7 +74,10 @@ impl App {
             &data_dir,
         )?;
         let auth = Arc::new(Auth::open(&config.credentials_dir)?);
+        #[cfg(feature = "native-retrieval")]
         let saved_model = store.setting("model.directory")?.map(PathBuf::from);
+        #[cfg(not(feature = "native-retrieval"))]
+        let saved_model: Option<PathBuf> = None;
         let embedder = load_model(
             &data_dir,
             config.model_dir.as_deref().or(saved_model.as_deref()),
@@ -357,7 +360,7 @@ pub fn default_credentials_dir(data_dir: &Path) -> Result<PathBuf> {
         .file_name()
         .ok_or_else(|| WorkflowError::msg("data folder has no name"))?;
     let mut credential_name = name.to_os_string();
-    credential_name.push("-credentials");
+    credential_name.push(".credentials");
     let credentials = parent.join(credential_name);
     validate_credentials(&credentials, None, &data)?;
     Ok(credentials)

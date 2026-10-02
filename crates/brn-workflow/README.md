@@ -18,8 +18,9 @@ and data folders cannot overlap.
 
 Credentials must be absolute, outside Git repositories, the data folder and
 the vault. `default_credentials_dir(data_dir)` supplies a canonical sibling
-`<data-name>-credentials`; `Auth::open` checks only that safe folder, never
-provider caches. There is no default provider/model. Selection is validated and
+`<data-name>.credentials` (desktop `BRN-simple.credentials`); `Auth::open`
+checks only that safe folder, never provider caches. There is no default
+provider/model. Selection is validated and
 saved atomically in one `ai.selection` setting. Explicit Copilot discovery
 results go through `record_models`; `validate_selection` checks membership
 without network or cache access.
@@ -62,9 +63,13 @@ invalidates vectors by model identity; subsequent bounded `embed_pending`
 calls rebuild them. Emit `ModelInstalled` only after successful activation.
 Invalid installed models remain `ModelInvalid`, not model absence.
 
-Headless/default builds are keyword-only: a supplied model directory or
-approved download returns typed `SemanticUnavailableInBuild`
-(`SEMANTIC_UNAVAILABLE_IN_BUILD`). Native builds enable `native-retrieval`.
+Headless/default builds are keyword-only and ignore any saved `model.directory`
+without changing the setting or assets. Only an explicitly supplied model
+directory or Download action returns typed `SemanticUnavailableInBuild`
+(`SEMANTIC_UNAVAILABLE_IN_BUILD`). Unsupported Download does not change consent,
+and these builds do not offer an automatic download prompt. Explicit decline
+still persists without network. Native builds enable `native-retrieval` and
+continue to honor saved model directories and fresh consent.
 The current CLI/desktop still use the legacy workflow until their separate
 cutover tasks; this owner does not add `AppWorker` or `ChatWorker` dispatch.
 

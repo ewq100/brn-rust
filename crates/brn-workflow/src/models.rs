@@ -89,15 +89,22 @@ impl App {
     }
 
     pub fn model_download_prompt(&self) -> Result<Option<ModelDownloadPrompt>> {
-        if self.model_installed() || self.model_download_decision()?.is_some() {
-            return Ok(None);
+        #[cfg(not(feature = "native-retrieval"))]
+        {
+            Ok(None)
         }
-        Ok(Some(ModelDownloadPrompt {
-            source: MODEL_SOURCE.into(),
-            bytes: MODEL_BYTES,
-            cost: "Approximately 87 MiB of network transfer and installed storage".into(),
-            destination: self.work_store().data_dir().join("models/minilm"),
-        }))
+        #[cfg(feature = "native-retrieval")]
+        {
+            if self.model_installed() || self.model_download_decision()?.is_some() {
+                return Ok(None);
+            }
+            Ok(Some(ModelDownloadPrompt {
+                source: MODEL_SOURCE.into(),
+                bytes: MODEL_BYTES,
+                cost: "Approximately 87 MiB of network transfer and installed storage".into(),
+                destination: self.work_store().data_dir().join("models/minilm"),
+            }))
+        }
     }
 
     /// Never runs network work, even for persisted approval. Every retry needs a new explicit action.
@@ -111,15 +118,16 @@ impl App {
                 .set_setting("model.download_decision", "declined")?;
             return Ok(None);
         }
-        self.validate_model_target(target)?;
-        self.work_store_mut()
-            .set_setting("model.download_decision", "approved")?;
         #[cfg(not(feature = "native-retrieval"))]
         {
+            let _ = target;
             Err(unavailable())
         }
         #[cfg(feature = "native-retrieval")]
         {
+            self.validate_model_target(target)?;
+            self.work_store_mut()
+                .set_setting("model.download_decision", "approved")?;
             Ok(Some(ModelInstallRequest {
                 target: target.to_owned(),
             }))
