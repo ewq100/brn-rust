@@ -177,8 +177,8 @@ All default tests are deterministic and offline, and use temporary vault and dat
 Each step is one reviewable PR:
 
 1. **Spike (throwaway):** Rig login, a streamed answer and one tool call for both ChatGPT and Copilot, built in the same dependency graph as rusqlite 0.40.2, fastembed 7.1 and GPUI. Confirm how the account name is obtained for each provider. Go/no-go before step 4.
-2. **Store:** new `brn.sqlite` schema, `index.sqlite` with vault scanning, integrity check and backups. Update `AGENTS.md` and the architecture invariants to these rules.
-3. **Search:** FTS5, embeddings and fusion over `index.sqlite`; remove LanceDB.
+2. **Store and vault:** new `brn.sqlite` schema with integrity check and backups; vault path rules, scanning and reading. Update `AGENTS.md` and the architecture invariants to these rules.
+3. **Search:** `index.sqlite` (notes, passages, FTS5, embeddings) refreshed from the vault scan, plus fusion; remove LanceDB.
 4. **AI chat:** `brn-ai`, Connect/Disconnect/select, read tools, saved conversations, CLI `ask`; remove `brn-provider` and Codex configuration.
 5. **Writing:** comments, review mode, Address comments, new-note proposals, CLI `comments`/`review`.
 6. **Cleanup:** simplified save path (drop NSFileCoordinator/NSFilePresenter); remove old import, approval, drafts, checkpoints, revision-candidate and operation-journal code and `brn-core`; update architecture, status and roadmap documents; mark superseded documents historical.
