@@ -55,9 +55,14 @@ fn to_note((path, title, size, modified_ns, sha): NoteRow) -> Result<IndexedNote
 }
 
 impl NoteIndex {
-    /// Opens the index at `path`. A missing, damaged or outdated index is
-    /// deleted and created empty; the second value is `true` when that happened.
-    /// Refuses other databases without deleting them.
+    /// Opens the index at `path`, checking its file header before SQLite opens it.
+    /// Missing or zero-byte files are created empty. A BRNI-branded index is
+    /// rebuilt if corrupt, outdated or missing required schema objects.
+    /// An unbranded SQLite file is rebuilt only if healthy with no schema objects;
+    /// damaged or nonempty unbranded databases are refused. Short/non-SQLite files
+    /// and other nonzero application IDs are refused untouched, without SQLite.
+    /// Other SQLite and I/O errors propagate. The second value is `true` when
+    /// the index was created or rebuilt.
     pub fn open(path: &Path) -> Result<(Self, bool)> {
         let (conn, created) = schema::open(path)?;
         Ok((Self { conn }, created))

@@ -18,6 +18,8 @@ impl LocalEmbedder {
     /// Loads the model from `dir`, which must contain `model.onnx`,
     /// `tokenizer.json`, `config.json`, `special_tokens_map.json` and
     /// `tokenizer_config.json` as regular files. Never downloads anything.
+    /// The identity hashes all five files in that order, prefixed by each
+    /// file's name and its byte length encoded as a big-endian u64.
     pub fn open(dir: &Path) -> Result<Self> {
         let load = |name: &str| -> Result<Vec<u8>> {
             let path = dir.join(name);
@@ -33,7 +35,19 @@ impl LocalEmbedder {
             special_tokens_map_file: load("special_tokens_map.json")?,
             tokenizer_config_file: load("tokenizer_config.json")?,
         };
-        let digest = hex::encode(Sha256::digest(&onnx));
+        let mut hash = Sha256::new();
+        for (name, bytes) in [
+            ("model.onnx", &onnx),
+            ("tokenizer.json", &files.tokenizer_file),
+            ("config.json", &files.config_file),
+            ("special_tokens_map.json", &files.special_tokens_map_file),
+            ("tokenizer_config.json", &files.tokenizer_config_file),
+        ] {
+            hash.update(name.as_bytes());
+            hash.update((bytes.len() as u64).to_be_bytes());
+            hash.update(bytes);
+        }
+        let digest = hex::encode(hash.finalize());
         let identity = format!(
             "fastembed-7.1.0/all-MiniLM-L6-v2/mean/{DIMENSION}/{}",
             &digest[..16]

@@ -46,6 +46,25 @@ impl Embedder for BrokenEmbedder {
     }
 }
 
+struct MutatingEmbedder {
+    path: std::path::PathBuf,
+    sql: &'static str,
+}
+
+impl Embedder for MutatingEmbedder {
+    fn identity(&self) -> &str {
+        "test-topics-v1"
+    }
+    fn dimension(&self) -> usize {
+        3
+    }
+    fn embed(&mut self, texts: &[&str]) -> brn_retrieval::Result<Vec<Vec<f32>>> {
+        let raw = rusqlite::Connection::open(&self.path)?;
+        raw.execute_batch(self.sql)?;
+        Ok(texts.iter().map(|_| vec![1.0, 0.0, 0.0]).collect())
+    }
+}
+
 fn note(path: &str, text: &str) -> IndexedNote {
     IndexedNote {
         path: path.into(),
@@ -97,6 +116,50 @@ fn embeds_pending_passages_in_batches() {
         }
     );
     assert_eq!(embedder.calls, 2);
+}
+
+#[test]
+fn replaced_passage_does_not_receive_a_stale_vector() {
+    let (dir, mut index) = index_with(&NOTES);
+    let path = dir.path().join("index.sqlite");
+    let mut embedder = MutatingEmbedder {
+        path: path.clone(),
+        sql: "UPDATE passages SET text = 'replaced' WHERE id = (SELECT min(id) FROM passages)",
+    };
+    let progress = index.embed_pending(&mut embedder, 3).unwrap();
+    let raw = rusqlite::Connection::open(&path).unwrap();
+    let stale: i64 = raw
+        .query_row(
+            "SELECT count(*) FROM embeddings
+             WHERE passage_id = (SELECT min(id) FROM passages)",
+            [],
+            |r| r.get(0),
+        )
+        .unwrap();
+    assert_eq!(stale, 0);
+    assert_eq!(
+        progress,
+        EmbeddingProgress {
+            embedded: 2,
+            total: 3
+        }
+    );
+}
+
+#[test]
+fn changed_model_does_not_receive_stale_vectors() {
+    let (dir, mut index) = index_with(&NOTES);
+    let mut embedder = MutatingEmbedder {
+        path: dir.path().join("index.sqlite"),
+        sql: "UPDATE meta SET value = 'test-topics-v2|4' WHERE key = 'embedding_model'",
+    };
+    assert_eq!(
+        index.embed_pending(&mut embedder, 3).unwrap(),
+        EmbeddingProgress {
+            embedded: 0,
+            total: 3
+        }
+    );
 }
 
 #[test]

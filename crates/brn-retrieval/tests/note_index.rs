@@ -42,7 +42,12 @@ fn new_index_is_created_then_reopened() {
 fn damaged_or_outdated_index_is_rebuilt_empty() {
     let dir = tempfile::tempdir().unwrap();
     let path = dir.path().join("index.sqlite");
-    std::fs::write(&path, vec![0x42u8; 8192]).unwrap();
+    let (mut index, _) = NoteIndex::open(&path).unwrap();
+    index.upsert_note(&note("a.md", "alpha"), "alpha").unwrap();
+    drop(index);
+    let mut bytes = std::fs::read(&path).unwrap();
+    bytes[4096..8192].fill(0x42);
+    std::fs::write(&path, bytes).unwrap();
     let (index, created) = NoteIndex::open(&path).unwrap();
     assert!(created);
     assert!(index.notes().unwrap().is_empty());
@@ -65,6 +70,54 @@ fn damaged_or_outdated_index_is_rebuilt_empty() {
     let (index, created) = NoteIndex::open(&empty).unwrap();
     assert!(created);
     assert!(index.notes().unwrap().is_empty());
+}
+
+#[test]
+fn damaged_foreign_database_is_refused_untouched() {
+    let dir = tempfile::tempdir().unwrap();
+    for application in [0, 0x4252_4e32] {
+        let path = dir.path().join(format!("{application}.sqlite"));
+        let raw = rusqlite::Connection::open(&path).unwrap();
+        raw.execute_batch(
+            "CREATE TABLE x (y INTEGER CHECK(y > 0));
+             PRAGMA ignore_check_constraints = ON;
+             INSERT INTO x VALUES (-1);",
+        )
+        .unwrap();
+        raw.pragma_update(None, "application_id", application)
+            .unwrap();
+        raw.pragma_update(None, "ignore_check_constraints", "OFF")
+            .unwrap();
+        let check: String = raw
+            .query_row("PRAGMA quick_check", [], |r| r.get(0))
+            .unwrap();
+        assert_ne!(check, "ok");
+        drop(raw);
+        let before = std::fs::read(&path).unwrap();
+        assert!(matches!(
+            NoteIndex::open(&path),
+            Err(brn_retrieval::Error::Invalid(_))
+        ));
+        assert_eq!(std::fs::read(&path).unwrap(), before);
+    }
+}
+
+#[test]
+fn non_sqlite_files_are_refused_untouched() {
+    let dir = tempfile::tempdir().unwrap();
+    let path = dir.path().join("index.sqlite");
+    for bytes in [
+        vec![0x42; 8192],
+        b"SQLite format 3\0".to_vec(),
+        vec![0x42; 99],
+    ] {
+        std::fs::write(&path, &bytes).unwrap();
+        assert!(matches!(
+            NoteIndex::open(&path),
+            Err(brn_retrieval::Error::Invalid(_))
+        ));
+        assert_eq!(std::fs::read(&path).unwrap(), bytes);
+    }
 }
 
 #[test]

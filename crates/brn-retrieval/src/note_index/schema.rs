@@ -2,13 +2,15 @@ use crate::{Error, Result};
 use rusqlite::Connection;
 use std::{
     ffi::OsString,
-    io::ErrorKind,
+    io::{ErrorKind, Read},
     path::{Path, PathBuf},
     time::Duration,
 };
 
 const APPLICATION_ID: i64 = 0x4252_4e49; // BRNI
 const VERSION: i64 = 1;
+const NOT_OURS: &str =
+    "index path holds a file that is not a BRN index; remove it or choose another path";
 const SCHEMA: &str = "
 CREATE TABLE notes (
     path TEXT PRIMARY KEY,
@@ -66,17 +68,37 @@ enum Found {
 }
 
 fn existing(path: &Path) -> Result<Found> {
+    let mut file = std::fs::File::open(path)?;
+    if file.metadata()?.len() == 0 {
+        return Ok(Found::Rebuild);
+    }
+    let mut header = [0; 100];
+    match file.read_exact(&mut header) {
+        Ok(()) => {}
+        Err(e) if e.kind() == ErrorKind::UnexpectedEof => return Err(Error::Invalid(NOT_OURS)),
+        Err(e) => return Err(e.into()),
+    }
+    if &header[..16] != b"SQLite format 3\0" {
+        return Err(Error::Invalid(NOT_OURS));
+    }
+    let application = i64::from(i32::from_be_bytes([
+        header[68], header[69], header[70], header[71],
+    ]));
+    if application != 0 && application != APPLICATION_ID {
+        return Err(Error::Invalid(NOT_OURS));
+    }
     let found = (|| {
         let conn = Connection::open(path)?;
         let healthy: String = conn.query_row("PRAGMA quick_check", [], |r| r.get(0))?;
         if healthy != "ok" {
-            return Ok(Found::Rebuild);
+            return if application == APPLICATION_ID {
+                Ok(Found::Rebuild)
+            } else {
+                Err(Error::Invalid(NOT_OURS))
+            };
         }
-        let application: i64 = conn.query_row("PRAGMA application_id", [], |r| r.get(0))?;
-        let version: i64 = conn.query_row("PRAGMA user_version", [], |r| r.get(0))?;
-        let objects: i64 =
-            conn.query_row("SELECT count(*) FROM sqlite_schema", [], |r| r.get(0))?;
         if application == APPLICATION_ID {
+            let version: i64 = conn.query_row("PRAGMA user_version", [], |r| r.get(0))?;
             let required: i64 = conn.query_row(
                 "SELECT count(*) FROM sqlite_schema WHERE name IN (
                     'notes', 'passages', 'passages_path', 'passages_fts',
@@ -90,12 +112,12 @@ fn existing(path: &Path) -> Result<Found> {
             }
             return Ok(Found::Rebuild);
         }
-        if application == 0 && objects == 0 {
+        let objects: i64 =
+            conn.query_row("SELECT count(*) FROM sqlite_schema", [], |r| r.get(0))?;
+        if objects == 0 {
             return Ok(Found::Rebuild);
         }
-        Err(Error::Invalid(
-            "index path holds another database; remove it or choose another path",
-        ))
+        Err(Error::Invalid(NOT_OURS))
     })();
     match found {
         Err(Error::Sql(error))
@@ -104,7 +126,11 @@ fn existing(path: &Path) -> Result<Found> {
                 Some(rusqlite::ErrorCode::NotADatabase | rusqlite::ErrorCode::DatabaseCorrupt)
             ) =>
         {
-            Ok(Found::Rebuild)
+            if application == APPLICATION_ID {
+                Ok(Found::Rebuild)
+            } else {
+                Err(Error::Invalid(NOT_OURS))
+            }
         }
         other => other,
     }

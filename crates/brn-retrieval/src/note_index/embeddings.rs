@@ -1,4 +1,4 @@
-use super::search::{HIT_COLUMNS, hit_row, to_hit};
+use super::search::{HitRow, to_hit};
 use super::{NoteHit, NoteIndex};
 use crate::{Error, Result};
 use rusqlite::{OptionalExtension, params};
@@ -124,6 +124,7 @@ impl NoteIndex {
         batch: usize,
     ) -> Result<EmbeddingProgress> {
         let dimension = embedder.dimension();
+        let model = format!("{}|{dimension}", embedder.identity());
         self.use_embedding_model(embedder.identity(), dimension)?;
         let pending: Vec<(i64, String)> = {
             let mut statement = self.conn.prepare(
@@ -144,12 +145,21 @@ impl NoteIndex {
                 ));
             }
             let tx = self.conn.transaction()?;
-            {
+            let current: Option<String> = tx
+                .query_row(
+                    "SELECT value FROM meta WHERE key = 'embedding_model'",
+                    [],
+                    |r| r.get(0),
+                )
+                .optional()?;
+            if current.as_deref() == Some(model.as_str()) {
                 let mut insert = tx.prepare(
-                    "INSERT OR REPLACE INTO embeddings(passage_id, vector) VALUES (?1, ?2)",
+                    "INSERT OR REPLACE INTO embeddings(passage_id, vector)
+                     SELECT ?1, ?2 WHERE EXISTS
+                     (SELECT 1 FROM passages WHERE id = ?1 AND text = ?3)",
                 )?;
-                for ((id, _), vector) in pending.iter().zip(&vectors) {
-                    insert.execute(params![id, to_blob(&unit(vector)?)])?;
+                for ((id, text), vector) in pending.iter().zip(&vectors) {
+                    insert.execute(params![id, to_blob(&unit(vector)?), text])?;
                 }
             }
             tx.commit()?;
@@ -170,30 +180,47 @@ impl NoteIndex {
             return Err(Error::Invalid("query embedding dimension"));
         }
         let query = unit(query_vector)?;
-        let mut scored: Vec<(f32, i64)> = Vec::new();
-        {
-            let mut statement = self
-                .conn
-                .prepare("SELECT passage_id, vector FROM embeddings")?;
-            let mut rows = statement.query([])?;
-            while let Some(row) = rows.next()? {
-                let id: i64 = row.get(0)?;
-                let bytes: Vec<u8> = row.get(1)?;
-                let vector = from_blob(&bytes, dimension)?;
-                let score = vector.iter().zip(&query).map(|(a, b)| a * b).sum::<f32>();
-                if score.is_finite() {
-                    scored.push((score, id));
-                }
+        let mut scored: Vec<(f32, HitRow)> = Vec::with_capacity(limit);
+        let mut statement = self.conn.prepare(
+            "SELECT p.id, p.path, n.sha256, p.start_byte, p.end_byte, e.vector, p.text
+             FROM embeddings e JOIN passages p ON p.id = e.passage_id
+             JOIN notes n ON n.path = p.path",
+        )?;
+        let mut rows = statement.query([])?;
+        while let Some(row) = rows.next()? {
+            let id: i64 = row.get(0)?;
+            let bytes: Vec<u8> = row.get(5)?;
+            let vector = from_blob(&bytes, dimension)?;
+            let score = vector.iter().zip(&query).map(|(a, b)| a * b).sum::<f32>();
+            if !score.is_finite() {
+                continue;
             }
+            let position = scored.partition_point(|(kept_score, hit)| {
+                kept_score
+                    .total_cmp(&score)
+                    .reverse()
+                    .then(hit.0.cmp(&id))
+                    .is_lt()
+            });
+            if position >= limit {
+                continue;
+            }
+            let hit = (
+                id,
+                row.get(1)?,
+                row.get(2)?,
+                row.get(3)?,
+                row.get(4)?,
+                row.get(6)?,
+            );
+            if scored.len() == limit {
+                scored.pop();
+            }
+            scored.insert(position, (score, hit));
         }
-        scored.sort_by(|a, b| b.0.total_cmp(&a.0).then(a.1.cmp(&b.1)));
-        scored.truncate(limit);
-        let mut statement = self.conn.prepare(&format!(
-            "SELECT {HIT_COLUMNS} FROM passages p JOIN notes n ON n.path = p.path WHERE p.id = ?1"
-        ))?;
         scored
             .into_iter()
-            .map(|(score, id)| to_hit(statement.query_row([id], hit_row)?, score))
+            .map(|(score, hit)| to_hit(hit, score))
             .collect()
     }
 }

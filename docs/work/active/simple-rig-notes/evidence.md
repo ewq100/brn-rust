@@ -65,6 +65,8 @@ Check: the step 2 store and vault code and tests from the revised plan were copi
 
 ## Step 3: search
 
+Final review fixes: index open checks the file's identity before damage and refuses anything not ours; semantic hits are read in one statement; embeddings are stored only for unchanged passages and model; the model identity covers all five files.
+
 - 2026-10-02; tested `main@94de72d` with documentation-only dirty changes; implementation commits `80664a9`, `5e41142`, `99013df`, `10cd354` (fix), `180451f`, `9e6a735`, `94de72d` (fix), plus this documentation commit (`docs: record search step`).
 - `rustc --version`: `rustc 1.98.1 (48a229cea 2026-09-01)`; macOS; deterministic fixtures in an explicit disposable `TMPDIR`.
 - Implemented: disposable notes/passages/FTS5 index, stored embeddings/fusion, local embedder and workflow `Library`; LanceDB removed. CLI `search`/`notes list` moved to step 4 by controller ruling.
