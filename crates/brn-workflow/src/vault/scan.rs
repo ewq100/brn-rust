@@ -1,6 +1,6 @@
 use super::path::{VaultPath, is_markdown_name};
 use crate::MAX_IMPORT_BYTES;
-use std::{fs::Metadata, path::Path, time::UNIX_EPOCH};
+use std::{fs::Metadata, os::unix::ffi::OsStrExt, path::Path, time::UNIX_EPOCH};
 
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub struct NoteFile {
@@ -62,6 +62,9 @@ fn visit(dir: &Path, prefix: &str, found: &mut Scan) -> std::io::Result<()> {
             continue;
         }
         let os_name = entry.file_name();
+        if os_name.as_bytes().first() == Some(&b'.') {
+            continue;
+        }
         let Some(name) = os_name.to_str() else {
             let lossy = os_name.to_string_lossy();
             if file_type.is_file() && is_markdown_name(&lossy) {
@@ -72,9 +75,6 @@ fn visit(dir: &Path, prefix: &str, found: &mut Scan) -> std::io::Result<()> {
             }
             continue;
         };
-        if name.starts_with('.') {
-            continue;
-        }
         let relative = join(prefix, name);
         if file_type.is_dir() {
             if prefix.is_empty() && name.eq_ignore_ascii_case("archive") {

@@ -92,6 +92,45 @@ fn scan_lists_notes_and_skips_excluded_files() {
 }
 
 #[test]
+fn scan_reports_non_utf8_names_but_skips_hidden_ones() {
+    use std::{ffi::OsStr, os::unix::ffi::OsStrExt};
+
+    let vault = tempfile::tempdir().unwrap();
+    for name in [b"bad\xff.md".as_slice(), b".\xff.md".as_slice()] {
+        if let Err(error) = std::fs::write(vault.path().join(OsStr::from_bytes(name)), b"note") {
+            if error.kind() == std::io::ErrorKind::InvalidInput
+                || (cfg!(target_os = "macos") && error.raw_os_error() == Some(92))
+            {
+                eprintln!("Skipping non-UTF-8 names: filesystem rejected the name: {error}");
+                return;
+            }
+            panic!("could not create non-UTF-8 filename: {error}");
+        }
+    }
+
+    let found = scan(vault.path()).unwrap();
+    assert!(found.notes.is_empty());
+    assert_eq!(found.skipped.len(), 1);
+    assert_eq!(found.skipped[0].path, "bad\u{fffd}.md");
+    assert_eq!(found.skipped[0].reason, SkipReason::InvalidName);
+    assert!(
+        !found
+            .skipped
+            .iter()
+            .any(|entry| entry.path.starts_with('.'))
+    );
+}
+
+#[test]
+fn read_accepts_exactly_one_mebibyte() {
+    let vault = tempfile::tempdir().unwrap();
+    write(vault.path(), "exact.md", &vec![b'x'; 1_048_576]);
+    let path = VaultPath::parse("exact.md").unwrap();
+    let note = read_note(vault.path(), &path).unwrap();
+    assert_eq!(note.text.len(), 1_048_576);
+}
+
+#[test]
 fn read_returns_exact_text_and_hash() {
     let vault = tempfile::tempdir().unwrap();
     let bytes = "\u{feff}# Plan é\r\nline\r\n".as_bytes();

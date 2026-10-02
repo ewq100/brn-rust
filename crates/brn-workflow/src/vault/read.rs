@@ -71,12 +71,16 @@ pub fn read_note(root: &Path, path: &VaultPath) -> Result<NoteText, ReadError> {
     }
     let file = File::open(&current)?;
     let opened = file.metadata()?;
-    // If a folder or the file was swapped for a symlink after the checks
-    // above, `open` reached a different file: refuse it.
+    // The dev/inode check refuses a final file swapped between checks and open.
+    // A parent folder swapped for a symlink during the read can still lead outside
+    // the vault; this needs write access inside the vault and is an accepted limit.
     if !opened.is_file() || (opened.dev(), opened.ino()) != (checked.dev(), checked.ino()) {
         return Err(ReadError::NotAFile);
     }
-    let mut bytes = Vec::with_capacity(opened.len() as usize);
+    if opened.len() > MAX_IMPORT_BYTES as u64 {
+        return Err(ReadError::TooLarge);
+    }
+    let mut bytes = Vec::with_capacity(opened.len().min(MAX_IMPORT_BYTES as u64 + 1) as usize);
     file.take(MAX_IMPORT_BYTES as u64 + 1)
         .read_to_end(&mut bytes)?;
     if bytes.len() > MAX_IMPORT_BYTES {
