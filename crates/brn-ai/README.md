@@ -12,8 +12,10 @@ tools, SQL, selection persistence or frontend state.
   ancestors), current-user-owned and exactly `0700`. Its parent must already
   exist. A missing directory is created; an unsafe existing directory is refused,
   not repaired. Unix filesystem checks are currently the supported platform.
-- Known caches must be regular, single-link, current-user-owned `0600` files.
-  Every operation rechecks its provider's paths. Checked reads and permission
+- Opening `Auth` checks only the safe directory, so one provider's stale cache
+  cannot block the other. Reusing known caches requires regular, single-link,
+  current-user-owned `0600` files. Each reuse rechecks its provider's paths.
+  Checked reads and permission
   changes use no-follow file descriptors and compare opened inode/device identity.
   Initial `0644` caches are refused; only files written during an authentication
   operation are tightened afterward.
@@ -33,7 +35,12 @@ tools, SQL, selection persistence or frontend state.
   `openai::OpenAI` on the ChatGPT dialect, or `copilot::Copilot`.
 - `disconnect` serializes cache deletion with authentication/refresh and removes
   only `chatgpt.json` / `chatgpt-name.json`, or `github-token` / `copilot.json` /
-  `copilot-name.json`. Authenticators are operation-local, so there is no retained
+  `copilot-name.json`. In the checked safe folder, explicit Disconnect unlinks
+  known own-UID regular files (including unsafe modes/hardlinks) and symlinks
+  (including dangling links), without reading, following or chmod-repairing
+  them. Outside targets are unchanged. Foreign-owned entries, directories and
+  other non-file entries are refused; all target entries are checked before any
+  deletion. Authenticators are operation-local, so there is no retained
   provider auth state to recreate a deleted cache.
   **Task 5 must first fence new target-provider jobs, cancel/join active
   login/refresh/discovery/turn jobs, finalize the turn and drop owned clients.**
@@ -80,9 +87,8 @@ exercise the **real pinned authenticators** with synthetic Rig HTTP transports.
 There is no production fake-provider feature or dynamic provider registry.
 
 ```sh
-# Run from the workspace root; use a dedicated synthetic TMPDIR outside the repo.
-TMPDIR=/Users/evokessler/.copilot/session-state/ac00865b-1105-4770-b188-4cb7de10800f/files/chat-test-tmp \
-  cargo test -p brn-ai --lib --locked --offline
+# Run from the workspace root; no TMPDIR override is needed.
+cargo test -p brn-ai --lib --locked --offline
 cargo clippy -p brn-ai --all-targets --locked --offline -- -D warnings
 cargo fmt --all -- --check
 cargo tree --workspace --all-features --locked --offline -i ort

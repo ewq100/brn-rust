@@ -76,8 +76,7 @@ impl Auth {
             copilot: Mutex::new(()),
             http: DynHttpClient::new(rig::rig_reqwest::shared()),
         };
-        auth.validate(Provider::Chatgpt)?;
-        auth.validate(Provider::Copilot)?;
+        auth.validate_dir()?;
         Ok(auth)
     }
 
@@ -347,8 +346,12 @@ impl Auth {
     /// owned clients first. This serializes cache deletion against auth/refresh.
     pub async fn disconnect(&self, provider: Provider) -> AiResult<()> {
         let _guard = self.slot(provider).lock().await;
-        self.validate(provider)?;
+        self.validate_dir()?;
         for name in provider.files() {
+            self.check_removal(name)?;
+        }
+        for name in provider.files() {
+            self.check_removal(name)?;
             match std::fs::remove_file(self.dir.join(name)) {
                 Ok(()) => {}
                 Err(e) if e.kind() == std::io::ErrorKind::NotFound => {}
@@ -356,6 +359,14 @@ impl Auth {
             }
         }
         Ok(())
+    }
+
+    fn check_removal(&self, name: &str) -> AiResult<()> {
+        match std::fs::symlink_metadata(self.dir.join(name)) {
+            Ok(meta) => validate_removal(meta.is_file(), meta.file_type().is_symlink(), meta.uid()),
+            Err(e) if e.kind() == std::io::ErrorKind::NotFound => Ok(()),
+            Err(e) => Err(storage(e)),
+        }
     }
 
     pub async fn models(
@@ -552,6 +563,14 @@ fn validate_file(meta: &Metadata, tighten: bool) -> AiResult<()> {
     }
 }
 
+fn validate_removal(file: bool, symlink: bool, uid: u32) -> AiResult<()> {
+    // Unlink the owned directory entry, not its content or any symlink target.
+    if uid != current_uid() || !(file || symlink) {
+        return Err(unsafe_credentials());
+    }
+    Ok(())
+}
+
 fn validate_ancestors(path: &Path) -> AiResult<()> {
     let mut current = PathBuf::new();
     for component in path.components() {
@@ -638,8 +657,12 @@ mod tests {
     use rig::test_utils::{MockHttpResponse, SequencedHttpClient};
     use std::os::unix::fs::{PermissionsExt, symlink};
 
+    fn test_root() -> tempfile::TempDir {
+        tempfile::tempdir_in(std::env::temp_dir().canonicalize().unwrap()).unwrap()
+    }
+
     fn fixture() -> (tempfile::TempDir, Auth) {
-        let root = tempfile::tempdir().unwrap();
+        let root = test_root();
         let auth = Auth::open(&root.path().join("credentials"))
             .unwrap()
             .with_http(SequencedHttpClient::new([]));
@@ -685,7 +708,7 @@ mod tests {
 
     #[test]
     fn unsafe_folder_modes_and_symlinks_are_rejected() {
-        let root = tempfile::tempdir().unwrap();
+        let root = test_root();
         let dir = root.path().join("credentials");
         std::fs::create_dir(&dir).unwrap();
         std::fs::set_permissions(&dir, std::fs::Permissions::from_mode(0o755)).unwrap();
@@ -703,14 +726,14 @@ mod tests {
         let path = auth.dir.join("chatgpt.json");
         std::fs::write(&path, b"{}").unwrap();
         std::fs::set_permissions(&path, std::fs::Permissions::from_mode(0o644)).unwrap();
-        assert!(Auth::open(&auth.dir).is_err());
+        assert!(auth.validate(Provider::Chatgpt).is_err());
         std::fs::set_permissions(&path, std::fs::Permissions::from_mode(0o600)).unwrap();
         let link = root.path().join("hardlink");
         std::fs::hard_link(&path, &link).unwrap();
-        assert!(Auth::open(&auth.dir).is_err());
+        assert!(auth.validate(Provider::Chatgpt).is_err());
         std::fs::remove_file(&path).unwrap();
         symlink(&link, &path).unwrap();
-        assert!(Auth::open(&auth.dir).is_err());
+        assert!(auth.validate(Provider::Chatgpt).is_err());
         assert!(validate_metadata(true, false, 1, current_uid() + 1, 0o600, false).is_err());
         assert!(validate_metadata(false, true, 2, current_uid() + 1, 0o700, true).is_err());
     }
@@ -804,6 +827,138 @@ mod tests {
         assert!(!auth.dir.join("github-token").exists());
         assert!(!auth.dir.join("copilot.json").exists());
         assert!(!auth.dir.join("copilot-name.json").exists());
+    }
+
+    #[tokio::test]
+    async fn stale_copilot_cache_does_not_block_chatgpt_or_explicit_disconnect() {
+        let (_root, auth) = fixture();
+        chat_cache(&auth, false);
+        write(&auth, "chatgpt-name.json", br#"{"name":"synthetic"}"#);
+        write(&auth, "github-token", b"SYNTHETIC_PARTIAL_LOGIN");
+        write(&auth, "copilot.json", b"malformed partial login");
+        write(&auth, "copilot-name.json", b"malformed display name");
+        write(&auth, "unrecognized", b"leave unchanged");
+        let stale = auth.dir.join("github-token");
+        std::fs::set_permissions(&stale, std::fs::Permissions::from_mode(0o644)).unwrap();
+        let chat_before = std::fs::read(auth.dir.join("chatgpt.json")).unwrap();
+        let reopened = Auth::open(&auth.dir)
+            .unwrap()
+            .with_http(SequencedHttpClient::new([]));
+        assert!(reopened.status(Provider::Chatgpt).await.unwrap().connected);
+        reopened
+            .client(&selection(Provider::Chatgpt), CancellationToken::new())
+            .await
+            .unwrap();
+        reopened
+            .models(Provider::Chatgpt, CancellationToken::new())
+            .await
+            .unwrap();
+        assert_eq!(
+            reopened.status(Provider::Copilot).await.unwrap_err().kind,
+            AiErrorKind::UnsafeCredentials
+        );
+        assert_eq!(
+            reopened
+                .client(&selection(Provider::Copilot), CancellationToken::new())
+                .await
+                .err()
+                .unwrap()
+                .kind,
+            AiErrorKind::UnsafeCredentials
+        );
+        assert_eq!(std::fs::metadata(&stale).unwrap().mode() & 0o7777, 0o644);
+        reopened.disconnect(Provider::Copilot).await.unwrap();
+        for name in Provider::Copilot.files() {
+            assert!(!reopened.dir.join(name).try_exists().unwrap());
+        }
+        assert_eq!(
+            std::fs::read(auth.dir.join("chatgpt.json")).unwrap(),
+            chat_before
+        );
+        assert_eq!(
+            std::fs::read(auth.dir.join("chatgpt-name.json")).unwrap(),
+            br#"{"name":"synthetic"}"#
+        );
+        assert_eq!(
+            std::fs::read(auth.dir.join("unrecognized")).unwrap(),
+            b"leave unchanged"
+        );
+        reopened.disconnect(Provider::Copilot).await.unwrap();
+    }
+
+    #[tokio::test]
+    async fn disconnect_unlinks_owned_symlinks_and_hardlinks_without_touching_targets() {
+        for dangling in [false, true] {
+            let (root, auth) = fixture();
+            let target = root.path().join("outside");
+            if !dangling {
+                std::fs::write(&target, b"SYNTHETIC_OUTSIDE").unwrap();
+                std::fs::set_permissions(&target, std::fs::Permissions::from_mode(0o644)).unwrap();
+            }
+            symlink(&target, auth.dir.join("github-token")).unwrap();
+            let hardlink_target = root.path().join("hardlink-target");
+            std::fs::write(&hardlink_target, b"SYNTHETIC_HARDLINK").unwrap();
+            std::fs::set_permissions(&hardlink_target, std::fs::Permissions::from_mode(0o644))
+                .unwrap();
+            std::fs::hard_link(&hardlink_target, auth.dir.join("copilot.json")).unwrap();
+            assert!(auth.validate(Provider::Copilot).is_err());
+            auth.disconnect(Provider::Copilot).await.unwrap();
+            assert!(std::fs::symlink_metadata(auth.dir.join("github-token")).is_err());
+            assert!(std::fs::symlink_metadata(auth.dir.join("copilot.json")).is_err());
+            if !dangling {
+                assert_eq!(std::fs::read(&target).unwrap(), b"SYNTHETIC_OUTSIDE");
+                assert_eq!(std::fs::metadata(&target).unwrap().mode() & 0o7777, 0o644);
+            } else {
+                assert!(!target.exists());
+            }
+            assert_eq!(
+                std::fs::read(&hardlink_target).unwrap(),
+                b"SYNTHETIC_HARDLINK"
+            );
+            assert_eq!(
+                std::fs::metadata(&hardlink_target).unwrap().mode() & 0o7777,
+                0o644
+            );
+        }
+    }
+
+    #[tokio::test]
+    async fn disconnect_refuses_directories_and_unsafe_folders_before_deleting() {
+        let (_root, auth) = fixture();
+        write(&auth, "github-token", b"SYNTHETIC_GITHUB");
+        write(&auth, "copilot.json", b"{}");
+        let directory = auth.dir.join("copilot-name.json");
+        std::fs::create_dir(&directory).unwrap();
+        assert_eq!(
+            auth.disconnect(Provider::Copilot).await.unwrap_err().kind,
+            AiErrorKind::UnsafeCredentials
+        );
+        assert!(auth.dir.join("github-token").exists());
+        assert!(auth.dir.join("copilot.json").exists());
+        assert!(directory.is_dir());
+        std::fs::remove_dir(directory).unwrap();
+        std::fs::set_permissions(&auth.dir, std::fs::Permissions::from_mode(0o755)).unwrap();
+        assert_eq!(
+            auth.disconnect(Provider::Copilot).await.unwrap_err().kind,
+            AiErrorKind::UnsafeCredentials
+        );
+        assert!(auth.dir.join("github-token").exists());
+        assert!(auth.dir.join("copilot.json").exists());
+    }
+
+    #[test]
+    fn disconnect_metadata_policy_refuses_foreign_entries_and_non_files() {
+        for (file, symlink) in [(true, false), (false, true)] {
+            assert!(validate_removal(file, symlink, current_uid()).is_ok());
+            assert_eq!(
+                validate_removal(file, symlink, current_uid() + 1)
+                    .unwrap_err()
+                    .kind,
+                AiErrorKind::UnsafeCredentials
+            );
+        }
+        assert!(validate_removal(false, false, current_uid()).is_err());
+        assert!(validate_metadata(false, true, 2, current_uid() + 1, 0o700, true).is_err());
     }
 
     fn copilot_login_responses() -> Vec<MockHttpResponse> {
@@ -1296,11 +1451,8 @@ mod tests {
             auth.status(Provider::Chatgpt).await.unwrap_err().kind,
             AiErrorKind::UnsafeCredentials
         );
-        assert_eq!(
-            auth.disconnect(Provider::Chatgpt).await.unwrap_err().kind,
-            AiErrorKind::UnsafeCredentials
-        );
-        assert!(auth.dir.join("chatgpt.json").exists());
+        auth.disconnect(Provider::Chatgpt).await.unwrap();
+        assert!(!auth.dir.join("chatgpt.json").exists());
     }
 
     #[tokio::test]
@@ -1368,7 +1520,7 @@ mod tests {
         let here = Path::new(env!("CARGO_MANIFEST_DIR"));
         assert!(Auth::open(&here.join("not-created-credentials")).is_err());
         assert!(!here.join("not-created-credentials").exists());
-        let root = tempfile::tempdir().unwrap();
+        let root = test_root();
         let dir = root.path().join("credentials");
         std::fs::create_dir(&dir).unwrap();
         std::fs::set_permissions(&dir, std::fs::Permissions::from_mode(0o700)).unwrap();
