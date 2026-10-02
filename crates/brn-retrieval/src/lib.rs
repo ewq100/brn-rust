@@ -84,6 +84,7 @@ struct Manifest {
 const CHUNKER: &str = "utf8-1600-v1";
 const MAX_DOCUMENT: usize = 1_048_576;
 const FORMAT: u32 = 1;
+const SEMANTIC_MOVED: &str = "semantic search moved to the note index";
 
 pub fn hash(bytes: &[u8]) -> String {
     hex::encode(Sha256::digest(bytes))
@@ -138,41 +139,6 @@ fn sync_dir(path: &Path) -> Result<()> {
     File::open(path)?.sync_all()?;
     Ok(())
 }
-#[cfg(feature = "native")]
-fn inventory(root: &Path) -> Result<BTreeMap<String, String>> {
-    if !root.is_dir() {
-        return Err(Error::Corrupt("missing native directory"));
-    }
-    fn visit(root: &Path, dir: &Path, out: &mut BTreeMap<String, String>) -> Result<()> {
-        for entry in fs::read_dir(dir)? {
-            let entry = entry?;
-            let kind = entry.file_type()?;
-            if kind.is_symlink() {
-                return Err(Error::Corrupt("symlink in native files"));
-            }
-            if kind.is_dir() {
-                visit(root, &entry.path(), out)?;
-            } else if kind.is_file() {
-                let name = entry
-                    .path()
-                    .strip_prefix(root)
-                    .map_err(|_| Error::Corrupt("invalid native file path"))?
-                    .to_string_lossy()
-                    .into_owned();
-                out.insert(name, hash(&fs::read(entry.path())?));
-            } else {
-                return Err(Error::Corrupt("invalid native file type"));
-            }
-        }
-        Ok(())
-    }
-    let mut result = BTreeMap::new();
-    visit(root, root, &mut result)?;
-    if result.is_empty() {
-        return Err(Error::Corrupt("empty native directory"));
-    }
-    Ok(result)
-}
 fn validate_chunks(docs: &[Document], chunks: &[Chunk]) -> Result<()> {
     let expected = chunk_documents(docs, &AtomicBool::new(false))?;
     if expected != chunks {
@@ -186,14 +152,11 @@ pub struct Index {
     docs: Vec<Document>,
     chunks: Vec<Chunk>,
     manifest: Manifest,
-    #[cfg(feature = "native")]
-    native: Option<native::NativeState>,
 }
 impl Index {
     /// Builds in a new directory only; `COMPLETE` is written and synced last.
-    /// Each document is limited to 1 MiB. Native embedding runs in batches of at
-    /// most 16 passages; model initialization and an individual ORT batch cannot
-    /// be interrupted, so callers should run builds on a supervised worker.
+    /// Each document is limited to 1 MiB. Semantic search moved to
+    /// [`note_index`], so `model_dir` must be `None`.
     pub fn build(
         path: &Path,
         documents: &[Document],
@@ -203,9 +166,8 @@ impl Index {
     ) -> Result<Self> {
         validate_documents(documents)?;
         check_cancel(cancel)?;
-        #[cfg(not(feature = "native"))]
         if model_dir.is_some() {
-            return Err(Error::Unavailable("native feature disabled"));
+            return Err(Error::Unavailable(SEMANTIC_MOVED));
         }
         fs::create_dir(path)?;
         on_progress("chunking");
@@ -214,28 +176,6 @@ impl Index {
         let chunks_bytes = serde_json::to_vec(&chunks)?;
         write_sync(&path.join("documents.json"), &docs_bytes)?;
         write_sync(&path.join("chunks.json"), &chunks_bytes)?;
-        #[cfg(feature = "native")]
-        let (model_identity, model_files, db_files) = if let Some(model_dir) = model_dir {
-            check_cancel(cancel)?;
-            on_progress("embedding");
-            let (identity, model_files, db_files) = native::build(
-                path,
-                &chunks,
-                documents,
-                model_dir,
-                cancel,
-                &mut on_progress,
-            )?;
-            (Some(identity), model_files, db_files)
-        } else {
-            (None, BTreeMap::new(), BTreeMap::new())
-        };
-        #[cfg(not(feature = "native"))]
-        let (model_identity, model_files, db_files): (
-            Option<String>,
-            BTreeMap<String, String>,
-            BTreeMap<String, String>,
-        ) = (None, BTreeMap::new(), BTreeMap::new());
         check_cancel(cancel)?;
         let manifest = Manifest {
             format: FORMAT,
@@ -244,10 +184,10 @@ impl Index {
             fingerprint: hash(&docs_bytes),
             documents_hash: hash(&docs_bytes),
             chunks_hash: hash(&chunks_bytes),
-            native: model_identity.is_some(),
-            model_identity,
-            model_files,
-            db_files,
+            native: false,
+            model_identity: None,
+            model_files: BTreeMap::new(),
+            db_files: BTreeMap::new(),
         };
         let manifest_bytes = serde_json::to_vec(&manifest)?;
         write_sync(&path.join("manifest.json"), &manifest_bytes)?;
@@ -298,15 +238,11 @@ impl Index {
         {
             return Err(Error::Corrupt("unexpected native manifest"));
         }
-        #[cfg(feature = "native")]
-        let native = None;
         Ok(Self {
             path: path.to_path_buf(),
             docs,
             chunks,
             manifest,
-            #[cfg(feature = "native")]
-            native,
         })
     }
     pub fn generation(&self) -> &str {
@@ -369,58 +305,8 @@ impl Index {
         hits.truncate(limit);
         hits
     }
-    fn semantic(&mut self, query: &str, limit: usize) -> Result<Vec<Evidence>> {
-        #[cfg(feature = "native")]
-        {
-            if !self.manifest.native {
-                return Err(Error::Unavailable("semantic resources absent"));
-            }
-            if self.native.is_none() {
-                self.open_native()?;
-            }
-            let ranks = self
-                .native
-                .as_mut()
-                .expect("opened above")
-                .search(query, limit)?;
-            ranks
-                .into_iter()
-                .map(|(id, score)| {
-                    let chunk = self
-                        .chunks
-                        .get(id)
-                        .ok_or(Error::Corrupt("native passage id"))?;
-                    Ok(self.hit(chunk, score, "cosine_similarity"))
-                })
-                .collect()
-        }
-        #[cfg(not(feature = "native"))]
-        {
-            let _ = (query, limit);
-            Err(Error::Unavailable("native feature disabled"))
-        }
-    }
-    #[cfg(feature = "native")]
-    fn open_native(&mut self) -> Result<()> {
-        if self.manifest.model_identity.as_deref() != Some(native_identity()) {
-            return Err(Error::Unavailable("incompatible semantic model"));
-        }
-        let model = self.path.join("model");
-        let database = self.path.join("lancedb");
-        if !model.is_dir() || !database.is_dir() {
-            return Err(Error::Unavailable("semantic resources absent"));
-        }
-        if inventory(&model)? != self.manifest.model_files
-            || inventory(&database)? != self.manifest.db_files
-        {
-            return Err(Error::Corrupt("native resource mismatch"));
-        }
-        self.native = Some(native::NativeState::open(
-            &self.path,
-            &self.docs,
-            &self.chunks,
-        )?);
-        Ok(())
+    fn semantic(&mut self, _query: &str, _limit: usize) -> Result<Vec<Evidence>> {
+        Err(Error::Unavailable(SEMANTIC_MOVED))
     }
     fn hit(&self, chunk: &Chunk, score: f32, kind: &str) -> Evidence {
         let doc = &self.docs[chunk.doc];
@@ -466,10 +352,6 @@ fn keyword_terms(query: &str) -> Vec<String> {
         .map(str::to_lowercase)
         .collect()
 }
-#[cfg(feature = "native")]
-fn native_identity() -> &'static str {
-    "fastembed-7.1.0/all-MiniLM-L6-v2-onnx/mean/384"
-}
 fn fuse(a: &[Evidence], b: &[Evidence], limit: usize) -> Vec<Evidence> {
     let mut merged: Vec<Evidence> = Vec::new();
     for list in [a, b] {
@@ -495,7 +377,7 @@ fn fuse(a: &[Evidence], b: &[Evidence], limit: usize) -> Vec<Evidence> {
     merged
 }
 #[cfg(feature = "native")]
-mod native;
+pub mod native;
 
 mod chunk;
 pub mod note_index;

@@ -74,10 +74,39 @@ fn keyword_ranking_and_unavailable_semantic_are_explicit() {
             .collect::<Vec<_>>(),
         vec!["both", "one"]
     );
-    assert!(index.search("red", Profile::Semantic, 3).is_err());
-    assert!(index.search("red", Profile::Hybrid, 3).is_err());
+    for profile in [Profile::Semantic, Profile::Hybrid] {
+        assert!(matches!(
+            index.search("red", profile, 3),
+            Err(brn_retrieval::Error::Unavailable(
+                "semantic search moved to the note index"
+            ))
+        ));
+    }
     assert!(index.search("", Profile::Keyword, 3).is_err());
     assert!(index.search("red", Profile::Keyword, 0).is_err());
+}
+
+#[test]
+fn generation_build_with_model_folder_is_unavailable_without_creating_files() {
+    let dir = tempdir().unwrap();
+    let path = dir.path().join("generation");
+    let model = dir.path().join("model");
+    std::fs::create_dir(&model).unwrap();
+    let result = Index::build(
+        &path,
+        &[doc("a", "apple")],
+        Some(&model),
+        &AtomicBool::new(false),
+        |_| panic!("unavailable build must not report progress"),
+    );
+    assert!(matches!(
+        result,
+        Err(brn_retrieval::Error::Unavailable(
+            "semantic search moved to the note index"
+        ))
+    ));
+    assert!(!path.exists());
+    assert_eq!(std::fs::read_dir(&model).unwrap().count(), 0);
 }
 
 #[test]

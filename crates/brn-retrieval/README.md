@@ -1,14 +1,10 @@
 # brn-retrieval
 
-Derived retrieval generations and keyword, semantic and hybrid search. Exposes typed documents, profiles and exact evidence; validates persisted generation state and hits.
-
-## Interfaces and source
-
-[Index API](src/lib.rs), [native adapter](src/native.rs), [keyword tests](tests/keyword.rs), [native smoke tests](tests/native_smoke.rs).
+Search over the vault's notes: a disposable `index.sqlite` with FTS5 keyword search, local embeddings and reciprocal-rank fusion ([`note_index`](src/note_index/mod.rs)), plus the local embedding model ([`native`](src/native.rs), feature `native`). The older generation-based `Index` in [lib.rs](src/lib.rs) keeps keyword search only until the cleanup step removes it.
 
 ## Dependencies and features
 
-No workspace dependencies. Default features are empty. `native` enables FastEmbed/ONNX, LanceDB, Arrow and supporting async libraries. Consumed by `brn-workflow`.
+No workspace dependencies. Default features are empty. `native` enables FastEmbed/ONNX for the local embedding model. Consumed by `brn-workflow`.
 
 ## Verification
 
@@ -19,6 +15,6 @@ cargo test -p brn-retrieval --locked
 cargo test -p brn-retrieval --features native --locked
 ```
 
-Native tests require inspection of fixture/resource conditions; a skipped resource path is not model verification. Preserve exact evidence and generation checks; never treat an index as authoritative storage.
+The local model test runs only when `BRN_NATIVE_MODEL_DIR` points at the model files; a skip is not model verification. Never treat an index as authoritative storage.
 
 Read the [architecture overview](../../docs/architecture/overview.md), [invariants](../../docs/architecture/invariants.md) and [verification guide](../../docs/development/verification.md) before changing contracts.
