@@ -586,6 +586,21 @@ fn recorded_error(turn: &WorkTurn) -> CliError {
     ))
 }
 
+fn status_selection(result: Result<AppEvent, CliFailure>) -> Result<Value, CliFailure> {
+    match result {
+        Ok(AppEvent::Selection(selection)) => {
+            Ok(json!({"selection": selection, "selection_error": null}))
+        }
+        Err(failure) if matches!(failure.error, CliError::Typed(ErrorKind::ModelRefused, _)) => {
+            Ok(json!({"selection": null, "selection_error": {
+                "code": failure.error.code(), "message": failure.error.message()
+            }}))
+        }
+        Err(failure) => Err(failure),
+        Ok(_) => Err(unexpected()),
+    }
+}
+
 fn account(i: &Invocation, lane: &mut Lane, action: &AiCommand) -> Result<Output, CliFailure> {
     if let AiCommand::Select(selection) = action {
         let AppEvent::SelectionSaved = lane.query(AppCommand::Select(selection.clone()))? else {
@@ -602,12 +617,9 @@ fn account(i: &Invocation, lane: &mut Lane, action: &AiCommand) -> Result<Output
                 false,
             )?);
         }
-        let AppEvent::Selection(selection) = lane.query(AppCommand::Selection)? else {
-            return Err(unexpected());
-        };
-        return Ok(output(
-            json!({"accounts": statuses, "selection": selection}),
-        ));
+        let mut data = status_selection(lane.query(AppCommand::Selection))?;
+        data["accounts"] = json!(statuses);
+        return Ok(output(data));
     }
     let (command, connect) = match action {
         AiCommand::Connect(provider, _) => (AccountCommand::Connect(*provider), true),
@@ -816,6 +828,34 @@ mod tests {
         cell::{Cell, RefCell},
         collections::VecDeque,
     };
+
+    #[test]
+    fn status_selection_recovers_only_typed_model_refused() {
+        let diagnostic =
+            status_selection(Err(typed(ErrorKind::ModelRefused, "safe diagnostic"))).unwrap();
+        assert!(diagnostic["selection"].is_null());
+        assert_eq!(diagnostic["selection_error"]["code"], "AI_MODEL_REFUSED");
+        assert_eq!(diagnostic["selection_error"]["message"], "safe diagnostic");
+        for kind in [
+            ErrorKind::AiStorage,
+            ErrorKind::UnsafeCredentials,
+            ErrorKind::Other,
+            ErrorKind::ModelInvalid,
+            ErrorKind::Cancelled,
+        ] {
+            let failure: CliFailure = classify_workflow(WorkflowError {
+                kind,
+                message: "selected model was not discovered for Copilot".into(),
+            })
+            .into();
+            let expected = failure.error.clone();
+            assert_eq!(status_selection(Err(failure)).unwrap_err().error, expected);
+        }
+        assert!(
+            status_selection(Ok(AppEvent::Selection(None))).unwrap()["selection_error"].is_null()
+        );
+        assert!(status_selection(Ok(AppEvent::SelectionSaved)).is_err());
+    }
 
     struct Projection {
         events: RefCell<VecDeque<(Uuid, AppEvent)>>,

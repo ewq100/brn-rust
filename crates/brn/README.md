@@ -146,7 +146,14 @@ show returns `{session_id, historical: true, turns}`. Turn/ask data is
 `{operation_id, session_id, provider, model, question, answer, status, error_code}`.
 There are **no provider thread/turn IDs, evidence snapshots or usage DTOs**
 in new turns. Legacy status/search/conversation data retains its prior shape.
-`ai status` returns `{accounts, selection}`; connect returns safe account status,
+`ai status` returns `{accounts, selection, selection_error}`. Absent or valid
+selection has `selection_error: null`. An unavailable/stale or malformed saved
+selection returns exit 0 with both actual local account statuses,
+`selection: null`, and `selection_error: {code: "AI_MODEL_REFUSED", message}`
+containing a safe diagnostic, never raw persisted selection data. Status does not
+change the saved selection or choose a fallback; new Ask still refuses it and
+recorded replay keeps its frozen selection. Other status failures remain errors.
+Connect returns safe account status,
 disconnect returns provider/connected=false/name=null, models returns
 provider/models, and select returns selection. Connected means local credentials
 exist, not upstream validity; null name means account name unavailable.

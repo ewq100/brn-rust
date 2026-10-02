@@ -3,6 +3,117 @@ use std::process::Command;
 mod support;
 
 #[test]
+fn status_preserves_accounts_when_explicit_rediscovery_invalidates_selection() {
+    use brn_workflow::{
+        app::{App, AppConfig},
+        ModelOption, Provider, Selection,
+    };
+
+    for case in ["absent", "valid", "stale", "malformed"] {
+        let dir = support::data_dir();
+        let vault = dir.path().parent().unwrap().join("vault");
+        std::fs::create_dir(&vault).unwrap();
+        std::fs::write(vault.join("note.md"), "# Synthetic\n").unwrap();
+        let mut app = App::open(
+            dir.path(),
+            AppConfig {
+                vault_root: Some(vault.clone()),
+                credentials_dir: None,
+                model_dir: None,
+            },
+        )
+        .unwrap();
+        app.record_models(
+            Provider::Copilot,
+            &[ModelOption {
+                id: "old-model".into(),
+                live_qualified: false,
+            }],
+        )
+        .unwrap();
+        if case != "absent" {
+            app.select(Selection {
+                provider: Provider::Copilot,
+                model: "old-model".into(),
+            })
+            .unwrap();
+        }
+        if case == "stale" {
+            app.record_models(
+                Provider::Copilot,
+                &[ModelOption {
+                    id: "new-model".into(),
+                    live_qualified: false,
+                }],
+            )
+            .unwrap();
+        } else if case == "malformed" {
+            app.work_store_mut()
+                .set_setting("ai.selection", "SYNTHETIC-PRIVATE-MALFORMED-SELECTION")
+                .unwrap();
+        }
+        let saved = app.work_store().setting("ai.selection").unwrap();
+        drop(app);
+
+        let output = Command::new(env!("CARGO_BIN_EXE_brn"))
+            .args(["ai", "status", "--json", "--data-dir"])
+            .arg(dir.path())
+            .output()
+            .unwrap();
+        let value: Value = serde_json::from_slice(&output.stdout).unwrap();
+        assert_eq!(output.status.code(), Some(0), "{case}: {value}");
+        assert_eq!(value["schema_version"], 1);
+        let accounts = value["data"]["accounts"].as_array().unwrap();
+        assert_eq!(accounts.len(), 2);
+        for (account, provider) in accounts.iter().zip(["chatgpt", "copilot"]) {
+            assert_eq!(account["provider"], provider);
+            assert_eq!(account["connected"], false);
+            assert!(account["name"].is_null());
+        }
+        if matches!(case, "stale" | "malformed") {
+            assert!(value["data"]["selection"].is_null());
+            assert_eq!(value["data"]["selection_error"]["code"], "AI_MODEL_REFUSED");
+            assert!(value["data"]["selection_error"]["message"]
+                .as_str()
+                .is_some_and(|message| !message.is_empty()));
+        } else {
+            assert!(value["data"]["selection_error"].is_null());
+            if case == "valid" {
+                assert_eq!(value["data"]["selection"]["provider"], "copilot");
+                assert_eq!(value["data"]["selection"]["model"], "old-model");
+            } else {
+                assert!(value["data"]["selection"].is_null());
+            }
+        }
+        assert!(!String::from_utf8_lossy(&output.stdout)
+            .contains("SYNTHETIC-PRIVATE-MALFORMED-SELECTION"));
+        assert!(!String::from_utf8_lossy(&output.stderr)
+            .contains("SYNTHETIC-PRIVATE-MALFORMED-SELECTION"));
+
+        if case == "stale" {
+            let output = Command::new(env!("CARGO_BIN_EXE_brn"))
+                .args(["ask", "synthetic question", "--json", "--data-dir"])
+                .arg(dir.path())
+                .output()
+                .unwrap();
+            let refused: Value = serde_json::from_slice(&output.stdout).unwrap();
+            assert_eq!(output.status.code(), Some(1));
+            assert_eq!(refused["error"]["code"], "AI_MODEL_REFUSED");
+        }
+        let app = App::open(
+            dir.path(),
+            AppConfig {
+                vault_root: Some(vault),
+                credentials_dir: None,
+                model_dir: None,
+            },
+        )
+        .unwrap();
+        assert_eq!(app.work_store().setting("ai.selection").unwrap(), saved);
+    }
+}
+
+#[test]
 fn explicit_account_status_and_selection_have_no_codex_requirement() {
     let dir = support::data_dir();
     let output = Command::new(env!("CARGO_BIN_EXE_brn"))
