@@ -20,8 +20,6 @@ pub struct Auth {
 }
 
 pub struct ProviderClient {
-    // Task 3's streaming module consumes this owned, concrete client.
-    #[allow(dead_code)]
     pub(crate) inner: OwnedClient,
     selection: Selection,
 }
@@ -252,8 +250,8 @@ impl Auth {
                         handler,
                         allow_device_flow,
                     );
-                    chatgpt::new("")
-                        .with_http(self.http.clone())
+                    openai::OpenAIConfig::with_key(&chatgpt::DIALECT, "")
+                        .connect(self.http.clone())
                         .authenticate(&authenticator)
                         .await
                         .map(|client| OwnedClient::Chatgpt(Box::new(client)))
@@ -267,8 +265,8 @@ impl Auth {
                         handler,
                         allow_device_flow,
                     );
-                    copilot::Copilot::new("")
-                        .with_http(self.http.clone())
+                    copilot::CopilotConfig::new("")
+                        .connect(self.http.clone())
                         .authenticate(&authenticator)
                         .await
                         .map(OwnedClient::Copilot)

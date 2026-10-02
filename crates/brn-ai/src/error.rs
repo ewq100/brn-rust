@@ -139,6 +139,22 @@ pub(crate) fn map_provider(error: rig::error::ProviderError) -> AiError {
         );
     }
     match error {
+        rig::error::ProviderError::Relayed(report) => {
+            let kind = if report.kind == rig::error::ErrorKind::Http {
+                AiErrorKind::Network
+            } else if matches!(
+                report.detail,
+                Some(rig::error::ErrorDetail::MalformedToolInput(_))
+            ) {
+                AiErrorKind::InvalidToolUse
+            } else {
+                AiErrorKind::Other
+            };
+            AiError::new(kind)
+        }
+        rig::error::ProviderError::MalformedToolInput(_) => {
+            AiError::new(AiErrorKind::InvalidToolUse)
+        }
         rig::error::ProviderError::Http(error) => {
             if let Some(status) = error.non_success_status() {
                 map_http_error(status.as_u16(), error.non_success_body().unwrap_or(""))

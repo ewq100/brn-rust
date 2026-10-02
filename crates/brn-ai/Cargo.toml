@@ -19,5 +19,6 @@ libc = "=0.2.189"
 base64 = "0.22"
 
 [dev-dependencies]
+bytes = "1"
 tempfile = "3"
 rig = { version = "=0.43.0", default-features = false, features = ["test-utils"] }

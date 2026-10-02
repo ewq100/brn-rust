@@ -776,6 +776,7 @@ name = "brn-ai"
 version = "0.1.0"
 dependencies = [
  "base64 0.22.1",
+ "bytes",
  "futures",
  "libc",
  "rig",

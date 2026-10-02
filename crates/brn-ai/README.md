@@ -1,9 +1,9 @@
 # brn-ai
 
-Thin, fixed ChatGPT/Copilot subscription authentication over Rig **0.43.0**.
-This Task 1 foundation contains account/selection DTOs, safe errors, checked
-credential storage and owned clients. It does not contain workers, streaming,
-tools, SQL, selection persistence or frontend state.
+Thin, fixed ChatGPT/Copilot subscription authentication and streamed read-only
+chat over Rig **0.43.0**. Contains account/selection DTOs, safe errors, checked
+credential storage, owned clients and three read tools. It does not contain
+workers, SQL, selection persistence or frontend state.
 
 ## Authentication contract
 
@@ -30,7 +30,7 @@ tools, SQL, selection persistence or frontend state.
   tightening under its guard; prefer cancel-and-await so failures can be reported.
 - `client` captures a concrete authenticated Rig client and a cloned `Selection`,
   with **no Auth borrow, mutex guard or retained authenticator**.
-  `ProviderClient::selection()` exposes the frozen selection. Task 3 consumes
+  `ProviderClient::selection()` exposes the frozen selection. `answer` consumes
   `ProviderClient.inner` / `auth::OwnedClient` within this crate: a boxed
   `openai::OpenAI` on the ChatGPT dialect, or `copilot::Copilot`.
 - `disconnect` serializes cache deletion with authentication/refresh and removes
@@ -86,9 +86,64 @@ Transport injection is crate-private and test-only (`Auth::with_http`); tests
 exercise the **real pinned authenticators** with synthetic Rig HTTP transports.
 There is no production fake-provider feature or dynamic provider registry.
 
+## Read-only streamed answers
+
+`answer(client, question, history, tools, cancel, emit)` consumes the owned
+`ProviderClient` and uses its exact frozen model and provider. ChatGPT uses the
+subscription Responses dialect; Copilot uses Rig's model-based routing to Chat
+Completions or Responses. Authentication uses actual Rig configuration
+`.connect(http).authenticate(...)`; ordinary client acquisition disables device
+flow. No provider/model/account fallback or automatic retry is installed.
+
+Implement the synchronous `ReadTools: Send + Sync` seam in workflow and pass it
+as `Arc<dyn ReadTools>`. Rig tool calls dispatch blocking reads via
+`tokio::task::spawn_blocking`, with at most two concurrent calls. Only
+`search_notes`, `read_note` and `list_notes` are registered:
+
+- Search queries are 1–512 **UTF-8 bytes**, limits are integers in 1–10 and
+  returned hits cannot exceed the requested limit. `ToolSearch.keyword_only`
+  reaches the model unchanged.
+- Reads preserve the exact prefix, capped at `READ_NOTE_BYTES = 50_000`, cutting
+  only at a UTF-8 boundary. `ToolNote.truncated` preserves an adapter's existing
+  truncation flag or records this cap. No BOM/whitespace/CRLF normalization.
+- List accepts optional folder/cursor and rejects adapter pages over 200 rows.
+  Workflow owns vault/path/cursor validation, exclusion rules and fresh reads.
+- Argument schemas reject extra properties; Rust deserialization and validation
+  also reject invalid arguments when the model ignores the schema. Safe failed
+  tool results may continue the turn; they never authorize a retry or fallback.
+  No comment/proposal/write tools are exposed.
+
+History is limited to the last 20 earlier `HistoryPair` values, converted to
+text-only user/assistant messages. Earlier tools, results, reasoning and provider
+response IDs are not restored. A run-owned model-finished hook counts each
+tool-containing response once, including parallel calls. Exactly eight such
+rounds are allowed; a ninth tool round is stopped **before dispatch**.
+`max_turns(9)` leaves room for eight tool rounds plus a ninth final answer;
+invalid-tool retries are explicitly zero. A run-owned atomic flag classifies
+`ToolLimitReached`, independently of Rig's stop-reason wording.
+
+`AiEvent::Text` appends/emits each fragment exactly once;
+`AiEvent::ToolStarted` contains only an allowlisted tool name, never its
+arguments/results. `AiAnswer.text` is exactly the emitted text, including partial
+text on `Failed` or `Interrupted`; final response output is not appended again.
+The first stream error stops collection; EOF without a final response fails.
+Stop drops the local stream, not a guarantee of upstream cancellation or zero
+billing. Already consumed final completion wins over a later Stop. Blocking
+reads already started may finish after local cancellation.
+
+Internal `provider_formats_tests.rs` uses ordered unary auth/identity replies
+and a private queue of **distinct responses per streaming request**, not one
+chunk queue reused across completions. Every destination, including absolute
+auth/GitHub URLs, is intercepted; unexpected requests fail and scripts must be
+fully consumed. Tests run real authenticated production clients/agents for all
+three wire routes, continuation/history/exact models, error mapping, caps and
+eight-versus-nine round accounting. These are offline format checks, not live
+account qualification.
+
 ```sh
 # Run from the workspace root; no TMPDIR override is needed.
 cargo test -p brn-ai --lib --locked --offline
+cargo test -p brn-ai --locked --offline
 cargo clippy -p brn-ai --all-targets --locked --offline -- -D warnings
 cargo fmt --all -- --check
 cargo tree --workspace --all-features --locked --offline -i ort

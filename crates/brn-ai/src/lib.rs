@@ -1,7 +1,15 @@
 mod auth;
+mod chat;
 mod error;
+#[cfg(test)]
+mod provider_formats_tests;
+mod tools;
 
 pub use auth::{Auth, ProviderClient};
+pub use chat::{AiAnswer, AiEvent, AiTerminal, HistoryPair, answer};
+pub use tools::{
+    NoteEntry, NotePage, Passage, READ_NOTE_BYTES, ReadTools, ToolNote, ToolSearch, capped_text,
+};
 
 #[derive(Clone, Copy, Debug, PartialEq, Eq, serde::Serialize, serde::Deserialize)]
 #[serde(rename_all = "lowercase")]
