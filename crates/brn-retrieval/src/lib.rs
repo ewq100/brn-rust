@@ -28,6 +28,8 @@ pub enum Error {
     Format(#[from] serde_json::Error),
     #[error("native retrieval: {0}")]
     Native(String),
+    #[error("index database: {0}")]
+    Sql(#[from] rusqlite::Error),
 }
 pub type Result<T> = std::result::Result<T, Error>;
 
@@ -80,7 +82,6 @@ struct Manifest {
     db_files: BTreeMap<String, String>,
 }
 const CHUNKER: &str = "utf8-1600-v1";
-const MAX_CHUNK: usize = 1600;
 const MAX_DOCUMENT: usize = 1_048_576;
 const FORMAT: u32 = 1;
 
@@ -113,27 +114,7 @@ fn chunk_documents(docs: &[Document], cancel: &AtomicBool) -> Result<Vec<Chunk>>
     let mut chunks = Vec::new();
     for (doc_index, doc) in docs.iter().enumerate() {
         check_cancel(cancel)?;
-        let mut start = 0;
-        while start < doc.text.len() {
-            check_cancel(cancel)?;
-            let hard = (start + MAX_CHUNK).min(doc.text.len());
-            let mut end = hard;
-            while !doc.text.is_char_boundary(end) {
-                end -= 1;
-            }
-            if end == start {
-                return Err(Error::Invalid("invalid UTF-8 chunk boundary"));
-            }
-            if end < doc.text.len() {
-                let slice = &doc.text[start..end];
-                if let Some((offset, _)) = slice
-                    .char_indices()
-                    .rev()
-                    .find(|(i, c)| *i >= MAX_CHUNK / 2 && c.is_whitespace())
-                {
-                    end = start + offset + slice[offset..].chars().next().unwrap().len_utf8();
-                }
-            }
+        for (start, end) in chunk::passages(&doc.text) {
             chunks.push(Chunk {
                 doc: doc_index,
                 start,
@@ -143,7 +124,6 @@ fn chunk_documents(docs: &[Document], cancel: &AtomicBool) -> Result<Vec<Chunk>>
                     doc.source_id, doc.version_id
                 ),
             });
-            start = end;
         }
     }
     Ok(chunks)
@@ -516,3 +496,6 @@ fn fuse(a: &[Evidence], b: &[Evidence], limit: usize) -> Vec<Evidence> {
 }
 #[cfg(feature = "native")]
 mod native;
+
+mod chunk;
+pub mod note_index;
