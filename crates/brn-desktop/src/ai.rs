@@ -70,6 +70,7 @@ pub struct AiState {
     pub note_error: Option<String>,
     pub note_generation: u64,
     pub search: Option<SearchResults>,
+    pub search_generation: u64,
     pub refresh: Option<RefreshReport>,
     pub indexing: Option<(Uuid, usize, usize)>,
     pub model_prompt: Option<ModelDownloadPrompt>,
@@ -117,6 +118,10 @@ fn unfinalized_turn(request: &AskRequest, partial: String) -> WorkTurn {
     }
 }
 impl AiState {
+    pub fn composer_changed(&mut self) {
+        self.search_generation = self.search_generation.wrapping_add(1);
+        self.search = None;
+    }
     pub fn command(&mut self, pending: Pending, command: AppCommand) -> (Uuid, AppCommand) {
         let id = Uuid::new_v4();
         self.pending.insert(id, pending);
@@ -421,7 +426,7 @@ impl AiState {
                 }
             }
             AppEvent::Search(results) => {
-                if matches!(pending, Some(Pending::Search { generation }) if generation == self.generation)
+                if matches!(pending, Some(Pending::Search { generation }) if generation == self.search_generation)
                 {
                     self.search = Some(results);
                 }
@@ -591,6 +596,49 @@ mod tests {
         }
     }
     #[test]
+    fn composer_change_keeps_stream_and_followup_conversation() {
+        let mut state = ready();
+        let request = state.ask("first question".into()).unwrap();
+        state.apply(
+            request.id,
+            AppEvent::Chat(ChatEvent::Text {
+                id: request.id,
+                generation: request.generation,
+                text: "partial".into(),
+            }),
+        );
+        state.composer_changed();
+        state.apply(
+            request.id,
+            AppEvent::Chat(ChatEvent::Text {
+                id: request.id,
+                generation: request.generation,
+                text: " λ complete".into(),
+            }),
+        );
+        assert_eq!(state.active.as_ref().unwrap().partial, "partial λ complete");
+        assert_eq!(
+            state.generation, request.generation,
+            "composer must not hide the active answer"
+        );
+        let mut turn = ending(&request, WorkTurnStatus::Completed);
+        turn.answer = "partial λ complete".into();
+        let conversation = turn.conversation_id;
+        state.apply(
+            request.id,
+            AppEvent::Chat(ChatEvent::Finished {
+                id: request.id,
+                generation: request.generation,
+                turn,
+            }),
+        );
+        assert!(state.active.is_none());
+        assert_eq!(state.turns[0].answer, "partial λ complete");
+        let followup = state.ask("followup".into()).unwrap();
+        assert_eq!(followup.conversation, Some(conversation));
+        assert_eq!(followup.selection, request.selection);
+    }
+    #[test]
     fn explicit_frozen_selection_and_single_active_ask() {
         let mut state = ready();
         let request = state.ask("question".into()).unwrap();
@@ -656,7 +704,8 @@ mod tests {
     fn stale_display_does_not_strand_global_active_and_wrong_uuid_is_ignored() {
         let mut state = ready();
         let request = state.ask("q".into()).unwrap();
-        state.generation += 1;
+        let selected = Uuid::new_v4();
+        let (history, _) = state.navigate(Some(selected)).unwrap();
         state.apply(
             Uuid::new_v4(),
             AppEvent::Chat(ChatEvent::Text {
@@ -684,6 +733,12 @@ mod tests {
         );
         assert!(state.active.is_none());
         assert!(state.turns.is_empty());
+        assert_eq!(state.conversation, Some(selected));
+        state.apply(history, AppEvent::Turns(vec![]));
+        assert_eq!(
+            state.ask("selected followup".into()).unwrap().conversation,
+            Some(selected)
+        );
     }
     #[test]
     fn persistence_failure_retains_unsaved_partial() {
@@ -1059,7 +1114,7 @@ mod tests {
         let mut state = ready();
         let (id, _) = state.command(
             Pending::Search {
-                generation: state.generation,
+                generation: state.search_generation,
             },
             AppCommand::Search {
                 query: "q".into(),

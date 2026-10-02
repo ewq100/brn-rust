@@ -356,8 +356,7 @@ impl Desktop {
                 this.selected_evidence = None;
                 this.streamed_text.clear();
                 if let Some(ai) = &mut this.ai {
-                    ai.generation = ai.generation.wrapping_add(1);
-                    ai.search = None;
+                    ai.composer_changed();
                 }
                 cx.notify();
             }
@@ -392,17 +391,23 @@ impl Desktop {
             let worker = this.worker.take();
             let app_worker = this.app_worker.take();
             let preferences = this.layout_task.take();
-            cx.background_executor().spawn(async move {
-                if let Some(preferences) = preferences {
-                    preferences.await;
-                }
-                if let Some(mut worker) = worker {
-                    worker.shutdown();
-                }
-                if let Some(mut worker) = app_worker {
-                    let _ = worker.shutdown();
-                }
-            })
+            cx.background_executor().spawn(simple::final_quit(
+                move || {
+                    if let Some(mut worker) = worker {
+                        worker.shutdown();
+                    }
+                },
+                move || {
+                    if let Some(mut worker) = app_worker {
+                        let _ = worker.shutdown();
+                    }
+                },
+                async move {
+                    if let Some(preferences) = preferences {
+                        preferences.await;
+                    }
+                },
+            ))
         });
         let poll_task = cx.spawn_in(window, async move |this, cx| {
             loop {

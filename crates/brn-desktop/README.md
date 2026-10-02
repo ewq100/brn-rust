@@ -36,7 +36,8 @@ action. Further Ask is blocked while finalization is unacknowledged; copy that
 partial before closing/restarting. Account/history diagnostics remain available.
 Navigation filters exact
 UUID/generation without stranding an active operation; Stop intent survives
-pre-admission cancellation acknowledgements.
+pre-admission cancellation acknowledgements. Composer edits invalidate only
+search results, not the current answer or its follow-up conversation.
 
 Native retrieval offers a one-time prompt per stored consent decision, showing
 pinned source, bytes/cost and destination. Decline makes no network request.
@@ -120,8 +121,11 @@ Guarded close/Quit drain and join local work asynchronously before closing,
 including admitted critical notes, chat finalization, installers and ordered
 layout writes. Finalization failure blocks closing and retains the unsaved
 partial; a separate explicit close-without-saving confirmation is offered.
-The defensive system-termination hook also schedules joins off GPUI; it cannot
-veto termination or guarantee completion at GPUI's quit-future deadline.
+The defensive system-termination hook preserves the legacy Worker's synchronous
+drain of already accepted critical note jobs before returning its timed future,
+without waiting for layout preferences. Simple AppWorker joins stay off GPUI;
+that path cannot veto termination or guarantee completion at GPUI's
+quit-future deadline.
 It does not flush the latest coalesced UI submission if it was not already
 admitted, and cannot keep the window open on recovery failure. Unacknowledged
 typing can be lost. Restart reconciliation classifies interrupted save intents

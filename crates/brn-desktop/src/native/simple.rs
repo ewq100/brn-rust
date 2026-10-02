@@ -17,6 +17,19 @@ pub(super) struct Closed {
     events: Vec<(Uuid, AppEvent)>,
 }
 
+pub(super) fn final_quit(
+    legacy_shutdown: impl FnOnce(),
+    simple_shutdown: impl FnOnce(),
+    preferences: impl std::future::Future<Output = ()>,
+) -> impl std::future::Future<Output = ()> {
+    // Legacy accepted note mutations must join before GPUI starts its quit-future deadline.
+    legacy_shutdown();
+    async move {
+        preferences.await;
+        simple_shutdown();
+    }
+}
+
 pub(super) fn local_edits_enabled(closing: bool, closed: bool) -> bool {
     !closing && !closed
 }
@@ -39,7 +52,7 @@ fn search_command(state: &mut crate::ai::AiState, query: String) -> Option<(Uuid
     }
     Some(state.command(
         Pending::Search {
-            generation: state.generation,
+            generation: state.search_generation,
         },
         AppCommand::Search {
             query,
@@ -931,6 +944,124 @@ mod tests {
             model: "explicit".into(),
         });
         state
+    }
+    #[test]
+    fn final_quit_drains_accepted_legacy_save_before_returning_timed_future() {
+        use brn_workflow::worker::{Action, Outcome, Terminal, Worker};
+        use std::{fs, sync::mpsc, time::Instant};
+
+        fn terminal(worker: &Worker) -> Terminal {
+            let deadline = Instant::now() + Duration::from_secs(5);
+            loop {
+                if let Some(terminal) = worker.take_terminal() {
+                    return terminal;
+                }
+                assert!(Instant::now() < deadline, "legacy worker timed out");
+                std::thread::yield_now();
+            }
+        }
+        struct Fixture(PathBuf);
+        impl Drop for Fixture {
+            fn drop(&mut self) {
+                fs::remove_dir_all(&self.0).unwrap();
+            }
+        }
+        let fixture = Fixture(
+            std::env::current_dir()
+                .unwrap()
+                .join("target/desktop-fixtures")
+                .join(format!("final-quit-{}", Uuid::new_v4())),
+        );
+        let data = fixture.0.join("data");
+        let vault = fixture.0.join("vault");
+        fs::create_dir_all(&data).unwrap();
+        fs::create_dir_all(&vault).unwrap();
+        let path = vault.join("note.md");
+        fs::write(&path, "original\n").unwrap();
+        let mut worker = Worker::start(data, brn_workflow::Config::default());
+        terminal(&worker).outcome.unwrap();
+        worker
+            .submit(Action::OpenNote {
+                op: Uuid::new_v4(),
+                vault,
+                relative: "note.md".into(),
+            })
+            .unwrap();
+        let view = match terminal(&worker).outcome.unwrap() {
+            Outcome::NoteOpened { view, .. } => view,
+            other => panic!("unexpected open: {other:?}"),
+        };
+        let mut editor = crate::notes::NoteEditor::new(view);
+        editor.edit_input("accepted write λ\n".into()).unwrap();
+        let request = editor.begin_save(Uuid::new_v4()).unwrap();
+        worker.submit(Action::SaveNote { request }).unwrap();
+        let (joined, receipt) = mpsc::channel();
+        let preferences_polled = std::sync::Arc::new(std::sync::atomic::AtomicBool::new(false));
+        let polled = preferences_polled.clone();
+        let simple_called = std::sync::Arc::new(std::sync::atomic::AtomicBool::new(false));
+        let called = simple_called.clone();
+        let future = final_quit(
+            move || {
+                worker.shutdown();
+                joined
+                    .send(
+                        worker
+                            .take_terminal()
+                            .expect("accepted save joined")
+                            .outcome,
+                    )
+                    .unwrap();
+            },
+            move || {
+                called.store(true, std::sync::atomic::Ordering::SeqCst);
+            },
+            std::future::poll_fn(move |_| {
+                polled.store(true, std::sync::atomic::Ordering::SeqCst);
+                std::task::Poll::Pending
+            }),
+        );
+        let outcome = receipt
+            .try_recv()
+            .expect("legacy drain must precede the timed quit future");
+        assert!(matches!(outcome.unwrap(), Outcome::NoteSaved { .. }));
+        assert_eq!(fs::read_to_string(path).unwrap(), "accepted write λ\n");
+        assert!(!preferences_polled.load(std::sync::atomic::Ordering::SeqCst));
+        assert!(!simple_called.load(std::sync::atomic::Ordering::SeqCst));
+        let mut future = std::pin::pin!(future);
+        let mut cx = std::task::Context::from_waker(std::task::Waker::noop());
+        assert!(std::future::Future::poll(future.as_mut(), &mut cx).is_pending());
+        assert!(preferences_polled.load(std::sync::atomic::Ordering::SeqCst));
+        assert!(!simple_called.load(std::sync::atomic::Ordering::SeqCst));
+    }
+    #[test]
+    fn composer_invalidates_only_search_and_history_filters_only_chat() {
+        use brn_workflow::library::SearchResults;
+        let mut state = ready();
+        let (old, _) = search_command(&mut state, "old".into()).unwrap();
+        state.composer_changed();
+        state.composer_changed();
+        let (current, _) = search_command(&mut state, "current".into()).unwrap();
+        state.apply(
+            old,
+            AppEvent::Search(SearchResults {
+                hits: vec![],
+                keyword_only: false,
+            }),
+        );
+        assert!(state.search.is_none());
+        let selected = Uuid::new_v4();
+        state.navigate(Some(selected));
+        state.apply(
+            current,
+            AppEvent::Search(SearchResults {
+                hits: vec![],
+                keyword_only: true,
+            }),
+        );
+        assert!(state.search.as_ref().unwrap().keyword_only);
+        state.composer_changed();
+        assert!(state.search.is_none());
+        assert_eq!(state.conversation, Some(selected));
     }
     #[test]
     fn native_ask_routes_exact_uuid_frozen_model_and_disables_concurrent_ask() {
