@@ -220,3 +220,49 @@ fn new_backup_sorts_after_existing_ones_even_with_future_names() {
     assert!(report.backup.exists());
     assert_eq!(backups(dir.path()).last(), Some(&report.backup));
 }
+
+#[test]
+fn unsaved_edits_round_trip_replace_and_clear() {
+    let dir = tempfile::tempdir().unwrap();
+    let (mut store, _) = WorkStore::open(dir.path()).unwrap();
+    store
+        .put_unsaved_edit("notes/a.md", [7; 32], "draft é\r\n")
+        .unwrap();
+    store.put_unsaved_edit("b.md", [1; 32], "").unwrap();
+    let edit = store.unsaved_edit("notes/a.md").unwrap().unwrap();
+    assert_eq!(edit.path, "notes/a.md");
+    assert_eq!(edit.base_sha256, [7; 32]);
+    assert_eq!(edit.text, "draft é\r\n");
+    assert!(edit.updated_at_ms > 0);
+    store
+        .put_unsaved_edit("notes/a.md", [8; 32], "newer")
+        .unwrap();
+    drop(store);
+    let (mut store, _) = WorkStore::open(dir.path()).unwrap();
+    let all = store.unsaved_edits().unwrap();
+    assert_eq!(
+        all.iter()
+            .map(|e| (e.path.as_str(), e.text.as_str()))
+            .collect::<Vec<_>>(),
+        vec![("b.md", ""), ("notes/a.md", "newer")]
+    );
+    store.clear_unsaved_edit("notes/a.md").unwrap();
+    assert_eq!(store.unsaved_edit("notes/a.md").unwrap(), None);
+}
+
+#[test]
+fn unsaved_edit_limits() {
+    let dir = tempfile::tempdir().unwrap();
+    let (mut store, _) = WorkStore::open(dir.path()).unwrap();
+    let at_limit = "a".repeat(brn_store::MAX_NOTE_BYTES);
+    store.put_unsaved_edit("a.md", [0; 32], &at_limit).unwrap();
+    let over = "a".repeat(brn_store::MAX_NOTE_BYTES + 1);
+    assert!(matches!(
+        store.put_unsaved_edit("a.md", [0; 32], &over),
+        Err(Error::Invalid(_))
+    ));
+    assert!(matches!(
+        store.put_unsaved_edit("", [0; 32], "x"),
+        Err(Error::Invalid(_))
+    ));
+}
