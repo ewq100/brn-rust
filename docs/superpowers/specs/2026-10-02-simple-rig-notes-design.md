@@ -41,6 +41,7 @@ brn CLI ─────┘                 ├─> brn-retrieval  (index.sqlite:
 
 - One vault folder, chosen in settings.
 - Only regular `.md` files up to the existing 1 MiB limit count as notes. Hidden files/folders (starting with `.`) and a top-level `archive/` folder are excluded. Symlinks are not followed.
+- Known limit: a folder swapped for a symlink while a note is being read can still lead outside the vault; this needs write access inside the vault and is accepted.
 - A note is identified by its vault-relative path with `/` separators. A rename made outside the app looks like a delete plus a new note.
 - File bytes are preserved exactly (UTF-8, BOM, line endings, frontmatter). Non-UTF-8 files are skipped and listed as unreadable.
 

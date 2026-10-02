@@ -2,6 +2,8 @@
 
 These constraints summarize the [approved baseline](decisions/2026-09-28-architecture-baseline.md) and subsequent draft/comment/managed-note contracts. Preserve them when modifying code. Future publication requirements are marked explicitly; their presence here does not mean publication is implemented.
 
+> **Transition:** the [simple Rig-based notes app](../superpowers/specs/2026-10-02-simple-rig-notes-design.md) replaces these invariants step by step ([roadmap](../work/active/simple-rig-notes/plan.md)). New code in `brn_store::work` and `brn_workflow::vault` follows that specification; the invariants below still describe the existing code until the cleanup step removes it.
+
 ## Authority and exact content
 
 - SQLite owns durable imported sources, versions, drafts, comments, application sessions and operation records. For managed notes, the live registered Markdown file owns current saved content; SQLite owns registry/permission and unfinished work, not a competing saved-content authority. Search snapshots, indexes and embeddings are derived and rebuildable.

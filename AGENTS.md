@@ -26,12 +26,14 @@ This guide applies throughout this repository. Follow the user's current task an
 
 ## Rules to preserve
 
-- Preserve exact UTF-8 revision bytes, hashes and original comment/evidence provenance. Never guess an ambiguous anchor.
-- Keep SQLite authoritative and indexes rebuildable. UI operations go through the workflow; keep provider and retrieval implementation details out of UI state contracts.
-- Keep working copies, immutable checkpoints and AI candidates distinct. Do not silently overwrite later edits with asynchronous results.
-- Search approval is not publication approval. Publication requires its own implemented and approved workflow.
-- Use disposable explicit data directories and synthetic fixtures for checks. Preserve the original vault and existing trial workspaces.
-- Do not log or commit credentials. Live provider checks and model acquisition require task authorization; deterministic checks are the default.
+The repository is moving to the [simple Rig-based notes app](docs/superpowers/specs/2026-10-02-simple-rig-notes-design.md) ([roadmap](docs/work/active/simple-rig-notes/plan.md)). New code follows these rules; existing code keeps working until the cleanup step removes it.
+
+- Notes are vault Markdown files; preserve their exact bytes. `index.sqlite` is disposable; `brn.sqlite` holds user work, is checked at start and backed up.
+- The AI writes only proposals; only the user's Approve writes AI text to the vault. No automatic fallback between providers, models or accounts.
+- Comments are temporary review notes, deleted when the note's review is approved. Never re-anchor a comment by guessing.
+- UI and CLI go through `brn-workflow`; keep provider and retrieval details out of UI state.
+- Use disposable explicit data directories and synthetic fixtures for checks. Preserve the original vault, old data folders and existing trial workspaces.
+- Do not log or commit credentials. Live provider checks and model downloads require the user's request; deterministic offline checks are the default.
 - Respect the pinned toolchain and lockfiles. Optional native features and standalone experiments need separate verification.
 
 ## Finishing work

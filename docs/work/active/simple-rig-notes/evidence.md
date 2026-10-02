@@ -44,3 +44,20 @@ Check: the step 2 store and vault code and tests from the revised plan were copi
 - Task 4 Copilot **PASS**: tool/stream, restart reuse, local cancel (partial text at 4000 ms), session refresh. ChatGPT **BLOCKED**: supported routes hit HTTP 429 usage limit; tool/restart/cancel not observed.
 - Task 5 **PASS** (fresh checks): `cargo check --manifest-path experiments/rig-spike/Cargo.toml --locked --features cassette`; `cargo check --manifest-path experiments/rig-spike/Cargo.toml --locked --features test-utils`. Both exit 0; no lockfile change. HTTP cassette engine/fixtures not exercised.
 - Decision: **Copilot GO; ChatGPT CONDITIONAL GO**. Rerun ChatGPT Task 4 with gpt-5.5 after 2026-10-03 20:24 EEST before accepting step 4's ChatGPT work. No live calls by Task 5; no native acceptance or server-side cancellation claim.
+
+## Step 2: store and vault
+
+- 2026-10-02; commits `ad6753c`, `b9f2c80`, `8281224`, `2cfa465`, `307c58a`, `1fd4051`, `131e241`, plus the commit containing this entry (`docs: adopt simple notes app rules for new code`).
+- Platform/toolchain: macOS `26.5` (`sw_vers -productVersion`); `rustc 1.98.1 (48a229cea 2026-09-01)` (`rustc --version`).
+- Implemented beside existing code: `brn_store::work::WorkStore` (open/check/restore/backups/settings/unsaved edits) and `brn_workflow::vault` (paths/scan/exact-byte reads); updated new-code rules and transition documentation.
+- Review fix round 1: foreign/newer databases refused before opening.
+- Review fix round 2: vault read size bound and hidden non-UTF-8 names.
+- `cargo fmt --all -- --check`: **PASS**, exit 0.
+- `cargo clippy --workspace --all-targets --locked -- -D warnings`: **PASS**, exit 0, no warnings.
+- `cargo test -p brn-store -p brn-workflow --locked`: **PASS**, exit 0; 272 reported passed, 0 failed, 0 ignored across 19 result groups (including empty binary/doc-test groups); WorkStore 16 and vault 8.
+- The non-UTF-8 filename test self-skips on APFS (`EILSEQ`, os error 92), counted by the runner as passed; its filename assertions were not exercised.
+- Confirmed with `cargo test -p brn-workflow --test vault scan_reports_non_utf8_names_but_skips_hidden_ones --locked -- --nocapture`: exit 0, 1 reported passed, 7 filtered out; self-skip message observed.
+- `git diff --check`: **PASS**, exit 0; `git diff --cached --check`: **PASS**, exit 0.
+- New relative Markdown links resolve; the staged active README excludes the user's UI slice 2 row, which remains unstaged.
+- Accepted read race limit: a folder swapped for a symlink during a note read can still lead outside the vault; this needs write access inside the vault.
+- Checks used repository-local disposable fixtures via `TMPDIR`; no original vault/old data, live provider calls, model downloads or native usability acceptance exercised.

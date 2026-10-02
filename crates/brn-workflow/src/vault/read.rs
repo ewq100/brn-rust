@@ -48,7 +48,8 @@ impl From<std::io::Error> for ReadError {
     }
 }
 
-/// Reads a note's exact bytes without following symlinks anywhere below `root`.
+/// Reads a note's exact bytes, refusing symlinked path parts and a file swapped
+/// before opening (see the accepted parent-folder race limit below).
 pub fn read_note(root: &Path, path: &VaultPath) -> Result<NoteText, ReadError> {
     let mut current = root.to_path_buf();
     let mut checked = None;
