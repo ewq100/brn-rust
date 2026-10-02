@@ -79,7 +79,10 @@ impl Desktop {
         }
     }
 
-    pub(super) fn render_document(&mut self, cx: &mut Context<Self>) -> impl IntoElement {
+    pub(super) fn render_document(&mut self, cx: &mut Context<Self>) -> AnyElement {
+        if self.ai.is_some() {
+            return self.render_simple_document(cx);
+        }
         let p = self.palette();
         let (label, body) = match self.open_doc {
             Some(DocRef::Draft) => (
@@ -112,7 +115,7 @@ impl Desktop {
                 ),
                 self.render_note_document(cx),
             ),
-            None => (String::new(), div().into_any_element()),
+            None | Some(DocRef::SavedNote) => (String::new(), div().into_any_element()),
         };
         let scroll = match self.open_doc {
             Some(DocRef::Source(_)) => self.source_scroll.clone(),
@@ -167,6 +170,7 @@ impl Desktop {
                     .vertical_scrollbar(&scroll)
                     .child(body),
             )
+            .into_any_element()
     }
 
     // Interim note document integration; UI slice 3 will redesign these controls.
@@ -221,7 +225,8 @@ impl Desktop {
             body = body
                         .child(div().key_context("MarkdownNote").child(
                             Editor::new(&self.note_editor).h(px(300.)).flex_shrink_0()
-                                .disabled(self.pending_note_open.is_some() || state.discard_pending())
+                                .disabled(self.pending_note_open.is_some() || state.discard_pending()
+                                    || !crate::native::simple::local_edits_enabled(self.closing.is_some(), self.closed))
                                 .aria_label("Markdown note editor")))
                         .child(div().flex().flex_wrap().gap_2()
                             .child(Button::new("save-note").label("Save to Markdown (Cmd-S)")
@@ -385,6 +390,10 @@ impl Desktop {
                         .anchor_scroll(Some(self.draft_editor_anchor.clone()))
                         .child(
                             Editor::new(&self.draft_editor)
+                                .disabled(!crate::native::simple::local_edits_enabled(
+                                    self.closing.is_some(),
+                                    self.closed,
+                                ))
                                 .h(px(250.))
                                 .flex_shrink_0()
                                 .aria_label("Markdown working copy"),
@@ -484,6 +493,10 @@ impl Desktop {
             comment_panel = comment_panel
                 .child(
                     Editor::new(&self.comment_input)
+                        .disabled(!crate::native::simple::local_edits_enabled(
+                            self.closing.is_some(),
+                            self.closed,
+                        ))
                         .h(px(95.))
                         .flex_shrink_0()
                         .aria_label("Comment body"),
@@ -853,7 +866,10 @@ impl Desktop {
             .into_any_element()
     }
 
-    pub(super) fn render_chat(&mut self, cx: &mut Context<Self>) -> impl IntoElement {
+    pub(super) fn render_chat(&mut self, cx: &mut Context<Self>) -> AnyElement {
+        if self.ai.is_some() {
+            return self.render_simple_chat(cx);
+        }
         let p = self.palette();
         let mut body = div()
             .id("chat-transcript")
@@ -1024,8 +1040,8 @@ impl Desktop {
                     )
                     .child(
                         Button::new("ask")
-                            .label("Ask from sources")
-                            .disabled(!self.phase.can_submit())
+                            .label("Legacy AI retired")
+                            .disabled(true)
                             .on_click(cx.listener(|this, _, _, cx| this.ask(cx))),
                     ),
             );
@@ -1035,5 +1051,6 @@ impl Desktop {
             .size_full()
             .child(body)
             .child(composer)
+            .into_any_element()
     }
 }

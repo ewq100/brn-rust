@@ -1,7 +1,10 @@
 use super::*;
 
 impl Desktop {
-    pub(super) fn render_history_rail(&mut self, cx: &mut Context<Self>) -> impl IntoElement {
+    pub(super) fn render_history_rail(&mut self, cx: &mut Context<Self>) -> AnyElement {
+        if self.ai.is_some() {
+            return self.render_simple_history(cx);
+        }
         let p = self.palette();
         let open_draft = self
             .draft_state
@@ -73,5 +76,6 @@ impl Desktop {
                         cx.listener(|this, _, window, cx| this.open_settings(window, cx)),
                     )),
             )
+            .into_any_element()
     }
 }

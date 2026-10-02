@@ -41,6 +41,7 @@ use std::time::{Duration, Instant};
 use uuid::Uuid;
 
 mod shell;
+mod simple;
 mod theme;
 
 #[derive(Clone, Copy, Debug, PartialEq, Eq)]
@@ -48,6 +49,7 @@ enum DocRef {
     Draft,
     Source(Uuid),
     Note(Uuid),
+    SavedNote,
 }
 
 #[derive(Clone, Copy, Debug, PartialEq, Eq)]
@@ -205,7 +207,15 @@ fn spaced_identifier(value: &str) -> String {
         .collect()
 }
 struct Desktop {
-    worker: Worker,
+    worker: Option<Worker>,
+    app_worker: Option<brn_workflow::app_worker::AppWorker>,
+    ai: Option<crate::ai::AiState>,
+    simple_note_path: Option<String>,
+    login_dialog: Option<Uuid>,
+    closing: Option<(CloseRoute, std::sync::mpsc::Receiver<simple::Closed>)>,
+    closed: bool,
+    close_failed: bool,
+    layout_task: Option<Task<()>>,
     query: Entity<EditorState>,
     draft_title: Entity<InputState>,
     draft_editor: Entity<EditorState>,
@@ -244,7 +254,6 @@ struct Desktop {
     choosing_file: bool,
     phase: Phase,
     path: PathBuf,
-    config: Config,
     layout: LayoutState,
     system_dark: bool,
     layout_note: Option<String>,
@@ -282,7 +291,15 @@ struct Desktop {
     _poll_task: Task<()>,
 }
 impl Desktop {
-    fn new(path: PathBuf, config: Config, window: &mut Window, cx: &mut Context<Self>) -> Self {
+    fn new(
+        path: PathBuf,
+        config: Config,
+        mode: brn_workflow::WorkspaceMode,
+        vault: Option<PathBuf>,
+        preferences: (LayoutState, Loaded),
+        window: &mut Window,
+        cx: &mut Context<Self>,
+    ) -> Self {
         let query = cx.new(|cx| EditorState::new(window, cx).default_value(""));
         let draft_title = cx.new(|cx| InputState::new(window, cx).placeholder("New draft title"));
         let draft_editor = cx.new(|cx| {
@@ -338,6 +355,10 @@ impl Desktop {
                 this.search = None;
                 this.selected_evidence = None;
                 this.streamed_text.clear();
+                if let Some(ai) = &mut this.ai {
+                    ai.generation = ai.generation.wrapping_add(1);
+                    ai.search = None;
+                }
                 cx.notify();
             }
         });
@@ -364,9 +385,24 @@ impl Desktop {
             });
         let draft_scroll = ScrollHandle::new();
         let draft_editor_anchor = ScrollAnchor::for_handle(draft_scroll.clone());
-        let quit_subscription = cx.on_app_quit(|this, _| {
-            this.worker.shutdown();
-            async {}
+        let quit_subscription = cx.on_app_quit(|this, cx| {
+            if let Some(ai) = &mut this.ai {
+                ai.dismiss_login();
+            }
+            let worker = this.worker.take();
+            let app_worker = this.app_worker.take();
+            let preferences = this.layout_task.take();
+            cx.background_executor().spawn(async move {
+                if let Some(preferences) = preferences {
+                    preferences.await;
+                }
+                if let Some(mut worker) = worker {
+                    worker.shutdown();
+                }
+                if let Some(mut worker) = app_worker {
+                    let _ = worker.shutdown();
+                }
+            })
         });
         let poll_task = cx.spawn_in(window, async move |this, cx| {
             loop {
@@ -381,7 +417,7 @@ impl Desktop {
                 }
             }
         });
-        let (layout, loaded) = layout::load(&path);
+        let (layout, loaded) = preferences;
         let resolved = layout.resolve(1100.0, false);
         let layout_note = match loaded {
             Loaded::Reset(note) => Some(note),
@@ -406,8 +442,38 @@ impl Desktop {
                 this.end_divider_drag(cx);
             }
         });
+        let simple = mode == brn_workflow::WorkspaceMode::Simple;
+        let mut ai = simple.then(crate::ai::AiState::default);
+        let app_worker = if simple {
+            match brn_workflow::app_worker::AppWorker::start(
+                path.clone(),
+                brn_workflow::app::AppConfig {
+                    vault_root: vault,
+                    credentials_dir: None,
+                    model_dir: config.model_dir.clone(),
+                },
+            ) {
+                Ok(worker) => Some(worker),
+                Err(error) => {
+                    let state = ai.as_mut().unwrap();
+                    state.startup_failed = true;
+                    state.notice = error.message;
+                    None
+                }
+            }
+        } else {
+            None
+        };
         Self {
-            worker: Worker::start(path.clone(), config.clone()),
+            worker: (!simple).then(|| Worker::start(path.clone(), config.clone())),
+            app_worker,
+            ai,
+            simple_note_path: None,
+            login_dialog: None,
+            closing: None,
+            closed: false,
+            close_failed: false,
+            layout_task: None,
             query,
             draft_title,
             draft_editor,
@@ -446,7 +512,6 @@ impl Desktop {
             choosing_file: false,
             phase: Phase::Opening,
             path,
-            config,
             layout,
             system_dark,
             layout_note,
@@ -497,12 +562,22 @@ impl Desktop {
         }
     }
     fn poll(&mut self, window: &mut Window, cx: &mut Context<Self>) {
+        if self.poll_closing(window, cx) {
+            return;
+        }
+        if self.ai.is_some() {
+            self.poll_simple(window, cx);
+            return;
+        }
+        if self.worker.is_none() {
+            return;
+        }
         let mut changed = false;
-        while let Some(notice) = self.worker.take_note_notice() {
+        while let Some(notice) = self.worker.as_ref().unwrap().take_note_notice() {
             self.note_observations.notice(&notice, &self.note_views);
             changed = true;
         }
-        if let Some(snapshot) = self.worker.snapshot(self.last_update) {
+        if let Some(snapshot) = self.worker.as_ref().unwrap().snapshot(self.last_update) {
             self.last_update = snapshot.update;
             self.active = snapshot.active;
             self.progress = snapshot.progress;
@@ -511,7 +586,7 @@ impl Desktop {
             }
             changed = true;
         }
-        while let Some(terminal) = self.worker.take_terminal() {
+        while let Some(terminal) = self.worker.as_ref().unwrap().take_terminal() {
             changed = true;
             let initial = terminal.id == 0;
             self.phase
@@ -987,11 +1062,11 @@ impl Desktop {
         }
     }
     fn submit(&mut self, action: Action, label: &str, cx: &mut Context<Self>) -> Option<u64> {
-        if !self.phase.can_submit() {
+        if self.ai.is_some() || self.worker.is_none() || !self.phase.can_submit() {
             return None;
         }
         let generation = action.generation();
-        match self.worker.submit(action) {
+        match self.worker.as_ref().unwrap().submit(action) {
             Ok(id) => {
                 self.active = Some(id);
                 self.phase = Phase::Running {
@@ -1029,6 +1104,16 @@ impl Desktop {
         }
     }
     fn close_guard(&mut self, route: CloseRoute, cx: &mut Context<Self>) -> bool {
+        if self.closed {
+            return true;
+        }
+        if self.closing.is_some() || self.close_failed {
+            return false;
+        }
+        if self.ai.is_some() {
+            self.begin_close(route, cx);
+            return false;
+        }
         if self
             .draft_state
             .as_ref()
@@ -1043,7 +1128,10 @@ impl Desktop {
             .is_some_and(|state| !state.can_close())
             || self.pending_note_job.is_some()
             || self.pending_note_open.is_some()
-            || self.worker.critical_note_pending()
+            || self
+                .worker
+                .as_ref()
+                .is_some_and(|worker| worker.critical_note_pending())
         {
             self.note_schedule.request_close(route);
             self.note_control = None;
@@ -1051,7 +1139,8 @@ impl Desktop {
             cx.notify();
             false
         } else {
-            true
+            self.begin_close(route, cx);
+            false
         }
     }
     fn choose_draft(&mut self, id: Uuid, cx: &mut Context<Self>) {
@@ -1362,6 +1451,10 @@ impl Desktop {
         self.query.read(cx).value().trim().to_string()
     }
     fn search(&mut self, cx: &mut Context<Self>) {
+        if self.ai.is_some() {
+            self.simple_search(cx);
+            return;
+        }
         let query = self.query(cx);
         if query.is_empty() {
             self.message = "Enter a question first.".into();
@@ -1379,22 +1472,12 @@ impl Desktop {
         );
     }
     fn ask(&mut self, cx: &mut Context<Self>) {
-        let query = self.query(cx);
-        if query.is_empty() {
-            self.message = "Enter a question first.".into();
+        if self.ai.is_some() {
+            self.simple_ask(cx);
+        } else {
+            self.message = "Legacy AI retired; use a new simple workspace.".into();
             cx.notify();
-            return;
         }
-        self.submit(
-            Action::Ask {
-                session: self.selected_session,
-                query,
-                profile: self.profile,
-                generation: self.generation,
-            },
-            "Answer",
-            cx,
-        );
     }
     fn choose_profile(&mut self, profile: Profile, cx: &mut Context<Self>) {
         if self.profile != profile {
@@ -1407,6 +1490,10 @@ impl Desktop {
         cx.notify();
     }
     fn choose_session(&mut self, session: Option<Uuid>, cx: &mut Context<Self>) {
+        if self.ai.is_some() {
+            self.simple_history(session, cx);
+            return;
+        }
         if !self.phase.can_submit() {
             return;
         }
@@ -2018,7 +2105,10 @@ impl Desktop {
                 .is_some_and(|state| !state.can_close())
                 || self.pending_note_job.is_some()
                 || self.pending_note_open.is_some()
-                || self.worker.critical_note_pending()
+                || self
+                    .worker
+                    .as_ref()
+                    .is_some_and(|worker| worker.critical_note_pending())
                 || self.note_schedule.closing())
         {
             self.queue_note_control(control, cx);
@@ -2039,6 +2129,11 @@ impl Desktop {
     }
     /// Hides the document pane. A draft's in-memory editor state is kept.
     fn close_document(&mut self, cx: &mut Context<Self>) {
+        if let Some(ai) = &mut self.ai {
+            ai.note_generation = ai.note_generation.wrapping_add(1);
+            ai.note = None;
+            self.simple_note_path = None;
+        }
         if self.defer_note_navigation(NoteControl::Navigate(None), cx) {
             return;
         }
@@ -2059,13 +2154,37 @@ impl Desktop {
         self.choose_draft(id, cx);
     }
     fn cancel_running(&mut self, cx: &mut Context<Self>) {
-        if matches!(self.phase, Phase::Running { .. }) && self.worker.cancel() {
+        if self.ai.is_some() {
+            self.simple_stop(cx);
+            return;
+        }
+        if matches!(self.phase, Phase::Running { .. })
+            && self.worker.as_ref().is_some_and(|worker| worker.cancel())
+        {
             self.phase.cancel();
             self.message = "Cancellation requested; awaiting safe stop.".into();
             cx.notify();
         }
     }
     fn phase_status(&self) -> String {
+        if let Some(ai) = &self.ai {
+            return if self.closing.is_some() {
+                "Closing · waiting for local finalization".into()
+            } else if let Some(active) = &ai.active {
+                if active.stopping {
+                    "Stopping · finalization pending"
+                } else {
+                    "Answering · provisional"
+                }
+                .into()
+            } else if ai.startup_failed {
+                "Workspace unavailable".into()
+            } else if ai.ready {
+                "Ready".into()
+            } else {
+                "Opening workspace…".into()
+            };
+        }
         match &self.phase {
             Phase::Opening => "Opening workspace…".into(),
             Phase::Idle => "Ready".into(),
@@ -2098,7 +2217,13 @@ fn route<A: gpui_kit::Action>(
     });
 }
 
-pub fn run(path: PathBuf, config: Config) {
+pub fn run(
+    path: PathBuf,
+    config: Config,
+    mode: brn_workflow::WorkspaceMode,
+    vault: Option<PathBuf>,
+    preferences: (LayoutState, Loaded),
+) {
     gpui_kit::application()
         .with_assets(gpui_kit::assets::Assets)
         .run(move |cx| {
@@ -2115,13 +2240,13 @@ pub fn run(path: PathBuf, config: Config) {
                 KeyBinding::new("cmd-.", CancelRunning, Some("Input")),
                 KeyBinding::new("cmd-s", SaveNote, Some("MarkdownNote")),
             ]);
+            let mut app_menu = vec![MenuItem::action("Settings…", OpenSettings)];
+            if mode == brn_workflow::WorkspaceMode::Legacy {
+                app_menu.push(MenuItem::action("Save to Markdown", SaveNote));
+            }
+            app_menu.extend([MenuItem::separator(), MenuItem::action("Quit BRN", Quit)]);
             cx.set_menus([
-                Menu::new("BRN").items(vec![
-                    MenuItem::action("Settings…", OpenSettings),
-                    MenuItem::action("Save to Markdown", SaveNote),
-                    MenuItem::separator(),
-                    MenuItem::action("Quit BRN", Quit),
-                ]),
+                Menu::new("BRN").items(app_menu),
                 Menu::new("View").items(vec![
                     MenuItem::action("Toggle History", ToggleHistory),
                     MenuItem::action("Toggle Vault", ToggleVault),
@@ -2148,7 +2273,9 @@ pub fn run(path: PathBuf, config: Config) {
                         ..TitleBar::window_options()
                     },
                     |window, cx| {
-                        let desktop = cx.new(|cx| Desktop::new(path, config, window, cx));
+                        let desktop = cx.new(|cx| {
+                            Desktop::new(path, config, mode, vault, preferences, window, cx)
+                        });
                         let quit_target = desktop.downgrade();
                         cx.on_action::<Quit>(move |_, cx| {
                             let allow = quit_target

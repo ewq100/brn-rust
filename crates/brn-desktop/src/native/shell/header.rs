@@ -7,11 +7,15 @@ impl Desktop {
         cx: &mut Context<Self>,
     ) -> impl IntoElement {
         let p = self.palette();
-        let tone = match self.phase {
-            Phase::Idle => p.green,
-            Phase::Failed(_) => p.amber,
-            Phase::Opening => p.muted,
-            Phase::Running { .. } | Phase::Cancelling { .. } => p.cyan,
+        let tone = if self.ai.as_ref().is_some_and(|ai| ai.active.is_some()) {
+            p.cyan
+        } else {
+            match self.phase {
+                Phase::Idle => p.green,
+                Phase::Failed(_) => p.amber,
+                Phase::Opening => p.muted,
+                Phase::Running { .. } | Phase::Cancelling { .. } => p.cyan,
+            }
         };
         let mut bar = div()
             .flex()
@@ -36,10 +40,12 @@ impl Desktop {
                     .child(self.phase_status()),
             )
             .child(div().flex_1());
-        if matches!(self.phase, Phase::Running { .. }) {
+        if matches!(self.phase, Phase::Running { .. })
+            || self.ai.as_ref().is_some_and(|ai| ai.active.is_some())
+        {
             bar = bar.child(
                 Button::new("cancel")
-                    .label("Cancel")
+                    .label("Stop")
                     .compact()
                     .on_click(cx.listener(|this, _, _, cx| this.cancel_running(cx))),
             );
@@ -72,7 +78,7 @@ impl Desktop {
         }
         TitleBar::new().child(bar)
     }
-    pub(super) fn render_status_line(&self) -> impl IntoElement {
+    pub(super) fn render_status_line(&self, cx: &mut Context<Self>) -> impl IntoElement {
         let p = self.palette();
         let mut line = div()
             .id("status-line")
@@ -99,6 +105,24 @@ impl Desktop {
         }
         if let Some(note) = &self.layout_note {
             line = line.child(note.clone());
+        }
+        if let Some(ai) = &self.ai {
+            if let Some(backup) = &ai.restored {
+                line = line.child(format!("Restored user work from {}", backup.display()));
+            }
+            if self.close_failed {
+                line = line.child("Local work is stopped. Copy any unsaved partial text before explicitly closing.");
+                line = line.child(
+                    Button::new("confirm-unsaved-close")
+                        .label("Confirm close without saving partial answer")
+                        .on_click(cx.listener(|this, _, window, cx| {
+                            this.closed = true;
+                            this.close_failed = false;
+                            window.remove_window();
+                            cx.notify();
+                        })),
+                );
+            }
         }
         line
     }

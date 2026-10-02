@@ -79,8 +79,7 @@ directory or Download action returns typed `SemanticUnavailableInBuild`
 and these builds do not offer an automatic download prompt. Explicit decline
 still persists without network. Native builds enable `native-retrieval` and
 continue to honor saved model directories and fresh consent.
-The CLI's simple reads/history/AI actions now use AppWorker; desktop cutover is
-separate. Legacy local editing/history remains guarded by Store mode checks.
+The CLI and desktop simple reads/history/AI actions use AppWorker. Legacy local editing/history remains guarded by Store mode checks.
 No simple Markdown Save is added here.
 
 ## Owned application and chat lanes

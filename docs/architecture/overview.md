@@ -13,13 +13,17 @@ This describes the implemented workspace at the baseline in [status](../status.m
 | [brn-retrieval](../../crates/brn-retrieval/README.md) | Derived indexes, search profiles and evidence validation | None |
 | [brn-workflow](../../crates/brn-workflow/README.md) | Legacy operations/worker/`brn-flow`; simple App owner, current-vault read tools and consented model installation | Store, provider, retrieval, AI |
 | [brn-ai](../../crates/brn-ai/README.md) | Explicit ChatGPT/Copilot authentication, owned Rig clients and streamed read-only answers | None |
-| [brn-desktop](../../crates/brn-desktop/README.md) | GPUI workspace shell (history, document/chat, vault), interaction state, presentation-only layout preferences and sample headless checks | Core; workflow with native UI enabled |
+| [brn-desktop](../../crates/brn-desktop/README.md) | GPUI workspace shell (history, document/chat, vault), presentation DTOs/layout and sample headless checks | Core, workflow |
 
-`brn-desktop` sends integrated application work through `brn-workflow::worker`. The headless `brn-flow` driver uses the same workflow. Workflow coordinates authoritative storage, derived retrieval and provider calls; views do not implement those operations themselves.
+`brn-desktop` sends simple work only through AppWorker; retained legacy local
+editing/recovery/history uses `brn-workflow::worker`. The headless `brn-flow`
+driver retains that legacy workflow. Workflow coordinates authoritative storage, derived retrieval and provider calls; views do not implement those operations themselves.
 
 The simple `brn-workflow::app::App` is implemented alongside that legacy flow.
 The CLI uses owned AppWorker/chat/account/model lanes for simple commands;
-desktop cutover remains separate. App exclusively
+desktop uses those same lanes, without App/SQL/model/secret state in views.
+Native defaults to BRN-simple and its exact BRN-simple.credentials sibling;
+old BRN requires explicit legacy mode or legacy markers. App exclusively
 owns WorkStore, optionally binds one current vault and shares one loaded
 embedder/search policy between Library and read-only AiTools. Both stores enforce
 mode exclusion under the same owner lock before SQLite opens. No UI/CLI direct
@@ -78,7 +82,10 @@ Coordination covers participating writers only; arbitrary late races can be
 detected after installation. File durability uses `F_FULLFSYNC`, directories
 use explicit `libc::fsync`; process-kill tests do not establish power-loss
 durability or other-volume support. Native UI acceptance remains pending.
-Window close, application Quit/Cmd-Q and note switching guard recovery; pinned
+Window close, application Quit/Cmd-Q and note switching guard recovery.
+Guarded native close/Quit asynchronously cancel and join local work before
+closing; finalization errors retain explicitly unsaved partials and block close.
+Pinned
 GPUI cannot veto Dock/system termination, and no final-hook flush was added.
 Unacknowledged typing on that route can be lost.
 
