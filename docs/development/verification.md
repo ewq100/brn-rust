@@ -12,8 +12,8 @@ Run from the repository root. Use the pinned toolchain, lockfiles, disposable ex
 | Drafts or comments | `cargo test -p brn-store -p brn-workflow --locked`; then integrated checks; add native checks if interaction changes |
 | Native UI | `bash scripts/verify-desktop-shell.sh --native`; manually exercise changed flows on the unlocked target Mac with fresh disposable data |
 | Provider adapter | `cargo test -p brn-provider --locked` (fake sidecar); `bash scripts/verify-trial.sh` if the standalone provider trial changes |
-| Keyword retrieval | `cargo test -p brn-retrieval --locked`; integrated workflow checks |
-| Native retrieval | `cargo test -p brn-retrieval --features native --locked`; build/test the affected consumer with `native-retrieval`; read fixture/resource conditions in the native smoke tests |
+| Search index or keyword retrieval | `cargo test -p brn-retrieval --locked`; integrated workflow checks |
+| Native retrieval | `cargo test -p brn-retrieval --features native --locked` (set `BRN_NATIVE_MODEL_DIR` to run the local model test; otherwise it is skipped); `cargo check -p brn-desktop --features native-ui,native-retrieval --locked` |
 | Editor experiment | `bash scripts/verify-editor-trial.sh` (includes native build) |
 | Retrieval experiment | `bash scripts/verify-retrieval-trial.sh`; add `--native` for native checks; `scripts/verify-retrieval-state.sh` requires a completed synthetic state directory |
 | Local macOS launcher | `bash scripts/test-make-macos-app.sh`; observe launch/relaunch if behavior changed |

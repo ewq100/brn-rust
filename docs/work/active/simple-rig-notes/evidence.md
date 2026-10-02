@@ -62,3 +62,20 @@ Check: the step 2 store and vault code and tests from the revised plan were copi
 - New relative Markdown links resolve; the staged active README excludes the user's UI slice 2 row, which remains unstaged.
 - Accepted read race limit: a folder swapped for a symlink during a note read can still lead outside the vault; this needs write access inside the vault.
 - Checks used repository-local disposable fixtures via `TMPDIR`; no original vault/old data, live provider calls, model downloads or native usability acceptance exercised.
+
+## Step 3: search
+
+- 2026-10-02; tested `main@94de72d` with documentation-only dirty changes; implementation commits `80664a9`, `5e41142`, `99013df`, `10cd354` (fix), `180451f`, `9e6a735`, `94de72d` (fix), plus this documentation commit (`docs: record search step`).
+- `rustc --version`: `rustc 1.98.1 (48a229cea 2026-09-01)`; macOS; deterministic fixtures in an explicit disposable `TMPDIR`.
+- Implemented: disposable notes/passages/FTS5 index, stored embeddings/fusion, local embedder and workflow `Library`; LanceDB removed. CLI `search`/`notes list` moved to step 4 by controller ruling.
+- Review fix round 1: `NoteIndex::open` refuses other healthy databases unchanged; rebuilds only corruption, its own outdated/incomplete schema or empty files; propagates other errors. Vector normalisation uses `f64`.
+- Review fix round 2: every search reports `keyword_only` without an installed model; note titles skip YAML frontmatter.
+- `cargo fmt --all -- --check`: **PASS**, exit 0.
+- `cargo clippy --workspace --all-targets --locked -- -D warnings`: **PASS**, exit 0, no warnings.
+- `cargo test -p brn-retrieval -p brn-workflow --locked --no-fail-fast`: **PASS**, exit 0; 181 reported passed, 0 failed, 0 ignored across 19 result groups.
+- `note_evidence::managed_missing_import_fails_as_stale_instead_of_uncategorized_io`: **PASS** this run; the known failure on `main@d739364` did not reproduce. `cli_ask` is outside these selected packages, so its load-sensitive deadline test was not exercised.
+- `cargo test -p brn-retrieval --locked --features native`: **PASS**, exit 0; 33 reported passed, 0 failed, 0 ignored across 7 result groups; includes one self-skipped local model test, not model verification.
+- `BRN_NATIVE_MODEL_DIR` unset; no model downloaded. Confirmed skip with `cargo test -p brn-retrieval --locked --features native --test local_embedder local_model_embeds_by_meaning -- --exact --nocapture`: exit 0, 1 reported passed, 1 filtered out; explicit skip message observed.
+- `cargo check -p brn-desktop --locked --features native-ui,native-retrieval`: **PASS**, exit 0 without `protoc` (unavailable); confirms Task 4's earlier build report after LanceDB removal. Upstream GPUI dependency `block v0.1.6` future-incompatibility warning remains.
+- `git diff --check`: **PASS**, exit 0; final staged whitespace and relative-link checks recorded in the Task 6 report.
+- No live provider calls, original-vault/old-data access, model inference, native usability acceptance or release qualification claimed.
