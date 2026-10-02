@@ -36,6 +36,11 @@ pub use brn_retrieval::Profile as SearchProfile;
 pub use brn_store::Approval as SearchApproval;
 pub use brn_store::anchors::{MAX_EDIT_STEPS, MAX_TRACE_REPLACEMENT_BYTES};
 pub use brn_store::work::{WorkConversation, WorkTurn, WorkTurnStatus};
+pub use brn_store::workspace_mode::WorkspaceMode;
+
+pub fn workspace_mode(data: &Path) -> Result<WorkspaceMode> {
+    Ok(brn_store::workspace_mode::classify(data)?)
+}
 pub use brn_store::{
     AmbiguityReason, AnchorProjection, AnchorState, ChatTurn, CommentAnchorSnapshot,
     CommentCapture, CommentCreated, CommentStatus, CommentStatusChange, CommentStatusChanged,

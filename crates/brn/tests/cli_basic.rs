@@ -135,6 +135,7 @@ fn status_json_on_fresh_empty_dir() {
     let dir = tempdir().unwrap();
     let out = brn(&[
         "status",
+        "--legacy",
         "--data-dir",
         dir.path().to_str().unwrap(),
         "--json",
@@ -161,7 +162,12 @@ fn status_json_on_fresh_empty_dir() {
 #[test]
 fn status_text_mode_prints_labeled_lines() {
     let dir = tempdir().unwrap();
-    let out = brn(&["status", "--data-dir", dir.path().to_str().unwrap()]);
+    let out = brn(&[
+        "status",
+        "--legacy",
+        "--data-dir",
+        dir.path().to_str().unwrap(),
+    ]);
     assert_eq!(code(&out), 0);
     let stdout = text(&out);
     assert!(stdout.contains("recovered_operations: 0"), "{stdout}");

@@ -33,7 +33,16 @@ pub fn run(invocation: &Invocation) -> Result<Output, CliFailure> {
             operation,
         } => set_approval(&mut workspace, *source, *version, *state, *operation),
         Command::IndexBuild => build(&mut workspace),
-        Command::Search { query, profile } => search(&mut workspace, query, *profile),
+        Command::Search {
+            query,
+            profile,
+            limit,
+        } => search(
+            &mut workspace,
+            query,
+            profile.unwrap_or(brn_workflow::SearchProfile::Keyword),
+            *limit,
+        ),
         _ => unreachable!("retrieval module handles import, approval, build and search only"),
     }
 }
@@ -161,10 +170,14 @@ fn search(
     workspace: &mut Workspace,
     query: &str,
     profile: brn_workflow::SearchProfile,
+    limit: Option<usize>,
 ) -> Result<Output, CliFailure> {
-    let result = workspace
+    let mut result = workspace
         .search(query, profile)
         .map_err(cancelled_or_classified)?;
+    if let Some(limit) = limit {
+        result.evidence.truncate(limit);
+    }
     let mut text = format!("{} {}\n", profile_name(result.profile), result.query);
     for evidence in &result.evidence {
         text.push_str(&format!(

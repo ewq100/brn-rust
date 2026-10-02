@@ -34,7 +34,7 @@ fn terminal_replay_precedes_unavailable_vault_and_current_selection_validation()
         data,
         AppConfig {
             vault_root: None,
-            credentials_dir: base.path().join("credentials"),
+            credentials_dir: Some(base.path().join("credentials")),
             model_dir: None,
         },
     )
@@ -74,7 +74,7 @@ fn unbound_new_ask_is_refused_without_insertion_and_outer_uuid_must_match() {
         data.clone(),
         AppConfig {
             vault_root: None,
-            credentials_dir: base.path().join("credentials"),
+            credentials_dir: Some(base.path().join("credentials")),
             model_dir: None,
         },
     )
@@ -115,7 +115,7 @@ fn unknown_conversation_fails_before_insertion_even_without_a_vault_or_account()
         data.clone(),
         AppConfig {
             vault_root: None,
-            credentials_dir: base.path().join("credentials"),
+            credentials_dir: Some(base.path().join("credentials")),
             model_dir: None,
         },
     )

@@ -24,7 +24,7 @@ fn first_binding_selection_recovery_and_restart_use_the_application_owner() {
     std::fs::write(vault.join("a.md"), b"original").unwrap();
     let config = || AppConfig {
         vault_root: None,
-        credentials_dir: base.path().join("credentials"),
+        credentials_dir: Some(base.path().join("credentials")),
         model_dir: None,
     };
     let mut worker = AppWorker::start(data.clone(), config()).unwrap();
@@ -77,7 +77,7 @@ fn opening_failure_is_asynchronous_and_typed() {
         base.path().join("missing"),
         AppConfig {
             vault_root: None,
-            credentials_dir: base.path().join("credentials"),
+            credentials_dir: Some(base.path().join("credentials")),
             model_dir: None,
         },
     )
@@ -95,7 +95,7 @@ fn application_status_is_local_and_has_no_implicit_model_or_provider() {
         data,
         AppConfig {
             vault_root: None,
-            credentials_dir: base.path().join("credentials"),
+            credentials_dir: Some(base.path().join("credentials")),
             model_dir: None,
         },
     )
@@ -120,7 +120,7 @@ fn unsupported_download_has_no_prompt_or_approval_mutation() {
         data.clone(),
         AppConfig {
             vault_root: None,
-            credentials_dir: base.path().join("credentials"),
+            credentials_dir: Some(base.path().join("credentials")),
             model_dir: None,
         },
     )
@@ -158,7 +158,7 @@ fn read_selection_refresh_search_and_invalid_recovery_events_echo_the_request() 
         data.clone(),
         AppConfig {
             vault_root: Some(vault.clone()),
-            credentials_dir: base.path().join("credentials"),
+            credentials_dir: Some(base.path().join("credentials")),
             model_dir: None,
         },
     )
@@ -260,7 +260,7 @@ fn restored_backup_event_precedes_ready_on_the_owned_application_lane() {
         data,
         AppConfig {
             vault_root: None,
-            credentials_dir: base.path().join("credentials"),
+            credentials_dir: Some(base.path().join("credentials")),
             model_dir: None,
         },
     )

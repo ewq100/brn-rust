@@ -30,7 +30,7 @@ fn synthetic_owned_install_job_defers_activation_until_tool_handles_are_drained(
         &data,
         AppConfig {
             vault_root: Some(vault.clone()),
-            credentials_dir: base.path().join("credentials"),
+            credentials_dir: Some(base.path().join("credentials")),
             model_dir: None,
         },
     )

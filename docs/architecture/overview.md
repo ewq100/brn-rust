@@ -17,13 +17,18 @@ This describes the implemented workspace at the baseline in [status](../status.m
 
 `brn-desktop` sends integrated application work through `brn-workflow::worker`. The headless `brn-flow` driver uses the same workflow. Workflow coordinates authoritative storage, derived retrieval and provider calls; views do not implement those operations themselves.
 
-The simple `brn-workflow::app::App` is implemented alongside that legacy flow;
-consumer cutover and owned App/chat jobs remain subsequent tasks. It exclusively
+The simple `brn-workflow::app::App` is implemented alongside that legacy flow.
+The CLI uses owned AppWorker/chat/account/model lanes for simple commands;
+desktop cutover remains separate. App exclusively
 owns WorkStore, optionally binds one current vault and shares one loaded
 embedder/search policy between Library and read-only AiTools. Both stores enforce
 mode exclusion under the same owner lock before SQLite opens. No UI/CLI direct
 AI/retrieval/store dependency is added. Installation requires fresh consent;
 persisted approval never starts network work.
+Legacy CLI local editing/history still uses Workspace; `brn ask` cannot submit
+legacy AI work. Advisory classification reuses Store's marker/backup rules.
+Simple credential location selection and settings reads occur inside the owning
+App lane, not through an extra frontend WorkStore.
 
 ## Data flow
 

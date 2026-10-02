@@ -48,6 +48,7 @@ pub enum AppCommand {
     },
     Conversations,
     Turns(Uuid),
+    Turn(Uuid),
     Ask(AskRequest),
     CancelTurn(Uuid),
     Account {
@@ -83,6 +84,7 @@ pub enum AppEvent {
     Search(SearchResults),
     Conversations(Vec<WorkConversation>),
     Turns(Vec<WorkTurn>),
+    Turn(Option<WorkTurn>),
     Indexing {
         embedded: usize,
         total: usize,
@@ -761,6 +763,7 @@ fn dispatch(
         }
         AppCommand::Conversations => AppEvent::Conversations(app.conversations()?),
         AppCommand::Turns(conversation) => AppEvent::Turns(app.turns(conversation)?),
+        AppCommand::Turn(turn) => AppEvent::Turn(app.work_store().turn(turn)?),
         AppCommand::Ask(request) => {
             let result = (|| {
                 if let Some(previous) = ask_ledger.get(&id)

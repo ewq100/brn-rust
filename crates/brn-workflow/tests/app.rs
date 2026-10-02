@@ -11,7 +11,7 @@ fn base() -> tempfile::TempDir {
 fn config(base: &std::path::Path) -> AppConfig {
     AppConfig {
         vault_root: None,
-        credentials_dir: base.join("credentials"),
+        credentials_dir: Some(base.join("credentials")),
         model_dir: None,
     }
 }

@@ -18,6 +18,9 @@ Dangling symlink markers count as present. `WorkspaceModeConflict` leaves both
 authorities unchanged; an already held lock takes precedence as `WorkspaceBusy`.
 Frontend dispatch is advisory, not the exclusion mechanism. No migration or
 parallel database authority is introduced.
+`workspace_mode::classify` exposes the exact shared marker/backup checks for
+advisory dispatch (`Empty`, `Legacy`, `Simple`), with mixed markers rejected.
+It opens no database and never replaces the post-lock owner checks.
 
 WorkStore integrity checks, V1-to-V2 upgrades, turn reconciliation and online
 backups retain their existing behavior. Tests in

@@ -16,7 +16,7 @@ fn open(
         data,
         AppConfig {
             vault_root: None,
-            credentials_dir: credentials.join("credentials"),
+            credentials_dir: Some(credentials.join("credentials")),
             model_dir: model,
         },
     )

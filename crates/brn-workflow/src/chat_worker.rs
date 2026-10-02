@@ -512,7 +512,7 @@ async fn run(
                         match store.finish_turn(request.id, status, &answer.text, code) {
                             Ok(turn) => emit(Output::Chat(ChatEvent::Finished { id: request.id, generation: request.generation, turn })),
                             Err(_) => {
-                                let error = WorkflowError::msg("could not save AI turn; partial text is only in memory");
+                                let error = WorkflowError::typed(ErrorKind::AiStorage, "could not save AI turn; partial text is only in memory");
                                 final_error.get_or_insert(error.clone());
                                 emit(Output::Chat(ChatEvent::PersistenceFailed {
                                     id: request.id, generation: request.generation, partial: answer.text, error,

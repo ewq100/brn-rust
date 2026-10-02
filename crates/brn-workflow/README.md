@@ -20,7 +20,11 @@ Credentials must be absolute, outside Git repositories, the data folder and
 the vault. `default_credentials_dir(data_dir)` supplies a canonical sibling
 `<data-name>.credentials` (desktop `BRN-simple.credentials`); `Auth::open`
 checks only that safe folder, never provider caches. There is no default
-provider/model. Selection is validated and
+provider/model. `AppConfig.credentials_dir: Option<PathBuf>` uses an explicit
+location when supplied, otherwise the owner's saved `ai.credentials_dir`, then
+the safe sibling. The non-secret absolute location is persisted only by App's
+owning lane; frontends never open an extra WorkStore to read settings.
+Selection is validated and
 saved atomically in one `ai.selection` setting. Explicit Copilot discovery
 results go through `record_models`; `validate_selection` checks membership
 without network or cache access.
@@ -75,8 +79,9 @@ directory or Download action returns typed `SemanticUnavailableInBuild`
 and these builds do not offer an automatic download prompt. Explicit decline
 still persists without network. Native builds enable `native-retrieval` and
 continue to honor saved model directories and fresh consent.
-The current CLI/desktop still use the legacy workflow until their separate
-cutover tasks. No simple Markdown Save is added here.
+The CLI's simple reads/history/AI actions now use AppWorker; desktop cutover is
+separate. Legacy local editing/history remains guarded by Store mode checks.
+No simple Markdown Save is added here.
 
 ## Owned application and chat lanes
 
@@ -100,6 +105,11 @@ resubmitted. Different payloads/generations conflict. Outer submission UUID
 must equal Ask/account operation UUID. Durable replay matches the recorded
 question, conversation, provider and model; generation is a transient
 navigation correlation, not persisted history.
+`AppCommand::Turn(uuid)` / `AppEvent::Turn(Option<WorkTurn>)` is an owner-lane
+lookup for CLI replay projection. Query Selection explicitly, but use the
+recorded provider/model during replay even if current selection is obsolete.
+`WorkflowError::recorded_ai_failure` projects the closed persisted AI category
+to safe typed errors, rather than frontend wording classification.
 
 One turn is active. Dispatch continues while turn/auth futures await. Stop,
 account actions and installer cancellation bypass application work; chat and

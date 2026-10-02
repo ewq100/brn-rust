@@ -17,7 +17,7 @@ mod drafts;
 pub mod notes;
 pub mod work;
 mod workflow;
-mod workspace_mode;
+pub mod workspace_mode;
 pub use anchors::{
     AmbiguityReason, AnchorProjection, AnchorState, EditTrace, OriginalAnchor, RecoveryReference,
     TextEdit, apply_edit, derive_edit, map_anchor, replay_trace,

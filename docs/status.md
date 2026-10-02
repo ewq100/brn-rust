@@ -1,9 +1,11 @@
 # Current development status
 
-Task 5 on `task-4-ai-chat` adds owned App/chat/account lanes, an owner-authorized
-attached chat writer, durable cancellation/replay and joined installer/tool
-lifecycles over the Task 4 App/read-tools/model owner. CLI/desktop cutover
-remains subsequent work; simple Markdown Save remains roadmap Step 6.
+Task 6 on `task-4-ai-chat` cuts CLI simple reads/search/history and explicit
+AI/account/model actions over to the Task 5 owned application lanes. Legacy
+local editing/history stays available; legacy `brn ask` is retired. Shared empty
+commands require explicit authority, and saved credential locations are owned
+workflow settings. Desktop cutover/provider removal remain subsequent tasks;
+simple Markdown Save remains roadmap Step 6.
 Offline synthetic verification is separate from model
 inference, native usability and live-provider qualification; no merge or release
 is claimed.

@@ -19,7 +19,8 @@ use std::{
 
 pub struct AppConfig {
     pub vault_root: Option<PathBuf>,
-    pub credentials_dir: PathBuf,
+    /// None reopens the saved non-secret location, or derives the safe sibling.
+    pub credentials_dir: Option<PathBuf>,
     pub model_dir: Option<PathBuf>,
 }
 
@@ -76,12 +77,13 @@ impl App {
             }
         }
         let requested_root = config.vault_root.clone().or(stored_root.clone());
-        validate_credentials(
-            &config.credentials_dir,
-            requested_root.as_deref(),
-            &data_dir,
-        )?;
-        let auth = Arc::new(Auth::open(&config.credentials_dir)?);
+        let credentials_dir = config
+            .credentials_dir
+            .or(store.setting("ai.credentials_dir")?.map(PathBuf::from))
+            .map(Ok)
+            .unwrap_or_else(|| default_credentials_dir(&data_dir))?;
+        validate_credentials(&credentials_dir, requested_root.as_deref(), &data_dir)?;
+        let auth = Arc::new(Auth::open(&credentials_dir)?);
         #[cfg(feature = "native-retrieval")]
         let saved_model = store.setting("model.directory")?.map(PathBuf::from);
         #[cfg(not(feature = "native-retrieval"))]
@@ -99,6 +101,15 @@ impl App {
             embedder,
             report,
         };
+        app.store.set_setting(
+            "ai.credentials_dir",
+            credentials_dir.to_str().ok_or_else(|| {
+                WorkflowError::typed(
+                    ErrorKind::UnsafeCredentials,
+                    "credential path must be UTF-8",
+                )
+            })?,
+        )?;
         if let Some(root) = requested_root.as_deref()
             && root
                 .try_exists()

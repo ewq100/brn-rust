@@ -68,7 +68,7 @@ impl Fixture {
     fn config(&self) -> AppConfig {
         AppConfig {
             vault_root: Some(self.base.path().join("vault")),
-            credentials_dir: self.base.path().join("credentials"),
+            credentials_dir: Some(self.base.path().join("credentials")),
             model_dir: None,
         }
     }

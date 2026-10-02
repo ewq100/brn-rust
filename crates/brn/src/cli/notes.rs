@@ -99,6 +99,7 @@ pub(super) fn scan_command(
     let (label, options): (&str, &[(&str, bool)]) = match sub.as_str() {
         "open" => ("notes.open", &[("vault", true), ("operation", true)]),
         "show" => ("notes.show", &[]),
+        "list" => ("notes.list", &[("folder", true), ("cursor", true)]),
         "compare" => ("notes.compare", &[]),
         "buffer" => {
             let action = sub_word(tokens, "notes buffer", "save")?;

@@ -9,12 +9,21 @@ Agent-facing CLI for BRN workspaces: parsing, JSON envelopes and exit codes over
 The default/headless build is keyword-only. Build the full CLI with
 `cargo build -p brn --features native-retrieval --locked`; this enables the
 shared workflow's native model support, not automatic model downloading.
-Simple App/AI command dispatch remains a separate consumer-cutover task.
+Simple read/search/history and explicit subscription actions use the owned
+AppWorker. Legacy local editing and history remain available; legacy `brn ask`
+submission is retired. Desktop cutover and provider deletion are separate tasks.
 
 ## Commands
 
   brn notes open PATH --vault DIR [--operation UUID]
-  brn notes show NOTE_ID
+  brn ai connect chatgpt|copilot [--timeout-seconds N]
+  brn ai disconnect chatgpt|copilot
+  brn ai status
+  brn ai models chatgpt|copilot [--timeout-seconds N]
+  brn ai select --provider chatgpt|copilot --model MODEL
+  brn models download --approve-download [--model-dir DIR] [--timeout-seconds N]
+  brn notes list [--folder FOLDER] [--cursor PATH]
+  brn notes show PATH.md|NOTE_ID
   brn notes buffer save NOTE_ID --base-file-state UUID --expected-generation N --generation N --text-file PATH [--operation UUID]
   brn notes save NOTE_ID --base-file-state UUID --expected-generation N --generation N --text-file PATH [--operation UUID]
   brn notes recovery list
@@ -32,8 +41,8 @@ Simple App/AI command dispatch remains a separate consumer-cutover task.
   brn documents show SOURCE_ID
   brn documents set-search-approval SOURCE_ID --version-id VERSION_ID --state approved|draft|withdrawn [--operation UUID]
   brn index build
-  brn search QUERY [--profile keyword|semantic|hybrid]
-  brn ask QUESTION [--profile keyword|semantic|hybrid] [--session UUID] [--operation UUID] [--timeout-seconds N]
+  brn search QUERY [--profile keyword|semantic|hybrid] [--limit N]
+  brn ask QUESTION [--session UUID] [--operation UUID] [--timeout-seconds N]
   brn conversations list
   brn conversations show SESSION_ID
   brn drafts create --title TITLE --text-file PATH [--operation UUID]
@@ -52,6 +61,39 @@ Simple App/AI command dispatch remains a separate consumer-cutover task.
 ## Global options
 
 Accepted before or after the command: `--data-dir DIR` (required for commands; must be an existing absolute directory), `--json`, `--codex PATH` (absolute, does not imply authentication), `--model-dir DIR` (absolute), `--help`, `--version`.
+
+Simple commands also accept `--vault DIR` for first binding and
+`--credentials-dir DIR` for an explicit credential location. Both are absolute;
+the vault must exist. Credentials must be current-user-owned, safe and outside
+Git, data and vault directories. The exact default is the sibling
+`<data-directory-name>.credentials`, not an environment/Rig account lookup.
+The owning workflow persists the non-secret location and honors it on reopening.
+`--legacy` explicitly selects legacy authority for empty shared commands;
+it conflicts with simple options/actions. `--codex` cannot accompany simple
+options/actions and never authorizes legacy `brn ask`.
+
+### Authority dispatch
+
+| Command family | Legacy markers | Simple markers/backups | Empty |
+| --- | --- | --- | --- |
+| `ai *`, `models download`, `notes list`, `notes show PATH.md` | Mode conflict | AppWorker | Initialize simple authority |
+| `notes show UUID`, managed editing/recovery, import/documents/drafts/comments/revisions/index build | Workspace | Mode conflict | Initialize legacy authority |
+| `status`, `search`, `conversations list/show` | Legacy shapes | Simple shapes | Require `--vault` (simple) or `--legacy`; otherwise no DB |
+| `ask` | `LEGACY_AI_RETIRED`, no submission | AppWorker | Require `--vault`; otherwise no DB/network |
+
+Mixed markers always fail `WORKSPACE_MODE_CONFLICT`. Database WAL/SHM/journal
+sidecars and recognized WorkStore backups count even when the DB is missing.
+The shared classifier is advisory: store checks repeat after the owner lock.
+`brn-flow` preserves legacy local/search/history (`sessions`, `history`), but
+cannot open/create legacy authority in a simple folder.
+
+`notes show` parses UUID first; otherwise it requires a visible contained
+vault-relative Markdown path. UUIDs are never repurposed as filenames.
+In simple mode, listing uses path-sorted 200-row cursor pages, showing reads
+exact current UTF-8 bytes, and search defaults to hybrid/10 results (limit 1–50).
+Without an installed model **every** simple profile explicitly reports
+`keyword_only: true`. Legacy search keeps its keyword default and original
+profile/evidence shape; explicit `--limit` only truncates results.
 
 ## JSON envelope
 
@@ -83,7 +125,38 @@ Note failures also exit `1`: `NOTE_STATE_CHANGED`, `NOTE_CONFLICT`,
 `NOTE_STORAGE_ERROR`, `VAULT_BUSY`, `VAULT_UNAVAILABLE`; operation/workspace
 conflicts retain `OPERATION_CONFLICT`/`WORKSPACE_BUSY`.
 
+Simple failures use typed `AI_RECONNECT_NEEDED`, `AI_CODE_EXPIRED`,
+`AI_RATE_LIMITED`, `AI_NETWORK`, `AI_MODEL_REFUSED`, `AI_INVALID_TOOL_USE`,
+`AI_TOOL_LIMIT_REACHED`, `AI_UNSAFE_CREDENTIALS`, `AI_STORAGE_ERROR`,
+`AI_SELECTION_REQUIRED`, `AI_TOOL_REJECTED`, `AI_INDEX_STALE`, `VAULT_NOT_BOUND`,
+`WORKSPACE_MODE_CONFLICT`, `WORKSPACE_MODE_REQUIRED`, `LEGACY_AI_RETIRED`,
+`MODEL_INVALID`, `MODEL_DOWNLOAD_FAILED`, `SEMANTIC_UNAVAILABLE_IN_BUILD` or
+`TOOLS_BUSY`. These are operational exit 1 unless explicit local cancellation
+or deadline applies; persistence failure is never relabeled as cancellation.
+
+### Schema 1 simple-folder command-shape cutover
+
+The envelope remains schema 1; **command data depends on workspace authority**.
+Simple `status` includes `mode: "simple"`, `vault_root`, `model_installed`,
+`model_download`, version/data directory and native-retrieval capability.
+Simple notes list returns `{notes, next_cursor}`, show returns `{path, text}`,
+search returns `{query, hits, keyword_only}` with path/byte-range/quote/score hits.
+Simple conversations list returns `{conversations}` (`id`, `title`, `turns`);
+show returns `{session_id, historical: true, turns}`. Turn/ask data is
+`{operation_id, session_id, provider, model, question, answer, status, error_code}`.
+There are **no provider thread/turn IDs, evidence snapshots or usage DTOs**
+in new turns. Legacy status/search/conversation data retains its prior shape.
+`ai status` returns `{accounts, selection}`; connect returns safe account status,
+disconnect returns provider/connected=false/name=null, models returns
+provider/models, and select returns selection. Connected means local credentials
+exist, not upstream validity; null name means account name unavailable.
+Download success reports operation/directory/download and `installed: true`,
+only after model activation, not merely `ModelDownloaded`.
+
 ## Safe Markdown notes
+
+This section describes the retained legacy managed-note commands, not simple
+Markdown publication.
 
 [`notes`](src/cli/notes.rs) calls the shared workflow; no CLI filesystem-write
 fallback exists. The vault root and `notes open PATH` must be explicit absolute
@@ -155,6 +228,8 @@ brn index build --data-dir /absolute/disposable-data --json
 
 ## Semantics
 
+The following local mutation/retrieval contracts describe legacy workspaces.
+
 - Import defaults to draft approval; `--approve-for-search` is explicit and is not publication approval.
 - `drafts create` reads a regular UTF-8 text file up to the 1 MiB draft limit with a bounded read and preserves exact bytes (no Unicode or line-ending normalization). Empty text is permitted; a blank title is rejected. The envelope carries the operation id and the created draft (id, title, base revision, generation, sha256). Reusing the same operation id with the same title and text replays the recorded draft; conflicting payload reuse fails with `OPERATION_CONFLICT`.
 - `drafts checkpoint DRAFT_ID` uses the exact flags `--base-revision UUID`, `--expected-generation N`, `--generation N`, and `--text-file PATH` (plus optional `--operation UUID`). These are the CLI's checkpoint spellings; the command reads the bounded UTF-8 text explicitly, maps the caller-supplied expected state to the existing `DraftStamp`, and calls the shared checkpoint workflow. The success envelope includes `operation_id`, `checkpoint_id` (the resulting `base_revision`), and the resulting draft stamp. Existing generation rules apply, including unchanged text at the expected generation; stale state is rejected. Same-payload operation replay returns the original receipt after restart or later edits, while conflicting reuse fails with `OPERATION_CONFLICT`.
@@ -191,7 +266,33 @@ brn comments list --draft DRAFT_ID --data-dir /tmp/brn-data --json
 
 ## Ask and the provider
 
-`ask` requires `--codex`; without it the invocation is a usage error and the workspace is never opened. Provider deltas stream to stderr so stdout stays one envelope. `--timeout-seconds` defaults to 300 and is bounded 1..=3600; deadline exit is 124, SIGINT exit is 130, and completed, failed or interrupted turn outcomes are preserved honestly. Tests use fake providers; a live Codex is never verified by the test suite.
+New `ask` requires an available bound vault and an explicitly saved provider/model.
+There is no account/model fallback, default selection, eager retrieval profile
+or automatic discovery. `ask --profile` is obsolete usage 2 before workspace
+opening; use `search --profile` for human search. Explicit `ai models` discovery
+precedes Copilot selection. `--session` retains its conversation meaning.
+AppWorker performs replay before vault refresh, discovery membership or auth:
+terminal UUID replay uses its frozen model even without a saved selection or
+available vault. Changed payloads conflict; Running never resubmits.
+
+Only explicit Connect performs device login. URI/code is sent solely to the
+dedicated transient **stderr login surface**, including under `--json`; it is
+cleared on terminals on a TTY. This deliberate exception is not a log/envelope:
+never serialize raw events, enable verbose HTTP/Rig tracing or persist codes.
+Failed/cancelled Connect queries real local Status: credentials may already exist,
+and a missing display name remains unknown rather than claiming disconnected.
+Explicit Connect/models/download and Ask all observe SIGINT and deadlines,
+retain pre-admission cancellation intent via fenced joined shutdown, and report
+no guarantee of upstream cancellation or no billing.
+
+Ask deltas stream best-effort to stderr; stdout is exactly one final envelope.
+Timeout defaults to 300, range 1–3600; deadline exits 124, SIGINT exits 130.
+Durably Completed is success even after a late signal. Explicit shutdown errors
+are surfaced, especially persistence failures; Drop is only a safety join.
+Genuine recorded typed failures are not relabeled by a coincident Stop/deadline.
+Download requires fresh `--approve-download` (otherwise usage 2 before work).
+Default builds reject download before network/consent; `--model-dir` is the
+install target, not an attempt to load a missing model during startup.
 
 ### Ask failure context
 
@@ -201,25 +302,22 @@ provider outcome:
 
 - `operation_id`: the BRN-generated or caller-supplied id for this attempt.
 - `session_id`: the session established during the run (created by it, or the caller's validated `--session`); `null` when no session was established.
-- `recorded_status`: the durable local record state (`completed`/`failed`/`interrupted`/`running`/`pending`); `null` means no durable turn-record state is known — including the rare case where a record exists but the outcome of its final write is unknown (for example, the completing store write itself failed).
-- `provider_outcome`: what BRN knows about the provider side; the reachable values are `"unknown" | "completed" | "failed"`. `"unknown"` means BRN could not observe the provider outcome — transport loss or an interrupted record is **not** proof of cancellation. An interrupted record always reports `"unknown"`, because it is ambiguous between a server-confirmed interruption and uncertain transport loss. `"completed"`/`"failed"` imply a provider-confirmed outcome. `"interrupted"` is reserved: it would mean a provider-confirmed interrupted outcome, which the current CLI never claims from an ambiguous record.
+- `recorded_status`: known durable `completed`/`failed`/`interrupted`/`running`;
+  null on rejected preflight or unknown final persistence outcome.
+- `partial`, `receipt`: exact partial text and safe recorded turn where known.
+- `saved`: true only for a known durable receipt; PersistenceFailed is false,
+  with null recorded status and an in-memory partial.
+- `provider_outcome`: `"unknown"` unless completion was actually confirmed.
+  Recorded failure/interruption alone never proves an upstream cancellation.
 
 Resubmitting the SAME operation id returns the recorded state without a new
 external submission. After an unknown provider outcome, a NEW operation id is
 not known to be safe (it may duplicate the external turn). Nothing is ever
-auto-replayed. USAGE (missing `--codex`) and NOT_FOUND (unknown `--session`)
-failures happen before an operation id exists and carry no context.
-
-Managed evidence is revalidated before provider access/submission and at
-completion. Deltas are provisional. `EVIDENCE_STALE` may accompany an actually
-completed provider response: `recorded_status` and `provider_outcome` stay
-`completed`, with the preserved historical `receipt` in failure context.
-Same-operation stale replay returns that receipt/outcome without resubmission;
-a new operation resuming stale managed context fails `CONTEXT_STALE` and
-requires a fresh conversation. Turn JSON adds `evidence_currentness`
-(`Unqualified`, `CurrentAtCompletion`, `StaleAtCompletion`); these describe
-completion, not permanent current eligibility. `conversations show` is labeled
-historical and remains readable offline.
+auto-replayed. Usage errors and authority dispatch failures may precede an
+attempt and carry no context. An allocated Ask failure carries known identity
+even if preflight fails; only the worker's Finished establishes durable outcome.
+Legacy history retains its evidence-currentness/receipt shapes and remains
+readable offline, including through `brn-flow sessions/history`.
 
 ## Dependencies and features
 

@@ -24,6 +24,33 @@ fn conflict() -> Error {
     )
 }
 
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub enum WorkspaceMode {
+    Empty,
+    Legacy,
+    Simple,
+}
+
+/// Advisory dispatch only. Store open repeats these checks under the owner lock.
+pub fn classify(dir: &Path) -> Result<WorkspaceMode> {
+    let legacy = match refuse_legacy(dir) {
+        Ok(()) => false,
+        Err(Error::WorkspaceModeConflict(_)) => true,
+        Err(error) => return Err(error),
+    };
+    let simple = match refuse_simple(dir) {
+        Ok(()) => false,
+        Err(Error::WorkspaceModeConflict(_)) => true,
+        Err(error) => return Err(error),
+    };
+    match (legacy, simple) {
+        (true, true) => Err(conflict()),
+        (true, false) => Ok(WorkspaceMode::Legacy),
+        (false, true) => Ok(WorkspaceMode::Simple),
+        (false, false) => Ok(WorkspaceMode::Empty),
+    }
+}
+
 // Both callers hold brn.owner.lock before checking and keep it through SQLite open.
 pub(crate) fn refuse_legacy(dir: &Path) -> Result<()> {
     refuse_markers(dir, "brn.sqlite3")

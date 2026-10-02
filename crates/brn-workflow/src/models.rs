@@ -52,7 +52,17 @@ impl ModelInstallRequest {
         {
             self.install_with(cancel, progress, |target, cancel, progress| {
                 let report =
-                    brn_retrieval::native::download::download_model(target, cancel, progress)?;
+                    brn_retrieval::native::download::download_model(target, cancel, progress)
+                        .map_err(|error| {
+                            if matches!(error, brn_retrieval::Error::Cancelled) {
+                                WorkflowError::cancelled()
+                            } else {
+                                WorkflowError::typed(
+                                    ErrorKind::ModelDownloadFailed,
+                                    "model installation failed",
+                                )
+                            }
+                        })?;
                 Ok(ModelInstallReport {
                     directory: report.directory,
                     downloaded_bytes: report.downloaded_bytes,
