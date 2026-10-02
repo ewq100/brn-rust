@@ -1,5 +1,7 @@
 # Rig-First Reset Implementation Plan
 
+> **Superseded** on 2 October 2026 by the [simple Rig-based notes app specification](../../../superpowers/specs/2026-10-02-simple-rig-notes-design.md). Do not execute this plan pack; a replacement plan follows that specification's review.
+
 > **For agentic workers:** REQUIRED SUB-SKILL: Use superpowers:executing-plans for inline execution, or superpowers:subagent-driven-development when delegation is explicitly chosen. Steps use checkbox (`- [ ]`) syntax for tracking. Repository/user delegation preferences take precedence over automatic delegation.
 
 **Goal:** Replace Codex App Server with two qualified direct Rig subscriptions while delivering current Markdown notes, SQLite retrieval, durable conversations and separate AI revision candidates on macOS.

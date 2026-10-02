@@ -1,5 +1,7 @@
 # BRN: Rig-first architecture reset
 
+> **Superseded** on 2 October 2026 by the [simple Rig-based notes app specification](2026-10-02-simple-rig-notes-design.md). Retained as historical design input.
+
 Date: 1 October 2026
 
 Status: Three design sections and the written specification approved on 1 October 2026, including the revised credential-storage and distribution requirements. The user subsequently authorized preparation and commit of the [implementation plan pack](../../work/active/rig-first-reset/plan.md). Product execution, live authentication, model acquisition and release remain unauthorized.
