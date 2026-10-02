@@ -116,7 +116,8 @@ pub fn classify_workflow(error: WorkflowError) -> CliError {
         | ErrorKind::ModelRefused
         | ErrorKind::ModelInvalid
         | ErrorKind::SemanticUnavailableInBuild
-        | ErrorKind::ToolsBusy => CliError::Workflow(error.message),
+        | ErrorKind::ToolsBusy
+        | ErrorKind::NotFound => CliError::Workflow(error.message),
     }
 }
 

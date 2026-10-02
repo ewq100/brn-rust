@@ -27,7 +27,7 @@ without network or cache access.
 
 `notes` and `search` refresh before returning CLI reads; `note` reads exact
 current vault bytes. Call `refresh` on explicit Refresh, focus and application
-writes. `embed_pending(batch)` provides bounded-batch progress for the future
+writes. `embed_pending(batch)` provides bounded-batch progress for the owned
 application lane. [`AiTools`](src/ai_tools.rs) is `Send + Sync`, with a mutexed,
 retrieval-owned read-only reader and a clone of Library's one
 [`SharedEmbedder`](src/library.rs). Both use `search_index`: absent models flag
@@ -53,8 +53,8 @@ persisted approval never download. A later explicit action can override decline.
 The default target is `<simple-data-dir>/models/minilm`; targets cannot overlap
 the vault or a repository.
 
-Consume the request's synchronous `install(cancel, progress)` on an owned
-blocking job, not on the GUI/application lane. Task 5 owns job lifetime,
+The worker consumes the request's synchronous `install(cancel, progress)` on an owned
+blocking job, not on the GUI/application lane. It owns job lifetime,
 cancellation and events: report `ModelDownloaded` on install success, drain
 and detach idle chat/tool handles, then call `App::activate_model` on the
 application lane. External tool handles cause `ToolsBusy`, rather than swapping
@@ -71,13 +71,73 @@ and these builds do not offer an automatic download prompt. Explicit decline
 still persists without network. Native builds enable `native-retrieval` and
 continue to honor saved model directories and fresh consent.
 The current CLI/desktop still use the legacy workflow until their separate
-cutover tasks; this owner does not add `AppWorker` or `ChatWorker` dispatch.
+cutover tasks. No simple Markdown Save is added here.
+
+## Owned application and chat lanes
+
+[`AppWorker`](src/app_worker.rs) is the frontend handle:
+`start(data_dir, AppConfig)` spawns before any SQLite open, vault scan or model
+load. Opening errors arrive as `Failed`; startup emits optional `Restored` then
+`Ready`. `submit(uuid, AppCommand)` and `try_event()` /
+`recv_event_timeout(timeout)` use `(uuid, AppEvent)` results. Bind, selection,
+local status, notes/search, history, validated `RecoverEdit`, model prompt/consent/progress,
+account commands and terminal errors all use this seam. Recovery acknowledges
+SQLite's unsaved edit, **not** publication to Markdown.
+
+The private [`ChatWorker`](src/chat_worker.rs) owns its runtime, attached
+`ChatStore` and `Arc<Auth>`. Keeping admission private prevents frontends from
+bypassing App refresh or discovery membership checks. App refreshes before
+each **new** Ask, requires an available bound vault and explicit valid
+selection, and checks conversation existence locally. Prior UUID replay comes
+first: terminal replay is history-only even with an unavailable vault or
+selection no longer in discovery; a Running record is `AlreadyRunning`, never
+resubmitted. Different payloads/generations conflict. Outer submission UUID
+must equal Ask/account operation UUID. Durable replay matches the recorded
+question, conversation, provider and model; generation is a transient
+navigation correlation, not persisted history.
+
+One turn is active. Dispatch continues while turn/auth futures await. Stop,
+account actions and installer cancellation bypass application work; chat and
+transient account events are forwarded independently of scans/loading.
+Disconnect fences its provider, cancels and joins only that provider's jobs,
+then removes caches after clients/tools drain. Other-provider account work
+continues. Cancel Connect is not Disconnect. Explicit discovery is recorded on
+the application lane **before** its successful Models event is forwarded.
+Account/model operation UUIDs cannot be reused to start another job.
+
+`app::model_history` retains the last 20 earlier terminal text pairs, including
+failed/interrupted partials. The chat lane snapshots them after the previous
+turn's commit; Running turns are excluded. Rig receives no tool/provider
+metadata and omits empty assistant text while keeping its question.
+Every chat event includes turn UUID and generation; navigation must filter
+stale events without preventing the worker from persisting their conversation.
+`Finished` follows the terminal commit. `PersistenceFailed` contains the
+in-memory partial and safe error: it does **not** establish saved text.
+
+Installation progress uses the submission UUID. `ModelDownloaded` precedes
+activation; active turns and all queued/running blocking tool leases must drain
+before idle-only tool detachment. Loading happens once on the app lane.
+Cancellation before model publication leaves the old model intact (synchronous
+loading itself cannot be preempted). Tools are reattached before
+`ModelInstalled`; vectors rebuild in batches of at most 16 between commands.
+Indexing progress uses its startup/refresh/download submission UUID.
+Activation failure remains visible and reinstalls the prior tool adapter.
+
+Call `shutdown()` and handle its error: it cancels and joins admitted turn,
+account and install work before releasing App/owner, including failed terminal
+persistence or credential finalization. Repeated shutdown retains the outcome.
+Drop also cancels/joins, never delegates to a detached reaper. Stop cannot
+guarantee upstream cancellation or no billing; OS-killed processes lose
+uncommitted stream text. Private `cfg(test)` external-operation adapters are
+not provider features, public registries or CLI flags.
 
 Focused offline checks:
 
 ```sh
 cargo test -p brn-workflow --test library --test app --test ai_tools --test models --test app_mode_cli --locked --offline
 cargo test -p brn-workflow --features native-retrieval --lib --test models --locked --offline
+cargo test -p brn-workflow --test app_worker --test chat_worker --test app --test notes --test note_recovery --locked --offline
+cargo test -p brn-workflow --lib simple_worker_tests --locked --offline
 ```
 
 Native installer/workflow checks use synthetic assets and fake embedding

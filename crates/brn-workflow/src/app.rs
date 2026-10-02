@@ -325,6 +325,21 @@ impl App {
     }
 }
 
+/// Text-only earlier terminal pairs, retaining failed/interrupted partial answers.
+pub fn model_history(turns: &[WorkTurn]) -> Vec<brn_ai::HistoryPair> {
+    let terminal = turns
+        .iter()
+        .filter(|turn| turn.status != brn_store::work::WorkTurnStatus::Running)
+        .collect::<Vec<_>>();
+    terminal[terminal.len().saturating_sub(20)..]
+        .iter()
+        .map(|turn| brn_ai::HistoryPair {
+            question: turn.question.clone(),
+            answer: turn.answer.clone(),
+        })
+        .collect()
+}
+
 fn unavailable() -> WorkflowError {
     WorkflowError::typed(
         ErrorKind::VaultUnavailable,

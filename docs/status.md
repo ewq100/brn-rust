@@ -1,9 +1,10 @@
 # Current development status
 
-Task 4 on `task-4-ai-chat` adds the simple App owner, fresh read tools, shared
-search/model adapter, lock-protected workspace-mode exclusion and an explicitly
-consented pinned native installer. CLI/desktop cutover and owned jobs remain
-subsequent tasks. Offline synthetic verification is separate from model
+Task 5 on `task-4-ai-chat` adds owned App/chat/account lanes, an owner-authorized
+attached chat writer, durable cancellation/replay and joined installer/tool
+lifecycles over the Task 4 App/read-tools/model owner. CLI/desktop cutover
+remains subsequent work; simple Markdown Save remains roadmap Step 6.
+Offline synthetic verification is separate from model
 inference, native usability and live-provider qualification; no merge or release
 is claimed.
 

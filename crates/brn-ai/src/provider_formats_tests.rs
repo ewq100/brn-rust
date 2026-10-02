@@ -742,6 +742,39 @@ async fn history_is_limited_to_last_twenty_text_pairs() {
     http.assert_consumed();
 }
 
+#[tokio::test]
+async fn empty_partial_history_keeps_question_but_omits_empty_assistant_on_wire() {
+    let (_root, client, http) = client(
+        Provider::Copilot,
+        "gpt-4o",
+        vec![success(text_sse(false, "answer"))],
+    )
+    .await;
+    let result = answer(
+        client,
+        "new",
+        &[HistoryPair {
+            question: "stopped-before-text".into(),
+            answer: String::new(),
+        }],
+        Arc::new(Notes::default()),
+        CancellationToken::new(),
+        Arc::new(|_| {}),
+    )
+    .await;
+    assert!(matches!(result.terminal, AiTerminal::Completed));
+    let bodies = http.bodies();
+    let messages = bodies[0]["messages"].as_array().unwrap();
+    assert_eq!(
+        messages.len(),
+        3,
+        "preamble, retained question, new question only"
+    );
+    assert_eq!(messages[1]["content"], "stopped-before-text");
+    assert!(messages.iter().all(|m| m["role"] != "assistant"));
+    http.assert_consumed();
+}
+
 struct OversizedNotes;
 impl ReadTools for OversizedNotes {
     fn search_notes(&self, _: &str, _: usize) -> AiResult<ToolSearch> {

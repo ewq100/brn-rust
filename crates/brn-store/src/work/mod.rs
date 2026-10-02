@@ -2,7 +2,7 @@
 //! on every open, restored from the newest backup when corrupt, and backed
 //! up after every successful open. Notes themselves live in the vault.
 mod backup;
-mod chat;
+pub mod chat;
 mod edits;
 
 use crate::{Result, acquire_owner_lock, check_regular_single_link, invalid};
@@ -11,6 +11,7 @@ use std::{
     fs::{File, OpenOptions},
     io::Read,
     path::{Path, PathBuf},
+    sync::Arc,
     time::{Duration, Instant, SystemTime, UNIX_EPOCH},
 };
 
@@ -67,7 +68,7 @@ pub struct OpenReport {
 pub struct WorkStore {
     conn: Connection,
     dir: PathBuf,
-    _owner_lock: File,
+    _owner_lock: Arc<File>,
 }
 
 /// What an existing database file turned out to be.
@@ -126,7 +127,7 @@ impl WorkStore {
             Self {
                 conn,
                 dir: data_dir.to_path_buf(),
-                _owner_lock: lock,
+                _owner_lock: Arc::new(lock),
             },
             OpenReport {
                 corrupt_moved_to,

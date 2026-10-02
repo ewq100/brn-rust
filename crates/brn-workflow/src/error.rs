@@ -25,6 +25,7 @@ pub enum ErrorKind {
     IndexInvalid,
     ProfileUnavailable,
     OperationConflict,
+    NotFound,
     Cancelled,
     Other,
 }
@@ -112,6 +113,10 @@ impl From<store::Error> for WorkflowError {
             },
             store::Error::OperationConflict(message) => Self {
                 kind: ErrorKind::OperationConflict,
+                message,
+            },
+            store::Error::NotFound(message) => Self {
+                kind: ErrorKind::NotFound,
                 message,
             },
             other => Self::msg(other.to_string()),

@@ -1,8 +1,46 @@
 use super::{WorkStore, now_ms};
 use crate::{Error, Result, invalid, parse_id};
-use rusqlite::{Connection, OptionalExtension, params};
+use rusqlite::{Connection, OpenFlags, OptionalExtension, TransactionBehavior, params};
 use serde::{Deserialize, Serialize};
+use std::{fs::File, sync::Arc};
 use uuid::Uuid;
+
+/// An attachment authorized by a checked/migrated owner, retaining its exact lock.
+pub struct ChatStore {
+    conn: Connection,
+    _owner_lock: Arc<File>,
+}
+
+impl ChatStore {
+    pub fn turn(&self, id: Uuid) -> Result<Option<WorkTurn>> {
+        Ok(read_turn(&self.conn, id)?.map(|(turn, _)| turn))
+    }
+
+    pub fn turns(&self, conversation: Uuid) -> Result<Vec<WorkTurn>> {
+        turns(&self.conn, conversation)
+    }
+
+    pub fn begin_turn(
+        &mut self,
+        id: Uuid,
+        conversation: Option<Uuid>,
+        question: &str,
+        provider: &str,
+        model: &str,
+    ) -> Result<WorkTurn> {
+        begin_turn(&mut self.conn, id, conversation, question, provider, model)
+    }
+
+    pub fn finish_turn(
+        &mut self,
+        id: Uuid,
+        status: WorkTurnStatus,
+        answer: &str,
+        error_code: Option<&str>,
+    ) -> Result<WorkTurn> {
+        finish_turn(&mut self.conn, id, status, answer, error_code)
+    }
+}
 
 #[derive(Clone, Copy, Debug, PartialEq, Eq, Serialize, Deserialize)]
 #[serde(rename_all = "snake_case")]
@@ -175,7 +213,7 @@ fn conflict() -> Error {
     Error::OperationConflict("chat turn UUID reused with a different payload".into())
 }
 
-// Connection-based helpers are shared by the owner and the future attached chat lane.
+// Reserve the writer before reading: a deferred WAL upgrade can bypass busy_timeout.
 pub(super) fn begin_turn(
     conn: &mut Connection,
     id: Uuid,
@@ -184,7 +222,7 @@ pub(super) fn begin_turn(
     provider: &str,
     model: &str,
 ) -> Result<WorkTurn> {
-    let tx = conn.transaction()?;
+    let tx = conn.transaction_with_behavior(TransactionBehavior::Immediate)?;
     if let Some((turn, _)) = read_turn(&tx, id)? {
         if turn.question != question
             || turn.provider != provider
@@ -236,7 +274,7 @@ pub(super) fn finish_turn(
     answer: &str,
     error_code: Option<&str>,
 ) -> Result<WorkTurn> {
-    let tx = conn.transaction()?;
+    let tx = conn.transaction_with_behavior(TransactionBehavior::Immediate)?;
     let turn = finish_in_transaction(&tx, id, status, answer, error_code)?;
     tx.commit()?;
     Ok(turn)
@@ -299,7 +337,7 @@ fn turns(conn: &Connection, conversation: Uuid) -> Result<Vec<WorkTurn>> {
 }
 
 pub(super) fn reconcile(conn: &mut Connection) -> Result<()> {
-    let tx = conn.transaction()?;
+    let tx = conn.transaction_with_behavior(TransactionBehavior::Immediate)?;
     let ids = tx
         .prepare("SELECT DISTINCT turn_id FROM messages")?
         .query_map([], |r| r.get::<_, String>(0))?
@@ -322,6 +360,24 @@ pub(super) fn reconcile(conn: &mut Connection) -> Result<()> {
 }
 
 impl WorkStore {
+    pub fn chat_connection(&self) -> Result<ChatStore> {
+        let db = self.dir.join(super::DB_NAME);
+        crate::check_regular_single_link(&db)?;
+        let conn = Connection::open_with_flags(
+            db,
+            OpenFlags::SQLITE_OPEN_READ_WRITE | OpenFlags::SQLITE_OPEN_NO_MUTEX,
+        )?;
+        super::configure(&conn)?;
+        Ok(ChatStore {
+            conn,
+            _owner_lock: self._owner_lock.clone(),
+        })
+    }
+
+    pub fn turn(&self, id: Uuid) -> Result<Option<WorkTurn>> {
+        Ok(read_turn(&self.conn, id)?.map(|(turn, _)| turn))
+    }
+
     pub fn conversations(&self) -> Result<Vec<WorkConversation>> {
         let mut statement = self
             .conn

@@ -2,7 +2,7 @@
 use crate::{ErrorKind, Result, WorkflowError, app::App};
 use std::{
     path::{Component, Path, PathBuf},
-    sync::atomic::AtomicBool,
+    sync::atomic::{AtomicBool, Ordering},
 };
 
 pub const MODEL_SOURCE: &str = "https://huggingface.co/Xenova/all-MiniLM-L6-v2/resolve/751bff37182d3f1213fa05d7196b954e230abad9/";
@@ -35,6 +35,10 @@ pub struct ModelInstallRequest {
 }
 
 impl ModelInstallRequest {
+    #[cfg(test)]
+    pub(crate) fn test_request(target: PathBuf) -> Self {
+        Self { target }
+    }
     pub fn target(&self) -> &Path {
         &self.target
     }
@@ -137,15 +141,40 @@ impl App {
     /// Caller emits ModelDownloaded before this and ModelInstalled only on success.
     /// Drop idle chat/tool handles before calling; an active snapshot is never swapped.
     pub fn activate_model(&mut self, directory: &Path) -> Result<()> {
+        self.activate_model_cancellable(directory, &AtomicBool::new(false))
+    }
+
+    pub(crate) fn activate_model_cancellable(
+        &mut self,
+        directory: &Path,
+        cancel: &AtomicBool,
+    ) -> Result<()> {
+        self.activate_model_with(directory, cancel, |data, directory| {
+            crate::app::load_model(data, Some(directory))
+        })
+    }
+
+    pub(crate) fn activate_model_with(
+        &mut self,
+        directory: &Path,
+        cancel: &AtomicBool,
+        load: impl FnOnce(&Path, &Path) -> Result<Option<crate::library::SharedEmbedder>>,
+    ) -> Result<()> {
+        if cancel.load(Ordering::Acquire) {
+            return Err(WorkflowError::cancelled());
+        }
         self.validate_model_target(directory)?;
         self.ensure_tools_drained()?;
-        let embedder = crate::app::load_model(self.work_store().data_dir(), Some(directory))?
-            .ok_or_else(|| {
-                WorkflowError::typed(
-                    ErrorKind::ModelInvalid,
-                    "downloaded model directory is missing",
-                )
-            })?;
+        let embedder = load(self.work_store().data_dir(), directory)?.ok_or_else(|| {
+            WorkflowError::typed(
+                ErrorKind::ModelInvalid,
+                "downloaded model directory is missing",
+            )
+        })?;
+        // Loading is synchronous; cancellation before publication leaves the old model intact.
+        if cancel.load(Ordering::Acquire) {
+            return Err(WorkflowError::cancelled());
+        }
         self.activate_embedder(embedder)?;
         self.work_store_mut().set_setting(
             "model.directory",

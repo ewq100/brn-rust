@@ -42,8 +42,8 @@ workers, SQL, selection persistence or frontend state.
   other non-file entries are refused; all target entries are checked before any
   deletion. Authenticators are operation-local, so there is no retained
   provider auth state to recreate a deleted cache.
-  **Task 5 must first fence new target-provider jobs, cancel/join active
-  login/refresh/discovery/turn jobs, finalize the turn and drop owned clients.**
+  **The workflow's owned chat lane first fences new target-provider jobs, cancels/joins active
+  login/refresh/discovery/turn jobs, finalizes the turn and drops owned clients.**
   `Auth` itself does not implement worker dispatch or streaming cancellation.
 
 ## Status, names and models
@@ -119,7 +119,8 @@ as `Arc<dyn ReadTools>`. Rig tool calls dispatch blocking reads via
   No comment/proposal/write tools are exposed.
 
 History is limited to the last 20 earlier `HistoryPair` values, converted to
-text-only user/assistant messages. Earlier tools, results, reasoning and provider
+text-only user/assistant messages. Empty assistant text is omitted on the wire
+while its question is retained. Earlier tools, results, reasoning and provider
 response IDs are not restored. A run-owned model-finished hook counts each
 tool-containing response once, including parallel calls. Exactly eight such
 rounds are allowed; a ninth tool round is stopped **before dispatch**.
@@ -134,7 +135,9 @@ text on `Failed` or `Interrupted`; final response output is not appended again.
 The first stream error stops collection; EOF without a final response fails.
 Stop drops the local stream, not a guarantee of upstream cancellation or zero
 billing. Already consumed final completion wins over a later Stop. Blocking
-reads already started may finish after local cancellation.
+reads already started may finish after local cancellation. The workflow's owned
+turn lease waits for every retained blocking reader before terminal persistence,
+model/tool replacement or owner release.
 
 Internal `provider_formats_tests.rs` uses ordered unary auth/identity replies
 and a private queue of **distinct responses per streaming request**, not one

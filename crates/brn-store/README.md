@@ -24,6 +24,27 @@ backups retain their existing behavior. Tests in
 [`workspace_modes`](tests/workspace_modes.rs) exercise both owners directly;
 workflow also verifies legacy `brn-flow sessions` refuses a simple folder.
 
+## Attached chat writer
+
+Only an open `WorkStore` can create `work::chat::ChatStore` using
+`chat_connection()`. The attachment opens the checked/migrated owner's database
+without acquiring a second owner, with matching WAL, busy timeout, foreign-key,
+trusted-schema and FULL synchronous settings. There is no arbitrary-path
+attachment constructor. Both retain the **same** `Arc<File>` lock descriptor:
+dropping the owner does not release ownership while any attachment lives.
+Connections close before their lock leases drop.
+
+Owner and attachment share UUID lookup, ordered turn reads, begin/finish
+transaction helpers and conflict checks. Begin/finish reserve an **Immediate**
+transaction before reading, avoiding WAL deferred read-to-write
+`BUSY_SNAPSHOT` upgrades during concurrent recovery writes. Unknown conversations
+remain `NotFound`; UUID payload or terminal result mismatches remain
+`OperationConflict`. Startup reconciliation and backups are owner-only;
+attachments never rerun them or reconcile a live turn. The workflow must drain
+and join its runtime, blocking reads and installer jobs before owner release.
+[`work_chat_attachment`](tests/work_chat_attachment.rs) covers shared-lock
+lifetime and concurrent owner recovery / attached chat finalization.
+
 ## Managed-note storage contract
 
 Schema V6 adds a single registered vault, note/path identities, one exact-byte

@@ -136,6 +136,8 @@ pub(crate) async fn answer_model(
                 Message::user(pair.question.clone()),
                 Message::assistant(pair.answer.clone()),
             ]
+            .into_iter()
+            .take(if pair.answer.is_empty() { 1 } else { 2 })
         })
         .collect::<Vec<_>>();
     let stream = agent

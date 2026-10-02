@@ -1,6 +1,8 @@
 //! Shared authoritative workflow used by the desktop and headless driver.
 pub mod ai_tools;
 pub mod app;
+pub mod app_worker;
+pub mod chat_worker;
 mod comments;
 mod drafts;
 pub mod error;
@@ -8,9 +10,11 @@ pub mod library;
 pub mod models;
 #[cfg(all(test, feature = "native-retrieval"))]
 mod models_tests;
+#[cfg(test)]
+mod simple_worker_tests;
 pub use brn_ai::{
-    AccountStatus, AiError, AiErrorKind, Auth, HistoryPair, ModelOption, NoteEntry, NotePage,
-    Passage, Provider, ReadTools, Selection, ToolNote, ToolSearch,
+    AccountStatus, AiError, AiErrorKind, Auth, HistoryPair, LoginPrompt, ModelOption, NoteEntry,
+    NotePage, Passage, Provider, ReadTools, Selection, ToolNote, ToolSearch,
 };
 pub mod notes;
 pub mod vault;
@@ -31,6 +35,7 @@ use uuid::Uuid;
 pub use brn_retrieval::Profile as SearchProfile;
 pub use brn_store::Approval as SearchApproval;
 pub use brn_store::anchors::{MAX_EDIT_STEPS, MAX_TRACE_REPLACEMENT_BYTES};
+pub use brn_store::work::{WorkConversation, WorkTurn, WorkTurnStatus};
 pub use brn_store::{
     AmbiguityReason, AnchorProjection, AnchorState, ChatTurn, CommentAnchorSnapshot,
     CommentCapture, CommentCreated, CommentStatus, CommentStatusChange, CommentStatusChanged,
