@@ -57,6 +57,7 @@ fn to_note((path, title, size, modified_ns, sha): NoteRow) -> Result<IndexedNote
 impl NoteIndex {
     /// Opens the index at `path`. A missing, damaged or outdated index is
     /// deleted and created empty; the second value is `true` when that happened.
+    /// Refuses other databases without deleting them.
     pub fn open(path: &Path) -> Result<(Self, bool)> {
         let (conn, created) = schema::open(path)?;
         Ok((Self { conn }, created))

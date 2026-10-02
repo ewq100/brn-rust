@@ -171,6 +171,50 @@ fn rejects_bad_vectors_and_queries() {
 }
 
 #[test]
+fn huge_finite_vectors_normalise() {
+    let (_dir, mut index) = index_with(&NOTES);
+    let mut embedder = BrokenEmbedder(vec![f32::MAX, f32::MAX, 0.0]);
+    assert_eq!(
+        index.embed_pending(&mut embedder, 3).unwrap(),
+        EmbeddingProgress {
+            embedded: 3,
+            total: 3
+        }
+    );
+    let hits = index.semantic(&[1.0, 1.0, 0.0], 3).unwrap();
+    assert_eq!(hits.len(), 3);
+    for hit in hits {
+        assert!(hit.score.is_finite());
+        assert!((hit.score - 1.0).abs() < 1e-6);
+    }
+}
+
+#[test]
+fn semantic_skips_non_finite_scores() {
+    let (dir, mut index) = index_with(&NOTES);
+    index
+        .embed_pending(&mut BrokenEmbedder(vec![1.0, 0.0, 0.0]), 3)
+        .unwrap();
+    let raw = rusqlite::Connection::open(dir.path().join("index.sqlite")).unwrap();
+    for (path, component) in [("fruit.md", f32::NAN), ("travel.md", f32::INFINITY)] {
+        let bytes: Vec<u8> = [component, 0.0, 0.0]
+            .iter()
+            .flat_map(|x| x.to_le_bytes())
+            .collect();
+        raw.execute(
+            "UPDATE embeddings SET vector = ?1
+             WHERE passage_id IN (SELECT id FROM passages WHERE path = ?2)",
+            rusqlite::params![bytes, path],
+        )
+        .unwrap();
+    }
+    let hits = index.semantic(&[1.0, 0.0, 0.0], 3).unwrap();
+    assert_eq!(hits.len(), 1);
+    assert_eq!(hits[0].path, "other.md");
+    assert!(hits[0].score.is_finite());
+}
+
+#[test]
 fn semantic_is_empty_before_any_model() {
     let (_dir, index) = index_with(&NOTES);
     assert!(index.semantic(&[1.0, 0.0, 0.0], 5).unwrap().is_empty());

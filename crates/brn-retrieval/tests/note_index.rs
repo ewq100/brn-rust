@@ -39,7 +39,7 @@ fn new_index_is_created_then_reopened() {
 }
 
 #[test]
-fn damaged_or_foreign_index_is_rebuilt_empty() {
+fn damaged_or_outdated_index_is_rebuilt_empty() {
     let dir = tempfile::tempdir().unwrap();
     let path = dir.path().join("index.sqlite");
     std::fs::write(&path, vec![0x42u8; 8192]).unwrap();
@@ -48,14 +48,53 @@ fn damaged_or_foreign_index_is_rebuilt_empty() {
     assert!(index.notes().unwrap().is_empty());
     drop(index);
 
-    let other = dir.path().join("other.sqlite");
-    let raw = rusqlite::Connection::open(&other).unwrap();
-    raw.execute_batch("CREATE TABLE x (y INTEGER); PRAGMA user_version = 99;")
-        .unwrap();
-    drop(raw);
-    let (index, created) = NoteIndex::open(&other).unwrap();
+    for sql in ["PRAGMA user_version = 99", "DROP TRIGGER passages_delete"] {
+        let (mut index, _) = NoteIndex::open(&path).unwrap();
+        index.upsert_note(&note("a.md", "alpha"), "alpha").unwrap();
+        drop(index);
+        let raw = rusqlite::Connection::open(&path).unwrap();
+        raw.execute_batch(sql).unwrap();
+        drop(raw);
+        let (index, created) = NoteIndex::open(&path).unwrap();
+        assert!(created, "{sql}");
+        assert!(index.notes().unwrap().is_empty(), "{sql}");
+    }
+
+    let empty = dir.path().join("empty.sqlite");
+    std::fs::write(&empty, []).unwrap();
+    let (index, created) = NoteIndex::open(&empty).unwrap();
     assert!(created);
     assert!(index.notes().unwrap().is_empty());
+}
+
+#[test]
+fn other_databases_are_refused_untouched() {
+    let dir = tempfile::tempdir().unwrap();
+    for application in [0, 0x4252_4e32] {
+        let path = dir.path().join(format!("{application}.sqlite"));
+        let raw = rusqlite::Connection::open(&path).unwrap();
+        raw.execute_batch("CREATE TABLE x (y INTEGER); INSERT INTO x VALUES (42);")
+            .unwrap();
+        raw.pragma_update(None, "application_id", application)
+            .unwrap();
+        drop(raw);
+
+        assert!(matches!(
+            NoteIndex::open(&path),
+            Err(brn_retrieval::Error::Invalid(_))
+        ));
+        let raw = rusqlite::Connection::open(&path).unwrap();
+        assert_eq!(
+            raw.query_row("SELECT y FROM x", [], |r| r.get::<_, i64>(0))
+                .unwrap(),
+            42
+        );
+        assert_eq!(
+            raw.query_row("PRAGMA application_id", [], |r| r.get::<_, i64>(0))
+                .unwrap(),
+            application
+        );
+    }
 }
 
 #[test]

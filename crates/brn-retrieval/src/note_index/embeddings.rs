@@ -21,11 +21,25 @@ fn unit(vector: &[f32]) -> Result<Vec<f32>> {
     if vector.iter().any(|x| !x.is_finite()) {
         return Err(Error::Invalid("embedding is not finite"));
     }
-    let norm = vector.iter().map(|x| x * x).sum::<f32>().sqrt();
+    let norm = vector
+        .iter()
+        .map(|x| f64::from(*x).powi(2))
+        .sum::<f64>()
+        .sqrt();
+    if !norm.is_finite() {
+        return Err(Error::Invalid("embedding is not finite"));
+    }
     if norm == 0.0 {
         return Err(Error::Invalid("embedding is all zeros"));
     }
-    Ok(vector.iter().map(|x| x / norm).collect())
+    let normalised: Vec<f32> = vector
+        .iter()
+        .map(|x| (f64::from(*x) / norm) as f32)
+        .collect();
+    if normalised.iter().any(|x| !x.is_finite()) {
+        return Err(Error::Invalid("embedding is not finite"));
+    }
+    Ok(normalised)
 }
 
 fn to_blob(vector: &[f32]) -> Vec<u8> {
@@ -167,7 +181,9 @@ impl NoteIndex {
                 let bytes: Vec<u8> = row.get(1)?;
                 let vector = from_blob(&bytes, dimension)?;
                 let score = vector.iter().zip(&query).map(|(a, b)| a * b).sum::<f32>();
-                scored.push((score, id));
+                if score.is_finite() {
+                    scored.push((score, id));
+                }
             }
         }
         scored.sort_by(|a, b| b.0.total_cmp(&a.0).then(a.1.cmp(&b.1)));

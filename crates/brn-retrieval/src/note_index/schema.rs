@@ -1,4 +1,4 @@
-use crate::Result;
+use crate::{Error, Result};
 use rusqlite::Connection;
 use std::{
     ffi::OsString,
@@ -43,9 +43,10 @@ CREATE TABLE meta (key TEXT PRIMARY KEY, value TEXT NOT NULL);
 ";
 
 pub(super) fn open(path: &Path) -> Result<(Connection, bool)> {
-    if path.exists()
-        && let Some(conn) = existing(path)
+    if path.try_exists()?
+        && let Found::Usable(conn) = existing(path)?
     {
+        configure(&conn)?;
         return Ok((conn, false));
     }
     remove(path)?;
@@ -59,23 +60,54 @@ pub(super) fn open(path: &Path) -> Result<(Connection, bool)> {
     Ok((conn, true))
 }
 
-/// The existing index if it is healthy and current; `None` means rebuild it.
-fn existing(path: &Path) -> Option<Connection> {
-    let conn = Connection::open(path).ok()?;
-    let healthy: String = conn
-        .query_row("PRAGMA quick_check", [], |r| r.get(0))
-        .ok()?;
-    let application: i64 = conn
-        .query_row("PRAGMA application_id", [], |r| r.get(0))
-        .ok()?;
-    let version: i64 = conn
-        .query_row("PRAGMA user_version", [], |r| r.get(0))
-        .ok()?;
-    if healthy != "ok" || application != APPLICATION_ID || version != VERSION {
-        return None;
+enum Found {
+    Usable(Connection),
+    Rebuild,
+}
+
+fn existing(path: &Path) -> Result<Found> {
+    let found = (|| {
+        let conn = Connection::open(path)?;
+        let healthy: String = conn.query_row("PRAGMA quick_check", [], |r| r.get(0))?;
+        if healthy != "ok" {
+            return Ok(Found::Rebuild);
+        }
+        let application: i64 = conn.query_row("PRAGMA application_id", [], |r| r.get(0))?;
+        let version: i64 = conn.query_row("PRAGMA user_version", [], |r| r.get(0))?;
+        let objects: i64 =
+            conn.query_row("SELECT count(*) FROM sqlite_schema", [], |r| r.get(0))?;
+        if application == APPLICATION_ID {
+            let required: i64 = conn.query_row(
+                "SELECT count(*) FROM sqlite_schema WHERE name IN (
+                    'notes', 'passages', 'passages_path', 'passages_fts',
+                    'passages_insert', 'passages_delete', 'embeddings', 'meta'
+                )",
+                [],
+                |r| r.get(0),
+            )?;
+            if version == VERSION && required == 8 {
+                return Ok(Found::Usable(conn));
+            }
+            return Ok(Found::Rebuild);
+        }
+        if application == 0 && objects == 0 {
+            return Ok(Found::Rebuild);
+        }
+        Err(Error::Invalid(
+            "index path holds another database; remove it or choose another path",
+        ))
+    })();
+    match found {
+        Err(Error::Sql(error))
+            if matches!(
+                error.sqlite_error_code(),
+                Some(rusqlite::ErrorCode::NotADatabase | rusqlite::ErrorCode::DatabaseCorrupt)
+            ) =>
+        {
+            Ok(Found::Rebuild)
+        }
+        other => other,
     }
-    configure(&conn).ok()?;
-    Some(conn)
 }
 
 fn remove(path: &Path) -> Result<()> {
