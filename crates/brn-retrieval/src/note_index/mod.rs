@@ -2,11 +2,14 @@
 //! metadata, passages, FTS5 keyword search and local embeddings. It can be
 //! deleted at any time and rebuilt from the vault.
 mod schema;
+mod search;
 
 use crate::{Error, Result, chunk};
 use rusqlite::{Connection, OptionalExtension, Row, params};
 use sha2::{Digest, Sha256};
 use std::path::Path;
+
+pub use search::{NoteHit, check_query, fuse_hits};
 
 /// A note as last seen in the vault.
 #[derive(Debug, Clone, PartialEq, Eq)]
