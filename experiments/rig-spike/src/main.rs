@@ -1,10 +1,16 @@
 use anyhow::{Context, Result, bail};
-use rig::agent::stream_to_stdout;
+use futures::StreamExt;
+use rig::agent::{MultiTurnStreamItem, PromptResponse, StreamingResult};
 use rig::providers::{chatgpt, copilot};
+use rig::streaming::{Item, StreamEvent};
 use rig::tool::Tool;
 use serde::{Deserialize, Serialize};
+use std::io::Write;
 use std::path::Path;
 use std::time::Duration;
+
+#[cfg(test)]
+mod tests;
 
 #[tokio::main]
 async fn main() -> Result<()> {
@@ -54,6 +60,16 @@ fn prepare_creds(dir: &Path) -> Result<()> {
     let me = unsafe { libc::geteuid() };
     if !meta.is_dir() || meta.uid() != me || meta.mode() & 0o7777 != 0o700 {
         bail!("credentials folder must be a real folder owned by you with mode 700");
+    }
+    let canonical_dir = dir.canonicalize()?;
+    let manifest_dir = Path::new(env!("CARGO_MANIFEST_DIR")).canonicalize()?;
+    let repo_root = manifest_dir
+        .ancestors()
+        .find(|ancestor| ancestor.join(".git").exists())
+        .or_else(|| manifest_dir.parent().and_then(Path::parent))
+        .context("cannot determine repository root")?;
+    if canonical_dir.starts_with(repo_root) {
+        bail!("credentials folder must be outside the repository (including symlinked paths)");
     }
     Ok(())
 }
@@ -200,8 +216,8 @@ impl Tool for Adder {
         serde_json::json!({
             "type": "object",
             "properties": {
-                "x": { "type": "number", "description": "First number" },
-                "y": { "type": "number", "description": "Second number" }
+                "x": { "type": "integer", "description": "First integer" },
+                "y": { "type": "integer", "description": "Second integer" }
             },
             "required": ["x", "y"]
         })
@@ -213,8 +229,39 @@ impl Tool for Adder {
         args: Self::Args,
     ) -> Result<Self::Output, Self::Error> {
         eprintln!("[tool add called with x={} y={}]", args.x, args.y);
-        Ok(args.x + args.y)
+        args.x.checked_add(args.y).ok_or(AddError)
     }
+}
+
+async fn print_stream(
+    stream: &mut StreamingResult,
+    text_bytes: &mut usize,
+) -> Result<PromptResponse> {
+    let mut final_response = None;
+    while let Some(item) = stream.next().await {
+        match item? {
+            MultiTurnStreamItem::StreamAssistantItem(Item::Event(StreamEvent::Text {
+                text,
+                ..
+            })) => {
+                print!("{text}");
+                std::io::stdout().flush()?;
+                *text_bytes += text.len();
+            }
+            MultiTurnStreamItem::ToolCall { tool_call } => {
+                eprintln!("[tool call: {}]", tool_call.function.name);
+            }
+            MultiTurnStreamItem::FinalResponse(response) => {
+                final_response = Some(response);
+            }
+            MultiTurnStreamItem::ModelTurnRetried { turn } => {
+                print!("\n[model turn {turn} rejected; retry requested]\n");
+                std::io::stdout().flush()?;
+            }
+            _ => {}
+        }
+    }
+    final_response.context("stream ended without a final response")
 }
 
 macro_rules! run_agent {
@@ -225,20 +272,32 @@ macro_rules! run_agent {
             .default_max_turns(2)
             .build();
         let mut stream = agent.prompt($prompt).stream();
+        let mut text_bytes = 0;
         match $cancel_after {
             None => {
-                let result = stream_to_stdout(&mut stream).await?;
+                let result = print_stream(&mut stream, &mut text_bytes).await?;
                 println!("\n[final] {}", result.output());
                 println!("[usage] {:?}", result.usage());
             }
             Some(ms) => {
-                let printed =
-                    tokio::time::timeout(Duration::from_millis(ms), stream_to_stdout(&mut stream))
-                        .await;
+                let printed = tokio::time::timeout(
+                    Duration::from_millis(ms),
+                    print_stream(&mut stream, &mut text_bytes),
+                )
+                .await;
                 match printed {
-                    Err(_) => println!("\n[cancelled after {ms} ms; stream dropped]"),
+                    Err(_) => {
+                        drop(stream);
+                        println!("\n[cancelled after {ms} ms; stream dropped]");
+                        println!(
+                            "[partial text received: {}]",
+                            if text_bytes > 0 { "yes" } else { "no" }
+                        );
+                    }
                     Ok(result) => {
-                        result?;
+                        let result = result?;
+                        println!("\n[final] {}", result.output());
+                        println!("[usage] {:?}", result.usage());
                         println!("\n[completed before cancel]");
                     }
                 }

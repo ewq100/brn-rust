@@ -6373,6 +6373,7 @@ dependencies = [
  "anyhow",
  "base64 0.22.1",
  "fastembed",
+ "futures",
  "gpui-kit",
  "libc",
  "reqwest 0.12.28",
