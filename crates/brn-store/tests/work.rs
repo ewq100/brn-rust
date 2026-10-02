@@ -77,6 +77,81 @@ fn foreign_database_is_refused() {
 }
 
 #[test]
+fn damaged_foreign_database_is_refused_unchanged() {
+    let dir = tempfile::tempdir().unwrap();
+    let db = dir.path().join("brn.sqlite");
+    let raw = rusqlite::Connection::open(&db).unwrap();
+    raw.pragma_update(None, "application_id", 12345).unwrap();
+    raw.execute_batch(
+        "CREATE TABLE other (data BLOB);
+         INSERT INTO other VALUES (zeroblob(10240)), (zeroblob(10240));",
+    )
+    .unwrap();
+    drop(raw);
+    std::fs::write(dir.path().join("brn.owner.lock"), []).unwrap();
+    let bytes = damage_after_header(&db);
+    let names = file_names(dir.path());
+
+    assert!(matches!(
+        WorkStore::open(dir.path()),
+        Err(Error::Invalid(_))
+    ));
+    assert_eq!(std::fs::read(&db).unwrap(), bytes);
+    assert_eq!(file_names(dir.path()), names);
+    assert!(!dir.path().join("backups").exists());
+    assert_no_corrupt_files(dir.path());
+}
+
+#[test]
+fn damaged_newer_database_is_refused_unchanged() {
+    let dir = tempfile::tempdir().unwrap();
+    let db = dir.path().join("brn.sqlite");
+    let (mut store, _) = WorkStore::open(dir.path()).unwrap();
+    store.set_setting("large", &"a".repeat(10240)).unwrap();
+    drop(store);
+    let raw = rusqlite::Connection::open(&db).unwrap();
+    raw.pragma_update(None, "user_version", 99).unwrap();
+    drop(raw);
+    let bytes = damage_after_header(&db);
+    let names = file_names(dir.path());
+    let backup_names = file_names(&dir.path().join("backups"));
+
+    assert!(matches!(
+        WorkStore::open(dir.path()),
+        Err(Error::Invalid(_))
+    ));
+    assert_eq!(std::fs::read(&db).unwrap(), bytes);
+    assert_eq!(file_names(dir.path()), names);
+    assert_eq!(file_names(&dir.path().join("backups")), backup_names);
+    assert_no_corrupt_files(dir.path());
+}
+
+fn damage_after_header(db: &std::path::Path) -> Vec<u8> {
+    let mut bytes = std::fs::read(db).unwrap();
+    assert!(bytes.len() > 4096);
+    bytes[4096..].fill(0x42);
+    std::fs::write(db, &bytes).unwrap();
+    bytes
+}
+
+fn file_names(dir: &std::path::Path) -> Vec<std::ffi::OsString> {
+    let mut names: Vec<_> = std::fs::read_dir(dir)
+        .unwrap()
+        .map(|entry| entry.unwrap().file_name())
+        .collect();
+    names.sort();
+    names
+}
+
+fn assert_no_corrupt_files(dir: &std::path::Path) {
+    assert!(
+        file_names(dir)
+            .iter()
+            .all(|name| !name.to_string_lossy().starts_with("brn.sqlite.corrupt-"))
+    );
+}
+
+#[test]
 fn unbranded_database_is_refused_unchanged() {
     let dir = tempfile::tempdir().unwrap();
     let raw = rusqlite::Connection::open(dir.path().join("brn.sqlite")).unwrap();

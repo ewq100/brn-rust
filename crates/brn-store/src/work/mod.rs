@@ -8,6 +8,7 @@ use crate::{Result, acquire_owner_lock, check_regular_single_link, invalid};
 use rusqlite::{Connection, OpenFlags, OptionalExtension, params};
 use std::{
     fs::{File, OpenOptions},
+    io::Read,
     path::{Path, PathBuf},
     time::{Duration, Instant, SystemTime, UNIX_EPOCH},
 };
@@ -54,7 +55,13 @@ enum Checked {
     Empty(Connection),
     /// Damaged, or not SQLite at all.
     Corrupt,
-    /// A healthy database BRN must not touch (another application's, or a newer BRN's).
+    /// A database BRN must not touch (another application's, or a newer BRN's).
+    Foreign(&'static str),
+}
+
+enum HeaderCheck {
+    Continue,
+    Corrupt,
     Foreign(&'static str),
 }
 
@@ -153,8 +160,38 @@ fn is_corruption(error: &rusqlite::Error) -> bool {
     )
 }
 
-/// Opens and checks an existing database without changing it.
+fn header_identity(db: &Path) -> Result<HeaderCheck> {
+    let mut header = Vec::with_capacity(100);
+    File::open(db)?.take(100).read_to_end(&mut header)?;
+    if header.is_empty() {
+        return Ok(HeaderCheck::Continue);
+    }
+    if header.len() < 100 || &header[..16] != b"SQLite format 3\0" {
+        return Ok(HeaderCheck::Corrupt);
+    }
+    let version = i32::from_be_bytes(header[60..64].try_into().unwrap()) as i64;
+    let application = i32::from_be_bytes(header[68..72].try_into().unwrap()) as i64;
+    if application != 0 && application != APPLICATION_ID {
+        return Ok(HeaderCheck::Foreign(
+            "brn.sqlite belongs to another application",
+        ));
+    }
+    if application == APPLICATION_ID && version > MIGRATIONS.len() as i64 {
+        return Ok(HeaderCheck::Foreign(
+            "brn.sqlite has an unsupported (newer?) BRN schema",
+        ));
+    }
+    Ok(HeaderCheck::Continue)
+}
+
+/// Checks header identity before opening an existing database with SQLite.
 fn check(db: &Path) -> Result<Checked> {
+    match header_identity(db)? {
+        HeaderCheck::Continue => {}
+        HeaderCheck::Corrupt => return Ok(Checked::Corrupt),
+        HeaderCheck::Foreign(reason) => return Ok(Checked::Foreign(reason)),
+    }
+    // An unbranded foreign WAL database may still be checkpointed when refused.
     let flags = OpenFlags::SQLITE_OPEN_READ_WRITE | OpenFlags::SQLITE_OPEN_NO_MUTEX;
     let conn = match Connection::open_with_flags(db, flags) {
         Ok(conn) => conn,
