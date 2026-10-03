@@ -9,6 +9,7 @@ own saved Markdown; disposable retrieval indexes live outside this crate.
 [WorkStore](src/work/mod.rs), [editor/save journal](src/work/editor.rs),
 [chat records](src/work/chat.rs), [proposal review](src/work/proposals.rs), [unfinished edit compatibility](src/work/edits.rs),
 [approval journals](src/work/proposal_apply.rs), [Undo admission](src/work/proposal_undo.rs),
+[explicit repair admission](src/work/proposal_repair.rs),
 [backup/restore](src/work/backup.rs), [filesystem proof DTOs](src/files.rs) and
 [workspace marker guards](src/workspace_mode.rs).
 
@@ -134,6 +135,33 @@ manifest. The base stays stable through repeated inverses, so a valid large
 proposal remains undoable without accumulating cap headroom. Storage performs no
 file writes or retained-artifact deletion;
 workflow qualifies execution and interruption separately.
+
+## Explicit interrupted-operation repair
+
+`ApplyJournal::repair_preview` classifies every member as exactly Before or
+Applied from its destination/staging fingerprints and complete prepared set.
+Unknown or partial proof refuses repair. Its capture hash binds the full approved
+draft, original approval, creation/member/prepared/Undo bindings, prior repair
+UUIDs and current proofs; temporary comments and mutable outcomes are excluded.
+
+`begin_proposal_repair` admits an explicit Finish or Restore request atomically,
+with a fresh attempt UUID and exact capture hash. Up to 64 attempts retain their
+requests and outcomes, with only the latest admission proofs. Admission leaves
+the proposal version and review comments intact. Exact UUID replay returns the
+current journal before checking new observations and grants no file-write
+permission. `interrupt_proposal_repair` records an uncertain latest attempt;
+the original first Uncertain observations stay immutable. Whole-operation
+settlement updates the latest attempt outcome and receipt together, with Applied
+comment cleanup in the same transaction. Repair cannot use a no-effect certificate.
+
+Recovery accepts compatible forward history only, checks repair UUID uniqueness
+across journals and preserves settled endpoints. `repair_history_covers` exposes
+that checked ancestry for workflow artifact cleanup. Absent repair fields retain
+old encoded JSON/checksums without a migration. Repair metadata has its own fixed
+allowance; normalized member/path bounds and fixed proof slots allow admitted
+large journals to settle without consuming growing shared headroom. The complete
+encoded journal remains below 64 MiB. Storage performs no repair filesystem work;
+workflow qualifies coordinated moves and interruption separately.
 
 ## Local chat
 

@@ -6,6 +6,7 @@ pub mod chat;
 pub mod editor;
 mod edits;
 pub mod proposal_apply;
+mod proposal_repair;
 mod proposal_undo;
 pub mod proposals;
 

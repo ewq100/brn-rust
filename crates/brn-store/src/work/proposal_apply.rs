@@ -31,10 +31,15 @@ const MAX_UNDO_METADATA_BYTES: usize = proposals::MAX_PROPOSAL_CHANGES * 512 + 1
 // per member cover preparation/destination/staging; 2048 covers receipt/time
 // and version widths independently of the invariant path base.
 const MAX_UNDO_CORE_BYTES: usize = 3 * proposals::MAX_PROPOSAL_CHANGES * 512 + 2048;
+// A repair request/time/outcome fits 768 bytes even at maximal integer/hash
+// widths. Keep the 64 attempts and latest two-proof capture in a separate fixed
+// allowance, so admission cannot consume room needed for whole settlement.
+const MAX_REPAIR_METADATA_BYTES: usize = 64 * 768 + 64 * 2 * 512 + 4096;
 const MAX_JOURNAL_BYTES: usize = proposals::MAX_STORED_BYTES
     + MAX_METADATA_BYTES
     + MAX_UNDO_METADATA_BYTES
-    + MAX_UNDO_CORE_BYTES;
+    + MAX_UNDO_CORE_BYTES
+    + MAX_REPAIR_METADATA_BYTES;
 
 #[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
 #[serde(deny_unknown_fields)]
@@ -74,6 +79,62 @@ pub struct UndoBinding {
 pub struct UndoPreview {
     pub draft: proposals::ProposalDraft,
     pub binding: UndoBinding,
+}
+
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize, Deserialize)]
+#[serde(rename_all = "snake_case")]
+pub enum RepairDirection {
+    Finish,
+    Restore,
+}
+
+#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
+#[serde(deny_unknown_fields)]
+pub struct RepairRequest {
+    pub id: Uuid,
+    pub operation_id: Uuid,
+    pub expected: [u8; 32],
+    pub direction: RepairDirection,
+}
+
+#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
+#[serde(deny_unknown_fields)]
+pub struct RepairAttempt {
+    pub request: RepairRequest,
+    pub started_at_ms: u64,
+    pub outcome: Option<ApplyOutcome>,
+}
+
+#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
+#[serde(deny_unknown_fields)]
+pub struct RepairBinding {
+    pub attempts: Vec<RepairAttempt>,
+    pub observations: Vec<ApplyMemberProof>,
+}
+
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize, Deserialize)]
+#[serde(rename_all = "snake_case")]
+pub enum ApplyMemberPhase {
+    Before,
+    Applied,
+}
+
+#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
+#[serde(deny_unknown_fields)]
+pub struct RepairPreview {
+    pub operation_id: Uuid,
+    pub expected: [u8; 32],
+    pub approved: proposals::ProposalDraft,
+    pub phases: Vec<ApplyMemberPhase>,
+}
+
+#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
+#[serde(deny_unknown_fields)]
+pub struct RepairReceipt {
+    pub id: Uuid,
+    pub operation_id: Uuid,
+    pub direction: RepairDirection,
+    pub outcome: Option<ApplyOutcome>,
 }
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize, Deserialize)]
@@ -133,6 +194,8 @@ pub struct ApplyJournal {
     pub no_effects: bool,
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub undo: Option<UndoBinding>,
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub repair: Option<RepairBinding>,
     pub started_at_ms: u64,
 }
 
@@ -265,12 +328,12 @@ impl ApplyJournal {
             self.started_at_ms,
         );
         let metadata = encode(&metadata)?;
-        let bounded = if self.undo.is_some() {
-            // Paths/member count stay invariant across whole inverses (or shrink
-            // for scoped Trash). Normalize varying integers/hash widths and
+        let bounded = if self.undo.is_some() || self.repair.is_some() {
+            // Paths/member count stay invariant across repairs and whole inverses
+            // (or shrink for scoped Trash). Normalize integer/hash widths and
             // reserve separate fixed slots for one prepared and two observed
             // fingerprints per member, plus the receipt/time. Measuring this
-            // base prevents an inverse chain from accumulating cap headroom.
+            // base prevents inverse chains or repairs from accumulating headroom.
             let normalized_request = ApprovalRequest {
                 operation_id: self.request.operation_id,
                 expected: ProposalStamp {
@@ -303,6 +366,12 @@ impl ApplyJournal {
         {
             return Err(invalid("Undo manifest exceeds its bounded size limit"));
         }
+        if let Some(repair) = &self.repair
+            && encode(repair)?.len() > MAX_REPAIR_METADATA_BYTES
+        {
+            return Err(invalid("repair metadata exceeds its bounded size limit"));
+        }
+        super::proposal_repair::validate(self)?;
         Ok(())
     }
 
@@ -547,7 +616,7 @@ pub(super) fn read_journal(conn: &Connection, id: Uuid) -> Result<Option<ApplyJo
     .transpose()
 }
 
-fn write_journal(conn: &Connection, journal: &ApplyJournal) -> Result<()> {
+pub(super) fn write_journal(conn: &Connection, journal: &ApplyJournal) -> Result<()> {
     journal.validate()?;
     let bytes = encode(journal)?;
     if bytes.len() > MAX_JOURNAL_BYTES {
@@ -591,7 +660,7 @@ fn purge_prior_comments(
     Ok(())
 }
 
-fn current_unresolved(
+pub(super) fn current_unresolved(
     conn: &Connection,
     journal: &ApplyJournal,
 ) -> Result<proposals::StoredProposal> {
@@ -627,7 +696,7 @@ fn current_unresolved(
     Ok(stored)
 }
 
-fn settled(journal: &ApplyJournal) -> bool {
+pub(super) fn settled(journal: &ApplyJournal) -> bool {
     journal
         .receipt
         .as_ref()
@@ -641,7 +710,7 @@ fn applied_receipt(journal: &ApplyJournal) -> bool {
         .is_some_and(|receipt| receipt.outcome == ApplyOutcome::Applied)
 }
 
-fn same_approval(left: &ApplyJournal, right: &ApplyJournal) -> bool {
+pub(super) fn same_approval(left: &ApplyJournal, right: &ApplyJournal) -> bool {
     let mut left_review = left.approved.clone();
     let mut right_review = right.approved.clone();
     left_review.comments.clear();
@@ -671,6 +740,7 @@ fn merge_journal(
             "recovery journal has incompatible prepared proofs".into(),
         ));
     }
+    let repair = super::proposal_repair::merge(existing, incoming)?;
     if settled(existing) {
         if settled(incoming)
             && (existing.receipt != incoming.receipt
@@ -744,6 +814,7 @@ fn merge_journal(
     if next.prepared.is_none() && existing.receipt.is_some() && incoming.receipt.is_none() {
         next.prepared = incoming.prepared.clone();
     }
+    next.repair = repair;
     next.validate()?;
     Ok(next)
 }
@@ -921,6 +992,7 @@ impl WorkStore {
             incoming
         };
         effective.validate()?;
+        super::proposal_repair::check_collisions(&tx, &effective)?;
         let historical_terminal = effective.receipt.as_ref().is_some_and(|receipt| {
             settled(&effective)
                 && current
@@ -1025,6 +1097,7 @@ impl WorkStore {
             observations: None,
             no_effects: false,
             undo: None,
+            repair: None,
             started_at_ms: now_ms().max(stored.record.updated_at_ms),
         };
         journal.validate()?;
@@ -1121,6 +1194,11 @@ impl WorkStore {
         let tx = self.conn.transaction()?;
         let mut journal = read_journal(&tx, id)?
             .ok_or_else(|| Error::NotFound("approval journal is absent".into()))?;
+        if no_effects && journal.repair.is_some() {
+            return Err(Error::StateChanged(
+                "repair work cannot be discharged by a no-effect certificate".into(),
+            ));
+        }
         if let Some(receipt) = &journal.receipt
             && receipt.outcome != ApplyOutcome::Uncertain
         {
@@ -1169,6 +1247,13 @@ impl WorkStore {
         journal.receipt = Some(receipt.clone());
         journal.observations = observations.map(<[ApplyMemberProof]>::to_vec);
         journal.no_effects = no_effects;
+        if let Some(binding) = &mut journal.repair {
+            binding
+                .attempts
+                .last_mut()
+                .expect("validated repair history")
+                .outcome = Some(outcome);
+        }
         if outcome == ApplyOutcome::Applied {
             journal.approved.comments.clear();
         }

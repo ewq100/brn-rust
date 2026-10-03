@@ -53,6 +53,14 @@ optional native compile. Store **127 passed**; CLI **77 passed**. Shared Undo/Tr
 is locally integrated. Native review/Undo presentation, interrupted-work repair and
 owned AI Rewrite remain next; Stage 4 is not complete.
 
+The Store repair foundation now captures exact known file phases, admits explicit
+Finish/Restore attempts replay-first, preserves first uncertainty and Undo bindings,
+and restores only compatible bounded history. Independent review found no defects;
+**12 repair tests / 139 Store tests** passed. Fresh locked/offline storage gates
+passed **550 workspace tests, 0 failed, 2 ignored**, format/build/all-target Clippy
+and headless AppWorker startup. Filesystem execution and native interaction remain
+the next repair slice; these checks do not establish user-visible repair acceptance.
+
 ## Qualification still open
 
 Owner headless/native acceptance remains pending and does not block later safe

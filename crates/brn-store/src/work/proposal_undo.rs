@@ -255,6 +255,7 @@ impl WorkStore {
             observations: None,
             no_effects: false,
             undo: Some(preview.binding),
+            repair: None,
             started_at_ms: now,
         };
         journal.validate()?;

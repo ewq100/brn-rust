@@ -538,3 +538,71 @@ explicit interrupted-work repair, owned Rewrite and native review/Undo are next.
 Changed Markdown **54 local links/fragments, 0 errors** and diff checks passed;
 only verified exclusively owned synthetic gate parents were removed. No live
 calls, model downloads, original/private-data inspection, push or release.
+
+## Explicit interrupted-operation repair slice
+
+Baseline: `main@7f97d65fa01e3dbea68540e60a24d407461ce0b4`; preserve owner AGENTS.md.
+Repair is a separate explicit human command for one unresolved, already-approved
+operation. Preview the full original proposal and exact current member phases;
+Finish installs remaining approved changes, Restore returns applied members to
+originals. No automatic namespace retry occurs at startup, reconciliation or UUID
+replay. Unknown occupants/proofs refuse both directions and remain fenced.
+
+Keep existing NoteChange types, filesystem primitives, whole receipt and current-
+evidence fence. A known complete prepared set yields each member's exact Before
+or Applied phase. Capture a SHA-256 review stamp over immutable approval/member/
+prepared/Undo bindings, prior repair UUIDs and the complete observed proof vector.
+Each human attempt has a fresh repair UUID and direction. One optional journal
+repair binding keeps at most 64 compact attempts, latest admission proofs and
+immutable request hashes; absent fields retain legacy JSON/checksums. At most the
+latest attempt is pending; earlier uncertain attempts remain historical. Resource
+caps are checked before admission/effects. No new database/table/framework is needed.
+
+Store first: typed direction/request/preview/receipt, phase classification/hash,
+atomic replay-first admission, immutable forward history/recovery merge and latest
+attempt outcome. Original approval/comment version remains unchanged by admission;
+terminal whole receipt and latest outcome settle together. Normalize bounded path
+metadata for retained repair journals and reserve fixed proof/repair slots, keeping
+ordinary absent-field limits unchanged. Recovery can restore the repair binding
+without another source row. Then shared execution: exact capture/preflight, durable
+repair mirror before effects, skip already-desired phases, coordinated proof-checked
+forward/reverse moves, required flush and whole reobservation. Finish checks sources
+against arbitrary phases; Restore does not overwrite unrelated external sources.
+Editor aliases/buffers/stamps remain protected; later queued typing is retained.
+
+Acceptance: all mixed subsets of Create/Replace/Trash in both directions; exact
+bytes/identity/attributes; changed stage/destination/root/source and dirty aliases
+refuse; request/direction/stamp conflict and replay do not write; crashes, mirror/
+receipt failures and older/missing SQLite recover without implicit effects; whole
+settlement alone releases retained tools/read/Save fences and applied annotations.
+Use bounded synthetic tests, independent read-only review and fresh relevant gates.
+Native/manual/physical-power-loss acceptance remains separate.
+
+Store-only foundation implements the fixed DTOs, pure exact phase capture/stamp,
+atomic replay-first admission, latest-attempt settlement and forward recovery. No
+new table/schema or filesystem effect was added. Twelve regressions cover all
+subsets/directions, unknown/corrupt capture, immutable first uncertainty, rollback,
+UUID collisions, forward-history forks, omitted legacy checksums, actual Undo
+bindings and 64 attempts on a near-cap 64-Replace journal followed by settlement
+and source-independent restoration. Independent read-only review against `7f97d65`
+found no actionable defects and independently passed all 12 repair tests.
+
+Fresh root macOS arm64 / Rust 1.98.1 locked/offline `TMPDIR=<exclusive owned parent>
+bash scripts/verify-storage.sh` passed **550 workspace tests, 0 failed, 2 ignored**,
+format/build/all-target Clippy with warnings denied and real headless AppWorker
+startup. Store **139 passed**. The unchanged private process entry points remain
+ignored directly and are exercised by crash matrices. Store-only code is ready
+for local integration under standing authorization; filesystem repair, CLI/native
+interaction, manual usability and physical power-loss qualification remain separate.
+Changed Markdown **24 local links/fragments, 0 errors** and diff checks passed.
+Only five proven owned synthetic layout fixtures and their gate parent were removed; no live calls, model
+downloads, original/private data, push or release actions occurred.
+
+Shared execution uses `App::preview_proposal_repair(operation_id)` and
+`App::repair_proposal(RepairRequest)` with typed worker commands/events. Preview
+includes the full original approved draft, exact current phases and capture hash.
+CLI will expose `proposals repair-preview OPERATION_UUID` and `proposals repair
+--file REQUEST.json`; typed JSON binds a fresh attempt UUID, original operation,
+preview hash and Finish/Restore direction. Replay resolves prior attempts before
+fresh filesystem/editor checks. The prepared shared child module remains
+unregistered until Store integration, then its tests will run against that baseline.
