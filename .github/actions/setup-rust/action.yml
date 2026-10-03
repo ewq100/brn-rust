@@ -55,3 +55,11 @@ runs:
       run: |
         host_target="$(rustc --version --verbose | sed -n 's/^host: //p')"
         cargo fetch --locked --target "$host_target"
+    - name: Create an explicit safe Unix fixture parent
+      if: runner.os != 'Windows'
+      shell: bash
+      run: |
+        fixture_parent="$(mktemp -d "$RUNNER_TEMP/brn-ci-tests.XXXXXX")"
+        # macOS system temp paths can contain symlinks that Auth correctly refuses.
+        fixture_parent="$(cd "$fixture_parent" && pwd -P)"
+        printf 'TMPDIR=%s\n' "$fixture_parent" >> "$GITHUB_ENV"

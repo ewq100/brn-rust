@@ -48,19 +48,21 @@ jobs:
         if: runner.os != 'Windows'
         run: python3 scripts/check-provider-retirement.py
       - name: Build the default workspace
+        id: workspace-build
         run: cargo build --workspace --locked --offline
       - name: Lint the default workspace
         if: runner.os == 'Linux' || github.event_name != 'pull_request'
         run: cargo clippy --workspace --all-targets --locked --offline -- -D warnings
       - name: Test the default workspace
+        if: ${{ !cancelled() && steps.workspace-build.outcome == 'success' }}
         run: cargo test --workspace --locked --offline
       - name: Check CLI help on Unix
-        if: runner.os != 'Windows'
+        if: ${{ !cancelled() && steps.workspace-build.outcome == 'success' && runner.os != 'Windows' }}
         run: |
           target/debug/brn --help
           target/debug/brn-flow --help
       - name: Check CLI help on Windows
-        if: runner.os == 'Windows'
+        if: ${{ !cancelled() && steps.workspace-build.outcome == 'success' && runner.os == 'Windows' }}
         shell: pwsh
         run: |
           & ./target/debug/brn.exe --help
@@ -68,7 +70,7 @@ jobs:
           & ./target/debug/brn-flow.exe --help
           if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
       - name: Run offline end-to-end fixtures
-        if: runner.os != 'Windows'
+        if: ${{ !cancelled() && steps.workspace-build.outcome == 'success' && runner.os != 'Windows' }}
         run: |
           fixture_parent="$(mktemp -d "$RUNNER_TEMP/brn-ci-fixtures.XXXXXX")"
           trap 'rmdir "$fixture_parent"' EXIT

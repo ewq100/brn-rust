@@ -75,6 +75,10 @@ CLI help checks on Ubuntu 24.04 (x64), Windows Server 2025 (x64), and macOS 15
 manual runs check Clippy on all three systems. Unix jobs run the existing
 synthetic end-to-end fixtures with an exclusive parent under `RUNNER_TEMP`.
 Those fixtures require Unix ownership APIs and are not a Windows test.
+All Unix test jobs use an explicit physical `TMPDIR` under `RUNNER_TEMP`, so
+credential-safety checks do not encounter symlinked macOS system temp paths.
+After a successful default build, tests, CLI help and fixtures can still run if
+an earlier independent check fails; the failed check keeps the job red.
 
 Native UI and native retrieval have separate jobs. PRs run both on macOS;
 main and manual runs probe both on all three systems. Each lane installs the
