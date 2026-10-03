@@ -131,8 +131,35 @@ recovery refuses. Tokens, generations and queued later typing remain untouched.
 Activity includes the source operation and optional original Trash member index.
 The existing 64-member/8 MiB proposal limits apply. Old retained Trash is eligible
 while its proofs hold; no timer/count silently purges it. CLI commands are described
-in [brn](../brn/README.md). Native review/Undo interaction, mixed-work repair and
+in [brn](../brn/README.md). Native review/Undo interaction and
 owner usability acceptance remain pending.
+
+## Explicit interrupted-operation repair
+
+`preview_proposal_repair` returns the full approved draft, exact current
+Before/Applied member phases and a capture hash. `repair_proposal` binds a fresh
+attempt UUID, that hash and Finish/Restore direction. AppWorker exposes
+`PreviewProposalRepair` / `RepairProposal` with typed previews/receipts; admitted
+repair drains on shutdown. CLI [commands](../brn/README.md) use the same boundary.
+AI has no direct repair tool.
+
+Admission checks the bound vault, complete file pairs and retained editor aliases.
+Finish checks sources against arbitrary current phases and installs only remaining
+approved changes; Restore returns applied members to exact originals while
+preserving unrelated external sources. A durable repair mirror precedes namespace
+effects. Each coordinated move proves its current pair, uses exclusive installation
+or exchange, flushes surviving files and parents, and proves the complete endpoint.
+Unknown destinations/staging, dirty aliases or changed capture refuse. Comments
+are deleted only on Applied completion; restored Draft comments remain for review.
+
+The original first Uncertain receipt/proofs remain immutable until known whole
+settlement. Up to 64 bounded attempts retain their exact requests and outcomes;
+the latest outcome settles with the whole receipt. Replay, startup and reconciliation
+never repeat namespace changes. Known terminal repair requires every exact Before
+or Applied pair, including staging proofs; older/missing SQLite restores the same
+checked history. Temporary repair snapshots retire only against compatible checked
+canonical history. Editor baselines/generations and later queued typing stay intact.
+Native repair interaction and physical power-loss qualification remain pending.
 
 ## Explicit model installation
 

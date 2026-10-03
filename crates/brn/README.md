@@ -28,6 +28,8 @@ brn proposals create --file DRAFT.json
   brn proposals undo-preview TARGET_OPERATION_UUID --operation NEW_UUID [--member INDEX]
   brn proposals undo TARGET_OPERATION_UUID --operation NEW_UUID
   brn proposals restore-trash TARGET_OPERATION_UUID --member INDEX --operation NEW_UUID
+  brn proposals repair-preview OPERATION_UUID
+  brn proposals repair --file REQUEST.json
   brn edit open PATH
   brn edit recover PATH --baseline UUID --expected-generation N --generation N --file F
   brn edit save PATH --baseline UUID --expected-generation N --generation N --file F --operation UUID [--copy PATH]
@@ -201,6 +203,40 @@ then repeat `undo` and confirm the same receipt preserves the newer text. In a
 separate mixed approval, edit another member, preview the original Trash index
 with a fresh UUID, and use `restore-trash` to verify that only the trashed note
 returns. An occupied Trash destination must refuse without changing its bytes.
+
+### Explicit interrupted-operation repair
+
+`repair-preview` returns the full approved draft, exact current Before/Applied
+member phases and an opaque 32-byte capture hash for an unresolved operation.
+It changes no vault files or review work. Unknown occupants or missing/changed
+proofs refuse preview. Inspect the complete proposal and phases before choosing
+Finish or Restore.
+
+`repair --file REQUEST.json` accepts `{id, operation_id, expected, direction}`.
+Use a fresh repair attempt UUID for `id`, the original approval/Undo UUID for
+`operation_id`, copy the exact `expected` array from preview and choose lowercase
+`finish` or `restore`. Finish applies the remaining already-approved members;
+Restore returns applied members to their originals. Changed capture or protected
+editor work refuses without guessing or overwriting another file. Finish checks
+reviewed sources again; Restore preserves unrelated later source changes.
+The result is `{id, operation_id, direction, outcome}`; inspect `outcome`, since
+an interrupted attempt remains fenced until the whole operation settles.
+
+Typed requests and distinct non-nil UUIDs are checked before opening storage.
+Repeating the same repair UUID/request returns its historical result without
+another namespace attempt. Changed direction, source or hash under that UUID
+fails `OPERATION_CONFLICT`. For a later explicit attempt, obtain a fresh preview
+and use a fresh repair UUID. Preview, startup and reconciliation never resume
+interrupted namespace writes automatically.
+
+For a manual check with a disposable interrupted mixed proposal, run
+`proposals repair-preview OPERATION_UUID --json`, review its approved changes,
+write the four request fields to a regular JSON file and run
+`proposals repair --file REQUEST.json --json`. Compare the exact destination
+bytes and retained originals for Finish or Restore. Then change a destination
+externally, repeat the same request and confirm the recorded receipt leaves the
+newer bytes intact. Native repair presentation and power-loss qualification
+remain separate.
 
 ## Output contract
 

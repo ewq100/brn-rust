@@ -606,3 +606,59 @@ CLI will expose `proposals repair-preview OPERATION_UUID` and `proposals repair
 preview hash and Finish/Restore direction. Replay resolves prior attempts before
 fresh filesystem/editor checks. The prepared shared child module remains
 unregistered until Store integration, then its tests will run against that baseline.
+
+Store foundation integrated as `86439cf`. Shared repair implements the fixed APIs
+above against that exact baseline, with one private child module, arbitrary-phase
+source checks, durable attempt mirrors, coordinated forward/reverse moves, full
+flush/endpoint proof and original-receipt/latest-attempt settlement. Checked
+canonical repair ancestry protects temporary cleanup across older operations.
+AppWorker drains repair; CLI implements the documented typed preview/request
+commands with pre-storage validation and exact attempt-ID correlation.
+
+Targeted checks passed **7 private shared tests** (16 phase/direction cases,
+18 crash boundaries, mirror failures, SQLite failures, older/missing databases,
+source/unknown/dirty-case aliases and historical replay), **2 real worker tests**
+(correlation/drain/queued later typing/restart), **5 CLI process tests** plus
+**31 binary unit tests**, and canonical temporary-history cleanup. Review found a
+valid generic NotApplied gap: unchanged destinations could discharge a repair
+despite a missing prepared stage. A fresh failing regression reproduced it; Store
+now requires terminal repair observations to prove every exact Before/Applied pair.
+The added Store atomic check and workflow refusal/restart regression passed;
+**13 Store repair tests** passed. Ordinary absent-field behavior remains unchanged.
+Final independent review and fresh integrated gates follow.
+
+Manual acceptance pending: in disposable data/vault with an interrupted mixed
+proposal, run `proposals repair-preview OPERATION_UUID` and inspect the full draft,
+phases and hash. Submit `proposals repair --file REQUEST.json` with a fresh attempt
+UUID, original operation, exact captured hash and `finish` or `restore`. Finish
+must install the complete approved endpoint; Restore must restore all originals
+and retain proposed staging. Repeating the attempt after a later external edit
+must preserve that edit and return history. A changed stage/destination, stale
+capture or dirty alias must refuse and keep affected current reads/Save fenced.
+See the [CLI scenario](../../../../crates/brn/README.md). Native interaction and
+physical power loss remain separate qualification.
+
+Final read-only review against `86439cf` found no remaining actionable defects;
+it independently passed **13 Store repair, 7 shared repair, 2 worker, 5 CLI process,
+1 canonical cleanup and 1 CLI correlation check**. The endpoint finding is verified
+and resolved. Fresh root macOS arm64 / Rust 1.98.1 locked/offline
+`TMPDIR=<exclusive owned parent> bash scripts/verify-end-to-end.sh` passed
+**567 workspace tests, 0 failed, 2 ignored**, **52 fixtures**, retirement,
+format/build/all-target Clippy with warnings denied. Store **140 passed**, CLI
+**83 passed**. `cargo check -p brn-desktop --features native-ui,native-retrieval
+--locked --offline` passed, with the existing upstream `block v0.1.6` warning.
+Builds and synthetic checks do not establish native usability or physical durability.
+
+Current AGENTS.md additionally requests the thin `developing-product-feature`
+router and hosted CI inspection. Read the installed router; frozen accepted roadmap
+work proceeds within BRN's workflow, without discovery or routine approval gates.
+GitHub reports no run for local Store baseline `86439cf`. The inspected latest
+[published main run](https://github.com/ewq100/brn-rust/actions/runs/37137393000)
+at `609d859` failed Windows core/native builds and optional Linux retrieval/UI
+tests; macOS jobs passed there. Those different-commit results are not evidence for
+this candidate. Hosted CI remains pending local-only integration; no push/public
+distribution is performed. Manual acceptance and native interaction remain pending.
+Changed Markdown **68 local links/fragments, 0 errors** and diff checks passed.
+Only five proven owned synthetic layout fixtures and their gate parent were removed.
+Shared repair is locally integrated under standing mission authorization; owned
+Rewrite and the native proposal/review/activity/Undo/repair interaction are next.

@@ -600,6 +600,50 @@ fn all_mixed_phases_are_exact_and_both_directions_admit_without_changing_review(
 }
 
 #[test]
+fn terminal_repair_receipts_require_exact_complete_endpoint_pairs() {
+    for missing in [true, false] {
+        let (_dir, mut store) = fixture();
+        let source = prepared(&mut store, &draft());
+        let proofs = observed(&source, 0);
+        let repair = request(&source, &proofs, RepairDirection::Restore);
+        let admitted = store.begin_proposal_repair(&repair, &proofs).unwrap();
+        let review = store.proposal(source.approved.draft.id).unwrap();
+        let mut unknown = proofs.clone();
+        if missing {
+            unknown[0].staging = None;
+        } else {
+            unknown[1].staging.as_mut().unwrap().inode += 1000;
+        }
+        assert!(
+            store
+                .finish_proposal_apply(
+                    source.request.operation_id,
+                    ApplyOutcome::NotApplied,
+                    Some(&unknown)
+                )
+                .is_err()
+        );
+        assert_eq!(read(&store, &source), admitted);
+        assert_eq!(store.proposal(source.approved.draft.id).unwrap(), review);
+        assert_eq!(
+            store.proposal_repair(repair.id).unwrap().unwrap().outcome,
+            None
+        );
+        store
+            .finish_proposal_apply(
+                source.request.operation_id,
+                ApplyOutcome::NotApplied,
+                Some(&proofs),
+            )
+            .unwrap();
+        assert_eq!(
+            store.proposal_repair(repair.id).unwrap().unwrap().outcome,
+            Some(ApplyOutcome::NotApplied)
+        );
+    }
+}
+
+#[test]
 fn basic_requests_and_rehashed_structural_corruption_are_refused() {
     let (dir, mut store) = fixture();
     let journal = prepared(&mut store, &draft());

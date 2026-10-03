@@ -779,6 +779,8 @@ impl AiState {
             | AppEvent::Proposal(_)
             | AppEvent::Proposals(_)
             | AppEvent::ProposalUndoPreview(_)
+            | AppEvent::ProposalRepairPreview(_)
+            | AppEvent::ProposalRepaired(_)
             | AppEvent::ProposalApplied(_)
             | AppEvent::ProposalGroupApplied(_)
             | AppEvent::ProposalApplies(_)

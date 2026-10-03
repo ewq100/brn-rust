@@ -523,7 +523,15 @@ impl ApplyRecoveryFiles {
                     continue;
                 }
             };
-            if covered_review(&snapshot.journal, approved) {
+            let compatible_repair = if snapshot.journal.repair.is_some() {
+                self.read(snapshot.journal.request.operation_id)?
+                    .is_some_and(|canonical| {
+                        canonical.journal.repair_history_covers(&snapshot.journal)
+                    })
+            } else {
+                true
+            };
+            if compatible_repair && covered_review(&snapshot.journal, approved) {
                 before_retire();
                 self.remove_known(&snapshot).map_err(uncertain)?;
                 step("cleanup_directory_sync").map_err(uncertain)?;
@@ -901,8 +909,82 @@ mod tests {
             },
             outcome: ApplyOutcome::Applied,
         });
+        if let Some(binding) = &mut journal.repair {
+            binding.attempts.last_mut().unwrap().outcome = Some(ApplyOutcome::Applied);
+        }
         journal.validate().unwrap();
         journal
+    }
+
+    #[test]
+    fn temporary_retirement_requires_known_forward_repair_history() {
+        use brn_store::work::proposal_apply::{
+            RepairAttempt, RepairBinding, RepairDirection, RepairRequest,
+        };
+        let fixture = Fixture::new();
+        let old = fixture.commented();
+        let mut prepared = applied(&old);
+        prepared.approved.comments = old.approved.comments.clone();
+        prepared.receipt = None;
+        prepared.observations = None;
+        let before: Vec<_> = prepared
+            .approved
+            .draft
+            .changes
+            .iter()
+            .zip(prepared.prepared.as_ref().unwrap())
+            .map(|(change, staged)| match change {
+                NoteChange::Create { .. } => ApplyMemberProof {
+                    destination: None,
+                    staging: Some(staged.clone()),
+                },
+                NoteChange::Replace { before, .. } => ApplyMemberProof {
+                    destination: Some(before.clone()),
+                    staging: Some(staged.clone()),
+                },
+                _ => unreachable!(),
+            })
+            .collect();
+        let preview = prepared.repair_preview(&before).unwrap();
+        prepared.repair = Some(RepairBinding {
+            attempts: vec![RepairAttempt {
+                request: RepairRequest {
+                    id: Uuid::new_v4(),
+                    operation_id: prepared.request.operation_id,
+                    expected: preview.expected,
+                    direction: RepairDirection::Finish,
+                },
+                started_at_ms: prepared.started_at_ms,
+                outcome: None,
+            }],
+            observations: before,
+        });
+        prepared.validate().unwrap();
+        let terminal = applied(&prepared);
+        fixture.files.write(&terminal, None).unwrap();
+        let compatible = fixture.temporary(&encode(&prepared).unwrap());
+        let mut foreign = prepared.clone();
+        foreign.repair.as_mut().unwrap().attempts[0].request.id = Uuid::new_v4();
+        foreign.validate().unwrap();
+        let retained = fixture.temporary(&encode(&foreign).unwrap());
+        fixture.files.retire_review_temporaries(&terminal).unwrap();
+        assert!(!compatible.exists());
+        assert_eq!(fs::read(&retained).unwrap(), encode(&foreign).unwrap());
+
+        // A later approval may retire a known prior operation's annotations,
+        // including compatible displaced repair snapshots from that operation.
+        let historical = fixture.temporary(&encode(&prepared).unwrap());
+        let mut later = applied(&old);
+        later.request.operation_id = Uuid::new_v4();
+        later.approved.version += 3;
+        later.request.expected = later.approved.stamp();
+        later.receipt.as_mut().unwrap().operation_id = later.request.operation_id;
+        later.receipt.as_mut().unwrap().approved_version = later.approved.version;
+        later.receipt.as_mut().unwrap().stamp.version = later.approved.version + 2;
+        later.validate().unwrap();
+        fixture.files.retire_review_temporaries(&later).unwrap();
+        assert!(!historical.exists());
+        assert_eq!(fs::read(retained).unwrap(), encode(&foreign).unwrap());
     }
 
     #[test]

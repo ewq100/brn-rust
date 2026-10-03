@@ -50,16 +50,22 @@ Rust 1.98.1 locked/offline gates passed **538 workspace tests, 0 failed, 2 ignor
 private crash entry points exercised by subprocess matrices; **52 end-to-end
 assertions**, retirement, format/build/all-target Clippy with warnings denied and
 optional native compile. Store **127 passed**; CLI **77 passed**. Shared Undo/Trash
-is locally integrated. Native review/Undo presentation, interrupted-work repair and
-owned AI Rewrite remain next; Stage 4 is not complete.
+is locally integrated. Native review/Undo presentation and owned AI Rewrite remain
+next; Stage 4 is not complete.
 
-The Store repair foundation now captures exact known file phases, admits explicit
-Finish/Restore attempts replay-first, preserves first uncertainty and Undo bindings,
-and restores only compatible bounded history. Independent review found no defects;
-**12 repair tests / 139 Store tests** passed. Fresh locked/offline storage gates
-passed **550 workspace tests, 0 failed, 2 ignored**, format/build/all-target Clippy
-and headless AppWorker startup. Filesystem execution and native interaction remain
-the next repair slice; these checks do not establish user-visible repair acceptance.
+Store repair (`86439cf`) and shared AppWorker/CLI execution capture exact phases,
+admit explicit Finish/Restore attempts replay-first and preserve bounded history,
+first uncertainty and editor work. Review exposed a valid terminal staging-proof
+gap; fresh regressions reproduced it and verified the correction. Independent
+checks passed **13 Store repair, 7 shared, 2 worker and 5 CLI process tests**, plus
+cleanup/correlation checks. Fresh locked/offline gates passed **567 workspace
+tests, 0 failed, 2 ignored**, **52 end-to-end assertions**, retirement, format/build/
+all-target Clippy and optional native compile. Store **140 passed**, CLI **83 passed**.
+Shared repair is locally integrated; native repair interaction remains
+pending. No published CI run exists for these local slices. The latest inspected
+[published main CI](https://github.com/ewq100/brn-rust/actions/runs/37137393000)
+at another commit (`609d859`) failed on Windows and optional Linux paths; its results
+do not qualify this tree.
 
 ## Qualification still open
 
@@ -68,8 +74,9 @@ implementation. Builds and synthetic crash/state tests do not establish native
 usability, physical power-loss durability, other-volume support, actual model
 inference or release readiness. Native Save/Copy/conflict/reload/recovery,
 chooser, IME, accessibility, rendering and Stop/restart remain pending. Proposal
-review is currently headless; mixed/interrupted application stays fenced until
-exact reconciliation proof, with further repair/Undo interaction still to come.
+review/repair is currently headless; mixed/interrupted application stays fenced
+until exact reconciliation or explicit repair. Native review/Undo/repair usability
+remains pending.
 The completed provider round leaves Copilot GPT-5.5 Chat unsupported, Codex vision
 accuracy and native citations unqualified. Further live checks require new scope;
 release/public distribution and original/private-data migration are unauthorized.

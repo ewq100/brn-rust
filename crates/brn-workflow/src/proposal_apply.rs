@@ -6,14 +6,17 @@ use crate::{
     files::{MacFiles, recovery::ApplyRecoveryFiles},
 };
 pub use brn_store::work::proposal_apply::{
-    ApplyJournal, ApplyMemberProof, ApplyOutcome, ApplyReceipt, ApprovalRequest, UndoBinding,
-    UndoOriginal, UndoPreview, UndoRequest,
+    ApplyJournal, ApplyMemberPhase, ApplyMemberProof, ApplyOutcome, ApplyReceipt, ApprovalRequest,
+    RepairDirection, RepairPreview, RepairReceipt, RepairRequest, UndoBinding, UndoOriginal,
+    UndoPreview, UndoRequest,
 };
+mod repair;
 use brn_store::work::proposals::{NoteChange, ProposalDraft, ProposalState};
 use brn_store::{
     WorkStore,
     files::{FileFingerprint, PreparedFile, VaultRecord},
 };
+pub use repair::validate_repair_request;
 use serde::{Deserialize, Serialize};
 use std::{cell::Cell, path::Path};
 use uuid::Uuid;
@@ -274,25 +277,16 @@ fn check_targets(files: &MacFiles, draft: &ProposalDraft) -> Result<()> {
     Ok(())
 }
 fn check_sources(files: &MacFiles, journal: &ApplyJournal, installed: usize) -> Result<()> {
-    for source in &journal.approved.draft.sources {
-        let own = journal
-            .approved
-            .draft
-            .changes
-            .iter()
-            .take(installed)
-            .enumerate()
-            .find(|(_, change)| original(change) == Some(&source.fingerprint));
-        let expected = match own {
-            Some((_, NoteChange::Trash { .. })) => None,
-            Some((i, _)) => journal.prepared.as_ref().and_then(|p| p.get(i)),
-            None => Some(&source.fingerprint),
-        };
-        if observed(files, Path::new(&source.path))?.as_ref() != expected {
-            return Err(stale("reviewed proposal source changed"));
-        }
-    }
-    Ok(())
+    let phases: Vec<_> = (0..journal.members.len())
+        .map(|index| {
+            if index < installed {
+                ApplyMemberPhase::Applied
+            } else {
+                ApplyMemberPhase::Before
+            }
+        })
+        .collect();
+    repair::check_phase_sources(files, journal, &phases)
 }
 
 impl App {
@@ -819,26 +813,20 @@ impl App {
                 outcome = ApplyOutcome::Uncertain;
             }
         }
-        if outcome == ApplyOutcome::Applied {
+        if outcome == ApplyOutcome::Applied
+            || outcome == ApplyOutcome::NotApplied && journal.repair.is_some()
+        {
             let files = self.editor.files.as_ref().expect("opened files");
             for (change, member) in journal.approved.draft.changes.iter().zip(&journal.members) {
-                match change {
-                    NoteChange::Create { .. } => files
-                        .flush_artifact(Path::new(change.path()))
-                        .map_err(file_error)?,
-                    NoteChange::Replace { .. } => {
-                        files
-                            .flush_artifact(Path::new(change.path()))
-                            .map_err(file_error)?;
-                        files.flush_artifact(&member.staging).map_err(file_error)?;
-                    }
-                    NoteChange::Trash { .. } => {
-                        files.flush_artifact(&member.staging).map_err(file_error)?
+                for path in [Path::new(change.path()), member.staging.as_path()] {
+                    if observed(files, path)?.is_some() {
+                        files.flush_artifact(path).map_err(file_error)?;
                     }
                 }
             }
             if self.observe_proposal(&journal).ok() != observations
-                || check_sources(files, &journal, journal.members.len()).is_err()
+                || outcome == ApplyOutcome::Applied
+                    && check_sources(files, &journal, journal.members.len()).is_err()
             {
                 outcome = ApplyOutcome::Uncertain;
             }
@@ -846,8 +834,16 @@ impl App {
         // Repeated uncertainty is immutable; a later definitive inspection can
         // settle it, but cannot rewrite its first observations.
         if outcome == ApplyOutcome::Uncertain
-            && let Some(receipt) = journal.receipt
+            && let Some(receipt) = journal.receipt.clone()
         {
+            if journal.repair.as_ref().is_some_and(|binding| {
+                binding
+                    .attempts
+                    .last()
+                    .is_some_and(|attempt| attempt.outcome.is_none())
+            }) {
+                self.interrupt_repair(&journal)?;
+            }
             return Ok(receipt);
         }
         self.complete_proposal(&journal, outcome, observations, false)
@@ -924,6 +920,13 @@ fn completion(
     });
     candidate.observations = observations;
     candidate.no_effects = no_effects;
+    if let Some(binding) = &mut candidate.repair {
+        binding
+            .attempts
+            .last_mut()
+            .expect("validated repair history")
+            .outcome = Some(outcome);
+    }
     if outcome == ApplyOutcome::Applied {
         candidate.approved.comments.clear();
     }
@@ -963,12 +966,12 @@ mod tests {
     use brn_ai::{AiErrorKind, ReadTools};
     use std::{fs, path::PathBuf, process::Command};
 
-    struct Fixture {
+    pub(super) struct Fixture {
         _dir: tempfile::TempDir,
-        base: PathBuf,
+        pub(super) base: PathBuf,
     }
     impl Fixture {
-        fn new() -> Self {
+        pub(super) fn new() -> Self {
             let dir = tempfile::tempdir().unwrap();
             let base = dir.path().to_owned();
             fs::create_dir(base.join("data")).unwrap();
@@ -978,10 +981,10 @@ mod tests {
             fs::write(base.join("vault/source.md"), "Bound source evidence").unwrap();
             Self { _dir: dir, base }
         }
-        fn app(&self) -> App {
+        pub(super) fn app(&self) -> App {
             open(&self.base)
         }
-        fn prepare(&self) -> ApprovalRequest {
+        pub(super) fn prepare(&self) -> ApprovalRequest {
             let mut app = self.app();
             let before = app.open_editor("a.md").unwrap().record.baseline;
             let trash = app.open_editor("trash.md").unwrap().record.baseline;
@@ -1063,7 +1066,7 @@ mod tests {
         fn crash_undo(&self, phase: &str, member: usize) {
             self.crash_mode(phase, member, true);
         }
-        fn crash(&self, phase: &str, member: usize) {
+        pub(super) fn crash(&self, phase: &str, member: usize) {
             self.crash_mode(phase, member, false);
         }
         fn crash_mode(&self, phase: &str, member: usize, undo: bool) {
@@ -1111,7 +1114,12 @@ mod tests {
             .unwrap();
         let mut app = open(&base);
         APPLY_CHECKPOINT.with(|stop| *stop.borrow_mut() = Some((phase, member)));
-        if std::env::var("BRN_APPLY_TEST_UNDO").as_deref() == Ok("1") {
+        if std::env::var("BRN_APPLY_TEST_REPAIR").as_deref() == Ok("1") {
+            let request =
+                serde_json::from_slice(&fs::read(base.join("repair-request.json")).unwrap())
+                    .unwrap();
+            app.repair_proposal(&request).unwrap();
+        } else if std::env::var("BRN_APPLY_TEST_UNDO").as_deref() == Ok("1") {
             let request =
                 serde_json::from_slice(&fs::read(base.join("undo-request.json")).unwrap()).unwrap();
             app.undo_proposal(&request).unwrap();

@@ -129,7 +129,23 @@ pub(super) fn validate(journal: &ApplyJournal) -> Result<()> {
         .as_ref()
         .filter(|receipt| receipt.outcome != ApplyOutcome::Uncertain);
     match (terminal, latest.outcome) {
-        (Some(receipt), Some(outcome)) if receipt.outcome == outcome => {}
+        (Some(receipt), Some(outcome)) if receipt.outcome == outcome => {
+            let endpoint = phases(
+                journal,
+                journal.observations.as_deref().ok_or_else(|| {
+                    invalid("settled repair requires complete endpoint observations")
+                })?,
+            )
+            .map_err(|_| invalid("settled repair contains an unknown endpoint phase"))?;
+            let expected = if outcome == ApplyOutcome::Applied {
+                ApplyMemberPhase::Applied
+            } else {
+                ApplyMemberPhase::Before
+            };
+            if endpoint.iter().any(|phase| *phase != expected) {
+                return Err(invalid("settled repair lacks the exact complete endpoint"));
+            }
+        }
         (None, None | Some(ApplyOutcome::Uncertain)) => {}
         _ => {
             return Err(invalid(

@@ -260,6 +260,7 @@ fn confirmed_success(event: &AppEvent) -> bool {
         AppEvent::EditorRecovered(_)
         | AppEvent::EditorSaved(_)
         | AppEvent::ProposalApplied(_)
+        | AppEvent::ProposalRepaired(_)
         | AppEvent::ProposalGroupApplied(_) => true,
         _ => false,
     }
@@ -349,6 +350,8 @@ fn execute(
                 AppEvent::ProposalGroupApplied(result) => json!(result),
                 AppEvent::ProposalApplies(journals) => json!(journals),
                 AppEvent::ProposalUndoPreview(preview) => json!(preview),
+                AppEvent::ProposalRepairPreview(preview) => json!(preview),
+                AppEvent::ProposalRepaired(receipt) => json!(receipt),
                 _ => return Err(unexpected()),
             };
             Ok(output(data))

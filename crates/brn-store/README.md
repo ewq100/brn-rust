@@ -153,6 +153,8 @@ permission. `interrupt_proposal_repair` records an uncertain latest attempt;
 the original first Uncertain observations stay immutable. Whole-operation
 settlement updates the latest attempt outcome and receipt together, with Applied
 comment cleanup in the same transaction. Repair cannot use a no-effect certificate.
+Known terminal repair receipts require the complete exact Before/Applied endpoint
+pairs, including staging proofs; unchanged destinations alone cannot clear repair.
 
 Recovery accepts compatible forward history only, checks repair UUID uniqueness
 across journals and preserves settled endpoints. `repair_history_covers` exposes
