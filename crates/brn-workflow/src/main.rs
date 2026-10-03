@@ -2,7 +2,7 @@ use brn_store::Approval;
 use brn_workflow::{Config, SearchProfile, Workspace};
 use std::{collections::BTreeMap, path::PathBuf, process::ExitCode, sync::atomic::AtomicBool};
 use uuid::Uuid;
-const HELP: &str = "BRN end-to-end workflow\nUsage: brn-flow COMMAND --data-dir ABSOLUTE_EXISTING_DIRECTORY [OPTIONS]\nCommands: import --file PATH [--approve yes|no]; sources; approve --source UUID --version UUID --state approved|draft|withdrawn; build [--model-dir DIR]; search --query TEXT [--profile keyword|semantic|hybrid]; ask --query TEXT --codex ABSOLUTE_EXECUTABLE [--profile PROFILE] [--session UUID] [--operation UUID]; sessions; history --session UUID\nNative semantic/hybrid requires a build with native-retrieval and a verified local model directory when building an index. Imported originals are never modified. --approve yes explicitly permits use as grounding; it is not publication approval. Provider and model paths can also be supplied to any command. Data directories must already exist. Output is JSON; live answer deltas appear on stderr.";
+const HELP: &str = "BRN legacy local workflow\nUsage: brn-flow COMMAND --data-dir ABSOLUTE_EXISTING_DIRECTORY [OPTIONS]\nCommands: import --file PATH [--approve yes|no]; sources; approve --source UUID --version UUID --state approved|draft|withdrawn; build [--model-dir DIR]; search --query TEXT [--profile keyword|semantic|hybrid]; sessions; history --session UUID\nLegacy ask is retired; use brn with a separate simple workspace for new chat. Native semantic/hybrid requires native-retrieval and a verified local model directory. Imported originals are never modified. --approve yes permits search, not publication. Data directories must already exist. Output is JSON. No executable or credential configuration is accepted.";
 fn run() -> Result<(), String> {
     let mut args = std::env::args().skip(1);
     let command = args.next().ok_or("run --help for usage")?;
@@ -22,7 +22,7 @@ fn run() -> Result<(), String> {
     let mut values = BTreeMap::new();
     while let Some(key) = args.next() {
         let name = key.strip_prefix("--").ok_or("options must start with --")?;
-        if !allowed.contains(&name) && !["data-dir", "codex", "model-dir"].contains(&name) {
+        if !allowed.contains(&name) && !["data-dir", "model-dir"].contains(&name) {
             return Err(format!("unknown option: {key}"));
         }
         let value = args
@@ -58,14 +58,17 @@ fn run() -> Result<(), String> {
         _ => return Err("invalid search profile".into()),
     };
     let config = Config {
-        codex: values.get("codex").map(PathBuf::from),
         model_dir: values.get("model-dir").map(PathBuf::from),
-        codex_home: None,
     };
-    for path in [&config.codex, &config.model_dir].into_iter().flatten() {
+    for path in [&config.model_dir].into_iter().flatten() {
         if !path.is_absolute() {
-            return Err("provider/model paths must be absolute".into());
+            return Err("model paths must be absolute".into());
         }
+    }
+    if command == "ask" {
+        return Err(
+            "LEGACY_AI_RETIRED: legacy AI retired; use brn with a separate simple workspace".into(),
+        );
     }
     let mut workspace = Workspace::open(&PathBuf::from(get("data-dir")?), config)?;
     let cancel = AtomicBool::new(false);
@@ -103,19 +106,6 @@ fn run() -> Result<(), String> {
         }
         "search" => serde_json::to_value(workspace.search(&get("query")?, profile)?)
             .map_err(|e| e.to_string())?,
-        "ask" => {
-            let session = if values.contains_key("session") {
-                Some(id("session")?)
-            } else {
-                None
-            };
-            let turn =
-                workspace.ask(op()?, session, &get("query")?, profile, &cancel, |delta| {
-                    eprint!("{delta}")
-                })?;
-            eprintln!();
-            serde_json::to_value(turn).map_err(|e| e.to_string())?
-        }
         "sessions" => serde_json::to_value(workspace.sessions()?).map_err(|e| e.to_string())?,
         "history" => {
             serde_json::to_value(workspace.history(id("session")?)?).map_err(|e| e.to_string())?

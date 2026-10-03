@@ -153,7 +153,7 @@ fn status_json_on_fresh_empty_dir() {
     assert!(data["active_index"]["error"].is_null());
     // Holds under the default feature set only; --features native-retrieval flips it to true.
     assert_eq!(data["capabilities"]["native_retrieval"], false);
-    assert_eq!(data["capabilities"]["codex_configured"], false);
+    assert!(data["capabilities"].get("codex_configured").is_none());
     let expected_dir = dir.path().canonicalize().unwrap();
     assert_eq!(data["data_dir"], expected_dir.to_str().unwrap());
     assert_eq!(data["version"], env!("CARGO_PKG_VERSION"));

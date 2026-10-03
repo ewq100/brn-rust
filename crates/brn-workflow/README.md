@@ -1,6 +1,8 @@
 # brn-workflow
 
-Shared authoritative application flow for desktop and headless use: imports, eligibility, index lifecycle, grounded answers, saved sessions, drafts and comments. Owns application coordination across adapters.
+Shared application flow for desktop and headless use: simple Rig chat/read/search
+through AppWorker, plus retained legacy local notes, recovery, imports, drafts,
+comments and history. No App Server dependency or process remains.
 
 ## Interfaces and source
 
@@ -196,15 +198,12 @@ epochs preserve whole-index IndexStale behavior with exclusion reasons.
 `brn-flow sources` returns `sources` and `source_states`; worker/native rows
 pair those same projections and label their last validated observation.
 
-Provider handoff validates selected evidence and managed prior session evidence
-before authentication/resume, again before submission, and at completion.
-Streaming is provisional. Completion atomically retains provider status/text
-and CurrentAtCompletion/StaleAtCompletion. A stale completed answer returns
-EvidenceStale with its historical receipt and confirmed provider outcome,
-including same-operation replay without provider access. New operations on
-stale threads fail ContextStale and require a fresh conversation. History is
-readable and labeled; Unqualified legacy history alone does not block resume.
-Storage/integrity failures remain visible rather than becoming exclusions.
+Legacy `Workspace::ask`, `ask_guarded`, `ask_detailed` and `ask_full` are
+compatibility refusals: typed `LegacyAiRetired` before lookup, retrieval,
+callbacks, cancellation checks, storage mutation or network work. They never
+resume old threads through Rig. Legacy sessions/history retain their wire
+fields (thread/turn IDs, evidence-currentness, usage), readable offline.
+`brn-flow ask` refuses before opening storage; new simple chat uses `brn`.
 
 Opening the workspace itself does not open the vault. ID-only observations
 lazily validate/acquire the registered root and hold ownership until workspace
@@ -242,8 +241,9 @@ note editor.
 Cancellation does not abandon a filesystem handoff. Normal native close waits
 asynchronously for durable acknowledgements; defensive shutdown/Drop still joins
 the critical owner. The existing bounded detached reaper remains available only
-for non-critical local work such as native model loading; provider cancellation
-and owned-child joining retain their existing semantics.
+for non-critical local work such as native model loading. The provider-active
+phase and sidecar cancellation path have been removed, not the critical-note
+admission/join contract.
 
 Plain enrollment still supports emoji filenames, including variation selectors
 and zero-width joiners, regardless of registration order. Copy/relink destination
@@ -332,7 +332,10 @@ recorded destination, even after relink or completed-payload pruning.
 
 ## Dependencies and features
 
-Depends on `brn-store`, `brn-provider`, `brn-retrieval`. Default features are empty; `native-retrieval` forwards to retrieval `native`.
+Depends on `brn-store`, `brn-retrieval`, `brn-ai`. Default features are empty;
+`native-retrieval` forwards to retrieval `native`. Config contains only the
+optional local model directory; no executable or credential-home field exists
+for the legacy workflow.
 
 ## Verification
 

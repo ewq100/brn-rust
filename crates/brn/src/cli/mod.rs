@@ -1,7 +1,7 @@
 //! Argument parsing, JSON envelope and dispatch types for the brn CLI.
 //!
 //! Long options only, `--key value` or `--key=value`; global options
-//! (`--data-dir`, `--json`, `--codex`, `--model-dir`, `--vault`,
+//! (`--data-dir`, `--json`, `--model-dir`, `--vault`,
 //! `--credentials-dir`, `--legacy`, `--help`, `--version`)
 //! may appear before or after the subcommand. All arguments are validated
 //! before any workspace is opened.
@@ -29,7 +29,6 @@ use uuid::Uuid;
 pub struct Invocation {
     pub json: bool,
     pub data_dir: PathBuf,
-    pub codex: Option<PathBuf>,
     pub model_dir: Option<PathBuf>,
     pub vault: Option<PathBuf>,
     pub credentials_dir: Option<PathBuf>,
@@ -190,7 +189,6 @@ Usage: brn COMMAND [OPTIONS] --data-dir ABSOLUTE_EXISTING_DIRECTORY
 Global options (accepted before or after the command):
   --data-dir DIR     Existing absolute workspace directory (required for commands)
   --json             Print exactly one JSON envelope object on stdout
-  --codex PATH       Absolute Codex executable path (does not imply authentication)
   --model-dir DIR    Absolute local model directory
   --vault DIR        First simple-app vault binding
   --credentials-dir DIR  Absolute safe credential directory (saved non-secret path)
@@ -277,7 +275,6 @@ pub fn parse(args: &[String]) -> Result<Outcome, ParseFailure> {
 struct Globals {
     json: bool,
     data_dir: Option<String>,
-    codex: Option<String>,
     model_dir: Option<String>,
     vault: Option<String>,
     credentials_dir: Option<String>,
@@ -310,7 +307,6 @@ fn take_value(tokens: Tokens<'_>, option: &str) -> Result<String, CliError> {
 fn set_global(g: &mut Globals, name: &str, value: String, token: &str) -> Result<(), CliError> {
     let slot = match name {
         "data-dir" => &mut g.data_dir,
-        "codex" => &mut g.codex,
         "vault" => &mut g.vault,
         "credentials-dir" => &mut g.credentials_dir,
         _ => &mut g.model_dir,
@@ -355,7 +351,7 @@ fn global_option(
             }
             *slot = true;
         }
-        "data-dir" | "codex" | "model-dir" | "vault" | "credentials-dir" => {
+        "data-dir" | "model-dir" | "vault" | "credentials-dir" => {
             let value = match inline {
                 Some(value) => value.to_string(),
                 None => take_value(tokens, token)?,
@@ -1112,12 +1108,10 @@ fn parse_inner(
             "--data-dir is not a directory: {raw_data_dir}"
         )));
     }
-    let codex = g.codex.take().map(PathBuf::from);
     let model_dir = g.model_dir.take().map(PathBuf::from);
     let vault = g.vault.take().map(PathBuf::from);
     let credentials_dir = g.credentials_dir.take().map(PathBuf::from);
     for (label, path) in [
-        ("--codex", &codex),
         ("--model-dir", &model_dir),
         ("--vault", &vault),
         ("--credentials-dir", &credentials_dir),
@@ -1165,13 +1159,9 @@ fn parse_inner(
             "simple-app options cannot be used with legacy-only commands",
         ));
     }
-    if (simple_only || vault.is_some() || credentials_dir.is_some()) && codex.is_some() {
-        return Err(usage("--codex cannot be used with simple-app actions"));
-    }
     Ok(Outcome::Run(Box::new(Invocation {
         json: g.json,
         data_dir,
-        codex,
         model_dir,
         vault,
         credentials_dir,
@@ -1266,8 +1256,6 @@ pub fn open_workspace(invocation: &Invocation) -> Result<brn_workflow::Workspace
     brn_workflow::Workspace::open(
         &invocation.data_dir,
         brn_workflow::Config {
-            codex: invocation.codex.clone(),
-            codex_home: None,
             model_dir: invocation.model_dir.clone(),
         },
     )

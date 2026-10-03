@@ -35,7 +35,14 @@
 | 5 | Writing (written after step 4) | Comments, review mode, Address comments, new-note proposals, CLI `comments`/`review`. | 3, 4 |
 | 6 | Cleanup (written after step 5) | Simple save path, removal of old import/approval/drafts/revisions/operation code and `brn-core`, documentation. | 5 |
 
-Steps 1 and 2 can run in parallel. Plans for steps 4–6 are written when their inputs exist, because they depend on the spike's confirmed Rig APIs and the store/vault interfaces from step 2. Steps 1–3 are implemented through `e24b104` with [evidence](evidence.md); local-model inference was skipped without assets. Step 4's plan is written, reviewed by Claude Opus 5.5 (high reasoning) and revised to reuse the completed Library/LocalEmbedder. Step 4 implementation and user acceptance remain pending.
+Steps 1–3 are implemented through `e24b104`; local-model inference was skipped
+without assets. Step 4 is implemented on `task-4-ai-chat`: Tasks 1–7 independently
+Opus-reviewed including fixes, Task 8 provider retirement/offline qualification
+awaiting controller review. Both consumers use AppWorker, and the production
+provider crate is removed. [Evidence](evidence.md) distinguishes historical
+checks from fresh integrated qualification. Whole-branch review, user/live/native
+acceptance and integration remain pending; Step 5 proposals/approval and Step 6
+simple Markdown Save/legacy cleanup are not implemented or authorized here.
 
 ## Execution notes
 

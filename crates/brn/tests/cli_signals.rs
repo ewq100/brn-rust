@@ -86,9 +86,8 @@ fn closed_stderr_keeps_completed_replay_and_one_stdout_envelope() {
 }
 
 #[test]
-fn retired_legacy_ask_never_spawns_an_app_server_even_with_configured_executable() {
+fn retired_executable_flag_is_unknown_before_opening_a_workspace() {
     let dir = support::data_dir();
-    drop(brn_workflow::Workspace::open(dir.path(), brn_workflow::Config::default()).unwrap());
     let output = Command::new(env!("CARGO_BIN_EXE_brn"))
         .args([
             "ask",
@@ -101,8 +100,13 @@ fn retired_legacy_ask_never_spawns_an_app_server_even_with_configured_executable
         .arg(dir.path())
         .output()
         .unwrap();
-    assert_eq!(output.status.code(), Some(1));
+    assert_eq!(output.status.code(), Some(2));
     let envelope: Value = serde_json::from_slice(&output.stdout).unwrap();
-    assert_eq!(envelope["error"]["code"], "LEGACY_AI_RETIRED");
+    assert_eq!(envelope["error"]["code"], "USAGE");
+    assert!(envelope["error"]["message"]
+        .as_str()
+        .unwrap()
+        .contains("unknown"));
+    assert!(!dir.path().join("workspace.sqlite3").exists());
     assert!(!dir.path().join("brn.sqlite").exists());
 }

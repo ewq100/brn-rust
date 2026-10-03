@@ -170,14 +170,17 @@ fn new_unknown_conversation_is_not_found_with_operation_context() {
 fn legacy_ask_is_retired_before_submission_and_profile_is_obsolete_before_open() {
     let fixture = Fixture::new();
     drop(brn_workflow::Workspace::open(&fixture.data, brn_workflow::Config::default()).unwrap());
-    for extra in [vec![], vec!["--codex", "/nonexistent"]] {
-        let mut args = vec!["ask", "q"];
-        args.extend(extra);
-        let (out, value) = run(&fixture.data, &args);
-        assert_eq!(out.status.code(), Some(1));
-        assert_eq!(value["error"]["code"], "LEGACY_AI_RETIRED");
-        assert!(!fixture.data.join("brn.sqlite").exists());
-    }
+    let (out, value) = run(&fixture.data, &["ask", "q"]);
+    assert_eq!(out.status.code(), Some(1));
+    assert_eq!(value["error"]["code"], "LEGACY_AI_RETIRED");
+    assert!(!fixture.data.join("brn.sqlite").exists());
+    let (out, value) = run(&fixture.data, &["ask", "q", "--codex", "/nonexistent"]);
+    assert_eq!(out.status.code(), Some(2));
+    assert_eq!(value["error"]["code"], "USAGE");
+    assert!(value["error"]["message"]
+        .as_str()
+        .unwrap()
+        .contains("unknown"));
     let (out, value) = run(&fixture.data, &["ask", "q", "--profile", "hybrid"]);
     assert_eq!(out.status.code(), Some(2));
     assert_eq!(value["error"]["code"], "USAGE");

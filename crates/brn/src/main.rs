@@ -214,7 +214,6 @@ mod tests {
         let invocation = cli::Invocation {
             json: true,
             data_dir: data.path().to_owned(),
-            codex: None,
             model_dir: None,
             vault: None,
             credentials_dir: None,

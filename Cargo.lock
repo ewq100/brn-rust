@@ -808,14 +808,6 @@ dependencies = [
 ]
 
 [[package]]
-name = "brn-provider"
-version = "0.1.0"
-dependencies = [
- "libc",
- "serde_json",
-]
-
-[[package]]
 name = "brn-retrieval"
 version = "0.1.0"
 dependencies = [
@@ -851,7 +843,6 @@ version = "0.1.0"
 dependencies = [
  "block2 0.6.2",
  "brn-ai",
- "brn-provider",
  "brn-retrieval",
  "brn-store",
  "futures",

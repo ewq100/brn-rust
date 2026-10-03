@@ -35,10 +35,26 @@ These constraints summarize the [approved baseline](decisions/2026-09-28-archite
 - Apply version/approval eligibility consistently across search profiles and revalidate evidence against authoritative state. An old index generation cannot grant current eligibility.
 - Managed-note eligibility requires a supported existing file at its reconciled location, no unresolved original save, and fresh exact filesystem/content identity matching the approved snapshot. Dirty buffers, artifacts, shadowed imports and unapproved copies cannot become current evidence. Revalidate at index publication, search return and provider submission/completion.
 - Changed content withdraws version-bound search permission; verified unchanged saves preserve it. Explicit reload/relink/accept-current reset permission even for equal bytes. Unavailability excludes a source without treating stored approval as live eligibility. Current surfaces expose exclusions, not old bytes as current; whole-index staleness remains possible.
-- Validate managed prior conversation evidence before resume. Streaming is provisional; mid-turn invalidation retains actual provider status/text as stale historical evidence. Stale replay never resubmits, and stale-context continuation requires a fresh conversation.
+- Legacy AI is retired: all retained Workspace ask entries return typed
+  LegacyAiRetired before storage/network mutation or callbacks, even for UUID
+  replay. Legacy history wire fields stay readable; never translate old thread
+  IDs into Rig resume requests.
+- Simple AppWorker refreshes before new Ask, validates current read evidence,
+  freezes provider/model and resolves UUID replay before vault/auth/selection
+  gates. Running never resubmits. Finished follows durable finalization;
+  PersistenceFailed is visibly unsaved in-memory partial text.
 - Publish only validated completed index generations. Missing requested native resources report unavailable; do not silently substitute keyword search.
-- Provider credentials and authoritative provider conversation history remain provider-owned. Do not inspect, copy or log credential caches or raw authentication payloads.
-- Supervise and reap only the app-owned sidecar. Preserve unknown/interrupted outcomes; transport loss is not proof of cancellation.
+- Simple credentials are protected owner-only files outside Git/data/vault.
+  AppConfig None honors the saved explicit location, then the exact
+  `<data-name>.credentials` sibling. Only Connect starts login; no fallback.
+  Device codes exist only on the transient login surface, never SQLite/logs.
+- AppWorker owns and joins chat/account/install/read leases before releasing
+  authority. Disconnect fences/cancels/joins only the target provider before
+  deleting its caches. No production sidecar exists. Transport loss/Stop never
+  establishes upstream cancellation or no billing.
+- Startup/model activation index only with both a loaded model and available
+  vault. Download needs fresh consent; saved approval never starts a request.
+  Default builds are explicitly keyword-only and refuse model installation.
 - Operation IDs bind payload identity. Conflicting reuse fails; uncertain external execution is not silently replayed or described as exactly once.
 
 ## Future publication contract

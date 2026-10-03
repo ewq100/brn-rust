@@ -1,9 +1,8 @@
 #![cfg(target_os = "macos")]
 
 use brn_store::Approval;
-use brn_store::{EvidenceCurrentness, OperationStatus};
 use brn_workflow::{Config, ErrorKind, Workspace};
-use brn_workflow::{ProviderOutcome, SearchProfile, SourceCurrentState, notes::*};
+use brn_workflow::{SearchProfile, SourceCurrentState, notes::*};
 use std::fs;
 use std::{path::Path, sync::atomic::AtomicBool};
 use uuid::Uuid;
@@ -16,17 +15,12 @@ struct Fixture {
     w: Workspace,
 }
 impl Fixture {
-    fn new(provider: bool) -> Self {
+    fn new() -> Self {
         let data = tempfile::tempdir().unwrap();
         let vault = tempfile::tempdir().unwrap();
         let path = vault.path().join("plan.md");
         fs::write(&path, "Aurora oldterm launches Tuesday.\r\n").unwrap();
-        let config = if provider {
-            fake(data.path())
-        } else {
-            Config::default()
-        };
-        let mut w = Workspace::open(data.path(), config).unwrap();
+        let mut w = Workspace::open(data.path(), Config::default()).unwrap();
         let note = w
             .open_note(Uuid::new_v4(), vault.path(), Path::new("plan.md"))
             .unwrap();
@@ -59,18 +53,11 @@ impl Fixture {
             text: text.into(),
         }
     }
-    fn calls(&self, method: &str) -> usize {
-        fs::read_to_string(self.data.path().join("calls.log"))
-            .unwrap_or_default()
-            .lines()
-            .filter(|line| *line == method)
-            .count()
-    }
 }
 
 #[test]
 fn approval_uses_saved_bytes_noop_preserves_permission_and_changed_save_requires_new_snapshot() {
-    let mut f = Fixture::new(false);
+    let mut f = Fixture::new();
     let old = f.hit();
     let request = f.request("Aurora oldterm launches Tuesday.\r\n", false);
     assert_eq!(
@@ -137,7 +124,7 @@ fn approval_uses_saved_bytes_noop_preserves_permission_and_changed_save_requires
 
 #[test]
 fn observed_external_change_withdraws_permission_durably_and_reapproval_is_explicit() {
-    let mut f = Fixture::new(false);
+    let mut f = Fixture::new();
     let hit = f.hit();
     fs::write(&f.path, "newterm external").unwrap();
     let changed = f.w.note(f.id).unwrap();
@@ -185,7 +172,7 @@ fn observed_external_change_withdraws_permission_durably_and_reapproval_is_expli
 
 #[test]
 fn missing_and_unavailable_notes_have_no_current_snapshot_bytes() {
-    let mut f = Fixture::new(false);
+    let mut f = Fixture::new();
     let hit = f.hit();
     fs::remove_file(&f.path).unwrap();
     let (docs, states) = f.w.source_projection().unwrap();
@@ -212,7 +199,7 @@ fn missing_and_unavailable_notes_have_no_current_snapshot_bytes() {
 
 #[test]
 fn permission_does_not_revive_when_bytes_revert_and_snapshot_replay_does_not_reapprove() {
-    let mut f = Fixture::new(false);
+    let mut f = Fixture::new();
     let view = f.w.note(f.id).unwrap();
     let op = Uuid::new_v4();
     let receipt =
@@ -249,7 +236,7 @@ fn permission_does_not_revive_when_bytes_revert_and_snapshot_replay_does_not_rea
 
 #[test]
 fn managed_path_import_is_an_explicit_snapshot_and_cannot_bypass_reconciliation() {
-    let mut f = Fixture::new(false);
+    let mut f = Fixture::new();
     let first = f.w.sources().unwrap()[0].clone();
     let imported =
         f.w.import_file(
@@ -292,7 +279,7 @@ fn managed_path_import_is_an_explicit_snapshot_and_cannot_bypass_reconciliation(
 
 #[test]
 fn shadowed_origin_cannot_be_reimported_independently_after_relink() {
-    let mut f = Fixture::new(false);
+    let mut f = Fixture::new();
     // Enroll an exact-path legacy import in a second note.
     let legacy_path = f._vault.path().join("legacy.md");
     fs::write(&legacy_path, "legacy oldterm").unwrap();
@@ -341,7 +328,7 @@ fn shadowed_origin_cannot_be_reimported_independently_after_relink() {
 
 #[test]
 fn managed_missing_import_fails_as_stale_instead_of_uncategorized_io() {
-    let mut f = Fixture::new(false);
+    let mut f = Fixture::new();
     fs::remove_file(&f.path).unwrap();
     assert_eq!(
         f.w.import_file(
@@ -358,7 +345,7 @@ fn managed_missing_import_fails_as_stale_instead_of_uncategorized_io() {
 
 #[test]
 fn relinked_identical_bytes_get_a_new_snapshot_identity_not_a_reassigned_version() {
-    let mut f = Fixture::new(false);
+    let mut f = Fixture::new();
     let old = f.hit();
     let view = f.w.note(f.id).unwrap();
     fs::write(f._vault.path().join("replacement.md"), view.saved.unwrap()).unwrap();
@@ -383,7 +370,7 @@ fn relinked_identical_bytes_get_a_new_snapshot_identity_not_a_reassigned_version
 
 #[test]
 fn unavailable_excluded_note_does_not_block_an_unrelated_legacy_index() {
-    let mut f = Fixture::new(false);
+    let mut f = Fixture::new();
     let snapshot = f.w.sources().unwrap()[0].clone();
     f.w.set_approval(
         &AtomicBool::new(false),
@@ -424,7 +411,7 @@ fn unavailable_excluded_note_does_not_block_an_unrelated_legacy_index() {
 
 #[test]
 fn owned_elsewhere_notes_are_explicit_and_have_no_current_bytes() {
-    let mut f = Fixture::new(false);
+    let mut f = Fixture::new();
     drop(f.w);
     let other_data = tempfile::tempdir().unwrap();
     let mut owner = Workspace::open(other_data.path(), Config::default()).unwrap();
@@ -446,7 +433,7 @@ fn owned_elsewhere_notes_are_explicit_and_have_no_current_bytes() {
 
 #[test]
 fn unresolved_original_save_suspends_eligibility_even_with_matching_disk_bytes() {
-    let mut f = Fixture::new(false);
+    let mut f = Fixture::new();
     let hit = f.hit();
     drop(f.w);
     let (mut store, _) = brn_store::Store::open(f.data.path()).unwrap();
@@ -503,7 +490,7 @@ fn unresolved_original_save_suspends_eligibility_even_with_matching_disk_bytes()
 
 #[test]
 fn changes_during_index_build_prevent_publication_of_an_old_corpus() {
-    let mut f = Fixture::new(false);
+    let mut f = Fixture::new();
     let prior = fs::read(f.data.path().join("active-index.json")).unwrap();
     let failure =
         f.w.build_index(&AtomicBool::new(false), |_| {
@@ -521,353 +508,6 @@ fn changes_during_index_build_prevent_publication_of_an_old_corpus() {
             .kind,
         ErrorKind::IndexStale
     );
-}
-
-fn fake(dir: &Path) -> Config {
-    use std::os::unix::fs::PermissionsExt;
-    let exe = dir.join("fake");
-    fs::write(&exe,r#"#!/usr/bin/env python3
-import json,sys,os,sqlite3
-if '--version' in sys.argv:
- print('codex-cli 0.155.0-alpha.16.4');sys.exit(0)
-def send(x):print(json.dumps(x),flush=True)
-for line in sys.stdin:
- q=json.loads(line);m=q.get('method');rid=q.get('id')
- with open('../calls.log','a') as f:f.write(str(m)+'\n')
- if m=='initialize':send({'id':rid,'result':{'userAgent':'codex/0.155.0-alpha.16.4','codexHome':os.environ['CODEX_HOME'],'platformFamily':'unix','platformOs':'macos'}})
- elif m=='account/read':send({'id':rid,'result':{'account':{'type':'chatgpt'},'workspaceRouting':{'chatgptAccountId':'synthetic-account'}}})
- elif m in ['thread/start','thread/resume']:
-  marker='../change-on-thread'
-  if os.path.exists(marker):
-   with open(marker) as f:path=f.read()
-   with open(path,'w') as f:f.write('external newterm')
-  tid=q.get('params',{}).get('threadId','thr_synthetic')
-  send({'id':rid,'result':{'thread':{'id':tid,'sessionId':tid}}})
- elif m=='turn/start':
-  tid=q['params']['threadId']
-  if os.path.exists('../fail-commit'):
-   db=sqlite3.connect('../brn.sqlite3')
-   db.execute("CREATE TRIGGER fail_completion BEFORE UPDATE OF answer ON chat_turns BEGIN SELECT RAISE(ABORT,'synthetic completion failure'); END")
-   db.commit();db.close()
-  send({'id':rid,'result':{'turn':{'id':'turn_synthetic'}}})
-  send({'method':'item/agentMessage/delta','params':{'threadId':tid,'turnId':'turn_synthetic','delta':'Aurora launches Tuesday [1].'}})
-  send({'method':'turn/completed','params':{'threadId':tid,'turn':{'id':'turn_synthetic','status':'completed'}}})
-"#).unwrap();
-    fs::set_permissions(&exe, fs::Permissions::from_mode(0o700)).unwrap();
-    Config {
-        codex: Some(exe),
-        codex_home: Some(dir.join("synthetic-home")),
-        model_dir: None,
-    }
-}
-
-#[test]
-fn provider_handoff_revalidates_after_search_and_after_thread_creation() {
-    for after_thread in [false, true] {
-        let mut f = Fixture::new(true);
-        f.hit();
-        if after_thread {
-            fs::write(
-                f.data.path().join("change-on-thread"),
-                f.path.to_str().unwrap(),
-            )
-            .unwrap();
-        }
-        let failure =
-            f.w.ask_full(
-                Uuid::new_v4(),
-                None,
-                "oldterm",
-                SearchProfile::Keyword,
-                &AtomicBool::new(false),
-                || {
-                    if !after_thread {
-                        fs::write(&f.path, "external newterm").unwrap();
-                    }
-                    Ok(())
-                },
-                |_| {},
-            )
-            .unwrap_err();
-        assert_eq!(failure.kind, ErrorKind::EvidenceStale);
-        assert_eq!(failure.recorded_status, None);
-        assert_eq!(failure.provider_outcome, ProviderOutcome::Unknown);
-        assert_eq!(f.calls("turn/start"), 0);
-        assert_eq!(f.calls("initialize"), usize::from(after_thread));
-    }
-}
-
-#[test]
-fn stale_completion_is_preserved_and_replayed_without_provider_access() {
-    let mut f = Fixture::new(true);
-    f.hit();
-    let op = Uuid::new_v4();
-    let failure =
-        f.w.ask_detailed(
-            op,
-            None,
-            "oldterm",
-            SearchProfile::Keyword,
-            &AtomicBool::new(false),
-            |_| {
-                fs::write(&f.path, "external newterm").unwrap();
-            },
-        )
-        .unwrap_err();
-    assert_eq!(failure.kind, ErrorKind::EvidenceStale);
-    assert_eq!(failure.recorded_status, Some(OperationStatus::Completed));
-    assert_eq!(
-        failure.provider_outcome,
-        ProviderOutcome::Confirmed(OperationStatus::Completed)
-    );
-    let turn = *failure.receipt.unwrap();
-    assert_eq!(
-        turn.evidence_currentness,
-        EvidenceCurrentness::StaleAtCompletion
-    );
-    assert_eq!(turn.answer.as_deref(), Some("Aurora launches Tuesday [1]."));
-    let session = turn.session_id;
-    assert_eq!(f.w.history(session).unwrap(), vec![turn.clone()]);
-    drop(f.w);
-    f.w = Workspace::open(f.data.path(), Config::default()).unwrap();
-    let replay =
-        f.w.ask_detailed(
-            op,
-            Some(session),
-            "oldterm",
-            SearchProfile::Keyword,
-            &AtomicBool::new(false),
-            |_| panic!("replayed"),
-        )
-        .unwrap_err();
-    assert_eq!(replay.kind, ErrorKind::EvidenceStale);
-    assert_eq!(replay.receipt, Some(Box::new(turn)));
-    assert_eq!(replay.recorded_status, Some(OperationStatus::Completed));
-    assert_eq!(
-        replay.provider_outcome,
-        ProviderOutcome::Confirmed(OperationStatus::Completed)
-    );
-    assert_eq!(f.calls("turn/start"), 1);
-    assert_eq!(
-        f.w.ask_detailed(
-            Uuid::new_v4(),
-            Some(session),
-            "oldterm",
-            SearchProfile::Keyword,
-            &AtomicBool::new(false),
-            |_| {}
-        )
-        .unwrap_err()
-        .kind,
-        ErrorKind::ContextStale
-    );
-    assert_eq!(f.calls("thread/resume"), 0);
-}
-
-#[test]
-fn completed_receipt_becomes_stale_and_current_mode_resume_is_refused_before_authentication() {
-    let mut f = Fixture::new(true);
-    let op = Uuid::new_v4();
-    let turn =
-        f.w.ask_detailed(
-            op,
-            None,
-            "oldterm",
-            SearchProfile::Keyword,
-            &AtomicBool::new(false),
-            |_| {},
-        )
-        .unwrap();
-    assert_eq!(
-        turn.evidence_currentness,
-        EvidenceCurrentness::CurrentAtCompletion
-    );
-    fs::write(&f.path, "external newterm").unwrap();
-    let replay =
-        f.w.ask_detailed(
-            op,
-            Some(turn.session_id),
-            "oldterm",
-            SearchProfile::Keyword,
-            &AtomicBool::new(false),
-            |_| panic!("replayed"),
-        )
-        .unwrap_err();
-    assert_eq!(replay.kind, ErrorKind::EvidenceStale);
-    assert_eq!(replay.receipt, Some(Box::new(turn.clone())));
-    let failure =
-        f.w.ask_detailed(
-            Uuid::new_v4(),
-            Some(turn.session_id),
-            "oldterm",
-            SearchProfile::Keyword,
-            &AtomicBool::new(false),
-            |_| {},
-        )
-        .unwrap_err();
-    assert_eq!(failure.kind, ErrorKind::ContextStale);
-    assert_eq!(f.calls("initialize"), 1);
-    assert_eq!(f.calls("thread/resume"), 0);
-    assert_eq!(f.calls("turn/start"), 1);
-}
-
-#[test]
-fn change_during_thread_resume_is_rejected_before_turn_submission() {
-    let mut f = Fixture::new(true);
-    let turn =
-        f.w.ask_detailed(
-            Uuid::new_v4(),
-            None,
-            "oldterm",
-            SearchProfile::Keyword,
-            &AtomicBool::new(false),
-            |_| {},
-        )
-        .unwrap();
-    fs::write(
-        f.data.path().join("change-on-thread"),
-        f.path.to_str().unwrap(),
-    )
-    .unwrap();
-    let failure =
-        f.w.ask_detailed(
-            Uuid::new_v4(),
-            Some(turn.session_id),
-            "oldterm",
-            SearchProfile::Keyword,
-            &AtomicBool::new(false),
-            |_| {},
-        )
-        .unwrap_err();
-    assert_eq!(failure.kind, ErrorKind::ContextStale);
-    assert_eq!(failure.recorded_status, None);
-    assert_eq!(f.calls("thread/resume"), 1);
-    assert_eq!(f.calls("turn/start"), 1);
-}
-
-#[test]
-fn prior_managed_context_is_revalidated_at_completion_even_when_selected_hit_is_legacy() {
-    let mut f = Fixture::new(true);
-    let prior =
-        f.w.ask_detailed(
-            Uuid::new_v4(),
-            None,
-            "oldterm",
-            SearchProfile::Keyword,
-            &AtomicBool::new(false),
-            |_| {},
-        )
-        .unwrap();
-    let legacy = f.data.path().join("legacy.txt");
-    fs::write(&legacy, "legacy uniqueterm").unwrap();
-    f.w.import_file(
-        &AtomicBool::new(false),
-        Uuid::new_v4(),
-        &legacy,
-        Approval::Approved,
-    )
-    .unwrap();
-    f.w.build_index(&AtomicBool::new(false), |_| {}).unwrap();
-    let failure =
-        f.w.ask_detailed(
-            Uuid::new_v4(),
-            Some(prior.session_id),
-            "uniqueterm",
-            SearchProfile::Keyword,
-            &AtomicBool::new(false),
-            |_| {
-                fs::write(&f.path, "current changed note").unwrap();
-            },
-        )
-        .unwrap_err();
-    assert_eq!(failure.kind, ErrorKind::EvidenceStale);
-    assert_eq!(failure.recorded_status, Some(OperationStatus::Completed));
-    assert_eq!(
-        failure.provider_outcome,
-        ProviderOutcome::Confirmed(OperationStatus::Completed)
-    );
-    let receipt = failure.receipt.unwrap();
-    assert_eq!(
-        receipt.evidence_currentness,
-        EvidenceCurrentness::StaleAtCompletion
-    );
-    assert!(!receipt.evidence_json.contains("oldterm"));
-    assert_eq!(f.calls("turn/start"), 2);
-}
-
-#[test]
-fn unqualified_unrelated_legacy_context_does_not_invalidate_a_session() {
-    let mut f = Fixture::new(true);
-    let legacy = f.data.path().join("legacy.txt");
-    fs::write(&legacy, "legacy uniqueterm").unwrap();
-    f.w.import_file(
-        &AtomicBool::new(false),
-        Uuid::new_v4(),
-        &legacy,
-        Approval::Approved,
-    )
-    .unwrap();
-    f.w.build_index(&AtomicBool::new(false), |_| {}).unwrap();
-    let prior =
-        f.w.ask_detailed(
-            Uuid::new_v4(),
-            None,
-            "uniqueterm",
-            SearchProfile::Keyword,
-            &AtomicBool::new(false),
-            |_| {},
-        )
-        .unwrap();
-    drop(f.w);
-    let status = std::process::Command::new("python3").args(["-c","import sqlite3,sys; db=sqlite3.connect(sys.argv[1]); db.execute(\"UPDATE chat_turns SET evidence_currentness='unqualified'\"); db.commit()"]).arg(f.data.path().join("brn.sqlite3")).status().unwrap();
-    assert!(status.success());
-    fs::write(&f.path, "current changed note").unwrap();
-    f.w = Workspace::open(f.data.path(), fake(f.data.path())).unwrap();
-    assert_eq!(
-        f.w.history(prior.session_id).unwrap()[0].evidence_currentness,
-        EvidenceCurrentness::Unqualified
-    );
-    f.w.build_index(&AtomicBool::new(false), |_| {}).unwrap();
-    let resumed =
-        f.w.ask_detailed(
-            Uuid::new_v4(),
-            Some(prior.session_id),
-            "uniqueterm",
-            SearchProfile::Keyword,
-            &AtomicBool::new(false),
-            |_| {},
-        )
-        .unwrap();
-    assert_eq!(resumed.status, OperationStatus::Completed);
-    assert_eq!(f.calls("thread/resume"), 1);
-    assert_eq!(f.calls("turn/start"), 2);
-}
-
-#[test]
-fn completion_commit_failure_keeps_confirmed_provider_outcome_without_inventing_recorded_status() {
-    let mut f = Fixture::new(true);
-    fs::write(f.data.path().join("fail-commit"), "").unwrap();
-    let failure =
-        f.w.ask_detailed(
-            Uuid::new_v4(),
-            None,
-            "oldterm",
-            SearchProfile::Keyword,
-            &AtomicBool::new(false),
-            |_| {},
-        )
-        .unwrap_err();
-    assert_eq!(failure.kind, ErrorKind::Other);
-    assert!(failure.message.contains("synthetic completion failure"));
-    assert_eq!(failure.recorded_status, None);
-    assert_eq!(
-        failure.provider_outcome,
-        ProviderOutcome::Confirmed(OperationStatus::Completed)
-    );
-    let history = f.w.history(failure.session_id.unwrap()).unwrap();
-    assert_eq!(history[0].status, OperationStatus::Running);
-    assert_eq!(history[0].answer, None);
-    assert_eq!(f.calls("turn/start"), 1);
 }
 
 #[test]

@@ -38,7 +38,6 @@ fn parse(arguments: impl IntoIterator<Item = String>) -> Result<Option<Options>,
     let mut args = arguments.into_iter();
     let mut data_dir = None;
     let mut check = None;
-    let mut codex = None;
     let mut model_dir = None;
     let mut legacy = false;
     let mut vault = None;
@@ -49,7 +48,6 @@ fn parse(arguments: impl IntoIterator<Item = String>) -> Result<Option<Options>,
                     && check.is_none()
                     && !legacy
                     && vault.is_none()
-                    && codex.is_none()
                     && model_dir.is_none()
                     && args.next().is_none() =>
             {
@@ -67,12 +65,6 @@ fn parse(arguments: impl IntoIterator<Item = String>) -> Result<Option<Options>,
                     args.next()
                         .ok_or("--headless-check needs completion, cancellation, or stale")?,
                 )
-            }
-            "--codex" if codex.is_none() => {
-                codex = Some(PathBuf::from(
-                    args.next()
-                        .ok_or("--codex needs an absolute executable path")?,
-                ))
             }
             "--model-dir" if model_dir.is_none() => {
                 model_dir = Some(PathBuf::from(
@@ -96,11 +88,6 @@ fn parse(arguments: impl IntoIterator<Item = String>) -> Result<Option<Options>,
     }
     if legacy && vault.is_some() {
         return Err("--legacy and --vault are incompatible".into());
-    }
-    if codex.is_some() {
-        return Err(
-            "legacy AI retired; --codex cannot configure executable/provider controls".into(),
-        );
     }
     if vault.as_ref().is_some_and(|path| !path.is_absolute()) {
         return Err("--vault must be absolute".into());
@@ -127,9 +114,6 @@ fn parse(arguments: impl IntoIterator<Item = String>) -> Result<Option<Options>,
         && !["completion", "cancellation", "stale"].contains(&check.as_str())
     {
         return Err(format!("unknown headless check: {check}"));
-    }
-    if codex.as_ref().is_some_and(|path| !path.is_absolute()) {
-        return Err("--codex must be absolute".into());
     }
     if model_dir.as_ref().is_some_and(|path| !path.is_absolute()) {
         return Err("--model-dir must be absolute".into());
@@ -273,9 +257,7 @@ fn run() -> Result<(), String> {
         native::run(
             path,
             brn_workflow::Config {
-                codex: None,
                 model_dir: options.model_dir,
-                codex_home: None,
             },
             mode,
             options.vault,

@@ -10,7 +10,9 @@ cargo run -p brn -- --help
 cargo run -p brn-workflow --bin brn-flow -- --help
 ```
 
-The workspace's default member is the `brn` CLI crate. Use `--workspace` for workspace verification. The verification scripts use `--offline`, so dependencies must already be cached; an offline cache miss is a setup problem, not a product test failure. Scripts also expect Bash and standard Unix utilities; end-to-end verification uses Python 3 and ripgrep.
+The workspace's default member is the `brn` CLI crate. Use `--workspace` for workspace verification. The verification scripts use `--offline`, so dependencies must already be cached; an offline cache miss is a setup problem, not a product test failure. Scripts also expect Bash and standard Unix utilities; end-to-end verification uses Python 3, not ripgrep.
+Set TMPDIR to an existing explicitly disposable synthetic fixture parent
+outside Git before running it; credential-path safety must remain enforced.
 
 Set `CARGO_TARGET_DIR` to an absolute path if sharing a build cache. Native graphs are large; check disk capacity before native builds. Do not delete another task's build artifacts or data to make room without coordinating.
 

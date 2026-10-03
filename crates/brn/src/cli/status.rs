@@ -26,7 +26,6 @@ pub fn run(invocation: &Invocation, workspace: &Workspace) -> Result<Output, Cli
         },
         "capabilities": {
             "native_retrieval": native,
-            "codex_configured": invocation.codex.is_some(),
         },
     });
     let mut text = format!(
@@ -46,9 +45,6 @@ pub fn run(invocation: &Invocation, workspace: &Workspace) -> Result<Output, Cli
     if let Some(index_error) = &st.index_error {
         text.push_str(&format!("active_index_error: {index_error}\n"));
     }
-    text.push_str(&format!(
-        "native_retrieval: {native}\ncodex_configured: {}\n",
-        invocation.codex.is_some(),
-    ));
+    text.push_str(&format!("native_retrieval: {native}\n"));
     Ok(Output { text, data })
 }

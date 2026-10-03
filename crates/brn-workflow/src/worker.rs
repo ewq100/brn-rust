@@ -379,7 +379,6 @@ struct Job {
 #[derive(Default)]
 struct PhaseState {
     closing: bool,
-    provider_active: bool,
     critical_note_admitted: bool,
 }
 
@@ -482,7 +481,6 @@ impl Worker {
                     job.action,
                     &cancel_worker,
                     &shared_worker,
-                    &phase_worker,
                     &mut note_failure,
                 );
                 #[cfg(test)]
@@ -604,15 +602,14 @@ impl Worker {
         let must_join = {
             let mut phase = self.phase.lock().unwrap();
             phase.closing = true;
-            phase.provider_active || phase.critical_note_admitted
+            phase.critical_note_admitted
         };
         self.closing.store(true, Ordering::Release);
         self.cancel_flag.store(true, Ordering::Release);
         self.sender.take();
         if let Some(thread) = self.thread.take() {
             if must_join {
-                // Join the provider's cancellation/reap path or an admitted note
-                // mutation's durable completion before this desktop process exits.
+                // Join admitted note mutations before this desktop process exits.
                 let _ = thread.join();
             } else {
                 // Native model loading is not yet interruptible. Keep Workspace owned
@@ -668,10 +665,9 @@ fn execute(
     action: Action,
     cancel: &AtomicBool,
     shared: &Mutex<Shared>,
-    phase: &Mutex<PhaseState>,
     note_failure: &mut Option<NoteFailure>,
 ) -> Result<Outcome, String> {
-    run_action(workspace, action, cancel, shared, phase, note_failure).map_err(String::from)
+    run_action(workspace, action, cancel, shared, note_failure).map_err(String::from)
 }
 
 fn note_result<T>(result: NoteResult<T>, detail: &mut Option<NoteFailure>) -> crate::Result<T> {
@@ -698,7 +694,6 @@ fn run_action(
     action: Action,
     cancel: &AtomicBool,
     shared: &Mutex<Shared>,
-    phase: &Mutex<PhaseState>,
     note_failure: &mut Option<NoteFailure>,
 ) -> crate::Result<Outcome> {
     match action {
@@ -857,21 +852,13 @@ fn run_action(
                 &query,
                 profile,
                 cancel,
-                || {
-                    let mut state = phase.lock().unwrap();
-                    if state.closing {
-                        return Err("workspace is closing".into());
-                    }
-                    state.provider_active = true;
-                    Ok(())
-                },
+                || Ok(()),
                 |delta| {
                     let mut state = shared.lock().unwrap();
                     state.streamed_text.push_str(delta);
                     state.touch();
                 },
             );
-            phase.lock().unwrap().provider_active = false;
             let turn = turn_result?;
             let sessions = workspace.sessions()?;
             let history = workspace.history(turn.session_id)?;

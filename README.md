@@ -1,6 +1,10 @@
 # BRN Rust desktop
 
-BRN is a local-first personal desktop trial for importing Markdown/text, retrieving attributable passages, asking grounded questions, drafting and reviewing immutable revisions and anchored comments. It targets macOS on Apple Silicon, with a shared workflow used by the native app and headless driver.
+BRN is a local-first macOS notes trial: saved Markdown reads/search and explicit
+Rig ChatGPT/Copilot chat, with a shared AppWorker for native and CLI consumers.
+Legacy local editing, recovery, drafts, comments and history remain supported
+in separate legacy data folders. Production App Server has been removed.
+Simple proposal/approval tools and Markdown Save remain future Steps 5/6.
 
 Start with [current status](docs/status.md) for implemented capabilities and qualification gaps. Agents should read [AGENTS.md](AGENTS.md); the [documentation index](docs/README.md) routes setup, architecture, testing and task history.
 
@@ -17,7 +21,14 @@ cargo run -p brn-workflow --bin brn-flow -- --help
 bash scripts/verify-end-to-end.sh
 ```
 
-`brn` is the agent-facing CLI over the shared workflow; see its [command reference](crates/brn/README.md) for subcommands and the `--json` envelope. `brn-flow` is the integrated headless driver. The verification script uses cached dependencies, synthetic data and no live provider or model assets. See [setup](docs/development/setup.md) for prerequisites and [verification](docs/development/verification.md) for feature-specific checks.
+Set `TMPDIR` to an explicit existing disposable synthetic fixture parent outside
+Git before verification (credential safety refuses repository-local paths).
+`brn` is the shared-workflow CLI; see its [reference](crates/brn/README.md).
+`brn-flow` retains legacy local search/history only. The integrated script uses
+cached dependencies, separate simple-vault and legacy-local fixtures, no accounts
+or model assets. `--fixtures-only` avoids repeating a completed workspace gate;
+`--retirement-only` checks production references without builds.
+See [verification](docs/development/verification.md) for native-specific checks.
 
 ## Native personal trial
 

@@ -11,7 +11,8 @@ The default/headless build is keyword-only. Build the full CLI with
 shared workflow's native model support, not automatic model downloading.
 Simple read/search/history and explicit subscription actions use the owned
 AppWorker. Legacy local editing and history remain available; legacy `brn ask`
-submission is retired. Desktop cutover and provider deletion are separate tasks.
+submission is retired. Both consumers now use AppWorker for simple work; the
+old production provider crate/configuration has been removed.
 
 ## Commands
 
@@ -60,7 +61,10 @@ submission is retired. Desktop cutover and provider deletion are separate tasks.
 
 ## Global options
 
-Accepted before or after the command: `--data-dir DIR` (required for commands; must be an existing absolute directory), `--json`, `--codex PATH` (absolute, does not imply authentication), `--model-dir DIR` (absolute), `--help`, `--version`.
+Accepted before or after the command: `--data-dir DIR` (required for commands;
+must be an existing absolute directory), `--json`, `--model-dir DIR` (absolute),
+`--help`, `--version`. The old `--codex` option is unknown (usage 2), not accepted
+then ignored. Legacy status no longer reports `codex_configured`.
 
 Simple commands also accept `--vault DIR` for first binding and
 `--credentials-dir DIR` for an explicit credential location. Both are absolute;
@@ -69,8 +73,8 @@ Git, data and vault directories. The exact default is the sibling
 `<data-directory-name>.credentials`, not an environment/Rig account lookup.
 The owning workflow persists the non-secret location and honors it on reopening.
 `--legacy` explicitly selects legacy authority for empty shared commands;
-it conflicts with simple options/actions. `--codex` cannot accompany simple
-options/actions and never authorizes legacy `brn ask`.
+it conflicts with simple options/actions. Legacy `brn ask` always refuses;
+old thread identifiers remain local history, never Rig resume inputs.
 
 ### Authority dispatch
 

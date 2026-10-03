@@ -3,8 +3,23 @@ set -euo pipefail
 
 root="$(cd "$(dirname "$0")/.." && pwd)"
 scratch="$root/target/brn-app-test-$$"
-mkdir -p "$scratch"
-trap 'rm -rf "$scratch"' EXIT
+mkdir -p "$root/target"
+mkdir "$scratch"
+cleanup() {
+  python3 - "$scratch" <<'PY'
+from pathlib import Path
+import sys
+root = Path(sys.argv[1])
+assert root.name.startswith("brn-app-test-") and root.parent.name == "target"
+for path in sorted(root.rglob("*"), key=lambda p: len(p.parts), reverse=True):
+    if path.is_symlink() or not path.is_dir():
+        path.unlink()
+    else:
+        path.rmdir()
+root.rmdir()
+PY
+}
+trap cleanup EXIT
 
 binary="$scratch/stub ' % \` \$(touch injected) ü"
 data_dir="$scratch/workspace ' % \` \$(touch injected) ü"

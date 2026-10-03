@@ -50,7 +50,8 @@ Downloaded is not Installed; activation/indexing errors end progress honestly.
 opening. Empty directories default to simple unless `--legacy` is supplied.
 `--legacy`/`--vault` conflicts refuse before database work. Legacy retains local
 editing/recovery/history and its note guards, but AI and executable controls are
-retired. `--codex` is rejected. No App is opened in a legacy folder.
+retired. `--codex` is unknown, not accepted configuration. The legacy Config
+contains only a local model directory. No App is opened in a legacy folder.
 
 ## Interfaces and source
 
@@ -98,7 +99,7 @@ availability and typed failure details.
 
 Recovery is scheduled after **500 ms** without an edit and coalesces to the
 latest text. This is not a durability deadline: the single worker can be busy
-with provider/model work. Only an acknowledged commit establishes recoverability.
+with local model/index work. Only an acknowledged commit establishes recoverability.
 Window close, the application Quit action/menu/Cmd-Q and note-switch/actions
 defer for pending note mutations and flush the latest buffer asynchronously.
 Failed recovery keeps work accessible until explicit retry or confirmed discard
