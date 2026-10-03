@@ -6,6 +6,7 @@ Start with [AGENTS.md](../AGENTS.md), then [current status](status.md). Read onl
 | --- | --- |
 | Understand the product or run it | [Root README](../README.md), [setup](development/setup.md) |
 | Understand desired product behavior | [Product vision](product/BRN_PRODUCT_VISION.md): requirements and future capabilities, not a claim that all are implemented |
+| Review the proposed product architecture | [Opus audit](audits/BRN_PRODUCT_ARCHITECTURE_AUDIT.md), [independent review](audits/BRN_PRODUCT_ARCHITECTURE_REVIEW.md): advisory findings and freeze recommendations, not implementation authorization |
 | Operate a workspace headlessly as an agent | [brn CLI](../crates/brn/README.md): what `brn` is, how to run it, `--json` envelopes and the command reference; it shares the application workflow, it does not bypass it |
 | Find implemented work and open gaps | [Status](status.md) |
 | Choose future work | [Roadmap](roadmap.md) |
