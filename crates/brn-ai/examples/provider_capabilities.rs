@@ -115,6 +115,7 @@ async fn main() -> ExitCode {
                 read_tool_calls: 0,
                 web_search_observed: false,
                 citations: Vec::new(),
+                failure: None,
             },
         }
     });

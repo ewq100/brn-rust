@@ -19,7 +19,7 @@ Record transport's separate safe HTTP/2 ProtocolNacks policy instead of claiming
 synthetic mocks establish zero wire retries. Validate malformed/partial responses,
 compile/test/Clippy, independent read-only review and reproducible probe commands.
 
-Live acceptance (permission pending): fresh task credential directory, explicit
+Live acceptance (separate scope authorized below): fresh task credential directory, explicit
 provider/models, bounded short synthetic probes: low/high effort + read tool and
 one image per route; native web on Responses routes with observed hosted call and
 verifiable source citation. Maximum eleven logical probes; account/model discovery
@@ -102,40 +102,79 @@ Commands: `cargo test -p brn-ai --features capability-spike --all-targets --lock
 `cargo clippy -p brn-ai --features capability-spike --all-targets --locked --offline -- -D warnings`;
 `cargo fmt --all -- --check`.
 
-Offline preparation is locally integrated at `7e63041`.
-Stage 3 remains active: no actual capability, account, server cancellation or wire
-retry qualification is claimed. Existing native acceptance/real inference and
-later v1 stages remain pending. Next action is the scoped owner live permission
-and human sign-in above; no release/public distribution or paid API is included.
+Offline preparation is locally integrated at `7e63041`. The following live
+qualification used `main@0b0c8e77e2da53a71c7c2b700269ef6b4a66e346`, followed
+by the bounded diagnostic/error-mapping delta described below.
 
-## Authorized live handoff — 2026-10-03
+## Authorized live results — 2026-10-03
 
-The owner answered Yes to the complete bounded live scope above. That permission
-persists; no routine live reauthorization is needed within its limits. Offline
-preparation is integrated at `7e6304171e83dce2b43ef1d0e1859add52cf1820`.
+The owner answered Yes to the complete bounded scope above and completed both
+sign-ins in a regular browser. The first Copilot attempt had timed out at 600
+seconds after its embedded-browser authorization control remained disabled;
+the new Copilot and ChatGPT connections succeeded. Device codes, account names
+and credentials are deliberately absent from this record.
 
-A fresh synthetic task folder was created outside Git at
-`/private/tmp/brn-provider-qualification.yw2v91wv`, with explicit `data`, `vault`
-and protected `credentials` paths. Copilot Connect used actual Rig device login.
-GitHub reached the authorization confirmation, but Authorize stayed disabled in
-the embedded browser; Chrome automation was unavailable. The 600-second CLI
-deadline returned 124 after local cancellation/join. Upstream cancellation is
-unconfirmed. No successful authentication or model capability is established;
-**0 of 11 logical probes / 0 of 22 completion requests** have been used. No
-original credentials/data, model downloads, purchase or release action occurred.
+All live data used the fresh synthetic task folder
+`/private/tmp/brn-provider-qualification.yw2v91wv`, with explicit data, vault and
+protected credential paths. Copilot discovery returned both requested models;
+ChatGPT returned its maintained `gpt-5.5` option. No original credentials/vault,
+model download, purchase, durable knowledge write or release occurred.
 
-Resume with a new explicit Copilot Connect and human authorization in the owner's
-regular browser, then discover the authorized models and run the bounded probes.
-The closed attempt's device code is deliberately absent from this record. ChatGPT Connect
-and its four probes remain within the same granted scope. Commands from the repo:
+| Exact selection / pinned route | Low/high and read tool | Fixed PNG | Hosted web and sources |
+| --- | --- | --- | --- |
+| ChatGPT `gpt-5.5` / Responses | Both completed; one read each; exact `orchard-827` | Correct upper red/lower blue | Completed hosted search observed; correct official release/version/date and source URLs; native annotations absent |
+| Copilot `gpt-5.3-codex` / Responses | Both completed; one read each; exact `orchard-827` | Request completed, but answer reversed the colors; accuracy unqualified | Completed hosted search observed; correct official release/version/date and source URLs; native annotations absent |
+| Copilot `gpt-5.5` / Chat Completions | Low failed `Other`; high established HTTP 400 `unsupported_api_for_model` | Skipped after explicit route refusal | No native web seam in pinned Chat route; not invoked |
 
-```sh
-target/debug/brn ai connect copilot --data-dir /private/tmp/brn-provider-qualification.yw2v91wv/data --credentials-dir /private/tmp/brn-provider-qualification.yw2v91wv/credentials --timeout-seconds 600
-target/debug/brn ai models copilot --data-dir /private/tmp/brn-provider-qualification.yw2v91wv/data --credentials-dir /private/tmp/brn-provider-qualification.yw2v91wv/credentials
-```
+Both web answers identified SQLite **3.53.4, 2026-07-24**, independently checked
+against the [official release chronology](https://sqlite.org/chronology.html).
+Returned official URLs included `https://sqlite.org/`,
+`https://sqlite.org/chronology.html` and `https://www.sqlite.org/changes.html`.
+Native citation metadata is **unqualified**: neither live report contained
+annotations, although actual parser/serializer fixtures qualify their projection
+when present. The single Codex image answer does not establish reliable vision.
+These are narrow observations, not general model-quality or account guarantees.
 
-Use the new transient CLI device code at `https://github.com/login/device`.
-Sign-in must complete before model discovery/probes. If temporary folders have
-been removed, create a fresh owned parent/data folder rather than using original
-credentials. Stage 4 inspection identified reusable proof/worker interfaces and
-missing proposal behavior; no Stage 4 implementation or completion is claimed.
+**10 of 11 logical probes ran, with 14 completion attempts**: two per successful
+read-tool probe and one for each other invocation. Authentication/discovery are
+separate. There was no application retry or selection/route fallback. Exact wire
+send counts and upstream cancellation remain unobserved. The remaining image
+probe was skipped under the agreed stop-on-model-refusal rule; there are no more
+planned live calls. A new probe round or different Copilot route needs a new
+live scope, not reuse of this record as standing account authorization.
+
+The high-effort rejection was investigated with a probe-only diagnostic:
+fixed error class, numeric HTTP status and exact allowlisted rejection category.
+Bounded transient JSON parsing discards bodies, unknown codes, messages, headers
+and identifiers. Production safe error mapping now recognizes the demonstrated
+`unsupported_api_for_model` code as `ModelRefused`, explaining that the selected
+provider route cannot support the model. It does not change route/model or retry.
+All three actual Rig routes regression-check this failure without raw retention.
+The earlier low failure's specific cause was not retained and remains unknown.
+
+Final independent read-only review found no actionable defects in the diagnostic
+or production error-mapping delta. Fresh pinned Rust 1.98.1 locked/offline checks
+on macOS arm64 after the final code change:
+
+- Workspace tests: **404 passed, 0 failed, 1 ignored** private crash entry point
+  exercised by subprocess recovery checks.
+- Feature AI all-target tests: **68 library + 1 example passed**, no failures.
+- Default workspace build/all-target Clippy with warnings denied and format
+  passed. Feature example build and all-target Clippy passed.
+- Documentation links/fragments and `git diff --check` passed.
+
+Commands are the same offline commands listed above, with workspace tests run
+without a TMPDIR override. Native code is unchanged; prior native evidence remains
+applicable within its recorded limits. The
+spike establishes enough current route evidence to proceed to Proposal Core;
+unsupported/unqualified capabilities remain explicit downstream constraints.
+It does not enable effort/image/web inputs in ordinary chat, assert native UI
+acceptance, qualify a future account or remove the need for attributable source
+verification. Runtime model-list `live_qualified` flags remain false; these
+observations are task evidence, not an account-wide persisted capability cache.
+
+Reproduction: build the feature example with the commands above. With a newly
+authorized bounded scope and fresh human connection, run one explicit invocation
+per selection/kind, inspect exact note code or PNG colors, and independently
+verify web URLs/version/date. Stop a refused route. Native application interaction
+and server cancellation need separate qualification; owner sign-in succeeded.

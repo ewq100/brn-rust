@@ -20,7 +20,9 @@ impl std::fmt::Display for AiError {
             AiErrorKind::CodeExpired => "Login code expired. Retry Connect to obtain a new code.",
             AiErrorKind::RateLimited => "Account usage limit reached.",
             AiErrorKind::Network => "Network request failed.",
-            AiErrorKind::ModelRefused => "The selected model is not supported.",
+            AiErrorKind::ModelRefused => {
+                "The selected model is not supported by this provider route."
+            }
             AiErrorKind::InvalidToolUse => "The model requested an invalid tool.",
             AiErrorKind::ToolLimitReached => "The tool round limit was reached.",
             AiErrorKind::UnsafeCredentials => {
@@ -60,7 +62,11 @@ fn map_http_error(status: u16, body: &str) -> AiError {
         429 => AiErrorKind::RateLimited,
         _ => match code {
             Some(
-                "model_not_supported" | "unsupported_model" | "model_not_found" | "model_refused",
+                "model_not_supported"
+                | "unsupported_model"
+                | "model_not_found"
+                | "model_refused"
+                | "unsupported_api_for_model",
             ) => AiErrorKind::ModelRefused,
             Some("expired_token" | "expired_device_code") => AiErrorKind::CodeExpired,
             Some("invalid_grant") => AiErrorKind::ReconnectNeeded,
@@ -219,6 +225,12 @@ mod tests {
             (
                 400,
                 r#"{"error":{"code":"unsupported_model"}}"#,
+                AiErrorKind::ModelRefused,
+                None,
+            ),
+            (
+                400,
+                r#"{"error":{"code":"unsupported_api_for_model","message":"SYNTHETIC_SECRET"}}"#,
                 AiErrorKind::ModelRefused,
                 None,
             ),

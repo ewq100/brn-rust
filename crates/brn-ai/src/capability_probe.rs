@@ -48,6 +48,36 @@ pub struct ProbeCitation {
     pub title: Option<String>,
 }
 
+#[derive(Clone, Copy, Debug, PartialEq, Eq, Serialize, Deserialize)]
+#[serde(rename_all = "snake_case")]
+pub enum ProbeErrorClass {
+    Http,
+    Json,
+    Url,
+    Request,
+    Response,
+    Provider,
+    ProviderResponse,
+    Other,
+}
+
+#[derive(Clone, Copy, Debug, PartialEq, Eq, Serialize, Deserialize)]
+#[serde(rename_all = "snake_case")]
+pub enum ProbeRejection {
+    UnsupportedApiForModel,
+    UnsupportedModel,
+    UnsupportedParameter,
+    UnsupportedValue,
+}
+
+/// Fixed diagnostic fields only: never preserve messages, headers or raw bodies.
+#[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
+pub struct ProbeFailure {
+    pub error_class: ProbeErrorClass,
+    pub http_status: Option<u16>,
+    pub rejection: Option<ProbeRejection>,
+}
+
 #[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
 pub struct ProbeReport {
     pub selection: Selection,
@@ -57,6 +87,8 @@ pub struct ProbeReport {
     pub read_tool_calls: usize,
     pub web_search_observed: bool,
     pub citations: Vec<ProbeCitation>,
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub failure: Option<ProbeFailure>,
 }
 
 impl ProbeKind {
@@ -84,6 +116,7 @@ pub async fn run_probe(
         read_tool_calls: 0,
         web_search_observed: false,
         citations: Vec::new(),
+        failure: None,
     };
     if cancel.is_cancelled() {
         return report;
@@ -237,7 +270,7 @@ async fn collect(
     }
     let mut stream = model
         .stream(request)
-        .map_err(|error| ProbeTerminal::Failed(map_provider(error)))?;
+        .map_err(|error| provider_failure(error, report))?;
     loop {
         let item = tokio::select! {
             biased;
@@ -245,7 +278,7 @@ async fn collect(
             item = stream.next() => item,
         };
         let Some(item) = item else { break };
-        match item.map_err(|error| ProbeTerminal::Failed(map_provider(error)))? {
+        match item.map_err(|error| provider_failure(error, report))? {
             Item::Event(StreamEvent::Text { text, .. }) => {
                 append_text(&mut report.text, &text).map_err(|()| failed(AiErrorKind::Other))?;
             }
@@ -262,7 +295,7 @@ async fn collect(
     // The provider's already-consumed ending wins over a later cancellation.
     let response = tokio::select! {
         biased;
-        result = stream.finish() => result.map_err(|error| ProbeTerminal::Failed(map_provider(error)))?,
+        result = stream.finish() => result.map_err(|error| provider_failure(error, report))?,
         _ = cancel.cancelled() => return Err(ProbeTerminal::Interrupted),
     };
     for content in &response.choice {
@@ -286,6 +319,59 @@ async fn collect(
 
 fn failed(kind: AiErrorKind) -> ProbeTerminal {
     ProbeTerminal::Failed(AiError::new(kind))
+}
+
+fn provider_failure(error: rig::error::ProviderError, report: &mut ProbeReport) -> ProbeTerminal {
+    use rig::error::ErrorKind;
+    let error_class = match error.kind() {
+        ErrorKind::Http => ProbeErrorClass::Http,
+        ErrorKind::Json => ProbeErrorClass::Json,
+        ErrorKind::Url => ProbeErrorClass::Url,
+        ErrorKind::Request => ProbeErrorClass::Request,
+        ErrorKind::Response => ProbeErrorClass::Response,
+        ErrorKind::Provider => ProbeErrorClass::Provider,
+        ErrorKind::ProviderResponse => ProbeErrorClass::ProviderResponse,
+        _ => ProbeErrorClass::Other,
+    };
+    let http_status = error
+        .provider_response_status()
+        .map(|status| status.as_u16())
+        .or_else(|| match &error {
+            rig::error::ProviderError::Http(error) => {
+                error.non_success_status().map(|s| s.as_u16())
+            }
+            _ => None,
+        });
+    let body = error.provider_response_body().or_else(|| match &error {
+        rig::error::ProviderError::Http(error) => error.non_success_body(),
+        _ => None,
+    });
+    let rejection = body
+        .filter(|body| body.len() <= 1024 * 1024)
+        .and_then(|body| serde_json::from_str::<Value>(body).ok())
+        .and_then(|value| {
+            let envelope = value.get("error")?;
+            let code = envelope
+                .get("code")
+                .and_then(Value::as_str)
+                .or_else(|| envelope.as_str())?;
+            match code {
+                "unsupported_api_for_model" => Some(ProbeRejection::UnsupportedApiForModel),
+                "model_not_supported"
+                | "unsupported_model"
+                | "model_not_found"
+                | "model_refused" => Some(ProbeRejection::UnsupportedModel),
+                "unsupported_parameter" => Some(ProbeRejection::UnsupportedParameter),
+                "unsupported_value" => Some(ProbeRejection::UnsupportedValue),
+                _ => None,
+            }
+        });
+    report.failure = Some(ProbeFailure {
+        error_class,
+        http_status,
+        rejection,
+    });
+    ProbeTerminal::Failed(map_provider(error))
 }
 
 fn append_text(output: &mut String, text: &str) -> Result<(), ()> {
@@ -404,6 +490,7 @@ mod tests {
             read_tool_calls: 0,
             web_search_observed: false,
             citations: Vec::new(),
+            failure: None,
         }
     }
 
@@ -415,6 +502,62 @@ mod tests {
                 json!({"annotations": values, "secret": "SYNTHETIC_SECRET"}),
             )]),
         }
+    }
+
+    #[test]
+    fn failure_projection_keeps_only_status_class_and_allowlisted_rejection() {
+        for code in ["unsupported_api_for_model", "SYNTHETIC_SECRET"] {
+            let mut report = report();
+            let terminal = provider_failure(
+                rig::error::ProviderError::from_http_response(
+                    rig::http_client::StatusCode::BAD_REQUEST,
+                    json!({"error": {"code": code, "message": "SYNTHETIC_SECRET"},
+                    "token": "SYNTHETIC_SECRET"})
+                    .to_string(),
+                ),
+                &mut report,
+            );
+            assert_eq!(
+                terminal,
+                failed(if code == "unsupported_api_for_model" {
+                    AiErrorKind::ModelRefused
+                } else {
+                    AiErrorKind::Other
+                })
+            );
+            assert_eq!(
+                report.failure,
+                Some(ProbeFailure {
+                    error_class: ProbeErrorClass::ProviderResponse,
+                    http_status: Some(400),
+                    rejection: (code == "unsupported_api_for_model")
+                        .then_some(ProbeRejection::UnsupportedApiForModel),
+                })
+            );
+            assert!(
+                !serde_json::to_string(&report)
+                    .unwrap()
+                    .contains("SYNTHETIC_SECRET")
+            );
+        }
+        let mut report = report();
+        provider_failure(
+            rig::error::ProviderError::Response("SYNTHETIC_SECRET".into()),
+            &mut report,
+        );
+        assert_eq!(
+            report.failure,
+            Some(ProbeFailure {
+                error_class: ProbeErrorClass::Response,
+                http_status: None,
+                rejection: None,
+            })
+        );
+        assert!(
+            !serde_json::to_string(&report)
+                .unwrap()
+                .contains("SYNTHETIC_SECRET")
+        );
     }
 
     #[test]

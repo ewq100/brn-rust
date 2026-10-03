@@ -2,8 +2,8 @@
 
 2026-10-03. Stage 1 is locally integrated at `6609442`, based on frozen-guidance
 baseline `4bf7878`. Stage 2 is locally integrated at `a5ec4ae`. Stage 3 offline
-probe preparation is locally integrated at `7e63041`; actual
-provider qualification remains open.
+probe preparation is integrated at `7e63041`; the authorized live round has
+finished, with the limitations below. Proposal Core is next.
 
 The owner has authorized sequential BRN v1 delivery using the [product vision](product/BRN_PRODUCT_VISION.md),
 [target architecture](architecture/overview.md#frozen-target), [invariants](architecture/invariants.md),
@@ -50,20 +50,21 @@ Clippy, **52 fixture assertions** and launcher checks passed. Independent read-o
 review found no actionable defects. [Stage 2 record](work/completed/legacy-removal/plan.md)
 distinguishes synthetic checks from remaining native/live qualification.
 
-Stage 3 has a feature-gated synthetic capability probe, exact model/route/effort
-checks, fixed PNG input and bounded native web/citation projection. Ordinary chat
-is unchanged. Independent review defects in cancellation error priority and
-terminal-only web evidence were reproduced, fixed and regression verified;
-final review found no remaining actionable findings. Fresh workspace tests:
-**403 passed, 0 failed, 1 ignored**; feature AI tests **67 + 1 example passed**.
-Default build/Clippy/format, feature example build/Clippy and documentation checks
-passed. [Stage 3 plan/results](work/active/provider-capabilities/plan.md) specifies
-the bounded live scope and reproducible commands. The owner authorized that
-scope on 2026-10-03. Fresh Copilot device login reached GitHub's confirmation,
-but its embedded-browser authorization control stayed disabled and the CLI
-deadline stopped/joined the attempt. **Zero model probes ran**; no original
-credentials/data were inspected. Live permission remains granted; human sign-in
-in a regular browser is needed before advancing the provider dependency.
+Stage 3 implements opt-in synthetic probes and bounded safe diagnostics. Both
+fresh human connections succeeded. ChatGPT `gpt-5.5` Responses passed low/high
+read tools and the fixed image; Copilot `gpt-5.3-codex` Responses passed low/high
+read tools but reversed image colors. Both observed hosted web search and returned
+correct official SQLite release/source URLs; neither returned native citation
+annotations, so metadata attribution remains unqualified. Copilot `gpt-5.5`
+Chat refused with HTTP 400 `unsupported_api_for_model`; its remaining image
+probe was skipped. Safe production mapping reports `ModelRefused` for this code,
+without retry or route/model fallback. **10 logical probes / 14 completion
+attempts** ran within the authorized 11/22 cap. No original data or credentials
+were inspected. [Stage 3 results](work/completed/provider-capabilities/plan.md)
+record exact models, scope, verification and downstream constraints. Final
+independent review found no actionable defects. Fresh workspace **404 passed,
+0 failed, 1 ignored**; feature AI **68 + 1 example passed**. Default and feature
+build/Clippy, format and documentation checks passed.
 Stages 4–16 remain pending; no complete BRN v1 delivery is claimed.
 Owner acceptance may remain pending when it is not a dependency for later safe
 implementation.
@@ -74,8 +75,9 @@ Builds and synthetic state/crash tests do not establish graphical usability,
 power-loss durability, other-volume support, actual model inference, account
 validity or release readiness. Native Save/Copy/conflict/reload/recovery,
 chooser, IME, accessibility, rendering and Stop/restart acceptance remain pending.
-Live provider capability checks require separate authorization; ChatGPT remains
-conditional after its historical quota-blocked spike. No release or distribution
+Additional live checks beyond the completed bounded scope require new
+authorization. Copilot GPT-5.5 is unsupported by the pinned Chat route; Codex
+vision accuracy and native citation metadata remain unqualified. No release or distribution
 qualification is claimed. Upstream `block v0.1.6` retains a future-compiler warning.
 
 Earlier implementation/check details remain in the [simple Rig notes evidence](work/active/simple-rig-notes/evidence.md)

@@ -156,7 +156,7 @@ account qualification.
 ## Narrow capability probe
 
 The optional `capability-spike` feature exposes `capability_probe` and the
-`provider-capabilities` example for [roadmap Stage 3](../../docs/work/active/provider-capabilities/plan.md).
+`provider-capabilities` example for [roadmap Stage 3](../../docs/work/completed/provider-capabilities/plan.md).
 Ordinary app builds do not expose this entry point. It consumes an explicitly
 selected authenticated client; it never chooses a provider/model, signs in,
 retries an application request or writes knowledge. Low/high effort requests
@@ -166,7 +166,10 @@ bounded HTTP(S) citations plus observed completed web calls. Copilot Chat web
 is refused before streaming because the pinned adapter has no native web seam.
 
 Reports preserve bounded partial text, safe typed failure/interruption and
-deduplicated source URLs/titles, without raw provider metadata/errors. The
+deduplicated source URLs/titles. Failures project only fixed error class, numeric
+HTTP status and allowlisted rejection categories, without raw metadata/errors.
+The demonstrated `unsupported_api_for_model` rejection maps to `ModelRefused`
+in normal chat; the selected route and model stay unchanged. The
 example requires `--live`, an exact model and an absolute task credential path;
 it cancels and awaits on SIGINT or after 120 seconds. Its account must already be connected.
 Running it requires the owner's separate live-account authorization. Building

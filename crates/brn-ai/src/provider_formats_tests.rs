@@ -1213,6 +1213,14 @@ mod capability_probe_formats {
             for (reply, kind, delay) in [
                 (
                     Ok(MockHttpResponse::error(
+                        http_client::StatusCode::BAD_REQUEST,
+                        r#"{"error":{"code":"unsupported_api_for_model","message":"SYNTHETIC_SECRET"}}"#,
+                    )),
+                    AiErrorKind::ModelRefused,
+                    None,
+                ),
+                (
+                    Ok(MockHttpResponse::error(
                         http_client::StatusCode::UNAUTHORIZED,
                         r#"{"error":{"message":"SYNTHETIC_SECRET"}}"#,
                     )),
