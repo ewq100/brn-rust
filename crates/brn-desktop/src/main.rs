@@ -21,7 +21,7 @@ mod native;
 #[cfg(feature = "native-ui")]
 mod notes;
 
-const HELP: &str = "BRN desktop\n\nUsage: brn-desktop [--data-dir ABSOLUTE_DIRECTORY] [--vault ABSOLUTE_DIRECTORY] [--model-dir ABSOLUTE_DIRECTORY]\n       brn-desktop --legacy [--data-dir ABSOLUTE_DIRECTORY]\n       brn-desktop --data-dir ABSOLUTE_DIRECTORY --headless-check completion|cancellation|stale\n       brn-desktop --help\n\nNative default: ~/Library/Application Support/BRN-simple (credentials: BRN-simple.credentials sibling).\nSimple notes are saved-file readers; no Markdown Save is implemented here.\n--legacy explicitly opens the old BRN default for local editing/recovery/history only; legacy AI is retired.\nAccounts and provider/model selection are explicit in Settings; startup never logs in or discovers models.";
+const HELP: &str = "BRN desktop\n\nUsage: brn-desktop [--data-dir ABSOLUTE_DIRECTORY] [--vault ABSOLUTE_DIRECTORY] [--model-dir ABSOLUTE_DIRECTORY]\n       brn-desktop --legacy [--data-dir ABSOLUTE_DIRECTORY]\n       brn-desktop --data-dir ABSOLUTE_DIRECTORY --headless-check completion|cancellation|stale\n       brn-desktop --help\n\nNative default: ~/Library/Application Support/BRN-simple (credentials: BRN-simple.credentials sibling).\nSimple notes support explicit Markdown Save, exclusive Save Copy and recoverable unfinished edits.\n--legacy explicitly opens the old BRN default for local editing/recovery/history only; legacy AI is retired.\nAccounts and provider/model selection are explicit in Settings; startup never logs in or discovers models.";
 
 struct Options {
     data_dir: PathBuf,

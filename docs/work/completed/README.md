@@ -4,6 +4,7 @@ These folders preserve bounded implementation history. A completed record does n
 
 | Task | Plan | Evidence |
 | --- | --- | --- |
+| Simple safe Save (roadmap Stage 1; automated verified, owner native acceptance pending) | [Plan and results](simple-save/plan.md) | — |
 | Provider lifecycle follow-up (historical chunk 02) | [Plan](provider-lifecycle/plan.md) | [Evidence](provider-lifecycle/evidence.md) |
 | Editor trial (roadmap 02) | [Plan](editor-trial/plan.md) | [Evidence](editor-trial/evidence.md) |
 | Retrieval trial | [Plan](retrieval-trial/plan.md) | [Evidence](retrieval-trial/evidence.md) |

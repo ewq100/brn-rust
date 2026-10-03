@@ -11,7 +11,7 @@ use uuid::Uuid;
 
 #[cfg(test)]
 thread_local! {
-    pub(super) static PREPARE_FAILURE: std::cell::Cell<Option<&'static str>> = const { std::cell::Cell::new(None) };
+    pub(crate) static PREPARE_FAILURE: std::cell::Cell<Option<&'static str>> = const { std::cell::Cell::new(None) };
 }
 
 #[cfg(test)]
@@ -73,7 +73,7 @@ impl NoteNoticeQueue {
 }
 
 #[derive(Debug)]
-pub(super) struct FileObservation {
+pub(crate) struct FileObservation {
     pub fingerprint: FileFingerprint,
     pub text: String,
 }
@@ -90,7 +90,7 @@ fn failure(code: NoteErrorCode, message: impl Into<String>) -> NoteFailure {
     }
 }
 
-pub(super) fn note_io_failure(error: std::io::Error) -> NoteFailure {
+pub(crate) fn note_io_failure(error: std::io::Error) -> NoteFailure {
     let code = match error.raw_os_error() {
         #[cfg(target_os = "macos")]
         Some(libc::ELOOP | libc::ENOTDIR | libc::ENOTSUP | libc::ENOSYS) => {
@@ -102,11 +102,11 @@ pub(super) fn note_io_failure(error: std::io::Error) -> NoteFailure {
     failure(code, error.to_string())
 }
 
-pub(super) fn note_unsupported(message: &str) -> NoteFailure {
+pub(crate) fn note_unsupported(message: &str) -> NoteFailure {
     failure(NoteErrorCode::Unsupported, message)
 }
 
-pub(super) fn note_utf8_failure(error: std::string::FromUtf8Error) -> NoteFailure {
+pub(crate) fn note_utf8_failure(error: std::string::FromUtf8Error) -> NoteFailure {
     note_unsupported(&format!("note is not UTF-8: {error}"))
 }
 
@@ -128,7 +128,7 @@ use {
 };
 
 #[cfg(target_os = "macos")]
-pub(super) struct MacFiles {
+pub(crate) struct MacFiles {
     // Drop the presenter before releasing the ownership descriptors.
     coordination: Coordination,
     registered_root: PathBuf,
@@ -139,7 +139,7 @@ pub(super) struct MacFiles {
 
 #[cfg(target_os = "macos")]
 impl MacFiles {
-    pub(super) fn open(
+    pub(crate) fn open(
         vault: &VaultRecord,
         data_dir: &Path,
         notices: NoteNoticeSink,
@@ -191,7 +191,7 @@ impl MacFiles {
         self.locks.last().unwrap()
     }
 
-    pub(super) fn validate_root(&self) -> NoteResult<()> {
+    pub(crate) fn validate_root(&self) -> NoteResult<()> {
         let changed = || {
             failure(
                 NoteErrorCode::VaultUnavailable,
@@ -251,14 +251,14 @@ impl MacFiles {
         Ok(())
     }
 
-    pub(super) fn observe(&self, relative: &Path) -> NoteResult<FileObservation> {
+    pub(crate) fn observe(&self, relative: &Path) -> NoteResult<FileObservation> {
         self.parent(relative)?;
         self.coordination.read(&self.root.join(relative), || {
             self.observe_uncoordinated(relative)
         })
     }
 
-    pub(super) fn observe_uncoordinated(&self, relative: &Path) -> NoteResult<FileObservation> {
+    pub(crate) fn observe_uncoordinated(&self, relative: &Path) -> NoteResult<FileObservation> {
         let (parent, name) = self.parent(relative)?;
         let file = open_at(&parent, OsStr::from_bytes(name.as_bytes()), 0, 0)?;
         if file.metadata().map_err(note_io_failure)?.dev() != self.identity.device {
@@ -281,7 +281,7 @@ impl MacFiles {
         Ok(observation)
     }
 
-    pub(super) fn coordinate<T>(
+    pub(crate) fn coordinate<T>(
         &self,
         relative: &Path,
         action: impl FnOnce() -> NoteResult<T>,
@@ -293,7 +293,7 @@ impl MacFiles {
         })
     }
 
-    pub(super) fn prepare_replace(
+    pub(crate) fn prepare_replace(
         &self,
         op: Uuid,
         staging: &Path,
@@ -361,7 +361,7 @@ impl MacFiles {
         Ok(prepared)
     }
 
-    pub(super) fn parent_identity(
+    pub(crate) fn parent_identity(
         &self,
         relative: &Path,
     ) -> NoteResult<brn_store::notes::VaultIdentity> {
@@ -369,13 +369,13 @@ impl MacFiles {
         Ok(identity(&parent.metadata().map_err(note_io_failure)?))
     }
 
-    pub(super) fn validate_copy_destination(&self, relative: &Path) -> NoteResult<()> {
+    pub(crate) fn validate_copy_destination(&self, relative: &Path) -> NoteResult<()> {
         component_key(relative).map(|_| ())
     }
 
     /// A reserved namespace cannot be enrolled merely because its occupant changed.
     /// This guard does not apply destination-name restrictions to ordinary opens.
-    pub(super) fn reserved_copy_path_matches(
+    pub(crate) fn reserved_copy_path_matches(
         &self,
         candidate: &Path,
         reserved: &Path,
@@ -409,7 +409,7 @@ impl MacFiles {
     }
 
     /// Equality here is a conservative veto, never proof of logical note identity.
-    pub(super) fn aliases_original(&self, candidate: &Path, original: &Path) -> NoteResult<bool> {
+    pub(crate) fn aliases_original(&self, candidate: &Path, original: &Path) -> NoteResult<bool> {
         let candidate_key = component_key(candidate)?;
         let optional = |path: &Path| -> NoteResult<Option<VaultIdentity>> {
             let result = (|| {
@@ -482,7 +482,7 @@ impl MacFiles {
         Ok(false)
     }
 
-    pub(super) fn prepare_copy(
+    pub(crate) fn prepare_copy(
         &self,
         op: Uuid,
         staging: &Path,
@@ -534,7 +534,7 @@ impl MacFiles {
         })
     }
 
-    pub(super) fn install_exclusive(
+    pub(crate) fn install_exclusive(
         &self,
         prepared: &PreparedFile,
         destination: &Path,
@@ -563,7 +563,7 @@ impl MacFiles {
         })
     }
 
-    pub(super) fn exchange(&self, prepared: &PreparedFile, destination: &Path) -> NoteResult<()> {
+    pub(crate) fn exchange(&self, prepared: &PreparedFile, destination: &Path) -> NoteResult<()> {
         if prepared.relative.parent() != destination.parent() || prepared.relative == destination {
             return Err(note_unsupported(
                 "exchange requires distinct paths in one validated parent",
@@ -583,7 +583,7 @@ impl MacFiles {
         rename_flags(&parent, &stage, &target, libc::RENAME_SWAP)
     }
 
-    pub(super) fn flush_artifact(&self, relative: &Path) -> NoteResult<()> {
+    pub(crate) fn flush_artifact(&self, relative: &Path) -> NoteResult<()> {
         let (parent, name) = self.parent(relative)?;
         let artifact = open_at(&parent, OsStr::from_bytes(name.as_bytes()), 0, 0)?;
         validate_regular(&artifact.metadata().map_err(note_io_failure)?)?;
@@ -592,7 +592,7 @@ impl MacFiles {
         self.validate_parent(relative, &parent)
     }
 
-    pub(super) fn artifact(&self, relative: &Path) -> NoteResult<Option<RetainedArtifact>> {
+    pub(crate) fn artifact(&self, relative: &Path) -> NoteResult<Option<RetainedArtifact>> {
         let (parent, name) = self.parent(relative)?;
         let mut stat = std::mem::MaybeUninit::<libc::stat>::uninit();
         // SAFETY: parent/name are live; fstatat initializes stat on success and never follows links.
@@ -654,7 +654,7 @@ impl MacFiles {
         }))
     }
 
-    pub(super) fn remove_artifact(&self, expected: &RetainedArtifact) -> NoteResult<()> {
+    pub(crate) fn remove_artifact(&self, expected: &RetainedArtifact) -> NoteResult<()> {
         let (parent, name) = self.parent(&expected.relative)?;
         if self.artifact(&expected.relative)?.as_ref() != Some(expected) {
             return Err(failure(NoteErrorCode::Conflict, "cleanup occupant changed"));
@@ -1039,41 +1039,41 @@ fn rename_flags(directory: &File, from: &CString, to: &CString, flags: u32) -> N
 }
 
 #[cfg(not(target_os = "macos"))]
-pub(super) struct MacFiles;
+pub(crate) struct MacFiles;
 
 #[cfg(not(target_os = "macos"))]
 impl MacFiles {
-    pub(super) fn open(_: &VaultRecord, _: &Path, _: NoteNoticeSink) -> NoteResult<Self> {
+    pub(crate) fn open(_: &VaultRecord, _: &Path, _: NoteNoticeSink) -> NoteResult<Self> {
         Err(note_unsupported(
             "managed notes require macOS filesystem coordination",
         ))
     }
-    pub(super) fn validate_root(&self) -> NoteResult<()> {
+    pub(crate) fn validate_root(&self) -> NoteResult<()> {
         Err(note_unsupported(
             "managed notes require macOS filesystem coordination",
         ))
     }
-    pub(super) fn aliases_original(&self, _: &Path, _: &Path) -> NoteResult<bool> {
+    pub(crate) fn aliases_original(&self, _: &Path, _: &Path) -> NoteResult<bool> {
         Err(note_unsupported(
             "managed notes require macOS filesystem coordination",
         ))
     }
-    pub(super) fn parent_identity(&self, _: &Path) -> NoteResult<brn_store::notes::VaultIdentity> {
+    pub(crate) fn parent_identity(&self, _: &Path) -> NoteResult<brn_store::notes::VaultIdentity> {
         Err(note_unsupported(
             "managed notes require macOS filesystem coordination",
         ))
     }
-    pub(super) fn validate_copy_destination(&self, _: &Path) -> NoteResult<()> {
+    pub(crate) fn validate_copy_destination(&self, _: &Path) -> NoteResult<()> {
         Err(note_unsupported(
             "managed notes require macOS filesystem coordination",
         ))
     }
-    pub(super) fn reserved_copy_path_matches(&self, _: &Path, _: &Path) -> NoteResult<bool> {
+    pub(crate) fn reserved_copy_path_matches(&self, _: &Path, _: &Path) -> NoteResult<bool> {
         Err(note_unsupported(
             "managed notes require macOS filesystem coordination",
         ))
     }
-    pub(super) fn prepare_copy(
+    pub(crate) fn prepare_copy(
         &self,
         _: Uuid,
         _: &Path,
@@ -1084,17 +1084,17 @@ impl MacFiles {
             "managed notes require macOS filesystem coordination",
         ))
     }
-    pub(super) fn install_exclusive(&self, _: &PreparedFile, _: &Path) -> NoteResult<()> {
+    pub(crate) fn install_exclusive(&self, _: &PreparedFile, _: &Path) -> NoteResult<()> {
         Err(note_unsupported(
             "managed notes require macOS filesystem coordination",
         ))
     }
-    pub(super) fn observe(&self, _: &Path) -> NoteResult<FileObservation> {
+    pub(crate) fn observe(&self, _: &Path) -> NoteResult<FileObservation> {
         Err(note_unsupported(
             "managed notes require macOS filesystem coordination",
         ))
     }
-    pub(super) fn coordinate<T>(
+    pub(crate) fn coordinate<T>(
         &self,
         _: &Path,
         _: impl FnOnce() -> NoteResult<T>,
@@ -1103,7 +1103,7 @@ impl MacFiles {
             "managed notes require macOS filesystem coordination",
         ))
     }
-    pub(super) fn prepare_replace(
+    pub(crate) fn prepare_replace(
         &self,
         _: Uuid,
         _: &Path,
@@ -1114,28 +1114,28 @@ impl MacFiles {
             "managed notes require macOS filesystem coordination",
         ))
     }
-    pub(super) fn exchange(&self, _: &PreparedFile, _: &Path) -> NoteResult<()> {
+    pub(crate) fn exchange(&self, _: &PreparedFile, _: &Path) -> NoteResult<()> {
         Err(note_unsupported(
             "managed notes require macOS filesystem coordination",
         ))
     }
-    pub(super) fn flush_artifact(&self, _: &Path) -> NoteResult<()> {
+    pub(crate) fn flush_artifact(&self, _: &Path) -> NoteResult<()> {
         Err(note_unsupported(
             "managed notes require macOS filesystem coordination",
         ))
     }
 
-    pub(super) fn artifact(&self, _: &Path) -> NoteResult<Option<RetainedArtifact>> {
+    pub(crate) fn artifact(&self, _: &Path) -> NoteResult<Option<RetainedArtifact>> {
         Err(note_unsupported(
             "managed notes require macOS filesystem coordination",
         ))
     }
-    pub(super) fn remove_artifact(&self, _: &RetainedArtifact) -> NoteResult<()> {
+    pub(crate) fn remove_artifact(&self, _: &RetainedArtifact) -> NoteResult<()> {
         Err(note_unsupported(
             "managed notes require macOS filesystem coordination",
         ))
     }
-    pub(super) fn observe_uncoordinated(&self, _: &Path) -> NoteResult<FileObservation> {
+    pub(crate) fn observe_uncoordinated(&self, _: &Path) -> NoteResult<FileObservation> {
         Err(note_unsupported(
             "managed notes require macOS filesystem coordination",
         ))

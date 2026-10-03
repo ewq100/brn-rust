@@ -3,7 +3,7 @@ mod conflicts;
 #[cfg(all(test, target_os = "macos"))]
 mod crash_tests;
 pub(crate) mod eligibility;
-mod files;
+pub(crate) mod files;
 #[cfg(target_os = "macos")]
 mod macos;
 mod save;

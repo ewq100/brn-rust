@@ -1,11 +1,12 @@
 # BRN Rust desktop
 
-BRN is a local-first macOS notes trial: saved Markdown reads/search and explicit
-Rig ChatGPT/Copilot chat, with a shared AppWorker for native and CLI consumers.
+BRN is a local-first macOS notes trial: Markdown editing/recovery, saved-note
+search and explicit Rig ChatGPT/Copilot chat, with a shared AppWorker for native and CLI consumers.
 Legacy local editing, recovery, drafts, comments and history remain supported
 in separate legacy data folders. Production App Server has been removed.
-Simple proposal/approval tools and Markdown Save remain unimplemented; the old
-Steps 5/6 are superseded by the current roadmap.
+Simple manual Save/recovery is implemented and automated verified; owner native
+acceptance remains pending. Proposal/approval tools remain future work;
+the old Steps 5/6 are superseded by the current roadmap.
 
 Start with [current status](docs/status.md) for implemented capabilities and qualification gaps. Agents should read [AGENTS.md](AGENTS.md); the [documentation index](docs/README.md) routes setup, architecture, testing and task history.
 
@@ -34,7 +35,7 @@ See [verification](docs/development/verification.md) for native-specific checks.
 ## Native personal trial
 
 Create an explicit disposable data directory outside Git repositories, then
-launch the simple saved-note reader/chat UI:
+launch the simple note editor/chat UI:
 
 ```sh
 trial_data="$HOME/BRN-disposable-trial"
@@ -47,7 +48,10 @@ installer does not download a model. Choose a vault, read/refresh/search saved
 Markdown and explicitly select an account/provider/model in Settings before Ask.
 Account Connect and model Download require explicit actions; offline trials
 must not click them. Declining model consent creates no network request and
-keeps keyword-only retrieval. The simple reader has no Markdown Save.
+keeps keyword-only retrieval. Open a synthetic note for small corrections;
+Save/Cmd-S explicitly writes Markdown. Automatic recovery and guarded close
+preserve acknowledged unfinished edits in BRN without saving the vault file.
+Compare/reload, exclusive Save Copy and uncertain-save reconciliation are local.
 
 Without an explicit data directory, native startup uses
 `~/Library/Application Support/BRN-simple`, with `BRN-simple.credentials` next to
@@ -56,7 +60,12 @@ BRN for local editing/recovery/history only; legacy AI and `--codex` are retired
 Explicit directories honor mode markers, including sidecars/backups; mixed or
 incompatible `--legacy`/`--vault` launches refuse before opening authority.
 
-Draft working copies are separate from immutable checkpoints and AI candidates. Acknowledged saves are durable; force termination does not promise preservation of unsaved text. Comments retain their exact original revision/quote and show deleted or ambiguous locations explicitly. User suitability, IME/accessibility and broader qualification remain open as recorded in [status](docs/status.md).
+Simple Save detects changed file/root identities and preserves exact UTF-8 bytes,
+including BOM, line endings and frontmatter. Conflicts retain recovery text;
+missing originals are not recreated. Acknowledged recovery is distinct from
+Markdown Save, and force termination can lose unacknowledged typing. Legacy
+drafts/comments remain separate. User suitability, IME/accessibility and broader
+qualification remain open as recorded in [status](docs/status.md).
 
 ## Local Finder launcher
 

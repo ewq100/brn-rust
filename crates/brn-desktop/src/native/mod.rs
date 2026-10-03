@@ -211,6 +211,8 @@ struct Desktop {
     app_worker: Option<brn_workflow::app_worker::AppWorker>,
     ai: Option<crate::ai::AiState>,
     simple_note_path: Option<String>,
+    simple_transition: Option<simple::EditorTransition>,
+    simple_editor_generation: Option<u64>,
     login_dialog: Option<Uuid>,
     closing: Option<(CloseRoute, std::sync::mpsc::Receiver<simple::Closed>)>,
     closed: bool,
@@ -323,6 +325,29 @@ impl Desktop {
             |this, editor, event: &InputEvent, window, cx| {
                 match event {
                     InputEvent::Change => {
+                        if let Some(ai) = &mut this.ai {
+                            if let Some(state) = &mut ai.editor {
+                                let text = editor.read(cx).value().to_string();
+                                let result = if state.replacing()
+                                    || this.simple_transition.is_some()
+                                    || this.closing.is_some()
+                                    || this.closed
+                                {
+                                    Err("Waiting for note recovery before leaving")
+                                } else {
+                                    state.edit(text, Instant::now())
+                                };
+                                if let Err(error) = result {
+                                    this.message = error.into();
+                                    let retained = state.text.clone();
+                                    editor.update(cx, |editor, cx| {
+                                        editor.set_value(retained, window, cx)
+                                    });
+                                }
+                            }
+                            cx.notify();
+                            return;
+                        }
                         if let Some(state) = &mut this.note_state {
                             let text = editor.read(cx).value().to_string();
                             if state.text() != text {
@@ -340,6 +365,12 @@ impl Desktop {
                         }
                     }
                     InputEvent::Focus => {
+                        if let Some(ai) = &mut this.ai {
+                            if let Some(command) = ai.refresh_editor() {
+                                this.simple_send(command, cx);
+                            }
+                            return;
+                        }
                         if let Some(state) = &this.note_state {
                             this.note_observations.insert(state.id());
                         }
@@ -474,6 +505,8 @@ impl Desktop {
             app_worker,
             ai,
             simple_note_path: None,
+            simple_transition: None,
+            simple_editor_generation: None,
             login_dialog: None,
             closing: None,
             closed: false,
@@ -1116,7 +1149,7 @@ impl Desktop {
             return false;
         }
         if self.ai.is_some() {
-            self.begin_close(route, cx);
+            self.simple_leave(simple::EditorTransition::Close(route), cx);
             return false;
         }
         if self
@@ -2134,10 +2167,9 @@ impl Desktop {
     }
     /// Hides the document pane. A draft's in-memory editor state is kept.
     fn close_document(&mut self, cx: &mut Context<Self>) {
-        if let Some(ai) = &mut self.ai {
-            ai.note_generation = ai.note_generation.wrapping_add(1);
-            ai.note = None;
-            self.simple_note_path = None;
+        if self.ai.is_some() {
+            self.simple_leave(simple::EditorTransition::Hide, cx);
+            return;
         }
         if self.defer_note_navigation(NoteControl::Navigate(None), cx) {
             return;
@@ -2245,10 +2277,10 @@ pub fn run(
                 KeyBinding::new("cmd-.", CancelRunning, Some("Input")),
                 KeyBinding::new("cmd-s", SaveNote, Some("MarkdownNote")),
             ]);
-            let mut app_menu = vec![MenuItem::action("Settings…", OpenSettings)];
-            if mode == brn_workflow::WorkspaceMode::Legacy {
-                app_menu.push(MenuItem::action("Save to Markdown", SaveNote));
-            }
+            let mut app_menu = vec![
+                MenuItem::action("Settings…", OpenSettings),
+                MenuItem::action("Save to Markdown", SaveNote),
+            ];
             app_menu.extend([MenuItem::separator(), MenuItem::action("Quit BRN", Quit)]);
             cx.set_menus([
                 Menu::new("BRN").items(app_menu),
@@ -2315,7 +2347,9 @@ pub fn run(
                             this.cancel_running(cx)
                         });
                         route::<SaveNote>(cx, desktop.downgrade(), |this, cx| {
-                            if matches!(this.open_doc, Some(DocRef::Note(_))) {
+                            if this.ai.is_some() && this.open_doc == Some(DocRef::SavedNote) {
+                                this.simple_save(None, cx);
+                            } else if matches!(this.open_doc, Some(DocRef::Note(_))) {
                                 this.queue_note_control(NoteControl::Save, cx);
                             }
                         });

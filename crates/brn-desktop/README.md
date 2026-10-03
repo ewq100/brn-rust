@@ -13,10 +13,23 @@ loads/uses retrieval resources off GPUI. [`ai.rs`](src/ai.rs) holds only
 presentation DTOs and operation/generation correlation.
 
 Choose Vault uses the native folder chooser and sends BindVault to the owner.
-Notes are **saved-file readers**, not editors: there is no simple Markdown Save
-in this step. Refresh/search report keyword-only results, unreadable notes and
+Notes support small corrections with explicit **Save to Markdown / Cmd-S**.
+Fresh disk text and protected recovery remain separate; later typing survives
+older acknowledgements. Compare baseline/local/disk, observe disk, confirmed
+reload, exclusive Save Copy and uncertain-save reconciliation use AppWorker.
+An unused vault-relative `.md` destination creates a copy without switching or
+resolving the original editor. Refresh/search report keyword-only results, unreadable notes and
 exact embedding progress. History resumes from WorkStore even without a vault
 or a valid current selection.
+
+After 500 ms without an edit, recovery submits the latest exact buffer to
+WorkStore; only its acknowledgement establishes recoverability. Note-switch,
+document close and guarded window close/Quit wait for the latest recovery and
+admitted mutations. Recovery failure retains text and offers explicit retry;
+pending navigation can be cancelled. These routes do not save Markdown.
+Dock/system termination cannot veto exit and can lose unacknowledged typing.
+The editor is implemented and automated verified; native/IME/accessibility
+acceptance remains pending in [status](../../docs/status.md).
 
 Settings provides independent ChatGPT/Copilot account status, explicit Connect/
 Disconnect, model discovery and provider/model selection. A connected cache with

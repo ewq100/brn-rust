@@ -26,6 +26,11 @@ use std::{
 use uuid::Uuid;
 
 pub enum AppCommand {
+    #[cfg(test)]
+    TestPause {
+        entered: mpsc::Sender<()>,
+        release: mpsc::Receiver<()>,
+    },
     BindVault(PathBuf),
     Status,
     Refresh,
@@ -36,6 +41,12 @@ pub enum AppCommand {
         cursor: Option<String>,
     },
     Note(String),
+    OpenEditor(String),
+    ReloadEditor(crate::editor::ReloadRequest),
+    RecoverEditor(crate::editor::EditRequest),
+    SaveEditor(crate::editor::SaveRequest),
+    Editors,
+    ReconcileEditor(Uuid),
     RecoverEdit {
         path: String,
         base_sha256: [u8; 32],
@@ -81,6 +92,10 @@ pub enum AppEvent {
     Notes(NotePage),
     Note(NoteText),
     EditRecovered,
+    Editor(crate::editor::EditorView),
+    EditorRecovered(crate::editor::EditorRecord),
+    EditorSaved(crate::editor::SaveReceipt),
+    Editors(Vec<crate::editor::EditorRecord>),
     Search(SearchResults),
     Conversations(Vec<WorkConversation>),
     Turns(Vec<WorkTurn>),
@@ -212,6 +227,7 @@ impl AppWorker {
         }
         if matches!(&command, AppCommand::Ask(request) if request.id != id)
             || matches!(&command, AppCommand::Account { id: operation, .. } if *operation != id)
+            || matches!(&command, AppCommand::SaveEditor(request) if request.operation_id != id)
         {
             return Err(chat_worker::conflict());
         }
@@ -370,7 +386,7 @@ fn indexing_job(app: &App, id: Uuid) -> Result<Option<Uuid>> {
         Err(error)
             if matches!(
                 error.kind,
-                ErrorKind::VaultNotBound | ErrorKind::VaultUnavailable
+                ErrorKind::VaultNotBound | ErrorKind::VaultUnavailable | ErrorKind::SaveUncertain
             ) =>
         {
             Ok(None)
@@ -442,7 +458,7 @@ fn app_lane(
     });
     let mut chat = ChatWorker::start(&app, chat_emit, hooks.chat.clone())?;
     if app.vault_root().is_some() {
-        match app.tools() {
+        match app.guarded_tools() {
             Ok(tools) => chat.handle.set_tools(Some(tools))?,
             Err(error) if error.kind == ErrorKind::VaultUnavailable => {}
             Err(error) => return Err(error),
@@ -560,7 +576,7 @@ fn app_lane(
             #[cfg(test)]
             Message::IdleBarrier(barrier) => idle_barriers.push(barrier),
             Message::Command(id, command) => {
-                if stopping.load(Ordering::Acquire) {
+                if stopping.load(Ordering::Acquire) && !critical_editor_command(&command) {
                     let _ = emit.send((id, cancelled_command(command)));
                     continue;
                 }
@@ -612,7 +628,7 @@ fn app_lane(
                     #[cfg(not(test))]
                     let result = app.activate_model_cancellable(&report.directory, &job.cancel);
                     let mut activation = result;
-                    match app.tools() {
+                    match app.guarded_tools() {
                         Ok(tools) => {
                             if let Err(error) = chat.handle.set_tools(Some(tools)) {
                                 activation = Err(error);
@@ -713,6 +729,12 @@ fn dispatch(
     indexing: &mut Option<Uuid>,
 ) -> Result<()> {
     let event = match command {
+        #[cfg(test)]
+        AppCommand::TestPause { entered, release } => {
+            entered.send(()).expect("test observer");
+            release.recv().expect("test release");
+            AppEvent::EditRecovered
+        }
         AppCommand::Status => AppEvent::Status(AppStatus {
             vault_root: app.vault_root().map(PathBuf::from),
             model_installed: app.model_installed(),
@@ -720,7 +742,7 @@ fn dispatch(
         }),
         AppCommand::BindVault(root) => {
             app.bind_vault(&root)?;
-            chat.set_tools(Some(app.tools()?))?;
+            chat.set_tools(Some(app.guarded_tools()?))?;
             *indexing = indexing_job(app, id)?;
             AppEvent::VaultBound
         }
@@ -731,7 +753,7 @@ fn dispatch(
                 }
                 let root = app.vault_root().ok_or(error)?.to_owned();
                 app.bind_vault(&root)?;
-                chat.set_tools(Some(app.tools()?))?;
+                chat.set_tools(Some(app.guarded_tools()?))?;
             }
             let report = app.refresh()?;
             *indexing = indexing_job(app, id)?;
@@ -746,6 +768,18 @@ fn dispatch(
             AppEvent::Notes(app.notes(folder.as_deref(), cursor.as_deref())?)
         }
         AppCommand::Note(path) => AppEvent::Note(app.note(&path)?),
+        AppCommand::ReloadEditor(request) => {
+            AppEvent::EditorRecovered(app.reload_editor(&request)?)
+        }
+        AppCommand::OpenEditor(path) => AppEvent::Editor(app.open_editor(&path)?),
+        AppCommand::RecoverEditor(request) => {
+            AppEvent::EditorRecovered(app.recover_editor(&request)?)
+        }
+        AppCommand::SaveEditor(request) => AppEvent::EditorSaved(app.save_editor(&request)?),
+        AppCommand::Editors => AppEvent::Editors(app.work_store().editors()?),
+        AppCommand::ReconcileEditor(operation) => {
+            AppEvent::EditorSaved(app.reconcile_editor(operation)?)
+        }
         AppCommand::RecoverEdit {
             path,
             base_sha256,
@@ -902,4 +936,199 @@ pub(crate) fn wait_test_idle(worker: &AppWorker) {
     let (tx, rx) = mpsc::channel();
     worker.tx.send(Message::IdleBarrier(tx)).unwrap();
     rx.recv_timeout(Duration::from_secs(10)).unwrap();
+}
+
+fn critical_editor_command(command: &AppCommand) -> bool {
+    matches!(
+        command,
+        AppCommand::ReloadEditor(_)
+            | AppCommand::RecoverEditor(_)
+            | AppCommand::SaveEditor(_)
+            | AppCommand::ReconcileEditor(_)
+            | AppCommand::RecoverEdit { .. }
+    )
+}
+
+#[cfg(all(test, target_os = "macos"))]
+mod editor_shutdown_tests {
+    use super::*;
+    use crate::editor::{EditRequest, SaveRequest};
+
+    #[test]
+    fn unfinished_save_restarts_worker_and_keeps_recovery_commands_available() {
+        let base = tempfile::tempdir_in(std::env::temp_dir().canonicalize().unwrap()).unwrap();
+        std::fs::create_dir(base.path().join("data")).unwrap();
+        std::fs::create_dir(base.path().join("vault")).unwrap();
+        std::fs::write(base.path().join("vault/a.md"), "baseline").unwrap();
+        let config = || AppConfig {
+            vault_root: Some(base.path().join("vault")),
+            credentials_dir: Some(base.path().join("credentials")),
+            model_dir: None,
+        };
+        let mut app = App::open(&base.path().join("data"), config()).unwrap();
+        let record = app.open_editor("a.md").unwrap().record;
+        let operation = Uuid::new_v4();
+        let request = SaveRequest {
+            operation_id: operation,
+            edit: EditRequest {
+                path: "a.md".into(),
+                expected: record.stamp,
+                generation: 1,
+                text: "unfinished".into(),
+            },
+            destination: None,
+        };
+        app.work_store_mut()
+            .begin_editor_save(
+                &request,
+                &std::path::Path::new("a.md").with_file_name(format!(".brn-{operation}.stage")),
+            )
+            .unwrap();
+        drop(app);
+        let mut worker = AppWorker::start(base.path().join("data"), config()).unwrap();
+        assert!(matches!(
+            worker
+                .recv_event_timeout(Duration::from_secs(10))
+                .unwrap()
+                .1,
+            AppEvent::Ready { .. }
+        ));
+        let query = |command| {
+            let id = Uuid::new_v4();
+            worker.submit(id, command).unwrap();
+            loop {
+                let (actual, event) = worker.recv_event_timeout(Duration::from_secs(10)).unwrap();
+                if actual == id {
+                    break event;
+                }
+            }
+        };
+        let AppEvent::Editors(records) = query(AppCommand::Editors) else {
+            panic!("recovery list");
+        };
+        assert_eq!(records[0].text, "unfinished");
+        let AppEvent::Editor(view) = query(AppCommand::OpenEditor("a.md".into())) else {
+            panic!("editor recovery");
+        };
+        assert_eq!(view.pending, vec![operation]);
+        assert!(
+            matches!(query(AppCommand::Search { query: "baseline".into(), mode: SearchMode::Keyword, limit: 10 }), AppEvent::Failed(error) if error.kind == ErrorKind::SaveUncertain)
+        );
+        assert!(
+            matches!(query(AppCommand::ReconcileEditor(operation)), AppEvent::EditorSaved(receipt) if receipt.outcome == crate::editor::SaveOutcome::NotApplied)
+        );
+        assert!(matches!(
+            query(AppCommand::Search {
+                query: "baseline".into(),
+                mode: SearchMode::Keyword,
+                limit: 10
+            }),
+            AppEvent::Search(_)
+        ));
+        worker.shutdown().unwrap();
+        assert_eq!(
+            std::fs::read(base.path().join("vault/a.md")).unwrap(),
+            b"baseline"
+        );
+    }
+
+    #[test]
+    fn shutdown_drains_already_admitted_editor_mutations() {
+        let base = tempfile::tempdir_in(std::env::temp_dir().canonicalize().unwrap()).unwrap();
+        std::fs::create_dir(base.path().join("data")).unwrap();
+        std::fs::create_dir(base.path().join("vault")).unwrap();
+        std::fs::write(base.path().join("vault/a.md"), "baseline").unwrap();
+        let config = || AppConfig {
+            vault_root: Some(base.path().join("vault")),
+            credentials_dir: Some(base.path().join("credentials")),
+            model_dir: None,
+        };
+        let mut worker = AppWorker::start(base.path().join("data"), config()).unwrap();
+        assert!(matches!(
+            worker
+                .recv_event_timeout(Duration::from_secs(10))
+                .unwrap()
+                .1,
+            AppEvent::Ready { .. }
+        ));
+        let open = Uuid::new_v4();
+        worker
+            .submit(open, AppCommand::OpenEditor("a.md".into()))
+            .unwrap();
+        let record = loop {
+            let (id, event) = worker.recv_event_timeout(Duration::from_secs(10)).unwrap();
+            if id == open {
+                let AppEvent::Editor(view) = event else {
+                    panic!("editor open");
+                };
+                break view.record;
+            }
+        };
+        let (entered_tx, entered) = mpsc::channel();
+        let (release, release_rx) = mpsc::channel();
+        worker
+            .submit(
+                Uuid::new_v4(),
+                AppCommand::TestPause {
+                    entered: entered_tx,
+                    release: release_rx,
+                },
+            )
+            .unwrap();
+        entered.recv_timeout(Duration::from_secs(10)).unwrap();
+        let edit = EditRequest {
+            path: "a.md".into(),
+            expected: record.stamp,
+            generation: 1,
+            text: "admitted buffer".into(),
+        };
+        let recovery = Uuid::new_v4();
+        worker
+            .submit(recovery, AppCommand::RecoverEditor(edit.clone()))
+            .unwrap();
+        let save = Uuid::new_v4();
+        worker
+            .submit(
+                save,
+                AppCommand::SaveEditor(SaveRequest {
+                    operation_id: save,
+                    edit: EditRequest {
+                        generation: 2,
+                        text: "admitted save".into(),
+                        ..edit
+                    },
+                    destination: None,
+                }),
+            )
+            .unwrap();
+        let stopping = worker.stopping.clone();
+        let join = std::thread::spawn(move || {
+            worker.shutdown().unwrap();
+            worker
+        });
+        let deadline = std::time::Instant::now() + Duration::from_secs(10);
+        while !stopping.load(Ordering::Acquire) {
+            assert!(std::time::Instant::now() < deadline);
+            std::thread::sleep(Duration::from_millis(1));
+        }
+        release.send(()).unwrap();
+        let worker = join.join().unwrap();
+        let mut recovered = false;
+        let mut saved = false;
+        while let Some((id, event)) = worker.try_event() {
+            recovered |= id == recovery && matches!(event, AppEvent::EditorRecovered(_));
+            saved |= id == save && matches!(event, AppEvent::EditorSaved(_));
+        }
+        assert!(recovered && saved);
+        assert_eq!(
+            std::fs::read(base.path().join("vault/a.md")).unwrap(),
+            b"admitted save"
+        );
+        drop(worker);
+        let app = App::open(&base.path().join("data"), config()).unwrap();
+        assert_eq!(
+            app.work_store().editor("a.md").unwrap().unwrap().text,
+            "admitted save"
+        );
+    }
 }

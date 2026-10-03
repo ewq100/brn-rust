@@ -27,13 +27,18 @@ mkdir -p "$trial_data"
 cargo run -p brn-desktop --features native-ui,native-retrieval --locked --offline -- --data-dir "$trial_data"
 ```
 
-This launches the simple saved-file reader/chat UI. Keep the disposable path for
+This launches the simple note editor/chat UI. Keep the disposable path for
 restart checks; choose a fresh outside-repository directory for trials.
 Without an explicit directory, startup uses the new
 `~/Library/Application Support/BRN-simple` with the exact
 `BRN-simple.credentials` sibling, never inspecting/copying/migrating old BRN.
 Choose Vault/Refresh/Search are local; Decline optional model consent for a
-zero-network keyword-only trial. Simple Markdown Save remains future work.
+zero-network keyword-only trial. Use synthetic Markdown for Save/Cmd-S,
+Save Copy, compare/reload and restart recovery checks. Recovery stores unfinished
+edits in BRN; only explicit Save writes Markdown. Guarded note-switch/close/Quit
+wait for acknowledged recovery. Dock/system termination can lose unacknowledged
+typing. Native acceptance and final Stage 1 qualification are recorded separately
+in [status](../status.md).
 
 Native retrieval offers a freshly consented installer; startup never downloads.
 An explicit `--model-dir /absolute/path/to/verified/model` loads existing

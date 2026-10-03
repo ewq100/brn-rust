@@ -29,10 +29,11 @@ pub struct App {
     tools: Option<Arc<AiTools>>,
     library: Option<Library>,
     auth: Arc<Auth>,
-    root: Option<PathBuf>,
+    pub(crate) root: Option<PathBuf>,
+    pub(crate) editor: crate::editor::EditorState,
     embedder: Option<SharedEmbedder>,
     report: OpenReport,
-    store: WorkStore,
+    pub(crate) store: WorkStore,
 }
 
 impl App {
@@ -100,6 +101,7 @@ impl App {
             tools: None,
             embedder,
             report,
+            editor: crate::editor::EditorState::default(),
         };
         app.store.set_setting(
             "ai.credentials_dir",
@@ -167,6 +169,9 @@ impl App {
         if let Some(library) = self.library.as_mut() {
             library.replace_embedder(embedder.clone())?;
         }
+        if let Some(tools) = &tools {
+            tools.set_editor_blocked(self.editor_has_unresolved()?);
+        }
         self.tools = tools;
         self.embedder = Some(embedder);
         Ok(())
@@ -196,6 +201,7 @@ impl App {
         let tools = Arc::new(AiTools::open(&root, &index, self.embedder.clone())?);
         let root_text = root.to_str().ok_or_else(unavailable)?;
         self.store.set_setting("vault.root", root_text)?;
+        tools.set_editor_blocked(self.editor_has_unresolved()?);
         self.root = Some(root);
         self.library = Some(library);
         self.tools = Some(tools);
@@ -225,9 +231,20 @@ impl App {
         Ok(root)
     }
 
-    pub fn tools(&self) -> Result<Arc<AiTools>> {
+    pub(crate) fn set_editor_tool_barrier(&self, blocked: bool) {
+        if let Some(tools) = &self.tools {
+            tools.set_editor_blocked(blocked);
+        }
+    }
+
+    pub(crate) fn guarded_tools(&self) -> Result<Arc<AiTools>> {
         self.require_vault()?;
         self.tools.clone().ok_or_else(unavailable)
+    }
+
+    pub fn tools(&self) -> Result<Arc<AiTools>> {
+        self.require_editor_reconciled()?;
+        self.guarded_tools()
     }
 
     /// Call on startup, explicit Refresh, focus and after application writes.
@@ -326,6 +343,7 @@ impl App {
     }
 
     pub fn search(&mut self, query: &str, mode: SearchMode, limit: usize) -> Result<SearchResults> {
+        self.require_editor_reconciled()?;
         self.refresh()?;
         let results = self
             .library

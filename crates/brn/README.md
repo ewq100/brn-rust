@@ -10,12 +10,19 @@ The default/headless build is keyword-only. Build the full CLI with
 `cargo build -p brn --features native-retrieval --locked`; this enables the
 shared workflow's native model support, not automatic model downloading.
 Simple read/search/history and explicit subscription actions use the owned
-AppWorker. Legacy local editing and history remain available; legacy `brn ask`
+AppWorker, including manual Markdown editing and durable unfinished-work recovery.
+Legacy local editing and history remain available; legacy `brn ask`
 submission is retired. Both consumers now use AppWorker for simple work; the
 old production provider crate/configuration has been removed.
 
 ## Commands
 
+  brn edit open PATH
+  brn edit recover PATH --baseline UUID --expected-generation N --generation N --file F
+  brn edit save PATH --baseline UUID --expected-generation N --generation N --file F --operation UUID [--copy PATH]
+  brn edit reload PATH --baseline UUID --expected-generation N --observed-file F [--discard]
+  brn edit list
+  brn edit reconcile OPERATION
   brn notes open PATH --vault DIR [--operation UUID]
   brn ai connect chatgpt|copilot [--timeout-seconds N]
   brn ai disconnect chatgpt|copilot
@@ -80,7 +87,7 @@ old thread identifiers remain local history, never Rig resume inputs.
 
 | Command family | Legacy markers | Simple markers/backups | Empty |
 | --- | --- | --- | --- |
-| `ai *`, `models download`, `notes list`, `notes show PATH.md` | Mode conflict | AppWorker | Initialize simple authority |
+| `edit *`, `ai *`, `models download`, `notes list`, `notes show PATH.md` | Mode conflict | AppWorker | Initialize simple authority |
 | `notes show UUID`, managed editing/recovery, import/documents/drafts/comments/revisions/index build | Workspace | Mode conflict | Initialize legacy authority |
 | `status`, `search`, `conversations list/show` | Legacy shapes | Simple shapes | Require `--vault` (simple) or `--legacy`; otherwise no DB |
 | `ask` | `LEGACY_AI_RETIRED`, no submission | AppWorker | Require `--vault`; otherwise no DB/network |
@@ -98,6 +105,42 @@ exact current UTF-8 bytes, and search defaults to hybrid/10 results (limit 1–5
 Without an installed model **every** simple profile explicitly reports
 `keyword_only: true`. Legacy search keeps its keyword default and original
 profile/evidence shape; explicit `--limit` only truncates results.
+
+### Simple Markdown editing
+
+`edit open PATH` uses a contained vault-relative `.md` path and returns saved
+bytes, a recoverable editor record and its opaque `stamp.baseline` UUID and
+generation. The first command binds a disposable or chosen vault with
+`--vault DIR`; later commands honor the saved binding. `edit list` returns
+persisted editor records, including unfinished work after a restart.
+
+`edit recover` durably stores the exact UTF-8 input in operational recovery;
+it does not Save the Markdown file. `edit save` performs explicit Save through
+the same worker and requires an operation UUID. Supply the current baseline and
+expected generation from the record; the submitted generation must be at least
+the expected generation, and equal generations require identical bytes.
+Files may be empty and are limited to 1 MiB, preserving BOM, frontmatter and
+line endings without trimming or normalization.
+
+Save refuses changed or missing originals, preserving the editor's recovery.
+`--copy PATH` installs an independent copy only at an unused safe Markdown path.
+`edit reconcile OPERATION` reports the recorded filesystem outcome without
+replaying a write. Reusing a Save UUID with the same payload returns its recorded
+result; changing the payload fails `OPERATION_CONFLICT`. Conflicts use
+`CONTEXT_STALE`; an unproven filesystem outcome uses `SAVE_UNCERTAIN` and retains
+recovery. These direct user commands do not grant AI write approval.
+
+`edit reload` adopts the freshly viewed saved file as the editor baseline.
+Write the `observed` fingerprint object returned by `edit open` to the JSON file
+named by `--observed-file`; changed disk identity or bytes reject that observation.
+Unfinished local edits require explicit `--discard`. Reload does not clear an
+uncertain original Save or guess a replacement file's identity.
+
+For a manual check, create an existing data directory and synthetic vault, open
+`plan.md` containing BOM/CRLF text, save changed bytes with the returned stamp
+and a fresh UUID, and compare the file bytes. Recover another edit and reopen
+the CLI to confirm it remains available. Change the disk file externally before
+Save and confirm refusal; verify Save Copy also refuses an occupied destination.
 
 ## JSON envelope
 
