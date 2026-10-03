@@ -176,7 +176,7 @@ impl App {
             draft.sources = request.sources.clone();
             return Ok(self.store.create_proposal(&draft)?);
         }
-        self.require_editor_reconciled()?;
+        self.require_current_evidence()?;
         if let Some(session) = request.session_id
             && !self
                 .store

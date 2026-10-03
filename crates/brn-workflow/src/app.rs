@@ -170,7 +170,7 @@ impl App {
             library.replace_embedder(embedder.clone())?;
         }
         if let Some(tools) = &tools {
-            tools.set_editor_blocked(self.editor_has_unresolved()?);
+            tools.set_current_blocked(self.current_evidence_blocked()?);
         }
         self.tools = tools;
         self.embedder = Some(embedder);
@@ -197,11 +197,14 @@ impl App {
         }
         let index = self.store.data_dir().join("index.sqlite");
         let mut library = Library::open_shared(&root, &index, self.embedder.clone())?;
-        library.refresh()?;
+        let blocked = self.current_evidence_blocked()?;
+        if !blocked {
+            library.refresh()?;
+        }
         let tools = Arc::new(AiTools::open(&root, &index, self.embedder.clone())?);
         let root_text = root.to_str().ok_or_else(unavailable)?;
         self.store.set_setting("vault.root", root_text)?;
-        tools.set_editor_blocked(self.editor_has_unresolved()?);
+        tools.set_current_blocked(blocked);
         self.root = Some(root);
         self.library = Some(library);
         self.tools = Some(tools);
@@ -231,9 +234,9 @@ impl App {
         Ok(root)
     }
 
-    pub(crate) fn set_editor_tool_barrier(&self, blocked: bool) {
+    pub(crate) fn set_current_tool_barrier(&self, blocked: bool) {
         if let Some(tools) = &self.tools {
-            tools.set_editor_blocked(blocked);
+            tools.set_current_blocked(blocked);
         }
     }
 
@@ -243,17 +246,19 @@ impl App {
     }
 
     pub fn tools(&self) -> Result<Arc<AiTools>> {
-        self.require_editor_reconciled()?;
+        self.require_current_evidence()?;
         self.guarded_tools()
     }
 
     /// Call on startup, explicit Refresh, focus and after application writes.
     pub fn refresh(&mut self) -> Result<RefreshReport> {
+        self.require_current_evidence()?;
         self.require_vault()?;
         Ok(self.library.as_mut().ok_or_else(unavailable)?.refresh()?)
     }
 
     pub fn embed_pending(&mut self, batch: usize) -> Result<Option<EmbeddingProgress>> {
+        self.require_current_evidence()?;
         self.require_vault()?;
         Ok(self
             .library
@@ -335,6 +340,7 @@ impl App {
     }
 
     pub fn note(&self, path: &str) -> Result<NoteText> {
+        self.require_current_evidence()?;
         let root = self.require_vault()?;
         let path = VaultPath::parse(path)
             .map_err(|e| WorkflowError::typed(ErrorKind::ToolRejected, e.to_string()))?;
@@ -343,7 +349,7 @@ impl App {
     }
 
     pub fn search(&mut self, query: &str, mode: SearchMode, limit: usize) -> Result<SearchResults> {
-        self.require_editor_reconciled()?;
+        self.require_current_evidence()?;
         self.refresh()?;
         let results = self
             .library

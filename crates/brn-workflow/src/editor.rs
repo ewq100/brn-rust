@@ -52,23 +52,34 @@ fn validate_path(path: &str) -> Result<()> {
 }
 
 impl App {
-    pub(crate) fn editor_has_unresolved(&self) -> Result<bool> {
-        Ok(self.store.editor_saves()?.iter().any(unresolved))
+    pub(crate) fn proposals_have_unresolved(&self) -> Result<bool> {
+        use brn_store::work::proposal_apply::ApplyOutcome;
+        Ok(self.store.proposal_applies()?.iter().any(|journal| {
+            journal
+                .receipt
+                .as_ref()
+                .is_none_or(|receipt| receipt.outcome == ApplyOutcome::Uncertain)
+        }))
     }
 
-    pub(crate) fn require_editor_reconciled(&self) -> Result<()> {
-        if self.editor_has_unresolved()? {
+    pub(crate) fn current_evidence_blocked(&self) -> Result<bool> {
+        Ok(self.proposals_have_unresolved()? || self.store.editor_saves()?.iter().any(unresolved))
+    }
+
+    pub(crate) fn require_current_evidence(&self) -> Result<()> {
+        if self.current_evidence_blocked()? {
+            self.set_current_tool_barrier(true);
             return Err(WorkflowError::typed(
                 ErrorKind::SaveUncertain,
-                "reconcile interrupted Markdown saves before current search or AI",
+                "reconcile interrupted durable changes before reading current knowledge",
             ));
         }
         Ok(())
     }
 
-    fn synchronize_editor_barrier(&self) -> Result<()> {
+    pub(crate) fn synchronize_current_barrier(&self) -> Result<()> {
         // Pending work makes tools() refuse, so access the already-owned Arc directly.
-        self.set_editor_tool_barrier(self.editor_has_unresolved()?);
+        self.set_current_tool_barrier(self.current_evidence_blocked()?);
         Ok(())
     }
     pub(crate) fn editor_files(&mut self) -> Result<&MacFiles> {
@@ -194,6 +205,7 @@ impl App {
             .chain(reserved)
             .collect::<Vec<_>>();
         let conflict = reservation_failed
+            || self.proposals_have_unresolved()?
             || !pending.is_empty()
             || observed.as_ref().is_err()
             || observed
@@ -213,6 +225,7 @@ impl App {
 
     pub fn reload_editor(&mut self, request: &ReloadRequest) -> Result<EditorRecord> {
         validate_path(&request.path)?;
+        self.require_proposals_reconciled()?;
         let observed = self
             .editor_files()?
             .observe(Path::new(&request.path))
@@ -264,16 +277,17 @@ impl App {
             }
             return receipt_or_uncertain(&previous);
         }
+        self.require_proposals_reconciled()?;
         // Fence retained tool leases before the journal becomes visible.
-        self.set_editor_tool_barrier(true);
+        self.set_current_tool_barrier(true);
         let intent = match self.store.begin_editor_save(request, &staging) {
             Ok(intent) => intent,
             Err(error) => {
-                self.synchronize_editor_barrier()?;
+                self.synchronize_current_barrier()?;
                 return Err(error.into());
             }
         };
-        self.synchronize_editor_barrier()?;
+        self.synchronize_current_barrier()?;
         checkpoint("intent");
         let attempted = Cell::new(false);
         let result = self.execute_editor_save(&intent, &attempted);
@@ -289,7 +303,7 @@ impl App {
                     outcome,
                     installed.as_ref(),
                 )?;
-                self.synchronize_editor_barrier()?;
+                self.synchronize_current_barrier()?;
                 checkpoint("receipt");
                 // Index failures cannot turn a durable Markdown receipt into a write failure.
                 let _ = self.retire_editor_artifacts();
@@ -304,7 +318,7 @@ impl App {
                 };
                 self.store
                     .finish_editor_save(request.operation_id, outcome, None)?;
-                self.synchronize_editor_barrier()?;
+                self.synchronize_current_barrier()?;
                 let _ = self.retire_editor_artifacts();
                 if attempted.get() {
                     Err(WorkflowError::typed(
@@ -319,6 +333,17 @@ impl App {
                 }
             }
         }
+    }
+
+    fn require_proposals_reconciled(&self) -> Result<()> {
+        if self.proposals_have_unresolved()? {
+            self.set_current_tool_barrier(true);
+            return Err(WorkflowError::typed(
+                ErrorKind::SaveUncertain,
+                "reconcile the interrupted proposal before Save, Save Copy or reload",
+            ));
+        }
+        Ok(())
     }
 
     fn execute_editor_save(
@@ -671,7 +696,7 @@ impl App {
         let receipt = self
             .store
             .finish_editor_save(operation, outcome, installed.as_ref())?;
-        self.synchronize_editor_barrier()?;
+        self.synchronize_current_barrier()?;
         let _ = self.retire_editor_artifacts();
         let _ = self.refresh();
         Ok(receipt)

@@ -14,8 +14,9 @@ Store/Workspace/worker and brn-flow paths are removed.
 exposes its `OpenReport`, including the restored backup. History and settings
 work without a vault. A missing initial vault stays unbound; an unavailable
 previously bound vault returns `VaultUnavailable` for reads. The first
-`bind_vault` persists the canonical root only after Library refresh and reader
-initialization succeed. A different root needs a different data folder. Vault
+`bind_vault` persists the canonical root only after Library/reader initialization
+succeeds. It refreshes saved knowledge when no durable change is unresolved;
+otherwise current evidence remains fenced for reconciliation. A different root needs a different data folder. Vault
 and data folders cannot overlap.
 
 Credentials must be absolute, outside Git repositories, the data folder and
@@ -65,6 +66,14 @@ comments or rejection fail. AppWorker owns and drains admitted review mutations.
 Read/list/edit/comment work remains available without current vault access.
 Proposal approval/application, activity/Undo/Trash, AI Rewrite and native review
 are subsequent Stage 4 slices, not established by this foundation.
+
+The current-evidence fence covers pending/Uncertain Save and proposal journals.
+It refuses tools, note/list/search, refresh and embedding, including startup and
+model activation; retained tools cannot read through the fence. Settling a Save
+cannot clear a proposal's uncertainty. Pending proposals also refuse new Save,
+Save Copy and reload, while keeping editor recovery and existing proposal review
+readable. Storage approval journals have no public workflow approval endpoint or
+filesystem application yet.
 
 ## Explicit model installation
 
@@ -119,7 +128,7 @@ original. Required coordination/durability failures have no weaker fallback.
 
 Replay never repeats filesystem writes. Reconciliation checks prepared,
 destination-parent and installed/displaced identities; matching text alone
-cannot prove application. Unresolved saves fence current search and AI tools.
+cannot prove application. Unresolved saves fence current knowledge reads and AI tools.
 Applied completion preserves later typing. One recent Applied recovery pair and
 compact settled receipts remain after identity-proven artifact cleanup;
 unexpected artifacts and unresolved payloads stay protected. Reload binds the

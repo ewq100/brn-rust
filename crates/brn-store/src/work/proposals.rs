@@ -27,7 +27,7 @@ CREATE INDEX proposals_group ON proposals(group_id);";
 
 // JSON can expand each UTF-8 byte to six bytes. Non-text DTO overhead is bounded
 // by the change/source/comment counts; this limit is checked before loading it.
-const MAX_STORED_BYTES: usize = MAX_PROPOSAL_BYTES * 6 + 256 * 1024;
+pub(super) const MAX_STORED_BYTES: usize = MAX_PROPOSAL_BYTES * 6 + 256 * 1024;
 
 #[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
 #[serde(tag = "kind", rename_all = "snake_case", deny_unknown_fields)]
@@ -99,6 +99,9 @@ pub struct ProposalStamp {
 pub enum ProposalState {
     Draft,
     Rejected,
+    Applying,
+    Uncertain,
+    Applied,
 }
 
 #[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
@@ -173,9 +176,9 @@ pub struct CommentRequest {
 /// as well as in its indexed row. Editing never changes this binding.
 #[derive(Serialize, Deserialize)]
 #[serde(deny_unknown_fields)]
-struct StoredProposal {
-    creation_sha256: [u8; 32],
-    record: ProposalRecord,
+pub(super) struct StoredProposal {
+    pub(super) creation_sha256: [u8; 32],
+    pub(super) record: ProposalRecord,
 }
 
 struct ProposalRow {
@@ -189,7 +192,7 @@ fn encode<T: Serialize>(value: &T) -> Result<Vec<u8>> {
     serde_json::to_vec(value).map_err(|_| invalid("could not encode proposal review work"))
 }
 
-fn nonnil(id: Uuid) -> Result<()> {
+pub(super) fn nonnil(id: Uuid) -> Result<()> {
     if id.is_nil() {
         return Err(invalid("proposal review UUID must not be nil"));
     }
@@ -381,13 +384,18 @@ fn validate_comment(
     }
 }
 
-fn validate_record(record: &ProposalRecord) -> Result<()> {
+pub(super) fn validate_record(record: &ProposalRecord) -> Result<()> {
     let mut total = validate_draft(&record.draft)?;
     if record.version == 0
         || record.created_at_ms > record.updated_at_ms
         || record.comments.len() > MAX_PROPOSAL_COMMENTS
         || record.version == 1
             && (record.state != ProposalState::Draft || !record.comments.is_empty())
+        || matches!(
+            record.state,
+            ProposalState::Uncertain | ProposalState::Applied
+        ) && record.version < 3
+        || record.state == ProposalState::Applied && !record.comments.is_empty()
     {
         return Err(invalid(
             "stored proposal has invalid review state, version or timestamps",
@@ -403,7 +411,7 @@ fn validate_record(record: &ProposalRecord) -> Result<()> {
     Ok(())
 }
 
-fn read_proposal(conn: &Connection, id: Uuid) -> Result<Option<StoredProposal>> {
+pub(super) fn read_proposal(conn: &Connection, id: Uuid) -> Result<Option<StoredProposal>> {
     nonnil(id)?;
     let row: Option<ProposalRow> = conn.query_row(
         "SELECT group_id,creation_sha256,CASE WHEN length(record_json)<=?2 THEN record_json END,record_sha256 FROM proposals WHERE id=?1",
@@ -440,7 +448,7 @@ fn read_proposal(conn: &Connection, id: Uuid) -> Result<Option<StoredProposal>> 
     .transpose()
 }
 
-fn write_proposal(conn: &Connection, stored: &StoredProposal) -> Result<()> {
+pub(super) fn write_proposal(conn: &Connection, stored: &StoredProposal) -> Result<()> {
     validate_record(&stored.record)?;
     let bytes = encode(stored)?;
     if bytes.len() > MAX_STORED_BYTES {
@@ -457,7 +465,7 @@ fn write_proposal(conn: &Connection, stored: &StoredProposal) -> Result<()> {
     Ok(())
 }
 
-fn draft_at(conn: &Connection, expected: ProposalStamp) -> Result<StoredProposal> {
+pub(super) fn draft_at(conn: &Connection, expected: ProposalStamp) -> Result<StoredProposal> {
     nonnil(expected.id)?;
     let stored = read_proposal(conn, expected.id)?
         .ok_or_else(|| Error::NotFound("proposal does not exist".into()))?;
@@ -469,7 +477,7 @@ fn draft_at(conn: &Connection, expected: ProposalStamp) -> Result<StoredProposal
     Ok(stored)
 }
 
-fn advance(record: &mut ProposalRecord) -> Result<()> {
+pub(super) fn advance(record: &mut ProposalRecord) -> Result<()> {
     record.version = record
         .version
         .checked_add(1)

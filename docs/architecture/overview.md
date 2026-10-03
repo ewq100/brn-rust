@@ -82,6 +82,12 @@ Headless review operations do not apply knowledge. Whole-proposal approval,
 recoverable application, activity/Undo/Trash, AI Rewrite and native review remain
 active Stage 4 work, before later roadmap domains extend the typed changes.
 
+WorkStore V5 adds exact approval snapshots, all-member prepared proofs and
+whole-proposal receipts. Pending/Uncertain journals fence current reads and
+conflicting Save/reload while keeping review and unfinished editor work readable.
+Storage does not install files; public approval and ordinary-file recovery across
+older database restores still require the next workflow slice.
+
 ## Build boundaries and remaining work
 
 Default workspace checks exclude optional native UI/retrieval. Standalone

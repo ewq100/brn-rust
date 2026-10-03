@@ -65,14 +65,19 @@ record exact models, scope, verification and downstream constraints. Final
 independent review found no actionable defects. Fresh workspace **404 passed,
 0 failed, 1 ignored**; feature AI **68 + 1 example passed**. Default and feature
 build/Clippy, format and documentation checks passed.
-Stage 4 review foundation is implemented under [its plan](work/active/proposal-core/plan.md):
+Stage 4 review foundation is integrated at `89421f5` under [its plan](work/active/proposal-core/plan.md):
 typed Markdown drafts, version-bound full edits/comments/rejection, uncertain
 anchors, stale Rewrite-result protection and shared AppWorker/CLI access. It
-never writes knowledge. Independent review found no actionable defects; fresh
-workspace **423 passed, 0 failed, 1 ignored**, build/Clippy/format, optional native
-check and **52 existing fixture assertions** passed. Owner headless acceptance
-remains pending. Whole-proposal approval/application, activity/Undo/Trash, AI
-Rewrite and native review are the next Stage 4 slices. Stages 5–16 remain pending; no complete BRN v1 delivery is claimed.
+never writes knowledge. The next integrated slice adds V5 exact approval journals,
+complete prepared/receipt proofs and shared evidence/Save fences for unresolved
+proposal work. Independent review found retained temporary comments in journal
+snapshots; the verified fix removes them from all attempts on successful approval
+in one transaction. Re-review found no other actionable defects. Fresh workspace
+**443 passed, 0 failed, 1 ignored**, store **94 passed** (including **18 journal
+tests**), build/Clippy/format, optional native check and **52 fixture assertions**
+passed. Owner headless/native acceptance remains pending. Public approval and file
+application/recovery across older backups, activity/Undo/Trash, AI Rewrite and
+native review are next; Stage 4 remains active. Stages 5–16 remain pending; no complete BRN v1 delivery is claimed.
 Owner acceptance may remain pending when it is not a dependency for later safe
 implementation.
 
