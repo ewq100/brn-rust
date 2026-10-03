@@ -1,6 +1,6 @@
 # brn-retrieval
 
-Search over the vault's notes: a disposable `index.sqlite` with FTS5 keyword search, local embeddings and reciprocal-rank fusion ([`note_index`](src/note_index/mod.rs)), plus the local embedding model ([`native`](src/native.rs), feature `native`). The older generation-based `Index` in [lib.rs](src/lib.rs) keeps keyword search only until the cleanup step removes it.
+Search over the vault's notes: a disposable `index.sqlite` with FTS5 keyword search, local embeddings and reciprocal-rank fusion ([`note_index`](src/note_index/mod.rs)), plus the local embedding model ([`native`](src/native.rs), feature `native`).
 
 ## Dependencies and features
 

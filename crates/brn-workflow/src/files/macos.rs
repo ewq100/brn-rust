@@ -1,6 +1,6 @@
-use super::files::{NoteFileNotice, NoteNoticeKind, NoteNoticeSink, note_unsupported};
+use super::{FileErrorCode, FileOutcome, FileResult};
+use super::{NoteFileNotice, NoteNoticeKind, NoteNoticeSink, note_unsupported};
 use block2::RcBlock;
-use brn_store::notes::{FileOutcome, NoteErrorCode, NoteResult};
 use objc2::{
     AnyThread, DefinedClass, define_class, msg_send, rc::Retained, runtime::ProtocolObject,
 };
@@ -118,7 +118,7 @@ pub(super) struct Coordination {
 }
 
 impl Coordination {
-    pub(super) fn new(vault_id: Uuid, root: &Path, notices: NoteNoticeSink) -> NoteResult<Self> {
+    pub(super) fn new(vault_id: Uuid, root: &Path, notices: NoteNoticeSink) -> FileResult<Self> {
         let url = file_url(root, true)?;
         let queue = NSOperationQueue::new();
         queue.setMaxConcurrentOperationCount(1);
@@ -139,16 +139,16 @@ impl Coordination {
     pub(super) fn read<T>(
         &self,
         path: &Path,
-        action: impl FnOnce() -> NoteResult<T>,
-    ) -> NoteResult<T> {
+        action: impl FnOnce() -> FileResult<T>,
+    ) -> FileResult<T> {
         self.access(path, false, action)
     }
 
     pub(super) fn write<T>(
         &self,
         path: &Path,
-        action: impl FnOnce() -> NoteResult<T>,
-    ) -> NoteResult<T> {
+        action: impl FnOnce() -> FileResult<T>,
+    ) -> FileResult<T> {
         self.access(path, true, action)
     }
 
@@ -156,8 +156,8 @@ impl Coordination {
         &self,
         path: &Path,
         write: bool,
-        action: impl FnOnce() -> NoteResult<T>,
-    ) -> NoteResult<T> {
+        action: impl FnOnce() -> FileResult<T>,
+    ) -> FileResult<T> {
         objc2::rc::autoreleasepool(|_| {
             let url = file_url(path, false)?;
             let coordinator = NSFileCoordinator::initWithFilePresenter(
@@ -183,7 +183,7 @@ impl Coordination {
                         |_| {
                             let mut failure = note_unsupported("coordinated accessor panicked");
                             if write {
-                                failure.code = NoteErrorCode::SaveUncertain;
+                                failure.code = FileErrorCode::SaveUncertain;
                                 failure.filesystem_outcome = FileOutcome::Unknown;
                             }
                             Err(failure)
@@ -212,7 +212,7 @@ impl Coordination {
                     "macOS coordination failed: {}",
                     error.localizedDescription()
                 ));
-                failure.code = NoteErrorCode::Io;
+                failure.code = FileErrorCode::Io;
                 if write && action.borrow().is_none() {
                     failure.filesystem_outcome = FileOutcome::Unknown;
                 }
@@ -236,7 +236,7 @@ impl Drop for Coordination {
     }
 }
 
-fn file_url(path: &Path, directory: bool) -> NoteResult<Retained<NSURL>> {
+fn file_url(path: &Path, directory: bool) -> FileResult<Retained<NSURL>> {
     let path = CString::new(path.as_os_str().as_bytes())
         .map_err(|_| note_unsupported("NUL in coordinated path"))?;
     // SAFETY: path is a valid live NUL-terminated filesystem representation;
@@ -258,14 +258,14 @@ fn url_path(url: &NSURL) -> PathBuf {
 
 #[cfg(test)]
 mod tests {
-    use super::super::files::NoteNoticeQueue;
+    use super::super::NoteNoticeQueue;
     use super::*;
     use std::sync::{Arc, Mutex};
 
     #[test]
     fn adapter_can_move_to_the_owned_worker() {
         fn assert_send<T: Send>() {}
-        assert_send::<super::super::files::MacFiles>();
+        assert_send::<super::super::MacFiles>();
     }
 
     struct DenyingState {
@@ -481,7 +481,7 @@ mod tests {
     fn coordinator_rejects_panics_without_uncoordinated_fallback() {
         let root = tempfile::tempdir_in(env!("CARGO_MANIFEST_DIR")).unwrap();
         let coordination = Coordination::new(Uuid::new_v4(), root.path(), Arc::default()).unwrap();
-        let result: NoteResult<()> = coordination.write(&root.path().join("plan.md"), || {
+        let result: FileResult<()> = coordination.write(&root.path().join("plan.md"), || {
             panic!("synthetic accessor failure")
         });
         assert!(result.is_err());

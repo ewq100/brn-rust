@@ -43,7 +43,8 @@ if [[ ! -x "$binary" ]]; then
   exit 1
 fi
 
-scratch="$(mktemp -d "${TMPDIR:-/tmp}/brn-desktop-shell.XXXXXX")"
+scratch="$(mktemp -d "${TMPDIR:-/private/tmp}/brn-desktop-shell.XXXXXX")"
+scratch="$(cd "$scratch" && pwd -P)"
 trap 'rm -rf "$scratch"' EXIT
 headless_data="$scratch/data-headless"
 mkdir "$headless_data"
@@ -67,15 +68,13 @@ expect_failure 'unknown option' --unknown
 expect_failure 'help with surplus argument' --help extra
 expect_failure 'repeated data directory' --data-dir "$headless_data" --data-dir "$headless_data"
 expect_failure 'surplus argument' --data-dir "$headless_data" extra
-expect_failure 'missing data directory option' --headless-check completion
+expect_failure 'missing data directory option' --headless-check startup
 expect_failure 'missing data directory value' --data-dir
-expect_failure 'nonexistent data directory' --headless-check completion --data-dir "$scratch/missing"
+expect_failure 'nonexistent data directory' --headless-check startup --data-dir "$scratch/missing"
 file_data="$scratch/not-a-directory"
 : > "$file_data"
-expect_failure 'non-directory data path' --headless-check completion --data-dir "$file_data"
-expect_failure 'relative data path' --headless-check completion --data-dir relative-path
+expect_failure 'non-directory data path' --headless-check startup --data-dir "$file_data"
+expect_failure 'relative data path' --headless-check startup --data-dir relative-path
 
-"$binary" --headless-check completion --data-dir "$headless_data"
-"$binary" --headless-check cancellation --data-dir "$headless_data"
-"$binary" --headless-check stale --data-dir "$headless_data"
-printf 'Desktop shell verification passed (headless checks; native window not launched).\n'
+"$binary" --headless-check startup --data-dir "$headless_data"
+printf 'Desktop shell verification passed (AppWorker startup; native window not launched).\n'

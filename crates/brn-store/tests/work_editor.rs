@@ -1,6 +1,6 @@
 use brn_store::{
     Error, WorkStore,
-    notes::{FileFingerprint, PreparedFile},
+    files::{FileFingerprint, PreparedFile},
     work::{EditRequest, EditorRecord, SaveOutcome, SaveRequest},
 };
 use sha2::{Digest, Sha256};
@@ -807,7 +807,7 @@ fn compaction_is_atomic_if_journal_retirement_fails() {
 
 #[test]
 fn destination_parent_binding_is_durable_immutable_and_preparation_only() {
-    use brn_store::notes::VaultIdentity;
+    use brn_store::files::VaultIdentity;
     let (dir, mut store, editor) = fixture("base");
     let request = request(&editor, 1, "submitted", Some("copy.md"));
     store.begin_editor_save(&request, &stage(&request)).unwrap();

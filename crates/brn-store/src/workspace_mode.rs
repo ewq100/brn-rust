@@ -31,7 +31,8 @@ pub enum WorkspaceMode {
     Simple,
 }
 
-/// Advisory dispatch only. Store open repeats these checks under the owner lock.
+/// Advisory marker inspection only. WorkStore refuses legacy markers again
+/// under the owner lock before opening SQLite; no legacy database is opened.
 pub fn classify(dir: &Path) -> Result<WorkspaceMode> {
     let legacy = match refuse_legacy(dir) {
         Ok(()) => false,
@@ -51,7 +52,7 @@ pub fn classify(dir: &Path) -> Result<WorkspaceMode> {
     }
 }
 
-// Both callers hold brn.owner.lock before checking and keep it through SQLite open.
+// WorkStore holds brn.owner.lock before this check and through SQLite ownership.
 pub(crate) fn refuse_legacy(dir: &Path) -> Result<()> {
     refuse_markers(dir, "brn.sqlite3")
 }

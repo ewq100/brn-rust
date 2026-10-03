@@ -1,7 +1,8 @@
 //! Manual Markdown edits. WorkStore journals intent; the vault owns saved bytes.
-use crate::{ErrorKind, Result, WorkflowError, app::App, notes::files::MacFiles, vault::VaultPath};
-pub use brn_store::notes::FileFingerprint;
-use brn_store::notes::{NoteErrorCode, NoteFailure, VaultRecord};
+use crate::files::{FileErrorCode, FileFailure};
+use crate::{ErrorKind, Result, WorkflowError, app::App, files::MacFiles, vault::VaultPath};
+pub use brn_store::files::FileFingerprint;
+use brn_store::files::VaultRecord;
 pub use brn_store::work::editor::{
     EditRequest, EditStamp, EditorRecord, SaveIntent, SaveOutcome, SaveReceipt, SaveRequest,
 };
@@ -32,17 +33,14 @@ pub(crate) struct EditorState {
     files: Option<MacFiles>,
 }
 
-fn file_error(error: NoteFailure) -> WorkflowError {
+fn file_error(error: FileFailure) -> WorkflowError {
     let kind = match error.code {
-        NoteErrorCode::Conflict | NoteErrorCode::StateChanged | NoteErrorCode::Missing => {
-            ErrorKind::ContextStale
-        }
-        NoteErrorCode::VaultUnavailable => ErrorKind::VaultUnavailable,
-        NoteErrorCode::VaultBusy | NoteErrorCode::WorkspaceBusy => ErrorKind::WorkspaceBusy,
-        NoteErrorCode::OperationConflict => ErrorKind::OperationConflict,
-        NoteErrorCode::SaveUncertain => ErrorKind::SaveUncertain,
-        NoteErrorCode::Unsupported => ErrorKind::ToolRejected,
-        NoteErrorCode::Io | NoteErrorCode::Storage => ErrorKind::Other,
+        FileErrorCode::Conflict | FileErrorCode::Missing => ErrorKind::ContextStale,
+        FileErrorCode::VaultUnavailable => ErrorKind::VaultUnavailable,
+        FileErrorCode::VaultBusy => ErrorKind::WorkspaceBusy,
+        FileErrorCode::SaveUncertain => ErrorKind::SaveUncertain,
+        FileErrorCode::Unsupported => ErrorKind::ToolRejected,
+        FileErrorCode::Io => ErrorKind::Other,
     };
     WorkflowError::typed(kind, error.message)
 }
@@ -97,7 +95,7 @@ impl App {
                         VaultRecord {
                             id: Uuid::new_v4(),
                             root: root.to_owned(),
-                            identity: brn_store::notes::VaultIdentity {
+                            identity: brn_store::files::VaultIdentity {
                                 device: meta.dev(),
                                 inode: meta.ino(),
                             },
@@ -566,7 +564,7 @@ impl App {
                 let Some(expected) = expected else {
                     continue;
                 };
-                if artifact.identity.kind != brn_store::notes::ArtifactKind::Regular
+                if artifact.identity.kind != brn_store::files::ArtifactKind::Regular
                     || artifact.identity.device != expected.device
                     || artifact.identity.inode != expected.inode
                     || artifact.identity.len != expected.len
@@ -1174,9 +1172,9 @@ mod tests {
             let mut app = fixture.app();
             let record = app.open_editor("a.md").unwrap().record;
             let save = request(&record, "recoverable");
-            crate::notes::files::PREPARE_FAILURE.with(|selected| selected.set(Some(step)));
+            crate::files::PREPARE_FAILURE.with(|selected| selected.set(Some(step)));
             let result = app.save_editor(&save);
-            crate::notes::files::PREPARE_FAILURE.with(|selected| selected.set(None));
+            crate::files::PREPARE_FAILURE.with(|selected| selected.set(None));
             assert!(result.is_err(), "step {step}");
             assert_eq!(
                 fs::read(fixture.note()).unwrap(),

@@ -1,256 +1,95 @@
 # brn-store
 
-Operational SQLite storage and recovery for the simple app, alongside retained legacy sources/versions, local sessions, drafts and comments. Owns migrations and integrity validation; vault files own saved Markdown.
+Operational SQLite authority for BRN. WorkStore owns `brn.sqlite`, checked
+migrations, local chat, settings and unfinished editor/save recovery. Vault files
+own saved Markdown; disposable retrieval indexes live outside this crate.
 
 ## Interfaces and source
 
-[Store API](src/lib.rs), [WorkStore](src/work/mod.rs), [simple editor records](src/work/editor.rs), [drafts](src/drafts.rs), [comments](src/comments.rs), [anchor mapping](src/anchors.rs), [legacy managed-note records](src/notes.rs).
+[WorkStore](src/work/mod.rs), [editor/save journal](src/work/editor.rs),
+[chat records](src/work/chat.rs), [unfinished edit compatibility](src/work/edits.rs),
+[backup/restore](src/work/backup.rs), [filesystem proof DTOs](src/files.rs) and
+[workspace marker guards](src/workspace_mode.rs).
 
-## Mutually exclusive workspace modes
+## Database ownership and recovery
 
-Legacy `Store` (`brn.sqlite3`, schema V6) and simple `WorkStore`
-(`brn.sqlite`, schema V3) acquire the same `brn.owner.lock` **before** checking
-opposite-mode markers and **before** opening SQLite. Both refuse the other
-database and its `-wal`, `-shm` and `-journal` sidecars. Legacy Store also refuses
-recognized `backups/brn-<decimal>.sqlite` backups (including their sidecars);
-a missing simple database awaiting restore is still a simple workspace.
-Dangling symlink markers count as present. `WorkspaceModeConflict` leaves both
-authorities unchanged; an already held lock takes precedence as `WorkspaceBusy`.
-Frontend dispatch is advisory, not the exclusion mechanism. No migration or
-parallel database authority is introduced.
-`workspace_mode::classify` exposes the exact shared marker/backup checks for
-advisory dispatch (`Empty`, `Legacy`, `Simple`), with mixed markers rejected.
-It opens no database and never replaces the post-lock owner checks.
+WorkStore uses application ID `BRN2`, schema V3, and retains `brn.owner.lock`
+for its lifetime. Current settings, text-only conversations and unfinished work
+are preserved by additive migrations. Earlier WorkStore V1 unsaved-edit rows
+remain available; matching text moves atomically into the generation-aware
+editor record, while conflicting recovery stays protected.
 
-WorkStore integrity checks, V1-to-V2 upgrades, turn reconciliation and online
-backups retain their existing behavior. Tests in
-[`workspace_modes`](tests/workspace_modes.rs) exercise both owners directly;
-workflow also verifies legacy `brn-flow sessions` refuses a simple folder.
+Every open checks integrity, upgrades supported schemas, reconciles Running chat
+pairs to Interrupted, then creates a startup backup and keeps the five newest
+copies. Missing/corrupt databases restore from the newest usable backup;
+corrupt originals are moved aside. Foreign and newer databases remain refused.
+Database and lock paths must be regular single-link files. A held lock produces
+typed WorkspaceBusy; other lock I/O failures return immediately.
 
-## Attached chat writer
+The retired `brn.sqlite3` database is never opened or migrated. WorkStore refuses
+its database/sidecar markers before opening SQLite, under the owner lock.
+Advisory classification also detects current database/sidecar/backup markers and
+mixed folders, including dangling symlinks. Existing legacy folders, backups and
+vaults remain untouched.
 
-Only an open `WorkStore` can create `work::chat::ChatStore` using
-`chat_connection()`. The attachment opens the checked/migrated owner's database
-without acquiring a second owner, with matching WAL, busy timeout, foreign-key,
-trusted-schema and FULL synchronous settings. There is no arbitrary-path
-attachment constructor. Both retain the **same** `Arc<File>` lock descriptor:
-dropping the owner does not release ownership while any attachment lives.
-Connections close before their lock leases drop.
+## Exact editor work and Save journals
 
-Owner and attachment share UUID lookup, ordered turn reads, begin/finish
-transaction helpers and conflict checks. Begin/finish reserve an **Immediate**
-transaction before reading, avoiding WAL deferred read-to-write
-`BUSY_SNAPSHOT` upgrades during concurrent recovery writes. Unknown conversations
-remain `NotFound`; UUID payload or terminal result mismatches remain
-`OperationConflict`. Startup reconciliation and backups are owner-only;
-attachments never rerun them or reconcile a live turn. The workflow must drain
-and join its runtime, blocking reads and installer jobs before owner release.
-[`work_chat_attachment`](tests/work_chat_attachment.rs) covers shared-lock
-lifetime and concurrent owner recovery / attached chat finalization.
+`EditorRecord` separates exact baseline/buffer text, baseline tokens and
+monotonic generations. Opening preserves existing recovery. Recovery accepts an
+older acknowledged generation only with the same baseline token, a submission
+at least as new as durable text and exact bytes for an equal generation.
+Invalid or stale submissions never replace protected work.
 
-## Managed-note storage contract
+Save commits its exact request and intent before filesystem work. UUID binding
+includes the request and staging path. Prepared identity, destination-parent
+identity and the explicit verified no-op marker remain distinct. Pending or
+Uncertain original saves block another original Save. Applied completion
+atomically advances the baseline while retaining later typing; a copy does not
+rebind the original editor. Matching bytes alone cannot prove installation.
 
-Schema V6 adds a single registered vault, note/path identities, one exact-byte
-editing buffer per note, durable save/copy intents, recovery pairs and
-hash-checked tagged receipts. V1–V5 upgrades preserve existing records; existing
-chat turns default to `EvidenceCurrentness::Unqualified`. The
-`complete_turn_with_currentness` method atomically records terminal text,
-status and evidence currentness; `complete_turn` keeps its prior semantics.
+One most-recent Applied recovery pair remains per path; no-op/refused saves do
+not refresh it. Workflow retires only proven obsolete artifacts before storage
+compacts settled payloads into hash-checked receipts. Pending/Uncertain work and
+the latest Applied original retain full journals. Exact UUID replay survives
+compaction without granting permission to repeat file writes. Confirmed reload
+uses an exact stamp and explicit discard of local changes.
 
-The note APIs return typed `NoteResult` failures without changing existing
-store error contracts. Text is exact UTF-8, limited to 1 MiB **in bytes**;
-generations must fit SQLite's signed integer range. Buffer acknowledgements
-establish SQLite recovery, not Markdown publication. Recovery baseline bytes
-are not a fresh observation of the saved file.
+[files](src/files.rs) contains only serializable file/vault/prepared/artifact proof
+values. Their fields and wire shape are preserved from the existing Save
+implementation. Storage performs no filesystem installation, coordination or
+artifact removal.
 
-`note_record(id)` reads the validated registry path, baseline fingerprint,
-editing stamp, approval and optional latest observation. `registered_vault()`
-reads the singleton vault without requiring a note ID. `note_recoveries()`
-lists **all** registered notes, including clean notes and every unresolved
-recovery. Neither inspection method needs the filesystem.
+## Local chat
 
-`record_note_observation` persists a separately hash-checked observation
-fingerprint/token without changing the baseline, buffer or editing stamp.
-Identical consecutive observations reuse their token; returning to the
-baseline fingerprint uses its file-state token; other changes allocate a new
-UUID and invalidate prior version-bound approval. Baseline fingerprints are
-also hash-checked. These columns amend the unreleased V6 schema in place;
-expected-schema validation derives from the same V6 definition.
+`begin_turn` atomically inserts a text-only user/assistant pair with one UUID,
+conversation sequence, explicit provider and model. Exact UUID replay returns
+its Running or terminal result; changed payloads return OperationConflict.
+Unknown conversations return NotFound without inserts.
 
-V6 also persists checked content/approval epochs, dedicated note/search-snapshot
-associations and hash-checked `NoteSearchReceipt` results. Workflow supplies
-revalidated reconciled observations to `freeze_note_search_snapshot`; SQLite
-atomically freezes immutable bytes and grants only that state's permission.
-A different file state receives a new revision even for identical text;
-unchanged explicit approval reuses the snapshot. Exact-path imported originals
-remain unchanged in `note_shadowed_sources`, including after relink. Observation
-withdrawal is durable; replaying a receipt cannot restore withdrawn approval.
-Epoch overflow fails atomically, rather than coercing SQLite integers to REAL.
-These additions amend the unreleased V6 schema, not shipped databases.
+`finish_turn` atomically records both rows' terminal status/error category, final
+or partial assistant text, and the first question as the title. Terminal records
+are immutable except for identical replay. Unicode and line endings stay exact.
+Only safe user/assistant text is accepted; no tokens, device codes, raw provider
+bodies or credential metadata are stored. Restart retains already durable text
+without provider resubmission or automatic retry.
 
-Enrollment binds only the caller-visible root spelling and relative path,
-not freshly observed bytes. `note_enrollment_replay` checks that binding before
-filesystem access and returns the recorded note ID; differing inputs or
-operation kinds return OperationConflict. Existing `enroll_note` callers bind
-`vault.root`; `enroll_note_at` additionally accepts the original root spelling
-so workflow can retain a canonical registry while binding aliases exactly.
-Reopening an enrolled path never replaces its protected editing baseline.
+An attached ChatStore shares the exact owner lock and uses serialized SQLite
+transactions. Dropping WorkStore cannot release ownership while a chat
+attachment remains active.
 
-Check `note_write_result` before accessing the vault or validating fresh state.
-Operation IDs bind submissions, destinations and write kinds. Replays return
-their recorded receipt/failure and never acquire permission to write again.
-One unresolved original-path intent blocks another original save even after
-startup interruption; independently reserved copies remain allowed.
-Only note-specific completion/reconciliation can resolve these writes.
-Enrollment cannot allocate a competing identity at a reserved copy destination;
-it may reopen the already registered reserved target. Failed refusal recording
-returns `Storage` with the original refusal context, actual phase/outcome and
-no recovery acknowledgement.
+## Dependencies and verification
 
-This crate performs **no vault filesystem operations**. The workflow must
-verify prepared/installed/displaced identities and durability before supplying
-verification or reconciliation. It must also verify artifact retirement or an
-unexpected untouched occupant before `record_note_cleanup` records that
-bookkeeping. Cleanup is monotonic: `Pending` may become `Retired` only for a
-resolved known terminal outcome, or `RetainedUnexpected`; terminal values
-cannot be reversed or exchanged. Unresolved, accepted-current and
-uncertain/unknown outcomes cannot authorize retirement.
+No workspace dependencies. Uses bundled SQLite through rusqlite; only
+`brn-workflow` consumes these records in the production architecture.
 
-The dedicated `reconcile_note_operation` transition can resolve a proven
-pre-exchange failure NotApplied while preserving its exact recorded failure.
-A refusal alone is not proof: workflow must supply the matching original
-destination observation; missing proof or a substituted result is rejected.
-`reconcile_note_copy_not_installed` additionally accepts a freshly observed exact
-recorded prepared stage for an unexchanged copy: exclusive installation would have
-consumed it, so an occupied destination need not be mistaken for absence. Wrong
-stage paths/fingerprints, unprepared intents, replacements and recorded exchanges
-are refused. NotApplied releases the destination reservation without deleting any
-file, replacing the recorded failure or discarding submitted recovery. A later
-proof can resolve a historical Unknown failure while leaving its replay unchanged;
-that historical outcome still cannot authorize artifact retirement.
-
-`prune_completed_note_payloads` removes only superseded, successfully completed
-payloads with retired artifacts and no protected dependency. The latest
-recovery pair/buffer, unresolved work, unexpected artifacts and receipts
-survive. Only verified Applied outcomes advance the successful-save recovery
-pair, including Applied reconciliation that preserves a historical failure
-result; no-op and reconciled NotApplied outcomes leave that pair unchanged.
-Pruned operations remain replayable through `note_write_result`;
-their full intent is no longer returned by intent reads/lists. A normal
-unchanged-save completion creates no artifact; interrupted intent
-reconciliation cannot infer artifact absence merely from missing metadata.
-
-`validate_note_submission` provides read-only preflight using the same rules
-rechecked by submission transactions. `note_save_result(operation_id)` reads
-compact original-save/copy results after pruning (without binding a new payload);
-new submissions still use payload-bound `note_write_result` first.
-`note_cleanup_candidate` returns exact artifact proof only for known terminal
-original saves with durable recovery and no other artifact reference.
-It grants no filesystem authority: workflow must freshly verify the occupant,
-unlink only the proven regular object, sync its parent, and record retirement.
-
-`note_write_destination` retains a hash-checked compact destination binding
-after payload pruning, so a later relink cannot break identical save replay.
-`note_original_save_blocker` reports the blocking intent's known-not-applied
-Conflict versus uncertain SaveUncertain and directs callers to compare/accept.
-Copies remain independent of that original-write block.
-
-`NoteDecision`, `note_decision_replay` and `record_note_decision` bind
-reload/relink caller inputs before fresh validation. Decisions check the
-editing stamp, active jobs, discard/identity confirmation and exact observations;
-they atomically establish a new baseline token without lowering generation.
-Relink retains local text; reload replaces it only with the confirmed disk
-baseline. Neither decision resolves an outstanding save.
-
-`accept_note_disk_state(ack_op, save_op, observed_file_state, fingerprint, text)`
-checks the bound inactive original intent and reviewed observation, sets
-`AcceptedCurrent`/`acknowledged_by` in one transaction, retains local
-text/generation and leaves the original failure and artifacts untouched.
-`note_decision_recovery(ack_op)` reads its hash-checked protected pre-acknowledgement
-baseline/local snapshot. Ordinary confirmed reloads do not accumulate historical
-buffer snapshots. These additive tables amend the unreleased V6 schema; no
-filesystem operation or search approval is performed by the store.
-
-## Simple notes WorkStore
-
-[`work`](src/work/mod.rs) owns the separate `brn.sqlite` database, application
-ID `BRN2`. Additive V2 conversations/messages and V3 editor/save migrations
-preserve V1 settings and unsaved edits; the legacy `Store` V6 schema is unchanged.
-Every open retains the owner lock, checks integrity, upgrades supported schemas,
-reconciles Running chat pairs to Interrupted, then creates the startup backup
-and keeps the five newest copies. Foreign and newer databases remain refused.
-
-[`editor`](src/work/editor.rs) preserves exact baseline/buffer text, baseline
-tokens and monotonic generations. Opening never replaces existing recovery.
-Matching earlier unsaved text moves atomically into the editor record;
-conflicting earlier recovery stays protected. Save commits its exact request and
-intent before filesystem work; UUID replay binds the request and staging path.
-Prepared identity, destination-parent identity and an explicit verified no-op
-marker remain distinct. Pending/Uncertain original saves block another original.
-
-Applied original receipts atomically advance the baseline while retaining later
-typing. Copies do not rebind the original editor. One most-recent Applied recovery
-pair is retained per path; no-op/refused saves do not refresh it. Workflow retires
-only proven obsolete artifacts before storage compacts settled payloads into
-hash-checked receipts. Pending/Uncertain work and the latest Applied original
-retain full journals. Confirmed reload adopts freshly reviewed disk bytes with
-an exact stamp and explicit discard of local changes. Storage performs no file
-installation or removal.
-
-[`chat`](src/work/chat.rs) persists only local text-only user/assistant pairs.
-`begin_turn` atomically inserts both rows with the same UUID, conversation
-sequence, provider and model. `None` creates a conversation; an unknown supplied
-conversation returns `Error::NotFound` without inserts. Exact UUID replay returns
-the recorded Running or terminal result, never permission to repeat external
-work; changed payloads return `Error::OperationConflict`.
-
-`finish_turn` atomically records both rows' terminal status/error category,
-the assistant's final or partial text, and the first question as the title.
-Terminal records are immutable except for identical replay. Question and answer
-bytes (including Unicode and line endings) are preserved. Questions must be
-nonblank; providers are `chatgpt` or `copilot`; model identifiers are 1–128 ASCII
-bytes using letters, digits and `-_.:/`. Optional error codes are limited to
-`reconnect_needed`, `code_expired`, `rate_limited`, `network`, `model_refused`,
-`invalid_tool_use`, `tool_limit_reached`, `unsafe_credentials`, `tool_rejected`,
-`index_stale`, `storage` and `other`. There is no dependency on AI/Rig types and
-no column or API for raw provider bodies, tool history or credential metadata.
-Callers supply only safe user/assistant text, never tokens or device codes.
-
-`turns` returns **all** local pairs in sequence order; workflow limits outbound
-history to 20 earlier pairs. Restart preserves only already durable text: there
-is no per-token crash recovery, automatic retry or provider resubmission.
-Connection-based begin/finish helpers are reusable by the later chat lane;
-this slice does not attach additional connections or implement workers.
-
-Focused offline checks, using disposable synthetic fixtures:
+Run offline checks with disposable synthetic fixtures:
 
 ```sh
-cargo test -p brn-store --test work --test work_chat --test work_editor --locked
-cargo clippy -p brn-store --all-targets --locked -- -D warnings
+cargo test -p brn-store --locked --offline
+cargo clippy -p brn-store --all-targets --locked --offline -- -D warnings
 ```
 
-## Dependencies and features
-
-No workspace dependencies. Uses bundled SQLite through rusqlite; consumed by `brn-workflow`.
-
-## Verification
-
-Run from the repository root:
-
-```sh
-cargo test -p brn-store --locked
-bash scripts/verify-storage.sh
-```
-
-Tests cover drafts, comments, workflow records, managed-note transactions and
-cleanup, migrations and process-crash recovery. The bounded note check is:
-
-```sh
-cargo test -p brn-store --test notes --test storage --test workflow --locked
-```
-
-Use disposable data; preserve exact bytes, immutable provenance and
-transactional acknowledgement. These checks do not qualify the macOS
-filesystem adapter, native editing or live-vault behavior.
-
-Read the [architecture overview](../../docs/architecture/overview.md), [invariants](../../docs/architecture/invariants.md) and [verification guide](../../docs/development/verification.md) before changing contracts.
+Tests cover migrations, foreign/newer/corrupt/missing databases, backup restore,
+marker refusal, lock/attachment ownership, exact bytes, stale acknowledgements,
+uncertain saves, parent proof, no-op replay and compact recovery. Workflow tests
+qualify filesystem execution and process interruption separately.

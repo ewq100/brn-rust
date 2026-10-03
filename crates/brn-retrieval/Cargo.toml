@@ -12,7 +12,6 @@ native = ["dep:fastembed", "dep:reqwest", "dep:sha1", "dep:libc"]
 sha2 = "0.10"
 hex = "0.4"
 uuid = { version = "1", features = ["v4"] }
-serde = { version = "1", features = ["derive"] }
 serde_json = "1"
 thiserror = "2"
 rusqlite = { version = "=0.40.2", default-features = false, features = ["bundled"] }

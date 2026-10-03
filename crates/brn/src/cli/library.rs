@@ -23,66 +23,16 @@ fn typed(kind: ErrorKind, message: &str) -> CliFailure {
     CliError::Typed(kind, message.into()).into()
 }
 
-pub fn simple_dispatch(i: &Invocation) -> Result<bool, CliFailure> {
-    let mode = brn_workflow::workspace_mode(&i.data_dir).map_err(classify_workflow)?;
-    let explicit = matches!(
-        i.command,
-        Command::Editor(_)
-            | Command::Ai(_)
-            | Command::ModelDownload { .. }
-            | Command::NotesList { .. }
-            | Command::NotePath(_)
-    );
-    let shared = matches!(
-        i.command,
-        Command::Status
-            | Command::Search { .. }
-            | Command::ConversationsList
-            | Command::ConversationsShow { .. }
-    );
-    let simple_flags = i.vault.is_some() || i.credentials_dir.is_some();
-    if i.legacy && mode == WorkspaceMode::Simple || simple_flags && mode == WorkspaceMode::Legacy {
+pub fn validate_workspace(i: &Invocation) -> Result<(), CliFailure> {
+    if brn_workflow::workspace_mode(&i.data_dir).map_err(classify_workflow)?
+        == WorkspaceMode::Legacy
+    {
         return Err(typed(
             ErrorKind::WorkspaceModeConflict,
-            "options select a different workspace authority",
+            "legacy workspace markers require a separate current data directory",
         ));
     }
-    if matches!(i.command, Command::Ask { .. }) {
-        return match mode {
-            WorkspaceMode::Legacy => Err(typed(ErrorKind::LegacyAiRetired, "legacy AI submission is retired; use a new simple data directory with --vault; legacy history remains readable")),
-            WorkspaceMode::Empty if i.vault.is_none() => Err(typed(ErrorKind::VaultNotBound, "ask needs --vault to initialize an empty data directory")),
-            _ => Ok(true),
-        };
-    }
-    if explicit {
-        return if mode == WorkspaceMode::Legacy {
-            Err(typed(
-                ErrorKind::WorkspaceModeConflict,
-                "simple actions cannot open a legacy workspace",
-            ))
-        } else {
-            Ok(true)
-        };
-    }
-    if shared {
-        return match mode {
-            WorkspaceMode::Legacy => Ok(false),
-            WorkspaceMode::Simple => Ok(true),
-            WorkspaceMode::Empty if i.vault.is_some() => Ok(true),
-            WorkspaceMode::Empty if i.legacy => Ok(false),
-            WorkspaceMode::Empty => Err(typed(
-                ErrorKind::WorkspaceModeRequired,
-                "empty shared commands require --vault or --legacy",
-            )),
-        };
-    }
-    if mode == WorkspaceMode::Simple {
-        return Err(typed(
-            ErrorKind::WorkspaceModeConflict,
-            "legacy-only actions cannot open simple work storage",
-        ));
-    }
-    Ok(false)
+    Ok(())
 }
 
 fn config(i: &Invocation) -> AppConfig {
@@ -417,11 +367,7 @@ fn execute(
             profile,
             limit,
         } => {
-            let mode = match profile.unwrap_or(brn_workflow::SearchProfile::Hybrid) {
-                brn_workflow::SearchProfile::Keyword => SearchMode::Keyword,
-                brn_workflow::SearchProfile::Semantic => SearchMode::Semantic,
-                brn_workflow::SearchProfile::Hybrid => SearchMode::Hybrid,
-            };
+            let mode = profile.unwrap_or(SearchMode::Hybrid);
             let AppEvent::Search(results) = lane.query(AppCommand::Search {
                 query: query.clone(),
                 mode,
@@ -462,7 +408,6 @@ fn execute(
         ),
         Command::Ai(command) => account(i, lane, command),
         Command::ModelDownload { .. } => download(i, lane),
-        _ => unreachable!("simple commands only"),
     }
 }
 
@@ -1205,258 +1150,5 @@ mod tests {
         assert_eq!(failure.error.code(), "AI_STORAGE_ERROR");
         assert_eq!(failure.error.exit_code(), 1);
         assert_eq!(failure.context.unwrap()["recorded_status"], "failed");
-    }
-
-    #[test]
-    fn all_dispatch_rows_use_shared_classifier_without_network_or_authority_creation() {
-        let id = "00000000-0000-0000-0000-000000000001";
-        let simple = vec![
-            vec!["edit", "open", "plan.md"],
-            vec!["edit", "list"],
-            vec!["edit", "reconcile", id],
-            vec![
-                "edit",
-                "reload",
-                "plan.md",
-                "--baseline",
-                id,
-                "--expected-generation",
-                "0",
-                "--observed-file",
-                "/synthetic",
-            ],
-            vec![
-                "edit",
-                "recover",
-                "plan.md",
-                "--baseline",
-                id,
-                "--expected-generation",
-                "0",
-                "--generation",
-                "1",
-                "--file",
-                "/synthetic",
-            ],
-            vec![
-                "edit",
-                "save",
-                "plan.md",
-                "--baseline",
-                id,
-                "--expected-generation",
-                "0",
-                "--generation",
-                "1",
-                "--file",
-                "/synthetic",
-                "--operation",
-                id,
-            ],
-            vec!["ai", "connect", "chatgpt"],
-            vec!["ai", "disconnect", "copilot"],
-            vec!["ai", "status"],
-            vec!["ai", "models", "chatgpt"],
-            vec![
-                "ai",
-                "select",
-                "--provider",
-                "chatgpt",
-                "--model",
-                "gpt-5.5",
-            ],
-            vec!["models", "download", "--approve-download"],
-            vec!["notes", "list"],
-            vec!["notes", "show", "plan.md"],
-        ];
-        let legacy = vec![
-            vec!["notes", "show", id],
-            vec!["notes", "recovery", "list"],
-            vec!["notes", "recovery", "show", id],
-            vec!["notes", "recovery", "reconcile", "--operation", id],
-            vec!["notes", "compare", id],
-            vec!["notes", "approve-for-search", id, "--file-state", id],
-            vec![
-                "notes",
-                "buffer",
-                "save",
-                id,
-                "--base-file-state",
-                id,
-                "--expected-generation",
-                "0",
-                "--generation",
-                "1",
-                "--text-file",
-                "/synthetic",
-            ],
-            vec![
-                "notes",
-                "save",
-                id,
-                "--base-file-state",
-                id,
-                "--expected-generation",
-                "0",
-                "--generation",
-                "1",
-                "--text-file",
-                "/synthetic",
-            ],
-            vec![
-                "notes",
-                "reload",
-                id,
-                "--base-file-state",
-                id,
-                "--expected-generation",
-                "0",
-                "--discard-local-edits",
-            ],
-            vec![
-                "notes",
-                "relink",
-                id,
-                "--path",
-                "plan.md",
-                "--base-file-state",
-                id,
-                "--expected-generation",
-                "0",
-                "--confirm-identity",
-            ],
-            vec![
-                "notes",
-                "save-copy",
-                id,
-                "--path",
-                "copy.md",
-                "--base-file-state",
-                id,
-                "--expected-generation",
-                "0",
-                "--generation",
-                "1",
-                "--text-file",
-                "/synthetic",
-            ],
-            vec![
-                "notes",
-                "recovery",
-                "accept-current",
-                "--save-operation",
-                id,
-                "--file-state",
-                id,
-                "--keep-recovery",
-            ],
-            vec!["import", "/synthetic"],
-            vec!["documents", "list"],
-            vec!["documents", "show", id],
-            vec![
-                "documents",
-                "set-search-approval",
-                id,
-                "--version-id",
-                id,
-                "--state",
-                "approved",
-            ],
-            vec!["drafts", "list"],
-            vec!["comments", "list", "--draft", id],
-            vec!["revisions", "list", "--draft", id],
-            vec!["index", "build"],
-        ];
-        let shared = vec![
-            vec!["status"],
-            vec!["search", "q"],
-            vec!["conversations", "list"],
-            vec!["conversations", "show", id],
-        ];
-        for (marker, mode) in [
-            (None, WorkspaceMode::Empty),
-            (Some("brn.sqlite3-journal"), WorkspaceMode::Legacy),
-            (Some("brn.sqlite-shm"), WorkspaceMode::Simple),
-            (Some("backups/brn-123.sqlite-wal"), WorkspaceMode::Simple),
-        ] {
-            let base = tempfile::tempdir().unwrap();
-            let data = base.path().join("data");
-            let vault = base.path().join("vault");
-            std::fs::create_dir(&data).unwrap();
-            std::fs::create_dir(&vault).unwrap();
-            std::fs::create_dir(data.join("backups")).unwrap();
-            if let Some(marker) = marker {
-                std::fs::write(data.join(marker), []).unwrap();
-            }
-            let parse = |args: &[&str], flags: &[&str]| {
-                let argv = args
-                    .iter()
-                    .chain(flags)
-                    .copied()
-                    .chain(["--data-dir", data.to_str().unwrap()])
-                    .map(str::to_owned)
-                    .collect::<Vec<_>>();
-                match super::super::parse(&argv) {
-                    Ok(super::super::Outcome::Run(i)) => i,
-                    _ => panic!("valid matrix command {args:?}"),
-                }
-            };
-            for args in &simple {
-                let result = simple_dispatch(&parse(args, &[]));
-                if mode == WorkspaceMode::Legacy {
-                    assert_eq!(
-                        result.err().unwrap().error.code(),
-                        "WORKSPACE_MODE_CONFLICT",
-                        "{args:?}"
-                    );
-                } else {
-                    assert!(result.unwrap(), "{args:?}");
-                }
-            }
-            for args in &legacy {
-                let result = simple_dispatch(&parse(args, &[]));
-                if mode == WorkspaceMode::Simple {
-                    assert_eq!(
-                        result.err().unwrap().error.code(),
-                        "WORKSPACE_MODE_CONFLICT",
-                        "{args:?}"
-                    );
-                } else {
-                    assert!(!result.unwrap(), "{args:?}");
-                }
-            }
-            for args in &shared {
-                let result = simple_dispatch(&parse(args, &[]));
-                if mode == WorkspaceMode::Empty {
-                    assert_eq!(
-                        result.err().unwrap().error.code(),
-                        "WORKSPACE_MODE_REQUIRED"
-                    );
-                    assert!(!simple_dispatch(&parse(args, &["--legacy"])).unwrap());
-                    assert!(
-                        simple_dispatch(&parse(args, &["--vault", vault.to_str().unwrap()]))
-                            .unwrap()
-                    );
-                } else {
-                    assert_eq!(result.unwrap(), mode == WorkspaceMode::Simple);
-                }
-            }
-            let result = simple_dispatch(&parse(&["ask", "q"], &[]));
-            match mode {
-                WorkspaceMode::Empty => {
-                    assert_eq!(result.err().unwrap().error.code(), "VAULT_NOT_BOUND");
-                    assert!(simple_dispatch(&parse(
-                        &["ask", "q"],
-                        &["--vault", vault.to_str().unwrap()]
-                    ))
-                    .unwrap());
-                }
-                WorkspaceMode::Legacy => {
-                    assert_eq!(result.err().unwrap().error.code(), "LEGACY_AI_RETIRED")
-                }
-                WorkspaceMode::Simple => assert!(result.unwrap()),
-            }
-            assert!(!data.join("brn.sqlite3").exists() && !data.join("brn.sqlite").exists());
-        }
     }
 }

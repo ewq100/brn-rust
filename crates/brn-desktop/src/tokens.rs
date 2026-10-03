@@ -47,8 +47,6 @@ pub const LIGHT: Palette = Palette {
 
 /// Interface chrome, paths, statuses and controls.
 pub const CHROME_FONT: &str = "Menlo";
-/// Editorial reading surface.
-pub const READING_FONT: &str = "Georgia";
 
 pub fn palette(scheme: Scheme) -> Palette {
     match scheme {

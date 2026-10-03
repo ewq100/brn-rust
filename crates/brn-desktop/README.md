@@ -1,8 +1,8 @@
 # brn-desktop
 
-Desktop entry point, GPUI views and transient interaction state. Simple operations go through AppWorker; legacy local operations keep their existing Worker. Also retains sample headless shell checks.
+Desktop entry point, GPUI views and transient interaction state. All operations go through AppWorker. The headless startup check opens and joins the same current workflow without GPUI.
 
-## Simple workspace (native default)
+## Current workspace (native default)
 
 The default is **`~/Library/Application Support/BRN-simple`**, with the exact
 **`BRN-simple.credentials`** sibling. Startup never inspects/copies/migrates the
@@ -62,22 +62,21 @@ Later Download requires fresh explicit approval; its destination is not passed
 as a startup load path. Cancel Download targets the active installation UUID.
 Downloaded is not Installed; activation/indexing errors end progress honestly.
 
-`--legacy` explicitly opens `~/Library/Application Support/BRN`. An explicit
-`--data-dir` classifies database/sidecar/backup markers; mixed modes refuse before
-opening. Empty directories default to simple unless `--legacy` is supplied.
-`--legacy`/`--vault` conflicts refuse before database work. Legacy retains local
-editing/recovery/history and its note guards, but AI and executable controls are
-retired. `--codex` is unknown, not accepted configuration. The legacy Config
-contains only a local model directory. No App is opened in a legacy folder.
+`--legacy` is unknown. Legacy database, sidecar and mixed authority markers
+refuse before opening authority or writing a startup probe; empty directories
+use the current workspace. Startup never opens or migrates old data.
+`--codex` is unknown. `--model-dir` supplies an explicit local retrieval model
+path; account and chat model selection remain independent Settings actions.
 
 ## Interfaces and source
 
-[Entry point](src/main.rs), [layout model](src/layout.rs) and [tokens](src/tokens.rs) (GPUI-free, default-feature tests), [native shell](src/native/mod.rs) with [theme](src/native/theme.rs) and [regions](src/native/shell/mod.rs), [draft UI](src/drafts.rs), [comment UI](src/comments.rs), [CLI tests](tests/cli.rs). Layout and appearance persist to `layout.json` in the data directory. See the [workspace shell decision](../../docs/architecture/decisions/2026-10-01-workspace-shell.md) and the [UI feature backlog](../../docs/ui/feature-backlog.md).
+[Entry point](src/main.rs), [layout model](src/layout.rs) and [tokens](src/tokens.rs) (GPUI-free, default-feature tests), [native shell](src/native/mod.rs) with [theme](src/native/theme.rs) and [regions](src/native/shell/mod.rs), [CLI tests](tests/cli.rs). Layout and appearance persist to `layout.json` in the data directory. See the [workspace shell decision](../../docs/architecture/decisions/2026-10-01-workspace-shell.md) and the [UI feature backlog](../../docs/ui/feature-backlog.md).
 
 The native workspace has History and Vault rails around a document/chat centre.
 Narrow windows collapse rails and use Document/Chat tabs; Focus hides the rails.
-Closing a document retains draft edits, and late draft-open results cannot replace
-newer document navigation. Settings uses the toolkit modal host for appearance,
+Closing a document waits for its latest buffer recovery acknowledgement. Later
+edits survive older Save and recovery acknowledgements. Settings uses the toolkit
+modal host for appearance,
 rail widths and layout reset. Layout preferences are stored separately from the
 authoritative workflow data.
 
@@ -85,86 +84,26 @@ The three dividers support pointer dragging and keyboard resizing: Tab among
 chrome controls to focus, then ←/→ for 8 pt or ⇧←/→ for 32 pt. Grabs preserve
 the pointer offset within the divider; only changed layouts persist when a drag
 ends, including when the window deactivates. Tab/Shift-Tab inside multiline
-composer/draft/comment editors indent/outdent (toolkit behaviour); leave editors
+composer/note editors indent/outdent (toolkit behaviour); leave editors
 via ⌘L, menus, Escape or other applicable shortcuts.
 The BRN, View and Navigate menus expose Settings
 (⌘,), Quit (⌘Q), History (⌘0), Vault (⌥⌘0), Focus (⇧⌘↩), New Chat (⌘N),
-Focus Composer (⌘L) and Cancel Running Action (⌘.). Legacy New Chat is idle-only; simple history navigation stays independent of Ask.
-Quit still respects dirty drafts. Escape remains local to editors and the
+Focus Composer (⌘L) and Cancel Running Action (⌘.). History navigation stays
+independent of Ask. Quit waits for latest note recovery and joins admitted
+workflow mutations. Escape remains local to editors and the
 toolkit Settings dialog.
 
-## Legacy local Markdown notes (`--legacy` or legacy markers)
-
-The native vault-rail **Notes** section chooses a local vault, opens existing
-`.md` files by chooser or vault-relative path, and reopens registered notes/recovery
-after restart. Notes open as centre documents with interim editing controls.
-A workspace binds one vault; a different root requires a separate data directory.
-Save/Cmd-S in the note editor explicitly writes Markdown through the workflow.
-Search approval is a separate
-saved-snapshot action, not Save or publication approval. Existing source rows
-retain their last-validated current-state labels and refresh after note changes.
-
-[`notes.rs`](src/notes.rs) keeps exact UTF-8 text (including BOM, mixed line
-endings and frontmatter), editing generations and durable acknowledgements
-separate from fresh disk observations. Save and recovery receipts acknowledge
-only their submitted generation; later typing stays in the live GPUI editor.
-Copy receipts validate a distinct destination without switching the original
-editor or resolving an uncertain original operation. The UI shows Unsaved,
-Recoverable in BRN, Saving to Markdown, Saved to Markdown, External conflict
-and Save outcome uncertain, alongside missing/root-unavailable/owned-elsewhere
-availability and typed failure details.
-
-Recovery is scheduled after **500 ms** without an edit and coalesces to the
-latest text. This is not a durability deadline: the single worker can be busy
-with local model/index work. Only an acknowledged commit establishes recoverability.
-Window close, the application Quit action/menu/Cmd-Q and note-switch/actions
-defer for pending note mutations and flush the latest buffer asynchronously.
-Failed recovery keeps work accessible until explicit retry or confirmed discard
-of unrecovered typing.
-Other note-action failures, including save conflicts and uncertain
-reconciliation, do not pause automatic buffer recovery or deferred-close flushes.
-That discard preserves acknowledged recovery and uncertain operations; confirmed
-reload is a separate workflow decision that discards local text in favor of disk.
-Reload refuses an inode change. Atomic-save editors such as TextEdit replace the
-inode; use confirmed Relink to the same path first, then Reload with explicit
-discard if desired. Relink alone retains local edits.
-Standalone draft/comment close guards remain independent.
-
-Direct macOS termination, such as Dock Quit, does not pass through those action
-guards in the pinned GPUI implementation. Its final `on_app_quit` hook cannot
-veto termination. It dispatches no new recovery flush: even an idle worker's
-SQLite commit has no guaranteed completion bound, and an admitted critical job
-must be joined rather than abandoned at GPUI's 200 ms quit-future deadline.
-Guarded close/Quit drain and join local work asynchronously before closing,
-including admitted critical notes, chat finalization, installers and ordered
-layout writes. Finalization failure blocks closing and retains the unsaved
-partial; a separate explicit close-without-saving confirmation is offered.
-The defensive system-termination hook preserves the legacy Worker's synchronous
-drain of already accepted critical note jobs before returning its timed future,
-without waiting for layout preferences. Simple AppWorker joins stay off GPUI;
-that path cannot veto termination or guarantee completion at GPUI's
-quit-future deadline.
-It does not flush the latest coalesced UI submission if it was not already
-admitted, and cannot keep the window open on recovery failure. Unacknowledged
-typing can be lost. Restart reconciliation classifies interrupted save intents
-without replaying their filesystem writes; it cannot recover typing that was
-never durably recorded. This limitation does not extend to the guarded routes
-listed above, and no protection is claimed for unadmitted typing on termination.
-
-Presenter notices are drained even while a job is running, then coalesced into
-idle worker observations. Root/rescan notices observe all registered notes;
-moves/deletions never retarget buffers. Editor focus, window activation and note
-actions request fresh observation; notifications cannot prove eligibility.
-Comparison shows baseline/local/disk text or deletion, with unexpected
-displacement retained by the operation recovery. Relink explicitly confirms
-identity and retains edits. Copies use an explicit user-entered vault-relative
-`.md` destination and cannot overwrite an occupant. Recovery inspection,
-reconciliation and accepting reviewed current disk state retain the original
-outcome and protected recovery; none silently replay a write.
+Dock/system termination cannot veto exit in the pinned GPUI toolkit. The final
+hook submits no new recovery flush. It synchronously drains admitted AppWorker
+mutations before returning GPUI's timed future; this can block the UI during
+defensive system termination. Guarded close joins on the background executor.
+Guarded window close, Quit, document close and note switch retain the current
+buffer until recovery is acknowledged. Unacknowledged typing may be lost during
+system termination. Restart reconciliation does not replay filesystem writes.
 
 ## Dependencies and features
 
-Always depends on `brn-core` and workflow DTOs for GPUI-independent AI state tests.
+Depends on workflow DTOs for GPUI-independent AI/editor state tests.
 Default features are empty; `native-ui` enables GPUI; `native-retrieval` includes
 native UI and workflow native retrieval. Normal native builds enable both.
 
@@ -177,12 +116,16 @@ cargo test -p brn-desktop --locked --offline
 cargo test -p brn-desktop --features native-ui,native-retrieval --locked --offline
 cargo build -p brn-desktop --features native-ui,native-retrieval --locked --offline
 bash scripts/verify-desktop-shell.sh --native
+# Existing disposable absolute data directory only:
+cargo run -p brn-desktop --locked --offline -- --data-dir /absolute/disposable/data --headless-check startup
 ```
 
 Native interaction requires macOS Apple Silicon and an unlocked session. Use explicit disposable data. Preserve dirty-state guards, focus/selection, exact original quotes and generation-aware response handling.
 
-Note-state tests exercise the GPUI-kit Rope text backend programmatically,
-including BOM/CRLF/Unicode and byte limits, plus receipt/close/retry scheduling.
+Editor-state tests cover exact BOM/CRLF/Unicode text, byte limits and
+receipt/close/retry scheduling. Native-feature tests round-trip the GPUI-kit
+Rope backend through real AppWorker Save and restart recovery, and verify that
+admitted Save drains before the defensive timed quit future.
 They do not establish widget rendering, IME/accessibility behavior, OS chooser
 usability or human acceptance. Those still require native observation.
 

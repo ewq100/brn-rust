@@ -1,4 +1,4 @@
-"""Synthetic simple-vault reads/search and separate legacy local fixture."""
+"""Synthetic current-vault reads/search, Save/recovery and marker refusal."""
 import hashlib
 import json
 import os
@@ -37,7 +37,7 @@ def run(binary, data, *args, code=0, envelope=False):
 
 
 try:
-    data, vault, legacy = (scratch / name for name in ("simple", "vault", "legacy"))
+    data, vault, legacy = (scratch / name for name in ("current", "vault", "old-marker"))
     for directory in (data, vault, legacy):
         directory.mkdir(mode=0o700)
     note = vault / "plan.md"
@@ -62,30 +62,36 @@ try:
     check(bool(refreshed["hits"]), refreshed)
     check(not (data / "brn.sqlite3").exists(), "mixed legacy authority")
     check((data / "brn.sqlite").is_file(), "simple authority missing")
-    run("brn-flow", data, "sources", code=1)
-
-    source = scratch / "source.txt"
-    source.write_text("The syntheticterm bluejaytheta identifies this private fixture.\n")
-    first = run("brn-flow", legacy, "import", "--file", str(source), "--approve", "yes")
-    again = run("brn-flow", legacy, "import", "--file", str(source), "--approve", "yes")
-    check(first["source_id"] == again["source_id"] and first["version_id"] == again["version_id"] and again["changed"] is False, again)
-    projection = run("brn-flow", legacy, "sources")
-    check(len(projection["sources"]) == 1 and projection["source_states"][0]["current_state"] == "Current", projection)
-    check(run("brn-flow", legacy, "sessions") == [], "unexpected history")
-    run("brn-flow", legacy, "build")
-    hits = run("brn-flow", legacy, "search", "--query", "syntheticterm", "--profile", "keyword")
-    check(bool(hits["evidence"]), hits)
-    run("brn-flow", legacy, "search", "--query", "syntheticterm", "--profile", "semantic", code=1)
-    source.write_text("The syntheticterm copperbadger identifies the updated fixture.\n")
-    run("brn-flow", legacy, "import", "--file", str(source), "--approve", "yes")
-    stale = run("brn-flow", legacy, "search", "--query", "copperbadger", code=1)
-    check("stale" in stale, stale)
-    run("brn-flow", legacy, "build")
-    updated = run("brn-flow", legacy, "search", "--query", "copperbadger")
-    check(any("copperbadger" in hit["quote"] for hit in updated["evidence"]), updated)
-    run("brn-flow", legacy, "ask", "--query", "question", code=1)
-    check(not (legacy / "brn.sqlite").exists(), "mixed simple authority")
-    print(f"End-to-end fixtures passed: {checks} assertions (simple vault + legacy local; no account/model/network).")
+    # Each command is a fresh process, so rolling edits exercise restart recovery.
+    opened = run("brn", data, "edit", "open", "plan.md", "--json", envelope=True)
+    record = opened["record"]
+    stamp = record["stamp"]
+    input_file = scratch / "edit.txt"
+    updated = original + "Unfinished synthetic edit: λ\r\n".encode()
+    input_file.write_bytes(updated)
+    common = ("plan.md", "--baseline", stamp["baseline"], "--expected-generation", "0", "--generation", "1", "--file", str(input_file))
+    recovered = run("brn", data, "edit", "recover", *common, "--json", envelope=True)
+    check(recovered["text"].encode() == updated and note.read_bytes() != updated, recovered)
+    restarted = run("brn", data, "edit", "open", "plan.md", "--json", envelope=True)
+    check(restarted["record"]["text"].encode() == updated, restarted)
+    operation = str(uuid.uuid4())
+    save_common = ("plan.md", "--baseline", stamp["baseline"], "--expected-generation", "1", "--generation", "1", "--file", str(input_file))
+    saved = run("brn", data, "edit", "save", *save_common, "--operation", operation, "--json", envelope=True)
+    check(saved["outcome"] == "Applied" and note.read_bytes() == updated, saved)
+    replay = run("brn", data, "edit", "save", *save_common, "--operation", operation, "--json", envelope=True)
+    check(replay == saved, replay)
+    input_file.write_bytes(b"Copy synthetic exact bytes\r\n")
+    stamp = saved["stamp"]
+    copied = run("brn", data, "edit", "save", "plan.md", "--baseline", stamp["baseline"], "--expected-generation", "1", "--generation", "2", "--file", str(input_file), "--operation", str(uuid.uuid4()), "--copy", "copy.md", "--json", envelope=True)
+    check(copied["outcome"] == "Applied" and (vault / "copy.md").read_bytes() == input_file.read_bytes(), copied)
+    check(note.read_bytes() == updated, "copy changed original")
+    occupied = run("brn", data, "edit", "save", "plan.md", "--baseline", stamp["baseline"], "--expected-generation", "2", "--generation", "2", "--file", str(input_file), "--operation", str(uuid.uuid4()), "--copy", "copy.md", "--json", code=1, envelope=True)
+    check(occupied["code"] == "CONTEXT_STALE", occupied)
+    (legacy / "brn.sqlite3-journal").write_bytes(b"synthetic old marker")
+    failed = run("brn", legacy, "status", "--json", code=1, envelope=True)
+    check(failed["code"] == "WORKSPACE_MODE_CONFLICT" and not (legacy / "brn.sqlite").exists(), failed)
+    check((legacy / "brn.sqlite3-journal").read_bytes() == b"synthetic old marker", "marker changed")
+    print(f"End-to-end fixtures passed: {checks} assertions (current vault, Save/recovery and marker refusal; no account/model/network).")
 finally:
     # Only this exclusively created, UUID-owned fixture; never follow symlinks.
     for entry in sorted(scratch.rglob("*"), key=lambda p: len(p.parts), reverse=True):

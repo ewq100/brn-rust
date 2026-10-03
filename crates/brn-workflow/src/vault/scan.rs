@@ -1,5 +1,5 @@
 use super::path::{VaultPath, is_markdown_name};
-use crate::MAX_IMPORT_BYTES;
+use crate::MAX_NOTE_BYTES;
 use std::{fs::Metadata, os::unix::ffi::OsStrExt, path::Path, time::UNIX_EPOCH};
 
 #[derive(Debug, Clone, PartialEq, Eq)]
@@ -90,7 +90,7 @@ fn visit(dir: &Path, prefix: &str, found: &mut Scan) -> std::io::Result<()> {
                 continue;
             };
             let meta = entry.metadata()?;
-            if meta.len() > MAX_IMPORT_BYTES as u64 {
+            if meta.len() > MAX_NOTE_BYTES as u64 {
                 found.skipped.push(Skipped {
                     path: relative,
                     reason: SkipReason::TooLarge,

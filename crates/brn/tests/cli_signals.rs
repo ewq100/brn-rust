@@ -14,7 +14,7 @@ mod support;
 #[test]
 fn closed_stdout_consumer_is_quiet_success() {
     let dir = support::data_dir();
-    for args in [vec!["status", "--legacy"], vec!["--help"]] {
+    for args in [vec!["status"], vec!["--help"]] {
         let mut child = Command::new(env!("CARGO_BIN_EXE_brn"))
             .args(args)
             .arg("--data-dir")

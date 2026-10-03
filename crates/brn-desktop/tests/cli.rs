@@ -20,14 +20,17 @@ fn bad_arguments_fail() {
     for args in [
         &["--help", "extra"][..],
         &["--help", "--help"][..],
-        &["--headless-check", "completion"][..],
+        &["--headless-check", "startup"][..],
         &["--headless-check", "nope"][..],
+        &["--headless-check", "completion"][..],
+        &["--headless-check", "cancellation"][..],
+        &["--headless-check", "stale"][..],
     ] {
         assert!(!run(args).status.success());
     }
 }
 #[test]
-fn legacy_vault_conflict_is_rejected_before_creating_directory() {
+fn retired_legacy_flag_is_rejected_before_creating_directory() {
     let dir = PathBuf::from(env!("CARGO_MANIFEST_DIR")).join("task7-conflict-must-not-exist");
     assert!(!dir.exists());
     let output = run(&[
@@ -38,13 +41,13 @@ fn legacy_vault_conflict_is_rejected_before_creating_directory() {
         dir.to_str().unwrap(),
     ]);
     assert!(!output.status.success());
-    assert!(String::from_utf8_lossy(&output.stderr).contains("incompatible"));
+    assert!(String::from_utf8_lossy(&output.stderr).contains("unknown"));
     assert!(!dir.exists());
 }
 #[test]
 fn relative_and_missing_and_file_data_paths_fail() {
     assert!(
-        !run(&["--data-dir", "relative", "--headless-check", "completion"])
+        !run(&["--data-dir", "relative", "--headless-check", "startup"])
             .status
             .success()
     );
@@ -53,7 +56,7 @@ fn relative_and_missing_and_file_data_paths_fail() {
             "--data-dir",
             "/definitely/no/such/brn-dir",
             "--headless-check",
-            "completion"
+            "startup"
         ])
         .status
         .success()
@@ -64,14 +67,14 @@ fn relative_and_missing_and_file_data_paths_fail() {
             "--data-dir",
             file.to_str().unwrap(),
             "--headless-check",
-            "completion"
+            "startup"
         ])
         .status
         .success()
     );
 }
 #[test]
-fn headless_checks_complete_on_existing_directory() {
+fn headless_check_starts_real_app_worker_and_reopens_current_authority() {
     let dir = std::env::temp_dir().join(format!(
         "brn-shell-test-{}-{}",
         std::process::id(),
@@ -81,10 +84,13 @@ fn headless_checks_complete_on_existing_directory() {
             .as_nanos()
     ));
     std::fs::create_dir(&dir).unwrap();
-    for check in ["completion", "cancellation", "stale"] {
+    let data = dir.join("data");
+    std::fs::create_dir(&data).unwrap();
+    for _ in 0..2 {
+        let check = "startup";
         let o = run(&[
             "--data-dir",
-            dir.to_str().unwrap(),
+            data.to_str().unwrap(),
             "--headless-check",
             check,
         ]);
@@ -94,7 +100,9 @@ fn headless_checks_complete_on_existing_directory() {
             String::from_utf8_lossy(&o.stderr)
         );
     }
-    std::fs::remove_dir(&dir).unwrap();
+    assert!(data.join("brn.sqlite").exists());
+    assert!(!data.join("brn.sqlite3").exists());
+    std::fs::remove_dir_all(&dir).unwrap();
 }
 #[cfg(unix)]
 #[test]
@@ -114,10 +122,45 @@ fn unwritable_directory_reports_error() {
         "--data-dir",
         dir.to_str().unwrap(),
         "--headless-check",
-        "completion",
+        "startup",
     ]);
     std::fs::set_permissions(&dir, std::fs::Permissions::from_mode(0o700)).unwrap();
     std::fs::remove_dir(&dir).unwrap();
     assert!(!output.status.success());
     assert!(String::from_utf8_lossy(&output.stderr).contains("not writable"));
+}
+
+#[test]
+fn legacy_and_mixed_markers_refuse_without_opening_authority_or_writing_probe() {
+    let base = std::env::temp_dir().join(format!("brn-desktop-refusal-{}", uuid::Uuid::new_v4()));
+    std::fs::create_dir(&base).unwrap();
+    for marker in [
+        "brn.sqlite3",
+        "brn.sqlite3-wal",
+        "brn.sqlite3-shm",
+        "brn.sqlite3-journal",
+    ] {
+        let data = base.join(marker);
+        std::fs::create_dir(&data).unwrap();
+        let legacy = data.join(marker);
+        std::fs::write(&legacy, b"synthetic old authority").unwrap();
+        for mixed in [false, true] {
+            if mixed {
+                std::fs::write(data.join("brn.sqlite"), b"synthetic new marker").unwrap();
+            }
+            let output = run(&[
+                "--data-dir",
+                data.to_str().unwrap(),
+                "--headless-check",
+                "startup",
+            ]);
+            assert!(!output.status.success());
+            assert_eq!(std::fs::read(&legacy).unwrap(), b"synthetic old authority");
+            assert_eq!(
+                std::fs::read_dir(&data).unwrap().count(),
+                if mixed { 2 } else { 1 }
+            );
+        }
+    }
+    std::fs::remove_dir_all(base).unwrap();
 }

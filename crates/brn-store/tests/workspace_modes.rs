@@ -1,7 +1,10 @@
-use brn_store::{Error, Store, WorkStore};
+use brn_store::{
+    Error, WorkStore,
+    workspace_mode::{WorkspaceMode, classify},
+};
 
 #[test]
-fn both_owners_refuse_every_opposite_mode_marker_unchanged() {
+fn workstore_refuses_legacy_markers_and_dangling_aliases_unchanged() {
     for name in [
         "brn.sqlite3",
         "brn.sqlite3-wal",
@@ -11,15 +14,18 @@ fn both_owners_refuse_every_opposite_mode_marker_unchanged() {
         let data = tempfile::tempdir().unwrap();
         let marker = data.path().join(name);
         std::fs::write(&marker, b"sentinel").unwrap();
+        assert_eq!(classify(data.path()).unwrap(), WorkspaceMode::Legacy);
         assert!(matches!(
             WorkStore::open(data.path()),
             Err(Error::WorkspaceModeConflict(_))
         ));
         assert_eq!(std::fs::read(&marker).unwrap(), b"sentinel");
         assert!(!data.path().join("brn.sqlite").exists());
+        assert!(!data.path().join("backups").exists());
         std::fs::remove_file(&marker).unwrap();
         let absent = data.path().join("absent");
         std::os::unix::fs::symlink(&absent, &marker).unwrap();
+        assert_eq!(classify(data.path()).unwrap(), WorkspaceMode::Legacy);
         assert!(matches!(
             WorkStore::open(data.path()),
             Err(Error::WorkspaceModeConflict(_))
@@ -27,6 +33,10 @@ fn both_owners_refuse_every_opposite_mode_marker_unchanged() {
         assert_eq!(std::fs::read_link(&marker).unwrap(), absent);
         assert!(!absent.exists());
     }
+}
+
+#[test]
+fn current_sidecar_and_backup_markers_classify_without_opening_authority() {
     for name in [
         "brn.sqlite",
         "brn.sqlite-wal",
@@ -41,32 +51,31 @@ fn both_owners_refuse_every_opposite_mode_marker_unchanged() {
         let marker = data.path().join(name);
         std::fs::create_dir_all(marker.parent().unwrap()).unwrap();
         std::fs::write(&marker, b"sentinel").unwrap();
-        assert!(matches!(
-            Store::open(data.path()),
-            Err(Error::WorkspaceModeConflict(_))
-        ));
+        assert_eq!(classify(data.path()).unwrap(), WorkspaceMode::Simple);
         assert_eq!(std::fs::read(&marker).unwrap(), b"sentinel");
-        assert!(!data.path().join("brn.sqlite3").exists());
+        assert!(!data.path().join("brn.owner.lock").exists());
         std::fs::remove_file(&marker).unwrap();
         let absent = data.path().join("absent");
         std::os::unix::fs::symlink(&absent, &marker).unwrap();
-        assert!(matches!(
-            Store::open(data.path()),
-            Err(Error::WorkspaceModeConflict(_))
-        ));
+        assert_eq!(classify(data.path()).unwrap(), WorkspaceMode::Simple);
         assert_eq!(std::fs::read_link(&marker).unwrap(), absent);
         assert!(!absent.exists());
+        std::fs::write(data.path().join("brn.sqlite3"), b"legacy").unwrap();
+        assert!(matches!(
+            classify(data.path()),
+            Err(Error::WorkspaceModeConflict(_))
+        ));
     }
 }
 
 #[test]
-fn both_authorities_are_refused_and_shared_lock_takes_precedence() {
+fn mixed_markers_are_refused_and_owner_lock_takes_precedence() {
     let data = tempfile::tempdir().unwrap();
     let (store, _) = WorkStore::open(data.path()).unwrap();
     std::fs::write(data.path().join("brn.sqlite3"), b"legacy").unwrap();
     assert!(matches!(
-        Store::open(data.path()),
-        Err(Error::WorkspaceBusy(_))
+        classify(data.path()),
+        Err(Error::WorkspaceModeConflict(_))
     ));
     assert!(matches!(
         WorkStore::open(data.path()),
@@ -74,10 +83,6 @@ fn both_authorities_are_refused_and_shared_lock_takes_precedence() {
     ));
     drop(store);
     let bytes = std::fs::read(data.path().join("brn.sqlite")).unwrap();
-    assert!(matches!(
-        Store::open(data.path()),
-        Err(Error::WorkspaceModeConflict(_))
-    ));
     assert!(matches!(
         WorkStore::open(data.path()),
         Err(Error::WorkspaceModeConflict(_))
