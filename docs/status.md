@@ -115,8 +115,20 @@ assertions**, retirement, format/build/all-target Clippy and **127 native tests*
 shipping native build and native all-target Clippy. The gate also caught and
 verified a corrected oversized worker-event allocation. This slice is locally
 integrated under mission authorization; actual GUI/IME/accessibility and owner
-acceptance remain pending. Native Undo/repair and initial native/AI proposal
-creation are the next Stage 4 slices.
+acceptance remain pending.
+
+Native full Undo, original-index Trash restoration and explicit Finish/Restore
+repair are implemented and automated verified against `907798d`. Full previews
+freeze the exact operation/attempt and observation hash; repair also loads the
+matching full recorded comments. Changed files refuse, actual outcomes remain
+explicit and errors retain inspectable requests without retry. Independent
+read-only review found no actionable defects and passed **26 default / 26 native
+approval/capture/state tests**. Fresh locked/offline gates passed **674 workspace
+tests, 0 failed, 2 ignored**, **52 end-to-end assertions**, retirement,
+format/build/all-target Clippy and **140 native tests**, shipping native build and
+native all-target Clippy. This slice is locally integrated under mission
+authorization; actual GUI/IME/accessibility and owner acceptance remain pending.
+Initial native/AI proposal creation is the remaining Stage 4 implementation slice.
 
 ## Qualification still open
 
@@ -125,7 +137,7 @@ implementation. Builds and synthetic crash/state tests do not establish native
 usability, physical power-loss durability, other-volume support, actual model
 inference or release readiness. Native Save/Copy/conflict/reload/recovery,
 chooser, IME, accessibility, rendering and Stop/restart remain pending. Proposal
-review and exact approval/activity have native controls; Undo/repair controls remain headless; mixed/interrupted application stays fenced
+review, exact approval/activity and Undo/repair have native controls; mixed/interrupted application stays fenced
 until exact reconciliation or explicit repair. Native review/Undo/repair usability
 remains pending.
 The completed provider round leaves Copilot GPT-5.5 Chat unsupported, Codex vision

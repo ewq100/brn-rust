@@ -76,8 +76,14 @@ the application outcome and current review are acknowledged. Activity pages show
 recorded successful changes and full historical approval snapshots; recovery
 inspection/reconciliation reports actual pending/uncertain outcomes without
 repeating installation. Failed application refreshes journals because an error
-can follow recorded file effects. Native Undo/repair and initial proposal creation
-remain Stage 4 work; GUI acceptance is tracked separately.
+can follow recorded file effects. Activity exposes full historical Undo review;
+an Applied snapshot exposes each original Trash member's exact restoration.
+Interrupted operations offer separate full Finish/Restore review with captured
+observations, retained comments and explicit direction. These requests are frozen
+through confirmation; workflow can refuse later changed files. Errors retain
+inspectable operation/attempt identities and never trigger automatic retry.
+Initial native/AI proposal creation remains Stage 4 work; GUI acceptance is
+tracked separately.
 
 Native retrieval offers a one-time prompt per stored consent decision, showing
 pinned source, bytes/cost and destination. Decline makes no network request.

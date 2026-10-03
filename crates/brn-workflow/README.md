@@ -73,7 +73,7 @@ Read/list/edit/comment work remains available without current vault access.
 `validate_review_edit` provides pure full-result validation using Store's bounded
 typed rules before the frontend queues an edit. Owned AI Rewrite uses the
 lifecycle below. Native exact individual/captured-group approval and activity use
-these same DTOs; native Undo/repair remain Stage 4 work.
+these same DTOs; native Undo/repair confirmations use the existing exact previews.
 
 The current-evidence fence covers pending/Uncertain Save and proposal journals.
 It refuses tools, note/list/search, refresh and embedding, including startup and
@@ -170,8 +170,10 @@ recovery refuses. Tokens, generations and queued later typing remain untouched.
 Activity includes the source operation and optional original Trash member index.
 The existing 64-member/8 MiB proposal limits apply. Old retained Trash is eligible
 while its proofs hold; no timer/count silently purges it. CLI commands are described
-in [brn](../brn/README.md). Native Undo interaction and
-owner usability acceptance remain pending.
+in [brn](../brn/README.md). Native Activity shows the full historical inverse and
+Applied snapshots expose restoration by original Trash member index. Current
+eligibility is checked only on explicit confirmation. Native owner usability
+acceptance remains pending.
 
 ## Explicit interrupted-operation repair
 
@@ -198,7 +200,11 @@ never repeat namespace changes. Known terminal repair requires every exact Befor
 or Applied pair, including staging proofs; older/missing SQLite restores the same
 checked history. Temporary repair snapshots retire only against compatible checked
 canonical history. Editor baselines/generations and later queued typing stay intact.
-Native repair interaction and physical power-loss qualification remain pending.
+Native repair offers explicit full Finish/Restore confirmations, displaying the
+observed phases, complete approved draft and matching recorded comments. Each
+attempt retains its exact hash/direction and reports the actual optional outcome;
+failed attempts remain inspectable without automatic retry. Native owner
+usability acceptance and physical power-loss qualification remain pending.
 
 ## Explicit model installation
 

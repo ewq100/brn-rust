@@ -1,4 +1,10 @@
 use super::*;
+mod undo {
+    include!("undo_state_tests.rs");
+}
+mod repair {
+    include!("repair_state_tests.rs");
+}
 use brn_workflow::{
     app::AppConfig,
     app_worker::AppWorker,

@@ -4,10 +4,12 @@ use brn_workflow::{
     app_worker::AppCommand,
     proposal_apply::{
         ApplyOutcome, ApplyReceipt, ApprovalRequest, GroupApprovalRequest, GroupApprovalResult,
-        validate_approval_request,
+        RepairDirection, RepairPreview, RepairReceipt, RepairRequest, UndoPreview, UndoRequest,
+        validate_approval_request, validate_undo_request,
     },
     proposals::{
-        MAX_PROPOSAL_CHANGES, ProposalEdit, ProposalRecord, ProposalState, validate_review_edit,
+        MAX_PROPOSAL_CHANGES, NoteChange, ProposalEdit, ProposalRecord, ProposalStamp,
+        ProposalState, validate_review_edit,
     },
 };
 use std::collections::HashSet;
@@ -142,6 +144,114 @@ impl ApprovalCapture {
     }
 }
 
+/// One exact historical inverse confirmation. Workflow owns current eligibility.
+#[derive(Clone, Debug, PartialEq, Eq)]
+pub struct UndoCapture {
+    request: UndoRequest,
+    preview: UndoPreview,
+}
+
+impl UndoCapture {
+    pub fn new(request: UndoRequest, preview: UndoPreview) -> Option<Self> {
+        validate_undo_request(&request).ok()?;
+        if preview.draft.id != request.operation_id
+            || preview.binding.operation_id != request.target_operation_id
+            || preview.binding.trash_member != request.trash_member
+            || preview.draft.group_id.is_some()
+            || preview.draft.changes.is_empty()
+            || preview.draft.changes.len() > MAX_PROPOSAL_CHANGES
+            || preview.binding.originals.len() != preview.draft.changes.len()
+        {
+            return None;
+        }
+        if request.trash_member.is_some()
+            && (preview.draft.changes.len() != 1
+                || !matches!(preview.draft.changes[0], NoteChange::Create { .. })
+                || preview.binding.originals[0].is_none())
+        {
+            return None;
+        }
+        Some(Self { request, preview })
+    }
+
+    pub fn request(&self) -> &UndoRequest {
+        &self.request
+    }
+
+    pub fn preview(&self) -> &UndoPreview {
+        &self.preview
+    }
+
+    pub fn command(&self) -> AppCommand {
+        AppCommand::UndoProposal(self.request.clone())
+    }
+
+    pub fn accepts_receipt(&self, receipt: &ApplyReceipt) -> bool {
+        // Undo admits its immutable inverse at version one; a replay preserves
+        // that admission even after later review edits or reconciliation.
+        receipt_matches(
+            &ApprovalRequest {
+                operation_id: self.request.operation_id,
+                expected: ProposalStamp {
+                    id: self.request.operation_id,
+                    version: 1,
+                },
+            },
+            receipt,
+        )
+    }
+}
+
+/// One explicit Finish or Restore attempt with the exact observed capture hash.
+#[derive(Clone, Debug, PartialEq, Eq)]
+pub struct RepairCapture {
+    request: RepairRequest,
+    preview: RepairPreview,
+}
+
+impl RepairCapture {
+    pub fn new(preview: RepairPreview, direction: RepairDirection) -> Option<Self> {
+        if preview.operation_id.is_nil()
+            || preview.approved.changes.is_empty()
+            || preview.approved.changes.len() > MAX_PROPOSAL_CHANGES
+            || preview.phases.len() != preview.approved.changes.len()
+        {
+            return None;
+        }
+        let id = loop {
+            let id = Uuid::new_v4();
+            if !id.is_nil() && id != preview.operation_id {
+                break id;
+            }
+        };
+        let request = RepairRequest {
+            id,
+            operation_id: preview.operation_id,
+            expected: preview.expected,
+            direction,
+        };
+        Some(Self { request, preview })
+    }
+
+    pub fn request(&self) -> &RepairRequest {
+        &self.request
+    }
+
+    pub fn preview(&self) -> &RepairPreview {
+        &self.preview
+    }
+
+    pub fn command(&self) -> AppCommand {
+        AppCommand::RepairProposal(self.request.clone())
+    }
+
+    pub fn accepts_receipt(&self, receipt: &RepairReceipt) -> bool {
+        receipt.id == self.request.id
+            && receipt.operation_id == self.request.operation_id
+            && receipt.direction == self.request.direction
+    }
+}
+
 pub fn receipt_matches(request: &ApprovalRequest, receipt: &ApplyReceipt) -> bool {
     request
         .expected
@@ -159,3 +269,7 @@ pub fn receipt_matches(request: &ApprovalRequest, receipt: &ApplyReceipt) -> boo
 #[cfg(test)]
 #[path = "approval_tests.rs"]
 mod tests;
+
+#[cfg(test)]
+#[path = "approval_operation_tests.rs"]
+mod operation_tests;

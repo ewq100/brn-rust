@@ -12,7 +12,10 @@ use brn_workflow::{
     },
     library::{RefreshReport, SearchResults},
     models::ModelDownloadPrompt,
-    proposal_apply::{ApplyJournal, ApplyOutcome, ApplyReceipt, ApplySummary, ApprovalRequest},
+    proposal_apply::{
+        ApplyJournal, ApplyOutcome, ApplyReceipt, ApplySummary, ApprovalRequest, RepairDirection,
+        RepairReceipt, RepairRequest, UndoRequest,
+    },
     proposal_rewrite::{RewriteEvent, RewriteJob, RewriteRequest},
     proposals::{CommentRequest, ProposalRecord, ProposalState, ReviewComment},
 };
@@ -85,6 +88,23 @@ pub enum Pending {
         operation: Uuid,
         generation: u64,
     },
+    UndoPreview {
+        request: UndoRequest,
+        generation: u64,
+    },
+    RepairPreview {
+        operation: Uuid,
+        direction: RepairDirection,
+        generation: u64,
+    },
+    Undo {
+        capture: Box<crate::approval::UndoCapture>,
+        generation: u64,
+    },
+    Repair {
+        capture: Box<crate::approval::RepairCapture>,
+        generation: u64,
+    },
     Activity {
         generation: u64,
         before: Option<Uuid>,
@@ -141,6 +161,13 @@ pub struct AiState {
     pub application_snapshot: Option<ApplyJournal>,
     pub snapshot_error: Option<String>,
     pub snapshot_generation: u64,
+    pub operation_generation: u64,
+    pub operation_error: Option<String>,
+    pub undo_preview: Option<crate::approval::UndoCapture>,
+    pub repair_preview: Option<crate::approval::RepairCapture>,
+    pub last_undo_request: Option<UndoRequest>,
+    pub last_repair_request: Option<RepairRequest>,
+    pub repair_receipt: Option<RepairReceipt>,
     pub activity: Option<ActivityPage>,
     pub activity_error: Option<String>,
     pub activity_generation: u64,
@@ -479,8 +506,117 @@ impl AiState {
                 Pending::Approval { .. }
                     | Pending::ApplyReconcile { .. }
                     | Pending::AppliedReview { .. }
+                    | Pending::Undo { .. }
+                    | Pending::Repair { .. }
             )
         })
+    }
+    fn can_confirm_operation(&self) -> bool {
+        self.ready
+            && self.vault_bound
+            && self.review_can_leave()
+            && self.active.is_none()
+            && self.rewrite.is_none()
+    }
+    pub fn preview_undo(
+        &mut self,
+        target_operation: Uuid,
+        trash_member: Option<usize>,
+    ) -> Option<(Uuid, AppCommand)> {
+        if !self.can_confirm_operation() {
+            return None;
+        }
+        let request = UndoRequest {
+            operation_id: Uuid::new_v4(),
+            target_operation_id: target_operation,
+            trash_member,
+        };
+        brn_workflow::proposal_apply::validate_undo_request(&request).ok()?;
+        self.operation_generation = self.operation_generation.checked_add(1)?;
+        self.undo_preview = None;
+        self.repair_preview = None;
+        self.operation_error = None;
+        Some(self.command(
+            Pending::UndoPreview {
+                request: request.clone(),
+                generation: self.operation_generation,
+            },
+            AppCommand::PreviewProposalUndo(request),
+        ))
+    }
+    pub fn preview_repair(
+        &mut self,
+        operation: Uuid,
+        direction: RepairDirection,
+    ) -> Option<(Uuid, AppCommand)> {
+        if !self.can_confirm_operation() || operation.is_nil() {
+            return None;
+        }
+        self.operation_generation = self.operation_generation.checked_add(1)?;
+        self.undo_preview = None;
+        self.repair_preview = None;
+        self.operation_error = None;
+        Some(self.command(
+            Pending::RepairPreview {
+                operation,
+                direction,
+                generation: self.operation_generation,
+            },
+            AppCommand::PreviewProposalRepair(operation),
+        ))
+    }
+    pub fn confirm_undo(
+        &mut self,
+        capture: &crate::approval::UndoCapture,
+    ) -> Option<(Uuid, AppCommand)> {
+        if !self.can_confirm_operation() || self.undo_preview.as_ref() != Some(capture) {
+            return None;
+        }
+        let request = capture.request().clone();
+        self.last_undo_request = Some(request.clone());
+        self.approval_requests = vec![ApprovalRequest {
+            operation_id: request.operation_id,
+            expected: brn_workflow::proposals::ProposalStamp {
+                id: request.operation_id,
+                version: 1,
+            },
+        }];
+        self.approval_receipts.clear();
+        self.approval_error = None;
+        self.operation_error = None;
+        self.notice = "Executing the captured Undo; await its recorded outcome.".into();
+        Some(self.command(
+            Pending::Undo {
+                capture: Box::new(capture.clone()),
+                generation: self.review_generation,
+            },
+            capture.command(),
+        ))
+    }
+    pub fn confirm_repair(
+        &mut self,
+        capture: &crate::approval::RepairCapture,
+    ) -> Option<(Uuid, AppCommand)> {
+        if !self.can_confirm_operation()
+            || self.repair_preview.as_ref() != Some(capture)
+            || !self.application_snapshot.as_ref().is_some_and(|journal| {
+                journal.request.operation_id == capture.preview().operation_id
+                    && journal.approved.draft == capture.preview().approved
+            })
+        {
+            return None;
+        }
+        self.last_repair_request = Some(capture.request().clone());
+        self.repair_receipt = None;
+        self.operation_error = None;
+        self.notice = "Executing the captured repair direction; await its recorded outcome.".into();
+        Some(self.command(
+            Pending::Repair {
+                capture: Box::new(capture.clone()),
+                generation: self.review_generation,
+            },
+            capture.command(),
+        ))
     }
     pub fn capture_approval(&self, group: bool) -> Option<crate::approval::ApprovalCapture> {
         if !self.ready || !self.vault_bound || !self.review_can_mutate() || self.rewrite.is_some() {
@@ -1206,6 +1342,119 @@ impl AiState {
                         commands.push(command);
                     }
                 }
+            }
+            return commands;
+        }
+        if let Some(action @ (Pending::UndoPreview { .. } | Pending::RepairPreview { .. })) =
+            self.pending.get(&id).cloned()
+        {
+            let generation = match &action {
+                Pending::UndoPreview { generation, .. }
+                | Pending::RepairPreview { generation, .. } => *generation,
+                _ => unreachable!(),
+            };
+            if generation != self.operation_generation {
+                self.pending.remove(&id);
+                return commands;
+            }
+            match (action, event) {
+                (Pending::UndoPreview { request, .. }, AppEvent::ProposalUndoPreview(preview)) => {
+                    let Some(capture) = crate::approval::UndoCapture::new(request, preview) else {
+                        return commands;
+                    };
+                    self.undo_preview = Some(capture);
+                }
+                (
+                    Pending::RepairPreview {
+                        operation,
+                        direction,
+                        ..
+                    },
+                    AppEvent::ProposalRepairPreview(preview),
+                ) if preview.operation_id == operation => {
+                    let Some(capture) = crate::approval::RepairCapture::new(preview, direction)
+                    else {
+                        return commands;
+                    };
+                    self.repair_preview = Some(capture);
+                }
+                (_, AppEvent::Failed(error)) => {
+                    self.operation_error = Some(error.message.clone());
+                    self.notice = format!("Operation preview refused: {}", error.message);
+                }
+                _ => return commands,
+            }
+            self.pending.remove(&id);
+            return commands;
+        }
+        if let Some(action @ (Pending::Undo { .. } | Pending::Repair { .. })) =
+            self.pending.get(&id).cloned()
+        {
+            let (proposal, generation, original) = match &action {
+                Pending::Undo {
+                    capture,
+                    generation,
+                } => (
+                    capture.preview().draft.id,
+                    *generation,
+                    capture.request().operation_id,
+                ),
+                Pending::Repair {
+                    capture,
+                    generation,
+                } => (
+                    capture.preview().approved.id,
+                    *generation,
+                    capture.request().operation_id,
+                ),
+                _ => unreachable!(),
+            };
+            match (&action, event) {
+                (Pending::Undo { capture, .. }, AppEvent::ProposalApplied(receipt))
+                    if capture.accepts_receipt(&receipt) =>
+                {
+                    self.notice = format!(
+                        "Undo operation {} recorded {:?}.",
+                        receipt.operation_id, receipt.outcome
+                    );
+                    self.approval_receipts = vec![receipt];
+                    self.approval_error = None;
+                }
+                (Pending::Repair { capture, .. }, AppEvent::ProposalRepaired(receipt))
+                    if capture.accepts_receipt(&receipt) =>
+                {
+                    self.notice = format!(
+                        "Repair attempt {} recorded {}.",
+                        receipt.id,
+                        match receipt.outcome {
+                            Some(ApplyOutcome::Applied) => "Applied",
+                            Some(ApplyOutcome::NotApplied) => "Not applied",
+                            Some(ApplyOutcome::Uncertain) => "Uncertain",
+                            None => "pending; outcome unconfirmed",
+                        }
+                    );
+                    self.repair_receipt = Some(receipt);
+                }
+                (_, AppEvent::Failed(error)) => {
+                    self.operation_error = Some(error.message.clone());
+                    self.notice = format!(
+                        "Operation returned an error: {} Inspect its recorded state; an error does not establish no file effects.",
+                        error.message
+                    );
+                }
+                _ => return commands,
+            }
+            self.pending.remove(&id);
+            let mut proposals = vec![proposal];
+            if matches!(action, Pending::Undo { .. })
+                && generation == self.review_generation
+                && let Some(review) = &self.review
+            {
+                proposals.push(review.record.draft.id);
+            }
+            commands.extend(self.refresh_after_application(&proposals, generation));
+            if let Some(command) = self.inspect_apply(original) {
+                commands.push(command);
             }
             return commands;
         }

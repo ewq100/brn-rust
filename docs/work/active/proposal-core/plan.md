@@ -925,3 +925,62 @@ Only proven owned synthetic layout fixtures and their exclusive gate parent are
 removed; logs remain outside Git. Changed contracts/status and local links are
 checked before local integration. Owner AGENTS.md changes remain untouched.
 Native Undo/repair and initial native/AI proposal creation follow within Stage 4.
+
+### Native Undo, Trash restoration and explicit repair
+
+Baseline: `main@907798d`, with only the owner's AGENTS.md edit preserved and no
+published CI run for the local result. Reuse existing shared Undo/repair DTOs and
+the native activity/guarded confirmation seams. Freeze the full inverse preview
+with one new Undo UUID, or full observed repair preview with one new attempt UUID
+and exact Finish/Restore direction. Show every full member and source/scope proof;
+Undo is a historical inverse, not a promise of current eligibility. Individual
+Trash restoration uses the original ordered member index. Repair confirms the
+opaque observed hash and phases; workflow owns actual eligibility and effects.
+
+Acceptance: preview cancellation has no effects; stale/misbound replies cannot
+release critical guards or replace a newer preview; confirmation uses exactly the
+displayed request; success/refusal/uncertainty remains explicit; errors refresh
+actual recorded state without retry. Full Undo and single Trash restore preserve
+exact bytes and unrelated later edits, including after restart/replay. Finish and
+Restore operate only on proved pairs, refuse changed previews and preserve late
+local text. Use GPUI-free immutable capture/state checks and real-worker synthetic
+fixtures, then independent review and fresh default/native verification. Initial
+native/AI proposal creation remains the next slice; no live/private-data action,
+new framework/datastore or architecture reopening occurs.
+
+Manual acceptance pending: in a new disposable vault, approve a mixed Create,
+Replace and Trash proposal. From Activity inspect its full inverse, cancel and
+confirm bytes remain unchanged; reopen, execute and confirm exact originals and
+retained Trash return. For another mixed proposal, edit an unrelated member later
+and restore only the selected original Trash member; the later bytes must remain.
+Modify a target after opening Undo confirmation and confirm refusal. A synthetic
+interrupted mixed operation should expose complete observed phases; cancel, then
+explicitly choose Finish or Restore and inspect the recorded outcome after
+restart. Automated fixtures prepare partial operations without touching real data.
+Actual GUI/IME/accessibility and owner acceptance remain separately pending.
+
+Implementation uses two immutable presentation captures over the existing shared
+DTOs. Critical results bind exact inner operation/attempt IDs and outer worker
+UUIDs; misbound types/bodies do not release the guard. Late previews cannot replace
+a newer direction/capture. Repair awaits the matching full historical draft and
+temporary comments before confirmation. AppWorker performs all effects and fresh
+eligibility checks; cancellation admits no operation, and terminal/failure refresh
+only reads recorded state. The original-index scoped Trash path preserves later
+unrelated bytes and inode identities.
+
+Independent read-only review against `907798d` found no actionable defects and
+passed **26 default / 26 native approval/capture/state tests**. Fresh root macOS
+arm64 / Rust 1.98.1 locked/offline verification passed
+`TMPDIR=<exclusive synthetic parent> bash scripts/verify-end-to-end.sh`
+(**674 workspace tests, 0 failed, 2 ignored**, **52 end-to-end assertions**,
+retirement/format/build/all-target Clippy with warnings denied), native desktop
+tests with `native-ui,native-retrieval,native-test-support` (**140 passed**),
+shipping native build without test support and native all-target Clippy with
+warnings denied. Default desktop passed **125**; workflow **182**. The existing
+upstream `block v0.1.6` warning remains. The test-only mutable-worker/missing-include
+compile issues were corrected before scoped execution; they were not product
+defects. Actual GUI/IME/accessibility, owner acceptance and published CI remain
+pending. Changed contracts/status/links are checked before local integration;
+only proven owned synthetic layout fixtures and their exclusive gate parent are
+removed, with logs retained outside Git. Owner AGENTS.md changes remain untouched.
+Continue initial native/AI proposal creation, then Stage 5 identity/provenance.

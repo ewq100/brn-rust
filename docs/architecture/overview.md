@@ -93,8 +93,9 @@ Jobs retain safe metadata only; restart interrupts without retry. Native full
 review/edit/comments and Rewrite controls use persistent text widgets and guarded
 AppWorker acknowledgements. Native exact individual/group approval captures full
 records and binds every outcome; activity/reconciliation use shared receipts.
-Native Undo/repair and initial proposal creation remain Stage 4 work before later
-domains extend typed changes.
+Native Undo/repair captures shared full previews with stable operation/attempt
+identities and exact outcomes. Initial proposal creation remains Stage 4 work
+before later domains extend typed changes.
 
 WorkStore V5 adds exact approval snapshots, all-member prepared proofs and
 whole-proposal receipts. Pending/Uncertain journals fence current reads and
