@@ -76,7 +76,7 @@ version and transactional updates. Changed target content marks anchored comment
 Unresolved while retaining their old range/quote; no text search guesses a new
 anchor. Late Rewrite results use the same version guard and preserve newer edits
 or comments. Rejection retains review work. Group listings keep independently
-reviewable proposals separate. Stage 4 remains active.
+reviewable proposals separate. Later domains extend this same typed lifecycle.
 
 ## Whole-proposal approval journal
 

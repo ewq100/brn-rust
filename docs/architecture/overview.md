@@ -94,8 +94,12 @@ review/edit/comments and Rewrite controls use persistent text widgets and guarde
 AppWorker acknowledgements. Native exact individual/group approval captures full
 records and binds every outcome; activity/reconciliation use shared receipts.
 Native Undo/repair captures shared full previews with stable operation/attempt
-identities and exact outcomes. Initial proposal creation remains Stage 4 work
-before later domains extend typed changes.
+identities and exact outcomes. Native initial Create/Replace/Trash composition
+captures saved source versions through AppWorker and retains the exact submitted
+request separately from later input. Completed acknowledged AI answers may
+explicitly prefill review work; existing owned Rewrite operates on real stored
+seed drafts. Neither route applies Markdown without exact approval. Later domains
+extend these same typed changes.
 
 WorkStore V5 adds exact approval snapshots, all-member prepared proofs and
 whole-proposal receipts. Pending/Uncertain journals fence current reads and

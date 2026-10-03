@@ -1,0 +1,252 @@
+//! Retained full initial form. Workflow owns source capture and typed creation.
+use brn_workflow::{
+    MAX_NOTE_BYTES, WorkTurn, WorkTurnStatus,
+    proposals::{DraftNoteChange, DraftRequest, NoteChange, ProposalRecord, ProposalSource},
+};
+use uuid::Uuid;
+
+#[derive(Clone, Copy, Debug, Default, PartialEq, Eq)]
+pub enum DraftKind {
+    #[default]
+    Create,
+    Replace,
+    Trash,
+}
+
+#[derive(Clone)]
+pub struct SubmittedDraft {
+    pub operation: Uuid,
+    pub generation: u64,
+    pub request: DraftRequest,
+}
+
+pub struct DraftForm {
+    pub id: Uuid,
+    pub title: String,
+    pub path: String,
+    pub text: String,
+    pub kind: DraftKind,
+    pub session_id: Option<Uuid>,
+    pub generation: u64,
+    pub binding_generation: u64,
+    pub source: Option<ProposalSource>,
+    pub source_operation: Option<Uuid>,
+    pub source_error: Option<String>,
+    pub submitted: Option<SubmittedDraft>,
+    pub pending: bool,
+    pub result: Option<(u64, ProposalRecord)>,
+    pub error: Option<String>,
+}
+
+impl DraftForm {
+    pub fn new(turn: Option<&WorkTurn>) -> Option<Self> {
+        if turn.is_some_and(|turn| {
+            turn.status != WorkTurnStatus::Completed
+                || turn.id.is_nil()
+                || turn.conversation_id.is_nil()
+                || turn.answer.len() > MAX_NOTE_BYTES
+        }) {
+            return None;
+        }
+        Some(Self {
+            id: Uuid::new_v4(),
+            title: String::new(),
+            path: String::new(),
+            text: turn.map(|turn| turn.answer.clone()).unwrap_or_default(),
+            kind: DraftKind::Create,
+            session_id: turn.map(|turn| turn.conversation_id),
+            generation: 1,
+            binding_generation: 1,
+            source: None,
+            source_operation: None,
+            source_error: None,
+            submitted: None,
+            pending: false,
+            result: None,
+            error: None,
+        })
+    }
+
+    pub fn edit(&mut self, title: String, path: String, text: String, kind: DraftKind) {
+        if (&self.title, &self.path, &self.text, self.kind) == (&title, &path, &text, kind) {
+            return;
+        }
+        let Some(generation) = self.generation.checked_add(1) else {
+            self.error = Some("Draft form generation exhausted; copy retained input.".into());
+            return;
+        };
+        if self.path != path || self.kind != kind {
+            let Some(binding) = self.binding_generation.checked_add(1) else {
+                self.error =
+                    Some("Draft binding generation exhausted; copy retained input.".into());
+                return;
+            };
+            self.binding_generation = binding;
+            self.source = None;
+            self.source_operation = None;
+            self.source_error = None;
+        }
+        self.generation = generation;
+        self.title = title;
+        self.path = path;
+        self.text = text;
+        self.kind = kind;
+    }
+
+    pub fn can_leave(&self) -> bool {
+        !self.pending
+            && (self
+                .result
+                .as_ref()
+                .is_some_and(|(generation, _)| *generation == self.generation)
+                || self.submitted.is_none()
+                    && self.title.is_empty()
+                    && self.path.is_empty()
+                    && self.text.is_empty())
+    }
+
+    pub fn request(&self) -> brn_workflow::Result<DraftRequest> {
+        if self.kind == DraftKind::Trash && !self.text.is_empty() {
+            return Err(brn_workflow::WorkflowError::msg(
+                "Trash has no replacement text. Copy and explicitly clear the retained note text before creating this proposal.",
+            ));
+        }
+        let expected = || {
+            self.source
+                .as_ref()
+                .filter(|capture| capture.source.path == self.path)
+                .map(|capture| capture.source.fingerprint.clone())
+                .ok_or_else(|| {
+                    brn_workflow::WorkflowError::msg(
+                        "Load the exact existing note before creating its proposal.",
+                    )
+                })
+        };
+        let change = match self.kind {
+            DraftKind::Create => DraftNoteChange::Create {
+                path: self.path.clone(),
+                text: self.text.clone(),
+            },
+            DraftKind::Replace => DraftNoteChange::Replace {
+                path: self.path.clone(),
+                expected: expected()?,
+                text: self.text.clone(),
+            },
+            DraftKind::Trash => DraftNoteChange::Trash {
+                path: self.path.clone(),
+                expected: expected()?,
+            },
+        };
+        let request = DraftRequest {
+            id: self.id,
+            group_id: None,
+            session_id: self.session_id,
+            title: self.title.clone(),
+            changes: vec![change],
+            sources: if self.kind == DraftKind::Create {
+                vec![]
+            } else {
+                vec![
+                    self.source
+                        .as_ref()
+                        .expect("validated source")
+                        .source
+                        .clone(),
+                ]
+            },
+        };
+        request.validate()?;
+        Ok(request)
+    }
+
+    pub fn prepare(&mut self) -> Option<SubmittedDraft> {
+        if self.pending || self.result.is_some() || self.source_operation.is_some() {
+            return None;
+        }
+        let request = match self.request() {
+            Ok(request) => request,
+            Err(error) => {
+                self.error = Some(error.message);
+                return None;
+            }
+        };
+        if self
+            .submitted
+            .as_ref()
+            .is_some_and(|old| old.request != request)
+        {
+            self.error = Some("Input changed after a submitted request. Copy it and explicitly start a separate proposal; the old UUID remains bound to its original request.".into());
+            return None;
+        }
+        let submitted = SubmittedDraft {
+            operation: Uuid::new_v4(),
+            generation: self.generation,
+            request,
+        };
+        self.submitted = Some(submitted.clone());
+        self.pending = true;
+        self.error = None;
+        Some(submitted)
+    }
+
+    pub fn created(&mut self, operation: Uuid, record: ProposalRecord) -> bool {
+        let Some(submitted) = self.submitted.as_ref().filter(|submitted| {
+            submitted.operation == operation && creation_matches(&submitted.request, &record)
+        }) else {
+            return false;
+        };
+        self.pending = false;
+        self.error = None;
+        self.result = Some((submitted.generation, record));
+        true
+    }
+
+    pub fn failed(&mut self, operation: Uuid, message: String) {
+        if self
+            .submitted
+            .as_ref()
+            .is_some_and(|submitted| submitted.operation == operation)
+        {
+            self.pending = false;
+            self.error = Some(message);
+        }
+    }
+}
+
+/// Creation replay may return later edited/approved review text. Only immutable
+/// creation bindings are compared; the worker checks its original payload hash.
+pub fn creation_matches(request: &DraftRequest, record: &ProposalRecord) -> bool {
+    record.draft.id == request.id
+        && record.version > 0
+        && record.draft.group_id == request.group_id
+        && record.draft.session_id == request.session_id
+        && record.draft.sources == request.sources
+        && record.draft.changes.len() == request.changes.len()
+        && record
+            .draft
+            .changes
+            .iter()
+            .zip(&request.changes)
+            .all(|(bound, requested)| match (bound, requested) {
+                (
+                    NoteChange::Create { path, .. },
+                    DraftNoteChange::Create { path: expected, .. },
+                ) => path == expected,
+                (
+                    NoteChange::Replace { path, before, .. },
+                    DraftNoteChange::Replace {
+                        path: expected,
+                        expected: proof,
+                        ..
+                    },
+                )
+                | (
+                    NoteChange::Trash { path, before, .. },
+                    DraftNoteChange::Trash {
+                        path: expected,
+                        expected: proof,
+                    },
+                ) => path == expected && before == proof,
+                _ => false,
+            })
+}

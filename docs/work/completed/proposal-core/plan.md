@@ -1,5 +1,10 @@
 # Proposal Core — roadmap Stage 4
 
+2026-10-04: implemented, automated verified and locally integrated as sequential
+reviewed slices. Actual GUI/IME/accessibility, live Rewrite and owner acceptance
+remain pending. Continue Stage 5; these qualification items do not block its safe
+implementation. The sections below retain each slice’s original baseline/results.
+
 Baseline: clean `main@d40e0a100de64a173d38a9aae15a547ed9e39551`, 2026-10-03.
 Stage 3's scoped live round is complete; remaining capability gaps are recorded
 in its completed evidence. No additional live calls are authorized by this plan.
@@ -984,3 +989,84 @@ pending. Changed contracts/status/links are checked before local integration;
 only proven owned synthetic layout fixtures and their exclusive gate parent are
 removed, with logs retained outside Git. Owner AGENTS.md changes remain untouched.
 Continue initial native/AI proposal creation, then Stage 5 identity/provenance.
+
+### Initial native proposals and explicit AI-answer capture
+
+Baseline: `main@1a456c1`, preserving the owner's AGENTS.md edit; hosted CI has no
+run for this local result. Add the missing native entry into the existing typed
+review lifecycle. Compose a full Create, Replace or Trash proposal; existing-note
+targets require a workflow-captured exact source/before version and complete text.
+A completed acknowledged AI answer may explicitly prefill a new-note form with
+its complete bytes and session binding. The user chooses title/destination and
+creates operational review work; knowledge still changes only on exact approval.
+Actual user-chosen seed drafts use the existing comments/owned Rewrite flow for
+AI generation, with a real stored Draft stamp. No absent/fake Rewrite stamp,
+model-supplied fingerprint, silent chat promotion or second AI job system is used.
+Later Inbox consequences extend the same typed creation boundary.
+
+Keep one retained native form with persistent full title/body widgets and pure
+presentation correlation. Capture source reads without creating editor/proposal
+records. Creation freezes the exact request UUID/payload; replay returns current
+review state, which can already have later edits. Wrong/late acknowledgements
+cannot settle another form or replace later typing. Failed input remains copyable,
+with explicit retry/discard; admitted creation drains on close. Full text is never
+silently truncated. Meaningful checks cover Unicode/CRLF, before/source CAS,
+completed versus partial chat capture, edited creation replay, failure/restart and
+native widget bytes. Independently review, validate findings, run fresh relevant
+default/native gates and integrate before Stage 5. No live/private-data actions.
+
+Manual acceptance pending: in fresh explicit disposable data/vault directories,
+open New proposal, enter full title/path/text, create, reopen/restart and inspect
+exact bytes; the vault must remain unchanged until Approve. Load a synthetic
+existing note for Replace/Trash, inspect its complete captured before text, change
+the file externally and confirm creation refuses the stale capture. A completed
+AI turn can prefill a reviewable new-note draft; failed/provisional output cannot
+silently enter it. With separately authorized live scope, create an empty real
+Draft at the chosen destination, add the writing request as a whole-proposal
+comment, run Rewrite and inspect the complete result before approval. Existing
+owned Rewrite deterministic tests cover that actual generation route offline.
+Actual GUI/IME/accessibility, live usability and owner acceptance remain pending.
+
+
+Final initial-creation result: full title/path/body input is retained separately
+from the submitted typed request. Source reads bind the latest exact UUID and
+path/binding generation; stale sources refuse creation. Creation replay returns
+current review work, including later edits, without replacing later form input.
+Switching to Trash preserves body text until explicit local discard. Complete
+acknowledged AI answers can prefill a real session-bound form; failed/provisional
+or oversized answers cannot enter it through truncation. Unsubmitted input is
+transient, copyable and guards leaving. Admitted creation drains; changed input
+requires an explicit new proposal UUID. Existing real seed/comment/owned Rewrite
+provides the AI generation route without a second job framework.
+
+Independent read-only review against `1a456c1` found no actionable defects and
+passed **6 default / 6 native creation tests, 4 source-worker tests and 1 actual
+widget test**. The first scoped run needed its Trash fixture adapted to the new
+explicit-clear safeguard; all six subsequently passed. Fresh root macOS arm64 /
+Rust 1.98.1 locked/offline qualification passed:
+
+- `TMPDIR=<exclusive synthetic parent> bash scripts/verify-end-to-end.sh`:
+  **684 workspace tests, 0 failed, 2 ignored**, **52 end-to-end assertions**,
+  retirement, format, workspace build and all-target Clippy with warnings denied.
+- `cargo test -p brn-desktop --features native-ui,native-retrieval,native-test-support --locked --offline`:
+  **147 passed, 0 failed/ignored** (140 unit/widget and 7 process tests).
+- `cargo build -p brn-desktop --features native-ui,native-retrieval --locked --offline`:
+  shipping native build passed without test support.
+- `cargo clippy -p brn-desktop --all-targets --features native-ui,native-retrieval,native-test-support --locked --offline -- -D warnings`:
+  passed. The existing upstream `block v0.1.6` future-compiler warning remains.
+
+Default desktop passed **131**; workflow **186**. Logs remain outside Git under
+`/private/tmp/brn-native-creation-gate.y0kesyeh.*`; only the proven owned layout
+fixtures and their exclusive parent are removed after checks. Local Markdown
+links and whitespace are checked before integration; owner AGENTS.md is preserved.
+No new provider calls, asset downloads or private-data access occurred.
+
+All Stage 4 roadmap outcomes now have shared typed persistence/application,
+CLI access and native controls: complete review/edit/comments/rejection, owned
+Rewrite, exact individual/captured-group approval, recoverable application,
+paged Activity, practical Undo/Trash and explicit interrupted-operation repair.
+Native initial composition currently creates one full-note proposal; CLI supports
+complete multi-member requests and captured groups. Later Inbox/domain stages
+extend this creation boundary. Manual scenarios above remain reproducible pending
+GUI/IME/accessibility, live usability and owner acceptance. Automated success is
+not release qualification. Continue Stage 5 identity/provenance in dependency order.

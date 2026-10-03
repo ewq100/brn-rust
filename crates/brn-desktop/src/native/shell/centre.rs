@@ -83,6 +83,7 @@ impl Desktop {
         match self.open_doc {
             Some(DocRef::Proposal(_)) => self.render_proposal_review(cx),
             Some(DocRef::Activity) => self.render_activity(cx),
+            Some(DocRef::Draft) => self.render_draft(cx),
             _ => self.render_simple_document(cx),
         }
     }

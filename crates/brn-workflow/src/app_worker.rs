@@ -49,6 +49,7 @@ pub enum AppCommand {
     SaveEditor(crate::editor::SaveRequest),
     Editors,
     ReconcileEditor(Uuid),
+    ProposalSource(String),
     CreateProposal(crate::proposals::DraftRequest),
     Proposal(Uuid),
     Proposals(Option<Uuid>),
@@ -125,6 +126,7 @@ pub enum AppEvent {
     EditorRecovered(crate::editor::EditorRecord),
     EditorSaved(crate::editor::SaveReceipt),
     Editors(Vec<crate::editor::EditorRecord>),
+    ProposalSource(Box<crate::proposals::ProposalSource>),
     Proposal(crate::proposals::ProposalRecord),
     ProposalRewrite(Option<crate::proposal_rewrite::RewriteJob>),
     Rewrite(crate::proposal_rewrite::RewriteEvent),
@@ -852,6 +854,9 @@ fn dispatch(
             AppEvent::Notes(app.notes(folder.as_deref(), cursor.as_deref())?)
         }
         AppCommand::Note(path) => AppEvent::Note(app.note(&path)?),
+        AppCommand::ProposalSource(path) => {
+            AppEvent::ProposalSource(Box::new(app.proposal_source(&path)?))
+        }
         AppCommand::CreateProposal(request) => AppEvent::Proposal(app.create_proposal(&request)?),
         AppCommand::Proposal(proposal) => AppEvent::Proposal(app.proposal(proposal)?),
         AppCommand::Proposals(group) => AppEvent::Proposals(app.proposals(group)?),

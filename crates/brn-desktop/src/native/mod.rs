@@ -32,6 +32,7 @@ use std::time::{Duration, Instant};
 use uuid::Uuid;
 
 mod approval;
+mod draft;
 mod review;
 mod shell;
 mod simple;
@@ -42,6 +43,7 @@ enum DocRef {
     SavedNote,
     Proposal(Uuid),
     Activity,
+    Draft,
 }
 
 #[derive(Clone, Copy, Debug, PartialEq, Eq)]
@@ -106,6 +108,11 @@ struct Desktop {
     review_comment_pending: Option<(Uuid, Uuid, String)>,
     review_member: usize,
     review_scroll: ScrollHandle,
+    draft_title: Entity<TextareaState>,
+    draft_path: Entity<TextareaState>,
+    draft_editor: Entity<EditorState>,
+    draft_widget_id: Option<Uuid>,
+    draft_scroll: ScrollHandle,
     note_path: Entity<InputState>,
     note_scroll: ScrollHandle,
     choosing_file: bool,
@@ -150,6 +157,60 @@ impl Desktop {
         });
         let review_title = cx.new(|cx| review_title_state(window, cx));
         let review_comment = cx.new(|cx| EditorState::new(window, cx).default_value(""));
+        let draft_title = cx.new(|cx| review_title_state(window, cx));
+        let draft_path = cx.new(|cx| draft::path_state(window, cx));
+        let draft_editor = cx.new(|cx| draft::body_state(window, cx));
+        let draft_title_subscription = cx.subscribe_in(
+            &draft_title,
+            window,
+            |this, input, event: &InputEvent, _, cx| {
+                if matches!(event, InputEvent::Change) {
+                    if let Some(draft) = &mut this.ai.as_mut().unwrap().draft {
+                        draft.edit(
+                            input.read(cx).value().to_string(),
+                            draft.path.clone(),
+                            draft.text.clone(),
+                            draft.kind,
+                        );
+                    }
+                    cx.notify();
+                }
+            },
+        );
+        let draft_path_subscription = cx.subscribe_in(
+            &draft_path,
+            window,
+            |this, input, event: &InputEvent, _, cx| {
+                if matches!(event, InputEvent::Change) {
+                    if let Some(draft) = &mut this.ai.as_mut().unwrap().draft {
+                        draft.edit(
+                            draft.title.clone(),
+                            input.read(cx).value().to_string(),
+                            draft.text.clone(),
+                            draft.kind,
+                        );
+                    }
+                    cx.notify();
+                }
+            },
+        );
+        let draft_body_subscription = cx.subscribe_in(
+            &draft_editor,
+            window,
+            |this, editor, event: &InputEvent, _, cx| {
+                if matches!(event, InputEvent::Change) {
+                    if let Some(draft) = &mut this.ai.as_mut().unwrap().draft {
+                        draft.edit(
+                            draft.title.clone(),
+                            draft.path.clone(),
+                            editor.read(cx).value().to_string(),
+                            draft.kind,
+                        );
+                    }
+                    cx.notify();
+                }
+            },
+        );
         let review_subscription = cx.subscribe_in(
             &review_editor,
             window,
@@ -335,6 +396,11 @@ impl Desktop {
             review_comment_pending: None,
             review_member: 0,
             review_scroll: ScrollHandle::new(),
+            draft_title,
+            draft_path,
+            draft_editor,
+            draft_widget_id: None,
+            draft_scroll: ScrollHandle::new(),
             note_path,
             note_scroll: ScrollHandle::new(),
             choosing_file: false,
@@ -363,6 +429,9 @@ impl Desktop {
                 note_subscription,
                 review_subscription,
                 review_title_subscription,
+                draft_title_subscription,
+                draft_path_subscription,
+                draft_body_subscription,
                 appearance_subscription,
                 activation_subscription,
             ],

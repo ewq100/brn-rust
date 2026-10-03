@@ -49,6 +49,13 @@ pub struct DraftRequest {
     pub sources: Vec<SourceVersion>,
 }
 
+#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
+#[serde(deny_unknown_fields)]
+pub struct ProposalSource {
+    pub source: SourceVersion,
+    pub text: String,
+}
+
 /// Pure validation of a complete review edit before a frontend queues it.
 pub fn validate_review_edit(record: &ProposalRecord, edit: &ProposalEdit) -> Result<()> {
     Ok(brn_store::work::proposal_rewrite::validate_result(
@@ -130,6 +137,23 @@ impl DraftRequest {
 }
 
 impl App {
+    /// Captures full saved source bytes without creating editor or review work.
+    pub fn proposal_source(&mut self, path: &str) -> Result<ProposalSource> {
+        path_check(path)?;
+        self.require_current_evidence()?;
+        let observed = self
+            .editor_files()?
+            .observe(Path::new(path))
+            .map_err(file_error)?;
+        Ok(ProposalSource {
+            source: SourceVersion {
+                path: path.to_owned(),
+                fingerprint: observed.fingerprint,
+            },
+            text: observed.text,
+        })
+    }
+
     pub fn create_proposal(&mut self, request: &DraftRequest) -> Result<ProposalRecord> {
         request.validate()?;
         // Creation replay binds the original input before any fresh-vault check.

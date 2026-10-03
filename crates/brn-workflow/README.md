@@ -58,6 +58,13 @@ matches `"workshop"`. These APIs never write vault files.
 
 ## Typed proposal review foundation
 
+`proposal_source(path)` / AppWorker `ProposalSource` return the complete saved
+text and trusted file fingerprint for initial review composition. The capture
+uses current-evidence fences and the same visible Markdown/path/file checks as
+proposal creation. It creates no editor/proposal record and writes no vault
+content; creation subsequently checks the captured version. This full-note query
+does not substitute a truncated AI read-tool excerpt for the proposed before text.
+
 `proposals::DraftRequest` supplies typed Create/Replace/Trash intent. Workflow
 captures trusted vault/parent/before identities and exact bytes, checks expected
 source fingerprints and refuses occupied or aliased destinations. Creation replay

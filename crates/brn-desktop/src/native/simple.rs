@@ -21,6 +21,7 @@ pub(super) enum EditorTransition {
     Note(String),
     Review(Uuid),
     Activity,
+    Draft(Option<Uuid>),
     Hide,
     Close(CloseRoute),
 }
@@ -152,6 +153,7 @@ impl Desktop {
         if changed {
             self.sync_review_widgets(window, cx);
         }
+        self.sync_draft_widgets(window, cx);
         if self
             .ai
             .as_ref()
@@ -266,6 +268,15 @@ impl Desktop {
         if self.closing.is_some() || self.closed {
             return;
         }
+        self.capture_draft_widgets(cx);
+        if let Some(draft) = &self.ai.as_ref().unwrap().draft
+            && !draft.can_leave()
+            && !(draft.pending && matches!(transition, EditorTransition::Close(_)))
+        {
+            self.ai.as_mut().unwrap().notice = "Initial proposal input is retained. Create its exact review draft, or copy and explicitly discard it before leaving.".into();
+            cx.notify();
+            return;
+        }
         self.simple_transition = Some(transition);
         self.simple_progress_transition(cx);
         cx.notify();
@@ -279,7 +290,18 @@ impl Desktop {
             return;
         }
         if !self.ai.as_ref().unwrap().review_can_leave() {
-            self.ai.as_mut().unwrap().notice = "Waiting for latest full review acknowledgement before leaving. Copy retained text or resolve the review error.".into();
+            self.ai.as_mut().unwrap().notice = if self
+                .ai
+                .as_ref()
+                .unwrap()
+                .draft
+                .as_ref()
+                .is_some_and(|draft| !draft.can_leave())
+            {
+                "Waiting for initial proposal acknowledgement or retained input resolution before leaving. Copy or explicitly discard later input after the request settles."
+            } else {
+                "Waiting for latest full review acknowledgement before leaving. Copy retained text or resolve the review error."
+            }.into();
             return;
         }
         if self
@@ -320,6 +342,21 @@ impl Desktop {
                 for command in commands.into_iter().flatten() {
                     self.simple_send(command, cx);
                 }
+            }
+            EditorTransition::Draft(turn) => {
+                let ai = self.ai.as_mut().unwrap();
+                if !ai.begin_draft(turn) {
+                    cx.notify();
+                    return;
+                }
+                ai.note_generation = ai.note_generation.wrapping_add(1);
+                ai.review_generation = ai.review_generation.wrapping_add(1);
+                ai.editor = None;
+                ai.review = None;
+                self.simple_note_path = None;
+                self.draft_widget_id = None;
+                self.open_doc = Some(DocRef::Draft);
+                self.centre_tab = CentreTab::Document;
             }
             EditorTransition::Hide => {
                 let ai = self.ai.as_mut().unwrap();
@@ -673,6 +710,22 @@ impl Desktop {
             )
             .child("Proposal review")
             .child(
+                Button::new("new-proposal-form")
+                    .label("+ New proposal…")
+                    .selected(self.open_doc == Some(DocRef::Draft))
+                    .disabled(
+                        !ai.ready
+                            || !ai.vault_bound
+                            || ai.application_busy()
+                            || self.closing.is_some()
+                            || self.closed
+                            || self.close_failed,
+                    )
+                    .on_click(cx.listener(|this, _, _, cx| {
+                        this.simple_leave(EditorTransition::Draft(None), cx)
+                    })),
+            )
+            .child(
                 Button::new("refresh-proposal-list")
                     .label("Refresh proposals")
                     .disabled(!ai.ready)
@@ -959,6 +1012,24 @@ impl Desktop {
                     .child(turn.question.clone())
                     .child(turn.answer.clone()),
             );
+            if turn.status == brn_workflow::WorkTurnStatus::Completed {
+                let id = turn.id;
+                body = body.child(
+                    Button::new(format!("review-completed-answer-{id}"))
+                        .label("Review as new note…")
+                        .disabled(
+                            !ai.ready
+                                || !ai.vault_bound
+                                || ai.application_busy()
+                                || self.closing.is_some()
+                                || self.closed
+                                || self.close_failed,
+                        )
+                        .on_click(cx.listener(move |this, _, _, cx| {
+                            this.simple_leave(EditorTransition::Draft(Some(id)), cx)
+                        })),
+                );
+            }
             if let Some(code) = &turn.error_code {
                 body = body.child(format!("Safe failure category: {code}"));
             }

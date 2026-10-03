@@ -82,8 +82,18 @@ Interrupted operations offer separate full Finish/Restore review with captured
 observations, retained comments and explicit direction. These requests are frozen
 through confirmation; workflow can refuse later changed files. Errors retain
 inspectable operation/attempt identities and never trigger automatic retry.
-Initial native/AI proposal creation remains Stage 4 work; GUI acceptance is
-tracked separately.
+New proposal retains complete title/path/body widgets for Create, Replace or
+Trash. Replace/Trash first load the exact saved source through AppWorker; stale
+captures refuse creation. Switching to Trash preserves local body text until an
+explicit discard. Creating review work freezes its full request and UUID; replay
+may return a later edited review, and acknowledgements never replace later input.
+Failed or unsubmitted input stays copyable and guards leaving. A changed payload
+needs an explicit separate proposal; submission alone does not apply Markdown.
+Unsubmitted form input is transient; only acknowledged creation is recoverable.
+An acknowledged completed answer can explicitly prefill its full bytes and session
+into this form. Failed, provisional or oversized answers cannot become truncated
+drafts. AI writing uses a real stored seed Draft, comments and owned Rewrite.
+GUI/IME/accessibility and owner acceptance are tracked separately.
 
 Native retrieval offers a one-time prompt per stored consent decision, showing
 pinned source, bytes/cost and destination. Decline makes no network request.

@@ -5,6 +5,9 @@ mod undo {
 mod repair {
     include!("repair_state_tests.rs");
 }
+mod creation {
+    include!("draft_state_tests.rs");
+}
 use brn_workflow::{
     app::AppConfig,
     app_worker::AppWorker,

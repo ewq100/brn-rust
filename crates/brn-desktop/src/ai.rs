@@ -109,6 +109,15 @@ pub enum Pending {
         generation: u64,
         before: Option<Uuid>,
     },
+    DraftSource {
+        form: Uuid,
+        path: String,
+        binding_generation: u64,
+    },
+    DraftCreate {
+        form: Uuid,
+        request: Box<brn_workflow::proposals::DraftRequest>,
+    },
     Account(AccountCommand),
     Bind,
     Refresh,
@@ -171,6 +180,8 @@ pub struct AiState {
     pub activity: Option<ActivityPage>,
     pub activity_error: Option<String>,
     pub activity_generation: u64,
+    pub draft: Option<crate::draft::DraftForm>,
+    pub last_draft_request: Option<brn_workflow::proposals::DraftRequest>,
     pub provider: Option<Provider>,
     pub generation: u64,
     pub conversation: Option<Uuid>,
@@ -508,8 +519,115 @@ impl AiState {
                     | Pending::AppliedReview { .. }
                     | Pending::Undo { .. }
                     | Pending::Repair { .. }
+                    | Pending::DraftCreate { .. }
             )
         })
+    }
+    pub fn begin_draft(&mut self, turn: Option<Uuid>) -> bool {
+        if !self.ready
+            || !self.vault_bound
+            || !self.review_can_leave()
+            || self.active.is_some()
+            || self.rewrite.is_some()
+        {
+            return false;
+        }
+        let turn = match turn {
+            None => None,
+            Some(id) => {
+                let Some(turn) = self.turns.iter().find(|turn| turn.id == id) else {
+                    self.notice =
+                        "Only an acknowledged completed answer can prefill a proposal.".into();
+                    return false;
+                };
+                Some(turn)
+            }
+        };
+        let Some(draft) = crate::draft::DraftForm::new(turn) else {
+            self.notice = "The answer is provisional, failed or exceeds the full-note limit. Its complete text remains in chat; no truncated draft was created.".into();
+            return false;
+        };
+        self.draft = Some(draft);
+        true
+    }
+    pub fn discard_draft(&mut self) -> bool {
+        if self.draft.as_ref().is_some_and(|draft| draft.pending) {
+            return false;
+        }
+        self.draft = None;
+        true
+    }
+    pub fn separate_draft(&mut self) -> bool {
+        let Some(old) = self.draft.as_ref().filter(|draft| !draft.pending) else {
+            return false;
+        };
+        let mut draft = crate::draft::DraftForm::new(None).expect("empty form");
+        draft.edit(
+            old.title.clone(),
+            old.path.clone(),
+            old.text.clone(),
+            old.kind,
+        );
+        draft.session_id = old.session_id;
+        draft.source = old.source.clone();
+        self.draft = Some(draft);
+        true
+    }
+    pub fn draft_source(&mut self) -> Option<(Uuid, AppCommand)> {
+        if !self.ready || !self.vault_bound || self.application_busy() {
+            return None;
+        }
+        let draft = self.draft.as_mut()?;
+        if draft.pending || draft.kind == crate::draft::DraftKind::Create {
+            return None;
+        }
+        let (form, path, binding_generation) =
+            (draft.id, draft.path.clone(), draft.binding_generation);
+        draft.source = None;
+        draft.source_error = None;
+        let command = self.command(
+            Pending::DraftSource {
+                form,
+                path: path.clone(),
+                binding_generation,
+            },
+            AppCommand::ProposalSource(path),
+        );
+        self.draft.as_mut().expect("matched form").source_operation = Some(command.0);
+        Some(command)
+    }
+    pub fn create_draft(&mut self) -> Option<(Uuid, AppCommand)> {
+        if !self.ready
+            || !self.vault_bound
+            || self.application_busy()
+            || self.active.is_some()
+            || self.rewrite.is_some()
+            || self
+                .review
+                .as_ref()
+                .is_some_and(|review| !review.can_leave())
+            || self
+                .pending
+                .values()
+                .any(|pending| matches!(pending, Pending::ReviewMutation { .. }))
+        {
+            return None;
+        }
+        let submitted = self.draft.as_mut()?.prepare()?;
+        let form = self.draft.as_ref()?.id;
+        self.last_draft_request = Some(submitted.request.clone());
+        self.pending.insert(
+            submitted.operation,
+            Pending::DraftCreate {
+                form,
+                request: Box::new(submitted.request.clone()),
+            },
+        );
+        self.notice = "Creating the exact full review draft; vault knowledge is unchanged.".into();
+        Some((
+            submitted.operation,
+            AppCommand::CreateProposal(submitted.request),
+        ))
     }
     fn can_confirm_operation(&self) -> bool {
         self.ready
@@ -812,6 +930,7 @@ impl AiState {
     }
     pub fn review_can_leave(&self) -> bool {
         self.review.as_ref().is_none_or(|review| review.can_leave())
+            && self.draft.as_ref().is_none_or(|draft| draft.can_leave())
             && !self.application_busy()
             && !self
                 .pending
@@ -1345,6 +1464,70 @@ impl AiState {
             }
             return commands;
         }
+        if let Some(Pending::DraftSource {
+            form,
+            path,
+            binding_generation,
+        }) = self.pending.get(&id).cloned()
+        {
+            let current = self.draft.as_ref().is_some_and(|draft| {
+                draft.id == form
+                    && draft.path == path
+                    && draft.binding_generation == binding_generation
+                    && draft.source_operation == Some(id)
+            });
+            if !current {
+                self.pending.remove(&id);
+                return commands;
+            }
+            match event {
+                AppEvent::ProposalSource(capture)
+                    if capture.source.path == path
+                        && capture.source.fingerprint.len == capture.text.len() as u64 =>
+                {
+                    let draft = self.draft.as_mut().expect("matched form");
+                    draft.source = Some(*capture);
+                    draft.source_operation = None;
+                    draft.source_error = None;
+                }
+                AppEvent::Failed(error) => {
+                    let draft = self.draft.as_mut().expect("matched form");
+                    draft.source_error = Some(error.message);
+                    draft.source_operation = None;
+                }
+                _ => return commands,
+            }
+            self.pending.remove(&id);
+            return commands;
+        }
+        if let Some(Pending::DraftCreate { form, request }) = self.pending.get(&id).cloned() {
+            match event {
+                AppEvent::Proposal(record) if crate::draft::creation_matches(&request, &record) => {
+                    if let Some(draft) = self.draft.as_mut().filter(|draft| draft.id == form)
+                        && !draft.created(id, record.clone())
+                    {
+                        return commands;
+                    }
+                    self.notice = format!(
+                        "Current proposal {} returned at review version {} · {:?}. No application was requested.",
+                        record.draft.id, record.version, record.state
+                    );
+                }
+                AppEvent::Failed(error) => {
+                    if let Some(draft) = self.draft.as_mut().filter(|draft| draft.id == form) {
+                        draft.failed(id, error.message.clone());
+                    }
+                    self.notice = format!(
+                        "Draft creation returned an error: {} Retained input and the requested proposal UUID remain available; inspect recorded review work before retrying.",
+                        error.message
+                    );
+                }
+                _ => return commands,
+            }
+            self.pending.remove(&id);
+            commands.push(self.command(Pending::Proposals, AppCommand::Proposals(None)));
+            return commands;
+        }
         if let Some(action @ (Pending::UndoPreview { .. } | Pending::RepairPreview { .. })) =
             self.pending.get(&id).cloned()
         {
@@ -1770,6 +1953,7 @@ impl AiState {
             | AppEvent::ProposalUndoPreview(_)
             | AppEvent::ProposalRepairPreview(_)
             | AppEvent::ProposalRepaired(_)
+            | AppEvent::ProposalSource(_)
             | AppEvent::ProposalApplied(_)
             | AppEvent::ProposalGroupApplied(_)
             | AppEvent::ProposalApplies(_) => {}
