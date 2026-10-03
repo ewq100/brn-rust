@@ -67,6 +67,32 @@ cargo test --workspace --locked
 
 Default workspace checks exclude optional native feature paths. Native builds and interactions require separate evidence. The scripts generally use offline Cargo; see [setup](setup.md).
 
+## GitHub-hosted CI
+
+[BRN CI](../../.github/workflows/ci.yml) runs default workspace builds/tests and
+CLI help checks on Ubuntu 24.04 (x64), Windows Server 2025 (x64), and macOS 15
+(Apple Silicon). Linux also checks formatting and Clippy on every PR; main and
+manual runs check Clippy on all three systems. Unix jobs run the existing
+synthetic end-to-end fixtures with an exclusive parent under `RUNNER_TEMP`.
+Those fixtures require Unix ownership APIs and are not a Windows test.
+
+Native UI and native retrieval have separate jobs. PRs run both on macOS;
+main and manual runs probe both on all three systems. Each lane installs the
+pinned toolchain, fetches locked dependencies before offline Cargo checks, and
+uses a cache separated by OS, architecture, compiler, lockfiles and features.
+Outdated runs are cancelled. Jobs use read-only repository permissions, do not
+receive provider credentials, and never request model assets or a live login.
+Native retrieval may download its build-time ONNX Runtime dependency; model
+tests use synthetic fixtures, and the real-model test is excluded.
+
+These are platform qualification checks, not a claim that BRN is already
+portable. Windows currently has unconditional Unix filesystem/credential APIs;
+managed-note coordination still requires macOS. A failing platform remains
+visible: jobs do not use `continue-on-error`. Fixing those product boundaries
+needs a separate authorized portability slice. Native build/state checks do
+not open the GUI or establish usability, packaging or Windows 11 qualification.
+Standalone experiments remain outside this workflow.
+
 ## Evidence standards
 
 Record date, commit (and dirty changes), platform/toolchain, feature flags, exact commands, result and limitations. Distinguish passed, failed, skipped and blocked checks; fixture-gated tests that did not exercise native resources are not live resource verification. Identify fresh verification separately from previous evidence.
