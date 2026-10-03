@@ -431,3 +431,62 @@ Next action belongs to the controller: scoped final Opus re-review of the
 product diff `3d98c05..6a82b78`, including both findings and fix-introduced bugs.
 Implementation/offline verification is complete; final review/acceptance and
 branch integration remain pending.
+
+## Final reviewed offline handoff
+
+2026-10-03, isolated `task-4-ai-chat`, tested/reviewed
+`dccc24a0bd20992c6e22e0844202b25726fc5985`. This section supersedes the
+earlier pending-review status, not its dated test observations.
+
+All eight tasks received independent Claude Opus 5.5 medium reviews. Task 8's
+only finding was a test-assertion filename gap: the legacy database is
+`brn.sqlite3`, not `workspace.sqlite3`. Commit `3d98c05` corrected both
+no-storage assertions; two retirement and three signal tests passed, and the
+whole-branch reviewer confirmed the exact paths.
+
+The whole-branch review of `e24b104..3d98c05` found one Medium conversation
+navigation/display bug and one Low replay deadline exit-code bug. GPT-6.1 Sol
+medium fixed both in `6a82b78`; exact red/green evidence is above. Opus scoped
+re-review of `3d98c05..dccc24a` found both addressed and no new Critical or
+Important fix-introduced bugs, approving offline local implementation. Final
+review sampled native wiring/scripts rather than auditing every GUI callback,
+and relied on existing synthetic tests for Rig hook order; it did not run GUI,
+live provider or ONNX checks.
+
+Fresh controller verification at `dccc24a`, before this documentation-only
+handoff, used pinned Rust 1.98.1 on macOS with canonical outside-Git synthetic
+`TMPDIR` and no real-model environment:
+
+```sh
+export TMPDIR=/Users/evokessler/.brn-task5-fixtures
+unset BRN_NATIVE_MODEL_DIR
+cargo test -p brn -p brn-desktop --bin brn --bin brn-desktop --locked --offline
+cargo test -p brn -p brn-workflow --test cli_ask --test cli_signals --test legacy_retirement --locked --offline
+cargo build -p brn -p brn-desktop \
+  --features brn/native-retrieval,brn-desktop/native-ui,brn-desktop/native-retrieval \
+  --locked --offline
+cargo fmt --all -- --check
+bash scripts/verify-end-to-end.sh --fixtures-only
+git diff --check
+```
+
+All exited 0: 38 CLI unit +61 desktop unit +6 Ask +3 signal +2 retirement
+tests, both native binaries built, and 47 provider-free simple/legacy fixture
+assertions passed. These 110 focused test passes overlap previous suites;
+they are not an additional unique-case total or a fresh whole-workspace run.
+The pre-existing `block v0.1.6` future-compiler warning remains. Worktree was
+clean before the documentation-only status/index/roadmap/plan/handoff changes.
+
+Deferred observations are dispositioned, not silently fixed: fail-closed full
+startup validation and conversation read cost are known scale limitations;
+same-provider status serialization, pre-admission cancellation acknowledgements,
+post-login missing-name status, shutdown reattachment/discovery outcomes and
+restored-Refresh counts retain their documented policies. The replay deadline
+issue is fixed. Simple recovery read/clear and Markdown Save belong to Step 6.
+The credential unlink Ruling and its failure cost remain recorded above.
+
+Implementation, offline verification and review are complete. Acceptance and
+integration are not: no live accounts, production model download/inference,
+graphical usability, original-vault migration, push, merge or release occurred.
+Keep the isolated branch/worktree for the next authorized action; Steps 5/6
+remain future work and require their own scope.

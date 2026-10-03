@@ -36,12 +36,12 @@
 | 6 | Cleanup (written after step 5) | Simple save path, removal of old import/approval/drafts/revisions/operation code and `brn-core`, documentation. | 5 |
 
 Steps 1–3 are implemented through `e24b104`; local-model inference was skipped
-without assets. Step 4 is implemented on `task-4-ai-chat`: Tasks 1–7 independently
-Opus-reviewed including fixes, Task 8 provider retirement/offline qualification
-awaiting controller review. Both consumers use AppWorker, and the production
+without assets. Step 4 is implemented on `task-4-ai-chat`: all eight tasks and
+the whole branch Opus-reviewed, with final fixes approved through `dccc24a`.
+Both consumers use AppWorker, and the production
 provider crate is removed. [Evidence](evidence.md) distinguishes historical
-checks from fresh integrated qualification. Whole-branch review, user/live/native
-acceptance and integration remain pending; Step 5 proposals/approval and Step 6
+checks from fresh integrated qualification. User/live/native acceptance and
+integration remain pending; Step 5 proposals/approval and Step 6
 simple Markdown Save/legacy cleanup are not implemented or authorized here.
 
 ## Execution notes
