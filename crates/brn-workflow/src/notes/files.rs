@@ -1,6 +1,8 @@
+#[cfg(target_os = "macos")]
+use brn_store::notes::{ArtifactIdentity, ArtifactKind};
 use brn_store::notes::{
-    ArtifactIdentity, ArtifactKind, FileFingerprint, FileOutcome, NoteErrorCode, NoteFailure,
-    NoteResult, PreparedFile, RetainedArtifact, VaultRecord,
+    FileFingerprint, FileOutcome, NoteErrorCode, NoteFailure, NoteResult, PreparedFile,
+    RetainedArtifact, VaultRecord,
 };
 use std::{
     collections::VecDeque,
@@ -9,12 +11,12 @@ use std::{
 };
 use uuid::Uuid;
 
-#[cfg(test)]
+#[cfg(all(test, target_os = "macos"))]
 thread_local! {
     pub(super) static PREPARE_FAILURE: std::cell::Cell<Option<&'static str>> = const { std::cell::Cell::new(None) };
 }
 
-#[cfg(test)]
+#[cfg(all(test, target_os = "macos"))]
 fn prepare_failure(step: &str) -> NoteResult<()> {
     if PREPARE_FAILURE.with(|selected| selected.get() == Some(step)) {
         Err(failure(NoteErrorCode::Io, "injected staging I/O failure"))
@@ -46,8 +48,10 @@ pub(crate) struct NoteNoticeQueue {
 }
 
 impl NoteNoticeQueue {
+    #[cfg(target_os = "macos")]
     const CAPACITY: usize = 256;
 
+    #[cfg(target_os = "macos")]
     pub(crate) fn push(&mut self, notice: NoteFileNotice) {
         if self.pending.iter().any(|old| {
             old.vault_id == notice.vault_id
@@ -90,6 +94,7 @@ fn failure(code: NoteErrorCode, message: impl Into<String>) -> NoteFailure {
     }
 }
 
+#[cfg(target_os = "macos")]
 pub(super) fn note_io_failure(error: std::io::Error) -> NoteFailure {
     let code = match error.raw_os_error() {
         #[cfg(target_os = "macos")]
@@ -106,6 +111,7 @@ pub(super) fn note_unsupported(message: &str) -> NoteFailure {
     failure(NoteErrorCode::Unsupported, message)
 }
 
+#[cfg(target_os = "macos")]
 pub(super) fn note_utf8_failure(error: std::string::FromUtf8Error) -> NoteFailure {
     note_unsupported(&format!("note is not UTF-8: {error}"))
 }
@@ -1636,11 +1642,17 @@ mod tests {
                 File::from_raw_fd(descriptors[1]),
             )
         };
-        assert_eq!(
-            sync_directory(&reader).unwrap_err(),
-            note_io_failure(std::io::Error::from_raw_os_error(libc::EINVAL))
-        );
-        println!("APFS: explicit libc::fsync accepted read-only directory; pipe EINVAL propagated");
+        // macOS versions differ: fsync on a pipe reports EINVAL or ENOTSUP.
+        // Compare against this kernel's direct error, while still requiring failure.
+        // SAFETY: reader owns a live pipe descriptor throughout both calls.
+        assert_eq!(unsafe { libc::fsync(reader.as_raw_fd()) }, -1);
+        let error = std::io::Error::last_os_error();
+        assert!(matches!(
+            error.raw_os_error(),
+            Some(libc::EINVAL | libc::ENOTSUP)
+        ));
+        assert_eq!(sync_directory(&reader).unwrap_err(), note_io_failure(error));
+        println!("APFS: explicit libc::fsync accepted read-only directory; pipe error propagated");
     }
 
     #[test]
