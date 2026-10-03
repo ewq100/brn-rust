@@ -1,38 +1,57 @@
 # Development workflow
 
-## Start and scope
+Pick the next authorized roadmap outcome. Use the smallest necessary plan. Implement with meaningful tests. Get an independent review, validate its findings and fix real defects. Verify the final result, let the owner try changed user-visible behavior, and merge when authorized.
 
-Inspect branch, HEAD and working-tree changes. Read [AGENTS.md](../../AGENTS.md), [status](../status.md) and relevant architecture/crate documentation. Identify acceptance criteria and checks before editing. Follow current user authorization; historical task permissions, named models and agent assignments are evidence, not standing requirements.
+This is BRN's development method. [AGENTS.md](../../AGENTS.md) sets the frozen architecture and safety boundaries; [verification](verification.md) owns check selection. Skills are helpers, not additional mandatory lifecycles.
 
-For a task needing a durable plan, create `docs/work/active/<task-name>/plan.md` and `evidence.md`. A small fix can use a concise change description and verification report without manufacturing a large plan. Use stable descriptive names; the old chunk-02 label was used for both the provider lifecycle follow-up and editor roadmap item, so avoid relying on chunk numbers alone.
+## Scope and planning
 
-## Plan contents
+Inspect branch, HEAD and working-tree changes; preserve unrelated work. Use [status](../status.md) and [roadmap](../roadmap.md) when selecting an outcome, then read task-relevant contracts. Identify acceptance criteria and checks before editing. Existing authorization covers routine choices within that scope.
 
-- Status, date and baseline commit/branch.
-- Intended outcome, user requirements, included scope and exclusions.
-- Relevant decisions, invariants, prerequisites and affected crates.
-- Concrete implementation steps and acceptance criteria.
-- Verification commands and native/resource requirements.
-- Unresolved decisions or blockers and next action.
+| Change | Planning needed |
+| --- | --- |
+| Small, bounded change | Short task/chat description: outcome, approach and checks. No new plan document or routine design-approval gate. |
+| Multi-step feature slice | One short `docs/work/active/<task-name>/plan.md`: baseline, outcome/scope, contracts, dependencies/steps, risks, acceptance and checks. Fix interfaces before delegated implementation. |
+| Changed requirement or concrete architectural blocker | Present evidence and involve the owner. Amend existing requirements/architecture after the decision; use a formal design record when warranted. |
 
-## Evidence and handoff contents
+A subsystem already covered by the frozen target is a feature slice, not automatically an architecture change. Plans describe decisions and work, without mandatory implementation/test bodies, two-minute steps or agent/model machinery. Self-check the plan; additional plan review needs a concrete risk or explicit request.
 
-- Date, tested commit and any uncommitted changes; environment and features.
-- Commands, outcomes and meaningful observations; links to durable artifacts when available.
-- Separate automated tests, native observations, user acceptance and remaining qualification.
-- Files/behavior changed, unresolved failures and risks.
-- Next concrete action; branch, commit, PR/merge state if actually checked.
+## Skills and helpers
 
-Temporary machine paths are reproduction context, not durable artifacts or portable instructions. Do not record tokens or raw authentication data. Keep critical observations in the repository even when a temporary log is referenced.
+Select a helper when explicitly requested or when it solves a concrete task need; invocation before every response/action is not required. Honor explicit requests within current scope and project constraints. Skills cannot add scope, external actions, approval gates or configuration changes on their own.
 
-## State and completion
+| Need | Helper and boundary |
+| --- | --- |
+| Meaningful behavior or regression | Behavioral TDD where appropriate. Use existing useful seams, including private synthetic lifecycle/recovery seams. Avoid tests mirroring implementation or trivial forwarding, and deleting correct work solely to recreate test-first ordering. |
+| Bug/test failure | Evidence-first systematic debugging: reproduce where practical, inspect the path, test a hypothesis, verify the fix. Reserve Matt's fuller diagnosis for hard bugs; choose one method. Failed attempts prompt better investigation, not architecture reopening by count. |
+| Review/feedback | Independent defect-first review plus accepted requirements and relevant Rust rules; technically validate feedback. Matt's two-axis review is manual-only; missing tracker setup is not a blocker. |
+| Independent work/isolation | Bounded helpers or a worktree when useful. Reuse suitable worktrees; working in place is valid. Availability alone does not require delegation. |
+| Specific unresolved question | Targeted research when useful. Prototype, grilling, domain/interface exploration and human-only wizards remain manual specialists. Architecture exploration requires the freeze exception. Use existing document locations; save research only when useful. |
 
-Track implementation (`pending`, `active`, `blocked`, `implemented`), verification (`not run`, `partial`, `verified`), acceptance (`pending`, `accepted`, `deferred`) and integration (branch/commit and checked merge state) separately. Report acceptance only with evidence of the relevant approval.
+`using-superpowers` is not BRN's router. Both installed `writing-plans` variants, competing execution chains and ticket/spec generators do not own default development. Use this workflow. Manual-only means explicitly requested, not inferred from overlap. Subagent-driven development is explicit opt-in and still follows these delegation/review rules. Architecture-improvement and wayfinder chains are outside frozen implementation. Skill discovery/maintenance and formal Superpowers incident analysis are manual tasks. Global skills/settings remain shared with other projects.
 
-When the task's implementation scope is complete and evidence is recorded, move its folder to `docs/work/completed/<task-name>/`, repair links, and update the work indexes and current status. Completed means the bounded task record is closed; it does not mean all product qualification or release acceptance is complete. Carry unresolved gaps into current status or a follow-up task.
+One lead maintains coherence with the strongest appropriate selected model. Helpers receive scope, accepted criteria, relevant frozen constraints, context and allowed actions; extracted task text or built-in reviewers may omit repository/global constraints. Helpers do not redesign adjacent work or add agents unless the lead assigns that work. Installed model tables do not override owner choices or current tool contracts.
 
-Keep [status](../status.md) as a concise present-tense summary, and [roadmap](../roadmap.md) as future outcomes. Update architecture and crate READMEs when responsibilities or contracts change. Preserve historical evidence and dated decisions; add a correction or superseding reference rather than rewriting a past observation as a current result.
+## Independent review
 
-## Documentation checks
+For meaningful code changes, normally obtain one read-only independent review of the complete change; trivial documentation or wiring gets proportionate review. Additional specialists/checkpoints need a concrete risk. Report unavailable independence rather than presenting self-review as independent.
 
-Before handoff, run `git diff --check`, validate local Markdown links (including heading fragments), search for removed paths, and check that every moved record appears in an index. Verify command examples against scripts/manifests. Documentation-only changes do not require rebuilding unchanged Rust code.
+Pin the actual baseline and review staged, unstaged and relevant untracked changes. Branch review uses the verified merge base, not an assumed `HEAD~1`. Supply accepted criteria and frozen constraints. Check correctness, missing requirements and safety. Speculative features/style are advisory; concrete valid-input failures remain defects even when the specification does not enumerate every trigger. The Rust checklist supplements review; verification supplies commands/features.
+
+Understand and verify each actionable finding before fixing it. Fix valid findings, reject unsupported ones with a reason, and distinguish deferred work from blockers. Clarify only dependent work when a finding is unclear. Review does not expand scope. Re-review material corrections when risk warrants it, without fixed round counts or a blanket ban on re-review.
+
+## Verification, acceptance and integration
+
+Run relevant checks during implementation and after the last relevant change; read their output. Evidence identifies the tested tree/features and supports only that scope. Reuse evidence for unchanged relevant code; repeat checks for subsequent changes, failures or unresolved concerns, not once per skill.
+
+For changed user-visible behavior, provide a reproducible scenario for the owner to try. Record acceptance, explicit deferral or pending qualification separately from automated checks. Builds/headless tests do not establish native usability; documentation needs an understandable result and documentation checks.
+
+Integrate with current authorization for the target/action and applicable acceptance or explicit deferral. Carry out an already-authorized merge/push without another options menu; verify a changed merge result appropriately. Historical permissions do not authorize future live checks, release or migration. Stage task-owned files and use accurate attribution.
+
+## Records and handoff
+
+Keep concise results in the task/PR description or plan. Use existing `evidence.md` records, or add one when observations need a durable handoff; every plan need not create a second file. Record baseline/tested tree, environment/features, commands/results/limitations, changed behavior, unresolved findings and next action. Keep critical observations durable; temporary paths alone are insufficient. Never record credentials.
+
+Distinguish implemented, verified, accepted/deferred and merged. Close bounded task folders under `docs/work/completed/`, repairing links/indexes and carrying open gaps into status. Keep status concise and roadmap future-facing. Preserve historical evidence; update affected contracts rather than rewriting past observations as current results.
+
+Before handoff, run `git diff --check`, validate local Markdown file/fragment links and moved-path references, and compare command examples with scripts/manifests. Documentation-only changes do not require rebuilding unchanged Rust code.

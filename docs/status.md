@@ -1,7 +1,12 @@
 # Current development status
 
-2026-10-03, `main@50f898a`, merged through PR #14 (native/user acceptance pending).
-The [simple Rig-based notes app](work/active/simple-rig-notes/plan.md) Steps 1–4
+2026-10-03. Product code is merged through PR #14 at `main@50f898a` (native/user acceptance pending); the vision and dated architecture audits/review are saved through `main@95f0a8e`.
+
+The owner has frozen the reviewed product architecture and accepted the development-method audit. New work follows the [target architecture](architecture/overview.md#frozen-target), [invariants](architecture/invariants.md), [reviewed roadmap](roadmap.md) and [development workflow](development/workflow.md). This cleanup changes repository guidance only; it does not implement the target or change global skills/settings. The next product slice, simple safe Save, still needs task authorization.
+
+Development-method cleanup is implemented in the working tree based on `main@95f0a8e`, pending integration. Documentation verification passed (`git diff --check`, local links/fragments and retired-redirect checks), and independent read-only review returned no findings. Four bounded routing exercises passed; these are policy smoke checks, not observation of a full fresh lead session or product acceptance. The owner accepted the method proposal; existing native/provider qualification below remains open.
+
+The historical [simple Rig-based notes app](work/active/simple-rig-notes/plan.md) Steps 1–4
 are implemented. All eight Step 4 tasks and the whole branch received Opus
 reviews; the final conversation-display and deadline fixes passed scoped
 re-review through `dccc24a`. Exact commits/checks/limitations
@@ -20,8 +25,10 @@ are in [evidence](work/active/simple-rig-notes/evidence.md).
   vault tools, freezes provider/model, and never falls back.
 - Fresh consent is required for installation. Default builds are keyword-only;
   native installer/worker/state checks use synthetic assets/vectors, not ONNX.
-- Simple notes are **saved-file readers only**. Step 5 proposal/approval tools
-  and Step 6 simple Markdown Save/legacy cleanup are unimplemented.
+- Simple notes are **saved-file readers only**. Simple proposal/approval tools
+  and simple Markdown Save/legacy cleanup are unimplemented. The old Steps 5/6
+  ordering is superseded by safe Save/recovery → legacy removal → Proposal Core
+  in the current roadmap (with scoped provider capability checks before Proposal Core).
 
 ## Qualification still open
 

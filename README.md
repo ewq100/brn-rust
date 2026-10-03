@@ -4,11 +4,12 @@ BRN is a local-first macOS notes trial: saved Markdown reads/search and explicit
 Rig ChatGPT/Copilot chat, with a shared AppWorker for native and CLI consumers.
 Legacy local editing, recovery, drafts, comments and history remain supported
 in separate legacy data folders. Production App Server has been removed.
-Simple proposal/approval tools and Markdown Save remain future Steps 5/6.
+Simple proposal/approval tools and Markdown Save remain unimplemented; the old
+Steps 5/6 are superseded by the current roadmap.
 
 Start with [current status](docs/status.md) for implemented capabilities and qualification gaps. Agents should read [AGENTS.md](AGENTS.md); the [documentation index](docs/README.md) routes setup, architecture, testing and task history.
 
-The original TypeScript BRN and vault remain separate. This is a private trial repository; no license or public release decision has been made. Comment-batch revision generation, candidate adoption, publication, graph integration and distributable packaging remain future work in the [roadmap](docs/roadmap.md).
+The original TypeScript BRN and vault remain separate. This is a private trial repository; no license or public release decision has been made. The frozen [target architecture](docs/architecture/overview.md#frozen-target) serves the [product vision](docs/product/BRN_PRODUCT_VISION.md); the [roadmap](docs/roadmap.md) now starts with safe Save/recovery, then legacy removal, scoped provider capability checks and whole proposals. The former publication/graph-engine roadmap is retired.
 
 ## Quick start
 

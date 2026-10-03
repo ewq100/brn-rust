@@ -1,6 +1,27 @@
 # Architecture overview
 
-This describes the implemented workspace at the baseline in [status](../status.md). The [approved architecture decision](decisions/2026-09-28-architecture-baseline.md) records intent and rationale; the original proposal's `core` role is currently split between the sample `brn-core` and integrated `brn-workflow`.
+The owner froze the reviewed product architecture on 2026-10-03. [Product vision](../product/BRN_PRODUCT_VISION.md) supplies requirements; [invariants](invariants.md) records the frozen guarantees and resolved rules. The dated [audit](../audits/BRN_PRODUCT_ARCHITECTURE_AUDIT.md) and [independent review](../audits/BRN_PRODUCT_ARCHITECTURE_REVIEW.md) explain the decisions, not implementation authorization.
+
+## Frozen target
+
+Keep six production crates: `brn-desktop` and `brn` use `brn-workflow`, which coordinates `brn-store`, `brn-retrieval` and the thin `brn-ai` Rig adapter. Retain WorkStore, current retrieval, AppWorker ownership and the shared CLI workflow. Extend these boundaries for the reviewed product outcomes; no new crate, database, service or agent framework is currently justified.
+
+| Data | Target authority |
+| --- | --- |
+| Approved knowledge, converted sources, confirmed sent communications, profiles, durable relationships and meaningful history | Vault Markdown and ordinary assets |
+| Actions/dependencies, sessions/citation evidence, proposals/comments/unsaved work, Inbox/Needs Review/activity/settings | `brn.sqlite` WorkStore |
+| Searchable metadata, passages, embeddings and derived explicit/inferred edges | Disposable `index.sqlite` |
+| Unprocessed or incompletely converted intake | Original intake files retained until complete conversion and approval |
+| Trash, bounded undo and apply recovery | Ordinary files plus operational receipts |
+| Credentials | Existing protected credential directory |
+
+Proposals have one review lifecycle and typed changes enforced by the workflow. Relationships and context use existing records and derived queries; the graph is a view, not another datastore. Source wording, interpretation, approved knowledge and tentative findings stay distinguishable.
+
+Crate boundaries, data ownership and product guarantees stay frozen. Reopen them with the owner only for a changed requirement or a demonstrated blocker the target cannot reasonably handle. Local table, algorithm, tool and UI details can evolve inside those boundaries. [Roadmap](../roadmap.md) owns the reviewed sequence; [status](../status.md) owns actual implementation and qualification.
+
+## Implemented baseline
+
+The sections below describe existing code and compatibility behavior, not proof that the target is implemented. The [2026-09-28 decision](decisions/2026-09-28-architecture-baseline.md) and later simple-notes specifications are historical baselines; their conflicting future rules do not govern new work. Preserve existing safety contracts until a verified replacement or authorized removal. The sample `brn-core` remains in the workspace but is outside the six-crate production target.
 
 ## Ownership and dependencies
 
@@ -91,7 +112,7 @@ Pinned
 GPUI cannot veto Dock/system termination, and no final-hook flush was added.
 Unacknowledged typing on that route can be lost.
 
-Comment-batch generation and publication are future interfaces, not capabilities established by this diagram of the current flow.
+Comment-batch generation and publication were legacy future interfaces. They are superseded by the frozen whole-proposal target and are not capabilities established by this description of the current flow.
 
 ## Build boundaries
 
@@ -103,12 +124,14 @@ Read [invariants](invariants.md) before changing a boundary, and [dependencies](
 
 ## Historical reset and remaining simple-app work
 
-The [Rig-first reset](../superpowers/specs/2026-10-01-rig-first-architecture-reset-design.md)
-and old provider plans are historical/superseded by the
-[simple notes roadmap](../work/active/simple-rig-notes/plan.md).
+The [Rig-first reset](../superpowers/specs/2026-10-01-rig-first-architecture-reset-design.md),
+old provider plans and [simple notes roadmap](../work/active/simple-rig-notes/plan.md)
+are historical implementation/design evidence. New work follows the frozen target
+and current [roadmap](../roadmap.md).
 Rig subscription chat, protected file credentials and saved-vault retrieval are
-implemented on `task-4-ai-chat`; production App Server is retired.
-Step 5 proposal/approval tools and Step 6 simple Markdown Save/legacy cleanup
-are not implemented. `brn-core` still serves sample/headless shell behavior.
+implemented and merged through PR #14; production App Server is retired.
+Simple proposal/approval tools and simple Markdown Save/legacy cleanup
+are not implemented; the old Steps 5/6 order is superseded.
+`brn-core` still serves sample/headless shell behavior.
 Build/state tests do not establish graphical usability, live-provider acceptance
 or release readiness.

@@ -1,8 +1,24 @@
 # Architectural invariants
 
-These constraints summarize the [approved baseline](decisions/2026-09-28-architecture-baseline.md) and subsequent draft/comment/managed-note contracts. Preserve them when modifying code. Future publication requirements are marked explicitly; their presence here does not mean publication is implemented.
+The owner froze the reviewed architecture on 2026-10-03. New work follows the [product vision](../product/BRN_PRODUCT_VISION.md), [target ownership](overview.md#frozen-target) and guarantees below. The owner's resolved action, relationship and outbound rules are recorded in the dated [independent review](../audits/BRN_PRODUCT_ARCHITECTURE_REVIEW.md#c-what-opus-got-wrong-or-overcomplicated); its other recommendations remain advisory evidence. [Status](../status.md) distinguishes these requirements from implemented behavior.
 
-> **Transition:** the [simple Rig-based notes app](../superpowers/specs/2026-10-02-simple-rig-notes-design.md) replaces these invariants step by step ([roadmap](../work/active/simple-rig-notes/plan.md)). New code in `brn_store::work` and `brn_workflow::vault` follows that specification; the invariants below still describe the existing code until the cleanup step removes it.
+## Frozen target guarantees
+
+- Vault Markdown/assets own durable knowledge and sources; WorkStore owns operational state; `index.sqlite` is disposable. Recovery copies and citation snapshots do not compete with current-note authority.
+- Preserve exact note bytes, unrelated frontmatter, original source wording and meaningful assets. Keep interpretation and approved knowledge distinct from evidence and tentative findings. Stable identity is not a path or hash; durable provenance survives session deletion.
+- AI-created or changed knowledge, profiles, real actions and durable relationships require approval of an exact proposal version. Persisting chats, tentative findings, drafts or Inbox processing state does not itself require a proposal. Explicit user Save and identified Complete/"sent it" commands remain direct actions; follow-up work creates a new related action.
+- A proposal uses typed changes and one full-proposal review lifecycle. Comments are temporary review notes, deleted on approval; uncertain anchors are never guessed. Late results cannot replace newer edits.
+- Approval binds destinations, source versions and operational record revisions. Apply changes recoverably across files and SQLite; reconcile interruption/restore before exposing affected state. Never claim partial application succeeded or overwrite unexpected external changes during recovery.
+- Outbound approval leaves the action open. Sending confirmation binds the actual sent version, preserves it as a Markdown source linked to its thread and completes the identified action. Knowledge promotion remains separate.
+- Current queries use approved current knowledge. Explicit source/history access can still reach archived originals. Inferred relationships are derived evidence-backed candidates; approved relationships live in Markdown and rebuild offline without silently invoking AI.
+- Keep incomplete intake until meaningful conversion is complete and approved. Trash/undo are recoverable; important superseded knowledge remains readable history. Backup/restore must preserve operational work and reconcile vault receipts.
+- UI and CLI use the same workflow rules. AppWorker owns admission, cancellation and joined work. Provider/model/account selection is explicit with no automatic fallback; credentials stay protected outside Git, vault, SQLite and logs.
+
+Reopen these guarantees or ownership boundaries only with the owner after a changed requirement or a concrete blocker that the frozen architecture cannot reasonably handle. Follow the [roadmap](../roadmap.md) for delivery, not superseded specifications.
+
+## Existing implementation contracts
+
+The remaining sections document the [earlier baseline](decisions/2026-09-28-architecture-baseline.md) and current compatibility paths. Preserve relevant safety guarantees while maintaining that code. Their permanent anchored-comment and future publication requirements are historical, not requirements for the new proposal model. The [simple-notes specification](../superpowers/specs/2026-10-02-simple-rig-notes-design.md) also remains implementation history rather than the authority for new work.
 
 ## Authority and exact content
 
@@ -59,7 +75,7 @@ These constraints summarize the [approved baseline](decisions/2026-09-28-archite
 
 ## Future publication contract
 
-Search approval does not authorize publication. When publication is implemented, approval must bind exact revision bytes/hash and destination, and publication must revalidate those preconditions immediately before a recoverable write. The model must not gain a publication tool.
+This legacy future interface is superseded by the frozen proposal-approval model. Retain its safety distinction: search eligibility is not write approval, and models do not directly apply authoritative changes. Do not implement a separate publication subsystem from this historical contract.
 
 ## Scope and qualification
 

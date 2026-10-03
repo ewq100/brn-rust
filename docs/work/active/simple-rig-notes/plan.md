@@ -1,6 +1,6 @@
-# Simple Rig-based notes app: roadmap
+# Simple Rig-based notes app: historical roadmap
 
-> **For agentic workers:** REQUIRED SUB-SKILL: Use superpowers:subagent-driven-development (recommended) or superpowers:executing-plans to implement each step plan task-by-task. Steps use checkbox (`- [ ]`) syntax for tracking.
+> **Historical baseline, superseded 2026-10-03:** Steps 1–4 and their linked plans/evidence describe implemented work. Future Steps 5/6 and conflicting specification rules are retired. New work follows the frozen [architecture/invariants](../../../architecture/invariants.md), [current roadmap](../../../roadmap.md) and [development workflow](../../../development/workflow.md). Old execution/model/attribution instructions in this plan pack are not current requirements.
 
 **Goal:** Replace the Codex App Server architecture with a simple notes app: Markdown vault, SQLite search, Rig chat with ChatGPT/Copilot, comments and AI rewrites approved by the user.
 
@@ -8,9 +8,9 @@
 
 **Tech Stack:** Rust `1.98.1`, Rig `=0.43.0`, rusqlite `=0.40.2` (bundled, FTS5), fastembed `=7.1.0`, GPUI-kit `=0.6.6`, Tokio, `similar`.
 
-**Spec:** [Simple Rig-based notes app](../../../superpowers/specs/2026-10-02-simple-rig-notes-design.md). Read it before any step plan.
+**Historical spec:** [Simple Rig-based notes app](../../../superpowers/specs/2026-10-02-simple-rig-notes-design.md). Retained as implementation evidence, not the requirements source for new work.
 
-## Global Constraints
+## Historical constraints
 
 - The vault folder is the truth for notes; only regular `.md` files up to 1 MiB, excluding hidden files/folders and top-level `archive/`.
 - The AI never writes to the vault; only user Approve writes AI text.
@@ -19,7 +19,6 @@
 - Credentials live in an owner-only folder; never in SQLite, logs, fixtures or errors.
 - Default tests are deterministic and offline with temporary folders. Live provider calls and model downloads only when the user asks.
 - Old data folders, the original vault and existing trial workspaces are never modified.
-- Every implementation commit ends with `Co-authored-by: Copilot <223556219+Copilot@users.noreply.github.com>`.
 - Use `--locked` for Cargo commands on existing manifests; after adding a dependency, run once without `--locked` to update the lockfile, then commit it.
 
 ---
@@ -32,8 +31,8 @@
 | 2 | [Store and vault](store.md) | `WorkStore` (`brn.sqlite`, backups, restore, settings, unsaved edits) and the vault module (path rules, scan, read). Updated repository rules. | — |
 | 3 | [Search](search.md) | `index.sqlite`: notes, passages, FTS5, local embeddings, fusion; non-UTF-8 notes listed as unreadable; workflow `Library`; LanceDB removed. | 2 |
 | 4 | [AI chat](chat.md) | `brn-ai`, Connect/Disconnect/select, read tools, saved conversations; CLI moves to the new data folder with `notes list`, `search`, `ask`; model download with consent; `brn-provider` removed. | 1, 2; step 3 Library for read/search tools |
-| 5 | Writing (written after step 4) | Comments, review mode, Address comments, new-note proposals, CLI `comments`/`review`. | 3, 4 |
-| 6 | Cleanup (written after step 5) | Simple save path, removal of old import/approval/drafts/revisions/operation code and `brn-core`, documentation. | 5 |
+| 5 | Superseded writing step | Historical proposal: comments, review mode, Address comments, new-note proposals, CLI `comments`/`review`. | Retired; use current roadmap |
+| 6 | Superseded cleanup step | Historical proposal: simple save path, legacy removal and `brn-core` cleanup after writing. | Retired; safe Save/recovery now precedes legacy removal |
 
 Steps 1–3 are implemented through `e24b104`; local-model inference was skipped
 without assets. Step 4 is implemented and merged on `main@50f898a` through
@@ -44,8 +43,9 @@ provider crate is removed. [Evidence](evidence.md) distinguishes historical
 checks from fresh integrated qualification. User/live/native acceptance remains
 pending; Step 5 proposals/approval and Step 6
 simple Markdown Save/legacy cleanup are not implemented or authorized here.
+Their delivery order now comes from the current roadmap, not these steps.
 
-## Execution notes
+## Historical execution notes
 
 - Execute on the branch the user chooses. Do not push or open PRs without explicit instruction.
 - Record actual commands and results in [evidence](evidence.md) at the end of each step.

@@ -1,63 +1,35 @@
 # Delivery roadmap
 
-This document defines future outcomes and prerequisites. It is not an approved implementation plan or authorization to start work. [Current status](status.md) owns implementation, verification and integration state; the [original annotated roadmap](work/completed/early-checkpoints/roadmap-history.md) preserves earlier milestone specifications and history.
+The owner has frozen the reviewed product architecture as of 2026-10-03. [Product vision](product/BRN_PRODUCT_VISION.md) and [architecture/invariants](architecture/invariants.md) govern the outcomes below. This sequence carries forward the dependency corrections in the dated [independent review](audits/BRN_PRODUCT_ARCHITECTURE_REVIEW.md#g-final-build-sequence); it is not a detailed implementation plan or authorization for a new slice.
 
-## Outcome and constraints
+[Status](status.md) owns observed implementation, verification, acceptance and integration. Older milestones and the simple-notes Steps 5/6 are historical; they do not select the next task. Keep existing foundations and data while following the frozen six-crate [target](architecture/overview.md#frozen-target).
 
-Build a local-first, single-user Rust desktop application for importing knowledge, asking grounded questions, drafting, reviewing comments/revisions and approving exact publication content. Start with macOS on Apple Silicon. Keep the original TypeScript application and vault separate. Runtime application services remain Rust; native libraries may be dependencies.
+## Reviewed outcomes
 
-## Existing foundations
+| Stage | Outcome |
+| --- | --- |
+| 0 | Retire conflicting guidance and use the frozen product/architecture with the concise development workflow. |
+| 1 | Simple manual Save preserves bytes, detects conflicts, avoids overwriting new destinations and recovers unfinished edits. Verify Save/recovery before removal. |
+| 2 | Remove legacy production paths and obsolete tests while preserving historical records, existing data and trial workspaces. Export valuable legacy data only when its need is established and authorized. |
+| 3 | Narrow capability spikes establish selected-model, effort, retry, native web and image support on actual provider routes. Live checks need separate task authorization. |
+| 4 | Complete typed proposals support editing, temporary comments, Rewrite, individual/group approval, recoverable application, activity and practical Undo/Trash. |
+| 5 | Minimal note identities, durable provenance, current/history retrieval, relationship extraction and qualified multilingual search. Basic review findings and session timestamps support later work. |
+| 6 | Actions/dashboard support approved creation, direct explicit completion and new related follow-up actions. |
+| 7 | Text/email Inbox produces independently reviewable consequences, using identity foundations and a small owned AI queue. |
+| 8 | Office documents and supplied URLs preserve meaningful content/assets; incomplete conversion retains originals. |
+| 9 | Autonomous web research returns attributable evidence and proposes approved durable captures. |
+| 10 | Needs Review and maintenance handle stale knowledge, conflicts and neglected work, including web-dependent checks. |
+| 11 | Project/person views assemble current context from existing records. |
+| 12 | Bounded helper agents extend investigation without independent durable writes. |
+| 13 | Session Archive/Restore/Delete, capture warnings before Delete and approved working preferences complete session lifecycle. |
+| 14 | A graph view exposes existing derived relationships without a new graph datastore. |
+| 15 | Existing-vault cleanup proposes reviewable metadata, organization and supersession batches. |
+| 16 | Trusted-user packaging and upgrade/recovery qualification complete delivery. |
 
-Milestones 00–12 cover build/provider/editor/retrieval trials, the accepted architecture baseline, desktop/storage, import/search/chat, drafts and anchored comments. Their bounded implementations and observations are indexed in [completed work](work/completed/README.md). The agent-facing `brn` CLI (PR #2) is existing infrastructure, not future work: agent and headless operations use the shared workflow through `brn` ([command reference](../crates/brn/README.md)), not a separate implementation path. This does not close broader corpus-quality, user acceptance or release qualification gaps, and none of the milestones below are implemented early.
+Safe Save and verified recovery precede legacy removal; removal precedes Proposal Core. Identity foundations precede linked actions and Inbox. Full profile views can follow those foundations. Vault cleanup does not depend on the graph canvas and may move earlier when the owner selects it. Automatic session archive remains reversible and offline.
 
-## Next writing and review outcomes
+## Starting the next slice
 
-### 13. Revision from a comment batch
-Prerequisite: 12.
-Deliverable: freeze source revision and selected comments, generate a candidate, compare changes, preserve evidence and batch identity.
-Done: edits during generation are retained; interrupted work is recoverable; generated changes do not automatically count as user approval or semantically completed comments.
+The next product outcome is Stage 1, simple safe Save. Scope it against existing Save/recovery behavior; the method cleanup does not authorize implementation, original-data migration, live provider calls, downloads or release. Use the [development workflow](development/workflow.md) to identify a bounded acceptance scenario and relevant checks, with a short plan only when needed.
 
-### 14. Approval and publication
-Prerequisite: 13.
-Deliverable: approve exact bytes/version and destination; recoverable Markdown publication with conflict detection.
-Done: destination changes are detected; injected failures do not lose the old version or claim a partial publication succeeded. Publishing remains outside the model's tool registry.
-Milestone: complete import → grounded draft → comments → revision → approval workflow.
-
-## Phase D — graph profile and dependable release
-
-### 15. Graph engine qualification
-Prerequisite: 03, 09; can begin after Phase B without blocking Phase C.
-Deliverable: compare Cognee-RS and, if useful, GraphRAG-rs on the shared evidence contract and fixed query set.
-Done: meaningful entity/relationship extraction, provenance, source filtering, source deletion/version updates, indexing cost, and native packaging are demonstrated. A demo using fallback embeddings is not sufficient evidence.
-
-### 16. Graph profile integration
-Prerequisite: 15 and selected engine.
-Deliverable: graph and optionally graph-hybrid profiles behind BRN's retrieval boundary; index build status and explicit selection.
-Done: switching profiles preserves UI and agent interfaces; evidence includes supporting passages and graph provenance. Automatic routing cannot override explicit user selection. Original sources remain authoritative.
-
-### 17. Backup and restore
-Prerequisite: 14; include graph metadata if 16 is complete.
-Deliverable: consistent backup, restore rehearsal, portability and schema-upgrade checks. Indexes may rebuild; authoritative drafts/comments/approvals must restore.
-Done: restore to a clean directory preserves user work and evidence links. Upgrade failure has a documented recovery path.
-
-### 18. Packaging and target-OS acceptance
-Prerequisite: 10 for early test installers; 14, 16, 17 for full planned release.
-Deliverable: installer/application bundle, model resource handling, credential integration, installation/update instructions, target-OS smoke checks.
-Done: install on a clean target machine and complete the full workflow; no development toolchain or Node/Python service required at runtime. Validate graphics, input, offline reopening, sleep/wake, and uninstall data policy. Signing/notarization, if required for distribution, uses the user's release credentials through the appropriate secure workflow.
-
-## UI redesign slices
-
-The handoff workspace is delivered in slices: 1 workspace shell ([design](superpowers/specs/2026-10-01-workspace-shell-design.md)), 2 chat polish, 3 vault rail and note editor, 4 history and diff, 5 review and publication. Hidden handoff features and their prerequisites are tracked in the [UI feature backlog](ui/feature-backlog.md). Slices after 1 need their own design approval.
-
-## Scope and sequencing
-
-Critical path: 00 → trials 01/02/03 → 04 → 05/06 → 07/08/09 → 10 → 11/12/13/14 → 17/18. Graph qualification/integration 15/16 follows the retrieval contract and joins before the full planned release. Installer work starts early enough to supply desktop trials.
-
-Useful delivery checkpoints: editor trial at 02; retrieval trial at 03; first useful app at 10; writing/review app at 14; full modular graph-enabled release at 18. Graph is part of the intended scope even though an earlier usable build ships without it.
-
-Defer multi-user collaboration, sync, plugin marketplaces, generic agent orchestration, mobile clients, and multiple OS targets until the initial desktop workflow is reliable. Reconsider richer document formats separately.
-
-
-## Starting the next task
-
-The next sequential outcome is milestone 13. Define its concrete design, frozen batch identity, candidate behavior and failure/recovery acceptance before implementation. Follow the [development workflow](development/workflow.md); update current status as work proceeds. Candidate adoption must be explicitly scoped rather than inferred from retaining an AI candidate.
+Each slice needs relevant offline verification and acceptance for its changed user-visible behavior. Native usability, actual inference, provider validity and packaging remain separate qualification. Preserve useful completed work as [history](work/completed/README.md); old specifications and model/process assignments are not current instructions.
