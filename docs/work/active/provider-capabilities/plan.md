@@ -102,8 +102,40 @@ Commands: `cargo test -p brn-ai --features capability-spike --all-targets --lock
 `cargo clippy -p brn-ai --features capability-spike --all-targets --locked --offline -- -D warnings`;
 `cargo fmt --all -- --check`.
 
-Offline preparation is locally integrated by the commit containing this record.
+Offline preparation is locally integrated at `7e63041`.
 Stage 3 remains active: no actual capability, account, server cancellation or wire
 retry qualification is claimed. Existing native acceptance/real inference and
 later v1 stages remain pending. Next action is the scoped owner live permission
 and human sign-in above; no release/public distribution or paid API is included.
+
+## Authorized live handoff — 2026-10-03
+
+The owner answered Yes to the complete bounded live scope above. That permission
+persists; no routine live reauthorization is needed within its limits. Offline
+preparation is integrated at `7e6304171e83dce2b43ef1d0e1859add52cf1820`.
+
+A fresh synthetic task folder was created outside Git at
+`/private/tmp/brn-provider-qualification.yw2v91wv`, with explicit `data`, `vault`
+and protected `credentials` paths. Copilot Connect used actual Rig device login.
+GitHub reached the authorization confirmation, but Authorize stayed disabled in
+the embedded browser; Chrome automation was unavailable. The 600-second CLI
+deadline returned 124 after local cancellation/join. Upstream cancellation is
+unconfirmed. No successful authentication or model capability is established;
+**0 of 11 logical probes / 0 of 22 completion requests** have been used. No
+original credentials/data, model downloads, purchase or release action occurred.
+
+Resume with a new explicit Copilot Connect and human authorization in the owner's
+regular browser, then discover the authorized models and run the bounded probes.
+The closed attempt's device code is deliberately absent from this record. ChatGPT Connect
+and its four probes remain within the same granted scope. Commands from the repo:
+
+```sh
+target/debug/brn ai connect copilot --data-dir /private/tmp/brn-provider-qualification.yw2v91wv/data --credentials-dir /private/tmp/brn-provider-qualification.yw2v91wv/credentials --timeout-seconds 600
+target/debug/brn ai models copilot --data-dir /private/tmp/brn-provider-qualification.yw2v91wv/data --credentials-dir /private/tmp/brn-provider-qualification.yw2v91wv/credentials
+```
+
+Use the new transient CLI device code at `https://github.com/login/device`.
+Sign-in must complete before model discovery/probes. If temporary folders have
+been removed, create a fresh owned parent/data folder rather than using original
+credentials. Stage 4 inspection identified reusable proof/worker interfaces and
+missing proposal behavior; no Stage 4 implementation or completion is claimed.

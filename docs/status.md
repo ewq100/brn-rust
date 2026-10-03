@@ -2,7 +2,7 @@
 
 2026-10-03. Stage 1 is locally integrated at `6609442`, based on frozen-guidance
 baseline `4bf7878`. Stage 2 is locally integrated at `a5ec4ae`. Stage 3 offline
-probe preparation is integrated by the commit containing this record; actual
+probe preparation is locally integrated at `7e63041`; actual
 provider qualification remains open.
 
 The owner has authorized sequential BRN v1 delivery using the [product vision](product/BRN_PRODUCT_VISION.md),
@@ -58,9 +58,12 @@ final review found no remaining actionable findings. Fresh workspace tests:
 **403 passed, 0 failed, 1 ignored**; feature AI tests **67 + 1 example passed**.
 Default build/Clippy/format, feature example build/Clippy and documentation checks
 passed. [Stage 3 plan/results](work/active/provider-capabilities/plan.md) specifies
-the bounded live scope and reproducible commands. No live/account calls or
-original credential/data inspection occurred. Actual Stage 3 checks require
-owner authorization and sign-in before advancing the provider dependency.
+the bounded live scope and reproducible commands. The owner authorized that
+scope on 2026-10-03. Fresh Copilot device login reached GitHub's confirmation,
+but its embedded-browser authorization control stayed disabled and the CLI
+deadline stopped/joined the attempt. **Zero model probes ran**; no original
+credentials/data were inspected. Live permission remains granted; human sign-in
+in a regular browser is needed before advancing the provider dependency.
 Stages 4–16 remain pending; no complete BRN v1 delivery is claimed.
 Owner acceptance may remain pending when it is not a dependency for later safe
 implementation.
