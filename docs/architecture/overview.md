@@ -80,8 +80,9 @@ bindings, full edits, temporary comments and rejection. One review version guard
 late Rewrite results; uncertain anchors retain their old range without guessing.
 Draft/edit/comment operations do not apply knowledge. Exact reviewed approval
 now applies through AppWorker and the CLI, preserving whole-proposal proof and
-later editor work. Activity/Undo/Trash, AI Rewrite and native review remain active
-Stage 4 work, before later roadmap domains extend the typed changes.
+later editor work. Shared activity and explicit Undo/Trash use the same typed
+application/recovery boundary. AI Rewrite, interrupted-work repair and native
+review remain active Stage 4 work, before later domains extend typed changes.
 
 WorkStore V5 adds exact approval snapshots, all-member prepared proofs and
 whole-proposal receipts. Pending/Uncertain journals fence current reads and

@@ -473,6 +473,12 @@ no live calls, original data, push or release. This storage-only slice is locall
 integrated under mission authorization. File execution and native/manual
 qualification remain in subsequent shared execution/UI work.
 
+Shared execution baseline: `main@e593da83a985345cfb78e60bab82dc781cd1d525`;
+Store admission is integrated, owner AGENTS.md remains unrelated. Acceptance starts
+with failing public integration checks for exact byte/inode/mode/ACL/xattr recovery,
+editor stamp and later typing preservation, scoped Trash with unrelated later edits,
+changed original/target/root refusal, replay and fresh-DB history restoration.
+
 Next shared execution slice will reuse Store `UndoRequest`, `UndoPreview` and
 `UndoBinding` unchanged. `App::preview_proposal_undo` is operational read-only;
 `App::undo_proposal` performs an explicit identified human operation, replay-first.
@@ -486,3 +492,49 @@ short valid title cannot hide that the recorded change was Undo/restoration.
 CLI adds `undo-preview TARGET --operation NEW [--member INDEX]`, `undo TARGET
 --operation NEW` and `restore-trash TARGET --member INDEX --operation NEW`, with
 pure request validation before opening storage. Native interaction remains next.
+
+Shared execution implements the fixed interfaces above and reuses one preflight/
+admitted-run path for ordinary approval and Undo. Borrowed originals are checked
+before admission and preparation, required file/directory flushes complete before
+whole prepared evidence is mirrored, then existing installation/proof settlement
+runs. Editor matches include namespace, current inode and borrowed original inode;
+clean original baseline/text is allowed without rebasing, dirty aliases refuse.
+Temporary-record retirement now requires matching Undo bindings. Activity names
+the source/scope, and CLI defaults to full typed preview plus explicit operation IDs.
+
+Targeted normal root checks passed the four public workflow integrations and the
+14-boundary Undo subprocess matrix, mirror-persistence failures and changed
+retained-original uncertainty. Worker tests cover real correlation/shutdown/later
+old-stamp typing. The CLI helper encountered macOS coordination refusal during
+its initial editor fixture setup; root's normal process run reached all Undo paths.
+One CLI assertion expected ToolRejected for source-dependent Store Invalid, contrary
+to the existing intentional uncategorized mapping; corrected the assertion without
+changing product behavior. Final read-only review and fresh gates follow.
+
+Independent read-only final review against `e593da8` found no actionable findings;
+it independently passed **4 workflow integrations, 2 worker tests and 4 CLI
+process tests**. Root's fresh macOS arm64 / Rust 1.98.1 locked/offline
+`TMPDIR=<exclusive owned parent> bash scripts/verify-end-to-end.sh` passed
+**538 workspace tests, 0 failed, 2 ignored** private process entry points exercised
+by matrices; **52 fixtures**, retirement, format/build/all-target Clippy with
+warnings denied. Optional native desktop compile passed; existing upstream `block
+v0.1.6` warning remains. Store **127 passed**, CLI **77 passed**. The new Undo
+subprocess matrix checks **14 crash boundaries**; ordinary-mirror persistence
+failures and changed borrowed originals preserve exact whole outcomes. No physical
+power loss, native Undo interaction or owner usability acceptance is claimed.
+
+Manual acceptance pending: in fresh disposable data/vault, approve a mixed
+Replace/Create/Trash proposal. Run `proposals undo-preview SOURCE --operation NEW`
+and inspect all full inverse changes without file effects, then `proposals undo
+SOURCE --operation NEW`. Compare exact originals and verify the created note moved
+to retained Trash. Replay NEW after a later external edit: preserve that edit and
+return the old receipt. Separately approve another mixed proposal, edit its Replace
+note externally, then preview/execute `restore-trash SOURCE --member INDEX
+--operation NEW` for its zero-based original Trash member: restore only that file.
+An occupied destination or changed original must refuse, preserving every file.
+[CLI commands](../../../../crates/brn/README.md) document the concrete invocation.
+Shared execution is locally integrated under standing mission authorization;
+explicit interrupted-work repair, owned Rewrite and native review/Undo are next.
+Changed Markdown **54 local links/fragments, 0 errors** and diff checks passed;
+only verified exclusively owned synthetic gate parents were removed. No live
+calls, model downloads, original/private-data inspection, push or release.

@@ -53,7 +53,15 @@ pub struct ActivityChange {
 }
 #[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
 #[serde(deny_unknown_fields)]
+pub struct ActivityUndo {
+    pub operation_id: Uuid,
+    pub trash_member: Option<usize>,
+}
+#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
+#[serde(deny_unknown_fields)]
 pub struct ActivityEntry {
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub undo: Option<ActivityUndo>,
     pub operation_id: Uuid,
     pub proposal_id: Uuid,
     pub group_id: Option<Uuid>,
@@ -141,6 +149,10 @@ impl App {
                     })
                     .collect();
                 Ok(ActivityEntry {
+                    undo: journal.undo.map(|binding| ActivityUndo {
+                        operation_id: binding.operation_id,
+                        trash_member: binding.trash_member,
+                    }),
                     operation_id: journal.request.operation_id,
                     proposal_id: draft.id,
                     group_id: draft.group_id,

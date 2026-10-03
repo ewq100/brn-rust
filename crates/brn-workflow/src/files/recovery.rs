@@ -186,6 +186,7 @@ fn covered_review(older: &ApplyJournal, applied: &ApplyJournal) -> bool {
     let after = &applied.approved;
     before.draft.id == after.draft.id
         && older.creation_sha256 == applied.creation_sha256
+        && older.undo == applied.undo
         && before.version <= after.version
         && before.created_at_ms == after.created_at_ms
         && before.draft.vault == after.draft.vault
@@ -845,16 +846,25 @@ mod tests {
             .changes
             .iter()
             .enumerate()
-            .map(|(index, change)| match change {
-                NoteChange::Create { text, .. } | NoteChange::Replace { text, .. } => {
-                    FileFingerprint {
-                        device: 1,
-                        inode: 100 + index as u64,
-                        len: text.len() as u64,
-                        sha256: digest(text.as_bytes()),
-                    }
+            .map(|(index, change)| {
+                if let Some(original) = journal
+                    .undo
+                    .as_ref()
+                    .and_then(|binding| binding.originals[index].as_ref())
+                {
+                    return original.fingerprint.clone();
                 }
-                NoteChange::Trash { before, .. } => before.clone(),
+                match change {
+                    NoteChange::Create { text, .. } | NoteChange::Replace { text, .. } => {
+                        FileFingerprint {
+                            device: 1,
+                            inode: 100 + index as u64,
+                            len: text.len() as u64,
+                            sha256: digest(text.as_bytes()),
+                        }
+                    }
+                    NoteChange::Trash { before, .. } => before.clone(),
+                }
             })
             .collect();
         journal.observations = Some(
@@ -893,6 +903,31 @@ mod tests {
         });
         journal.validate().unwrap();
         journal
+    }
+
+    #[test]
+    fn temporary_retirement_requires_the_exact_undo_binding() {
+        use brn_store::work::proposal_apply::UndoRequest;
+        let fixture = Fixture::new();
+        let source = applied(&fixture.journal);
+        let (mut store, _) = WorkStore::open(&fixture.data).unwrap();
+        store.restore_proposal_apply(&source).unwrap();
+        let undo = store
+            .begin_proposal_undo(&UndoRequest {
+                operation_id: Uuid::new_v4(),
+                target_operation_id: source.request.operation_id,
+                trash_member: None,
+            })
+            .unwrap();
+        let terminal = applied(&undo);
+        let compatible = fixture.temporary(&encode(&undo).unwrap());
+        let mut foreign = undo.clone();
+        foreign.undo.as_mut().unwrap().operation_id = Uuid::new_v4();
+        foreign.validate().unwrap();
+        let retained = fixture.temporary(&encode(&foreign).unwrap());
+        fixture.files.retire_review_temporaries(&terminal).unwrap();
+        assert!(!compatible.exists());
+        assert_eq!(fs::read(retained).unwrap(), encode(&foreign).unwrap());
     }
 
     struct HookReset;

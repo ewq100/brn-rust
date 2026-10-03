@@ -74,6 +74,18 @@ pub(super) fn output(page: ActivityPage) -> Output {
         }
         writeln!(text, "Operation: {}", entry.operation_id).expect("String write");
         writeln!(text, "Proposal: {}", entry.proposal_id).expect("String write");
+        if let Some(undo) = &entry.undo {
+            if let Some(member) = undo.trash_member {
+                writeln!(
+                    text,
+                    "Trash restore of: {} (zero-based member {member})",
+                    undo.operation_id
+                )
+                .expect("String write");
+            } else {
+                writeln!(text, "Undo of: {}", undo.operation_id).expect("String write");
+            }
+        }
         if let Some(group) = entry.group_id {
             writeln!(text, "Group: {group}").expect("String write");
         }
@@ -93,7 +105,7 @@ pub(super) fn output(page: ActivityPage) -> Output {
 #[cfg(test)]
 mod tests {
     use super::*;
-    use brn_workflow::activity::{ActivityChange, ActivityEntry};
+    use brn_workflow::activity::{ActivityChange, ActivityEntry, ActivityUndo};
     use uuid::Uuid;
 
     #[test]
@@ -111,6 +123,7 @@ mod tests {
             approved_at_ms: 123,
             approved_at_utc: None,
             summary: "3 notes\r\t".into(),
+            undo: None,
             changes: vec![
                 ActivityChange {
                     kind: ActivityChangeKind::Created,
@@ -168,5 +181,45 @@ mod tests {
             result.data,
             serde_json::json!({"entries":[],"next_before":null})
         );
+    }
+
+    #[test]
+    fn human_activity_identifies_whole_undo_and_scoped_trash_source() {
+        let source = Uuid::new_v4();
+        let entries = [None, Some(2)]
+            .into_iter()
+            .map(|trash_member| ActivityEntry {
+                operation_id: Uuid::new_v4(),
+                proposal_id: Uuid::new_v4(),
+                group_id: None,
+                session_id: None,
+                title: "Restored 日本語".into(),
+                approved_at_ms: 123,
+                approved_at_utc: Some("2026-10-03T00:00:00Z".into()),
+                summary: "1 note restored".into(),
+                changes: vec![ActivityChange {
+                    kind: ActivityChangeKind::Created,
+                    path: "restored.md".into(),
+                }],
+                undo: Some(ActivityUndo {
+                    operation_id: source,
+                    trash_member,
+                }),
+            })
+            .collect();
+        let result = output(ActivityPage {
+            entries,
+            next_before: None,
+        });
+        assert!(result.text.contains(&format!("Undo of: {source}")));
+        assert!(result
+            .text
+            .contains(&format!("Trash restore of: {source} (zero-based member 2)")));
+        assert_eq!(
+            result.data["entries"][0]["undo"]["operation_id"],
+            source.to_string()
+        );
+        assert!(result.data["entries"][0]["undo"]["trash_member"].is_null());
+        assert_eq!(result.data["entries"][1]["undo"]["trash_member"], 2);
     }
 }

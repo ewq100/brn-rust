@@ -28,46 +28,30 @@ metadata remains unqualified. Copilot `gpt-5.5` Chat refused with
 results and limits. No more account calls or model downloads are authorized by
 that completed round.
 
-Stage 4 review (`89421f5`) and exact approval journals/fences (`e84ef7a`) are
-integrated. The current file-application slice implements shared AppWorker/CLI
-individual and captured-group approval, all-member staging, coordinated exact
-Create/Replace/Trash installation, required durability and whole-proposal proof.
-A fresh pre-effect refusal preserves review work and external occupants; partial
-or unknown work stays fenced. Replay never repeats file effects. Ordinary bounded
-recovery receipts survive older/missing operational databases and are inspected
-before current vault binding. Historical completion preserves later user bytes;
-newer editor typing retains its old baseline/buffer as an explicit conflict.
-Successful approval removes temporary annotations from live/prior journals,
-ordinary snapshots and compatible proven temporary records. Independent review
-findings were verified, fixed and re-reviewed. [Stage 4 plan/evidence](work/active/proposal-core/plan.md)
-records acceptance scenarios and exact qualification. Fresh macOS arm64 / pinned
-Rust 1.98.1 locked/offline verification passed: **498 workspace tests, 0 failed,
-2 ignored** private crash entry points exercised by subprocess matrices; Store
-**110 passed** including **34 approval/recovery tests**; CLI **67 passed** including
-**9 proposal process tests**. Workspace format/build/all-target Clippy with warnings
-denied, **52 end-to-end fixture assertions**, optional native desktop compile,
-local Markdown links and diff checks passed. The file-application slice is locally
-integrated at `e04fc52`.
+Stage 4 review (`89421f5`), exact approval journals/fences (`e84ef7a`), whole-file
+application/recovery (`e04fc52`) and readable activity (`7100ab2`) are integrated.
+AppWorker/CLI support full editing, temporary comments, individual and captured-
+group approval, exact Create/Replace/Trash installation and historical receipts.
+Fresh pre-effect refusal preserves review work; unknown/partial effects stay
+fenced. Replay/reconciliation never repeats installation. Ordinary receipts restore
+older/missing operational databases before exposing current evidence; historical
+completion preserves later bytes and editor typing. Applied cleanup removes covered
+temporary annotations. [Stage 4 plan/evidence](work/active/proposal-core/plan.md)
+retains qualification and reproducible manual scenarios.
 
-The readable-activity slice (`7100ab2`) projects successful approval receipts into
-AppWorker/CLI history with bounded exclusive paging, recorded approval time,
-titles, affected paths and proposal/session context. It excludes note bodies,
-comments and technical proofs. History remains stable after later note edits,
-restart and ordinary-receipt restoration, including current-evidence fences and
-unavailable vaults. Fresh root locked/offline verification passed **507 workspace
-tests, 0 failed, 2 ignored**, workspace format/build/all-target Clippy with warnings
-denied and **52 end-to-end assertions**; optional native compile passed. Native
-history presentation and owner acceptance remain pending.
-
-Bounded Store Undo/Trash derivation and admission are implemented: whole inverse
-or one identified Trash member, exact retained-original binding, atomic review/
-intent and self-contained receipt recovery. Legacy JSON/checksums remain compatible.
-Independent review found metadata-cap failures on valid large inverses; reproducing
-regressions and separate stable base/proof/manifest bounds fix them. Independent re-review found no remaining defect. Fresh root locked/offline gates
-passed **524 workspace tests, 0 failed, 2 ignored**, Store **127 passed** including
-**17 Undo tests**, **52 fixtures**, format/build/all-target Clippy and optional
-native compile. Storage-only work is locally integrated. Workflow file execution, CLI/native
-Undo, AI Rewrite and native proposal review remain next. Stage 4 is not complete.
+Store Undo/Trash (`e593da8`) derives exact whole inverses or one original Trash
+member, with immutable retained-original and scope bindings. Shared AppWorker/CLI
+execution now preserves bytes, inodes/mode/ACL/xattrs and editor stamps, refuses
+changed originals/targets/dirty aliases, and uses the same durable whole-operation
+proof/recovery. Scoped Trash restoration preserves unrelated later edits. Activity
+names Undo's source/scope. Independent review found no remaining actionable defect
+and passed 4 workflow, 2 worker and 4 CLI process tests. Fresh root macOS arm64 /
+Rust 1.98.1 locked/offline gates passed **538 workspace tests, 0 failed, 2 ignored**
+private crash entry points exercised by subprocess matrices; **52 end-to-end
+assertions**, retirement, format/build/all-target Clippy with warnings denied and
+optional native compile. Store **127 passed**; CLI **77 passed**. Shared Undo/Trash
+is locally integrated. Native review/Undo presentation, interrupted-work repair and
+owned AI Rewrite remain next; Stage 4 is not complete.
 
 ## Qualification still open
 

@@ -64,7 +64,7 @@ rejection and imported captured Rewrite results use one version. Changing an
 anchored target leaves its old range unresolved; late results after newer edits,
 comments or rejection fail. AppWorker owns and drains admitted review mutations.
 Read/list/edit/comment work remains available without current vault access.
-Undo/Trash, AI Rewrite and native review remain subsequent Stage 4 slices.
+AI Rewrite and native review remain subsequent Stage 4 slices.
 
 The current-evidence fence covers pending/Uncertain Save and proposal journals.
 It refuses tools, note/list/search, refresh and embedding, including startup and
@@ -93,8 +93,8 @@ historical completion preserves subsequent owner bytes. Reconciliation checks
 current sources for incomplete work, recognizes sources replaced/trashed by that
 proposal, and never repeats installation. Approved annotation cleanup covers
 current/prior journals, ordinary snapshots and compatible proof-checked temporary
-snapshots; unexpected occupants remain retained. Bounded Undo/Trash
-retention, AI Rewrite and native proposal interaction still need later slices.
+snapshots; unexpected occupants remain retained. AI Rewrite and native proposal
+interaction still need later slices.
 
 `activity::ActivityRequest` projects successful Applied journals into readable
 history through AppWorker and `brn activity list`. Default pages contain 20 entries
@@ -108,6 +108,31 @@ Drafts/refusals/uncertain work cannot claim a successful durable change. Histori
 activity stays readable when current evidence is fenced or its vault unavailable,
 and ordinary recovery restores it without repeating old effects. Native activity
 presentation follows with the complete proposal review interaction.
+
+## Explicit Undo and Trash restoration
+
+`preview_proposal_undo` returns the complete inverse of one Applied operation as
+operational review data; it does not claim current file eligibility. `undo_proposal`
+uses a fresh caller UUID and an immutable whole/single-Trash scope. The shared
+AppWorker `PreviewProposalUndo` / `UndoProposal` commands return a typed preview or
+existing `ProposalApplied` receipt. Admitted Undo drains on shutdown; AI has no
+direct Undo tool. Whole Undo never silently selects a subset. Explicit single
+Trash restoration can preserve later edits to other members of a mixed operation.
+
+Fresh preflight checks the same bound root, parents, targets and editor aliases as
+approval, plus every exact retained original. Preparation flushes and borrows its
+inode instead of copying it, preserving original bytes/mode/ACL/xattrs. The same
+whole prepared proof, durable mirror, coordinated installation, strict settlement
+and recovery protocol applies. Unknown partial work stays fenced; reconciliation
+and UUID replay never repeat namespace effects. A clean editor whose baseline/text
+exactly matches the restored original may remain bound; dirty or incompatible
+recovery refuses. Tokens, generations and queued later typing remain untouched.
+
+Activity includes the source operation and optional original Trash member index.
+The existing 64-member/8 MiB proposal limits apply. Old retained Trash is eligible
+while its proofs hold; no timer/count silently purges it. CLI commands are described
+in [brn](../brn/README.md). Native review/Undo interaction, mixed-work repair and
+owner usability acceptance remain pending.
 
 ## Explicit model installation
 

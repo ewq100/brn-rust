@@ -61,6 +61,8 @@ pub enum AppCommand {
     RejectProposal(crate::proposals::ProposalStamp),
     ApproveProposal(crate::proposal_apply::ApprovalRequest),
     ReconcileProposal(Uuid),
+    PreviewProposalUndo(crate::proposal_apply::UndoRequest),
+    UndoProposal(crate::proposal_apply::UndoRequest),
     ApproveProposalGroup(crate::proposal_apply::GroupApprovalRequest),
     ProposalApplies,
     Activity(crate::activity::ActivityRequest),
@@ -116,6 +118,7 @@ pub enum AppEvent {
     Proposal(crate::proposals::ProposalRecord),
     Proposals(Vec<crate::proposals::ProposalRecord>),
     ProposalApplied(crate::proposal_apply::ApplyReceipt),
+    ProposalUndoPreview(crate::proposal_apply::UndoPreview),
     ProposalGroupApplied(crate::proposal_apply::GroupApprovalResult),
     ProposalApplies(Vec<crate::proposal_apply::ApplyJournal>),
     Activity(crate::activity::ActivityPage),
@@ -810,6 +813,12 @@ fn dispatch(
             AppEvent::ProposalApplied(app.approve_proposal(&request)?)
         }
         AppCommand::ReconcileProposal(id) => AppEvent::ProposalApplied(app.reconcile_proposal(id)?),
+        AppCommand::PreviewProposalUndo(request) => {
+            AppEvent::ProposalUndoPreview(app.preview_proposal_undo(&request)?)
+        }
+        AppCommand::UndoProposal(request) => {
+            AppEvent::ProposalApplied(app.undo_proposal(&request)?)
+        }
         AppCommand::ApproveProposalGroup(request) => {
             AppEvent::ProposalGroupApplied(app.approve_proposal_group(&request)?)
         }
@@ -1002,6 +1011,7 @@ fn critical_mutation_command(command: &AppCommand) -> bool {
             | AppCommand::UpdateProposalComment(_)
             | AppCommand::RemoveProposalComment { .. }
             | AppCommand::RejectProposal(_)
+            | AppCommand::UndoProposal(_)
             | AppCommand::ApproveProposal(_)
             | AppCommand::ReconcileProposal(_)
             | AppCommand::ApproveProposalGroup(_)

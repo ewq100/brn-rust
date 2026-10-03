@@ -117,6 +117,9 @@ Commands:
   brn proposals reconcile OPERATION_UUID
   brn proposals approve-group --file APPROVALS.json
   brn proposals applies
+  brn proposals undo-preview TARGET_OPERATION_UUID --operation NEW_UUID [--member INDEX]
+  brn proposals undo TARGET_OPERATION_UUID --operation NEW_UUID
+  brn proposals restore-trash TARGET_OPERATION_UUID --member INDEX --operation NEW_UUID
   brn edit open PATH
   brn edit recover PATH --baseline UUID --expected-generation N --generation N --file F
   brn edit save PATH --baseline UUID --expected-generation N --generation N --file F --operation UUID [--copy PATH]

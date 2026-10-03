@@ -348,6 +348,7 @@ fn execute(
                 AppEvent::ProposalApplied(receipt) => json!(receipt),
                 AppEvent::ProposalGroupApplied(result) => json!(result),
                 AppEvent::ProposalApplies(journals) => json!(journals),
+                AppEvent::ProposalUndoPreview(preview) => json!(preview),
                 _ => return Err(unexpected()),
             };
             Ok(output(data))

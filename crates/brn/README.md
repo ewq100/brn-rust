@@ -25,6 +25,9 @@ brn proposals create --file DRAFT.json
   brn proposals reconcile OPERATION_UUID
   brn proposals approve-group --file APPROVALS.json
   brn proposals applies
+  brn proposals undo-preview TARGET_OPERATION_UUID --operation NEW_UUID [--member INDEX]
+  brn proposals undo TARGET_OPERATION_UUID --operation NEW_UUID
+  brn proposals restore-trash TARGET_OPERATION_UUID --member INDEX --operation NEW_UUID
   brn edit open PATH
   brn edit recover PATH --baseline UUID --expected-generation N --generation N --file F
   brn edit save PATH --baseline UUID --expected-generation N --generation N --file F --operation UUID [--copy PATH]
@@ -114,6 +117,8 @@ The default page contains up to 20 entries, with `--limit` accepting 1–100.
 Pass `next_before` as `--before` to fetch the exclusive older page. Unknown or
 unapproved cursor UUIDs refuse. Drafts, refused and uncertain changes do not claim
 completion. Historical entries remain available after later note edits and restart.
+Undo entries name their source operation; a scoped Trash restore also identifies
+the original zero-based member index.
 
 For a manual check, approve two synthetic Create proposals, run `activity list
 --limit 1`, fetch the older page using its cursor, then change a note externally
@@ -164,8 +169,38 @@ repeat `approve` and `reconcile` with the same UUID to confirm the same receipt.
 
 Typed JSON is decoded before workspace admission; encoded input is bounded to
 64 MiB, with stricter domain limits of 1 MiB per note and 8 MiB aggregate review
-work. Nonregular inputs refuse without blocking. Actual AI Rewrite, Undo and
-native review are still pending under Stage 4.
+work. Nonregular inputs refuse without blocking. Actual AI Rewrite and native
+review are still pending under Stage 4.
+
+### Explicit Undo and Trash restore
+
+`undo-preview` returns the complete typed `{draft, binding}` inverse without
+installing files or admitting a new proposal. Supply the original Applied
+operation UUID and an explicit new operation UUID. Whole Undo reverses every
+original member: Create becomes Trash, Replace restores retained original bytes,
+and Trash becomes Create. `undo` applies that whole inverse through the shared
+workflow. Changed destinations, retained originals or parents refuse; no current
+file is overwritten by guessing. Original external source references remain
+historical and are not copied into the inverse.
+
+`undo-preview --member INDEX` previews one original Trash member;
+`restore-trash --member INDEX` restores only that member. Indexes are zero-based
+and must identify an original Trash change, allowing restore after other notes
+from the same mixed proposal have later edits. Both operations require an
+explicit `--operation`, using a new UUID for the initial attempt. Nil/equal UUIDs
+and indexes outside 0–63 are usage errors
+before storage opens. Repeating the same source/scope and operation returns its
+recorded result without applying files again. Reusing that UUID for another
+source/scope fails `OPERATION_CONFLICT`. Reconcile an interrupted operation with
+`proposals reconcile`; a new UUID does not resume its writes.
+
+For a manual check, approve a disposable mixed Create/Replace/Trash proposal,
+preview its original operation with a fresh inverse UUID, run `undo` with the same
+UUID, and compare exact restored BOM/CRLF bytes. Edit a restored note externally,
+then repeat `undo` and confirm the same receipt preserves the newer text. In a
+separate mixed approval, edit another member, preview the original Trash index
+with a fresh UUID, and use `restore-trash` to verify that only the trashed note
+returns. An occupied Trash destination must refuse without changing its bytes.
 
 ## Output contract
 
