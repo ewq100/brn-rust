@@ -25,13 +25,55 @@ CREATE UNIQUE INDEX one_unresolved_proposal_apply ON proposal_applies((1))
     WHERE outcome IS NULL OR outcome='uncertain';";
 
 const MAX_METADATA_BYTES: usize = 256 * 1024;
-const MAX_JOURNAL_BYTES: usize = proposals::MAX_STORED_BYTES + MAX_METADATA_BYTES;
+const MAX_UNDO_METADATA_BYTES: usize = proposals::MAX_PROPOSAL_CHANGES * 512 + 1024;
+// A fingerprint has two u64 identities, a <=1 MiB length and 32 byte values;
+// even maximal decimal JSON plus field names fits 512 bytes. Three proof slots
+// per member cover preparation/destination/staging; 2048 covers receipt/time
+// and version widths independently of the invariant path base.
+const MAX_UNDO_CORE_BYTES: usize = 3 * proposals::MAX_PROPOSAL_CHANGES * 512 + 2048;
+const MAX_JOURNAL_BYTES: usize = proposals::MAX_STORED_BYTES
+    + MAX_METADATA_BYTES
+    + MAX_UNDO_METADATA_BYTES
+    + MAX_UNDO_CORE_BYTES;
 
 #[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
 #[serde(deny_unknown_fields)]
 pub struct ApprovalRequest {
     pub operation_id: Uuid,
     pub expected: ProposalStamp,
+}
+
+#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
+#[serde(deny_unknown_fields)]
+pub struct UndoRequest {
+    pub operation_id: Uuid,
+    pub target_operation_id: Uuid,
+    #[serde(default)]
+    pub trash_member: Option<usize>,
+}
+
+#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
+#[serde(deny_unknown_fields)]
+pub struct UndoOriginal {
+    pub member_id: Uuid,
+    pub fingerprint: FileFingerprint,
+}
+
+#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
+#[serde(deny_unknown_fields)]
+pub struct UndoBinding {
+    /// The source Applied operation. Recovery does not require its row.
+    pub operation_id: Uuid,
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub trash_member: Option<usize>,
+    pub originals: Vec<Option<UndoOriginal>>,
+}
+
+#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
+#[serde(deny_unknown_fields)]
+pub struct UndoPreview {
+    pub draft: proposals::ProposalDraft,
+    pub binding: UndoBinding,
 }
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize, Deserialize)]
@@ -89,6 +131,8 @@ pub struct ApplyJournal {
     /// Certified by the workflow only before any namespace-effect attempt.
     #[serde(default, skip_serializing_if = "is_false")]
     pub no_effects: bool,
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub undo: Option<UndoBinding>,
     pub started_at_ms: u64,
 }
 
@@ -96,11 +140,11 @@ fn is_false(value: &bool) -> bool {
     !value
 }
 
-fn encode<T: Serialize>(value: &T) -> Result<Vec<u8>> {
+pub(super) fn encode<T: Serialize>(value: &T) -> Result<Vec<u8>> {
     serde_json::to_vec(value).map_err(|_| invalid("could not encode proposal approval journal"))
 }
 
-fn stages_for(id: Uuid, change: &NoteChange) -> PathBuf {
+pub(super) fn stages_for(id: Uuid, change: &NoteChange) -> PathBuf {
     Path::new(change.path()).with_file_name(format!(".brn-{id}.stage"))
 }
 
@@ -160,6 +204,7 @@ impl ApplyJournal {
                 ));
             }
         }
+        self.validate_undo()?;
         if let Some(prepared) = &self.prepared {
             self.validate_prepared(prepared)?;
         }
@@ -209,7 +254,7 @@ impl ApplyJournal {
         }
         // Paths occur both in the approved review and in member metadata. Bound
         // the latter separately, rather than letting it duplicate unbounded text.
-        let metadata = encode(&(
+        let metadata = (
             &self.request,
             self.creation_sha256,
             &self.members,
@@ -218,11 +263,102 @@ impl ApplyJournal {
             &self.observations,
             self.no_effects,
             self.started_at_ms,
-        ))?;
-        if metadata.len() > MAX_METADATA_BYTES - 1024 {
+        );
+        let metadata = encode(&metadata)?;
+        let bounded = if self.undo.is_some() {
+            // Paths/member count stay invariant across whole inverses (or shrink
+            // for scoped Trash). Normalize varying integers/hash widths and
+            // reserve separate fixed slots for one prepared and two observed
+            // fingerprints per member, plus the receipt/time. Measuring this
+            // base prevents an inverse chain from accumulating cap headroom.
+            let normalized_request = ApprovalRequest {
+                operation_id: self.request.operation_id,
+                expected: ProposalStamp {
+                    id: self.request.expected.id,
+                    version: 1,
+                },
+            };
+            let base = encode(&(
+                normalized_request,
+                [255_u8; 32],
+                &self.members,
+                Option::<Vec<FileFingerprint>>::None,
+                Option::<ApplyReceipt>::None,
+                Option::<Vec<ApplyMemberProof>>::None,
+                false,
+                0_u64,
+            ))?;
+            base.len() <= MAX_METADATA_BYTES - 1024
+                && metadata.len() <= base.len() + MAX_UNDO_CORE_BYTES
+        } else {
+            metadata.len() <= MAX_METADATA_BYTES - 1024
+        };
+        if !bounded {
             return Err(invalid(
                 "approval journal metadata exceeds its bounded size limit",
             ));
+        }
+        if let Some(undo) = &self.undo
+            && encode(undo)?.len() > MAX_UNDO_METADATA_BYTES
+        {
+            return Err(invalid("Undo manifest exceeds its bounded size limit"));
+        }
+        Ok(())
+    }
+
+    fn validate_undo(&self) -> Result<()> {
+        let Some(binding) = &self.undo else {
+            return Ok(());
+        };
+        proposals::nonnil(binding.operation_id)?;
+        if binding.operation_id == self.request.operation_id
+            || self.approved.draft.id != self.request.operation_id
+            || binding.originals.len() != self.members.len()
+            || binding.trash_member.is_some_and(|index| {
+                index >= proposals::MAX_PROPOSAL_CHANGES
+                    || self.members.len() != 1
+                    || !matches!(self.approved.draft.changes[0], NoteChange::Create { .. })
+                    || binding.originals[0].is_none()
+            })
+        {
+            return Err(invalid(
+                "Undo binding differs from its operation or member count",
+            ));
+        }
+        let mut identities = HashSet::new();
+        let mut ids = HashSet::new();
+        for ((original, member), change) in binding
+            .originals
+            .iter()
+            .zip(&self.members)
+            .zip(&self.approved.draft.changes)
+        {
+            match (change, original) {
+                (
+                    NoteChange::Create { text, .. } | NoteChange::Replace { text, .. },
+                    Some(original),
+                ) => {
+                    proposals::nonnil(original.member_id)?;
+                    bounded_fingerprint(&original.fingerprint)?;
+                    if original.member_id != member.id
+                        || original.fingerprint.len != text.len() as u64
+                        || original.fingerprint.sha256 != hash(text.as_bytes())
+                        || !ids.insert(original.member_id)
+                        || !identities
+                            .insert((original.fingerprint.device, original.fingerprint.inode))
+                    {
+                        return Err(invalid(
+                            "Undo original differs from its exact restored bytes or member identity",
+                        ));
+                    }
+                }
+                (NoteChange::Trash { .. }, None) => {}
+                _ => {
+                    return Err(invalid(
+                        "Undo originals require exactly Create/Replace members",
+                    ));
+                }
+            }
         }
         Ok(())
     }
@@ -243,8 +379,19 @@ impl ApplyJournal {
             old.insert((source.fingerprint.device, source.fingerprint.inode));
         }
         let mut new = HashSet::new();
-        for (change, proof) in self.approved.draft.changes.iter().zip(prepared) {
+        for (index, (change, proof)) in self.approved.draft.changes.iter().zip(prepared).enumerate()
+        {
             bounded_fingerprint(proof)?;
+            if let Some(original) = self
+                .undo
+                .as_ref()
+                .and_then(|binding| binding.originals[index].as_ref())
+                && proof != &original.fingerprint
+            {
+                return Err(invalid(
+                    "prepared Undo member differs from its bound retained original",
+                ));
+            }
             match change {
                 NoteChange::Create { text, .. } | NoteChange::Replace { text, .. } => {
                     if proof.len != text.len() as u64
@@ -310,14 +457,28 @@ impl ApplyJournal {
                 }
             }
             ApplyOutcome::NotApplied => {
-                for (change, observed) in self.approved.draft.changes.iter().zip(observations) {
+                for (index, (change, observed)) in self
+                    .approved
+                    .draft
+                    .changes
+                    .iter()
+                    .zip(observations)
+                    .enumerate()
+                {
                     let exact = match change {
                         NoteChange::Create { .. } => observed.destination.is_none(),
                         NoteChange::Replace { before, .. } | NoteChange::Trash { before, .. } => {
                             observed.destination.as_ref() == Some(before)
                         }
                     };
-                    if !exact {
+                    let original_unchanged = self
+                        .undo
+                        .as_ref()
+                        .and_then(|binding| binding.originals[index].as_ref())
+                        .is_none_or(|original| {
+                            observed.staging.as_ref() == Some(&original.fingerprint)
+                        });
+                    if !exact || !original_unchanged {
                         return Err(invalid(
                             "not-applied proposal requires every unchanged destination baseline",
                         ));
@@ -338,7 +499,7 @@ struct JournalRow {
     digest: Vec<u8>,
 }
 
-fn read_journal(conn: &Connection, id: Uuid) -> Result<Option<ApplyJournal>> {
+pub(super) fn read_journal(conn: &Connection, id: Uuid) -> Result<Option<ApplyJournal>> {
     proposals::nonnil(id)?;
     let row: Option<JournalRow> = conn.query_row(
         "SELECT proposal_id,outcome,request_sha256,CASE WHEN length(journal_json)<=?2 THEN journal_json END,journal_sha256 FROM proposal_applies WHERE operation_id=?1",
@@ -490,6 +651,7 @@ fn same_approval(left: &ApplyJournal, right: &ApplyJournal) -> bool {
         && left_review == right_review
         && left.started_at_ms == right.started_at_ms
         && left.members == right.members
+        && left.undo == right.undo
 }
 
 fn merge_journal(
@@ -699,7 +861,7 @@ fn restored_review(
     Ok(Some(target))
 }
 
-fn insert_review(conn: &Connection, stored: &proposals::StoredProposal) -> Result<()> {
+pub(super) fn insert_review(conn: &Connection, stored: &proposals::StoredProposal) -> Result<()> {
     proposals::validate_record(&stored.record)?;
     let bytes = encode(stored)?;
     if bytes.len() > proposals::MAX_STORED_BYTES {
@@ -712,7 +874,7 @@ fn insert_review(conn: &Connection, stored: &proposals::StoredProposal) -> Resul
     Ok(())
 }
 
-fn insert_journal(conn: &Connection, journal: &ApplyJournal) -> Result<()> {
+pub(super) fn insert_journal(conn: &Connection, journal: &ApplyJournal) -> Result<()> {
     journal.validate()?;
     let bytes = encode(journal)?;
     if bytes.len() > MAX_JOURNAL_BYTES {
@@ -722,6 +884,19 @@ fn insert_journal(conn: &Connection, journal: &ApplyJournal) -> Result<()> {
         "INSERT INTO proposal_applies(operation_id,proposal_id,outcome,request_sha256,journal_json,journal_sha256) VALUES(?1,?2,?3,?4,?5,?6)",
         params![journal.request.operation_id.to_string(), journal.approved.draft.id.to_string(), journal.receipt.as_ref().map(|receipt| receipt.outcome.as_str()), hash(&encode(&journal.request)?).as_slice(), bytes, hash(&bytes).as_slice()],
     )?;
+    Ok(())
+}
+
+pub(super) fn require_clear_apply_lane(conn: &Connection) -> Result<()> {
+    let unresolved: Option<String> = conn.query_row(
+        "SELECT operation_id FROM proposal_applies WHERE outcome IS NULL OR outcome='uncertain'", [], |row| row.get(0),
+    ).optional()?;
+    if let Some(id) = unresolved {
+        read_journal(conn, crate::parse_id(id)?)?;
+        return Err(Error::StateChanged(
+            "an unresolved proposal application requires reconciliation".into(),
+        ));
+    }
     Ok(())
 }
 
@@ -827,15 +1002,7 @@ impl WorkStore {
             return Ok(journal);
         }
         let mut stored = proposals::draft_at(&tx, request.expected)?;
-        let unresolved: Option<String> = tx.query_row(
-            "SELECT operation_id FROM proposal_applies WHERE outcome IS NULL OR outcome='uncertain'", [], |row| row.get(0),
-        ).optional()?;
-        if let Some(id) = unresolved {
-            read_journal(&tx, crate::parse_id(id)?)?;
-            return Err(Error::StateChanged(
-                "an unresolved proposal application requires reconciliation".into(),
-            ));
-        }
+        require_clear_apply_lane(&tx)?;
         let journal = ApplyJournal {
             request: request.clone(),
             approved: stored.record.clone(),
@@ -857,6 +1024,7 @@ impl WorkStore {
             receipt: None,
             observations: None,
             no_effects: false,
+            undo: None,
             started_at_ms: now_ms().max(stored.record.updated_at_ms),
         };
         journal.validate()?;

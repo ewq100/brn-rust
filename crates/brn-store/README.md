@@ -8,7 +8,7 @@ own saved Markdown; disposable retrieval indexes live outside this crate.
 
 [WorkStore](src/work/mod.rs), [editor/save journal](src/work/editor.rs),
 [chat records](src/work/chat.rs), [proposal review](src/work/proposals.rs), [unfinished edit compatibility](src/work/edits.rs),
-[approval journals](src/work/proposal_apply.rs),
+[approval journals](src/work/proposal_apply.rs), [Undo admission](src/work/proposal_undo.rs),
 [backup/restore](src/work/backup.rs), [filesystem proof DTOs](src/files.rs) and
 [workspace marker guards](src/workspace_mode.rs).
 
@@ -108,7 +108,32 @@ checks immutable lineage/operation/member/proof bindings and merges forward.
 Settled receipts cannot downgrade; newer review work stays intact. Historical
 Applied import removes annotations only through its approved version, preserving
 later review comments. Storage itself never inspects or writes ordinary files.
-Activity/Undo/Trash, AI Rewrite and native review remain subsequent slices.
+Activity projects checked Applied journals in workflow. AI Rewrite and native
+review remain subsequent slices.
+
+## Exact Undo and Trash admission
+
+`preview_proposal_undo` derives a read-only inverse of one checked Applied
+operation. `begin_proposal_undo` atomically creates its inverse proposal and
+Applying journal under a new operation UUID. Create becomes Trash, Replace
+restores the retained original, and Trash becomes Create. An explicit optional
+`trash_member` selects one original Trash member for independent restore; it
+cannot select arbitrary Create or Replace changes. External source bindings are
+not copied, and the inverse title stays within the original title's byte budget.
+
+The journal's optional Undo binding fixes the source operation, scope and exact
+retained member identities/fingerprints. Restoring Create/Replace borrows those
+originals; prepared proofs must match, and strict NotApplied reconciliation must
+also prove each borrowed stage unchanged. Normal approval of a refused inverse
+uses fresh ordinary staging without borrowing. UUID replay preserves the admitted
+snapshot, and ordinary recovery can restore it without the source journal.
+Absent Undo bindings preserve existing journal JSON bytes and checksums, with no
+schema migration. Ordinary journal metadata keeps its existing cap. Undo bounds a
+normalized path/member base independently from fixed proof/receipt slots and its
+manifest. The base stays stable through repeated inverses, so a valid large
+proposal remains undoable without accumulating cap headroom. Storage performs no
+file writes or retained-artifact deletion;
+workflow qualifies execution and interruption separately.
 
 ## Local chat
 

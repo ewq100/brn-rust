@@ -49,7 +49,7 @@ denied, **52 end-to-end fixture assertions**, optional native desktop compile,
 local Markdown links and diff checks passed. The file-application slice is locally
 integrated at `e04fc52`.
 
-The following readable-activity slice projects successful approval receipts into
+The readable-activity slice (`7100ab2`) projects successful approval receipts into
 AppWorker/CLI history with bounded exclusive paging, recorded approval time,
 titles, affected paths and proposal/session context. It excludes note bodies,
 comments and technical proofs. History remains stable after later note edits,
@@ -57,8 +57,17 @@ restart and ordinary-receipt restoration, including current-evidence fences and
 unavailable vaults. Fresh root locked/offline verification passed **507 workspace
 tests, 0 failed, 2 ignored**, workspace format/build/all-target Clippy with warnings
 denied and **52 end-to-end assertions**; optional native compile passed. Native
-history presentation and owner acceptance remain pending. Bounded Undo/Trash,
-AI Rewrite and native proposal review remain next; Stage 4 is not complete.
+history presentation and owner acceptance remain pending.
+
+Bounded Store Undo/Trash derivation and admission are implemented: whole inverse
+or one identified Trash member, exact retained-original binding, atomic review/
+intent and self-contained receipt recovery. Legacy JSON/checksums remain compatible.
+Independent review found metadata-cap failures on valid large inverses; reproducing
+regressions and separate stable base/proof/manifest bounds fix them. Independent re-review found no remaining defect. Fresh root locked/offline gates
+passed **524 workspace tests, 0 failed, 2 ignored**, Store **127 passed** including
+**17 Undo tests**, **52 fixtures**, format/build/all-target Clippy and optional
+native compile. Storage-only work is locally integrated. Workflow file execution, CLI/native
+Undo, AI Rewrite and native proposal review remain next. Stage 4 is not complete.
 
 ## Qualification still open
 

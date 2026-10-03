@@ -399,3 +399,90 @@ entries should remain, with later bytes untouched and no private body/comment
 content in default output. Native history presentation follows in the review UI.
 This slice is locally integrated under the standing mission authorization; bounded
 Undo/Trash and AI/native review remain required before Stage 4 is complete.
+
+## Bounded Undo/Trash slice
+
+Baseline: `main@7100ab2f6d890b78c4b9c72fe484f15004a004ca`; preserve owner AGENTS.md.
+Explicit human Undo identifies one immutable Applied operation. Derive its exact
+inverse as another bounded typed proposal/application: Create → Trash, Replace →
+Replace with retained original, Trash → Create from retained original. The new
+operation has its own UUID and recoverable whole-proposal receipt; original UUID
+replay remains historical and never installs again. AI has no direct Undo tool.
+An explicit Restore Trash can select one original Trash member, producing a
+single-member Create with its exact retained inode. This remains useful when other
+members of the old mixed proposal have later owner edits; those files are outside
+the new restoration. Whole Undo never silently narrows to a subset. The source
+operation and whole/single-Trash scope both bind replay and recovery.
+Preview exposes the complete inverse; an explicit identified human Undo is a direct
+operation under the frozen explicit-user-command exception. Ordinary manual edits
+and approvals of a refused inverse remain ordinary reviewed proposal behavior.
+
+Keep the same NoteChange types, journal/fence and whole-application protocol.
+An optional, omitted-when-absent Undo binding names the source operation and exact
+retained member IDs/fingerprints. Fresh admission cross-checks the terminal source.
+Inverse Create/Replace borrows its proven retained inode as staging, preserving
+mode/ACL/xattrs and original identity; inverse Trash uses a new stage. Validate the
+binding through preparation, immutable recovery merge and temporary-file cleanup.
+Before effects, borrowed stages equal the originals; after effects, ordinary whole
+Applied proofs hold. Interrupted NotApplied also requires unchanged borrowed-source
+proof. Older snapshots remain hash compatible; missing/older database recovery is
+self-contained and does not need a new source foreign key or replay ordering graph.
+
+Preflight checks exact current targets/absence, all retained originals, vault/root/
+parents and editor aliases. Dirty recovery refuses. A clean old editor baseline may
+be retained only when it exactly matches the original inode/text being restored;
+never rebase its token/generation or overwrite queued later typing. Stage/flush all
+members before effects, retain full proofs on interruption and never retry namespace
+effects implicitly. One Undo is bounded by the existing 64-member/8 MiB limits;
+default activity pages expose recent work, while older Trash remains restorable if
+its exact proofs still hold. No timer/count silently purges Trash or superseded bytes.
+
+Implement storage derivation/admission first, then workflow/files/worker/CLI and
+native interaction. Storage acceptance: exact inverse/binding, invalid or unrelated
+source/UUID refusal, atomic inverse-review/journal admission/rollback, immutable
+proof/replay, old JSON/hash compatibility and source-independent receipt restore.
+Workflow acceptance: byte/identity/attribute restoration, changed occupants/sources/
+parents and dirty aliases refuse, queued typing survives, crash/member/sync/receipt/
+older-backup cases reconcile without repeating effects, whole mixed work stays
+fenced. Use meaningful synthetic tests, independent read-only review and fresh
+relevant gates; native/manual/physical-power-loss qualification remains separate.
+
+Storage-only implementation derives exact whole and selected-Trash inverses,
+atomically admits review plus apply intent, fixes immutable bindings and preserves
+legacy omitted-field JSON/checksums. It performs no vault writes or purges.
+Independent review identified a valid near-limit 64-Trash source whose inverse
+could prepare but fail Applied settlement after its Undo manifest consumed the
+old metadata cap. The helper reproduced that failure; follow-up review also
+reproduced core growth when original fingerprints had wider integers than the
+installed fingerprints. Final validation retains the ordinary core cap and uses
+a stable normalized path/member base for Undo, with separate fixed allowances of
+33,792 bytes for its manifest and 100,352 bytes for proof/receipt/time slots. This
+prevents inverse chains from consuming more headroom. Regressions complete a
+near-cap 64-Trash inverse and its inverse, and four 64-Replace inverse/recovery
+cycles, each without requiring the prior source row. Legacy None JSON/caps remain
+unchanged. No requirement/architecture change was needed. Final independent re-review found no remaining actionable defect and independently
+passed both boundary regressions. Root's fresh macOS arm64 / Rust 1.98.1
+locked/offline `TMPDIR=<exclusive owned parent> bash scripts/verify-end-to-end.sh`
+passed **524 workspace tests, 0 failed, 2 ignored** private crash entry points
+exercised by subprocess matrices; **52 fixture assertions**, retirement, format,
+build and all-target Clippy with warnings denied. Store **127 passed**, including
+**17 Undo tests** and **34 approval/recovery tests**; optional native desktop
+compile passed. Changed Markdown **22 local links/fragments, 0 errors** and diff
+checks passed. Verified exclusively owned synthetic gate parents were removed;
+no live calls, original data, push or release. This storage-only slice is locally
+integrated under mission authorization. File execution and native/manual
+qualification remain in subsequent shared execution/UI work.
+
+Next shared execution slice will reuse Store `UndoRequest`, `UndoPreview` and
+`UndoBinding` unchanged. `App::preview_proposal_undo` is operational read-only;
+`App::undo_proposal` performs an explicit identified human operation, replay-first.
+AppWorker adds `PreviewProposalUndo` / `UndoProposal` and `ProposalUndoPreview`,
+with the existing `ProposalApplied` receipt and mutation shutdown drain. Fresh
+preflight shares ordinary approval's vault/source/target/editor checks, plus exact
+borrowed originals. Preparation flushes those originals without copying them;
+the existing whole application/reconciliation protocol installs the inverse.
+Activity adds optional source-operation and selected-Trash-member context so a
+short valid title cannot hide that the recorded change was Undo/restoration.
+CLI adds `undo-preview TARGET --operation NEW [--member INDEX]`, `undo TARGET
+--operation NEW` and `restore-trash TARGET --member INDEX --operation NEW`, with
+pure request validation before opening storage. Native interaction remains next.
