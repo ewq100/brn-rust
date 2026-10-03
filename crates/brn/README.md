@@ -283,8 +283,9 @@ or automatic discovery. `ask --profile` is obsolete usage 2 before workspace
 opening; use `search --profile` for human search. Explicit `ai models` discovery
 precedes Copilot selection. `--session` retains its conversation meaning.
 AppWorker performs replay before vault refresh, discovery membership or auth:
-terminal UUID replay uses its frozen model even without a saved selection or
-available vault. Changed payloads conflict; Running never resubmits.
+terminal UUID replay uses its frozen model without querying current selection,
+even without a saved selection or available vault. Changed payloads conflict;
+Running never resubmits.
 
 Only explicit Connect performs device login. URI/code is sent solely to the
 dedicated transient **stderr login surface**, including under `--json`; it is

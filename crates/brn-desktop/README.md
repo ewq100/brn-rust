@@ -34,8 +34,12 @@ selections. Only Finished establishes durable finalization. PersistenceFailed
 retains an explicitly **not saved** partial in memory, with an explicit Copy
 action. Further Ask is blocked while finalization is unacknowledged; copy that
 partial before closing/restarting. Account/history diagnostics remain available.
-Navigation filters exact
-UUID/generation without stranding an active operation; Stop intent survives
+Navigation keeps owned progress correlated by exact request UUID/generation;
+reopening the active conversation shows its full partial answer even after
+visiting other history. Its live Running history row is hidden in favor of the
+provisional stream. Finished replaces that row once, and older queued history
+snapshots cannot restore Running over a known terminal result. A different
+conversation or new blank chat does not adopt that result. Stop intent survives
 pre-admission cancellation acknowledgements. Composer edits invalidate only
 search results, not the current answer or its follow-up conversation.
 

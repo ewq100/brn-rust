@@ -633,7 +633,7 @@ impl Desktop {
         if ai.turns.is_empty() {
             body = body.child("Select a provider/model in Settings, then ask about saved notes. AI has read-only tools.");
         }
-        for turn in &ai.turns {
+        for turn in ai.display_turns() {
             body = body.child(
                 div()
                     .flex()
@@ -667,9 +667,7 @@ impl Desktop {
                         cx.write_to_clipboard(gpui_kit::ClipboardItem::new_string(partial.clone()));
                     })));
         }
-        if let Some(active) = &ai.active
-            && active.request.generation == ai.generation
-        {
+        if let Some(active) = ai.display_active() {
             body = body
                 .child(format!(
                     "{} / {} · {}",

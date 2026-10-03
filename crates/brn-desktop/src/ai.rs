@@ -118,6 +118,27 @@ fn unfinalized_turn(request: &AskRequest, partial: String) -> WorkTurn {
     }
 }
 impl AiState {
+    pub fn display_active(&self) -> Option<&ActiveTurn> {
+        self.active
+            .as_ref()
+            .filter(|active| match active.request.conversation {
+                Some(conversation) => self.conversation == Some(conversation),
+                None => self.conversation.is_none() && active.request.generation == self.generation,
+            })
+    }
+    pub fn display_turns(&self) -> impl Iterator<Item = &WorkTurn> {
+        let active = self.display_active().map(|active| active.request.id);
+        self.turns
+            .iter()
+            .filter(move |turn| turn.status != WorkTurnStatus::Running || active != Some(turn.id))
+    }
+    fn upsert_turn(&mut self, turn: WorkTurn) {
+        if let Some(row) = self.turns.iter_mut().find(|row| row.id == turn.id) {
+            *row = turn;
+        } else {
+            self.turns.push(turn);
+        }
+    }
     pub fn composer_changed(&mut self) {
         self.search_generation = self.search_generation.wrapping_add(1);
         self.search = None;
@@ -231,24 +252,20 @@ impl AiState {
                 && id == event.id()
                 && event.generation() == active.request.generation
             {
-                let display = event.generation() == self.generation;
+                let display = self.display_active().is_some();
                 match event {
                     ChatEvent::Text { text, .. } => {
-                        if display {
-                            self.active.as_mut().unwrap().partial.push_str(&text);
-                        }
+                        self.active.as_mut().unwrap().partial.push_str(&text);
                         return self.stop_controls();
                     }
                     ChatEvent::ToolStarted { name, .. } => {
-                        if display {
-                            self.active.as_mut().unwrap().tool = Some(name);
-                        }
+                        self.active.as_mut().unwrap().tool = Some(name);
                         return self.stop_controls();
                     }
                     ChatEvent::Finished { turn, .. } => {
                         if display {
                             self.conversation = Some(turn.conversation_id);
-                            self.turns.push(turn);
+                            self.upsert_turn(turn);
                         }
                         self.notice = "Turn finalized locally. Stop does not prove upstream cancellation or no billing.".into();
                         commands
@@ -258,7 +275,7 @@ impl AiState {
                         self.notice =
                             "This turn is already recorded Running; it was not resubmitted.".into();
                         if display {
-                            self.turns.push(turn);
+                            self.upsert_turn(turn);
                         }
                     }
                     ChatEvent::Rejected { error, .. } => {
@@ -435,7 +452,18 @@ impl AiState {
             AppEvent::Turns(turns) => {
                 if matches!(pending, Some(Pending::Turns { generation }) if generation == self.generation)
                 {
+                    // A queued snapshot may predate Finished. Keep known durable
+                    // endings only for this display; navigation drops this overlay.
+                    let terminal: Vec<_> = self
+                        .turns
+                        .iter()
+                        .filter(|turn| turn.status != WorkTurnStatus::Running)
+                        .cloned()
+                        .collect();
                     self.turns = turns;
+                    for turn in terminal {
+                        self.upsert_turn(turn);
+                    }
                 }
             }
             AppEvent::Turn(_) | AppEvent::EditRecovered => {}
@@ -596,6 +624,197 @@ mod tests {
         }
     }
     #[test]
+    fn followup_same_history_click_keeps_owned_stream_and_replaces_running() {
+        let mut state = ready();
+        let conversation = Uuid::new_v4();
+        state.navigate(Some(conversation));
+        let request = state.ask("followup".into()).unwrap();
+        let mut running = ending(&request, WorkTurnStatus::Running);
+        running.conversation_id = conversation;
+        state.turns.push(running.clone());
+        let (history, _) = state.navigate(Some(conversation)).unwrap();
+        state.apply(history, AppEvent::Turns(vec![running.clone()]));
+        state.apply(
+            request.id,
+            AppEvent::Chat(ChatEvent::Text {
+                id: request.id,
+                generation: request.generation,
+                text: "full partial".into(),
+            }),
+        );
+        assert_eq!(state.active.as_ref().unwrap().partial, "full partial");
+        assert!(state.display_active().is_some());
+        assert_eq!(state.display_turns().count(), 0);
+        running.status = WorkTurnStatus::Completed;
+        state.apply(
+            request.id,
+            AppEvent::Chat(ChatEvent::Finished {
+                id: request.id,
+                generation: request.generation,
+                turn: running.clone(),
+            }),
+        );
+        assert!(state.active.is_none());
+        assert_eq!(state.turns.len(), 1);
+        assert_eq!(state.turns[0].status, WorkTurnStatus::Completed);
+    }
+    #[test]
+    fn followup_away_back_and_late_running_snapshot_never_regress_terminal() {
+        for snapshot_first in [true, false] {
+            let mut state = ready();
+            let conversation = Uuid::new_v4();
+            state.navigate(Some(conversation));
+            let request = state.ask("followup".into()).unwrap();
+            state.navigate(Some(Uuid::new_v4()));
+            assert!(state.display_active().is_none());
+            for (id, generation) in [
+                (Uuid::new_v4(), request.generation),
+                (request.id, request.generation.wrapping_add(1)),
+            ] {
+                state.apply(
+                    id,
+                    AppEvent::Chat(ChatEvent::Text {
+                        id: request.id,
+                        generation,
+                        text: "uncorrelated".into(),
+                    }),
+                );
+            }
+            state.apply(
+                request.id,
+                AppEvent::Chat(ChatEvent::Text {
+                    id: request.id,
+                    generation: request.generation,
+                    text: "away ".into(),
+                }),
+            );
+            let (history, _) = state.navigate(Some(conversation)).unwrap();
+            assert!(state.display_active().is_some());
+            state.apply(
+                request.id,
+                AppEvent::Chat(ChatEvent::Text {
+                    id: request.id,
+                    generation: request.generation,
+                    text: "back".into(),
+                }),
+            );
+            assert_eq!(state.active.as_ref().unwrap().partial, "away back");
+            let mut running = ending(&request, WorkTurnStatus::Running);
+            running.conversation_id = conversation;
+            if snapshot_first {
+                state.apply(history, AppEvent::Turns(vec![running.clone()]));
+                assert_eq!(state.display_turns().count(), 0);
+            }
+            let mut terminal = running.clone();
+            terminal.status = WorkTurnStatus::Completed;
+            terminal.answer = "away back".into();
+            state.apply(
+                request.id,
+                AppEvent::Chat(ChatEvent::Finished {
+                    id: request.id,
+                    generation: request.generation,
+                    turn: terminal.clone(),
+                }),
+            );
+            if !snapshot_first {
+                state.apply(history, AppEvent::Turns(vec![running]));
+            }
+            state.apply(
+                request.id,
+                AppEvent::Chat(ChatEvent::Finished {
+                    id: request.id,
+                    generation: request.generation,
+                    turn: terminal.clone(),
+                }),
+            );
+            assert!(state.active.is_none());
+            assert_eq!(state.turns.len(), 1);
+            assert_eq!(state.turns[0].status, WorkTurnStatus::Completed);
+            assert_eq!(state.turns[0].answer, terminal.answer);
+            assert_eq!(state.display_turns().count(), 1);
+        }
+    }
+    #[test]
+    fn late_running_snapshot_preserves_known_terminal_without_duplicate() {
+        let mut state = ready();
+        let conversation = Uuid::new_v4();
+        state.navigate(Some(conversation));
+        let request = state.ask("followup".into()).unwrap();
+        state.navigate(Some(Uuid::new_v4()));
+        let (history, _) = state.navigate(Some(conversation)).unwrap();
+        let mut running = ending(&request, WorkTurnStatus::Running);
+        running.conversation_id = conversation;
+        let mut terminal = running.clone();
+        terminal.status = WorkTurnStatus::Completed;
+        state.apply(
+            request.id,
+            AppEvent::Chat(ChatEvent::Finished {
+                id: request.id,
+                generation: request.generation,
+                turn: terminal,
+            }),
+        );
+        assert_eq!(state.turns[0].status, WorkTurnStatus::Completed);
+        state.apply(history, AppEvent::Turns(vec![running]));
+        assert_eq!(state.turns.len(), 1);
+        assert_eq!(state.turns[0].status, WorkTurnStatus::Completed);
+    }
+    #[test]
+    fn followup_finished_in_other_or_new_blank_display_clears_global_active_only() {
+        for destination in [Some(Uuid::new_v4()), None] {
+            let mut state = ready();
+            let conversation = Uuid::new_v4();
+            state.navigate(Some(conversation));
+            let request = state.ask("followup".into()).unwrap();
+            state.navigate(destination);
+            let mut terminal = ending(&request, WorkTurnStatus::Completed);
+            terminal.conversation_id = conversation;
+            state.apply(
+                request.id,
+                AppEvent::Chat(ChatEvent::Finished {
+                    id: request.id,
+                    generation: request.generation,
+                    turn: terminal.clone(),
+                }),
+            );
+            assert!(state.active.is_none());
+            assert!(state.turns.is_empty());
+            assert_eq!(state.conversation, destination);
+            let (history, _) = state.navigate(Some(conversation)).unwrap();
+            state.apply(history, AppEvent::Turns(vec![terminal]));
+            assert_eq!(state.display_turns().count(), 1);
+        }
+    }
+    #[test]
+    fn new_first_chat_blank_navigation_retains_unsaved_without_adopting_conversation() {
+        let mut state = ready();
+        let request = state.ask("first".into()).unwrap();
+        state.navigate(None);
+        assert!(state.display_active().is_none());
+        state.apply(
+            request.id,
+            AppEvent::Chat(ChatEvent::Text {
+                id: request.id,
+                generation: request.generation,
+                text: "retained".into(),
+            }),
+        );
+        state.apply(
+            request.id,
+            AppEvent::Chat(ChatEvent::PersistenceFailed {
+                id: request.id,
+                generation: request.generation,
+                partial: "retained".into(),
+                error: brn_workflow::WorkflowError::msg("unsaved"),
+            }),
+        );
+        assert!(state.active.is_none());
+        assert!(state.conversation.is_none());
+        assert!(state.turns.is_empty());
+        assert_eq!(state.unsaved.as_ref().unwrap().answer, "retained");
+        assert!(!state.can_ask());
+    }
+    #[test]
     fn composer_change_keeps_stream_and_followup_conversation() {
         let mut state = ready();
         let request = state.ask("first question".into()).unwrap();
@@ -722,7 +941,7 @@ mod tests {
                 text: "stale".into(),
             }),
         );
-        assert!(state.active.as_ref().unwrap().partial.is_empty());
+        assert_eq!(state.active.as_ref().unwrap().partial, "stale");
         state.apply(
             request.id,
             AppEvent::Chat(ChatEvent::Finished {

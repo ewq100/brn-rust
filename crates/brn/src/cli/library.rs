@@ -462,25 +462,24 @@ fn context(
         "provider_outcome": if turn.is_some_and(|t| t.status == WorkTurnStatus::Completed) { "completed" } else { "unknown" }})
 }
 
-fn ask(
-    lane: &mut Lane,
+fn ask<W: EventLane>(
+    lane: &mut Lane<W>,
     question: &str,
     session: Option<Uuid>,
     op: Uuid,
 ) -> Result<Output, CliFailure> {
     let result = (|| {
-        // Query the explicit current selection, but replay uses its frozen recorded payload.
+        // Replay uses its frozen recorded payload without a current-selection query.
         let AppEvent::Turn(recorded) = lane.query(AppCommand::Turn(op))? else {
             return Err(unexpected());
         };
-        let current = lane.query(AppCommand::Selection);
         let selection = if let Some(turn) = &recorded {
             Selection {
                 provider: ai::provider(&turn.provider)?,
                 model: turn.model.clone(),
             }
         } else {
-            let AppEvent::Selection(current) = current? else {
+            let AppEvent::Selection(current) = lane.query(AppCommand::Selection)? else {
                 return Err(unexpected());
             };
             current.ok_or_else(|| {
@@ -501,7 +500,7 @@ fn ask(
                     generation: 0,
                 }),
             )
-            .map_err(classify_workflow)?;
+            .map_err(|error| lane.command_error(error))?;
         wait_ask(lane, op, session)
     })();
     result.map_err(|mut failure: CliFailure| {
@@ -863,9 +862,45 @@ mod tests {
         cancelled: Cell<bool>,
         joined: bool,
         failure: Option<WorkflowError>,
+        query_replies: bool,
+        recorded: Option<WorkTurn>,
+        selection_queries: Cell<usize>,
+        selected: Option<Selection>,
+        ask_request: RefCell<Option<AskRequest>>,
     }
     impl EventLane for Projection {
-        fn submit(&self, _: Uuid, command: AppCommand) -> brn_workflow::Result<()> {
+        fn submit(&self, id: Uuid, command: AppCommand) -> brn_workflow::Result<()> {
+            if self.query_replies {
+                match &command {
+                    AppCommand::Turn(_) => self
+                        .events
+                        .borrow_mut()
+                        .push_back((id, AppEvent::Turn(self.recorded.clone()))),
+                    AppCommand::Selection => {
+                        self.selection_queries.set(self.selection_queries.get() + 1);
+                        self.events
+                            .borrow_mut()
+                            .push_back((id, AppEvent::Selection(self.selected.clone())));
+                    }
+                    AppCommand::Ask(request) => {
+                        self.ask_request.replace(Some(request.clone()));
+                        if self.joined {
+                            return Err(cancelled());
+                        }
+                        if let Some(turn) = &self.recorded {
+                            self.events.borrow_mut().push_back((
+                                id,
+                                AppEvent::Chat(ChatEvent::Finished {
+                                    id,
+                                    generation: request.generation,
+                                    turn: turn.clone(),
+                                }),
+                            ));
+                        }
+                    }
+                    _ => {}
+                }
+            }
             if matches!(
                 command,
                 AppCommand::CancelTurn(_)
@@ -901,6 +936,14 @@ mod tests {
                 cancelled: Cell::new(false),
                 joined: false,
                 failure: None,
+                query_replies: false,
+                recorded: None,
+                selection_queries: Cell::new(0),
+                selected: Some(Selection {
+                    provider: Provider::Chatgpt,
+                    model: "gpt-5.5".into(),
+                }),
+                ask_request: RefCell::new(None),
             },
             deadline: Instant::now() - Duration::from_secs(1),
             stopped: None,
@@ -926,6 +969,50 @@ mod tests {
             status,
             error_code: None,
         }
+    }
+
+    #[test]
+    fn actual_ask_submit_after_join_projects_deadline_and_sigint_and_skips_replay_selection() {
+        for deadline in [true, false] {
+            let op = Uuid::new_v4();
+            let mut lane = lane(op, AppEvent::SelectionSaved);
+            lane.worker.ending = None;
+            lane.worker.query_replies = true;
+            lane.worker.recorded = Some(turn(op, WorkTurnStatus::Completed));
+            if !deadline {
+                lane.stopped = Some(false);
+                lane.joined = true;
+                lane.worker.joined = true;
+            }
+            let failure = ask(&mut lane, "q", None, op).err().unwrap();
+            assert_eq!(failure.error.exit_code(), if deadline { 124 } else { 130 });
+            assert_eq!(lane.worker.selection_queries.get(), 0);
+            assert!(lane.worker.ask_request.borrow().is_some());
+            assert!(lane.worker.joined);
+        }
+    }
+    #[test]
+    fn actual_new_ask_requires_selection_but_frozen_completed_replay_never_queries_it() {
+        let op = Uuid::new_v4();
+        let mut lane = lane(op, AppEvent::SelectionSaved);
+        lane.worker.ending = None;
+        lane.worker.query_replies = true;
+        lane.worker.selected = None;
+        lane.deadline = Instant::now() + Duration::from_secs(300);
+        let failure = ask(&mut lane, "q", None, op).err().unwrap();
+        assert_eq!(failure.error.code(), "AI_SELECTION_REQUIRED");
+        assert_eq!(lane.worker.selection_queries.get(), 1);
+        assert!(lane.worker.ask_request.borrow().is_none());
+
+        let recorded = turn(op, WorkTurnStatus::Completed);
+        lane.worker.recorded = Some(recorded.clone());
+        let result = ask(&mut lane, "q", None, op).unwrap_or_else(|_| panic!("frozen replay"));
+        assert_eq!(result.data["status"], "completed");
+        assert_eq!(lane.worker.selection_queries.get(), 1);
+        let request = lane.worker.ask_request.borrow();
+        let request = request.as_ref().unwrap();
+        assert_eq!(request.selection.model, recorded.model);
+        assert_eq!(request.selection.provider, Provider::Chatgpt);
     }
 
     #[test]
