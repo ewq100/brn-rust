@@ -67,6 +67,17 @@ pending. No published CI run exists for these local slices. The latest inspected
 at another commit (`609d859`) failed on Windows and optional Linux paths; its results
 do not qualify this tree.
 
+Owned AI Rewrite is implemented on the existing chat lane with a narrow V6 job
+in brn.sqlite. Full proposal/comments are captured transiently; validated output
+and job outcome commit atomically against the captured stamp/hash. Later edits
+settle Stale; Stop/disconnect/shutdown drain, and restart interrupts without retry.
+Raw output/comments are not copied to chat/job history. Independent review found
+two valid replay/schema gaps; fresh regressions reproduced and verified both fixes.
+Fresh locked/offline gates passed **609 workspace tests, 0 failed, 2 ignored**,
+**52 end-to-end assertions**, retirement, format/build/all-target Clippy and
+optional native compile. Store **153**, AI **76**, CLI **93** passed. Owned Rewrite
+is locally integrated under mission authorization; native review remains next.
+
 ## Qualification still open
 
 Owner headless/native acceptance remains pending and does not block later safe

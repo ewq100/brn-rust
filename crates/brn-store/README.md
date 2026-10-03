@@ -10,18 +10,19 @@ own saved Markdown; disposable retrieval indexes live outside this crate.
 [chat records](src/work/chat.rs), [proposal review](src/work/proposals.rs), [unfinished edit compatibility](src/work/edits.rs),
 [approval journals](src/work/proposal_apply.rs), [Undo admission](src/work/proposal_undo.rs),
 [explicit repair admission](src/work/proposal_repair.rs),
+[owned Rewrite jobs](src/work/proposal_rewrite.rs),
 [backup/restore](src/work/backup.rs), [filesystem proof DTOs](src/files.rs) and
 [workspace marker guards](src/workspace_mode.rs).
 
 ## Database ownership and recovery
 
-WorkStore uses application ID `BRN2`, schema V5, and retains `brn.owner.lock`
+WorkStore uses application ID `BRN2`, schema V6, and retains `brn.owner.lock`
 for its lifetime. Current settings, text-only conversations and unfinished work
 are preserved by additive migrations. Earlier WorkStore V1 unsaved-edit rows
 remain available; matching text moves atomically into the generation-aware
 editor record, while conflicting recovery stays protected.
 
-Every open checks integrity, upgrades supported schemas, reconciles Running chat
+Every open checks integrity, upgrades supported schemas, reconciles Running chat and Rewrite
 pairs to Interrupted, then creates a startup backup and keeps the five newest
 copies. Missing/corrupt databases restore from the newest usable backup;
 corrupt originals are moved aside. Foreign and newer databases remain refused.
@@ -109,8 +110,26 @@ checks immutable lineage/operation/member/proof bindings and merges forward.
 Settled receipts cannot downgrade; newer review work stays intact. Historical
 Applied import removes annotations only through its approved version, preserving
 later review comments. Storage itself never inspects or writes ordinary files.
-Activity projects checked Applied journals in workflow. AI Rewrite and native
-review remain subsequent slices.
+Activity projects checked Applied journals in workflow. Native review remains
+a subsequent slice.
+
+## Owned Rewrite jobs
+
+V6 records one narrow Rewrite job per request UUID. WorkStore and its checked
+ChatStore attachment expose `proposal_rewrite`, `begin_proposal_rewrite` and
+`finish_proposal_rewrite`. Admission binds an exact Draft stamp, the full capture
+digest and explicit provider/model/effort. Only fresh admission returns a full
+transient capture; replay returns history without granting another provider call.
+Jobs retain bounded hash-checked metadata, safe outcomes and result stamps, never
+captured comments, prompts or raw result bodies. Existing proposal review holds
+the validated text. Chat and Rewrite cannot reuse a job UUID.
+
+Completion validates every member and compares both the review stamp and full
+capture hash in the same transaction as the proposal edit and terminal job. Later
+edits/comments/rejection/approval or capture drift settle Stale without overwriting
+work. Atomic failure leaves both records unchanged. Checked startup interrupts
+Running jobs without retry; terminal request/outcome replay stays immutable.
+The pure `validate_result` uses the same exact edit bounds and anchor rules.
 
 ## Exact Undo and Trash admission
 

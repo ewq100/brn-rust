@@ -9,6 +9,7 @@ use brn_workflow::{
     app_worker::{AppCommand, AppEvent, AppWorker},
     chat_worker::{AccountCommand, AccountEvent, AccountReply, AskRequest, ChatEvent},
     library::SearchMode,
+    proposal_rewrite::{RewriteEvent, RewriteJob, RewriteRequest, RewriteStatus},
     ErrorKind, Provider, Selection, WorkTurn, WorkTurnStatus, WorkspaceMode,
 };
 use serde_json::{json, Value};
@@ -52,6 +53,7 @@ fn config(i: &Invocation) -> AppConfig {
 enum Job {
     Local,
     Ask(Uuid),
+    Rewrite(Uuid),
     Account(Uuid),
     Download(Uuid),
 }
@@ -152,7 +154,7 @@ impl<W: EventLane> Lane<W> {
                 if signal || Instant::now() >= self.deadline {
                     self.stopped = Some(!signal);
                     let control = match job {
-                        Job::Ask(id) => Some(AppCommand::CancelTurn(id)),
+                        Job::Ask(id) | Job::Rewrite(id) => Some(AppCommand::CancelTurn(id)),
                         Job::Account(id) => Some(AppCommand::CancelAccount(id)),
                         Job::Download(id) => Some(AppCommand::CancelModelDownload(id)),
                         Job::Local => None,
@@ -252,6 +254,9 @@ fn confirmed_success(event: &AppEvent) -> bool {
         AppEvent::Chat(ChatEvent::Finished { turn, .. }) => {
             turn.status == WorkTurnStatus::Completed
         }
+        AppEvent::Rewrite(RewriteEvent::Finished { job, .. }) => {
+            job.status == RewriteStatus::Completed
+        }
         AppEvent::Account(AccountEvent::Finished { reply, .. }) => matches!(
             reply,
             AccountReply::Status(_) | AccountReply::Disconnected | AccountReply::Models(_)
@@ -290,6 +295,10 @@ pub fn run(i: &Invocation) -> Result<Output, CliFailure> {
     } else {
         None
     };
+    let rewrite_request = match &proposal {
+        Some((_, AppCommand::StartProposalRewrite(request))) => Some(request.clone()),
+        _ => None,
+    };
     if matches!(i.command, Command::ModelDownload { .. })
         && !brn_workflow::native_retrieval_compiled()
     {
@@ -317,6 +326,11 @@ pub fn run(i: &Invocation) -> Result<Output, CliFailure> {
         lane.finish(result)
     })();
     result.map_err(|mut failure: CliFailure| {
+        if let Some(request) = &rewrite_request {
+            if failure.context.is_none() {
+                failure.context = Some(rewrite_context(request, None));
+            }
+        }
         if let (Some(op), Command::Ask { session, .. }) = (ask_id, &i.command) {
             if failure.context.is_none() {
                 failure.context = Some(context(op, *session, None, None));
@@ -343,6 +357,9 @@ fn execute(
         }
         Command::Proposals(_) => {
             let (id, command) = proposal.expect("proposal input prepared before startup");
+            if let AppCommand::StartProposalRewrite(request) = command {
+                return rewrite(lane, request);
+            }
             let data = match lane.query_with_id(id, command)? {
                 AppEvent::Proposal(record) => json!(record),
                 AppEvent::Proposals(records) => json!(records),
@@ -352,6 +369,7 @@ fn execute(
                 AppEvent::ProposalUndoPreview(preview) => json!(preview),
                 AppEvent::ProposalRepairPreview(preview) => json!(preview),
                 AppEvent::ProposalRepaired(receipt) => json!(receipt),
+                AppEvent::ProposalRewrite(job) => json!(job),
                 _ => return Err(unexpected()),
             };
             Ok(output(data))
@@ -589,6 +607,110 @@ fn recorded_error(turn: &WorkTurn) -> CliError {
     classify_workflow(brn_workflow::WorkflowError::recorded_ai_failure(
         turn.error_code.as_deref(),
     ))
+}
+
+fn rewrite_context(request: &RewriteRequest, job: Option<&RewriteJob>) -> Value {
+    json!({"operation_id": request.id, "generation": request.generation,
+    "recorded_status": job.map(|job| job.status), "receipt": job,
+    "saved": job.is_some(),
+    "provider_outcome": if job.is_some_and(|job| job.status == RewriteStatus::Completed) {
+        "completed"
+    } else {
+        "unknown"
+    }})
+}
+
+fn rewrite<W: EventLane>(
+    lane: &mut Lane<W>,
+    request: RewriteRequest,
+) -> Result<Output, CliFailure> {
+    lane.worker
+        .submit(
+            request.id,
+            AppCommand::StartProposalRewrite(request.clone()),
+        )
+        .map_err(|error| lane.command_error(error))?;
+    wait_rewrite(lane, &request)
+}
+
+fn wait_rewrite<W: EventLane>(
+    lane: &mut Lane<W>,
+    request: &RewriteRequest,
+) -> Result<Output, CliFailure> {
+    let mut recorded = None;
+    let result = (|| loop {
+        let (id, event) = lane.next(Job::Rewrite(request.id))?;
+        if id != request.id {
+            continue;
+        }
+        match event {
+            AppEvent::Failed(error) => return Err(lane.command_error(error).into()),
+            AppEvent::Rewrite(event)
+                if event.id() == request.id && event.generation() == request.generation =>
+            {
+                match event {
+                    RewriteEvent::Started { job, .. } if job.spec.id == request.id => {
+                        recorded = Some(job);
+                    }
+                    RewriteEvent::AlreadyRunning { job, .. } if job.spec.id == request.id => {
+                        return Err(CliFailure {
+                            error: CliError::OperationConflict(
+                                "Rewrite is already running; do not resubmit".into(),
+                            ),
+                            context: Some(rewrite_context(request, Some(&job))),
+                        });
+                    }
+                    RewriteEvent::Finished { job, .. } if job.spec.id == request.id => {
+                        if job.status == RewriteStatus::Completed {
+                            return Ok(output(json!(job)));
+                        }
+                        let error = match job.status {
+                            RewriteStatus::Interrupted if lane.stopped.is_some() => {
+                                lane.stop_error()
+                            }
+                            RewriteStatus::Interrupted => CliError::Interrupted(
+                                "recorded Rewrite was interrupted; no automatic retry".into(),
+                            ),
+                            RewriteStatus::Stale => {
+                                classify_workflow(brn_workflow::WorkflowError {
+                                    kind: ErrorKind::ContextStale,
+                                    message: "proposal review changed before Rewrite completed"
+                                        .into(),
+                                })
+                            }
+                            RewriteStatus::Running => CliError::OperationConflict(
+                                "Rewrite is already running; do not resubmit".into(),
+                            ),
+                            RewriteStatus::Failed => {
+                                classify_workflow(brn_workflow::WorkflowError::recorded_ai_failure(
+                                    job.error_code.as_deref(),
+                                ))
+                            }
+                            RewriteStatus::Completed => unreachable!("completed handled above"),
+                        };
+                        return Err(CliFailure {
+                            error,
+                            context: Some(rewrite_context(request, Some(&job))),
+                        });
+                    }
+                    RewriteEvent::Rejected { error, .. } => {
+                        return Err(lane.command_error(error).into());
+                    }
+                    RewriteEvent::PersistenceFailed { error, .. } => {
+                        return Err(classify_workflow(error).into());
+                    }
+                    _ => {}
+                }
+            }
+            _ => {}
+        }
+    })();
+    result.map_err(|mut failure: CliFailure| {
+        if failure.context.is_none() {
+            failure.context = Some(rewrite_context(request, recorded.as_ref()));
+        }
+        failure
+    })
 }
 
 fn status_selection(result: Result<AppEvent, CliFailure>) -> Result<Value, CliFailure> {
@@ -866,6 +988,7 @@ mod tests {
         events: RefCell<VecDeque<(Uuid, AppEvent)>>,
         ending: Option<(Uuid, AppEvent)>,
         cancelled: Cell<bool>,
+        cancelled_turn: Cell<Option<Uuid>>,
         joined: bool,
         failure: Option<WorkflowError>,
         query_replies: bool,
@@ -915,6 +1038,9 @@ mod tests {
             ) {
                 self.cancelled.set(true);
             }
+            if let AppCommand::CancelTurn(id) = command {
+                self.cancelled_turn.set(Some(id));
+            }
             Ok(())
         }
         fn try_event(&self) -> Option<(Uuid, AppEvent)> {
@@ -940,6 +1066,7 @@ mod tests {
                 events: RefCell::new(VecDeque::new()),
                 ending: Some((op, ending)),
                 cancelled: Cell::new(false),
+                cancelled_turn: Cell::new(None),
                 joined: false,
                 failure: None,
                 query_replies: false,
@@ -975,6 +1102,246 @@ mod tests {
             status,
             error_code: None,
         }
+    }
+
+    fn rewrite_request() -> RewriteRequest {
+        RewriteRequest {
+            id: Uuid::new_v4(),
+            expected: brn_workflow::proposals::ProposalStamp {
+                id: Uuid::new_v4(),
+                version: 2,
+            },
+            selection: Selection {
+                provider: Provider::Chatgpt,
+                model: "gpt-5.5".into(),
+            },
+            effort: brn_workflow::proposal_rewrite::ReasoningEffort::High,
+            generation: 19,
+        }
+    }
+
+    fn rewrite_job(request: &RewriteRequest, status: RewriteStatus) -> RewriteJob {
+        let terminal = status != RewriteStatus::Running;
+        RewriteJob {
+            spec: brn_workflow::proposal_rewrite::RewriteSpec {
+                id: request.id,
+                expected: request.expected,
+                provider: "chatgpt".into(),
+                model: request.selection.model.clone(),
+                effort: "high".into(),
+            },
+            capture_sha256: [1; 32],
+            status,
+            result_stamp: (status == RewriteStatus::Completed).then_some(
+                brn_workflow::proposals::ProposalStamp {
+                    id: request.expected.id,
+                    version: request.expected.version + 1,
+                },
+            ),
+            outcome_sha256: terminal.then_some([2; 32]),
+            error_code: (status == RewriteStatus::Failed).then_some("model_refused".into()),
+            started_at_ms: 1,
+            finished_at_ms: terminal.then_some(2),
+        }
+    }
+
+    fn rewrite_ending(request: &RewriteRequest, status: RewriteStatus) -> AppEvent {
+        AppEvent::Rewrite(RewriteEvent::Finished {
+            id: request.id,
+            generation: request.generation,
+            job: rewrite_job(request, status),
+        })
+    }
+
+    #[test]
+    fn rewrite_progress_waits_for_exact_envelope_event_generation_and_job_identity() {
+        let request = rewrite_request();
+        let other = rewrite_request();
+        let mut lane = lane(request.id, AppEvent::SelectionSaved);
+        lane.worker.ending = None;
+        lane.deadline = Instant::now() + Duration::from_secs(300);
+        let job = rewrite_job(&request, RewriteStatus::Completed);
+        lane.worker.events.borrow_mut().extend([
+            (
+                Uuid::new_v4(),
+                rewrite_ending(&request, RewriteStatus::Completed),
+            ),
+            (request.id, rewrite_ending(&other, RewriteStatus::Completed)),
+            (
+                request.id,
+                AppEvent::Rewrite(RewriteEvent::Finished {
+                    id: request.id,
+                    generation: request.generation + 1,
+                    job: job.clone(),
+                }),
+            ),
+            (
+                request.id,
+                AppEvent::Rewrite(RewriteEvent::Finished {
+                    id: request.id,
+                    generation: request.generation,
+                    job: rewrite_job(&other, RewriteStatus::Completed),
+                }),
+            ),
+            (
+                request.id,
+                AppEvent::Rewrite(RewriteEvent::Started {
+                    id: request.id,
+                    generation: request.generation,
+                    job: rewrite_job(&request, RewriteStatus::Running),
+                }),
+            ),
+            (
+                request.id,
+                AppEvent::Rewrite(RewriteEvent::ToolStarted {
+                    id: request.id,
+                    generation: request.generation,
+                    name: "read_note".into(),
+                }),
+            ),
+            (
+                request.id,
+                rewrite_ending(&request, RewriteStatus::Completed),
+            ),
+        ]);
+        let output = wait_rewrite(&mut lane, &request).unwrap();
+        assert_eq!(output.data, json!(job));
+        assert!(lane.worker.events.borrow().is_empty());
+        assert!(!lane.worker.cancelled.get() && !lane.worker.joined);
+    }
+
+    #[test]
+    fn rewrite_running_replay_with_new_generation_refuses_without_awaiting_original_result() {
+        let original = rewrite_request();
+        let mut replay = original.clone();
+        replay.generation += 1;
+        let job = rewrite_job(&original, RewriteStatus::Running);
+        let mut lane = lane(original.id, AppEvent::SelectionSaved);
+        lane.worker.ending = None;
+        lane.deadline = Instant::now() + Duration::from_secs(3);
+        lane.worker.events.borrow_mut().extend([
+            (
+                replay.id,
+                AppEvent::Rewrite(RewriteEvent::AlreadyRunning {
+                    id: replay.id,
+                    generation: replay.generation,
+                    job: job.clone(),
+                }),
+            ),
+            (
+                original.id,
+                rewrite_ending(&original, RewriteStatus::Completed),
+            ),
+        ]);
+
+        let failure = wait_rewrite(&mut lane, &replay).err().unwrap();
+        assert_eq!(failure.error.code(), "OPERATION_CONFLICT");
+        let context = failure.context.unwrap();
+        assert_eq!(context["receipt"], json!(job));
+        assert_eq!(context["recorded_status"], "running");
+        assert_eq!(context["generation"], replay.generation);
+        assert_eq!(context["saved"], true);
+        assert!(context.get("partial").is_none());
+        assert_eq!(lane.worker.events.borrow().len(), 1);
+        assert!(!lane.worker.cancelled.get() && !lane.worker.joined);
+        assert!(lane.stopped.is_none());
+
+        // The replay neither consumes nor relabels the original completion.
+        let output = wait_rewrite(&mut lane, &original).unwrap();
+        assert_eq!(
+            output.data,
+            json!(rewrite_job(&original, RewriteStatus::Completed))
+        );
+        assert!(!lane.worker.cancelled.get() && !lane.worker.joined);
+    }
+
+    #[test]
+    fn rewrite_deadline_and_signal_join_exact_job_but_durable_completion_wins() {
+        let request = rewrite_request();
+        for signal in [false, true] {
+            let mut lane = lane(
+                request.id,
+                rewrite_ending(&request, RewriteStatus::Interrupted),
+            );
+            if signal {
+                lane.observe_cancel = true;
+                lane.deadline = Instant::now() + Duration::from_secs(300);
+                let event = lane
+                    .next_observing(Job::Rewrite(request.id), || true)
+                    .unwrap();
+                lane.worker.events.borrow_mut().push_back(event);
+            }
+            let failure = wait_rewrite(&mut lane, &request).err().unwrap();
+            assert_eq!(failure.error.exit_code(), if signal { 130 } else { 124 });
+            let context = failure.context.unwrap();
+            assert_eq!(context["receipt"]["status"], "interrupted");
+            assert_eq!(context["generation"], request.generation);
+            assert!(context.get("partial").is_none());
+            assert_eq!(lane.worker.cancelled_turn.get(), Some(request.id));
+            assert!(lane.worker.joined);
+        }
+        let mut lane = lane(
+            request.id,
+            rewrite_ending(&request, RewriteStatus::Completed),
+        );
+        assert_eq!(
+            wait_rewrite(&mut lane, &request).unwrap().data["status"],
+            "completed"
+        );
+        assert!(lane.worker.joined);
+        assert_eq!(lane.worker.cancelled_turn.get(), Some(request.id));
+
+        // An already queued confirmed completion wins over the next signal.
+        let mut lane = self::lane(request.id, AppEvent::SelectionSaved);
+        lane.worker.events.borrow_mut().push_back((
+            request.id,
+            rewrite_ending(&request, RewriteStatus::Completed),
+        ));
+        lane.observe_cancel = true;
+        let event = lane
+            .next_observing(Job::Rewrite(request.id), || true)
+            .unwrap();
+        assert!(confirmed_success(&event.1));
+        assert!(!lane.worker.cancelled.get() && !lane.worker.joined);
+    }
+
+    #[test]
+    fn rewrite_failures_keep_safe_job_receipts_and_existing_error_categories() {
+        let request = rewrite_request();
+        for (status, code) in [
+            (RewriteStatus::Failed, "AI_MODEL_REFUSED"),
+            (RewriteStatus::Stale, "CONTEXT_STALE"),
+        ] {
+            let mut lane = lane(request.id, rewrite_ending(&request, status));
+            let failure = wait_rewrite(&mut lane, &request).err().unwrap();
+            assert_eq!(failure.error.code(), code);
+            assert_eq!(
+                failure.context.unwrap()["receipt"],
+                json!(rewrite_job(&request, status))
+            );
+            assert!(lane.worker.joined);
+        }
+        let error = WorkflowError {
+            kind: ErrorKind::AiStorage,
+            message: "could not persist Rewrite".into(),
+        };
+        let mut lane = lane(
+            request.id,
+            AppEvent::Rewrite(RewriteEvent::PersistenceFailed {
+                id: request.id,
+                generation: request.generation,
+                error: error.clone(),
+            }),
+        );
+        lane.worker.failure = Some(error);
+        let result = wait_rewrite(&mut lane, &request);
+        let failure = lane.finish(result).err().unwrap();
+        assert_eq!(failure.error.code(), "AI_STORAGE_ERROR");
+        let context = failure.context.unwrap();
+        assert_eq!(context["saved"], false);
+        assert!(context["receipt"].is_null());
+        assert!(context.get("partial").is_none());
+        assert_eq!(context["shutdown_error"]["code"], "AI_STORAGE_ERROR");
     }
 
     #[test]

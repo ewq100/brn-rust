@@ -7,6 +7,7 @@ pub mod editor;
 mod edits;
 pub mod proposal_apply;
 mod proposal_repair;
+pub mod proposal_rewrite;
 mod proposal_undo;
 pub mod proposals;
 
@@ -64,6 +65,7 @@ const MIGRATIONS: &[&str] = &[
     editor::V3,
     proposals::V4,
     proposal_apply::V5,
+    proposal_rewrite::V6,
 ];
 
 #[derive(Debug, Clone, PartialEq, Eq)]
@@ -132,6 +134,7 @@ impl WorkStore {
         configure(&conn)?;
         migrate(&mut conn)?;
         chat::reconcile(&mut conn)?;
+        proposal_rewrite::reconcile(&mut conn)?;
         let backup = backup::create(data_dir, &conn)?;
         backup::prune(data_dir)?;
         Ok((

@@ -16,6 +16,8 @@ brn proposals create --file DRAFT.json
   brn proposals list [--group UUID]
   brn proposals show PROPOSAL_ID
   brn proposals edit --file EDIT.json
+  brn proposals rewrite --file REQUEST.json
+  brn proposals rewrite-status JOB_UUID
   brn proposals rewrite-result --file EDIT.json
   brn proposals comment --file COMMENT.json
   brn proposals comment-update --file COMMENT.json
@@ -171,8 +173,54 @@ repeat `approve` and `reconcile` with the same UUID to confirm the same receipt.
 
 Typed JSON is decoded before workspace admission; encoded input is bounded to
 64 MiB, with stricter domain limits of 1 MiB per note and 8 MiB aggregate review
-work. Nonregular inputs refuse without blocking. Actual AI Rewrite and native
-review are still pending under Stage 4.
+work. Nonregular inputs refuse without blocking. Native review remains pending
+under Stage 4.
+
+### Owned AI Rewrite
+
+`rewrite --file REQUEST.json` captures the complete identified proposal and its
+temporary comments, then requests a full replacement suggestion using the
+explicit provider, model and reasoning effort. It accepts:
+
+```json
+{"id":"22222222-2222-4222-8222-222222222222",
+ "expected":{"id":"11111111-1111-4111-8111-111111111111","version":1},
+ "selection":{"provider":"chatgpt","model":"gpt-5.5"},
+ "effort":"high","generation":0}
+```
+
+Use a fresh non-nil job UUID and the exact review version returned by `show`.
+Effort is `low`, `medium` or `high`; generation is an unsigned value used to
+correlate worker replies. The selected provider/model must be qualified and connected;
+there is no fallback. Complete captured input and typed output are bounded;
+oversized or invalid results refuse rather than importing partial text.
+
+The CLI waits through Started and read-tool progress and returns the safe job
+receipt after durable completion. Inspect the resulting full proposal with
+`show`; newer edits, comments or rejection prevent a late result from replacing
+that work. Rewrite never approves or writes Markdown. Job receipts contain
+bindings, hashes and status, excluding prompt, comment and provider output bodies.
+
+`rewrite-status JOB_UUID` returns the typed recorded job, or null when absent,
+without a provider call. Repeating an exact request returns its historical result;
+an already running request returns `OPERATION_CONFLICT` immediately with its safe
+`running` job receipt, including when the caller supplies a new generation. It does
+not start another provider call or wait for the original request's completion.
+Changing proposal/version, selection or effort under the same UUID fails
+`OPERATION_CONFLICT`. Startup marks interrupted running jobs as `interrupted`
+and never retries them. Failed, interrupted and stale commands retain their safe
+job receipt in structured error context. Ctrl-C or the five-minute deadline
+cancels the owned job and joins local work; a confirmed completed receipt wins
+over a later interruption.
+
+For a synthetic offline check, create the draft in the preceding example in a
+fresh data directory and empty vault, run `show`, and query `rewrite-status` with
+a fresh UUID to confirm null. Submit an invalid effort such as `maximum` in a
+fresh directory and confirm a usage error before storage opens. Actual Rewrite
+requires current live-provider authorization: after signing in, submit the typed
+request for a synthetic draft with a comment, inspect the complete revised
+proposal and retained comments, then repeat the request and verify the same job
+receipt. Approve remains a separate explicit operation.
 
 ### Explicit Undo and Trash restore
 

@@ -1,10 +1,12 @@
 //! Owned chat/account lane. New turns are admitted only by AppWorker after local preflight.
+use crate::proposal_rewrite::{self, RewriteEvent, RewriteRequest};
 use crate::{ErrorKind, Result, WorkflowError, app::App};
 use brn_ai::{
     AccountStatus, AiAnswer, AiError, AiErrorKind, AiEvent, AiTerminal, Auth, HistoryPair,
     LoginPrompt, ModelOption, Provider, ReadTools, Selection,
 };
 use brn_store::work::{WorkTurn, WorkTurnStatus, chat::ChatStore};
+use brn_store::work::{proposal_rewrite::RewriteOutcome, proposals::ProposalRecord};
 use futures::FutureExt;
 use std::{
     collections::HashMap,
@@ -129,6 +131,7 @@ pub enum AccountEvent {
 
 pub(crate) enum Output {
     Chat(ChatEvent),
+    Rewrite(RewriteEvent),
     Account(AccountEvent),
     Idle,
 }
@@ -137,6 +140,7 @@ pub(crate) type Emit = Arc<dyn Fn(Output) + Send + Sync>;
 enum Command {
     Tools(Option<Arc<dyn ReadTools>>, mpsc::Sender<Result<()>>),
     Ask(AskRequest),
+    Rewrite(RewriteRequest, CancellationToken),
     Account(Uuid, AccountCommand),
     Prompt(Uuid, LoginPrompt),
     Shutdown,
@@ -153,6 +157,9 @@ pub(crate) struct ChatHandle {
 impl ChatHandle {
     pub(crate) fn ask(&self, request: AskRequest) -> Result<()> {
         self.send(Command::Ask(request))
+    }
+    pub(crate) fn rewrite(&self, request: RewriteRequest, cancel: CancellationToken) -> Result<()> {
+        self.send(Command::Rewrite(request, cancel))
     }
     pub(crate) fn account(&self, id: Uuid, command: AccountCommand) -> Result<()> {
         self.send(Command::Account(id, command))
@@ -322,11 +329,17 @@ pub(crate) struct Hooks {
     pub(crate) answer: Option<super::simple_worker_tests::AnswerHook>,
     #[cfg(test)]
     pub(crate) account: Option<super::simple_worker_tests::AccountHook>,
+    #[cfg(test)]
+    pub(crate) rewrite: Option<proposal_rewrite::RewriteHook>,
 }
 
 struct Active {
-    request: AskRequest,
+    provider: Provider,
     cancel: CancellationToken,
+}
+enum RequestJob {
+    Ask(AskRequest),
+    Rewrite(RewriteRequest),
 }
 struct AccountJob {
     command: AccountCommand,
@@ -334,6 +347,7 @@ struct AccountJob {
 }
 enum JobResult {
     Turn(AskRequest, AiAnswer),
+    Rewrite(RewriteRequest, RewriteOutcome),
     Account(Uuid, Provider, AccountReply),
     Disconnect(Uuid, Provider, brn_ai::AiResult<()>),
 }
@@ -353,16 +367,14 @@ async fn run(
     let mut turn_ledger = HashMap::<Uuid, AskRequest>::new();
     let mut disconnects = HashMap::<&'static str, (Uuid, Provider, bool)>::new();
     let mut jobs = JoinSet::new();
-    let mut task_ids = HashMap::<tokio::task::Id, (Uuid, Option<AskRequest>, Provider)>::new();
+    let mut task_ids = HashMap::<tokio::task::Id, (Uuid, Option<RequestJob>, Provider)>::new();
     let mut closing = false;
     let mut final_error = None;
     loop {
         // Fenced deletion starts only after the target's owned clients/jobs have drained.
         for (id, provider, started) in disconnects.values_mut() {
             if !*started
-                && active
-                    .as_ref()
-                    .is_none_or(|a| a.request.selection.provider != *provider)
+                && active.as_ref().is_none_or(|a| a.provider != *provider)
                 && accounts
                     .values()
                     .all(|job| job.command.provider() != *provider)
@@ -444,15 +456,55 @@ async fn run(
                                     Ok(_) => {
                                         let cancel = CancellationToken::new();
                                         *control.active.lock().expect("owned cancellation registry") = Some((request.id, cancel.clone()));
-                                        active = Some(Active { request: request.clone(), cancel: cancel.clone() });
+                                        active = Some(Active { provider: request.selection.provider, cancel: cancel.clone() });
                                         turn_ledger.insert(request.id, request.clone());
                                         let task = jobs.spawn(run_turn(
                                             auth.clone(), request.clone(), history,
                                             tools.as_ref().expect("preflight tools").clone(),
                                             cancel, emit.clone(), hooks.clone(),
                                         ));
-                                        task_ids.insert(task.id(), (request.id, Some(request.clone()), request.selection.provider));
+                                        task_ids.insert(task.id(), (request.id, Some(RequestJob::Ask(request.clone())), request.selection.provider));
                                     }
+                                }
+                            }
+                        }
+                    }
+                    Some(Command::Rewrite(request, cancel)) => {
+                        let validation = (|| -> Result<Option<brn_store::work::proposal_rewrite::RewriteJob>> {
+                            if let Some(job) = store.proposal_rewrite(request.id)? {
+                                request.check_replay(&job)?;
+                                return Ok(Some(job));
+                            }
+                            if cancel.is_cancelled() || control.stopping.load(Ordering::Acquire)
+                                || disconnects.contains_key(provider_name(request.selection.provider))
+                            { return Err(WorkflowError::cancelled()); }
+                            if active.is_some() {
+                                return Err(WorkflowError::typed(ErrorKind::ToolsBusy, "another AI request is active"));
+                            }
+                            if tools.is_none() {
+                                return Err(WorkflowError::typed(ErrorKind::VaultNotBound, "choose a vault before Rewrite"));
+                            }
+                            Ok(None)
+                        })();
+                        match validation {
+                            Err(error) => emit(Output::Rewrite(RewriteEvent::rejected(&request, error))),
+                            Ok(Some(job)) => emit(Output::Rewrite(RewriteEvent::replay(&request, job))),
+                            Ok(None) => match store.begin_proposal_rewrite(&request.spec()) {
+                                Err(error) => emit(Output::Rewrite(RewriteEvent::rejected(&request, error.into()))),
+                                Ok((job, capture)) => {
+                                    let Some(capture) = capture else {
+                                        emit(Output::Rewrite(RewriteEvent::replay(&request, job)));
+                                        continue;
+                                    };
+                                    *control.active.lock().expect("owned cancellation registry") = Some((request.id, cancel.clone()));
+                                    active = Some(Active { provider: request.selection.provider, cancel: cancel.clone() });
+                                    emit(Output::Rewrite(RewriteEvent::started(&request, job)));
+                                    let task = jobs.spawn(run_rewrite(
+                                        auth.clone(), request.clone(), capture,
+                                        tools.as_ref().expect("preflight tools").clone(),
+                                        cancel, emit.clone(), hooks.clone(),
+                                    ));
+                                    task_ids.insert(task.id(), (request.id, Some(RequestJob::Rewrite(request.clone())), request.selection.provider));
                                 }
                             }
                         }
@@ -470,7 +522,7 @@ async fn run(
                         }
                         if matches!(command, AccountCommand::Disconnect(_)) {
                             if let Some(turn) = &active
-                                && turn.request.selection.provider == provider
+                                && turn.provider == provider
                             { turn.cancel.cancel(); }
                             for job in accounts.values().filter(|j| j.command.provider() == provider) {
                                 job.cancel.cancel();
@@ -498,7 +550,10 @@ async fn run(
                             continue;
                         };
                         if let Some(request) = request {
-                            JobResult::Turn(request, AiAnswer { text: String::new(), terminal: AiTerminal::Failed(AiError::new(AiErrorKind::Other)) })
+                            match request {
+                                RequestJob::Ask(request) => JobResult::Turn(request, AiAnswer { text: String::new(), terminal: AiTerminal::Failed(AiError::new(AiErrorKind::Other)) }),
+                                RequestJob::Rewrite(request) => JobResult::Rewrite(request, RewriteOutcome::Failed("other".into())),
+                            }
                         } else if disconnects.get(provider_name(provider)).is_some_and(|(job, _, _)| *job == id) {
                             JobResult::Disconnect(id, provider, Err(AiError::new(AiErrorKind::Other)))
                         } else {
@@ -507,6 +562,19 @@ async fn run(
                     }
                 };
                 match job {
+                    JobResult::Rewrite(request, outcome) => {
+                        match store.finish_proposal_rewrite(request.id, &outcome) {
+                            Ok(job) => emit(Output::Rewrite(RewriteEvent::Finished { id: request.id, generation: request.generation, job })),
+                            Err(_) => {
+                                let error = WorkflowError::typed(ErrorKind::AiStorage, "could not confirm durable Rewrite settlement");
+                                final_error.get_or_insert(error.clone());
+                                emit(Output::Rewrite(RewriteEvent::PersistenceFailed { id: request.id, generation: request.generation, error }));
+                            }
+                        }
+                        active = None;
+                        *control.active.lock().expect("owned cancellation registry") = None;
+                        emit(Output::Idle);
+                    }
                     JobResult::Turn(request, answer) => {
                         let (status, code) = terminal(&answer.terminal);
                         match store.finish_turn(request.id, status, &answer.text, code) {
@@ -691,6 +759,97 @@ async fn real_answer(
         Ok(client) => {
             brn_ai::answer(client, &request.question, &history, tools, cancel, emit).await
         }
+        Err(error) => AiAnswer {
+            text: String::new(),
+            terminal: AiTerminal::Failed(error),
+        },
+    }
+}
+
+async fn run_rewrite(
+    auth: Arc<Auth>,
+    request: RewriteRequest,
+    capture: ProposalRecord,
+    tools: Arc<dyn ReadTools>,
+    cancel: CancellationToken,
+    emit: Emit,
+    hooks: Hooks,
+) -> JobResult {
+    let (drained, wait) = oneshot::channel();
+    let tools: Arc<dyn ReadTools> = Arc::new(DrainedTools {
+        tools,
+        _drained: DrainSignal(Some(drained)),
+    });
+    let (id, generation) = (request.id, request.generation);
+    let events: Arc<dyn Fn(AiEvent) + Send + Sync> = Arc::new(move |event| {
+        if let AiEvent::ToolStarted { name } = event {
+            emit(Output::Rewrite(RewriteEvent::ToolStarted {
+                id,
+                generation,
+                name,
+            }));
+        }
+    });
+    #[cfg(test)]
+    let fake = hooks.rewrite;
+    #[cfg(not(test))]
+    let _ = hooks;
+    let operation = async {
+        let prompt = match proposal_rewrite::prompt(&capture) {
+            Ok(prompt) => prompt,
+            Err(_) => return RewriteOutcome::Failed("tool_rejected".into()),
+        };
+        #[cfg(test)]
+        let answer = if let Some(fake) = fake {
+            fake(request.clone(), prompt, tools, cancel.clone(), events).await
+        } else {
+            real_rewrite(auth, &request, &prompt, tools, cancel.clone(), events).await
+        };
+        #[cfg(not(test))]
+        let answer = real_rewrite(auth, &request, &prompt, tools, cancel.clone(), events).await;
+        match answer.terminal {
+            AiTerminal::Completed => match proposal_rewrite::decode(&request, &answer.text)
+                .and_then(|edit| {
+                    brn_store::work::proposal_rewrite::validate_result(&capture, &edit)?;
+                    Ok(edit)
+                }) {
+                Ok(edit) => RewriteOutcome::Completed(edit),
+                Err(_) => RewriteOutcome::Failed("tool_rejected".into()),
+            },
+            AiTerminal::Interrupted => RewriteOutcome::Interrupted,
+            AiTerminal::Failed(error)
+                if cancel.is_cancelled() && error.kind == AiErrorKind::Other =>
+            {
+                RewriteOutcome::Interrupted
+            }
+            AiTerminal::Failed(error) => {
+                let (_, code) = terminal(&AiTerminal::Failed(error));
+                RewriteOutcome::Failed(code.expect("failed terminal has safe code").into())
+            }
+        }
+    };
+    let mut outcome = std::panic::AssertUnwindSafe(operation)
+        .catch_unwind()
+        .await
+        .unwrap_or_else(|_| RewriteOutcome::Failed("other".into()));
+    let _ = wait.await;
+    if cancel.is_cancelled() && matches!(&outcome, RewriteOutcome::Failed(code) if code == "other")
+    {
+        outcome = RewriteOutcome::Interrupted;
+    }
+    JobResult::Rewrite(request, outcome)
+}
+
+async fn real_rewrite(
+    auth: Arc<Auth>,
+    request: &RewriteRequest,
+    prompt: &str,
+    tools: Arc<dyn ReadTools>,
+    cancel: CancellationToken,
+    emit: Arc<dyn Fn(AiEvent) + Send + Sync>,
+) -> AiAnswer {
+    match auth.client(&request.selection, cancel.clone()).await {
+        Ok(client) => brn_ai::rewrite(client, prompt, request.effort, tools, cancel, emit).await,
         Err(error) => AiAnswer {
             text: String::new(),
             terminal: AiTerminal::Failed(error),

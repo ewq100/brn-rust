@@ -12,6 +12,7 @@ pub mod models;
 #[cfg(all(test, feature = "native-retrieval"))]
 mod models_tests;
 pub mod proposal_apply;
+pub mod proposal_rewrite;
 pub mod proposals;
 #[cfg(test)]
 mod simple_worker_tests;

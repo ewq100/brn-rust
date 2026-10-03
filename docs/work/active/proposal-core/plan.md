@@ -662,3 +662,64 @@ Changed Markdown **68 local links/fragments, 0 errors** and diff checks passed.
 Only five proven owned synthetic layout fixtures and their gate parent were removed.
 Shared repair is locally integrated under standing mission authorization; owned
 Rewrite and the native proposal/review/activity/Undo/repair interaction are next.
+
+### Owned Rewrite slice
+
+Baseline: `main@b5c8000`, preserving the owner's unrelated AGENTS.md edit. Reuse
+the owned chat lane, selected provider/model, explicit low/medium/high effort,
+existing bounded read tools, cancellation and disconnect/shutdown drain. Capture
+the full exact Draft and temporary comments at admission. One narrow typed V6
+job record in existing brn.sqlite retains identity, capture digest and safe outcome;
+it never duplicates captured comments, prompts or raw provider output into chat.
+Restart interrupts running jobs without resubmission. The validated full result
+and exact-version proposal edit settle atomically; intervening edits/comments or
+approval yield Stale without overwriting newer work. Rewrite does not apply notes.
+
+Implement Store admission/atomic settlement and the thin bounded Rig adapter at
+fixed interfaces, then shared worker/CLI routing. Accept exact Unicode/full-member
+output, bounded strict JSON, replay before fresh account/vault access, Stop and
+targeted disconnect, retained read lease drain, stale CAS, rollback and restart
+without retry. Run meaningful synthetic checks, independent read-only review and
+fresh relevant gates before local integration. Native interaction and owner/live
+Rewrite acceptance remain pending; existing provider permission is exhausted.
+No extra live calls, model downloads, private data, push or release are authorized.
+
+The fixed Store/Rig/worker/CLI interfaces are implemented. Meaningful checks cover
+full Unicode/comment capture, every typed member, no knowledge writes, exact
+stamp/state/hash races, full-output bounds, atomic rollback, UUID collisions,
+restart interruption, queued/active Stop, retained read drain, provider disconnect,
+shutdown/panic/refusal and historical replay after vault loss. Review found two
+valid gaps: Running replay advertised a new generation's Started without its
+future terminal event, and nested Selection extras bypassed strict input preflight.
+Fresh failing regressions reproduced both. Running replay now returns distinct
+AlreadyRunning history and immediate safe CLI conflict; the original owned job
+continues. A narrow selection deserializer refuses nested extras before storage,
+preserving existing shared Selection compatibility. Both fixes passed re-review.
+
+Final independent review against `b5c8000` found no remaining actionable defects
+and independently passed **13 Store, 11 workflow Rewrite, 8 AI Rewrite, 36 CLI
+unit, 5 CLI process and 1 extended shutdown checks**. Fresh root macOS arm64 /
+Rust 1.98.1 locked/offline `TMPDIR=<exclusive owned parent> bash
+scripts/verify-end-to-end.sh` passed **609 workspace tests, 0 failed, 2 ignored**,
+**52 end-to-end assertions**, retirement, format/build/all-target Clippy with
+warnings denied. Cargo target metadata and the fresh log establish **153 Store,
+76 AI and 93 CLI tests**. The ignored process entries are exercised by the
+existing crash matrices. Optional `cargo check -p brn-desktop --features
+native-ui,native-retrieval --locked --offline` passed with the existing upstream
+`block v0.1.6` warning. Changed Markdown **92 local links/fragments, 0 errors**
+and diff checks passed. Hosted CI reports no run for local baseline `b5c8000`;
+other-commit platform failures recorded above do not qualify this candidate.
+
+Manual acceptance pending: use a disposable vault/data folder to create a full
+typed proposal and temporary comments. Under separate live-call authorization,
+submit `proposals rewrite --file REQUEST.json` with its exact review stamp, a fresh
+job UUID, explicit selection/effort and generation. Inspect the complete revised
+proposal; vault bytes must remain unchanged until approval. Add a comment/edit
+while Rewrite runs, then verify Stale preserves it. Stop and restart must preserve
+the draft and report Interrupted without another request. `rewrite-status JOB_UUID`
+reads history offline; replay after moving the vault must return history. See the
+[CLI scenario](../../../../crates/brn/README.md). Native interaction, actual live
+Rewrite usability and owner acceptance remain separate, pending qualification.
+Only proven owned synthetic fixtures are removed; logs remain outside Git.
+Owned Rewrite is locally integrated under standing mission authorization. Native
+full review/edit/comment/Rewrite/approval/activity/Undo/repair is the next slice.

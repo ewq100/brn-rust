@@ -651,7 +651,7 @@ fn v3_additive_migration_preserves_settings_history_editor_recovery_and_backups(
     drop(chat);
     drop(store);
     let conn = raw(dir.path());
-    conn.execute_batch("DROP TABLE proposal_applies; DROP TABLE proposals; PRAGMA user_version=3;")
+    conn.execute_batch("DROP TABLE proposal_rewrites; DROP TABLE proposal_applies; DROP TABLE proposals; PRAGMA user_version=3;")
         .unwrap();
     drop(conn);
     let (mut store, report) = WorkStore::open(dir.path()).unwrap();
@@ -681,7 +681,7 @@ fn v3_additive_migration_preserves_settings_history_editor_recovery_and_backups(
         raw(dir.path())
             .query_row("PRAGMA user_version", [], |row| row.get::<_, u32>(0))
             .unwrap(),
-        5
+        6
     );
 }
 

@@ -5,6 +5,16 @@ chat over Rig **0.43.0**. Contains account/selection DTOs, safe errors, checked
 credential storage, owned clients and three read tools. It does not contain
 workers, SQL, selection persistence or frontend state.
 
+`rewrite` consumes the same owned client and read tools with explicit
+`ReasoningEffort::{Low,Medium,High}`. The pinned route determines Responses
+`reasoning.effort` or Chat `reasoning_effort`; the selected model is unchanged.
+Full input and buffered output are bounded to 50 MiB encoded JSON. Rewrite sends
+no chat history and emits only safe tool progress, never raw text deltas. Stop,
+transport/schema/tool refusal and over-limit output discard partial text without
+application retry or fallback. A consumed completed result can win later cancellation. Workflow
+validates strict full-member JSON and commits review work through WorkStore CAS;
+this adapter never applies knowledge or persists prompts/comments/results.
+
 ## Authentication contract
 
 - Share one `Arc<Auth>` for an application's explicit credential directory.
@@ -133,7 +143,7 @@ rounds are allowed; a ninth tool round is stopped **before dispatch**.
 invalid-tool retries are explicitly zero. A run-owned atomic flag classifies
 `ToolLimitReached`, independently of Rig's stop-reason wording.
 
-`AiEvent::Text` appends/emits each fragment exactly once;
+For `answer`, `AiEvent::Text` appends/emits each fragment exactly once;
 `AiEvent::ToolStarted` contains only an allowlisted tool name, never its
 arguments/results. `AiAnswer.text` is exactly the emitted text, including partial
 text on `Failed` or `Interrupted`; final response output is not appended again.

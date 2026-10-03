@@ -7,7 +7,7 @@ use uuid::Uuid;
 
 /// An attachment authorized by a checked/migrated owner, retaining its exact lock.
 pub struct ChatStore {
-    conn: Connection,
+    pub(super) conn: Connection,
     _owner_lock: Arc<File>,
 }
 
@@ -91,7 +91,7 @@ pub struct WorkTurn {
     pub error_code: Option<String>,
 }
 
-fn validate_selection(provider: &str, model: &str) -> Result<()> {
+pub(super) fn validate_selection(provider: &str, model: &str) -> Result<()> {
     if !matches!(provider, "chatgpt" | "copilot") {
         return Err(invalid("invalid chat provider"));
     }
@@ -106,7 +106,7 @@ fn validate_selection(provider: &str, model: &str) -> Result<()> {
     Ok(())
 }
 
-fn validate_error(code: Option<&str>) -> Result<()> {
+pub(super) fn validate_error(code: Option<&str>) -> Result<()> {
     if let Some(code) = code
         && !matches!(
             code,
@@ -223,6 +223,9 @@ pub(super) fn begin_turn(
     model: &str,
 ) -> Result<WorkTurn> {
     let tx = conn.transaction_with_behavior(TransactionBehavior::Immediate)?;
+    if super::proposal_rewrite::read_job(&tx, id)?.is_some() {
+        return Err(conflict());
+    }
     if let Some((turn, _)) = read_turn(&tx, id)? {
         if turn.question != question
             || turn.provider != provider

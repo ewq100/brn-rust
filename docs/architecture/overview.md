@@ -81,8 +81,11 @@ late Rewrite results; uncertain anchors retain their old range without guessing.
 Draft/edit/comment operations do not apply knowledge. Exact reviewed approval
 now applies through AppWorker and the CLI, preserving whole-proposal proof and
 later editor work. Shared activity, explicit Undo/Trash and proof-bound human
-Finish/Restore repair use the same typed application/recovery boundary. AI Rewrite and native
-review remain active Stage 4 work, before later domains extend typed changes.
+Finish/Restore repair use the same typed application/recovery boundary. Owned AI
+Rewrite uses the existing chat lane and one narrow V6 operational job, committing
+validated review text and outcome atomically against its captured stamp/hash.
+Jobs retain safe metadata only; restart interrupts without retry. Native review
+remains active Stage 4 work before later domains extend typed changes.
 
 WorkStore V5 adds exact approval snapshots, all-member prepared proofs and
 whole-proposal receipts. Pending/Uncertain journals fence current reads and

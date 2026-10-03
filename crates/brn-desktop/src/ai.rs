@@ -992,6 +992,7 @@ impl AiState {
             AppEvent::TurnCancelRequested { .. }
             | AppEvent::AccountCancelRequested { .. }
             | AppEvent::ModelCancelRequested { .. } => return commands,
+            AppEvent::Rewrite(_) | AppEvent::ProposalRewrite(_) => return commands,
             AppEvent::Chat(_) | AppEvent::Account(_) => unreachable!(),
         }
         self.pending.remove(&id);
