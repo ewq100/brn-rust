@@ -9,6 +9,13 @@ use std::path::Path;
 
 const DIMENSION: usize = 384;
 
+#[path = "native/download.rs"]
+pub mod download;
+
+#[cfg(test)]
+#[path = "native/download_tests.rs"]
+mod download_tests;
+
 pub struct LocalEmbedder {
     model: TextEmbedding,
     identity: String,

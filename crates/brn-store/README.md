@@ -6,6 +6,48 @@ Authoritative SQLite storage: sources/versions, durable operations, local sessio
 
 [Store API](src/lib.rs), [drafts](src/drafts.rs), [comments](src/comments.rs), [anchor mapping](src/anchors.rs), [managed-note records](src/notes.rs).
 
+## Mutually exclusive workspace modes
+
+Legacy `Store` (`brn.sqlite3`, schema V6) and simple `WorkStore`
+(`brn.sqlite`, schema V2) acquire the same `brn.owner.lock` **before** checking
+opposite-mode markers and **before** opening SQLite. Both refuse the other
+database and its `-wal`, `-shm` and `-journal` sidecars. Legacy Store also refuses
+recognized `backups/brn-<decimal>.sqlite` backups (including their sidecars);
+a missing simple database awaiting restore is still a simple workspace.
+Dangling symlink markers count as present. `WorkspaceModeConflict` leaves both
+authorities unchanged; an already held lock takes precedence as `WorkspaceBusy`.
+Frontend dispatch is advisory, not the exclusion mechanism. No migration or
+parallel database authority is introduced.
+`workspace_mode::classify` exposes the exact shared marker/backup checks for
+advisory dispatch (`Empty`, `Legacy`, `Simple`), with mixed markers rejected.
+It opens no database and never replaces the post-lock owner checks.
+
+WorkStore integrity checks, V1-to-V2 upgrades, turn reconciliation and online
+backups retain their existing behavior. Tests in
+[`workspace_modes`](tests/workspace_modes.rs) exercise both owners directly;
+workflow also verifies legacy `brn-flow sessions` refuses a simple folder.
+
+## Attached chat writer
+
+Only an open `WorkStore` can create `work::chat::ChatStore` using
+`chat_connection()`. The attachment opens the checked/migrated owner's database
+without acquiring a second owner, with matching WAL, busy timeout, foreign-key,
+trusted-schema and FULL synchronous settings. There is no arbitrary-path
+attachment constructor. Both retain the **same** `Arc<File>` lock descriptor:
+dropping the owner does not release ownership while any attachment lives.
+Connections close before their lock leases drop.
+
+Owner and attachment share UUID lookup, ordered turn reads, begin/finish
+transaction helpers and conflict checks. Begin/finish reserve an **Immediate**
+transaction before reading, avoiding WAL deferred read-to-write
+`BUSY_SNAPSHOT` upgrades during concurrent recovery writes. Unknown conversations
+remain `NotFound`; UUID payload or terminal result mismatches remain
+`OperationConflict`. Startup reconciliation and backups are owner-only;
+attachments never rerun them or reconcile a live turn. The workflow must drain
+and join its runtime, blocking reads and installer jobs before owner release.
+[`work_chat_attachment`](tests/work_chat_attachment.rs) covers shared-lock
+lifetime and concurrent owner recovery / attached chat finalization.
+
 ## Managed-note storage contract
 
 Schema V6 adds a single registered vault, note/path identities, one exact-byte
@@ -128,6 +170,47 @@ text/generation and leaves the original failure and artifacts untouched.
 baseline/local snapshot. Ordinary confirmed reloads do not accumulate historical
 buffer snapshots. These additive tables amend the unreleased V6 schema; no
 filesystem operation or search approval is performed by the store.
+
+## Simple notes WorkStore
+
+[`work`](src/work/mod.rs) owns the separate `brn.sqlite` database, application
+ID `BRN2`. V1 settings and unsaved edits are preserved by the appended V2
+conversations/messages migration; the legacy `Store` V6 schema is unchanged.
+Every open retains the owner lock, checks integrity, upgrades supported schemas,
+reconciles Running chat pairs to Interrupted, then creates the startup backup
+and keeps the five newest copies. Foreign and newer databases remain refused.
+
+[`chat`](src/work/chat.rs) persists only local text-only user/assistant pairs.
+`begin_turn` atomically inserts both rows with the same UUID, conversation
+sequence, provider and model. `None` creates a conversation; an unknown supplied
+conversation returns `Error::NotFound` without inserts. Exact UUID replay returns
+the recorded Running or terminal result, never permission to repeat external
+work; changed payloads return `Error::OperationConflict`.
+
+`finish_turn` atomically records both rows' terminal status/error category,
+the assistant's final or partial text, and the first question as the title.
+Terminal records are immutable except for identical replay. Question and answer
+bytes (including Unicode and line endings) are preserved. Questions must be
+nonblank; providers are `chatgpt` or `copilot`; model identifiers are 1–128 ASCII
+bytes using letters, digits and `-_.:/`. Optional error codes are limited to
+`reconnect_needed`, `code_expired`, `rate_limited`, `network`, `model_refused`,
+`invalid_tool_use`, `tool_limit_reached`, `unsafe_credentials`, `tool_rejected`,
+`index_stale`, `storage` and `other`. There is no dependency on AI/Rig types and
+no column or API for raw provider bodies, tool history or credential metadata.
+Callers supply only safe user/assistant text, never tokens or device codes.
+
+`turns` returns **all** local pairs in sequence order; workflow limits outbound
+history to 20 earlier pairs. Restart preserves only already durable text: there
+is no per-token crash recovery, automatic retry or provider resubmission.
+Connection-based begin/finish helpers are reusable by the later chat lane;
+this slice does not attach additional connections or implement workers.
+
+Focused offline checks, using disposable synthetic fixtures:
+
+```sh
+cargo test -p brn-store --test work --test work_chat --locked
+cargo clippy -p brn-store --all-targets --locked -- -D warnings
+```
 
 ## Dependencies and features
 

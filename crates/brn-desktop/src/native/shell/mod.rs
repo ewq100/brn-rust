@@ -35,12 +35,28 @@ impl Desktop {
     }
 
     pub(super) fn persist_layout(&mut self, cx: &mut Context<Self>) {
-        match layout::save(&self.path, &self.layout) {
-            Ok(()) => self.layout_note = None,
-            Err(error) => {
-                self.message = format!("Layout preferences were not saved: {error}");
+        let previous = self.layout_task.take();
+        let path = self.path.clone();
+        let preferences = self.layout.clone();
+        self.layout_task = Some(cx.spawn(async move |this, cx| {
+            if let Some(previous) = previous {
+                previous.await;
             }
-        }
+            let result = cx
+                .background_executor()
+                .spawn(async move { layout::save(&path, &preferences) })
+                .await;
+            let _ = this.update(cx, |this, cx| {
+                match result {
+                    Ok(()) => this.layout_note = None,
+                    Err(error) => {
+                        this.layout_note =
+                            Some(format!("Layout preferences were not saved: {error}"))
+                    }
+                }
+                cx.notify();
+            });
+        }));
         cx.notify();
     }
 
@@ -138,7 +154,7 @@ impl Desktop {
                 cx.listener(|this, _, _, cx| this.end_divider_drag(cx)),
             )
             .child(self.render_header(&resolved, cx))
-            .child(self.render_status_line())
+            .child(self.render_status_line(cx))
             .child(row)
     }
 

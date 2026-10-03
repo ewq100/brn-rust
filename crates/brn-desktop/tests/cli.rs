@@ -27,6 +27,21 @@ fn bad_arguments_fail() {
     }
 }
 #[test]
+fn legacy_vault_conflict_is_rejected_before_creating_directory() {
+    let dir = PathBuf::from(env!("CARGO_MANIFEST_DIR")).join("task7-conflict-must-not-exist");
+    assert!(!dir.exists());
+    let output = run(&[
+        "--legacy",
+        "--vault",
+        "/synthetic/vault",
+        "--data-dir",
+        dir.to_str().unwrap(),
+    ]);
+    assert!(!output.status.success());
+    assert!(String::from_utf8_lossy(&output.stderr).contains("incompatible"));
+    assert!(!dir.exists());
+}
+#[test]
 fn relative_and_missing_and_file_data_paths_fail() {
     assert!(
         !run(&["--data-dir", "relative", "--headless-check", "completion"])

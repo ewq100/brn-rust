@@ -6,14 +6,14 @@ publish = false
 
 [features]
 default = []
-native-ui = ["dep:gpui-kit", "dep:brn-workflow", "dep:uuid", "dep:sha2"]
+native-ui = ["dep:gpui-kit", "dep:sha2"]
 native-retrieval = ["native-ui", "brn-workflow/native-retrieval"]
 
 [dependencies]
 brn-core = { path = "../brn-core" }
 gpui-kit = { version = "=0.6.6", optional = true }
-brn-workflow = { path = "../brn-workflow", optional = true }
-uuid = { version = "1", features = ["v4"], optional = true }
+brn-workflow = { path = "../brn-workflow" }
+uuid = { version = "1", features = ["v4"] }
 serde = { version = "1", features = ["derive"] }
 serde_json = "1"
 sha2 = { version = "0.10", optional = true }

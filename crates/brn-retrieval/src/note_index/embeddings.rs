@@ -1,7 +1,7 @@
 use super::search::{HitRow, to_hit};
 use super::{NoteHit, NoteIndex};
 use crate::{Error, Result};
-use rusqlite::{OptionalExtension, params};
+use rusqlite::{Connection, OptionalExtension, params};
 
 /// Turns text into vectors. Implemented by the local model and by test fakes.
 pub trait Embedder {
@@ -60,25 +60,17 @@ fn from_blob(bytes: &[u8], dimension: usize) -> Result<Vec<f32>> {
 
 impl NoteIndex {
     fn embedding_model(&self) -> Result<Option<(String, usize)>> {
-        let value: Option<String> = self
-            .conn
-            .query_row(
-                "SELECT value FROM meta WHERE key = 'embedding_model'",
-                [],
-                |r| r.get(0),
-            )
-            .optional()?;
-        value
-            .map(|value| {
-                let (identity, dimension) = value
-                    .rsplit_once('|')
-                    .ok_or(Error::Corrupt("embedding model record"))?;
-                let dimension = dimension
-                    .parse()
-                    .map_err(|_| Error::Corrupt("embedding model record"))?;
-                Ok((identity.to_owned(), dimension))
-            })
-            .transpose()
+        embedding_model(&self.conn)
+    }
+
+    /// Checks model metadata and reads vectors in one consistent snapshot.
+    pub fn semantic_for_model(
+        &self,
+        vector: &[f32],
+        identity: &str,
+        limit: usize,
+    ) -> Result<Vec<NoteHit>> {
+        semantic_for_model(&self.conn, vector, Some(identity), limit)
     }
 
     /// Records the embedding model in use. A different identity or dimension
@@ -167,60 +159,101 @@ impl NoteIndex {
         self.embedding_progress()
     }
 
-    /// Embedded passages closest to `query_vector` by cosine similarity, best first.
-    /// Returns nothing before any embedding model has been recorded.
+    /// Embedded passages closest to `query_vector`. Legacy callers need not supply an identity.
     pub fn semantic(&self, query_vector: &[f32], limit: usize) -> Result<Vec<NoteHit>> {
-        if !(1..=50).contains(&limit) {
-            return Err(Error::Invalid("query length or limit"));
-        }
-        let Some((_, dimension)) = self.embedding_model()? else {
-            return Ok(Vec::new());
+        semantic_for_model(&self.conn, query_vector, None, limit)
+    }
+}
+
+pub(super) fn embedding_model(conn: &Connection) -> Result<Option<(String, usize)>> {
+    let value: Option<String> = conn
+        .query_row(
+            "SELECT value FROM meta WHERE key = 'embedding_model'",
+            [],
+            |r| r.get(0),
+        )
+        .optional()?;
+    value
+        .map(|value| {
+            let (identity, dimension) = value
+                .rsplit_once('|')
+                .ok_or(Error::Corrupt("embedding model record"))?;
+            let dimension = dimension
+                .parse()
+                .map_err(|_| Error::Corrupt("embedding model record"))?;
+            Ok((identity.to_owned(), dimension))
+        })
+        .transpose()
+}
+
+pub(super) fn semantic_for_model(
+    conn: &Connection,
+    query_vector: &[f32],
+    identity: Option<&str>,
+    limit: usize,
+) -> Result<Vec<NoteHit>> {
+    if !(1..=50).contains(&limit) {
+        return Err(Error::Invalid("query length or limit"));
+    }
+    let tx = conn.unchecked_transaction()?;
+    let Some((recorded, dimension)) = embedding_model(&tx)? else {
+        return if identity.is_some() {
+            Err(Error::ModelMismatch)
+        } else {
+            Ok(Vec::new())
         };
-        if query_vector.len() != dimension {
-            return Err(Error::Invalid("query embedding dimension"));
-        }
-        let query = unit(query_vector)?;
-        let mut scored: Vec<(f32, HitRow)> = Vec::with_capacity(limit);
-        let mut statement = self.conn.prepare(
-            "SELECT p.id, p.path, n.sha256, p.start_byte, p.end_byte, e.vector, p.text
+    };
+    if identity.is_some_and(|identity| identity != recorded) {
+        return Err(Error::ModelMismatch);
+    }
+    if query_vector.len() != dimension {
+        return if identity.is_some() {
+            Err(Error::ModelMismatch)
+        } else {
+            Err(Error::Invalid("query embedding dimension"))
+        };
+    }
+    let query = unit(query_vector)?;
+    let mut scored: Vec<(f32, HitRow)> = Vec::with_capacity(limit);
+    let mut statement = tx.prepare(
+        "SELECT p.id, p.path, n.sha256, p.start_byte, p.end_byte, e.vector, p.text
              FROM embeddings e JOIN passages p ON p.id = e.passage_id
              JOIN notes n ON n.path = p.path",
-        )?;
-        let mut rows = statement.query([])?;
-        while let Some(row) = rows.next()? {
-            let id: i64 = row.get(0)?;
-            let bytes: Vec<u8> = row.get(5)?;
-            let vector = from_blob(&bytes, dimension)?;
-            let score = vector.iter().zip(&query).map(|(a, b)| a * b).sum::<f32>();
-            if !score.is_finite() {
-                continue;
-            }
-            let position = scored.partition_point(|(kept_score, hit)| {
-                kept_score
-                    .total_cmp(&score)
-                    .reverse()
-                    .then(hit.0.cmp(&id))
-                    .is_lt()
-            });
-            if position >= limit {
-                continue;
-            }
-            let hit = (
-                id,
-                row.get(1)?,
-                row.get(2)?,
-                row.get(3)?,
-                row.get(4)?,
-                row.get(6)?,
-            );
-            if scored.len() == limit {
-                scored.pop();
-            }
-            scored.insert(position, (score, hit));
+    )?;
+    let mut rows = statement.query([])?;
+    while let Some(row) = rows.next()? {
+        let id: i64 = row.get(0)?;
+        let bytes: Vec<u8> = row.get(5)?;
+        let vector = from_blob(&bytes, dimension)?;
+        let score = vector.iter().zip(&query).map(|(a, b)| a * b).sum::<f32>();
+        if !score.is_finite() {
+            continue;
         }
-        scored
-            .into_iter()
-            .map(|(score, hit)| to_hit(hit, score))
-            .collect()
+        let position = scored.partition_point(|(kept_score, hit)| {
+            kept_score
+                .total_cmp(&score)
+                .reverse()
+                .then(hit.0.cmp(&id))
+                .is_lt()
+        });
+        if position >= limit {
+            continue;
+        }
+        let hit = (
+            id,
+            row.get(1)?,
+            row.get(2)?,
+            row.get(3)?,
+            row.get(4)?,
+            row.get(6)?,
+        );
+        if scored.len() == limit {
+            scored.pop();
+        }
+        scored.insert(position, (score, hit));
     }
+    scored
+        .into_iter()
+        .map(|(score, hit)| to_hit(hit, score))
+        .collect()
 }

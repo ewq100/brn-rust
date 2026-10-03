@@ -1,15 +1,18 @@
 //! Argument parsing, JSON envelope and dispatch types for the brn CLI.
 //!
 //! Long options only, `--key value` or `--key=value`; global options
-//! (`--data-dir`, `--json`, `--codex`, `--model-dir`, `--help`, `--version`)
+//! (`--data-dir`, `--json`, `--model-dir`, `--vault`,
+//! `--credentials-dir`, `--legacy`, `--help`, `--version`)
 //! may appear before or after the subcommand. All arguments are validated
 //! before any workspace is opened.
+pub mod ai;
 pub mod ask;
 pub mod comments;
 pub mod documents;
 pub mod drafts;
 pub mod error;
 mod input;
+pub mod library;
 pub mod notes;
 pub(crate) mod out;
 pub mod retrieval;
@@ -26,12 +29,23 @@ use uuid::Uuid;
 pub struct Invocation {
     pub json: bool,
     pub data_dir: PathBuf,
-    pub codex: Option<PathBuf>,
     pub model_dir: Option<PathBuf>,
+    pub vault: Option<PathBuf>,
+    pub credentials_dir: Option<PathBuf>,
+    pub legacy: bool,
     pub command: Command,
 }
 
 pub enum Command {
+    Ai(ai::AiCommand),
+    ModelDownload {
+        timeout_seconds: u64,
+    },
+    NotesList {
+        folder: Option<String>,
+        cursor: Option<String>,
+    },
+    NotePath(String),
     Notes(notes::NoteCommand),
     Status,
     Import {
@@ -52,11 +66,11 @@ pub enum Command {
     IndexBuild,
     Search {
         query: String,
-        profile: SearchProfile,
+        profile: Option<SearchProfile>,
+        limit: Option<usize>,
     },
     Ask {
         question: String,
-        profile: SearchProfile,
         session: Option<Uuid>,
         operation: Option<Uuid>,
         timeout_seconds: u64,
@@ -139,6 +153,7 @@ pub struct Output {
 /// A command failure plus optional additive machine-readable context. When
 /// present, the JSON envelope renders it as an additive-optional `context`
 /// field inside the existing `error` object; schema_version stays 1.
+#[derive(Debug)]
 pub struct CliFailure {
     pub error: CliError,
     pub context: Option<serde_json::Value>,
@@ -174,14 +189,23 @@ Usage: brn COMMAND [OPTIONS] --data-dir ABSOLUTE_EXISTING_DIRECTORY
 Global options (accepted before or after the command):
   --data-dir DIR     Existing absolute workspace directory (required for commands)
   --json             Print exactly one JSON envelope object on stdout
-  --codex PATH       Absolute Codex executable path (does not imply authentication)
   --model-dir DIR    Absolute local model directory
+  --vault DIR        First simple-app vault binding
+  --credentials-dir DIR  Absolute safe credential directory (saved non-secret path)
+  --legacy           Explicit legacy authority for empty shared commands
   --help             Show this help (works without --data-dir)
   --version          Show the version (works without --data-dir)
 
 Commands:
   brn notes open PATH --vault DIR [--operation UUID]
-  brn notes show NOTE_ID
+  brn ai connect chatgpt|copilot [--timeout-seconds N]
+  brn ai disconnect chatgpt|copilot
+  brn ai status
+  brn ai models chatgpt|copilot [--timeout-seconds N]
+  brn ai select --provider chatgpt|copilot --model MODEL
+  brn models download --approve-download [--model-dir DIR] [--timeout-seconds N]
+  brn notes list [--folder FOLDER] [--cursor PATH]
+  brn notes show PATH.md|NOTE_ID
   brn notes buffer save NOTE_ID --base-file-state UUID --expected-generation N --generation N --text-file PATH [--operation UUID]
   brn notes save NOTE_ID --base-file-state UUID --expected-generation N --generation N --text-file PATH [--operation UUID]
   brn notes recovery list
@@ -199,8 +223,8 @@ Commands:
   brn documents show SOURCE_ID
   brn documents set-search-approval SOURCE_ID --version-id VERSION_ID --state approved|draft|withdrawn [--operation UUID]
   brn index build
-  brn search QUERY [--profile keyword|semantic|hybrid]
-  brn ask QUESTION [--profile keyword|semantic|hybrid] [--session UUID] [--operation UUID] [--timeout-seconds N]
+  brn search QUERY [--profile keyword|semantic|hybrid] [--limit N]
+  brn ask QUESTION [--session UUID] [--operation UUID] [--timeout-seconds N]
   brn conversations list
   brn conversations show SESSION_ID
   brn drafts create --title TITLE --text-file PATH [--operation UUID]
@@ -251,8 +275,10 @@ pub fn parse(args: &[String]) -> Result<Outcome, ParseFailure> {
 struct Globals {
     json: bool,
     data_dir: Option<String>,
-    codex: Option<String>,
     model_dir: Option<String>,
+    vault: Option<String>,
+    credentials_dir: Option<String>,
+    legacy: bool,
     version: bool,
 }
 
@@ -281,7 +307,8 @@ fn take_value(tokens: Tokens<'_>, option: &str) -> Result<String, CliError> {
 fn set_global(g: &mut Globals, name: &str, value: String, token: &str) -> Result<(), CliError> {
     let slot = match name {
         "data-dir" => &mut g.data_dir,
-        "codex" => &mut g.codex,
+        "vault" => &mut g.vault,
+        "credentials-dir" => &mut g.credentials_dir,
         _ => &mut g.model_dir,
     };
     if slot.is_some() {
@@ -310,16 +337,21 @@ fn global_option(
                 g.version = true;
             }
         }
-        "json" => {
+        "json" | "legacy" => {
             if inline.is_some() {
                 return Err(usage(format!("{token} does not take a value")));
             }
-            if g.json {
+            let slot = if name == "json" {
+                &mut g.json
+            } else {
+                &mut g.legacy
+            };
+            if *slot {
                 return Err(usage(format!("duplicate option: {token}")));
             }
-            g.json = true;
+            *slot = true;
         }
-        "data-dir" | "codex" | "model-dir" => {
+        "data-dir" | "model-dir" | "vault" | "credentials-dir" => {
             let value = match inline {
                 Some(value) => value.to_string(),
                 None => take_value(tokens, token)?,
@@ -532,7 +564,19 @@ fn parse_inner(
     };
 
     // Pass 2: subcommand words, command-specific options and positionals.
-    let scanned = match word.as_str() {
+    let mut scanned = match word.as_str() {
+        "ai" => ai::scan_command(&mut tokens, g, command)?,
+        "models" => {
+            if sub_word(&mut tokens, "models", "download")? != "download" {
+                return Err(usage("unknown models subcommand"));
+            }
+            *command = Some("models.download");
+            scan(
+                &mut tokens,
+                g,
+                &[("approve-download", false), ("timeout-seconds", true)],
+            )?
+        }
         "help" => return Ok(Outcome::Help),
         "notes" => notes::scan_command(&mut tokens, g, command)?,
         "status" => {
@@ -581,7 +625,7 @@ fn parse_inner(
         }
         "search" => {
             *command = Some("search");
-            scan(&mut tokens, g, &[("profile", true)])?
+            scan(&mut tokens, g, &[("profile", true), ("limit", true)])?
         }
         "ask" => {
             *command = Some("ask");
@@ -738,8 +782,28 @@ fn parse_inner(
         other => return Err(usage(format!("unknown command: {other}"))),
     };
 
+    if *command == Some("notes.open") {
+        if let Some(vault) = g.vault.take() {
+            scanned.values.push(("vault".into(), vault));
+        }
+    }
+
     // Build the command from scanned arguments.
     let built = match word.as_str() {
+        "ai" => Command::Ai(ai::parse_command(command.unwrap(), &scanned)?),
+        "models" => {
+            expect_positionals(&scanned, 0)?;
+            if !scanned.flag("approve-download") {
+                return Err(usage("models download requires --approve-download"));
+            }
+            Command::ModelDownload {
+                timeout_seconds: scanned
+                    .value("timeout-seconds")
+                    .map(parse_timeout)
+                    .transpose()?
+                    .unwrap_or(300),
+            }
+        }
         "status" => {
             expect_positionals(&scanned, 0)?;
             Command::Status
@@ -787,11 +851,26 @@ fn parse_inner(
             expect_positionals(&scanned, 1)?;
             Command::Search {
                 query,
-                profile: parse_profile(scanned.value("profile"))?,
+                profile: scanned
+                    .value("profile")
+                    .map(|p| parse_profile(Some(p)))
+                    .transpose()?,
+                limit: scanned
+                    .value("limit")
+                    .map(|raw| {
+                        raw.parse::<usize>()
+                            .ok()
+                            .filter(|n| (1..=50).contains(n))
+                            .ok_or_else(|| usage("--limit must be between 1 and 50"))
+                    })
+                    .transpose()?,
             }
         }
         "ask" => {
             let question = required_positional(&scanned, "ask QUESTION")?.to_string();
+            if scanned.value("profile").is_some() {
+                return Err(usage("ask --profile is obsolete; retrieval is chosen by read tools (use search --profile for human search)"));
+            }
             expect_positionals(&scanned, 1)?;
             let session = if scanned.value("session").is_some() {
                 Some(scanned.require_uuid("session")?)
@@ -804,7 +883,6 @@ fn parse_inner(
             };
             Command::Ask {
                 question,
-                profile: parse_profile(scanned.value("profile"))?,
                 session,
                 operation: scanned.uuid("operation")?,
                 timeout_seconds,
@@ -888,7 +966,35 @@ fn parse_inner(
             }
             _ => unreachable!(),
         },
-        "notes" => Command::Notes(notes::parse_command(command.unwrap(), &scanned)?),
+        "notes" => match command.unwrap() {
+            "notes.list" => {
+                expect_positionals(&scanned, 0)?;
+                if let Some(folder) = scanned.value("folder") {
+                    brn_workflow::vault::VaultPath::validate_folder(folder)
+                        .map_err(|e| usage(e.to_string()))?;
+                }
+                if let Some(cursor) = scanned.value("cursor") {
+                    brn_workflow::vault::VaultPath::parse(cursor)
+                        .map_err(|e| usage(e.to_string()))?;
+                }
+                Command::NotesList {
+                    folder: scanned.value("folder").map(str::to_owned),
+                    cursor: scanned.value("cursor").map(str::to_owned),
+                }
+            }
+            "notes.show" => {
+                expect_positionals(&scanned, 1)?;
+                let token = required_positional(&scanned, "PATH|NOTE_ID")?;
+                if let Ok(id) = Uuid::parse_str(token) {
+                    Command::Notes(notes::NoteCommand::Show(id))
+                } else {
+                    brn_workflow::vault::VaultPath::parse(token)
+                        .map_err(|e| usage(e.to_string()))?;
+                    Command::NotePath(token.to_owned())
+                }
+            }
+            name => Command::Notes(notes::parse_command(name, &scanned)?),
+        },
         "comments" => match command.unwrap() {
             "comments.list" => {
                 expect_positionals(&scanned, 0)?;
@@ -1002,20 +1108,64 @@ fn parse_inner(
             "--data-dir is not a directory: {raw_data_dir}"
         )));
     }
-    let codex = g.codex.take().map(PathBuf::from);
     let model_dir = g.model_dir.take().map(PathBuf::from);
-    for (label, path) in [("--codex", &codex), ("--model-dir", &model_dir)] {
+    let vault = g.vault.take().map(PathBuf::from);
+    let credentials_dir = g.credentials_dir.take().map(PathBuf::from);
+    for (label, path) in [
+        ("--model-dir", &model_dir),
+        ("--vault", &vault),
+        ("--credentials-dir", &credentials_dir),
+    ] {
         if let Some(path) = path {
             if !path.is_absolute() {
                 return Err(usage(format!("{label} must be an absolute path")));
             }
         }
     }
+    if let Some(vault) = &vault {
+        if !vault.is_dir()
+            || vault
+                .symlink_metadata()
+                .is_ok_and(|m| m.file_type().is_symlink())
+        {
+            return Err(usage("--vault must be an existing regular directory"));
+        }
+    }
+    let simple_only = matches!(
+        built,
+        Command::Ai(_)
+            | Command::ModelDownload { .. }
+            | Command::NotesList { .. }
+            | Command::NotePath(_)
+    );
+    let shared = matches!(
+        built,
+        Command::Status
+            | Command::Search { .. }
+            | Command::ConversationsList
+            | Command::ConversationsShow { .. }
+            | Command::Ask { .. }
+    );
+    if g.legacy
+        && (simple_only
+            || vault.is_some()
+            || credentials_dir.is_some()
+            || matches!(built, Command::Ask { .. }))
+    {
+        return Err(usage("--legacy conflicts with simple-app options/actions"));
+    }
+    if !simple_only && !shared && (vault.is_some() || credentials_dir.is_some()) {
+        return Err(usage(
+            "simple-app options cannot be used with legacy-only commands",
+        ));
+    }
     Ok(Outcome::Run(Box::new(Invocation {
         json: g.json,
         data_dir,
-        codex,
         model_dir,
+        vault,
+        credentials_dir,
+        legacy: g.legacy,
         command: built,
     })))
 }
@@ -1106,8 +1256,6 @@ pub fn open_workspace(invocation: &Invocation) -> Result<brn_workflow::Workspace
     brn_workflow::Workspace::open(
         &invocation.data_dir,
         brn_workflow::Config {
-            codex: invocation.codex.clone(),
-            codex_home: None,
             model_dir: invocation.model_dir.clone(),
         },
     )
@@ -1117,6 +1265,9 @@ pub fn open_workspace(invocation: &Invocation) -> Result<brn_workflow::Workspace
 /// Route a validated invocation. Stubs short-circuit before the workspace is
 /// opened so they never create, lock or recover a data directory.
 pub fn execute(invocation: &Invocation) -> Result<Output, CliFailure> {
+    if library::simple_dispatch(invocation)? {
+        return library::run(invocation);
+    }
     match &invocation.command {
         Command::Notes(command) => return notes::run(invocation, command),
         Command::Import { .. }
@@ -1139,6 +1290,10 @@ pub fn execute(invocation: &Invocation) -> Result<Output, CliFailure> {
         | Command::DraftsCheckpoint { .. }
         | Command::DraftsSave { .. } => return drafts::run(invocation),
         Command::Status | Command::DocumentsList | Command::DocumentsShow { .. } => {}
+        Command::Ai(_)
+        | Command::ModelDownload { .. }
+        | Command::NotesList { .. }
+        | Command::NotePath(_) => unreachable!(),
     }
     let mut workspace = open_workspace(invocation)?;
     match &invocation.command {

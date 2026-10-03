@@ -4,26 +4,27 @@ set -euo pipefail
 
 usage() {
   cat <<'HELP'
-Usage: make-macos-app.sh --output ABSOLUTE.app --binary ABSOLUTE_BINARY --data-dir ABSOLUTE_DIRECTORY [--codex ABSOLUTE_EXECUTABLE] [--model-dir ABSOLUTE_DIRECTORY]
+Usage: make-macos-app.sh --output ABSOLUTE.app --binary ABSOLUTE_BINARY [--data-dir ABSOLUTE_DIRECTORY] [--legacy] [--model-dir ABSOLUTE_DIRECTORY]
 
 Creates an unsigned local .app. The specified binary is copied into the bundle.
-The data directory, Codex executable, and model directory remain at their selected paths.
+Omitting --data-dir uses the desktop's new BRN-simple default; --legacy explicitly selects old BRN.
+Data/model directories remain at their selected paths; no old data is inspected or copied.
 Startup failures are logged at ~/Library/Logs/BRN Usability Trial/startup.log
 HELP
 }
 
-output= binary= data_dir= codex= model_dir=
+output= binary= data_dir= model_dir= legacy=0
 while (($#)); do
   case "$1" in
     --help) usage; exit 0 ;;
-    --output|--binary|--data-dir|--codex|--model-dir)
+    --legacy) legacy=1; shift ;;
+    --output|--binary|--data-dir|--model-dir)
       key="$1"
       if (($# < 2)); then echo "$key needs a value" >&2; exit 2; fi
       case "$key" in
         --output) output="$2" ;;
         --binary) binary="$2" ;;
         --data-dir) data_dir="$2" ;;
-        --codex) codex="$2" ;;
         --model-dir) model_dir="$2" ;;
       esac
       shift 2 ;;
@@ -31,14 +32,13 @@ while (($#)); do
   esac
 done
 
-for value in "$output" "$binary" "$data_dir"; do
+for value in "$output" "$binary"; do
   if [[ "$value" != /* ]]; then echo "Required paths must be absolute and nonempty" >&2; exit 2; fi
 done
 if [[ "$output" != *.app ]]; then echo "--output must end in .app" >&2; exit 2; fi
 if [[ -e "$output" ]]; then echo "Output already exists: $output" >&2; exit 2; fi
 if [[ ! -f "$binary" || ! -x "$binary" ]]; then echo "Desktop binary is missing or not executable: $binary" >&2; exit 2; fi
-if [[ ! -d "$data_dir" || ! -w "$data_dir" ]]; then echo "Data directory is missing or not writable: $data_dir" >&2; exit 2; fi
-if [[ -n "$codex" && ( "$codex" != /* || ! -f "$codex" || ! -x "$codex" ) ]]; then echo "Codex executable is missing or not executable: $codex" >&2; exit 2; fi
+if [[ -n "$data_dir" && ( "$data_dir" != /* || ! -d "$data_dir" || ! -w "$data_dir" ) ]]; then echo "Data directory is missing or not writable: $data_dir" >&2; exit 2; fi
 if [[ -n "$model_dir" && ( "$model_dir" != /* || ! -d "$model_dir" ) ]]; then echo "Model directory is missing: $model_dir" >&2; exit 2; fi
 
 mkdir -p "$output/Contents/MacOS" "$output/Contents/Resources/bin"
@@ -68,7 +68,7 @@ mkdir -p "$log_dir"
 log="$log_dir/startup.log"
 LAUNCH
 printf 'data_dir=%q\n' "$data_dir" >> "$launcher"
-printf 'codex=%q\n' "$codex" >> "$launcher"
+printf 'legacy=%q\n' "$legacy" >> "$launcher"
 printf 'model_dir=%q\n' "$model_dir" >> "$launcher"
 cat >> "$launcher" <<'LAUNCH'
 fail() {
@@ -80,18 +80,22 @@ fail() {
 }
 : > "$log" || exit 1
 [[ -x "$binary" ]] || fail "Desktop binary is missing or not executable: $binary"
-[[ -d "$data_dir" && -w "$data_dir" ]] || fail "Data directory is missing or not writable: $data_dir"
-args=(--data-dir "$data_dir")
-if [[ -n "$codex" ]]; then
-  [[ -x "$codex" ]] || fail "Codex executable is missing or not executable: $codex"
-  args+=(--codex "$codex")
+args=()
+if [[ -n "$data_dir" ]]; then
+  [[ -d "$data_dir" && -w "$data_dir" ]] || fail "Data directory is missing or not writable: $data_dir"
+  args+=(--data-dir "$data_dir")
 fi
+if [[ "$legacy" == 1 ]]; then args+=(--legacy); fi
 if [[ -n "$model_dir" ]]; then
   [[ -d "$model_dir" ]] || fail "Model directory is missing: $model_dir"
   args+=(--model-dir "$model_dir")
 fi
 printf 'Launching BRN Usability Trial in %s\n' "$data_dir" >> "$log"
-"$binary" "${args[@]}" >> "$log" 2>&1
+if [[ -z "$data_dir" && "$legacy" == 0 && -z "$model_dir" ]]; then
+  "$binary" >> "$log" 2>&1
+else
+  "$binary" "${args[@]}" >> "$log" 2>&1
+fi
 code=$?
 if ((code != 0)); then fail "BRN exited with status $code"; fi
 LAUNCH

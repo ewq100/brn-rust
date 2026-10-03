@@ -1,6 +1,61 @@
 # brn-desktop
 
-Desktop entry point, GPUI views and transient interaction state. Also retains sample headless shell checks. Integrated operations go through the workflow worker.
+Desktop entry point, GPUI views and transient interaction state. Simple operations go through AppWorker; legacy local operations keep their existing Worker. Also retains sample headless shell checks.
+
+## Simple workspace (native default)
+
+The default is **`~/Library/Application Support/BRN-simple`**, with the exact
+**`BRN-simple.credentials`** sibling. Startup never inspects/copies/migrates the
+old BRN folder, signs in, discovers provider models, chooses a provider/model,
+or downloads a model. Data directory creation/canonicalization and layout
+loading precede GPUI; AppWorker alone opens authority, scans the vault and
+loads/uses retrieval resources off GPUI. [`ai.rs`](src/ai.rs) holds only
+presentation DTOs and operation/generation correlation.
+
+Choose Vault uses the native folder chooser and sends BindVault to the owner.
+Notes are **saved-file readers**, not editors: there is no simple Markdown Save
+in this step. Refresh/search report keyword-only results, unreadable notes and
+exact embedding progress. History resumes from WorkStore even without a vault
+or a valid current selection.
+
+Settings provides independent ChatGPT/Copilot account status, explicit Connect/
+Disconnect, model discovery and provider/model selection. A connected cache with
+no display name stays “account name unavailable”; failed/cancelled Connect
+refreshes actual status. Codes/links exist only in the active transient login
+dialog; cancel, dismissal and every ending clear it and target its exact UUID.
+Code expiry/reconnect are explicit retry states, never automatic login.
+ChatGPT live chat remains conditionally qualified; a quota reset alone does not
+establish availability.
+
+Each Ask freezes selection. Only one Ask is active; notes/search/account/history
+diagnostics are independent. Text/tool progress is provisional. Stopped/Failed
+partials retain their terminal status and provider/model, including historical
+selections. Only Finished establishes durable finalization. PersistenceFailed
+retains an explicitly **not saved** partial in memory, with an explicit Copy
+action. Further Ask is blocked while finalization is unacknowledged; copy that
+partial before closing/restarting. Account/history diagnostics remain available.
+Navigation keeps owned progress correlated by exact request UUID/generation;
+reopening the active conversation shows its full partial answer even after
+visiting other history. Its live Running history row is hidden in favor of the
+provisional stream. Finished replaces that row once, and older queued history
+snapshots cannot restore Running over a known terminal result. A different
+conversation or new blank chat does not adopt that result. Stop intent survives
+pre-admission cancellation acknowledgements. Composer edits invalidate only
+search results, not the current answer or its follow-up conversation.
+
+Native retrieval offers a one-time prompt per stored consent decision, showing
+pinned source, bytes/cost and destination. Decline makes no network request.
+Later Download requires fresh explicit approval; its destination is not passed
+as a startup load path. Cancel Download targets the active installation UUID.
+Downloaded is not Installed; activation/indexing errors end progress honestly.
+
+`--legacy` explicitly opens `~/Library/Application Support/BRN`. An explicit
+`--data-dir` classifies database/sidecar/backup markers; mixed modes refuse before
+opening. Empty directories default to simple unless `--legacy` is supplied.
+`--legacy`/`--vault` conflicts refuse before database work. Legacy retains local
+editing/recovery/history and its note guards, but AI and executable controls are
+retired. `--codex` is unknown, not accepted configuration. The legacy Config
+contains only a local model directory. No App is opened in a legacy folder.
 
 ## Interfaces and source
 
@@ -21,11 +76,11 @@ composer/draft/comment editors indent/outdent (toolkit behaviour); leave editors
 via ⌘L, menus, Escape or other applicable shortcuts.
 The BRN, View and Navigate menus expose Settings
 (⌘,), Quit (⌘Q), History (⌘0), Vault (⌥⌘0), Focus (⇧⌘↩), New Chat (⌘N),
-Focus Composer (⌘L) and Cancel Running Action (⌘.). New Chat is idle-only;
+Focus Composer (⌘L) and Cancel Running Action (⌘.). Legacy New Chat is idle-only; simple history navigation stays independent of Ask.
 Quit still respects dirty drafts. Escape remains local to editors and the
 toolkit Settings dialog.
 
-## Local Markdown notes
+## Legacy local Markdown notes (`--legacy` or legacy markers)
 
 The native vault-rail **Notes** section chooses a local vault, opens existing
 `.md` files by chooser or vault-relative path, and reopens registered notes/recovery
@@ -48,7 +103,7 @@ availability and typed failure details.
 
 Recovery is scheduled after **500 ms** without an edit and coalesces to the
 latest text. This is not a durability deadline: the single worker can be busy
-with provider/model work. Only an acknowledged commit establishes recoverability.
+with local model/index work. Only an acknowledged commit establishes recoverability.
 Window close, the application Quit action/menu/Cmd-Q and note-switch/actions
 defer for pending note mutations and flush the latest buffer asynchronously.
 Failed recovery keeps work accessible until explicit retry or confirmed discard
@@ -67,9 +122,15 @@ guards in the pinned GPUI implementation. Its final `on_app_quit` hook cannot
 veto termination. It dispatches no new recovery flush: even an idle worker's
 SQLite commit has no guaranteed completion bound, and an admitted critical job
 must be joined rather than abandoned at GPUI's 200 ms quit-future deadline.
-The existing hook drains and joins already-admitted critical note jobs,
-including queued saves/copies/buffer commits; they never use the 250 ms detached
-reaper. That synchronous defensive join can exceed the GPUI future deadline.
+Guarded close/Quit drain and join local work asynchronously before closing,
+including admitted critical notes, chat finalization, installers and ordered
+layout writes. Finalization failure blocks closing and retains the unsaved
+partial; a separate explicit close-without-saving confirmation is offered.
+The defensive system-termination hook preserves the legacy Worker's synchronous
+drain of already accepted critical note jobs before returning its timed future,
+without waiting for layout preferences. Simple AppWorker joins stay off GPUI;
+that path cannot veto termination or guarantee completion at GPUI's
+quit-future deadline.
 It does not flush the latest coalesced UI submission if it was not already
 admitted, and cannot keep the window open on recovery failure. Unacknowledged
 typing can be lost. Restart reconciliation classifies interrupted save intents
@@ -90,16 +151,18 @@ outcome and protected recovery; none silently replay a write.
 
 ## Dependencies and features
 
-Always depends on `brn-core`. Default features are empty; `native-ui` enables GPUI and `brn-workflow`; `native-retrieval` includes native UI and workflow native retrieval.
+Always depends on `brn-core` and workflow DTOs for GPUI-independent AI state tests.
+Default features are empty; `native-ui` enables GPUI; `native-retrieval` includes
+native UI and workflow native retrieval. Normal native builds enable both.
 
 ## Verification
 
 Run from the repository root:
 
 ```sh
-cargo test -p brn-desktop --locked
-cargo test -p brn-desktop --features native-ui notes:: --locked
-cargo build -p brn-desktop --features native-ui --locked
+cargo test -p brn-desktop --locked --offline
+cargo test -p brn-desktop --features native-ui,native-retrieval --locked --offline
+cargo build -p brn-desktop --features native-ui,native-retrieval --locked --offline
 bash scripts/verify-desktop-shell.sh --native
 ```
 

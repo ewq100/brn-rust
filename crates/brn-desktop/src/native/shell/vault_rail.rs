@@ -1,7 +1,10 @@
 use super::*;
 
 impl Desktop {
-    pub(super) fn render_vault_rail(&mut self, cx: &mut Context<Self>) -> impl IntoElement {
+    pub(super) fn render_vault_rail(&mut self, cx: &mut Context<Self>) -> AnyElement {
+        if self.ai.is_some() {
+            return self.render_simple_vault(cx);
+        }
         let p = self.palette();
         let open_draft = self
             .draft_state
@@ -254,5 +257,6 @@ impl Desktop {
             .flex_col()
             .bg(color(p.panel))
             .child(list)
+            .into_any_element()
     }
 }

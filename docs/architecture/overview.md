@@ -9,18 +9,38 @@ This describes the implemented workspace at the baseline in [status](../status.m
 | [brn](../../crates/brn/README.md) | Agent-facing `brn` CLI over the shared workflow | Workflow |
 | [brn-core](../../crates/brn-core/README.md) | In-memory shell, generation correlation and sample worker | None |
 | [brn-store](../../crates/brn-store/README.md) | SQLite records, migrations, exact revisions, drafts, comments, managed-note registry and unfinished-work recovery | None |
-| [brn-provider](../../crates/brn-provider/README.md) | App Server client and owned process lifecycle | None |
 | [brn-retrieval](../../crates/brn-retrieval/README.md) | Derived indexes, search profiles and evidence validation | None |
-| [brn-workflow](../../crates/brn-workflow/README.md) | Integrated application operations, worker commands/events and `brn-flow` CLI | Store, provider, retrieval |
-| [brn-desktop](../../crates/brn-desktop/README.md) | GPUI workspace shell (history, document/chat, vault), interaction state, presentation-only layout preferences and sample headless checks | Core; workflow with native UI enabled |
+| [brn-workflow](../../crates/brn-workflow/README.md) | Legacy local operations/worker/`brn-flow`; simple AppWorker, current-vault read tools and consented model installation | Store, retrieval, AI |
+| [brn-ai](../../crates/brn-ai/README.md) | Explicit ChatGPT/Copilot authentication, owned Rig clients and streamed read-only answers | None |
+| [brn-desktop](../../crates/brn-desktop/README.md) | GPUI workspace shell (history, document/chat, vault), presentation DTOs/layout and sample headless checks | Core, workflow |
 
-`brn-desktop` sends integrated application work through `brn-workflow::worker`. The headless `brn-flow` driver uses the same workflow. Workflow coordinates authoritative storage, derived retrieval and provider calls; views do not implement those operations themselves.
+`brn-desktop` sends simple work only through AppWorker; retained legacy local
+editing/recovery/history uses `brn-workflow::worker`. The headless `brn-flow`
+driver retains that legacy workflow. Workflow coordinates authoritative storage, derived retrieval and provider calls; views do not implement those operations themselves.
+
+The simple `brn-workflow::app::App` is implemented alongside that legacy flow.
+The CLI uses owned AppWorker/chat/account/model lanes for simple commands;
+desktop uses those same lanes, without App/SQL/model/secret state in views.
+Native defaults to BRN-simple and its exact BRN-simple.credentials sibling;
+old BRN requires explicit legacy mode or legacy markers. App exclusively
+owns WorkStore, optionally binds one current vault and shares one loaded
+embedder/search policy between Library and read-only AiTools. Both stores enforce
+mode exclusion under the same owner lock before SQLite opens. No UI/CLI direct
+AI/retrieval/store dependency is added. Installation requires fresh consent;
+persisted approval never starts network work.
+Legacy CLI local editing/history still uses Workspace; `brn ask` cannot submit
+legacy AI work. Advisory classification reuses Store's marker/backup rules.
+Simple credential location selection and settings reads occur inside the owning
+App lane, not through an extra frontend WorkStore.
 
 ## Data flow
 
 1. Selected text/Markdown is imported through the workflow into exact stored versions. Retrieval approval is explicit.
 2. Eligible stored content builds a derived index generation. Searches return versioned passages and exact evidence.
-3. Grounded answers use validated evidence; local session records associate with provider-owned threads.
+3. Simple AppWorker refreshes the vault before new Ask and sends current read-only
+   tools to the frozen Rig provider/model. WorkStore owns text-only history and
+   durable endings. Legacy thread/turn/evidence/usage fields remain readable,
+   but every legacy Ask returns typed LegacyAiRetired without lookup or mutation.
 4. Draft working copies are saved separately from immutable checkpoints and retained AI candidates.
 5. Comments retain original immutable provenance and expose conservative mappings and independent lifecycle status.
 6. Managed Markdown notes open and explicitly save through the shared note workflow. Automatic editing-buffer recovery commits unfinished work to SQLite, not to Markdown.
@@ -53,8 +73,8 @@ The shared eligibility predicate requires a supported existing file at its
 reconciled location, no unresolved original-path save, and a fresh exact
 identity/content match to its explicitly approved search snapshot. Recovery
 buffers and artifacts are never eligible; a copy has independent identity and
-no inherited approval. The same predicate guards approval, index publication,
-all search profiles and provider handoff/completion. Current document surfaces
+no inherited approval. The same predicate guards legacy approval, index publication and
+all legacy search profiles. Current document surfaces
 pair valid content with explicit exclusion states; associated old imports are
 shadowed, not deleted. Unrelated legacy imports retain snapshot semantics.
 Changed corpus/epochs can still invalidate the whole index.
@@ -64,7 +84,10 @@ Coordination covers participating writers only; arbitrary late races can be
 detected after installation. File durability uses `F_FULLFSYNC`, directories
 use explicit `libc::fsync`; process-kill tests do not establish power-loss
 durability or other-volume support. Native UI acceptance remains pending.
-Window close, application Quit/Cmd-Q and note switching guard recovery; pinned
+Window close, application Quit/Cmd-Q and note switching guard recovery.
+Guarded native close/Quit asynchronously cancel and join local work before
+closing; finalization errors retain explicitly unsaved partials and block close.
+Pinned
 GPUI cannot veto Dock/system termination, and no final-hook flush was added.
 Unacknowledged typing on that route can be lost.
 
@@ -78,6 +101,14 @@ The desktop's layout.json in the data directory is presentation state only; dele
 
 Read [invariants](invariants.md) before changing a boundary, and [dependencies](dependencies.md) for dated dependency observations and distribution limits.
 
-## Planned reset, not implemented architecture
+## Historical reset and remaining simple-app work
 
-The [Rig-first reset specification](../superpowers/specs/2026-10-01-rig-first-architecture-reset-design.md) proposes replacing App Server with direct Rig subscription integrations, Markdown-authoritative current notes, FTS5/sqlite-vec retrieval and protected file credential caches. It includes macOS distribution qualification and defers Windows. Its basic editor-grade save protocol supersedes the earlier coordination/exchange design for the reset. This section records approved design intent, not implementation, live-provider qualification or release readiness; the ownership and data flow above remain the implemented baseline.
+The [Rig-first reset](../superpowers/specs/2026-10-01-rig-first-architecture-reset-design.md)
+and old provider plans are historical/superseded by the
+[simple notes roadmap](../work/active/simple-rig-notes/plan.md).
+Rig subscription chat, protected file credentials and saved-vault retrieval are
+implemented on `task-4-ai-chat`; production App Server is retired.
+Step 5 proposal/approval tools and Step 6 simple Markdown Save/legacy cleanup
+are not implemented. `brn-core` still serves sample/headless shell behavior.
+Build/state tests do not establish graphical usability, live-provider acceptance
+or release readiness.

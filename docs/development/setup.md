@@ -10,7 +10,9 @@ cargo run -p brn -- --help
 cargo run -p brn-workflow --bin brn-flow -- --help
 ```
 
-The workspace's default member is the `brn` CLI crate. Use `--workspace` for workspace verification. The verification scripts use `--offline`, so dependencies must already be cached; an offline cache miss is a setup problem, not a product test failure. Scripts also expect Bash and standard Unix utilities; end-to-end verification uses Python 3 and ripgrep.
+The workspace's default member is the `brn` CLI crate. Use `--workspace` for workspace verification. The verification scripts use `--offline`, so dependencies must already be cached; an offline cache miss is a setup problem, not a product test failure. Scripts also expect Bash and standard Unix utilities; end-to-end verification uses Python 3, not ripgrep.
+Set TMPDIR to an existing explicitly disposable synthetic fixture parent
+outside Git before running it; credential-path safety must remain enforced.
 
 Set `CARGO_TARGET_DIR` to an absolute path if sharing a build cache. Native graphs are large; check disk capacity before native builds. Do not delete another task's build artifacts or data to make room without coordinating.
 
@@ -19,13 +21,30 @@ Set `CARGO_TARGET_DIR` to an absolute path if sharing a build cache. Native grap
 The qualified trial target is macOS on Apple Silicon with Command Line Tools. Native interaction checks require an unlocked graphical session.
 
 ```sh
-cargo build -p brn-desktop --features native-ui --locked
-trial_data="$(mktemp -d "${TMPDIR:-/tmp}/brn-local.XXXXXX")"
-cargo run -p brn-desktop --features native-ui --locked -- --data-dir "$trial_data"
+cargo build -p brn-desktop --features native-ui,native-retrieval --locked --offline
+trial_data="$HOME/BRN-disposable-trial"
+mkdir -p "$trial_data"
+cargo run -p brn-desktop --features native-ui,native-retrieval --locked --offline -- --data-dir "$trial_data"
 ```
 
-This launches the local writing/keyword-capable UI against a new disposable directory. Keep the directory path if you need restart checks. Without an explicit directory, the app can open the default real workspace; always supply one for trials.
+This launches the simple saved-file reader/chat UI. Keep the disposable path for
+restart checks; choose a fresh outside-repository directory for trials.
+Without an explicit directory, startup uses the new
+`~/Library/Application Support/BRN-simple` with the exact
+`BRN-simple.credentials` sibling, never inspecting/copying/migrating old BRN.
+Choose Vault/Refresh/Search are local; Decline optional model consent for a
+zero-network keyword-only trial. Simple Markdown Save remains future work.
 
-For semantic/hybrid retrieval, build with `--features native-retrieval` and pass `--model-dir /absolute/path/to/verified/model`. For live grounded answers, pass `--codex /absolute/path/to/codex` under the task's authorization. Use [retrieval trial setup](../../experiments/retrieval-trial/README.md) for model/runtime requirements and [provider packaging boundaries](../../experiments/codex-app-server/PACKAGING.md) for the installed sidecar. Neither executable nor model is bundled by these commands.
+Native retrieval offers a freshly consented installer; startup never downloads.
+An explicit `--model-dir /absolute/path/to/verified/model` loads existing
+verified assets off GPUI, not a download destination.
+Settings Connect/discovery/provider/model controls are explicit and need
+separate live authorization during checks. ChatGPT qualification is conditional;
+quota reset alone is not availability evidence.
+Use `--legacy` with a separate disposable directory for legacy local
+editing/recovery/history. Without a directory, `--legacy` explicitly opens old
+BRN; never use that real-data route for checks. Legacy AI/`--codex` are retired.
+Explicit markers/sidecars/backups enforce mode, and incompatible
+`--legacy`/`--vault` arguments refuse before database work.
 
 [Root README](../../README.md) gives the local Finder launcher command. See [verification](verification.md) for checks; compiling does not verify native interaction.

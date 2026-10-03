@@ -84,6 +84,10 @@ fn deliver_stdout(payload: &str, what: &str) -> ExitCode {
 /// the variant is sufficient.
 fn command_name(command: &cli::Command) -> &'static str {
     match command {
+        cli::Command::Ai(command) => command.name(),
+        cli::Command::ModelDownload { .. } => "models.download",
+        cli::Command::NotesList { .. } => "notes.list",
+        cli::Command::NotePath(_) => "notes.show",
         cli::Command::Notes(command) => command.name(),
         cli::Command::Status => "status",
         cli::Command::Import { .. } => "import",
@@ -210,8 +214,10 @@ mod tests {
         let invocation = cli::Invocation {
             json: true,
             data_dir: data.path().to_owned(),
-            codex: None,
             model_dir: None,
+            vault: None,
+            credentials_dir: None,
+            legacy: false,
             command: cli::Command::Notes(cli::notes::NoteCommand::Write {
                 kind: cli::notes::WriteKind::Save,
                 note: view.id,

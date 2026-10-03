@@ -9,6 +9,27 @@ use brn_store as store;
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub enum ErrorKind {
     WorkspaceBusy,
+    WorkspaceModeConflict,
+    WorkspaceModeRequired,
+    LegacyAiRetired,
+    SelectionRequired,
+    ReconnectNeeded,
+    CodeExpired,
+    RateLimited,
+    Network,
+    InvalidToolUse,
+    ToolLimitReached,
+    AiStorage,
+    AiIndexStale,
+    ModelDownloadFailed,
+    VaultNotBound,
+    VaultUnavailable,
+    ToolRejected,
+    UnsafeCredentials,
+    ModelRefused,
+    ModelInvalid,
+    SemanticUnavailableInBuild,
+    ToolsBusy,
     IndexMissing,
     IndexStale,
     EvidenceStale,
@@ -16,6 +37,7 @@ pub enum ErrorKind {
     IndexInvalid,
     ProfileUnavailable,
     OperationConflict,
+    NotFound,
     Cancelled,
     Other,
 }
@@ -32,8 +54,23 @@ impl std::fmt::Display for WorkflowError {
         f.write_str(&self.message)
     }
 }
+impl std::error::Error for WorkflowError {}
 
 impl WorkflowError {
+    /// Projects the closed persisted AI category, never English wording.
+    pub fn recorded_ai_failure(code: Option<&str>) -> Self {
+        let kind = code
+            .and_then(|code| serde_json::from_value(serde_json::Value::String(code.into())).ok())
+            .unwrap_or(brn_ai::AiErrorKind::Other);
+        brn_ai::AiError::new(kind).into()
+    }
+
+    pub(crate) fn typed(kind: ErrorKind, message: impl Into<String>) -> Self {
+        Self {
+            kind,
+            message: message.into(),
+        }
+    }
     /// Uncategorized workflow failure (honest CLI `WORKFLOW_ERROR` fallback).
     pub fn msg(message: impl Into<String>) -> Self {
         Self {
@@ -90,11 +127,49 @@ impl From<store::Error> for WorkflowError {
                 kind: ErrorKind::WorkspaceBusy,
                 message,
             },
+            store::Error::WorkspaceModeConflict(message) => Self {
+                kind: ErrorKind::WorkspaceModeConflict,
+                message,
+            },
             store::Error::OperationConflict(message) => Self {
                 kind: ErrorKind::OperationConflict,
                 message,
             },
+            store::Error::NotFound(message) => Self {
+                kind: ErrorKind::NotFound,
+                message,
+            },
             other => Self::msg(other.to_string()),
+        }
+    }
+}
+
+impl From<brn_ai::AiError> for WorkflowError {
+    fn from(e: brn_ai::AiError) -> Self {
+        use brn_ai::AiErrorKind;
+        let kind = match e.kind {
+            AiErrorKind::UnsafeCredentials => ErrorKind::UnsafeCredentials,
+            AiErrorKind::ModelRefused => ErrorKind::ModelRefused,
+            AiErrorKind::ToolRejected => ErrorKind::ToolRejected,
+            AiErrorKind::IndexStale => ErrorKind::AiIndexStale,
+            AiErrorKind::ReconnectNeeded => ErrorKind::ReconnectNeeded,
+            AiErrorKind::CodeExpired => ErrorKind::CodeExpired,
+            AiErrorKind::RateLimited => ErrorKind::RateLimited,
+            AiErrorKind::Network => ErrorKind::Network,
+            AiErrorKind::InvalidToolUse => ErrorKind::InvalidToolUse,
+            AiErrorKind::ToolLimitReached => ErrorKind::ToolLimitReached,
+            AiErrorKind::Storage => ErrorKind::AiStorage,
+            AiErrorKind::Other => ErrorKind::Other,
+        };
+        Self::typed(kind, e.to_string())
+    }
+}
+
+impl From<crate::library::LibraryError> for WorkflowError {
+    fn from(e: crate::library::LibraryError) -> Self {
+        match e {
+            crate::library::LibraryError::Index(e) => e.into(),
+            crate::library::LibraryError::Io(e) => Self::msg(e.to_string()),
         }
     }
 }
@@ -108,6 +183,19 @@ impl From<retrieval::Error> for WorkflowError {
             },
             retrieval::Error::Cancelled => Self {
                 kind: ErrorKind::Cancelled,
+                message,
+            },
+            retrieval::Error::ModelMismatch => Self {
+                kind: ErrorKind::IndexStale,
+                message,
+            },
+            retrieval::Error::EmbedderPoisoned => Self {
+                kind: ErrorKind::ModelInvalid,
+                message,
+            },
+            #[cfg(feature = "native-retrieval")]
+            retrieval::Error::ModelInstall(_) => Self {
+                kind: ErrorKind::ModelDownloadFailed,
                 message,
             },
             _ => Self::msg(message),

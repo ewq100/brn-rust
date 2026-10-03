@@ -6,6 +6,49 @@ use std::{
     time::{Duration, SystemTime},
 };
 
+#[test]
+fn shared_embedder_caches_metadata_and_reports_poisoning_without_downgrade() {
+    use brn_workflow::library::SharedEmbedder;
+    use std::sync::{
+        Arc,
+        atomic::{AtomicUsize, Ordering},
+    };
+    struct PanicModel(Arc<AtomicUsize>);
+    impl Embedder for PanicModel {
+        fn identity(&self) -> &str {
+            self.0.fetch_add(1, Ordering::SeqCst);
+            "synthetic-poison"
+        }
+        fn dimension(&self) -> usize {
+            self.0.fetch_add(1, Ordering::SeqCst);
+            2
+        }
+        fn embed(&mut self, _: &[&str]) -> brn_retrieval::Result<Vec<Vec<f32>>> {
+            panic!("synthetic model panic")
+        }
+    }
+    let calls = Arc::new(AtomicUsize::new(0));
+    let mut shared = SharedEmbedder::new(Box::new(PanicModel(calls.clone())));
+    assert_eq!(calls.load(Ordering::SeqCst), 2);
+    let mut worker = shared.clone();
+    assert!(
+        std::thread::spawn(move || worker.embed(&["apple"]))
+            .join()
+            .is_err()
+    );
+    assert_eq!(shared.identity(), "synthetic-poison");
+    assert_eq!(shared.dimension(), 2);
+    assert_eq!(
+        calls.load(Ordering::SeqCst),
+        2,
+        "metadata never locks or re-enters the model"
+    );
+    assert!(matches!(
+        shared.embed(&["apple"]),
+        Err(brn_retrieval::Error::EmbedderPoisoned)
+    ));
+}
+
 /// Three topics: fruit, vehicles, everything else.
 struct TopicEmbedder;
 

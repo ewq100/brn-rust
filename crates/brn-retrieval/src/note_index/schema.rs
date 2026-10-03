@@ -44,6 +44,28 @@ CREATE TABLE embeddings (
 CREATE TABLE meta (key TEXT PRIMARY KEY, value TEXT NOT NULL);
 ";
 
+pub(super) fn validate_reader(conn: &Connection) -> Result<()> {
+    let tx = conn.unchecked_transaction()?;
+    let application: i64 = tx.query_row("PRAGMA application_id", [], |r| r.get(0))?;
+    let version: i64 = tx.query_row("PRAGMA user_version", [], |r| r.get(0))?;
+    let required: i64 = tx.query_row(
+        "SELECT count(*) FROM sqlite_schema WHERE name IN (
+            'notes', 'passages', 'passages_path', 'passages_fts',
+            'passages_insert', 'passages_delete', 'embeddings', 'meta')",
+        [],
+        |r| r.get(0),
+    )?;
+    if application != APPLICATION_ID || version != VERSION || required != 8 {
+        return Err(Error::Corrupt("read-only note index identity or schema"));
+    }
+    let healthy: String = tx.query_row("PRAGMA quick_check", [], |r| r.get(0))?;
+    if healthy != "ok" {
+        return Err(Error::Corrupt("read-only note index integrity"));
+    }
+    tx.commit()?;
+    Ok(())
+}
+
 pub(super) fn open(path: &Path) -> Result<(Connection, bool)> {
     if path.try_exists()?
         && let Found::Usable(conn) = existing(path)?
@@ -59,6 +81,15 @@ pub(super) fn open(path: &Path) -> Result<(Connection, bool)> {
     tx.pragma_update(None, "application_id", APPLICATION_ID)?;
     tx.pragma_update(None, "user_version", VERSION)?;
     tx.commit()?;
+    // Persist the brand before readers attach: an uncheckpointed WAL must not
+    // leave our new main file looking like a foreign, unbranded database.
+    let (busy, frames, copied): (i64, i64, i64) =
+        conn.query_row("PRAGMA wal_checkpoint(FULL)", [], |r| {
+            Ok((r.get(0)?, r.get(1)?, r.get(2)?))
+        })?;
+    if busy != 0 || frames != copied {
+        return Err(Error::Corrupt("new index header checkpoint"));
+    }
     Ok((conn, true))
 }
 

@@ -2,7 +2,7 @@
 use super::{NoteAvailability, NoteErrorCode, NoteResult, NoteSearchReceipt, note_failure};
 use crate::{ErrorKind, Result, SourceDocument, WorkflowError, Workspace, digest, error};
 use brn_retrieval::Evidence;
-use brn_store::{Approval, EvidenceCurrentness, notes::NoteSearchRequest};
+use brn_store::{Approval, notes::NoteSearchRequest};
 use serde::{Deserialize, Serialize};
 use std::{collections::BTreeMap, path::Path};
 use uuid::Uuid;
@@ -297,49 +297,6 @@ impl Workspace {
         Ok(())
     }
 
-    pub(crate) fn validate_current_session(&mut self, session: Uuid) -> Result<()> {
-        for turn in self.store.turns(session).map_err(error)? {
-            if turn.evidence_currentness == EvidenceCurrentness::StaleAtCompletion {
-                return Err(WorkflowError { kind:ErrorKind::ContextStale,message:"session has stale managed evidence; start a fresh conversation; history remains readable".into() });
-            }
-            if let Err(e) = self.validate_managed_turn_evidence(&turn) {
-                return Err(if e.kind == ErrorKind::EvidenceStale {
-                    WorkflowError {
-                        kind: ErrorKind::ContextStale,
-                        message: format!(
-                            "session context is stale: {}; start a fresh conversation",
-                            e.message
-                        ),
-                    }
-                } else {
-                    e
-                });
-            }
-        }
-        Ok(())
-    }
-
-    pub(crate) fn validate_managed_turn_evidence(
-        &mut self,
-        turn: &brn_store::ChatTurn,
-    ) -> Result<()> {
-        self.store
-            .reconcile_note_sources()
-            .map_err(note_workflow_error)?;
-        let associations = self
-            .store
-            .note_source_associations()
-            .map_err(note_workflow_error)?;
-        let evidence: Vec<Evidence> = serde_json::from_str(&turn.evidence_json).map_err(error)?;
-        for hit in evidence {
-            let source = Uuid::parse_str(&hit.source_id).map_err(error)?;
-            if associations.iter().any(|(_, id, _)| *id == source) {
-                self.validate_evidence(&hit)?;
-            }
-        }
-        Ok(())
-    }
-
     pub(crate) fn evidence_epochs(
         &self,
         source_ids: impl IntoIterator<Item = Uuid>,
@@ -362,27 +319,6 @@ impl Workspace {
             }
         }
         Ok(epochs.into_iter().map(|(id, (c, a))| (id, c, a)).collect())
-    }
-
-    pub(crate) fn context_source_ids(
-        &self,
-        selected: &[Evidence],
-        session: Option<Uuid>,
-    ) -> Result<Vec<Uuid>> {
-        let mut ids = selected
-            .iter()
-            .map(|e| Uuid::parse_str(&e.source_id).map_err(error))
-            .collect::<Result<Vec<_>>>()?;
-        if let Some(session) = session {
-            for turn in self.store.turns(session).map_err(error)? {
-                let evidence: Vec<Evidence> =
-                    serde_json::from_str(&turn.evidence_json).map_err(error)?;
-                for hit in evidence {
-                    ids.push(Uuid::parse_str(&hit.source_id).map_err(error)?);
-                }
-            }
-        }
-        Ok(ids)
     }
 
     pub(crate) fn eligibility_fingerprint(

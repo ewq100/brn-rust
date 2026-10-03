@@ -4,6 +4,7 @@ use brn_workflow::{ErrorKind, WorkflowError};
 
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub enum CliError {
+    Typed(ErrorKind, String),
     Usage(String),
     WorkspaceBusy(String),
     NotFound(String),
@@ -31,6 +32,30 @@ pub enum CliError {
 impl CliError {
     pub fn code(&self) -> &'static str {
         match self {
+            Self::Typed(kind, _) => match kind {
+                ErrorKind::WorkspaceModeConflict => "WORKSPACE_MODE_CONFLICT",
+                ErrorKind::WorkspaceModeRequired => "WORKSPACE_MODE_REQUIRED",
+                ErrorKind::LegacyAiRetired => "LEGACY_AI_RETIRED",
+                ErrorKind::SelectionRequired => "AI_SELECTION_REQUIRED",
+                ErrorKind::ReconnectNeeded => "AI_RECONNECT_NEEDED",
+                ErrorKind::CodeExpired => "AI_CODE_EXPIRED",
+                ErrorKind::RateLimited => "AI_RATE_LIMITED",
+                ErrorKind::Network => "AI_NETWORK",
+                ErrorKind::ModelRefused => "AI_MODEL_REFUSED",
+                ErrorKind::InvalidToolUse => "AI_INVALID_TOOL_USE",
+                ErrorKind::ToolLimitReached => "AI_TOOL_LIMIT_REACHED",
+                ErrorKind::UnsafeCredentials => "AI_UNSAFE_CREDENTIALS",
+                ErrorKind::AiStorage => "AI_STORAGE_ERROR",
+                ErrorKind::AiIndexStale => "AI_INDEX_STALE",
+                ErrorKind::ToolRejected => "AI_TOOL_REJECTED",
+                ErrorKind::VaultNotBound => "VAULT_NOT_BOUND",
+                ErrorKind::VaultUnavailable => "VAULT_UNAVAILABLE",
+                ErrorKind::ModelInvalid => "MODEL_INVALID",
+                ErrorKind::SemanticUnavailableInBuild => "SEMANTIC_UNAVAILABLE_IN_BUILD",
+                ErrorKind::ModelDownloadFailed => "MODEL_DOWNLOAD_FAILED",
+                ErrorKind::ToolsBusy => "TOOLS_BUSY",
+                _ => "WORKFLOW_ERROR",
+            },
             Self::NoteStateChanged(_) => "NOTE_STATE_CHANGED",
             Self::NoteConflict(_) => "NOTE_CONFLICT",
             Self::NoteMissing(_) => "NOTE_MISSING",
@@ -58,7 +83,8 @@ impl CliError {
 
     pub fn message(&self) -> &str {
         match self {
-            Self::Usage(m)
+            Self::Typed(_, m)
+            | Self::Usage(m)
             | Self::WorkspaceBusy(m)
             | Self::NotFound(m)
             | Self::IndexMissing(m)
@@ -108,6 +134,28 @@ pub fn classify_workflow(error: WorkflowError) -> CliError {
         ErrorKind::OperationConflict => CliError::OperationConflict(error.message),
         ErrorKind::Cancelled => CliError::Interrupted(error.message),
         ErrorKind::Other => CliError::Workflow(error.message),
+        ErrorKind::NotFound => CliError::NotFound(error.message),
+        ErrorKind::WorkspaceModeConflict
+        | ErrorKind::WorkspaceModeRequired
+        | ErrorKind::LegacyAiRetired
+        | ErrorKind::SelectionRequired
+        | ErrorKind::ReconnectNeeded
+        | ErrorKind::CodeExpired
+        | ErrorKind::RateLimited
+        | ErrorKind::Network
+        | ErrorKind::InvalidToolUse
+        | ErrorKind::ToolLimitReached
+        | ErrorKind::AiStorage
+        | ErrorKind::AiIndexStale
+        | ErrorKind::ModelDownloadFailed
+        | ErrorKind::VaultNotBound
+        | ErrorKind::VaultUnavailable
+        | ErrorKind::ToolRejected
+        | ErrorKind::UnsafeCredentials
+        | ErrorKind::ModelRefused
+        | ErrorKind::ModelInvalid
+        | ErrorKind::SemanticUnavailableInBuild
+        | ErrorKind::ToolsBusy => CliError::Typed(error.kind, error.message),
     }
 }
 
@@ -271,5 +319,45 @@ mod tests {
             lookalike,
             CliError::Workflow("data directory is already owned: fake".into())
         );
+    }
+
+    #[test]
+    fn every_ai_category_and_simple_authority_kind_has_a_stable_typed_code() {
+        use brn_workflow::{AiError, AiErrorKind};
+        for (kind, code) in [
+            (AiErrorKind::ReconnectNeeded, "AI_RECONNECT_NEEDED"),
+            (AiErrorKind::CodeExpired, "AI_CODE_EXPIRED"),
+            (AiErrorKind::RateLimited, "AI_RATE_LIMITED"),
+            (AiErrorKind::Network, "AI_NETWORK"),
+            (AiErrorKind::ModelRefused, "AI_MODEL_REFUSED"),
+            (AiErrorKind::InvalidToolUse, "AI_INVALID_TOOL_USE"),
+            (AiErrorKind::ToolLimitReached, "AI_TOOL_LIMIT_REACHED"),
+            (AiErrorKind::UnsafeCredentials, "AI_UNSAFE_CREDENTIALS"),
+            (AiErrorKind::Storage, "AI_STORAGE_ERROR"),
+            (AiErrorKind::ToolRejected, "AI_TOOL_REJECTED"),
+            (AiErrorKind::IndexStale, "AI_INDEX_STALE"),
+            (AiErrorKind::Other, "WORKFLOW_ERROR"),
+        ] {
+            let workflow: WorkflowError = AiError::new(kind).into();
+            assert_eq!(classify_workflow(workflow).code(), code);
+            let stored = serde_json::to_value(kind).unwrap();
+            let projected = WorkflowError::recorded_ai_failure(stored.as_str());
+            assert_eq!(classify_workflow(projected).code(), code);
+        }
+        for (kind, code) in [
+            (ErrorKind::WorkspaceModeConflict, "WORKSPACE_MODE_CONFLICT"),
+            (ErrorKind::WorkspaceModeRequired, "WORKSPACE_MODE_REQUIRED"),
+            (ErrorKind::LegacyAiRetired, "LEGACY_AI_RETIRED"),
+            (ErrorKind::SelectionRequired, "AI_SELECTION_REQUIRED"),
+            (ErrorKind::VaultNotBound, "VAULT_NOT_BOUND"),
+            (ErrorKind::VaultUnavailable, "VAULT_UNAVAILABLE"),
+            (ErrorKind::ModelDownloadFailed, "MODEL_DOWNLOAD_FAILED"),
+            (
+                ErrorKind::SemanticUnavailableInBuild,
+                "SEMANTIC_UNAVAILABLE_IN_BUILD",
+            ),
+        ] {
+            assert_eq!(classified(kind, "wording does not matter").code(), code);
+        }
     }
 }

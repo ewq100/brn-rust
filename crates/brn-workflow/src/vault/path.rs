@@ -41,6 +41,24 @@ pub(crate) fn is_markdown_name(name: &str) -> bool {
 
 impl VaultPath {
     pub fn parse(raw: &str) -> Result<Self, VaultPathError> {
+        Self::validate_components(raw)?;
+        let name = raw.rsplit('/').next().ok_or(VaultPathError::Empty)?;
+        if !is_markdown_name(name) {
+            return Err(VaultPathError::NotMarkdown);
+        }
+        Ok(Self(raw.to_owned()))
+    }
+
+    /// A component-only folder filter, without the Markdown suffix requirement.
+    pub fn validate_folder(raw: &str) -> Result<(), VaultPathError> {
+        Self::validate_components(raw)?;
+        if raw.eq_ignore_ascii_case("archive") {
+            return Err(VaultPathError::Archived);
+        }
+        Ok(())
+    }
+
+    fn validate_components(raw: &str) -> Result<(), VaultPathError> {
         if raw.is_empty() {
             return Err(VaultPathError::Empty);
         }
@@ -62,10 +80,7 @@ impl VaultPath {
         if parts.len() > 1 && parts[0].eq_ignore_ascii_case("archive") {
             return Err(VaultPathError::Archived);
         }
-        if !is_markdown_name(parts[parts.len() - 1]) {
-            return Err(VaultPathError::NotMarkdown);
-        }
-        Ok(Self(raw.to_owned()))
+        Ok(())
     }
 
     pub fn as_str(&self) -> &str {

@@ -1,10 +1,163 @@
 # brn-workflow
 
-Shared authoritative application flow for desktop and headless use: imports, eligibility, index lifecycle, grounded answers, saved sessions, drafts and comments. Owns application coordination across adapters.
+Shared application flow for desktop and headless use: simple Rig chat/read/search
+through AppWorker, plus retained legacy local notes, recovery, imports, drafts,
+comments and history. No App Server dependency or process remains.
 
 ## Interfaces and source
 
 [Workspace API](src/lib.rs), [worker commands/events](src/worker.rs), [draft workflow](src/drafts.rs), [comment workflow](src/comments.rs), [brn-flow CLI](src/main.rs).
+
+## Simple app owner and read tools
+
+[`App`](src/app.rs) opens one `WorkStore` in a new explicit data folder and
+exposes its `OpenReport`, including the restored backup. History and settings
+work without a vault. A missing initial vault stays unbound; an unavailable
+previously bound vault returns `VaultUnavailable` for reads. The first
+`bind_vault` persists the canonical root only after Library refresh and reader
+initialization succeed. A different root needs a different data folder. Vault
+and data folders cannot overlap.
+
+Credentials must be absolute, outside Git repositories, the data folder and
+the vault. `default_credentials_dir(data_dir)` supplies a canonical sibling
+`<data-name>.credentials` (desktop `BRN-simple.credentials`); `Auth::open`
+checks only that safe folder, never provider caches. There is no default
+provider/model. `AppConfig.credentials_dir: Option<PathBuf>` uses an explicit
+location when supplied, otherwise the owner's saved `ai.credentials_dir`, then
+the safe sibling. The non-secret absolute location is persisted only by App's
+owning lane; frontends never open an extra WorkStore to read settings.
+Selection is validated and
+saved atomically in one `ai.selection` setting. Explicit Copilot discovery
+results go through `record_models`; `validate_selection` checks membership
+without network or cache access.
+
+`notes` and `search` refresh before returning CLI reads; `note` reads exact
+current vault bytes. Call `refresh` on explicit Refresh, focus and application
+writes. `embed_pending(batch)` provides bounded-batch progress for the owned
+application lane. [`AiTools`](src/ai_tools.rs) is `Send + Sync`, with a mutexed,
+retrieval-owned read-only reader and a clone of Library's one
+[`SharedEmbedder`](src/library.rs). Both use `search_index`: absent models flag
+**every mode** keyword-only; present models keep Keyword non-downgraded, embed
+Semantic once and fuse Hybrid's top 50 keyword/semantic passages. Model
+identity/dimension mismatches are errors, never fallback.
+
+Every tool revalidates visibility and fresh bytes. Search checks the hash,
+UTF-8 range and exact quote before exposing any candidate; stale/removed
+notes return safe `IndexStale`. Unsafe arguments return `ToolRejected`.
+Reads preserve the exact UTF-8 prefix up to 50,000 bytes, including BOM/CRLF.
+Lists validate component-only folders and note-path cursors, use exclusive
+path-sorted keyset pagination and return at most 200 entries. `"work"` never
+matches `"workshop"`. These APIs never write vault files.
+
+## Explicit model installation
+
+[`models`](src/models.rs) exposes the pinned source, approximately 87 MiB cost
+and destination. `prepare_model_download(consent, target)` persists
+`model.download_decision` as approved/declined. Only a **fresh explicit
+approval** creates a non-cloneable `ModelInstallRequest`; startup, search and
+persisted approval never download. A later explicit action can override decline.
+The default target is `<simple-data-dir>/models/minilm`; targets cannot overlap
+the vault or a repository.
+
+The worker consumes the request's synchronous `install(cancel, progress)` on an owned
+blocking job, not on the GUI/application lane. It owns job lifetime,
+cancellation and events: report `ModelDownloaded` on install success, drain
+and detach idle chat/tool handles, then call `App::activate_model` on the
+application lane. External tool handles cause `ToolsBusy`, rather than swapping
+an active snapshot. Activation loads once, replaces both shared adapters and
+invalidates vectors by model identity; subsequent bounded `embed_pending`
+calls rebuild them. Emit `ModelInstalled` only after successful activation.
+Invalid installed models remain `ModelInvalid`, not model absence.
+Worker indexing is scheduled only with a loaded model and an available bound
+vault, including between batches. Startup and activation still succeed without
+a vault; missing indexing prerequisites do not produce a later correlated
+failure. Binding an available vault or refreshing a restored bound vault resumes
+bounded indexing. Actual embedding/index errors remain explicit `Failed` events.
+
+Headless/default builds are keyword-only and ignore any saved `model.directory`
+without changing the setting or assets. Only an explicitly supplied model
+directory or Download action returns typed `SemanticUnavailableInBuild`
+(`SEMANTIC_UNAVAILABLE_IN_BUILD`). Unsupported Download does not change consent,
+and these builds do not offer an automatic download prompt. Explicit decline
+still persists without network. Native builds enable `native-retrieval` and
+continue to honor saved model directories and fresh consent.
+The CLI and desktop simple reads/history/AI actions use AppWorker. Legacy local editing/history remains guarded by Store mode checks.
+No simple Markdown Save is added here.
+
+## Owned application and chat lanes
+
+[`AppWorker`](src/app_worker.rs) is the frontend handle:
+`start(data_dir, AppConfig)` spawns before any SQLite open, vault scan or model
+load. Opening errors arrive as `Failed`; startup emits optional `Restored` then
+`Ready`. `submit(uuid, AppCommand)` and `try_event()` /
+`recv_event_timeout(timeout)` use `(uuid, AppEvent)` results. Bind, selection,
+local status, notes/search, history, validated `RecoverEdit`, model prompt/consent/progress,
+account commands and terminal errors all use this seam. Recovery acknowledges
+SQLite's unsaved edit, **not** publication to Markdown.
+
+The private [`ChatWorker`](src/chat_worker.rs) owns its runtime, attached
+`ChatStore` and `Arc<Auth>`. Keeping admission private prevents frontends from
+bypassing App refresh or discovery membership checks. App refreshes before
+each **new** Ask, requires an available bound vault and explicit valid
+selection, and checks conversation existence locally. Prior UUID replay comes
+first: terminal replay is history-only even with an unavailable vault or
+selection no longer in discovery; a Running record is `AlreadyRunning`, never
+resubmitted. Different payloads/generations conflict. Outer submission UUID
+must equal Ask/account operation UUID. Durable replay matches the recorded
+question, conversation, provider and model; generation is a transient
+navigation correlation, not persisted history.
+`AppCommand::Turn(uuid)` / `AppEvent::Turn(Option<WorkTurn>)` is an owner-lane
+lookup for CLI replay projection. Query Selection explicitly, but use the
+recorded provider/model during replay even if current selection is obsolete.
+`WorkflowError::recorded_ai_failure` projects the closed persisted AI category
+to safe typed errors, rather than frontend wording classification.
+
+One turn is active. Dispatch continues while turn/auth futures await. Stop,
+account actions and installer cancellation bypass application work; chat and
+transient account events are forwarded independently of scans/loading.
+Disconnect fences its provider, cancels and joins only that provider's jobs,
+then removes caches after clients/tools drain. Other-provider account work
+continues. Cancel Connect is not Disconnect. Explicit discovery is recorded on
+the application lane **before** its successful Models event is forwarded.
+Account/model operation UUIDs cannot be reused to start another job.
+
+`app::model_history` retains the last 20 earlier terminal text pairs, including
+failed/interrupted partials. The chat lane snapshots them after the previous
+turn's commit; Running turns are excluded. Rig receives no tool/provider
+metadata and omits empty assistant text while keeping its question.
+Every chat event includes turn UUID and generation; navigation must filter
+stale events without preventing the worker from persisting their conversation.
+`Finished` follows the terminal commit. `PersistenceFailed` contains the
+in-memory partial and safe error: it does **not** establish saved text.
+
+Installation progress uses the submission UUID. `ModelDownloaded` precedes
+activation; active turns and all queued/running blocking tool leases must drain
+before idle-only tool detachment. Loading happens once on the app lane.
+Cancellation before model publication leaves the old model intact (synchronous
+loading itself cannot be preempted). Tools are reattached before
+`ModelInstalled`; vectors rebuild in batches of at most 16 between commands.
+Indexing progress uses its startup/refresh/download submission UUID.
+Activation failure remains visible and reinstalls the prior tool adapter.
+
+Call `shutdown()` and handle its error: it cancels and joins admitted turn,
+account and install work before releasing App/owner, including failed terminal
+persistence or credential finalization. Repeated shutdown retains the outcome.
+Drop also cancels/joins, never delegates to a detached reaper. Stop cannot
+guarantee upstream cancellation or no billing; OS-killed processes lose
+uncommitted stream text. Private `cfg(test)` external-operation adapters are
+not provider features, public registries or CLI flags.
+
+Focused offline checks:
+
+```sh
+cargo test -p brn-workflow --test library --test app --test ai_tools --test models --test app_mode_cli --locked --offline
+cargo test -p brn-workflow --features native-retrieval --lib --test models --locked --offline
+cargo test -p brn-workflow --test app_worker --test chat_worker --test app --test notes --test note_recovery --locked --offline
+cargo test -p brn-workflow --lib simple_worker_tests --locked --offline
+```
+
+Native installer/workflow checks use synthetic assets and fake embedding
+vectors, not production downloads or ONNX inference qualification.
 
 ## Markdown notes
 
@@ -45,15 +198,12 @@ epochs preserve whole-index IndexStale behavior with exclusion reasons.
 `brn-flow sources` returns `sources` and `source_states`; worker/native rows
 pair those same projections and label their last validated observation.
 
-Provider handoff validates selected evidence and managed prior session evidence
-before authentication/resume, again before submission, and at completion.
-Streaming is provisional. Completion atomically retains provider status/text
-and CurrentAtCompletion/StaleAtCompletion. A stale completed answer returns
-EvidenceStale with its historical receipt and confirmed provider outcome,
-including same-operation replay without provider access. New operations on
-stale threads fail ContextStale and require a fresh conversation. History is
-readable and labeled; Unqualified legacy history alone does not block resume.
-Storage/integrity failures remain visible rather than becoming exclusions.
+Legacy `Workspace::ask`, `ask_guarded`, `ask_detailed` and `ask_full` are
+compatibility refusals: typed `LegacyAiRetired` before lookup, retrieval,
+callbacks, cancellation checks, storage mutation or network work. They never
+resume old threads through Rig. Legacy sessions/history retain their wire
+fields (thread/turn IDs, evidence-currentness, usage), readable offline.
+`brn-flow ask` refuses before opening storage; new simple chat uses `brn`.
 
 Opening the workspace itself does not open the vault. ID-only observations
 lazily validate/acquire the registered root and hold ownership until workspace
@@ -91,8 +241,9 @@ note editor.
 Cancellation does not abandon a filesystem handoff. Normal native close waits
 asynchronously for durable acknowledgements; defensive shutdown/Drop still joins
 the critical owner. The existing bounded detached reaper remains available only
-for non-critical local work such as native model loading; provider cancellation
-and owned-child joining retain their existing semantics.
+for non-critical local work such as native model loading. The provider-active
+phase and sidecar cancellation path have been removed, not the critical-note
+admission/join contract.
 
 Plain enrollment still supports emoji filenames, including variation selectors
 and zero-width joiners, regardless of registration order. Copy/relink destination
@@ -181,7 +332,10 @@ recorded destination, even after relink or completed-payload pruning.
 
 ## Dependencies and features
 
-Depends on `brn-store`, `brn-provider`, `brn-retrieval`. Default features are empty; `native-retrieval` forwards to retrieval `native`.
+Depends on `brn-store`, `brn-retrieval`, `brn-ai`. Default features are empty;
+`native-retrieval` forwards to retrieval `native`. Config contains only the
+optional local model directory; no executable or credential-home field exists
+for the legacy workflow.
 
 ## Verification
 

@@ -32,9 +32,9 @@ cargo +1.98.1 clippy --workspace --all-targets --locked --offline -- -D warnings
 cargo +1.98.1 test --workspace --locked --offline
 
 if [[ "$native" -eq 1 ]]; then
-  cargo +1.98.1 build -p brn-desktop --features native-ui --locked --offline
-  cargo +1.98.1 clippy -p brn-desktop --features native-ui --all-targets --locked --offline -- -D warnings
-  cargo +1.98.1 test -p brn-desktop --features native-ui --locked --offline
+  cargo +1.98.1 build -p brn-desktop --features native-ui,native-retrieval --locked --offline
+  cargo +1.98.1 clippy -p brn-desktop --features native-ui,native-retrieval --all-targets --locked --offline -- -D warnings
+  cargo +1.98.1 test -p brn-desktop --features native-ui,native-retrieval --locked --offline
 fi
 
 binary="$CARGO_TARGET_DIR/debug/brn-desktop"
