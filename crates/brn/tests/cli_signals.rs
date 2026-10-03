@@ -107,6 +107,6 @@ fn retired_executable_flag_is_unknown_before_opening_a_workspace() {
         .as_str()
         .unwrap()
         .contains("unknown"));
-    assert!(!dir.path().join("workspace.sqlite3").exists());
+    assert!(!dir.path().join("brn.sqlite3").exists());
     assert!(!dir.path().join("brn.sqlite").exists());
 }

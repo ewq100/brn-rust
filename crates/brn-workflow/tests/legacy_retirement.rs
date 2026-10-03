@@ -106,7 +106,7 @@ fn headless_retired_ask_and_unknown_executable_flag_do_not_initialize_storage() 
             .unwrap();
         assert!(!output.status.success());
         assert!(String::from_utf8_lossy(&output.stderr).contains(message));
-        assert!(!dir.path().join("workspace.sqlite3").exists());
+        assert!(!dir.path().join("brn.sqlite3").exists());
         assert!(!dir.path().join("brn.sqlite").exists());
     }
 }
