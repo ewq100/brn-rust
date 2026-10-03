@@ -121,3 +121,186 @@ Final review fixes: index open checks the file's identity before damage and refu
 
 - 2026-10-02: user authorized implementation with GPT-6.1 Sol (medium reasoning) and Claude Opus 5.5 (medium reasoning) reviews, then explicitly approved isolated worktree/branch `task-4-ai-chat` from `e24b104`. The original main checkout and unrelated dirty records remain untouched; only task-owned planning records were imported. Execution does not authorize live logins/provider calls, model downloads, old-data migration, push/merge/release or native acceptance.
 - Fresh isolated baseline: `cargo build --workspace --locked --offline --quiet` and `cargo test --workspace --locked --offline --quiet` **PASS**, exit 0, default features, explicit disposable TMPDIR. Some existing tests emit their expected CLI JSON. No native/UI/inference/provider qualification claimed.
+
+## Step 4: durable Tasks 1–7 implementation/review handoff
+
+Recorded 2026-10-03 from the complete controller ledger and ignored task reports.
+These are **historical predecessor results**, not newly repeated Task 8 checks.
+Tasks 1–7 received independent Opus spec/quality approval, including scoped
+re-review of fixes. Review is not user acceptance or merge authorization.
+The execution-start documentation commit is
+`ea3efcf99a1edfe082a55ad8bbf4f5bd2a56e6af`.
+
+| Task | Exact implementation and follow-up commits | Reviewed result and essential evidence |
+| --- | --- | --- |
+| 1 authentication | `73ba8a69321efe788b5ce71f996483a0e58459da`; fix `7eab5a18928c264fc194b3b8aababb169811352b` | 29 original synthetic tests; fix 33 passed. Real pinned authenticators with private HTTP fixtures, explicit login, permission finalization, secret-safe errors, provider independence and safe Disconnect. RED: default macOS ancestor caused 23 failures; stale 0644 cache/deletion regressions then 2 failures. Fix canonicalizes fixture roots, never weakens production ancestry checks. |
+| 2 WorkStore V2 | `d0d03ca761074aebae941ec6f1237f66b2e6d2ff`; accidental report commit `c5ec5c05e270c196b0082c02c4ffee8b8b7bf056`; removal `0fd9091d200cc163b4951b667ba0efb0652eedba` | 18 work +12 chat tests passed; V1/legacy V6 preserved, exact paired text/provenance, UUID conflict/replay, restart Interrupted before backup, 21 retained turns. Behavioral RED: 9 passed/2 failed before reconciliation. Review blocker was tracked scratch only; removed without history rewrite. Reports now ignored. Immediate transactions were a required downstream obligation, completed in Task 5. |
+| 3 Rig streamed read tools | `cd40c77517195ef17ce895af4d67cf7e3d09da2c` | 54 AI tests passed, strict checks passed. Three actual Rig wire routes intercepted by synthetic transports; exact emitted partial text, text-only history, safe typed errors and read-only caps. Reversible off-by-one mutations failed: max_turns 8 loses the ninth final answer; ninth budget allowed 18 rather than 16 tool calls. Restored policy proves eight rounds, ninth dispatch **zero**. |
+| 4 App/current tools/installer | `acfb0519d81241aa46d5861771b4831d35827a17`; fix `57895371aeec2f0fe3f17d96473fc7f8d7c52cba` | Original 102 default +16 native synthetic passes. Fix five behavioral REDs, then 13 default +6 native passes and strict/downstream checks. Exact `.credentials` suffix; default reopening ignores saved native model without touching work/assets; explicit unsupported Download refuses before consent changes or prompt. Native saved-model precedence/invalid-model errors preserved. |
+| 5 owned lanes | `fcd6067b1a7f82d83896a8b232bf2b0f8721f818`; fix `3a1af1b15f5adbd90e2395d44c457104a0bcb46f` | Final private workers 24 default and 24 native; integration AppWorker 6 +ChatWorker 3 in both builds, strict checks. Shared owner Arc<File>, Immediate WAL transactions and 50 synchronized owner/attachment cycles; target Disconnect fences/cancels/joins before deletion; persistence failure remains unsaved. Fix REDs showed false late indexing failure without vault; startup/activation/batches now gate on both model and available vault, while BindVault/restored Refresh resume indexing and real errors remain visible. |
+| 6 CLI cutover | `bef8d5589cdfa1be1bb115976369c9eb64a820e5`; fix `311971ffc2d2f1be1768db7fa48c9dbc3dca3f5d` | Original full CLI 156 passes; final focused 17 AI/Ask/library passes. Status fix real subprocess RED, then AI 6 +Ask 6, projection 9 default/9 native and strict checks. Authority dispatch, saved credentials Option, frozen terminal replay, deadline/signal/pipe truth, one envelope, typed errors and fresh consent. Stale selection is a safe diagnostic alongside both actual account statuses, never fallback or selection rewrite. |
+| 7 native cutover | `a6bf6f42d47ec04aa57aac68d0921c79e6ce2836`; fix `9c2f3ac60a20e04fdd149a485dd677c6af08e8f8` | Final 56+6 default and 122+6 native desktop passes; default/native strict Clippy and native build passed. High composer-generation RED discarded late text; search generation is now independent of frozen chat/history generation. Medium final-quit RED exposed undrained real accepted Save; legacy critical notes synchronously join **before** returning the timed future, while guarded close remains off GPUI. No new final flush; simple Dock deadline remains an honest limit. |
+
+Historical reproduction selectors (run from this worktree; pinned Rust 1.98.1,
+`TMPDIR=/Users/evokessler/.brn-task5-fixtures` for credential ownership):
+
+```sh
+cargo test -p brn-ai --lib --locked --offline
+cargo test -p brn-store --test work --test work_chat --test work_chat_attachment --test workspace_modes --locked --offline
+cargo test -p brn-workflow --test app --test ai_tools --test models --test app_mode_cli --locked --offline
+cargo test -p brn-retrieval --features native --lib --test model_download --locked --offline
+cargo test -p brn-workflow --features native-retrieval --lib models_tests --locked --offline
+cargo test -p brn-workflow --lib simple_worker_tests --locked --offline
+cargo test -p brn-workflow --features native-retrieval --lib simple_worker_tests --locked --offline
+cargo test -p brn-workflow --test app_worker --test chat_worker --locked --offline
+cargo test -p brn --test cli_ai --test cli_ask --test cli_library --locked --offline
+cargo test -p brn --bin brn cli::library::tests --features native-retrieval --locked --offline
+cargo test -p brn-desktop --locked --offline
+cargo test -p brn-desktop --features native-ui,native-retrieval --locked --offline
+```
+
+Counts above apply to their recorded commits, not necessarily today's evolved
+suite. No zero-filtered integration run is claimed as coverage. Installer and
+loader factories are private cfg-test seams; they replace synthetic transport/
+loading only, retaining production storage/activation/settings/lifetime checks.
+No real model, ONNX inference, accounts or graphical acceptance is implied.
+
+### Every explicit controller Ruling and downstream costs
+
+The complete progress ledger contains one explicitly labelled `Ruling:`:
+**validate safe directory at Auth::open, isolate cache reuse validation by
+provider, and let explicit Disconnect unlink recognized own-UID cache entries
+safely without reading/reusing unsafe content.** Rationale: provider independence
+and recovery after process kill. Cost if wrong: unsafe target files could be
+reused, followed, repaired or deleted too broadly. Tight tests retain reuse
+refusal, no-follow/identity checks, other-provider/unknown-file preservation and
+preflight refusal of foreign owners/directories. Fix `7eab5a1` passed scoped
+Opus review. Same-UID adversarial cross-process replacement is not atomically
+eliminated by those checks.
+
+Other reviewed carry-forward decisions and their failure costs:
+
+- Immediate transactions and one shared owner descriptor prevent WAL snapshot
+  upgrade conflicts and premature owner release; wrong ordering would lose
+  finalization or admit a second owner.
+- Private ChatWorker, public AppWorker-only admission ensures every new Ask
+  refreshes/validates tools; exposing raw chat submission would bypass currentness.
+- `.credentials`/Option None preserve saved/default location; the wrong suffix
+  would split accounts, and reading an extra frontend store would violate ownership.
+- Default model gates preserve native-used history and refuse unsupported
+  installation before consent; wrong gating would block local work or falsely
+  authorize requests.
+- Vault/model indexing gates distinguish unavailable prerequisites from real
+  embedding failures; suppressing all errors would hide a stale/broken index.
+- Stale selection status remains diagnostic, not an Ask fallback; the wrong
+  projection would hide accounts or silently change model/provider.
+- Composer/search separation preserves streaming and follow-up identity; legacy
+  final-quit synchronous admitted drain avoids GPUI deadline abandonment. Wrong
+  routing would discard visible text or lose accepted critical note writes.
+
+Still deferred to controller whole-branch review: fail-closed startup pair
+validation/full-text counting cost, replay Selection-query deadline edge,
+shutdown reattachment/discovery error edges and refresh restoration counts.
+Failed/cancelled Connect consumers query real Status; pre-admission Stop intent
+is retained/retried or joined. RecoverEdit proves independent SQLite recovery
+while a model is pending, **not future Step 6 Markdown Save concurrency**.
+
+## Step 4 Task 8: production retirement and fresh integrated offline gate
+
+2026-10-03, macOS 26.5, `rustc 1.98.1 (48a229cea 2026-09-01)`.
+Worktree `.worktrees/task-4-ai-chat`, branch `task-4-ai-chat`, clean starting base
+`9c2f3ac60a20e04fdd149a485dd677c6af08e8f8`.
+Product/contracts commit: **`9263adcb87254de2296257eea6f8186da90c0fa5`**.
+Tested as that base plus the then-uncommitted Task 8 delta; all compiled Rust,
+manifests, lockfile and Python fixture/checker bytes are identical in that
+commit. Only a documentation-index clarification and restoring the shell
+script executable bit followed the gate; it was invoked through Bash.
+This appended handoff is documentation-only, after the gate.
+Pre-gate tracked binary-diff SHA-256:
+`54e9c4cb652044b35a9b3aa3df7a260b74362703f02a5f90283133cd88f60750`.
+New-file SHA-256: legacy_retirement
+`322efffbd01ee1edf4affd9fd49d15a420b805a91bc0774c5ff118528cabe029`;
+retirement checker
+`e773589e627f59bea7378ead1b9cd3d9815c5045bc6601db72c5795812c412d0`;
+fixture runner
+`0258e496c726ab1f7634eb43a24d93ad89bc15784bd3069de912119c42ea1bea`.
+
+Meaningful retirement **RED**:
+`bash scripts/verify-end-to-end.sh --retirement-only`, exit 1, actual existing
+root/member/dependency/source/configuration references detected, ending
+“Production App Server reference remains”. The initial checker excluded code
+after any test declaration; tightened it to trailing inline private test modules,
+so early out-of-line test declarations do not hide production. Integration/
+private rejection tests may spell the rejected flag; production tokens are
+removed, not disguised. Historical docs and standalone trials remain evidence.
+Final same command/checker **GREEN**, exit 0.
+
+Removed the four tracked files of `crates/brn-provider` after removing its
+consumers, then root member. Removed Workspace's implementation, provider-active
+worker phase and unused resume/context validation helpers; legacy entries now
+return local typed LegacyAiRetired before lookup/callback/storage/network work.
+Retained every non-provider `flow` (4) and `note_evidence` (13) case, plus added
+2 retirement/history-wire checks. Removed only 5 old fake-provider flow cases
+and 7 fake-provider note-evidence cases; Rig/worker tests cover current
+signals/persistence/late completion invariants. All legacy Store/recovery/editor/
+draft/comment/local-search/history implementations and admitted-critical-note
+join behavior remain, with legacy wire fields unchanged.
+
+Lockfile correction: an initial offline generate-lockfile unnecessarily selected
+new cached compatible transitive versions. Discarded that regenerated file,
+restored HEAD's lockfile and let one unlocked offline workflow check remove only
+the retired package/edge. Final lock diff is **9 deleted lines, zero upgrades**;
+all subsequent Cargo checks used `--locked --offline`. Nothing was fetched.
+An early targeted command's name filter ran 2 library tests but **zero**
+integration tests; corrected unfiltered run passed flow 4 +note_evidence 13
++retirement 2, and CLI Ask 6 +basic 11 +signals 3.
+
+Fresh one-time integrated gate, all commands **exit 0**:
+
+```sh
+export TMPDIR=/Users/evokessler/.brn-task5-fixtures
+unset BRN_NATIVE_MODEL_DIR
+cargo fmt --all -- --check
+cargo build --workspace --locked --offline
+cargo clippy --workspace --all-targets --locked --offline -- -D warnings
+cargo test --workspace --locked --offline
+cargo test -p brn-retrieval --features native --lib --test model_download --locked --offline
+cargo test -p brn-workflow --features native-retrieval --lib --test models --locked --offline
+cargo test -p brn-desktop --features native-ui,native-retrieval --locked --offline
+cargo build -p brn-desktop --features native-ui,native-retrieval --locked --offline
+cargo build -p brn --features native-retrieval --locked --offline
+bash scripts/verify-end-to-end.sh --fixtures-only
+bash scripts/test-make-macos-app.sh
+git diff --check
+```
+
+| Fresh output | Actual count/features/limits |
+| --- | --- |
+| Workspace tests | **667 reported passed**, 0 failed/ignored/filtered, 63 result groups (including empty binary/doc/native-disabled groups); CLI 158, AI 55, core 12, desktop 56+6, retrieval 40, store 147, workflow 193 |
+| Native installer | **9 library +2 model_download passed**; synthetic pinned-manifest/HTTP/exclusive install, no production assets |
+| Native workflow | **79 library +5 models passed**; includes all 24 private worker cases and native model-loader case, unfiltered; no ONNX |
+| Full native desktop | **122 unit +6 CLI passed**; actual production state/routing, accepted legacy quit Save drain and byte round-trip, not GUI usability |
+| Fixture-only end-to-end | **47 assertions passed**, simple saved-vault read/search/exclusions/refresh/keyword-only + separate legacy import/reimport/search/staleness/history/retired Ask; no duplicate workspace suite |
+| Launcher | Script exit 0, “macOS launcher checks passed”; custom quoted paths, new default, explicit legacy, missing paths/binary and launch failure checked; no runner test count emitted |
+| Format/build/strict workspace lint/native builds/diff | All exit 0; native build warning remains for pre-existing `block v0.1.6` future compiler incompatibility |
+
+The 667 runner total includes one APFS non-UTF-8-filename self-skip.
+Confirmed separately with unfiltered exact selector/nocapture: 1 reported pass,
+7 filtered, explicit EILSEQ skip; filename assertions were **not exercised**.
+Native-disabled `local_embedder`/`model_download` zero groups are not coverage.
+Real-model local_embedder target was not run; no production assets were available
+or downloaded. Feature pass totals overlap tests, not distinct-case counts.
+Ten exclusively new gate layout fixture directories were removed by exact
+pre/post ownership comparison; all pre-gate directories were preserved.
+Shell fixtures remove only their exclusively created entries, not broad
+recursive paths; no named-process killing or original-data access.
+
+Current qualification is implemented/offline verified, Tasks 1–7 reviewed;
+Task 8 independent review and then whole-branch Opus review belong to the
+controller. No Task 8 reviewer/subagent, account actions, live providers,
+original vault/trial-workspace inspection, migration, push, amend, merge,
+release or user acceptance. Both providers still need separately authorized
+login/tool/stream/restart credential reuse/refresh/error/partial Stop observation;
+ChatGPT's historical quota-blocked scenarios remain unaccepted. Native build/
+state checks do not establish native usability. Simple readers only: Step 5
+proposal/approval tools and Step 6 Markdown Save/cleanup remain unimplemented.
