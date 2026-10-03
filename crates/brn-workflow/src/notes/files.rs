@@ -1,9 +1,9 @@
+#[cfg(target_os = "macos")]
+use brn_store::notes::{ArtifactIdentity, ArtifactKind};
 use brn_store::notes::{
     FileFingerprint, FileOutcome, NoteErrorCode, NoteFailure, NoteResult, PreparedFile,
     RetainedArtifact, VaultRecord,
 };
-#[cfg(target_os = "macos")]
-use brn_store::notes::{ArtifactIdentity, ArtifactKind};
 use std::{
     collections::VecDeque,
     path::{Path, PathBuf},
