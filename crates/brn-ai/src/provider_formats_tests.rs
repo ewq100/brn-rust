@@ -897,3 +897,492 @@ async fn pre_cancelled_turn_sends_no_completion() {
     assert!(a.text.is_empty() && events.is_empty() && http.bodies().is_empty());
     http.assert_consumed();
 }
+
+mod capability_probe_formats {
+    use super::*;
+    use crate::auth::OwnedClient;
+    use crate::capability_probe::{ProbeKind, ProbeReport, ProbeTerminal, run_probe};
+    use base64::Engine as _;
+    use futures::StreamExt as _;
+
+    const ROUTES: [(Provider, &str, bool); 3] = [
+        (Provider::Chatgpt, "gpt-5.5", true),
+        (Provider::Copilot, "gpt-5.5", false),
+        (Provider::Copilot, "gpt-5.3-codex", true),
+    ];
+
+    fn failure(report: &ProbeReport, kind: AiErrorKind) {
+        assert!(
+            matches!(&report.terminal, ProbeTerminal::Failed(error) if error.kind == kind),
+            "{report:?}"
+        );
+    }
+
+    fn partial_sse(responses: bool, text: &str) -> String {
+        text_sse(responses, text)
+            .split("\n\n")
+            .next()
+            .unwrap()
+            .to_owned()
+            + "\n\n"
+    }
+
+    #[tokio::test]
+    async fn probe_low_high_freeze_route_effort_model_and_single_synthetic_read() {
+        for (provider, model, responses) in ROUTES {
+            for (kind, effort) in [(ProbeKind::Low, "low"), (ProbeKind::High, "high")] {
+                let (_root, client, http) = super::client(
+                    provider,
+                    model,
+                    vec![
+                        success(tool_sse(
+                            responses,
+                            &[("read_note", json!({"path":"probe.md"}))],
+                        )),
+                        success(text_sse(responses, "orchard-827")),
+                    ],
+                )
+                .await;
+                let report = run_probe(client, kind, CancellationToken::new()).await;
+                assert_eq!(report.terminal, ProbeTerminal::Completed, "{report:?}");
+                assert_eq!(
+                    report.selection,
+                    Selection {
+                        provider,
+                        model: model.into()
+                    }
+                );
+                assert_eq!(report.kind, kind);
+                assert_eq!(report.text, "orchard-827");
+                assert_eq!(report.read_tool_calls, 1);
+                assert!(!report.web_search_observed && report.citations.is_empty());
+                let bodies = http.bodies();
+                assert_eq!(bodies.len(), 2);
+                for body in &bodies {
+                    assert_eq!(body["model"], model);
+                    assert_eq!(body["stream"], true);
+                    if responses {
+                        assert_eq!(body["reasoning"]["effort"], effort);
+                        assert!(body.get("reasoning_effort").is_none());
+                    } else {
+                        assert_eq!(body["reasoning_effort"], effort);
+                        assert!(body.get("reasoning").is_none());
+                    }
+                    let tools = body["tools"].as_array().unwrap();
+                    assert_eq!(tools.len(), 1);
+                    let tool = if responses {
+                        &tools[0]
+                    } else {
+                        &tools[0]["function"]
+                    };
+                    assert_eq!(tool["name"], "read_note");
+                    assert_eq!(tool["parameters"]["additionalProperties"], false);
+                    assert_eq!(
+                        tool["parameters"]["properties"]["path"]["enum"],
+                        json!(["probe.md"])
+                    );
+                }
+                let history = if responses { "input" } else { "messages" };
+                assert!(!bodies[0][history].to_string().contains("orchard-827"));
+                let continuation = bodies[1][history].as_array().unwrap();
+                let results = continuation
+                    .iter()
+                    .filter(|item| {
+                        if responses {
+                            item["type"] == "function_call_output"
+                        } else {
+                            item["role"] == "tool"
+                        }
+                    })
+                    .collect::<Vec<_>>();
+                assert_eq!(results.len(), 1);
+                assert_eq!(
+                    results[0][if responses { "output" } else { "content" }],
+                    "orchard-827"
+                );
+                for request in http.requests.lock().unwrap().iter() {
+                    assert!(!request.headers.contains_key("copilot-vision-request"));
+                }
+                http.assert_consumed();
+            }
+        }
+    }
+
+    #[tokio::test]
+    async fn probe_read_rejects_invalid_parallel_repeated_or_missing_tools_without_retry() {
+        for (provider, model, responses) in ROUTES {
+            for calls in [
+                vec![("read_note", json!({"path":"other.md"}))],
+                vec![(
+                    "read_note",
+                    json!({"path":"probe.md","extra":"SYNTHETIC_SECRET"}),
+                )],
+                vec![("read_note", json!({"path":1}))],
+                vec![("write_note", json!({"path":"probe.md"}))],
+                vec![
+                    ("read_note", json!({"path":"probe.md"})),
+                    ("read_note", json!({"path":"probe.md"})),
+                ],
+            ] {
+                let kind = if calls.len() == 2 {
+                    AiErrorKind::ToolLimitReached
+                } else {
+                    AiErrorKind::InvalidToolUse
+                };
+                let (_root, client, http) =
+                    client(provider, model, vec![success(tool_sse(responses, &calls))]).await;
+                let report = run_probe(client, ProbeKind::Low, CancellationToken::new()).await;
+                failure(&report, kind);
+                assert_eq!(report.read_tool_calls, 0);
+                assert_eq!(http.bodies().len(), 1);
+                assert!(
+                    !serde_json::to_string(&report)
+                        .unwrap()
+                        .contains("SYNTHETIC_SECRET")
+                );
+                http.assert_consumed();
+            }
+            let (_root, client, http) = super::client(
+                provider,
+                model,
+                vec![
+                    success(tool_sse(
+                        responses,
+                        &[("read_note", json!({"path":"probe.md"}))],
+                    )),
+                    success(tool_sse_with_prefix(
+                        responses,
+                        &[("read_note", json!({"path":"probe.md"}))],
+                        "again_",
+                    )),
+                ],
+            )
+            .await;
+            let report = run_probe(client, ProbeKind::High, CancellationToken::new()).await;
+            failure(&report, AiErrorKind::ToolLimitReached);
+            assert_eq!(report.read_tool_calls, 1);
+            assert_eq!(http.bodies().len(), 2);
+            http.assert_consumed();
+
+            let (_root, client, http) = super::client(
+                provider,
+                model,
+                vec![success(text_sse(responses, "guessed"))],
+            )
+            .await;
+            let report = run_probe(client, ProbeKind::Low, CancellationToken::new()).await;
+            failure(&report, AiErrorKind::InvalidToolUse);
+            assert_eq!(report.text, "guessed");
+            assert_eq!(report.read_tool_calls, 0);
+            assert_eq!(http.bodies().len(), 1);
+            http.assert_consumed();
+        }
+    }
+
+    #[tokio::test]
+    async fn probe_image_serializes_exact_fixture_png_and_copilot_vision_header() {
+        let encoded = base64::engine::general_purpose::STANDARD
+            .encode(include_bytes!("fixtures/capability.png"));
+        for (provider, model, responses) in ROUTES {
+            let (_root, client, http) = super::client(
+                provider,
+                model,
+                vec![success(text_sse(responses, "upper: red; lower: blue"))],
+            )
+            .await;
+            let report = run_probe(client, ProbeKind::Image, CancellationToken::new()).await;
+            assert_eq!(report.terminal, ProbeTerminal::Completed, "{report:?}");
+            assert_eq!(report.text, "upper: red; lower: blue");
+            assert_eq!(report.read_tool_calls, 0);
+            let bodies = http.bodies();
+            assert_eq!(bodies.len(), 1);
+            assert_eq!(bodies[0]["model"], model);
+            let content = bodies[0][if responses { "input" } else { "messages" }]
+                .as_array()
+                .unwrap()
+                .iter()
+                .flat_map(|message| message["content"].as_array().into_iter().flatten());
+            let images = content
+                .filter(|part| {
+                    part["type"]
+                        == if responses {
+                            "input_image"
+                        } else {
+                            "image_url"
+                        }
+                })
+                .collect::<Vec<_>>();
+            assert_eq!(images.len(), 1);
+            let url = if responses {
+                &images[0]["image_url"]
+            } else {
+                &images[0]["image_url"]["url"]
+            };
+            assert_eq!(url, &json!(format!("data:image/png;base64,{encoded}")));
+            let detail = if responses {
+                &images[0]["detail"]
+            } else {
+                &images[0]["image_url"]["detail"]
+            };
+            assert_eq!(detail, "high");
+            let requests = http.requests.lock().unwrap();
+            if provider == Provider::Copilot {
+                assert_eq!(
+                    requests[0].headers.get("copilot-vision-request").unwrap(),
+                    "true"
+                );
+            } else {
+                assert!(!requests[0].headers.contains_key("copilot-vision-request"));
+            }
+            drop(requests);
+            http.assert_consumed();
+        }
+    }
+
+    fn web_sse(completed: bool, terminal_only: bool) -> String {
+        let hosted = json!({"type":"web_search_call","id":"ws_probe","status":if completed {"completed"} else {"in_progress"},"action":{"type":"search","queries":["SQLite"]}});
+        let message = json!({"type":"message","id":"msg_synthetic","status":"completed","role":"assistant","content":[{
+            "type":"output_text","text":"Synthetic SQLite release.","annotations":[
+                {"type":"url_citation","start_index":0,"end_index":9,"url":"https://www.sqlite.org/changes.html","title":"SQLite changes"},
+                {"type":"url_citation","start_index":0,"end_index":9,"url":"https://www.sqlite.org/changes.html","title":"Duplicate"},
+                {"type":"url_citation","start_index":0,"end_index":9,"url":"https://user:SYNTHETIC_SECRET@example.invalid/","title":"Unsafe"},
+                {"type":"url_citation","start_index":0,"end_index":9,"url":"javascript:alert(1)","title":"Unsafe"}
+            ]
+        }]});
+        if terminal_only {
+            return response_end(vec![hosted, message]);
+        }
+        event(
+            json!({"type":"response.output_item.done","sequence_number":1,"output_index":0,"item":hosted}),
+        ) + &partial_sse(true, "Synthetic SQLite release.")
+            .replace("\"output_index\":0", "\"output_index\":1")
+            + &event(
+                json!({"type":"response.output_item.done","sequence_number":3,"output_index":1,"item":message}),
+            )
+            + &response_end(vec![hosted, message])
+    }
+
+    #[tokio::test]
+    async fn probe_responses_web_parses_hosted_search_and_native_text_citations_once() {
+        for (provider, model) in [
+            (Provider::Chatgpt, "gpt-5.5"),
+            (Provider::Copilot, "gpt-5.3-codex"),
+        ] {
+            for (completed, terminal_only) in
+                [(false, false), (true, false), (false, true), (true, true)]
+            {
+                let (_root, client, http) = client(
+                    provider,
+                    model,
+                    vec![success(web_sse(completed, terminal_only))],
+                )
+                .await;
+                let report = run_probe(client, ProbeKind::Web, CancellationToken::new()).await;
+                assert_eq!(report.terminal, ProbeTerminal::Completed, "{report:?}");
+                assert_eq!(report.text, "Synthetic SQLite release.");
+                assert_eq!(report.web_search_observed, completed);
+                assert_eq!(report.read_tool_calls, 0);
+                assert_eq!(report.citations.len(), 1, "{report:?}");
+                assert_eq!(
+                    report.citations[0].url,
+                    "https://www.sqlite.org/changes.html"
+                );
+                assert_eq!(report.citations[0].title.as_deref(), Some("SQLite changes"));
+                assert!(
+                    !serde_json::to_string(&report)
+                        .unwrap()
+                        .contains("SYNTHETIC_SECRET")
+                );
+                let bodies = http.bodies();
+                assert_eq!(bodies.len(), 1);
+                assert_eq!(bodies[0]["model"], model);
+                assert_eq!(bodies[0]["tools"], json!([{"type":"web_search"}]));
+                http.assert_consumed();
+            }
+        }
+        let (_root, client, http) = super::client(Provider::Copilot, "gpt-5.5", vec![]).await;
+        let report = run_probe(client, ProbeKind::Web, CancellationToken::new()).await;
+        failure(&report, AiErrorKind::ModelRefused);
+        assert!(report.text.is_empty() && report.citations.is_empty() && http.bodies().is_empty());
+        http.assert_consumed();
+    }
+
+    #[tokio::test]
+    async fn probe_provider_failures_are_safe_and_never_retry_or_fallback() {
+        for (provider, model, responses) in ROUTES {
+            for (reply, kind, delay) in [
+                (
+                    Ok(MockHttpResponse::error(
+                        http_client::StatusCode::UNAUTHORIZED,
+                        r#"{"error":{"message":"SYNTHETIC_SECRET"}}"#,
+                    )),
+                    AiErrorKind::ReconnectNeeded,
+                    None,
+                ),
+                (
+                    Ok(MockHttpResponse::error(
+                        http_client::StatusCode::TOO_MANY_REQUESTS,
+                        r#"{"error":{"resets_in_seconds":42,"message":"SYNTHETIC_SECRET"}}"#,
+                    )),
+                    AiErrorKind::RateLimited,
+                    Some(42),
+                ),
+                (
+                    Ok(MockHttpResponse::error(
+                        http_client::StatusCode::BAD_REQUEST,
+                        r#"{"error":{"code":"model_not_supported","message":"SYNTHETIC_SECRET"}}"#,
+                    )),
+                    AiErrorKind::ModelRefused,
+                    None,
+                ),
+                (
+                    Err(http_client::Error::StreamEnded),
+                    AiErrorKind::Network,
+                    None,
+                ),
+                (
+                    Ok(success(if responses {
+                        "data: {\"type\":\"response.output_text.delta\",\"delta\":42,\"secret\":\"SYNTHETIC_SECRET\"}\n\n".into()
+                    } else {
+                        "data: {\"choices\":42,\"secret\":\"SYNTHETIC_SECRET\"}\n\n".into()
+                    })),
+                    AiErrorKind::Other,
+                    None,
+                ),
+            ] {
+                let (_root, client, http) = client_replies(provider, model, vec![reply]).await;
+                let report = run_probe(client, ProbeKind::Image, CancellationToken::new()).await;
+                failure(&report, kind);
+                let ProbeTerminal::Failed(error) = &report.terminal else {
+                    unreachable!()
+                };
+                assert_eq!(error.retry_after_seconds, delay);
+                assert_eq!(
+                    report.selection,
+                    Selection {
+                        provider,
+                        model: model.into()
+                    }
+                );
+                assert!(report.text.is_empty() && report.citations.is_empty());
+                assert!(
+                    !serde_json::to_string(&report)
+                        .unwrap()
+                        .contains("SYNTHETIC_SECRET")
+                );
+                assert_eq!(http.bodies().len(), 1);
+                http.assert_consumed();
+            }
+        }
+    }
+
+    #[tokio::test]
+    async fn probe_first_parser_error_keeps_exact_partial_and_discards_later_text() {
+        for (provider, model, responses) in ROUTES {
+            let malformed = if responses {
+                "data: {\"type\":\"response.output_text.delta\",\"delta\":42}\n\n"
+            } else {
+                "data: {\"choices\":42}\n\n"
+            };
+            let sse = partial_sse(responses, "\u{feff}partial\r\nλ")
+                + malformed
+                + &text_sse(responses, "must not appear");
+            let (_root, client, http) = super::client(provider, model, vec![success(sse)]).await;
+            let report = run_probe(client, ProbeKind::Image, CancellationToken::new()).await;
+            failure(&report, AiErrorKind::Other);
+            assert_eq!(report.text, "\u{feff}partial\r\nλ");
+            assert_eq!(http.bodies().len(), 1);
+            http.assert_consumed();
+        }
+    }
+
+    #[derive(Clone)]
+    struct CancelAfterChunk {
+        http: ScriptHttp,
+        prefix: String,
+        cancel: CancellationToken,
+    }
+    impl HttpClientExt for CancelAfterChunk {
+        fn send<T, U>(
+            &self,
+            request: Request<T>,
+        ) -> impl Future<Output = http_client::Result<Response<LazyBody<U>>>> + Send + 'static
+        where
+            T: Into<Bytes> + Send,
+            U: From<Bytes> + Send + 'static,
+        {
+            self.http.send(request)
+        }
+        fn send_multipart<U>(
+            &self,
+            request: Request<MultipartForm>,
+        ) -> impl Future<Output = http_client::Result<Response<LazyBody<U>>>> + Send + 'static
+        where
+            U: From<Bytes> + Send + 'static,
+        {
+            self.http.send_multipart(request)
+        }
+        fn send_streaming<T>(
+            &self,
+            request: Request<T>,
+        ) -> impl Future<Output = http_client::Result<StreamingResponse>> + Send
+        where
+            T: Into<Bytes> + Send,
+        {
+            let response = self.http.send_streaming(request);
+            let prefix = self.prefix.clone();
+            let cancel = self.cancel.clone();
+            async move {
+                let (parts, _) = response.await?.into_parts();
+                let chunks = futures::stream::once(async move { Ok(Bytes::from(prefix)) }).chain(
+                    futures::stream::once(async move {
+                        cancel.cancel();
+                        futures::future::pending::<http_client::Result<Bytes>>().await
+                    }),
+                );
+                Ok(Response::from_parts(
+                    parts,
+                    Box::pin(chunks) as http_client::BoxedStream,
+                ))
+            }
+        }
+    }
+
+    #[tokio::test]
+    async fn probe_cancellation_retains_parsed_partial_and_precancelled_sends_no_request() {
+        for (provider, model, responses) in ROUTES {
+            let (_root, mut client, http) = super::client(
+                provider,
+                model,
+                vec![success(text_sse(responses, "unused"))],
+            )
+            .await;
+            let cancel = CancellationToken::new();
+            let transport = CancelAfterChunk {
+                http: http.clone(),
+                prefix: partial_sse(responses, "partial\r\nλ"),
+                cancel: cancel.clone(),
+            };
+            client.inner = match client.inner {
+                OwnedClient::Chatgpt(inner) => {
+                    OwnedClient::Chatgpt(Box::new((*inner).with_http(transport)))
+                }
+                OwnedClient::Copilot(inner) => OwnedClient::Copilot(inner.with_http(transport)),
+            };
+            let report = run_probe(client, ProbeKind::Image, cancel).await;
+            assert_eq!(report.terminal, ProbeTerminal::Interrupted, "{report:?}");
+            assert_eq!(report.text, "partial\r\nλ");
+            assert_eq!(http.bodies().len(), 1);
+            http.assert_consumed();
+
+            let (_root, client, http) = super::client(provider, model, vec![]).await;
+            let cancel = CancellationToken::new();
+            cancel.cancel();
+            let report = run_probe(client, ProbeKind::Low, cancel).await;
+            assert_eq!(report.terminal, ProbeTerminal::Interrupted);
+            assert!(report.text.is_empty() && http.bodies().is_empty());
+            assert_eq!(report.read_tool_calls, 0);
+            http.assert_consumed();
+        }
+    }
+}

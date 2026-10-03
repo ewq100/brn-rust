@@ -1,8 +1,9 @@
 # Current development status
 
 2026-10-03. Stage 1 is locally integrated at `6609442`, based on frozen-guidance
-baseline `4bf7878`. Stage 2 is locally integrated by the commit containing this
-record. Earlier native/provider qualification remains open.
+baseline `4bf7878`. Stage 2 is locally integrated at `a5ec4ae`. Stage 3 offline
+probe preparation is integrated by the commit containing this record; actual
+provider qualification remains open.
 
 The owner has authorized sequential BRN v1 delivery using the [product vision](product/BRN_PRODUCT_VISION.md),
 [target architecture](architecture/overview.md#frozen-target), [invariants](architecture/invariants.md),
@@ -49,8 +50,18 @@ Clippy, **52 fixture assertions** and launcher checks passed. Independent read-o
 review found no actionable defects. [Stage 2 record](work/completed/legacy-removal/plan.md)
 distinguishes synthetic checks from remaining native/live qualification.
 
-Stage 3 narrow provider capability spikes are next. Live/account calls still
-require owner authorization; offline preparation can proceed.
+Stage 3 has a feature-gated synthetic capability probe, exact model/route/effort
+checks, fixed PNG input and bounded native web/citation projection. Ordinary chat
+is unchanged. Independent review defects in cancellation error priority and
+terminal-only web evidence were reproduced, fixed and regression verified;
+final review found no remaining actionable findings. Fresh workspace tests:
+**403 passed, 0 failed, 1 ignored**; feature AI tests **67 + 1 example passed**.
+Default build/Clippy/format, feature example build/Clippy and documentation checks
+passed. [Stage 3 plan/results](work/active/provider-capabilities/plan.md) specifies
+the bounded live scope and reproducible commands. No live/account calls or
+original credential/data inspection occurred. Actual Stage 3 checks require
+owner authorization and sign-in before advancing the provider dependency.
+Stages 4–16 remain pending; no complete BRN v1 delivery is claimed.
 Owner acceptance may remain pending when it is not a dependency for later safe
 implementation.
 

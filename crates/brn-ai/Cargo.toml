@@ -5,6 +5,14 @@ edition = "2024"
 rust-version = "1.98.1"
 publish = false
 
+[features]
+capability-spike = []
+
+[[example]]
+name = "provider-capabilities"
+path = "examples/provider_capabilities.rs"
+required-features = ["capability-spike"]
+
 [dependencies]
 rig = { version = "=0.43.0", default-features = false, features = ["agent", "derive", "reqwest"] }
 rig-core = { version = "=0.43.0", default-features = false, features = ["rustls"] }
