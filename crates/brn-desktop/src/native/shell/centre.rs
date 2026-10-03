@@ -80,7 +80,10 @@ impl Desktop {
     }
 
     pub(super) fn render_document(&mut self, cx: &mut Context<Self>) -> AnyElement {
-        self.render_simple_document(cx)
+        match self.open_doc {
+            Some(DocRef::Proposal(_)) => self.render_proposal_review(cx),
+            _ => self.render_simple_document(cx),
+        }
     }
 
     fn render_chat(&mut self, cx: &mut Context<Self>) -> AnyElement {

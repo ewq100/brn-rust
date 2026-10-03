@@ -60,6 +60,18 @@ conversation or new blank chat does not adopt that result. Stop intent survives
 pre-admission cancellation acknowledgements. Composer edits invalidate only
 search results, not the current answer or its follow-up conversation.
 
+History also lists typed proposals. Full review shows every Create/Replace/Trash
+member, exact captured before/proposed text, source versions and temporary
+comments. Full edits recover after 500 ms through the same AppWorker boundary;
+only acknowledgement establishes recoverability. Older replies preserve later
+typing. Comments attach to the whole proposal or an exact UTF-8 selection;
+unresolved anchors retain their old quote and require explicit reattachment.
+Failed comment saves retain copyable draft text and guard leaving until it is
+acknowledged or explicitly discarded. Rewrite freezes provider/model/effort and
+supports Stop; a late result retains conflicting local text instead of replacing
+it. These operations keep vault knowledge unchanged. Native exact approval,
+group approval, activity, Undo and repair presentation remain Stage 4 work.
+
 Native retrieval offers a one-time prompt per stored consent decision, showing
 pinned source, bytes/cost and destination. Decline makes no network request.
 Later Download requires fresh explicit approval; its destination is not passed
@@ -118,6 +130,7 @@ Run from the repository root:
 ```sh
 cargo test -p brn-desktop --locked --offline
 cargo test -p brn-desktop --features native-ui,native-retrieval --locked --offline
+cargo test -p brn-desktop --features native-ui,native-retrieval,native-test-support --locked --offline
 cargo build -p brn-desktop --features native-ui,native-retrieval --locked --offline
 bash scripts/verify-desktop-shell.sh --native
 # Existing disposable absolute data directory only:
@@ -126,7 +139,8 @@ cargo run -p brn-desktop --locked --offline -- --data-dir /absolute/disposable/d
 
 Native interaction requires macOS Apple Silicon and an unlocked session. Use explicit disposable data. Preserve dirty-state guards, focus/selection, exact original quotes and generation-aware response handling.
 
-Editor-state tests cover exact BOM/CRLF/Unicode text, byte limits and
+`native-test-support` enables the pinned toolkit's headless widget test context;
+it is separate from normal native builds. Editor-state tests cover exact BOM/CRLF/Unicode text, byte limits and
 receipt/close/retry scheduling. Native-feature tests round-trip the GPUI-kit
 Rope backend through real AppWorker Save and restart recovery, and verify that
 admitted Save drains before the defensive timed quit future.

@@ -11,6 +11,8 @@ use brn_workflow::{
     },
     library::{RefreshReport, SearchResults},
     models::ModelDownloadPrompt,
+    proposal_rewrite::{RewriteEvent, RewriteJob, RewriteRequest},
+    proposals::{CommentRequest, ProposalRecord, ProposalState, ReviewComment},
 };
 use std::{
     collections::HashMap,
@@ -22,6 +24,12 @@ use uuid::Uuid;
 pub struct ActiveTurn {
     pub request: AskRequest,
     pub partial: String,
+    pub tool: Option<String>,
+    pub stopping: bool,
+}
+pub struct ActiveRewrite {
+    pub request: RewriteRequest,
+    pub job: Option<RewriteJob>,
     pub tool: Option<String>,
     pub stopping: bool,
 }
@@ -42,6 +50,11 @@ pub enum Pending {
     Select,
     Effort,
     SelectEffort,
+    Proposals,
+    Proposal { id: Uuid, generation: u64 },
+    ReviewRefresh { id: Uuid, generation: u64 },
+    ReviewEdit,
+    ReviewMutation { id: Uuid, generation: u64 },
     Account(AccountCommand),
     Bind,
     Refresh,
@@ -69,6 +82,13 @@ pub struct AiState {
     pub selection_error: Option<String>,
     pub effort: Option<ReasoningEffort>,
     pub effort_error: Option<String>,
+    pub proposals: Vec<ProposalRecord>,
+    pub review: Option<crate::review::ProposalReview>,
+    pub review_generation: u64,
+    pub review_error: Option<String>,
+    pub rewrite: Option<ActiveRewrite>,
+    pub last_rewrite: Option<RewriteJob>,
+    pub rewrite_storage_failed: bool,
     pub provider: Option<Provider>,
     pub generation: u64,
     pub conversation: Option<Uuid>,
@@ -397,6 +417,153 @@ fn unfinalized_turn(request: &AskRequest, partial: String) -> WorkTurn {
     }
 }
 impl AiState {
+    pub fn review_can_leave(&self) -> bool {
+        self.review.as_ref().is_none_or(|review| review.can_leave())
+            && !self
+                .pending
+                .values()
+                .any(|pending| matches!(pending, Pending::ReviewMutation { .. }))
+    }
+    pub fn review_editable(&self) -> bool {
+        self.review.as_ref().is_some_and(|review| {
+            review.record.state == ProposalState::Draft && review.observed.is_none()
+        }) && !self
+            .pending
+            .values()
+            .any(|pending| matches!(pending, Pending::ReviewMutation { .. }))
+    }
+    pub fn review_can_mutate(&self) -> bool {
+        self.review
+            .as_ref()
+            .is_some_and(|review| review.can_mutate())
+            && !self
+                .pending
+                .values()
+                .any(|pending| matches!(pending, Pending::ReviewMutation { .. }))
+    }
+    pub fn open_review(&mut self, id: Uuid) -> Option<(Uuid, AppCommand)> {
+        if !self.ready || !self.review_can_leave() {
+            return None;
+        }
+        self.review_generation = self.review_generation.checked_add(1)?;
+        self.review = None;
+        self.review_error = None;
+        Some(self.command(
+            Pending::Proposal {
+                id,
+                generation: self.review_generation,
+            },
+            AppCommand::Proposal(id),
+        ))
+    }
+    pub fn refresh_review(&mut self) -> Option<(Uuid, AppCommand)> {
+        let id = self.review.as_ref()?.record.draft.id;
+        Some(self.command(
+            Pending::ReviewRefresh {
+                id,
+                generation: self.review_generation,
+            },
+            AppCommand::Proposal(id),
+        ))
+    }
+    pub fn recover_review(&mut self) -> Option<(Uuid, AppCommand)> {
+        let (id, edit) = self.review.as_mut()?.prepare_edit()?;
+        self.pending.insert(id, Pending::ReviewEdit);
+        Some((id, AppCommand::EditProposal(edit)))
+    }
+    pub fn review_comment(
+        &mut self,
+        comment: ReviewComment,
+        update: bool,
+    ) -> Option<(Uuid, AppCommand)> {
+        if !self.review_can_mutate() {
+            return None;
+        }
+        let expected = self.review.as_ref()?.record.stamp();
+        let request = CommentRequest { expected, comment };
+        let command = if update {
+            AppCommand::UpdateProposalComment(request)
+        } else {
+            AppCommand::AddProposalComment(request)
+        };
+        Some(self.command(
+            Pending::ReviewMutation {
+                id: expected.id,
+                generation: self.review_generation,
+            },
+            command,
+        ))
+    }
+    pub fn remove_review_comment(&mut self, comment: Uuid) -> Option<(Uuid, AppCommand)> {
+        if !self.review_can_mutate() {
+            return None;
+        }
+        let expected = self.review.as_ref()?.record.stamp();
+        Some(self.command(
+            Pending::ReviewMutation {
+                id: expected.id,
+                generation: self.review_generation,
+            },
+            AppCommand::RemoveProposalComment { expected, comment },
+        ))
+    }
+    pub fn reject_review(&mut self) -> Option<(Uuid, AppCommand)> {
+        if !self.review_can_mutate() {
+            return None;
+        }
+        let expected = self.review.as_ref()?.record.stamp();
+        Some(self.command(
+            Pending::ReviewMutation {
+                id: expected.id,
+                generation: self.review_generation,
+            },
+            AppCommand::RejectProposal(expected),
+        ))
+    }
+    pub fn can_rewrite(&self) -> bool {
+        self.ready
+            && self.vault_bound
+            && self.review_can_mutate()
+            && self.active.is_none()
+            && self.rewrite.is_none()
+            && self.unsaved.is_none()
+            && !self.rewrite_storage_failed
+            && self.selection.is_some()
+            && self.effort.is_some()
+            && self.selection_error.is_none()
+            && self.effort_error.is_none()
+            && !self.pending.values().any(|pending| {
+                matches!(
+                    pending,
+                    Pending::Select | Pending::Effort | Pending::SelectEffort
+                )
+            })
+    }
+    pub fn start_rewrite(&mut self) -> Option<(Uuid, AppCommand)> {
+        if !self.can_rewrite() {
+            return None;
+        }
+        let request = RewriteRequest {
+            id: Uuid::new_v4(),
+            expected: self.review.as_ref()?.record.stamp(),
+            selection: self.selection.clone()?,
+            effort: self.effort?,
+            generation: self.review_generation,
+        };
+        self.rewrite = Some(ActiveRewrite {
+            request: request.clone(),
+            job: None,
+            tool: None,
+            stopping: false,
+        });
+        self.notice = "Rewrite requested; vault knowledge is unchanged until approval.".into();
+        Some((request.id, AppCommand::StartProposalRewrite(request)))
+    }
+    pub fn stop_rewrite(&mut self) -> Option<Uuid> {
+        let active = self.rewrite.as_mut()?;
+        active.stopping = true;
+        Some(active.request.id)
+    }
     pub fn display_active(&self) -> Option<&ActiveTurn> {
         self.active
             .as_ref()
@@ -499,6 +666,7 @@ impl AiState {
             && self.effort.is_some()
             && self.effort_error.is_none()
             && self.active.is_none()
+            && self.rewrite.is_none()
             && self.unsaved.is_none()
             && !self
                 .pending
@@ -533,6 +701,11 @@ impl AiState {
     }
     pub fn stop_controls(&self) -> Vec<(Uuid, AppCommand)> {
         let mut commands = Vec::new();
+        if let Some(active) = &self.rewrite
+            && active.stopping
+        {
+            commands.push((Uuid::new_v4(), AppCommand::CancelTurn(active.request.id)));
+        }
         if let Some(active) = &self.active
             && active.stopping
         {
@@ -595,6 +768,66 @@ impl AiState {
     }
     pub fn apply(&mut self, id: Uuid, event: AppEvent) -> Vec<(Uuid, AppCommand)> {
         let mut commands = Vec::new();
+        if let AppEvent::Rewrite(event) = event {
+            let Some(active) = self.rewrite.as_ref() else {
+                return commands;
+            };
+            if id != event.id()
+                || id != active.request.id
+                || event.generation() != active.request.generation
+            {
+                return commands;
+            }
+            if let RewriteEvent::Started { job, .. }
+            | RewriteEvent::AlreadyRunning { job, .. }
+            | RewriteEvent::Finished { job, .. } = &event
+                && (job.spec.id != active.request.id
+                    || job.spec.expected != active.request.expected
+                    || job.spec.provider != provider_name(active.request.selection.provider)
+                    || job.spec.model != active.request.selection.model
+                    || job.spec.effort != active.request.effort.as_str())
+            {
+                return commands;
+            }
+            match event {
+                RewriteEvent::Started { job, .. } => self.rewrite.as_mut().unwrap().job = Some(job),
+                RewriteEvent::ToolStarted { name, .. } => {
+                    self.rewrite.as_mut().unwrap().tool = Some(name)
+                }
+                RewriteEvent::AlreadyRunning { job, .. } | RewriteEvent::Finished { job, .. } => {
+                    let request = self.rewrite.take().unwrap().request;
+                    self.notice = format!(
+                        "Rewrite {:?}. Review the full proposal before approval.",
+                        job.status
+                    );
+                    self.last_rewrite = Some(job);
+                    if self.review_generation == request.generation
+                        && self
+                            .review
+                            .as_ref()
+                            .is_some_and(|review| review.record.draft.id == request.expected.id)
+                        && let Some(command) = self.refresh_review()
+                    {
+                        commands.push(command);
+                    }
+                    commands.push(self.command(Pending::Proposals, AppCommand::Proposals(None)));
+                }
+                RewriteEvent::Rejected { error, .. } => {
+                    self.rewrite = None;
+                    self.notice = error.message;
+                }
+                RewriteEvent::PersistenceFailed { error, .. } => {
+                    self.rewrite = None;
+                    self.rewrite_storage_failed = true;
+                    self.notice = format!(
+                        "{} Reopen before another Rewrite; result finalization is not acknowledged.",
+                        error.message
+                    );
+                }
+            }
+            commands.extend(self.stop_controls());
+            return commands;
+        }
         if let AppEvent::Chat(event) = event {
             if let Some(active) = &self.active
                 && event.id() == active.request.id
@@ -730,6 +963,7 @@ impl AiState {
                     (Pending::Status, AppCommand::Status),
                     (Pending::Selection, AppCommand::Selection),
                     (Pending::Effort, AppCommand::Effort),
+                    (Pending::Proposals, AppCommand::Proposals(None)),
                     (Pending::Conversations, AppCommand::Conversations),
                     (Pending::Prompt, AppCommand::ModelPrompt),
                     (Pending::Editors, AppCommand::Editors),
@@ -800,9 +1034,43 @@ impl AiState {
                 }
                 self.next_cursor = page.next_cursor;
             }
+            AppEvent::Proposals(records) => {
+                if matches!(pending, Some(Pending::Proposals)) {
+                    self.proposals = records;
+                }
+            }
+            AppEvent::Proposal(record) => match pending {
+                Some(Pending::Proposal {
+                    id: proposal,
+                    generation,
+                }) if generation == self.review_generation && proposal == record.draft.id => {
+                    self.review = Some(crate::review::ProposalReview::new(record));
+                    self.review_error = None;
+                }
+                Some(Pending::ReviewEdit) => {
+                    if let Some(review) = &mut self.review {
+                        review.acknowledge_edit(id, record);
+                    }
+                    commands.push(self.command(Pending::Proposals, AppCommand::Proposals(None)));
+                }
+                Some(
+                    Pending::ReviewMutation {
+                        id: proposal,
+                        generation,
+                    }
+                    | Pending::ReviewRefresh {
+                        id: proposal,
+                        generation,
+                    },
+                ) if generation == self.review_generation && proposal == record.draft.id => {
+                    if let Some(review) = &mut self.review {
+                        review.observe(record);
+                    }
+                    commands.push(self.command(Pending::Proposals, AppCommand::Proposals(None)));
+                }
+                _ => {}
+            },
             AppEvent::Note(_)
-            | AppEvent::Proposal(_)
-            | AppEvent::Proposals(_)
             | AppEvent::ProposalUndoPreview(_)
             | AppEvent::ProposalRepairPreview(_)
             | AppEvent::ProposalRepaired(_)
@@ -998,6 +1266,38 @@ impl AiState {
                 if matches!(pending, Some(Pending::Effort | Pending::SelectEffort)) {
                     self.effort_error = Some(error.message.clone());
                 }
+                if matches!(pending, Some(Pending::ReviewEdit))
+                    && let Some(review) = &mut self.review
+                {
+                    review.fail_edit(id, error.message.clone());
+                }
+                if matches!(pending, Some(Pending::Proposal { generation, .. }) if generation == self.review_generation)
+                {
+                    self.review_error = Some(error.message.clone());
+                }
+                if let Some(
+                    Pending::ReviewMutation {
+                        id: proposal,
+                        generation,
+                    }
+                    | Pending::ReviewRefresh {
+                        id: proposal,
+                        generation,
+                    },
+                ) = pending
+                    && generation == self.review_generation
+                    && let Some(review) = &mut self.review
+                    && review.record.draft.id == proposal
+                {
+                    review.error = Some(error.message.clone());
+                }
+                if self
+                    .rewrite
+                    .as_ref()
+                    .is_some_and(|active| active.request.id == id)
+                {
+                    self.rewrite = None;
+                }
                 if self.download == Some(id) {
                     self.download = None;
                     self.download_stopping = false;
@@ -1020,7 +1320,8 @@ impl AiState {
             AppEvent::TurnCancelRequested { .. }
             | AppEvent::AccountCancelRequested { .. }
             | AppEvent::ModelCancelRequested { .. } => return commands,
-            AppEvent::Rewrite(_) | AppEvent::ProposalRewrite(_) => return commands,
+            AppEvent::ProposalRewrite(_) => return commands,
+            AppEvent::Rewrite(_) => unreachable!(),
             AppEvent::Chat(_) | AppEvent::Account(_) => unreachable!(),
         }
         self.pending.remove(&id);
@@ -1040,6 +1341,10 @@ fn account_provider(command: &AccountCommand) -> Provider {
 mod tests {
     use super::*;
     use brn_workflow::{AiError, AiErrorKind, WorkTurnStatus};
+
+    mod review_state {
+        include!("review_state_tests.rs");
+    }
 
     fn selection() -> Selection {
         Selection {
@@ -1960,6 +2265,7 @@ mod tests {
             AppCommand::Status
                 | AppCommand::Selection
                 | AppCommand::Effort
+                | AppCommand::Proposals(None)
                 | AppCommand::Conversations
                 | AppCommand::ModelPrompt
                 | AppCommand::Editors

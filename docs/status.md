@@ -50,8 +50,7 @@ Rust 1.98.1 locked/offline gates passed **538 workspace tests, 0 failed, 2 ignor
 private crash entry points exercised by subprocess matrices; **52 end-to-end
 assertions**, retirement, format/build/all-target Clippy with warnings denied and
 optional native compile. Store **127 passed**; CLI **77 passed**. Shared Undo/Trash
-is locally integrated. Native review/Undo presentation and owned AI Rewrite remain
-next; Stage 4 is not complete.
+is locally integrated. Stage 4 is not complete; native application controls remain pending.
 
 Store repair (`86439cf`) and shared AppWorker/CLI execution capture exact phases,
 admit explicit Finish/Restore attempts replay-first and preserve bounded history,
@@ -76,7 +75,7 @@ two valid replay/schema gaps; fresh regressions reproduced and verified both fix
 Fresh locked/offline gates passed **609 workspace tests, 0 failed, 2 ignored**,
 **52 end-to-end assertions**, retirement, format/build/all-target Clippy and
 optional native compile. Store **153**, AI **76**, CLI **93** passed. Owned Rewrite
-is locally integrated under mission authorization; native review remains next.
+is locally integrated under mission authorization; live Rewrite acceptance remains pending.
 
 Explicit main reasoning effort is implemented and automated verified against
 `5f26e66`. Fresh Ask requires low/medium/high, captured with provider/model in
@@ -88,7 +87,21 @@ retirement, format/build/all-target Clippy and **93 optional native tests**, nat
 build/Clippy. Store **160**, AI **79**, CLI **97**, workflow **181** and default
 desktop **80** passed. Independent review found no actionable defects. The slice
 is locally integrated under mission authorization; native/live effort usability
-and owner acceptance remain pending. Native full proposal review is next.
+and owner acceptance remain pending.
+
+Native full proposal review/edit/comments and owned Rewrite controls are
+implemented and automated verified against `5cd9c08`. Complete member/title
+buffers recover through AppWorker after acknowledgement; late replies preserve
+later typing. Failed comment drafts remain copyable and guard leaving. Independent
+review found two valid defects—stale refresh failure correlation and single-line
+title normalization; real regressions verify both corrections. Fresh macOS arm64 /
+Rust 1.98.1 locked/offline gates passed **647 workspace tests, 0 failed, 2 ignored**,
+**52 end-to-end assertions**, retirement, format/build/all-target Clippy and
+**114 native tests** (including actual headless title-widget input and worker
+restart), native build/Clippy. Independent checks passed **20 default / 22 native
+review tests**. The slice is locally integrated under mission authorization; actual GUI/IME/accessibility
+and owner acceptance remain pending. Native exact approval/group/activity/Undo/
+repair and initial native/AI proposal creation are the next Stage 4 slices.
 
 ## Qualification still open
 
@@ -97,7 +110,7 @@ implementation. Builds and synthetic crash/state tests do not establish native
 usability, physical power-loss durability, other-volume support, actual model
 inference or release readiness. Native Save/Copy/conflict/reload/recovery,
 chooser, IME, accessibility, rendering and Stop/restart remain pending. Proposal
-review/repair is currently headless; mixed/interrupted application stays fenced
+review has native controls; application/repair controls remain headless; mixed/interrupted application stays fenced
 until exact reconciliation or explicit repair. Native review/Undo/repair usability
 remains pending.
 The completed provider round leaves Copilot GPT-5.5 Chat unsupported, Codex vision

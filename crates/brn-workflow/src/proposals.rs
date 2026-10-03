@@ -49,6 +49,13 @@ pub struct DraftRequest {
     pub sources: Vec<SourceVersion>,
 }
 
+/// Pure validation of a complete review edit before a frontend queues it.
+pub fn validate_review_edit(record: &ProposalRecord, edit: &ProposalEdit) -> Result<()> {
+    Ok(brn_store::work::proposal_rewrite::validate_result(
+        record, edit,
+    )?)
+}
+
 fn invalid(message: &str) -> WorkflowError {
     WorkflowError::typed(ErrorKind::ToolRejected, message)
 }

@@ -89,8 +89,10 @@ later editor work. Shared activity, explicit Undo/Trash and proof-bound human
 Finish/Restore repair use the same typed application/recovery boundary. Owned AI
 Rewrite uses the existing chat lane and one narrow V6 operational job, committing
 validated review text and outcome atomically against its captured stamp/hash.
-Jobs retain safe metadata only; restart interrupts without retry. Native review
-remains active Stage 4 work before later domains extend typed changes.
+Jobs retain safe metadata only; restart interrupts without retry. Native full
+review/edit/comments and Rewrite controls use persistent text widgets and guarded
+AppWorker acknowledgements. Native exact approval/activity/Undo/repair and initial
+proposal creation remain Stage 4 work before later domains extend typed changes.
 
 WorkStore V5 adds exact approval snapshots, all-member prepared proofs and
 whole-proposal receipts. Pending/Uncertain journals fence current reads and

@@ -9,6 +9,8 @@ mod ai;
 #[cfg_attr(not(feature = "native-ui"), allow(dead_code))]
 mod layout;
 #[cfg_attr(not(feature = "native-ui"), allow(dead_code))]
+mod review;
+#[cfg_attr(not(feature = "native-ui"), allow(dead_code))]
 mod tokens;
 
 #[cfg(feature = "native-ui")]

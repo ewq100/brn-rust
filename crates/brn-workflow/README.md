@@ -70,7 +70,9 @@ rejection and imported captured Rewrite results use one version. Changing an
 anchored target leaves its old range unresolved; late results after newer edits,
 comments or rejection fail. AppWorker owns and drains admitted review mutations.
 Read/list/edit/comment work remains available without current vault access.
-Owned AI Rewrite uses the lifecycle below; native review remains Stage 4 work.
+`validate_review_edit` provides pure full-result validation using Store's bounded
+typed rules before the frontend queues an edit. Owned AI Rewrite uses the
+lifecycle below; native approval/activity/Undo/repair remain Stage 4 work.
 
 The current-evidence fence covers pending/Uncertain Save and proposal journals.
 It refuses tools, note/list/search, refresh and embedding, including startup and

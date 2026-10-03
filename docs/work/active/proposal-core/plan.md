@@ -785,3 +785,74 @@ still records high; the next Ask captures low. Pre-V7 history shows unavailable
 effort and replays offline without another request. The [CLI scenario](../../../../crates/brn/README.md)
 provides the offline getter/setter/missing-choice check. Native full proposal
 review is next; owner acceptance does not block that safe implementation.
+
+### Native full review and guarded editing
+
+Baseline: `main@5cd9c08`, with only the owner's unrelated AGENTS.md edit preserved.
+Use existing typed proposal/AppWorker APIs. Expose the full Create/Replace/Trash
+review, immutable before/source evidence, complete editable proposal text, whole
+and exact selected-text comments, explicit unresolved-anchor reattachment,
+rejection and owned Rewrite with frozen selection/effort. Review edits coalesce
+after 500 ms into existing exact-version ProposalEdit; acknowledgement establishes
+recoverability. Guard leaving/Quit and retain later typing across older replies.
+Never guess anchors or overwrite local text with late Rewrite/refresh results.
+
+Keep GPUI-free review buffer/correlation tests separate from persistent native
+EditorState entities. Fix narrow presentation interfaces before delegation.
+Comments/Rewrite/rejection require the latest acknowledged full review; changes
+remain operational until the separately implemented native exact approval screen.
+Meaningful checks cover Unicode/CRLF, full-member snapshots, delayed replies,
+failed/stale recovery, selection byte ranges, navigation and Stop/restart. Review
+independently, verify fresh relevant default/native gates, record a reproducible
+manual scenario, integrate, then implement native approval/group/activity/Undo/
+repair. No live calls, original data, new datastore/framework or freeze change.
+
+Manual acceptance pending: use a new disposable data/vault folder and the
+[CLI typed draft example](../../../../crates/brn/README.md#typed-review-foundation)
+to create a proposal, then launch `brn-desktop --data-dir <absolute-data>
+--vault <absolute-vault>` with native features. Open the proposal in History;
+inspect all full member bodies and source versions. Edit title/text, wait for
+recoverability acknowledgement, close/reopen and restart to confirm the complete
+bytes survive. Comment on the second occurrence of a repeated Unicode quote;
+edit that selection and confirm the old quote becomes unresolved. Reattach only
+by selecting the intended new range. Confirm failed review/comment saves retain
+copyable local text and guard leaving; use explicit retry or discard. Rejecting
+keeps the vault unchanged. Owned Rewrite requires a new separately authorized
+live scope; deterministic tests cover its correlation and late-result behavior.
+This scenario qualifies review of CLI-created proposals; initial native/AI
+proposal creation and exact approval/group/activity/Undo/repair remain later
+Stage 4 slices. Headless widget/state checks do not establish GUI acceptance.
+
+Implementation uses one GPUI-free full review buffer and persistent native member,
+title and comment widgets. Exact-version full edits recover after 500 ms; later
+local generations survive older acknowledgements. Comment drafts retain failed
+saves until acknowledgement or explicit discard. Review/Rewrite events bind UUID,
+proposal and generation; late result conflicts stay visible and copyable. Pure
+workflow edit validation reuses existing typed Store bounds.
+
+Independent read-only review against `5cd9c08` found two concrete valid defects:
+a delayed failed refresh could poison a newer review, and single-line InputState
+normalized accepted CR/LF title bytes. The first was reproduced failing then
+passing with exact ID/generation guards. The second's actual-widget positive
+control reproduces normalization; the production TextareaState regression uses
+native input-handler typing, full AppWorker acknowledgement, restart and reload.
+Final independent checks passed **20 default / 22 native review tests**, with no
+remaining actionable defects. Optional `native-test-support` enables the pinned
+headless toolkit test context; nine new test-support transitive packages are
+locked, with no existing package upgrades and no shipping feature change.
+
+Fresh root macOS arm64 / Rust 1.98.1 locked/offline verification passed:
+`TMPDIR=<exclusive synthetic parent> bash scripts/verify-end-to-end.sh`
+(**647 workspace tests, 0 failed, 2 ignored**, **52 end-to-end assertions**,
+retirement/format/build/all-target Clippy with warnings denied), native desktop
+full tests with `native-ui,native-retrieval,native-test-support` (**114 passed**),
+shipping native build without test support and native all-target Clippy with
+warnings denied. The existing upstream `block v0.1.6` future-compiler warning
+remains. Default desktop passed **99** tests. Only the five proven owned layout
+fixtures and their exclusive gate parent are removed; external logs are retained.
+Changed documentation checks passed **74 local links in 7 files**, with no
+errors; script syntax and diff checks passed. This slice is locally integrated
+under standing mission authorization, preserving the unrelated AGENTS.md edit. Hosted CI has no run for this local baseline. Actual GUI/live Rewrite
+and owner acceptance remain pending; these results establish headless state/widget
+and shared workflow behavior only. Continue native exact approval/group/activity,
+then Undo/repair and initial proposal creation within Stage 4.

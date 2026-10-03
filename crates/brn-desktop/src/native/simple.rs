@@ -19,6 +19,7 @@ pub(super) struct Closed {
 }
 pub(super) enum EditorTransition {
     Note(String),
+    Review(Uuid),
     Hide,
     Close(CloseRoute),
 }
@@ -99,6 +100,13 @@ impl Desktop {
         if let Err(error) = result
             && let Some(ai) = &mut self.ai
         {
+            if self
+                .review_comment_pending
+                .as_ref()
+                .is_some_and(|(operation, _, _)| *operation == id)
+            {
+                self.review_comment_pending = None;
+            }
             let followups = ai.apply(id, AppEvent::Failed(error));
             for command in followups {
                 self.simple_send(command, cx);
@@ -127,6 +135,7 @@ impl Desktop {
         }
         let changed = !events.is_empty();
         for (id, event) in events {
+            self.settle_comment_draft(id, &event, window, cx);
             if matches!(
                 self.ai.as_ref().unwrap().pending.get(&id),
                 Some(Pending::EditorReload)
@@ -138,6 +147,22 @@ impl Desktop {
             for command in commands {
                 self.simple_send(command, cx);
             }
+        }
+        if changed {
+            self.sync_review_widgets(window, cx);
+        }
+        if self
+            .ai
+            .as_ref()
+            .unwrap()
+            .review
+            .as_ref()
+            .is_some_and(|review| {
+                review.wants_recovery(Instant::now(), self.simple_transition.is_some())
+            })
+            && let Some(command) = self.ai.as_mut().unwrap().recover_review()
+        {
+            self.simple_send(command, cx);
         }
         // Cancellation can precede lane admission, including before the first delta.
         for command in self.ai.as_ref().unwrap().stop_controls() {
@@ -195,6 +220,9 @@ impl Desktop {
         }
     }
     pub(super) fn simple_stop(&mut self, cx: &mut Context<Self>) {
+        if let Some(id) = self.ai.as_mut().unwrap().stop_rewrite() {
+            self.simple_send((Uuid::new_v4(), AppCommand::CancelTurn(id)), cx);
+        }
         if let Some(id) = self.ai.as_mut().unwrap().stop() {
             self.simple_send((Uuid::new_v4(), AppCommand::CancelTurn(id)), cx);
         }
@@ -223,6 +251,9 @@ impl Desktop {
         self.simple_leave(EditorTransition::Note(path), cx);
     }
     fn simple_open_note(&mut self, path: String, cx: &mut Context<Self>) {
+        let ai = self.ai.as_mut().unwrap();
+        ai.review = None;
+        ai.review_generation = ai.review_generation.wrapping_add(1);
         let command = self.ai.as_mut().unwrap().open_editor(path.clone());
         self.simple_note_path = Some(path.clone());
         self.note_scroll.set_offset(point(px(0.), px(0.)));
@@ -242,6 +273,14 @@ impl Desktop {
         if self.simple_transition.is_none() {
             return;
         }
+        if self.review_comment_draft.is_some() && !self.review_comment.read(cx).value().is_empty() {
+            self.ai.as_mut().unwrap().notice = "A comment draft is not acknowledged. Copy or explicitly discard it before leaving.".into();
+            return;
+        }
+        if !self.ai.as_ref().unwrap().review_can_leave() {
+            self.ai.as_mut().unwrap().notice = "Waiting for latest full review acknowledgement before leaving. Copy retained text or resolve the review error.".into();
+            return;
+        }
         if self
             .ai
             .as_ref()
@@ -255,10 +294,24 @@ impl Desktop {
         }
         match self.simple_transition.take().unwrap() {
             EditorTransition::Note(path) => self.simple_open_note(path, cx),
+            EditorTransition::Review(id) => {
+                let ai = self.ai.as_mut().unwrap();
+                ai.note_generation = ai.note_generation.wrapping_add(1);
+                ai.editor = None;
+                self.simple_note_path = None;
+                self.review_member = 0;
+                self.open_doc = Some(DocRef::Proposal(id));
+                self.centre_tab = CentreTab::Document;
+                if let Some(command) = ai.open_review(id) {
+                    self.simple_send(command, cx);
+                }
+            }
             EditorTransition::Hide => {
                 let ai = self.ai.as_mut().unwrap();
                 ai.note_generation = ai.note_generation.wrapping_add(1);
                 ai.editor = None;
+                ai.review = None;
+                ai.review_generation = ai.review_generation.wrapping_add(1);
                 self.simple_note_path = None;
                 self.open_doc = None;
                 self.centre_tab = CentreTab::Chat;
@@ -591,6 +644,29 @@ impl Desktop {
                     ))
                     .selected(ai.conversation == Some(id))
                     .on_click(cx.listener(move |this, _, _, cx| this.simple_history(Some(id), cx))),
+            );
+        }
+        list = list.child("Proposal review").child(
+            Button::new("refresh-proposal-list")
+                .label("Refresh proposals")
+                .disabled(!ai.ready)
+                .on_click(cx.listener(|this, _, _, cx| {
+                    this.simple_command(Pending::Proposals, AppCommand::Proposals(None), cx)
+                })),
+        );
+        for proposal in &ai.proposals {
+            let id = proposal.draft.id;
+            list = list.child(
+                Button::new(format!("proposal-{id}"))
+                    .label(format!(
+                        "{} · {:?}",
+                        compact_title(&proposal.draft.title),
+                        proposal.state
+                    ))
+                    .selected(self.open_doc == Some(DocRef::Proposal(id)))
+                    .on_click(cx.listener(move |this, _, _, cx| {
+                        this.simple_leave(EditorTransition::Review(id), cx)
+                    })),
             );
         }
         div()

@@ -7,7 +7,11 @@ impl Desktop {
         cx: &mut Context<Self>,
     ) -> impl IntoElement {
         let p = self.palette();
-        let tone = if self.ai.as_ref().is_some_and(|ai| ai.active.is_some()) {
+        let tone = if self
+            .ai
+            .as_ref()
+            .is_some_and(|ai| ai.active.is_some() || ai.rewrite.is_some())
+        {
             p.cyan
         } else {
             let ai = self.ai.as_ref().unwrap();
@@ -42,7 +46,11 @@ impl Desktop {
                     .child(self.phase_status()),
             )
             .child(div().flex_1());
-        if self.ai.as_ref().is_some_and(|ai| ai.active.is_some()) {
+        if self
+            .ai
+            .as_ref()
+            .is_some_and(|ai| ai.active.is_some() || ai.rewrite.is_some())
+        {
             bar = bar.child(
                 Button::new("cancel")
                     .label("Stop")

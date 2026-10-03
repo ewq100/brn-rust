@@ -41,7 +41,7 @@ After targeted fixes, run the four baseline commands below **once**, using
 ```sh
 cargo test -p brn-retrieval --features native --lib --test model_download --locked --offline
 cargo test -p brn-workflow --features native-retrieval --lib --test models --locked --offline
-cargo test -p brn-desktop --features native-ui,native-retrieval --locked --offline
+cargo test -p brn-desktop --features native-ui,native-retrieval,native-test-support --locked --offline
 cargo build -p brn-desktop --features native-ui,native-retrieval --locked --offline
 cargo build -p brn --features native-retrieval --locked --offline
 bash scripts/verify-end-to-end.sh --fixtures-only
@@ -55,6 +55,8 @@ and vectors are not real ONNX or asset qualification. An unset local-model
 environment can self-skip tests reported as passed; record those limitations.
 Native builds/state tests do not establish GUI usability; upstream
 `block v0.1.6`'s future-compiler warning is a known separate limitation.
+`native-test-support` enables the pinned toolkit's headless widget context for
+exact title/body checks. Normal native application builds omit this test feature.
 
 ## Baseline Rust checks
 
