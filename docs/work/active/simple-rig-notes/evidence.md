@@ -490,3 +490,34 @@ integration are not: no live accounts, production model download/inference,
 graphical usability, original-vault migration, push, merge or release occurred.
 Keep the isolated branch/worktree for the next authorized action; Steps 5/6
 remain future work and require their own scope.
+
+## PR #14 merge and local-main synchronization
+
+2026-10-03: PR #14 merged at `50f898a0f9637988a8ec4eca261f3c84bb9b7c6d`
+(GitHub `mergedAt`: `2026-10-03T04:02:41Z`). The user subsequently requested
+merged-branch cleanup, local/remote main synchronization, and publication of
+remaining local files. This authorization does not include live accounts,
+model downloads, original-data migration or release.
+
+Local main fast-forwarded from `e24b104` to the merge commit. Its older
+AI-chat planning changes were already incorporated or superseded by PR #14;
+the newer implementation/review evidence was retained rather than overwritten
+by stale pre-implementation status. Three additional local documents were
+preserved: the product vision, original reset handoff, and paused UI brainstorm.
+The latter two are explicitly historical/unapproved; adding them implements no
+new product scope. The product vision changes only Markdown hard-break spelling
+and a surplus trailing blank line, not its requirements.
+
+Fresh `cargo test --workspace --locked --offline --quiet` passed on the merged
+main code with the documentation-only synchronization delta and a unique,
+outside-Git disposable fixture directory. Fixtures were cleaned after the
+successful run. This is default-feature offline verification, not a new native,
+live-provider, ONNX or graphical qualification.
+
+Current status, roadmap and indexes now record the merge while retaining all
+native/live/user-acceptance limitations. Finder metadata is excluded via
+`.gitignore`; it is not product documentation. Ignored AI-chat execution
+artifacts are preserved in the session archive before removing only that
+merged task's worktree/branch. Unrelated worktrees, existing trial workspaces
+and original data remain untouched. The credential-safety Ruling and its
+failure cost remain recorded in this file.

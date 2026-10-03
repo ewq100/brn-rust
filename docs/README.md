@@ -5,6 +5,7 @@ Start with [AGENTS.md](../AGENTS.md), then [current status](status.md). Read onl
 | Need | Read |
 | --- | --- |
 | Understand the product or run it | [Root README](../README.md), [setup](development/setup.md) |
+| Understand desired product behavior | [Product vision](product/BRN_PRODUCT_VISION.md): requirements and future capabilities, not a claim that all are implemented |
 | Operate a workspace headlessly as an agent | [brn CLI](../crates/brn/README.md): what `brn` is, how to run it, `--json` envelopes and the command reference; it shares the application workflow, it does not bypass it |
 | Find implemented work and open gaps | [Status](status.md) |
 | Choose future work | [Roadmap](roadmap.md) |
@@ -13,6 +14,7 @@ Start with [AGENTS.md](../AGENTS.md), then [current status](status.md). Read onl
 | Review the UI redesign | [Workspace shell design](superpowers/specs/2026-10-01-workspace-shell-design.md), [UI feature backlog](ui/feature-backlog.md), [shell decision](architecture/decisions/2026-10-01-workspace-shell.md) |
 | Understand code ownership | [Architecture overview](architecture/overview.md), relevant crate README |
 | Review the historical Rig-first reset | [Specification](superpowers/specs/2026-10-01-rig-first-architecture-reset-design.md), [plan pack](work/active/rig-first-reset/plan.md), [evidence](work/active/rig-first-reset/evidence.md): superseded, not execution instructions; current contracts are in the [simple notes roadmap](work/active/simple-rig-notes/plan.md) |
+| Find the original reset handoff or paused chat-polish ideas | [Historical reset handoff](architecture/brn-rig-first-architecture-reset.md), [paused brainstorm](work/active/ui-slice-2-chat-polish/paused-brainstorm.md); neither authorizes new implementation |
 | Change storage, revisions, comments or retrieval | [Invariants](architecture/invariants.md), [completed task records](work/completed/README.md) |
 | Change provider behavior | [Rig AI contract](../crates/brn-ai/README.md), [shared workflow](../crates/brn-workflow/README.md). The [standalone sidecar trial](../experiments/codex-app-server/PACKAGING.md) is historical evidence, not a product gate. |
 | Choose and report checks | [Verification](development/verification.md) |

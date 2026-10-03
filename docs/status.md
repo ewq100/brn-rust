@@ -1,6 +1,6 @@
 # Current development status
 
-2026-10-03, branch `task-4-ai-chat` (not merged or accepted).
+2026-10-03, `main@50f898a`, merged through PR #14 (native/user acceptance pending).
 The [simple Rig-based notes app](work/active/simple-rig-notes/plan.md) Steps 1–4
 are implemented. All eight Step 4 tasks and the whole branch received Opus
 reviews; the final conversation-display and deadline fixes passed scoped
@@ -38,6 +38,6 @@ typing. Simple Dock/system termination cannot veto exit or guarantee its
 background drain within GPUI's deadline.
 
 Human/native chooser, IME, accessibility, rendering, Stop/restart and legacy
-Save/recovery acceptance remain pending. No merge, push, release or distribution
-qualification is claimed. [Historical evidence](work/completed/README.md) and
+Save/recovery acceptance remain pending. PR #14 is merged; no release or distribution qualification is claimed.
+[Historical evidence](work/completed/README.md) and
 the superseded Rig/provider plans remain evidence, not current instructions.
