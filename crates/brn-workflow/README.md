@@ -6,7 +6,7 @@ Store/Workspace/worker and brn-flow paths are removed.
 
 ## Interfaces and source
 
-[Application](src/app.rs), [commands/events](src/app_worker.rs), [chat lane](src/chat_worker.rs), [editor](src/editor.rs), [proposal review](src/proposals.rs), [proposal application](src/proposal_apply.rs), [file adapter](src/files/mod.rs).
+[Application](src/app.rs), [commands/events](src/app_worker.rs), [chat lane](src/chat_worker.rs), [editor](src/editor.rs), [proposal review](src/proposals.rs), [proposal application](src/proposal_apply.rs), [activity](src/activity.rs), [file adapter](src/files/mod.rs).
 
 ## Simple app owner and read tools
 
@@ -64,7 +64,7 @@ rejection and imported captured Rewrite results use one version. Changing an
 anchored target leaves its old range unresolved; late results after newer edits,
 comments or rejection fail. AppWorker owns and drains admitted review mutations.
 Read/list/edit/comment work remains available without current vault access.
-Activity/Undo/Trash, AI Rewrite and native review remain subsequent Stage 4 slices.
+Undo/Trash, AI Rewrite and native review remain subsequent Stage 4 slices.
 
 The current-evidence fence covers pending/Uncertain Save and proposal journals.
 It refuses tools, note/list/search, refresh and embedding, including startup and
@@ -93,8 +93,21 @@ historical completion preserves subsequent owner bytes. Reconciliation checks
 current sources for incomplete work, recognizes sources replaced/trashed by that
 proposal, and never repeats installation. Approved annotation cleanup covers
 current/prior journals, ordinary snapshots and compatible proof-checked temporary
-snapshots; unexpected occupants remain retained. Activity and bounded Undo/Trash
+snapshots; unexpected occupants remain retained. Bounded Undo/Trash
 retention, AI Rewrite and native proposal interaction still need later slices.
+
+`activity::ActivityRequest` projects successful Applied journals into readable
+history through AppWorker and `brn activity list`. Default pages contain 20 entries
+(1–100 allowed), newest approval time then operation UUID first; an existing
+Applied UUID is the exclusive older-page cursor. Entries include the title,
+Create/Replace/Trash path summary and operation/proposal/group/session identities.
+The recorded time is approval admission, not an exact completion time. Note bodies,
+comments, file proofs and raw tool transcripts are absent. One checked journal is
+decoded at a time, keeping bodies out of the full-history ordering metadata.
+Drafts/refusals/uncertain work cannot claim a successful durable change. Historical
+activity stays readable when current evidence is fenced or its vault unavailable,
+and ordinary recovery restores it without repeating old effects. Native activity
+presentation follows with the complete proposal review interaction.
 
 ## Explicit model installation
 

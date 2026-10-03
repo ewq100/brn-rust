@@ -780,7 +780,8 @@ impl AiState {
             | AppEvent::Proposals(_)
             | AppEvent::ProposalApplied(_)
             | AppEvent::ProposalGroupApplied(_)
-            | AppEvent::ProposalApplies(_) => {}
+            | AppEvent::ProposalApplies(_)
+            | AppEvent::Activity(_) => {}
             AppEvent::Editor(view) => {
                 if let Some(Pending::Editor {
                     generation,

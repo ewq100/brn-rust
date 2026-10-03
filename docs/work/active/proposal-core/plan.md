@@ -332,3 +332,70 @@ volumes remain unqualified. Partial/mixed proof is safely fenced; bounded repair
 activity/Undo/Trash retention, AI Rewrite and native review are the next slices.
 This file-application slice is locally integrated under the mission authorization;
 Stage 4 remains active and is not declared complete.
+
+## Readable activity slice
+
+Baseline: `main@e04fc52a857263c9ec9548890916f7cc65e13a60`; preserve the unrelated
+owner AGENTS.md edit. Project the existing terminal Applied journals into a bounded
+human-readable history, without another database or event framework. Include the
+approved title, affected paths/kinds, operation/proposal/group/session identities
+and the recorded approval-admission time. Do not call this an exact completion
+time. Drafts, refusals and uncertain applications cannot claim a completed durable
+change. Current-evidence fences do not hide already-settled historical activity.
+
+Expose the same page through AppWorker and `brn activity list`; default to 20,
+allow 1–100 entries, and use an existing Applied operation UUID as the exclusive
+older-page cursor. Order by approval time then UUID, newest first. Historical
+entries remain stable after later note edits, restart and ordinary receipt restore;
+default output excludes note bodies, review comments, credentials and raw tool
+transcripts. Native presentation follows with the complete proposal interaction.
+
+Acceptance/checks: meaningful projection, pagination, current-fence/restart and
+CLI process tests; invalid syntax before workspace admission, stale cursors refused;
+independent read-only review, fresh integrated gates and optional native compile.
+Record a disposable-data manual scenario and keep owner acceptance pending.
+Next slice implements bounded Undo/Trash restore while retaining originals; recent
+Undo eligibility must never silently permanently delete retained user knowledge.
+
+### Activity results — 2026-10-03
+
+Implemented against `e04fc52`. Activity uses existing checked Applied receipts;
+it does not duplicate history storage or claim partial/uncertain work succeeded.
+One checked journal is decoded at a time, with only scalar full-history ordering
+metadata retained. Pages and human output expose approval time, title, summary,
+paths and cause identities; they exclude bodies, comments and proofs. Exclusive
+cursors disambiguate equal timestamps and refuse unknown/unapproved operations.
+Historical output survives later bytes, unavailable vaults, unresolved current
+work and ordinary-receipt recovery of a fresh operational database.
+
+Independent review found that the startup current-evidence guard still loaded
+all history bodies before the activity request. Verified and corrected the guard
+to enumerate IDs and check each journal in turn, still checking every row without
+short-circuiting after an unresolved record. Independent re-review found no
+remaining actionable defect. The helper's targeted normal CLI run passed; a
+broader helper rerun encountered an intermittent macOS coordination refusal before
+approval. Root's complete final normal run passed after the correction, without
+a source workaround or permission escalation; this remains a qualification limit.
+
+Fresh final macOS arm64 / pinned Rust 1.98.1 locked/offline checks:
+
+- `TMPDIR=<exclusive owned parent> bash scripts/verify-end-to-end.sh`: retirement,
+  format/build/all-target Clippy with warnings denied, **507 workspace passed,
+  0 failed, 2 ignored** private crash entry points exercised through subprocess
+  tests; **52 end-to-end assertions**. CLI **72 passed**; new checks include
+  **3 workflow activity integrations**, **1 timestamp unit**, **3 CLI processes**
+  and **2 output units**, included in workspace counts.
+- Store **34 approval/recovery tests**, workflow **2 proposal barriers** and
+  independent activity/CLI tests passed. Optional native desktop compile passed;
+  existing `block v0.1.6` future-compiler warning remains.
+- Changed Markdown **38 local links/fragments, 0 errors** and diff check passed.
+  Only verified exclusively owned synthetic gate parents were removed. No live
+  account/model calls, original-data inspection, push or release was performed.
+
+Manual acceptance remains pending: approve two disposable Create proposals using
+the CLI README example, run `activity list --limit 1`, fetch the returned exclusive
+older cursor, then edit one note externally and restart. The same two historical
+entries should remain, with later bytes untouched and no private body/comment
+content in default output. Native history presentation follows in the review UI.
+This slice is locally integrated under the standing mission authorization; bounded
+Undo/Trash and AI/native review remain required before Stage 4 is complete.

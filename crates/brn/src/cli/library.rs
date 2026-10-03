@@ -276,6 +276,9 @@ fn output(data: Value) -> Output {
 }
 
 pub fn run(i: &Invocation) -> Result<Output, CliFailure> {
+    if let Command::Activity(request) = &i.command {
+        request.validate().map_err(classify_workflow)?;
+    }
     let editor = if let Command::Editor(command) = &i.command {
         Some(super::editor::prepare(command)?)
     } else {
@@ -330,6 +333,13 @@ fn execute(
     proposal: Option<(Uuid, AppCommand)>,
 ) -> Result<Output, CliFailure> {
     match &i.command {
+        Command::Activity(request) => {
+            let AppEvent::Activity(page) = lane.query(AppCommand::Activity(request.clone()))?
+            else {
+                return Err(unexpected());
+            };
+            Ok(super::activity::output(page))
+        }
         Command::Proposals(_) => {
             let (id, command) = proposal.expect("proposal input prepared before startup");
             let data = match lane.query_with_id(id, command)? {

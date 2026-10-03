@@ -63,6 +63,7 @@ pub enum AppCommand {
     ReconcileProposal(Uuid),
     ApproveProposalGroup(crate::proposal_apply::GroupApprovalRequest),
     ProposalApplies,
+    Activity(crate::activity::ActivityRequest),
     RecoverEdit {
         path: String,
         base_sha256: [u8; 32],
@@ -117,6 +118,7 @@ pub enum AppEvent {
     ProposalApplied(crate::proposal_apply::ApplyReceipt),
     ProposalGroupApplied(crate::proposal_apply::GroupApprovalResult),
     ProposalApplies(Vec<crate::proposal_apply::ApplyJournal>),
+    Activity(crate::activity::ActivityPage),
     Search(SearchResults),
     Conversations(Vec<WorkConversation>),
     Turns(Vec<WorkTurn>),
@@ -814,6 +816,7 @@ fn dispatch(
         AppCommand::ProposalApplies => {
             AppEvent::ProposalApplies(app.work_store().proposal_applies()?)
         }
+        AppCommand::Activity(request) => AppEvent::Activity(app.activity(&request)?),
         AppCommand::ReloadEditor(request) => {
             AppEvent::EditorRecovered(app.reload_editor(&request)?)
         }

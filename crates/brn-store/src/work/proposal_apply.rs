@@ -879,14 +879,23 @@ impl WorkStore {
         read_journal(&self.conn, id)
     }
 
-    pub fn proposal_applies(&self) -> Result<Vec<ApplyJournal>> {
+    /// Enumerates identities without retaining every full review body in memory.
+    /// Call `proposal_apply` to validate the indexed journal before using it.
+    pub fn proposal_apply_ids(&self) -> Result<Vec<Uuid>> {
         let mut statement = self
             .conn
             .prepare("SELECT operation_id FROM proposal_applies ORDER BY rowid")?;
         statement
             .query_map([], |row| row.get::<_, String>(0))?
+            .map(|id| crate::parse_id(id?))
+            .collect()
+    }
+
+    pub fn proposal_applies(&self) -> Result<Vec<ApplyJournal>> {
+        self.proposal_apply_ids()?
+            .into_iter()
             .map(|id| {
-                read_journal(&self.conn, crate::parse_id(id?)?)?
+                read_journal(&self.conn, id)?
                     .ok_or_else(|| invalid("listed approval journal disappeared"))
             })
             .collect()

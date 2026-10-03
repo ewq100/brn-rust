@@ -54,12 +54,22 @@ fn validate_path(path: &str) -> Result<()> {
 impl App {
     pub(crate) fn proposals_have_unresolved(&self) -> Result<bool> {
         use brn_store::work::proposal_apply::ApplyOutcome;
-        Ok(self.store.proposal_applies()?.iter().any(|journal| {
-            journal
+        let mut blocked = false;
+        for id in self.store.proposal_apply_ids()? {
+            let journal = self.store.proposal_apply(id)?.ok_or_else(|| {
+                WorkflowError::typed(
+                    ErrorKind::ContextStale,
+                    "listed approval journal disappeared",
+                )
+            })?;
+            // Check every indexed row, including settled history, without
+            // retaining all full review bodies during startup/current reads.
+            blocked |= journal
                 .receipt
                 .as_ref()
-                .is_none_or(|receipt| receipt.outcome == ApplyOutcome::Uncertain)
-        }))
+                .is_none_or(|receipt| receipt.outcome == ApplyOutcome::Uncertain);
+        }
+        Ok(blocked)
     }
 
     pub(crate) fn current_evidence_blocked(&self) -> Result<bool> {

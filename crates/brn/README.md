@@ -11,6 +11,7 @@ A data directory has one owner at a time.
 ## Commands
 
 ```text
+brn activity list [--limit N] [--before OPERATION_UUID]
 brn proposals create --file DRAFT.json
   brn proposals list [--group UUID]
   brn proposals show PROPOSAL_ID
@@ -100,6 +101,24 @@ For a manual check, create an existing data directory and synthetic vault, open
 and a fresh UUID, and compare the file bytes. Recover another edit and reopen
 the CLI to confirm it remains available. Change the disk file externally before
 Save and confirm refusal; verify Save Copy also refuses an occupied destination.
+
+### Approved activity
+
+`activity list` shows important approved durable changes as a readable history.
+Entries include the approved title, summary, affected paths/kinds and operation,
+proposal, group and session identities. The time is recorded approval admission,
+not an exact completion time. Note bodies, comments, proofs and transcripts are
+excluded. JSON returns `{entries, next_before}` in an `activity.list` envelope.
+
+The default page contains up to 20 entries, with `--limit` accepting 1–100.
+Pass `next_before` as `--before` to fetch the exclusive older page. Unknown or
+unapproved cursor UUIDs refuse. Drafts, refused and uncertain changes do not claim
+completion. Historical entries remain available after later note edits and restart.
+
+For a manual check, approve two synthetic Create proposals, run `activity list
+--limit 1`, fetch the older page using its cursor, then change a note externally
+and confirm that the recorded activity stays the same. An empty history explains
+that no approved durable changes exist.
 
 ### Typed review foundation
 

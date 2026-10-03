@@ -46,8 +46,18 @@ Rust 1.98.1 locked/offline verification passed: **498 workspace tests, 0 failed,
 **110 passed** including **34 approval/recovery tests**; CLI **67 passed** including
 **9 proposal process tests**. Workspace format/build/all-target Clippy with warnings
 denied, **52 end-to-end fixture assertions**, optional native desktop compile,
-local Markdown links and diff checks passed. This slice is qualified for local
-integration under the standing mission authorization. Activity, bounded Undo/Trash,
+local Markdown links and diff checks passed. The file-application slice is locally
+integrated at `e04fc52`.
+
+The following readable-activity slice projects successful approval receipts into
+AppWorker/CLI history with bounded exclusive paging, recorded approval time,
+titles, affected paths and proposal/session context. It excludes note bodies,
+comments and technical proofs. History remains stable after later note edits,
+restart and ordinary-receipt restoration, including current-evidence fences and
+unavailable vaults. Fresh root locked/offline verification passed **507 workspace
+tests, 0 failed, 2 ignored**, workspace format/build/all-target Clippy with warnings
+denied and **52 end-to-end assertions**; optional native compile passed. Native
+history presentation and owner acceptance remain pending. Bounded Undo/Trash,
 AI Rewrite and native proposal review remain next; Stage 4 is not complete.
 
 ## Qualification still open
