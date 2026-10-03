@@ -304,3 +304,130 @@ login/tool/stream/restart credential reuse/refresh/error/partial Stop observatio
 ChatGPT's historical quota-blocked scenarios remain unaccepted. Native build/
 state checks do not establish native usability. Simple readers only: Step 5
 proposal/approval tools and Step 6 Markdown Save/cleanup remain unimplemented.
+
+## Final review / fixwave1: conversation display and Ask deadline projection
+
+2026-10-03, macOS 26.5, pinned `rustc 1.98.1 (48a229cea 2026-09-01)`.
+Authorized worktree `.worktrees/task-4-ai-chat`, branch `task-4-ai-chat`,
+clean starting HEAD `3d98c0578848cb8dd719c8c3db10c3c098d199ff`.
+Controller-reported final Opus **APPROVE WITH FIXES** had F1 Medium and F2 Low;
+this fixwave implements those two findings, not final approval.
+Tested product commit: **`6a82b782ad7c3ba968088bf9a0f5902518acc4eb`**.
+All final gates below ran against its identical Rust/README bytes before the
+product commit. This appended evidence follows separately, documentation-only.
+Scoped controller Opus re-review of F1/F2 and new fix bugs remains pending.
+
+### Root causes and bounded fixes
+
+- **F1:** navigation increments display generation, but the owned request keeps
+  its admission generation. Progress and terminal rendering incorrectly required
+  equality with display generation, so revisiting C discarded deltas and left a
+  historical Running row. Exact envelope UUID, request UUID and request-generation
+  correlation is retained; owned text/tool progress now accumulates in every
+  display. Existing-conversation rendering/Finished uses conversation identity.
+  First-chat None still requires its original blank display generation.
+  The native renderer uses the tested `display_active`/`display_turns` production
+  helpers, hiding the actually live Running row in favor of its provisional
+  stream. Finished upserts by turn UUID, clears global active even in another
+  display, and never inserts C into D/new blank. A correlated Turns snapshot
+  preserves known terminal rows in this display over older Running snapshots.
+  Navigation clears that bounded display overlay; no global terminal cache,
+  new module or workflow API was introduced.
+- **F2:** the CLI queried Selection even for frozen replay, potentially joining
+  at a deadline, then mapped a Cancelled Ask submission through the deadline-blind
+  classifier. Recorded replay now skips Selection. New Ask still queries it and
+  requires a saved selection. Actual Ask submission maps through
+  `lane.command_error`, retaining 124 for deadline and 130 for SIGINT without
+  relabeling genuine typed failures. `ask` is generic over the existing private
+  EventLane seam solely to exercise its real consumer path deterministically.
+  No public fake feature, sleep, provider flag, dependency or lockfile change.
+
+### Behavioral RED, then GREEN
+
+Commands ran from the authorized worktree with
+`TMPDIR=/Users/evokessler/.brn-task5-fixtures`:
+
+```sh
+cargo test -p brn-desktop --bin brn-desktop followup_ --locked --offline
+cargo test -p brn --bin brn actual_ask_submit_after_join --locked --offline
+cargo test -p brn-desktop --bin brn-desktop late_running_snapshot_preserves_known_terminal --locked --offline
+```
+
+- First desktop RED: **1 passed, 2 failed, 55 filtered**, exit 101.
+  Same-conversation click expected `full partial`, got empty; C→D→C expected
+  `away back`, got empty. Existing composer/follow-up test passed.
+- CLI RED: **0 passed, 1 failed, 36 filtered**, exit 101: the actual `ask`
+  consumer submitted after joined deadline and returned **130 instead of 124**.
+- Separate late-snapshot RED with the snapshot merge withheld:
+  **0 passed, 1 failed, 60 filtered**, exit 101: a locally observed Completed
+  became Running. Restored the merge before final verification.
+- Initial desktop invocation mistakenly requested nonexistent `--lib` (exit
+  101); corrected to `--bin`. Initial standalone snapshot test was accidentally
+  nested, yielding zero selected tests plus an inner-item warning; moved it to
+  module scope before the substantive RED. Neither is counted as coverage.
+- Intermediate scoped GREEN: **22 AiState +10 CLI private consumer cases**
+  passed. Final unfiltered suites include all new cases below: same-C history
+  reload, away/back full partial, strict stale envelope/generation exclusion,
+  snapshot-before/after-Finished ordering, duplicate Finished, off-display end,
+  fresh history after off-display end, blank first-chat unsaved Copy truth and
+  production render predicates. Actual CLI Ask tests cover joined deadline 124,
+  retained SIGINT 130, mandatory new-Ask selection and frozen Completed replay.
+  Existing late Completed-wins, typed storage failure, obsolete profile,
+  unbound/no-auth replay and explicit conflicting-payload cases also passed.
+
+### Final exact-source offline gates
+
+All commands **exit 0**. Tests were captured with `set -o pipefail` and `tee`
+to ignored `.superpowers/sdd/chat/final-fixwave1-*.log`; summary counts were
+computed from every runner result group, not filtered output alone.
+
+```sh
+cd /Users/evokessler/repos/brn-rust/.worktrees/task-4-ai-chat
+unset BRN_NATIVE_MODEL_DIR
+export TMPDIR=/Users/evokessler/.brn-task5-fixtures
+cargo test -p brn --locked --offline
+cargo test -p brn --bin brn cli::library::tests --features native-retrieval --locked --offline
+cargo clippy -p brn --all-targets --locked --offline -- -D warnings
+cargo clippy -p brn --all-targets --features native-retrieval --locked --offline -- -D warnings
+export TMPDIR="$PWD/target/desktop-fixtures"
+cargo test -p brn-desktop --locked --offline
+cargo test -p brn-desktop --features native-ui,native-retrieval --locked --offline
+cargo build -p brn-desktop --locked --offline
+cargo build -p brn-desktop --features native-ui,native-retrieval --locked --offline
+cargo clippy -p brn-desktop --all-targets --locked --offline -- -D warnings
+cargo clippy -p brn-desktop --all-targets --features native-ui,native-retrieval --locked --offline -- -D warnings
+TMPDIR=/Users/evokessler/.brn-task5-fixtures cargo test -p brn-workflow --test legacy_retirement --locked --offline
+bash scripts/verify-end-to-end.sh --retirement-only
+cargo fmt --all -- --check
+git diff --check
+```
+
+| Fresh check | Actual result |
+| --- | --- |
+| FULL default CLI | **160 passed**, 17 result groups, 0 failed/ignored/filtered; 38 unit plus all 122 integration cases |
+| Native-retrieval CLI private consumer | **11 passed**, 27 filtered unit cases; this is not a full native CLI suite |
+| Default desktop | **61 unit +6 CLI passed**, 0 failed/ignored/filtered |
+| Full native desktop (`native-ui,native-retrieval`) | **127 unit +6 CLI passed**, 0 failed/ignored/filtered |
+| Default/full-native desktop builds | Passed; no GUI launched |
+| CLI/default+native and desktop/default+full-native strict Clippy | All four commands passed |
+| Workflow legacy retirement | **2 passed**, 0 failed/ignored/filtered; actual legacy authority storage/history and admission guards |
+| Production retirement checker / format / diff | Passed |
+
+The pre-existing `block v0.1.6` future-compiler incompatibility warning remains
+on full-native commands; no strict Clippy warning/error remains. Feature totals
+overlap cases, not unique-case counts. No unchanged whole-workspace suite,
+native model assets, graphical interaction, account action, live provider,
+original vault, future Step 5/6 implementation, main-worktree modification,
+amend, push, merge or release. Offline native state/build checks do not establish
+native usability, real credential validity, model inference or user acceptance.
+
+CLI auth-related tests used the canonical outside-Git synthetic fixture parent.
+Desktop layout checks used the explicit owned
+`target/desktop-fixtures` parent. An exact before/after comparison removed only
+**10 new resolved, own-UID, non-symlink layout directories**; there were zero
+preexisting layout entries, and unrelated fixture directories were preserved.
+Ignored reports/logs were not force-added. Both commits carry Co-authored-by.
+Next action belongs to the controller: scoped final Opus re-review of the
+product diff `3d98c05..6a82b78`, including both findings and fix-introduced bugs.
+Implementation/offline verification is complete; final review/acceptance and
+branch integration remain pending.
