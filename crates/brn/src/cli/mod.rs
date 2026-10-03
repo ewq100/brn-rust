@@ -7,6 +7,7 @@ pub mod error;
 mod input;
 pub mod library;
 pub(crate) mod out;
+pub mod proposals;
 
 use crate::cli::error::CliError;
 use brn_workflow::library::SearchMode;
@@ -25,6 +26,7 @@ pub struct Invocation {
 
 pub enum Command {
     Editor(editor::EditorCommand),
+    Proposals(proposals::ProposalCommand),
     Ai(ai::AiCommand),
     ModelDownload {
         timeout_seconds: u64,
@@ -99,6 +101,15 @@ Global options (accepted before or after the command):
   --version          Show the version without opening storage
 
 Commands:
+  brn proposals create --file DRAFT.json
+  brn proposals list [--group UUID]
+  brn proposals show PROPOSAL_ID
+  brn proposals edit --file EDIT.json
+  brn proposals rewrite-result --file EDIT.json
+  brn proposals comment --file COMMENT.json
+  brn proposals comment-update --file COMMENT.json
+  brn proposals comment-remove PROPOSAL_ID --review-version N --comment UUID
+  brn proposals reject PROPOSAL_ID --review-version N
   brn edit open PATH
   brn edit recover PATH --baseline UUID --expected-generation N --generation N --file F
   brn edit save PATH --baseline UUID --expected-generation N --generation N --file F --operation UUID [--copy PATH]
@@ -418,6 +429,7 @@ fn parse_inner(
     let scanned = match word.as_str() {
         "help" => return Ok(Outcome::Help),
         "edit" => editor::scan_command(&mut tokens, g, command)?,
+        "proposals" => proposals::scan_command(&mut tokens, g, command)?,
         "ai" => ai::scan_command(&mut tokens, g, command)?,
         "models" => {
             if sub_word(&mut tokens, "models", "download")? != "download" {
@@ -482,6 +494,7 @@ fn parse_inner(
     };
     let built = match word.as_str() {
         "edit" => Command::Editor(editor::parse_command(command.unwrap(), &scanned)?),
+        "proposals" => Command::Proposals(proposals::parse_command(command.unwrap(), &scanned)?),
         "ai" => Command::Ai(ai::parse_command(command.unwrap(), &scanned)?),
         "models" => {
             expect_positionals(&scanned, 0)?;

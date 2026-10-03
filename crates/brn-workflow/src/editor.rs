@@ -33,7 +33,7 @@ pub(crate) struct EditorState {
     files: Option<MacFiles>,
 }
 
-fn file_error(error: FileFailure) -> WorkflowError {
+pub(crate) fn file_error(error: FileFailure) -> WorkflowError {
     let kind = match error.code {
         FileErrorCode::Conflict | FileErrorCode::Missing => ErrorKind::ContextStale,
         FileErrorCode::VaultUnavailable => ErrorKind::VaultUnavailable,
@@ -71,7 +71,7 @@ impl App {
         self.set_editor_tool_barrier(self.editor_has_unresolved()?);
         Ok(())
     }
-    fn editor_files(&mut self) -> Result<&MacFiles> {
+    pub(crate) fn editor_files(&mut self) -> Result<&MacFiles> {
         if self.editor.files.is_none() {
             let root = self.root.as_deref().ok_or_else(|| {
                 WorkflowError::typed(ErrorKind::VaultNotBound, "choose a vault before editing")

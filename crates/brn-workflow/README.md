@@ -6,7 +6,7 @@ Store/Workspace/worker and brn-flow paths are removed.
 
 ## Interfaces and source
 
-[Application](src/app.rs), [commands/events](src/app_worker.rs), [chat lane](src/chat_worker.rs), [editor](src/editor.rs), [file adapter](src/files/mod.rs).
+[Application](src/app.rs), [commands/events](src/app_worker.rs), [chat lane](src/chat_worker.rs), [editor](src/editor.rs), [proposal review](src/proposals.rs), [file adapter](src/files/mod.rs).
 
 ## Simple app owner and read tools
 
@@ -48,6 +48,23 @@ Reads preserve the exact UTF-8 prefix up to 50,000 bytes, including BOM/CRLF.
 Lists validate component-only folders and note-path cursors, use exclusive
 path-sorted keyset pagination and return at most 200 entries. `"work"` never
 matches `"workshop"`. These APIs never write vault files.
+
+## Typed proposal review foundation
+
+`proposals::DraftRequest` supplies typed Create/Replace/Trash intent. Workflow
+captures trusted vault/parent/before identities and exact bytes, checks expected
+source fingerprints and refuses occupied or aliased destinations. Creation replay
+precedes fresh-vault checks and returns existing edited review work; a conflicting
+initial payload cannot reuse its UUID. Review text/comments are operational work,
+never current vault evidence.
+
+Full-text edits, anchored or whole-proposal comments, explicit reattachment,
+rejection and imported captured Rewrite results use one version. Changing an
+anchored target leaves its old range unresolved; late results after newer edits,
+comments or rejection fail. AppWorker owns and drains admitted review mutations.
+Read/list/edit/comment work remains available without current vault access.
+Proposal approval/application, activity/Undo/Trash, AI Rewrite and native review
+are subsequent Stage 4 slices, not established by this foundation.
 
 ## Explicit model installation
 

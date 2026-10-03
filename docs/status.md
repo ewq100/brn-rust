@@ -3,7 +3,7 @@
 2026-10-03. Stage 1 is locally integrated at `6609442`, based on frozen-guidance
 baseline `4bf7878`. Stage 2 is locally integrated at `a5ec4ae`. Stage 3 offline
 probe preparation is integrated at `7e63041`; the authorized live round has
-finished, with the limitations below. Proposal Core is next.
+finished, with the limitations below. Stage 4 Proposal Core is active.
 
 The owner has authorized sequential BRN v1 delivery using the [product vision](product/BRN_PRODUCT_VISION.md),
 [target architecture](architecture/overview.md#frozen-target), [invariants](architecture/invariants.md),
@@ -18,7 +18,7 @@ contains reproducible acceptance steps and verification detail.
   UTF-8 bytes, detects changed file/root/parent identity and never recreates a
   missing original. Save Copy uses an unused destination without overwriting or
   resolving the original editor. Compare and confirmed reload remain local.
-- WorkStore V3 holds generation-checked recovery, save intent/proof and receipts.
+- WorkStore’s V3 editor schema holds generation-checked recovery, save intent/proof and receipts.
   Replay never repeats file writes. Reconciliation requires identity proof;
   unresolved saves fence current search/AI. One recent Applied recovery pair and
   compact settled receipts remain after proven artifact cleanup.
@@ -35,7 +35,7 @@ contains reproducible acceptance steps and verification detail.
   `brn-flow`. The workspace now has six crates and two binaries. WorkStore and
   current Save/recovery/search/chat remain; old/mixed markers refuse before
   SQLite opens. Existing data, standalone trials and historical records remain
-  untouched. Proposal Core and later v1 stages remain unimplemented.
+  untouched. Whole-proposal application and later v1 stages remain pending.
 
 Fresh Stage 1 verification: workspace **728 passed, 0 failed, 1 ignored**;
 native desktop **137 unit + 6 CLI tests passed**; native workflow **93 library +
@@ -65,7 +65,14 @@ record exact models, scope, verification and downstream constraints. Final
 independent review found no actionable defects. Fresh workspace **404 passed,
 0 failed, 1 ignored**; feature AI **68 + 1 example passed**. Default and feature
 build/Clippy, format and documentation checks passed.
-Stages 4–16 remain pending; no complete BRN v1 delivery is claimed.
+Stage 4 review foundation is implemented under [its plan](work/active/proposal-core/plan.md):
+typed Markdown drafts, version-bound full edits/comments/rejection, uncertain
+anchors, stale Rewrite-result protection and shared AppWorker/CLI access. It
+never writes knowledge. Independent review found no actionable defects; fresh
+workspace **423 passed, 0 failed, 1 ignored**, build/Clippy/format, optional native
+check and **52 existing fixture assertions** passed. Owner headless acceptance
+remains pending. Whole-proposal approval/application, activity/Undo/Trash, AI
+Rewrite and native review are the next Stage 4 slices. Stages 5–16 remain pending; no complete BRN v1 delivery is claimed.
 Owner acceptance may remain pending when it is not a dependency for later safe
 implementation.
 

@@ -10,6 +10,7 @@ pub mod library;
 pub mod models;
 #[cfg(all(test, feature = "native-retrieval"))]
 mod models_tests;
+pub mod proposals;
 #[cfg(test)]
 mod simple_worker_tests;
 pub mod vault;

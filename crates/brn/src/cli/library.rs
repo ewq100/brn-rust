@@ -278,6 +278,11 @@ pub fn run(i: &Invocation) -> Result<Output, CliFailure> {
     } else {
         None
     };
+    let proposal = if let Command::Proposals(command) = &i.command {
+        Some(super::proposals::prepare(command)?)
+    } else {
+        None
+    };
     if matches!(i.command, Command::ModelDownload { .. })
         && !brn_workflow::native_retrieval_compiled()
     {
@@ -301,7 +306,7 @@ pub fn run(i: &Invocation) -> Result<Output, CliFailure> {
     };
     let result = (|| {
         let mut lane = Lane::start(i, timeout)?;
-        let result = execute(i, &mut lane, ask_id, editor);
+        let result = execute(i, &mut lane, ask_id, editor, proposal);
         lane.finish(result)
     })();
     result.map_err(|mut failure: CliFailure| {
@@ -319,8 +324,18 @@ fn execute(
     lane: &mut Lane,
     ask_id: Option<Uuid>,
     editor: Option<(Uuid, AppCommand)>,
+    proposal: Option<AppCommand>,
 ) -> Result<Output, CliFailure> {
     match &i.command {
+        Command::Proposals(_) => {
+            let data =
+                match lane.query(proposal.expect("proposal input prepared before startup"))? {
+                    AppEvent::Proposal(record) => json!(record),
+                    AppEvent::Proposals(records) => json!(records),
+                    _ => return Err(unexpected()),
+                };
+            Ok(output(data))
+        }
         Command::Editor(_) => {
             let (id, command) = editor.expect("editor input prepared before startup");
             let data = match lane.query_with_id(id, command)? {

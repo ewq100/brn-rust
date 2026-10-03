@@ -775,7 +775,7 @@ impl AiState {
                 }
                 self.next_cursor = page.next_cursor;
             }
-            AppEvent::Note(_) => {}
+            AppEvent::Note(_) | AppEvent::Proposal(_) | AppEvent::Proposals(_) => {}
             AppEvent::Editor(view) => {
                 if let Some(Pending::Editor {
                     generation,

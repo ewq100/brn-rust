@@ -1,19 +1,19 @@
 # brn-store
 
 Operational SQLite authority for BRN. WorkStore owns `brn.sqlite`, checked
-migrations, local chat, settings and unfinished editor/save recovery. Vault files
+migrations, local chat, settings, proposal review and unfinished editor/save recovery. Vault files
 own saved Markdown; disposable retrieval indexes live outside this crate.
 
 ## Interfaces and source
 
 [WorkStore](src/work/mod.rs), [editor/save journal](src/work/editor.rs),
-[chat records](src/work/chat.rs), [unfinished edit compatibility](src/work/edits.rs),
+[chat records](src/work/chat.rs), [proposal review](src/work/proposals.rs), [unfinished edit compatibility](src/work/edits.rs),
 [backup/restore](src/work/backup.rs), [filesystem proof DTOs](src/files.rs) and
 [workspace marker guards](src/workspace_mode.rs).
 
 ## Database ownership and recovery
 
-WorkStore uses application ID `BRN2`, schema V3, and retains `brn.owner.lock`
+WorkStore uses application ID `BRN2`, schema V4, and retains `brn.owner.lock`
 for its lifetime. Current settings, text-only conversations and unfinished work
 are preserved by additive migrations. Earlier WorkStore V1 unsaved-edit rows
 remain available; matching text moves atomically into the generation-aware
@@ -58,6 +58,23 @@ uses an exact stamp and explicit discard of local changes.
 values. Their fields and wire shape are preserved from the existing Save
 implementation. Storage performs no filesystem installation, coordination or
 artifact removal.
+
+## Typed proposal review
+
+V4 stores typed Markdown Create/Replace/Trash drafts, exact before-text and file,
+parent, vault and source bindings. Creation UUIDs bind the initial payload;
+identical creation replay returns current review work without replacing edits.
+Records and that binding are checked by hashes, row identity and bounded domain
+validation. Each proposal supports 1–64 changes, 1 MiB per note, 8 MiB aggregate
+review text and at most 64 comments of 16 KiB each.
+
+Editing, comments, explicit reattachment and rejection use one exact review
+version and transactional updates. Changed target content marks anchored comments
+Unresolved while retaining their old range/quote; no text search guesses a new
+anchor. Late Rewrite results use the same version guard and preserve newer edits
+or comments. Rejection retains review work. Group listings keep independently
+reviewable proposals separate. This foundation does not apply knowledge or
+provide approval, activity, Undo/Trash or AI execution; Stage 4 remains active.
 
 ## Local chat
 

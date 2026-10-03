@@ -32,7 +32,7 @@ database/backup markers are refused before SQLite opens; no old data is migrated
 | [brn](../../crates/brn/README.md) | Agent-facing CLI over AppWorker |
 | [brn-desktop](../../crates/brn-desktop/README.md) | Native presentation, exact text buffer, layout and AppWorker commands |
 | [brn-workflow](../../crates/brn-workflow/README.md) | Application/chat/account/model lanes, vault, Save/recovery and read-only AI tools |
-| [brn-store](../../crates/brn-store/README.md) | WorkStore integrity, backups, chat, exact editor recovery and Save journals |
+| [brn-store](../../crates/brn-store/README.md) | WorkStore integrity, backups, chat, proposal review, exact editor recovery and Save journals |
 | [brn-retrieval](../../crates/brn-retrieval/README.md) | Disposable current-note FTS5/embedding index and evidence |
 | [brn-ai](../../crates/brn-ai/README.md) | Explicit account/model selection, protected authentication and Rig streaming |
 
@@ -72,6 +72,15 @@ current source evidence. Results validate fresh bytes; results spanning Save or
 unresolved work are rejected. Default builds explicitly use keyword-only search;
 optional native features load FastEmbed/ONNX and require fresh consent for model
 installation. Startup and saved consent never initiate downloads or login.
+
+## Typed review foundation
+
+WorkStore V4 and AppWorker now persist typed Markdown drafts, exact before/source
+bindings, full edits, temporary comments and rejection. One review version guards
+late Rewrite results; uncertain anchors retain their old range without guessing.
+Headless review operations do not apply knowledge. Whole-proposal approval,
+recoverable application, activity/Undo/Trash, AI Rewrite and native review remain
+active Stage 4 work, before later roadmap domains extend the typed changes.
 
 ## Build boundaries and remaining work
 
