@@ -31,6 +31,7 @@ use std::path::PathBuf;
 use std::time::{Duration, Instant};
 use uuid::Uuid;
 
+mod approval;
 mod review;
 mod shell;
 mod simple;
@@ -40,6 +41,7 @@ mod theme;
 enum DocRef {
     SavedNote,
     Proposal(Uuid),
+    Activity,
 }
 
 #[derive(Clone, Copy, Debug, PartialEq, Eq)]

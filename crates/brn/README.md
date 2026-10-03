@@ -190,7 +190,8 @@ repeat `approve` and `reconcile` with the same UUID to confirm the same receipt.
 Typed JSON is decoded before workspace admission; encoded input is bounded to
 64 MiB, with stricter domain limits of 1 MiB per note and 8 MiB aggregate review
 work. Nonregular inputs refuse without blocking. Native full review/edit/comments
-use the same records; native approval and application controls remain Stage 4 work.
+use the same records, exact approval and activity; native Undo/repair and initial
+proposal creation remain Stage 4 work.
 
 ### Owned AI Rewrite
 

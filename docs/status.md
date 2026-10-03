@@ -100,8 +100,23 @@ Rust 1.98.1 locked/offline gates passed **647 workspace tests, 0 failed, 2 ignor
 **114 native tests** (including actual headless title-widget input and worker
 restart), native build/Clippy. Independent checks passed **20 default / 22 native
 review tests**. The slice is locally integrated under mission authorization; actual GUI/IME/accessibility
-and owner acceptance remain pending. Native exact approval/group/activity/Undo/
-repair and initial native/AI proposal creation are the next Stage 4 slices.
+and owner acceptance remain pending.
+
+Native exact individual/captured-group approval, paged activity and recorded-
+operation reconciliation are implemented and automated verified against `cf0e161`.
+Full confirmation snapshots bind stable operation IDs; late arrivals are excluded,
+partial outcomes remain explicit, and review guards await the actual record ACK.
+Independent review exposed three valid allocation/correlation defects; meaningful
+worker regressions reproduce and verify their corrections. Final independent
+checks passed **13 default / 13 native approval tests** and **1 shared recovery
+summary regression**, with no remaining actionable findings. Fresh locked/offline
+gates passed **661 workspace tests, 0 failed, 2 ignored**, **52 end-to-end
+assertions**, retirement, format/build/all-target Clippy and **127 native tests**,
+shipping native build and native all-target Clippy. The gate also caught and
+verified a corrected oversized worker-event allocation. This slice is locally
+integrated under mission authorization; actual GUI/IME/accessibility and owner
+acceptance remain pending. Native Undo/repair and initial native/AI proposal
+creation are the next Stage 4 slices.
 
 ## Qualification still open
 
@@ -110,7 +125,7 @@ implementation. Builds and synthetic crash/state tests do not establish native
 usability, physical power-loss durability, other-volume support, actual model
 inference or release readiness. Native Save/Copy/conflict/reload/recovery,
 chooser, IME, accessibility, rendering and Stop/restart remain pending. Proposal
-review has native controls; application/repair controls remain headless; mixed/interrupted application stays fenced
+review and exact approval/activity have native controls; Undo/repair controls remain headless; mixed/interrupted application stays fenced
 until exact reconciliation or explicit repair. Native review/Undo/repair usability
 remains pending.
 The completed provider round leaves Copilot GPT-5.5 Chat unsupported, Codex vision

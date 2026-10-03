@@ -69,8 +69,15 @@ unresolved anchors retain their old quote and require explicit reattachment.
 Failed comment saves retain copyable draft text and guard leaving until it is
 acknowledged or explicitly discarded. Rewrite freezes provider/model/effort and
 supports Stop; a late result retains conflicting local text instead of replacing
-it. These operations keep vault knowledge unchanged. Native exact approval,
-group approval, activity, Undo and repair presentation remain Stage 4 work.
+it. These review operations keep vault knowledge unchanged. Exact approval opens
+a full captured confirmation; group approval includes only its displayed records
+and may stop after an earlier independent proposal. Controls remain guarded until
+the application outcome and current review are acknowledged. Activity pages show
+recorded successful changes and full historical approval snapshots; recovery
+inspection/reconciliation reports actual pending/uncertain outcomes without
+repeating installation. Failed application refreshes journals because an error
+can follow recorded file effects. Native Undo/repair and initial proposal creation
+remain Stage 4 work; GUI acceptance is tracked separately.
 
 Native retrieval offers a one-time prompt per stored consent decision, showing
 pinned source, bytes/cost and destination. Decline makes no network request.

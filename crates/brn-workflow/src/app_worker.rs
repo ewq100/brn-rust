@@ -71,6 +71,8 @@ pub enum AppCommand {
     RepairProposal(crate::proposal_apply::RepairRequest),
     ApproveProposalGroup(crate::proposal_apply::GroupApprovalRequest),
     ProposalApplies,
+    ProposalRecovery,
+    ProposalApply(Uuid),
     Activity(crate::activity::ActivityRequest),
     RecoverEdit {
         path: String,
@@ -133,6 +135,8 @@ pub enum AppEvent {
     ProposalRepaired(crate::proposal_apply::RepairReceipt),
     ProposalGroupApplied(crate::proposal_apply::GroupApprovalResult),
     ProposalApplies(Vec<crate::proposal_apply::ApplyJournal>),
+    ProposalRecovery(Vec<crate::proposal_apply::ApplySummary>),
+    ProposalApply(Option<Box<crate::proposal_apply::ApplyJournal>>),
     Activity(crate::activity::ActivityPage),
     Search(SearchResults),
     Conversations(Vec<WorkConversation>),
@@ -965,6 +969,12 @@ fn dispatch(
         }
         AppCommand::ProposalApplies => {
             AppEvent::ProposalApplies(app.work_store().proposal_applies()?)
+        }
+        AppCommand::ProposalRecovery => {
+            AppEvent::ProposalRecovery(app.proposal_recovery_operations()?)
+        }
+        AppCommand::ProposalApply(operation) => {
+            AppEvent::ProposalApply(app.proposal_apply(operation)?.map(Box::new))
         }
         AppCommand::Activity(request) => AppEvent::Activity(app.activity(&request)?),
         AppCommand::ReloadEditor(request) => {

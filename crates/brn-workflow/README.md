@@ -72,7 +72,8 @@ comments or rejection fail. AppWorker owns and drains admitted review mutations.
 Read/list/edit/comment work remains available without current vault access.
 `validate_review_edit` provides pure full-result validation using Store's bounded
 typed rules before the frontend queues an edit. Owned AI Rewrite uses the
-lifecycle below; native approval/activity/Undo/repair remain Stage 4 work.
+lifecycle below. Native exact individual/captured-group approval and activity use
+these same DTOs; native Undo/repair remain Stage 4 work.
 
 The current-evidence fence covers pending/Uncertain Save and proposal journals.
 It refuses tools, note/list/search, refresh and embedding, including startup and
@@ -101,8 +102,12 @@ historical completion preserves subsequent owner bytes. Reconciliation checks
 current sources for incomplete work, recognizes sources replaced/trashed by that
 proposal, and never repeats installation. Approved annotation cleanup covers
 current/prior journals, ordinary snapshots and compatible proof-checked temporary
-snapshots; unexpected occupants remain retained. Native proposal interaction
-still needs a later slice.
+snapshots; unexpected occupants remain retained. Native exact approval and
+reconciliation use these same workflow rules. `ProposalRecovery` returns small
+checked pending/uncertain summaries, validating one journal at a time;
+`ProposalApply(UUID)` loads only the identified full historical snapshot. Paged
+native Activity never retains every historical proposal body. Explicit CLI
+`applies` remains the full operational inspection command.
 
 ## Owned AI Rewrite
 
@@ -141,7 +146,7 @@ decoded at a time, keeping bodies out of the full-history ordering metadata.
 Drafts/refusals/uncertain work cannot claim a successful durable change. Historical
 activity stays readable when current evidence is fenced or its vault unavailable,
 and ordinary recovery restores it without repeating old effects. Native activity
-presentation follows with the complete proposal review interaction.
+presentation uses the same paged projection and exact journal snapshots.
 
 ## Explicit Undo and Trash restoration
 
@@ -165,7 +170,7 @@ recovery refuses. Tokens, generations and queued later typing remain untouched.
 Activity includes the source operation and optional original Trash member index.
 The existing 64-member/8 MiB proposal limits apply. Old retained Trash is eligible
 while its proofs hold; no timer/count silently purges it. CLI commands are described
-in [brn](../brn/README.md). Native review/Undo interaction and
+in [brn](../brn/README.md). Native Undo interaction and
 owner usability acceptance remain pending.
 
 ## Explicit interrupted-operation repair

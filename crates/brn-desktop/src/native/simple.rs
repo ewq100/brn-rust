@@ -20,6 +20,7 @@ pub(super) struct Closed {
 pub(super) enum EditorTransition {
     Note(String),
     Review(Uuid),
+    Activity,
     Hide,
     Close(CloseRoute),
 }
@@ -303,6 +304,20 @@ impl Desktop {
                 self.open_doc = Some(DocRef::Proposal(id));
                 self.centre_tab = CentreTab::Document;
                 if let Some(command) = ai.open_review(id) {
+                    self.simple_send(command, cx);
+                }
+            }
+            EditorTransition::Activity => {
+                let ai = self.ai.as_mut().unwrap();
+                ai.note_generation = ai.note_generation.wrapping_add(1);
+                ai.review_generation = ai.review_generation.wrapping_add(1);
+                ai.editor = None;
+                ai.review = None;
+                self.simple_note_path = None;
+                self.open_doc = Some(DocRef::Activity);
+                self.centre_tab = CentreTab::Document;
+                let commands = [ai.refresh_activity(), ai.refresh_applies()];
+                for command in commands.into_iter().flatten() {
                     self.simple_send(command, cx);
                 }
             }
@@ -646,14 +661,25 @@ impl Desktop {
                     .on_click(cx.listener(move |this, _, _, cx| this.simple_history(Some(id), cx))),
             );
         }
-        list = list.child("Proposal review").child(
-            Button::new("refresh-proposal-list")
-                .label("Refresh proposals")
-                .disabled(!ai.ready)
-                .on_click(cx.listener(|this, _, _, cx| {
-                    this.simple_command(Pending::Proposals, AppCommand::Proposals(None), cx)
-                })),
-        );
+        list = list
+            .child(
+                Button::new("open-activity")
+                    .label("Activity and recovery")
+                    .selected(self.open_doc == Some(DocRef::Activity))
+                    .disabled(!ai.ready)
+                    .on_click(cx.listener(|this, _, _, cx| {
+                        this.simple_leave(EditorTransition::Activity, cx)
+                    })),
+            )
+            .child("Proposal review")
+            .child(
+                Button::new("refresh-proposal-list")
+                    .label("Refresh proposals")
+                    .disabled(!ai.ready)
+                    .on_click(cx.listener(|this, _, _, cx| {
+                        this.simple_command(Pending::Proposals, AppCommand::Proposals(None), cx)
+                    })),
+            );
         for proposal in &ai.proposals {
             let id = proposal.draft.id;
             list = list.child(

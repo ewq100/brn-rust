@@ -91,8 +91,10 @@ Rewrite uses the existing chat lane and one narrow V6 operational job, committin
 validated review text and outcome atomically against its captured stamp/hash.
 Jobs retain safe metadata only; restart interrupts without retry. Native full
 review/edit/comments and Rewrite controls use persistent text widgets and guarded
-AppWorker acknowledgements. Native exact approval/activity/Undo/repair and initial
-proposal creation remain Stage 4 work before later domains extend typed changes.
+AppWorker acknowledgements. Native exact individual/group approval captures full
+records and binds every outcome; activity/reconciliation use shared receipts.
+Native Undo/repair and initial proposal creation remain Stage 4 work before later
+domains extend typed changes.
 
 WorkStore V5 adds exact approval snapshots, all-member prepared proofs and
 whole-proposal receipts. Pending/Uncertain journals fence current reads and

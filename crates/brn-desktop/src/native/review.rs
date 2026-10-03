@@ -382,6 +382,27 @@ impl Desktop {
                             })),
                     )
                     .child(
+                        Button::new("review-approve")
+                            .label("Review exact approval…")
+                            .disabled(!can_mutate || ai.application_busy() || ai.rewrite.is_some())
+                            .on_click(cx.listener(|this, _, window, cx| {
+                                this.open_approval_dialog(false, window, cx)
+                            })),
+                    )
+                    .child(
+                        Button::new("review-approve-group")
+                            .label("Review captured group approval…")
+                            .disabled(
+                                !can_mutate
+                                    || review.record.draft.group_id.is_none()
+                                    || ai.application_busy()
+                                    || ai.rewrite.is_some(),
+                            )
+                            .on_click(cx.listener(|this, _, window, cx| {
+                                this.open_approval_dialog(true, window, cx)
+                            })),
+                    )
+                    .child(
                         Button::new("review-reject")
                             .label("Reject proposal")
                             .disabled(!can_mutate)
@@ -458,6 +479,21 @@ impl Desktop {
                 if let Some(error) = &job.error_code {
                     body = body.child(format!("Safe failure category: {error}"));
                 }
+            }
+            if ai.application_busy() {
+                body = body.child("Waiting for application and current-review acknowledgement.");
+            }
+            for receipt in &ai.approval_receipts {
+                body = body.child(format!(
+                    "Operation {} · proposal {} · approved version {} · {:?}",
+                    receipt.operation_id,
+                    receipt.proposal_id,
+                    receipt.approved_version,
+                    receipt.outcome
+                ));
+            }
+            if let Some(error) = &ai.approval_error {
+                body = body.child(error.clone());
             }
             if self.review_comment_draft.is_some()
                 && !self.review_comment.read(cx).value().is_empty()

@@ -856,3 +856,72 @@ under standing mission authorization, preserving the unrelated AGENTS.md edit. H
 and owner acceptance remain pending; these results establish headless state/widget
 and shared workflow behavior only. Continue native exact approval/group/activity,
 then Undo/repair and initial proposal creation within Stage 4.
+
+### Native exact approval, group review and activity
+
+Baseline: `main@cf0e161`, preserving the owner's AGENTS.md edit; published CI has
+no run for that locally integrated result. Use existing AppWorker approval/group,
+activity, journal and reconciliation APIs. Capture full acknowledged records and
+fresh operation IDs when confirmation opens; show complete before/proposed/source
+evidence for every captured member. Confirmation checks that the captured reviews
+remain current, and never includes later group arrivals. Individual/group outcomes
+remain explicit; partial/refused/uncertain results cannot be presented as success.
+Guard review mutation/leaving while application is admitted, refresh current
+review through observation, and preserve late local text. Expose paged readable
+activity and interrupted-operation inspection/reconciliation without repeating
+installation. Native Undo/repair and initial proposal creation remain next slices.
+
+Meaningful deterministic checks cover full capture, stale confirmation, wrong
+receipt/batch correlation, group partial refusal and late arrival exclusion,
+activity page generations/cursors, failed admission with recorded journals,
+reconciliation/restart and exact vault bytes/comment cleanup through real
+AppWorker. Independently review the complete slice, validate findings and run
+fresh default/native gates before local integration. No live calls, private data,
+release or architecture changes; record a reproducible manual acceptance scenario.
+
+Manual acceptance pending: create two synthetic Create proposals with one group
+UUID using the [CLI](../../../../crates/brn/README.md#typed-review-foundation), then
+launch native desktop with those explicit disposable data/vault directories.
+Open a proposal, edit/comment and wait for acknowledgement. Open exact approval;
+inspect complete title, every before/proposed body and source version. Cancel
+without changing the vault; reopen and approve. Confirm all files match the
+captured bytes and temporary comments disappear only from Applied proposals.
+Use group review for a new batch; make the second destination externally occupied
+after opening confirmation. Confirm the first may apply, the second refuses, and
+remaining proposals stay unapplied. Inspect every outcome and Activity's recorded
+full snapshots. Restart and verify historical activity; reconcile only the
+identified recorded operation. Synthetic automated fixtures cover late arrivals,
+interruption, stale confirmation and delayed replies; actual GUI/IME/accessibility
+and owner acceptance remain pending.
+
+Independent review exposed a concrete memory regression: paged native Activity
+requested and retained every full historical apply journal. The corrected narrow
+read API validates one journal at a time and returns only pending/uncertain
+metadata; an identified lookup loads one selected full snapshot. Existing Store
+authority, CLI full inspection and paged Activity remain unchanged. No database
+or architecture reopening is needed. The actual worker pagination regression
+also reproduced a wrong-snapshot-body acknowledgement failure; preserving its
+exact pending UUID lets the later correct body settle safely.
+
+The same independent review exposed a wrong-record/event-type post-application
+acknowledgement releasing the review guard. Real state regressions reproduced
+both acknowledgement defects before the correction, and passed afterward. Final
+independent checks passed **13 default / 13 native approval tests** and **1 shared
+recovery-summary worker regression**, with no remaining actionable findings. The
+full gate then caught `large_enum_variant`; boxing only the identified journal
+reply fixes its allocation without changing semantics. The final narrow delta
+is independently inspected before integration.
+
+Fresh root macOS arm64 / Rust 1.98.1 locked/offline verification passed:
+`TMPDIR=<exclusive synthetic parent> bash scripts/verify-end-to-end.sh`
+(**661 workspace tests, 0 failed, 2 ignored**, **52 end-to-end assertions**,
+retirement/format/build/all-target Clippy with warnings denied), native desktop
+tests with `native-ui,native-retrieval,native-test-support` (**127 passed**),
+shipping native build without test support and native all-target Clippy with
+warnings denied. Default desktop passed **112**; workflow **182**. The existing
+upstream `block v0.1.6` warning remains. Actual GUI/IME/accessibility, owner
+acceptance and published CI qualification remain pending; no live calls occur.
+Only proven owned synthetic layout fixtures and their exclusive gate parent are
+removed; logs remain outside Git. Changed contracts/status and local links are
+checked before local integration. Owner AGENTS.md changes remain untouched.
+Native Undo/repair and initial native/AI proposal creation follow within Stage 4.

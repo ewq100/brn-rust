@@ -229,6 +229,151 @@ fn admitted_approval_later_old_stamp_recovery_and_reconciliation_drain_before_re
 }
 
 #[test]
+fn recovery_summaries_exclude_history_and_identified_snapshots_preserve_partial_effects() {
+    use brn_store::{WorkStore, files::FileFingerprint};
+    use sha2::{Digest, Sha256};
+    use std::os::unix::fs::MetadataExt;
+    let fixture = Fixture::new();
+    let mut worker = fixture.worker();
+    assert!(matches!(next(&worker).1, AppEvent::Ready { .. }));
+    let create = |path: &str, text: &str| {
+        let AppEvent::Proposal(record) = request(
+            &worker,
+            AppCommand::CreateProposal(DraftRequest {
+                id: Uuid::new_v4(),
+                group_id: None,
+                session_id: None,
+                title: format!("Exact {path}"),
+                changes: vec![DraftNoteChange::Create {
+                    path: path.into(),
+                    text: text.into(),
+                }],
+                sources: vec![],
+            }),
+        ) else {
+            panic!("draft");
+        };
+        record
+    };
+    let historical = create("historical.md", APPROVED);
+    let historical_request = ApprovalRequest {
+        operation_id: Uuid::new_v4(),
+        expected: historical.stamp(),
+    };
+    assert!(
+        matches!(request(&worker, AppCommand::ApproveProposal(historical_request.clone())), AppEvent::ProposalApplied(receipt) if receipt.outcome == ApplyOutcome::Applied)
+    );
+    let AppEvent::Proposal(mixed) = request(
+        &worker,
+        AppCommand::CreateProposal(DraftRequest {
+            id: Uuid::new_v4(),
+            group_id: None,
+            session_id: None,
+            title: "Partial full snapshot λ".into(),
+            changes: vec![
+                DraftNoteChange::Create {
+                    path: "one.md".into(),
+                    text: APPROVED.repeat(4096),
+                },
+                DraftNoteChange::Create {
+                    path: "two.md".into(),
+                    text: LATER.into(),
+                },
+            ],
+            sources: vec![],
+        }),
+    ) else {
+        panic!("mixed draft");
+    };
+    worker.shutdown().unwrap();
+    let mixed_request = ApprovalRequest {
+        operation_id: Uuid::new_v4(),
+        expected: mixed.stamp(),
+    };
+    let (mut store, _) = WorkStore::open(&fixture.data).unwrap();
+    let intent = store.begin_proposal_apply(&mixed_request).unwrap();
+    let mut prepared = vec![];
+    for (member, change) in intent.members.iter().zip(&intent.approved.draft.changes) {
+        let stage = fixture.vault.join(&member.staging);
+        let bytes = change.text().unwrap().as_bytes();
+        fs::write(&stage, bytes).unwrap();
+        let metadata = fs::metadata(&stage).unwrap();
+        prepared.push(FileFingerprint {
+            device: metadata.dev(),
+            inode: metadata.ino(),
+            len: metadata.len(),
+            sha256: Sha256::digest(bytes).into(),
+        });
+    }
+    let journal = store
+        .record_proposal_prepared(mixed_request.operation_id, &prepared)
+        .unwrap();
+    fs::rename(
+        fixture.vault.join(&journal.members[0].staging),
+        fixture.vault.join("one.md"),
+    )
+    .unwrap();
+    drop(store);
+    let mut worker = fixture.worker();
+    assert!(matches!(next(&worker).1, AppEvent::Ready { .. }));
+    let AppEvent::ProposalRecovery(summaries) = request(&worker, AppCommand::ProposalRecovery)
+    else {
+        panic!("recovery summaries");
+    };
+    assert_eq!(summaries.len(), 1);
+    assert_eq!(summaries[0].request, mixed_request);
+    assert_eq!(summaries[0].title, mixed.draft.title);
+    assert_eq!(summaries[0].outcome, None);
+    let encoded = serde_json::to_string(&summaries).unwrap();
+    assert!(encoded.len() < 1024 && !encoded.contains(APPROVED));
+    assert!(
+        matches!(request(&worker, AppCommand::ReconcileProposal(mixed_request.operation_id)), AppEvent::ProposalApplied(receipt) if receipt.outcome == ApplyOutcome::Uncertain)
+    );
+    let AppEvent::ProposalRecovery(summaries) = request(&worker, AppCommand::ProposalRecovery)
+    else {
+        panic!("classified recovery summary");
+    };
+    assert_eq!(summaries.len(), 1);
+    assert_eq!(summaries[0].request, mixed_request);
+    assert_eq!(summaries[0].outcome, Some(ApplyOutcome::Uncertain));
+    assert!(
+        matches!(request(&worker, AppCommand::ProposalApply(historical_request.operation_id)), AppEvent::ProposalApply(Some(snapshot)) if snapshot.request == historical_request && snapshot.approved.draft.changes[0].text() == Some(APPROVED))
+    );
+    let AppEvent::ProposalApply(Some(snapshot)) = request(
+        &worker,
+        AppCommand::ProposalApply(mixed_request.operation_id),
+    ) else {
+        panic!("identified full snapshot");
+    };
+    assert_eq!(snapshot.approved.draft, mixed.draft);
+    assert_eq!(
+        snapshot.receipt.as_ref().unwrap().outcome,
+        ApplyOutcome::Uncertain
+    );
+    assert!(matches!(
+        request(&worker, AppCommand::ProposalApply(Uuid::new_v4())),
+        AppEvent::ProposalApply(None)
+    ));
+    assert!(
+        matches!(request(&worker, AppCommand::ProposalApply(Uuid::nil())), AppEvent::Failed(error) if error.kind == ErrorKind::ToolRejected)
+    );
+    assert_eq!(
+        fs::read(fixture.vault.join("historical.md")).unwrap(),
+        APPROVED.as_bytes()
+    );
+    assert_eq!(
+        fs::read(fixture.vault.join("one.md")).unwrap(),
+        APPROVED.repeat(4096).as_bytes()
+    );
+    assert_eq!(
+        fs::read(fixture.vault.join(&journal.members[1].staging)).unwrap(),
+        LATER.as_bytes()
+    );
+    assert!(!fixture.vault.join("two.md").exists());
+    worker.shutdown().unwrap();
+}
+
+#[test]
 fn malformed_ordinary_receipt_fails_startup_before_ready_or_current_evidence() {
     for filename in [
         format!(".brn-apply-{}.receipt", Uuid::new_v4()),
