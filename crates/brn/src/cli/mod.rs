@@ -135,6 +135,7 @@ Commands:
   brn ai status
   brn ai models chatgpt|copilot [--timeout-seconds N]
   brn ai select --provider chatgpt|copilot --model MODEL
+  brn ai effort [low|medium|high]
   brn models download --approve-download [--model-dir DIR] [--timeout-seconds N]
   brn notes list [--folder FOLDER] [--cursor PATH]
   brn notes show PATH.md

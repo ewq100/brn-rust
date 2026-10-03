@@ -1,6 +1,6 @@
 # Current development status
 
-2026-10-03. The owner has authorized sequential BRN v1 delivery under the frozen
+2026-10-04. The owner has authorized sequential BRN v1 delivery under the frozen
 [product vision](product/BRN_PRODUCT_VISION.md), [architecture](architecture/overview.md#frozen-target),
 [invariants](architecture/invariants.md), [roadmap](roadmap.md) and
 [development workflow](development/workflow.md). Stage 4 Proposal Core is active;
@@ -77,6 +77,18 @@ Fresh locked/offline gates passed **609 workspace tests, 0 failed, 2 ignored**,
 **52 end-to-end assertions**, retirement, format/build/all-target Clippy and
 optional native compile. Store **153**, AI **76**, CLI **93** passed. Owned Rewrite
 is locally integrated under mission authorization; native review remains next.
+
+Explicit main reasoning effort is implemented and automated verified against
+`5f26e66`. Fresh Ask requires low/medium/high, captured with provider/model in
+paired V7 history. CLI and native Settings persist the choice locally; changes
+affect new requests. Older unknown-effort history remains readable and replayable
+without another provider call. Fresh macOS arm64 / Rust 1.98.1 locked/offline gates
+passed **628 workspace tests, 0 failed, 2 ignored**, **52 end-to-end assertions**,
+retirement, format/build/all-target Clippy and **93 optional native tests**, native
+build/Clippy. Store **160**, AI **79**, CLI **97**, workflow **181** and default
+desktop **80** passed. Independent review found no actionable defects. The slice
+is locally integrated under mission authorization; native/live effort usability
+and owner acceptance remain pending. Native full proposal review is next.
 
 ## Qualification still open
 

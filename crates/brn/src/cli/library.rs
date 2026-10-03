@@ -470,7 +470,7 @@ fn unexpected() -> CliFailure {
 
 fn turn_json(turn: &WorkTurn) -> Value {
     json!({"operation_id": turn.id, "session_id": turn.conversation_id, "provider": turn.provider,
-        "model": turn.model, "question": turn.question, "answer": turn.answer,
+        "model": turn.model, "effort": turn.effort, "question": turn.question, "answer": turn.answer,
         "status": turn.status, "error_code": turn.error_code})
 }
 
@@ -493,7 +493,7 @@ fn ask<W: EventLane>(
     op: Uuid,
 ) -> Result<Output, CliFailure> {
     let result = (|| {
-        // Replay uses its frozen recorded payload without a current-selection query.
+        // Replay uses its frozen recorded payload without current choice queries.
         let AppEvent::Turn(recorded) = lane.query(AppCommand::Turn(op))? else {
             return Err(unexpected());
         };
@@ -513,6 +513,23 @@ fn ask<W: EventLane>(
                 )
             })?
         };
+        let effort = if let Some(turn) = &recorded {
+            turn.effort
+                .as_deref()
+                .map(ai::effort)
+                .transpose()
+                .map_err(|_| typed(ErrorKind::AiStorage, "recorded reasoning effort is invalid"))?
+        } else {
+            let AppEvent::Effort(current) = lane.query(AppCommand::Effort)? else {
+                return Err(unexpected());
+            };
+            Some(current.ok_or_else(|| {
+                typed(
+                    ErrorKind::SelectionRequired,
+                    "choose an explicit reasoning effort with ai effort before a new ask",
+                )
+            })?)
+        };
         lane.worker
             .submit(
                 op,
@@ -521,6 +538,7 @@ fn ask<W: EventLane>(
                     conversation: session,
                     question: question.into(),
                     selection,
+                    effort,
                     generation: 0,
                 }),
             )
@@ -729,6 +747,18 @@ fn status_selection(result: Result<AppEvent, CliFailure>) -> Result<Value, CliFa
 }
 
 fn account(i: &Invocation, lane: &mut Lane, action: &AiCommand) -> Result<Output, CliFailure> {
+    if let AiCommand::Effort(effort) = action {
+        if let Some(effort) = effort {
+            let AppEvent::EffortSaved = lane.query(AppCommand::SelectEffort(*effort))? else {
+                return Err(unexpected());
+            };
+            return Ok(output(json!({"effort": effort})));
+        }
+        let AppEvent::Effort(effort) = lane.query(AppCommand::Effort)? else {
+            return Err(unexpected());
+        };
+        return Ok(output(json!({"effort": effort})));
+    }
     if let AiCommand::Select(selection) = action {
         let AppEvent::SelectionSaved = lane.query(AppCommand::Select(selection.clone()))? else {
             return Err(unexpected());
@@ -745,6 +775,10 @@ fn account(i: &Invocation, lane: &mut Lane, action: &AiCommand) -> Result<Output
             )?);
         }
         let mut data = status_selection(lane.query(AppCommand::Selection))?;
+        let AppEvent::Effort(effort) = lane.query(AppCommand::Effort)? else {
+            return Err(unexpected());
+        };
+        data["effort"] = json!(effort);
         data["accounts"] = json!(statuses);
         return Ok(output(data));
     }
@@ -993,8 +1027,11 @@ mod tests {
         failure: Option<WorkflowError>,
         query_replies: bool,
         recorded: Option<WorkTurn>,
+        fresh_answer: Option<WorkTurn>,
         selection_queries: Cell<usize>,
+        effort_queries: Cell<usize>,
         selected: Option<Selection>,
+        selected_effort: Option<brn_workflow::ReasoningEffort>,
         ask_request: RefCell<Option<AskRequest>>,
     }
     impl EventLane for Projection {
@@ -1011,12 +1048,18 @@ mod tests {
                             .borrow_mut()
                             .push_back((id, AppEvent::Selection(self.selected.clone())));
                     }
+                    AppCommand::Effort => {
+                        self.effort_queries.set(self.effort_queries.get() + 1);
+                        self.events
+                            .borrow_mut()
+                            .push_back((id, AppEvent::Effort(self.selected_effort)));
+                    }
                     AppCommand::Ask(request) => {
                         self.ask_request.replace(Some(request.clone()));
                         if self.joined {
                             return Err(cancelled());
                         }
-                        if let Some(turn) = &self.recorded {
+                        if let Some(turn) = self.recorded.as_ref().or(self.fresh_answer.as_ref()) {
                             self.events.borrow_mut().push_back((
                                 id,
                                 AppEvent::Chat(ChatEvent::Finished {
@@ -1071,11 +1114,14 @@ mod tests {
                 failure: None,
                 query_replies: false,
                 recorded: None,
+                fresh_answer: None,
                 selection_queries: Cell::new(0),
+                effort_queries: Cell::new(0),
                 selected: Some(Selection {
                     provider: Provider::Chatgpt,
                     model: "gpt-5.5".into(),
                 }),
+                selected_effort: Some(brn_workflow::ReasoningEffort::High),
                 ask_request: RefCell::new(None),
             },
             deadline: Instant::now() - Duration::from_secs(1),
@@ -1099,6 +1145,7 @@ mod tests {
             answer: "partial".into(),
             provider: "chatgpt".into(),
             model: "gpt-5.5".into(),
+            effort: None,
             status,
             error_code: None,
         }
@@ -1360,6 +1407,7 @@ mod tests {
             let failure = ask(&mut lane, "q", None, op).err().unwrap();
             assert_eq!(failure.error.exit_code(), if deadline { 124 } else { 130 });
             assert_eq!(lane.worker.selection_queries.get(), 0);
+            assert_eq!(lane.worker.effort_queries.get(), 0);
             assert!(lane.worker.ask_request.borrow().is_some());
             assert!(lane.worker.joined);
         }
@@ -1375,6 +1423,7 @@ mod tests {
         let failure = ask(&mut lane, "q", None, op).err().unwrap();
         assert_eq!(failure.error.code(), "AI_SELECTION_REQUIRED");
         assert_eq!(lane.worker.selection_queries.get(), 1);
+        assert_eq!(lane.worker.effort_queries.get(), 0);
         assert!(lane.worker.ask_request.borrow().is_none());
 
         let recorded = turn(op, WorkTurnStatus::Completed);
@@ -1386,6 +1435,66 @@ mod tests {
         let request = request.as_ref().unwrap();
         assert_eq!(request.selection.model, recorded.model);
         assert_eq!(request.selection.provider, Provider::Chatgpt);
+        assert_eq!(request.effort, None);
+        assert_eq!(lane.worker.effort_queries.get(), 0);
+    }
+
+    #[test]
+    fn fresh_ask_requires_explicit_effort_and_captures_it_before_admission() {
+        let op = Uuid::new_v4();
+        let mut lane = lane(op, AppEvent::SelectionSaved);
+        lane.worker.ending = None;
+        lane.worker.query_replies = true;
+        lane.worker.selected_effort = None;
+        lane.deadline = Instant::now() + Duration::from_secs(300);
+        let failure = ask(&mut lane, "q", None, op).err().unwrap();
+        assert_eq!(failure.error.code(), "AI_SELECTION_REQUIRED");
+        assert_eq!(lane.worker.selection_queries.get(), 1);
+        assert_eq!(lane.worker.effort_queries.get(), 1);
+        assert!(lane.worker.ask_request.borrow().is_none());
+
+        lane.worker.selected_effort = Some(brn_workflow::ReasoningEffort::Medium);
+        let mut completed = turn(op, WorkTurnStatus::Completed);
+        completed.effort = Some("medium".into());
+        lane.worker.fresh_answer = Some(completed);
+        let result = ask(&mut lane, "q", None, op).unwrap();
+        assert_eq!(result.data["status"], "completed");
+        assert_eq!(result.data["effort"], "medium");
+        assert_eq!(
+            lane.worker.ask_request.borrow().as_ref().unwrap().effort,
+            Some(brn_workflow::ReasoningEffort::Medium)
+        );
+        lane.worker.selected_effort = Some(brn_workflow::ReasoningEffort::Low);
+        assert_eq!(
+            lane.worker.ask_request.borrow().as_ref().unwrap().effort,
+            Some(brn_workflow::ReasoningEffort::Medium)
+        );
+        assert!(!lane.worker.joined && !lane.worker.cancelled.get());
+    }
+
+    #[test]
+    fn completed_ask_replay_uses_recorded_effort_without_querying_changed_settings() {
+        for effort in [None, Some("low"), Some("medium"), Some("high")] {
+            let op = Uuid::new_v4();
+            let mut lane = lane(op, AppEvent::SelectionSaved);
+            lane.worker.ending = None;
+            lane.worker.query_replies = true;
+            lane.deadline = Instant::now() + Duration::from_secs(300);
+            let mut recorded = turn(op, WorkTurnStatus::Completed);
+            recorded.effort = effort.map(str::to_owned);
+            lane.worker.recorded = Some(recorded);
+            lane.worker.selected_effort = None;
+            lane.worker.selected = None;
+            let result = ask(&mut lane, "q", None, op).unwrap();
+            assert_eq!(result.data["effort"], json!(effort));
+            assert_eq!(lane.worker.selection_queries.get(), 0);
+            assert_eq!(lane.worker.effort_queries.get(), 0);
+            let submitted = lane.worker.ask_request.borrow();
+            assert_eq!(
+                submitted.as_ref().unwrap().effort,
+                effort.map(|raw| ai::effort(raw).unwrap())
+            );
+        }
     }
 
     #[test]

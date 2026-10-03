@@ -67,6 +67,11 @@ current read-only tools. Streaming is provisional; durable terminal pairs and
 visibly unsaved partial failures stay distinct. Bound UUID replay never submits
 another provider request. Chat/account/read leases drain before authority releases.
 
+Fresh Ask also captures an explicit low/medium/high reasoning effort, persisted
+independently in settings and paired V7 history. The thin Rig adapter sends that
+choice on the selected route. Setting changes affect new requests; historical
+unknown effort remains unknown and replay never initiates another provider call.
+
 Current retrieval is derived from supported saved files. Dirty recovery is not
 current source evidence. Results validate fresh bytes; results spanning Save or
 unresolved work are rejected. Default builds explicitly use keyword-only search;

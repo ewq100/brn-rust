@@ -32,7 +32,9 @@ The editor is implemented and automated verified; native/IME/accessibility
 acceptance remains pending in [status](../../docs/status.md).
 
 Settings provides independent ChatGPT/Copilot account status, explicit Connect/
-Disconnect, model discovery and provider/model selection. A connected cache with
+Disconnect, model discovery, provider/model selection and explicit low/medium/high
+reasoning effort. Ask stays disabled until its effort choice is acknowledged.
+A connected cache with
 no display name stays “account name unavailable”; failed/cancelled Connect
 refreshes actual status. Codes/links exist only in the active transient login
 dialog; cancel, dismissal and every ending clear it and target its exact UUID.
@@ -40,7 +42,9 @@ Code expiry/reconnect are explicit retry states, never automatic login.
 ChatGPT live chat remains conditionally qualified; a quota reset alone does not
 establish availability.
 
-Each Ask freezes selection. Only one Ask is active; notes/search/account/history
+Each Ask freezes provider, model and effort. Changing Settings affects new
+requests; active and historical turns retain their recorded choice. Older history
+shows unavailable effort rather than inventing a value. Only one Ask is active; notes/search/account/history
 diagnostics are independent. Text/tool progress is provisional. Stopped/Failed
 partials retain their terminal status and provider/model, including historical
 selections. Only Finished establishes durable finalization. PersistenceFailed

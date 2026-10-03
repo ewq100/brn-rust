@@ -1281,7 +1281,7 @@ fn additive_v4_migration_and_backups_preserve_review_and_uncertain_application()
     drop(store);
     let conn = raw(dir.path());
     conn.execute_batch(
-        "DROP TABLE proposal_rewrites; DROP TABLE proposal_applies; PRAGMA user_version=4;",
+        "ALTER TABLE messages DROP COLUMN effort; DROP TABLE proposal_rewrites; DROP TABLE proposal_applies; PRAGMA user_version=4;",
     )
     .unwrap();
     drop(conn);
@@ -1334,7 +1334,7 @@ fn additive_v4_migration_and_backups_preserve_review_and_uncertain_application()
         raw(dir.path())
             .query_row("PRAGMA user_version", [], |row| row.get::<_, u32>(0))
             .unwrap(),
-        6
+        7
     );
 }
 
@@ -1517,7 +1517,7 @@ fn legacy_v5_json_without_no_effects_is_unchanged_by_reads_and_replays() {
     assert_eq!(
         conn.query_row("PRAGMA user_version", [], |row| row.get::<_, u32>(0))
             .unwrap(),
-        6
+        7
     );
 }
 
@@ -1719,7 +1719,7 @@ fn recovery_from_healthy_older_v5_backup_preserves_other_operational_state() {
     std::fs::copy(&report.backup, old_dir.path().join("brn.sqlite")).unwrap();
     let conn = raw(old_dir.path());
     conn.execute_batch(
-        "DROP TABLE proposal_rewrites; DROP TABLE proposal_applies; PRAGMA user_version=4;",
+        "ALTER TABLE messages DROP COLUMN effort; DROP TABLE proposal_rewrites; DROP TABLE proposal_applies; PRAGMA user_version=4;",
     )
     .unwrap();
     drop(conn);
@@ -1734,7 +1734,7 @@ fn recovery_from_healthy_older_v5_backup_preserves_other_operational_state() {
         raw(old_dir.path())
             .query_row("PRAGMA user_version", [], |row| row.get::<_, u32>(0))
             .unwrap(),
-        6
+        7
     );
 }
 

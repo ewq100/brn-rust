@@ -3,7 +3,7 @@ use crate::proposal_rewrite::{self, RewriteEvent, RewriteRequest};
 use crate::{ErrorKind, Result, WorkflowError, app::App};
 use brn_ai::{
     AccountStatus, AiAnswer, AiError, AiErrorKind, AiEvent, AiTerminal, Auth, HistoryPair,
-    LoginPrompt, ModelOption, Provider, ReadTools, Selection,
+    LoginPrompt, ModelOption, Provider, ReadTools, ReasoningEffort, Selection,
 };
 use brn_store::work::{WorkTurn, WorkTurnStatus, chat::ChatStore};
 use brn_store::work::{proposal_rewrite::RewriteOutcome, proposals::ProposalRecord};
@@ -30,6 +30,7 @@ pub struct AskRequest {
     pub conversation: Option<Uuid>,
     pub question: String,
     pub selection: Selection,
+    pub effort: Option<ReasoningEffort>,
     pub generation: u64,
 }
 
@@ -291,6 +292,7 @@ pub(crate) fn check_replay(request: &AskRequest, turn: &WorkTurn) -> Result<()> 
     if turn.question != request.question
         || turn.provider != provider_name(request.selection.provider)
         || turn.model != request.selection.model
+        || turn.effort.as_deref() != request.effort.map(ReasoningEffort::as_str)
         || request
             .conversation
             .is_some_and(|id| id != turn.conversation_id)
@@ -420,6 +422,10 @@ async fn run(
                                 check_replay(&request, &turn)?;
                                 return Ok(Some(turn));
                             }
+                            if request.effort.is_none() {
+                                return Err(WorkflowError::typed(ErrorKind::SelectionRequired,
+                                    "choose an explicit reasoning effort before asking AI"));
+                            }
                             if control.stopping.load(Ordering::Acquire) { return Err(WorkflowError::cancelled()); }
                             if disconnects.contains_key(provider_name(request.selection.provider)) {
                                 return Err(WorkflowError::cancelled());
@@ -448,9 +454,10 @@ async fn run(
                                     },
                                     None => Vec::new(),
                                 };
-                                match store.begin_turn(
+                                match store.begin_turn_with_effort(
                                     request.id, request.conversation, &request.question,
                                     provider_name(request.selection.provider), &request.selection.model,
+                                    request.effort.map(ReasoningEffort::as_str),
                                 ) {
                                     Err(error) => emit(Output::Chat(rejected(&request, error.into()))),
                                     Ok(_) => {
@@ -755,9 +762,24 @@ async fn real_answer(
     cancel: CancellationToken,
     emit: Arc<dyn Fn(AiEvent) + Send + Sync>,
 ) -> AiAnswer {
+    let Some(effort) = request.effort else {
+        return AiAnswer {
+            text: String::new(),
+            terminal: AiTerminal::Failed(AiError::new(AiErrorKind::ModelRefused)),
+        };
+    };
     match auth.client(&request.selection, cancel.clone()).await {
         Ok(client) => {
-            brn_ai::answer(client, &request.question, &history, tools, cancel, emit).await
+            brn_ai::answer_with_effort(
+                client,
+                &request.question,
+                &history,
+                effort,
+                tools,
+                cancel,
+                emit,
+            )
+            .await
         }
         Err(error) => AiAnswer {
             text: String::new(),

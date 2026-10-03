@@ -13,6 +13,231 @@ use std::sync::{
 };
 use tokio_util::sync::CancellationToken;
 
+mod ask_effort_tests {
+    use super::*;
+
+    const ROUTES: [(Provider, &str, bool); 3] = [
+        (Provider::Chatgpt, "gpt-5.5", true),
+        (Provider::Copilot, "gpt-5.5", false),
+        (Provider::Copilot, "gpt-5.3-codex", true),
+    ];
+
+    fn message_text(message: &Value) -> Option<String> {
+        let content = &message["content"];
+        content.as_str().map(str::to_owned).or_else(|| {
+            let parts = content.as_array()?;
+            let texts = parts
+                .iter()
+                .map(|part| part["text"].as_str())
+                .collect::<Option<Vec<_>>>()?;
+            (!texts.is_empty()).then(|| texts.concat())
+        })
+    }
+
+    fn partial_sse(responses: bool, text: &str) -> String {
+        if responses {
+            event(json!({"type":"response.output_text.delta","delta":text,
+                "item_id":"msg_synthetic","output_index":0,"content_index":0,"sequence_number":1}))
+        } else {
+            event(json!({"id":"synthetic","object":"chat.completion.chunk",
+                "created":1,"model":"synthetic",
+                "choices":[{"index":0,"delta":{"role":"assistant","content":text},"finish_reason":null}]}))
+        }
+    }
+
+    #[tokio::test]
+    async fn explicit_ask_effort_preserves_model_last_twenty_pairs_and_tool_continuation() {
+        let question = "\u{feff}Current 日本語 question\r\nλ";
+        let output = "\u{feff}Provisional 日本語 answer\r\nλ";
+        let history = (0..23)
+            .map(|i| HistoryPair {
+                question: format!("\u{feff}question-{i} 日本語\r\nλ"),
+                answer: format!("answer-{i} λ\r\n"),
+            })
+            .collect::<Vec<_>>();
+        let expected = history[3..]
+            .iter()
+            .flat_map(|pair| {
+                [
+                    ("user".to_owned(), pair.question.clone()),
+                    ("assistant".to_owned(), pair.answer.clone()),
+                ]
+            })
+            .chain([("user".to_owned(), question.to_owned())])
+            .collect::<Vec<_>>();
+        for (provider, model, responses) in ROUTES {
+            for effort in [
+                ReasoningEffort::Low,
+                ReasoningEffort::Medium,
+                ReasoningEffort::High,
+            ] {
+                let (_root, client, http) = client(
+                    provider,
+                    model,
+                    vec![
+                        success(tool_sse(
+                            responses,
+                            &[("read_note", json!({"path":"a.md"}))],
+                        )),
+                        success(text_sse(responses, output)),
+                    ],
+                )
+                .await;
+                let notes = Arc::new(Notes::default());
+                let events = Arc::new(Mutex::new(vec![]));
+                let sink = events.clone();
+                let answer = answer_with_effort(
+                    client,
+                    question,
+                    &history,
+                    effort,
+                    notes.clone(),
+                    CancellationToken::new(),
+                    Arc::new(move |event| sink.lock().unwrap().push(event)),
+                )
+                .await;
+                assert!(
+                    matches!(answer.terminal, AiTerminal::Completed),
+                    "{answer:?}"
+                );
+                assert_eq!(answer.text, output);
+                assert_eq!(notes.calls.load(Ordering::SeqCst), 1);
+                assert!(matches!(events.lock().unwrap().as_slice(),
+                    [AiEvent::ToolStarted { name }, AiEvent::Text(text)]
+                    if name == "read_note" && text == output));
+                let bodies = http.bodies();
+                assert_eq!(bodies.len(), 2);
+                for body in &bodies {
+                    assert_eq!(body["model"], model);
+                    if responses {
+                        assert_eq!(body["reasoning"]["effort"], effort.as_str());
+                        assert!(body.get("reasoning_effort").is_none());
+                    } else {
+                        assert_eq!(body["reasoning_effort"], effort.as_str());
+                        assert!(body.get("reasoning").is_none());
+                    }
+                    let messages = body[if responses { "input" } else { "messages" }]
+                        .as_array()
+                        .unwrap();
+                    let text_messages = messages
+                        .iter()
+                        .filter(|message| {
+                            matches!(message["role"].as_str(), Some("user" | "assistant"))
+                        })
+                        .filter_map(|message| {
+                            message_text(message)
+                                .map(|text| (message["role"].as_str().unwrap().to_owned(), text))
+                        })
+                        .collect::<Vec<_>>();
+                    assert_eq!(text_messages, expected);
+                }
+                let continuation = bodies[1][if responses { "input" } else { "messages" }]
+                    .as_array()
+                    .unwrap();
+                let results = continuation
+                    .iter()
+                    .filter(|message| {
+                        message["role"] == "tool" || message["type"] == "function_call_output"
+                    })
+                    .collect::<Vec<_>>();
+                assert_eq!(results.len(), 1);
+                let encoded = if responses {
+                    results[0]["output"].as_str().unwrap().to_owned()
+                } else {
+                    message_text(results[0]).unwrap()
+                };
+                assert_eq!(
+                    serde_json::from_str::<Value>(&encoded).unwrap(),
+                    json!({"path":"a.md","text":"fresh note","truncated":false})
+                );
+                http.assert_consumed();
+            }
+        }
+    }
+
+    #[tokio::test]
+    async fn explicit_ask_parser_failure_retains_exact_provisional_text_without_retry() {
+        let partial = "\u{feff}Partial 日本語\r\nλ";
+        for (provider, model, responses) in ROUTES {
+            let malformed = if responses {
+                "data: {\"type\":\"response.output_text.delta\",\"delta\":42}\n\n"
+            } else {
+                "data: {\"choices\":42}\n\n"
+            };
+            let sse = partial_sse(responses, partial)
+                + malformed
+                + &text_sse(responses, "must not appear");
+            let (_root, client, http) = client(provider, model, vec![success(sse)]).await;
+            let events = Arc::new(Mutex::new(vec![]));
+            let sink = events.clone();
+            let notes = Arc::new(Notes::default());
+            let answer = answer_with_effort(
+                client,
+                "q",
+                &[],
+                ReasoningEffort::Medium,
+                notes.clone(),
+                CancellationToken::new(),
+                Arc::new(move |event| sink.lock().unwrap().push(event)),
+            )
+            .await;
+            assert!(
+                matches!(
+                    answer.terminal,
+                    AiTerminal::Failed(AiError {
+                        kind: AiErrorKind::Other,
+                        ..
+                    })
+                ),
+                "{answer:?}"
+            );
+            assert_eq!(answer.text, partial);
+            assert!(matches!(events.lock().unwrap().as_slice(),
+                [AiEvent::Text(text)] if text == partial));
+            assert_eq!(notes.calls.load(Ordering::SeqCst), 0);
+            assert_eq!(http.bodies().len(), 1);
+            http.assert_consumed();
+        }
+    }
+
+    #[tokio::test]
+    async fn explicit_ask_stop_retains_provisional_text_and_skips_final_completion() {
+        let partial = "\u{feff}Stop 日本語\r\nλ";
+        for (provider, model, responses) in ROUTES {
+            let (_root, client, http) =
+                client(provider, model, vec![success(text_sse(responses, partial))]).await;
+            let cancel = CancellationToken::new();
+            let stop = cancel.clone();
+            let events = Arc::new(Mutex::new(vec![]));
+            let sink = events.clone();
+            let answer = answer_with_effort(
+                client,
+                "q",
+                &[],
+                ReasoningEffort::High,
+                Arc::new(Notes::default()),
+                cancel,
+                Arc::new(move |event| {
+                    if matches!(event, AiEvent::Text(_)) {
+                        stop.cancel();
+                    }
+                    sink.lock().unwrap().push(event);
+                }),
+            )
+            .await;
+            assert!(
+                matches!(answer.terminal, AiTerminal::Interrupted),
+                "{answer:?}"
+            );
+            assert_eq!(answer.text, partial);
+            assert!(matches!(events.lock().unwrap().as_slice(),
+                [AiEvent::Text(text)] if text == partial));
+            assert_eq!(http.bodies().len(), 1);
+            http.assert_consumed();
+        }
+    }
+}
+
 #[cfg(test)]
 mod rewrite_tests {
     use super::*;

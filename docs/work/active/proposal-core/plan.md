@@ -723,3 +723,65 @@ Rewrite usability and owner acceptance remain separate, pending qualification.
 Only proven owned synthetic fixtures are removed; logs remain outside Git.
 Owned Rewrite is locally integrated under standing mission authorization. Native
 full review/edit/comment/Rewrite/approval/activity/Undo/repair is the next slice.
+
+### Explicit main reasoning effort
+
+Baseline: `main@5f26e66`; post-integration hosted CI has no run for this local
+commit. Native source investigation is complete. Before wiring its controls,
+close the concrete Product Vision §28 gap: Rewrite freezes explicit effort, but
+ordinary Ask currently sends provider defaults and chat history records no effort.
+Use the existing low/medium/high enum, a separate explicit WorkStore setting and
+one additive V7 message column. Existing turns retain unknown/None effort and
+remain readable/replayable; no history resubmission or silent default is added.
+
+Fix interfaces first: WorkTurn gains optional string effort; old begin_turn stays
+as historical-fixture compatibility, while begin_turn_with_effort binds the new
+field in paired rows/replay. AskRequest gains optional typed effort, required for
+fresh provider admission but reconstructed exactly for history replay. A thin
+answer_with_effort uses the same Rig stream/read tools with exact route parameters.
+Workflow owns explicit effort getter/setter and selection persistence; CLI/native
+settings expose low/medium/high. Changing the saved choice cannot change active
+or historical requests. No live calls, extra datastore or generic framework.
+
+Accept migration/backup preservation, row agreement/validation, effort-conflicting
+UUID replay refusal, fresh missing-choice refusal before account access, selected
+wire effort with unchanged history/progress/tool budgets, and settings/history
+correlation. Verify meaningful deterministic tests, independent review and fresh
+gates, then continue native full review. Actual live/native owner acceptance is
+pending and does not block safe implementation.
+
+Implementation preserves the historical `answer` seam while fresh product Ask
+uses `answer_with_effort`; no provider default is admitted. V7 is additive and
+both stored rows bind/validate effort. Current settings never participate in
+historical replay. Native settings await the exact getter/setter acknowledgement
+and retain active/history capture. The initial startup-whitelist test exposed its
+outdated offline command list; adding the harmless Effort getter fixed the fixture.
+
+Fresh root macOS arm64 / Rust 1.98.1 locked/offline
+`TMPDIR=<exclusive owned parent> bash scripts/verify-end-to-end.sh` passed
+**628 workspace tests, 0 failed, 2 ignored**, **52 end-to-end assertions**,
+retirement, format/build/all-target Clippy with warnings denied. Target metadata
+and the fresh log establish **160 Store, 79 AI, 97 CLI, 181 workflow, 80 desktop
+and 31 retrieval** tests. The ignored private crash entry points are exercised by
+subprocess matrices. Optional native desktop tests passed **93**, and its native
+build/all-target Clippy passed with the existing upstream `block v0.1.6` warning.
+No GUI interaction, live effort/provider or owner acceptance is inferred.
+
+Complete independent read-only review against `5f26e66` found no actionable
+defects, and independently passed **7 Store, 3 AI, 3 workflow, 2 desktop and
+13 CLI process tests** plus the diff check. Hosted CI has no run for the local
+baseline; published results from another commit do not qualify this slice.
+Changed contracts/status/links are checked before local integration. Only the
+five proven owned synthetic layout fixtures and their exclusive gate parent are
+removed; logs remain outside Git. This slice is locally integrated under standing
+mission authorization, preserving the unrelated owner AGENTS.md edit.
+
+Manual acceptance pending: launch with a new disposable data/vault folder, open
+Settings and choose low/medium/high. Reopen and confirm the selected value;
+provider/model/history must remain independent. Ask must remain disabled until
+a choice is acknowledged. Under separately authorized live scope, start an Ask
+with high, change Settings to low while it runs, and verify the finished history
+still records high; the next Ask captures low. Pre-V7 history shows unavailable
+effort and replays offline without another request. The [CLI scenario](../../../../crates/brn/README.md)
+provides the offline getter/setter/missing-choice check. Native full proposal
+review is next; owner acceptance does not block that safe implementation.

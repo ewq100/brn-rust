@@ -1,8 +1,8 @@
 //! Presentation and correlation only. Authority and network work belong to AppWorker.
 #![cfg_attr(not(feature = "native-ui"), allow(dead_code))]
 use brn_workflow::{
-    AccountStatus, LoginPrompt, ModelOption, NoteEntry, Provider, Selection, WorkConversation,
-    WorkTurn, WorkTurnStatus,
+    AccountStatus, LoginPrompt, ModelOption, NoteEntry, Provider, ReasoningEffort, Selection,
+    WorkConversation, WorkTurn, WorkTurnStatus,
     app_worker::{AppCommand, AppEvent},
     chat_worker::{AccountCommand, AccountEvent, AccountReply, AskRequest, ChatEvent},
     editor::{
@@ -40,6 +40,8 @@ pub enum Pending {
     Status,
     Selection,
     Select,
+    Effort,
+    SelectEffort,
     Account(AccountCommand),
     Bind,
     Refresh,
@@ -65,6 +67,8 @@ pub struct AiState {
     pub model_installed: bool,
     pub selection: Option<Selection>,
     pub selection_error: Option<String>,
+    pub effort: Option<ReasoningEffort>,
+    pub effort_error: Option<String>,
     pub provider: Option<Provider>,
     pub generation: u64,
     pub conversation: Option<Uuid>,
@@ -387,6 +391,7 @@ fn unfinalized_turn(request: &AskRequest, partial: String) -> WorkTurn {
         }
         .into(),
         model: request.selection.model.clone(),
+        effort: request.effort.map(|value| value.as_str().to_owned()),
         status: WorkTurnStatus::Failed,
         error_code: None,
     }
@@ -491,9 +496,14 @@ impl AiState {
             && self.vault_bound
             && self.selection.is_some()
             && self.selection_error.is_none()
+            && self.effort.is_some()
+            && self.effort_error.is_none()
             && self.active.is_none()
             && self.unsaved.is_none()
-            && !self.pending.values().any(|p| matches!(p, Pending::Select))
+            && !self
+                .pending
+                .values()
+                .any(|p| matches!(p, Pending::Select | Pending::Effort | Pending::SelectEffort))
     }
     pub fn ask(&mut self, question: String) -> Option<AskRequest> {
         if !self.can_ask() || question.trim().is_empty() {
@@ -504,6 +514,7 @@ impl AiState {
             conversation: self.conversation,
             question,
             selection: self.selection.clone()?,
+            effort: self.effort,
             generation: self.generation,
         };
         self.active = Some(ActiveTurn {
@@ -718,6 +729,7 @@ impl AiState {
                 for (pending, command) in [
                     (Pending::Status, AppCommand::Status),
                     (Pending::Selection, AppCommand::Selection),
+                    (Pending::Effort, AppCommand::Effort),
                     (Pending::Conversations, AppCommand::Conversations),
                     (Pending::Prompt, AppCommand::ModelPrompt),
                     (Pending::Editors, AppCommand::Editors),
@@ -751,6 +763,19 @@ impl AiState {
             }
             AppEvent::SelectionSaved => {
                 commands.push(self.command(Pending::Selection, AppCommand::Selection))
+            }
+            AppEvent::Effort(effort) => {
+                if !matches!(pending, Some(Pending::Effort)) {
+                    return commands;
+                }
+                self.effort = effort;
+                self.effort_error = None;
+            }
+            AppEvent::EffortSaved => {
+                if !matches!(pending, Some(Pending::SelectEffort)) {
+                    return commands;
+                }
+                commands.push(self.command(Pending::Effort, AppCommand::Effort))
             }
             AppEvent::VaultBound => {
                 self.vault_bound = true;
@@ -970,6 +995,9 @@ impl AiState {
                 if matches!(pending, Some(Pending::Selection | Pending::Select)) {
                     self.selection_error = Some(error.message.clone());
                 }
+                if matches!(pending, Some(Pending::Effort | Pending::SelectEffort)) {
+                    self.effort_error = Some(error.message.clone());
+                }
                 if self.download == Some(id) {
                     self.download = None;
                     self.download_stopping = false;
@@ -1030,8 +1058,81 @@ mod tests {
         );
         state.pending.clear();
         state.selection = Some(selection());
+        state.effort = Some(ReasoningEffort::High);
         state
     }
+    #[test]
+    fn effort_choice_requires_acknowledgement_and_cannot_change_active_or_history() {
+        let mut state = ready();
+        state.effort = None;
+        assert!(!state.can_ask());
+        assert!(state.ask("missing effort".into()).is_none());
+        let (id, _) = state.command(
+            Pending::SelectEffort,
+            AppCommand::SelectEffort(ReasoningEffort::High),
+        );
+        assert!(
+            state
+                .apply(Uuid::new_v4(), AppEvent::EffortSaved)
+                .is_empty()
+        );
+        let queries = state.apply(id, AppEvent::EffortSaved);
+        assert!(!state.can_ask());
+        let query = queries[0].0;
+        state.apply(Uuid::new_v4(), AppEvent::Effort(Some(ReasoningEffort::Low)));
+        assert!(state.effort.is_none());
+        state.apply(query, AppEvent::Effort(Some(ReasoningEffort::High)));
+        let request = state.ask("captured choice".into()).unwrap();
+        let (change, _) = state.command(
+            Pending::SelectEffort,
+            AppCommand::SelectEffort(ReasoningEffort::Low),
+        );
+        let query = state.apply(change, AppEvent::EffortSaved)[0].0;
+        state.apply(query, AppEvent::Effort(Some(ReasoningEffort::Low)));
+        assert_eq!(
+            state.active.as_ref().unwrap().request.effort,
+            Some(ReasoningEffort::High)
+        );
+        state.apply(
+            request.id,
+            AppEvent::Chat(ChatEvent::Finished {
+                id: request.id,
+                generation: request.generation,
+                turn: ending(&request, WorkTurnStatus::Completed),
+            }),
+        );
+        assert_eq!(state.turns[0].effort.as_deref(), Some("high"));
+        assert_eq!(
+            state.ask("next choice".into()).unwrap().effort,
+            Some(ReasoningEffort::Low)
+        );
+    }
+
+    #[test]
+    fn invalid_effort_blocks_ask_but_explicit_choice_recovers_without_changing_selection() {
+        let mut state = ready();
+        let selected = state.selection.clone();
+        let (query, _) = state.command(Pending::Effort, AppCommand::Effort);
+        state.apply(
+            query,
+            AppEvent::Failed(brn_workflow::WorkflowError::msg("invalid effort")),
+        );
+        assert!(!state.can_ask());
+        assert!(
+            state
+                .account(AccountCommand::Status(Provider::Chatgpt))
+                .is_some()
+        );
+        let (change, _) = state.command(
+            Pending::SelectEffort,
+            AppCommand::SelectEffort(ReasoningEffort::Medium),
+        );
+        let query = state.apply(change, AppEvent::EffortSaved)[0].0;
+        state.apply(query, AppEvent::Effort(Some(ReasoningEffort::Medium)));
+        assert!(state.can_ask());
+        assert_eq!(state.selection, selected);
+    }
+
     fn editor_view(path: &str, text: &str) -> EditorView {
         let mut view = EditorView {
             record: EditorRecord {
@@ -1372,6 +1473,7 @@ mod tests {
             answer: "partial λ".into(),
             provider: "copilot".into(),
             model: request.selection.model.clone(),
+            effort: request.effort.map(|value| value.as_str().to_owned()),
             status,
             error_code: None,
         }
@@ -1791,6 +1893,7 @@ mod tests {
             conversation: None,
             question: "q".into(),
             selection: selection(),
+            effort: None,
             generation: 0,
         };
         state.apply(
@@ -1856,6 +1959,7 @@ mod tests {
             command,
             AppCommand::Status
                 | AppCommand::Selection
+                | AppCommand::Effort
                 | AppCommand::Conversations
                 | AppCommand::ModelPrompt
                 | AppCommand::Editors

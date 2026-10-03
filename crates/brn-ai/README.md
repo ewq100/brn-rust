@@ -5,6 +5,12 @@ chat over Rig **0.43.0**. Contains account/selection DTOs, safe errors, checked
 credential storage, owned clients and three read tools. It does not contain
 workers, SQL, selection persistence or frontend state.
 
+`answer_with_effort` freezes an explicit low/medium/high choice with the selected
+client. It sends route-specific reasoning parameters on the initial request and
+tool continuations while preserving ordinary Ask history, provisional text and
+read-tool limits. The older `answer` entry point remains a compatibility seam;
+fresh application Ask uses explicit effort without a provider default.
+
 `rewrite` consumes the same owned client and read tools with explicit
 `ReasoningEffort::{Low,Medium,High}`. The pinned route determines Responses
 `reasoning.effort` or Chat `reasoning_effort`; the selected model is unchanged.

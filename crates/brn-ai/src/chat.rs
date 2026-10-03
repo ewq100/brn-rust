@@ -39,6 +39,10 @@ impl ReasoningEffort {
 #[derive(Clone, Copy)]
 enum RunMode {
     Answer,
+    AnswerWithEffort {
+        responses: bool,
+        effort: ReasoningEffort,
+    },
     Rewrite {
         responses: bool,
         effort: ReasoningEffort,
@@ -134,6 +138,52 @@ pub async fn answer(
     }
 }
 
+/// Answers with the captured provider, model and explicit reasoning effort.
+/// History, read tools and provisional text use the ordinary Ask stream policy.
+pub async fn answer_with_effort(
+    client: ProviderClient,
+    question: &str,
+    history: &[HistoryPair],
+    effort: ReasoningEffort,
+    tools: Arc<dyn ReadTools>,
+    cancel: CancellationToken,
+    emit: Arc<dyn Fn(AiEvent) + Send + Sync>,
+) -> AiAnswer {
+    let selection = client.selection();
+    let model = selection.model.clone();
+    let mode = RunMode::AnswerWithEffort {
+        responses: selection.provider == Provider::Chatgpt
+            || rig::providers::copilot::wire::routes_through_responses(&model),
+        effort,
+    };
+    match client.inner {
+        OwnedClient::Chatgpt(client) => {
+            run_model(
+                client.completion(model),
+                question,
+                history,
+                tools,
+                cancel,
+                emit,
+                mode,
+            )
+            .await
+        }
+        OwnedClient::Copilot(client) => {
+            run_model(
+                client.completion(model),
+                question,
+                history,
+                tools,
+                cancel,
+                emit,
+                mode,
+            )
+            .await
+        }
+    }
+}
+
 /// Generates a bounded suggestion for one captured review. Only a successful
 /// final response returns raw JSON; workflow validates and version-guards it.
 pub async fn rewrite(
@@ -216,7 +266,7 @@ async fn run_model(
 ) -> AiAnswer {
     let limited = Arc::new(AtomicBool::new(false));
     let preamble = match mode {
-        RunMode::Answer => {
+        RunMode::Answer | RunMode::AnswerWithEffort { .. } => {
             "You answer questions about notes using read-only tools. You cannot write notes. \
             Read notes freshly when needed; earlier answers are not fresh note contents. \
             Search results marked keyword_only are keyword-only, not semantic matches. \
@@ -241,7 +291,9 @@ async fn run_model(
             rounds: Mutex::new(ToolRounds::default()),
             limited: limited.clone(),
         });
-    if let RunMode::Rewrite { responses, effort } = mode {
+    if let RunMode::AnswerWithEffort { responses, effort }
+    | RunMode::Rewrite { responses, effort } = mode
+    {
         builder = builder.additional_params(if responses {
             serde_json::json!({"reasoning":{"effort":effort.as_str()}})
         } else {

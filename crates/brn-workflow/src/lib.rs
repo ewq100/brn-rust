@@ -20,7 +20,7 @@ pub mod vault;
 
 pub use brn_ai::{
     AccountStatus, AiError, AiErrorKind, Auth, HistoryPair, LoginPrompt, ModelOption, NoteEntry,
-    NotePage, Passage, Provider, ReadTools, Selection, ToolNote, ToolSearch,
+    NotePage, Passage, Provider, ReadTools, ReasoningEffort, Selection, ToolNote, ToolSearch,
 };
 pub use brn_store::work::{MAX_NOTE_BYTES, WorkConversation, WorkTurn, WorkTurnStatus};
 pub use brn_store::workspace_mode::WorkspaceMode;

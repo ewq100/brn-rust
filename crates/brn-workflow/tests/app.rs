@@ -17,6 +17,40 @@ fn config(base: &std::path::Path) -> AppConfig {
 }
 
 #[test]
+fn explicit_effort_persists_offline_without_a_selection_or_vault_and_invalid_storage_is_recoverable()
+ {
+    let data = base();
+    let creds = base();
+    let mut app = App::open(data.path(), config(creds.path())).unwrap();
+    assert_eq!(app.effort().unwrap(), None);
+    for effort in [
+        brn_workflow::ReasoningEffort::Low,
+        brn_workflow::ReasoningEffort::Medium,
+        brn_workflow::ReasoningEffort::High,
+    ] {
+        app.select_effort(effort).unwrap();
+        assert_eq!(app.effort().unwrap(), Some(effort));
+        assert_eq!(app.selection().unwrap(), None);
+    }
+    drop(app);
+    let mut app = App::open(data.path(), config(creds.path())).unwrap();
+    assert_eq!(
+        app.effort().unwrap(),
+        Some(brn_workflow::ReasoningEffort::High)
+    );
+    app.work_store_mut()
+        .set_setting("ai.effort", "automatic")
+        .unwrap();
+    assert_eq!(app.effort().unwrap_err().kind, ErrorKind::SelectionRequired);
+    app.select_effort(brn_workflow::ReasoningEffort::Low)
+        .unwrap();
+    assert_eq!(
+        app.effort().unwrap(),
+        Some(brn_workflow::ReasoningEffort::Low)
+    );
+}
+
+#[test]
 fn new_app_refuses_legacy_data_without_touching_it() {
     let data = base();
     let creds = base();

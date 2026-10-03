@@ -48,6 +48,7 @@ fn terminal_replay_precedes_unavailable_vault_and_current_selection_validation()
             provider: Provider::Copilot,
             model: "discovered-then".into(),
         },
+        effort: None,
         generation: 73,
     };
     worker.submit(id, AppCommand::Ask(request.clone())).unwrap();
@@ -89,6 +90,7 @@ fn unbound_new_ask_is_refused_without_insertion_and_outer_uuid_must_match() {
             provider: Provider::Chatgpt,
             model: "gpt-5.5".into(),
         },
+        effort: Some(brn_workflow::ReasoningEffort::High),
         generation: 1,
     };
     assert!(
@@ -133,6 +135,7 @@ fn unknown_conversation_fails_before_insertion_even_without_a_vault_or_account()
                     provider: Provider::Chatgpt,
                     model: "gpt-5.5".into(),
                 },
+                effort: Some(brn_workflow::ReasoningEffort::High),
                 generation: 8,
             }),
         )

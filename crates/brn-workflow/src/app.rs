@@ -7,7 +7,7 @@ use crate::{
     },
     vault::{self, NoteText, VaultPath},
 };
-use brn_ai::{Auth, ModelOption, NotePage, Provider, Selection};
+use brn_ai::{Auth, ModelOption, NotePage, Provider, ReasoningEffort, Selection};
 use brn_store::{
     OpenReport, WorkStore,
     work::{WorkConversation, WorkTurn},
@@ -291,6 +291,27 @@ impl App {
                 })?;
                 self.validate_selection(&selection)?;
                 Ok(selection)
+            })
+            .transpose()
+    }
+
+    /// Explicit user choice, independent of the provider/model selection.
+    pub fn select_effort(&mut self, effort: ReasoningEffort) -> Result<()> {
+        self.store.set_setting("ai.effort", effort.as_str())?;
+        Ok(())
+    }
+
+    pub fn effort(&self) -> Result<Option<ReasoningEffort>> {
+        self.store
+            .setting("ai.effort")?
+            .map(|value| match value.as_str() {
+                "low" => Ok(ReasoningEffort::Low),
+                "medium" => Ok(ReasoningEffort::Medium),
+                "high" => Ok(ReasoningEffort::High),
+                _ => Err(WorkflowError::typed(
+                    ErrorKind::SelectionRequired,
+                    "stored reasoning effort is invalid; choose low, medium or high",
+                )),
             })
             .transpose()
     }

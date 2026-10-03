@@ -16,7 +16,7 @@ own saved Markdown; disposable retrieval indexes live outside this crate.
 
 ## Database ownership and recovery
 
-WorkStore uses application ID `BRN2`, schema V6, and retains `brn.owner.lock`
+WorkStore uses application ID `BRN2`, schema V7, and retains `brn.owner.lock`
 for its lifetime. Current settings, text-only conversations and unfinished work
 are preserved by additive migrations. Earlier WorkStore V1 unsaved-edit rows
 remain available; matching text moves atomically into the generation-aware
@@ -186,8 +186,11 @@ workflow qualifies coordinated moves and interruption separately.
 
 ## Local chat
 
-`begin_turn` atomically inserts a text-only user/assistant pair with one UUID,
-conversation sequence, explicit provider and model. Exact UUID replay returns
+`begin_turn_with_effort` atomically inserts a text-only user/assistant pair with
+one UUID, conversation sequence, explicit provider/model and optional effort.
+V7 binds low/medium/high equally in both rows; invalid or mismatched rows fail
+validation. Historical `begin_turn` records unknown effort (`None`), preserving
+older history without guessing a default. Exact UUID replay binds effort and returns
 its Running or terminal result; changed payloads return OperationConflict.
 Unknown conversations return NotFound without inserts.
 

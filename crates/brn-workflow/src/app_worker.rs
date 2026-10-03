@@ -10,7 +10,7 @@ use crate::{
     models::{ModelDownloadPrompt, ModelInstallReport},
     vault::{NoteText, VaultPath},
 };
-use brn_ai::{ModelOption, NotePage, Provider, Selection};
+use brn_ai::{ModelOption, NotePage, Provider, ReasoningEffort, Selection};
 use brn_store::work::{WorkConversation, WorkTurn};
 use std::{
     collections::HashMap,
@@ -36,6 +36,8 @@ pub enum AppCommand {
     Refresh,
     Selection,
     Select(Selection),
+    Effort,
+    SelectEffort(ReasoningEffort),
     Notes {
         folder: Option<String>,
         cursor: Option<String>,
@@ -111,6 +113,8 @@ pub enum AppEvent {
     Status(AppStatus),
     Selection(Option<Selection>),
     SelectionSaved,
+    Effort(Option<ReasoningEffort>),
+    EffortSaved,
     Refreshed(RefreshReport),
     Notes(NotePage),
     Note(NoteText),
@@ -835,6 +839,11 @@ fn dispatch(
             app.select(selection)?;
             AppEvent::SelectionSaved
         }
+        AppCommand::Effort => AppEvent::Effort(app.effort()?),
+        AppCommand::SelectEffort(effort) => {
+            app.select_effort(effort)?;
+            AppEvent::EffortSaved
+        }
         AppCommand::Notes { folder, cursor } => {
             AppEvent::Notes(app.notes(folder.as_deref(), cursor.as_deref())?)
         }
@@ -1000,6 +1009,12 @@ fn dispatch(
                     chat_worker::check_replay(&request, &turn)?;
                     ask_ledger.insert(id, request.clone());
                     return Ok(Some(chat_worker::replay(&request, turn)));
+                }
+                if request.effort.is_none() {
+                    return Err(WorkflowError::typed(
+                        ErrorKind::SelectionRequired,
+                        "choose an explicit reasoning effort before asking AI",
+                    ));
                 }
                 if let Some(conversation) = request.conversation {
                     app.turns(conversation)?;

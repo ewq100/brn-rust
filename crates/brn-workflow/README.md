@@ -32,6 +32,12 @@ saved atomically in one `ai.selection` setting. Explicit Copilot discovery
 results go through `record_models`; `validate_selection` checks membership
 without network or cache access.
 
+`effort`/`select_effort` expose an explicit low/medium/high choice in `ai.effort`
+without provider access. Fresh Ask requires a captured effort before admission;
+setting changes cannot alter the owned turn. Paired history records that choice.
+Existing unknown-effort turns remain readable and replayable before current
+settings, vault or credential checks, without another provider request.
+
 `notes` and `search` refresh before returning CLI reads; `note` reads exact
 current vault bytes. Call `refresh` on explicit Refresh, focus and application
 writes. `embed_pending(batch)` provides bounded-batch progress for the owned

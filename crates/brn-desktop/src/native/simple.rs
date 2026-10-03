@@ -2,7 +2,7 @@ use super::theme::color;
 use super::*;
 use crate::ai::{Pending, provider_name, slot, turn_label};
 use brn_workflow::{
-    Provider, Selection,
+    Provider, ReasoningEffort, Selection,
     app_worker::{AppCommand, AppEvent},
     chat_worker::AccountCommand,
     library::SearchMode,
@@ -837,7 +837,7 @@ impl Desktop {
             .gap_3()
             .p_3();
         if ai.turns.is_empty() {
-            body = body.child("Select a provider/model in Settings, then ask about saved notes. AI has read-only tools.");
+            body = body.child("Select a provider, model and reasoning effort in Settings, then ask about saved notes. AI has read-only tools.");
         }
         for turn in ai.display_turns() {
             body = body.child(
@@ -846,9 +846,12 @@ impl Desktop {
                     .flex_col()
                     .gap_2()
                     .child(format!(
-                        "{} / {} · {}",
+                        "{} / {} · effort: {} · {}",
                         turn.provider,
                         turn.model,
+                        turn.effort
+                            .as_deref()
+                            .unwrap_or("unavailable in older history"),
                         turn_label(turn)
                     ))
                     .child(turn.question.clone())
@@ -862,8 +865,8 @@ impl Desktop {
             let partial = turn.answer.clone();
             body = body
                 .child(format!(
-                    "{} / {} · Failed · in-memory partial · finalization not acknowledged",
-                    turn.provider, turn.model
+                    "{} / {} · effort: {} · Failed · in-memory partial · finalization not acknowledged",
+                    turn.provider, turn.model, turn.effort.as_deref().unwrap_or("unavailable")
                 ))
                 .child(turn.question.clone())
                 .child(turn.answer.clone())
@@ -876,9 +879,14 @@ impl Desktop {
         if let Some(active) = ai.display_active() {
             body = body
                 .child(format!(
-                    "{} / {} · {}",
+                    "{} / {} · effort: {} · {}",
                     provider_name(active.request.selection.provider),
                     active.request.selection.model,
+                    active
+                        .request
+                        .effort
+                        .map(ReasoningEffort::as_str)
+                        .unwrap_or("unavailable"),
                     if active.stopping {
                         "Stopping (not finalized)"
                     } else {
@@ -1111,6 +1119,42 @@ pub(super) fn account_settings(desktop: &Entity<Desktop>, cx: &App) -> AnyElemen
             "Selection unavailable: {error}. Account/history diagnostics remain available."
         ));
     }
+    body = body.child("Reasoning effort for new Ask and Rewrite requests");
+    let effort_busy = !ai.ready
+        || this.closed
+        || this.closing.is_some()
+        || this.close_failed
+        || ai
+            .pending
+            .values()
+            .any(|pending| matches!(pending, Pending::Effort | Pending::SelectEffort));
+    for effort in [
+        ReasoningEffort::Low,
+        ReasoningEffort::Medium,
+        ReasoningEffort::High,
+    ] {
+        let target = desktop.downgrade();
+        body = body.child(
+            Button::new(format!("reasoning-effort-{}", effort.as_str()))
+                .label(effort.as_str())
+                .selected(ai.effort == Some(effort))
+                .disabled(effort_busy)
+                .on_click(move |_, _, cx| {
+                    let _ = target.update(cx, |this, cx| {
+                        this.simple_command(
+                            Pending::SelectEffort,
+                            AppCommand::SelectEffort(effort),
+                            cx,
+                        )
+                    });
+                }),
+        );
+    }
+    if let Some(error) = &ai.effort_error {
+        body = body.child(format!("Reasoning effort unavailable: {error}"));
+    } else if ai.effort.is_none() {
+        body = body.child("Choose low, medium or high before asking AI.");
+    }
     let target = desktop.downgrade();
     let cancel = target.clone();
     body.child("ChatGPT chat is conditionally qualified: quota reset alone does not prove availability. No automatic model/provider fallback.")
@@ -1145,6 +1189,8 @@ mod tests {
             provider: Provider::Copilot,
             model: "explicit".into(),
         });
+        state.effort = Some(ReasoningEffort::High);
+        state.pending.clear();
         state
     }
     #[cfg(target_os = "macos")]
@@ -1367,7 +1413,8 @@ mod tests {
         let (id, command) = ask_command(&mut state, "λ native question".into()).unwrap();
         assert!(
             matches!(command, AppCommand::Ask(request) if request.id == id &&
-                request.selection.model == "explicit" && request.question == "λ native question")
+                request.selection.model == "explicit" && request.question == "λ native question"
+                && request.effort == Some(ReasoningEffort::High))
         );
         assert!(ask_command(&mut state, "concurrent".into()).is_none());
         assert!(search_command(&mut state, "local".into()).is_some());

@@ -43,6 +43,7 @@ brn proposals create --file DRAFT.json
   brn ai status
   brn ai models chatgpt|copilot [--timeout-seconds N]
   brn ai select --provider chatgpt|copilot --model MODEL
+  brn ai effort [low|medium|high]
   brn models download --approve-download [--model-dir DIR] [--timeout-seconds N]
   brn notes list [--folder FOLDER] [--cursor PATH]
   brn notes show PATH.md
@@ -61,6 +62,21 @@ Credential paths are absolute, current-user-owned, protected and outside Git,
 operational storage and the vault. The default is the sibling
 `<data-directory-name>.credentials`; workflow saves its non-secret location.
 Startup never discovers accounts or models.
+
+`ai effort` reads the saved explicit reasoning choice locally; its value is null
+until chosen. `ai effort low|medium|high` saves that choice, which is also shown
+by `ai status`. Fresh Ask requires both an explicit provider/model and effort;
+it refuses a missing choice before admitting a turn or accessing an account.
+The admitted turn freezes those choices. Later setting changes do not alter
+its request, receipt or replay; historical turns with unknown effort retain null
+rather than gaining a default. Getter, setter, status and replay need no provider
+call. There is no fallback to another provider, model or effort.
+
+For an offline check, use a fresh data directory, run `ai effort` to confirm null,
+set `ai effort high`, restart the CLI and confirm `ai effort` and `ai status`
+report high. Select ChatGPT `gpt-5.5` in a separate synthetic directory without
+choosing effort, then run a new Ask and confirm `AI_SELECTION_REQUIRED` with
+no saved turn. Actual provider calls require current explicit authorization.
 
 `status` and history can initialize operational storage without a vault.
 Note/search commands require a bound vault. All startup refuses old database,

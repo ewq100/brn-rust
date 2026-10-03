@@ -416,7 +416,7 @@ fn v2_upgrade_preserves_existing_unsaved_edits_and_settings() {
     store.set_setting("synthetic", "kept").unwrap();
     drop(store);
     let conn = rusqlite::Connection::open(dir.path().join("brn.sqlite")).unwrap();
-    conn.execute_batch("DROP TABLE proposal_rewrites; DROP TABLE proposal_applies; DROP TABLE proposals; DROP TABLE editor_completed; DROP TABLE editor_previous; DROP TABLE editor_saves; DROP TABLE editors; PRAGMA user_version=2;").unwrap();
+    conn.execute_batch("ALTER TABLE messages DROP COLUMN effort; DROP TABLE proposal_rewrites; DROP TABLE proposal_applies; DROP TABLE proposals; DROP TABLE editor_completed; DROP TABLE editor_previous; DROP TABLE editor_saves; DROP TABLE editors; PRAGMA user_version=2;").unwrap();
     drop(conn);
     let (mut store, _) = WorkStore::open(dir.path()).unwrap();
     assert_eq!(
