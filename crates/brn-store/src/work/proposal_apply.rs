@@ -86,7 +86,14 @@ pub struct ApplyJournal {
     pub prepared: Option<Vec<FileFingerprint>>,
     pub receipt: Option<ApplyReceipt>,
     pub observations: Option<Vec<ApplyMemberProof>>,
+    /// Certified by the workflow only before any namespace-effect attempt.
+    #[serde(default, skip_serializing_if = "is_false")]
+    pub no_effects: bool,
     pub started_at_ms: u64,
+}
+
+fn is_false(value: &bool) -> bool {
+    !value
 }
 
 fn encode<T: Serialize>(value: &T) -> Result<Vec<u8>> {
@@ -118,6 +125,14 @@ impl ApplyJournal {
     pub fn validate(&self) -> Result<()> {
         proposals::nonnil(self.request.operation_id)?;
         proposals::validate_record(&self.approved)?;
+        if self.no_effects
+            && self.receipt.as_ref().map(|receipt| receipt.outcome)
+                != Some(ApplyOutcome::NotApplied)
+        {
+            return Err(invalid(
+                "no-effect certification requires a NotApplied receipt",
+            ));
+        }
         if self.approved.state != ProposalState::Draft
             || self.request.expected != self.approved.stamp()
             || self.started_at_ms < self.approved.updated_at_ms
@@ -175,6 +190,11 @@ impl ApplyJournal {
             }
             let first_terminal = next_version(self.approved.version, 2)?;
             let reconciled = next_version(self.approved.version, 3)?;
+            if self.no_effects && receipt.stamp.version != first_terminal {
+                return Err(invalid(
+                    "no-effect certification cannot follow interrupted application work",
+                ));
+            }
             if receipt.stamp.version != first_terminal
                 && (receipt.outcome == ApplyOutcome::Uncertain
                     || receipt.stamp.version != reconciled)
@@ -196,6 +216,7 @@ impl ApplyJournal {
             &self.prepared,
             &self.receipt,
             &self.observations,
+            self.no_effects,
             self.started_at_ms,
         ))?;
         if metadata.len() > MAX_METADATA_BYTES - 1024 {
@@ -246,7 +267,9 @@ impl ApplyJournal {
     }
 
     fn validate_outcome(&self, outcome: ApplyOutcome) -> Result<()> {
-        if outcome == ApplyOutcome::Uncertain {
+        if outcome == ApplyOutcome::Uncertain
+            || self.no_effects && outcome == ApplyOutcome::NotApplied
+        {
             return Ok(());
         }
         let observations = self.observations.as_deref().ok_or_else(|| {
@@ -376,7 +399,12 @@ fn write_journal(conn: &Connection, journal: &ApplyJournal) -> Result<()> {
     Ok(())
 }
 
-fn purge_prior_comments(conn: &Connection, proposal_id: Uuid, current_id: Uuid) -> Result<()> {
+fn purge_prior_comments(
+    conn: &Connection,
+    proposal_id: Uuid,
+    current_id: Uuid,
+    through_version: Option<u64>,
+) -> Result<()> {
     let mut statement = conn.prepare(
         "SELECT operation_id FROM proposal_applies WHERE proposal_id=?1 AND operation_id!=?2 ORDER BY rowid",
     )?;
@@ -390,7 +418,9 @@ fn purge_prior_comments(conn: &Connection, proposal_id: Uuid, current_id: Uuid) 
     for id in ids {
         let mut journal = read_journal(conn, crate::parse_id(id)?)?
             .ok_or_else(|| invalid("prior approval journal disappeared during comment cleanup"))?;
-        if !journal.approved.comments.is_empty() {
+        if through_version.is_none_or(|version| journal.approved.version <= version)
+            && !journal.approved.comments.is_empty()
+        {
             // Annotation cleanup is the only allowed alteration of an older
             // approval snapshot. Its request, proofs and receipt remain exact.
             journal.approved.comments.clear();
@@ -436,7 +466,355 @@ fn current_unresolved(
     Ok(stored)
 }
 
+fn settled(journal: &ApplyJournal) -> bool {
+    journal
+        .receipt
+        .as_ref()
+        .is_some_and(|receipt| receipt.outcome != ApplyOutcome::Uncertain)
+}
+
+fn applied_receipt(journal: &ApplyJournal) -> bool {
+    journal
+        .receipt
+        .as_ref()
+        .is_some_and(|receipt| receipt.outcome == ApplyOutcome::Applied)
+}
+
+fn same_approval(left: &ApplyJournal, right: &ApplyJournal) -> bool {
+    let mut left_review = left.approved.clone();
+    let mut right_review = right.approved.clone();
+    left_review.comments.clear();
+    right_review.comments.clear();
+    left.request == right.request
+        && left.creation_sha256 == right.creation_sha256
+        && left_review == right_review
+        && left.started_at_ms == right.started_at_ms
+        && left.members == right.members
+}
+
+fn merge_journal(
+    existing: &ApplyJournal,
+    incoming: &ApplyJournal,
+    live_applied: bool,
+) -> Result<ApplyJournal> {
+    if !same_approval(existing, incoming) {
+        return Err(Error::OperationConflict(
+            "recovery journal has incompatible approval bindings".into(),
+        ));
+    }
+    if let (Some(old), Some(new)) = (&existing.prepared, &incoming.prepared)
+        && old != new
+    {
+        return Err(Error::OperationConflict(
+            "recovery journal has incompatible prepared proofs".into(),
+        ));
+    }
+    if settled(existing) {
+        if settled(incoming)
+            && (existing.receipt != incoming.receipt
+                || existing.observations != incoming.observations
+                || existing.no_effects != incoming.no_effects
+                || existing.prepared.is_none() && incoming.prepared.is_some())
+        {
+            return Err(Error::OperationConflict(
+                "recovery journal conflicts with its settled receipt".into(),
+            ));
+        }
+        if !existing.approved.comments.is_empty()
+            && !incoming.approved.comments.is_empty()
+            && existing.approved.comments != incoming.approved.comments
+        {
+            return Err(Error::OperationConflict(
+                "recovery journal has incompatible review comments".into(),
+            ));
+        }
+        // A terminal receipt wins over earlier snapshots and annotation cleanup
+        // cannot reintroduce already deleted temporary comments.
+        return Ok(existing.clone());
+    }
+    let mut next = if existing.receipt.is_some() && incoming.receipt.is_none() {
+        existing.clone()
+    } else {
+        if existing.receipt.is_some() && incoming.no_effects {
+            return Err(Error::StateChanged(
+                "no-effect recovery cannot discharge interrupted application work".into(),
+            ));
+        }
+        if existing.receipt.is_some()
+            && incoming
+                .receipt
+                .as_ref()
+                .is_some_and(|receipt| receipt.outcome == ApplyOutcome::Uncertain)
+            && (existing.receipt != incoming.receipt
+                || existing.observations != incoming.observations)
+        {
+            return Err(Error::OperationConflict(
+                "recovery journal has incompatible uncertain observations".into(),
+            ));
+        }
+        incoming.clone()
+    };
+    if existing.approved.comments != incoming.approved.comments
+        && !live_applied
+        && !applied_receipt(incoming)
+    {
+        if incoming
+            .receipt
+            .as_ref()
+            .is_some_and(|receipt| receipt.outcome == ApplyOutcome::NotApplied)
+            && incoming.approved.comments.is_empty()
+        {
+            // A mirror may have had its old annotations cleaned by a later
+            // approval. Retain SQLite's review work until that approval imports.
+            next.approved.comments = existing.approved.comments.clone();
+        } else {
+            return Err(Error::OperationConflict(
+                "recovery journal has incompatible review comments".into(),
+            ));
+        }
+    }
+    if live_applied {
+        next.approved.comments.clear();
+    }
+    if next.prepared.is_none() {
+        next.prepared = existing.prepared.clone();
+    }
+    if next.prepared.is_none() && existing.receipt.is_some() && incoming.receipt.is_none() {
+        next.prepared = incoming.prepared.clone();
+    }
+    next.validate()?;
+    Ok(next)
+}
+
+fn immutable_review_bindings(record: &ProposalRecord) -> super::proposals::ProposalDraft {
+    let mut draft = record.draft.clone();
+    draft.title.clear();
+    for change in &mut draft.changes {
+        match change {
+            NoteChange::Create { text, .. } | NoteChange::Replace { text, .. } => text.clear(),
+            NoteChange::Trash { .. } => {}
+        }
+    }
+    draft
+}
+
+fn target_record(journal: &ApplyJournal) -> Result<ProposalRecord> {
+    let mut record = journal.approved.clone();
+    (record.state, record.version) = match &journal.receipt {
+        None => (ProposalState::Applying, next_version(record.version, 1)?),
+        Some(receipt) => (
+            match receipt.outcome {
+                ApplyOutcome::Applied => ProposalState::Applied,
+                ApplyOutcome::NotApplied => ProposalState::Draft,
+                ApplyOutcome::Uncertain => ProposalState::Uncertain,
+            },
+            receipt.stamp.version,
+        ),
+    };
+    if record.state == ProposalState::Applied {
+        record.comments.clear();
+    }
+    record.updated_at_ms = now_ms()
+        .max(journal.started_at_ms)
+        .max(record.updated_at_ms);
+    proposals::validate_record(&record)?;
+    Ok(record)
+}
+
+fn restored_review(
+    current: Option<&proposals::StoredProposal>,
+    journal: &ApplyJournal,
+) -> Result<Option<ProposalRecord>> {
+    let target = target_record(journal)?;
+    let Some(current) = current else {
+        return Ok(Some(target));
+    };
+    if current.creation_sha256 != journal.creation_sha256
+        || immutable_review_bindings(&current.record)
+            != immutable_review_bindings(&journal.approved)
+        || current.record.created_at_ms != journal.approved.created_at_ms
+    {
+        return Err(Error::OperationConflict(
+            "recovery snapshot has incompatible original review bindings".into(),
+        ));
+    }
+    if current.record.version > target.version {
+        if !settled(journal) {
+            return Err(Error::StateChanged(
+                "recovery cannot replace newer review work with an unresolved snapshot".into(),
+            ));
+        }
+        return Ok(None);
+    }
+    if current.record.state == ProposalState::Applied {
+        if settled(journal) {
+            return Ok(None);
+        }
+        return Err(Error::StateChanged(
+            "recovery cannot replace an Applied review with unresolved work".into(),
+        ));
+    }
+    if current.record.version == target.version {
+        if current.record.draft != target.draft
+            || current.record.state != target.state
+            || current.record.comments != target.comments
+        {
+            return Err(Error::StateChanged(
+                "recovery conflicts with the current review at the same version".into(),
+            ));
+        }
+        return Ok(None);
+    }
+    if current.record.version <= journal.approved.version {
+        if current.record.version == journal.approved.version
+            && (current.record.draft != journal.approved.draft
+                || !applied_receipt(journal)
+                    && current.record.comments != journal.approved.comments)
+        {
+            return Err(Error::StateChanged(
+                "recovery conflicts with the exact approved review version".into(),
+            ));
+        }
+    } else {
+        let coherent_state = current.record.version == next_version(journal.approved.version, 1)?
+            && current.record.state == ProposalState::Applying
+            || current.record.version == next_version(journal.approved.version, 2)?
+                && current.record.state == ProposalState::Uncertain;
+        if !coherent_state
+            || current.record.draft != journal.approved.draft
+            || !applied_receipt(journal) && current.record.comments != journal.approved.comments
+        {
+            return Err(Error::StateChanged(
+                "recovery conflicts with admitted review work".into(),
+            ));
+        }
+    }
+    if journal.no_effects && current.record.state == ProposalState::Uncertain {
+        return Err(Error::StateChanged(
+            "no-effect recovery cannot discharge interrupted review work".into(),
+        ));
+    }
+    let mut target = target;
+    target.updated_at_ms = target.updated_at_ms.max(current.record.updated_at_ms);
+    Ok(Some(target))
+}
+
+fn insert_review(conn: &Connection, stored: &proposals::StoredProposal) -> Result<()> {
+    proposals::validate_record(&stored.record)?;
+    let bytes = encode(stored)?;
+    if bytes.len() > proposals::MAX_STORED_BYTES {
+        return Err(invalid("restored review exceeds its encoded size limit"));
+    }
+    conn.execute(
+        "INSERT INTO proposals(id,group_id,creation_sha256,record_json,record_sha256) VALUES(?1,?2,?3,?4,?5)",
+        params![stored.record.draft.id.to_string(), stored.record.draft.group_id.map(|id| id.to_string()), stored.creation_sha256.as_slice(), bytes, hash(&bytes).as_slice()],
+    )?;
+    Ok(())
+}
+
+fn insert_journal(conn: &Connection, journal: &ApplyJournal) -> Result<()> {
+    journal.validate()?;
+    let bytes = encode(journal)?;
+    if bytes.len() > MAX_JOURNAL_BYTES {
+        return Err(invalid("recovery journal exceeds its encoded size limit"));
+    }
+    conn.execute(
+        "INSERT INTO proposal_applies(operation_id,proposal_id,outcome,request_sha256,journal_json,journal_sha256) VALUES(?1,?2,?3,?4,?5,?6)",
+        params![journal.request.operation_id.to_string(), journal.approved.draft.id.to_string(), journal.receipt.as_ref().map(|receipt| receipt.outcome.as_str()), hash(&encode(&journal.request)?).as_slice(), bytes, hash(&bytes).as_slice()],
+    )?;
+    Ok(())
+}
+
 impl WorkStore {
+    /// Imports checked ordinary recovery evidence without granting permission to
+    /// install files. Newer operational receipts or live review work win.
+    pub fn restore_proposal_apply(&mut self, snapshot: &ApplyJournal) -> Result<ApplyJournal> {
+        snapshot.validate()?;
+        let tx = self.conn.transaction()?;
+        let existing = read_journal(&tx, snapshot.request.operation_id)?;
+        let current = proposals::read_proposal(&tx, snapshot.approved.draft.id)?;
+        let live_applied = current
+            .as_ref()
+            .is_some_and(|stored| stored.record.state == ProposalState::Applied);
+        let mut incoming = snapshot.clone();
+        if live_applied || existing.as_ref().is_some_and(applied_receipt) {
+            incoming.approved.comments.clear();
+        }
+        let effective = if let Some(existing) = &existing {
+            merge_journal(existing, &incoming, live_applied)?
+        } else {
+            incoming
+        };
+        effective.validate()?;
+        let historical_terminal = effective.receipt.as_ref().is_some_and(|receipt| {
+            settled(&effective)
+                && current
+                    .as_ref()
+                    .is_some_and(|stored| stored.record.version > receipt.stamp.version)
+        });
+        if let Some(existing) = &existing
+            && !settled(existing)
+            && *existing != effective
+            && !historical_terminal
+        {
+            // A historical terminal journal can catch up after a newer live
+            // review was restored. Its immutable merge and lineage still pass
+            // the checks above/below; the newer review is never replaced.
+            current_unresolved(&tx, existing)?;
+        }
+        let next_review = restored_review(current.as_ref(), &effective)?;
+        if !settled(&effective) {
+            let blocked: bool = tx.query_row(
+                "SELECT EXISTS(SELECT 1 FROM proposal_applies WHERE operation_id!=?1 AND (outcome IS NULL OR outcome='uncertain'))",
+                [effective.request.operation_id.to_string()], |row| row.get(0),
+            )?;
+            if blocked {
+                return Err(Error::StateChanged(
+                    "recovery conflicts with another unresolved application".into(),
+                ));
+            }
+        }
+        if current.is_none() {
+            insert_review(
+                &tx,
+                &proposals::StoredProposal {
+                    creation_sha256: effective.creation_sha256,
+                    record: next_review
+                        .clone()
+                        .ok_or_else(|| invalid("missing restored review"))?,
+                },
+            )?;
+        }
+        if existing.as_ref() != Some(&effective) {
+            if existing.is_some() {
+                write_journal(&tx, &effective)?;
+            } else {
+                insert_journal(&tx, &effective)?;
+            }
+        }
+        if applied_receipt(&effective) {
+            purge_prior_comments(
+                &tx,
+                effective.approved.draft.id,
+                effective.request.operation_id,
+                Some(effective.approved.version),
+            )?;
+        }
+        if current.is_some()
+            && let Some(record) = next_review
+        {
+            proposals::write_proposal(
+                &tx,
+                &proposals::StoredProposal {
+                    creation_sha256: effective.creation_sha256,
+                    record,
+                },
+            )?;
+        }
+        tx.commit()?;
+        Ok(effective)
+    }
+
     pub fn begin_proposal_apply(&mut self, request: &ApprovalRequest) -> Result<ApplyJournal> {
         proposals::nonnil(request.operation_id)?;
         let tx = self.conn.transaction()?;
@@ -478,6 +856,7 @@ impl WorkStore {
             prepared: None,
             receipt: None,
             observations: None,
+            no_effects: false,
             started_at_ms: now_ms().max(stored.record.updated_at_ms),
         };
         journal.validate()?;
@@ -542,17 +921,45 @@ impl WorkStore {
         outcome: ApplyOutcome,
         observations: Option<&[ApplyMemberProof]>,
     ) -> Result<ApplyReceipt> {
+        self.settle_proposal_apply(id, outcome, observations, false)
+    }
+
+    /// The workflow certifies this branch only while it knows that no namespace
+    /// effect was attempted. Unknown interrupted work uses strict completion.
+    pub fn refuse_proposal_before_effects(
+        &mut self,
+        id: Uuid,
+        observations: Option<&[ApplyMemberProof]>,
+    ) -> Result<ApplyReceipt> {
+        self.settle_proposal_apply(id, ApplyOutcome::NotApplied, observations, true)
+    }
+
+    fn settle_proposal_apply(
+        &mut self,
+        id: Uuid,
+        outcome: ApplyOutcome,
+        observations: Option<&[ApplyMemberProof]>,
+        no_effects: bool,
+    ) -> Result<ApplyReceipt> {
         let tx = self.conn.transaction()?;
         let mut journal = read_journal(&tx, id)?
             .ok_or_else(|| Error::NotFound("approval journal is absent".into()))?;
         if let Some(receipt) = &journal.receipt
             && receipt.outcome != ApplyOutcome::Uncertain
         {
-            if receipt.outcome == outcome && journal.observations.as_deref() == observations {
+            if receipt.outcome == outcome
+                && journal.observations.as_deref() == observations
+                && journal.no_effects == no_effects
+            {
                 return Ok(receipt.clone());
             }
             return Err(Error::OperationConflict(
                 "settled approval differs from its receipt or observations".into(),
+            ));
+        }
+        if no_effects && journal.receipt.is_some() {
+            return Err(Error::StateChanged(
+                "no-effect certification cannot discharge interrupted application work".into(),
             ));
         }
         let mut stored = current_unresolved(&tx, &journal)?;
@@ -584,6 +991,7 @@ impl WorkStore {
         };
         journal.receipt = Some(receipt.clone());
         journal.observations = observations.map(<[ApplyMemberProof]>::to_vec);
+        journal.no_effects = no_effects;
         if outcome == ApplyOutcome::Applied {
             journal.approved.comments.clear();
         }
@@ -591,7 +999,7 @@ impl WorkStore {
         if outcome == ApplyOutcome::Applied {
             // Validate and clean older rows while the live record still holds
             // its unresolved state; then commit the Applied record atomically.
-            purge_prior_comments(&tx, stored.record.draft.id, id)?;
+            purge_prior_comments(&tx, stored.record.draft.id, id, None)?;
         }
         proposals::write_proposal(&tx, &stored)?;
         tx.commit()?;

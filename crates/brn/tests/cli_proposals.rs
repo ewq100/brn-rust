@@ -109,7 +109,7 @@ fn review_across_processes_preserves_comments_newer_work_and_vault_bytes() {
 }
 
 #[test]
-fn invalid_typed_inputs_and_unknown_approval_fail_before_workspace_open() {
+fn invalid_typed_inputs_and_incomplete_approval_fail_before_workspace_open() {
     for input in [
         json!({"id":"not a uuid"}),
         json!({"id":Uuid::new_v4(),"group_id":null,"session_id":null,
@@ -130,6 +130,302 @@ fn invalid_typed_inputs_and_unknown_approval_fail_before_workspace_open() {
         2
     );
     assert_eq!(fs::read_dir(&f.data).unwrap().count(), 0);
+}
+
+#[cfg(target_os = "macos")]
+fn observe(f: &Fixture, path: &str) -> Value {
+    let result = ok(f.run(&["edit", "open", path, "--vault", f.vault.to_str().unwrap()]));
+    assert!(result["observed"].is_object());
+    result["observed"].clone()
+}
+
+#[cfg(target_os = "macos")]
+fn approve(f: &Fixture, id: Uuid, version: u64, operation: Uuid) -> (i32, Value) {
+    f.run(&[
+        "proposals",
+        "approve",
+        &id.to_string(),
+        "--review-version",
+        &version.to_string(),
+        "--operation",
+        &operation.to_string(),
+    ])
+}
+
+#[cfg(target_os = "macos")]
+#[test]
+fn exact_approved_member_set_replays_and_reconciles_across_processes_without_more_writes() {
+    let f = Fixture::new();
+    let old = "\u{feff}Old 日本語\r\n";
+    let trash = "\u{feff}Trash 🦀\r\n";
+    let new = "\u{feff}New λ\r\n";
+    let replacement = "\u{feff}Replacement 日本語\r\n";
+    fs::write(f.vault.join("old.md"), old).unwrap();
+    fs::write(f.vault.join("trash.md"), trash).unwrap();
+    fs::write(f.vault.join("source.md"), "source 🦀\r\n").unwrap();
+    let before = observe(&f, "old.md");
+    let before_trash = observe(&f, "trash.md");
+    let source = observe(&f, "source.md");
+    let id = Uuid::new_v4();
+    let operation = Uuid::new_v4();
+    f.input(
+        &json!({"id":id,"group_id":null,"session_id":null,"title":"Exact bytes",
+        "changes":[{"kind":"create","path":"new.md","text":new},
+            {"kind":"replace","path":"old.md","expected":before,"text":replacement},
+            {"kind":"trash","path":"trash.md","expected":before_trash}],
+        "sources":[{"path":"source.md","fingerprint":source}]}),
+    );
+    let created = ok(f.write("create"));
+    assert_eq!(created["version"], 1);
+    f.input(&json!({"expected":{"id":id,"version":1},"comment":{
+        "id":Uuid::new_v4(),"text":"Temporary review","target":{"kind":"proposal"}}}));
+    let commented = ok(f.write("comment"));
+    assert_eq!(commented["version"], 2);
+    let receipt = ok(approve(&f, id, 2, operation));
+    assert_eq!(receipt["operation_id"], operation.to_string());
+    assert_eq!(receipt["proposal_id"], id.to_string());
+    assert_eq!(receipt["approved_version"], 2);
+    assert_eq!(receipt["stamp"]["version"], 4);
+    assert_eq!(receipt["outcome"], "applied");
+    assert_eq!(fs::read(f.vault.join("new.md")).unwrap(), new.as_bytes());
+    assert_eq!(
+        fs::read(f.vault.join("old.md")).unwrap(),
+        replacement.as_bytes()
+    );
+    assert!(!f.vault.join("trash.md").exists());
+    let live = ok(f.run(&["proposals", "show", &id.to_string()]));
+    assert_eq!(live["state"], "applied");
+    assert_eq!(live["comments"], json!([]));
+    let journals = ok(f.run(&["proposals", "applies"]));
+    assert_eq!(journals.as_array().unwrap().len(), 1);
+    assert_eq!(journals[0]["receipt"], receipt);
+    assert_eq!(journals[0]["approved"]["comments"], json!([]));
+    // A later external edit demonstrates that neither exact replay nor explicit
+    // reconciliation installs the approved text a second time.
+    fs::write(f.vault.join("new.md"), "Later external text\r\n").unwrap();
+    assert_eq!(ok(approve(&f, id, 2, operation)), receipt);
+    assert_eq!(
+        ok(f.run(&["proposals", "reconcile", &operation.to_string()])),
+        receipt
+    );
+    assert_eq!(
+        fs::read(f.vault.join("new.md")).unwrap(),
+        b"Later external text\r\n"
+    );
+    assert_eq!(ok(f.run(&["proposals", "applies"])), journals);
+    let conflict = approve(&f, id, 4, operation);
+    assert_eq!(conflict.0, 1);
+    assert_eq!(conflict.1["error"]["code"], "OPERATION_CONFLICT");
+}
+
+#[cfg(target_os = "macos")]
+#[test]
+fn changed_evidence_refuses_preflight_and_preserves_comments_and_external_bytes() {
+    let f = Fixture::new();
+    fs::write(f.vault.join("source.md"), "Original source\r\n").unwrap();
+    let source = observe(&f, "source.md");
+    let id = Uuid::new_v4();
+    let operation = Uuid::new_v4();
+    f.input(
+        &json!({"id":id,"group_id":null,"session_id":null,"title":"Guard source",
+        "changes":[{"kind":"create","path":"first.md","text":"Proposed 日本語\r\n"}],
+        "sources":[{"path":"source.md","fingerprint":source}]}),
+    );
+    ok(f.write("create"));
+    f.input(&json!({"expected":{"id":id,"version":1},"comment":{
+        "id":Uuid::new_v4(),"text":"Retain refusal review","target":{"kind":"proposal"}}}));
+    let commented = ok(f.write("comment"));
+    let stale = approve(&f, id, 1, Uuid::new_v4());
+    assert_eq!(stale.0, 1);
+    assert_eq!(stale.1["error"]["code"], "CONTEXT_STALE");
+    assert_eq!(ok(f.run(&["proposals", "applies"])), json!([]));
+    fs::write(f.vault.join("source.md"), "Changed source 🦀\r\n").unwrap();
+    let failure = approve(&f, id, 2, operation);
+    assert_eq!(failure.0, 1);
+    assert_eq!(failure.1["error"]["code"], "CONTEXT_STALE");
+    assert!(!f.vault.join("first.md").exists());
+    assert_eq!(
+        fs::read(f.vault.join("source.md")).unwrap(),
+        "Changed source 🦀\r\n".as_bytes()
+    );
+    let journals = ok(f.run(&["proposals", "applies"]));
+    assert_eq!(journals, json!([]));
+    let current = ok(f.run(&["proposals", "show", &id.to_string()]));
+    assert_eq!(current["state"], "draft");
+    assert_eq!(current, commented);
+    let repeated = approve(&f, id, 2, operation);
+    assert_eq!(repeated.0, 1);
+    assert_eq!(repeated.1["error"]["code"], "CONTEXT_STALE");
+    let absent = f.run(&["proposals", "reconcile", &operation.to_string()]);
+    assert_eq!(absent.0, 1);
+    assert_eq!(absent.1["error"]["code"], "NOT_FOUND");
+    assert!(!f.vault.join("first.md").exists());
+}
+
+#[cfg(target_os = "macos")]
+#[test]
+fn captured_group_stops_on_conflict_and_never_admits_omitted_or_later_members() {
+    let f = Fixture::new();
+    let group = Uuid::new_v4();
+    let ids: Vec<_> = (0..4).map(|_| Uuid::new_v4()).collect();
+    let operations: Vec<_> = (0..3).map(|_| Uuid::new_v4()).collect();
+    let paths = ["first.md", "blocked.md", "third.md", "new-arrival.md"];
+    for (id, path) in ids.iter().zip(paths).take(3) {
+        f.input(&json!({"id":id,"group_id":group,"session_id":null,"title":"Captured member",
+            "changes":[{"kind":"create","path":path,"text":format!("Approved {path} 日本語\r\n")}],"sources":[]}));
+        ok(f.write("create"));
+    }
+    fs::write(f.vault.join("blocked.md"), "External occupant 🦀\r\n").unwrap();
+    let approvals: Vec<_> = ids
+        .iter()
+        .zip(&operations)
+        .map(|(id, operation)| json!({"operation_id":operation,"expected":{"id":id,"version":1}}))
+        .collect();
+    let captured = json!({"group_id":group,"approvals":approvals});
+    f.input(
+        &json!({"id":ids[3],"group_id":group,"session_id":null,"title":"Later arrival",
+        "changes":[{"kind":"create","path":paths[3],"text":"New arrival"}],"sources":[]}),
+    );
+    ok(f.write("create"));
+    f.input(&captured);
+    let result = ok(f.write("approve-group"));
+    assert_eq!(result["receipts"].as_array().unwrap().len(), 1);
+    assert_eq!(result["receipts"][0]["outcome"], "applied");
+    assert_eq!(result["stopped"]["operation_id"], operations[1].to_string());
+    assert_eq!(
+        fs::read(f.vault.join("first.md")).unwrap(),
+        "Approved first.md 日本語\r\n".as_bytes()
+    );
+    assert_eq!(
+        fs::read(f.vault.join("blocked.md")).unwrap(),
+        "External occupant 🦀\r\n".as_bytes()
+    );
+    for index in [2, 3] {
+        assert!(!f.vault.join(paths[index]).exists());
+        let record = ok(f.run(&["proposals", "show", &ids[index].to_string()]));
+        assert_eq!(record["version"], 1);
+        assert_eq!(record["state"], "draft");
+    }
+    assert_eq!(
+        ok(f.run(&["proposals", "applies"]))
+            .as_array()
+            .unwrap()
+            .len(),
+        1
+    );
+    let replay = ok(f.write("approve-group"));
+    assert_eq!(replay["receipts"], result["receipts"]);
+    assert_eq!(replay["stopped"]["operation_id"], operations[1].to_string());
+    assert!(!f.vault.join("third.md").exists());
+    assert!(!f.vault.join("new-arrival.md").exists());
+}
+
+#[test]
+fn malformed_approval_inputs_are_usage_errors_before_workspace_admission() {
+    let id = Uuid::new_v4().to_string();
+    let operation = Uuid::new_v4().to_string();
+    let nil = Uuid::nil().to_string();
+    for args in [
+        vec!["proposals", "approve", &id, "--review-version", "1"],
+        vec![
+            "proposals",
+            "approve",
+            &id,
+            "--review-version",
+            "0",
+            "--operation",
+            &operation,
+        ],
+        vec![
+            "proposals",
+            "approve",
+            &nil,
+            "--review-version",
+            "1",
+            "--operation",
+            &operation,
+        ],
+        vec![
+            "proposals",
+            "approve",
+            &id,
+            "--review-version",
+            "1",
+            "--operation",
+            &nil,
+        ],
+        vec!["proposals", "reconcile", "not-a-uuid"],
+        vec!["proposals", "reconcile", &nil],
+        vec!["proposals", "applies", "extra"],
+    ] {
+        let f = Fixture::new();
+        let result = f.run(&args);
+        assert_eq!(result.0, 2, "{}", result.1);
+        assert_eq!(fs::read_dir(&f.data).unwrap().count(), 0);
+    }
+    for input in [
+        json!({"group_id":Uuid::new_v4(),"approvals":[],"unexpected":true}),
+        json!({"group_id":Uuid::new_v4(),"approvals":[{"operation_id":Uuid::new_v4(),
+            "expected":{"id":Uuid::new_v4(),"version":1},"unexpected":true}]}),
+    ] {
+        let f = Fixture::new();
+        f.input(&input);
+        let result = f.write("approve-group");
+        assert_eq!(result.0, 2, "{}", result.1);
+        assert_eq!(fs::read_dir(&f.data).unwrap().count(), 0);
+    }
+}
+
+#[test]
+fn invalid_captured_groups_refuse_before_worker_startup() {
+    let group = Uuid::new_v4();
+    let first = json!({"operation_id":Uuid::new_v4(),
+        "expected":{"id":Uuid::new_v4(),"version":1}});
+    let second = json!({"operation_id":Uuid::new_v4(),
+        "expected":{"id":Uuid::new_v4(),"version":1}});
+    let mut cases = vec![
+        json!({"group_id":group,"approvals":[]}),
+        json!({"group_id":Uuid::nil(),"approvals":[first.clone()]}),
+    ];
+    for path in [
+        vec!["operation_id"],
+        vec!["expected", "id"],
+        vec!["expected", "version"],
+    ] {
+        let mut invalid = first.clone();
+        let mut field = &mut invalid;
+        for key in &path {
+            field = &mut field[*key];
+        }
+        *field = if path.last() == Some(&"version") {
+            json!(0)
+        } else {
+            json!(Uuid::nil())
+        };
+        cases.push(json!({"group_id":group,"approvals":[invalid]}));
+    }
+    let mut duplicate_id = second.clone();
+    duplicate_id["expected"]["id"] = first["expected"]["id"].clone();
+    cases.push(json!({"group_id":group,"approvals":[first.clone(),duplicate_id]}));
+    let mut duplicate_operation = second;
+    duplicate_operation["operation_id"] = first["operation_id"].clone();
+    cases.push(json!({"group_id":group,"approvals":[first,duplicate_operation]}));
+    let excessive: Vec<_> = (0..65)
+        .map(|_| {
+            json!({"operation_id":Uuid::new_v4(),
+        "expected":{"id":Uuid::new_v4(),"version":1}})
+        })
+        .collect();
+    cases.push(json!({"group_id":group,"approvals":excessive}));
+    for invalid in cases {
+        let f = Fixture::new();
+        f.input(&invalid);
+        let result = f.write("approve-group");
+        assert_eq!(result.0, 1, "{}", result.1);
+        assert_eq!(result.1["ok"], false);
+        assert_eq!(fs::read_dir(&f.data).unwrap().count(), 0);
+        assert_eq!(fs::read_dir(&f.vault).unwrap().count(), 0);
+    }
 }
 
 #[test]

@@ -210,3 +210,125 @@ rollback/restart/cleanup cases use
 `cargo test -p brn-store --test work_proposal_apply --locked --offline`.
 Next: workflow whole-proposal installation, ordinary recovery records and exact
 approval/reconciliation commands, then activity/Undo and native/AI review.
+
+## File application and recovery slice
+
+Baseline: `main@e84ef7a558735f8d4469e48ff1321edf0e81e552`, with an unrelated
+owner edit to AGENTS.md preserved. Its new product-discovery rule does not change
+this accepted frozen behavior or require another product interview.
+
+Expose exact approval/reconciliation through AppWorker and the CLI. Preflight
+the reviewed vault, parents, target/source fingerprints and editor recovery;
+then fence retained tools before admitting the intent. Stage all Create/Replace
+members; Trash binds its existing file. Persist the complete prepared set in
+SQLite and a hash-checked ordinary recovery record before the first namespace
+effect. Reuse the existing coordinated sibling exchange/exclusive rename and
+required file/directory durability. Verify every installed/displaced member
+before reporting one whole-proposal result. Never loop finalized manual Saves.
+
+An operation known to fail before any namespace-effect attempt can record a
+typed no-effect refusal even if an external occupant/source changed. This keeps
+that occupant and returns the proposal to Draft. Interrupted or attempted work
+without whole proof remains Uncertain; replay cannot repeat a write. The storage
+extension distinguishes this verified refusal from proof-based reconciliation.
+
+Ordinary records live in the existing data directory and are bounded full-journal
+snapshots with checksums, descriptor/identity validation, exclusive staging,
+atomic replacement and required file/directory sync. They are recovery receipts,
+not another database. Persist the observed completion before SQLite finalization
+and retain it across startup backups. Successful approval also removes temporary
+annotations from previous recovery snapshots. Do not remove unexpected artifacts.
+
+Startup inspects records before current vault binding, restores missing/older
+operational journals transactionally and reconciles proof without installing
+again. Healthy older databases and missing/corrupt restores take the same path.
+Retain newer review work on conflict, fail closed on incompatible bindings and
+never downgrade a settled receipt. An already-settled historical receipt must
+survive subsequent user file edits without treating them as a new approval.
+
+Acceptance covers multi-member Create/Replace/Trash exact bytes, pre-effect
+refusals, source/parent/occupant changes, partial effects, per-member process
+crashes, preparation/receipt/sync failures, replay, earlier database restoration,
+retained-tool fencing and concurrent/later editor text. Current reads and new
+Save stay fenced until reconciliation; review and recovered text remain readable.
+Individual proposals stay the atomic units; group requests bind an explicit
+membership/version set and return each result, stopping at the first refusal.
+No new arrivals are implicitly approved. Add meaningful store/file/workflow/
+worker/CLI tests, independent review and fresh gates. Owner/manual/native and
+physical power-loss qualification remain distinct and pending.
+
+### File application/recovery results — 2026-10-03
+
+Implemented against `e84ef7a`. Individual and explicitly captured group approval,
+reconciliation and journal listing use AppWorker/CLI. Every member is prepared
+before namespace effects; whole proofs and required durability precede one
+Applied receipt. Runtime pre-effect refusal is a pending-only N+2 certificate;
+restart never invents it. Mixed/unknown work retains proofs/comments and fences
+current reads and Save. Dirty editors bind namespaces/identities as well as
+literal paths; subsequent old-stamp typing stays recoverable after application.
+Group syntax is checked before admission, each proposal is independent and the
+result exposes every receipt and stopped member without including new arrivals.
+
+Ordinary full-journal records are bounded/hash checked, descriptor-bound and
+durably exchanged. They remain across SQLite backups; every startup inspects
+them before binding current evidence. Terminal imports run newest-first, with
+older journals becoming history while newer review work remains intact. Historical
+completion never checks/repeats old file effects against subsequent owner edits.
+Unfinished proof still checks current source bindings, recognizing sources changed
+by that approved proposal. Identical-record replay re-establishes file/directory
+durability after a possible earlier sync failure. Canonical snapshots stay retained;
+successful approval removes temporary annotations from all covered journals and
+proof-checked compatible temporary snapshots, preserving unexpected occupants.
+
+Independent review found three defects: interrupted whole-file reconciliation
+omitted source revalidation, dirty editors under equivalent filenames were missed,
+and interrupted receipt replacement could retain comments in temporary snapshots.
+Verified and corrected all three with behavioral regressions. Pure captured-group
+validation also prevents a malformed later member from causing earlier effects.
+An additional healthy-older-database test exposed cleaned refused snapshots being
+imported before later Applied evidence; newest terminal ordering and narrowly
+bounded historical catch-up fix this while preserving newer review work. Independent
+re-review found no remaining actionable defects. No scope/architecture expansion.
+
+Fresh final macOS arm64 / pinned Rust 1.98.1 locked/offline verification:
+
+- Workspace **498 passed, 0 failed, 2 ignored** private crash entry points exercised
+  through subprocess recovery matrices. Store **110 passed**, including **34
+  approval/recovery tests**; CLI **67 passed**, including **9 proposal process tests**.
+- New workflow qualification includes **16 ordinary-receipt helper tests**, **10
+  protocol tests**, **6 approval integration tests** and **2 worker tests**. Protocol
+  fixtures cover 13 process boundaries, each member, ten recovery-record sync fault
+  combinations, preparation and SQLite receipt failure, annotation cleanup, stale
+  sources, aliases, later typing and older Draft/pending databases. These counts
+  are included in workspace totals; they are synthetic APFS process qualification.
+- `TMPDIR=<exclusive owned parent> bash scripts/verify-end-to-end.sh` passed the
+  retirement, format/build/all-target Clippy with warnings denied, workspace tests
+  and **52 fixture assertions**. Root's final normal execution passed current CLI
+  process tests; helper-environment coordination failures prompted no workaround.
+- `cargo check -p brn-desktop --features native-ui,native-retrieval --locked --offline`
+  passed. Existing `block v0.1.6` future-compiler warning remains. Markdown links
+  and `git diff --check` passed. Only the exclusive synthetic parent/test leftovers
+  were removed; no live/account/model calls or original data access occurred.
+
+Owner/manual acceptance remains pending. Reproduce on disposable data outside
+Git using the typed Create example and commands in `crates/brn/README.md`:
+
+1. Create an empty vault and existing data folder. Run `proposals create --file
+   draft.json --vault <vault> --data-dir <data> --json`, then comment and show the
+   full current version. The note must remain absent until approval.
+2. Run `proposals approve <id> --review-version <current> --operation <fresh UUID>`
+   with the same vault/data flags. Exact bytes appear, state is Applied and comments
+   are empty. `proposals applies` shows complete prepared/installed proofs.
+3. Repeat the exact approval and `proposals reconcile <operation>` across restarts:
+   receipt is unchanged. Explicitly edit the synthetic saved file externally and
+   repeat: later bytes remain, with no new installation.
+4. For Replace/Trash, bind fingerprints from `edit open`; retain original bytes in
+   the operation stages. Change a target/source or retain dirty editor text before
+   approval: it must refuse without overwriting that work. Captured group approval
+   stops at a refused member and never includes another group arrival.
+
+Native proposal interaction, owner acceptance, physical power loss and other
+volumes remain unqualified. Partial/mixed proof is safely fenced; bounded repair,
+activity/Undo/Trash retention, AI Rewrite and native review are the next slices.
+This file-application slice is locally integrated under the mission authorization;
+Stage 4 remains active and is not declared complete.

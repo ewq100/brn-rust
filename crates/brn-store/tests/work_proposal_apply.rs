@@ -1335,3 +1335,979 @@ fn additive_v4_migration_and_backups_preserve_review_and_uncertain_application()
         5
     );
 }
+
+fn with_prepared(journal: &ApplyJournal) -> ApplyJournal {
+    let mut next = journal.clone();
+    next.prepared = Some(prepared(journal));
+    next.validate().unwrap();
+    next
+}
+
+fn completed_snapshot(
+    journal: &ApplyJournal,
+    outcome: ApplyOutcome,
+    after_uncertainty: bool,
+) -> ApplyJournal {
+    let mut next = journal.clone();
+    next.receipt = Some(ApplyReceipt {
+        operation_id: journal.request.operation_id,
+        proposal_id: journal.approved.draft.id,
+        approved_version: journal.approved.version,
+        stamp: brn_store::work::proposals::ProposalStamp {
+            id: journal.approved.draft.id,
+            version: journal.approved.version + if after_uncertainty { 3 } else { 2 },
+        },
+        outcome,
+    });
+    next.observations = match outcome {
+        ApplyOutcome::Applied => Some(applied(journal)),
+        ApplyOutcome::NotApplied => Some(unchanged(journal)),
+        ApplyOutcome::Uncertain => None,
+    };
+    if outcome == ApplyOutcome::Applied {
+        next.approved.comments.clear();
+    }
+    next.validate().unwrap();
+    next
+}
+
+fn pending_fixture() -> (tempfile::TempDir, WorkStore, ApplyJournal) {
+    let (dir, mut store) = fixture();
+    let review = reviewed(&mut store);
+    let journal = store.begin_proposal_apply(&approval(&review)).unwrap();
+    (dir, store, journal)
+}
+
+#[test]
+fn certified_no_effects_refusal_preserves_external_observations_and_exact_replay() {
+    let (dir, mut store, pending) = pending_fixture();
+    let id = pending.request.operation_id;
+    let mut external = unchanged(&pending);
+    external[0].destination = Some(fingerprint("Externally created 日本語\r\n", 700));
+    external[1].destination = Some(fingerprint("Externally replaced 🦀\r\n", 701));
+    assert!(matches!(
+        store.finish_proposal_apply(id, ApplyOutcome::NotApplied, Some(&external)),
+        Err(Error::Invalid(_))
+    ));
+    assert_eq!(store.proposal_apply(id).unwrap(), Some(pending.clone()));
+    assert!(matches!(
+        store.refuse_proposal_before_effects(id, Some(&external[..2])),
+        Err(Error::Invalid(_))
+    ));
+    let receipt = store
+        .refuse_proposal_before_effects(id, Some(&external))
+        .unwrap();
+    let refused = store.proposal_apply(id).unwrap().unwrap();
+    assert!(refused.no_effects);
+    assert_eq!(refused.observations, Some(external.clone()));
+    assert_eq!(refused.approved, pending.approved);
+    let review = store.proposal(receipt.proposal_id).unwrap().unwrap();
+    assert_eq!(review.state, ProposalState::Draft);
+    assert_eq!(review.version, pending.approved.version + 2);
+    assert_eq!(review.comments, pending.approved.comments);
+    assert_eq!(
+        store.begin_proposal_apply(&pending.request).unwrap(),
+        refused
+    );
+    assert!(matches!(
+        store.finish_proposal_apply(id, ApplyOutcome::NotApplied, Some(&external)),
+        Err(Error::OperationConflict(_))
+    ));
+    assert!(matches!(
+        store.refuse_proposal_before_effects(id, None),
+        Err(Error::OperationConflict(_))
+    ));
+    drop(store);
+    let (mut store, _) = WorkStore::open(dir.path()).unwrap();
+    assert_eq!(store.proposal_apply(id).unwrap(), Some(refused));
+    assert_eq!(
+        store
+            .refuse_proposal_before_effects(id, Some(&external))
+            .unwrap(),
+        receipt
+    );
+}
+
+#[test]
+fn no_effects_refusal_requires_pending_and_rolls_back_a_failed_receipt() {
+    let (dir, mut store, pending) = pending_fixture();
+    let id = pending.request.operation_id;
+    let live = store.proposal(pending.approved.draft.id).unwrap().unwrap();
+    let conn = raw(dir.path());
+    conn.execute_batch("CREATE TRIGGER refuse_failure BEFORE UPDATE ON proposals BEGIN SELECT RAISE(ABORT, 'synthetic'); END;").unwrap();
+    assert!(matches!(
+        store.refuse_proposal_before_effects(id, None),
+        Err(Error::Sql(_))
+    ));
+    assert_eq!(store.proposal_apply(id).unwrap(), Some(pending.clone()));
+    assert_eq!(store.proposal(live.draft.id).unwrap(), Some(live));
+    conn.execute_batch("DROP TRIGGER refuse_failure;").unwrap();
+    store
+        .finish_proposal_apply(id, ApplyOutcome::Uncertain, None)
+        .unwrap();
+    let uncertain = store.proposal_apply(id).unwrap().unwrap();
+    assert!(matches!(
+        store.refuse_proposal_before_effects(id, None),
+        Err(Error::StateChanged(_))
+    ));
+    assert_eq!(store.proposal_apply(id).unwrap(), Some(uncertain));
+    // Only strict unchanged-baseline evidence can discharge unknown work.
+    let receipt = store
+        .finish_proposal_apply(id, ApplyOutcome::NotApplied, Some(&unchanged(&pending)))
+        .unwrap();
+    assert_eq!(receipt.stamp.version, pending.approved.version + 3);
+    assert!(!store.proposal_apply(id).unwrap().unwrap().no_effects);
+
+    let (_other_dir, mut other, pending) = pending_fixture();
+    other
+        .refuse_proposal_before_effects(pending.request.operation_id, None)
+        .unwrap();
+    let refused = other
+        .proposal_apply(pending.request.operation_id)
+        .unwrap()
+        .unwrap();
+    assert!(refused.no_effects);
+    assert!(refused.observations.is_none());
+    let mut invalid = refused.clone();
+    invalid.receipt.as_mut().unwrap().stamp.version += 1;
+    assert!(matches!(invalid.validate(), Err(Error::Invalid(_))));
+    for mut invalid in [
+        pending.clone(),
+        completed_snapshot(&pending, ApplyOutcome::Uncertain, false),
+        completed_snapshot(&with_prepared(&pending), ApplyOutcome::Applied, false),
+    ] {
+        invalid.no_effects = true;
+        assert!(matches!(invalid.validate(), Err(Error::Invalid(_))));
+    }
+}
+
+#[test]
+fn legacy_v5_json_without_no_effects_is_unchanged_by_reads_and_replays() {
+    let (dir, mut store, pending) = pending_fixture();
+    let id = pending.request.operation_id;
+    let conn = raw(dir.path());
+    let before: (Vec<u8>, Vec<u8>) = conn
+        .query_row(
+            "SELECT journal_json,journal_sha256 FROM proposal_applies WHERE operation_id=?1",
+            [id.to_string()],
+            |row| Ok((row.get(0)?, row.get(1)?)),
+        )
+        .unwrap();
+    let value: serde_json::Value = serde_json::from_slice(&before.0).unwrap();
+    assert!(value.get("no_effects").is_none());
+    let decoded: ApplyJournal = serde_json::from_slice(&before.0).unwrap();
+    assert!(!decoded.no_effects);
+    assert_eq!(serde_json::to_vec(&decoded).unwrap(), before.0);
+    assert_eq!(before.1, digest(&before.0));
+    assert_eq!(store.restore_proposal_apply(&decoded).unwrap(), pending);
+    assert_eq!(
+        store.begin_proposal_apply(&decoded.request).unwrap(),
+        decoded
+    );
+    let after: (Vec<u8>, Vec<u8>) = conn
+        .query_row(
+            "SELECT journal_json,journal_sha256 FROM proposal_applies WHERE operation_id=?1",
+            [id.to_string()],
+            |row| Ok((row.get(0)?, row.get(1)?)),
+        )
+        .unwrap();
+    assert_eq!(before, after);
+    assert_eq!(
+        conn.query_row("PRAGMA user_version", [], |row| row.get::<_, u32>(0))
+            .unwrap(),
+        5
+    );
+}
+
+#[test]
+fn recovery_restores_missing_envelopes_and_advances_without_downgrading_proofs() {
+    let (_, _, pending) = pending_fixture();
+    let prepared = with_prepared(&pending);
+    let uncertain = completed_snapshot(&prepared, ApplyOutcome::Uncertain, false);
+    let applied = completed_snapshot(&prepared, ApplyOutcome::Applied, true);
+    let (dir, mut recovered) = fixture();
+    assert_eq!(recovered.restore_proposal_apply(&pending).unwrap(), pending);
+    let initial = recovered
+        .proposal(pending.approved.draft.id)
+        .unwrap()
+        .unwrap();
+    assert_eq!(initial.state, ProposalState::Applying);
+    assert_eq!(initial.version, pending.approved.version + 1);
+    assert_eq!(initial.created_at_ms, pending.approved.created_at_ms);
+    assert_eq!(initial.comments, pending.approved.comments);
+    assert_eq!(
+        recovered.restore_proposal_apply(&prepared).unwrap(),
+        prepared
+    );
+    assert_eq!(
+        recovered.restore_proposal_apply(&pending).unwrap(),
+        prepared
+    );
+    assert_eq!(recovered.proposal(initial.draft.id).unwrap(), Some(initial));
+    assert_eq!(
+        recovered.restore_proposal_apply(&uncertain).unwrap(),
+        uncertain
+    );
+    assert_eq!(
+        recovered.restore_proposal_apply(&pending).unwrap(),
+        uncertain
+    );
+    let middle = recovered
+        .proposal(pending.approved.draft.id)
+        .unwrap()
+        .unwrap();
+    assert_eq!(middle.state, ProposalState::Uncertain);
+    assert_eq!(middle.version, pending.approved.version + 2);
+    assert_eq!(recovered.restore_proposal_apply(&applied).unwrap(), applied);
+    let final_review = recovered
+        .proposal(pending.approved.draft.id)
+        .unwrap()
+        .unwrap();
+    assert_eq!(final_review.state, ProposalState::Applied);
+    assert_eq!(final_review.version, pending.approved.version + 3);
+    assert!(final_review.comments.is_empty());
+    for old in [&pending, &prepared, &uncertain, &applied] {
+        assert_eq!(recovered.restore_proposal_apply(old).unwrap(), applied);
+        assert_eq!(
+            recovered.proposal(final_review.draft.id).unwrap(),
+            Some(final_review.clone())
+        );
+    }
+    drop(recovered);
+    let (mut recovered, _) = WorkStore::open(dir.path()).unwrap();
+    assert_eq!(
+        recovered.begin_proposal_apply(&pending.request).unwrap(),
+        applied
+    );
+    assert_eq!(
+        recovered.proposal(final_review.draft.id).unwrap(),
+        Some(final_review)
+    );
+
+    // A missing healthy database may restore the exact N+3 terminal snapshot
+    // directly even if the intermediate Uncertain mirror was lost.
+    let (_direct_dir, mut direct) = fixture();
+    assert_eq!(direct.restore_proposal_apply(&applied).unwrap(), applied);
+    assert_eq!(
+        direct
+            .proposal(applied.approved.draft.id)
+            .unwrap()
+            .unwrap()
+            .version,
+        applied.receipt.unwrap().stamp.version
+    );
+}
+
+#[test]
+fn uncertain_recovery_may_acquire_prepared_proofs_but_not_no_effects_certification() {
+    let (_, _, pending) = pending_fixture();
+    let uncertain = completed_snapshot(&pending, ApplyOutcome::Uncertain, false);
+    let prepared = with_prepared(&pending);
+    let (_recovered_dir, mut recovered) = fixture();
+    recovered.restore_proposal_apply(&uncertain).unwrap();
+    let effective = recovered.restore_proposal_apply(&prepared).unwrap();
+    assert_eq!(effective.receipt, uncertain.receipt);
+    assert_eq!(effective.observations, uncertain.observations);
+    assert_eq!(effective.prepared, prepared.prepared);
+    let mut refused = completed_snapshot(&pending, ApplyOutcome::NotApplied, false);
+    refused.no_effects = true;
+    assert!(matches!(
+        recovered.restore_proposal_apply(&refused),
+        Err(Error::StateChanged(_))
+    ));
+    assert_eq!(
+        recovered
+            .proposal_apply(pending.request.operation_id)
+            .unwrap(),
+        Some(effective)
+    );
+}
+
+#[test]
+fn settled_recovery_keeps_exact_receipt_and_never_adds_artifact_ownership() {
+    let (_, _, pending) = pending_fixture();
+    let prepared = with_prepared(&pending);
+    let mut refused = completed_snapshot(&pending, ApplyOutcome::NotApplied, false);
+    refused.no_effects = true;
+    let (_recovered_dir, mut recovered) = fixture();
+    recovered.restore_proposal_apply(&refused).unwrap();
+    assert_eq!(
+        recovered.restore_proposal_apply(&prepared).unwrap(),
+        refused
+    );
+    let mut extra = refused.clone();
+    extra.prepared = prepared.prepared.clone();
+    extra.validate().unwrap();
+    assert!(matches!(
+        recovered.restore_proposal_apply(&extra),
+        Err(Error::OperationConflict(_))
+    ));
+    assert_eq!(
+        recovered
+            .proposal_apply(pending.request.operation_id)
+            .unwrap(),
+        Some(refused)
+    );
+
+    let settled = completed_snapshot(&prepared, ApplyOutcome::NotApplied, false);
+    let (_recovered_dir, mut recovered) = fixture();
+    recovered.restore_proposal_apply(&settled).unwrap();
+    let mut less = settled.clone();
+    less.prepared = None;
+    assert_eq!(recovered.restore_proposal_apply(&less).unwrap(), settled);
+    let mut mismatch = prepared;
+    mismatch.prepared.as_mut().unwrap()[0].inode += 10;
+    mismatch.validate().unwrap();
+    assert!(matches!(
+        recovered.restore_proposal_apply(&mismatch),
+        Err(Error::OperationConflict(_))
+    ));
+    let mut conflicting_receipt = settled.clone();
+    conflicting_receipt.receipt.as_mut().unwrap().stamp.version += 1;
+    conflicting_receipt.validate().unwrap();
+    assert!(matches!(
+        recovered.restore_proposal_apply(&conflicting_receipt),
+        Err(Error::OperationConflict(_))
+    ));
+}
+
+#[test]
+fn recovery_from_healthy_older_v5_backup_preserves_other_operational_state() {
+    let (dir, mut source) = fixture();
+    let review = reviewed(&mut source);
+    source
+        .set_setting("protected-setting", "unchanged")
+        .unwrap();
+    source
+        .put_unsaved_edit("unrelated.md", [7; 32], "unsaved 日本語\r\n")
+        .unwrap();
+    drop(source);
+    let (mut source, report) = WorkStore::open(dir.path()).unwrap();
+    let pending = source.begin_proposal_apply(&approval(&review)).unwrap();
+    let done = completed_snapshot(&with_prepared(&pending), ApplyOutcome::Applied, true);
+    let restored_dir = tempfile::tempdir().unwrap();
+    std::fs::copy(&report.backup, restored_dir.path().join("brn.sqlite")).unwrap();
+    let (mut recovered, _) = WorkStore::open(restored_dir.path()).unwrap();
+    assert!(recovered.proposal_applies().unwrap().is_empty());
+    assert_eq!(recovered.proposal(review.draft.id).unwrap(), Some(review));
+    recovered.restore_proposal_apply(&done).unwrap();
+    assert_eq!(
+        recovered.setting("protected-setting").unwrap().as_deref(),
+        Some("unchanged")
+    );
+    assert_eq!(
+        recovered
+            .unsaved_edit("unrelated.md")
+            .unwrap()
+            .unwrap()
+            .text,
+        "unsaved 日本語\r\n"
+    );
+    assert_eq!(
+        recovered
+            .proposal(done.approved.draft.id)
+            .unwrap()
+            .unwrap()
+            .state,
+        ProposalState::Applied
+    );
+
+    // The same exact review from a V4 database is migrated before mirror import.
+    let old_dir = tempfile::tempdir().unwrap();
+    std::fs::copy(&report.backup, old_dir.path().join("brn.sqlite")).unwrap();
+    let conn = raw(old_dir.path());
+    conn.execute_batch("DROP TABLE proposal_applies; PRAGMA user_version=4;")
+        .unwrap();
+    drop(conn);
+    let (mut migrated, report) = WorkStore::open(old_dir.path()).unwrap();
+    assert!(report.backup.is_file());
+    migrated.restore_proposal_apply(&pending).unwrap();
+    assert_eq!(
+        migrated.setting("protected-setting").unwrap().as_deref(),
+        Some("unchanged")
+    );
+    assert_eq!(
+        raw(old_dir.path())
+            .query_row("PRAGMA user_version", [], |row| row.get::<_, u32>(0))
+            .unwrap(),
+        5
+    );
+}
+
+#[test]
+fn recovery_rejects_conflicting_bindings_and_unresolved_global_admission_atomically() {
+    let (_, _, pending) = pending_fixture();
+    let prepared = with_prepared(&pending);
+    let (_recovered_dir, mut recovered) = fixture();
+    recovered.restore_proposal_apply(&prepared).unwrap();
+    let live = recovered
+        .proposal(pending.approved.draft.id)
+        .unwrap()
+        .unwrap();
+    let mut variants = Vec::new();
+    let mut wrong = pending.clone();
+    wrong.creation_sha256[0] ^= 1;
+    variants.push(wrong);
+    let mut wrong = pending.clone();
+    wrong.approved.draft.sources[0].fingerprint.inode += 1;
+    variants.push(wrong);
+    let mut wrong = pending.clone();
+    wrong.approved.draft.vault.id = Uuid::new_v4();
+    variants.push(wrong);
+    let mut wrong = pending.clone();
+    wrong.approved.draft.title.push_str(" fork");
+    variants.push(wrong);
+    let mut wrong = pending.clone();
+    wrong.approved.comments[0].text.push_str(" fork");
+    variants.push(wrong);
+    let mut wrong = pending.clone();
+    wrong.members[0].id = Uuid::new_v4();
+    wrong.members[0].staging = Path::new(wrong.approved.draft.changes[0].path())
+        .with_file_name(format!(".brn-{}.stage", wrong.members[0].id));
+    variants.push(wrong);
+    let mut wrong = prepared.clone();
+    wrong.prepared.as_mut().unwrap()[0].inode += 77;
+    variants.push(wrong);
+    for wrong in variants {
+        wrong.validate().unwrap();
+        assert!(matches!(
+            recovered.restore_proposal_apply(&wrong),
+            Err(Error::OperationConflict(_))
+        ));
+        assert_eq!(
+            recovered
+                .proposal_apply(pending.request.operation_id)
+                .unwrap(),
+            Some(prepared.clone())
+        );
+        assert_eq!(
+            recovered.proposal(live.draft.id).unwrap(),
+            Some(live.clone())
+        );
+    }
+    let (_, _, other_pending) = pending_fixture();
+    assert!(matches!(
+        recovered.restore_proposal_apply(&other_pending),
+        Err(Error::StateChanged(_))
+    ));
+    assert!(
+        recovered
+            .proposal(other_pending.approved.draft.id)
+            .unwrap()
+            .is_none()
+    );
+    assert_eq!(recovered.proposals(None).unwrap().len(), 1);
+    assert_eq!(recovered.proposal_applies().unwrap().len(), 1);
+}
+
+#[test]
+fn terminal_restore_and_replay_preserve_newer_draft_text_and_comments() {
+    let (_source_dir, mut source, pending) = pending_fixture();
+    source
+        .refuse_proposal_before_effects(pending.request.operation_id, None)
+        .unwrap();
+    let refused = source
+        .proposal_apply(pending.request.operation_id)
+        .unwrap()
+        .unwrap();
+    let current = source.proposal(pending.approved.draft.id).unwrap().unwrap();
+    let mut changes = edit(&current);
+    changes.title = "Newer explicit review title".into();
+    changes.texts[0] = Some("Newer exact bytes 🦀\r\n".into());
+    let current = source.edit_proposal(&changes).unwrap();
+    let current = source
+        .add_proposal_comment(&CommentRequest {
+            expected: current.stamp(),
+            comment: ReviewComment {
+                id: Uuid::new_v4(),
+                text: "Protect newer review".into(),
+                target: CommentTarget::Proposal,
+            },
+        })
+        .unwrap();
+    assert_eq!(source.restore_proposal_apply(&refused).unwrap(), refused);
+    assert_eq!(source.restore_proposal_apply(&pending).unwrap(), refused);
+    assert_eq!(
+        source.proposal(current.draft.id).unwrap(),
+        Some(current.clone())
+    );
+    assert_eq!(
+        source
+            .refuse_proposal_before_effects(pending.request.operation_id, None)
+            .unwrap(),
+        refused.receipt.unwrap()
+    );
+    // A different missing historical operation may restore its terminal ledger
+    // but cannot replace a newer live review. An unresolved mirror must refuse.
+    let mut historical = pending.clone();
+    historical.request.operation_id = Uuid::new_v4();
+    let historical_done = completed_snapshot(&historical, ApplyOutcome::NotApplied, false);
+    source.restore_proposal_apply(&historical_done).unwrap();
+    let mut unresolved = historical;
+    unresolved.request.operation_id = Uuid::new_v4();
+    assert!(matches!(
+        source.restore_proposal_apply(&unresolved),
+        Err(Error::StateChanged(_))
+    ));
+    assert_eq!(source.proposal(current.draft.id).unwrap(), Some(current));
+    assert_eq!(source.proposal_applies().unwrap().len(), 2);
+}
+
+#[test]
+fn historical_applied_restore_cleans_only_covered_annotations_and_preserves_newer_review() {
+    let (_store_dir, mut store, first) = pending_fixture();
+    store
+        .refuse_proposal_before_effects(first.request.operation_id, None)
+        .unwrap();
+    let first_refused = store
+        .proposal_apply(first.request.operation_id)
+        .unwrap()
+        .unwrap();
+    let review = store.proposal(first.approved.draft.id).unwrap().unwrap();
+    let mut update = edit(&review);
+    update.texts[0] = Some("Later review 日本語\r\n".into());
+    let review = store.edit_proposal(&update).unwrap();
+    let review = store
+        .add_proposal_comment(&CommentRequest {
+            expected: review.stamp(),
+            comment: ReviewComment {
+                id: Uuid::new_v4(),
+                text: "Later comment".into(),
+                target: CommentTarget::Proposal,
+            },
+        })
+        .unwrap();
+    let later = store.begin_proposal_apply(&approval(&review)).unwrap();
+    store
+        .refuse_proposal_before_effects(later.request.operation_id, None)
+        .unwrap();
+    let later = store
+        .proposal_apply(later.request.operation_id)
+        .unwrap()
+        .unwrap();
+    let live = store.proposal(review.draft.id).unwrap().unwrap();
+    let mut approved_history = with_prepared(&first);
+    approved_history.request.operation_id = Uuid::new_v4();
+    let applied_history = completed_snapshot(&approved_history, ApplyOutcome::Applied, false);
+    store.restore_proposal_apply(&applied_history).unwrap();
+    assert_eq!(store.proposal(live.draft.id).unwrap(), Some(live));
+    let mut expected_old = first_refused.clone();
+    expected_old.approved.comments.clear();
+    assert_eq!(
+        store.proposal_apply(first.request.operation_id).unwrap(),
+        Some(expected_old)
+    );
+    assert_eq!(
+        store.proposal_apply(later.request.operation_id).unwrap(),
+        Some(later.clone())
+    );
+    assert!(!later.approved.comments.is_empty());
+    assert_eq!(
+        store
+            .refuse_proposal_before_effects(first.request.operation_id, None)
+            .unwrap(),
+        first_refused.receipt.clone().unwrap()
+    );
+    // Replaying a stale mirror must not bring deleted comments back.
+    assert!(
+        store
+            .restore_proposal_apply(&first_refused)
+            .unwrap()
+            .approved
+            .comments
+            .is_empty()
+    );
+}
+
+#[test]
+fn applied_restoration_cleans_no_effects_history_and_rolls_back_all_cleanup_on_failure() {
+    let (dir, mut store, first) = pending_fixture();
+    store
+        .refuse_proposal_before_effects(first.request.operation_id, None)
+        .unwrap();
+    let prior = store
+        .proposal_apply(first.request.operation_id)
+        .unwrap()
+        .unwrap();
+    let review = store.proposal(first.approved.draft.id).unwrap().unwrap();
+    let pending = store.begin_proposal_apply(&approval(&review)).unwrap();
+    let done = completed_snapshot(&with_prepared(&pending), ApplyOutcome::Applied, true);
+    let live = store.proposal(review.draft.id).unwrap().unwrap();
+    let conn = raw(dir.path());
+    for (table, condition) in [
+        (
+            "proposal_applies",
+            format!("OLD.operation_id='{}'", first.request.operation_id),
+        ),
+        (
+            "proposal_applies",
+            format!("OLD.operation_id='{}'", pending.request.operation_id),
+        ),
+        ("proposals", format!("OLD.id='{}'", live.draft.id)),
+    ] {
+        conn.execute_batch(&format!("CREATE TRIGGER recovery_failure BEFORE UPDATE ON {table} WHEN {condition} BEGIN SELECT RAISE(ABORT, 'synthetic'); END;")).unwrap();
+        assert!(matches!(
+            store.restore_proposal_apply(&done),
+            Err(Error::Sql(_))
+        ));
+        assert_eq!(store.proposal(live.draft.id).unwrap(), Some(live.clone()));
+        assert_eq!(
+            store.proposal_apply(prior.request.operation_id).unwrap(),
+            Some(prior.clone())
+        );
+        assert_eq!(
+            store.proposal_apply(pending.request.operation_id).unwrap(),
+            Some(pending.clone())
+        );
+        conn.execute_batch("DROP TRIGGER recovery_failure;")
+            .unwrap();
+    }
+    store.restore_proposal_apply(&done).unwrap();
+    let current = store.proposal(review.draft.id).unwrap().unwrap();
+    assert_eq!(current.state, ProposalState::Applied);
+    assert!(current.comments.is_empty());
+    let mut expected_prior = prior.clone();
+    expected_prior.approved.comments.clear();
+    assert_eq!(
+        store.proposal_apply(prior.request.operation_id).unwrap(),
+        Some(expected_prior)
+    );
+    assert_eq!(
+        store
+            .refuse_proposal_before_effects(prior.request.operation_id, None)
+            .unwrap(),
+        prior.receipt.unwrap()
+    );
+    drop(store);
+    let (store, _) = WorkStore::open(dir.path()).unwrap();
+    assert_eq!(
+        store.proposal_apply(done.request.operation_id).unwrap(),
+        Some(done)
+    );
+    assert!(
+        store
+            .proposal_applies()
+            .unwrap()
+            .iter()
+            .all(|journal| journal.approved.comments.is_empty())
+    );
+}
+
+#[test]
+fn recovery_insert_failure_and_same_version_review_forks_leave_database_unchanged() {
+    let (_, _, pending) = pending_fixture();
+    let (dir, mut recovered) = fixture();
+    let conn = raw(dir.path());
+    conn.execute_batch("CREATE TRIGGER recovery_failure BEFORE INSERT ON proposal_applies BEGIN SELECT RAISE(ABORT, 'synthetic'); END;").unwrap();
+    assert!(matches!(
+        recovered.restore_proposal_apply(&pending),
+        Err(Error::Sql(_))
+    ));
+    assert!(recovered.proposals(None).unwrap().is_empty());
+    assert!(recovered.proposal_applies().unwrap().is_empty());
+    conn.execute_batch("DROP TRIGGER recovery_failure;")
+        .unwrap();
+    recovered.restore_proposal_apply(&pending).unwrap();
+    // Removing only a journal simulates an old operational snapshot at its
+    // admission version. A different same-version after-text cannot be adopted.
+    conn.execute("DELETE FROM proposal_applies", []).unwrap();
+    mutate_json(
+        &conn,
+        "proposals",
+        pending.approved.draft.id,
+        |value| {
+            value["record"]["draft"]["changes"][0]["text"] = "Conflicting same-version text".into();
+        },
+        true,
+    );
+    let fork = recovered
+        .proposal(pending.approved.draft.id)
+        .unwrap()
+        .unwrap();
+    assert!(matches!(
+        recovered.restore_proposal_apply(&pending),
+        Err(Error::StateChanged(_))
+    ));
+    assert!(recovered.proposal_applies().unwrap().is_empty());
+    assert_eq!(recovered.proposal(fork.draft.id).unwrap(), Some(fork));
+}
+
+#[test]
+fn already_applied_review_survives_later_historical_refusal_without_annotations() {
+    let (_source_dir, mut source, pending) = pending_fixture();
+    let done = completed_snapshot(&with_prepared(&pending), ApplyOutcome::Applied, false);
+    source.restore_proposal_apply(&done).unwrap();
+    let live = source.proposal(done.approved.draft.id).unwrap().unwrap();
+    let mut later = pending.clone();
+    later.request.operation_id = Uuid::new_v4();
+    later.approved.version = live.version + 1;
+    later.request.expected = later.approved.stamp();
+    later.approved.draft.title = "Historical later review".into();
+    if let NoteChange::Create { text, .. } = &mut later.approved.draft.changes[0] {
+        *text = "Historical later proposed bytes".into();
+    }
+    let later = completed_snapshot(&later, ApplyOutcome::NotApplied, false);
+    assert!(!later.approved.comments.is_empty());
+    let effective = source.restore_proposal_apply(&later).unwrap();
+    assert!(effective.approved.comments.is_empty());
+    assert_eq!(effective.receipt, later.receipt);
+    assert_eq!(effective.observations, later.observations);
+    assert_eq!(source.proposal(live.draft.id).unwrap(), Some(live.clone()));
+    assert_eq!(source.restore_proposal_apply(&later).unwrap(), effective);
+    assert_eq!(source.proposal(live.draft.id).unwrap(), Some(live));
+}
+
+#[test]
+fn forward_recovery_checks_existing_unresolved_snapshot_before_clearing_comments() {
+    let (dir, mut store, pending) = pending_fixture();
+    let done = completed_snapshot(&with_prepared(&pending), ApplyOutcome::Applied, false);
+    mutate_json(
+        &raw(dir.path()),
+        "proposals",
+        pending.approved.draft.id,
+        |value| {
+            value["record"]["comments"][0]["text"] = "Incompatible current review".into();
+        },
+        true,
+    );
+    let current = store.proposal(pending.approved.draft.id).unwrap().unwrap();
+    assert!(matches!(
+        store.restore_proposal_apply(&done),
+        Err(Error::StateChanged(_))
+    ));
+    assert_eq!(store.proposal(current.draft.id).unwrap(), Some(current));
+    assert_eq!(
+        store.proposal_apply(pending.request.operation_id).unwrap(),
+        Some(pending)
+    );
+}
+
+#[test]
+fn historical_receipt_advances_an_old_pending_journal_without_clobbering_newer_applied_review() {
+    let (_source_dir, mut source, old_pending) = pending_fixture();
+    let old_pending = source
+        .record_proposal_prepared(old_pending.request.operation_id, &prepared(&old_pending))
+        .unwrap();
+    source
+        .refuse_proposal_before_effects(old_pending.request.operation_id, None)
+        .unwrap();
+    let review = source
+        .proposal(old_pending.approved.draft.id)
+        .unwrap()
+        .unwrap();
+    let latest = source.begin_proposal_apply(&approval(&review)).unwrap();
+    let latest = source
+        .record_proposal_prepared(latest.request.operation_id, &prepared(&latest))
+        .unwrap();
+    source
+        .finish_proposal_apply(
+            latest.request.operation_id,
+            ApplyOutcome::Applied,
+            Some(&applied(&latest)),
+        )
+        .unwrap();
+    let latest = source
+        .proposal_apply(latest.request.operation_id)
+        .unwrap()
+        .unwrap();
+    let old_refused = source
+        .proposal_apply(old_pending.request.operation_id)
+        .unwrap()
+        .unwrap();
+    assert!(old_refused.no_effects);
+    assert!(old_refused.approved.comments.is_empty());
+    assert_eq!(old_refused.receipt.as_ref().unwrap().stamp.version, 4);
+    assert_eq!(latest.receipt.as_ref().unwrap().stamp.version, 6);
+
+    let (dir, mut recovered) = fixture();
+    recovered.restore_proposal_apply(&old_pending).unwrap();
+    drop(recovered);
+    let (mut recovered, _) = WorkStore::open(dir.path()).unwrap();
+    assert_eq!(
+        recovered
+            .proposal(old_pending.approved.draft.id)
+            .unwrap()
+            .unwrap()
+            .version,
+        3
+    );
+    recovered.restore_proposal_apply(&latest).unwrap();
+    let live = recovered
+        .proposal(latest.approved.draft.id)
+        .unwrap()
+        .unwrap();
+    assert_eq!(live.state, ProposalState::Applied);
+    assert_eq!(live.version, 6);
+    let mut cleaned_pending = old_pending.clone();
+    cleaned_pending.approved.comments.clear();
+    assert_eq!(
+        recovered
+            .proposal_apply(old_pending.request.operation_id)
+            .unwrap(),
+        Some(cleaned_pending.clone())
+    );
+
+    let conn = raw(dir.path());
+    conn.execute_batch(&format!("CREATE TRIGGER historical_failure BEFORE UPDATE ON proposal_applies WHEN OLD.operation_id='{}' BEGIN SELECT RAISE(ABORT, 'synthetic'); END;", old_pending.request.operation_id)).unwrap();
+    assert!(matches!(
+        recovered.restore_proposal_apply(&old_refused),
+        Err(Error::Sql(_))
+    ));
+    assert_eq!(
+        recovered.proposal(live.draft.id).unwrap(),
+        Some(live.clone())
+    );
+    assert_eq!(
+        recovered
+            .proposal_apply(old_pending.request.operation_id)
+            .unwrap(),
+        Some(cleaned_pending.clone())
+    );
+    conn.execute_batch("DROP TRIGGER historical_failure;")
+        .unwrap();
+    for (index, mut conflicting) in [
+        old_refused.clone(),
+        old_refused.clone(),
+        old_refused.clone(),
+    ]
+    .into_iter()
+    .enumerate()
+    {
+        if index == 0 {
+            conflicting.creation_sha256[0] ^= 1;
+        } else if index == 1 {
+            conflicting.members[0].id = Uuid::new_v4();
+            conflicting.members[0].staging =
+                Path::new(conflicting.approved.draft.changes[0].path())
+                    .with_file_name(format!(".brn-{}.stage", conflicting.members[0].id));
+        } else {
+            conflicting.prepared.as_mut().unwrap()[0].inode += 77;
+        }
+        conflicting.validate().unwrap();
+        assert!(matches!(
+            recovered.restore_proposal_apply(&conflicting),
+            Err(Error::OperationConflict(_))
+        ));
+        assert_eq!(
+            recovered
+                .proposal_apply(old_pending.request.operation_id)
+                .unwrap(),
+            Some(cleaned_pending.clone())
+        );
+        assert_eq!(
+            recovered.proposal(live.draft.id).unwrap(),
+            Some(live.clone())
+        );
+    }
+    assert_eq!(
+        recovered.restore_proposal_apply(&old_refused).unwrap(),
+        old_refused
+    );
+    assert_eq!(
+        recovered.proposal(live.draft.id).unwrap(),
+        Some(live.clone())
+    );
+    assert_eq!(
+        recovered
+            .begin_proposal_apply(&old_pending.request)
+            .unwrap(),
+        old_refused
+    );
+    assert_eq!(
+        recovered
+            .refuse_proposal_before_effects(old_pending.request.operation_id, None)
+            .unwrap(),
+        old_refused.receipt.unwrap()
+    );
+    drop(recovered);
+    let (recovered, _) = WorkStore::open(dir.path()).unwrap();
+    assert_eq!(recovered.proposal(live.draft.id).unwrap(), Some(live));
+    assert!(
+        recovered
+            .proposal_applies()
+            .unwrap()
+            .iter()
+            .all(|journal| journal.approved.comments.is_empty())
+    );
+}
+
+#[test]
+fn historical_terminal_catchup_keeps_newer_draft_bytes_comments_and_rollback_boundary() {
+    let (_source_dir, mut source, old_pending) = pending_fixture();
+    source
+        .refuse_proposal_before_effects(old_pending.request.operation_id, None)
+        .unwrap();
+    let old_refused = source
+        .proposal_apply(old_pending.request.operation_id)
+        .unwrap()
+        .unwrap();
+    let review = source
+        .proposal(old_pending.approved.draft.id)
+        .unwrap()
+        .unwrap();
+    let mut changes = edit(&review);
+    changes.title = "Newer review title".into();
+    changes.texts[0] = Some("\u{feff}Newer body 日本語 🦀\r\n".into());
+    let review = source.edit_proposal(&changes).unwrap();
+    let review = source
+        .add_proposal_comment(&CommentRequest {
+            expected: review.stamp(),
+            comment: ReviewComment {
+                id: Uuid::new_v4(),
+                text: "Newer independent review annotation".into(),
+                target: CommentTarget::Proposal,
+            },
+        })
+        .unwrap();
+    let latest = source.begin_proposal_apply(&approval(&review)).unwrap();
+    source
+        .refuse_proposal_before_effects(latest.request.operation_id, None)
+        .unwrap();
+    let latest = source
+        .proposal_apply(latest.request.operation_id)
+        .unwrap()
+        .unwrap();
+    let (dir, mut recovered) = fixture();
+    recovered.restore_proposal_apply(&old_pending).unwrap();
+    recovered.restore_proposal_apply(&latest).unwrap();
+    let live = recovered
+        .proposal(latest.approved.draft.id)
+        .unwrap()
+        .unwrap();
+    assert_eq!(live.state, ProposalState::Draft);
+    assert!(live.version > old_refused.receipt.as_ref().unwrap().stamp.version);
+    assert_eq!(live.draft, review.draft);
+    assert_eq!(live.comments, review.comments);
+    assert_eq!(live.comments.len(), 2);
+    let conn = raw(dir.path());
+    conn.execute_batch(&format!("CREATE TRIGGER historical_failure BEFORE UPDATE ON proposal_applies WHEN OLD.operation_id='{}' BEGIN SELECT RAISE(ABORT, 'synthetic'); END;", old_pending.request.operation_id)).unwrap();
+    assert!(matches!(
+        recovered.restore_proposal_apply(&old_refused),
+        Err(Error::Sql(_))
+    ));
+    assert_eq!(
+        recovered.proposal(live.draft.id).unwrap(),
+        Some(live.clone())
+    );
+    assert_eq!(
+        recovered
+            .proposal_apply(old_pending.request.operation_id)
+            .unwrap(),
+        Some(old_pending.clone())
+    );
+    conn.execute_batch("DROP TRIGGER historical_failure;")
+        .unwrap();
+    assert_eq!(
+        recovered.restore_proposal_apply(&old_refused).unwrap(),
+        old_refused
+    );
+    assert_eq!(
+        recovered.proposal(live.draft.id).unwrap(),
+        Some(live.clone())
+    );
+    assert_eq!(
+        recovered.restore_proposal_apply(&old_pending).unwrap(),
+        old_refused
+    );
+    assert_eq!(recovered.proposal(live.draft.id).unwrap(), Some(live));
+}

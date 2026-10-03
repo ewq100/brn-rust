@@ -78,15 +78,23 @@ installation. Startup and saved consent never initiate downloads or login.
 WorkStore V4 and AppWorker now persist typed Markdown drafts, exact before/source
 bindings, full edits, temporary comments and rejection. One review version guards
 late Rewrite results; uncertain anchors retain their old range without guessing.
-Headless review operations do not apply knowledge. Whole-proposal approval,
-recoverable application, activity/Undo/Trash, AI Rewrite and native review remain
-active Stage 4 work, before later roadmap domains extend the typed changes.
+Draft/edit/comment operations do not apply knowledge. Exact reviewed approval
+now applies through AppWorker and the CLI, preserving whole-proposal proof and
+later editor work. Activity/Undo/Trash, AI Rewrite and native review remain active
+Stage 4 work, before later roadmap domains extend the typed changes.
 
 WorkStore V5 adds exact approval snapshots, all-member prepared proofs and
 whole-proposal receipts. Pending/Uncertain journals fence current reads and
 conflicting Save/reload while keeping review and unfinished editor work readable.
-Storage does not install files; public approval and ordinary-file recovery across
-older database restores still require the next workflow slice.
+Storage does not install files. Workflow stages all members, persists prepared
+proofs in SQLite and bounded ordinary recovery receipts, then uses coordinated
+exchange/exclusive installation and required durability. Whole completion is
+persisted before SQLite finalization. Every startup imports retained records
+before binding current evidence, including healthy older/fresh databases;
+completed historical replay preserves subsequent user file edits. Partial or
+incompatible proof stays fenced. Ordinary receipt/comment cleanup never removes
+unexpected artifacts. These receipts implement the frozen ordinary-file recovery
+boundary rather than adding another datastore.
 
 ## Build boundaries and remaining work
 

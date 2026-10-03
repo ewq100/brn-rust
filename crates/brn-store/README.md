@@ -97,9 +97,18 @@ receipts are immutable even after later review edits following NotApplied.
 
 Storage validates hashes, indexed/request/creation bindings, encoded size and
 domain bounds. It performs no filesystem work and cannot independently observe
-the proofs supplied by workflow. File application, recovery mirrors surviving
-older database restores, public approval commands, activity/Undo/Trash, AI Rewrite
-and native review are subsequent slices; these journals alone do not qualify them.
+the proofs supplied by workflow. The workflow now supplies file application and retained ordinary recovery
+snapshots. `refuse_proposal_before_effects` accepts a pending-only, N+2 certificate
+from a fresh known-no-attempt path; it cannot discharge Uncertain work and does
+not claim ownership of observed staging. Normal NotApplied reconciliation keeps
+its strict original-destination proof.
+
+`restore_proposal_apply` transactionally imports validated recovery snapshots,
+checks immutable lineage/operation/member/proof bindings and merges forward.
+Settled receipts cannot downgrade; newer review work stays intact. Historical
+Applied import removes annotations only through its approved version, preserving
+later review comments. Storage itself never inspects or writes ordinary files.
+Activity/Undo/Trash, AI Rewrite and native review remain subsequent slices.
 
 ## Local chat
 

@@ -110,6 +110,10 @@ Commands:
   brn proposals comment-update --file COMMENT.json
   brn proposals comment-remove PROPOSAL_ID --review-version N --comment UUID
   brn proposals reject PROPOSAL_ID --review-version N
+  brn proposals approve PROPOSAL_ID --review-version N --operation UUID
+  brn proposals reconcile OPERATION_UUID
+  brn proposals approve-group --file APPROVALS.json
+  brn proposals applies
   brn edit open PATH
   brn edit recover PATH --baseline UUID --expected-generation N --generation N --file F
   brn edit save PATH --baseline UUID --expected-generation N --generation N --file F --operation UUID [--copy PATH]

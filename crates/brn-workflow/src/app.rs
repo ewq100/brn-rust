@@ -34,6 +34,7 @@ pub struct App {
     embedder: Option<SharedEmbedder>,
     report: OpenReport,
     pub(crate) store: WorkStore,
+    pub(crate) apply_records: Option<crate::files::recovery::ApplyRecoveryFiles>,
 }
 
 impl App {
@@ -59,7 +60,11 @@ impl App {
         {
             validate_vault_separation(&data_dir, &root.canonicalize().map_err(|_| unavailable())?)?;
         }
-        let (store, report) = WorkStore::open(&data_dir)?;
+        let (mut store, report) = WorkStore::open(&data_dir)?;
+        let apply_records = crate::proposal_apply::restore_application_records(
+            &mut store,
+            config.vault_root.as_deref(),
+        )?;
         let stored_root = store.setting("vault.root")?.map(PathBuf::from);
         if let (Some(stored), Some(requested)) = (&stored_root, &config.vault_root) {
             let requested = if requested
@@ -102,6 +107,7 @@ impl App {
             embedder,
             report,
             editor: crate::editor::EditorState::default(),
+            apply_records,
         };
         app.store.set_setting(
             "ai.credentials_dir",
@@ -112,6 +118,7 @@ impl App {
                 )
             })?,
         )?;
+        app.reconcile_startup_proposals()?;
         if let Some(root) = requested_root.as_deref()
             && root
                 .try_exists()

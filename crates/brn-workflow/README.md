@@ -6,7 +6,7 @@ Store/Workspace/worker and brn-flow paths are removed.
 
 ## Interfaces and source
 
-[Application](src/app.rs), [commands/events](src/app_worker.rs), [chat lane](src/chat_worker.rs), [editor](src/editor.rs), [proposal review](src/proposals.rs), [file adapter](src/files/mod.rs).
+[Application](src/app.rs), [commands/events](src/app_worker.rs), [chat lane](src/chat_worker.rs), [editor](src/editor.rs), [proposal review](src/proposals.rs), [proposal application](src/proposal_apply.rs), [file adapter](src/files/mod.rs).
 
 ## Simple app owner and read tools
 
@@ -64,16 +64,37 @@ rejection and imported captured Rewrite results use one version. Changing an
 anchored target leaves its old range unresolved; late results after newer edits,
 comments or rejection fail. AppWorker owns and drains admitted review mutations.
 Read/list/edit/comment work remains available without current vault access.
-Proposal approval/application, activity/Undo/Trash, AI Rewrite and native review
-are subsequent Stage 4 slices, not established by this foundation.
+Activity/Undo/Trash, AI Rewrite and native review remain subsequent Stage 4 slices.
 
 The current-evidence fence covers pending/Uncertain Save and proposal journals.
 It refuses tools, note/list/search, refresh and embedding, including startup and
 model activation; retained tools cannot read through the fence. Settling a Save
 cannot clear a proposal's uncertainty. Pending proposals also refuse new Save,
 Save Copy and reload, while keeping editor recovery and existing proposal review
-readable. Storage approval journals have no public workflow approval endpoint or
-filesystem application yet.
+readable.
+
+`proposal_apply` exposes exact individual and captured-group approval through
+AppWorker and the CLI. Preflight checks reviewed vault/parents/targets/sources and
+all editor namespace/identity aliases. It fences retained read leases before
+intent. All Create/Replace members are staged before effects; Trash retains its
+original. Complete prepared proofs reach SQLite and a bounded, hash-checked
+ordinary recovery receipt before coordinated exchange/exclusive installation.
+Whole installed/displaced proofs and required file/directory sync precede one
+Applied result. No-effect refusal is certified only in the fresh path before a
+namespace attempt; interrupted/mixed proofs remain Uncertain. Replay writes
+nothing. Group membership and versions are explicit; each proposal is a separate
+unit and later members stop on refusal. Later editor typing keeps its old baseline
+and buffer as a visible conflict until explicit reload.
+
+Recovery receipts remain in the data folder across SQLite backups. Every startup
+imports newest terminal evidence before earlier history and unresolved work,
+then classifies pending file proofs before binding current evidence. Trusted
+historical completion preserves subsequent owner bytes. Reconciliation checks
+current sources for incomplete work, recognizes sources replaced/trashed by that
+proposal, and never repeats installation. Approved annotation cleanup covers
+current/prior journals, ordinary snapshots and compatible proof-checked temporary
+snapshots; unexpected occupants remain retained. Activity and bounded Undo/Trash
+retention, AI Rewrite and native proposal interaction still need later slices.
 
 ## Explicit model installation
 

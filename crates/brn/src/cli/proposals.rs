@@ -1,10 +1,11 @@
-//! Headless review operations. No proposal approval or vault write is exposed here.
+//! Headless typed review and explicit approval over the shared worker.
 use super::{
     error::CliError, expect_positionals, required_positional, scan, sub_word, usage, CliFailure,
     Globals, Scanned, Tokens,
 };
 use brn_workflow::{
     app_worker::AppCommand,
+    proposal_apply::{validate_approval_request, ApprovalRequest, GroupApprovalRequest},
     proposals::{CommentRequest, DraftRequest, ProposalEdit, ProposalStamp},
 };
 use serde::de::DeserializeOwned;
@@ -26,6 +27,10 @@ pub enum ProposalCommand {
         comment: Uuid,
     },
     Reject(ProposalStamp),
+    Approve(ApprovalRequest),
+    Reconcile(Uuid),
+    ApproveGroup(PathBuf),
+    Applies,
 }
 
 impl ProposalCommand {
@@ -40,6 +45,10 @@ impl ProposalCommand {
             Self::CommentUpdate(_) => "proposals.comment-update",
             Self::CommentRemove { .. } => "proposals.comment-remove",
             Self::Reject(_) => "proposals.reject",
+            Self::Approve(_) => "proposals.approve",
+            Self::Reconcile(_) => "proposals.reconcile",
+            Self::ApproveGroup(_) => "proposals.approve-group",
+            Self::Applies => "proposals.applies",
         }
     }
 }
@@ -52,7 +61,7 @@ pub(super) fn scan_command(
     let sub = sub_word(
         tokens,
         "proposals",
-        "create|list|show|edit|rewrite-result|comment|comment-update|comment-remove|reject",
+        "create|list|show|edit|rewrite-result|comment|comment-update|comment-remove|reject|approve|reconcile|approve-group|applies",
     )?;
     let (label, options): (_, &[(&str, bool)]) = match sub.as_str() {
         "create" => ("proposals.create", &[("file", true)]),
@@ -67,6 +76,13 @@ pub(super) fn scan_command(
             &[("review-version", true), ("comment", true)],
         ),
         "reject" => ("proposals.reject", &[("review-version", true)]),
+        "approve" => (
+            "proposals.approve",
+            &[("review-version", true), ("operation", true)],
+        ),
+        "reconcile" => ("proposals.reconcile", &[]),
+        "approve-group" => ("proposals.approve-group", &[("file", true)]),
+        "applies" => ("proposals.applies", &[]),
         _ => return Err(usage("unknown proposals subcommand")),
     };
     *name = Some(label);
@@ -76,7 +92,11 @@ pub(super) fn scan_command(
 pub(super) fn parse_command(name: &str, s: &Scanned) -> Result<ProposalCommand, CliError> {
     let positional = matches!(
         name,
-        "proposals.show" | "proposals.comment-remove" | "proposals.reject"
+        "proposals.show"
+            | "proposals.comment-remove"
+            | "proposals.reject"
+            | "proposals.approve"
+            | "proposals.reconcile"
     );
     expect_positionals(s, usize::from(positional))?;
     let file = || {
@@ -111,6 +131,26 @@ pub(super) fn parse_command(name: &str, s: &Scanned) -> Result<ProposalCommand, 
             comment: s.require_uuid("comment")?,
         }),
         "proposals.reject" => Ok(ProposalCommand::Reject(stamp()?)),
+        "proposals.approve" => {
+            let operation_id = s.require_uuid("operation")?;
+            if operation_id.is_nil() {
+                return Err(usage("approval operation UUID must be nonzero"));
+            }
+            Ok(ProposalCommand::Approve(ApprovalRequest {
+                operation_id,
+                expected: stamp()?,
+            }))
+        }
+        "proposals.reconcile" => {
+            let operation_id = Uuid::parse_str(required_positional(s, "OPERATION_UUID")?)
+                .map_err(|_| usage("invalid approval operation UUID"))?;
+            if operation_id.is_nil() {
+                return Err(usage("approval operation UUID must be nonzero"));
+            }
+            Ok(ProposalCommand::Reconcile(operation_id))
+        }
+        "proposals.approve-group" => Ok(ProposalCommand::ApproveGroup(file()?)),
+        "proposals.applies" => Ok(ProposalCommand::Applies),
         _ => unreachable!("scanned proposal command"),
     }
 }
@@ -146,7 +186,12 @@ fn input<T: DeserializeOwned>(path: &PathBuf) -> Result<T, CliError> {
         .map_err(|_| usage("proposal input does not match its typed JSON schema"))
 }
 
-pub(super) fn prepare(command: &ProposalCommand) -> Result<AppCommand, CliFailure> {
+pub(super) fn prepare(command: &ProposalCommand) -> Result<(Uuid, AppCommand), CliFailure> {
+    let operation = match command {
+        ProposalCommand::Approve(request) => request.operation_id,
+        ProposalCommand::Reconcile(id) => *id,
+        _ => Uuid::new_v4(),
+    };
     let command = match command {
         ProposalCommand::Create(file) => {
             let request: DraftRequest = input(file)?;
@@ -172,11 +217,24 @@ pub(super) fn prepare(command: &ProposalCommand) -> Result<AppCommand, CliFailur
             comment: *comment,
         },
         ProposalCommand::Reject(expected) => AppCommand::RejectProposal(*expected),
+        ProposalCommand::Approve(request) => {
+            validate_approval_request(request).map_err(super::error::classify_workflow)?;
+            AppCommand::ApproveProposal(request.clone())
+        }
+        ProposalCommand::Reconcile(id) => AppCommand::ReconcileProposal(*id),
+        ProposalCommand::ApproveGroup(file) => {
+            let request: GroupApprovalRequest = input(file)?;
+            request
+                .validate()
+                .map_err(super::error::classify_workflow)?;
+            AppCommand::ApproveProposalGroup(request)
+        }
+        ProposalCommand::Applies => AppCommand::ProposalApplies,
     };
     if crate::CANCEL.load(Ordering::SeqCst) {
         return Err(
             CliError::Interrupted("interrupted during proposal input preparation".into()).into(),
         );
     }
-    Ok(command)
+    Ok((operation, command))
 }

@@ -257,7 +257,10 @@ fn confirmed_success(event: &AppEvent) -> bool {
             AccountReply::Status(_) | AccountReply::Disconnected | AccountReply::Models(_)
         ),
         AppEvent::ModelInstalled => true,
-        AppEvent::EditorRecovered(_) | AppEvent::EditorSaved(_) => true,
+        AppEvent::EditorRecovered(_)
+        | AppEvent::EditorSaved(_)
+        | AppEvent::ProposalApplied(_)
+        | AppEvent::ProposalGroupApplied(_) => true,
         _ => false,
     }
 }
@@ -324,16 +327,19 @@ fn execute(
     lane: &mut Lane,
     ask_id: Option<Uuid>,
     editor: Option<(Uuid, AppCommand)>,
-    proposal: Option<AppCommand>,
+    proposal: Option<(Uuid, AppCommand)>,
 ) -> Result<Output, CliFailure> {
     match &i.command {
         Command::Proposals(_) => {
-            let data =
-                match lane.query(proposal.expect("proposal input prepared before startup"))? {
-                    AppEvent::Proposal(record) => json!(record),
-                    AppEvent::Proposals(records) => json!(records),
-                    _ => return Err(unexpected()),
-                };
+            let (id, command) = proposal.expect("proposal input prepared before startup");
+            let data = match lane.query_with_id(id, command)? {
+                AppEvent::Proposal(record) => json!(record),
+                AppEvent::Proposals(records) => json!(records),
+                AppEvent::ProposalApplied(receipt) => json!(receipt),
+                AppEvent::ProposalGroupApplied(result) => json!(result),
+                AppEvent::ProposalApplies(journals) => json!(journals),
+                _ => return Err(unexpected()),
+            };
             Ok(output(data))
         }
         Command::Editor(_) => {

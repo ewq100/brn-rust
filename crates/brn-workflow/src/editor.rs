@@ -30,7 +30,7 @@ pub struct ReloadRequest {
 
 #[derive(Default)]
 pub(crate) struct EditorState {
-    files: Option<MacFiles>,
+    pub(crate) files: Option<MacFiles>,
 }
 
 pub(crate) fn file_error(error: FileFailure) -> WorkflowError {

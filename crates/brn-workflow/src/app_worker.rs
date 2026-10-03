@@ -59,6 +59,10 @@ pub enum AppCommand {
         comment: Uuid,
     },
     RejectProposal(crate::proposals::ProposalStamp),
+    ApproveProposal(crate::proposal_apply::ApprovalRequest),
+    ReconcileProposal(Uuid),
+    ApproveProposalGroup(crate::proposal_apply::GroupApprovalRequest),
+    ProposalApplies,
     RecoverEdit {
         path: String,
         base_sha256: [u8; 32],
@@ -110,6 +114,9 @@ pub enum AppEvent {
     Editors(Vec<crate::editor::EditorRecord>),
     Proposal(crate::proposals::ProposalRecord),
     Proposals(Vec<crate::proposals::ProposalRecord>),
+    ProposalApplied(crate::proposal_apply::ApplyReceipt),
+    ProposalGroupApplied(crate::proposal_apply::GroupApprovalResult),
+    ProposalApplies(Vec<crate::proposal_apply::ApplyJournal>),
     Search(SearchResults),
     Conversations(Vec<WorkConversation>),
     Turns(Vec<WorkTurn>),
@@ -797,6 +804,16 @@ fn dispatch(
             AppEvent::Proposal(app.remove_proposal_comment(expected, comment)?)
         }
         AppCommand::RejectProposal(stamp) => AppEvent::Proposal(app.reject_proposal(stamp)?),
+        AppCommand::ApproveProposal(request) => {
+            AppEvent::ProposalApplied(app.approve_proposal(&request)?)
+        }
+        AppCommand::ReconcileProposal(id) => AppEvent::ProposalApplied(app.reconcile_proposal(id)?),
+        AppCommand::ApproveProposalGroup(request) => {
+            AppEvent::ProposalGroupApplied(app.approve_proposal_group(&request)?)
+        }
+        AppCommand::ProposalApplies => {
+            AppEvent::ProposalApplies(app.work_store().proposal_applies()?)
+        }
         AppCommand::ReloadEditor(request) => {
             AppEvent::EditorRecovered(app.reload_editor(&request)?)
         }
@@ -982,6 +999,9 @@ fn critical_mutation_command(command: &AppCommand) -> bool {
             | AppCommand::UpdateProposalComment(_)
             | AppCommand::RemoveProposalComment { .. }
             | AppCommand::RejectProposal(_)
+            | AppCommand::ApproveProposal(_)
+            | AppCommand::ReconcileProposal(_)
+            | AppCommand::ApproveProposalGroup(_)
     )
 }
 
