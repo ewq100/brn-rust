@@ -56,6 +56,12 @@ jobs:
       - name: Test the default workspace
         if: ${{ !cancelled() && steps.workspace-build.outcome == 'success' }}
         run: cargo test --workspace --locked --offline
+      - name: Test provider capability fixtures offline
+        if: ${{ !cancelled() && steps.workspace-build.outcome == 'success' && runner.os != 'Windows' }}
+        run: cargo test -p brn-ai --features capability-spike --all-targets --locked --offline
+      - name: Lint provider capability fixtures
+        if: ${{ !cancelled() && steps.workspace-build.outcome == 'success' && runner.os != 'Windows' }}
+        run: cargo clippy -p brn-ai --features capability-spike --all-targets --locked --offline -- -D warnings
       - name: Check CLI help on Unix
         if: ${{ !cancelled() && steps.workspace-build.outcome == 'success' && runner.os != 'Windows' }}
         run: |
