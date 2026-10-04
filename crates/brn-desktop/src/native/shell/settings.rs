@@ -1,5 +1,5 @@
 use super::*;
-use gpui_kit::{App, Entity, component::WindowExt};
+use gpui_kit::{App, Entity, TestSupportExt, component::WindowExt};
 
 impl Desktop {
     pub(in crate::native) fn open_settings(&mut self, window: &mut Window, cx: &mut Context<Self>) {
@@ -47,6 +47,7 @@ fn settings_body(desktop: &Entity<Desktop>, cx: &App) -> impl IntoElement {
     let reset_target = desktop.downgrade();
     div()
         .id("settings-body")
+        .test_support()
         .flex()
         .flex_col()
         .max_h(px(340.))

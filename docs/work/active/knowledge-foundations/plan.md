@@ -1598,3 +1598,50 @@ reviewed AI91default+91capability gates remain valid for unchanged source. Final
 obsolete CLI expectations,while catalog-shared-corrected-final.log is finalpassed
 evidence. Initial CLIformat mismatch corrected before this fresh full pass.
 Provider/live/native owner acceptance and exact-head CI/publication remain pending.
+
+
+Subscription checkpoint PR31 merged13895d905bd18d0e7615d7623325304f9126cd9d
+after exactfcc5f633/run37210863902 passed Mac3+UbuntuShared. Windows failed
+22Unix errors before tests; independent source/log review found no shared catalog
+defect. Merged treeafef4427 equals qualifiedsource. Post91AI+8CLI+13App+1UI=113
+tests/0failed,52fixtures,startup2V10/exactbytes/zero credentials passed
+(qualified-startup-r02clweg under/private/tmp/brn-v1-subscription-catalog-61kz1mnj).
+Main37211590271 completed5success/4failure:Mac3+UbuntuCore/UI passed;Ubuntu
+installer10pass/3fail,WindowsCore/UI22each and nativeRetrieval14Unix errors remain.
+Actual source/log comparison retains overallCIred/platform qualification gaps.
+
+## Native dialog qualification correction
+
+Baseline13895d9. Unlocked CUA captured the older synthetic workspace visually,then
+normal Quit and focused process check proved full exit; vault hashes/zero
+credentials unchanged. Fresh fixtureCurrent search/read and savedDraft were
+reachable,but Settings button/menu/Cmd-comma never appeared. PinnedGPUI0.6.6
+Root manages dialogs but requires its client to render the dialog layer. Add
+one outer DesktopWindow view rendering Desktop plus Root::render_dialog_layer,
+avoiding dialog builders reading Desktop during its mutable render borrow.
+Observe Desktop notifications so open Settings/login reflects current state.
+No application/domain/provider behavior is moved into UI.
+
+Corrected real shipping-root tests with original composition failed0pass/2fail:
+Settings was admitted without painted content,and a synthetic modal was absent.
+Outer view passed2tests; Settings updates/reopens and modal dismissal restore
+background interaction. Initial harness used a nonexistentheader button and
+confused debugselectors with observedIDs; correctedfixtures supersede those
+failures. Independent Sol review found no production defect. Its valid test
+weakness was technically verified: Settings already has a modal guard,so that
+background click cannot prove blocking. Correctedtest uses Needs Review: None
+under modal,then Some(Findings) after dismissal; fresh2tests passed.
+
+Fresh nativeDesktop216/0failed/0ignored,both nativeall-targetClippy,shippingbuild,
+52fixtures and startup2V10/exactBOMCRLFUnicode/zero credentials passed. Evidence:
+dialog-*.log and qualified-startup-vj1o3h95 under the publicationparent above.
+Source hashes match independent review. Exact-head CI/integration remains next.
+Manual scenario: open Settings using footer/menu/shortcut,scroll to Connection,
+explicit Connect and inspect visible human sign-in,then cancel; reopen and verify
+current account/model/effort controls. No provider call occurred in this correction.
+NativefixedSettings/sign-in remains pending because Mac locked again before
+relaunch; keep Macunlocked/awake for later bounded authorized Luna qualification.
+Owneracceptance remains separate. [Screenshots](../../../ui/screenshots/2026-10-04/INDEX.md)
+retain inspected synthetic UI captures for ownerimprovementwork; exclude auth
+secrets and private/original data. Earlier unretained imagebytes cannot be restored.
+Safe Stage6 reference/execution work continues independently.
