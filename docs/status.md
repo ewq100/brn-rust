@@ -195,6 +195,21 @@ Merged tree equality,10CLIrelationships/links+52fixtures and two startup/restart
 checks passed with exact bytes,zero credentials. GUI/owner acceptance remains
 pending. Reviewed Findings/NeedsReview is in this checkpoint;language follows; completeStage5/V1 delivery is not claimed.
 
+Stage5D publication baseline9cb0fde retains reviewed14-slice Findings/NeedsReview
+and qualified Stage5C. Independent review reproduced readable Findings CHECK
+violations restoring an older Open/v1 backup over legitimate Resolved/v2 work.
+The compatible correction prevalidates supported branded V9+ Findings, refuses
+semantic-invalid main work and skips invalid backup candidates while preserving
+physical recovery, foreign/newer refusal and the V9 schema. Meaningful RED and
+Green regressions plus independent20tests/4public probes passed; no finding remains.
+Fresh945workspace/0failed/3ignored+52fixtures,213combined-native/0failed/0ignored,
+143focused native-workflow/0failed/2ignored,both native Clippy configurations and
+shipping desktop/CLI builds passed. Two startup/restart checks retained exact
+synthetic bytes,V9 and zero credentials. Logs: /private/tmp/brn-v1-stage5d-checkpoint-yry8r21v.
+Exact-head CI/PR integration and native owner/IME/accessibility acceptance remain
+pending. Next checkpoint: multilingual/Ask-language qualification; safe Stage6
+implementation continues. No Stage5/V1 completion is claimed.
+
 Release/public distribution, additional live calls/model downloads, purchases and
 original/private-data inspection or migration still need applicable owner
 permission. No original data was migrated or inspected.

@@ -1296,3 +1296,43 @@ Stage5C PR24 merged2483b31f38a2b941ab71b7fba5449519da600e82 after exact
 Unix APIs fail,overallCIred. Merged tree equality,10CLIrelationships/links+
 52fixtures and two startup/restart checks passed with exact bytes,zero credentials.
 Stage5D integrates this qualified baseline with reviewed basic Findings/NeedsReview.
+
+## Stage5D Findings/Needs Review checkpoint — 2026-10-04
+
+Baseline9cb0fdea213e2d803ef55dcda8251b047489f966 combines reviewed14-slice
+01e7c2f with qualified Stage5C2483b31. Independent merge review found no defect;
+all exclusive paths,source combinations and full reviewed evidence were retained.
+A separate concrete P1 recovery finding was accepted: unknown indexed state or
+31-byte creation/record digest made quick_check restore older Open/v1 work over a
+legitimate Resolved/v2 receipt. All3 public probes reproduced it. A meaningful
+startup regression was RED; the physical-main/invalid-newest-backup regression
+passed before correction and protects the recovery boundary.
+
+Keep V9 DDL compatible. Existing supported brandedV9+ Findings validation now
+precedes quick_check. Semantic-invalid main data refuses before any move; the
+internal checked result lets backup restoration skip invalid candidates. Only
+physical SQLite corruption codes take recovery. Foreign/newer handling and
+post-migration validation remain. Independent correction review found no defect,
+passed20focused startup/Findings tests and4 public probes (3semantic plus real
+Findings B-tree corruption), retaining terminalv2 and exact backup bytes.
+
+Fresh macOSarm64/Rust1.98.1 locked/offline retirement/format/build/all-target
+Clippy passed;945workspace/0failed/3ignored+52fixtures;213combined native-desktop/
+0failed/0ignored;143focused native-workflow/0failed/2ignored (`--lib --test models
+--test findings`); both native Clippy configurations and shipping desktop/CLI
+builds. Two shipping startup/restart checks retained exact BOM/CRLF/Unicode vault
+bytes,V9 and zero credential files. Only upstream block0.1.6 future warning.
+Logs/ownership metadata: /private/tmp/brn-v1-stage5d-checkpoint-yry8r21v.
+FocusedRED/Green logs: /private/tmp/brn-findings-semantic-regression-{red,green}.log.
+Exact latest-head Mac/shared CI,PR/merge/post checks remain pending.
+
+Manual scenario: with fresh managed duplicate-UUID and unresolved-link fixtures,
+capture findings,inspect complete retained proof and separate fresh source status,
+move/change evidence and confirm original quotes survive. Resolve/Dismiss the
+identified exact version,inspect filtered pages/full closed work,restart and
+rebuild the disposable index. No Markdown changes occur. Explicit retries and
+stale replies preserve current selection and typing. GUI/owner/IME/accessibility
+acceptance remains pending; language/model/provider qualification follows.
+Macmini requires AppleSilicon/CLT,pinnedRust1.98.1,cached locked libraries,protobuf,
+Bash/Python3,canonical owned syntheticTMPDIR and unlockedGUI for acceptance.
+No providers,assets,original/private-data or release actions occurred.
