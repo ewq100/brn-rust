@@ -81,7 +81,7 @@ shipping native build and native Clippy. Default desktop passed **131**; workflo
 **186**. The two ignored private crash entry points are exercised by subprocess
 matrices. Earlier slice counts remain in the evidence, not current gate claims.
 
-Stage 5’s [active plan](work/active/knowledge-foundations/plan.md) records fourteen
+Stage 5’s [active plan](work/active/knowledge-foundations/plan.md) records sixteen
 integrated slices: managed Markdown identities; fresh duplicate/incomplete
 inspection; current/source/history/all retrieval and native read-only browsing;
 durable exact provenance and native source inspection; reliable session/turn
@@ -121,12 +121,14 @@ and stacked panels placing controls outside a 480×480 window. Corrected
 invalidation/scrolling passed **22 independent state/widget tests**, with no
 remaining actionable finding. Unsaved typing and original evidence remain intact.
 
-Fresh final Rust 1.98.1/macOS arm64 locked/offline verification passed **943
+Fresh final Rust 1.98.1/macOS arm64 locked/offline verification passed **950
 workspace tests / 0 failed / 3 ignored**, **52 end-to-end assertions**, retirement,
 format/build/all-target Clippy, **213 native desktop tests / 0 failed / 0 ignored**,
 test-support and shipping native Clippy, and the shipping native desktop build.
-Unchanged native workflow/CLI qualification remains in the preceding slice's
-evidence. Two ignored private crash
+Fresh native retrieval fixtures passed25;embedding metadata/vector guards10;
+missing-model loader1 (both real-model tests compiled and stayed unexecuted).
+Focused native workflow passed155/0failed/2ignored;capability fixtures passed
+86library+1example,with feature Clippy and shipping native CLI build. Two ignored private crash
 entry points remain exercised by subprocess matrices; the third case-sensitive
 regression was explicitly qualified in the prior unchanged adapter slice.
 Fresh shipping headless startup/restart passed twice with exact synthetic vault
@@ -160,9 +162,24 @@ and separate fresh inspection, direct exact Resolve/Dismiss, saved-issue capture
 and explicit same-request retries even without a selection or available vault.
 Independent state/widget reviews passed **8 + 4 tests**, with no unresolved
 defect. A reproduced refused-navigation bug was corrected before integration.
-Multilingual implementation/qualification remains Stage 5 work. The bounded
-multilingual asset-download permission question is still pending; unrelated safe
-implementation continues. Stage 5 is not complete.
+The explicit installer now pins multilingual MiniLM-L12 quantized assets at
+`2c4055b12046f11709e9df2c122e59ffbdc2f900` (135,392,488 bytes). Recognized new
+ONNX requires all five exact assets before initialization; mean/384/max128/Static
+and the full bundle produce a distinct identity. Saved/explicit legacy directories
+retain their previous behavior and identity. Fresh defaults use a separate folder;
+consent is scoped to this revision and never executes automatically. Independent
+review reproduced and fixed the CLI legacy-folder mismatch. Fresh **28 native
+retrieval +137 native workflow tests**, feature Clippy/builds and two shipping
+startup/restart runs passed. A prepared ignored six-query bilingual model smoke
+test compiled but was not run. Actual ONNX compatibility, EN↔ET quality, long-tail
+truncation, scope/restart/rebuild and tool/CLI parity remain unqualified. The
+bounded asset-download question is still pending. Ask now instructs the selected
+model to normally use the current question's language, honor explicit language
+requests and preserve original source quotes. Independent review passed two
+actual Rig synthetic transport tests across three explicit routes and both Ask
+APIs; no extra call or Rewrite protocol change occurs. Fresh adapter/capability
+fixtures passed **86 library +1 example tests**. Actual response-language compliance
+remains unqualified. Safe later implementation continues; Stage 5 is not complete.
 
 ## Qualification still open
 
@@ -227,9 +244,15 @@ no defect. Fresh946workspace/0failed/3ignored+52fixtures,213combined-native/0fai
 154focused native-workflow/0failed/2ignored,both native Clippy configurations and
 shipping desktop/CLI builds passed. Two startup/restart checks retained exact
 synthetic bytes,V9 and zero credentials. Logs: /private/tmp/brn-v1-stage5d-checkpoint-yry8r21v.
-Exact-head CI/PR integration and native owner/IME/accessibility acceptance remain
-pending. Next checkpoint: multilingual/Ask-language qualification; safe Stage6
-implementation continues. No Stage5/V1 completion is claimed.
+PR26 mergedb0e93fb81cf702da5d4957ed984305ed8852683f after exactfc98b0d/
+run37199082097 passed Mac3+UbuntuShared;Windows Unix APIs failed,overallCIred.
+Merged tree equality,28focused tests+52fixtures and two startup/restart checks
+passed with exact bytes,V9,zero credentials. Main37199659960 passed Mac3+
+UbuntuCore/UI;Ubuntu retrieval's unchanged exclusive-install expectations failed
+6pass/3fail,Windows3failed,overallCIred. Independent actual-job analysis found no
+new sharedMac defect. Language publication follows; safe Stage6 implementation
+continues. Native owner/IME/accessibility acceptance remains pending; Stage5/V1
+completion is not claimed.
 
 Release/public distribution, additional live calls/model downloads, purchases and
 original/private-data inspection or migration still need applicable owner

@@ -45,6 +45,166 @@ mod ask_effort_tests {
         }
     }
 
+    const LANGUAGE_INSTRUCTION: &str = "Normally answer in the language of the current user question unless the user asks for another language. English and Estonian content may be mixed; preserve exact source quotes in their original language.";
+    const MIXED_SOURCE: &str = "\u{feff}English quote: \"The deadline is Friday.\"\r\nEestikeelne tsitaat: „Tähtaeg on reede.“\r\n";
+
+    #[derive(Default)]
+    struct MixedLanguageNotes {
+        calls: AtomicUsize,
+    }
+
+    impl ReadTools for MixedLanguageNotes {
+        fn search_notes(&self, _: &str, _: usize) -> AiResult<ToolSearch> {
+            panic!("only the captured read_note call is expected")
+        }
+
+        fn read_note(&self, path: &str) -> AiResult<ToolNote> {
+            assert_eq!(path, "tähtaeg.md");
+            self.calls.fetch_add(1, Ordering::SeqCst);
+            Ok(ToolNote {
+                path: path.into(),
+                text: MIXED_SOURCE.into(),
+                truncated: false,
+            })
+        }
+
+        fn list_notes(&self, _: Option<&str>, _: Option<&str>) -> AiResult<NotePage> {
+            panic!("only the captured read_note call is expected")
+        }
+    }
+
+    async fn assert_ask_language_contract(with_effort: bool) {
+        let questions = [
+            "\u{feff}What is the tähtaeg? Quote both source languages exactly.\r\n",
+            "\u{feff}Millal on deadline? Tsiteeri mõlemat allikat täpselt.\r\n",
+            "Please answer in Estonian, including the exact English and Estonian quotes.\r\n",
+            "Palun vasta inglise keeles ja säilita mõlemad täpsed tsitaadid.\r\n",
+        ];
+        let history = [HistoryPair {
+            question: "Varasem eestikeelne küsimus. Earlier English question.".into(),
+            answer: "Earlier mixed answer. Varasem vastus.".into(),
+        }];
+        for (provider, model, responses) in ROUTES {
+            for question in questions {
+                let (_root, client, http) = client(
+                    provider,
+                    model,
+                    vec![
+                        success(tool_sse(
+                            responses,
+                            &[("read_note", json!({"path":"tähtaeg.md"}))],
+                        )),
+                        success(text_sse(responses, MIXED_SOURCE)),
+                    ],
+                )
+                .await;
+                let notes = Arc::new(MixedLanguageNotes::default());
+                let answer = if with_effort {
+                    answer_with_effort(
+                        client,
+                        question,
+                        &history,
+                        ReasoningEffort::Medium,
+                        notes.clone(),
+                        CancellationToken::new(),
+                        Arc::new(|_| {}),
+                    )
+                    .await
+                } else {
+                    answer(
+                        client,
+                        question,
+                        &history,
+                        notes.clone(),
+                        CancellationToken::new(),
+                        Arc::new(|_| {}),
+                    )
+                    .await
+                };
+                assert!(
+                    matches!(answer.terminal, AiTerminal::Completed),
+                    "{answer:?}"
+                );
+                assert_eq!(answer.text, MIXED_SOURCE);
+                assert_eq!(notes.calls.load(Ordering::SeqCst), 1);
+                let bodies = http.bodies();
+                assert_eq!(bodies.len(), 2);
+                for body in &bodies {
+                    assert_eq!(body["model"], model);
+                    let messages = body[if responses { "input" } else { "messages" }]
+                        .as_array()
+                        .unwrap();
+                    let preamble = if provider == Provider::Chatgpt {
+                        body["instructions"].as_str().unwrap().to_owned()
+                    } else {
+                        message_text(
+                            messages
+                                .iter()
+                                .find(|message| message["role"] == "system")
+                                .unwrap(),
+                        )
+                        .unwrap()
+                    };
+                    assert!(
+                        preamble.contains(LANGUAGE_INSTRUCTION),
+                        "{provider:?}/{model}: {preamble}"
+                    );
+                    let users = messages
+                        .iter()
+                        .filter(|message| message["role"] == "user")
+                        .map(|message| message_text(message).unwrap())
+                        .collect::<Vec<_>>();
+                    assert_eq!(users, [history[0].question.clone(), question.to_owned()]);
+                    if with_effort {
+                        assert_eq!(
+                            body[if responses {
+                                "reasoning"
+                            } else {
+                                "reasoning_effort"
+                            }],
+                            if responses {
+                                json!({"effort":"medium"})
+                            } else {
+                                json!("medium")
+                            }
+                        );
+                    }
+                }
+                let continuation = bodies[1][if responses { "input" } else { "messages" }]
+                    .as_array()
+                    .unwrap();
+                let result = continuation
+                    .iter()
+                    .filter(|message| {
+                        message["role"] == "tool" || message["type"] == "function_call_output"
+                    })
+                    .collect::<Vec<_>>();
+                assert_eq!(result.len(), 1);
+                let encoded = if responses {
+                    result[0]["output"].as_str().unwrap().to_owned()
+                } else {
+                    message_text(result[0]).unwrap()
+                };
+                assert_eq!(
+                    serde_json::from_str::<Value>(&encoded).unwrap(),
+                    json!({"scope":"current","path":"tähtaeg.md","text":MIXED_SOURCE,"truncated":false})
+                );
+                http.assert_consumed();
+            }
+        }
+    }
+
+    #[tokio::test]
+    async fn ask_language_contract_preserves_current_question_and_mixed_source_quotes() {
+        assert_ask_language_contract(false).await;
+    }
+
+    #[tokio::test]
+    async fn ask_language_contract_with_effort_preserves_current_question_and_mixed_source_quotes()
+    {
+        assert_ask_language_contract(true).await;
+    }
+
     #[tokio::test]
     async fn explicit_ask_effort_preserves_model_last_twenty_pairs_and_tool_continuation() {
         let question = "\u{feff}Current 日本語 question\r\nλ";
@@ -368,6 +528,8 @@ mod rewrite_tests {
                 ] {
                     assert!(preamble.contains(required), "{preamble}");
                 }
+                assert!(!preamble.contains("Normally answer in the language"));
+                assert!(!preamble.contains("English and Estonian content may be mixed"));
                 assert!(bodies[1].to_string().contains("fresh note"));
                 http.assert_consumed();
             }

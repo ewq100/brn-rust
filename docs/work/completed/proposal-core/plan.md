@@ -1247,3 +1247,18 @@ read-only review confirmed the sole module guard preserves all 14 pure shared
 review tests; no shared production defect was demonstrated. Fresh local five
 review-state tests, workspace all-target Clippy, format and diff checks passed.
 Exact latest-head CI remains required; Windows still fails on Unix metadata APIs.
+
+Stage 4C PR21 merged as `6601374996ecba7d461403aa6e892f1273bed28e` after exact
+head `18a315b` passed all three macOS lanes and Ubuntu shared Core in run
+`37190429533`. Windows remains red on Unix metadata APIs; overall CI is red.
+Merged tree equality, fresh16native widgets+52fixtures, shipping build and two
+startup/restart runs passed with exact synthetic bytes and zero credential files.
+The lead Stage5 tree now incorporates the three reviewed macOS fixture guards
+and widget CI while preserving all fifteen knowledge slices. Earlier complete
+lead evidence and the incoming B/C bodies remain retained; no active Proposal
+Core folder is recreated. Owner/native/live acceptance remains pending.
+
+Lead-tree independent integration review confirmed213other crate paths unchanged,
+all qualified guards/CI and complete prior/incoming evidence preserved. Fresh
+15scoped tests, workspace all-target Clippy, format, both YAML parses,8local
+Markdown links and diff checks passed. Owner AGENTS.md remains unstaged/untouched.

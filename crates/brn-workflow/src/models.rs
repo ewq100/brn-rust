@@ -5,8 +5,12 @@ use std::{
     sync::atomic::{AtomicBool, Ordering},
 };
 
-pub const MODEL_SOURCE: &str = "https://huggingface.co/Xenova/all-MiniLM-L6-v2/resolve/751bff37182d3f1213fa05d7196b954e230abad9/";
-pub const MODEL_BYTES: u64 = 91_100_408;
+pub const MODEL_SOURCE: &str = "https://huggingface.co/Xenova/paraphrase-multilingual-MiniLM-L12-v2/resolve/2c4055b12046f11709e9df2c122e59ffbdc2f900/";
+pub const MODEL_BYTES: u64 = 135_392_488;
+pub const MODEL_RELATIVE_DIR: &str = "models/multilingual-minilm-l12-v2";
+pub const MODEL_COST: &str = "Approximately 129 MiB of network transfer and installed storage";
+pub const MODEL_DECISION_KEY: &str =
+    "model.download_decision.2c4055b12046f11709e9df2c122e59ffbdc2f900";
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq, serde::Serialize, serde::Deserialize)]
 #[serde(rename_all = "lowercase")]
@@ -90,7 +94,7 @@ impl ModelInstallRequest {
 impl App {
     pub fn model_download_decision(&self) -> Result<Option<DownloadDecision>> {
         self.work_store()
-            .setting("model.download_decision")?
+            .setting(MODEL_DECISION_KEY)?
             .map(|decision| match decision.as_str() {
                 "approved" => Ok(DownloadDecision::Approved),
                 "declined" => Ok(DownloadDecision::Declined),
@@ -115,8 +119,8 @@ impl App {
             Ok(Some(ModelDownloadPrompt {
                 source: MODEL_SOURCE.into(),
                 bytes: MODEL_BYTES,
-                cost: "Approximately 87 MiB of network transfer and installed storage".into(),
-                destination: self.work_store().data_dir().join("models/minilm"),
+                cost: MODEL_COST.into(),
+                destination: self.work_store().data_dir().join(MODEL_RELATIVE_DIR),
             }))
         }
     }
@@ -129,7 +133,7 @@ impl App {
     ) -> Result<Option<ModelInstallRequest>> {
         if !consent {
             self.work_store_mut()
-                .set_setting("model.download_decision", "declined")?;
+                .set_setting(MODEL_DECISION_KEY, "declined")?;
             return Ok(None);
         }
         #[cfg(not(feature = "native-retrieval"))]
@@ -141,7 +145,7 @@ impl App {
         {
             self.validate_model_target(target)?;
             self.work_store_mut()
-                .set_setting("model.download_decision", "approved")?;
+                .set_setting(MODEL_DECISION_KEY, "approved")?;
             Ok(Some(ModelInstallRequest {
                 target: target.to_owned(),
             }))

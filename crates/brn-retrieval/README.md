@@ -56,11 +56,11 @@ rebuilding/replacing the index file or switching a tool/model snapshot.
 ## Pinned, explicit native installer
 
 [`download_model`](src/native/download.rs) installs only the five MiniLM
-assets at revision `751bff37182d3f1213fa05d7196b954e230abad9` of
-`Xenova/all-MiniLM-L6-v2`: `onnx/model.onnx` (installed as `model.onnx`),
+assets at revision `2c4055b12046f11709e9df2c122e59ffbdc2f900` of
+`Xenova/paraphrase-multilingual-MiniLM-L12-v2`: `onnx/model_quantized.onnx` (installed as `model.onnx`),
 `tokenizer.json`, `config.json`, `special_tokens_map.json` and
-`tokenizer_config.json`. Exact per-file sizes total **91,100,408 bytes**.
-ONNX uses its pinned SHA-256; configuration files use pinned Git blob SHA-1,
+`tokenizer_config.json`. Exact per-file sizes total **135,392,488 bytes**.
+ONNX and tokenizer use pinned LFS-content SHA-256; the other files use Git blob SHA-1,
 including the `blob <length>\0` prefix. No response-provided digest or floating
 revision is trusted.
 
@@ -73,7 +73,12 @@ other occupied targets are unchanged. Failure/cancellation cleans only
 identity-checked files in the install's own stage. No implicit retry.
 
 Workflow supplies fresh consent and owns the blocking job. `LocalEmbedder::open`
-remains **load-only**, with its existing five-asset identity. Native tests use
+remains **load-only**. Recognized pinned multilingual ONNX requires all five exact
+assets before initialization, uses mean pooling/384 dimensions/max128 tokens and
+Static quantization, and hashes the entire bundle into a distinct profile identity.
+Other explicit or saved directories retain their exact legacy behavior and identity.
+The 128-token limit needs real bilingual/long-passage quality qualification;
+synthetic profile checks do not establish ONNX compatibility. Native tests use
 private synthetic manifests/HTTP sources; no public alternate manifest or
 production asset download is used in verification.
 

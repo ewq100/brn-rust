@@ -816,9 +816,8 @@ impl Desktop {
             .unwrap_or_else(|| brn_workflow::models::ModelDownloadPrompt {
                 source: brn_workflow::models::MODEL_SOURCE.into(),
                 bytes: brn_workflow::models::MODEL_BYTES,
-                cost: "Approximately 87 MiB network and storage; optional local retrieval model"
-                    .into(),
-                destination: self.path.join("models/minilm"),
+                cost: brn_workflow::models::MODEL_COST.into(),
+                destination: self.path.join(brn_workflow::models::MODEL_RELATIVE_DIR),
             });
         // Keep consent transient. Persist only through the owning command lane.
         self.ai.as_mut().unwrap().model_prompt = Some(prompt.clone());
@@ -838,14 +837,14 @@ impl Desktop {
                     }))
                     .child(Button::new("decline-model").label("Decline").on_click(move |_, window, cx| {
                         let _ = decline.update(cx, |this, cx| {
-                            this.model_decision(false, this.path.join("models/minilm"), cx)
+                            this.model_decision(false, this.path.join(brn_workflow::models::MODEL_RELATIVE_DIR), cx)
                         });
                         window.close_dialog(cx);
                     })))
                 .on_close(move |_, _, cx| {
                     let _ = close.update(cx, |this, cx| {
                         if this.ai.as_ref().unwrap().model_prompt.is_some() {
-                            this.model_decision(false, this.path.join("models/minilm"), cx);
+                            this.model_decision(false, this.path.join(brn_workflow::models::MODEL_RELATIVE_DIR), cx);
                         }
                     });
                 })

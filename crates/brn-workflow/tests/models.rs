@@ -29,12 +29,12 @@ fn decline_is_durable_and_open_search_never_execute_persisted_consent() {
     let vault = base();
     std::fs::write(vault.path().join("a.md"), b"apple").unwrap();
     let mut app = open(data.path(), credentials.path(), None).unwrap();
-    let target = data.path().join("models/minilm");
+    let target = data.path().join(brn_workflow::models::MODEL_RELATIVE_DIR);
     #[cfg(feature = "native-retrieval")]
     {
         let prompt = app.model_download_prompt().unwrap().unwrap();
         assert_eq!(prompt.source, brn_workflow::models::MODEL_SOURCE);
-        assert_eq!(prompt.bytes, 91_100_408);
+        assert_eq!(prompt.bytes, 135_392_488);
         assert_eq!(prompt.destination, target);
     }
     #[cfg(not(feature = "native-retrieval"))]
@@ -59,6 +59,56 @@ fn decline_is_durable_and_open_search_never_execute_persisted_consent() {
     );
     assert!(!target.exists());
     assert_eq!(std::fs::read(vault.path().join("a.md")).unwrap(), b"apple");
+}
+
+#[test]
+fn legacy_asset_consent_never_authorizes_or_suppresses_the_new_pinned_model() {
+    const CURRENT: &str = "model.download_decision.2c4055b12046f11709e9df2c122e59ffbdc2f900";
+    for legacy in ["approved", "declined"] {
+        let data = base();
+        let credentials = base();
+        let mut app = open(data.path(), credentials.path(), None).unwrap();
+        app.work_store_mut()
+            .set_setting("model.download_decision", legacy)
+            .unwrap();
+        assert_eq!(app.model_download_decision().unwrap(), None);
+        #[cfg(feature = "native-retrieval")]
+        {
+            let prompt = app.model_download_prompt().unwrap().unwrap();
+            assert_eq!(prompt.bytes, 135_392_488);
+            assert_eq!(
+                prompt.destination,
+                data.path().join("models/multilingual-minilm-l12-v2")
+            );
+            assert!(
+                prompt
+                    .source
+                    .contains("2c4055b12046f11709e9df2c122e59ffbdc2f900")
+            );
+        }
+        app.work_store_mut()
+            .set_setting(CURRENT, "approved")
+            .unwrap();
+        assert_eq!(
+            app.model_download_decision().unwrap(),
+            Some(DownloadDecision::Approved)
+        );
+        assert_eq!(
+            app.work_store()
+                .setting("model.download_decision")
+                .unwrap()
+                .as_deref(),
+            Some(legacy)
+        );
+        drop(app);
+        let app = open(data.path(), credentials.path(), None).unwrap();
+        assert_eq!(
+            app.model_download_decision().unwrap(),
+            Some(DownloadDecision::Approved)
+        );
+        assert!(app.model_download_prompt().unwrap().is_none());
+        assert!(!data.path().join("models").exists());
+    }
 }
 
 #[cfg(not(feature = "native-retrieval"))]
@@ -108,7 +158,7 @@ fn unsupported_download_preserves_prior_consent_and_never_offers_a_prompt() {
         ("approved", DownloadDecision::Approved),
     ] {
         app.work_store_mut()
-            .set_setting("model.download_decision", stored)
+            .set_setting(brn_workflow::models::MODEL_DECISION_KEY, stored)
             .unwrap();
         assert!(app.model_download_prompt().unwrap().is_none());
         assert_eq!(
@@ -179,6 +229,39 @@ fn existing_invalid_native_model_is_an_error_not_absence_or_inference() {
             .unwrap()
             .kind,
         ErrorKind::ModelInvalid
+    );
+}
+
+#[cfg(feature = "native-retrieval")]
+#[test]
+fn fresh_default_is_separate_from_untouched_legacy_assets_and_invalid_is_not_absence() {
+    let data = base();
+    let credentials = base();
+    let legacy = data.path().join("models/minilm");
+    std::fs::create_dir_all(&legacy).unwrap();
+    let legacy_asset = legacy.join("config.json");
+    std::fs::write(&legacy_asset, b"synthetic incomplete legacy model").unwrap();
+    let app = open(data.path(), credentials.path(), None).unwrap();
+    assert!(!app.model_installed());
+    let prompt = app.model_download_prompt().unwrap().unwrap();
+    assert_eq!(
+        prompt.destination,
+        data.path().join("models/multilingual-minilm-l12-v2")
+    );
+    assert!(!prompt.destination.exists());
+    drop(app);
+    std::fs::create_dir_all(&prompt.destination).unwrap();
+    std::fs::write(prompt.destination.join("config.json"), b"invalid new model").unwrap();
+    assert_eq!(
+        open(data.path(), credentials.path(), None)
+            .err()
+            .unwrap()
+            .kind,
+        ErrorKind::ModelInvalid
+    );
+    assert_eq!(
+        std::fs::read(legacy_asset).unwrap(),
+        b"synthetic incomplete legacy model"
     );
 }
 

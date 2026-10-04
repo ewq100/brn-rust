@@ -10,8 +10,8 @@ use std::{
     time::Duration,
 };
 
-pub const REVISION: &str = "751bff37182d3f1213fa05d7196b954e230abad9";
-const BASE_URL: &str = "https://huggingface.co/Xenova/all-MiniLM-L6-v2/resolve/751bff37182d3f1213fa05d7196b954e230abad9/";
+pub const REVISION: &str = "2c4055b12046f11709e9df2c122e59ffbdc2f900";
+const BASE_URL: &str = "https://huggingface.co/Xenova/paraphrase-multilingual-MiniLM-L12-v2/resolve/2c4055b12046f11709e9df2c122e59ffbdc2f900/";
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq, thiserror::Error)]
 pub enum ModelInstallError {
@@ -70,36 +70,38 @@ const fn hex<const N: usize>(value: &str) -> [u8; N] {
 
 pub(super) const ASSETS: [Asset; 5] = [
     Asset {
-        source: "onnx/model.onnx",
+        source: "onnx/model_quantized.onnx",
         name: "model.onnx",
-        bytes: 90_387_606,
+        bytes: 118_308_126,
         digest: DigestPin::Sha256(hex(
-            "759c3cd2b7fe7e93933ad23c4c9181b7396442a2ed746ec7c1d46192c469c46e",
+            "66fc00f5f29afcaff34092e1bdd20008ca3918265a82fb9695a551e510cc4ebc",
         )),
     },
     Asset {
         source: "tokenizer.json",
         name: "tokenizer.json",
-        bytes: 711_661,
-        digest: DigestPin::GitBlobSha1(hex("c17ed520ed8438736732a54957a69306b8822215")),
+        bytes: 17_082_913,
+        digest: DigestPin::Sha256(hex(
+            "b60b6b43406a48bf3638526314f3d232d97058bc93472ff2de930d43686fa441",
+        )),
     },
     Asset {
         source: "config.json",
         name: "config.json",
-        bytes: 650,
-        digest: DigestPin::GitBlobSha1(hex("72147e4ff4426ebedbfa2146c4a0999def51a313")),
+        bytes: 673,
+        digest: DigestPin::GitBlobSha1(hex("ce7fe159b2eee53ef2b9704a72a4efa6c22248b4")),
     },
     Asset {
         source: "special_tokens_map.json",
         name: "special_tokens_map.json",
-        bytes: 125,
-        digest: DigestPin::GitBlobSha1(hex("a8b3208c2884c4efb86e49300fdd3dc877220cdf")),
+        bytes: 280,
+        digest: DigestPin::GitBlobSha1(hex("d5698132694f4f1bcff08fa7d937b1701812598e")),
     },
     Asset {
         source: "tokenizer_config.json",
         name: "tokenizer_config.json",
-        bytes: 366,
-        digest: DigestPin::GitBlobSha1(hex("37fca74771bc76a8e01178ce3a6055a0995f8093")),
+        bytes: 496,
+        digest: DigestPin::GitBlobSha1(hex("9f3bfd538ec86d360dc988dac25e3cfb0c4c14d5")),
     },
 ];
 
@@ -189,6 +191,16 @@ impl Hasher {
             Err(ModelInstallError::DigestMismatch.into())
         }
     }
+}
+
+/// Checks an already loaded asset without filesystem or network access.
+pub(super) fn verify_bytes(asset: &Asset, bytes: &[u8]) -> Result<()> {
+    if u64::try_from(bytes.len()).ok() != Some(asset.bytes) {
+        return Err(ModelInstallError::SizeMismatch.into());
+    }
+    let mut hash = Hasher::new(asset);
+    hash.update(bytes);
+    hash.verify(asset.digest)
 }
 
 fn validate_target(target: &Path) -> Result<()> {

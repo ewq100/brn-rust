@@ -559,7 +559,7 @@ pub(crate) fn load_model(data: &Path, selected: Option<&Path>) -> Result<Option<
     }
     #[cfg(feature = "native-retrieval")]
     {
-        let default = data.join("models/minilm");
+        let default = data.join(crate::models::MODEL_RELATIVE_DIR);
         let path = selected.unwrap_or(&default);
         if !path.is_absolute() {
             return Err(WorkflowError::typed(

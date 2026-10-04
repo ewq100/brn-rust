@@ -144,6 +144,12 @@ fn unsupported_download_has_no_prompt_or_approval_mutation() {
     worker.shutdown().unwrap();
     let (store, _) = brn_store::WorkStore::open(&data).unwrap();
     assert_eq!(store.setting("model.download_decision").unwrap(), None);
+    assert_eq!(
+        store
+            .setting(brn_workflow::models::MODEL_DECISION_KEY)
+            .unwrap(),
+        None
+    );
 }
 
 #[test]

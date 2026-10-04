@@ -1169,6 +1169,124 @@ original data/credentials are not transfer inputs. Owner AGENTS.md is preserved.
 Changed-document verification passed **38 local file/fragment links**, final
 format and diff checks. No owner changes were staged.
 
+## Fifteenth slice: pinned multilingual retrieval profile and explicit installation
+
+Baseline main@01e7c2f858b71103c98e75dda4a81b3d142e03df; preserve owner
+AGENTS.md. Existing LocalEmbedder/Embedder/NoteIndex/shared AppWorker seams remain
+unchanged. Update only the explicit installer to the five pinned multilingual
+MiniLM-L12 quantized assets (135392488 bytes; revision
+2c4055b12046f11709e9df2c122e59ffbdc2f900). The larger tokenizer is LFS-backed
+and needs its content SHA256, not pointer/git-object hash. No model assets or
+inference are authorized by implementation; the scoped download question remains
+pending. Public primary metadata investigation made no asset requests.
+
+Freeze a private new profile: mean pooling,384dimensions,max128tokens,FastEmbed
+Static quantization, distinct full-bundle-derived identity including profile.
+Recognized new ONNX bytes require every pinned companion; reject mixed new bundles
+before ONNX initialization. Other explicit/saved directories retain the exact
+legacy loader behavior and identity; no automatic model/provider/account fallback.
+Fresh default loader/download target is models/multilingual-minilm-l12-v2; saved
+or explicit paths keep precedence and old asset directories remain untouched.
+Scope new consent to this pinned revision; old approved/declined settings remain
+retained and do not authorize or suppress the new asset offer. Startup/search never
+download, and each install/retry still needs a fresh explicit action. Existing
+vector identity+dimension guards and tool-drain activation remain authoritative.
+
+Acceptance: synthetic pinned-manifest/size/hash refusal and installer interruption/
+reuse/cancel/occupied tests; private profile/bundle checks without real ONNX;
+current/legacy consent separation, exact prompt cost/source/path, saved/explicit
+precedence and no-network restart; unchanged384/differentidentity vector discard
+and stale-reader refusal; fresh relevant native/default gates, independent
+read-only review and concise manual scenario. Lead owns loader/workflow/coherence;
+a bounded helper may implement only frozen asset pins/byte-verification tests.
+Actual EN↔ET paraphrase/inflection/distractor/scope/restart/rebuild/tool+CLI parity,
+exact quotes and long-tail passage qualification remain pending authorized assets.
+128-token truncation is explicitly a quality risk to measure, not an architecture
+redesign trigger. Conversational response-language qualification stays separate.
+
+Fifteenth implementation and independent read-only review are complete. Public
+pinned metadata independently matches all five lengths/digests, including tokenizer
+LFS SHA256. Meaningful RED→GREEN checks cover byte pins, profile identity, old
+consent separation and actual CLI destination submission. Review reproduced the
+CLI legacy-folder defect; the corrected shared default preserves explicit targets
+and legacy bytes. No remaining actionable review finding. The existing explicit
+local-model test now accepts both retained profiles; a new pinned-only ignored
+six-query EN/ET smoke test checks ranking and finite normalized384 vectors. It
+compiled without executing any asset load/inference; wider qualification remains
+pending, including128-token long-tail quality and response language.
+
+Fresh final macOS arm64/Rust1.98.1 locked/offline checks: retirement, format,
+workspace build/all-target Clippy,945workspace/0failed/3ignored and52fixtures;
+28native retrieval/0failed/0ignored;137native workflow/0failed/2ignored;
+213combined-native desktop/0failed/0ignored, native retrieval/CLI and both desktop
+Clippy variants, shipping native desktop/CLI builds. The two workflow private
+crash entry points are exercised by subprocess matrices. Shipping AppWorker
+startup/restart passed twice with exact synthetic BOM/CRLF/Unicode and zero
+credential files. Known upstream block0.1.6 future-compiler notice remains.
+No downloads, provider calls or original/private data inspection occurred.
+
+Manual acceptance: launch native retrieval with fresh synthetic data and no
+model; verify the exact pinned source,135392488byte/~129MiB offer and separate
+multilingual folder. Decline, restart, and search keyword-only without network;
+Settings still permits a fresh explicit Download. Only after scoped acquisition
+permission, install in a fresh owned destination, run the ignored bilingual smoke
+and qualify full mixed-language retrieval, exact quotes, scopes, restart/rebuild,
+tool/CLI parity and long passages. GUI/owner/model qualification is pending and
+does not block Actions foundations. Preserve prior legacy data/assets.
+
+Publication checkpoint: Stage4C PR21 merged6601374996ecba7d461403aa6e892f1273bed28e;
+exact18a315b run37190429533 passed MacCore/UI/Retrieval+UbuntuSharedCore. Windows
+Unix-metadata failure leaves overallCIred. Merged tree equality,16widgets+52fixtures,
+shipping build and2startup/restart runs passed. Stage5A identities/scopes is next;
+Stage5 remains unfinished. Mac mini requires pinnedRust1.98.1/locked caches,
+AppleSilicon/CLT, protobuf/Bash/Python3 and canonical synthetic TMPDIR outsideGit;
+actual GUI needs unlockedMac, assets require pending permission. No owner changes
+will be staged.
+
+## Sixteenth slice: current-question response language
+
+Baseline d583b051ef1d4b72cc4e3d6cb6d5ac6d811006b1. Vision§38 requires mixed
+English/Estonian conversation and normally answering in the current user's
+language unless asked otherwise. Add this instruction and preservation of original
+source-quote language only to existing Answer/AnswerWithEffort preambles. Rewrite's
+strict captured JSON protocol, tool/transport selection and all durable boundaries
+remain unchanged. No language detector, setting or extra AI call.
+
+Acceptance: meaningful synthetic actual-Rig transport RED→GREEN checks on the
+selected ChatGPT/Copilot routes retain exact EN/ET questions, explicit output-language
+requests and original source quotes, and deliver the same instruction. Targeted
+adapter verification, independent read-only review, fresh integrated gates and
+concise manual scenario. A bounded helper may implement only the fixed preamble
+and request tests; lead owns integration. Real answer-language/provider quality
+needs separately authorized calls and remains pending; no live calls are implied.
+
+Sixteenth implementation passed meaningful2-test RED→GREEN; independent read-only
+review reran2tests/0failed and found no actionable defect. Actual Rig serialization
+covers both Ask APIs,three explicit routes,four EN/ET/default-or-explicit questions:
+24mocked sessions/48scripted completion requests. Model/effort/history/question,
+exact BOM/CRLF source quotes and continuation input stay intact; Rewrite's strict
+JSON contract excludes the new instruction. Mocked replies establish transport/
+byte correctness, not provider compliance. No network/account/assets/private work.
+
+Fresh final macOS arm64/Rust1.98.1 locked/offline verification passed retirement,
+format/workspace build/all-target Clippy,947workspace/0failed/3ignored+52fixtures;
+86capability-library+1example/0failed and feature Clippy;213combined-native tests/
+0failed/0ignored, both native Clippy variants and shipping native build. Earlier
+unchanged retrieval/model-profile qualification remains Fifteenth evidence;
+actual assets/inference and answer-language/owner qualification remain pending.
+Manual acceptance after separately authorized connection: ask an Estonian
+question about English/Estonian synthetic notes, then request English explicitly;
+verify answer language and retain source quotes verbatim. No extra call is implied
+by these instructions. Next safe implementation is Actions/dashboard in existing
+WorkStore and narrow typed lifecycle, with mixed recovery qualified explicitly.
+Stage5A PR22 merged a9f838295ea905bf25d05953fe03d02a2092dff7 after exact4895916
+run37191800152 passed MacCore/UI/Retrieval+UbuntuSharedCore; Windows Unix metadata
+failure leaves overallCIred. Merged tree equality,16CLIidentity/inventory/scope
+tests+52fixtures and2shipping startup/restart runs passed with exact bytes and
+zero credentials. Sixteenth shipping startup/restart also passed twice with exact
+synthetic bytes and zero credentials. Later Stage5
+publication remains sequential; Stage5 whole remains unqualified for real models.
+
 ## Stage5A publication checkpoint — identities and scoped evidence
 
 Baseline e9179eb merges reviewed first-four slices through4fb2763 with qualified
@@ -1351,3 +1469,43 @@ PR25 passed exact-head Mac3+UbuntuShared,merged8295326 and passed tree equality,
 3focused tests+52fixtures/startup2; Windows Unix APIs failed,overallCIred.
 Current D exact-head PR/CI/merge/post remains pending; GUI/owner/IME/accessibility,
 actual inference and provider language qualification remain separate.
+
+
+Stage5D PR26 mergedb0e93fb81cf702da5d4957ed984305ed8852683f after exactfc98b0d/
+run37199082097 passed MacCore/UI/Retrieval+UbuntuSharedCore. WindowsCore failed
+on existing Unix-only auth/Store APIs;overallCIred. Merged tree equality,16Store+
+8workflow+4CLI Findings tests,52fixtures and two shipping startup/restart checks
+passed,V9,exact bytes,zero credentials. Main37199659960 passed Mac3+UbuntuCore/UI;
+Ubuntu native retrieval failed6pass/3fail on unchanged unsupported exclusive-install
+expectations;Windows3failed. Independent job analysis found no new sharedMac
+defect. Non-Mac-specific failures remain informational under owner policy.
+
+## Stage5 language implementation checkpoint — 2026-10-04
+
+Baselinebc8a724eda647b42f227ed9bbc3886e048125859 retains reviewed16slices including
+pinned multilingual installation/profile and current-question Ask language. It
+merges qualified Findings/client-boundary candidatefc98b0d (now PR26 mergedb0e93fb).
+Independent full preservation review verified all exclusive/overlapping source
+blobs/modes,retained full plans/publication evidence and92local doclinks,no defect.
+Three documentation conflicts were composed; source merged without conflict.
+
+Fresh macOSarm64/Rust1.98.1 locked/offline retirement/format/build/all-target
+Clippy passed;950workspace/0failed/3ignored+52fixtures. Combined nativeDesktop
+passed213/0/0,both native Clippy configurations and shipping desktop/CLI builds.
+Native retrieval `--lib --test model_download --test note_edges` passed25/0/0;
+`--test note_embeddings` passed10/0/0;local_embedder missing-model check1/0/0
+compiled both real-model tests without running them. Focused native workflow
+`--lib --test models --test library --test ai_tools_scopes --test knowledge_scopes`
+passed155/0failed/2ignored. Capability-spike all-target tests passed86library+
+1example;feature Clippy passed. Two shipping startup/restart runs retained exact
+BOM/CRLF/Unicode vault bytes,V9 and zero credential files. Only upstream block0.1.6
+future warning. Logs/ownership:/private/tmp/brn-v1-stage5-language-9yd45cpj.
+
+Actual asset acquisition/ONNX inference,EN↔ET quality/long-tail/scoped parity and
+live response-language compliance remain pending. Synthetic vectors/transport
+checks do not establish them. GUI/owner/IME/accessibility remains separate. No
+assets,live provider,original/private-data or release operations occurred. This
+publishes implemented/offline-qualified behavior; wholeStage5 is not complete.
+Manual scenarios and Macmini requirements remain in slices15/16 above. Exact
+latest-head applicable CI/PR/merge/post qualification remains pending. Next
+publish the checked Stage6 Action foundation/review and continue joined application.

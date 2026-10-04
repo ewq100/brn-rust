@@ -363,12 +363,16 @@ usability acceptance and physical power-loss qualification remain pending.
 
 ## Explicit model installation
 
-[`models`](src/models.rs) exposes the pinned source, approximately 87 MiB cost
+[`models`](src/models.rs) exposes the pinned multilingual source, approximately 129 MiB cost
 and destination. `prepare_model_download(consent, target)` persists
-`model.download_decision` as approved/declined. Only a **fresh explicit
+`model.download_decision.2c4055b12046f11709e9df2c122e59ffbdc2f900` as approved/declined.
+Earlier generic consent is retained and cannot authorize or suppress the new offer.
+Only a **fresh explicit
 approval** creates a non-cloneable `ModelInstallRequest`; startup, search and
 persisted approval never download. A later explicit action can override decline.
-The default target is `<simple-data-dir>/models/minilm`; targets cannot overlap
+The fresh default target is `<simple-data-dir>/models/multilingual-minilm-l12-v2`;
+saved and explicit model paths retain precedence, and old asset directories remain untouched.
+Targets cannot overlap
 the vault or a repository.
 
 The worker consumes the request's synchronous `install(cancel, progress)` on an owned
