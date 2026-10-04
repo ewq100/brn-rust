@@ -12,6 +12,7 @@ pub use brn_store::work::proposals::{
     ProposalRecord, ProposalStamp, ProposalState, ReviewComment, SourceVersion, TextAnchor,
 };
 use serde::{Deserialize, Serialize};
+use sha2::{Digest, Sha256};
 use std::path::Path;
 use uuid::Uuid;
 
@@ -61,6 +62,24 @@ pub struct DraftRequest {
 pub struct ProposalSource {
     pub source: SourceVersion,
     pub text: String,
+}
+
+impl ProposalSource {
+    /// Check a complete returned proof without observing files or changing authority.
+    pub fn validate(&self) -> Result<()> {
+        EvidencePath::parse(&self.source.path)
+            .map_err(|_| invalid("invalid captured proposal evidence path"))?;
+        if self.text.len() > crate::MAX_NOTE_BYTES
+            || self.source.fingerprint.len != self.text.len() as u64
+            || self.source.fingerprint.sha256
+                != <[u8; 32]>::from(Sha256::digest(self.text.as_bytes()))
+        {
+            return Err(invalid(
+                "captured source bytes do not match their complete fingerprint",
+            ));
+        }
+        Ok(())
+    }
 }
 
 /// Pure validation of a complete review edit before a frontend queues it.

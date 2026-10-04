@@ -176,8 +176,42 @@ directory in the native app after the CLI exits.
 
 Native/live and owner acceptance are pending until these controls are exercised on
 the unlocked Mac. Save safe actual captures in the
-[UI screenshot index](../../docs/ui/screenshots/README.md). Action composition,
-owned Action Rewrite and Action Undo follow later.
+[UI screenshot index](../../docs/ui/screenshots/README.md). Owned Action Rewrite and Action Undo follow later.
+
+### New Action and related follow-up proposals
+
+**+ New Action…** opens the ordinary retained proposal form without needing a vault
+or provider. It retains all 14 raw fields, including invalid/incomplete typing;
+Create validates the complete typed request through AppWorker. Proposal and Action
+UUIDs stay fixed through retries. The Action title also names its proposal.
+Optional saved Markdown sources are explicitly captured through AppWorker, with
+full ordered path/fingerprint proofs and exact source Copy. Recapturing one path
+replaces only that proof. Unsettled source reads block creation/leaving; late,
+misbound or internally inconsistent replies cannot replace current captures.
+Changed saved sources refuse creation while retaining input/proofs.
+
+Create makes review work only. Open current proposal uses the existing full
+review/edit/comment/exact-approval path. Acknowledgement never overwrites later
+field typing. Pending creation blocks discard/separation. A changed payload after
+submission needs **Start separate proposal from retained input**, preserving full
+raw fields/proofs with fresh proposal and Action UUIDs. Copy all raw Action input /
+proofs also includes the immutable submitted request. Unacknowledged local input
+is transient; explicit confirmed discard does not change stored proposals/Actions.
+
+A Completed Dashboard selection offers **New related follow-up…**, seeding a fresh
+Open Action with the selected UUID in Follows up. Its other fields start empty.
+The completed record remains unchanged before and after approval of the new work.
+
+Manual acceptance with fresh synthetic data, no provider: open New Action, enter a
+Unicode title/description, owner, Waiting and both dates. Try an incomplete UUID:
+it stays copyable and prevents creation/leaving. Clear it, create review work,
+inspect/edit/comment and explicitly approve the complete snapshot. Dashboard must
+show the Action only after approval. Complete it, then select it in Completed and
+create/approve a separately identified follow-up. Quit/restart and compare both
+full records: original Completed, new Open with its follows_up UUID. With a bound
+synthetic vault, capture two sources, recapture one changed path, and verify other
+proofs remain exact; changing a source after capture must refuse creation.
+Native observation, owner acceptance and automated qualification are separate.
 
 ### Dashboard and identified Complete
 
@@ -213,8 +247,8 @@ confirm. Active/date counts withdraw that Action, Completed shows the same origi
 and a completion time. Quit/restart and compare the CLI full record/receipt. Try
 navigation with unfinished initial proposal/review/comment/editor input: the
 existing guards must preserve it before Dashboard opens. Native/owner acceptance
-remains separate from automated widget/worker checks. New/follow-up composition
-and later-domain dashboard summaries remain following roadmap deliverables.
+remains separate from automated widget/worker checks. Later-domain dashboard
+summaries remain following roadmap deliverables.
 
 Saved documents also expose **Links**. This inspects saved Markdown while retaining
 unsaved editor text, showing exact occurrence/reference-definition quotes, source

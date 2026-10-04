@@ -680,6 +680,21 @@ impl AiState {
         self.link_preparation = Default::default();
         true
     }
+    pub fn begin_action_draft(&mut self, follows_up: Option<Uuid>) -> bool {
+        if !self.ready
+            || !self.review_can_leave()
+            || self.active.is_some()
+            || self.rewrite.is_some()
+        {
+            return false;
+        }
+        let Some(draft) = crate::draft::DraftForm::new_action(follows_up) else {
+            return false;
+        };
+        self.draft = Some(draft);
+        self.link_preparation = Default::default();
+        true
+    }
     pub fn separate_draft(&mut self) -> bool {
         let Some(draft) = self.draft.as_ref().and_then(|draft| draft.separate()) else {
             return false;
@@ -694,9 +709,13 @@ impl AiState {
         }
         let draft = self.draft.as_mut()?;
         if draft.pending
-            || draft.kind == crate::draft::DraftKind::Create
+            || (draft.action.is_none() && draft.kind == crate::draft::DraftKind::Create)
             || draft.prepared_request().is_some()
         {
+            return None;
+        }
+        if draft.action.is_some() && !draft.can_capture_action_source() {
+            draft.source_error = Some("At most 64 complete sources may be bound. Recapture an existing path, or copy the full input and start a new form.".into());
             return None;
         }
         let (form, path, binding_generation) =
@@ -716,7 +735,13 @@ impl AiState {
     }
     pub fn create_draft(&mut self) -> Option<(Uuid, AppCommand)> {
         if !self.ready
-            || !self.vault_bound
+            || (!self.vault_bound
+                && self.draft.as_ref().is_none_or(|draft| {
+                    draft
+                        .action
+                        .as_ref()
+                        .is_none_or(|action| !action.sources.is_empty())
+                }))
             || self.application_busy()
             || self.active.is_some()
             || self.rewrite.is_some()
@@ -1777,7 +1802,13 @@ impl AiState {
                         && capture.source.fingerprint.len == capture.text.len() as u64 =>
                 {
                     let draft = self.draft.as_mut().expect("matched form");
-                    draft.source = Some(*capture);
+                    if draft.action.is_some() {
+                        if !draft.retain_action_source(*capture) {
+                            return commands;
+                        }
+                    } else {
+                        draft.source = Some(*capture);
+                    }
                     draft.source_operation = None;
                     draft.source_error = None;
                 }

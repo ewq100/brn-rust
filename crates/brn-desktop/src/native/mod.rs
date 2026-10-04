@@ -31,6 +31,9 @@ use std::path::PathBuf;
 use std::time::{Duration, Instant};
 use uuid::Uuid;
 
+mod action_draft;
+#[cfg(all(test, target_os = "macos", feature = "native-test-support"))]
+mod action_draft_tests;
 mod action_review;
 #[cfg(all(test, target_os = "macos", feature = "native-test-support"))]
 mod action_review_tests;
@@ -138,6 +141,7 @@ struct Desktop {
     findings: findings::FindingsPane,
     dashboard: dashboard::DashboardPane,
     action_editors: action_review::ActionEditors,
+    initial_action: action_draft::ActionInputs,
     review_editor: Entity<EditorState>,
     review_title: Entity<TextareaState>,
     review_comment: Entity<EditorState>,
@@ -252,6 +256,11 @@ impl Desktop {
                             if input.read(cx).value().as_ref() != path {
                                 input.update(cx, |input, cx| input.set_value(path, window, cx));
                             }
+                            return;
+                        }
+                        if draft.action.is_some() {
+                            draft.edit_action_source_path(input.read(cx).value().to_string());
+                            cx.notify();
                             return;
                         }
                         draft.edit(
@@ -472,6 +481,7 @@ impl Desktop {
             findings: findings::FindingsPane::new(window, cx),
             dashboard: dashboard::DashboardPane::new(window, cx),
             action_editors: action_review::ActionEditors::default(),
+            initial_action: action_draft::ActionInputs::default(),
             review_editor,
             review_title,
             review_comment,

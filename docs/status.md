@@ -65,96 +65,56 @@ Evidence: [Actions/dashboard plan](work/active/actions-dashboard/plan.md).
 
 ## Latest integrated checkpoint
 
-[PR38](https://github.com/ewq100/brn-rust/pull/38) merged
-**58a1b8f86b654cfa9da2c1bc4b349917884bd2fb**, reviewed treecd7763de.
-Shared Dashboard queries now return checked whole-snapshot state/date counts,
-filtered pages and exact dependency observations through AppWorker/CLI. Local
-final1106workspace/0failed/6ignored+52fixtures,233native/0failed/0ignored, both
-native Clippy modes/shipping builds/startup2 passed. Exacthead3582c0e/run37228046322
-passedMac3+UbuntuShared; Windows22 errors matched baseline. Post15focused/0failed/
-0ignored+52fixtures+startup2 passed,V11/exactbytes/zero credentials. Main37228721623
-completed5success/4failure: Mac3+UbuntuCore/UI passed; actual decoded four failures
-match previousmain37225862216, failing source unchanged. OverallCIred from Windows
-22/22/14 Unix errors and UbuntuNative10pass/3fail installer gaps. No shared Mac
-defect or enforced-requirement bypass. Native/owner Dashboard acceptance is pending.
+[PR39](https://github.com/ewq100/brn-rust/pull/39) merged
+**783d9dd921f5689a9303c9c1cf344b2d23cb7432**, reviewed tree4945b5bf.
+Native Dashboard now exposes shared filters/counts/pages and complete read-only
+Action/dependency proof. Explicit Complete freezes the whole before record and
+operation UUID; retained typed attempts offer exact copy/retry across navigation.
+Independent whole review found no source defect; a JPEG metadata correction kept
+all eight original image blobs exact. Fresh1112workspace/0failed/6ignored+
+52fixtures,243native/0failed/0ignored,both native Clippy modes,shipping builds and
+startup2 passed. Actual synthetic vaultless native completion/filter/quit/restart
+and exact CLI receipt replay passed; safe screenshots retained.
 
-[PR37](https://github.com/ewq100/brn-rust/pull/37) merged3af4526/tree2cb6175c.
-Exact direct Complete runs through App/AppWorker/CLI, with immutable ordinary
-receipt publication/recovery and full-record CAS. Unknown effects fence current
-reads; outer IDs bind admission and shutdown drains it. Independent whole review,
-1093workspace+233native+52fixtures/startup2 and post28focused+52fixtures/startup2
-passed. Exact-head and merged-main applicable checks passed with the same platform
-gaps. Human updated Connect link/selectable-code/Copy/sign-in acceptance passed;
-safe synthetic startup/Ready Settings screenshots are retained. Luna live catalog
-IDs remain unverified after2authorized calls;0inference/no fallback. Orphan bounded
-temporary stages remain a known cleanup limitation, preserved outside authority.
+Exactheada3c1a97/run37231170865 passedMac3+UbuntuShared. Windows22 decoded errors/
+locations match unchanged main38 source. Normal merge guards satisfied every
+applicable check and found no enabled branch protection/rulesets; no requirement
+was bypassed. Post10focused/0failed/0ignored+52fixtures+startup2 passed,V11/exact
+bytes/zero credentials. Main37231724813 finished5success/4failure: Mac3+UbuntuCore/UI passed;
+Windows22/22/14 and UbuntuNative10pass/3fail match baseline decoded failures.
+OverallCIred; no shared Mac defect.
+Whole Action review/owner acceptance and completeStage6/V1 remain unfinished.
 
-[PR36](https://github.com/ewq100/brn-rust/pull/36) merged
-**21442bfb0ff9e15705208f9c1fc224c7de90a5d1**, reviewed source tree8f0a2372.
-The checked V11 identified-Complete Store foundation binds the full unfinished
-Action/operation, preserves origin/content and settles the immutable receipt
-atomically after its required exact publisher under Immediate write exclusion.
-This checkpoint opens no client Complete producer. Independent complete review
-found no defect. Fresh1072workspace/0failed/5ignored+233native/0failed/0ignored,
-both native Clippy modes,shipping builds,52fixtures and startup2 passed,V11/exact
-bytes/zero credentials. Post-merge12public tests+52fixtures+startup2 passed.
-Exactheadb991/run37221597895 passedMac3+UbuntuShared; Windows22 unchanged Unix
-errors remain informational and overallCIred. Main37222463218 completed5success/
-4failure: Mac3+UbuntuCore/UI passed; actual logs repeat UbuntuNative10pass/3fail
-ExclusiveInstallUnavailable and Windows22/22/14 Unix gaps. Source comparisons
-found no shared Mac defect; no GitHub requirements were bypassed.
-
-[PR35](https://github.com/ewq100/brn-rust/pull/35) merged
-**9609b7fce0dd99bf3614a117213436a684485a92**, reviewed source tree98a9d606.
-The sign-in URL opens on click; its read-only code supports selection/keyboard
-Copy and an explicit Copy code button. Exact transient operation/prompt guards
-refuse stale events. Independent complete/join reviews found no defect. Fresh
-joined233native tests,both Clippy modes,shipping builds,52fixtures and startup2
-passed; post-merge4widget tests+52fixtures+startup2 passed,V10/exact bytes/zero
-credentials. The qualified replacement bundle now runs on the unlocked Mac.
-The owner reports BRN connected and the link/code controls work: this changed
-interaction has actual owner acceptance. Safe startup/Settings originals are
-retained; authentication screens/codes are excluded.
-
-Exact head62ed653/run37219579216 passed Mac3+UbuntuShared. Windows22 unchanged
-Unix errors keep overallCIred; logs/source compared, no shared Mac defect.
-Merged-main37220191827 completed5success/4failure: Mac3+UbuntuCore/UI passed;
-actual logs repeat Ubuntu installer10pass/3fail and Windows22/22/14 Unix errors.
-No GitHub requirement was bypassed. Environment remains AppleSiliconmacOS/CLT,
-pinnedRust1.98.1,lockeddependencies,protobuf,Bash/Python3,canonical ownedTMPDIR.
-
-[PR34](https://github.com/ewq100/brn-rust/pull/34) merged5f9033b9/tree3978cedd.
-Whole typed Action Create/Replace and mixed drafts use exact proposal approval,
-including source-free vaultless work. Full-record CAS protects file effects and
-Applied recovery authority; joined settlement remains atomic. Native full-field
-review preserves incomplete typing and captured grouped approval. Activity counts
-approved Actions. Final1059workspace+229native+52fixtures and post22focused tests+
-52fixtures+startup2 passed. Its exacthead Mac3+UbuntuShared and merged-main Mac3+
-UbuntuCore/UI passed; the same four platform gaps remained. Native Action/owner
-acceptance is pending; reproducible scenarios remain in the
-[CLI](../crates/brn/README.md#manual-action-acceptance) and
-[desktop](../crates/brn-desktop/README.md#manual-action-review-acceptance) contracts.
-
-Earlier PRs16–33 are integrated with evidence in their plans/PRs. The actual fixed
-Settings/model-consent dialogs were observed; safe original screenshots retained.
+PR34–38's exact Action approval, V11 Complete/recovery and shared Dashboard
+checkpoints are integrated; their review/tests/CI/post-merge evidence remains in
+the [Actions plan](work/active/actions-dashboard/plan.md) and corresponding PRs.
+Prior main38 run37228721623 completed5success/4failure: Mac3+UbuntuCore/UI passed;
+Windows22/22/14 Unix API errors and UbuntuNative10pass/3fail installer gaps kept
+CIred, with actual logs/failing source equal the prior baseline. Orphan bounded
+temporary completion stages remain a known cleanup limitation outside authority.
+PR35's updated Connect link/selectable code/Copy/sign-in has owner acceptance.
+Earlier PR16–33 evidence remains in its task plans/PRs.
 
 ## Active slice and next work
 
-codex/v1-native-dashboard is based on PR38 actualmerge58a1b8f. Guarded native
-Dashboard navigation, shared filters/counts/pages, selectable full Action proof
-and captured identified Complete are implemented and independently reviewed.
-Fresh1112workspace/0failed/6ignored+52fixtures,243native/0failed/0ignored,
-both native Clippy modes,shipping builds and startup2 passed. Ten focused tests
-cover state/real-worker/native widgets. Actual synthetic native completion/filter/
-quit/restart and exact CLI receipt replay passed; eight safe original screenshots
-are retained. Whole Action review and owner acceptance remain pending. Exact-head
-CI/publication/integration is next. Attempted exact requests and typed outcomes
-survive navigation; domain queries/durable recovery stay in workflow/AppWorker.
-Acceptance/evidence remain in the [Actions plan](work/active/actions-dashboard/plan.md).
+codex/v1-action-composition over PR39 merge783d9dd implements native New Action and
+Completed→new related follow-up input through the existing retained DraftForm.
+All14 raw fields, source proofs and submitted payload stay copyable; stable IDs,
+ordered whole creation bindings, explicit separate forms and later-typing/source/
+Discard guards are qualified. Real worker checks prove zero Actions before exact
+approval, vaultless creation, unchanged completed work and restart/replay.
 
-Next: integrate the thin native Dashboard/Complete deliverable; then new approved
-Action/follow-up composition and Stage6 AI proposal/read tools. Inbox follows in
-roadmap order. WholeStage5/6 and V1 remain unfinished.
+Independent whole review is clean. Fresh1118shared/0failed/6ignored+52fixtures,
+254native/0failed/0ignored,both native Clippy modes,shipping builds and startup2
+passed,V11/exactbytes/zero credentials. Two native test-fixture corrections retain
+all assertions and shipping code: preserve the sidebar probe and disable modal
+motion during simulated clicks. Actual UI observation is pending: computer use
+reports the Mac locked. The owned fresh qualification bundle/data are prepared;
+no provider/account/model/original-data operation occurred. PR/exact-head CI and
+integration remain next; see the [Actions plan](work/active/actions-dashboard/plan.md).
+
+Next: native observation/publication, then Stage6 AI proposal/read tools. Inbox
+follows roadmap order. WholeStage5/6 and V1 remain unfinished.
 
 ## Qualification and owner items
 

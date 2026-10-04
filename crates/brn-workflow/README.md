@@ -80,6 +80,13 @@ matches `"workshop"`. These APIs never write vault files.
 
 ## Retained Actions
 
+Initial Action composition uses the existing typed `CreateProposal` request and
+exact approval lifecycle, including source-free requests without a vault.
+`ProposalSource::validate` checks returned evidence path, byte bound and exact
+text/hash/length consistency without filesystem access; admission still observes
+current authority and validates Action references in this application. Clients
+retain raw input and returned proofs rather than parsing identities or files.
+
 [Actions](src/actions.rs) expose checked operational records through `App::action`
 and `App::actions`, and correlated `Action`/`Actions` worker commands/events. Reads
 return the full immutable approved origin and exact current replacement baseline.

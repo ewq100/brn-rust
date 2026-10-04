@@ -5,6 +5,10 @@ use brn_workflow::{
 };
 use uuid::Uuid;
 
+#[path = "action_input.rs"]
+mod action_input;
+pub use action_input::InitialAction;
+
 #[derive(Clone, Copy, Debug, Default, PartialEq, Eq)]
 pub enum DraftKind {
     #[default]
@@ -36,12 +40,17 @@ pub struct DraftForm {
     pub pending: bool,
     pub result: Option<(u64, ProposalRecord)>,
     pub error: Option<String>,
+    pub action: Option<Box<InitialAction>>,
     prepared: Option<DraftRequest>,
 }
 
 #[cfg(test)]
 #[path = "draft_prepared_tests.rs"]
 mod prepared_tests;
+
+#[cfg(test)]
+#[path = "action_draft_tests.rs"]
+mod action_draft_tests;
 
 impl DraftForm {
     /// Retain the complete read-only link preparation as ordinary review input.
@@ -61,6 +70,7 @@ impl DraftForm {
             ));
         };
         if request.sources.len() != 2
+            || !request.action_changes.is_empty()
             || !request
                 .sources
                 .iter()
@@ -86,6 +96,7 @@ impl DraftForm {
             pending: false,
             result: None,
             error: None,
+            action: None,
             prepared: Some(request),
         })
     }
@@ -110,6 +121,10 @@ impl DraftForm {
         );
         next.session_id = self.session_id;
         next.source = self.source.clone();
+        next.action = self.action.clone().map(|mut action| {
+            action.id = Uuid::new_v4();
+            action
+        });
         next.prepared = self.prepared.clone().map(|mut request| {
             request.id = next.id;
             request
@@ -142,11 +157,16 @@ impl DraftForm {
             pending: false,
             result: None,
             error: None,
+            action: None,
             prepared: None,
         })
     }
 
     pub fn edit(&mut self, title: String, path: String, text: String, kind: DraftKind) {
+        if self.action.is_some() {
+            self.error = Some("Use the retained Action fields to edit this form.".into());
+            return;
+        }
         if self.prepared.is_some() && (self.path != path || self.kind != kind) {
             self.error = Some("Prepared link destination and kind stay fixed. Copy retained input and prepare another link to change them.".into());
             return;
@@ -178,6 +198,7 @@ impl DraftForm {
 
     pub fn can_leave(&self) -> bool {
         !self.pending
+            && self.source_operation.is_none()
             && (self
                 .result
                 .as_ref()
@@ -186,9 +207,17 @@ impl DraftForm {
                     && self.title.is_empty()
                     && self.path.is_empty()
                     && self.text.is_empty())
+            && (self
+                .result
+                .as_ref()
+                .is_some_and(|(generation, _)| *generation == self.generation)
+                || self.action.as_ref().is_none_or(|action| action.pristine()))
     }
 
     pub fn request(&self) -> brn_workflow::Result<DraftRequest> {
+        if let Some(action) = &self.action {
+            return self.action_request(action);
+        }
         if let Some(prepared) = &self.prepared {
             let mut request = prepared.clone();
             let DraftNoteChange::Replace { path, text, .. } = &mut request.changes[0] else {
@@ -321,6 +350,28 @@ pub fn creation_matches(request: &DraftRequest, record: &ProposalRecord) -> bool
         && record.draft.session_id == request.session_id
         && record.draft.sources == request.sources
         && record.draft.changes.len() == request.changes.len()
+        && record.draft.action_changes.len() == request.action_changes.len()
+        && record
+            .draft
+            .action_changes
+            .iter()
+            .zip(&request.action_changes)
+            .all(|(bound, requested)| {
+                use brn_workflow::proposals::ActionChange;
+                match (bound, requested) {
+                    (
+                        ActionChange::Create { id, .. },
+                        ActionChange::Create { id: expected, .. },
+                    ) => id == expected,
+                    (
+                        ActionChange::Replace { before, .. },
+                        ActionChange::Replace {
+                            before: expected, ..
+                        },
+                    ) => before == expected,
+                    _ => false,
+                }
+            })
         && record
             .draft
             .changes

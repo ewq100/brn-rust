@@ -5,7 +5,7 @@ use gpui_kit::{
     test::TestWindowExt,
 };
 
-struct DashboardProbe(Entity<Desktop>);
+struct DashboardProbe(Entity<Desktop>, bool);
 impl Render for DashboardProbe {
     fn render(&mut self, _: &mut Window, cx: &mut Context<Self>) -> impl IntoElement {
         self.0.update(cx, |desktop, cx| {
@@ -16,6 +16,8 @@ impl Render for DashboardProbe {
                 .flex_col()
                 .child(if desktop.open_doc == Some(DocRef::Dashboard) {
                     desktop.render_dashboard(cx)
+                } else if self.1 && desktop.open_doc == Some(DocRef::Draft) {
+                    desktop.render_draft(cx)
                 } else {
                     desktop.render_simple_history(cx)
                 })
@@ -23,7 +25,7 @@ impl Render for DashboardProbe {
         })
     }
 }
-fn window(
+pub(super) fn window(
     cx: &mut gpui_kit::TestAppContext,
     shipping: bool,
 ) -> (
@@ -31,7 +33,32 @@ fn window(
     gpui_kit::WindowHandle<Root>,
     Entity<Desktop>,
 ) {
-    cx.update(gpui_kit::component::init);
+    window_with_draft(cx, shipping, false)
+}
+pub(super) fn action_window(
+    cx: &mut gpui_kit::TestAppContext,
+    shipping: bool,
+) -> (
+    tempfile::TempDir,
+    gpui_kit::WindowHandle<Root>,
+    Entity<Desktop>,
+) {
+    window_with_draft(cx, shipping, true)
+}
+fn window_with_draft(
+    cx: &mut gpui_kit::TestAppContext,
+    shipping: bool,
+    show_draft: bool,
+) -> (
+    tempfile::TempDir,
+    gpui_kit::WindowHandle<Root>,
+    Entity<Desktop>,
+) {
+    cx.update(|cx| {
+        gpui_kit::component::init(cx);
+        // Mouse down/up must target settled dialog geometry in widget tests.
+        cx.set_reduce_motion(true);
+    });
     let fixture = tempfile::tempdir_in(std::env::temp_dir().canonicalize().unwrap()).unwrap();
     let data = fixture.path().join("data");
     std::fs::create_dir(&data).unwrap();
@@ -63,7 +90,7 @@ fn window(
         if shipping {
             desktop_root(desktop, window, cx)
         } else {
-            let probe = cx.new(|_| DashboardProbe(desktop));
+            let probe = cx.new(|_| DashboardProbe(desktop, show_draft));
             Root::new(probe, window, cx)
         }
     });
@@ -364,5 +391,27 @@ fn synchronous_submission_refusal_retains_copyable_exact_request_and_retry_after
             ai.dashboard.attempts[0].error.as_ref().unwrap().kind,
             brn_workflow::ErrorKind::Cancelled
         );
+    });
+}
+
+#[gpui_kit::test]
+fn new_action_navigation_is_available_without_a_vault_or_provider(
+    cx: &mut gpui_kit::TestAppContext,
+) {
+    let (_fixture, handle, desktop) = window(cx, false);
+    let mut visual = VisualTestContext::from_window(handle.into(), cx);
+    visual.run_until_parked();
+    visual.update(|window, cx| {
+        window.render_frame(cx);
+        assert!(window.find("new-action-form").visible());
+        window.click("new-action-form", cx);
+        let this = desktop.read(cx);
+        assert_eq!(this.open_doc, Some(DocRef::Draft));
+        let form = this.ai.as_ref().unwrap().draft.as_ref().unwrap();
+        assert!(form.action.is_some());
+        assert!(form.can_leave());
+        assert!(form.submitted.is_none());
+        assert!(!this.ai.as_ref().unwrap().vault_bound);
+        assert!(this.ai.as_ref().unwrap().selection.is_none());
     });
 }

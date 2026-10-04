@@ -915,3 +915,82 @@ native observation, not owner acceptance of the whole Action review flow.
 
 Exact-head CI/PR integration follows; new approved Action/follow-up composition
 and Stage6 AI read/proposal tools remain next. No completeStage6/V1 claim.
+
+## New Action and related follow-up composition — next fixed deliverable
+
+Baseline PR39 actualmerge783d9dd921f5689a9303c9c1cf344b2d23cb7432/tree4945b5bf.
+Exactheada3c1a97/run37231170865 passedMac3+UbuntuShared; Windows22 actual decoded
+messages/locations match unchanged baseline. Post10focused/0failed/0ignored+
+52fixtures+startup2 passed,V11/exactbytes/zero credentials. Main37231724813 finished5success/4failure:
+Mac3+UbuntuCore/UI passed. Windows22/22/14 and UbuntuNative10pass/3fail actual
+decoded failures/locations equal baseline; unchanged failed source, overallCIred. Native Dashboard/Complete observation and eight
+safe original JPEGs passed; whole Action review/owner acceptance stays pending.
+
+Extend the retained initial DraftForm with one optional typed Action input rather
+than a second submission/approval lifecycle. Stable proposal and Action UUIDs are
+created once. Reuse SubmittedDraft/prepare/created/failed, exact payload replay,
+source correlation, retained-generation/navigation/quit guards and full review.
+Raw ActionFields retain all14 values, including incomplete/oversized typing;
+Action title is also the proposal title. New Action is source-free/vaultless by
+default; optional full saved-source captures use AppWorker ProposalSource(path),
+never client filesystem/identity parsing. Keep ordered exact proofs; explicit
+same-path recapture replaces that proof only. Accepted proof changes advance
+input generation. Current source admission blocks submit/leaving until settled;
+stale form/path/binding/read replies cannot replace a new capture. A sourceful
+request needs a bound vault and current proofs; shared workflow owns validation.
+
+Creation ACK compares ordered Action kind/UUID/full Replace baselines as well as
+existing note/source bindings, allowing later reviewed candidate data. Pending
+creation retains its entire submitted payload; later typing remains dirty. Exact
+retry keeps proposal/Action UUID and request; an explicit separate form copies
+complete raw input/proofs with fresh proposal/Action UUIDs. Pending creation
+refuses discard/separation. Dirty Action-only/follow-up fields guard navigation.
+
+Native New Action works without a vault/provider. Dashboard Completed selection
+can seed a new Open Action with follows_up set to that exact identified Action;
+no completed record is reopened or implicitly changed. Render/copy all raw fields
+and complete source proofs, then create ordinary review work. Existing exact
+review/edit/comment/approval/Activity remains the sole path to actual Actions.
+No generic form/workflow framework, additional database or provider call.
+
+Acceptance: raw-invalid input/guards/exact copies; pending/later typing/unchanged
+retry/separation; multiple proofs/stale/same-path recapture and changed-source
+refusal; malformed creation bindings remain pending while later review replay
+acknowledges; real worker source-free approval/restart/new related follow-up with
+zero Actions before approval; actual native fields/Create→Review→Approve→Dashboard.
+Meaningful state/worker/widget tests, whole independent review, fresh relevant
+shared/native/shipping gates, safe native screenshots/manual scenario, exact-head
+CI and post-merge verification. Stage6 AI read/proposal tools follow afterward.
+
+### Composition local qualification — 2026-10-04
+
+The fixed contract is implemented through existing DraftForm/AppWorker/approval.
+Meaningful runtime RED proved creation acknowledgement previously ignored Action
+bindings; the new native navigation RED proved the missing New Action control.
+Three pure form, three real-worker/state and five native/navigation tests cover
+full raw retention, exact request/IDs/whole bindings, stale/misbound source proofs,
+changed-source refusal, later typing, source-free approval/restart/follow-up,
+480×480 reachability/copy and captured Discard drift. No Action exists before
+approval; a related follow-up preserves the original Completed record.
+
+Independent Sol whole review found no actionable or advisory defect. Fresh pinned
+Rust1.98.1/macOSarm64 locked/offline shared gate passed1118/0failed/6ignored+
+52fixtures; combined native passed254/0failed/0ignored. Both native all-target
+Clippy modes,shipping Desktop/CLI builds and two V11 startup/restart/exact BOM/
+CRLF/Unicode/zero-credential checks passed. Actual logs action-composition-*-final.log
+and qualified-startup-_09k21zp remain under
+/private/tmp/brn-v1-stage1-checkpoint-s3nawyyb. The first full native run failed two
+fixture checks: the newly Draft-rendering probe hid the old sidebar control, and
+an animated confirmation missed a simulated click. An optional probe preserves
+that sidebar; reduced-motion matches pinned toolkit/existing tests. Assertions
+remain intact, final fresh suite passed,shipping source unchanged after review.
+Known upstream block0.1.6 future-compiler warning remains.
+
+Actual UI qualification is pending because computer use reports the Mac locked.
+Prepared fresh vaultless /private/tmp/brn-v1-action-composition-ui-sptdd5rq bundle
+uses shipping binary SHA256
+cbc1ab1c8e5d654774d9788123561a6a4f66a47d78c5b9c3934ca50e032c4793,
+without test-support. No provider/model/private/original-data or release operation.
+Owner acceptance remains separate; this does not complete Stage6/V1. Next: actual
+Create→Review→Approve→Dashboard→Completed/new follow-up→restart when available,
+checkpoint PR/exact-head CI/integration,then Stage6 AI proposal/read tools.
