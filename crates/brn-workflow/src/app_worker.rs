@@ -47,6 +47,22 @@ pub enum AppCommand {
     SaveEditor(crate::editor::SaveRequest),
     Editors,
     ReconcileEditor(Uuid),
+    CreateProposal(crate::proposals::DraftRequest),
+    Proposal(Uuid),
+    Proposals(Option<Uuid>),
+    EditProposal(crate::proposals::ProposalEdit),
+    RewriteProposal(crate::proposals::ProposalEdit),
+    AddProposalComment(crate::proposals::CommentRequest),
+    UpdateProposalComment(crate::proposals::CommentRequest),
+    RemoveProposalComment {
+        expected: crate::proposals::ProposalStamp,
+        comment: Uuid,
+    },
+    RejectProposal(crate::proposals::ProposalStamp),
+    ApproveProposal(crate::proposal_apply::ApprovalRequest),
+    ReconcileProposal(Uuid),
+    ApproveProposalGroup(crate::proposal_apply::GroupApprovalRequest),
+    ProposalApplies,
     RecoverEdit {
         path: String,
         base_sha256: [u8; 32],
@@ -96,6 +112,11 @@ pub enum AppEvent {
     EditorRecovered(crate::editor::EditorRecord),
     EditorSaved(crate::editor::SaveReceipt),
     Editors(Vec<crate::editor::EditorRecord>),
+    Proposal(crate::proposals::ProposalRecord),
+    Proposals(Vec<crate::proposals::ProposalRecord>),
+    ProposalApplied(crate::proposal_apply::ApplyReceipt),
+    ProposalGroupApplied(crate::proposal_apply::GroupApprovalResult),
+    ProposalApplies(Vec<crate::proposal_apply::ApplyJournal>),
     Search(SearchResults),
     Conversations(Vec<WorkConversation>),
     Turns(Vec<WorkTurn>),
@@ -576,7 +597,7 @@ fn app_lane(
             #[cfg(test)]
             Message::IdleBarrier(barrier) => idle_barriers.push(barrier),
             Message::Command(id, command) => {
-                if stopping.load(Ordering::Acquire) && !critical_editor_command(&command) {
+                if stopping.load(Ordering::Acquire) && !critical_mutation_command(&command) {
                     let _ = emit.send((id, cancelled_command(command)));
                     continue;
                 }
@@ -768,6 +789,31 @@ fn dispatch(
             AppEvent::Notes(app.notes(folder.as_deref(), cursor.as_deref())?)
         }
         AppCommand::Note(path) => AppEvent::Note(app.note(&path)?),
+        AppCommand::CreateProposal(request) => AppEvent::Proposal(app.create_proposal(&request)?),
+        AppCommand::Proposal(proposal) => AppEvent::Proposal(app.proposal(proposal)?),
+        AppCommand::Proposals(group) => AppEvent::Proposals(app.proposals(group)?),
+        AppCommand::EditProposal(edit) => AppEvent::Proposal(app.edit_proposal(&edit)?),
+        AppCommand::RewriteProposal(edit) => AppEvent::Proposal(app.rewrite_proposal(&edit)?),
+        AppCommand::AddProposalComment(comment) => {
+            AppEvent::Proposal(app.add_proposal_comment(&comment)?)
+        }
+        AppCommand::UpdateProposalComment(comment) => {
+            AppEvent::Proposal(app.update_proposal_comment(&comment)?)
+        }
+        AppCommand::RemoveProposalComment { expected, comment } => {
+            AppEvent::Proposal(app.remove_proposal_comment(expected, comment)?)
+        }
+        AppCommand::RejectProposal(stamp) => AppEvent::Proposal(app.reject_proposal(stamp)?),
+        AppCommand::ApproveProposal(request) => {
+            AppEvent::ProposalApplied(app.approve_proposal(&request)?)
+        }
+        AppCommand::ReconcileProposal(id) => AppEvent::ProposalApplied(app.reconcile_proposal(id)?),
+        AppCommand::ApproveProposalGroup(request) => {
+            AppEvent::ProposalGroupApplied(app.approve_proposal_group(&request)?)
+        }
+        AppCommand::ProposalApplies => {
+            AppEvent::ProposalApplies(app.work_store().proposal_applies()?)
+        }
         AppCommand::ReloadEditor(request) => {
             AppEvent::EditorRecovered(app.reload_editor(&request)?)
         }
@@ -938,7 +984,7 @@ pub(crate) fn wait_test_idle(worker: &AppWorker) {
     rx.recv_timeout(Duration::from_secs(10)).unwrap();
 }
 
-fn critical_editor_command(command: &AppCommand) -> bool {
+fn critical_mutation_command(command: &AppCommand) -> bool {
     matches!(
         command,
         AppCommand::ReloadEditor(_)
@@ -946,6 +992,16 @@ fn critical_editor_command(command: &AppCommand) -> bool {
             | AppCommand::SaveEditor(_)
             | AppCommand::ReconcileEditor(_)
             | AppCommand::RecoverEdit { .. }
+            | AppCommand::CreateProposal(_)
+            | AppCommand::EditProposal(_)
+            | AppCommand::RewriteProposal(_)
+            | AppCommand::AddProposalComment(_)
+            | AppCommand::UpdateProposalComment(_)
+            | AppCommand::RemoveProposalComment { .. }
+            | AppCommand::RejectProposal(_)
+            | AppCommand::ApproveProposal(_)
+            | AppCommand::ReconcileProposal(_)
+            | AppCommand::ApproveProposalGroup(_)
     )
 }
 
@@ -953,6 +1009,107 @@ fn critical_editor_command(command: &AppCommand) -> bool {
 mod editor_shutdown_tests {
     use super::*;
     use crate::editor::{EditRequest, SaveRequest};
+
+    #[test]
+    fn shutdown_drains_admitted_proposal_review_work_without_applying_notes() {
+        use crate::proposals::{
+            CommentRequest, CommentTarget, DraftNoteChange, DraftRequest, ProposalEdit,
+            ProposalStamp, ProposalState, ReviewComment,
+        };
+        let base = tempfile::tempdir_in(std::env::temp_dir().canonicalize().unwrap()).unwrap();
+        let data = base.path().join("data");
+        let vault = base.path().join("vault");
+        std::fs::create_dir(&data).unwrap();
+        std::fs::create_dir(&vault).unwrap();
+        let config = || AppConfig {
+            vault_root: Some(vault.clone()),
+            credentials_dir: None,
+            model_dir: None,
+        };
+        let mut worker = AppWorker::start(data.clone(), config()).unwrap();
+        assert!(matches!(
+            worker
+                .recv_event_timeout(Duration::from_secs(10))
+                .unwrap()
+                .1,
+            AppEvent::Ready { .. }
+        ));
+        let (entered_tx, entered) = mpsc::channel();
+        let (release, release_rx) = mpsc::channel();
+        worker
+            .submit(
+                Uuid::new_v4(),
+                AppCommand::TestPause {
+                    entered: entered_tx,
+                    release: release_rx,
+                },
+            )
+            .unwrap();
+        entered.recv_timeout(Duration::from_secs(10)).unwrap();
+        let id = Uuid::new_v4();
+        let comment_id = Uuid::new_v4();
+        let operations = [
+            AppCommand::CreateProposal(DraftRequest {
+                id,
+                group_id: None,
+                session_id: None,
+                title: "Initial".into(),
+                changes: vec![DraftNoteChange::Create {
+                    path: "new.md".into(),
+                    text: "Initial text".into(),
+                }],
+                sources: vec![],
+            }),
+            AppCommand::EditProposal(ProposalEdit {
+                expected: ProposalStamp { id, version: 1 },
+                title: "Edited".into(),
+                texts: vec![Some("My later work".into())],
+            }),
+            AppCommand::AddProposalComment(CommentRequest {
+                expected: ProposalStamp { id, version: 2 },
+                comment: ReviewComment {
+                    id: comment_id,
+                    text: "Review before approval".into(),
+                    target: CommentTarget::Proposal,
+                },
+            }),
+        ];
+        let ids: Vec<_> = operations
+            .into_iter()
+            .map(|command| {
+                let op = Uuid::new_v4();
+                worker.submit(op, command).unwrap();
+                op
+            })
+            .collect();
+        let stopping = worker.stopping.clone();
+        let join = std::thread::spawn(move || {
+            worker.shutdown().unwrap();
+            worker
+        });
+        let deadline = std::time::Instant::now() + Duration::from_secs(10);
+        while !stopping.load(Ordering::Acquire) {
+            assert!(std::time::Instant::now() < deadline);
+            std::thread::sleep(Duration::from_millis(1));
+        }
+        release.send(()).unwrap();
+        let worker = join.join().unwrap();
+        let mut acknowledged = std::collections::HashSet::new();
+        while let Some((op, event)) = worker.try_event() {
+            if ids.contains(&op) && matches!(event, AppEvent::Proposal(_)) {
+                acknowledged.insert(op);
+            }
+        }
+        assert_eq!(acknowledged.len(), ids.len());
+        drop(worker);
+        let app = App::open(&data, config()).unwrap();
+        let record = app.proposal(id).unwrap();
+        assert_eq!(record.version, 3);
+        assert_eq!(record.state, ProposalState::Draft);
+        assert_eq!(record.draft.changes[0].text(), Some("My later work"));
+        assert_eq!(record.comments[0].id, comment_id);
+        assert_eq!(std::fs::read_dir(vault).unwrap().count(), 0);
+    }
 
     #[test]
     fn unfinished_save_restarts_worker_and_keeps_recovery_commands_available() {

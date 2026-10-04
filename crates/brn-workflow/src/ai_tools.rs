@@ -12,7 +12,7 @@ use std::{
 
 pub struct AiTools {
     root: PathBuf,
-    editor_fence: Mutex<(u64, bool)>,
+    current_fence: Mutex<(u64, bool)>,
     reader: Mutex<NoteIndexReader>,
     embedder: Option<SharedEmbedder>,
 }
@@ -32,20 +32,20 @@ impl AiTools {
     ) -> crate::Result<Self> {
         Ok(Self {
             root: root.to_owned(),
-            editor_fence: Mutex::new((0, false)),
+            current_fence: Mutex::new((0, false)),
             reader: Mutex::new(NoteIndexReader::open(index)?),
             embedder,
         })
     }
 
-    pub(crate) fn set_editor_blocked(&self, blocked: bool) {
-        let mut fence = self.editor_fence.lock().expect("owned evidence fence");
+    pub(crate) fn set_current_blocked(&self, blocked: bool) {
+        let mut fence = self.current_fence.lock().expect("owned evidence fence");
         fence.0 = fence.0.checked_add(1).expect("evidence epoch exhausted");
         fence.1 = blocked;
     }
 
-    fn check_editor_epoch(&self, epoch: u64) -> AiResult<()> {
-        let fence = self.editor_fence.lock().map_err(|_| stale())?;
+    fn check_current_epoch(&self, epoch: u64) -> AiResult<()> {
+        let fence = self.current_fence.lock().map_err(|_| stale())?;
         if fence.1 || fence.0 != epoch {
             return Err(stale());
         }
@@ -54,7 +54,7 @@ impl AiTools {
 
     fn check_root(&self) -> AiResult<u64> {
         let epoch = {
-            let fence = self.editor_fence.lock().map_err(|_| stale())?;
+            let fence = self.current_fence.lock().map_err(|_| stale())?;
             if fence.1 {
                 return Err(stale());
             }
@@ -168,7 +168,7 @@ impl ReadTools for AiTools {
             })?
         };
         validate_hits(&self.root, &results.hits)?;
-        self.check_editor_epoch(epoch)?;
+        self.check_current_epoch(epoch)?;
         Ok(ToolSearch {
             hits: results
                 .hits
@@ -189,7 +189,7 @@ impl ReadTools for AiTools {
         let epoch = self.check_root()?;
         let note = vault::read_note(&self.root, &parsed).map_err(|_| rejected())?;
         let (text, truncated) = brn_ai::capped_text(&note.text);
-        self.check_editor_epoch(epoch)?;
+        self.check_current_epoch(epoch)?;
         Ok(ToolNote {
             path: path.to_owned(),
             text: text.to_owned(),
@@ -200,7 +200,7 @@ impl ReadTools for AiTools {
     fn list_notes(&self, folder: Option<&str>, cursor: Option<&str>) -> AiResult<NotePage> {
         let epoch = self.check_root()?;
         let page = note_page(&self.root, self.entries()?, folder, cursor)?;
-        self.check_editor_epoch(epoch)?;
+        self.check_current_epoch(epoch)?;
         Ok(page)
     }
 }

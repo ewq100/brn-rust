@@ -6,12 +6,25 @@ A data directory has one owner at a time.
 
 [Entry point](src/main.rs), [parsing/output](src/cli/mod.rs),
 [application dispatch](src/cli/library.rs), [editor adapter](src/cli/editor.rs)
-and [error categories](src/cli/error.rs).
+[proposal adapter](src/cli/proposals.rs) and [error categories](src/cli/error.rs).
 
 ## Commands
 
 ```text
-brn edit open PATH
+brn proposals create --file DRAFT.json
+  brn proposals list [--group UUID]
+  brn proposals show PROPOSAL_ID
+  brn proposals edit --file EDIT.json
+  brn proposals rewrite-result --file EDIT.json
+  brn proposals comment --file COMMENT.json
+  brn proposals comment-update --file COMMENT.json
+  brn proposals comment-remove PROPOSAL_ID --review-version N --comment UUID
+  brn proposals reject PROPOSAL_ID --review-version N
+  brn proposals approve PROPOSAL_ID --review-version N --operation UUID
+  brn proposals reconcile OPERATION_UUID
+  brn proposals approve-group --file APPROVALS.json
+  brn proposals applies
+  brn edit open PATH
   brn edit recover PATH --baseline UUID --expected-generation N --generation N --file F
   brn edit save PATH --baseline UUID --expected-generation N --generation N --file F --operation UUID [--copy PATH]
   brn edit reload PATH --baseline UUID --expected-generation N --observed-file F [--discard]
@@ -87,6 +100,53 @@ For a manual check, create an existing data directory and synthetic vault, open
 and a fresh UUID, and compare the file bytes. Recover another edit and reopen
 the CLI to confirm it remains available. Change the disk file externally before
 Save and confirm refusal; verify Save Copy also refuses an occupied destination.
+
+### Typed review foundation
+
+`proposals create` accepts a typed `DraftRequest` JSON file. Workflow captures
+trusted bindings; Replace/Trash require the exact `expected` file fingerprint
+returned by `edit open`. Create requires an unused visible Markdown path. Optional
+`group_id` groups independent proposals; optional `session_id` names an existing
+conversation. Drafts keep exact bytes and never write a vault file.
+
+```json
+{"id":"11111111-1111-4111-8111-111111111111","group_id":null,"session_id":null,
+ "title":"Review a note","changes":[{"kind":"create","path":"new.md","text":"Draft text"}],"sources":[]}
+```
+
+`edit` and `rewrite-result` accept `{expected: {id, version}, title, texts}`.
+`texts` supplies one full string per Create/Replace and null per Trash, preserving
+bound destinations/baselines. `rewrite-result` imports a captured result; it does
+not invoke AI. Any newer edit/comment/rejection makes the old version stale.
+`comment`/`comment-update` accept `{expected, comment: {id, text, target}}`; targets
+are `{kind: "proposal"}` or `{kind: "text", anchor: {change_index, start, end,
+quote}}` with byte offsets and exact UTF-8 quote. Changed target content marks the
+anchor unresolved; explicit update may reattach it. No guessed positioning.
+`reject` preserves comments. List/show return full versioned records across restarts.
+
+`approve` applies the exact reviewed version as one proposal. It returns a receipt
+with `applied`, `not_applied` or `uncertain` outcome; only `applied` confirms all
+members. Applied approval removes temporary comments. A stale version or changed
+source, destination or parent refuses application. `reconcile` inspects a recorded
+operation without repeating its writes; `applies` lists its durable journals.
+Reusing an operation UUID with its exact request returns the recorded outcome;
+a different request fails `OPERATION_CONFLICT`.
+
+`approve-group` accepts `{group_id, approvals: [{operation_id, expected: {id,
+version}}]}`. It approves only the explicit captured members, in order, and stops
+at the first refusal or uncertainty. Its result contains individual receipts and
+an optional `stopped` failure; inspect these fields even when the CLI exits 0.
+New arrivals in that group are never included automatically.
+
+For a manual check, create a proposal for `new.md`, add a comment, inspect the
+version with `show`, and approve that version with a fresh operation UUID. Compare
+the exact file bytes, confirm `show` has state `applied` and no comments, then
+repeat `approve` and `reconcile` with the same UUID to confirm the same receipt.
+
+Typed JSON is decoded before workspace admission; encoded input is bounded to
+64 MiB, with stricter domain limits of 1 MiB per note and 8 MiB aggregate review
+work. Nonregular inputs refuse without blocking. Actual AI Rewrite, Undo and
+native review are still pending under Stage 4.
 
 ## Output contract
 

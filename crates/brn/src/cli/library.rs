@@ -257,7 +257,10 @@ fn confirmed_success(event: &AppEvent) -> bool {
             AccountReply::Status(_) | AccountReply::Disconnected | AccountReply::Models(_)
         ),
         AppEvent::ModelInstalled => true,
-        AppEvent::EditorRecovered(_) | AppEvent::EditorSaved(_) => true,
+        AppEvent::EditorRecovered(_)
+        | AppEvent::EditorSaved(_)
+        | AppEvent::ProposalApplied(_)
+        | AppEvent::ProposalGroupApplied(_) => true,
         _ => false,
     }
 }
@@ -275,6 +278,11 @@ fn output(data: Value) -> Output {
 pub fn run(i: &Invocation) -> Result<Output, CliFailure> {
     let editor = if let Command::Editor(command) = &i.command {
         Some(super::editor::prepare(command)?)
+    } else {
+        None
+    };
+    let proposal = if let Command::Proposals(command) = &i.command {
+        Some(super::proposals::prepare(command)?)
     } else {
         None
     };
@@ -301,7 +309,7 @@ pub fn run(i: &Invocation) -> Result<Output, CliFailure> {
     };
     let result = (|| {
         let mut lane = Lane::start(i, timeout)?;
-        let result = execute(i, &mut lane, ask_id, editor);
+        let result = execute(i, &mut lane, ask_id, editor, proposal);
         lane.finish(result)
     })();
     result.map_err(|mut failure: CliFailure| {
@@ -319,8 +327,21 @@ fn execute(
     lane: &mut Lane,
     ask_id: Option<Uuid>,
     editor: Option<(Uuid, AppCommand)>,
+    proposal: Option<(Uuid, AppCommand)>,
 ) -> Result<Output, CliFailure> {
     match &i.command {
+        Command::Proposals(_) => {
+            let (id, command) = proposal.expect("proposal input prepared before startup");
+            let data = match lane.query_with_id(id, command)? {
+                AppEvent::Proposal(record) => json!(record),
+                AppEvent::Proposals(records) => json!(records),
+                AppEvent::ProposalApplied(receipt) => json!(receipt),
+                AppEvent::ProposalGroupApplied(result) => json!(result),
+                AppEvent::ProposalApplies(journals) => json!(journals),
+                _ => return Err(unexpected()),
+            };
+            Ok(output(data))
+        }
         Command::Editor(_) => {
             let (id, command) = editor.expect("editor input prepared before startup");
             let data = match lane.query_with_id(id, command)? {

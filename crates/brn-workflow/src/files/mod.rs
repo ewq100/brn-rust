@@ -1,5 +1,6 @@
 #[cfg(target_os = "macos")]
 mod macos;
+pub(crate) mod recovery;
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub(crate) enum FileErrorCode {

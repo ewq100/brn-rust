@@ -1,19 +1,20 @@
 # brn-store
 
 Operational SQLite authority for BRN. WorkStore owns `brn.sqlite`, checked
-migrations, local chat, settings and unfinished editor/save recovery. Vault files
+migrations, local chat, settings, proposal review/approval journals and unfinished editor/save recovery. Vault files
 own saved Markdown; disposable retrieval indexes live outside this crate.
 
 ## Interfaces and source
 
 [WorkStore](src/work/mod.rs), [editor/save journal](src/work/editor.rs),
-[chat records](src/work/chat.rs), [unfinished edit compatibility](src/work/edits.rs),
+[chat records](src/work/chat.rs), [proposal review](src/work/proposals.rs), [unfinished edit compatibility](src/work/edits.rs),
+[approval journals](src/work/proposal_apply.rs),
 [backup/restore](src/work/backup.rs), [filesystem proof DTOs](src/files.rs) and
 [workspace marker guards](src/workspace_mode.rs).
 
 ## Database ownership and recovery
 
-WorkStore uses application ID `BRN2`, schema V3, and retains `brn.owner.lock`
+WorkStore uses application ID `BRN2`, schema V5, and retains `brn.owner.lock`
 for its lifetime. Current settings, text-only conversations and unfinished work
 are preserved by additive migrations. Earlier WorkStore V1 unsaved-edit rows
 remain available; matching text moves atomically into the generation-aware
@@ -58,6 +59,56 @@ uses an exact stamp and explicit discard of local changes.
 values. Their fields and wire shape are preserved from the existing Save
 implementation. Storage performs no filesystem installation, coordination or
 artifact removal.
+
+## Typed proposal review
+
+V4 stores typed Markdown Create/Replace/Trash drafts, exact before-text and file,
+parent, vault and source bindings. Creation UUIDs bind the initial payload;
+identical creation replay returns current review work without replacing edits.
+Records and that binding are checked by hashes, row identity and bounded domain
+validation. Each proposal supports 1–64 changes, 1 MiB per note, 8 MiB aggregate
+review text and at most 64 comments of 16 KiB each.
+
+Editing, comments, explicit reattachment and rejection use one exact review
+version and transactional updates. Changed target content marks anchored comments
+Unresolved while retaining their old range/quote; no text search guesses a new
+anchor. Late Rewrite results use the same version guard and preserve newer edits
+or comments. Rejection retains review work. Group listings keep independently
+reviewable proposals separate. Stage 4 remains active.
+
+## Whole-proposal approval journal
+
+V5 adds a narrow application journal. An exact review stamp and operation UUID
+freeze the full Draft snapshot and original creation binding, allocate sibling
+staging identities, and advance the review to Applying in one transaction. At
+most one proposal application remains unresolved. Same-request replay returns
+its current journal before fresh review checks; it never permits another write.
+
+Preparation records one complete immutable fingerprint set matching the proposed
+bytes and distinct file identities. Applied completion needs exact proofs for
+every installed destination and retained original; partial proof cannot succeed.
+NotApplied requires all destinations to retain their original identities or be
+absent for Create. Uncertain retains review work and can settle through explicit
+reconciliation. Each actual transition advances the review version. Journal and
+review commit together, and only Applied clears temporary comments from the live
+review and every journal snapshot for that proposal, including older refused
+attempts. This removes annotations while preserving approval and file bindings. Settled
+receipts are immutable even after later review edits following NotApplied.
+
+Storage validates hashes, indexed/request/creation bindings, encoded size and
+domain bounds. It performs no filesystem work and cannot independently observe
+the proofs supplied by workflow. The workflow now supplies file application and retained ordinary recovery
+snapshots. `refuse_proposal_before_effects` accepts a pending-only, N+2 certificate
+from a fresh known-no-attempt path; it cannot discharge Uncertain work and does
+not claim ownership of observed staging. Normal NotApplied reconciliation keeps
+its strict original-destination proof.
+
+`restore_proposal_apply` transactionally imports validated recovery snapshots,
+checks immutable lineage/operation/member/proof bindings and merges forward.
+Settled receipts cannot downgrade; newer review work stays intact. Historical
+Applied import removes annotations only through its approved version, preserving
+later review comments. Storage itself never inspects or writes ordinary files.
+Activity/Undo/Trash, AI Rewrite and native review remain subsequent slices.
 
 ## Local chat
 

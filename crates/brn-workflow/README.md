@@ -6,7 +6,7 @@ Store/Workspace/worker and brn-flow paths are removed.
 
 ## Interfaces and source
 
-[Application](src/app.rs), [commands/events](src/app_worker.rs), [chat lane](src/chat_worker.rs), [editor](src/editor.rs), [file adapter](src/files/mod.rs).
+[Application](src/app.rs), [commands/events](src/app_worker.rs), [chat lane](src/chat_worker.rs), [editor](src/editor.rs), [proposal review](src/proposals.rs), [proposal application](src/proposal_apply.rs), [file adapter](src/files/mod.rs).
 
 ## Simple app owner and read tools
 
@@ -14,8 +14,9 @@ Store/Workspace/worker and brn-flow paths are removed.
 exposes its `OpenReport`, including the restored backup. History and settings
 work without a vault. A missing initial vault stays unbound; an unavailable
 previously bound vault returns `VaultUnavailable` for reads. The first
-`bind_vault` persists the canonical root only after Library refresh and reader
-initialization succeed. A different root needs a different data folder. Vault
+`bind_vault` persists the canonical root only after Library/reader initialization
+succeeds. It refreshes saved knowledge when no durable change is unresolved;
+otherwise current evidence remains fenced for reconciliation. A different root needs a different data folder. Vault
 and data folders cannot overlap.
 
 Credentials must be absolute, outside Git repositories, the data folder and
@@ -48,6 +49,52 @@ Reads preserve the exact UTF-8 prefix up to 50,000 bytes, including BOM/CRLF.
 Lists validate component-only folders and note-path cursors, use exclusive
 path-sorted keyset pagination and return at most 200 entries. `"work"` never
 matches `"workshop"`. These APIs never write vault files.
+
+## Typed proposal review foundation
+
+`proposals::DraftRequest` supplies typed Create/Replace/Trash intent. Workflow
+captures trusted vault/parent/before identities and exact bytes, checks expected
+source fingerprints and refuses occupied or aliased destinations. Creation replay
+precedes fresh-vault checks and returns existing edited review work; a conflicting
+initial payload cannot reuse its UUID. Review text/comments are operational work,
+never current vault evidence.
+
+Full-text edits, anchored or whole-proposal comments, explicit reattachment,
+rejection and imported captured Rewrite results use one version. Changing an
+anchored target leaves its old range unresolved; late results after newer edits,
+comments or rejection fail. AppWorker owns and drains admitted review mutations.
+Read/list/edit/comment work remains available without current vault access.
+Activity/Undo/Trash, AI Rewrite and native review remain subsequent Stage 4 slices.
+
+The current-evidence fence covers pending/Uncertain Save and proposal journals.
+It refuses tools, note/list/search, refresh and embedding, including startup and
+model activation; retained tools cannot read through the fence. Settling a Save
+cannot clear a proposal's uncertainty. Pending proposals also refuse new Save,
+Save Copy and reload, while keeping editor recovery and existing proposal review
+readable.
+
+`proposal_apply` exposes exact individual and captured-group approval through
+AppWorker and the CLI. Preflight checks reviewed vault/parents/targets/sources and
+all editor namespace/identity aliases. It fences retained read leases before
+intent. All Create/Replace members are staged before effects; Trash retains its
+original. Complete prepared proofs reach SQLite and a bounded, hash-checked
+ordinary recovery receipt before coordinated exchange/exclusive installation.
+Whole installed/displaced proofs and required file/directory sync precede one
+Applied result. No-effect refusal is certified only in the fresh path before a
+namespace attempt; interrupted/mixed proofs remain Uncertain. Replay writes
+nothing. Group membership and versions are explicit; each proposal is a separate
+unit and later members stop on refusal. Later editor typing keeps its old baseline
+and buffer as a visible conflict until explicit reload.
+
+Recovery receipts remain in the data folder across SQLite backups. Every startup
+imports newest terminal evidence before earlier history and unresolved work,
+then classifies pending file proofs before binding current evidence. Trusted
+historical completion preserves subsequent owner bytes. Reconciliation checks
+current sources for incomplete work, recognizes sources replaced/trashed by that
+proposal, and never repeats installation. Approved annotation cleanup covers
+current/prior journals, ordinary snapshots and compatible proof-checked temporary
+snapshots; unexpected occupants remain retained. Activity and bounded Undo/Trash
+retention, AI Rewrite and native proposal interaction still need later slices.
 
 ## Explicit model installation
 
@@ -102,7 +149,7 @@ original. Required coordination/durability failures have no weaker fallback.
 
 Replay never repeats filesystem writes. Reconciliation checks prepared,
 destination-parent and installed/displaced identities; matching text alone
-cannot prove application. Unresolved saves fence current search and AI tools.
+cannot prove application. Unresolved saves fence current knowledge reads and AI tools.
 Applied completion preserves later typing. One recent Applied recovery pair and
 compact settled receipts remain after identity-proven artifact cleanup;
 unexpected artifacts and unresolved payloads stay protected. Reload binds the

@@ -1,85 +1,70 @@
 # Current development status
 
-2026-10-03. Stage 1 is locally integrated at `6609442`, based on frozen-guidance
-baseline `4bf7878`. Stage 2 is locally integrated at `a5ec4ae`. Stage 3 offline
-probe preparation is integrated at `7e63041`; the authorized live round has
-finished, with the limitations below. Proposal Core is next.
+2026-10-03. The owner has authorized sequential BRN v1 delivery under the frozen
+[product vision](product/BRN_PRODUCT_VISION.md), [architecture](architecture/overview.md#frozen-target),
+[invariants](architecture/invariants.md), [roadmap](roadmap.md) and
+[development workflow](development/workflow.md). Stage 4 Proposal Core is active;
+Stages 5–16 remain pending. Complete BRN v1 delivery is not yet claimed.
 
-The owner has authorized sequential BRN v1 delivery using the [product vision](product/BRN_PRODUCT_VISION.md),
-[target architecture](architecture/overview.md#frozen-target), [invariants](architecture/invariants.md),
-[roadmap](roadmap.md) and [development workflow](development/workflow.md).
+Stages 1–3 are locally integrated. Simple manual Save/recovery (`6609442`) preserves
+exact UTF-8 bytes, generation-bound recovery and file/parent/root identities.
+Copies install exclusively; missing originals are not recreated. Native recovery
+coalesces after 500 ms; acknowledgement establishes recoverability. Guarded
+navigation/Quit drains admitted work; system termination can lose unacknowledged
+typing. [Stage 1 evidence](work/completed/simple-save/plan.md) retains checks and
+pending native acceptance. Stage 2 (`a5ec4ae`) removes legacy production paths,
+`brn-core` and `brn-flow`; the six-crate workspace refuses old/mixed markers before
+SQLite without migrating original data. [Stage 2 evidence](work/completed/legacy-removal/plan.md)
+records the retired baseline and qualification.
 
-Stage 1 simple manual Save/recovery is implemented and automated verification
-has passed. Final independent read-only review returned no findings. Owner
-native acceptance remains pending. The [slice record](work/completed/simple-save/plan.md)
-contains reproducible acceptance steps and verification detail.
+Stage 3's scoped live round is complete (`d40e0a1`): both fresh human connections
+succeeded, using **10 logical probes / 14 completion attempts** within the 11/22
+cap. ChatGPT `gpt-5.5` Responses passed low/high read tools and the tiny image.
+Copilot `gpt-5.3-codex` Responses passed read tools but reversed image colors.
+Both observed hosted web search with correct official SQLite URLs; native citation
+metadata remains unqualified. Copilot `gpt-5.5` Chat refused with
+`unsupported_api_for_model`; production reports `ModelRefused` without fallback.
+[Stage 3 evidence](work/completed/provider-capabilities/plan.md) records scope,
+results and limits. No more account calls or model downloads are authorized by
+that completed round.
 
-- Simple CLI and native editing use AppWorker. Explicit Save/Cmd-S preserves exact
-  UTF-8 bytes, detects changed file/root/parent identity and never recreates a
-  missing original. Save Copy uses an unused destination without overwriting or
-  resolving the original editor. Compare and confirmed reload remain local.
-- WorkStore V3 holds generation-checked recovery, save intent/proof and receipts.
-  Replay never repeats file writes. Reconciliation requires identity proof;
-  unresolved saves fence current search/AI. One recent Applied recovery pair and
-  compact settled receipts remain after proven artifact cleanup.
-- Native recovery coalesces after 500 ms; only acknowledgement establishes
-  recoverability. Guarded note-switch/close/Quit waits for the latest buffer and
-  admitted work. Failed recovery retains text for explicit retry. Dock/system
-  termination can lose unacknowledged typing.
-- Native defaults to BRN-simple with its protected credential sibling. Chat,
-  local history, explicit provider/model selection and saved-vault retrieval
-  remain implemented. Default builds are keyword-only; model installation needs
-  fresh consent. Streaming/finalization and UUID replay retain their existing
-  safety distinctions.
-- Stage 2 removes legacy Store/Workspace/worker/CLI/native paths, `brn-core` and
-  `brn-flow`. The workspace now has six crates and two binaries. WorkStore and
-  current Save/recovery/search/chat remain; old/mixed markers refuse before
-  SQLite opens. Existing data, standalone trials and historical records remain
-  untouched. Proposal Core and later v1 stages remain unimplemented.
-
-Fresh Stage 1 verification: workspace **728 passed, 0 failed, 1 ignored**;
-native desktop **137 unit + 6 CLI tests passed**; native workflow **93 library +
-5 model tests passed, 1 ignored**. Native desktop/CLI builds, native Clippy,
-**47 fixture assertions** and launcher checks passed. These checks use synthetic
-fixtures; the ignored tests and other limits are recorded in the slice record.
-
-Fresh Stage 2 verification: workspace **391 passed, 0 failed, 1 ignored**;
-native desktop **84 unit + 7 CLI passed**; native workflow **67 passed, 1 ignored**;
-native retrieval **42 passed**. Default format/build/Clippy, native desktop build/
-Clippy, **52 fixture assertions** and launcher checks passed. Independent read-only
-review found no actionable defects. [Stage 2 record](work/completed/legacy-removal/plan.md)
-distinguishes synthetic checks from remaining native/live qualification.
-
-Stage 3 implements opt-in synthetic probes and bounded safe diagnostics. Both
-fresh human connections succeeded. ChatGPT `gpt-5.5` Responses passed low/high
-read tools and the fixed image; Copilot `gpt-5.3-codex` Responses passed low/high
-read tools but reversed image colors. Both observed hosted web search and returned
-correct official SQLite release/source URLs; neither returned native citation
-annotations, so metadata attribution remains unqualified. Copilot `gpt-5.5`
-Chat refused with HTTP 400 `unsupported_api_for_model`; its remaining image
-probe was skipped. Safe production mapping reports `ModelRefused` for this code,
-without retry or route/model fallback. **10 logical probes / 14 completion
-attempts** ran within the authorized 11/22 cap. No original data or credentials
-were inspected. [Stage 3 results](work/completed/provider-capabilities/plan.md)
-record exact models, scope, verification and downstream constraints. Final
-independent review found no actionable defects. Fresh workspace **404 passed,
-0 failed, 1 ignored**; feature AI **68 + 1 example passed**. Default and feature
-build/Clippy, format and documentation checks passed.
-Stages 4–16 remain pending; no complete BRN v1 delivery is claimed.
-Owner acceptance may remain pending when it is not a dependency for later safe
-implementation.
+Stage 4 review (`89421f5`) and exact approval journals/fences (`e84ef7a`) are
+integrated. The current file-application slice implements shared AppWorker/CLI
+individual and captured-group approval, all-member staging, coordinated exact
+Create/Replace/Trash installation, required durability and whole-proposal proof.
+A fresh pre-effect refusal preserves review work and external occupants; partial
+or unknown work stays fenced. Replay never repeats file effects. Ordinary bounded
+recovery receipts survive older/missing operational databases and are inspected
+before current vault binding. Historical completion preserves later user bytes;
+newer editor typing retains its old baseline/buffer as an explicit conflict.
+Successful approval removes temporary annotations from live/prior journals,
+ordinary snapshots and compatible proven temporary records. Independent review
+findings were verified, fixed and re-reviewed. [Stage 4 plan/evidence](work/active/proposal-core/plan.md)
+records acceptance scenarios and exact qualification. Fresh macOS arm64 / pinned
+Rust 1.98.1 locked/offline verification passed: **498 workspace tests, 0 failed,
+2 ignored** private crash entry points exercised by subprocess matrices; Store
+**110 passed** including **34 approval/recovery tests**; CLI **67 passed** including
+**9 proposal process tests**. Workspace format/build/all-target Clippy with warnings
+denied, **52 end-to-end fixture assertions**, optional native desktop compile,
+local Markdown links and diff checks passed. This slice is qualified for local
+integration under the standing mission authorization. Activity, bounded Undo/Trash,
+AI Rewrite and native proposal review remain next; Stage 4 is not complete.
 
 ## Qualification still open
 
-Builds and synthetic state/crash tests do not establish graphical usability,
-power-loss durability, other-volume support, actual model inference, account
-validity or release readiness. Native Save/Copy/conflict/reload/recovery,
-chooser, IME, accessibility, rendering and Stop/restart acceptance remain pending.
-Additional live checks beyond the completed bounded scope require new
-authorization. Copilot GPT-5.5 is unsupported by the pinned Chat route; Codex
-vision accuracy and native citation metadata remain unqualified. No release or distribution
-qualification is claimed. Upstream `block v0.1.6` retains a future-compiler warning.
+Owner headless/native acceptance remains pending and does not block later safe
+implementation. Builds and synthetic crash/state tests do not establish native
+usability, physical power-loss durability, other-volume support, actual model
+inference or release readiness. Native Save/Copy/conflict/reload/recovery,
+chooser, IME, accessibility, rendering and Stop/restart remain pending. Proposal
+review is currently headless; mixed/interrupted application stays fenced until
+exact reconciliation proof, with further repair/Undo interaction still to come.
+The completed provider round leaves Copilot GPT-5.5 Chat unsupported, Codex vision
+accuracy and native citations unqualified. Further live checks require new scope;
+release/public distribution and original/private-data migration are unauthorized.
+Upstream `block v0.1.6` retains a future-compiler warning.
 
-Earlier implementation/check details remain in the [simple Rig notes evidence](work/active/simple-rig-notes/evidence.md)
-and [historical evidence](work/completed/README.md). Those records are supporting
-history, not current execution plans or standing account permissions.
+Older implementation and verification counts remain in
+[completed evidence](work/completed/README.md) and the
+[earlier Rig notes evidence](work/active/simple-rig-notes/evidence.md). Historical
+specifications, process assignments and permissions are supporting evidence.
