@@ -752,3 +752,13 @@ Next Stage 4C publishes owned Rewrite/effort and native review/approval/activity
 Undo/repair/creation. Transfer requires pinned Rust 1.98.1, Apple Silicon/Command
 Line Tools, cached locked dependencies, protobuf/Bash/Python 3, canonical synthetic
 data/TMPDIR and unlocked GUI for owner acceptance; no original data/credentials.
+
+Stage 4B initial exact-head CI `37186975338` passed all three macOS lanes,
+but Ubuntu shared Core failed on dead code in `cli_repair::ok`. All seven
+callers are inside the existing macOS-only file-operation test module;
+matching its helper guard retains shared syntax/FIFO refusal tests. Independent
+read-only diagnosis and review found no remaining defect. Fresh locked/offline
+**5 CLI repair tests / 0 failed**, workspace all-target Clippy with warnings
+denied, format and diff checks passed. A corrected exact-head run is required
+before merge. Windows retains the known Unix API failure; initial overall CI
+is red. No provider calls or original-data access occurred.
