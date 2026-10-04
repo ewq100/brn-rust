@@ -68,6 +68,17 @@ fn source_proofs(form: &crate::draft::DraftForm) -> String {
 impl Desktop {
     /// Bind each new form once. Creation/source ACKs never replace later widget input.
     pub(super) fn sync_draft_widgets(&mut self, window: &mut Window, cx: &mut Context<Self>) {
+        if self
+            .ai
+            .as_ref()
+            .unwrap()
+            .draft
+            .as_ref()
+            .is_some_and(|form| form.action.is_some())
+        {
+            self.sync_initial_action_widgets(window, cx);
+            return;
+        }
         let Some(form) = &self.ai.as_ref().unwrap().draft else {
             self.draft_widget_id = None;
             return;
@@ -105,6 +116,17 @@ impl Desktop {
     }
 
     pub(super) fn capture_draft_widgets(&mut self, cx: &App) {
+        if self
+            .ai
+            .as_ref()
+            .unwrap()
+            .draft
+            .as_ref()
+            .is_some_and(|form| form.action.is_some())
+        {
+            self.capture_initial_action_widgets(cx);
+            return;
+        }
         if let Some(form) = &mut self.ai.as_mut().unwrap().draft
             && self.draft_widget_id == Some(form.id)
         {
@@ -125,7 +147,9 @@ impl Desktop {
     pub(super) fn capture_link_widgets(&mut self, cx: &App) {
         let ai = self.ai.as_mut().unwrap();
         if ai.draft.as_ref().is_some_and(|form| {
-            self.draft_widget_id == Some(form.id) && form.prepared_request().is_none()
+            self.draft_widget_id == Some(form.id)
+                && form.prepared_request().is_none()
+                && form.action.is_none()
         }) {
             ai.edit_link_input(
                 self.draft_link_target.read(cx).value().to_string(),
@@ -134,10 +158,15 @@ impl Desktop {
         }
     }
 
-    fn draft_command_blocked(&self) -> bool {
+    pub(super) fn draft_command_blocked(&self) -> bool {
         let ai = self.ai.as_ref().unwrap();
         !ai.ready
-            || !ai.vault_bound
+            || (!ai.vault_bound
+                && ai.draft.as_ref().is_none_or(|form| {
+                    form.action
+                        .as_ref()
+                        .is_none_or(|action| !action.sources.is_empty())
+                }))
             || ai.application_busy()
             || ai.active.is_some()
             || ai.rewrite.is_some()
@@ -152,7 +181,7 @@ impl Desktop {
             || self.close_failed
     }
 
-    fn discard_draft_dialog(
+    pub(super) fn discard_draft_dialog(
         &mut self,
         body_only: bool,
         window: &mut Window,
@@ -186,6 +215,7 @@ impl Desktop {
             form.path.clone(),
             form.text.clone(),
             form.kind,
+            form.action.clone(),
         );
         let desktop = cx.entity().downgrade();
         window.open_dialog(cx, move |dialog, _, _| {
@@ -199,8 +229,8 @@ impl Desktop {
                         let _ = desktop.update(cx, |this, cx| {
                             this.capture_draft_widgets(cx);
                             let unchanged = this.ai.as_ref().unwrap().draft.as_ref().is_some_and(|form| {
-                                !form.pending && (form.id, form.generation, &form.title, &form.path, &form.text, form.kind)
-                                    == (captured.0, captured.1, &captured.2, &captured.3, &captured.4, captured.5)
+                                !form.pending && (form.id, form.generation, &form.title, &form.path, &form.text, form.kind, &form.action)
+                                    == (captured.0, captured.1, &captured.2, &captured.3, &captured.4, captured.5, &captured.6)
                             });
                             if unchanged && this.closing.is_none() && !this.closed && !this.close_failed {
                                 if body_only {
@@ -224,6 +254,16 @@ impl Desktop {
     }
 
     pub(super) fn render_draft(&mut self, cx: &mut Context<Self>) -> AnyElement {
+        if self
+            .ai
+            .as_ref()
+            .unwrap()
+            .draft
+            .as_ref()
+            .is_some_and(|form| form.action.is_some())
+        {
+            return self.render_initial_action(cx);
+        }
         let ai = self.ai.as_ref().unwrap();
         let mut body = div().id("initial-full-proposal-form")
             .track_scroll(&self.draft_scroll).flex().flex_col().flex_1()

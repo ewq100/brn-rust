@@ -296,6 +296,39 @@ impl Desktop {
                     ),
             );
         }
+        if let Some(entry) = state.selected.as_ref().filter(|entry| {
+            entry.action.data.state == brn_workflow::actions::ActionState::Completed
+        }) {
+            let id = entry.action.origin.id;
+            content = content.child(
+                Button::new("new-related-action")
+                    .label("New related follow-up…")
+                    .disabled(blocked || loading || ai.application_busy())
+                    .on_click(cx.listener(move |this, _, window, cx| {
+                        if this.dashboard_blocked()
+                            || this.ai.as_ref().unwrap().dashboard_loading()
+                            || window.has_active_dialog(cx)
+                        {
+                            return;
+                        }
+                        if this
+                            .ai
+                            .as_ref()
+                            .unwrap()
+                            .dashboard
+                            .selected
+                            .as_ref()
+                            .is_some_and(|entry| {
+                                entry.action.origin.id == id
+                                    && entry.action.data.state
+                                        == brn_workflow::actions::ActionState::Completed
+                            })
+                        {
+                            this.simple_leave(simple::EditorTransition::ActionDraft(Some(id)), cx);
+                        }
+                    })),
+            );
+        }
         content = content
             .child(
                 div()

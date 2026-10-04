@@ -26,6 +26,7 @@ pub(super) enum EditorTransition {
     Dashboard,
     Findings,
     Draft(Option<Uuid>),
+    ActionDraft(Option<Uuid>),
     Hide,
     Close(CloseRoute),
 }
@@ -392,13 +393,16 @@ impl Desktop {
         let transition = self.simple_transition.take().unwrap();
         if !matches!(
             &transition,
-            EditorTransition::Findings | EditorTransition::Draft(_)
+            EditorTransition::Findings
+                | EditorTransition::Draft(_)
+                | EditorTransition::ActionDraft(_)
         ) {
             self.ai.as_mut().unwrap().close_findings();
         }
         if !matches!(&transition, EditorTransition::Dashboard) {
             self.ai.as_mut().unwrap().close_dashboard();
         }
+        let action_draft = matches!(&transition, EditorTransition::ActionDraft(_));
         match transition {
             EditorTransition::Note(path) => self.simple_open_note(path, cx),
             EditorTransition::Evidence { path, scope } => {
@@ -477,8 +481,13 @@ impl Desktop {
                     self.simple_send(command, cx);
                 }
             }
-            EditorTransition::Draft(turn) => {
-                if !self.ai.as_mut().unwrap().begin_draft(turn) {
+            EditorTransition::Draft(turn) | EditorTransition::ActionDraft(turn) => {
+                let started = if action_draft {
+                    self.ai.as_mut().unwrap().begin_action_draft(turn)
+                } else {
+                    self.ai.as_mut().unwrap().begin_draft(turn)
+                };
+                if !started {
                     cx.notify();
                     return;
                 }
@@ -1092,11 +1101,34 @@ impl Desktop {
                         this.simple_leave(EditorTransition::Findings, cx)
                     })),
             )
+            .child(
+                Button::new("new-action-form")
+                    .label("+ New Action…")
+                    .selected(
+                        self.open_doc == Some(DocRef::Draft)
+                            && ai.draft.as_ref().is_some_and(|form| form.action.is_some()),
+                    )
+                    .disabled(
+                        !ai.ready
+                            || ai.application_busy()
+                            || self.closing.is_some()
+                            || self.closed
+                            || self.close_failed,
+                    )
+                    .on_click(cx.listener(|this, _, window, cx| {
+                        if !window.has_active_dialog(cx) {
+                            this.simple_leave(EditorTransition::ActionDraft(None), cx);
+                        }
+                    })),
+            )
             .child("Proposal review")
             .child(
                 Button::new("new-proposal-form")
                     .label("+ New proposal…")
-                    .selected(self.open_doc == Some(DocRef::Draft))
+                    .selected(
+                        self.open_doc == Some(DocRef::Draft)
+                            && ai.draft.as_ref().is_some_and(|form| form.action.is_none()),
+                    )
                     .disabled(
                         !ai.ready
                             || !ai.vault_bound

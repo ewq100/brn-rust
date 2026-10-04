@@ -11,6 +11,9 @@ mod link_preparation {
 mod creation {
     include!("draft_state_tests.rs");
 }
+mod action_creation {
+    include!("action_draft_state_tests.rs");
+}
 use brn_workflow::{
     app::AppConfig,
     app_worker::AppWorker,
