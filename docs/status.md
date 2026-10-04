@@ -13,6 +13,15 @@ thin future adapters through workflow/AppWorker. Independent implementation audi
 found no desktop/CLI domain bypass; existing scoped knowledge/proposal/activity
 commands are retained. Read-only local stdio MCP is future work; no daemon,
 network service or added V1 stage is authorized by this amendment.
+Workflow-owned search evidence now keeps SQLite passage IDs inside retrieval.
+A real index rebuild regression failed solely on row ID2→1 before the correction
+and passes afterward. Independent source review found no remaining defect.
+Fresh macOSarm64/Rust1.98.1 locked/offline gates passed908workspace/0failed/
+3ignored+52fixtures,201native desktop/0failed/0ignored,158focused native workflow/
+0failed/2ignored,both native Clippy configurations and shipping desktop/CLI builds.
+Two startup/restart checks retained exact synthetic bytes,V8 and zero credentials.
+Logs: /private/tmp/brn-client-boundary-bgywtql7. PR/exact-head CI/integration are
+pending; existing GUI/model/provider qualification gaps remain unchanged.
 
 Manual Save/recovery (`6609442`) preserves exact UTF-8, generation-bound recovery
 and file/parent/root identities. Copies install exclusively; missing originals
@@ -183,8 +192,10 @@ across the sole incoming helper guard. Fresh907workspace/0failed/3ignored+52fixt
 201combined-native/0failed/0ignored, both Clippy variants/shipping builds,
 21native-retrieval and164focused-native-workflow/0failed/3ignored passed.
 Fresh incoming3CLItests/workspace Clippy/format and two shipping startup/restart
-checks passed with exact synthetic bytes,zero credentials. Applicable exact-head
-CI/post-merge and GUI/owner acceptance remain pending. Findings/language are later
+checks passed with exact synthetic bytes,zero credentials. PR24 merged2483b31
+after exact716aede/run37194454005 passed Mac3+UbuntuShared;Windows Unix APIs
+failed,overallCIred. Post-merge tree equality,10CLI tests+52fixtures and two
+startup/restart checks passed. GUI/owner acceptance remains pending. Findings/language are later
 publication checkpoints; completeStage5/V1 delivery is not claimed.
 
 Release/public distribution, additional live calls/model downloads, purchases and
