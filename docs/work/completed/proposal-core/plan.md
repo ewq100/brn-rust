@@ -1239,3 +1239,11 @@ GUI/IME/accessibility/liveRewrite/owner acceptance stays separately pending.
 Changed-document verification passed **153 local file/fragment links** (code
 examples excluded), final format/diff checks. Checkpoint CI must qualify the
 exact latest PR commit before integration.
+
+Stage 4C CI run `37189866429` passed all three macOS lanes at `3415344`,
+but Ubuntu exposed five macOS-dependent real-App review fixture tests. Each
+creates a proposal through the deliberately macOS-only file adapter. Independent
+read-only review confirmed the sole module guard preserves all 14 pure shared
+review tests; no shared production defect was demonstrated. Fresh local five
+review-state tests, workspace all-target Clippy, format and diff checks passed.
+Exact latest-head CI remains required; Windows still fails on Unix metadata APIs.
