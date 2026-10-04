@@ -91,6 +91,9 @@ A connected cache with
 no display name stays “account name unavailable”; failed/cancelled Connect
 refreshes actual status. Codes/links exist only in the active transient login
 dialog; cancel, dismissal and every ending clear it and target its exact UUID.
+The verification URL opens only when clicked. The device code is read-only but
+selectable with standard keyboard Copy, and an explicit Copy code button copies
+the exact current code. A stale or dismissed prompt cannot open a URL or copy.
 Code expiry/reconnect are explicit retry states, never automatic login.
 ChatGPT live chat remains conditionally qualified; a quota reset alone does not
 establish availability.

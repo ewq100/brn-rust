@@ -65,53 +65,46 @@ Evidence: [Actions/dashboard plan](work/active/actions-dashboard/plan.md).
 
 ## Latest integrated checkpoint
 
-[PR33](https://github.com/ewq100/brn-rust/pull/33) merged
-**7fed13295a4c9c2e633ef020e981042840f2246c**, source tree47f89319 equal to the reviewed
-candidate. Exact latest head0882a30/run37214585531 passed MacCore/UI/Retrieval and
-UbuntuShared. Windows repeated22 unchanged Unix API errors, so overallCI is red;
-no GitHub requirement was bypassed. An initial Ubuntu test assumption about
-macOS-only source coordination was independently reviewed and corrected without
-changing production behavior.
+[PR34](https://github.com/ewq100/brn-rust/pull/34) merged
+**5f9033b9b06213372623da5c05aee1f2b93bee70**, source tree3978cedd equal to the
+independently reviewed candidate. Exact head87f3920/run37218436437 passed
+MacCore/UI/Retrieval and UbuntuShared. Windows failed22 unchanged Unix API errors;
+logs and base-source comparison found no shared macOS defect. OverallCI is red;
+no GitHub merge requirement was bypassed.
 
-Fresh post-merge **16 reference tests, 52 fixtures and two shipping startup/restart
-checks passed**, V10/exact BOM/CRLF/Unicode bytes/zero credential files. Merged-main
-run37215168696 completed **5 success / 4 failure**: Mac3+UbuntuCore/UI passed;
-actual logs repeat Ubuntu native installer10pass/3fail and Windows22/22/14 Unix
-errors in unchanged production paths. No shared macOS defect was found.
+Whole typed Action Create/Replace and mixed Markdown/Action drafts now use exact
+proposal approval, including source-free vaultless work. Full-record CAS protects
+file effects and Applied recovery authority; joined Store settlement remains
+atomic. Mixed drift stays Uncertain/fenced. Native review preserves all fields,
+incomplete input and captured grouped approval. Activity counts approved Actions.
 
-Earlier reviewed PRs16–32 are integrated; their plans/PRs retain exact CI and
-verification evidence. PR32 fixes the actual missing Settings/dialog render layer.
-Its automated widgets, build, startup and applicable CI passed; fixed Settings/
-human login has not yet been exercised on the unlocked Mac.
+Fresh final macOSarm64/Rust1.98.1 locked/offline verification passed
+1059workspace/0failed/5ignored+52fixtures,178focused-native-workflow/0failed/
+4ignored,229combined-native-desktop/0failed/0ignored,both native Clippy modes,
+shipping builds and startup/restart2. Private crash children execute through
+subprocess matrices; optional case-sensitive APFS qualification is prior evidence.
+Post-merge exact tree,22focused tests,52fixtures and startup/restart2 passed
+(V10/exact BOM/CRLF/Unicode/zero credentials). Merged-main CI remains in progress.
+Native Action/owner acceptance is pending; reproducible scenarios are in the
+[CLI](../crates/brn/README.md#manual-action-acceptance) and
+[desktop](../crates/brn-desktop/README.md#manual-action-review-acceptance) contracts.
+
+Earlier PRs16–33 are integrated; their plans/PRs retain exact evidence. PR32's
+Settings/dialog render correction is now observed on the unlocked Mac; safe
+original screenshots are retained. Human Connect remains pending.
 
 ## Active slice and next work
 
-Branch codex/v1-action-application is based on7fed132. Whole typed Action
-Create/Replace and mixed note+Action drafts are implemented locally through the
-existing proposal boundary. Source-free work needs no vault. Full Action CAS is
-checked before file effects and Applied recovery authority; joined settlement
-retains transactional CAS. Mixed drift stays Uncertain/fenced. Native review
-retains all fields, incomplete input and exact grouped captures; independent UI
-review's valid group-approval refusal was reproduced and corrected.
-
-Focused checks passed:12 recovery tests/0failed/1ignored crash child,23 exercised
-crash points,2 mixed Finish/Restore tests/0failed/1exercised crash child,3 real
-CLI+2 AppWorker scenarios,222 native unit/widget+7 CLI tests and native Clippy.
-Complete independent review found no actionable defect and privately passed29
-focused tests. A final real CLI regression reproduced Activity omitting Actions
-(1pass/2fail); the shared summary now counts approved Create/Replace Actions.
-Independent correction review passed7tests with no finding. The pre-correction
-whole gate passed1059tests/0failed/5ignored+52fixtures. Fresh corrected gates
-passed the same counts,178focused-native-workflow/0failed/4ignored,
-229combined-native-desktop/0failed/0ignored,both native Clippy configurations,
-shipping builds and startup2(V10/exact bytes/zero credentials). New application
-tests qualify macOS ordinary receipts; an explicit non-Mac pre-admission refusal
-witness awaits Ubuntu CI. Fresh Mac5application tests and test-targetClippy passed.
-This candidate
-is implemented and locally verified; publication and exact-head applicable CI
-precede integration. Manual Action scenarios are in the
-[CLI](../crates/brn/README.md#manual-action-acceptance) and
-[desktop](../crates/brn-desktop/README.md#manual-action-review-acceptance) contracts.
+The owner-requested sign-in control correction is implemented on
+codex/v1-connect-controls over5f9033b. The URL is clickable; the read-only code
+supports selection/keyboard Copy and an explicit Copy code button. Exact transient
+prompt/operation guards refuse stale link and copy events. Meaningful synthetic
+shipping-root tests reproduce the former missing controls, exercise read-only
+selection through redraw and stale pointer events, and cover cancel/dismissal.
+Independent review found no actionable defect. Fresh joined233native tests, both
+Clippy modes, shipping builds,52fixtures and startup/restart2 passed
+(V10/exact bytes/zero credentials). Exact-head CI/publication precede integration;
+actual corrected native acceptance is pending.
 
 Next: identified direct Complete, dashboard and related follow-up creation, then
 the remaining Stage6 AI/read-tool path within the same approval boundary. Inbox

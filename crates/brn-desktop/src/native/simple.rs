@@ -11,7 +11,7 @@ use brn_workflow::{
 use gpui_kit::{
     AnyElement, TestSupportExt,
     base::Disableable,
-    component::{Selectable, WindowExt},
+    component::{Selectable, WindowExt, link::Link},
 };
 
 pub(super) struct Closed {
@@ -56,6 +56,24 @@ fn ask_command(state: &mut crate::ai::AiState, question: String) -> Option<(Uuid
 }
 fn search_command(state: &mut crate::ai::AiState, query: String) -> Option<(Uuid, AppCommand)> {
     state.search_notes(query)
+}
+
+fn login_prompt_is_current(
+    desktop: &Desktop,
+    id: Uuid,
+    prompt: &brn_workflow::LoginPrompt,
+) -> bool {
+    desktop.login_dialog == Some(id)
+        && desktop
+            .ai
+            .as_ref()
+            .and_then(|ai| ai.login.as_ref())
+            .filter(|login| login.operation == id)
+            .and_then(|login| login.prompt.as_ref())
+            .is_some_and(|current| {
+                current.verification_uri == prompt.verification_uri
+                    && current.user_code == prompt.user_code
+            })
 }
 
 pub(super) fn evidence_widget(editor: &Entity<EditorState>) -> Editor {
@@ -751,25 +769,67 @@ impl Desktop {
             }
         }
     }
-    fn open_login(&mut self, id: Uuid, window: &mut Window, cx: &mut Context<Self>) {
+    pub(super) fn open_login(&mut self, id: Uuid, window: &mut Window, cx: &mut Context<Self>) {
         self.login_dialog = Some(id);
         let desktop = cx.entity();
-        window.open_dialog(cx, move |dialog, _, cx| {
+        // Dialog-local state preserves selection across redraws without saving codes.
+        let code_input = cx.new(|cx| InputState::new(window, cx));
+        window.open_dialog(cx, move |dialog, window, cx| {
             let target = desktop.downgrade();
             let cancel_target = target.clone();
-            let ai = desktop.read(cx).ai.as_ref().unwrap();
+            let prompt = desktop
+                .read(cx)
+                .ai
+                .as_ref()
+                .and_then(|ai| ai.login.as_ref())
+                .filter(|login| login.operation == id)
+                .and_then(|login| login.prompt.clone());
+            let code = prompt
+                .as_ref()
+                .map_or("", |prompt| prompt.user_code.as_str());
+            if code_input.read(cx).value().as_ref() != code {
+                code_input.update(cx, |input, cx| input.set_value(code.to_owned(), window, cx));
+            }
             let mut body = div()
                 .flex()
                 .flex_col()
                 .gap_3()
                 .child("Explicit connection · waiting for authorization");
-            if let Some(login) = &ai.login
-                && login.operation == id
-                && let Some(prompt) = &login.prompt
-            {
+            if let Some(prompt) = prompt {
+                let link_target = target.clone();
+                let link_prompt = prompt.clone();
+                let copy_target = target.clone();
                 body = body
-                    .child(prompt.verification_uri.clone())
-                    .child(prompt.user_code.clone());
+                    .child(
+                        div().id("login-verification-url").test_support().child(
+                            Link::new("login-verification-link")
+                                .child(prompt.verification_uri.clone())
+                                .on_click(move |_, _, cx| {
+                                    if link_target.upgrade().is_some_and(|desktop| {
+                                        login_prompt_is_current(desktop.read(cx), id, &link_prompt)
+                                    }) {
+                                        cx.open_url(&link_prompt.verification_uri);
+                                    }
+                                }),
+                        ),
+                    )
+                    .child(
+                        Input::new(&code_input)
+                            .id("login-code")
+                            .readonly(true)
+                            .aria_label("Device authorization code"),
+                    )
+                    .child(Button::new("copy-login-code").label("Copy code").on_click(
+                        move |_, _, cx| {
+                            if copy_target.upgrade().is_some_and(|desktop| {
+                                login_prompt_is_current(desktop.read(cx), id, &prompt)
+                            }) {
+                                cx.write_to_clipboard(gpui_kit::ClipboardItem::new_string(
+                                    prompt.user_code.clone(),
+                                ));
+                            }
+                        },
+                    ));
             }
             body = body.child(
                 Button::new("cancel-login")

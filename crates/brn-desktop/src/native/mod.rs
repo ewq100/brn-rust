@@ -44,6 +44,8 @@ mod findings;
 #[cfg(all(test, target_os = "macos", feature = "native-test-support"))]
 mod findings_tests;
 #[cfg(all(test, target_os = "macos", feature = "native-test-support"))]
+mod login_tests;
+#[cfg(all(test, target_os = "macos", feature = "native-test-support"))]
 mod provenance_tests;
 #[cfg(all(test, target_os = "macos", feature = "native-test-support"))]
 mod relationship_tests;

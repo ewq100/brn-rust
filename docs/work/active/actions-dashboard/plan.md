@@ -590,3 +590,13 @@ sign-in URL/selectable code work is being built as a small UI checkpoint.
 Exact-head PR/CI/integration remains next. Then identified Complete/dashboard and
 approved follow-up creation continue; no Action-owned Rewrite/Undo,provider assets,
 private data or release is claimed. Macmini environment requirements remain.
+
+
+Whole Action checkpoint PR34 merged5f9033b9/tree3978cedd after exact87f3920/
+run37218436437 passed Mac3+UbuntuShared. Windows22 unchanged Unix API errors
+keep overallCIred; actual logs/base-source comparison found no shared Mac defect.
+Post-merge tree equality,22focused tests (including exercised crash matrices),
+52fixtures and shipping startup/restart2 passed,V10/exact bytes/zero credentials
+(qualified-startup-c8_5x71s in the publication parent). Merged-main CI is pending.
+Owner-requested sign-in URL/code controls are a separate small checkpoint; then
+identified Complete/dashboard continue. Native Action acceptance remains pending.

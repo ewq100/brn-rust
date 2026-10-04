@@ -1645,3 +1645,30 @@ Owneracceptance remains separate. [Screenshots](../../../ui/screenshots/2026-10-
 retain inspected synthetic UI captures for ownerimprovementwork; exclude auth
 secrets and private/original data. Earlier unretained imagebytes cannot be restored.
 Safe Stage6 reference/execution work continues independently.
+
+
+## Owner-requested sign-in controls, 2026-10-04
+
+Baseline actual PR34 merge5f9033b9. Keep the existing transient human Connect
+prompt and shared provider workflow. Make only its URL clickable and code
+read-only/selectable, with explicit Copy. Bind both effects to the exact current
+operation, URI and code; no auto-open, credentials/logging or persisted code.
+Retain selection across redraw and existing cancellation/dismissal behavior.
+Meaningful synthetic shipping-root RED failed3/3 before the controls; four final
+widget scenarios passed, including stale pointer-up and late prompt refusal.
+Independent Luna read-only review found no defect. The joined source preserves
+reviewed simple/login_tests blobs and both Action/login private widget modules.
+Fresh joined native233/0failed/0ignored,both all-target Clippy modes,shipping
+Desktop/CLI builds,format/diff,52fixtures and startup/restart2 passed
+(V10/exact BOM/CRLF/Unicode/zero credentials). Logs connect-joined-*.log and
+qualified-startup-ma84_yfd remain under the owned publication parent
+/private/tmp/brn-v1-stage1-checkpoint-s3nawyyb. Final44local Markdown links passed.
+Joined independent review found no regression; exact-head CI/publication precede
+integration.
+
+Manual acceptance: in a fresh owned Connect prompt, click the URL, select/copy
+the code and paste it only in the provider's sign-in page. Copy code should give
+the same value. Cancel/dismiss and verify no stale effect or persisted code.
+Actual corrected controls/human authorization remain pending; safe synthetic
+captures are retained, while real codes/account screens are excluded. No new
+provider request or model download is part of this implementation.
