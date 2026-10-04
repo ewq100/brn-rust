@@ -65,57 +65,63 @@ Evidence: [Actions/dashboard plan](work/active/actions-dashboard/plan.md).
 
 ## Latest integrated checkpoint
 
-[PR40](https://github.com/ewq100/brn-rust/pull/40) merged
-**40f1314c248177535d0c315272ae4a3fe7c623b6**, reviewed treeba3333ef.
-Native New Action and Completed→new related follow-up use the retained DraftForm,
-shared CreateProposal and ordinary exact approval. All14 raw fields, ordered full
-source proofs and immutable submitted payload stay copyable; stable IDs, exact
-retry/separation, later-typing/source/Discard guards are qualified. Real worker
-checks prove zero Actions before approval, vaultless manual creation, unchanged
-completed work and restart/replay.
+[PR41](https://github.com/ewq100/brn-rust/pull/41) merged
+**21dd333b78e80802f55dd9819e8a060b7c3d1a49**, reviewed tree731e9d60.
+Action-only/source-free and mixed proposals now use the existing full captured
+Rewrite lifecycle. All14 Action fields/nulls and whole member counts/domains are
+strict; immutable IDs/kinds/full Replace baselines/source bindings stay captured.
+Suggestions change review only; ordinary exact approval makes Actions real. Later
+raw typing/comments remain protected. Shared check_replay fixed the witnessed
+canonical-provider/display-label mismatch in native job correlation.
 
-Independent whole review is clean. Fresh1118shared/0failed/6ignored+52fixtures,
-254native/0failed/0ignored,both native Clippy modes,shipping builds and startup2
-passed,V11/exactbytes/zero credentials. Exacthead2334deb/run37234485293 passed
-Mac3+UbuntuShared. Windows22 decoded errors/locations match main39; overallCIred.
-Normal expected-head merge met all GitHub requirements, with no enabled protection
-or rulesets. Post25focused/0failed/0ignored+52fixtures+startup2 passed against the
-exact merged tree. Main37235387243 finished5success/4failure: Mac3+UbuntuCore/UI
-passed. Independent actual decoded Windows22/22/14 and UbuntuNative10pass/3fail
-messages/locations/panic blocks match main39; failed source blobs are unchanged.
-OverallCIred, no new sharedMac defect.
+Independent whole review is clean. Fresh1128shared/0failed/6ignored+52fixtures,
+257native/0failed/0ignored,both native Clippy modes,shipping builds,startup2 and
+75doc links passed,V11/exact bytes/zero credentials. Exactheadfc76f74/
+run37237422223 passed Mac3+UbuntuShared; Windows22 matched main40. Normal
+expected-head merge met GitHub requirements without bypass. Post30focused/0failed/
+0ignored+52fixtures+startup2 passed on the exact merged tree. Main37238156636
+finished5success/4failure: Mac3+UbuntuCore/UI passed. Independent decoded
+Windows22/22/14 and UbuntuNative10pass/3fail full messages/locations/panic blocks
+match main40; failing source blobs are unchanged. OverallCIred; no new sharedMac
+defect signature. Actual Rewrite native/live/owner qualification remains pending.
 
-Actual composition UI observation is pending: computer use reports the Mac locked.
-The fresh owned shipping bundle/data are prepared. No provider/account/model/
-original-data operation occurred. Owner acceptance remains separate. PR39's native
-Dashboard/Complete observation and eight safe original JPEGs are integrated;
-PR34–39 review/tests/CI/recovery evidence remains in the
-[Actions plan](work/active/actions-dashboard/plan.md) and corresponding PRs.
-Whole Stage5/6 and V1 remain unfinished.
+PR40's native Action composition observation is pending while the Mac is locked;
+the fresh shipping bundle/data are prepared. No provider/account/model/original-data
+operation occurred. PR39 Dashboard/Complete actual observation and eight safe
+original JPEGs are integrated. Earlier checkpoint evidence remains in the
+[Actions plan](work/active/actions-dashboard/plan.md) and PRs. Stage5/6/V1 remain
+unfinished.
 
 ## Active slice and next work
 
-codex/v1-action-rewrite over PR40 merge40f1314 implements full ordered typed Action
-suggestions through the existing owned Rewrite lifecycle. Complete fields/nulls,
-member counts/domains and exact capture guard whole settlement. Real worker tests
-qualify Action-only/mixed suggestions→exact approval→restart/replay, malformed
-whole refusal, stale edits/comments and retained-lease Stop. Source-free review
-needs no prior editor visit, while AI still requires current vault/tools and
-explicit selection/effort. Native invalid later typing stays a retained conflict.
+codex/v1-action-read-tools over actual merge21dd333 adds bounded read-only
+read_action/list_actions through AppWorker. Full approved records and immutable
+origins, all labeled states/default20, checked opaque cursor and whole1MiB reply
+bounds reuse shared domain reads. A private two-variant callback shares application
+admission/shutdown and retained read leases; frontend events and SQLite stay private.
+Existing note scopes remain exact and AI stays vault-bound/explicitly selected.
 
-An actual native witness reproduced the old operational-provider/display-label
-mismatch; shared RewriteRequest::check_replay now owns exact job correlation.
-Both providers' canonical keys accept; wrong job/stamp/model/effort/display-key
-replies stay pending. Independent whole review is clean. Fresh1128shared/0failed/
-6ignored+52fixtures,257native/0failed/0ignored,both native Clippy modes,shipping
-builds,startup2,V11/exactbytes/zero credentials and75doc links passed. The twelve
-reviewed Rust hashes stayed exact through verification. PR/exact-head CI and
-integration follow. Actual native/live/owner acceptance remains pending; no live
-calls, downloads or original/private-data operations occurred.
+Registered Rig and real-worker runtime RED witnesses preceded implementation.
+Independent whole review is clean after a reproduced fatal-lane reply/lease cycle
+was fixed and re-reviewed. Fresh1139shared/0failed/6ignored+52fixtures,
+257nativeDesktop/0failed/0ignored,199nativeWorkflowModels/0failed/5ignored,
+both native Clippy modes,shipping builds,startup2 and47doc links passed. Full
+record fixtures explicitly require native approval/completion; portable RPC tests
+remain enabled. The last test-only cfg received fresh full shared verification;
+native/shipping production code stayed exact. [PR42](https://github.com/ewq100/brn-rust/pull/42)
+firsthead32944a2/run37240599088 passed MacCore/UI+UbuntuShared but failed MacNative:
+the large synthetic fixture's ten-second Ready wait expired before tool dispatch.
+Merge was withheld. A timed unchanged reproduction reached Ready4.748s/passed29.50s.
+The independently reviewed test-only correction uses two provably oversized-page
+records and a bounded60s startup allowance only there; ordinary/tool/fatal deadlines
+stay unchanged. Fresh nativeWorkflowModels199/0failed/5ignored passed; full shared
+verification passed1139/0failed/6ignored+52fixtures (format/build/all-target Clippy included). Corrected exact-head CI/integration follows. Actual
+model/UI/owner qualification is pending. No live calls, model downloads or
+original/private-data operation.
 
-Then qualify the fixed Action read/proposal tool bridge through AppWorker; Inbox
-follows roadmap order. Native observation continues when the Mac is unlocked.
-See the [Actions plan](work/active/actions-dashboard/plan.md).
+Then add narrow proposal creation through the same boundary, finish Stage6 and
+continue to Inbox in roadmap order. Native observation continues when the Mac is
+unlocked. See the [Actions plan](work/active/actions-dashboard/plan.md).
 
 ## Qualification and owner items
 

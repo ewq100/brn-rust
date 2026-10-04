@@ -23,6 +23,28 @@ retrieval storage details.
 
 [Application](src/app.rs), [commands/events](src/app_worker.rs), [chat lane](src/chat_worker.rs), [editor](src/editor.rs), [proposal review](src/proposals.rs), [proposal application](src/proposal_apply.rs), [durable provenance](src/knowledge/provenance.rs), [activity](src/activity.rs), [file adapter](src/files/mod.rs).
 
+## Approved Action read tools
+
+Ask and owned Rewrite use fixed `read_action(id)` /
+`list_actions(state?, limit?, cursor?)` callbacks through AppWorker's existing
+application lane. AI owns protocol parsing/bounds only. Workflow checks domain
+UUID/state/opaque ActionCursor, then calls `App::action/actions` freshly, preserving
+full immutable origins/current fields and the current-evidence fence. List default
+is all labeled operational states, limit1–20/default20, cursor≤256bytes; complete
+encoded JSON≤1MiB. Oversized pages refuse whole; callers may reduce the limit.
+
+Each callback has a private reply channel and never reads frontend events or SQL.
+The handle shares AppWorker's admission mutex: enqueue under the fence, release it
+before waiting, reject after stopping. Every admitted read settles/refuses before
+Shutdown. Fatal application-loop errors close admission and refuse queued replies
+before joining chat, preventing retained-read deadlock; discovery settlement stays
+joined. Existing DrainedTools retains blocking calls through Stop/disconnect/
+model changes/quit. The wrapper retains the existing note Arc and all six scoped/
+unscoped note methods. Rig uses spawn_blocking, two concurrent tools, eight tool
+rounds and zero invalid-tool retries. AI remains vault-bound and explicitly selected.
+No Action mutation, Complete, approval, Save, account or generic dispatch tool is
+exposed. Proposal creation is the next separate slice.
+
 ## Simple app owner and read tools
 
 [`App`](src/app.rs) opens one `WorkStore` in a new explicit data folder and

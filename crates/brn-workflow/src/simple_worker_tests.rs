@@ -77,6 +77,9 @@ impl Fixture {
         }
     }
     fn start(&self, hooks: Hooks) -> AppWorker {
+        self.start_with_startup_timeout(hooks, Duration::from_secs(10))
+    }
+    fn start_with_startup_timeout(&self, hooks: Hooks, timeout: Duration) -> AppWorker {
         let worker = app_worker::start_test(
             self.base.path().join("data"),
             self.config(),
@@ -85,7 +88,10 @@ impl Fixture {
             None,
         )
         .unwrap();
-        assert!(matches!(event(&worker).1, AppEvent::Ready { .. }));
+        assert!(matches!(
+            worker.recv_event_timeout(timeout).unwrap().1,
+            AppEvent::Ready { .. }
+        ));
         worker
     }
     fn request(&self) -> AskRequest {
@@ -1889,3 +1895,9 @@ fn new_ask_refreshes_the_library_before_the_model_can_read_the_tools() {
     assert_eq!(terminal(&worker, request.id).answer, "2");
     worker.shutdown().unwrap();
 }
+
+// Full retained records are seeded through actual native approval/completion.
+// Private RPC/error/lease tests above that boundary remain portable.
+#[cfg(target_os = "macos")]
+#[path = "action_read_tools_tests.rs"]
+mod action_reads;

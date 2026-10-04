@@ -662,6 +662,17 @@ impl Drop for DrainSignal {
     }
 }
 impl ReadTools for DrainedTools {
+    fn read_action(&self, id: &str) -> brn_ai::AiResult<serde_json::Value> {
+        self.tools.read_action(id)
+    }
+    fn list_actions(
+        &self,
+        state: Option<&str>,
+        limit: usize,
+        cursor: Option<&str>,
+    ) -> brn_ai::AiResult<serde_json::Value> {
+        self.tools.list_actions(state, limit, cursor)
+    }
     fn search_notes(&self, query: &str, limit: usize) -> brn_ai::AiResult<brn_ai::ToolSearch> {
         self.tools.search_notes(query, limit)
     }

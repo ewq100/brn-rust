@@ -25,6 +25,9 @@ use std::{
 };
 use uuid::Uuid;
 
+mod action_tools;
+use action_tools::{ActionRead, ActionReads};
+
 pub enum AppCommand {
     #[cfg(test)]
     TestPause {
@@ -239,8 +242,11 @@ enum Message {
     ModelProgress(Uuid, u64, u64),
     ModelDone(Uuid),
     ChatIdle,
+    ActionRead(ActionRead),
     #[cfg(test)]
     IdleBarrier(mpsc::Sender<()>),
+    #[cfg(test)]
+    FailLane,
     Shutdown,
 }
 
@@ -258,7 +264,7 @@ pub struct AppWorker {
     emit: mpsc::Sender<(Uuid, AppEvent)>,
     controls: Arc<Mutex<Controls>>,
     stopping: Arc<AtomicBool>,
-    admission: Mutex<()>,
+    admission: Arc<Mutex<()>>,
     join: Option<JoinHandle<Result<()>>>,
     shutdown_result: Option<Result<()>>,
 }
@@ -285,6 +291,8 @@ impl AppWorker {
         let stopping = Arc::new(AtomicBool::new(false));
         let (messages, output, control, closing) =
             (tx.clone(), emit.clone(), controls.clone(), stopping.clone());
+        let admission = Arc::new(Mutex::new(()));
+        let action_reads = ActionReads::new(tx.clone(), admission.clone(), stopping.clone());
         let startup = Uuid::new_v4();
         let join = thread::Builder::new()
             .name("brn-app".into())
@@ -297,6 +305,7 @@ impl AppWorker {
                     output.clone(),
                     control,
                     closing,
+                    action_reads,
                     startup,
                     hooks,
                 );
@@ -314,7 +323,7 @@ impl AppWorker {
             stopping,
             join: Some(join),
             shutdown_result: None,
-            admission: Mutex::new(()),
+            admission,
         })
     }
 
@@ -530,6 +539,7 @@ fn app_lane(
     emit: mpsc::Sender<(Uuid, AppEvent)>,
     controls: Arc<Mutex<Controls>>,
     stopping: Arc<AtomicBool>,
+    action_reads: ActionReads,
     startup: Uuid,
     hooks: Hooks,
 ) -> Result<()> {
@@ -589,7 +599,7 @@ fn app_lane(
     let mut chat = ChatWorker::start(&app, chat_emit, hooks.chat.clone())?;
     if app.vault_root().is_some() {
         match app.guarded_tools() {
-            Ok(tools) => chat.handle.set_tools(Some(tools))?,
+            Ok(tools) => chat.handle.set_tools(Some(action_reads.wrap(tools)))?,
             Err(error) if error.kind == ErrorKind::VaultUnavailable => {}
             Err(error) => return Err(error),
         }
@@ -602,191 +612,228 @@ fn app_lane(
             model_installed: app.model_installed(),
         },
     ));
-    let mut indexing = indexing_job(&app, startup)?;
     let mut model: Option<InstallJob> = None;
     let mut model_ledger = HashMap::<Uuid, (bool, PathBuf)>::new();
     let mut ask_ledger = HashMap::<Uuid, AskRequest>::new();
     let mut final_error: Option<WorkflowError> = None;
     #[cfg(test)]
     let mut idle_barriers: Vec<mpsc::Sender<()>> = Vec::new();
-    loop {
-        // One bounded batch only when commands are not queued.
-        let message = match rx.try_recv() {
-            Ok(message) => message,
-            Err(mpsc::TryRecvError::Disconnected) => break,
-            Err(mpsc::TryRecvError::Empty) => {
-                if let Some(id) = indexing.take() {
-                    if indexing_job(&app, id)?.is_none() {
-                        continue;
-                    }
-                    match app.embed_pending(16) {
-                        Ok(Some(progress)) => {
-                            let _ = emit.send((
-                                id,
-                                AppEvent::Indexing {
-                                    embedded: progress.embedded,
-                                    total: progress.total,
-                                },
-                            ));
-                            if progress.embedded < progress.total {
-                                indexing = indexing_job(&app, id)?;
+    // Fallible application work must reach the same joined drain as normal Quit.
+    let lane_result = (|| -> Result<()> {
+        let mut indexing = indexing_job(&app, startup)?;
+        loop {
+            // One bounded batch only when commands are not queued.
+            let message = match rx.try_recv() {
+                Ok(message) => message,
+                Err(mpsc::TryRecvError::Disconnected) => break,
+                Err(mpsc::TryRecvError::Empty) => {
+                    if let Some(id) = indexing.take() {
+                        if indexing_job(&app, id)?.is_none() {
+                            continue;
+                        }
+                        match app.embed_pending(16) {
+                            Ok(Some(progress)) => {
+                                let _ = emit.send((
+                                    id,
+                                    AppEvent::Indexing {
+                                        embedded: progress.embedded,
+                                        total: progress.total,
+                                    },
+                                ));
+                                if progress.embedded < progress.total {
+                                    indexing = indexing_job(&app, id)?;
+                                }
+                            }
+                            Ok(None) => {}
+                            Err(error) => {
+                                let _ = emit.send((id, AppEvent::Failed(error)));
                             }
                         }
-                        Ok(None) => {}
-                        Err(error) => {
-                            let _ = emit.send((id, AppEvent::Failed(error)));
-                        }
+                        continue;
                     }
-                    continue;
-                }
-                #[cfg(test)]
-                for barrier in idle_barriers.drain(..) {
-                    let _ = barrier.send(());
-                }
-                match rx.recv() {
-                    Ok(message) => message,
-                    Err(_) => break,
-                }
-            }
-        };
-        if matches!(message, Message::Shutdown) {
-            break;
-        }
-        match message {
-            Message::Models(id, provider, models) => match app.record_models(provider, &models) {
-                Ok(()) => {
-                    let _ = emit.send((
-                        id,
-                        AppEvent::Account(AccountEvent::Finished {
-                            id,
-                            provider,
-                            reply: AccountReply::Models(models),
-                        }),
-                    ));
-                }
-                Err(error) => {
-                    let _ = emit.send((
-                        id,
-                        AppEvent::Account(AccountEvent::Finished {
-                            id,
-                            provider,
-                            reply: AccountReply::Rejected(error),
-                        }),
-                    ));
-                }
-            },
-            Message::ModelProgress(id, received, total) => {
-                if model.as_ref().is_some_and(|job| job.id == id) {
-                    let _ = emit.send((id, AppEvent::ModelDownload { received, total }));
-                }
-            }
-            Message::ModelDone(id) => {
-                if let Some(job) = model.as_mut().filter(|job| job.id == id) {
-                    let result = job
-                        .join
-                        .take()
-                        .expect("admitted installer")
-                        .join()
-                        .map_err(|_| WorkflowError::msg("model installation job failed"))
-                        .and_then(|result| result);
-                    match result {
-                        Ok(report) => {
-                            let _ = emit.send((id, AppEvent::ModelDownloaded(report.clone())));
-                            job.downloaded = Some(report);
-                        }
-                        Err(error) => {
-                            let _ = emit.send((id, AppEvent::Failed(error)));
-                            model = None;
-                            controls.lock().expect("owned controls").model = None;
-                        }
-                    }
-                }
-            }
-            Message::ChatIdle => {}
-            #[cfg(test)]
-            Message::IdleBarrier(barrier) => idle_barriers.push(barrier),
-            Message::Command(id, command) => {
-                if stopping.load(Ordering::Acquire) && !critical_mutation_command(&command) {
-                    let _ = emit.send((id, cancelled_command(command)));
-                    continue;
-                }
-                let result = dispatch(
-                    &mut app,
-                    &chat.handle,
-                    id,
-                    command,
-                    &mut model,
-                    &mut model_ledger,
-                    &mut ask_ledger,
-                    &tx,
-                    &emit,
-                    &controls,
-                    &hooks,
-                    &mut indexing,
-                );
-                if let Err(error) = result {
-                    let _ = emit.send((id, AppEvent::Failed(error)));
-                }
-            }
-            Message::Shutdown => unreachable!(),
-        }
-        if let Some(job) = model.as_ref()
-            && let Some(report) = &job.downloaded
-        {
-            let id = job.id;
-            if job.cancel.load(Ordering::Acquire) {
-                let _ = emit.send((id, AppEvent::Failed(WorkflowError::cancelled())));
-                model = None;
-                controls.lock().expect("owned controls").model = None;
-                continue;
-            }
-            // The chat lane stays active until all tool leases have drained.
-            match chat.handle.set_tools(None) {
-                Err(error) if error.kind == ErrorKind::ToolsBusy => continue,
-                Err(error) => {
-                    let _ = emit.send((id, AppEvent::Failed(error)));
-                }
-                Ok(()) => {
                     #[cfg(test)]
-                    let result = if let Some(load) = &hooks.load {
-                        app.activate_model_with(&report.directory, &job.cancel, |_, directory| {
-                            load(directory, &job.cancel).map(Some)
-                        })
-                    } else {
-                        app.activate_model_cancellable(&report.directory, &job.cancel)
-                    };
-                    #[cfg(not(test))]
-                    let result = app.activate_model_cancellable(&report.directory, &job.cancel);
-                    let mut activation = result;
-                    match app.guarded_tools() {
-                        Ok(tools) => {
-                            if let Err(error) = chat.handle.set_tools(Some(tools)) {
+                    for barrier in idle_barriers.drain(..) {
+                        let _ = barrier.send(());
+                    }
+                    match rx.recv() {
+                        Ok(message) => message,
+                        Err(_) => break,
+                    }
+                }
+            };
+            if matches!(message, Message::Shutdown) {
+                break;
+            }
+            match message {
+                Message::Models(id, provider, models) => match app.record_models(provider, &models)
+                {
+                    Ok(()) => {
+                        let _ = emit.send((
+                            id,
+                            AppEvent::Account(AccountEvent::Finished {
+                                id,
+                                provider,
+                                reply: AccountReply::Models(models),
+                            }),
+                        ));
+                    }
+                    Err(error) => {
+                        let _ = emit.send((
+                            id,
+                            AppEvent::Account(AccountEvent::Finished {
+                                id,
+                                provider,
+                                reply: AccountReply::Rejected(error),
+                            }),
+                        ));
+                    }
+                },
+                Message::ModelProgress(id, received, total) => {
+                    if model.as_ref().is_some_and(|job| job.id == id) {
+                        let _ = emit.send((id, AppEvent::ModelDownload { received, total }));
+                    }
+                }
+                Message::ModelDone(id) => {
+                    if let Some(job) = model.as_mut().filter(|job| job.id == id) {
+                        let result = job
+                            .join
+                            .take()
+                            .expect("admitted installer")
+                            .join()
+                            .map_err(|_| WorkflowError::msg("model installation job failed"))
+                            .and_then(|result| result);
+                        match result {
+                            Ok(report) => {
+                                let _ = emit.send((id, AppEvent::ModelDownloaded(report.clone())));
+                                job.downloaded = Some(report);
+                            }
+                            Err(error) => {
+                                let _ = emit.send((id, AppEvent::Failed(error)));
+                                model = None;
+                                controls.lock().expect("owned controls").model = None;
+                            }
+                        }
+                    }
+                }
+                Message::ChatIdle => {}
+                Message::ActionRead(read) => read.settle(&app, stopping.load(Ordering::Acquire)),
+                #[cfg(test)]
+                Message::IdleBarrier(barrier) => idle_barriers.push(barrier),
+                #[cfg(test)]
+                Message::FailLane => {
+                    return Err(WorkflowError::msg("synthetic application lane failure"));
+                }
+                Message::Command(id, command) => {
+                    if stopping.load(Ordering::Acquire) && !critical_mutation_command(&command) {
+                        let _ = emit.send((id, cancelled_command(command)));
+                        continue;
+                    }
+                    let result = dispatch(
+                        &mut app,
+                        &chat.handle,
+                        &action_reads,
+                        id,
+                        command,
+                        &mut model,
+                        &mut model_ledger,
+                        &mut ask_ledger,
+                        &tx,
+                        &emit,
+                        &controls,
+                        &hooks,
+                        &mut indexing,
+                    );
+                    if let Err(error) = result {
+                        let _ = emit.send((id, AppEvent::Failed(error)));
+                    }
+                }
+                Message::Shutdown => unreachable!(),
+            }
+            if let Some(job) = model.as_ref()
+                && let Some(report) = &job.downloaded
+            {
+                let id = job.id;
+                if job.cancel.load(Ordering::Acquire) {
+                    let _ = emit.send((id, AppEvent::Failed(WorkflowError::cancelled())));
+                    model = None;
+                    controls.lock().expect("owned controls").model = None;
+                    continue;
+                }
+                // The chat lane stays active until all tool leases have drained.
+                match chat.handle.set_tools(None) {
+                    Err(error) if error.kind == ErrorKind::ToolsBusy => continue,
+                    Err(error) => {
+                        let _ = emit.send((id, AppEvent::Failed(error)));
+                    }
+                    Ok(()) => {
+                        #[cfg(test)]
+                        let result = if let Some(load) = &hooks.load {
+                            app.activate_model_with(
+                                &report.directory,
+                                &job.cancel,
+                                |_, directory| load(directory, &job.cancel).map(Some),
+                            )
+                        } else {
+                            app.activate_model_cancellable(&report.directory, &job.cancel)
+                        };
+                        #[cfg(not(test))]
+                        let result = app.activate_model_cancellable(&report.directory, &job.cancel);
+                        let mut activation = result;
+                        match app.guarded_tools() {
+                            Ok(tools) => {
+                                if let Err(error) =
+                                    chat.handle.set_tools(Some(action_reads.wrap(tools)))
+                                {
+                                    activation = Err(error);
+                                }
+                            }
+                            Err(error)
+                                if error.kind == ErrorKind::VaultNotBound
+                                    || error.kind == ErrorKind::VaultUnavailable => {}
+                            Err(error) => {
                                 activation = Err(error);
                             }
                         }
-                        Err(error)
-                            if error.kind == ErrorKind::VaultNotBound
-                                || error.kind == ErrorKind::VaultUnavailable => {}
-                        Err(error) => {
-                            activation = Err(error);
-                        }
-                    }
-                    match activation {
-                        Ok(()) => {
-                            let _ = emit.send((id, AppEvent::ModelInstalled));
-                            indexing = indexing_job(&app, id)?;
-                        }
-                        Err(error) => {
-                            let _ = emit.send((id, AppEvent::Failed(error)));
+                        match activation {
+                            Ok(()) => {
+                                let _ = emit.send((id, AppEvent::ModelInstalled));
+                                indexing = indexing_job(&app, id)?;
+                            }
+                            Err(error) => {
+                                let _ = emit.send((id, AppEvent::Failed(error)));
+                            }
                         }
                     }
                 }
+                model = None;
+                controls.lock().expect("owned controls").model = None;
             }
-            model = None;
-            controls.lock().expect("owned controls").model = None;
+        }
+        Ok(())
+    })();
+    let private_failure = if lane_result.is_err() {
+        brn_ai::AiErrorKind::Storage
+    } else {
+        brn_ai::AiErrorKind::ToolRejected
+    };
+    if let Err(error) = lane_result {
+        final_error.get_or_insert(error);
+    }
+    // Close admission BEFORE draining replies. A queued callback cannot outlive
+    // this receiver while chat shutdown waits for that callback's tool lease.
+    action_reads.close();
+    chat.handle.stop_admission();
+    let mut discoveries = Vec::new();
+    while let Ok(message) = rx.try_recv() {
+        match message {
+            Message::ActionRead(read) => read.refuse(private_failure),
+            Message::Command(id, command) => {
+                let _ = emit.send((id, cancelled_command(command)));
+            }
+            message @ Message::Models(..) => discoveries.push(message),
+            _ => {}
         }
     }
-    chat.handle.cancel_all();
     if let Some(mut job) = model.take() {
         job.cancel.store(true, Ordering::Release);
         let result = if let Some(join) = job.join.take() {
@@ -809,7 +856,7 @@ fn app_lane(
         final_error.get_or_insert(error);
     }
     // Discovery replies queued during shutdown must still get a terminal correlated result.
-    while let Ok(message) = rx.try_recv() {
+    for message in discoveries.into_iter().chain(rx.try_iter()) {
         if let Message::Models(id, provider, models) = message {
             match app.record_models(provider, &models) {
                 Ok(()) => {
@@ -852,6 +899,7 @@ fn app_lane(
 fn dispatch(
     app: &mut App,
     chat: &ChatHandle,
+    action_reads: &ActionReads,
     id: Uuid,
     command: AppCommand,
     model: &mut Option<InstallJob>,
@@ -877,7 +925,7 @@ fn dispatch(
         }),
         AppCommand::BindVault(root) => {
             app.bind_vault(&root)?;
-            chat.set_tools(Some(app.guarded_tools()?))?;
+            chat.set_tools(Some(action_reads.wrap(app.guarded_tools()?)))?;
             *indexing = indexing_job(app, id)?;
             AppEvent::VaultBound
         }
@@ -888,7 +936,7 @@ fn dispatch(
                 }
                 let root = app.vault_root().ok_or(error)?.to_owned();
                 app.bind_vault(&root)?;
-                chat.set_tools(Some(app.guarded_tools()?))?;
+                chat.set_tools(Some(action_reads.wrap(app.guarded_tools()?)))?;
             }
             let report = app.refresh()?;
             *indexing = indexing_job(app, id)?;

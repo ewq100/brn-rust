@@ -1094,3 +1094,87 @@ model/download/private/original-data/release operation occurred. The prior Luna
 catalog round is exhausted; no availability or inference claim is made. Manual
 Rewrite scenario above and Macmini environment requirements remain. Next: fixed
 Action read/proposal callback bridge through AppWorker,then Inbox in roadmap order.
+
+
+## Read-only Action tools slice — 2026-10-05
+
+Baseline: PR41 actual merge21dd333b78e80802f55dd9819e8a060b7c3d1a49,
+exact reviewed tree731e9d60. MacCore/UI/NativeRetrieval and UbuntuShared passed
+latest headfc76f74/run37237422223. Windows22 decoded errors/locations match
+main40f; overall CI red. Normal expected-head merge satisfied GitHub requirements.
+Post30focused/0failed/0ignored+52fixtures+startup2 passed; V11/exact bytes/zero
+credentials. Main37238156636 completed5success/4failure: Mac3+UbuntuCore/UI passed;
+independent decoded Windows22/22/14 and UbuntuNative10pass/3fail full failures
+match main40, with unchanged failed source blobs. OverallCIred; no new sharedMac
+defect signature. Actual native/live/owner remains pending.
+
+Outcome: Ask and Rewrite can read complete approved Actions using fixed
+read_action(id) and list_actions(state?,limit?,cursor?) Rig tools. Workflow alone
+parses UUID/state/opaque checked cursor, calls existing App::action/actions and
+preserves immutable origin/full current fields/order/current-evidence checks.
+Default lists all states, explicitly labeled on every record; limit1–20/default20,
+cursor≤256bytes, complete JSON reply≤1MiB. Reject oversized replies rather than
+truncate. Existing Current/Source/History/All note tools remain unchanged.
+
+One narrow private two-variant request/reply on the existing application lane uses
+the same shared admission mutex as shutdown. Release it before waiting. Every
+admitted reply settles/refuses before Shutdown; no callback enqueues afterward.
+Private channels never consume frontend events. Existing note Arc and DrainedTools
+forwarding retain Stop/disconnect/model-change/quit read leases. Production calls
+use spawn_blocking; no synchronous callback blocks the single-thread chat runtime.
+No direct SQL, extra Store attachment/crate/dependency/schema, generic dispatcher,
+mutation/Complete/approval/Save/account tool or live/download/private-data call.
+
+Acceptance: actual registered Rig routes (Ask/Rewrite), real-worker full records,
+state/page/cursor, strict malformed/nil/missing/overflow/oversize refusal, concurrent
+private replies plus public events, current-evidence fence, queued/shutdown admission
+and retained Stop/drain/restart with zero knowledge/Action mutations/credentials.
+Independent complete review, fresh shared/native/shipping/startup checks and
+exact-head CI/normal merge/post follow. Manual with synthetic approved Actions and
+a qualified explicit model: ask for waiting work, inspect full origin/current data;
+then Rewrite an Action review using evidence, inspect and approve separately.
+Actual model/UI/owner qualification remains separate. Next: narrowly bounded
+proposal creation through AppWorker, then finish Stage6 and start Inbox.
+
+Independent review identified a concrete fatal-exit cycle: queued private reply
+senders lived in the application receiver while local ChatWorker::Drop joined
+retained read leases. The bounded actual-worker witness failed with Timeout,
+released its synthetic lease safely, then joined; the reviewer finding is valid.
+Fallible loop exits now reach the existing drain: close shared admission, refuse
+queued private reads and correlated commands, retain discoveries, then join
+chat/model work and settle discoveries. The witness passes with Storage refusal
+before lease release and one terminal turn. No new workflow abstraction. Existing
+note-schema tests now distinguish the five registered tools without weakening
+Current/Source/History/All checks; new route coverage includes both Copilot dialects.
+
+Corrected complete independent Sol review is clean; all ten final Rust SHA256s
+are pinned. The full-record fixtures use real native approval/completion, so their
+module is explicitly macOS-only; the five private RPC/error/fence/lease tests remain
+portable. The bounded platform correction was independently checked. After it,
+fresh full shared verification passed1139/0failed/6ignored+52fixtures. Native
+Desktop257/0/0, nativeWorkflowModels199/0/5, both Clippy modes, shipping Desktop/CLI
+builds and shipping startup2 passed; native/shipping production stayed unchanged.
+V11/exact BOM/CRLF/Unicode/zero credentials and47local doc links passed. Ignored
+entries are private subprocess helpers exercised by parent crash tests. Real model
+assets/inference/UI/owner qualification remains separate and pending. PR/CI/merge/
+post follow before narrow Action proposal creation. No calls/downloads/private data.
+
+
+PR42 published32944a2/tree6a43df18. Its first exact-head run37240599088 passed
+MacCore/UI and UbuntuShared; MacNative failed the large fixture's ten-second Ready
+wait before Ask/tool dispatch (191pass/1fail/5ignored), so merge was withheld.
+Decoded Windows22 full diagnostic blocks match main21dd333; overallCIred.
+The unchanged four-record native fixture independently reproduced successful Ready
+at4.748s and passed29.50s locally. Startup checks full escaped drafts/origins and
+ordinary approval/completion recovery; no provider/model call or tool RPC precedes
+Ready. The completed failed test also joined shutdown, rather than remaining hung.
+
+A test-only correction uses the minimum two maximum-description records and
+explicitly proves each whole record≤1MiB while their whole page>1MiB. Only this
+large fixture has a bounded60s startup wait; ordinary startup/runtime waits and
+fatal/cancellation witnesses are unchanged. Independent read-only delta review is
+clean (blobscc9d6cd/d625a50). Fresh nativeWorkflowModels199/0failed/5ignored passed;
+full shared verification passed1139/0failed/6ignored+52fixtures, including
+format/build/all-target Clippy. Production/native/shipping code is unchanged.
+Publish the corrected tree, require fresh exact-head applicable CI and normal merge,
+then post-merge checks before proposal tools. Actual model/UI/owner remains pending.
