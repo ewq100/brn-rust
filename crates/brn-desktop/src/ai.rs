@@ -2397,6 +2397,7 @@ mod tests {
     use super::*;
     use brn_workflow::{AiError, AiErrorKind, WorkTurnStatus};
 
+    #[cfg(target_os = "macos")]
     mod review_state {
         include!("review_state_tests.rs");
     }

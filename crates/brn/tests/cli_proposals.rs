@@ -55,6 +55,7 @@ fn run(data: &Path, args: &[&str]) -> (i32, Value) {
         serde_json::from_slice(&out.stdout).unwrap_or_else(|_| panic!("{out:?}")),
     )
 }
+#[cfg(target_os = "macos")]
 fn ok(result: (i32, Value)) -> Value {
     assert_eq!(result.0, 0, "{}", result.1);
     assert_eq!(result.1["ok"], true);
