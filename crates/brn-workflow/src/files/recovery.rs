@@ -62,7 +62,10 @@ use {
         rename_flags, sync_directory,
     },
     brn_store::files::{ArtifactIdentity, ArtifactKind, VaultIdentity},
-    brn_store::work::{proposal_apply::ApplyOutcome, proposals::NoteChange},
+    brn_store::work::{
+        proposal_apply::ApplyOutcome,
+        proposals::{ActionChange, NoteChange},
+    },
     sha2::{Digest, Sha256},
     std::{
         ffi::{CStr, OsStr},
@@ -193,6 +196,23 @@ fn covered_review(older: &ApplyJournal, applied: &ApplyJournal) -> bool {
         && before.draft.group_id == after.draft.group_id
         && before.draft.session_id == after.draft.session_id
         && before.draft.sources == after.draft.sources
+        && before.draft.action_changes.len() == after.draft.action_changes.len()
+        && before
+            .draft
+            .action_changes
+            .iter()
+            .zip(&after.draft.action_changes)
+            .all(|(before, after)| match (before, after) {
+                (
+                    ActionChange::Create { id: before, .. },
+                    ActionChange::Create { id: after, .. },
+                ) => before == after,
+                (
+                    ActionChange::Replace { before, .. },
+                    ActionChange::Replace { before: after, .. },
+                ) => before == after,
+                _ => false,
+            })
         && before.draft.changes.len() == after.draft.changes.len()
         && before
             .draft
@@ -724,8 +744,12 @@ mod tests {
         WorkStore,
         files::{FileFingerprint, VaultIdentity, VaultRecord},
         work::{
+            actions::{ActionData, ActionRecord, ActionState},
             proposal_apply::{ApplyMemberProof, ApplyReceipt, ApprovalRequest},
-            proposals::{CommentTarget, NoteChange, ProposalDraft, ReviewComment, SourceVersion},
+            proposals::{
+                ActionChange, CommentRequest, CommentTarget, NoteChange, ProposalDraft,
+                ProposalEdit, ReviewComment, SourceVersion,
+            },
         },
     };
     use std::fs;
@@ -915,6 +939,300 @@ mod tests {
         }
         journal.validate().unwrap();
         journal
+    }
+
+    fn action_data(state: ActionState) -> ActionData {
+        ActionData {
+            title: "Täpne tegevus λ\r\n".into(),
+            description: "Exact English ja eesti\r\n".into(),
+            state,
+            owner: Some("Anna Õun".into()),
+            related_person: None,
+            related_project: None,
+            sources: Vec::new(),
+            thread: None,
+            due_on: None,
+            follow_up_on: None,
+            dependencies: Vec::new(),
+            parent: None,
+            follows_up: None,
+            priority: None,
+        }
+    }
+
+    // Build real checked Store baselines and a reviewed Create/Replace snapshot.
+    // The helper exercises only synthetic Store work and ordinary metadata files.
+    fn action_review(fixture: &Fixture, mixed: bool) -> ApplyJournal {
+        let (mut store, _) = WorkStore::open(&fixture.data).unwrap();
+        store
+            .refuse_proposal_before_effects(fixture.journal.request.operation_id, None)
+            .unwrap();
+        let ids = [Uuid::new_v4(), Uuid::new_v4()];
+        let initial = ProposalDraft {
+            id: Uuid::new_v4(),
+            group_id: None,
+            session_id: None,
+            vault: None,
+            title: "Retained Action baselines".into(),
+            changes: Vec::new(),
+            sources: Vec::new(),
+            action_changes: ids
+                .iter()
+                .map(|id| ActionChange::Create {
+                    id: *id,
+                    data: action_data(ActionState::Open),
+                })
+                .collect(),
+        };
+        let initial = store.create_proposal(&initial).unwrap();
+        let initial = store
+            .begin_proposal_apply(&ApprovalRequest {
+                operation_id: Uuid::new_v4(),
+                expected: initial.stamp(),
+            })
+            .unwrap();
+        store
+            .record_proposal_prepared(initial.request.operation_id, &[])
+            .unwrap();
+        store
+            .finish_proposal_apply(
+                initial.request.operation_id,
+                ApplyOutcome::Applied,
+                Some(&[]),
+            )
+            .unwrap();
+        let mut updated = initial.approved.draft.clone();
+        updated.id = Uuid::new_v4();
+        updated.action_changes = ids
+            .iter()
+            .map(|id| ActionChange::Replace {
+                before: Box::new(store.action(*id).unwrap().unwrap()),
+                data: action_data(ActionState::Waiting),
+            })
+            .collect();
+        let updated = store.create_proposal(&updated).unwrap();
+        let updated = store
+            .begin_proposal_apply(&ApprovalRequest {
+                operation_id: Uuid::new_v4(),
+                expected: updated.stamp(),
+            })
+            .unwrap();
+        store
+            .record_proposal_prepared(updated.request.operation_id, &[])
+            .unwrap();
+        store
+            .finish_proposal_apply(
+                updated.request.operation_id,
+                ApplyOutcome::Applied,
+                Some(&[]),
+            )
+            .unwrap();
+        let mut draft = fixture.journal.approved.draft.clone();
+        draft.id = Uuid::new_v4();
+        if !mixed {
+            draft.vault = None;
+            draft.changes.clear();
+        }
+        draft.action_changes = vec![ActionChange::Create {
+            id: Uuid::new_v4(),
+            data: action_data(ActionState::Open),
+        }];
+        draft
+            .action_changes
+            .extend(ids.iter().map(|id| ActionChange::Replace {
+                before: Box::new(store.action(*id).unwrap().unwrap()),
+                data: action_data(ActionState::Blocked),
+            }));
+        let record = store.create_proposal(&draft).unwrap();
+        let record = store
+            .add_proposal_comment(&CommentRequest {
+                expected: record.stamp(),
+                comment: ReviewComment {
+                    id: Uuid::new_v4(),
+                    text: "Temporary Action review\r\n".into(),
+                    target: CommentTarget::Proposal,
+                },
+            })
+            .unwrap();
+        store
+            .begin_proposal_apply(&ApprovalRequest {
+                operation_id: Uuid::new_v4(),
+                expected: record.stamp(),
+            })
+            .unwrap()
+    }
+
+    #[test]
+    fn action_retirement_preserves_foreign_immutable_bindings_in_real_envelopes() {
+        for mixed in [false, true] {
+            let fixture = Fixture::new();
+            let old = action_review(&fixture, mixed);
+            let terminal = applied(&old);
+            let canonical = fixture.files.write(&terminal, None).unwrap();
+            let compatible = fixture.temporary(&encode(&old).unwrap());
+            let mut preserved = Vec::new();
+            for binding in 0..8 {
+                let mut foreign = old.clone();
+                match binding {
+                    0 => {
+                        let id = Uuid::new_v4();
+                        if let ActionChange::Create { id: target, .. } =
+                            &mut foreign.approved.draft.action_changes[0]
+                        {
+                            *target = id;
+                        }
+                        foreign.action_records[0].origin.id = id;
+                    }
+                    1 => {
+                        let id = Uuid::new_v4();
+                        if let ActionChange::Replace { before, .. } =
+                            &mut foreign.approved.draft.action_changes[1]
+                        {
+                            before.origin.id = id;
+                        }
+                        foreign.action_records[1].origin.id = id;
+                    }
+                    2 => {
+                        if let ActionChange::Replace { before, .. } =
+                            &mut foreign.approved.draft.action_changes[1]
+                        {
+                            before.data.description.push_str("Different exact baseline");
+                        }
+                    }
+                    3 => {
+                        let proposal = Uuid::new_v4();
+                        if let ActionChange::Replace { before, .. } =
+                            &mut foreign.approved.draft.action_changes[1]
+                        {
+                            before.origin.proposal.id = proposal;
+                        }
+                        foreign.action_records[1].origin.proposal.id = proposal;
+                    }
+                    4 => {
+                        if let ActionChange::Replace { before, .. } =
+                            &mut foreign.approved.draft.action_changes[1]
+                        {
+                            before.version += 1;
+                        }
+                        foreign.action_records[1].version += 1;
+                    }
+                    5 => {
+                        foreign.approved.draft.action_changes.pop();
+                        foreign.action_records.pop();
+                    }
+                    6 => {
+                        foreign.approved.draft.action_changes.swap(1, 2);
+                        foreign.action_records.swap(1, 2);
+                    }
+                    7 => {
+                        let mut before = match &foreign.approved.draft.action_changes[1] {
+                            ActionChange::Replace { before, .. } => before.clone(),
+                            _ => unreachable!(),
+                        };
+                        before.origin.id = foreign.approved.draft.action_changes[0].id();
+                        let data = foreign.approved.draft.action_changes[0].data().clone();
+                        foreign.action_records[0] = ActionRecord {
+                            origin: before.origin.clone(),
+                            version: before.version + 1,
+                            data: data.clone(),
+                            updated_at_ms: foreign.started_at_ms,
+                            waiting_since_ms: None,
+                            completed_at_ms: None,
+                        };
+                        foreign.approved.draft.action_changes[0] =
+                            ActionChange::Replace { before, data };
+                    }
+                    _ => unreachable!(),
+                }
+                foreign.validate().unwrap();
+                let bytes = encode(&foreign).unwrap();
+                let path = fixture.temporary(&bytes);
+                preserved.push((binding, path, bytes));
+            }
+            fixture.files.retire_review_temporaries(&terminal).unwrap();
+            let removed: Vec<_> = preserved
+                .iter()
+                .filter(|(_, path, _)| !path.exists())
+                .map(|(binding, _, _)| *binding)
+                .collect();
+            assert!(
+                removed.is_empty(),
+                "mixed={mixed}: foreign Action bindings retired: {removed:?}"
+            );
+            for (_, path, bytes) in preserved {
+                assert_eq!(fs::read(path).unwrap(), bytes);
+            }
+            assert!(!compatible.exists());
+            assert_eq!(
+                fixture.files.read(terminal.request.operation_id).unwrap(),
+                Some(canonical)
+            );
+        }
+    }
+
+    #[test]
+    fn action_retirement_accepts_exact_reviewed_edits_after_failed_staging_and_restart() {
+        let _reset = HookReset;
+        for mixed in [false, true] {
+            let fixture = Fixture::new();
+            let old = action_review(&fixture, mixed);
+            FAILURE.with(|failure| failure.set(Some("prepare_directory_sync")));
+            assert_eq!(
+                fixture
+                    .files
+                    .write(&old, None)
+                    .unwrap_err()
+                    .filesystem_outcome,
+                FileOutcome::NotApplied
+            );
+            FAILURE.with(|failure| failure.set(None));
+            let temporary = fixture.temps().pop().unwrap();
+            assert_eq!(fs::read(&temporary).unwrap(), encode(&old).unwrap());
+            let (mut store, _) = WorkStore::open(&fixture.data).unwrap();
+            store
+                .refuse_proposal_before_effects(old.request.operation_id, None)
+                .unwrap();
+            let record = store.proposal(old.approved.draft.id).unwrap().unwrap();
+            let mut candidate = record
+                .draft
+                .action_changes
+                .iter()
+                .map(|change| change.data().clone())
+                .collect::<Vec<_>>();
+            candidate[0].description = "Accepted current English ja eesti λ\r\n".into();
+            candidate[1].state = ActionState::Waiting;
+            let record = store
+                .edit_proposal(&ProposalEdit {
+                    expected: record.stamp(),
+                    title: "Accepted later title".into(),
+                    texts: record
+                        .draft
+                        .changes
+                        .iter()
+                        .map(|change| change.text().map(|_| "Accepted later note\r\nλ".into()))
+                        .collect(),
+                    action_data: candidate,
+                })
+                .unwrap();
+            let revised = store
+                .begin_proposal_apply(&ApprovalRequest {
+                    operation_id: Uuid::new_v4(),
+                    expected: record.stamp(),
+                })
+                .unwrap();
+            let terminal = applied(&revised);
+            let canonical = fixture.files.write(&terminal, None).unwrap();
+            drop(store);
+            let restarted = ApplyRecoveryFiles::open(&fixture.data).unwrap();
+            restarted.retire_review_temporaries(&terminal).unwrap();
+            assert!(!temporary.exists());
+            assert_eq!(
+                restarted.read(terminal.request.operation_id).unwrap(),
+                Some(canonical)
+            );
+            restarted.retire_review_temporaries(&terminal).unwrap();
+            assert!(fixture.temps().is_empty());
+        }
     }
 
     #[test]

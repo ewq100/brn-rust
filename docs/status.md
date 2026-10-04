@@ -189,12 +189,17 @@ review and comment cleanup. Recovery checks real Replace baselines before import
 after-state, preserves newer/Completed work and refuses equal-version forks.
 Independent review reproduced the missing before-fork check; its meaningful RED
 then corrected regression passed, with no remaining findings. Final Store266/0/0
-and independent56/0/0 passed. Fresh991workspace/0failed/3ignored+52fixtures,
+and independent56/0/0 passed. Workflow ordinary recovery now accepts checked
+vaultless Action snapshots,imports terminal Applied state and settles unfinished
+zero-file intents NotApplied. A meaningful regression reproduced vacuous Applied
+classification; foreign Action IDs/full baselines/order now also prevent temporary
+retirement. Final independent25/0/0 passed with no finding. Fresh998workspace/
+0failed/3ignored+52fixtures,148focused native workflow/0failed/2ignored,
 213combined-native/0failed/0ignored,both native Clippy configurations,shipping
 desktop/CLI builds and two startup/restart checks passed with exact synthetic
 bytes,V10 and zero credentials. Local integration/publication is recorded in the
-plan. Workflow creation/apply/Rewrite remain guarded until whole mirror/crash
-recovery qualifies; no real Action producer,dashboard or Stage6 completion is claimed.
+plan. Workflow creation/apply/Rewrite remain guarded until references and mixed
+execution/recovery qualify; no real Action producer,dashboard or Stage6 completion is claimed.
 
 ## Qualification still open
 
@@ -234,8 +239,15 @@ Merged tree equality,24focused profile/model/Ask tests+52fixtures and two shippi
 startup/restart checks passed with exact bytes,V9,zero credentials. Main37201599486
 passed Mac3+UbuntuCore/UI; Ubuntu native retrieval failed10pass/3fail on unchanged
 unsupported exclusive-install expectations,Windows3failed,overallCIred. Independent
-source/log analysis found no sharedMac/language defect. Checked Stage6 Action storage publication follows; GUI/model/
-provider qualification and wholeStage5 completion remain pending.
+source/log analysis found no sharedMac/language defect. Stage6 storage/review/
+joined-Store [PR28](https://github.com/ewq100/brn-rust/pull/28) merged5d0e9f5 after
+exacta1cc9b4/run37202673215 passed Mac3+UbuntuShared;Windows failed before tests,
+overallCIred. Merged tree equality,35focused tests+52fixtures and two shipping
+startup/restart checks passed,V10,exact bytes,zero credentials. Main37203224513
+passed Mac3+UbuntuCore/UI;unchanged Ubuntu native installer10pass/3fail and Windows3
+Unix build failures leave overallCIred,with no shared Action defect. The next
+workflow recovery slice is locally qualified; GUI/model/provider qualification,
+wholeStage5 and wholeStage6 completion remain pending.
 
 Release/public distribution, additional live calls/model downloads, purchases and
 original/private-data inspection or migration still need applicable owner
