@@ -1,5 +1,5 @@
 use super::search::{HitRow, to_hit};
-use super::{NoteHit, NoteIndex};
+use super::{KnowledgeScope, NoteHit, NoteIndex};
 use crate::{Error, Result};
 use rusqlite::{Connection, OptionalExtension, params};
 
@@ -70,7 +70,17 @@ impl NoteIndex {
         identity: &str,
         limit: usize,
     ) -> Result<Vec<NoteHit>> {
-        semantic_for_model(&self.conn, vector, Some(identity), limit)
+        self.semantic_for_model_scoped(vector, identity, limit, KnowledgeScope::Current)
+    }
+
+    pub fn semantic_for_model_scoped(
+        &self,
+        vector: &[f32],
+        identity: &str,
+        limit: usize,
+        scope: KnowledgeScope,
+    ) -> Result<Vec<NoteHit>> {
+        semantic_for_model(&self.conn, vector, Some(identity), limit, scope)
     }
 
     /// Records the embedding model in use. A different identity or dimension
@@ -161,7 +171,13 @@ impl NoteIndex {
 
     /// Embedded passages closest to `query_vector`. Legacy callers need not supply an identity.
     pub fn semantic(&self, query_vector: &[f32], limit: usize) -> Result<Vec<NoteHit>> {
-        semantic_for_model(&self.conn, query_vector, None, limit)
+        semantic_for_model(
+            &self.conn,
+            query_vector,
+            None,
+            limit,
+            KnowledgeScope::Current,
+        )
     }
 }
 
@@ -191,6 +207,7 @@ pub(super) fn semantic_for_model(
     query_vector: &[f32],
     identity: Option<&str>,
     limit: usize,
+    scope: KnowledgeScope,
 ) -> Result<Vec<NoteHit>> {
     if !(1..=50).contains(&limit) {
         return Err(Error::Invalid("query length or limit"));
@@ -215,11 +232,12 @@ pub(super) fn semantic_for_model(
     }
     let query = unit(query_vector)?;
     let mut scored: Vec<(f32, HitRow)> = Vec::with_capacity(limit);
-    let mut statement = tx.prepare(
+    let mut statement = tx.prepare(&format!(
         "SELECT p.id, p.path, n.sha256, p.start_byte, p.end_byte, e.vector, p.text
              FROM embeddings e JOIN passages p ON p.id = e.passage_id
-             JOIN notes n ON n.path = p.path",
-    )?;
+             JOIN notes n ON n.path = p.path WHERE {}",
+        scope.predicate()
+    ))?;
     let mut rows = statement.query([])?;
     while let Some(row) = rows.next()? {
         let id: i64 = row.get(0)?;

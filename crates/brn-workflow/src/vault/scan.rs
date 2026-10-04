@@ -22,6 +22,7 @@ pub struct EvidenceFile {
 pub enum SkipReason {
     TooLarge,
     InvalidName,
+    UnreadableDirectory,
 }
 
 #[derive(Debug, Clone, PartialEq, Eq)]
@@ -101,7 +102,20 @@ fn visit(
     include_archive: bool,
     found: &mut EvidenceScan,
 ) -> std::io::Result<()> {
-    for entry in std::fs::read_dir(dir)? {
+    let entries = match std::fs::read_dir(dir) {
+        Ok(entries) => entries,
+        Err(_) if include_archive && !prefix.is_empty() => {
+            // An uninspected evidence subtree is incomplete, never an empty
+            // directory. Current knowledge elsewhere can still be retrieved.
+            found.skipped.push(Skipped {
+                path: prefix.into(),
+                reason: SkipReason::UnreadableDirectory,
+            });
+            return Ok(());
+        }
+        Err(error) => return Err(error),
+    };
+    for entry in entries {
         let entry = entry?;
         let file_type = entry.file_type()?;
         if file_type.is_symlink() {

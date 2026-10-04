@@ -1,4 +1,4 @@
-use super::NoteIndex;
+use super::{KnowledgeScope, NoteIndex};
 use crate::{Error, Result};
 use rusqlite::{Connection, Row, params};
 
@@ -73,18 +73,33 @@ fn fts_query(query: &str) -> Option<String> {
 impl NoteIndex {
     /// Passages containing any query word, best BM25 score first.
     pub fn keyword(&self, query: &str, limit: usize) -> Result<Vec<NoteHit>> {
-        keyword(&self.conn, query, limit)
+        self.keyword_scoped(query, limit, KnowledgeScope::Current)
+    }
+
+    pub fn keyword_scoped(
+        &self,
+        query: &str,
+        limit: usize,
+        scope: KnowledgeScope,
+    ) -> Result<Vec<NoteHit>> {
+        keyword(&self.conn, query, limit, scope)
     }
 }
 
-pub(super) fn keyword(conn: &Connection, query: &str, limit: usize) -> Result<Vec<NoteHit>> {
+pub(super) fn keyword(
+    conn: &Connection,
+    query: &str,
+    limit: usize,
+    scope: KnowledgeScope,
+) -> Result<Vec<NoteHit>> {
     check_query(query, limit)?;
     let fts = fts_query(query).ok_or(Error::Invalid("query has no search terms"))?;
     let mut statement = conn.prepare(&format!(
         "SELECT {HIT_COLUMNS}, bm25(passages_fts) AS rank FROM passages_fts \
              JOIN passages p ON p.id = passages_fts.rowid \
              JOIN notes n ON n.path = p.path \
-             WHERE passages_fts MATCH ?1 ORDER BY rank, p.id LIMIT ?2"
+             WHERE passages_fts MATCH ?1 AND {} ORDER BY rank, p.id LIMIT ?2",
+        scope.predicate()
     ))?;
     let rows = statement.query_map(params![fts, limit as i64], |row| {
         Ok((hit_row(row)?, row.get::<_, f64>(6)?))

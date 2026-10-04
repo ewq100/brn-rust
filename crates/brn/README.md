@@ -50,10 +50,10 @@ brn proposals create --file DRAFT.json
   brn ai select --provider chatgpt|copilot --model MODEL
   brn ai effort [low|medium|high]
   brn models download --approve-download [--model-dir DIR] [--timeout-seconds N]
-  brn notes list [--folder FOLDER] [--cursor PATH]
-  brn notes show PATH.md
+  brn notes list [--folder FOLDER] [--cursor PATH] [--scope current|source|history|all]
+  brn notes show PATH.md [--scope current|source|history|all]
   brn status
-  brn search QUERY [--profile keyword|semantic|hybrid] [--limit N]
+  brn search QUERY [--profile keyword|semantic|hybrid] [--limit N] [--scope current|source|history|all]
   brn ask QUESTION [--session UUID] [--operation UUID] [--timeout-seconds N]
   brn conversations list
   brn conversations show SESSION_ID
@@ -93,6 +93,37 @@ Notes use visible contained vault-relative Markdown paths. List returns sorted
 200-row cursor pages; show preserves exact UTF-8 bytes. Search defaults to
 hybrid with 10 results (limit 1–50). Without an installed model, all profiles
 explicitly report `keyword_only: true`.
+
+List/show/search default to current knowledge. Optional ordinary frontmatter
+`brn_kind: knowledge|source` and `brn_state: current|history` describe saved
+classification; absent fields mean current knowledge. Top-level archives always
+count as history. `--scope source` includes original sources in any state,
+`history` includes historical knowledge and sources, and `all` combines eligible
+classified notes. Explicit non-current scopes allow archive paths. Malformed
+managed metadata is excluded from scoped queries; `evidence read` still returns
+its exact original bytes. Scope selection never changes editor/Save/proposal
+destinations or vault bytes.
+
+For manual acceptance, use a fresh synthetic vault/data pair with `current.md`
+containing `needle`, `source.md` containing `brn_kind: source` frontmatter and
+different original wording, `old.md` containing `brn_state: history`, and
+`archive/original.md`. Then run:
+
+```sh
+brn notes list --data-dir "$BRN_DATA" --vault "$BRN_VAULT" --json
+brn notes list --scope source --data-dir "$BRN_DATA" --json
+brn notes list --scope history --data-dir "$BRN_DATA" --json
+brn search needle --scope all --data-dir "$BRN_DATA" --json
+brn notes show archive/original.md --scope history --data-dir "$BRN_DATA"
+```
+
+Default results contain only `current.md`; explicit scopes separate the original
+source and historical notes, and plain show preserves the full original text.
+JSON labels the selected scope. In this synthetic fixture, change a current
+note's class to history while retaining size/mtime, rerun/restart and confirm
+current exclusion. Add an invalid `brn_kind` value and confirm query exclusion
+while evidence read preserves its bytes. Compare fixture vault bytes before and
+after queries. Native controls and actual multilingual inference remain pending.
 
 ### Simple Markdown editing
 
@@ -348,10 +379,9 @@ duplicates, mints IDs or repairs notes; same-size/retained-timestamp ID edits ar
 observed. These are saved evidence observations; later changes still require exact
 source-version checks. `evidence read PATH` explicitly reads complete source/history
 text, including archived notes, with the ordinary file/UTF-8/size protections.
-Current `notes show`, identity assignment, editor and proposal destinations retain
-their existing archive refusal. All new queries respect unresolved Save/application
-fences. Scoped search/metadata classification and durable provenance remain later
-Stage 5 work.
+Default current `notes show`, identity assignment, editor and proposal destinations
+retain archive refusal. All scopes respect unresolved Save/application fences.
+Durable provenance remains later Stage 5 work.
 
 For manual acceptance, use only a fresh synthetic vault/data pair. Put the same
 managed `brn_id` into `current.md` and `archive/source.md` with different original
@@ -380,7 +410,7 @@ history:
 
 ```json
 {"schema_version": 1, "command": "search", "ok": true,
- "data": {"query": "synthetic", "hits": [], "keyword_only": true}}
+ "data": {"query": "synthetic", "scope": "current", "hits": [], "keyword_only": true}}
 ```
 
 ```json
@@ -389,8 +419,8 @@ history:
 ```
 
 Status returns version/data directory, `mode: "simple"`, vault/model state and
-native-retrieval capability. Notes return `{notes, next_cursor}` or `{path,
-text}`. Search hits contain path, exact byte range, quote and score.
+native-retrieval capability. Notes return `{notes, next_cursor, scope}` or `{path,
+text, scope}`. Search labels scope; hits contain path, exact byte range, quote and score.
 Conversations return `{conversations}` or `{session_id, historical: true,
 turns}`. Turn/Ask records contain operation/session/provider/model,
 question/answer/status/error; provider thread IDs are not resume inputs.

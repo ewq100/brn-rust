@@ -14,35 +14,37 @@ fn horizontal(text: &str) -> &str {
     text.trim_matches([' ', '\t'])
 }
 
-fn key_token(text: &str) -> bool {
-    text.strip_prefix("brn_id")
+fn key_token(text: &str, key: &str) -> bool {
+    text.strip_prefix(key)
         .is_some_and(|rest| rest.is_empty() || rest.starts_with([':', ' ', '\t', '#', '=']))
 }
 
-fn recognizable_key(line: &str) -> bool {
-    key_token(line)
-        || ["'brn_id'", "\"brn_id\""]
-            .iter()
-            .any(|prefix| line.starts_with(prefix))
-}
-
-/// Recognizable alternate key forms are refused, not interpreted as absence.
-fn unsupported_key(line: &str) -> bool {
-    let line = line.trim_start_matches([' ', '\t']);
-    recognizable_key(line)
-        || ['?', '{', '-'].iter().any(|prefix| {
-            line.strip_prefix(*prefix)
-                .is_some_and(|rest| recognizable_key(horizontal(rest)))
+fn recognizable_key(line: &str, key: &str) -> bool {
+    key_token(line, key)
+        || ['\'', '"'].iter().any(|quote| {
+            line.strip_prefix(*quote)
+                .and_then(|line| line.strip_prefix(key))
+                .is_some_and(|rest| rest.starts_with(*quote))
         })
 }
 
-fn scalar(value: &str) -> Result<Uuid> {
+/// Recognizable alternate key forms are refused, not interpreted as absence.
+fn unsupported_key(line: &str, key: &str) -> bool {
+    let line = line.trim_start_matches([' ', '\t']);
+    recognizable_key(line, key)
+        || ['?', '{', '-'].iter().any(|prefix| {
+            line.strip_prefix(*prefix)
+                .is_some_and(|rest| recognizable_key(horizontal(rest), key))
+        })
+}
+
+fn scalar_value<'a>(value: &'a str, key: &str) -> Result<&'a str> {
     let value = value.trim_start_matches([' ', '\t']);
-    let (uuid, rest) = if let Some(quote @ ('\'' | '"')) = value.chars().next() {
+    let (value, rest) = if let Some(quote @ ('\'' | '"')) = value.chars().next() {
         let after = &value[1..];
         let end = after
             .find(quote)
-            .ok_or_else(|| invalid("managed brn_id scalar has an incomplete quote"))?;
+            .ok_or_else(|| invalid(&format!("managed {key} scalar has an incomplete quote")))?;
         (&after[..end], &after[end + 1..])
     } else {
         let end = value.find([' ', '\t']).unwrap_or(value.len());
@@ -53,8 +55,14 @@ fn scalar(value: &str) -> Result<Uuid> {
             || !horizontal(rest).is_empty()
                 && !rest.trim_start_matches([' ', '\t']).starts_with('#'))
     {
-        return Err(invalid("managed brn_id scalar has ambiguous trailing text"));
+        return Err(invalid(&format!(
+            "managed {key} scalar has ambiguous trailing text"
+        )));
     }
+    Ok(value)
+}
+
+fn identity_scalar(uuid: &str) -> Result<Uuid> {
     let id = Uuid::parse_str(uuid)
         .map_err(|_| invalid("managed brn_id must contain a canonical hyphenated UUID"))?;
     if uuid.len() != 36 || !id.hyphenated().to_string().eq_ignore_ascii_case(uuid) || id.is_nil() {
@@ -81,7 +89,19 @@ fn ordinary_root_field(line: &str) -> bool {
     })
 }
 
-fn frontmatter(text: &str, strict_assignment: bool) -> Result<Option<Frontmatter>> {
+/// Only the selected ordinary root scalar fields are interpreted. All unrelated
+/// metadata remains opaque; this is the shared managed-field walk, not a YAML parser.
+pub(crate) struct ScalarFields<'a, const N: usize> {
+    insertion: usize,
+    newline: &'static str,
+    pub(crate) values: [Option<&'a str>; N],
+}
+
+pub(crate) fn selected_fields<'a, const N: usize>(
+    text: &'a str,
+    keys: [&str; N],
+    strict_assignment: bool,
+) -> Result<Option<ScalarFields<'a, N>>> {
     let (offset, text) = text
         .strip_prefix(BOM)
         .map_or((0, text), |text| (BOM.len(), text));
@@ -112,28 +132,29 @@ fn frontmatter(text: &str, strict_assignment: bool) -> Result<Option<Frontmatter
     } else {
         "\n"
     };
-    let mut id = None;
+    let mut values = [None; N];
     let mut opaque_indented = false;
-    let mut managed_scalar = false;
+    let mut managed_scalar: Option<usize> = None;
     for line in lines {
         let content = line_content(line);
         if content.starts_with([' ', '\t']) && opaque_indented {
             continue;
         }
-        if content.starts_with([' ', '\t'])
-            && managed_scalar
+        if let Some(index) = managed_scalar
+            && content.starts_with([' ', '\t'])
             && !horizontal(content).is_empty()
             && !content.trim_start_matches([' ', '\t']).starts_with('#')
         {
-            return Err(invalid(
-                "managed brn_id cannot have an indented scalar continuation",
-            ));
+            return Err(invalid(&format!(
+                "managed {} cannot have an indented scalar continuation",
+                keys[index]
+            )));
         }
         if matches!(content, "---" | "...") {
-            return Ok(Some(Frontmatter {
+            return Ok(Some(ScalarFields {
                 insertion: offset + first.len(),
                 newline,
-                id,
+                values,
             }));
         }
         if ["---", "..."].iter().any(|delimiter| {
@@ -153,38 +174,56 @@ fn frontmatter(text: &str, strict_assignment: bool) -> Result<Option<Frontmatter
         if content.is_empty() || content.starts_with('#') {
             continue;
         }
-        if let Some(value) = content.strip_prefix("brn_id:") {
-            if id.is_some() {
-                return Err(invalid(
-                    "managed note frontmatter contains duplicate brn_id fields",
-                ));
+        if let Some((index, value)) = keys.iter().enumerate().find_map(|(index, key)| {
+            content
+                .strip_prefix(key)
+                .and_then(|rest| rest.strip_prefix(':'))
+                .map(|value| (index, value))
+        }) {
+            let key = keys[index];
+            if values[index].is_some() {
+                return Err(invalid(&format!(
+                    "managed note frontmatter contains duplicate {key} fields"
+                )));
             }
             if !value.starts_with([' ', '\t']) {
-                return Err(invalid(
-                    "managed brn_id needs whitespace after its field colon",
-                ));
+                return Err(invalid(&format!(
+                    "managed {key} needs whitespace after its field colon"
+                )));
             }
-            id = Some(scalar(value)?);
+            values[index] = Some(scalar_value(value, key)?);
             opaque_indented = false;
-            managed_scalar = true;
-        } else if unsupported_key(content) {
-            return Err(invalid(
-                "managed brn_id needs an unindented ordinary brn_id: scalar field",
-            ));
+            managed_scalar = Some(index);
+        } else if let Some(key) = keys.iter().find(|key| unsupported_key(content, key)) {
+            return Err(invalid(&format!(
+                "managed {key} needs an unindented ordinary {key}: scalar field"
+            )));
         } else if !content.starts_with([' ', '\t']) {
             opaque_indented = ordinary_root_field(content);
             if opaque_indented {
-                managed_scalar = false;
+                managed_scalar = None;
             }
         }
     }
-    if strict_assignment || id.is_some() {
+    if strict_assignment || values.iter().any(Option::is_some) {
         Err(invalid("managed note frontmatter is incomplete"))
     } else {
         // A leading Markdown thematic break without managed metadata is ordinary
         // readable text. Assignment still refuses its ambiguous incomplete header.
         Ok(None)
     }
+}
+
+fn frontmatter(text: &str, strict_assignment: bool) -> Result<Option<Frontmatter>> {
+    selected_fields(text, ["brn_id"], strict_assignment)?
+        .map(|metadata| {
+            Ok(Frontmatter {
+                insertion: metadata.insertion,
+                newline: metadata.newline,
+                id: metadata.values[0].map(identity_scalar).transpose()?,
+            })
+        })
+        .transpose()
 }
 
 /// Reads only the documented managed field; unrelated metadata and body are opaque.

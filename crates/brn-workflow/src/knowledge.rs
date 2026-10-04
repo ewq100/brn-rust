@@ -120,6 +120,7 @@ impl App {
                     vault::SkipReason::InvalidName => {
                         "note path is not valid UTF-8 or is unsupported"
                     }
+                    vault::SkipReason::UnreadableDirectory => "could not inspect folder",
                 }
                 .into(),
             })

@@ -282,6 +282,7 @@ fn output(data: Value) -> Output {
 }
 
 pub fn run(i: &Invocation) -> Result<Output, CliFailure> {
+    super::validate_library(&i.command)?;
     if let Command::Activity(request) = &i.command {
         request.validate().map_err(classify_workflow)?;
     }
@@ -445,41 +446,54 @@ fn execute(
                 "capabilities": {"native_retrieval": brn_workflow::native_retrieval_compiled()}}),
             ))
         }
-        Command::NotesList { folder, cursor } => {
-            let AppEvent::Notes(page) = lane.query(AppCommand::Notes {
+        Command::NotesList {
+            folder,
+            cursor,
+            scope,
+        } => {
+            let AppEvent::Notes(page) = lane.query(AppCommand::ScopedNotes {
                 folder: folder.clone(),
                 cursor: cursor.clone(),
+                scope: *scope,
             })?
             else {
                 return Err(unexpected());
             };
-            Ok(output(json!(page)))
+            let mut data = json!(page);
+            data["scope"] = json!(scope);
+            Ok(output(data))
         }
-        Command::NotePath(path) => {
-            let AppEvent::Note(note) = lane.query(AppCommand::Note(path.clone()))? else {
+        Command::NotePath { path, scope } => {
+            let AppEvent::Note(note) = lane.query(AppCommand::ScopedNote {
+                path: path.clone(),
+                scope: *scope,
+            })?
+            else {
                 return Err(unexpected());
             };
             Ok(Output {
                 text: note.text.clone(),
-                data: json!({"path": path, "text": note.text}),
+                data: json!({"path": path, "text": note.text, "scope": scope}),
             })
         }
         Command::Search {
             query,
             profile,
             limit,
+            scope,
         } => {
             let mode = profile.unwrap_or(SearchMode::Hybrid);
-            let AppEvent::Search(results) = lane.query(AppCommand::Search {
+            let AppEvent::Search(results) = lane.query(AppCommand::ScopedSearch {
                 query: query.clone(),
                 mode,
                 limit: limit.unwrap_or(10),
+                scope: *scope,
             })?
             else {
                 return Err(unexpected());
             };
             Ok(output(
-                json!({"query": query, "hits": results.hits.iter().map(|h| json!({
+                json!({"query": query, "scope": scope, "hits": results.hits.iter().map(|h| json!({
                 "path": h.path, "start_byte": h.start_byte, "end_byte": h.end_byte,
                 "quote": h.quote, "score": h.score,
             })).collect::<Vec<_>>(), "keyword_only": results.keyword_only}),
@@ -1033,7 +1047,7 @@ fn wait_download<W: EventLane>(
 #[cfg(test)]
 mod tests {
     use super::*;
-    use brn_workflow::WorkflowError;
+    use brn_workflow::{library::KnowledgeScope, WorkflowError};
     use std::{
         cell::{Cell, RefCell},
         collections::VecDeque,
@@ -1052,6 +1066,60 @@ mod tests {
             Command::Evidence(super::super::evidence::EvidenceCommand::Read(
                 "archive/.hidden.md".into(),
             )),
+        ] {
+            let parent =
+                tempfile::tempdir_in(std::env::temp_dir().canonicalize().unwrap()).unwrap();
+            let data = parent.path().join("data");
+            std::fs::create_dir(&data).unwrap();
+            let invocation = Invocation {
+                json: true,
+                data_dir: data.clone(),
+                model_dir: None,
+                vault: None,
+                credentials_dir: None,
+                command,
+            };
+            let Err(failure) = run(&invocation) else {
+                panic!("malformed direct invocation must fail before startup");
+            };
+            assert_eq!(failure.error.code(), "USAGE");
+            assert_eq!(std::fs::read_dir(data).unwrap().count(), 0);
+            assert!(!parent.path().join("data.credentials").exists());
+        }
+    }
+
+    #[test]
+    fn direct_scoped_library_invocations_validate_before_worker_startup() {
+        for command in [
+            Command::NotePath {
+                path: "archive/old.md".into(),
+                scope: KnowledgeScope::Current,
+            },
+            Command::NotePath {
+                path: "archive/../escape.md".into(),
+                scope: KnowledgeScope::All,
+            },
+            Command::NotesList {
+                folder: Some("archive".into()),
+                cursor: None,
+                scope: KnowledgeScope::Current,
+            },
+            Command::NotesList {
+                folder: Some("archive/.hidden".into()),
+                cursor: None,
+                scope: KnowledgeScope::History,
+            },
+            Command::NotesList {
+                folder: None,
+                cursor: Some("archive/../escape.md".into()),
+                scope: KnowledgeScope::Source,
+            },
+            Command::Search {
+                query: "Beacon".into(),
+                profile: None,
+                limit: Some(0),
+                scope: KnowledgeScope::All,
+            },
         ] {
             let parent =
                 tempfile::tempdir_in(std::env::temp_dir().canonicalize().unwrap()).unwrap();

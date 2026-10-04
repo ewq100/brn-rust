@@ -64,14 +64,17 @@ matrices. Earlier slice counts remain in the evidence, not current gate claims.
 Stage 5’s [active plan](work/active/knowledge-foundations/plan.md) has integrated
 managed Markdown UUID preparation through ordinary proposals, edit/Rewrite
 identity protection, fresh complete evidence lookup and duplicate/incomplete
-reporting, and explicit exact archived reads. Source CAS, restart, index rebuild
+reporting, explicit exact archived reads, saved classification and scoped
+current/source/history/all retrieval through workflow/CLI. Source CAS, restart, index rebuild
 and Undo are verified; current write/read rules and unresolved-work fences remain
 intact. Independent reviews found no remaining actionable findings. Fresh final
-locked/offline verification passed **725 workspace tests / 0 failed / 2 ignored**,
-**52 end-to-end assertions**, format/build/all-target Clippy and **147 native
-tests**, shipping native build and native Clippy. Owner acceptance remains pending.
-Metadata classification, current/source/history retrieval, durable provenance,
-relationships, findings/timestamps and multilingual qualification continue next;
+locked/offline verification passed **751 workspace tests / 0 failed / 2 ignored**,
+**52 end-to-end assertions**, format/build/all-target Clippy, optional native
+retrieval/workflow/desktop tests, native all-target Clippy and shipping native
+desktop/CLI builds. Fresh full-byte refresh catches retained-size/mtime changes;
+unreadable evidence folders report incomplete inspection while readable current
+knowledge remains usable. Owner acceptance remains pending. AI/native scope
+controls, durable provenance, relationships, findings/timestamps and multilingual qualification continue next;
 Stage 5 is not complete.
 
 ## Qualification still open

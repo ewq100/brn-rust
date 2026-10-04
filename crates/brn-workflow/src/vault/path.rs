@@ -74,6 +74,11 @@ impl EvidencePath {
         Ok(Self(raw.to_owned()))
     }
 
+    /// A visible contained folder for explicit source/history queries.
+    pub fn validate_folder(raw: &str) -> Result<(), VaultPathError> {
+        validate_components(raw, true)
+    }
+
     pub fn as_str(&self) -> &str {
         &self.0
     }

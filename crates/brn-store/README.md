@@ -12,6 +12,7 @@ own saved Markdown; disposable retrieval indexes live outside this crate.
 [explicit repair admission](src/work/proposal_repair.rs),
 [owned Rewrite jobs](src/work/proposal_rewrite.rs),
 [managed note identity](src/note_identity.rs),
+[saved note classification](src/note_metadata.rs),
 [backup/restore](src/work/backup.rs), [filesystem proof DTOs](src/files.rs) and
 [workspace marker guards](src/workspace_mode.rs).
 
@@ -88,6 +89,14 @@ identity assignment refuses incomplete ambiguous frontmatter. Ordinary unmanaged
 Markdown remains readable. Full edits/Rewrite preserve an established proposed ID.
 Historical records/receipts are not revalidated under this new format, and exact
 Undo can remove a prior assignment. No identity table or database migration is added.
+
+The pure `note_metadata::classify` reader accepts optional ordinary scalars
+`brn_kind: knowledge|source` and `brn_state: current|history`; absence means
+current knowledge. Quoted values and comments are supported, while duplicate,
+continued or unsupported managed syntax reports an error. It neither stamps
+metadata nor changes source bytes. Archive-path policy belongs to workflow.
+Classification edits use ordinary full proposals or explicit Save; identity
+protection and exact historical Undo retain their existing semantics.
 
 ## Whole-proposal approval journal
 

@@ -92,7 +92,7 @@ fn command_name(command: &cli::Command) -> &'static str {
         cli::Command::Ai(command) => command.name(),
         cli::Command::ModelDownload { .. } => "models.download",
         cli::Command::NotesList { .. } => "notes.list",
-        cli::Command::NotePath(_) => "notes.show",
+        cli::Command::NotePath { .. } => "notes.show",
         cli::Command::Status => "status",
         cli::Command::Search { .. } => "search",
         cli::Command::Ask { .. } => "ask",

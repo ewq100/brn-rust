@@ -14,6 +14,17 @@ integrity. It never calls the writer's create/rebuild path and never repairs a
 foreign or damaged file. `NoteSearch` keyword/vector queries and note listing
 share connection helpers between reader and writer.
 
+BRNI schema V2 caches optional Markdown UUIDs, source/history flags and metadata
+issues supplied by workflow. The branded writer rebuilds old/damaged derived
+schemas; the reader refuses them without repair. UUID duplication is allowed
+here and resolved by fresh workflow evidence inspection. `KnowledgeScope`
+defaults to Current: eligible current knowledge only. Source includes original
+sources in any state; History includes historical knowledge and sources; All
+includes every eligible classified note. Rows with metadata issues are excluded
+from every scope. Scope filtering precedes keyword/vector ranking and limits.
+Metadata updates preserve unchanged passages and embeddings; no index row is
+authoritative knowledge or proof of UUID uniqueness.
+
 The writer checkpoints its newly created BRNI header before readers attach,
 so a live/new index cannot look like a foreign unbranded file on a subsequent
 open. Existing foreign-file refusal rules are unchanged.

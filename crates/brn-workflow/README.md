@@ -39,7 +39,11 @@ Existing unknown-effort turns remain readable and replayable before current
 settings, vault or credential checks, without another provider request.
 
 `notes` and `search` refresh before returning CLI reads; `note` reads exact
-current vault bytes. Call `refresh` on explicit Refresh, focus and application
+current knowledge bytes. Their `*_scoped` variants and AppWorker `ScopedNotes`,
+`ScopedNote` and `ScopedSearch` explicitly select Current, Source, History or All.
+Current excludes sources and historical notes; Source includes original sources
+in any state; History includes historical knowledge and sources. All includes
+every eligible classified note. Call `refresh` on explicit Refresh, focus and application
 writes. `embed_pending(batch)` provides bounded-batch progress for the owned
 application lane. [`AiTools`](src/ai_tools.rs) is `Send + Sync`, with a mutexed,
 retrieval-owned read-only reader and a clone of Library's one
@@ -77,9 +81,20 @@ captures and checks exact source versions. `EvidenceNote` opens explicit saved
 source/history text, including top-level archives, through the separate read-only
 `EvidencePath`. It applies existing bounds, UTF-8 and non-symlink checks without
 opening an editor or changing current mutation authority. All three commands
-respect unresolved Save/application fences. Default current notes/search/AI tools
-still exclude archives. Metadata classification, scoped retrieval and durable
-provenance remain subsequent Stage 5 slices.
+respect unresolved Save/application fences.
+
+Refresh reads full saved bytes, including archives, and derives UUID/classification
+into disposable BRNI V2 rows. Optional `brn_kind: knowledge|source` and
+`brn_state: current|history` default to current knowledge; top-level archives
+always count as history. Malformed managed metadata is reported in
+`RefreshReport.unreadable` and excluded from all scoped queries. Unreadable
+evidence files/folders are reported and stale rows removed; unknown subtrees
+keep identity resolution incomplete without blocking readable current notes.
+Equal size/mtime never substitutes for bytes; equal hashes retain passages/vectors.
+Scopes filter before ranking/limits, then returned passages and list rows recheck
+exact saved class/hash/quote. Explicit EvidenceNote still reads malformed original
+text. Queries never stamp metadata, open editors or mutate sources. AI tool scope
+arguments, native controls and durable provenance remain following Stage 5 work.
 
 `proposal_source(path)` / AppWorker `ProposalSource` return the complete saved
 text and trusted file fingerprint for initial review composition. The capture

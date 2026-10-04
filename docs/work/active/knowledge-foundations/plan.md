@@ -166,3 +166,98 @@ before integration. Only own synthetic fixture entries are cleaned; outside-Git
 logs remain. This slice is implemented, automated verified, independently reviewed
 and locally integrated with this change. [CLI manual lookup/evidence scenario](../../../../crates/brn/README.md#managed-note-identity)
 is reproducible; owner/native acceptance remains pending. Stage 5 is still active.
+
+## Third slice: metadata classification and scoped retrieval
+
+Baseline: `main@7694e789c4b83d46d4ac949cfee83c089a8aeadb`, with only the
+preserved owner AGENTS.md change unrelated. The second slice is locally integrated
+and has no published CI run. Continue within the frozen mission.
+
+Use two ordinary optional scalar fields: `brn_kind: knowledge|source` and
+`brn_state: current|history`. Absent fields preserve unmanaged current-note
+behavior; top-level archive paths remain historical evidence regardless of state.
+Source scope returns original source notes, including historical originals;
+History returns historical knowledge and sources; All is explicit combined access.
+Current returns current knowledge only. Unsupported/malformed managed class fields
+are inspection issues, not guessed defaults. All metadata changes still require
+ordinary complete proposals (or explicit manual Save); no automatic stamping.
+
+Keep the narrow metadata parser/protection in Store and caller-supplied disposable
+metadata in index.sqlite. Extend the existing BRNI index schema/rebuild mechanism,
+not another datastore. Refresh reads saved full bytes even when size/mtime are
+unchanged, preserving unchanged passages/vectors by hash. Derived rows carry UUID,
+source/history flags and metadata issues. UUID resolution keeps its fresh full-
+universe observation rather than trusting index uniqueness.
+
+Filter scope before keyword/semantic candidate ranking and limits, including
+hybrid fusion. Preserve existing default Current APIs and model mismatch/keyword-
+only rules; add explicit scoped APIs through AppWorker and CLI. Current reads and
+retained AI tools validate saved class/hash as well as visibility, and all scopes
+keep unresolved-work fences. Explicit evidence reading still preserves malformed
+original wording. AI tool scope selection/native scope controls follow immediately
+as separate reviewable integration slices; no live provider call is needed here.
+
+Acceptance: source/history content never crowds out eligible current hits or
+silently enters default queries; explicit source/history/all return attributable
+exact saved passages. Same-size/retained-mtime content and classification edits are
+noticed; malformed classes are visible issues. Derived index deletion/outdated
+schema rebuild restores classifications without modifying notes; no embeddings
+are needlessly discarded for unchanged content. Meaningful parser, index/reader,
+keyword/semantic/hybrid, workflow fence/freshness and CLI preflight/process tests,
+independent review, fresh relevant gates and a synthetic manual scenario qualify
+this slice. Durable provenance/relationships/findings/bilingual qualification
+remain later Stage 5 work.
+
+Third-slice evidence, 2026-10-04: the Store parser/lifecycle checks passed 21,
+retrieval checks passed 37, and CLI checks passed 22 process tests plus one
+direct preflight test. Root regression coverage exercises actual AppWorker scope
+pages/reads/search, same-size/retained-mtime class/content changes, source/history
+ranking before limits, unchanged-vector retention, malformed metadata, index
+rebuild, exact original bytes and all-scope unresolved-work fences. Initial
+integration assertions were updated to count the new complete evidence cache,
+while default results still exclude sources/history.
+
+Independent complete review against `7694e78` passed 61 scoped checks and found
+one valid P2: an unreadable archive directory aborted startup and blocked readable
+current notes. Root's actual permission regression failed before correction.
+Nested evidence-directory failures now become explicit inspection issues; refresh
+drops uninspected cached descendants and identity lookup remains Incomplete.
+Root's fresh corrected scope/lookup/library/AI/vault checks passed 36. Independent
+correction review passed 15 checks and an offline CLI build, then repeated an
+actual owned CLI permission fixture: startup/current list/search/read succeed,
+stale archive rows disappear, and zero/one observed UUID matches both remain
+Incomplete. No remaining actionable finding. The earlier unreadable-file regression
+was also reproduced and corrected. Root's first cleanup inspection used the wrong
+layout prefix and refused before deletion; the corrected inventory verified exact
+owned names/types/UID/device/inode before cleanup.
+
+Fresh final macOS arm64 / Rust 1.98.1 locked/offline qualification after the last
+production correction passed `TMPDIR=<fresh private outside-Git parent> bash
+scripts/verify-end-to-end.sh`: retirement, workspace format/build/all-target
+Clippy with warnings denied, **751 passed / 0 failed / 2 ignored**, and **52
+end-to-end assertions**. Fresh optional commands all exited 0:
+
+```sh
+cargo +1.98.1 test -p brn-retrieval --features native --lib --test model_download --locked --offline
+cargo +1.98.1 test -p brn-workflow --features native-retrieval --lib --test models --locked --offline
+cargo +1.98.1 test -p brn-desktop --features native-ui,native-retrieval,native-test-support --locked --offline
+cargo +1.98.1 clippy -p brn-desktop -p brn --all-targets --features brn-desktop/native-ui,brn-desktop/native-retrieval,brn/native-retrieval --locked --offline -- -D warnings
+cargo +1.98.1 build -p brn-desktop --features native-ui,native-retrieval --locked --offline
+cargo +1.98.1 build -p brn --features native-retrieval --locked --offline
+```
+
+Earlier pre-correction full/native gates also passed but do not qualify the final
+correction. The known upstream `block v0.1.6` future-compiler warning remains.
+No live calls, downloads, original/private vault inspection, actual GUI interaction
+or English/Estonian native inference occurred. Final diff checks and 119 local
+Markdown links across 13 affected/current contract files passed before integration.
+Only the two exclusively owned gate parents' 20 layout fixture directories and
+16 regular files were cleaned; outside-Git logs/ownership metadata remain.
+
+The third slice is implemented, automated verified, independently reviewed and
+locally integrated with this change. [Scoped CLI manual scenario](../../../../crates/brn/README.md#commands)
+is reproducible with synthetic data; owner/native acceptance remains pending.
+AI tool scope arguments/native controls follow next, then durable provenance,
+relationships, findings/timestamps and bilingual qualification. Stage 5 remains
+active. Published CI availability is checked separately; no push or release is
+authorized merely to create a run.

@@ -6,7 +6,7 @@ use crate::{
         self, AccountCommand, AccountEvent, AccountReply, AskRequest, ChatEvent, ChatHandle,
         ChatWorker,
     },
-    library::{RefreshReport, SearchMode, SearchResults},
+    library::{KnowledgeScope, RefreshReport, SearchMode, SearchResults},
     models::{ModelDownloadPrompt, ModelInstallReport},
     vault::{NoteText, VaultPath},
 };
@@ -43,6 +43,15 @@ pub enum AppCommand {
         cursor: Option<String>,
     },
     Note(String),
+    ScopedNotes {
+        scope: KnowledgeScope,
+        folder: Option<String>,
+        cursor: Option<String>,
+    },
+    ScopedNote {
+        scope: KnowledgeScope,
+        path: String,
+    },
     OpenEditor(String),
     ReloadEditor(crate::editor::ReloadRequest),
     RecoverEditor(crate::editor::EditRequest),
@@ -86,6 +95,12 @@ pub enum AppCommand {
         text: String,
     },
     Search {
+        query: String,
+        mode: SearchMode,
+        limit: usize,
+    },
+    ScopedSearch {
+        scope: KnowledgeScope,
         query: String,
         mode: SearchMode,
         limit: usize,
@@ -864,6 +879,12 @@ fn dispatch(
             AppEvent::Notes(app.notes(folder.as_deref(), cursor.as_deref())?)
         }
         AppCommand::Note(path) => AppEvent::Note(app.note(&path)?),
+        AppCommand::ScopedNotes {
+            scope,
+            folder,
+            cursor,
+        } => AppEvent::Notes(app.notes_scoped(folder.as_deref(), cursor.as_deref(), scope)?),
+        AppCommand::ScopedNote { scope, path } => AppEvent::Note(app.note_scoped(&path, scope)?),
         AppCommand::ProposalSource(path) => {
             AppEvent::ProposalSource(Box::new(app.proposal_source(&path)?))
         }
@@ -1030,6 +1051,12 @@ fn dispatch(
         AppCommand::Search { query, mode, limit } => {
             AppEvent::Search(app.search(&query, mode, limit)?)
         }
+        AppCommand::ScopedSearch {
+            scope,
+            query,
+            mode,
+            limit,
+        } => AppEvent::Search(app.search_scoped(&query, mode, limit, scope)?),
         AppCommand::Conversations => AppEvent::Conversations(app.conversations()?),
         AppCommand::Turns(conversation) => AppEvent::Turns(app.turns(conversation)?),
         AppCommand::Turn(turn) => AppEvent::Turn(app.work_store().turn(turn)?),

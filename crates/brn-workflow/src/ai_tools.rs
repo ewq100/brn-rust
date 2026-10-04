@@ -1,6 +1,8 @@
 //! Fresh, read-only vault tools. Index text is never trusted without validation.
-use crate::library::{LibraryError, SearchMode, SharedEmbedder, search_index};
-use crate::vault::{self, VaultPath};
+use crate::library::{
+    KnowledgeScope, LibraryError, SearchMode, SharedEmbedder, saved_metadata, search_index,
+};
+use crate::vault::{self, EvidencePath, VaultPath};
 use brn_ai::{
     AiError, AiErrorKind, AiResult, NoteEntry, NotePage, Passage, ReadTools, ToolNote, ToolSearch,
 };
@@ -81,9 +83,34 @@ impl AiTools {
 }
 
 pub(crate) fn validate_hits(root: &Path, hits: &[NoteHit]) -> AiResult<()> {
+    validate_hits_scoped(root, hits, KnowledgeScope::Current)
+}
+
+fn read_path(path: &str, scope: KnowledgeScope) -> AiResult<EvidencePath> {
+    if scope == KnowledgeScope::Current {
+        VaultPath::parse(path).map_err(|_| rejected())?;
+    }
+    EvidencePath::parse(path).map_err(|_| rejected())
+}
+
+fn check_class(text: &str, path: &str, scope: KnowledgeScope) -> AiResult<()> {
+    let metadata = saved_metadata(text, path);
+    if metadata.issue.is_some() || !scope.includes(metadata.source, metadata.history) {
+        Err(stale())
+    } else {
+        Ok(())
+    }
+}
+
+pub(crate) fn validate_hits_scoped(
+    root: &Path,
+    hits: &[NoteHit],
+    scope: KnowledgeScope,
+) -> AiResult<()> {
     for hit in hits {
-        let path = VaultPath::parse(&hit.path).map_err(|_| rejected())?;
-        let note = vault::read_note(root, &path).map_err(|_| stale())?;
+        let path = read_path(&hit.path, scope)?;
+        let note = vault::read_evidence(root, &path).map_err(|_| stale())?;
+        check_class(&note.text, &hit.path, scope)?;
         if note.sha256 != hit.note_sha256
             || note.text.get(hit.start_byte..hit.end_byte) != Some(hit.quote.as_str())
         {
@@ -99,15 +126,29 @@ pub(crate) fn note_page(
     folder: Option<&str>,
     cursor: Option<&str>,
 ) -> AiResult<NotePage> {
+    note_page_scoped(root, entries, folder, cursor, KnowledgeScope::Current)
+}
+
+pub(crate) fn note_page_scoped(
+    root: &Path,
+    entries: Vec<IndexedNote>,
+    folder: Option<&str>,
+    cursor: Option<&str>,
+    scope: KnowledgeScope,
+) -> AiResult<NotePage> {
     if let Some(folder) = folder {
-        VaultPath::validate_folder(folder).map_err(|_| rejected())?;
+        if scope == KnowledgeScope::Current {
+            VaultPath::validate_folder(folder).map_err(|_| rejected())?;
+        } else {
+            EvidencePath::validate_folder(folder).map_err(|_| rejected())?;
+        }
     }
     if let Some(cursor) = cursor {
-        VaultPath::parse(cursor).map_err(|_| rejected())?;
+        read_path(cursor, scope)?;
     }
     let mut notes = Vec::new();
     for entry in entries {
-        let path = VaultPath::parse(&entry.path).map_err(|_| rejected())?;
+        let path = read_path(&entry.path, scope)?;
         if folder.is_some_and(|folder| {
             !entry
                 .path
@@ -117,7 +158,8 @@ pub(crate) fn note_page(
         {
             continue;
         }
-        let current = vault::read_note(root, &path).map_err(|_| stale())?;
+        let current = vault::read_evidence(root, &path).map_err(|_| stale())?;
+        check_class(&current.text, &entry.path, scope)?;
         if current.sha256 != entry.sha256 {
             return Err(stale());
         }
@@ -188,6 +230,7 @@ impl ReadTools for AiTools {
         let parsed = VaultPath::parse(path).map_err(|_| rejected())?;
         let epoch = self.check_root()?;
         let note = vault::read_note(&self.root, &parsed).map_err(|_| rejected())?;
+        check_class(&note.text, path, KnowledgeScope::Current).map_err(|_| rejected())?;
         let (text, truncated) = brn_ai::capped_text(&note.text);
         self.check_current_epoch(epoch)?;
         Ok(ToolNote {
