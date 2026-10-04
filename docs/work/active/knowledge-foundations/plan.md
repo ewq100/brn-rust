@@ -602,3 +602,33 @@ failure leaves overallCIred. Merged tree equality,16CLIidentity/inventory/scopes
 and zero credential files. Stage5B now integrates that qualified baseline with
 reviewed provenance/source-inspection/timestamp slices throughbaf3bee; fresh
 qualification and complete independent integration review remain required.
+
+## Stage5B publication checkpoint — provenance and session timestamps
+
+Baseline db9aee379b34527564ef48e9e0815fb30202eb94 integrates reviewed provenance,
+native exact source inspection and session/turn timestamps throughbaf3bee with
+qualified Stage5A maina9f8382. No later Stage5 behavior is included. Independent
+read-only integration review verified36B-only+13incoming-only paths, both source
+overlaps and all retained evidence; no actionable defect. CI YAML parses.
+
+Fresh macOS arm64/Rust1.98.1 locked/offline retirement,format/build/all-target
+Clippy passed;809workspace/0failed/2ignored+52fixtures;168combined-native/0failed/
+0ignored, both native Clippy configurations and shipping desktop/CLI builds;
+136focused native workflow/0failed/2ignored (`--lib --test models --test ai_tools
+--test knowledge_provenance`). Shipping startup/restart passed twice with exact
+BOM/CRLF/Unicode bytes and zero credential files. Crash-entry ignores remain
+exercised by subprocess matrices. Only upstream block0.1.6 future warning remains.
+Exact latest PR applicable Mac/shared CI and post-merge checks remain pending.
+Logs/ownership metadata: /private/tmp/brn-v1-stage5b-checkpoint-46w97ttl.
+
+Manual acceptance: in disposable managed notes, approve exact source quote and
+citation metadata, inspect the full original through Source, change the source
+and verify a fresh stale outcome; Copy must retain exact original quote bytes.
+Inspect recorded session/turn times, restart without new chat and verify unchanged
+activity; upgraded legacy unknown times stay explicit unknown. GUI/owner acceptance
+is pending. This publishes implemented/automated verified behavior, not live
+provider or actual bilingual model qualification. Next publish relationships and
+findings, then language; safe Stage6 implementation continues independently.
+Mac mini requirements: AppleSilicon/CLT, pinnedRust1.98.1, cached locked dependencies,
+protobuf/Bash/Python3, canonical owned synthetic TMPDIR and unlockedGUI acceptance.
+No assets/live/original-data/release actions occurred.

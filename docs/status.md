@@ -118,18 +118,23 @@ passed macOSCore/UI/Retrieval and UbuntuSharedCore. Windows Unix metadata failur
 leaves overallCIred. Merged tree equality,16widgets+52fixtures, shipping build and
 two startup/restart runs passed with exact synthetic bytes and zero credentials.
 
-Stage5A identities/scopes publication baseline `e9179eb` integrates its four
-reviewed slices through4fb2763 with that qualified main. Fresh macOS arm64/
-Rust1.98.1 locked/offline retirement,format/build/all-target Clippy,765workspace/
-0failed/2ignored,52fixtures,155combined-native tests/0failed/0ignored, both native
-Clippy variants and shipping desktop/CLI builds passed. Capability fixtures passed
-84library+1example; focused native workflow passed132tests/0failed/2ignored.
-Two shipping startup/restart runs preserved exact bytes with zero credentials.
-Independent integration review preserved60Stage5-only+11incoming-only paths and
-all four source overlaps, with no actionable defect. Exact latest PR macOS/shared
-CI and post-merge verification are pending. Native/owner/model acceptance remains
-separate. Provenance,timestamps,relationships,findings and multilingual slices
-remain later deliverables; Stage5 is not complete.
+Stage5A PR22 merged `a9f838295ea905bf25d05953fe03d02a2092dff7` after exact
+4895916 run37191800152 passed macOSCore/UI/Retrieval and UbuntuSharedCore.
+Windows Unix metadata failure leaves overallCIred. Merged tree equality,
+16CLIidentity/inventory/scopes+52fixtures and two shipping startup/restart runs
+passed with exact synthetic bytes and zero credentials.
+
+Stage5B provenance/timestamps publication baseline `db9aee3` integrates reviewed
+slices throughbaf3bee with qualified Stage5A. Independent review verified
+36Stage5-only+13incoming-only exact paths and both source overlaps, with no
+actionable defect. Fresh macOS arm64/Rust1.98.1 locked/offline checks passed
+809workspace/0failed/2ignored+52fixtures, retirement,format/build/all-target Clippy;
+168combined-native/0failed/0ignored, both native Clippy variants and shipping
+desktop/CLI builds;136focused-native-workflow/0failed/2ignored. Two shipping
+startup/restart runs preserved exact BOM/CRLF/Unicode bytes with zero credentials.
+Applicable exact latest PR CI and post-merge verification are pending. GUI/owner
+acceptance remains separate. Later relationships/findings/language checkpoints
+remain pending; Stage5 is not complete.
 
 Release/public distribution, additional live calls/model downloads, purchases and
 original/private-data inspection or migration still need applicable owner
