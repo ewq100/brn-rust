@@ -10,6 +10,8 @@ use serde::{Deserialize, Serialize};
 use std::collections::HashSet;
 use uuid::Uuid;
 
+pub mod dashboard;
+
 // Domain checks belong to the typed validator: SQLite quick_check treats CHECK
 // failures as corruption, which could otherwise restore older semantic work.
 pub(super) const V10: &str = "

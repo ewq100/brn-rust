@@ -70,6 +70,7 @@ pub enum AppCommand {
     Relationships(crate::knowledge::RelationshipRequest),
     CaptureFinding(crate::findings::CaptureFindingRequest),
     Actions(crate::actions::ActionListRequest),
+    ActionDashboard(crate::dashboard::DashboardRequest),
     Action(Uuid),
     CompleteAction(crate::action_completion::CompleteActionRequest),
     Findings(crate::findings::FindingListRequest),
@@ -173,6 +174,7 @@ pub enum AppEvent {
     Finding(Box<crate::findings::FindingRecord>),
     Action(Box<crate::actions::ActionRecord>),
     Actions(Box<crate::actions::ActionPage>),
+    ActionDashboard(Box<crate::dashboard::DashboardPage>),
     ActionCompleted(Box<crate::action_completion::ActionCompletion>),
     Findings(Box<crate::findings::FindingPage>),
     FindingInspection(Box<crate::findings::FindingInspection>),
@@ -940,6 +942,9 @@ fn dispatch(
             AppEvent::Finding(Box::new(app.capture_finding(&request)?))
         }
         AppCommand::Actions(request) => AppEvent::Actions(Box::new(app.actions(&request)?)),
+        AppCommand::ActionDashboard(request) => {
+            AppEvent::ActionDashboard(Box::new(app.action_dashboard(&request)?))
+        }
         AppCommand::Action(id) => AppEvent::Action(Box::new(app.action(id)?)),
         AppCommand::CompleteAction(request) => {
             AppEvent::ActionCompleted(Box::new(app.complete_action(&request)?))

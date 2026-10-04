@@ -767,3 +767,78 @@ the remaining checkpoint gate; Stage6 is not complete. Next is shared Dashboard
 queries and thin native identified Complete/new approved follow-up controls, then
 Stage6 AI proposal/read tools. Inbox remains later. No new database/service/tool
 framework or original/private-data/release operation was introduced.
+
+## Shared Dashboard query — active contract
+
+Baseline PR37 merge3af4526f7795f749855f4c6165c0351facd56f38/tree2cb6175c.
+Exactheadbc2b737/run37225342866 passedMac3+UbuntuShared; actual Windows22 Unix
+errors/messages/locations match baseline21442bf, with unchanged failing blobs.
+No enforced requirement bypass. Post-merge28focused/0failed/1ignored+52fixtures+
+startup/restart2 passed,V11/exactbytes/zero credentials. Main37225862216 completed
+5success/4failure: Mac3+UbuntuCore/UI passed. All four actual failed logs match
+baseline21442bf: Windows22/22/14 Unix errors before tests and UbuntuNative10pass/
+3fail ExclusiveInstallUnavailable/TargetOccupied; failing source unchanged.
+Rootmain keeps the owner's unstagedAGENTS change; retained screenshots are now
+integrated and the second worktree's duplicate input is preserved in a named stash.
+
+Outcome oncodex/v1-dashboard-query: one specific checked Store snapshot query,
+exposed through workflow/AppWorker and CLI `actions dashboard`. No schema/new
+service/database, ranking system or competing knowledge authority. Native view
+and action/follow-up composition use this interface in the following deliverable.
+
+- Default Active means Open/Waiting/Blocked. Other explicit filters: Open,
+  Waiting, Blocked, Completed, Overdue, FollowUp and All.
+- Resolve omitted first-page date to OS-local civil today inside workflow using
+  the existing pinned chrono clock feature. Canonical dates remain year1–9999
+  YYYY-MM-DD. Return the resolved date; any continuation requires it explicitly.
+  Overdue means unfinished due_on<as_of; FollowUp means unfinished follow_up_on
+  <=as_of. Date counts may overlap. No hidden priority or completion inference.
+- Counts cover every checked retained record, independent of filter/cursor/limit.
+  Pages use existing immutable created-time/UUID ordering and limit1–200. Each
+  query is one database snapshot; pages are fresh observations, not frozen record
+  membership across intervening changes. Decode one bounded record at a time.
+- Entries retain the complete ActionRecord plus same-snapshot dependency states
+  (missing remains explicit), in the Action's dependency order. No state mutation.
+  Existing current-evidence fences cover all dashboard data before returning it.
+- CLI validates date/filter/page input before opening authority, retains its
+  prepared request through acknowledgement and consumes only application DTOs.
+
+Acceptance: counts and matching entries beyond the first25 records; exact date
+boundaries/leap days/Completed exclusion; all filters and stable tied cursors;
+missing/unfinished/completed dependency observations; corrupt hidden row refusal;
+invalid/no-date continuation before effects; existing completion uncertainty
+fences; source-free/no-provider worker/CLI parity and restart. Independent whole
+read-only review, fresh relevant shared/native gates, exact-head CI and post-merge
+checks precede integration. Manual scenario: approve synthetic Open/Waiting/
+Blocked Actions with past/today/future dates, inspect all dashboard filters with
+limit1, carry returned as_of/cursor, complete one exact Action and refresh counts.
+No native/owner acceptance is implied by headless tests. No account call, model
+asset, private/original-data operation or release is part of this slice.
+
+The shared Dashboard query is implemented, with Store7/workflow3/CLIprocess5 and
+CLIunit7 tests passing. Existing private completion5/0failed/1ignored rechecked
+its eight crash cases/failure boundaries and the new Dashboard uncertainty fence.
+Focused all-target Store/workflow/CLI Clippy passed; pinned chrono clock builds
+locked/offline with no lockfile change. Initial missing Store/workflow API compile
+RED was structural, with one fixture-only borrowed-byte correction. CLI process
+runtime RED reproduced unknown dashboard command/USAGE before implementing it;
+that same scenario now passes through the real AppWorker. Full independent
+read-only review is complete; final shared/native/shipping/startup gates passed.
+Documentation diff and67local file/fragment links passed. No native controls,
+owner acceptance, account call or completeStage6 claim follows from these checks.
+
+Independent Sol whole read-only review found no actionable/advisory defect across
+all modified/untracked source, tests and contracts. It validated the transaction,
+all-row checks, scalar dependency snapshot, bound records/cursors, global counts,
+local/explicit dates, fences and prepared CLI acknowledgement. Reviewed source
+blobs1549a239(Store Dashboard),b1a4f1f1(workflow),3a0fb5cb(CLI),75431b22(library)
+and testsccb1b9a1/e9f1bfb0/63ef79cf remain unchanged in root's hash comparison.
+CLIunit7/0failed/0ignored,private completion5/0failed/1ignored and focused Clippy
+passed. Fresh final shared gate passed1106/0failed/6ignored+52fixtures; combined
+native passed233/0failed/0ignored. Both native Clippy modes and shipping Desktop/
+CLI builds passed. Two V11 startup/restart checks passed with exact BOM/CRLF/
+Unicode bytes and zero credentials, fixture qualified-startup-sbh7vzqz. Actual
+logs dashboard-*-final.log remain under
+/private/tmp/brn-v1-stage1-checkpoint-s3nawyyb. Known upstream block0.1.6 future-
+compiler warning remains. Exact-head CI/integration is next; pending native/owner
+acceptance does not prevent this shared checkpoint.

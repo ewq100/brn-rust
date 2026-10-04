@@ -146,6 +146,12 @@ fn publication_failures_and_sql_rollback_fence_current_until_exact_retry() {
                 ErrorKind::SaveUncertain
             );
             assert_eq!(app.note("a.md").unwrap_err().kind, ErrorKind::SaveUncertain);
+            assert_eq!(
+                app.action_dashboard(&crate::dashboard::DashboardRequest::default())
+                    .unwrap_err()
+                    .kind,
+                ErrorKind::SaveUncertain
+            );
             assert!(
                 tools.search_notes("needle", 10).is_err(),
                 "held tools need fence: {phase}"

@@ -20,6 +20,7 @@ brn findings close UUID --version N --state resolved|dismissed
 brn actions complete --file REQUEST.json
 brn actions show UUID
 brn actions list [--state open|waiting|blocked|completed|all] [--limit N] [--before-created-at-ms N --before-id UUID]
+brn actions dashboard [--as-of YYYY-MM-DD] [--filter active|open|waiting|blocked|completed|overdue|follow-up|all] [--limit N] [--before-created-at-ms N --before-id UUID]
 brn proposals create --file DRAFT.json
   brn identity inventory
   brn identity resolve NOTE_UUID
@@ -84,6 +85,15 @@ time and UUID order remain stable across edits. JSON preserves the exact typed
 record; human output quotes strings and terminal controls. These reads need no
 vault/provider and refuse pending or uncertain durable changes until reconciled.
 Action Create/Replace use the existing exact proposal commands below.
+`actions dashboard` defaults to Active (Open/Waiting/Blocked),25 entries and the
+application's OS-local civil today. It returns that resolved `as_of`, global
+four-state/date counts, full checked records and ordered dependency observations.
+Counts include the whole retained snapshot regardless of page/filter; overdue
+means unfinished due date before `as_of`, follow-up means unfinished follow-up
+date on/before it. Date counts can overlap. Missing dependencies stay explicit;
+no state/priority/completion is inferred. Each call is a fresh snapshot. For the
+next page, carry both cursor fields **and the returned explicit `--as-of` date**;
+omitting it refuses before startup. Native Dashboard controls follow separately.
 `actions complete --file REQUEST.json` accepts the exact full retained record in
 `before` and a fresh `operation_id`. It completes that unfinished Action directly,
 preserving its approved origin and all candidate fields except state. Reuse the
@@ -319,6 +329,22 @@ unchanged. For Replace, copy the complete current record into `before`, change
 candidate title/state and use a new proposal/operation UUID. Reusing an old complete
 baseline must refuse and preserve the current Action. No account or vault write
 is needed.
+
+Before completing the synthetic Waiting Action, exercise its dates:
+
+```sh
+brn actions dashboard --as-of 2026-10-08 --filter follow-up --limit 1 --data-dir DATA --json
+brn actions dashboard --as-of 2026-10-10 --filter overdue --data-dir DATA --json
+brn actions dashboard --as-of 2026-10-11 --filter overdue --data-dir DATA --json
+```
+
+The first page includes it with follow-up due and no overdue signal; its due day
+is still not overdue, while the next day is. Global Waiting/date counts stay
+visible even when a filter returns no entries. To test pagination, separately
+approve another synthetic Action with fresh proposal/Action IDs, then carry the
+returned `as_of` and both cursor fields into the next limit1 request. After exact
+Complete below, its date signals disappear and Completed count increases once;
+replay/restart leave those counts unchanged. No provider or vault is required.
 
 To complete the synthetic Action, retain its current unfinished `actions show
 --json` envelope as `action-before.json`. Create `complete.json` outside the
