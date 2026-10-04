@@ -393,7 +393,7 @@ pub struct Worker {
     thread: Option<JoinHandle<()>>,
     notices: NoteNoticeSink,
     pending_notices: Mutex<VecDeque<NoteFileNotice>>,
-    #[cfg(test)]
+    #[cfg(all(test, target_os = "macos"))]
     test_pause: Arc<Mutex<Option<tests::Pause>>>,
 }
 impl Worker {
@@ -405,9 +405,9 @@ impl Worker {
         let phase = Arc::new(Mutex::new(PhaseState::default()));
         let notices = NoteNoticeSink::default();
         let notices_worker = notices.clone();
-        #[cfg(test)]
+        #[cfg(all(test, target_os = "macos"))]
         let test_pause: Arc<Mutex<Option<tests::Pause>>> = Arc::default();
-        #[cfg(test)]
+        #[cfg(all(test, target_os = "macos"))]
         let pause_worker = test_pause.clone();
         let (tx, rx) = mpsc::sync_channel::<Job>(1);
         let shared_worker = shared.clone();
@@ -454,9 +454,9 @@ impl Worker {
                 },
             );
             while let Ok(job) = rx.recv() {
-                #[cfg(test)]
+                #[cfg(all(test, target_os = "macos"))]
                 let pause = pause_worker.lock().unwrap().take();
-                #[cfg(test)]
+                #[cfg(all(test, target_os = "macos"))]
                 if let Some(pause) = &pause
                     && matches!(pause.when, tests::PauseWhen::Queued)
                 {
@@ -467,7 +467,7 @@ impl Worker {
                 if closing_worker.load(Ordering::Acquire) && !critical {
                     break;
                 }
-                #[cfg(test)]
+                #[cfg(all(test, target_os = "macos"))]
                 if let Some(pause) = &pause
                     && matches!(pause.when, tests::PauseWhen::Before)
                 {
@@ -483,7 +483,7 @@ impl Worker {
                     &shared_worker,
                     &mut note_failure,
                 );
-                #[cfg(test)]
+                #[cfg(all(test, target_os = "macos"))]
                 if let Some(pause) = &pause
                     && matches!(pause.when, tests::PauseWhen::After)
                 {
@@ -515,7 +515,7 @@ impl Worker {
             thread: Some(thread),
             notices,
             pending_notices: Mutex::default(),
-            #[cfg(test)]
+            #[cfg(all(test, target_os = "macos"))]
             test_pause,
         }
     }
@@ -1182,12 +1182,14 @@ mod tests {
         );
     }
 
+    #[cfg(target_os = "macos")]
     #[derive(Clone, Copy)]
     pub(super) enum PauseWhen {
         Queued,
         Before,
         After,
     }
+    #[cfg(target_os = "macos")]
     pub(super) struct Pause {
         pub when: PauseWhen,
         pub entered: mpsc::Sender<()>,
