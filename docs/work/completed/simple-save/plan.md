@@ -87,3 +87,38 @@ claimed durable. This bounded implementation does not establish BRN v1 completio
 
 Local integration is the commit containing this record, on `main`; no remote
 push, public release or owner native acceptance is claimed. Next: roadmap Stage 2.
+
+## Publication checkpoint — 2026-10-04
+
+The owner now authorizes milestone branches, PRs and automatic merges after
+independent review, local verification and applicable exact-commit macOS/shared
+CI. This checkpoint preserves `6609442` and merges hosted-CI parent `609d859` on
+`codex/v1-stage1-save`. Independent read-only review of all five integration files
+found no actionable defect. The conflict resolution retains Save's crate-visible
+file helpers and CI's macOS test gates/kernel-aware pipe error assertion.
+
+Fresh macOS arm64 / Rust 1.98.1 locked/offline
+`TMPDIR=<fresh canonical owned parent> CARGO_TARGET_DIR=<isolated absolute target>
+bash scripts/verify-end-to-end.sh` passed retirement, formatting, build,
+all-target Clippy with warnings denied, **728 tests / 0 failed / 1 ignored** and
+**47 end-to-end assertions**. The ignored crash entry point is exercised by the
+subprocess matrix. No provider, model assets or original/private data were used.
+Existing native evidence above remains separate from pending exact-PR CI and
+owner GUI/IME/accessibility acceptance. No release is authorized by this record.
+
+Resume from the exact PR head/merge commit recorded in its description. Next is
+Stage 2 legacy removal, which must remove retired `brn-flow` CI commands and use
+the supported startup/restart driver. Environment: macOS Apple Silicon, Command
+Line Tools, pinned Rust 1.98.1/rustfmt/Clippy, cached locked dependencies (or an
+explicit normal development fetch), Python 3/Bash, and a new canonical owned
+synthetic TMPDIR outside Git. Native builds also need protobuf; native observation
+needs an unlocked session. Do not copy task credentials or original data during a
+later transfer to the Mac mini.
+
+The first exact-head PR run at `f9c38bc` passed macOS Core, Native UI and Native
+Retrieval. Ubuntu build/tests/help/fixtures passed, but Clippy correctly rejected
+the new editor test helper `ok`, whose callers are all macOS-only. The helper now
+uses the same macOS guard; fresh local CLI all-target Clippy, **5 editor process
+tests / 0 failed**, formatting and diff checks passed. Windows retains the known
+Unix-only API build failure. The corrected latest PR head must qualify again;
+the initial run does not qualify a changed commit.

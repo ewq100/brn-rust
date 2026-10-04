@@ -178,3 +178,33 @@ authorized bounded scope and fresh human connection, run one explicit invocation
 per selection/kind, inspect exact note code or PNG colors, and independently
 verify web URLs/version/date. Stop a refused route. Native application interaction
 and server cancellation need separate qualification; owner sign-in succeeded.
+
+
+## Publication checkpoint — 2026-10-04
+
+Preserve Stage 3 `d40e0a1`; merge the reviewed Stage 2 checkpoint ancestry.
+Stage 2 PR #17 merged as `f615398172488b70840bc766a298fefbe7e95288` after exact
+head `f9e4fb2` passed all three macOS lanes and Ubuntu shared Core. Windows retains
+existing Unix API failures, so its overall CI run is red. Merged tree equality,
+**52 fixtures + 5 editor process tests**, startup/restart and legacy refusal passed.
+
+Stage 3's original AI source and completed bounded live evidence are unchanged.
+Do not inspect/reuse the completed live credential directory or repeat probes.
+CI now tests and lints the capability-spike feature on successful Unix builds using
+locked/offline fixture transports; it never invokes the live example entry point.
+Independent read-only integration review found no actionable defect: all original
+Stage 3 and inherited Stage 2 paths exactly match their reviewed parent trees;
+YAML syntax and diff checks passed. Fresh pinned macOS arm64 offline integrated
+checks passed retirement, format/build/all-target Clippy, **404 tests / 0 failed /
+1 ignored**, **52 end-to-end assertions**, and capability-spike **68 library + 1
+example tests**, feature all-target Clippy and standalone example build. The ignored
+private crash entry point remains covered by subprocess tests. Exact-head hosted
+CI remains required before merging this checkpoint; no new live calls occurred.
+
+Resume from the exact head/merge in the PR description. Pending native/live limits
+remain above; next publish coherent Proposal Core deliverables while Stage 5
+implementation continues locally. Mac mini needs macOS Apple Silicon/Command Line
+Tools, pinned Rust 1.98.1/rustfmt/Clippy, locked cached dependencies, Bash/Python 3,
+protobuf for native builds and fresh canonical synthetic TMPDIR/data outside Git.
+Owner GUI acceptance needs an unlocked session. Original data and credentials are
+not transfer inputs. This checkpoint performs no public distribution.

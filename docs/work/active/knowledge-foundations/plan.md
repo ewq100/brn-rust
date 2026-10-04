@@ -564,3 +564,41 @@ and owner acceptance remain pending. No account calls, model downloads, private
 data inspection or session Archive/Restore/Delete occurred. This slice is
 implemented, automated verified, independently reviewed and locally integrated
 with this change. Stage 5 remains active.
+
+## Stage5A publication checkpoint — identities and scoped evidence
+
+Baseline e9179eb merges reviewed first-four slices through4fb2763 with qualified
+Stage4C main6601374. Identity preparation, fresh UUID resolution, current/source/
+history/all filtering, scoped read tools and native read-only evidence browsing
+are this checkpoint; later Stage5 slices remain separate. Independent read-only
+review verified60Stage5-only+11incoming-only exact paths and all four source
+merges, preserving platform/subprocess guards, CI and complete prior evidence.
+No actionable defect. Both YAML files parse, with no conflicts/unrelated changes.
+
+Fresh macOS arm64/Rust1.98.1 locked/offline checks passed765workspace/0failed/
+2ignored,52fixtures,retirement,format/build/all-target Clippy;155combined-native/
+0failed/0ignored, both native Clippy variants and shipping desktop/CLI builds;
+84capability-library+1example;132focused native workflow/0failed/2ignored.
+Shipping startup/restart passed twice with exact BOM/CRLF/Unicode bytes and zero
+credentials. Private ignored crash entries remain exercised by subprocess matrices.
+Exact latest-head applicable Mac/shared CI and post-merge verification are pending;
+Windows platform results remain visible. Only upstream block0.1.6 future warning.
+
+Manual acceptance: with fresh synthetic current/source/history/archived notes,
+verify default current queries exclude sources/history; switch scopes and inspect
+full exact archived evidence read-only, Copy exact bytes, preserve unsaved typing
+across scope changes and refuse overwriting archived notes. Prepare/approve a UUID,
+move its note and resolve by UUID; duplicates/incomplete inspection must not guess.
+Owner/GUI/IME/accessibility and actual bilingual inference remain pending. Next
+publish durable provenance/timestamps, then links/relationships and findings; do
+not claim all Stage5 complete. Mac mini: AppleSilicon/CLT,pinnedRust1.98.1,cached
+lockfile dependencies,protobuf/Bash/Python3,canonical synthetic TMPDIR outsideGit,
+unlockedGUI for acceptance. No assets/live/original-data/release actions occurred.
+
+Stage5A PR22 merged a9f838295ea905bf25d05953fe03d02a2092dff7 after exact4895916
+run37191800152 passed MacCore/UI/Retrieval+UbuntuSharedCore. Windows Unix metadata
+failure leaves overallCIred. Merged tree equality,16CLIidentity/inventory/scopes+
+52fixtures and2shipping startup/restart runs passed with exact synthetic bytes
+and zero credential files. Stage5B now integrates that qualified baseline with
+reviewed provenance/source-inspection/timestamp slices throughbaf3bee; fresh
+qualification and complete independent integration review remain required.
