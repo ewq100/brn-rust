@@ -1158,3 +1158,23 @@ V11/exact BOM/CRLF/Unicode/zero credentials and47local doc links passed. Ignored
 entries are private subprocess helpers exercised by parent crash tests. Real model
 assets/inference/UI/owner qualification remains separate and pending. PR/CI/merge/
 post follow before narrow Action proposal creation. No calls/downloads/private data.
+
+
+PR42 published32944a2/tree6a43df18. Its first exact-head run37240599088 passed
+MacCore/UI and UbuntuShared; MacNative failed the large fixture's ten-second Ready
+wait before Ask/tool dispatch (191pass/1fail/5ignored), so merge was withheld.
+Decoded Windows22 full diagnostic blocks match main21dd333; overallCIred.
+The unchanged four-record native fixture independently reproduced successful Ready
+at4.748s and passed29.50s locally. Startup checks full escaped drafts/origins and
+ordinary approval/completion recovery; no provider/model call or tool RPC precedes
+Ready. The completed failed test also joined shutdown, rather than remaining hung.
+
+A test-only correction uses the minimum two maximum-description records and
+explicitly proves each whole record≤1MiB while their whole page>1MiB. Only this
+large fixture has a bounded60s startup wait; ordinary startup/runtime waits and
+fatal/cancellation witnesses are unchanged. Independent read-only delta review is
+clean (blobscc9d6cd/d625a50). Fresh nativeWorkflowModels199/0failed/5ignored passed;
+full shared verification passed1139/0failed/6ignored+52fixtures, including
+format/build/all-target Clippy. Production/native/shipping code is unchanged.
+Publish the corrected tree, require fresh exact-head applicable CI and normal merge,
+then post-merge checks before proposal tools. Actual model/UI/owner remains pending.

@@ -108,9 +108,16 @@ was fixed and re-reviewed. Fresh1139shared/0failed/6ignored+52fixtures,
 both native Clippy modes,shipping builds,startup2 and47doc links passed. Full
 record fixtures explicitly require native approval/completion; portable RPC tests
 remain enabled. The last test-only cfg received fresh full shared verification;
-native/shipping production code stayed exact. PR/latest-head CI/integration follows;
-actual model/UI/owner qualification is pending. No live calls,
-model downloads or original/private-data operation.
+native/shipping production code stayed exact. [PR42](https://github.com/ewq100/brn-rust/pull/42)
+firsthead32944a2/run37240599088 passed MacCore/UI+UbuntuShared but failed MacNative:
+the large synthetic fixture's ten-second Ready wait expired before tool dispatch.
+Merge was withheld. A timed unchanged reproduction reached Ready4.748s/passed29.50s.
+The independently reviewed test-only correction uses two provably oversized-page
+records and a bounded60s startup allowance only there; ordinary/tool/fatal deadlines
+stay unchanged. Fresh nativeWorkflowModels199/0failed/5ignored passed; full shared
+verification passed1139/0failed/6ignored+52fixtures (format/build/all-target Clippy included). Corrected exact-head CI/integration follows. Actual
+model/UI/owner qualification is pending. No live calls, model downloads or
+original/private-data operation.
 
 Then add narrow proposal creation through the same boundary, finish Stage6 and
 continue to Inbox in roadmap order. Native observation continues when the Mac is

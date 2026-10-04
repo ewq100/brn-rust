@@ -18,6 +18,8 @@ fn seed(fixture: &Fixture, large: bool) -> Vec<ActionRecord> {
     ]
     .into_iter()
     .enumerate()
+    // Two large records suffice for the whole-page limit; the small fixture covers all states.
+    .take(if large { 2 } else { 4 })
     {
         let id = Uuid::new_v4();
         let draft = app
@@ -192,6 +194,16 @@ fn action_tools_read_exact_approved_records_and_pages_without_knowledge_mutation
 fn action_tools_refuse_malformed_and_oversized_whole_pages_but_single_records_remain_full() {
     let fixture = Fixture::new();
     let before = seed(&fixture, true);
+    assert_eq!(before.len(), 2);
+    for record in &before {
+        assert!(serde_json::to_vec(record).unwrap().len() <= brn_ai::READ_ACTION_BYTES);
+    }
+    assert!(
+        serde_json::to_vec(&json!({"entries": before, "next_cursor": null}))
+            .unwrap()
+            .len()
+            > brn_ai::READ_ACTION_BYTES
+    );
     let expected = before.clone();
     let hook: AnswerHook = Arc::new(move |_, _, tools, _, _| {
         let expected = expected.clone();
@@ -224,10 +236,16 @@ fn action_tools_refuse_malformed_and_oversized_whole_pages_but_single_records_re
             }
         })
     });
-    let mut worker = fixture.start(Hooks {
-        answer: Some(hook),
-        ..Hooks::default()
-    });
+    // Startup verifies retained full drafts, approvals and origins before Ready.
+    // This escaped-byte fixture needs a bounded allowance under parallel CI load;
+    // tool/event waits and the cancellation/deadlock witnesses keep their own deadlines.
+    let mut worker = fixture.start_with_startup_timeout(
+        Hooks {
+            answer: Some(hook),
+            ..Hooks::default()
+        },
+        Duration::from_secs(60),
+    );
     let request = fixture.request();
     worker
         .submit(request.id, AppCommand::Ask(request.clone()))

@@ -77,6 +77,9 @@ impl Fixture {
         }
     }
     fn start(&self, hooks: Hooks) -> AppWorker {
+        self.start_with_startup_timeout(hooks, Duration::from_secs(10))
+    }
+    fn start_with_startup_timeout(&self, hooks: Hooks, timeout: Duration) -> AppWorker {
         let worker = app_worker::start_test(
             self.base.path().join("data"),
             self.config(),
@@ -85,7 +88,10 @@ impl Fixture {
             None,
         )
         .unwrap();
-        assert!(matches!(event(&worker).1, AppEvent::Ready { .. }));
+        assert!(matches!(
+            worker.recv_event_timeout(timeout).unwrap().1,
+            AppEvent::Ready { .. }
+        ));
         worker
     }
     fn request(&self) -> AskRequest {
