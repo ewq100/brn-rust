@@ -91,12 +91,28 @@ items do not block later safe implementation. The completed provider round leave
 Copilot GPT-5.5 Chat unsupported, Codex vision accuracy and native citations
 unqualified. Upstream `block v0.1.6` retains a future-compiler warning.
 
-No published CI run exists for the inspected local Stage 4 commits. The latest
-inspected [published main CI](https://github.com/ewq100/brn-rust/actions/runs/37137393000)
-at another commit (`609d859`) failed on Windows and optional Linux paths; it does
-not qualify this tree. Release/public distribution, additional live calls/model
-downloads, purchases and original/private-data inspection or migration still need
-applicable owner permission. No original data was migrated or inspected.
+Stages 1–4 are published in reviewed PRs16–21. Stage4C PR21 merged
+`6601374996ecba7d461403aa6e892f1273bed28e` after exact18a315b run37190429533
+passed macOSCore/UI/Retrieval and UbuntuSharedCore. Windows Unix metadata failure
+leaves overallCIred. Merged tree equality,16widgets+52fixtures, shipping build and
+two startup/restart runs passed with exact synthetic bytes and zero credentials.
+
+Stage5A identities/scopes publication baseline `e9179eb` integrates its four
+reviewed slices through4fb2763 with that qualified main. Fresh macOS arm64/
+Rust1.98.1 locked/offline retirement,format/build/all-target Clippy,765workspace/
+0failed/2ignored,52fixtures,155combined-native tests/0failed/0ignored, both native
+Clippy variants and shipping desktop/CLI builds passed. Capability fixtures passed
+84library+1example; focused native workflow passed132tests/0failed/2ignored.
+Two shipping startup/restart runs preserved exact bytes with zero credentials.
+Independent integration review preserved60Stage5-only+11incoming-only paths and
+all four source overlaps, with no actionable defect. Exact latest PR macOS/shared
+CI and post-merge verification are pending. Native/owner/model acceptance remains
+separate. Provenance,timestamps,relationships,findings and multilingual slices
+remain later deliverables; Stage5 is not complete.
+
+Release/public distribution, additional live calls/model downloads, purchases and
+original/private-data inspection or migration still need applicable owner
+permission. No original data was migrated or inspected.
 
 Older records in [completed evidence](work/completed/README.md) and the
 [earlier Rig notes evidence](work/active/simple-rig-notes/evidence.md) are history;
