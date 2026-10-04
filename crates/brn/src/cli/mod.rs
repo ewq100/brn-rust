@@ -131,6 +131,7 @@ Commands:
   brn provenance capture --file REQUEST.json
   brn provenance prepare --file REQUEST.json
   brn links show PATH
+  brn links prepare --file REQUEST.json
   brn relationships list [--scope current|source|history|all] [--offset N] [--limit N]
   brn proposals create --file DRAFT.json
   brn proposals list [--group UUID]
@@ -604,7 +605,7 @@ fn parse_inner(
         "identity" => Command::Identity(identity::parse_command(command.unwrap(), &scanned)?),
         "evidence" => Command::Evidence(evidence::parse_command(&scanned)?),
         "provenance" => Command::Provenance(provenance::parse_command(command.unwrap(), &scanned)?),
-        "links" => Command::Links(links::parse_command(&scanned)?),
+        "links" => Command::Links(links::parse_command(command.unwrap(), &scanned)?),
         "relationships" => Command::Relationships(relationships::parse_command(&scanned)?),
         "proposals" => Command::Proposals(proposals::parse_command(command.unwrap(), &scanned)?),
         "activity" => Command::Activity(activity::parse_command(&scanned)?),

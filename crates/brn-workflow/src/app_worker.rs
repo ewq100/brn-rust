@@ -66,6 +66,7 @@ pub enum AppCommand {
     PrepareNoteIdentity(crate::knowledge::IdentityRequest),
     NoteProvenance(String),
     NoteLinks(String),
+    PrepareNoteLink(crate::knowledge::LinkRequest),
     Relationships(crate::knowledge::RelationshipRequest),
     CaptureCitation(crate::knowledge::CitationRequest),
     PrepareNoteProvenance(crate::knowledge::ProvenanceRequest),
@@ -159,6 +160,7 @@ pub enum AppEvent {
     NoteIdentityDraft(Box<crate::proposals::DraftRequest>),
     NoteProvenance(Box<crate::knowledge::NoteProvenance>),
     NoteLinks(Box<crate::knowledge::NoteLinks>),
+    NoteLinkDraft(Box<crate::proposals::DraftRequest>),
     Relationships(Box<crate::knowledge::RelationshipPage>),
     CitationCaptured(Box<crate::knowledge::CitationCapture>),
     NoteProvenanceDraft(Box<crate::proposals::DraftRequest>),
@@ -913,6 +915,9 @@ fn dispatch(
             AppEvent::NoteProvenance(Box::new(app.note_provenance(&path)?))
         }
         AppCommand::NoteLinks(path) => AppEvent::NoteLinks(Box::new(app.note_links(&path)?)),
+        AppCommand::PrepareNoteLink(request) => {
+            AppEvent::NoteLinkDraft(Box::new(app.prepare_note_link(&request)?))
+        }
         AppCommand::Relationships(request) => {
             AppEvent::Relationships(Box::new(app.relationships(&request)?))
         }

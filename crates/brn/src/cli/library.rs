@@ -405,16 +405,26 @@ fn execute(
             };
             Ok(output(data))
         }
-        Command::Links(super::links::LinksCommand::Show(path)) => {
-            let AppEvent::NoteLinks(links) =
-                lane.query(knowledge.expect("links input prepared before startup"))?
-            else {
-                return Err(unexpected());
+        Command::Links(command) => {
+            let event = lane.query(knowledge.expect("links input prepared before startup"))?;
+            let data = match (command, event) {
+                (super::links::LinksCommand::Show(path), AppEvent::NoteLinks(links))
+                    if links.source.path == *path =>
+                {
+                    json!(links)
+                }
+                (super::links::LinksCommand::Prepare(request), AppEvent::NoteLinkDraft(draft))
+                    if draft.id == request.proposal_id
+                        && draft.title == request.title
+                        && matches!(draft.changes.as_slice(),
+                            [brn_workflow::proposals::DraftNoteChange::Replace { path, .. }]
+                                if path == &request.path) =>
+                {
+                    json!(draft)
+                }
+                _ => return Err(unexpected()),
             };
-            if links.source.path != *path {
-                return Err(unexpected());
-            }
-            Ok(output(json!(links)))
+            Ok(output(data))
         }
         Command::Evidence(super::evidence::EvidenceCommand::Read(path)) => {
             let AppEvent::EvidenceNote(note) =

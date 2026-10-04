@@ -1,44 +1,36 @@
-use super::{LinkEvidence, RawMarkdownLink, rejected};
+use super::{LinkEvidence, LinkTarget, RawMarkdownLink, rejected, target};
 use crate::{MAX_NOTE_BYTES, Result};
 use markdown::{ParseOptions, mdast::Node};
-use std::collections::HashMap;
+use std::collections::{BTreeSet, HashMap};
+use uuid::Uuid;
 
 const MAX_LINKS: usize = 4096;
 const MAX_RETURNED_BYTES: usize = 4 * 1024 * 1024;
 
-pub(super) fn extract(text: &str, body_start: usize) -> Result<Vec<RawMarkdownLink>> {
-    if text.len() > MAX_NOTE_BYTES {
-        return Err(rejected(
-            "Saved link extraction exceeds the 1 MiB note limit.",
-        ));
-    }
-    let body = text.get(body_start..).ok_or_else(|| {
-        rejected("Saved link body offset is outside the note or splits a UTF-8 character.")
-    })?;
-    let root = markdown::to_mdast(body, &ParseOptions::default())
-        .map_err(|_| rejected("Saved Markdown links could not be parsed."))?;
-    let mut definitions = HashMap::new();
+/// Approval compares identities, without imposing public evidence-output limits
+/// on unchanged historical links.
+pub(super) fn stable_ids(text: &str, body_start: usize) -> Result<BTreeSet<Uuid>> {
+    let root = parse(text, body_start)?;
+    let definitions = definitions(&root);
+    let mut ids = BTreeSet::new();
     for node in nodes(&root) {
-        if let Node::Definition(definition) = node {
-            // The parser supplies CommonMark-normalized identifiers. The first
-            // matching definition is used even if it follows the occurrence.
-            definitions
-                .entry(definition.identifier.as_str())
-                .or_insert((definition.url.as_str(), node));
+        if let Some((destination, _)) = destination(node, &definitions)?
+            && let (Some(LinkTarget::Identity(id)), _) = target("", destination)
+        {
+            ids.insert(id);
         }
     }
+    Ok(ids)
+}
+
+pub(super) fn extract(text: &str, body_start: usize) -> Result<Vec<RawMarkdownLink>> {
+    let root = parse(text, body_start)?;
+    let definitions = definitions(&root);
     let mut links = Vec::new();
     let mut returned_bytes = 0usize;
     for node in nodes(&root) {
-        let (destination, definition) = match node {
-            Node::Link(link) => (link.url.as_str(), None),
-            Node::LinkReference(reference) => {
-                let (destination, definition) = definitions
-                    .get(reference.identifier.as_str())
-                    .ok_or_else(|| rejected("Saved link reference has no matching definition."))?;
-                (*destination, Some(*definition))
-            }
-            _ => continue,
+        let Some((destination, definition)) = destination(node, &definitions)? else {
+            continue;
         };
         if links.len() == MAX_LINKS {
             return Err(rejected(
@@ -68,6 +60,49 @@ pub(super) fn extract(text: &str, body_start: usize) -> Result<Vec<RawMarkdownLi
         });
     }
     Ok(links)
+}
+
+fn parse(text: &str, body_start: usize) -> Result<Node> {
+    if text.len() > MAX_NOTE_BYTES {
+        return Err(rejected(
+            "Saved link extraction exceeds the 1 MiB note limit.",
+        ));
+    }
+    let body = text.get(body_start..).ok_or_else(|| {
+        rejected("Saved link body offset is outside the note or splits a UTF-8 character.")
+    })?;
+    markdown::to_mdast(body, &ParseOptions::default())
+        .map_err(|_| rejected("Saved Markdown links could not be parsed."))
+}
+
+fn definitions(root: &Node) -> HashMap<&str, (&str, &Node)> {
+    let mut definitions = HashMap::new();
+    for node in nodes(root) {
+        if let Node::Definition(definition) = node {
+            // The parser supplies CommonMark-normalized identifiers. The first
+            // matching definition is used even if it follows the occurrence.
+            definitions
+                .entry(definition.identifier.as_str())
+                .or_insert((definition.url.as_str(), node));
+        }
+    }
+    definitions
+}
+
+fn destination<'a>(
+    node: &'a Node,
+    definitions: &HashMap<&'a str, (&'a str, &'a Node)>,
+) -> Result<Option<(&'a str, Option<&'a Node>)>> {
+    match node {
+        Node::Link(link) => Ok(Some((link.url.as_str(), None))),
+        Node::LinkReference(reference) => {
+            let (destination, definition) = definitions
+                .get(reference.identifier.as_str())
+                .ok_or_else(|| rejected("Saved link reference has no matching definition."))?;
+            Ok(Some((*destination, Some(*definition))))
+        }
+        _ => Ok(None),
+    }
 }
 
 fn nodes(root: &Node) -> impl Iterator<Item = &Node> {
@@ -279,6 +314,69 @@ mod tests {
         assert_eq!(
             extract(&over, 0).err().unwrap().kind,
             ErrorKind::ToolRejected
+        );
+    }
+
+    #[test]
+    fn stable_ids_share_inline_reference_normalization_and_canonical_destination_rules() {
+        let first = Uuid::new_v4();
+        let second = Uuid::new_v4();
+        let ignored = Uuid::new_v4();
+        let prefix = "\u{feff}---\r\ncustom: links\r\n...\r\n";
+        let body = format!(
+            "[inline](BRN://note/{first}#heading) [query](brn://note/{first}?view=x)\r\n\r\n[reference][  võti  ] [VÕTI][] [ß]\r\n\r\n[VÕTI]: brn://note/{second}\r\n[võti]: brn://note/{ignored}\r\n[SS]: brn://note/{first}\r\n\r\n`[code](brn://note/{ignored})` ![image](brn://note/{ignored})\r\n\r\n~~~\r\n[fence](brn://note/{ignored})\r\n~~~\r\n\r\n    [indented](brn://note/{ignored})\r\n\r\n<!-- [html](brn://note/{ignored}) -->\r\n\r\n<div>\r\n[block](brn://note/{ignored})\r\n</div>\r\n\r\n[relative](a.md) [external](https://example.invalid) [nil](brn://note/{}) [noncanonical](brn://note/{}) [encoded](brn://note/%7B{ignored}%7D) [missing][unknown]\r\n",
+            Uuid::nil(),
+            ignored.simple(),
+        );
+        let text = format!("{prefix}{body}");
+        assert_eq!(
+            stable_ids(&text, prefix.len()).unwrap(),
+            BTreeSet::from([first, second])
+        );
+        let upper_uuid = first.to_string().to_uppercase();
+        assert_eq!(
+            stable_ids(&format!("[x](BrN://note/{upper_uuid})"), 0).unwrap(),
+            BTreeSet::from([first])
+        );
+    }
+
+    #[test]
+    fn stable_id_approval_scan_has_no_public_link_count_or_returned_quote_cap() {
+        let id = Uuid::new_v4();
+        let many = format!("[x](brn://note/{id})\n").repeat(4097);
+        assert_eq!(stable_ids(&many, 0).unwrap(), BTreeSet::from([id]));
+        assert!(extract(&many, 0).is_err());
+        let references = "[x][r]\n".repeat(1024);
+        let huge_definition = format!(
+            "{references}\n[r]: <brn://note/{id}#{}>\n",
+            "a".repeat(5000)
+        );
+        assert_eq!(
+            stable_ids(&huge_definition, 0).unwrap(),
+            BTreeSet::from([id])
+        );
+        assert!(extract(&huge_definition, 0).is_err());
+    }
+
+    #[test]
+    fn stable_id_scan_enforces_note_and_utf8_body_limits_without_truncating() {
+        assert!(stable_ids("", 0).unwrap().is_empty());
+        assert!(stable_ids("õ", "õ".len()).unwrap().is_empty());
+        for offset in [1, 3, usize::MAX] {
+            assert_eq!(
+                stable_ids("õ", offset).err().unwrap().kind,
+                ErrorKind::ToolRejected
+            );
+        }
+        let oversized = "x".repeat(MAX_NOTE_BYTES + 1);
+        assert_eq!(
+            stable_ids(&oversized, 0).err().unwrap().kind,
+            ErrorKind::ToolRejected
+        );
+        assert!(
+            stable_ids(&"x".repeat(MAX_NOTE_BYTES), 0)
+                .unwrap()
+                .is_empty()
         );
     }
 }

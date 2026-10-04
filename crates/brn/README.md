@@ -492,7 +492,43 @@ Both targets must resolve with exact link quotes. Rename only that synthetic
 Duplicate the renamed synthetic source: the UUID link becomes ambiguous, retaining
 both observed matches. Delete only that fixture's disposable `index.sqlite` and
 restart; results must rebuild from Markdown and original note bytes stay exact.
-Native relationship controls and the graph canvas follow separately.
+
+`links prepare --file REQUEST.json` prepares one additive stable UUID link from
+an eligible current note to an already identified saved target. Its strict request
+is `{path, target_note_id, expected_target_sha256, proposal_id, title, label}`;
+the target hash is a 32-byte array from fresh identity inspection. The label is
+literal single-line text up to 512 bytes, escaped for Markdown. Both identities
+must be unique, and the selected target may be source/history evidence. Self-links,
+already resolved relationships and stale or ambiguous targets refuse.
+
+Preparation returns an ordinary complete Replace draft with exact consumer/target
+source proofs. It preserves the entire original byte prefix and creates no editor,
+review or vault change. Explicitly create, inspect and approve the returned draft
+through the existing proposal commands. Fresh approval also checks introduced
+stable-link target bindings after review edits/Rewrite. Unchanged historical links
+and exact Undo retain their existing authority. Request files must be regular,
+strict typed JSON up to 8 MiB; invalid input refuses before storage opens.
+
+For manual acceptance, use a fresh synthetic current note with a managed UUID and
+a different managed target in `archive/source.md`. Obtain its UUID/hash using
+`identity inventory`, then write a request naming the current note, a fresh
+proposal UUID/title and a label such as `Original õ [evidence]`. Run:
+
+```sh
+brn links prepare --file "$BRN_LINK_FILE" --data-dir "$BRN_DATA" --vault "$BRN_VAULT" > "$BRN_DRAFT_FILE"
+brn proposals create --file "$BRN_DRAFT_FILE" --data-dir "$BRN_DATA"
+brn proposals show "$BRN_PROPOSAL_ID" --data-dir "$BRN_DATA"
+brn proposals approve "$BRN_PROPOSAL_ID" --review-version 1 --operation "$BRN_APPROVAL_ID" --data-dir "$BRN_DATA"
+brn links show current.md --data-dir "$BRN_DATA" --json
+```
+
+Inspect the full draft before approval and use the actual review version. Confirm
+preparation left both notes unchanged; approval preserved the current note's exact
+prefix and appended one resolved UUID link with literal label wording. Restart and
+remove only the fixture's `index.sqlite`; the link still resolves. In a separate
+fresh fixture, edit or duplicate the selected target after capturing its hash and
+confirm preparation refuses without a proposal. Native controls, graph canvas
+and owner acceptance remain separate qualification steps.
 
 ### Derived relationship pages
 

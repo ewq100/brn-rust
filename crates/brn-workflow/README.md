@@ -133,6 +133,25 @@ work, and survives restart/index loss from ordinary Markdown alone. It refuses
 4096-link/4 MiB destination-and-quote overflow instead of silently truncating.
 These are observations, not a transactional vault snapshot.
 
+`PrepareNoteLink(LinkRequest)` returns complete ordinary Replace review input
+for one additive stable UUID link. The current consumer and saved target must
+already have freshly unique managed identities and valid metadata; source/history
+targets are permitted. The request binds the selected target's full hash, and the
+draft captures both full source versions. Preparation preserves every original
+byte, escapes the literal single-line label and confirms the exact appended AST
+link outside unfinished code/HTML. Self-links and existing resolved links are
+refused. No proposal or editor is admitted and no vault bytes change.
+
+Fresh ordinary approval rechecks newly introduced stable UUID targets after
+review edits or Rewrite. A saved target needs its exact captured source binding;
+a target created/replaced in the same complete draft uses the exact reviewed
+bytes and normal destination/before proofs. After-state identity inspection
+accounts for filesystem namespace aliases and refuses absent, removed, ambiguous
+or invalid targets before Applying. Unchanged historical UUID links are compared
+without the public extraction-output caps; exact Undo and completed replay retain
+their authority. This convenience command prepares links to saved targets; it
+does not coordinate cross-proposal creation dependencies.
+
 `Relationships(RelationshipRequest)` refreshes saved metadata, uses one fresh
 identity inventory and rebuilds disposable explicit-link and inferred-provenance
 edges. Each unique, eligible managed endpoint retains UUID/path/full hash; exact
@@ -148,8 +167,8 @@ target path and origin. Existing scopes filter both endpoints before pagination;
 Current is default, and All explicitly includes cross-scope connections. Every
 workflow query derives from saved Markdown offline rather than trusting an old
 target resolution. The cache is neither authority nor a transactional vault
-snapshot. No AI, network, proposal admission or Markdown write occurs. Durable
-link preparation and native relationship controls follow separately; graph canvas
+snapshot. No AI, network, proposal admission or Markdown write occurs. Native
+relationship controls follow separately; graph canvas
 remains its later roadmap stage.
 
 `proposal_source(path)` / AppWorker `ProposalSource` return the complete saved

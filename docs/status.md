@@ -61,12 +61,12 @@ shipping native build and native Clippy. Default desktop passed **131**; workflo
 **186**. The two ignored private crash entry points are exercised by subprocess
 matrices. Earlier slice counts remain in the evidence, not current gate claims.
 
-Stage 5’s [active plan](work/active/knowledge-foundations/plan.md) records nine
+Stage 5’s [active plan](work/active/knowledge-foundations/plan.md) records ten
 integrated slices: managed Markdown identities; fresh duplicate/incomplete
 inspection; current/source/history/all retrieval and native read-only browsing;
 durable exact provenance and native source inspection; reliable session/turn
-timestamps; saved CommonMark links; and disposable relationships. Fresh whole-byte
-observations detect retained-size/mtime changes. UUID links survive moves without
+timestamps; saved CommonMark links; disposable relationships; and exact stable-link
+preparation. Fresh whole-byte observations detect retained-size/mtime changes. UUID links survive moves without
 path/title guesses. Saved citations retain their exact historical quotes and
 source uncertainty independently of sessions or disposable indexes.
 
@@ -77,23 +77,36 @@ additively to V3, preserving passages/vectors. No AI or durable write occurs dur
 reconstruction. Independent review reproduced a valid reference-proof boundary;
 the corrected 8,192-proof cache preserves the accepted 4,096-link extractor. An
 introduced absent-metadata update regression was also reproduced and corrected.
-Final independent review passed **45 tests** with no actionable finding, plus
+That slice’s final review passed **45 tests** with no actionable finding, plus
 actual CLI probes for **8,192 exact proofs** and **5,000 notes / 4,999 edges**.
 The two scale queries took **6.108 s / 10.026 s** on this Mac; each relationship
 request currently rederives the saved vault observation.
 
-Fresh final Rust 1.98.1/macOS arm64 locked/offline verification passed **858
-workspace tests / 0 failed / 2 ignored**, **52 end-to-end assertions**, retirement,
-format/build/all-target Clippy, **168 native desktop tests**, **143 native workflow
-tests / 0 failed / 2 ignored**, both native Clippy configurations and the shipping
-native desktop build. Ignored private crash entry points remain exercised by
-subprocess matrices. Shipping headless startup/restart and synthetic CLI scenarios
-passed with unchanged vault bytes and no proposals, provider calls or downloads.
-Actual ONNX inference was not exercised. Earlier native scope/Copy/Save Copy
-observation is retained in the plan; final GUI restart and owner acceptance remain
-pending because the Mac is locked.
+Stable-link preparation returns full additive Replace review input with both
+consumer/target source bindings and no admission or vault write. It preserves the
+entire byte prefix, escapes literal labels and verifies parser placement. Fresh
+approval checks new UUID targets after edits/Rewrite against exact saved evidence
+or same-draft reviewed target bytes. Historical links, Undo and completed replay
+retain their authority. Broader tests caught and fixed an unrelated legacy-layout
+regression. Independent public probes also reproduced and verified fixes for
+case-sensitive aliases hiding duplicates and opaque metadata supplying false old
+link authority. Final review passed **62 tests / 0 failed / 1 ignored**, and the
+ignored real App case separately passed on fresh owned case-sensitive APFS.
 
-Durable relationship preparation/native views, basic review findings and
+Fresh final Rust 1.98.1/macOS arm64 locked/offline verification passed **884
+workspace tests / 0 failed / 3 ignored**, **52 end-to-end assertions**, retirement,
+format/build/all-target Clippy, **168 native desktop tests**, **164 native workflow
+tests / 0 failed / 3 ignored**, **7 native CLI process tests**, native Clippy
+configurations and the shipping native desktop build. Two ignored private crash
+entry points remain exercised by subprocess matrices; the third case-sensitive
+regression was explicitly qualified. Shipping headless startup/restart and the
+synthetic prepare/Create/Approve/rebuild scenario passed with exact original byte
+prefix/source bytes and no credential files, provider calls or downloads. Actual
+ONNX inference was not exercised. Earlier native scope/Copy/Save Copy observation
+is retained in the plan; final GUI restart and owner acceptance remain pending
+because the Mac is locked.
+
+Native relationship inspection/preparation controls, basic review findings and
 multilingual implementation/qualification remain Stage 5 work. The bounded
 multilingual asset-download permission question is still pending; unrelated safe
 implementation continues. Stage 5 is not complete.

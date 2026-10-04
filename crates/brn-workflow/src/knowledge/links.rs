@@ -9,7 +9,11 @@ use brn_store::note_identity;
 use serde::{Deserialize, Serialize};
 use uuid::Uuid;
 
+mod approval;
 mod extract;
+mod preparation;
+mod prepare_text;
+pub use preparation::LinkRequest;
 
 #[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
 #[serde(deny_unknown_fields)]
