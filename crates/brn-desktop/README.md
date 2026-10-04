@@ -177,7 +177,44 @@ directory in the native app after the CLI exits.
 Native/live and owner acceptance are pending until these controls are exercised on
 the unlocked Mac. Save safe actual captures in the
 [UI screenshot index](../../docs/ui/screenshots/README.md). Action composition,
-identified Complete/dashboard, owned Action Rewrite and Action Undo follow later.
+owned Action Rewrite and Action Undo follow later.
+
+### Dashboard and identified Complete
+
+Dashboard in History opens the shared Action snapshot without needing a vault or
+provider. Active defaults to Open/Waiting/Blocked; eight filters include Completed,
+Overdue, Follow-up and All. Counts cover all retained Actions at the displayed
+OS-local civil date. Refresh today resets the first page; Older page carries that
+returned date and cursor. Due dates become overdue the following day; follow-up
+starts on the named day. Completed contributes to neither date signal. Dependency
+observations retain ordered unfinished/missing targets without changing state.
+
+Select an Action to read/select/copy its full record, immutable approved origin
+and dependency observations. Complete… freezes its entire before record and a
+new operation UUID once; only the explicit confirmation submits it. A changed
+selection/refreshed page or busy/closing app refuses that capture. Completion
+never edits/reopens Completed work; later follow-up is a new approved Action.
+Acknowledgement validates the whole exact receipt and refreshes visible counts.
+
+Attempted requests and typed failures remain selectable/copyable/retryable across
+navigation for this app session. Retry uses the same UUID/full payload, independent
+of current selection. Unknown/misbound replies cannot claim completion; a later
+failure cannot regress an acknowledged receipt. Only one completion is admitted
+at a time. These are transient presentation records; application-owned ordinary
+receipts and checked startup reconciliation supply durable recovery. Admitted
+completion drains on shutdown. Do not treat a failed response as proof of no effect.
+
+Manual acceptance: while the desktop is closed, use the CLI Action scenario with
+two fresh synthetic approved Actions and canonical past/today dates. Open the same
+data folder, choose Dashboard and inspect Active, each state/date filter and All.
+Inspect/copy every field and origin. Open Complete…, inspect the exact snapshot,
+close it without confirming and verify state is unchanged; reopen and explicitly
+confirm. Active/date counts withdraw that Action, Completed shows the same origin
+and a completion time. Quit/restart and compare the CLI full record/receipt. Try
+navigation with unfinished initial proposal/review/comment/editor input: the
+existing guards must preserve it before Dashboard opens. Native/owner acceptance
+remains separate from automated widget/worker checks. New/follow-up composition
+and later-domain dashboard summaries remain following roadmap deliverables.
 
 Saved documents also expose **Links**. This inspects saved Markdown while retaining
 unsaved editor text, showing exact occurrence/reference-definition quotes, source

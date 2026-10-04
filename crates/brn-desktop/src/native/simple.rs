@@ -23,6 +23,7 @@ pub(super) enum EditorTransition {
     Evidence { path: String, scope: KnowledgeScope },
     Review(Uuid),
     Activity,
+    Dashboard,
     Findings,
     Draft(Option<Uuid>),
     Hide,
@@ -197,6 +198,7 @@ impl Desktop {
         self.sync_provenance_widgets(window, cx);
         self.sync_relationship_widgets(window, cx);
         self.sync_finding_widgets(window, cx);
+        self.sync_dashboard_widgets(window, cx);
         if self
             .ai
             .as_ref()
@@ -394,6 +396,9 @@ impl Desktop {
         ) {
             self.ai.as_mut().unwrap().close_findings();
         }
+        if !matches!(&transition, EditorTransition::Dashboard) {
+            self.ai.as_mut().unwrap().close_dashboard();
+        }
         match transition {
             EditorTransition::Note(path) => self.simple_open_note(path, cx),
             EditorTransition::Evidence { path, scope } => {
@@ -420,6 +425,22 @@ impl Desktop {
                 self.open_doc = Some(DocRef::Proposal(id));
                 self.centre_tab = CentreTab::Document;
                 if let Some(command) = ai.open_review(id) {
+                    self.simple_send(command, cx);
+                }
+            }
+            EditorTransition::Dashboard => {
+                self.clear_saved_link_panel();
+                self.clear_saved_sources();
+                let ai = self.ai.as_mut().unwrap();
+                ai.note_generation = ai.note_generation.wrapping_add(1);
+                ai.review_generation = ai.review_generation.wrapping_add(1);
+                ai.editor = None;
+                ai.evidence = None;
+                ai.review = None;
+                self.simple_note_path = None;
+                self.open_doc = Some(DocRef::Dashboard);
+                self.centre_tab = CentreTab::Document;
+                if let Some(command) = ai.open_dashboard() {
                     self.simple_send(command, cx);
                 }
             }
@@ -1042,6 +1063,17 @@ impl Desktop {
                 );
         }
         list = list
+            .child(
+                Button::new("open-dashboard")
+                    .label("Dashboard")
+                    .selected(self.open_doc == Some(DocRef::Dashboard))
+                    .disabled(!ai.ready)
+                    .on_click(cx.listener(|this, _, window, cx| {
+                        if !window.has_active_dialog(cx) {
+                            this.simple_leave(EditorTransition::Dashboard, cx);
+                        }
+                    })),
+            )
             .child(
                 Button::new("open-activity")
                     .label("Activity and recovery")

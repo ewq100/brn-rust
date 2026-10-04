@@ -842,3 +842,76 @@ logs dashboard-*-final.log remain under
 /private/tmp/brn-v1-stage1-checkpoint-s3nawyyb. Known upstream block0.1.6 future-
 compiler warning remains. Exact-head CI/integration is next; pending native/owner
 acceptance does not prevent this shared checkpoint.
+
+## Native Dashboard and identified Complete — next deliverable
+
+Baseline PR38 actualmerge58a1b8f86b654cfa9da2c1bc4b349917884bd2fb/treecd7763de.
+Exacthead3582c0e/run37228046322 passedMac3+UbuntuShared; Windows22 decoded errors
+match baseline. Post15focused/0failed/0ignored+52fixtures+startup2 passed,V11/
+exactbytes/zero credentials. Main37228721623 finished5success/4failure with Mac3+
+UbuntuCore/UI passed and actual four failed logs equal previousmain37225862216.
+OverallCIred; no shared Mac defect or enforced-requirement bypass.
+Scope: guarded Dashboard navigation, eight shared filters, whole-snapshot counts,
+older pages with returned date/cursor, complete read-only Action/dependency proof,
+and captured explicit Complete. New/follow-up proposal composition follows.
+
+Presentation holds query/view/page/selection generations and workflow DTOs only.
+Refresh/filter changes invalidate old detail and counts; stale replies cannot
+replace newer observations. Validate each page using the captured shared request.
+The modal captures full before record and a fresh operation UUID once; confirmation
+rechecks selection/generation/native guards. The outer worker ID equals that UUID.
+Admission registers a typed transient attempt before sending, so even synchronous
+refusal retains exact input. One completion mutation is admitted at a time.
+Retain each attempted request, typed failure and validated terminal receipt across
+navigation; a later different capture never destroys an earlier uncertain retry.
+Explicit retries reuse the original UUID/full request without requiring selection
+or a vault. No error wording proves non-application. Wrong receipt stays pending;
+valid global acknowledgement refreshes visible Dashboard and cannot overwrite a
+different/newer selection. Late failure cannot regress an acknowledged receipt.
+Admitted Complete drains through existing shutdown; no cancellation/write shortcut.
+
+Acceptance: stale/filter/date/cursor/malformed replies; immutable modal and drift
+refusal; complete record/origin/ordered dependencies selectable and copyable;
+wrong acknowledgement/pending preservation; error/navigation/exact retry and global
+receipt correlation; real source-free worker approval→Complete→refresh/restart;
+existing draft/comment/review/editor/quit guards; actual 480×480 widgets with all
+controls reachable. Whole independent read-only review, fresh shared/native gates,
+shipping builds/startup, exact-head CI and post-merge verification. Manual: open
+Dashboard after approving synthetic waiting/blocked Actions, inspect every field,
+complete one captured Action, refresh and inspect Completed, then restart. Native/
+owner acceptance is recorded separately. No live call or original data required.
+
+### Native checkpoint evidence — 2026-10-04
+
+Implemented the fixed thin-client contract. Six state/real-worker and four native
+widget tests passed, including actual 480×480 pane reachability/read-only copy,
+full shipping modal capture/drift refusal, synchronous submission failure and
+same-request copy/retry across navigation. The navigation runtime RED preceded
+wiring; missing state APIs were structural RED. The real worker test qualifies
+source-free approval→Complete→shutdown drain→restart/exact replay without a vault,
+index or provider. Independent Sol whole read-only review found no actionable or
+advisory defect; all nine reviewed Rust blob hashes remained exact through gates.
+
+Fresh pinnedRust1.98.1/macOSarm64 locked/offline shared verification passed
+1112/0failed/6ignored+52fixtures. Combined native Desktop passed243/0failed/0ignored;
+test-support and shipping all-target Clippy, shipping Desktop/CLI builds and two
+V11 startup/restart checks passed, preserving exact BOM/CRLF/Unicode and zero
+credentials. Logs native-dashboard-*-final.log and qualified-startup-wcle9mhp
+remain under /private/tmp/brn-v1-stage2-checkpoint-dqbmj4oy. Only the known upstream
+block0.1.6 future-compiler warning remains. Local documentation links/diff checked.
+
+Actual unlocked native observation used fresh owned vaultless fixture
+/private/tmp/brn-v1-dashboard-ui-e2q1kcj1 and shipping binary SHA256
+a8f5ebcd5d4fc64d61b04bc9d1481250bca151c902e4c61e1c176856071cc149.
+Declined the optional model offer. Active showed Open1/Waiting1/Blocked1/Completed1/
+Overdue1/FollowUp1; explicitly confirmed the captured Waiting Action once. Refresh
+showed1/0/1/2/0/0, keeping Blocked state with its dependency observed Completed.
+Completed selection disabled further completion. Normal quit, shipping CLI restart,
+full record/immutable-origin/field-byte checks and exact same-operation receipt
+replay passed; native restart showed the same counts. Eight safe original JPEGs
+are retained in the [screenshot index](../../../ui/screenshots/2026-10-04/INDEX.md).
+No account/provider/model download/original-data operation occurred. This records
+native observation, not owner acceptance of the whole Action review flow.
+
+Exact-head CI/PR integration follows; new approved Action/follow-up composition
+and Stage6 AI read/proposal tools remain next. No completeStage6/V1 claim.

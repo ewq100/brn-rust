@@ -84,6 +84,7 @@ impl Desktop {
             Some(DocRef::Evidence) => self.render_evidence_document(cx),
             Some(DocRef::Proposal(_)) => self.render_proposal_review(cx),
             Some(DocRef::Activity) => self.render_activity(cx),
+            Some(DocRef::Dashboard) => self.render_dashboard(cx),
             Some(DocRef::Findings) => self.render_findings(cx),
             Some(DocRef::Draft) => self.render_draft(cx),
             _ => self.render_simple_document(cx),

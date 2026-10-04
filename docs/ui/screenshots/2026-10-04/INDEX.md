@@ -16,3 +16,21 @@ commit/working change and synthetic fixture here. Keep original returned image
 bytes. Exclude sign-in codes, tokens, credentials and private/original data.
 Earlier captures without retained image bytes are unavailable. These captures
 record observations, not owner acceptance.
+
+## Stage 6 native Dashboard / Complete
+
+Reviewed candidate `codex/v1-native-dashboard` over PR38 merge `58a1b8f`;
+shipping binary SHA-256 `a8f5ebcd5d4fc64d61b04bc9d1481250bca151c902e4c61e1c176856071cc149`.
+Fresh synthetic vaultless fixture `/private/tmp/brn-v1-dashboard-ui-e2q1kcj1`;
+zero account/provider calls, credentials or model downloads. Original JPEG bytes,
+2200×1600. Native observations and CLI restart/replay passed; owner acceptance
+of the complete Action review flow is separate and pending.
+
+- [stage6-dashboard-ready.jpg](stage6-dashboard-ready.jpg): Ready with the optional model offer; subsequently declined without download.
+- [stage6-dashboard-active.jpg](stage6-dashboard-active.jpg): Active filter and global state/date counts before completion.
+- [stage6-dashboard-selected-waiting.jpg](stage6-dashboard-selected-waiting.jpg): Selected Waiting Action, full selectable proof and Complete control.
+- [stage6-complete-capture-top.jpg](stage6-complete-capture-top.jpg): Immutable confirmation with operation UUID, complete baseline/origin and exact synthetic Unicode fields.
+- [stage6-complete-capture-bottom.jpg](stage6-complete-capture-bottom.jpg): Scrolled confirmation fields and explicit captured-Action button.
+- [stage6-dashboard-after-complete.jpg](stage6-dashboard-after-complete.jpg): Acknowledged exact operation, withdrawn date signals, unchanged Blocked Action and retained request.
+- [stage6-dashboard-completed-filter.jpg](stage6-dashboard-completed-filter.jpg): Completed filter, unchanged global counts and disabled further completion.
+- [stage6-dashboard-restarted.jpg](stage6-dashboard-restarted.jpg): Normal native restart, same global counts and durable completed state; transient attempts start empty.
