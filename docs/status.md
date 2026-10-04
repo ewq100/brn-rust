@@ -4,8 +4,8 @@
 [product vision](product/BRN_PRODUCT_VISION.md), [architecture](architecture/overview.md#frozen-target),
 [invariants](architecture/invariants.md), [roadmap](roadmap.md) and
 [development workflow](development/workflow.md). **Stages 1–4 are implemented,
-automated verified and locally integrated. Stage 5 knowledge foundations is active; Stages 5–16 remain
-unfinished. Complete BRN v1 delivery is not claimed.**
+automated verified and locally integrated. Stage 5 qualification/publication continues; Stage 6 Actions/dashboard is active.
+Stages 5–16 remain unfinished. Complete BRN v1 delivery is not claimed.**
 
 The owner's 2026-10-04 [client-boundary amendment](architecture/overview.md#client-and-protocol-boundary)
 establishes BRN as a headless platform: six current V1 core crates with permitted
@@ -14,18 +14,10 @@ found no desktop/CLI domain bypass; existing scoped knowledge/proposal/activity
 commands are retained. Read-only local stdio MCP is future work; no daemon,
 network service or added V1 stage is authorized by this amendment.
 Workflow-owned search evidence now keeps SQLite passage IDs inside retrieval.
-A real index rebuild regression failed solely on row ID2→1 before the correction
-and passes afterward. Independent source review found no remaining defect.
-Fresh macOSarm64/Rust1.98.1 locked/offline gates passed908workspace/0failed/
-3ignored+52fixtures,201native desktop/0failed/0ignored,158focused native workflow/
-0failed/2ignored,both native Clippy configurations and shipping desktop/CLI builds.
-Two startup/restart checks retained exact synthetic bytes,V8 and zero credentials.
-PR25 merged82953261642427a59a27707545ba2835eec2b813 after exact90de25e/
-run37197453154 passed MacCore/UI/Retrieval+UbuntuSharedCore; Windows Unix APIs
-failed,overallCIred. Merged tree equality,3focused tests+52fixtures and two
-shipping startup/restart checks passed with exact bytes,V8 and zero credentials.
-Logs: /private/tmp/brn-client-boundary-bgywtql7. Existing GUI/model/provider
-qualification gaps remain unchanged.
+The real row-reallocation regression and independent correction review passed;
+exact quotations/hashes/scopes remain stable across disposable-index rebuilds.
+Merged-main CI37197827195 passed Mac3+UbuntuCore/UI; existing non-Mac exclusive
+install/Unix API gaps leave overallCIred, without a shared macOS defect.
 
 Manual Save/recovery (`6609442`) preserves exact UTF-8, generation-bound recovery
 and file/parent/root identities. Copies install exclusively; missing originals
@@ -181,6 +173,29 @@ APIs; no extra call or Rewrite protocol change occurs. Fresh adapter/capability
 fixtures passed **86 library +1 example tests**. Actual response-language compliance
 remains unqualified. Safe later implementation continues; Stage 5 is not complete.
 
+Stage 6’s [active plan](work/active/actions-dashboard/plan.md) now includes checked
+V10 Action reads and typed stored Create/Replace review members using the existing
+exact lifecycle. Full replacement baselines/IDs remain immutable; completed work
+cannot be reopened. Combined budgets and omitted empty fields preserve old
+Markdown hashes. Workflow creation/apply/owned Rewrite explicitly refuse Actions
+until whole application/recovery is qualified. Independent review passed71tests
+and6synthetic CLI refusal probes with no Action/provider effects. A separate
+recovery defect was reproduced and fixed: complete Action prevalidation skips
+malformed backup candidates while refusing semantic-invalid mains. Independent
+52tests plus genuine Action B-tree corruption recovery passed; V9 Findings
+prevalidation/regressions are retained. Joined Store application now captures
+exact Action after-state and atomically settles CAS writes with the whole receipt,
+review and comment cleanup. Recovery checks real Replace baselines before importing
+after-state, preserves newer/Completed work and refuses equal-version forks.
+Independent review reproduced the missing before-fork check; its meaningful RED
+then corrected regression passed, with no remaining findings. Final Store266/0/0
+and independent56/0/0 passed. Fresh991workspace/0failed/3ignored+52fixtures,
+213combined-native/0failed/0ignored,both native Clippy configurations,shipping
+desktop/CLI builds and two startup/restart checks passed with exact synthetic
+bytes,V10 and zero credentials. Local integration/publication is recorded in the
+plan. Workflow creation/apply/Rewrite remain guarded until whole mirror/crash
+recovery qualifies; no real Action producer,dashboard or Stage6 completion is claimed.
+
 ## Qualification still open
 
 Actual GUI/IME/accessibility, chooser, native Save/recovery/review/approval/Undo/
@@ -191,68 +206,36 @@ items do not block later safe implementation. The completed provider round leave
 Copilot GPT-5.5 Chat unsupported, Codex vision accuracy and native citations
 unqualified. Upstream `block v0.1.6` retains a future-compiler warning.
 
-Stages 1–4 are published in reviewed PRs16–21. Stage4C PR21 merged
-`6601374996ecba7d461403aa6e892f1273bed28e` after exact18a315b run37190429533
-passed macOSCore/UI/Retrieval and UbuntuSharedCore. Windows Unix metadata failure
-leaves overallCIred. Merged tree equality,16widgets+52fixtures, shipping build and
-two startup/restart runs passed with exact synthetic bytes and zero credentials.
-
-Stage5A PR22 merged `a9f838295ea905bf25d05953fe03d02a2092dff7` after exact
-4895916 run37191800152 passed macOSCore/UI/Retrieval and UbuntuSharedCore.
-Windows Unix metadata failure leaves overallCIred. Merged tree equality,
-16CLIidentity/inventory/scopes+52fixtures and two shipping startup/restart runs
-passed with exact synthetic bytes and zero credentials.
-
-Stage5B provenance/timestamps publication baseline `db9aee3` integrates reviewed
-slices throughbaf3bee with qualified Stage5A. Independent review verified
-36Stage5-only+13incoming-only exact paths and both source overlaps, with no
-actionable defect. Fresh macOS arm64/Rust1.98.1 locked/offline checks passed
-809workspace/0failed/2ignored+52fixtures, retirement,format/build/all-target Clippy;
-168combined-native/0failed/0ignored, both native Clippy variants and shipping
-desktop/CLI builds;136focused-native-workflow/0failed/2ignored. Two shipping
-startup/restart runs preserved exact BOM/CRLF/Unicode bytes with zero credentials.
-PR23 mergedd48654098f79c8b4a6b13982650c258245b2d800 after exact2d0993f
-run37193690701 passed all three Mac lanes and UbuntuSharedCore;Windows Unix
-APIs fail,overallCIred. Merged tree equality,14CLIprovenance/Storetimestamp tests+
-52fixtures and two startup/restart checks passed with exact bytes,zero credentials.
-GUI/owner
-acceptance remains separate. Relationships/exact link preparation are in this checkpoint;findings/language
-publication remain pending; Stage5 is not complete.
-
-Stage5C relationships/exact-link publication baseline71a27a2 integrates the
-reviewed12-slice endpoint with qualified Stage5B. Initial/final independent
-integration reviews found no actionable defect;205othercrate paths preserved
-across the sole incoming helper guard. Fresh907workspace/0failed/3ignored+52fixtures,
-201combined-native/0failed/0ignored, both Clippy variants/shipping builds,
-21native-retrieval and164focused-native-workflow/0failed/3ignored passed.
-Fresh incoming3CLItests/workspace Clippy/format and two shipping startup/restart
-checks passed with exact synthetic bytes,zero credentials. PR24 merged2483b31f38a2b941ab71b7fba5449519da600e82 after exact716aede/
-run37194454005 passed Mac3+UbuntuShared;Windows Unix APIs fail,overallCIred.
-Merged tree equality,10CLIrelationships/links+52fixtures and two startup/restart
-checks passed with exact bytes,zero credentials. GUI/owner acceptance remains
-pending. Reviewed Findings/NeedsReview is in this checkpoint;language follows; completeStage5/V1 delivery is not claimed.
-
-Stage5D publication baseline9cb0fde retains reviewed14-slice Findings/NeedsReview
-and qualified Stage5C. Independent review reproduced readable Findings CHECK
-violations restoring an older Open/v1 backup over legitimate Resolved/v2 work.
-The compatible correction prevalidates supported branded V9+ Findings, refuses
-semantic-invalid main work and skips invalid backup candidates while preserving
-physical recovery, foreign/newer refusal and the V9 schema. Meaningful RED and
-Green regressions plus independent20tests/4public probes passed; no finding remains.
-After merging qualified PR25 at844dc92, independent preservation review found
-no defect. Fresh946workspace/0failed/3ignored+52fixtures,213combined-native/0failed/0ignored,
-154focused native-workflow/0failed/2ignored,both native Clippy configurations and
-shipping desktop/CLI builds passed. Two startup/restart checks retained exact
-synthetic bytes,V9 and zero credentials. Logs: /private/tmp/brn-v1-stage5d-checkpoint-yry8r21v.
-PR26 mergedb0e93fb81cf702da5d4957ed984305ed8852683f after exactfc98b0d/
-run37199082097 passed Mac3+UbuntuShared;Windows Unix APIs failed,overallCIred.
+Reviewed PRs16–21 publish Stages1–4; their completed plans retain exact checks.
+Stage5A [PR22](https://github.com/ewq100/brn-rust/pull/22) mergeda9f8382 after
+exact4895916/run37191800152. Stage5B [PR23](https://github.com/ewq100/brn-rust/pull/23)
+mergedd48654098f79c8b4a6b13982650c258245b2d800 after exact2d0993f/
+run37193690701. Stage5C [PR24](https://github.com/ewq100/brn-rust/pull/24) merged
+2483b31f38a2b941ab71b7fba5449519da600e82 after exact716aede/run37194454005.
+Each exact latest head passed macOSCore/UI/Retrieval+UbuntuSharedCore; Windows
+Unix APIs failed,leaving overallCIred. Independent review and relevant local
+verification passed before merge. PostB14CLIprovenance/Storetimestamp tests,
+postC10CLIlinks/relationships/preparation tests,52fixtures at each checkpoint,
+merged-tree equality and two startup/restart checks each passed with exact bytes
+and zero credential files. GUI/owner acceptance stays pending. PR25 merged8295326 after exact90de25e/
+run37197453154 passed the same four applicable lanes; Windows Unix APIs failed,
+overallCIred. Merged tree equality,3focused tests+52fixtures and two shipping
+startup/restart checks passed with exact bytes,V8 and zero credentials. Stage5D
+[PR26](https://github.com/ewq100/brn-rust/pull/26) mergedb0e93fb after exactfc98b0d/
+run37199082097 passed Mac3+UbuntuShared;Windows Unix API failures leave overallCIred.
 Merged tree equality,28focused tests+52fixtures and two startup/restart checks
-passed with exact bytes,V9,zero credentials. Main37199659960 passed Mac3+
-UbuntuCore/UI;Ubuntu retrieval's unchanged exclusive-install expectations failed
-6pass/3fail,Windows3failed,overallCIred. Independent actual-job analysis found no
-new sharedMac defect. Language publication follows; safe Stage6 implementation
-continues. Native owner/IME/accessibility acceptance remains pending; Stage5/V1
-completion is not claimed.
+passed with exact bytes,V9,zero credentials. Main37199659960 passed Mac3+UbuntuCore/UI;
+Ubuntu native retrieval failed6pass/3fail on unchanged unsupported exclusive-install
+expectations,Windows3failed,overallCIred. Independent analysis found no sharedMac
+defect. Stage5 language [PR27](https://github.com/ewq100/brn-rust/pull/27) merged
+42722526009b6c986271afc75680828bc5287c02 after exactcee0144/run37201040507 passed
+the same four applicable lanes;Windows failed before tests on Unix APIs,overallCIred.
+Merged tree equality,24focused profile/model/Ask tests+52fixtures and two shipping
+startup/restart checks passed with exact bytes,V9,zero credentials. Main37201599486
+passed Mac3+UbuntuCore/UI; Ubuntu native retrieval failed10pass/3fail on unchanged
+unsupported exclusive-install expectations,Windows3failed,overallCIred. Independent
+source/log analysis found no sharedMac/language defect. Checked Stage6 Action storage publication follows; GUI/model/
+provider qualification and wholeStage5 completion remain pending.
 
 Release/public distribution, additional live calls/model downloads, purchases and
 original/private-data inspection or migration still need applicable owner

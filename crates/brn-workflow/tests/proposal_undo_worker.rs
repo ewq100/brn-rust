@@ -130,6 +130,7 @@ fn applied_fixture(worker: &AppWorker) -> (ApprovalRequest, EditorRecord, Editor
     let AppEvent::Proposal(draft) = request_event(
         worker,
         AppCommand::CreateProposal(DraftRequest {
+            action_changes: Vec::new(),
             id: Uuid::new_v4(),
             group_id: None,
             session_id: None,

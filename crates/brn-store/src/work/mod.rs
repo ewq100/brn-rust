@@ -1,6 +1,7 @@
 //! User-work database for the simple notes app (`brn.sqlite`). It is checked
 //! on every open, restored from the newest backup when corrupt, and backed
 //! up after every successful open. Notes themselves live in the vault.
+pub mod actions;
 mod backup;
 pub mod chat;
 pub mod editor;
@@ -70,6 +71,7 @@ const MIGRATIONS: &[&str] = &[
     chat::V7,
     chat::V8,
     findings::V9,
+    actions::V10,
 ];
 
 #[derive(Debug, Clone, PartialEq, Eq)]
@@ -141,6 +143,7 @@ impl WorkStore {
         };
         configure(&conn)?;
         migrate(&mut conn)?;
+        actions::check_all(&conn)?;
         findings::check_all(&conn)?;
         chat::reconcile(&mut conn)?;
         proposal_rewrite::reconcile(&mut conn)?;
@@ -260,6 +263,16 @@ fn check(db: &Path) -> Result<Checked> {
         Err(e) if is_corruption(&e) => return Ok(Checked::Corrupt),
         Err(e) => return Err(e.into()),
     };
+    if application == APPLICATION_ID && (10..=MIGRATIONS.len() as i64).contains(&version) {
+        // Readable Action schema/record damage is semantic refusal. Checking
+        // the owned shape and full rows first prevents quick_check from
+        // replacing main work and keeps malformed restore candidates unusable.
+        match actions::check_all(&conn) {
+            Err(crate::Error::Sql(e)) if is_corruption(&e) => return Ok(Checked::Corrupt),
+            Err(error) => return Ok(Checked::Invalid(error)),
+            Ok(()) => {}
+        }
+    }
     if application == APPLICATION_ID && (9..=MIGRATIONS.len() as i64).contains(&version) {
         // SQLite quick_check also reports domain CHECK failures. Validate
         // readable Findings first so malformed state/hash bindings cannot

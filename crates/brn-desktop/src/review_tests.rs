@@ -35,6 +35,7 @@ fn fixture() -> ProposalRecord {
 
 fn full_edit(record: &ProposalRecord) -> ProposalEdit {
     ProposalEdit {
+        action_data: Vec::new(),
         expected: record.stamp(),
         title: record.draft.title.clone(),
         texts: record
@@ -205,13 +206,13 @@ fn acknowledgement_refuses_wrong_correlation_contents_versions_and_all_bindings(
     wrong.draft.session_id = None;
     bad_replies.push(wrong);
     let mut wrong = good.clone();
-    wrong.draft.vault.root = "/synthetic/other".into();
+    wrong.draft.vault.as_mut().unwrap().root = "/synthetic/other".into();
     bad_replies.push(wrong);
     let mut wrong = good.clone();
-    wrong.draft.vault.identity.inode += 1;
+    wrong.draft.vault.as_mut().unwrap().identity.inode += 1;
     bad_replies.push(wrong);
     let mut wrong = good.clone();
-    wrong.draft.vault.id = Uuid::new_v4();
+    wrong.draft.vault.as_mut().unwrap().id = Uuid::new_v4();
     bad_replies.push(wrong);
     let mut wrong = good.clone();
     wrong.draft.sources[0].fingerprint.inode += 1;

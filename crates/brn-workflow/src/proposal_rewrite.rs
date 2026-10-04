@@ -184,6 +184,7 @@ pub(crate) fn decode(request: &RewriteRequest, text: &str) -> Result<ProposalEdi
         )
     })?;
     Ok(ProposalEdit {
+        action_data: Vec::new(),
         expected: request.expected,
         title: result.title,
         texts: result.texts,

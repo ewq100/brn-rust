@@ -52,11 +52,11 @@ impl Fixture {
             id: Uuid::new_v4(),
             group_id: Some(Uuid::new_v4()),
             session_id: Some(Uuid::new_v4()),
-            vault: VaultRecord {
+            vault: Some(VaultRecord {
                 id: Uuid::new_v4(),
                 root: vault,
                 identity: parent.clone(),
-            },
+            }),
             title: "Captured original title".into(),
             changes: vec![
                 NoteChange::Create {
@@ -82,6 +82,7 @@ impl Fixture {
                 path: "old.md".into(),
                 fingerprint: fingerprint("\u{feff}old private baseline 🦀\r\n", 2),
             }],
+            action_changes: Vec::new(),
         };
         let (store, _) = WorkStore::open(&data).unwrap();
         Self { base, store, draft }
@@ -155,6 +156,7 @@ fn edit(record: &ProposalRecord) -> ProposalEdit {
             .iter()
             .map(|change| change.text().map(str::to_owned))
             .collect(),
+        action_data: Vec::new(),
     }
 }
 
@@ -579,7 +581,7 @@ fn fresh_specs_are_validated_without_inserting_jobs_or_mutating_review() {
 #[test]
 fn pure_validation_counts_retained_before_text_and_comments_in_the_aggregate() {
     let mut f = Fixture::new();
-    let parent = f.draft.vault.identity.clone();
+    let parent = f.draft.vault.as_ref().unwrap().identity.clone();
     let before = "b".repeat(MAX_NOTE_BYTES);
     f.draft.changes = (0..7)
         .map(|i| NoteChange::Create {
@@ -847,7 +849,7 @@ fn additive_v5_migration_and_backup_restore_preserve_work_and_terminal_rewrite()
     let _base = f.base;
     drop(f.store);
     let conn = raw(&data);
-    conn.execute_batch("DROP TABLE findings; ALTER TABLE messages DROP COLUMN started_at_ms; ALTER TABLE messages DROP COLUMN finished_at_ms; ALTER TABLE conversations DROP COLUMN last_activity_at_ms; ALTER TABLE messages DROP COLUMN effort; DROP TABLE proposal_rewrites; PRAGMA user_version=5;")
+    conn.execute_batch("DROP TABLE actions; DROP TABLE findings; ALTER TABLE messages DROP COLUMN started_at_ms; ALTER TABLE messages DROP COLUMN finished_at_ms; ALTER TABLE conversations DROP COLUMN last_activity_at_ms; ALTER TABLE messages DROP COLUMN effort; DROP TABLE proposal_rewrites; PRAGMA user_version=5;")
         .unwrap();
     drop(conn);
     let (mut store, _) = WorkStore::open(&data).unwrap();
@@ -880,6 +882,6 @@ fn additive_v5_migration_and_backup_restore_preserve_work_and_terminal_rewrite()
         raw(&data)
             .query_row("PRAGMA user_version", [], |r| r.get::<_, u32>(0))
             .unwrap(),
-        9
+        10
     );
 }

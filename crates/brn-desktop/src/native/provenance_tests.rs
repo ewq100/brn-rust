@@ -381,6 +381,7 @@ fn accepted_review_draft_and_hide_navigation_clear_the_source_panel(
         (
             Uuid::new_v4(),
             AppCommand::CreateProposal(DraftRequest {
+                action_changes: Vec::new(),
                 id: Uuid::new_v4(),
                 group_id: None,
                 session_id: None,

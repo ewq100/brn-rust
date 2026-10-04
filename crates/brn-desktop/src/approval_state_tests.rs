@@ -89,6 +89,7 @@ fn create(worker: &AppWorker, path: &str, group: Option<Uuid>) -> ProposalRecord
         (
             Uuid::new_v4(),
             AppCommand::CreateProposal(DraftRequest {
+                action_changes: Vec::new(),
                 id: Uuid::new_v4(),
                 group_id: group,
                 session_id: None,
@@ -479,6 +480,7 @@ fn failed_preparation_records_not_applied_and_explicit_reconcile_preserves_origi
         (
             Uuid::new_v4(),
             AppCommand::CreateProposal(DraftRequest {
+                action_changes: Vec::new(),
                 id: Uuid::new_v4(),
                 group_id: None,
                 session_id: None,

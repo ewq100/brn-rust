@@ -200,16 +200,16 @@ fn capture_refuses_invalid_members_groups_duplicate_ids_and_mismatched_vaults() 
     }
     let mut wrong_vaults = vec![];
     let mut wrong = record(Some(id));
-    wrong.draft.vault.id = Uuid::new_v4();
+    wrong.draft.vault.as_mut().unwrap().id = Uuid::new_v4();
     wrong_vaults.push(wrong);
     let mut wrong = record(Some(id));
-    wrong.draft.vault.root = "/synthetic/other-vault".into();
+    wrong.draft.vault.as_mut().unwrap().root = "/synthetic/other-vault".into();
     wrong_vaults.push(wrong);
     let mut wrong = record(Some(id));
-    wrong.draft.vault.identity.inode += 1;
+    wrong.draft.vault.as_mut().unwrap().identity.inode += 1;
     wrong_vaults.push(wrong);
     let mut wrong = record(Some(id));
-    wrong.draft.vault.identity.device += 1;
+    wrong.draft.vault.as_mut().unwrap().identity.device += 1;
     wrong_vaults.push(wrong);
     for wrong in wrong_vaults {
         assert!(ApprovalCapture::new(vec![original.clone(), wrong], Some(id)).is_none());
@@ -237,10 +237,10 @@ fn full_review_validation_refuses_corrupt_bindings_and_byte_or_comment_overflow(
     wrong.draft.id = Uuid::nil();
     invalid.push(wrong);
     let mut wrong = original.clone();
-    wrong.draft.vault.id = Uuid::nil();
+    wrong.draft.vault.as_mut().unwrap().id = Uuid::nil();
     invalid.push(wrong);
     let mut wrong = original.clone();
-    wrong.draft.vault.root = "relative/vault".into();
+    wrong.draft.vault.as_mut().unwrap().root = "relative/vault".into();
     invalid.push(wrong);
     let mut wrong = original.clone();
     wrong.draft.session_id = Some(Uuid::nil());

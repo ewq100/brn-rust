@@ -1,5 +1,9 @@
 //! Typed proposal review work. This module never performs vault I/O.
-use super::{MAX_NOTE_BYTES, WorkStore, now_ms};
+use super::{
+    MAX_NOTE_BYTES, WorkStore,
+    actions::{ActionData, ActionRecord, ActionState},
+    now_ms,
+};
 use crate::files::{FileFingerprint, VaultIdentity, VaultRecord};
 use crate::{Error, Result, hash, invalid};
 use rusqlite::{Connection, OptionalExtension, params};
@@ -69,6 +73,56 @@ impl NoteChange {
 }
 
 #[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
+#[serde(tag = "kind", rename_all = "snake_case", deny_unknown_fields)]
+pub enum ActionChange {
+    Create {
+        id: Uuid,
+        data: ActionData,
+    },
+    Replace {
+        before: Box<ActionRecord>,
+        data: ActionData,
+    },
+}
+
+impl ActionChange {
+    pub fn id(&self) -> Uuid {
+        match self {
+            Self::Create { id, .. } => *id,
+            Self::Replace { before, .. } => before.origin.id,
+        }
+    }
+
+    pub fn data(&self) -> &ActionData {
+        match self {
+            Self::Create { data, .. } | Self::Replace { data, .. } => data,
+        }
+    }
+
+    pub fn data_mut(&mut self) -> &mut ActionData {
+        match self {
+            Self::Create { data, .. } | Self::Replace { data, .. } => data,
+        }
+    }
+
+    pub fn validate(&self) -> Result<()> {
+        if let Self::Replace { before, .. } = self {
+            before.validate()?;
+            if before.data.state == ActionState::Completed {
+                return Err(invalid("completed Action cannot be replaced"));
+            }
+        }
+        self.data().validate(self.id())?;
+        if self.data().state == ActionState::Completed {
+            return Err(invalid(
+                "Action completion requires an identified Complete command",
+            ));
+        }
+        Ok(())
+    }
+}
+
+#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
 #[serde(deny_unknown_fields)]
 pub struct SourceVersion {
     pub path: String,
@@ -81,10 +135,12 @@ pub struct ProposalDraft {
     pub id: Uuid,
     pub group_id: Option<Uuid>,
     pub session_id: Option<Uuid>,
-    pub vault: VaultRecord,
+    pub vault: Option<VaultRecord>,
     pub title: String,
     pub changes: Vec<NoteChange>,
     pub sources: Vec<SourceVersion>,
+    #[serde(default, skip_serializing_if = "Vec::is_empty")]
+    pub action_changes: Vec<ActionChange>,
 }
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize, Deserialize)]
@@ -163,6 +219,8 @@ pub struct ProposalEdit {
     pub expected: ProposalStamp,
     pub title: String,
     pub texts: Vec<Option<String>>,
+    #[serde(default, skip_serializing_if = "Vec::is_empty")]
+    pub action_data: Vec<ActionData>,
 }
 
 #[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
@@ -252,18 +310,31 @@ fn validate_draft(draft: &ProposalDraft) -> Result<usize> {
     for id in [draft.group_id, draft.session_id].into_iter().flatten() {
         nonnil(id)?;
     }
-    nonnil(draft.vault.id)?;
-    let root = draft
-        .vault
-        .root
-        .to_str()
-        .ok_or_else(|| invalid("proposal vault root must be UTF-8"))?;
-    if !draft.vault.root.is_absolute() || root.contains('\0') {
-        return Err(invalid("proposal vault root must be an absolute path"));
-    }
+    let root = match &draft.vault {
+        Some(vault) => {
+            nonnil(vault.id)?;
+            let root = vault
+                .root
+                .to_str()
+                .ok_or_else(|| invalid("proposal vault root must be UTF-8"))?;
+            if !vault.root.is_absolute() || root.contains('\0') {
+                return Err(invalid("proposal vault root must be an absolute path"));
+            }
+            root
+        }
+        None if draft.changes.is_empty() && draft.sources.is_empty() => "",
+        None => {
+            return Err(invalid(
+                "Markdown changes and source proofs require a vault",
+            ));
+        }
+    };
     validate_title(&draft.title)?;
-    if draft.changes.is_empty()
-        || draft.changes.len() > MAX_PROPOSAL_CHANGES
+    if !draft
+        .changes
+        .len()
+        .checked_add(draft.action_changes.len())
+        .is_some_and(|count| (1..=MAX_PROPOSAL_CHANGES).contains(&count))
         || draft.sources.len() > MAX_PROPOSAL_CHANGES
     {
         return Err(invalid(
@@ -309,6 +380,14 @@ fn validate_draft(draft: &ProposalDraft) -> Result<usize> {
                 "proposal source fingerprint exceeds the 1 MiB note limit",
             ));
         }
+    }
+    let mut action_ids = HashSet::new();
+    for change in &draft.action_changes {
+        change.validate()?;
+        if !action_ids.insert(change.id()) {
+            return Err(invalid("proposal contains duplicate Action UUIDs"));
+        }
+        add_bytes(&mut total, encode(change)?.len())?;
     }
     Ok(total)
 }
@@ -486,16 +565,25 @@ pub(super) fn advance(record: &mut ProposalRecord) -> Result<()> {
     Ok(())
 }
 
-/// Bounds a submitted full edit before encoding or cloning its text.
+/// Bounds a submitted full edit before cloning the current review.
 pub(super) fn validate_edit(edit: &ProposalEdit) -> Result<()> {
     nonnil(edit.expected.id)?;
-    if edit.expected.version == 0 || edit.texts.len() > MAX_PROPOSAL_CHANGES {
+    if edit.expected.version == 0
+        || !edit
+            .texts
+            .len()
+            .checked_add(edit.action_data.len())
+            .is_some_and(|count| count <= MAX_PROPOSAL_CHANGES)
+    {
         return Err(invalid("invalid proposal edit stamp or member count"));
     }
     validate_title(&edit.title)?;
     let mut total = edit.title.len();
     for text in edit.texts.iter().flatten() {
         validate_text(text, &mut total)?;
+    }
+    for data in &edit.action_data {
+        add_bytes(&mut total, encode(data)?.len())?;
     }
     Ok(())
 }
@@ -506,15 +594,27 @@ pub(super) fn edited_review(
     edit: &ProposalEdit,
 ) -> Result<(ProposalRecord, bool)> {
     validate_record(record)?;
-    validate_edit(edit)?;
     if record.stamp() != edit.expected || record.state != ProposalState::Draft {
         return Err(Error::StateChanged(
             "proposal review version or state changed".into(),
         ));
     }
-    if edit.texts.len() != record.draft.changes.len() {
-        return Err(invalid("proposal edit must supply every change's text"));
+    if edit.texts.len() != record.draft.changes.len()
+        || edit.action_data.len() != record.draft.action_changes.len()
+    {
+        return Err(invalid(
+            "proposal edit must supply every typed member's data",
+        ));
     }
+    for (change, data) in record.draft.action_changes.iter().zip(&edit.action_data) {
+        data.validate(change.id())?;
+        if data.state == ActionState::Completed {
+            return Err(invalid(
+                "Action completion requires an identified Complete command",
+            ));
+        }
+    }
+    validate_edit(edit)?;
     let mut record = record.clone();
     let mut changed = record.draft.title != edit.title;
     for (index, (change, text)) in record.draft.changes.iter_mut().zip(&edit.texts).enumerate() {
@@ -542,6 +642,17 @@ pub(super) fn edited_review(
                     "proposal edit text does not match its typed change",
                 ));
             }
+        }
+    }
+    for (change, data) in record
+        .draft
+        .action_changes
+        .iter_mut()
+        .zip(&edit.action_data)
+    {
+        if change.data() != data {
+            changed = true;
+            *change.data_mut() = data.clone();
         }
     }
     record.draft.title = edit.title.clone();

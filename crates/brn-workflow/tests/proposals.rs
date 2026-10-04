@@ -43,6 +43,7 @@ fn fixture() -> Fixture {
 fn draft(f: &mut Fixture) -> DraftRequest {
     let before = f.app.open_editor("note.md").unwrap().record.baseline;
     DraftRequest {
+        action_changes: Vec::new(),
         id: Uuid::new_v4(),
         group_id: Some(Uuid::new_v4()),
         session_id: None,
@@ -62,6 +63,42 @@ fn draft(f: &mut Fixture) -> DraftRequest {
             path: "note.md".into(),
             fingerprint: before,
         }],
+    }
+}
+
+#[test]
+fn unsupported_action_drafts_refuse_before_workflow_admission_or_note_effects() {
+    let mut f = fixture();
+    let original = fs::read(f.vault.join("note.md")).unwrap();
+    let notes = draft(&mut f);
+    let action: ActionChange = serde_json::from_value(serde_json::json!({
+        "kind":"create", "id":Uuid::new_v4(),
+        "data":{
+            "title":"Follow up λ", "description":"Exact proposal work\r\n",
+            "state":"open", "owner":null, "related_person":null,
+            "related_project":null, "sources":[], "thread":null,
+            "due_on":null, "follow_up_on":null, "dependencies":[],
+            "parent":null, "follows_up":null, "priority":null
+        }
+    }))
+    .unwrap();
+    for changes in [Vec::new(), notes.changes.clone()] {
+        let request = DraftRequest {
+            id: Uuid::new_v4(),
+            changes,
+            action_changes: vec![action.clone()],
+            ..notes.clone()
+        };
+        let decoded: DraftRequest =
+            serde_json::from_slice(&serde_json::to_vec(&request).unwrap()).unwrap();
+        assert_eq!(decoded, request);
+        assert_eq!(
+            f.app.create_proposal(&decoded).unwrap_err().kind,
+            ErrorKind::ToolRejected
+        );
+        assert!(f.app.proposals(None).unwrap().is_empty());
+        assert_eq!(fs::read(f.vault.join("note.md")).unwrap(), original);
+        assert!(!f.vault.join("new.md").exists());
     }
 }
 
@@ -99,6 +136,7 @@ fn review_binds_exact_versions_and_never_writes_knowledge() {
         })
         .unwrap();
     let late = ProposalEdit {
+        action_data: Vec::new(),
         expected: created.stamp(),
         title: created.draft.title.clone(),
         texts: vec![Some("Late output".into()), Some("new".into())],
@@ -110,6 +148,7 @@ fn review_binds_exact_versions_and_never_writes_knowledge() {
     let edited = f
         .app
         .edit_proposal(&ProposalEdit {
+            action_data: Vec::new(),
             expected: commented.stamp(),
             title: "Edited review".into(),
             texts: vec![
@@ -144,6 +183,7 @@ fn review_binds_exact_versions_and_never_writes_knowledge() {
     assert_eq!(rejected.comments, edited.comments);
     assert!(
         app.rewrite_proposal(&ProposalEdit {
+            action_data: Vec::new(),
             expected: rejected.stamp(),
             title: "Late".into(),
             texts: vec![Some("x".into()), Some("y".into())]
@@ -161,6 +201,7 @@ fn creation_replay_precedes_disk_checks_and_never_overwrites_edited_work() {
     let edited = f
         .app
         .edit_proposal(&ProposalEdit {
+            action_data: Vec::new(),
             expected: created.stamp(),
             title: "Manual changes".into(),
             texts: vec![Some("My work".into()), Some("My other work".into())],
@@ -205,6 +246,7 @@ fn source_identity_creation_occupant_and_aliases_are_not_accepted_as_fresh_conte
         ErrorKind::ContextStale
     );
     let source_only = DraftRequest {
+        action_changes: Vec::new(),
         id: Uuid::new_v4(),
         changes: vec![DraftNoteChange::Create {
             path: "unused.md".into(),
@@ -217,6 +259,7 @@ fn source_identity_creation_occupant_and_aliases_are_not_accepted_as_fresh_conte
         ErrorKind::ContextStale
     );
     let occupied = DraftRequest {
+        action_changes: Vec::new(),
         id: Uuid::new_v4(),
         sources: vec![],
         changes: vec![DraftNoteChange::Create {
@@ -230,6 +273,7 @@ fn source_identity_creation_occupant_and_aliases_are_not_accepted_as_fresh_conte
         ErrorKind::ContextStale
     );
     let aliased = DraftRequest {
+        action_changes: Vec::new(),
         id: Uuid::new_v4(),
         sources: vec![],
         changes: vec![

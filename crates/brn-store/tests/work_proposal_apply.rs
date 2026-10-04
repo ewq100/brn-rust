@@ -36,11 +36,11 @@ fn draft() -> ProposalDraft {
         id: Uuid::new_v4(),
         group_id: Some(Uuid::new_v4()),
         session_id: Some(Uuid::new_v4()),
-        vault: VaultRecord {
+        vault: Some(VaultRecord {
             id: Uuid::new_v4(),
             root: "/synthetic/vault".into(),
             identity: parent.clone(),
-        },
+        }),
         title: "Approve the exact full proposal".into(),
         changes: vec![
             NoteChange::Create {
@@ -66,6 +66,7 @@ fn draft() -> ProposalDraft {
             path: "sources/evidence.md".into(),
             fingerprint: fingerprint("source", 4),
         }],
+        action_changes: Vec::new(),
     }
 }
 
@@ -106,6 +107,7 @@ fn edit(record: &ProposalRecord) -> ProposalEdit {
             .iter()
             .map(|change| change.text().map(str::to_owned))
             .collect(),
+        action_data: Vec::new(),
     }
 }
 
@@ -1281,7 +1283,7 @@ fn additive_v4_migration_and_backups_preserve_review_and_uncertain_application()
     drop(store);
     let conn = raw(dir.path());
     conn.execute_batch(
-        "DROP TABLE findings; ALTER TABLE messages DROP COLUMN started_at_ms; ALTER TABLE messages DROP COLUMN finished_at_ms; ALTER TABLE conversations DROP COLUMN last_activity_at_ms; ALTER TABLE messages DROP COLUMN effort; DROP TABLE proposal_rewrites; DROP TABLE proposal_applies; PRAGMA user_version=4;",
+        "DROP TABLE actions; DROP TABLE findings; ALTER TABLE messages DROP COLUMN started_at_ms; ALTER TABLE messages DROP COLUMN finished_at_ms; ALTER TABLE conversations DROP COLUMN last_activity_at_ms; ALTER TABLE messages DROP COLUMN effort; DROP TABLE proposal_rewrites; DROP TABLE proposal_applies; PRAGMA user_version=4;",
     )
     .unwrap();
     drop(conn);
@@ -1334,7 +1336,7 @@ fn additive_v4_migration_and_backups_preserve_review_and_uncertain_application()
         raw(dir.path())
             .query_row("PRAGMA user_version", [], |row| row.get::<_, u32>(0))
             .unwrap(),
-        9
+        10
     );
 }
 
@@ -1517,7 +1519,7 @@ fn legacy_v5_json_without_no_effects_is_unchanged_by_reads_and_replays() {
     assert_eq!(
         conn.query_row("PRAGMA user_version", [], |row| row.get::<_, u32>(0))
             .unwrap(),
-        9
+        10
     );
 }
 
@@ -1719,7 +1721,7 @@ fn recovery_from_healthy_older_v5_backup_preserves_other_operational_state() {
     std::fs::copy(&report.backup, old_dir.path().join("brn.sqlite")).unwrap();
     let conn = raw(old_dir.path());
     conn.execute_batch(
-        "DROP TABLE findings; ALTER TABLE messages DROP COLUMN started_at_ms; ALTER TABLE messages DROP COLUMN finished_at_ms; ALTER TABLE conversations DROP COLUMN last_activity_at_ms; ALTER TABLE messages DROP COLUMN effort; DROP TABLE proposal_rewrites; DROP TABLE proposal_applies; PRAGMA user_version=4;",
+        "DROP TABLE actions; DROP TABLE findings; ALTER TABLE messages DROP COLUMN started_at_ms; ALTER TABLE messages DROP COLUMN finished_at_ms; ALTER TABLE conversations DROP COLUMN last_activity_at_ms; ALTER TABLE messages DROP COLUMN effort; DROP TABLE proposal_rewrites; DROP TABLE proposal_applies; PRAGMA user_version=4;",
     )
     .unwrap();
     drop(conn);
@@ -1734,7 +1736,7 @@ fn recovery_from_healthy_older_v5_backup_preserves_other_operational_state() {
         raw(old_dir.path())
             .query_row("PRAGMA user_version", [], |row| row.get::<_, u32>(0))
             .unwrap(),
-        9
+        10
     );
 }
 
@@ -1756,7 +1758,7 @@ fn recovery_rejects_conflicting_bindings_and_unresolved_global_admission_atomica
     wrong.approved.draft.sources[0].fingerprint.inode += 1;
     variants.push(wrong);
     let mut wrong = pending.clone();
-    wrong.approved.draft.vault.id = Uuid::new_v4();
+    wrong.approved.draft.vault.as_mut().unwrap().id = Uuid::new_v4();
     variants.push(wrong);
     let mut wrong = pending.clone();
     wrong.approved.draft.title.push_str(" fork");

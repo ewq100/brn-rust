@@ -33,6 +33,7 @@ fn mixed(fixture: &Fixture) -> (AppWorker, Mixed) {
         (
             Uuid::new_v4(),
             AppCommand::CreateProposal(DraftRequest {
+                action_changes: Vec::new(),
                 id: Uuid::new_v4(),
                 group_id: None,
                 session_id: None,

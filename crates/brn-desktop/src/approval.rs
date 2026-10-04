@@ -41,6 +41,7 @@ impl ApprovalCapture {
                 return None;
             }
             let edit = ProposalEdit {
+                action_data: Vec::new(),
                 expected: record.stamp(),
                 title: record.draft.title.clone(),
                 texts: record

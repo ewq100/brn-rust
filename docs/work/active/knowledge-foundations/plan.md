@@ -1317,13 +1317,12 @@ not claim all Stage5 complete. Mac mini: AppleSilicon/CLT,pinnedRust1.98.1,cache
 lockfile dependencies,protobuf/Bash/Python3,canonical synthetic TMPDIR outsideGit,
 unlockedGUI for acceptance. No assets/live/original-data/release actions occurred.
 
-Stage5A PR22 merged a9f838295ea905bf25d05953fe03d02a2092dff7 after exact4895916
-run37191800152 passed MacCore/UI/Retrieval+UbuntuSharedCore. Windows Unix metadata
-failure leaves overallCIred. Merged tree equality,16CLIidentity/inventory/scopes+
-52fixtures and2shipping startup/restart runs passed with exact synthetic bytes
-and zero credential files. Stage5B now integrates that qualified baseline with
-reviewed provenance/source-inspection/timestamp slices throughbaf3bee; fresh
-qualification and complete independent integration review remain required.
+Stage5A PR22 publication completed at exact4895916/run37191800152 with
+MacCore/UI/Retrieval+UbuntuSharedCore passed; Windows Unix metadata failure keeps
+overallCIred. Mergea9f838295ea905bf25d05953fe03d02a2092dff7 has the qualified tree.
+Fresh16CLIidentity/inventory/scopes+52fixtures and2shipping startup/restart runs
+passed with exact synthetic bytes and zero credentials. Lead-tree integration
+changes only status/evidence; all sixteen knowledge slices stay byte-identical.
 
 ## Stage5B publication checkpoint — provenance and session timestamps
 
@@ -1509,3 +1508,19 @@ publishes implemented/offline-qualified behavior; wholeStage5 is not complete.
 Manual scenarios and Macmini requirements remain in slices15/16 above. Exact
 latest-head applicable CI/PR/merge/post qualification remains pending. Next
 publish the checked Stage6 Action foundation/review and continue joined application.
+
+
+Language PR27 merged42722526009b6c986271afc75680828bc5287c02 at2026-10-04T12:17:32Z
+after exactcee0144a05de4e52e8b4d7ce536eb9ce41e0a102/run37201040507 passed MacCore/
+UI/Retrieval+UbuntuSharedCore. Windows Core failed before tests on known Unix-only
+APIs; overallCIred. Merged source tree equals qualified candidate. Post-merge
+15native retrieval+7native workflow model+2Rig Ask language tests passed24/0/0,
+52fixtures and two shipping startup/restart checks passed,V9,exact bytes and zero
+credentials. Logs:merged-post-*.log,qualified-startup-fptu5yc4 under the language
+owned parent above. Main37201599486 completed/failure: Mac3+UbuntuCore/UI passed,
+Ubuntu native retrieval failed10pass/3fail/0ignored on the same three unsupported
+exclusive-install expectations as PR26;Windows3failed on Unix-only APIs before
+tests. Independent comparison confirmed identical installer/platform branches
+and failing test bodies; no sharedMac/language defect. Logs/hashes:
+/private/tmp/brn-pr27-main-ci-review-lfx9dx_6. Model/live/native owner gaps remain
+pending; Stage5 is not complete. Safe Stage6 Action implementation continues.

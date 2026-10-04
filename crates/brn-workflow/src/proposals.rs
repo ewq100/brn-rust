@@ -7,9 +7,9 @@ use crate::{
 };
 use brn_store::files::{FileFingerprint, VaultRecord};
 pub use brn_store::work::proposals::{
-    CommentRequest, CommentTarget, MAX_COMMENT_BYTES, MAX_PROPOSAL_BYTES, MAX_PROPOSAL_CHANGES,
-    MAX_PROPOSAL_COMMENTS, NoteChange, ProposalDraft, ProposalEdit, ProposalRecord, ProposalStamp,
-    ProposalState, ReviewComment, SourceVersion, TextAnchor,
+    ActionChange, CommentRequest, CommentTarget, MAX_COMMENT_BYTES, MAX_PROPOSAL_BYTES,
+    MAX_PROPOSAL_CHANGES, MAX_PROPOSAL_COMMENTS, NoteChange, ProposalDraft, ProposalEdit,
+    ProposalRecord, ProposalStamp, ProposalState, ReviewComment, SourceVersion, TextAnchor,
 };
 use serde::{Deserialize, Serialize};
 use std::path::Path;
@@ -52,6 +52,8 @@ pub struct DraftRequest {
     pub title: String,
     pub changes: Vec<DraftNoteChange>,
     pub sources: Vec<SourceVersion>,
+    #[serde(default, skip_serializing_if = "Vec::is_empty")]
+    pub action_changes: Vec<ActionChange>,
 }
 
 #[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
@@ -85,6 +87,9 @@ fn path_check(path: &str) -> Result<()> {
 impl DraftRequest {
     /// Syntactic preparation before either frontend admits operational work.
     pub fn validate(&self) -> Result<()> {
+        if !self.action_changes.is_empty() {
+            return Err(invalid("Action proposal creation is not available yet"));
+        }
         if self.id.is_nil()
             || self.group_id.is_some_and(|id| id.is_nil())
             || self.session_id.is_some_and(|id| id.is_nil())
@@ -342,10 +347,11 @@ impl App {
             }
         }
         Ok(self.store.create_proposal(&ProposalDraft {
+            action_changes: Vec::new(),
             id: request.id,
             group_id: request.group_id,
             session_id: request.session_id,
-            vault,
+            vault: Some(vault),
             title: request.title.clone(),
             changes,
             sources: request.sources.clone(),

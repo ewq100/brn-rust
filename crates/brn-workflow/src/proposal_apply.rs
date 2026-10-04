@@ -171,7 +171,13 @@ pub(crate) fn restore_application_records(
                 .read(id)
                 .map_err(file_error)?
                 .ok_or_else(|| stale("approval recovery record disappeared"))?;
-            let bound = &snapshot.journal.approved.draft.vault;
+            let bound = snapshot
+                .journal
+                .approved
+                .draft
+                .vault
+                .as_ref()
+                .ok_or_else(|| stale("approval recovery requires a vault binding"))?;
             if vault.as_ref().is_some_and(|old| old != bound) {
                 return Err(stale("approval recovery records bind different vaults"));
             }
@@ -444,6 +450,12 @@ impl App {
         draft: &ProposalDraft,
         undo: Option<&UndoBinding>,
     ) -> Result<()> {
+        if !draft.action_changes.is_empty() {
+            return Err(WorkflowError::typed(
+                ErrorKind::ToolRejected,
+                "Action proposal application is not available yet",
+            ));
+        }
         self.editor_files()?;
         let bound: VaultRecord = serde_json::from_str(
             &self
@@ -452,7 +464,7 @@ impl App {
                 .ok_or_else(|| stale("vault identity is missing"))?,
         )
         .map_err(|_| stale("vault identity is invalid"))?;
-        if bound != draft.vault {
+        if draft.vault.as_ref() != Some(&bound) {
             return Err(stale("reviewed vault identity changed"));
         }
         let editors = self.store.editors()?;
@@ -1041,6 +1053,7 @@ mod tests {
             let source = app.open_editor("source.md").unwrap().record.baseline;
             let draft = app
                 .create_proposal(&DraftRequest {
+                    action_changes: Vec::new(),
                     id: Uuid::new_v4(),
                     group_id: None,
                     session_id: None,

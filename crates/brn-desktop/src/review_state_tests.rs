@@ -20,6 +20,7 @@ fn fixture() -> (tempfile::TempDir, App, ProposalRecord) {
     .unwrap();
     let record = app
         .create_proposal(&DraftRequest {
+            action_changes: Vec::new(),
             id: Uuid::new_v4(),
             group_id: None,
             session_id: None,
@@ -172,6 +173,7 @@ fn rewrite_freezes_choice_retries_early_stop_and_retains_local_conflict() {
         .unwrap();
     let rewritten = app
         .rewrite_proposal(&ProposalEdit {
+            action_data: Vec::new(),
             expected: record.stamp(),
             title: record.draft.title.clone(),
             texts: vec![Some("AI suggestion λ\r\n".into())],
@@ -219,6 +221,7 @@ fn rewrite_finishing_after_navigation_cannot_replace_another_review() {
     };
     let other = app
         .create_proposal(&DraftRequest {
+            action_changes: Vec::new(),
             id: Uuid::new_v4(),
             group_id: None,
             session_id: None,
@@ -290,6 +293,7 @@ fn failed_old_refresh_cannot_poison_the_newer_review() {
     let (old, _) = state.refresh_review().unwrap();
     let other = app
         .create_proposal(&DraftRequest {
+            action_changes: Vec::new(),
             id: Uuid::new_v4(),
             group_id: None,
             session_id: None,

@@ -375,6 +375,7 @@ fn evidence_fence_blocks_new_capture_and_fresh_inspection_but_retains_history_an
     let saved = app.proposal_source("current.md").unwrap();
     let proposal = app
         .create_proposal(&DraftRequest {
+            action_changes: Vec::new(),
             id: Uuid::new_v4(),
             group_id: None,
             session_id: None,

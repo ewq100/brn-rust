@@ -110,6 +110,7 @@ impl App {
         let text =
             prepare_text::append(&source.text, body, &request.label, request.target_note_id)?;
         let draft = DraftRequest {
+            action_changes: Vec::new(),
             id: request.proposal_id,
             group_id: None,
             session_id: None,

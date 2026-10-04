@@ -975,6 +975,12 @@ fn dispatch(
                     return Err(WorkflowError::cancelled());
                 }
                 let record = app.proposal(request.expected.id)?;
+                if !record.draft.action_changes.is_empty() {
+                    return Err(WorkflowError::typed(
+                        ErrorKind::ToolRejected,
+                        "Action proposal AI Rewrite is not available yet",
+                    ));
+                }
                 if record.stamp() != request.expected
                     || record.state != crate::proposals::ProposalState::Draft
                 {
@@ -995,7 +1001,7 @@ fn dispatch(
                         })?,
                 )
                 .map_err(|_| WorkflowError::msg("invalid saved vault identity"))?;
-                if vault != record.draft.vault {
+                if record.draft.vault.as_ref() != Some(&vault) {
                     return Err(WorkflowError::typed(
                         ErrorKind::ContextStale,
                         "proposal belongs to a different vault binding",
@@ -1400,6 +1406,7 @@ mod editor_shutdown_tests {
         let comment_id = Uuid::new_v4();
         let operations = [
             AppCommand::CreateProposal(DraftRequest {
+                action_changes: Vec::new(),
                 id,
                 group_id: None,
                 session_id: None,
@@ -1411,6 +1418,7 @@ mod editor_shutdown_tests {
                 sources: vec![],
             }),
             AppCommand::EditProposal(ProposalEdit {
+                action_data: Vec::new(),
                 expected: ProposalStamp { id, version: 1 },
                 title: "Edited".into(),
                 texts: vec![Some("My later work".into())],

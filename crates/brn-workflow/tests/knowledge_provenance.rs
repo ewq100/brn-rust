@@ -408,6 +408,7 @@ fn approval_refuses_malformed_managed_provenance_but_preserves_unrelated_legacy_
     let invalid = create(
         &worker,
         DraftRequest {
+            action_changes: Vec::new(),
             id: Uuid::new_v4(),
             group_id: None,
             session_id: None,
@@ -442,6 +443,7 @@ fn approval_refuses_malformed_managed_provenance_but_preserves_unrelated_legacy_
     let record = create(
         &worker,
         DraftRequest {
+            action_changes: Vec::new(),
             id: Uuid::new_v4(),
             group_id: None,
             session_id: None,
@@ -536,6 +538,7 @@ fn edited_and_rewritten_quotes_require_exact_sources_and_cannot_forge_provenance
     };
     let bad_text = note_provenance::write(ORIGINAL, &[forged]).unwrap();
     let edit = ProposalEdit {
+        action_data: Vec::new(),
         expected: record.stamp(),
         title: record.draft.title.clone(),
         texts: vec![Some(bad_text)],
@@ -554,6 +557,7 @@ fn edited_and_rewritten_quotes_require_exact_sources_and_cannot_forge_provenance
     let good_text =
         note_provenance::write(ORIGINAL, std::slice::from_ref(&capture.citation)).unwrap();
     let rewrite = ProposalEdit {
+        action_data: Vec::new(),
         expected: record.stamp(),
         title: record.draft.title.clone(),
         texts: vec![Some(good_text.clone())],
@@ -563,6 +567,7 @@ fn edited_and_rewritten_quotes_require_exact_sources_and_cannot_forge_provenance
     };
     approve(&worker, &record);
     let unbound = DraftRequest {
+        action_changes: Vec::new(),
         id: Uuid::new_v4(),
         group_id: None,
         session_id: None,
@@ -606,6 +611,7 @@ fn historical_provenance_survives_body_edits_and_exact_undo_after_source_change(
     let record = create(
         &worker,
         DraftRequest {
+            action_changes: Vec::new(),
             id: Uuid::new_v4(),
             group_id: None,
             session_id: None,

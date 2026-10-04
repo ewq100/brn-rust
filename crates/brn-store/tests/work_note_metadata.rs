@@ -215,11 +215,11 @@ fn class_changes_remain_exact_reviewable_edits_with_replay_and_historical_undo()
         id: Uuid::new_v4(),
         group_id: None,
         session_id: None,
-        vault: VaultRecord {
+        vault: Some(VaultRecord {
             id: Uuid::new_v4(),
             root: vault.to_str().unwrap().into(),
             identity: parent.clone(),
-        },
+        }),
         title: "Review classification λ".into(),
         changes: vec![NoteChange::Replace {
             path: "note.md".into(),
@@ -229,6 +229,7 @@ fn class_changes_remain_exact_reviewable_edits_with_replay_and_historical_undo()
             text: proposed.clone(),
         }],
         sources: vec![],
+        action_changes: Vec::new(),
     };
     let created = store.create_proposal(&draft).unwrap();
     let start = proposed.find("日本語 λ").unwrap();
@@ -252,6 +253,7 @@ fn class_changes_remain_exact_reviewable_edits_with_replay_and_historical_undo()
         expected: current.stamp(),
         title: current.draft.title.clone(),
         texts: vec![Some(edited.clone())],
+        action_data: Vec::new(),
     };
     brn_store::work::proposal_rewrite::validate_result(&current, &edit).unwrap();
     let updated = store.edit_proposal(&edit).unwrap();
@@ -360,11 +362,11 @@ fn historic_malformed_class_bytes_do_not_gain_a_store_replay_or_edit_constraint(
         id: Uuid::new_v4(),
         group_id: None,
         session_id: None,
-        vault: VaultRecord {
+        vault: Some(VaultRecord {
             id: Uuid::new_v4(),
             root: "/synthetic/vault".into(),
             identity: parent.clone(),
-        },
+        }),
         title: "Legacy class bytes".into(),
         changes: vec![NoteChange::Create {
             path: "legacy.md".into(),
@@ -372,6 +374,7 @@ fn historic_malformed_class_bytes_do_not_gain_a_store_replay_or_edit_constraint(
             text: text.clone(),
         }],
         sources: vec![],
+        action_changes: Vec::new(),
     };
     assert!(classify(&text).is_err());
     let current = store.create_proposal(&draft).unwrap();
@@ -381,6 +384,7 @@ fn historic_malformed_class_bytes_do_not_gain_a_store_replay_or_edit_constraint(
             expected: current.stamp(),
             title: current.draft.title.clone(),
             texts: vec![Some(changed.clone())],
+            action_data: Vec::new(),
         })
         .unwrap();
     assert_eq!(updated.draft.changes[0].text(), Some(changed.as_str()));

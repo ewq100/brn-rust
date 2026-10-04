@@ -26,11 +26,11 @@ fn draft() -> ProposalDraft {
         id: Uuid::new_v4(),
         group_id: Some(Uuid::new_v4()),
         session_id: Some(Uuid::new_v4()),
-        vault: VaultRecord {
+        vault: Some(VaultRecord {
             id: Uuid::new_v4(),
             root: "/synthetic/vault".into(),
             identity: parent(),
-        },
+        }),
         title: "Exact review work".into(),
         changes: vec![
             NoteChange::Create {
@@ -56,6 +56,7 @@ fn draft() -> ProposalDraft {
             path: "notes/source.md".into(),
             fingerprint: fingerprint("source", 99),
         }],
+        action_changes: Vec::new(),
     }
 }
 
@@ -82,6 +83,7 @@ fn edit(record: &ProposalRecord) -> ProposalEdit {
             .iter()
             .map(|change| change.text().map(str::to_owned))
             .collect(),
+        action_data: Vec::new(),
     }
 }
 
@@ -424,7 +426,7 @@ fn invalid_paths_ids_fingerprints_types_and_duplicates_fail_atomically() {
             0 => invalid.id = Uuid::nil(),
             1 => invalid.group_id = Some(Uuid::nil()),
             2 => invalid.session_id = Some(Uuid::nil()),
-            _ => invalid.vault.id = Uuid::nil(),
+            _ => invalid.vault.as_mut().unwrap().id = Uuid::nil(),
         }
         assert_invalid_new(&mut store, &invalid);
     }
@@ -434,7 +436,7 @@ fn invalid_paths_ids_fingerprints_types_and_duplicates_fail_atomically() {
         assert_invalid_new(&mut store, &invalid);
     }
     let mut invalid = draft();
-    invalid.vault.root = "relative/vault".into();
+    invalid.vault.as_mut().unwrap().root = "relative/vault".into();
     assert_invalid_new(&mut store, &invalid);
     let mut invalid = draft();
     invalid.changes.clear();
@@ -482,6 +484,7 @@ fn invalid_paths_ids_fingerprints_types_and_duplicates_fail_atomically() {
             expected: valid.stamp(),
             title: valid.draft.title.clone(),
             texts,
+            action_data: Vec::new(),
         };
         assert!(matches!(
             store.edit_proposal(&invalid),
@@ -651,7 +654,7 @@ fn v3_additive_migration_preserves_settings_history_editor_recovery_and_backups(
     drop(chat);
     drop(store);
     let conn = raw(dir.path());
-    conn.execute_batch("DROP TABLE findings; ALTER TABLE messages DROP COLUMN started_at_ms; ALTER TABLE messages DROP COLUMN finished_at_ms; ALTER TABLE conversations DROP COLUMN last_activity_at_ms; ALTER TABLE messages DROP COLUMN effort; DROP TABLE proposal_rewrites; DROP TABLE proposal_applies; DROP TABLE proposals; PRAGMA user_version=3;")
+    conn.execute_batch("DROP TABLE actions; DROP TABLE findings; ALTER TABLE messages DROP COLUMN started_at_ms; ALTER TABLE messages DROP COLUMN finished_at_ms; ALTER TABLE conversations DROP COLUMN last_activity_at_ms; ALTER TABLE messages DROP COLUMN effort; DROP TABLE proposal_rewrites; DROP TABLE proposal_applies; DROP TABLE proposals; PRAGMA user_version=3;")
         .unwrap();
     drop(conn);
     let (mut store, report) = WorkStore::open(dir.path()).unwrap();
@@ -681,7 +684,7 @@ fn v3_additive_migration_preserves_settings_history_editor_recovery_and_backups(
         raw(dir.path())
             .query_row("PRAGMA user_version", [], |row| row.get::<_, u32>(0))
             .unwrap(),
-        9
+        10
     );
 }
 

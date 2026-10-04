@@ -752,14 +752,15 @@ mod tests {
             let before = "\u{feff}旧い 🦀\r\n";
             let record = store
                 .create_proposal(&ProposalDraft {
+                    action_changes: Vec::new(),
                     id: Uuid::new_v4(),
                     group_id: None,
                     session_id: None,
-                    vault: VaultRecord {
+                    vault: Some(VaultRecord {
                         id: Uuid::new_v4(),
                         root: vault,
                         identity: parent.clone(),
-                    },
+                    }),
                     title: "Exact synthetic approval recovery".into(),
                     changes: vec![
                         NoteChange::Create {
@@ -1560,7 +1561,7 @@ mod tests {
             match binding {
                 0 => foreign.approved.draft.id = Uuid::new_v4(),
                 1 => foreign.creation_sha256[0] ^= 1,
-                2 => foreign.approved.draft.vault.id = Uuid::new_v4(),
+                2 => foreign.approved.draft.vault.as_mut().unwrap().id = Uuid::new_v4(),
                 3 => foreign.approved.created_at_ms += 1,
                 4 => foreign.approved.draft.group_id = Some(Uuid::new_v4()),
                 5 => foreign.approved.draft.session_id = Some(Uuid::new_v4()),
