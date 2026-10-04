@@ -303,6 +303,34 @@ fn semantic_and_hybrid_search_use_embedded_passages() {
 }
 
 #[test]
+fn client_search_evidence_survives_disposable_passage_reallocation() {
+    let s = Setup::new();
+    write(s.vault.path(), "a.md", b"temporary unrelated passage");
+    let mut library = s.open(None);
+    library.refresh().unwrap();
+    let original = b"\xef\xbb\xbf# Current knowledge\r\nneedle \xce\xbb\r\n";
+    write(s.vault.path(), "knowledge.md", original);
+    library.refresh().unwrap();
+    std::fs::remove_file(s.vault.path().join("a.md")).unwrap();
+    library.refresh().unwrap();
+    let before = library.search("needle", SearchMode::Keyword, 5).unwrap();
+    assert_eq!(before.hits.len(), 1);
+    drop(library);
+    std::fs::remove_file(s.data.path().join("index.sqlite")).unwrap();
+    let mut rebuilt = s.open(None);
+    rebuilt.refresh().unwrap();
+    let after = rebuilt.search("needle", SearchMode::Keyword, 5).unwrap();
+    assert_eq!(
+        after, before,
+        "derived row allocation is not client identity"
+    );
+    assert_eq!(
+        std::fs::read(s.vault.path().join("knowledge.md")).unwrap(),
+        original
+    );
+}
+
+#[test]
 fn deleted_index_is_rebuilt_from_the_vault() {
     let s = Setup::new();
     write(s.vault.path(), "a.md", b"alpha");

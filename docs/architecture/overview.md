@@ -1,10 +1,34 @@
 # Architecture overview
 
-The owner froze the reviewed product architecture on 2026-10-03. [Product vision](../product/BRN_PRODUCT_VISION.md) supplies requirements; [invariants](invariants.md) records the frozen guarantees and resolved rules. The dated [audit](../audits/BRN_PRODUCT_ARCHITECTURE_AUDIT.md) and [independent review](../audits/BRN_PRODUCT_ARCHITECTURE_REVIEW.md) explain the decisions, not implementation authorization.
+The owner froze the reviewed product architecture on 2026-10-03 and amended its
+client boundary on 2026-10-04 for future external-agent access. [Product vision](../product/BRN_PRODUCT_VISION.md)
+supplies requirements; [invariants](invariants.md) records the governing guarantees
+and resolved rules. The dated [audit](../audits/BRN_PRODUCT_ARCHITECTURE_AUDIT.md) and
+[independent review](../audits/BRN_PRODUCT_ARCHITECTURE_REVIEW.md) explain the decisions,
+not implementation authorization.
 
 ## Frozen target
 
-Keep six production crates: `brn-desktop` and `brn` use `brn-workflow`, which coordinates `brn-store`, `brn-retrieval` and the thin `brn-ai` Rig adapter. Retain WorkStore, current retrieval, AppWorker ownership and the shared CLI workflow. Extend these boundaries for the reviewed product outcomes; no new crate, database, service or agent framework is currently justified.
+BRN is a headless-capable knowledge/application platform with multiple clients.
+Keep the existing six crates as the V1 core: `brn-desktop` and `brn` consume
+`brn-workflow` / AppWorker, which coordinates `brn-store`, `brn-retrieval` and the
+thin `brn-ai` Rig adapter. Presentation and protocol adapters may be added when
+required around this stable core; they consume the shared application boundary
+without duplicating domain logic or establishing competing data authority.
+An adapter crate such as future `brn-mcp` does not require a core redesign.
+Retain WorkStore, current retrieval and AppWorker ownership. No additional
+database, service or framework is justified by the external-agent requirement.
+
+```mermaid
+flowchart TD
+    Desktop[brn-desktop] --> Workflow[brn-workflow / AppWorker]
+    CLI[brn CLI] --> Workflow
+    MCP[Future brn-mcp: local stdio] -.-> Workflow
+    Future[Future integrations] -.-> Workflow
+    Workflow --> Store[brn-store]
+    Workflow --> Retrieval[brn-retrieval]
+    Workflow --> AI[brn-ai → Rig]
+```
 
 | Data | Target authority |
 | --- | --- |
@@ -19,9 +43,39 @@ Proposals have one review lifecycle and typed changes enforced by the workflow. 
 
 Crate boundaries, data ownership and product guarantees stay frozen. Reopen them with the owner only for a changed requirement or a demonstrated blocker the target cannot reasonably handle. Local table, algorithm, tool and UI details can evolve inside those boundaries. [Roadmap](../roadmap.md) owns the reviewed sequence; [status](../status.md) owns actual implementation and qualification.
 
+## Client and protocol boundary
+
+`brn-workflow` / AppWorker is the stable client-facing application boundary.
+Meaningful domain capabilities available to the desktop must also be available
+headlessly here: scoped search/read/list, source/history access, identity,
+provenance, links, relationships, proposals and activity/history. Visual layout,
+focus and transient view state remain presentation concerns. AppWorker owns
+admission, cancellation and coordinated work; adapters map explicit capabilities
+to its commands/events and preserve errors, scopes, proofs and uncertainty.
+
+Clients must not open vault files, `brn.sqlite`, `index.sqlite`, provider caches
+or retrieval/proposal internals to implement BRN operations. Ranking, parsing,
+archive/current eligibility, graph derivation and proposal rules belong to the
+existing core. Public workflow DTOs may carry exact evidence and operational
+preconditions; they are not permission to bypass the boundary. Retrieval engines
+remain replaceable behind this boundary without changing client authority rules.
+
+The first future MCP adapter is read-only local stdio: its process opens/owns
+the headless application and follows the existing exclusive ownership rules.
+For example, search/read/list default to Current; Source, History and All require
+explicit scope. Relationships and provenance use their existing typed workflow
+queries. A protocol connection grants only exposed capabilities, never general
+filesystem/SQL access. Future agent writes must create review work through the
+existing exact proposal/approval lifecycle.
+
+No `brn-mcp` is added merely for this amendment. A daemon, simultaneous-client
+coordination, remote access, HTTP/network listener, cloud service, sync or
+authentication server needs a later concrete requirement. V1 delivery order
+remains unchanged.
+
 ## Implemented baseline
 
-The six target crates are the production workspace. The retired Store/Workspace,
+The six V1 core crates are the current production workspace. The retired Store/Workspace,
 legacy worker/CLI/native paths, `brn-core` sample shell and `brn-flow` driver are
 removed. Historical decisions and experiments remain evidence. Old or mixed
 database/backup markers are refused before SQLite opens; no old data is migrated.
