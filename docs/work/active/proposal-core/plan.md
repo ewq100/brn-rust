@@ -762,3 +762,14 @@ read-only diagnosis and review found no remaining defect. Fresh locked/offline
 denied, format and diff checks passed. A corrected exact-head run is required
 before merge. Windows retains the known Unix API failure; initial overall CI
 is red. No provider calls or original-data access occurred.
+
+The corrected Stage 4B run `37188146156` passed macOS Core/UI/Retrieval;
+Ubuntu shared Core exposed `cli_undo`'s macOS-only success helper and JSON macro
+import. Matching guards were verified against every caller and independently
+reviewed; all 19 shared malformed-command forms remain active. A bounded audit
+of other Stage 4B helpers found no further concrete unused imports/functions.
+Fresh **4 CLI Undo tests / 0 failed**, workspace all-target Clippy, format and
+diff checks passed. New exact-head CI qualification remains required. Windows
+again failed on existing Unix metadata APIs; overall corrected CI is red.
+GitHub temporarily retained the preceding PR head after the verified branch
+push; closing/reopening the same PR refreshed its head and triggered correct CI.
