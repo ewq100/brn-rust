@@ -65,6 +65,24 @@ Evidence: [Actions/dashboard plan](work/active/actions-dashboard/plan.md).
 
 ## Latest integrated checkpoint
 
+[PR37](https://github.com/ewq100/brn-rust/pull/37) merged
+**3af4526f7795f749855f4c6165c0351facd56f38**, reviewed source tree2cb6175c.
+Exact direct Complete now runs through App/AppWorker and CLI, with immutable
+ordinary recovery, checked startup/retry reconciliation, uncertainty fences and
+shutdown draining. Independent whole review found no blocking defect. Final
+1093workspace/0failed/6ignored+233native/0failed/0ignored,52fixtures,both native
+Clippy modes,shipping builds and startup2 passed. Post-merge28focused/0failed/
+1ignored+52fixtures+startup2 passed,V11/exact bytes/zero credentials. Exacthead
+bc2b737/run37225342866 passedMac3+UbuntuShared. Windows22 Unix errors exactly
+match baseline logs and unchanged failing source; overallCIred, no shared Mac
+defect. Fresh head/mergeability/rules guards passed; no requirement bypass. Main
+37225862216 completed5success/4failure: Mac3+UbuntuCore/UI passed. All four actual
+failed logs match baseline21442bf: Windows22/22/14 Unix errors before tests,
+UbuntuNative10pass/3fail ExclusiveInstallUnavailable/TargetOccupied. Failing
+source is unchanged; no shared Mac defect. Temporary stages after failed publication are bounded
+individually but can accumulate; they cannot authorize completion. Native
+Dashboard/Complete and owner Action acceptance remain pending.
+
 [PR36](https://github.com/ewq100/brn-rust/pull/36) merged
 **21442bfb0ff9e15705208f9c1fc224c7de90a5d1**, reviewed source tree8f0a2372.
 The checked V11 identified-Complete Store foundation binds the full unfinished
@@ -116,19 +134,21 @@ Settings/model-consent dialogs were observed; safe original screenshots retained
 
 ## Active slice and next work
 
-codex/v1-complete-workflow is based on21442bf. Exact App/AppWorker Complete and
-CLI `actions complete --file PATH` are implemented with immutable ordinary
-publication, checked startup/retry reconciliation before Ready/Auth/model loading,
-current/held-tool uncertainty fences, full operation correlation and shutdown
-draining. Whole independent read-only review found no blocking defect. Fresh
-1093workspace/0failed/6ignored+233native/0failed/0ignored,52fixtures,both native
-Clippy modes,shipping builds and startup/restart2 passed,V11/exact bytes/zero
-credentials. Exact-head CI and integration are next. No native
-dashboard Complete control or AI Complete tool is claimed. Acceptance and scoped
-results remain in the [Actions plan](work/active/actions-dashboard/plan.md).
+codex/v1-dashboard-query is based on3af4526. The shared snapshot query implements
+global state/date counts, filtered pages and exact dependency observations
+through workflow/AppWorker and CLI. Active defaults to Open/Waiting/Blocked;
+date comparisons use one explicit resolved civil date, frozen across pagination.
+No action state/priority is inferred or mutated. Focused Store7/workflow3/CLI
+process5+CLIunit7 tests passed; whole independent read-only review found no defect,
+and reviewed source hashes remain unchanged. Fresh final verification passed
+1106workspace/0failed/6ignored+52fixtures,233native/0failed/0ignored, both native
+Clippy modes, shipping Desktop/CLI builds and two V11 startup/restart checks
+(exact bytes, zero credentials). Exact-head CI/integration is next.
+Acceptance and evidence remain
+in the [Actions plan](work/active/actions-dashboard/plan.md).
 
-Next: integrate the verified headless/direct Complete checkpoint, dashboard and new related
-approved follow-up Actions, then Stage6 AI/read tools within the same proposal
+Next: qualify/integrate shared Dashboard queries, then thin native Complete/new
+approved follow-up controls and Stage6 AI/read tools within the same proposal
 boundary. Inbox follows in roadmap order. WholeStage5/6 and V1 remain unfinished.
 
 ## Qualification and owner items

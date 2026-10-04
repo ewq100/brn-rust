@@ -6,6 +6,7 @@ pub mod ai_tools;
 pub mod app;
 pub mod app_worker;
 pub mod chat_worker;
+pub mod dashboard;
 pub mod editor;
 pub mod error;
 mod files;

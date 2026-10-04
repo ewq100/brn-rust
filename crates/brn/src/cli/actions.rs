@@ -7,6 +7,7 @@ use brn_workflow::{
     action_completion::CompleteActionRequest,
     actions::{ActionCursor, ActionListRequest, ActionState},
     app_worker::{AppCommand, AppEvent},
+    dashboard::{DashboardFilter, DashboardRequest},
 };
 use std::{fmt::Write as _, path::PathBuf};
 use uuid::Uuid;
@@ -15,6 +16,7 @@ pub enum ActionsCommand {
     Show(Uuid),
     List(ActionListRequest),
     Complete(PathBuf),
+    Dashboard(DashboardRequest),
 }
 
 impl ActionsCommand {
@@ -23,6 +25,7 @@ impl ActionsCommand {
             Self::Show(_) => "actions.show",
             Self::List(_) => "actions.list",
             Self::Complete(_) => "actions.complete",
+            Self::Dashboard(_) => "actions.dashboard",
         }
     }
 }
@@ -32,10 +35,20 @@ pub(super) fn scan_command(
     globals: &mut Globals,
     name: &mut Option<&'static str>,
 ) -> Result<Scanned, CliError> {
-    let sub = sub_word(tokens, "actions", "show|list|complete")?;
+    let sub = sub_word(tokens, "actions", "show|list|complete|dashboard")?;
     let (label, options): (_, &[(&str, bool)]) = match sub.as_str() {
         "show" => ("actions.show", &[]),
         "complete" => ("actions.complete", &[("file", true)]),
+        "dashboard" => (
+            "actions.dashboard",
+            &[
+                ("as-of", true),
+                ("filter", true),
+                ("limit", true),
+                ("before-created-at-ms", true),
+                ("before-id", true),
+            ],
+        ),
         "list" => (
             "actions.list",
             &[
@@ -47,7 +60,7 @@ pub(super) fn scan_command(
         ),
         _ => {
             return Err(usage(
-                "unknown actions subcommand (expected show|list|complete)",
+                "unknown actions subcommand (expected show|list|complete|dashboard)",
             ))
         }
     };
@@ -71,6 +84,47 @@ fn timestamp(raw: &str) -> Result<u64, CliError> {
         .map_err(|_| usage("invalid --before-created-at-ms integer"))
 }
 
+fn dashboard_filter(raw: &str) -> Result<DashboardFilter, CliError> {
+    match raw {
+        "active" => Ok(DashboardFilter::Active),
+        "open" => Ok(DashboardFilter::Open),
+        "waiting" => Ok(DashboardFilter::Waiting),
+        "blocked" => Ok(DashboardFilter::Blocked),
+        "completed" => Ok(DashboardFilter::Completed),
+        "overdue" => Ok(DashboardFilter::Overdue),
+        "follow-up" => Ok(DashboardFilter::FollowUp),
+        "all" => Ok(DashboardFilter::All),
+        _ => Err(usage(
+            "--filter must be active|open|waiting|blocked|completed|overdue|follow-up|all",
+        )),
+    }
+}
+fn page_input(scanned: &Scanned) -> Result<(usize, Option<ActionCursor>), CliError> {
+    let created_at_ms = scanned
+        .value("before-created-at-ms")
+        .map(timestamp)
+        .transpose()?;
+    let id = scanned.uuid("before-id")?;
+    let before = match (created_at_ms, id) {
+        (Some(created_at_ms), Some(id)) => Some(ActionCursor { created_at_ms, id }),
+        (None, None) => None,
+        _ => {
+            return Err(usage(
+                "--before-created-at-ms and --before-id must be supplied together",
+            ))
+        }
+    };
+    let limit = scanned
+        .value("limit")
+        .map(|raw| {
+            raw.parse::<usize>()
+                .map_err(|_| usage("invalid --limit integer"))
+        })
+        .transpose()?
+        .unwrap_or(25);
+    Ok((limit, before))
+}
+
 pub(super) fn validate(command: &ActionsCommand) -> Result<(), CliError> {
     match command {
         ActionsCommand::Show(id) if id.is_nil() => Err(usage("Action UUID must not be nil")),
@@ -83,6 +137,9 @@ pub(super) fn validate(command: &ActionsCommand) -> Result<(), CliError> {
             }
         }
         ActionsCommand::List(request) => {
+            request.validate().map_err(|error| usage(error.to_string()))
+        }
+        ActionsCommand::Dashboard(request) => {
             request.validate().map_err(|error| usage(error.to_string()))
         }
     }
@@ -105,30 +162,24 @@ pub(super) fn parse_command(name: &str, scanned: &Scanned) -> Result<ActionsComm
         }
         "actions.list" => {
             expect_positionals(scanned, 0)?;
-            let created_at_ms = scanned
-                .value("before-created-at-ms")
-                .map(timestamp)
-                .transpose()?;
-            let id = scanned.uuid("before-id")?;
-            let before = match (created_at_ms, id) {
-                (Some(created_at_ms), Some(id)) => Some(ActionCursor { created_at_ms, id }),
-                (None, None) => None,
-                _ => {
-                    return Err(usage(
-                        "--before-created-at-ms and --before-id must be supplied together",
-                    ));
-                }
-            };
+            let (limit, before) = page_input(scanned)?;
             ActionsCommand::List(ActionListRequest {
                 state: scanned.value("state").map(state).transpose()?.flatten(),
-                limit: scanned
-                    .value("limit")
-                    .map(|raw| {
-                        raw.parse::<usize>()
-                            .map_err(|_| usage("invalid --limit integer"))
-                    })
+                limit,
+                before,
+            })
+        }
+        "actions.dashboard" => {
+            expect_positionals(scanned, 0)?;
+            let (limit, before) = page_input(scanned)?;
+            ActionsCommand::Dashboard(DashboardRequest {
+                as_of: scanned.value("as-of").map(str::to_owned),
+                filter: scanned
+                    .value("filter")
+                    .map(dashboard_filter)
                     .transpose()?
-                    .unwrap_or(25),
+                    .unwrap_or_default(),
+                limit,
                 before,
             })
         }
@@ -143,6 +194,7 @@ pub(super) fn prepare(command: &ActionsCommand) -> Result<AppCommand, CliFailure
     Ok(match command {
         ActionsCommand::Show(id) => AppCommand::Action(*id),
         ActionsCommand::List(request) => AppCommand::Actions(request.clone()),
+        ActionsCommand::Dashboard(request) => AppCommand::ActionDashboard(request.clone()),
         ActionsCommand::Complete(path) => {
             let request: CompleteActionRequest = super::proposals::input(path)?;
             request
@@ -204,6 +256,12 @@ pub(super) fn output(command: &AppCommand, event: AppEvent) -> Result<Output, Cl
         {
             let text = format!("{}\n", record_text(&completion));
             (serde_json::json!(*completion), text)
+        }
+        (AppCommand::ActionDashboard(request), AppEvent::ActionDashboard(page))
+            if request.validate_page(&page).is_ok() =>
+        {
+            let text = format!("{}\n", record_text(&page));
+            (serde_json::json!(*page), text)
         }
         _ => {
             return Err(CliError::Workflow(
@@ -398,6 +456,131 @@ mod tests {
             assert!(!credentials.exists());
         }
     }
+    #[test]
+    fn dashboard_parser_defaults_active_and_prepares_all_explicit_filters_without_authority() {
+        let dir = tempfile::tempdir().unwrap();
+        let base = [
+            "actions",
+            "dashboard",
+            "--data-dir",
+            dir.path().to_str().unwrap(),
+        ];
+        let Outcome::Run(invocation) =
+            parse(&base).unwrap_or_else(|failure| panic!("{}", failure.error.code()))
+        else {
+            panic!("run")
+        };
+        let Command::Actions(ActionsCommand::Dashboard(request)) = invocation.command else {
+            panic!("Dashboard")
+        };
+        assert_eq!(request, DashboardRequest::default());
+        for (raw, expected) in [
+            ("active", DashboardFilter::Active),
+            ("open", DashboardFilter::Open),
+            ("waiting", DashboardFilter::Waiting),
+            ("blocked", DashboardFilter::Blocked),
+            ("completed", DashboardFilter::Completed),
+            ("overdue", DashboardFilter::Overdue),
+            ("follow-up", DashboardFilter::FollowUp),
+            ("all", DashboardFilter::All),
+        ] {
+            let args = [
+                "actions",
+                "dashboard",
+                "--filter",
+                raw,
+                "--as-of",
+                "2028-02-29",
+                "--limit",
+                "200",
+                "--before-created-at-ms",
+                "42",
+                "--before-id",
+                "00000000-0000-0000-0000-000000000001",
+                "--data-dir",
+                dir.path().to_str().unwrap(),
+            ];
+            let Outcome::Run(invocation) =
+                parse(&args).unwrap_or_else(|failure| panic!("{}", failure.error.code()))
+            else {
+                panic!("run")
+            };
+            let Command::Actions(ActionsCommand::Dashboard(request)) = invocation.command else {
+                panic!("Dashboard")
+            };
+            assert_eq!(request.filter, expected);
+            assert_eq!(request.as_of.as_deref(), Some("2028-02-29"));
+            assert_eq!(request.limit, 200);
+            let AppCommand::ActionDashboard(prepared) =
+                prepare(&ActionsCommand::Dashboard(request.clone())).unwrap()
+            else {
+                panic!("prepared")
+            };
+            assert_eq!(prepared, request);
+        }
+        assert_eq!(std::fs::read_dir(dir.path()).unwrap().count(), 0);
+    }
+
+    #[test]
+    fn dashboard_output_binds_prepared_date_filter_cursor_and_checked_reply() {
+        use brn_workflow::dashboard::{DashboardCounts, DashboardEntry, DashboardPage};
+        let request = DashboardRequest {
+            as_of: Some("2028-02-29".into()),
+            ..Default::default()
+        };
+        let page = DashboardPage {
+            as_of: "2028-02-29".into(),
+            counts: DashboardCounts {
+                waiting: 1,
+                ..Default::default()
+            },
+            entries: vec![DashboardEntry {
+                action: *completion_request().before,
+                overdue: false,
+                follow_up: false,
+                dependency_blocked: false,
+                dependencies: vec![],
+            }],
+            next_before: None,
+        };
+        let accepted = output(
+            &AppCommand::ActionDashboard(request.clone()),
+            AppEvent::ActionDashboard(Box::new(page.clone())),
+        )
+        .unwrap();
+        assert_eq!(accepted.data, serde_json::to_value(&page).unwrap());
+        assert!(!accepted.text.contains('\u{001b}'));
+        assert!(!accepted.text.contains('\u{0085}'));
+        let mut wrong = page.clone();
+        wrong.as_of = "2028-03-01".into();
+        assert!(output(
+            &AppCommand::ActionDashboard(request.clone()),
+            AppEvent::ActionDashboard(Box::new(wrong))
+        )
+        .is_err());
+        let mut wrong = page.clone();
+        wrong.counts.waiting = 0;
+        assert!(output(
+            &AppCommand::ActionDashboard(request.clone()),
+            AppEvent::ActionDashboard(Box::new(wrong))
+        )
+        .is_err());
+        let other = DashboardRequest {
+            filter: DashboardFilter::Open,
+            ..request.clone()
+        };
+        assert!(output(
+            &AppCommand::ActionDashboard(other),
+            AppEvent::ActionDashboard(Box::new(page.clone()))
+        )
+        .is_err());
+        assert!(output(
+            &AppCommand::ActionDashboard(request),
+            AppEvent::Action(Box::new(page.entries[0].action.clone()))
+        )
+        .is_err());
+    }
+
     fn completion_request() -> CompleteActionRequest {
         use brn_store::work::{
             actions::{ActionData, ActionOrigin, ActionRecord},

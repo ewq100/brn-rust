@@ -371,7 +371,16 @@ hashes, canonical indexed identities, exact owned schema and the retained
 Completed record are validated before quick_check. Readable semantic damage
 refuses the main database; invalid backup candidates are skipped.
 
-These APIs are storage preparation for the shared application command. CLI/UI
-completion stays unavailable until workflow publication/startup recovery and
-worker admission/shutdown behavior qualify. Clients continue through workflow/
-AppWorker; they do not call these storage APIs or write SQLite directly.
+Workflow/AppWorker now qualifies publication, startup recovery, uncertainty,
+operation correlation and shutdown draining; the CLI exposes exact Complete.
+Native controls remain a later slice. Clients continue through workflow/AppWorker;
+they do not call these storage APIs or write SQLite directly.
+
+[Dashboard queries](src/work/actions/dashboard.rs) project one checked read
+transaction, without a schema change or stored cache. An explicit canonical
+civil date, filter and immutable cursor bind a page of1–200 complete records.
+Global counts inspect every retained row, including hidden/filter-excluded work;
+dependency states share that snapshot and preserve ordered/missing targets.
+Completed Actions have no overdue/follow-up signals; other due dates compare
+strictly before the date and follow-up dates on/before it. Workflow owns date
+defaults and current-evidence eligibility. No ranking or Action mutation occurs.

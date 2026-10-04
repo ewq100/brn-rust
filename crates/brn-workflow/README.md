@@ -91,6 +91,22 @@ exclusive immutable creation-time/UUID cursor. Editing an Action does not reorde
 it. Exact Action creation/replacement uses the proposal lifecycle below. Dashboard
 controls follow later; owned Action Rewrite and Action-bearing Undo remain refused.
 
+[Dashboard](src/dashboard.rs) exposes `App::action_dashboard` and the correlated
+`ActionDashboard` command/event. Default Active is Open/Waiting/Blocked; explicit
+filters also expose each state, overdue, follow-up and All. A first request may
+omit its date, resolved inside workflow to OS-local civil today using pinned
+chrono. Continuations must carry the returned canonical `as_of` date. Counts
+cover the whole checked snapshot, independent of filter/cursor/limit1–200.
+Unfinished due dates strictly before `as_of` are overdue; follow-up dates on or
+before it are due. Date counts may overlap; Completed has neither signal.
+Entries retain exact complete Actions and same-snapshot dependency states, in
+their stored order; missing is explicit. No status/priority is mutated or ranked.
+One query validates every retained Action while keeping scalar target states and
+at most limit+1 full records, then returns one checked page. Different pages are
+fresh observations, not a frozen membership claim. Current-evidence fences cover
+counts and entries; no vault/provider is required. Clients validate the prepared
+query/reply through this workflow contract and gain no persistence access.
+
 [Identified completion](src/action_completion.rs) exposes `App::complete_action`
 and `CompleteAction`/`ActionCompleted` through AppWorker. The explicit user request
 binds one nonnil operation UUID and the whole displayed unfinished Action record.

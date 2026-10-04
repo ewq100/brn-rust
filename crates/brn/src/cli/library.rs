@@ -373,6 +373,9 @@ fn execute(
                 )?,
                 AppCommand::Action(id) => lane.query(AppCommand::Action(*id))?,
                 AppCommand::Actions(request) => lane.query(AppCommand::Actions(request.clone()))?,
+                AppCommand::ActionDashboard(request) => {
+                    lane.query(AppCommand::ActionDashboard(request.clone()))?
+                }
                 _ => unreachable!("prepared Action command"),
             };
             super::actions::output(&prepared, event)

@@ -249,6 +249,39 @@ fn malformed_actions_refuse_before_operational_storage_or_credentials() {
             &nil,
         ],
         vec!["actions", "list", "--unknown"],
+        vec!["actions", "dashboard", "extra"],
+        vec!["actions", "dashboard", "--as-of", "2028-2-29"],
+        vec!["actions", "dashboard", "--as-of", "2027-02-29"],
+        vec!["actions", "dashboard", "--filter", "unknown"],
+        vec!["actions", "dashboard", "--limit", "0"],
+        vec!["actions", "dashboard", "--limit", "201"],
+        vec![
+            "actions",
+            "dashboard",
+            "--before-created-at-ms",
+            "1",
+            "--before-id",
+            &id,
+        ],
+        vec![
+            "actions",
+            "dashboard",
+            "--as-of",
+            "2028-02-29",
+            "--before-id",
+            &id,
+        ],
+        vec![
+            "actions",
+            "dashboard",
+            "--as-of",
+            "2028-02-29",
+            "--before-created-at-ms",
+            "1",
+            "--before-id",
+            &nil,
+        ],
+        vec!["actions", "dashboard", "--state", "open"],
     ] {
         let (code, envelope) = f.run(&args);
         assert_eq!(code, 2, "{args:?}: {envelope}");
@@ -268,6 +301,10 @@ fn pending_action_proposal_fences_reads_without_applying_action_or_requesting_au
     assert_eq!(envelope["error"]["code"], "SAVE_UNCERTAIN");
     assert_eq!(fs::read_dir(&f.credentials).unwrap().count(), 0);
 
+    let (code, envelope) = f.run(&["actions", "dashboard"]);
+    assert_ne!(code, 0);
+    assert_eq!(envelope["error"]["code"], "SAVE_UNCERTAIN");
+
     let (store, _) = WorkStore::open(f.data.path()).unwrap();
     assert_eq!(store.action(id).unwrap(), None);
     let proposal = store
@@ -280,4 +317,80 @@ fn pending_action_proposal_fences_reads_without_applying_action_or_requesting_au
         proposal.state,
         brn_store::work::proposals::ProposalState::Applying
     );
+}
+
+#[test]
+fn dashboard_cli_preserves_global_counts_filtered_paging_dates_dependencies_and_safe_text() {
+    let f = Fixture::new();
+    let open = create_action(&f, "open", ActionState::Open, true);
+    create_action(&f, "waiting", ActionState::Waiting, true);
+    create_action(&f, "blocked", ActionState::Blocked, true);
+    let input = [
+        "actions",
+        "dashboard",
+        "--as-of",
+        "2028-02-29",
+        "--limit",
+        "1",
+    ];
+    let page = f.ok(&input, "actions.dashboard");
+    assert_eq!(page["as_of"], "2028-02-29");
+    assert_eq!(
+        page["counts"],
+        json!({"open":1,"waiting":1,"blocked":1,"completed":0,"overdue":3,"follow_up":0})
+    );
+    assert_eq!(page["entries"].as_array().unwrap().len(), 1);
+    assert!(page["entries"][0]["overdue"].as_bool().unwrap());
+    assert_eq!(page["entries"][0]["dependencies"], json!([]));
+    let cursor = page["next_before"].clone();
+    let ms = cursor["created_at_ms"].as_u64().unwrap().to_string();
+    let id = cursor["id"].as_str().unwrap();
+    let next = f.ok(
+        &[
+            "actions",
+            "dashboard",
+            "--as-of",
+            page["as_of"].as_str().unwrap(),
+            "--limit",
+            "1",
+            "--before-created-at-ms",
+            &ms,
+            "--before-id",
+            id,
+        ],
+        "actions.dashboard",
+    );
+    assert_eq!(next["counts"], page["counts"]);
+    assert_ne!(
+        next["entries"][0]["action"]["origin"]["id"],
+        page["entries"][0]["action"]["origin"]["id"]
+    );
+    let filtered = f.ok(
+        &[
+            "actions",
+            "dashboard",
+            "--as-of",
+            "2028-02-29",
+            "--filter",
+            "open",
+        ],
+        "actions.dashboard",
+    );
+    assert_eq!(filtered["counts"], page["counts"]);
+    assert_eq!(
+        filtered["entries"][0]["action"]["origin"]["id"],
+        open.to_string()
+    );
+    let human = f.process(&input, false);
+    assert!(human.status.success());
+    let human = String::from_utf8(human.stdout).unwrap();
+    assert_eq!(serde_json::from_str::<Value>(&human).unwrap(), page);
+    for control in ['\u{001b}', '\u{007f}', '\u{0085}', '\u{009b}'] {
+        assert!(!human.contains(control));
+    }
+    let defaults = f.ok(&["actions", "dashboard"], "actions.dashboard");
+    assert_eq!(defaults["as_of"].as_str().unwrap().len(), 10);
+    assert_eq!(defaults["entries"].as_array().unwrap().len(), 3);
+    assert_eq!(fs::read_dir(&f.credentials).unwrap().count(), 0);
+    assert!(!f.data.path().join("index.sqlite").exists());
 }
