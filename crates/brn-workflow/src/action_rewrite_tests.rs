@@ -497,3 +497,47 @@ fn fresh_source_free_action_rewrite_still_requires_an_ai_vault_without_provider_
     assert_eq!(action(&worker, before.origin.id), before);
     worker.shutdown().unwrap();
 }
+
+#[test]
+fn owned_action_rewrite_uses_full_application_action_reads_and_keeps_real_records_unchanged() {
+    let fixture = Fixture::new();
+    let hook: crate::proposal_rewrite::RewriteHook = Arc::new(move |_, prompt, tools, _, _| {
+        let captured: ProposalRecord = serde_json::from_str(&prompt).unwrap();
+        Box::pin(async move {
+            let copy = captured.clone();
+            tokio::task::spawn_blocking(move || {
+                let crate::proposals::ActionChange::Replace { before, .. } =
+                    &copy.draft.action_changes[1]
+                else {
+                    panic!("captured baseline")
+                };
+                assert_eq!(
+                    tools.read_action(&before.origin.id.to_string()).unwrap(),
+                    serde_json::json!(before)
+                );
+                let page = tools.list_actions(Some("waiting"), 20, None).unwrap();
+                assert_eq!(page["entries"], serde_json::json!([before]));
+                assert!(page["next_cursor"].is_null());
+                assert_eq!(tools.read_note("a.md").unwrap().text, "current");
+            })
+            .await
+            .unwrap();
+            action_answer(&captured)
+        })
+    });
+    let mut worker = fixture.start(Hooks {
+        rewrite: Some(hook),
+        ..Hooks::default()
+    });
+    let (original, before) = action_review(&worker, false);
+    let request = request(&original);
+    start(&worker, &request);
+    assert_eq!(finish(&worker, &request).status, RewriteStatus::Completed);
+    assert_eq!(
+        action(&worker, before.origin.id),
+        before,
+        "Suggestion is not approval"
+    );
+    assert_ne!(review(&worker, original.draft.id), original);
+    worker.shutdown().unwrap();
+}

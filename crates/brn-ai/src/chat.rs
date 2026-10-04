@@ -1,6 +1,6 @@
 use crate::auth::OwnedClient;
 use crate::error::map_provider;
-use crate::tools::{ListNotes, ReadNote, SearchNotes, ToolRounds};
+use crate::tools::{ListActions, ListNotes, ReadAction, ReadNote, SearchNotes, ToolRounds};
 use crate::{AiError, AiErrorKind, Provider, ProviderClient, ReadTools};
 use futures::StreamExt;
 use rig::agent::{
@@ -295,7 +295,9 @@ async fn run_model(
         .preamble(preamble)
         .tool(SearchNotes(tools.clone()))
         .tool(ReadNote(tools.clone()))
-        .tool(ListNotes(tools))
+        .tool(ListNotes(tools.clone()))
+        .tool(ReadAction(tools.clone()))
+        .tool(ListActions(tools))
         .add_hook(RoundHook {
             rounds: Mutex::new(ToolRounds::default()),
             limited: limited.clone(),
@@ -381,7 +383,10 @@ async fn collect_stream(
             }
             Some(Ok(MultiTurnStreamItem::ToolCall { tool_call })) => {
                 let name = tool_call.function.name;
-                if matches!(name.as_str(), "search_notes" | "read_note" | "list_notes") {
+                if matches!(
+                    name.as_str(),
+                    "search_notes" | "read_note" | "list_notes" | "read_action" | "list_actions"
+                ) {
                     emit(AiEvent::ToolStarted {
                         name: name.to_string(),
                     });

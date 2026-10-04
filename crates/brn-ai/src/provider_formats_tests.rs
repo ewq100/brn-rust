@@ -1486,6 +1486,13 @@ mod scoped_read_tools_tests {
                         let definition = if responses { tool } else { &tool["function"] };
                         let parameters = &definition["parameters"];
                         assert_eq!(parameters["additionalProperties"], false);
+                        if matches!(
+                            definition["name"].as_str(),
+                            Some("read_action" | "list_actions")
+                        ) {
+                            assert!(parameters["properties"]["scope"].is_null());
+                            continue;
+                        }
                         assert_eq!(parameters["properties"]["scope"]["type"], "string");
                         assert_eq!(
                             parameters["properties"]["scope"]["enum"],
@@ -1834,7 +1841,16 @@ async fn actual_subscription_formats_continue_tools_and_text_only_history() {
                 })
                 .collect::<Vec<_>>();
             names.sort();
-            assert_eq!(names, ["list_notes", "read_note", "search_notes"]);
+            assert_eq!(
+                names,
+                [
+                    "list_actions",
+                    "list_notes",
+                    "read_action",
+                    "read_note",
+                    "search_notes"
+                ]
+            );
             for tool in body["tools"].as_array().unwrap() {
                 let definition = if responses { tool } else { &tool["function"] };
                 assert_eq!(definition["parameters"]["additionalProperties"], false);
@@ -2982,6 +2998,267 @@ mod subscription_catalog_tests {
                     .unwrap_err();
                 assert_eq!((error.kind, error.retry_after_seconds), (kind, retry));
                 assert!(!format!("{error:?} {error}").contains("SYNTHETIC_SECRET"));
+                http.assert_consumed();
+            }
+        }
+    }
+}
+
+mod action_read_tool_tests {
+    use super::*;
+
+    #[derive(Default)]
+    struct Actions {
+        calls: AtomicUsize,
+    }
+    impl ReadTools for Actions {
+        fn search_notes(&self, _: &str, _: usize) -> AiResult<ToolSearch> {
+            panic!("unexpected note search")
+        }
+        fn read_note(&self, _: &str) -> AiResult<ToolNote> {
+            panic!("unexpected note read")
+        }
+        fn list_notes(&self, _: Option<&str>, _: Option<&str>) -> AiResult<NotePage> {
+            panic!("unexpected note list")
+        }
+        fn read_action(&self, id: &str) -> AiResult<Value> {
+            assert_eq!(id, "9ecbe87a-8797-440c-9e08-25b424ef8b9c");
+            self.calls.fetch_add(1, Ordering::SeqCst);
+            Ok(
+                json!({"origin":{"id":id,"data":{"title":"Exact origin õ\r\n"}},
+                "data":{"description":"\u{feff}Exact current 🦀\r\n"},"version":2}),
+            )
+        }
+        fn list_actions(
+            &self,
+            state: Option<&str>,
+            limit: usize,
+            cursor: Option<&str>,
+        ) -> AiResult<Value> {
+            assert_eq!((state, limit, cursor), (Some("waiting"), 1, Some("opaque")));
+            self.calls.fetch_add(1, Ordering::SeqCst);
+            Ok(
+                json!({"entries":[{"data":{"state":"waiting","owner":"  Õ  "}}],"next_cursor":"next-opaque"}),
+            )
+        }
+    }
+
+    #[tokio::test]
+    async fn registered_action_read_tools_continue_exactly_on_both_rig_routes_and_rewrite() {
+        for (provider, model, responses) in [
+            (Provider::Chatgpt, "gpt-6-luna", true),
+            (Provider::Copilot, "gpt-5.5", false),
+            (Provider::Copilot, "gpt-5.3-codex", true),
+        ] {
+            for rewriting in [false, true] {
+                let (_root, client, http) = client(
+                    provider,
+                    model,
+                    vec![
+                        success(tool_sse(
+                            responses,
+                            &[
+                                (
+                                    "read_action",
+                                    json!({"id":"9ecbe87a-8797-440c-9e08-25b424ef8b9c"}),
+                                ),
+                                (
+                                    "list_actions",
+                                    json!({"state":"waiting","limit":1,"cursor":"opaque"}),
+                                ),
+                            ],
+                        )),
+                        success(text_sse(responses, "exact final")),
+                    ],
+                )
+                .await;
+                let tools = Arc::new(Actions::default());
+                let events = Arc::new(Mutex::new(Vec::new()));
+                let captured = events.clone();
+                let emit = Arc::new(move |e| captured.lock().unwrap().push(e));
+                let result = if rewriting {
+                    rewrite(
+                        client,
+                        "captured review",
+                        ReasoningEffort::High,
+                        tools.clone(),
+                        CancellationToken::new(),
+                        emit,
+                    )
+                    .await
+                } else {
+                    answer_with_effort(
+                        client,
+                        "current work",
+                        &[],
+                        ReasoningEffort::High,
+                        tools.clone(),
+                        CancellationToken::new(),
+                        emit,
+                    )
+                    .await
+                };
+                assert!(
+                    matches!(result.terminal, AiTerminal::Completed),
+                    "{provider:?} rewrite={rewriting}: {:?}",
+                    result.terminal
+                );
+                assert_eq!(result.text, "exact final");
+                assert_eq!(tools.calls.load(Ordering::SeqCst), 2);
+                assert_eq!(
+                    events
+                        .lock()
+                        .unwrap()
+                        .iter()
+                        .filter(|e| matches!(e, AiEvent::ToolStarted { .. }))
+                        .count(),
+                    2
+                );
+                http.assert_consumed();
+                let bodies = http.bodies();
+                let continuation = bodies[1].to_string();
+                assert!(
+                    continuation.contains("Exact origin õ")
+                        && continuation.contains("Exact current 🦀")
+                        && continuation.contains("next-opaque")
+                );
+                for tool in bodies[0]["tools"].as_array().unwrap() {
+                    let definition = if responses { tool } else { &tool["function"] };
+                    if ["read_action", "list_actions"]
+                        .contains(&definition["name"].as_str().unwrap())
+                    {
+                        assert_eq!(definition["parameters"]["additionalProperties"], false);
+                    }
+                }
+            }
+        }
+    }
+
+    #[derive(Default)]
+    struct BoundedActions {
+        calls: AtomicUsize,
+        oversized: bool,
+    }
+    impl ReadTools for BoundedActions {
+        fn search_notes(&self, _: &str, _: usize) -> AiResult<ToolSearch> {
+            panic!("unexpected")
+        }
+        fn read_note(&self, _: &str) -> AiResult<ToolNote> {
+            panic!("unexpected")
+        }
+        fn list_notes(&self, _: Option<&str>, _: Option<&str>) -> AiResult<NotePage> {
+            panic!("unexpected")
+        }
+        fn read_action(&self, _: &str) -> AiResult<Value> {
+            self.calls.fetch_add(1, Ordering::SeqCst);
+            Ok(json!({"description":"x".repeat(READ_ACTION_BYTES+1)}))
+        }
+        fn list_actions(
+            &self,
+            state: Option<&str>,
+            limit: usize,
+            cursor: Option<&str>,
+        ) -> AiResult<Value> {
+            assert_eq!((state, limit, cursor), (None, 20, None));
+            self.calls.fetch_add(1, Ordering::SeqCst);
+            if self.oversized {
+                Ok(
+                    json!({"entries":["x".repeat(READ_ACTION_BYTES+1)],"next_cursor":"never fabricated"}),
+                )
+            } else {
+                Ok(json!({"entries":[],"next_cursor":null}))
+            }
+        }
+    }
+    fn results(body: &Value, responses: bool) -> Vec<String> {
+        body[if responses { "input" } else { "messages" }]
+            .as_array()
+            .unwrap()
+            .iter()
+            .filter(|m| m["type"] == "function_call_output" || m["role"] == "tool")
+            .map(|m| {
+                let v = &m[if responses { "output" } else { "content" }];
+                v.as_str().or_else(|| v[0]["text"].as_str()).unwrap().into()
+            })
+            .collect()
+    }
+    #[tokio::test]
+    async fn action_read_tool_argument_and_output_bounds_refuse_whole_results_without_retry() {
+        for (provider, model, responses) in [
+            (Provider::Chatgpt, "gpt-6-luna", true),
+            (Provider::Copilot, "gpt-5.5", false),
+            (Provider::Copilot, "gpt-5.3-codex", true),
+        ] {
+            for (name, args) in [
+                ("read_action", json!({})),
+                ("read_action", json!({"id":null})),
+                ("read_action", json!({"id":1})),
+                ("read_action", json!({"id":""})),
+                ("read_action", json!({"id":"x".repeat(65)})),
+                ("read_action", json!({"id":"x","scope":"all"})),
+                ("list_actions", json!({"limit":0})),
+                ("list_actions", json!({"limit":21})),
+                ("list_actions", json!({"limit":-1})),
+                ("list_actions", json!({"limit":1.5})),
+                ("list_actions", json!({"state":false})),
+                ("list_actions", json!({"state":"x".repeat(17)})),
+                ("list_actions", json!({"cursor":false})),
+                ("list_actions", json!({"cursor":"õ".repeat(129)})),
+                ("list_actions", json!({"unknown":"SYNTHETIC_SECRET"})),
+            ] {
+                let (_root, client, http) = client(
+                    provider,
+                    model,
+                    vec![
+                        success(tool_sse(responses, &[(name, args)])),
+                        success(text_sse(responses, "safe continuation")),
+                    ],
+                )
+                .await;
+                let tools = Arc::new(BoundedActions::default());
+                let (answer, events) = run(client, tools.clone(), CancellationToken::new()).await;
+                assert!(matches!(answer.terminal, AiTerminal::Completed));
+                assert_eq!(tools.calls.load(Ordering::SeqCst), 0);
+                let replies = results(&http.bodies()[1], responses);
+                assert_eq!(replies.len(), 1);
+                assert!(
+                    replies[0] == "the tool failed"
+                        || replies[0].starts_with("failed to parse tool arguments: ")
+                );
+                assert!(!format!("{answer:?} {events:?}").contains("SYNTHETIC_SECRET"));
+                http.assert_consumed();
+            }
+            for (name, args, oversized) in [
+                ("read_action", json!({"id":"x"}), true),
+                ("list_actions", json!({}), true),
+                ("list_actions", json!({}), false),
+            ] {
+                let (_root, client, http) = client(
+                    provider,
+                    model,
+                    vec![
+                        success(tool_sse(responses, &[(name, args)])),
+                        success(text_sse(responses, "safe continuation")),
+                    ],
+                )
+                .await;
+                let tools = Arc::new(BoundedActions {
+                    oversized,
+                    ..BoundedActions::default()
+                });
+                let (answer, _) = run(client, tools.clone(), CancellationToken::new()).await;
+                assert!(matches!(answer.terminal, AiTerminal::Completed));
+                assert_eq!(tools.calls.load(Ordering::SeqCst), 1);
+                let replies = results(&http.bodies()[1], responses);
+                assert_eq!(replies.len(), 1);
+                if oversized {
+                    assert_eq!(replies[0], "the tool failed");
+                } else {
+                    assert_eq!(
+                        serde_json::from_str::<Value>(&replies[0]).unwrap(),
+                        json!({"entries":[],"next_cursor":null})
+                    );
+                }
                 http.assert_consumed();
             }
         }

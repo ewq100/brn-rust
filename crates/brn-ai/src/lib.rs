@@ -13,8 +13,8 @@ pub use chat::{
     answer_with_effort, rewrite,
 };
 pub use tools::{
-    NoteEntry, NotePage, Passage, READ_NOTE_BYTES, ReadScope, ReadTools, ToolNote, ToolSearch,
-    capped_text,
+    NoteEntry, NotePage, Passage, READ_ACTION_BYTES, READ_NOTE_BYTES, ReadScope, ReadTools,
+    ToolNote, ToolSearch, capped_text,
 };
 
 #[derive(Clone, Copy, Debug, PartialEq, Eq, serde::Serialize, serde::Deserialize)]

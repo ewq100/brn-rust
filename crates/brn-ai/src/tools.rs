@@ -5,6 +5,7 @@ use serde_json::{Value, json};
 use std::sync::Arc;
 
 pub const READ_NOTE_BYTES: usize = 50_000;
+pub const READ_ACTION_BYTES: usize = 1024 * 1024;
 
 pub fn capped_text(text: &str) -> (&str, bool) {
     let mut end = text.len().min(READ_NOTE_BYTES);
@@ -61,6 +62,20 @@ pub trait ReadTools: Send + Sync {
     fn search_notes(&self, query: &str, limit: usize) -> AiResult<ToolSearch>;
     fn read_note(&self, path: &str) -> AiResult<ToolNote>;
     fn list_notes(&self, folder: Option<&str>, cursor: Option<&str>) -> AiResult<NotePage>;
+
+    /// Read a complete approved Action through the application boundary.
+    fn read_action(&self, _id: &str) -> AiResult<Value> {
+        Err(rejected())
+    }
+    /// Page complete approved Actions; the application owns state/cursor semantics.
+    fn list_actions(
+        &self,
+        _state: Option<&str>,
+        _limit: usize,
+        _cursor: Option<&str>,
+    ) -> AiResult<Value> {
+        Err(rejected())
+    }
 
     fn search_notes_scoped(
         &self,
@@ -176,6 +191,94 @@ pub(crate) struct ScopedPage {
 pub(crate) struct SearchNotes(pub Arc<dyn ReadTools>);
 pub(crate) struct ReadNote(pub Arc<dyn ReadTools>);
 pub(crate) struct ListNotes(pub Arc<dyn ReadTools>);
+pub(crate) struct ReadAction(pub Arc<dyn ReadTools>);
+pub(crate) struct ListActions(pub Arc<dyn ReadTools>);
+
+#[derive(Deserialize, Serialize)]
+#[serde(deny_unknown_fields)]
+pub(crate) struct ReadActionArgs {
+    id: String,
+}
+
+#[derive(Deserialize, Serialize)]
+#[serde(deny_unknown_fields)]
+pub(crate) struct ListActionsArgs {
+    state: Option<String>,
+    #[serde(default = "action_limit")]
+    limit: usize,
+    cursor: Option<String>,
+}
+fn action_limit() -> usize {
+    20
+}
+
+fn complete_action_reply(reply: Value) -> AiResult<Value> {
+    let bytes = serde_json::to_vec(&reply).map_err(|_| rejected())?;
+    if bytes.len() > READ_ACTION_BYTES {
+        return Err(rejected());
+    }
+    Ok(reply)
+}
+
+impl Tool for ReadAction {
+    const NAME: &'static str = "read_action";
+    type Args = ReadActionArgs;
+    type Output = Value;
+    type Error = AiError;
+
+    fn description(&self) -> String {
+        "Read one complete approved Action by UUID, including current fields, state, revision and immutable approved origin. This is read-only; it cannot approve or complete work. Replies over 1 MiB are refused, never truncated.".into()
+    }
+    fn parameters(&self) -> Value {
+        json!({"type":"object","additionalProperties":false,
+            "properties":{"id":{"type":"string","minLength":1,"maxLength":64}},
+            "required":["id"]})
+    }
+    async fn call(&self, _: &mut ToolContext, args: ReadActionArgs) -> AiResult<Value> {
+        if !(1..=64).contains(&args.id.len()) {
+            return Err(rejected());
+        }
+        let tools = self.0.clone();
+        tokio::task::spawn_blocking(move || complete_action_reply(tools.read_action(&args.id)?))
+            .await
+            .map_err(|_| AiError::new(AiErrorKind::Other))?
+    }
+}
+
+impl Tool for ListActions {
+    const NAME: &'static str = "list_actions";
+    type Args = ListActionsArgs;
+    type Output = Value;
+    type Error = AiError;
+
+    fn description(&self) -> String {
+        "Page complete approved Actions in stable creation order. Omitted state includes all states; each record labels its state. Limit defaults to 20 (1–20). Pass next_cursor unchanged for another page. Replies over 1 MiB are refused; retry with a smaller limit. Read-only.".into()
+    }
+    fn parameters(&self) -> Value {
+        json!({"type":"object","additionalProperties":false,"properties":{
+            "state":{"type":["string","null"],"enum":["open","waiting","blocked","completed",null]},
+            "limit":{"type":"integer","minimum":1,"maximum":20},
+            "cursor":{"type":["string","null"],"maxLength":256}},"required":[]})
+    }
+    async fn call(&self, _: &mut ToolContext, args: ListActionsArgs) -> AiResult<Value> {
+        if !(1..=20).contains(&args.limit)
+            || args.state.as_ref().is_some_and(|s| s.len() > 16)
+            || args.cursor.as_ref().is_some_and(|s| s.len() > 256)
+        {
+            return Err(rejected());
+        }
+        let tools = self.0.clone();
+        tokio::task::spawn_blocking(move || {
+            complete_action_reply(tools.list_actions(
+                args.state.as_deref(),
+                args.limit,
+                args.cursor.as_deref(),
+            )?)
+        })
+        .await
+        .map_err(|_| AiError::new(AiErrorKind::Other))?
+    }
+}
 
 impl Tool for SearchNotes {
     const NAME: &'static str = "search_notes";

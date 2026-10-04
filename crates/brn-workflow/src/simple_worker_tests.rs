@@ -1889,3 +1889,9 @@ fn new_ask_refreshes_the_library_before_the_model_can_read_the_tools() {
     assert_eq!(terminal(&worker, request.id).answer, "2");
     worker.shutdown().unwrap();
 }
+
+// Full retained records are seeded through actual native approval/completion.
+// Private RPC/error/lease tests above that boundary remain portable.
+#[cfg(target_os = "macos")]
+#[path = "action_read_tools_tests.rs"]
+mod action_reads;

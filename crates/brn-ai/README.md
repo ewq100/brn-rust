@@ -2,7 +2,7 @@
 
 Thin, fixed ChatGPT/Copilot subscription authentication and streamed read-only
 chat over Rig **0.43.0**. Contains account/selection DTOs, safe errors, checked
-credential storage, owned clients and three read tools. It does not contain
+credential storage, owned clients and five read tools. It does not contain
 workers, SQL, selection persistence or frontend state.
 
 `answer_with_effort` freezes an explicit low/medium/high choice with the selected
@@ -148,9 +148,9 @@ wire policy and cannot establish the number of real network sends.
 Implement the synchronous `ReadTools: Send + Sync` seam in workflow and pass it
 as `Arc<dyn ReadTools>`. Rig tool calls dispatch blocking reads via
 `tokio::task::spawn_blocking`, with at most two concurrent calls. Only
-`search_notes`, `read_note` and `list_notes` are registered:
+`search_notes`, `read_note`, `list_notes`, `read_action` and `list_actions` are registered:
 
-All three accept a `scope` enum (`current`, `source`, `history`, `all`), defaulting
+The three note tools accept a `scope` enum (`current`, `source`, `history`, `all`), defaulting
 to Current when omitted. Serialized results label that scope alongside existing
 fields. `ReadTools` scoped methods support this selection; old implementers
 delegate omitted/Current calls and reject other scopes rather than substituting
@@ -167,6 +167,12 @@ Rust omission compatibility remains supported and verified separately.
   truncation flag or records this cap. No BOM/whitespace/CRLF normalization.
 - List accepts optional folder/cursor and rejects adapter pages over 200 rows.
   Workflow owns vault/path/cursor validation, exclusion rules and fresh reads.
+- Action reads return full approved current records, including immutable origins.
+  `read_action(id)` and `list_actions(state?, limit?, cursor?)` carry small protocol
+  arguments only; workflow owns UUID/state/cursor checks and operational reads.
+  Lists include all labeled states by default, limit1–20/default20 and opaque
+  cursor≤256bytes. Full encoded JSON replies≤1MiB; oversized results are refused,
+  never truncated. Existing note-only implementations safely refuse these methods.
 - Argument schemas reject extra properties; Rust deserialization and validation
   also reject invalid arguments when the model ignores the schema. Safe failed
   tool results may continue the turn; they never authorize a retry or fallback.
