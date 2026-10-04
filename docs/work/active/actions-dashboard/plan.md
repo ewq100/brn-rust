@@ -255,3 +255,84 @@ exclusive-install and Windows Unix failures,overallCIred. Post-language24tests+
 52fixtures,startup2 and tree equality passed. Next publish this checked Stage6
 foundation/stored-review/joined-Store deliverable against that merged base, then
 qualify workflow recovery before any Action producer.
+
+## Next fixed workflow slice: Action recovery preparation
+
+Baselinea1cc9b429ac70972c826c227d29073122c5724d5. Keep workflow creation,
+approval/Rewrite guards and UI unchanged. Qualify ordinary recovery of already
+typed Store snapshots before enabling the whole user-visible Action flow.
+
+Allow vault=None only for validated file/source-free journals; mixed/bound records
+retain all existing exact vault checks. A terminal Applied mirror reconstructs
+Actions through checked Store import. Unsettled zero-file work has no Action SQL
+effect before terminal mirror/settlement, so restart/reconciliation settles
+NotApplied rather than accepting vacuous empty Applied file proofs. Do not certify
+fresh no-effects on restart. Pending/mixed work retains the current-evidence fence.
+
+Temporary mirror retirement must compare ordered Action Create IDs and complete
+Replace baselines, while allowing reviewed candidate-data edits. Preserve foreign,
+reordered, changed-baseline and malformed occupants; exact lineage can retire after
+Applied success. Add meaningful before-fix regressions, vaultless pending/prepared/
+uncertain/terminal replay, fresh/older operational restoration and mixed-vault
+binding refusal. Lead owns startup/reconciliation; a bounded helper owns only the
+retirement comparison/tests behind this fixed contract. Independent full review,
+fresh workflow/shared/native qualification precedes local integration. The later
+slice still must qualify references/dependency cycles, guarded execution, mixed
+crash/repair and read parity before producers, followed by identified Complete and
+the dashboard. No MCP,additional database/framework or live/private-data work.
+
+## Workflow recovery preparation checkpoint — 2026-10-04
+
+The fixed slice above is implemented. Valid before-fix fixtures passed1/failed4:
+a bound prepared Action-only intent actually settled Applied from empty file
+proofs; vaultless pending/terminal/fresh-restore cases refused vault access. One
+initial multi-unresolved fixture violated existing exclusive admission and was
+corrected before that meaningful RED; it is not claimed as a product defect.
+Fresh corrected5tests passed, including Pending/prepared/Uncertain and exact
+replay,terminal-mirror-before-SQL reconstruction/comment cleanup,both fresh and
+physically damaged/older-backup restoration of a Create→Replace chain,and refusal
+of another bound vault before any Action import. Original synthetic file/backup
+bytes,immutable origins,Waiting time and zero credential files were retained.
+
+Actual-envelope retirement regression passed1/failed1 before correction: all8
+valid foreign binding variants were deleted. Exact ordered Action kind/ID/full
+Replace baseline checks now preserve them, while real reviewed candidate edits
+retire covered temporaries. New2tests and all20recovery-file tests passed. Final
+independent complete review found no defect and ran private copies of5Action+
+20recovery tests:25/0failed/0ignored; source hashes stayed unchanged. Evidence:
+/private/tmp/brn-independent-action-recovery-jzy622fk; root action-recovery-
+red-valid-fixtures.log/action-recovery-green.log and action-retirement-*.log
+under /private/tmp/brn-actions-root-zkv3jyu2.
+
+Fresh final macOSarm64/Rust1.98.1 locked/offline end-to-end gate passed998workspace/
+0failed/3ignored+52fixtures,retirement/format/build/all-target Clippy. Focused native
+workflow `--lib --test proposals --test models` passed148/0failed/2ignored;
+combined-native Desktop213/0failed/0ignored,both native all-target Clippy
+configurations and shipping desktop/CLI builds passed. Two shipping startup/
+restart runs passed,V10,exact BOM/CRLF/Unicode bytes and zero credentials.
+Logs:action-recovery-final-*.log; startup:qualified-startup-rpdthaxz under the root
+owned parent above. Only upstream block0.1.6 future warning remains.
+
+This is guarded recovery preparation,not whole workflow Action application.
+Creation/approval/ownedRewrite remain refused; Action Undo remains refused.
+Next validate references/dependency cycles,then qualify source-free/mixed execution,
+source/Action CAS drift,crash checkpoints/repair,read fencing and exact native/headless
+review before producers. Identified direct Complete and dashboard follow. GUI/owner
+acceptance stays pending for the complete Action scenario. No provider/model,
+original/private-data or release operation occurred; Macmini requirements remain.
+
+First Stage6 checkpoint PR28 merged5d0e9f5944edce6dd7b350ea8dcedcccca87a541 at
+2026-10-04T12:45:41Z after exacta1cc9b4/run37202673215 passed MacCore/UI/Retrieval+
+UbuntuSharedCore. Windows Core failed before tests on known Unix-only APIs;
+overallCIred. Merged source tree equals qualified candidate. Publication56Store+
+4workflow tests,52fixtures,shipping builds/startup2 and66doclinks passed. Post-merge
+31Store+4workflow tests,52fixtures and startup2 passed,V10,exact bytes,zero creds.
+Logs:/private/tmp/brn-v1-stage6-actions-lxqn9mif,qualified-startup-2hdtn9e4.
+Main37203224513 completed/failure:Mac3+UbuntuCore/UI passed;Ubuntu native retrieval
+failed10pass/3fail on unchanged exclusive-install expectations,Windows3failed on
+Unix APIs before tests. Independent actual-log/hash comparison found no shared
+Action defect; evidence:/private/tmp/brn-pr28-main-ci-review-c5vr9poj.
+
+Fresh38local Markdown file/fragment links,format/diff checks passed for this
+workflow recovery checkpoint. Local integration precedes exact-head PR/CI/post
+qualification; next slice and pending acceptance above remain authoritative.

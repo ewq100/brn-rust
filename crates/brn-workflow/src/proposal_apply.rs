@@ -1,4 +1,4 @@
-//! Exact reviewed approval and whole-proposal filesystem recovery.
+//! Exact reviewed approval and whole-proposal recovery.
 use crate::{
     ErrorKind, Result, WorkflowError,
     app::App,
@@ -10,6 +10,8 @@ pub use brn_store::work::proposal_apply::{
     RepairDirection, RepairPreview, RepairReceipt, RepairRequest, UndoBinding, UndoOriginal,
     UndoPreview, UndoRequest,
 };
+#[cfg(all(test, target_os = "macos"))]
+mod action_recovery_tests;
 mod repair;
 use brn_store::work::proposals::{NoteChange, ProposalDraft, ProposalState};
 use brn_store::{
@@ -171,17 +173,14 @@ pub(crate) fn restore_application_records(
                 .read(id)
                 .map_err(file_error)?
                 .ok_or_else(|| stale("approval recovery record disappeared"))?;
-            let bound = snapshot
-                .journal
-                .approved
-                .draft
-                .vault
-                .as_ref()
-                .ok_or_else(|| stale("approval recovery requires a vault binding"))?;
-            if vault.as_ref().is_some_and(|old| old != bound) {
-                return Err(stale("approval recovery records bind different vaults"));
+            if let Some(bound) = snapshot.journal.approved.draft.vault.as_ref() {
+                if vault.as_ref().is_some_and(|old| old != bound) {
+                    return Err(stale("approval recovery records bind different vaults"));
+                }
+                vault = Some(bound.clone());
             }
-            vault = Some(bound.clone());
+            // The checked journal permits None only without file/source work.
+            // Source-free operational recovery must not invent a vault binding.
             order.push((
                 unsettled(&snapshot.journal),
                 std::cmp::Reverse(snapshot.journal.approved.version),
@@ -852,6 +851,18 @@ impl App {
             return Ok(journal.receipt.expect("settled receipt"));
         }
         self.set_current_tool_barrier(true);
+        if journal.members.is_empty() {
+            // Action writes and their SQLite receipt commit together, after the
+            // terminal ordinary mirror. A retained terminal mirror was imported
+            // above; without one, this zero-file intent has no Action effect.
+            // Empty file proofs must never supply evidence of Applied work.
+            return self.complete_proposal(
+                &journal,
+                ApplyOutcome::NotApplied,
+                Some(Vec::new()),
+                false,
+            );
+        }
         self.editor_files()?;
         let observations = self.observe_proposal(&journal).ok();
         let mut outcome = ApplyOutcome::Uncertain;

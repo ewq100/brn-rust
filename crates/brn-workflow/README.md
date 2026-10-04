@@ -225,6 +225,16 @@ currently refuses nonempty input, as do approval and owned Rewrite. These guards
 remain until shared Action application/recovery is qualified; unknown or ignored
 fields must not appear to create real actions.
 
+Checked ordinary recovery supports already-typed Action snapshots without
+inventing a vault for file/source-free work. Bound and mixed snapshots keep exact
+vault checks. A retained terminal Applied mirror restores complete operational
+state through Store; unfinished zero-file intents settle NotApplied, preserving
+review comments and never treating empty file proofs as Applied evidence.
+Restart does not issue a fresh no-effect certificate. Temporary retirement checks
+ordered Action kinds/IDs/full Replace baselines while permitting candidate edits;
+foreign bindings remain retained. These recovery contracts precede the guarded
+Action execution/creation flow and do not establish the dashboard.
+
 Full-text edits, anchored or whole-proposal comments, explicit reattachment,
 rejection and imported captured Rewrite results use one version. Changing an
 anchored target leaves its old range unresolved; late results after newer edits,
