@@ -723,3 +723,32 @@ run is red. Qualified and merged trees match. Fresh post-merge **8 application
 tests + 52 fixtures**, desktop build and two startup/restart runs passed with
 exact synthetic bytes and zero credential files. Stage 4B preserves the reviewed
 Activity/Undo/Trash/Repair slices and carries forward that qualified baseline.
+
+## Stage 4 checkpoint B — Activity, Undo, Trash and repair
+
+Publication baseline `6d1e872ffef4c683ffc3730e7355de93569f0ea8` merges the
+reviewed slices through `b5c8000` with published Stage 4A main `73410a3`.
+Independent read-only integration review found no actionable defect: 31 B-only
+paths and 9 A-only paths match parents byte/mode, and the two source overlaps
+retain all B logic plus qualified Mac guards/non-Mac recovery tail. The combined
+plan keeps both evidence bodies. Stage 3 code/CI/live evidence remain exact; no
+new account calls occurred.
+
+Fresh isolated macOS arm64 / Rust 1.98.1 locked/offline checks passed retirement,
+format/build/all-target Clippy, **567 workspace tests  / 0 failed / 2 ignored** and
+**52 end-to-end assertions**. Private ignored crash entries remain exercised by
+subprocess matrices. Exact-head applicable macOS/shared CI must pass before
+merge; Windows results remain separate and accurately reported. This checkpoint
+publishes retained readable activity, exact full Undo/Trash restoration and
+explicit Finish/Restore repair with uncertain effects fenced. Native usability,
+physical power-loss, other volumes and owner acceptance remain pending.
+
+Manual acceptance: on fresh synthetic data approve a proposal, inspect Activity,
+capture a whole Undo preview and execute its exact operation. Later bytes must
+remain on historical replay. Restore an identified original Trash member; a
+changed endpoint must refuse. Capture a partial-operation repair preview and
+explicitly Finish or Restore that exact capture; unknown occupants stay fenced.
+Next Stage 4C publishes owned Rewrite/effort and native review/approval/activity/
+Undo/repair/creation. Transfer requires pinned Rust 1.98.1, Apple Silicon/Command
+Line Tools, cached locked dependencies, protobuf/Bash/Python 3, canonical synthetic
+data/TMPDIR and unlocked GUI for owner acceptance; no original data/credentials.
