@@ -354,3 +354,82 @@ integrated with this change. [Native manual scenario](../../../../crates/brn-des
 is reproducible; partial native observation is distinct from owner acceptance.
 Stage 5 remains active for durable provenance, relationships, findings/timestamps
 and actual English/Estonian retrieval qualification.
+
+## Fifth slice: durable exact vault provenance
+
+Baseline: `main@4fb2763e66d82d4241a6b92b8dcb6549c2baee23`; preserve the owner's
+unrelated AGENTS.md change. Use one optional ordinary frontmatter field,
+`brn_provenance: <single-line JSON array>`, containing bounded typed vault
+citations: nonnil note UUID, full saved SHA-256, UTF-8 byte range and exact quote.
+The quote is durable Markdown content, independent of operational sessions and
+the disposable index. No new database, automatic metadata stamping or migration.
+Web provenance extends this typed representation in its later roadmap stage.
+
+Store supplies pure strict read/write/validation, retaining unrelated bytes, BOM
+and line endings. Workflow resolves UUIDs from the fresh complete evidence
+universe, captures exact saved citations and prepares additive ordinary Replace
+drafts with full target/source fingerprints. Explicit archive source capture uses
+EvidencePath; writable destinations remain VaultPath. Capture/preparation creates
+no editor, review or file changes. Self-capture preparation is refused; existing
+citations are preserved, including later unavailable/stale references.
+
+Fresh approval validates newly added/changed citations against bound source
+versions and fresh unique IDs, exact ranges and quotes; unchanged historical
+citations and exact Undo remain readable/restorable. Replay must stay history-only.
+Read-only inspection reports matched, changed, absent, ambiguous or incomplete
+source resolution without substituting paths/quotes. AppWorker and strict CLI
+expose inspection/capture/preparation; native convenience follows separately.
+
+Acceptance covers exact BOM/CRLF/Unicode preservation, archived sources, duplicate/
+incomplete resolution, stale preparation/admission/approval, unsupported metadata,
+full-review edits and approval, restart/index rebuild and exact Undo. Verify that
+ordinary files alone retain and resolve provenance in a fresh operational store;
+actual session Delete remains a later lifecycle qualification. Run meaningful
+Store/workflow/CLI tests, independent complete review, fresh integrated and affected
+native checks, and document a reproducible synthetic scenario before integration.
+
+Fifth-slice evidence, 2026-10-04: Store pure/parser/lifecycle checks passed **190**
+and CLI checks **119**, including strict JSON/FIFO/direct-Invocation preflight and
+actual capture/preparation/review/approval/restart. Root's corrected focused
+workflow/AI/index checks passed **48**, including ten provenance tests. Quotes
+remain exact through BOM/CRLF/Unicode, archived capture, moves/duplicates/stale or
+missing originals, restart/index deletion, ordinary full edits/Rewrite, exact
+Undo and copying only ordinary Markdown to an independent vault/store. Pending
+applications fence all new reads/preparation; no operational session is required.
+Actual session Delete remains later Stage 13 qualification.
+
+Independent complete read-only review against `4fb2763` passed **75** initial
+checks and found one valid defect: malformed saved provenance bypassed derived
+metadata eligibility. Root reproduced the missing inspection issue before fixing
+the existing `saved_metadata` issue chain. Independent corrected checks passed
+**32**, an offline CLI build and actual synthetic CLI reproduction: invalid notes
+are excluded/refused while explicit raw EvidenceRead retains exact original bytes.
+No remaining actionable finding; no index schema or destination authority changed.
+
+The first integrated attempt failed because the desktop exhaustive event match
+omitted the three new query replies; its existing ignored unsolicited-query branch
+now includes them. Two test-only Clippy clone warnings were corrected. A subsequent
+pre-metadata-correction gate passed 787 tests/52 assertions; it does not qualify
+the final correction. Fresh final macOS arm64 / pinned Rust 1.98.1 locked/offline
+`TMPDIR=<fresh owned outside-Git parent> bash scripts/verify-end-to-end.sh` passed
+retirement, formatting/build/all-target Clippy with warnings denied, **788 passed /
+0 failed / 2 ignored**, and **52 end-to-end assertions**. The ignored private
+crash entry points remain exercised by subprocess matrices.
+
+Fresh native desktop checks passed **155 / 0 failed**, native desktop/CLI
+all-target Clippy and both shipping builds passed, using the fourth-slice feature
+commands. Only the known upstream `block v0.1.6` future-compiler warning remains.
+Native controls did not change; this does not establish GUI provenance usability,
+IME/accessibility, real English/Estonian inference or physical power-loss behavior.
+No live provider call, download or original/private data access occurred.
+[CLI provenance scenario](../../../../crates/brn/README.md#durable-source-provenance)
+is reproducible; owner acceptance and native provenance convenience remain pending.
+After native builds finished, a serialized default workspace build, **119 CLI
+tests** and fixture-only gate (**52 assertions**) also passed, so executable
+feature outputs cannot interfere with the default fixture qualification. Final
+Markdown link/diff checks passed. Only the three exclusively owned gate parents'
+ten layout directories/eight regular JSON files and empty parents were cleaned
+with type/UID/device/inode guards; logs/metadata remain outside Git. No published
+CI run exists for the local baseline; integration is local, without push/release.
+This slice is implemented, independently reviewed, automated verified and locally
+integrated with this change. Stage 5 remains active.

@@ -381,7 +381,7 @@ source-version checks. `evidence read PATH` explicitly reads complete source/his
 text, including archived notes, with the ordinary file/UTF-8/size protections.
 Default current `notes show`, identity assignment, editor and proposal destinations
 retain archive refusal. All scopes respect unresolved Save/application fences.
-Durable provenance remains later Stage 5 work.
+Durable citations use the provenance commands below.
 
 For manual acceptance, use only a fresh synthetic vault/data pair. Put the same
 managed `brn_id` into `current.md` and `archive/source.md` with different original
@@ -401,6 +401,64 @@ second UUID without changing byte count or mtime, rerun resolution and restart;
 the first ID is now `unique`. Add malformed managed metadata in another archived
 note: resolution becomes `incomplete`. Compare all fixture vault bytes before
 and after queries; queries create no review/editor work and change no notes.
+
+### Durable source provenance
+
+`provenance capture --file REQUEST.json` captures an exact saved source range by
+managed UUID and expected full-file SHA-256. Its strict request is
+`{note_id, expected_sha256, start_byte, end_byte}`: hashes are 32-byte arrays and
+ranges are UTF-8 byte offsets. The result includes the complete `{citation,
+source}` proof. Missing, duplicate or incompletely inspected identities refuse;
+changed hashes and invalid character boundaries refuse without guessing.
+
+`provenance prepare --file REQUEST.json` accepts `{path, proposal_id, title,
+citations}` with the exact captured `citation` objects. It returns a complete
+ordinary Replace draft that adds `brn_provenance` to Markdown while preserving
+existing citations, unrelated metadata and body bytes. Capture/preparation create
+no editor or review records and change no notes. Review and approve that complete
+draft through the existing proposal commands. Request files must be regular,
+strict typed JSON up to 8 MiB; invalid input refuses before storage opens.
+
+`provenance show PATH` reads current, source or archived Markdown and returns
+saved quotes plus fresh `matched`, `changed`, `absent`, `ambiguous` or `incomplete`
+source observations. A source move follows its unique UUID; changed or missing
+sources retain the original quote. Citations live in the approved note, so index
+rebuild and removal of operational sessions cannot erase them.
+
+For manual acceptance, use fresh synthetic data/vault directories. Create
+`knowledge.md` with a short interpretation and `archive/source.md` containing
+exactly the following LF text (including the final newline):
+
+```text
+---
+brn_id: 11111111-1111-4111-8111-111111111111
+brn_kind: source
+---
+Original õ
+```
+
+Run `identity inventory` to obtain that source's full `sha256`. Write a capture
+request using its UUID, that hash and `start_byte: 70, end_byte: 82`; capture must
+return the exact `Original õ\n` quote. Write a preparation request naming
+`knowledge.md`, a fresh proposal UUID/title and that captured citation, then run:
+
+```sh
+brn provenance capture --file "$BRN_CAPTURE_FILE" --data-dir "$BRN_DATA" --vault "$BRN_VAULT" --json
+brn provenance prepare --file "$BRN_PROVENANCE_FILE" --data-dir "$BRN_DATA" > "$BRN_DRAFT_FILE"
+brn proposals create --file "$BRN_DRAFT_FILE" --data-dir "$BRN_DATA"
+brn proposals show "$BRN_PROPOSAL_ID" --data-dir "$BRN_DATA"
+brn proposals approve "$BRN_PROPOSAL_ID" --review-version 1 --operation "$BRN_APPROVAL_ID" --data-dir "$BRN_DATA"
+brn provenance show knowledge.md --data-dir "$BRN_DATA" --json
+```
+
+Inspect the full draft before approval and use the actual current review version.
+Preparation leaves both files unchanged; approval changes only the shown target.
+Restart and remove only the disposable fixture's `index.sqlite`: show retains the
+same quote and reports `matched`. In that fixture, move the source and confirm its
+new path; change its bytes or remove it and confirm `changed`/`absent` while the
+saved quote remains exact. Repeat an old capture request after a source edit and
+confirm refusal. Owner acceptance and later native provenance presentation remain
+separate from these automated/process checks.
 
 ## Output contract
 

@@ -296,15 +296,11 @@ pub fn run(i: &Invocation) -> Result<Output, CliFailure> {
     } else {
         None
     };
-    let identity = if let Command::Identity(command) = &i.command {
-        Some(super::identity::prepare(command)?)
-    } else {
-        None
-    };
-    let evidence = if let Command::Evidence(command) = &i.command {
-        Some(super::evidence::prepare(command)?)
-    } else {
-        None
+    let knowledge = match &i.command {
+        Command::Identity(command) => Some(super::identity::prepare(command)?),
+        Command::Evidence(command) => Some(super::evidence::prepare(command)?),
+        Command::Provenance(command) => Some(super::provenance::prepare(command)?),
+        _ => None,
     };
     let rewrite_request = match &proposal {
         Some((_, AppCommand::StartProposalRewrite(request))) => Some(request.clone()),
@@ -333,7 +329,7 @@ pub fn run(i: &Invocation) -> Result<Output, CliFailure> {
     };
     let result = (|| {
         let mut lane = Lane::start(i, timeout)?;
-        let result = execute(i, &mut lane, ask_id, editor, proposal, identity, evidence);
+        let result = execute(i, &mut lane, ask_id, editor, proposal, knowledge);
         lane.finish(result)
     })();
     result.map_err(|mut failure: CliFailure| {
@@ -357,12 +353,11 @@ fn execute(
     ask_id: Option<Uuid>,
     editor: Option<(Uuid, AppCommand)>,
     proposal: Option<(Uuid, AppCommand)>,
-    identity: Option<AppCommand>,
-    evidence: Option<AppCommand>,
+    knowledge: Option<AppCommand>,
 ) -> Result<Output, CliFailure> {
     match &i.command {
         Command::Identity(command) => {
-            let event = lane.query(identity.expect("identity input prepared before startup"))?;
+            let event = lane.query(knowledge.expect("identity input prepared before startup"))?;
             let data = match (command, event) {
                 (
                     super::identity::IdentityCommand::Inventory,
@@ -387,9 +382,30 @@ fn execute(
             };
             Ok(output(data))
         }
+        Command::Provenance(command) => {
+            let event = lane.query(knowledge.expect("provenance input prepared before startup"))?;
+            let data = match (command, event) {
+                (
+                    super::provenance::ProvenanceCommand::Show(path),
+                    AppEvent::NoteProvenance(info),
+                ) if info.path == *path => json!(info),
+                (
+                    super::provenance::ProvenanceCommand::Capture(request),
+                    AppEvent::CitationCaptured(capture),
+                ) if capture.citation.note_id == request.note_id => json!(capture),
+                (
+                    super::provenance::ProvenanceCommand::Prepare(request),
+                    AppEvent::NoteProvenanceDraft(draft),
+                ) if draft.id == request.proposal_id && draft.title == request.title => {
+                    json!(draft)
+                }
+                _ => return Err(unexpected()),
+            };
+            Ok(output(data))
+        }
         Command::Evidence(super::evidence::EvidenceCommand::Read(path)) => {
             let AppEvent::EvidenceNote(note) =
-                lane.query(evidence.expect("evidence input prepared before startup"))?
+                lane.query(knowledge.expect("evidence input prepared before startup"))?
             else {
                 return Err(unexpected());
             };

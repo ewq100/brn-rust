@@ -336,10 +336,12 @@ impl Library {
 pub(crate) fn saved_metadata(text: &str, path: &str) -> NoteMetadata {
     let identity = brn_store::note_identity::read(text);
     let classification = brn_store::note_metadata::classify(text);
+    let provenance = brn_store::note_provenance::read(text);
     let issue = identity
         .as_ref()
         .err()
         .or_else(|| classification.as_ref().err())
+        .or_else(|| provenance.as_ref().err())
         .map(ToString::to_string);
     let classification = classification.unwrap_or_default();
     NoteMetadata {

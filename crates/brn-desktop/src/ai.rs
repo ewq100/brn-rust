@@ -2086,6 +2086,9 @@ impl AiState {
             | AppEvent::NoteIdentityResolved(_)
             | AppEvent::EvidenceNote(_)
             | AppEvent::NoteIdentityDraft(_)
+            | AppEvent::NoteProvenance(_)
+            | AppEvent::CitationCaptured(_)
+            | AppEvent::NoteProvenanceDraft(_)
             | AppEvent::ProposalApplied(_)
             | AppEvent::ProposalGroupApplied(_)
             | AppEvent::ProposalApplies(_) => {}

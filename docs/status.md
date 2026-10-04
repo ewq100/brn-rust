@@ -66,10 +66,16 @@ managed Markdown UUID preparation through ordinary proposals, edit/Rewrite
 identity protection, fresh complete evidence lookup and duplicate/incomplete
 reporting, explicit exact archived reads, saved classification and scoped
 current/source/history/all retrieval through workflow/CLI, the three AI read tools
-and native browsing/search with read-only evidence views. Source CAS, restart, index rebuild
+and native browsing/search with read-only evidence views. Durable exact vault
+provenance now lives in ordinary Markdown: fresh UUID/hash/range/quote capture
+prepares full proposals with archived source bindings, and normal approval checks
+new citations after edits/Rewrite. Inspection retains exact quotes through source
+moves, changes, absence/ambiguity and incomplete inspection. A fresh independent
+vault/store with only copied Markdown proves session/index independence; actual
+session Delete remains later qualification. Source CAS, restart, index rebuild
 and Undo are verified; current write/read rules and unresolved-work fences remain
 intact. Independent reviews found no remaining actionable findings. Fresh final
-locked/offline verification passed **765 workspace tests / 0 failed / 2 ignored**,
+locked/offline verification passed **788 workspace tests / 0 failed / 2 ignored**,
 **52 end-to-end assertions**, format/build/all-target Clippy, **155 native desktop
 tests**, native all-target Clippy and shipping native
 desktop/CLI builds. Fresh full-byte refresh catches retained-size/mtime changes;
@@ -78,7 +84,10 @@ knowledge remains usable. Fresh native synthetic observation confirmed scope
 separation, archived/current-history read-only views, typing refusal and an exact
 86-byte BOM/CRLF/Unicode Copy→paste→Save Copy result, preserving original files.
 The Mac locked before the final GUI restart check; owner acceptance remains pending.
-Durable provenance, relationships, findings/timestamps and multilingual qualification continue next;
+The provenance review's valid malformed-metadata eligibility defect was reproduced,
+fixed and independently rechecked; no actionable finding remains. Its corrected
+review passed 32 checks and an actual synthetic CLI reproduction. Native provenance
+convenience, relationships, findings/timestamps and multilingual qualification continue next;
 Stage 5 is not complete.
 
 ## Qualification still open

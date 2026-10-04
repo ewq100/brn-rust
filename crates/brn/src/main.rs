@@ -88,6 +88,7 @@ fn command_name(command: &cli::Command) -> &'static str {
         cli::Command::Proposals(command) => command.name(),
         cli::Command::Identity(command) => command.name(),
         cli::Command::Evidence(command) => command.name(),
+        cli::Command::Provenance(command) => command.name(),
         cli::Command::Activity(_) => "activity.list",
         cli::Command::Ai(command) => command.name(),
         cli::Command::ModelDownload { .. } => "models.download",
