@@ -35,6 +35,9 @@ mod action_review;
 #[cfg(all(test, target_os = "macos", feature = "native-test-support"))]
 mod action_review_tests;
 mod approval;
+mod dashboard;
+#[cfg(all(test, target_os = "macos", feature = "native-test-support"))]
+mod dashboard_tests;
 #[cfg(all(test, target_os = "macos", feature = "native-test-support"))]
 mod dialog_tests;
 mod draft;
@@ -63,6 +66,7 @@ enum DocRef {
     Evidence,
     Proposal(Uuid),
     Activity,
+    Dashboard,
     Findings,
     Draft,
 }
@@ -132,6 +136,7 @@ struct Desktop {
     saved_links: relationships::SavedLinksPane,
     relationships: relationships::RelationshipsPane,
     findings: findings::FindingsPane,
+    dashboard: dashboard::DashboardPane,
     action_editors: action_review::ActionEditors,
     review_editor: Entity<EditorState>,
     review_title: Entity<TextareaState>,
@@ -465,6 +470,7 @@ impl Desktop {
             saved_links: relationships::SavedLinksPane::new(window, cx),
             relationships: relationships::RelationshipsPane::new(window, cx),
             findings: findings::FindingsPane::new(window, cx),
+            dashboard: dashboard::DashboardPane::new(window, cx),
             action_editors: action_review::ActionEditors::default(),
             review_editor,
             review_title,

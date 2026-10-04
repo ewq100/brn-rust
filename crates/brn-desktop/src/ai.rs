@@ -26,6 +26,11 @@ use std::{
     time::{Duration, Instant},
 };
 use uuid::Uuid;
+#[path = "dashboard_state.rs"]
+mod dashboard_state;
+#[cfg(all(test, target_os = "macos"))]
+#[path = "dashboard_state_tests.rs"]
+pub(crate) mod dashboard_state_tests;
 #[path = "finding_state.rs"]
 mod finding_state;
 #[cfg(all(test, target_os = "macos"))]
@@ -60,6 +65,8 @@ pub struct AccountRow {
 }
 #[derive(Clone)]
 pub enum Pending {
+    Dashboard(dashboard_state::DashboardQuery),
+    ActionComplete(Box<dashboard_state::CompletionCapture>),
     Status,
     Selection,
     Select,
@@ -241,6 +248,7 @@ pub struct AiState {
     pub draft: Option<crate::draft::DraftForm>,
     pub link_preparation: link_preparation_state::LinkPreparation,
     pub finding_queue: finding_state::FindingQueue,
+    pub dashboard: dashboard_state::DashboardView,
     pub last_draft_request: Option<brn_workflow::proposals::DraftRequest>,
     pub provider: Option<Provider>,
     pub generation: u64,
@@ -626,7 +634,8 @@ impl AiState {
         self.pending.values().any(|pending| {
             matches!(
                 pending,
-                Pending::Approval { .. }
+                Pending::ActionComplete(_)
+                    | Pending::Approval { .. }
                     | Pending::ApplyReconcile { .. }
                     | Pending::AppliedReview { .. }
                     | Pending::Undo { .. }
@@ -1735,6 +1744,9 @@ impl AiState {
                     }
                 }
             }
+            return commands;
+        }
+        if let Some(commands) = self.received_dashboard(id, &event) {
             return commands;
         }
         if let Some(commands) = self.received_findings(id, &event) {

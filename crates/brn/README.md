@@ -93,13 +93,14 @@ means unfinished due date before `as_of`, follow-up means unfinished follow-up
 date on/before it. Date counts can overlap. Missing dependencies stay explicit;
 no state/priority/completion is inferred. Each call is a fresh snapshot. For the
 next page, carry both cursor fields **and the returned explicit `--as-of` date**;
-omitting it refuses before startup. Native Dashboard controls follow separately.
+omitting it refuses before startup. The [native Dashboard](../brn-desktop/README.md#dashboard-and-identified-complete)
+uses the same snapshot and explicit completion contracts.
 `actions complete --file REQUEST.json` accepts the exact full retained record in
 `before` and a fresh `operation_id`. It completes that unfinished Action directly,
 preserving its approved origin and all candidate fields except state. Reuse the
 same file and operation UUID to replay the full completion receipt after restart;
-a changed request conflicts and a stale full baseline refuses. Dashboard controls
-follow later. Completion recovery currently uses the macOS file adapter.
+a changed request conflicts and a stale full baseline refuses. Completion recovery
+currently uses the macOS file adapter.
 For manual acceptance on
 a fresh empty data folder, run `actions list --json`, then `actions show` with a
 fresh non-nil UUID: expect an empty page and typed NOT_FOUND, with no credential

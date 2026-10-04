@@ -49,7 +49,7 @@ pub(super) fn data_body(scope: &str, label: &str, data: &ActionData) -> Div {
     )
 }
 
-fn before_body(index: usize, record: &ActionRecord) -> Div {
+pub(super) fn before_body(index: usize, record: &ActionRecord) -> Div {
     let metadata = [
         format!(
             "Full captured before Action {} · version {} · updated at {} ms",
