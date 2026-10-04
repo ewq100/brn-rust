@@ -378,3 +378,11 @@ locked/offline approval/application tests passed **8 / 0 failed**, and workspace
 all-target Clippy with warnings denied, format and diff checks passed. A corrected
 exact-head CI run is required before integration. Windows retains existing Unix
 API failures; the initial overall run is red. No live account calls were made.
+
+The first correction run `37185766652` again passed all macOS lanes, but
+Ubuntu exposed the next test lint: the `cli_proposals::ok` success helper is
+used exclusively by existing macOS-gated tests/helpers. Its matching macOS
+guard removes unsupported-platform dead code without dropping shared refusal
+checks. Independent read-only review confirmed all callers and the guard. Fresh
+local **9 CLI proposal tests / 0 failed** and workspace all-target Clippy passed;
+format/diff checks passed. A new exact-head CI qualification is pending.
