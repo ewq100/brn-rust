@@ -1070,3 +1070,65 @@ complete multi-member requests and captured groups. Later Inbox/domain stages
 extend this creation boundary. Manual scenarios above remain reproducible pending
 GUI/IME/accessibility, live usability and owner acceptance. Automated success is
 not release qualification. Continue Stage 5 identity/provenance in dependency order.
+
+## Stage 4 checkpoint A — reviewed proposal application
+
+Publication baseline `151b3afde0c5b4fe286f55531d5a8f2420dc406e` preserves
+`89421f5`, `e84ef7a`, `e04fc52` and incorporates reviewed Stage 3 checkpoint
+`94de976`. Publish Stage 4 in coherent deliverables: A typed review/exact approval/
+whole-file application and recovery; B Activity/Undo/Trash/Repair; C owned Rewrite,
+explicit effort and native review/application/creation. Do not collapse all stages
+into one PR. Original independent reviews and manual scenarios above remain
+historical evidence, not fresh verification claims.
+
+Acceptance for this checkpoint: inherited exact bindings, comments/rejection,
+individual/captured-group approval, interruption/replay and shared evidence fences
+remain intact; preserve full Stage 3 scoped capability evidence and safe route
+refusal without further account calls. Review both merge parents, run fresh
+locked/offline integrated gates and applicable exact-head macOS/shared CI, then
+verify the qualified merged tree and relevant post-merge fixtures. Owner native
+usability/power-loss/other-volume acceptance remains pending. Next checkpoint B
+adds the already-reviewed Activity/Undo/Repair slices. Use fresh synthetic data
+outside Git, pinned Rust 1.98.1, Apple Silicon/Command Line Tools, cached locked
+dependencies, Bash/Python 3 and protobuf for native builds. Credentials and original
+data are not transfer inputs; no release/public distribution is authorized here.
+
+
+Checkpoint A's bounded independent integration review found no actionable defects.
+Original application/fence behavior and the inherited macOS-only adapter guards
+are both preserved; common unsupported signatures remain intact. Stage 3 AI/CI/
+scoped live evidence matches its qualified parent, and final main ancestry changed
+no tracked source tree. Fresh macOS arm64 / Rust 1.98.1 locked/offline integrated
+gates passed retirement, format/build/all-target Clippy, **498 tests / 0 failed /
+2 ignored**, and **52 end-to-end assertions**. Ignored private crash entry points
+are exercised by subprocess matrices. Unchanged AI capability-feature source
+retains Stage 3's exact qualification; no live calls or model assets were used.
+Checkpoint CI must qualify the exact latest PR head before merge. Native owner
+acceptance and packaging remain separate; Stage 4 is not complete at checkpoint A.
+
+Stage 4A checkpoint PR #19's initial exact head `731acc6` passed all three
+macOS lanes in CI `37185246372`, but Ubuntu shared Core failed on Clippy
+`needless_return` in the non-macOS recovery tail (`proposal_apply.rs`).
+Independent read-only diagnosis and re-review verified the one-line tail-expression
+correction preserves behavior and leaves the macOS branch unchanged. Fresh local
+locked/offline approval/application tests passed **8 / 0 failed**, and workspace
+all-target Clippy with warnings denied, format and diff checks passed. A corrected
+exact-head CI run is required before integration. Windows retains existing Unix
+API failures; the initial overall run is red. No live account calls were made.
+
+The first correction run `37185766652` again passed all macOS lanes, but
+Ubuntu exposed the next test lint: the `cli_proposals::ok` success helper is
+used exclusively by existing macOS-gated tests/helpers. Its matching macOS
+guard removes unsupported-platform dead code without dropping shared refusal
+checks. Independent read-only review confirmed all callers and the guard. Fresh
+local **9 CLI proposal tests / 0 failed** and workspace all-target Clippy passed;
+format/diff checks passed. A new exact-head CI qualification is pending.
+
+Stage 4A PR #19 merged as `73410a3522b5a8512a804cb58afa32e28a661ebc` after
+exact head `0820685` passed macOS Core/UI/Retrieval and Ubuntu shared Core in
+CI `37186102409`. Windows retains existing Unix API failures; the overall run
+is red. Qualified and merged trees match; fresh 8 application tests, 52 fixtures,
+desktop build and startup/restart twice passed with exact synthetic bytes and no
+credential files. The current locally integrated Stage 5 main incorporates those
+published portability fixes; completed Proposal Core evidence stays here rather
+than resurrecting its superseded active folder. Stage 4B/C publication follows.
