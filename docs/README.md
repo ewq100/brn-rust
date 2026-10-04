@@ -19,6 +19,7 @@ Start with [AGENTS.md](../AGENTS.md). The owner froze the reviewed product archi
 | Find the original reset handoff or paused chat-polish ideas | [Historical reset handoff](architecture/brn-rig-first-architecture-reset.md), [paused brainstorm](work/active/ui-slice-2-chat-polish/paused-brainstorm.md); neither authorizes new implementation |
 | Change storage, revisions, comments or retrieval | [Invariants](architecture/invariants.md), [completed task records](work/completed/README.md) |
 | Change provider behavior | [Rig AI contract](../crates/brn-ai/README.md), [shared workflow](../crates/brn-workflow/README.md). The [standalone sidecar trial](../experiments/codex-app-server/PACKAGING.md) is historical evidence, not a product gate. |
+| Qualify actual provider capabilities | [Stage 3 qualification](work/completed/provider-capabilities/plan.md): explicit models, effort, native web/citations and images; bounded live results and explicit qualification gaps |
 | Choose and report checks | [Verification](development/verification.md) |
 | Start or hand off a task | [Workflow](development/workflow.md), [active work](work/active/README.md) |
 | Understand an architectural choice | [Decision index](architecture/decisions/README.md), [dependency record](architecture/dependencies.md) |

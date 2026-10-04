@@ -98,7 +98,12 @@ There is no production fake-provider feature or dynamic provider registry.
 subscription Responses dialect; Copilot uses Rig's model-based routing to Chat
 Completions or Responses. Authentication uses actual Rig configuration
 `.connect(http).authenticate(...)`; ordinary client acquisition disables device
-flow. No provider/model/account fallback or automatic retry is installed.
+flow. No provider/model/account fallback or application retry is installed.
+The pinned `rig-reqwest` shared client retains reqwest 0.13.5's default transport
+policy: at most two extra sends for safe HTTP/2 protocol rejections (remote
+GOAWAY `NO_ERROR` / `REFUSED_STREAM`). BRN does not retry HTTP statuses, model
+refusal or a partially consumed answer. Synthetic transport tests bypass that
+wire policy and cannot establish the number of real network sends.
 
 Implement the synchronous `ReadTools: Send + Sync` seam in workflow and pass it
 as `Arc<dyn ReadTools>`. Rig tool calls dispatch blocking reads via
@@ -147,6 +152,37 @@ fully consumed. Tests run real authenticated production clients/agents for all
 three wire routes, continuation/history/exact models, error mapping, caps and
 eight-versus-nine round accounting. These are offline format checks, not live
 account qualification.
+
+## Narrow capability probe
+
+The optional `capability-spike` feature exposes `capability_probe` and the
+`provider-capabilities` example for [roadmap Stage 3](../../docs/work/completed/provider-capabilities/plan.md).
+Ordinary app builds do not expose this entry point. It consumes an explicitly
+selected authenticated client; it never chooses a provider/model, signs in,
+retries an application request or writes knowledge. Low/high effort requests
+allow one synthetic `read_note` call and at most two completions. Image input is
+a fixed 16×16 PNG. Web probes use the Responses hosted web tool and retain
+bounded HTTP(S) citations plus observed completed web calls. Copilot Chat web
+is refused before streaming because the pinned adapter has no native web seam.
+
+Reports preserve bounded partial text, safe typed failure/interruption and
+deduplicated source URLs/titles. Failures project only fixed error class, numeric
+HTTP status and allowlisted rejection categories, without raw metadata/errors.
+The demonstrated `unsupported_api_for_model` rejection maps to `ModelRefused`
+in normal chat; the selected route and model stay unchanged. The
+example requires `--live`, an exact model and an absolute task credential path;
+it cancels and awaits on SIGINT or after 120 seconds. Its account must already be connected.
+Running it requires the owner's separate live-account authorization. Building
+and testing it does not establish endpoint capability or enable these inputs
+in ordinary chat.
+
+```sh
+# Offline preparation only.
+cargo build -p brn-ai --example provider-capabilities --features capability-spike --locked --offline
+cargo test -p brn-ai --features capability-spike --locked --offline
+# After separate authorization and explicit connection in a fresh task folder:
+target/debug/examples/provider-capabilities --live chatgpt /private/tmp/brn-provider-qualification/credentials gpt-5.5 low
+```
 
 ```sh
 # Run from the workspace root; no TMPDIR override is needed.

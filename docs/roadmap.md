@@ -31,13 +31,13 @@ Safe Save and verified recovery precede legacy removal; removal precedes Proposa
 ## Starting the next slice
 
 Stages 1 and 2 are implemented, automated verified and locally integrated;
-owner native acceptance remains tracked in [status](status.md). Continue to
-Stage 3 narrow provider-capability spikes under the existing v1 authorization.
-Actual provider/account calls need the owner's separate permission. Pending
-owner acceptance remains explicit and need not block
-later safe work when it is not a dependency. Original-data inspection or migration,
-live provider/account checks, downloads, purchases and release or public
-distribution still require the applicable owner permission. Use the
-[development workflow](development/workflow.md) for the next bounded outcome.
+owner native acceptance remains tracked in [status](status.md). Stage 3's bounded
+live round is complete, with supported, unsupported and unqualified capabilities
+recorded in [its evidence](work/completed/provider-capabilities/plan.md). Continue
+to Stage 4 Proposal Core within the existing v1 authorization. Pending owner
+acceptance need not block later safe work when it is not a dependency. Original
+data inspection/migration, additional live calls, downloads, purchases and release
+or public distribution still require applicable owner permission. Use the
+[development workflow](development/workflow.md) for sequential reviewable slices.
 
 Each slice needs relevant offline verification and acceptance for its changed user-visible behavior. Native usability, actual inference, provider validity and packaging remain separate qualification. Preserve useful completed work as [history](work/completed/README.md); old specifications and model/process assignments are not current instructions.

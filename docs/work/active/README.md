@@ -1,6 +1,6 @@
 # Active work
 
-New slices follow the frozen [target](../../architecture/overview.md#frozen-target), current [roadmap](../../roadmap.md) and [development workflow](../../development/workflow.md). No new product implementation is authorized by this index. The records below remain at their existing paths for evidence and outstanding qualification; their specifications, process headers, model assignments and attribution rules are historical, not a queue of tasks to resume.
+New slices follow the frozen [target](../../architecture/overview.md#frozen-target), current [roadmap](../../roadmap.md) and [development workflow](../../development/workflow.md). No new product implementation is authorized by this index. Historical rows remain at their existing paths for evidence and outstanding qualification; their specifications, process headers, model assignments and attribution rules are historical, not a queue of tasks to resume. Current roadmap work uses one bounded plan per active outcome.
 
 | Task | State | Records |
 | --- | --- | --- |
