@@ -32,6 +32,84 @@ fn fresh_status_and_history_use_current_operational_storage_without_vault() {
 }
 
 #[test]
+fn session_timestamp_json_preserves_completion_and_interruption_times_across_reads() {
+    use brn_store::work::{WorkStore, WorkTurnStatus};
+    let data = support::data_dir();
+    let (mut store, _) = WorkStore::open(data.path()).unwrap();
+    let first = store
+        .begin_turn(
+            uuid::Uuid::new_v4(),
+            None,
+            "Exact question õ\r\n",
+            "chatgpt",
+            "synthetic-model",
+        )
+        .unwrap();
+    let completed = store
+        .finish_turn(
+            first.id,
+            WorkTurnStatus::Completed,
+            "Exact answer λ\r\n",
+            None,
+        )
+        .unwrap();
+    let running = store
+        .begin_turn(
+            uuid::Uuid::new_v4(),
+            Some(first.conversation_id),
+            "Second question\r\n",
+            "copilot",
+            "synthetic-model",
+        )
+        .unwrap();
+    let conversation = serde_json::to_value(store.conversations().unwrap().remove(0)).unwrap();
+    let started = running.started_at_ms.unwrap();
+    drop(store);
+    let (code, listed) = run(data.path(), &["conversations", "list"]);
+    assert_eq!(code, 0, "{listed}");
+    assert_eq!(listed["data"]["conversations"][0], conversation);
+    let (code, shown) = run(
+        data.path(),
+        &["conversations", "show", &first.conversation_id.to_string()],
+    );
+    assert_eq!(code, 0, "{shown}");
+    assert_eq!(
+        shown["data"]["turns"][0]["operation_id"],
+        completed.id.to_string()
+    );
+    assert_eq!(
+        shown["data"]["turns"][0]["session_id"],
+        completed.conversation_id.to_string()
+    );
+    assert_eq!(shown["data"]["turns"][0]["question"], completed.question);
+    assert_eq!(shown["data"]["turns"][0]["answer"], completed.answer);
+    assert_eq!(
+        shown["data"]["turns"][0]["started_at_ms"],
+        completed.started_at_ms.unwrap()
+    );
+    assert_eq!(
+        shown["data"]["turns"][0]["finished_at_ms"],
+        completed.finished_at_ms.unwrap()
+    );
+    assert_eq!(shown["data"]["turns"][1]["status"], "interrupted");
+    assert_eq!(shown["data"]["turns"][1]["started_at_ms"], started);
+    assert!(shown["data"]["turns"][1]["finished_at_ms"].is_null());
+    assert!(shown["data"]["turns"][1]
+        .as_object()
+        .unwrap()
+        .contains_key("finished_at_ms"));
+    let (code, listed_again) = run(data.path(), &["conversations", "list"]);
+    assert_eq!(code, 0, "{listed_again}");
+    assert_eq!(listed_again["data"], listed["data"]);
+    let (code, shown_again) = run(
+        data.path(),
+        &["conversations", "show", &first.conversation_id.to_string()],
+    );
+    assert_eq!(code, 0, "{shown_again}");
+    assert_eq!(shown_again["data"], shown["data"]);
+}
+
+#[test]
 fn markdown_library_preserves_bytes_and_keyword_only_search_shape() {
     let data = support::data_dir();
     let vault = tempfile::tempdir().unwrap();

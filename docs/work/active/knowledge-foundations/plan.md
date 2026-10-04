@@ -355,6 +355,216 @@ is reproducible; partial native observation is distinct from owner acceptance.
 Stage 5 remains active for durable provenance, relationships, findings/timestamps
 and actual English/Estonian retrieval qualification.
 
+## Fifth slice: durable exact vault provenance
+
+Baseline: `main@4fb2763e66d82d4241a6b92b8dcb6549c2baee23`; preserve the owner's
+unrelated AGENTS.md change. Use one optional ordinary frontmatter field,
+`brn_provenance: <single-line JSON array>`, containing bounded typed vault
+citations: nonnil note UUID, full saved SHA-256, UTF-8 byte range and exact quote.
+The quote is durable Markdown content, independent of operational sessions and
+the disposable index. No new database, automatic metadata stamping or migration.
+Web provenance extends this typed representation in its later roadmap stage.
+
+Store supplies pure strict read/write/validation, retaining unrelated bytes, BOM
+and line endings. Workflow resolves UUIDs from the fresh complete evidence
+universe, captures exact saved citations and prepares additive ordinary Replace
+drafts with full target/source fingerprints. Explicit archive source capture uses
+EvidencePath; writable destinations remain VaultPath. Capture/preparation creates
+no editor, review or file changes. Self-capture preparation is refused; existing
+citations are preserved, including later unavailable/stale references.
+
+Fresh approval validates newly added/changed citations against bound source
+versions and fresh unique IDs, exact ranges and quotes; unchanged historical
+citations and exact Undo remain readable/restorable. Replay must stay history-only.
+Read-only inspection reports matched, changed, absent, ambiguous or incomplete
+source resolution without substituting paths/quotes. AppWorker and strict CLI
+expose inspection/capture/preparation; native convenience follows separately.
+
+Acceptance covers exact BOM/CRLF/Unicode preservation, archived sources, duplicate/
+incomplete resolution, stale preparation/admission/approval, unsupported metadata,
+full-review edits and approval, restart/index rebuild and exact Undo. Verify that
+ordinary files alone retain and resolve provenance in a fresh operational store;
+actual session Delete remains a later lifecycle qualification. Run meaningful
+Store/workflow/CLI tests, independent complete review, fresh integrated and affected
+native checks, and document a reproducible synthetic scenario before integration.
+
+Fifth-slice evidence, 2026-10-04: Store pure/parser/lifecycle checks passed **190**
+and CLI checks **119**, including strict JSON/FIFO/direct-Invocation preflight and
+actual capture/preparation/review/approval/restart. Root's corrected focused
+workflow/AI/index checks passed **48**, including ten provenance tests. Quotes
+remain exact through BOM/CRLF/Unicode, archived capture, moves/duplicates/stale or
+missing originals, restart/index deletion, ordinary full edits/Rewrite, exact
+Undo and copying only ordinary Markdown to an independent vault/store. Pending
+applications fence all new reads/preparation; no operational session is required.
+Actual session Delete remains later Stage 13 qualification.
+
+Independent complete read-only review against `4fb2763` passed **75** initial
+checks and found one valid defect: malformed saved provenance bypassed derived
+metadata eligibility. Root reproduced the missing inspection issue before fixing
+the existing `saved_metadata` issue chain. Independent corrected checks passed
+**32**, an offline CLI build and actual synthetic CLI reproduction: invalid notes
+are excluded/refused while explicit raw EvidenceRead retains exact original bytes.
+No remaining actionable finding; no index schema or destination authority changed.
+
+The first integrated attempt failed because the desktop exhaustive event match
+omitted the three new query replies; its existing ignored unsolicited-query branch
+now includes them. Two test-only Clippy clone warnings were corrected. A subsequent
+pre-metadata-correction gate passed 787 tests/52 assertions; it does not qualify
+the final correction. Fresh final macOS arm64 / pinned Rust 1.98.1 locked/offline
+`TMPDIR=<fresh owned outside-Git parent> bash scripts/verify-end-to-end.sh` passed
+retirement, formatting/build/all-target Clippy with warnings denied, **788 passed /
+0 failed / 2 ignored**, and **52 end-to-end assertions**. The ignored private
+crash entry points remain exercised by subprocess matrices.
+
+Fresh native desktop checks passed **155 / 0 failed**, native desktop/CLI
+all-target Clippy and both shipping builds passed, using the fourth-slice feature
+commands. Only the known upstream `block v0.1.6` future-compiler warning remains.
+Native controls did not change; this does not establish GUI provenance usability,
+IME/accessibility, real English/Estonian inference or physical power-loss behavior.
+No live provider call, download or original/private data access occurred.
+[CLI provenance scenario](../../../../crates/brn/README.md#durable-source-provenance)
+is reproducible; owner acceptance and native provenance convenience remain pending.
+After native builds finished, a serialized default workspace build, **119 CLI
+tests** and fixture-only gate (**52 assertions**) also passed, so executable
+feature outputs cannot interfere with the default fixture qualification. Final
+Markdown link/diff checks passed. Only the three exclusively owned gate parents'
+ten layout directories/eight regular JSON files and empty parents were cleaned
+with type/UID/device/inode guards; logs/metadata remain outside Git. No published
+CI run exists for the local baseline; integration is local, without push/release.
+This slice is implemented, independently reviewed, automated verified and locally
+integrated with this change. Stage 5 remains active.
+
+## Sixth slice: native saved provenance inspection
+
+Baseline: `main@122d7632cda65a383fa96c70e189dfbb186c5024`, preserving the owner
+AGENTS.md change; no published CI run exists. Existing read-only workflow DTOs
+cover this native slice. Add a Sources control to the current editor and exact
+evidence view, explicitly inspecting saved provenance without changing unsaved
+typing, scope, review work or files. Expand each stored quote with its source
+UUID, observed path(s), resolution status and exact Copy; unknown/changed sources
+remain visibly distinct and no guessed source navigation is introduced.
+
+Bind requests/results/errors to the open document path, document generation and
+inspection generation. Clear transient inspection on navigation; late replies
+must not replace a newer document or newer inspection. Quote widgets remain
+read-only, bounded and copy exact BOM/CRLF/Unicode text. Loading/empty/error states
+remain useful without introducing a new mutation or approval route. No provider
+call, credential or model operation is needed.
+
+Acceptance: real AppWorker source status/quote inspection, saved vs unsaved work,
+stale success/error correlation, all resolution outcomes, exact widget text/Copy
+and unchanged navigation guards. Get independent complete review, technically
+validate findings, run fresh desktop/default/native and integrated checks, retain
+a synthetic reproducible manual scenario and integrate locally. GUI observation
+and owner acceptance may remain pending while the Mac is locked; continue later
+safe Stage 5 foundations.
+
+Sixth-slice review found one valid bounded-panel defect: a scrollbar layer did
+not enable overflow scrolling, so later source quotes were unreachable. An
+actual Root/Desktop regression with twelve real-worker citations failed on the
+unchanged wheel offset before the fix. Adding overflow scrolling made the same
+wheel input reveal citation twelve; its actual Copy button preserves the full
+BOM/CRLF/Unicode source. The independent correction review passed **15 checks**
+(11 provenance/state/widget, two review guards, two scope/navigation guards),
+with no remaining actionable finding. Save and confirmed Reload invalidate old
+inspections; Close and accepted navigation cannot be undone by late replies.
+
+Fresh macOS arm64 / Rust 1.98.1 locked/offline helper checks passed **143 default
+desktop tests**, **166 native desktop tests** and both shipping and headless-test
+native all-target Clippy with warnings denied. The native feature set was
+`native-ui,native-retrieval,native-test-support`; the shipping Clippy omits the
+test feature. The known upstream `block v0.1.6` warning remains. Reproduce manual
+acceptance through the [desktop scenario](../../../../crates/brn-desktop/README.md):
+inspect saved quotes while typing remains recoverable, Refresh after changed or
+duplicated fixture sources, copy exact text and exercise read-only All scope.
+Native GUI/owner acceptance remains pending; these are headless observations.
+
+Root final integrated gate on the corrected tree passed **794 workspace tests /
+zero failures / two ignored private crash entry points**, all **52 end-to-end
+assertions**, retirement, workspace format/build and all-target Clippy with
+warnings denied. Command: `TMPDIR=<fresh owned canonical parent> bash
+scripts/verify-end-to-end.sh`, pinned 1.98.1, locked/offline. After that serialized
+default gate, the shipping `native-ui,native-retrieval` desktop build and real
+AppWorker `--headless-check startup` passed. No provider/model/network, original
+data, GUI observation or owner acceptance is claimed. Final documentation checks
+cover local links, formatting and diff whitespace. This slice is implemented,
+automated verified, independently reviewed and locally integrated with this
+change; relationships, findings/timestamps and bilingual qualification remain.
+
+## Seventh slice: reliable session timestamps
+
+Baseline: `main@63c618d685d40780d280c606b3b9d38e09c0b06e`, with only the owner
+AGENTS.md change. Expose known conversation creation time and add nullable
+conversation last-activity and turn start/finish times through a narrow additive
+WorkStore V8 migration. Historical unknown times stay unknown. Capture fresh
+admission and explicit/provider finalization atomically with existing chat writes;
+exact replay, read-only inspection and restart interruption must not refresh
+activity. Keep times monotonic under wall-clock rollback and validate stored
+nonnegative values, pair agreement and temporal ordering before reads/recovery.
+
+Existing workflow Conversations/Turns events and CLI JSON carry these projections;
+native session labels show readable last-activity age or explicit unknown time.
+Unpersisted partials retain unknown timestamps. No new proposal/worker framework,
+clock service, account/model operation or session lifecycle behavior. Archive,
+Restore/Delete and the 30-day policy stay Stage 13 work.
+
+Acceptance: new admission/finalization timing, stable running/terminal replay,
+rollback on failed admission/finalization, owner/attached-writer serialization,
+old-schema upgrade and backup restoration, restart without fabricated activity,
+malformed pair/conversation refusal and exact old content preservation. Verify
+one coherent conversation summary during attached writes, real worker/CLI
+projection and native readable unknown/current/future-clock
+labels. Obtain independent read-only review, validate findings, run fresh Store,
+integrated/default/native checks and update evidence before local integration.
+Manual scenario: inspect sessions/turns from a fresh synthetic completed and
+interrupted turn, restart without new chat and confirm the recorded times do not
+change; inspect a restored older fixture and observe unknown historical activity.
+
+Seventh-slice evidence, 2026-10-04: fresh Store checks passed **201 / 0 failed**,
+including 11 timestamp tests covering atomic rollback, attached writers, legacy
+upgrade/backup restoration, malformed values and unchanged restart/replay timing.
+Real owned worker and actual CLI process regressions qualify the projections;
+native labels keep unknown, future-clock and current activity distinct. The CLI
+regression first reproduced omitted fields before the explicit null/time mapping
+was corrected. Unpersisted partials never acquire invented timing.
+
+Initial independent review passed 33 checks. A subsequent public-API probe
+reproduced five incoherent summaries during 1,000 valid attached writes: a newer
+count could accompany an older activity time. Lead verified the supported-input
+defect; a regression failed before the correction. The summary now uses one
+deferred read transaction across title/count/times. Independent correction review
+passed the new regression and rebuilt the original probe against current code:
+**1,000 admissions/finalizations, 3,040 summaries, 0 inconsistencies**. No remaining
+actionable finding. Whole-history snapshot behavior was not added.
+
+Fresh final pinned Rust 1.98.1/macOS arm64 locked/offline gate:
+`TMPDIR=/private/tmp/brn-timestamps-root-9uvlb86h bash scripts/verify-end-to-end.sh`
+passed retirement, workspace formatting/build/all-target Clippy with warnings
+denied, **809 tests / 0 failed / 2 ignored** and **52 end-to-end assertions**.
+Fresh native desktop tests (`native-ui,native-retrieval,native-test-support`)
+passed **168 / 0 failed**. Both native all-target Clippy configurations and the
+shipping native desktop build without test support passed. Shipping headless
+AppWorker startup/restart and actual CLI history checks passed in separate fresh
+synthetic data and V7-schema upgrade fixtures; unknown legacy values stayed null
+and vault bytes stayed exact. The ignored crash entry points remain exercised by
+subprocess matrices. The known upstream `block v0.1.6` warning remains.
+
+The reproducible owner fixture is
+`/private/tmp/brn-timestamps-root-9uvlb86h/manual`: `data` has completed/interrupted
+synthetic sessions; `legacy-data` has the same shapes with unknown historical
+activity/start/finish times. Run `target/debug/brn conversations list --json
+--data-dir <fixture>/data`, then `conversations show <id>` with the same flags;
+repeat without new chat and compare times. Launch shipping `brn-desktop` with
+`--data-dir <fixture>/data --vault <fixture>/vault`, inspect History and restart.
+Repeat with `legacy-data`; unknown history must not look recently active.
+This fixture was seeded through public Store APIs with no provider request; its
+owned legacy copy was downgraded before testing the supported additive upgrade.
+Logs and ownership metadata are retained outside Git. The Mac is locked, so GUI
+and owner acceptance remain pending. No account calls, model downloads, private
+data inspection or session Archive/Restore/Delete occurred. This slice is
+implemented, automated verified, independently reviewed and locally integrated
+with this change. Stage 5 remains active.
+
 ## Stage5A publication checkpoint — identities and scoped evidence
 
 Baseline e9179eb merges reviewed first-four slices through4fb2763 with qualified
@@ -384,3 +594,50 @@ publish durable provenance/timestamps, then links/relationships and findings; do
 not claim all Stage5 complete. Mac mini: AppleSilicon/CLT,pinnedRust1.98.1,cached
 lockfile dependencies,protobuf/Bash/Python3,canonical synthetic TMPDIR outsideGit,
 unlockedGUI for acceptance. No assets/live/original-data/release actions occurred.
+
+Stage5A PR22 merged a9f838295ea905bf25d05953fe03d02a2092dff7 after exact4895916
+run37191800152 passed MacCore/UI/Retrieval+UbuntuSharedCore. Windows Unix metadata
+failure leaves overallCIred. Merged tree equality,16CLIidentity/inventory/scopes+
+52fixtures and2shipping startup/restart runs passed with exact synthetic bytes
+and zero credential files. Stage5B now integrates that qualified baseline with
+reviewed provenance/source-inspection/timestamp slices throughbaf3bee; fresh
+qualification and complete independent integration review remain required.
+
+## Stage5B publication checkpoint — provenance and session timestamps
+
+Baseline db9aee379b34527564ef48e9e0815fb30202eb94 integrates reviewed provenance,
+native exact source inspection and session/turn timestamps throughbaf3bee with
+qualified Stage5A maina9f8382. No later Stage5 behavior is included. Independent
+read-only integration review verified36B-only+13incoming-only paths, both source
+overlaps and all retained evidence; no actionable defect. CI YAML parses.
+
+Fresh macOS arm64/Rust1.98.1 locked/offline retirement,format/build/all-target
+Clippy passed;809workspace/0failed/2ignored+52fixtures;168combined-native/0failed/
+0ignored, both native Clippy configurations and shipping desktop/CLI builds;
+136focused native workflow/0failed/2ignored (`--lib --test models --test ai_tools
+--test knowledge_provenance`). Shipping startup/restart passed twice with exact
+BOM/CRLF/Unicode bytes and zero credential files. Crash-entry ignores remain
+exercised by subprocess matrices. Only upstream block0.1.6 future warning remains.
+Exact latest PR applicable Mac/shared CI and post-merge checks remain pending.
+Logs/ownership metadata: /private/tmp/brn-v1-stage5b-checkpoint-46w97ttl.
+
+Manual acceptance: in disposable managed notes, approve exact source quote and
+citation metadata, inspect the full original through Source, change the source
+and verify a fresh stale outcome; Copy must retain exact original quote bytes.
+Inspect recorded session/turn times, restart without new chat and verify unchanged
+activity; upgraded legacy unknown times stay explicit unknown. GUI/owner acceptance
+is pending. This publishes implemented/automated verified behavior, not live
+provider or actual bilingual model qualification. Next publish relationships and
+findings, then language; safe Stage6 implementation continues independently.
+Mac mini requirements: AppleSilicon/CLT, pinnedRust1.98.1, cached locked dependencies,
+protobuf/Bash/Python3, canonical owned synthetic TMPDIR and unlockedGUI acceptance.
+No assets/live/original-data/release actions occurred.
+
+Stage5B initial exact57c71f5 run37193439338 passed both macOS native lanes but
+Ubuntu Clippy rejected the unconditional `provenance_cli::ok` test helper. Its
+actual log reports unused `ok`; all callers are inside one cfg(macos) test.
+Independent read-only correction review confirmed that a sole matching helper
+guard preserves both shared preflight tests and found no other B-test dead helper.
+Fresh corrected3CLI provenance tests,workspace all-target Clippy,format and diff
+passed; applicable CI must qualify the new exact head. Windows retains the known
+Unix API failure. Initial macOSCore completion is not relied on for integration.

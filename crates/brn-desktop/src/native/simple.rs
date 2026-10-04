@@ -1,14 +1,15 @@
 use super::theme::color;
 use super::*;
-use crate::ai::{Pending, provider_name, scope_name, slot, turn_label};
+use crate::ai::{Pending, provider_name, scope_name, session_activity_label, slot, turn_label};
 use brn_workflow::{
     Provider, ReasoningEffort, Selection,
     app_worker::{AppCommand, AppEvent},
     chat_worker::AccountCommand,
+    knowledge::{CitationOutcome, NoteProvenance},
     library::KnowledgeScope,
 };
 use gpui_kit::{
-    AnyElement,
+    AnyElement, TestSupportExt,
     base::Disableable,
     component::{Selectable, WindowExt},
 };
@@ -61,6 +62,30 @@ pub(super) fn evidence_widget(editor: &Entity<EditorState>) -> Editor {
         .h_full()
         .readonly(true)
         .aria_label("Full exact saved evidence")
+}
+pub(super) fn provenance_quote_widget(editor: &Entity<EditorState>) -> Editor {
+    Editor::new(editor)
+        .h_full()
+        .readonly(true)
+        .aria_label("Stored exact source quote")
+}
+pub(super) fn provenance_copy_button(index: usize, quote: &str) -> Button {
+    let quote = quote.to_owned();
+    Button::new(format!("copy-source-quote-{index}"))
+        .label("Copy exact quote")
+        .compact()
+        .on_click(move |_, _, cx| {
+            cx.write_to_clipboard(gpui_kit::ClipboardItem::new_string(quote.clone()));
+        })
+}
+fn citation_status(outcome: CitationOutcome) -> &'static str {
+    match outcome {
+        CitationOutcome::Matched => "Matched · exact saved source",
+        CitationOutcome::Changed => "Changed · source differs from the cited version",
+        CitationOutcome::Absent => "Absent · source identity was not found",
+        CitationOutcome::Ambiguous => "Ambiguous · multiple files have this source identity",
+        CitationOutcome::Incomplete => "Incomplete · source lookup could not be completed",
+    }
 }
 fn download_command(
     state: &mut crate::ai::AiState,
@@ -150,6 +175,7 @@ impl Desktop {
             self.sync_review_widgets(window, cx);
         }
         self.sync_draft_widgets(window, cx);
+        self.sync_provenance_widgets(window, cx);
         if self
             .ai
             .as_ref()
@@ -277,6 +303,7 @@ impl Desktop {
         }
     }
     fn simple_open_note(&mut self, path: String, cx: &mut Context<Self>) {
+        self.reset_provenance_panel();
         let ai = self.ai.as_mut().unwrap();
         ai.review = None;
         ai.review_generation = ai.review_generation.wrapping_add(1);
@@ -341,6 +368,7 @@ impl Desktop {
         match self.simple_transition.take().unwrap() {
             EditorTransition::Note(path) => self.simple_open_note(path, cx),
             EditorTransition::Evidence { path, scope } => {
+                self.reset_provenance_panel();
                 let ai = self.ai.as_mut().unwrap();
                 ai.review = None;
                 ai.review_generation = ai.review_generation.wrapping_add(1);
@@ -351,6 +379,7 @@ impl Desktop {
                 self.simple_send(command, cx);
             }
             EditorTransition::Review(id) => {
+                self.clear_saved_sources();
                 let ai = self.ai.as_mut().unwrap();
                 ai.note_generation = ai.note_generation.wrapping_add(1);
                 ai.editor = None;
@@ -364,6 +393,7 @@ impl Desktop {
                 }
             }
             EditorTransition::Activity => {
+                self.clear_saved_sources();
                 let ai = self.ai.as_mut().unwrap();
                 ai.note_generation = ai.note_generation.wrapping_add(1);
                 ai.review_generation = ai.review_generation.wrapping_add(1);
@@ -379,11 +409,12 @@ impl Desktop {
                 }
             }
             EditorTransition::Draft(turn) => {
-                let ai = self.ai.as_mut().unwrap();
-                if !ai.begin_draft(turn) {
+                if !self.ai.as_mut().unwrap().begin_draft(turn) {
                     cx.notify();
                     return;
                 }
+                self.clear_saved_sources();
+                let ai = self.ai.as_mut().unwrap();
                 ai.note_generation = ai.note_generation.wrapping_add(1);
                 ai.review_generation = ai.review_generation.wrapping_add(1);
                 ai.editor = None;
@@ -395,6 +426,7 @@ impl Desktop {
                 self.centre_tab = CentreTab::Document;
             }
             EditorTransition::Hide => {
+                self.clear_saved_sources();
                 let ai = self.ai.as_mut().unwrap();
                 ai.note_generation = ai.note_generation.wrapping_add(1);
                 ai.editor = None;
@@ -407,6 +439,166 @@ impl Desktop {
             }
             EditorTransition::Close(route) => self.begin_close(route, cx),
         }
+    }
+    fn reset_provenance_panel(&mut self) {
+        self.provenance_open = false;
+        self.provenance_snapshot = None;
+        self.provenance_quotes.clear();
+        self.provenance_scroll.set_offset(point(px(0.), px(0.)));
+    }
+    pub(super) fn clear_saved_sources(&mut self) {
+        self.ai.as_mut().unwrap().clear_provenance();
+        self.reset_provenance_panel();
+    }
+    pub(super) fn inspect_saved_sources(&mut self, cx: &mut Context<Self>) {
+        if self.simple_transition.is_some()
+            || self.closing.is_some()
+            || self.closed
+            || !matches!(self.open_doc, Some(DocRef::SavedNote | DocRef::Evidence))
+            || !self.ai.as_ref().unwrap().ready
+            || !self.ai.as_ref().unwrap().vault_bound
+            || self.ai.as_ref().unwrap().application_busy()
+        {
+            return;
+        }
+        self.provenance_open = true;
+        if let Some(command) = self.ai.as_mut().unwrap().inspect_provenance() {
+            self.simple_send(command, cx);
+        }
+        cx.notify();
+    }
+    pub(super) fn sync_provenance_widgets(&mut self, window: &mut Window, cx: &mut Context<Self>) {
+        let ai = self.ai.as_ref().unwrap();
+        if ai.provenance.is_none() && ai.provenance_loading() {
+            return;
+        }
+        if self.provenance_snapshot.as_ref() == ai.provenance.as_ref() {
+            return;
+        }
+        let next: Option<NoteProvenance> = ai.provenance.clone();
+        self.provenance_quotes = next.as_ref().map_or_else(Vec::new, |provenance| {
+            provenance
+                .citations
+                .iter()
+                .map(|resolved| {
+                    cx.new(|cx| {
+                        EditorState::new(window, cx).default_value(resolved.citation.quote.clone())
+                    })
+                })
+                .collect()
+        });
+        self.provenance_snapshot = next;
+        self.provenance_scroll.set_offset(point(px(0.), px(0.)));
+    }
+    fn render_saved_sources(&self, cx: &mut Context<Self>) -> Option<AnyElement> {
+        if !self.provenance_open {
+            return None;
+        }
+        let ai = self.ai.as_ref().unwrap();
+        let p = self.palette();
+        let mut content = div()
+            .id("saved-sources-scroll")
+            .overflow_y_scroll()
+            .track_scroll(&self.provenance_scroll)
+            .vertical_scrollbar(&self.provenance_scroll)
+            .flex_1()
+            .min_h(px(0.))
+            .flex()
+            .flex_col()
+            .gap_3()
+            .p_2();
+        if ai.provenance_loading() {
+            content = content.child("Inspecting saved sources…");
+        } else if let Some(error) = &ai.provenance_error {
+            content = content.child(format!("Saved sources unavailable: {error}"));
+        } else if let Some(provenance) = &ai.provenance {
+            if provenance.citations.is_empty() {
+                content = content.child("This saved note has no source citations.");
+            }
+            for (index, resolved) in provenance.citations.iter().enumerate() {
+                let mut source = div()
+                    .flex()
+                    .flex_col()
+                    .flex_shrink_0()
+                    .gap_1()
+                    .child(citation_status(resolved.outcome))
+                    .child(format!("Source UUID: {}", resolved.citation.note_id))
+                    .child(format!(
+                        "Cited byte range: {}–{}",
+                        resolved.citation.start_byte, resolved.citation.end_byte
+                    ));
+                for matched in &resolved.matches {
+                    source = source.child(format!("Observed path: {}", matched.path));
+                }
+                for issue in &resolved.issues {
+                    source = source.child(format!(
+                        "Inspection issue: {} · {}",
+                        issue.path, issue.reason
+                    ));
+                }
+                if let Some(quote) = self.provenance_quotes.get(index) {
+                    source = source.child(
+                        div()
+                            .h(px(96.))
+                            .flex_shrink_0()
+                            .child(provenance_quote_widget(quote)),
+                    );
+                }
+                content = content
+                    .child(source.child(provenance_copy_button(index, &resolved.citation.quote)));
+            }
+        } else {
+            content = content.child("Select Refresh to inspect this note's saved sources.");
+        }
+        Some(
+            div()
+                .h(px(260.))
+                .flex_shrink_0()
+                .flex()
+                .flex_col()
+                .border_t_1()
+                .border_color(color(p.line))
+                .bg(color(p.panel))
+                .child(
+                    div()
+                        .flex()
+                        .items_center()
+                        .gap_2()
+                        .p_2()
+                        .child(div().flex_1().child("Saved sources"))
+                        .child(
+                            Button::new("refresh-saved-sources")
+                                .label("Refresh")
+                                .compact()
+                                .disabled(
+                                    self.simple_transition.is_some()
+                                        || self.closing.is_some()
+                                        || self.closed
+                                        || ai.application_busy()
+                                        || ai.provenance_loading(),
+                                )
+                                .on_click(
+                                    cx.listener(|this, _, _, cx| this.inspect_saved_sources(cx)),
+                                ),
+                        )
+                        .child(
+                            Button::new("close-saved-sources")
+                                .label("Close sources")
+                                .compact()
+                                .on_click(cx.listener(|this, _, _, cx| {
+                                    this.clear_saved_sources();
+                                    cx.notify();
+                                })),
+                        ),
+                )
+                .child(
+                    div()
+                        .px_2()
+                        .child("Saved Markdown only; unsaved edits are not included."),
+                )
+                .child(content.test_support())
+                .into_any_element(),
+        )
     }
     pub(super) fn simple_save(&mut self, destination: Option<String>, cx: &mut Context<Self>) {
         if self.simple_transition.is_some() || self.closing.is_some() || self.closed {
@@ -706,6 +898,10 @@ impl Desktop {
     pub(super) fn render_simple_history(&mut self, cx: &mut Context<Self>) -> AnyElement {
         let p = self.palette();
         let ai = self.ai.as_ref().unwrap();
+        let now_ms = std::time::SystemTime::now()
+            .duration_since(std::time::UNIX_EPOCH)
+            .map(|time| u64::try_from(time.as_millis()).unwrap_or(u64::MAX))
+            .unwrap_or(0);
         let mut list = div()
             .id("history-rail-list")
             .track_scroll(&self.history_scroll)
@@ -724,16 +920,33 @@ impl Desktop {
             );
         for conversation in &ai.conversations {
             let id = conversation.id;
-            list = list.child(
-                Button::new(format!("conversation-{id}"))
-                    .label(format!(
-                        "{} · {} turns",
-                        compact_title(&conversation.title),
-                        conversation.turns
-                    ))
-                    .selected(ai.conversation == Some(id))
-                    .on_click(cx.listener(move |this, _, _, cx| this.simple_history(Some(id), cx))),
-            );
+            list =
+                list.child(
+                    div()
+                        .flex()
+                        .flex_col()
+                        .flex_shrink_0()
+                        .child(
+                            Button::new(format!("conversation-{id}"))
+                                .label(format!(
+                                    "{} · {} turns",
+                                    compact_title(&conversation.title),
+                                    conversation.turns
+                                ))
+                                .selected(ai.conversation == Some(id))
+                                .on_click(cx.listener(move |this, _, _, cx| {
+                                    this.simple_history(Some(id), cx)
+                                })),
+                        )
+                        .child(
+                            div()
+                                .w_full()
+                                .px_2()
+                                .text_xs()
+                                .text_color(color(p.muted))
+                                .child(session_activity_label(conversation, now_ms)),
+                        ),
+                );
         }
         list = list
             .child(
@@ -1007,6 +1220,9 @@ impl Desktop {
                     .unwrap_or("Opening Markdown / recovery buffer…".into()),
             );
         }
+        if let Some(sources) = self.render_saved_sources(cx) {
+            body = body.child(sources);
+        }
         div()
             .size_full()
             .flex()
@@ -1025,6 +1241,19 @@ impl Desktop {
                             .overflow_hidden()
                             .whitespace_nowrap()
                             .child(self.simple_note_path.clone().unwrap_or_default()),
+                    )
+                    .child(
+                        Button::new("saved-note-sources")
+                            .label("Sources")
+                            .compact()
+                            .selected(self.provenance_open)
+                            .disabled(
+                                leaving
+                                    || ai.editor.is_none()
+                                    || ai.application_busy()
+                                    || ai.provenance_loading(),
+                            )
+                            .on_click(cx.listener(|this, _, _, cx| this.inspect_saved_sources(cx))),
                     )
                     .child(
                         Button::new("close-document")
@@ -1080,6 +1309,9 @@ impl Desktop {
                     .unwrap_or("Opening exact saved evidence…".into()),
             );
         }
+        if let Some(sources) = self.render_saved_sources(cx) {
+            body = body.child(sources);
+        }
         div()
             .size_full()
             .flex()
@@ -1092,6 +1324,24 @@ impl Desktop {
                     .gap_2()
                     .p_2()
                     .child(div().flex_1().min_w(px(0.)).child(title))
+                    .child(
+                        Button::new("evidence-sources")
+                            .label("Sources")
+                            .compact()
+                            .selected(self.provenance_open)
+                            .disabled(
+                                self.simple_transition.is_some()
+                                    || self.closing.is_some()
+                                    || self.closed
+                                    || ai
+                                        .evidence
+                                        .as_ref()
+                                        .is_none_or(|evidence| evidence.note.is_none())
+                                    || ai.application_busy()
+                                    || ai.provenance_loading(),
+                            )
+                            .on_click(cx.listener(|this, _, _, cx| this.inspect_saved_sources(cx))),
+                    )
                     .child(
                         Button::new("close-evidence")
                             .label("Close")

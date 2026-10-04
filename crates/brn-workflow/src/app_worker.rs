@@ -64,6 +64,9 @@ pub enum AppCommand {
     ResolveNoteIdentity(Uuid),
     EvidenceNote(String),
     PrepareNoteIdentity(crate::knowledge::IdentityRequest),
+    NoteProvenance(String),
+    CaptureCitation(crate::knowledge::CitationRequest),
+    PrepareNoteProvenance(crate::knowledge::ProvenanceRequest),
     CreateProposal(crate::proposals::DraftRequest),
     Proposal(Uuid),
     Proposals(Option<Uuid>),
@@ -152,6 +155,9 @@ pub enum AppEvent {
     NoteIdentityResolved(Box<crate::knowledge::IdentityResolution>),
     EvidenceNote(NoteText),
     NoteIdentityDraft(Box<crate::proposals::DraftRequest>),
+    NoteProvenance(Box<crate::knowledge::NoteProvenance>),
+    CitationCaptured(Box<crate::knowledge::CitationCapture>),
+    NoteProvenanceDraft(Box<crate::proposals::DraftRequest>),
     Proposal(crate::proposals::ProposalRecord),
     ProposalRewrite(Option<crate::proposal_rewrite::RewriteJob>),
     Rewrite(crate::proposal_rewrite::RewriteEvent),
@@ -898,6 +904,15 @@ fn dispatch(
         AppCommand::EvidenceNote(path) => AppEvent::EvidenceNote(app.evidence_note(&path)?),
         AppCommand::PrepareNoteIdentity(request) => {
             AppEvent::NoteIdentityDraft(Box::new(app.prepare_note_identity(&request)?))
+        }
+        AppCommand::NoteProvenance(path) => {
+            AppEvent::NoteProvenance(Box::new(app.note_provenance(&path)?))
+        }
+        AppCommand::CaptureCitation(request) => {
+            AppEvent::CitationCaptured(Box::new(app.capture_citation(&request)?))
+        }
+        AppCommand::PrepareNoteProvenance(request) => {
+            AppEvent::NoteProvenanceDraft(Box::new(app.prepare_note_provenance(&request)?))
         }
         AppCommand::CreateProposal(request) => AppEvent::Proposal(app.create_proposal(&request)?),
         AppCommand::Proposal(proposal) => AppEvent::Proposal(app.proposal(proposal)?),

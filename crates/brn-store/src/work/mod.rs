@@ -67,6 +67,7 @@ const MIGRATIONS: &[&str] = &[
     proposal_apply::V5,
     proposal_rewrite::V6,
     chat::V7,
+    chat::V8,
 ];
 
 #[derive(Debug, Clone, PartialEq, Eq)]

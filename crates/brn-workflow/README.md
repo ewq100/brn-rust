@@ -6,7 +6,7 @@ Store/Workspace/worker and brn-flow paths are removed.
 
 ## Interfaces and source
 
-[Application](src/app.rs), [commands/events](src/app_worker.rs), [chat lane](src/chat_worker.rs), [editor](src/editor.rs), [proposal review](src/proposals.rs), [proposal application](src/proposal_apply.rs), [activity](src/activity.rs), [file adapter](src/files/mod.rs).
+[Application](src/app.rs), [commands/events](src/app_worker.rs), [chat lane](src/chat_worker.rs), [editor](src/editor.rs), [proposal review](src/proposals.rs), [proposal application](src/proposal_apply.rs), [durable provenance](src/knowledge/provenance.rs), [activity](src/activity.rs), [file adapter](src/files/mod.rs).
 
 ## Simple app owner and read tools
 
@@ -86,7 +86,7 @@ respect unresolved Save/application fences.
 Refresh reads full saved bytes, including archives, and derives UUID/classification
 into disposable BRNI V2 rows. Optional `brn_kind: knowledge|source` and
 `brn_state: current|history` default to current knowledge; top-level archives
-always count as history. Malformed managed metadata is reported in
+always count as history. Malformed managed identity, classification or provenance is reported in
 `RefreshReport.unreadable` and excluded from all scoped queries. Unreadable
 evidence files/folders are reported and stale rows removed; unknown subtrees
 keep identity resolution incomplete without blocking readable current notes.
@@ -99,7 +99,27 @@ read checks. Existing read calls default to Current. Owned chat/Rewrite leases
 forward scoped calls and retain authority until every blocking read drains.
 Native browsing/search controls use the same scoped commands; non-current
 openings expose full read-only evidence while direct editing keeps its existing
-authority. Durable provenance remains following Stage 5 work.
+authority.
+
+`NoteProvenance` reads durable `brn_provenance` citations from ordinary Markdown,
+then freshly resolves each source UUID across current/archive evidence. Matched,
+Changed, Absent, Ambiguous and Incomplete outcomes retain the saved exact quote;
+paths/hashes never substitute for logical identity. `CaptureCitation` binds a
+caller-supplied saved hash and UTF-8 byte range to full coordinated source bytes.
+`PrepareNoteProvenance` adds captured citations to complete ordinary Replace
+review input, preserving old references and all unrelated target bytes. It
+creates no editor/review record and refuses self-source preparation. All three
+commands respect unresolved application/Save fences.
+
+Archived evidence can supply read-only proposal source bindings; writable
+destinations remain current VaultPath. Fresh normal approval checks newly added
+or changed citations against unique identities, exact quotes and captured source
+fingerprints, including full edits/Rewrite. Unchanged historical references need
+not still match a current source; exact Undo and completed replay preserve their
+existing authority. Sources remain checked throughout application/recovery.
+Approved quotes survive index loss and inspection from a fresh operational store
+with only the copied ordinary Markdown. Actual session Delete qualification and
+native provenance convenience follow their roadmap slices.
 
 `proposal_source(path)` / AppWorker `ProposalSource` return the complete saved
 text and trusted file fingerprint for initial review composition. The capture
@@ -340,6 +360,15 @@ resubmitted. Different payloads/generations conflict. Outer submission UUID
 must equal Ask/account operation UUID. Durable replay matches the recorded
 question, conversation, provider and model; generation is a transient
 navigation correlation, not persisted history.
+
+Conversation projections include known `created_at_ms` and nullable
+`last_activity_at_ms`; turns include nullable `started_at_ms`/`finished_at_ms`.
+These are Unix milliseconds from checked WorkStore chat transactions. Historical
+unknowns remain null. New admission and genuine finalization update activity;
+reads, exact replay and startup interruption do not. Recovery does not invent a
+finish time, and a nonpersisted partial has no trusted time. Existing
+Conversations/Turns/Turn commands carry the same values without a new workflow.
+
 `AppCommand::Turn(uuid)` / `AppEvent::Turn(Option<WorkTurn>)` is an owner-lane
 lookup for CLI replay projection. Query Selection explicitly, but use the
 recorded provider/model during replay even if current selection is obsolete.

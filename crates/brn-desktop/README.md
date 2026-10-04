@@ -22,6 +22,12 @@ resolving the original editor. Refresh/search report keyword-only results, unrea
 exact embedding progress. History resumes from WorkStore even without a vault
 or a valid current selection.
 
+Session labels show last-activity age from recorded chat activity. Historical
+unknown activity and a timestamp ahead of the current clock have distinct labels;
+opening history or restarting does not make a session newly active. Turn timing
+is available through the shared workflow/CLI. Archive/Restore/Delete remain later
+session lifecycle work.
+
 After 500 ms without an edit, recovery submits the latest exact buffer to
 WorkStore; only its acknowledgement establishes recoverability. Note-switch,
 document close and guarded window close/Quit wait for the latest recovery and
@@ -40,6 +46,30 @@ Scope changes update browsing/search without discarding an open document or
 changing Ask's default current-knowledge behavior. Pagination/results and opening
 replies are bound to scope/cursor/generation. Registered/recovered buffers retain
 their direct guarded editing route regardless of the selected browsing scope.
+
+**Sources** in the note editor and read-only evidence view expands saved-source
+provenance in that document. It reads saved Markdown; unsaved editor changes are
+explicitly excluded and remain intact. Each citation shows its UUID, observed
+path(s), exact stored quote and Matched, Changed, Absent, Ambiguous or Incomplete
+status. Changed/unavailable originals never replace the stored quote. Quotes are
+read-only and **Copy exact quote** preserves their complete bytes. The bounded
+panel offers Refresh and Close sources, with loading/empty/error states; it does
+not navigate to a guessed source or expose a new mutation. Accepted document
+navigation clears the panel; late inspection replies cannot reopen or replace it.
+
+For manual source acceptance, use a fresh synthetic fixture from the
+[CLI provenance scenario](../brn/README.md#durable-source-provenance), then launch
+its native workspace. For the byte-preservation check, repeat capture/approval
+with an additional fresh synthetic source containing BOM, CRLF and Unicode;
+select byte range 0 through its complete UTF-8 byte count after identity assignment.
+Open the saved knowledge note, type an unsaved correction
+and select Sources: the saved quote/status must appear while typing stays intact.
+Copy the quote and compare BOM/CRLF/Unicode bytes. Close/reopen the panel, then
+change or duplicate the fixture source externally and Refresh; Changed/Ambiguous
+must retain the original quote. Read the knowledge note through All and repeat
+inspection in the read-only view. Navigate with an unacknowledged editor buffer
+and confirm recovery is still required before the document changes. GUI and
+owner acceptance remain separate from headless widget/state checks.
 
 For manual acceptance, launch with a fresh synthetic data/vault pair containing
 `current.md`, a `brn_kind: source` note with BOM/CRLF/Unicode, a

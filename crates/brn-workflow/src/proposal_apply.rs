@@ -488,6 +488,12 @@ impl App {
             }
         }
         check_targets(self.editor.files.as_ref().expect("opened files"), draft)?;
+        // Exact Undo restores retained historical bytes. Fresh normal approval
+        // checks every newly introduced durable citation, including review edits
+        // and Rewrite output, before any Applying admission or filesystem effect.
+        if undo.is_none() {
+            self.validate_proposal_provenance(draft)?;
+        }
         for source in &draft.sources {
             if self
                 .editor

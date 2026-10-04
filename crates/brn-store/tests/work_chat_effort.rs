@@ -456,7 +456,7 @@ fn v6_upgrade_and_restored_v6_backup_preserve_old_history_and_interrupt_running(
         )
         .unwrap();
         drop(store);
-        conn.execute_batch("ALTER TABLE messages DROP COLUMN effort; PRAGMA user_version=6;")
+        conn.execute_batch("ALTER TABLE messages DROP COLUMN started_at_ms; ALTER TABLE messages DROP COLUMN finished_at_ms; ALTER TABLE conversations DROP COLUMN last_activity_at_ms; ALTER TABLE messages DROP COLUMN effort; PRAGMA user_version=6;")
             .unwrap();
         let backup = data.path().join("backups/brn-9999999999999.sqlite");
         if restored {
@@ -468,9 +468,12 @@ fn v6_upgrade_and_restored_v6_backup_preserve_old_history_and_interrupt_running(
         }
         let (mut store, report) = WorkStore::open(data.path()).unwrap();
         assert_eq!(report.restored_from, restored.then_some(backup));
+        let mut expected_legacy = serde_json::to_value(&completed).unwrap();
+        expected_legacy["started_at_ms"] = serde_json::Value::Null;
+        expected_legacy["finished_at_ms"] = serde_json::Value::Null;
         assert_eq!(
             serde_json::to_value(store.turn(completed.id).unwrap().unwrap()).unwrap(),
-            serde_json::to_value(&completed).unwrap()
+            expected_legacy
         );
         let resumed = store.turn(running.id).unwrap().unwrap();
         assert_eq!(resumed.status, WorkTurnStatus::Interrupted);
@@ -498,7 +501,7 @@ fn v6_upgrade_and_restored_v6_backup_preserve_old_history_and_interrupt_running(
         assert_eq!(
             conn.query_row("PRAGMA user_version", [], |row| row.get::<_, u32>(0))
                 .unwrap(),
-            7
+            8
         );
         assert_eq!(effort_pair(&conn, completed.id), vec![None, None]);
         assert_eq!(effort_pair(&conn, running.id), vec![None, None]);

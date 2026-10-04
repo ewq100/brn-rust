@@ -1,5 +1,10 @@
 //! Full typed review drafts over WorkStore. These operations never apply notes.
-use crate::{ErrorKind, Result, WorkflowError, app::App, editor::file_error, vault::VaultPath};
+use crate::{
+    ErrorKind, Result, WorkflowError,
+    app::App,
+    editor::file_error,
+    vault::{EvidencePath, VaultPath},
+};
 use brn_store::files::{FileFingerprint, VaultRecord};
 pub use brn_store::work::proposals::{
     CommentRequest, CommentTarget, MAX_COMMENT_BYTES, MAX_PROPOSAL_BYTES, MAX_PROPOSAL_CHANGES,
@@ -121,7 +126,9 @@ impl DraftRequest {
         }
         let mut sources = std::collections::HashSet::new();
         for source in &self.sources {
-            path_check(&source.path)?;
+            EvidencePath::parse(&source.path).map_err(|_| {
+                invalid("proposal source needs a contained visible Markdown evidence path")
+            })?;
             if !sources.insert(source.path.to_ascii_lowercase())
                 || source.fingerprint.len > crate::MAX_NOTE_BYTES as u64
             {
@@ -140,6 +147,14 @@ impl App {
     /// Captures full saved source bytes without creating editor or review work.
     pub fn proposal_source(&mut self, path: &str) -> Result<ProposalSource> {
         path_check(path)?;
+        self.proposal_evidence_source(path)
+    }
+
+    /// Read-only full source capture, including archived evidence. This does not
+    /// expand destination authority or create an editor/review record.
+    pub(crate) fn proposal_evidence_source(&mut self, path: &str) -> Result<ProposalSource> {
+        EvidencePath::parse(path)
+            .map_err(|_| invalid("source needs a contained visible Markdown evidence path"))?;
         self.require_current_evidence()?;
         let observed = self
             .editor_files()?

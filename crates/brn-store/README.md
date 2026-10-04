@@ -13,12 +13,13 @@ own saved Markdown; disposable retrieval indexes live outside this crate.
 [owned Rewrite jobs](src/work/proposal_rewrite.rs),
 [managed note identity](src/note_identity.rs),
 [saved note classification](src/note_metadata.rs),
+[durable vault provenance](src/note_provenance.rs),
 [backup/restore](src/work/backup.rs), [filesystem proof DTOs](src/files.rs) and
 [workspace marker guards](src/workspace_mode.rs).
 
 ## Database ownership and recovery
 
-WorkStore uses application ID `BRN2`, schema V7, and retains `brn.owner.lock`
+WorkStore uses application ID `BRN2`, schema V8, and retains `brn.owner.lock`
 for its lifetime. Current settings, text-only conversations and unfinished work
 are preserved by additive migrations. Earlier WorkStore V1 unsaved-edit rows
 remain available; matching text moves atomically into the generation-aware
@@ -97,6 +98,16 @@ continued or unsupported managed syntax reports an error. It neither stamps
 metadata nor changes source bytes. Archive-path policy belongs to workflow.
 Classification edits use ordinary full proposals or explicit Save; identity
 protection and exact historical Undo retain their existing semantics.
+
+The pure `note_provenance` helpers read or propose one optional ordinary root
+`brn_provenance: <single-line JSON array>` field. Each typed vault citation retains
+a nonnil note UUID, complete saved SHA-256, UTF-8 byte range and exact quote.
+Bounds are 32 distinct citations, 16 KiB per quote and 1 MiB per complete note;
+duplicate/unknown JSON members and unsupported managed layouts are refused.
+Absent provenance does not add a legacy YAML or body-text constraint. Replacement
+preserves unrelated bytes, BOM and line endings; an identical typed list returns
+the exact original bytes. Workflow owns fresh source resolution and approval;
+these helpers do not write files, resolve sources or change operational storage.
 
 ## Whole-proposal approval journal
 
@@ -224,6 +235,20 @@ without provider resubmission or automatic retry.
 An attached ChatStore shares the exact owner lock and uses serialized SQLite
 transactions. Dropping WorkStore cannot release ownership while a chat
 attachment remains active.
+
+V8 exposes existing session creation time and adds nullable session last-activity
+and turn start/finish times. Historical missing times serialize as explicit null;
+migration never reconstructs them. Fresh admission and genuine finalization
+capture one checked clock value atomically with the pair/activity writes, clamped
+against known creation/activity/turn times. Exact running/terminal UUID replay
+reads no clock and does not refresh activity. Startup interruption keeps known
+start time, unknown finish time and unchanged activity, including in its backup.
+Reads/startup validate nonnegative values, equal role-pair times and known temporal
+bounds; empty conversations are checked too. Timestamp metadata is nullable and
+checked during reads/reconciliation, so malformed times cause refusal rather than
+SQLite corruption recovery. Timing does not change exact text, selection, effort,
+replay or attachment ownership. Conversation summaries read their title, count and
+times in one SQLite snapshot while attached chat writers continue independently.
 
 ## Dependencies and verification
 

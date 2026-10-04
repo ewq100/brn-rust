@@ -10,6 +10,7 @@ use brn_workflow::{
         EditRequest, EditStamp, EditorRecord, EditorView, ReloadRequest, SaveOutcome, SaveReceipt,
         SaveRequest,
     },
+    knowledge::NoteProvenance,
     library::{KnowledgeScope, RefreshReport, SearchMode, SearchResults},
     models::ModelDownloadPrompt,
     proposal_apply::{
@@ -131,6 +132,11 @@ pub enum Pending {
         scope: KnowledgeScope,
         generation: u64,
     },
+    Provenance {
+        path: String,
+        document_generation: u64,
+        inspection_generation: u64,
+    },
     Editor {
         generation: u64,
         preserve: bool,
@@ -209,6 +215,9 @@ pub struct AiState {
     pub note_error: Option<String>,
     pub note_generation: u64,
     pub evidence: Option<EvidenceDocument>,
+    pub provenance: Option<NoteProvenance>,
+    pub provenance_error: Option<String>,
+    provenance_generation: u64,
     pub editor: Option<SimpleEditor>,
     pub editors: Vec<EditorRecord>,
     pub search: Option<SearchResults>,
@@ -520,6 +529,27 @@ pub fn turn_label(turn: &WorkTurn) -> &'static str {
         WorkTurnStatus::Failed => "Failed",
     }
 }
+pub fn session_activity_label(conversation: &WorkConversation, now_ms: u64) -> String {
+    let Some(activity) = conversation.last_activity_at_ms else {
+        return "Activity time unknown".into();
+    };
+    let Some(elapsed) = now_ms.checked_sub(activity) else {
+        return "Activity time is ahead of this clock".into();
+    };
+    let (count, unit) = if elapsed < 60_000 {
+        return "Last active just now".into();
+    } else if elapsed < 3_600_000 {
+        (elapsed / 60_000, "minute")
+    } else if elapsed < 86_400_000 {
+        (elapsed / 3_600_000, "hour")
+    } else {
+        (elapsed / 86_400_000, "day")
+    };
+    format!(
+        "Last active {count} {unit}{} ago",
+        if count == 1 { "" } else { "s" }
+    )
+}
 fn unfinalized_turn(request: &AskRequest, partial: String) -> WorkTurn {
     WorkTurn {
         id: request.id,
@@ -533,6 +563,8 @@ fn unfinalized_turn(request: &AskRequest, partial: String) -> WorkTurn {
         .into(),
         model: request.selection.model.clone(),
         effort: request.effort.map(|value| value.as_str().to_owned()),
+        started_at_ms: None,
+        finished_at_ms: None,
         status: WorkTurnStatus::Failed,
         error_code: None,
     }
@@ -1196,6 +1228,7 @@ impl AiState {
         ))
     }
     pub fn open_evidence(&mut self, path: String, scope: KnowledgeScope) -> (Uuid, AppCommand) {
+        self.clear_provenance();
         self.note_generation = self.note_generation.wrapping_add(1);
         self.editor = None;
         self.note_error = None;
@@ -1213,12 +1246,61 @@ impl AiState {
             AppCommand::ScopedNote { scope, path },
         )
     }
+    fn saved_document_path(&self) -> Option<&str> {
+        self.evidence
+            .as_ref()
+            .map(|evidence| evidence.path.as_str())
+            .or_else(|| {
+                self.editor
+                    .as_ref()
+                    .map(|editor| editor.view.record.path.as_str())
+            })
+    }
+    pub fn clear_provenance(&mut self) {
+        self.provenance_generation = self.provenance_generation.wrapping_add(1);
+        self.provenance = None;
+        self.provenance_error = None;
+    }
+    fn provenance_request_matches(
+        &self,
+        path: &str,
+        document_generation: u64,
+        inspection_generation: u64,
+    ) -> bool {
+        self.saved_document_path() == Some(path)
+            && document_generation == self.note_generation
+            && inspection_generation == self.provenance_generation
+    }
+    pub fn provenance_loading(&self) -> bool {
+        self.pending.values().any(|pending| matches!(pending,
+            Pending::Provenance {path,document_generation,inspection_generation}
+                if self.provenance_request_matches(path,*document_generation,*inspection_generation)))
+    }
+    /// Explicit saved-source inspection leaves live typing and document scope
+    /// intact. Operational and vault authority remain on the application lane.
+    pub fn inspect_provenance(&mut self) -> Option<(Uuid, AppCommand)> {
+        if !self.ready || !self.vault_bound || self.application_busy() || self.provenance_loading()
+        {
+            return None;
+        }
+        let path = self.saved_document_path()?.to_owned();
+        self.clear_provenance();
+        Some(self.command(
+            Pending::Provenance {
+                path: path.clone(),
+                document_generation: self.note_generation,
+                inspection_generation: self.provenance_generation,
+            },
+            AppCommand::NoteProvenance(path),
+        ))
+    }
     pub fn command(&mut self, pending: Pending, command: AppCommand) -> (Uuid, AppCommand) {
         let id = Uuid::new_v4();
         self.pending.insert(id, pending);
         (id, command)
     }
     pub fn open_editor(&mut self, path: String) -> (Uuid, AppCommand) {
+        self.clear_provenance();
         self.note_generation = self.note_generation.wrapping_add(1);
         self.editor = None;
         self.evidence = None;
@@ -2086,9 +2168,28 @@ impl AiState {
             | AppEvent::NoteIdentityResolved(_)
             | AppEvent::EvidenceNote(_)
             | AppEvent::NoteIdentityDraft(_)
+            | AppEvent::CitationCaptured(_)
+            | AppEvent::NoteProvenanceDraft(_)
             | AppEvent::ProposalApplied(_)
             | AppEvent::ProposalGroupApplied(_)
             | AppEvent::ProposalApplies(_) => {}
+            AppEvent::NoteProvenance(provenance) => {
+                if let Some(Pending::Provenance {
+                    path,
+                    document_generation,
+                    inspection_generation,
+                }) = &pending
+                    && provenance.path == *path
+                    && self.provenance_request_matches(
+                        path,
+                        *document_generation,
+                        *inspection_generation,
+                    )
+                {
+                    self.provenance = Some(*provenance);
+                    self.provenance_error = None;
+                }
+            }
             AppEvent::Editor(view) => {
                 if let Some(Pending::Editor {
                     generation,
@@ -2110,6 +2211,11 @@ impl AiState {
                     pending,
                     Some(Pending::EditorRecovery | Pending::EditorReload)
                 ) {
+                    if matches!(pending, Some(Pending::EditorReload))
+                        && self.saved_document_path() == Some(record.path.as_str())
+                    {
+                        self.clear_provenance();
+                    }
                     if let Some(editor) = &mut self.editor {
                         if matches!(pending, Some(Pending::EditorReload)) {
                             editor.reloaded(id, record);
@@ -2130,6 +2236,12 @@ impl AiState {
                     pending,
                     Some(Pending::EditorSave | Pending::EditorReconcile)
                 ) {
+                    if receipt.outcome == SaveOutcome::Applied
+                        && receipt.destination.is_none()
+                        && self.saved_document_path() == Some(receipt.path.as_str())
+                    {
+                        self.clear_provenance();
+                    }
                     if let Some(editor) = &mut self.editor {
                         if matches!(pending, Some(Pending::EditorReconcile)) {
                             editor.reconciled(&receipt);
@@ -2230,6 +2342,15 @@ impl AiState {
                     Some(
                         Pending::Evidence { generation, .. } | Pending::Editor { generation, .. },
                     ) => *generation != self.note_generation,
+                    Some(Pending::Provenance {
+                        path,
+                        document_generation,
+                        inspection_generation,
+                    }) => !self.provenance_request_matches(
+                        path,
+                        *document_generation,
+                        *inspection_generation,
+                    ),
                     _ => false,
                 };
                 if stale_read {
@@ -2238,6 +2359,9 @@ impl AiState {
                 }
                 if matches!(pending, Some(Pending::Notes { .. })) {
                     self.notes_error = Some(error.message.clone());
+                }
+                if matches!(pending, Some(Pending::Provenance { .. })) {
+                    self.provenance_error = Some(error.message.clone());
                 }
                 if matches!(pending, Some(Pending::Activity { generation, .. }) if generation == self.activity_generation)
                 {
@@ -2403,6 +2527,12 @@ mod tests {
     }
     mod scope_state {
         include!("scope_state_tests.rs");
+    }
+    mod provenance_state {
+        include!("provenance_state_tests.rs");
+    }
+    mod session_timestamps {
+        include!("session_timestamp_tests.rs");
     }
     #[cfg(target_os = "macos")]
     mod approval_state {
@@ -2842,6 +2972,8 @@ mod tests {
             provider: "copilot".into(),
             model: request.selection.model.clone(),
             effort: request.effort.map(|value| value.as_str().to_owned()),
+            started_at_ms: None,
+            finished_at_ms: None,
             status,
             error_code: None,
         }

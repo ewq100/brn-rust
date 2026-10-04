@@ -11,6 +11,7 @@ mod input;
 pub mod library;
 pub(crate) mod out;
 pub mod proposals;
+pub mod provenance;
 
 use crate::cli::error::CliError;
 use brn_workflow::{
@@ -35,6 +36,7 @@ pub enum Command {
     Editor(editor::EditorCommand),
     Identity(identity::IdentityCommand),
     Evidence(evidence::EvidenceCommand),
+    Provenance(provenance::ProvenanceCommand),
     Proposals(proposals::ProposalCommand),
     Ai(ai::AiCommand),
     ModelDownload {
@@ -121,6 +123,9 @@ Commands:
   brn identity inventory
   brn identity resolve NOTE_ID
   brn evidence read PATH
+  brn provenance show PATH
+  brn provenance capture --file REQUEST.json
+  brn provenance prepare --file REQUEST.json
   brn proposals create --file DRAFT.json
   brn proposals list [--group UUID]
   brn proposals show PROPOSAL_ID
@@ -513,6 +518,7 @@ fn parse_inner(
         "edit" => editor::scan_command(&mut tokens, g, command)?,
         "identity" => identity::scan_command(&mut tokens, g, command)?,
         "evidence" => evidence::scan_command(&mut tokens, g, command)?,
+        "provenance" => provenance::scan_command(&mut tokens, g, command)?,
         "proposals" => proposals::scan_command(&mut tokens, g, command)?,
         "activity" => activity::scan_command(&mut tokens, g, command)?,
         "ai" => ai::scan_command(&mut tokens, g, command)?,
@@ -589,6 +595,7 @@ fn parse_inner(
         "edit" => Command::Editor(editor::parse_command(command.unwrap(), &scanned)?),
         "identity" => Command::Identity(identity::parse_command(command.unwrap(), &scanned)?),
         "evidence" => Command::Evidence(evidence::parse_command(&scanned)?),
+        "provenance" => Command::Provenance(provenance::parse_command(command.unwrap(), &scanned)?),
         "proposals" => Command::Proposals(proposals::parse_command(command.unwrap(), &scanned)?),
         "activity" => Command::Activity(activity::parse_command(&scanned)?),
         "ai" => Command::Ai(ai::parse_command(command.unwrap(), &scanned)?),

@@ -66,19 +66,40 @@ managed Markdown UUID preparation through ordinary proposals, edit/Rewrite
 identity protection, fresh complete evidence lookup and duplicate/incomplete
 reporting, explicit exact archived reads, saved classification and scoped
 current/source/history/all retrieval through workflow/CLI, the three AI read tools
-and native browsing/search with read-only evidence views. Source CAS, restart, index rebuild
+and native browsing/search with read-only evidence views. Durable exact vault
+provenance now lives in ordinary Markdown: fresh UUID/hash/range/quote capture
+prepares full proposals with archived source bindings, and normal approval checks
+new citations after edits/Rewrite. Inspection retains exact quotes through source
+moves, changes, absence/ambiguity and incomplete inspection. A fresh independent
+vault/store with only copied Markdown proves session/index independence; actual
+session Delete remains later qualification. Source CAS, restart, index rebuild
 and Undo are verified; current write/read rules and unresolved-work fences remain
 intact. Independent reviews found no remaining actionable findings. Fresh final
-locked/offline verification passed **765 workspace tests / 0 failed / 2 ignored**,
-**52 end-to-end assertions**, format/build/all-target Clippy, **155 native desktop
-tests**, native all-target Clippy and shipping native
-desktop/CLI builds. Fresh full-byte refresh catches retained-size/mtime changes;
+locked/offline verification passed **809 workspace tests / 0 failed / 2 ignored**,
+**52 end-to-end assertions**, format/build/all-target Clippy, **168 native desktop
+tests**, native all-target Clippy and the shipping native desktop build.
+Fresh full-byte refresh catches retained-size/mtime changes;
 unreadable evidence folders report incomplete inspection while readable current
 knowledge remains usable. Fresh native synthetic observation confirmed scope
 separation, archived/current-history read-only views, typing refusal and an exact
 86-byte BOM/CRLF/Unicode Copy→paste→Save Copy result, preserving original files.
 The Mac locked before the final GUI restart check; owner acceptance remains pending.
-Durable provenance, relationships, findings/timestamps and multilingual qualification continue next;
+The provenance review's valid malformed-metadata eligibility defect was reproduced,
+fixed and independently rechecked; no actionable finding remains. Its corrected
+review passed 32 checks and an actual synthetic CLI reproduction. Native saved-
+source inspection preserves unsaved typing, binds late replies to document/
+inspection generations and invalidates inspections after Save/Reload. Exact
+read-only quote widgets retain all source outcomes; a rendered twelve-citation
+regression reproduced and corrected missing overflow scrolling. Final independent
+review passed 15 checks, with no remaining actionable finding. Session timestamps
+now retain known creation/activity/start/finish times, explicit unknown legacy
+values and stable replay/restart observations. Native history shows recorded
+activity age. A valid concurrent-summary defect was reproduced and corrected with
+one SQLite read snapshot; independent correction review sampled 3,040 summaries
+during 1,000 attached writes with no inconsistencies. Fresh synthetic native
+startup and CLI checks passed for new data and a V7 database upgrade. Native
+GUI/owner acceptance remains pending. Relationships, basic findings and multilingual
+qualification continue next;
 Stage 5 is not complete.
 
 ## Qualification still open
@@ -97,18 +118,26 @@ passed macOSCore/UI/Retrieval and UbuntuSharedCore. Windows Unix metadata failur
 leaves overallCIred. Merged tree equality,16widgets+52fixtures, shipping build and
 two startup/restart runs passed with exact synthetic bytes and zero credentials.
 
-Stage5A identities/scopes publication baseline `e9179eb` integrates its four
-reviewed slices through4fb2763 with that qualified main. Fresh macOS arm64/
-Rust1.98.1 locked/offline retirement,format/build/all-target Clippy,765workspace/
-0failed/2ignored,52fixtures,155combined-native tests/0failed/0ignored, both native
-Clippy variants and shipping desktop/CLI builds passed. Capability fixtures passed
-84library+1example; focused native workflow passed132tests/0failed/2ignored.
-Two shipping startup/restart runs preserved exact bytes with zero credentials.
-Independent integration review preserved60Stage5-only+11incoming-only paths and
-all four source overlaps, with no actionable defect. Exact latest PR macOS/shared
-CI and post-merge verification are pending. Native/owner/model acceptance remains
-separate. Provenance,timestamps,relationships,findings and multilingual slices
-remain later deliverables; Stage5 is not complete.
+Stage5A PR22 merged `a9f838295ea905bf25d05953fe03d02a2092dff7` after exact
+4895916 run37191800152 passed macOSCore/UI/Retrieval and UbuntuSharedCore.
+Windows Unix metadata failure leaves overallCIred. Merged tree equality,
+16CLIidentity/inventory/scopes+52fixtures and two shipping startup/restart runs
+passed with exact synthetic bytes and zero credentials.
+
+Stage5B provenance/timestamps publication baseline `db9aee3` integrates reviewed
+slices throughbaf3bee with qualified Stage5A. Independent review verified
+36Stage5-only+13incoming-only exact paths and both source overlaps, with no
+actionable defect. Fresh macOS arm64/Rust1.98.1 locked/offline checks passed
+809workspace/0failed/2ignored+52fixtures, retirement,format/build/all-target Clippy;
+168combined-native/0failed/0ignored, both native Clippy variants and shipping
+desktop/CLI builds;136focused-native-workflow/0failed/2ignored. Two shipping
+startup/restart runs preserved exact BOM/CRLF/Unicode bytes with zero credentials.
+PR23 initial CI passed both Mac native lanes but Ubuntu rejected an unused
+Mac-only provenance-test helper. The narrow independently reviewed matching
+helper guard passed fresh3CLI provenance tests and workspace Clippy; new exact
+head applicable CI and post-merge verification remain pending. GUI/owner
+acceptance remains separate. Later relationships/findings/language checkpoints
+remain pending; Stage5 is not complete.
 
 Release/public distribution, additional live calls/model downloads, purchases and
 original/private-data inspection or migration still need applicable owner

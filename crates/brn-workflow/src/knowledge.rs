@@ -11,6 +11,8 @@ use std::collections::BTreeMap;
 use uuid::Uuid;
 
 pub use brn_store::note_identity;
+mod provenance;
+pub use provenance::*;
 
 #[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
 #[serde(deny_unknown_fields)]
@@ -85,6 +87,32 @@ pub struct IdentityResolution {
     pub outcome: IdentityOutcome,
     pub matches: Vec<NoteIdentityInfo>,
     pub issues: Vec<IdentityIssue>,
+}
+
+impl IdentityInventory {
+    fn resolution(&self, note_id: Uuid) -> IdentityResolution {
+        let matches = self
+            .notes
+            .iter()
+            .filter(|note| note.note_id == Some(note_id))
+            .cloned()
+            .collect::<Vec<_>>();
+        let outcome = if matches.len() > 1 {
+            IdentityOutcome::Ambiguous
+        } else if !self.issues.is_empty() {
+            IdentityOutcome::Incomplete
+        } else if matches.is_empty() {
+            IdentityOutcome::Absent
+        } else {
+            IdentityOutcome::Unique
+        };
+        IdentityResolution {
+            note_id,
+            outcome,
+            matches,
+            issues: self.issues.clone(),
+        }
+    }
 }
 
 fn rejected(message: impl Into<String>) -> WorkflowError {
@@ -175,27 +203,7 @@ impl App {
         if note_id.is_nil() {
             return Err(rejected("Identity resolution needs a nonnil UUID."));
         }
-        let inventory = self.identity_inventory()?;
-        let matches = inventory
-            .notes
-            .into_iter()
-            .filter(|note| note.note_id == Some(note_id))
-            .collect::<Vec<_>>();
-        let outcome = if matches.len() > 1 {
-            IdentityOutcome::Ambiguous
-        } else if !inventory.issues.is_empty() {
-            IdentityOutcome::Incomplete
-        } else if matches.is_empty() {
-            IdentityOutcome::Absent
-        } else {
-            IdentityOutcome::Unique
-        };
-        Ok(IdentityResolution {
-            note_id,
-            outcome,
-            matches,
-            issues: inventory.issues,
-        })
+        Ok(self.identity_inventory()?.resolution(note_id))
     }
 
     /// Inspects the saved current note. Missing metadata remains explicitly absent.

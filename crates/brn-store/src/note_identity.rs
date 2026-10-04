@@ -97,11 +97,26 @@ pub(crate) struct ScalarFields<'a, const N: usize> {
     pub(crate) values: [Option<&'a str>; N],
 }
 
-pub(crate) fn selected_fields<'a, const N: usize>(
+pub(crate) struct RawField<'a> {
+    pub(crate) value: &'a str,
+    pub(crate) line: std::ops::Range<usize>,
+    pub(crate) newline: &'static str,
+}
+
+pub(crate) struct RawFields<'a, const N: usize> {
+    pub(crate) insertion: usize,
+    pub(crate) newline: &'static str,
+    pub(crate) fields: [Option<RawField<'a>>; N],
+}
+
+/// Locate selected ordinary root fields without interpreting their value syntax.
+/// Line ranges include their original newline so callers can replace only that
+/// managed line while leaving all unrelated bytes opaque.
+pub(crate) fn raw_fields<'a, const N: usize>(
     text: &'a str,
     keys: [&str; N],
     strict_assignment: bool,
-) -> Result<Option<ScalarFields<'a, N>>> {
+) -> Result<Option<RawFields<'a, N>>> {
     let (offset, text) = text
         .strip_prefix(BOM)
         .map_or((0, text), |text| (BOM.len(), text));
@@ -132,10 +147,13 @@ pub(crate) fn selected_fields<'a, const N: usize>(
     } else {
         "\n"
     };
-    let mut values = [None; N];
+    let mut fields = std::array::from_fn(|_| None);
     let mut opaque_indented = false;
     let mut managed_scalar: Option<usize> = None;
+    let mut cursor = offset + first.len();
     for line in lines {
+        let start = cursor;
+        cursor += line.len();
         let content = line_content(line);
         if content.starts_with([' ', '\t']) && opaque_indented {
             continue;
@@ -151,10 +169,10 @@ pub(crate) fn selected_fields<'a, const N: usize>(
             )));
         }
         if matches!(content, "---" | "...") {
-            return Ok(Some(ScalarFields {
+            return Ok(Some(RawFields {
                 insertion: offset + first.len(),
                 newline,
-                values,
+                fields,
             }));
         }
         if ["---", "..."].iter().any(|delimiter| {
@@ -181,7 +199,7 @@ pub(crate) fn selected_fields<'a, const N: usize>(
                 .map(|value| (index, value))
         }) {
             let key = keys[index];
-            if values[index].is_some() {
+            if fields[index].is_some() {
                 return Err(invalid(&format!(
                     "managed note frontmatter contains duplicate {key} fields"
                 )));
@@ -191,7 +209,11 @@ pub(crate) fn selected_fields<'a, const N: usize>(
                     "managed {key} needs whitespace after its field colon"
                 )));
             }
-            values[index] = Some(scalar_value(value, key)?);
+            fields[index] = Some(RawField {
+                value,
+                line: start..cursor,
+                newline: if line.ends_with("\r\n") { "\r\n" } else { "\n" },
+            });
             opaque_indented = false;
             managed_scalar = Some(index);
         } else if let Some(key) = keys.iter().find(|key| unsupported_key(content, key)) {
@@ -205,13 +227,120 @@ pub(crate) fn selected_fields<'a, const N: usize>(
             }
         }
     }
-    if strict_assignment || values.iter().any(Option::is_some) {
+    if strict_assignment || fields.iter().any(Option::is_some) {
         Err(invalid("managed note frontmatter is incomplete"))
     } else {
         // A leading Markdown thematic break without managed metadata is ordinary
         // readable text. Assignment still refuses its ambiguous incomplete header.
         Ok(None)
     }
+}
+
+pub(crate) fn selected_fields<'a, const N: usize>(
+    text: &'a str,
+    keys: [&str; N],
+    strict_assignment: bool,
+) -> Result<Option<ScalarFields<'a, N>>> {
+    raw_fields(text, keys, strict_assignment)?
+        .map(|metadata| {
+            let mut values = [None; N];
+            for (index, field) in metadata.fields.iter().enumerate() {
+                values[index] = field
+                    .as_ref()
+                    .map(|field| scalar_value(field.value, keys[index]))
+                    .transpose()?;
+            }
+            Ok(ScalarFields {
+                insertion: metadata.insertion,
+                newline: metadata.newline,
+                values,
+            })
+        })
+        .transpose()
+}
+
+/// Only inspect possible root field positions in the frontmatter. This allows a
+/// new optional field's reader to leave legacy unsupported layouts alone when
+/// that field is absent, while its selected-field parser still refuses malformed
+/// managed syntax. Nested/block values and body text are opaque.
+pub(crate) fn has_field(text: &str, key: &str) -> bool {
+    let text = text.strip_prefix(BOM).unwrap_or(text);
+    let mut lines = text.split_inclusive('\n');
+    let first = horizontal(line_content(lines.next().unwrap_or("")));
+    if !first
+        .strip_prefix("---")
+        .is_some_and(|rest| rest.is_empty() || rest.starts_with([' ', '\t', '\r']))
+    {
+        return false;
+    }
+    let mut opaque_indented = false;
+    for line in lines {
+        let content = line_content(line);
+        if content.starts_with([' ', '\t']) && opaque_indented {
+            continue;
+        }
+        if ["---", "..."].iter().any(|delimiter| {
+            content
+                .strip_prefix(delimiter)
+                .is_some_and(|rest| rest.is_empty() || rest.starts_with([' ', '\t', '\r']))
+        }) {
+            return false;
+        }
+        if content.is_empty() || content.starts_with('#') {
+            continue;
+        }
+        if unsupported_key(content, key) || flow_has_field(horizontal(content), key) {
+            return true;
+        }
+        if !content.starts_with([' ', '\t']) {
+            opaque_indented = ordinary_root_field(content);
+        }
+    }
+    false
+}
+
+fn flow_has_field(text: &str, key: &str) -> bool {
+    if !text.starts_with(['{', '[']) {
+        return false;
+    }
+    let mut depth = 0usize;
+    let mut quote = None;
+    let mut escaped = false;
+    let mut field_start = false;
+    for (position, ch) in text.char_indices() {
+        if let Some(active_quote) = quote {
+            if escaped {
+                escaped = false;
+            } else if active_quote == '"' && ch == '\\' {
+                escaped = true;
+            } else if ch == active_quote {
+                quote = None;
+            }
+            continue;
+        }
+        if field_start && depth == 1 {
+            if matches!(ch, ' ' | '\t') {
+                continue;
+            }
+            if recognizable_key(&text[position..], key)
+                || ch == '?' && recognizable_key(horizontal(&text[position + 1..]), key)
+            {
+                return true;
+            }
+            field_start = false;
+        }
+        match ch {
+            '{' | '[' => {
+                depth += 1;
+                field_start = depth == 1;
+            }
+            '}' | ']' => depth = depth.saturating_sub(1),
+            ',' if depth == 1 => field_start = true,
+            '\'' | '"' => quote = Some(ch),
+            _ => {}
+        }
+    }
+    false
 }
 
 fn frontmatter(text: &str, strict_assignment: bool) -> Result<Option<Frontmatter>> {
