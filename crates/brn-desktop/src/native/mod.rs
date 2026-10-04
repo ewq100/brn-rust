@@ -35,6 +35,9 @@ mod approval;
 mod draft;
 #[cfg(all(test, target_os = "macos", feature = "native-test-support"))]
 mod draft_link_tests;
+mod findings;
+#[cfg(all(test, target_os = "macos", feature = "native-test-support"))]
+mod findings_tests;
 #[cfg(all(test, target_os = "macos", feature = "native-test-support"))]
 mod provenance_tests;
 #[cfg(all(test, target_os = "macos", feature = "native-test-support"))]
@@ -53,6 +56,7 @@ enum DocRef {
     Evidence,
     Proposal(Uuid),
     Activity,
+    Findings,
     Draft,
 }
 
@@ -120,6 +124,7 @@ struct Desktop {
     document_scroll: ScrollHandle,
     saved_links: relationships::SavedLinksPane,
     relationships: relationships::RelationshipsPane,
+    findings: findings::FindingsPane,
     review_editor: Entity<EditorState>,
     review_title: Entity<TextareaState>,
     review_comment: Entity<EditorState>,
@@ -451,6 +456,7 @@ impl Desktop {
             document_scroll: ScrollHandle::new(),
             saved_links: relationships::SavedLinksPane::new(window, cx),
             relationships: relationships::RelationshipsPane::new(window, cx),
+            findings: findings::FindingsPane::new(window, cx),
             review_editor,
             review_title,
             review_comment,

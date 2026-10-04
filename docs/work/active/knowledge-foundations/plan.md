@@ -1099,3 +1099,72 @@ credentials are not transfer inputs.
 Changed-document validation passed **72 local file/fragment links** (literal
 code examples excluded), final format and diff checks. No owner changes were
 staged; AGENTS.md remains the owner’s independent edit.
+
+## Fourteenth slice: native basic findings queue
+
+Baseline `main@46d60289e9ea6cf78003feb51fe08a843ed440f5`, incorporating
+Thirteenth `263fe67` and the published Stage 4A portability fixes; preserve owner
+AGENTS.md. Add Needs Review access through existing guarded document navigation,
+bounded filtered 25-record pages, selected complete retained evidence, separate
+fresh proof inspection and exact direct Resolve/Dismiss. Explicit Keep finding
+controls use only the already-inspected saved-link/ambiguous-source observation;
+the shared workflow recaptures and rechecks it. No Markdown correction, proposal
+admission, semantic detector, provider, scheduling or new persistence/framework.
+
+Freeze native state over existing AppWorker commands/DTOs: correlated view/page/
+selection generations; stale closed/filter/selection replies cannot overwrite
+current state/errors. Captured requests and acknowledged mutation outcomes remain
+retained across navigation, with exact explicit retries and no automatic mutation
+retry. A current successful mutation refreshes only the visible queue observation;
+closing never discards a pending outcome. Selected full proof stays in one
+persistent read-only/copyable editor, with controls reachable at 480×480. Historical
+queue/detail/closure work without a vault; fresh source unavailability remains
+explicit. Navigation preserves unacknowledged note/review/draft input.
+
+Acceptance: real worker saved-issue capture/restart/inspect/closure through native
+state, exact request/record correlation and stale replies, complete evidence/Copy,
+filter/paging/error retention, same-byte inode drift, absent vault history, guarded
+navigation and actual headless widget tests at 480×480. Meaningful RED/verification,
+independent read-only review with validated fixes, fresh relevant default/native
+gates and concise manual scenario precede integration. Root owns behavior/UI/
+integration; a bounded helper implements only the fixed state seam and its tests.
+
+Fourteenth's real-worker refusal stubs produced **0/5**, then eight state tests
+passed, including explicit lost-outcome/missing-vault retry and full immutable
+receipt binding outside the active filter (each separately reproduced RED).
+Independent state review found no actionable defect and passed **8/0/0**.
+Native review reproduced a valid refused-New-proposal navigation defect: early
+queue invalidation left the visible pane unusable. The actual TestAppContext RED
+was corrected by invalidating only after successful Draft admission. Independent
+final joint review and **4 widgets / 0 failed / 0 ignored** passed at 480×480,
+covering full persistent read-only proof/Copy, original quote Copy, exact failed
+requests without selection/vault, explicit retry and retained navigation input.
+Historical capture and terminal closure receipts remain separate observations;
+a proposed read-regression issue was rejected after tracing generation guards.
+
+Fresh final root macOS arm64 / Rust 1.98.1 locked/offline checks passed retirement,
+format/build/all-target Clippy, **943 workspace tests / 0 failed / 3 ignored**
+and **52 end-to-end assertions**. A clone-on-Copy test lint was minimally fixed
+before the fresh gate. Native desktop with native-ui,native-retrieval,
+native-test-support passed **213 / 0 / 0**; both native Clippy variants and
+shipping native build passed. Fresh shipping startup/restart passed twice with
+exact synthetic BOM/CRLF/Unicode bytes and zero credential files. Only the known
+upstream block 0.1.6 future-compiler notice remains. No asset download/inference,
+provider call or original-data inspection occurred.
+
+This slice is implemented, independently reviewed, automated verified and locally
+integrated by the commit carrying this record. Desktop README provides the
+reproducible synthetic capture/inspection/drift/restart/Resolve/Dismiss/input-guard
+scenario; GUI/IME/accessibility and owner acceptance remain pending. Stage 5 is
+unfinished: the next bounded slice is multilingual model implementation, with
+actual asset-download permission still pending. Stages 1–3 and 4A/B are published;
+4B PR #20 merged as d7a1a72 after exact-head macOS/shared checks passed. Windows
+retains known Unix metadata failures and the overall run is red. Post-merge tree
+equality, **12 CLI Activity/Undo/Repair tests + 52 fixtures** and startup/restart
+passed. Stage 4C publication follows separately. Transfer requires Apple Silicon/
+Command Line Tools, pinned Rust 1.98.1, cached locked dependencies, protobuf/
+Bash/Python 3, canonical synthetic data/TMPDIR and an unlocked GUI for acceptance;
+original data/credentials are not transfer inputs. Owner AGENTS.md is preserved.
+
+Changed-document verification passed **38 local file/fragment links**, final
+format and diff checks. No owner changes were staged.

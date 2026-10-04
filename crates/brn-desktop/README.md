@@ -159,6 +159,34 @@ do not promise a snapshot across requests. Selected proofs are read-only and
 discards late replies; known Save/Reload/application effects invalidate affected
 observations. Inspection creates no proposal and writes no Markdown.
 
+**Needs Review** in History lists tentative findings in fresh 25-record pages,
+filtered by Open, Resolved, Dismissed or All. Select a row to read and copy its
+complete retained record, original source fingerprints and exact quotes. Inspect
+current evidence reports drift or unavailability separately; it never replaces
+the retained proof. Resolve and Dismiss explicitly close the exact displayed
+version and change only operational queue state. Knowledge corrections still
+need a reviewed proposal. These historical controls work without a current vault.
+
+An inspected ambiguous source or unresolved saved link offers **Keep finding**;
+the workflow recaptures fresh evidence before retaining it. Capture and closure
+outcomes survive navigation. Failed requests remain fully inspectable/copyable
+and offer an explicit exact retry, including without an available vault or current
+selection; no mutation retries automatically. Inspect a recorded outcome to load
+its full finding. Needs Review navigation preserves unacknowledged note, review,
+comment and initial proposal input through the existing guards.
+
+For manual acceptance, use fresh synthetic data with a saved note containing
+`[missing](missing.md)` and BOM/CRLF/Unicode text. Inspect Links, Keep the saved-link
+finding, then open Needs Review. Copy the full proof and exact quote; restart and
+confirm retention. Replace the source externally, Inspect current evidence and
+confirm Changed with the original quote intact. Resolve the displayed finding,
+then select Resolved and inspect its complete terminal record. Repeat Dismiss on
+another finding. Temporarily remove only the synthetic vault and confirm retained
+history/closure remain available. Try navigation with unacknowledged typing or a
+full unsent proposal form; input must remain guarded. An active synthetic Ask
+that refuses New proposal must leave Needs Review usable. GUI/IME/accessibility
+and owner acceptance remain pending separately from state/widget verification.
+
 To try this offline, use fresh disposable data and a vault containing a managed
 current note with `[source](brn://note/<source-uuid>)` and a managed source note
 under `archive/`. Open the current note, type without saving, then inspect Links

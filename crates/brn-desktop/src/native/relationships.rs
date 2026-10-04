@@ -9,7 +9,7 @@ use gpui_kit::{AnyElement, TestSupportExt, base::Disableable};
 pub(super) struct SavedLinksPane {
     pub(super) open: bool,
     snapshot: Option<NoteLinks>,
-    item: usize,
+    pub(super) item: usize,
     proof: usize,
     matched: usize,
     source_issue: usize,
@@ -217,7 +217,7 @@ impl Desktop {
                 .update(cx, |editor, cx| editor.set_value(edge_quote, window, cx));
         }
     }
-    fn inspection_blocked(&self) -> bool {
+    pub(super) fn inspection_blocked(&self) -> bool {
         let ai = self.ai.as_ref().unwrap();
         !ai.ready
             || !ai.vault_bound
@@ -371,6 +371,15 @@ impl Desktop {
                         .map_or("unmanaged".into(), |id| id.to_string())
                 ))
                 .child(format!("Source SHA-256: {}", hash(&links.source.sha256)));
+            if links.source_outcome == Some(IdentityOutcome::Ambiguous) {
+                content = content.child(
+                    Button::new("keep-source-identity-finding")
+                        .label("Keep identity finding")
+                        .compact()
+                        .disabled(self.inspection_blocked() || ai.finding_capture_pending())
+                        .on_click(cx.listener(|this, _, _, cx| this.keep_identity_finding(cx))),
+                );
+            }
             if links.links.is_empty() {
                 content = content.child("This saved note has no Markdown links.");
             } else {
@@ -386,6 +395,20 @@ impl Desktop {
                     content = content
                         .child(link.destination.clone())
                         .child(link_status(link.outcome));
+                    if !matches!(
+                        link.outcome,
+                        NoteLinkOutcome::Resolved
+                            | NoteLinkOutcome::External
+                            | NoteLinkOutcome::NonNote
+                    ) {
+                        content = content.child(
+                            Button::new("keep-saved-link-finding")
+                                .label("Keep saved-link finding")
+                                .compact()
+                                .disabled(self.inspection_blocked() || ai.finding_capture_pending())
+                                .on_click(cx.listener(|this, _, _, cx| this.keep_link_finding(cx))),
+                        );
+                    }
                     if let Some(path) = &link.target_path {
                         content = content.child(format!("Observed target path: {path}"));
                     }
