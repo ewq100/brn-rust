@@ -1168,3 +1168,77 @@ original data/credentials are not transfer inputs. Owner AGENTS.md is preserved.
 
 Changed-document verification passed **38 local file/fragment links**, final
 format and diff checks. No owner changes were staged.
+
+## Fifteenth slice: pinned multilingual retrieval profile and explicit installation
+
+Baseline main@01e7c2f858b71103c98e75dda4a81b3d142e03df; preserve owner
+AGENTS.md. Existing LocalEmbedder/Embedder/NoteIndex/shared AppWorker seams remain
+unchanged. Update only the explicit installer to the five pinned multilingual
+MiniLM-L12 quantized assets (135392488 bytes; revision
+2c4055b12046f11709e9df2c122e59ffbdc2f900). The larger tokenizer is LFS-backed
+and needs its content SHA256, not pointer/git-object hash. No model assets or
+inference are authorized by implementation; the scoped download question remains
+pending. Public primary metadata investigation made no asset requests.
+
+Freeze a private new profile: mean pooling,384dimensions,max128tokens,FastEmbed
+Static quantization, distinct full-bundle-derived identity including profile.
+Recognized new ONNX bytes require every pinned companion; reject mixed new bundles
+before ONNX initialization. Other explicit/saved directories retain the exact
+legacy loader behavior and identity; no automatic model/provider/account fallback.
+Fresh default loader/download target is models/multilingual-minilm-l12-v2; saved
+or explicit paths keep precedence and old asset directories remain untouched.
+Scope new consent to this pinned revision; old approved/declined settings remain
+retained and do not authorize or suppress the new asset offer. Startup/search never
+download, and each install/retry still needs a fresh explicit action. Existing
+vector identity+dimension guards and tool-drain activation remain authoritative.
+
+Acceptance: synthetic pinned-manifest/size/hash refusal and installer interruption/
+reuse/cancel/occupied tests; private profile/bundle checks without real ONNX;
+current/legacy consent separation, exact prompt cost/source/path, saved/explicit
+precedence and no-network restart; unchanged384/differentidentity vector discard
+and stale-reader refusal; fresh relevant native/default gates, independent
+read-only review and concise manual scenario. Lead owns loader/workflow/coherence;
+a bounded helper may implement only frozen asset pins/byte-verification tests.
+Actual EN↔ET paraphrase/inflection/distractor/scope/restart/rebuild/tool+CLI parity,
+exact quotes and long-tail passage qualification remain pending authorized assets.
+128-token truncation is explicitly a quality risk to measure, not an architecture
+redesign trigger. Conversational response-language qualification stays separate.
+
+Fifteenth implementation and independent read-only review are complete. Public
+pinned metadata independently matches all five lengths/digests, including tokenizer
+LFS SHA256. Meaningful RED→GREEN checks cover byte pins, profile identity, old
+consent separation and actual CLI destination submission. Review reproduced the
+CLI legacy-folder defect; the corrected shared default preserves explicit targets
+and legacy bytes. No remaining actionable review finding. The existing explicit
+local-model test now accepts both retained profiles; a new pinned-only ignored
+six-query EN/ET smoke test checks ranking and finite normalized384 vectors. It
+compiled without executing any asset load/inference; wider qualification remains
+pending, including128-token long-tail quality and response language.
+
+Fresh final macOS arm64/Rust1.98.1 locked/offline checks: retirement, format,
+workspace build/all-target Clippy,945workspace/0failed/3ignored and52fixtures;
+28native retrieval/0failed/0ignored;137native workflow/0failed/2ignored;
+213combined-native desktop/0failed/0ignored, native retrieval/CLI and both desktop
+Clippy variants, shipping native desktop/CLI builds. The two workflow private
+crash entry points are exercised by subprocess matrices. Shipping AppWorker
+startup/restart passed twice with exact synthetic BOM/CRLF/Unicode and zero
+credential files. Known upstream block0.1.6 future-compiler notice remains.
+No downloads, provider calls or original/private data inspection occurred.
+
+Manual acceptance: launch native retrieval with fresh synthetic data and no
+model; verify the exact pinned source,135392488byte/~129MiB offer and separate
+multilingual folder. Decline, restart, and search keyword-only without network;
+Settings still permits a fresh explicit Download. Only after scoped acquisition
+permission, install in a fresh owned destination, run the ignored bilingual smoke
+and qualify full mixed-language retrieval, exact quotes, scopes, restart/rebuild,
+tool/CLI parity and long passages. GUI/owner/model qualification is pending and
+does not block Actions foundations. Preserve prior legacy data/assets.
+
+Publication checkpoint: Stage4C PR21 merged6601374996ecba7d461403aa6e892f1273bed28e;
+exact18a315b run37190429533 passed MacCore/UI/Retrieval+UbuntuSharedCore. Windows
+Unix-metadata failure leaves overallCIred. Merged tree equality,16widgets+52fixtures,
+shipping build and2startup/restart runs passed. Stage5A identities/scopes is next;
+Stage5 remains unfinished. Mac mini requires pinnedRust1.98.1/locked caches,
+AppleSilicon/CLT, protobuf/Bash/Python3 and canonical synthetic TMPDIR outsideGit;
+actual GUI needs unlockedMac, assets require pending permission. No owner changes
+will be staged.

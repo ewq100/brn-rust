@@ -21,7 +21,7 @@ fn manifest() -> Vec<Asset> {
     .zip(BYTES)
     .enumerate()
     .map(|(i, (name, bytes))| {
-        let digest = if i == 0 {
+        let digest = if i < 2 {
             DigestPin::Sha256(Sha256::digest(bytes).into())
         } else {
             let mut hash = sha1::Sha1::new();
@@ -45,6 +45,48 @@ fn source(asset: &Asset) -> crate::Result<Box<dyn Read>> {
         .position(|a| a.name == asset.name)
         .unwrap();
     Ok(Box::new(Cursor::new(BYTES[i])))
+}
+
+#[test]
+fn loaded_asset_bytes_require_exact_size_and_content_for_both_pin_types() {
+    for (asset, bytes) in manifest().iter().zip(BYTES) {
+        download::verify_bytes(asset, bytes).unwrap();
+        for wrong_size in [&bytes[..bytes.len() - 1], &[bytes, b"!"].concat()] {
+            assert!(matches!(
+                download::verify_bytes(asset, wrong_size),
+                Err(Error::ModelInstall(ModelInstallError::SizeMismatch))
+            ));
+        }
+        let mut changed = bytes.to_vec();
+        changed[0] ^= 1;
+        assert!(matches!(
+            download::verify_bytes(asset, &changed),
+            Err(Error::ModelInstall(ModelInstallError::DigestMismatch))
+        ));
+    }
+}
+
+#[test]
+fn loaded_git_blob_pin_requires_the_git_header_not_a_raw_content_digest() {
+    let bytes = "\u{feff}λ\r\n\0configuration".as_bytes();
+    let mut hash = sha1::Sha1::new();
+    hash.update(format!("blob {}\0", bytes.len()));
+    hash.update(bytes);
+    let asset = Asset {
+        source: "synthetic",
+        name: "config.json",
+        bytes: bytes.len() as u64,
+        digest: DigestPin::GitBlobSha1(hash.finalize().into()),
+    };
+    download::verify_bytes(&asset, bytes).unwrap();
+    let wrong = Asset {
+        digest: DigestPin::GitBlobSha1(sha1::Sha1::digest(bytes).into()),
+        ..asset
+    };
+    assert!(matches!(
+        download::verify_bytes(&wrong, bytes),
+        Err(Error::ModelInstall(ModelInstallError::DigestMismatch))
+    ));
 }
 
 #[test]
@@ -215,18 +257,19 @@ fn private_http_seam_uses_synthetic_manifest_and_local_server_only() {
 fn production_manifest_is_immutable_exactly_five_assets_with_exact_bounds() {
     assert_eq!(
         download::REVISION,
-        "751bff37182d3f1213fa05d7196b954e230abad9"
+        "2c4055b12046f11709e9df2c122e59ffbdc2f900"
     );
     assert_eq!(download::ASSETS.len(), 5);
     assert_eq!(
         download::ASSETS.iter().map(|a| a.bytes).sum::<u64>(),
-        91_100_408
+        135_392_488
     );
-    assert_eq!(download::ASSETS[0].source, "onnx/model.onnx");
+    assert_eq!(download::ASSETS[0].source, "onnx/model_quantized.onnx");
     assert_eq!(download::ASSETS[0].name, "model.onnx");
     assert!(matches!(download::ASSETS[0].digest, DigestPin::Sha256(_)));
+    assert!(matches!(download::ASSETS[1].digest, DigestPin::Sha256(_)));
     assert!(
-        download::ASSETS[1..]
+        download::ASSETS[2..]
             .iter()
             .all(|a| matches!(a.digest, DigestPin::GitBlobSha1(_)))
     );
@@ -242,34 +285,34 @@ fn production_manifest_is_immutable_exactly_five_assets_with_exact_bounds() {
         .collect();
     let expected = [
         (
-            "onnx/model.onnx",
+            "onnx/model_quantized.onnx",
             "model.onnx",
-            90_387_606,
-            "759c3cd2b7fe7e93933ad23c4c9181b7396442a2ed746ec7c1d46192c469c46e",
+            118_308_126,
+            "66fc00f5f29afcaff34092e1bdd20008ca3918265a82fb9695a551e510cc4ebc",
         ),
         (
             "tokenizer.json",
             "tokenizer.json",
-            711_661,
-            "c17ed520ed8438736732a54957a69306b8822215",
+            17_082_913,
+            "b60b6b43406a48bf3638526314f3d232d97058bc93472ff2de930d43686fa441",
         ),
         (
             "config.json",
             "config.json",
-            650,
-            "72147e4ff4426ebedbfa2146c4a0999def51a313",
+            673,
+            "ce7fe159b2eee53ef2b9704a72a4efa6c22248b4",
         ),
         (
             "special_tokens_map.json",
             "special_tokens_map.json",
-            125,
-            "a8b3208c2884c4efb86e49300fdd3dc877220cdf",
+            280,
+            "d5698132694f4f1bcff08fa7d937b1701812598e",
         ),
         (
             "tokenizer_config.json",
             "tokenizer_config.json",
-            366,
-            "37fca74771bc76a8e01178ce3a6055a0995f8093",
+            496,
+            "9f3bfd538ec86d360dc988dac25e3cfb0c4c14d5",
         ),
     ]
     .map(|(source, name, bytes, digest)| (source, name, bytes, digest.to_owned()));

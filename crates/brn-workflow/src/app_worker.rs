@@ -1167,7 +1167,7 @@ fn dispatch(
             #[cfg(test)]
             let request = if consent && hooks.install.is_some() {
                 app.work_store_mut()
-                    .set_setting("model.download_decision", "approved")?;
+                    .set_setting(crate::models::MODEL_DECISION_KEY, "approved")?;
                 Some(crate::models::ModelInstallRequest::test_request(
                     target.clone(),
                 ))

@@ -61,7 +61,7 @@ shipping native build and native Clippy. Default desktop passed **131**; workflo
 **186**. The two ignored private crash entry points are exercised by subprocess
 matrices. Earlier slice counts remain in the evidence, not current gate claims.
 
-Stage 5’s [active plan](work/active/knowledge-foundations/plan.md) records fourteen
+Stage 5’s [active plan](work/active/knowledge-foundations/plan.md) records fifteen
 integrated slices: managed Markdown identities; fresh duplicate/incomplete
 inspection; current/source/history/all retrieval and native read-only browsing;
 durable exact provenance and native source inspection; reliable session/turn
@@ -101,7 +101,7 @@ and stacked panels placing controls outside a 480×480 window. Corrected
 invalidation/scrolling passed **22 independent state/widget tests**, with no
 remaining actionable finding. Unsaved typing and original evidence remain intact.
 
-Fresh final Rust 1.98.1/macOS arm64 locked/offline verification passed **943
+Fresh final Rust 1.98.1/macOS arm64 locked/offline verification passed **945
 workspace tests / 0 failed / 3 ignored**, **52 end-to-end assertions**, retirement,
 format/build/all-target Clippy, **213 native desktop tests / 0 failed / 0 ignored**,
 test-support and shipping native Clippy, and the shipping native desktop build.
@@ -140,9 +140,19 @@ and separate fresh inspection, direct exact Resolve/Dismiss, saved-issue capture
 and explicit same-request retries even without a selection or available vault.
 Independent state/widget reviews passed **8 + 4 tests**, with no unresolved
 defect. A reproduced refused-navigation bug was corrected before integration.
-Multilingual implementation/qualification remains Stage 5 work. The bounded
-multilingual asset-download permission question is still pending; unrelated safe
-implementation continues. Stage 5 is not complete.
+The explicit installer now pins multilingual MiniLM-L12 quantized assets at
+`2c4055b12046f11709e9df2c122e59ffbdc2f900` (135,392,488 bytes). Recognized new
+ONNX requires all five exact assets before initialization; mean/384/max128/Static
+and the full bundle produce a distinct identity. Saved/explicit legacy directories
+retain their previous behavior and identity. Fresh defaults use a separate folder;
+consent is scoped to this revision and never executes automatically. Independent
+review reproduced and fixed the CLI legacy-folder mismatch. Fresh **28 native
+retrieval +137 native workflow tests**, feature Clippy/builds and two shipping
+startup/restart runs passed. A prepared ignored six-query bilingual model smoke
+test compiled but was not run. Actual ONNX compatibility, EN↔ET quality, long-tail
+truncation, scope/restart/rebuild and tool/CLI parity remain unqualified. The
+bounded asset-download question is still pending; response-language qualification
+also remains open. Safe later implementation continues; Stage 5 is not complete.
 
 ## Qualification still open
 
@@ -186,7 +196,14 @@ macOS-only test-helper/import guards corrected Ubuntu lint defects without
 removing shared refusal coverage. Windows retains the known Unix metadata
 failure; overall CI remains red. Tree equality, fresh **12 CLI Activity/Undo/Repair
 tests + 52 fixtures** and startup/restart passed with exact synthetic bytes and
-zero credential files. Stage 4C and this Stage 5 tree await checkpoint CI.
+zero credential files. Stage 4C [PR #21](https://github.com/ewq100/brn-rust/pull/21)
+merged as `6601374996ecba7d461403aa6e892f1273bed28e` after exact head `18a315b`
+passed all three macOS lanes and Ubuntu shared Core in run `37190429533`.
+The independently reviewed real-App fixture guard preserves portable review tests.
+Windows retains the known Unix metadata failure; overall CI remains red. Merged
+tree equality, fresh **16 native widget tests +52 fixtures**, shipping build and
+two startup/restart runs passed with exact synthetic bytes and zero credential
+files. Stage 5 checkpoint CI remains pending.
 Release/public distribution, additional live calls/model
 downloads, purchases and original/private-data inspection or migration still need
 applicable owner permission. No original data was migrated or inspected.

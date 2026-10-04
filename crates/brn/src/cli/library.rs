@@ -1037,12 +1037,12 @@ impl Drop for LoginSurface {
     }
 }
 
-fn download(i: &Invocation, lane: &mut Lane) -> Result<Output, CliFailure> {
+fn download<W: EventLane>(i: &Invocation, lane: &mut Lane<W>) -> Result<Output, CliFailure> {
     let op = Uuid::new_v4();
     let target = i
         .model_dir
         .clone()
-        .unwrap_or_else(|| i.data_dir.join("models/minilm"));
+        .unwrap_or_else(|| i.data_dir.join(brn_workflow::models::MODEL_RELATIVE_DIR));
     lane.worker
         .submit(
             op,
@@ -1241,6 +1241,7 @@ mod tests {
         selected: Option<Selection>,
         selected_effort: Option<brn_workflow::ReasoningEffort>,
         ask_request: RefCell<Option<AskRequest>>,
+        download_request: RefCell<Option<(bool, std::path::PathBuf)>>,
     }
     impl EventLane for Projection {
         fn submit(&self, id: Uuid, command: AppCommand) -> brn_workflow::Result<()> {
@@ -1277,6 +1278,13 @@ mod tests {
                                 }),
                             ));
                         }
+                    }
+                    AppCommand::DownloadModel { consent, target } => {
+                        self.download_request
+                            .replace(Some((*consent, target.clone())));
+                        self.events
+                            .borrow_mut()
+                            .push_back((id, AppEvent::ModelInstalled));
                     }
                     _ => {}
                 }
@@ -1331,6 +1339,7 @@ mod tests {
                 }),
                 selected_effort: Some(brn_workflow::ReasoningEffort::High),
                 ask_request: RefCell::new(None),
+                download_request: RefCell::new(None),
             },
             deadline: Instant::now() - Duration::from_secs(1),
             stopped: None,
@@ -1776,6 +1785,45 @@ mod tests {
         assert!(context["recorded_status"].is_null());
         assert_eq!(context["partial"], "unsaved");
         assert_eq!(context["provider_outcome"], "unknown");
+    }
+
+    #[test]
+    fn model_download_projects_the_new_default_and_preserves_explicit_destination() {
+        let parent = tempfile::tempdir_in(std::env::temp_dir().canonicalize().unwrap()).unwrap();
+        let data = parent.path().join("data");
+        let legacy = data.join("models/minilm");
+        std::fs::create_dir_all(&legacy).unwrap();
+        let original = legacy.join("model.onnx");
+        std::fs::write(&original, b"synthetic original legacy bytes").unwrap();
+        for explicit in [None, Some(parent.path().join("chosen-model"))] {
+            let expected = explicit
+                .clone()
+                .unwrap_or_else(|| data.join("models/multilingual-minilm-l12-v2"));
+            let invocation = Invocation {
+                json: true,
+                data_dir: data.clone(),
+                model_dir: explicit,
+                vault: None,
+                credentials_dir: None,
+                command: Command::ModelDownload {
+                    timeout_seconds: 30,
+                },
+            };
+            let mut lane = lane(Uuid::new_v4(), AppEvent::ModelInstalled);
+            lane.deadline = Instant::now() + Duration::from_secs(30);
+            lane.worker.query_replies = true;
+            let output = download(&invocation, &mut lane).unwrap();
+            assert_eq!(
+                *lane.worker.download_request.borrow(),
+                Some((true, expected.clone()))
+            );
+            assert_eq!(output.data["directory"], json!(expected));
+            assert_eq!(
+                std::fs::read(&original).unwrap(),
+                b"synthetic original legacy bytes"
+            );
+            assert!(!expected.exists());
+        }
     }
 
     #[test]
