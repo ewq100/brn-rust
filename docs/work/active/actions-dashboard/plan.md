@@ -482,3 +482,16 @@ No user-facing Action producer exists yet; manual acceptance follows whole exact
 application. Next whole Action-only/mixed approval and crash/repair,then native
 exact typed review,identified Complete and dashboard. Owner-requested screenshot
 retention is indexed under docs/ui/screenshots/; Macmini requirements unchanged.
+
+PR33 initial exactbc4bbad/run37213893288 passed both Mac native lanes; Ubuntu
+Shared failed61pass/4fail because four new source/overlay tests assumed macOS
+coordination. Production already refuses those operations with ToolRejected on
+non-Mac. The narrow correction marks only those four and their NoteChange helper
+as Mac qualification,retains12shared cases,and adds one explicit non-Mac fresh
+source/reference refusal with exact bytes/zero proposals/journals/credentials.
+Independent Luna read-only code/log review found no shared defect. Fresh Mac16
+reference tests and test-targetClippy passed; final diff passed. Windows repeated
+22unchangedUnix errors. Corrected exact-head CI/merge remains pending. Evidence:
+platform-correction-{tests,clippy}.log under /private/tmp/brn-v1-action-references-1xcn7scw.
+PR32main37213574797 completed5success/4failure; actual logs repeat Ubuntu native
+installer10pass/3fail and Windows22/22/14Unix errors,production paths unchanged.

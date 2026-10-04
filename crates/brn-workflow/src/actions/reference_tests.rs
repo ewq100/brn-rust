@@ -1,9 +1,11 @@
 //! Private qualification: real App/checked Store and disposable exact Markdown.
 use super::*;
+#[cfg(target_os = "macos")]
+use crate::proposals::NoteChange;
 use crate::{
     app::AppConfig,
     proposal_apply::{ApplyOutcome, ApprovalRequest},
-    proposals::{ActionChange, NoteChange, ProposalDraft},
+    proposals::{ActionChange, ProposalDraft},
 };
 use std::{
     fs,
@@ -112,6 +114,7 @@ fn replace(app: &App, id: Uuid) -> ActionChange {
         before: Box::new(before),
     }
 }
+#[cfg(target_os = "macos")]
 fn note_change(app: &mut App, path: &str, text: Option<String>) -> NoteChange {
     let files = app.editor_files().unwrap();
     let observed = files.observe(Path::new(path)).unwrap();
@@ -339,6 +342,7 @@ fn completed_followup_target_is_allowed() {
     assert!(app.validate_action_references(&draft(vec![c])).is_ok());
 }
 #[test]
+#[cfg(target_os = "macos")]
 fn newly_introduced_knowledge_slots_need_exact_sources_and_source_drift_refuses() {
     let f = Fixture::new();
     let id = Uuid::new_v4();
@@ -402,6 +406,7 @@ fn unchanged_historical_refs_are_preserved_but_moving_a_ref_between_fields_needs
     f.quiet(&app);
 }
 #[test]
+#[cfg(target_os = "macos")]
 fn same_draft_managed_create_replace_and_trash_overlay_have_exact_authority() {
     let f = Fixture::new();
     let id = Uuid::new_v4();
@@ -442,6 +447,7 @@ fn same_draft_managed_create_replace_and_trash_overlay_have_exact_authority() {
     f.quiet(&app);
 }
 #[test]
+#[cfg(target_os = "macos")]
 fn incomplete_duplicate_and_opaque_managed_targets_refuse_without_vault_writes() {
     let f = Fixture::new();
     let id = Uuid::new_v4();
@@ -496,6 +502,7 @@ fn source_set_reordering_and_removal_need_no_vault_but_new_sources_do() {
 }
 
 #[test]
+#[cfg(target_os = "macos")]
 fn same_draft_target_needs_managed_metadata_and_exact_observed_before() {
     let f = Fixture::new();
     let id = Uuid::new_v4();
@@ -518,6 +525,32 @@ fn same_draft_target_needs_managed_metadata_and_exact_observed_before() {
     assert!(app.validate_action_references(&d).is_err());
     d.changes = vec![note_change(&mut app, "target.md", Some(text))];
     assert!(app.validate_action_references(&d).is_ok());
+    f.quiet(&app);
+}
+
+#[test]
+#[cfg(not(target_os = "macos"))]
+fn fresh_knowledge_reference_capture_refuses_unsupported_coordination_without_effects() {
+    let f = Fixture::new();
+    let id = Uuid::new_v4();
+    f.note("target.md", id, "");
+    let bytes = fs::read(f.vault.join("target.md")).unwrap();
+    let mut app = f.app(true);
+    assert_eq!(
+        app.proposal_evidence_source("target.md").unwrap_err().kind,
+        ErrorKind::ToolRejected
+    );
+    let mut change = create(Uuid::new_v4());
+    change.data_mut().sources = vec![id];
+    assert_eq!(
+        app.validate_action_references(&draft(vec![change]))
+            .unwrap_err()
+            .kind,
+        ErrorKind::ToolRejected
+    );
+    assert_eq!(fs::read(f.vault.join("target.md")).unwrap(), bytes);
+    assert!(app.store.proposals(None).unwrap().is_empty());
+    assert!(app.store.proposal_apply_ids().unwrap().is_empty());
     f.quiet(&app);
 }
 
