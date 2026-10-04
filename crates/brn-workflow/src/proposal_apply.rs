@@ -493,6 +493,7 @@ impl App {
         // and Rewrite output, before any Applying admission or filesystem effect.
         if undo.is_none() {
             self.validate_proposal_provenance(draft)?;
+            self.validate_proposal_links(draft)?;
         }
         for source in &draft.sources {
             if self

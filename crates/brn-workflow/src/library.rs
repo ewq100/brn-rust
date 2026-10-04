@@ -331,6 +331,17 @@ impl Library {
     pub fn notes_scoped(&self, scope: KnowledgeScope) -> LibraryResult<Vec<IndexedNote>> {
         Ok(self.index.notes_scoped(scope)?)
     }
+
+    pub(crate) fn relationship_page(
+        &mut self,
+        edges: &[brn_retrieval::note_index::NoteEdge],
+        scope: KnowledgeScope,
+        offset: usize,
+        limit: usize,
+    ) -> LibraryResult<brn_retrieval::note_index::EdgePage> {
+        self.index.replace_edges(edges)?;
+        Ok(self.index.edges(scope, offset, limit)?)
+    }
 }
 
 pub(crate) fn saved_metadata(text: &str, path: &str) -> NoteMetadata {

@@ -8,7 +8,7 @@ use std::{
 };
 
 const APPLICATION_ID: i64 = 0x4252_4e49; // BRNI
-const VERSION: i64 = 2;
+const VERSION: i64 = 3;
 const NOT_OURS: &str =
     "index path holds a file that is not a BRN index; remove it or choose another path";
 const SCHEMA: &str = "
@@ -55,11 +55,11 @@ pub(super) fn validate_reader(conn: &Connection) -> Result<()> {
     let required: i64 = tx.query_row(
         "SELECT count(*) FROM sqlite_schema WHERE name IN (
             'notes', 'passages', 'passages_path', 'passages_fts',
-            'passages_insert', 'passages_delete', 'embeddings', 'meta')",
+            'passages_insert', 'passages_delete', 'embeddings', 'meta', 'edges')",
         [],
         |r| r.get(0),
     )?;
-    if application != APPLICATION_ID || version != VERSION || required != 8 {
+    if application != APPLICATION_ID || version != VERSION || required != 9 {
         return Err(Error::Corrupt("read-only note index identity or schema"));
     }
     let healthy: String = tx.query_row("PRAGMA quick_check", [], |r| r.get(0))?;
@@ -69,6 +69,10 @@ pub(super) fn validate_reader(conn: &Connection) -> Result<()> {
     if !valid_notes(&tx)? {
         return Err(Error::Corrupt("read-only note metadata schema or rows"));
     }
+    if !super::edges::valid_schema(&tx)? {
+        return Err(Error::Corrupt("read-only edge schema"));
+    }
+    super::edges::validate_rows(&tx)?;
     tx.commit()?;
     Ok(())
 }
@@ -85,6 +89,7 @@ pub(super) fn open(path: &Path) -> Result<(Connection, bool)> {
     configure(&conn)?;
     let tx = conn.transaction()?;
     tx.execute_batch(SCHEMA)?;
+    tx.execute_batch(super::edges::SCHEMA)?;
     tx.pragma_update(None, "application_id", APPLICATION_ID)?;
     tx.pragma_update(None, "user_version", VERSION)?;
     tx.commit()?;
@@ -126,7 +131,7 @@ fn existing(path: &Path) -> Result<Found> {
         return Err(Error::Invalid(NOT_OURS));
     }
     let found = (|| {
-        let conn = Connection::open(path)?;
+        let mut conn = Connection::open(path)?;
         let healthy: String = conn.query_row("PRAGMA quick_check", [], |r| r.get(0))?;
         if healthy != "ok" {
             return if application == APPLICATION_ID {
@@ -140,13 +145,32 @@ fn existing(path: &Path) -> Result<Found> {
             let required: i64 = conn.query_row(
                 "SELECT count(*) FROM sqlite_schema WHERE name IN (
                     'notes', 'passages', 'passages_path', 'passages_fts',
-                    'passages_insert', 'passages_delete', 'embeddings', 'meta'
+                    'passages_insert', 'passages_delete', 'embeddings', 'meta', 'edges'
                 )",
                 [],
                 |r| r.get(0),
             )?;
-            if version == VERSION && required == 8 && valid_notes(&conn)? {
-                return Ok(Found::Usable(conn));
+            if valid_notes(&conn)? {
+                let edges_present: bool = conn.query_row(
+                    "SELECT EXISTS(SELECT 1 FROM sqlite_schema WHERE name='edges')",
+                    [],
+                    |row| row.get(0),
+                )?;
+                if version == 2 && required == 8 && !edges_present {
+                    configure(&conn)?;
+                    let tx = conn.transaction()?;
+                    tx.execute_batch(super::edges::SCHEMA)?;
+                    tx.pragma_update(None, "user_version", VERSION)?;
+                    tx.commit()?;
+                    return Ok(Found::Usable(conn));
+                }
+                if version == VERSION && required == 9 && super::edges::valid_schema(&conn)? {
+                    match super::edges::validate_rows(&conn) {
+                        Ok(()) => return Ok(Found::Usable(conn)),
+                        Err(Error::Corrupt(_)) => return Ok(Found::Rebuild),
+                        Err(error) => return Err(error),
+                    }
+                }
             }
             return Ok(Found::Rebuild);
         }

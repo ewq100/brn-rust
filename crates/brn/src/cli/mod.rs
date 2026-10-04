@@ -9,9 +9,11 @@ pub mod evidence;
 pub mod identity;
 mod input;
 pub mod library;
+pub mod links;
 pub(crate) mod out;
 pub mod proposals;
 pub mod provenance;
+pub mod relationships;
 
 use crate::cli::error::CliError;
 use brn_workflow::{
@@ -37,6 +39,8 @@ pub enum Command {
     Identity(identity::IdentityCommand),
     Evidence(evidence::EvidenceCommand),
     Provenance(provenance::ProvenanceCommand),
+    Links(links::LinksCommand),
+    Relationships(brn_workflow::knowledge::RelationshipRequest),
     Proposals(proposals::ProposalCommand),
     Ai(ai::AiCommand),
     ModelDownload {
@@ -126,6 +130,9 @@ Commands:
   brn provenance show PATH
   brn provenance capture --file REQUEST.json
   brn provenance prepare --file REQUEST.json
+  brn links show PATH
+  brn links prepare --file REQUEST.json
+  brn relationships list [--scope current|source|history|all] [--offset N] [--limit N]
   brn proposals create --file DRAFT.json
   brn proposals list [--group UUID]
   brn proposals show PROPOSAL_ID
@@ -519,6 +526,8 @@ fn parse_inner(
         "identity" => identity::scan_command(&mut tokens, g, command)?,
         "evidence" => evidence::scan_command(&mut tokens, g, command)?,
         "provenance" => provenance::scan_command(&mut tokens, g, command)?,
+        "links" => links::scan_command(&mut tokens, g, command)?,
+        "relationships" => relationships::scan_command(&mut tokens, g, command)?,
         "proposals" => proposals::scan_command(&mut tokens, g, command)?,
         "activity" => activity::scan_command(&mut tokens, g, command)?,
         "ai" => ai::scan_command(&mut tokens, g, command)?,
@@ -596,6 +605,8 @@ fn parse_inner(
         "identity" => Command::Identity(identity::parse_command(command.unwrap(), &scanned)?),
         "evidence" => Command::Evidence(evidence::parse_command(&scanned)?),
         "provenance" => Command::Provenance(provenance::parse_command(command.unwrap(), &scanned)?),
+        "links" => Command::Links(links::parse_command(command.unwrap(), &scanned)?),
+        "relationships" => Command::Relationships(relationships::parse_command(&scanned)?),
         "proposals" => Command::Proposals(proposals::parse_command(command.unwrap(), &scanned)?),
         "activity" => Command::Activity(activity::parse_command(&scanned)?),
         "ai" => Command::Ai(ai::parse_command(command.unwrap(), &scanned)?),

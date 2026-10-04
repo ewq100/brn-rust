@@ -148,6 +148,54 @@ into this form. Failed, provisional or oversized answers cannot become truncated
 drafts. AI writing uses a real stored seed Draft, comments and owned Rewrite.
 GUI/IME/accessibility and owner acceptance are tracked separately.
 
+Saved documents also expose **Links**. This inspects saved Markdown while retaining
+unsaved editor text, showing exact occurrence/reference-definition quotes, source
+and target UUIDs/hashes, and resolved, absent, ambiguous or incomplete outcomes.
+The Vault browser's **Relationships** uses the selected Current/Source/History/All
+scope and distinguishes explicit links from inferred provenance candidates. Each
+25-edge page is a fresh observation; Previous/Next/Refresh replace the page and
+do not promise a snapshot across requests. Selected proofs are read-only and
+**Copy exact quote** preserves their complete bytes. Closing or changing scope
+discards late replies; known Save/Reload/application effects invalidate affected
+observations. Inspection creates no proposal and writes no Markdown.
+
+To try this offline, use fresh disposable data and a vault containing a managed
+current note with `[source](brn://note/<source-uuid>)` and a managed source note
+under `archive/`. Open the current note, type without saving, then inspect Links
+and copy its exact proof. Confirm the typing remains. Relationships in Current
+should exclude the archived endpoint; All should include it. Switch scopes during
+a request or close the pane and confirm a late reply does not reopen it. Open the
+archived note in its read-only evidence view and inspect its Links. Refresh after
+an external change; Save/Reload should clear affected old observations. Actual
+GUI, accessibility and owner acceptance remain pending.
+
+The initial Replace proposal form can **Prepare link** to saved evidence. Load
+the exact current consumer, enter a scalar target path and literal label, then
+**Inspect target**. A unique managed target may be current or archived; UUID
+resolution follows a moved target. Preparation uses saved consumer bytes and
+requires an empty proposed body or its exact captured text. Authored replacement
+text and invalid multiline labels remain retained on refusal. It creates no
+review record and changes no Markdown. A prepared form fixes destination/kind and
+retains both complete source fingerprints; title and full body remain editable.
+**Copy both full source bindings** preserves the complete proofs. An explicit
+separate proposal keeps those proofs under a new UUID. **Create review draft** and
+exact approval remain separate actions; changed sources refuse later admission or
+application.
+
+Manual acceptance uses a fresh managed current note and a managed archived source
+with distinct `brn_id` UUIDs. Choose New proposal, Replace, enter the consumer path
+and title, and load its exact source. Keep the body empty or use captured text;
+inspect the archived target and prepare a Unicode/punctuation label. Verify both
+full source proofs and the entire original prefix in the proposed body. Edit the
+title/body, Create, inspect the full review and approve the exact version. Vault
+bytes change only after approval; the archived source stays exact. On a separate
+attempt, change title/body/target/label while inspection or preparation is pending:
+late replies must retain current input. A changed consumer or target must refuse
+without overwriting it. Try at 480×480 and Copy both proofs/full body. If the
+consumer has unfinished editor work, the existing guards preserve recovery and
+refuse approval over that work; resolve it explicitly and recapture fresh sources.
+Actual unlocked GUI/IME/accessibility and owner acceptance remain pending.
+
 Native retrieval offers a one-time prompt per stored consent decision, showing
 pinned source, bytes/cost and destination. Decline makes no network request.
 Later Download requires fresh explicit approval; its destination is not passed

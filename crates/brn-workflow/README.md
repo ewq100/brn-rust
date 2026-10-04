@@ -84,7 +84,7 @@ opening an editor or changing current mutation authority. All three commands
 respect unresolved Save/application fences.
 
 Refresh reads full saved bytes, including archives, and derives UUID/classification
-into disposable BRNI V2 rows. Optional `brn_kind: knowledge|source` and
+into disposable BRNI V3 rows. Optional `brn_kind: knowledge|source` and
 `brn_state: current|history` default to current knowledge; top-level archives
 always count as history. Malformed managed identity, classification or provenance is reported in
 `RefreshReport.unreadable` and excluded from all scoped queries. Unreadable
@@ -120,6 +120,56 @@ existing authority. Sources remain checked throughout application/recovery.
 Approved quotes survive index loss and inspection from a fresh operational store
 with only the copied ordinary Markdown. Actual session Delete qualification and
 native provenance convenience follow their roadmap slices.
+
+`NoteLinks` inspects ordinary CommonMark inline/reference links in saved body
+bytes, using Store's exact frontmatter body offset and pinned markdown 1.0.0.
+Occurrence/used-definition proofs retain full-note UTF-8 ranges and exact quotes.
+Contained relative Markdown paths and stable `brn://note/UUID` targets resolve
+from a fresh complete identity inventory, with explicit unresolved/non-note/
+external outcomes. Sources retain UUID/hash and separate identity certainty;
+targets recheck saved bytes before reporting resolution. Inspection respects
+current-evidence fences, never opens an editor/writes Markdown or starts network
+work, and survives restart/index loss from ordinary Markdown alone. It refuses
+4096-link/4 MiB destination-and-quote overflow instead of silently truncating.
+These are observations, not a transactional vault snapshot.
+
+`PrepareNoteLink(LinkRequest)` returns complete ordinary Replace review input
+for one additive stable UUID link. The current consumer and saved target must
+already have freshly unique managed identities and valid metadata; source/history
+targets are permitted. The request binds the selected target's full hash, and the
+draft captures both full source versions. Preparation preserves every original
+byte, escapes the literal single-line label and confirms the exact appended AST
+link outside unfinished code/HTML. Self-links and existing resolved links are
+refused. No proposal or editor is admitted and no vault bytes change.
+
+Fresh ordinary approval rechecks newly introduced stable UUID targets after
+review edits or Rewrite. A saved target needs its exact captured source binding;
+a target created/replaced in the same complete draft uses the exact reviewed
+bytes and normal destination/before proofs. After-state identity inspection
+accounts for filesystem namespace aliases and refuses absent, removed, ambiguous
+or invalid targets before Applying. Unchanged historical UUID links are compared
+without the public extraction-output caps; exact Undo and completed replay retain
+their authority. This convenience command prepares links to saved targets; it
+does not coordinate cross-proposal creation dependencies.
+
+`Relationships(RelationshipRequest)` refreshes saved metadata, uses one fresh
+identity inventory and rebuilds disposable explicit-link and inferred-provenance
+edges. Each unique, eligible managed endpoint retains UUID/path/full hash; exact
+source link occurrences/definitions or target provenance quotes remain attached.
+Repeated proofs coalesce by directed endpoint pair and origin; self-links and
+external/unmanaged targets do not create note-to-note edges. Inferred provenance
+is a candidate, never an approved durable relationship. Changed/ambiguous or
+incompletely inspected identities cannot become guessed edges. Endpoint bytes
+are rechecked before caching; issues and duplicate paths remain visible.
+
+Pages contain 1–200 edges, a matching total and offset, ordered by source path,
+target path and origin. Existing scopes filter both endpoints before pagination;
+Current is default, and All explicitly includes cross-scope connections. Every
+workflow query derives from saved Markdown offline rather than trusting an old
+target resolution. The cache is neither authority nor a transactional vault
+snapshot. No AI, network, proposal admission or Markdown write occurs. Native
+relationship controls follow separately; graph canvas
+remains its later roadmap stage.
 
 `proposal_source(path)` / AppWorker `ProposalSource` return the complete saved
 text and trusted file fingerprint for initial review composition. The capture

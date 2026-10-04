@@ -1,17 +1,19 @@
 //! Disposable search index over the vault's notes (`index.sqlite`): note
 //! metadata, passages, FTS5 keyword search and local embeddings. It can be
 //! deleted at any time and rebuilt from the vault.
+mod edges;
 mod embeddings;
 mod schema;
 mod search;
 
 use crate::{Error, Result, chunk};
-use rusqlite::{Connection, OpenFlags, OptionalExtension, Row, params};
+use rusqlite::{Connection, OpenFlags, OptionalExtension, Row, TransactionBehavior, params};
 use serde::{Deserialize, Serialize};
 use sha2::{Digest, Sha256};
 use std::path::Path;
 use uuid::Uuid;
 
+pub use edges::{EdgeEndpoint, EdgeEvidence, EdgeOrigin, EdgePage, EvidenceEndpoint, NoteEdge};
 pub use embeddings::{Embedder, EmbeddingProgress};
 pub use search::{NoteHit, check_query, fuse_hits};
 
@@ -360,7 +362,11 @@ impl NoteIndex {
         if text.len() as u64 != note.size || digest != note.sha256 {
             return Err(Error::Invalid("note text does not match its size and hash"));
         }
-        let tx = self.conn.transaction()?;
+        let tx = self
+            .conn
+            .transaction_with_behavior(TransactionBehavior::Immediate)?;
+        let previous = note_metadata(&tx, &note.path)?.and_then(|metadata| metadata.note_id);
+        edges::invalidate(&tx, &note.path, &[previous, metadata.note_id])?;
         tx.execute("DELETE FROM notes WHERE path = ?1", [&note.path])?;
         tx.execute(
             &format!("INSERT INTO notes({NOTE_COLUMNS}, {METADATA_COLUMNS}) VALUES (?1, ?2, ?3, ?4, ?5, ?6, ?7, ?8, ?9)"),
@@ -396,17 +402,45 @@ impl NoteIndex {
     /// Classification-only changes retain exact passages and cached vectors.
     pub fn update_note_metadata(&mut self, path: &str, metadata: &NoteMetadata) -> Result<()> {
         metadata.validate()?;
-        self.conn.execute("UPDATE notes SET note_id = ?2, source = ?3, history = ?4, metadata_issue = ?5 WHERE path = ?1",
+        let tx = self
+            .conn
+            .transaction_with_behavior(TransactionBehavior::Immediate)?;
+        let previous = note_metadata(&tx, path)?;
+        if previous.is_none() || previous.as_ref() == Some(metadata) {
+            return Ok(());
+        }
+        edges::invalidate(
+            &tx,
+            path,
+            &[
+                previous.and_then(|metadata| metadata.note_id),
+                metadata.note_id,
+            ],
+        )?;
+        tx.execute("UPDATE notes SET note_id = ?2, source = ?3, history = ?4, metadata_issue = ?5 WHERE path = ?1",
             params![path, metadata.note_id.map(|id| id.to_string()), metadata.source, metadata.history, metadata.issue])?;
+        tx.commit()?;
         Ok(())
     }
 
     /// Records a new size and modification time for a note whose content is unchanged.
     pub fn update_metadata(&mut self, path: &str, size: u64, modified_ns: i64) -> Result<()> {
-        self.conn.execute(
+        let tx = self
+            .conn
+            .transaction_with_behavior(TransactionBehavior::Immediate)?;
+        let old_size = tx
+            .query_row("SELECT size FROM notes WHERE path=?1", [path], |row| {
+                row.get::<_, i64>(0)
+            })
+            .optional()?;
+        if old_size.is_some_and(|old| old != size as i64) {
+            edges::invalidate(&tx, path, &[])?;
+        }
+        tx.execute(
             "UPDATE notes SET size = ?2, modified_ns = ?3 WHERE path = ?1",
             params![path, size as i64, modified_ns],
         )?;
+        tx.commit()?;
         Ok(())
     }
 

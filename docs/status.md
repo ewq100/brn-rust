@@ -61,46 +61,75 @@ shipping native build and native Clippy. Default desktop passed **131**; workflo
 **186**. The two ignored private crash entry points are exercised by subprocess
 matrices. Earlier slice counts remain in the evidence, not current gate claims.
 
-Stage 5’s [active plan](work/active/knowledge-foundations/plan.md) has integrated
-managed Markdown UUID preparation through ordinary proposals, edit/Rewrite
-identity protection, fresh complete evidence lookup and duplicate/incomplete
-reporting, explicit exact archived reads, saved classification and scoped
-current/source/history/all retrieval through workflow/CLI, the three AI read tools
-and native browsing/search with read-only evidence views. Durable exact vault
-provenance now lives in ordinary Markdown: fresh UUID/hash/range/quote capture
-prepares full proposals with archived source bindings, and normal approval checks
-new citations after edits/Rewrite. Inspection retains exact quotes through source
-moves, changes, absence/ambiguity and incomplete inspection. A fresh independent
-vault/store with only copied Markdown proves session/index independence; actual
-session Delete remains later qualification. Source CAS, restart, index rebuild
-and Undo are verified; current write/read rules and unresolved-work fences remain
-intact. Independent reviews found no remaining actionable findings. Fresh final
-locked/offline verification passed **809 workspace tests / 0 failed / 2 ignored**,
-**52 end-to-end assertions**, format/build/all-target Clippy, **168 native desktop
-tests**, native all-target Clippy and the shipping native desktop build.
-Fresh full-byte refresh catches retained-size/mtime changes;
-unreadable evidence folders report incomplete inspection while readable current
-knowledge remains usable. Fresh native synthetic observation confirmed scope
-separation, archived/current-history read-only views, typing refusal and an exact
-86-byte BOM/CRLF/Unicode Copy→paste→Save Copy result, preserving original files.
-The Mac locked before the final GUI restart check; owner acceptance remains pending.
-The provenance review's valid malformed-metadata eligibility defect was reproduced,
-fixed and independently rechecked; no actionable finding remains. Its corrected
-review passed 32 checks and an actual synthetic CLI reproduction. Native saved-
-source inspection preserves unsaved typing, binds late replies to document/
-inspection generations and invalidates inspections after Save/Reload. Exact
-read-only quote widgets retain all source outcomes; a rendered twelve-citation
-regression reproduced and corrected missing overflow scrolling. Final independent
-review passed 15 checks, with no remaining actionable finding. Session timestamps
-now retain known creation/activity/start/finish times, explicit unknown legacy
-values and stable replay/restart observations. Native history shows recorded
-activity age. A valid concurrent-summary defect was reproduced and corrected with
-one SQLite read snapshot; independent correction review sampled 3,040 summaries
-during 1,000 attached writes with no inconsistencies. Fresh synthetic native
-startup and CLI checks passed for new data and a V7 database upgrade. Native
-GUI/owner acceptance remains pending. Relationships, basic findings and multilingual
-qualification continue next;
-Stage 5 is not complete.
+Stage 5’s [active plan](work/active/knowledge-foundations/plan.md) records twelve
+integrated slices: managed Markdown identities; fresh duplicate/incomplete
+inspection; current/source/history/all retrieval and native read-only browsing;
+durable exact provenance and native source inspection; reliable session/turn
+timestamps; saved CommonMark links; disposable relationships; exact stable-link
+preparation; native saved-link/relationship inspection; and native exact link preparation. Fresh whole-byte observations detect retained-size/mtime changes. UUID links survive moves without
+path/title guesses. Saved citations retain their exact historical quotes and
+source uncertainty independently of sessions or disposable indexes.
+
+Relationship pages distinguish explicit links from provenance-based candidates,
+retain full endpoint hashes and exact proofs, filter both endpoints before
+pagination and report duplicates/incomplete inspection. Healthy index V2 upgrades
+additively to V3, preserving passages/vectors. No AI or durable write occurs during
+reconstruction. Independent review reproduced a valid reference-proof boundary;
+the corrected 8,192-proof cache preserves the accepted 4,096-link extractor. An
+introduced absent-metadata update regression was also reproduced and corrected.
+That slice’s final review passed **45 tests** with no actionable finding, plus
+actual CLI probes for **8,192 exact proofs** and **5,000 notes / 4,999 edges**.
+The two scale queries took **6.108 s / 10.026 s** on this Mac; each relationship
+request currently rederives the saved vault observation.
+
+Stable-link preparation returns full additive Replace review input with both
+consumer/target source bindings and no admission or vault write. It preserves the
+entire byte prefix, escapes literal labels and verifies parser placement. Fresh
+approval checks new UUID targets after edits/Rewrite against exact saved evidence
+or same-draft reviewed target bytes. Historical links, Undo and completed replay
+retain their authority. Broader tests caught and fixed an unrelated legacy-layout
+regression. Independent public probes also reproduced and verified fixes for
+case-sensitive aliases hiding duplicates and opaque metadata supplying false old
+link authority. Final review passed **62 tests / 0 failed / 1 ignored**, and the
+ignored real App case separately passed on fresh owned case-sensitive APFS.
+
+Native inspection shows one selected link/edge and persistent exact read-only
+proof, complete identity/hash details, target uncertainty and inspection issues.
+Scoped 25-edge pages replace the prior observation; stale/closed replies cannot
+replace current state. Review reproduced Save Copy changing Unique to Ambiguous
+and stacked panels placing controls outside a 480×480 window. Corrected
+invalidation/scrolling passed **22 independent state/widget tests**, with no
+remaining actionable finding. Unsaved typing and original evidence remain intact.
+
+Fresh final Rust 1.98.1/macOS arm64 locked/offline verification passed **907
+workspace tests / 0 failed / 3 ignored**, **52 end-to-end assertions**, retirement,
+format/build/all-target Clippy, **201 native desktop tests / 0 failed / 0 ignored**,
+test-support and shipping native Clippy, and the shipping native desktop build.
+Unchanged native workflow/CLI qualification remains in the preceding slice's
+evidence. Two ignored private crash
+entry points remain exercised by subprocess matrices; the third case-sensitive
+regression was explicitly qualified in the prior unchanged adapter slice.
+Fresh shipping headless startup/restart passed twice with exact synthetic vault
+bytes and zero credential files. The prior synthetic prepare/Create/Approve/rebuild
+scenario is retained. No providers, downloads or actual ONNX inference were used.
+The [native manual scenario](../crates/brn-desktop/README.md) is reproducible;
+unlocked GUI/owner acceptance remains pending.
+
+Native link preparation uses the guarded initial Replace form, exact captured
+consumer and a separately inspected target UUID/hash. It retains both full source
+bindings and allows title/body edits while fixing path/kind; explicit Create and
+Approve remain separate. Empty/exact-capture body guards prevent discarding authored
+replacement text. Stale operations/form/input/document generations and changed full
+consumer proofs preserve current input. Archived target moves follow UUID. Separate
+proposals retain complete bindings under fresh UUIDs. Independent reviews passed
+**7 form + 6 preparation state + 6 existing creation + 3 new / 1 existing native
+widget tests**, with no actionable defects. A real worker prepare/Create/Approve
+scenario verified unchanged vault until approval; fresh shipping startup/restart
+passed twice with exact synthetic bytes and zero credential files.
+
+Basic review findings and multilingual implementation/qualification remain Stage 5 work. The bounded
+multilingual asset-download permission question is still pending; unrelated safe
+implementation continues. Stage 5 is not complete.
 
 ## Qualification still open
 
@@ -132,12 +161,24 @@ actionable defect. Fresh macOS arm64/Rust1.98.1 locked/offline checks passed
 168combined-native/0failed/0ignored, both native Clippy variants and shipping
 desktop/CLI builds;136focused-native-workflow/0failed/2ignored. Two shipping
 startup/restart runs preserved exact BOM/CRLF/Unicode bytes with zero credentials.
-PR23 initial CI passed both Mac native lanes but Ubuntu rejected an unused
-Mac-only provenance-test helper. The narrow independently reviewed matching
-helper guard passed fresh3CLI provenance tests and workspace Clippy; new exact
-head applicable CI and post-merge verification remain pending. GUI/owner
-acceptance remains separate. Later relationships/findings/language checkpoints
-remain pending; Stage5 is not complete.
+PR23 mergedd48654098f79c8b4a6b13982650c258245b2d800 after exact2d0993f
+run37193690701 passed all three Mac lanes and UbuntuSharedCore;Windows Unix
+APIs fail,overallCIred. Merged tree equality,14CLIprovenance/Storetimestamp tests+
+52fixtures and two startup/restart checks passed with exact bytes,zero credentials.
+GUI/owner
+acceptance remains separate. Relationships/exact link preparation are in this checkpoint;findings/language
+publication remain pending; Stage5 is not complete.
+
+Stage5C relationships/exact-link publication baseline71a27a2 integrates the
+reviewed12-slice endpoint with qualified Stage5B. Initial/final independent
+integration reviews found no actionable defect;205othercrate paths preserved
+across the sole incoming helper guard. Fresh907workspace/0failed/3ignored+52fixtures,
+201combined-native/0failed/0ignored, both Clippy variants/shipping builds,
+21native-retrieval and164focused-native-workflow/0failed/3ignored passed.
+Fresh incoming3CLItests/workspace Clippy/format and two shipping startup/restart
+checks passed with exact synthetic bytes,zero credentials. Applicable exact-head
+CI/post-merge and GUI/owner acceptance remain pending. Findings/language are later
+publication checkpoints; completeStage5/V1 delivery is not claimed.
 
 Release/public distribution, additional live calls/model downloads, purchases and
 original/private-data inspection or migration still need applicable owner

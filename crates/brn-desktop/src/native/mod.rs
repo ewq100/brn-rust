@@ -34,7 +34,12 @@ use uuid::Uuid;
 mod approval;
 mod draft;
 #[cfg(all(test, target_os = "macos", feature = "native-test-support"))]
+mod draft_link_tests;
+#[cfg(all(test, target_os = "macos", feature = "native-test-support"))]
 mod provenance_tests;
+#[cfg(all(test, target_os = "macos", feature = "native-test-support"))]
+mod relationship_tests;
+mod relationships;
 mod review;
 #[cfg(all(test, target_os = "macos", feature = "native-test-support"))]
 mod scope_tests;
@@ -112,6 +117,9 @@ struct Desktop {
     provenance_snapshot: Option<brn_workflow::knowledge::NoteProvenance>,
     provenance_quotes: Vec<Entity<EditorState>>,
     provenance_scroll: ScrollHandle,
+    document_scroll: ScrollHandle,
+    saved_links: relationships::SavedLinksPane,
+    relationships: relationships::RelationshipsPane,
     review_editor: Entity<EditorState>,
     review_title: Entity<TextareaState>,
     review_comment: Entity<EditorState>,
@@ -122,6 +130,9 @@ struct Desktop {
     draft_title: Entity<TextareaState>,
     draft_path: Entity<TextareaState>,
     draft_editor: Entity<EditorState>,
+    draft_link_target: Entity<TextareaState>,
+    draft_link_label: Entity<TextareaState>,
+    draft_link_proofs: Entity<EditorState>,
     draft_widget_id: Option<Uuid>,
     draft_scroll: ScrollHandle,
     note_path: Entity<InputState>,
@@ -172,6 +183,9 @@ impl Desktop {
         let draft_title = cx.new(|cx| review_title_state(window, cx));
         let draft_path = cx.new(|cx| draft::path_state(window, cx));
         let draft_editor = cx.new(|cx| draft::body_state(window, cx));
+        let draft_link_target = cx.new(|cx| draft::link_target_state(window, cx));
+        let draft_link_label = cx.new(|cx| draft::link_label_state(window, cx));
+        let draft_link_proofs = cx.new(|cx| EditorState::new(window, cx).default_value(""));
         let draft_title_subscription = cx.subscribe_in(
             &draft_title,
             window,
@@ -189,12 +203,39 @@ impl Desktop {
                 }
             },
         );
+        let draft_link_target_subscription = cx.subscribe_in(
+            &draft_link_target,
+            window,
+            |this, _, event: &InputEvent, _, cx| {
+                if matches!(event, InputEvent::Change) {
+                    this.capture_link_widgets(cx);
+                    cx.notify();
+                }
+            },
+        );
+        let draft_link_label_subscription = cx.subscribe_in(
+            &draft_link_label,
+            window,
+            |this, _, event: &InputEvent, _, cx| {
+                if matches!(event, InputEvent::Change) {
+                    this.capture_link_widgets(cx);
+                    cx.notify();
+                }
+            },
+        );
         let draft_path_subscription = cx.subscribe_in(
             &draft_path,
             window,
-            |this, input, event: &InputEvent, _, cx| {
+            |this, input, event: &InputEvent, window, cx| {
                 if matches!(event, InputEvent::Change) {
                     if let Some(draft) = &mut this.ai.as_mut().unwrap().draft {
+                        if draft.prepared_request().is_some() {
+                            let path = draft.path.clone();
+                            if input.read(cx).value().as_ref() != path {
+                                input.update(cx, |input, cx| input.set_value(path, window, cx));
+                            }
+                            return;
+                        }
                         draft.edit(
                             draft.title.clone(),
                             input.read(cx).value().to_string(),
@@ -407,6 +448,9 @@ impl Desktop {
             provenance_snapshot: None,
             provenance_quotes: Vec::new(),
             provenance_scroll: ScrollHandle::new(),
+            document_scroll: ScrollHandle::new(),
+            saved_links: relationships::SavedLinksPane::new(window, cx),
+            relationships: relationships::RelationshipsPane::new(window, cx),
             review_editor,
             review_title,
             review_comment,
@@ -417,6 +461,9 @@ impl Desktop {
             draft_title,
             draft_path,
             draft_editor,
+            draft_link_target,
+            draft_link_label,
+            draft_link_proofs,
             draft_widget_id: None,
             draft_scroll: ScrollHandle::new(),
             note_path,
@@ -450,6 +497,8 @@ impl Desktop {
                 draft_title_subscription,
                 draft_path_subscription,
                 draft_body_subscription,
+                draft_link_target_subscription,
+                draft_link_label_subscription,
                 appearance_subscription,
                 activation_subscription,
             ],

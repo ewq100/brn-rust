@@ -460,6 +460,114 @@ saved quote remains exact. Repeat an old capture request after a source edit and
 confirm refusal. Owner acceptance and later native provenance presentation remain
 separate from these automated/process checks.
 
+### Saved note links
+
+`links show PATH` inspects saved current/source/history Markdown without opening
+an editor or changing notes. CommonMark inline and reference links retain exact
+occurrence byte ranges/quotes and the actually used reference definition. Metadata,
+code, images and HTML attributes do not become links. Inspection refuses more than
+4096 links or over 4 MiB of returned destination/quote bytes rather than truncating.
+
+Contained relative `.md` paths resolve from the source folder; percent decoding
+occurs once, `+` stays literal, and encoded path separators are refused. Query and
+fragment text do not become filename bytes. `brn://note/UUID` links use a nonnil
+managed UUID and follow unique saved notes through renames. No filename/title
+guess or network request occurs. Results expose full source UUID/hash and identity
+outcome, `resolved`, `absent`, `unmanaged`, `ambiguous`, `incomplete`, `changed`,
+`external`, `non_note` or `unsupported` target outcomes, observed matches and
+inspection issues. A resolved target alone does not establish a unique source.
+These are fresh saved observations, not a transactional vault snapshot or new
+AI-approved relationship. Durable changes still use complete ordinary proposals.
+
+For manual acceptance, use separate fresh synthetic data/vault directories. Give
+`current.md` and `source.md` different `brn_id` UUIDs. In `current.md`, add a normal
+`[path](source.md)` link and `[stable](brn://note/<source UUID>)`, then run:
+
+```sh
+brn links show current.md --data-dir "$BRN_DATA" --vault "$BRN_VAULT" --json
+```
+
+Both targets must resolve with exact link quotes. Rename only that synthetic
+`source.md`: the path link becomes absent and the UUID link reports its new path.
+Duplicate the renamed synthetic source: the UUID link becomes ambiguous, retaining
+both observed matches. Delete only that fixture's disposable `index.sqlite` and
+restart; results must rebuild from Markdown and original note bytes stay exact.
+
+`links prepare --file REQUEST.json` prepares one additive stable UUID link from
+an eligible current note to an already identified saved target. Its strict request
+is `{path, target_note_id, expected_target_sha256, proposal_id, title, label}`;
+the target hash is a 32-byte array from fresh identity inspection. The label is
+literal single-line text up to 512 bytes, escaped for Markdown. Both identities
+must be unique, and the selected target may be source/history evidence. Self-links,
+already resolved relationships and stale or ambiguous targets refuse.
+
+Preparation returns an ordinary complete Replace draft with exact consumer/target
+source proofs. It preserves the entire original byte prefix and creates no editor,
+review or vault change. Explicitly create, inspect and approve the returned draft
+through the existing proposal commands. Fresh approval also checks introduced
+stable-link target bindings after review edits/Rewrite. Unchanged historical links
+and exact Undo retain their existing authority. Request files must be regular,
+strict typed JSON up to 8 MiB; invalid input refuses before storage opens.
+
+For manual acceptance, use a fresh synthetic current note with a managed UUID and
+a different managed target in `archive/source.md`. Obtain its UUID/hash using
+`identity inventory`, then write a request naming the current note, a fresh
+proposal UUID/title and a label such as `Original õ [evidence]`. Run:
+
+```sh
+brn links prepare --file "$BRN_LINK_FILE" --data-dir "$BRN_DATA" --vault "$BRN_VAULT" > "$BRN_DRAFT_FILE"
+brn proposals create --file "$BRN_DRAFT_FILE" --data-dir "$BRN_DATA"
+brn proposals show "$BRN_PROPOSAL_ID" --data-dir "$BRN_DATA"
+brn proposals approve "$BRN_PROPOSAL_ID" --review-version 1 --operation "$BRN_APPROVAL_ID" --data-dir "$BRN_DATA"
+brn links show current.md --data-dir "$BRN_DATA" --json
+```
+
+Inspect the full draft before approval and use the actual review version. Confirm
+preparation left both notes unchanged; approval preserved the current note's exact
+prefix and appended one resolved UUID link with literal label wording. Restart and
+remove only the fixture's `index.sqlite`; the link still resolves. In a separate
+fresh fixture, edit or duplicate the selected target after capturing its hash and
+confirm preparation refuses without a proposal. Native controls, graph canvas
+and owner acceptance remain separate qualification steps.
+
+### Derived relationship pages
+
+`relationships list` freshly observes saved notes and records rebuildable directed
+edges in the disposable index. It returns `scope`, `offset`, `total`, `edges`,
+inspection `issues` and duplicate identities. Each edge names exact source/target
+UUIDs, paths and full-file hashes, with UTF-8 byte ranges and quotes. Repeated
+proofs for the same endpoints and origin are combined. `explicit_link` describes
+saved Markdown links; `inferred_provenance` is a separately labelled candidate
+from a saved citation that still matches its source. Neither creates an approved
+durable relationship or changes a note.
+
+The default scope is current, offset 0 and limit 50. `--limit` accepts 1–200;
+`--offset` is a nonnegative integer. Both endpoints must fit the selected scope
+before pagination. Use `--scope all` for connections across current/source/history.
+Unmanaged, ambiguous or incompletely inspected endpoint identities never become
+guessed edges. Every query rereads saved evidence, so source-unchanged target edits
+and moves are observed. Rebuilding/removing the derived index loses no knowledge.
+
+For manual acceptance, use a fresh copy of the preceding synthetic
+`current.md`/`source.md` link fixture and create `archive/source.md` with
+a distinct managed UUID and a UUID link to that target. Then run:
+
+```sh
+brn relationships list --data-dir "$BRN_DATA" --vault "$BRN_VAULT" --json
+brn relationships list --scope all --offset 0 --limit 1 --data-dir "$BRN_DATA" --json
+brn relationships list --scope all --offset 1 --limit 1 --data-dir "$BRN_DATA" --json
+```
+
+Current returns one combined explicit edge with exact proofs. All also includes
+the archived source connection; each page reports the same matching total.
+Restart and remove only the disposable fixture's `index.sqlite`, then confirm the
+same page. Edit only the target and confirm its fresh hash; move it and confirm
+UUID links follow the new path. Duplicate its UUID or add malformed managed
+identity metadata and confirm affected relationships are excluded with diagnostic
+observations. Compare saved note bytes and run `proposals list`: queries changed
+no knowledge and created no proposal. Native views and owner acceptance remain
+separate qualification steps.
+
 ## Output contract
 
 `--json` prints one schema-1 envelope on stdout. Human errors go to stderr;

@@ -19,6 +19,52 @@ pub(super) fn body_state(window: &mut Window, cx: &mut Context<EditorState>) -> 
         .default_value("")
 }
 
+pub(super) fn link_target_state(
+    window: &mut Window,
+    cx: &mut Context<TextareaState>,
+) -> TextareaState {
+    TextareaState::new(window, cx)
+        .placeholder("Saved target's vault-relative .md path")
+        .auto_grow(1, 3)
+}
+
+pub(super) fn link_label_state(
+    window: &mut Window,
+    cx: &mut Context<TextareaState>,
+) -> TextareaState {
+    // Retain invalid multiline input verbatim; shared validation explains the refusal.
+    TextareaState::new(window, cx)
+        .placeholder("Literal single-line link label")
+        .auto_grow(1, 3)
+}
+
+fn source_proofs(form: &crate::draft::DraftForm) -> String {
+    form.prepared_request().map_or_else(String::new, |request| {
+        request
+            .sources
+            .iter()
+            .enumerate()
+            .map(|(index, source)| {
+                let fingerprint = &source.fingerprint;
+                let hash: String = fingerprint
+                    .sha256
+                    .iter()
+                    .map(|byte| format!("{byte:02x}"))
+                    .collect();
+                format!(
+                    "Source {}\nPath: {}\nDevice: {}\nInode: {}\nBytes: {}\nSHA-256: {hash}",
+                    index + 1,
+                    serde_json::to_string(&source.path).expect("string serializes"),
+                    fingerprint.device,
+                    fingerprint.inode,
+                    fingerprint.len
+                )
+            })
+            .collect::<Vec<_>>()
+            .join("\n\n")
+    })
+}
+
 impl Desktop {
     /// Bind each new form once. Creation/source ACKs never replace later widget input.
     pub(super) fn sync_draft_widgets(&mut self, window: &mut Window, cx: &mut Context<Self>) {
@@ -35,12 +81,25 @@ impl Desktop {
             form.path.clone(),
             form.text.clone(),
         );
+        let proofs = source_proofs(form);
+        let link = &self.ai.as_ref().unwrap().link_preparation;
+        let (target, label) = if link.form == Some(id) {
+            (link.target_path.clone(), link.label.clone())
+        } else {
+            (String::new(), String::new())
+        };
         self.draft_title
             .update(cx, |input, cx| input.set_value(title, window, cx));
         self.draft_path
             .update(cx, |input, cx| input.set_value(path, window, cx));
         self.draft_editor
             .update(cx, |editor, cx| editor.set_value(text, window, cx));
+        self.draft_link_target
+            .update(cx, |input, cx| input.set_value(target, window, cx));
+        self.draft_link_label
+            .update(cx, |input, cx| input.set_value(label, window, cx));
+        self.draft_link_proofs
+            .update(cx, |editor, cx| editor.set_value(proofs, window, cx));
         self.draft_widget_id = Some(id);
         self.draft_scroll.set_offset(point(px(0.), px(0.)));
     }
@@ -51,9 +110,26 @@ impl Desktop {
         {
             form.edit(
                 self.draft_title.read(cx).value().to_string(),
-                self.draft_path.read(cx).value().to_string(),
+                if form.prepared_request().is_some() {
+                    form.path.clone()
+                } else {
+                    self.draft_path.read(cx).value().to_string()
+                },
                 self.draft_editor.read(cx).value().to_string(),
                 form.kind,
+            );
+        }
+        self.capture_link_widgets(cx);
+    }
+
+    pub(super) fn capture_link_widgets(&mut self, cx: &App) {
+        let ai = self.ai.as_mut().unwrap();
+        if ai.draft.as_ref().is_some_and(|form| {
+            self.draft_widget_id == Some(form.id) && form.prepared_request().is_none()
+        }) {
+            ai.edit_link_input(
+                self.draft_link_target.read(cx).value().to_string(),
+                self.draft_link_label.read(cx).value().to_string(),
             );
         }
     }
@@ -65,6 +141,11 @@ impl Desktop {
             || ai.application_busy()
             || ai.active.is_some()
             || ai.rewrite.is_some()
+            || (ai.link_preparation.operation.is_some()
+                && ai
+                    .draft
+                    .as_ref()
+                    .is_some_and(|form| ai.link_preparation.form == Some(form.id)))
             || self.simple_transition.is_some()
             || self.closing.is_some()
             || self.closed
@@ -164,6 +245,7 @@ impl Desktop {
         // Own pending creation still permits local typing; its exact submitted generation is frozen.
         let editable = !leaving && (!ai.application_busy() || form.pending);
         let command_blocked = self.draft_command_blocked();
+        let prepared = form.prepared_request().is_some();
         body = body
             .child(format!(
                 "Proposal {} · input generation {}{}",
@@ -182,7 +264,7 @@ impl Desktop {
             )
             .child(
                 Textarea::new(&self.draft_path)
-                    .disabled(!editable)
+                    .disabled(!editable || prepared)
                     .aria_label("Exact scalar vault-relative Markdown path"),
             );
         let mut kinds = div().flex().flex_wrap().gap_1();
@@ -195,10 +277,12 @@ impl Desktop {
                 Button::new(format!("initial-kind-{kind:?}"))
                     .label(label)
                     .selected(form.kind == kind)
-                    .disabled(!editable)
+                    .disabled(!editable || prepared)
                     .on_click(cx.listener(move |this, _, _, cx| {
                         this.capture_draft_widgets(cx);
-                        if let Some(form) = &mut this.ai.as_mut().unwrap().draft {
+                        if let Some(form) = &mut this.ai.as_mut().unwrap().draft
+                            && form.prepared_request().is_none()
+                        {
                             form.edit(
                                 form.title.clone(),
                                 form.path.clone(),
@@ -217,7 +301,7 @@ impl Desktop {
                 form.text.len()
             ))
             .child(
-                div().h(px(320.)).child(
+                div().h(px(320.)).flex_shrink_0().child(
                     Editor::new(&self.draft_editor)
                         .h_full()
                         .disabled(!editable)
@@ -228,9 +312,17 @@ impl Desktop {
             body = body.child(
                 Button::new("load-initial-proposal-source")
                     .label("Load exact existing note…")
-                    .disabled(command_blocked)
+                    .disabled(command_blocked || prepared)
                     .on_click(cx.listener(|this, _, _, cx| {
-                        if this.draft_command_blocked() {
+                        if this.draft_command_blocked()
+                            || this
+                                .ai
+                                .as_ref()
+                                .unwrap()
+                                .draft
+                                .as_ref()
+                                .is_some_and(|form| form.prepared_request().is_some())
+                        {
                             return;
                         }
                         this.capture_draft_widgets(cx);
@@ -269,11 +361,12 @@ impl Desktop {
                     body = body.child(
                         Button::new("use-initial-captured-text")
                             .label("Use captured text as proposed body")
-                            .disabled(!editable)
+                            .disabled(!editable || prepared)
                             .on_click(cx.listener(|this, _, window, cx| {
                                 this.capture_draft_widgets(cx);
                                 if let Some(form) = &mut this.ai.as_mut().unwrap().draft
                                     && form.kind == DraftKind::Replace
+                                    && form.prepared_request().is_none()
                                     && let Some(source) = &form.source
                                 {
                                     let text = source.text.clone();
@@ -292,6 +385,73 @@ impl Desktop {
                     );
                 }
             }
+        }
+        if ai.link_preparation_available() {
+            let input = &ai.link_preparation;
+            let matching = input.form == Some(form.id);
+            let target = matching.then_some(input.target.as_ref()).flatten();
+            let target_ready = target.is_some_and(|target| {
+                target.source_outcome == Some(brn_workflow::knowledge::IdentityOutcome::Unique)
+                    && target.source.note_id.is_some_and(|id| !id.is_nil())
+            });
+            body = body
+                .child("Link to saved evidence")
+                .child("Enter a saved target path, inspect its identity, then prepare the literal label. Preparation retains saved consumer bytes and both exact source bindings; Create remains a separate action.")
+                .child(Textarea::new(&self.draft_link_target).disabled(!editable)
+                    .aria_label("Saved target scalar vault-relative Markdown path"))
+                .child(Textarea::new(&self.draft_link_label).disabled(!editable)
+                    .aria_label("Literal single-line link label"))
+                .child(div().flex().flex_wrap().gap_2()
+                    .child(Button::new("inspect-initial-link-target").label("Inspect target")
+                        .disabled(command_blocked)
+                        .on_click(cx.listener(|this, _, _, cx| {
+                            if this.draft_command_blocked() { return; }
+                            this.capture_draft_widgets(cx);
+                            if let Some(command) = this.ai.as_mut().unwrap().inspect_link_target() {
+                                this.simple_send(command, cx);
+                            }
+                            cx.notify();
+                        })))
+                    .child(Button::new("prepare-initial-note-link").label("Prepare link")
+                        .disabled(command_blocked || !target_ready)
+                        .on_click(cx.listener(|this, _, _, cx| {
+                            if this.draft_command_blocked() { return; }
+                            this.capture_draft_widgets(cx);
+                            if let Some(command) = this.ai.as_mut().unwrap().prepare_link_draft() {
+                                this.simple_send(command, cx);
+                            }
+                            cx.notify();
+                        }))));
+            if matching && input.operation.is_some() {
+                body = body.child("Waiting for saved target inspection or exact link preparation…");
+            }
+            if let Some(target) = target {
+                let hash: String = target
+                    .source
+                    .sha256
+                    .iter()
+                    .map(|byte| format!("{byte:02x}"))
+                    .collect();
+                body = body.child(format!("Saved target {} · identity {:?} · UUID {} · SHA-256 {hash}",
+                    target.source.path, target.source_outcome,
+                    target.source.note_id.map_or_else(|| "unmanaged".into(), |id| id.to_string())))
+                    .child(format!("Inspection reported {} source issues. Target links: {}. Preparation requires a unique managed identity.", target.issues.len(), target.links.len()));
+            }
+            if matching && let Some(error) = &input.error {
+                body = body.child(error.clone());
+            }
+        }
+        if prepared {
+            body = body
+                .child("Prepared destination and both saved source bindings are fixed. Title and full proposed body remain editable; Markdown changes only after exact approval.")
+                .child(div().h(px(210.)).flex_shrink_0().child(
+                    Editor::new(&self.draft_link_proofs).h_full().readonly(true)
+                        .aria_label("Complete immutable consumer and target source bindings")))
+                .child(Button::new("copy-prepared-source-proofs").label("Copy both full source bindings")
+                    .on_click(cx.listener(|this, _, _, cx| {
+                        cx.write_to_clipboard(gpui_kit::ClipboardItem::new_string(
+                            this.draft_link_proofs.read(cx).value().to_string()));
+                    })));
         }
         if form.kind == DraftKind::Trash {
             body = body.child("Trash proposes moving the captured original. Any retained proposed body must be copied or explicitly discarded first.");
@@ -385,7 +545,7 @@ impl Desktop {
                         })),
                 ),
         );
-        if form.submitted.is_some() || form.result.is_some() {
+        if prepared || form.submitted.is_some() || form.result.is_some() {
             body = body.child(
                 Button::new("separate-initial-proposal")
                     .label("Start separate proposal from retained input")
