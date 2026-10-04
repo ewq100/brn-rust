@@ -20,8 +20,12 @@ Fresh macOSarm64/Rust1.98.1 locked/offline gates passed908workspace/0failed/
 3ignored+52fixtures,201native desktop/0failed/0ignored,158focused native workflow/
 0failed/2ignored,both native Clippy configurations and shipping desktop/CLI builds.
 Two startup/restart checks retained exact synthetic bytes,V8 and zero credentials.
-Logs: /private/tmp/brn-client-boundary-bgywtql7. PR/exact-head CI/integration are
-pending; existing GUI/model/provider qualification gaps remain unchanged.
+PR25 merged82953261642427a59a27707545ba2835eec2b813 after exact90de25e/
+run37197453154 passed MacCore/UI/Retrieval+UbuntuSharedCore; Windows Unix APIs
+failed,overallCIred. Merged tree equality,3focused tests+52fixtures and two
+shipping startup/restart checks passed with exact bytes,V8 and zero credentials.
+Logs: /private/tmp/brn-client-boundary-bgywtql7. Existing GUI/model/provider
+qualification gaps remain unchanged.
 
 Manual Save/recovery (`6609442`) preserves exact UTF-8, generation-bound recovery
 and file/parent/root identities. Copies install exclusively; missing originals
@@ -218,8 +222,9 @@ The compatible correction prevalidates supported branded V9+ Findings, refuses
 semantic-invalid main work and skips invalid backup candidates while preserving
 physical recovery, foreign/newer refusal and the V9 schema. Meaningful RED and
 Green regressions plus independent20tests/4public probes passed; no finding remains.
-Fresh945workspace/0failed/3ignored+52fixtures,213combined-native/0failed/0ignored,
-143focused native-workflow/0failed/2ignored,both native Clippy configurations and
+After merging qualified PR25 at844dc92, independent preservation review found
+no defect. Fresh946workspace/0failed/3ignored+52fixtures,213combined-native/0failed/0ignored,
+154focused native-workflow/0failed/2ignored,both native Clippy configurations and
 shipping desktop/CLI builds passed. Two startup/restart checks retained exact
 synthetic bytes,V9 and zero credentials. Logs: /private/tmp/brn-v1-stage5d-checkpoint-yry8r21v.
 Exact-head CI/PR integration and native owner/IME/accessibility acceptance remain

@@ -1336,3 +1336,18 @@ acceptance remains pending; language/model/provider qualification follows.
 Macmini requires AppleSilicon/CLT,pinnedRust1.98.1,cached locked libraries,protobuf,
 Bash/Python3,canonical owned syntheticTMPDIR and unlockedGUI for acceptance.
 No providers,assets,original/private-data or release actions occurred.
+
+
+Stage5D combined baseline844dc92e6e569bbfbd7de7e44ac7d6099e8bf64f merges qualified
+PR25/8295326; independent preservation review found no code/authority defect.
+Findings code/tests match31ca2e59; client boundary code/authorities matchPR25.
+Fresh locked/offline shared gate passed946workspace/0failed/3ignored+52fixtures;
+213combined-native desktop/0failed/0ignored;154focused native-workflow/0failed/
+2ignored (`--lib --test models --test findings --test library --test ai_tools_scopes`);
+both native Clippy configurations and shipping desktop/CLI builds passed. Two
+shipping startup/restart runs retained exact synthetic bytes,V9,zero credentials.
+The earlier945/143 evidence describes pre-amendment31ca2e59. Client amendment
+PR25 passed exact-head Mac3+UbuntuShared,merged8295326 and passed tree equality,
+3focused tests+52fixtures/startup2; Windows Unix APIs failed,overallCIred.
+Current D exact-head PR/CI/merge/post remains pending; GUI/owner/IME/accessibility,
+actual inference and provider language qualification remain separate.
