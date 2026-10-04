@@ -7,6 +7,22 @@
 automated verified and locally integrated. Stage 5 knowledge foundations is active; Stages 5–16 remain
 unfinished. Complete BRN v1 delivery is not claimed.**
 
+The owner's 2026-10-04 [client-boundary amendment](architecture/overview.md#client-and-protocol-boundary)
+establishes BRN as a headless platform: six current V1 core crates with permitted
+thin future adapters through workflow/AppWorker. Independent implementation audit
+found no desktop/CLI domain bypass; existing scoped knowledge/proposal/activity
+commands are retained. Read-only local stdio MCP is future work; no daemon,
+network service or added V1 stage is authorized by this amendment.
+Workflow-owned search evidence now keeps SQLite passage IDs inside retrieval.
+A real index rebuild regression failed solely on row ID2→1 before the correction
+and passes afterward. Independent source review found no remaining defect.
+Fresh macOSarm64/Rust1.98.1 locked/offline gates passed908workspace/0failed/
+3ignored+52fixtures,201native desktop/0failed/0ignored,158focused native workflow/
+0failed/2ignored,both native Clippy configurations and shipping desktop/CLI builds.
+Two startup/restart checks retained exact synthetic bytes,V8 and zero credentials.
+Logs: /private/tmp/brn-client-boundary-bgywtql7. PR/exact-head CI/integration are
+pending; existing GUI/model/provider qualification gaps remain unchanged.
+
 Manual Save/recovery (`6609442`) preserves exact UTF-8, generation-bound recovery
 and file/parent/root identities. Copies install exclusively; missing originals
 are not recreated. Acknowledgement establishes recoverability. Guarded navigation
