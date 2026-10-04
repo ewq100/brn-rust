@@ -75,10 +75,10 @@ vault/store with only copied Markdown proves session/index independence; actual
 session Delete remains later qualification. Source CAS, restart, index rebuild
 and Undo are verified; current write/read rules and unresolved-work fences remain
 intact. Independent reviews found no remaining actionable findings. Fresh final
-locked/offline verification passed **788 workspace tests / 0 failed / 2 ignored**,
-**52 end-to-end assertions**, format/build/all-target Clippy, **155 native desktop
-tests**, native all-target Clippy and shipping native
-desktop/CLI builds. Fresh full-byte refresh catches retained-size/mtime changes;
+locked/offline verification passed **794 workspace tests / 0 failed / 2 ignored**,
+**52 end-to-end assertions**, format/build/all-target Clippy, **166 native desktop
+tests**, native all-target Clippy and the shipping native desktop build.
+Fresh full-byte refresh catches retained-size/mtime changes;
 unreadable evidence folders report incomplete inspection while readable current
 knowledge remains usable. Fresh native synthetic observation confirmed scope
 separation, archived/current-history read-only views, typing refusal and an exact
@@ -86,8 +86,14 @@ separation, archived/current-history read-only views, typing refusal and an exac
 The Mac locked before the final GUI restart check; owner acceptance remains pending.
 The provenance review's valid malformed-metadata eligibility defect was reproduced,
 fixed and independently rechecked; no actionable finding remains. Its corrected
-review passed 32 checks and an actual synthetic CLI reproduction. Native provenance
-convenience, relationships, findings/timestamps and multilingual qualification continue next;
+review passed 32 checks and an actual synthetic CLI reproduction. Native saved-
+source inspection preserves unsaved typing, binds late replies to document/
+inspection generations and invalidates inspections after Save/Reload. Exact
+read-only quote widgets retain all source outcomes; a rendered twelve-citation
+regression reproduced and corrected missing overflow scrolling. Final independent
+review passed 15 checks, with no remaining actionable finding. Native GUI/owner
+acceptance remains pending. Relationships, findings/timestamps and multilingual
+qualification continue next;
 Stage 5 is not complete.
 
 ## Qualification still open

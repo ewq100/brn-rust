@@ -33,6 +33,8 @@ use uuid::Uuid;
 
 mod approval;
 mod draft;
+#[cfg(all(test, target_os = "macos", feature = "native-test-support"))]
+mod provenance_tests;
 mod review;
 #[cfg(all(test, target_os = "macos", feature = "native-test-support"))]
 mod scope_tests;
@@ -106,6 +108,10 @@ struct Desktop {
     query: Entity<EditorState>,
     note_editor: Entity<EditorState>,
     evidence_editor: Entity<EditorState>,
+    provenance_open: bool,
+    provenance_snapshot: Option<brn_workflow::knowledge::NoteProvenance>,
+    provenance_quotes: Vec<Entity<EditorState>>,
+    provenance_scroll: ScrollHandle,
     review_editor: Entity<EditorState>,
     review_title: Entity<TextareaState>,
     review_comment: Entity<EditorState>,
@@ -397,6 +403,10 @@ impl Desktop {
             query,
             note_editor,
             evidence_editor,
+            provenance_open: false,
+            provenance_snapshot: None,
+            provenance_quotes: Vec::new(),
+            provenance_scroll: ScrollHandle::new(),
             review_editor,
             review_title,
             review_comment,

@@ -99,11 +99,10 @@ fn editor(worker: &AppWorker, path: &str) -> EditorView {
 }
 
 fn ready() -> AiState {
-    AiState {
-        ready: true,
-        vault_bound: true,
-        ..AiState::default()
-    }
+    let mut state = AiState::default();
+    state.ready = true;
+    state.vault_bound = true;
+    state
 }
 
 fn acknowledge(worker: &AppWorker, state: &mut AiState, event: (Uuid, AppEvent)) {

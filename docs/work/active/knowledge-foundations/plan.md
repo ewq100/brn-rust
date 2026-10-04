@@ -433,3 +433,60 @@ with type/UID/device/inode guards; logs/metadata remain outside Git. No publishe
 CI run exists for the local baseline; integration is local, without push/release.
 This slice is implemented, independently reviewed, automated verified and locally
 integrated with this change. Stage 5 remains active.
+
+## Sixth slice: native saved provenance inspection
+
+Baseline: `main@122d7632cda65a383fa96c70e189dfbb186c5024`, preserving the owner
+AGENTS.md change; no published CI run exists. Existing read-only workflow DTOs
+cover this native slice. Add a Sources control to the current editor and exact
+evidence view, explicitly inspecting saved provenance without changing unsaved
+typing, scope, review work or files. Expand each stored quote with its source
+UUID, observed path(s), resolution status and exact Copy; unknown/changed sources
+remain visibly distinct and no guessed source navigation is introduced.
+
+Bind requests/results/errors to the open document path, document generation and
+inspection generation. Clear transient inspection on navigation; late replies
+must not replace a newer document or newer inspection. Quote widgets remain
+read-only, bounded and copy exact BOM/CRLF/Unicode text. Loading/empty/error states
+remain useful without introducing a new mutation or approval route. No provider
+call, credential or model operation is needed.
+
+Acceptance: real AppWorker source status/quote inspection, saved vs unsaved work,
+stale success/error correlation, all resolution outcomes, exact widget text/Copy
+and unchanged navigation guards. Get independent complete review, technically
+validate findings, run fresh desktop/default/native and integrated checks, retain
+a synthetic reproducible manual scenario and integrate locally. GUI observation
+and owner acceptance may remain pending while the Mac is locked; continue later
+safe Stage 5 foundations.
+
+Sixth-slice review found one valid bounded-panel defect: a scrollbar layer did
+not enable overflow scrolling, so later source quotes were unreachable. An
+actual Root/Desktop regression with twelve real-worker citations failed on the
+unchanged wheel offset before the fix. Adding overflow scrolling made the same
+wheel input reveal citation twelve; its actual Copy button preserves the full
+BOM/CRLF/Unicode source. The independent correction review passed **15 checks**
+(11 provenance/state/widget, two review guards, two scope/navigation guards),
+with no remaining actionable finding. Save and confirmed Reload invalidate old
+inspections; Close and accepted navigation cannot be undone by late replies.
+
+Fresh macOS arm64 / Rust 1.98.1 locked/offline helper checks passed **143 default
+desktop tests**, **166 native desktop tests** and both shipping and headless-test
+native all-target Clippy with warnings denied. The native feature set was
+`native-ui,native-retrieval,native-test-support`; the shipping Clippy omits the
+test feature. The known upstream `block v0.1.6` warning remains. Reproduce manual
+acceptance through the [desktop scenario](../../../../crates/brn-desktop/README.md):
+inspect saved quotes while typing remains recoverable, Refresh after changed or
+duplicated fixture sources, copy exact text and exercise read-only All scope.
+Native GUI/owner acceptance remains pending; these are headless observations.
+
+Root final integrated gate on the corrected tree passed **794 workspace tests /
+zero failures / two ignored private crash entry points**, all **52 end-to-end
+assertions**, retirement, workspace format/build and all-target Clippy with
+warnings denied. Command: `TMPDIR=<fresh owned canonical parent> bash
+scripts/verify-end-to-end.sh`, pinned 1.98.1, locked/offline. After that serialized
+default gate, the shipping `native-ui,native-retrieval` desktop build and real
+AppWorker `--headless-check startup` passed. No provider/model/network, original
+data, GUI observation or owner acceptance is claimed. Final documentation checks
+cover local links, formatting and diff whitespace. This slice is implemented,
+automated verified, independently reviewed and locally integrated with this
+change; relationships, findings/timestamps and bilingual qualification remain.
