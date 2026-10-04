@@ -1092,3 +1092,40 @@ Merged tree equality,14CLIprovenance/Storetimestamp tests+52fixtures and two
 shipping startup/restart checks passed with exact bytes and zero credentials.
 Stage5C now integrates this qualified baseline; final incoming-delta review and
 current checkpoint CI remain required.
+
+## Stage5C publication checkpoint — relationships and exact link preparation
+
+Baseline71a27a2aa5a4280c87dcda6eb58d295c7ede6a72 integrates reviewed slices8–12
+throughb9b2338 with qualified Stage5B d486540. It retains approved Markdown links,
+disposable evidence-backed explicit/inferred edges, native relationship inspection
+and exact native/headless link-to-proposal preparation; basic findings/language
+remain later checkpoints. Initial independent merge review verified72C-only+
+13incoming-only paths and both source overlaps with no defect. Final B-delta review
+verified sole exactincomingMac helper guard,205othercrate paths unchanged and
+full12-slice/A/B evidence preserved, with no actionable defect.
+
+Fresh macOS arm64/Rust1.98.1 locked/offline retirement,format/build/all-target
+Clippy passed;907workspace/0failed/3ignored+52fixtures;201combined-native/0failed/
+0ignored, both native Clippy configurations and shipping desktop/CLI builds;
+21native-retrieval/0failed/0ignored (`--lib --test model_download --test note_edges`)
+and164focused-native-workflow/0failed/3ignored (`--lib --test models --test
+knowledge_links --test knowledge_relationships --test knowledge_link_preparation`).
+After sole incomingtest guard, fresh3CLIprovenance tests,workspace Clippy and
+format passed. Two shipping startup/restart checks preserve exact BOM/CRLF/Unicode
+current/archive bytes with zero credential files. Ignored private crash entries
+remain exercised by subprocess matrices; actualcase-sensitive volume qualification
+was separately recorded in slice10. Only upstream block0.1.6 future warning remains.
+Exact latest PR applicable Mac/shared CI and post-merge verification are pending.
+Logs/ownership metadata: /private/tmp/brn-v1-stage5c-checkpoint-ajcwhli7.
+
+Manual acceptance: in fresh managed current/archive fixtures,inspect explicit and
+inferred relationship origins/proofs,move a target and resolve by UUID,change its
+bytes and observe fresh evidence,duplicate an ID and observe ambiguity. Prepare a
+link in the native Replace form;full immutable target/source proofs and exact text
+must reach review unchanged,with no Markdown effect until Approve. Edits/separate/
+retry preserve full bindings;stale replies retain newer typing. Rebuildindex and
+restart. GUI/IME/accessibility and owner acceptance remain pending. Next publish
+NeedsReview findings and language; safe Stage6 implementation continues.
+Mac mini: AppleSilicon/CLT,pinnedRust1.98.1,cached locked dependencies,protobuf,
+Bash/Python3,canonical owned synthetic TMPDIR,unlockedGUI for acceptance.
+No assets,live/original-data/release actions occurred.

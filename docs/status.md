@@ -169,6 +169,17 @@ GUI/owner
 acceptance remains separate. Relationships/exact link preparation are in this checkpoint;findings/language
 publication remain pending; Stage5 is not complete.
 
+Stage5C relationships/exact-link publication baseline71a27a2 integrates the
+reviewed12-slice endpoint with qualified Stage5B. Initial/final independent
+integration reviews found no actionable defect;205othercrate paths preserved
+across the sole incoming helper guard. Fresh907workspace/0failed/3ignored+52fixtures,
+201combined-native/0failed/0ignored, both Clippy variants/shipping builds,
+21native-retrieval and164focused-native-workflow/0failed/3ignored passed.
+Fresh incoming3CLItests/workspace Clippy/format and two shipping startup/restart
+checks passed with exact synthetic bytes,zero credentials. Applicable exact-head
+CI/post-merge and GUI/owner acceptance remain pending. Findings/language are later
+publication checkpoints; completeStage5/V1 delivery is not claimed.
+
 Release/public distribution, additional live calls/model downloads, purchases and
 original/private-data inspection or migration still need applicable owner
 permission. No original data was migrated or inspected.
