@@ -61,7 +61,7 @@ shipping native build and native Clippy. Default desktop passed **131**; workflo
 **186**. The two ignored private crash entry points are exercised by subprocess
 matrices. Earlier slice counts remain in the evidence, not current gate claims.
 
-Stage 5’s [active plan](work/active/knowledge-foundations/plan.md) records fifteen
+Stage 5’s [active plan](work/active/knowledge-foundations/plan.md) records sixteen
 integrated slices: managed Markdown identities; fresh duplicate/incomplete
 inspection; current/source/history/all retrieval and native read-only browsing;
 durable exact provenance and native source inspection; reliable session/turn
@@ -101,7 +101,7 @@ and stacked panels placing controls outside a 480×480 window. Corrected
 invalidation/scrolling passed **22 independent state/widget tests**, with no
 remaining actionable finding. Unsaved typing and original evidence remain intact.
 
-Fresh final Rust 1.98.1/macOS arm64 locked/offline verification passed **945
+Fresh final Rust 1.98.1/macOS arm64 locked/offline verification passed **947
 workspace tests / 0 failed / 3 ignored**, **52 end-to-end assertions**, retirement,
 format/build/all-target Clippy, **213 native desktop tests / 0 failed / 0 ignored**,
 test-support and shipping native Clippy, and the shipping native desktop build.
@@ -151,8 +151,13 @@ retrieval +137 native workflow tests**, feature Clippy/builds and two shipping
 startup/restart runs passed. A prepared ignored six-query bilingual model smoke
 test compiled but was not run. Actual ONNX compatibility, EN↔ET quality, long-tail
 truncation, scope/restart/rebuild and tool/CLI parity remain unqualified. The
-bounded asset-download question is still pending; response-language qualification
-also remains open. Safe later implementation continues; Stage 5 is not complete.
+bounded asset-download question is still pending. Ask now instructs the selected
+model to normally use the current question's language, honor explicit language
+requests and preserve original source quotes. Independent review passed two
+actual Rig synthetic transport tests across three explicit routes and both Ask
+APIs; no extra call or Rewrite protocol change occurs. Fresh adapter/capability
+fixtures passed **86 library +1 example tests**. Actual response-language compliance
+remains unqualified. Safe later implementation continues; Stage 5 is not complete.
 
 ## Qualification still open
 
@@ -203,7 +208,13 @@ The independently reviewed real-App fixture guard preserves portable review test
 Windows retains the known Unix metadata failure; overall CI remains red. Merged
 tree equality, fresh **16 native widget tests +52 fixtures**, shipping build and
 two startup/restart runs passed with exact synthetic bytes and zero credential
-files. Stage 5 checkpoint CI remains pending.
+files. Stage 5A [PR #22](https://github.com/ewq100/brn-rust/pull/22) merged as
+`a9f838295ea905bf25d05953fe03d02a2092dff7` after exact head `4895916` passed all
+three macOS lanes and Ubuntu shared Core in run `37191800152`. Windows retains
+the Unix metadata failure; overall CI is red. Merged tree equality, fresh **16 CLI
+identity/inventory/scope tests +52 fixtures** and two startup/restart runs passed
+with exact synthetic bytes and zero credential files.
+Later Stage 5 checkpoints remain pending.
 Release/public distribution, additional live calls/model
 downloads, purchases and original/private-data inspection or migration still need
 applicable owner permission. No original data was migrated or inspected.

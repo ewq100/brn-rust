@@ -1242,3 +1242,47 @@ Stage5 remains unfinished. Mac mini requires pinnedRust1.98.1/locked caches,
 AppleSilicon/CLT, protobuf/Bash/Python3 and canonical synthetic TMPDIR outsideGit;
 actual GUI needs unlockedMac, assets require pending permission. No owner changes
 will be staged.
+
+## Sixteenth slice: current-question response language
+
+Baseline d583b051ef1d4b72cc4e3d6cb6d5ac6d811006b1. Vision§38 requires mixed
+English/Estonian conversation and normally answering in the current user's
+language unless asked otherwise. Add this instruction and preservation of original
+source-quote language only to existing Answer/AnswerWithEffort preambles. Rewrite's
+strict captured JSON protocol, tool/transport selection and all durable boundaries
+remain unchanged. No language detector, setting or extra AI call.
+
+Acceptance: meaningful synthetic actual-Rig transport RED→GREEN checks on the
+selected ChatGPT/Copilot routes retain exact EN/ET questions, explicit output-language
+requests and original source quotes, and deliver the same instruction. Targeted
+adapter verification, independent read-only review, fresh integrated gates and
+concise manual scenario. A bounded helper may implement only the fixed preamble
+and request tests; lead owns integration. Real answer-language/provider quality
+needs separately authorized calls and remains pending; no live calls are implied.
+
+Sixteenth implementation passed meaningful2-test RED→GREEN; independent read-only
+review reran2tests/0failed and found no actionable defect. Actual Rig serialization
+covers both Ask APIs,three explicit routes,four EN/ET/default-or-explicit questions:
+24mocked sessions/48scripted completion requests. Model/effort/history/question,
+exact BOM/CRLF source quotes and continuation input stay intact; Rewrite's strict
+JSON contract excludes the new instruction. Mocked replies establish transport/
+byte correctness, not provider compliance. No network/account/assets/private work.
+
+Fresh final macOS arm64/Rust1.98.1 locked/offline verification passed retirement,
+format/workspace build/all-target Clippy,947workspace/0failed/3ignored+52fixtures;
+86capability-library+1example/0failed and feature Clippy;213combined-native tests/
+0failed/0ignored, both native Clippy variants and shipping native build. Earlier
+unchanged retrieval/model-profile qualification remains Fifteenth evidence;
+actual assets/inference and answer-language/owner qualification remain pending.
+Manual acceptance after separately authorized connection: ask an Estonian
+question about English/Estonian synthetic notes, then request English explicitly;
+verify answer language and retain source quotes verbatim. No extra call is implied
+by these instructions. Next safe implementation is Actions/dashboard in existing
+WorkStore and narrow typed lifecycle, with mixed recovery qualified explicitly.
+Stage5A PR22 merged a9f838295ea905bf25d05953fe03d02a2092dff7 after exact4895916
+run37191800152 passed MacCore/UI/Retrieval+UbuntuSharedCore; Windows Unix metadata
+failure leaves overallCIred. Merged tree equality,16CLIidentity/inventory/scope
+tests+52fixtures and2shipping startup/restart runs passed with exact bytes and
+zero credentials. Sixteenth shipping startup/restart also passed twice with exact
+synthetic bytes and zero credentials. Later Stage5
+publication remains sequential; Stage5 whole remains unqualified for real models.

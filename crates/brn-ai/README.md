@@ -11,6 +11,12 @@ tool continuations while preserving ordinary Ask history, provisional text and
 read-tool limits. The older `answer` entry point remains a compatibility seam;
 fresh application Ask uses explicit effort without a provider default.
 
+Both Ask entry points instruct the selected model to normally answer in the
+current question's language, honor an explicit language request, handle mixed
+English/Estonian content and preserve original source-quote language. This adds
+no language detector or extra call. Synthetic transport tests qualify instruction
+delivery and exact bytes; live response-language compliance remains unqualified.
+
 `rewrite` consumes the same owned client and read tools with explicit
 `ReasoningEffort::{Low,Medium,High}`. The pinned route determines Responses
 `reasoning.effort` or Chat `reasoning_effort`; the selected model is unchanged.
