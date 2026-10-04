@@ -166,3 +166,78 @@ PR25 merged-main run37197827195 passed Mac3+UbuntuCore/UI; Ubuntu native retriev
 has three existing unsupported exclusive-install expectations, Windows3 Unix API
 failures,overallCIred. Independent analysis found no sharedMac/client-boundary
 defect; non-Mac-specific failures remain informational under owner policy.
+
+## Next fixed Store slice: joined Action application and recovery
+
+Baseline7b896ec9a2f52aa516ba21060e90c44fe9c7acf1. Extend existing ApplyJournal with
+`action_records: Vec<ActionRecord>` (default/omit-empty): complete ordered after
+records, derived exactly once from approved ActionChange members/stamp and captured
+started_at_ms. Create retains initial approval/data/time,version1; Replace retains
+immutable origin,advances signed revision once and preserves Waiting since-time
+only while remaining Waiting. Capture time covers review and every before clock;
+validate every exact after binding,overflow and separate bounded snapshot encoding.
+Keep the existing total journal/mirror limits: combined proposal accounting bounds
+escaped note bytes plus Action JSON; qualify maximal mixtures,not just tiny data.
+
+Admission checks absent Create/full exact Replace in its SQLite transaction before
+Applying. Applied settlement changes Actions,whole receipt,review and annotation
+cleanup together; NotApplied/Uncertain change no Actions. Replay never repeats or
+refreshes Action mutation. No public standalone setter. Recovery import uses the
+same transaction: Applied after-state or already-real Replace baseline for earlier
+snapshots can reconstruct missing/older work. Immutable origins must match; equal
+versions require exact records,newer records win,conflicting forks refuse without
+partial import. Reversed inter-proposal import order must remain safe. Existing
+journal merge keeps all Action after bindings immutable; mutable review projections
+ignore candidate ActionData while preserving IDs/full Replace before-records.
+Action-bearing Undo remains explicitly refused until its inverse semantics qualify.
+
+Keep workflow creation/approval/ownedRewrite guards and current UI unchanged in
+this Store slice; lead owns mechanical empty-field adaptations across Workflow/
+Desktop fixtures and future mirror/domain integration. Meaningful tests cover
+Action-only/mixed proof binding,near-limit/legacy hashes,Waiting/time/revision,
+stale admission,CAS race,SQL-trigger rollback across all state,terminal replay,
+missing/older/reversed import,newer preservation and equal-version forks.
+Then independent complete review/finding validation,Store/shared/native checks.
+Only after this Store contract qualifies: workflow relationship validation,
+vaultless application and whole crash/ordinary-mirror recovery before producers.
+
+## Joined Store checkpoint — 2026-10-04
+
+The fixed contract above is implemented. Thirteen Action application tests cover
+ordered after-state/Waiting clocks/revision overflow, mixed and Action-only proofs,
+maximum encoded mixtures, stale admission/full CAS, no-effect outcomes, terminal
+replay preserving later Completed work, reversed/missing/older imports and whole
+SQL-trigger rollback. Legacy Markdown wire/hash fixtures remain unchanged.
+
+Independent review confirmed a concrete recovery defect: checking only after-state
+allowed an Applied before-v2/data-A → after-v3/data-B snapshot to replace retained
+same-origin v2/data-C. The meaningful regression failed before the correction.
+Recovery now validates/imports the real Replace before endpoint first, then imports
+Applied after-state in the same transaction. Fresh corrected regression passed;
+newer work, missing/older imports and Completed protection retain their behavior.
+The reviewer's cached public probe ran corrected code only and is not claimed as
+an independent original RED. Final complete review found no remaining defect and
+ran56tests (13Action apply+9Action review+34existing apply),all passed. Helper final
+Store266/0failed/0ignored and all-target Clippy passed. Evidence:
+/private/tmp/brn-actions-store-39orx1m5/action-apply-before-fork-red.log,
+action-apply-final-{store,clippy}.log and independent-joined-actions-3_rj10_p.
+
+Fresh final macOSarm64/Rust1.98.1 locked/offline
+`TMPDIR=/private/tmp/brn-actions-root-zkv3jyu2 bash scripts/verify-end-to-end.sh`
+passed retirement,format/build/all-target Clippy,991workspace/0failed/3ignored and
+52fixtures. Combined-native Desktop213/0failed/0ignored,both native all-target
+Clippy configurations and shipping desktop/CLI builds passed. Shipping startup/
+restart passed twice with V10,exact BOM/CRLF/Unicode bytes and zero credential
+files. Root logs:joined-store-*.log; startup:qualified-startup-u7zxriil under that
+owned parent. Only upstream block0.1.6 future warning remains. No provider/model,
+original/private-data or release operation occurred.
+
+This checkpoint qualifies Store application/recovery only. Workflow creation,
+approval and owned Rewrite guards stay in place; Action-bearing Undo refuses.
+No user-visible Action flow/dashboard or Stage6 completion is claimed. Native/
+owner acceptance will use the first complete shared/UI Action scenario. Next:
+validate references/dependency cycles and exact before/source state, then qualify
+Action-only vaultless and mixed file/SQLite execution, ordinary mirror retirement,
+crash checkpoints and older/fresh restore before enabling producers. Checkpoint
+publication/exact-head CI follows the qualified Stage5 language base. Macmini
+requirements and open permissions/qualification listed above remain unchanged.

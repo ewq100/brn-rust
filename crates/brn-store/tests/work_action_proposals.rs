@@ -401,7 +401,7 @@ fn action_json_is_strict_and_whole_proposal_comments_do_not_invent_action_anchor
 }
 
 #[test]
-fn action_only_and_mixed_apply_are_fenced_before_any_admission_or_recovery() {
+fn unbound_action_only_and_mixed_apply_refuse_admission_or_recovery() {
     for mixed in [false, true] {
         let (dir, mut store) = fixture();
         let mut draft = draft();
@@ -441,10 +441,11 @@ fn action_only_and_mixed_apply_are_fenced_before_any_admission_or_recovery() {
             undo: None,
             repair: None,
             started_at_ms: record.updated_at_ms,
+            action_records: Vec::new(),
         };
         assert!(
             journal.validate().is_err(),
-            "central mirror/recovery validation must reject every Action member"
+            "central mirror/recovery validation must reject unbound Action members"
         );
         assert!(store.restore_proposal_apply(&journal).is_err());
         assert_eq!(store.proposal(draft.id).unwrap(), Some(record));

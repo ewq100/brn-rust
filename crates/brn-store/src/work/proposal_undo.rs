@@ -47,6 +47,9 @@ fn replay(conn: &Connection, request: &UndoRequest) -> Result<Option<ApplyJourna
 fn derive(conn: &Connection, request: &UndoRequest) -> Result<UndoPreview> {
     let source = proposal_apply::read_journal(conn, request.target_operation_id)?
         .ok_or_else(|| Error::NotFound("Undo source operation is absent".into()))?;
+    if !source.approved.draft.action_changes.is_empty() {
+        return Err(invalid("Action-bearing Undo is not yet supported"));
+    }
     if source.receipt.as_ref().map(|receipt| receipt.outcome) != Some(ApplyOutcome::Applied) {
         return Err(Error::StateChanged(
             "Undo source must be a terminal Applied operation".into(),
@@ -258,6 +261,7 @@ impl WorkStore {
             undo: Some(preview.binding),
             repair: None,
             started_at_ms: now,
+            action_records: Vec::new(),
         };
         journal.validate()?;
         let mut record = approved;

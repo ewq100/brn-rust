@@ -1,7 +1,9 @@
 //! Whole-proposal approval journals and exact file proofs. No filesystem I/O.
 use super::{
-    MAX_NOTE_BYTES, WorkStore, now_ms,
-    proposals::{self, NoteChange, ProposalRecord, ProposalStamp, ProposalState},
+    MAX_NOTE_BYTES, WorkStore,
+    actions::{self, ActionOrigin, ActionRecord, ActionState},
+    now_ms,
+    proposals::{self, ActionChange, NoteChange, ProposalRecord, ProposalStamp, ProposalState},
 };
 use crate::{Error, Result, files::FileFingerprint, hash, invalid};
 use rusqlite::{Connection, OptionalExtension, params};
@@ -40,6 +42,11 @@ const MAX_JOURNAL_BYTES: usize = proposals::MAX_STORED_BYTES
     + MAX_UNDO_METADATA_BYTES
     + MAX_UNDO_CORE_BYTES
     + MAX_REPAIR_METADATA_BYTES;
+// Create snapshots retain two copies of the already-counted ActionData; Replace
+// snapshots retain fewer bytes than their full before+candidate member. Reserve
+// explicit bounded record/clock fields independently of the file metadata cap.
+const MAX_ACTION_RECORD_BYTES: usize =
+    2 * proposals::MAX_PROPOSAL_BYTES + proposals::MAX_PROPOSAL_CHANGES * 1024;
 
 #[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
 #[serde(deny_unknown_fields)]
@@ -197,6 +204,8 @@ pub struct ApplyJournal {
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub repair: Option<RepairBinding>,
     pub started_at_ms: u64,
+    #[serde(default, skip_serializing_if = "Vec::is_empty")]
+    pub action_records: Vec<ActionRecord>,
 }
 
 fn is_false(value: &bool) -> bool {
@@ -226,14 +235,76 @@ fn bounded_fingerprint(proof: &FileFingerprint) -> Result<()> {
     Ok(())
 }
 
+fn action_records(approved: &ProposalRecord, started_at_ms: u64) -> Result<Vec<ActionRecord>> {
+    approved
+        .draft
+        .action_changes
+        .iter()
+        .map(|change| {
+            let (origin, version, waiting_since_ms) = match change {
+                ActionChange::Create { id, data } => (
+                    ActionOrigin {
+                        id: *id,
+                        proposal: approved.stamp(),
+                        data: data.clone(),
+                        created_at_ms: started_at_ms,
+                    },
+                    1,
+                    (data.state == ActionState::Waiting).then_some(started_at_ms),
+                ),
+                ActionChange::Replace { before, data } => {
+                    if started_at_ms < before.updated_at_ms {
+                        return Err(invalid("Action approval clock precedes its exact baseline"));
+                    }
+                    (
+                        before.origin.clone(),
+                        before
+                            .version
+                            .checked_add(1)
+                            .ok_or_else(|| invalid("Action revision overflow"))?,
+                        if data.state == ActionState::Waiting {
+                            if before.data.state == ActionState::Waiting {
+                                before.waiting_since_ms
+                            } else {
+                                Some(started_at_ms)
+                            }
+                        } else {
+                            None
+                        },
+                    )
+                }
+            };
+            let record = ActionRecord {
+                origin,
+                version,
+                data: change.data().clone(),
+                updated_at_ms: started_at_ms,
+                waiting_since_ms,
+                completed_at_ms: None,
+            };
+            record.validate()?;
+            Ok(record)
+        })
+        .collect()
+}
+
 impl ApplyJournal {
     /// Validates the bounded domain and all journal bindings without observing
     /// files or SQLite. An ordinary-file mirror must pass the same checks.
     pub fn validate(&self) -> Result<()> {
         proposals::nonnil(self.request.operation_id)?;
         proposals::validate_record(&self.approved)?;
-        if !self.approved.draft.action_changes.is_empty() {
-            return Err(invalid("Action proposal application is not yet supported"));
+        if self.action_records.len() != self.approved.draft.action_changes.len()
+            || self.action_records != action_records(&self.approved, self.started_at_ms)?
+        {
+            return Err(invalid(
+                "Action approval snapshots differ from the exact ordered review",
+            ));
+        }
+        if encode(&self.action_records)?.len() > MAX_ACTION_RECORD_BYTES {
+            return Err(invalid(
+                "Action approval snapshots exceed their encoded size limit",
+            ));
         }
         if self.no_effects
             && self.receipt.as_ref().map(|receipt| receipt.outcome)
@@ -375,6 +446,9 @@ impl ApplyJournal {
             return Err(invalid("repair metadata exceeds its bounded size limit"));
         }
         super::proposal_repair::validate(self)?;
+        if encode(self)?.len() > MAX_JOURNAL_BYTES {
+            return Err(invalid("approval journal exceeds its encoded size limit"));
+        }
         Ok(())
     }
 
@@ -382,6 +456,9 @@ impl ApplyJournal {
         let Some(binding) = &self.undo else {
             return Ok(());
         };
+        if !self.action_records.is_empty() {
+            return Err(invalid("Action-bearing Undo is not yet supported"));
+        }
         proposals::nonnil(binding.operation_id)?;
         if binding.operation_id == self.request.operation_id
             || self.approved.draft.id != self.request.operation_id
@@ -723,6 +800,7 @@ pub(super) fn same_approval(left: &ApplyJournal, right: &ApplyJournal) -> bool {
         && left_review == right_review
         && left.started_at_ms == right.started_at_ms
         && left.members == right.members
+        && left.action_records == right.action_records
         && left.undo == right.undo
 }
 
@@ -822,7 +900,15 @@ fn merge_journal(
     Ok(next)
 }
 
-fn immutable_review_bindings(record: &ProposalRecord) -> super::proposals::ProposalDraft {
+#[derive(PartialEq)]
+struct ImmutableReviewBindings {
+    draft: super::proposals::ProposalDraft,
+    // A Create binds its ID; a Replace additionally binds the full retained
+    // baseline. Candidate ActionData stays editable, like candidate note text.
+    actions: Vec<(Uuid, Option<Box<ActionRecord>>)>,
+}
+
+fn immutable_review_bindings(record: &ProposalRecord) -> ImmutableReviewBindings {
     let mut draft = record.draft.clone();
     draft.title.clear();
     for change in &mut draft.changes {
@@ -831,7 +917,16 @@ fn immutable_review_bindings(record: &ProposalRecord) -> super::proposals::Propo
             NoteChange::Trash { .. } => {}
         }
     }
-    draft
+    let actions = draft
+        .action_changes
+        .iter()
+        .map(|change| match change {
+            ActionChange::Create { id, .. } => (*id, None),
+            ActionChange::Replace { before, .. } => (before.origin.id, Some(before.clone())),
+        })
+        .collect();
+    draft.action_changes.clear();
+    ImmutableReviewBindings { draft, actions }
 }
 
 fn target_record(journal: &ApplyJournal) -> Result<ProposalRecord> {
@@ -1013,6 +1108,24 @@ impl WorkStore {
             current_unresolved(&tx, existing)?;
         }
         let next_review = restored_review(current.as_ref(), &effective)?;
+        // Both known lineage endpoints must agree at an equal revision. An
+        // Applied after-record cannot conceal a fork at its retained baseline.
+        // Earlier snapshots reconstruct only already-real Replace work.
+        actions::restore(
+            &tx,
+            effective
+                .approved
+                .draft
+                .action_changes
+                .iter()
+                .filter_map(|change| match change {
+                    ActionChange::Replace { before, .. } => Some(before.as_ref()),
+                    ActionChange::Create { .. } => None,
+                }),
+        )?;
+        if applied_receipt(&effective) {
+            actions::restore(&tx, effective.action_records.iter())?;
+        }
         if !settled(&effective) {
             let blocked: bool = tx.query_row(
                 "SELECT EXISTS(SELECT 1 FROM proposal_applies WHERE operation_id!=?1 AND (outcome IS NULL OR outcome='uncertain'))",
@@ -1078,6 +1191,15 @@ impl WorkStore {
         }
         let mut stored = proposals::draft_at(&tx, request.expected)?;
         require_clear_apply_lane(&tx)?;
+        actions::check_changes(&tx, &stored.record.draft.action_changes)?;
+        let started_at_ms = stored.record.draft.action_changes.iter().fold(
+            now_ms().max(stored.record.updated_at_ms),
+            |time, change| match change {
+                ActionChange::Replace { before, .. } => time.max(before.updated_at_ms),
+                ActionChange::Create { .. } => time,
+            },
+        );
+        let action_records = action_records(&stored.record, started_at_ms)?;
         let journal = ApplyJournal {
             request: request.clone(),
             approved: stored.record.clone(),
@@ -1101,7 +1223,8 @@ impl WorkStore {
             no_effects: false,
             undo: None,
             repair: None,
-            started_at_ms: now_ms().max(stored.record.updated_at_ms),
+            started_at_ms,
+            action_records,
         };
         journal.validate()?;
         let bytes = encode(&journal)?;
@@ -1259,6 +1382,11 @@ impl WorkStore {
         }
         if outcome == ApplyOutcome::Applied {
             journal.approved.comments.clear();
+            actions::apply(
+                &tx,
+                &journal.approved.draft.action_changes,
+                &journal.action_records,
+            )?;
         }
         write_journal(&tx, &journal)?;
         if outcome == ApplyOutcome::Applied {

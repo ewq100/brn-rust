@@ -181,11 +181,18 @@ and6synthetic CLI refusal probes with no Action/provider effects. A separate
 recovery defect was reproduced and fixed: complete Action prevalidation skips
 malformed backup candidates while refusing semantic-invalid mains. Independent
 52tests plus genuine Action B-tree corruption recovery passed; V9 Findings
-prevalidation/regressions are retained. Fresh977workspace/0failed/3ignored+
-52fixtures,213combined-native/0failed/0ignored,both native Clippy configurations,
-shipping desktop/CLI builds and two startup/restart checks passed with exact
-synthetic bytes,V10 and zero credentials. Local integration/publication is recorded
-in the plan; no real Action producer, dashboard or Stage6 completion is claimed.
+prevalidation/regressions are retained. Joined Store application now captures
+exact Action after-state and atomically settles CAS writes with the whole receipt,
+review and comment cleanup. Recovery checks real Replace baselines before importing
+after-state, preserves newer/Completed work and refuses equal-version forks.
+Independent review reproduced the missing before-fork check; its meaningful RED
+then corrected regression passed, with no remaining findings. Final Store266/0/0
+and independent56/0/0 passed. Fresh991workspace/0failed/3ignored+52fixtures,
+213combined-native/0failed/0ignored,both native Clippy configurations,shipping
+desktop/CLI builds and two startup/restart checks passed with exact synthetic
+bytes,V10 and zero credentials. Local integration/publication is recorded in the
+plan. Workflow creation/apply/Rewrite remain guarded until whole mirror/crash
+recovery qualifies; no real Action producer,dashboard or Stage6 completion is claimed.
 
 ## Qualification still open
 

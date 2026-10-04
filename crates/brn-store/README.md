@@ -279,8 +279,8 @@ backup candidate is skipped. Physical SQLite corruption still uses recovery.
 ## Checked Action foundation
 
 V10 adds [Actions](src/work/actions.rs) in the existing `brn.sqlite`. This
-foundation exposes only `action(id)` and bounded `action_list(request)` reads;
-creation/changes will join exact proposal application. `ActionOrigin` retains the
+public standalone API exposes only `action(id)` and bounded `action_list(request)`
+reads; creation/changes join exact proposal transactions. `ActionOrigin` retains the
 creating proposal stamp and initial exact data. `ActionRecord` retains that
 immutable origin, current data/revision and ordered waiting/completion times.
 Open, Waiting, Blocked and Completed remain distinct. Optional explicit priority
@@ -303,9 +303,25 @@ binding; Markdown members/source proofs require one. The existing review, edit,
 temporary comments, rejection, exact stamp and replay lifecycle covers these
 members, with one combined64-member/8MiB budget. Completed work cannot be changed
 or reopened through these members. Empty additions stay omitted from historical
-Markdown serialization. This slice stores review work only: workflow creation,
-application and owned AI Rewrite explicitly refuse Action members until shared
-application/recovery is qualified. No Action mutation API is exposed.
+Markdown serialization. Workflow creation, application and owned AI Rewrite
+explicitly refuse Action members until shared application/recovery is qualified.
+No standalone Action mutation API is exposed.
+
+`ApplyJournal::action_records` retains complete ordered after-state derived from
+the exact approved members, stamp and captured time. Admission checks absent
+Create/full Replace baselines before Applying. Applied settlement writes Actions,
+whole receipt, review and annotation cleanup in one transaction; other outcomes
+write no Actions, and terminal replay preserves later work. Snapshot encoding has
+a separate bound within the existing total journal/mirror limits.
+
+Recovery imports already-real Replace baselines before Applied after-state in
+the same transaction. Immutable origins and equal-version records must match;
+newer work wins and completed work cannot be reopened. A known before-state fork
+refuses even when its revision precedes the imported after-state. Imports do not
+repeat filesystem effects. Action-bearing Undo explicitly refuses until its
+inverse contract qualifies. Workflow ordinary mirrors and interruption remain
+the next qualification; this storage contract does not establish an Action
+producer or the dashboard.
 
 ## Dependencies and verification
 

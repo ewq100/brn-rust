@@ -1,8 +1,11 @@
 //! Checked operational Action records. Creation and mutation belong to exact
 //! proposal application; this foundation exposes retained reads only.
-use super::{WorkStore, proposals::ProposalStamp};
-use crate::{Result, hash, invalid};
-use rusqlite::{Connection, OptionalExtension, params};
+use super::{
+    WorkStore,
+    proposals::{ActionChange, ProposalStamp},
+};
+use crate::{Error, Result, hash, invalid};
+use rusqlite::{Connection, OptionalExtension, Transaction, params};
 use serde::{Deserialize, Serialize};
 use std::collections::HashSet;
 use uuid::Uuid;
@@ -424,6 +427,91 @@ fn read(conn: &Connection, id: Uuid) -> Result<Option<ActionRecord>> {
         Ok(record)
     })
     .transpose()
+}
+
+/// Called only within existing proposal transactions; there is no standalone
+/// Action mutation API. Full records, rather than revisions alone, bind CAS.
+pub(super) fn check_changes(tx: &Transaction<'_>, changes: &[ActionChange]) -> Result<()> {
+    if changes.is_empty() {
+        return Ok(());
+    }
+    check_schema(tx)?;
+    for change in changes {
+        let current = read(tx, change.id())?;
+        let matches = match change {
+            ActionChange::Create { .. } => current.is_none(),
+            ActionChange::Replace { before, .. } => current.as_ref() == Some(before.as_ref()),
+        };
+        if !matches {
+            return Err(Error::StateChanged(
+                "Action differs from its exact approval baseline".into(),
+            ));
+        }
+    }
+    Ok(())
+}
+
+fn write(tx: &Transaction<'_>, record: &ActionRecord) -> Result<()> {
+    record.validate()?;
+    let bytes =
+        serde_json::to_vec(record).map_err(|_| invalid("Could not encode Action record"))?;
+    if bytes.len() > MAX_STORED_BYTES {
+        return Err(invalid("Stored Action exceeds its encoded size limit"));
+    }
+    let origin = serde_json::to_vec(&record.origin)
+        .map_err(|_| invalid("Could not encode Action origin"))?;
+    tx.execute(
+        "INSERT INTO actions(id,version,state,created_at_ms,creation_sha256,record_json,record_sha256) VALUES(?1,?2,?3,?4,?5,?6,?7) ON CONFLICT(id) DO UPDATE SET version=excluded.version,state=excluded.state,record_json=excluded.record_json,record_sha256=excluded.record_sha256",
+        params![record.origin.id.to_string(),record.version as i64,state_name(record.data.state),record.origin.created_at_ms as i64,hash(&origin).as_slice(),bytes,hash(&bytes).as_slice()],
+    )?;
+    Ok(())
+}
+
+pub(super) fn apply(
+    tx: &Transaction<'_>,
+    changes: &[ActionChange],
+    after: &[ActionRecord],
+) -> Result<()> {
+    check_changes(tx, changes)?;
+    for record in after {
+        write(tx, record)?;
+    }
+    Ok(())
+}
+
+/// Recovery preserves newer real work. Incompatible immutable origins or
+/// equal-version forks refuse the whole enclosing proposal import transaction.
+pub(super) fn restore<'a>(
+    tx: &Transaction<'_>,
+    records: impl Iterator<Item = &'a ActionRecord>,
+) -> Result<()> {
+    let mut records = records.peekable();
+    if records.peek().is_none() {
+        return Ok(());
+    }
+    check_schema(tx)?;
+    for record in records {
+        record.validate()?;
+        if let Some(current) = read(tx, record.origin.id)? {
+            if current.origin != record.origin
+                || current.version == record.version && current != *record
+            {
+                return Err(Error::OperationConflict(
+                    "Action recovery conflicts with its retained lineage".into(),
+                ));
+            }
+            if current.version >= record.version {
+                continue;
+            }
+            if current.data.state == ActionState::Completed {
+                return Err(Error::OperationConflict(
+                    "Action recovery cannot supersede completed work".into(),
+                ));
+            }
+        }
+        write(tx, record)?;
+    }
+    Ok(())
 }
 
 /// Semantic corruption refuses before reconciliation/backup; physical SQLite
