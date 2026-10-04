@@ -600,3 +600,82 @@ Post-merge tree equality,22focused tests (including exercised crash matrices),
 (qualified-startup-c8_5x71s in the publication parent). Merged-main CI is pending.
 Owner-requested sign-in URL/code controls are a separate small checkpoint; then
 identified Complete/dashboard continue. Native Action acceptance remains pending.
+
+
+## Identified Complete: next qualified operational slice
+
+Baseline PR34 merge5f9033b9; owner-requested Auth PR35 is qualified separately
+and will join before this slice integrates. Explicit user Complete binds operation
+UUID and the full identified unfinished ActionRecord. It preserves all Action
+content/origin, advances exactly one revision, clears Waiting time and records
+monotonic completion/update time. Completed work is never reopened; follow-up
+creation remains an exact new approved Action. AI tools do not gain Complete.
+
+Use one narrow typed ActionCompletion request/after receipt in existing WorkStore,
+with additive V11 checked storage. Fresh full CAS, bounded bytes/clock/version,
+exact immutable replay and transactional record/receipt settlement are required.
+The Store transaction holds SQLite write exclusion while workflow publishes exact
+ordinary recovery evidence, so a competing writer cannot invalidate the checked
+baseline between publication and settlement. No fake proposal, database or generic
+workflow/framework. Checked mirror recovery follows ordinary approval import and
+precedes AppWorker Ready/current reads; older/fresh SQLite must recover completed
+work, reject incompatible forks and preserve newer Completed records.
+
+First qualify the typed Store foundation and restore semantics without opening a
+client producer. Lead owns migration/startup integration and subsequent workflow/
+worker/client behavior; fixed-interface helper owns only completion module/tests.
+Meaningful tests cover all fields/Waiting/clock, exact replay and payload reuse,
+CAS/publisher/SQL failures, write exclusion, restart, older/fresh restoration and
+semantic corruption refusal. Independent read-only review and fresh shared/native
+checks precede integration. Then qualify the ordinary evidence transport and
+shared Complete command, CLI/native dashboard with reproducible acceptance.
+The application boundary remains workflow/AppWorker; UI/protocol clients never
+write files/SQLite or infer real-world completion. No live/data/release action.
+
+
+Next application contract: retain one immutable typed Complete snapshot in the
+existing owned ordinary-recovery directory, sharing its descriptor/ownership/
+no-follow/durability/proof mechanics. A specific completion envelope/filename
+family does not become a general journal framework. The narrow Store publisher
+runs under Immediate write exclusion; installed exact evidence survives a failed
+SQLite settlement. On startup import ordinary approval records first, then checked
+completion evidence before Ready/current reads. Re-establish artifact durability
+before import; incompatible evidence refuses, and uncertainty fences current work
+until exact retry/reconciliation. Immutable replay never re-infers completion.
+
+Expose CompleteAction through App/AppWorker with exact operation correlation and
+critical-mutation shutdown draining, then CLI and native identified controls.
+Source-free operational completion requires no vault/provider. Fresh commands
+respect existing current-evidence fences; bound completion replay precedes fresh
+eligibility. AI read tools do not gain completion authority. Qualify publication/
+settlement/crash/old-backup recovery and no-effect non-Mac refusal before exposing
+this command. Native dashboard presentation consumes shared application data;
+visual behavior alone stays in desktop. Reproducible explicit Complete/follow-up
+acceptance accompanies the first complete shared flow.
+
+
+Complete storage foundation is implemented and independently reviewed against
+9609b7f. Helper10public+1privateSQLite_FULL tests and2V10 direct/backup upgrades
+passed. The latter initially submitted a different optional approval-proof value;
+fixture replay was corrected to exactSome([]), with no production change.
+MissingAPIcompileRED is recorded as structural, not a reproduced runtime defect.
+The16-case startup matrix refuses hash/canonical/index/oversize/rehashedsemantic/
+retainedAction/schema damage without replacing main; invalid newest backup skips.
+
+Independent Luna read-only complete review found no actionable defect. Reviewed
+production blobs14bac328(ActionCompletion),d67f2fec(Action codecs) are unchanged;
+final work/mod74a0345 and migrationtestf0cc9e36 differ only by Cargo formatting.
+Fresh macOSarm64/Rust1.98.1 locked/offline retirement/format/build/all-targetClippy,
+1072workspace/0failed/5ignored+52fixtures,233combined-native/0failed/0ignored,
+both native Clippy modes,shipping Desktop/CLI builds and startup/restart2 passed,
+V11/exactBOMCRLFUnicode/zero credentials. Four ignored private crash entries run
+through subprocess matrices; optional APFS case-sensitive qualification is prior
+evidence. Only known upstreamblock0.1.6 futurecompilerwarning remains. Logs
+ action-completion-*-final.log and qualified-startup-idiwxuu7 under the owned
+publication parent /private/tmp/brn-v1-stage2-checkpoint-dqbmj4oy.
+
+This checkpoint qualifies storage/reconstruction only. CLI/AppWorker/native
+Complete stays closed; ordinary evidence publication/startup/current-read fences
+and exact retry/drain tests are next. Exact-head CI/integration precedes that
+producer. No provider,model,private/original-data or release operation occurred.
+Native existing Action/updatedlogin acceptance still awaits an unlocked Mac.

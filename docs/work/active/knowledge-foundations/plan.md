@@ -1672,3 +1672,14 @@ the same value. Cancel/dismiss and verify no stale effect or persisted code.
 Actual corrected controls/human authorization remain pending; safe synthetic
 captures are retained, while real codes/account screens are excluded. No new
 provider request or model download is part of this implementation.
+
+
+Auth control PR35 merged9609b7f/tree98a9d606 after exact62ed653/run37219579216
+passedMac3+UbuntuShared. Windows22 unchanged Unix errors leave overallCIred.
+Post4widgets+52fixtures+startup2V10/exactbytes/zero credentials passed
+(qualified-startup-ou3n8q40). Main37220191827 completed5success/4failure: Mac3+
+UbuntuCore/UI passed; actual logs repeat Ubuntu installer10pass/3fail and Windows
+22/22/14 Unix errors,sourceunchanged. Actual corrected native controls remain
+pending because Maclocked before replacement launch; ownerunlockquestionpending.
+Owned replacementbundle BRN-Luna-Connect-Controls.app is prepared,notlaunched.
+Fresh human sign-in/catalog/inference remain pending; safe Action work continues.

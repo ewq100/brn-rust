@@ -65,52 +65,54 @@ Evidence: [Actions/dashboard plan](work/active/actions-dashboard/plan.md).
 
 ## Latest integrated checkpoint
 
-[PR34](https://github.com/ewq100/brn-rust/pull/34) merged
-**5f9033b9b06213372623da5c05aee1f2b93bee70**, source tree3978cedd equal to the
-independently reviewed candidate. Exact head87f3920/run37218436437 passed
-MacCore/UI/Retrieval and UbuntuShared. Windows failed22 unchanged Unix API errors;
-logs and base-source comparison found no shared macOS defect. OverallCI is red;
-no GitHub merge requirement was bypassed.
+[PR35](https://github.com/ewq100/brn-rust/pull/35) merged
+**9609b7fce0dd99bf3614a117213436a684485a92**, reviewed source tree98a9d606.
+The sign-in URL opens on click; its read-only code supports selection/keyboard
+Copy and an explicit Copy code button. Exact transient operation/prompt guards
+refuse stale events. Independent complete/join reviews found no defect. Fresh
+joined233native tests,both Clippy modes,shipping builds,52fixtures and startup2
+passed; post-merge4widget tests+52fixtures+startup2 passed,V10/exact bytes/zero
+credentials. Actual corrected native/owner acceptance is pending: the Mac locked
+before the qualified replacement bundle could be loaded.
 
-Whole typed Action Create/Replace and mixed Markdown/Action drafts now use exact
-proposal approval, including source-free vaultless work. Full-record CAS protects
-file effects and Applied recovery authority; joined Store settlement remains
-atomic. Mixed drift stays Uncertain/fenced. Native review preserves all fields,
-incomplete input and captured grouped approval. Activity counts approved Actions.
+Exact head62ed653/run37219579216 passed Mac3+UbuntuShared. Windows22 unchanged
+Unix errors keep overallCIred; logs/source compared, no shared Mac defect.
+Merged-main37220191827 completed5success/4failure: Mac3+UbuntuCore/UI passed;
+actual logs repeat Ubuntu installer10pass/3fail and Windows22/22/14 Unix errors.
+No GitHub requirement was bypassed. Environment remains AppleSiliconmacOS/CLT,
+pinnedRust1.98.1,lockeddependencies,protobuf,Bash/Python3,canonical ownedTMPDIR.
 
-Fresh final macOSarm64/Rust1.98.1 locked/offline verification passed
-1059workspace/0failed/5ignored+52fixtures,178focused-native-workflow/0failed/
-4ignored,229combined-native-desktop/0failed/0ignored,both native Clippy modes,
-shipping builds and startup/restart2. Private crash children execute through
-subprocess matrices; optional case-sensitive APFS qualification is prior evidence.
-Post-merge exact tree,22focused tests,52fixtures and startup/restart2 passed
-(V10/exact BOM/CRLF/Unicode/zero credentials). Merged-main CI remains in progress.
-Native Action/owner acceptance is pending; reproducible scenarios are in the
+[PR34](https://github.com/ewq100/brn-rust/pull/34) merged5f9033b9/tree3978cedd.
+Whole typed Action Create/Replace and mixed drafts use exact proposal approval,
+including source-free vaultless work. Full-record CAS protects file effects and
+Applied recovery authority; joined settlement remains atomic. Native full-field
+review preserves incomplete typing and captured grouped approval. Activity counts
+approved Actions. Final1059workspace+229native+52fixtures and post22focused tests+
+52fixtures+startup2 passed. Its exacthead Mac3+UbuntuShared and merged-main Mac3+
+UbuntuCore/UI passed; the same four platform gaps remained. Native Action/owner
+acceptance is pending; reproducible scenarios remain in the
 [CLI](../crates/brn/README.md#manual-action-acceptance) and
 [desktop](../crates/brn-desktop/README.md#manual-action-review-acceptance) contracts.
 
-Earlier PRs16–33 are integrated; their plans/PRs retain exact evidence. PR32's
-Settings/dialog render correction is now observed on the unlocked Mac; safe
-original screenshots are retained. Human Connect remains pending.
+Earlier PRs16–33 are integrated with evidence in their plans/PRs. The actual fixed
+Settings/model-consent dialogs were observed; safe original screenshots retained.
 
 ## Active slice and next work
 
-The owner-requested sign-in control correction is implemented on
-codex/v1-connect-controls over5f9033b. The URL is clickable; the read-only code
-supports selection/keyboard Copy and an explicit Copy code button. Exact transient
-prompt/operation guards refuse stale link and copy events. Meaningful synthetic
-shipping-root tests reproduce the former missing controls, exercise read-only
-selection through redraw and stale pointer events, and cover cancel/dismissal.
-Independent review found no actionable defect. Fresh joined233native tests, both
-Clippy modes, shipping builds,52fixtures and startup/restart2 passed
-(V10/exact bytes/zero credentials). Exact-head CI/publication precede integration;
-actual corrected native acceptance is pending.
+codex/v1-action-completion is based on9609b7f. The identified Complete Store
+foundation is implemented and independently reviewed: full before-record/operation UUID, immutable
+checked receipt, transactional exact CAS and completion, monotonic time and
+older/fresh restoration preserving Completed work. Additive V11 stays within
+WorkStore. The application producer remains closed until ordinary recovery
+publication/startup reconciliation and shared worker/client behavior qualify.
+Fresh1072workspace tests/0failed/5ignored+52fixtures,233native tests/0failed/
+0ignored,both native Clippy modes,shipping Desktop/CLI builds and startup/restart2
+passed,V11/exact bytes/zero credentials. Exact-head CI/publication precede
+integration; no client Complete capability is claimed.
 
-Next: identified direct Complete, dashboard and related follow-up creation, then
-the remaining Stage6 AI/read-tool path within the same approval boundary. Inbox
-follows in roadmap order. Independent implementation/test work can run in parallel
-behind fixed interfaces; integration follows dependencies. WholeStage5/6 remain
-unfinished.
+Next: complete that headless/direct Complete flow, dashboard and new related
+approved follow-up Actions, then Stage6 AI/read tools within the same proposal
+boundary. Inbox follows in roadmap order. WholeStage5/6 and V1 remain unfinished.
 
 ## Qualification and owner items
 
@@ -124,9 +126,9 @@ unfinished.
 - Prior unlocked native checks passed synthetic scoped reads, Unicode Save and
   acknowledged buffer recovery after full quit/restart. Safe original UI captures
   are retained in the [screenshot index](ui/screenshots/2026-10-04/INDEX.md).
-  The unlocked Mac now shows fixed Settings and its optional-model dialog; three
-  safe originals are retained. Download was declined without a model request.
-  Fresh human sign-in is pending. Visual/native Action review, live inference,
+  Fixed Settings and its optional-model dialog were observed; three safe
+  originals are retained. Download was declined without a model request.
+  Human sign-in and updated-control qualification await an unlocked/awake Mac. Visual/native Action review, live inference,
   broader IME/accessibility/chooser and owner acceptance remain open.
 - Synthetic crash/widget tests do not establish physical power-loss durability,
   other-volume support or release readiness. Windows Unix API and non-Mac native
