@@ -1,5 +1,5 @@
 //! Checked operational Action records. Creation and mutation belong to exact
-//! proposal application; this foundation exposes retained reads only.
+//! proposal application and identified completion; clients use WorkStore APIs.
 use super::{
     WorkStore,
     proposals::{ActionChange, ProposalStamp},
@@ -30,7 +30,8 @@ const MAX_UUIDS: usize = 64;
 // The immutable origin and current data each retain bounded text. JSON escaping
 // can expand text sixfold; UUID arrays, field names and numeric metadata have a
 // separate allowance. Check this before loading a stored JSON blob.
-const MAX_STORED_BYTES: usize = 2 * (MAX_DESCRIPTION_BYTES + 2 * MAX_SHORT_BYTES) * 6 + 32 * 1024;
+pub(super) const MAX_STORED_BYTES: usize =
+    2 * (MAX_DESCRIPTION_BYTES + 2 * MAX_SHORT_BYTES) * 6 + 32 * 1024;
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize, Deserialize)]
 #[serde(rename_all = "snake_case")]
@@ -395,7 +396,7 @@ struct ActionRow {
     digest: Vec<u8>,
 }
 
-fn read(conn: &Connection, id: Uuid) -> Result<Option<ActionRecord>> {
+pub(super) fn read(conn: &Connection, id: Uuid) -> Result<Option<ActionRecord>> {
     nonnil(id)?;
     let row: Option<ActionRow> = conn.query_row(
         "SELECT version,state,created_at_ms,creation_sha256,CASE WHEN length(record_json)<=?2 THEN record_json END,record_sha256 FROM actions WHERE id=?1",
@@ -451,7 +452,7 @@ pub(super) fn check_changes(tx: &Transaction<'_>, changes: &[ActionChange]) -> R
     Ok(())
 }
 
-fn write(tx: &Transaction<'_>, record: &ActionRecord) -> Result<()> {
+pub(super) fn write(tx: &Transaction<'_>, record: &ActionRecord) -> Result<()> {
     record.validate()?;
     let bytes =
         serde_json::to_vec(record).map_err(|_| invalid("Could not encode Action record"))?;

@@ -1,6 +1,7 @@
 //! User-work database for the simple notes app (`brn.sqlite`). It is checked
 //! on every open, restored from the newest backup when corrupt, and backed
 //! up after every successful open. Notes themselves live in the vault.
+pub mod action_completion;
 pub mod actions;
 mod backup;
 pub mod chat;
@@ -72,6 +73,7 @@ const MIGRATIONS: &[&str] = &[
     chat::V8,
     findings::V9,
     actions::V10,
+    action_completion::V11,
 ];
 
 #[derive(Debug, Clone, PartialEq, Eq)]
@@ -144,6 +146,7 @@ impl WorkStore {
         configure(&conn)?;
         migrate(&mut conn)?;
         actions::check_all(&conn)?;
+        action_completion::check_all(&conn)?;
         findings::check_all(&conn)?;
         chat::reconcile(&mut conn)?;
         proposal_rewrite::reconcile(&mut conn)?;
@@ -263,6 +266,16 @@ fn check(db: &Path) -> Result<Checked> {
         Err(e) if is_corruption(&e) => return Ok(Checked::Corrupt),
         Err(e) => return Err(e.into()),
     };
+    if application == APPLICATION_ID && (11..=MIGRATIONS.len() as i64).contains(&version) {
+        // Readable completion evidence must never be discarded by restoring an
+        // older backup. Validate its owned shape, full bindings and current
+        // Completed record before SQLite classifies domain damage as corruption.
+        match action_completion::check_all(&conn) {
+            Err(crate::Error::Sql(e)) if is_corruption(&e) => return Ok(Checked::Corrupt),
+            Err(error) => return Ok(Checked::Invalid(error)),
+            Ok(()) => {}
+        }
+    }
     if application == APPLICATION_ID && (10..=MIGRATIONS.len() as i64).contains(&version) {
         // Readable Action schema/record damage is semantic refusal. Checking
         // the owned shape and full rows first prevents quick_check from

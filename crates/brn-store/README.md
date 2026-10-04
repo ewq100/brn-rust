@@ -19,7 +19,7 @@ own saved Markdown; disposable retrieval indexes live outside this crate.
 
 ## Database ownership and recovery
 
-WorkStore uses application ID `BRN2`, schema V10, and retains `brn.owner.lock`
+WorkStore uses application ID `BRN2`, schema V11, and retains `brn.owner.lock`
 for its lifetime. Current settings, text-only conversations and unfinished work
 are preserved by additive migrations. Earlier WorkStore V1 unsaved-edit rows
 remain available; matching text moves atomically into the generation-aware
@@ -309,7 +309,8 @@ members, with one combined64-member/8MiB budget. Completed work cannot be change
 or reopened through these members. Empty additions stay omitted from historical
 Markdown serialization. Shared workflow creation/application uses these typed
 members; owned AI Action Rewrite and Action-bearing Undo remain refused.
-No standalone Action mutation API is exposed.
+Creation/replacement remains proposal-only. Identified completion has the separate
+narrow storage contract below; it does not create, edit or reopen Actions.
 
 `ApplyJournal::action_records` retains complete ordered after-state derived from
 the exact approved members, stamp and captured time. Admission checks absent
@@ -346,3 +347,31 @@ Tests cover migrations, foreign/newer/corrupt/missing databases, backup restore,
 marker refusal, lock/attachment ownership, exact bytes, stale acknowledgements,
 uncertain saves, parent proof, no-op replay and compact recovery. Workflow tests
 qualify filesystem execution and process interruption separately.
+
+## Identified completion foundation
+
+V11 adds checked [Action completion receipts](src/work/action_completion.rs) to
+the same WorkStore. `CompleteActionRequest` binds an operation UUID and the full
+unfinished before-record. The exact after-record preserves origin and content,
+advances one revision, clears Waiting time and records completion/update time at
+least as late as the before-record. Completed work never reopens.
+
+`complete_action_with` requires a publisher of the exact recovery snapshot. An
+Immediate SQLite transaction checks full CAS and all bounds before publication,
+holds write exclusion during publication, then settles the record and immutable
+receipt together. Publication or SQL failure rolls back SQLite. The workflow
+caller must publish durable ordinary evidence and reconcile it after uncertainty;
+a callback success alone does not establish filesystem durability. Exact bound
+replay returns the retained receipt without publishing again or changing time.
+
+`restore_action_completion` imports checked evidence into older/fresh SQLite,
+refuses incompatible origins/equal-version forks or newer unfinished records,
+and preserves newer Completed records. Bounded encoded bytes, request/receipt
+hashes, canonical indexed identities, exact owned schema and the retained
+Completed record are validated before quick_check. Readable semantic damage
+refuses the main database; invalid backup candidates are skipped.
+
+These APIs are storage preparation for the shared application command. CLI/UI
+completion stays unavailable until workflow publication/startup recovery and
+worker admission/shutdown behavior qualify. Clients continue through workflow/
+AppWorker; they do not call these storage APIs or write SQLite directly.
