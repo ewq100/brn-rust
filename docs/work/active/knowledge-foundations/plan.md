@@ -564,3 +564,79 @@ and owner acceptance remain pending. No account calls, model downloads, private
 data inspection or session Archive/Restore/Delete occurred. This slice is
 implemented, automated verified, independently reviewed and locally integrated
 with this change. Stage 5 remains active.
+
+## Eighth slice: exact saved Markdown link inspection
+
+Baseline: `main@baf3beeb8fbca5a586419a61b416e64cf704609f`; only the owner
+AGENTS.md change is unrelated. The timestamp slice is locally integrated and
+hosted CI lookup returned no published run. Continue Stage 5 relationships.
+
+Extract ordinary CommonMark inline/reference links from saved body bytes, excluding
+frontmatter, code, images and raw HTML. Reuse the managed frontmatter walk for an
+exact body offset, including BOM, CRLF and both supported closing delimiters.
+Use pinned markdown 1.0.0, already in the lockfile, through brn-workflow. Preserve
+exact occurrence/used-definition byte ranges and quotes. Bounded inspection
+refuses excessive output explicitly rather than silently truncating evidence.
+
+Resolve contained relative Markdown paths and `brn://note/<nonnil UUID>` links
+against one fresh identity inventory; UUID links survive renames. No filename,
+title or cached-index guess is allowed. Preserve external/non-note/unsupported
+destinations as explicit outcomes, and distinguish absent, unmanaged, ambiguous,
+incomplete and changed saved observations. Source identity uncertainty remains
+visible. These are derived saved-link observations, not newly approved/inferred
+relationships. No vault writes, network, graph datastore or new operational table.
+
+Expose read-only inspection through AppWorker and CLI, with preflight before
+authority startup. Acceptance covers exact Unicode/BOM/CRLF proofs, reference
+definitions before/after uses, frontmatter/code/image exclusion, contained relative
+and percent-encoded paths, UUID moves/duplicates/incomplete inspection, fresh
+retained-mtime edits, restart/index loss, unresolved-work fences and unchanged
+vault bytes. Obtain independent read-only review, validate findings, run fresh
+affected/integrated gates, record a reproducible CLI scenario and integrate.
+Native controls, derived edge indexing, durable link preparation and basic
+findings remain following Stage 5 slices; the graph canvas stays Stage 14.
+
+Eighth-slice evidence, 2026-10-04: exact saved extraction passed seven pure tests;
+nine Store body-offset tests retain both closing fences, BOM/CRLF, opaque values
+and bounded refusal. Seven real workflow tests prove UUID moves/duplicates,
+retained-mtime edits, incomplete inspection, source uncertainty, URI containment,
+restart/index deletion/new-store reconstruction and unresolved-work fences.
+CLI checks passed **42 unit / 3 process tests**, including direct preflight before
+authority/credential startup. Fixtures use separate owned data/vault roots.
+
+Lead's actual App regression and independent review reproduced an inherited
+valid-input defect: an ordinary leading thematic break followed by a link was
+mistaken for unsupported root-flow frontmatter. Non-strict reads now recognize
+the existing no-managed/no-closer ordinary-body case before interpreting layout.
+Strict assignment, complete unsupported flow, malformed closers and incomplete
+managed syntax stay refused. Independent review also reproduced the missing
+native `NoteLinks` event match; the existing read-only evidence branch now handles
+it. Final corrected-tree review passed **62 tests**, shipping native check and
+six actual synthetic CLI cases, with no remaining actionable finding.
+
+Fresh root Rust 1.98.1/macOS arm64 locked/offline gate:
+`TMPDIR=/private/tmp/brn-links-root-ufgzz6bk bash scripts/verify-end-to-end.sh`
+passed retirement, workspace format/build/all-target Clippy with warnings denied,
+**836 tests / 0 failed / 2 ignored** and **52 end-to-end assertions**. The first
+gate stopped at a test-only non-octal permissions literal; the corrected complete
+gate qualifies the final tree. Both private ignored crash entry points remain
+exercised by subprocess matrices. Native desktop tests passed **168 / 0 failed**;
+native workflow library/model/link checks passed **135 / 0 failed / 2 ignored**.
+Both native desktop Clippy configurations and shipping build without test support
+passed. Shipping headless AppWorker startup/restart passed in a new owned link
+fixture. Actual ONNX/model inference was not exercised. The known upstream
+`block v0.1.6` future-compiler warning remains.
+
+[CLI manual acceptance](../../../../crates/brn/README.md#saved-note-links) covers
+exact proof inspection, a renamed source, duplicates and index deletion. The
+reproducible fixture at `/private/tmp/brn-links-root-ufgzz6bk/manual` retains
+`data`, `vault/current.md` (BOM/CRLF), an unmanaged thematic-break note and an
+archived source. Root's actual `links show` returned three exact resolved proofs;
+all vault bytes remained unchanged. Logs and ownership metadata stay outside Git.
+The parser dependency is the existing pinned markdown 1.0.0; only the workflow
+dependency line was added to Cargo.lock after correcting an unintended offline
+lock refresh. No dependency versions changed. No live calls, downloads or
+original-data inspection occurred. Owner/GUI acceptance remains pending. This slice is implemented,
+automated verified, independently reviewed and locally integrated with this
+change. Relationship indexing/preparation/views, basic findings and multilingual
+qualification continue; Stage 5 remains active.

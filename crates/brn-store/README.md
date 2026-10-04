@@ -91,6 +91,10 @@ Markdown remains readable. Full edits/Rewrite preserve an established proposed I
 Historical records/receipts are not revalidated under this new format, and exact
 Undo can remove a prior assignment. No identity table or database migration is added.
 
+`note_identity::body_start` reuses that exact frontmatter walk to locate saved body
+bytes, including BOM, CRLF and both closing fences. It checks managed field layout
+and the 1 MiB limit while leaving value semantics to their existing readers.
+
 The pure `note_metadata::classify` reader accepts optional ordinary scalars
 `brn_kind: knowledge|source` and `brn_state: current|history`; absence means
 current knowledge. Quoted values and comments are supported, while duplicate,

@@ -75,12 +75,12 @@ vault/store with only copied Markdown proves session/index independence; actual
 session Delete remains later qualification. Source CAS, restart, index rebuild
 and Undo are verified; current write/read rules and unresolved-work fences remain
 intact. Independent reviews found no remaining actionable findings. Fresh final
-locked/offline verification passed **809 workspace tests / 0 failed / 2 ignored**,
+locked/offline verification passed **836 workspace tests / 0 failed / 2 ignored**,
 **52 end-to-end assertions**, format/build/all-target Clippy, **168 native desktop
 tests**, native all-target Clippy and the shipping native desktop build.
 Fresh full-byte refresh catches retained-size/mtime changes;
 unreadable evidence folders report incomplete inspection while readable current
-knowledge remains usable. Fresh native synthetic observation confirmed scope
+knowledge remains usable. Earlier native synthetic observation confirmed scope
 separation, archived/current-history read-only views, typing refusal and an exact
 86-byte BOM/CRLF/Unicode Copy→paste→Save Copy result, preserving original files.
 The Mac locked before the final GUI restart check; owner acceptance remains pending.
@@ -97,8 +97,15 @@ values and stable replay/restart observations. Native history shows recorded
 activity age. A valid concurrent-summary defect was reproduced and corrected with
 one SQLite read snapshot; independent correction review sampled 3,040 summaries
 during 1,000 attached writes with no inconsistencies. Fresh synthetic native
-startup and CLI checks passed for new data and a V7 database upgrade. Native
-GUI/owner acceptance remains pending. Relationships, basic findings and multilingual
+startup and CLI checks passed for new data and a V7 database upgrade. Saved
+CommonMark inline/reference links now retain exact occurrence/definition proofs,
+resolve contained paths or stable UUID targets, and expose uncertainty through
+AppWorker/CLI. UUID links survive moves; no path/title guess or network occurs.
+Independent review reproduced and rechecked the ordinary-thematic-break parser
+fix and native event match; final review passed 62 tests plus six synthetic CLI
+scenarios with no actionable finding. Native workflow checks passed 135 / 0
+failed / 2 ignored; no real model inference occurred. Native GUI/owner acceptance
+remains pending. Derived relationship indexing/preparation/views, basic findings and multilingual
 qualification continue next;
 Stage 5 is not complete.
 

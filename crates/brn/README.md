@@ -460,6 +460,40 @@ saved quote remains exact. Repeat an old capture request after a source edit and
 confirm refusal. Owner acceptance and later native provenance presentation remain
 separate from these automated/process checks.
 
+### Saved note links
+
+`links show PATH` inspects saved current/source/history Markdown without opening
+an editor or changing notes. CommonMark inline and reference links retain exact
+occurrence byte ranges/quotes and the actually used reference definition. Metadata,
+code, images and HTML attributes do not become links. Inspection refuses more than
+4096 links or over 4 MiB of returned destination/quote bytes rather than truncating.
+
+Contained relative `.md` paths resolve from the source folder; percent decoding
+occurs once, `+` stays literal, and encoded path separators are refused. Query and
+fragment text do not become filename bytes. `brn://note/UUID` links use a nonnil
+managed UUID and follow unique saved notes through renames. No filename/title
+guess or network request occurs. Results expose full source UUID/hash and identity
+outcome, `resolved`, `absent`, `unmanaged`, `ambiguous`, `incomplete`, `changed`,
+`external`, `non_note` or `unsupported` target outcomes, observed matches and
+inspection issues. A resolved target alone does not establish a unique source.
+These are fresh saved observations, not a transactional vault snapshot or new
+AI-approved relationship. Durable changes still use complete ordinary proposals.
+
+For manual acceptance, use separate fresh synthetic data/vault directories. Give
+`current.md` and `source.md` different `brn_id` UUIDs. In `current.md`, add a normal
+`[path](source.md)` link and `[stable](brn://note/<source UUID>)`, then run:
+
+```sh
+brn links show current.md --data-dir "$BRN_DATA" --vault "$BRN_VAULT" --json
+```
+
+Both targets must resolve with exact link quotes. Rename only that synthetic
+`source.md`: the path link becomes absent and the UUID link reports its new path.
+Duplicate the renamed synthetic source: the UUID link becomes ambiguous, retaining
+both observed matches. Delete only that fixture's disposable `index.sqlite` and
+restart; results must rebuild from Markdown and original note bytes stay exact.
+Native relationship controls and derived graph indexing follow separately.
+
 ## Output contract
 
 `--json` prints one schema-1 envelope on stdout. Human errors go to stderr;

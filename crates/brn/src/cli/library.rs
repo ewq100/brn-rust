@@ -300,6 +300,7 @@ pub fn run(i: &Invocation) -> Result<Output, CliFailure> {
         Command::Identity(command) => Some(super::identity::prepare(command)?),
         Command::Evidence(command) => Some(super::evidence::prepare(command)?),
         Command::Provenance(command) => Some(super::provenance::prepare(command)?),
+        Command::Links(command) => Some(super::links::prepare(command)?),
         _ => None,
     };
     let rewrite_request = match &proposal {
@@ -402,6 +403,17 @@ fn execute(
                 _ => return Err(unexpected()),
             };
             Ok(output(data))
+        }
+        Command::Links(super::links::LinksCommand::Show(path)) => {
+            let AppEvent::NoteLinks(links) =
+                lane.query(knowledge.expect("links input prepared before startup"))?
+            else {
+                return Err(unexpected());
+            };
+            if links.source.path != *path {
+                return Err(unexpected());
+            }
+            Ok(output(json!(links)))
         }
         Command::Evidence(super::evidence::EvidenceCommand::Read(path)) => {
             let AppEvent::EvidenceNote(note) =

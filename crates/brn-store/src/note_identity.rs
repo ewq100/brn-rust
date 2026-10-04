@@ -106,6 +106,7 @@ pub(crate) struct RawField<'a> {
 pub(crate) struct RawFields<'a, const N: usize> {
     pub(crate) insertion: usize,
     pub(crate) newline: &'static str,
+    pub(crate) body_start: usize,
     pub(crate) fields: [Option<RawField<'a>>; N],
 }
 
@@ -142,6 +143,16 @@ pub(crate) fn raw_fields<'a, const N: usize>(
             Ok(None)
         };
     }
+    if !strict_assignment
+        && matches!(
+            frontmatter_candidate(text, &keys),
+            FrontmatterCandidate::None
+        )
+    {
+        // An unmanaged thematic break has no header boundary. Recognize that
+        // before its ordinary Markdown body can resemble unsupported YAML.
+        return Ok(None);
+    }
     let newline = if first.ends_with("\r\n") {
         "\r\n"
     } else {
@@ -172,6 +183,7 @@ pub(crate) fn raw_fields<'a, const N: usize>(
             return Ok(Some(RawFields {
                 insertion: offset + first.len(),
                 newline,
+                body_start: cursor,
                 fields,
             }));
         }
@@ -264,6 +276,21 @@ pub(crate) fn selected_fields<'a, const N: usize>(
 /// that field is absent, while its selected-field parser still refuses malformed
 /// managed syntax. Nested/block values and body text are opaque.
 pub(crate) fn has_field(text: &str, key: &str) -> bool {
+    matches!(
+        frontmatter_candidate(text, &[key]),
+        FrontmatterCandidate::ManagedField
+    )
+}
+
+enum FrontmatterCandidate {
+    None,
+    ManagedField,
+    ClosingDelimiter,
+}
+
+/// This conservative lookahead reuses the same opaque root/indented distinction
+/// for field presence and possible supported or malformed closing delimiters.
+fn frontmatter_candidate(text: &str, keys: &[&str]) -> FrontmatterCandidate {
     let text = text.strip_prefix(BOM).unwrap_or(text);
     let mut lines = text.split_inclusive('\n');
     let first = horizontal(line_content(lines.next().unwrap_or("")));
@@ -271,7 +298,7 @@ pub(crate) fn has_field(text: &str, key: &str) -> bool {
         .strip_prefix("---")
         .is_some_and(|rest| rest.is_empty() || rest.starts_with([' ', '\t', '\r']))
     {
-        return false;
+        return FrontmatterCandidate::None;
     }
     let mut opaque_indented = false;
     for line in lines {
@@ -284,19 +311,22 @@ pub(crate) fn has_field(text: &str, key: &str) -> bool {
                 .strip_prefix(delimiter)
                 .is_some_and(|rest| rest.is_empty() || rest.starts_with([' ', '\t', '\r']))
         }) {
-            return false;
+            return FrontmatterCandidate::ClosingDelimiter;
         }
         if content.is_empty() || content.starts_with('#') {
             continue;
         }
-        if unsupported_key(content, key) || flow_has_field(horizontal(content), key) {
-            return true;
+        if keys
+            .iter()
+            .any(|key| unsupported_key(content, key) || flow_has_field(horizontal(content), key))
+        {
+            return FrontmatterCandidate::ManagedField;
         }
         if !content.starts_with([' ', '\t']) {
             opaque_indented = ordinary_root_field(content);
         }
     }
-    false
+    FrontmatterCandidate::None
 }
 
 fn flow_has_field(text: &str, key: &str) -> bool {
@@ -358,6 +388,24 @@ fn frontmatter(text: &str, strict_assignment: bool) -> Result<Option<Frontmatter
 /// Reads only the documented managed field; unrelated metadata and body are opaque.
 pub fn read(text: &str) -> Result<Option<Uuid>> {
     Ok(frontmatter(text, false)?.and_then(|metadata| metadata.id))
+}
+
+/// Return the exact saved body byte offset after supported leading frontmatter,
+/// or after only a leading BOM when no complete frontmatter is recognized.
+/// Managed field layouts are checked; their values retain separate readers.
+pub fn body_start(text: &str) -> Result<usize> {
+    if text.len() > MAX_NOTE_BYTES {
+        return Err(invalid("note body inspection exceeds the 1 MiB note limit"));
+    }
+    Ok(raw_fields(
+        text,
+        ["brn_id", "brn_kind", "brn_state", "brn_provenance"],
+        false,
+    )?
+    .map_or_else(
+        || if text.starts_with(BOM) { BOM.len() } else { 0 },
+        |metadata| metadata.body_start,
+    ))
 }
 
 /// Returns complete proposed bytes. It never writes a note or mints an identity.

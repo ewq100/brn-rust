@@ -121,6 +121,19 @@ Approved quotes survive index loss and inspection from a fresh operational store
 with only the copied ordinary Markdown. Actual session Delete qualification and
 native provenance convenience follow their roadmap slices.
 
+`NoteLinks` inspects ordinary CommonMark inline/reference links in saved body
+bytes, using Store's exact frontmatter body offset and pinned markdown 1.0.0.
+Occurrence/used-definition proofs retain full-note UTF-8 ranges and exact quotes.
+Contained relative Markdown paths and stable `brn://note/UUID` targets resolve
+from a fresh complete identity inventory, with explicit unresolved/non-note/
+external outcomes. Sources retain UUID/hash and separate identity certainty;
+targets recheck saved bytes before reporting resolution. Inspection respects
+current-evidence fences, never opens an editor/writes Markdown or starts network
+work, and survives restart/index loss from ordinary Markdown alone. It refuses
+4096-link/4 MiB destination-and-quote overflow instead of silently truncating.
+These are observations, not a transactional vault snapshot. Derived edge indexing,
+durable link preparation and native relationship controls follow separately.
+
 `proposal_source(path)` / AppWorker `ProposalSource` return the complete saved
 text and trusted file fingerprint for initial review composition. The capture
 uses current-evidence fences and the same visible Markdown/path/file checks as

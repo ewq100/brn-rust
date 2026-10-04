@@ -13,6 +13,8 @@ use uuid::Uuid;
 pub use brn_store::note_identity;
 mod provenance;
 pub use provenance::*;
+mod links;
+pub use links::*;
 
 #[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
 #[serde(deny_unknown_fields)]
