@@ -333,6 +333,335 @@ activity/Undo/Trash retention, AI Rewrite and native review are the next slices.
 This file-application slice is locally integrated under the mission authorization;
 Stage 4 remains active and is not declared complete.
 
+## Readable activity slice
+
+Baseline: `main@e04fc52a857263c9ec9548890916f7cc65e13a60`; preserve the unrelated
+owner AGENTS.md edit. Project the existing terminal Applied journals into a bounded
+human-readable history, without another database or event framework. Include the
+approved title, affected paths/kinds, operation/proposal/group/session identities
+and the recorded approval-admission time. Do not call this an exact completion
+time. Drafts, refusals and uncertain applications cannot claim a completed durable
+change. Current-evidence fences do not hide already-settled historical activity.
+
+Expose the same page through AppWorker and `brn activity list`; default to 20,
+allow 1–100 entries, and use an existing Applied operation UUID as the exclusive
+older-page cursor. Order by approval time then UUID, newest first. Historical
+entries remain stable after later note edits, restart and ordinary receipt restore;
+default output excludes note bodies, review comments, credentials and raw tool
+transcripts. Native presentation follows with the complete proposal interaction.
+
+Acceptance/checks: meaningful projection, pagination, current-fence/restart and
+CLI process tests; invalid syntax before workspace admission, stale cursors refused;
+independent read-only review, fresh integrated gates and optional native compile.
+Record a disposable-data manual scenario and keep owner acceptance pending.
+Next slice implements bounded Undo/Trash restore while retaining originals; recent
+Undo eligibility must never silently permanently delete retained user knowledge.
+
+### Activity results — 2026-10-03
+
+Implemented against `e04fc52`. Activity uses existing checked Applied receipts;
+it does not duplicate history storage or claim partial/uncertain work succeeded.
+One checked journal is decoded at a time, with only scalar full-history ordering
+metadata retained. Pages and human output expose approval time, title, summary,
+paths and cause identities; they exclude bodies, comments and proofs. Exclusive
+cursors disambiguate equal timestamps and refuse unknown/unapproved operations.
+Historical output survives later bytes, unavailable vaults, unresolved current
+work and ordinary-receipt recovery of a fresh operational database.
+
+Independent review found that the startup current-evidence guard still loaded
+all history bodies before the activity request. Verified and corrected the guard
+to enumerate IDs and check each journal in turn, still checking every row without
+short-circuiting after an unresolved record. Independent re-review found no
+remaining actionable defect. The helper's targeted normal CLI run passed; a
+broader helper rerun encountered an intermittent macOS coordination refusal before
+approval. Root's complete final normal run passed after the correction, without
+a source workaround or permission escalation; this remains a qualification limit.
+
+Fresh final macOS arm64 / pinned Rust 1.98.1 locked/offline checks:
+
+- `TMPDIR=<exclusive owned parent> bash scripts/verify-end-to-end.sh`: retirement,
+  format/build/all-target Clippy with warnings denied, **507 workspace passed,
+  0 failed, 2 ignored** private crash entry points exercised through subprocess
+  tests; **52 end-to-end assertions**. CLI **72 passed**; new checks include
+  **3 workflow activity integrations**, **1 timestamp unit**, **3 CLI processes**
+  and **2 output units**, included in workspace counts.
+- Store **34 approval/recovery tests**, workflow **2 proposal barriers** and
+  independent activity/CLI tests passed. Optional native desktop compile passed;
+  existing `block v0.1.6` future-compiler warning remains.
+- Changed Markdown **38 local links/fragments, 0 errors** and diff check passed.
+  Only verified exclusively owned synthetic gate parents were removed. No live
+  account/model calls, original-data inspection, push or release was performed.
+
+Manual acceptance remains pending: approve two disposable Create proposals using
+the CLI README example, run `activity list --limit 1`, fetch the returned exclusive
+older cursor, then edit one note externally and restart. The same two historical
+entries should remain, with later bytes untouched and no private body/comment
+content in default output. Native history presentation follows in the review UI.
+This slice is locally integrated under the standing mission authorization; bounded
+Undo/Trash and AI/native review remain required before Stage 4 is complete.
+
+## Bounded Undo/Trash slice
+
+Baseline: `main@7100ab2f6d890b78c4b9c72fe484f15004a004ca`; preserve owner AGENTS.md.
+Explicit human Undo identifies one immutable Applied operation. Derive its exact
+inverse as another bounded typed proposal/application: Create → Trash, Replace →
+Replace with retained original, Trash → Create from retained original. The new
+operation has its own UUID and recoverable whole-proposal receipt; original UUID
+replay remains historical and never installs again. AI has no direct Undo tool.
+An explicit Restore Trash can select one original Trash member, producing a
+single-member Create with its exact retained inode. This remains useful when other
+members of the old mixed proposal have later owner edits; those files are outside
+the new restoration. Whole Undo never silently narrows to a subset. The source
+operation and whole/single-Trash scope both bind replay and recovery.
+Preview exposes the complete inverse; an explicit identified human Undo is a direct
+operation under the frozen explicit-user-command exception. Ordinary manual edits
+and approvals of a refused inverse remain ordinary reviewed proposal behavior.
+
+Keep the same NoteChange types, journal/fence and whole-application protocol.
+An optional, omitted-when-absent Undo binding names the source operation and exact
+retained member IDs/fingerprints. Fresh admission cross-checks the terminal source.
+Inverse Create/Replace borrows its proven retained inode as staging, preserving
+mode/ACL/xattrs and original identity; inverse Trash uses a new stage. Validate the
+binding through preparation, immutable recovery merge and temporary-file cleanup.
+Before effects, borrowed stages equal the originals; after effects, ordinary whole
+Applied proofs hold. Interrupted NotApplied also requires unchanged borrowed-source
+proof. Older snapshots remain hash compatible; missing/older database recovery is
+self-contained and does not need a new source foreign key or replay ordering graph.
+
+Preflight checks exact current targets/absence, all retained originals, vault/root/
+parents and editor aliases. Dirty recovery refuses. A clean old editor baseline may
+be retained only when it exactly matches the original inode/text being restored;
+never rebase its token/generation or overwrite queued later typing. Stage/flush all
+members before effects, retain full proofs on interruption and never retry namespace
+effects implicitly. One Undo is bounded by the existing 64-member/8 MiB limits;
+default activity pages expose recent work, while older Trash remains restorable if
+its exact proofs still hold. No timer/count silently purges Trash or superseded bytes.
+
+Implement storage derivation/admission first, then workflow/files/worker/CLI and
+native interaction. Storage acceptance: exact inverse/binding, invalid or unrelated
+source/UUID refusal, atomic inverse-review/journal admission/rollback, immutable
+proof/replay, old JSON/hash compatibility and source-independent receipt restore.
+Workflow acceptance: byte/identity/attribute restoration, changed occupants/sources/
+parents and dirty aliases refuse, queued typing survives, crash/member/sync/receipt/
+older-backup cases reconcile without repeating effects, whole mixed work stays
+fenced. Use meaningful synthetic tests, independent read-only review and fresh
+relevant gates; native/manual/physical-power-loss qualification remains separate.
+
+Storage-only implementation derives exact whole and selected-Trash inverses,
+atomically admits review plus apply intent, fixes immutable bindings and preserves
+legacy omitted-field JSON/checksums. It performs no vault writes or purges.
+Independent review identified a valid near-limit 64-Trash source whose inverse
+could prepare but fail Applied settlement after its Undo manifest consumed the
+old metadata cap. The helper reproduced that failure; follow-up review also
+reproduced core growth when original fingerprints had wider integers than the
+installed fingerprints. Final validation retains the ordinary core cap and uses
+a stable normalized path/member base for Undo, with separate fixed allowances of
+33,792 bytes for its manifest and 100,352 bytes for proof/receipt/time slots. This
+prevents inverse chains from consuming more headroom. Regressions complete a
+near-cap 64-Trash inverse and its inverse, and four 64-Replace inverse/recovery
+cycles, each without requiring the prior source row. Legacy None JSON/caps remain
+unchanged. No requirement/architecture change was needed. Final independent re-review found no remaining actionable defect and independently
+passed both boundary regressions. Root's fresh macOS arm64 / Rust 1.98.1
+locked/offline `TMPDIR=<exclusive owned parent> bash scripts/verify-end-to-end.sh`
+passed **524 workspace tests, 0 failed, 2 ignored** private crash entry points
+exercised by subprocess matrices; **52 fixture assertions**, retirement, format,
+build and all-target Clippy with warnings denied. Store **127 passed**, including
+**17 Undo tests** and **34 approval/recovery tests**; optional native desktop
+compile passed. Changed Markdown **22 local links/fragments, 0 errors** and diff
+checks passed. Verified exclusively owned synthetic gate parents were removed;
+no live calls, original data, push or release. This storage-only slice is locally
+integrated under mission authorization. File execution and native/manual
+qualification remain in subsequent shared execution/UI work.
+
+Shared execution baseline: `main@e593da83a985345cfb78e60bab82dc781cd1d525`;
+Store admission is integrated, owner AGENTS.md remains unrelated. Acceptance starts
+with failing public integration checks for exact byte/inode/mode/ACL/xattr recovery,
+editor stamp and later typing preservation, scoped Trash with unrelated later edits,
+changed original/target/root refusal, replay and fresh-DB history restoration.
+
+Next shared execution slice will reuse Store `UndoRequest`, `UndoPreview` and
+`UndoBinding` unchanged. `App::preview_proposal_undo` is operational read-only;
+`App::undo_proposal` performs an explicit identified human operation, replay-first.
+AppWorker adds `PreviewProposalUndo` / `UndoProposal` and `ProposalUndoPreview`,
+with the existing `ProposalApplied` receipt and mutation shutdown drain. Fresh
+preflight shares ordinary approval's vault/source/target/editor checks, plus exact
+borrowed originals. Preparation flushes those originals without copying them;
+the existing whole application/reconciliation protocol installs the inverse.
+Activity adds optional source-operation and selected-Trash-member context so a
+short valid title cannot hide that the recorded change was Undo/restoration.
+CLI adds `undo-preview TARGET --operation NEW [--member INDEX]`, `undo TARGET
+--operation NEW` and `restore-trash TARGET --member INDEX --operation NEW`, with
+pure request validation before opening storage. Native interaction remains next.
+
+Shared execution implements the fixed interfaces above and reuses one preflight/
+admitted-run path for ordinary approval and Undo. Borrowed originals are checked
+before admission and preparation, required file/directory flushes complete before
+whole prepared evidence is mirrored, then existing installation/proof settlement
+runs. Editor matches include namespace, current inode and borrowed original inode;
+clean original baseline/text is allowed without rebasing, dirty aliases refuse.
+Temporary-record retirement now requires matching Undo bindings. Activity names
+the source/scope, and CLI defaults to full typed preview plus explicit operation IDs.
+
+Targeted normal root checks passed the four public workflow integrations and the
+14-boundary Undo subprocess matrix, mirror-persistence failures and changed
+retained-original uncertainty. Worker tests cover real correlation/shutdown/later
+old-stamp typing. The CLI helper encountered macOS coordination refusal during
+its initial editor fixture setup; root's normal process run reached all Undo paths.
+One CLI assertion expected ToolRejected for source-dependent Store Invalid, contrary
+to the existing intentional uncategorized mapping; corrected the assertion without
+changing product behavior. Final read-only review and fresh gates follow.
+
+Independent read-only final review against `e593da8` found no actionable findings;
+it independently passed **4 workflow integrations, 2 worker tests and 4 CLI
+process tests**. Root's fresh macOS arm64 / Rust 1.98.1 locked/offline
+`TMPDIR=<exclusive owned parent> bash scripts/verify-end-to-end.sh` passed
+**538 workspace tests, 0 failed, 2 ignored** private process entry points exercised
+by matrices; **52 fixtures**, retirement, format/build/all-target Clippy with
+warnings denied. Optional native desktop compile passed; existing upstream `block
+v0.1.6` warning remains. Store **127 passed**, CLI **77 passed**. The new Undo
+subprocess matrix checks **14 crash boundaries**; ordinary-mirror persistence
+failures and changed borrowed originals preserve exact whole outcomes. No physical
+power loss, native Undo interaction or owner usability acceptance is claimed.
+
+Manual acceptance pending: in fresh disposable data/vault, approve a mixed
+Replace/Create/Trash proposal. Run `proposals undo-preview SOURCE --operation NEW`
+and inspect all full inverse changes without file effects, then `proposals undo
+SOURCE --operation NEW`. Compare exact originals and verify the created note moved
+to retained Trash. Replay NEW after a later external edit: preserve that edit and
+return the old receipt. Separately approve another mixed proposal, edit its Replace
+note externally, then preview/execute `restore-trash SOURCE --member INDEX
+--operation NEW` for its zero-based original Trash member: restore only that file.
+An occupied destination or changed original must refuse, preserving every file.
+[CLI commands](../../../../crates/brn/README.md) document the concrete invocation.
+Shared execution is locally integrated under standing mission authorization;
+explicit interrupted-work repair, owned Rewrite and native review/Undo are next.
+Changed Markdown **54 local links/fragments, 0 errors** and diff checks passed;
+only verified exclusively owned synthetic gate parents were removed. No live
+calls, model downloads, original/private-data inspection, push or release.
+
+## Explicit interrupted-operation repair slice
+
+Baseline: `main@7f97d65fa01e3dbea68540e60a24d407461ce0b4`; preserve owner AGENTS.md.
+Repair is a separate explicit human command for one unresolved, already-approved
+operation. Preview the full original proposal and exact current member phases;
+Finish installs remaining approved changes, Restore returns applied members to
+originals. No automatic namespace retry occurs at startup, reconciliation or UUID
+replay. Unknown occupants/proofs refuse both directions and remain fenced.
+
+Keep existing NoteChange types, filesystem primitives, whole receipt and current-
+evidence fence. A known complete prepared set yields each member's exact Before
+or Applied phase. Capture a SHA-256 review stamp over immutable approval/member/
+prepared/Undo bindings, prior repair UUIDs and the complete observed proof vector.
+Each human attempt has a fresh repair UUID and direction. One optional journal
+repair binding keeps at most 64 compact attempts, latest admission proofs and
+immutable request hashes; absent fields retain legacy JSON/checksums. At most the
+latest attempt is pending; earlier uncertain attempts remain historical. Resource
+caps are checked before admission/effects. No new database/table/framework is needed.
+
+Store first: typed direction/request/preview/receipt, phase classification/hash,
+atomic replay-first admission, immutable forward history/recovery merge and latest
+attempt outcome. Original approval/comment version remains unchanged by admission;
+terminal whole receipt and latest outcome settle together. Normalize bounded path
+metadata for retained repair journals and reserve fixed proof/repair slots, keeping
+ordinary absent-field limits unchanged. Recovery can restore the repair binding
+without another source row. Then shared execution: exact capture/preflight, durable
+repair mirror before effects, skip already-desired phases, coordinated proof-checked
+forward/reverse moves, required flush and whole reobservation. Finish checks sources
+against arbitrary phases; Restore does not overwrite unrelated external sources.
+Editor aliases/buffers/stamps remain protected; later queued typing is retained.
+
+Acceptance: all mixed subsets of Create/Replace/Trash in both directions; exact
+bytes/identity/attributes; changed stage/destination/root/source and dirty aliases
+refuse; request/direction/stamp conflict and replay do not write; crashes, mirror/
+receipt failures and older/missing SQLite recover without implicit effects; whole
+settlement alone releases retained tools/read/Save fences and applied annotations.
+Use bounded synthetic tests, independent read-only review and fresh relevant gates.
+Native/manual/physical-power-loss acceptance remains separate.
+
+Store-only foundation implements the fixed DTOs, pure exact phase capture/stamp,
+atomic replay-first admission, latest-attempt settlement and forward recovery. No
+new table/schema or filesystem effect was added. Twelve regressions cover all
+subsets/directions, unknown/corrupt capture, immutable first uncertainty, rollback,
+UUID collisions, forward-history forks, omitted legacy checksums, actual Undo
+bindings and 64 attempts on a near-cap 64-Replace journal followed by settlement
+and source-independent restoration. Independent read-only review against `7f97d65`
+found no actionable defects and independently passed all 12 repair tests.
+
+Fresh root macOS arm64 / Rust 1.98.1 locked/offline `TMPDIR=<exclusive owned parent>
+bash scripts/verify-storage.sh` passed **550 workspace tests, 0 failed, 2 ignored**,
+format/build/all-target Clippy with warnings denied and real headless AppWorker
+startup. Store **139 passed**. The unchanged private process entry points remain
+ignored directly and are exercised by crash matrices. Store-only code is ready
+for local integration under standing authorization; filesystem repair, CLI/native
+interaction, manual usability and physical power-loss qualification remain separate.
+Changed Markdown **24 local links/fragments, 0 errors** and diff checks passed.
+Only five proven owned synthetic layout fixtures and their gate parent were removed; no live calls, model
+downloads, original/private data, push or release actions occurred.
+
+Shared execution uses `App::preview_proposal_repair(operation_id)` and
+`App::repair_proposal(RepairRequest)` with typed worker commands/events. Preview
+includes the full original approved draft, exact current phases and capture hash.
+CLI will expose `proposals repair-preview OPERATION_UUID` and `proposals repair
+--file REQUEST.json`; typed JSON binds a fresh attempt UUID, original operation,
+preview hash and Finish/Restore direction. Replay resolves prior attempts before
+fresh filesystem/editor checks. The prepared shared child module remains
+unregistered until Store integration, then its tests will run against that baseline.
+
+Store foundation integrated as `86439cf`. Shared repair implements the fixed APIs
+above against that exact baseline, with one private child module, arbitrary-phase
+source checks, durable attempt mirrors, coordinated forward/reverse moves, full
+flush/endpoint proof and original-receipt/latest-attempt settlement. Checked
+canonical repair ancestry protects temporary cleanup across older operations.
+AppWorker drains repair; CLI implements the documented typed preview/request
+commands with pre-storage validation and exact attempt-ID correlation.
+
+Targeted checks passed **7 private shared tests** (16 phase/direction cases,
+18 crash boundaries, mirror failures, SQLite failures, older/missing databases,
+source/unknown/dirty-case aliases and historical replay), **2 real worker tests**
+(correlation/drain/queued later typing/restart), **5 CLI process tests** plus
+**31 binary unit tests**, and canonical temporary-history cleanup. Review found a
+valid generic NotApplied gap: unchanged destinations could discharge a repair
+despite a missing prepared stage. A fresh failing regression reproduced it; Store
+now requires terminal repair observations to prove every exact Before/Applied pair.
+The added Store atomic check and workflow refusal/restart regression passed;
+**13 Store repair tests** passed. Ordinary absent-field behavior remains unchanged.
+Final independent review and fresh integrated gates follow.
+
+Manual acceptance pending: in disposable data/vault with an interrupted mixed
+proposal, run `proposals repair-preview OPERATION_UUID` and inspect the full draft,
+phases and hash. Submit `proposals repair --file REQUEST.json` with a fresh attempt
+UUID, original operation, exact captured hash and `finish` or `restore`. Finish
+must install the complete approved endpoint; Restore must restore all originals
+and retain proposed staging. Repeating the attempt after a later external edit
+must preserve that edit and return history. A changed stage/destination, stale
+capture or dirty alias must refuse and keep affected current reads/Save fenced.
+See the [CLI scenario](../../../../crates/brn/README.md). Native interaction and
+physical power loss remain separate qualification.
+
+Final read-only review against `86439cf` found no remaining actionable defects;
+it independently passed **13 Store repair, 7 shared repair, 2 worker, 5 CLI process,
+1 canonical cleanup and 1 CLI correlation check**. The endpoint finding is verified
+and resolved. Fresh root macOS arm64 / Rust 1.98.1 locked/offline
+`TMPDIR=<exclusive owned parent> bash scripts/verify-end-to-end.sh` passed
+**567 workspace tests, 0 failed, 2 ignored**, **52 fixtures**, retirement,
+format/build/all-target Clippy with warnings denied. Store **140 passed**, CLI
+**83 passed**. `cargo check -p brn-desktop --features native-ui,native-retrieval
+--locked --offline` passed, with the existing upstream `block v0.1.6` warning.
+Builds and synthetic checks do not establish native usability or physical durability.
+
+Current AGENTS.md additionally requests the thin `developing-product-feature`
+router and hosted CI inspection. Read the installed router; frozen accepted roadmap
+work proceeds within BRN's workflow, without discovery or routine approval gates.
+GitHub reports no run for local Store baseline `86439cf`. The inspected latest
+[published main run](https://github.com/ewq100/brn-rust/actions/runs/37137393000)
+at `609d859` failed Windows core/native builds and optional Linux retrieval/UI
+tests; macOS jobs passed there. Those different-commit results are not evidence for
+this candidate. Hosted CI remains pending local-only integration; no push/public
+distribution is performed. Manual acceptance and native interaction remain pending.
+Changed Markdown **68 local links/fragments, 0 errors** and diff checks passed.
+Only five proven owned synthetic layout fixtures and their gate parent were removed.
+Shared repair is locally integrated under standing mission authorization; owned
+Rewrite and the native proposal/review/activity/Undo/repair interaction are next.
 
 ## Stage 4 checkpoint A — reviewed proposal application
 
@@ -386,3 +715,61 @@ guard removes unsupported-platform dead code without dropping shared refusal
 checks. Independent read-only review confirmed all callers and the guard. Fresh
 local **9 CLI proposal tests / 0 failed** and workspace all-target Clippy passed;
 format/diff checks passed. A new exact-head CI qualification is pending.
+
+Stage 4A PR #19 merged as `73410a3522b5a8512a804cb58afa32e28a661ebc` after
+exact head `0820685` passed macOS Core/UI/Retrieval and Ubuntu shared Core in
+CI `37186102409`. Windows retains the existing Unix API failure; the overall
+run is red. Qualified and merged trees match. Fresh post-merge **8 application
+tests + 52 fixtures**, desktop build and two startup/restart runs passed with
+exact synthetic bytes and zero credential files. Stage 4B preserves the reviewed
+Activity/Undo/Trash/Repair slices and carries forward that qualified baseline.
+
+## Stage 4 checkpoint B — Activity, Undo, Trash and repair
+
+Publication baseline `6d1e872ffef4c683ffc3730e7355de93569f0ea8` merges the
+reviewed slices through `b5c8000` with published Stage 4A main `73410a3`.
+Independent read-only integration review found no actionable defect: 31 B-only
+paths and 9 A-only paths match parents byte/mode, and the two source overlaps
+retain all B logic plus qualified Mac guards/non-Mac recovery tail. The combined
+plan keeps both evidence bodies. Stage 3 code/CI/live evidence remain exact; no
+new account calls occurred.
+
+Fresh isolated macOS arm64 / Rust 1.98.1 locked/offline checks passed retirement,
+format/build/all-target Clippy, **567 workspace tests  / 0 failed / 2 ignored** and
+**52 end-to-end assertions**. Private ignored crash entries remain exercised by
+subprocess matrices. Exact-head applicable macOS/shared CI must pass before
+merge; Windows results remain separate and accurately reported. This checkpoint
+publishes retained readable activity, exact full Undo/Trash restoration and
+explicit Finish/Restore repair with uncertain effects fenced. Native usability,
+physical power-loss, other volumes and owner acceptance remain pending.
+
+Manual acceptance: on fresh synthetic data approve a proposal, inspect Activity,
+capture a whole Undo preview and execute its exact operation. Later bytes must
+remain on historical replay. Restore an identified original Trash member; a
+changed endpoint must refuse. Capture a partial-operation repair preview and
+explicitly Finish or Restore that exact capture; unknown occupants stay fenced.
+Next Stage 4C publishes owned Rewrite/effort and native review/approval/activity/
+Undo/repair/creation. Transfer requires pinned Rust 1.98.1, Apple Silicon/Command
+Line Tools, cached locked dependencies, protobuf/Bash/Python 3, canonical synthetic
+data/TMPDIR and unlocked GUI for owner acceptance; no original data/credentials.
+
+Stage 4B initial exact-head CI `37186975338` passed all three macOS lanes,
+but Ubuntu shared Core failed on dead code in `cli_repair::ok`. All seven
+callers are inside the existing macOS-only file-operation test module;
+matching its helper guard retains shared syntax/FIFO refusal tests. Independent
+read-only diagnosis and review found no remaining defect. Fresh locked/offline
+**5 CLI repair tests / 0 failed**, workspace all-target Clippy with warnings
+denied, format and diff checks passed. A corrected exact-head run is required
+before merge. Windows retains the known Unix API failure; initial overall CI
+is red. No provider calls or original-data access occurred.
+
+The corrected Stage 4B run `37188146156` passed macOS Core/UI/Retrieval;
+Ubuntu shared Core exposed `cli_undo`'s macOS-only success helper and JSON macro
+import. Matching guards were verified against every caller and independently
+reviewed; all 19 shared malformed-command forms remain active. A bounded audit
+of other Stage 4B helpers found no further concrete unused imports/functions.
+Fresh **4 CLI Undo tests / 0 failed**, workspace all-target Clippy, format and
+diff checks passed. New exact-head CI qualification remains required. Windows
+again failed on existing Unix metadata APIs; overall corrected CI is red.
+GitHub temporarily retained the preceding PR head after the verified branch
+push; closing/reopening the same PR refreshed its head and triggered correct CI.

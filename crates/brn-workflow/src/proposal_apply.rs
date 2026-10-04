@@ -6,13 +6,17 @@ use crate::{
     files::{MacFiles, recovery::ApplyRecoveryFiles},
 };
 pub use brn_store::work::proposal_apply::{
-    ApplyJournal, ApplyMemberProof, ApplyOutcome, ApplyReceipt, ApprovalRequest,
+    ApplyJournal, ApplyMemberPhase, ApplyMemberProof, ApplyOutcome, ApplyReceipt, ApprovalRequest,
+    RepairDirection, RepairPreview, RepairReceipt, RepairRequest, UndoBinding, UndoOriginal,
+    UndoPreview, UndoRequest,
 };
-use brn_store::work::proposals::{NoteChange, ProposalRecord, ProposalState};
+mod repair;
+use brn_store::work::proposals::{NoteChange, ProposalDraft, ProposalState};
 use brn_store::{
     WorkStore,
     files::{FileFingerprint, PreparedFile, VaultRecord},
 };
+pub use repair::validate_repair_request;
 use serde::{Deserialize, Serialize};
 use std::{cell::Cell, path::Path};
 use uuid::Uuid;
@@ -61,6 +65,22 @@ pub fn validate_approval_request(request: &ApprovalRequest) -> Result<()> {
     }
     Ok(())
 }
+pub fn validate_undo_request(request: &UndoRequest) -> Result<()> {
+    if request.operation_id.is_nil()
+        || request.target_operation_id.is_nil()
+        || request.operation_id == request.target_operation_id
+        || request
+            .trash_member
+            .is_some_and(|index| index >= crate::proposals::MAX_PROPOSAL_CHANGES)
+    {
+        return Err(WorkflowError::typed(
+            ErrorKind::ToolRejected,
+            "Undo requires distinct non-nil operation UUIDs and a bounded Trash member",
+        ));
+    }
+    Ok(())
+}
+
 impl GroupApprovalRequest {
     pub fn validate(&self) -> Result<()> {
         if self.group_id.is_nil()
@@ -237,8 +257,8 @@ fn observed(files: &MacFiles, path: &Path) -> Result<Option<FileFingerprint>> {
         )),
     }
 }
-fn check_targets(files: &MacFiles, review: &ProposalRecord) -> Result<()> {
-    for change in &review.draft.changes {
+fn check_targets(files: &MacFiles, draft: &ProposalDraft) -> Result<()> {
+    for change in &draft.changes {
         let path = Path::new(change.path());
         files
             .coordinate(path, || {
@@ -257,25 +277,16 @@ fn check_targets(files: &MacFiles, review: &ProposalRecord) -> Result<()> {
     Ok(())
 }
 fn check_sources(files: &MacFiles, journal: &ApplyJournal, installed: usize) -> Result<()> {
-    for source in &journal.approved.draft.sources {
-        let own = journal
-            .approved
-            .draft
-            .changes
-            .iter()
-            .take(installed)
-            .enumerate()
-            .find(|(_, change)| original(change) == Some(&source.fingerprint));
-        let expected = match own {
-            Some((_, NoteChange::Trash { .. })) => None,
-            Some((i, _)) => journal.prepared.as_ref().and_then(|p| p.get(i)),
-            None => Some(&source.fingerprint),
-        };
-        if observed(files, Path::new(&source.path))?.as_ref() != expected {
-            return Err(stale("reviewed proposal source changed"));
-        }
-    }
-    Ok(())
+    let phases: Vec<_> = (0..journal.members.len())
+        .map(|index| {
+            if index < installed {
+                ApplyMemberPhase::Applied
+            } else {
+                ApplyMemberPhase::Before
+            }
+        })
+        .collect();
+    repair::check_phase_sources(files, journal, &phases)
 }
 
 impl App {
@@ -331,6 +342,65 @@ impl App {
         if review.stamp() != request.expected || review.state != ProposalState::Draft {
             return Err(stale("approval requires the exact current Draft"));
         }
+        self.preflight_proposal(&review.draft, None)?;
+        self.application_records()?;
+        self.set_current_tool_barrier(true);
+        let journal = match self.store.begin_proposal_apply(request) {
+            Ok(journal) => journal,
+            Err(error) => {
+                self.synchronize_current_barrier()?;
+                return Err(error.into());
+            }
+        };
+        self.run_admitted_proposal(journal)
+    }
+
+    /// History-only exact inverse preview; it does not claim current eligibility.
+    pub fn preview_proposal_undo(&self, request: &UndoRequest) -> Result<UndoPreview> {
+        validate_undo_request(request)?;
+        Ok(self.store.preview_proposal_undo(request)?)
+    }
+
+    /// Explicit human Undo/Trash restore. AI has no direct durable-change tool.
+    pub fn undo_proposal(&mut self, request: &UndoRequest) -> Result<ApplyReceipt> {
+        validate_undo_request(request)?;
+        if let Some(journal) = self.store.proposal_apply(request.operation_id)? {
+            if !journal.undo.as_ref().is_some_and(|binding| {
+                binding.operation_id == request.target_operation_id
+                    && binding.trash_member == request.trash_member
+            }) {
+                return Err(WorkflowError::typed(
+                    ErrorKind::OperationConflict,
+                    "Undo UUID has another source or scope",
+                ));
+            }
+            return journal.receipt.ok_or_else(|| {
+                WorkflowError::typed(
+                    ErrorKind::SaveUncertain,
+                    "Undo is interrupted; reconcile it without repeating writes",
+                )
+            });
+        }
+        self.require_current_evidence()?;
+        let preview = self.preview_proposal_undo(request)?;
+        self.preflight_proposal(&preview.draft, Some(&preview.binding))?;
+        self.application_records()?;
+        self.set_current_tool_barrier(true);
+        let journal = match self.store.begin_proposal_undo(request) {
+            Ok(journal) => journal,
+            Err(error) => {
+                self.synchronize_current_barrier()?;
+                return Err(error.into());
+            }
+        };
+        self.run_admitted_proposal(journal)
+    }
+
+    fn preflight_proposal(
+        &mut self,
+        draft: &ProposalDraft,
+        undo: Option<&UndoBinding>,
+    ) -> Result<()> {
         self.editor_files()?;
         let bound: VaultRecord = serde_json::from_str(
             &self
@@ -339,14 +409,18 @@ impl App {
                 .ok_or_else(|| stale("vault identity is missing"))?,
         )
         .map_err(|_| stale("vault identity is invalid"))?;
-        if bound != review.draft.vault {
+        if bound != draft.vault {
             return Err(stale("reviewed vault identity changed"));
         }
         let editors = self.store.editors()?;
-        for change in &review.draft.changes {
+        for (index, change) in draft.changes.iter().enumerate() {
+            let borrowed = undo.and_then(|binding| binding.originals[index].as_ref());
             for editor in &editors {
                 let matches = original(change).is_some_and(|before| {
                     before.device == editor.baseline.device && before.inode == editor.baseline.inode
+                }) || borrowed.is_some_and(|original| {
+                    original.fingerprint.device == editor.baseline.device
+                        && original.fingerprint.inode == editor.baseline.inode
                 }) || self
                     .editor
                     .files
@@ -354,18 +428,24 @@ impl App {
                     .expect("opened files")
                     .reserved_copy_path_matches(Path::new(change.path()), Path::new(&editor.path))
                     .map_err(file_error)?;
-                if matches
-                    && (editor.text != editor.baseline_text
-                        || original(change).is_some_and(|before| *before != editor.baseline))
-                {
+                let restored_baseline = borrowed.is_some_and(|original| {
+                    original.fingerprint == editor.baseline
+                        && change.text() == Some(editor.baseline_text.as_str())
+                });
+                let baseline_matches = match original(change) {
+                    Some(before) => *before == editor.baseline || restored_baseline,
+                    None if undo.is_some() => restored_baseline,
+                    None => true,
+                };
+                if matches && (editor.text != editor.baseline_text || !baseline_matches) {
                     return Err(stale(
                         "proposal conflicts with retained editor work; save or explicitly reload it first",
                     ));
                 }
             }
         }
-        check_targets(self.editor.files.as_ref().expect("opened files"), &review)?;
-        for source in &review.draft.sources {
+        check_targets(self.editor.files.as_ref().expect("opened files"), draft)?;
+        for source in &draft.sources {
             if self
                 .editor
                 .files
@@ -379,15 +459,34 @@ impl App {
                 return Err(stale("reviewed proposal source changed"));
             }
         }
-        self.application_records()?;
-        self.set_current_tool_barrier(true);
-        let mut journal = match self.store.begin_proposal_apply(request) {
-            Ok(journal) => journal,
-            Err(error) => {
-                self.synchronize_current_barrier()?;
-                return Err(error.into());
+        if let Some(binding) = undo {
+            let files = self.editor.files.as_ref().expect("opened files");
+            for (change, original) in draft.changes.iter().zip(&binding.originals) {
+                if let Some(original) = original {
+                    let destination = Path::new(change.path());
+                    let staging =
+                        destination.with_file_name(format!(".brn-{}.stage", original.member_id));
+                    files
+                        .coordinate(destination, || {
+                            Ok((|| -> Result<()> {
+                                if files.parent_identity(destination).map_err(file_error)?
+                                    != *parent(change)
+                                    || observed(files, &staging)?.as_ref()
+                                        != Some(&original.fingerprint)
+                                {
+                                    return Err(stale("retained Undo original changed"));
+                                }
+                                Ok(())
+                            })())
+                        })
+                        .map_err(file_error)??;
+                }
             }
-        };
+        }
+        Ok(())
+    }
+
+    fn run_admitted_proposal(&mut self, mut journal: ApplyJournal) -> Result<ApplyReceipt> {
         checkpoint("intent", 0);
         let attempted = Cell::new(false);
         let result = self.execute_proposal(&mut journal, &attempted);
@@ -420,7 +519,7 @@ impl App {
         let snapshot = records.write(journal, None).map_err(file_error)?;
         checkpoint("mirror-intent", 0);
         let files = self.editor.files.as_ref().expect("opened files");
-        check_targets(files, &journal.approved)?;
+        check_targets(files, &journal.approved.draft)?;
         check_sources(files, journal, 0)?;
         let mut prepared = Vec::new();
         for (i, (change, member)) in journal
@@ -440,6 +539,28 @@ impl App {
                             || observed(files, destination)?.as_ref() != original(change)
                         {
                             return Err(stale("proposal member changed before preparation"));
+                        }
+                        if let Some(original) = journal
+                            .undo
+                            .as_ref()
+                            .and_then(|binding| binding.originals[i].as_ref())
+                        {
+                            if observed(files, &member.staging)?.as_ref()
+                                != Some(&original.fingerprint)
+                            {
+                                return Err(stale(
+                                    "retained Undo original changed before preparation",
+                                ));
+                            }
+                            files.flush_artifact(&member.staging).map_err(file_error)?;
+                            if observed(files, &member.staging)?.as_ref()
+                                != Some(&original.fingerprint)
+                            {
+                                return Err(stale(
+                                    "retained Undo original changed during preparation",
+                                ));
+                            }
+                            return Ok(original.fingerprint.clone());
                         }
                         if files
                             .artifact(&member.staging)
@@ -488,7 +609,7 @@ impl App {
             .map_err(file_error)?;
         checkpoint("prepared", 0);
         // All preparation is durable before the first namespace effect.
-        check_targets(files, &journal.approved)?;
+        check_targets(files, &journal.approved.draft)?;
         for (i, ((change, member), proof)) in journal
             .approved
             .draft
@@ -692,26 +813,20 @@ impl App {
                 outcome = ApplyOutcome::Uncertain;
             }
         }
-        if outcome == ApplyOutcome::Applied {
+        if outcome == ApplyOutcome::Applied
+            || outcome == ApplyOutcome::NotApplied && journal.repair.is_some()
+        {
             let files = self.editor.files.as_ref().expect("opened files");
             for (change, member) in journal.approved.draft.changes.iter().zip(&journal.members) {
-                match change {
-                    NoteChange::Create { .. } => files
-                        .flush_artifact(Path::new(change.path()))
-                        .map_err(file_error)?,
-                    NoteChange::Replace { .. } => {
-                        files
-                            .flush_artifact(Path::new(change.path()))
-                            .map_err(file_error)?;
-                        files.flush_artifact(&member.staging).map_err(file_error)?;
-                    }
-                    NoteChange::Trash { .. } => {
-                        files.flush_artifact(&member.staging).map_err(file_error)?
+                for path in [Path::new(change.path()), member.staging.as_path()] {
+                    if observed(files, path)?.is_some() {
+                        files.flush_artifact(path).map_err(file_error)?;
                     }
                 }
             }
             if self.observe_proposal(&journal).ok() != observations
-                || check_sources(files, &journal, journal.members.len()).is_err()
+                || outcome == ApplyOutcome::Applied
+                    && check_sources(files, &journal, journal.members.len()).is_err()
             {
                 outcome = ApplyOutcome::Uncertain;
             }
@@ -719,8 +834,16 @@ impl App {
         // Repeated uncertainty is immutable; a later definitive inspection can
         // settle it, but cannot rewrite its first observations.
         if outcome == ApplyOutcome::Uncertain
-            && let Some(receipt) = journal.receipt
+            && let Some(receipt) = journal.receipt.clone()
         {
+            if journal.repair.as_ref().is_some_and(|binding| {
+                binding
+                    .attempts
+                    .last()
+                    .is_some_and(|attempt| attempt.outcome.is_none())
+            }) {
+                self.interrupt_repair(&journal)?;
+            }
             return Ok(receipt);
         }
         self.complete_proposal(&journal, outcome, observations, false)
@@ -797,6 +920,13 @@ fn completion(
     });
     candidate.observations = observations;
     candidate.no_effects = no_effects;
+    if let Some(binding) = &mut candidate.repair {
+        binding
+            .attempts
+            .last_mut()
+            .expect("validated repair history")
+            .outcome = Some(outcome);
+    }
     if outcome == ApplyOutcome::Applied {
         candidate.approved.comments.clear();
     }
@@ -836,12 +966,12 @@ mod tests {
     use brn_ai::{AiErrorKind, ReadTools};
     use std::{fs, path::PathBuf, process::Command};
 
-    struct Fixture {
+    pub(super) struct Fixture {
         _dir: tempfile::TempDir,
-        base: PathBuf,
+        pub(super) base: PathBuf,
     }
     impl Fixture {
-        fn new() -> Self {
+        pub(super) fn new() -> Self {
             let dir = tempfile::tempdir().unwrap();
             let base = dir.path().to_owned();
             fs::create_dir(base.join("data")).unwrap();
@@ -851,10 +981,10 @@ mod tests {
             fs::write(base.join("vault/source.md"), "Bound source evidence").unwrap();
             Self { _dir: dir, base }
         }
-        fn app(&self) -> App {
+        pub(super) fn app(&self) -> App {
             open(&self.base)
         }
-        fn prepare(&self) -> ApprovalRequest {
+        pub(super) fn prepare(&self) -> ApprovalRequest {
             let mut app = self.app();
             let before = app.open_editor("a.md").unwrap().record.baseline;
             let trash = app.open_editor("trash.md").unwrap().record.baseline;
@@ -917,7 +1047,29 @@ mod tests {
             .unwrap();
             request
         }
-        fn crash(&self, phase: &str, member: usize) {
+        fn prepare_undo(&self) -> UndoRequest {
+            let approval = self.prepare();
+            let mut app = self.app();
+            app.approve_proposal(&approval).unwrap();
+            let request = UndoRequest {
+                operation_id: Uuid::new_v4(),
+                target_operation_id: approval.operation_id,
+                trash_member: None,
+            };
+            fs::write(
+                self.base.join("undo-request.json"),
+                serde_json::to_vec(&request).unwrap(),
+            )
+            .unwrap();
+            request
+        }
+        fn crash_undo(&self, phase: &str, member: usize) {
+            self.crash_mode(phase, member, true);
+        }
+        pub(super) fn crash(&self, phase: &str, member: usize) {
+            self.crash_mode(phase, member, false);
+        }
+        fn crash_mode(&self, phase: &str, member: usize, undo: bool) {
             let result = Command::new(std::env::current_exe().unwrap())
                 .args([
                     "--exact",
@@ -926,6 +1078,7 @@ mod tests {
                     "--nocapture",
                 ])
                 .env("BRN_APPLY_TEST_BASE", &self.base)
+                .env("BRN_APPLY_TEST_UNDO", if undo { "1" } else { "0" })
                 .env("BRN_APPLY_TEST_PHASE", phase)
                 .env("BRN_APPLY_TEST_MEMBER", member.to_string())
                 .output()
@@ -960,11 +1113,143 @@ mod tests {
             .parse()
             .unwrap();
         let mut app = open(&base);
-        let request =
-            serde_json::from_slice(&fs::read(base.join("request.json")).unwrap()).unwrap();
         APPLY_CHECKPOINT.with(|stop| *stop.borrow_mut() = Some((phase, member)));
-        app.approve_proposal(&request).unwrap();
+        if std::env::var("BRN_APPLY_TEST_REPAIR").as_deref() == Ok("1") {
+            let request =
+                serde_json::from_slice(&fs::read(base.join("repair-request.json")).unwrap())
+                    .unwrap();
+            app.repair_proposal(&request).unwrap();
+        } else if std::env::var("BRN_APPLY_TEST_UNDO").as_deref() == Ok("1") {
+            let request =
+                serde_json::from_slice(&fs::read(base.join("undo-request.json")).unwrap()).unwrap();
+            app.undo_proposal(&request).unwrap();
+        } else {
+            let request =
+                serde_json::from_slice(&fs::read(base.join("request.json")).unwrap()).unwrap();
+            app.approve_proposal(&request).unwrap();
+        }
         panic!("selected crash checkpoint not reached");
+    }
+
+    #[test]
+    fn undo_crashes_at_each_boundary_settle_only_complete_proofs_without_retry() {
+        for (phase, index, expected) in [
+            ("intent", 0, ApplyOutcome::NotApplied),
+            ("mirror-intent", 0, ApplyOutcome::NotApplied),
+            ("stage", 0, ApplyOutcome::NotApplied),
+            ("stage", 1, ApplyOutcome::NotApplied),
+            ("stage", 2, ApplyOutcome::NotApplied),
+            ("prepared-db", 0, ApplyOutcome::NotApplied),
+            ("prepared", 0, ApplyOutcome::NotApplied),
+            ("member", 0, ApplyOutcome::Uncertain),
+            ("member", 1, ApplyOutcome::Uncertain),
+            ("member", 2, ApplyOutcome::Applied),
+            ("synced", 2, ApplyOutcome::Applied),
+            ("verified", 0, ApplyOutcome::Applied),
+            ("completion", 0, ApplyOutcome::Applied),
+            ("receipt", 0, ApplyOutcome::Applied),
+        ] {
+            let f = Fixture::new();
+            let request = f.prepare_undo();
+            f.crash_undo(phase, index);
+            let mut app = f.app();
+            let result = app.reconcile_proposal(request.operation_id).unwrap();
+            assert_eq!(result.outcome, expected, "{phase}/{index}");
+            assert_eq!(app.undo_proposal(&request).unwrap(), result);
+            let journal = app
+                .work_store()
+                .proposal_apply(request.operation_id)
+                .unwrap()
+                .unwrap();
+            assert!(!journal.no_effects, "restart cannot certify no effect");
+            assert!(journal.undo.is_some());
+            if expected == ApplyOutcome::Uncertain {
+                assert_eq!(app.note("a.md").unwrap_err().kind, ErrorKind::SaveUncertain);
+                assert_eq!(
+                    fs::read_to_string(f.base.join("vault/a.md")).unwrap(),
+                    "Original λ\r\n"
+                );
+                assert!(!f.base.join("vault/trash.md").exists());
+            } else {
+                assert!(app.note("a.md").is_ok());
+            }
+        }
+    }
+
+    #[test]
+    fn undo_mirror_failures_and_changed_borrowed_original_keep_exact_outcomes() {
+        for (phase, expected) in [
+            ("prepared-db", ApplyOutcome::NotApplied),
+            ("verified", ApplyOutcome::Applied),
+        ] {
+            let f = Fixture::new();
+            let request = f.prepare_undo();
+            let mut app = f.app();
+            let lease = app.tools().unwrap();
+            APPLY_HOOK.with(|hook| {
+                *hook.borrow_mut() = Some(Box::new(move |step, _| {
+                    if step == "intent" {
+                        assert_eq!(
+                            lease.read_note("a.md").unwrap_err().kind,
+                            AiErrorKind::IndexStale
+                        );
+                    }
+                    if step == phase {
+                        crate::files::recovery::FAILURE
+                            .with(|failure| failure.set(Some("file_sync")));
+                    }
+                }))
+            });
+            let result = app.undo_proposal(&request);
+            APPLY_HOOK.with(|hook| *hook.borrow_mut() = None);
+            crate::files::recovery::FAILURE.with(|failure| failure.set(None));
+            assert!(result.is_err(), "{phase}");
+            assert_eq!(app.note("a.md").unwrap_err().kind, ErrorKind::SaveUncertain);
+            drop(app);
+            let mut app = f.app();
+            assert_eq!(
+                app.reconcile_proposal(request.operation_id)
+                    .unwrap()
+                    .outcome,
+                expected
+            );
+        }
+        let f = Fixture::new();
+        let request = f.prepare_undo();
+        let mut app = f.app();
+        let source = app
+            .work_store()
+            .proposal_apply(request.target_operation_id)
+            .unwrap()
+            .unwrap();
+        let retained = f.base.join("vault").join(&source.members[2].staging);
+        APPLY_HOOK.with(|hook| {
+            *hook.borrow_mut() = Some(Box::new(move |step, index| {
+                if step == "synced" && index == 0 {
+                    fs::write(&retained, "Changed retained original").unwrap();
+                }
+            }))
+        });
+        let result = app.undo_proposal(&request);
+        APPLY_HOOK.with(|hook| *hook.borrow_mut() = None);
+        assert!(result.is_err());
+        assert_eq!(
+            app.work_store()
+                .proposal_apply(request.operation_id)
+                .unwrap()
+                .unwrap()
+                .receipt
+                .unwrap()
+                .outcome,
+            ApplyOutcome::Uncertain
+        );
+        assert_eq!(
+            app.reconcile_proposal(request.operation_id)
+                .unwrap()
+                .outcome,
+            ApplyOutcome::Uncertain
+        );
+        assert!(!f.base.join("vault/trash.md").exists());
     }
 
     #[test]

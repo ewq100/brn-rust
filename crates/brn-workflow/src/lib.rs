@@ -1,4 +1,5 @@
 //! Shared application workflow for the desktop and agent-facing CLI.
+pub mod activity;
 pub mod ai_tools;
 pub mod app;
 pub mod app_worker;

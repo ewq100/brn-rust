@@ -6,6 +6,8 @@ pub mod chat;
 pub mod editor;
 mod edits;
 pub mod proposal_apply;
+mod proposal_repair;
+mod proposal_undo;
 pub mod proposals;
 
 use crate::{Result, acquire_owner_lock, check_regular_single_link, invalid};

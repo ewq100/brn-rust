@@ -1,6 +1,7 @@
 //! Argument parsing and output policy for the shared BRN application CLI.
 //! Global long options may appear before or after the command. Inputs are
 //! validated before AppWorker opens operational storage.
+pub mod activity;
 pub mod ai;
 pub mod editor;
 pub mod error;
@@ -25,6 +26,7 @@ pub struct Invocation {
 }
 
 pub enum Command {
+    Activity(brn_workflow::activity::ActivityRequest),
     Editor(editor::EditorCommand),
     Proposals(proposals::ProposalCommand),
     Ai(ai::AiCommand),
@@ -101,6 +103,7 @@ Global options (accepted before or after the command):
   --version          Show the version without opening storage
 
 Commands:
+  brn activity list [--limit N] [--before OPERATION_UUID]
   brn proposals create --file DRAFT.json
   brn proposals list [--group UUID]
   brn proposals show PROPOSAL_ID
@@ -114,6 +117,11 @@ Commands:
   brn proposals reconcile OPERATION_UUID
   brn proposals approve-group --file APPROVALS.json
   brn proposals applies
+  brn proposals undo-preview TARGET_OPERATION_UUID --operation NEW_UUID [--member INDEX]
+  brn proposals undo TARGET_OPERATION_UUID --operation NEW_UUID
+  brn proposals restore-trash TARGET_OPERATION_UUID --member INDEX --operation NEW_UUID
+  brn proposals repair-preview OPERATION_UUID
+  brn proposals repair --file REQUEST.json
   brn edit open PATH
   brn edit recover PATH --baseline UUID --expected-generation N --generation N --file F
   brn edit save PATH --baseline UUID --expected-generation N --generation N --file F --operation UUID [--copy PATH]
@@ -434,6 +442,7 @@ fn parse_inner(
         "help" => return Ok(Outcome::Help),
         "edit" => editor::scan_command(&mut tokens, g, command)?,
         "proposals" => proposals::scan_command(&mut tokens, g, command)?,
+        "activity" => activity::scan_command(&mut tokens, g, command)?,
         "ai" => ai::scan_command(&mut tokens, g, command)?,
         "models" => {
             if sub_word(&mut tokens, "models", "download")? != "download" {
@@ -499,6 +508,7 @@ fn parse_inner(
     let built = match word.as_str() {
         "edit" => Command::Editor(editor::parse_command(command.unwrap(), &scanned)?),
         "proposals" => Command::Proposals(proposals::parse_command(command.unwrap(), &scanned)?),
+        "activity" => Command::Activity(activity::parse_command(&scanned)?),
         "ai" => Command::Ai(ai::parse_command(command.unwrap(), &scanned)?),
         "models" => {
             expect_positionals(&scanned, 0)?;

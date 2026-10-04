@@ -260,6 +260,7 @@ fn confirmed_success(event: &AppEvent) -> bool {
         AppEvent::EditorRecovered(_)
         | AppEvent::EditorSaved(_)
         | AppEvent::ProposalApplied(_)
+        | AppEvent::ProposalRepaired(_)
         | AppEvent::ProposalGroupApplied(_) => true,
         _ => false,
     }
@@ -276,6 +277,9 @@ fn output(data: Value) -> Output {
 }
 
 pub fn run(i: &Invocation) -> Result<Output, CliFailure> {
+    if let Command::Activity(request) = &i.command {
+        request.validate().map_err(classify_workflow)?;
+    }
     let editor = if let Command::Editor(command) = &i.command {
         Some(super::editor::prepare(command)?)
     } else {
@@ -330,6 +334,13 @@ fn execute(
     proposal: Option<(Uuid, AppCommand)>,
 ) -> Result<Output, CliFailure> {
     match &i.command {
+        Command::Activity(request) => {
+            let AppEvent::Activity(page) = lane.query(AppCommand::Activity(request.clone()))?
+            else {
+                return Err(unexpected());
+            };
+            Ok(super::activity::output(page))
+        }
         Command::Proposals(_) => {
             let (id, command) = proposal.expect("proposal input prepared before startup");
             let data = match lane.query_with_id(id, command)? {
@@ -338,6 +349,9 @@ fn execute(
                 AppEvent::ProposalApplied(receipt) => json!(receipt),
                 AppEvent::ProposalGroupApplied(result) => json!(result),
                 AppEvent::ProposalApplies(journals) => json!(journals),
+                AppEvent::ProposalUndoPreview(preview) => json!(preview),
+                AppEvent::ProposalRepairPreview(preview) => json!(preview),
+                AppEvent::ProposalRepaired(receipt) => json!(receipt),
                 _ => return Err(unexpected()),
             };
             Ok(output(data))

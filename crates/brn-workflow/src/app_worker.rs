@@ -61,8 +61,13 @@ pub enum AppCommand {
     RejectProposal(crate::proposals::ProposalStamp),
     ApproveProposal(crate::proposal_apply::ApprovalRequest),
     ReconcileProposal(Uuid),
+    PreviewProposalUndo(crate::proposal_apply::UndoRequest),
+    UndoProposal(crate::proposal_apply::UndoRequest),
+    PreviewProposalRepair(Uuid),
+    RepairProposal(crate::proposal_apply::RepairRequest),
     ApproveProposalGroup(crate::proposal_apply::GroupApprovalRequest),
     ProposalApplies,
+    Activity(crate::activity::ActivityRequest),
     RecoverEdit {
         path: String,
         base_sha256: [u8; 32],
@@ -115,8 +120,12 @@ pub enum AppEvent {
     Proposal(crate::proposals::ProposalRecord),
     Proposals(Vec<crate::proposals::ProposalRecord>),
     ProposalApplied(crate::proposal_apply::ApplyReceipt),
+    ProposalUndoPreview(crate::proposal_apply::UndoPreview),
+    ProposalRepairPreview(crate::proposal_apply::RepairPreview),
+    ProposalRepaired(crate::proposal_apply::RepairReceipt),
     ProposalGroupApplied(crate::proposal_apply::GroupApprovalResult),
     ProposalApplies(Vec<crate::proposal_apply::ApplyJournal>),
+    Activity(crate::activity::ActivityPage),
     Search(SearchResults),
     Conversations(Vec<WorkConversation>),
     Turns(Vec<WorkTurn>),
@@ -808,12 +817,25 @@ fn dispatch(
             AppEvent::ProposalApplied(app.approve_proposal(&request)?)
         }
         AppCommand::ReconcileProposal(id) => AppEvent::ProposalApplied(app.reconcile_proposal(id)?),
+        AppCommand::PreviewProposalUndo(request) => {
+            AppEvent::ProposalUndoPreview(app.preview_proposal_undo(&request)?)
+        }
+        AppCommand::UndoProposal(request) => {
+            AppEvent::ProposalApplied(app.undo_proposal(&request)?)
+        }
+        AppCommand::PreviewProposalRepair(id) => {
+            AppEvent::ProposalRepairPreview(app.preview_proposal_repair(id)?)
+        }
+        AppCommand::RepairProposal(request) => {
+            AppEvent::ProposalRepaired(app.repair_proposal(&request)?)
+        }
         AppCommand::ApproveProposalGroup(request) => {
             AppEvent::ProposalGroupApplied(app.approve_proposal_group(&request)?)
         }
         AppCommand::ProposalApplies => {
             AppEvent::ProposalApplies(app.work_store().proposal_applies()?)
         }
+        AppCommand::Activity(request) => AppEvent::Activity(app.activity(&request)?),
         AppCommand::ReloadEditor(request) => {
             AppEvent::EditorRecovered(app.reload_editor(&request)?)
         }
@@ -999,6 +1021,8 @@ fn critical_mutation_command(command: &AppCommand) -> bool {
             | AppCommand::UpdateProposalComment(_)
             | AppCommand::RemoveProposalComment { .. }
             | AppCommand::RejectProposal(_)
+            | AppCommand::UndoProposal(_)
+            | AppCommand::RepairProposal(_)
             | AppCommand::ApproveProposal(_)
             | AppCommand::ReconcileProposal(_)
             | AppCommand::ApproveProposalGroup(_)

@@ -778,9 +778,13 @@ impl AiState {
             AppEvent::Note(_)
             | AppEvent::Proposal(_)
             | AppEvent::Proposals(_)
+            | AppEvent::ProposalUndoPreview(_)
+            | AppEvent::ProposalRepairPreview(_)
+            | AppEvent::ProposalRepaired(_)
             | AppEvent::ProposalApplied(_)
             | AppEvent::ProposalGroupApplied(_)
-            | AppEvent::ProposalApplies(_) => {}
+            | AppEvent::ProposalApplies(_)
+            | AppEvent::Activity(_) => {}
             AppEvent::Editor(view) => {
                 if let Some(Pending::Editor {
                     generation,

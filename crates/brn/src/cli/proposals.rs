@@ -5,7 +5,10 @@ use super::{
 };
 use brn_workflow::{
     app_worker::AppCommand,
-    proposal_apply::{validate_approval_request, ApprovalRequest, GroupApprovalRequest},
+    proposal_apply::{
+        validate_approval_request, validate_repair_request, validate_undo_request, ApprovalRequest,
+        GroupApprovalRequest, RepairRequest, UndoRequest,
+    },
     proposals::{CommentRequest, DraftRequest, ProposalEdit, ProposalStamp},
 };
 use serde::de::DeserializeOwned;
@@ -31,6 +34,11 @@ pub enum ProposalCommand {
     Reconcile(Uuid),
     ApproveGroup(PathBuf),
     Applies,
+    UndoPreview(UndoRequest),
+    Undo(UndoRequest),
+    RestoreTrash(UndoRequest),
+    RepairPreview(Uuid),
+    Repair(PathBuf),
 }
 
 impl ProposalCommand {
@@ -49,6 +57,11 @@ impl ProposalCommand {
             Self::Reconcile(_) => "proposals.reconcile",
             Self::ApproveGroup(_) => "proposals.approve-group",
             Self::Applies => "proposals.applies",
+            Self::UndoPreview(_) => "proposals.undo-preview",
+            Self::Undo(_) => "proposals.undo",
+            Self::RestoreTrash(_) => "proposals.restore-trash",
+            Self::RepairPreview(_) => "proposals.repair-preview",
+            Self::Repair(_) => "proposals.repair",
         }
     }
 }
@@ -61,7 +74,7 @@ pub(super) fn scan_command(
     let sub = sub_word(
         tokens,
         "proposals",
-        "create|list|show|edit|rewrite-result|comment|comment-update|comment-remove|reject|approve|reconcile|approve-group|applies",
+        "create|list|show|edit|rewrite-result|comment|comment-update|comment-remove|reject|approve|reconcile|approve-group|applies|undo-preview|undo|restore-trash|repair-preview|repair",
     )?;
     let (label, options): (_, &[(&str, bool)]) = match sub.as_str() {
         "create" => ("proposals.create", &[("file", true)]),
@@ -83,6 +96,17 @@ pub(super) fn scan_command(
         "reconcile" => ("proposals.reconcile", &[]),
         "approve-group" => ("proposals.approve-group", &[("file", true)]),
         "applies" => ("proposals.applies", &[]),
+        "undo-preview" => (
+            "proposals.undo-preview",
+            &[("operation", true), ("member", true)],
+        ),
+        "undo" => ("proposals.undo", &[("operation", true)]),
+        "restore-trash" => (
+            "proposals.restore-trash",
+            &[("member", true), ("operation", true)],
+        ),
+        "repair-preview" => ("proposals.repair-preview", &[]),
+        "repair" => ("proposals.repair", &[("file", true)]),
         _ => return Err(usage("unknown proposals subcommand")),
     };
     *name = Some(label);
@@ -97,6 +121,10 @@ pub(super) fn parse_command(name: &str, s: &Scanned) -> Result<ProposalCommand, 
             | "proposals.reject"
             | "proposals.approve"
             | "proposals.reconcile"
+            | "proposals.undo-preview"
+            | "proposals.undo"
+            | "proposals.restore-trash"
+            | "proposals.repair-preview"
     );
     expect_positionals(s, usize::from(positional))?;
     let file = || {
@@ -141,16 +169,48 @@ pub(super) fn parse_command(name: &str, s: &Scanned) -> Result<ProposalCommand, 
                 expected: stamp()?,
             }))
         }
-        "proposals.reconcile" => {
+        "proposals.reconcile" | "proposals.repair-preview" => {
             let operation_id = Uuid::parse_str(required_positional(s, "OPERATION_UUID")?)
                 .map_err(|_| usage("invalid approval operation UUID"))?;
             if operation_id.is_nil() {
                 return Err(usage("approval operation UUID must be nonzero"));
             }
-            Ok(ProposalCommand::Reconcile(operation_id))
+            Ok(if name == "proposals.reconcile" {
+                ProposalCommand::Reconcile(operation_id)
+            } else {
+                ProposalCommand::RepairPreview(operation_id)
+            })
         }
+        "proposals.repair" => Ok(ProposalCommand::Repair(file()?)),
         "proposals.approve-group" => Ok(ProposalCommand::ApproveGroup(file()?)),
         "proposals.applies" => Ok(ProposalCommand::Applies),
+        "proposals.undo-preview" | "proposals.undo" | "proposals.restore-trash" => {
+            let target_operation_id =
+                Uuid::parse_str(required_positional(s, "TARGET_OPERATION_UUID")?)
+                    .map_err(|_| usage("invalid Undo source operation UUID"))?;
+            let trash_member = s
+                .value("member")
+                .map(|value| {
+                    value
+                        .parse::<usize>()
+                        .map_err(|_| usage("invalid zero-based --member index"))
+                })
+                .transpose()?;
+            if name == "proposals.restore-trash" && trash_member.is_none() {
+                return Err(usage("restore-trash requires --member"));
+            }
+            let request = UndoRequest {
+                operation_id: s.require_uuid("operation")?,
+                target_operation_id,
+                trash_member,
+            };
+            validate_undo_request(&request).map_err(|error| usage(error.message))?;
+            Ok(match name {
+                "proposals.undo-preview" => ProposalCommand::UndoPreview(request),
+                "proposals.undo" => ProposalCommand::Undo(request),
+                _ => ProposalCommand::RestoreTrash(request),
+            })
+        }
         _ => unreachable!("scanned proposal command"),
     }
 }
@@ -186,9 +246,12 @@ fn input<T: DeserializeOwned>(path: &PathBuf) -> Result<T, CliError> {
         .map_err(|_| usage("proposal input does not match its typed JSON schema"))
 }
 
-pub(super) fn prepare(command: &ProposalCommand) -> Result<(Uuid, AppCommand), CliFailure> {
-    let operation = match command {
+fn prepare_input(command: &ProposalCommand) -> Result<(Uuid, AppCommand), CliFailure> {
+    let mut operation = match command {
         ProposalCommand::Approve(request) => request.operation_id,
+        ProposalCommand::UndoPreview(request)
+        | ProposalCommand::Undo(request)
+        | ProposalCommand::RestoreTrash(request) => request.operation_id,
         ProposalCommand::Reconcile(id) => *id,
         _ => Uuid::new_v4(),
     };
@@ -230,11 +293,53 @@ pub(super) fn prepare(command: &ProposalCommand) -> Result<(Uuid, AppCommand), C
             AppCommand::ApproveProposalGroup(request)
         }
         ProposalCommand::Applies => AppCommand::ProposalApplies,
+        ProposalCommand::UndoPreview(request) => {
+            validate_undo_request(request).map_err(super::error::classify_workflow)?;
+            AppCommand::PreviewProposalUndo(request.clone())
+        }
+        ProposalCommand::Undo(request) | ProposalCommand::RestoreTrash(request) => {
+            validate_undo_request(request).map_err(super::error::classify_workflow)?;
+            AppCommand::UndoProposal(request.clone())
+        }
+        ProposalCommand::RepairPreview(id) => AppCommand::PreviewProposalRepair(*id),
+        ProposalCommand::Repair(file) => {
+            let request: RepairRequest = input(file)?;
+            validate_repair_request(&request).map_err(super::error::classify_workflow)?;
+            operation = request.id;
+            AppCommand::RepairProposal(request)
+        }
     };
+    Ok((operation, command))
+}
+
+pub(super) fn prepare(command: &ProposalCommand) -> Result<(Uuid, AppCommand), CliFailure> {
+    let prepared = prepare_input(command)?;
     if crate::CANCEL.load(Ordering::SeqCst) {
         return Err(
             CliError::Interrupted("interrupted during proposal input preparation".into()).into(),
         );
     }
-    Ok((operation, command))
+    Ok(prepared)
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use brn_workflow::proposal_apply::RepairDirection;
+
+    #[test]
+    fn repair_submission_correlates_with_the_exact_attempt_uuid() {
+        let directory = tempfile::tempdir().unwrap();
+        let path = directory.path().join("repair.json");
+        let request = RepairRequest {
+            id: Uuid::new_v4(),
+            operation_id: Uuid::new_v4(),
+            expected: [17; 32],
+            direction: RepairDirection::Restore,
+        };
+        std::fs::write(&path, serde_json::to_vec(&request).unwrap()).unwrap();
+        let (id, command) = prepare_input(&ProposalCommand::Repair(path)).unwrap();
+        assert_eq!(id, request.id);
+        assert!(matches!(command, AppCommand::RepairProposal(submitted) if submitted == request));
+    }
 }

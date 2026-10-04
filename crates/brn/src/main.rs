@@ -86,6 +86,7 @@ fn command_name(command: &cli::Command) -> &'static str {
     match command {
         cli::Command::Editor(command) => command.name(),
         cli::Command::Proposals(command) => command.name(),
+        cli::Command::Activity(_) => "activity.list",
         cli::Command::Ai(command) => command.name(),
         cli::Command::ModelDownload { .. } => "models.download",
         cli::Command::NotesList { .. } => "notes.list",

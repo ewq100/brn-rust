@@ -28,27 +28,44 @@ metadata remains unqualified. Copilot `gpt-5.5` Chat refused with
 results and limits. No more account calls or model downloads are authorized by
 that completed round.
 
-Stage 4 review (`89421f5`) and exact approval journals/fences (`e84ef7a`) are
-integrated. The current file-application slice implements shared AppWorker/CLI
-individual and captured-group approval, all-member staging, coordinated exact
-Create/Replace/Trash installation, required durability and whole-proposal proof.
-A fresh pre-effect refusal preserves review work and external occupants; partial
-or unknown work stays fenced. Replay never repeats file effects. Ordinary bounded
-recovery receipts survive older/missing operational databases and are inspected
-before current vault binding. Historical completion preserves later user bytes;
-newer editor typing retains its old baseline/buffer as an explicit conflict.
-Successful approval removes temporary annotations from live/prior journals,
-ordinary snapshots and compatible proven temporary records. Independent review
-findings were verified, fixed and re-reviewed. [Stage 4 plan/evidence](work/active/proposal-core/plan.md)
-records acceptance scenarios and exact qualification. Fresh macOS arm64 / pinned
-Rust 1.98.1 locked/offline verification passed: **498 workspace tests, 0 failed,
-2 ignored** private crash entry points exercised by subprocess matrices; Store
-**110 passed** including **34 approval/recovery tests**; CLI **67 passed** including
-**9 proposal process tests**. Workspace format/build/all-target Clippy with warnings
-denied, **52 end-to-end fixture assertions**, optional native desktop compile,
-local Markdown links and diff checks passed. This slice is qualified for local
-integration under the standing mission authorization. Activity, bounded Undo/Trash,
-AI Rewrite and native proposal review remain next; Stage 4 is not complete.
+Stage 4 review (`89421f5`), exact approval journals/fences (`e84ef7a`), whole-file
+application/recovery (`e04fc52`) and readable activity (`7100ab2`) are integrated.
+AppWorker/CLI support full editing, temporary comments, individual and captured-
+group approval, exact Create/Replace/Trash installation and historical receipts.
+Fresh pre-effect refusal preserves review work; unknown/partial effects stay
+fenced. Replay/reconciliation never repeats installation. Ordinary receipts restore
+older/missing operational databases before exposing current evidence; historical
+completion preserves later bytes and editor typing. Applied cleanup removes covered
+temporary annotations. [Stage 4 plan/evidence](work/active/proposal-core/plan.md)
+retains qualification and reproducible manual scenarios.
+
+Store Undo/Trash (`e593da8`) derives exact whole inverses or one original Trash
+member, with immutable retained-original and scope bindings. Shared AppWorker/CLI
+execution now preserves bytes, inodes/mode/ACL/xattrs and editor stamps, refuses
+changed originals/targets/dirty aliases, and uses the same durable whole-operation
+proof/recovery. Scoped Trash restoration preserves unrelated later edits. Activity
+names Undo's source/scope. Independent review found no remaining actionable defect
+and passed 4 workflow, 2 worker and 4 CLI process tests. Fresh root macOS arm64 /
+Rust 1.98.1 locked/offline gates passed **538 workspace tests, 0 failed, 2 ignored**
+private crash entry points exercised by subprocess matrices; **52 end-to-end
+assertions**, retirement, format/build/all-target Clippy with warnings denied and
+optional native compile. Store **127 passed**; CLI **77 passed**. Shared Undo/Trash
+is locally integrated. Native review/Undo presentation and owned AI Rewrite remain
+next; Stage 4 is not complete.
+
+Store repair (`86439cf`) and shared AppWorker/CLI execution capture exact phases,
+admit explicit Finish/Restore attempts replay-first and preserve bounded history,
+first uncertainty and editor work. Review exposed a valid terminal staging-proof
+gap; fresh regressions reproduced it and verified the correction. Independent
+checks passed **13 Store repair, 7 shared, 2 worker and 5 CLI process tests**, plus
+cleanup/correlation checks. Fresh locked/offline gates passed **567 workspace
+tests, 0 failed, 2 ignored**, **52 end-to-end assertions**, retirement, format/build/
+all-target Clippy and optional native compile. Store **140 passed**, CLI **83 passed**.
+Shared repair is locally integrated; native repair interaction remains
+pending. No published CI run exists for these local slices. The latest inspected
+[published main CI](https://github.com/ewq100/brn-rust/actions/runs/37137393000)
+at another commit (`609d859`) failed on Windows and optional Linux paths; its results
+do not qualify this tree.
 
 ## Qualification still open
 
@@ -57,8 +74,9 @@ implementation. Builds and synthetic crash/state tests do not establish native
 usability, physical power-loss durability, other-volume support, actual model
 inference or release readiness. Native Save/Copy/conflict/reload/recovery,
 chooser, IME, accessibility, rendering and Stop/restart remain pending. Proposal
-review is currently headless; mixed/interrupted application stays fenced until
-exact reconciliation proof, with further repair/Undo interaction still to come.
+review/repair is currently headless; mixed/interrupted application stays fenced
+until exact reconciliation or explicit repair. Native review/Undo/repair usability
+remains pending.
 The completed provider round leaves Copilot GPT-5.5 Chat unsupported, Codex vision
 accuracy and native citations unqualified. Further live checks require new scope;
 release/public distribution and original/private-data migration are unauthorized.
