@@ -75,6 +75,16 @@ impl App {
             let previous = ids(before).unwrap_or_default();
             added.extend(ids(text)?.difference(&previous).copied());
         }
+        self.validate_proposal_note_targets(draft, &added)
+    }
+
+    /// Fresh explicit managed UUID references share the strict after-draft
+    /// inventory and captured-source proof used by added Markdown links.
+    pub(crate) fn validate_proposal_note_targets(
+        &mut self,
+        draft: &ProposalDraft,
+        added: &BTreeSet<Uuid>,
+    ) -> Result<()> {
         if added.is_empty() {
             return Ok(());
         }
@@ -139,7 +149,7 @@ impl App {
                 });
             }
         }
-        for id in added {
+        for &id in added {
             let mut matches = targets.iter().filter(|target| target.id == id);
             let Some(target) = matches.next() else {
                 return Err(rejected(

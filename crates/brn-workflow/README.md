@@ -91,6 +91,12 @@ exclusive immutable creation-time/UUID cursor. Editing an Action does not reorde
 it. Creation, application, owned Rewrite and Undo guards remain unchanged while
 the whole Action lifecycle is qualified. Dashboard controls follow later.
 
+Private reference validation uses explicit managed note UUIDs for person/project,
+source and thread labels. Newly added references need captured source proof or
+exact same-draft managed bytes; retained historical references stay readable.
+Action dependency and parent graphs are checked separately against the reviewed
+after-state and checked Store records. This preparation enables no producer.
+
 ## Tentative review findings
 
 [Findings](src/findings.rs) retain operational review work in brn.sqlite.
