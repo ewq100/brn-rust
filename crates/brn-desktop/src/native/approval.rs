@@ -4,7 +4,7 @@ use brn_workflow::{
     proposal_apply::{ApplyJournal, ApplyOutcome, RepairDirection},
     proposals::{CommentTarget, NoteChange, ProposalDraft, ProposalRecord},
 };
-use gpui_kit::{AnyElement, Div, base::Disableable, component::WindowExt};
+use gpui_kit::{AnyElement, Div, TestSupportExt, base::Disableable, component::WindowExt};
 
 fn sha256(bytes: &[u8; 32]) -> String {
     bytes.iter().map(|byte| format!("{byte:02x}")).collect()
@@ -66,6 +66,9 @@ fn draft_body(draft: &ProposalDraft) -> Div {
             None => member.child("Proposed: move the captured original to Trash"),
         };
         body = body.child(member);
+    }
+    for (index, change) in draft.action_changes.iter().enumerate() {
+        body = body.child(super::action_review::member_body(index, change));
     }
     body = body.child("Captured source versions");
     if draft.sources.is_empty() {
@@ -385,14 +388,14 @@ impl Desktop {
             let disabled = current
                 .as_ref()
                 .is_none_or(|desktop| desktop.read(cx).approval_native_blocked(cx));
-            let mut content = div().flex().flex_col().gap_3();
+            let mut content = div().id("exact-approval-capture").test_support().flex().flex_col().gap_3();
             if let Some(group_id) = capture.group_id() {
                 content = content.child(format!(
                     "Approve these {} captured proposals in group {group_id}? Each proposal is independent. Application may stop after an earlier proposal; later proposals remain unapplied. New arrivals are not included.",
                     capture.records().len()
                 ));
             } else {
-                content = content.child("Approve this exact full proposal? This applies the captured changes to vault Markdown. Temporary comments are deleted only after successful application.");
+                content = content.child("Approve this exact full proposal? This applies the captured Markdown and Action changes. Temporary comments are deleted only after successful application.");
             }
             for (record, request) in capture.records().iter().zip(capture.requests()) {
                 content = content

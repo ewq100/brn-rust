@@ -113,9 +113,12 @@ conversation or new blank chat does not adopt that result. Stop intent survives
 pre-admission cancellation acknowledgements. Composer edits invalidate only
 search results, not the current answer or its follow-up conversation.
 
-History also lists typed proposals. Full review shows every Create/Replace/Trash
-member, exact captured before/proposed text, source versions and temporary
-comments. Full edits recover after 500 ms through the same AppWorker boundary;
+History also lists typed proposals. Full review shows every Markdown and Action
+member, exact captured before/proposed text or complete Action record, source
+versions and temporary comments. Action controls cover all 14 candidate fields;
+incomplete UUID/date typing remains visible and blocks approval until corrected.
+State editing offers Open/Waiting/Blocked; Completed work stays immutable. Full
+edits recover after 500 ms through the same AppWorker boundary;
 only acknowledgement establishes recoverability. Older replies preserve later
 typing. Comments attach to the whole proposal or an exact UTF-8 selection;
 unresolved anchors retain their old quote and require explicit reattachment.
@@ -147,6 +150,31 @@ An acknowledged completed answer can explicitly prefill its full bytes and sessi
 into this form. Failed, provisional or oversized answers cannot become truncated
 drafts. AI writing uses a real stored seed Draft, comments and owned Rewrite.
 GUI/IME/accessibility and owner acceptance are tracked separately.
+
+### Manual Action review acceptance
+
+Use a fresh explicit data directory and synthetic fixtures; no provider is needed.
+While the desktop is closed, create the Action-only draft in the
+[CLI scenario](../brn/README.md#manual-action-acceptance), then open this same data
+directory in the native app after the CLI exits.
+
+1. Select the draft in History. Inspect its full candidate fields and empty source
+   list. Change title/description, Waiting, owner and both dates; type an incomplete
+   UUID into a reference field. It must remain visible and block approval/navigation
+   until corrected or explicitly discarded. Remove that incomplete reference.
+2. Wait for the exact edit acknowledgement, add a whole-proposal comment and inspect
+   the current version. Quit/restart; acknowledged full fields and comment remain.
+3. Open Approve. Check the complete frozen snapshot, then approve. The Action appears
+   only after Applied; Activity retains its approved origin and full candidate data,
+   while temporary comments are removed. Quit/restart and compare the CLI full read.
+4. Repeat with two captured group drafts, including a bound Markdown member. A new
+   group arrival must stay outside the open confirmation. Only shown members apply;
+   a refusal stops later members. Compare exact fixture bytes and Action records.
+
+Native/live and owner acceptance are pending until these controls are exercised on
+the unlocked Mac. Save safe actual captures in the
+[UI screenshot index](../../docs/ui/screenshots/README.md). Action composition,
+identified Complete/dashboard, owned Action Rewrite and Action Undo follow later.
 
 Saved documents also expose **Links**. This inspects saved Markdown while retaining
 unsaved editor text, showing exact occurrence/reference-definition quotes, source

@@ -1,343 +1,153 @@
 # Current development status
 
-2026-10-04. The owner has authorized sequential BRN v1 delivery under the frozen
-[product vision](product/BRN_PRODUCT_VISION.md), [architecture](architecture/overview.md#frozen-target),
-[invariants](architecture/invariants.md), [roadmap](roadmap.md) and
-[development workflow](development/workflow.md). **Stages 1–4 are implemented,
-automated verified and locally integrated. Stage 5 qualification/publication continues; Stage 6 Actions/dashboard is active.
-Stages 5–16 remain unfinished. Complete BRN v1 delivery is not claimed.**
+2026-10-04. **Stages 1–4 are implemented, automated verified and integrated.
+Stage 5 foundations are integrated, with live/native qualification still open.
+Stage 6 Actions/dashboard is active. Stages 7–16 are not implemented; complete V1
+delivery is not claimed.**
 
-The owner's 2026-10-04 [client-boundary amendment](architecture/overview.md#client-and-protocol-boundary)
-establishes BRN as a headless platform: six current V1 core crates with permitted
-thin future adapters through workflow/AppWorker. Independent implementation audit
-found no desktop/CLI domain bypass; existing scoped knowledge/proposal/activity
-commands are retained. Read-only local stdio MCP is future work; no daemon,
-network service or added V1 stage is authorized by this amendment.
-Workflow-owned search evidence now keeps SQLite passage IDs inside retrieval.
-The real row-reallocation regression and independent correction review passed;
-exact quotations/hashes/scopes remain stable across disposable-index rebuilds.
-Merged-main CI37197827195 passed Mac3+UbuntuCore/UI; existing non-Mac exclusive
-install/Unix API gaps leave overallCIred, without a shared macOS defect.
+The [Product Vision](product/BRN_PRODUCT_VISION.md),
+[architecture](architecture/overview.md), [invariants](architecture/invariants.md),
+[roadmap](roadmap.md) and [development workflow](development/workflow.md) govern
+delivery. Markdown/assets remain durable authority; WorkStore operational state
+and the disposable retrieval index retain their existing roles. The owner's
+[client-boundary amendment](architecture/overview.md#client-and-protocol-boundary)
+permits thin future adapters around the six V1 core crates through workflow/
+AppWorker. No MCP, daemon, HTTP service, extra database or remote work is in V1.
 
-Manual Save/recovery (`6609442`) preserves exact UTF-8, generation-bound recovery
-and file/parent/root identities. Copies install exclusively; missing originals
-are not recreated. Acknowledgement establishes recoverability. Guarded navigation
-and Quit drain admitted work; system termination can lose unacknowledged typing.
-[Stage 1 evidence](work/completed/simple-save/plan.md) retains checks and native
-acceptance. Stage 2 (`a5ec4ae`) removes legacy production paths, `brn-core` and
-`brn-flow`. The six-crate workspace refuses old/mixed markers before SQLite without
-migrating original data. [Stage 2 evidence](work/completed/legacy-removal/plan.md)
-records the retired baseline and qualification.
+## Integrated behavior
 
-Stage 3’s scoped live round is complete (`d40e0a1`): both fresh human connections
-succeeded, using **10 logical probes / 14 completion attempts** within the 11/22
-cap. ChatGPT `gpt-5.5` Responses passed low/high read tools and the tiny image.
-Copilot `gpt-5.3-codex` Responses passed read tools but reversed image colors.
-Both observed hosted web search with correct official SQLite URLs; native citation
-metadata remains unqualified. Copilot `gpt-5.5` Chat refused with
-`unsupported_api_for_model`; production reports `ModelRefused` without fallback.
-[Stage 3 evidence](work/completed/provider-capabilities/plan.md) records limits.
-That completed round authorizes no further account calls or model downloads.
+Stages 1–2 deliver exact Markdown Save, generation-bound unfinished-edit recovery,
+conflict/exclusive-copy protections and removal of legacy production architecture.
+Legacy/original data is untouched. Evidence:
+[Save](work/completed/simple-save/plan.md) and
+[legacy removal](work/completed/legacy-removal/plan.md).
 
-Stage 4 Proposal Core is implemented through sequential reviewed slices. Complete
-typed Create/Replace/Trash drafts preserve exact before/source bindings and full
-review text. Temporary comments retain uncertain quotes without guessing anchors;
-edits, comments, rejection and owned Rewrite use one exact review version. Rewrite
-shares the owned chat lane, captures explicit provider/model/effort and settles
-validated output atomically; restart interrupts without retry. Fresh Ask also
-requires explicit low/medium/high effort, while older unknown-effort history stays
-readable and replayable offline.
+Stage 3's completed authorized live round made **10 logical probes / 14 completion
+attempts**. Fresh human connections succeeded. ChatGPT gpt-5.5 passed effort/read
+tools/tiny image; Copilot gpt-5.3-codex passed read tools but reversed image colors.
+Both observed hosted web search with official SQLite URLs; native citation
+metadata remains unqualified. Copilot gpt-5.5 Chat explicitly refused; there is
+no fallback. This historical round authorizes no additional calls. Evidence:
+[provider capabilities](work/completed/provider-capabilities/plan.md).
 
-Exact individual/captured-group approval, whole-file application and ordinary
-proof recovery are shared by AppWorker/CLI and native controls. Fresh pre-effect
-refusal preserves review work; unknown/partial effects stay fenced. Historical
-replay never repeats installation and preserves later files and typing. Applied
-cleanup removes covered temporary annotations. Paged Activity loads only the
-identified full snapshot. Full Undo, original-index Trash restoration and explicit
-Finish/Restore repair freeze exact previews/attempts; workflow rechecks eligibility
-and retains errors/outcomes without automatic retry. Native initial composition
-creates full one-note proposals; CLI supports multi-member requests/groups.
-Completed acknowledged answers may explicitly prefill session-bound review work;
-real seed drafts/comments/owned Rewrite provide AI writing. Unsubmitted form input
-is transient, copyable and guards leaving; only acknowledged creation recovers.
-Knowledge changes only after exact approval.
+Stage 4 delivers typed whole proposals, exact before/source bindings, full edits,
+temporary comments, owned Rewrite, individual/captured-group approval, recoverable
+application, Activity, practical Undo/Trash and explicit Finish/Restore repair.
+AppWorker/CLI and desktop share those rules. Late work preserves newer typing;
+unknown effects fence current evidence. Knowledge changes only after exact
+approval. Evidence and manual scenarios:
+[Proposal Core](work/completed/proposal-core/plan.md).
 
-[Stage 4 evidence](work/completed/proposal-core/plan.md) retains each baseline,
-independent reviews, technically verified fixes and reproducible manual scenarios.
-The final creation slice’s independent review found no actionable defects and
-passed **6 default / 6 native creation tests, 4 source-worker tests and 1 widget
-test**. Fresh root macOS arm64 / Rust 1.98.1 locked/offline gates passed **684
-workspace tests, 0 failed, 2 ignored**, **52 end-to-end assertions**, retirement,
-format/build/all-target Clippy with warnings denied and **147 native tests**,
-shipping native build and native Clippy. Default desktop passed **131**; workflow
-**186**. The two ignored private crash entry points are exercised by subprocess
-matrices. Earlier slice counts remain in the evidence, not current gate claims.
+Stage 5 delivers managed UUID identities, exact provenance, Current/Source/History/
+All retrieval, reliable session timestamps, saved links, derived relationships,
+stable-link proposal preparation, native scoped/evidence browsing and basic Needs
+Review findings. Current is default. Retained evidence survives source/index/
+session changes; duplicate/incomplete identities stay explicit. Search clients
+consume semantic workflow evidence rather than SQLite passage IDs. Independent
+reviews reproduced and verified corrections to proof bounds, case-sensitive
+identity/alias handling, stale native captures and scoped paging.
 
-Stage 5’s [active plan](work/active/knowledge-foundations/plan.md) records sixteen
-integrated slices: managed Markdown identities; fresh duplicate/incomplete
-inspection; current/source/history/all retrieval and native read-only browsing;
-durable exact provenance and native source inspection; reliable session/turn
-timestamps; saved CommonMark links; disposable relationships; exact stable-link
-preparation; native saved-link/relationship inspection; and native exact link preparation. Fresh whole-byte observations detect retained-size/mtime changes. UUID links survive moves without
-path/title guesses. Saved citations retain their exact historical quotes and
-source uncertainty independently of sessions or disposable indexes.
+The multilingual MiniLM-L12 profile pins five exact assets at revision
+2c4055b12046f11709e9df2c122e59ffbdc2f900 (135,392,488 bytes) in a separate fresh
+folder. Synthetic bundle/vector/installer tests passed; actual download/inference
+and EN↔ET quality remain unqualified. Ask preserves source quotations and requests
+the question's language; actual language compliance remains unqualified.
+Relationship requests currently rederive the saved vault observation; the retained
+scale probes took 6.108 s / 10.026 s for 8,192 proofs / 5,000 notes. Evidence:
+[knowledge foundations](work/active/knowledge-foundations/plan.md).
 
-Relationship pages distinguish explicit links from provenance-based candidates,
-retain full endpoint hashes and exact proofs, filter both endpoints before
-pagination and report duplicates/incomplete inspection. Healthy index V2 upgrades
-additively to V3, preserving passages/vectors. No AI or durable write occurs during
-reconstruction. Independent review reproduced a valid reference-proof boundary;
-the corrected 8,192-proof cache preserves the accepted 4,096-link extractor. An
-introduced absent-metadata update regression was also reproduced and corrected.
-That slice’s final review passed **45 tests** with no actionable finding, plus
-actual CLI probes for **8,192 exact proofs** and **5,000 notes / 4,999 edges**.
-The two scale queries took **6.108 s / 10.026 s** on this Mac; each relationship
-request currently rederives the saved vault observation.
+Stage 6's integrated checkpoints deliver checked V10 Actions, immutable approved
+origins/full replacement baselines, exact stored review members, joined Store
+settlement/recovery, shared paged Action reads and explicit reference/dependency
+validation. Dependencies and parent graphs are separate checks; new knowledge
+references require captured or same-draft proof. Completed records cannot reopen.
+Evidence: [Actions/dashboard plan](work/active/actions-dashboard/plan.md).
 
-Stable-link preparation returns full additive Replace review input with both
-consumer/target source bindings and no admission or vault write. It preserves the
-entire byte prefix, escapes literal labels and verifies parser placement. Fresh
-approval checks new UUID targets after edits/Rewrite against exact saved evidence
-or same-draft reviewed target bytes. Historical links, Undo and completed replay
-retain their authority. Broader tests caught and fixed an unrelated legacy-layout
-regression. Independent public probes also reproduced and verified fixes for
-case-sensitive aliases hiding duplicates and opaque metadata supplying false old
-link authority. Final review passed **62 tests / 0 failed / 1 ignored**, and the
-ignored real App case separately passed on fresh owned case-sensitive APFS.
+## Latest integrated checkpoint
 
-Native inspection shows one selected link/edge and persistent exact read-only
-proof, complete identity/hash details, target uncertainty and inspection issues.
-Scoped 25-edge pages replace the prior observation; stale/closed replies cannot
-replace current state. Review reproduced Save Copy changing Unique to Ambiguous
-and stacked panels placing controls outside a 480×480 window. Corrected
-invalidation/scrolling passed **22 independent state/widget tests**, with no
-remaining actionable finding. Unsaved typing and original evidence remain intact.
+[PR33](https://github.com/ewq100/brn-rust/pull/33) merged
+**7fed13295a4c9c2e633ef020e981042840f2246c**, source tree47f89319 equal to the reviewed
+candidate. Exact latest head0882a30/run37214585531 passed MacCore/UI/Retrieval and
+UbuntuShared. Windows repeated22 unchanged Unix API errors, so overallCI is red;
+no GitHub requirement was bypassed. An initial Ubuntu test assumption about
+macOS-only source coordination was independently reviewed and corrected without
+changing production behavior.
 
-Fresh final Rust 1.98.1/macOS arm64 locked/offline verification passed **950
-workspace tests / 0 failed / 3 ignored**, **52 end-to-end assertions**, retirement,
-format/build/all-target Clippy, **213 native desktop tests / 0 failed / 0 ignored**,
-test-support and shipping native Clippy, and the shipping native desktop build.
-Fresh native retrieval fixtures passed25;embedding metadata/vector guards10;
-missing-model loader1 (both real-model tests compiled and stayed unexecuted).
-Focused native workflow passed155/0failed/2ignored;capability fixtures passed
-86library+1example,with feature Clippy and shipping native CLI build. Two ignored private crash
-entry points remain exercised by subprocess matrices; the third case-sensitive
-regression was explicitly qualified in the prior unchanged adapter slice.
-Fresh shipping headless startup/restart passed twice with exact synthetic vault
-bytes and zero credential files. The prior synthetic prepare/Create/Approve/rebuild
-scenario is retained. No providers, downloads or actual ONNX inference were used.
-The [native manual scenario](../crates/brn-desktop/README.md) is reproducible;
-unlocked GUI/owner acceptance remains pending.
+Fresh post-merge **16 reference tests, 52 fixtures and two shipping startup/restart
+checks passed**, V10/exact BOM/CRLF/Unicode bytes/zero credential files. Merged-main
+run37215168696 completed **5 success / 4 failure**: Mac3+UbuntuCore/UI passed;
+actual logs repeat Ubuntu native installer10pass/3fail and Windows22/22/14 Unix
+errors in unchanged production paths. No shared macOS defect was found.
 
-Native link preparation uses the guarded initial Replace form, exact captured
-consumer and a separately inspected target UUID/hash. It retains both full source
-bindings and allows title/body edits while fixing path/kind; explicit Create and
-Approve remain separate. Empty/exact-capture body guards prevent discarding authored
-replacement text. Stale operations/form/input/document generations and changed full
-consumer proofs preserve current input. Archived target moves follow UUID. Separate
-proposals retain complete bindings under fresh UUIDs. Independent reviews passed
-**7 form + 6 preparation state + 6 existing creation + 3 new / 1 existing native
-widget tests**, with no actionable defects. A real worker prepare/Create/Approve
-scenario verified unchanged vault until approval; fresh shipping startup/restart
-passed twice with exact synthetic bytes and zero credential files.
+Earlier reviewed PRs16–32 are integrated; their plans/PRs retain exact CI and
+verification evidence. PR32 fixes the actual missing Settings/dialog render layer.
+Its automated widgets, build, startup and applicable CI passed; fixed Settings/
+human login has not yet been exercised on the unlocked Mac.
 
-Basic findings now persist strict immutable source proof in operational schema
-V9. Duplicate UUIDs and unresolved saved links supply fresh deterministic capture;
-exact closure changes queue state only. Original quotes/full fingerprints survive
-restart, closure and source drift. Inspection reports new proof separately and
-refuses foreign-vault substitution. Independent review reproduced and fixed
-case-folding distinct paths; CLI qualification fixed local/global --version
-parsing. Final findings suites passed **14 Store + 8 workflow + 4 process tests**;
-independent review passed **20 Store/CLI + 7 workflow tests**, no remaining
-actionable findings. Native Needs Review now offers bounded filtered pages, complete retained proof
-and separate fresh inspection, direct exact Resolve/Dismiss, saved-issue capture
-and explicit same-request retries even without a selection or available vault.
-Independent state/widget reviews passed **8 + 4 tests**, with no unresolved
-defect. A reproduced refused-navigation bug was corrected before integration.
-The explicit installer now pins multilingual MiniLM-L12 quantized assets at
-`2c4055b12046f11709e9df2c122e59ffbdc2f900` (135,392,488 bytes). Recognized new
-ONNX requires all five exact assets before initialization; mean/384/max128/Static
-and the full bundle produce a distinct identity. Saved/explicit legacy directories
-retain their previous behavior and identity. Fresh defaults use a separate folder;
-consent is scoped to this revision and never executes automatically. Independent
-review reproduced and fixed the CLI legacy-folder mismatch. Fresh **28 native
-retrieval +137 native workflow tests**, feature Clippy/builds and two shipping
-startup/restart runs passed. A prepared ignored six-query bilingual model smoke
-test compiled but was not run. Actual ONNX compatibility, EN↔ET quality, long-tail
-truncation, scope/restart/rebuild and tool/CLI parity remain unqualified. The
-bounded asset-download question is still pending. Ask now instructs the selected
-model to normally use the current question's language, honor explicit language
-requests and preserve original source quotes. Independent review passed two
-actual Rig synthetic transport tests across three explicit routes and both Ask
-APIs; no extra call or Rewrite protocol change occurs. Fresh adapter/capability
-fixtures passed **86 library +1 example tests**. Actual response-language compliance
-remains unqualified. Safe later implementation continues; Stage 5 is not complete.
+## Active slice and next work
 
-Stage 6’s [active plan](work/active/actions-dashboard/plan.md) now includes checked
-V10 Action reads and typed stored Create/Replace review members using the existing
-exact lifecycle. Full replacement baselines/IDs remain immutable; completed work
-cannot be reopened. Combined budgets and omitted empty fields preserve old
-Markdown hashes. Workflow creation/apply/owned Rewrite explicitly refuse Actions
-until whole application/recovery is qualified. Independent review passed71tests
-and6synthetic CLI refusal probes with no Action/provider effects. A separate
-recovery defect was reproduced and fixed: complete Action prevalidation skips
-malformed backup candidates while refusing semantic-invalid mains. Independent
-52tests plus genuine Action B-tree corruption recovery passed; V9 Findings
-prevalidation/regressions are retained. Joined Store application now captures
-exact Action after-state and atomically settles CAS writes with the whole receipt,
-review and comment cleanup. Recovery checks real Replace baselines before importing
-after-state, preserves newer/Completed work and refuses equal-version forks.
-Independent review reproduced the missing before-fork check; its meaningful RED
-then corrected regression passed, with no remaining findings. Final Store266/0/0
-and independent56/0/0 passed. Workflow ordinary recovery now accepts checked
-vaultless Action snapshots,imports terminal Applied state and settles unfinished
-zero-file intents NotApplied. A meaningful regression reproduced vacuous Applied
-classification; foreign Action IDs/full baselines/order now also prevent temporary
-retirement. Final independent25/0/0 passed with no finding. Fresh998workspace/
-0failed/3ignored+52fixtures,148focused native workflow/0failed/2ignored,
-213combined-native/0failed/0ignored,both native Clippy configurations,shipping
-desktop/CLI builds and two startup/restart checks passed with exact synthetic
-bytes,V10 and zero credentials. Local integration/publication is recorded in the
-plan. Shared full Action reads now go through workflow/AppWorker and CLI with
-typed validation/NotFound,current-evidence fences,all-state/25-entry pages and
-immutable creation-time/UUID cursors. Independent review's valid DEL/C1 display
-defect was reproduced and corrected; review then found no remaining defect.
-Fresh post-correction1010workspace/0failed/3ignored+52fixtures,153focused native
-workflow/0failed/2ignored,213combined-native/0failed/0ignored,native Clippy/builds
-and startup2 passed,V10,exact bytes,zero credentials. Native gates cover unchanged
-desktop/workflow code; final CLI feature Clippy/build reran after the display fix.
-Workflow creation/apply/Rewrite remain guarded until references and mixed
-execution/recovery qualify; no real Action producer,dashboard or Stage6 completion is claimed.
+Branch codex/v1-action-application is based on7fed132. Whole typed Action
+Create/Replace and mixed note+Action drafts are implemented locally through the
+existing proposal boundary. Source-free work needs no vault. Full Action CAS is
+checked before file effects and Applied recovery authority; joined settlement
+retains transactional CAS. Mixed drift stays Uncertain/fenced. Native review
+retains all fields, incomplete input and exact grouped captures; independent UI
+review's valid group-approval refusal was reproduced and corrected.
 
-## Qualification still open
+Focused checks passed:12 recovery tests/0failed/1ignored crash child,23 exercised
+crash points,2 mixed Finish/Restore tests/0failed/1exercised crash child,3 real
+CLI+2 AppWorker scenarios,222 native unit/widget+7 CLI tests and native Clippy.
+Complete independent review found no actionable defect and privately passed29
+focused tests. A final real CLI regression reproduced Activity omitting Actions
+(1pass/2fail); the shared summary now counts approved Create/Replace Actions.
+Independent correction review passed7tests with no finding. The pre-correction
+whole gate passed1059tests/0failed/5ignored+52fixtures. Fresh corrected gates
+passed the same counts,178focused-native-workflow/0failed/4ignored,
+229combined-native-desktop/0failed/0ignored,both native Clippy configurations,
+shipping builds and startup2(V10/exact bytes/zero credentials). New application
+tests qualify macOS ordinary receipts; an explicit non-Mac pre-admission refusal
+witness awaits Ubuntu CI. Fresh Mac5application tests and test-targetClippy passed.
+This candidate
+is implemented and locally verified; publication and exact-head applicable CI
+precede integration. Manual Action scenarios are in the
+[CLI](../crates/brn/README.md#manual-action-acceptance) and
+[desktop](../crates/brn-desktop/README.md#manual-action-review-acceptance) contracts.
 
-Luna computer-use qualification on0243c5d passed fresh synthetic Current/Source/
-History search and saved-evidence views, explicit Unicode Save with BOM/CRLF
-preservation, and acknowledged unsaved-buffer recovery after verified full quit/
-restart. AX labels and owned file/record evidence were observed; this is native
-qualification,not owner acceptance. Screen capture failed(-3811/-3812),so visual
-layout remains unobserved. No provider or model download occurred.
+Next: identified direct Complete, dashboard and related follow-up creation, then
+the remaining Stage6 AI/read-tool path within the same approval boundary. Inbox
+follows in roadmap order. Independent implementation/test work can run in parallel
+behind fixed interfaces; integration follows dependencies. WholeStage5/6 remain
+unfinished.
 
-Broader GUI/IME/accessibility, chooser, native review/approval/Undo/
-repair/creation usability, live Rewrite/effort usability and owner acceptance are
-pending. Synthetic state/crash/widget tests do not establish physical power-loss
-durability, other-volume support, actual inference or release readiness. These
-items do not block later safe implementation. The completed provider round leaves
-Copilot GPT-5.5 Chat unsupported, Codex vision accuracy and native citations
-unqualified. Upstream `block v0.1.6` retains a future-compiler warning.
+## Qualification and owner items
 
-Reviewed PRs16–21 publish Stages1–4; their completed plans retain exact checks.
-Stage5A [PR22](https://github.com/ewq100/brn-rust/pull/22) mergeda9f8382 after
-exact4895916/run37191800152. Stage5B [PR23](https://github.com/ewq100/brn-rust/pull/23)
-mergedd48654098f79c8b4a6b13982650c258245b2d800 after exact2d0993f/
-run37193690701. Stage5C [PR24](https://github.com/ewq100/brn-rust/pull/24) merged
-2483b31f38a2b941ab71b7fba5449519da600e82 after exact716aede/run37194454005.
-Each exact latest head passed macOSCore/UI/Retrieval+UbuntuSharedCore; Windows
-Unix APIs failed,leaving overallCIred. Independent review and relevant local
-verification passed before merge. PostB14CLIprovenance/Storetimestamp tests,
-postC10CLIlinks/relationships/preparation tests,52fixtures at each checkpoint,
-merged-tree equality and two startup/restart checks each passed with exact bytes
-and zero credential files. GUI/owner acceptance stays pending. PR25 merged8295326 after exact90de25e/
-run37197453154 passed the same four applicable lanes; Windows Unix APIs failed,
-overallCIred. Merged tree equality,3focused tests+52fixtures and two shipping
-startup/restart checks passed with exact bytes,V8 and zero credentials. Stage5D
-[PR26](https://github.com/ewq100/brn-rust/pull/26) mergedb0e93fb after exactfc98b0d/
-run37199082097 passed Mac3+UbuntuShared;Windows Unix API failures leave overallCIred.
-Merged tree equality,28focused tests+52fixtures and two startup/restart checks
-passed with exact bytes,V9,zero credentials. Main37199659960 passed Mac3+UbuntuCore/UI;
-Ubuntu native retrieval failed6pass/3fail on unchanged unsupported exclusive-install
-expectations,Windows3failed,overallCIred. Independent analysis found no sharedMac
-defect. Stage5 language [PR27](https://github.com/ewq100/brn-rust/pull/27) merged
-42722526009b6c986271afc75680828bc5287c02 after exactcee0144/run37201040507 passed
-the same four applicable lanes;Windows failed before tests on Unix APIs,overallCIred.
-Merged tree equality,24focused profile/model/Ask tests+52fixtures and two shipping
-startup/restart checks passed with exact bytes,V9,zero credentials. Main37201599486
-passed Mac3+UbuntuCore/UI; Ubuntu native retrieval failed10pass/3fail on unchanged
-unsupported exclusive-install expectations,Windows3failed,overallCIred. Independent
-source/log analysis found no sharedMac/language defect. Stage6 storage/review/
-joined-Store [PR28](https://github.com/ewq100/brn-rust/pull/28) merged5d0e9f5 after
-exacta1cc9b4/run37202673215 passed Mac3+UbuntuShared;Windows failed before tests,
-overallCIred. Merged tree equality,35focused tests+52fixtures and two shipping
-startup/restart checks passed,V10,exact bytes,zero credentials. Main37203224513
-passed Mac3+UbuntuCore/UI;unchanged Ubuntu native installer10pass/3fail and Windows3
-Unix build failures leave overallCIred,with no shared Action defect. The next
-workflow recovery [PR29](https://github.com/ewq100/brn-rust/pull/29) merged0243c5d
-after exact9e785a5/run37204244962 passed Mac3+UbuntuShared;Windows Unix APIs failed,
-overallCIred. Merged tree equality,25focused tests+52fixtures and startup2 passed,
-V10,exact bytes,zero credentials. Main37204848736 passed Mac3+UbuntuCore/UI;
-unchanged Ubuntu installer10pass/3fail and Windows3Unix failures leave overallCIred.
-Independent actual-log analysis found no shared Action defect. Shared Action
-reads [PR30](https://github.com/ewq100/brn-rust/pull/30) mergedb5f7ce857e2fccf8c10eca0090ca253a385ac5f2
-at2026-10-04T14:32:29Z after exact19ab4fe/run37209028073 passed Mac3+UbuntuShared.
-An initial Ubuntu test wrongly expected macOS-only ordinary recovery to succeed;
-independently reviewed correction retains shared fences and explicit non-Mac
-ToolRejected/refusal. Windows repeated22unchangedUnix compile errors,overallCIred.
-Merged-tree equality,12focused tests+52fixtures+startup2(V10/exact bytes/zero
-credentials) passed. Main37209641370 completed5success/4failure: Mac3+UbuntuCore/UI
-passed;Ubuntu native installer10pass/3fail and Windows3Unix failures remain.
-Independent log/source analysis found no shared Action defect. Current catalog
-qualification,wholeStage5 and wholeStage6 remain pending.
+- Actual multilingual asset download needs the pending bounded owner permission.
+  ONNX compatibility, EN↔ET quality, truncation, scoped restart/rebuild and tool/CLI
+  parity remain open.
+- Luna-only BRN app/provider qualification is authorized with fresh human Connect,
+  at most2 catalog calls+2 logical probes,18 completions maximum. Exact gpt-6-luna;
+  no fallback, purchases or existing credential/private-vault inspection. No new
+  catalog/inference call has run. Development/review may use Sol/Luna, neverAstra.
+- Prior unlocked native checks passed synthetic scoped reads, Unicode Save and
+  acknowledged buffer recovery after full quit/restart. Safe original UI captures
+  are retained in the [screenshot index](ui/screenshots/2026-10-04/INDEX.md).
+  The unlocked Mac now shows fixed Settings and its optional-model dialog; three
+  safe originals are retained. Download was declined without a model request.
+  Fresh human sign-in is pending. Visual/native Action review, live inference,
+  broader IME/accessibility/chooser and owner acceptance remain open.
+- Synthetic crash/widget tests do not establish physical power-loss durability,
+  other-volume support or release readiness. Windows Unix API and non-Mac native
+  installer gaps remain visible. Upstream block0.1.6 has a future-compiler warning.
+- Release/public distribution, additional live/download scope, purchases and
+  original/private-data inspection/migration still require applicable permission.
 
-The owner authorized Luna-only BRN app/provider testing on2026-10-04; development
-and review may use Sol/Luna,neverAstra. The reviewed thin Rig adapter now discovers
-the actual ChatGPT subscription catalog,validates exact visible IDs/order,and
-returns safe failures without a substitute list. Saved selections remain readable
-when discovery changes; no refresh chooses a replacement. Native picker refresh
-hides obsolete options. Fresh corrected shared verification passed1019workspace/
-0failed/3ignored+52fixtures,165focused-native-workflow/0failed/2ignored and214
-combined-native-desktop/0failed/0ignored; native Clippy/shipping builds and startup2
-passed(V10/exact bytes/zero credentials). Independent full/correction reviews found
-no defect. Integration and remaining live qualification are recorded below.
-Catalog [PR31](https://github.com/ewq100/brn-rust/pull/31) merged
-13895d905bd18d0e7615d7623325304f9126cd9d after exact fcc5f633/run37210863902
-passed MacCore/UI/Retrieval and UbuntuShared. Windows failed before tests on22
-unchanged Unix errors; independent log/source review found no shared defect.
-Merged-tree equality,113focused tests,52fixtures and startup2 passed,V10/exact
-BOM/CRLF/Unicode bytes/zero credentials. Main37211590271 completed5success/4failure:
-Mac3+UbuntuCore/UI passed;Ubuntu installer10pass/3fail and Windows22/22/14Unix
-errors remain,overallCIred. Live catalog/Luna inference and owner acceptance stay
-pending. No new account calls have run; prior credentials remain untouched.
+Pending acceptance does not block later safe implementation when it is not a
+dependency. No original data was inspected or migrated.
 
-Unlocked Luna computer use now captured the synthetic workspace visually and
-quit the older owned app normally with unchanged vault and zero credentials.
-The fresh Current search/read succeeded. Settings button/menu/shortcut exposed
-an existing missing toolkit dialog-render layer. A minimal outer view now renders
-dialogs outside Desktop's mutable borrow and refreshes them on Desktop updates;
-independent review found no production defect and its valid modal-test witness
-finding was corrected. Meaningful original-composition RED0pass/2fail and
-corrected2tests passed; fresh216combined-native tests,both nativeClippy/shipping
-build and startup2(V10/exactbytes/zero credentials)+52fixtures passed. Native fixed
-Settings/login and owner acceptance remain pending: the Mac locked again before
-relaunch. [PR32](https://github.com/ewq100/brn-rust/pull/32) merged da2ac23 after
-exact c7456db/run37212894341 passed MacCore/UI/Retrieval and UbuntuShared. Windows
-repeated22 unchanged Unix compile errors,overallCIred. Merged-tree equality,
-2dialog regressions,52fixtures and startup2 passed,V10/exactbytes/zero credentials.
-Main37213574797 completed5success/4failure: Mac3+UbuntuCore/UI passed;unchanged
-Ubuntu installer10pass/3fail and Windows22/22/14Unix errors remain,overallCIred.
-BRN UI screenshots are retained in
-[the screenshot index](ui/screenshots/2026-10-04/INDEX.md),excluding auth/private data.
-This does not authorize model-asset downloads or private data inspection.
-
-Stage6 private reference validation now checks new knowledge UUIDs against full
-captured or same-draft evidence, and checks Action dependency and parent graphs
-separately. All producer guards remain closed. Independent complete review found
-no defect. Fresh1035shared tests/0failed/3ignored+52fixtures,202focused-native
-workflow/0failed/3ignored and216combined-native desktop/0failed/0ignored passed;
-both nativeClippy configurations,shipping build and startup2 passed,V10/exact
-bytes/zero credentials. This is preparation for whole Action approval/recovery;
-identified Complete,dashboard and wholeStage6 remain unfinished.
-
-Reference [PR33](https://github.com/ewq100/brn-rust/pull/33) initially found four
-Ubuntu test assumptions about macOS-only source coordination. The correction
-keeps all shared Action/graph cases,qualifies those four only on macOS,and adds an
-explicit non-Mac ToolRejected/no-effect witness. Independent read-only correction
-review found no shared product defect; fresh Mac16tests and test-targetClippy
-passed. Corrected exact-head applicable CI and integration remain pending.
-
-Release/public distribution, other live calls/model downloads, purchases and
-original/private-data inspection or migration still need applicable owner
-permission. No original data was migrated or inspected.
-
-Older records in [completed evidence](work/completed/README.md) and the
-[earlier Rig notes evidence](work/active/simple-rig-notes/evidence.md) are history;
-their specifications, process assignments and permissions are not execution plans.
+For transfer to the Mac mini: preserve this chat/checkpoint and task-owned branches;
+use Apple Silicon macOS/Command Line Tools, pinned Rust1.98.1, locked dependencies,
+protobuf, Bash/Python3 and an explicit existing canonical owned TMPDIR. Native
+interaction needs an unlocked, awake session; fresh human Connect is only for the
+bounded live round. Optional native features and shipping builds need separate
+checks. [Verification](development/verification.md) and
+[setup](development/setup.md) contain reproducible commands.

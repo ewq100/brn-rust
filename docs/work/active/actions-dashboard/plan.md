@@ -491,7 +491,102 @@ as Mac qualification,retains12shared cases,and adds one explicit non-Mac fresh
 source/reference refusal with exact bytes/zero proposals/journals/credentials.
 Independent Luna read-only code/log review found no shared defect. Fresh Mac16
 reference tests and test-targetClippy passed; final diff passed. Windows repeated
-22unchangedUnix errors. Corrected exact-head CI/merge remains pending. Evidence:
+22unchangedUnix errors. Corrected exact-head CI/merge is recorded below. Evidence:
 platform-correction-{tests,clippy}.log under /private/tmp/brn-v1-action-references-1xcn7scw.
 PR32main37213574797 completed5success/4failure; actual logs repeat Ubuntu native
 installer10pass/3fail and Windows22/22/14Unix errors,production paths unchanged.
+
+## Whole Action application slice
+
+PR33 merged7fed132 after correctedexact0882a30/run37214585531 passed
+MacCore/UI/Retrieval+UbuntuShared. Windows repeated22Unix errors,overallCIred;
+no GitHub bypass. Merged tree47f89319 equals reviewed candidate. Fresh post16
+reference tests+52fixtures+startup2 passed,V10/exact bytes/zero credentials.
+Main37215168696 completed5success/4failure:Mac3+UbuntuCore/UI passed; actual
+failure logs repeat Ubuntu installer10pass/3fail and Windows22/22/14Unix errors
+in unchanged production paths. No shared macOS defect was found. Evidence:
+/private/tmp/brn-v1-action-references-1xcn7scw/qualified-startup-1jesx6gx and PR33.
+
+Baseline PR33 merge7fed13295a4c9c2e633ef020e981042840f2246c. Admit exact typed
+Action Create/Replace and mixed note+Action drafts through existing AppWorker/CLI;
+64combined members/8MiB limits remain. Capture exact current Action before records,
+validate references and preserve immutable creation replay. Only file/source-free
+work may omit vault binding. Native full review/capture must retain and display
+all Action data, immutable before/origin and local incomplete typing before guards
+open; no separate mutation path, Action Undo or owned AI Rewrite is introduced.
+
+Reuse existing admission,prepared proofs,ordinary mirror and atomic Store receipt.
+Zero-file execution deliberately prepares an empty proof vector; restart without
+terminal evidence remains NotApplied. Validate exact Action CAS before filesystem
+effects and before any terminal Applied mirror, retaining settlement CAS. Mixed
+source/CAS drift remains Uncertain/fenced after effects. Explicit Finish requires
+source and Action eligibility; Restore remains possible without overwriting
+competing Actions. Historical terminal replay preserves newer records/files.
+AppWorker's serialized boundary remains the supported mutation owner.
+
+Acceptance: vaultless and bound/source-only Actions,Create/Replace creation replay,
+exact edits/comments/group capture,CAS/source refusal,all crash checkpoints,
+terminal-mirror-before-SQL restoration,mixed Finish/Restore and current-read fences.
+Verify native full fields and incomplete/late acknowledgement guards. Deterministic
+synthetic tests precede producer enablement; independent complete review,fresh
+shared/native gates and exact-head CI precede integration. Native live/owner
+acceptance stays separate. Direct Complete/dashboard are the next deliverable.
+
+## Whole application qualification checkpoint — 2026-10-04
+
+Implemented the fixed slice above on7fed132. Fresh direct/refused paths check
+complete Action baselines before effects and Applied mirror authority,retaining
+transactional settlement CAS. The meaningful private RED passed5/failed3: the
+closed producer and vaultless preparation were not yet implemented; a valid
+competing Create also reproduced publication of an Applied mirror before CAS
+refusal. All three paths are corrected. Exact creation replay and full Replace
+preserve immutable origin/Waiting time; source-only binding and source/CAS drift
+stay exact. Zero-file7 and mixed16 crash checkpoints cover ordinary interruption;
+unfinished file-free work remains NotApplied,no Actions. Genuine mixed Finish
+joins exact Create/Replace after-state; four admitted-Finish CAS races refuse at
+repair-mirror/repair-verified. Restore preserves competing Completed records and
+exact originals; replay/restart never repeat effects.
+
+Native complete review retains all14fields,invalid raw input,full immutable before
+records and late acknowledgements. Independent UI review reproduced blocked
+group approval; valid native RED passed6/failed4. The correction captures exact
+ordered Action/Markdown members,allows source-free vaultless members with one
+bound vault,and preserves arrival/version/navigation/acknowledgement guards.
+Independent complete Sol review found no actionable defect and privately passed
+12recovery+2repair+2Worker+3CLI+10state tests. Source aggregate92e9c800; actual
+per-file hashes:/private/tmp/brn-independent-action-review.GXNbQl/review-hashes.json.
+
+A final actual CLI regression reproduced Activity '.'/omitted Action summaries
+(1pass/2fail). The shared approved snapshot now counts Created/Updated Actions
+without changing DTOs,paging or loading full bodies into pages. Independent
+correction review passed3Activity+3CLI+1timestamp tests,no finding,source aggregate
+965f1391. New whole application test suites qualify Mac-only recovery persistence;
+shared read/validation/graph coverage stays. An explicit non-Mac source-free Draft/
+replay with refused approval/no effects awaits actual Ubuntu CI. Fresh Mac5tests
+and test-targetClippy passed; this is not non-Mac execution evidence. Independent
+read-only correction review checked actual Unsupported→ToolRejected mapping and
+pre-admission ordering,found no defect; three test blobs ce24eea2/010ca138/064d8749.
+
+Fresh final locked/offline macOSarm64/Rust1.98.1 gates passed1059workspace/0failed/
+5ignored+52fixtures,retirement/format/build/all-targetClippy;178focused-native-
+workflow/0failed/4ignored,229combined-native-Desktop/0failed/0ignored,both native
+Clippy configurations,shipping desktop/CLI builds and startup/restart2 passed,
+V10/exactBOMCRLFUnicode/zero credentials (qualified-startup-g29j64sx). Four ignored
+private crash entry points execute through matrices; the optional case-sensitive
+APFS test is prior evidence and was not rerun. Other test counts remain scoped to
+their exact commands. Logs:action-application-*-qualified.log,action-platform-*.log,
+action-activity-{red,green,clippy}.log under /private/tmp/brn-v1-stage2-checkpoint-dqbmj4oy.
+The README synthetic Action JSON and actual CLI commands passed with approval-only
+effects,exact data/Waiting origin and process restart/replay,zero credentials:
+manual-action-vtu46dn8/results.json. An initial manual harness omitted mkdir/data
+and envelope unwrapping; corrected without a production change.
+
+Native Action/owner acceptance remains pending; manual scenarios are in CLI and
+Desktop contracts. Actual Luna Settings/model-consent dialogs now render on the
+unlocked Mac; three safe originals are indexed in docs/ui/screenshots. Download was
+declined,no model request; fresh human Connect is awaiting sign-in,with zero
+catalog/inference calls at this checkpoint. Separate owner-requested clickable
+sign-in URL/selectable code work is being built as a small UI checkpoint.
+Exact-head PR/CI/integration remains next. Then identified Complete/dashboard and
+approved follow-up creation continue; no Action-owned Rewrite/Undo,provider assets,
+private data or release is claimed. Macmini environment requirements remain.

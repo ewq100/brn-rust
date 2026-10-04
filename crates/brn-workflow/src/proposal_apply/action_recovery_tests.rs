@@ -128,6 +128,202 @@ fn draft(change: ActionChange) -> ProposalDraft {
     }
 }
 
+fn admitted(app: &mut App, change: ActionChange) -> ApplyJournal {
+    let review = app.store.create_proposal(&draft(change)).unwrap();
+    app.store
+        .begin_proposal_apply(&ApprovalRequest {
+            operation_id: Uuid::new_v4(),
+            expected: review.stamp(),
+        })
+        .unwrap()
+}
+
+fn put_action(dir: &Path, record: &brn_store::work::actions::ActionRecord) {
+    use sha2::{Digest, Sha256};
+    record.validate().unwrap();
+    let bytes = serde_json::to_vec(record).unwrap();
+    let origin = serde_json::to_vec(&record.origin).unwrap();
+    let state = serde_json::to_value(record.data.state).unwrap();
+    rusqlite::Connection::open(dir.join("brn.sqlite"))
+        .unwrap()
+        .execute(
+            "INSERT OR REPLACE INTO actions(id,version,state,created_at_ms,creation_sha256,record_json,record_sha256) VALUES(?1,?2,?3,?4,?5,?6,?7)",
+            rusqlite::params![record.origin.id.to_string(),record.version as i64,state.as_str().unwrap(),record.origin.created_at_ms as i64,Sha256::digest(&origin).as_slice(),bytes,Sha256::digest(&bytes).as_slice()],
+        )
+        .unwrap();
+}
+
+#[test]
+fn admitted_vaultless_action_execution_uses_deliberate_whole_completion() {
+    let f = Fixture::new();
+    let mut app = f.app();
+    let journal = admitted(
+        &mut app,
+        ActionChange::Create {
+            id: Uuid::new_v4(),
+            data: data("Exact live λ\r\n", ActionState::Waiting),
+        },
+    );
+    let receipt = app.run_admitted_proposal(journal.clone()).unwrap();
+    assert_eq!(receipt.outcome, ApplyOutcome::Applied);
+    assert_eq!(
+        app.action(journal.action_records[0].origin.id).unwrap(),
+        journal.action_records[0]
+    );
+    assert_eq!(app.approve_proposal(&journal.request).unwrap(), receipt);
+    f.assert_vaultless(&app);
+}
+
+#[test]
+fn action_cas_refusal_cannot_publish_a_terminal_applied_mirror() {
+    use brn_store::work::actions::{ActionOrigin, ActionRecord};
+    let f = Fixture::new();
+    let mut app = f.app();
+    let journal = admitted(
+        &mut app,
+        ActionChange::Create {
+            id: Uuid::new_v4(),
+            data: data("Reviewed creation", ActionState::Open),
+        },
+    );
+    let journal = app
+        .store
+        .record_proposal_prepared(journal.request.operation_id, &[])
+        .unwrap();
+    app.application_records()
+        .unwrap()
+        .write(&journal, None)
+        .unwrap();
+    let competing = data("Competing approved creation", ActionState::Open);
+    let competing = ActionRecord {
+        origin: ActionOrigin {
+            id: journal.action_records[0].origin.id,
+            proposal: crate::proposals::ProposalStamp {
+                id: Uuid::new_v4(),
+                version: 1,
+            },
+            data: competing.clone(),
+            created_at_ms: journal.started_at_ms,
+        },
+        version: 1,
+        data: competing,
+        updated_at_ms: journal.started_at_ms,
+        waiting_since_ms: None,
+        completed_at_ms: None,
+    };
+    put_action(&f.data, &competing);
+    assert!(
+        app.complete_proposal(&journal, ApplyOutcome::Applied, Some(Vec::new()), false)
+            .is_err()
+    );
+    let mirrored = app
+        .application_records()
+        .unwrap()
+        .read(journal.request.operation_id)
+        .unwrap()
+        .unwrap();
+    assert!(
+        mirrored
+            .journal
+            .receipt
+            .as_ref()
+            .is_none_or(|r| r.outcome != ApplyOutcome::Applied),
+        "Refused Action CAS must not leave Applied recovery authority"
+    );
+    assert_eq!(
+        app.store.action(competing.origin.id).unwrap(),
+        Some(competing)
+    );
+}
+
+#[test]
+fn workflow_action_creation_replay_and_exact_replace_are_vaultless() {
+    use crate::proposals::{DraftRequest, ProposalEdit};
+    let f = Fixture::new();
+    let mut app = f.app();
+    let input = DraftRequest {
+        id: Uuid::new_v4(),
+        group_id: None,
+        session_id: None,
+        title: "Review exact Action".into(),
+        changes: Vec::new(),
+        sources: Vec::new(),
+        action_changes: vec![ActionChange::Create {
+            id: Uuid::new_v4(),
+            data: data("\u{feff}Task 🦀\r\n", ActionState::Open),
+        }],
+    };
+    let review = app.create_proposal(&input).unwrap();
+    assert!(
+        app.store
+            .action(input.action_changes[0].id())
+            .unwrap()
+            .is_none()
+    );
+    let mut edited = input.action_changes[0].data().clone();
+    edited.description.push_str("Reviewed 日本語\r\n");
+    let review = app
+        .edit_proposal(&ProposalEdit {
+            expected: review.stamp(),
+            title: review.draft.title.clone(),
+            texts: Vec::new(),
+            action_data: vec![edited],
+        })
+        .unwrap();
+    assert_eq!(app.create_proposal(&input).unwrap(), review);
+    let mut other = input.clone();
+    other.action_changes[0].data_mut().title.push('!');
+    assert_eq!(
+        app.create_proposal(&other).unwrap_err().kind,
+        ErrorKind::OperationConflict
+    );
+    let receipt = app
+        .approve_proposal(&ApprovalRequest {
+            operation_id: Uuid::new_v4(),
+            expected: review.stamp(),
+        })
+        .unwrap();
+    assert_eq!(receipt.outcome, ApplyOutcome::Applied);
+    let before = app.action(input.action_changes[0].id()).unwrap();
+    let mut after = before.data.clone();
+    after.state = ActionState::Waiting;
+    let replacement = DraftRequest {
+        id: Uuid::new_v4(),
+        action_changes: vec![ActionChange::Replace {
+            before: Box::new(before.clone()),
+            data: after.clone(),
+        }],
+        ..input
+    };
+    let review = app.create_proposal(&replacement).unwrap();
+    app.approve_proposal(&ApprovalRequest {
+        operation_id: Uuid::new_v4(),
+        expected: review.stamp(),
+    })
+    .unwrap();
+    let changed = app.action(before.origin.id).unwrap();
+    assert_eq!(changed.origin, before.origin);
+    assert_eq!(changed.data, after);
+    assert_eq!(changed.version, before.version + 1);
+    assert!(changed.waiting_since_ms.is_some());
+    f.assert_vaultless(&app);
+    drop(app);
+    let mut reopened = f.app();
+    assert_eq!(reopened.action(changed.origin.id).unwrap(), changed);
+    assert_eq!(
+        reopened
+            .approve_proposal(&ApprovalRequest {
+                operation_id: receipt.operation_id,
+                expected: crate::proposals::ProposalStamp {
+                    id: receipt.proposal_id,
+                    version: receipt.approved_version
+                }
+            })
+            .unwrap(),
+        receipt
+    );
+}
+
 #[test]
 fn unsettled_vaultless_action_intents_never_turn_empty_file_proofs_into_applied() {
     for (prepared, uncertain, mirrored) in [
@@ -497,4 +693,486 @@ fn vaultless_action_mirrors_do_not_relax_bound_vault_refusal() {
     );
     assert_eq!(fs::read_dir(wrong_root).unwrap().count(), 0);
     assert!(!f.credentials.exists());
+}
+
+fn action_input(change: ActionChange) -> crate::proposals::DraftRequest {
+    crate::proposals::DraftRequest {
+        id: Uuid::new_v4(),
+        group_id: None,
+        session_id: None,
+        title: "Exact operational proposal".into(),
+        changes: Vec::new(),
+        sources: Vec::new(),
+        action_changes: vec![change],
+    }
+}
+fn approve_input(app: &mut App, input: &crate::proposals::DraftRequest) -> ApplyReceipt {
+    let review = app.create_proposal(input).unwrap();
+    app.approve_proposal(&ApprovalRequest {
+        operation_id: Uuid::new_v4(),
+        expected: review.stamp(),
+    })
+    .unwrap()
+}
+fn bound(f: &Fixture) -> (PathBuf, App) {
+    let vault = f._base.path().join("vault");
+    fs::create_dir(&vault).unwrap();
+    let app = App::open(
+        &f.data,
+        AppConfig {
+            vault_root: Some(vault.clone()),
+            credentials_dir: Some(f.credentials.clone()),
+            model_dir: None,
+        },
+    )
+    .unwrap();
+    (vault, app)
+}
+fn managed(id: Uuid, body: &str) -> String {
+    format!("\u{feff}---\r\nbrn_id: {id}\r\n---\r\n{body}\r\n")
+}
+
+#[test]
+fn source_only_actions_bind_the_vault_and_refuse_fresh_and_final_source_drift() {
+    for during in [false, true] {
+        let f = Fixture::new();
+        let (vault, mut app) = bound(&f);
+        let id = Uuid::new_v4();
+        let source = vault.join("source.md");
+        fs::write(&source, managed(id, "Original approved õ")).unwrap();
+        let capture = app.proposal_source("source.md").unwrap().source;
+        let mut candidate = data("Review sourced Action", ActionState::Open);
+        candidate.sources = vec![id];
+        let mut input = action_input(ActionChange::Create {
+            id: Uuid::new_v4(),
+            data: candidate,
+        });
+        input.sources = vec![capture];
+        let review = app.create_proposal(&input).unwrap();
+        assert!(review.draft.vault.is_some());
+        if during {
+            let source = source.clone();
+            APPLY_HOOK.with(|hook| {
+                *hook.borrow_mut() = Some(Box::new(move |step, _| {
+                    if step == "verified" {
+                        fs::write(&source, "External source change").unwrap();
+                    }
+                }))
+            });
+        } else {
+            fs::write(&source, "External source change").unwrap();
+        }
+        let request = ApprovalRequest {
+            operation_id: Uuid::new_v4(),
+            expected: review.stamp(),
+        };
+        let result = app.approve_proposal(&request);
+        APPLY_HOOK.with(|hook| *hook.borrow_mut() = None);
+        assert!(result.is_err());
+        assert!(
+            app.store
+                .action(input.action_changes[0].id())
+                .unwrap()
+                .is_none()
+        );
+        assert_eq!(
+            app.proposal(review.draft.id).unwrap().state,
+            ProposalState::Draft
+        );
+        assert_eq!(fs::read(&source).unwrap(), b"External source change");
+        if during {
+            assert_eq!(
+                app.proposal_apply(request.operation_id)
+                    .unwrap()
+                    .unwrap()
+                    .receipt
+                    .unwrap()
+                    .outcome,
+                ApplyOutcome::NotApplied
+            );
+        } else {
+            assert!(app.proposal_apply(request.operation_id).unwrap().is_none());
+        }
+        assert!(!app.current_evidence_blocked().unwrap());
+        assert_eq!(fs::read_dir(&f.credentials).unwrap().count(), 0);
+    }
+}
+
+#[test]
+fn mixed_action_cas_drift_never_claims_partial_success_and_restore_preserves_completion() {
+    use brn_store::work::actions::ActionRecord;
+    for stop in ["prepared", "synced", "verified"] {
+        let f = Fixture::new();
+        let (vault, mut app) = bound(&f);
+        let note_id = Uuid::new_v4();
+        let original = managed(note_id, "Original exact λ");
+        fs::write(vault.join("note.md"), &original).unwrap();
+        let source = app.proposal_source("note.md").unwrap().source;
+        let id = Uuid::new_v4();
+        approve_input(
+            &mut app,
+            &action_input(ActionChange::Create {
+                id,
+                data: data("Existing Action", ActionState::Open),
+            }),
+        );
+        let initial = app.action(id).unwrap();
+        let mut waiting = initial.data.clone();
+        waiting.state = ActionState::Waiting;
+        approve_input(
+            &mut app,
+            &action_input(ActionChange::Replace {
+                before: Box::new(initial),
+                data: waiting,
+            }),
+        );
+        let before = app.action(id).unwrap();
+        let mut after = before.data.clone();
+        after.state = ActionState::Blocked;
+        let mut input = action_input(ActionChange::Replace {
+            before: Box::new(before.clone()),
+            data: after,
+        });
+        input
+            .changes
+            .push(crate::proposals::DraftNoteChange::Replace {
+                path: "note.md".into(),
+                expected: source.fingerprint.clone(),
+                text: managed(note_id, "Reviewed note after"),
+            });
+        input.sources.push(source);
+        let review = app.create_proposal(&input).unwrap();
+        let mut competing: ActionRecord = before.clone();
+        competing.version += 1;
+        competing.updated_at_ms += 1;
+        competing.data.state = ActionState::Completed;
+        competing.waiting_since_ms = None;
+        competing.completed_at_ms = Some(competing.updated_at_ms);
+        competing.validate().unwrap();
+        let data_dir = f.data.clone();
+        let newer = competing.clone();
+        APPLY_HOOK.with(|hook| {
+            *hook.borrow_mut() = Some(Box::new(move |step, member| {
+                if step == stop && member == 0 {
+                    put_action(&data_dir, &newer);
+                }
+            }))
+        });
+        let request = ApprovalRequest {
+            operation_id: Uuid::new_v4(),
+            expected: review.stamp(),
+        };
+        let result = app.approve_proposal(&request);
+        APPLY_HOOK.with(|hook| *hook.borrow_mut() = None);
+        assert!(result.is_err(), "{stop}");
+        let journal = app.proposal_apply(request.operation_id).unwrap().unwrap();
+        let expected = if stop == "prepared" {
+            ApplyOutcome::NotApplied
+        } else {
+            ApplyOutcome::Uncertain
+        };
+        assert_eq!(
+            journal.receipt.as_ref().unwrap().outcome,
+            expected,
+            "{stop}"
+        );
+        let mirror = app
+            .application_records()
+            .unwrap()
+            .read(request.operation_id)
+            .unwrap()
+            .unwrap();
+        assert_eq!(mirror.journal.receipt.as_ref().unwrap().outcome, expected);
+        assert_eq!(app.store.action(id).unwrap(), Some(competing.clone()));
+        if expected == ApplyOutcome::Uncertain {
+            assert!(app.action(id).is_err());
+            assert!(app.current_evidence_blocked().unwrap());
+            let preview = app.preview_proposal_repair(request.operation_id).unwrap();
+            let finish = RepairRequest {
+                id: Uuid::new_v4(),
+                operation_id: request.operation_id,
+                expected: preview.expected,
+                direction: RepairDirection::Finish,
+            };
+            assert!(app.repair_proposal(&finish).is_err());
+            assert!(app.store.proposal_repair(finish.id).unwrap().is_none());
+            let restore = RepairRequest {
+                id: Uuid::new_v4(),
+                direction: RepairDirection::Restore,
+                ..finish
+            };
+            assert_eq!(
+                app.repair_proposal(&restore).unwrap().outcome,
+                Some(ApplyOutcome::NotApplied)
+            );
+        }
+        assert_eq!(
+            fs::read(vault.join("note.md")).unwrap(),
+            original.as_bytes()
+        );
+        assert_eq!(app.action(id).unwrap(), competing);
+        assert!(!app.current_evidence_blocked().unwrap());
+        drop(app);
+        let reopened = f.app();
+        assert_eq!(
+            reopened.action(id).unwrap().data.state,
+            ActionState::Completed
+        );
+        assert_eq!(fs::read_dir(&f.credentials).unwrap().count(), 0);
+    }
+}
+
+#[test]
+#[ignore = "subprocess entry point for exact crash qualification"]
+fn action_execution_crash_child() {
+    let base = PathBuf::from(std::env::var("BRN_ACTION_EXECUTION_BASE").unwrap());
+    let request: ApprovalRequest =
+        serde_json::from_slice(&fs::read(base.join("request.json")).unwrap()).unwrap();
+    let mut app = App::open(
+        &base.join("data"),
+        AppConfig {
+            vault_root: None,
+            credentials_dir: Some(base.join("credentials")),
+            model_dir: None,
+        },
+    )
+    .unwrap();
+    let step = std::env::var("BRN_ACTION_EXECUTION_STEP").unwrap();
+    let member = std::env::var("BRN_ACTION_EXECUTION_MEMBER")
+        .ok()
+        .map(|value| value.parse().unwrap())
+        .unwrap_or(0);
+    APPLY_CHECKPOINT.with(|point| *point.borrow_mut() = Some((step, member)));
+    let _ = app.approve_proposal(&request);
+    panic!("Requested crash checkpoint was not reached");
+}
+
+#[test]
+fn vaultless_action_crashes_require_terminal_authority_and_never_repeat_writes() {
+    for step in [
+        "intent",
+        "mirror-intent",
+        "prepared-db",
+        "prepared",
+        "verified",
+        "completion",
+        "receipt",
+    ] {
+        let f = Fixture::new();
+        let mut app = f.app();
+        let id = Uuid::new_v4();
+        let input = action_input(ActionChange::Create {
+            id,
+            data: data("Crash-bound exact Action õ\r\n", ActionState::Waiting),
+        });
+        let review = app.create_proposal(&input).unwrap();
+        let request = ApprovalRequest {
+            operation_id: Uuid::new_v4(),
+            expected: review.stamp(),
+        };
+        fs::write(
+            f._base.path().join("request.json"),
+            serde_json::to_vec(&request).unwrap(),
+        )
+        .unwrap();
+        drop(app);
+        let child = std::process::Command::new(std::env::current_exe().unwrap())
+            .args([
+                "--exact",
+                "proposal_apply::action_recovery_tests::action_execution_crash_child",
+                "--ignored",
+                "--test-threads=1",
+            ])
+            .env("BRN_ACTION_EXECUTION_BASE", f._base.path())
+            .env("BRN_ACTION_EXECUTION_STEP", step)
+            .output()
+            .unwrap();
+        assert_eq!(
+            child.status.code(),
+            Some(86),
+            "{step}: {}",
+            String::from_utf8_lossy(&child.stderr)
+        );
+        let mut reopened = f.app();
+        // An intent can precede its ordinary mirror. Startup keeps that SQLite
+        // intent fenced; explicit reconciliation classifies it without retry.
+        let receipt = reopened.reconcile_proposal(request.operation_id).unwrap();
+        let journal = reopened
+            .proposal_apply(request.operation_id)
+            .unwrap()
+            .unwrap();
+        let applied = matches!(step, "completion" | "receipt");
+        let expected = if applied {
+            ApplyOutcome::Applied
+        } else {
+            ApplyOutcome::NotApplied
+        };
+        assert_eq!(journal.receipt.as_ref(), Some(&receipt));
+        assert_eq!(receipt.outcome, expected, "{step}");
+        assert_eq!(reopened.approve_proposal(&request).unwrap(), receipt);
+        assert_eq!(reopened.store.action(id).unwrap().is_some(), applied);
+        assert_eq!(
+            reopened.proposal(review.draft.id).unwrap().state,
+            if applied {
+                ProposalState::Applied
+            } else {
+                ProposalState::Draft
+            }
+        );
+        f.assert_vaultless(&reopened);
+    }
+}
+
+#[test]
+fn mixed_action_crash_matrix_settles_only_whole_proofs_and_explicitly_restores_partial_files() {
+    for (step, member) in [
+        ("intent", 0),
+        ("mirror-intent", 0),
+        ("stage", 0),
+        ("stage", 1),
+        ("stage", 2),
+        ("prepared-db", 0),
+        ("prepared", 0),
+        ("member", 0),
+        ("synced", 0),
+        ("member", 1),
+        ("synced", 1),
+        ("member", 2),
+        ("synced", 2),
+        ("verified", 0),
+        ("completion", 0),
+        ("receipt", 0),
+    ] {
+        let f = Fixture::new();
+        let (vault, mut app) = bound(&f);
+        let original = managed(Uuid::new_v4(), "Original exact before õ");
+        let trash = managed(Uuid::new_v4(), "Retained original source 🦀");
+        fs::write(vault.join("a.md"), &original).unwrap();
+        fs::write(vault.join("trash.md"), &trash).unwrap();
+        let before = app.proposal_source("a.md").unwrap().source;
+        let trash_before = app.proposal_source("trash.md").unwrap().source;
+        let note_id = brn_store::note_identity::read(&original).unwrap().unwrap();
+        let after = managed(note_id, "Reviewed after 日本語");
+        let created = managed(Uuid::new_v4(), "New approved knowledge");
+        let id = Uuid::new_v4();
+        let mut input = action_input(ActionChange::Create {
+            id,
+            data: data("Joined approved Action", ActionState::Waiting),
+        });
+        input.changes = vec![
+            crate::proposals::DraftNoteChange::Replace {
+                path: "a.md".into(),
+                expected: before.fingerprint.clone(),
+                text: after.clone(),
+            },
+            crate::proposals::DraftNoteChange::Create {
+                path: "new.md".into(),
+                text: created.clone(),
+            },
+            crate::proposals::DraftNoteChange::Trash {
+                path: "trash.md".into(),
+                expected: trash_before.fingerprint,
+            },
+        ];
+        input.sources = vec![before];
+        let review = app.create_proposal(&input).unwrap();
+        let review = app
+            .add_proposal_comment(&CommentRequest {
+                expected: review.stamp(),
+                comment: ReviewComment {
+                    id: Uuid::new_v4(),
+                    text: "Exact mixed review λ\r\n".into(),
+                    target: CommentTarget::Proposal,
+                },
+            })
+            .unwrap();
+        let request = ApprovalRequest {
+            operation_id: Uuid::new_v4(),
+            expected: review.stamp(),
+        };
+        fs::write(
+            f._base.path().join("request.json"),
+            serde_json::to_vec(&request).unwrap(),
+        )
+        .unwrap();
+        drop(app);
+        let child = std::process::Command::new(std::env::current_exe().unwrap())
+            .args([
+                "--exact",
+                "proposal_apply::action_recovery_tests::action_execution_crash_child",
+                "--ignored",
+                "--test-threads=1",
+            ])
+            .env("BRN_ACTION_EXECUTION_BASE", f._base.path())
+            .env("BRN_ACTION_EXECUTION_STEP", step)
+            .env("BRN_ACTION_EXECUTION_MEMBER", member.to_string())
+            .output()
+            .unwrap();
+        assert_eq!(
+            child.status.code(),
+            Some(86),
+            "{step}/{member}: {}",
+            String::from_utf8_lossy(&child.stderr)
+        );
+        let mut reopened = f.app();
+        let receipt = reopened.reconcile_proposal(request.operation_id).unwrap();
+        let outcome = if matches!(step, "verified" | "completion" | "receipt")
+            || matches!(step, "member" | "synced") && member == 2
+        {
+            ApplyOutcome::Applied
+        } else if matches!(step, "member" | "synced") {
+            ApplyOutcome::Uncertain
+        } else {
+            ApplyOutcome::NotApplied
+        };
+        assert_eq!(receipt.outcome, outcome, "{step}/{member}");
+        assert_eq!(reopened.approve_proposal(&request).unwrap(), receipt);
+        assert_eq!(
+            reopened.store.action(id).unwrap().is_some(),
+            outcome == ApplyOutcome::Applied
+        );
+        if outcome == ApplyOutcome::Uncertain {
+            assert!(reopened.action(id).is_err());
+            let preview = reopened
+                .preview_proposal_repair(request.operation_id)
+                .unwrap();
+            let repair = RepairRequest {
+                id: Uuid::new_v4(),
+                operation_id: request.operation_id,
+                expected: preview.expected,
+                direction: RepairDirection::Restore,
+            };
+            assert_eq!(
+                reopened.repair_proposal(&repair).unwrap().outcome,
+                Some(ApplyOutcome::NotApplied)
+            );
+        }
+        if outcome == ApplyOutcome::Applied {
+            assert_eq!(fs::read(vault.join("a.md")).unwrap(), after.as_bytes());
+            assert_eq!(fs::read(vault.join("new.md")).unwrap(), created.as_bytes());
+            assert!(!vault.join("trash.md").exists());
+            let action = reopened.action(id).unwrap();
+            assert_eq!(action.origin.proposal, review.stamp());
+            assert_eq!(action.data, input.action_changes[0].data().clone());
+            assert_eq!(action.waiting_since_ms, Some(action.origin.created_at_ms));
+            assert!(
+                reopened
+                    .proposal(review.draft.id)
+                    .unwrap()
+                    .comments
+                    .is_empty()
+            );
+        } else {
+            assert_eq!(fs::read(vault.join("a.md")).unwrap(), original.as_bytes());
+            assert_eq!(fs::read(vault.join("trash.md")).unwrap(), trash.as_bytes());
+            assert!(!vault.join("new.md").exists());
+            assert!(reopened.store.action(id).unwrap().is_none());
+            assert_eq!(
+                reopened.proposal(review.draft.id).unwrap().comments,
+                review.comments
+            );
+        }
+        assert!(!reopened.current_evidence_blocked().unwrap());
+        assert_eq!(fs::read_dir(&f.credentials).unwrap().count(), 0);
+    }
 }

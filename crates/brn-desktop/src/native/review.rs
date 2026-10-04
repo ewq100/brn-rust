@@ -2,10 +2,10 @@
 use super::*;
 use brn_workflow::{
     app_worker::AppEvent,
-    proposals::{CommentTarget, NoteChange, ProposalEdit, ReviewComment},
+    proposals::{CommentTarget, NoteChange, ReviewComment},
 };
 use gpui_kit::{
-    AnyElement,
+    AnyElement, TestSupportExt,
     base::Disableable,
     component::{Selectable, WindowExt, input::Textarea},
 };
@@ -47,6 +47,7 @@ impl Desktop {
         }
     }
     pub(super) fn sync_review_widgets(&mut self, window: &mut Window, cx: &mut Context<Self>) {
+        self.sync_action_widgets(window, cx);
         let Some(review) = &self.ai.as_ref().unwrap().review else {
             return;
         };
@@ -170,10 +171,12 @@ impl Desktop {
         let observed = review.observed.clone();
         let title = review.title().to_owned();
         let texts = review.texts().to_vec();
+        let actions = review.action_data().to_vec();
+        let fields = review.action_fields().to_vec();
         let desktop = cx.entity().downgrade();
         window.open_dialog(cx, move |dialog, _, _| {
             let desktop = desktop.clone(); let record = record.clone(); let observed = observed.clone();
-            let title = title.clone(); let texts = texts.clone();
+            let title = title.clone(); let texts = texts.clone(); let actions = actions.clone(); let fields = fields.clone();
             dialog.title("Discard retained local review text?").w(px(640.))
                 .child("Copy local text first if needed. This adopts the acknowledged/current proposal and does not change vault Markdown.")
                 .child(Button::new("confirm-discard-review").label("Confirm discard local review text")
@@ -182,7 +185,8 @@ impl Desktop {
                         let _ = desktop.update(cx, |this, cx| {
                             if let Some(review) = &mut this.ai.as_mut().unwrap().review
                                 && review.record == record && review.observed == observed
-                                && review.title() == title && review.texts() == texts.as_slice() {
+                                && review.title() == title && review.texts() == texts.as_slice()
+                                && review.action_data() == actions.as_slice() && review.action_fields() == fields.as_slice() {
                                 discarded = review.discard_local();
                             }
                             if discarded { this.sync_review_widgets(window, cx); }
@@ -203,6 +207,7 @@ impl Desktop {
             || self.close_failed;
         let mut body = div()
             .id("full-proposal-review")
+            .test_support()
             .track_scroll(&self.review_scroll)
             .flex()
             .flex_col()
@@ -271,6 +276,9 @@ impl Desktop {
                     body =
                         body.child("Proposed: move this exact original note to recoverable Trash");
                 }
+            }
+            for (index, change) in review.record.draft.action_changes.iter().enumerate() {
+                body = body.child(self.action_editor_body(index, change, editable, cx));
             }
             body = body.child("Captured source versions");
             if review.record.draft.sources.is_empty() {
@@ -374,7 +382,11 @@ impl Desktop {
                     .child(
                         Button::new("review-rewrite")
                             .label("Rewrite")
-                            .disabled(leaving || !ai.can_rewrite())
+                            .disabled(
+                                leaving
+                                    || !ai.can_rewrite()
+                                    || !review.record.draft.action_changes.is_empty(),
+                            )
                             .on_click(cx.listener(|this, _, _, cx| {
                                 if let Some(command) = this.ai.as_mut().unwrap().start_rewrite() {
                                     this.simple_send(command, cx);
@@ -426,18 +438,12 @@ impl Desktop {
                         Button::new("review-copy-local")
                             .label("Copy full local review")
                             .on_click(cx.listener(|this, _, _, cx| {
-                                if let Some(review) = &this.ai.as_ref().unwrap().review {
-                                    let edit = ProposalEdit {
-                                        action_data: Vec::new(),
-                                        expected: review.record.stamp(),
-                                        title: review.title().to_owned(),
-                                        texts: review.texts().to_vec(),
-                                    };
-                                    if let Ok(text) = serde_json::to_string_pretty(&edit) {
-                                        cx.write_to_clipboard(gpui_kit::ClipboardItem::new_string(
-                                            text,
-                                        ));
-                                    }
+                                if let Some(review) = &this.ai.as_ref().unwrap().review
+                                    && let Ok(text) = review.copy_local()
+                                {
+                                    cx.write_to_clipboard(gpui_kit::ClipboardItem::new_string(
+                                        text,
+                                    ));
                                 }
                             })),
                     )

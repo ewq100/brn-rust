@@ -12,6 +12,8 @@ pub use brn_store::work::proposal_apply::{
 };
 #[cfg(all(test, target_os = "macos"))]
 mod action_recovery_tests;
+#[cfg(all(test, target_os = "macos"))]
+mod action_repair_tests;
 mod repair;
 use brn_store::work::proposals::{NoteChange, ProposalDraft, ProposalState};
 use brn_store::{
@@ -449,23 +451,23 @@ impl App {
         draft: &ProposalDraft,
         undo: Option<&UndoBinding>,
     ) -> Result<()> {
-        if !draft.action_changes.is_empty() {
-            return Err(WorkflowError::typed(
-                ErrorKind::ToolRejected,
-                "Action proposal application is not available yet",
-            ));
+        if draft.vault.is_some() {
+            self.editor_files()?;
+            let bound: VaultRecord = serde_json::from_str(
+                &self
+                    .store
+                    .setting("vault.editor_identity")?
+                    .ok_or_else(|| stale("vault identity is missing"))?,
+            )
+            .map_err(|_| stale("vault identity is invalid"))?;
+            if draft.vault.as_ref() != Some(&bound) {
+                return Err(stale("reviewed vault identity changed"));
+            }
+        } else if !draft.changes.is_empty() || !draft.sources.is_empty() {
+            return Err(stale("reviewed Markdown/source work requires a vault"));
         }
-        self.editor_files()?;
-        let bound: VaultRecord = serde_json::from_str(
-            &self
-                .store
-                .setting("vault.editor_identity")?
-                .ok_or_else(|| stale("vault identity is missing"))?,
-        )
-        .map_err(|_| stale("vault identity is invalid"))?;
-        if draft.vault.as_ref() != Some(&bound) {
-            return Err(stale("reviewed vault identity changed"));
-        }
+        self.store
+            .validate_proposal_action_changes(&draft.action_changes)?;
         let editors = self.store.editors()?;
         for (index, change) in draft.changes.iter().enumerate() {
             let borrowed = undo.and_then(|binding| binding.originals[index].as_ref());
@@ -498,15 +500,15 @@ impl App {
                 }
             }
         }
-        check_targets(self.editor.files.as_ref().expect("opened files"), draft)?;
+        if !draft.changes.is_empty() {
+            check_targets(self.editor.files.as_ref().expect("opened files"), draft)?;
+        }
         // Exact Undo restores retained historical bytes. Fresh normal approval
         // checks every newly introduced durable citation, including review edits
         // and Rewrite output, before any Applying admission or filesystem effect.
         if undo.is_none() {
             self.validate_proposal_provenance(draft)?;
             self.validate_proposal_links(draft)?;
-            // Prepared for ordinary Action approval; the early Action guard
-            // above stays closed until whole application/recovery qualifies.
             self.validate_action_references(draft)?;
         }
         for source in &draft.sources {
@@ -553,7 +555,14 @@ impl App {
     fn run_admitted_proposal(&mut self, mut journal: ApplyJournal) -> Result<ApplyReceipt> {
         checkpoint("intent", 0);
         let attempted = Cell::new(false);
-        let result = self.execute_proposal(&mut journal, &attempted);
+        let result = self
+            .execute_proposal(&mut journal, &attempted)
+            .and_then(|proofs| {
+                // Includes the final verification checkpoint. An Action refusal
+                // after file effects must remain whole-operation uncertainty.
+                self.check_applied_eligibility(&journal)?;
+                Ok(proofs)
+            });
         match result {
             Ok(proofs) => {
                 self.complete_proposal(&journal, ApplyOutcome::Applied, Some(proofs), false)
@@ -582,6 +591,41 @@ impl App {
         let records = self.apply_records.as_ref().expect("opened recovery files");
         let snapshot = records.write(journal, None).map_err(file_error)?;
         checkpoint("mirror-intent", 0);
+        self.check_approved_actions(journal)?;
+        if journal.members.is_empty() {
+            if !journal.approved.draft.sources.is_empty() {
+                check_sources(
+                    self.editor
+                        .files
+                        .as_ref()
+                        .ok_or_else(|| stale("source files unavailable"))?,
+                    journal,
+                    0,
+                )?;
+            }
+            *journal = self
+                .store
+                .record_proposal_prepared(journal.request.operation_id, &[])?;
+            checkpoint("prepared-db", 0);
+            records
+                .write(journal, Some(&snapshot))
+                .map_err(file_error)?;
+            checkpoint("prepared", 0);
+            self.check_approved_actions(journal)?;
+            if !journal.approved.draft.sources.is_empty() {
+                check_sources(
+                    self.editor
+                        .files
+                        .as_ref()
+                        .ok_or_else(|| stale("source files unavailable"))?,
+                    journal,
+                    0,
+                )?;
+            }
+            completion(journal, ApplyOutcome::Applied, Some(Vec::new()), false)?.validate()?;
+            checkpoint("verified", 0);
+            return Ok(Vec::new());
+        }
         let files = self.editor.files.as_ref().expect("opened files");
         check_targets(files, &journal.approved.draft)?;
         check_sources(files, journal, 0)?;
@@ -673,6 +717,7 @@ impl App {
             .map_err(file_error)?;
         checkpoint("prepared", 0);
         // All preparation is durable before the first namespace effect.
+        self.check_approved_actions(journal)?;
         check_targets(files, &journal.approved.draft)?;
         for (i, ((change, member), proof)) in journal
             .approved
@@ -683,6 +728,7 @@ impl App {
             .zip(&prepared)
             .enumerate()
         {
+            self.check_approved_actions(journal)?;
             check_sources(files, journal, i)?;
             let destination = Path::new(change.path());
             files
@@ -744,6 +790,9 @@ impl App {
     }
 
     fn observe_proposal(&self, journal: &ApplyJournal) -> Result<Vec<ApplyMemberProof>> {
+        if journal.members.is_empty() {
+            return Ok(Vec::new());
+        }
         let files = self
             .editor
             .files
@@ -783,6 +832,9 @@ impl App {
         observations: Option<Vec<ApplyMemberProof>>,
         no_effects: bool,
     ) -> Result<ApplyReceipt> {
+        if outcome == ApplyOutcome::Applied {
+            self.check_applied_eligibility(journal)?;
+        }
         let candidate = completion(journal, outcome, observations, no_effects)?;
         let records = self.application_records()?;
         let previous = records
@@ -811,6 +863,29 @@ impl App {
         checkpoint("receipt", 0);
         let _ = self.refresh();
         Ok(receipt)
+    }
+
+    fn check_approved_actions(&self, journal: &ApplyJournal) -> Result<()> {
+        if !journal.approved.draft.action_changes.is_empty() {
+            self.store
+                .validate_proposal_apply_actions(journal.request.operation_id)?;
+        }
+        Ok(())
+    }
+
+    fn check_applied_eligibility(&self, journal: &ApplyJournal) -> Result<()> {
+        self.check_approved_actions(journal)?;
+        if !journal.approved.draft.sources.is_empty() {
+            check_sources(
+                self.editor
+                    .files
+                    .as_ref()
+                    .ok_or_else(|| stale("source files unavailable"))?,
+                journal,
+                journal.members.len(),
+            )?;
+        }
+        Ok(())
     }
 
     /// Classifies complete proofs; never repeats installation or guesses a path.
@@ -885,7 +960,9 @@ impl App {
         }
         if outcome == ApplyOutcome::Applied {
             let files = self.editor.files.as_ref().expect("opened files");
-            if check_sources(files, &journal, journal.members.len()).is_err() {
+            if check_sources(files, &journal, journal.members.len()).is_err()
+                || self.check_approved_actions(&journal).is_err()
+            {
                 outcome = ApplyOutcome::Uncertain;
             }
         }
@@ -902,7 +979,8 @@ impl App {
             }
             if self.observe_proposal(&journal).ok() != observations
                 || outcome == ApplyOutcome::Applied
-                    && check_sources(files, &journal, journal.members.len()).is_err()
+                    && (check_sources(files, &journal, journal.members.len()).is_err()
+                        || self.check_approved_actions(&journal).is_err())
             {
                 outcome = ApplyOutcome::Uncertain;
             }

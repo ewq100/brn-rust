@@ -1,10 +1,15 @@
 //! Local review text and exact worker acknowledgements; no authority or I/O.
 
+#[path = "action_fields.rs"]
+pub mod action_fields;
+use action_fields::ActionFields;
+
 use brn_workflow::{
     MAX_NOTE_BYTES,
+    actions::ActionData,
     proposals::{
-        CommentTarget, NoteChange, ProposalEdit, ProposalRecord, ProposalState, TextAnchor,
-        validate_review_edit,
+        ActionChange, CommentTarget, NoteChange, ProposalEdit, ProposalRecord, ProposalState,
+        TextAnchor, validate_review_edit,
     },
 };
 use std::time::{Duration, Instant};
@@ -23,6 +28,8 @@ pub struct ProposalReview {
     pub error: Option<String>,
     title: String,
     texts: Vec<Option<String>>,
+    action_data: Vec<ActionData>,
+    action_fields: Vec<ActionFields>,
     generation: u64,
     acknowledged_generation: u64,
     submitted: Option<SubmittedEdit>,
@@ -35,6 +42,11 @@ impl ProposalReview {
         Self {
             title: record.draft.title.clone(),
             texts: record_texts(&record),
+            action_data: record_actions(&record),
+            action_fields: record_actions(&record)
+                .iter()
+                .map(ActionFields::from)
+                .collect(),
             record,
             observed: None,
             error: None,
@@ -58,10 +70,88 @@ impl ProposalReview {
         &self.texts
     }
 
+    pub fn action_data(&self) -> &[ActionData] {
+        &self.action_data
+    }
+
+    pub fn action_fields(&self) -> &[ActionFields] {
+        &self.action_fields
+    }
+
+    // Typed editing entry point also used by headless presentation tests.
+    #[allow(dead_code)]
+    pub fn edit_action(
+        &mut self,
+        index: usize,
+        data: ActionData,
+        now: Instant,
+    ) -> Result<(), &'static str> {
+        self.can_type()?;
+        let Some(current) = self.action_data.get(index) else {
+            return Err("Action member does not exist");
+        };
+        let fields = ActionFields::from(&data);
+        if current == &data && self.action_fields[index] == fields {
+            return Ok(());
+        }
+        let generation = self
+            .generation
+            .checked_add(1)
+            .ok_or("Proposal edit generation exhausted")?;
+        self.action_data[index] = data;
+        self.action_fields[index] = fields;
+        self.generation = generation;
+        self.last_edit = Some(now);
+        Ok(())
+    }
+
+    pub fn edit_action_fields(
+        &mut self,
+        index: usize,
+        fields: ActionFields,
+        now: Instant,
+    ) -> Result<(), &'static str> {
+        self.can_type()?;
+        let Some(current) = self.action_fields.get(index) else {
+            return Err("Action member does not exist");
+        };
+        if current == &fields {
+            return Ok(());
+        }
+        let generation = self
+            .generation
+            .checked_add(1)
+            .ok_or("Proposal edit generation exhausted")?;
+        if let Ok(data) = fields.data() {
+            self.action_data[index] = data;
+        }
+        self.action_fields[index] = fields;
+        self.generation = generation;
+        self.last_edit = Some(now);
+        Ok(())
+    }
+
+    pub fn copy_local(&self) -> Result<String, serde_json::Error> {
+        let edit = ProposalEdit {
+            action_data: self.action_data.clone(),
+            expected: self.record.stamp(),
+            title: self.title.clone(),
+            texts: self.texts.clone(),
+        };
+        if self.action_fields.is_empty() {
+            return serde_json::to_string_pretty(&edit);
+        }
+        serde_json::to_string_pretty(
+            &serde_json::json!({ "edit": edit, "local_action_fields": self.action_fields }),
+        )
+    }
+
     pub fn dirty(&self) -> bool {
         self.generation != self.acknowledged_generation
             || self.title != self.record.draft.title
             || !texts_match(&self.record, &self.texts)
+            || !actions_match(&self.record, &self.action_data)
+            || self.action_fields.iter().any(|fields| fields.data().is_err())
             // A conflicting observation requires an explicit discard even when
             // an earlier acknowledgement catches up with the local bytes.
             || self.observed.is_some()
@@ -158,8 +248,15 @@ impl ProposalReview {
         if !self.can_recover() {
             return None;
         }
+        for fields in &self.action_fields {
+            if let Err(error) = fields.data() {
+                self.error = Some(error);
+                self.failed = true;
+                return None;
+            }
+        }
         let edit = ProposalEdit {
-            action_data: Vec::new(),
+            action_data: self.action_data.clone(),
             expected: self.record.stamp(),
             title: self.title.clone(),
             texts: self.texts.clone(),
@@ -188,14 +285,15 @@ impl ProposalReview {
             return false;
         };
         let changed = submitted.edit.title != self.record.draft.title
-            || !texts_match(&self.record, &submitted.edit.texts);
+            || !texts_match(&self.record, &submitted.edit.texts)
+            || !actions_match(&self.record, &submitted.edit.action_data);
         let expected_version = if changed {
             submitted.edit.expected.version.checked_add(1)
         } else {
             Some(submitted.edit.expected.version)
         };
         let checked = ProposalEdit {
-            action_data: Vec::new(),
+            action_data: record_actions(&record),
             expected: record.stamp(),
             title: record.draft.title.clone(),
             texts: record_texts(&record),
@@ -206,6 +304,7 @@ impl ProposalReview {
             || record.updated_at_ms < self.record.updated_at_ms
             || record.draft.title != submitted.edit.title
             || !texts_match(&record, &submitted.edit.texts)
+            || !actions_match(&record, &submitted.edit.action_data)
             || validate_review_edit(&record, &checked).is_err()
         {
             self.fail_edit(
@@ -291,6 +390,8 @@ impl ProposalReview {
     fn adopt(&mut self, record: ProposalRecord) {
         self.title = record.draft.title.clone();
         self.texts = record_texts(&record);
+        self.action_data = record_actions(&record);
+        self.action_fields = self.action_data.iter().map(ActionFields::from).collect();
         self.record = record;
         self.acknowledged_generation = self.generation;
         self.observed = None;
@@ -323,8 +424,28 @@ fn texts_match(record: &ProposalRecord, texts: &[Option<String>]) -> bool {
             .all(|(change, text)| change.text() == text.as_deref())
 }
 
+pub(crate) fn record_actions(record: &ProposalRecord) -> Vec<ActionData> {
+    record
+        .draft
+        .action_changes
+        .iter()
+        .map(|change| change.data().clone())
+        .collect()
+}
+
+fn actions_match(record: &ProposalRecord, data: &[ActionData]) -> bool {
+    record.draft.action_changes.len() == data.len()
+        && record
+            .draft
+            .action_changes
+            .iter()
+            .zip(data)
+            .all(|(change, data)| change.data() == data)
+}
+
 fn same_contents(left: &ProposalRecord, right: &ProposalRecord) -> bool {
-    left.draft.title == right.draft.title
+    left.draft.action_changes == right.draft.action_changes
+        && left.draft.title == right.draft.title
         && left.draft.changes.len() == right.draft.changes.len()
         && left
             .draft
@@ -343,6 +464,18 @@ fn same_bindings(left: &ProposalRecord, right: &ProposalRecord) -> bool {
         && a.vault == b.vault
         && a.sources == b.sources
         && left.created_at_ms == right.created_at_ms
+        && a.action_changes.len() == b.action_changes.len()
+        && a.action_changes
+            .iter()
+            .zip(&b.action_changes)
+            .all(|(a, b)| match (a, b) {
+                (ActionChange::Create { id: a, .. }, ActionChange::Create { id: b, .. }) => a == b,
+                (
+                    ActionChange::Replace { before: a, .. },
+                    ActionChange::Replace { before: b, .. },
+                ) => a == b,
+                _ => false,
+            })
         && a.changes.len() == b.changes.len()
         && a.changes.iter().zip(&b.changes).all(|(a, b)| match (a, b) {
             (
@@ -415,3 +548,7 @@ pub fn selection_target(
 #[cfg(test)]
 #[path = "review_tests.rs"]
 mod tests;
+
+#[cfg(test)]
+#[path = "action_review_tests.rs"]
+pub(crate) mod action_tests;

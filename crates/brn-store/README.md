@@ -307,8 +307,8 @@ binding; Markdown members/source proofs require one. The existing review, edit,
 temporary comments, rejection, exact stamp and replay lifecycle covers these
 members, with one combined64-member/8MiB budget. Completed work cannot be changed
 or reopened through these members. Empty additions stay omitted from historical
-Markdown serialization. Workflow creation, application and owned AI Rewrite
-explicitly refuse Action members until shared application/recovery is qualified.
+Markdown serialization. Shared workflow creation/application uses these typed
+members; owned AI Action Rewrite and Action-bearing Undo remain refused.
 No standalone Action mutation API is exposed.
 
 `ApplyJournal::action_records` retains complete ordered after-state derived from
@@ -317,15 +317,18 @@ Create/full Replace baselines before Applying. Applied settlement writes Actions
 whole receipt, review and annotation cleanup in one transaction; other outcomes
 write no Actions, and terminal replay preserves later work. Snapshot encoding has
 a separate bound within the existing total journal/mirror limits.
+Read-only `validate_proposal_action_changes` checks complete fresh baselines;
+`validate_proposal_apply_actions` checks the admitted unresolved snapshot before
+workflow effects or completion authority. Admission and settlement retain their
+transactional CAS; these helpers grant no mutation permission.
 
 Recovery imports already-real Replace baselines before Applied after-state in
 the same transaction. Immutable origins and equal-version records must match;
 newer work wins and completed work cannot be reopened. A known before-state fork
 refuses even when its revision precedes the imported after-state. Imports do not
 repeat filesystem effects. Action-bearing Undo explicitly refuses until its
-inverse contract qualifies. Workflow ordinary mirrors and interruption remain
-the next qualification; this storage contract does not establish an Action
-producer or the dashboard.
+inverse contract qualifies. Workflow owns ordinary mirrors, interruption and
+mixed Finish/Restore; this storage contract does not establish the dashboard.
 
 ## Dependencies and verification
 

@@ -1,7 +1,10 @@
 //! Readable approved-change history projected from operational receipts.
 //! History is not current-vault evidence and does not require current reads.
 use crate::{ErrorKind, Result, WorkflowError, app::App};
-use brn_store::work::{proposal_apply::ApplyOutcome, proposals::NoteChange};
+use brn_store::work::{
+    proposal_apply::ApplyOutcome,
+    proposals::{ActionChange, NoteChange},
+};
 use chrono::{DateTime, SecondsFormat, Utc};
 use serde::{Deserialize, Serialize};
 use uuid::Uuid;
@@ -160,7 +163,7 @@ impl App {
                     title: draft.title,
                     approved_at_ms: journal.started_at_ms,
                     approved_at_utc: utc_time(journal.started_at_ms),
-                    summary: summary(&changes),
+                    summary: summary(&changes, &draft.action_changes),
                     changes,
                 })
             })
@@ -182,7 +185,7 @@ fn utc_time(ms: u64) -> Option<String> {
     DateTime::<Utc>::from_timestamp_millis(i64::try_from(ms).ok()?)
         .map(|date| date.to_rfc3339_opts(SecondsFormat::Millis, true))
 }
-fn summary(changes: &[ActivityChange]) -> String {
+fn summary(changes: &[ActivityChange], actions: &[ActionChange]) -> String {
     let count = |kind| changes.iter().filter(|change| change.kind == kind).count();
     let mut parts = vec![];
     for (kind, first_verb, later_verb, suffix) in [
@@ -199,6 +202,36 @@ fn summary(changes: &[ActivityChange]) -> String {
             };
             parts.push(format!(
                 "{verb} {n} note{}{suffix}",
+                if n == 1 { "" } else { "s" }
+            ));
+        }
+    }
+    for (n, first_verb, later_verb) in [
+        (
+            actions
+                .iter()
+                .filter(|change| matches!(change, ActionChange::Create { .. }))
+                .count(),
+            "Created",
+            "created",
+        ),
+        (
+            actions
+                .iter()
+                .filter(|change| matches!(change, ActionChange::Replace { .. }))
+                .count(),
+            "Updated",
+            "updated",
+        ),
+    ] {
+        if n > 0 {
+            let verb = if parts.is_empty() {
+                first_verb
+            } else {
+                later_verb
+            };
+            parts.push(format!(
+                "{verb} {n} action{}",
                 if n == 1 { "" } else { "s" }
             ));
         }

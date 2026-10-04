@@ -6,7 +6,7 @@ use serde_json::json;
 use std::time::{Duration, Instant};
 use uuid::Uuid;
 
-fn fixture() -> ProposalRecord {
+pub(super) fn fixture() -> ProposalRecord {
     // The before/source bytes are empty; this is their actual SHA-256.
     let empty = [
         227, 176, 196, 66, 152, 252, 28, 20, 154, 251, 244, 200, 153, 111, 185, 36, 39, 174, 65,
