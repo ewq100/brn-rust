@@ -7,7 +7,13 @@ use std::time::Duration;
 
 mod ai;
 #[cfg_attr(not(feature = "native-ui"), allow(dead_code))]
+mod approval;
+#[cfg_attr(not(feature = "native-ui"), allow(dead_code))]
+mod draft;
+#[cfg_attr(not(feature = "native-ui"), allow(dead_code))]
 mod layout;
+#[cfg_attr(not(feature = "native-ui"), allow(dead_code))]
+mod review;
 #[cfg_attr(not(feature = "native-ui"), allow(dead_code))]
 mod tokens;
 

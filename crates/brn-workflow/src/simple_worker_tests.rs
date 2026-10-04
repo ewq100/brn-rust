@@ -24,6 +24,10 @@ use std::{
 use tokio_util::sync::CancellationToken;
 use uuid::Uuid;
 
+#[cfg(target_os = "macos")]
+#[path = "proposal_rewrite_tests.rs"]
+mod rewrite;
+
 type AnswerFuture = Pin<Box<dyn Future<Output = AiAnswer> + Send>>;
 pub(crate) type AnswerHook = Arc<
     dyn Fn(
@@ -93,6 +97,7 @@ impl Fixture {
                 provider: Provider::Chatgpt,
                 model: "gpt-5.5".into(),
             },
+            effort: Some(crate::ReasoningEffort::High),
             generation: 51,
         }
     }
@@ -118,6 +123,120 @@ fn terminal(worker: &AppWorker, id: Uuid) -> WorkTurn {
 }
 
 #[test]
+fn missing_effort_is_refused_before_vault_selection_or_provider_admission() {
+    let fixture = Fixture::new();
+    let (called, calls) = mpsc::channel();
+    let hook: AnswerHook = Arc::new(move |_, _, _, _, _| {
+        called.send(()).unwrap();
+        Box::pin(async {
+            AiAnswer {
+                text: String::new(),
+                terminal: AiTerminal::Completed,
+            }
+        })
+    });
+    let mut worker = fixture.start(Hooks {
+        rewrite: None,
+        answer: Some(hook),
+        account: None,
+    });
+    let mut request = fixture.request();
+    request.effort = None;
+    request.selection = Selection {
+        provider: Provider::Copilot,
+        model: "never-discovered".into(),
+    };
+    std::fs::rename(
+        fixture.base.path().join("vault"),
+        fixture.base.path().join("parked-vault"),
+    )
+    .unwrap();
+    worker
+        .submit(request.id, AppCommand::Ask(request.clone()))
+        .unwrap();
+    assert!(
+        matches!(event(&worker), (id, AppEvent::Chat(ChatEvent::Rejected { error, .. }))
+        if id == request.id && error.kind == ErrorKind::SelectionRequired)
+    );
+    worker.shutdown().unwrap();
+    assert!(calls.try_recv().is_err());
+    let (store, _) = brn_store::WorkStore::open(&fixture.base.path().join("data")).unwrap();
+    assert!(store.turn(request.id).unwrap().is_none());
+    assert!(store.conversations().unwrap().is_empty());
+}
+
+#[test]
+fn ask_effort_is_frozen_during_setting_changes_and_exact_replay() {
+    let fixture = Fixture::new();
+    let (started, captured) = mpsc::channel();
+    let (release, released) = tokio::sync::oneshot::channel();
+    let released = Arc::new(Mutex::new(Some(released)));
+    let hook: AnswerHook = Arc::new(move |request, _, tools, _, _| {
+        let started = started.clone();
+        let released = released.lock().unwrap().take().unwrap();
+        Box::pin(async move {
+            started.send(request.effort).unwrap();
+            let _ = released.await;
+            drop(tools);
+            AiAnswer {
+                text: "exact answer 🧭\r\n".into(),
+                terminal: AiTerminal::Completed,
+            }
+        })
+    });
+    let mut worker = fixture.start(Hooks {
+        rewrite: None,
+        answer: Some(hook),
+        account: None,
+    });
+    let request = fixture.request();
+    worker
+        .submit(request.id, AppCommand::Ask(request.clone()))
+        .unwrap();
+    let captured_effort = captured.recv_timeout(Duration::from_secs(10)).unwrap();
+    let setting = Uuid::new_v4();
+    worker
+        .submit(
+            setting,
+            AppCommand::SelectEffort(crate::ReasoningEffort::Low),
+        )
+        .unwrap();
+    let saved = event(&worker);
+    release.send(()).unwrap();
+    let turn = terminal(&worker, request.id);
+    assert_eq!(captured_effort, Some(crate::ReasoningEffort::High));
+    assert!(matches!(saved, (id, AppEvent::EffortSaved) if id == setting));
+    assert_eq!(turn.effort.as_deref(), Some("high"));
+    let mut conflict = request.clone();
+    conflict.effort = Some(crate::ReasoningEffort::Low);
+    worker
+        .submit(request.id, AppCommand::Ask(conflict))
+        .unwrap();
+    assert!(
+        matches!(event(&worker).1, AppEvent::Chat(ChatEvent::Rejected { error, .. })
+        if error.kind == ErrorKind::OperationConflict)
+    );
+    std::fs::rename(
+        fixture.base.path().join("vault"),
+        fixture.base.path().join("parked-vault"),
+    )
+    .unwrap();
+    worker
+        .submit(request.id, AppCommand::Ask(request.clone()))
+        .unwrap();
+    let replay = terminal(&worker, request.id);
+    assert_eq!(replay.effort.as_deref(), Some("high"));
+    assert_eq!(replay.answer, turn.answer);
+    worker.shutdown().unwrap();
+    let (store, _) = brn_store::WorkStore::open(&fixture.base.path().join("data")).unwrap();
+    assert_eq!(
+        store.turn(request.id).unwrap().unwrap().effort.as_deref(),
+        Some("high")
+    );
+    assert_eq!(store.setting("ai.effort").unwrap().as_deref(), Some("low"));
+}
+
+#[test]
 fn stop_before_and_after_partial_is_durable_and_recovery_ack_does_not_wait_for_model() {
     for partial in ["", "retained partial"] {
         let fixture = Fixture::new();
@@ -136,6 +255,7 @@ fn stop_before_and_after_partial_is_durable_and_recovery_ack_does_not_wait_for_m
             })
         });
         let mut worker = fixture.start(Hooks {
+            rewrite: None,
             answer: Some(answer),
             account: None,
         });
@@ -209,6 +329,7 @@ fn cancellation_does_not_mask_credential_storage_or_stream_failure() {
             })
         });
         let mut worker = fixture.start(Hooks {
+            rewrite: None,
             answer: Some(hook),
             account: None,
         });
@@ -252,6 +373,7 @@ fn status_and_target_disconnect_work_while_stream_pending_and_other_provider_sta
         })
     });
     let mut worker = fixture.start(Hooks {
+        rewrite: None,
         answer: Some(hook),
         account: None,
     });
@@ -331,6 +453,7 @@ fn pending_login_cancel_is_not_disconnect_and_other_provider_discovery_is_record
         })
     });
     let mut worker = fixture.start(Hooks {
+        rewrite: None,
         answer: None,
         account: Some(hook),
     });
@@ -398,6 +521,7 @@ fn history_last_twenty_earlier_terminal_pairs_includes_partials_and_excludes_run
             },
             provider: "copilot".into(),
             model: "snapshot".into(),
+            effort: None,
             status: if i == 22 {
                 WorkTurnStatus::Running
             } else if i % 2 == 0 {
@@ -437,6 +561,7 @@ fn mismatched_generation_and_second_active_request_are_refused_without_another_r
         })
     });
     let mut worker = fixture.start(Hooks {
+        rewrite: None,
         answer: Some(hook),
         account: None,
     });
@@ -514,6 +639,7 @@ fn model_progress_is_correlated_download_precedes_idle_activation_and_control_do
         fixture.base.path().join("data"),
         fixture.config(),
         Hooks {
+            rewrite: None,
             answer: Some(answer),
             account: None,
         },
@@ -634,6 +760,7 @@ fn cancelling_downloaded_model_waiting_on_active_turn_wakes_the_application_lane
         fixture.base.path().join("data"),
         fixture.config(),
         Hooks {
+            rewrite: None,
             answer: Some(answer),
             account: None,
         },
@@ -689,6 +816,7 @@ fn stream_failure_after_partial_commits_before_finished_and_restart_replay_does_
         })
     });
     let mut worker = fixture.start(Hooks {
+        rewrite: None,
         answer: Some(hook),
         account: None,
     });
@@ -744,6 +872,7 @@ fn persistence_failure_retains_in_memory_partial_and_shutdown_returns_the_finali
         })
     });
     let mut worker = fixture.start(Hooks {
+        rewrite: None,
         answer: Some(hook),
         account: None,
     });
@@ -804,6 +933,7 @@ fn drop_joins_retained_blocking_tool_reads_and_keeps_the_owner_until_the_last_re
         })
     });
     let worker = fixture.start(Hooks {
+        rewrite: None,
         answer: Some(hook),
         account: None,
     });
@@ -850,6 +980,7 @@ fn disconnect_cancels_only_target_login_and_joins_it_before_cache_removal() {
         })
     });
     let mut worker = fixture.start(Hooks {
+        rewrite: None,
         answer: None,
         account: Some(hook),
     });
@@ -950,6 +1081,7 @@ fn application_activation_is_off_caller_and_account_events_and_disconnect_bypass
         fixture.base.path().join("data"),
         fixture.config(),
         Hooks {
+            rewrite: None,
             answer: None,
             account: Some(account),
         },
@@ -1343,6 +1475,7 @@ fn shutdown_reports_credential_finalization_failure_instead_of_cancelled_success
         })
     });
     let mut worker = fixture.start(Hooks {
+        rewrite: None,
         answer: None,
         account: Some(account),
     });
@@ -1386,6 +1519,7 @@ fn confirmed_completion_wins_over_stop_while_a_retained_tool_lease_drains() {
         })
     });
     let mut worker = fixture.start(Hooks {
+        rewrite: None,
         answer: Some(hook),
         account: None,
     });
@@ -1429,6 +1563,7 @@ fn shutdown_fences_queued_asks_and_reports_each_request_without_another_submissi
         })
     });
     let mut worker = fixture.start(Hooks {
+        rewrite: None,
         answer: Some(hook),
         account: None,
     });
@@ -1530,6 +1665,7 @@ fn invalid_discovery_has_a_terminal_account_error_and_never_persists_a_substitut
         })
     });
     let mut worker = fixture.start(Hooks {
+        rewrite: None,
         answer: None,
         account: Some(hook),
     });
@@ -1572,6 +1708,7 @@ fn new_ask_refreshes_the_library_before_the_model_can_read_the_tools() {
         })
     });
     let mut worker = fixture.start(Hooks {
+        rewrite: None,
         answer: Some(hook),
         account: None,
     });

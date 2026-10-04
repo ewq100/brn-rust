@@ -421,12 +421,12 @@ fn v1_upgrade_and_restored_v1_backup_preserve_work() {
         let version: i64 = raw(dir.path())
             .query_row("PRAGMA user_version", [], |r| r.get(0))
             .unwrap();
-        assert_eq!(version, 5);
+        assert_eq!(version, 7);
     }
 }
 
 #[test]
-fn v2_has_only_text_pair_schema_and_constraints() {
+fn chat_pair_schema_preserves_constraints_with_optional_effort() {
     let dir = fixture();
     drop(WorkStore::open(dir.path()).unwrap());
     let conn = raw(dir.path());
@@ -448,7 +448,8 @@ fn v2_has_only_text_pair_schema_and_constraints() {
             "provider",
             "model",
             "status",
-            "error_code"
+            "error_code",
+            "effort"
         ]
     );
     let conversation_columns: Vec<String> = conn
@@ -476,7 +477,7 @@ fn v2_has_only_text_pair_schema_and_constraints() {
     let c = Uuid::new_v4().to_string();
     conn.execute("INSERT INTO conversations VALUES (?1, '', 0)", [&c])
         .unwrap();
-    let insert = "INSERT INTO messages VALUES (?1, ?2, 1, ?3, '', ?4, 'model', ?5, NULL)";
+    let insert = "INSERT INTO messages(turn_id,conversation_id,sequence,role,text,provider,model,status,error_code) VALUES (?1, ?2, 1, ?3, '', ?4, 'model', ?5, NULL)";
     assert!(
         conn.execute(insert, params!["t", "absent", "user", "copilot", "running"])
             .is_err()

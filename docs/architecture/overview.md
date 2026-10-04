@@ -67,6 +67,11 @@ current read-only tools. Streaming is provisional; durable terminal pairs and
 visibly unsaved partial failures stay distinct. Bound UUID replay never submits
 another provider request. Chat/account/read leases drain before authority releases.
 
+Fresh Ask also captures an explicit low/medium/high reasoning effort, persisted
+independently in settings and paired V7 history. The thin Rig adapter sends that
+choice on the selected route. Setting changes affect new requests; historical
+unknown effort remains unknown and replay never initiates another provider call.
+
 Current retrieval is derived from supported saved files. Dirty recovery is not
 current source evidence. Results validate fresh bytes; results spanning Save or
 unresolved work are rejected. Default builds explicitly use keyword-only search;
@@ -81,8 +86,20 @@ late Rewrite results; uncertain anchors retain their old range without guessing.
 Draft/edit/comment operations do not apply knowledge. Exact reviewed approval
 now applies through AppWorker and the CLI, preserving whole-proposal proof and
 later editor work. Shared activity, explicit Undo/Trash and proof-bound human
-Finish/Restore repair use the same typed application/recovery boundary. AI Rewrite and native
-review remain active Stage 4 work, before later domains extend typed changes.
+Finish/Restore repair use the same typed application/recovery boundary. Owned AI
+Rewrite uses the existing chat lane and one narrow V6 operational job, committing
+validated review text and outcome atomically against its captured stamp/hash.
+Jobs retain safe metadata only; restart interrupts without retry. Native full
+review/edit/comments and Rewrite controls use persistent text widgets and guarded
+AppWorker acknowledgements. Native exact individual/group approval captures full
+records and binds every outcome; activity/reconciliation use shared receipts.
+Native Undo/repair captures shared full previews with stable operation/attempt
+identities and exact outcomes. Native initial Create/Replace/Trash composition
+captures saved source versions through AppWorker and retains the exact submitted
+request separately from later input. Completed acknowledged AI answers may
+explicitly prefill review work; existing owned Rewrite operates on real stored
+seed drafts. Neither route applies Markdown without exact approval. Later domains
+extend these same typed changes.
 
 WorkStore V5 adds exact approval snapshots, all-member prepared proofs and
 whole-proposal receipts. Pending/Uncertain journals fence current reads and

@@ -41,7 +41,7 @@ After targeted fixes, run the four baseline commands below **once**, using
 ```sh
 cargo test -p brn-retrieval --features native --lib --test model_download --locked --offline
 cargo test -p brn-workflow --features native-retrieval --lib --test models --locked --offline
-cargo test -p brn-desktop --features native-ui,native-retrieval --locked --offline
+cargo test -p brn-desktop --features native-ui,native-retrieval,native-test-support --locked --offline
 cargo build -p brn-desktop --features native-ui,native-retrieval --locked --offline
 cargo build -p brn --features native-retrieval --locked --offline
 bash scripts/verify-end-to-end.sh --fixtures-only
@@ -55,6 +55,8 @@ and vectors are not real ONNX or asset qualification. An unset local-model
 environment can self-skip tests reported as passed; record those limitations.
 Native builds/state tests do not establish GUI usability; upstream
 `block v0.1.6`'s future-compiler warning is a known separate limitation.
+`native-test-support` enables the pinned toolkit's headless widget context for
+exact title/body checks. Normal native application builds omit this test feature.
 
 ## Baseline Rust checks
 
@@ -82,7 +84,9 @@ After a successful default build, tests, CLI help and fixtures can still run if
 an earlier independent check fails; the failed check keeps the job red.
 
 Native UI and native retrieval have separate jobs. PRs run both on macOS;
-main and manual runs probe both on all three systems. The native UI job starts
+main and manual runs probe both on all three systems. The native UI job also
+lints and tests actual macOS widgets with `native-test-support`; shipping builds
+remain separately qualified without that feature. The same job starts
 and shuts down the real AppWorker twice against one fresh data directory, checking
 that `brn.sqlite` exists and the retired `brn.sqlite3` does not. Each lane installs the
 pinned toolchain, fetches locked dependencies before offline Cargo checks, and

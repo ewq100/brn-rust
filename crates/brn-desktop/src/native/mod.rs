@@ -6,7 +6,7 @@ use gpui_kit::{
     component::{
         Root, TitleBar,
         button::Button,
-        input::{Editor, EditorState, Input, InputEvent, InputState},
+        input::{Editor, EditorState, Input, InputEvent, InputState, TextareaState},
         scroll::ScrollableElement,
     },
     div, point,
@@ -31,6 +31,9 @@ use std::path::PathBuf;
 use std::time::{Duration, Instant};
 use uuid::Uuid;
 
+mod approval;
+mod draft;
+mod review;
 mod shell;
 mod simple;
 mod theme;
@@ -38,6 +41,9 @@ mod theme;
 #[derive(Clone, Copy, Debug, PartialEq, Eq)]
 enum DocRef {
     SavedNote,
+    Proposal(Uuid),
+    Activity,
+    Draft,
 }
 
 #[derive(Clone, Copy, Debug, PartialEq, Eq)]
@@ -76,6 +82,12 @@ fn spaced_identifier(value: &str) -> String {
         })
         .collect()
 }
+
+fn review_title_state(window: &mut Window, cx: &mut Context<TextareaState>) -> TextareaState {
+    TextareaState::new(window, cx)
+        .placeholder("Proposal title")
+        .auto_grow(1, 4)
+}
 struct Desktop {
     app_worker: Option<brn_workflow::app_worker::AppWorker>,
     ai: Option<crate::ai::AiState>,
@@ -89,6 +101,18 @@ struct Desktop {
     layout_task: Option<Task<()>>,
     query: Entity<EditorState>,
     note_editor: Entity<EditorState>,
+    review_editor: Entity<EditorState>,
+    review_title: Entity<TextareaState>,
+    review_comment: Entity<EditorState>,
+    review_comment_draft: Option<(Uuid, Option<Uuid>)>,
+    review_comment_pending: Option<(Uuid, Uuid, String)>,
+    review_member: usize,
+    review_scroll: ScrollHandle,
+    draft_title: Entity<TextareaState>,
+    draft_path: Entity<TextareaState>,
+    draft_editor: Entity<EditorState>,
+    draft_widget_id: Option<Uuid>,
+    draft_scroll: ScrollHandle,
     note_path: Entity<InputState>,
     note_scroll: ScrollHandle,
     choosing_file: bool,
@@ -126,6 +150,119 @@ impl Desktop {
         });
         let note_path =
             cx.new(|cx| InputState::new(window, cx).placeholder("Vault-relative .md destination"));
+        let review_editor = cx.new(|cx| {
+            EditorState::new(window, cx)
+                .language("markdown")
+                .default_value("")
+        });
+        let review_title = cx.new(|cx| review_title_state(window, cx));
+        let review_comment = cx.new(|cx| EditorState::new(window, cx).default_value(""));
+        let draft_title = cx.new(|cx| review_title_state(window, cx));
+        let draft_path = cx.new(|cx| draft::path_state(window, cx));
+        let draft_editor = cx.new(|cx| draft::body_state(window, cx));
+        let draft_title_subscription = cx.subscribe_in(
+            &draft_title,
+            window,
+            |this, input, event: &InputEvent, _, cx| {
+                if matches!(event, InputEvent::Change) {
+                    if let Some(draft) = &mut this.ai.as_mut().unwrap().draft {
+                        draft.edit(
+                            input.read(cx).value().to_string(),
+                            draft.path.clone(),
+                            draft.text.clone(),
+                            draft.kind,
+                        );
+                    }
+                    cx.notify();
+                }
+            },
+        );
+        let draft_path_subscription = cx.subscribe_in(
+            &draft_path,
+            window,
+            |this, input, event: &InputEvent, _, cx| {
+                if matches!(event, InputEvent::Change) {
+                    if let Some(draft) = &mut this.ai.as_mut().unwrap().draft {
+                        draft.edit(
+                            draft.title.clone(),
+                            input.read(cx).value().to_string(),
+                            draft.text.clone(),
+                            draft.kind,
+                        );
+                    }
+                    cx.notify();
+                }
+            },
+        );
+        let draft_body_subscription = cx.subscribe_in(
+            &draft_editor,
+            window,
+            |this, editor, event: &InputEvent, _, cx| {
+                if matches!(event, InputEvent::Change) {
+                    if let Some(draft) = &mut this.ai.as_mut().unwrap().draft {
+                        draft.edit(
+                            draft.title.clone(),
+                            draft.path.clone(),
+                            editor.read(cx).value().to_string(),
+                            draft.kind,
+                        );
+                    }
+                    cx.notify();
+                }
+            },
+        );
+        let review_subscription = cx.subscribe_in(
+            &review_editor,
+            window,
+            |this, editor, event: &InputEvent, window, cx| {
+                if matches!(event, InputEvent::Change) {
+                    let text = editor.read(cx).value().to_string();
+                    let editable = this.ai.as_ref().unwrap().review_editable()
+                        && this.simple_transition.is_none()
+                        && this.closing.is_none()
+                        && !this.closed
+                        && !this.close_failed;
+                    if let Some(review) = &mut this.ai.as_mut().unwrap().review {
+                        let result = if editable {
+                            review.edit_text(this.review_member, text, Instant::now())
+                        } else {
+                            Err("Waiting for review acknowledgement or navigation")
+                        };
+                        if let Err(error) = result {
+                            this.ai.as_mut().unwrap().notice = error.into();
+                            this.sync_review_widgets(window, cx);
+                        }
+                    }
+                    cx.notify();
+                }
+            },
+        );
+        let review_title_subscription = cx.subscribe_in(
+            &review_title,
+            window,
+            |this, input, event: &InputEvent, window, cx| {
+                if matches!(event, InputEvent::Change) {
+                    let title = input.read(cx).value().to_string();
+                    let editable = this.ai.as_ref().unwrap().review_editable()
+                        && this.simple_transition.is_none()
+                        && this.closing.is_none()
+                        && !this.closed
+                        && !this.close_failed;
+                    if let Some(review) = &mut this.ai.as_mut().unwrap().review {
+                        let result = if editable {
+                            review.edit_title(title, Instant::now())
+                        } else {
+                            Err("Waiting for review acknowledgement or navigation")
+                        };
+                        if let Err(error) = result {
+                            this.ai.as_mut().unwrap().notice = error.into();
+                            this.sync_review_widgets(window, cx);
+                        }
+                    }
+                    cx.notify();
+                }
+            },
+        );
         let note_subscription = cx.subscribe_in(
             &note_editor,
             window,
@@ -252,6 +389,18 @@ impl Desktop {
             layout_task: None,
             query,
             note_editor,
+            review_editor,
+            review_title,
+            review_comment,
+            review_comment_draft: None,
+            review_comment_pending: None,
+            review_member: 0,
+            review_scroll: ScrollHandle::new(),
+            draft_title,
+            draft_path,
+            draft_editor,
+            draft_widget_id: None,
+            draft_scroll: ScrollHandle::new(),
             note_path,
             note_scroll: ScrollHandle::new(),
             choosing_file: false,
@@ -278,6 +427,11 @@ impl Desktop {
                 query_subscription,
                 quit_subscription,
                 note_subscription,
+                review_subscription,
+                review_title_subscription,
+                draft_title_subscription,
+                draft_path_subscription,
+                draft_body_subscription,
                 appearance_subscription,
                 activation_subscription,
             ],
@@ -316,6 +470,13 @@ impl Desktop {
                 "Stopping · finalization pending"
             } else {
                 "Answering · provisional"
+            }
+            .into()
+        } else if let Some(active) = &ai.rewrite {
+            if active.stopping {
+                "Stopping Rewrite · finalization pending"
+            } else {
+                "Rewriting proposal · knowledge unchanged"
             }
             .into()
         } else if ai.startup_failed {

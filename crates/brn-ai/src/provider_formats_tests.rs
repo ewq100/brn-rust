@@ -13,6 +13,780 @@ use std::sync::{
 };
 use tokio_util::sync::CancellationToken;
 
+mod ask_effort_tests {
+    use super::*;
+
+    const ROUTES: [(Provider, &str, bool); 3] = [
+        (Provider::Chatgpt, "gpt-5.5", true),
+        (Provider::Copilot, "gpt-5.5", false),
+        (Provider::Copilot, "gpt-5.3-codex", true),
+    ];
+
+    fn message_text(message: &Value) -> Option<String> {
+        let content = &message["content"];
+        content.as_str().map(str::to_owned).or_else(|| {
+            let parts = content.as_array()?;
+            let texts = parts
+                .iter()
+                .map(|part| part["text"].as_str())
+                .collect::<Option<Vec<_>>>()?;
+            (!texts.is_empty()).then(|| texts.concat())
+        })
+    }
+
+    fn partial_sse(responses: bool, text: &str) -> String {
+        if responses {
+            event(json!({"type":"response.output_text.delta","delta":text,
+                "item_id":"msg_synthetic","output_index":0,"content_index":0,"sequence_number":1}))
+        } else {
+            event(json!({"id":"synthetic","object":"chat.completion.chunk",
+                "created":1,"model":"synthetic",
+                "choices":[{"index":0,"delta":{"role":"assistant","content":text},"finish_reason":null}]}))
+        }
+    }
+
+    #[tokio::test]
+    async fn explicit_ask_effort_preserves_model_last_twenty_pairs_and_tool_continuation() {
+        let question = "\u{feff}Current 日本語 question\r\nλ";
+        let output = "\u{feff}Provisional 日本語 answer\r\nλ";
+        let history = (0..23)
+            .map(|i| HistoryPair {
+                question: format!("\u{feff}question-{i} 日本語\r\nλ"),
+                answer: format!("answer-{i} λ\r\n"),
+            })
+            .collect::<Vec<_>>();
+        let expected = history[3..]
+            .iter()
+            .flat_map(|pair| {
+                [
+                    ("user".to_owned(), pair.question.clone()),
+                    ("assistant".to_owned(), pair.answer.clone()),
+                ]
+            })
+            .chain([("user".to_owned(), question.to_owned())])
+            .collect::<Vec<_>>();
+        for (provider, model, responses) in ROUTES {
+            for effort in [
+                ReasoningEffort::Low,
+                ReasoningEffort::Medium,
+                ReasoningEffort::High,
+            ] {
+                let (_root, client, http) = client(
+                    provider,
+                    model,
+                    vec![
+                        success(tool_sse(
+                            responses,
+                            &[("read_note", json!({"path":"a.md"}))],
+                        )),
+                        success(text_sse(responses, output)),
+                    ],
+                )
+                .await;
+                let notes = Arc::new(Notes::default());
+                let events = Arc::new(Mutex::new(vec![]));
+                let sink = events.clone();
+                let answer = answer_with_effort(
+                    client,
+                    question,
+                    &history,
+                    effort,
+                    notes.clone(),
+                    CancellationToken::new(),
+                    Arc::new(move |event| sink.lock().unwrap().push(event)),
+                )
+                .await;
+                assert!(
+                    matches!(answer.terminal, AiTerminal::Completed),
+                    "{answer:?}"
+                );
+                assert_eq!(answer.text, output);
+                assert_eq!(notes.calls.load(Ordering::SeqCst), 1);
+                assert!(matches!(events.lock().unwrap().as_slice(),
+                    [AiEvent::ToolStarted { name }, AiEvent::Text(text)]
+                    if name == "read_note" && text == output));
+                let bodies = http.bodies();
+                assert_eq!(bodies.len(), 2);
+                for body in &bodies {
+                    assert_eq!(body["model"], model);
+                    if responses {
+                        assert_eq!(body["reasoning"]["effort"], effort.as_str());
+                        assert!(body.get("reasoning_effort").is_none());
+                    } else {
+                        assert_eq!(body["reasoning_effort"], effort.as_str());
+                        assert!(body.get("reasoning").is_none());
+                    }
+                    let messages = body[if responses { "input" } else { "messages" }]
+                        .as_array()
+                        .unwrap();
+                    let text_messages = messages
+                        .iter()
+                        .filter(|message| {
+                            matches!(message["role"].as_str(), Some("user" | "assistant"))
+                        })
+                        .filter_map(|message| {
+                            message_text(message)
+                                .map(|text| (message["role"].as_str().unwrap().to_owned(), text))
+                        })
+                        .collect::<Vec<_>>();
+                    assert_eq!(text_messages, expected);
+                }
+                let continuation = bodies[1][if responses { "input" } else { "messages" }]
+                    .as_array()
+                    .unwrap();
+                let results = continuation
+                    .iter()
+                    .filter(|message| {
+                        message["role"] == "tool" || message["type"] == "function_call_output"
+                    })
+                    .collect::<Vec<_>>();
+                assert_eq!(results.len(), 1);
+                let encoded = if responses {
+                    results[0]["output"].as_str().unwrap().to_owned()
+                } else {
+                    message_text(results[0]).unwrap()
+                };
+                assert_eq!(
+                    serde_json::from_str::<Value>(&encoded).unwrap(),
+                    json!({"path":"a.md","text":"fresh note","truncated":false})
+                );
+                http.assert_consumed();
+            }
+        }
+    }
+
+    #[tokio::test]
+    async fn explicit_ask_parser_failure_retains_exact_provisional_text_without_retry() {
+        let partial = "\u{feff}Partial 日本語\r\nλ";
+        for (provider, model, responses) in ROUTES {
+            let malformed = if responses {
+                "data: {\"type\":\"response.output_text.delta\",\"delta\":42}\n\n"
+            } else {
+                "data: {\"choices\":42}\n\n"
+            };
+            let sse = partial_sse(responses, partial)
+                + malformed
+                + &text_sse(responses, "must not appear");
+            let (_root, client, http) = client(provider, model, vec![success(sse)]).await;
+            let events = Arc::new(Mutex::new(vec![]));
+            let sink = events.clone();
+            let notes = Arc::new(Notes::default());
+            let answer = answer_with_effort(
+                client,
+                "q",
+                &[],
+                ReasoningEffort::Medium,
+                notes.clone(),
+                CancellationToken::new(),
+                Arc::new(move |event| sink.lock().unwrap().push(event)),
+            )
+            .await;
+            assert!(
+                matches!(
+                    answer.terminal,
+                    AiTerminal::Failed(AiError {
+                        kind: AiErrorKind::Other,
+                        ..
+                    })
+                ),
+                "{answer:?}"
+            );
+            assert_eq!(answer.text, partial);
+            assert!(matches!(events.lock().unwrap().as_slice(),
+                [AiEvent::Text(text)] if text == partial));
+            assert_eq!(notes.calls.load(Ordering::SeqCst), 0);
+            assert_eq!(http.bodies().len(), 1);
+            http.assert_consumed();
+        }
+    }
+
+    #[tokio::test]
+    async fn explicit_ask_stop_retains_provisional_text_and_skips_final_completion() {
+        let partial = "\u{feff}Stop 日本語\r\nλ";
+        for (provider, model, responses) in ROUTES {
+            let (_root, client, http) =
+                client(provider, model, vec![success(text_sse(responses, partial))]).await;
+            let cancel = CancellationToken::new();
+            let stop = cancel.clone();
+            let events = Arc::new(Mutex::new(vec![]));
+            let sink = events.clone();
+            let answer = answer_with_effort(
+                client,
+                "q",
+                &[],
+                ReasoningEffort::High,
+                Arc::new(Notes::default()),
+                cancel,
+                Arc::new(move |event| {
+                    if matches!(event, AiEvent::Text(_)) {
+                        stop.cancel();
+                    }
+                    sink.lock().unwrap().push(event);
+                }),
+            )
+            .await;
+            assert!(
+                matches!(answer.terminal, AiTerminal::Interrupted),
+                "{answer:?}"
+            );
+            assert_eq!(answer.text, partial);
+            assert!(matches!(events.lock().unwrap().as_slice(),
+                [AiEvent::Text(text)] if text == partial));
+            assert_eq!(http.bodies().len(), 1);
+            http.assert_consumed();
+        }
+    }
+}
+
+#[cfg(test)]
+mod rewrite_tests {
+    use super::*;
+    use crate::auth::OwnedClient;
+    use futures::StreamExt;
+
+    const ROUTES: [(Provider, &str, bool); 3] = [
+        (Provider::Chatgpt, "gpt-5.5", true),
+        (Provider::Copilot, "gpt-5.5", false),
+        (Provider::Copilot, "gpt-5.3-codex", true),
+    ];
+
+    async fn run(
+        client: ProviderClient,
+        prompt: &str,
+        effort: ReasoningEffort,
+        notes: Arc<dyn ReadTools>,
+        cancel: CancellationToken,
+    ) -> (AiAnswer, Vec<AiEvent>) {
+        let events = Arc::new(Mutex::new(vec![]));
+        let sink = events.clone();
+        let answer = rewrite(
+            client,
+            prompt,
+            effort,
+            notes,
+            cancel,
+            Arc::new(move |event| {
+                sink.lock().unwrap().push(event);
+            }),
+        )
+        .await;
+        let events = events.lock().unwrap().clone();
+        (answer, events)
+    }
+
+    #[tokio::test]
+    async fn rewrite_effort_model_and_read_only_continuation_use_exact_wire_routes() {
+        let prompt = "Captured review: \u{feff}日本語\r\nλ";
+        let output = json!({"title":"日本語","texts":["\u{feff}Full λ\r\n",null]}).to_string();
+        for (provider, model, responses) in ROUTES {
+            for effort in [
+                ReasoningEffort::Low,
+                ReasoningEffort::Medium,
+                ReasoningEffort::High,
+            ] {
+                let (_root, client, http) = super::client(
+                    provider,
+                    model,
+                    vec![
+                        success(tool_sse(
+                            responses,
+                            &[("read_note", json!({"path":"a.md"}))],
+                        )),
+                        success(text_sse(responses, &output)),
+                    ],
+                )
+                .await;
+                let notes = Arc::new(Notes::default());
+                let (answer, events) = run(
+                    client,
+                    prompt,
+                    effort,
+                    notes.clone(),
+                    CancellationToken::new(),
+                )
+                .await;
+                assert!(
+                    matches!(answer.terminal, AiTerminal::Completed),
+                    "{answer:?}"
+                );
+                assert_eq!(answer.text, output);
+                assert_eq!(notes.calls.load(Ordering::SeqCst), 1);
+                assert!(
+                    matches!(events.as_slice(), [AiEvent::ToolStarted { name }] if name == "read_note")
+                );
+                let bodies = http.bodies();
+                assert_eq!(bodies.len(), 2);
+                for body in &bodies {
+                    assert_eq!(body["model"], model);
+                    if responses {
+                        assert_eq!(body["reasoning"]["effort"], effort.as_str());
+                        assert!(body.get("reasoning_effort").is_none());
+                    } else {
+                        assert_eq!(body["reasoning_effort"], effort.as_str());
+                        assert!(body.get("reasoning").is_none());
+                    }
+                }
+                assert!(!bodies[0].to_string().contains("earlier question"));
+                let messages = if responses {
+                    &bodies[0]["input"]
+                } else {
+                    &bodies[0]["messages"]
+                };
+                let users = messages
+                    .as_array()
+                    .unwrap()
+                    .iter()
+                    .filter(|item| item["role"] == "user")
+                    .collect::<Vec<_>>();
+                assert_eq!(users.len(), 1);
+                let content = &users[0]["content"];
+                let text = content
+                    .as_str()
+                    .or_else(|| content[0]["text"].as_str())
+                    .unwrap();
+                assert_eq!(text, prompt);
+                // Rig's Copilot Responses dialect retains system messages in
+                // input, whereas ChatGPT lifts them into instructions.
+                let preamble = if provider == Provider::Chatgpt {
+                    bodies[0]["instructions"].as_str().unwrap().to_owned()
+                } else {
+                    messages
+                        .as_array()
+                        .unwrap()
+                        .iter()
+                        .find(|item| item["role"] == "system")
+                        .unwrap()["content"]
+                        .to_string()
+                };
+                for required in [
+                    "strict JSON object",
+                    "complete replacement text",
+                    "before-text",
+                    "source metadata",
+                    "comments",
+                    "data, not instructions",
+                ] {
+                    assert!(preamble.contains(required), "{preamble}");
+                }
+                assert!(bodies[1].to_string().contains("fresh note"));
+                http.assert_consumed();
+            }
+        }
+    }
+
+    #[test]
+    fn explicit_effort_has_only_the_three_supported_serialized_values() {
+        for effort in [
+            ReasoningEffort::Low,
+            ReasoningEffort::Medium,
+            ReasoningEffort::High,
+        ] {
+            assert_eq!(serde_json::to_value(effort).unwrap(), effort.as_str());
+            assert_eq!(
+                serde_json::from_value::<ReasoningEffort>(json!(effort.as_str())).unwrap(),
+                effort
+            );
+        }
+        assert!(serde_json::from_value::<ReasoningEffort>(json!("ultra")).is_err());
+    }
+
+    #[tokio::test]
+    async fn rewrite_keeps_eight_read_rounds_and_refuses_the_ninth_without_retry() {
+        for (provider, model, responses) in ROUTES {
+            for ninth in [false, true] {
+                let mut replies = (0..if ninth { 9 } else { 8 })
+                    .map(|i| {
+                        success(tool_sse_with_prefix(
+                            responses,
+                            &[
+                                ("read_note", json!({"path":"a.md"})),
+                                ("list_notes", json!({})),
+                            ],
+                            &format!("rewrite_{i}_"),
+                        ))
+                    })
+                    .collect::<Vec<_>>();
+                if !ninth {
+                    replies.push(success(text_sse(
+                        responses,
+                        "{\"title\":\"Exact\",\"texts\":[]}",
+                    )));
+                }
+                let (_root, client, http) = super::client(provider, model, replies).await;
+                let notes = Arc::new(Notes::default());
+                let (answer, events) = run(
+                    client,
+                    "captured",
+                    ReasoningEffort::Low,
+                    notes.clone(),
+                    CancellationToken::new(),
+                )
+                .await;
+                assert_eq!(notes.calls.load(Ordering::SeqCst), 16);
+                assert_eq!(http.bodies().len(), 9);
+                assert!(
+                    events
+                        .iter()
+                        .all(|event| matches!(event, AiEvent::ToolStarted { .. }))
+                );
+                if ninth {
+                    assert!(
+                        matches!(
+                            answer.terminal,
+                            AiTerminal::Failed(AiError {
+                                kind: AiErrorKind::ToolLimitReached,
+                                ..
+                            })
+                        ),
+                        "{answer:?}"
+                    );
+                    assert!(answer.text.is_empty());
+                } else {
+                    assert!(
+                        matches!(answer.terminal, AiTerminal::Completed),
+                        "{answer:?}"
+                    );
+                }
+                http.assert_consumed();
+            }
+            let (_root, client, http) = super::client(
+                provider,
+                model,
+                vec![success(tool_sse(
+                    responses,
+                    &[("write_note", json!({"path":"a.md"}))],
+                ))],
+            )
+            .await;
+            let notes = Arc::new(Notes::default());
+            let (answer, events) = run(
+                client,
+                "captured",
+                ReasoningEffort::High,
+                notes.clone(),
+                CancellationToken::new(),
+            )
+            .await;
+            assert!(
+                matches!(
+                    answer.terminal,
+                    AiTerminal::Failed(AiError {
+                        kind: AiErrorKind::InvalidToolUse,
+                        ..
+                    })
+                ),
+                "{answer:?}"
+            );
+            assert!(answer.text.is_empty() && events.is_empty());
+            assert_eq!(notes.calls.load(Ordering::SeqCst), 0);
+            assert_eq!(http.bodies().len(), 1);
+            http.assert_consumed();
+        }
+    }
+
+    fn partial_sse(responses: bool, text: &str) -> String {
+        text_sse(responses, text)
+            .split("\n\n")
+            .next()
+            .unwrap()
+            .to_owned()
+            + "\n\n"
+    }
+
+    #[tokio::test]
+    async fn rewrite_failure_refusal_and_malformed_streams_discard_raw_partials_without_retry() {
+        for (provider, model, responses) in ROUTES {
+            let malformed = if responses {
+                "data: {\"type\":\"response.output_text.delta\",\"delta\":42}\n\n"
+            } else {
+                "data: {\"choices\":42}\n\n"
+            };
+            for (reply, kind) in [
+                (
+                    success(
+                        partial_sse(responses, "SYNTHETIC_RAW\r\nλ")
+                            + malformed
+                            + &text_sse(responses, "ignored"),
+                    ),
+                    AiErrorKind::Other,
+                ),
+                (
+                    success(partial_sse(responses, "SYNTHETIC_RAW")),
+                    AiErrorKind::Other,
+                ),
+                (
+                    MockHttpResponse::error(
+                        http_client::StatusCode::BAD_REQUEST,
+                        r#"{"error":{"code":"unsupported_api_for_model","message":"SYNTHETIC_RAW"}}"#,
+                    ),
+                    AiErrorKind::ModelRefused,
+                ),
+                (
+                    MockHttpResponse::error(
+                        http_client::StatusCode::TOO_MANY_REQUESTS,
+                        r#"{"error":{"message":"SYNTHETIC_RAW"}}"#,
+                    ),
+                    AiErrorKind::RateLimited,
+                ),
+            ] {
+                let (_root, client, http) = super::client(provider, model, vec![reply]).await;
+                let (answer, events) = run(
+                    client,
+                    "captured",
+                    ReasoningEffort::High,
+                    Arc::new(Notes::default()),
+                    CancellationToken::new(),
+                )
+                .await;
+                assert!(
+                    matches!(answer.terminal,AiTerminal::Failed(AiError{kind:actual,..}) if actual==kind),
+                    "{answer:?}"
+                );
+                assert!(answer.text.is_empty() && events.is_empty());
+                assert!(!format!("{answer:?}").contains("SYNTHETIC_RAW"));
+                assert_eq!(http.bodies().len(), 1);
+                http.assert_consumed();
+            }
+            let (_root, client, http) =
+                super::client_replies(provider, model, vec![Err(http_client::Error::StreamEnded)])
+                    .await;
+            let (answer, events) = run(
+                client,
+                "captured",
+                ReasoningEffort::Low,
+                Arc::new(Notes::default()),
+                CancellationToken::new(),
+            )
+            .await;
+            assert!(
+                matches!(
+                    answer.terminal,
+                    AiTerminal::Failed(AiError {
+                        kind: AiErrorKind::Network,
+                        ..
+                    })
+                ),
+                "{answer:?}"
+            );
+            assert!(answer.text.is_empty() && events.is_empty());
+            assert_eq!(http.bodies().len(), 1);
+            http.assert_consumed();
+        }
+    }
+
+    #[derive(Clone)]
+    struct ChunkedHttp {
+        http: ScriptHttp,
+        chunks: Vec<Bytes>,
+        cancel: Option<CancellationToken>,
+    }
+    impl HttpClientExt for ChunkedHttp {
+        fn send<T, U>(
+            &self,
+            request: Request<T>,
+        ) -> impl Future<Output = http_client::Result<Response<LazyBody<U>>>> + Send + 'static
+        where
+            T: Into<Bytes> + Send,
+            U: From<Bytes> + Send + 'static,
+        {
+            self.http.send(request)
+        }
+        fn send_multipart<U>(
+            &self,
+            request: Request<MultipartForm>,
+        ) -> impl Future<Output = http_client::Result<Response<LazyBody<U>>>> + Send + 'static
+        where
+            U: From<Bytes> + Send + 'static,
+        {
+            self.http.send_multipart(request)
+        }
+        fn send_streaming<T>(
+            &self,
+            request: Request<T>,
+        ) -> impl Future<Output = http_client::Result<StreamingResponse>> + Send
+        where
+            T: Into<Bytes> + Send,
+        {
+            let response = self.http.send_streaming(request);
+            let chunks = self.chunks.clone();
+            let cancel = self.cancel.clone();
+            async move {
+                let (parts, _) = response.await?.into_parts();
+                let chunks = futures::stream::iter(chunks.into_iter().map(Ok));
+                let tail = match cancel {
+                    Some(cancel) => {
+                        futures::future::Either::Left(futures::stream::once(async move {
+                            cancel.cancel();
+                            futures::future::pending::<http_client::Result<Bytes>>().await
+                        }))
+                    }
+                    None => futures::future::Either::Right(futures::stream::empty()),
+                };
+                Ok(Response::from_parts(
+                    parts,
+                    Box::pin(chunks.chain(tail)) as http_client::BoxedStream,
+                ))
+            }
+        }
+    }
+    fn with_chunks(
+        mut client: ProviderClient,
+        http: ScriptHttp,
+        chunks: Vec<Bytes>,
+        cancel: Option<CancellationToken>,
+    ) -> ProviderClient {
+        let transport = ChunkedHttp {
+            http,
+            chunks,
+            cancel,
+        };
+        client.inner = match client.inner {
+            OwnedClient::Chatgpt(inner) => {
+                OwnedClient::Chatgpt(Box::new((*inner).with_http(transport)))
+            }
+            OwnedClient::Copilot(inner) => OwnedClient::Copilot(inner.with_http(transport)),
+        };
+        client
+    }
+
+    #[tokio::test]
+    async fn rewrite_stop_discards_partial_and_precancelled_sends_no_completion() {
+        for (provider, model, responses) in ROUTES {
+            let (_root, client, http) = super::client(
+                provider,
+                model,
+                vec![success(text_sse(responses, "unused"))],
+            )
+            .await;
+            let cancel = CancellationToken::new();
+            let client = with_chunks(
+                client,
+                http.clone(),
+                vec![Bytes::from(partial_sse(responses, "SYNTHETIC_RAW\r\nλ"))],
+                Some(cancel.clone()),
+            );
+            let (answer, events) = tokio::time::timeout(
+                std::time::Duration::from_secs(3),
+                run(
+                    client,
+                    "captured",
+                    ReasoningEffort::Medium,
+                    Arc::new(Notes::default()),
+                    cancel,
+                ),
+            )
+            .await
+            .unwrap();
+            assert!(
+                matches!(answer.terminal, AiTerminal::Interrupted),
+                "{answer:?}"
+            );
+            assert!(answer.text.is_empty() && events.is_empty());
+            assert_eq!(http.bodies().len(), 1);
+            http.assert_consumed();
+
+            let (_root, client, http) = super::client(provider, model, vec![]).await;
+            let cancel = CancellationToken::new();
+            cancel.cancel();
+            let (answer, events) = run(
+                client,
+                "captured",
+                ReasoningEffort::Low,
+                Arc::new(Notes::default()),
+                cancel,
+            )
+            .await;
+            assert!(matches!(answer.terminal, AiTerminal::Interrupted));
+            assert!(answer.text.is_empty() && events.is_empty() && http.bodies().is_empty());
+            http.assert_consumed();
+        }
+    }
+
+    #[tokio::test]
+    async fn rewrite_input_and_actual_streamed_output_have_hard_byte_bounds() {
+        let oversized = "λ".repeat(MAX_REWRITE_BYTES / 2 + 1);
+        for (provider, model, _) in ROUTES {
+            let (_root, client, http) = super::client(provider, model, vec![]).await;
+            let (answer, events) = run(
+                client,
+                &oversized,
+                ReasoningEffort::Low,
+                Arc::new(Notes::default()),
+                CancellationToken::new(),
+            )
+            .await;
+            assert!(matches!(
+                answer.terminal,
+                AiTerminal::Failed(AiError {
+                    kind: AiErrorKind::ToolRejected,
+                    ..
+                })
+            ));
+            assert!(answer.text.is_empty() && events.is_empty() && http.bodies().is_empty());
+            http.assert_consumed();
+        }
+        drop(oversized);
+        let exact = "x".repeat(MAX_REWRITE_BYTES);
+        let (_root, client, http) = super::client(
+            Provider::Chatgpt,
+            "gpt-5.5",
+            vec![success(text_sse(
+                true,
+                "{\"title\":\"Exact\",\"texts\":[]}",
+            ))],
+        )
+        .await;
+        let (answer, events) = run(
+            client,
+            &exact,
+            ReasoningEffort::Low,
+            Arc::new(Notes::default()),
+            CancellationToken::new(),
+        )
+        .await;
+        assert!(
+            matches!(answer.terminal, AiTerminal::Completed),
+            "{answer:?}"
+        );
+        assert!(events.is_empty());
+        assert_eq!(http.requests.lock().unwrap().len(), 1);
+        http.assert_consumed();
+        drop(exact);
+        drop(http);
+        let chunk = Bytes::from(partial_sse(false, &"x".repeat(1024 * 1024)));
+        let mut chunks = vec![chunk; 50];
+        chunks.push(Bytes::from(partial_sse(false, "λ")));
+        let (_root, client, http) = super::client(
+            Provider::Copilot,
+            "gpt-5.5",
+            vec![success(text_sse(false, "unused"))],
+        )
+        .await;
+        let client = with_chunks(client, http.clone(), chunks, None);
+        let (answer, events) = run(
+            client,
+            "captured",
+            ReasoningEffort::High,
+            Arc::new(Notes::default()),
+            CancellationToken::new(),
+        )
+        .await;
+        assert!(
+            matches!(
+                answer.terminal,
+                AiTerminal::Failed(AiError {
+                    kind: AiErrorKind::ToolRejected,
+                    ..
+                })
+            ),
+            "{answer:?}"
+        );
+        assert!(answer.text.is_empty() && events.is_empty());
+        assert_eq!(http.bodies().len(), 1);
+        http.assert_consumed();
+    }
+}
+
 // Each entry is one HTTP request/response, never one chunk of a shared stream.
 type ScriptedStreamReply = (String, http_client::Result<MockHttpResponse>);
 

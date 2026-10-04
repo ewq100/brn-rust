@@ -1,5 +1,10 @@
 # Proposal Core — roadmap Stage 4
 
+2026-10-04: implemented, automated verified and locally integrated as sequential
+reviewed slices. Actual GUI/IME/accessibility, live Rewrite and owner acceptance
+remain pending. Continue Stage 5; these qualification items do not block its safe
+implementation. The sections below retain each slice’s original baseline/results.
+
 Baseline: clean `main@d40e0a100de64a173d38a9aae15a547ed9e39551`, 2026-10-03.
 Stage 3's scoped live round is complete; remaining capability gaps are recorded
 in its completed evidence. No additional live calls are authorized by this plan.
@@ -663,6 +668,410 @@ Only five proven owned synthetic layout fixtures and their gate parent were remo
 Shared repair is locally integrated under standing mission authorization; owned
 Rewrite and the native proposal/review/activity/Undo/repair interaction are next.
 
+### Owned Rewrite slice
+
+Baseline: `main@b5c8000`, preserving the owner's unrelated AGENTS.md edit. Reuse
+the owned chat lane, selected provider/model, explicit low/medium/high effort,
+existing bounded read tools, cancellation and disconnect/shutdown drain. Capture
+the full exact Draft and temporary comments at admission. One narrow typed V6
+job record in existing brn.sqlite retains identity, capture digest and safe outcome;
+it never duplicates captured comments, prompts or raw provider output into chat.
+Restart interrupts running jobs without resubmission. The validated full result
+and exact-version proposal edit settle atomically; intervening edits/comments or
+approval yield Stale without overwriting newer work. Rewrite does not apply notes.
+
+Implement Store admission/atomic settlement and the thin bounded Rig adapter at
+fixed interfaces, then shared worker/CLI routing. Accept exact Unicode/full-member
+output, bounded strict JSON, replay before fresh account/vault access, Stop and
+targeted disconnect, retained read lease drain, stale CAS, rollback and restart
+without retry. Run meaningful synthetic checks, independent read-only review and
+fresh relevant gates before local integration. Native interaction and owner/live
+Rewrite acceptance remain pending; existing provider permission is exhausted.
+No extra live calls, model downloads, private data, push or release are authorized.
+
+The fixed Store/Rig/worker/CLI interfaces are implemented. Meaningful checks cover
+full Unicode/comment capture, every typed member, no knowledge writes, exact
+stamp/state/hash races, full-output bounds, atomic rollback, UUID collisions,
+restart interruption, queued/active Stop, retained read drain, provider disconnect,
+shutdown/panic/refusal and historical replay after vault loss. Review found two
+valid gaps: Running replay advertised a new generation's Started without its
+future terminal event, and nested Selection extras bypassed strict input preflight.
+Fresh failing regressions reproduced both. Running replay now returns distinct
+AlreadyRunning history and immediate safe CLI conflict; the original owned job
+continues. A narrow selection deserializer refuses nested extras before storage,
+preserving existing shared Selection compatibility. Both fixes passed re-review.
+
+Final independent review against `b5c8000` found no remaining actionable defects
+and independently passed **13 Store, 11 workflow Rewrite, 8 AI Rewrite, 36 CLI
+unit, 5 CLI process and 1 extended shutdown checks**. Fresh root macOS arm64 /
+Rust 1.98.1 locked/offline `TMPDIR=<exclusive owned parent> bash
+scripts/verify-end-to-end.sh` passed **609 workspace tests, 0 failed, 2 ignored**,
+**52 end-to-end assertions**, retirement, format/build/all-target Clippy with
+warnings denied. Cargo target metadata and the fresh log establish **153 Store,
+76 AI and 93 CLI tests**. The ignored process entries are exercised by the
+existing crash matrices. Optional `cargo check -p brn-desktop --features
+native-ui,native-retrieval --locked --offline` passed with the existing upstream
+`block v0.1.6` warning. Changed Markdown **92 local links/fragments, 0 errors**
+and diff checks passed. Hosted CI reports no run for local baseline `b5c8000`;
+other-commit platform failures recorded above do not qualify this candidate.
+
+Manual acceptance pending: use a disposable vault/data folder to create a full
+typed proposal and temporary comments. Under separate live-call authorization,
+submit `proposals rewrite --file REQUEST.json` with its exact review stamp, a fresh
+job UUID, explicit selection/effort and generation. Inspect the complete revised
+proposal; vault bytes must remain unchanged until approval. Add a comment/edit
+while Rewrite runs, then verify Stale preserves it. Stop and restart must preserve
+the draft and report Interrupted without another request. `rewrite-status JOB_UUID`
+reads history offline; replay after moving the vault must return history. See the
+[CLI scenario](../../../../crates/brn/README.md). Native interaction, actual live
+Rewrite usability and owner acceptance remain separate, pending qualification.
+Only proven owned synthetic fixtures are removed; logs remain outside Git.
+Owned Rewrite is locally integrated under standing mission authorization. Native
+full review/edit/comment/Rewrite/approval/activity/Undo/repair is the next slice.
+
+### Explicit main reasoning effort
+
+Baseline: `main@5f26e66`; post-integration hosted CI has no run for this local
+commit. Native source investigation is complete. Before wiring its controls,
+close the concrete Product Vision §28 gap: Rewrite freezes explicit effort, but
+ordinary Ask currently sends provider defaults and chat history records no effort.
+Use the existing low/medium/high enum, a separate explicit WorkStore setting and
+one additive V7 message column. Existing turns retain unknown/None effort and
+remain readable/replayable; no history resubmission or silent default is added.
+
+Fix interfaces first: WorkTurn gains optional string effort; old begin_turn stays
+as historical-fixture compatibility, while begin_turn_with_effort binds the new
+field in paired rows/replay. AskRequest gains optional typed effort, required for
+fresh provider admission but reconstructed exactly for history replay. A thin
+answer_with_effort uses the same Rig stream/read tools with exact route parameters.
+Workflow owns explicit effort getter/setter and selection persistence; CLI/native
+settings expose low/medium/high. Changing the saved choice cannot change active
+or historical requests. No live calls, extra datastore or generic framework.
+
+Accept migration/backup preservation, row agreement/validation, effort-conflicting
+UUID replay refusal, fresh missing-choice refusal before account access, selected
+wire effort with unchanged history/progress/tool budgets, and settings/history
+correlation. Verify meaningful deterministic tests, independent review and fresh
+gates, then continue native full review. Actual live/native owner acceptance is
+pending and does not block safe implementation.
+
+Implementation preserves the historical `answer` seam while fresh product Ask
+uses `answer_with_effort`; no provider default is admitted. V7 is additive and
+both stored rows bind/validate effort. Current settings never participate in
+historical replay. Native settings await the exact getter/setter acknowledgement
+and retain active/history capture. The initial startup-whitelist test exposed its
+outdated offline command list; adding the harmless Effort getter fixed the fixture.
+
+Fresh root macOS arm64 / Rust 1.98.1 locked/offline
+`TMPDIR=<exclusive owned parent> bash scripts/verify-end-to-end.sh` passed
+**628 workspace tests, 0 failed, 2 ignored**, **52 end-to-end assertions**,
+retirement, format/build/all-target Clippy with warnings denied. Target metadata
+and the fresh log establish **160 Store, 79 AI, 97 CLI, 181 workflow, 80 desktop
+and 31 retrieval** tests. The ignored private crash entry points are exercised by
+subprocess matrices. Optional native desktop tests passed **93**, and its native
+build/all-target Clippy passed with the existing upstream `block v0.1.6` warning.
+No GUI interaction, live effort/provider or owner acceptance is inferred.
+
+Complete independent read-only review against `5f26e66` found no actionable
+defects, and independently passed **7 Store, 3 AI, 3 workflow, 2 desktop and
+13 CLI process tests** plus the diff check. Hosted CI has no run for the local
+baseline; published results from another commit do not qualify this slice.
+Changed contracts/status/links are checked before local integration. Only the
+five proven owned synthetic layout fixtures and their exclusive gate parent are
+removed; logs remain outside Git. This slice is locally integrated under standing
+mission authorization, preserving the unrelated owner AGENTS.md edit.
+
+Manual acceptance pending: launch with a new disposable data/vault folder, open
+Settings and choose low/medium/high. Reopen and confirm the selected value;
+provider/model/history must remain independent. Ask must remain disabled until
+a choice is acknowledged. Under separately authorized live scope, start an Ask
+with high, change Settings to low while it runs, and verify the finished history
+still records high; the next Ask captures low. Pre-V7 history shows unavailable
+effort and replays offline without another request. The [CLI scenario](../../../../crates/brn/README.md)
+provides the offline getter/setter/missing-choice check. Native full proposal
+review is next; owner acceptance does not block that safe implementation.
+
+### Native full review and guarded editing
+
+Baseline: `main@5cd9c08`, with only the owner's unrelated AGENTS.md edit preserved.
+Use existing typed proposal/AppWorker APIs. Expose the full Create/Replace/Trash
+review, immutable before/source evidence, complete editable proposal text, whole
+and exact selected-text comments, explicit unresolved-anchor reattachment,
+rejection and owned Rewrite with frozen selection/effort. Review edits coalesce
+after 500 ms into existing exact-version ProposalEdit; acknowledgement establishes
+recoverability. Guard leaving/Quit and retain later typing across older replies.
+Never guess anchors or overwrite local text with late Rewrite/refresh results.
+
+Keep GPUI-free review buffer/correlation tests separate from persistent native
+EditorState entities. Fix narrow presentation interfaces before delegation.
+Comments/Rewrite/rejection require the latest acknowledged full review; changes
+remain operational until the separately implemented native exact approval screen.
+Meaningful checks cover Unicode/CRLF, full-member snapshots, delayed replies,
+failed/stale recovery, selection byte ranges, navigation and Stop/restart. Review
+independently, verify fresh relevant default/native gates, record a reproducible
+manual scenario, integrate, then implement native approval/group/activity/Undo/
+repair. No live calls, original data, new datastore/framework or freeze change.
+
+Manual acceptance pending: use a new disposable data/vault folder and the
+[CLI typed draft example](../../../../crates/brn/README.md#typed-review-foundation)
+to create a proposal, then launch `brn-desktop --data-dir <absolute-data>
+--vault <absolute-vault>` with native features. Open the proposal in History;
+inspect all full member bodies and source versions. Edit title/text, wait for
+recoverability acknowledgement, close/reopen and restart to confirm the complete
+bytes survive. Comment on the second occurrence of a repeated Unicode quote;
+edit that selection and confirm the old quote becomes unresolved. Reattach only
+by selecting the intended new range. Confirm failed review/comment saves retain
+copyable local text and guard leaving; use explicit retry or discard. Rejecting
+keeps the vault unchanged. Owned Rewrite requires a new separately authorized
+live scope; deterministic tests cover its correlation and late-result behavior.
+This scenario qualifies review of CLI-created proposals; initial native/AI
+proposal creation and exact approval/group/activity/Undo/repair remain later
+Stage 4 slices. Headless widget/state checks do not establish GUI acceptance.
+
+Implementation uses one GPUI-free full review buffer and persistent native member,
+title and comment widgets. Exact-version full edits recover after 500 ms; later
+local generations survive older acknowledgements. Comment drafts retain failed
+saves until acknowledgement or explicit discard. Review/Rewrite events bind UUID,
+proposal and generation; late result conflicts stay visible and copyable. Pure
+workflow edit validation reuses existing typed Store bounds.
+
+Independent read-only review against `5cd9c08` found two concrete valid defects:
+a delayed failed refresh could poison a newer review, and single-line InputState
+normalized accepted CR/LF title bytes. The first was reproduced failing then
+passing with exact ID/generation guards. The second's actual-widget positive
+control reproduces normalization; the production TextareaState regression uses
+native input-handler typing, full AppWorker acknowledgement, restart and reload.
+Final independent checks passed **20 default / 22 native review tests**, with no
+remaining actionable defects. Optional `native-test-support` enables the pinned
+headless toolkit test context; nine new test-support transitive packages are
+locked, with no existing package upgrades and no shipping feature change.
+
+Fresh root macOS arm64 / Rust 1.98.1 locked/offline verification passed:
+`TMPDIR=<exclusive synthetic parent> bash scripts/verify-end-to-end.sh`
+(**647 workspace tests, 0 failed, 2 ignored**, **52 end-to-end assertions**,
+retirement/format/build/all-target Clippy with warnings denied), native desktop
+full tests with `native-ui,native-retrieval,native-test-support` (**114 passed**),
+shipping native build without test support and native all-target Clippy with
+warnings denied. The existing upstream `block v0.1.6` future-compiler warning
+remains. Default desktop passed **99** tests. Only the five proven owned layout
+fixtures and their exclusive gate parent are removed; external logs are retained.
+Changed documentation checks passed **74 local links in 7 files**, with no
+errors; script syntax and diff checks passed. This slice is locally integrated
+under standing mission authorization, preserving the unrelated AGENTS.md edit. Hosted CI has no run for this local baseline. Actual GUI/live Rewrite
+and owner acceptance remain pending; these results establish headless state/widget
+and shared workflow behavior only. Continue native exact approval/group/activity,
+then Undo/repair and initial proposal creation within Stage 4.
+
+### Native exact approval, group review and activity
+
+Baseline: `main@cf0e161`, preserving the owner's AGENTS.md edit; published CI has
+no run for that locally integrated result. Use existing AppWorker approval/group,
+activity, journal and reconciliation APIs. Capture full acknowledged records and
+fresh operation IDs when confirmation opens; show complete before/proposed/source
+evidence for every captured member. Confirmation checks that the captured reviews
+remain current, and never includes later group arrivals. Individual/group outcomes
+remain explicit; partial/refused/uncertain results cannot be presented as success.
+Guard review mutation/leaving while application is admitted, refresh current
+review through observation, and preserve late local text. Expose paged readable
+activity and interrupted-operation inspection/reconciliation without repeating
+installation. Native Undo/repair and initial proposal creation remain next slices.
+
+Meaningful deterministic checks cover full capture, stale confirmation, wrong
+receipt/batch correlation, group partial refusal and late arrival exclusion,
+activity page generations/cursors, failed admission with recorded journals,
+reconciliation/restart and exact vault bytes/comment cleanup through real
+AppWorker. Independently review the complete slice, validate findings and run
+fresh default/native gates before local integration. No live calls, private data,
+release or architecture changes; record a reproducible manual acceptance scenario.
+
+Manual acceptance pending: create two synthetic Create proposals with one group
+UUID using the [CLI](../../../../crates/brn/README.md#typed-review-foundation), then
+launch native desktop with those explicit disposable data/vault directories.
+Open a proposal, edit/comment and wait for acknowledgement. Open exact approval;
+inspect complete title, every before/proposed body and source version. Cancel
+without changing the vault; reopen and approve. Confirm all files match the
+captured bytes and temporary comments disappear only from Applied proposals.
+Use group review for a new batch; make the second destination externally occupied
+after opening confirmation. Confirm the first may apply, the second refuses, and
+remaining proposals stay unapplied. Inspect every outcome and Activity's recorded
+full snapshots. Restart and verify historical activity; reconcile only the
+identified recorded operation. Synthetic automated fixtures cover late arrivals,
+interruption, stale confirmation and delayed replies; actual GUI/IME/accessibility
+and owner acceptance remain pending.
+
+Independent review exposed a concrete memory regression: paged native Activity
+requested and retained every full historical apply journal. The corrected narrow
+read API validates one journal at a time and returns only pending/uncertain
+metadata; an identified lookup loads one selected full snapshot. Existing Store
+authority, CLI full inspection and paged Activity remain unchanged. No database
+or architecture reopening is needed. The actual worker pagination regression
+also reproduced a wrong-snapshot-body acknowledgement failure; preserving its
+exact pending UUID lets the later correct body settle safely.
+
+The same independent review exposed a wrong-record/event-type post-application
+acknowledgement releasing the review guard. Real state regressions reproduced
+both acknowledgement defects before the correction, and passed afterward. Final
+independent checks passed **13 default / 13 native approval tests** and **1 shared
+recovery-summary worker regression**, with no remaining actionable findings. The
+full gate then caught `large_enum_variant`; boxing only the identified journal
+reply fixes its allocation without changing semantics. The final narrow delta
+is independently inspected before integration.
+
+Fresh root macOS arm64 / Rust 1.98.1 locked/offline verification passed:
+`TMPDIR=<exclusive synthetic parent> bash scripts/verify-end-to-end.sh`
+(**661 workspace tests, 0 failed, 2 ignored**, **52 end-to-end assertions**,
+retirement/format/build/all-target Clippy with warnings denied), native desktop
+tests with `native-ui,native-retrieval,native-test-support` (**127 passed**),
+shipping native build without test support and native all-target Clippy with
+warnings denied. Default desktop passed **112**; workflow **182**. The existing
+upstream `block v0.1.6` warning remains. Actual GUI/IME/accessibility, owner
+acceptance and published CI qualification remain pending; no live calls occur.
+Only proven owned synthetic layout fixtures and their exclusive gate parent are
+removed; logs remain outside Git. Changed contracts/status and local links are
+checked before local integration. Owner AGENTS.md changes remain untouched.
+Native Undo/repair and initial native/AI proposal creation follow within Stage 4.
+
+### Native Undo, Trash restoration and explicit repair
+
+Baseline: `main@907798d`, with only the owner's AGENTS.md edit preserved and no
+published CI run for the local result. Reuse existing shared Undo/repair DTOs and
+the native activity/guarded confirmation seams. Freeze the full inverse preview
+with one new Undo UUID, or full observed repair preview with one new attempt UUID
+and exact Finish/Restore direction. Show every full member and source/scope proof;
+Undo is a historical inverse, not a promise of current eligibility. Individual
+Trash restoration uses the original ordered member index. Repair confirms the
+opaque observed hash and phases; workflow owns actual eligibility and effects.
+
+Acceptance: preview cancellation has no effects; stale/misbound replies cannot
+release critical guards or replace a newer preview; confirmation uses exactly the
+displayed request; success/refusal/uncertainty remains explicit; errors refresh
+actual recorded state without retry. Full Undo and single Trash restore preserve
+exact bytes and unrelated later edits, including after restart/replay. Finish and
+Restore operate only on proved pairs, refuse changed previews and preserve late
+local text. Use GPUI-free immutable capture/state checks and real-worker synthetic
+fixtures, then independent review and fresh default/native verification. Initial
+native/AI proposal creation remains the next slice; no live/private-data action,
+new framework/datastore or architecture reopening occurs.
+
+Manual acceptance pending: in a new disposable vault, approve a mixed Create,
+Replace and Trash proposal. From Activity inspect its full inverse, cancel and
+confirm bytes remain unchanged; reopen, execute and confirm exact originals and
+retained Trash return. For another mixed proposal, edit an unrelated member later
+and restore only the selected original Trash member; the later bytes must remain.
+Modify a target after opening Undo confirmation and confirm refusal. A synthetic
+interrupted mixed operation should expose complete observed phases; cancel, then
+explicitly choose Finish or Restore and inspect the recorded outcome after
+restart. Automated fixtures prepare partial operations without touching real data.
+Actual GUI/IME/accessibility and owner acceptance remain separately pending.
+
+Implementation uses two immutable presentation captures over the existing shared
+DTOs. Critical results bind exact inner operation/attempt IDs and outer worker
+UUIDs; misbound types/bodies do not release the guard. Late previews cannot replace
+a newer direction/capture. Repair awaits the matching full historical draft and
+temporary comments before confirmation. AppWorker performs all effects and fresh
+eligibility checks; cancellation admits no operation, and terminal/failure refresh
+only reads recorded state. The original-index scoped Trash path preserves later
+unrelated bytes and inode identities.
+
+Independent read-only review against `907798d` found no actionable defects and
+passed **26 default / 26 native approval/capture/state tests**. Fresh root macOS
+arm64 / Rust 1.98.1 locked/offline verification passed
+`TMPDIR=<exclusive synthetic parent> bash scripts/verify-end-to-end.sh`
+(**674 workspace tests, 0 failed, 2 ignored**, **52 end-to-end assertions**,
+retirement/format/build/all-target Clippy with warnings denied), native desktop
+tests with `native-ui,native-retrieval,native-test-support` (**140 passed**),
+shipping native build without test support and native all-target Clippy with
+warnings denied. Default desktop passed **125**; workflow **182**. The existing
+upstream `block v0.1.6` warning remains. The test-only mutable-worker/missing-include
+compile issues were corrected before scoped execution; they were not product
+defects. Actual GUI/IME/accessibility, owner acceptance and published CI remain
+pending. Changed contracts/status/links are checked before local integration;
+only proven owned synthetic layout fixtures and their exclusive gate parent are
+removed, with logs retained outside Git. Owner AGENTS.md changes remain untouched.
+Continue initial native/AI proposal creation, then Stage 5 identity/provenance.
+
+### Initial native proposals and explicit AI-answer capture
+
+Baseline: `main@1a456c1`, preserving the owner's AGENTS.md edit; hosted CI has no
+run for this local result. Add the missing native entry into the existing typed
+review lifecycle. Compose a full Create, Replace or Trash proposal; existing-note
+targets require a workflow-captured exact source/before version and complete text.
+A completed acknowledged AI answer may explicitly prefill a new-note form with
+its complete bytes and session binding. The user chooses title/destination and
+creates operational review work; knowledge still changes only on exact approval.
+Actual user-chosen seed drafts use the existing comments/owned Rewrite flow for
+AI generation, with a real stored Draft stamp. No absent/fake Rewrite stamp,
+model-supplied fingerprint, silent chat promotion or second AI job system is used.
+Later Inbox consequences extend the same typed creation boundary.
+
+Keep one retained native form with persistent full title/body widgets and pure
+presentation correlation. Capture source reads without creating editor/proposal
+records. Creation freezes the exact request UUID/payload; replay returns current
+review state, which can already have later edits. Wrong/late acknowledgements
+cannot settle another form or replace later typing. Failed input remains copyable,
+with explicit retry/discard; admitted creation drains on close. Full text is never
+silently truncated. Meaningful checks cover Unicode/CRLF, before/source CAS,
+completed versus partial chat capture, edited creation replay, failure/restart and
+native widget bytes. Independently review, validate findings, run fresh relevant
+default/native gates and integrate before Stage 5. No live/private-data actions.
+
+Manual acceptance pending: in fresh explicit disposable data/vault directories,
+open New proposal, enter full title/path/text, create, reopen/restart and inspect
+exact bytes; the vault must remain unchanged until Approve. Load a synthetic
+existing note for Replace/Trash, inspect its complete captured before text, change
+the file externally and confirm creation refuses the stale capture. A completed
+AI turn can prefill a reviewable new-note draft; failed/provisional output cannot
+silently enter it. With separately authorized live scope, create an empty real
+Draft at the chosen destination, add the writing request as a whole-proposal
+comment, run Rewrite and inspect the complete result before approval. Existing
+owned Rewrite deterministic tests cover that actual generation route offline.
+Actual GUI/IME/accessibility, live usability and owner acceptance remain pending.
+
+
+Final initial-creation result: full title/path/body input is retained separately
+from the submitted typed request. Source reads bind the latest exact UUID and
+path/binding generation; stale sources refuse creation. Creation replay returns
+current review work, including later edits, without replacing later form input.
+Switching to Trash preserves body text until explicit local discard. Complete
+acknowledged AI answers can prefill a real session-bound form; failed/provisional
+or oversized answers cannot enter it through truncation. Unsubmitted input is
+transient, copyable and guards leaving. Admitted creation drains; changed input
+requires an explicit new proposal UUID. Existing real seed/comment/owned Rewrite
+provides the AI generation route without a second job framework.
+
+Independent read-only review against `1a456c1` found no actionable defects and
+passed **6 default / 6 native creation tests, 4 source-worker tests and 1 actual
+widget test**. The first scoped run needed its Trash fixture adapted to the new
+explicit-clear safeguard; all six subsequently passed. Fresh root macOS arm64 /
+Rust 1.98.1 locked/offline qualification passed:
+
+- `TMPDIR=<exclusive synthetic parent> bash scripts/verify-end-to-end.sh`:
+  **684 workspace tests, 0 failed, 2 ignored**, **52 end-to-end assertions**,
+  retirement, format, workspace build and all-target Clippy with warnings denied.
+- `cargo test -p brn-desktop --features native-ui,native-retrieval,native-test-support --locked --offline`:
+  **147 passed, 0 failed/ignored** (140 unit/widget and 7 process tests).
+- `cargo build -p brn-desktop --features native-ui,native-retrieval --locked --offline`:
+  shipping native build passed without test support.
+- `cargo clippy -p brn-desktop --all-targets --features native-ui,native-retrieval,native-test-support --locked --offline -- -D warnings`:
+  passed. The existing upstream `block v0.1.6` future-compiler warning remains.
+
+Default desktop passed **131**; workflow **186**. Logs remain outside Git under
+`/private/tmp/brn-native-creation-gate.y0kesyeh.*`; only the proven owned layout
+fixtures and their exclusive parent are removed after checks. Local Markdown
+links and whitespace are checked before integration; owner AGENTS.md is preserved.
+No new provider calls, asset downloads or private-data access occurred.
+
+All Stage 4 roadmap outcomes now have shared typed persistence/application,
+CLI access and native controls: complete review/edit/comments/rejection, owned
+Rewrite, exact individual/captured-group approval, recoverable application,
+paged Activity, practical Undo/Trash and explicit interrupted-operation repair.
+Native initial composition currently creates one full-note proposal; CLI supports
+complete multi-member requests and captured groups. Later Inbox/domain stages
+extend this creation boundary. Manual scenarios above remain reproducible pending
+GUI/IME/accessibility, live usability and owner acceptance. Automated success is
+not release qualification. Continue Stage 5 identity/provenance in dependency order.
+
+
 ## Stage 4 checkpoint A — reviewed proposal application
 
 Publication baseline `151b3afde0c5b4fe286f55531d5a8f2420dc406e` preserves
@@ -773,3 +1182,68 @@ diff checks passed. New exact-head CI qualification remains required. Windows
 again failed on existing Unix metadata APIs; overall corrected CI is red.
 GitHub temporarily retained the preceding PR head after the verified branch
 push; closing/reopening the same PR refreshed its head and triggered correct CI.
+
+Stage 4B PR #20 merged as d7a1a7218c00dd9dd953c6a8f73de0223b51cb4a after
+exact head93acf3f passed macOS Core/UI/Retrieval and Ubuntu shared Core in run
+37188478000. Windows retains known Unix metadata failures; overall CI is red.
+Qualified/merged trees match. Fresh post-merge **12 CLI Activity/Undo/Repair tests
++52 fixtures** and two startup/restart runs passed with exact synthetic bytes
+and zero credential files. Native owner acceptance remains pending.
+
+## Stage 4 checkpoint C — owned Rewrite and native proposal controls
+
+Publication baseline a83191defc93ba7cedd31a6129c3c5ceea6bcdbf integrates
+reviewed slices through15d4608 with published Stage4B main d7a1a72. Preserve
+owned Rewrite, explicit effort, full native review/comments/exact approval,
+Activity/Undo/Trash/Finish-Restore controls and guarded initial Create/Replace/
+Trash composition. Existing implementation reviews/manual scenarios above remain
+historical evidence. Only active six-crate contracts govern this publication.
+
+Acceptance: both merge parents' complete code/evidence remain preserved, exact
+approval/input/retry/drain guards remain intact, and CI adds actual headless Mac
+widget qualification with native-test-support alongside separate shipping builds.
+Run fresh locked/offline workspace/fixtures, capability feature and native gates,
+independent integration/CI review and exact latest-head Mac/shared CI; verify the
+qualified merged tree and relevant post-merge scenarios. No live calls, model
+downloads, original-data operations or release/public distribution. Owner native
+usability/IME/accessibility, live Rewrite and physical power-loss/other-volume
+acceptance remain pending and do not block later safe Stage5 implementation.
+
+Resume requires Apple Silicon/Command Line Tools, pinned Rust1.98.1, cached locked
+dependencies, protobuf/Bash/Python3, canonical synthetic data/TMPDIR outside Git
+and unlocked GUI for owner acceptance. Stage5 knowledge foundations continues
+locally in reviewed slices; publication must not collapse it into this Stage4 PR.
+The documentation-only merge conflict was corrected before publication; final
+review must verify both original complete evidence bodies and absence of markers.
+
+Checkpoint C independent read-only integration review verified **66 C-only +
+11 incoming A/B-only paths** against parent blobs/modes, full completed-C prefix
+and complete incoming checkpoint body, qualified platform guards and no unrelated
+changes. One valid new CI YAML defect (`native::` in a plain scalar) was reproduced
+with Psych, corrected to a literal block and independently rechecked; both workflow/
+setup files parse, and command/filter/feature semantics remain exact. No Rust
+source changed during that correction.
+
+Fresh isolated macOS arm64/Rust1.98.1 locked/offline gates passed retirement,
+format/build/all-target Clippy, **684 workspace tests/0failed/2ignored**,
+**52 end-to-end assertions**, **147 combined-native tests/0failed/0ignored**,
+both combined-native Clippy variants and shipping build. The exact new UI-only
+widget CI commands also passed Clippy and **16 native tests/0failed**, including
+the actual full initial-input widget. Capability feature passed **79 library+
+1 example tests**, all-target Clippy; no live probes were repeated. Shipping
+AppWorker startup/restart passed twice with exact synthetic BOM/CRLF/Unicode bytes
+and zero credential files. Upstream block0.1.6 future-compiler notice remains.
+Applicable exact-head macOS/shared CI and post-merge qualification remain pending;
+GUI/IME/accessibility/liveRewrite/owner acceptance stays separately pending.
+
+Changed-document verification passed **153 local file/fragment links** (code
+examples excluded), final format/diff checks. Checkpoint CI must qualify the
+exact latest PR commit before integration.
+
+Stage 4C CI run `37189866429` passed all three macOS lanes at `3415344`,
+but Ubuntu exposed five macOS-dependent real-App review fixture tests. Each
+creates a proposal through the deliberately macOS-only file adapter. Independent
+read-only review confirmed the sole module guard preserves all 14 pure shared
+review tests; no shared production defect was demonstrated. Fresh local five
+review-state tests, workspace all-target Clippy, format and diff checks passed.
+Exact latest-head CI remains required; Windows still fails on Unix metadata APIs.

@@ -30,11 +30,11 @@ Safe Save and verified recovery precede legacy removal; removal precedes Proposa
 
 ## Starting the next slice
 
-Stages 1 and 2 are implemented, automated verified and locally integrated;
+Stages 1–4 are implemented, automated verified and locally integrated;
 owner native acceptance remains tracked in [status](status.md). Stage 3's bounded
 live round is complete, with supported, unsupported and unqualified capabilities
 recorded in [its evidence](work/completed/provider-capabilities/plan.md). Continue
-to Stage 4 Proposal Core within the existing v1 authorization. Pending owner
+to Stage 5 identity/provenance/current-history retrieval within the existing v1 authorization. Pending owner
 acceptance need not block later safe work when it is not a dependency. Original
 data inspection/migration, additional live calls, downloads, purchases and release
 or public distribution still require applicable owner permission. Use the

@@ -12,6 +12,7 @@ pub mod models;
 #[cfg(all(test, feature = "native-retrieval"))]
 mod models_tests;
 pub mod proposal_apply;
+pub mod proposal_rewrite;
 pub mod proposals;
 #[cfg(test)]
 mod simple_worker_tests;
@@ -19,7 +20,7 @@ pub mod vault;
 
 pub use brn_ai::{
     AccountStatus, AiError, AiErrorKind, Auth, HistoryPair, LoginPrompt, ModelOption, NoteEntry,
-    NotePage, Passage, Provider, ReadTools, Selection, ToolNote, ToolSearch,
+    NotePage, Passage, Provider, ReadTools, ReasoningEffort, Selection, ToolNote, ToolSearch,
 };
 pub use brn_store::work::{MAX_NOTE_BYTES, WorkConversation, WorkTurn, WorkTurnStatus};
 pub use brn_store::workspace_mode::WorkspaceMode;

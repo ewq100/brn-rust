@@ -8,6 +8,7 @@ publish = false
 default = []
 native-ui = ["dep:gpui-kit", "dep:sha2"]
 native-retrieval = ["native-ui", "brn-workflow/native-retrieval"]
+native-test-support = ["native-ui", "gpui-kit/test-support"]
 
 [dependencies]
 gpui-kit = { version = "=0.6.6", optional = true }
@@ -16,3 +17,6 @@ uuid = { version = "1", features = ["v4"] }
 serde = { version = "1", features = ["derive"] }
 serde_json = "1"
 sha2 = { version = "0.10", optional = true }
+
+[dev-dependencies]
+tempfile = "3"

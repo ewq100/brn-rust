@@ -146,6 +146,12 @@ fn bad_simple_arguments_fail_before_database_creation() {
             "unknown",
         ],
         vec!["ai", "status", "--legacy"],
+        vec!["ai", "effort", "maximum"],
+        vec!["ai", "effort", "HIGH"],
+        vec!["ai", "effort", "auto"],
+        vec!["ai", "effort", "high", "low"],
+        vec!["ai", "effort", "--effort", "high"],
+        vec!["ai", "effort", "high", "--timeout-seconds", "10"],
         vec!["status", "--legacy", "--credentials-dir", "/nonexistent"],
         vec!["models", "download"],
         vec!["ask", "question", "--profile", "keyword"],
@@ -170,7 +176,47 @@ fn bad_simple_arguments_fail_before_database_creation() {
         assert_eq!(value["error"]["code"], "USAGE");
         assert!(!dir.path().join("brn.sqlite").exists());
         assert!(!dir.path().join("brn.sqlite3").exists());
+        assert!(!dir.path().with_file_name("data.credentials").exists());
     }
+}
+
+#[test]
+fn explicit_effort_getter_setter_and_status_preserve_choices_across_processes() {
+    let dir = support::data_dir();
+    let run = |args: &[&str]| {
+        let output = Command::new(env!("CARGO_BIN_EXE_brn"))
+            .args(args)
+            .args(["--json", "--data-dir"])
+            .arg(dir.path())
+            .output()
+            .unwrap();
+        let value: Value = serde_json::from_slice(&output.stdout).unwrap();
+        assert_eq!(output.status.code(), Some(0), "{value}");
+        value
+    };
+    let unset = run(&["ai", "effort"]);
+    assert_eq!(unset["command"], "ai.effort");
+    assert!(unset["data"]["effort"].is_null());
+    assert!(run(&["ai", "status"])["data"]["effort"].is_null());
+    for effort in ["low", "medium", "high"] {
+        let saved = run(&["ai", "effort", effort]);
+        assert_eq!(saved["command"], "ai.effort");
+        assert_eq!(saved["data"]["effort"], effort);
+        let reopened = run(&["ai", "effort"]);
+        assert_eq!(reopened["data"], saved["data"]);
+        let status = run(&["ai", "status"]);
+        assert_eq!(status["data"]["effort"], effort);
+        assert!(status["data"]["selection"].is_null());
+        for account in status["data"]["accounts"].as_array().unwrap() {
+            assert_eq!(account["connected"], false);
+        }
+    }
+    assert_eq!(
+        std::fs::read_dir(dir.path().with_file_name("data.credentials"))
+            .unwrap()
+            .count(),
+        0
+    );
 }
 
 #[test]

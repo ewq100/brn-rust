@@ -32,7 +32,9 @@ The editor is implemented and automated verified; native/IME/accessibility
 acceptance remains pending in [status](../../docs/status.md).
 
 Settings provides independent ChatGPT/Copilot account status, explicit Connect/
-Disconnect, model discovery and provider/model selection. A connected cache with
+Disconnect, model discovery, provider/model selection and explicit low/medium/high
+reasoning effort. Ask stays disabled until its effort choice is acknowledged.
+A connected cache with
 no display name stays “account name unavailable”; failed/cancelled Connect
 refreshes actual status. Codes/links exist only in the active transient login
 dialog; cancel, dismissal and every ending clear it and target its exact UUID.
@@ -40,7 +42,9 @@ Code expiry/reconnect are explicit retry states, never automatic login.
 ChatGPT live chat remains conditionally qualified; a quota reset alone does not
 establish availability.
 
-Each Ask freezes selection. Only one Ask is active; notes/search/account/history
+Each Ask freezes provider, model and effort. Changing Settings affects new
+requests; active and historical turns retain their recorded choice. Older history
+shows unavailable effort rather than inventing a value. Only one Ask is active; notes/search/account/history
 diagnostics are independent. Text/tool progress is provisional. Stopped/Failed
 partials retain their terminal status and provider/model, including historical
 selections. Only Finished establishes durable finalization. PersistenceFailed
@@ -55,6 +59,41 @@ snapshots cannot restore Running over a known terminal result. A different
 conversation or new blank chat does not adopt that result. Stop intent survives
 pre-admission cancellation acknowledgements. Composer edits invalidate only
 search results, not the current answer or its follow-up conversation.
+
+History also lists typed proposals. Full review shows every Create/Replace/Trash
+member, exact captured before/proposed text, source versions and temporary
+comments. Full edits recover after 500 ms through the same AppWorker boundary;
+only acknowledgement establishes recoverability. Older replies preserve later
+typing. Comments attach to the whole proposal or an exact UTF-8 selection;
+unresolved anchors retain their old quote and require explicit reattachment.
+Failed comment saves retain copyable draft text and guard leaving until it is
+acknowledged or explicitly discarded. Rewrite freezes provider/model/effort and
+supports Stop; a late result retains conflicting local text instead of replacing
+it. These review operations keep vault knowledge unchanged. Exact approval opens
+a full captured confirmation; group approval includes only its displayed records
+and may stop after an earlier independent proposal. Controls remain guarded until
+the application outcome and current review are acknowledged. Activity pages show
+recorded successful changes and full historical approval snapshots; recovery
+inspection/reconciliation reports actual pending/uncertain outcomes without
+repeating installation. Failed application refreshes journals because an error
+can follow recorded file effects. Activity exposes full historical Undo review;
+an Applied snapshot exposes each original Trash member's exact restoration.
+Interrupted operations offer separate full Finish/Restore review with captured
+observations, retained comments and explicit direction. These requests are frozen
+through confirmation; workflow can refuse later changed files. Errors retain
+inspectable operation/attempt identities and never trigger automatic retry.
+New proposal retains complete title/path/body widgets for Create, Replace or
+Trash. Replace/Trash first load the exact saved source through AppWorker; stale
+captures refuse creation. Switching to Trash preserves local body text until an
+explicit discard. Creating review work freezes its full request and UUID; replay
+may return a later edited review, and acknowledgements never replace later input.
+Failed or unsubmitted input stays copyable and guards leaving. A changed payload
+needs an explicit separate proposal; submission alone does not apply Markdown.
+Unsubmitted form input is transient; only acknowledged creation is recoverable.
+An acknowledged completed answer can explicitly prefill its full bytes and session
+into this form. Failed, provisional or oversized answers cannot become truncated
+drafts. AI writing uses a real stored seed Draft, comments and owned Rewrite.
+GUI/IME/accessibility and owner acceptance are tracked separately.
 
 Native retrieval offers a one-time prompt per stored consent decision, showing
 pinned source, bytes/cost and destination. Decline makes no network request.
@@ -114,6 +153,7 @@ Run from the repository root:
 ```sh
 cargo test -p brn-desktop --locked --offline
 cargo test -p brn-desktop --features native-ui,native-retrieval --locked --offline
+cargo test -p brn-desktop --features native-ui,native-retrieval,native-test-support --locked --offline
 cargo build -p brn-desktop --features native-ui,native-retrieval --locked --offline
 bash scripts/verify-desktop-shell.sh --native
 # Existing disposable absolute data directory only:
@@ -122,7 +162,8 @@ cargo run -p brn-desktop --locked --offline -- --data-dir /absolute/disposable/d
 
 Native interaction requires macOS Apple Silicon and an unlocked session. Use explicit disposable data. Preserve dirty-state guards, focus/selection, exact original quotes and generation-aware response handling.
 
-Editor-state tests cover exact BOM/CRLF/Unicode text, byte limits and
+`native-test-support` enables the pinned toolkit's headless widget test context;
+it is separate from normal native builds. Editor-state tests cover exact BOM/CRLF/Unicode text, byte limits and
 receipt/close/retry scheduling. Native-feature tests round-trip the GPUI-kit
 Rope backend through real AppWorker Save and restart recovery, and verify that
 admitted Save drains before the defensive timed quit future.

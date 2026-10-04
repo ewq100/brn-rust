@@ -1,8 +1,9 @@
 //! Presentation and correlation only. Authority and network work belong to AppWorker.
 #![cfg_attr(not(feature = "native-ui"), allow(dead_code))]
 use brn_workflow::{
-    AccountStatus, LoginPrompt, ModelOption, NoteEntry, Provider, Selection, WorkConversation,
-    WorkTurn, WorkTurnStatus,
+    AccountStatus, LoginPrompt, ModelOption, NoteEntry, Provider, ReasoningEffort, Selection,
+    WorkConversation, WorkTurn, WorkTurnStatus,
+    activity::{ActivityPage, ActivityRequest},
     app_worker::{AppCommand, AppEvent},
     chat_worker::{AccountCommand, AccountEvent, AccountReply, AskRequest, ChatEvent},
     editor::{
@@ -11,6 +12,12 @@ use brn_workflow::{
     },
     library::{RefreshReport, SearchResults},
     models::ModelDownloadPrompt,
+    proposal_apply::{
+        ApplyJournal, ApplyOutcome, ApplyReceipt, ApplySummary, ApprovalRequest, RepairDirection,
+        RepairReceipt, RepairRequest, UndoRequest,
+    },
+    proposal_rewrite::{RewriteEvent, RewriteJob, RewriteRequest},
+    proposals::{CommentRequest, ProposalRecord, ProposalState, ReviewComment},
 };
 use std::{
     collections::HashMap,
@@ -22,6 +29,12 @@ use uuid::Uuid;
 pub struct ActiveTurn {
     pub request: AskRequest,
     pub partial: String,
+    pub tool: Option<String>,
+    pub stopping: bool,
+}
+pub struct ActiveRewrite {
+    pub request: RewriteRequest,
+    pub job: Option<RewriteJob>,
     pub tool: Option<String>,
     pub stopping: bool,
 }
@@ -40,19 +53,93 @@ pub enum Pending {
     Status,
     Selection,
     Select,
+    Effort,
+    SelectEffort,
+    Proposals,
+    Proposal {
+        id: Uuid,
+        generation: u64,
+    },
+    ReviewRefresh {
+        id: Uuid,
+        generation: u64,
+    },
+    AppliedReview {
+        id: Uuid,
+        generation: u64,
+    },
+    ReviewEdit,
+    ReviewMutation {
+        id: Uuid,
+        generation: u64,
+    },
+    Approval {
+        capture: crate::approval::ApprovalCapture,
+        generation: u64,
+    },
+    ApplyReconcile {
+        request: ApprovalRequest,
+        generation: u64,
+    },
+    Applies {
+        generation: u64,
+    },
+    ApplySnapshot {
+        operation: Uuid,
+        generation: u64,
+    },
+    UndoPreview {
+        request: UndoRequest,
+        generation: u64,
+    },
+    RepairPreview {
+        operation: Uuid,
+        direction: RepairDirection,
+        generation: u64,
+    },
+    Undo {
+        capture: Box<crate::approval::UndoCapture>,
+        generation: u64,
+    },
+    Repair {
+        capture: Box<crate::approval::RepairCapture>,
+        generation: u64,
+    },
+    Activity {
+        generation: u64,
+        before: Option<Uuid>,
+    },
+    DraftSource {
+        form: Uuid,
+        path: String,
+        binding_generation: u64,
+    },
+    DraftCreate {
+        form: Uuid,
+        request: Box<brn_workflow::proposals::DraftRequest>,
+    },
     Account(AccountCommand),
     Bind,
     Refresh,
-    Notes { append: bool },
-    Editor { generation: u64, preserve: bool },
+    Notes {
+        append: bool,
+    },
+    Editor {
+        generation: u64,
+        preserve: bool,
+    },
     EditorRecovery,
     EditorSave,
     EditorReconcile,
     EditorReload,
     Editors,
-    Search { generation: u64 },
+    Search {
+        generation: u64,
+    },
     Conversations,
-    Turns { generation: u64 },
+    Turns {
+        generation: u64,
+    },
     Prompt,
     Download,
 }
@@ -65,6 +152,36 @@ pub struct AiState {
     pub model_installed: bool,
     pub selection: Option<Selection>,
     pub selection_error: Option<String>,
+    pub effort: Option<ReasoningEffort>,
+    pub effort_error: Option<String>,
+    pub proposals: Vec<ProposalRecord>,
+    pub review: Option<crate::review::ProposalReview>,
+    pub review_generation: u64,
+    pub review_error: Option<String>,
+    pub rewrite: Option<ActiveRewrite>,
+    pub last_rewrite: Option<RewriteJob>,
+    pub rewrite_storage_failed: bool,
+    pub approval_receipts: Vec<ApplyReceipt>,
+    pub approval_requests: Vec<ApprovalRequest>,
+    pub approval_error: Option<String>,
+    pub applies: Vec<ApplySummary>,
+    pub applies_error: Option<String>,
+    pub applies_generation: u64,
+    pub application_snapshot: Option<ApplyJournal>,
+    pub snapshot_error: Option<String>,
+    pub snapshot_generation: u64,
+    pub operation_generation: u64,
+    pub operation_error: Option<String>,
+    pub undo_preview: Option<crate::approval::UndoCapture>,
+    pub repair_preview: Option<crate::approval::RepairCapture>,
+    pub last_undo_request: Option<UndoRequest>,
+    pub last_repair_request: Option<RepairRequest>,
+    pub repair_receipt: Option<RepairReceipt>,
+    pub activity: Option<ActivityPage>,
+    pub activity_error: Option<String>,
+    pub activity_generation: u64,
+    pub draft: Option<crate::draft::DraftForm>,
+    pub last_draft_request: Option<brn_workflow::proposals::DraftRequest>,
     pub provider: Option<Provider>,
     pub generation: u64,
     pub conversation: Option<Uuid>,
@@ -387,11 +504,585 @@ fn unfinalized_turn(request: &AskRequest, partial: String) -> WorkTurn {
         }
         .into(),
         model: request.selection.model.clone(),
+        effort: request.effort.map(|value| value.as_str().to_owned()),
         status: WorkTurnStatus::Failed,
         error_code: None,
     }
 }
 impl AiState {
+    pub fn application_busy(&self) -> bool {
+        self.pending.values().any(|pending| {
+            matches!(
+                pending,
+                Pending::Approval { .. }
+                    | Pending::ApplyReconcile { .. }
+                    | Pending::AppliedReview { .. }
+                    | Pending::Undo { .. }
+                    | Pending::Repair { .. }
+                    | Pending::DraftCreate { .. }
+            )
+        })
+    }
+    pub fn begin_draft(&mut self, turn: Option<Uuid>) -> bool {
+        if !self.ready
+            || !self.vault_bound
+            || !self.review_can_leave()
+            || self.active.is_some()
+            || self.rewrite.is_some()
+        {
+            return false;
+        }
+        let turn = match turn {
+            None => None,
+            Some(id) => {
+                let Some(turn) = self.turns.iter().find(|turn| turn.id == id) else {
+                    self.notice =
+                        "Only an acknowledged completed answer can prefill a proposal.".into();
+                    return false;
+                };
+                Some(turn)
+            }
+        };
+        let Some(draft) = crate::draft::DraftForm::new(turn) else {
+            self.notice = "The answer is provisional, failed or exceeds the full-note limit. Its complete text remains in chat; no truncated draft was created.".into();
+            return false;
+        };
+        self.draft = Some(draft);
+        true
+    }
+    pub fn discard_draft(&mut self) -> bool {
+        if self.draft.as_ref().is_some_and(|draft| draft.pending) {
+            return false;
+        }
+        self.draft = None;
+        true
+    }
+    pub fn separate_draft(&mut self) -> bool {
+        let Some(old) = self.draft.as_ref().filter(|draft| !draft.pending) else {
+            return false;
+        };
+        let mut draft = crate::draft::DraftForm::new(None).expect("empty form");
+        draft.edit(
+            old.title.clone(),
+            old.path.clone(),
+            old.text.clone(),
+            old.kind,
+        );
+        draft.session_id = old.session_id;
+        draft.source = old.source.clone();
+        self.draft = Some(draft);
+        true
+    }
+    pub fn draft_source(&mut self) -> Option<(Uuid, AppCommand)> {
+        if !self.ready || !self.vault_bound || self.application_busy() {
+            return None;
+        }
+        let draft = self.draft.as_mut()?;
+        if draft.pending || draft.kind == crate::draft::DraftKind::Create {
+            return None;
+        }
+        let (form, path, binding_generation) =
+            (draft.id, draft.path.clone(), draft.binding_generation);
+        draft.source = None;
+        draft.source_error = None;
+        let command = self.command(
+            Pending::DraftSource {
+                form,
+                path: path.clone(),
+                binding_generation,
+            },
+            AppCommand::ProposalSource(path),
+        );
+        self.draft.as_mut().expect("matched form").source_operation = Some(command.0);
+        Some(command)
+    }
+    pub fn create_draft(&mut self) -> Option<(Uuid, AppCommand)> {
+        if !self.ready
+            || !self.vault_bound
+            || self.application_busy()
+            || self.active.is_some()
+            || self.rewrite.is_some()
+            || self
+                .review
+                .as_ref()
+                .is_some_and(|review| !review.can_leave())
+            || self
+                .pending
+                .values()
+                .any(|pending| matches!(pending, Pending::ReviewMutation { .. }))
+        {
+            return None;
+        }
+        let submitted = self.draft.as_mut()?.prepare()?;
+        let form = self.draft.as_ref()?.id;
+        self.last_draft_request = Some(submitted.request.clone());
+        self.pending.insert(
+            submitted.operation,
+            Pending::DraftCreate {
+                form,
+                request: Box::new(submitted.request.clone()),
+            },
+        );
+        self.notice = "Creating the exact full review draft; vault knowledge is unchanged.".into();
+        Some((
+            submitted.operation,
+            AppCommand::CreateProposal(submitted.request),
+        ))
+    }
+    fn can_confirm_operation(&self) -> bool {
+        self.ready
+            && self.vault_bound
+            && self.review_can_leave()
+            && self.active.is_none()
+            && self.rewrite.is_none()
+    }
+    pub fn preview_undo(
+        &mut self,
+        target_operation: Uuid,
+        trash_member: Option<usize>,
+    ) -> Option<(Uuid, AppCommand)> {
+        if !self.can_confirm_operation() {
+            return None;
+        }
+        let request = UndoRequest {
+            operation_id: Uuid::new_v4(),
+            target_operation_id: target_operation,
+            trash_member,
+        };
+        brn_workflow::proposal_apply::validate_undo_request(&request).ok()?;
+        self.operation_generation = self.operation_generation.checked_add(1)?;
+        self.undo_preview = None;
+        self.repair_preview = None;
+        self.operation_error = None;
+        Some(self.command(
+            Pending::UndoPreview {
+                request: request.clone(),
+                generation: self.operation_generation,
+            },
+            AppCommand::PreviewProposalUndo(request),
+        ))
+    }
+    pub fn preview_repair(
+        &mut self,
+        operation: Uuid,
+        direction: RepairDirection,
+    ) -> Option<(Uuid, AppCommand)> {
+        if !self.can_confirm_operation() || operation.is_nil() {
+            return None;
+        }
+        self.operation_generation = self.operation_generation.checked_add(1)?;
+        self.undo_preview = None;
+        self.repair_preview = None;
+        self.operation_error = None;
+        Some(self.command(
+            Pending::RepairPreview {
+                operation,
+                direction,
+                generation: self.operation_generation,
+            },
+            AppCommand::PreviewProposalRepair(operation),
+        ))
+    }
+    pub fn confirm_undo(
+        &mut self,
+        capture: &crate::approval::UndoCapture,
+    ) -> Option<(Uuid, AppCommand)> {
+        if !self.can_confirm_operation() || self.undo_preview.as_ref() != Some(capture) {
+            return None;
+        }
+        let request = capture.request().clone();
+        self.last_undo_request = Some(request.clone());
+        self.approval_requests = vec![ApprovalRequest {
+            operation_id: request.operation_id,
+            expected: brn_workflow::proposals::ProposalStamp {
+                id: request.operation_id,
+                version: 1,
+            },
+        }];
+        self.approval_receipts.clear();
+        self.approval_error = None;
+        self.operation_error = None;
+        self.notice = "Executing the captured Undo; await its recorded outcome.".into();
+        Some(self.command(
+            Pending::Undo {
+                capture: Box::new(capture.clone()),
+                generation: self.review_generation,
+            },
+            capture.command(),
+        ))
+    }
+    pub fn confirm_repair(
+        &mut self,
+        capture: &crate::approval::RepairCapture,
+    ) -> Option<(Uuid, AppCommand)> {
+        if !self.can_confirm_operation()
+            || self.repair_preview.as_ref() != Some(capture)
+            || !self.application_snapshot.as_ref().is_some_and(|journal| {
+                journal.request.operation_id == capture.preview().operation_id
+                    && journal.approved.draft == capture.preview().approved
+            })
+        {
+            return None;
+        }
+        self.last_repair_request = Some(capture.request().clone());
+        self.repair_receipt = None;
+        self.operation_error = None;
+        self.notice = "Executing the captured repair direction; await its recorded outcome.".into();
+        Some(self.command(
+            Pending::Repair {
+                capture: Box::new(capture.clone()),
+                generation: self.review_generation,
+            },
+            capture.command(),
+        ))
+    }
+    pub fn capture_approval(&self, group: bool) -> Option<crate::approval::ApprovalCapture> {
+        if !self.ready || !self.vault_bound || !self.review_can_mutate() || self.rewrite.is_some() {
+            return None;
+        }
+        let current = &self.review.as_ref()?.record;
+        let group_id = if group {
+            Some(current.draft.group_id?)
+        } else {
+            None
+        };
+        let records = if let Some(group_id) = group_id {
+            let mut records: Vec<_> = self
+                .proposals
+                .iter()
+                .filter(|record| {
+                    record.draft.group_id == Some(group_id) && record.state == ProposalState::Draft
+                })
+                .cloned()
+                .collect();
+            if let Some(record) = records
+                .iter_mut()
+                .find(|record| record.draft.id == current.draft.id)
+            {
+                *record = current.clone();
+            } else {
+                records.push(current.clone());
+            }
+            records
+        } else {
+            vec![current.clone()]
+        };
+        crate::approval::ApprovalCapture::new(records, group_id)
+    }
+    pub fn confirm_approval(
+        &mut self,
+        capture: &crate::approval::ApprovalCapture,
+    ) -> Option<(Uuid, AppCommand)> {
+        if !self.ready || !self.vault_bound || !self.review_can_mutate() || self.rewrite.is_some() {
+            return None;
+        }
+        let current = &self.review.as_ref()?.record;
+        if !capture.records().iter().any(|record| record == current)
+            || capture.records().iter().any(|record| {
+                if record.draft.id == current.draft.id {
+                    record != current
+                } else {
+                    !self.proposals.iter().any(|known| known == record)
+                }
+            })
+        {
+            return None;
+        }
+        self.approval_error = None;
+        self.approval_receipts.clear();
+        self.approval_requests = capture.requests().to_vec();
+        self.notice = "Applying the exact captured review; await the recorded outcome.".into();
+        Some(self.command(
+            Pending::Approval {
+                capture: capture.clone(),
+                generation: self.review_generation,
+            },
+            capture.command(),
+        ))
+    }
+    pub fn refresh_activity(&mut self) -> Option<(Uuid, AppCommand)> {
+        if !self.ready {
+            return None;
+        }
+        self.activity_generation = self.activity_generation.checked_add(1)?;
+        self.activity = None;
+        self.activity_error = None;
+        Some(self.command(
+            Pending::Activity {
+                generation: self.activity_generation,
+                before: None,
+            },
+            AppCommand::Activity(ActivityRequest::default()),
+        ))
+    }
+    pub fn more_activity(&mut self) -> Option<(Uuid, AppCommand)> {
+        if !self.ready || self.pending.values().any(|pending| matches!(pending, Pending::Activity { generation, .. } if *generation == self.activity_generation)) { return None; }
+        let before = self.activity.as_ref()?.next_before?;
+        self.activity_error = None;
+        Some(self.command(
+            Pending::Activity {
+                generation: self.activity_generation,
+                before: Some(before),
+            },
+            AppCommand::Activity(ActivityRequest {
+                before: Some(before),
+                ..ActivityRequest::default()
+            }),
+        ))
+    }
+    pub fn refresh_applies(&mut self) -> Option<(Uuid, AppCommand)> {
+        if !self.ready {
+            return None;
+        }
+        self.applies_generation = self.applies_generation.checked_add(1)?;
+        self.applies_error = None;
+        Some(self.command(
+            Pending::Applies {
+                generation: self.applies_generation,
+            },
+            AppCommand::ProposalRecovery,
+        ))
+    }
+    pub fn inspect_apply(&mut self, operation: Uuid) -> Option<(Uuid, AppCommand)> {
+        if !self.ready || operation.is_nil() {
+            return None;
+        }
+        self.snapshot_generation = self.snapshot_generation.checked_add(1)?;
+        self.application_snapshot = None;
+        self.snapshot_error = None;
+        Some(self.command(
+            Pending::ApplySnapshot {
+                operation,
+                generation: self.snapshot_generation,
+            },
+            AppCommand::ProposalApply(operation),
+        ))
+    }
+    pub fn reconcile_apply(&mut self, operation: Uuid) -> Option<(Uuid, AppCommand)> {
+        if !self.ready || self.application_busy() || !self.review_can_leave() {
+            return None;
+        }
+        let request = self
+            .applies
+            .iter()
+            .find(|summary| summary.request.operation_id == operation)
+            .map(|summary| &summary.request)
+            .or_else(|| {
+                self.application_snapshot
+                    .as_ref()
+                    .filter(|journal| journal.request.operation_id == operation)
+                    .map(|journal| &journal.request)
+            })?
+            .clone();
+        self.approval_error = None;
+        self.approval_requests = vec![request.clone()];
+        self.notice = "Reconciling recorded proofs; installation is not repeated.".into();
+        Some(self.command(
+            Pending::ApplyReconcile {
+                request,
+                generation: self.review_generation,
+            },
+            AppCommand::ReconcileProposal(operation),
+        ))
+    }
+    fn refresh_after_application(
+        &mut self,
+        proposals: &[Uuid],
+        generation: u64,
+    ) -> Vec<(Uuid, AppCommand)> {
+        let mut commands = vec![self.command(Pending::Proposals, AppCommand::Proposals(None))];
+        if generation == self.review_generation
+            && self
+                .review
+                .as_ref()
+                .is_some_and(|review| proposals.contains(&review.record.draft.id))
+        {
+            let id = self
+                .review
+                .as_ref()
+                .expect("matched review")
+                .record
+                .draft
+                .id;
+            commands.push(self.command(
+                Pending::AppliedReview { id, generation },
+                AppCommand::Proposal(id),
+            ));
+        }
+        if let Some(command) = self.refresh_activity() {
+            commands.push(command);
+        }
+        if let Some(command) = self.refresh_applies() {
+            commands.push(command);
+        }
+        // File effects can invalidate displayed/current evidence even when a
+        // terminal error follows the recorded outcome. Keep local editor work.
+        self.search = None;
+        self.search_generation = self.search_generation.wrapping_add(1);
+        commands.push(self.command(
+            Pending::Notes { append: false },
+            AppCommand::Notes {
+                folder: None,
+                cursor: None,
+            },
+        ));
+        commands
+    }
+    pub fn review_can_leave(&self) -> bool {
+        self.review.as_ref().is_none_or(|review| review.can_leave())
+            && self.draft.as_ref().is_none_or(|draft| draft.can_leave())
+            && !self.application_busy()
+            && !self
+                .pending
+                .values()
+                .any(|pending| matches!(pending, Pending::ReviewMutation { .. }))
+    }
+    pub fn review_editable(&self) -> bool {
+        if self.application_busy() {
+            return false;
+        }
+        self.review.as_ref().is_some_and(|review| {
+            review.record.state == ProposalState::Draft && review.observed.is_none()
+        }) && !self
+            .pending
+            .values()
+            .any(|pending| matches!(pending, Pending::ReviewMutation { .. }))
+    }
+    pub fn review_can_mutate(&self) -> bool {
+        if self.application_busy() {
+            return false;
+        }
+        self.review
+            .as_ref()
+            .is_some_and(|review| review.can_mutate())
+            && !self
+                .pending
+                .values()
+                .any(|pending| matches!(pending, Pending::ReviewMutation { .. }))
+    }
+    pub fn open_review(&mut self, id: Uuid) -> Option<(Uuid, AppCommand)> {
+        if !self.ready || !self.review_can_leave() {
+            return None;
+        }
+        self.review_generation = self.review_generation.checked_add(1)?;
+        self.review = None;
+        self.review_error = None;
+        Some(self.command(
+            Pending::Proposal {
+                id,
+                generation: self.review_generation,
+            },
+            AppCommand::Proposal(id),
+        ))
+    }
+    pub fn refresh_review(&mut self) -> Option<(Uuid, AppCommand)> {
+        let id = self.review.as_ref()?.record.draft.id;
+        Some(self.command(
+            Pending::ReviewRefresh {
+                id,
+                generation: self.review_generation,
+            },
+            AppCommand::Proposal(id),
+        ))
+    }
+    pub fn recover_review(&mut self) -> Option<(Uuid, AppCommand)> {
+        let (id, edit) = self.review.as_mut()?.prepare_edit()?;
+        self.pending.insert(id, Pending::ReviewEdit);
+        Some((id, AppCommand::EditProposal(edit)))
+    }
+    pub fn review_comment(
+        &mut self,
+        comment: ReviewComment,
+        update: bool,
+    ) -> Option<(Uuid, AppCommand)> {
+        if !self.review_can_mutate() {
+            return None;
+        }
+        let expected = self.review.as_ref()?.record.stamp();
+        let request = CommentRequest { expected, comment };
+        let command = if update {
+            AppCommand::UpdateProposalComment(request)
+        } else {
+            AppCommand::AddProposalComment(request)
+        };
+        Some(self.command(
+            Pending::ReviewMutation {
+                id: expected.id,
+                generation: self.review_generation,
+            },
+            command,
+        ))
+    }
+    pub fn remove_review_comment(&mut self, comment: Uuid) -> Option<(Uuid, AppCommand)> {
+        if !self.review_can_mutate() {
+            return None;
+        }
+        let expected = self.review.as_ref()?.record.stamp();
+        Some(self.command(
+            Pending::ReviewMutation {
+                id: expected.id,
+                generation: self.review_generation,
+            },
+            AppCommand::RemoveProposalComment { expected, comment },
+        ))
+    }
+    pub fn reject_review(&mut self) -> Option<(Uuid, AppCommand)> {
+        if !self.review_can_mutate() {
+            return None;
+        }
+        let expected = self.review.as_ref()?.record.stamp();
+        Some(self.command(
+            Pending::ReviewMutation {
+                id: expected.id,
+                generation: self.review_generation,
+            },
+            AppCommand::RejectProposal(expected),
+        ))
+    }
+    pub fn can_rewrite(&self) -> bool {
+        self.ready
+            && self.vault_bound
+            && self.review_can_mutate()
+            && self.active.is_none()
+            && self.rewrite.is_none()
+            && self.unsaved.is_none()
+            && !self.rewrite_storage_failed
+            && self.selection.is_some()
+            && self.effort.is_some()
+            && self.selection_error.is_none()
+            && self.effort_error.is_none()
+            && !self.pending.values().any(|pending| {
+                matches!(
+                    pending,
+                    Pending::Select | Pending::Effort | Pending::SelectEffort
+                )
+            })
+    }
+    pub fn start_rewrite(&mut self) -> Option<(Uuid, AppCommand)> {
+        if !self.can_rewrite() {
+            return None;
+        }
+        let request = RewriteRequest {
+            id: Uuid::new_v4(),
+            expected: self.review.as_ref()?.record.stamp(),
+            selection: self.selection.clone()?,
+            effort: self.effort?,
+            generation: self.review_generation,
+        };
+        self.rewrite = Some(ActiveRewrite {
+            request: request.clone(),
+            job: None,
+            tool: None,
+            stopping: false,
+        });
+        self.notice = "Rewrite requested; vault knowledge is unchanged until approval.".into();
+        Some((request.id, AppCommand::StartProposalRewrite(request)))
+    }
+    pub fn stop_rewrite(&mut self) -> Option<Uuid> {
+        let active = self.rewrite.as_mut()?;
+        active.stopping = true;
+        Some(active.request.id)
+    }
     pub fn display_active(&self) -> Option<&ActiveTurn> {
         self.active
             .as_ref()
@@ -488,12 +1179,19 @@ impl AiState {
     }
     pub fn can_ask(&self) -> bool {
         self.ready
+            && !self.application_busy()
             && self.vault_bound
             && self.selection.is_some()
             && self.selection_error.is_none()
+            && self.effort.is_some()
+            && self.effort_error.is_none()
             && self.active.is_none()
+            && self.rewrite.is_none()
             && self.unsaved.is_none()
-            && !self.pending.values().any(|p| matches!(p, Pending::Select))
+            && !self
+                .pending
+                .values()
+                .any(|p| matches!(p, Pending::Select | Pending::Effort | Pending::SelectEffort))
     }
     pub fn ask(&mut self, question: String) -> Option<AskRequest> {
         if !self.can_ask() || question.trim().is_empty() {
@@ -504,6 +1202,7 @@ impl AiState {
             conversation: self.conversation,
             question,
             selection: self.selection.clone()?,
+            effort: self.effort,
             generation: self.generation,
         };
         self.active = Some(ActiveTurn {
@@ -522,6 +1221,11 @@ impl AiState {
     }
     pub fn stop_controls(&self) -> Vec<(Uuid, AppCommand)> {
         let mut commands = Vec::new();
+        if let Some(active) = &self.rewrite
+            && active.stopping
+        {
+            commands.push((Uuid::new_v4(), AppCommand::CancelTurn(active.request.id)));
+        }
         if let Some(active) = &self.active
             && active.stopping
         {
@@ -584,6 +1288,66 @@ impl AiState {
     }
     pub fn apply(&mut self, id: Uuid, event: AppEvent) -> Vec<(Uuid, AppCommand)> {
         let mut commands = Vec::new();
+        if let AppEvent::Rewrite(event) = event {
+            let Some(active) = self.rewrite.as_ref() else {
+                return commands;
+            };
+            if id != event.id()
+                || id != active.request.id
+                || event.generation() != active.request.generation
+            {
+                return commands;
+            }
+            if let RewriteEvent::Started { job, .. }
+            | RewriteEvent::AlreadyRunning { job, .. }
+            | RewriteEvent::Finished { job, .. } = &event
+                && (job.spec.id != active.request.id
+                    || job.spec.expected != active.request.expected
+                    || job.spec.provider != provider_name(active.request.selection.provider)
+                    || job.spec.model != active.request.selection.model
+                    || job.spec.effort != active.request.effort.as_str())
+            {
+                return commands;
+            }
+            match event {
+                RewriteEvent::Started { job, .. } => self.rewrite.as_mut().unwrap().job = Some(job),
+                RewriteEvent::ToolStarted { name, .. } => {
+                    self.rewrite.as_mut().unwrap().tool = Some(name)
+                }
+                RewriteEvent::AlreadyRunning { job, .. } | RewriteEvent::Finished { job, .. } => {
+                    let request = self.rewrite.take().unwrap().request;
+                    self.notice = format!(
+                        "Rewrite {:?}. Review the full proposal before approval.",
+                        job.status
+                    );
+                    self.last_rewrite = Some(job);
+                    if self.review_generation == request.generation
+                        && self
+                            .review
+                            .as_ref()
+                            .is_some_and(|review| review.record.draft.id == request.expected.id)
+                        && let Some(command) = self.refresh_review()
+                    {
+                        commands.push(command);
+                    }
+                    commands.push(self.command(Pending::Proposals, AppCommand::Proposals(None)));
+                }
+                RewriteEvent::Rejected { error, .. } => {
+                    self.rewrite = None;
+                    self.notice = error.message;
+                }
+                RewriteEvent::PersistenceFailed { error, .. } => {
+                    self.rewrite = None;
+                    self.rewrite_storage_failed = true;
+                    self.notice = format!(
+                        "{} Reopen before another Rewrite; result finalization is not acknowledged.",
+                        error.message
+                    );
+                }
+            }
+            commands.extend(self.stop_controls());
+            return commands;
+        }
         if let AppEvent::Chat(event) = event {
             if let Some(active) = &self.active
                 && event.id() == active.request.id
@@ -700,6 +1464,296 @@ impl AiState {
             }
             return commands;
         }
+        if let Some(Pending::DraftSource {
+            form,
+            path,
+            binding_generation,
+        }) = self.pending.get(&id).cloned()
+        {
+            let current = self.draft.as_ref().is_some_and(|draft| {
+                draft.id == form
+                    && draft.path == path
+                    && draft.binding_generation == binding_generation
+                    && draft.source_operation == Some(id)
+            });
+            if !current {
+                self.pending.remove(&id);
+                return commands;
+            }
+            match event {
+                AppEvent::ProposalSource(capture)
+                    if capture.source.path == path
+                        && capture.source.fingerprint.len == capture.text.len() as u64 =>
+                {
+                    let draft = self.draft.as_mut().expect("matched form");
+                    draft.source = Some(*capture);
+                    draft.source_operation = None;
+                    draft.source_error = None;
+                }
+                AppEvent::Failed(error) => {
+                    let draft = self.draft.as_mut().expect("matched form");
+                    draft.source_error = Some(error.message);
+                    draft.source_operation = None;
+                }
+                _ => return commands,
+            }
+            self.pending.remove(&id);
+            return commands;
+        }
+        if let Some(Pending::DraftCreate { form, request }) = self.pending.get(&id).cloned() {
+            match event {
+                AppEvent::Proposal(record) if crate::draft::creation_matches(&request, &record) => {
+                    if let Some(draft) = self.draft.as_mut().filter(|draft| draft.id == form)
+                        && !draft.created(id, record.clone())
+                    {
+                        return commands;
+                    }
+                    self.notice = format!(
+                        "Current proposal {} returned at review version {} · {:?}. No application was requested.",
+                        record.draft.id, record.version, record.state
+                    );
+                }
+                AppEvent::Failed(error) => {
+                    if let Some(draft) = self.draft.as_mut().filter(|draft| draft.id == form) {
+                        draft.failed(id, error.message.clone());
+                    }
+                    self.notice = format!(
+                        "Draft creation returned an error: {} Retained input and the requested proposal UUID remain available; inspect recorded review work before retrying.",
+                        error.message
+                    );
+                }
+                _ => return commands,
+            }
+            self.pending.remove(&id);
+            commands.push(self.command(Pending::Proposals, AppCommand::Proposals(None)));
+            return commands;
+        }
+        if let Some(action @ (Pending::UndoPreview { .. } | Pending::RepairPreview { .. })) =
+            self.pending.get(&id).cloned()
+        {
+            let generation = match &action {
+                Pending::UndoPreview { generation, .. }
+                | Pending::RepairPreview { generation, .. } => *generation,
+                _ => unreachable!(),
+            };
+            if generation != self.operation_generation {
+                self.pending.remove(&id);
+                return commands;
+            }
+            match (action, event) {
+                (Pending::UndoPreview { request, .. }, AppEvent::ProposalUndoPreview(preview)) => {
+                    let Some(capture) = crate::approval::UndoCapture::new(request, preview) else {
+                        return commands;
+                    };
+                    self.undo_preview = Some(capture);
+                }
+                (
+                    Pending::RepairPreview {
+                        operation,
+                        direction,
+                        ..
+                    },
+                    AppEvent::ProposalRepairPreview(preview),
+                ) if preview.operation_id == operation => {
+                    let Some(capture) = crate::approval::RepairCapture::new(preview, direction)
+                    else {
+                        return commands;
+                    };
+                    self.repair_preview = Some(capture);
+                }
+                (_, AppEvent::Failed(error)) => {
+                    self.operation_error = Some(error.message.clone());
+                    self.notice = format!("Operation preview refused: {}", error.message);
+                }
+                _ => return commands,
+            }
+            self.pending.remove(&id);
+            return commands;
+        }
+        if let Some(action @ (Pending::Undo { .. } | Pending::Repair { .. })) =
+            self.pending.get(&id).cloned()
+        {
+            let (proposal, generation, original) = match &action {
+                Pending::Undo {
+                    capture,
+                    generation,
+                } => (
+                    capture.preview().draft.id,
+                    *generation,
+                    capture.request().operation_id,
+                ),
+                Pending::Repair {
+                    capture,
+                    generation,
+                } => (
+                    capture.preview().approved.id,
+                    *generation,
+                    capture.request().operation_id,
+                ),
+                _ => unreachable!(),
+            };
+            match (&action, event) {
+                (Pending::Undo { capture, .. }, AppEvent::ProposalApplied(receipt))
+                    if capture.accepts_receipt(&receipt) =>
+                {
+                    self.notice = format!(
+                        "Undo operation {} recorded {:?}.",
+                        receipt.operation_id, receipt.outcome
+                    );
+                    self.approval_receipts = vec![receipt];
+                    self.approval_error = None;
+                }
+                (Pending::Repair { capture, .. }, AppEvent::ProposalRepaired(receipt))
+                    if capture.accepts_receipt(&receipt) =>
+                {
+                    self.notice = format!(
+                        "Repair attempt {} recorded {}.",
+                        receipt.id,
+                        match receipt.outcome {
+                            Some(ApplyOutcome::Applied) => "Applied",
+                            Some(ApplyOutcome::NotApplied) => "Not applied",
+                            Some(ApplyOutcome::Uncertain) => "Uncertain",
+                            None => "pending; outcome unconfirmed",
+                        }
+                    );
+                    self.repair_receipt = Some(receipt);
+                }
+                (_, AppEvent::Failed(error)) => {
+                    self.operation_error = Some(error.message.clone());
+                    self.notice = format!(
+                        "Operation returned an error: {} Inspect its recorded state; an error does not establish no file effects.",
+                        error.message
+                    );
+                }
+                _ => return commands,
+            }
+            self.pending.remove(&id);
+            let mut proposals = vec![proposal];
+            if matches!(action, Pending::Undo { .. })
+                && generation == self.review_generation
+                && let Some(review) = &self.review
+            {
+                proposals.push(review.record.draft.id);
+            }
+            commands.extend(self.refresh_after_application(&proposals, generation));
+            if let Some(command) = self.inspect_apply(original) {
+                commands.push(command);
+            }
+            return commands;
+        }
+        // Application has its own exact captured request. Unexpected receipt
+        // IDs/types do not acknowledge or release admitted critical work.
+        if matches!(self.pending.get(&id), Some(Pending::ApplySnapshot { generation, .. }) if *generation == self.snapshot_generation)
+            && !matches!(&event, AppEvent::ProposalApply(_) | AppEvent::Failed(_))
+        {
+            return commands;
+        }
+        if matches!(self.pending.get(&id), Some(Pending::AppliedReview { generation, .. }) if *generation == self.review_generation)
+            && !matches!(&event, AppEvent::Proposal(_) | AppEvent::Failed(_))
+        {
+            return commands;
+        }
+        if let Some(action @ (Pending::Approval { .. } | Pending::ApplyReconcile { .. })) =
+            self.pending.get(&id).cloned()
+        {
+            let (proposals, generation, terminal) = match (&action, event) {
+                (
+                    Pending::Approval {
+                        capture,
+                        generation,
+                    },
+                    AppEvent::ProposalApplied(receipt),
+                ) if capture.group_id().is_none() && capture.accepts_receipt(0, &receipt) => (
+                    capture
+                        .records()
+                        .iter()
+                        .map(|record| record.draft.id)
+                        .collect::<Vec<_>>(),
+                    *generation,
+                    Ok((vec![receipt], None)),
+                ),
+                (
+                    Pending::Approval {
+                        capture,
+                        generation,
+                    },
+                    AppEvent::ProposalGroupApplied(result),
+                ) if capture.group_id().is_some() && capture.accepts_group(&result) => (
+                    capture
+                        .records()
+                        .iter()
+                        .map(|record| record.draft.id)
+                        .collect(),
+                    *generation,
+                    Ok((result.receipts, result.stopped.map(|stop| stop.message))),
+                ),
+                (
+                    Pending::ApplyReconcile {
+                        request,
+                        generation,
+                    },
+                    AppEvent::ProposalApplied(receipt),
+                ) if crate::approval::receipt_matches(request, &receipt) => (
+                    vec![request.expected.id],
+                    *generation,
+                    Ok((vec![receipt], None)),
+                ),
+                (
+                    Pending::Approval {
+                        capture,
+                        generation,
+                    },
+                    AppEvent::Failed(error),
+                ) => (
+                    capture
+                        .records()
+                        .iter()
+                        .map(|record| record.draft.id)
+                        .collect(),
+                    *generation,
+                    Err(error.message),
+                ),
+                (
+                    Pending::ApplyReconcile {
+                        request,
+                        generation,
+                    },
+                    AppEvent::Failed(error),
+                ) => (vec![request.expected.id], *generation, Err(error.message)),
+                _ => return commands,
+            };
+            self.pending.remove(&id);
+            match terminal {
+                Ok((receipts, stopped)) => {
+                    let applied = receipts
+                        .iter()
+                        .filter(|receipt| receipt.outcome == ApplyOutcome::Applied)
+                        .count();
+                    self.notice = if stopped.is_some() {
+                        format!(
+                            "Captured group stopped; {applied} recorded Applied. Inspect each outcome and the remaining proposals."
+                        )
+                    } else if receipts
+                        .iter()
+                        .all(|receipt| receipt.outcome == ApplyOutcome::Applied)
+                    {
+                        format!("{applied} proposal(s) recorded Applied.")
+                    } else {
+                        "Application outcome is not Applied; inspect recorded proofs and retained review work.".into()
+                    };
+                    self.approval_receipts = receipts;
+                    self.approval_error = stopped;
+                }
+                Err(error) => {
+                    self.approval_error = Some(error.clone());
+                    self.notice = format!(
+                        "Application returned an error: {error} Inspect recorded operations; an error does not establish no file effects."
+                    );
+                }
+            }
+            commands.extend(self.refresh_after_application(&proposals, generation));
+            return commands;
+        }
         let pending = self.pending.get(&id).cloned();
         match event {
             AppEvent::Ready {
@@ -718,6 +1772,8 @@ impl AiState {
                 for (pending, command) in [
                     (Pending::Status, AppCommand::Status),
                     (Pending::Selection, AppCommand::Selection),
+                    (Pending::Effort, AppCommand::Effort),
+                    (Pending::Proposals, AppCommand::Proposals(None)),
                     (Pending::Conversations, AppCommand::Conversations),
                     (Pending::Prompt, AppCommand::ModelPrompt),
                     (Pending::Editors, AppCommand::Editors),
@@ -752,6 +1808,19 @@ impl AiState {
             AppEvent::SelectionSaved => {
                 commands.push(self.command(Pending::Selection, AppCommand::Selection))
             }
+            AppEvent::Effort(effort) => {
+                if !matches!(pending, Some(Pending::Effort)) {
+                    return commands;
+                }
+                self.effort = effort;
+                self.effort_error = None;
+            }
+            AppEvent::EffortSaved => {
+                if !matches!(pending, Some(Pending::SelectEffort)) {
+                    return commands;
+                }
+                commands.push(self.command(Pending::Effort, AppCommand::Effort))
+            }
             AppEvent::VaultBound => {
                 self.vault_bound = true;
                 commands.push(self.command(Pending::Status, AppCommand::Status));
@@ -775,16 +1844,119 @@ impl AiState {
                 }
                 self.next_cursor = page.next_cursor;
             }
+            AppEvent::Proposals(records) => {
+                if matches!(pending, Some(Pending::Proposals)) {
+                    self.proposals = records;
+                }
+            }
+            AppEvent::Proposal(record) => match pending {
+                Some(Pending::Proposal {
+                    id: proposal,
+                    generation,
+                }) if generation == self.review_generation && proposal == record.draft.id => {
+                    self.review = Some(crate::review::ProposalReview::new(record));
+                    self.review_error = None;
+                }
+                Some(Pending::ReviewEdit) => {
+                    if let Some(review) = &mut self.review {
+                        review.acknowledge_edit(id, record);
+                    }
+                    commands.push(self.command(Pending::Proposals, AppCommand::Proposals(None)));
+                }
+                Some(
+                    Pending::ReviewMutation {
+                        id: proposal,
+                        generation,
+                    }
+                    | Pending::ReviewRefresh {
+                        id: proposal,
+                        generation,
+                    },
+                ) if generation == self.review_generation && proposal == record.draft.id => {
+                    if let Some(review) = &mut self.review {
+                        review.observe(record);
+                    }
+                    commands.push(self.command(Pending::Proposals, AppCommand::Proposals(None)));
+                }
+                Some(Pending::AppliedReview {
+                    id: proposal,
+                    generation,
+                }) if generation == self.review_generation => {
+                    if record.draft.id != proposal
+                        || self
+                            .review
+                            .as_mut()
+                            .is_none_or(|review| !review.observe(record))
+                    {
+                        return commands;
+                    }
+                    commands.push(self.command(Pending::Proposals, AppCommand::Proposals(None)));
+                }
+                _ => {}
+            },
+            AppEvent::Activity(page) => {
+                if let Some(Pending::Activity { generation, before }) = pending
+                    && generation == self.activity_generation
+                    && (before.is_none()
+                        || self
+                            .activity
+                            .as_ref()
+                            .is_some_and(|old| old.next_before == before))
+                {
+                    if before.is_some() {
+                        let old = self.activity.as_mut().expect("matched current page");
+                        for entry in page.entries {
+                            if !old
+                                .entries
+                                .iter()
+                                .any(|known| known.operation_id == entry.operation_id)
+                            {
+                                old.entries.push(entry);
+                            }
+                        }
+                        old.next_before = page.next_before;
+                    } else {
+                        self.activity = Some(page);
+                    }
+                    self.activity_error = None;
+                }
+            }
+            AppEvent::ProposalRecovery(operations) => {
+                if matches!(pending, Some(Pending::Applies { generation }) if generation == self.applies_generation)
+                {
+                    self.applies = operations;
+                    self.applies_error = None;
+                }
+            }
+            AppEvent::ProposalApply(journal) => {
+                if let Some(Pending::ApplySnapshot {
+                    operation,
+                    generation,
+                }) = pending
+                    && generation == self.snapshot_generation
+                {
+                    if journal
+                        .as_ref()
+                        .is_some_and(|journal| journal.request.operation_id != operation)
+                    {
+                        // A misbound body cannot acknowledge this selected
+                        // lookup; keep its exact request pending for its reply.
+                        return commands;
+                    }
+                    self.snapshot_error = journal
+                        .is_none()
+                        .then(|| "Recorded operation does not exist.".into());
+                    self.application_snapshot = journal.map(|journal| *journal);
+                }
+            }
             AppEvent::Note(_)
-            | AppEvent::Proposal(_)
-            | AppEvent::Proposals(_)
             | AppEvent::ProposalUndoPreview(_)
             | AppEvent::ProposalRepairPreview(_)
             | AppEvent::ProposalRepaired(_)
+            | AppEvent::ProposalSource(_)
             | AppEvent::ProposalApplied(_)
             | AppEvent::ProposalGroupApplied(_)
-            | AppEvent::ProposalApplies(_)
-            | AppEvent::Activity(_) => {}
+            | AppEvent::ProposalApplies(_) => {}
             AppEvent::Editor(view) => {
                 if let Some(Pending::Editor {
                     generation,
@@ -907,6 +2079,18 @@ impl AiState {
                 }
             }
             AppEvent::Failed(error) => {
+                if matches!(pending, Some(Pending::Activity { generation, .. }) if generation == self.activity_generation)
+                {
+                    self.activity_error = Some(error.message.clone());
+                }
+                if matches!(pending, Some(Pending::Applies { generation }) if generation == self.applies_generation)
+                {
+                    self.applies_error = Some(error.message.clone());
+                }
+                if matches!(pending, Some(Pending::ApplySnapshot { generation, .. }) if generation == self.snapshot_generation)
+                {
+                    self.snapshot_error = Some(error.message.clone());
+                }
                 let mut retained_partial = false;
                 if matches!(pending, Some(Pending::Editor { generation, .. }) if generation == self.note_generation)
                 {
@@ -970,6 +2154,45 @@ impl AiState {
                 if matches!(pending, Some(Pending::Selection | Pending::Select)) {
                     self.selection_error = Some(error.message.clone());
                 }
+                if matches!(pending, Some(Pending::Effort | Pending::SelectEffort)) {
+                    self.effort_error = Some(error.message.clone());
+                }
+                if matches!(pending, Some(Pending::ReviewEdit))
+                    && let Some(review) = &mut self.review
+                {
+                    review.fail_edit(id, error.message.clone());
+                }
+                if matches!(pending, Some(Pending::Proposal { generation, .. }) if generation == self.review_generation)
+                {
+                    self.review_error = Some(error.message.clone());
+                }
+                if let Some(
+                    Pending::ReviewMutation {
+                        id: proposal,
+                        generation,
+                    }
+                    | Pending::ReviewRefresh {
+                        id: proposal,
+                        generation,
+                    }
+                    | Pending::AppliedReview {
+                        id: proposal,
+                        generation,
+                    },
+                ) = pending
+                    && generation == self.review_generation
+                    && let Some(review) = &mut self.review
+                    && review.record.draft.id == proposal
+                {
+                    review.error = Some(error.message.clone());
+                }
+                if self
+                    .rewrite
+                    .as_ref()
+                    .is_some_and(|active| active.request.id == id)
+                {
+                    self.rewrite = None;
+                }
                 if self.download == Some(id) {
                     self.download = None;
                     self.download_stopping = false;
@@ -992,6 +2215,8 @@ impl AiState {
             AppEvent::TurnCancelRequested { .. }
             | AppEvent::AccountCancelRequested { .. }
             | AppEvent::ModelCancelRequested { .. } => return commands,
+            AppEvent::ProposalRewrite(_) => return commands,
+            AppEvent::Rewrite(_) => unreachable!(),
             AppEvent::Chat(_) | AppEvent::Account(_) => unreachable!(),
         }
         self.pending.remove(&id);
@@ -1012,6 +2237,15 @@ mod tests {
     use super::*;
     use brn_workflow::{AiError, AiErrorKind, WorkTurnStatus};
 
+    #[cfg(target_os = "macos")]
+    mod review_state {
+        include!("review_state_tests.rs");
+    }
+    #[cfg(target_os = "macos")]
+    mod approval_state {
+        include!("approval_state_tests.rs");
+    }
+
     fn selection() -> Selection {
         Selection {
             provider: Provider::Copilot,
@@ -1029,8 +2263,81 @@ mod tests {
         );
         state.pending.clear();
         state.selection = Some(selection());
+        state.effort = Some(ReasoningEffort::High);
         state
     }
+    #[test]
+    fn effort_choice_requires_acknowledgement_and_cannot_change_active_or_history() {
+        let mut state = ready();
+        state.effort = None;
+        assert!(!state.can_ask());
+        assert!(state.ask("missing effort".into()).is_none());
+        let (id, _) = state.command(
+            Pending::SelectEffort,
+            AppCommand::SelectEffort(ReasoningEffort::High),
+        );
+        assert!(
+            state
+                .apply(Uuid::new_v4(), AppEvent::EffortSaved)
+                .is_empty()
+        );
+        let queries = state.apply(id, AppEvent::EffortSaved);
+        assert!(!state.can_ask());
+        let query = queries[0].0;
+        state.apply(Uuid::new_v4(), AppEvent::Effort(Some(ReasoningEffort::Low)));
+        assert!(state.effort.is_none());
+        state.apply(query, AppEvent::Effort(Some(ReasoningEffort::High)));
+        let request = state.ask("captured choice".into()).unwrap();
+        let (change, _) = state.command(
+            Pending::SelectEffort,
+            AppCommand::SelectEffort(ReasoningEffort::Low),
+        );
+        let query = state.apply(change, AppEvent::EffortSaved)[0].0;
+        state.apply(query, AppEvent::Effort(Some(ReasoningEffort::Low)));
+        assert_eq!(
+            state.active.as_ref().unwrap().request.effort,
+            Some(ReasoningEffort::High)
+        );
+        state.apply(
+            request.id,
+            AppEvent::Chat(ChatEvent::Finished {
+                id: request.id,
+                generation: request.generation,
+                turn: ending(&request, WorkTurnStatus::Completed),
+            }),
+        );
+        assert_eq!(state.turns[0].effort.as_deref(), Some("high"));
+        assert_eq!(
+            state.ask("next choice".into()).unwrap().effort,
+            Some(ReasoningEffort::Low)
+        );
+    }
+
+    #[test]
+    fn invalid_effort_blocks_ask_but_explicit_choice_recovers_without_changing_selection() {
+        let mut state = ready();
+        let selected = state.selection.clone();
+        let (query, _) = state.command(Pending::Effort, AppCommand::Effort);
+        state.apply(
+            query,
+            AppEvent::Failed(brn_workflow::WorkflowError::msg("invalid effort")),
+        );
+        assert!(!state.can_ask());
+        assert!(
+            state
+                .account(AccountCommand::Status(Provider::Chatgpt))
+                .is_some()
+        );
+        let (change, _) = state.command(
+            Pending::SelectEffort,
+            AppCommand::SelectEffort(ReasoningEffort::Medium),
+        );
+        let query = state.apply(change, AppEvent::EffortSaved)[0].0;
+        state.apply(query, AppEvent::Effort(Some(ReasoningEffort::Medium)));
+        assert!(state.can_ask());
+        assert_eq!(state.selection, selected);
+    }
+
     fn editor_view(path: &str, text: &str) -> EditorView {
         let mut view = EditorView {
             record: EditorRecord {
@@ -1371,6 +2678,7 @@ mod tests {
             answer: "partial λ".into(),
             provider: "copilot".into(),
             model: request.selection.model.clone(),
+            effort: request.effort.map(|value| value.as_str().to_owned()),
             status,
             error_code: None,
         }
@@ -1790,6 +3098,7 @@ mod tests {
             conversation: None,
             question: "q".into(),
             selection: selection(),
+            effort: None,
             generation: 0,
         };
         state.apply(
@@ -1855,6 +3164,8 @@ mod tests {
             command,
             AppCommand::Status
                 | AppCommand::Selection
+                | AppCommand::Effort
+                | AppCommand::Proposals(None)
                 | AppCommand::Conversations
                 | AppCommand::ModelPrompt
                 | AppCommand::Editors

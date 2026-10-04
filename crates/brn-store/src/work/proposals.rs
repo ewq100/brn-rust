@@ -486,6 +486,89 @@ pub(super) fn advance(record: &mut ProposalRecord) -> Result<()> {
     Ok(())
 }
 
+/// Bounds a submitted full edit before encoding or cloning its text.
+pub(super) fn validate_edit(edit: &ProposalEdit) -> Result<()> {
+    nonnil(edit.expected.id)?;
+    if edit.expected.version == 0 || edit.texts.len() > MAX_PROPOSAL_CHANGES {
+        return Err(invalid("invalid proposal edit stamp or member count"));
+    }
+    validate_title(&edit.title)?;
+    let mut total = edit.title.len();
+    for text in edit.texts.iter().flatten() {
+        validate_text(text, &mut total)?;
+    }
+    Ok(())
+}
+
+/// Shared pure preparation for imported edits and owned Rewrite validation.
+pub(super) fn edited_review(
+    record: &ProposalRecord,
+    edit: &ProposalEdit,
+) -> Result<(ProposalRecord, bool)> {
+    validate_record(record)?;
+    validate_edit(edit)?;
+    if record.stamp() != edit.expected || record.state != ProposalState::Draft {
+        return Err(Error::StateChanged(
+            "proposal review version or state changed".into(),
+        ));
+    }
+    if edit.texts.len() != record.draft.changes.len() {
+        return Err(invalid("proposal edit must supply every change's text"));
+    }
+    let mut record = record.clone();
+    let mut changed = record.draft.title != edit.title;
+    for (index, (change, text)) in record.draft.changes.iter_mut().zip(&edit.texts).enumerate() {
+        match (change, text) {
+            (
+                NoteChange::Create { text: old, .. } | NoteChange::Replace { text: old, .. },
+                Some(text),
+            ) => {
+                if old != text {
+                    changed = true;
+                    for comment in &mut record.comments {
+                        if let CommentTarget::Text(anchor) = &comment.target
+                            && anchor.change_index == index
+                        {
+                            comment.target = CommentTarget::Unresolved(anchor.clone());
+                        }
+                    }
+                    *old = text.clone();
+                }
+            }
+            (NoteChange::Trash { .. }, None) => {}
+            _ => {
+                return Err(invalid(
+                    "proposal edit text does not match its typed change",
+                ));
+            }
+        }
+    }
+    record.draft.title = edit.title.clone();
+    if changed {
+        record
+            .version
+            .checked_add(1)
+            .ok_or_else(|| invalid("proposal review version overflow"))?;
+    }
+    validate_record(&record)?;
+    Ok((record, changed))
+}
+
+/// The caller owns the transaction, allowing Rewrite's outcome and edit to commit together.
+pub(super) fn edit_in_transaction(
+    conn: &Connection,
+    edit: &ProposalEdit,
+) -> Result<ProposalRecord> {
+    let mut stored = draft_at(conn, edit.expected)?;
+    let (record, changed) = edited_review(&stored.record, edit)?;
+    stored.record = record;
+    if changed {
+        advance(&mut stored.record)?;
+        write_proposal(conn, &stored)?;
+    }
+    Ok(stored.record)
+}
+
 impl WorkStore {
     pub fn create_proposal(&mut self, draft: &ProposalDraft) -> Result<ProposalRecord> {
         nonnil(draft.id)?;
@@ -545,53 +628,9 @@ impl WorkStore {
 
     pub fn edit_proposal(&mut self, edit: &ProposalEdit) -> Result<ProposalRecord> {
         let tx = self.conn.transaction()?;
-        let mut stored = draft_at(&tx, edit.expected)?;
-        validate_title(&edit.title)?;
-        if edit.texts.len() != stored.record.draft.changes.len() {
-            return Err(invalid("proposal edit must supply every change's text"));
-        }
-        let mut changed = stored.record.draft.title != edit.title;
-        for (index, (change, text)) in stored
-            .record
-            .draft
-            .changes
-            .iter_mut()
-            .zip(&edit.texts)
-            .enumerate()
-        {
-            match (change, text) {
-                (
-                    NoteChange::Create { text: old, .. } | NoteChange::Replace { text: old, .. },
-                    Some(text),
-                ) => {
-                    if old != text {
-                        changed = true;
-                        for comment in &mut stored.record.comments {
-                            if let CommentTarget::Text(anchor) = &comment.target
-                                && anchor.change_index == index
-                            {
-                                comment.target = CommentTarget::Unresolved(anchor.clone());
-                            }
-                        }
-                        *old = text.clone();
-                    }
-                }
-                (NoteChange::Trash { .. }, None) => {}
-                _ => {
-                    return Err(invalid(
-                        "proposal edit text does not match its typed change",
-                    ));
-                }
-            }
-        }
-        if !changed {
-            return Ok(stored.record);
-        }
-        stored.record.draft.title = edit.title.clone();
-        advance(&mut stored.record)?;
-        write_proposal(&tx, &stored)?;
+        let record = edit_in_transaction(&tx, edit)?;
         tx.commit()?;
-        Ok(stored.record)
+        Ok(record)
     }
 
     /// The same exact-version operation as user editing; no AI work occurs here.

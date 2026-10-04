@@ -108,6 +108,8 @@ Commands:
   brn proposals list [--group UUID]
   brn proposals show PROPOSAL_ID
   brn proposals edit --file EDIT.json
+  brn proposals rewrite --file REQUEST.json
+  brn proposals rewrite-status JOB_UUID
   brn proposals rewrite-result --file EDIT.json
   brn proposals comment --file COMMENT.json
   brn proposals comment-update --file COMMENT.json
@@ -133,6 +135,7 @@ Commands:
   brn ai status
   brn ai models chatgpt|copilot [--timeout-seconds N]
   brn ai select --provider chatgpt|copilot --model MODEL
+  brn ai effort [low|medium|high]
   brn models download --approve-download [--model-dir DIR] [--timeout-seconds N]
   brn notes list [--folder FOLDER] [--cursor PATH]
   brn notes show PATH.md

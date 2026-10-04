@@ -32,6 +32,12 @@ saved atomically in one `ai.selection` setting. Explicit Copilot discovery
 results go through `record_models`; `validate_selection` checks membership
 without network or cache access.
 
+`effort`/`select_effort` expose an explicit low/medium/high choice in `ai.effort`
+without provider access. Fresh Ask requires a captured effort before admission;
+setting changes cannot alter the owned turn. Paired history records that choice.
+Existing unknown-effort turns remain readable and replayable before current
+settings, vault or credential checks, without another provider request.
+
 `notes` and `search` refresh before returning CLI reads; `note` reads exact
 current vault bytes. Call `refresh` on explicit Refresh, focus and application
 writes. `embed_pending(batch)` provides bounded-batch progress for the owned
@@ -52,6 +58,13 @@ matches `"workshop"`. These APIs never write vault files.
 
 ## Typed proposal review foundation
 
+`proposal_source(path)` / AppWorker `ProposalSource` return the complete saved
+text and trusted file fingerprint for initial review composition. The capture
+uses current-evidence fences and the same visible Markdown/path/file checks as
+proposal creation. It creates no editor/proposal record and writes no vault
+content; creation subsequently checks the captured version. This full-note query
+does not substitute a truncated AI read-tool excerpt for the proposed before text.
+
 `proposals::DraftRequest` supplies typed Create/Replace/Trash intent. Workflow
 captures trusted vault/parent/before identities and exact bytes, checks expected
 source fingerprints and refuses occupied or aliased destinations. Creation replay
@@ -64,7 +77,10 @@ rejection and imported captured Rewrite results use one version. Changing an
 anchored target leaves its old range unresolved; late results after newer edits,
 comments or rejection fail. AppWorker owns and drains admitted review mutations.
 Read/list/edit/comment work remains available without current vault access.
-AI Rewrite and native review remain subsequent Stage 4 slices.
+`validate_review_edit` provides pure full-result validation using Store's bounded
+typed rules before the frontend queues an edit. Owned AI Rewrite uses the
+lifecycle below. Native exact individual/captured-group approval and activity use
+these same DTOs; native Undo/repair confirmations use the existing exact previews.
 
 The current-evidence fence covers pending/Uncertain Save and proposal journals.
 It refuses tools, note/list/search, refresh and embedding, including startup and
@@ -93,8 +109,38 @@ historical completion preserves subsequent owner bytes. Reconciliation checks
 current sources for incomplete work, recognizes sources replaced/trashed by that
 proposal, and never repeats installation. Approved annotation cleanup covers
 current/prior journals, ordinary snapshots and compatible proof-checked temporary
-snapshots; unexpected occupants remain retained. AI Rewrite and native proposal
-interaction still need later slices.
+snapshots; unexpected occupants remain retained. Native exact approval and
+reconciliation use these same workflow rules. `ProposalRecovery` returns small
+checked pending/uncertain summaries, validating one journal at a time;
+`ProposalApply(UUID)` loads only the identified full historical snapshot. Paged
+native Activity never retains every historical proposal body. Explicit CLI
+`applies` remains the full operational inspection command.
+
+## Owned AI Rewrite
+
+`proposal_rewrite::RewriteRequest` binds a job UUID, exact proposal stamp, explicit
+provider/model, low/medium/high effort and event generation. AppWorker's
+`StartProposalRewrite` replays history before current-vault/account access, then
+preflights the bound vault and read tools. Fresh admission captures the complete
+proposal/comments on the checked owned AI lane. `ProposalRewrite` reads safe
+job history offline. No automatic provider/model fallback or retry occurs.
+Running replay returns AlreadyRunning history, preserving the original owned
+generation; it does not subscribe a new presentation generation to that job.
+
+Ask and Rewrite share one active owned job, cancellation registry and read-tool
+lease drain. Stop withdraws queued Rewrite before admission or cancels active
+work; provider disconnect and shutdown join retained reads before releasing
+credentials/ownership. A consumed successful result can win a later Stop.
+Running jobs become Interrupted at restart without resubmission.
+
+The Rig adapter bounds full capture and buffered output to 50 MiB encoded JSON;
+it never truncates the full proposal or emits raw Rewrite deltas. Strict output
+contains exactly title and every member's full text/null. WorkStore additionally
+enforces the decoded 1 MiB/member and 8 MiB aggregate review limits. Malformed,
+partial or oversized results settle a safe failure without editing. Validated
+result and terminal job commit together against the captured stamp/hash; later
+review changes settle Stale. Rewrite changes operational review only. Temporary
+comments/prompt/raw output are not copied into chat or durable job metadata.
 
 `activity::ActivityRequest` projects successful Applied journals into readable
 history through AppWorker and `brn activity list`. Default pages contain 20 entries
@@ -107,7 +153,7 @@ decoded at a time, keeping bodies out of the full-history ordering metadata.
 Drafts/refusals/uncertain work cannot claim a successful durable change. Historical
 activity stays readable when current evidence is fenced or its vault unavailable,
 and ordinary recovery restores it without repeating old effects. Native activity
-presentation follows with the complete proposal review interaction.
+presentation uses the same paged projection and exact journal snapshots.
 
 ## Explicit Undo and Trash restoration
 
@@ -131,8 +177,10 @@ recovery refuses. Tokens, generations and queued later typing remain untouched.
 Activity includes the source operation and optional original Trash member index.
 The existing 64-member/8 MiB proposal limits apply. Old retained Trash is eligible
 while its proofs hold; no timer/count silently purges it. CLI commands are described
-in [brn](../brn/README.md). Native review/Undo interaction and
-owner usability acceptance remain pending.
+in [brn](../brn/README.md). Native Activity shows the full historical inverse and
+Applied snapshots expose restoration by original Trash member index. Current
+eligibility is checked only on explicit confirmation. Native owner usability
+acceptance remains pending.
 
 ## Explicit interrupted-operation repair
 
@@ -159,7 +207,11 @@ never repeat namespace changes. Known terminal repair requires every exact Befor
 or Applied pair, including staging proofs; older/missing SQLite restores the same
 checked history. Temporary repair snapshots retire only against compatible checked
 canonical history. Editor baselines/generations and later queued typing stay intact.
-Native repair interaction and physical power-loss qualification remain pending.
+Native repair offers explicit full Finish/Restore confirmations, displaying the
+observed phases, complete approved draft and matching recorded comments. Each
+attempt retains its exact hash/direction and reports the actual optional outcome;
+failed attempts remain inspectable without automatic retry. Native owner
+usability acceptance and physical power-loss qualification remain pending.
 
 ## Explicit model installation
 

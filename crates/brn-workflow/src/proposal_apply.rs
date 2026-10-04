@@ -52,6 +52,49 @@ pub struct GroupApprovalStop {
     pub message: String,
 }
 
+/// Small checked operational summary. Full historical bodies are loaded only
+/// by an explicit identified lookup, independently of paged activity.
+#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
+#[serde(deny_unknown_fields)]
+pub struct ApplySummary {
+    pub request: ApprovalRequest,
+    pub title: String,
+    pub outcome: Option<ApplyOutcome>,
+    pub started_at_ms: u64,
+}
+
+impl App {
+    pub fn proposal_recovery_operations(&self) -> Result<Vec<ApplySummary>> {
+        let mut operations = Vec::new();
+        for id in self.store.proposal_apply_ids()? {
+            // Validate one bounded full journal at a time. Never retain all
+            // historical snapshots just to enumerate unresolved operations.
+            let journal = self
+                .store
+                .proposal_apply(id)?
+                .ok_or_else(|| stale("listed approval journal disappeared"))?;
+            if unsettled(&journal) {
+                operations.push(ApplySummary {
+                    request: journal.request,
+                    title: journal.approved.draft.title,
+                    outcome: journal.receipt.map(|receipt| receipt.outcome),
+                    started_at_ms: journal.started_at_ms,
+                });
+            }
+        }
+        Ok(operations)
+    }
+    pub fn proposal_apply(&self, id: Uuid) -> Result<Option<ApplyJournal>> {
+        if id.is_nil() {
+            return Err(WorkflowError::typed(
+                ErrorKind::ToolRejected,
+                "approval lookup requires a non-nil operation UUID",
+            ));
+        }
+        Ok(self.store.proposal_apply(id)?)
+    }
+}
+
 pub fn validate_approval_request(request: &ApprovalRequest) -> Result<()> {
     if request.operation_id.is_nil()
         || request.expected.id.is_nil()

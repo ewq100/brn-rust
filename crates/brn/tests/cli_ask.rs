@@ -56,14 +56,19 @@ pub fn run(data: &Path, args: &[&str]) -> (Output, Value) {
 }
 
 #[test]
-fn terminal_replay_without_selection_auth_or_available_vault_preserves_frozen_model() {
-    for obsolete in [false, true] {
+fn terminal_replay_without_current_choices_auth_or_available_vault_preserves_frozen_choices() {
+    for (obsolete, effort) in [
+        (false, None),
+        (true, None),
+        (false, Some("low")),
+        (true, Some("high")),
+    ] {
         let fixture = Fixture::new();
         let mut app = fixture.app();
         let op = Uuid::new_v4();
         let turn = app
             .work_store_mut()
-            .begin_turn(op, None, "q", "copilot", "formerly-discovered")
+            .begin_turn_with_effort(op, None, "q", "copilot", "formerly-discovered", effort)
             .unwrap();
         app.work_store_mut()
             .finish_turn(op, WorkTurnStatus::Completed, "durable answer", None)
@@ -78,6 +83,9 @@ fn terminal_replay_without_selection_auth_or_available_vault_preserves_frozen_mo
             app.work_store_mut()
                 .set_setting("ai.models.copilot", "[]")
                 .unwrap();
+            app.work_store_mut()
+                .set_setting("ai.effort", "SYNTHETIC-MALFORMED-EFFORT")
+                .unwrap();
         }
         drop(app);
         std::fs::remove_dir_all(&fixture.vault).unwrap();
@@ -88,6 +96,7 @@ fn terminal_replay_without_selection_auth_or_available_vault_preserves_frozen_mo
             turn.conversation_id.to_string()
         );
         assert_eq!(value["data"]["model"], "formerly-discovered");
+        assert_eq!(value["data"]["effort"], serde_json::json!(effort));
         assert_eq!(value["data"]["answer"], "durable answer");
         assert!(value["data"].get("provider_turn_id").is_none());
         let (out, conflict) = run(
@@ -96,6 +105,28 @@ fn terminal_replay_without_selection_auth_or_available_vault_preserves_frozen_mo
         );
         assert_eq!(out.status.code(), Some(1));
         assert_eq!(conflict["error"]["code"], "OPERATION_CONFLICT");
+        let app = App::open(
+            &fixture.data,
+            AppConfig {
+                vault_root: None,
+                credentials_dir: None,
+                model_dir: None,
+            },
+        )
+        .unwrap();
+        let recorded = app.work_store().turn(op).unwrap().unwrap();
+        assert_eq!(recorded.effort.as_deref(), effort);
+        assert_eq!(recorded.answer, "durable answer");
+        assert_eq!(
+            std::fs::read_dir(app.auth().credentials_dir())
+                .unwrap()
+                .count(),
+            0
+        );
+        assert!(!out
+            .stdout
+            .windows(b"SYNTHETIC-MALFORMED-EFFORT".len())
+            .any(|bytes| bytes == b"SYNTHETIC-MALFORMED-EFFORT"));
     }
 }
 
@@ -109,6 +140,10 @@ fn new_requests_use_explicit_selection_and_persist_safe_auth_failure() {
     })
     .unwrap();
     drop(app);
+    assert!(run(&fixture.data, &["ai", "effort", "high"])
+        .0
+        .status
+        .success());
     let op = Uuid::new_v4();
     let (out, failed) = run(&fixture.data, &["ask", "q", "--operation", &op.to_string()]);
     assert_eq!(out.status.code(), Some(1));
@@ -118,6 +153,11 @@ fn new_requests_use_explicit_selection_and_persist_safe_auth_failure() {
     assert_eq!(context["recorded_status"], "failed");
     assert_eq!(context["provider_outcome"], "unknown");
     assert_eq!(context["saved"], true);
+    assert_eq!(context["receipt"]["effort"], "high");
+    assert!(run(&fixture.data, &["ai", "effort", "low"])
+        .0
+        .status
+        .success());
     let (out, replay) = run(&fixture.data, &["ask", "q", "--operation", &op.to_string()]);
     assert_eq!(out.status.code(), Some(1));
     assert_eq!(replay["error"]["context"], *context);
@@ -152,6 +192,10 @@ fn new_unknown_conversation_is_not_found_with_operation_context() {
     })
     .unwrap();
     drop(app);
+    assert!(run(&fixture.data, &["ai", "effort", "medium"])
+        .0
+        .status
+        .success());
     let op = Uuid::new_v4();
     let session = Uuid::new_v4();
     let (out, value) = run(
@@ -181,4 +225,29 @@ fn timeout_parser_rejects_out_of_range_before_open() {
         assert_eq!(value["error"]["code"], "USAGE");
         assert!(!fixture.data.join("brn.sqlite").exists());
     }
+}
+
+#[test]
+fn fresh_ask_without_explicit_effort_refuses_before_turn_or_credential_admission() {
+    let fixture = Fixture::new();
+    let mut app = fixture.app();
+    app.select(Selection {
+        provider: Provider::Chatgpt,
+        model: "gpt-5.5".into(),
+    })
+    .unwrap();
+    drop(app);
+    let id = Uuid::new_v4();
+    let (out, value) = run(&fixture.data, &["ask", "q", "--operation", &id.to_string()]);
+    assert_eq!(out.status.code(), Some(1));
+    assert_eq!(value["error"]["code"], "AI_SELECTION_REQUIRED");
+    assert_eq!(value["error"]["context"]["saved"], false);
+    let app = fixture.app();
+    assert!(app.work_store().turn(id).unwrap().is_none());
+    assert_eq!(
+        std::fs::read_dir(app.auth().credentials_dir())
+            .unwrap()
+            .count(),
+        0
+    );
 }

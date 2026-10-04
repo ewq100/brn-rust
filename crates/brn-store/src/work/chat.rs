@@ -5,9 +5,13 @@ use serde::{Deserialize, Serialize};
 use std::{fs::File, sync::Arc};
 use uuid::Uuid;
 
+pub(super) const V7: &str = "
+ALTER TABLE messages ADD COLUMN effort TEXT
+CHECK(effort IS NULL OR effort IN ('low','medium','high'));";
+
 /// An attachment authorized by a checked/migrated owner, retaining its exact lock.
 pub struct ChatStore {
-    conn: Connection,
+    pub(super) conn: Connection,
     _owner_lock: Arc<File>,
 }
 
@@ -28,7 +32,27 @@ impl ChatStore {
         provider: &str,
         model: &str,
     ) -> Result<WorkTurn> {
-        begin_turn(&mut self.conn, id, conversation, question, provider, model)
+        self.begin_turn_with_effort(id, conversation, question, provider, model, None)
+    }
+
+    pub fn begin_turn_with_effort(
+        &mut self,
+        id: Uuid,
+        conversation: Option<Uuid>,
+        question: &str,
+        provider: &str,
+        model: &str,
+        effort: Option<&str>,
+    ) -> Result<WorkTurn> {
+        begin_turn(
+            &mut self.conn,
+            id,
+            conversation,
+            question,
+            provider,
+            model,
+            effort,
+        )
     }
 
     pub fn finish_turn(
@@ -87,11 +111,13 @@ pub struct WorkTurn {
     pub answer: String,
     pub provider: String,
     pub model: String,
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub effort: Option<String>,
     pub status: WorkTurnStatus,
     pub error_code: Option<String>,
 }
 
-fn validate_selection(provider: &str, model: &str) -> Result<()> {
+pub(super) fn validate_selection(provider: &str, model: &str) -> Result<()> {
     if !matches!(provider, "chatgpt" | "copilot") {
         return Err(invalid("invalid chat provider"));
     }
@@ -106,7 +132,7 @@ fn validate_selection(provider: &str, model: &str) -> Result<()> {
     Ok(())
 }
 
-fn validate_error(code: Option<&str>) -> Result<()> {
+pub(super) fn validate_error(code: Option<&str>) -> Result<()> {
     if let Some(code) = code
         && !matches!(
             code,
@@ -129,6 +155,13 @@ fn validate_error(code: Option<&str>) -> Result<()> {
     Ok(())
 }
 
+fn validate_effort(effort: Option<&str>) -> Result<()> {
+    if effort.is_some_and(|effort| !matches!(effort, "low" | "medium" | "high")) {
+        return Err(invalid("invalid chat reasoning effort"));
+    }
+    Ok(())
+}
+
 struct Message {
     conversation: String,
     sequence: i64,
@@ -136,13 +169,14 @@ struct Message {
     text: String,
     provider: String,
     model: String,
+    effort: Option<String>,
     status: String,
     error: Option<String>,
 }
 
 fn read_turn(conn: &Connection, id: Uuid) -> Result<Option<(WorkTurn, i64)>> {
     let mut statement = conn.prepare(
-        "SELECT conversation_id, sequence, role, text, provider, model, status, error_code
+        "SELECT conversation_id, sequence, role, text, provider, model, effort, status, error_code
          FROM messages WHERE turn_id = ?1 ORDER BY role DESC",
     )?;
     let messages = statement
@@ -154,8 +188,9 @@ fn read_turn(conn: &Connection, id: Uuid) -> Result<Option<(WorkTurn, i64)>> {
                 text: r.get(3)?,
                 provider: r.get(4)?,
                 model: r.get(5)?,
-                status: r.get(6)?,
-                error: r.get(7)?,
+                effort: r.get(6)?,
+                status: r.get(7)?,
+                error: r.get(8)?,
             })
         })?
         .collect::<rusqlite::Result<Vec<_>>>()?;
@@ -172,6 +207,7 @@ fn read_turn(conn: &Connection, id: Uuid) -> Result<Option<(WorkTurn, i64)>> {
         || user.sequence < 1
         || user.provider != assistant.provider
         || user.model != assistant.model
+        || user.effort != assistant.effort
         || user.status != assistant.status
         || user.error != assistant.error
         || user.text.trim().is_empty()
@@ -180,6 +216,7 @@ fn read_turn(conn: &Connection, id: Uuid) -> Result<Option<(WorkTurn, i64)>> {
     }
     validate_selection(&user.provider, &user.model)?;
     validate_selection(&assistant.provider, &assistant.model)?;
+    validate_effort(user.effort.as_deref())?;
     validate_error(user.error.as_deref())?;
     let conversation_id = parse_id(user.conversation.clone())?;
     require_conversation(conn, conversation_id)?;
@@ -191,6 +228,7 @@ fn read_turn(conn: &Connection, id: Uuid) -> Result<Option<(WorkTurn, i64)>> {
             answer: assistant.text.clone(),
             provider: user.provider.clone(),
             model: user.model.clone(),
+            effort: user.effort.clone(),
             status: WorkTurnStatus::parse(&user.status)?,
             error_code: user.error.clone(),
         },
@@ -221,12 +259,17 @@ pub(super) fn begin_turn(
     question: &str,
     provider: &str,
     model: &str,
+    effort: Option<&str>,
 ) -> Result<WorkTurn> {
     let tx = conn.transaction_with_behavior(TransactionBehavior::Immediate)?;
+    if super::proposal_rewrite::read_job(&tx, id)?.is_some() {
+        return Err(conflict());
+    }
     if let Some((turn, _)) = read_turn(&tx, id)? {
         if turn.question != question
             || turn.provider != provider
             || turn.model != model
+            || turn.effort.as_deref() != effort
             || conversation.is_some_and(|c| c != turn.conversation_id)
         {
             return Err(conflict());
@@ -238,6 +281,7 @@ pub(super) fn begin_turn(
         return Err(invalid("chat question must not be blank"));
     }
     validate_selection(provider, model)?;
+    validate_effort(effort)?;
     let conversation_id = if let Some(c) = conversation {
         require_conversation(&tx, c)?;
         c
@@ -255,10 +299,10 @@ pub(super) fn begin_turn(
         |r| r.get(0),
     )?;
     tx.execute(
-        "INSERT INTO messages(turn_id, conversation_id, sequence, role, text, provider, model, status)
-         VALUES (?1, ?2, ?3, 'user', ?4, ?5, ?6, 'running'),
-                (?1, ?2, ?3, 'assistant', '', ?5, ?6, 'running')",
-        params![id.to_string(), conversation_id.to_string(), sequence, question, provider, model],
+        "INSERT INTO messages(turn_id, conversation_id, sequence, role, text, provider, model, status, effort)
+         VALUES (?1, ?2, ?3, 'user', ?4, ?5, ?6, 'running', ?7),
+                (?1, ?2, ?3, 'assistant', '', ?5, ?6, 'running', ?7)",
+        params![id.to_string(), conversation_id.to_string(), sequence, question, provider, model, effort],
     )?;
     let turn = read_turn(&tx, id)?
         .ok_or_else(|| invalid("inserted chat turn is missing"))?
@@ -409,7 +453,27 @@ impl WorkStore {
         provider: &str,
         model: &str,
     ) -> Result<WorkTurn> {
-        begin_turn(&mut self.conn, id, conversation, question, provider, model)
+        self.begin_turn_with_effort(id, conversation, question, provider, model, None)
+    }
+
+    pub fn begin_turn_with_effort(
+        &mut self,
+        id: Uuid,
+        conversation: Option<Uuid>,
+        question: &str,
+        provider: &str,
+        model: &str,
+        effort: Option<&str>,
+    ) -> Result<WorkTurn> {
+        begin_turn(
+            &mut self.conn,
+            id,
+            conversation,
+            question,
+            provider,
+            model,
+            effort,
+        )
     }
 
     pub fn finish_turn(

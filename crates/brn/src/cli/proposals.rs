@@ -9,6 +9,7 @@ use brn_workflow::{
         validate_approval_request, validate_repair_request, validate_undo_request, ApprovalRequest,
         GroupApprovalRequest, RepairRequest, UndoRequest,
     },
+    proposal_rewrite::RewriteRequest,
     proposals::{CommentRequest, DraftRequest, ProposalEdit, ProposalStamp},
 };
 use serde::de::DeserializeOwned;
@@ -22,6 +23,8 @@ pub enum ProposalCommand {
     List(Option<Uuid>),
     Show(Uuid),
     Edit(PathBuf),
+    Rewrite(PathBuf),
+    RewriteStatus(Uuid),
     RewriteResult(PathBuf),
     Comment(PathBuf),
     CommentUpdate(PathBuf),
@@ -48,6 +51,8 @@ impl ProposalCommand {
             Self::List(_) => "proposals.list",
             Self::Show(_) => "proposals.show",
             Self::Edit(_) => "proposals.edit",
+            Self::Rewrite(_) => "proposals.rewrite",
+            Self::RewriteStatus(_) => "proposals.rewrite-status",
             Self::RewriteResult(_) => "proposals.rewrite-result",
             Self::Comment(_) => "proposals.comment",
             Self::CommentUpdate(_) => "proposals.comment-update",
@@ -74,13 +79,15 @@ pub(super) fn scan_command(
     let sub = sub_word(
         tokens,
         "proposals",
-        "create|list|show|edit|rewrite-result|comment|comment-update|comment-remove|reject|approve|reconcile|approve-group|applies|undo-preview|undo|restore-trash|repair-preview|repair",
+        "create|list|show|edit|rewrite|rewrite-status|rewrite-result|comment|comment-update|comment-remove|reject|approve|reconcile|approve-group|applies|undo-preview|undo|restore-trash|repair-preview|repair",
     )?;
     let (label, options): (_, &[(&str, bool)]) = match sub.as_str() {
         "create" => ("proposals.create", &[("file", true)]),
         "list" => ("proposals.list", &[("group", true)]),
         "show" => ("proposals.show", &[]),
         "edit" => ("proposals.edit", &[("file", true)]),
+        "rewrite" => ("proposals.rewrite", &[("file", true)]),
+        "rewrite-status" => ("proposals.rewrite-status", &[]),
         "rewrite-result" => ("proposals.rewrite-result", &[("file", true)]),
         "comment" => ("proposals.comment", &[("file", true)]),
         "comment-update" => ("proposals.comment-update", &[("file", true)]),
@@ -117,6 +124,7 @@ pub(super) fn parse_command(name: &str, s: &Scanned) -> Result<ProposalCommand, 
     let positional = matches!(
         name,
         "proposals.show"
+            | "proposals.rewrite-status"
             | "proposals.comment-remove"
             | "proposals.reject"
             | "proposals.approve"
@@ -151,6 +159,15 @@ pub(super) fn parse_command(name: &str, s: &Scanned) -> Result<ProposalCommand, 
         "proposals.list" => Ok(ProposalCommand::List(s.uuid("group")?)),
         "proposals.show" => Ok(ProposalCommand::Show(id()?)),
         "proposals.edit" => Ok(ProposalCommand::Edit(file()?)),
+        "proposals.rewrite" => Ok(ProposalCommand::Rewrite(file()?)),
+        "proposals.rewrite-status" => {
+            let id = Uuid::parse_str(required_positional(s, "JOB_UUID")?)
+                .map_err(|_| usage("invalid Rewrite job UUID"))?;
+            if id.is_nil() {
+                return Err(usage("Rewrite job UUID must be nonzero"));
+            }
+            Ok(ProposalCommand::RewriteStatus(id))
+        }
         "proposals.rewrite-result" => Ok(ProposalCommand::RewriteResult(file()?)),
         "proposals.comment" => Ok(ProposalCommand::Comment(file()?)),
         "proposals.comment-update" => Ok(ProposalCommand::CommentUpdate(file()?)),
@@ -266,6 +283,15 @@ fn prepare_input(command: &ProposalCommand) -> Result<(Uuid, AppCommand), CliFai
         ProposalCommand::List(group) => AppCommand::Proposals(*group),
         ProposalCommand::Show(id) => AppCommand::Proposal(*id),
         ProposalCommand::Edit(file) => AppCommand::EditProposal(input::<ProposalEdit>(file)?),
+        ProposalCommand::Rewrite(file) => {
+            let request: RewriteRequest = input(file)?;
+            request
+                .validate()
+                .map_err(super::error::classify_workflow)?;
+            operation = request.id;
+            AppCommand::StartProposalRewrite(request)
+        }
+        ProposalCommand::RewriteStatus(id) => AppCommand::ProposalRewrite(*id),
         ProposalCommand::RewriteResult(file) => {
             AppCommand::RewriteProposal(input::<ProposalEdit>(file)?)
         }
@@ -326,6 +352,32 @@ pub(super) fn prepare(command: &ProposalCommand) -> Result<(Uuid, AppCommand), C
 mod tests {
     use super::*;
     use brn_workflow::proposal_apply::RepairDirection;
+    use brn_workflow::{proposal_rewrite::ReasoningEffort, Provider, Selection};
+
+    #[test]
+    fn rewrite_submission_preserves_exact_job_uuid_and_generation() {
+        let directory = tempfile::tempdir().unwrap();
+        let path = directory.path().join("rewrite.json");
+        let request = RewriteRequest {
+            id: Uuid::new_v4(),
+            expected: ProposalStamp {
+                id: Uuid::new_v4(),
+                version: 7,
+            },
+            selection: Selection {
+                provider: Provider::Copilot,
+                model: "gpt-5.3-codex".into(),
+            },
+            effort: ReasoningEffort::High,
+            generation: 19,
+        };
+        std::fs::write(&path, serde_json::to_vec(&request).unwrap()).unwrap();
+        let (id, command) = prepare_input(&ProposalCommand::Rewrite(path)).unwrap();
+        assert_eq!(id, request.id);
+        assert!(
+            matches!(command, AppCommand::StartProposalRewrite(submitted) if submitted == request)
+        );
+    }
 
     #[test]
     fn repair_submission_correlates_with_the_exact_attempt_uuid() {

@@ -10,7 +10,7 @@ use crate::{
     models::{ModelDownloadPrompt, ModelInstallReport},
     vault::{NoteText, VaultPath},
 };
-use brn_ai::{ModelOption, NotePage, Provider, Selection};
+use brn_ai::{ModelOption, NotePage, Provider, ReasoningEffort, Selection};
 use brn_store::work::{WorkConversation, WorkTurn};
 use std::{
     collections::HashMap,
@@ -36,6 +36,8 @@ pub enum AppCommand {
     Refresh,
     Selection,
     Select(Selection),
+    Effort,
+    SelectEffort(ReasoningEffort),
     Notes {
         folder: Option<String>,
         cursor: Option<String>,
@@ -47,11 +49,14 @@ pub enum AppCommand {
     SaveEditor(crate::editor::SaveRequest),
     Editors,
     ReconcileEditor(Uuid),
+    ProposalSource(String),
     CreateProposal(crate::proposals::DraftRequest),
     Proposal(Uuid),
     Proposals(Option<Uuid>),
     EditProposal(crate::proposals::ProposalEdit),
     RewriteProposal(crate::proposals::ProposalEdit),
+    StartProposalRewrite(crate::proposal_rewrite::RewriteRequest),
+    ProposalRewrite(Uuid),
     AddProposalComment(crate::proposals::CommentRequest),
     UpdateProposalComment(crate::proposals::CommentRequest),
     RemoveProposalComment {
@@ -67,6 +72,8 @@ pub enum AppCommand {
     RepairProposal(crate::proposal_apply::RepairRequest),
     ApproveProposalGroup(crate::proposal_apply::GroupApprovalRequest),
     ProposalApplies,
+    ProposalRecovery,
+    ProposalApply(Uuid),
     Activity(crate::activity::ActivityRequest),
     RecoverEdit {
         path: String,
@@ -109,6 +116,8 @@ pub enum AppEvent {
     Status(AppStatus),
     Selection(Option<Selection>),
     SelectionSaved,
+    Effort(Option<ReasoningEffort>),
+    EffortSaved,
     Refreshed(RefreshReport),
     Notes(NotePage),
     Note(NoteText),
@@ -117,7 +126,10 @@ pub enum AppEvent {
     EditorRecovered(crate::editor::EditorRecord),
     EditorSaved(crate::editor::SaveReceipt),
     Editors(Vec<crate::editor::EditorRecord>),
+    ProposalSource(Box<crate::proposals::ProposalSource>),
     Proposal(crate::proposals::ProposalRecord),
+    ProposalRewrite(Option<crate::proposal_rewrite::RewriteJob>),
+    Rewrite(crate::proposal_rewrite::RewriteEvent),
     Proposals(Vec<crate::proposals::ProposalRecord>),
     ProposalApplied(crate::proposal_apply::ApplyReceipt),
     ProposalUndoPreview(crate::proposal_apply::UndoPreview),
@@ -125,6 +137,8 @@ pub enum AppEvent {
     ProposalRepaired(crate::proposal_apply::RepairReceipt),
     ProposalGroupApplied(crate::proposal_apply::GroupApprovalResult),
     ProposalApplies(Vec<crate::proposal_apply::ApplyJournal>),
+    ProposalRecovery(Vec<crate::proposal_apply::ApplySummary>),
+    ProposalApply(Option<Box<crate::proposal_apply::ApplyJournal>>),
     Activity(crate::activity::ActivityPage),
     Search(SearchResults),
     Conversations(Vec<WorkConversation>),
@@ -180,6 +194,7 @@ enum Message {
 #[derive(Default)]
 struct Controls {
     chat: Option<ChatHandle>,
+    queued_rewrites: HashMap<Uuid, tokio_util::sync::CancellationToken>,
     model: Option<(Uuid, Arc<AtomicBool>)>,
 }
 
@@ -256,6 +271,7 @@ impl AppWorker {
             return Err(WorkflowError::cancelled());
         }
         if matches!(&command, AppCommand::Ask(request) if request.id != id)
+            || matches!(&command, AppCommand::StartProposalRewrite(request) if request.id != id)
             || matches!(&command, AppCommand::Account { id: operation, .. } if *operation != id)
             || matches!(&command, AppCommand::SaveEditor(request) if request.operation_id != id)
         {
@@ -264,14 +280,28 @@ impl AppWorker {
         // These commands never wait behind a scan, model load, stream or device login.
         match command {
             AppCommand::CancelTurn(turn) => {
-                let accepted = self
-                    .controls
+                let controls = self.controls.lock().expect("owned controls");
+                let queued = controls.queued_rewrites.get(&turn).is_some_and(|cancel| {
+                    cancel.cancel();
+                    true
+                });
+                let accepted =
+                    controls.chat.as_ref().is_some_and(|chat| chat.cancel(turn)) || queued;
+                self.output(id, AppEvent::TurnCancelRequested { turn, accepted })
+            }
+            AppCommand::StartProposalRewrite(request) => {
+                self.controls
                     .lock()
                     .expect("owned controls")
-                    .chat
-                    .as_ref()
-                    .is_some_and(|chat| chat.cancel(turn));
-                self.output(id, AppEvent::TurnCancelRequested { turn, accepted })
+                    .queued_rewrites
+                    .entry(id)
+                    .or_default();
+                self.tx
+                    .send(Message::Command(
+                        id,
+                        AppCommand::StartProposalRewrite(request),
+                    ))
+                    .map_err(|_| closed())
             }
             AppCommand::CancelAccount(operation) => {
                 let accepted = self
@@ -380,6 +410,9 @@ fn closed() -> WorkflowError {
 
 fn cancelled_command(command: AppCommand) -> AppEvent {
     match command {
+        AppCommand::StartProposalRewrite(request) => AppEvent::Rewrite(
+            crate::proposal_rewrite::RewriteEvent::rejected(&request, WorkflowError::cancelled()),
+        ),
         AppCommand::Ask(request) => {
             AppEvent::Chat(chat_worker::rejected(&request, WorkflowError::cancelled()))
         }
@@ -464,10 +497,23 @@ fn app_lane(
             },
         ));
     }
-    let (output, messages) = (emit.clone(), tx.clone());
+    let (output, messages, rewrite_controls) = (emit.clone(), tx.clone(), controls.clone());
     let chat_emit: chat_worker::Emit = Arc::new(move |event| match event {
         chat_worker::Output::Chat(event) => {
             let _ = output.send((event.id(), AppEvent::Chat(event)));
+        }
+        chat_worker::Output::Rewrite(event) => {
+            if !matches!(
+                &event,
+                crate::proposal_rewrite::RewriteEvent::ToolStarted { .. }
+            ) {
+                rewrite_controls
+                    .lock()
+                    .expect("owned controls")
+                    .queued_rewrites
+                    .remove(&event.id());
+            }
+            let _ = output.send((event.id(), AppEvent::Rewrite(event)));
         }
         chat_worker::Output::Account(AccountEvent::Finished {
             id,
@@ -737,6 +783,11 @@ fn app_lane(
         }
     }
     controls.lock().expect("owned controls").chat = None;
+    controls
+        .lock()
+        .expect("owned controls")
+        .queued_rewrites
+        .clear();
     controls.lock().expect("owned controls").model = None;
     drop(chat);
     drop(app);
@@ -794,15 +845,104 @@ fn dispatch(
             app.select(selection)?;
             AppEvent::SelectionSaved
         }
+        AppCommand::Effort => AppEvent::Effort(app.effort()?),
+        AppCommand::SelectEffort(effort) => {
+            app.select_effort(effort)?;
+            AppEvent::EffortSaved
+        }
         AppCommand::Notes { folder, cursor } => {
             AppEvent::Notes(app.notes(folder.as_deref(), cursor.as_deref())?)
         }
         AppCommand::Note(path) => AppEvent::Note(app.note(&path)?),
+        AppCommand::ProposalSource(path) => {
+            AppEvent::ProposalSource(Box::new(app.proposal_source(&path)?))
+        }
         AppCommand::CreateProposal(request) => AppEvent::Proposal(app.create_proposal(&request)?),
         AppCommand::Proposal(proposal) => AppEvent::Proposal(app.proposal(proposal)?),
         AppCommand::Proposals(group) => AppEvent::Proposals(app.proposals(group)?),
         AppCommand::EditProposal(edit) => AppEvent::Proposal(app.edit_proposal(&edit)?),
         AppCommand::RewriteProposal(edit) => AppEvent::Proposal(app.rewrite_proposal(&edit)?),
+        AppCommand::ProposalRewrite(operation) => {
+            AppEvent::ProposalRewrite(app.work_store().proposal_rewrite(operation)?)
+        }
+        AppCommand::StartProposalRewrite(request) => {
+            let result = (|| {
+                request.validate()?;
+                // Historical replay precedes filesystem, discovery and account access.
+                if let Some(job) = app.work_store().proposal_rewrite(request.id)? {
+                    request.check_replay(&job)?;
+                    return Ok(Some(crate::proposal_rewrite::RewriteEvent::replay(
+                        &request, job,
+                    )));
+                }
+                let cancel = controls
+                    .lock()
+                    .expect("owned controls")
+                    .queued_rewrites
+                    .get(&request.id)
+                    .cloned()
+                    .unwrap_or_default();
+                if cancel.is_cancelled() {
+                    return Err(WorkflowError::cancelled());
+                }
+                let record = app.proposal(request.expected.id)?;
+                if record.stamp() != request.expected
+                    || record.state != crate::proposals::ProposalState::Draft
+                {
+                    return Err(WorkflowError::typed(
+                        ErrorKind::ContextStale,
+                        "proposal review changed before Rewrite",
+                    ));
+                }
+                app.refresh()?;
+                let vault: brn_store::files::VaultRecord = serde_json::from_str(
+                    &app.work_store()
+                        .setting("vault.editor_identity")?
+                        .ok_or_else(|| {
+                            WorkflowError::typed(
+                                ErrorKind::VaultNotBound,
+                                "choose a vault before Rewrite",
+                            )
+                        })?,
+                )
+                .map_err(|_| WorkflowError::msg("invalid saved vault identity"))?;
+                if vault != record.draft.vault {
+                    return Err(WorkflowError::typed(
+                        ErrorKind::ContextStale,
+                        "proposal belongs to a different vault binding",
+                    ));
+                }
+                app.validate_selection(&request.selection)?;
+                drop(app.tools()?);
+                chat.rewrite(request.clone(), cancel)?;
+                Ok(None)
+            })();
+            match result {
+                Ok(Some(event)) => {
+                    controls
+                        .lock()
+                        .expect("owned controls")
+                        .queued_rewrites
+                        .remove(&id);
+                    let _ = emit.send((id, AppEvent::Rewrite(event)));
+                }
+                Ok(None) => {}
+                Err(error) => {
+                    controls
+                        .lock()
+                        .expect("owned controls")
+                        .queued_rewrites
+                        .remove(&id);
+                    let _ = emit.send((
+                        id,
+                        AppEvent::Rewrite(crate::proposal_rewrite::RewriteEvent::rejected(
+                            &request, error,
+                        )),
+                    ));
+                }
+            }
+            return Ok(());
+        }
         AppCommand::AddProposalComment(comment) => {
             AppEvent::Proposal(app.add_proposal_comment(&comment)?)
         }
@@ -834,6 +974,12 @@ fn dispatch(
         }
         AppCommand::ProposalApplies => {
             AppEvent::ProposalApplies(app.work_store().proposal_applies()?)
+        }
+        AppCommand::ProposalRecovery => {
+            AppEvent::ProposalRecovery(app.proposal_recovery_operations()?)
+        }
+        AppCommand::ProposalApply(operation) => {
+            AppEvent::ProposalApply(app.proposal_apply(operation)?.map(Box::new))
         }
         AppCommand::Activity(request) => AppEvent::Activity(app.activity(&request)?),
         AppCommand::ReloadEditor(request) => {
@@ -878,6 +1024,12 @@ fn dispatch(
                     chat_worker::check_replay(&request, &turn)?;
                     ask_ledger.insert(id, request.clone());
                     return Ok(Some(chat_worker::replay(&request, turn)));
+                }
+                if request.effort.is_none() {
+                    return Err(WorkflowError::typed(
+                        ErrorKind::SelectionRequired,
+                        "choose an explicit reasoning effort before asking AI",
+                    ));
                 }
                 if let Some(conversation) = request.conversation {
                     app.turns(conversation)?;
@@ -1035,6 +1187,83 @@ mod editor_shutdown_tests {
     use crate::editor::{EditRequest, SaveRequest};
 
     #[test]
+    fn stop_withdraws_rewrite_queued_behind_application_work_before_admission() {
+        let base = tempfile::tempdir_in(std::env::temp_dir().canonicalize().unwrap()).unwrap();
+        let data = base.path().join("data");
+        let vault = base.path().join("vault");
+        std::fs::create_dir(&data).unwrap();
+        std::fs::create_dir(&vault).unwrap();
+        let config = AppConfig {
+            vault_root: Some(vault),
+            credentials_dir: None,
+            model_dir: None,
+        };
+        let mut worker = AppWorker::start(data.clone(), config).unwrap();
+        assert!(matches!(
+            worker
+                .recv_event_timeout(Duration::from_secs(10))
+                .unwrap()
+                .1,
+            AppEvent::Ready { .. }
+        ));
+        let (entered_tx, entered) = mpsc::channel();
+        let (release, release_rx) = mpsc::channel();
+        let pause = Uuid::new_v4();
+        worker
+            .submit(
+                pause,
+                AppCommand::TestPause {
+                    entered: entered_tx,
+                    release: release_rx,
+                },
+            )
+            .unwrap();
+        entered.recv_timeout(Duration::from_secs(10)).unwrap();
+        let operation = Uuid::new_v4();
+        worker
+            .submit(
+                operation,
+                AppCommand::StartProposalRewrite(crate::proposal_rewrite::RewriteRequest {
+                    id: operation,
+                    // The proposal need not exist: Stop precedes proposal/vault preflight.
+                    expected: crate::proposals::ProposalStamp {
+                        id: Uuid::new_v4(),
+                        version: 1,
+                    },
+                    selection: Selection {
+                        provider: Provider::Chatgpt,
+                        model: "gpt-5.5".into(),
+                    },
+                    effort: crate::proposal_rewrite::ReasoningEffort::High,
+                    generation: 27,
+                }),
+            )
+            .unwrap();
+        let stop = Uuid::new_v4();
+        worker
+            .submit(stop, AppCommand::CancelTurn(operation))
+            .unwrap();
+        assert!(
+            matches!(worker.recv_event_timeout(Duration::from_secs(10)).unwrap(),
+            (id, AppEvent::TurnCancelRequested { accepted: true, .. }) if id == stop)
+        );
+        release.send(()).unwrap();
+        loop {
+            let (id, event) = worker.recv_event_timeout(Duration::from_secs(10)).unwrap();
+            if id == operation {
+                assert!(
+                    matches!(event, AppEvent::Rewrite(crate::proposal_rewrite::RewriteEvent::Rejected { generation: 27, error, .. }) if error.kind == ErrorKind::Cancelled)
+                );
+                break;
+            }
+        }
+        worker.shutdown().unwrap();
+        assert!(worker.controls.lock().unwrap().queued_rewrites.is_empty());
+        let (store, _) = brn_store::WorkStore::open(&data).unwrap();
+        assert!(store.proposal_rewrite(operation).unwrap().is_none());
+    }
+
+    #[test]
     fn shutdown_drains_admitted_proposal_review_work_without_applying_notes() {
         use crate::proposals::{
             CommentRequest, CommentTarget, DraftNoteChange, DraftRequest, ProposalEdit,
@@ -1106,6 +1335,22 @@ mod editor_shutdown_tests {
                 op
             })
             .collect();
+        let rewrite = Uuid::new_v4();
+        worker
+            .submit(
+                rewrite,
+                AppCommand::StartProposalRewrite(crate::proposal_rewrite::RewriteRequest {
+                    id: rewrite,
+                    expected: ProposalStamp { id, version: 3 },
+                    selection: Selection {
+                        provider: Provider::Chatgpt,
+                        model: "gpt-5.5".into(),
+                    },
+                    effort: crate::proposal_rewrite::ReasoningEffort::High,
+                    generation: 9,
+                }),
+            )
+            .unwrap();
         let stopping = worker.stopping.clone();
         let join = std::thread::spawn(move || {
             worker.shutdown().unwrap();
@@ -1119,14 +1364,26 @@ mod editor_shutdown_tests {
         release.send(()).unwrap();
         let worker = join.join().unwrap();
         let mut acknowledged = std::collections::HashSet::new();
+        let mut rewrite_cancelled = false;
         while let Some((op, event)) = worker.try_event() {
+            rewrite_cancelled |= op == rewrite
+                && matches!(&event,
+                AppEvent::Rewrite(crate::proposal_rewrite::RewriteEvent::Rejected { error, .. })
+                if error.kind == ErrorKind::Cancelled);
             if ids.contains(&op) && matches!(event, AppEvent::Proposal(_)) {
                 acknowledged.insert(op);
             }
         }
         assert_eq!(acknowledged.len(), ids.len());
+        assert!(rewrite_cancelled);
         drop(worker);
         let app = App::open(&data, config()).unwrap();
+        assert!(
+            app.work_store()
+                .proposal_rewrite(rewrite)
+                .unwrap()
+                .is_none()
+        );
         let record = app.proposal(id).unwrap();
         assert_eq!(record.version, 3);
         assert_eq!(record.state, ProposalState::Draft);

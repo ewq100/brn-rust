@@ -3,7 +3,7 @@ use super::{
     error::CliError, expect_positionals, parse_timeout, scan, sub_word, usage, Globals, Scanned,
     Tokens,
 };
-use brn_workflow::{Provider, Selection};
+use brn_workflow::{Provider, ReasoningEffort, Selection};
 
 pub enum AiCommand {
     Connect(Provider, u64),
@@ -11,6 +11,7 @@ pub enum AiCommand {
     Status,
     Models(Provider, u64),
     Select(Selection),
+    Effort(Option<ReasoningEffort>),
 }
 
 impl AiCommand {
@@ -21,6 +22,7 @@ impl AiCommand {
             Self::Status => "ai.status",
             Self::Models(..) => "ai.models",
             Self::Select(_) => "ai.select",
+            Self::Effort(_) => "ai.effort",
         }
     }
 }
@@ -33,18 +35,32 @@ pub(super) fn provider(raw: &str) -> Result<Provider, CliError> {
     }
 }
 
+pub(super) fn effort(raw: &str) -> Result<ReasoningEffort, CliError> {
+    match raw {
+        "low" => Ok(ReasoningEffort::Low),
+        "medium" => Ok(ReasoningEffort::Medium),
+        "high" => Ok(ReasoningEffort::High),
+        _ => Err(usage("reasoning effort must be low|medium|high")),
+    }
+}
+
 pub(super) fn scan_command(
     tokens: Tokens<'_>,
     g: &mut Globals,
     name: &mut Option<&'static str>,
 ) -> Result<Scanned, CliError> {
-    let sub = sub_word(tokens, "ai", "connect|disconnect|status|models|select")?;
+    let sub = sub_word(
+        tokens,
+        "ai",
+        "connect|disconnect|status|models|select|effort",
+    )?;
     let (label, options): (&str, &[(&str, bool)]) = match sub.as_str() {
         "connect" => ("ai.connect", &[("timeout-seconds", true)]),
         "disconnect" => ("ai.disconnect", &[]),
         "status" => ("ai.status", &[]),
         "models" => ("ai.models", &[("timeout-seconds", true)]),
         "select" => ("ai.select", &[("provider", true), ("model", true)]),
+        "effort" => ("ai.effort", &[]),
         _ => return Err(usage("unknown ai subcommand")),
     };
     *name = Some(label);
@@ -52,6 +68,14 @@ pub(super) fn scan_command(
 }
 
 pub(super) fn parse_command(name: &str, s: &Scanned) -> Result<AiCommand, CliError> {
+    if name == "ai.effort" {
+        if s.positionals.len() > 1 {
+            return Err(usage("ai effort accepts at most one effort"));
+        }
+        return Ok(AiCommand::Effort(
+            s.positionals.first().map(|raw| effort(raw)).transpose()?,
+        ));
+    }
     if name == "ai.status" {
         expect_positionals(s, 0)?;
         return Ok(AiCommand::Status);

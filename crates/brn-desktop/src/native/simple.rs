@@ -2,7 +2,7 @@ use super::theme::color;
 use super::*;
 use crate::ai::{Pending, provider_name, slot, turn_label};
 use brn_workflow::{
-    Provider, Selection,
+    Provider, ReasoningEffort, Selection,
     app_worker::{AppCommand, AppEvent},
     chat_worker::AccountCommand,
     library::SearchMode,
@@ -19,6 +19,9 @@ pub(super) struct Closed {
 }
 pub(super) enum EditorTransition {
     Note(String),
+    Review(Uuid),
+    Activity,
+    Draft(Option<Uuid>),
     Hide,
     Close(CloseRoute),
 }
@@ -99,6 +102,13 @@ impl Desktop {
         if let Err(error) = result
             && let Some(ai) = &mut self.ai
         {
+            if self
+                .review_comment_pending
+                .as_ref()
+                .is_some_and(|(operation, _, _)| *operation == id)
+            {
+                self.review_comment_pending = None;
+            }
             let followups = ai.apply(id, AppEvent::Failed(error));
             for command in followups {
                 self.simple_send(command, cx);
@@ -127,6 +137,7 @@ impl Desktop {
         }
         let changed = !events.is_empty();
         for (id, event) in events {
+            self.settle_comment_draft(id, &event, window, cx);
             if matches!(
                 self.ai.as_ref().unwrap().pending.get(&id),
                 Some(Pending::EditorReload)
@@ -138,6 +149,23 @@ impl Desktop {
             for command in commands {
                 self.simple_send(command, cx);
             }
+        }
+        if changed {
+            self.sync_review_widgets(window, cx);
+        }
+        self.sync_draft_widgets(window, cx);
+        if self
+            .ai
+            .as_ref()
+            .unwrap()
+            .review
+            .as_ref()
+            .is_some_and(|review| {
+                review.wants_recovery(Instant::now(), self.simple_transition.is_some())
+            })
+            && let Some(command) = self.ai.as_mut().unwrap().recover_review()
+        {
+            self.simple_send(command, cx);
         }
         // Cancellation can precede lane admission, including before the first delta.
         for command in self.ai.as_ref().unwrap().stop_controls() {
@@ -195,6 +223,9 @@ impl Desktop {
         }
     }
     pub(super) fn simple_stop(&mut self, cx: &mut Context<Self>) {
+        if let Some(id) = self.ai.as_mut().unwrap().stop_rewrite() {
+            self.simple_send((Uuid::new_v4(), AppCommand::CancelTurn(id)), cx);
+        }
         if let Some(id) = self.ai.as_mut().unwrap().stop() {
             self.simple_send((Uuid::new_v4(), AppCommand::CancelTurn(id)), cx);
         }
@@ -223,6 +254,9 @@ impl Desktop {
         self.simple_leave(EditorTransition::Note(path), cx);
     }
     fn simple_open_note(&mut self, path: String, cx: &mut Context<Self>) {
+        let ai = self.ai.as_mut().unwrap();
+        ai.review = None;
+        ai.review_generation = ai.review_generation.wrapping_add(1);
         let command = self.ai.as_mut().unwrap().open_editor(path.clone());
         self.simple_note_path = Some(path.clone());
         self.note_scroll.set_offset(point(px(0.), px(0.)));
@@ -234,12 +268,40 @@ impl Desktop {
         if self.closing.is_some() || self.closed {
             return;
         }
+        self.capture_draft_widgets(cx);
+        if let Some(draft) = &self.ai.as_ref().unwrap().draft
+            && !draft.can_leave()
+            && !(draft.pending && matches!(transition, EditorTransition::Close(_)))
+        {
+            self.ai.as_mut().unwrap().notice = "Initial proposal input is retained. Create its exact review draft, or copy and explicitly discard it before leaving.".into();
+            cx.notify();
+            return;
+        }
         self.simple_transition = Some(transition);
         self.simple_progress_transition(cx);
         cx.notify();
     }
     fn simple_progress_transition(&mut self, cx: &mut Context<Self>) {
         if self.simple_transition.is_none() {
+            return;
+        }
+        if self.review_comment_draft.is_some() && !self.review_comment.read(cx).value().is_empty() {
+            self.ai.as_mut().unwrap().notice = "A comment draft is not acknowledged. Copy or explicitly discard it before leaving.".into();
+            return;
+        }
+        if !self.ai.as_ref().unwrap().review_can_leave() {
+            self.ai.as_mut().unwrap().notice = if self
+                .ai
+                .as_ref()
+                .unwrap()
+                .draft
+                .as_ref()
+                .is_some_and(|draft| !draft.can_leave())
+            {
+                "Waiting for initial proposal acknowledgement or retained input resolution before leaving. Copy or explicitly discard later input after the request settles."
+            } else {
+                "Waiting for latest full review acknowledgement before leaving. Copy retained text or resolve the review error."
+            }.into();
             return;
         }
         if self
@@ -255,10 +317,53 @@ impl Desktop {
         }
         match self.simple_transition.take().unwrap() {
             EditorTransition::Note(path) => self.simple_open_note(path, cx),
+            EditorTransition::Review(id) => {
+                let ai = self.ai.as_mut().unwrap();
+                ai.note_generation = ai.note_generation.wrapping_add(1);
+                ai.editor = None;
+                self.simple_note_path = None;
+                self.review_member = 0;
+                self.open_doc = Some(DocRef::Proposal(id));
+                self.centre_tab = CentreTab::Document;
+                if let Some(command) = ai.open_review(id) {
+                    self.simple_send(command, cx);
+                }
+            }
+            EditorTransition::Activity => {
+                let ai = self.ai.as_mut().unwrap();
+                ai.note_generation = ai.note_generation.wrapping_add(1);
+                ai.review_generation = ai.review_generation.wrapping_add(1);
+                ai.editor = None;
+                ai.review = None;
+                self.simple_note_path = None;
+                self.open_doc = Some(DocRef::Activity);
+                self.centre_tab = CentreTab::Document;
+                let commands = [ai.refresh_activity(), ai.refresh_applies()];
+                for command in commands.into_iter().flatten() {
+                    self.simple_send(command, cx);
+                }
+            }
+            EditorTransition::Draft(turn) => {
+                let ai = self.ai.as_mut().unwrap();
+                if !ai.begin_draft(turn) {
+                    cx.notify();
+                    return;
+                }
+                ai.note_generation = ai.note_generation.wrapping_add(1);
+                ai.review_generation = ai.review_generation.wrapping_add(1);
+                ai.editor = None;
+                ai.review = None;
+                self.simple_note_path = None;
+                self.draft_widget_id = None;
+                self.open_doc = Some(DocRef::Draft);
+                self.centre_tab = CentreTab::Document;
+            }
             EditorTransition::Hide => {
                 let ai = self.ai.as_mut().unwrap();
                 ai.note_generation = ai.note_generation.wrapping_add(1);
                 ai.editor = None;
+                ai.review = None;
+                ai.review_generation = ai.review_generation.wrapping_add(1);
                 self.simple_note_path = None;
                 self.open_doc = None;
                 self.centre_tab = CentreTab::Chat;
@@ -593,6 +698,56 @@ impl Desktop {
                     .on_click(cx.listener(move |this, _, _, cx| this.simple_history(Some(id), cx))),
             );
         }
+        list = list
+            .child(
+                Button::new("open-activity")
+                    .label("Activity and recovery")
+                    .selected(self.open_doc == Some(DocRef::Activity))
+                    .disabled(!ai.ready)
+                    .on_click(cx.listener(|this, _, _, cx| {
+                        this.simple_leave(EditorTransition::Activity, cx)
+                    })),
+            )
+            .child("Proposal review")
+            .child(
+                Button::new("new-proposal-form")
+                    .label("+ New proposal…")
+                    .selected(self.open_doc == Some(DocRef::Draft))
+                    .disabled(
+                        !ai.ready
+                            || !ai.vault_bound
+                            || ai.application_busy()
+                            || self.closing.is_some()
+                            || self.closed
+                            || self.close_failed,
+                    )
+                    .on_click(cx.listener(|this, _, _, cx| {
+                        this.simple_leave(EditorTransition::Draft(None), cx)
+                    })),
+            )
+            .child(
+                Button::new("refresh-proposal-list")
+                    .label("Refresh proposals")
+                    .disabled(!ai.ready)
+                    .on_click(cx.listener(|this, _, _, cx| {
+                        this.simple_command(Pending::Proposals, AppCommand::Proposals(None), cx)
+                    })),
+            );
+        for proposal in &ai.proposals {
+            let id = proposal.draft.id;
+            list = list.child(
+                Button::new(format!("proposal-{id}"))
+                    .label(format!(
+                        "{} · {:?}",
+                        compact_title(&proposal.draft.title),
+                        proposal.state
+                    ))
+                    .selected(self.open_doc == Some(DocRef::Proposal(id)))
+                    .on_click(cx.listener(move |this, _, _, cx| {
+                        this.simple_leave(EditorTransition::Review(id), cx)
+                    })),
+            );
+        }
         div()
             .w(px(self.layout.history_w))
             .flex_shrink_0()
@@ -837,7 +992,7 @@ impl Desktop {
             .gap_3()
             .p_3();
         if ai.turns.is_empty() {
-            body = body.child("Select a provider/model in Settings, then ask about saved notes. AI has read-only tools.");
+            body = body.child("Select a provider, model and reasoning effort in Settings, then ask about saved notes. AI has read-only tools.");
         }
         for turn in ai.display_turns() {
             body = body.child(
@@ -846,14 +1001,35 @@ impl Desktop {
                     .flex_col()
                     .gap_2()
                     .child(format!(
-                        "{} / {} · {}",
+                        "{} / {} · effort: {} · {}",
                         turn.provider,
                         turn.model,
+                        turn.effort
+                            .as_deref()
+                            .unwrap_or("unavailable in older history"),
                         turn_label(turn)
                     ))
                     .child(turn.question.clone())
                     .child(turn.answer.clone()),
             );
+            if turn.status == brn_workflow::WorkTurnStatus::Completed {
+                let id = turn.id;
+                body = body.child(
+                    Button::new(format!("review-completed-answer-{id}"))
+                        .label("Review as new note…")
+                        .disabled(
+                            !ai.ready
+                                || !ai.vault_bound
+                                || ai.application_busy()
+                                || self.closing.is_some()
+                                || self.closed
+                                || self.close_failed,
+                        )
+                        .on_click(cx.listener(move |this, _, _, cx| {
+                            this.simple_leave(EditorTransition::Draft(Some(id)), cx)
+                        })),
+                );
+            }
             if let Some(code) = &turn.error_code {
                 body = body.child(format!("Safe failure category: {code}"));
             }
@@ -862,8 +1038,8 @@ impl Desktop {
             let partial = turn.answer.clone();
             body = body
                 .child(format!(
-                    "{} / {} · Failed · in-memory partial · finalization not acknowledged",
-                    turn.provider, turn.model
+                    "{} / {} · effort: {} · Failed · in-memory partial · finalization not acknowledged",
+                    turn.provider, turn.model, turn.effort.as_deref().unwrap_or("unavailable")
                 ))
                 .child(turn.question.clone())
                 .child(turn.answer.clone())
@@ -876,9 +1052,14 @@ impl Desktop {
         if let Some(active) = ai.display_active() {
             body = body
                 .child(format!(
-                    "{} / {} · {}",
+                    "{} / {} · effort: {} · {}",
                     provider_name(active.request.selection.provider),
                     active.request.selection.model,
+                    active
+                        .request
+                        .effort
+                        .map(ReasoningEffort::as_str)
+                        .unwrap_or("unavailable"),
                     if active.stopping {
                         "Stopping (not finalized)"
                     } else {
@@ -1111,6 +1292,42 @@ pub(super) fn account_settings(desktop: &Entity<Desktop>, cx: &App) -> AnyElemen
             "Selection unavailable: {error}. Account/history diagnostics remain available."
         ));
     }
+    body = body.child("Reasoning effort for new Ask and Rewrite requests");
+    let effort_busy = !ai.ready
+        || this.closed
+        || this.closing.is_some()
+        || this.close_failed
+        || ai
+            .pending
+            .values()
+            .any(|pending| matches!(pending, Pending::Effort | Pending::SelectEffort));
+    for effort in [
+        ReasoningEffort::Low,
+        ReasoningEffort::Medium,
+        ReasoningEffort::High,
+    ] {
+        let target = desktop.downgrade();
+        body = body.child(
+            Button::new(format!("reasoning-effort-{}", effort.as_str()))
+                .label(effort.as_str())
+                .selected(ai.effort == Some(effort))
+                .disabled(effort_busy)
+                .on_click(move |_, _, cx| {
+                    let _ = target.update(cx, |this, cx| {
+                        this.simple_command(
+                            Pending::SelectEffort,
+                            AppCommand::SelectEffort(effort),
+                            cx,
+                        )
+                    });
+                }),
+        );
+    }
+    if let Some(error) = &ai.effort_error {
+        body = body.child(format!("Reasoning effort unavailable: {error}"));
+    } else if ai.effort.is_none() {
+        body = body.child("Choose low, medium or high before asking AI.");
+    }
     let target = desktop.downgrade();
     let cancel = target.clone();
     body.child("ChatGPT chat is conditionally qualified: quota reset alone does not prove availability. No automatic model/provider fallback.")
@@ -1145,6 +1362,8 @@ mod tests {
             provider: Provider::Copilot,
             model: "explicit".into(),
         });
+        state.effort = Some(ReasoningEffort::High);
+        state.pending.clear();
         state
     }
     #[cfg(target_os = "macos")]
@@ -1367,7 +1586,8 @@ mod tests {
         let (id, command) = ask_command(&mut state, "λ native question".into()).unwrap();
         assert!(
             matches!(command, AppCommand::Ask(request) if request.id == id &&
-                request.selection.model == "explicit" && request.question == "λ native question")
+                request.selection.model == "explicit" && request.question == "λ native question"
+                && request.effort == Some(ReasoningEffort::High))
         );
         assert!(ask_command(&mut state, "concurrent".into()).is_none());
         assert!(search_command(&mut state, "local".into()).is_some());

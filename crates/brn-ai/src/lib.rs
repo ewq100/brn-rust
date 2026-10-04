@@ -8,7 +8,10 @@ mod provider_formats_tests;
 mod tools;
 
 pub use auth::{Auth, ProviderClient};
-pub use chat::{AiAnswer, AiEvent, AiTerminal, HistoryPair, answer};
+pub use chat::{
+    AiAnswer, AiEvent, AiTerminal, HistoryPair, MAX_REWRITE_BYTES, ReasoningEffort, answer,
+    answer_with_effort, rewrite,
+};
 pub use tools::{
     NoteEntry, NotePage, Passage, READ_NOTE_BYTES, ReadTools, ToolNote, ToolSearch, capped_text,
 };
