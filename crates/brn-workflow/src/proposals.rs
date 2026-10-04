@@ -87,16 +87,16 @@ fn path_check(path: &str) -> Result<()> {
 impl DraftRequest {
     /// Syntactic preparation before either frontend admits operational work.
     pub fn validate(&self) -> Result<()> {
-        if !self.action_changes.is_empty() {
-            return Err(invalid("Action proposal creation is not available yet"));
-        }
         if self.id.is_nil()
             || self.group_id.is_some_and(|id| id.is_nil())
             || self.session_id.is_some_and(|id| id.is_nil())
             || self.title.trim().is_empty()
             || self.title.len() > 512
-            || self.changes.is_empty()
-            || self.changes.len() > MAX_PROPOSAL_CHANGES
+            || !self
+                .changes
+                .len()
+                .checked_add(self.action_changes.len())
+                .is_some_and(|count| (1..=MAX_PROPOSAL_CHANGES).contains(&count))
             || self.sources.len() > MAX_PROPOSAL_CHANGES
         {
             return Err(invalid("invalid proposal identity, title or member count"));
@@ -140,6 +140,20 @@ impl DraftRequest {
                 return Err(invalid("invalid or duplicate proposal source"));
             }
             bytes = bytes.saturating_add(source.path.len());
+        }
+        let mut action_ids = std::collections::HashSet::new();
+        for change in &self.action_changes {
+            change
+                .validate()
+                .map_err(|error| invalid(&error.to_string()))?;
+            if !action_ids.insert(change.id()) {
+                return Err(invalid("proposal contains duplicate Action UUIDs"));
+            }
+            bytes = bytes.saturating_add(
+                serde_json::to_vec(change)
+                    .map_err(|_| invalid("could not encode Action review work"))?
+                    .len(),
+            );
         }
         if bytes > MAX_PROPOSAL_BYTES {
             return Err(invalid("proposal review work exceeds 8 MiB"));
@@ -185,7 +199,9 @@ impl App {
                     "proposal UUID has another creation payload",
                 )
             };
-            if request.changes.len() != existing.draft.changes.len() {
+            if request.changes.len() != existing.draft.changes.len()
+                || request.action_changes.len() != existing.draft.action_changes.len()
+            {
                 return Err(conflict());
             }
             let mut draft = existing.draft;
@@ -221,6 +237,22 @@ impl App {
                     _ => return Err(conflict()),
                 }
             }
+            for (input, bound) in request.action_changes.iter().zip(&mut draft.action_changes) {
+                match (input, bound) {
+                    (
+                        ActionChange::Create { id, data },
+                        ActionChange::Create { id: old, data: out },
+                    ) if id == old => *out = data.clone(),
+                    (
+                        ActionChange::Replace { before, data },
+                        ActionChange::Replace {
+                            before: old,
+                            data: out,
+                        },
+                    ) if before == old => *out = data.clone(),
+                    _ => return Err(conflict()),
+                }
+            }
             draft.group_id = request.group_id;
             draft.session_id = request.session_id;
             draft.title = request.title.clone();
@@ -240,17 +272,28 @@ impl App {
                 "proposal session does not exist",
             ));
         }
-        self.editor_files()?;
-        let vault: VaultRecord = serde_json::from_str(
-            &self
-                .store
-                .setting("vault.editor_identity")?
-                .ok_or_else(|| WorkflowError::msg("vault identity is unavailable"))?,
-        )
-        .map_err(|_| WorkflowError::msg("invalid saved vault identity"))?;
-        let files = self.editor_files()?;
+        let vault = if !request.changes.is_empty() || !request.sources.is_empty() {
+            self.editor_files()?;
+            Some(
+                serde_json::from_str::<VaultRecord>(
+                    &self
+                        .store
+                        .setting("vault.editor_identity")?
+                        .ok_or_else(|| WorkflowError::msg("vault identity is unavailable"))?,
+                )
+                .map_err(|_| WorkflowError::msg("invalid saved vault identity"))?,
+            )
+        } else {
+            None
+        };
+        let files = if vault.is_some() {
+            Some(self.editor_files()?)
+        } else {
+            None
+        };
         let mut changes = Vec::with_capacity(request.changes.len());
         for (index, input) in request.changes.iter().enumerate() {
+            let files = files.ok_or_else(|| invalid("Markdown changes require a vault"))?;
             for previous in &request.changes[..index] {
                 if files
                     .reserved_copy_path_matches(Path::new(input.path()), Path::new(previous.path()))
@@ -338,6 +381,7 @@ impl App {
             changes.push(change);
         }
         for source in &request.sources {
+            let files = files.ok_or_else(|| invalid("source evidence requires a vault"))?;
             let before = files.observe(Path::new(&source.path)).map_err(file_error)?;
             if before.fingerprint != source.fingerprint {
                 return Err(WorkflowError::typed(
@@ -346,16 +390,20 @@ impl App {
                 ));
             }
         }
-        Ok(self.store.create_proposal(&ProposalDraft {
-            action_changes: Vec::new(),
+        let draft = ProposalDraft {
+            action_changes: request.action_changes.clone(),
             id: request.id,
             group_id: request.group_id,
             session_id: request.session_id,
-            vault: Some(vault),
+            vault,
             title: request.title.clone(),
             changes,
             sources: request.sources.clone(),
-        })?)
+        };
+        self.store
+            .validate_proposal_action_changes(&draft.action_changes)?;
+        self.validate_action_references(&draft)?;
+        Ok(self.store.create_proposal(&draft)?)
     }
 
     pub fn proposal(&self, id: Uuid) -> Result<ProposalRecord> {

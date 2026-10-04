@@ -848,11 +848,22 @@ impl AiState {
             capture.command(),
         ))
     }
+    fn approval_vault_ready(&self, record: &ProposalRecord) -> bool {
+        self.vault_bound
+            || (record.draft.vault.is_none()
+                && record.draft.changes.is_empty()
+                && record.draft.sources.is_empty()
+                && !record.draft.action_changes.is_empty())
+    }
+
     pub fn capture_approval(&self, group: bool) -> Option<crate::approval::ApprovalCapture> {
-        if !self.ready || !self.vault_bound || !self.review_can_mutate() || self.rewrite.is_some() {
+        if !self.ready || !self.review_can_mutate() || self.rewrite.is_some() {
             return None;
         }
         let current = &self.review.as_ref()?.record;
+        if !self.approval_vault_ready(current) {
+            return None;
+        }
         let group_id = if group {
             Some(current.draft.group_id?)
         } else {
@@ -879,17 +890,27 @@ impl AiState {
         } else {
             vec![current.clone()]
         };
+        if records
+            .iter()
+            .any(|record| !self.approval_vault_ready(record))
+        {
+            return None;
+        }
         crate::approval::ApprovalCapture::new(records, group_id)
     }
     pub fn confirm_approval(
         &mut self,
         capture: &crate::approval::ApprovalCapture,
     ) -> Option<(Uuid, AppCommand)> {
-        if !self.ready || !self.vault_bound || !self.review_can_mutate() || self.rewrite.is_some() {
+        if !self.ready || !self.review_can_mutate() || self.rewrite.is_some() {
             return None;
         }
         let current = &self.review.as_ref()?.record;
-        if !capture.records().iter().any(|record| record == current)
+        if capture
+            .records()
+            .iter()
+            .any(|record| !self.approval_vault_ready(record))
+            || !capture.records().iter().any(|record| record == current)
             || capture.records().iter().any(|record| {
                 if record.draft.id == current.draft.id {
                     record != current

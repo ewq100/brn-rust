@@ -67,7 +67,7 @@ fn draft(f: &mut Fixture) -> DraftRequest {
 }
 
 #[test]
-fn unsupported_action_drafts_refuse_before_workflow_admission_or_note_effects() {
+fn invalid_action_drafts_refuse_before_workflow_admission_or_note_effects() {
     let mut f = fixture();
     let original = fs::read(f.vault.join("note.md")).unwrap();
     let notes = draft(&mut f);
@@ -75,7 +75,7 @@ fn unsupported_action_drafts_refuse_before_workflow_admission_or_note_effects() 
         "kind":"create", "id":Uuid::new_v4(),
         "data":{
             "title":"Follow up λ", "description":"Exact proposal work\r\n",
-            "state":"open", "owner":null, "related_person":null,
+            "state":"completed", "owner":null, "related_person":null,
             "related_project":null, "sources":[], "thread":null,
             "due_on":null, "follow_up_on":null, "dependencies":[],
             "parent":null, "follows_up":null, "priority":null

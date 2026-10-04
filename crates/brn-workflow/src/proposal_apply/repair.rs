@@ -100,6 +100,7 @@ impl App {
         }
         self.check_repair_editors(&journal)?;
         if request.direction == RepairDirection::Finish {
+            self.check_approved_actions(&journal)?;
             check_phase_sources(
                 self.editor.files.as_ref().expect("opened files"),
                 &journal,
@@ -110,7 +111,14 @@ impl App {
         self.set_current_tool_barrier(true);
         let journal = self.store.begin_proposal_repair(request, &observations)?;
         checkpoint("repair-intent", 0);
-        let result = self.execute_proposal_repair(&journal, request.direction, preview.phases);
+        let result = self
+            .execute_proposal_repair(&journal, request.direction, preview.phases)
+            .and_then(|proofs| {
+                if request.direction == RepairDirection::Finish {
+                    self.check_applied_eligibility(&journal)?;
+                }
+                Ok(proofs)
+            });
         match result {
             Ok(proofs) => {
                 let outcome = match request.direction {
@@ -189,6 +197,9 @@ impl App {
             .write(journal, previous.as_ref())
             .map_err(file_error)?;
         checkpoint("repair-mirror", 0);
+        if direction == RepairDirection::Finish {
+            self.check_approved_actions(journal)?;
+        }
         let files = self.editor.files.as_ref().expect("opened files");
         let desired = match direction {
             RepairDirection::Finish => ApplyMemberPhase::Applied,
@@ -207,6 +218,7 @@ impl App {
             .enumerate()
         {
             if direction == RepairDirection::Finish {
+                self.check_approved_actions(journal)?;
                 check_phase_sources(files, journal, &phases)?;
             }
             let destination = Path::new(change.path());

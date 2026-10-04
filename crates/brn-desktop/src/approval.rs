@@ -31,17 +31,24 @@ impl ApprovalCapture {
         {
             return None;
         }
+        let bound_vault = records
+            .iter()
+            .find_map(|record| record.draft.vault.as_ref());
         let mut proposal_ids = HashSet::new();
         for record in &records {
             if record.state != ProposalState::Draft
                 || !proposal_ids.insert(record.draft.id)
                 || group_id.is_some_and(|id| record.draft.group_id != Some(id))
-                || record.draft.vault != records[0].draft.vault
+                || record
+                    .draft
+                    .vault
+                    .as_ref()
+                    .is_some_and(|vault| Some(vault) != bound_vault)
             {
                 return None;
             }
             let edit = ProposalEdit {
-                action_data: Vec::new(),
+                action_data: crate::review::record_actions(record),
                 expected: record.stamp(),
                 title: record.draft.title.clone(),
                 texts: record

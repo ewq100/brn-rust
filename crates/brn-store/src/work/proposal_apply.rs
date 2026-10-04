@@ -1246,6 +1246,31 @@ impl WorkStore {
         read_journal(&self.conn, id)
     }
 
+    /// Check the admitted exact Action baselines before publishing completion
+    /// authority or making further file effects. Settlement retains its own CAS.
+    pub fn validate_proposal_apply_actions(&self, id: Uuid) -> Result<()> {
+        proposals::nonnil(id)?;
+        let tx = self.conn.unchecked_transaction()?;
+        let journal = read_journal(&tx, id)?
+            .ok_or_else(|| Error::NotFound("approval journal is absent".into()))?;
+        current_unresolved(&tx, &journal)?;
+        actions::check_changes(&tx, &journal.approved.draft.action_changes)
+    }
+
+    /// Read-only qualification of full operational before records for review
+    /// creation and fresh preflight; admission still performs transactional CAS.
+    pub fn validate_proposal_action_changes(&self, changes: &[ActionChange]) -> Result<()> {
+        let mut ids = std::collections::HashSet::new();
+        for change in changes {
+            change.validate()?;
+            if !ids.insert(change.id()) {
+                return Err(invalid("proposal contains duplicate Action UUIDs"));
+            }
+        }
+        let tx = self.conn.unchecked_transaction()?;
+        actions::check_changes(&tx, changes)
+    }
+
     /// Enumerates identities without retaining every full review body in memory.
     /// Call `proposal_apply` to validate the indexed journal before using it.
     pub fn proposal_apply_ids(&self) -> Result<Vec<Uuid>> {

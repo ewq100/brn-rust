@@ -31,6 +31,9 @@ use std::path::PathBuf;
 use std::time::{Duration, Instant};
 use uuid::Uuid;
 
+mod action_review;
+#[cfg(all(test, target_os = "macos", feature = "native-test-support"))]
+mod action_review_tests;
 mod approval;
 #[cfg(all(test, target_os = "macos", feature = "native-test-support"))]
 mod dialog_tests;
@@ -127,6 +130,7 @@ struct Desktop {
     saved_links: relationships::SavedLinksPane,
     relationships: relationships::RelationshipsPane,
     findings: findings::FindingsPane,
+    action_editors: action_review::ActionEditors,
     review_editor: Entity<EditorState>,
     review_title: Entity<TextareaState>,
     review_comment: Entity<EditorState>,
@@ -459,6 +463,7 @@ impl Desktop {
             saved_links: relationships::SavedLinksPane::new(window, cx),
             relationships: relationships::RelationshipsPane::new(window, cx),
             findings: findings::FindingsPane::new(window, cx),
+            action_editors: action_review::ActionEditors::default(),
             review_editor,
             review_title,
             review_comment,

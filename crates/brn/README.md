@@ -82,10 +82,11 @@ Use both cursor fields from `next_before` to request the next older page. Creati
 time and UUID order remain stable across edits. JSON preserves the exact typed
 record; human output quotes strings and terminal controls. These reads need no
 vault/provider and refuse pending or uncertain durable changes until reconciled.
-No Action mutation commands are exposed by this slice. For manual acceptance on
+Action Create/Replace use the existing exact proposal commands below. Identified
+direct completion and dashboard controls follow later. For manual acceptance on
 a fresh empty data folder, run `actions list --json`, then `actions show` with a
 fresh non-nil UUID: expect an empty page and typed NOT_FOUND, with no credential
-files or vault writes. Populated read acceptance follows approved creation.
+files or vault writes. Populated read acceptance uses approved creation below.
 
 `ai effort` reads the saved explicit reasoning choice locally; its value is null
 until chosen. `ai effort low|medium|high` saves that choice, which is also shown
@@ -247,7 +248,18 @@ conversation. Drafts keep exact bytes and never write a vault file.
  "title":"Review a note","changes":[{"kind":"create","path":"new.md","text":"Draft text"}],"sources":[]}
 ```
 
-`edit` and `rewrite-result` accept `{expected: {id, version}, title, texts}`.
+Action-only input uses `changes: []`, `sources: []` and
+`action_changes: [{kind: "create", id: ACTION_UUID, data: ActionData}]` without a
+vault. Replace uses `{kind: "replace", before: ActionRecord, data: ActionData}`;
+copy the complete `actions show --json` record into `before`. All 14 candidate
+fields remain exact, and a source/Markdown member binds the exact vault. Combined
+drafts retain the 64-member/8 MiB bounds. Person/project/source/thread references
+are managed note UUIDs with captured or same-draft evidence. Dependencies and
+parent graphs are checked separately. Completed Actions cannot be changed through
+proposal members; direct explicit completion follows in the next slice.
+
+`edit` and `rewrite-result` accept `{expected: {id, version}, title, texts}` plus
+the ordered `action_data` array when the proposal has Action members.
 `texts` supplies one full string per Create/Replace and null per Trash, preserving
 bound destinations/baselines. `rewrite-result` imports a captured result; it does
 not invoke AI. Any newer edit/comment/rejection makes the old version stale.
@@ -269,7 +281,36 @@ a different request fails `OPERATION_CONFLICT`.
 version}}]}`. It approves only the explicit captured members, in order, and stops
 at the first refusal or uncertainty. Its result contains individual receipts and
 an optional `stopped` failure; inspect these fields even when the CLI exits 0.
-New arrivals in that group are never included automatically.
+New arrivals in that group are never included automatically. File/source-free
+Action members may be grouped with proposals bound to the same vault; different
+bound vaults cannot share one native confirmation.
+
+#### Manual Action acceptance
+
+On macOS, create a fresh explicit data directory and use no vault. Save this request
+as `action.json` outside the repository, then run
+`brn proposals create --file action.json --data-dir DATA --json`:
+
+```json
+{"id":"a1111111-1111-4111-8111-111111111111","group_id":null,"session_id":null,
+ "title":"Review synthetic follow-up","changes":[],"sources":[],
+ "action_changes":[{"kind":"create","id":"a2222222-2222-4222-8222-222222222222",
+ "data":{"title":"Tähtaeg 🦀","description":"Exact synthetic review.\r\n",
+ "state":"waiting","owner":"Synthetic owner","related_person":null,
+ "related_project":null,"sources":[],"thread":null,"due_on":"2026-10-10",
+ "follow_up_on":"2026-10-08","dependencies":[],"parent":null,"follows_up":null,
+ "priority":null}}]}
+```
+
+`actions list --data-dir DATA --json` must be empty before approval. Inspect the
+draft with `proposals show`, then approve its actual review version using a fresh
+operation UUID. `actions show a2222222-2222-4222-8222-222222222222 --data-dir DATA
+--json` must retain the exact data, immutable creating proposal and Waiting clock.
+Repeat that exact approval and read after restart: the receipt and Action stay
+unchanged. For Replace, copy the complete current record into `before`, change
+candidate title/state and use a new proposal/operation UUID. Reusing an old complete
+baseline must refuse and preserve the current Action. No account or vault write
+is needed. Close the CLI before opening this same directory in the desktop.
 
 For a manual check, create a proposal for `new.md`, add a comment, inspect the
 version with `show`, and approve that version with a fresh operation UUID. Compare
@@ -280,7 +321,7 @@ Typed JSON is decoded before workspace admission; encoded input is bounded to
 64 MiB, with stricter domain limits of 1 MiB per note and 8 MiB aggregate review
 work. Nonregular inputs refuse without blocking. Native full review/edit/comments
 use the same records, exact approval and activity; native Undo/repair and initial
-proposal creation remain Stage 4 work.
+Markdown creation use the existing shared workflow.
 
 ### Owned AI Rewrite
 

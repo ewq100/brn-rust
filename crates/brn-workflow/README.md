@@ -88,14 +88,16 @@ fences these current reads until reconciliation. Nil IDs, limits outside 1–200
 invalid cursors are rejected before authority reads; absent IDs return NotFound.
 Pages default to all states/25 entries, with optional state filtering and an
 exclusive immutable creation-time/UUID cursor. Editing an Action does not reorder
-it. Creation, application, owned Rewrite and Undo guards remain unchanged while
-the whole Action lifecycle is qualified. Dashboard controls follow later.
+it. Exact Action creation/replacement uses the proposal lifecycle below. Identified
+direct completion and dashboard controls follow later; owned Action Rewrite and
+Action-bearing Undo remain refused.
 
-Private reference validation uses explicit managed note UUIDs for person/project,
+Shared reference validation uses explicit managed note UUIDs for person/project,
 source and thread labels. Newly added references need captured source proof or
 exact same-draft managed bytes; retained historical references stay readable.
 Action dependency and parent graphs are checked separately against the reviewed
-after-state and checked Store records. This preparation enables no producer.
+after-state and checked Store records. Fresh creation and ordinary approval run
+these checks; approval never silently captures new source authority.
 
 ## Tentative review findings
 
@@ -241,11 +243,13 @@ source fingerprints and refuses occupied or aliased destinations. Creation repla
 precedes fresh-vault checks and returns existing edited review work; a conflicting
 initial payload cannot reuse its UUID. Review text/comments are operational work,
 never current vault evidence.
-Stored proposal records also support exact typed Action members and immutable
-replacement baselines. Workflow `DraftRequest` recognizes `action_changes` but
-currently refuses nonempty input, as do approval and owned Rewrite. These guards
-remain until shared Action application/recovery is qualified; unknown or ignored
-fields must not appear to create real actions.
+`DraftRequest::action_changes` admits exact typed Action Create/Replace members,
+including mixed Markdown/Action drafts. Replace fixes the complete checked current
+record; edits cannot alter its baseline or immutable origin. The existing budget
+is 64 combined members and 8 MiB. Only file/source-free work may omit vault binding;
+Markdown/source work requires the exact vault. Completed Actions cannot be edited
+or reopened through these members. Owned Action Rewrite and Action Undo remain
+refused pending their own contracts.
 
 Checked ordinary recovery supports already-typed Action snapshots without
 inventing a vault for file/source-free work. Bound and mixed snapshots keep exact
@@ -254,8 +258,15 @@ state through Store; unfinished zero-file intents settle NotApplied, preserving
 review comments and never treating empty file proofs as Applied evidence.
 Restart does not issue a fresh no-effect certificate. Temporary retirement checks
 ordered Action kinds/IDs/full Replace baselines while permitting candidate edits;
-foreign bindings remain retained. These recovery contracts precede the guarded
-Action execution/creation flow and do not establish the dashboard.
+foreign bindings remain retained. Source-free execution deliberately prepares an
+empty file-proof vector, then joins exact Action writes and the whole receipt in
+the existing Store transaction. Full Action CAS is checked before file effects
+and before publishing an Applied mirror, with transactional CAS retained at
+settlement. Refusal after mixed file effects stays Uncertain and fences current
+reads. No standalone AI mutation path or dashboard is introduced.
+Ordinary approval recovery persistence currently requires macOS, including
+source-free Actions. Other platforms retain source-free Draft creation/replay but
+refuse approval before Applying admission; they are not qualified application routes.
 
 Full-text edits, anchored or whole-proposal comments, explicit reattachment,
 rejection and imported captured Rewrite results use one version. Changing an
@@ -300,6 +311,9 @@ checked pending/uncertain summaries, validating one journal at a time;
 `ProposalApply(UUID)` loads only the identified full historical snapshot. Paged
 native Activity never retains every historical proposal body. Explicit CLI
 `applies` remains the full operational inspection command.
+Activity summaries count both approved Markdown and Action members. Their
+`changes` field lists note paths; the identified full application snapshot retains
+complete Action identities/data/baselines without loading every body into a page.
 
 ## Owned AI Rewrite
 
@@ -377,9 +391,10 @@ repair drains on shutdown. CLI [commands](../brn/README.md) use the same boundar
 AI has no direct repair tool.
 
 Admission checks the bound vault, complete file pairs and retained editor aliases.
-Finish checks sources against arbitrary current phases and installs only remaining
-approved changes; Restore returns applied members to exact originals while
-preserving unrelated external sources. A durable repair mirror precedes namespace
+Finish checks sources against arbitrary current phases and exact Action baselines,
+installs only remaining approved changes, then joins Actions with the whole receipt.
+Restore returns applied members to exact originals while preserving unrelated
+external sources and competing Actions. A durable repair mirror precedes namespace
 effects. Each coordinated move proves its current pair, uses exclusive installation
 or exchange, flushes surviving files and parents, and proves the complete endpoint.
 Unknown destinations/staging, dirty aliases or changed capture refuse. Comments
