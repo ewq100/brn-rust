@@ -1323,3 +1323,94 @@ overallCIred. Mergea9f838295ea905bf25d05953fe03d02a2092dff7 has the qualified tr
 Fresh16CLIidentity/inventory/scopes+52fixtures and2shipping startup/restart runs
 passed with exact synthetic bytes and zero credentials. Lead-tree integration
 changes only status/evidence; all sixteen knowledge slices stay byte-identical.
+
+## Stage5B publication checkpoint — provenance and session timestamps
+
+Baseline db9aee379b34527564ef48e9e0815fb30202eb94 integrates reviewed provenance,
+native exact source inspection and session/turn timestamps throughbaf3bee with
+qualified Stage5A maina9f8382. No later Stage5 behavior is included. Independent
+read-only integration review verified36B-only+13incoming-only paths, both source
+overlaps and all retained evidence; no actionable defect. CI YAML parses.
+
+Fresh macOS arm64/Rust1.98.1 locked/offline retirement,format/build/all-target
+Clippy passed;809workspace/0failed/2ignored+52fixtures;168combined-native/0failed/
+0ignored, both native Clippy configurations and shipping desktop/CLI builds;
+136focused native workflow/0failed/2ignored (`--lib --test models --test ai_tools
+--test knowledge_provenance`). Shipping startup/restart passed twice with exact
+BOM/CRLF/Unicode bytes and zero credential files. Crash-entry ignores remain
+exercised by subprocess matrices. Only upstream block0.1.6 future warning remains.
+Exact latest PR applicable Mac/shared CI and post-merge checks remain pending.
+Logs/ownership metadata: /private/tmp/brn-v1-stage5b-checkpoint-46w97ttl.
+
+Manual acceptance: in disposable managed notes, approve exact source quote and
+citation metadata, inspect the full original through Source, change the source
+and verify a fresh stale outcome; Copy must retain exact original quote bytes.
+Inspect recorded session/turn times, restart without new chat and verify unchanged
+activity; upgraded legacy unknown times stay explicit unknown. GUI/owner acceptance
+is pending. This publishes implemented/automated verified behavior, not live
+provider or actual bilingual model qualification. Next publish relationships and
+findings, then language; safe Stage6 implementation continues independently.
+Mac mini requirements: AppleSilicon/CLT, pinnedRust1.98.1, cached locked dependencies,
+protobuf/Bash/Python3, canonical owned synthetic TMPDIR and unlockedGUI acceptance.
+No assets/live/original-data/release actions occurred.
+
+Stage5B initial exact57c71f5 run37193439338 passed both macOS native lanes but
+Ubuntu Clippy rejected the unconditional `provenance_cli::ok` test helper. Its
+actual log reports unused `ok`; all callers are inside one cfg(macos) test.
+Independent read-only correction review confirmed that a sole matching helper
+guard preserves both shared preflight tests and found no other B-test dead helper.
+Fresh corrected3CLI provenance tests,workspace all-target Clippy,format and diff
+passed; applicable CI must qualify the new exact head. Windows retains the known
+Unix API failure. Initial macOSCore completion is not relied on for integration.
+
+Stage5B PR23 merged d48654098f79c8b4a6b13982650c258245b2d800 after exact
+2d0993f935e3af309d2e97c6f097f28a0b0ec39a run37193690701 passed all three
+Mac lanes and UbuntuSharedCore. Windows Unix APIs fail,leaving overallCIred.
+Merged tree equality,14CLIprovenance/Storetimestamp tests+52fixtures and two
+shipping startup/restart checks passed with exact bytes and zero credentials.
+Stage5C now integrates this qualified baseline; final incoming-delta review and
+current checkpoint CI remain required.
+
+## Stage5C publication checkpoint — relationships and exact link preparation
+
+Baseline71a27a2aa5a4280c87dcda6eb58d295c7ede6a72 integrates reviewed slices8–12
+throughb9b2338 with qualified Stage5B d486540. It retains approved Markdown links,
+disposable evidence-backed explicit/inferred edges, native relationship inspection
+and exact native/headless link-to-proposal preparation; basic findings/language
+remain later checkpoints. Initial independent merge review verified72C-only+
+13incoming-only paths and both source overlaps with no defect. Final B-delta review
+verified sole exactincomingMac helper guard,205othercrate paths unchanged and
+full12-slice/A/B evidence preserved, with no actionable defect.
+
+Fresh macOS arm64/Rust1.98.1 locked/offline retirement,format/build/all-target
+Clippy passed;907workspace/0failed/3ignored+52fixtures;201combined-native/0failed/
+0ignored, both native Clippy configurations and shipping desktop/CLI builds;
+21native-retrieval/0failed/0ignored (`--lib --test model_download --test note_edges`)
+and164focused-native-workflow/0failed/3ignored (`--lib --test models --test
+knowledge_links --test knowledge_relationships --test knowledge_link_preparation`).
+After sole incomingtest guard, fresh3CLIprovenance tests,workspace Clippy and
+format passed. Two shipping startup/restart checks preserve exact BOM/CRLF/Unicode
+current/archive bytes with zero credential files. Ignored private crash entries
+remain exercised by subprocess matrices; actualcase-sensitive volume qualification
+was separately recorded in slice10. Only upstream block0.1.6 future warning remains.
+Exact latest PR applicable Mac/shared CI and post-merge verification are pending.
+Logs/ownership metadata: /private/tmp/brn-v1-stage5c-checkpoint-ajcwhli7.
+
+Manual acceptance: in fresh managed current/archive fixtures,inspect explicit and
+inferred relationship origins/proofs,move a target and resolve by UUID,change its
+bytes and observe fresh evidence,duplicate an ID and observe ambiguity. Prepare a
+link in the native Replace form;full immutable target/source proofs and exact text
+must reach review unchanged,with no Markdown effect until Approve. Edits/separate/
+retry preserve full bindings;stale replies retain newer typing. Rebuildindex and
+restart. GUI/IME/accessibility and owner acceptance remain pending. Next publish
+NeedsReview findings and language; safe Stage6 implementation continues.
+Mac mini: AppleSilicon/CLT,pinnedRust1.98.1,cached locked dependencies,protobuf,
+Bash/Python3,canonical owned synthetic TMPDIR,unlockedGUI for acceptance.
+No assets,live/original-data/release actions occurred.
+
+Stage5C PR24 merged2483b31f38a2b941ab71b7fba5449519da600e82 after exact
+716aedecd0886723eafd30a1b619b50915a3da61 run37194454005 passed all three
+Mac lanes and UbuntuSharedCore. Windows Unix API failure leaves overallCIred.
+Merged tree equality,10CLIlinks/relationships/preparation tests+52fixtures and two
+shipping startup/restart checks passed with exact current/archive bytes,zero
+credential files. NeedsReview findings/language publication continue next.
