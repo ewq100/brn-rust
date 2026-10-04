@@ -352,16 +352,34 @@ fn pending_and_uncertain_proposals_fence_current_actions_until_exact_reconciliat
         worker
             .submit(id, AppCommand::ReconcileProposal(request.operation_id))
             .unwrap();
-        assert!(
-            matches!(next(&worker), (actual, AppEvent::ProposalApplied(receipt)) if actual == id && receipt.outcome == ApplyOutcome::NotApplied)
-        );
-        let id = Uuid::new_v4();
-        worker
-            .submit(id, AppCommand::Action(expected.origin.id))
-            .unwrap();
-        assert!(
-            matches!(next(&worker), (actual, AppEvent::Action(record)) if actual == id && *record == expected)
-        );
+        #[cfg(target_os = "macos")]
+        {
+            assert!(
+                matches!(next(&worker), (actual, AppEvent::ProposalApplied(receipt)) if actual == id && receipt.outcome == ApplyOutcome::NotApplied)
+            );
+            let id = Uuid::new_v4();
+            worker
+                .submit(id, AppCommand::Action(expected.origin.id))
+                .unwrap();
+            assert!(
+                matches!(next(&worker), (actual, AppEvent::Action(record)) if actual == id && *record == expected)
+            );
+        }
+        #[cfg(not(target_os = "macos"))]
+        {
+            // The shared read fence applies everywhere; ordinary recovery writes
+            // retain the existing macOS filesystem-coordination requirement.
+            assert!(
+                matches!(next(&worker), (actual, AppEvent::Failed(error)) if actual == id && error.kind == ErrorKind::ToolRejected)
+            );
+            let id = Uuid::new_v4();
+            worker
+                .submit(id, AppCommand::Action(expected.origin.id))
+                .unwrap();
+            assert!(
+                matches!(next(&worker), (actual, AppEvent::Failed(error)) if actual == id && error.kind == ErrorKind::SaveUncertain)
+            );
+        }
         worker.shutdown().unwrap();
         f.no_provider(&f.app());
     }

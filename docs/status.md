@@ -267,8 +267,12 @@ overallCIred. Merged tree equality,25focused tests+52fixtures and startup2 passe
 V10,exact bytes,zero credentials. Main37204848736 passed Mac3+UbuntuCore/UI;
 unchanged Ubuntu installer10pass/3fail and Windows3Unix failures leave overallCIred.
 Independent actual-log analysis found no shared Action defect. Shared Action
-reads are the next slice; GUI/model/provider qualification,wholeStage5 and
-wholeStage6 completion remain pending.
+reads are published in [PR30](https://github.com/ewq100/brn-rust/pull/30),exact
+1298ee78e6fc788e04e6b76c3634ae1c0c5f1a22 with identical reviewed90e9193 tree.
+Run37208267069 found an Ubuntu test expectation error for macOS-only recovery;
+the corrected test retains shared fences and explicit non-Mac refusal. Independent
+review confirmed no production defect. Corrected exact-head CI/merge remain pending;
+GUI/model/provider qualification,wholeStage5 and wholeStage6 remain pending.
 
 The owner authorized Luna-only BRN app/provider testing on 2026-10-04; development
 and review may use Sol/Luna,never Astra. A fresh synthetic connection and bounded

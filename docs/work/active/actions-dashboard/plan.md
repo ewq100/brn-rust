@@ -405,3 +405,17 @@ unchanged; no producer/provider/model/private-data/release operation occurred.
 CLI empty-page/typed-missing manual scenario is in its README; populated owner
 acceptance follows approved creation. Exact-head PR/CI/integration qualification
 is next; references,whole execution,direct Complete and dashboard remain next.
+
+
+Shared-read publication PR30 is at1298ee78e6fc788e04e6b76c3634ae1c0c5f1a22
+(source tree116f312f equals reviewed90e9193; connected GitHub publication after
+CLI credentials expired). Run37208267069 passed both Mac native lanes; Ubuntu
+Shared found a new test expectation error: ordinary recovery requires macOS,
+so non-Mac reconciliation returns ToolRejected and keeps current reads fenced.
+The corrected test retains every shared pre-reconciliation check and the exact
+Mac NotApplied/success scenario,with explicit non-Mac refusal/fence assertions.
+Independent Luna code/log review confirmed the correction and no shared Action
+or Mac defect. Fresh Mac5Action tests and test-targetClippy passed. Original
+Windows22Unix diagnostics match PR29 unchanged; overallCIred. Corrected exact-head
+applicableCI/merge/post checks remain pending. Publication12tests+52fixtures+
+startup2(V10/exact bytes/zero credentials)+51doclinks passed before that CI round.
