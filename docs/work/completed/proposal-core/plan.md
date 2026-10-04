@@ -1182,3 +1182,60 @@ diff checks passed. New exact-head CI qualification remains required. Windows
 again failed on existing Unix metadata APIs; overall corrected CI is red.
 GitHub temporarily retained the preceding PR head after the verified branch
 push; closing/reopening the same PR refreshed its head and triggered correct CI.
+
+Stage 4B PR #20 merged as d7a1a7218c00dd9dd953c6a8f73de0223b51cb4a after
+exact head93acf3f passed macOS Core/UI/Retrieval and Ubuntu shared Core in run
+37188478000. Windows retains known Unix metadata failures; overall CI is red.
+Qualified/merged trees match. Fresh post-merge **12 CLI Activity/Undo/Repair tests
++52 fixtures** and two startup/restart runs passed with exact synthetic bytes
+and zero credential files. Native owner acceptance remains pending.
+
+## Stage 4 checkpoint C — owned Rewrite and native proposal controls
+
+Publication baseline a83191defc93ba7cedd31a6129c3c5ceea6bcdbf integrates
+reviewed slices through15d4608 with published Stage4B main d7a1a72. Preserve
+owned Rewrite, explicit effort, full native review/comments/exact approval,
+Activity/Undo/Trash/Finish-Restore controls and guarded initial Create/Replace/
+Trash composition. Existing implementation reviews/manual scenarios above remain
+historical evidence. Only active six-crate contracts govern this publication.
+
+Acceptance: both merge parents' complete code/evidence remain preserved, exact
+approval/input/retry/drain guards remain intact, and CI adds actual headless Mac
+widget qualification with native-test-support alongside separate shipping builds.
+Run fresh locked/offline workspace/fixtures, capability feature and native gates,
+independent integration/CI review and exact latest-head Mac/shared CI; verify the
+qualified merged tree and relevant post-merge scenarios. No live calls, model
+downloads, original-data operations or release/public distribution. Owner native
+usability/IME/accessibility, live Rewrite and physical power-loss/other-volume
+acceptance remain pending and do not block later safe Stage5 implementation.
+
+Resume requires Apple Silicon/Command Line Tools, pinned Rust1.98.1, cached locked
+dependencies, protobuf/Bash/Python3, canonical synthetic data/TMPDIR outside Git
+and unlocked GUI for owner acceptance. Stage5 knowledge foundations continues
+locally in reviewed slices; publication must not collapse it into this Stage4 PR.
+The documentation-only merge conflict was corrected before publication; final
+review must verify both original complete evidence bodies and absence of markers.
+
+Checkpoint C independent read-only integration review verified **66 C-only +
+11 incoming A/B-only paths** against parent blobs/modes, full completed-C prefix
+and complete incoming checkpoint body, qualified platform guards and no unrelated
+changes. One valid new CI YAML defect (`native::` in a plain scalar) was reproduced
+with Psych, corrected to a literal block and independently rechecked; both workflow/
+setup files parse, and command/filter/feature semantics remain exact. No Rust
+source changed during that correction.
+
+Fresh isolated macOS arm64/Rust1.98.1 locked/offline gates passed retirement,
+format/build/all-target Clippy, **684 workspace tests/0failed/2ignored**,
+**52 end-to-end assertions**, **147 combined-native tests/0failed/0ignored**,
+both combined-native Clippy variants and shipping build. The exact new UI-only
+widget CI commands also passed Clippy and **16 native tests/0failed**, including
+the actual full initial-input widget. Capability feature passed **79 library+
+1 example tests**, all-target Clippy; no live probes were repeated. Shipping
+AppWorker startup/restart passed twice with exact synthetic BOM/CRLF/Unicode bytes
+and zero credential files. Upstream block0.1.6 future-compiler notice remains.
+Applicable exact-head macOS/shared CI and post-merge qualification remain pending;
+GUI/IME/accessibility/liveRewrite/owner acceptance stays separately pending.
+
+Changed-document verification passed **153 local file/fragment links** (code
+examples excluded), final format/diff checks. Checkpoint CI must qualify the
+exact latest PR commit before integration.
