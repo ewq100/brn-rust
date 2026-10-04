@@ -103,7 +103,9 @@ fn start(worker: &AppWorker, request: &RewriteRequest) -> RewriteJob {
             assert_eq!(generation, request.generation);
             job
         }
-        _ => panic!("expected durable admission"),
+        AppEvent::Rewrite(other) => panic!("expected durable admission, got {other:?}"),
+        AppEvent::Failed(error) => panic!("expected admission, got {error:?}"),
+        _ => panic!("unexpected event before admission"),
     }
 }
 fn finish(worker: &AppWorker, request: &RewriteRequest) -> RewriteJob {
@@ -559,3 +561,6 @@ fn running_replay_does_not_promise_completion_for_a_new_presentation_generation(
         "Running replay must identify existing work without promising a new generation's terminal event"
     );
 }
+
+#[path = "action_rewrite_tests.rs"]
+mod actions;

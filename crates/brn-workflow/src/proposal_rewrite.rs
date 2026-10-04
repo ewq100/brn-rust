@@ -2,7 +2,10 @@
 use crate::{ErrorKind, Result, Selection, WorkflowError, chat_worker::provider_name};
 pub use brn_ai::ReasoningEffort;
 pub use brn_store::work::proposal_rewrite::{RewriteJob, RewriteSpec, RewriteStatus};
-use brn_store::work::proposals::{ProposalEdit, ProposalRecord, ProposalStamp};
+use brn_store::work::{
+    actions::{ActionData, ActionPriority, ActionState},
+    proposals::{ProposalEdit, ProposalRecord, ProposalStamp},
+};
 use serde::{Deserialize, Serialize};
 use uuid::Uuid;
 
@@ -55,7 +58,9 @@ impl RewriteRequest {
         }
     }
 
-    pub(crate) fn check_replay(&self, job: &RewriteJob) -> Result<()> {
+    /// Checks immutable job bindings, excluding presentation generation. This
+    /// does not grant admission, authorize a provider call or retry saved work.
+    pub fn check_replay(&self, job: &RewriteJob) -> Result<()> {
         if job.spec != self.spec() {
             return Err(crate::chat_worker::conflict());
         }
@@ -168,6 +173,55 @@ pub(crate) fn prompt(record: &ProposalRecord) -> Result<String> {
 struct RewriteText {
     title: String,
     texts: Vec<Option<String>>,
+    #[serde(default)]
+    action_data: Vec<CompleteAction>,
+}
+
+// Every field must be explicit, including null optional values: an omitted
+// provider field is partial output, not permission to clear retained evidence.
+#[derive(Deserialize)]
+#[serde(remote = "ActionData", deny_unknown_fields)]
+struct ActionResult {
+    title: String,
+    description: String,
+    state: ActionState,
+    #[serde(deserialize_with = "required_optional")]
+    owner: Option<String>,
+    #[serde(deserialize_with = "required_optional")]
+    related_person: Option<Uuid>,
+    #[serde(deserialize_with = "required_optional")]
+    related_project: Option<Uuid>,
+    sources: Vec<Uuid>,
+    #[serde(deserialize_with = "required_optional")]
+    thread: Option<Uuid>,
+    #[serde(deserialize_with = "required_optional")]
+    due_on: Option<String>,
+    #[serde(deserialize_with = "required_optional")]
+    follow_up_on: Option<String>,
+    dependencies: Vec<Uuid>,
+    #[serde(deserialize_with = "required_optional")]
+    parent: Option<Uuid>,
+    #[serde(deserialize_with = "required_optional")]
+    follows_up: Option<Uuid>,
+    #[serde(deserialize_with = "required_optional")]
+    priority: Option<ActionPriority>,
+}
+
+fn required_optional<'de, D, T>(deserializer: D) -> std::result::Result<Option<T>, D::Error>
+where
+    D: serde::Deserializer<'de>,
+    T: Deserialize<'de>,
+{
+    Option::<T>::deserialize(deserializer)
+}
+
+struct CompleteAction(ActionData);
+impl<'de> Deserialize<'de> for CompleteAction {
+    fn deserialize<D: serde::Deserializer<'de>>(
+        deserializer: D,
+    ) -> std::result::Result<Self, D::Error> {
+        ActionResult::deserialize(deserializer).map(Self)
+    }
 }
 
 pub(crate) fn decode(request: &RewriteRequest, text: &str) -> Result<ProposalEdit> {
@@ -184,7 +238,11 @@ pub(crate) fn decode(request: &RewriteRequest, text: &str) -> Result<ProposalEdi
         )
     })?;
     Ok(ProposalEdit {
-        action_data: Vec::new(),
+        action_data: result
+            .action_data
+            .into_iter()
+            .map(|action| action.0)
+            .collect(),
         expected: request.expected,
         title: result.title,
         texts: result.texts,
@@ -207,6 +265,91 @@ pub(crate) type RewriteHook = std::sync::Arc<
 #[cfg(test)]
 mod tests {
     use super::*;
+
+    fn request() -> RewriteRequest {
+        RewriteRequest {
+            id: Uuid::new_v4(),
+            expected: ProposalStamp {
+                id: Uuid::new_v4(),
+                version: 1,
+            },
+            selection: Selection {
+                provider: brn_ai::Provider::Chatgpt,
+                model: "gpt-6-luna".into(),
+            },
+            effort: ReasoningEffort::High,
+            generation: 3,
+        }
+    }
+    fn action_json() -> serde_json::Value {
+        serde_json::json!({"title":"\u{feff}Full õ\r\n", "description":"Exact 🦀\r\n", "state":"waiting", "owner":null, "related_person":null, "related_project":null, "sources":[], "thread":null, "due_on":null, "follow_up_on":null, "dependencies":[], "parent":null, "follows_up":null, "priority":null})
+    }
+
+    #[test]
+    fn rewrite_decoder_accepts_complete_actions_and_legacy_markdown_without_rebinding() {
+        let request = request();
+        let action: brn_store::work::actions::ActionData =
+            serde_json::from_value(action_json()).unwrap();
+        let text = serde_json::json!({"title":"Whole", "texts":["Full õ\r\n",null], "action_data":[action.clone(),action.clone()]}).to_string();
+        let edit = decode(&request, &text).unwrap();
+        assert_eq!(edit.expected, request.expected);
+        assert_eq!(edit.action_data, vec![action.clone(), action]);
+        assert_eq!(edit.texts, vec![Some("Full õ\r\n".into()), None]);
+        let old = r#"{"title":"Old","texts":["exact\r\n"]}"#;
+        assert_eq!(
+            serde_json::to_string(&decode(&request, old).unwrap()).unwrap(),
+            format!(
+                "{{\"expected\":{},\"title\":\"Old\",\"texts\":[\"exact\\r\\n\"]}}",
+                serde_json::to_string(&request.expected).unwrap()
+            )
+        );
+        let empty = r#"{"title":"Old","texts":["exact\r\n"],"action_data":[]}"#;
+        assert_eq!(
+            decode(&request, old).unwrap(),
+            decode(&request, empty).unwrap()
+        );
+    }
+
+    #[test]
+    fn rewrite_action_decoder_refuses_missing_unknown_duplicate_and_invalid_fields() {
+        let request = request();
+        for key in action_json().as_object().unwrap().keys() {
+            let mut action = action_json();
+            action.as_object_mut().unwrap().remove(key);
+            let text =
+                serde_json::json!({"title":"Incomplete", "texts":[], "action_data":[action]})
+                    .to_string();
+            assert!(decode(&request, &text).is_err(), "missing {key}");
+        }
+        let mut unknown = action_json();
+        unknown["before"] = serde_json::json!({});
+        let mut invalid = action_json();
+        invalid["state"] = serde_json::json!("pending");
+        for action in [unknown, invalid] {
+            let text = serde_json::json!({"title":"Invalid", "texts":[], "action_data":[action]})
+                .to_string();
+            assert!(decode(&request, &text).is_err());
+        }
+        let duplicate = serde_json::to_string(&action_json()).unwrap().replacen(
+            "\"owner\":null",
+            "\"owner\":null,\"owner\":null",
+            1,
+        );
+        assert!(
+            decode(
+                &request,
+                &format!("{{\"title\":\"Duplicate\",\"texts\":[],\"action_data\":[{duplicate}]}}")
+            )
+            .is_err()
+        );
+        assert!(
+            decode(
+                &request,
+                r#"{"title":"Null","texts":[],"action_data":null}"#
+            )
+            .is_err()
+        );
+    }
 
     #[test]
     fn nested_rewrite_selection_rejects_unknown_fields() {

@@ -21,7 +21,10 @@ delivery and exact bytes; live response-language compliance remains unqualified.
 `ReasoningEffort::{Low,Medium,High}`. The pinned route determines Responses
 `reasoning.effort` or Chat `reasoning_effort`; the selected model is unchanged.
 Full input and buffered output are bounded to 50 MiB encoded JSON. Rewrite sends
-no chat history and emits only safe tool progress, never raw text deltas. Stop,
+no chat history and emits only safe tool progress, never raw text deltas. Its
+prompt requests full ordered note texts and all14 explicit ActionData fields;
+Action identities/baselines/source bindings and approval stay outside model output.
+Stop,
 transport/schema/tool refusal and over-limit output discard partial text without
 application retry or fallback. A consumed completed result can win later cancellation. Workflow
 validates strict full-member JSON and commits review work through WorkStore CAS;

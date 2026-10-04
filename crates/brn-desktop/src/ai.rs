@@ -1608,11 +1608,7 @@ impl AiState {
             if let RewriteEvent::Started { job, .. }
             | RewriteEvent::AlreadyRunning { job, .. }
             | RewriteEvent::Finished { job, .. } = &event
-                && (job.spec.id != active.request.id
-                    || job.spec.expected != active.request.expected
-                    || job.spec.provider != provider_name(active.request.selection.provider)
-                    || job.spec.model != active.request.selection.model
-                    || job.spec.effort != active.request.effort.as_str())
+                && active.request.check_replay(job).is_err()
             {
                 return commands;
             }

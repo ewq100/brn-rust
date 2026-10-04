@@ -522,6 +522,8 @@ mod rewrite_tests {
                 for required in [
                     "strict JSON object",
                     "complete replacement text",
+                    "action_data",
+                    "all 14 fields",
                     "before-text",
                     "source metadata",
                     "comments",

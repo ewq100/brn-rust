@@ -382,11 +382,7 @@ impl Desktop {
                     .child(
                         Button::new("review-rewrite")
                             .label("Rewrite")
-                            .disabled(
-                                leaving
-                                    || !ai.can_rewrite()
-                                    || !review.record.draft.action_changes.is_empty(),
-                            )
+                            .disabled(leaving || !ai.can_rewrite())
                             .on_click(cx.listener(|this, _, _, cx| {
                                 if let Some(command) = this.ai.as_mut().unwrap().start_rewrite() {
                                     this.simple_send(command, cx);

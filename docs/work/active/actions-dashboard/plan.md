@@ -994,3 +994,103 @@ without test-support. No provider/model/private/original-data or release operati
 Owner acceptance remains separate; this does not complete Stage6/V1. Next: actual
 Create→Review→Approve→Dashboard→Completed/new follow-up→restart when available,
 checkpoint PR/exact-head CI/integration,then Stage6 AI proposal/read tools.
+
+
+### Composition integration checkpoint — 2026-10-05
+
+PR40 head2334deb1ca9f5a7bea349fe0cbc718fbafed79fc/treeba3333ef passed MacCore,
+MacUI,MacNativeRetrieval and UbuntuShared in run37234485293. Windows Core's22
+actual decoded Unix errors/locations match main39. OverallCIred; informational
+under owner policy, no sharedMac defect. Fresh normal merge guards found no enabled
+protection/rulesets or unmet GitHub requirement. Actual merge
+40f1314c248177535d0c315272ae4a3fe7c623b6 has the exact reviewed tree; root/wt1/wt2
+fast-forwarded, preserving owner AGENTS edits. Post25focused/0failed/0ignored+
+52fixtures+startup2 passed,V11/exactbytes/zero credentials. Logs
+ action-composition-post-*.log / qualified-startup-lupils4r remain in the owned
+Stage1 parent. Main37235387243 finished5success/4failure: Mac3+UbuntuCore/UI passed.
+Independent comparison found exact baseline Windows22/22/14 diagnostics/locations
+and UbuntuNative10pass/3fail panic blocks; failed source blobs unchanged. Overall
+CIred, no new sharedMac defect. Native observation/owner acceptance remain pending, with the unlocked Mac required only for interaction/screenshots.
+
+## Owned Action-bearing Rewrite — next fixed deliverable
+
+Baseline actual PR40 merge40f1314c248177535d0c315272ae4a3fe7c623b6/treeba3333ef.
+Extend the existing strict result with ordered full `action_data: Vec<ActionData>`;
+absent/empty retains legacy Markdown wire/hash compatibility. Decode closed typed
+ActionData, then validate the complete ProposalEdit through the existing full
+review validator. The thin Rig prompt describes complete note/Action data and all14
+Action fields; order, IDs, kinds, full Replace baselines and source proof bindings
+cannot change. No automatic completion or real mutation.
+
+Remove Store/worker/native Action Rewrite guards only with coherent result tests.
+Keep existing vault/tools/provider/model/effort admission. A source-free Action-only
+capture has no proposal vault binding: allow it with a currently bound AI vault;
+Some(other binding) still refuses. Valid stored vault=None already implies no note
+changes or saved source proofs. Manual vaultless creation/approval stays unchanged.
+Reuse whole capture hash/version, job/spec identity, replay-before-live, stop/drain,
+atomic settlement, stale result and late raw typing guards. No provider calls,
+new schema/database/framework/tool bridge or architectural change in this slice.
+
+Acceptance: actual Store admission and real-worker RED; Action-only/mixed full
+Create/Replace fields; invalid/partial/count/schema/Completed results refuse as a
+whole with no real effects; captured comments/identities/before/source bindings
+stay exact; later edits/comments defeat stale output; cancellation/read-lease drain,
+restart/replay and legacy hashes retain behavior. Native Rewrite enable/dispatch
+and full late Action typing must be witnessed. Independent read-only whole review,
+fresh appropriate Store/workflow/shared/native/shipping/startup gates, exact-head
+CI, normal merge and post checks. Actual native/live/owner checks remain separate.
+Manual: open a clean Action-bearing review with a bound vault and explicit model/
+effort, Rewrite, inspect every suggestion/temporary comment, then approve only the
+exact intended version; Stop or later edits must preserve current review work.
+
+Then add bounded fixed Action reads/proposal creation through AppWorker, preserving
+admission fence and shutdown drain without client event theft or another SQL owner.
+
+
+### Rewrite implementation and regression evidence — 2026-10-05
+
+Store admission RED failed2, real-worker admission RED failed1 and native Rewrite
+navigation RED failed1 before removing the coherent old Action guards. Complete
+Action-only/mixed suggestion→exact approval→restart/replay now passes without a
+provider/credential call; malformed/missing/unknown/duplicate/partial/count/domain/
+Completed results refuse whole work. New Action tests prove later comments/edits
+win and Stop waits for retained read leases before terminal settlement/replay.
+All14 fields are explicit, including nulls; absence never means clearing a field.
+Legacy Markdown omitted/empty Action result vectors retain exact persisted hashes.
+
+A second actual native witness reproduced an existing correlation defect: Store
+uses canonical chatgpt/copilot job keys, but desktop compared ChatGPT/Copilot
+presentation labels. The fake prior state helper repeated that mismatch. Lead
+validated code and the failing native refresh, then shared the existing exact
+RewriteRequest::check_replay DTO check with clients and corrected test metadata.
+Real canonical keys now accept while wrong job/stamp/model/effort/display-key
+replies stay pending. Full late invalid Action widget bytes remain copyable and
+conflicting until explicit discard; shipping button dispatch/failed submission and
+modal/quit guards pass. No provider logic moved into UI, and no new write path.
+
+Focused Store10/0failed/0ignored,workflow18/0failed/0ignored,nativeAction27/0failed/
+0ignored and real Rig synthetic Rewrite wire routes passed before final whole
+review/gates. Intermediate test-only missing imports/boxed DTO/Debug formatting
+were corrected; they are not product failures. Fresh final independence/gates/
+PR/exact-head CI remain next. Actual UI/live/owner qualification is pending, with
+no additional live calls authorized in the exhausted catalog round.
+
+
+### Rewrite local qualification — 2026-10-05
+
+Independent Sol complete read-only review found no actionable or advisory defect,
+checking12Rust files plus6contracts/status/plan files and reused validators. All12
+reviewed SHA256 values remain exact through fresh pinnedRust1.98.1/macOSarm64
+locked/offline verification: shared1128/0failed/6ignored+52fixtures;
+combined native257/0failed/0ignored; native test-support and shipping all-target
+Clippy,shipping Desktop/CLI builds and startup2 passed,V11/exact BOM/CRLF/Unicode/
+zero credentials.75local Markdown file/fragment links,diff and format passed.
+Logs action-rewrite-*-final.log / qualified-startup-br67m1a0 remain in the owned
+Stage1 parent. Known upstream block0.1.6 future-compiler warning remains.
+
+Implemented and automated verified; PR/exact-head CI/merge/post verification
+remain next. Actual native/live/owner acceptance remains pending. No provider/
+model/download/private/original-data/release operation occurred. The prior Luna
+catalog round is exhausted; no availability or inference claim is made. Manual
+Rewrite scenario above and Macmini environment requirements remain. Next: fixed
+Action read/proposal callback bridge through AppWorker,then Inbox in roadmap order.

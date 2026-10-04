@@ -157,7 +157,11 @@ digest and explicit provider/model/effort. Only fresh admission returns a full
 transient capture; replay returns history without granting another provider call.
 Jobs retain bounded hash-checked metadata, safe outcomes and result stamps, never
 captured comments, prompts or raw result bodies. Existing proposal review holds
-the validated text. Chat and Rewrite cannot reuse a job UUID.
+the validated full note/Action candidates. Chat and Rewrite cannot reuse a job UUID.
+Action-only and mixed admissions use the same complete capture and settlement;
+Rewrite never changes real Actions. Complete ordered ActionData edits preserve
+member identities/full Replace baselines. Empty vectors stay omitted in persisted
+ProposalEdit/RewriteOutcome so historical Markdown bytes and hashes remain exact.
 
 Completion validates every member and compares both the review stamp and full
 capture hash in the same transaction as the proposal edit and terminal job. Later

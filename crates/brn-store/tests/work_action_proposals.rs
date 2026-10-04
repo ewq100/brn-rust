@@ -4,7 +4,7 @@ use brn_store::{
     work::{
         actions::{ActionData, ActionOrigin, ActionRecord, ActionState},
         proposal_apply::{ApplyJournal, ApplyMember, ApprovalRequest},
-        proposal_rewrite::{RewriteOutcome, RewriteSpec},
+        proposal_rewrite::{RewriteOutcome, RewriteSpec, RewriteStatus, validate_result},
         proposals::*,
     },
 };
@@ -469,14 +469,24 @@ fn unbound_action_only_and_mixed_apply_refuse_admission_or_recovery() {
 }
 
 #[test]
-fn action_only_and_mixed_owned_ai_rewrite_refuse_without_creating_a_job() {
+fn action_only_and_mixed_owned_rewrite_capture_full_edits_without_real_mutation() {
     for mixed in [false, true] {
         let (dir, mut store) = fixture();
         let mut draft = draft();
         if mixed {
             with_note(&mut draft);
         }
-        let record = store.create_proposal(&draft).unwrap();
+        let original = store.create_proposal(&draft).unwrap();
+        let record = store
+            .add_proposal_comment(&CommentRequest {
+                expected: original.stamp(),
+                comment: ReviewComment {
+                    id: Uuid::new_v4(),
+                    text: "Whole Action instruction õ\r\n".into(),
+                    target: CommentTarget::Proposal,
+                },
+            })
+            .unwrap();
         let spec = RewriteSpec {
             id: Uuid::new_v4(),
             expected: record.stamp(),
@@ -484,17 +494,174 @@ fn action_only_and_mixed_owned_ai_rewrite_refuse_without_creating_a_job() {
             model: "synthetic".into(),
             effort: "high".into(),
         };
-        assert!(store.begin_proposal_rewrite(&spec).is_err());
-        assert_eq!(store.proposal_rewrite(spec.id).unwrap(), None);
-        assert_eq!(store.proposal(draft.id).unwrap(), Some(record));
-        let raw = Connection::open(dir.path().join("brn.sqlite")).unwrap();
+        let (running, capture) = store.begin_proposal_rewrite(&spec).unwrap();
+        assert_eq!(capture, Some(record.clone()));
         assert_eq!(
-            raw.query_row("SELECT count(*) FROM proposal_rewrites", [], |r| r
-                .get::<_, i64>(0))
-                .unwrap(),
-            0
+            running.capture_sha256,
+            digest(&serde_json::to_vec(&record).unwrap())
         );
+        let mut result = edit(&record);
+        result.title = "Full revised review õ\r\n".into();
+        for (index, data) in result.action_data.iter_mut().enumerate() {
+            data.title = format!("\u{feff}Revised {index} λ\r\n");
+            data.description.push_str("Whole suggestion 🦀\r\n");
+            data.state = ActionState::Blocked;
+            data.owner = Some("  New owner Õ  ".into());
+            data.related_person = Some(Uuid::new_v4());
+            data.related_project = Some(Uuid::new_v4());
+            data.sources = vec![Uuid::new_v4(), Uuid::new_v4()];
+            data.thread = Some(Uuid::new_v4());
+            data.due_on = Some("2028-03-01".into());
+            data.follow_up_on = Some("2028-03-02".into());
+            data.dependencies = vec![Uuid::new_v4(), Uuid::new_v4()];
+            data.parent = Some(Uuid::new_v4());
+            data.follows_up = Some(Uuid::new_v4());
+            data.priority = Some(brn_store::work::actions::ActionPriority::High);
+        }
+        if mixed {
+            result.texts[0] = Some("\u{feff}Full note õ\r\n".into());
+        }
+        validate_result(&record, &result).unwrap();
+        let outcome = RewriteOutcome::Completed(result.clone());
+        let finished = store.finish_proposal_rewrite(spec.id, &outcome).unwrap();
+        assert_eq!(finished.status, RewriteStatus::Completed);
+        let revised = store.proposal(record.draft.id).unwrap().unwrap();
+        assert_eq!(finished.result_stamp, Some(revised.stamp()));
+        assert_eq!(revised.version, record.version + 1);
+        assert_eq!(revised.draft.vault, record.draft.vault);
+        assert_eq!(revised.draft.sources, record.draft.sources);
+        assert_eq!(revised.comments, record.comments);
+        assert_eq!(edit(&revised).action_data, result.action_data);
+        for (old, new) in record
+            .draft
+            .action_changes
+            .iter()
+            .zip(&revised.draft.action_changes)
+        {
+            assert_eq!(old.id(), new.id());
+            match (old, new) {
+                (ActionChange::Create { .. }, ActionChange::Create { .. }) => {}
+                (
+                    ActionChange::Replace { before: a, .. },
+                    ActionChange::Replace { before: b, .. },
+                ) => assert_eq!(a, b),
+                _ => panic!("immutable member kind changed"),
+            }
+        }
+        assert!(
+            store
+                .action_list(&Default::default())
+                .unwrap()
+                .entries
+                .is_empty()
+        );
+        assert_eq!(
+            store.begin_proposal_rewrite(&spec).unwrap(),
+            (finished.clone(), None)
+        );
+        drop(store);
+        let (mut store, _) = WorkStore::open(dir.path()).unwrap();
+        assert_eq!(store.proposal(record.draft.id).unwrap(), Some(revised));
+        assert_eq!(
+            store.finish_proposal_rewrite(spec.id, &outcome).unwrap(),
+            finished
+        );
+        assert!(
+            store
+                .action_list(&Default::default())
+                .unwrap()
+                .entries
+                .is_empty()
+        );
+        let raw = Connection::open(dir.path().join("brn.sqlite")).unwrap();
+        let bytes: Vec<u8> = raw
+            .query_row(
+                "SELECT job_json FROM proposal_rewrites WHERE id=?1",
+                [spec.id.to_string()],
+                |r| r.get(0),
+            )
+            .unwrap();
+        let text = String::from_utf8(bytes).unwrap();
+        assert!(!text.contains("Whole Action instruction") && !text.contains("Whole suggestion"));
     }
+}
+
+#[test]
+fn owned_action_rewrite_invalid_results_are_whole_refusals_and_later_comments_win() {
+    let (_dir, mut store) = fixture();
+    let original = store.create_proposal(&draft()).unwrap();
+    for case in 0..5 {
+        let spec = RewriteSpec {
+            id: Uuid::new_v4(),
+            expected: original.stamp(),
+            provider: "chatgpt".into(),
+            model: "synthetic".into(),
+            effort: "high".into(),
+        };
+        store.begin_proposal_rewrite(&spec).unwrap();
+        let mut result = edit(&original);
+        result.action_data[0].title = "Must not install partially".into();
+        match case {
+            0 => result.action_data.clear(),
+            1 => {
+                result.action_data.pop();
+            }
+            2 => {
+                result.action_data.push(data());
+            }
+            3 => result.action_data[1].state = ActionState::Completed,
+            _ => result.action_data[1].sources = vec![Uuid::nil()],
+        }
+        assert!(validate_result(&original, &result).is_err());
+        assert!(
+            store
+                .finish_proposal_rewrite(spec.id, &RewriteOutcome::Completed(result))
+                .is_err()
+        );
+        assert_eq!(
+            store.proposal(original.draft.id).unwrap(),
+            Some(original.clone())
+        );
+        assert_eq!(
+            store.proposal_rewrite(spec.id).unwrap().unwrap().status,
+            RewriteStatus::Running
+        );
+        store
+            .finish_proposal_rewrite(spec.id, &RewriteOutcome::Failed("tool_rejected".into()))
+            .unwrap();
+    }
+    let spec = RewriteSpec {
+        id: Uuid::new_v4(),
+        expected: original.stamp(),
+        provider: "chatgpt".into(),
+        model: "synthetic".into(),
+        effort: "high".into(),
+    };
+    store.begin_proposal_rewrite(&spec).unwrap();
+    let later = store
+        .add_proposal_comment(&CommentRequest {
+            expected: original.stamp(),
+            comment: ReviewComment {
+                id: Uuid::new_v4(),
+                text: "Newer exact instruction".into(),
+                target: CommentTarget::Proposal,
+            },
+        })
+        .unwrap();
+    let mut result = edit(&original);
+    result.action_data[0].description = "Late suggestion".into();
+    let finished = store
+        .finish_proposal_rewrite(spec.id, &RewriteOutcome::Completed(result))
+        .unwrap();
+    assert_eq!(finished.status, RewriteStatus::Stale);
+    assert_eq!(store.proposal(original.draft.id).unwrap(), Some(later));
+    assert!(
+        store
+            .action_list(&Default::default())
+            .unwrap()
+            .entries
+            .is_empty()
+    );
 }
 
 const OLD_DRAFT: &[u8]=br#"{"id":"00000000-0000-4000-8000-000000000001","group_id":null,"session_id":null,"vault":{"id":"00000000-0000-4000-8000-000000000002","root":"/synthetic/vault","identity":{"device":1,"inode":1}},"title":"Original","changes":[{"kind":"create","path":"note.md","parent":{"device":1,"inode":1},"text":"exact\r\n"}],"sources":[]}"#;

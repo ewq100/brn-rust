@@ -96,7 +96,7 @@ invalid cursors are rejected before authority reads; absent IDs return NotFound.
 Pages default to all states/25 entries, with optional state filtering and an
 exclusive immutable creation-time/UUID cursor. Editing an Action does not reorder
 it. Exact Action creation/replacement uses the proposal lifecycle below. Dashboard
-controls follow later; owned Action Rewrite and Action-bearing Undo remain refused.
+controls use this boundary; owned Action Rewrite uses the lifecycle below. Action-bearing Undo remains refused.
 
 [Dashboard](src/dashboard.rs) exposes `App::action_dashboard` and the correlated
 `ActionDashboard` command/event. Default Active is Open/Waiting/Blocked; explicit
@@ -293,8 +293,8 @@ including mixed Markdown/Action drafts. Replace fixes the complete checked curre
 record; edits cannot alter its baseline or immutable origin. The existing budget
 is 64 combined members and 8 MiB. Only file/source-free work may omit vault binding;
 Markdown/source work requires the exact vault. Completed Actions cannot be edited
-or reopened through these members. Owned Action Rewrite and Action Undo remain
-refused pending their own contracts.
+or reopened through these members. Owned Action Rewrite changes review only;
+Action Undo remains refused pending its inverse contract.
 
 Checked ordinary recovery supports already-typed Action snapshots without
 inventing a vault for file/source-free work. Bound and mixed snapshots keep exact
@@ -365,11 +365,15 @@ complete Action identities/data/baselines without loading every body into a page
 `proposal_rewrite::RewriteRequest` binds a job UUID, exact proposal stamp, explicit
 provider/model, low/medium/high effort and event generation. AppWorker's
 `StartProposalRewrite` replays history before current-vault/account access, then
-preflights the bound vault and read tools. Fresh admission captures the complete
+preflights the current AI vault and read tools. Source-free Action reviews have no
+file binding and need no prior editor visit; captured file/source bindings must
+match exactly. Fresh admission captures the complete
 proposal/comments on the checked owned AI lane. `ProposalRewrite` reads safe
 job history offline. No automatic provider/model fallback or retry occurs.
 Running replay returns AlreadyRunning history, preserving the original owned
 generation; it does not subscribe a new presentation generation to that job.
+Clients use `RewriteRequest::check_replay` for exact job/provider/model/effort
+correlation; presentation labels are never operational provider keys.
 
 Ask and Rewrite share one active owned job, cancellation registry and read-tool
 lease drain. Stop withdraws queued Rewrite before admission or cancels active
@@ -379,8 +383,13 @@ Running jobs become Interrupted at restart without resubmission.
 
 The Rig adapter bounds full capture and buffered output to 50 MiB encoded JSON;
 it never truncates the full proposal or emits raw Rewrite deltas. Strict output
-contains exactly title and every member's full text/null. WorkStore additionally
-enforces the decoded 1 MiB/member and 8 MiB aggregate review limits. Malformed,
+contains title, every note member's full text/null and ordered full `action_data`
+for every Action member. Each Action requires all14 fields, including explicit
+nulls; missing, duplicate or unknown fields refuse. Legacy Markdown results may
+omit the empty vector and retain their old hashes. Immutable Action kinds/UUIDs/
+full Replace baselines and source bindings never come from provider output.
+WorkStore additionally enforces Action domains, complete member counts, decoded
+1 MiB/note and 8 MiB aggregate review limits. Completed candidates refuse. Malformed,
 partial or oversized results settle a safe failure without editing. Validated
 result and terminal job commit together against the captured stamp/hash; later
 review changes settle Stale. Rewrite changes operational review only. Temporary

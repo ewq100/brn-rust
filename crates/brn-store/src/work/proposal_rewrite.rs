@@ -218,11 +218,6 @@ fn begin(
         return Err(conflict());
     }
     let capture = proposals::draft_at(&tx, spec.expected)?.record;
-    if !capture.draft.action_changes.is_empty() {
-        return Err(invalid(
-            "owned AI Rewrite does not support Action proposals",
-        ));
-    }
     let job = RewriteJob {
         spec: spec.clone(),
         capture_sha256: hash(&encode(&capture)?),
