@@ -62,6 +62,7 @@ fn run(data: &Path, args: &[&str]) -> (i32, Value) {
     (output.status.code().unwrap(), envelope)
 }
 
+#[cfg(target_os = "macos")]
 fn ok(data: &Path, args: &[&str]) -> Value {
     let (exit, envelope) = run(data, args);
     assert_eq!(exit, 0, "{envelope}");
