@@ -4,8 +4,8 @@
 [product vision](product/BRN_PRODUCT_VISION.md), [architecture](architecture/overview.md#frozen-target),
 [invariants](architecture/invariants.md), [roadmap](roadmap.md) and
 [development workflow](development/workflow.md). **Stages 1–4 are implemented,
-automated verified and locally integrated. Stage 5 knowledge foundations is active; Stages 5–16 remain
-unfinished. Complete BRN v1 delivery is not claimed.**
+automated verified and locally integrated. Stage 5 qualification/publication continues; Stage 6 Actions/dashboard is active.
+Stages 5–16 remain unfinished. Complete BRN v1 delivery is not claimed.**
 
 Manual Save/recovery (`6609442`) preserves exact UTF-8, generation-bound recovery
 and file/parent/root identities. Copies install exclusively; missing originals
@@ -158,6 +158,18 @@ actual Rig synthetic transport tests across three explicit routes and both Ask
 APIs; no extra call or Rewrite protocol change occurs. Fresh adapter/capability
 fixtures passed **86 library +1 example tests**. Actual response-language compliance
 remains unqualified. Safe later implementation continues; Stage 5 is not complete.
+
+Stage 6’s [active plan](work/active/actions-dashboard/plan.md) fixes checked
+operational Action records/read APIs as the first slice, then extends the existing
+exact proposal lifecycle for creation/changes and adds explicit identified Complete
+and dashboard/headless parity. Checked V10 records/reads are independently
+reviewed and automated verified:17Action/241Store tests,964workspace/0failed/
+3ignored+52fixtures,213combined-native tests,both Clippy variants/shipping build.
+A reproduced populated-schema backup-restore defect was fixed with an owned V10
+precheck;semantic damage refuses while physical backup recovery remains intact.
+Two shipping startup/restart checks preserved exact bytes,V10 and zero credentials.
+Local integration is in this checkpoint; publication remains pending. No real
+Action producer or completed Stage6 is claimed.
 
 ## Qualification still open
 

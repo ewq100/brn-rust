@@ -19,7 +19,7 @@ own saved Markdown; disposable retrieval indexes live outside this crate.
 
 ## Database ownership and recovery
 
-WorkStore uses application ID `BRN2`, schema V9, and retains `brn.owner.lock`
+WorkStore uses application ID `BRN2`, schema V10, and retains `brn.owner.lock`
 for its lifetime. Current settings, text-only conversations and unfinished work
 are preserved by additive migrations. Earlier WorkStore V1 unsaved-edit rows
 remain available; matching text moves atomically into the generation-aware
@@ -272,6 +272,27 @@ state only. Bounded pages use descending creation-time/UUID cursors, including a
 cursor closed between pages, with the open count in the same SQLite snapshot.
 Findings survive ordinary backup/recovery and remain tentative work rather than
 knowledge or proposal authority.
+
+## Checked Action foundation
+
+V10 adds [Actions](src/work/actions.rs) in the existing `brn.sqlite`. This
+foundation exposes only `action(id)` and bounded `action_list(request)` reads;
+creation/changes will join exact proposal application. `ActionOrigin` retains the
+creating proposal stamp and initial exact data. `ActionRecord` retains that
+immutable origin, current data/revision and ordered waiting/completion times.
+Open, Waiting, Blocked and Completed remain distinct. Optional explicit priority
+stays unset when omitted; civil due/follow-up dates use canonical YYYY-MM-DD.
+
+Reads preserve exact strings, filter an optional state and order by immutable
+creation time/UUID descending. A typed cursor retains that key independently of
+later state changes; the default is all states/25 entries, maximum200. A snapshot
+binds validation and paging. Bounded JSON, origin/record hashes, indexed bindings,
+owned table/index shape, UUID/date/time/revision semantics are checked. Semantic
+damage refuses startup before reconciliation/backup; supported V10 owned schema
+shape is checked before quick_check can mistake an unexpected CHECK for physical
+damage; physical SQLite damage uses
+the existing backup restoration path. Relations/dependency existence and cycles
+are approval concerns, not guesses made by retained read APIs.
 
 ## Dependencies and verification
 

@@ -1,6 +1,7 @@
 //! User-work database for the simple notes app (`brn.sqlite`). It is checked
 //! on every open, restored from the newest backup when corrupt, and backed
 //! up after every successful open. Notes themselves live in the vault.
+pub mod actions;
 mod backup;
 pub mod chat;
 pub mod editor;
@@ -70,6 +71,7 @@ const MIGRATIONS: &[&str] = &[
     chat::V7,
     chat::V8,
     findings::V9,
+    actions::V10,
 ];
 
 #[derive(Debug, Clone, PartialEq, Eq)]
@@ -137,6 +139,7 @@ impl WorkStore {
         };
         configure(&conn)?;
         migrate(&mut conn)?;
+        actions::check_all(&conn)?;
         findings::check_all(&conn)?;
         chat::reconcile(&mut conn)?;
         proposal_rewrite::reconcile(&mut conn)?;
@@ -245,14 +248,32 @@ fn check(db: &Path) -> Result<Checked> {
         Err(e) if is_corruption(&e) => return Ok(Checked::Corrupt),
         Err(e) => return Err(e.into()),
     };
+    let identity = (|| -> rusqlite::Result<(i64, i64)> {
+        Ok((
+            conn.query_row("PRAGMA application_id", [], |r| r.get(0))?,
+            conn.query_row("PRAGMA user_version", [], |r| r.get(0))?,
+        ))
+    })();
+    let (application, version) = match identity {
+        Ok(identity) => identity,
+        Err(e) if is_corruption(&e) => return Ok(Checked::Corrupt),
+        Err(e) => return Err(e.into()),
+    };
+    if application == APPLICATION_ID && (10..=MIGRATIONS.len() as i64).contains(&version) {
+        // Readable Action schema damage is semantic refusal. An unexpected
+        // CHECK can make quick_check reject otherwise-valid rows; checking the
+        // owned shape first prevents silently replacing them with older work.
+        match actions::check_schema(&conn) {
+            Err(crate::Error::Sql(e)) if is_corruption(&e) => return Ok(Checked::Corrupt),
+            result => result?,
+        }
+    }
     match conn.query_row("PRAGMA quick_check", [], |r| r.get::<_, String>(0)) {
         Ok(result) if result == "ok" => {}
         Ok(_) => return Ok(Checked::Corrupt),
         Err(e) if is_corruption(&e) => return Ok(Checked::Corrupt),
         Err(e) => return Err(e.into()),
     }
-    let application: i64 = conn.query_row("PRAGMA application_id", [], |r| r.get(0))?;
-    let version: i64 = conn.query_row("PRAGMA user_version", [], |r| r.get(0))?;
     if application == APPLICATION_ID {
         if (1..=MIGRATIONS.len() as i64).contains(&version) {
             return Ok(Checked::Brn(conn));
