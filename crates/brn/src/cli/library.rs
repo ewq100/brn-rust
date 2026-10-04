@@ -302,6 +302,7 @@ pub fn run(i: &Invocation) -> Result<Output, CliFailure> {
         Command::Provenance(command) => Some(super::provenance::prepare(command)?),
         Command::Links(command) => Some(super::links::prepare(command)?),
         Command::Findings(command) => Some(super::findings::prepare(command)?),
+        Command::Actions(command) => Some(super::actions::prepare(command)?),
         Command::Relationships(request) => Some(super::relationships::prepare(request)?),
         _ => None,
     };
@@ -362,6 +363,10 @@ fn execute(
         Command::Findings(command) => {
             let event = lane.query(knowledge.expect("finding input prepared before startup"))?;
             super::findings::output(command, event)
+        }
+        Command::Actions(command) => {
+            let event = lane.query(knowledge.expect("Action input prepared before startup"))?;
+            super::actions::output(command, event)
         }
         Command::Identity(command) => {
             let event = lane.query(knowledge.expect("identity input prepared before startup"))?;

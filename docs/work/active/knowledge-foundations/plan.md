@@ -1524,3 +1524,20 @@ tests. Independent comparison confirmed identical installer/platform branches
 and failing test bodies; no sharedMac/language defect. Logs/hashes:
 /private/tmp/brn-pr27-main-ci-review-lfx9dx_6. Model/live/native owner gaps remain
 pending; Stage5 is not complete. Safe Stage6 Action implementation continues.
+
+Native Luna qualification,2026-10-04,baseline0243c5d,used the owned local bundle
+and synthetic data/vault under/private/tmp/brn-v1-native-luna-3xaxva10. Reproduce:
+place distinct `orchard-827` text in managed Current/Source/History notes; search
+each scope and open its result. Current exposes editor/Save; Source/History expose
+exact saved evidence/copy without Save. Explicitly Save `café 🌱` in the BOM/CRLF
+current fixture: disk retained BOM,all5CRLF,zero bare LF and exact Unicode.
+Type two unsaved markers,acknowledge Flush/retry recovery,complete any displayed
+quit guard,verify full process exit,then relaunch/open current.md. Native UI
+restored both unsaved markers while disk remained the exact126-byte saved version;
+fresh Current search returned it. Final Quit left no owned process. An initial
+apparent restart had not completed the quit guard; the corrected full restart
+supersedes that observation. AX worked; ScreenCaptureKit-3811/-3812 prevented
+screenshots. Native scope/Save/acknowledged-recovery qualification passed; visual
+layout,IME,broader review/Undo and owner acceptance remain pending. No provider,
+model asset or original/private data access occurred. Exact temporary evidence:
+logs/native-evidence.md under the owned parent; durable steps/results are above.

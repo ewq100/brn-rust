@@ -1,6 +1,7 @@
 //! Argument parsing and output policy for the shared BRN application CLI.
 //! Global long options may appear before or after the command. Inputs are
 //! validated before AppWorker opens operational storage.
+pub mod actions;
 pub mod activity;
 pub mod ai;
 pub mod editor;
@@ -42,6 +43,7 @@ pub enum Command {
     Provenance(provenance::ProvenanceCommand),
     Links(links::LinksCommand),
     Findings(findings::FindingsCommand),
+    Actions(actions::ActionsCommand),
     Relationships(brn_workflow::knowledge::RelationshipRequest),
     Proposals(proposals::ProposalCommand),
     Ai(ai::AiCommand),
@@ -140,6 +142,8 @@ Commands:
   brn findings show UUID
   brn findings inspect UUID
   brn findings close UUID --version N --state resolved|dismissed
+  brn actions show UUID
+  brn actions list [--state open|waiting|blocked|completed|all] [--limit N] [--before-created-at-ms N --before-id UUID]
   brn proposals create --file DRAFT.json
   brn proposals list [--group UUID]
   brn proposals show PROPOSAL_ID
@@ -537,6 +541,7 @@ fn parse_inner(
         "provenance" => provenance::scan_command(&mut tokens, g, command)?,
         "links" => links::scan_command(&mut tokens, g, command)?,
         "findings" => findings::scan_command(&mut tokens, g, command)?,
+        "actions" => actions::scan_command(&mut tokens, g, command)?,
         "relationships" => relationships::scan_command(&mut tokens, g, command)?,
         "proposals" => proposals::scan_command(&mut tokens, g, command)?,
         "activity" => activity::scan_command(&mut tokens, g, command)?,
@@ -617,6 +622,7 @@ fn parse_inner(
         "provenance" => Command::Provenance(provenance::parse_command(command.unwrap(), &scanned)?),
         "links" => Command::Links(links::parse_command(command.unwrap(), &scanned)?),
         "findings" => Command::Findings(findings::parse_command(command.unwrap(), &scanned)?),
+        "actions" => Command::Actions(actions::parse_command(command.unwrap(), &scanned)?),
         "relationships" => Command::Relationships(relationships::parse_command(&scanned)?),
         "proposals" => Command::Proposals(proposals::parse_command(command.unwrap(), &scanned)?),
         "activity" => Command::Activity(activity::parse_command(&scanned)?),
@@ -848,6 +854,9 @@ pub fn finish(json: bool, command: &str, result: Result<Output, CliFailure>) -> 
 pub fn execute(invocation: &Invocation) -> Result<Output, CliFailure> {
     if let Command::Findings(command) = &invocation.command {
         findings::validate(command)?;
+    }
+    if let Command::Actions(command) = &invocation.command {
+        actions::validate(command)?;
     }
     library::validate_workspace(invocation)?;
     library::run(invocation)

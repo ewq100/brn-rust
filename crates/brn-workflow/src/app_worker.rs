@@ -69,6 +69,8 @@ pub enum AppCommand {
     PrepareNoteLink(crate::knowledge::LinkRequest),
     Relationships(crate::knowledge::RelationshipRequest),
     CaptureFinding(crate::findings::CaptureFindingRequest),
+    Actions(crate::actions::ActionListRequest),
+    Action(Uuid),
     Findings(crate::findings::FindingListRequest),
     Finding(Uuid),
     CloseFinding(crate::findings::CloseFindingRequest),
@@ -168,6 +170,8 @@ pub enum AppEvent {
     NoteLinkDraft(Box<crate::proposals::DraftRequest>),
     Relationships(Box<crate::knowledge::RelationshipPage>),
     Finding(Box<crate::findings::FindingRecord>),
+    Action(Box<crate::actions::ActionRecord>),
+    Actions(Box<crate::actions::ActionPage>),
     Findings(Box<crate::findings::FindingPage>),
     FindingInspection(Box<crate::findings::FindingInspection>),
     CitationCaptured(Box<crate::knowledge::CitationCapture>),
@@ -932,6 +936,8 @@ fn dispatch(
         AppCommand::CaptureFinding(request) => {
             AppEvent::Finding(Box::new(app.capture_finding(&request)?))
         }
+        AppCommand::Actions(request) => AppEvent::Actions(Box::new(app.actions(&request)?)),
+        AppCommand::Action(id) => AppEvent::Action(Box::new(app.action(id)?)),
         AppCommand::Findings(request) => AppEvent::Findings(Box::new(app.findings(&request)?)),
         AppCommand::Finding(id) => AppEvent::Finding(Box::new(app.finding(id)?)),
         AppCommand::CloseFinding(request) => {
