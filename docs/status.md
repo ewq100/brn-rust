@@ -61,12 +61,12 @@ shipping native build and native Clippy. Default desktop passed **131**; workflo
 **186**. The two ignored private crash entry points are exercised by subprocess
 matrices. Earlier slice counts remain in the evidence, not current gate claims.
 
-Stage 5’s [active plan](work/active/knowledge-foundations/plan.md) records eleven
+Stage 5’s [active plan](work/active/knowledge-foundations/plan.md) records twelve
 integrated slices: managed Markdown identities; fresh duplicate/incomplete
 inspection; current/source/history/all retrieval and native read-only browsing;
 durable exact provenance and native source inspection; reliable session/turn
 timestamps; saved CommonMark links; disposable relationships; exact stable-link
-preparation; and native saved-link/relationship inspection. Fresh whole-byte observations detect retained-size/mtime changes. UUID links survive moves without
+preparation; native saved-link/relationship inspection; and native exact link preparation. Fresh whole-byte observations detect retained-size/mtime changes. UUID links survive moves without
 path/title guesses. Saved citations retain their exact historical quotes and
 source uncertainty independently of sessions or disposable indexes.
 
@@ -101,9 +101,9 @@ and stacked panels placing controls outside a 480×480 window. Corrected
 invalidation/scrolling passed **22 independent state/widget tests**, with no
 remaining actionable finding. Unsaved typing and original evidence remain intact.
 
-Fresh final Rust 1.98.1/macOS arm64 locked/offline verification passed **894
+Fresh final Rust 1.98.1/macOS arm64 locked/offline verification passed **907
 workspace tests / 0 failed / 3 ignored**, **52 end-to-end assertions**, retirement,
-format/build/all-target Clippy, **185 native desktop tests / 0 failed / 0 ignored**,
+format/build/all-target Clippy, **201 native desktop tests / 0 failed / 0 ignored**,
 test-support and shipping native Clippy, and the shipping native desktop build.
 Unchanged native workflow/CLI qualification remains in the preceding slice's
 evidence. Two ignored private crash
@@ -115,8 +115,19 @@ scenario is retained. No providers, downloads or actual ONNX inference were used
 The [native manual scenario](../crates/brn-desktop/README.md) is reproducible;
 unlocked GUI/owner acceptance remains pending.
 
-Native link preparation controls, basic review findings and
-multilingual implementation/qualification remain Stage 5 work. The bounded
+Native link preparation uses the guarded initial Replace form, exact captured
+consumer and a separately inspected target UUID/hash. It retains both full source
+bindings and allows title/body edits while fixing path/kind; explicit Create and
+Approve remain separate. Empty/exact-capture body guards prevent discarding authored
+replacement text. Stale operations/form/input/document generations and changed full
+consumer proofs preserve current input. Archived target moves follow UUID. Separate
+proposals retain complete bindings under fresh UUIDs. Independent reviews passed
+**7 form + 6 preparation state + 6 existing creation + 3 new / 1 existing native
+widget tests**, with no actionable defects. A real worker prepare/Create/Approve
+scenario verified unchanged vault until approval; fresh shipping startup/restart
+passed twice with exact synthetic bytes and zero credential files.
+
+Basic review findings and multilingual implementation/qualification remain Stage 5 work. The bounded
 multilingual asset-download permission question is still pending; unrelated safe
 implementation continues. Stage 5 is not complete.
 
@@ -135,8 +146,23 @@ merged as `3665651a7968d82f5f2724e47ecced462394fc31` after exact head `8b17a3f`
 passed macOS Core/UI/Retrieval and Ubuntu shared Core. Windows failed on existing
 Unix-only APIs; the overall run is red, not an all-platform pass. Post-merge tree
 equality and fresh **47 fixture assertions + 5 editor process tests** passed.
-Stage 2 publication is next; later locally integrated stages and this Stage 5 tree
-have not yet received their checkpoint CI qualification. Release/public distribution, additional live calls/model
+Stage 2 [PR #17](https://github.com/ewq100/brn-rust/pull/17) merged as
+`f615398172488b70840bc766a298fefbe7e95288` after corrected head `f9e4fb2` passed
+all three macOS lanes and Ubuntu shared Core. Windows retains the same Unix API
+failure; the overall run remains red. Post-merge tree equality, **52 fixtures +
+5 CLI editor tests**, startup/restart and legacy refusal passed with exact
+synthetic bytes and no credential files. Stage 3
+[PR #18](https://github.com/ewq100/brn-rust/pull/18) publishes the already-completed
+provider evidence without repeating live calls. Fresh isolated local checks passed
+**404 tests / 0 failed / 1 ignored**, **52 assertions**, capability-feature **68
+library + 1 example tests**, feature build/Clippy and integration review. Its exact
+head `94de976` passed macOS Core/UI/Retrieval and Ubuntu shared Core in run
+`37183736545`. Windows retained existing Unix API failures, so the overall run
+is red. PR #18 merged as `a7c15d7e51d318146ce9011e0b284fcfa478e815`;
+tree equality and fresh **52 fixtures + 68 library / 1 example tests** passed.
+Later locally integrated stages and this
+Stage 5 tree have not yet received their checkpoint CI qualification.
+Release/public distribution, additional live calls/model
 downloads, purchases and original/private-data inspection or migration still need
 applicable owner permission. No original data was migrated or inspected.
 

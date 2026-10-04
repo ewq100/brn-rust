@@ -925,3 +925,85 @@ multilingual implementation/qualification. Mac mini requirements remain pinned
 Rust 1.98.1, macOS Apple Silicon/Command Line Tools, cached locked dependencies,
 protobuf, Bash/Python 3, fresh canonical synthetic directories and an unlocked
 session for native acceptance. Existing credentials/data are not transfer inputs.
+
+
+## Twelfth slice: native exact stable-link preparation
+
+Baseline: `main@9298ad0b7f837c863edfb4a81901292239c210e8`; preserve the owner's
+AGENTS.md edit. Stage 2 checkpoint PR #17 is independently reviewed and pending
+corrected shared CI; its three macOS lanes passed at the initial head.
+
+Use the existing guarded initial proposal form, captured ProposalSource,
+NoteLinks target inspection and PrepareNoteLink command. A Replace form with
+an exact captured consumer accepts a scalar target path and literal label.
+Preparation is available only before submission, with an empty body or the exact
+captured source body, so it cannot discard authored replacement text. A separate
+target request requires Unique managed identity and retains full UUID/hash;
+archive source/history targets are allowed. Operation, form/input generations,
+document generation and full captured consumer proof correlate late replies.
+Changed input and stale success/errors cannot replace current typing. A target
+may move by UUID during preparation; preserve the returned current binding.
+
+Retain the complete validated prepared DraftRequest with both sources and full
+Replace fingerprint. Only title/body remain editable; path/kind/bindings stay
+fixed. Keep actual captured before text only when its full proof matches the
+prepared consumer. Separate-proposal cloning keeps all bindings with a fresh UUID.
+Explicit Create admits ordinary review work; exact Approve applies Markdown.
+No new storage/API/framework, automatic admission, provider call or navigation
+shortcut. Native controls show the complete immutable source proofs and reuse
+existing full body widgets, dirty-form/recovery guards and exact Copy.
+
+Acceptance: meaningful form/state tests for binding retention, retry/separate,
+wrong/stale operations/input/consumer proof, archived/moved targets, Unicode and
+BOM/CRLF, refusal without input loss, and real AppWorker preparation with unchanged
+vault/proposals/credentials until explicit creation/approval. Native widget tests
+must exercise the actual form and complete proof rendering. Independent read-only
+review, technical validation/fixes and fresh default/native checks precede local
+integration. Record a reproducible synthetic manual scenario; actual unlocked GUI
+and owner acceptance remain pending. Root owns state/native integration; bounded
+helper owns DraftForm's fixed complete-request retention seam and its tests.
+
+
+The complete request adapter's behavioral RED became **7 focused form tests**
+passed; its independent reviewer found no actionable defect and separately passed
+all seven. Root's real-worker preparation RED became **6 state tests** passed,
+covering archived UUID moves, same-byte consumer inode replacement, stale form/
+input/document replies, invalid labels/authored body refusal, and explicit
+prepare/Create/Approve with no premature Markdown effects. A second reviewer
+found no state defect and independently passed those six plus **6 existing
+creation regressions**. Native missing-controls RED became **3 widget tests**
+passed at 480×480, including full immutable proof/body Copy and pending Create
+refusal. Independent native review passed **3 new + 1 existing initial widget**
+tests with no actionable defect. The pinned Editor consumes wheel events when
+its inner offset changes; no speculative propagation change was needed.
+
+Fresh final root macOS arm64 / Rust 1.98.1 locked/offline integrated checks passed
+retirement, format/build/all-target Clippy, **907 workspace tests / 0 failed /
+3 ignored** and **52 end-to-end assertions**. Ignored private crash entries remain
+exercised by subprocess matrices; the unchanged case-sensitive adapter regression
+was qualified in the tenth slice. Native desktop `native-ui,native-retrieval,
+native-test-support` passed **201 tests / 0 failed / 0 ignored**. Test-support and
+shipping native all-target Clippy with warnings denied, and shipping native build
+passed. Only upstream block 0.1.6's known future-compiler notice remains. Fresh
+shipping AppWorker startup/restart passed twice against exact synthetic managed
+current/archive notes with zero credential files. No provider/model/private-data
+calls or actual ONNX inference. Changed-doc local links/fragments and diff checks
+passed. See the native README for the reproducible complete preparation/review/
+approval and stale-input scenario; actual unlocked GUI/IME/accessibility and owner
+acceptance remain pending.
+
+Stage 2 PR #17 merged as `f615398` and Stage 3 PR #18 as `a7c15d7`, each after all
+three exact-head macOS lanes and Ubuntu shared Core passed. Windows retains the
+existing Unix API failure, so both overall runs are red. Qualified merged trees
+match; fresh post-merge fixtures and targeted checks passed. Stage 3's completed
+live scope was not repeated. Their PRs retain exact heads, results and resumable
+environment requirements. Proposal Core publication proceeds as coherent A/B/C
+checkpoints rather than a giant PR; Stage 5 checkpoint CI remains pending.
+
+This twelfth slice is implemented, automated verified, independently reviewed and
+locally integrated by the commit containing this record. Next: basic persisted
+review findings with exact saved evidence, then multilingual implementation and
+qualification. Download permission remains pending. Transfer requirements remain
+pinned Rust 1.98.1, Apple Silicon/Command Line Tools, cached locked dependencies,
+protobuf, Bash/Python 3, fresh canonical synthetic data/TMPDIR and an unlocked
+session for owner GUI acceptance. Original data and credentials are not inputs.

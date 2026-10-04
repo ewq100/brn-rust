@@ -36,9 +36,87 @@ pub struct DraftForm {
     pub pending: bool,
     pub result: Option<(u64, ProposalRecord)>,
     pub error: Option<String>,
+    prepared: Option<DraftRequest>,
 }
 
+#[cfg(test)]
+#[path = "draft_prepared_tests.rs"]
+mod prepared_tests;
+
 impl DraftForm {
+    /// Retain the complete read-only link preparation as ordinary review input.
+    /// The consumer and target source versions stay bound; no source text is invented.
+    pub fn from_prepared(request: DraftRequest) -> brn_workflow::Result<Self> {
+        request.validate()?;
+        let [
+            DraftNoteChange::Replace {
+                path,
+                expected,
+                text,
+            },
+        ] = request.changes.as_slice()
+        else {
+            return Err(brn_workflow::WorkflowError::msg(
+                "Prepared link review needs exactly one existing-note replacement.",
+            ));
+        };
+        if request.sources.len() != 2
+            || !request
+                .sources
+                .iter()
+                .any(|source| source.path == *path && source.fingerprint == *expected)
+        {
+            return Err(brn_workflow::WorkflowError::msg(
+                "Prepared link review needs distinct consumer/target bindings and the consumer's exact full fingerprint.",
+            ));
+        }
+        Ok(Self {
+            id: request.id,
+            title: request.title.clone(),
+            path: path.clone(),
+            text: text.clone(),
+            kind: DraftKind::Replace,
+            session_id: request.session_id,
+            generation: 1,
+            binding_generation: 1,
+            source: None,
+            source_operation: None,
+            source_error: None,
+            submitted: None,
+            pending: false,
+            result: None,
+            error: None,
+            prepared: Some(request),
+        })
+    }
+
+    /// The validated preparation, including all immutable full source bindings.
+    pub fn prepared_request(&self) -> Option<&DraftRequest> {
+        self.prepared.as_ref()
+    }
+
+    /// Copy retained input to a new proposal UUID without losing prepared proofs.
+    /// Invalid full typing is retained for correction; admission validates it later.
+    pub fn separate(&self) -> Option<Self> {
+        if self.pending {
+            return None;
+        }
+        let mut next = Self::new(None)?;
+        next.edit(
+            self.title.clone(),
+            self.path.clone(),
+            self.text.clone(),
+            self.kind,
+        );
+        next.session_id = self.session_id;
+        next.source = self.source.clone();
+        next.prepared = self.prepared.clone().map(|mut request| {
+            request.id = next.id;
+            request
+        });
+        Some(next)
+    }
+
     pub fn new(turn: Option<&WorkTurn>) -> Option<Self> {
         if turn.is_some_and(|turn| {
             turn.status != WorkTurnStatus::Completed
@@ -64,10 +142,15 @@ impl DraftForm {
             pending: false,
             result: None,
             error: None,
+            prepared: None,
         })
     }
 
     pub fn edit(&mut self, title: String, path: String, text: String, kind: DraftKind) {
+        if self.prepared.is_some() && (self.path != path || self.kind != kind) {
+            self.error = Some("Prepared link destination and kind stay fixed. Copy retained input and prepare another link to change them.".into());
+            return;
+        }
         if (&self.title, &self.path, &self.text, self.kind) == (&title, &path, &text, kind) {
             return;
         }
@@ -106,6 +189,21 @@ impl DraftForm {
     }
 
     pub fn request(&self) -> brn_workflow::Result<DraftRequest> {
+        if let Some(prepared) = &self.prepared {
+            let mut request = prepared.clone();
+            let DraftNoteChange::Replace { path, text, .. } = &mut request.changes[0] else {
+                unreachable!("from_prepared retains only one Replace")
+            };
+            if self.id != request.id || self.kind != DraftKind::Replace || self.path != *path {
+                return Err(brn_workflow::WorkflowError::msg(
+                    "Prepared link destination and kind stay fixed. Copy retained input and prepare another link to change them.",
+                ));
+            }
+            request.title = self.title.clone();
+            *text = self.text.clone();
+            request.validate()?;
+            return Ok(request);
+        }
         if self.kind == DraftKind::Trash && !self.text.is_empty() {
             return Err(brn_workflow::WorkflowError::msg(
                 "Trash has no replacement text. Copy and explicitly clear the retained note text before creating this proposal.",

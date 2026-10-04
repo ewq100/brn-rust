@@ -26,6 +26,8 @@ use std::{
     time::{Duration, Instant},
 };
 use uuid::Uuid;
+#[path = "link_preparation_state.rs"]
+mod link_preparation_state;
 #[path = "relationship_state.rs"]
 mod relationship_state;
 
@@ -121,6 +123,11 @@ pub enum Pending {
         form: Uuid,
         request: Box<brn_workflow::proposals::DraftRequest>,
     },
+    LinkTarget(link_preparation_state::LinkCapture),
+    LinkPrepare {
+        capture: link_preparation_state::LinkCapture,
+        request: Box<brn_workflow::knowledge::LinkRequest>,
+    },
     Account(AccountCommand),
     Bind,
     Refresh,
@@ -208,6 +215,7 @@ pub struct AiState {
     pub activity_error: Option<String>,
     pub activity_generation: u64,
     pub draft: Option<crate::draft::DraftForm>,
+    pub link_preparation: link_preparation_state::LinkPreparation,
     pub last_draft_request: Option<brn_workflow::proposals::DraftRequest>,
     pub provider: Option<Provider>,
     pub generation: u64,
@@ -627,6 +635,7 @@ impl AiState {
             return false;
         };
         self.draft = Some(draft);
+        self.link_preparation = Default::default();
         true
     }
     pub fn discard_draft(&mut self) -> bool {
@@ -634,22 +643,15 @@ impl AiState {
             return false;
         }
         self.draft = None;
+        self.link_preparation = Default::default();
         true
     }
     pub fn separate_draft(&mut self) -> bool {
-        let Some(old) = self.draft.as_ref().filter(|draft| !draft.pending) else {
+        let Some(draft) = self.draft.as_ref().and_then(|draft| draft.separate()) else {
             return false;
         };
-        let mut draft = crate::draft::DraftForm::new(None).expect("empty form");
-        draft.edit(
-            old.title.clone(),
-            old.path.clone(),
-            old.text.clone(),
-            old.kind,
-        );
-        draft.session_id = old.session_id;
-        draft.source = old.source.clone();
         self.draft = Some(draft);
+        self.link_preparation = Default::default();
         true
     }
     pub fn draft_source(&mut self) -> Option<(Uuid, AppCommand)> {
@@ -657,7 +659,10 @@ impl AiState {
             return None;
         }
         let draft = self.draft.as_mut()?;
-        if draft.pending || draft.kind == crate::draft::DraftKind::Create {
+        if draft.pending
+            || draft.kind == crate::draft::DraftKind::Create
+            || draft.prepared_request().is_some()
+        {
             return None;
         }
         let (form, path, binding_generation) =
@@ -690,6 +695,9 @@ impl AiState {
                 .values()
                 .any(|pending| matches!(pending, Pending::ReviewMutation { .. }))
         {
+            return None;
+        }
+        if self.link_preparation.operation.is_some() {
             return None;
         }
         let submitted = self.draft.as_mut()?.prepare()?;
@@ -1674,6 +1682,9 @@ impl AiState {
                     }
                 }
             }
+            return commands;
+        }
+        if self.received_link_preparation(id, &event) {
             return commands;
         }
         if let Some(Pending::DraftSource {
