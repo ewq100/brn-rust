@@ -1,4 +1,6 @@
-use serde_json::{json, Value};
+#[cfg(target_os = "macos")]
+use serde_json::json;
+use serde_json::Value;
 use std::{
     fs,
     path::PathBuf,
@@ -80,6 +82,7 @@ impl Fixture {
             .collect()
     }
 }
+#[cfg(target_os = "macos")]
 fn ok((code, envelope): (i32, Value)) -> Value {
     assert_eq!(code, 0, "{envelope}");
     assert_eq!(envelope["schema_version"], 1);
