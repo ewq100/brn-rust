@@ -619,6 +619,7 @@ mod tests {
             serde_json::to_vec(request).unwrap(),
         )
         .unwrap();
+        let _process_fixtures = crate::SUBPROCESS_FIXTURES.lock().unwrap();
         let result = Command::new(std::env::current_exe().unwrap())
             .args([
                 "--exact",

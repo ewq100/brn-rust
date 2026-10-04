@@ -272,6 +272,18 @@ impl App {
                                         "proposed replacement baseline changed",
                                     ));
                                 }
+                                // A known logical identity survives ordinary replacement.
+                                // Malformed old metadata may be explicitly repaired through
+                                // complete reviewed bytes; it never supplies a guessed ID.
+                                if let Ok(Some(existing_id)) =
+                                    brn_store::note_identity::read(&before.text)
+                                {
+                                    let proposed_id = brn_store::note_identity::read(text)
+                                        .map_err(|error| invalid(&error.to_string()))?;
+                                    if proposed_id != Some(existing_id) {
+                                        return Err(invalid("proposed replacement must preserve the note's managed identity"));
+                                    }
+                                }
                                 Ok(NoteChange::Replace {
                                     path: name.clone(),
                                     parent,

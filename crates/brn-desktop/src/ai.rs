@@ -1954,6 +1954,8 @@ impl AiState {
             | AppEvent::ProposalRepairPreview(_)
             | AppEvent::ProposalRepaired(_)
             | AppEvent::ProposalSource(_)
+            | AppEvent::NoteIdentity(_)
+            | AppEvent::NoteIdentityDraft(_)
             | AppEvent::ProposalApplied(_)
             | AppEvent::ProposalGroupApplied(_)
             | AppEvent::ProposalApplies(_) => {}

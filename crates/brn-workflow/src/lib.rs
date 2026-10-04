@@ -7,6 +7,7 @@ pub mod chat_worker;
 pub mod editor;
 pub mod error;
 mod files;
+pub mod knowledge;
 pub mod library;
 pub mod models;
 #[cfg(all(test, feature = "native-retrieval"))]
@@ -26,6 +27,11 @@ pub use brn_store::work::{MAX_NOTE_BYTES, WorkConversation, WorkTurn, WorkTurnSt
 pub use brn_store::workspace_mode::WorkspaceMode;
 pub use error::{ErrorKind, WorkflowError};
 pub type Result<T> = std::result::Result<T, WorkflowError>;
+
+// A fork can briefly inherit another test's CLOEXEC ownership descriptors.
+// Serialize subprocess launches against the ownership release/reacquire proof.
+#[cfg(all(test, target_os = "macos"))]
+pub(crate) static SUBPROCESS_FIXTURES: std::sync::Mutex<()> = std::sync::Mutex::new(());
 
 /// Classify authority markers without opening, inspecting or migrating old data.
 pub fn workspace_mode(data: &std::path::Path) -> Result<WorkspaceMode> {

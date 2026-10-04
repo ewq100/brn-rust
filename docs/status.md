@@ -4,7 +4,7 @@
 [product vision](product/BRN_PRODUCT_VISION.md), [architecture](architecture/overview.md#frozen-target),
 [invariants](architecture/invariants.md), [roadmap](roadmap.md) and
 [development workflow](development/workflow.md). **Stages 1–4 are implemented,
-automated verified and locally integrated. Stage 5 is next; Stages 5–16 remain
+automated verified and locally integrated. Stage 5 knowledge foundations is active; Stages 5–16 remain
 unfinished. Complete BRN v1 delivery is not claimed.**
 
 Manual Save/recovery (`6609442`) preserves exact UTF-8, generation-bound recovery
@@ -60,6 +60,18 @@ format/build/all-target Clippy with warnings denied and **147 native tests**,
 shipping native build and native Clippy. Default desktop passed **131**; workflow
 **186**. The two ignored private crash entry points are exercised by subprocess
 matrices. Earlier slice counts remain in the evidence, not current gate claims.
+
+Stage 5’s [active plan](work/active/knowledge-foundations/plan.md) has locally
+integrated its first slice: exact managed Markdown UUID preparation through
+ordinary proposals, full edit/Rewrite identity protection, read-only CLI inspection,
+source CAS, restart and Undo. Independent reviews found no remaining actionable
+finding. Fresh locked/offline verification passed **711 workspace tests / 0 failed /
+2 ignored**, **52 end-to-end assertions**, format/build/all-target Clippy and
+**147 native tests**, shipping native build and native Clippy. A test-only shared
+subprocess mutex fixes the qualification isolation gap without changing production
+locks. Owner acceptance remains pending. Fresh derived UUID lookup, explicit
+current/source/history scopes, durable provenance and the remaining foundations
+continue next; Stage 5 is not complete.
 
 ## Qualification still open
 

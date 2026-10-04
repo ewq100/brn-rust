@@ -1,0 +1,465 @@
+//! Narrow managed identity in ordinary Markdown frontmatter. Other bytes are opaque.
+use crate::{MAX_NOTE_BYTES, Result, invalid};
+use uuid::Uuid;
+
+const BOM: &str = "\u{feff}";
+
+struct Frontmatter {
+    insertion: usize,
+    newline: &'static str,
+    id: Option<Uuid>,
+}
+
+fn horizontal(text: &str) -> &str {
+    text.trim_matches([' ', '\t'])
+}
+
+fn key_token(text: &str) -> bool {
+    text.strip_prefix("brn_id")
+        .is_some_and(|rest| rest.is_empty() || rest.starts_with([':', ' ', '\t', '#', '=']))
+}
+
+fn recognizable_key(line: &str) -> bool {
+    key_token(line)
+        || ["'brn_id'", "\"brn_id\""]
+            .iter()
+            .any(|prefix| line.starts_with(prefix))
+}
+
+/// Recognizable alternate key forms are refused, not interpreted as absence.
+fn unsupported_key(line: &str) -> bool {
+    let line = line.trim_start_matches([' ', '\t']);
+    recognizable_key(line)
+        || ['?', '{', '-'].iter().any(|prefix| {
+            line.strip_prefix(*prefix)
+                .is_some_and(|rest| recognizable_key(horizontal(rest)))
+        })
+}
+
+fn scalar(value: &str) -> Result<Uuid> {
+    let value = value.trim_start_matches([' ', '\t']);
+    let (uuid, rest) = if let Some(quote @ ('\'' | '"')) = value.chars().next() {
+        let after = &value[1..];
+        let end = after
+            .find(quote)
+            .ok_or_else(|| invalid("managed brn_id scalar has an incomplete quote"))?;
+        (&after[..end], &after[end + 1..])
+    } else {
+        let end = value.find([' ', '\t']).unwrap_or(value.len());
+        (&value[..end], &value[end..])
+    };
+    if !rest.is_empty()
+        && (!rest.starts_with([' ', '\t'])
+            || !horizontal(rest).is_empty()
+                && !rest.trim_start_matches([' ', '\t']).starts_with('#'))
+    {
+        return Err(invalid("managed brn_id scalar has ambiguous trailing text"));
+    }
+    let id = Uuid::parse_str(uuid)
+        .map_err(|_| invalid("managed brn_id must contain a canonical hyphenated UUID"))?;
+    if uuid.len() != 36 || !id.hyphenated().to_string().eq_ignore_ascii_case(uuid) || id.is_nil() {
+        return Err(invalid(
+            "managed brn_id must contain a nonnil canonical hyphenated UUID",
+        ));
+    }
+    Ok(id)
+}
+
+fn line_content(line: &str) -> &str {
+    line.strip_suffix("\r\n")
+        .or_else(|| line.strip_suffix('\n'))
+        .unwrap_or(line)
+}
+
+/// This only identifies opaque indented content belonging to an ordinary root
+/// metadata field. It does not interpret that field's YAML value.
+fn ordinary_root_field(line: &str) -> bool {
+    line.split_once(':').is_some_and(|(key, value)| {
+        !horizontal(key).is_empty()
+            && !key.starts_with(['#', '{', '[', '-', '?', '!', '&', '*'])
+            && (value.is_empty() || value.starts_with([' ', '\t']))
+    })
+}
+
+fn frontmatter(text: &str, strict_assignment: bool) -> Result<Option<Frontmatter>> {
+    let (offset, text) = text
+        .strip_prefix(BOM)
+        .map_or((0, text), |text| (BOM.len(), text));
+    let mut lines = text.split_inclusive('\n');
+    let first = lines.next().unwrap_or("");
+    let opening = line_content(first);
+    if opening != "---" {
+        if horizontal(opening) == "---"
+            || ["--- ", "---\t", "---\r"]
+                .iter()
+                .any(|prefix| opening.starts_with(prefix))
+        {
+            return Err(invalid(
+                "managed note frontmatter opening delimiter is unsupported",
+            ));
+        }
+        return Ok(None);
+    }
+    if !first.ends_with('\n') {
+        return if strict_assignment {
+            Err(invalid("managed note frontmatter is incomplete"))
+        } else {
+            Ok(None)
+        };
+    }
+    let newline = if first.ends_with("\r\n") {
+        "\r\n"
+    } else {
+        "\n"
+    };
+    let mut id = None;
+    let mut opaque_indented = false;
+    let mut managed_scalar = false;
+    for line in lines {
+        let content = line_content(line);
+        if content.starts_with([' ', '\t']) && opaque_indented {
+            continue;
+        }
+        if content.starts_with([' ', '\t'])
+            && managed_scalar
+            && !horizontal(content).is_empty()
+            && !content.trim_start_matches([' ', '\t']).starts_with('#')
+        {
+            return Err(invalid(
+                "managed brn_id cannot have an indented scalar continuation",
+            ));
+        }
+        if matches!(content, "---" | "...") {
+            return Ok(Some(Frontmatter {
+                insertion: offset + first.len(),
+                newline,
+                id,
+            }));
+        }
+        if ["---", "..."].iter().any(|delimiter| {
+            content
+                .strip_prefix(delimiter)
+                .is_some_and(|rest| rest.starts_with([' ', '\t', '\r']))
+        }) {
+            return Err(invalid(
+                "managed note frontmatter closing delimiter is unsupported",
+            ));
+        }
+        if horizontal(content).starts_with(['{', '[']) {
+            return Err(invalid(
+                "managed note frontmatter does not support a root flow layout",
+            ));
+        }
+        if content.is_empty() || content.starts_with('#') {
+            continue;
+        }
+        if let Some(value) = content.strip_prefix("brn_id:") {
+            if id.is_some() {
+                return Err(invalid(
+                    "managed note frontmatter contains duplicate brn_id fields",
+                ));
+            }
+            if !value.starts_with([' ', '\t']) {
+                return Err(invalid(
+                    "managed brn_id needs whitespace after its field colon",
+                ));
+            }
+            id = Some(scalar(value)?);
+            opaque_indented = false;
+            managed_scalar = true;
+        } else if unsupported_key(content) {
+            return Err(invalid(
+                "managed brn_id needs an unindented ordinary brn_id: scalar field",
+            ));
+        } else if !content.starts_with([' ', '\t']) {
+            opaque_indented = ordinary_root_field(content);
+            if opaque_indented {
+                managed_scalar = false;
+            }
+        }
+    }
+    if strict_assignment || id.is_some() {
+        Err(invalid("managed note frontmatter is incomplete"))
+    } else {
+        // A leading Markdown thematic break without managed metadata is ordinary
+        // readable text. Assignment still refuses its ambiguous incomplete header.
+        Ok(None)
+    }
+}
+
+/// Reads only the documented managed field; unrelated metadata and body are opaque.
+pub fn read(text: &str) -> Result<Option<Uuid>> {
+    Ok(frontmatter(text, false)?.and_then(|metadata| metadata.id))
+}
+
+/// Returns complete proposed bytes. It never writes a note or mints an identity.
+pub fn assign(text: &str, id: Uuid) -> Result<String> {
+    if id.is_nil() || text.len() > MAX_NOTE_BYTES {
+        return Err(invalid(
+            "identity assignment needs a nonnil UUID and a bounded note",
+        ));
+    }
+    let (insertion, addition) = if let Some(metadata) = frontmatter(text, true)? {
+        if let Some(existing) = metadata.id {
+            if existing != id {
+                return Err(invalid("managed note already has a different brn_id"));
+            }
+            return Ok(text.to_owned());
+        }
+        (
+            metadata.insertion,
+            format!("brn_id: {id}{}", metadata.newline),
+        )
+    } else {
+        let newline = text.find('\n').map_or("\n", |position| {
+            if text[..position].ends_with('\r') {
+                "\r\n"
+            } else {
+                "\n"
+            }
+        });
+        (
+            if text.starts_with(BOM) { BOM.len() } else { 0 },
+            format!("---{newline}brn_id: {id}{newline}---{newline}"),
+        )
+    };
+    let size = text
+        .len()
+        .checked_add(addition.len())
+        .filter(|size| *size <= MAX_NOTE_BYTES)
+        .ok_or_else(|| invalid("identity assignment exceeds the 1 MiB note limit"))?;
+    let mut assigned = String::with_capacity(size);
+    assigned.push_str(&text[..insertion]);
+    assigned.push_str(&addition);
+    assigned.push_str(&text[insertion..]);
+    Ok(assigned)
+}
+
+/// Full review edits preserve an established proposed identity. Exact legacy bytes
+/// remain allowed, including records predating this managed format.
+pub fn protect(current: &str, edited: &str) -> Result<()> {
+    if current == edited {
+        return Ok(());
+    }
+    let before = read(current)?;
+    let after = read(edited)?;
+    if before.is_some() && before != after {
+        return Err(invalid(
+            "full proposal edit must preserve its established brn_id",
+        ));
+    }
+    Ok(())
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use crate::MAX_NOTE_BYTES;
+
+    const ID: &str = "9ba6f3d8-6a65-4fd4-b8b6-47dc3185657d";
+
+    fn id() -> uuid::Uuid {
+        uuid::Uuid::parse_str(ID).unwrap()
+    }
+
+    #[test]
+    fn assignment_preserves_bom_unicode_metadata_body_and_line_endings() {
+        for newline in ["\n", "\r\n"] {
+            for close in ["---", "..."] {
+                let original = format!(
+                    "\u{feff}---{newline}custom: '日本語 🦀'{newline}opaque: [a, b]{newline}literal: |{newline}  ---{newline}  ...{newline}{close}{newline}# Body λ{newline}brn_id: literal body text{newline}"
+                );
+                assert_eq!(read(&original).unwrap(), None);
+                let assigned = assign(&original, id()).unwrap();
+                let insertion = format!("brn_id: {ID}{newline}");
+                assert_eq!(
+                    assigned,
+                    original.replacen(
+                        &format!("---{newline}"),
+                        &format!("---{newline}{insertion}"),
+                        1
+                    )
+                );
+                assert_eq!(read(&assigned).unwrap(), Some(id()));
+                assert_eq!(assign(&assigned, id()).unwrap(), assigned);
+            }
+        }
+        let original = "\u{feff}# 日本語\r\nbody 🦀\r\n";
+        assert_eq!(
+            assign(original, id()).unwrap(),
+            format!("\u{feff}---\r\nbrn_id: {ID}\r\n---\r\n# 日本語\r\nbody 🦀\r\n")
+        );
+        assert_eq!(
+            assign("", id()).unwrap(),
+            format!("---\nbrn_id: {ID}\n---\n")
+        );
+        let no_final_newline = "---\ncustom: exact\n...";
+        assert_eq!(
+            assign(no_final_newline, id()).unwrap(),
+            format!("---\nbrn_id: {ID}\ncustom: exact\n...")
+        );
+    }
+
+    #[test]
+    fn supported_scalars_comments_and_opaque_body_read_without_normalization() {
+        for scalar in [
+            ID.to_owned(),
+            format!("'{ID}'"),
+            format!("\"{ID}\""),
+            format!("{ID} # retained comment"),
+            format!("'{ID}'\t# retained comment 🦀"),
+            format!("\"{}\"", ID.to_uppercase()),
+        ] {
+            let text =
+                format!("---\ncustom: 'brn_id: nope'\nbrn_id: {scalar}\n---\nbrn_id: not metadata");
+            assert_eq!(read(&text).unwrap(), Some(id()), "{scalar}");
+            assert_eq!(assign(&text, id()).unwrap(), text, "{scalar}");
+        }
+        assert_eq!(read("brn_id: not metadata\n").unwrap(), None);
+        assert_eq!(read("---\n# brn_id: invalid\n---\n").unwrap(), None);
+    }
+
+    #[test]
+    fn ambiguous_and_noncanonical_managed_metadata_never_gets_assigned() {
+        for metadata in [
+            "brn_id:",
+            "brn_id: invalid",
+            "brn_id: 00000000-0000-0000-0000-000000000000",
+            "brn_id: 9ba6f3d86a654fd4b8b647dc3185657d",
+            "brn_id: {9ba6f3d8-6a65-4fd4-b8b6-47dc3185657d}",
+            "brn_id: urn:uuid:9ba6f3d8-6a65-4fd4-b8b6-47dc3185657d",
+            "brn_id: '9ba6f3d8-6a65-4fd4-b8b6-47dc3185657d",
+            "brn_id: 9ba6f3d8-6a65-4fd4-b8b6-47dc3185657d extra",
+            "brn_id: 9ba6f3d8-6a65-4fd4-b8b6-47dc3185657d#ambiguous",
+            "brn_id: \"9ba6f3d8-6a65-4fd4-b8b6-47dc3185657d\"#ambiguous",
+            "brn_id: >\n  9ba6f3d8-6a65-4fd4-b8b6-47dc3185657d",
+            "brn_id: !!str 9ba6f3d8-6a65-4fd4-b8b6-47dc3185657d",
+            "brn_id:9ba6f3d8-6a65-4fd4-b8b6-47dc3185657d",
+            "brn_id : 9ba6f3d8-6a65-4fd4-b8b6-47dc3185657d",
+            "'brn_id': 9ba6f3d8-6a65-4fd4-b8b6-47dc3185657d",
+            " brn_id: 9ba6f3d8-6a65-4fd4-b8b6-47dc3185657d",
+            "{\"brn_id\": 9ba6f3d8-6a65-4fd4-b8b6-47dc3185657d}",
+            "brn_id",
+        ] {
+            let text = format!("---\n{metadata}\n---\nbody\n");
+            assert!(read(&text).is_err(), "{metadata}");
+            assert!(assign(&text, id()).is_err(), "{metadata}");
+        }
+        let duplicate = format!("---\nbrn_id: {ID}\nbrn_id: '{ID}'\n---\n");
+        assert!(read(&duplicate).is_err());
+        assert!(assign(&duplicate, id()).is_err());
+        for incomplete in [
+            "--- \ncustom: metadata\n---\n",
+            "---\ncustom: metadata\n--- # incomplete close\nbrn_id: invalid body\n---\n",
+        ] {
+            assert!(read(incomplete).is_err());
+            assert!(assign(incomplete, id()).is_err());
+        }
+    }
+
+    #[test]
+    fn opaque_indented_metadata_never_becomes_a_managed_root_field() {
+        for metadata in [
+            "summary: |\n  brn_id: literal text\n  ---\n  ...\n  'brn_id': quoted literal",
+            "nested:\n  brn_id: unrelated nested value\n  child: opaque",
+            "'custom': >-\n  brn_id: folded literal text\n\n  continued",
+            "custom: {title: hi, brn_id: unrelated nested scalar}",
+        ] {
+            let original = format!("---\n{metadata}\n---\nBody 日本語 λ\n");
+            assert_eq!(read(&original).unwrap(), None, "{metadata}");
+            let assigned = assign(&original, id()).unwrap();
+            assert_eq!(
+                assigned,
+                format!("---\nbrn_id: {ID}\n{metadata}\n---\nBody 日本語 λ\n")
+            );
+            assert_eq!(read(&assigned).unwrap(), Some(id()));
+            protect(&assigned, &assigned.replace("Body", "Reviewed body")).unwrap();
+        }
+    }
+
+    #[test]
+    fn read_keeps_incomplete_raw_markdown_while_assignment_refuses_ambiguity() {
+        for raw in [
+            "---",
+            "---\n",
+            "---\n# Work\n",
+            "\u{feff}---\r\ncustom: retained\r\n",
+        ] {
+            assert_eq!(read(raw).unwrap(), None);
+            protect(raw, &format!("{raw}more ordinary text\n")).unwrap();
+            assert!(assign(raw, id()).is_err());
+        }
+        let incomplete_managed = format!("---\nbrn_id: {ID}\n# Work\n");
+        assert!(read(&incomplete_managed).is_err());
+        assert!(assign(&incomplete_managed, id()).is_err());
+        protect(&incomplete_managed, &incomplete_managed).unwrap();
+        assert!(protect(&incomplete_managed, "changed text").is_err());
+    }
+
+    #[test]
+    fn root_flow_layout_is_refused_even_when_managed_key_is_later() {
+        for mapping in [
+            format!("{{title: hi, brn_id: {ID}}}"),
+            format!("{{brn_id: {ID}, title: hi}}"),
+            format!("  {{title: hi, 'brn_id': {ID}}}"),
+            "{title: hi}".into(),
+        ] {
+            let text = format!("---\n{mapping}\n---\nBody\n");
+            assert!(read(&text).is_err(), "{mapping}");
+            assert!(assign(&text, id()).is_err(), "{mapping}");
+            protect(&text, &text).unwrap();
+        }
+    }
+
+    #[test]
+    fn managed_scalar_refuses_continuation_but_keeps_comments_and_unrelated_blocks() {
+        for scalar in [ID.to_owned(), format!("'{ID}'"), format!("\"{ID}\"")] {
+            let continued = format!(
+                "---\nbrn_id: {scalar}\n  # allowed comment\n \t\n  extra scalar text\n---\nBody\n"
+            );
+            assert!(read(&continued).is_err(), "{scalar}");
+            assert!(assign(&continued, id()).is_err(), "{scalar}");
+            protect(&continued, &continued).unwrap();
+            assert!(protect(&continued, &continued.replace("Body", "Changed body")).is_err());
+            let valid = format!(
+                "---\nbrn_id: {scalar}\n  # allowed comment\n \t\nsummary: |\n  brn_id: unrelated literal text\n  ---\nnested:\n  child: preserved metadata\n---\nBody\n"
+            );
+            assert_eq!(read(&valid).unwrap(), Some(id()));
+            assert_eq!(assign(&valid, id()).unwrap(), valid);
+            protect(&valid, &valid.replace("Body", "Changed body")).unwrap();
+        }
+    }
+
+    #[test]
+    fn exact_legacy_text_stays_editable_but_recognized_identity_cannot_change() {
+        let malformed = "---\nbrn_id: old invalid value\n---\nbody\n";
+        protect(malformed, malformed).unwrap();
+        assert!(protect(malformed, "new text").is_err());
+        let current = assign("body λ\n", id()).unwrap();
+        let changed = current.replace("body λ", "reviewed body 🦀");
+        protect(&current, &changed).unwrap();
+        assert!(protect(&current, "body λ\n").is_err());
+        assert!(
+            protect(
+                &current,
+                &current.replace(ID, &uuid::Uuid::new_v4().to_string())
+            )
+            .is_err()
+        );
+        protect("body λ\n", &current).unwrap();
+        assert!(protect("body λ\n", malformed).is_err());
+        assert!(assign(&current, uuid::Uuid::new_v4()).is_err());
+        assert!(assign("body", uuid::Uuid::nil()).is_err());
+    }
+
+    #[test]
+    fn assignment_checks_final_bytes_including_metadata_before_allocating_result() {
+        let header = format!("---\nbrn_id: {ID}\n---\n");
+        let at_limit = "a".repeat(MAX_NOTE_BYTES - header.len());
+        let assigned = assign(&at_limit, id()).unwrap();
+        assert_eq!(assigned.len(), MAX_NOTE_BYTES);
+        assert_eq!(assign(&assigned, id()).unwrap(), assigned);
+        assert!(assign(&(at_limit + "λ"), id()).is_err());
+        assert!(assign(&"a".repeat(MAX_NOTE_BYTES + 1), id()).is_err());
+    }
+}

@@ -50,6 +50,8 @@ pub enum AppCommand {
     Editors,
     ReconcileEditor(Uuid),
     ProposalSource(String),
+    NoteIdentity(String),
+    PrepareNoteIdentity(crate::knowledge::IdentityRequest),
     CreateProposal(crate::proposals::DraftRequest),
     Proposal(Uuid),
     Proposals(Option<Uuid>),
@@ -127,6 +129,8 @@ pub enum AppEvent {
     EditorSaved(crate::editor::SaveReceipt),
     Editors(Vec<crate::editor::EditorRecord>),
     ProposalSource(Box<crate::proposals::ProposalSource>),
+    NoteIdentity(crate::knowledge::NoteIdentityInfo),
+    NoteIdentityDraft(Box<crate::proposals::DraftRequest>),
     Proposal(crate::proposals::ProposalRecord),
     ProposalRewrite(Option<crate::proposal_rewrite::RewriteJob>),
     Rewrite(crate::proposal_rewrite::RewriteEvent),
@@ -856,6 +860,10 @@ fn dispatch(
         AppCommand::Note(path) => AppEvent::Note(app.note(&path)?),
         AppCommand::ProposalSource(path) => {
             AppEvent::ProposalSource(Box::new(app.proposal_source(&path)?))
+        }
+        AppCommand::NoteIdentity(path) => AppEvent::NoteIdentity(app.note_identity(&path)?),
+        AppCommand::PrepareNoteIdentity(request) => {
+            AppEvent::NoteIdentityDraft(Box::new(app.prepare_note_identity(&request)?))
         }
         AppCommand::CreateProposal(request) => AppEvent::Proposal(app.create_proposal(&request)?),
         AppCommand::Proposal(proposal) => AppEvent::Proposal(app.proposal(proposal)?),

@@ -13,6 +13,8 @@ A data directory has one owner at a time.
 ```text
 brn activity list [--limit N] [--before OPERATION_UUID]
 brn proposals create --file DRAFT.json
+  brn identity show PATH
+  brn identity prepare PATH --note-id UUID --proposal UUID --title TITLE
   brn proposals list [--group UUID]
   brn proposals show PROPOSAL_ID
   brn proposals edit --file EDIT.json
@@ -302,6 +304,39 @@ bytes and retained originals for Finish or Restore. Then change a destination
 externally, repeat the same request and confirm the recorded receipt leaves the
 newer bytes intact. Native repair presentation and power-loss qualification
 remain separate.
+
+### Managed note identity
+
+`identity show PATH` inspects exact saved current Markdown and reports its
+managed `brn_id` or explicit absence. Malformed/duplicate fields or unsupported
+root metadata layouts return an error. It never substitutes the filename/hash
+for a stable ID. `identity prepare` returns the entire ordinary Replace request
+with caller-chosen nonnil note/proposal UUIDs, complete proposed bytes and exact
+before/source proofs. It changes no note or review record. Existing identities
+refuse reassignment. Unrelated metadata, BOM, line endings and source wording
+are preserved; an incomplete ambiguous header refuses assignment.
+
+In fresh explicit disposable data/vault directories, create a synthetic note
+and run the following with distinct fresh UUIDs and absolute fixture paths:
+
+```sh
+brn identity show note.md --data-dir "$BRN_DATA" --vault "$BRN_VAULT"
+brn identity prepare note.md --note-id "$BRN_NOTE_ID" --proposal "$BRN_PROPOSAL_ID" \
+  --title "Assign stable note identity" --data-dir "$BRN_DATA" > "$BRN_REQUEST_FILE"
+brn proposals create --file "$BRN_REQUEST_FILE" --data-dir "$BRN_DATA"
+brn proposals show "$BRN_PROPOSAL_ID" --data-dir "$BRN_DATA"
+brn proposals approve "$BRN_PROPOSAL_ID" --review-version 1 \
+  --operation "$BRN_APPROVAL_ID" --data-dir "$BRN_DATA"
+brn identity show note.md --data-dir "$BRN_DATA"
+brn proposals undo "$BRN_APPROVAL_ID" --operation "$BRN_UNDO_ID" --data-dir "$BRN_DATA"
+```
+
+Inspect the complete request before creation/approval; if review changes, use its
+actual version. Preparation/creation leave the note unchanged. Approval installs
+the shown ID; restart preserves it, and Undo restores the exact original bytes.
+Changing a source after preparation refuses creation. Derived UUID lookup,
+cross-note duplicate reporting, history scope and durable provenance remain
+subsequent Stage 5 work; this command is current-note identity preparation.
 
 ## Output contract
 

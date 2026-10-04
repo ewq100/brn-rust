@@ -58,6 +58,17 @@ matches `"workshop"`. These APIs never write vault files.
 
 ## Typed proposal review foundation
 
+[`knowledge`](src/knowledge.rs) exposes saved-current `NoteIdentity` inspection and
+`PrepareNoteIdentity`, a read-only full-source preparation command. Explicit
+nonnil note/proposal UUIDs and a title produce a complete ordinary Replace
+`DraftRequest`, including exact before/source proofs. Preparation creates no
+proposal/editor record and writes no vault content; existing CreateProposal and
+exact approval admit/apply the reviewed bytes. Already identified or unsupported
+metadata refuses reassignment. Ordinary fresh replacement preserves a recognized
+target ID; direct manual Save and exact Undo retain their byte semantics. Derived
+UUID lookup, duplicate reporting, history scopes and durable provenance remain
+subsequent Stage 5 work.
+
 `proposal_source(path)` / AppWorker `ProposalSource` return the complete saved
 text and trusted file fingerprint for initial review composition. The capture
 uses current-evidence fences and the same visible Markdown/path/file checks as
