@@ -265,6 +265,20 @@ impl App {
         Ok(self.library.as_mut().ok_or_else(unavailable)?.refresh()?)
     }
 
+    pub(crate) fn cache_relationships(
+        &mut self,
+        edges: &[brn_retrieval::note_index::NoteEdge],
+        request: &crate::knowledge::RelationshipRequest,
+    ) -> Result<brn_retrieval::note_index::EdgePage> {
+        self.require_current_evidence()?;
+        self.require_vault()?;
+        Ok(self
+            .library
+            .as_mut()
+            .ok_or_else(unavailable)?
+            .relationship_page(edges, request.scope, request.offset, request.limit)?)
+    }
+
     pub fn embed_pending(&mut self, batch: usize) -> Result<Option<EmbeddingProgress>> {
         self.require_current_evidence()?;
         self.require_vault()?;

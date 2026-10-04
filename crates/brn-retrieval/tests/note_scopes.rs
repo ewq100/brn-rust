@@ -271,7 +271,7 @@ fn schema_one_and_deleted_index_rebuild_without_adopting_stale_metadata() {
         .unwrap();
     drop(writer);
     let raw = Connection::open(&path).unwrap();
-    raw.execute_batch("ALTER TABLE notes DROP COLUMN note_id; ALTER TABLE notes DROP COLUMN metadata_issue; PRAGMA user_version=1").unwrap();
+    raw.execute_batch("DROP TABLE edges; ALTER TABLE notes DROP COLUMN note_id; ALTER TABLE notes DROP COLUMN metadata_issue; PRAGMA user_version=1").unwrap();
     drop(raw);
     let before = std::fs::read(&path).unwrap();
     assert!(matches!(
@@ -308,7 +308,7 @@ fn schema_one_and_deleted_index_rebuild_without_adopting_stale_metadata() {
             .unwrap()
             .query_row("PRAGMA user_version", [], |row| row.get::<_, i64>(0))
             .unwrap(),
-        2
+        3
     );
 }
 

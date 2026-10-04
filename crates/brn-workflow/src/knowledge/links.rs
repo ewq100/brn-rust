@@ -3,7 +3,7 @@ use super::{IdentityInventory, IdentityIssue, IdentityOutcome, NoteIdentityInfo,
 use crate::{
     ErrorKind, Result, WorkflowError,
     app::App,
-    vault::{self, EvidencePath},
+    vault::{self, EvidencePath, NoteText},
 };
 use brn_store::note_identity;
 use serde::{Deserialize, Serialize};
@@ -65,6 +65,16 @@ impl App {
     /// Derived consumers must retain the full source proof and identity outcome.
     pub fn note_links(&self, path: &str) -> Result<NoteLinks> {
         let note = self.evidence_note(path)?;
+        let inventory = self.identity_inventory()?;
+        self.links_from_saved(path, &note, &inventory)
+    }
+
+    pub(super) fn links_from_saved(
+        &self,
+        path: &str,
+        note: &NoteText,
+        inventory: &IdentityInventory,
+    ) -> Result<NoteLinks> {
         let source = NoteIdentityInfo {
             path: path.to_owned(),
             note_id: note_identity::read(&note.text)
@@ -74,7 +84,6 @@ impl App {
         let body =
             note_identity::body_start(&note.text).map_err(|error| rejected(error.to_string()))?;
         let raw = extract::extract(&note.text, body)?;
-        let inventory = self.identity_inventory()?;
         if !inventory.notes.contains(&source) {
             return Err(changed_source());
         }
@@ -91,7 +100,7 @@ impl App {
                 issues: Vec::new(),
             };
             if let Some(target) = target {
-                self.resolve_link(&inventory, target, &mut resolved)?;
+                self.resolve_link(inventory, target, &mut resolved)?;
             }
             links.push(resolved);
         }
@@ -104,7 +113,7 @@ impl App {
             source,
             source_outcome,
             links,
-            issues: inventory.issues,
+            issues: inventory.issues.clone(),
         })
     }
 

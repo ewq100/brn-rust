@@ -301,6 +301,7 @@ pub fn run(i: &Invocation) -> Result<Output, CliFailure> {
         Command::Evidence(command) => Some(super::evidence::prepare(command)?),
         Command::Provenance(command) => Some(super::provenance::prepare(command)?),
         Command::Links(command) => Some(super::links::prepare(command)?),
+        Command::Relationships(request) => Some(super::relationships::prepare(request)?),
         _ => None,
     };
     let rewrite_request = match &proposal {
@@ -425,6 +426,17 @@ fn execute(
                 text: note.text.clone(),
                 data: json!({"path": path, "text": note.text}),
             })
+        }
+        Command::Relationships(request) => {
+            let AppEvent::Relationships(page) =
+                lane.query(knowledge.expect("relationship input prepared before startup"))?
+            else {
+                return Err(unexpected());
+            };
+            if page.scope != request.scope || page.offset != request.offset {
+                return Err(unexpected());
+            }
+            Ok(output(json!(page)))
         }
         Command::Activity(request) => {
             let AppEvent::Activity(page) = lane.query(AppCommand::Activity(request.clone()))?

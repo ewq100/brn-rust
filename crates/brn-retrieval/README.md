@@ -14,7 +14,7 @@ integrity. It never calls the writer's create/rebuild path and never repairs a
 foreign or damaged file. `NoteSearch` keyword/vector queries and note listing
 share connection helpers between reader and writer.
 
-BRNI schema V2 caches optional Markdown UUIDs, source/history flags and metadata
+BRNI schema V3 caches optional Markdown UUIDs, source/history flags and metadata
 issues supplied by workflow. The branded writer rebuilds old/damaged derived
 schemas; the reader refuses them without repair. UUID duplication is allowed
 here and resolved by fresh workflow evidence inspection. `KnowledgeScope`
@@ -24,6 +24,24 @@ includes every eligible classified note. Rows with metadata issues are excluded
 from every scope. Scope filtering precedes keyword/vector ranking and limits.
 Metadata updates preserve unchanged passages and embeddings; no index row is
 authoritative knowledge or proof of UUID uniqueness.
+
+V3 adds disposable typed note edges for explicit Markdown links and separately
+labelled provenance inferences. Healthy V2 upgrades additively without replacing
+passages or vectors; V2 readers refuse until the writer upgrades. Edge replacement
+is atomic and requires distinct unique cached UUIDs, eligible endpoint metadata,
+full saved hashes and exact nonempty Unicode byte/quote proofs reconstructed from
+contiguous passages. Each coalesced edge admits at most 8192 proofs and 4 MiB of
+quotes; proof ranges end within 1 MiB. Explicit-link proofs belong to the source,
+provenance-inference proofs to the target. Duplicate pairs/origins or proofs are
+refused without clearing the prior cache.
+
+Writer/reader edge queries share one SQLite snapshot, deterministic source/target/
+origin ordering, both-endpoint scope filtering before pagination, matching totals,
+and limits of 1–200. Malformed stored schemas, endpoints or proofs make readers
+refuse and branded writers rebuild. Note changes remove touching edges; cached
+UUID alias admission also invalidates affected endpoints. Identical metadata and
+mtime-only touches retain proofs. Workflow supplies fresh whole-vault observations;
+these index records confer no durable knowledge or identity authority.
 
 The writer checkpoints its newly created BRNI header before readers attach,
 so a live/new index cannot look like a foreign unbranded file on a subsequent

@@ -640,3 +640,85 @@ original-data inspection occurred. Owner/GUI acceptance remains pending. This sl
 automated verified, independently reviewed and locally integrated with this
 change. Relationship indexing/preparation/views, basic findings and multilingual
 qualification continue; Stage 5 remains active.
+
+## Ninth slice: disposable saved-note relationships
+
+Baseline: `main@14499fec2c105787f4adf49defdc9263152d0946`; preserve the unrelated
+owner AGENTS.md change. Derive directed explicit Markdown links and separately
+labelled provenance-based candidates from fresh saved evidence. Only unique,
+eligible managed endpoints with exact full hashes and nonempty UTF-8 byte/quote
+proofs enter the existing disposable index. No inference call, durable relationship
+write, graph datastore or operational table is introduced.
+
+Use one fresh identity inventory per relationship observation. Reuse the exact
+CommonMark resolver; combine repeated proofs by endpoint pair and origin. A saved
+provenance quote suggests a source relationship only while its UUID/hash/range/
+quote still matches. Self-links do not create note-to-note edges. Ambiguous or
+incompletely inspected identities never become guessed edges. Recheck endpoint
+bytes before recording the observation; report incomplete/extraction observations.
+The cache is not a transactional vault snapshot or authority.
+
+Store typed endpoint/proof records atomically in BRNI schema V3, with foreign-key
+removal and reader validation. Upgrade healthy V2 additively, retaining passages
+and embeddings; branded damage still rebuilds and foreign files stay refused.
+The cache accepts up to 8,192 distinct proofs per coalesced edge: the accepted
+4,096-link extractor can produce an occurrence and definition for every link.
+The existing 4 MiB summed-quote bound remains intact.
+Queries filter both endpoints by existing Current/Source/History/All eligibility
+before deterministic pagination. Current is the default; All explicitly includes
+cross-scope connections. Fresh workflow/AppWorker/CLI queries rebuild derived
+edges offline, so source-unchanged target edits, moves or new duplicates cannot
+reuse a stale resolution. Limit pages to 1–200 records and expose the matching
+total, exact evidence, inspection issues and duplicate identities.
+
+Acceptance: exact inline/reference/provenance proofs, distinct origins, repeated
+proof coalescing, self/external/unmanaged exclusion, scope-before-limit, target-only
+edits/moves/duplicates/incomplete inspection, unchanged vault/no proposals, atomic
+invalid replacement refusal, read-only parity/refusal, V2 upgrade retaining
+vectors, restart/index deletion reconstruction and existing uncertain-work fences.
+Obtain independent read-only review, validate findings, run affected/default/native
+checks and record a CLI manual scenario before local integration. Durable link
+preparation/native views and basic findings follow; graph canvas remains Stage 14.
+
+Ninth-slice evidence, 2026-10-04: retrieval tests passed **47 / 0 failed / 0
+ignored**, including ten edge tests for full cross-passage proofs, exact limits,
+atomic replacement/invalidation rollback, aliases, corruption/reader refusal,
+snapshot pagination and healthy V2 passage/vector retention. CLI passed **128**
+tests, including strict direct preflight and three actual process scenarios.
+Root workflow link/provenance/scope/relationship checks passed **32**, including
+eight relationship regressions. Vault bytes and proposals stay unchanged.
+
+Independent review found a valid boundary mismatch: 4,096 accepted references
+with a shared definition need 4,097 distinct coalesced proofs. Lead's real App
+regression passed link inspection but failed relationship caching before the
+8,192-proof correction; the existing 4 MiB quote bound remains. A helper self-check
+also reproduced an introduced absent-path metadata update invalidating another
+UUID's edges; the corrected no-op precedes invalidation. Both corrections were
+independently rechecked. Final review passed **45 tests / 0 failed / 0 ignored**
+and found no remaining actionable defect. Actual CLI probes passed 8,192 exact
+BOM/CRLF/Unicode proofs, and a 5,000-note chain reported 4,999 matching edges
+with correct first/final pages, hashes and quotes. All 5,002 probe notes remained
+byte-identical; no proposals or credential files. Scale requests took 6.108 s /
+10.026 s on this machine; each request currently rebuilds a fresh observation.
+
+Fresh root pinned Rust 1.98.1/macOS arm64 locked/offline gate:
+`TMPDIR=/private/tmp/brn-relationships-root-q6u4n8p2 bash scripts/verify-end-to-end.sh`
+passed retirement, formatting/build/all-target Clippy with warnings denied,
+**858 tests / 0 failed / 2 ignored** and **52 end-to-end assertions**. Native
+desktop tests passed **168 / 0 failed**; native workflow library/model/link/
+relationship checks passed **143 / 0 failed / 2 ignored**. Both native Clippy
+configurations and shipping desktop build without test support passed. The two
+private ignored crash entry points remain exercised by subprocess matrices.
+Actual ONNX inference was not run; the known upstream block 0.1.6 warning remains.
+
+[CLI manual acceptance](../../../../crates/brn/README.md#derived-relationship-pages)
+covers scope, exact origins/proofs, restart/index loss, UUID moves and duplicates.
+The retained owned fixture at `/private/tmp/brn-relationships-root-q6u4n8p2/manual`
+has data, current/related Markdown and an archived source: Current returns one
+edge, All two coalesced edges. Shipping headless AppWorker startup/restart passed.
+Logs and ownership metadata remain outside Git. No package versions changed;
+UUID's existing serde feature was enabled explicitly. No live calls, model
+downloads or original/private data inspection occurred. Owner/native acceptance
+remains pending. This slice is implemented, automated verified, independently
+reviewed and locally integrated with this change. Durable relationship preparation/
+native views, basic findings and multilingual qualification continue in Stage 5.

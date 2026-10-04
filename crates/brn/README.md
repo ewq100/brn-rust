@@ -492,7 +492,45 @@ Both targets must resolve with exact link quotes. Rename only that synthetic
 Duplicate the renamed synthetic source: the UUID link becomes ambiguous, retaining
 both observed matches. Delete only that fixture's disposable `index.sqlite` and
 restart; results must rebuild from Markdown and original note bytes stay exact.
-Native relationship controls and derived graph indexing follow separately.
+Native relationship controls and the graph canvas follow separately.
+
+### Derived relationship pages
+
+`relationships list` freshly observes saved notes and records rebuildable directed
+edges in the disposable index. It returns `scope`, `offset`, `total`, `edges`,
+inspection `issues` and duplicate identities. Each edge names exact source/target
+UUIDs, paths and full-file hashes, with UTF-8 byte ranges and quotes. Repeated
+proofs for the same endpoints and origin are combined. `explicit_link` describes
+saved Markdown links; `inferred_provenance` is a separately labelled candidate
+from a saved citation that still matches its source. Neither creates an approved
+durable relationship or changes a note.
+
+The default scope is current, offset 0 and limit 50. `--limit` accepts 1–200;
+`--offset` is a nonnegative integer. Both endpoints must fit the selected scope
+before pagination. Use `--scope all` for connections across current/source/history.
+Unmanaged, ambiguous or incompletely inspected endpoint identities never become
+guessed edges. Every query rereads saved evidence, so source-unchanged target edits
+and moves are observed. Rebuilding/removing the derived index loses no knowledge.
+
+For manual acceptance, use a fresh copy of the preceding synthetic
+`current.md`/`source.md` link fixture and create `archive/source.md` with
+a distinct managed UUID and a UUID link to that target. Then run:
+
+```sh
+brn relationships list --data-dir "$BRN_DATA" --vault "$BRN_VAULT" --json
+brn relationships list --scope all --offset 0 --limit 1 --data-dir "$BRN_DATA" --json
+brn relationships list --scope all --offset 1 --limit 1 --data-dir "$BRN_DATA" --json
+```
+
+Current returns one combined explicit edge with exact proofs. All also includes
+the archived source connection; each page reports the same matching total.
+Restart and remove only the disposable fixture's `index.sqlite`, then confirm the
+same page. Edit only the target and confirm its fresh hash; move it and confirm
+UUID links follow the new path. Duplicate its UUID or add malformed managed
+identity metadata and confirm affected relationships are excluded with diagnostic
+observations. Compare saved note bytes and run `proposals list`: queries changed
+no knowledge and created no proposal. Native views and owner acceptance remain
+separate qualification steps.
 
 ## Output contract
 

@@ -15,6 +15,8 @@ mod provenance;
 pub use provenance::*;
 mod links;
 pub use links::*;
+mod relationships;
+pub use relationships::*;
 
 #[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
 #[serde(deny_unknown_fields)]

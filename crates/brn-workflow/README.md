@@ -84,7 +84,7 @@ opening an editor or changing current mutation authority. All three commands
 respect unresolved Save/application fences.
 
 Refresh reads full saved bytes, including archives, and derives UUID/classification
-into disposable BRNI V2 rows. Optional `brn_kind: knowledge|source` and
+into disposable BRNI V3 rows. Optional `brn_kind: knowledge|source` and
 `brn_state: current|history` default to current knowledge; top-level archives
 always count as history. Malformed managed identity, classification or provenance is reported in
 `RefreshReport.unreadable` and excluded from all scoped queries. Unreadable
@@ -131,8 +131,26 @@ targets recheck saved bytes before reporting resolution. Inspection respects
 current-evidence fences, never opens an editor/writes Markdown or starts network
 work, and survives restart/index loss from ordinary Markdown alone. It refuses
 4096-link/4 MiB destination-and-quote overflow instead of silently truncating.
-These are observations, not a transactional vault snapshot. Derived edge indexing,
-durable link preparation and native relationship controls follow separately.
+These are observations, not a transactional vault snapshot.
+
+`Relationships(RelationshipRequest)` refreshes saved metadata, uses one fresh
+identity inventory and rebuilds disposable explicit-link and inferred-provenance
+edges. Each unique, eligible managed endpoint retains UUID/path/full hash; exact
+source link occurrences/definitions or target provenance quotes remain attached.
+Repeated proofs coalesce by directed endpoint pair and origin; self-links and
+external/unmanaged targets do not create note-to-note edges. Inferred provenance
+is a candidate, never an approved durable relationship. Changed/ambiguous or
+incompletely inspected identities cannot become guessed edges. Endpoint bytes
+are rechecked before caching; issues and duplicate paths remain visible.
+
+Pages contain 1–200 edges, a matching total and offset, ordered by source path,
+target path and origin. Existing scopes filter both endpoints before pagination;
+Current is default, and All explicitly includes cross-scope connections. Every
+workflow query derives from saved Markdown offline rather than trusting an old
+target resolution. The cache is neither authority nor a transactional vault
+snapshot. No AI, network, proposal admission or Markdown write occurs. Durable
+link preparation and native relationship controls follow separately; graph canvas
+remains its later roadmap stage.
 
 `proposal_source(path)` / AppWorker `ProposalSource` return the complete saved
 text and trusted file fingerprint for initial review composition. The capture

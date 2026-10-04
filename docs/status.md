@@ -61,53 +61,42 @@ shipping native build and native Clippy. Default desktop passed **131**; workflo
 **186**. The two ignored private crash entry points are exercised by subprocess
 matrices. Earlier slice counts remain in the evidence, not current gate claims.
 
-Stage 5’s [active plan](work/active/knowledge-foundations/plan.md) has integrated
-managed Markdown UUID preparation through ordinary proposals, edit/Rewrite
-identity protection, fresh complete evidence lookup and duplicate/incomplete
-reporting, explicit exact archived reads, saved classification and scoped
-current/source/history/all retrieval through workflow/CLI, the three AI read tools
-and native browsing/search with read-only evidence views. Durable exact vault
-provenance now lives in ordinary Markdown: fresh UUID/hash/range/quote capture
-prepares full proposals with archived source bindings, and normal approval checks
-new citations after edits/Rewrite. Inspection retains exact quotes through source
-moves, changes, absence/ambiguity and incomplete inspection. A fresh independent
-vault/store with only copied Markdown proves session/index independence; actual
-session Delete remains later qualification. Source CAS, restart, index rebuild
-and Undo are verified; current write/read rules and unresolved-work fences remain
-intact. Independent reviews found no remaining actionable findings. Fresh final
-locked/offline verification passed **836 workspace tests / 0 failed / 2 ignored**,
-**52 end-to-end assertions**, format/build/all-target Clippy, **168 native desktop
-tests**, native all-target Clippy and the shipping native desktop build.
-Fresh full-byte refresh catches retained-size/mtime changes;
-unreadable evidence folders report incomplete inspection while readable current
-knowledge remains usable. Earlier native synthetic observation confirmed scope
-separation, archived/current-history read-only views, typing refusal and an exact
-86-byte BOM/CRLF/Unicode Copy→paste→Save Copy result, preserving original files.
-The Mac locked before the final GUI restart check; owner acceptance remains pending.
-The provenance review's valid malformed-metadata eligibility defect was reproduced,
-fixed and independently rechecked; no actionable finding remains. Its corrected
-review passed 32 checks and an actual synthetic CLI reproduction. Native saved-
-source inspection preserves unsaved typing, binds late replies to document/
-inspection generations and invalidates inspections after Save/Reload. Exact
-read-only quote widgets retain all source outcomes; a rendered twelve-citation
-regression reproduced and corrected missing overflow scrolling. Final independent
-review passed 15 checks, with no remaining actionable finding. Session timestamps
-now retain known creation/activity/start/finish times, explicit unknown legacy
-values and stable replay/restart observations. Native history shows recorded
-activity age. A valid concurrent-summary defect was reproduced and corrected with
-one SQLite read snapshot; independent correction review sampled 3,040 summaries
-during 1,000 attached writes with no inconsistencies. Fresh synthetic native
-startup and CLI checks passed for new data and a V7 database upgrade. Saved
-CommonMark inline/reference links now retain exact occurrence/definition proofs,
-resolve contained paths or stable UUID targets, and expose uncertainty through
-AppWorker/CLI. UUID links survive moves; no path/title guess or network occurs.
-Independent review reproduced and rechecked the ordinary-thematic-break parser
-fix and native event match; final review passed 62 tests plus six synthetic CLI
-scenarios with no actionable finding. Native workflow checks passed 135 / 0
-failed / 2 ignored; no real model inference occurred. Native GUI/owner acceptance
-remains pending. Derived relationship indexing/preparation/views, basic findings and multilingual
-qualification continue next;
-Stage 5 is not complete.
+Stage 5’s [active plan](work/active/knowledge-foundations/plan.md) records nine
+integrated slices: managed Markdown identities; fresh duplicate/incomplete
+inspection; current/source/history/all retrieval and native read-only browsing;
+durable exact provenance and native source inspection; reliable session/turn
+timestamps; saved CommonMark links; and disposable relationships. Fresh whole-byte
+observations detect retained-size/mtime changes. UUID links survive moves without
+path/title guesses. Saved citations retain their exact historical quotes and
+source uncertainty independently of sessions or disposable indexes.
+
+Relationship pages distinguish explicit links from provenance-based candidates,
+retain full endpoint hashes and exact proofs, filter both endpoints before
+pagination and report duplicates/incomplete inspection. Healthy index V2 upgrades
+additively to V3, preserving passages/vectors. No AI or durable write occurs during
+reconstruction. Independent review reproduced a valid reference-proof boundary;
+the corrected 8,192-proof cache preserves the accepted 4,096-link extractor. An
+introduced absent-metadata update regression was also reproduced and corrected.
+Final independent review passed **45 tests** with no actionable finding, plus
+actual CLI probes for **8,192 exact proofs** and **5,000 notes / 4,999 edges**.
+The two scale queries took **6.108 s / 10.026 s** on this Mac; each relationship
+request currently rederives the saved vault observation.
+
+Fresh final Rust 1.98.1/macOS arm64 locked/offline verification passed **858
+workspace tests / 0 failed / 2 ignored**, **52 end-to-end assertions**, retirement,
+format/build/all-target Clippy, **168 native desktop tests**, **143 native workflow
+tests / 0 failed / 2 ignored**, both native Clippy configurations and the shipping
+native desktop build. Ignored private crash entry points remain exercised by
+subprocess matrices. Shipping headless startup/restart and synthetic CLI scenarios
+passed with unchanged vault bytes and no proposals, provider calls or downloads.
+Actual ONNX inference was not exercised. Earlier native scope/Copy/Save Copy
+observation is retained in the plan; final GUI restart and owner acceptance remain
+pending because the Mac is locked.
+
+Durable relationship preparation/native views, basic review findings and
+multilingual implementation/qualification remain Stage 5 work. The bounded
+multilingual asset-download permission question is still pending; unrelated safe
+implementation continues. Stage 5 is not complete.
 
 ## Qualification still open
 

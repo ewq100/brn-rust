@@ -2169,6 +2169,7 @@ impl AiState {
             | AppEvent::EvidenceNote(_)
             | AppEvent::NoteIdentityDraft(_)
             | AppEvent::NoteLinks(_)
+            | AppEvent::Relationships(_)
             | AppEvent::CitationCaptured(_)
             | AppEvent::NoteProvenanceDraft(_)
             | AppEvent::ProposalApplied(_)
