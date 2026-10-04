@@ -69,6 +69,7 @@ impl Fixture {
     }
 }
 
+#[cfg(target_os = "macos")]
 fn ok(result: (i32, Value), command: &str) -> Value {
     assert_eq!(result.0, 0, "{}", result.1);
     assert_eq!(result.1["schema_version"], 1);
