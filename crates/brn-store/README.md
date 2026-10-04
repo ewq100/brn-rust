@@ -11,6 +11,8 @@ own saved Markdown; disposable retrieval indexes live outside this crate.
 [approval journals](src/work/proposal_apply.rs), [Undo admission](src/work/proposal_undo.rs),
 [explicit repair admission](src/work/proposal_repair.rs),
 [owned Rewrite jobs](src/work/proposal_rewrite.rs),
+[managed note identity](src/note_identity.rs),
+[saved note classification](src/note_metadata.rs),
 [backup/restore](src/work/backup.rs), [filesystem proof DTOs](src/files.rs) and
 [workspace marker guards](src/workspace_mode.rs).
 
@@ -77,6 +79,24 @@ Unresolved while retaining their old range/quote; no text search guesses a new
 anchor. Late Rewrite results use the same version guard and preserve newer edits
 or comments. Rejection retains review work. Group listings keep independently
 reviewable proposals separate. Later domains extend this same typed lifecycle.
+
+Managed note identity uses the ordinary top-level frontmatter scalar
+`brn_id: <nonnil canonical UUID>`. The pure reader/insertion helper supports
+optional BOM, LF/CRLF, complete `---` / `...` delimiters and quoted UUID scalars.
+It preserves unrelated metadata/body bytes and never assigns a path/hash identity.
+Malformed/duplicate managed fields and unsupported root layouts are reported;
+identity assignment refuses incomplete ambiguous frontmatter. Ordinary unmanaged
+Markdown remains readable. Full edits/Rewrite preserve an established proposed ID.
+Historical records/receipts are not revalidated under this new format, and exact
+Undo can remove a prior assignment. No identity table or database migration is added.
+
+The pure `note_metadata::classify` reader accepts optional ordinary scalars
+`brn_kind: knowledge|source` and `brn_state: current|history`; absence means
+current knowledge. Quoted values and comments are supported, while duplicate,
+continued or unsupported managed syntax reports an error. It neither stamps
+metadata nor changes source bytes. Archive-path policy belongs to workflow.
+Classification edits use ordinary full proposals or explicit Save; identity
+protection and exact historical Undo retain their existing semantics.
 
 ## Whole-proposal approval journal
 

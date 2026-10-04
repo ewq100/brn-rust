@@ -1,9 +1,10 @@
 //! The simple application's one owner of user work and the current vault.
 use crate::{
     ErrorKind, Result, WorkflowError,
-    ai_tools::{AiTools, note_page, validate_hits},
+    ai_tools::{AiTools, note_page_scoped, validate_hits_scoped},
     library::{
-        EmbeddingProgress, Library, RefreshReport, SearchMode, SearchResults, SharedEmbedder,
+        EmbeddingProgress, KnowledgeScope, Library, RefreshReport, SearchMode, SearchResults,
+        SharedEmbedder, saved_metadata,
     },
     vault::{self, NoteText, VaultPath},
 };
@@ -222,7 +223,7 @@ impl App {
         self.auth.credentials_dir()
     }
 
-    fn require_vault(&self) -> Result<&Path> {
+    pub(crate) fn require_vault(&self) -> Result<&Path> {
         let root = self.root.as_deref().ok_or_else(|| {
             WorkflowError::typed(
                 ErrorKind::VaultNotBound,
@@ -358,33 +359,72 @@ impl App {
     }
 
     pub fn notes(&mut self, folder: Option<&str>, cursor: Option<&str>) -> Result<NotePage> {
+        self.notes_scoped(folder, cursor, KnowledgeScope::Current)
+    }
+
+    pub fn notes_scoped(
+        &mut self,
+        folder: Option<&str>,
+        cursor: Option<&str>,
+        scope: KnowledgeScope,
+    ) -> Result<NotePage> {
         self.refresh()?;
-        Ok(note_page(
+        Ok(note_page_scoped(
             self.require_vault()?,
-            self.library.as_ref().ok_or_else(unavailable)?.notes()?,
+            self.library
+                .as_ref()
+                .ok_or_else(unavailable)?
+                .notes_scoped(scope)?,
             folder,
             cursor,
+            scope,
         )?)
     }
 
     pub fn note(&self, path: &str) -> Result<NoteText> {
+        self.note_scoped(path, KnowledgeScope::Current)
+    }
+
+    pub fn note_scoped(&self, path: &str, scope: KnowledgeScope) -> Result<NoteText> {
         self.require_current_evidence()?;
         let root = self.require_vault()?;
-        let path = VaultPath::parse(path)
+        if scope == KnowledgeScope::Current {
+            VaultPath::parse(path)
+                .map_err(|e| WorkflowError::typed(ErrorKind::ToolRejected, e.to_string()))?;
+        }
+        let path = vault::EvidencePath::parse(path)
             .map_err(|e| WorkflowError::typed(ErrorKind::ToolRejected, e.to_string()))?;
-        vault::read_note(root, &path)
-            .map_err(|e| WorkflowError::typed(ErrorKind::ToolRejected, e.to_string()))
+        let note = vault::read_evidence(root, &path)
+            .map_err(|e| WorkflowError::typed(ErrorKind::ToolRejected, e.to_string()))?;
+        let metadata = saved_metadata(&note.text, path.as_str());
+        if metadata.issue.is_some() || !scope.includes(metadata.source, metadata.history) {
+            return Err(WorkflowError::typed(
+                ErrorKind::ToolRejected,
+                "The saved note is not eligible for the requested knowledge scope.",
+            ));
+        }
+        Ok(note)
     }
 
     pub fn search(&mut self, query: &str, mode: SearchMode, limit: usize) -> Result<SearchResults> {
+        self.search_scoped(query, mode, limit, KnowledgeScope::Current)
+    }
+
+    pub fn search_scoped(
+        &mut self,
+        query: &str,
+        mode: SearchMode,
+        limit: usize,
+        scope: KnowledgeScope,
+    ) -> Result<SearchResults> {
         self.require_current_evidence()?;
         self.refresh()?;
         let results = self
             .library
             .as_mut()
             .ok_or_else(unavailable)?
-            .search(query, mode, limit)?;
-        validate_hits(self.require_vault()?, &results.hits)?;
+            .search_scoped(query, mode, limit, scope)?;
+        validate_hits_scoped(self.require_vault()?, &results.hits, scope)?;
         Ok(results)
     }
 

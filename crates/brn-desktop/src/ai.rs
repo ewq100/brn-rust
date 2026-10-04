@@ -10,7 +10,7 @@ use brn_workflow::{
         EditRequest, EditStamp, EditorRecord, EditorView, ReloadRequest, SaveOutcome, SaveReceipt,
         SaveRequest,
     },
-    library::{RefreshReport, SearchResults},
+    library::{KnowledgeScope, RefreshReport, SearchMode, SearchResults},
     models::ModelDownloadPrompt,
     proposal_apply::{
         ApplyJournal, ApplyOutcome, ApplyReceipt, ApplySummary, ApprovalRequest, RepairDirection,
@@ -122,7 +122,14 @@ pub enum Pending {
     Bind,
     Refresh,
     Notes {
-        append: bool,
+        scope: KnowledgeScope,
+        generation: u64,
+        cursor: Option<String>,
+    },
+    Evidence {
+        path: String,
+        scope: KnowledgeScope,
+        generation: u64,
     },
     Editor {
         generation: u64,
@@ -134,6 +141,7 @@ pub enum Pending {
     EditorReload,
     Editors,
     Search {
+        scope: KnowledgeScope,
         generation: u64,
     },
     Conversations,
@@ -193,13 +201,18 @@ pub struct AiState {
     pub cancelled_login: Option<Uuid>,
     pub accounts: [AccountRow; 2],
     pub pending: HashMap<Uuid, Pending>,
+    pub knowledge_scope: KnowledgeScope,
+    pub notes_generation: u64,
     pub notes: Vec<NoteEntry>,
     pub next_cursor: Option<String>,
+    pub notes_error: Option<String>,
     pub note_error: Option<String>,
     pub note_generation: u64,
+    pub evidence: Option<EvidenceDocument>,
     pub editor: Option<SimpleEditor>,
     pub editors: Vec<EditorRecord>,
     pub search: Option<SearchResults>,
+    pub search_scope: Option<KnowledgeScope>,
     pub search_generation: u64,
     pub refresh: Option<RefreshReport>,
     pub indexing: Option<(Uuid, usize, usize)>,
@@ -210,6 +223,21 @@ pub struct AiState {
     pub model_state: String,
     pub notice: String,
     pub restored: Option<PathBuf>,
+}
+
+pub struct EvidenceDocument {
+    pub path: String,
+    pub scope: KnowledgeScope,
+    pub note: Option<brn_workflow::vault::NoteText>,
+}
+
+pub fn scope_name(scope: KnowledgeScope) -> &'static str {
+    match scope {
+        KnowledgeScope::Current => "Current",
+        KnowledgeScope::Source => "Source",
+        KnowledgeScope::History => "History",
+        KnowledgeScope::All => "All",
+    }
 }
 
 struct EditorMutation {
@@ -917,15 +945,10 @@ impl AiState {
         }
         // File effects can invalidate displayed/current evidence even when a
         // terminal error follows the recorded outcome. Keep local editor work.
-        self.search = None;
-        self.search_generation = self.search_generation.wrapping_add(1);
-        commands.push(self.command(
-            Pending::Notes { append: false },
-            AppCommand::Notes {
-                folder: None,
-                cursor: None,
-            },
-        ));
+        self.composer_changed();
+        if let Some(command) = self.refresh_notes() {
+            commands.push(command);
+        }
         commands
     }
     pub fn review_can_leave(&self) -> bool {
@@ -1107,6 +1130,88 @@ impl AiState {
     pub fn composer_changed(&mut self) {
         self.search_generation = self.search_generation.wrapping_add(1);
         self.search = None;
+        self.search_scope = None;
+    }
+    pub fn select_scope(&mut self, scope: KnowledgeScope) -> Option<(Uuid, AppCommand)> {
+        if !self.ready || !self.vault_bound || self.knowledge_scope == scope {
+            return None;
+        }
+        self.knowledge_scope = scope;
+        self.composer_changed();
+        self.refresh_notes()
+    }
+    pub fn refresh_notes(&mut self) -> Option<(Uuid, AppCommand)> {
+        if !self.ready || !self.vault_bound {
+            return None;
+        }
+        self.notes_generation = self.notes_generation.wrapping_add(1);
+        self.notes.clear();
+        self.next_cursor = None;
+        self.notes_error = None;
+        Some(self.scoped_notes(None))
+    }
+    fn scoped_notes(&mut self, cursor: Option<String>) -> (Uuid, AppCommand) {
+        self.command(
+            Pending::Notes {
+                scope: self.knowledge_scope,
+                generation: self.notes_generation,
+                cursor: cursor.clone(),
+            },
+            AppCommand::ScopedNotes {
+                scope: self.knowledge_scope,
+                folder: None,
+                cursor,
+            },
+        )
+    }
+    pub fn more_notes(&mut self) -> Option<(Uuid, AppCommand)> {
+        if !self.ready || !self.vault_bound {
+            return None;
+        }
+        let cursor = self.next_cursor.clone()?;
+        if self.pending.values().any(|pending| matches!(pending,
+            Pending::Notes { scope, generation, cursor: Some(pending_cursor) }
+                if *scope == self.knowledge_scope && *generation == self.notes_generation && pending_cursor == &cursor)) {
+            return None;
+        }
+        self.notes_error = None;
+        Some(self.scoped_notes(Some(cursor)))
+    }
+    pub fn search_notes(&mut self, query: String) -> Option<(Uuid, AppCommand)> {
+        if !self.ready || !self.vault_bound || query.trim().is_empty() {
+            return None;
+        }
+        self.composer_changed();
+        Some(self.command(
+            Pending::Search {
+                scope: self.knowledge_scope,
+                generation: self.search_generation,
+            },
+            AppCommand::ScopedSearch {
+                scope: self.knowledge_scope,
+                query,
+                mode: SearchMode::Hybrid,
+                limit: 10,
+            },
+        ))
+    }
+    pub fn open_evidence(&mut self, path: String, scope: KnowledgeScope) -> (Uuid, AppCommand) {
+        self.note_generation = self.note_generation.wrapping_add(1);
+        self.editor = None;
+        self.note_error = None;
+        self.evidence = Some(EvidenceDocument {
+            path: path.clone(),
+            scope,
+            note: None,
+        });
+        self.command(
+            Pending::Evidence {
+                path: path.clone(),
+                scope,
+                generation: self.note_generation,
+            },
+            AppCommand::ScopedNote { scope, path },
+        )
     }
     pub fn command(&mut self, pending: Pending, command: AppCommand) -> (Uuid, AppCommand) {
         let id = Uuid::new_v4();
@@ -1116,6 +1221,7 @@ impl AiState {
     pub fn open_editor(&mut self, path: String) -> (Uuid, AppCommand) {
         self.note_generation = self.note_generation.wrapping_add(1);
         self.editor = None;
+        self.evidence = None;
         self.note_error = None;
         self.command(
             Pending::Editor {
@@ -1828,21 +1934,28 @@ impl AiState {
             }
             AppEvent::Refreshed(report) => {
                 self.refresh = Some(report);
-                commands.push(self.command(
-                    Pending::Notes { append: false },
-                    AppCommand::Notes {
-                        folder: None,
-                        cursor: None,
-                    },
-                ));
+                if let Some(command) = self.refresh_notes() {
+                    commands.push(command);
+                }
             }
             AppEvent::Notes(page) => {
-                if matches!(pending, Some(Pending::Notes { append: true })) {
-                    self.notes.extend(page.notes);
-                } else {
-                    self.notes = page.notes;
+                if let Some(Pending::Notes {
+                    scope,
+                    generation,
+                    cursor,
+                }) = &pending
+                    && *scope == self.knowledge_scope
+                    && *generation == self.notes_generation
+                    && (cursor.is_none() || *cursor == self.next_cursor)
+                {
+                    if cursor.is_some() {
+                        self.notes.extend(page.notes);
+                    } else {
+                        self.notes = page.notes;
+                    }
+                    self.next_cursor = page.next_cursor;
+                    self.notes_error = None;
                 }
-                self.next_cursor = page.next_cursor;
             }
             AppEvent::Proposals(records) => {
                 if matches!(pending, Some(Pending::Proposals)) {
@@ -1949,11 +2062,30 @@ impl AiState {
                     self.application_snapshot = journal.map(|journal| *journal);
                 }
             }
-            AppEvent::Note(_)
-            | AppEvent::ProposalUndoPreview(_)
+            AppEvent::Note(note) => {
+                if let Some(Pending::Evidence {
+                    path,
+                    scope,
+                    generation,
+                }) = &pending
+                    && *generation == self.note_generation
+                    && let Some(evidence) = &mut self.evidence
+                    && evidence.path == *path
+                    && evidence.scope == *scope
+                {
+                    evidence.note = Some(note);
+                    self.note_error = None;
+                }
+            }
+            AppEvent::ProposalUndoPreview(_)
             | AppEvent::ProposalRepairPreview(_)
             | AppEvent::ProposalRepaired(_)
             | AppEvent::ProposalSource(_)
+            | AppEvent::NoteIdentity(_)
+            | AppEvent::IdentityInventory(_)
+            | AppEvent::NoteIdentityResolved(_)
+            | AppEvent::EvidenceNote(_)
+            | AppEvent::NoteIdentityDraft(_)
             | AppEvent::ProposalApplied(_)
             | AppEvent::ProposalGroupApplied(_)
             | AppEvent::ProposalApplies(_) => {}
@@ -2013,9 +2145,12 @@ impl AiState {
             }
             AppEvent::Editors(editors) => self.editors = editors,
             AppEvent::Search(results) => {
-                if matches!(pending, Some(Pending::Search { generation }) if generation == self.search_generation)
+                if let Some(Pending::Search { scope, generation }) = &pending
+                    && *generation == self.search_generation
+                    && *scope == self.knowledge_scope
                 {
                     self.search = Some(results);
+                    self.search_scope = Some(*scope);
                 }
             }
             AppEvent::Conversations(conversations) => self.conversations = conversations,
@@ -2079,6 +2214,31 @@ impl AiState {
                 }
             }
             AppEvent::Failed(error) => {
+                let stale_read = match &pending {
+                    Some(Pending::Notes {
+                        scope,
+                        generation,
+                        cursor,
+                    }) => {
+                        *scope != self.knowledge_scope
+                            || *generation != self.notes_generation
+                            || (cursor.is_some() && *cursor != self.next_cursor)
+                    }
+                    Some(Pending::Search { scope, generation }) => {
+                        *scope != self.knowledge_scope || *generation != self.search_generation
+                    }
+                    Some(
+                        Pending::Evidence { generation, .. } | Pending::Editor { generation, .. },
+                    ) => *generation != self.note_generation,
+                    _ => false,
+                };
+                if stale_read {
+                    self.pending.remove(&id);
+                    return commands;
+                }
+                if matches!(pending, Some(Pending::Notes { .. })) {
+                    self.notes_error = Some(error.message.clone());
+                }
                 if matches!(pending, Some(Pending::Activity { generation, .. }) if generation == self.activity_generation)
                 {
                     self.activity_error = Some(error.message.clone());
@@ -2092,7 +2252,7 @@ impl AiState {
                     self.snapshot_error = Some(error.message.clone());
                 }
                 let mut retained_partial = false;
-                if matches!(pending, Some(Pending::Editor { generation, .. }) if generation == self.note_generation)
+                if matches!(pending, Some(Pending::Editor { generation, .. } | Pending::Evidence { generation, .. }) if generation == self.note_generation)
                 {
                     self.note_error = Some(error.message.clone());
                 }
@@ -2240,6 +2400,9 @@ mod tests {
     #[cfg(target_os = "macos")]
     mod review_state {
         include!("review_state_tests.rs");
+    }
+    mod scope_state {
+        include!("scope_state_tests.rs");
     }
     #[cfg(target_os = "macos")]
     mod approval_state {
@@ -3406,6 +3569,7 @@ mod tests {
         let mut state = ready();
         let (id, _) = state.command(
             Pending::Search {
+                scope: state.knowledge_scope,
                 generation: state.search_generation,
             },
             AppCommand::Search {

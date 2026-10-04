@@ -1214,6 +1214,7 @@ mod unsupported_tests {
 #[cfg(all(test, target_os = "macos"))]
 mod tests {
     use super::*;
+    use crate::SUBPROCESS_FIXTURES as PROCESS_FIXTURES;
     use brn_store::files::{VaultIdentity, VaultRecord};
     use std::{
         os::unix::fs::MetadataExt,
@@ -1221,12 +1222,8 @@ mod tests {
         sync::{Arc, Mutex},
     };
     use uuid::Uuid;
-    // Avoid unrelated tests' fork-before-exec windows temporarily retaining
-    // each other's open flock descriptions during the release/reacquire check.
-    static PROCESS_FIXTURES: Mutex<()> = Mutex::new(());
-
     fn directory() -> tempfile::TempDir {
-        tempfile::tempdir_in(env!("CARGO_MANIFEST_DIR")).unwrap()
+        tempfile::tempdir_in(std::env::temp_dir().canonicalize().unwrap()).unwrap()
     }
 
     fn registered(root: &Path) -> VaultRecord {

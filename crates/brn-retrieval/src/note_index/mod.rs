@@ -7,11 +7,62 @@ mod search;
 
 use crate::{Error, Result, chunk};
 use rusqlite::{Connection, OpenFlags, OptionalExtension, Row, params};
+use serde::{Deserialize, Serialize};
 use sha2::{Digest, Sha256};
 use std::path::Path;
+use uuid::Uuid;
 
 pub use embeddings::{Embedder, EmbeddingProgress};
 pub use search::{NoteHit, check_query, fuse_hits};
+
+#[derive(Debug, Clone, Copy, Default, PartialEq, Eq, Serialize, Deserialize)]
+#[serde(rename_all = "snake_case")]
+pub enum KnowledgeScope {
+    #[default]
+    Current,
+    Source,
+    History,
+    All,
+}
+
+impl KnowledgeScope {
+    pub fn includes(self, source: bool, history: bool) -> bool {
+        match self {
+            Self::Current => !source && !history,
+            Self::Source => source,
+            Self::History => history,
+            Self::All => true,
+        }
+    }
+
+    pub(super) fn predicate(self) -> &'static str {
+        match self {
+            Self::Current => "n.metadata_issue IS NULL AND n.source = 0 AND n.history = 0",
+            Self::Source => "n.metadata_issue IS NULL AND n.source = 1",
+            Self::History => "n.metadata_issue IS NULL AND n.history = 1",
+            Self::All => "n.metadata_issue IS NULL",
+        }
+    }
+}
+
+/// Caller-classified disposable metadata. UUID duplication is reported by the
+/// workflow's fresh saved-evidence inventory, never resolved by this index.
+#[derive(Debug, Clone, Default, PartialEq, Eq)]
+pub struct NoteMetadata {
+    pub note_id: Option<Uuid>,
+    pub source: bool,
+    pub history: bool,
+    pub issue: Option<String>,
+}
+
+impl NoteMetadata {
+    fn validate(&self) -> Result<()> {
+        if self.note_id.is_some_and(|id| id.is_nil()) {
+            return Err(Error::Invalid("note identity is nil"));
+        }
+        Ok(())
+    }
+}
 
 /// A note as last seen in the vault.
 #[derive(Debug, Clone, PartialEq, Eq)]
@@ -30,12 +81,35 @@ pub struct NoteIndex {
 
 pub trait NoteSearch {
     fn keyword(&self, query: &str, limit: usize) -> Result<Vec<NoteHit>>;
+    fn keyword_scoped(
+        &self,
+        query: &str,
+        limit: usize,
+        scope: KnowledgeScope,
+    ) -> Result<Vec<NoteHit>> {
+        if scope != KnowledgeScope::Current {
+            return Err(Error::Invalid("search scope is unsupported"));
+        }
+        self.keyword(query, limit)
+    }
     fn semantic_for_model(
         &self,
         vector: &[f32],
         model_identity: &str,
         limit: usize,
     ) -> Result<Vec<NoteHit>>;
+    fn semantic_for_model_scoped(
+        &self,
+        vector: &[f32],
+        model_identity: &str,
+        limit: usize,
+        scope: KnowledgeScope,
+    ) -> Result<Vec<NoteHit>> {
+        if scope != KnowledgeScope::Current {
+            return Err(Error::Invalid("search scope is unsupported"));
+        }
+        self.semantic_for_model(vector, model_identity, limit)
+    }
 }
 
 /// A query-only connection. Opening a reader never creates or rebuilds the index.
@@ -56,13 +130,48 @@ impl NoteIndexReader {
     }
 
     pub fn notes(&self) -> Result<Vec<IndexedNote>> {
-        notes(&self.conn)
+        self.notes_scoped(KnowledgeScope::Current)
+    }
+
+    pub fn notes_scoped(&self, scope: KnowledgeScope) -> Result<Vec<IndexedNote>> {
+        notes(&self.conn, Some(scope))
+    }
+
+    pub fn note_metadata(&self, path: &str) -> Result<Option<NoteMetadata>> {
+        note_metadata(&self.conn, path)
+    }
+
+    pub fn keyword_scoped(
+        &self,
+        query: &str,
+        limit: usize,
+        scope: KnowledgeScope,
+    ) -> Result<Vec<NoteHit>> {
+        search::keyword(&self.conn, query, limit, scope)
+    }
+
+    pub fn semantic_for_model_scoped(
+        &self,
+        vector: &[f32],
+        model_identity: &str,
+        limit: usize,
+        scope: KnowledgeScope,
+    ) -> Result<Vec<NoteHit>> {
+        embeddings::semantic_for_model(&self.conn, vector, Some(model_identity), limit, scope)
     }
 }
 
 impl NoteSearch for NoteIndexReader {
     fn keyword(&self, query: &str, limit: usize) -> Result<Vec<NoteHit>> {
-        search::keyword(&self.conn, query, limit)
+        search::keyword(&self.conn, query, limit, KnowledgeScope::Current)
+    }
+    fn keyword_scoped(
+        &self,
+        query: &str,
+        limit: usize,
+        scope: KnowledgeScope,
+    ) -> Result<Vec<NoteHit>> {
+        search::keyword(&self.conn, query, limit, scope)
     }
     fn semantic_for_model(
         &self,
@@ -70,13 +179,36 @@ impl NoteSearch for NoteIndexReader {
         model_identity: &str,
         limit: usize,
     ) -> Result<Vec<NoteHit>> {
-        embeddings::semantic_for_model(&self.conn, vector, Some(model_identity), limit)
+        embeddings::semantic_for_model(
+            &self.conn,
+            vector,
+            Some(model_identity),
+            limit,
+            KnowledgeScope::Current,
+        )
+    }
+    fn semantic_for_model_scoped(
+        &self,
+        vector: &[f32],
+        model_identity: &str,
+        limit: usize,
+        scope: KnowledgeScope,
+    ) -> Result<Vec<NoteHit>> {
+        embeddings::semantic_for_model(&self.conn, vector, Some(model_identity), limit, scope)
     }
 }
 
 impl NoteSearch for NoteIndex {
     fn keyword(&self, query: &str, limit: usize) -> Result<Vec<NoteHit>> {
-        search::keyword(&self.conn, query, limit)
+        search::keyword(&self.conn, query, limit, KnowledgeScope::Current)
+    }
+    fn keyword_scoped(
+        &self,
+        query: &str,
+        limit: usize,
+        scope: KnowledgeScope,
+    ) -> Result<Vec<NoteHit>> {
+        search::keyword(&self.conn, query, limit, scope)
     }
     fn semantic_for_model(
         &self,
@@ -84,12 +216,65 @@ impl NoteSearch for NoteIndex {
         model_identity: &str,
         limit: usize,
     ) -> Result<Vec<NoteHit>> {
-        embeddings::semantic_for_model(&self.conn, vector, Some(model_identity), limit)
+        embeddings::semantic_for_model(
+            &self.conn,
+            vector,
+            Some(model_identity),
+            limit,
+            KnowledgeScope::Current,
+        )
+    }
+    fn semantic_for_model_scoped(
+        &self,
+        vector: &[f32],
+        model_identity: &str,
+        limit: usize,
+        scope: KnowledgeScope,
+    ) -> Result<Vec<NoteHit>> {
+        embeddings::semantic_for_model(&self.conn, vector, Some(model_identity), limit, scope)
     }
 }
 
 const NOTE_COLUMNS: &str = "path, title, size, modified_ns, sha256";
+const METADATA_COLUMNS: &str = "note_id, source, history, metadata_issue";
 type NoteRow = (String, String, i64, i64, Vec<u8>);
+type MetadataRow = (Option<String>, i64, i64, Option<String>);
+
+pub(super) fn metadata_row(row: &Row<'_>) -> rusqlite::Result<MetadataRow> {
+    Ok((row.get(0)?, row.get(1)?, row.get(2)?, row.get(3)?))
+}
+
+pub(super) fn to_metadata((id, source, history, issue): MetadataRow) -> Result<NoteMetadata> {
+    if !matches!(source, 0 | 1) || !matches!(history, 0 | 1) {
+        return Err(Error::Corrupt("index note classification"));
+    }
+    let note_id = id
+        .map(|id| {
+            let parsed = Uuid::parse_str(&id).map_err(|_| Error::Corrupt("index note identity"))?;
+            if parsed.is_nil() || parsed.to_string() != id {
+                return Err(Error::Corrupt("index note identity"));
+            }
+            Ok(parsed)
+        })
+        .transpose()?;
+    Ok(NoteMetadata {
+        note_id,
+        source: source == 1,
+        history: history == 1,
+        issue,
+    })
+}
+
+fn note_metadata(conn: &Connection, path: &str) -> Result<Option<NoteMetadata>> {
+    conn.query_row(
+        &format!("SELECT {METADATA_COLUMNS} FROM notes WHERE path = ?1"),
+        [path],
+        metadata_row,
+    )
+    .optional()?
+    .map(to_metadata)
+    .transpose()
+}
 
 fn note_row(row: &Row<'_>) -> rusqlite::Result<NoteRow> {
     Ok((
@@ -128,9 +313,22 @@ impl NoteIndex {
         Ok((Self { conn }, created))
     }
 
-    /// All indexed notes, ordered by path.
+    /// Eligible current knowledge, ordered by path.
     pub fn notes(&self) -> Result<Vec<IndexedNote>> {
-        notes(&self.conn)
+        self.notes_scoped(KnowledgeScope::Current)
+    }
+
+    pub fn notes_scoped(&self, scope: KnowledgeScope) -> Result<Vec<IndexedNote>> {
+        notes(&self.conn, Some(scope))
+    }
+
+    /// Every derived row, including classification issues, for refresh/removal.
+    pub fn all_notes(&self) -> Result<Vec<IndexedNote>> {
+        notes(&self.conn, None)
+    }
+
+    pub fn note_metadata(&self, path: &str) -> Result<Option<NoteMetadata>> {
+        note_metadata(&self.conn, path)
     }
 
     pub fn note(&self, path: &str) -> Result<Option<IndexedNote>> {
@@ -148,6 +346,16 @@ impl NoteIndex {
     /// Replaces the note's record and passages (dropping their embeddings).
     /// `text` must match `note.size` and `note.sha256`.
     pub fn upsert_note(&mut self, note: &IndexedNote, text: &str) -> Result<()> {
+        self.upsert_note_with_metadata(note, text, &NoteMetadata::default())
+    }
+
+    pub fn upsert_note_with_metadata(
+        &mut self,
+        note: &IndexedNote,
+        text: &str,
+        metadata: &NoteMetadata,
+    ) -> Result<()> {
+        metadata.validate()?;
         let digest: [u8; 32] = Sha256::digest(text.as_bytes()).into();
         if text.len() as u64 != note.size || digest != note.sha256 {
             return Err(Error::Invalid("note text does not match its size and hash"));
@@ -155,13 +363,17 @@ impl NoteIndex {
         let tx = self.conn.transaction()?;
         tx.execute("DELETE FROM notes WHERE path = ?1", [&note.path])?;
         tx.execute(
-            &format!("INSERT INTO notes({NOTE_COLUMNS}) VALUES (?1, ?2, ?3, ?4, ?5)"),
+            &format!("INSERT INTO notes({NOTE_COLUMNS}, {METADATA_COLUMNS}) VALUES (?1, ?2, ?3, ?4, ?5, ?6, ?7, ?8, ?9)"),
             params![
                 note.path,
                 note.title,
                 note.size as i64,
                 note.modified_ns,
-                &note.sha256[..]
+                &note.sha256[..],
+                metadata.note_id.map(|id| id.to_string()),
+                metadata.source,
+                metadata.history,
+                metadata.issue,
             ],
         )?;
         {
@@ -178,6 +390,14 @@ impl NoteIndex {
             }
         }
         tx.commit()?;
+        Ok(())
+    }
+
+    /// Classification-only changes retain exact passages and cached vectors.
+    pub fn update_note_metadata(&mut self, path: &str, metadata: &NoteMetadata) -> Result<()> {
+        metadata.validate()?;
+        self.conn.execute("UPDATE notes SET note_id = ?2, source = ?3, history = ?4, metadata_issue = ?5 WHERE path = ?1",
+            params![path, metadata.note_id.map(|id| id.to_string()), metadata.source, metadata.history, metadata.issue])?;
         Ok(())
     }
 
@@ -198,8 +418,13 @@ impl NoteIndex {
     }
 }
 
-fn notes(conn: &Connection) -> Result<Vec<IndexedNote>> {
-    let mut statement = conn.prepare(&format!("SELECT {NOTE_COLUMNS} FROM notes ORDER BY path"))?;
+fn notes(conn: &Connection, scope: Option<KnowledgeScope>) -> Result<Vec<IndexedNote>> {
+    let predicate = scope
+        .map(|scope| format!("WHERE {}", scope.predicate()))
+        .unwrap_or_default();
+    let mut statement = conn.prepare(&format!(
+        "SELECT {NOTE_COLUMNS} FROM notes n {predicate} ORDER BY path"
+    ))?;
     let rows = statement.query_map([], note_row)?;
     rows.map(|row| to_note(row?)).collect()
 }

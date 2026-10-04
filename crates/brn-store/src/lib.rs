@@ -5,6 +5,8 @@ use std::{os::unix::fs::MetadataExt, path::Path};
 use uuid::Uuid;
 
 pub mod files;
+pub mod note_identity;
+pub mod note_metadata;
 pub mod work;
 pub mod workspace_mode;
 pub use work::{MAX_NOTE_BYTES, OpenReport, UnsavedEdit, WorkStore};

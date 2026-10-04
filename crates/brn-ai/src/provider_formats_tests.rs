@@ -148,7 +148,7 @@ mod ask_effort_tests {
                 };
                 assert_eq!(
                     serde_json::from_str::<Value>(&encoded).unwrap(),
-                    json!({"path":"a.md","text":"fresh note","truncated":false})
+                    json!({"scope":"current","path":"a.md","text":"fresh note","truncated":false})
                 );
                 http.assert_consumed();
             }
@@ -1113,6 +1113,488 @@ async fn run(
     .await;
     let events = events.lock().unwrap().clone();
     (answer, events)
+}
+
+mod scoped_read_tools_tests {
+    use super::*;
+    use rig::tool::Tool;
+
+    const ROUTES: [(Provider, &str, bool); 3] = [
+        (Provider::Chatgpt, "gpt-5.5", true),
+        (Provider::Copilot, "gpt-5.5", false),
+        (Provider::Copilot, "gpt-5.3-codex", true),
+    ];
+
+    #[derive(Debug, Clone, PartialEq, Eq)]
+    enum ScopedCall {
+        Search(String, usize, ReadScope),
+        Read(String, ReadScope),
+        List(Option<String>, Option<String>, ReadScope),
+    }
+
+    #[derive(Default)]
+    struct ScopedNotes {
+        legacy: Notes,
+        calls: Mutex<Vec<ScopedCall>>,
+        oversized: bool,
+    }
+
+    fn scope_name(scope: ReadScope) -> &'static str {
+        match scope {
+            ReadScope::Current => "current",
+            ReadScope::Source => "source",
+            ReadScope::History => "history",
+            ReadScope::All => "all",
+        }
+    }
+
+    impl ReadTools for ScopedNotes {
+        fn search_notes(&self, query: &str, limit: usize) -> AiResult<ToolSearch> {
+            self.legacy.search_notes(query, limit)
+        }
+        fn read_note(&self, path: &str) -> AiResult<ToolNote> {
+            self.legacy.read_note(path)
+        }
+        fn list_notes(&self, folder: Option<&str>, cursor: Option<&str>) -> AiResult<NotePage> {
+            self.legacy.list_notes(folder, cursor)
+        }
+        fn search_notes_scoped(
+            &self,
+            query: &str,
+            limit: usize,
+            scope: ReadScope,
+        ) -> AiResult<ToolSearch> {
+            self.calls
+                .lock()
+                .unwrap()
+                .push(ScopedCall::Search(query.into(), limit, scope));
+            if self.oversized {
+                return OversizedNotes.search_notes(query, limit);
+            }
+            let quote = "\u{feff}Eesti 日本語\r\n";
+            Ok(ToolSearch {
+                hits: vec![Passage {
+                    path: format!("{}/資料.MD", scope_name(scope)),
+                    start_byte: 0,
+                    end_byte: quote.len(),
+                    quote: quote.into(),
+                }],
+                keyword_only: true,
+            })
+        }
+        fn read_note_scoped(&self, path: &str, scope: ReadScope) -> AiResult<ToolNote> {
+            self.calls
+                .lock()
+                .unwrap()
+                .push(ScopedCall::Read(path.into(), scope));
+            if self.oversized {
+                return OversizedNotes.read_note(path);
+            }
+            Ok(ToolNote {
+                path: path.into(),
+                text: format!("\u{feff}Exact {} Eesti 日本語 🦀\r\n", scope_name(scope)),
+                truncated: false,
+            })
+        }
+        fn list_notes_scoped(
+            &self,
+            folder: Option<&str>,
+            cursor: Option<&str>,
+            scope: ReadScope,
+        ) -> AiResult<NotePage> {
+            self.calls.lock().unwrap().push(ScopedCall::List(
+                folder.map(str::to_owned),
+                cursor.map(str::to_owned),
+                scope,
+            ));
+            if self.oversized {
+                return OversizedNotes.list_notes(folder, cursor);
+            }
+            Ok(NotePage {
+                notes: vec![NoteEntry {
+                    path: format!("{}/資料.MD", scope_name(scope)),
+                    title: "\u{feff}Eesti 日本語\r\n".into(),
+                }],
+                next_cursor: Some(format!("{}/next.md", scope_name(scope))),
+            })
+        }
+    }
+
+    fn tool_results(body: &Value, responses: bool) -> Vec<(String, String)> {
+        body[if responses { "input" } else { "messages" }]
+            .as_array()
+            .unwrap()
+            .iter()
+            .filter(|message| {
+                message["type"] == "function_call_output" || message["role"] == "tool"
+            })
+            .map(|message| {
+                let value = &message[if responses { "output" } else { "content" }];
+                let text = value
+                    .as_str()
+                    .or_else(|| value[0]["text"].as_str())
+                    .unwrap();
+                (
+                    message[if responses { "call_id" } else { "tool_call_id" }]
+                        .as_str()
+                        .unwrap()
+                        .into(),
+                    text.into(),
+                )
+            })
+            .collect()
+    }
+
+    #[tokio::test]
+    async fn explicit_scopes_reach_all_three_tools_and_keep_flattened_exact_outputs_on_each_route()
+    {
+        for (provider, model, responses) in ROUTES {
+            for scope in [
+                ReadScope::Current,
+                ReadScope::Source,
+                ReadScope::History,
+                ReadScope::All,
+            ] {
+                let name = scope_name(scope);
+                let (_root, client, http) = client(
+                    provider,
+                    model,
+                    vec![
+                        success(tool_sse(
+                            responses,
+                            &[
+                                (
+                                    "search_notes",
+                                    json!({"query":"Eesti 日本語 λ","limit":3,"scope":name}),
+                                ),
+                                ("read_note", json!({"path":"archive/資料.MD","scope":name})),
+                                (
+                                    "list_notes",
+                                    json!({"folder":"archive","cursor":"previous.md","scope":name}),
+                                ),
+                            ],
+                        )),
+                        success(text_sse(responses, "exact final")),
+                    ],
+                )
+                .await;
+                let notes = Arc::new(ScopedNotes::default());
+                for parameters in [
+                    crate::tools::SearchNotes(notes.clone()).parameters(),
+                    crate::tools::ReadNote(notes.clone()).parameters(),
+                    crate::tools::ListNotes(notes.clone()).parameters(),
+                ] {
+                    assert!(
+                        !parameters["required"]
+                            .as_array()
+                            .unwrap()
+                            .contains(&json!("scope"))
+                    );
+                }
+                let (answer, events) = run(client, notes.clone(), CancellationToken::new()).await;
+                assert!(
+                    matches!(answer.terminal, AiTerminal::Completed),
+                    "{provider:?}/{name}: {answer:?}"
+                );
+                assert_eq!(answer.text, "exact final");
+                assert_eq!(notes.legacy.calls.load(Ordering::SeqCst), 0);
+                let calls = notes.calls.lock().unwrap();
+                assert_eq!(calls.len(), 3);
+                for expected in [
+                    ScopedCall::Search("Eesti 日本語 λ".into(), 3, scope),
+                    ScopedCall::Read("archive/資料.MD".into(), scope),
+                    ScopedCall::List(Some("archive".into()), Some("previous.md".into()), scope),
+                ] {
+                    assert!(calls.contains(&expected), "{calls:?}");
+                }
+                assert_eq!(
+                    events
+                        .iter()
+                        .filter(|e| matches!(e, AiEvent::ToolStarted { .. }))
+                        .count(),
+                    3
+                );
+                let bodies = http.bodies();
+                assert_eq!(bodies.len(), 2);
+                for body in &bodies {
+                    assert_eq!(body["model"], model);
+                    for tool in body["tools"].as_array().unwrap() {
+                        let definition = if responses { tool } else { &tool["function"] };
+                        let parameters = &definition["parameters"];
+                        assert_eq!(parameters["additionalProperties"], false);
+                        assert_eq!(parameters["properties"]["scope"]["type"], "string");
+                        assert_eq!(
+                            parameters["properties"]["scope"]["enum"],
+                            json!(["current", "source", "history", "all"])
+                        );
+                        // Rig's pinned Copilot Responses dialect normalizes
+                        // strict schemas so every property becomes required.
+                        // Rust omission compatibility remains independently tested.
+                        assert_eq!(
+                            parameters["required"]
+                                .as_array()
+                                .unwrap()
+                                .contains(&json!("scope")),
+                            provider == Provider::Copilot && responses,
+                            "{provider:?}/{model}: {parameters}"
+                        );
+                    }
+                }
+                let results = tool_results(&bodies[1], responses);
+                assert_eq!(results.len(), 3);
+                let payload = |id| {
+                    serde_json::from_str::<Value>(
+                        &results.iter().find(|(call, _)| call == id).unwrap().1,
+                    )
+                    .unwrap()
+                };
+                let quote = "\u{feff}Eesti 日本語\r\n";
+                assert_eq!(
+                    payload("call_0"),
+                    json!({"scope":name,"hits":[{"path":format!("{name}/資料.MD"),"start_byte":0,"end_byte":quote.len(),"quote":quote}],"keyword_only":true})
+                );
+                assert_eq!(
+                    payload("call_1"),
+                    json!({"scope":name,"path":"archive/資料.MD","text":format!("\u{feff}Exact {name} Eesti 日本語 🦀\r\n"),"truncated":false})
+                );
+                assert_eq!(
+                    payload("call_2"),
+                    json!({"scope":name,"notes":[{"path":format!("{name}/資料.MD"),"title":quote}],"next_cursor":format!("{name}/next.md")})
+                );
+                http.assert_consumed();
+            }
+        }
+    }
+
+    #[tokio::test]
+    async fn legacy_implementers_keep_omitted_current_and_refuse_explicit_other_scopes_on_each_route()
+     {
+        for (provider, model, responses) in ROUTES {
+            for scope in [None, Some("source"), Some("history"), Some("all")] {
+                let mut calls = vec![
+                    ("search_notes", json!({"query":"fresh","limit":1})),
+                    ("read_note", json!({"path":"a.md"})),
+                    ("list_notes", json!({})),
+                ];
+                if let Some(scope) = scope {
+                    for (_, args) in &mut calls {
+                        args["scope"] = json!(scope);
+                    }
+                }
+                let (_root, client, http) = client(
+                    provider,
+                    model,
+                    vec![
+                        success(tool_sse(responses, &calls)),
+                        success(text_sse(responses, "safe final")),
+                    ],
+                )
+                .await;
+                let notes = Arc::new(Notes::default());
+                let (answer, _) = run(client, notes.clone(), CancellationToken::new()).await;
+                assert!(
+                    matches!(answer.terminal, AiTerminal::Completed),
+                    "{answer:?}"
+                );
+                let bodies = http.bodies();
+                assert_eq!(bodies.len(), 2);
+                let results = tool_results(&bodies[1], responses);
+                assert_eq!(results.len(), 3);
+                if scope.is_none() {
+                    assert_eq!(notes.calls.load(Ordering::SeqCst), 3);
+                    let payloads = results
+                        .iter()
+                        .map(|(_, text)| serde_json::from_str::<Value>(text).unwrap())
+                        .collect::<Vec<_>>();
+                    assert!(payloads.contains(&json!({"scope":"current","hits":[{"path":"a.md","start_byte":0,"end_byte":5,"quote":"fresh"}],"keyword_only":true})));
+                    assert!(payloads.contains(&json!({"scope":"current","path":"a.md","text":"fresh note","truncated":false})));
+                    assert!(
+                        payloads
+                            .contains(&json!({"scope":"current","notes":[],"next_cursor":null}))
+                    );
+                } else {
+                    assert_eq!(notes.calls.load(Ordering::SeqCst), 0);
+                    assert!(
+                        results.iter().all(|(_, text)| text == "the tool failed"),
+                        "{results:?}"
+                    );
+                }
+                http.assert_consumed();
+            }
+        }
+    }
+
+    #[tokio::test]
+    async fn invalid_scope_and_unknown_properties_refuse_before_any_underlying_read_on_each_route()
+    {
+        for (provider, model, responses) in ROUTES {
+            for invalid in [
+                json!("SYNTHETIC_SECRET"),
+                json!(null),
+                json!(42),
+                json!("CURRENT"),
+                json!({"scope":"current"}),
+            ] {
+                let calls = [
+                    (
+                        "search_notes",
+                        json!({"query":"fresh","limit":1,"scope":invalid}),
+                    ),
+                    ("read_note", json!({"path":"a.md","scope":invalid})),
+                    ("list_notes", json!({"scope":invalid})),
+                ];
+                assert_safe_refusal(provider, model, responses, &calls).await;
+            }
+            let calls = [
+                (
+                    "search_notes",
+                    json!({"query":"fresh","limit":1,"scope":"source","unknown":"SYNTHETIC_SECRET"}),
+                ),
+                (
+                    "read_note",
+                    json!({"path":"a.md","scope":"history","unknown":"SYNTHETIC_SECRET"}),
+                ),
+                (
+                    "list_notes",
+                    json!({"scope":"all","unknown":"SYNTHETIC_SECRET"}),
+                ),
+            ];
+            assert_safe_refusal(provider, model, responses, &calls).await;
+        }
+    }
+
+    async fn assert_safe_refusal(
+        provider: Provider,
+        model: &str,
+        responses: bool,
+        calls: &[(&str, Value)],
+    ) {
+        let (_root, client, http) = client(
+            provider,
+            model,
+            vec![
+                success(tool_sse(responses, calls)),
+                success(text_sse(responses, "safe continuation")),
+            ],
+        )
+        .await;
+        let notes = Arc::new(ScopedNotes::default());
+        let (answer, events) = run(client, notes.clone(), CancellationToken::new()).await;
+        assert!(
+            matches!(answer.terminal, AiTerminal::Completed),
+            "{answer:?}"
+        );
+        assert_eq!(answer.text, "safe continuation");
+        assert_eq!(notes.legacy.calls.load(Ordering::SeqCst), 0);
+        assert!(notes.calls.lock().unwrap().is_empty());
+        let bodies = http.bodies();
+        assert_eq!(bodies.len(), 2);
+        let results = tool_results(&bodies[1], responses);
+        assert_eq!(results.len(), calls.len());
+        // Rig returns argument parsing detail to the model that generated the
+        // invalid argument. Those results never enter local progress/AiError;
+        // adapter execution failures instead use its fixed failed-tool copy.
+        assert!(
+            results.iter().all(|(_, text)| text == "the tool failed"
+                || text.starts_with("failed to parse tool arguments: ")),
+            "{results:?}"
+        );
+        assert!(!format!("{answer:?} {events:?}").contains("SYNTHETIC_SECRET"));
+        http.assert_consumed();
+    }
+
+    #[tokio::test]
+    async fn explicit_scope_keeps_utf8_truncation_and_search_page_result_caps_on_each_route() {
+        for (provider, model, responses) in ROUTES {
+            let (_root, client, http) = client(
+                provider,
+                model,
+                vec![
+                    success(tool_sse(
+                        responses,
+                        &[
+                            (
+                                "read_note",
+                                json!({"path":"archive/a.md","scope":"history"}),
+                            ),
+                            (
+                                "list_notes",
+                                json!({"folder":"archive","cursor":"page-2","scope":"history"}),
+                            ),
+                            (
+                                "search_notes",
+                                json!({"query":"x","limit":10,"scope":"history"}),
+                            ),
+                        ],
+                    )),
+                    success(text_sse(responses, "handled")),
+                ],
+            )
+            .await;
+            let notes = Arc::new(ScopedNotes {
+                oversized: true,
+                ..Default::default()
+            });
+            let (answer, _) = run(client, notes.clone(), CancellationToken::new()).await;
+            assert!(
+                matches!(answer.terminal, AiTerminal::Completed),
+                "{answer:?}"
+            );
+            assert_eq!(notes.calls.lock().unwrap().len(), 3);
+            assert_eq!(notes.legacy.calls.load(Ordering::SeqCst), 0);
+            let bodies = http.bodies();
+            assert_eq!(bodies.len(), 2);
+            let results = tool_results(&bodies[1], responses);
+            assert_eq!(results.len(), 3);
+            let note = serde_json::from_str::<Value>(
+                &results.iter().find(|(id, _)| id == "call_0").unwrap().1,
+            )
+            .unwrap();
+            assert_eq!(
+                note,
+                json!({"scope":"history","path":"archive/a.md","text":"x".repeat(49_999),"truncated":true})
+            );
+            for id in ["call_1", "call_2"] {
+                assert_eq!(
+                    results.iter().find(|(call, _)| call == id).unwrap().1,
+                    "the tool failed"
+                );
+            }
+            http.assert_consumed();
+        }
+    }
+
+    #[tokio::test]
+    async fn explicit_scope_keeps_query_byte_limit_hit_limit_and_empty_path_validation_on_each_route()
+     {
+        for (provider, model, responses) in ROUTES {
+            assert_safe_refusal(
+                provider,
+                model,
+                responses,
+                &[
+                    (
+                        "search_notes",
+                        json!({"query":"","limit":1,"scope":"source"}),
+                    ),
+                    (
+                        "search_notes",
+                        json!({"query":"é".repeat(257),"limit":1,"scope":"source"}),
+                    ),
+                    (
+                        "search_notes",
+                        json!({"query":"x","limit":0,"scope":"source"}),
+                    ),
+                    (
+                        "search_notes",
+                        json!({"query":"x","limit":11,"scope":"source"}),
+                    ),
+                    ("read_note", json!({"path":"","scope":"source"})),
+                ],
+            )
+            .await;
+        }
+    }
 }
 
 #[tokio::test]

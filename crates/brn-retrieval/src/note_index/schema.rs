@@ -8,7 +8,7 @@ use std::{
 };
 
 const APPLICATION_ID: i64 = 0x4252_4e49; // BRNI
-const VERSION: i64 = 1;
+const VERSION: i64 = 2;
 const NOT_OURS: &str =
     "index path holds a file that is not a BRN index; remove it or choose another path";
 const SCHEMA: &str = "
@@ -17,7 +17,11 @@ CREATE TABLE notes (
     title TEXT NOT NULL,
     size INTEGER NOT NULL,
     modified_ns INTEGER NOT NULL,
-    sha256 BLOB NOT NULL CHECK(length(sha256) = 32)
+    sha256 BLOB NOT NULL CHECK(length(sha256) = 32),
+    note_id TEXT,
+    source INTEGER NOT NULL DEFAULT 0 CHECK(source IN (0, 1)),
+    history INTEGER NOT NULL DEFAULT 0 CHECK(history IN (0, 1)),
+    metadata_issue TEXT
 );
 CREATE TABLE passages (
     id INTEGER PRIMARY KEY,
@@ -61,6 +65,9 @@ pub(super) fn validate_reader(conn: &Connection) -> Result<()> {
     let healthy: String = tx.query_row("PRAGMA quick_check", [], |r| r.get(0))?;
     if healthy != "ok" {
         return Err(Error::Corrupt("read-only note index integrity"));
+    }
+    if !valid_notes(&tx)? {
+        return Err(Error::Corrupt("read-only note metadata schema or rows"));
     }
     tx.commit()?;
     Ok(())
@@ -138,7 +145,7 @@ fn existing(path: &Path) -> Result<Found> {
                 [],
                 |r| r.get(0),
             )?;
-            if version == VERSION && required == 8 {
+            if version == VERSION && required == 8 && valid_notes(&conn)? {
                 return Ok(Found::Usable(conn));
             }
             return Ok(Found::Rebuild);
@@ -165,6 +172,59 @@ fn existing(path: &Path) -> Result<Found> {
         }
         other => other,
     }
+}
+
+fn valid_notes(conn: &Connection) -> Result<bool> {
+    let expected = [
+        ("path", "TEXT", 0, 1),
+        ("title", "TEXT", 1, 0),
+        ("size", "INTEGER", 1, 0),
+        ("modified_ns", "INTEGER", 1, 0),
+        ("sha256", "BLOB", 1, 0),
+        ("note_id", "TEXT", 0, 0),
+        ("source", "INTEGER", 1, 0),
+        ("history", "INTEGER", 1, 0),
+        ("metadata_issue", "TEXT", 0, 0),
+    ];
+    let mut columns = conn.prepare("PRAGMA table_info(notes)")?;
+    let actual = columns
+        .query_map([], |row| {
+            Ok((
+                row.get::<_, String>(1)?,
+                row.get::<_, String>(2)?,
+                row.get::<_, i64>(3)?,
+                row.get::<_, i64>(5)?,
+            ))
+        })?
+        .collect::<rusqlite::Result<Vec<_>>>()?;
+    if actual.len() != expected.len()
+        || actual
+            .iter()
+            .zip(expected)
+            .any(|((name, kind, nullable, pk), expected)| {
+                (name.as_str(), kind.as_str(), *nullable, *pk) != expected
+            })
+    {
+        return Ok(false);
+    }
+    let mut statement =
+        conn.prepare("SELECT note_id, source, history, metadata_issue FROM notes")?;
+    let mut rows = statement.query([])?;
+    while let Some(row) = rows.next()? {
+        match super::metadata_row(row) {
+            Ok(metadata) => {
+                if super::to_metadata(metadata).is_err() {
+                    return Ok(false);
+                }
+            }
+            Err(
+                rusqlite::Error::InvalidColumnType(..)
+                | rusqlite::Error::FromSqlConversionFailure(..),
+            ) => return Ok(false),
+            Err(error) => return Err(error.into()),
+        }
+    }
+    Ok(true)
 }
 
 fn remove(path: &Path) -> Result<()> {

@@ -126,7 +126,7 @@ fn refresh_tracks_added_changed_unchanged_and_removed_notes() {
     assert_eq!(
         library.refresh().unwrap(),
         RefreshReport {
-            added: 2,
+            added: 3,
             ..Default::default()
         }
     );
@@ -137,6 +137,13 @@ fn refresh_tracks_added_changed_unchanged_and_removed_notes() {
             .map(|n| (n.path.as_str(), n.title.as_str()))
             .collect::<Vec<_>>(),
         vec![("a.md", "Alpha plan"), ("sub/b.md", "b")]
+    );
+    assert_eq!(
+        library
+            .notes_scoped(brn_workflow::library::KnowledgeScope::History)
+            .unwrap()[0]
+            .path,
+        "archive/old.md"
     );
 
     write(root, "a.md", b"# Alpha plan\nfirst, edited");
@@ -149,13 +156,14 @@ fn refresh_tracks_added_changed_unchanged_and_removed_notes() {
             added: 1,
             updated: 1,
             removed: 1,
+            unchanged: 1,
             ..Default::default()
         }
     );
     assert_eq!(
         library.refresh().unwrap(),
         RefreshReport {
-            unchanged: 2,
+            unchanged: 3,
             ..Default::default()
         }
     );

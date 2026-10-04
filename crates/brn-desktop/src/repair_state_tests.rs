@@ -313,6 +313,7 @@ fn changed_phase_after_capture_refuses_before_writes_and_preserves_inspectable_r
                 | AppCommand::ProposalRecovery
                 | AppCommand::ProposalApply(_)
                 | AppCommand::Notes { .. }
+                | AppCommand::ScopedNotes { .. }
         ));
         let (id, event) = reply(&worker, command);
         if let AppEvent::Failed(error) = &event {

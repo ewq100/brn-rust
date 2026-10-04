@@ -1113,6 +1113,7 @@ mod tests {
             self.crash_mode(phase, member, false);
         }
         fn crash_mode(&self, phase: &str, member: usize, undo: bool) {
+            let _process_fixtures = crate::SUBPROCESS_FIXTURES.lock().unwrap();
             let result = Command::new(std::env::current_exe().unwrap())
                 .args([
                     "--exact",

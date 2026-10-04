@@ -1022,13 +1022,16 @@ mod tests {
                 "intent", "stage", "prepared", "exchange", "synced", "verified", "receipt",
             ] {
                 let fixture = Fixture::new();
-                let status = Command::new(std::env::current_exe().unwrap())
-                    .args(["--exact", "editor::tests::crash_child", "--ignored"])
-                    .env("BRN_EDITOR_TEST_ROOT", fixture.base.path())
-                    .env("BRN_EDITOR_TEST_PHASE", phase)
-                    .env("BRN_EDITOR_TEST_COPY", if copy { "yes" } else { "no" })
-                    .status()
-                    .unwrap();
+                let status = {
+                    let _process_fixtures = crate::SUBPROCESS_FIXTURES.lock().unwrap();
+                    Command::new(std::env::current_exe().unwrap())
+                        .args(["--exact", "editor::tests::crash_child", "--ignored"])
+                        .env("BRN_EDITOR_TEST_ROOT", fixture.base.path())
+                        .env("BRN_EDITOR_TEST_PHASE", phase)
+                        .env("BRN_EDITOR_TEST_COPY", if copy { "yes" } else { "no" })
+                        .status()
+                        .unwrap()
+                };
                 assert_eq!(status.code(), Some(71), "child phase {phase}");
                 let mut app = fixture.app();
                 let intent = app.work_store().editor_saves().unwrap().pop().unwrap();
@@ -1171,14 +1174,17 @@ mod tests {
     fn moved_prepared_copy_in_replacement_parent_does_not_prove_application() {
         let fixture = Fixture::new();
         fs::create_dir(fixture.base.path().join("vault/folder")).unwrap();
-        let status = Command::new(std::env::current_exe().unwrap())
-            .args(["--exact", "editor::tests::crash_child", "--ignored"])
-            .env("BRN_EDITOR_TEST_ROOT", fixture.base.path())
-            .env("BRN_EDITOR_TEST_PHASE", "exchange")
-            .env("BRN_EDITOR_TEST_COPY", "yes")
-            .env("BRN_EDITOR_TEST_DEST", "folder/copy.md")
-            .status()
-            .unwrap();
+        let status = {
+            let _process_fixtures = crate::SUBPROCESS_FIXTURES.lock().unwrap();
+            Command::new(std::env::current_exe().unwrap())
+                .args(["--exact", "editor::tests::crash_child", "--ignored"])
+                .env("BRN_EDITOR_TEST_ROOT", fixture.base.path())
+                .env("BRN_EDITOR_TEST_PHASE", "exchange")
+                .env("BRN_EDITOR_TEST_COPY", "yes")
+                .env("BRN_EDITOR_TEST_DEST", "folder/copy.md")
+                .status()
+                .unwrap()
+        };
         assert_eq!(status.code(), Some(71));
         fs::rename(
             fixture.base.path().join("vault/folder"),
@@ -1291,13 +1297,16 @@ mod tests {
     #[test]
     fn interrupted_copy_destination_alias_and_moved_identity_cannot_be_enrolled() {
         let fixture = Fixture::new();
-        let status = Command::new(std::env::current_exe().unwrap())
-            .args(["--exact", "editor::tests::crash_child", "--ignored"])
-            .env("BRN_EDITOR_TEST_ROOT", fixture.base.path())
-            .env("BRN_EDITOR_TEST_PHASE", "exchange")
-            .env("BRN_EDITOR_TEST_COPY", "yes")
-            .status()
-            .unwrap();
+        let status = {
+            let _process_fixtures = crate::SUBPROCESS_FIXTURES.lock().unwrap();
+            Command::new(std::env::current_exe().unwrap())
+                .args(["--exact", "editor::tests::crash_child", "--ignored"])
+                .env("BRN_EDITOR_TEST_ROOT", fixture.base.path())
+                .env("BRN_EDITOR_TEST_PHASE", "exchange")
+                .env("BRN_EDITOR_TEST_COPY", "yes")
+                .status()
+                .unwrap()
+        };
         assert_eq!(status.code(), Some(71));
         let mut app = fixture.app();
         let operation = app.work_store().editor_saves().unwrap()[0]

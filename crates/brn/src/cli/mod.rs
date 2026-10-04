@@ -5,13 +5,18 @@ pub mod activity;
 pub mod ai;
 pub mod editor;
 pub mod error;
+pub mod evidence;
+pub mod identity;
 mod input;
 pub mod library;
 pub(crate) mod out;
 pub mod proposals;
 
 use crate::cli::error::CliError;
-use brn_workflow::library::SearchMode;
+use brn_workflow::{
+    library::{KnowledgeScope, SearchMode},
+    vault::{EvidencePath, VaultPath},
+};
 use std::path::PathBuf;
 use std::process::ExitCode;
 use uuid::Uuid;
@@ -28,6 +33,8 @@ pub struct Invocation {
 pub enum Command {
     Activity(brn_workflow::activity::ActivityRequest),
     Editor(editor::EditorCommand),
+    Identity(identity::IdentityCommand),
+    Evidence(evidence::EvidenceCommand),
     Proposals(proposals::ProposalCommand),
     Ai(ai::AiCommand),
     ModelDownload {
@@ -36,13 +43,18 @@ pub enum Command {
     NotesList {
         folder: Option<String>,
         cursor: Option<String>,
+        scope: KnowledgeScope,
     },
-    NotePath(String),
+    NotePath {
+        path: String,
+        scope: KnowledgeScope,
+    },
     Status,
     Search {
         query: String,
         profile: Option<SearchMode>,
         limit: Option<usize>,
+        scope: KnowledgeScope,
     },
     Ask {
         question: String,
@@ -104,6 +116,11 @@ Global options (accepted before or after the command):
 
 Commands:
   brn activity list [--limit N] [--before OPERATION_UUID]
+  brn identity show PATH
+  brn identity prepare PATH --note-id UUID --proposal UUID --title TITLE
+  brn identity inventory
+  brn identity resolve NOTE_ID
+  brn evidence read PATH
   brn proposals create --file DRAFT.json
   brn proposals list [--group UUID]
   brn proposals show PROPOSAL_ID
@@ -137,10 +154,10 @@ Commands:
   brn ai select --provider chatgpt|copilot --model MODEL
   brn ai effort [low|medium|high]
   brn models download --approve-download [--model-dir DIR] [--timeout-seconds N]
-  brn notes list [--folder FOLDER] [--cursor PATH]
-  brn notes show PATH.md
+  brn notes list [--folder FOLDER] [--cursor PATH] [--scope current|source|history|all]
+  brn notes show PATH.md [--scope current|source|history|all]
   brn status
-  brn search QUERY [--profile keyword|semantic|hybrid] [--limit N]
+  brn search QUERY [--profile keyword|semantic|hybrid] [--limit N] [--scope current|source|history|all]
   brn ask QUESTION [--session UUID] [--operation UUID] [--timeout-seconds N]
   brn conversations list
   brn conversations show SESSION_ID
@@ -396,6 +413,56 @@ fn parse_profile(raw: Option<&str>) -> Result<SearchMode, CliError> {
     }
 }
 
+fn parse_scope(raw: Option<&str>) -> Result<KnowledgeScope, CliError> {
+    match raw.unwrap_or("current") {
+        "current" => Ok(KnowledgeScope::Current),
+        "source" => Ok(KnowledgeScope::Source),
+        "history" => Ok(KnowledgeScope::History),
+        "all" => Ok(KnowledgeScope::All),
+        other => Err(usage(format!(
+            "invalid --scope: {other} (expected current|source|history|all)"
+        ))),
+    }
+}
+
+/// Keep parsed and directly constructed library commands under the same
+/// contained-path rules before the worker opens operational storage.
+pub(super) fn validate_library(command: &Command) -> Result<(), CliError> {
+    let validate_path = |scope, path: &str| {
+        match scope {
+            KnowledgeScope::Current => VaultPath::parse(path).map(|_| ()),
+            _ => EvidencePath::parse(path).map(|_| ()),
+        }
+        .map_err(|error| usage(error.to_string()))
+    };
+    match command {
+        Command::NotesList {
+            folder,
+            cursor,
+            scope,
+        } => {
+            if let Some(folder) = folder {
+                match scope {
+                    KnowledgeScope::Current => VaultPath::validate_folder(folder),
+                    _ => EvidencePath::validate_folder(folder),
+                }
+                .map_err(|error| usage(error.to_string()))?;
+            }
+            if let Some(cursor) = cursor {
+                validate_path(*scope, cursor)?;
+            }
+        }
+        Command::NotePath { path, scope } => validate_path(*scope, path)?,
+        Command::Search {
+            limit: Some(limit), ..
+        } if !(1..=50).contains(limit) => {
+            return Err(usage("--limit must be between 1 and 50"));
+        }
+        _ => {}
+    }
+    Ok(())
+}
+
 fn parse_timeout(raw: &str) -> Result<u64, CliError> {
     let seconds: u64 = raw
         .parse()
@@ -444,6 +511,8 @@ fn parse_inner(
     let scanned = match word.as_str() {
         "help" => return Ok(Outcome::Help),
         "edit" => editor::scan_command(&mut tokens, g, command)?,
+        "identity" => identity::scan_command(&mut tokens, g, command)?,
+        "evidence" => evidence::scan_command(&mut tokens, g, command)?,
         "proposals" => proposals::scan_command(&mut tokens, g, command)?,
         "activity" => activity::scan_command(&mut tokens, g, command)?,
         "ai" => ai::scan_command(&mut tokens, g, command)?,
@@ -463,11 +532,15 @@ fn parse_inner(
             match sub.as_str() {
                 "list" => {
                     *command = Some("notes.list");
-                    scan(&mut tokens, g, &[("folder", true), ("cursor", true)])?
+                    scan(
+                        &mut tokens,
+                        g,
+                        &[("folder", true), ("cursor", true), ("scope", true)],
+                    )?
                 }
                 "show" => {
                     *command = Some("notes.show");
-                    scan(&mut tokens, g, &[])?
+                    scan(&mut tokens, g, &[("scope", true)])?
                 }
                 other => return Err(usage(format!("unknown notes subcommand: {other}"))),
             }
@@ -478,7 +551,11 @@ fn parse_inner(
         }
         "search" => {
             *command = Some("search");
-            scan(&mut tokens, g, &[("profile", true), ("limit", true)])?
+            scan(
+                &mut tokens,
+                g,
+                &[("profile", true), ("limit", true), ("scope", true)],
+            )?
         }
         "ask" => {
             *command = Some("ask");
@@ -510,6 +587,8 @@ fn parse_inner(
     };
     let built = match word.as_str() {
         "edit" => Command::Editor(editor::parse_command(command.unwrap(), &scanned)?),
+        "identity" => Command::Identity(identity::parse_command(command.unwrap(), &scanned)?),
+        "evidence" => Command::Evidence(evidence::parse_command(&scanned)?),
         "proposals" => Command::Proposals(proposals::parse_command(command.unwrap(), &scanned)?),
         "activity" => Command::Activity(activity::parse_command(&scanned)?),
         "ai" => Command::Ai(ai::parse_command(command.unwrap(), &scanned)?),
@@ -532,13 +611,16 @@ fn parse_inner(
                 Command::NotesList {
                     folder: scanned.value("folder").map(str::to_owned),
                     cursor: scanned.value("cursor").map(str::to_owned),
+                    scope: parse_scope(scanned.value("scope"))?,
                 }
             }
             "notes.show" => {
                 expect_positionals(&scanned, 1)?;
                 let path = required_positional(&scanned, "PATH.md")?;
-                brn_workflow::vault::VaultPath::parse(path).map_err(|e| usage(e.to_string()))?;
-                Command::NotePath(path.to_owned())
+                Command::NotePath {
+                    path: path.to_owned(),
+                    scope: parse_scope(scanned.value("scope"))?,
+                }
             }
             _ => unreachable!(),
         },
@@ -550,6 +632,7 @@ fn parse_inner(
             expect_positionals(&scanned, 1)?;
             Command::Search {
                 query: required_positional(&scanned, "search QUERY")?.to_owned(),
+                scope: parse_scope(scanned.value("scope"))?,
                 profile: scanned
                     .value("profile")
                     .map(|p| parse_profile(Some(p)))
@@ -593,6 +676,7 @@ fn parse_inner(
         },
         _ => unreachable!(),
     };
+    validate_library(&built)?;
     // Post-parse version short-circuit (textual, exit 0, no --data-dir needed).
     if g.version {
         return Ok(Outcome::Version);

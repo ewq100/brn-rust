@@ -13,6 +13,11 @@ A data directory has one owner at a time.
 ```text
 brn activity list [--limit N] [--before OPERATION_UUID]
 brn proposals create --file DRAFT.json
+  brn identity inventory
+  brn identity resolve NOTE_UUID
+  brn evidence read PATH
+  brn identity show PATH
+  brn identity prepare PATH --note-id UUID --proposal UUID --title TITLE
   brn proposals list [--group UUID]
   brn proposals show PROPOSAL_ID
   brn proposals edit --file EDIT.json
@@ -45,10 +50,10 @@ brn proposals create --file DRAFT.json
   brn ai select --provider chatgpt|copilot --model MODEL
   brn ai effort [low|medium|high]
   brn models download --approve-download [--model-dir DIR] [--timeout-seconds N]
-  brn notes list [--folder FOLDER] [--cursor PATH]
-  brn notes show PATH.md
+  brn notes list [--folder FOLDER] [--cursor PATH] [--scope current|source|history|all]
+  brn notes show PATH.md [--scope current|source|history|all]
   brn status
-  brn search QUERY [--profile keyword|semantic|hybrid] [--limit N]
+  brn search QUERY [--profile keyword|semantic|hybrid] [--limit N] [--scope current|source|history|all]
   brn ask QUESTION [--session UUID] [--operation UUID] [--timeout-seconds N]
   brn conversations list
   brn conversations show SESSION_ID
@@ -88,6 +93,37 @@ Notes use visible contained vault-relative Markdown paths. List returns sorted
 200-row cursor pages; show preserves exact UTF-8 bytes. Search defaults to
 hybrid with 10 results (limit 1–50). Without an installed model, all profiles
 explicitly report `keyword_only: true`.
+
+List/show/search default to current knowledge. Optional ordinary frontmatter
+`brn_kind: knowledge|source` and `brn_state: current|history` describe saved
+classification; absent fields mean current knowledge. Top-level archives always
+count as history. `--scope source` includes original sources in any state,
+`history` includes historical knowledge and sources, and `all` combines eligible
+classified notes. Explicit non-current scopes allow archive paths. Malformed
+managed metadata is excluded from scoped queries; `evidence read` still returns
+its exact original bytes. Scope selection never changes editor/Save/proposal
+destinations or vault bytes.
+
+For manual acceptance, use a fresh synthetic vault/data pair with `current.md`
+containing `needle`, `source.md` containing `brn_kind: source` frontmatter and
+different original wording, `old.md` containing `brn_state: history`, and
+`archive/original.md`. Then run:
+
+```sh
+brn notes list --data-dir "$BRN_DATA" --vault "$BRN_VAULT" --json
+brn notes list --scope source --data-dir "$BRN_DATA" --json
+brn notes list --scope history --data-dir "$BRN_DATA" --json
+brn search needle --scope all --data-dir "$BRN_DATA" --json
+brn notes show archive/original.md --scope history --data-dir "$BRN_DATA"
+```
+
+Default results contain only `current.md`; explicit scopes separate the original
+source and historical notes, and plain show preserves the full original text.
+JSON labels the selected scope. In this synthetic fixture, change a current
+note's class to history while retaining size/mtime, rerun/restart and confirm
+current exclusion. Add an invalid `brn_kind` value and confirm query exclusion
+while evidence read preserves its bytes. Compare fixture vault bytes before and
+after queries. Native controls and actual multilingual inference remain pending.
 
 ### Simple Markdown editing
 
@@ -303,6 +339,69 @@ externally, repeat the same request and confirm the recorded receipt leaves the
 newer bytes intact. Native repair presentation and power-loss qualification
 remain separate.
 
+### Managed note identity
+
+`identity show PATH` inspects exact saved current Markdown and reports its
+managed `brn_id` or explicit absence. Malformed/duplicate fields or unsupported
+root metadata layouts return an error. It never substitutes the filename/hash
+for a stable ID. `identity prepare` returns the entire ordinary Replace request
+with caller-chosen nonnil note/proposal UUIDs, complete proposed bytes and exact
+before/source proofs. It changes no note or review record. Existing identities
+refuse reassignment. Unrelated metadata, BOM, line endings and source wording
+are preserved; an incomplete ambiguous header refuses assignment.
+
+In fresh explicit disposable data/vault directories, create a synthetic note
+and run the following with distinct fresh UUIDs and absolute fixture paths:
+
+```sh
+brn identity show note.md --data-dir "$BRN_DATA" --vault "$BRN_VAULT"
+brn identity prepare note.md --note-id "$BRN_NOTE_ID" --proposal "$BRN_PROPOSAL_ID" \
+  --title "Assign stable note identity" --data-dir "$BRN_DATA" > "$BRN_REQUEST_FILE"
+brn proposals create --file "$BRN_REQUEST_FILE" --data-dir "$BRN_DATA"
+brn proposals show "$BRN_PROPOSAL_ID" --data-dir "$BRN_DATA"
+brn proposals approve "$BRN_PROPOSAL_ID" --review-version 1 \
+  --operation "$BRN_APPROVAL_ID" --data-dir "$BRN_DATA"
+brn identity show note.md --data-dir "$BRN_DATA"
+brn proposals undo "$BRN_APPROVAL_ID" --operation "$BRN_UNDO_ID" --data-dir "$BRN_DATA"
+```
+
+Inspect the complete request before creation/approval; if review changes, use its
+actual version. Preparation/creation leave the note unchanged. Approval installs
+the shown ID; restart preserves it, and Undo restores the exact original bytes.
+Changing a source after preparation refuses creation.
+
+`identity inventory` freshly reads visible Markdown across current and archive
+paths, reporting unmanaged notes, duplicate UUID paths and inspection issues.
+`identity resolve NOTE_UUID` returns `unique`, `absent`, `ambiguous` or `incomplete`
+with observed matches/issues. Unreadable or malformed evidence cannot establish
+uniqueness/absence. Resolution never substitutes a filename/hash, chooses among
+duplicates, mints IDs or repairs notes; same-size/retained-timestamp ID edits are
+observed. These are saved evidence observations; later changes still require exact
+source-version checks. `evidence read PATH` explicitly reads complete source/history
+text, including archived notes, with the ordinary file/UTF-8/size protections.
+Default current `notes show`, identity assignment, editor and proposal destinations
+retain archive refusal. All scopes respect unresolved Save/application fences.
+Durable provenance remains later Stage 5 work.
+
+For manual acceptance, use only a fresh synthetic vault/data pair. Put the same
+managed `brn_id` into `current.md` and `archive/source.md` with different original
+wording, and leave `unmanaged.md` without metadata. Run:
+
+```sh
+brn identity inventory --data-dir "$BRN_DATA" --vault "$BRN_VAULT" --json
+brn identity resolve "$BRN_NOTE_ID" --data-dir "$BRN_DATA" --json
+brn evidence read archive/source.md --data-dir "$BRN_DATA" --json
+brn notes show archive/source.md --data-dir "$BRN_DATA" --json
+```
+
+The inventory lists both duplicate paths and the unmanaged note; resolution is
+`ambiguous`. Explicit evidence preserves the archived wording/BOM/line endings;
+the last current-only command refuses. In that synthetic fixture, change the
+second UUID without changing byte count or mtime, rerun resolution and restart;
+the first ID is now `unique`. Add malformed managed metadata in another archived
+note: resolution becomes `incomplete`. Compare all fixture vault bytes before
+and after queries; queries create no review/editor work and change no notes.
+
 ## Output contract
 
 `--json` prints one schema-1 envelope on stdout. Human errors go to stderr;
@@ -311,7 +410,7 @@ history:
 
 ```json
 {"schema_version": 1, "command": "search", "ok": true,
- "data": {"query": "synthetic", "hits": [], "keyword_only": true}}
+ "data": {"query": "synthetic", "scope": "current", "hits": [], "keyword_only": true}}
 ```
 
 ```json
@@ -320,8 +419,8 @@ history:
 ```
 
 Status returns version/data directory, `mode: "simple"`, vault/model state and
-native-retrieval capability. Notes return `{notes, next_cursor}` or `{path,
-text}`. Search hits contain path, exact byte range, quote and score.
+native-retrieval capability. Notes return `{notes, next_cursor, scope}` or `{path,
+text, scope}`. Search labels scope; hits contain path, exact byte range, quote and score.
 Conversations return `{conversations}` or `{session_id, historical: true,
 turns}`. Turn/Ask records contain operation/session/provider/model,
 question/answer/status/error; provider thread IDs are not resume inputs.

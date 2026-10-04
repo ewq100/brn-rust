@@ -4,7 +4,7 @@
 [product vision](product/BRN_PRODUCT_VISION.md), [architecture](architecture/overview.md#frozen-target),
 [invariants](architecture/invariants.md), [roadmap](roadmap.md) and
 [development workflow](development/workflow.md). **Stages 1–4 are implemented,
-automated verified and locally integrated. Stage 5 is next; Stages 5–16 remain
+automated verified and locally integrated. Stage 5 knowledge foundations is active; Stages 5–16 remain
 unfinished. Complete BRN v1 delivery is not claimed.**
 
 Manual Save/recovery (`6609442`) preserves exact UTF-8, generation-bound recovery
@@ -61,6 +61,26 @@ shipping native build and native Clippy. Default desktop passed **131**; workflo
 **186**. The two ignored private crash entry points are exercised by subprocess
 matrices. Earlier slice counts remain in the evidence, not current gate claims.
 
+Stage 5’s [active plan](work/active/knowledge-foundations/plan.md) has integrated
+managed Markdown UUID preparation through ordinary proposals, edit/Rewrite
+identity protection, fresh complete evidence lookup and duplicate/incomplete
+reporting, explicit exact archived reads, saved classification and scoped
+current/source/history/all retrieval through workflow/CLI, the three AI read tools
+and native browsing/search with read-only evidence views. Source CAS, restart, index rebuild
+and Undo are verified; current write/read rules and unresolved-work fences remain
+intact. Independent reviews found no remaining actionable findings. Fresh final
+locked/offline verification passed **765 workspace tests / 0 failed / 2 ignored**,
+**52 end-to-end assertions**, format/build/all-target Clippy, **155 native desktop
+tests**, native all-target Clippy and shipping native
+desktop/CLI builds. Fresh full-byte refresh catches retained-size/mtime changes;
+unreadable evidence folders report incomplete inspection while readable current
+knowledge remains usable. Fresh native synthetic observation confirmed scope
+separation, archived/current-history read-only views, typing refusal and an exact
+86-byte BOM/CRLF/Unicode Copy→paste→Save Copy result, preserving original files.
+The Mac locked before the final GUI restart check; owner acceptance remains pending.
+Durable provenance, relationships, findings/timestamps and multilingual qualification continue next;
+Stage 5 is not complete.
+
 ## Qualification still open
 
 Actual GUI/IME/accessibility, chooser, native Save/recovery/review/approval/Undo/
@@ -71,12 +91,28 @@ items do not block later safe implementation. The completed provider round leave
 Copilot GPT-5.5 Chat unsupported, Codex vision accuracy and native citations
 unqualified. Upstream `block v0.1.6` retains a future-compiler warning.
 
-No published CI run exists for the inspected local Stage 4 commits. The latest
-inspected [published main CI](https://github.com/ewq100/brn-rust/actions/runs/37137393000)
-at another commit (`609d859`) failed on Windows and optional Linux paths; it does
-not qualify this tree. Release/public distribution, additional live calls/model
-downloads, purchases and original/private-data inspection or migration still need
-applicable owner permission. No original data was migrated or inspected.
+Stages 1–4 are published in reviewed PRs16–21. Stage4C PR21 merged
+`6601374996ecba7d461403aa6e892f1273bed28e` after exact18a315b run37190429533
+passed macOSCore/UI/Retrieval and UbuntuSharedCore. Windows Unix metadata failure
+leaves overallCIred. Merged tree equality,16widgets+52fixtures, shipping build and
+two startup/restart runs passed with exact synthetic bytes and zero credentials.
+
+Stage5A identities/scopes publication baseline `e9179eb` integrates its four
+reviewed slices through4fb2763 with that qualified main. Fresh macOS arm64/
+Rust1.98.1 locked/offline retirement,format/build/all-target Clippy,765workspace/
+0failed/2ignored,52fixtures,155combined-native tests/0failed/0ignored, both native
+Clippy variants and shipping desktop/CLI builds passed. Capability fixtures passed
+84library+1example; focused native workflow passed132tests/0failed/2ignored.
+Two shipping startup/restart runs preserved exact bytes with zero credentials.
+Independent integration review preserved60Stage5-only+11incoming-only paths and
+all four source overlaps, with no actionable defect. Exact latest PR macOS/shared
+CI and post-merge verification are pending. Native/owner/model acceptance remains
+separate. Provenance,timestamps,relationships,findings and multilingual slices
+remain later deliverables; Stage5 is not complete.
+
+Release/public distribution, additional live calls/model downloads, purchases and
+original/private-data inspection or migration still need applicable owner
+permission. No original data was migrated or inspected.
 
 Older records in [completed evidence](work/completed/README.md) and the
 [earlier Rig notes evidence](work/active/simple-rig-notes/evidence.md) are history;

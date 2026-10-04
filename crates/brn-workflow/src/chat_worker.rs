@@ -675,6 +675,30 @@ impl ReadTools for DrainedTools {
     ) -> brn_ai::AiResult<brn_ai::NotePage> {
         self.tools.list_notes(folder, cursor)
     }
+
+    fn search_notes_scoped(
+        &self,
+        query: &str,
+        limit: usize,
+        scope: brn_ai::ReadScope,
+    ) -> brn_ai::AiResult<brn_ai::ToolSearch> {
+        self.tools.search_notes_scoped(query, limit, scope)
+    }
+    fn read_note_scoped(
+        &self,
+        path: &str,
+        scope: brn_ai::ReadScope,
+    ) -> brn_ai::AiResult<brn_ai::ToolNote> {
+        self.tools.read_note_scoped(path, scope)
+    }
+    fn list_notes_scoped(
+        &self,
+        folder: Option<&str>,
+        cursor: Option<&str>,
+        scope: brn_ai::ReadScope,
+    ) -> brn_ai::AiResult<brn_ai::NotePage> {
+        self.tools.list_notes_scoped(folder, cursor, scope)
+    }
 }
 
 async fn run_turn(

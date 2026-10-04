@@ -47,10 +47,49 @@ pub struct NotePage {
     pub next_cursor: Option<String>,
 }
 
+#[derive(Clone, Copy, Debug, Default, PartialEq, Eq, Serialize, Deserialize)]
+#[serde(rename_all = "snake_case")]
+pub enum ReadScope {
+    #[default]
+    Current,
+    Source,
+    History,
+    All,
+}
+
 pub trait ReadTools: Send + Sync {
     fn search_notes(&self, query: &str, limit: usize) -> AiResult<ToolSearch>;
     fn read_note(&self, path: &str) -> AiResult<ToolNote>;
     fn list_notes(&self, folder: Option<&str>, cursor: Option<&str>) -> AiResult<NotePage>;
+
+    fn search_notes_scoped(
+        &self,
+        query: &str,
+        limit: usize,
+        scope: ReadScope,
+    ) -> AiResult<ToolSearch> {
+        if scope != ReadScope::Current {
+            return Err(rejected());
+        }
+        self.search_notes(query, limit)
+    }
+    fn read_note_scoped(&self, path: &str, scope: ReadScope) -> AiResult<ToolNote> {
+        if scope != ReadScope::Current {
+            return Err(rejected());
+        }
+        self.read_note(path)
+    }
+    fn list_notes_scoped(
+        &self,
+        folder: Option<&str>,
+        cursor: Option<&str>,
+        scope: ReadScope,
+    ) -> AiResult<NotePage> {
+        if scope != ReadScope::Current {
+            return Err(rejected());
+        }
+        self.list_notes(folder, cursor)
+    }
 }
 
 #[derive(Default)]
@@ -94,12 +133,16 @@ fn validate_page(page: NotePage) -> AiResult<NotePage> {
 pub(crate) struct SearchArgs {
     query: String,
     limit: usize,
+    #[serde(default)]
+    scope: ReadScope,
 }
 
 #[derive(Deserialize, Serialize)]
 #[serde(deny_unknown_fields)]
 pub(crate) struct ReadArgs {
     path: String,
+    #[serde(default)]
+    scope: ReadScope,
 }
 
 #[derive(Deserialize, Serialize)]
@@ -107,6 +150,27 @@ pub(crate) struct ReadArgs {
 pub(crate) struct ListArgs {
     folder: Option<String>,
     cursor: Option<String>,
+    #[serde(default)]
+    scope: ReadScope,
+}
+
+#[derive(Serialize)]
+pub(crate) struct ScopedSearch {
+    scope: ReadScope,
+    #[serde(flatten)]
+    result: ToolSearch,
+}
+#[derive(Serialize)]
+pub(crate) struct ScopedNote {
+    scope: ReadScope,
+    #[serde(flatten)]
+    result: ToolNote,
+}
+#[derive(Serialize)]
+pub(crate) struct ScopedPage {
+    scope: ReadScope,
+    #[serde(flatten)]
+    result: NotePage,
 }
 
 pub(crate) struct SearchNotes(pub Arc<dyn ReadTools>);
@@ -116,11 +180,11 @@ pub(crate) struct ListNotes(pub Arc<dyn ReadTools>);
 impl Tool for SearchNotes {
     const NAME: &'static str = "search_notes";
     type Args = SearchArgs;
-    type Output = ToolSearch;
+    type Output = ScopedSearch;
     type Error = AiError;
 
     fn description(&self) -> String {
-        "Search current notes; keyword_only indicates keyword rather than semantic results.".into()
+        "Search current knowledge by default. Select source for original evidence, history for historical notes, or all when explicitly relevant. Results label scope; keyword_only indicates keyword rather than semantic results.".into()
     }
     fn parameters(&self) -> Value {
         json!({
@@ -128,20 +192,25 @@ impl Tool for SearchNotes {
             "properties": {
                 "query": {"type": "string", "minLength": 1, "maxLength": 512,
                     "description": "Query of 1-512 UTF-8 bytes"},
-                "limit": {"type": "integer", "minimum": 1, "maximum": 10}
+                "limit": {"type": "integer", "minimum": 1, "maximum": 10},
+                "scope": {"type": "string", "enum": ["current", "source", "history", "all"],
+                    "description": "Omit for current knowledge; choose an explicit evidence scope when relevant."}
             },
             "required": ["query", "limit"]
         })
     }
-    async fn call(&self, _: &mut ToolContext, args: SearchArgs) -> AiResult<ToolSearch> {
+    async fn call(&self, _: &mut ToolContext, args: SearchArgs) -> AiResult<ScopedSearch> {
         validate_search(&args.query, args.limit)?;
         let tools = self.0.clone();
         tokio::task::spawn_blocking(move || {
-            let result = tools.search_notes(&args.query, args.limit)?;
+            let result = tools.search_notes_scoped(&args.query, args.limit, args.scope)?;
             if result.hits.len() > args.limit {
                 return Err(rejected());
             }
-            Ok(result)
+            Ok(ScopedSearch {
+                scope: args.scope,
+                result,
+            })
         })
         .await
         .map_err(|_| AiError::new(AiErrorKind::Other))?
@@ -151,33 +220,39 @@ impl Tool for SearchNotes {
 impl Tool for ReadNote {
     const NAME: &'static str = "read_note";
     type Args = ReadArgs;
-    type Output = ToolNote;
+    type Output = ScopedNote;
     type Error = AiError;
 
     fn description(&self) -> String {
-        "Read fresh note text, preserving bytes, capped at 50000 UTF-8 bytes with a truncation flag."
+        "Read fresh saved text. Omitted scope means current knowledge; source/history/all permit explicit original or historical evidence. Results label scope and preserve bytes, capped at 50000 UTF-8 bytes with a truncation flag."
             .into()
     }
     fn parameters(&self) -> Value {
         json!({
             "type": "object", "additionalProperties": false,
-            "properties": {"path": {"type": "string", "minLength": 1}},
+            "properties": {
+                "path": {"type": "string", "minLength": 1},
+                "scope": {"type": "string", "enum": ["current", "source", "history", "all"]}
+            },
             "required": ["path"]
         })
     }
-    async fn call(&self, _: &mut ToolContext, args: ReadArgs) -> AiResult<ToolNote> {
+    async fn call(&self, _: &mut ToolContext, args: ReadArgs) -> AiResult<ScopedNote> {
         if args.path.is_empty() {
             return Err(rejected());
         }
         let tools = self.0.clone();
         tokio::task::spawn_blocking(move || {
-            let mut note = tools.read_note(&args.path)?;
+            let mut note = tools.read_note_scoped(&args.path, args.scope)?;
             let (prefix, truncated) = capped_text(&note.text);
             if truncated {
                 note.text = prefix.to_owned();
                 note.truncated = true;
             }
-            Ok(note)
+            Ok(ScopedNote {
+                scope: args.scope,
+                result: note,
+            })
         })
         .await
         .map_err(|_| AiError::new(AiErrorKind::Other))?
@@ -187,11 +262,11 @@ impl Tool for ReadNote {
 impl Tool for ListNotes {
     const NAME: &'static str = "list_notes";
     type Args = ListArgs;
-    type Output = NotePage;
+    type Output = ScopedPage;
     type Error = AiError;
 
     fn description(&self) -> String {
-        "List at most 200 current notes per page, optionally within a folder or after a cursor."
+        "List at most 200 saved notes per page, optionally within a folder or after a cursor. Omitted scope means current knowledge; select source/history/all for explicit evidence. Results label scope."
             .into()
     }
     fn parameters(&self) -> Value {
@@ -199,15 +274,24 @@ impl Tool for ListNotes {
             "type": "object", "additionalProperties": false,
             "properties": {
                 "folder": {"type": ["string", "null"]},
-                "cursor": {"type": ["string", "null"]}
+                "cursor": {"type": ["string", "null"]},
+                "scope": {"type": "string", "enum": ["current", "source", "history", "all"]}
             },
             "required": []
         })
     }
-    async fn call(&self, _: &mut ToolContext, args: ListArgs) -> AiResult<NotePage> {
+    async fn call(&self, _: &mut ToolContext, args: ListArgs) -> AiResult<ScopedPage> {
         let tools = self.0.clone();
         tokio::task::spawn_blocking(move || {
-            validate_page(tools.list_notes(args.folder.as_deref(), args.cursor.as_deref())?)
+            let result = validate_page(tools.list_notes_scoped(
+                args.folder.as_deref(),
+                args.cursor.as_deref(),
+                args.scope,
+            )?)?;
+            Ok(ScopedPage {
+                scope: args.scope,
+                result,
+            })
         })
         .await
         .map_err(|_| AiError::new(AiErrorKind::Other))?

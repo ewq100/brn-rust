@@ -6,7 +6,7 @@ use crate::{
         self, AccountCommand, AccountEvent, AccountReply, AskRequest, ChatEvent, ChatHandle,
         ChatWorker,
     },
-    library::{RefreshReport, SearchMode, SearchResults},
+    library::{KnowledgeScope, RefreshReport, SearchMode, SearchResults},
     models::{ModelDownloadPrompt, ModelInstallReport},
     vault::{NoteText, VaultPath},
 };
@@ -43,6 +43,15 @@ pub enum AppCommand {
         cursor: Option<String>,
     },
     Note(String),
+    ScopedNotes {
+        scope: KnowledgeScope,
+        folder: Option<String>,
+        cursor: Option<String>,
+    },
+    ScopedNote {
+        scope: KnowledgeScope,
+        path: String,
+    },
     OpenEditor(String),
     ReloadEditor(crate::editor::ReloadRequest),
     RecoverEditor(crate::editor::EditRequest),
@@ -50,6 +59,11 @@ pub enum AppCommand {
     Editors,
     ReconcileEditor(Uuid),
     ProposalSource(String),
+    NoteIdentity(String),
+    IdentityInventory,
+    ResolveNoteIdentity(Uuid),
+    EvidenceNote(String),
+    PrepareNoteIdentity(crate::knowledge::IdentityRequest),
     CreateProposal(crate::proposals::DraftRequest),
     Proposal(Uuid),
     Proposals(Option<Uuid>),
@@ -81,6 +95,12 @@ pub enum AppCommand {
         text: String,
     },
     Search {
+        query: String,
+        mode: SearchMode,
+        limit: usize,
+    },
+    ScopedSearch {
+        scope: KnowledgeScope,
         query: String,
         mode: SearchMode,
         limit: usize,
@@ -127,6 +147,11 @@ pub enum AppEvent {
     EditorSaved(crate::editor::SaveReceipt),
     Editors(Vec<crate::editor::EditorRecord>),
     ProposalSource(Box<crate::proposals::ProposalSource>),
+    NoteIdentity(crate::knowledge::NoteIdentityInfo),
+    IdentityInventory(Box<crate::knowledge::IdentityInventory>),
+    NoteIdentityResolved(Box<crate::knowledge::IdentityResolution>),
+    EvidenceNote(NoteText),
+    NoteIdentityDraft(Box<crate::proposals::DraftRequest>),
     Proposal(crate::proposals::ProposalRecord),
     ProposalRewrite(Option<crate::proposal_rewrite::RewriteJob>),
     Rewrite(crate::proposal_rewrite::RewriteEvent),
@@ -854,8 +879,25 @@ fn dispatch(
             AppEvent::Notes(app.notes(folder.as_deref(), cursor.as_deref())?)
         }
         AppCommand::Note(path) => AppEvent::Note(app.note(&path)?),
+        AppCommand::ScopedNotes {
+            scope,
+            folder,
+            cursor,
+        } => AppEvent::Notes(app.notes_scoped(folder.as_deref(), cursor.as_deref(), scope)?),
+        AppCommand::ScopedNote { scope, path } => AppEvent::Note(app.note_scoped(&path, scope)?),
         AppCommand::ProposalSource(path) => {
             AppEvent::ProposalSource(Box::new(app.proposal_source(&path)?))
+        }
+        AppCommand::NoteIdentity(path) => AppEvent::NoteIdentity(app.note_identity(&path)?),
+        AppCommand::IdentityInventory => {
+            AppEvent::IdentityInventory(Box::new(app.identity_inventory()?))
+        }
+        AppCommand::ResolveNoteIdentity(note_id) => {
+            AppEvent::NoteIdentityResolved(Box::new(app.resolve_note_identity(note_id)?))
+        }
+        AppCommand::EvidenceNote(path) => AppEvent::EvidenceNote(app.evidence_note(&path)?),
+        AppCommand::PrepareNoteIdentity(request) => {
+            AppEvent::NoteIdentityDraft(Box::new(app.prepare_note_identity(&request)?))
         }
         AppCommand::CreateProposal(request) => AppEvent::Proposal(app.create_proposal(&request)?),
         AppCommand::Proposal(proposal) => AppEvent::Proposal(app.proposal(proposal)?),
@@ -1009,6 +1051,12 @@ fn dispatch(
         AppCommand::Search { query, mode, limit } => {
             AppEvent::Search(app.search(&query, mode, limit)?)
         }
+        AppCommand::ScopedSearch {
+            scope,
+            query,
+            mode,
+            limit,
+        } => AppEvent::Search(app.search_scoped(&query, mode, limit, scope)?),
         AppCommand::Conversations => AppEvent::Conversations(app.conversations()?),
         AppCommand::Turns(conversation) => AppEvent::Turns(app.turns(conversation)?),
         AppCommand::Turn(turn) => AppEvent::Turn(app.work_store().turn(turn)?),

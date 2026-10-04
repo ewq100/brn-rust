@@ -5,6 +5,11 @@ use std::path::{Path, PathBuf};
 #[derive(Debug, Clone, PartialEq, Eq, PartialOrd, Ord, Hash)]
 pub struct VaultPath(String);
 
+/// A visible vault-relative Markdown path for explicit read-only evidence,
+/// including notes under the top-level `archive/` folder.
+#[derive(Debug, Clone, PartialEq, Eq, PartialOrd, Ord, Hash)]
+pub struct EvidencePath(String);
+
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub enum VaultPathError {
     Empty,
@@ -41,43 +46,14 @@ pub(crate) fn is_markdown_name(name: &str) -> bool {
 
 impl VaultPath {
     pub fn parse(raw: &str) -> Result<Self, VaultPathError> {
-        Self::validate_components(raw)?;
-        let name = raw.rsplit('/').next().ok_or(VaultPathError::Empty)?;
-        if !is_markdown_name(name) {
-            return Err(VaultPathError::NotMarkdown);
-        }
+        validate_note(raw, false)?;
         Ok(Self(raw.to_owned()))
     }
 
     /// A component-only folder filter, without the Markdown suffix requirement.
     pub fn validate_folder(raw: &str) -> Result<(), VaultPathError> {
-        Self::validate_components(raw)?;
+        validate_components(raw, false)?;
         if raw.eq_ignore_ascii_case("archive") {
-            return Err(VaultPathError::Archived);
-        }
-        Ok(())
-    }
-
-    fn validate_components(raw: &str) -> Result<(), VaultPathError> {
-        if raw.is_empty() {
-            return Err(VaultPathError::Empty);
-        }
-        if raw.starts_with('/') {
-            return Err(VaultPathError::Absolute);
-        }
-        if raw.contains('\\') || raw.contains('\0') {
-            return Err(VaultPathError::InvalidComponent);
-        }
-        let parts: Vec<&str> = raw.split('/').collect();
-        for part in &parts {
-            match *part {
-                "" | "." => return Err(VaultPathError::InvalidComponent),
-                ".." => return Err(VaultPathError::Traversal),
-                p if p.starts_with('.') => return Err(VaultPathError::Hidden),
-                _ => {}
-            }
-        }
-        if parts.len() > 1 && parts[0].eq_ignore_ascii_case("archive") {
             return Err(VaultPathError::Archived);
         }
         Ok(())
@@ -88,15 +64,79 @@ impl VaultPath {
     }
 
     pub fn to_fs_path(&self, root: &Path) -> PathBuf {
-        let mut path = root.to_path_buf();
-        for part in self.0.split('/') {
-            path.push(part);
-        }
-        path
+        to_fs_path(root, &self.0)
     }
 }
 
+impl EvidencePath {
+    pub fn parse(raw: &str) -> Result<Self, VaultPathError> {
+        validate_note(raw, true)?;
+        Ok(Self(raw.to_owned()))
+    }
+
+    /// A visible contained folder for explicit source/history queries.
+    pub fn validate_folder(raw: &str) -> Result<(), VaultPathError> {
+        validate_components(raw, true)
+    }
+
+    pub fn as_str(&self) -> &str {
+        &self.0
+    }
+
+    pub fn to_fs_path(&self, root: &Path) -> PathBuf {
+        to_fs_path(root, &self.0)
+    }
+}
+
+fn validate_note(raw: &str, include_archive: bool) -> Result<(), VaultPathError> {
+    validate_components(raw, include_archive)?;
+    let name = raw.rsplit('/').next().ok_or(VaultPathError::Empty)?;
+    if !is_markdown_name(name) {
+        return Err(VaultPathError::NotMarkdown);
+    }
+    Ok(())
+}
+
+fn validate_components(raw: &str, include_archive: bool) -> Result<(), VaultPathError> {
+    if raw.is_empty() {
+        return Err(VaultPathError::Empty);
+    }
+    if raw.starts_with('/') {
+        return Err(VaultPathError::Absolute);
+    }
+    if raw.contains('\\') || raw.contains('\0') {
+        return Err(VaultPathError::InvalidComponent);
+    }
+    let parts: Vec<&str> = raw.split('/').collect();
+    for part in &parts {
+        match *part {
+            "" | "." => return Err(VaultPathError::InvalidComponent),
+            ".." => return Err(VaultPathError::Traversal),
+            p if p.starts_with('.') => return Err(VaultPathError::Hidden),
+            _ => {}
+        }
+    }
+    if !include_archive && parts.len() > 1 && parts[0].eq_ignore_ascii_case("archive") {
+        return Err(VaultPathError::Archived);
+    }
+    Ok(())
+}
+
+fn to_fs_path(root: &Path, raw: &str) -> PathBuf {
+    let mut path = root.to_path_buf();
+    for part in raw.split('/') {
+        path.push(part);
+    }
+    path
+}
+
 impl std::fmt::Display for VaultPath {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        f.write_str(&self.0)
+    }
+}
+
+impl std::fmt::Display for EvidencePath {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         f.write_str(&self.0)
     }

@@ -126,6 +126,15 @@ as `Arc<dyn ReadTools>`. Rig tool calls dispatch blocking reads via
 `tokio::task::spawn_blocking`, with at most two concurrent calls. Only
 `search_notes`, `read_note` and `list_notes` are registered:
 
+All three accept a `scope` enum (`current`, `source`, `history`, `all`), defaulting
+to Current when omitted. Serialized results label that scope alongside existing
+fields. `ReadTools` scoped methods support this selection; old implementers
+delegate omitted/Current calls and reject other scopes rather than substituting
+current results. Workflow owns classification and fresh evidence checks. Scope
+selects read-only evidence, never approval or mutation authority. The pinned
+Copilot Responses strict schema makes every property required on the wire;
+Rust omission compatibility remains supported and verified separately.
+
 - Search queries are 1–512 **UTF-8 bytes**, limits are integers in 1–10 and
   returned hits cannot exceed the requested limit. `ToolSearch.keyword_only`
   reaches the model unchanged.
@@ -138,6 +147,10 @@ as `Arc<dyn ReadTools>`. Rig tool calls dispatch blocking reads via
   also reject invalid arguments when the model ignores the schema. Safe failed
   tool results may continue the turn; they never authorize a retry or fallback.
   No comment/proposal/write tools are exposed.
+
+Invalid scope/type/extra arguments invoke no underlying read. Rig may return its
+parse diagnostic transiently to the model that generated the invalid argument;
+local progress still exposes only allowlisted tool names and typed BRN errors.
 
 History is limited to the last 20 earlier `HistoryPair` values, converted to
 text-only user/assistant messages. Empty assistant text is omitted on the wire

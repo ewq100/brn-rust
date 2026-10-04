@@ -523,6 +523,7 @@ pub(super) fn edited_review(
                 NoteChange::Create { text: old, .. } | NoteChange::Replace { text: old, .. },
                 Some(text),
             ) => {
+                crate::note_identity::protect(old, text)?;
                 if old != text {
                     changed = true;
                     for comment in &mut record.comments {
