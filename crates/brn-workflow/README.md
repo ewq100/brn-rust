@@ -42,10 +42,13 @@ provider/model. `AppConfig.credentials_dir: Option<PathBuf>` uses an explicit
 location when supplied, otherwise the owner's saved `ai.credentials_dir`, then
 the safe sibling. The non-secret absolute location is persisted only by App's
 owning lane; frontends never open an extra WorkStore to read settings.
-Selection is validated and
-saved atomically in one `ai.selection` setting. Explicit Copilot discovery
-results go through `record_models`; `validate_selection` checks membership
-without network or cache access.
+Selection is format-validated and saved atomically in one `ai.selection`
+setting. Reading that saved choice remains possible if discovery later removes
+its model; no refresh selects a replacement. Explicit discovery results go
+through `record_models`; new Copilot selections/turns check recorded membership
+without network or credential-cache access. ChatGPT identifiers remain explicit;
+the thin provider adapter returns current subscription picker options and reports
+upstream refusal rather than substituting another model.
 
 `effort`/`select_effort` expose an explicit low/medium/high choice in `ai.effort`
 without provider access. Fresh Ask requires a captured effort before admission;

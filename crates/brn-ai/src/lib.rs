@@ -33,9 +33,7 @@ pub struct Selection {
 impl Selection {
     /// Checks an explicit model identifier; does not select or persist a model.
     pub fn validate(&self) -> AiResult<()> {
-        if valid_model_id(&self.model)
-            && (self.provider != Provider::Chatgpt || self.model == "gpt-5.5")
-        {
+        if valid_model_id(&self.model) {
             Ok(())
         } else {
             Err(AiError::new(AiErrorKind::ModelRefused))

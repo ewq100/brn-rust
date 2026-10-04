@@ -51,6 +51,28 @@ fn explicit_effort_persists_offline_without_a_selection_or_vault_and_invalid_sto
 }
 
 #[test]
+fn chatgpt_luna_and_existing_selection_remain_readable_after_restart() {
+    let data = base();
+    let creds = base();
+    let mut app = App::open(data.path(), config(creds.path())).unwrap();
+    assert_eq!(app.selection().unwrap(), None);
+    for model in ["gpt-5.5", "gpt-6-luna"] {
+        let selection = Selection {
+            provider: Provider::Chatgpt,
+            model: model.into(),
+        };
+        app.select(selection.clone()).unwrap();
+        drop(app);
+        app = App::open(data.path(), config(creds.path())).unwrap();
+        assert_eq!(app.selection().unwrap(), Some(selection.clone()));
+        assert_eq!(
+            app.work_store().setting("ai.selection").unwrap().unwrap(),
+            serde_json::to_string(&selection).unwrap()
+        );
+    }
+}
+
+#[test]
 fn new_app_refuses_legacy_data_without_touching_it() {
     let data = base();
     let creds = base();
@@ -104,7 +126,7 @@ fn unbound_history_settings_and_first_successful_binding_survive_restart() {
     assert!(
         app.select(Selection {
             provider: Provider::Chatgpt,
-            model: "bad".into()
+            model: "bad model\n".into()
         })
         .is_err()
     );
@@ -394,5 +416,56 @@ fn default_restart_ignores_saved_native_model_without_changing_assets_or_user_wo
     assert_eq!(
         App::open(data.path(), explicit).err().unwrap().kind,
         ErrorKind::SemanticUnavailableInBuild
+    );
+}
+
+#[test]
+fn refreshed_catalog_never_erases_saved_selection_but_gates_new_copilot_use() {
+    let data = base();
+    let creds = base();
+    let mut app = App::open(data.path(), config(creds.path())).unwrap();
+    let selected = Selection {
+        provider: Provider::Copilot,
+        model: "synthetic-retired".into(),
+    };
+    app.record_models(
+        Provider::Copilot,
+        &[ModelOption {
+            id: selected.model.clone(),
+            live_qualified: false,
+        }],
+    )
+    .unwrap();
+    app.select(selected.clone()).unwrap();
+    app.record_models(
+        Provider::Copilot,
+        &[ModelOption {
+            id: "synthetic-current".into(),
+            live_qualified: false,
+        }],
+    )
+    .unwrap();
+    assert_eq!(app.selection().unwrap(), Some(selected.clone()));
+    assert_eq!(
+        app.validate_selection(&selected).unwrap_err().kind,
+        ErrorKind::ModelRefused
+    );
+    assert_eq!(
+        app.select(selected.clone()).unwrap_err().kind,
+        ErrorKind::ModelRefused
+    );
+    assert_eq!(app.selection().unwrap(), Some(selected.clone()));
+    drop(app);
+    let app = App::open(data.path(), config(creds.path())).unwrap();
+    assert_eq!(app.selection().unwrap(), Some(selected.clone()));
+    assert_eq!(
+        app.validate_selection(&selected).unwrap_err().kind,
+        ErrorKind::ModelRefused
+    );
+    assert_eq!(
+        std::fs::read_dir(creds.path().join("credentials"))
+            .unwrap()
+            .count(),
+        0
     );
 }

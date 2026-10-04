@@ -1541,3 +1541,60 @@ screenshots. Native scope/Save/acknowledged-recovery qualification passed; visua
 layout,IME,broader review/Undo and owner acceptance remain pending. No provider,
 model asset or original/private data access occurred. Exact temporary evidence:
 logs/native-evidence.md under the owned parent; durable steps/results are above.
+
+
+## Current subscription catalog and Luna qualification
+
+Owner amendment2026-10-04: BRN's picker uses the current subscription catalog;
+exact GPT-6Luna (`gpt-6-luna`) is used for live app/provider tests. Development/
+review may use Sol/Luna,neverAstra. Baseline actual mergedb5f7ce8; catalog source
+reviewed at0243c5d and joined unchanged with current Actions throughd344dc6.
+Use pinned Rig0.43 authentication/HTTP and model request encoding; decode the
+Codex models/slug/visibility/priority envelope privately. Supply real BRN package
+client_version and resolved Rig account/caller headers,without SDK/auth redesign.
+Return validated visible options in stable provider order; failures supply no
+substitute. Preserve exact saved selections/history; catalog refresh never chooses
+a model. Current Copilot new-use membership checks remain. UI hides obsolete
+picker options when explicit Connect/Disconnect/Models begins. No startup discovery.
+
+Acceptance: real synthetic transport proves authenticated exact route/headers,
+malformed/duplicate/status/network/cancel behavior,visibility/order and API-flag
+independence; exact Luna Responses/effort/history/tool continuation/refusal; saved
+choice readability despite rediscovery; process/native presentation parity without
+credential effects. Independent full review found no defect. Getter regression
+first failed0/1,then all13App tests passed; native picker regression first failed
+0/1,then passed. AI91default+91capability tests and all-targetClippy passed.
+Joined shared verification caught two obsolete CLI expectations; corrected8real
+process tests preserve old choices,refuse malformed identifiers before authority,
+and refuse new stale Copilot use with explicit effort. Independent correction
+review found no defect. A formatting invocation used edition2024 for the2021CLI;
+Cargo formatting corrected it. Fresh full shared/native qualification is pending.
+
+Manual/live scenario: use fresh owned explicit synthetic data/vault/credentials;
+human Connect ChatGPT,explicit Models refresh,inspect actual options,choose exact
+Luna and Low. Ask for one saved synthetic Current fact; inspect exact saved/source
+citations and recorded model. Create a tiny synthetic review draft and use High
+Rewrite; it remains review work until exact approval. Reopen and refresh without
+changing selection or choosing a fallback. If Luna is unavailable or refused,
+record that exact result and stop that route. Current owner authorization covers
+this bounded fresh qualification: up to two short Ask/Rewrite probes,max18completion
+requests under the existing eight-tool-round limits,plus up to two explicit catalog
+requests. Stop on quota/refusal. No old credentials,private vault,model assets,
+purchase or release action. Native access is currently pending: latest tool says
+Mac locked despite owner's unlock message; an unlock/awake question is pending.
+Actual subscription/inference/effort/response-language/Rewrite quality and owner
+acceptance remain unqualified. Continue safe Actions implementation independently.
+
+
+Fresh final joined macOSarm64/Rust1.98.1 locked/offline qualification passed
+1019workspace/0failed/3ignored+52fixtures,retirement/format/build/all-targetClippy;
+165focused-native-workflow/0failed/2ignored;214combined-native-desktop/0failed/
+0ignored;both native desktop Clippy configurations,featureCLIClippy and shipping
+native desktop/CLI builds. Shipping startup/restart2 passed,V10,exact synthetic
+BOM/CRLF/Unicode bytes,zero credential files (qualified-startup-s7r9ukpw). The
+reviewed AI91default+91capability gates remain valid for unchanged source. Final
+43local Markdown links and diff checks passed. Logs:catalog-*-final.log under
+/private/tmp/brn-v1-stage1-checkpoint-s3nawyyb; early catalog-shared-final.log records
+obsolete CLI expectations,while catalog-shared-corrected-final.log is finalpassed
+evidence. Initial CLIformat mismatch corrected before this fresh full pass.
+Provider/live/native owner acceptance and exact-head CI/publication remain pending.
