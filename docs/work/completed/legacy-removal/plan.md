@@ -110,3 +110,15 @@ Environment: macOS Apple Silicon, Command Line Tools, Rust 1.98.1/rustfmt/Clippy
 locked dependencies, Python 3/Bash, fresh canonical synthetic data/TMPDIR outside
 Git, protobuf for native builds, and an unlocked session for GUI acceptance.
 Existing credentials and original data are not Mac mini transfer inputs.
+
+
+PR #17 initial exact head `8ec900e` passed macOS Core/UI/Retrieval, but shared
+Ubuntu Clippy rejected macOS-only file variants and notice state. Truthful platform
+guards now cover those declarations and exhaustive error conversion; the common
+unsupported adapter still refuses before filesystem work. No lint suppression or
+Windows compatibility claim. Independent review found no actionable defect;
+fresh scoped **31 tests / 0 failed / 1 ignored** passed. Root fresh final integrated
+verification again passed **391 tests / 0 failed / 1 ignored**, **52 assertions**,
+retirement, format/build/all-target Clippy. A new Ubuntu-only refusal regression
+awaits hosted execution. Publish the corrected commit and require applicable CI
+on that exact head before merging; the initial run remains an overall failure.

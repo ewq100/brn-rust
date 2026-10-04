@@ -3,17 +3,24 @@ mod macos;
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub(crate) enum FileErrorCode {
+    #[cfg(target_os = "macos")]
     Conflict,
+    #[cfg(target_os = "macos")]
     Missing,
     Unsupported,
+    #[cfg(target_os = "macos")]
     SaveUncertain,
+    #[cfg(target_os = "macos")]
     Io,
+    #[cfg(target_os = "macos")]
     VaultBusy,
+    #[cfg(target_os = "macos")]
     VaultUnavailable,
 }
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub(crate) enum FileOutcome {
     NotApplied,
+    #[cfg(target_os = "macos")]
     Unknown,
 }
 #[derive(Debug, Clone, PartialEq, Eq)]
@@ -33,9 +40,10 @@ pub(crate) type FileResult<T> = std::result::Result<T, FileFailure>;
 #[cfg(target_os = "macos")]
 use brn_store::files::{ArtifactIdentity, ArtifactKind};
 use brn_store::files::{FileFingerprint, PreparedFile, RetainedArtifact, VaultRecord};
+#[cfg(target_os = "macos")]
+use std::{collections::VecDeque, path::PathBuf};
 use std::{
-    collections::VecDeque,
-    path::{Path, PathBuf},
+    path::Path,
     sync::{Arc, Mutex},
 };
 use uuid::Uuid;
@@ -54,6 +62,7 @@ fn prepare_failure(step: &str) -> FileResult<()> {
     }
 }
 
+#[cfg(target_os = "macos")]
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub enum NoteNoticeKind {
     Changed,
@@ -62,6 +71,7 @@ pub enum NoteNoticeKind {
     RescanRequired,
 }
 
+#[cfg(target_os = "macos")]
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub struct NoteFileNotice {
     pub vault_id: Uuid,
@@ -73,14 +83,14 @@ pub(crate) type NoteNoticeSink = Arc<Mutex<NoteNoticeQueue>>;
 
 #[derive(Debug, Default)]
 pub(crate) struct NoteNoticeQueue {
+    #[cfg(target_os = "macos")]
     pending: VecDeque<NoteFileNotice>,
 }
 
+#[cfg(target_os = "macos")]
 impl NoteNoticeQueue {
-    #[cfg(target_os = "macos")]
     const CAPACITY: usize = 256;
 
-    #[cfg(target_os = "macos")]
     pub(crate) fn push(&mut self, notice: NoteFileNotice) {
         if self.pending.iter().any(|old| {
             old.vault_id == notice.vault_id
@@ -1169,6 +1179,34 @@ impl MacFiles {
         Err(note_unsupported(
             "managed notes require macOS filesystem coordination",
         ))
+    }
+}
+
+#[cfg(all(test, not(target_os = "macos")))]
+mod unsupported_tests {
+    use super::*;
+    use brn_store::files::VaultIdentity;
+
+    #[test]
+    fn unsupported_adapter_refuses_before_creating_vault_or_data() {
+        let owner = tempfile::tempdir_in(std::env::temp_dir().canonicalize().unwrap()).unwrap();
+        let vault = owner.path().join("vault-must-not-exist");
+        let data = owner.path().join("data-must-not-exist");
+        let record = VaultRecord {
+            id: Uuid::new_v4(),
+            root: vault.clone(),
+            identity: VaultIdentity {
+                device: 0,
+                inode: 0,
+            },
+        };
+        let failure = MacFiles::open(&record, &data, Arc::default())
+            .err()
+            .expect("filesystem coordination is unavailable on this platform");
+        assert_eq!(failure.code, FileErrorCode::Unsupported);
+        assert_eq!(failure.filesystem_outcome, FileOutcome::NotApplied);
+        assert!(!vault.exists());
+        assert!(!data.exists());
     }
 }
 

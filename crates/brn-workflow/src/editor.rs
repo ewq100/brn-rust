@@ -35,11 +35,16 @@ pub(crate) struct EditorState {
 
 fn file_error(error: FileFailure) -> WorkflowError {
     let kind = match error.code {
+        #[cfg(target_os = "macos")]
         FileErrorCode::Conflict | FileErrorCode::Missing => ErrorKind::ContextStale,
+        #[cfg(target_os = "macos")]
         FileErrorCode::VaultUnavailable => ErrorKind::VaultUnavailable,
+        #[cfg(target_os = "macos")]
         FileErrorCode::VaultBusy => ErrorKind::WorkspaceBusy,
+        #[cfg(target_os = "macos")]
         FileErrorCode::SaveUncertain => ErrorKind::SaveUncertain,
         FileErrorCode::Unsupported => ErrorKind::ToolRejected,
+        #[cfg(target_os = "macos")]
         FileErrorCode::Io => ErrorKind::Other,
     };
     WorkflowError::typed(kind, error.message)
