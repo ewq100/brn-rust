@@ -1,12 +1,49 @@
 #[cfg(target_os = "macos")]
-use brn_store::notes::{ArtifactIdentity, ArtifactKind};
-use brn_store::notes::{
-    FileFingerprint, FileOutcome, NoteErrorCode, NoteFailure, NoteResult, PreparedFile,
-    RetainedArtifact, VaultRecord,
-};
+mod macos;
+
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub(crate) enum FileErrorCode {
+    #[cfg(target_os = "macos")]
+    Conflict,
+    #[cfg(target_os = "macos")]
+    Missing,
+    Unsupported,
+    #[cfg(target_os = "macos")]
+    SaveUncertain,
+    #[cfg(target_os = "macos")]
+    Io,
+    #[cfg(target_os = "macos")]
+    VaultBusy,
+    #[cfg(target_os = "macos")]
+    VaultUnavailable,
+}
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub(crate) enum FileOutcome {
+    NotApplied,
+    #[cfg(target_os = "macos")]
+    Unknown,
+}
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub(crate) struct FileFailure {
+    pub code: FileErrorCode,
+    pub message: String,
+    pub filesystem_outcome: FileOutcome,
+}
+impl std::fmt::Display for FileFailure {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        f.write_str(&self.message)
+    }
+}
+impl std::error::Error for FileFailure {}
+pub(crate) type FileResult<T> = std::result::Result<T, FileFailure>;
+
+#[cfg(target_os = "macos")]
+use brn_store::files::{ArtifactIdentity, ArtifactKind};
+use brn_store::files::{FileFingerprint, PreparedFile, RetainedArtifact, VaultRecord};
+#[cfg(target_os = "macos")]
+use std::{collections::VecDeque, path::PathBuf};
 use std::{
-    collections::VecDeque,
-    path::{Path, PathBuf},
+    path::Path,
     sync::{Arc, Mutex},
 };
 use uuid::Uuid;
@@ -17,14 +54,15 @@ thread_local! {
 }
 
 #[cfg(all(test, target_os = "macos"))]
-fn prepare_failure(step: &str) -> NoteResult<()> {
+fn prepare_failure(step: &str) -> FileResult<()> {
     if PREPARE_FAILURE.with(|selected| selected.get() == Some(step)) {
-        Err(failure(NoteErrorCode::Io, "injected staging I/O failure"))
+        Err(failure(FileErrorCode::Io, "injected staging I/O failure"))
     } else {
         Ok(())
     }
 }
 
+#[cfg(target_os = "macos")]
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub enum NoteNoticeKind {
     Changed,
@@ -33,6 +71,7 @@ pub enum NoteNoticeKind {
     RescanRequired,
 }
 
+#[cfg(target_os = "macos")]
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub struct NoteFileNotice {
     pub vault_id: Uuid,
@@ -44,14 +83,14 @@ pub(crate) type NoteNoticeSink = Arc<Mutex<NoteNoticeQueue>>;
 
 #[derive(Debug, Default)]
 pub(crate) struct NoteNoticeQueue {
+    #[cfg(target_os = "macos")]
     pending: VecDeque<NoteFileNotice>,
 }
 
+#[cfg(target_os = "macos")]
 impl NoteNoticeQueue {
-    #[cfg(target_os = "macos")]
     const CAPACITY: usize = 256;
 
-    #[cfg(target_os = "macos")]
     pub(crate) fn push(&mut self, notice: NoteFileNotice) {
         if self.pending.iter().any(|old| {
             old.vault_id == notice.vault_id
@@ -71,6 +110,7 @@ impl NoteNoticeQueue {
         }
     }
 
+    #[cfg(test)]
     pub(crate) fn drain(&mut self) -> Vec<NoteFileNotice> {
         self.pending.drain(..).collect()
     }
@@ -82,44 +122,40 @@ pub(crate) struct FileObservation {
     pub text: String,
 }
 
-fn failure(code: NoteErrorCode, message: impl Into<String>) -> NoteFailure {
-    NoteFailure {
+fn failure(code: FileErrorCode, message: impl Into<String>) -> FileFailure {
+    FileFailure {
         code,
         message: message.into(),
-        operation_id: None,
-        note_id: None,
-        phase: None,
         filesystem_outcome: FileOutcome::NotApplied,
-        recovery_available: false,
     }
 }
 
 #[cfg(target_os = "macos")]
-pub(crate) fn note_io_failure(error: std::io::Error) -> NoteFailure {
+pub(crate) fn note_io_failure(error: std::io::Error) -> FileFailure {
     let code = match error.raw_os_error() {
         #[cfg(target_os = "macos")]
         Some(libc::ELOOP | libc::ENOTDIR | libc::ENOTSUP | libc::ENOSYS) => {
-            NoteErrorCode::Unsupported
+            FileErrorCode::Unsupported
         }
-        _ if error.kind() == std::io::ErrorKind::NotFound => NoteErrorCode::Missing,
-        _ => NoteErrorCode::Io,
+        _ if error.kind() == std::io::ErrorKind::NotFound => FileErrorCode::Missing,
+        _ => FileErrorCode::Io,
     };
     failure(code, error.to_string())
 }
 
-pub(crate) fn note_unsupported(message: &str) -> NoteFailure {
-    failure(NoteErrorCode::Unsupported, message)
+pub(crate) fn note_unsupported(message: &str) -> FileFailure {
+    failure(FileErrorCode::Unsupported, message)
 }
 
 #[cfg(target_os = "macos")]
-pub(crate) fn note_utf8_failure(error: std::string::FromUtf8Error) -> NoteFailure {
+pub(crate) fn note_utf8_failure(error: std::string::FromUtf8Error) -> FileFailure {
     note_unsupported(&format!("note is not UTF-8: {error}"))
 }
 
 #[cfg(target_os = "macos")]
 use {
-    super::macos::Coordination,
-    brn_store::notes::VaultIdentity,
+    self::macos::Coordination,
+    brn_store::files::VaultIdentity,
     sha2::{Digest, Sha256},
     std::{
         ffi::{CString, OsStr},
@@ -149,9 +185,9 @@ impl MacFiles {
         vault: &VaultRecord,
         data_dir: &Path,
         notices: NoteNoticeSink,
-    ) -> NoteResult<Self> {
+    ) -> FileResult<Self> {
         let root = std::fs::canonicalize(&vault.root)
-            .map_err(|error| failure(NoteErrorCode::VaultUnavailable, error.to_string()))?;
+            .map_err(|error| failure(FileErrorCode::VaultUnavailable, error.to_string()))?;
         let data = std::fs::canonicalize(data_dir).map_err(note_io_failure)?;
         if data.starts_with(&root) {
             return Err(note_unsupported(
@@ -160,7 +196,7 @@ impl MacFiles {
         }
         let mut locks = Vec::new();
         let unavailable =
-            |error: NoteFailure| failure(NoteErrorCode::VaultUnavailable, error.message);
+            |error: FileFailure| failure(FileErrorCode::VaultUnavailable, error.message);
         let mut directory = open_directory(Path::new("/")).map_err(unavailable)?;
         for component in root.components().skip(1) {
             lock_directory(&directory, false)?;
@@ -174,7 +210,7 @@ impl MacFiles {
         let metadata = directory.metadata().map_err(note_io_failure)?;
         if identity(&metadata) != vault.identity {
             return Err(failure(
-                NoteErrorCode::VaultUnavailable,
+                FileErrorCode::VaultUnavailable,
                 "registered vault root changed",
             ));
         }
@@ -197,16 +233,16 @@ impl MacFiles {
         self.locks.last().unwrap()
     }
 
-    pub(crate) fn validate_root(&self) -> NoteResult<()> {
+    pub(crate) fn validate_root(&self) -> FileResult<()> {
         let changed = || {
             failure(
-                NoteErrorCode::VaultUnavailable,
+                FileErrorCode::VaultUnavailable,
                 "registered vault root unavailable or changed",
             )
         };
         let canonical = std::fs::canonicalize(&self.registered_root).map_err(|error| {
             failure(
-                NoteErrorCode::VaultUnavailable,
+                FileErrorCode::VaultUnavailable,
                 format!("registered vault root unavailable: {error}"),
             )
         })?;
@@ -215,7 +251,7 @@ impl MacFiles {
         }
         let file = open_directory(&canonical).map_err(|error| {
             failure(
-                NoteErrorCode::VaultUnavailable,
+                FileErrorCode::VaultUnavailable,
                 format!("registered vault root unavailable: {}", error.message),
             )
         })?;
@@ -225,7 +261,7 @@ impl MacFiles {
         Ok(())
     }
 
-    fn parent(&self, relative: &Path) -> NoteResult<(File, CString)> {
+    fn parent(&self, relative: &Path) -> FileResult<(File, CString)> {
         self.validate_root()?;
         validate_relative(relative)?;
         let mut directory = self.root_directory().try_clone().map_err(note_io_failure)?;
@@ -247,24 +283,24 @@ impl MacFiles {
         Err(note_unsupported("empty note path"))
     }
 
-    fn validate_parent(&self, relative: &Path, parent: &File) -> NoteResult<()> {
+    fn validate_parent(&self, relative: &Path, parent: &File) -> FileResult<()> {
         let (current, _) = self.parent(relative)?;
         if identity(&current.metadata().map_err(note_io_failure)?)
             != identity(&parent.metadata().map_err(note_io_failure)?)
         {
-            return Err(failure(NoteErrorCode::Conflict, "note parent changed"));
+            return Err(failure(FileErrorCode::Conflict, "note parent changed"));
         }
         Ok(())
     }
 
-    pub(crate) fn observe(&self, relative: &Path) -> NoteResult<FileObservation> {
+    pub(crate) fn observe(&self, relative: &Path) -> FileResult<FileObservation> {
         self.parent(relative)?;
         self.coordination.read(&self.root.join(relative), || {
             self.observe_uncoordinated(relative)
         })
     }
 
-    pub(crate) fn observe_uncoordinated(&self, relative: &Path) -> NoteResult<FileObservation> {
+    pub(crate) fn observe_uncoordinated(&self, relative: &Path) -> FileResult<FileObservation> {
         let (parent, name) = self.parent(relative)?;
         let file = open_at(&parent, OsStr::from_bytes(name.as_bytes()), 0, 0)?;
         if file.metadata().map_err(note_io_failure)?.dev() != self.identity.device {
@@ -280,7 +316,7 @@ impl MacFiles {
             })
         {
             return Err(failure(
-                NoteErrorCode::Conflict,
+                FileErrorCode::Conflict,
                 "note replaced during observation",
             ));
         }
@@ -290,8 +326,8 @@ impl MacFiles {
     pub(crate) fn coordinate<T>(
         &self,
         relative: &Path,
-        action: impl FnOnce() -> NoteResult<T>,
-    ) -> NoteResult<T> {
+        action: impl FnOnce() -> FileResult<T>,
+    ) -> FileResult<T> {
         self.parent(relative)?;
         self.coordination.write(&self.root.join(relative), || {
             self.validate_root()?;
@@ -305,8 +341,8 @@ impl MacFiles {
         staging: &Path,
         destination: &Path,
         bytes: &[u8],
-    ) -> NoteResult<PreparedFile> {
-        if bytes.len() > crate::MAX_IMPORT_BYTES || std::str::from_utf8(bytes).is_err() {
+    ) -> FileResult<PreparedFile> {
+        if bytes.len() > crate::MAX_NOTE_BYTES || std::str::from_utf8(bytes).is_err() {
             return Err(note_unsupported(
                 "submitted note must be UTF-8 and at most 1 MiB",
             ));
@@ -336,7 +372,6 @@ impl MacFiles {
             0o600,
         )?;
         #[cfg(test)]
-        super::save::checkpoint("stage_created");
         #[cfg(test)]
         prepare_failure("write")?;
         stage.write_all(bytes).map_err(note_io_failure)?;
@@ -352,7 +387,7 @@ impl MacFiles {
         self.validate_parent(destination, &parent)?;
         let observed = read_file(&stage)?;
         if observed.text.as_bytes() != bytes {
-            return Err(failure(NoteErrorCode::Conflict, "prepared bytes changed"));
+            return Err(failure(FileErrorCode::Conflict, "prepared bytes changed"));
         }
         let prepared = PreparedFile {
             relative: staging.to_owned(),
@@ -360,7 +395,7 @@ impl MacFiles {
         };
         if self.observe_uncoordinated(staging)?.fingerprint != prepared.fingerprint {
             return Err(failure(
-                NoteErrorCode::Conflict,
+                FileErrorCode::Conflict,
                 "prepared path identity changed",
             ));
         }
@@ -370,12 +405,12 @@ impl MacFiles {
     pub(crate) fn parent_identity(
         &self,
         relative: &Path,
-    ) -> NoteResult<brn_store::notes::VaultIdentity> {
+    ) -> FileResult<brn_store::files::VaultIdentity> {
         let (parent, _) = self.parent(relative)?;
         Ok(identity(&parent.metadata().map_err(note_io_failure)?))
     }
 
-    pub(crate) fn validate_copy_destination(&self, relative: &Path) -> NoteResult<()> {
+    pub(crate) fn validate_copy_destination(&self, relative: &Path) -> FileResult<()> {
         component_key(relative).map(|_| ())
     }
 
@@ -385,7 +420,7 @@ impl MacFiles {
         &self,
         candidate: &Path,
         reserved: &Path,
-    ) -> NoteResult<bool> {
+    ) -> FileResult<bool> {
         validate_relative(candidate)?;
         validate_relative(reserved)?;
         if candidate == reserved {
@@ -405,7 +440,7 @@ impl MacFiles {
             Err(error)
                 if matches!(
                     error.code,
-                    NoteErrorCode::Missing | NoteErrorCode::Unsupported
+                    FileErrorCode::Missing | FileErrorCode::Unsupported
                 ) =>
             {
                 Ok(false)
@@ -415,9 +450,9 @@ impl MacFiles {
     }
 
     /// Equality here is a conservative veto, never proof of logical note identity.
-    pub(crate) fn aliases_original(&self, candidate: &Path, original: &Path) -> NoteResult<bool> {
+    pub(crate) fn aliases_original(&self, candidate: &Path, original: &Path) -> FileResult<bool> {
         let candidate_key = component_key(candidate)?;
-        let optional = |path: &Path| -> NoteResult<Option<VaultIdentity>> {
+        let optional = |path: &Path| -> FileResult<Option<VaultIdentity>> {
             let result = (|| {
                 let (parent, name) = self.parent(path)?;
                 let file = open_at(&parent, OsStr::from_bytes(name.as_bytes()), 0, 0)?;
@@ -427,7 +462,7 @@ impl MacFiles {
                 let current = open_at(&parent, OsStr::from_bytes(name.as_bytes()), 0, 0)?;
                 if identity(&current.metadata().map_err(note_io_failure)?) != identity(&metadata) {
                     return Err(failure(
-                        NoteErrorCode::Conflict,
+                        FileErrorCode::Conflict,
                         "file replaced during alias validation",
                     ));
                 }
@@ -438,7 +473,7 @@ impl MacFiles {
                 Err(error)
                     if matches!(
                         error.code,
-                        NoteErrorCode::Missing | NoteErrorCode::Unsupported
+                        FileErrorCode::Missing | FileErrorCode::Unsupported
                     ) =>
                 {
                     Ok(None)
@@ -456,7 +491,7 @@ impl MacFiles {
             // Registered names need not meet the stricter destination rules.
             // An unqualified basename can only alias within the same parent.
             // An unresolved original parent cannot disprove that possibility.
-            Err(error) if error.code == NoteErrorCode::Unsupported => {
+            Err(error) if error.code == FileErrorCode::Unsupported => {
                 let candidate_parent = self.parent_identity(candidate)?;
                 return Ok(match self.parent_identity(original) {
                     Ok(parent) => parent == candidate_parent,
@@ -476,7 +511,7 @@ impl MacFiles {
                 return Ok(true);
             }
             Ok(_) => (),
-            Err(error) if error.code == NoteErrorCode::Missing => {
+            Err(error) if error.code == FileErrorCode::Missing => {
                 // A vanished parent cannot be resolved; veto a potentially moved
                 // equivalent basename rather than infer a distinct namespace.
                 if candidate_key.last() == original_key.last() {
@@ -494,8 +529,8 @@ impl MacFiles {
         staging: &Path,
         destination: &Path,
         bytes: &[u8],
-    ) -> NoteResult<PreparedFile> {
-        if bytes.len() > crate::MAX_IMPORT_BYTES || std::str::from_utf8(bytes).is_err() {
+    ) -> FileResult<PreparedFile> {
+        if bytes.len() > crate::MAX_NOTE_BYTES || std::str::from_utf8(bytes).is_err() {
             return Err(note_unsupported(
                 "submitted note must be UTF-8 and at most 1 MiB",
             ));
@@ -517,7 +552,6 @@ impl MacFiles {
             0o600,
         )?;
         #[cfg(test)]
-        super::save::checkpoint("stage_created");
         #[cfg(test)]
         prepare_failure("write")?;
         stage.write_all(bytes).map_err(note_io_failure)?;
@@ -532,7 +566,7 @@ impl MacFiles {
         if observed.text.as_bytes() != bytes
             || self.observe_uncoordinated(staging)?.fingerprint != observed.fingerprint
         {
-            return Err(failure(NoteErrorCode::Conflict, "prepared copy changed"));
+            return Err(failure(FileErrorCode::Conflict, "prepared copy changed"));
         }
         Ok(PreparedFile {
             relative: staging.to_owned(),
@@ -544,32 +578,32 @@ impl MacFiles {
         &self,
         prepared: &PreparedFile,
         destination: &Path,
-    ) -> NoteResult<()> {
+    ) -> FileResult<()> {
         if prepared.relative.parent() != destination.parent() || prepared.relative == destination {
             return Err(note_unsupported(
                 "exclusive installation requires distinct sibling paths",
             ));
         }
         if self.observe_uncoordinated(&prepared.relative)?.fingerprint != prepared.fingerprint {
-            return Err(failure(NoteErrorCode::Conflict, "prepared copy changed"));
+            return Err(failure(FileErrorCode::Conflict, "prepared copy changed"));
         }
         let (parent, target) = self.parent(destination)?;
         let (_, stage) = self.parent(&prepared.relative)?;
         self.validate_parent(destination, &parent)?;
         rename_flags(&parent, &stage, &target, libc::RENAME_EXCL).map_err(|error| {
-            if error.code == NoteErrorCode::Io
+            if error.code == FileErrorCode::Io
                 && self
                     .artifact(destination)
                     .is_ok_and(|value| value.is_some())
             {
-                failure(NoteErrorCode::Conflict, "copy destination is occupied")
+                failure(FileErrorCode::Conflict, "copy destination is occupied")
             } else {
                 error
             }
         })
     }
 
-    pub(crate) fn exchange(&self, prepared: &PreparedFile, destination: &Path) -> NoteResult<()> {
+    pub(crate) fn exchange(&self, prepared: &PreparedFile, destination: &Path) -> FileResult<()> {
         if prepared.relative.parent() != destination.parent() || prepared.relative == destination {
             return Err(note_unsupported(
                 "exchange requires distinct paths in one validated parent",
@@ -577,7 +611,7 @@ impl MacFiles {
         }
         if self.observe_uncoordinated(&prepared.relative)?.fingerprint != prepared.fingerprint {
             return Err(failure(
-                NoteErrorCode::Conflict,
+                FileErrorCode::Conflict,
                 "prepared artifact changed",
             ));
         }
@@ -589,7 +623,7 @@ impl MacFiles {
         rename_flags(&parent, &stage, &target, libc::RENAME_SWAP)
     }
 
-    pub(crate) fn flush_artifact(&self, relative: &Path) -> NoteResult<()> {
+    pub(crate) fn flush_artifact(&self, relative: &Path) -> FileResult<()> {
         let (parent, name) = self.parent(relative)?;
         let artifact = open_at(&parent, OsStr::from_bytes(name.as_bytes()), 0, 0)?;
         validate_regular(&artifact.metadata().map_err(note_io_failure)?)?;
@@ -598,7 +632,7 @@ impl MacFiles {
         self.validate_parent(relative, &parent)
     }
 
-    pub(crate) fn artifact(&self, relative: &Path) -> NoteResult<Option<RetainedArtifact>> {
+    pub(crate) fn artifact(&self, relative: &Path) -> FileResult<Option<RetainedArtifact>> {
         let (parent, name) = self.parent(relative)?;
         let mut stat = std::mem::MaybeUninit::<libc::stat>::uninit();
         // SAFETY: parent/name are live; fstatat initializes stat on success and never follows links.
@@ -612,7 +646,7 @@ impl MacFiles {
         } != 0
         {
             let error = note_io_failure(std::io::Error::last_os_error());
-            return if error.code == NoteErrorCode::Missing {
+            return if error.code == FileErrorCode::Missing {
                 Ok(None)
             } else {
                 Err(error)
@@ -637,11 +671,11 @@ impl MacFiles {
                 }
                 Ok(_) => {
                     return Err(failure(
-                        NoteErrorCode::Conflict,
+                        FileErrorCode::Conflict,
                         "artifact replaced during observation",
                     ));
                 }
-                Err(error) if error.code == NoteErrorCode::Unsupported => None,
+                Err(error) if error.code == FileErrorCode::Unsupported => None,
                 Err(error) => return Err(error),
             }
         } else {
@@ -660,10 +694,10 @@ impl MacFiles {
         }))
     }
 
-    pub(crate) fn remove_artifact(&self, expected: &RetainedArtifact) -> NoteResult<()> {
+    pub(crate) fn remove_artifact(&self, expected: &RetainedArtifact) -> FileResult<()> {
         let (parent, name) = self.parent(&expected.relative)?;
         if self.artifact(&expected.relative)?.as_ref() != Some(expected) {
-            return Err(failure(NoteErrorCode::Conflict, "cleanup occupant changed"));
+            return Err(failure(FileErrorCode::Conflict, "cleanup occupant changed"));
         }
         self.validate_parent(&expected.relative, &parent)?;
         // SAFETY: the proven regular artifact is relative to a validated parent; no recursive removal.
@@ -675,7 +709,7 @@ impl MacFiles {
 }
 
 #[cfg(target_os = "macos")]
-fn validate_relative(path: &Path) -> NoteResult<()> {
+fn validate_relative(path: &Path) -> FileResult<()> {
     // Path::components normalizes internal "."; reject it before normalization.
     if path.as_os_str().is_empty()
         || path
@@ -695,13 +729,13 @@ fn validate_relative(path: &Path) -> NoteResult<()> {
 }
 
 #[cfg(target_os = "macos")]
-fn cstring(path: &Path) -> NoteResult<CString> {
+fn cstring(path: &Path) -> FileResult<CString> {
     CString::new(path.as_os_str().as_bytes())
         .map_err(|_| note_unsupported("NUL in filesystem path"))
 }
 
 #[cfg(target_os = "macos")]
-fn open_directory(path: &Path) -> NoteResult<File> {
+fn open_directory(path: &Path) -> FileResult<File> {
     let name = cstring(path)?;
     // SAFETY: name is NUL-terminated; the returned descriptor is owned exactly once.
     let fd = unsafe {
@@ -714,7 +748,7 @@ fn open_directory(path: &Path) -> NoteResult<File> {
 }
 
 #[cfg(target_os = "macos")]
-fn open_at(parent: &File, name: &OsStr, flags: i32, mode: libc::mode_t) -> NoteResult<File> {
+fn open_at(parent: &File, name: &OsStr, flags: i32, mode: libc::mode_t) -> FileResult<File> {
     let name = cstring(Path::new(name))?;
     // SAFETY: parent is live and name is NUL-terminated. O_NONBLOCK avoids blocking on FIFOs.
     let fd = unsafe {
@@ -729,7 +763,7 @@ fn open_at(parent: &File, name: &OsStr, flags: i32, mode: libc::mode_t) -> NoteR
 }
 
 #[cfg(target_os = "macos")]
-fn owned_fd(fd: i32) -> NoteResult<File> {
+fn owned_fd(fd: i32) -> FileResult<File> {
     if fd < 0 {
         return Err(note_io_failure(std::io::Error::last_os_error()));
     }
@@ -746,7 +780,7 @@ fn identity(metadata: &Metadata) -> VaultIdentity {
 }
 
 #[cfg(target_os = "macos")]
-fn lock_directory(directory: &File, exclusive: bool) -> NoteResult<()> {
+fn lock_directory(directory: &File, exclusive: bool) -> FileResult<()> {
     let kind = if exclusive {
         libc::LOCK_EX
     } else {
@@ -757,7 +791,7 @@ fn lock_directory(directory: &File, exclusive: bool) -> NoteResult<()> {
         let error = std::io::Error::last_os_error();
         return Err(if error.kind() == std::io::ErrorKind::WouldBlock {
             failure(
-                NoteErrorCode::VaultBusy,
+                FileErrorCode::VaultBusy,
                 "vault or overlapping root is owned by another workspace",
             )
         } else {
@@ -768,7 +802,7 @@ fn lock_directory(directory: &File, exclusive: bool) -> NoteResult<()> {
 }
 
 #[cfg(target_os = "macos")]
-fn validate_regular(metadata: &Metadata) -> NoteResult<()> {
+fn validate_regular(metadata: &Metadata) -> FileResult<()> {
     if !metadata.is_file() || metadata.nlink() != 1 {
         return Err(note_unsupported("note must be a single-link regular file"));
     }
@@ -776,16 +810,16 @@ fn validate_regular(metadata: &Metadata) -> NoteResult<()> {
 }
 
 #[cfg(target_os = "macos")]
-fn read_file(mut file: &File) -> NoteResult<FileObservation> {
+fn read_file(mut file: &File) -> FileResult<FileObservation> {
     let before = file.metadata().map_err(note_io_failure)?;
     validate_regular(&before)?;
     file.rewind().map_err(note_io_failure)?;
     let mut bytes = Vec::new();
     Read::by_ref(&mut file)
-        .take((crate::MAX_IMPORT_BYTES + 1) as u64)
+        .take((crate::MAX_NOTE_BYTES + 1) as u64)
         .read_to_end(&mut bytes)
         .map_err(note_io_failure)?;
-    if bytes.len() > crate::MAX_IMPORT_BYTES {
+    if bytes.len() > crate::MAX_NOTE_BYTES {
         return Err(note_unsupported("note exceeds 1 MiB"));
     }
     let after = file.metadata().map_err(note_io_failure)?;
@@ -806,7 +840,7 @@ fn read_file(mut file: &File) -> NoteResult<FileObservation> {
         )
     {
         return Err(failure(
-            NoteErrorCode::Conflict,
+            FileErrorCode::Conflict,
             "note changed during bounded observation",
         ));
     }
@@ -823,7 +857,7 @@ fn read_file(mut file: &File) -> NoteResult<FileObservation> {
 }
 
 #[cfg(target_os = "macos")]
-fn qualify_volume(directory: &File) -> NoteResult<()> {
+fn qualify_volume(directory: &File) -> FileResult<()> {
     #[repr(C)]
     struct Capabilities {
         length: u32,
@@ -889,7 +923,7 @@ fn qualify_volume(directory: &File) -> NoteResult<()> {
 }
 
 #[cfg(target_os = "macos")]
-fn component_key(path: &Path) -> NoteResult<Vec<String>> {
+fn component_key(path: &Path) -> FileResult<Vec<String>> {
     validate_relative(path)?;
     path.components()
         .map(|component| {
@@ -917,7 +951,7 @@ fn component_key(path: &Path) -> NoteResult<Vec<String>> {
 }
 
 #[cfg(target_os = "macos")]
-fn canonical_case_fold(value: &str) -> NoteResult<String> {
+fn canonical_case_fold(value: &str) -> FileResult<String> {
     use std::ffi::c_void;
     #[link(name = "CoreFoundation", kind = "framework")]
     unsafe extern "C" {
@@ -986,7 +1020,7 @@ fn canonical_case_fold(value: &str) -> NoteResult<String> {
 }
 
 #[cfg(target_os = "macos")]
-fn preserve_attributes(source: &File, destination: &File) -> NoteResult<()> {
+fn preserve_attributes(source: &File, destination: &File) -> FileResult<()> {
     let mode = source.metadata().map_err(note_io_failure)?.mode() & 0o7777;
     // SAFETY: descriptors are live; no callback state, no data or COPYFILE_STAT copying.
     if unsafe {
@@ -1008,7 +1042,7 @@ fn preserve_attributes(source: &File, destination: &File) -> NoteResult<()> {
 }
 
 #[cfg(target_os = "macos")]
-fn full_sync(file: &File) -> NoteResult<()> {
+fn full_sync(file: &File) -> FileResult<()> {
     // SAFETY: file is a live descriptor. No ordinary fsync fallback is permitted.
     if unsafe { libc::fcntl(file.as_raw_fd(), libc::F_FULLFSYNC) } != 0 {
         return Err(note_io_failure(std::io::Error::last_os_error()));
@@ -1017,7 +1051,7 @@ fn full_sync(file: &File) -> NoteResult<()> {
 }
 
 #[cfg(target_os = "macos")]
-fn sync_directory(directory: &File) -> NoteResult<()> {
+fn sync_directory(directory: &File) -> FileResult<()> {
     // Directory durability deliberately uses fsync; Apple's File::sync_all uses F_FULLFSYNC.
     // SAFETY: directory is a live descriptor retained throughout the call.
     if unsafe { libc::fsync(directory.as_raw_fd()) } != 0 {
@@ -1027,7 +1061,7 @@ fn sync_directory(directory: &File) -> NoteResult<()> {
 }
 
 #[cfg(target_os = "macos")]
-fn rename_flags(directory: &File, from: &CString, to: &CString, flags: u32) -> NoteResult<()> {
+fn rename_flags(directory: &File, from: &CString, to: &CString, flags: u32) -> FileResult<()> {
     // SAFETY: both NUL-terminated names are relative to the same validated live directory.
     if unsafe {
         libc::renameatx_np(
@@ -1049,32 +1083,32 @@ pub(crate) struct MacFiles;
 
 #[cfg(not(target_os = "macos"))]
 impl MacFiles {
-    pub(crate) fn open(_: &VaultRecord, _: &Path, _: NoteNoticeSink) -> NoteResult<Self> {
+    pub(crate) fn open(_: &VaultRecord, _: &Path, _: NoteNoticeSink) -> FileResult<Self> {
         Err(note_unsupported(
             "managed notes require macOS filesystem coordination",
         ))
     }
-    pub(crate) fn validate_root(&self) -> NoteResult<()> {
+    pub(crate) fn validate_root(&self) -> FileResult<()> {
         Err(note_unsupported(
             "managed notes require macOS filesystem coordination",
         ))
     }
-    pub(crate) fn aliases_original(&self, _: &Path, _: &Path) -> NoteResult<bool> {
+    pub(crate) fn aliases_original(&self, _: &Path, _: &Path) -> FileResult<bool> {
         Err(note_unsupported(
             "managed notes require macOS filesystem coordination",
         ))
     }
-    pub(crate) fn parent_identity(&self, _: &Path) -> NoteResult<brn_store::notes::VaultIdentity> {
+    pub(crate) fn parent_identity(&self, _: &Path) -> FileResult<brn_store::files::VaultIdentity> {
         Err(note_unsupported(
             "managed notes require macOS filesystem coordination",
         ))
     }
-    pub(crate) fn validate_copy_destination(&self, _: &Path) -> NoteResult<()> {
+    pub(crate) fn validate_copy_destination(&self, _: &Path) -> FileResult<()> {
         Err(note_unsupported(
             "managed notes require macOS filesystem coordination",
         ))
     }
-    pub(crate) fn reserved_copy_path_matches(&self, _: &Path, _: &Path) -> NoteResult<bool> {
+    pub(crate) fn reserved_copy_path_matches(&self, _: &Path, _: &Path) -> FileResult<bool> {
         Err(note_unsupported(
             "managed notes require macOS filesystem coordination",
         ))
@@ -1085,17 +1119,17 @@ impl MacFiles {
         _: &Path,
         _: &Path,
         _: &[u8],
-    ) -> NoteResult<PreparedFile> {
+    ) -> FileResult<PreparedFile> {
         Err(note_unsupported(
             "managed notes require macOS filesystem coordination",
         ))
     }
-    pub(crate) fn install_exclusive(&self, _: &PreparedFile, _: &Path) -> NoteResult<()> {
+    pub(crate) fn install_exclusive(&self, _: &PreparedFile, _: &Path) -> FileResult<()> {
         Err(note_unsupported(
             "managed notes require macOS filesystem coordination",
         ))
     }
-    pub(crate) fn observe(&self, _: &Path) -> NoteResult<FileObservation> {
+    pub(crate) fn observe(&self, _: &Path) -> FileResult<FileObservation> {
         Err(note_unsupported(
             "managed notes require macOS filesystem coordination",
         ))
@@ -1103,8 +1137,8 @@ impl MacFiles {
     pub(crate) fn coordinate<T>(
         &self,
         _: &Path,
-        _: impl FnOnce() -> NoteResult<T>,
-    ) -> NoteResult<T> {
+        _: impl FnOnce() -> FileResult<T>,
+    ) -> FileResult<T> {
         Err(note_unsupported(
             "managed notes require macOS filesystem coordination",
         ))
@@ -1115,43 +1149,71 @@ impl MacFiles {
         _: &Path,
         _: &Path,
         _: &[u8],
-    ) -> NoteResult<PreparedFile> {
+    ) -> FileResult<PreparedFile> {
         Err(note_unsupported(
             "managed notes require macOS filesystem coordination",
         ))
     }
-    pub(crate) fn exchange(&self, _: &PreparedFile, _: &Path) -> NoteResult<()> {
+    pub(crate) fn exchange(&self, _: &PreparedFile, _: &Path) -> FileResult<()> {
         Err(note_unsupported(
             "managed notes require macOS filesystem coordination",
         ))
     }
-    pub(crate) fn flush_artifact(&self, _: &Path) -> NoteResult<()> {
+    pub(crate) fn flush_artifact(&self, _: &Path) -> FileResult<()> {
         Err(note_unsupported(
             "managed notes require macOS filesystem coordination",
         ))
     }
 
-    pub(crate) fn artifact(&self, _: &Path) -> NoteResult<Option<RetainedArtifact>> {
+    pub(crate) fn artifact(&self, _: &Path) -> FileResult<Option<RetainedArtifact>> {
         Err(note_unsupported(
             "managed notes require macOS filesystem coordination",
         ))
     }
-    pub(crate) fn remove_artifact(&self, _: &RetainedArtifact) -> NoteResult<()> {
+    pub(crate) fn remove_artifact(&self, _: &RetainedArtifact) -> FileResult<()> {
         Err(note_unsupported(
             "managed notes require macOS filesystem coordination",
         ))
     }
-    pub(crate) fn observe_uncoordinated(&self, _: &Path) -> NoteResult<FileObservation> {
+    pub(crate) fn observe_uncoordinated(&self, _: &Path) -> FileResult<FileObservation> {
         Err(note_unsupported(
             "managed notes require macOS filesystem coordination",
         ))
     }
 }
 
+#[cfg(all(test, not(target_os = "macos")))]
+mod unsupported_tests {
+    use super::*;
+    use brn_store::files::VaultIdentity;
+
+    #[test]
+    fn unsupported_adapter_refuses_before_creating_vault_or_data() {
+        let owner = tempfile::tempdir_in(std::env::temp_dir().canonicalize().unwrap()).unwrap();
+        let vault = owner.path().join("vault-must-not-exist");
+        let data = owner.path().join("data-must-not-exist");
+        let record = VaultRecord {
+            id: Uuid::new_v4(),
+            root: vault.clone(),
+            identity: VaultIdentity {
+                device: 0,
+                inode: 0,
+            },
+        };
+        let failure = MacFiles::open(&record, &data, Arc::default())
+            .err()
+            .expect("filesystem coordination is unavailable on this platform");
+        assert_eq!(failure.code, FileErrorCode::Unsupported);
+        assert_eq!(failure.filesystem_outcome, FileOutcome::NotApplied);
+        assert!(!vault.exists());
+        assert!(!data.exists());
+    }
+}
+
 #[cfg(all(test, target_os = "macos"))]
 mod tests {
     use super::*;
-    use brn_store::notes::{NoteErrorCode, VaultIdentity, VaultRecord};
+    use brn_store::files::{VaultIdentity, VaultRecord};
     use std::{
         os::unix::fs::MetadataExt,
         path::Path,
@@ -1213,7 +1275,7 @@ mod tests {
                     .aliases_original(Path::new(original), Path::new("plain.md"))
                     .unwrap_err()
                     .code,
-                NoteErrorCode::Unsupported
+                FileErrorCode::Unsupported
             );
             std::fs::remove_file(vault.path().join(original)).unwrap();
             assert!(
@@ -1308,7 +1370,7 @@ mod tests {
                 .err()
                 .unwrap()
                 .code,
-            NoteErrorCode::VaultBusy
+            FileErrorCode::VaultBusy
         );
     }
 
@@ -1329,7 +1391,7 @@ mod tests {
         let files = adapter(vault.path(), data.path());
         for bytes in [
             vec![],
-            vec![b'x'; crate::MAX_IMPORT_BYTES],
+            vec![b'x'; crate::MAX_NOTE_BYTES],
             b"\xef\xbb\xbf\r\n".to_vec(),
         ] {
             std::fs::write(vault.path().join("plan.md"), &bytes).unwrap();
@@ -1338,18 +1400,18 @@ mod tests {
                 bytes
             );
         }
-        for bytes in [vec![b'x'; crate::MAX_IMPORT_BYTES + 1], vec![0xff]] {
+        for bytes in [vec![b'x'; crate::MAX_NOTE_BYTES + 1], vec![0xff]] {
             std::fs::write(vault.path().join("plan.md"), bytes).unwrap();
             assert_eq!(
                 files.observe(Path::new("plan.md")).unwrap_err().code,
-                NoteErrorCode::Unsupported
+                FileErrorCode::Unsupported
             );
         }
         std::fs::write(vault.path().join("plan.md"), b"valid").unwrap();
         std::fs::hard_link(vault.path().join("plan.md"), vault.path().join("hard.md")).unwrap();
         assert_eq!(
             files.observe(Path::new("plan.md")).unwrap_err().code,
-            NoteErrorCode::Unsupported
+            FileErrorCode::Unsupported
         );
         symlink(data.path(), vault.path().join("escape")).unwrap();
         symlink("hard.md", vault.path().join("link.md")).unwrap();
@@ -1367,7 +1429,7 @@ mod tests {
         }
         assert_eq!(
             files.observe(Path::new("missing.md")).unwrap_err().code,
-            NoteErrorCode::Missing
+            FileErrorCode::Missing
         );
     }
 
@@ -1385,7 +1447,7 @@ mod tests {
             .err()
             .unwrap()
             .code,
-            NoteErrorCode::Unsupported
+            FileErrorCode::Unsupported
         );
         let mut record = registered(vault.path());
         record.identity.inode += 1;
@@ -1394,7 +1456,7 @@ mod tests {
                 .err()
                 .unwrap()
                 .code,
-            NoteErrorCode::VaultUnavailable
+            FileErrorCode::VaultUnavailable
         );
         let outer = directory();
         let root = outer.path().join("vault");
@@ -1406,7 +1468,7 @@ mod tests {
         std::fs::create_dir(&root).unwrap();
         assert_eq!(
             files.observe(Path::new("plan.md")).unwrap_err().code,
-            NoteErrorCode::VaultUnavailable
+            FileErrorCode::VaultUnavailable
         );
         std::fs::remove_dir(&root).unwrap();
         std::fs::write(&root, b"not a vault directory").unwrap();
@@ -1415,7 +1477,7 @@ mod tests {
                 .err()
                 .unwrap()
                 .code,
-            NoteErrorCode::VaultUnavailable
+            FileErrorCode::VaultUnavailable
         );
     }
 
@@ -1457,7 +1519,7 @@ mod tests {
                 .prepare_replace(op, &stage, Path::new("plan.md"), b"submitted")
                 .unwrap_err()
                 .code,
-            NoteErrorCode::Io
+            FileErrorCode::Io
         );
         files
             .coordinate(Path::new("plan.md"), || {
@@ -1533,7 +1595,7 @@ mod tests {
                 .exchange(&prepared, Path::new("plan.md"))
                 .unwrap_err()
                 .code,
-            NoteErrorCode::Conflict
+            FileErrorCode::Conflict
         );
         assert_eq!(
             std::fs::read(vault.path().join("plan.md")).unwrap(),
@@ -1550,7 +1612,7 @@ mod tests {
                 )
                 .is_err()
         );
-        let result: NoteResult<()> = files.coordinate(Path::new("plan.md"), || {
+        let result: FileResult<()> = files.coordinate(Path::new("plan.md"), || {
             Err(note_unsupported("accessor stopped"))
         });
         assert_eq!(result.unwrap_err().message, "accessor stopped");
@@ -1577,7 +1639,7 @@ mod tests {
         };
         let data = directory();
         let result = MacFiles::open(&registered(Path::new(&root)), data.path(), Arc::default());
-        assert_eq!(result.err().unwrap().code, NoteErrorCode::VaultBusy);
+        assert_eq!(result.err().unwrap().code, FileErrorCode::VaultBusy);
         println!("independent process reports VaultBusy");
     }
 
@@ -1596,7 +1658,7 @@ mod tests {
             let output = std::process::Command::new(std::env::current_exe().unwrap())
                 .args([
                     "--exact",
-                    "notes::files::tests::subprocess_ownership_child",
+                    "files::tests::subprocess_ownership_child",
                     "--nocapture",
                 ])
                 .env("BRN_NOTE_CHILD_ROOT", path)

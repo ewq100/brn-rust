@@ -2,8 +2,9 @@
 //! observation, installation and reconciliation proofs belong to the workflow.
 use super::{MAX_NOTE_BYTES, WorkStore};
 use crate::{
-    Error, Result, hash, invalid,
-    notes::{FileFingerprint, PreparedFile, VaultIdentity},
+    Error, Result,
+    files::{FileFingerprint, PreparedFile, VaultIdentity},
+    hash, invalid,
 };
 use rusqlite::{Connection, OptionalExtension, params};
 use serde::{Deserialize, Serialize, de::DeserializeOwned};

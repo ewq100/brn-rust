@@ -1,18 +1,10 @@
-//! Subprocess tests for the brn CLI foundation: parsing, envelopes, status
-//! and document surfaces. Workspaces are seeded in-process and always
-//! disposable temp dirs; the in-process workspace is dropped before the
-//! subprocess runs so it can take the ownership lock.
-use brn_workflow::{Config, SearchApproval, Workspace};
+//! Subprocess parsing, envelopes and retired-command refusal; synthetic data only.
 use serde_json::Value;
 use std::{
     fs,
-    path::{Path, PathBuf},
-    process::Stdio,
-    process::{Command, Output},
-    sync::atomic::AtomicBool,
+    process::{Command, Output, Stdio},
 };
-use tempfile::tempdir;
-use uuid::Uuid;
+mod support;
 
 fn brn(args: &[&str]) -> Output {
     Command::new(env!("CARGO_BIN_EXE_brn"))
@@ -35,24 +27,6 @@ fn one_json(out: &Output) -> Value {
     serde_json::from_str(&text(out)).expect("exactly one JSON object on stdout")
 }
 
-/// Create a workspace by importing `contents` as a .md file; returns
-/// (source_id, version_id, file path). The workspace is dropped (lock released).
-fn seed(dir: &Path, name: &str, contents: &str) -> (Uuid, Uuid, PathBuf) {
-    let file = dir.join(name);
-    fs::write(&file, contents).unwrap();
-    let mut workspace = Workspace::open(dir, Config::default()).unwrap();
-    let result = workspace
-        .import_file(
-            &AtomicBool::new(false),
-            Uuid::new_v4(),
-            &file,
-            SearchApproval::Draft,
-        )
-        .unwrap();
-    drop(workspace);
-    (result.source_id, result.version_id, file)
-}
-
 #[test]
 fn help_and_version_work_without_data_dir() {
     for args in [["--help"], ["help"]] {
@@ -60,8 +34,8 @@ fn help_and_version_work_without_data_dir() {
         assert_eq!(code(&out), 0, "{args:?}");
         let stdout = text(&out);
         assert!(stdout.contains("Usage: brn"), "{args:?}");
-        assert!(stdout.contains("documents set-search-approval"), "{args:?}");
-        assert!(stdout.contains("revisions diff"), "{args:?}");
+        assert!(stdout.contains("edit save"), "{args:?}");
+        assert!(stdout.contains("conversations show"), "{args:?}");
         assert!(
             serde_json::from_str::<Value>(&stdout).is_err(),
             "help stays textual"
@@ -77,7 +51,7 @@ fn help_and_version_work_without_data_dir() {
 
 #[test]
 fn usage_errors_exit_two_with_json_envelope() {
-    let dir = tempdir().unwrap();
+    let dir = support::data_dir();
     let good = dir.path().to_str().unwrap().to_string();
     let cases: Vec<(Vec<&str>, Option<&str>)> = vec![
         (vec!["bogus"], None),
@@ -91,8 +65,8 @@ fn usage_errors_exit_two_with_json_envelope() {
             Some("status"),
         ),
         (
-            vec!["documents", "show", "not-a-uuid"],
-            Some("documents.show"),
+            vec!["conversations", "show", "not-a-uuid"],
+            Some("conversations.show"),
         ),
         (vec!["status"], Some("status")),
         (vec!["status", "--data-dir", "relative/dir"], Some("status")),
@@ -131,172 +105,18 @@ fn non_json_usage_errors_go_to_stderr() {
 }
 
 #[test]
-fn status_json_on_fresh_empty_dir() {
-    let dir = tempdir().unwrap();
-    let out = brn(&[
-        "status",
-        "--legacy",
-        "--data-dir",
-        dir.path().to_str().unwrap(),
-        "--json",
-    ]);
-    assert_eq!(code(&out), 0, "{}", text(&out));
-    assert!(out.stderr.is_empty());
-    let envelope = one_json(&out);
-    assert_eq!(envelope["schema_version"], 1);
-    assert_eq!(envelope["command"], "status");
-    assert_eq!(envelope["ok"], true);
-    let data = &envelope["data"];
-    assert_eq!(data["recovered_operations"], 0);
-    assert_eq!(data["active_index"]["present"], false);
-    assert!(data["active_index"]["fingerprint"].is_null());
-    assert!(data["active_index"]["error"].is_null());
-    // Holds under the default feature set only; --features native-retrieval flips it to true.
-    assert_eq!(data["capabilities"]["native_retrieval"], false);
-    assert!(data["capabilities"].get("codex_configured").is_none());
-    let expected_dir = dir.path().canonicalize().unwrap();
-    assert_eq!(data["data_dir"], expected_dir.to_str().unwrap());
-    assert_eq!(data["version"], env!("CARGO_PKG_VERSION"));
-}
-
-#[test]
-fn status_text_mode_prints_labeled_lines() {
-    let dir = tempdir().unwrap();
-    let out = brn(&[
-        "status",
-        "--legacy",
-        "--data-dir",
-        dir.path().to_str().unwrap(),
-    ]);
-    assert_eq!(code(&out), 0);
-    let stdout = text(&out);
-    assert!(stdout.contains("recovered_operations: 0"), "{stdout}");
-    assert!(stdout.contains("active_index: absent"), "{stdout}");
-}
-
-#[test]
-fn documents_list_json_matches_seed_order_and_fields() {
-    let dir = tempdir().unwrap();
-    let root = dir.path();
-    let (first_id, first_version, _) = seed(root, "alpha.md", "# Alpha\n\nFirst synthetic note.\n");
-    let (second_id, second_version, _) = seed(root, "beta.md", "Approved beta content.\r\n");
-    // Re-open to approve the second import; approval does not change list order.
-    let mut workspace = Workspace::open(root, Config::default()).unwrap();
-    workspace
-        .set_approval(
-            &AtomicBool::new(false),
-            Uuid::new_v4(),
-            second_id,
-            second_version,
-            SearchApproval::Approved,
-        )
-        .unwrap();
-    drop(workspace);
-
-    let out = brn(&[
-        "documents",
-        "list",
-        "--data-dir",
-        root.to_str().unwrap(),
-        "--json",
-    ]);
-    assert_eq!(code(&out), 0, "{}", text(&out));
-    let envelope = one_json(&out);
-    assert_eq!(envelope["command"], "documents.list");
-    assert_eq!(envelope["ok"], true);
-    let docs = envelope["data"]["documents"].as_array().unwrap();
-    assert_eq!(docs.len(), 2);
-    assert_eq!(docs[0]["source_id"], first_id.to_string());
-    assert_eq!(docs[0]["version_id"], first_version.to_string());
-    assert_eq!(docs[0]["title"], "alpha.md");
-    assert_eq!(docs[0]["approval"], "draft");
-    assert_eq!(docs[1]["source_id"], second_id.to_string());
-    assert_eq!(docs[1]["approval"], "approved");
-    for doc in docs {
-        assert_eq!(doc["current_state"], "Current");
-        let hash = doc["sha256_hex"].as_str().unwrap();
-        assert_eq!(hash.len(), 64);
-        assert!(hash
-            .bytes()
-            .all(|b| b.is_ascii_digit() || (b'a'..=b'f').contains(&b)));
-    }
-
-    let out = brn(&["documents", "list", "--data-dir", root.to_str().unwrap()]);
-    assert_eq!(code(&out), 0);
-    let stdout = text(&out);
-    assert_eq!(
-        stdout,
-        format!("{first_id} {first_version} draft alpha.md\n{second_id} {second_version} approved beta.md\n")
-    );
-}
-
-#[test]
-fn documents_show_returns_exact_content_bytes() {
-    let dir = tempdir().unwrap();
-    let root = dir.path();
-    let contents = "héllo\r\nwörld";
-    let (source_id, _, _) = seed(root, "exact.md", contents);
-    let id = source_id.to_string();
-    let out = brn(&[
-        "documents",
-        "show",
-        &id,
-        "--data-dir",
-        root.to_str().unwrap(),
-        "--json",
-    ]);
-    assert_eq!(code(&out), 0, "{}", text(&out));
-    let envelope = one_json(&out);
-    assert_eq!(envelope["command"], "documents.show");
-    assert_eq!(envelope["ok"], true);
-    assert_eq!(envelope["data"]["content"], contents);
-    assert_eq!(envelope["data"]["title"], "exact.md");
-    assert_eq!(envelope["data"]["approval"], "draft");
-}
-
-#[test]
-fn documents_show_unknown_source_is_not_found() {
-    let dir = tempdir().unwrap();
-    let root = dir.path();
-    seed(root, "present.md", "present\n");
-    let missing = Uuid::new_v4().to_string();
-    let out = brn(&[
-        "documents",
-        "show",
-        &missing,
-        "--data-dir",
-        root.to_str().unwrap(),
-        "--json",
-    ]);
-    assert_eq!(code(&out), 1);
-    let envelope = one_json(&out);
-    assert_eq!(envelope["command"], "documents.show");
-    assert_eq!(envelope["ok"], false);
-    assert_eq!(envelope["error"]["code"], "NOT_FOUND");
-}
-
-/// Every command level prints the exact global help text, exit 0, even when
-/// required arguments are missing. One representative case also carries
-/// --json: help stays textual.
-#[test]
 fn help_wins_before_required_arguments_at_every_level() {
     let reference = text(&brn(&["--help"]));
     let cases: &[&[&str]] = &[
         &["--help"],
         &["status", "--help"],
-        &["import", "--help"],
-        &["documents", "--help"],
-        &["documents", "show", "--help"],
-        &["documents", "set-search-approval", "--help"],
-        &["index", "build", "--help"],
         &["search", "--help"],
+        &["edit", "save", "--help"],
+        &["notes", "show", "--help"],
+        &["ai", "connect", "--help"],
+        &["models", "download", "--help"],
         &["ask", "--help"],
         &["conversations", "show", "--help"],
-        &["drafts", "show", "--help"],
-        &["comments", "list", "--help"],
-        &["revisions", "list", "--help"],
-        &["revisions", "show", "--help"],
-        &["revisions", "diff", "--help"],
         // Representative --json case: help remains textual, exit 0.
         &["ask", "--help", "--json"],
     ];
@@ -316,7 +136,7 @@ fn help_wins_before_required_arguments_at_every_level() {
 /// appear in the data directory.
 #[test]
 fn help_touches_no_files_in_data_dir() {
-    let dir = tempdir().unwrap();
+    let dir = support::data_dir();
     let root = dir.path().to_str().unwrap().to_string();
     let out = brn(&["ask", "--help", "--data-dir", &root]);
     assert_eq!(code(&out), 0, "{}", text(&out));
@@ -328,17 +148,28 @@ fn help_touches_no_files_in_data_dir() {
     );
 }
 
-/// Guards: without --help, the existing usage errors are unchanged.
 #[test]
-fn usage_errors_without_help_are_unchanged() {
-    let out = brn(&["import"]);
-    assert_eq!(code(&out), 2);
-    let stderr = String::from_utf8(out.stderr).unwrap();
-    assert!(stderr.contains("missing import PATH"), "{stderr}");
-
-    let out = brn(&["documents", "--json"]);
-    assert_eq!(code(&out), 2);
-    let envelope = one_json(&out);
-    assert_eq!(envelope["ok"], false);
-    assert_eq!(envelope["error"]["code"], "USAGE");
+fn retired_commands_and_flags_refuse_before_creating_any_files() {
+    for args in [
+        vec!["--legacy", "status"],
+        vec!["status", "--legacy"],
+        vec!["import", "synthetic.md"],
+        vec!["documents", "list"],
+        vec!["index", "build"],
+        vec!["drafts", "list"],
+        vec!["comments", "list"],
+        vec!["revisions", "list"],
+        vec!["notes", "open", "plan.md"],
+        vec!["notes", "show", "00000000-0000-0000-0000-000000000001"],
+        vec!["notes", "recovery", "list"],
+        vec!["notes", "save", "id"],
+    ] {
+        let dir = support::data_dir();
+        let mut input = args;
+        input.extend(["--json", "--data-dir", dir.path().to_str().unwrap()]);
+        let out = brn(&input);
+        assert_eq!(code(&out), 2, "{input:?}: {}", text(&out));
+        assert_eq!(one_json(&out)["error"]["code"], "USAGE");
+        assert_eq!(fs::read_dir(dir.path()).unwrap().count(), 0);
+    }
 }

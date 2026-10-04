@@ -7,7 +7,7 @@ Run from the repository root. Use the pinned toolchain, lockfiles, disposable ex
 | Changed area | Relevant checks |
 | --- | --- |
 | Documentation only | `git diff --check`; check local Markdown file/fragment links and moved-path references; compare documented commands and features with manifests/scripts |
-| Integrated workflow or cross-crate behavior | `bash scripts/verify-end-to-end.sh` (retirement check, workspace format/build/Clippy/tests, simple-vault + separate legacy-local fixtures); `--fixtures-only` after a completed shared gate |
+| Integrated workflow or cross-crate behavior | `bash scripts/verify-end-to-end.sh` (retirement check, workspace format/build/Clippy/tests, current-vault Save/recovery/read/search fixtures); `--fixtures-only` after a completed shared gate |
 | Storage, migrations or recovery | `bash scripts/verify-storage.sh`; inspect relevant process-crash tests in `crates/brn-store/tests` |
 | Drafts or comments | `cargo test -p brn-store -p brn-workflow --locked`; then integrated checks; add native checks if interaction changes |
 | Native UI | `bash scripts/verify-desktop-shell.sh --native`; manually exercise changed flows on the unlocked target Mac with fresh disposable data |
@@ -22,8 +22,8 @@ Run from the repository root. Use the pinned toolchain, lockfiles, disposable ex
 Do not repeat entire workspace suites through several scripts when their shared checks already passed, unless a new change or unresolved failure warrants it. Standalone experiment tests are not included by `cargo test --workspace`.
 
 Credential fixtures require an explicit current-user-owned parent outside Git;
-on this qualification machine it is
-`TMPDIR=/Users/evokessler/.brn-task5-fixtures`. Do not use original data or
+create a private synthetic parent such as `/private/tmp/brn-fixtures`, then set
+`TMPDIR` to that existing canonical directory. Do not use original data or
 credentials. `verify-end-to-end.sh` requires that existing absolute parent,
 creates one exclusive UUID-owned fixture and removes only its own entries.
 No account, model asset, inference or graphical interaction is performed.
@@ -33,7 +33,7 @@ production Rust and product scripts. Integration tests and trailing private
 test modules may explicitly reject old flags; historical docs and standalone
 trials are not shipped production configuration. Tokens are not disguised.
 
-## Full Step 4 offline qualification
+## Optional native offline qualification
 
 After targeted fixes, run the four baseline commands below **once**, using
 `--locked --offline`, followed by:
@@ -72,16 +72,19 @@ Default workspace checks exclude optional native feature paths. Native builds an
 [BRN CI](../../.github/workflows/ci.yml) runs default workspace builds/tests and
 CLI help checks on Ubuntu 24.04 (x64), Windows Server 2025 (x64), and macOS 15
 (Apple Silicon). Linux also checks formatting and Clippy on every PR; main and
-manual runs check Clippy on all three systems. Unix jobs run the existing
-synthetic end-to-end fixtures with an exclusive parent under `RUNNER_TEMP`.
-Those fixtures require Unix ownership APIs and are not a Windows test.
+manual runs check Clippy on all three systems. The macOS job runs the current
+synthetic read/search, Save/recovery/Copy and marker-refusal end-to-end fixtures
+with an exclusive physical parent under `RUNNER_TEMP`. Save requires macOS
+filesystem coordination; Ubuntu retains the shared workspace checks and CLI help.
 All Unix test jobs use an explicit physical `TMPDIR` under `RUNNER_TEMP`, so
 credential-safety checks do not encounter symlinked macOS system temp paths.
 After a successful default build, tests, CLI help and fixtures can still run if
 an earlier independent check fails; the failed check keeps the job red.
 
 Native UI and native retrieval have separate jobs. PRs run both on macOS;
-main and manual runs probe both on all three systems. Each lane installs the
+main and manual runs probe both on all three systems. The native UI job starts
+and shuts down the real AppWorker twice against one fresh data directory, checking
+that `brn.sqlite` exists and the retired `brn.sqlite3` does not. Each lane installs the
 pinned toolchain, fetches locked dependencies before offline Cargo checks, and
 uses a cache separated by OS, architecture, compiler, lockfiles and features.
 Outdated runs are cancelled. Jobs use read-only repository permissions, do not

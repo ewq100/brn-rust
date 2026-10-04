@@ -25,12 +25,11 @@ One lead owns coherence and integration with the strongest appropriate selected 
 | Path | Responsibility |
 | --- | --- |
 | `crates/brn` | Agent-facing `brn` CLI over the shared workflow |
-| `crates/brn-core` | Retained legacy sample shell and worker; outside the frozen production target |
-| `crates/brn-store` | SQLite authority, revisions, drafts, comments and recovery |
+| `crates/brn-store` | WorkStore integrity, backups, chat, editor records and Save recovery |
 | `crates/brn-ai` | Thin Rig adapter, explicit provider/model selection and protected authentication |
 | `crates/brn-retrieval` | Derived keyword/native retrieval indexes and evidence |
 | `crates/brn-workflow` | Shared application workflow, worker and headless driver |
-| `crates/brn-desktop` | Native views and sample headless shell checks |
+| `crates/brn-desktop` | Native views and real AppWorker startup checks |
 | `experiments` | Standalone trials with their own manifests and lockfiles |
 | `scripts` | Verification and local macOS launcher helpers |
 

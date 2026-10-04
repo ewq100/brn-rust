@@ -11,15 +11,7 @@ use super::theme::{self, color};
 use super::*;
 use crate::layout::{Appearance, CentreMode, Rail, RailDisplay};
 use crate::tokens::{self, Palette};
-use gpui_kit::{AnyElement, MouseButton, component::Selectable, relative};
-
-pub(super) fn approval_tag(approval: Approval) -> &'static str {
-    match approval {
-        Approval::Approved => "✓ approved",
-        Approval::Draft => "○ not approved",
-        Approval::Withdrawn => "– withdrawn",
-    }
-}
+use gpui_kit::{AnyElement, MouseButton, component::Selectable};
 
 fn section_label(text: &str, p: Palette) -> impl IntoElement {
     div()

@@ -10,7 +10,6 @@ native-ui = ["dep:gpui-kit", "dep:sha2"]
 native-retrieval = ["native-ui", "brn-workflow/native-retrieval"]
 
 [dependencies]
-brn-core = { path = "../brn-core" }
 gpui-kit = { version = "=0.6.6", optional = true }
 brn-workflow = { path = "../brn-workflow" }
 uuid = { version = "1", features = ["v4"] }

@@ -1,4 +1,4 @@
-use brn_store::{Error, Store, WorkStore, work::WorkTurnStatus};
+use brn_store::{Error, WorkStore, work::WorkTurnStatus};
 use std::sync::{Arc, Barrier};
 use uuid::Uuid;
 
@@ -11,10 +11,6 @@ fn attachment_retains_the_exact_owner_lock_after_the_owner_drops() {
     drop(owner);
     assert!(matches!(
         WorkStore::open(dir.path()),
-        Err(Error::WorkspaceBusy(_))
-    ));
-    assert!(matches!(
-        Store::open(dir.path()),
         Err(Error::WorkspaceBusy(_))
     ));
     let id = Uuid::new_v4();
@@ -32,10 +28,6 @@ fn attachment_retains_the_exact_owner_lock_after_the_owner_drops() {
     assert_eq!(second.turn(id).unwrap().unwrap().answer, "durable");
     drop(second);
     assert!(WorkStore::open(dir.path()).is_ok());
-    assert!(matches!(
-        Store::open(dir.path()),
-        Err(Error::WorkspaceModeConflict(_))
-    ));
 }
 
 #[test]

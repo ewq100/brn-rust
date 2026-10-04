@@ -11,19 +11,25 @@ use std::{
 use uuid::Uuid;
 
 struct Fixture {
-    pub base: tempfile::TempDir,
+    _owner: tempfile::TempDir,
     pub data: PathBuf,
     pub vault: PathBuf,
 }
 impl Fixture {
     fn new() -> Self {
-        let base = tempfile::tempdir().unwrap();
+        let base = tempfile::Builder::new()
+            .tempdir_in(std::env::temp_dir().canonicalize().unwrap())
+            .unwrap();
         let data = base.path().join("data");
         let vault = base.path().join("vault");
         std::fs::create_dir(&data).unwrap();
         std::fs::create_dir(&vault).unwrap();
         std::fs::write(vault.join("plan.md"), "# Synthetic\nlaunch Tuesday\n").unwrap();
-        Self { base, data, vault }
+        Self {
+            _owner: base,
+            data,
+            vault,
+        }
     }
     pub fn app(&self) -> App {
         App::open(
@@ -164,27 +170,6 @@ fn new_unknown_conversation_is_not_found_with_operation_context() {
     assert_eq!(value["error"]["context"]["operation_id"], op.to_string());
     assert_eq!(value["error"]["context"]["session_id"], session.to_string());
     assert_eq!(value["error"]["context"]["saved"], false);
-}
-
-#[test]
-fn legacy_ask_is_retired_before_submission_and_profile_is_obsolete_before_open() {
-    let fixture = Fixture::new();
-    drop(brn_workflow::Workspace::open(&fixture.data, brn_workflow::Config::default()).unwrap());
-    let (out, value) = run(&fixture.data, &["ask", "q"]);
-    assert_eq!(out.status.code(), Some(1));
-    assert_eq!(value["error"]["code"], "LEGACY_AI_RETIRED");
-    assert!(!fixture.data.join("brn.sqlite").exists());
-    let (out, value) = run(&fixture.data, &["ask", "q", "--codex", "/nonexistent"]);
-    assert_eq!(out.status.code(), Some(2));
-    assert_eq!(value["error"]["code"], "USAGE");
-    assert!(value["error"]["message"]
-        .as_str()
-        .unwrap()
-        .contains("unknown"));
-    let (out, value) = run(&fixture.data, &["ask", "q", "--profile", "hybrid"]);
-    assert_eq!(out.status.code(), Some(2));
-    assert_eq!(value["error"]["code"], "USAGE");
-    assert!(fixture.base.path().exists());
 }
 
 #[test]

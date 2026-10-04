@@ -10,8 +10,6 @@ use brn_store as store;
 pub enum ErrorKind {
     WorkspaceBusy,
     WorkspaceModeConflict,
-    WorkspaceModeRequired,
-    LegacyAiRetired,
     SelectionRequired,
     ReconnectNeeded,
     CodeExpired,
@@ -30,12 +28,9 @@ pub enum ErrorKind {
     ModelInvalid,
     SemanticUnavailableInBuild,
     ToolsBusy,
-    IndexMissing,
     IndexStale,
-    EvidenceStale,
     ContextStale,
     SaveUncertain,
-    IndexInvalid,
     ProfileUnavailable,
     OperationConflict,
     NotFound,
@@ -76,24 +71,6 @@ impl WorkflowError {
     pub fn msg(message: impl Into<String>) -> Self {
         Self {
             kind: ErrorKind::Other,
-            message: message.into(),
-        }
-    }
-    pub(crate) fn index_missing(message: impl Into<String>) -> Self {
-        Self {
-            kind: ErrorKind::IndexMissing,
-            message: message.into(),
-        }
-    }
-    pub(crate) fn index_stale(message: impl Into<String>) -> Self {
-        Self {
-            kind: ErrorKind::IndexStale,
-            message: message.into(),
-        }
-    }
-    pub(crate) fn index_invalid(message: impl Into<String>) -> Self {
-        Self {
-            kind: ErrorKind::IndexInvalid,
             message: message.into(),
         }
     }

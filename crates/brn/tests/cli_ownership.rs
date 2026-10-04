@@ -1,9 +1,9 @@
 //! Ownership contention: the exclusive brn.owner.lock must be preserved and
 //! surface as WORKSPACE_BUSY to a second process. No lock deletion anywhere.
-use brn_workflow::{Config, Workspace};
+use brn_store::WorkStore;
 use serde_json::Value;
 use std::process::{Command, Output, Stdio};
-use tempfile::tempdir;
+mod support;
 
 fn brn_status(dir: &std::path::Path) -> Output {
     Command::new(env!("CARGO_BIN_EXE_brn"))
@@ -15,9 +15,9 @@ fn brn_status(dir: &std::path::Path) -> Output {
 
 #[test]
 fn busy_workspace_reports_workspace_busy_and_lock_survives() {
-    let dir = tempdir().unwrap();
+    let dir = support::data_dir();
     // Hold the exclusive ownership lock in-process for the whole subprocess call.
-    let workspace = Workspace::open(dir.path(), Config::default()).unwrap();
+    let (workspace, _) = WorkStore::open(dir.path()).unwrap();
     let out = brn_status(dir.path());
     assert_eq!(
         out.status.code(),

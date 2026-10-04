@@ -1,10 +1,9 @@
 // The complete handoff theme JSON exceeds the default macro recursion limit.
 #![recursion_limit = "256"]
 
-use brn_core::{Shell, WorkConfig};
 use std::path::{Path, PathBuf};
 use std::process::ExitCode;
-use std::time::{Duration, Instant};
+use std::time::Duration;
 
 mod ai;
 #[cfg_attr(not(feature = "native-ui"), allow(dead_code))]
@@ -13,22 +12,15 @@ mod layout;
 mod tokens;
 
 #[cfg(feature = "native-ui")]
-mod comments;
-#[cfg(feature = "native-ui")]
-mod drafts;
-#[cfg(feature = "native-ui")]
 mod native;
-#[cfg(feature = "native-ui")]
-mod notes;
 
-const HELP: &str = "BRN desktop\n\nUsage: brn-desktop [--data-dir ABSOLUTE_DIRECTORY] [--vault ABSOLUTE_DIRECTORY] [--model-dir ABSOLUTE_DIRECTORY]\n       brn-desktop --legacy [--data-dir ABSOLUTE_DIRECTORY]\n       brn-desktop --data-dir ABSOLUTE_DIRECTORY --headless-check completion|cancellation|stale\n       brn-desktop --help\n\nNative default: ~/Library/Application Support/BRN-simple (credentials: BRN-simple.credentials sibling).\nSimple notes support explicit Markdown Save, exclusive Save Copy and recoverable unfinished edits.\n--legacy explicitly opens the old BRN default for local editing/recovery/history only; legacy AI is retired.\nAccounts and provider/model selection are explicit in Settings; startup never logs in or discovers models.";
+const HELP: &str = "BRN desktop\n\nUsage: brn-desktop [--data-dir ABSOLUTE_DIRECTORY] [--vault ABSOLUTE_DIRECTORY] [--model-dir ABSOLUTE_DIRECTORY]\n       brn-desktop --data-dir ABSOLUTE_DIRECTORY --headless-check startup\n       brn-desktop --help\n\nNative default: ~/Library/Application Support/BRN-simple (credentials: BRN-simple.credentials sibling).\nNotes support explicit Markdown Save, exclusive Save Copy and recoverable unfinished edits.\nLegacy and mixed workspace markers refuse before authority is opened; old data is never migrated.\nAccounts and provider/model selection are explicit in Settings; startup never logs in or discovers models.";
 
 struct Options {
     data_dir: PathBuf,
     explicit: bool,
     check: Option<String>,
     model_dir: Option<PathBuf>,
-    legacy: bool,
     vault: Option<PathBuf>,
 }
 fn parse_args() -> Result<Option<Options>, String> {
@@ -39,14 +31,12 @@ fn parse(arguments: impl IntoIterator<Item = String>) -> Result<Option<Options>,
     let mut data_dir = None;
     let mut check = None;
     let mut model_dir = None;
-    let mut legacy = false;
     let mut vault = None;
     while let Some(arg) = args.next() {
         match arg.as_str() {
             "--help"
                 if data_dir.is_none()
                     && check.is_none()
-                    && !legacy
                     && vault.is_none()
                     && model_dir.is_none()
                     && args.next().is_none() =>
@@ -61,10 +51,7 @@ fn parse(arguments: impl IntoIterator<Item = String>) -> Result<Option<Options>,
                 ))
             }
             "--headless-check" if check.is_none() => {
-                check = Some(
-                    args.next()
-                        .ok_or("--headless-check needs completion, cancellation, or stale")?,
-                )
+                check = Some(args.next().ok_or("--headless-check needs startup")?)
             }
             "--model-dir" if model_dir.is_none() => {
                 model_dir = Some(PathBuf::from(
@@ -72,7 +59,6 @@ fn parse(arguments: impl IntoIterator<Item = String>) -> Result<Option<Options>,
                         .ok_or("--model-dir needs an absolute directory path")?,
                 ))
             }
-            "--legacy" if !legacy => legacy = true,
             "--vault" if vault.is_none() => {
                 vault = Some(PathBuf::from(
                     args.next()
@@ -85,9 +71,6 @@ fn parse(arguments: impl IntoIterator<Item = String>) -> Result<Option<Options>,
                 ));
             }
         }
-    }
-    if legacy && vault.is_some() {
-        return Err("--legacy and --vault are incompatible".into());
     }
     if vault.as_ref().is_some_and(|path| !path.is_absolute()) {
         return Err("--vault must be absolute".into());
@@ -102,7 +85,7 @@ fn parse(arguments: impl IntoIterator<Item = String>) -> Result<Option<Options>,
         }
         None => {
             let home = std::env::var_os("HOME").ok_or("HOME is unset; supply --data-dir")?;
-            default_directory(PathBuf::from(home), legacy)
+            default_directory(PathBuf::from(home))
         }
     };
     if !data_dir.is_absolute() {
@@ -111,7 +94,7 @@ fn parse(arguments: impl IntoIterator<Item = String>) -> Result<Option<Options>,
         );
     }
     if let Some(ref check) = check
-        && !["completion", "cancellation", "stale"].contains(&check.as_str())
+        && check != "startup"
     {
         return Err(format!("unknown headless check: {check}"));
     }
@@ -123,32 +106,18 @@ fn parse(arguments: impl IntoIterator<Item = String>) -> Result<Option<Options>,
         explicit,
         check,
         model_dir,
-        legacy,
         vault,
     }))
 }
-fn default_directory(home: PathBuf, legacy: bool) -> PathBuf {
-    home.join("Library/Application Support")
-        .join(if legacy { "BRN" } else { "BRN-simple" })
+fn default_directory(home: PathBuf) -> PathBuf {
+    home.join("Library/Application Support/BRN-simple")
 }
-#[cfg_attr(not(feature = "native-ui"), allow(dead_code))]
-fn launch_mode(options: &Options) -> Result<brn_workflow::WorkspaceMode, String> {
-    use brn_workflow::WorkspaceMode;
-    let mode = brn_workflow::workspace_mode(&options.data_dir).map_err(|e| e.message)?;
-    match mode {
-        WorkspaceMode::Legacy if options.vault.is_some() => Err(
-            "--vault is incompatible with legacy workspace markers; use a new simple directory"
-                .into(),
-        ),
-        WorkspaceMode::Simple if options.legacy => {
-            Err("--legacy is incompatible with simple workspace markers".into())
+fn validate_workspace_mode(path: &Path) -> Result<(), String> {
+    match brn_workflow::workspace_mode(path).map_err(|e| e.message)? {
+        brn_workflow::WorkspaceMode::Legacy => {
+            Err("legacy workspace markers are unsupported; use a new data directory".into())
         }
-        WorkspaceMode::Empty => Ok(if options.legacy {
-            WorkspaceMode::Legacy
-        } else {
-            WorkspaceMode::Simple
-        }),
-        mode => Ok(mode),
+        brn_workflow::WorkspaceMode::Empty | brn_workflow::WorkspaceMode::Simple => Ok(()),
     }
 }
 fn validate_data_dir(path: &Path, create_default: bool) -> Result<(), String> {
@@ -185,82 +154,55 @@ fn validate_data_dir(path: &Path, create_default: bool) -> Result<(), String> {
     })?;
     Ok(())
 }
-fn wait(shell: &mut Shell) -> Result<(), String> {
-    let deadline = Instant::now() + Duration::from_secs(5);
-    while shell.active().is_some() && Instant::now() < deadline {
-        shell.poll();
-        std::thread::sleep(Duration::from_millis(2));
-    }
-    if shell.active().is_some() {
-        Err("sample worker timed out".into())
-    } else {
-        Ok(())
-    }
-}
-fn headless_check(kind: &str) -> Result<(), String> {
-    let mut shell = Shell::new("Sample workspace text");
-    let config = WorkConfig {
-        steps: 50,
-        step_delay: Duration::from_millis(3),
-    };
-    shell
-        .start(config)
-        .map_err(|e| format!("start failed: {e:?}"))?;
-    match kind {
-        "completion" => {
-            wait(&mut shell)?;
-            if shell.result().is_none() {
-                return Err("sample did not complete".into());
-            }
+fn headless_check(path: PathBuf, config: brn_workflow::app::AppConfig) -> Result<(), String> {
+    use brn_workflow::app_worker::{AppEvent, AppWorker};
+    let mut worker = AppWorker::start(path, config).map_err(|e| e.message)?;
+    loop {
+        let (_, event) = worker
+            .recv_event_timeout(Duration::from_secs(10))
+            .map_err(|e| format!("application worker startup did not complete: {e}"))?;
+        match event {
+            AppEvent::Ready { .. } => break,
+            AppEvent::Failed(error) => return Err(error.message),
+            _ => {}
         }
-        "cancellation" => {
-            if !shell.cancel() {
-                return Err("cancellation was not accepted".into());
-            }
-            wait(&mut shell)?;
-            if !shell.was_cancelled() {
-                return Err("sample was not cancelled".into());
-            }
-        }
-        "stale" => {
-            shell
-                .edit("New text")
-                .map_err(|e| format!("edit failed: {e:?}"))?;
-            wait(&mut shell)?;
-            if shell.result().is_some() {
-                return Err("stale result became current".into());
-            }
-        }
-        _ => return Err("invalid check".into()),
     }
-    println!("{kind}: PASS");
+    worker.shutdown().map_err(|e| e.message)?;
+    println!("startup: PASS");
     Ok(())
 }
 fn run() -> Result<(), String> {
     let Some(options) = parse_args()? else {
         return Ok(());
     };
-    if let Some(ref kind) = options.check {
+    validate_workspace_mode(&options.data_dir)?;
+    if options.check.is_some() {
         if !options.explicit {
             return Err("--headless-check requires an explicit --data-dir".into());
         }
         validate_data_dir(&options.data_dir, false)?;
-        return headless_check(kind);
+        return headless_check(
+            options.data_dir,
+            brn_workflow::app::AppConfig {
+                vault_root: options.vault,
+                credentials_dir: None,
+                model_dir: options.model_dir,
+            },
+        );
     }
     #[cfg(feature = "native-ui")]
     {
-        let mode = launch_mode(&options)?;
         validate_data_dir(&options.data_dir, true)?;
         let path = std::fs::canonicalize(&options.data_dir)
             .map_err(|e| format!("cannot canonicalize data directory: {e}"))?;
         let preferences = layout::load(&path);
         native::run(
             path,
-            brn_workflow::Config {
+            brn_workflow::app::AppConfig {
+                vault_root: options.vault,
+                credentials_dir: None,
                 model_dir: options.model_dir,
             },
-            mode,
-            options.vault,
             preferences,
         );
         Ok(())
@@ -272,7 +214,6 @@ fn run() -> Result<(), String> {
             options.explicit,
             options.model_dir,
             options.vault,
-            options.legacy,
         );
         Err("native UI is unavailable in this build; rebuild with --features native-ui or use --headless-check".into())
     }
@@ -289,7 +230,6 @@ fn main() -> ExitCode {
 #[cfg(test)]
 mod mode_tests {
     use super::*;
-    use brn_workflow::WorkspaceMode;
     fn options(args: &[&str]) -> Options {
         parse(args.iter().map(|arg| (*arg).to_owned()))
             .unwrap()
@@ -313,12 +253,8 @@ mod mode_tests {
     #[test]
     fn defaults_are_separate_and_repository_credentials_are_refused() {
         let home = PathBuf::from("/synthetic/home");
-        let simple = default_directory(home.clone(), false);
+        let simple = default_directory(home.clone());
         assert_eq!(simple, home.join("Library/Application Support/BRN-simple"));
-        assert_eq!(
-            default_directory(home.clone(), true),
-            home.join("Library/Application Support/BRN")
-        );
         let fixture = Fixture::new();
         let data = fixture.0.join("BRN-simple");
         std::fs::create_dir(&data).unwrap();
@@ -328,31 +264,32 @@ mod mode_tests {
                 .kind,
             brn_workflow::ErrorKind::UnsafeCredentials
         );
-        assert!(!options(&[]).legacy);
-        assert!(options(&["--legacy"]).legacy);
+        assert!(parse(["--legacy".to_owned()]).is_err());
     }
     #[test]
     fn explicit_modes_include_sidecars_and_backups_and_refuse_mixed() {
         let fixture = Fixture::new();
         let args = ["--data-dir", fixture.0.to_str().unwrap()];
         let simple = options(&args);
-        assert_eq!(launch_mode(&simple).unwrap(), WorkspaceMode::Simple);
+        validate_workspace_mode(&simple.data_dir).unwrap();
         std::fs::write(fixture.0.join("brn.sqlite3-journal"), b"synthetic").unwrap();
-        assert_eq!(launch_mode(&simple).unwrap(), WorkspaceMode::Legacy);
+        assert!(validate_workspace_mode(&simple.data_dir).is_err());
         let with_vault = options(&[
             "--data-dir",
             fixture.0.to_str().unwrap(),
             "--vault",
             "/synthetic/vault",
         ]);
-        assert!(launch_mode(&with_vault).is_err());
+        assert!(validate_workspace_mode(&with_vault.data_dir).is_err());
         std::fs::create_dir(fixture.0.join("backups")).unwrap();
         std::fs::write(fixture.0.join("backups/brn-123.sqlite-wal"), b"synthetic").unwrap();
-        assert!(launch_mode(&simple).is_err());
+        assert!(validate_workspace_mode(&simple.data_dir).is_err());
         std::fs::remove_file(fixture.0.join("brn.sqlite3-journal")).unwrap();
-        assert_eq!(launch_mode(&simple).unwrap(), WorkspaceMode::Simple);
-        let legacy = options(&["--legacy", "--data-dir", fixture.0.to_str().unwrap()]);
-        assert!(launch_mode(&legacy).is_err());
+        validate_workspace_mode(&simple.data_dir).unwrap();
+        assert!(
+            parse(["--legacy", "--data-dir", fixture.0.to_str().unwrap()].map(str::to_owned))
+                .is_err()
+        );
         assert!(!fixture.0.join("brn.sqlite").exists());
         assert!(!fixture.0.join("brn.sqlite3").exists());
     }

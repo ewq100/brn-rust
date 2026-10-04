@@ -1,8 +1,8 @@
 # Current development status
 
-2026-10-03. Stage 1 is locally integrated on `main` by the commit containing
-this record, based on frozen-guidance baseline `4bf7878`. Earlier product code is merged through
-PR #14; its native/provider qualification remains open.
+2026-10-03. Stage 1 is locally integrated at `6609442`, based on frozen-guidance
+baseline `4bf7878`. Stage 2 is locally integrated by the commit containing this
+record. Earlier native/provider qualification remains open.
 
 The owner has authorized sequential BRN v1 delivery using the [product vision](product/BRN_PRODUCT_VISION.md),
 [target architecture](architecture/overview.md#frozen-target), [invariants](architecture/invariants.md),
@@ -30,10 +30,11 @@ contains reproducible acceptance steps and verification detail.
   remain implemented. Default builds are keyword-only; model installation needs
   fresh consent. Streaming/finalization and UUID replay retain their existing
   safety distinctions.
-- Legacy local editing/recovery/history/drafts/comments remain available in
-  separate legacy data folders until Stage 2. Proposal Core and later v1 stages
-  remain unimplemented. No original-data migration, live calls or release is
-  authorized by historical evidence.
+- Stage 2 removes legacy Store/Workspace/worker/CLI/native paths, `brn-core` and
+  `brn-flow`. The workspace now has six crates and two binaries. WorkStore and
+  current Save/recovery/search/chat remain; old/mixed markers refuse before
+  SQLite opens. Existing data, standalone trials and historical records remain
+  untouched. Proposal Core and later v1 stages remain unimplemented.
 
 Fresh Stage 1 verification: workspace **728 passed, 0 failed, 1 ignored**;
 native desktop **137 unit + 6 CLI tests passed**; native workflow **93 library +
@@ -41,7 +42,15 @@ native desktop **137 unit + 6 CLI tests passed**; native workflow **93 library +
 **47 fixture assertions** and launcher checks passed. These checks use synthetic
 fixtures; the ignored tests and other limits are recorded in the slice record.
 
-Stage 2 legacy removal is the next authorized slice.
+Fresh Stage 2 verification: workspace **391 passed, 0 failed, 1 ignored**;
+native desktop **84 unit + 7 CLI passed**; native workflow **67 passed, 1 ignored**;
+native retrieval **42 passed**. Default format/build/Clippy, native desktop build/
+Clippy, **52 fixture assertions** and launcher checks passed. Independent read-only
+review found no actionable defects. [Stage 2 record](work/completed/legacy-removal/plan.md)
+distinguishes synthetic checks from remaining native/live qualification.
+
+Stage 3 narrow provider capability spikes are next. Live/account calls still
+require owner authorization; offline preparation can proceed.
 Owner acceptance may remain pending when it is not a dependency for later safe
 implementation.
 

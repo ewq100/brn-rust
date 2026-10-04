@@ -1,5 +1,5 @@
 use super::path::VaultPath;
-use crate::MAX_IMPORT_BYTES;
+use crate::MAX_NOTE_BYTES;
 use sha2::{Digest, Sha256};
 use std::{
     fs::File,
@@ -67,7 +67,7 @@ pub fn read_note(root: &Path, path: &VaultPath) -> Result<NoteText, ReadError> {
     if !checked.is_file() {
         return Err(ReadError::NotAFile);
     }
-    if checked.len() > MAX_IMPORT_BYTES as u64 {
+    if checked.len() > MAX_NOTE_BYTES as u64 {
         return Err(ReadError::TooLarge);
     }
     let file = File::open(&current)?;
@@ -78,13 +78,13 @@ pub fn read_note(root: &Path, path: &VaultPath) -> Result<NoteText, ReadError> {
     if !opened.is_file() || (opened.dev(), opened.ino()) != (checked.dev(), checked.ino()) {
         return Err(ReadError::NotAFile);
     }
-    if opened.len() > MAX_IMPORT_BYTES as u64 {
+    if opened.len() > MAX_NOTE_BYTES as u64 {
         return Err(ReadError::TooLarge);
     }
-    let mut bytes = Vec::with_capacity(opened.len().min(MAX_IMPORT_BYTES as u64 + 1) as usize);
-    file.take(MAX_IMPORT_BYTES as u64 + 1)
+    let mut bytes = Vec::with_capacity(opened.len().min(MAX_NOTE_BYTES as u64 + 1) as usize);
+    file.take(MAX_NOTE_BYTES as u64 + 1)
         .read_to_end(&mut bytes)?;
-    if bytes.len() > MAX_IMPORT_BYTES {
+    if bytes.len() > MAX_NOTE_BYTES {
         return Err(ReadError::TooLarge);
     }
     let sha256 = Sha256::digest(&bytes).into();

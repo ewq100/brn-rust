@@ -6,7 +6,8 @@ pub struct DataDir {
 }
 
 pub fn data_dir() -> DataDir {
-    let owner = tempfile::tempdir().unwrap();
+    let parent = std::env::temp_dir().canonicalize().unwrap();
+    let owner = tempfile::Builder::new().tempdir_in(parent).unwrap();
     let data = owner.path().join("data");
     std::fs::create_dir(&data).unwrap();
     DataDir {

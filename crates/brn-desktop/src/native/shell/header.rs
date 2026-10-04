@@ -10,11 +10,13 @@ impl Desktop {
         let tone = if self.ai.as_ref().is_some_and(|ai| ai.active.is_some()) {
             p.cyan
         } else {
-            match self.phase {
-                Phase::Idle => p.green,
-                Phase::Failed(_) => p.amber,
-                Phase::Opening => p.muted,
-                Phase::Running { .. } | Phase::Cancelling { .. } => p.cyan,
+            let ai = self.ai.as_ref().unwrap();
+            if ai.startup_failed {
+                p.amber
+            } else if ai.ready {
+                p.green
+            } else {
+                p.muted
             }
         };
         let mut bar = div()
@@ -40,9 +42,7 @@ impl Desktop {
                     .child(self.phase_status()),
             )
             .child(div().flex_1());
-        if matches!(self.phase, Phase::Running { .. })
-            || self.ai.as_ref().is_some_and(|ai| ai.active.is_some())
-        {
+        if self.ai.as_ref().is_some_and(|ai| ai.active.is_some()) {
             bar = bar.child(
                 Button::new("cancel")
                     .label("Stop")
@@ -95,13 +95,8 @@ impl Desktop {
             .bg(color(p.paper))
             .text_color(color(p.muted))
             .child(self.message.clone());
-        if matches!(self.phase, Phase::Failed(_)) {
+        if self.ai.as_ref().is_some_and(|ai| ai.startup_failed) {
             line = line.child("Workspace unavailable. Review the error above, correct the workspace, then relaunch.");
-        }
-        if !self.progress.is_empty()
-            && matches!(self.phase, Phase::Running { .. } | Phase::Cancelling { .. })
-        {
-            line = line.child(format!("Progress: {}", self.progress));
         }
         if let Some(note) = &self.layout_note {
             line = line.child(note.clone());

@@ -30,10 +30,11 @@ Safe Save and verified recovery precede legacy removal; removal precedes Proposa
 
 ## Starting the next slice
 
-Stage 1 simple safe Save is implemented and automated checks have passed, with
-native acceptance and local integration tracked in [status](status.md). After
-integration, continue to Stage 2 legacy removal under the existing v1
-authorization. Pending owner acceptance remains explicit and need not block
+Stages 1 and 2 are implemented, automated verified and locally integrated;
+owner native acceptance remains tracked in [status](status.md). Continue to
+Stage 3 narrow provider-capability spikes under the existing v1 authorization.
+Actual provider/account calls need the owner's separate permission. Pending
+owner acceptance remains explicit and need not block
 later safe work when it is not a dependency. Original-data inspection or migration,
 live provider/account checks, downloads, purchases and release or public
 distribution still require the applicable owner permission. Use the

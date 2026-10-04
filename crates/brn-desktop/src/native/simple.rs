@@ -9,6 +9,7 @@ use brn_workflow::{
 };
 use gpui_kit::{
     AnyElement,
+    base::Disableable,
     component::{Selectable, WindowExt},
 };
 
@@ -23,21 +24,16 @@ pub(super) enum EditorTransition {
 }
 
 pub(super) fn final_quit(
-    legacy_shutdown: impl FnOnce(),
-    simple_shutdown: impl FnOnce(),
+    app_shutdown: impl FnOnce(),
     preferences: impl std::future::Future<Output = ()>,
 ) -> impl std::future::Future<Output = ()> {
-    // Accepted note mutations join before GPUI starts its quit-future deadline.
-    // This hook submits no final typing flush; guarded routes do that beforehand.
-    legacy_shutdown();
-    simple_shutdown();
+    // Drain admitted work before GPUI starts its quit-future deadline. This
+    // defensive system hook submits no latest-typing flush; guarded close
+    // routes flush and join asynchronously before this hook is reached.
+    app_shutdown();
     async move {
         preferences.await;
     }
-}
-
-pub(super) fn local_edits_enabled(closing: bool, closed: bool) -> bool {
-    !closing && !closed
 }
 
 fn project_notice(state: &crate::ai::AiState, message: &mut String) -> bool {
@@ -178,13 +174,6 @@ impl Desktop {
         }
         self.simple_progress_transition(cx);
         let ai = self.ai.as_ref().unwrap();
-        self.phase = if ai.startup_failed {
-            Phase::Failed(ai.notice.clone())
-        } else if ai.ready {
-            Phase::Idle
-        } else {
-            Phase::Opening
-        };
         let notice_changed = project_notice(ai, &mut self.message);
         if let Some(id) = self.login_dialog
             && ai.login.as_ref().is_none_or(|login| login.operation != id)
@@ -505,7 +494,6 @@ impl Desktop {
             ai.model_prompt = None;
         }
         let mut app = self.app_worker.take();
-        let mut legacy = self.worker.take();
         let preferences = self.layout_task.take();
         let (tx, rx) = std::sync::mpsc::channel();
         self.closing = Some((route, rx));
@@ -521,9 +509,6 @@ impl Desktop {
                     }
                     result
                 } else {
-                    if let Some(worker) = &mut legacy {
-                        worker.shutdown();
-                    }
                     Ok(())
                 };
                 if let Some(preferences) = preferences {
@@ -989,9 +974,7 @@ impl Desktop {
 
 pub(super) fn account_settings(desktop: &Entity<Desktop>, cx: &App) -> AnyElement {
     let this = desktop.read(cx);
-    let Some(ai) = &this.ai else {
-        return div().child("Legacy AI retired; use a new simple workspace. Local editing/recovery/history remains available.").into_any_element();
-    };
+    let ai = this.ai.as_ref().unwrap();
     let mut body =
         div().flex().flex_col().gap_2().child(
             "Connected means locally persisted credentials, not proof of live availability.",
@@ -1164,94 +1147,190 @@ mod tests {
         });
         state
     }
-    #[test]
-    fn final_quit_drains_accepted_legacy_save_before_returning_timed_future() {
-        use brn_workflow::worker::{Action, Outcome, Terminal, Worker};
-        use std::{fs, sync::mpsc, time::Instant};
-
-        fn terminal(worker: &Worker) -> Terminal {
-            let deadline = Instant::now() + Duration::from_secs(5);
-            loop {
-                if let Some(terminal) = worker.take_terminal() {
-                    return terminal;
-                }
-                assert!(Instant::now() < deadline, "legacy worker timed out");
-                std::thread::yield_now();
-            }
-        }
-        struct Fixture(PathBuf);
-        impl Drop for Fixture {
-            fn drop(&mut self) {
-                fs::remove_dir_all(&self.0).unwrap();
-            }
-        }
-        let fixture = Fixture(
-            std::env::current_dir()
+    #[cfg(target_os = "macos")]
+    struct EditorFixture(PathBuf);
+    #[cfg(target_os = "macos")]
+    impl EditorFixture {
+        fn new() -> Self {
+            let base = std::env::temp_dir()
+                .canonicalize()
                 .unwrap()
-                .join("target/desktop-fixtures")
-                .join(format!("final-quit-{}", Uuid::new_v4())),
-        );
-        let data = fixture.0.join("data");
-        let vault = fixture.0.join("vault");
-        fs::create_dir_all(&data).unwrap();
-        fs::create_dir_all(&vault).unwrap();
-        let path = vault.join("note.md");
-        fs::write(&path, "original\n").unwrap();
-        let mut worker = Worker::start(data, brn_workflow::Config::default());
-        terminal(&worker).outcome.unwrap();
-        worker
-            .submit(Action::OpenNote {
-                op: Uuid::new_v4(),
-                vault,
-                relative: "note.md".into(),
-            })
+                .join(format!("brn-current-desktop-{}", Uuid::new_v4()));
+            std::fs::create_dir(&base).unwrap();
+            std::fs::create_dir(base.join("data")).unwrap();
+            std::fs::create_dir(base.join("vault")).unwrap();
+            Self(base)
+        }
+        fn worker(&self) -> brn_workflow::app_worker::AppWorker {
+            let worker = brn_workflow::app_worker::AppWorker::start(
+                self.0.join("data"),
+                brn_workflow::app::AppConfig {
+                    vault_root: Some(self.0.join("vault")),
+                    credentials_dir: Some(self.0.join("credentials")),
+                    model_dir: None,
+                },
+            )
             .unwrap();
-        let view = match terminal(&worker).outcome.unwrap() {
-            Outcome::NoteOpened { view, .. } => view,
-            other => panic!("unexpected open: {other:?}"),
+            loop {
+                match worker
+                    .recv_event_timeout(Duration::from_secs(10))
+                    .unwrap()
+                    .1
+                {
+                    AppEvent::Ready { .. } => return worker,
+                    AppEvent::Failed(error) => panic!("startup: {}", error.message),
+                    _ => {}
+                }
+            }
+        }
+    }
+    #[cfg(target_os = "macos")]
+    impl Drop for EditorFixture {
+        fn drop(&mut self) {
+            std::fs::remove_dir_all(&self.0).unwrap();
+        }
+    }
+    #[cfg(target_os = "macos")]
+    fn reply(
+        worker: &brn_workflow::app_worker::AppWorker,
+        command: (Uuid, AppCommand),
+    ) -> (Uuid, AppEvent) {
+        let (id, command) = command;
+        worker.submit(id, command).unwrap();
+        loop {
+            let event = worker.recv_event_timeout(Duration::from_secs(10)).unwrap();
+            if event.0 == id {
+                if let AppEvent::Failed(error) = &event.1 {
+                    panic!("editor command failed: {:?}: {}", error.kind, error.message);
+                }
+                return event;
+            }
+        }
+    }
+
+    #[cfg(target_os = "macos")]
+    #[test]
+    fn gpui_rope_preserves_exact_markdown_through_app_worker_save_and_restart() {
+        use brn_workflow::editor::SaveOutcome;
+        use gpui_kit::component::input::{Rope, RopeExt};
+        use std::os::unix::fs::MetadataExt;
+        let fixture = EditorFixture::new();
+        let path = fixture.0.join("vault/plan.md");
+        let original = "\u{feff}---\r\ntitle: café 🧭\r\n---\r\n正文\nlast\r";
+        std::fs::write(&path, original).unwrap();
+        let before = std::fs::metadata(&path).unwrap();
+        let mut worker = fixture.worker();
+        let mut ai = ready();
+        let open = ai.open_editor("plan.md".into());
+        let (id, event) = reply(&worker, open);
+        ai.apply(id, event);
+        let mut rope = Rope::from(ai.editor.as_ref().unwrap().text.as_str());
+        ai.editor
+            .as_mut()
+            .unwrap()
+            .edit(
+                gpui_kit::SharedString::new(rope.to_string()).to_string(),
+                Instant::now(),
+            )
+            .unwrap();
+        let save = ai.save_editor(None).unwrap();
+        let (id, event) = reply(&worker, save);
+        assert!(
+            matches!(&event, AppEvent::EditorSaved(receipt) if receipt.outcome == SaveOutcome::NotApplied)
+        );
+        ai.apply(id, event);
+        assert_eq!(std::fs::read(&path).unwrap(), original.as_bytes());
+        assert_eq!(std::fs::metadata(&path).unwrap().ino(), before.ino());
+        assert_eq!(
+            std::fs::metadata(&path).unwrap().modified().unwrap(),
+            before.modified().unwrap()
+        );
+
+        let start = original.find("正文").unwrap();
+        rope.replace(start..start + "正文".len(), "文書 🦀");
+        let saved = rope.to_string();
+        ai.editor
+            .as_mut()
+            .unwrap()
+            .edit(saved.clone(), Instant::now())
+            .unwrap();
+        let save = ai.save_editor(None).unwrap();
+        let (id, event) = reply(&worker, save);
+        let latest = format!("{saved}later typing λ");
+        ai.editor
+            .as_mut()
+            .unwrap()
+            .edit(latest.clone(), Instant::now())
+            .unwrap();
+        assert!(
+            matches!(&event, AppEvent::EditorSaved(receipt) if receipt.outcome == SaveOutcome::Applied)
+        );
+        ai.apply(id, event);
+        assert_eq!(std::fs::read(&path).unwrap(), saved.as_bytes());
+        assert_eq!(ai.editor.as_ref().unwrap().text, latest);
+        assert!(!ai.editor.as_ref().unwrap().can_leave());
+        let recovery = ai.recover_editor().unwrap();
+        let (id, event) = reply(&worker, recovery);
+        ai.apply(id, event);
+        assert!(ai.editor.as_ref().unwrap().can_leave());
+        worker.shutdown().unwrap();
+
+        let mut worker = fixture.worker();
+        let (_, event) = reply(
+            &worker,
+            (Uuid::new_v4(), AppCommand::OpenEditor("plan.md".into())),
+        );
+        let AppEvent::Editor(view) = event else {
+            panic!("reopened editor");
         };
-        let mut editor = crate::notes::NoteEditor::new(view);
-        editor.edit_input("accepted write λ\n".into()).unwrap();
-        let request = editor.begin_save(Uuid::new_v4()).unwrap();
-        worker.submit(Action::SaveNote { request }).unwrap();
-        let (joined, receipt) = mpsc::channel();
-        let preferences_polled = std::sync::Arc::new(std::sync::atomic::AtomicBool::new(false));
-        let polled = preferences_polled.clone();
-        let simple_called = std::sync::Arc::new(std::sync::atomic::AtomicBool::new(false));
-        let called = simple_called.clone();
+        assert_eq!(view.record.text, latest);
+        assert_eq!(view.saved.as_deref(), Some(saved.as_str()));
+        worker.shutdown().unwrap();
+    }
+
+    #[cfg(target_os = "macos")]
+    #[test]
+    fn final_quit_drains_admitted_save_before_returning_timed_future() {
+        let fixture = EditorFixture::new();
+        let path = fixture.0.join("vault/a.md");
+        std::fs::write(&path, "original\r\n").unwrap();
+        let mut worker = fixture.worker();
+        let mut ai = ready();
+        let open = ai.open_editor("a.md".into());
+        let (id, event) = reply(&worker, open);
+        ai.apply(id, event);
+        ai.editor
+            .as_mut()
+            .unwrap()
+            .edit("admitted λ\r\n".into(), Instant::now())
+            .unwrap();
+        let (id, save) = ai.save_editor(None).unwrap();
+        worker.submit(id, save).unwrap();
+        let (joined, receipt) = std::sync::mpsc::channel();
         let future = final_quit(
             move || {
-                worker.shutdown();
-                joined
-                    .send(
-                        worker
-                            .take_terminal()
-                            .expect("accepted save joined")
-                            .outcome,
-                    )
-                    .unwrap();
+                let result = worker.shutdown();
+                let mut saved = false;
+                while let Some((actual, event)) = worker.try_event() {
+                    if actual == id && matches!(event, AppEvent::EditorSaved(_)) {
+                        saved = true;
+                    }
+                }
+                joined.send((result, saved)).unwrap();
             },
-            move || {
-                called.store(true, std::sync::atomic::Ordering::SeqCst);
-            },
-            std::future::poll_fn(move |_| {
-                polled.store(true, std::sync::atomic::Ordering::SeqCst);
-                std::task::Poll::Pending
-            }),
+            std::future::pending(),
         );
-        let outcome = receipt
+        let (result, saved) = receipt
             .try_recv()
-            .expect("legacy drain must precede the timed quit future");
-        assert!(matches!(outcome.unwrap(), Outcome::NoteSaved { .. }));
-        assert_eq!(fs::read_to_string(path).unwrap(), "accepted write λ\n");
-        assert!(!preferences_polled.load(std::sync::atomic::Ordering::SeqCst));
-        assert!(simple_called.load(std::sync::atomic::Ordering::SeqCst));
+            .expect("admitted Save must drain before returning the timed quit future");
         let mut future = std::pin::pin!(future);
         let mut cx = std::task::Context::from_waker(std::task::Waker::noop());
         assert!(std::future::Future::poll(future.as_mut(), &mut cx).is_pending());
-        assert!(preferences_polled.load(std::sync::atomic::Ordering::SeqCst));
-        assert!(simple_called.load(std::sync::atomic::Ordering::SeqCst));
+        result.unwrap();
+        assert!(saved);
+        assert_eq!(std::fs::read(&path).unwrap(), "admitted λ\r\n".as_bytes());
     }
+
     #[test]
     fn composer_invalidates_only_search_and_history_filters_only_chat() {
         use brn_workflow::library::SearchResults;
@@ -1316,12 +1395,6 @@ mod tests {
         );
         assert!(state.model_prompt.is_none());
         assert!(!state.model_installed);
-    }
-    #[test]
-    fn joined_close_locks_local_buffers_but_normal_active_chat_does_not() {
-        assert!(local_edits_enabled(false, false));
-        assert!(!local_edits_enabled(true, false));
-        assert!(!local_edits_enabled(false, true));
     }
     #[test]
     fn native_notice_change_without_queued_worker_event_requests_redraw() {

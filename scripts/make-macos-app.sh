@@ -4,20 +4,19 @@ set -euo pipefail
 
 usage() {
   cat <<'HELP'
-Usage: make-macos-app.sh --output ABSOLUTE.app --binary ABSOLUTE_BINARY [--data-dir ABSOLUTE_DIRECTORY] [--legacy] [--model-dir ABSOLUTE_DIRECTORY]
+Usage: make-macos-app.sh --output ABSOLUTE.app --binary ABSOLUTE_BINARY [--data-dir ABSOLUTE_DIRECTORY] [--model-dir ABSOLUTE_DIRECTORY]
 
 Creates an unsigned local .app. The specified binary is copied into the bundle.
-Omitting --data-dir uses the desktop's new BRN-simple default; --legacy explicitly selects old BRN.
+Omitting --data-dir uses the desktop's BRN-simple default.
 Data/model directories remain at their selected paths; no old data is inspected or copied.
 Startup failures are logged at ~/Library/Logs/BRN Usability Trial/startup.log
 HELP
 }
 
-output= binary= data_dir= model_dir= legacy=0
+output= binary= data_dir= model_dir=
 while (($#)); do
   case "$1" in
     --help) usage; exit 0 ;;
-    --legacy) legacy=1; shift ;;
     --output|--binary|--data-dir|--model-dir)
       key="$1"
       if (($# < 2)); then echo "$key needs a value" >&2; exit 2; fi
@@ -68,7 +67,6 @@ mkdir -p "$log_dir"
 log="$log_dir/startup.log"
 LAUNCH
 printf 'data_dir=%q\n' "$data_dir" >> "$launcher"
-printf 'legacy=%q\n' "$legacy" >> "$launcher"
 printf 'model_dir=%q\n' "$model_dir" >> "$launcher"
 cat >> "$launcher" <<'LAUNCH'
 fail() {
@@ -85,13 +83,12 @@ if [[ -n "$data_dir" ]]; then
   [[ -d "$data_dir" && -w "$data_dir" ]] || fail "Data directory is missing or not writable: $data_dir"
   args+=(--data-dir "$data_dir")
 fi
-if [[ "$legacy" == 1 ]]; then args+=(--legacy); fi
 if [[ -n "$model_dir" ]]; then
   [[ -d "$model_dir" ]] || fail "Model directory is missing: $model_dir"
   args+=(--model-dir "$model_dir")
 fi
 printf 'Launching BRN Usability Trial in %s\n' "$data_dir" >> "$log"
-if [[ -z "$data_dir" && "$legacy" == 0 && -z "$model_dir" ]]; then
+if [[ -z "$data_dir" && -z "$model_dir" ]]; then
   "$binary" >> "$log" 2>&1
 else
   "$binary" "${args[@]}" >> "$log" 2>&1

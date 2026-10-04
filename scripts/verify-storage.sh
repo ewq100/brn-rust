@@ -34,7 +34,8 @@ for binary in "$brn" "$desktop"; do
   fi
 done
 
-scratch="$(mktemp -d "${TMPDIR:-/tmp}/brn-storage.XXXXXX")"
+scratch="$(mktemp -d "${TMPDIR:-/private/tmp}/brn-storage.XXXXXX")"
+scratch="$(cd "$scratch" && pwd -P)"
 trap 'rm -rf "$scratch"' EXIT
 data_dir="$scratch/data"
 mkdir "$data_dir"
@@ -55,8 +56,6 @@ expect_failure 'brn with unknown arguments' "$brn" --unknown
 
 "$desktop" --help >/dev/null
 expect_failure 'desktop unknown option' "$desktop" --unknown
-"$desktop" --headless-check completion --data-dir "$data_dir"
-"$desktop" --headless-check cancellation --data-dir "$data_dir"
-"$desktop" --headless-check stale --data-dir "$data_dir"
+"$desktop" --headless-check startup --data-dir "$data_dir"
 
-printf 'Storage verification passed (workspace checks and headless smoke checks; no GUI or credentials used).\n'
+printf 'Storage verification passed (workspace checks and AppWorker startup checks; no GUI, account or network calls).\n'

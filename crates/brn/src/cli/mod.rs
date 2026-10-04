@@ -1,39 +1,25 @@
-//! Argument parsing, JSON envelope and dispatch types for the brn CLI.
-//!
-//! Long options only, `--key value` or `--key=value`; global options
-//! (`--data-dir`, `--json`, `--model-dir`, `--vault`,
-//! `--credentials-dir`, `--legacy`, `--help`, `--version`)
-//! may appear before or after the subcommand. All arguments are validated
-//! before any workspace is opened.
+//! Argument parsing and output policy for the shared BRN application CLI.
+//! Global long options may appear before or after the command. Inputs are
+//! validated before AppWorker opens operational storage.
 pub mod ai;
-pub mod ask;
-pub mod comments;
-pub mod documents;
-pub mod drafts;
 pub mod editor;
 pub mod error;
 mod input;
 pub mod library;
-pub mod notes;
 pub(crate) mod out;
-pub mod retrieval;
-pub mod review;
-pub mod status;
 
-use crate::cli::error::{classify_workflow, CliError};
-use brn_workflow::SearchProfile;
+use crate::cli::error::CliError;
+use brn_workflow::library::SearchMode;
 use std::path::PathBuf;
 use std::process::ExitCode;
 use uuid::Uuid;
 
-/// A fully validated invocation, ready to execute.
 pub struct Invocation {
     pub json: bool,
     pub data_dir: PathBuf,
     pub model_dir: Option<PathBuf>,
     pub vault: Option<PathBuf>,
     pub credentials_dir: Option<PathBuf>,
-    pub legacy: bool,
     pub command: Command,
 }
 
@@ -48,27 +34,10 @@ pub enum Command {
         cursor: Option<String>,
     },
     NotePath(String),
-    Notes(notes::NoteCommand),
     Status,
-    Import {
-        path: PathBuf,
-        approve_for_search: bool,
-        operation: Option<Uuid>,
-    },
-    DocumentsList,
-    DocumentsShow {
-        source: Uuid,
-    },
-    DocumentsSetApproval {
-        source: Uuid,
-        version: Uuid,
-        state: brn_workflow::SearchApproval,
-        operation: Option<Uuid>,
-    },
-    IndexBuild,
     Search {
         query: String,
-        profile: Option<SearchProfile>,
+        profile: Option<SearchMode>,
         limit: Option<usize>,
     },
     Ask {
@@ -81,86 +50,19 @@ pub enum Command {
     ConversationsShow {
         session: Uuid,
     },
-    DraftsList,
-    DraftsCreate {
-        title: String,
-        text_file: PathBuf,
-        operation: Option<Uuid>,
-    },
-    DraftsCheckpoint {
-        draft: Uuid,
-        base_revision: Uuid,
-        expected_generation: u64,
-        generation: u64,
-        text_file: PathBuf,
-        operation: Option<Uuid>,
-    },
-    DraftsSave {
-        draft: Uuid,
-        base_revision: Uuid,
-        expected_generation: u64,
-        generation: u64,
-        text_file: PathBuf,
-        operation: Option<Uuid>,
-    },
-    DraftsShow {
-        draft: Uuid,
-    },
-    CommentsList {
-        draft: Uuid,
-    },
-    CommentsAdd {
-        draft: Uuid,
-        base_revision: Uuid,
-        expected_generation: u64,
-        generation: u64,
-        text_file: PathBuf,
-        start_byte: usize,
-        end_byte: usize,
-        quote_file: PathBuf,
-        body_file: PathBuf,
-        operation: Option<Uuid>,
-    },
-    CommentsResolve {
-        comment: Uuid,
-        draft: Uuid,
-        expected_status_version: u64,
-        operation: Option<Uuid>,
-    },
-    CommentsReopen {
-        comment: Uuid,
-        draft: Uuid,
-        expected_status_version: u64,
-        operation: Option<Uuid>,
-    },
-    RevisionsList {
-        draft: Uuid,
-    },
-    RevisionsShow {
-        revision: Uuid,
-    },
-    RevisionsDiff {
-        draft: Uuid,
-        from: Uuid,
-        to: Uuid,
-    },
 }
 
-/// Command result: human text (self-terminated with `\n`) and JSON data.
 pub struct Output {
     pub text: String,
     pub data: serde_json::Value,
 }
 
-/// A command failure plus optional additive machine-readable context. When
-/// present, the JSON envelope renders it as an additive-optional `context`
-/// field inside the existing `error` object; schema_version stays 1.
+/// Optional machine-readable context extends the existing error envelope.
 #[derive(Debug)]
 pub struct CliFailure {
     pub error: CliError,
     pub context: Option<serde_json::Value>,
 }
-
 impl From<CliError> for CliFailure {
     fn from(error: CliError) -> Self {
         Self {
@@ -170,7 +72,6 @@ impl From<CliError> for CliFailure {
     }
 }
 
-/// Parse failure bundled with the flags needed for a correct envelope.
 pub struct ParseFailure {
     pub error: CliError,
     pub json: bool,
@@ -184,19 +85,18 @@ pub enum Outcome {
 }
 
 pub const HELP: &str = "\
-brn: agent-facing CLI for BRN workspaces
+brn: agent-facing CLI for BRN
 
 Usage: brn COMMAND [OPTIONS] --data-dir ABSOLUTE_EXISTING_DIRECTORY
 
 Global options (accepted before or after the command):
-  --data-dir DIR     Existing absolute workspace directory (required for commands)
-  --json             Print exactly one JSON envelope object on stdout
+  --data-dir DIR     Existing absolute operational directory (required)
+  --json             Print one JSON envelope object on stdout
   --model-dir DIR    Absolute local model directory
-  --vault DIR        First simple-app vault binding
-  --credentials-dir DIR  Absolute safe credential directory (saved non-secret path)
-  --legacy           Explicit legacy authority for empty shared commands
-  --help             Show this help (works without --data-dir)
-  --version          Show the version (works without --data-dir)
+  --vault DIR        Initial Markdown vault binding
+  --credentials-dir DIR  Absolute protected credential directory
+  --help             Show help without opening storage
+  --version          Show the version without opening storage
 
 Commands:
   brn edit open PATH
@@ -205,7 +105,6 @@ Commands:
   brn edit reload PATH --baseline UUID --expected-generation N --observed-file F [--discard]
   brn edit list
   brn edit reconcile OPERATION
-  brn notes open PATH --vault DIR [--operation UUID]
   brn ai connect chatgpt|copilot [--timeout-seconds N]
   brn ai disconnect chatgpt|copilot
   brn ai status
@@ -213,45 +112,17 @@ Commands:
   brn ai select --provider chatgpt|copilot --model MODEL
   brn models download --approve-download [--model-dir DIR] [--timeout-seconds N]
   brn notes list [--folder FOLDER] [--cursor PATH]
-  brn notes show PATH.md|NOTE_ID
-  brn notes buffer save NOTE_ID --base-file-state UUID --expected-generation N --generation N --text-file PATH [--operation UUID]
-  brn notes save NOTE_ID --base-file-state UUID --expected-generation N --generation N --text-file PATH [--operation UUID]
-  brn notes recovery list
-  brn notes recovery show NOTE_ID
-  brn notes recovery reconcile --operation UUID
-  brn notes recovery accept-current --save-operation UUID --file-state UUID --keep-recovery [--operation UUID]
-  brn notes compare NOTE_ID
-  brn notes reload NOTE_ID --base-file-state UUID --expected-generation N --discard-local-edits [--operation UUID]
-  brn notes relink NOTE_ID --path PATH --base-file-state UUID --expected-generation N --confirm-identity [--operation UUID]
-  brn notes save-copy NOTE_ID --path PATH --base-file-state UUID --expected-generation N --generation N --text-file PATH [--operation UUID]
-  brn notes approve-for-search NOTE_ID --file-state UUID [--operation UUID]
+  brn notes show PATH.md
   brn status
-  brn import PATH [--approve-for-search] [--operation UUID]
-  brn documents list
-  brn documents show SOURCE_ID
-  brn documents set-search-approval SOURCE_ID --version-id VERSION_ID --state approved|draft|withdrawn [--operation UUID]
-  brn index build
   brn search QUERY [--profile keyword|semantic|hybrid] [--limit N]
   brn ask QUESTION [--session UUID] [--operation UUID] [--timeout-seconds N]
   brn conversations list
   brn conversations show SESSION_ID
-  brn drafts create --title TITLE --text-file PATH [--operation UUID]
-  brn drafts checkpoint DRAFT_ID --base-revision UUID --expected-generation N --generation N --text-file PATH [--operation UUID]
-  brn drafts save DRAFT_ID --base-revision UUID --expected-generation N --generation N --text-file PATH [--operation UUID]
-  brn drafts list
-  brn drafts show DRAFT_ID
-  brn comments list --draft DRAFT_ID
-  brn comments add --draft DRAFT_ID --base-revision UUID --expected-generation N --generation N --text-file PATH --start-byte N --end-byte N --quote-file PATH --body-file PATH [--operation UUID]
-  brn comments resolve COMMENT_ID --draft DRAFT_ID --expected-status-version N [--operation UUID]
-  brn comments reopen COMMENT_ID --draft DRAFT_ID --expected-status-version N [--operation UUID]
-  brn revisions list --draft DRAFT_ID
-  brn revisions show REVISION_ID
-  brn revisions diff --draft DRAFT_ID --from REVISION_ID --to REVISION_ID
 
 Exit codes: 0 success; 1 operational failure; 2 usage error; 124 deadline;
 130 interrupted. A completed operation whose stdout result cannot be
-delivered exits 1 with an OUTPUT_DELIVERY_ERROR diagnostic on stderr; a
-closed pipe stays a quiet 0.
+ delivered exits 1 with OUTPUT_DELIVERY_ERROR on stderr; a closed pipe stays
+ a quiet 0.
 ";
 
 pub fn version_line() -> String {
@@ -286,7 +157,6 @@ struct Globals {
     model_dir: Option<String>,
     vault: Option<String>,
     credentials_dir: Option<String>,
-    legacy: bool,
     version: bool,
 }
 
@@ -345,19 +215,14 @@ fn global_option(
                 g.version = true;
             }
         }
-        "json" | "legacy" => {
+        "json" => {
             if inline.is_some() {
                 return Err(usage(format!("{token} does not take a value")));
             }
-            let slot = if name == "json" {
-                &mut g.json
-            } else {
-                &mut g.legacy
-            };
-            if *slot {
+            if g.json {
                 return Err(usage(format!("duplicate option: {token}")));
             }
-            *slot = true;
+            g.json = true;
         }
         "data-dir" | "model-dir" | "vault" | "credentials-dir" => {
             let value = match inline {
@@ -427,13 +292,6 @@ impl Scanned {
         self.generation(name)?
             .ok_or_else(|| usage(format!("missing --{name}")))
     }
-
-    fn require_byte_offset(&self, name: &str) -> Result<usize, CliError> {
-        self.value(name)
-            .ok_or_else(|| usage(format!("missing --{name}")))?
-            .parse::<usize>()
-            .map_err(|_| usage(format!("invalid --{name} integer")))
-    }
 }
 
 /// Scan remaining tokens for one command. `options` lists command-specific
@@ -501,24 +359,13 @@ fn required_positional<'a>(scanned: &'a Scanned, label: &str) -> Result<&'a str,
         .ok_or_else(|| usage(format!("missing {label}")))
 }
 
-fn parse_profile(raw: Option<&str>) -> Result<SearchProfile, CliError> {
+fn parse_profile(raw: Option<&str>) -> Result<SearchMode, CliError> {
     match raw.unwrap_or("keyword") {
-        "keyword" => Ok(SearchProfile::Keyword),
-        "semantic" => Ok(SearchProfile::Semantic),
-        "hybrid" => Ok(SearchProfile::Hybrid),
+        "keyword" => Ok(SearchMode::Keyword),
+        "semantic" => Ok(SearchMode::Semantic),
+        "hybrid" => Ok(SearchMode::Hybrid),
         other => Err(usage(format!(
             "invalid --profile: {other} (expected keyword|semantic|hybrid)"
-        ))),
-    }
-}
-
-fn parse_state(raw: &str) -> Result<brn_workflow::SearchApproval, CliError> {
-    match raw {
-        "approved" => Ok(brn_workflow::SearchApproval::Approved),
-        "draft" => Ok(brn_workflow::SearchApproval::Draft),
-        "withdrawn" => Ok(brn_workflow::SearchApproval::Withdrawn),
-        other => Err(usage(format!(
-            "invalid --state: {other} (expected approved|draft|withdrawn)"
         ))),
     }
 }
@@ -548,9 +395,7 @@ fn parse_inner(
     args: &[String],
 ) -> Result<Outcome, CliError> {
     let mut tokens = args.iter().cloned();
-
-    // Pass 1: global options before the top-level command word.
-    let mut command_word: Option<String> = None;
+    let mut command_word = None;
     while let Some(token) = tokens.next() {
         if token.starts_with("--") {
             let (name, inline) = split_option(&token);
@@ -570,9 +415,8 @@ fn parse_inner(
         }
         return Err(usage("expected a command; run brn --help"));
     };
-
-    // Pass 2: subcommand words, command-specific options and positionals.
-    let mut scanned = match word.as_str() {
+    let scanned = match word.as_str() {
+        "help" => return Ok(Outcome::Help),
         "edit" => editor::scan_command(&mut tokens, g, command)?,
         "ai" => ai::scan_command(&mut tokens, g, command)?,
         "models" => {
@@ -586,51 +430,23 @@ fn parse_inner(
                 &[("approve-download", false), ("timeout-seconds", true)],
             )?
         }
-        "help" => return Ok(Outcome::Help),
-        "notes" => notes::scan_command(&mut tokens, g, command)?,
+        "notes" => {
+            let sub = sub_word(&mut tokens, "notes", "list|show")?;
+            match sub.as_str() {
+                "list" => {
+                    *command = Some("notes.list");
+                    scan(&mut tokens, g, &[("folder", true), ("cursor", true)])?
+                }
+                "show" => {
+                    *command = Some("notes.show");
+                    scan(&mut tokens, g, &[])?
+                }
+                other => return Err(usage(format!("unknown notes subcommand: {other}"))),
+            }
+        }
         "status" => {
             *command = Some("status");
             scan(&mut tokens, g, &[])?
-        }
-        "import" => {
-            *command = Some("import");
-            scan(
-                &mut tokens,
-                g,
-                &[("approve-for-search", false), ("operation", true)],
-            )?
-        }
-        "documents" => {
-            let sub = sub_word(&mut tokens, "documents", "list|show|set-search-approval")?;
-            match sub.as_str() {
-                "list" => {
-                    *command = Some("documents.list");
-                    scan(&mut tokens, g, &[])?
-                }
-                "show" => {
-                    *command = Some("documents.show");
-                    scan(&mut tokens, g, &[])?
-                }
-                "set-search-approval" => {
-                    *command = Some("documents.set-search-approval");
-                    scan(
-                        &mut tokens,
-                        g,
-                        &[("version-id", true), ("state", true), ("operation", true)],
-                    )?
-                }
-                other => return Err(usage(format!("unknown documents subcommand: {other}"))),
-            }
-        }
-        "index" => {
-            let sub = sub_word(&mut tokens, "index", "build")?;
-            match sub.as_str() {
-                "build" => {
-                    *command = Some("index.build");
-                    scan(&mut tokens, g, &[])?
-                }
-                other => return Err(usage(format!("unknown index subcommand: {other}"))),
-            }
         }
         "search" => {
             *command = Some("search");
@@ -642,7 +458,6 @@ fn parse_inner(
                 &mut tokens,
                 g,
                 &[
-                    ("profile", true),
                     ("session", true),
                     ("operation", true),
                     ("timeout-seconds", true),
@@ -663,141 +478,8 @@ fn parse_inner(
                 other => return Err(usage(format!("unknown conversations subcommand: {other}"))),
             }
         }
-        "drafts" => {
-            let sub = sub_word(&mut tokens, "drafts", "list|show|create|checkpoint|save")?;
-            match sub.as_str() {
-                "list" => {
-                    *command = Some("drafts.list");
-                    scan(&mut tokens, g, &[])?
-                }
-                "create" => {
-                    *command = Some("drafts.create");
-                    scan(
-                        &mut tokens,
-                        g,
-                        &[("title", true), ("text-file", true), ("operation", true)],
-                    )?
-                }
-                "checkpoint" => {
-                    *command = Some("drafts.checkpoint");
-                    scan(
-                        &mut tokens,
-                        g,
-                        &[
-                            ("base-revision", true),
-                            ("expected-generation", true),
-                            ("generation", true),
-                            ("text-file", true),
-                            ("operation", true),
-                        ],
-                    )?
-                }
-                "save" => {
-                    *command = Some("drafts.save");
-                    scan(
-                        &mut tokens,
-                        g,
-                        &[
-                            ("base-revision", true),
-                            ("expected-generation", true),
-                            ("generation", true),
-                            ("text-file", true),
-                            ("operation", true),
-                        ],
-                    )?
-                }
-                "show" => {
-                    *command = Some("drafts.show");
-                    scan(&mut tokens, g, &[])?
-                }
-                other => return Err(usage(format!("unknown drafts subcommand: {other}"))),
-            }
-        }
-        "comments" => {
-            let sub = sub_word(&mut tokens, "comments", "list|add|resolve|reopen")?;
-            match sub.as_str() {
-                "list" => {
-                    *command = Some("comments.list");
-                    scan(&mut tokens, g, &[("draft", true)])?
-                }
-                "add" => {
-                    *command = Some("comments.add");
-                    scan(
-                        &mut tokens,
-                        g,
-                        &[
-                            ("draft", true),
-                            ("base-revision", true),
-                            ("expected-generation", true),
-                            ("generation", true),
-                            ("text-file", true),
-                            ("start-byte", true),
-                            ("end-byte", true),
-                            ("quote-file", true),
-                            ("body-file", true),
-                            ("operation", true),
-                        ],
-                    )?
-                }
-                "resolve" => {
-                    *command = Some("comments.resolve");
-                    scan(
-                        &mut tokens,
-                        g,
-                        &[
-                            ("draft", true),
-                            ("expected-status-version", true),
-                            ("operation", true),
-                        ],
-                    )?
-                }
-                "reopen" => {
-                    *command = Some("comments.reopen");
-                    scan(
-                        &mut tokens,
-                        g,
-                        &[
-                            ("draft", true),
-                            ("expected-status-version", true),
-                            ("operation", true),
-                        ],
-                    )?
-                }
-                other => return Err(usage(format!("unknown comments subcommand: {other}"))),
-            }
-        }
-        "revisions" => {
-            let sub = sub_word(&mut tokens, "revisions", "list|show|diff")?;
-            match sub.as_str() {
-                "list" => {
-                    *command = Some("revisions.list");
-                    scan(&mut tokens, g, &[("draft", true)])?
-                }
-                "show" => {
-                    *command = Some("revisions.show");
-                    scan(&mut tokens, g, &[])?
-                }
-                "diff" => {
-                    *command = Some("revisions.diff");
-                    scan(
-                        &mut tokens,
-                        g,
-                        &[("draft", true), ("from", true), ("to", true)],
-                    )?
-                }
-                other => return Err(usage(format!("unknown revisions subcommand: {other}"))),
-            }
-        }
         other => return Err(usage(format!("unknown command: {other}"))),
     };
-
-    if *command == Some("notes.open") {
-        if let Some(vault) = g.vault.take() {
-            scanned.values.push(("vault".into(), vault));
-        }
-    }
-
-    // Build the command from scanned arguments.
     let built = match word.as_str() {
         "edit" => Command::Editor(editor::parse_command(command.unwrap(), &scanned)?),
         "ai" => Command::Ai(ai::parse_command(command.unwrap(), &scanned)?),
@@ -814,53 +496,30 @@ fn parse_inner(
                     .unwrap_or(300),
             }
         }
+        "notes" => match command.unwrap() {
+            "notes.list" => {
+                expect_positionals(&scanned, 0)?;
+                Command::NotesList {
+                    folder: scanned.value("folder").map(str::to_owned),
+                    cursor: scanned.value("cursor").map(str::to_owned),
+                }
+            }
+            "notes.show" => {
+                expect_positionals(&scanned, 1)?;
+                let path = required_positional(&scanned, "PATH.md")?;
+                brn_workflow::vault::VaultPath::parse(path).map_err(|e| usage(e.to_string()))?;
+                Command::NotePath(path.to_owned())
+            }
+            _ => unreachable!(),
+        },
         "status" => {
             expect_positionals(&scanned, 0)?;
             Command::Status
         }
-        "import" => {
-            let path = required_positional(&scanned, "import PATH")?;
-            expect_positionals(&scanned, 1)?;
-            Command::Import {
-                path: PathBuf::from(path),
-                approve_for_search: scanned.flag("approve-for-search"),
-                operation: scanned.uuid("operation")?,
-            }
-        }
-        "documents" => match command.unwrap() {
-            "documents.list" => {
-                expect_positionals(&scanned, 0)?;
-                Command::DocumentsList
-            }
-            "documents.show" => {
-                expect_positionals(&scanned, 1)?;
-                Command::DocumentsShow {
-                    source: positional_uuid(&scanned, 0, "SOURCE_ID")?,
-                }
-            }
-            "documents.set-search-approval" => {
-                expect_positionals(&scanned, 1)?;
-                let state = scanned
-                    .value("state")
-                    .ok_or_else(|| usage("missing --state"))?;
-                Command::DocumentsSetApproval {
-                    source: positional_uuid(&scanned, 0, "SOURCE_ID")?,
-                    version: scanned.require_uuid("version-id")?,
-                    state: parse_state(state)?,
-                    operation: scanned.uuid("operation")?,
-                }
-            }
-            _ => unreachable!(),
-        },
-        "index" => {
-            expect_positionals(&scanned, 0)?;
-            Command::IndexBuild
-        }
         "search" => {
-            let query = required_positional(&scanned, "search QUERY")?.to_string();
             expect_positionals(&scanned, 1)?;
             Command::Search {
-                query,
+                query: required_positional(&scanned, "search QUERY")?.to_owned(),
                 profile: scanned
                     .value("profile")
                     .map(|p| parse_profile(Some(p)))
@@ -877,25 +536,16 @@ fn parse_inner(
             }
         }
         "ask" => {
-            let question = required_positional(&scanned, "ask QUESTION")?.to_string();
-            if scanned.value("profile").is_some() {
-                return Err(usage("ask --profile is obsolete; retrieval is chosen by read tools (use search --profile for human search)"));
-            }
             expect_positionals(&scanned, 1)?;
-            let session = if scanned.value("session").is_some() {
-                Some(scanned.require_uuid("session")?)
-            } else {
-                None
-            };
-            let timeout_seconds = match scanned.value("timeout-seconds") {
-                Some(raw) => parse_timeout(raw)?,
-                None => 300,
-            };
             Command::Ask {
-                question,
-                session,
+                question: required_positional(&scanned, "ask QUESTION")?.to_owned(),
+                session: scanned.uuid("session")?,
                 operation: scanned.uuid("operation")?,
-                timeout_seconds,
+                timeout_seconds: scanned
+                    .value("timeout-seconds")
+                    .map(parse_timeout)
+                    .transpose()?
+                    .unwrap_or(300),
             }
         }
         "conversations" => match command.unwrap() {
@@ -911,189 +561,8 @@ fn parse_inner(
             }
             _ => unreachable!(),
         },
-        "drafts" => match command.unwrap() {
-            "drafts.list" => {
-                expect_positionals(&scanned, 0)?;
-                Command::DraftsList
-            }
-            "drafts.create" => {
-                expect_positionals(&scanned, 0)?;
-                let title = scanned
-                    .value("title")
-                    .ok_or_else(|| usage("missing --title"))?
-                    .to_string();
-                let text_file = scanned
-                    .value("text-file")
-                    .ok_or_else(|| usage("missing --text-file"))?;
-                Command::DraftsCreate {
-                    title,
-                    text_file: PathBuf::from(text_file),
-                    operation: scanned.uuid("operation")?,
-                }
-            }
-            "drafts.checkpoint" => {
-                expect_positionals(&scanned, 1)?;
-                Command::DraftsCheckpoint {
-                    draft: positional_uuid(&scanned, 0, "DRAFT_ID")?,
-                    base_revision: scanned.require_uuid("base-revision")?,
-                    expected_generation: scanned.require_generation("expected-generation")?,
-                    generation: scanned.require_generation("generation")?,
-                    text_file: PathBuf::from(
-                        scanned
-                            .value("text-file")
-                            .ok_or_else(|| usage("missing --text-file"))?,
-                    ),
-                    operation: scanned.uuid("operation")?,
-                }
-            }
-            "drafts.save" => {
-                expect_positionals(&scanned, 1)?;
-                let expected_generation = scanned.require_generation("expected-generation")?;
-                let generation = scanned.require_generation("generation")?;
-                if generation <= expected_generation {
-                    return Err(usage(
-                        "--generation must be greater than --expected-generation",
-                    ));
-                }
-                Command::DraftsSave {
-                    draft: positional_uuid(&scanned, 0, "DRAFT_ID")?,
-                    base_revision: scanned.require_uuid("base-revision")?,
-                    expected_generation,
-                    generation,
-                    text_file: PathBuf::from(
-                        scanned
-                            .value("text-file")
-                            .ok_or_else(|| usage("missing --text-file"))?,
-                    ),
-                    operation: scanned.uuid("operation")?,
-                }
-            }
-            "drafts.show" => {
-                expect_positionals(&scanned, 1)?;
-                Command::DraftsShow {
-                    draft: positional_uuid(&scanned, 0, "DRAFT_ID")?,
-                }
-            }
-            _ => unreachable!(),
-        },
-        "notes" => match command.unwrap() {
-            "notes.list" => {
-                expect_positionals(&scanned, 0)?;
-                if let Some(folder) = scanned.value("folder") {
-                    brn_workflow::vault::VaultPath::validate_folder(folder)
-                        .map_err(|e| usage(e.to_string()))?;
-                }
-                if let Some(cursor) = scanned.value("cursor") {
-                    brn_workflow::vault::VaultPath::parse(cursor)
-                        .map_err(|e| usage(e.to_string()))?;
-                }
-                Command::NotesList {
-                    folder: scanned.value("folder").map(str::to_owned),
-                    cursor: scanned.value("cursor").map(str::to_owned),
-                }
-            }
-            "notes.show" => {
-                expect_positionals(&scanned, 1)?;
-                let token = required_positional(&scanned, "PATH|NOTE_ID")?;
-                if let Ok(id) = Uuid::parse_str(token) {
-                    Command::Notes(notes::NoteCommand::Show(id))
-                } else {
-                    brn_workflow::vault::VaultPath::parse(token)
-                        .map_err(|e| usage(e.to_string()))?;
-                    Command::NotePath(token.to_owned())
-                }
-            }
-            name => Command::Notes(notes::parse_command(name, &scanned)?),
-        },
-        "comments" => match command.unwrap() {
-            "comments.list" => {
-                expect_positionals(&scanned, 0)?;
-                Command::CommentsList {
-                    draft: scanned.require_uuid("draft")?,
-                }
-            }
-            "comments.add" => {
-                expect_positionals(&scanned, 0)?;
-                let expected_generation = scanned.require_generation("expected-generation")?;
-                let generation = scanned.require_generation("generation")?;
-                if generation < expected_generation {
-                    return Err(usage(
-                        "--generation must be at least --expected-generation for comments add",
-                    ));
-                }
-                Command::CommentsAdd {
-                    draft: scanned.require_uuid("draft")?,
-                    base_revision: scanned.require_uuid("base-revision")?,
-                    expected_generation,
-                    generation,
-                    text_file: PathBuf::from(
-                        scanned
-                            .value("text-file")
-                            .ok_or_else(|| usage("missing --text-file"))?,
-                    ),
-                    start_byte: scanned.require_byte_offset("start-byte")?,
-                    end_byte: scanned.require_byte_offset("end-byte")?,
-                    quote_file: PathBuf::from(
-                        scanned
-                            .value("quote-file")
-                            .ok_or_else(|| usage("missing --quote-file"))?,
-                    ),
-                    body_file: PathBuf::from(
-                        scanned
-                            .value("body-file")
-                            .ok_or_else(|| usage("missing --body-file"))?,
-                    ),
-                    operation: scanned.uuid("operation")?,
-                }
-            }
-            "comments.resolve" => {
-                expect_positionals(&scanned, 1)?;
-                Command::CommentsResolve {
-                    comment: positional_uuid(&scanned, 0, "COMMENT_ID")?,
-                    draft: scanned.require_uuid("draft")?,
-                    expected_status_version: scanned
-                        .require_generation("expected-status-version")?,
-                    operation: scanned.uuid("operation")?,
-                }
-            }
-            "comments.reopen" => {
-                expect_positionals(&scanned, 1)?;
-                Command::CommentsReopen {
-                    comment: positional_uuid(&scanned, 0, "COMMENT_ID")?,
-                    draft: scanned.require_uuid("draft")?,
-                    expected_status_version: scanned
-                        .require_generation("expected-status-version")?,
-                    operation: scanned.uuid("operation")?,
-                }
-            }
-            _ => unreachable!(),
-        },
-        "revisions" => match command.unwrap() {
-            "revisions.list" => {
-                expect_positionals(&scanned, 0)?;
-                Command::RevisionsList {
-                    draft: scanned.require_uuid("draft")?,
-                }
-            }
-            "revisions.show" => {
-                expect_positionals(&scanned, 1)?;
-                Command::RevisionsShow {
-                    revision: positional_uuid(&scanned, 0, "REVISION_ID")?,
-                }
-            }
-            "revisions.diff" => {
-                expect_positionals(&scanned, 0)?;
-                Command::RevisionsDiff {
-                    draft: scanned.require_uuid("draft")?,
-                    from: scanned.require_uuid("from")?,
-                    to: scanned.require_uuid("to")?,
-                }
-            }
-            _ => unreachable!(),
-        },
         _ => unreachable!(),
     };
-
     // Post-parse version short-circuit (textual, exit 0, no --data-dir needed).
     if g.version {
         return Ok(Outcome::Version);
@@ -1141,42 +610,12 @@ fn parse_inner(
             return Err(usage("--vault must be an existing regular directory"));
         }
     }
-    let simple_only = matches!(
-        built,
-        Command::Editor(_)
-            | Command::Ai(_)
-            | Command::ModelDownload { .. }
-            | Command::NotesList { .. }
-            | Command::NotePath(_)
-    );
-    let shared = matches!(
-        built,
-        Command::Status
-            | Command::Search { .. }
-            | Command::ConversationsList
-            | Command::ConversationsShow { .. }
-            | Command::Ask { .. }
-    );
-    if g.legacy
-        && (simple_only
-            || vault.is_some()
-            || credentials_dir.is_some()
-            || matches!(built, Command::Ask { .. }))
-    {
-        return Err(usage("--legacy conflicts with simple-app options/actions"));
-    }
-    if !simple_only && !shared && (vault.is_some() || credentials_dir.is_some()) {
-        return Err(usage(
-            "simple-app options cannot be used with legacy-only commands",
-        ));
-    }
     Ok(Outcome::Run(Box::new(Invocation {
         json: g.json,
         data_dir,
         model_dir,
         vault,
         credentials_dir,
-        legacy: g.legacy,
         command: built,
     })))
 }
@@ -1262,113 +701,8 @@ pub fn finish(json: bool, command: &str, result: Result<Output, CliFailure>) -> 
     }
 }
 
-/// Open the workspace for a validated invocation, classifying store errors.
-pub fn open_workspace(invocation: &Invocation) -> Result<brn_workflow::Workspace, CliError> {
-    brn_workflow::Workspace::open(
-        &invocation.data_dir,
-        brn_workflow::Config {
-            model_dir: invocation.model_dir.clone(),
-        },
-    )
-    .map_err(classify_workflow)
-}
-
-/// Route a validated invocation. Stubs short-circuit before the workspace is
-/// opened so they never create, lock or recover a data directory.
+/// Every operation uses the sole application owner.
 pub fn execute(invocation: &Invocation) -> Result<Output, CliFailure> {
-    if library::simple_dispatch(invocation)? {
-        return library::run(invocation);
-    }
-    match &invocation.command {
-        Command::Notes(command) => return notes::run(invocation, command),
-        Command::Import { .. }
-        | Command::DocumentsSetApproval { .. }
-        | Command::IndexBuild
-        | Command::Search { .. } => return retrieval::run(invocation),
-        Command::Ask { .. } | Command::ConversationsList | Command::ConversationsShow { .. } => {
-            return ask::run(invocation)
-        }
-        Command::DraftsList
-        | Command::DraftsShow { .. }
-        | Command::CommentsList { .. }
-        | Command::RevisionsList { .. }
-        | Command::RevisionsShow { .. }
-        | Command::RevisionsDiff { .. } => return review::run(invocation),
-        Command::CommentsAdd { .. }
-        | Command::CommentsResolve { .. }
-        | Command::CommentsReopen { .. } => return comments::run(invocation),
-        Command::DraftsCreate { .. }
-        | Command::DraftsCheckpoint { .. }
-        | Command::DraftsSave { .. } => return drafts::run(invocation),
-        Command::Status | Command::DocumentsList | Command::DocumentsShow { .. } => {}
-        Command::Ai(_)
-        | Command::Editor(_)
-        | Command::ModelDownload { .. }
-        | Command::NotesList { .. }
-        | Command::NotePath(_) => unreachable!(),
-    }
-    let mut workspace = open_workspace(invocation)?;
-    match &invocation.command {
-        Command::Status => status::run(invocation, &workspace),
-        Command::DocumentsList => documents::list(invocation, &mut workspace),
-        Command::DocumentsShow { source } => documents::show(invocation, &mut workspace, *source),
-        _ => unreachable!("stub commands returned above"),
-    }
-}
-
-#[cfg(test)]
-mod tests {
-    use super::*;
-
-    #[test]
-    fn checkpoint_generation_parser_accepts_store_boundaries() {
-        let data_dir = tempfile::tempdir().unwrap();
-        let max = i64::MAX.to_string();
-        let cases = [
-            ("0", "0"),
-            (max.as_str(), "0"),
-            ("0", max.as_str()),
-            (max.as_str(), max.as_str()),
-        ];
-
-        for (expected_generation, generation) in cases {
-            let args: Vec<String> = [
-                "drafts",
-                "checkpoint",
-                "00000000-0000-0000-0000-000000000001",
-                "--base-revision",
-                "00000000-0000-0000-0000-000000000002",
-                "--expected-generation",
-                expected_generation,
-                "--generation",
-                generation,
-                "--text-file",
-                "/tmp/checkpoint-input.txt",
-                "--data-dir",
-                data_dir.path().to_str().unwrap(),
-                "--json",
-            ]
-            .iter()
-            .map(|value| (*value).to_string())
-            .collect();
-
-            let parsed = match parse(&args) {
-                Ok(outcome) => outcome,
-                Err(_) => panic!("boundary values parse"),
-            };
-            let Outcome::Run(invocation) = parsed else {
-                panic!("checkpoint parses into a runnable invocation");
-            };
-            let Command::DraftsCheckpoint {
-                expected_generation: parsed_expected,
-                generation: parsed_generation,
-                ..
-            } = invocation.command
-            else {
-                panic!("parsed command is drafts checkpoint");
-            };
-            assert_eq!(parsed_expected, expected_generation.parse::<u64>().unwrap());
-            assert_eq!(parsed_generation, generation.parse::<u64>().unwrap());
-        }
-    }
+    library::validate_workspace(invocation)?;
+    library::run(invocation)
 }
