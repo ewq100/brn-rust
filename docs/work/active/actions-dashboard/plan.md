@@ -241,3 +241,17 @@ Action-only vaultless and mixed file/SQLite execution, ordinary mirror retiremen
 crash checkpoints and older/fresh restore before enabling producers. Checkpoint
 publication/exact-head CI follows the qualified Stage5 language base. Macmini
 requirements and open permissions/qualification listed above remain unchanged.
+
+Joined Store locally integratedd3c330f6eb62f9e4f6a208fa9677c4b016718cc0, then
+qualified published language main42722526009b6c986271afc75680828bc5287c02 joins.
+Independent preservation review verified337/340 tracked mode/blob pairs exact;
+only three documentation files differ. The startup conflict retains exact Stage6C
+full ActionV10 and FindingsV9 prevalidation. All16knowledge slices, incoming
+publication evidence and complete Action evidence remain; ownerAGENTS stays
+unstaged. Fresh43local doclinks,diff/conflict checks passed. No production source
+delta invalidates the preceding991/213 gates. Language exact-head Mac3+UbuntuShared
+passed; main37201599486 passed Mac3+UbuntuCore/UI with known unsupported Ubuntu
+exclusive-install and Windows Unix failures,overallCIred. Post-language24tests+
+52fixtures,startup2 and tree equality passed. Next publish this checked Stage6
+foundation/stored-review/joined-Store deliverable against that merged base, then
+qualify workflow recovery before any Action producer.

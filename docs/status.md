@@ -113,12 +113,14 @@ and stacked panels placing controls outside a 480×480 window. Corrected
 invalidation/scrolling passed **22 independent state/widget tests**, with no
 remaining actionable finding. Unsaved typing and original evidence remain intact.
 
-Fresh final Rust 1.98.1/macOS arm64 locked/offline verification passed **947
+Fresh final Rust 1.98.1/macOS arm64 locked/offline verification passed **950
 workspace tests / 0 failed / 3 ignored**, **52 end-to-end assertions**, retirement,
 format/build/all-target Clippy, **213 native desktop tests / 0 failed / 0 ignored**,
 test-support and shipping native Clippy, and the shipping native desktop build.
-Unchanged native workflow/CLI qualification remains in the preceding slice's
-evidence. Two ignored private crash
+Fresh native retrieval fixtures passed25;embedding metadata/vector guards10;
+missing-model loader1 (both real-model tests compiled and stayed unexecuted).
+Focused native workflow passed155/0failed/2ignored;capability fixtures passed
+86library+1example,with feature Clippy and shipping native CLI build. Two ignored private crash
 entry points remain exercised by subprocess matrices; the third case-sensitive
 regression was explicitly qualified in the prior unchanged adapter slice.
 Fresh shipping headless startup/restart passed twice with exact synthetic vault
@@ -218,8 +220,22 @@ merged-tree equality and two startup/restart checks each passed with exact bytes
 and zero credential files. GUI/owner acceptance stays pending. PR25 merged8295326 after exact90de25e/
 run37197453154 passed the same four applicable lanes; Windows Unix APIs failed,
 overallCIred. Merged tree equality,3focused tests+52fixtures and two shipping
-startup/restart checks passed with exact bytes,V8 and zero credentials. Findings/language
-publication and locally qualified Stage6 Action storage checkpoint remain next.
+startup/restart checks passed with exact bytes,V8 and zero credentials. Stage5D
+[PR26](https://github.com/ewq100/brn-rust/pull/26) mergedb0e93fb after exactfc98b0d/
+run37199082097 passed Mac3+UbuntuShared;Windows Unix API failures leave overallCIred.
+Merged tree equality,28focused tests+52fixtures and two startup/restart checks
+passed with exact bytes,V9,zero credentials. Main37199659960 passed Mac3+UbuntuCore/UI;
+Ubuntu native retrieval failed6pass/3fail on unchanged unsupported exclusive-install
+expectations,Windows3failed,overallCIred. Independent analysis found no sharedMac
+defect. Stage5 language [PR27](https://github.com/ewq100/brn-rust/pull/27) merged
+42722526009b6c986271afc75680828bc5287c02 after exactcee0144/run37201040507 passed
+the same four applicable lanes;Windows failed before tests on Unix APIs,overallCIred.
+Merged tree equality,24focused profile/model/Ask tests+52fixtures and two shipping
+startup/restart checks passed with exact bytes,V9,zero credentials. Main37201599486
+passed Mac3+UbuntuCore/UI; Ubuntu native retrieval failed10pass/3fail on unchanged
+unsupported exclusive-install expectations,Windows3failed,overallCIred. Independent
+source/log analysis found no sharedMac/language defect. Checked Stage6 Action storage publication follows; GUI/model/
+provider qualification and wholeStage5 completion remain pending.
 
 Release/public distribution, additional live calls/model downloads, purchases and
 original/private-data inspection or migration still need applicable owner
