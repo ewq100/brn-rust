@@ -3,6 +3,7 @@ mod auth;
 pub mod capability_probe;
 mod chat;
 mod error;
+mod proposal_tools;
 #[cfg(test)]
 mod provider_formats_tests;
 mod tools;
@@ -10,8 +11,9 @@ mod tools;
 pub use auth::{Auth, ProviderClient};
 pub use chat::{
     AiAnswer, AiEvent, AiTerminal, HistoryPair, MAX_REWRITE_BYTES, ReasoningEffort, answer,
-    answer_with_effort, rewrite,
+    answer_with_effort, answer_with_proposals, rewrite,
 };
+pub use proposal_tools::{ACTION_PROPOSAL_BYTES, ActionProposalArgs, ActionProposalTools};
 pub use tools::{
     NoteEntry, NotePage, Passage, READ_ACTION_BYTES, READ_NOTE_BYTES, ReadScope, ReadTools,
     ToolNote, ToolSearch, capped_text,

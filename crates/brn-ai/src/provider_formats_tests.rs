@@ -3264,3 +3264,185 @@ mod action_read_tool_tests {
         }
     }
 }
+
+mod action_proposal_tool_tests {
+    use super::*;
+
+    fn args() -> Value {
+        json!({"id":"abc8e3e6-5419-4a09-a5f7-b7d9e98f8f29", "title":"Exact review õ\r\n",
+        "source_paths":["archive/source.md"], "action_changes":[{
+            "kind":"create","id":"5b344a65-e247-4b2c-9941-c4b52c405bdb", "data":{
+                "title":"  Whole action õ  ", "description":"\u{feff}Exact 🦀\r\n", "state":"waiting",
+                "owner":null,"related_person":null,"related_project":null,"sources":[],"thread":null,
+                "due_on":"2028-02-29","follow_up_on":null,"dependencies":[],"parent":null,"follows_up":null,"priority":null
+            }
+        }]})
+    }
+    #[derive(Default)]
+    struct Proposals(AtomicUsize);
+    impl ReadTools for Proposals {
+        fn search_notes(&self, _: &str, _: usize) -> AiResult<ToolSearch> {
+            panic!("unexpected read")
+        }
+        fn read_note(&self, _: &str) -> AiResult<ToolNote> {
+            panic!("unexpected read")
+        }
+        fn list_notes(&self, _: Option<&str>, _: Option<&str>) -> AiResult<NotePage> {
+            panic!("unexpected read")
+        }
+    }
+    impl ActionProposalTools for Proposals {
+        fn propose_actions(&self, input: ActionProposalArgs) -> AiResult<Value> {
+            assert_eq!(serde_json::to_value(input).unwrap(), args());
+            self.0.fetch_add(1, Ordering::SeqCst);
+            Ok(
+                json!({"stamp":{"id":"abc8e3e6-5419-4a09-a5f7-b7d9e98f8f29","version":1},"state":"draft","session_id":"29103b44-f7b7-44f9-975c-8832526b8b2b","action_ids":["5b344a65-e247-4b2c-9941-c4b52c405bdb"],"sources":[]}),
+            )
+        }
+    }
+    #[tokio::test]
+    async fn registered_action_proposal_tool_is_ask_only_and_continues_exactly_on_all_rig_routes() {
+        for (provider, model, responses) in [
+            (Provider::Chatgpt, "gpt-6-luna", true),
+            (Provider::Copilot, "gpt-5.5", false),
+            (Provider::Copilot, "gpt-5.3-codex", true),
+        ] {
+            let (_root, client, http) = client(
+                provider,
+                model,
+                vec![
+                    success(tool_sse(responses, &[("propose_actions", args())])),
+                    success(text_sse(responses, "Review ready")),
+                ],
+            )
+            .await;
+            let tools = Arc::new(Proposals::default());
+            let events = Arc::new(Mutex::new(Vec::new()));
+            let captured = events.clone();
+            let answer = answer_with_proposals(
+                client,
+                "Suggest an Action; do not approve it",
+                &[],
+                ReasoningEffort::High,
+                tools.clone(),
+                tools.clone(),
+                CancellationToken::new(),
+                Arc::new(move |e| captured.lock().unwrap().push(e)),
+            )
+            .await;
+            assert!(
+                matches!(answer.terminal, AiTerminal::Completed),
+                "{provider:?}/{model}: {:?}",
+                answer.terminal
+            );
+            assert_eq!(answer.text, "Review ready");
+            assert_eq!(tools.0.load(Ordering::SeqCst), 1);
+            assert!(
+                matches!(events.lock().unwrap().as_slice(),[AiEvent::ToolStarted{name},AiEvent::Text(text)] if name=="propose_actions" && text=="Review ready")
+            );
+            http.assert_consumed();
+            let bodies = http.bodies();
+            let continuation = bodies[1].to_string();
+            assert!(
+                continuation.contains("abc8e3e6-5419-4a09-a5f7-b7d9e98f8f29")
+                    && continuation.contains("draft")
+            );
+            let definitions = bodies[0]["tools"]
+                .as_array()
+                .unwrap()
+                .iter()
+                .map(|t| if responses { t } else { &t["function"] })
+                .collect::<Vec<_>>();
+            let proposal = definitions
+                .iter()
+                .find(|t| t["name"] == "propose_actions")
+                .unwrap();
+            assert_eq!(proposal["parameters"]["additionalProperties"], false);
+            let mut required = proposal["parameters"]["required"]
+                .as_array()
+                .unwrap()
+                .iter()
+                .map(|v| v.as_str().unwrap())
+                .collect::<Vec<_>>();
+            required.sort_unstable();
+            assert_eq!(required, ["action_changes", "id", "source_paths", "title"]);
+            let members = &proposal["parameters"]["properties"]["action_changes"]["items"];
+            let variants = members["anyOf"]
+                .as_array()
+                .expect("strict-compatible tagged union");
+            assert_eq!(variants.len(), 2);
+            fn closed(v: &Value, count: usize) {
+                let fields = v["properties"].as_object().unwrap();
+                assert_eq!(fields.len(), count);
+                assert_eq!(v["additionalProperties"], false);
+                let mut required = v["required"]
+                    .as_array()
+                    .unwrap()
+                    .iter()
+                    .map(|v| v.as_str().unwrap())
+                    .collect::<Vec<_>>();
+                required.sort_unstable();
+                assert_eq!(
+                    required,
+                    fields.keys().map(String::as_str).collect::<Vec<_>>()
+                );
+            }
+            for variant in variants {
+                closed(variant, 3);
+                closed(&variant["properties"]["data"], 14);
+            }
+            assert_eq!(
+                variants[0]["properties"]["kind"],
+                json!({"type":"string","enum":["create"]})
+            );
+            assert_eq!(
+                variants[1]["properties"]["kind"],
+                json!({"type":"string","enum":["replace"]})
+            );
+            let before = &variants[1]["properties"]["before"];
+            closed(before, 6);
+            closed(&before["properties"]["data"], 14);
+            closed(&before["properties"]["origin"], 4);
+            closed(&before["properties"]["origin"]["properties"]["data"], 14);
+            let schema = proposal["parameters"].to_string();
+            for unsupported in ["oneOf", "uniqueItems", "const"] {
+                assert!(!schema.contains(&format!("\"{unsupported}\":")));
+            }
+
+            let (_root, client, http) = super::client(
+                provider,
+                model,
+                vec![success(tool_sse(responses, &[("propose_actions", args())]))],
+            )
+            .await;
+            let refused = rewrite(
+                client,
+                "captured review",
+                ReasoningEffort::High,
+                tools.clone(),
+                CancellationToken::new(),
+                Arc::new(|_| {}),
+            )
+            .await;
+            assert!(matches!(
+                refused.terminal,
+                AiTerminal::Failed(AiError {
+                    kind: AiErrorKind::InvalidToolUse,
+                    ..
+                })
+            ));
+            assert_eq!(tools.0.load(Ordering::SeqCst), 1);
+            http.assert_consumed();
+            assert!(
+                http.bodies()[0]["tools"]
+                    .as_array()
+                    .unwrap()
+                    .iter()
+                    .all(|t| {
+                        let d = if responses { t } else { &t["function"] };
+                        d["name"] != "propose_actions"
+                    })
+            );
+        }
+    }
+}

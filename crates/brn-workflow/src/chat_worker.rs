@@ -221,7 +221,12 @@ pub(crate) struct ChatWorker {
     join: Option<JoinHandle<Result<()>>>,
 }
 impl ChatWorker {
-    pub(crate) fn start(app: &App, emit: Emit, hooks: Hooks) -> Result<Self> {
+    pub(crate) fn start(
+        app: &App,
+        emit: Emit,
+        hooks: Hooks,
+        proposals: crate::app_worker::ActionProposals,
+    ) -> Result<Self> {
         let store = app.work_store().chat_connection()?;
         let auth = app.auth();
         let (tx, rx) = async_mpsc::unbounded_channel();
@@ -240,7 +245,8 @@ impl ChatWorker {
                     .enable_all()
                     .build()
                     .map_err(|_| WorkflowError::msg("could not start chat runtime"))?;
-                let (result, store) = runtime.block_on(run(store, auth, rx, control, emit, hooks));
+                let (result, store) =
+                    runtime.block_on(run(store, auth, rx, control, emit, hooks, proposals));
                 // Runtime shutdown also joins blocking reads; the attachment outlives it.
                 drop(runtime);
                 drop(store);
@@ -330,6 +336,8 @@ pub(crate) struct Hooks {
     #[cfg(test)]
     pub(crate) answer: Option<super::simple_worker_tests::AnswerHook>,
     #[cfg(test)]
+    pub(crate) proposal_answer: Option<super::simple_worker_tests::ProposalAnswerHook>,
+    #[cfg(test)]
     pub(crate) account: Option<super::simple_worker_tests::AccountHook>,
     #[cfg(test)]
     pub(crate) rewrite: Option<proposal_rewrite::RewriteHook>,
@@ -361,6 +369,7 @@ async fn run(
     control: ChatHandle,
     emit: Emit,
     hooks: Hooks,
+    proposals: crate::app_worker::ActionProposals,
 ) -> (Result<()>, ChatStore) {
     let mut tools: Option<Arc<dyn ReadTools>> = None;
     let mut active: Option<Active> = None;
@@ -460,7 +469,7 @@ async fn run(
                                     request.effort.map(ReasoningEffort::as_str),
                                 ) {
                                     Err(error) => emit(Output::Chat(rejected(&request, error.into()))),
-                                    Ok(_) => {
+                                    Ok(turn) => {
                                         let cancel = CancellationToken::new();
                                         *control.active.lock().expect("owned cancellation registry") = Some((request.id, cancel.clone()));
                                         active = Some(Active { provider: request.selection.provider, cancel: cancel.clone() });
@@ -468,6 +477,7 @@ async fn run(
                                         let task = jobs.spawn(run_turn(
                                             auth.clone(), request.clone(), history,
                                             tools.as_ref().expect("preflight tools").clone(),
+                                            proposals.bind(&request, &turn, cancel.clone()),
                                             cancel, emit.clone(), hooks.clone(),
                                         ));
                                         task_ids.insert(task.id(), (request.id, Some(RequestJob::Ask(request.clone())), request.selection.provider));
@@ -651,7 +661,7 @@ fn terminal(terminal: &AiTerminal) -> (WorkTurnStatus, Option<&'static str>) {
 // This lease ends only after the agent AND every queued/running blocking read release it.
 struct DrainedTools {
     tools: Arc<dyn ReadTools>,
-    _drained: DrainSignal,
+    _drained: Arc<DrainSignal>,
 }
 struct DrainSignal(Option<oneshot::Sender<()>>);
 impl Drop for DrainSignal {
@@ -659,6 +669,18 @@ impl Drop for DrainSignal {
         if let Some(drained) = self.0.take() {
             let _ = drained.send(());
         }
+    }
+}
+struct DrainedProposals {
+    proposals: Arc<dyn brn_ai::ActionProposalTools>,
+    _drained: Arc<DrainSignal>,
+}
+impl brn_ai::ActionProposalTools for DrainedProposals {
+    fn propose_actions(
+        &self,
+        args: brn_ai::ActionProposalArgs,
+    ) -> brn_ai::AiResult<serde_json::Value> {
+        self.proposals.propose_actions(args)
     }
 }
 impl ReadTools for DrainedTools {
@@ -712,19 +734,26 @@ impl ReadTools for DrainedTools {
     }
 }
 
+#[allow(clippy::too_many_arguments)]
 async fn run_turn(
     auth: Arc<Auth>,
     request: AskRequest,
     history: Vec<HistoryPair>,
     tools: Arc<dyn ReadTools>,
+    proposals: Arc<dyn brn_ai::ActionProposalTools>,
     cancel: CancellationToken,
     emit: Emit,
     hooks: Hooks,
 ) -> JobResult {
     let (drained, wait) = oneshot::channel();
+    let lease = Arc::new(DrainSignal(Some(drained)));
     let tools: Arc<dyn ReadTools> = Arc::new(DrainedTools {
         tools,
-        _drained: DrainSignal(Some(drained)),
+        _drained: lease.clone(),
+    });
+    let proposals: Arc<dyn brn_ai::ActionProposalTools> = Arc::new(DrainedProposals {
+        proposals,
+        _drained: lease,
     });
     let request_events = request.clone();
     let partial = Arc::new(Mutex::new(String::new()));
@@ -752,20 +781,51 @@ async fn run_turn(
     });
     #[cfg(test)]
     let fake = hooks.answer;
+    #[cfg(test)]
+    let proposal_fake = hooks.proposal_answer;
     #[cfg(not(test))]
     let _ = hooks;
     let operation = async {
         #[cfg(test)]
         {
-            if let Some(fake) = fake {
+            if let Some(fake) = proposal_fake {
+                fake(
+                    request.clone(),
+                    history,
+                    tools,
+                    proposals,
+                    cancel.clone(),
+                    events,
+                )
+                .await
+            } else if let Some(fake) = fake {
+                drop(proposals);
                 fake(request.clone(), history, tools, cancel.clone(), events).await
             } else {
-                real_answer(auth, &request, history, tools, cancel.clone(), events).await
+                real_answer(
+                    auth,
+                    &request,
+                    history,
+                    tools,
+                    proposals,
+                    cancel.clone(),
+                    events,
+                )
+                .await
             }
         }
         #[cfg(not(test))]
         {
-            real_answer(auth, &request, history, tools, cancel.clone(), events).await
+            real_answer(
+                auth,
+                &request,
+                history,
+                tools,
+                proposals,
+                cancel.clone(),
+                events,
+            )
+            .await
         }
     };
     let mut answer = std::panic::AssertUnwindSafe(operation)
@@ -789,11 +849,13 @@ async fn run_turn(
     }
     JobResult::Turn(request, answer)
 }
+#[allow(clippy::too_many_arguments)]
 async fn real_answer(
     auth: Arc<Auth>,
     request: &AskRequest,
     history: Vec<HistoryPair>,
     tools: Arc<dyn ReadTools>,
+    proposals: Arc<dyn brn_ai::ActionProposalTools>,
     cancel: CancellationToken,
     emit: Arc<dyn Fn(AiEvent) + Send + Sync>,
 ) -> AiAnswer {
@@ -805,12 +867,13 @@ async fn real_answer(
     };
     match auth.client(&request.selection, cancel.clone()).await {
         Ok(client) => {
-            brn_ai::answer_with_effort(
+            brn_ai::answer_with_proposals(
                 client,
                 &request.question,
                 &history,
                 effort,
                 tools,
+                proposals,
                 cancel,
                 emit,
             )
@@ -835,7 +898,7 @@ async fn run_rewrite(
     let (drained, wait) = oneshot::channel();
     let tools: Arc<dyn ReadTools> = Arc::new(DrainedTools {
         tools,
-        _drained: DrainSignal(Some(drained)),
+        _drained: Arc::new(DrainSignal(Some(drained))),
     });
     let (id, generation) = (request.id, request.generation);
     let events: Arc<dyn Fn(AiEvent) + Send + Sync> = Arc::new(move |event| {
