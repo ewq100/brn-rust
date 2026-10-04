@@ -1132,3 +1132,133 @@ desktop build and startup/restart twice passed with exact synthetic bytes and no
 credential files. The current locally integrated Stage 5 main incorporates those
 published portability fixes; completed Proposal Core evidence stays here rather
 than resurrecting its superseded active folder. Stage 4B/C publication follows.
+
+## Stage 4 checkpoint B — Activity, Undo, Trash and repair
+
+Publication baseline `6d1e872ffef4c683ffc3730e7355de93569f0ea8` merges the
+reviewed slices through `b5c8000` with published Stage 4A main `73410a3`.
+Independent read-only integration review found no actionable defect: 31 B-only
+paths and 9 A-only paths match parents byte/mode, and the two source overlaps
+retain all B logic plus qualified Mac guards/non-Mac recovery tail. The combined
+plan keeps both evidence bodies. Stage 3 code/CI/live evidence remain exact; no
+new account calls occurred.
+
+Fresh isolated macOS arm64 / Rust 1.98.1 locked/offline checks passed retirement,
+format/build/all-target Clippy, **567 workspace tests  / 0 failed / 2 ignored** and
+**52 end-to-end assertions**. Private ignored crash entries remain exercised by
+subprocess matrices. Exact-head applicable macOS/shared CI must pass before
+merge; Windows results remain separate and accurately reported. This checkpoint
+publishes retained readable activity, exact full Undo/Trash restoration and
+explicit Finish/Restore repair with uncertain effects fenced. Native usability,
+physical power-loss, other volumes and owner acceptance remain pending.
+
+Manual acceptance: on fresh synthetic data approve a proposal, inspect Activity,
+capture a whole Undo preview and execute its exact operation. Later bytes must
+remain on historical replay. Restore an identified original Trash member; a
+changed endpoint must refuse. Capture a partial-operation repair preview and
+explicitly Finish or Restore that exact capture; unknown occupants stay fenced.
+Next Stage 4C publishes owned Rewrite/effort and native review/approval/activity/
+Undo/repair/creation. Transfer requires pinned Rust 1.98.1, Apple Silicon/Command
+Line Tools, cached locked dependencies, protobuf/Bash/Python 3, canonical synthetic
+data/TMPDIR and unlocked GUI for owner acceptance; no original data/credentials.
+
+Stage 4B initial exact-head CI `37186975338` passed all three macOS lanes,
+but Ubuntu shared Core failed on dead code in `cli_repair::ok`. All seven
+callers are inside the existing macOS-only file-operation test module;
+matching its helper guard retains shared syntax/FIFO refusal tests. Independent
+read-only diagnosis and review found no remaining defect. Fresh locked/offline
+**5 CLI repair tests / 0 failed**, workspace all-target Clippy with warnings
+denied, format and diff checks passed. A corrected exact-head run is required
+before merge. Windows retains the known Unix API failure; initial overall CI
+is red. No provider calls or original-data access occurred.
+
+The corrected Stage 4B run `37188146156` passed macOS Core/UI/Retrieval;
+Ubuntu shared Core exposed `cli_undo`'s macOS-only success helper and JSON macro
+import. Matching guards were verified against every caller and independently
+reviewed; all 19 shared malformed-command forms remain active. A bounded audit
+of other Stage 4B helpers found no further concrete unused imports/functions.
+Fresh **4 CLI Undo tests / 0 failed**, workspace all-target Clippy, format and
+diff checks passed. New exact-head CI qualification remains required. Windows
+again failed on existing Unix metadata APIs; overall corrected CI is red.
+GitHub temporarily retained the preceding PR head after the verified branch
+push; closing/reopening the same PR refreshed its head and triggered correct CI.
+
+Stage 4B PR #20 merged as d7a1a7218c00dd9dd953c6a8f73de0223b51cb4a after
+exact head93acf3f passed macOS Core/UI/Retrieval and Ubuntu shared Core in run
+37188478000. Windows retains known Unix metadata failures; overall CI is red.
+Qualified/merged trees match. Fresh post-merge **12 CLI Activity/Undo/Repair tests
++52 fixtures** and two startup/restart runs passed with exact synthetic bytes
+and zero credential files. Native owner acceptance remains pending.
+
+## Stage 4 checkpoint C — owned Rewrite and native proposal controls
+
+Publication baseline a83191defc93ba7cedd31a6129c3c5ceea6bcdbf integrates
+reviewed slices through15d4608 with published Stage4B main d7a1a72. Preserve
+owned Rewrite, explicit effort, full native review/comments/exact approval,
+Activity/Undo/Trash/Finish-Restore controls and guarded initial Create/Replace/
+Trash composition. Existing implementation reviews/manual scenarios above remain
+historical evidence. Only active six-crate contracts govern this publication.
+
+Acceptance: both merge parents' complete code/evidence remain preserved, exact
+approval/input/retry/drain guards remain intact, and CI adds actual headless Mac
+widget qualification with native-test-support alongside separate shipping builds.
+Run fresh locked/offline workspace/fixtures, capability feature and native gates,
+independent integration/CI review and exact latest-head Mac/shared CI; verify the
+qualified merged tree and relevant post-merge scenarios. No live calls, model
+downloads, original-data operations or release/public distribution. Owner native
+usability/IME/accessibility, live Rewrite and physical power-loss/other-volume
+acceptance remain pending and do not block later safe Stage5 implementation.
+
+Resume requires Apple Silicon/Command Line Tools, pinned Rust1.98.1, cached locked
+dependencies, protobuf/Bash/Python3, canonical synthetic data/TMPDIR outside Git
+and unlocked GUI for owner acceptance. Stage5 knowledge foundations continues
+locally in reviewed slices; publication must not collapse it into this Stage4 PR.
+The documentation-only merge conflict was corrected before publication; final
+review must verify both original complete evidence bodies and absence of markers.
+
+Checkpoint C independent read-only integration review verified **66 C-only +
+11 incoming A/B-only paths** against parent blobs/modes, full completed-C prefix
+and complete incoming checkpoint body, qualified platform guards and no unrelated
+changes. One valid new CI YAML defect (`native::` in a plain scalar) was reproduced
+with Psych, corrected to a literal block and independently rechecked; both workflow/
+setup files parse, and command/filter/feature semantics remain exact. No Rust
+source changed during that correction.
+
+Fresh isolated macOS arm64/Rust1.98.1 locked/offline gates passed retirement,
+format/build/all-target Clippy, **684 workspace tests/0failed/2ignored**,
+**52 end-to-end assertions**, **147 combined-native tests/0failed/0ignored**,
+both combined-native Clippy variants and shipping build. The exact new UI-only
+widget CI commands also passed Clippy and **16 native tests/0failed**, including
+the actual full initial-input widget. Capability feature passed **79 library+
+1 example tests**, all-target Clippy; no live probes were repeated. Shipping
+AppWorker startup/restart passed twice with exact synthetic BOM/CRLF/Unicode bytes
+and zero credential files. Upstream block0.1.6 future-compiler notice remains.
+Applicable exact-head macOS/shared CI and post-merge qualification remain pending;
+GUI/IME/accessibility/liveRewrite/owner acceptance stays separately pending.
+
+Changed-document verification passed **153 local file/fragment links** (code
+examples excluded), final format/diff checks. Checkpoint CI must qualify the
+exact latest PR commit before integration.
+
+Stage 4C CI run `37189866429` passed all three macOS lanes at `3415344`,
+but Ubuntu exposed five macOS-dependent real-App review fixture tests. Each
+creates a proposal through the deliberately macOS-only file adapter. Independent
+read-only review confirmed the sole module guard preserves all 14 pure shared
+review tests; no shared production defect was demonstrated. Fresh local five
+review-state tests, workspace all-target Clippy, format and diff checks passed.
+Exact latest-head CI remains required; Windows still fails on Unix metadata APIs.
+
+Stage 4C PR21 merged as `6601374996ecba7d461403aa6e892f1273bed28e` after exact
+head `18a315b` passed all three macOS lanes and Ubuntu shared Core in run
+`37190429533`. Windows remains red on Unix metadata APIs; overall CI is red.
+Merged tree equality, fresh16native widgets+52fixtures, shipping build and two
+startup/restart runs passed with exact synthetic bytes and zero credential files.
+The lead Stage5 tree now incorporates the three reviewed macOS fixture guards
+and widget CI while preserving all fifteen knowledge slices. Earlier complete
+lead evidence and the incoming B/C bodies remain retained; no active Proposal
+Core folder is recreated. Owner/native/live acceptance remains pending.
+
+Lead-tree independent integration review confirmed213other crate paths unchanged,
+all qualified guards/CI and complete prior/incoming evidence preserved. Fresh
+15scoped tests, workspace all-target Clippy, format, both YAML parses,8local
+Markdown links and diff checks passed. Owner AGENTS.md remains unstaged/untouched.

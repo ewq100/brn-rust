@@ -105,6 +105,13 @@ jobs:
         run: cargo clippy -p brn-desktop --features native-ui --all-targets --locked --offline -- -D warnings
       - name: Test native UI state
         run: cargo test -p brn-desktop --features native-ui --locked --offline
+      - name: Lint native macOS widgets
+        if: runner.os == 'macOS'
+        run: cargo clippy -p brn-desktop --features native-ui,native-test-support --all-targets --locked --offline -- -D warnings
+      - name: Test native macOS widgets
+        if: runner.os == 'macOS'
+        run: |
+          cargo test -p brn-desktop --features native-ui,native-test-support --bin brn-desktop native:: --locked --offline
       - name: Exercise the desktop headless driver on Unix
         if: runner.os != 'Windows'
         run: |
