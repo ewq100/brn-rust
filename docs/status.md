@@ -7,6 +7,13 @@
 automated verified and locally integrated. Stage 5 qualification/publication continues; Stage 6 Actions/dashboard is active.
 Stages 5–16 remain unfinished. Complete BRN v1 delivery is not claimed.**
 
+The owner's 2026-10-04 [client-boundary amendment](architecture/overview.md#client-and-protocol-boundary)
+establishes BRN as a headless platform: six current V1 core crates with permitted
+thin future adapters through workflow/AppWorker. Independent implementation audit
+found no desktop/CLI domain bypass; existing scoped knowledge/proposal/activity
+commands are retained. Read-only local stdio MCP is future work; no daemon,
+network service or added V1 stage is authorized by this amendment.
+
 Manual Save/recovery (`6609442`) preserves exact UTF-8, generation-bound recovery
 and file/parent/root identities. Copies install exclusively; missing originals
 are not recreated. Acknowledgement establishes recoverability. Guarded navigation
