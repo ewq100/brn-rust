@@ -1,0 +1,165 @@
+name: BRN CI
+
+on:
+  pull_request:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+# CI has no provider credentials and cannot modify repository content.
+permissions:
+  contents: read
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: true
+
+env:
+  CARGO_TERM_COLOR: always
+  CARGO_INCREMENTAL: '0'
+  RUST_BACKTRACE: '1'
+  # Do not discover or load a developer's embedding-model directory.
+  BRN_NATIVE_MODEL_DIR: ''
+
+defaults:
+  run:
+    shell: bash
+
+jobs:
+  headless:
+    name: Core and CLI (${{ matrix.runner }})
+    runs-on: ${{ matrix.runner }}
+    timeout-minutes: 30
+    strategy:
+      fail-fast: false
+      matrix:
+        runner: [ubuntu-24.04, windows-2025, macos-15]
+    steps:
+      - uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6
+        with:
+          persist-credentials: false
+      - uses: ./.github/actions/setup-rust
+        with:
+          lane: default
+      - name: Check formatting
+        if: runner.os == 'Linux'
+        run: cargo fmt --all -- --check
+      - name: Check production provider retirement
+        if: runner.os != 'Windows'
+        run: python3 scripts/check-provider-retirement.py
+      - name: Build the default workspace
+        id: workspace-build
+        run: cargo build --workspace --locked --offline
+      - name: Lint the default workspace
+        if: runner.os == 'Linux' || github.event_name != 'pull_request'
+        run: cargo clippy --workspace --all-targets --locked --offline -- -D warnings
+      - name: Test the default workspace
+        if: ${{ !cancelled() && steps.workspace-build.outcome == 'success' }}
+        run: cargo test --workspace --locked --offline
+      - name: Check CLI help on Unix
+        if: ${{ !cancelled() && steps.workspace-build.outcome == 'success' && runner.os != 'Windows' }}
+        run: |
+          target/debug/brn --help
+      - name: Check CLI help on Windows
+        if: ${{ !cancelled() && steps.workspace-build.outcome == 'success' && runner.os == 'Windows' }}
+        shell: pwsh
+        run: |
+          & ./target/debug/brn.exe --help
+          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+      - name: Run offline end-to-end fixtures
+        # Current Save/recovery fixtures require macOS filesystem coordination.
+        if: ${{ !cancelled() && steps.workspace-build.outcome == 'success' && runner.os == 'macOS' }}
+        run: |
+          fixture_parent="$(mktemp -d "$RUNNER_TEMP/brn-ci-fixtures.XXXXXX")"
+          fixture_parent="$(cd "$fixture_parent" && pwd -P)"
+          trap 'rmdir "$fixture_parent"' EXIT
+          export TMPDIR="$fixture_parent"
+          bash scripts/verify-end-to-end.sh --fixtures-only
+
+  native-ui:
+    name: Native UI build and state (${{ matrix.runner }})
+    runs-on: ${{ matrix.runner }}
+    timeout-minutes: 60
+    strategy:
+      fail-fast: false
+      matrix:
+        # Qualify Mac native features on PRs; probe all targets on main/manual runs.
+        runner: ${{ fromJSON(github.event_name == 'pull_request' && '["macos-15"]' || '["ubuntu-24.04","windows-2025","macos-15"]') }}
+    steps:
+      - uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6
+        with:
+          persist-credentials: false
+      - uses: ./.github/actions/setup-rust
+        with:
+          lane: native-ui
+          native: 'true'
+      - name: Build the desktop with native UI
+        run: cargo build -p brn-desktop --features native-ui --locked --offline
+      - name: Lint native UI
+        run: cargo clippy -p brn-desktop --features native-ui --all-targets --locked --offline -- -D warnings
+      - name: Test native UI state
+        run: cargo test -p brn-desktop --features native-ui --locked --offline
+      - name: Exercise the desktop headless driver on Unix
+        if: runner.os != 'Windows'
+        run: |
+          fixture_parent="$(mktemp -d "$RUNNER_TEMP/brn-ci-desktop.XXXXXX")"
+          fixture_parent="$(cd "$fixture_parent" && pwd -P)"
+          trap 'rm -rf "$fixture_parent"' EXIT
+          data="$fixture_parent/data"
+          mkdir "$data"
+          for attempt in 1 2; do
+            target/debug/brn-desktop --data-dir "$data" --headless-check startup
+          done
+          test -f "$data/brn.sqlite"
+          test ! -e "$data/brn.sqlite3"
+      - name: Exercise the desktop headless driver on Windows
+        if: runner.os == 'Windows'
+        shell: pwsh
+        run: |
+          $fixtureParent = Join-Path $env:RUNNER_TEMP ("brn-ci-desktop-" + [guid]::NewGuid())
+          New-Item -ItemType Directory -Path $fixtureParent | Out-Null
+          try {
+            $data = Join-Path $fixtureParent 'data'
+            New-Item -ItemType Directory -Path $data | Out-Null
+            foreach ($attempt in 1..2) {
+              & ./target/debug/brn-desktop.exe --data-dir $data --headless-check startup
+              if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+            }
+            if (-not (Test-Path -LiteralPath (Join-Path $data 'brn.sqlite') -PathType Leaf)) {
+              throw 'Current operational database was not created'
+            }
+            if (Test-Path -LiteralPath (Join-Path $data 'brn.sqlite3')) {
+              throw 'Retired operational database was created'
+            }
+          } finally {
+            Remove-Item -Recurse -Force $fixtureParent
+          }
+
+  native-retrieval:
+    name: Native retrieval and combined build (${{ matrix.runner }})
+    runs-on: ${{ matrix.runner }}
+    timeout-minutes: 60
+    strategy:
+      fail-fast: false
+      matrix:
+        runner: ${{ fromJSON(github.event_name == 'pull_request' && '["macos-15"]' || '["ubuntu-24.04","windows-2025","macos-15"]') }}
+    steps:
+      - uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6
+        with:
+          persist-credentials: false
+      - uses: ./.github/actions/setup-rust
+        with:
+          lane: native-ui-native-retrieval
+          native: 'true'
+      - name: Test native retrieval without model assets
+        run: cargo test -p brn-retrieval --features native --lib --test model_download --locked --offline
+      - name: Test the native retrieval workflow
+        run: cargo test -p brn-workflow --features native-retrieval --lib --test models --locked --offline
+      - name: Build the native retrieval CLI
+        run: cargo build -p brn --features native-retrieval --locked --offline
+      - name: Build the combined native desktop
+        run: cargo build -p brn-desktop --features native-ui,native-retrieval --locked --offline
+      - name: Lint the combined native desktop
+        run: cargo clippy -p brn-desktop --features native-ui,native-retrieval --all-targets --locked --offline -- -D warnings
+      - name: Test the combined native desktop state
+        run: cargo test -p brn-desktop --features native-ui,native-retrieval --locked --offline
