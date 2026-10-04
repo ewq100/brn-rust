@@ -2229,6 +2229,8 @@ impl AiState {
             | AppEvent::ProposalSource(_)
             | AppEvent::Finding(_)
             | AppEvent::Findings(_)
+            | AppEvent::Action(_)
+            | AppEvent::Actions(_)
             | AppEvent::FindingInspection(_)
             | AppEvent::NoteIdentity(_)
             | AppEvent::IdentityInventory(_)

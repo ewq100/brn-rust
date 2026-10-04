@@ -75,6 +75,19 @@ Lists validate component-only folders and note-path cursors, use exclusive
 path-sorted keyset pagination and return at most 200 entries. `"work"` never
 matches `"workshop"`. These APIs never write vault files.
 
+## Retained Actions
+
+[Actions](src/actions.rs) expose checked operational records through `App::action`
+and `App::actions`, and correlated `Action`/`Actions` worker commands/events. Reads
+return the full immutable approved origin and exact current replacement baseline.
+No vault, model or provider is required. Pending or uncertain Save/proposal work
+fences these current reads until reconciliation. Nil IDs, limits outside 1–200 and
+invalid cursors are rejected before authority reads; absent IDs return NotFound.
+Pages default to all states/25 entries, with optional state filtering and an
+exclusive immutable creation-time/UUID cursor. Editing an Action does not reorder
+it. Creation, application, owned Rewrite and Undo guards remain unchanged while
+the whole Action lifecycle is qualified. Dashboard controls follow later.
+
 ## Tentative review findings
 
 [Findings](src/findings.rs) retain operational review work in brn.sqlite.

@@ -198,12 +198,27 @@ retirement. Final independent25/0/0 passed with no finding. Fresh998workspace/
 213combined-native/0failed/0ignored,both native Clippy configurations,shipping
 desktop/CLI builds and two startup/restart checks passed with exact synthetic
 bytes,V10 and zero credentials. Local integration/publication is recorded in the
-plan. Workflow creation/apply/Rewrite remain guarded until references and mixed
+plan. Shared full Action reads now go through workflow/AppWorker and CLI with
+typed validation/NotFound,current-evidence fences,all-state/25-entry pages and
+immutable creation-time/UUID cursors. Independent review's valid DEL/C1 display
+defect was reproduced and corrected; review then found no remaining defect.
+Fresh post-correction1010workspace/0failed/3ignored+52fixtures,153focused native
+workflow/0failed/2ignored,213combined-native/0failed/0ignored,native Clippy/builds
+and startup2 passed,V10,exact bytes,zero credentials. Native gates cover unchanged
+desktop/workflow code; final CLI feature Clippy/build reran after the display fix.
+Workflow creation/apply/Rewrite remain guarded until references and mixed
 execution/recovery qualify; no real Action producer,dashboard or Stage6 completion is claimed.
 
 ## Qualification still open
 
-Actual GUI/IME/accessibility, chooser, native Save/recovery/review/approval/Undo/
+Luna computer-use qualification on0243c5d passed fresh synthetic Current/Source/
+History search and saved-evidence views, explicit Unicode Save with BOM/CRLF
+preservation, and acknowledged unsaved-buffer recovery after verified full quit/
+restart. AX labels and owned file/record evidence were observed; this is native
+qualification,not owner acceptance. Screen capture failed(-3811/-3812),so visual
+layout remains unobserved. No provider or model download occurred.
+
+Broader GUI/IME/accessibility, chooser, native review/approval/Undo/
 repair/creation usability, live Rewrite/effort usability and owner acceptance are
 pending. Synthetic state/crash/widget tests do not establish physical power-loss
 durability, other-volume support, actual inference or release readiness. These
@@ -246,10 +261,27 @@ overallCIred. Merged tree equality,35focused tests+52fixtures and two shipping
 startup/restart checks passed,V10,exact bytes,zero credentials. Main37203224513
 passed Mac3+UbuntuCore/UI;unchanged Ubuntu native installer10pass/3fail and Windows3
 Unix build failures leave overallCIred,with no shared Action defect. The next
-workflow recovery slice is locally qualified; GUI/model/provider qualification,
-wholeStage5 and wholeStage6 completion remain pending.
+workflow recovery [PR29](https://github.com/ewq100/brn-rust/pull/29) merged0243c5d
+after exact9e785a5/run37204244962 passed Mac3+UbuntuShared;Windows Unix APIs failed,
+overallCIred. Merged tree equality,25focused tests+52fixtures and startup2 passed,
+V10,exact bytes,zero credentials. Main37204848736 passed Mac3+UbuntuCore/UI;
+unchanged Ubuntu installer10pass/3fail and Windows3Unix failures leave overallCIred.
+Independent actual-log analysis found no shared Action defect. Shared Action
+reads are published in [PR30](https://github.com/ewq100/brn-rust/pull/30),exact
+1298ee78e6fc788e04e6b76c3634ae1c0c5f1a22 with identical reviewed90e9193 tree.
+Run37208267069 found an Ubuntu test expectation error for macOS-only recovery;
+the corrected test retains shared fences and explicit non-Mac refusal. Independent
+review confirmed no production defect. Corrected exact-head CI/merge remain pending;
+GUI/model/provider qualification,wholeStage5 and wholeStage6 remain pending.
 
-Release/public distribution, additional live calls/model downloads, purchases and
+The owner authorized Luna-only BRN app/provider testing on 2026-10-04; development
+and review may use Sol/Luna,never Astra. A fresh synthetic connection and bounded
+exact `gpt-6-luna` qualification are planned. The existing ChatGPT adapter currently
+refuses Luna locally; additive maintained-list support and offline review are
+needed first. No new account calls have run; prior credentials remain untouched.
+This does not authorize model-asset downloads or private data inspection.
+
+Release/public distribution, other live calls/model downloads, purchases and
 original/private-data inspection or migration still need applicable owner
 permission. No original data was migrated or inspected.
 

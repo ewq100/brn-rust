@@ -336,3 +336,86 @@ Action defect; evidence:/private/tmp/brn-pr28-main-ci-review-c5vr9poj.
 Fresh38local Markdown file/fragment links,format/diff checks passed for this
 workflow recovery checkpoint. Local integration precedes exact-head PR/CI/post
 qualification; next slice and pending acceptance above remain authoritative.
+
+## Next fixed slice: shared retained Action reads
+
+Prior recovery checkpoint [PR29](https://github.com/ewq100/brn-rust/pull/29)
+merged0243c5d6d1d18ff4d99aae1d8203540a3f704206 at2026-10-04T13:13:26Z after
+exact9e785a5/run37204244962 passed Mac3+UbuntuShared;Windows Unix APIs failed,
+overallCIred. Merged source tree equals candidate. Fresh post25workflow tests,
+52fixtures and shipping startup2 passed,V10,exact bytes,zero credentials.
+Evidence:/private/tmp/brn-v1-stage6-action-recovery-hzzm7xke/qualified-startup-1diwr4h0.
+Main37204848736 passed Mac3+UbuntuCore/UI;Ubuntu installer10pass/3fail and Windows3
+Unix failures repeat PR28. Independent actual logs:/tmp/brn-merge-ci-final.7RhFbR/;
+no shared Action defect. Macmini needs macOSarm64,pinnedRust1.98.1,locked dependencies;
+native owner acceptance and the whole Action scenario remain pending.
+
+Baseline9e785a556360604df3c836d4ae76139178990a5d. Clients need the full exact
+Action baseline before constructing typed Replace review input, so expose retained
+reads through AppWorker before producers. Preserve Store's existing checked DTOs,
+all-state/25-entry default,1–200 limits and immutable created-time/UUID pagination.
+`actions::App::action(UUID)` returns the exact record or typed NotFound;
+`actions::App::actions(ActionListRequest)` returns the checked page. Reject nil/
+invalid cursors before reads. Both require current-evidence reconciliation but no
+vault/model/provider; operational history/proposal inspection stays separate.
+
+Fixed worker commands: `Action(UUID)` / `Actions(ActionListRequest)`; events:
+boxed `Action(ActionRecord)` / `Actions(ActionPage)` with existing request UUID
+correlation. Re-export semantic Action DTOs through workflow,never persistence
+handles/SQL/index IDs. Desktop only adds mechanical exhaustive event handling;
+the native dashboard follows. Keep all creation/application/Rewrite/Undo guards.
+
+CLI uses `actions show UUID` and `actions list --state open|waiting|blocked|completed|all`
+(defaultall),`--limit`(default25) and paired`--before-created-at-ms`/`--before-id`
+cursor flags. Validate directly constructed invocations before authority access;
+JSON retains exact DTOs, human text quotes all user strings safely. No mutation
+subcommands. Qualify real worker/CLI parity,pagination/exact strings,restart,
+pending Save/proposal fences,typed NotFound/invalid requests and zero provider/
+credential effects with synthetic Store-approved fixtures. Independent review and
+fresh shared/native gates precede integration. Then reference/dependency validation
+and whole Action application/recovery,identified Complete and dashboard continue.
+
+Implemented shared reads and the fixed CLI contract on baseline0243c5d. Five real
+workflow/worker tests cover exact updated origin/baseline,restart,creation-key
+pagination/filtering and pending/Uncertain Save/proposal barriers. Four real CLI
+process tests and three parser tests cover DTO parity,paired cursors,typed errors,
+pre-authority refusal and safe human rendering. Initial tests wrongly expected
+Auth::open not to create its empty safe folder and failed to account for JSON
+quote escaping; corrected without changing authority rules. One parser fixture
+also required explicit ParseFailure handling instead of Debug-bound unwrap.
+
+Independent Sol read-only review privately passed5workflow tests and reproduced
+a valid P2: serde_json human rendering leaves DEL/C1 controls raw. Actual CLI
+regression failed0pass/1fail before the fix; post-serialization human escaping
+now quotes DEL/U0085/U009B and the regression decodes to the exact original DTO.
+Fresh4CLIprocess+3parser tests passed; correction review found no remaining defect.
+Structured JSON stays exact. Evidence:action-reads-controls-{red,green}.log under
+/private/tmp/brn-actions-root-zkv3jyu2; review /var/folders/zb/wm5x0l6j0sqc2503006y96x40000gn/T/brn-action-read-review-m3xosmgk.
+
+Fresh post-correction locked/offline macOSarm64/Rust1.98.1 shared gate passed
+1010workspace/0failed/3ignored+52fixtures,retirement,format/build/all-targetClippy.
+Native unchanged workflow/Desktop gates passed153/0/2 and213/0/0,both native
+Clippy configurations; final CLI feature Clippy/build reran after the display fix.
+Shipping native desktop build and startup/restart2 passed,V10,exact synthetic
+bytes,zero credential files (qualified-startup-1r1kdmdg). Final51local Markdown
+file/fragment links and diff checks passed. Logs:action-reads-final-*.log and
+action-reads-postfix-*.log under the owned root parent. Native ignore-event wiring
+adds no dashboard behavior. Guarded creation/application/owned Rewrite/Undo stay
+unchanged; no producer/provider/model/private-data/release operation occurred.
+CLI empty-page/typed-missing manual scenario is in its README; populated owner
+acceptance follows approved creation. Exact-head PR/CI/integration qualification
+is next; references,whole execution,direct Complete and dashboard remain next.
+
+
+Shared-read publication PR30 is at1298ee78e6fc788e04e6b76c3634ae1c0c5f1a22
+(source tree116f312f equals reviewed90e9193; connected GitHub publication after
+CLI credentials expired). Run37208267069 passed both Mac native lanes; Ubuntu
+Shared found a new test expectation error: ordinary recovery requires macOS,
+so non-Mac reconciliation returns ToolRejected and keeps current reads fenced.
+The corrected test retains every shared pre-reconciliation check and the exact
+Mac NotApplied/success scenario,with explicit non-Mac refusal/fence assertions.
+Independent Luna code/log review confirmed the correction and no shared Action
+or Mac defect. Fresh Mac5Action tests and test-targetClippy passed. Original
+Windows22Unix diagnostics match PR29 unchanged; overallCIred. Corrected exact-head
+applicableCI/merge/post checks remain pending. Publication12tests+52fixtures+
+startup2(V10/exact bytes/zero credentials)+51doclinks passed before that CI round.

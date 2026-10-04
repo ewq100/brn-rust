@@ -17,6 +17,8 @@ brn findings list [--state open|resolved|dismissed|all] [--limit N] [--before UU
 brn findings show UUID
 brn findings inspect UUID
 brn findings close UUID --version N --state resolved|dismissed
+brn actions show UUID
+brn actions list [--state open|waiting|blocked|completed|all] [--limit N] [--before-created-at-ms N --before-id UUID]
 brn proposals create --file DRAFT.json
   brn identity inventory
   brn identity resolve NOTE_UUID
@@ -73,6 +75,17 @@ Credential paths are absolute, current-user-owned, protected and outside Git,
 operational storage and the vault. The default is the sibling
 `<data-directory-name>.credentials`; workflow saves its non-secret location.
 Startup never discovers accounts or models.
+
+`actions show` returns the full retained record and immutable approved origin;
+`actions list` defaults to all states and 25 entries, with limits from 1–200.
+Use both cursor fields from `next_before` to request the next older page. Creation
+time and UUID order remain stable across edits. JSON preserves the exact typed
+record; human output quotes strings and terminal controls. These reads need no
+vault/provider and refuse pending or uncertain durable changes until reconciled.
+No Action mutation commands are exposed by this slice. For manual acceptance on
+a fresh empty data folder, run `actions list --json`, then `actions show` with a
+fresh non-nil UUID: expect an empty page and typed NOT_FOUND, with no credential
+files or vault writes. Populated read acceptance follows approved creation.
 
 `ai effort` reads the saved explicit reasoning choice locally; its value is null
 until chosen. `ai effort low|medium|high` saves that choice, which is also shown

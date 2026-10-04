@@ -91,6 +91,7 @@ fn command_name(command: &cli::Command) -> &'static str {
         cli::Command::Provenance(command) => command.name(),
         cli::Command::Links(command) => command.name(),
         cli::Command::Findings(command) => command.name(),
+        cli::Command::Actions(command) => command.name(),
         cli::Command::Relationships(_) => "relationships.list",
         cli::Command::Activity(_) => "activity.list",
         cli::Command::Ai(command) => command.name(),
