@@ -232,7 +232,7 @@ pub(super) fn parse_command(name: &str, s: &Scanned) -> Result<ProposalCommand, 
     }
 }
 
-fn input<T: DeserializeOwned>(path: &PathBuf) -> Result<T, CliError> {
+pub(super) fn input<T: DeserializeOwned>(path: &PathBuf) -> Result<T, CliError> {
     // JSON escaping can expand bounded proposal text by six times. The encoded
     // envelope has its own hard cap; domain limits are checked after decoding.
     const MAX_JSON_BYTES: usize = brn_workflow::proposals::MAX_PROPOSAL_BYTES * 8;

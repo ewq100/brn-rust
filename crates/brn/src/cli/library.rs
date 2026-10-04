@@ -364,9 +364,18 @@ fn execute(
             let event = lane.query(knowledge.expect("finding input prepared before startup"))?;
             super::findings::output(command, event)
         }
-        Command::Actions(command) => {
-            let event = lane.query(knowledge.expect("Action input prepared before startup"))?;
-            super::actions::output(command, event)
+        Command::Actions(_) => {
+            let prepared = knowledge.expect("Action input prepared before startup");
+            let event = match &prepared {
+                AppCommand::CompleteAction(request) => lane.query_with_id(
+                    request.operation_id,
+                    AppCommand::CompleteAction(request.clone()),
+                )?,
+                AppCommand::Action(id) => lane.query(AppCommand::Action(*id))?,
+                AppCommand::Actions(request) => lane.query(AppCommand::Actions(request.clone()))?,
+                _ => unreachable!("prepared Action command"),
+            };
+            super::actions::output(&prepared, event)
         }
         Command::Identity(command) => {
             let event = lane.query(knowledge.expect("identity input prepared before startup"))?;

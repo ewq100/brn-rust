@@ -17,6 +17,7 @@ brn findings list [--state open|resolved|dismissed|all] [--limit N] [--before UU
 brn findings show UUID
 brn findings inspect UUID
 brn findings close UUID --version N --state resolved|dismissed
+brn actions complete --file REQUEST.json
 brn actions show UUID
 brn actions list [--state open|waiting|blocked|completed|all] [--limit N] [--before-created-at-ms N --before-id UUID]
 brn proposals create --file DRAFT.json
@@ -82,8 +83,14 @@ Use both cursor fields from `next_before` to request the next older page. Creati
 time and UUID order remain stable across edits. JSON preserves the exact typed
 record; human output quotes strings and terminal controls. These reads need no
 vault/provider and refuse pending or uncertain durable changes until reconciled.
-Action Create/Replace use the existing exact proposal commands below. Identified
-direct completion and dashboard controls follow later. For manual acceptance on
+Action Create/Replace use the existing exact proposal commands below.
+`actions complete --file REQUEST.json` accepts the exact full retained record in
+`before` and a fresh `operation_id`. It completes that unfinished Action directly,
+preserving its approved origin and all candidate fields except state. Reuse the
+same file and operation UUID to replay the full completion receipt after restart;
+a changed request conflicts and a stale full baseline refuses. Dashboard controls
+follow later. Completion recovery currently uses the macOS file adapter.
+For manual acceptance on
 a fresh empty data folder, run `actions list --json`, then `actions show` with a
 fresh non-nil UUID: expect an empty page and typed NOT_FOUND, with no credential
 files or vault writes. Populated read acceptance uses approved creation below.
@@ -256,7 +263,8 @@ fields remain exact, and a source/Markdown member binds the exact vault. Combine
 drafts retain the 64-member/8 MiB bounds. Person/project/source/thread references
 are managed note UUIDs with captured or same-draft evidence. Dependencies and
 parent graphs are checked separately. Completed Actions cannot be changed through
-proposal members; direct explicit completion follows in the next slice.
+proposal members. Direct explicit completion uses `actions complete` and the
+exact full retained baseline.
 
 `edit` and `rewrite-result` accept `{expected: {id, version}, title, texts}` plus
 the ordered `action_data` array when the proposal has Action members.
@@ -310,7 +318,31 @@ Repeat that exact approval and read after restart: the receipt and Action stay
 unchanged. For Replace, copy the complete current record into `before`, change
 candidate title/state and use a new proposal/operation UUID. Reusing an old complete
 baseline must refuse and preserve the current Action. No account or vault write
-is needed. Close the CLI before opening this same directory in the desktop.
+is needed.
+
+To complete the synthetic Action, retain its current unfinished `actions show
+--json` envelope as `action-before.json`. Create `complete.json` outside the
+repository from that envelope's full `data` record:
+
+```sh
+python3 - <<'PYCOMPLETE'
+import json, uuid
+with open("action-before.json", encoding="utf-8") as source:
+    before = json.load(source)["data"]
+with open("complete.json", "w", encoding="utf-8") as target:
+    json.dump({"operation_id": str(uuid.uuid4()), "before": before}, target, ensure_ascii=False)
+PYCOMPLETE
+brn actions complete --file complete.json --data-dir DATA --json
+brn actions complete --file complete.json --data-dir DATA --json
+```
+
+Both invocations must return the identical full receipt (`request` and `after`).
+`after` retains the origin and other data, increments version once, has state
+`completed`, clears the Waiting clock, and records the completion timestamp.
+Changing `before` while retaining this operation UUID must refuse without another
+mutation. A fresh operation using the old baseline must also refuse. The vault
+stays untouched and credential files remain absent. Close the CLI before opening
+this same directory in the desktop.
 
 For a manual check, create a proposal for `new.md`, add a comment, inspect the
 version with `show`, and approve that version with a fresh operation UUID. Compare

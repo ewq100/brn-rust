@@ -1,18 +1,20 @@
-//! Read-only access to checked operational Actions through the shared workflow.
+//! Checked Action reads and exact identified completion through the shared workflow.
 use super::{
     error::CliError, expect_positionals, positional_uuid, scan, sub_word, usage, CliFailure,
     Globals, Output, Scanned, Tokens,
 };
 use brn_workflow::{
-    actions::{ActionCursor, ActionListRequest, ActionRecord, ActionState},
+    action_completion::CompleteActionRequest,
+    actions::{ActionCursor, ActionListRequest, ActionState},
     app_worker::{AppCommand, AppEvent},
 };
-use std::fmt::Write as _;
+use std::{fmt::Write as _, path::PathBuf};
 use uuid::Uuid;
 
 pub enum ActionsCommand {
     Show(Uuid),
     List(ActionListRequest),
+    Complete(PathBuf),
 }
 
 impl ActionsCommand {
@@ -20,6 +22,7 @@ impl ActionsCommand {
         match self {
             Self::Show(_) => "actions.show",
             Self::List(_) => "actions.list",
+            Self::Complete(_) => "actions.complete",
         }
     }
 }
@@ -29,9 +32,10 @@ pub(super) fn scan_command(
     globals: &mut Globals,
     name: &mut Option<&'static str>,
 ) -> Result<Scanned, CliError> {
-    let sub = sub_word(tokens, "actions", "show|list")?;
+    let sub = sub_word(tokens, "actions", "show|list|complete")?;
     let (label, options): (_, &[(&str, bool)]) = match sub.as_str() {
         "show" => ("actions.show", &[]),
+        "complete" => ("actions.complete", &[("file", true)]),
         "list" => (
             "actions.list",
             &[
@@ -41,7 +45,11 @@ pub(super) fn scan_command(
                 ("before-id", true),
             ],
         ),
-        _ => return Err(usage("unknown actions subcommand (expected show|list)")),
+        _ => {
+            return Err(usage(
+                "unknown actions subcommand (expected show|list|complete)",
+            ))
+        }
     };
     *name = Some(label);
     scan(tokens, globals, options)
@@ -67,6 +75,13 @@ pub(super) fn validate(command: &ActionsCommand) -> Result<(), CliError> {
     match command {
         ActionsCommand::Show(id) if id.is_nil() => Err(usage("Action UUID must not be nil")),
         ActionsCommand::Show(_) => Ok(()),
+        ActionsCommand::Complete(path) => {
+            if path.as_os_str().is_empty() {
+                Err(usage("missing --file"))
+            } else {
+                Ok(())
+            }
+        }
         ActionsCommand::List(request) => {
             request.validate().map_err(|error| usage(error.to_string()))
         }
@@ -78,6 +93,15 @@ pub(super) fn parse_command(name: &str, scanned: &Scanned) -> Result<ActionsComm
         "actions.show" => {
             expect_positionals(scanned, 1)?;
             ActionsCommand::Show(positional_uuid(scanned, 0, "UUID")?)
+        }
+        "actions.complete" => {
+            expect_positionals(scanned, 0)?;
+            ActionsCommand::Complete(
+                scanned
+                    .value("file")
+                    .map(PathBuf::from)
+                    .ok_or_else(|| usage("missing --file"))?,
+            )
         }
         "actions.list" => {
             expect_positionals(scanned, 0)?;
@@ -119,10 +143,17 @@ pub(super) fn prepare(command: &ActionsCommand) -> Result<AppCommand, CliFailure
     Ok(match command {
         ActionsCommand::Show(id) => AppCommand::Action(*id),
         ActionsCommand::List(request) => AppCommand::Actions(request.clone()),
+        ActionsCommand::Complete(path) => {
+            let request: CompleteActionRequest = super::proposals::input(path)?;
+            request
+                .validate()
+                .map_err(|error| usage(error.to_string()))?;
+            AppCommand::CompleteAction(request)
+        }
     })
 }
 
-fn record_text(record: &ActionRecord) -> String {
+fn record_text(record: &impl serde::Serialize) -> String {
     let json = serde_json::to_string_pretty(record).expect("Action DTO serializes");
     // serde_json escapes C0, but leaves DEL/C1 controls raw. Preserve JSON's
     // formatting newlines and quote the remaining user-supplied controls too.
@@ -137,13 +168,13 @@ fn record_text(record: &ActionRecord) -> String {
     text
 }
 
-pub(super) fn output(command: &ActionsCommand, event: AppEvent) -> Result<Output, CliFailure> {
+pub(super) fn output(command: &AppCommand, event: AppEvent) -> Result<Output, CliFailure> {
     let (data, text) = match (command, event) {
-        (ActionsCommand::Show(id), AppEvent::Action(record)) if record.origin.id == *id => {
+        (AppCommand::Action(id), AppEvent::Action(record)) if record.origin.id == *id => {
             let text = format!("{}\n", record_text(&record));
             (serde_json::json!(*record), text)
         }
-        (ActionsCommand::List(request), AppEvent::Actions(page))
+        (AppCommand::Actions(request), AppEvent::Actions(page))
             if page.entries.len() <= request.limit
                 && page
                     .entries
@@ -167,6 +198,12 @@ pub(super) fn output(command: &ActionsCommand, event: AppEvent) -> Result<Output
                 text.push('\n');
             }
             (serde_json::json!(*page), text)
+        }
+        (AppCommand::CompleteAction(request), AppEvent::ActionCompleted(completion))
+            if completion.request == *request && completion.validate().is_ok() =>
+        {
+            let text = format!("{}\n", record_text(&completion));
+            (serde_json::json!(*completion), text)
         }
         _ => {
             return Err(CliError::Workflow(
@@ -257,6 +294,10 @@ mod tests {
             vec!["actions"],
             vec!["actions", "wat"],
             vec!["actions", "show"],
+            vec!["actions", "complete"],
+            vec!["actions", "complete", "--file", ""],
+            vec!["actions", "complete", "--file", "one", "--file", "two"],
+            vec!["actions", "complete", "--file", "one", "extra"],
             vec!["actions", "show", &nil],
             vec!["actions", "show", id, "extra"],
             vec!["actions", "list", "extra"],
@@ -354,6 +395,162 @@ mod tests {
                 std::fs::read(data.join("brn.sqlite3")).unwrap(),
                 b"synthetic legacy marker"
             );
+            assert!(!credentials.exists());
+        }
+    }
+    fn completion_request() -> CompleteActionRequest {
+        use brn_store::work::{
+            actions::{ActionData, ActionOrigin, ActionRecord},
+            proposals::ProposalStamp,
+        };
+        let data = ActionData {
+            title: "Exact 日本語\r\n\u{001b}\u{0085}".into(),
+            description: "Õun\t\u{0000}\u{007f}".into(),
+            state: ActionState::Waiting,
+            owner: None,
+            related_person: None,
+            related_project: None,
+            sources: vec![],
+            thread: None,
+            due_on: None,
+            follow_up_on: None,
+            dependencies: vec![],
+            parent: None,
+            follows_up: None,
+            priority: None,
+        };
+        let request = CompleteActionRequest {
+            operation_id: Uuid::new_v4(),
+            before: Box::new(ActionRecord {
+                origin: ActionOrigin {
+                    id: Uuid::new_v4(),
+                    proposal: ProposalStamp {
+                        id: Uuid::new_v4(),
+                        version: 1,
+                    },
+                    data: data.clone(),
+                    created_at_ms: 7,
+                },
+                version: 1,
+                data,
+                updated_at_ms: 7,
+                waiting_since_ms: Some(7),
+                completed_at_ms: None,
+            }),
+        };
+        request.validate().unwrap();
+        request
+    }
+
+    #[test]
+    fn complete_prepares_exact_strict_file_offline_and_receipt_quotes_terminal_controls() {
+        let dir = tempfile::tempdir().unwrap();
+        let file = dir.path().join("complete.json");
+        let request = completion_request();
+        std::fs::write(&file, serde_json::to_vec(&request).unwrap()).unwrap();
+        let Outcome::Run(invocation) = parse(&[
+            "actions",
+            "complete",
+            "--file",
+            file.to_str().unwrap(),
+            "--data-dir",
+            dir.path().to_str().unwrap(),
+        ])
+        .unwrap_or_else(|f| panic!("{}", f.error.code())) else {
+            panic!("run")
+        };
+        let Command::Actions(command) = invocation.command else {
+            panic!("action command")
+        };
+        assert_eq!(command.name(), "actions.complete");
+        let prepared = prepare(&command).unwrap();
+        let AppCommand::CompleteAction(captured) = &prepared else {
+            panic!("complete")
+        };
+        assert_eq!(*captured, request);
+        // Changed file bytes after admission cannot alter receipt correlation.
+        std::fs::write(&file, b"changed after preparation").unwrap();
+        let mut after = *request.before.clone();
+        after.version += 1;
+        after.data.state = ActionState::Completed;
+        after.updated_at_ms = 9;
+        after.waiting_since_ms = None;
+        after.completed_at_ms = Some(9);
+        let receipt = brn_workflow::action_completion::ActionCompletion {
+            request: request.clone(),
+            after,
+        };
+        receipt.validate().unwrap();
+        let result = output(
+            &prepared,
+            AppEvent::ActionCompleted(Box::new(receipt.clone())),
+        )
+        .unwrap();
+        assert_eq!(result.data, serde_json::json!(receipt));
+        assert_eq!(
+            serde_json::from_str::<serde_json::Value>(&result.text).unwrap(),
+            result.data
+        );
+        assert!(result.text.chars().all(|ch| !ch.is_control() || ch == '\n'));
+        assert_eq!(std::fs::read_dir(dir.path()).unwrap().count(), 1);
+        let mut foreign = receipt.clone();
+        foreign.request.operation_id = Uuid::new_v4();
+        assert!(output(&prepared, AppEvent::ActionCompleted(Box::new(foreign))).is_err());
+        let mut fork = receipt;
+        fork.after.data.title = "changed after".into();
+        assert!(output(&prepared, AppEvent::ActionCompleted(Box::new(fork))).is_err());
+        assert!(output(&prepared, AppEvent::Action(Box::new(*request.before))).is_err());
+    }
+
+    #[test]
+    fn complete_invalid_files_refuse_before_worker_workspace_and_credentials() {
+        let owner = tempfile::tempdir().unwrap();
+        let data = owner.path().join("data");
+        std::fs::create_dir(&data).unwrap();
+        std::fs::write(data.join("preserved.marker"), b"synthetic marker").unwrap();
+        let file = owner.path().join("request.json");
+        let credentials = owner.path().join("credentials");
+        for case in [
+            "unknown",
+            "nested",
+            "nil",
+            "completed",
+            "partial",
+            "directory",
+        ] {
+            let mut value = serde_json::to_value(completion_request()).unwrap();
+            match case {
+                "unknown" => value["extra"] = serde_json::json!(true),
+                "nested" => value["before"]["extra"] = serde_json::json!(true),
+                "nil" => value["operation_id"] = serde_json::json!(Uuid::nil()),
+                "completed" => value["before"]["data"]["state"] = serde_json::json!("completed"),
+                "partial" => {
+                    value = serde_json::json!({"operation_id":Uuid::new_v4(),"before":{"id":Uuid::new_v4(),"version":1}})
+                }
+                _ => {}
+            }
+            std::fs::write(&file, serde_json::to_vec(&value).unwrap()).unwrap();
+            let invocation = Invocation {
+                json: true,
+                data_dir: data.clone(),
+                model_dir: None,
+                vault: None,
+                credentials_dir: Some(credentials.clone()),
+                command: Command::Actions(ActionsCommand::Complete(if case == "directory" {
+                    data.clone()
+                } else {
+                    file.clone()
+                })),
+            };
+            let failure = super::super::execute(&invocation)
+                .err()
+                .expect("pre-admission refusal");
+            assert_eq!(failure.error.code(), "USAGE", "{case}");
+            assert_eq!(
+                std::fs::read(data.join("preserved.marker")).unwrap(),
+                b"synthetic marker"
+            );
+            assert_eq!(std::fs::read_dir(&data).unwrap().count(), 1);
             assert!(!credentials.exists());
         }
     }

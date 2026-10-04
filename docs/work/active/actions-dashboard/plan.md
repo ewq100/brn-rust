@@ -679,3 +679,91 @@ Complete stays closed; ordinary evidence publication/startup/current-read fences
 and exact retry/drain tests are next. Exact-head CI/integration precedes that
 producer. No provider,model,private/original-data or release operation occurred.
 Native existing Action/updatedlogin acceptance still awaits an unlocked Mac.
+
+## Shared identified Complete and CLI — active checkpoint
+
+Baseline PR36 merge21442bfb0ff9e15705208f9c1fc224c7de90a5d1/tree8f0a2372.
+Its exactheadb991/run37221597895 passedMac3+UbuntuShared; Windows22 unchanged
+Unix errors remain informational and overallCIred. Post-merge12publicStore tests,
+52fixtures and startup/restart2 passed,V11/exactbytes/zero credentials. Main
+37222463218 completed5success/4failure: Mac3+UbuntuCore/UI passed; actual logs
+confirm unchanged UbuntuNative10pass/3fail ExclusiveInstallUnavailable and
+Windows22/22/14 Unix gaps. No requirement bypass. Rootmain preserved ownerAGENTS.
+
+The next coherent deliverable oncodex/v1-complete-workflow opens exact direct
+Complete through App/AppWorker and CLI `actions complete --file PATH`. It retains
+one specific immutable checked completion envelope in the existing owned recovery
+directory, sharing descriptor/no-follow/ownership/durability/proof mechanics.
+Fresh CAS and all bounds precede publication under the existing Immediate Store
+transaction. Publication uncertainty or post-publication settlement failure fences
+current work and held read tools. Retry/startup re-syncs and imports exact evidence;
+approved snapshots import first, completion before credentials/model loading/Ready.
+Outer worker ID equals request UUID; admitted durable Complete drains on shutdown.
+CLI validates one strict bounded full before-record file before worker startup,
+retains that exact prepared input through acknowledgement and identifies an
+undelivered successful operation for retry. No UI-only domain logic or AI Complete.
+
+Acceptance covers source-free/vaultless direct completion, all retained fields,
+Waiting/timestamp/revision, valid stale CAS, UUID payload reuse, strict input,
+unknown publication/settlement/current+held-tool fences, exact resync/retry,
+current/older/backup/fresh databases at both published/settled crashes, startup
+corruption refusal before Auth/model loading, command correlation and shutdown
+draining. New related follow-up is separately approved, never reopens completed
+work. Existing full-field proposal review remains unchanged; dashboard is next.
+
+Initial missing-command compileRED is structural. Runtime tests caught invalid
+test assumptions (changedv1data violates immutable creation; settling a pending
+note approval needs full observations; missing SQLite may restore a backup before
+Ready). Fixtures were corrected without production changes. Fresh5private+3worker+
+1shutdown tests passed; eight crash/database cases and seven failure boundaries
+execute within the private tests. The ignored child is exercised by that matrix.
+The transport passed8new+20existing recovery tests; deleting its pre-rename proof
+guard reproduced the foreign-stage failure before restoring it. Unknown outcomes
+remain explicit; proofs do not promise exclusion of unrestricted uncoordinated
+same-UID filesystem writers. No new framework/daemon/database is introduced.
+
+Earlier observation, before final qualification: independent whole review and
+final shared/native verification remained pending.
+Manual CLI scenario is in its existing Action acceptance contract. Actual updated
+Auth controls now run in the owner's unlocked session; safe startup/Settings
+originals are retained. A stale CUA observation initially showed startup; the owner
+confirmed Ready/Settings and a safe screenshot agrees. ScreenCaptureKit errors
+prevented reliable automated interaction; human sign-in was then pending.
+No new provider/catalog call had run at that point. Auth screens are excluded.
+
+The owner subsequently confirmed the actual updated app is connected and the
+link/code controls work. This establishes changed native/owner acceptance for
+PR35. After normal desktop quit, the shipping CLI made both permitted catalog
+calls successfully. The captured extraction retained no usable IDs or raw catalog
+shape/length; it does not establish Luna unavailability. The bounded round stopped
+at2/2catalog calls,0/2logical probes,0/18completions. No further account calls or
+claim of actual inference/multilingual model qualification follows from this.
+
+Final whole independent Luna read-only review found no blocking defect in the
+ordinary transport, App/startup/fences, worker correlation/drain or prepared CLI.
+Its advisory finding was orphan temporary stages after pre-boundary failures:
+each is bounded at4MiB, ignored for authority, and preserved; accumulation is an
+explicit limitation, not an automatic cleanup permission. Root verified the
+conditional same-UID race comment against exclusive installation and post-proof
+Unknown behavior; unrestricted uncoordinated same-UID writers are outside the
+supported exclusive application ownership model. No review-driven feature scope.
+
+Fresh final macOSarm64/Rust1.98.1 locked/offline shared gate passed1093workspace/
+0failed/6ignored+52fixtures; combined native passed233/0/0; both native Clippy
+modes and shipping Desktop/CLI builds passed. Two shipping startup/restart checks
+passed,V11/exactBOMCRLFUnicode/zero credentials. The additional ignored private
+completion child is exercised by eight crash/database cases. Full logs are
+complete-workflow-*-final.log under /private/tmp/brn-v1-stage1-checkpoint-s3nawyyb;
+startup fixture qualified-startup-07e75hdw. Final malformed-startup witness compares
+checked complete records and foreign evidence, rather than incidental SQLite page
+bytes after ordinary approval import; no production correction was required.
+
+Manual headless acceptance: follow the CLI's existing Action scenario, export the
+full shown unfinished record into a fresh operation request, Complete that exact
+file twice, restart and read the unchanged Completed receipt/fields, then approve
+a separate new related follow-up. The process/worker tests exercised this flow;
+owner/native Dashboard acceptance remains pending. Exact-head CI/integration is
+the remaining checkpoint gate; Stage6 is not complete. Next is shared Dashboard
+queries and thin native identified Complete/new approved follow-up controls, then
+Stage6 AI proposal/read tools. Inbox remains later. No new database/service/tool
+framework or original/private-data/release operation was introduced.

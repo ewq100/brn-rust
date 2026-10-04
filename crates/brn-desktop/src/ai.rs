@@ -2258,6 +2258,7 @@ impl AiState {
             | AppEvent::Finding(_)
             | AppEvent::Findings(_)
             | AppEvent::Action(_)
+            | AppEvent::ActionCompleted(_)
             | AppEvent::Actions(_)
             | AppEvent::FindingInspection(_)
             | AppEvent::NoteIdentity(_)
