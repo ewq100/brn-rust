@@ -26,6 +26,11 @@ use std::{
     time::{Duration, Instant},
 };
 use uuid::Uuid;
+#[path = "finding_state.rs"]
+mod finding_state;
+#[cfg(all(test, target_os = "macos"))]
+#[path = "finding_state_tests.rs"]
+mod finding_state_tests;
 #[path = "link_preparation_state.rs"]
 mod link_preparation_state;
 #[path = "relationship_state.rs"]
@@ -128,6 +133,25 @@ pub enum Pending {
         capture: link_preparation_state::LinkCapture,
         request: Box<brn_workflow::knowledge::LinkRequest>,
     },
+    Findings {
+        capture: finding_state::PageCapture,
+        request: brn_workflow::findings::FindingListRequest,
+    },
+    Finding {
+        capture: finding_state::SelectionCapture,
+        record: Option<Box<brn_workflow::findings::FindingRecord>>,
+    },
+    FindingInspection {
+        capture: finding_state::SelectionCapture,
+        inspection: u64,
+        record: Box<brn_workflow::findings::FindingRecord>,
+    },
+    FindingCapture(brn_workflow::findings::CaptureFindingRequest),
+    FindingClose {
+        capture: finding_state::SelectionCapture,
+        record: Box<brn_workflow::findings::FindingRecord>,
+        request: brn_workflow::findings::CloseFindingRequest,
+    },
     Account(AccountCommand),
     Bind,
     Refresh,
@@ -216,6 +240,7 @@ pub struct AiState {
     pub activity_generation: u64,
     pub draft: Option<crate::draft::DraftForm>,
     pub link_preparation: link_preparation_state::LinkPreparation,
+    pub finding_queue: finding_state::FindingQueue,
     pub last_draft_request: Option<brn_workflow::proposals::DraftRequest>,
     pub provider: Option<Provider>,
     pub generation: u64,
@@ -1684,6 +1709,9 @@ impl AiState {
             }
             return commands;
         }
+        if let Some(commands) = self.received_findings(id, &event) {
+            return commands;
+        }
         if self.received_link_preparation(id, &event) {
             return commands;
         }
@@ -2199,6 +2227,9 @@ impl AiState {
             | AppEvent::ProposalRepairPreview(_)
             | AppEvent::ProposalRepaired(_)
             | AppEvent::ProposalSource(_)
+            | AppEvent::Finding(_)
+            | AppEvent::Findings(_)
+            | AppEvent::FindingInspection(_)
             | AppEvent::NoteIdentity(_)
             | AppEvent::IdentityInventory(_)
             | AppEvent::NoteIdentityResolved(_)

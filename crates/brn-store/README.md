@@ -19,7 +19,7 @@ own saved Markdown; disposable retrieval indexes live outside this crate.
 
 ## Database ownership and recovery
 
-WorkStore uses application ID `BRN2`, schema V8, and retains `brn.owner.lock`
+WorkStore uses application ID `BRN2`, schema V9, and retains `brn.owner.lock`
 for its lifetime. Current settings, text-only conversations and unfinished work
 are preserved by additive migrations. Earlier WorkStore V1 unsaved-edit rows
 remain available; matching text moves atomically into the generation-aware
@@ -253,6 +253,29 @@ checked during reads/reconciliation, so malformed times cause refusal rather tha
 SQLite corruption recovery. Timing does not change exact text, selection, effort,
 replay or attachment ownership. Conversation summaries read their title, count and
 times in one SQLite snapshot while attached chat writers continue independently.
+
+## Tentative findings
+
+V9 adds [findings](src/work/findings.rs) to the existing operational database.
+Each immutable creation draft retains a symbolic issue request, bound vault,
+title/summary and exact source fingerprints with optional UUID/quote ranges.
+Identity ambiguity requires distinct exact saved paths; path case is preserved.
+Unresolved-link occurrence and used definition can share one file with different
+ranges. Workflow validates actual saved bytes; Store never reads a vault.
+Strict nested JSON, bounded retained/encoded work, hashes and row/creation bindings
+are checked before use and at startup before reconciliation/backup.
+For supported branded V9+ databases, readable Findings are also validated before
+SQLite quick_check so state/hash CHECK violations refuse the main database rather
+than restoring older work. Physical corruption retains backup recovery; malformed
+Findings backup candidates are skipped without modifying the retained backup.
+
+Open version 1 advances once to Resolved or Dismissed version 2 by exact stamp.
+Identical creation or old-stamp/same-outcome closure replay returns retained work;
+changed input or a competing closure refuses atomically. Closing changes queue
+state only. Bounded pages use descending creation-time/UUID cursors, including a
+cursor closed between pages, with the open count in the same SQLite snapshot.
+Findings survive ordinary backup/recovery and remain tentative work rather than
+knowledge or proposal authority.
 
 ## Dependencies and verification
 

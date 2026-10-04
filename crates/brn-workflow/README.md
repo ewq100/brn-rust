@@ -75,6 +75,26 @@ Lists validate component-only folders and note-path cursors, use exclusive
 path-sorted keyset pagination and return at most 200 entries. `"work"` never
 matches `"workshop"`. These APIs never write vault files.
 
+## Tentative review findings
+
+[Findings](src/findings.rs) retain operational review work in brn.sqlite.
+`CaptureFinding` uses a fresh duplicate-UUID observation or an exact unresolved
+saved-link request. It captures whole-file fingerprints and original UTF-8
+occurrence/definition quotes through coordinated saved-source APIs, rechecks proof
+and current-evidence fences, and admits no editor, proposal or Markdown change.
+Identity evidence retains two distinct observed paths without claiming the
+inventory is complete. Existing request replay returns immutable retained work
+before current-vault checks, including after closure.
+
+`Findings`, `Finding` and exact-stamp `CloseFinding` remain available without fresh
+vault evidence. `InspectFinding` retains the original record and separately reports
+Unchanged, Changed or Unavailable full proofs; it checks the bound vault before
+reading paths. It never substitutes another vault/path, guesses a quote anchor,
+automatically closes an issue or treats unchanged evidence as proof the issue
+still persists. Admitted capture/closure drain on AppWorker shutdown. Correcting
+knowledge still requires a separate exact approved proposal. Native queue controls
+and later scheduled/semantic detection are subsequent slices.
+
 ## Typed proposal review foundation
 
 [`knowledge`](src/knowledge.rs) exposes saved-current `NoteIdentity` inspection and

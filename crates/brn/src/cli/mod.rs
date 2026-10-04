@@ -6,6 +6,7 @@ pub mod ai;
 pub mod editor;
 pub mod error;
 pub mod evidence;
+pub mod findings;
 pub mod identity;
 mod input;
 pub mod library;
@@ -40,6 +41,7 @@ pub enum Command {
     Evidence(evidence::EvidenceCommand),
     Provenance(provenance::ProvenanceCommand),
     Links(links::LinksCommand),
+    Findings(findings::FindingsCommand),
     Relationships(brn_workflow::knowledge::RelationshipRequest),
     Proposals(proposals::ProposalCommand),
     Ai(ai::AiCommand),
@@ -133,6 +135,11 @@ Commands:
   brn links show PATH
   brn links prepare --file REQUEST.json
   brn relationships list [--scope current|source|history|all] [--offset N] [--limit N]
+  brn findings capture --file REQUEST.json
+  brn findings list [--state open|resolved|dismissed|all] [--limit N] [--before UUID]
+  brn findings show UUID
+  brn findings inspect UUID
+  brn findings close UUID --version N --state resolved|dismissed
   brn proposals create --file DRAFT.json
   brn proposals list [--group UUID]
   brn proposals show PROPOSAL_ID
@@ -350,7 +357,8 @@ impl Scanned {
 }
 
 /// Scan remaining tokens for one command. `options` lists command-specific
-/// option names and whether each takes a value; global options are always allowed.
+/// option names and whether each takes a value. Declared command options own
+/// their local names (finding closure's --version is a review stamp).
 fn scan(
     tokens: Tokens<'_>,
     g: &mut Globals,
@@ -360,10 +368,11 @@ fn scan(
     while let Some(token) = tokens.next() {
         if token.starts_with("--") {
             let (name, inline) = split_option(&token);
-            if global_option(g, name, inline, &token, tokens)? {
+            let option = options.iter().find(|(n, _)| *n == name);
+            if option.is_none() && global_option(g, name, inline, &token, tokens)? {
                 continue;
             }
-            let Some(&(label, takes_value)) = options.iter().find(|(n, _)| *n == name) else {
+            let Some(&(label, takes_value)) = option else {
                 return Err(usage(format!("unknown option: {token}")));
             };
             if takes_value {
@@ -527,6 +536,7 @@ fn parse_inner(
         "evidence" => evidence::scan_command(&mut tokens, g, command)?,
         "provenance" => provenance::scan_command(&mut tokens, g, command)?,
         "links" => links::scan_command(&mut tokens, g, command)?,
+        "findings" => findings::scan_command(&mut tokens, g, command)?,
         "relationships" => relationships::scan_command(&mut tokens, g, command)?,
         "proposals" => proposals::scan_command(&mut tokens, g, command)?,
         "activity" => activity::scan_command(&mut tokens, g, command)?,
@@ -606,6 +616,7 @@ fn parse_inner(
         "evidence" => Command::Evidence(evidence::parse_command(&scanned)?),
         "provenance" => Command::Provenance(provenance::parse_command(command.unwrap(), &scanned)?),
         "links" => Command::Links(links::parse_command(command.unwrap(), &scanned)?),
+        "findings" => Command::Findings(findings::parse_command(command.unwrap(), &scanned)?),
         "relationships" => Command::Relationships(relationships::parse_command(&scanned)?),
         "proposals" => Command::Proposals(proposals::parse_command(command.unwrap(), &scanned)?),
         "activity" => Command::Activity(activity::parse_command(&scanned)?),
@@ -835,6 +846,9 @@ pub fn finish(json: bool, command: &str, result: Result<Output, CliFailure>) -> 
 
 /// Every operation uses the sole application owner.
 pub fn execute(invocation: &Invocation) -> Result<Output, CliFailure> {
+    if let Command::Findings(command) = &invocation.command {
+        findings::validate(command)?;
+    }
     library::validate_workspace(invocation)?;
     library::run(invocation)
 }

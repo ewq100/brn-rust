@@ -20,8 +20,12 @@ Fresh macOSarm64/Rust1.98.1 locked/offline gates passed908workspace/0failed/
 3ignored+52fixtures,201native desktop/0failed/0ignored,158focused native workflow/
 0failed/2ignored,both native Clippy configurations and shipping desktop/CLI builds.
 Two startup/restart checks retained exact synthetic bytes,V8 and zero credentials.
-Logs: /private/tmp/brn-client-boundary-bgywtql7. PR/exact-head CI/integration are
-pending; existing GUI/model/provider qualification gaps remain unchanged.
+PR25 merged82953261642427a59a27707545ba2835eec2b813 after exact90de25e/
+run37197453154 passed MacCore/UI/Retrieval+UbuntuSharedCore; Windows Unix APIs
+failed,overallCIred. Merged tree equality,3focused tests+52fixtures and two
+shipping startup/restart checks passed with exact bytes,V8 and zero credentials.
+Logs: /private/tmp/brn-client-boundary-bgywtql7. Existing GUI/model/provider
+qualification gaps remain unchanged.
 
 Manual Save/recovery (`6609442`) preserves exact UTF-8, generation-bound recovery
 and file/parent/root identities. Copies install exclusively; missing originals
@@ -77,7 +81,7 @@ shipping native build and native Clippy. Default desktop passed **131**; workflo
 **186**. The two ignored private crash entry points are exercised by subprocess
 matrices. Earlier slice counts remain in the evidence, not current gate claims.
 
-Stage 5’s [active plan](work/active/knowledge-foundations/plan.md) records twelve
+Stage 5’s [active plan](work/active/knowledge-foundations/plan.md) records fourteen
 integrated slices: managed Markdown identities; fresh duplicate/incomplete
 inspection; current/source/history/all retrieval and native read-only browsing;
 durable exact provenance and native source inspection; reliable session/turn
@@ -117,9 +121,9 @@ and stacked panels placing controls outside a 480×480 window. Corrected
 invalidation/scrolling passed **22 independent state/widget tests**, with no
 remaining actionable finding. Unsaved typing and original evidence remain intact.
 
-Fresh final Rust 1.98.1/macOS arm64 locked/offline verification passed **907
+Fresh final Rust 1.98.1/macOS arm64 locked/offline verification passed **943
 workspace tests / 0 failed / 3 ignored**, **52 end-to-end assertions**, retirement,
-format/build/all-target Clippy, **201 native desktop tests / 0 failed / 0 ignored**,
+format/build/all-target Clippy, **213 native desktop tests / 0 failed / 0 ignored**,
 test-support and shipping native Clippy, and the shipping native desktop build.
 Unchanged native workflow/CLI qualification remains in the preceding slice's
 evidence. Two ignored private crash
@@ -143,7 +147,20 @@ widget tests**, with no actionable defects. A real worker prepare/Create/Approve
 scenario verified unchanged vault until approval; fresh shipping startup/restart
 passed twice with exact synthetic bytes and zero credential files.
 
-Basic review findings and multilingual implementation/qualification remain Stage 5 work. The bounded
+Basic findings now persist strict immutable source proof in operational schema
+V9. Duplicate UUIDs and unresolved saved links supply fresh deterministic capture;
+exact closure changes queue state only. Original quotes/full fingerprints survive
+restart, closure and source drift. Inspection reports new proof separately and
+refuses foreign-vault substitution. Independent review reproduced and fixed
+case-folding distinct paths; CLI qualification fixed local/global --version
+parsing. Final findings suites passed **14 Store + 8 workflow + 4 process tests**;
+independent review passed **20 Store/CLI + 7 workflow tests**, no remaining
+actionable findings. Native Needs Review now offers bounded filtered pages, complete retained proof
+and separate fresh inspection, direct exact Resolve/Dismiss, saved-issue capture
+and explicit same-request retries even without a selection or available vault.
+Independent state/widget reviews passed **8 + 4 tests**, with no unresolved
+defect. A reproduced refused-navigation bug was corrected before integration.
+Multilingual implementation/qualification remains Stage 5 work. The bounded
 multilingual asset-download permission question is still pending; unrelated safe
 implementation continues. Stage 5 is not complete.
 
@@ -192,11 +209,27 @@ across the sole incoming helper guard. Fresh907workspace/0failed/3ignored+52fixt
 201combined-native/0failed/0ignored, both Clippy variants/shipping builds,
 21native-retrieval and164focused-native-workflow/0failed/3ignored passed.
 Fresh incoming3CLItests/workspace Clippy/format and two shipping startup/restart
-checks passed with exact synthetic bytes,zero credentials. PR24 merged2483b31
-after exact716aede/run37194454005 passed Mac3+UbuntuShared;Windows Unix APIs
-failed,overallCIred. Post-merge tree equality,10CLI tests+52fixtures and two
-startup/restart checks passed. GUI/owner acceptance remains pending. Findings/language are later
-publication checkpoints; completeStage5/V1 delivery is not claimed.
+checks passed with exact synthetic bytes,zero credentials. PR24 merged2483b31f38a2b941ab71b7fba5449519da600e82 after exact716aede/
+run37194454005 passed Mac3+UbuntuShared;Windows Unix APIs fail,overallCIred.
+Merged tree equality,10CLIrelationships/links+52fixtures and two startup/restart
+checks passed with exact bytes,zero credentials. GUI/owner acceptance remains
+pending. Reviewed Findings/NeedsReview is in this checkpoint;language follows; completeStage5/V1 delivery is not claimed.
+
+Stage5D publication baseline9cb0fde retains reviewed14-slice Findings/NeedsReview
+and qualified Stage5C. Independent review reproduced readable Findings CHECK
+violations restoring an older Open/v1 backup over legitimate Resolved/v2 work.
+The compatible correction prevalidates supported branded V9+ Findings, refuses
+semantic-invalid main work and skips invalid backup candidates while preserving
+physical recovery, foreign/newer refusal and the V9 schema. Meaningful RED and
+Green regressions plus independent20tests/4public probes passed; no finding remains.
+After merging qualified PR25 at844dc92, independent preservation review found
+no defect. Fresh946workspace/0failed/3ignored+52fixtures,213combined-native/0failed/0ignored,
+154focused native-workflow/0failed/2ignored,both native Clippy configurations and
+shipping desktop/CLI builds passed. Two startup/restart checks retained exact
+synthetic bytes,V9 and zero credentials. Logs: /private/tmp/brn-v1-stage5d-checkpoint-yry8r21v.
+Exact-head CI/PR integration and native owner/IME/accessibility acceptance remain
+pending. Next checkpoint: multilingual/Ask-language qualification; safe Stage6
+implementation continues. No Stage5/V1 completion is claimed.
 
 Release/public distribution, additional live calls/model downloads, purchases and
 original/private-data inspection or migration still need applicable owner

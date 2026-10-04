@@ -23,6 +23,7 @@ pub(super) enum EditorTransition {
     Evidence { path: String, scope: KnowledgeScope },
     Review(Uuid),
     Activity,
+    Findings,
     Draft(Option<Uuid>),
     Hide,
     Close(CloseRoute),
@@ -177,6 +178,7 @@ impl Desktop {
         self.sync_draft_widgets(window, cx);
         self.sync_provenance_widgets(window, cx);
         self.sync_relationship_widgets(window, cx);
+        self.sync_finding_widgets(window, cx);
         if self
             .ai
             .as_ref()
@@ -367,7 +369,14 @@ impl Desktop {
             self.ai.as_mut().unwrap().notice = "Waiting for latest buffer recovery before leaving. Closing does not save Markdown.".into();
             return;
         }
-        match self.simple_transition.take().unwrap() {
+        let transition = self.simple_transition.take().unwrap();
+        if !matches!(
+            &transition,
+            EditorTransition::Findings | EditorTransition::Draft(_)
+        ) {
+            self.ai.as_mut().unwrap().close_findings();
+        }
+        match transition {
             EditorTransition::Note(path) => self.simple_open_note(path, cx),
             EditorTransition::Evidence { path, scope } => {
                 self.clear_saved_link_panel();
@@ -413,11 +422,28 @@ impl Desktop {
                     self.simple_send(command, cx);
                 }
             }
+            EditorTransition::Findings => {
+                self.clear_saved_link_panel();
+                self.clear_saved_sources();
+                let ai = self.ai.as_mut().unwrap();
+                ai.note_generation = ai.note_generation.wrapping_add(1);
+                ai.review_generation = ai.review_generation.wrapping_add(1);
+                ai.editor = None;
+                ai.evidence = None;
+                ai.review = None;
+                self.simple_note_path = None;
+                self.open_doc = Some(DocRef::Findings);
+                self.centre_tab = CentreTab::Document;
+                if let Some(command) = ai.open_findings() {
+                    self.simple_send(command, cx);
+                }
+            }
             EditorTransition::Draft(turn) => {
                 if !self.ai.as_mut().unwrap().begin_draft(turn) {
                     cx.notify();
                     return;
                 }
+                self.ai.as_mut().unwrap().close_findings();
                 self.clear_saved_link_panel();
                 self.clear_saved_sources();
                 let ai = self.ai.as_mut().unwrap();
@@ -964,6 +990,15 @@ impl Desktop {
                     .disabled(!ai.ready)
                     .on_click(cx.listener(|this, _, _, cx| {
                         this.simple_leave(EditorTransition::Activity, cx)
+                    })),
+            )
+            .child(
+                Button::new("open-findings")
+                    .label("Needs Review")
+                    .selected(self.open_doc == Some(DocRef::Findings))
+                    .disabled(!ai.ready)
+                    .on_click(cx.listener(|this, _, _, cx| {
+                        this.simple_leave(EditorTransition::Findings, cx)
                     })),
             )
             .child("Proposal review")

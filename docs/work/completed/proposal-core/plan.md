@@ -1071,7 +1071,6 @@ extend this creation boundary. Manual scenarios above remain reproducible pendin
 GUI/IME/accessibility, live usability and owner acceptance. Automated success is
 not release qualification. Continue Stage 5 identity/provenance in dependency order.
 
-
 ## Stage 4 checkpoint A — reviewed proposal application
 
 Publication baseline `151b3afde0c5b4fe286f55531d5a8f2420dc406e` preserves
@@ -1127,11 +1126,12 @@ format/diff checks passed. A new exact-head CI qualification is pending.
 
 Stage 4A PR #19 merged as `73410a3522b5a8512a804cb58afa32e28a661ebc` after
 exact head `0820685` passed macOS Core/UI/Retrieval and Ubuntu shared Core in
-CI `37186102409`. Windows retains the existing Unix API failure; the overall
-run is red. Qualified and merged trees match. Fresh post-merge **8 application
-tests + 52 fixtures**, desktop build and two startup/restart runs passed with
-exact synthetic bytes and zero credential files. Stage 4B preserves the reviewed
-Activity/Undo/Trash/Repair slices and carries forward that qualified baseline.
+CI `37186102409`. Windows retains existing Unix API failures; the overall run
+is red. Qualified and merged trees match; fresh 8 application tests, 52 fixtures,
+desktop build and startup/restart twice passed with exact synthetic bytes and no
+credential files. The current locally integrated Stage 5 main incorporates those
+published portability fixes; completed Proposal Core evidence stays here rather
+than resurrecting its superseded active folder. Stage 4B/C publication follows.
 
 ## Stage 4 checkpoint B — Activity, Undo, Trash and repair
 

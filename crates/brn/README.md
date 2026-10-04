@@ -12,6 +12,11 @@ A data directory has one owner at a time.
 
 ```text
 brn activity list [--limit N] [--before OPERATION_UUID]
+brn findings capture --file REQUEST.json
+brn findings list [--state open|resolved|dismissed|all] [--limit N] [--before UUID]
+brn findings show UUID
+brn findings inspect UUID
+brn findings close UUID --version N --state resolved|dismissed
 brn proposals create --file DRAFT.json
   brn identity inventory
   brn identity resolve NOTE_UUID
@@ -61,7 +66,8 @@ brn proposals create --file DRAFT.json
 
 Global long options can appear before or after a command: `--data-dir DIR`
 (required, existing and absolute), `--json`, `--vault DIR`, `--credentials-dir
-DIR`, `--model-dir DIR`, `--help` and `--version`. Help/version never open storage.
+DIR`, `--model-dir DIR`, `--help` and `--version`. Global help/version never open storage.
+Within `findings close`, `--version N` names the finding's exact review version.
 The vault must be an existing regular absolute directory; first binding is saved.
 Credential paths are absolute, current-user-owned, protected and outside Git,
 operational storage and the vault. The default is the sibling
@@ -160,6 +166,40 @@ For a manual check, create an existing data directory and synthetic vault, open
 and a fresh UUID, and compare the file bytes. Recover another edit and reopen
 the CLI to confirm it remains available. Change the disk file externally before
 Save and confirm refusal; verify Save Copy also refuses an occupied destination.
+
+### Tentative review findings
+
+`findings capture` accepts strict regular JSON up to 64 KiB before opening
+operational storage. The request names a fresh nonnil `id` and one `origin`:
+`{"kind":"identity_ambiguity","note_id":"UUID"}` or
+`{"kind":"unresolved_link","path":"note.md","source_sha256":[32 bytes],
+"destination":"missing.md","start_byte":123}`. Use the saved hash, destination
+and first occurrence start returned by `links show PATH`; do not infer a range
+from displayed excerpts. Capture observes actual saved evidence, preserves full
+fingerprints and exact quotes, and changes no knowledge or proposal.
+
+List defaults to 25 Open records; limits are 1–100. Full show/inspect output retains
+title, summary, original path/UUID, device/inode/byte length/hash and exact quoted
+ranges. Human strings use JSON notation to preserve line endings and avoid
+ambiguous display. Inspect adds separate fresh Unchanged/Changed/Unavailable
+proofs; original evidence is never re-anchored. Unchanged proof does not establish
+that the issue still exists. Exact version-one Resolve/Dismiss is a direct queue
+operation; correction still requires a separately reviewed approved proposal.
+Identical capture/closure replay survives restart and closure. History and closure
+work without available vault evidence.
+
+For manual acceptance, create a fresh synthetic managed note with a reference link
+to `missing.md` and its used definition. Obtain exact proof with `links show`,
+capture it using the strict shape above and inspect both retained quote ranges.
+Restart and compare full show output. Replace the saved file with the same bytes
+under a new inode and inspect: Changed must retain the original quotes/hash and
+show the different inode. Remove only that synthetic note and inspect:
+Unavailable must still show the original finding. Close using its actual version,
+replay the same request, and confirm it stays closed. A competing old-version
+closure must refuse. Duplicate a synthetic UUID across two distinct saved paths
+and capture `identity_ambiguity`; compare both proofs and unchanged Markdown.
+Run `proposals list` to confirm capture created no proposal. Native queue and owner
+acceptance remain separate qualification steps.
 
 ### Approved activity
 
