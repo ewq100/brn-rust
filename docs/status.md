@@ -132,7 +132,10 @@ actionable defect. Fresh macOS arm64/Rust1.98.1 locked/offline checks passed
 168combined-native/0failed/0ignored, both native Clippy variants and shipping
 desktop/CLI builds;136focused-native-workflow/0failed/2ignored. Two shipping
 startup/restart runs preserved exact BOM/CRLF/Unicode bytes with zero credentials.
-Applicable exact latest PR CI and post-merge verification are pending. GUI/owner
+PR23 initial CI passed both Mac native lanes but Ubuntu rejected an unused
+Mac-only provenance-test helper. The narrow independently reviewed matching
+helper guard passed fresh3CLI provenance tests and workspace Clippy; new exact
+head applicable CI and post-merge verification remain pending. GUI/owner
 acceptance remains separate. Later relationships/findings/language checkpoints
 remain pending; Stage5 is not complete.
 

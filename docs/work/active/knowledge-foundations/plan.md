@@ -632,3 +632,12 @@ findings, then language; safe Stage6 implementation continues independently.
 Mac mini requirements: AppleSilicon/CLT, pinnedRust1.98.1, cached locked dependencies,
 protobuf/Bash/Python3, canonical owned synthetic TMPDIR and unlockedGUI acceptance.
 No assets/live/original-data/release actions occurred.
+
+Stage5B initial exact57c71f5 run37193439338 passed both macOS native lanes but
+Ubuntu Clippy rejected the unconditional `provenance_cli::ok` test helper. Its
+actual log reports unused `ok`; all callers are inside one cfg(macos) test.
+Independent read-only correction review confirmed that a sole matching helper
+guard preserves both shared preflight tests and found no other B-test dead helper.
+Fresh corrected3CLI provenance tests,workspace all-target Clippy,format and diff
+passed; applicable CI must qualify the new exact head. Windows retains the known
+Unix API failure. Initial macOSCore completion is not relied on for integration.
