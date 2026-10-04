@@ -13,6 +13,11 @@ thin future adapters through workflow/AppWorker. Independent implementation audi
 found no desktop/CLI domain bypass; existing scoped knowledge/proposal/activity
 commands are retained. Read-only local stdio MCP is future work; no daemon,
 network service or added V1 stage is authorized by this amendment.
+Workflow-owned search evidence now keeps SQLite passage IDs inside retrieval.
+The real row-reallocation regression and independent correction review passed;
+exact quotations/hashes/scopes remain stable across disposable-index rebuilds.
+Merged-main CI37197827195 passed Mac3+UbuntuCore/UI; existing non-Mac exclusive
+install/Unix API gaps leave overallCIred, without a shared macOS defect.
 
 Manual Save/recovery (`6609442`) preserves exact UTF-8, generation-bound recovery
 and file/parent/root identities. Copies install exclusively; missing originals

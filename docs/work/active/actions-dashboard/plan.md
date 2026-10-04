@@ -152,3 +152,17 @@ Checkpoint PR/exact-head CI remain pending. Next: extend the existing ApplyJourn
 with immutable complete Action after-state, atomic CAS/receipt settlement and
 older-backup import; retain workflow/refusal guards until mixed recovery qualifies.
 Macmini environment and all live/model/private/release boundaries above remain.
+
+
+Stored review locally integrated08021fb1a0ab23b923ab0b0b8258fe975cd4c275.
+Qualified PR25/8295326 then joins this checkpoint. Independent merge review
+verified incoming3source files exactly and preserved all root16Stage5/Stage6B
+code/evidence and ownerAGENTS edits; only two docs conflicts needed composition.
+Fresh164native-workflow/0failed/2ignored (`--lib --test models --test library
+--test ai_tools --test ai_tools_scopes --test knowledge_scopes --test proposals`),
+workspace all-target Clippy,format/diff and38doc links passed. Last full977/213
+stored-review gates above precede this separately qualified incoming source delta.
+PR25 merged-main run37197827195 passed Mac3+UbuntuCore/UI; Ubuntu native retrieval
+has three existing unsupported exclusive-install expectations, Windows3 Unix API
+failures,overallCIred. Independent analysis found no sharedMac/client-boundary
+defect; non-Mac-specific failures remain informational under owner policy.

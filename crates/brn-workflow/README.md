@@ -13,6 +13,12 @@ search/read/list default to Current; other scopes are explicit. Retrieval remain
 replaceable inside the core. No MCP implementation, daemon or remote service is
 part of this amendment.
 
+Search results expose workflow-owned `NoteHit` evidence (path, whole-note hash,
+byte range, exact quote and relative score). SQLite passage IDs stay inside
+retrieval for ranking/fusion and are not client identifiers. Domain scope and
+relationship DTOs retain their current meaning; adapters must not depend on
+retrieval storage details.
+
 ## Interfaces and source
 
 [Application](src/app.rs), [commands/events](src/app_worker.rs), [chat lane](src/chat_worker.rs), [editor](src/editor.rs), [proposal review](src/proposals.rs), [proposal application](src/proposal_apply.rs), [durable provenance](src/knowledge/provenance.rs), [activity](src/activity.rs), [file adapter](src/files/mod.rs).
