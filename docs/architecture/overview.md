@@ -29,9 +29,9 @@ The sections below describe existing code and compatibility behavior, not proof 
 | --- | --- | --- |
 | [brn](../../crates/brn/README.md) | Agent-facing `brn` CLI over the shared workflow | Workflow |
 | [brn-core](../../crates/brn-core/README.md) | In-memory shell, generation correlation and sample worker | None |
-| [brn-store](../../crates/brn-store/README.md) | SQLite records, migrations, exact revisions, drafts, comments, managed-note registry and unfinished-work recovery | None |
+| [brn-store](../../crates/brn-store/README.md) | WorkStore operations/editor recovery/save journals; retained legacy revisions, drafts, comments and note registry | None |
 | [brn-retrieval](../../crates/brn-retrieval/README.md) | Derived indexes, search profiles and evidence validation | None |
-| [brn-workflow](../../crates/brn-workflow/README.md) | Legacy local operations/worker/`brn-flow`; simple AppWorker, current-vault read tools and consented model installation | Store, retrieval, AI |
+| [brn-workflow](../../crates/brn-workflow/README.md) | Simple AppWorker, Markdown Save/recovery, current-vault read tools and consented model installation; retained legacy local worker/`brn-flow` | Store, retrieval, AI |
 | [brn-ai](../../crates/brn-ai/README.md) | Explicit ChatGPT/Copilot authentication, owned Rig clients and streamed read-only answers | None |
 | [brn-desktop](../../crates/brn-desktop/README.md) | GPUI workspace shell (history, document/chat, vault), presentation DTOs/layout and sample headless checks | Core, workflow |
 
@@ -64,11 +64,32 @@ App lane, not through an extra frontend WorkStore.
    but every legacy Ask returns typed LegacyAiRetired without lookup or mutation.
 4. Draft working copies are saved separately from immutable checkpoints and retained AI candidates.
 5. Comments retain original immutable provenance and expose conservative mappings and independent lifecycle status.
-6. Managed Markdown notes open and explicitly save through the shared note workflow. Automatic editing-buffer recovery commits unfinished work to SQLite, not to Markdown.
+6. Simple Markdown editing and retained legacy notes explicitly save through the shared workflow. Automatic editing-buffer recovery commits unfinished work to SQLite, not to Markdown.
+
+## Simple Markdown Save and recovery
+
+`brn-workflow::editor` coordinates WorkStore's exact editing baselines, buffers,
+save/copy intents and receipts through AppWorker. Fresh file observations remain
+separate from recovery text. Its private macOS adapter is shared with the retained
+legacy path: descriptor-relative containment, vault ownership, Foundation
+coordination, attribute-preserving atomic exchange/exclusive installation and
+required durability remain enforced. Missing originals are not recreated.
+
+Save binds exact submitted generations and parent/file identity; acknowledgements
+preserve later typing. Save Copy uses an independent unused destination.
+Reconciliation classifies interruptions from identity proof without repeating
+writes. Unresolved saves fence current search/AI tools; uncertain original writes
+block further original Save. Confirmed reload binds reviewed disk state and
+explicit discard. WorkStore retains one recent Applied recovery pair plus compact
+settled receipts after proven artifact retirement; unresolved work and unexpected
+artifacts remain protected. Native guarded navigation/close/Quit waits for
+acknowledged buffer recovery; Dock/system termination can lose unacknowledged
+typing. Implementation and qualification are distinguished in [status](../status.md).
 
 ## Managed-note authority
 
-For enrolled notes, the live registered Markdown file is the authority for
+The remaining managed-note contracts describe the retained legacy compatibility
+path until Stage 2 removal. For enrolled notes, the live registered Markdown file is the authority for
 current saved content. SQLite owns vault/note/path identity, search permission,
 editing baselines and buffers, save/copy intents, recovery pairs and compact
 operation results. Immutable imported originals, revisions, comments and
@@ -130,8 +151,10 @@ are historical implementation/design evidence. New work follows the frozen targe
 and current [roadmap](../roadmap.md).
 Rig subscription chat, protected file credentials and saved-vault retrieval are
 implemented and merged through PR #14; production App Server is retired.
-Simple proposal/approval tools and simple Markdown Save/legacy cleanup
-are not implemented; the old Steps 5/6 order is superseded.
+Simple manual Save/recovery is implemented and automated checks have passed;
+native acceptance remains pending in [status](../status.md).
+Proposal/approval tools and legacy removal follow the current roadmap;
+the old Steps 5/6 order is superseded.
 `brn-core` still serves sample/headless shell behavior.
 Build/state tests do not establish graphical usability, live-provider acceptance
 or release readiness.

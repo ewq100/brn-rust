@@ -27,7 +27,8 @@ pub fn simple_dispatch(i: &Invocation) -> Result<bool, CliFailure> {
     let mode = brn_workflow::workspace_mode(&i.data_dir).map_err(classify_workflow)?;
     let explicit = matches!(
         i.command,
-        Command::Ai(_)
+        Command::Editor(_)
+            | Command::Ai(_)
             | Command::ModelDownload { .. }
             | Command::NotesList { .. }
             | Command::NotePath(_)
@@ -257,7 +258,10 @@ impl<W: EventLane> Lane<W> {
     }
 
     fn query(&mut self, command: AppCommand) -> Result<AppEvent, CliFailure> {
-        let id = Uuid::new_v4();
+        self.query_with_id(Uuid::new_v4(), command)
+    }
+
+    fn query_with_id(&mut self, id: Uuid, command: AppCommand) -> Result<AppEvent, CliFailure> {
         self.worker
             .submit(id, command)
             .map_err(|error| self.command_error(error))?;
@@ -303,6 +307,7 @@ fn confirmed_success(event: &AppEvent) -> bool {
             AccountReply::Status(_) | AccountReply::Disconnected | AccountReply::Models(_)
         ),
         AppEvent::ModelInstalled => true,
+        AppEvent::EditorRecovered(_) | AppEvent::EditorSaved(_) => true,
         _ => false,
     }
 }
@@ -318,6 +323,11 @@ fn output(data: Value) -> Output {
 }
 
 pub fn run(i: &Invocation) -> Result<Output, CliFailure> {
+    let editor = if let Command::Editor(command) = &i.command {
+        Some(super::editor::prepare(command)?)
+    } else {
+        None
+    };
     if matches!(i.command, Command::ModelDownload { .. })
         && !brn_workflow::native_retrieval_compiled()
     {
@@ -341,7 +351,7 @@ pub fn run(i: &Invocation) -> Result<Output, CliFailure> {
     };
     let result = (|| {
         let mut lane = Lane::start(i, timeout)?;
-        let result = execute(i, &mut lane, ask_id);
+        let result = execute(i, &mut lane, ask_id, editor);
         lane.finish(result)
     })();
     result.map_err(|mut failure: CliFailure| {
@@ -354,8 +364,24 @@ pub fn run(i: &Invocation) -> Result<Output, CliFailure> {
     })
 }
 
-fn execute(i: &Invocation, lane: &mut Lane, ask_id: Option<Uuid>) -> Result<Output, CliFailure> {
+fn execute(
+    i: &Invocation,
+    lane: &mut Lane,
+    ask_id: Option<Uuid>,
+    editor: Option<(Uuid, AppCommand)>,
+) -> Result<Output, CliFailure> {
     match &i.command {
+        Command::Editor(_) => {
+            let (id, command) = editor.expect("editor input prepared before startup");
+            let data = match lane.query_with_id(id, command)? {
+                AppEvent::Editor(view) => json!(view),
+                AppEvent::EditorRecovered(record) => json!(record),
+                AppEvent::EditorSaved(receipt) => json!(receipt),
+                AppEvent::Editors(records) => json!(records),
+                _ => return Err(unexpected()),
+            };
+            Ok(output(data))
+        }
         Command::Status => {
             let AppEvent::Status(status) = lane.query(AppCommand::Status)? else {
                 return Err(unexpected());
@@ -1185,6 +1211,48 @@ mod tests {
     fn all_dispatch_rows_use_shared_classifier_without_network_or_authority_creation() {
         let id = "00000000-0000-0000-0000-000000000001";
         let simple = vec![
+            vec!["edit", "open", "plan.md"],
+            vec!["edit", "list"],
+            vec!["edit", "reconcile", id],
+            vec![
+                "edit",
+                "reload",
+                "plan.md",
+                "--baseline",
+                id,
+                "--expected-generation",
+                "0",
+                "--observed-file",
+                "/synthetic",
+            ],
+            vec![
+                "edit",
+                "recover",
+                "plan.md",
+                "--baseline",
+                id,
+                "--expected-generation",
+                "0",
+                "--generation",
+                "1",
+                "--file",
+                "/synthetic",
+            ],
+            vec![
+                "edit",
+                "save",
+                "plan.md",
+                "--baseline",
+                id,
+                "--expected-generation",
+                "0",
+                "--generation",
+                "1",
+                "--file",
+                "/synthetic",
+                "--operation",
+                id,
+            ],
             vec!["ai", "connect", "chatgpt"],
             vec!["ai", "disconnect", "copilot"],
             vec!["ai", "status"],

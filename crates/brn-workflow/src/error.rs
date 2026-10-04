@@ -34,6 +34,7 @@ pub enum ErrorKind {
     IndexStale,
     EvidenceStale,
     ContextStale,
+    SaveUncertain,
     IndexInvalid,
     ProfileUnavailable,
     OperationConflict,
@@ -135,6 +136,8 @@ impl From<store::Error> for WorkflowError {
                 kind: ErrorKind::OperationConflict,
                 message,
             },
+            store::Error::StateChanged(message) => Self::typed(ErrorKind::ContextStale, message),
+            store::Error::SaveUncertain(message) => Self::typed(ErrorKind::SaveUncertain, message),
             store::Error::NotFound(message) => Self {
                 kind: ErrorKind::NotFound,
                 message,

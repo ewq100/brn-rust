@@ -421,7 +421,7 @@ fn v1_upgrade_and_restored_v1_backup_preserve_work() {
         let version: i64 = raw(dir.path())
             .query_row("PRAGMA user_version", [], |r| r.get(0))
             .unwrap();
-        assert_eq!(version, 2);
+        assert_eq!(version, 3);
     }
 }
 
@@ -552,7 +552,7 @@ fn newer_schema_is_untouched_and_backups_keep_five() {
         assert_eq!(backup.exists(), n >= 2);
     }
     raw(dir.path())
-        .pragma_update(None, "user_version", 3)
+        .pragma_update(None, "user_version", 99)
         .unwrap();
     let before = std::fs::read(dir.path().join("brn.sqlite")).unwrap();
     assert!(matches!(

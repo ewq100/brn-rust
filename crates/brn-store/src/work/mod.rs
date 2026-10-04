@@ -3,6 +3,7 @@
 //! up after every successful open. Notes themselves live in the vault.
 mod backup;
 pub mod chat;
+pub mod editor;
 mod edits;
 
 use crate::{Result, acquire_owner_lock, check_regular_single_link, invalid};
@@ -16,6 +17,9 @@ use std::{
 };
 
 pub use chat::{WorkConversation, WorkTurn, WorkTurnStatus};
+pub use editor::{
+    EditRequest, EditStamp, EditorRecord, SaveIntent, SaveOutcome, SaveReceipt, SaveRequest,
+};
 pub use edits::UnsavedEdit;
 
 /// Largest note, unsaved edit or proposal text, in bytes.
@@ -53,6 +57,7 @@ const MIGRATIONS: &[&str] = &[
         UNIQUE(conversation_id, sequence, role)
     );
     CREATE INDEX messages_conversation ON messages(conversation_id, sequence);",
+    editor::V3,
 ];
 
 #[derive(Debug, Clone, PartialEq, Eq)]

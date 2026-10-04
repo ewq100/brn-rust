@@ -1,50 +1,60 @@
 # Current development status
 
-2026-10-03. Product code is merged through PR #14 at `main@50f898a` (native/user acceptance pending); the vision and dated architecture audits/review are saved through `main@95f0a8e`.
+2026-10-03. Stage 1 is locally integrated on `main` by the commit containing
+this record, based on frozen-guidance baseline `4bf7878`. Earlier product code is merged through
+PR #14; its native/provider qualification remains open.
 
-The owner has frozen the reviewed product architecture and accepted the development-method audit. New work follows the [target architecture](architecture/overview.md#frozen-target), [invariants](architecture/invariants.md), [reviewed roadmap](roadmap.md) and [development workflow](development/workflow.md). This cleanup changes repository guidance only; it does not implement the target or change global skills/settings. The next product slice, simple safe Save, still needs task authorization.
+The owner has authorized sequential BRN v1 delivery using the [product vision](product/BRN_PRODUCT_VISION.md),
+[target architecture](architecture/overview.md#frozen-target), [invariants](architecture/invariants.md),
+[roadmap](roadmap.md) and [development workflow](development/workflow.md).
 
-Development-method cleanup is implemented in the working tree based on `main@95f0a8e`, pending integration. Documentation verification passed (`git diff --check`, local links/fragments and retired-redirect checks), and independent read-only review returned no findings. Four bounded routing exercises passed; these are policy smoke checks, not observation of a full fresh lead session or product acceptance. The owner accepted the method proposal; existing native/provider qualification below remains open.
+Stage 1 simple manual Save/recovery is implemented and automated verification
+has passed. Final independent read-only review returned no findings. Owner
+native acceptance remains pending. The [slice record](work/completed/simple-save/plan.md)
+contains reproducible acceptance steps and verification detail.
 
-The historical [simple Rig-based notes app](work/active/simple-rig-notes/plan.md) Steps 1–4
-are implemented. All eight Step 4 tasks and the whole branch received Opus
-reviews; the final conversation-display and deadline fixes passed scoped
-re-review through `dccc24a`. Exact commits/checks/limitations
-are in [evidence](work/active/simple-rig-notes/evidence.md).
+- Simple CLI and native editing use AppWorker. Explicit Save/Cmd-S preserves exact
+  UTF-8 bytes, detects changed file/root/parent identity and never recreates a
+  missing original. Save Copy uses an unused destination without overwriting or
+  resolving the original editor. Compare and confirmed reload remain local.
+- WorkStore V3 holds generation-checked recovery, save intent/proof and receipts.
+  Replay never repeats file writes. Reconciliation requires identity proof;
+  unresolved saves fence current search/AI. One recent Applied recovery pair and
+  compact settled receipts remain after proven artifact cleanup.
+- Native recovery coalesces after 500 ms; only acknowledgement establishes
+  recoverability. Guarded note-switch/close/Quit waits for the latest buffer and
+  admitted work. Failed recovery retains text for explicit retry. Dock/system
+  termination can lose unacknowledged typing.
+- Native defaults to BRN-simple with its protected credential sibling. Chat,
+  local history, explicit provider/model selection and saved-vault retrieval
+  remain implemented. Default builds are keyword-only; model installation needs
+  fresh consent. Streaming/finalization and UUID replay retain their existing
+  safety distinctions.
+- Legacy local editing/recovery/history/drafts/comments remain available in
+  separate legacy data folders until Stage 2. Proposal Core and later v1 stages
+  remain unimplemented. No original-data migration, live calls or release is
+  authorized by historical evidence.
 
-- Both CLI and native simple consumers use AppWorker for saved-vault
-  read/search, explicit account/provider/model actions, chat and local history.
-  Production App Server/crate/configuration is removed; old executable flags
-  are unknown, not ignored. Legacy local search/history/editor/drafts/comments/
-  recovery remain supported separately.
-- Native default is BRN-simple; credentials use saved explicit settings or its
-  exact BRN-simple.credentials sibling. Old BRN requires explicit legacy mode
-  or legacy markers. No original data inspection, migration or automatic login.
-- Streaming is provisional. Durable endings and visibly unsaved persistence
-  failures remain distinct; UUID replay never resubmits. New Ask refreshes current
-  vault tools, freezes provider/model, and never falls back.
-- Fresh consent is required for installation. Default builds are keyword-only;
-  native installer/worker/state checks use synthetic assets/vectors, not ONNX.
-- Simple notes are **saved-file readers only**. Simple proposal/approval tools
-  and simple Markdown Save/legacy cleanup are unimplemented. The old Steps 5/6
-  ordering is superseded by safe Save/recovery → legacy removal → Proposal Core
-  in the current roadmap (with scoped provider capability checks before Proposal Core).
+Fresh Stage 1 verification: workspace **728 passed, 0 failed, 1 ignored**;
+native desktop **137 unit + 6 CLI tests passed**; native workflow **93 library +
+5 model tests passed, 1 ignored**. Native desktop/CLI builds, native Clippy,
+**47 fixture assertions** and launcher checks passed. These checks use synthetic
+fixtures; the ignored tests and other limits are recorded in the slice record.
+
+Stage 2 legacy removal is the next authorized slice.
+Owner acceptance may remain pending when it is not a dependency for later safe
+implementation.
 
 ## Qualification still open
 
-Offline/default/native build and state evidence is not graphical usability,
-real model inference, account validity or acceptance. ChatGPT remains
-conditional after the historical quota-blocked spike; separate authorization
-is required for live login/tool/stream/restart/refresh/Stop checks for both
-providers. No accounts, downloads or original data were used in Task 8.
-Upstream `block v0.1.6` retains a future-compiler warning.
+Builds and synthetic state/crash tests do not establish graphical usability,
+power-loss durability, other-volume support, actual model inference, account
+validity or release readiness. Native Save/Copy/conflict/reload/recovery,
+chooser, IME, accessibility, rendering and Stop/restart acceptance remain pending.
+Live provider capability checks require separate authorization; ChatGPT remains
+conditional after its historical quota-blocked spike. No release or distribution
+qualification is claimed. Upstream `block v0.1.6` retains a future-compiler warning.
 
-Guarded close joins off GPUI. Legacy final quit synchronously joins already
-admitted critical notes before the timed future; it does not flush unadmitted
-typing. Simple Dock/system termination cannot veto exit or guarantee its
-background drain within GPUI's deadline.
-
-Human/native chooser, IME, accessibility, rendering, Stop/restart and legacy
-Save/recovery acceptance remain pending. PR #14 is merged; no release or distribution qualification is claimed.
-[Historical evidence](work/completed/README.md) and
-the superseded Rig/provider plans remain evidence, not current instructions.
+Earlier implementation/check details remain in the [simple Rig notes evidence](work/active/simple-rig-notes/evidence.md)
+and [historical evidence](work/completed/README.md). Those records are supporting
+history, not current execution plans or standing account permissions.

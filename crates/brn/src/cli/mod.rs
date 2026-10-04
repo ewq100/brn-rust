@@ -10,6 +10,7 @@ pub mod ask;
 pub mod comments;
 pub mod documents;
 pub mod drafts;
+pub mod editor;
 pub mod error;
 mod input;
 pub mod library;
@@ -37,6 +38,7 @@ pub struct Invocation {
 }
 
 pub enum Command {
+    Editor(editor::EditorCommand),
     Ai(ai::AiCommand),
     ModelDownload {
         timeout_seconds: u64,
@@ -197,6 +199,12 @@ Global options (accepted before or after the command):
   --version          Show the version (works without --data-dir)
 
 Commands:
+  brn edit open PATH
+  brn edit recover PATH --baseline UUID --expected-generation N --generation N --file F
+  brn edit save PATH --baseline UUID --expected-generation N --generation N --file F --operation UUID [--copy PATH]
+  brn edit reload PATH --baseline UUID --expected-generation N --observed-file F [--discard]
+  brn edit list
+  brn edit reconcile OPERATION
   brn notes open PATH --vault DIR [--operation UUID]
   brn ai connect chatgpt|copilot [--timeout-seconds N]
   brn ai disconnect chatgpt|copilot
@@ -565,6 +573,7 @@ fn parse_inner(
 
     // Pass 2: subcommand words, command-specific options and positionals.
     let mut scanned = match word.as_str() {
+        "edit" => editor::scan_command(&mut tokens, g, command)?,
         "ai" => ai::scan_command(&mut tokens, g, command)?,
         "models" => {
             if sub_word(&mut tokens, "models", "download")? != "download" {
@@ -790,6 +799,7 @@ fn parse_inner(
 
     // Build the command from scanned arguments.
     let built = match word.as_str() {
+        "edit" => Command::Editor(editor::parse_command(command.unwrap(), &scanned)?),
         "ai" => Command::Ai(ai::parse_command(command.unwrap(), &scanned)?),
         "models" => {
             expect_positionals(&scanned, 0)?;
@@ -1133,7 +1143,8 @@ fn parse_inner(
     }
     let simple_only = matches!(
         built,
-        Command::Ai(_)
+        Command::Editor(_)
+            | Command::Ai(_)
             | Command::ModelDownload { .. }
             | Command::NotesList { .. }
             | Command::NotePath(_)
@@ -1291,6 +1302,7 @@ pub fn execute(invocation: &Invocation) -> Result<Output, CliFailure> {
         | Command::DraftsSave { .. } => return drafts::run(invocation),
         Command::Status | Command::DocumentsList | Command::DocumentsShow { .. } => {}
         Command::Ai(_)
+        | Command::Editor(_)
         | Command::ModelDownload { .. }
         | Command::NotesList { .. }
         | Command::NotePath(_) => unreachable!(),

@@ -1,7 +1,7 @@
 # brn-workflow
 
-Shared application flow for desktop and headless use: simple Rig chat/read/search
-through AppWorker, plus retained legacy local notes, recovery, imports, drafts,
+Shared application flow for desktop and headless use: simple manual Markdown
+Save/recovery and Rig chat/read/search through AppWorker, plus retained legacy local notes, recovery, imports, drafts,
 comments and history. No App Server dependency or process remains.
 
 ## Interfaces and source
@@ -81,8 +81,35 @@ directory or Download action returns typed `SemanticUnavailableInBuild`
 and these builds do not offer an automatic download prompt. Explicit decline
 still persists without network. Native builds enable `native-retrieval` and
 continue to honor saved model directories and fresh consent.
-The CLI and desktop simple reads/history/AI actions use AppWorker. Legacy local editing/history remains guarded by Store mode checks.
-No simple Markdown Save is added here.
+The CLI and desktop simple editing/recovery/reads/history/AI actions use
+AppWorker. Legacy local editing/history remains guarded by Store mode checks.
+
+## Simple manual Markdown editing
+
+[`editor`](src/editor.rs) provides `open_editor`, `recover_editor`, `save_editor`,
+`reload_editor` and `reconcile_editor` through AppWorker. `EditorView` separates
+fresh saved bytes/fingerprint from the protected WorkStore buffer and exposes
+conflicts and pending operations. Recovery remains readable when the vault is
+unavailable. UTF-8, BOM, line endings and frontmatter remain exact; empty notes
+are valid and text is limited to 1 MiB.
+
+Save journals the generation-bound input before coordinated file work. The
+shared private macOS adapter validates root/parent/file identity and vault
+ownership, preserves attributes, uses durable sibling staging and atomic
+exchange, and never recreates a missing original. Save Copy installs exclusively
+at a distinct unused Markdown destination. A copy does not resolve or rebind the
+original. Required coordination/durability failures have no weaker fallback.
+
+Replay never repeats filesystem writes. Reconciliation checks prepared,
+destination-parent and installed/displaced identities; matching text alone
+cannot prove application. Unresolved saves fence current search and AI tools.
+Applied completion preserves later typing. One recent Applied recovery pair and
+compact settled receipts remain after identity-proven artifact cleanup;
+unexpected artifacts and unresolved payloads stay protected. Reload binds the
+exact reviewed disk observation and requires confirmed discard of dirty text.
+Already-admitted recovery/save/reload/reconcile commands drain on shutdown.
+Stage 1 automated checks passed; native usability remains pending in
+[status](../../docs/status.md).
 
 ## Owned application and chat lanes
 
@@ -91,9 +118,9 @@ No simple Markdown Save is added here.
 load. Opening errors arrive as `Failed`; startup emits optional `Restored` then
 `Ready`. `submit(uuid, AppCommand)` and `try_event()` /
 `recv_event_timeout(timeout)` use `(uuid, AppEvent)` results. Bind, selection,
-local status, notes/search, history, validated `RecoverEdit`, model prompt/consent/progress,
-account commands and terminal errors all use this seam. Recovery acknowledges
-SQLite's unsaved edit, **not** publication to Markdown.
+local status, editor/recovery/save/reload/reconcile, notes/search, history,
+model prompt/consent/progress, account commands and terminal errors all use this
+seam. Recovery acknowledges SQLite's unfinished work; explicit Save writes Markdown.
 
 The private [`ChatWorker`](src/chat_worker.rs) owns its runtime, attached
 `ChatStore` and `Arc<Auth>`. Keeping admission private prevents frontends from

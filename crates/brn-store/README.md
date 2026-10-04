@@ -1,15 +1,15 @@
 # brn-store
 
-Authoritative SQLite storage: sources/versions, durable operations, local sessions, drafts, immutable revisions, anchored comments and managed-note recovery. Owns migrations, integrity validation and recovery.
+Operational SQLite storage and recovery for the simple app, alongside retained legacy sources/versions, local sessions, drafts and comments. Owns migrations and integrity validation; vault files own saved Markdown.
 
 ## Interfaces and source
 
-[Store API](src/lib.rs), [drafts](src/drafts.rs), [comments](src/comments.rs), [anchor mapping](src/anchors.rs), [managed-note records](src/notes.rs).
+[Store API](src/lib.rs), [WorkStore](src/work/mod.rs), [simple editor records](src/work/editor.rs), [drafts](src/drafts.rs), [comments](src/comments.rs), [anchor mapping](src/anchors.rs), [legacy managed-note records](src/notes.rs).
 
 ## Mutually exclusive workspace modes
 
 Legacy `Store` (`brn.sqlite3`, schema V6) and simple `WorkStore`
-(`brn.sqlite`, schema V2) acquire the same `brn.owner.lock` **before** checking
+(`brn.sqlite`, schema V3) acquire the same `brn.owner.lock` **before** checking
 opposite-mode markers and **before** opening SQLite. Both refuse the other
 database and its `-wal`, `-shm` and `-journal` sidecars. Legacy Store also refuses
 recognized `backups/brn-<decimal>.sqlite` backups (including their sidecars);
@@ -174,11 +174,28 @@ filesystem operation or search approval is performed by the store.
 ## Simple notes WorkStore
 
 [`work`](src/work/mod.rs) owns the separate `brn.sqlite` database, application
-ID `BRN2`. V1 settings and unsaved edits are preserved by the appended V2
-conversations/messages migration; the legacy `Store` V6 schema is unchanged.
+ID `BRN2`. Additive V2 conversations/messages and V3 editor/save migrations
+preserve V1 settings and unsaved edits; the legacy `Store` V6 schema is unchanged.
 Every open retains the owner lock, checks integrity, upgrades supported schemas,
 reconciles Running chat pairs to Interrupted, then creates the startup backup
 and keeps the five newest copies. Foreign and newer databases remain refused.
+
+[`editor`](src/work/editor.rs) preserves exact baseline/buffer text, baseline
+tokens and monotonic generations. Opening never replaces existing recovery.
+Matching earlier unsaved text moves atomically into the editor record;
+conflicting earlier recovery stays protected. Save commits its exact request and
+intent before filesystem work; UUID replay binds the request and staging path.
+Prepared identity, destination-parent identity and an explicit verified no-op
+marker remain distinct. Pending/Uncertain original saves block another original.
+
+Applied original receipts atomically advance the baseline while retaining later
+typing. Copies do not rebind the original editor. One most-recent Applied recovery
+pair is retained per path; no-op/refused saves do not refresh it. Workflow retires
+only proven obsolete artifacts before storage compacts settled payloads into
+hash-checked receipts. Pending/Uncertain work and the latest Applied original
+retain full journals. Confirmed reload adopts freshly reviewed disk bytes with
+an exact stamp and explicit discard of local changes. Storage performs no file
+installation or removal.
 
 [`chat`](src/work/chat.rs) persists only local text-only user/assistant pairs.
 `begin_turn` atomically inserts both rows with the same UUID, conversation
@@ -208,7 +225,7 @@ this slice does not attach additional connections or implement workers.
 Focused offline checks, using disposable synthetic fixtures:
 
 ```sh
-cargo test -p brn-store --test work --test work_chat --locked
+cargo test -p brn-store --test work --test work_chat --test work_editor --locked
 cargo clippy -p brn-store --all-targets --locked -- -D warnings
 ```
 

@@ -68,6 +68,10 @@ pub enum Error {
     OperationConflict(String),
     /// A requested durable record does not exist.
     NotFound(String),
+    /// A submitted editor baseline or generation no longer matches durable work.
+    StateChanged(String),
+    /// An original Markdown save must be reconciled before another can begin.
+    SaveUncertain(String),
 }
 impl std::fmt::Display for Error {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
@@ -78,7 +82,9 @@ impl std::fmt::Display for Error {
             | Self::WorkspaceBusy(e)
             | Self::WorkspaceModeConflict(e)
             | Self::OperationConflict(e)
-            | Self::NotFound(e) => f.write_str(e),
+            | Self::NotFound(e)
+            | Self::StateChanged(e)
+            | Self::SaveUncertain(e) => f.write_str(e),
         }
     }
 }

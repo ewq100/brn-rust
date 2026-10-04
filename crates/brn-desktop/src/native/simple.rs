@@ -16,17 +16,23 @@ pub(super) struct Closed {
     result: brn_workflow::Result<()>,
     events: Vec<(Uuid, AppEvent)>,
 }
+pub(super) enum EditorTransition {
+    Note(String),
+    Hide,
+    Close(CloseRoute),
+}
 
 pub(super) fn final_quit(
     legacy_shutdown: impl FnOnce(),
     simple_shutdown: impl FnOnce(),
     preferences: impl std::future::Future<Output = ()>,
 ) -> impl std::future::Future<Output = ()> {
-    // Legacy accepted note mutations must join before GPUI starts its quit-future deadline.
+    // Accepted note mutations join before GPUI starts its quit-future deadline.
+    // This hook submits no final typing flush; guarded routes do that beforehand.
     legacy_shutdown();
+    simple_shutdown();
     async move {
         preferences.await;
-        simple_shutdown();
     }
 }
 
@@ -125,6 +131,13 @@ impl Desktop {
         }
         let changed = !events.is_empty();
         for (id, event) in events {
+            if matches!(
+                self.ai.as_ref().unwrap().pending.get(&id),
+                Some(Pending::EditorReload)
+            ) && matches!(&event, AppEvent::EditorRecovered(_) | AppEvent::Failed(_))
+            {
+                self.simple_editor_generation = None;
+            }
             let commands = self.ai.as_mut().unwrap().apply(id, event);
             for command in commands {
                 self.simple_send(command, cx);
@@ -134,6 +147,36 @@ impl Desktop {
         for command in self.ai.as_ref().unwrap().stop_controls() {
             self.simple_send(command, cx);
         }
+        if self.ai.as_ref().unwrap().editor.is_some()
+            && self.simple_editor_generation != Some(self.ai.as_ref().unwrap().note_generation)
+        {
+            let text = self
+                .ai
+                .as_ref()
+                .unwrap()
+                .editor
+                .as_ref()
+                .unwrap()
+                .text
+                .clone();
+            self.note_editor
+                .update(cx, |editor, cx| editor.set_value(text, window, cx));
+            self.simple_editor_generation = Some(self.ai.as_ref().unwrap().note_generation);
+        }
+        if self
+            .ai
+            .as_ref()
+            .unwrap()
+            .editor
+            .as_ref()
+            .is_some_and(|editor| {
+                editor.wants_recovery(Instant::now(), self.simple_transition.is_some())
+            })
+            && let Some(command) = self.ai.as_mut().unwrap().recover_editor()
+        {
+            self.simple_send(command, cx);
+        }
+        self.simple_progress_transition(cx);
         let ai = self.ai.as_ref().unwrap();
         self.phase = if ai.startup_failed {
             Phase::Failed(ai.notice.clone())
@@ -181,16 +224,128 @@ impl Desktop {
         cx.notify();
     }
     pub(super) fn simple_note(&mut self, path: String, cx: &mut Context<Self>) {
-        let ai = self.ai.as_mut().unwrap();
-        ai.note_generation = ai.note_generation.wrapping_add(1);
-        ai.note = None;
-        ai.note_error = None;
-        let generation = ai.note_generation;
+        if self.simple_note_path.as_deref() == Some(&path)
+            && self.ai.as_ref().unwrap().editor.is_some()
+        {
+            self.centre_tab = CentreTab::Document;
+            cx.notify();
+            return;
+        }
+        self.simple_leave(EditorTransition::Note(path), cx);
+    }
+    fn simple_open_note(&mut self, path: String, cx: &mut Context<Self>) {
+        let command = self.ai.as_mut().unwrap().open_editor(path.clone());
         self.simple_note_path = Some(path.clone());
         self.note_scroll.set_offset(point(px(0.), px(0.)));
         self.open_doc = Some(DocRef::SavedNote);
         self.centre_tab = CentreTab::Document;
-        self.simple_command(Pending::Note { generation }, AppCommand::Note(path), cx);
+        self.simple_send(command, cx);
+    }
+    pub(super) fn simple_leave(&mut self, transition: EditorTransition, cx: &mut Context<Self>) {
+        if self.closing.is_some() || self.closed {
+            return;
+        }
+        self.simple_transition = Some(transition);
+        self.simple_progress_transition(cx);
+        cx.notify();
+    }
+    fn simple_progress_transition(&mut self, cx: &mut Context<Self>) {
+        if self.simple_transition.is_none() {
+            return;
+        }
+        if self
+            .ai
+            .as_ref()
+            .unwrap()
+            .editor
+            .as_ref()
+            .is_some_and(|editor| !editor.can_leave())
+        {
+            self.ai.as_mut().unwrap().notice = "Waiting for latest buffer recovery before leaving. Closing does not save Markdown.".into();
+            return;
+        }
+        match self.simple_transition.take().unwrap() {
+            EditorTransition::Note(path) => self.simple_open_note(path, cx),
+            EditorTransition::Hide => {
+                let ai = self.ai.as_mut().unwrap();
+                ai.note_generation = ai.note_generation.wrapping_add(1);
+                ai.editor = None;
+                self.simple_note_path = None;
+                self.open_doc = None;
+                self.centre_tab = CentreTab::Chat;
+            }
+            EditorTransition::Close(route) => self.begin_close(route, cx),
+        }
+    }
+    pub(super) fn simple_save(&mut self, destination: Option<String>, cx: &mut Context<Self>) {
+        if self.simple_transition.is_some() || self.closing.is_some() || self.closed {
+            return;
+        }
+        if let Some(command) = self.ai.as_mut().unwrap().save_editor(destination) {
+            self.simple_send(command, cx);
+        }
+    }
+    fn simple_compare(&mut self, window: &mut Window, cx: &mut Context<Self>) {
+        let Some(editor) = self.ai.as_ref().unwrap().editor.as_ref() else {
+            return;
+        };
+        let baseline = editor.view.record.baseline_text.clone();
+        let local = editor.text.clone();
+        let disk = editor
+            .view
+            .saved
+            .clone()
+            .unwrap_or("Disk unavailable".into());
+        window.open_dialog(cx, move |dialog, _, _| {
+            let mut body = div().flex().flex_col().gap_2();
+            for (label, text) in [
+                ("Editing baseline", &baseline),
+                ("Local buffer", &local),
+                ("Observed disk", &disk),
+            ] {
+                body = body.child(label).child(
+                    div()
+                        .id(label)
+                        .max_h(px(150.))
+                        .overflow_y_scroll()
+                        .child(text.clone()),
+                );
+            }
+            dialog
+                .title("Compare note versions")
+                .w(px(640.))
+                .child(body)
+        });
+    }
+    fn simple_confirm_reload(&mut self, window: &mut Window, cx: &mut Context<Self>) {
+        let Some(editor) = self.ai.as_ref().unwrap().editor.as_ref() else {
+            return;
+        };
+        let Some(request) = editor.reload_request() else {
+            return;
+        };
+        let reviewed = editor.view.saved.clone().unwrap_or_default();
+        let desktop = cx.entity().downgrade();
+        window.open_dialog(cx, move |dialog, _, _| {
+            let target = desktop.clone();
+            let request = request.clone();
+            dialog.title("Reload reviewed disk text?").w(px(640.))
+                .child(div().flex().flex_col().gap_2()
+                    .child("This replaces the current local buffer with the exact disk version shown below. Markdown is not changed.")
+                    .child(div().id("reviewed-disk").max_h(px(250.)).overflow_y_scroll().child(reviewed.clone()))
+                    .child(Button::new("confirm-simple-reload").label("Confirm reload / discard local buffer")
+                        .on_click(move |_, window, cx| {
+                            let _ = target.update(cx, |this, cx| {
+                                if let Some(command) = this.ai.as_mut().unwrap().reload_editor(request.clone()) {
+                                    this.simple_send(command, cx);
+                                } else {
+                                    this.ai.as_mut().unwrap().notice = "Editor changed while confirmation was open; review the disk version again.".into();
+                                    cx.notify();
+                                }
+                            });
+                            window.close_dialog(cx);
+                        })))
+        });
     }
     pub(super) fn simple_choose_vault(&mut self, cx: &mut Context<Self>) {
         if self.choosing_file || !self.ai.as_ref().unwrap().ready {
@@ -486,7 +641,7 @@ impl Desktop {
             .overflow_y_scroll()
             .gap_2()
             .p_2()
-            .child("Saved Markdown notes · read only")
+            .child("Markdown notes")
             .child(
                 ai.vault_root
                     .as_ref()
@@ -509,6 +664,24 @@ impl Desktop {
                     })),
             )
             .child(ai.model_state.clone());
+        if !ai.editors.is_empty() {
+            list = list.child("Registered / recovered buffers");
+            for record in &ai.editors {
+                let path = record.path.clone();
+                let unsaved = record.text != record.baseline_text;
+                list = list.child(
+                    Button::new(format!("recovered-{}", record.path))
+                        .label(format!(
+                            "{}{}",
+                            compact_title(&record.path),
+                            if unsaved { " · unsaved" } else { "" }
+                        ))
+                        .on_click(
+                            cx.listener(move |this, _, _, cx| this.simple_note(path.clone(), cx)),
+                        ),
+                );
+            }
+        }
         if let Some((_, embedded, total)) = ai.indexing {
             list = list.child(format!("Indexed embeddings: {embedded}/{total}"));
         }
@@ -564,6 +737,77 @@ impl Desktop {
     pub(super) fn render_simple_document(&mut self, cx: &mut Context<Self>) -> AnyElement {
         let p = self.palette();
         let ai = self.ai.as_ref().unwrap();
+        let leaving = self.simple_transition.is_some() || self.closing.is_some() || self.closed;
+        let mut body = div().flex_1().min_h(px(0.)).flex().flex_col().gap_2().p_3();
+        if let Some(editor) = &ai.editor {
+            body = body.child(editor.status());
+            if let Some(error) = &editor.error {
+                body = body.child(error.clone());
+            }
+            body = body
+                .child(div().key_context("MarkdownNote").flex_1().min_h(px(0.)).child(
+                    Editor::new(&self.note_editor).h_full()
+                        .disabled(leaving || editor.replacing()).aria_label("Markdown note editor")))
+                .child(div().flex().flex_wrap().gap_2()
+                    .child(Button::new("simple-save").label("Save to Markdown (Cmd-S)")
+                        .disabled(leaving || !editor.can_save())
+                        .on_click(cx.listener(|this, _, _, cx| this.simple_save(None, cx))))
+                    .child(Button::new("simple-flush-recovery").label("Flush / retry recovery")
+                        .disabled(editor.pending())
+                        .on_click(cx.listener(|this, _, _, cx| {
+                            if let Some(editor) = this.ai.as_mut().unwrap().editor.as_mut() { editor.retry_recovery(); }
+                            if let Some(command) = this.ai.as_mut().unwrap().recover_editor() { this.simple_send(command, cx); }
+                        })))
+                    .child(Button::new("simple-observe-disk").label("Observe disk")
+                        .disabled(leaving || editor.pending())
+                        .on_click(cx.listener(|this, _, _, cx| {
+                            if let Some(command) = this.ai.as_mut().unwrap().refresh_editor() { this.simple_send(command, cx); }
+                        })))
+                    .child(Button::new("simple-compare").label("Compare baseline / local / disk")
+                        .on_click(cx.listener(|this, _, window, cx| this.simple_compare(window, cx))))
+                    .child(Button::new("simple-reload").label("Reload reviewed disk…")
+                        .disabled(leaving || editor.reload_request().is_none())
+                        .on_click(cx.listener(|this, _, window, cx| this.simple_confirm_reload(window, cx))))
+                    .child(Button::new("cancel-simple-leave").label("Cancel pending close / navigation")
+                        .disabled(self.simple_transition.is_none())
+                        .on_click(cx.listener(|this, _, _, cx| {
+                            this.simple_transition = None;
+                            this.ai.as_mut().unwrap().notice = "Close / navigation cancelled; editor retained.".into();
+                            cx.notify();
+                        }))))
+                .child(div().flex().gap_2()
+                    .child(Input::new(&self.note_path).aria_label("Unused vault-relative .md copy destination"))
+                    .child(Button::new("simple-save-copy").label("Save Copy")
+                        .disabled(leaving || editor.pending())
+                        .on_click(cx.listener(|this, _, _, cx| {
+                            let destination = this.note_path.read(cx).value().to_string();
+                            if destination.is_empty() {
+                                this.ai.as_mut().unwrap().notice = "Enter an unused vault-relative .md destination for Save Copy.".into();
+                                cx.notify();
+                            } else { this.simple_save(Some(destination), cx); }
+                        }))));
+            for operation in &editor.view.pending {
+                let operation = *operation;
+                body = body.child(
+                    Button::new(format!("reconcile-{operation}"))
+                        .label("Reconcile uncertain Save")
+                        .disabled(editor.pending() || leaving)
+                        .on_click(cx.listener(move |this, _, _, cx| {
+                            this.simple_command(
+                                Pending::EditorReconcile,
+                                AppCommand::ReconcileEditor(operation),
+                                cx,
+                            );
+                        })),
+                );
+            }
+        } else {
+            body = body.child(
+                ai.note_error
+                    .clone()
+                    .unwrap_or("Opening Markdown / recovery buffer…".into()),
+            );
+        }
         div()
             .size_full()
             .flex()
@@ -581,10 +825,7 @@ impl Desktop {
                             .min_w(px(0.))
                             .overflow_hidden()
                             .whitespace_nowrap()
-                            .child(format!(
-                                "{} · Saved-file reader · no Save",
-                                self.simple_note_path.clone().unwrap_or_default()
-                            )),
+                            .child(self.simple_note_path.clone().unwrap_or_default()),
                     )
                     .child(
                         Button::new("close-document")
@@ -593,27 +834,7 @@ impl Desktop {
                             .on_click(cx.listener(|this, _, _, cx| this.close_document(cx))),
                     ),
             )
-            .child(
-                div()
-                    .id("simple-note-text")
-                    .flex_1()
-                    .min_h(px(0.))
-                    .overflow_y_scroll()
-                    .p_3()
-                    .track_scroll(&self.note_scroll)
-                    .vertical_scrollbar(&self.note_scroll)
-                    .font_family(crate::tokens::READING_FONT)
-                    .text_size(px(15.))
-                    .line_height(gpui_kit::relative(1.6))
-                    .child(ai.note.as_ref().map_or_else(
-                        || {
-                            ai.note_error
-                                .clone()
-                                .unwrap_or("Reading saved file…".into())
-                        },
-                        |note| note.text.clone(),
-                    )),
-            )
+            .child(body)
             .into_any_element()
     }
     pub(super) fn render_simple_chat(&mut self, cx: &mut Context<Self>) -> AnyElement {
@@ -1024,12 +1245,12 @@ mod tests {
         assert!(matches!(outcome.unwrap(), Outcome::NoteSaved { .. }));
         assert_eq!(fs::read_to_string(path).unwrap(), "accepted write λ\n");
         assert!(!preferences_polled.load(std::sync::atomic::Ordering::SeqCst));
-        assert!(!simple_called.load(std::sync::atomic::Ordering::SeqCst));
+        assert!(simple_called.load(std::sync::atomic::Ordering::SeqCst));
         let mut future = std::pin::pin!(future);
         let mut cx = std::task::Context::from_waker(std::task::Waker::noop());
         assert!(std::future::Future::poll(future.as_mut(), &mut cx).is_pending());
         assert!(preferences_polled.load(std::sync::atomic::Ordering::SeqCst));
-        assert!(!simple_called.load(std::sync::atomic::Ordering::SeqCst));
+        assert!(simple_called.load(std::sync::atomic::Ordering::SeqCst));
     }
     #[test]
     fn composer_invalidates_only_search_and_history_filters_only_chat() {

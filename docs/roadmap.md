@@ -1,6 +1,6 @@
 # Delivery roadmap
 
-The owner has frozen the reviewed product architecture as of 2026-10-03. [Product vision](product/BRN_PRODUCT_VISION.md) and [architecture/invariants](architecture/invariants.md) govern the outcomes below. This sequence carries forward the dependency corrections in the dated [independent review](audits/BRN_PRODUCT_ARCHITECTURE_REVIEW.md#g-final-build-sequence); it is not a detailed implementation plan or authorization for a new slice.
+The owner has frozen the reviewed product architecture as of 2026-10-03. [Product vision](product/BRN_PRODUCT_VISION.md) and [architecture/invariants](architecture/invariants.md) govern the outcomes below. This sequence carries forward the dependency corrections in the dated [independent review](audits/BRN_PRODUCT_ARCHITECTURE_REVIEW.md#g-final-build-sequence). The current v1 mission authorizes sequential implementation and integration within these frozen boundaries; each slice still establishes its own acceptance criteria and verification.
 
 [Status](status.md) owns observed implementation, verification, acceptance and integration. Older milestones and the simple-notes Steps 5/6 are historical; they do not select the next task. Keep existing foundations and data while following the frozen six-crate [target](architecture/overview.md#frozen-target).
 
@@ -30,6 +30,13 @@ Safe Save and verified recovery precede legacy removal; removal precedes Proposa
 
 ## Starting the next slice
 
-The next product outcome is Stage 1, simple safe Save. Scope it against existing Save/recovery behavior; the method cleanup does not authorize implementation, original-data migration, live provider calls, downloads or release. Use the [development workflow](development/workflow.md) to identify a bounded acceptance scenario and relevant checks, with a short plan only when needed.
+Stage 1 simple safe Save is implemented and automated checks have passed, with
+native acceptance and local integration tracked in [status](status.md). After
+integration, continue to Stage 2 legacy removal under the existing v1
+authorization. Pending owner acceptance remains explicit and need not block
+later safe work when it is not a dependency. Original-data inspection or migration,
+live provider/account checks, downloads, purchases and release or public
+distribution still require the applicable owner permission. Use the
+[development workflow](development/workflow.md) for the next bounded outcome.
 
 Each slice needs relevant offline verification and acceptance for its changed user-visible behavior. Native usability, actual inference, provider validity and packaging remain separate qualification. Preserve useful completed work as [history](work/completed/README.md); old specifications and model/process assignments are not current instructions.

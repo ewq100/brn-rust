@@ -54,6 +54,7 @@ impl CliError {
                 ErrorKind::SemanticUnavailableInBuild => "SEMANTIC_UNAVAILABLE_IN_BUILD",
                 ErrorKind::ModelDownloadFailed => "MODEL_DOWNLOAD_FAILED",
                 ErrorKind::ToolsBusy => "TOOLS_BUSY",
+                ErrorKind::SaveUncertain => "SAVE_UNCERTAIN",
                 _ => "WORKFLOW_ERROR",
             },
             Self::NoteStateChanged(_) => "NOTE_STATE_CHANGED",
@@ -155,7 +156,8 @@ pub fn classify_workflow(error: WorkflowError) -> CliError {
         | ErrorKind::ModelRefused
         | ErrorKind::ModelInvalid
         | ErrorKind::SemanticUnavailableInBuild
-        | ErrorKind::ToolsBusy => CliError::Typed(error.kind, error.message),
+        | ErrorKind::ToolsBusy
+        | ErrorKind::SaveUncertain => CliError::Typed(error.kind, error.message),
     }
 }
 
@@ -351,6 +353,7 @@ mod tests {
             (ErrorKind::SelectionRequired, "AI_SELECTION_REQUIRED"),
             (ErrorKind::VaultNotBound, "VAULT_NOT_BOUND"),
             (ErrorKind::VaultUnavailable, "VAULT_UNAVAILABLE"),
+            (ErrorKind::SaveUncertain, "SAVE_UNCERTAIN"),
             (ErrorKind::ModelDownloadFailed, "MODEL_DOWNLOAD_FAILED"),
             (
                 ErrorKind::SemanticUnavailableInBuild,
