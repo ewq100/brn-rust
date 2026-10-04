@@ -428,6 +428,7 @@ impl Desktop {
                             .on_click(cx.listener(|this, _, _, cx| {
                                 if let Some(review) = &this.ai.as_ref().unwrap().review {
                                     let edit = ProposalEdit {
+                                        action_data: Vec::new(),
                                         expected: review.record.stamp(),
                                         title: review.title().to_owned(),
                                         texts: review.texts().to_vec(),

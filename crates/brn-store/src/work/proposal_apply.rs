@@ -232,6 +232,9 @@ impl ApplyJournal {
     pub fn validate(&self) -> Result<()> {
         proposals::nonnil(self.request.operation_id)?;
         proposals::validate_record(&self.approved)?;
+        if !self.approved.draft.action_changes.is_empty() {
+            return Err(invalid("Action proposal application is not yet supported"));
+        }
         if self.no_effects
             && self.receipt.as_ref().map(|receipt| receipt.outcome)
                 != Some(ApplyOutcome::NotApplied)

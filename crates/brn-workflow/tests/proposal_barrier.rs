@@ -45,6 +45,7 @@ impl Fixture {
 fn draft(app: &mut App) -> ProposalRecord {
     let before = app.open_editor("note.md").unwrap().record.baseline;
     app.create_proposal(&DraftRequest {
+        action_changes: Vec::new(),
         id: Uuid::new_v4(),
         group_id: None,
         session_id: None,

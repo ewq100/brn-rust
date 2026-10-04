@@ -26,11 +26,11 @@ fn draft(create: &str, replace: &str) -> ProposalDraft {
         id: Uuid::new_v4(),
         group_id: None,
         session_id: None,
-        vault: VaultRecord {
+        vault: Some(VaultRecord {
             id: Uuid::new_v4(),
             root: "/synthetic/vault".into(),
             identity: parent.clone(),
-        },
+        }),
         title: "Exact identity review λ".into(),
         changes: vec![
             NoteChange::Create {
@@ -47,6 +47,7 @@ fn draft(create: &str, replace: &str) -> ProposalDraft {
             },
         ],
         sources: vec![],
+        action_changes: Vec::new(),
     }
 }
 
@@ -60,6 +61,7 @@ fn edit(record: &ProposalRecord) -> ProposalEdit {
             .iter()
             .map(|change| change.text().map(str::to_owned))
             .collect(),
+        action_data: Vec::new(),
     }
 }
 
@@ -318,7 +320,7 @@ fn exact_undo_can_remove_assignment_and_keeps_historical_receipts_valid() {
     let mut draft = draft("unused", &assigned);
     draft.changes = vec![NoteChange::Replace {
         path: "existing.md".into(),
-        parent: draft.vault.identity.clone(),
+        parent: draft.vault.as_ref().unwrap().identity.clone(),
         before: original_proof.clone(),
         before_text: original.into(),
         text: assigned.clone(),

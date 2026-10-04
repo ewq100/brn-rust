@@ -236,6 +236,7 @@ fn fresh_replacement_and_full_edit_cannot_drop_or_swap_known_identity() {
         note_identity::assign(ORIGINAL, Uuid::new_v4()).unwrap(),
     ] {
         let draft = DraftRequest {
+            action_changes: Vec::new(),
             id: Uuid::new_v4(),
             group_id: None,
             session_id: None,
@@ -254,6 +255,7 @@ fn fresh_replacement_and_full_edit_cannot_drop_or_swap_known_identity() {
     }
     let proposed = format!("{managed}\nApproved body improvement õ\n");
     let draft = DraftRequest {
+        action_changes: Vec::new(),
         id: Uuid::new_v4(),
         group_id: None,
         session_id: None,
@@ -270,6 +272,7 @@ fn fresh_replacement_and_full_edit_cannot_drop_or_swap_known_identity() {
         panic!()
     };
     let invalid = ProposalEdit {
+        action_data: Vec::new(),
         expected: record.stamp(),
         title: record.draft.title.clone(),
         texts: vec![Some(ORIGINAL.into())],
@@ -326,6 +329,7 @@ fn identity_observation_reads_fresh_bytes_and_unresolved_work_fences_preparation
     assert_eq!(app.note_identity(PATH).unwrap().note_id, Some(second));
     let source = app.proposal_source(PATH).unwrap();
     let draft = DraftRequest {
+        action_changes: Vec::new(),
         id: Uuid::new_v4(),
         group_id: None,
         session_id: None,
@@ -409,6 +413,7 @@ fn ordinary_unmanaged_markdown_horizontal_rule_does_not_require_metadata() {
     let mut worker = fixture.worker();
     let text = "---\n# Work λ\nOriginal Markdown body\n";
     let draft = DraftRequest {
+        action_changes: Vec::new(),
         id: Uuid::new_v4(),
         group_id: None,
         session_id: None,
@@ -423,6 +428,7 @@ fn ordinary_unmanaged_markdown_horizontal_rule_does_not_require_metadata() {
         panic!("ordinary valid Markdown refused")
     };
     let edit = ProposalEdit {
+        action_data: Vec::new(),
         expected: record.stamp(),
         title: record.draft.title.clone(),
         texts: vec![Some(format!("{text}Later wording\n"))],

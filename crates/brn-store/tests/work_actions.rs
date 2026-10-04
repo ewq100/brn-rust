@@ -859,6 +859,154 @@ fn noncanonical_and_nil_indexed_row_identities_refuse_lists_and_startup() {
 }
 
 #[test]
+fn physical_recovery_skips_action_invalid_backups_and_restores_exact_terminal_work() {
+    let mut failures = Vec::new();
+    for problem in ["indexed revision", "owned schema"] {
+        let path = fixture();
+        let (store, _) = WorkStore::open(path.path()).unwrap();
+        let mut terminal = record();
+        terminal.version = 2;
+        terminal.data.state = ActionState::Completed;
+        terminal
+            .data
+            .description
+            .push_str("Completed current body. Tehtud.\r\n");
+        terminal.updated_at_ms = 2000;
+        terminal.completed_at_ms = Some(1750);
+        terminal.validate().unwrap();
+        let conn = raw(path.path());
+        insert(&conn, &terminal);
+        assert_eq!(
+            store.action(terminal.origin.id).unwrap(),
+            Some(terminal.clone())
+        );
+        drop(conn);
+        drop(store);
+
+        // This public startup validates the complete record before backing it up.
+        let (store, report) = WorkStore::open(path.path()).unwrap();
+        assert_eq!(
+            store.action(terminal.origin.id).unwrap(),
+            Some(terminal.clone())
+        );
+        let healthy_backup = report.backup;
+        drop(store);
+        let healthy_bytes = std::fs::read(&healthy_backup).unwrap();
+        let invalid_backup = path.path().join("backups/brn-9999999999999.sqlite");
+        let conn = raw(path.path());
+        conn.backup("main", &invalid_backup, None).unwrap();
+        drop(conn);
+        let conn = Connection::open(&invalid_backup).unwrap();
+        match problem {
+            "indexed revision" => {
+                assert_eq!(conn.execute("UPDATE actions SET version=3", []).unwrap(), 1);
+            }
+            _ => conn
+                .execute_batch(
+                    "DROP INDEX actions_page; CREATE INDEX actions_page ON actions(id DESC,created_at_ms DESC);",
+                )
+                .unwrap(),
+        }
+        drop(conn);
+
+        let conn = Connection::open(&invalid_backup).unwrap();
+        assert_eq!(
+            conn.query_row("PRAGMA quick_check", [], |row| row.get::<_, String>(0))
+                .unwrap(),
+            "ok",
+            "{problem}: the candidate is physically healthy SQLite"
+        );
+        let (indexed_version, json, hash): (i64, Vec<u8>, Vec<u8>) = conn
+            .query_row(
+                "SELECT version,record_json,record_sha256 FROM actions",
+                [],
+                |row| Ok((row.get(0)?, row.get(1)?, row.get(2)?)),
+            )
+            .unwrap();
+        let decoded: ActionRecord = serde_json::from_slice(&json).unwrap();
+        decoded.validate().unwrap();
+        assert_eq!(decoded, terminal);
+        assert_eq!(hash, digest(&json));
+        let healthy = Connection::open(&healthy_backup).unwrap();
+        for name in ["actions", "actions_page"] {
+            let schema: String = conn
+                .query_row(
+                    "SELECT sql FROM sqlite_schema WHERE name=?1",
+                    [name],
+                    |row| row.get(0),
+                )
+                .unwrap();
+            let healthy_schema: String = healthy
+                .query_row(
+                    "SELECT sql FROM sqlite_schema WHERE name=?1",
+                    [name],
+                    |row| row.get(0),
+                )
+                .unwrap();
+            if problem == "indexed revision" || name == "actions" {
+                assert_eq!(schema, healthy_schema, "{problem}: {name}");
+            } else {
+                assert_ne!(schema, healthy_schema, "unsupported owned index fixture");
+            }
+        }
+        assert_eq!(
+            indexed_version,
+            if problem == "indexed revision" { 3 } else { 2 }
+        );
+        drop(healthy);
+        drop(conn);
+        let invalid_bytes = std::fs::read(&invalid_backup).unwrap();
+        let physical_damage = b"synthetic physical Action database corruption";
+        std::fs::write(path.path().join("brn.sqlite"), physical_damage).unwrap();
+
+        match WorkStore::open(path.path()) {
+            Ok((store, report)) => {
+                assert_eq!(report.restored_from, Some(healthy_backup.clone()), "{problem}");
+                assert_eq!(store.action(terminal.origin.id).unwrap(), Some(terminal), "{problem}");
+                assert_eq!(
+                    std::fs::read(report.corrupt_moved_to.expect("retain physical main")).unwrap(),
+                    physical_damage
+                );
+            }
+            Err(error) => failures.push(format!(
+                "{problem}: recovery stopped at an invalid newest candidate instead of using the healthy older backup: {error}"
+            )),
+        }
+        assert_eq!(
+            std::fs::read(&invalid_backup).unwrap(),
+            invalid_bytes,
+            "{problem}"
+        );
+        assert_eq!(
+            std::fs::read(&healthy_backup).unwrap(),
+            healthy_bytes,
+            "{problem}"
+        );
+        let moved: Vec<_> = std::fs::read_dir(path.path())
+            .unwrap()
+            .map(|entry| entry.unwrap().path())
+            .filter(|path| {
+                path.file_name()
+                    .unwrap()
+                    .to_string_lossy()
+                    .contains("corrupt")
+            })
+            .collect();
+        assert_eq!(
+            moved.len(),
+            1,
+            "{problem}: preserve the physically damaged main"
+        );
+        assert_eq!(
+            std::fs::read(&moved[0]).unwrap(),
+            physical_damage,
+            "{problem}"
+        );
+    }
+    assert!(failures.is_empty(), "{}", failures.join("\n"));
+}
+
+#[test]
 fn v9_additive_upgrade_and_physical_backup_restore_preserve_all_operational_work() {
     use brn_store::{
         files::{FileFingerprint, VaultIdentity, VaultRecord},
@@ -946,7 +1094,7 @@ fn v9_additive_upgrade_and_physical_backup_restore_preserve_all_operational_work
                 id: Uuid::new_v4(),
                 group_id: None,
                 session_id: Some(turn.conversation_id),
-                vault: vault.clone(),
+                vault: Some(vault.clone()),
                 title: "Protected reviewed bytes".into(),
                 changes: vec![NoteChange::Create {
                     path: "new.md".into(),
@@ -954,6 +1102,7 @@ fn v9_additive_upgrade_and_physical_backup_restore_preserve_all_operational_work
                     text: text.into(),
                 }],
                 sources: vec![],
+                action_changes: Vec::new(),
             })
             .unwrap();
         let journal = store

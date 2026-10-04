@@ -236,6 +236,7 @@ impl DraftForm {
             },
         };
         let request = DraftRequest {
+            action_changes: Vec::new(),
             id: self.id,
             group_id: None,
             session_id: self.session_id,

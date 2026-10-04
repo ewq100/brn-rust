@@ -213,6 +213,11 @@ source fingerprints and refuses occupied or aliased destinations. Creation repla
 precedes fresh-vault checks and returns existing edited review work; a conflicting
 initial payload cannot reuse its UUID. Review text/comments are operational work,
 never current vault evidence.
+Stored proposal records also support exact typed Action members and immutable
+replacement baselines. Workflow `DraftRequest` recognizes `action_changes` but
+currently refuses nonempty input, as do approval and owned Rewrite. These guards
+remain until shared Action application/recovery is qualified; unknown or ignored
+fields must not appear to create real actions.
 
 Full-text edits, anchored or whole-proposal comments, explicit reattachment,
 rejection and imported captured Rewrite results use one version. Changing an

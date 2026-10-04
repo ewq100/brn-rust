@@ -168,6 +168,7 @@ fn replay_acknowledges_actual_current_edited_review_instead_of_original_version_
         (
             Uuid::new_v4(),
             AppCommand::EditProposal(ProposalEdit {
+                action_data: Vec::new(),
                 expected: initial.stamp(),
                 title: "Later stored full review 日本語\r\n".into(),
                 texts: vec![Some(LATER.into())],

@@ -604,6 +604,240 @@ fn fs_names(path: &std::path::Path) -> Vec<String> {
         .map(|entry| entry.unwrap().file_name().to_string_lossy().into_owned())
         .collect()
 }
+
+#[test]
+fn finding_check_damage_refuses_startup_without_reopening_terminal_work() {
+    use rusqlite::OptionalExtension;
+
+    #[derive(Debug, PartialEq, Eq)]
+    struct Row {
+        id: String,
+        state: String,
+        created_at_ms: i64,
+        creation_sha256: Vec<u8>,
+        record_json: Vec<u8>,
+        record_sha256: Vec<u8>,
+    }
+    fn row(conn: &rusqlite::Connection, id: Uuid) -> Option<Row> {
+        conn.query_row(
+            "SELECT id,state,created_at_ms,creation_sha256,record_json,record_sha256 FROM findings WHERE id=?1",
+            [id.to_string()],
+            |r| {
+                Ok(Row {
+                    id: r.get(0)?,
+                    state: r.get(1)?,
+                    created_at_ms: r.get(2)?,
+                    creation_sha256: r.get(3)?,
+                    record_json: r.get(4)?,
+                    record_sha256: r.get(5)?,
+                })
+            },
+        )
+        .optional()
+        .unwrap()
+    }
+    fn backups(data: &std::path::Path) -> Vec<(std::ffi::OsString, Vec<u8>)> {
+        let mut entries: Vec<_> = std::fs::read_dir(data.join("backups"))
+            .unwrap()
+            .map(|entry| {
+                let entry = entry.unwrap();
+                (entry.file_name(), std::fs::read(entry.path()).unwrap())
+            })
+            .collect();
+        entries.sort_by(|a, b| a.0.cmp(&b.0));
+        entries
+    }
+
+    let mut failures = Vec::new();
+    for (case, sql) in [
+        (
+            "unknown indexed state",
+            "UPDATE findings SET state='not-a-state'",
+        ),
+        (
+            "31-byte creation digest",
+            "UPDATE findings SET creation_sha256=zeroblob(31)",
+        ),
+        (
+            "31-byte record digest",
+            "UPDATE findings SET record_sha256=zeroblob(31)",
+        ),
+    ] {
+        let data = fixture();
+        let vault = fixture();
+        std::fs::create_dir(vault.path().join("archive")).unwrap();
+        let mut input = draft();
+        input.vault.root = vault
+            .path()
+            .canonicalize()
+            .unwrap()
+            .to_str()
+            .unwrap()
+            .into();
+        for evidence in &input.evidence {
+            std::fs::write(vault.path().join(&evidence.source.path), TEXT.as_bytes()).unwrap();
+        }
+        let (mut store, _) = WorkStore::open(data.path()).unwrap();
+        let first = store.create_finding(&input).unwrap();
+        drop(store);
+
+        // This startup backup predates the legitimate terminal transition.
+        let (mut store, report) = WorkStore::open(data.path()).unwrap();
+        let backup = rusqlite::Connection::open_with_flags(
+            &report.backup,
+            rusqlite::OpenFlags::SQLITE_OPEN_READ_ONLY,
+        )
+        .unwrap();
+        let backed_up = row(&backup, input.request.id).unwrap();
+        assert_eq!(
+            serde_json::from_slice::<FindingRecord>(&backed_up.record_json).unwrap(),
+            first
+        );
+        drop(backup);
+        let close = CloseFindingRequest {
+            expected: first.stamp(),
+            state: FindingState::Resolved,
+        };
+        let terminal = store.close_finding(&close).unwrap();
+        assert_eq!(terminal.state, FindingState::Resolved);
+        assert_eq!(terminal.version, 2);
+        assert_eq!(store.close_finding(&close).unwrap(), terminal);
+        drop(store);
+
+        let conn = raw(data.path());
+        conn.execute_batch("PRAGMA ignore_check_constraints=ON;")
+            .unwrap();
+        assert_eq!(conn.execute(sql, []).unwrap(), 1);
+        conn.execute_batch("PRAGMA ignore_check_constraints=OFF;")
+            .unwrap();
+        drop(conn);
+        let conn = raw(data.path());
+        assert_eq!(
+            conn.query_row("PRAGMA quick_check", [], |r| r.get::<_, String>(0))
+                .unwrap(),
+            "CHECK constraint failed in findings",
+            "{case} must reach the physical integrity classifier"
+        );
+        let damaged = row(&conn, input.request.id).unwrap();
+        assert_eq!(
+            serde_json::from_slice::<FindingRecord>(&damaged.record_json).unwrap(),
+            terminal,
+            "the legitimate full terminal receipt survives indexed metadata damage"
+        );
+        let schema: String = conn
+            .query_row(
+                "SELECT sql FROM sqlite_schema WHERE type='table' AND name='findings'",
+                [],
+                |r| r.get(0),
+            )
+            .unwrap();
+        drop(conn);
+        let prior_backups = backups(data.path());
+
+        if let Ok((store, report)) = WorkStore::open(data.path()) {
+            failures.push(format!(
+                "{case}: startup accepted semantic damage (restored={}, moved_corrupt={})",
+                report.restored_from.is_some(),
+                report.corrupt_moved_to.is_some()
+            ));
+            drop(store);
+        }
+        let conn = raw(data.path());
+        let after = row(&conn, input.request.id);
+        if after.as_ref() != Some(&damaged) {
+            failures.push(format!("{case}: the complete damaged row was replaced"));
+        }
+        if after.as_ref().map(|r| &r.record_json) != Some(&damaged.record_json) {
+            failures.push(format!(
+                "{case}: the exact terminal closure receipt was replaced"
+            ));
+        }
+        let after_schema: String = conn
+            .query_row(
+                "SELECT sql FROM sqlite_schema WHERE type='table' AND name='findings'",
+                [],
+                |r| r.get(0),
+            )
+            .unwrap();
+        assert_eq!(
+            after_schema, schema,
+            "{case}: retain the compatible V9 schema"
+        );
+        drop(conn);
+        if backups(data.path()) != prior_backups {
+            failures.push(format!("{case}: backup names or exact file bytes changed"));
+        }
+        if fs_names(data.path())
+            .iter()
+            .any(|name| name.contains("corrupt"))
+        {
+            failures.push(format!("{case}: semantic damage moved the database aside"));
+        }
+        for evidence in &input.evidence {
+            assert_eq!(
+                std::fs::read(vault.path().join(&evidence.source.path)).unwrap(),
+                TEXT.as_bytes(),
+                "{case}: saved vault evidence must remain untouched"
+            );
+        }
+    }
+    assert!(failures.is_empty(), "{}", failures.join("\n"));
+}
+
+#[test]
+fn finding_check_damage_backup_is_skipped_during_physical_recovery() {
+    let data = fixture();
+    let (mut store, _) = WorkStore::open(data.path()).unwrap();
+    let input = draft();
+    let first = store.create_finding(&input).unwrap();
+    let terminal = store
+        .close_finding(&CloseFindingRequest {
+            expected: first.stamp(),
+            state: FindingState::Resolved,
+        })
+        .unwrap();
+    drop(store);
+    let (store, report) = WorkStore::open(data.path()).unwrap();
+    let healthy_backup = report.backup;
+    drop(store);
+    let healthy_bytes = std::fs::read(&healthy_backup).unwrap();
+    let damaged_backup = data.path().join("backups/brn-9999999999999.sqlite");
+    let conn = raw(data.path());
+    conn.backup("main", &damaged_backup, None).unwrap();
+    drop(conn);
+    let conn = rusqlite::Connection::open(&damaged_backup).unwrap();
+    conn.execute_batch(
+        "PRAGMA ignore_check_constraints=ON; UPDATE findings SET state='not-a-state'; PRAGMA ignore_check_constraints=OFF;",
+    )
+    .unwrap();
+    drop(conn);
+    let conn = rusqlite::Connection::open(&damaged_backup).unwrap();
+    assert_eq!(
+        conn.query_row("PRAGMA quick_check", [], |r| r.get::<_, String>(0))
+            .unwrap(),
+        "CHECK constraint failed in findings"
+    );
+    drop(conn);
+    let damaged_bytes = std::fs::read(&damaged_backup).unwrap();
+    let physical_damage = b"synthetic physical corruption, not semantic finding damage";
+    std::fs::write(data.path().join("brn.sqlite"), physical_damage).unwrap();
+
+    let (store, report) = WorkStore::open(data.path()).unwrap();
+    assert_eq!(report.restored_from, Some(healthy_backup.clone()));
+    assert_eq!(store.finding(input.request.id).unwrap(), Some(terminal));
+    assert_eq!(std::fs::read(&damaged_backup).unwrap(), damaged_bytes);
+    assert_eq!(std::fs::read(&healthy_backup).unwrap(), healthy_bytes);
+    assert_eq!(
+        std::fs::read(
+            report
+                .corrupt_moved_to
+                .expect("retain physical main database")
+        )
+        .unwrap(),
+        physical_damage
+    );
+}
+
 #[test]
 fn immutable_creation_digest_is_checked_after_closure_even_when_record_hash_is_recomputed() {
     let data = fixture();
@@ -666,7 +900,7 @@ fn v8_upgrade_and_backup_restore_preserve_findings_and_existing_operational_work
                 id: Uuid::new_v4(),
                 group_id: None,
                 session_id: Some(turn.conversation_id),
-                vault: input.vault.clone(),
+                vault: Some(input.vault.clone()),
                 title: "Protected proposal".into(),
                 changes: vec![NoteChange::Create {
                     path: "new.md".into(),
@@ -674,6 +908,7 @@ fn v8_upgrade_and_backup_restore_preserve_findings_and_existing_operational_work
                     text: TEXT.into(),
                 }],
                 sources: vec![],
+                action_changes: Vec::new(),
             })
             .unwrap();
         store.set_setting("synthetic", "retained").unwrap();

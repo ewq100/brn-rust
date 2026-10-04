@@ -272,6 +272,9 @@ state only. Bounded pages use descending creation-time/UUID cursors, including a
 cursor closed between pages, with the open count in the same SQLite snapshot.
 Findings survive ordinary backup/recovery and remain tentative work rather than
 knowledge or proposal authority.
+Supported V9+ records are validated before SQLite quick_check: readable semantic
+damage refuses a main database without restoring older work, while an invalid
+backup candidate is skipped. Physical SQLite corruption still uses recovery.
 
 ## Checked Action foundation
 
@@ -289,10 +292,20 @@ later state changes; the default is all states/25 entries, maximum200. A snapsho
 binds validation and paging. Bounded JSON, origin/record hashes, indexed bindings,
 owned table/index shape, UUID/date/time/revision semantics are checked. Semantic
 damage refuses startup before reconciliation/backup; supported V10 owned schema
-shape is checked before quick_check can mistake an unexpected CHECK for physical
-damage; physical SQLite damage uses
+and complete records are checked before quick_check can mistake an unexpected
+CHECK for physical damage. Invalid backup candidates are skipped; physical damage uses
 the existing backup restoration path. Relations/dependency existence and cycles
 are approval concerns, not guesses made by retained read APIs.
+
+Typed proposal `ActionChange::Create` and `Replace` members retain exact candidate
+data and immutable full replacement baselines. Action-only drafts have no vault
+binding; Markdown members/source proofs require one. The existing review, edit,
+temporary comments, rejection, exact stamp and replay lifecycle covers these
+members, with one combined64-member/8MiB budget. Completed work cannot be changed
+or reopened through these members. Empty additions stay omitted from historical
+Markdown serialization. This slice stores review work only: workflow creation,
+application and owned AI Rewrite explicitly refuse Action members until shared
+application/recovery is qualified. No Action mutation API is exposed.
 
 ## Dependencies and verification
 

@@ -162,6 +162,7 @@ fn approve(app: &mut App, record: &ProposalRecord) -> ApprovalRequest {
 fn raw(app: &mut App, text: String) -> DraftRequest {
     let source = app.proposal_source(CURRENT).unwrap();
     DraftRequest {
+        action_changes: Vec::new(),
         id: Uuid::new_v4(),
         group_id: None,
         session_id: None,
@@ -345,6 +346,7 @@ fn review_edits_and_rewrite_cannot_redirect_to_an_uncaptured_uuid() {
             .unwrap()
             .replace(TARGET_ID, OTHER_ID);
         let edit = ProposalEdit {
+            action_data: Vec::new(),
             expected: record.stamp(),
             title: record.draft.title,
             texts: vec![Some(after)],

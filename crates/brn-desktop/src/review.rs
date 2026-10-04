@@ -159,6 +159,7 @@ impl ProposalReview {
             return None;
         }
         let edit = ProposalEdit {
+            action_data: Vec::new(),
             expected: self.record.stamp(),
             title: self.title.clone(),
             texts: self.texts.clone(),
@@ -194,6 +195,7 @@ impl ProposalReview {
             Some(submitted.edit.expected.version)
         };
         let checked = ProposalEdit {
+            action_data: Vec::new(),
             expected: record.stamp(),
             title: record.draft.title.clone(),
             texts: record_texts(&record),

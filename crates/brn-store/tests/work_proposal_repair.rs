@@ -29,11 +29,11 @@ fn draft() -> ProposalDraft {
         id: Uuid::new_v4(),
         group_id: None,
         session_id: None,
-        vault: VaultRecord {
+        vault: Some(VaultRecord {
             id: Uuid::new_v4(),
             root: "/synthetic/vault".into(),
             identity: parent.clone(),
-        },
+        }),
         title: "Repair exact 日本語".into(),
         sources: vec![],
         changes: vec![
@@ -56,6 +56,7 @@ fn draft() -> ProposalDraft {
                 before_text: "\u{feff}Retained λ\r\n".into(),
             },
         ],
+        action_changes: Vec::new(),
     }
 }
 fn prepared(store: &mut WorkStore, draft: &ProposalDraft) -> ApplyJournal {
@@ -423,6 +424,7 @@ fn terminal_results_and_historical_attempt_replay_survive_restart_and_later_draf
             expected: review.stamp(),
             title: review.draft.title.clone(),
             texts,
+            action_data: Vec::new(),
         })
         .unwrap();
     drop(store);
@@ -911,7 +913,7 @@ fn maximum_repair_history_near_core_limit_still_completes_and_recovers() {
     draft.changes = (0..MAX_PROPOSAL_CHANGES)
         .map(|index| NoteChange::Replace {
             path: format!("{parent_path}/{index}.md"),
-            parent: draft.vault.identity.clone(),
+            parent: draft.vault.as_ref().unwrap().identity.clone(),
             before: fingerprint("b", u64::MAX - index as u64),
             before_text: "b".into(),
             text: "a".into(),

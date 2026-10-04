@@ -166,17 +166,21 @@ APIs; no extra call or Rewrite protocol change occurs. Fresh adapter/capability
 fixtures passed **86 library +1 example tests**. Actual response-language compliance
 remains unqualified. Safe later implementation continues; Stage 5 is not complete.
 
-Stage 6’s [active plan](work/active/actions-dashboard/plan.md) fixes checked
-operational Action records/read APIs as the first slice, then extends the existing
-exact proposal lifecycle for creation/changes and adds explicit identified Complete
-and dashboard/headless parity. Checked V10 records/reads are independently
-reviewed and automated verified:17Action/241Store tests,964workspace/0failed/
-3ignored+52fixtures,213combined-native tests,both Clippy variants/shipping build.
-A reproduced populated-schema backup-restore defect was fixed with an owned V10
-precheck;semantic damage refuses while physical backup recovery remains intact.
-Two shipping startup/restart checks preserved exact bytes,V10 and zero credentials.
-Local integration is in this checkpoint; publication remains pending. No real
-Action producer or completed Stage6 is claimed.
+Stage 6’s [active plan](work/active/actions-dashboard/plan.md) now includes checked
+V10 Action reads and typed stored Create/Replace review members using the existing
+exact lifecycle. Full replacement baselines/IDs remain immutable; completed work
+cannot be reopened. Combined budgets and omitted empty fields preserve old
+Markdown hashes. Workflow creation/apply/owned Rewrite explicitly refuse Actions
+until whole application/recovery is qualified. Independent review passed71tests
+and6synthetic CLI refusal probes with no Action/provider effects. A separate
+recovery defect was reproduced and fixed: complete Action prevalidation skips
+malformed backup candidates while refusing semantic-invalid mains. Independent
+52tests plus genuine Action B-tree corruption recovery passed; V9 Findings
+prevalidation/regressions are retained. Fresh977workspace/0failed/3ignored+
+52fixtures,213combined-native/0failed/0ignored,both native Clippy configurations,
+shipping desktop/CLI builds and two startup/restart checks passed with exact
+synthetic bytes,V10 and zero credentials. Local integration/publication is recorded
+in the plan; no real Action producer, dashboard or Stage6 completion is claimed.
 
 ## Qualification still open
 
@@ -199,7 +203,10 @@ Unix APIs failed,leaving overallCIred. Independent review and relevant local
 verification passed before merge. PostB14CLIprovenance/Storetimestamp tests,
 postC10CLIlinks/relationships/preparation tests,52fixtures at each checkpoint,
 merged-tree equality and two startup/restart checks each passed with exact bytes
-and zero credential files. GUI/owner acceptance stays pending. Findings/language
+and zero credential files. GUI/owner acceptance stays pending. PR25 merged8295326 after exact90de25e/
+run37197453154 passed the same four applicable lanes; Windows Unix APIs failed,
+overallCIred. Merged tree equality,3focused tests+52fixtures and two shipping
+startup/restart checks passed with exact bytes,V8 and zero credentials. Findings/language
 publication and locally qualified Stage6 Action storage checkpoint remain next.
 
 Release/public distribution, additional live calls/model downloads, purchases and

@@ -138,7 +138,7 @@ impl App {
                 .ok_or_else(|| stale("vault identity is missing"))?,
         )
         .map_err(|_| stale("vault identity is invalid"))?;
-        if bound != journal.approved.draft.vault {
+        if journal.approved.draft.vault.as_ref() != Some(&bound) {
             return Err(stale("repair vault identity changed"));
         }
         Ok(())

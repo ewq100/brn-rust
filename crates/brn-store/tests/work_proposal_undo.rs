@@ -29,11 +29,11 @@ fn source_draft() -> ProposalDraft {
         id: Uuid::new_v4(),
         group_id: Some(Uuid::new_v4()),
         session_id: Some(Uuid::new_v4()),
-        vault: VaultRecord {
+        vault: Some(VaultRecord {
             id: Uuid::new_v4(),
             root: "/synthetic/vault".into(),
             identity: parent.clone(),
-        },
+        }),
         title: "Exact original proposal 日本語".into(),
         changes: vec![
             NoteChange::Create {
@@ -59,6 +59,7 @@ fn source_draft() -> ProposalDraft {
             path: "external/source.md".into(),
             fingerprint: fingerprint("External evidence", 4),
         }],
+        action_changes: Vec::new(),
     }
 }
 fn prepared(journal: &ApplyJournal) -> Vec<FileFingerprint> {
@@ -263,7 +264,7 @@ fn title_truncation_preserves_utf8_and_the_original_aggregate_budget() {
     full.title = "X".into();
     full.sources.clear();
     let paths: Vec<_> = (0..8).map(|index| format!("full-{index}.md")).collect();
-    let overhead = full.vault.root.to_str().unwrap().len()
+    let overhead = full.vault.as_ref().unwrap().root.to_str().unwrap().len()
         + full.title.len()
         + paths.iter().map(String::len).sum::<usize>();
     full.changes = paths
@@ -271,7 +272,7 @@ fn title_truncation_preserves_utf8_and_the_original_aggregate_budget() {
         .enumerate()
         .map(|(index, path)| NoteChange::Create {
             path,
-            parent: full.vault.identity.clone(),
+            parent: full.vault.as_ref().unwrap().identity.clone(),
             text: "a"
                 .repeat(brn_store::work::MAX_NOTE_BYTES - if index == 7 { overhead } else { 0 }),
         })
@@ -545,6 +546,7 @@ fn retained_original_preparations_and_strict_refusal_proofs_are_exact_and_atomic
             .iter()
             .map(|change| change.text().map(str::to_owned))
             .collect(),
+        action_data: Vec::new(),
     };
     edit.texts[1] = Some("Owner's newer inverse 日本語\r\n".into());
     let review = store.edit_proposal(&edit).unwrap();
@@ -808,7 +810,7 @@ fn scoped_trash_restore_binds_only_the_identified_member_and_preserves_mixed_sou
     assert_eq!(preview.draft.changes.len(), 1);
     assert!(
         matches!(&preview.draft.changes[0], NoteChange::Create { path, parent, text }
-        if path == "notes/trashed.md" && parent == &source.approved.draft.vault.identity
+        if path == "notes/trashed.md" && parent == &source.approved.draft.vault.as_ref().unwrap().identity
         && text == "\u{feff}Trashed λ\r\n")
     );
     assert_eq!(
@@ -1038,7 +1040,7 @@ fn near_core_metadata_limit_undo_and_its_inverse_complete_and_restore() {
     draft.changes = (0..MAX_PROPOSAL_CHANGES)
         .map(|index| NoteChange::Trash {
             path: format!("{parent_path}/{index}.md"),
-            parent: draft.vault.identity.clone(),
+            parent: draft.vault.as_ref().unwrap().identity.clone(),
             before: fingerprint("a", index as u64 + 2),
             before_text: "a".into(),
         })
@@ -1105,7 +1107,7 @@ fn near_limit_replace_proof_widths_and_repeated_undo_cycles_complete_after_resto
     draft.changes = (0..MAX_PROPOSAL_CHANGES)
         .map(|index| NoteChange::Replace {
             path: format!("{parent_path}/{index}.md"),
-            parent: draft.vault.identity.clone(),
+            parent: draft.vault.as_ref().unwrap().identity.clone(),
             before: fingerprint("b", u64::MAX - index as u64),
             before_text: "b".into(),
             text: "a".into(),

@@ -56,6 +56,11 @@ headless/read-tool access and dashboard in sequential qualified slices.
 
 ## Next slice contract: typed Action proposal work
 
+The second slice stores/reviews Action members only. Workflow/frontend creation,
+approval and owned AI Rewrite explicitly refuse Action-bearing input until the
+complete shared apply/recovery and native review contracts are qualified. This
+prevents an empty file-member list from being reported as successful Action apply.
+
 After qualifying the checked foundation, extend ProposalDraft/DraftRequest with
 bounded typed Action Create and Replace members. Replace captures the full exact
 ActionRecord baseline; identifiers/baselines stay immutable through review edits.
@@ -112,3 +117,38 @@ omitted so historical Markdown creation/journal/RewriteOutcome hashes stay exact
 Macmini requirements remain AppleSilicon/CLT,pinnedRust1.98.1,cached locked
 libraries,protobuf/Bash/Python3,canonical syntheticTMPDIR and unlockedGUI.
 No provider/model/private/original-data/release operations occurred.
+
+## Stored Action review checkpoint — 2026-10-04
+
+Baseline2cea3ebe36535f84f77f44ac136145748df45915. Exact typed Create/Replace members,
+optional vault, immutable boxed full baselines, edits/comments/rejection/replay and
+one64-member/8MiB budget are implemented. Old Markdown Draft/Edit/RewriteOutcome/
+ApplyJournal hardcoded bytes/hashes survive. Meaningful RED exposed empty-file
+application and owned AI-job admission; explicit Store/workflow guards now refuse
+Action application, creation and owned Rewrite. No Action producer exists yet.
+Independent complete review passed67Store+4workflow tests and6actual synthetic CLI
+refusal probes, with exact review preserved and no Actions/applies/jobs/provider
+or credential-file effects; no actionable finding remained.
+
+A separate public probe reproduced newest malformed Action backup blocking an
+older healthy terminal receipt. Regression RED failed1; supportedV10 now checks
+complete owned shape/records before quick_check, returning semantic Invalid so
+candidates are skipped and mains remain untouched. Qualified V9 Findings precheck
+and2regressions are retained. FocusedActions18+Findings16 passed34; independent
+work18+Actions18+Findings16 passed52 and a genuine Action B-tree corruption probe
+restored exact Completed/v2 while preserving damaged-main and backup bytes.
+
+Fresh macOSarm64/Rust1.98.1 locked/offline `bash scripts/verify-end-to-end.sh`
+passed retirement/format/build/all-target Clippy,977workspace/0failed/3ignored+
+52fixtures. CombinednativeDesktop passed213/0/0; both native Clippy configurations
+and shipping desktop/CLI builds passed. Two shipping startup/restart runs retained
+exact BOM/CRLF/Unicode bytes,V10 and zero credential files. Logs:
+/private/tmp/brn-actions-root-zkv3jyu2/typed-final-*.log; independent recovery:
+/private/tmp/brn-actions-store-39orx1m5/independent-recovery-f_8oetml.
+Local56Markdown file/fragment links,format and diff checks passed. Only upstream
+block0.1.6 future warning remains. GUI/owner acceptance is pending
+for the future complete Action flow; current stored slice has no native producer.
+Checkpoint PR/exact-head CI remain pending. Next: extend the existing ApplyJournal
+with immutable complete Action after-state, atomic CAS/receipt settlement and
+older-backup import; retain workflow/refusal guards until mixed recovery qualifies.
+Macmini environment and all live/model/private/release boundaries above remain.

@@ -261,6 +261,7 @@ impl App {
         let text = note_provenance::write(&target.text, &citations)
             .map_err(|error| rejected(error.to_string()))?;
         let draft = DraftRequest {
+            action_changes: Vec::new(),
             id: request.proposal_id,
             group_id: None,
             session_id: None,

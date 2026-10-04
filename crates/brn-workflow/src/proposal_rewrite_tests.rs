@@ -32,6 +32,7 @@ fn create(worker: &AppWorker) -> ProposalRecord {
         panic!("editor")
     };
     let request = DraftRequest {
+        action_changes: Vec::new(),
         id: Uuid::new_v4(),
         group_id: None,
         session_id: None,
@@ -200,6 +201,7 @@ fn later_edits_comments_rejection_and_approval_defeat_late_result() {
         let operation = Uuid::new_v4();
         let command = match change {
             0 => AppCommand::EditProposal(ProposalEdit {
+                action_data: Vec::new(),
                 expected: original.stamp(),
                 title: "Newer manual work".into(),
                 texts: vec![

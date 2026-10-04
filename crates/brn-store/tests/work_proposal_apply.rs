@@ -36,11 +36,11 @@ fn draft() -> ProposalDraft {
         id: Uuid::new_v4(),
         group_id: Some(Uuid::new_v4()),
         session_id: Some(Uuid::new_v4()),
-        vault: VaultRecord {
+        vault: Some(VaultRecord {
             id: Uuid::new_v4(),
             root: "/synthetic/vault".into(),
             identity: parent.clone(),
-        },
+        }),
         title: "Approve the exact full proposal".into(),
         changes: vec![
             NoteChange::Create {
@@ -66,6 +66,7 @@ fn draft() -> ProposalDraft {
             path: "sources/evidence.md".into(),
             fingerprint: fingerprint("source", 4),
         }],
+        action_changes: Vec::new(),
     }
 }
 
@@ -106,6 +107,7 @@ fn edit(record: &ProposalRecord) -> ProposalEdit {
             .iter()
             .map(|change| change.text().map(str::to_owned))
             .collect(),
+        action_data: Vec::new(),
     }
 }
 
@@ -1756,7 +1758,7 @@ fn recovery_rejects_conflicting_bindings_and_unresolved_global_admission_atomica
     wrong.approved.draft.sources[0].fingerprint.inode += 1;
     variants.push(wrong);
     let mut wrong = pending.clone();
-    wrong.approved.draft.vault.id = Uuid::new_v4();
+    wrong.approved.draft.vault.as_mut().unwrap().id = Uuid::new_v4();
     variants.push(wrong);
     let mut wrong = pending.clone();
     wrong.approved.draft.title.push_str(" fork");

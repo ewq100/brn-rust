@@ -154,6 +154,7 @@ fn derive(conn: &Connection, request: &UndoRequest) -> Result<UndoPreview> {
         title,
         changes,
         sources: Vec::new(),
+        action_changes: Vec::new(),
     };
     let preview = UndoPreview {
         draft,

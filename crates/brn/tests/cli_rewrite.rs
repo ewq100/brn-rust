@@ -248,6 +248,7 @@ mod recorded {
         .unwrap();
         let record = app
             .create_proposal(&DraftRequest {
+                action_changes: Vec::new(),
                 id: Uuid::new_v4(),
                 group_id: None,
                 session_id: None,
@@ -268,12 +269,14 @@ mod recorded {
         };
         app.work_store_mut().begin_proposal_rewrite(&spec).unwrap();
         let edit = ProposalEdit {
+            action_data: Vec::new(),
             expected: record.stamp(),
             title: "Rewritten".into(),
             texts: vec![Some("Complete rewritten body λ\r\n".into())],
         };
         if status == RewriteStatus::Stale {
             app.edit_proposal(&ProposalEdit {
+                action_data: Vec::new(),
                 title: "Newer user work".into(),
                 texts: vec![Some("User text".into())],
                 ..edit.clone()
