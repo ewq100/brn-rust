@@ -40,7 +40,10 @@ fn job(request: &RewriteRequest, status: RewriteStatus) -> RewriteJob {
         spec: RewriteSpec {
             id: request.id,
             expected: request.expected,
-            provider: provider_name(request.selection.provider).into(),
+            provider: match request.selection.provider {
+                Provider::Chatgpt => "chatgpt",
+                Provider::Copilot => "copilot",
+            }.into(),
             model: request.selection.model.clone(),
             effort: request.effort.as_str().into(),
         },
@@ -314,4 +317,62 @@ fn failed_old_refresh_cannot_poison_the_newer_review() {
     assert_eq!(state.review.as_ref().unwrap().record, other);
     assert!(state.review.as_ref().unwrap().error.is_none());
     assert!(state.review_can_mutate());
+}
+
+
+#[test]
+fn action_rewrite_full_refresh_preserves_later_invalid_raw_fields_and_immutable_capture() {
+    let record = crate::review::action_tests::fixture();
+    let mut state = ready(); state.review = Some(crate::review::ProposalReview::new(record.clone()));
+    state.vault_bound = false; assert!(state.start_rewrite().is_none()); state.vault_bound = true;
+    let (id,AppCommand::StartProposalRewrite(request)) = state.start_rewrite().unwrap() else { panic!("Action Rewrite") };
+    assert_eq!(request.expected,record.stamp());
+    let mut edit = ProposalEdit { expected:record.stamp(),title:record.draft.title.clone(),texts:record.draft.changes.iter().map(|c|c.text().map(str::to_owned)).collect(),action_data:record.draft.action_changes.iter().map(|c|c.data().clone()).collect() };
+    edit.action_data[1].description = "Full AI Action suggestion õ\r\n".into();
+    let rewritten = crate::review::action_tests::reply(&record,&edit);
+    let mut fields = state.review.as_ref().unwrap().action_fields()[0].clone(); fields.values[3] = "late-incomplete-uuid".into();
+    state.review.as_mut().unwrap().edit_action_fields(0,fields.clone(),Instant::now()).unwrap();
+    let mut completed = job(&request,RewriteStatus::Completed); completed.result_stamp = Some(rewritten.stamp());
+    let commands = state.apply(id,AppEvent::Rewrite(RewriteEvent::Finished { id,generation:request.generation,job:completed }));
+    let query = commands.iter().find_map(|(id,command)|matches!(command,AppCommand::Proposal(proposal) if *proposal==record.draft.id).then_some(*id)).unwrap();
+    state.apply(query,AppEvent::Proposal(rewritten.clone()));
+    let review = state.review.as_ref().unwrap();
+    assert_eq!(review.action_fields()[0],fields); assert_eq!(review.observed,Some(rewritten.clone()));
+    assert!(!review.can_leave() && !review.can_mutate());
+    let copy:serde_json::Value = serde_json::from_str(&review.copy_local().unwrap()).unwrap();
+    assert_eq!(copy["local_action_fields"][0]["values"][3],"late-incomplete-uuid");
+    assert!(state.review.as_mut().unwrap().discard_local());
+    assert_eq!(state.review.as_ref().unwrap().record,rewritten);
+    assert_eq!(state.review.as_ref().unwrap().action_data()[1].description,edit.action_data[1].description);
+    assert!(state.can_rewrite());
+}
+
+
+#[test]
+fn actual_canonical_rewrite_job_keys_are_accepted_but_each_misbound_reply_stays_pending() {
+    for provider in [Provider::Chatgpt,Provider::Copilot] {
+        let mut state = ready(); state.selection.as_mut().unwrap().provider = provider;
+        state.review = Some(crate::review::ProposalReview::new(crate::review::action_tests::fixture()));
+        let (id,AppCommand::StartProposalRewrite(request)) = state.start_rewrite().unwrap() else { panic!("Rewrite") };
+        let actual = job(&request,RewriteStatus::Running);
+        for case in 0..6 {
+            let mut wrong = actual.clone();
+            match case {
+                0 => wrong.spec.id = Uuid::new_v4(),
+                1 => wrong.spec.expected.id = Uuid::new_v4(),
+                2 => wrong.spec.expected.version += 1,
+                3 => wrong.spec.model.push_str("-other"),
+                4 => wrong.spec.effort = "low".into(),
+                _ => wrong.spec.provider = provider_name(provider).into(),
+            }
+            assert!(state.apply(id,AppEvent::Rewrite(RewriteEvent::Started { id,generation:request.generation,job:wrong })).is_empty());
+            assert!(state.rewrite.as_ref().unwrap().job.is_none());
+        }
+        state.apply(id,AppEvent::Rewrite(RewriteEvent::Started { id,generation:request.generation,job:actual.clone() }));
+        assert_eq!(state.rewrite.as_ref().unwrap().job,Some(actual));
+        assert_eq!(state.stop_rewrite(),Some(id));
+        let commands = state.apply(id,AppEvent::Rewrite(RewriteEvent::Finished { id,generation:request.generation,job:job(&request,RewriteStatus::Interrupted) }));
+        assert!(state.rewrite.is_none());
+        assert!(commands.iter().any(|(_,command)|matches!(command,AppCommand::Proposal(proposal) if *proposal==request.expected.id)));
+    }
 }

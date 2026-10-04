@@ -1,6 +1,6 @@
 # Current development status
 
-2026-10-04. **Stages 1–4 are implemented, automated verified and integrated.
+2026-10-05. **Stages 1–4 are implemented, automated verified and integrated.
 Stage 5 foundations are integrated, with live/native qualification still open.
 Stage 6 Actions/dashboard is active. Stages 7–16 are not implemented; complete V1
 delivery is not claimed.**
@@ -65,56 +65,57 @@ Evidence: [Actions/dashboard plan](work/active/actions-dashboard/plan.md).
 
 ## Latest integrated checkpoint
 
-[PR39](https://github.com/ewq100/brn-rust/pull/39) merged
-**783d9dd921f5689a9303c9c1cf344b2d23cb7432**, reviewed tree4945b5bf.
-Native Dashboard now exposes shared filters/counts/pages and complete read-only
-Action/dependency proof. Explicit Complete freezes the whole before record and
-operation UUID; retained typed attempts offer exact copy/retry across navigation.
-Independent whole review found no source defect; a JPEG metadata correction kept
-all eight original image blobs exact. Fresh1112workspace/0failed/6ignored+
-52fixtures,243native/0failed/0ignored,both native Clippy modes,shipping builds and
-startup2 passed. Actual synthetic vaultless native completion/filter/quit/restart
-and exact CLI receipt replay passed; safe screenshots retained.
-
-Exactheada3c1a97/run37231170865 passedMac3+UbuntuShared. Windows22 decoded errors/
-locations match unchanged main38 source. Normal merge guards satisfied every
-applicable check and found no enabled branch protection/rulesets; no requirement
-was bypassed. Post10focused/0failed/0ignored+52fixtures+startup2 passed,V11/exact
-bytes/zero credentials. Main37231724813 finished5success/4failure: Mac3+UbuntuCore/UI passed;
-Windows22/22/14 and UbuntuNative10pass/3fail match baseline decoded failures.
-OverallCIred; no shared Mac defect.
-Whole Action review/owner acceptance and completeStage6/V1 remain unfinished.
-
-PR34–38's exact Action approval, V11 Complete/recovery and shared Dashboard
-checkpoints are integrated; their review/tests/CI/post-merge evidence remains in
-the [Actions plan](work/active/actions-dashboard/plan.md) and corresponding PRs.
-Prior main38 run37228721623 completed5success/4failure: Mac3+UbuntuCore/UI passed;
-Windows22/22/14 Unix API errors and UbuntuNative10pass/3fail installer gaps kept
-CIred, with actual logs/failing source equal the prior baseline. Orphan bounded
-temporary completion stages remain a known cleanup limitation outside authority.
-PR35's updated Connect link/selectable code/Copy/sign-in has owner acceptance.
-Earlier PR16–33 evidence remains in its task plans/PRs.
-
-## Active slice and next work
-
-codex/v1-action-composition over PR39 merge783d9dd implements native New Action and
-Completed→new related follow-up input through the existing retained DraftForm.
-All14 raw fields, source proofs and submitted payload stay copyable; stable IDs,
-ordered whole creation bindings, explicit separate forms and later-typing/source/
-Discard guards are qualified. Real worker checks prove zero Actions before exact
-approval, vaultless creation, unchanged completed work and restart/replay.
+[PR40](https://github.com/ewq100/brn-rust/pull/40) merged
+**40f1314c248177535d0c315272ae4a3fe7c623b6**, reviewed treeba3333ef.
+Native New Action and Completed→new related follow-up use the retained DraftForm,
+shared CreateProposal and ordinary exact approval. All14 raw fields, ordered full
+source proofs and immutable submitted payload stay copyable; stable IDs, exact
+retry/separation, later-typing/source/Discard guards are qualified. Real worker
+checks prove zero Actions before approval, vaultless manual creation, unchanged
+completed work and restart/replay.
 
 Independent whole review is clean. Fresh1118shared/0failed/6ignored+52fixtures,
 254native/0failed/0ignored,both native Clippy modes,shipping builds and startup2
-passed,V11/exactbytes/zero credentials. Two native test-fixture corrections retain
-all assertions and shipping code: preserve the sidebar probe and disable modal
-motion during simulated clicks. Actual UI observation is pending: computer use
-reports the Mac locked. The owned fresh qualification bundle/data are prepared;
-no provider/account/model/original-data operation occurred. PR/exact-head CI and
-integration remain next; see the [Actions plan](work/active/actions-dashboard/plan.md).
+passed,V11/exactbytes/zero credentials. Exacthead2334deb/run37234485293 passed
+Mac3+UbuntuShared. Windows22 decoded errors/locations match main39; overallCIred.
+Normal expected-head merge met all GitHub requirements, with no enabled protection
+or rulesets. Post25focused/0failed/0ignored+52fixtures+startup2 passed against the
+exact merged tree. Main37235387243 finished5success/4failure: Mac3+UbuntuCore/UI
+passed. Independent actual decoded Windows22/22/14 and UbuntuNative10pass/3fail
+messages/locations/panic blocks match main39; failed source blobs are unchanged.
+OverallCIred, no new sharedMac defect.
 
-Next: native observation/publication, then Stage6 AI proposal/read tools. Inbox
-follows roadmap order. WholeStage5/6 and V1 remain unfinished.
+Actual composition UI observation is pending: computer use reports the Mac locked.
+The fresh owned shipping bundle/data are prepared. No provider/account/model/
+original-data operation occurred. Owner acceptance remains separate. PR39's native
+Dashboard/Complete observation and eight safe original JPEGs are integrated;
+PR34–39 review/tests/CI/recovery evidence remains in the
+[Actions plan](work/active/actions-dashboard/plan.md) and corresponding PRs.
+Whole Stage5/6 and V1 remain unfinished.
+
+## Active slice and next work
+
+codex/v1-action-rewrite over PR40 merge40f1314 implements full ordered typed Action
+suggestions through the existing owned Rewrite lifecycle. Complete fields/nulls,
+member counts/domains and exact capture guard whole settlement. Real worker tests
+qualify Action-only/mixed suggestions→exact approval→restart/replay, malformed
+whole refusal, stale edits/comments and retained-lease Stop. Source-free review
+needs no prior editor visit, while AI still requires current vault/tools and
+explicit selection/effort. Native invalid later typing stays a retained conflict.
+
+An actual native witness reproduced the old operational-provider/display-label
+mismatch; shared RewriteRequest::check_replay now owns exact job correlation.
+Both providers' canonical keys accept; wrong job/stamp/model/effort/display-key
+replies stay pending. Independent whole review is clean. Fresh1128shared/0failed/
+6ignored+52fixtures,257native/0failed/0ignored,both native Clippy modes,shipping
+builds,startup2,V11/exactbytes/zero credentials and75doc links passed. The twelve
+reviewed Rust hashes stayed exact through verification. PR/exact-head CI and
+integration follow. Actual native/live/owner acceptance remains pending; no live
+calls, downloads or original/private-data operations occurred.
+
+Then qualify the fixed Action read/proposal tool bridge through AppWorker; Inbox
+follows roadmap order. Native observation continues when the Mac is unlocked.
+See the [Actions plan](work/active/actions-dashboard/plan.md).
 
 ## Qualification and owner items
 

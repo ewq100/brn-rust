@@ -268,7 +268,7 @@ fn action_input_modal_and_quit_guards_preserve_retained_bytes(cx: &mut gpui_kit:
             });
             ai.effort = Some(brn_workflow::ReasoningEffort::Low);
             assert!(ai.can_rewrite());
-            ai.notice = "rewrite-disabled-sentinel".into();
+            ai.notice = "rewrite-dispatch-sentinel".into();
             cx.notify();
         });
         window.render_frame(cx);
@@ -284,9 +284,11 @@ fn action_input_modal_and_quit_guards_preserve_retained_bytes(cx: &mut gpui_kit:
         );
         window.render_frame(cx);
         window.click("review-rewrite", cx);
-        assert_eq!(
-            desktop.read(cx).ai.as_ref().unwrap().notice,
-            "rewrite-disabled-sentinel"
+        let ai = desktop.read(cx).ai.as_ref().unwrap();
+        assert_eq!(ai.notice, "Application lane is closing");
+        assert!(
+            ai.rewrite.is_none(),
+            "failed submission cannot retain an unadmitted Rewrite"
         );
         window.open_dialog(cx, |dialog, _, _| {
             dialog.title("Synthetic modal guard").child("Modal capture")
@@ -320,6 +322,124 @@ fn action_input_modal_and_quit_guards_preserve_retained_bytes(cx: &mut gpui_kit:
                 serde_json::from_str(&review.copy_local().unwrap()).unwrap();
             assert_eq!(copy["local_action_fields"][0]["values"][3], "partial-uuid");
             assert_eq!(copy["edit"]["action_data"].as_array().unwrap().len(), 2);
+        })
+    });
+}
+
+#[gpui_kit::test]
+fn native_action_rewrite_refresh_keeps_later_invalid_widget_bytes(
+    cx: &mut gpui_kit::TestAppContext,
+) {
+    use brn_workflow::{
+        app_worker::{AppCommand, AppEvent},
+        proposal_rewrite::{RewriteEvent, RewriteJob, RewriteSpec, RewriteStatus},
+    };
+    let (_fixture, handle, desktop) = window(cx);
+    let mut visual = VisualTestContext::from_window(handle.into(), cx);
+    visual.run_until_parked();
+    let (request, original) = visual.update(|_, cx| {
+        desktop.update(cx, |this, _| {
+            let ai = this.ai.as_mut().unwrap();
+            ai.selection = Some(brn_workflow::Selection {
+                provider: brn_workflow::Provider::Chatgpt,
+                model: "gpt-6-luna".into(),
+            });
+            ai.effort = Some(brn_workflow::ReasoningEffort::High);
+            let original = ai.review.as_ref().unwrap().record.clone();
+            let (_, AppCommand::StartProposalRewrite(request)) = ai.start_rewrite().unwrap() else {
+                panic!("Rewrite")
+            };
+            (request, original)
+        })
+    });
+    visual.update(|window, cx| {
+        let input = desktop.read(cx).action_editors.fields[0][3].clone();
+        input.update(cx, |input, cx| {
+            let end = input.value().encode_utf16().count();
+            input.replace_text_in_range(Some(0..end), "later-partial-uuid", window, cx);
+        });
+    });
+    visual.run_until_parked();
+    visual.update(|window, cx| {
+        desktop.update(cx, |this, cx| {
+            let mut edit = brn_workflow::proposals::ProposalEdit {
+                expected: original.stamp(),
+                title: original.draft.title.clone(),
+                texts: original
+                    .draft
+                    .changes
+                    .iter()
+                    .map(|c| c.text().map(str::to_owned))
+                    .collect(),
+                action_data: original
+                    .draft
+                    .action_changes
+                    .iter()
+                    .map(|c| c.data().clone())
+                    .collect(),
+            };
+            edit.action_data[1].description = "Complete rewritten Action õ\r\n".into();
+            let rewritten = reply(&original, &edit);
+            let job = RewriteJob {
+                spec: RewriteSpec {
+                    id: request.id,
+                    expected: request.expected,
+                    provider: "chatgpt".into(),
+                    model: request.selection.model.clone(),
+                    effort: "high".into(),
+                },
+                capture_sha256: [1; 32],
+                status: RewriteStatus::Completed,
+                result_stamp: Some(rewritten.stamp()),
+                outcome_sha256: Some([2; 32]),
+                error_code: None,
+                started_at_ms: 1,
+                finished_at_ms: Some(2),
+            };
+            let ai = this.ai.as_mut().unwrap();
+            let commands = ai.apply(
+                request.id,
+                AppEvent::Rewrite(RewriteEvent::Finished {
+                    id: request.id,
+                    generation: request.generation,
+                    job,
+                }),
+            );
+            let query = commands
+                .iter()
+                .find_map(|(id, command)| {
+                    matches!(command,AppCommand::Proposal(proposal) if *proposal==original.draft.id)
+                        .then_some(*id)
+                })
+                .unwrap();
+            ai.apply(query, AppEvent::Proposal(rewritten.clone()));
+            let review = ai.review.as_ref().unwrap();
+            assert_eq!(review.action_fields()[0].values[3], "later-partial-uuid");
+            assert_eq!(review.observed, Some(rewritten.clone()));
+            assert!(!review.can_leave() && !review.can_mutate());
+            this.sync_review_widgets(window, cx);
+            assert_eq!(
+                this.action_editors.fields[0][3].read(cx).value().as_ref(),
+                "later-partial-uuid"
+            );
+            assert!(
+                this.ai
+                    .as_mut()
+                    .unwrap()
+                    .review
+                    .as_mut()
+                    .unwrap()
+                    .discard_local()
+            );
+            this.sync_review_widgets(window, cx);
+            assert_eq!(
+                this.action_editors.fields[1][1].read(cx).value().as_ref(),
+                "Complete rewritten Action õ\r\n"
+            );
+            assert_eq!(
+                this.ai.as_ref().unwrap().review.as_ref().unwrap().record,
+                rewritten
+            );
         })
     });
 }

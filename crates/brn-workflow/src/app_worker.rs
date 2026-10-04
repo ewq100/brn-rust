@@ -992,12 +992,6 @@ fn dispatch(
                     return Err(WorkflowError::cancelled());
                 }
                 let record = app.proposal(request.expected.id)?;
-                if !record.draft.action_changes.is_empty() {
-                    return Err(WorkflowError::typed(
-                        ErrorKind::ToolRejected,
-                        "Action proposal AI Rewrite is not available yet",
-                    ));
-                }
                 if record.stamp() != request.expected
                     || record.state != crate::proposals::ProposalState::Draft
                 {
@@ -1007,22 +1001,27 @@ fn dispatch(
                     ));
                 }
                 app.refresh()?;
-                let vault: brn_store::files::VaultRecord = serde_json::from_str(
-                    &app.work_store()
-                        .setting("vault.editor_identity")?
-                        .ok_or_else(|| {
-                            WorkflowError::typed(
-                                ErrorKind::VaultNotBound,
-                                "choose a vault before Rewrite",
-                            )
-                        })?,
-                )
-                .map_err(|_| WorkflowError::msg("invalid saved vault identity"))?;
-                if record.draft.vault.as_ref() != Some(&vault) {
-                    return Err(WorkflowError::typed(
-                        ErrorKind::ContextStale,
-                        "proposal belongs to a different vault binding",
-                    ));
+                // Source-free Action review has no file binding. The refresh
+                // and tools admission still require the current AI vault, while
+                // captured Markdown/source work retains its exact saved binding.
+                if let Some(bound) = &record.draft.vault {
+                    let vault: brn_store::files::VaultRecord = serde_json::from_str(
+                        &app.work_store()
+                            .setting("vault.editor_identity")?
+                            .ok_or_else(|| {
+                                WorkflowError::typed(
+                                    ErrorKind::VaultNotBound,
+                                    "choose a vault before Rewrite",
+                                )
+                            })?,
+                    )
+                    .map_err(|_| WorkflowError::msg("invalid saved vault identity"))?;
+                    if bound != &vault {
+                        return Err(WorkflowError::typed(
+                            ErrorKind::ContextStale,
+                            "proposal belongs to a different vault binding",
+                        ));
+                    }
                 }
                 app.validate_selection(&request.selection)?;
                 drop(app.tools()?);

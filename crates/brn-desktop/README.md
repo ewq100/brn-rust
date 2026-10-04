@@ -176,7 +176,11 @@ directory in the native app after the CLI exits.
 
 Native/live and owner acceptance are pending until these controls are exercised on
 the unlocked Mac. Save safe actual captures in the
-[UI screenshot index](../../docs/ui/screenshots/README.md). Owned Action Rewrite and Action Undo follow later.
+[UI screenshot index](../../docs/ui/screenshots/README.md). Owned Action Rewrite
+supports full Action-only/mixed suggestions with a bound AI vault and explicit
+provider/model/effort. All fields remain editable/copyable; later incomplete raw
+typing stays a conflict until explicitly resolved. Rewrite suggestions require
+ordinary exact approval to affect real Actions. Action Undo follows later.
 
 ### New Action and related follow-up proposals
 
