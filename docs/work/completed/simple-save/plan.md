@@ -114,3 +114,11 @@ explicit normal development fetch), Python 3/Bash, and a new canonical owned
 synthetic TMPDIR outside Git. Native builds also need protobuf; native observation
 needs an unlocked session. Do not copy task credentials or original data during a
 later transfer to the Mac mini.
+
+The first exact-head PR run at `f9c38bc` passed macOS Core, Native UI and Native
+Retrieval. Ubuntu build/tests/help/fixtures passed, but Clippy correctly rejected
+the new editor test helper `ok`, whose callers are all macOS-only. The helper now
+uses the same macOS guard; fresh local CLI all-target Clippy, **5 editor process
+tests / 0 failed**, formatting and diff checks passed. Windows retains the known
+Unix-only API build failure. The corrected latest PR head must qualify again;
+the initial run does not qualify a changed commit.
