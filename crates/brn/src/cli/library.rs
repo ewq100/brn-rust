@@ -300,6 +300,11 @@ pub fn run(i: &Invocation) -> Result<Output, CliFailure> {
     } else {
         None
     };
+    let evidence = if let Command::Evidence(command) = &i.command {
+        Some(super::evidence::prepare(command)?)
+    } else {
+        None
+    };
     let rewrite_request = match &proposal {
         Some((_, AppCommand::StartProposalRewrite(request))) => Some(request.clone()),
         _ => None,
@@ -327,7 +332,7 @@ pub fn run(i: &Invocation) -> Result<Output, CliFailure> {
     };
     let result = (|| {
         let mut lane = Lane::start(i, timeout)?;
-        let result = execute(i, &mut lane, ask_id, editor, proposal, identity);
+        let result = execute(i, &mut lane, ask_id, editor, proposal, identity, evidence);
         lane.finish(result)
     })();
     result.map_err(|mut failure: CliFailure| {
@@ -352,11 +357,20 @@ fn execute(
     editor: Option<(Uuid, AppCommand)>,
     proposal: Option<(Uuid, AppCommand)>,
     identity: Option<AppCommand>,
+    evidence: Option<AppCommand>,
 ) -> Result<Output, CliFailure> {
     match &i.command {
         Command::Identity(command) => {
             let event = lane.query(identity.expect("identity input prepared before startup"))?;
             let data = match (command, event) {
+                (
+                    super::identity::IdentityCommand::Inventory,
+                    AppEvent::IdentityInventory(inventory),
+                ) => json!(inventory),
+                (
+                    super::identity::IdentityCommand::Resolve(id),
+                    AppEvent::NoteIdentityResolved(resolution),
+                ) if resolution.note_id == *id => json!(resolution),
                 (super::identity::IdentityCommand::Show(path), AppEvent::NoteIdentity(info))
                     if info.path == *path =>
                 {
@@ -371,6 +385,17 @@ fn execute(
                 _ => return Err(unexpected()),
             };
             Ok(output(data))
+        }
+        Command::Evidence(super::evidence::EvidenceCommand::Read(path)) => {
+            let AppEvent::EvidenceNote(note) =
+                lane.query(evidence.expect("evidence input prepared before startup"))?
+            else {
+                return Err(unexpected());
+            };
+            Ok(Output {
+                text: note.text.clone(),
+                data: json!({"path": path, "text": note.text}),
+            })
         }
         Command::Activity(request) => {
             let AppEvent::Activity(page) = lane.query(AppCommand::Activity(request.clone()))?
@@ -1013,6 +1038,41 @@ mod tests {
         cell::{Cell, RefCell},
         collections::VecDeque,
     };
+
+    #[test]
+    fn direct_identity_and_evidence_invocations_validate_before_worker_startup() {
+        for command in [
+            Command::Identity(super::super::identity::IdentityCommand::Resolve(Uuid::nil())),
+            Command::Identity(super::super::identity::IdentityCommand::Show(
+                "archive/old.md".into(),
+            )),
+            Command::Evidence(super::super::evidence::EvidenceCommand::Read(
+                "archive/../escape.md".into(),
+            )),
+            Command::Evidence(super::super::evidence::EvidenceCommand::Read(
+                "archive/.hidden.md".into(),
+            )),
+        ] {
+            let parent =
+                tempfile::tempdir_in(std::env::temp_dir().canonicalize().unwrap()).unwrap();
+            let data = parent.path().join("data");
+            std::fs::create_dir(&data).unwrap();
+            let invocation = Invocation {
+                json: true,
+                data_dir: data.clone(),
+                model_dir: None,
+                vault: None,
+                credentials_dir: None,
+                command,
+            };
+            let Err(failure) = run(&invocation) else {
+                panic!("malformed direct invocation must fail before startup");
+            };
+            assert_eq!(failure.error.code(), "USAGE");
+            assert_eq!(std::fs::read_dir(data).unwrap().count(), 0);
+            assert!(!parent.path().join("data.credentials").exists());
+        }
+    }
 
     #[test]
     fn status_selection_recovers_only_typed_model_refused() {

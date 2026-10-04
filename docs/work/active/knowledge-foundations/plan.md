@@ -110,3 +110,59 @@ inspect the integrated commit separately. Outside-Git logs retain the original
 failed gate and final passing gate; only exclusively owned fixture entries are
 cleaned with type/owner/identity checks. Full-gate success, rather than the
 unreproduced intermittent diagnosis alone, establishes final qualification.
+
+## Second slice: fresh identity lookup and archived evidence reading
+
+Baseline: `main@0a80ba286f814f626b00b6524c7f12c409bfd6cb`; only the preserved
+owner AGENTS.md change remains unrelated. The identity slice is locally integrated;
+no published CI run exists for its commit. Continue within the frozen mission.
+
+Add one read-only evidence path/scan seam permitting top-level archive notes.
+Current VaultPath validation and default list/read/search remain unchanged, so
+proposal/editor/Save authority does not expand. The same exact-byte, bounded UTF-8,
+non-symlink read rules apply to explicit evidence reading. No move, migration or
+archived mutation is introduced.
+
+A fresh UUID inventory reads the complete visible Markdown evidence universe,
+including archives, instead of trusting cached size/mtime or only index candidates.
+It reports unmanaged notes, malformed/unreadable entries and all duplicated IDs.
+Resolution returns Unique, Absent, Ambiguous or Incomplete with observed matches
+and issues; incomplete inspection cannot certify uniqueness/absence. No path/hash
+fallback, UUID minting, database table or automatic repair is added. These are
+observations of saved evidence, not a transactional vault snapshot; later writes
+must still use the existing exact proposal/source version boundary.
+
+Expose inventory/resolution and explicit evidence reading through AppWorker/CLI.
+CLI preflight validates syntax and nonnil UUIDs before operational startup. Useful
+checks cover archive/default-current separation; same-size/retained-mtime ID edits;
+duplicates, moves and removals; malformed/oversized/non-UTF-8 data; fresh restart
+and deleted/rebuilt index; unchanged vault bytes; and unresolved application fences.
+Get independent complete read-only review, technically verify findings, run fresh
+integrated/default and affected native gates, document a reproducible synthetic
+CLI scenario and integrate the completed slice. Current/source/history metadata
+classification, scoped search and durable provenance remain subsequent slices.
+
+
+Second-slice evidence, 2026-10-04: independent complete review against `0a80ba2`
+found no actionable macOS defect. Its fresh locked/offline checks passed **27**
+checks (5 lookup, 8 existing vault, 3 evidence, 5 inventory/evidence CLI, 5 prior
+identity CLI, 1 direct-Invocation preflight). Root lookup tests also passed **5**,
+including preserved-mtime duplication, exact archived reads, default current
+write/read refusal, incomplete inspection, restart/index rebuild and application
+fences. An attempted extra non-UTF-8 filename fixture was rejected by APFS itself
+(errno 92); it was replaced with an actual supported filename rejected by the
+contained-path rules. Existing non-UTF-8 filename coverage is filesystem-limited
+on this host, not presented as actual exercised qualification.
+
+Fresh final macOS arm64 / Rust 1.98.1 locked/offline gate passed retirement,
+workspace format/build/all-target Clippy, **725 tests / 0 failed / 2 ignored**
+and **52 end-to-end assertions**. Fresh native desktop tests passed **147 / 0
+failed** (`native-ui,native-retrieval,native-test-support`); shipping native build
+without test support and native all-target Clippy with warnings denied passed.
+The known upstream `block v0.1.6` future-compiler warning remains. No original
+vault/private data, live provider calls, downloads or actual GUI/native inference
+were inspected/exercised. Local Markdown links and diff checks are validated
+before integration. Only own synthetic fixture entries are cleaned; outside-Git
+logs remain. This slice is implemented, automated verified, independently reviewed
+and locally integrated with this change. [CLI manual lookup/evidence scenario](../../../../crates/brn/README.md#managed-note-identity)
+is reproducible; owner/native acceptance remains pending. Stage 5 is still active.

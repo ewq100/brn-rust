@@ -3,6 +3,8 @@ mod path;
 mod read;
 mod scan;
 
-pub use path::{VaultPath, VaultPathError};
-pub use read::{NoteText, ReadError, read_note};
-pub use scan::{NoteFile, Scan, SkipReason, Skipped, scan};
+pub use path::{EvidencePath, VaultPath, VaultPathError};
+pub use read::{NoteText, ReadError, read_evidence, read_note};
+pub use scan::{
+    EvidenceFile, EvidenceScan, NoteFile, Scan, SkipReason, Skipped, scan, scan_evidence,
+};

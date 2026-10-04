@@ -5,6 +5,7 @@ pub mod activity;
 pub mod ai;
 pub mod editor;
 pub mod error;
+pub mod evidence;
 pub mod identity;
 mod input;
 pub mod library;
@@ -30,6 +31,7 @@ pub enum Command {
     Activity(brn_workflow::activity::ActivityRequest),
     Editor(editor::EditorCommand),
     Identity(identity::IdentityCommand),
+    Evidence(evidence::EvidenceCommand),
     Proposals(proposals::ProposalCommand),
     Ai(ai::AiCommand),
     ModelDownload {
@@ -108,6 +110,9 @@ Commands:
   brn activity list [--limit N] [--before OPERATION_UUID]
   brn identity show PATH
   brn identity prepare PATH --note-id UUID --proposal UUID --title TITLE
+  brn identity inventory
+  brn identity resolve NOTE_ID
+  brn evidence read PATH
   brn proposals create --file DRAFT.json
   brn proposals list [--group UUID]
   brn proposals show PROPOSAL_ID
@@ -449,6 +454,7 @@ fn parse_inner(
         "help" => return Ok(Outcome::Help),
         "edit" => editor::scan_command(&mut tokens, g, command)?,
         "identity" => identity::scan_command(&mut tokens, g, command)?,
+        "evidence" => evidence::scan_command(&mut tokens, g, command)?,
         "proposals" => proposals::scan_command(&mut tokens, g, command)?,
         "activity" => activity::scan_command(&mut tokens, g, command)?,
         "ai" => ai::scan_command(&mut tokens, g, command)?,
@@ -516,6 +522,7 @@ fn parse_inner(
     let built = match word.as_str() {
         "edit" => Command::Editor(editor::parse_command(command.unwrap(), &scanned)?),
         "identity" => Command::Identity(identity::parse_command(command.unwrap(), &scanned)?),
+        "evidence" => Command::Evidence(evidence::parse_command(&scanned)?),
         "proposals" => Command::Proposals(proposals::parse_command(command.unwrap(), &scanned)?),
         "activity" => Command::Activity(activity::parse_command(&scanned)?),
         "ai" => Command::Ai(ai::parse_command(command.unwrap(), &scanned)?),

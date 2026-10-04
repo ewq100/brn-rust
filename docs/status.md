@@ -61,17 +61,18 @@ shipping native build and native Clippy. Default desktop passed **131**; workflo
 **186**. The two ignored private crash entry points are exercised by subprocess
 matrices. Earlier slice counts remain in the evidence, not current gate claims.
 
-Stage 5’s [active plan](work/active/knowledge-foundations/plan.md) has locally
-integrated its first slice: exact managed Markdown UUID preparation through
-ordinary proposals, full edit/Rewrite identity protection, read-only CLI inspection,
-source CAS, restart and Undo. Independent reviews found no remaining actionable
-finding. Fresh locked/offline verification passed **711 workspace tests / 0 failed /
-2 ignored**, **52 end-to-end assertions**, format/build/all-target Clippy and
-**147 native tests**, shipping native build and native Clippy. A test-only shared
-subprocess mutex fixes the qualification isolation gap without changing production
-locks. Owner acceptance remains pending. Fresh derived UUID lookup, explicit
-current/source/history scopes, durable provenance and the remaining foundations
-continue next; Stage 5 is not complete.
+Stage 5’s [active plan](work/active/knowledge-foundations/plan.md) has integrated
+managed Markdown UUID preparation through ordinary proposals, edit/Rewrite
+identity protection, fresh complete evidence lookup and duplicate/incomplete
+reporting, and explicit exact archived reads. Source CAS, restart, index rebuild
+and Undo are verified; current write/read rules and unresolved-work fences remain
+intact. Independent reviews found no remaining actionable findings. Fresh final
+locked/offline verification passed **725 workspace tests / 0 failed / 2 ignored**,
+**52 end-to-end assertions**, format/build/all-target Clippy and **147 native
+tests**, shipping native build and native Clippy. Owner acceptance remains pending.
+Metadata classification, current/source/history retrieval, durable provenance,
+relationships, findings/timestamps and multilingual qualification continue next;
+Stage 5 is not complete.
 
 ## Qualification still open
 

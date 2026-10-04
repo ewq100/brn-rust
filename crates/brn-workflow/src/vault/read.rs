@@ -1,4 +1,4 @@
-use super::path::VaultPath;
+use super::path::{EvidencePath, VaultPath};
 use crate::MAX_NOTE_BYTES;
 use sha2::{Digest, Sha256};
 use std::{
@@ -51,9 +51,19 @@ impl From<std::io::Error> for ReadError {
 /// Reads a note's exact bytes, refusing symlinked path parts and a file swapped
 /// before opening (see the accepted parent-folder race limit below).
 pub fn read_note(root: &Path, path: &VaultPath) -> Result<NoteText, ReadError> {
+    read_path(root, path.as_str())
+}
+
+/// Reads explicit saved evidence, including archives, with the same exact-byte
+/// and supported-file checks as current-note reading.
+pub fn read_evidence(root: &Path, path: &EvidencePath) -> Result<NoteText, ReadError> {
+    read_path(root, path.as_str())
+}
+
+fn read_path(root: &Path, path: &str) -> Result<NoteText, ReadError> {
     let mut current = root.to_path_buf();
     let mut checked = None;
-    for part in path.as_str().split('/') {
+    for part in path.split('/') {
         current.push(part);
         let meta = std::fs::symlink_metadata(&current)?;
         if meta.file_type().is_symlink() {

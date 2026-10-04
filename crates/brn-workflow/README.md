@@ -65,9 +65,21 @@ nonnil note/proposal UUIDs and a title produce a complete ordinary Replace
 proposal/editor record and writes no vault content; existing CreateProposal and
 exact approval admit/apply the reviewed bytes. Already identified or unsupported
 metadata refuses reassignment. Ordinary fresh replacement preserves a recognized
-target ID; direct manual Save and exact Undo retain their byte semantics. Derived
-UUID lookup, duplicate reporting, history scopes and durable provenance remain
-subsequent Stage 5 work.
+target ID; direct manual Save and exact Undo retain their byte semantics.
+
+`IdentityInventory` scans and reads fresh saved Markdown across current and archive
+paths, including unmanaged notes. It reports duplicate UUID paths and incomplete
+metadata/file inspection instead of trusting index timestamps or guessing.
+`ResolveNoteIdentity` returns explicit Unique/Absent/Ambiguous/Incomplete with
+observed matches/issues; unreadable evidence cannot certify uniqueness or absence.
+These observations are not an atomic vault snapshot; later durable work still
+captures and checks exact source versions. `EvidenceNote` opens explicit saved
+source/history text, including top-level archives, through the separate read-only
+`EvidencePath`. It applies existing bounds, UTF-8 and non-symlink checks without
+opening an editor or changing current mutation authority. All three commands
+respect unresolved Save/application fences. Default current notes/search/AI tools
+still exclude archives. Metadata classification, scoped retrieval and durable
+provenance remain subsequent Stage 5 slices.
 
 `proposal_source(path)` / AppWorker `ProposalSource` return the complete saved
 text and trusted file fingerprint for initial review composition. The capture

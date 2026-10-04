@@ -222,7 +222,7 @@ impl App {
         self.auth.credentials_dir()
     }
 
-    fn require_vault(&self) -> Result<&Path> {
+    pub(crate) fn require_vault(&self) -> Result<&Path> {
         let root = self.root.as_deref().ok_or_else(|| {
             WorkflowError::typed(
                 ErrorKind::VaultNotBound,

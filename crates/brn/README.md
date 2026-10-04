@@ -13,6 +13,9 @@ A data directory has one owner at a time.
 ```text
 brn activity list [--limit N] [--before OPERATION_UUID]
 brn proposals create --file DRAFT.json
+  brn identity inventory
+  brn identity resolve NOTE_UUID
+  brn evidence read PATH
   brn identity show PATH
   brn identity prepare PATH --note-id UUID --proposal UUID --title TITLE
   brn proposals list [--group UUID]
@@ -334,9 +337,40 @@ brn proposals undo "$BRN_APPROVAL_ID" --operation "$BRN_UNDO_ID" --data-dir "$BR
 Inspect the complete request before creation/approval; if review changes, use its
 actual version. Preparation/creation leave the note unchanged. Approval installs
 the shown ID; restart preserves it, and Undo restores the exact original bytes.
-Changing a source after preparation refuses creation. Derived UUID lookup,
-cross-note duplicate reporting, history scope and durable provenance remain
-subsequent Stage 5 work; this command is current-note identity preparation.
+Changing a source after preparation refuses creation.
+
+`identity inventory` freshly reads visible Markdown across current and archive
+paths, reporting unmanaged notes, duplicate UUID paths and inspection issues.
+`identity resolve NOTE_UUID` returns `unique`, `absent`, `ambiguous` or `incomplete`
+with observed matches/issues. Unreadable or malformed evidence cannot establish
+uniqueness/absence. Resolution never substitutes a filename/hash, chooses among
+duplicates, mints IDs or repairs notes; same-size/retained-timestamp ID edits are
+observed. These are saved evidence observations; later changes still require exact
+source-version checks. `evidence read PATH` explicitly reads complete source/history
+text, including archived notes, with the ordinary file/UTF-8/size protections.
+Current `notes show`, identity assignment, editor and proposal destinations retain
+their existing archive refusal. All new queries respect unresolved Save/application
+fences. Scoped search/metadata classification and durable provenance remain later
+Stage 5 work.
+
+For manual acceptance, use only a fresh synthetic vault/data pair. Put the same
+managed `brn_id` into `current.md` and `archive/source.md` with different original
+wording, and leave `unmanaged.md` without metadata. Run:
+
+```sh
+brn identity inventory --data-dir "$BRN_DATA" --vault "$BRN_VAULT" --json
+brn identity resolve "$BRN_NOTE_ID" --data-dir "$BRN_DATA" --json
+brn evidence read archive/source.md --data-dir "$BRN_DATA" --json
+brn notes show archive/source.md --data-dir "$BRN_DATA" --json
+```
+
+The inventory lists both duplicate paths and the unmanaged note; resolution is
+`ambiguous`. Explicit evidence preserves the archived wording/BOM/line endings;
+the last current-only command refuses. In that synthetic fixture, change the
+second UUID without changing byte count or mtime, rerun resolution and restart;
+the first ID is now `unique`. Add malformed managed metadata in another archived
+note: resolution becomes `incomplete`. Compare all fixture vault bytes before
+and after queries; queries create no review/editor work and change no notes.
 
 ## Output contract
 

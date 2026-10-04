@@ -51,6 +51,9 @@ pub enum AppCommand {
     ReconcileEditor(Uuid),
     ProposalSource(String),
     NoteIdentity(String),
+    IdentityInventory,
+    ResolveNoteIdentity(Uuid),
+    EvidenceNote(String),
     PrepareNoteIdentity(crate::knowledge::IdentityRequest),
     CreateProposal(crate::proposals::DraftRequest),
     Proposal(Uuid),
@@ -130,6 +133,9 @@ pub enum AppEvent {
     Editors(Vec<crate::editor::EditorRecord>),
     ProposalSource(Box<crate::proposals::ProposalSource>),
     NoteIdentity(crate::knowledge::NoteIdentityInfo),
+    IdentityInventory(Box<crate::knowledge::IdentityInventory>),
+    NoteIdentityResolved(Box<crate::knowledge::IdentityResolution>),
+    EvidenceNote(NoteText),
     NoteIdentityDraft(Box<crate::proposals::DraftRequest>),
     Proposal(crate::proposals::ProposalRecord),
     ProposalRewrite(Option<crate::proposal_rewrite::RewriteJob>),
@@ -862,6 +868,13 @@ fn dispatch(
             AppEvent::ProposalSource(Box::new(app.proposal_source(&path)?))
         }
         AppCommand::NoteIdentity(path) => AppEvent::NoteIdentity(app.note_identity(&path)?),
+        AppCommand::IdentityInventory => {
+            AppEvent::IdentityInventory(Box::new(app.identity_inventory()?))
+        }
+        AppCommand::ResolveNoteIdentity(note_id) => {
+            AppEvent::NoteIdentityResolved(Box::new(app.resolve_note_identity(note_id)?))
+        }
+        AppCommand::EvidenceNote(path) => AppEvent::EvidenceNote(app.evidence_note(&path)?),
         AppCommand::PrepareNoteIdentity(request) => {
             AppEvent::NoteIdentityDraft(Box::new(app.prepare_note_identity(&request)?))
         }
