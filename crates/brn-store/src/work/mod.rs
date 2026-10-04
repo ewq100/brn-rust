@@ -96,6 +96,9 @@ enum Checked {
     Empty(Connection),
     /// Damaged, or not SQLite at all.
     Corrupt,
+    /// Readable BRN operational work failed semantic validation. Refuse a main
+    /// database without replacing it; a restore candidate may be skipped.
+    Invalid(crate::Error),
     /// A database BRN must not touch (another application's, or a newer BRN's).
     Foreign(&'static str),
 }
@@ -126,6 +129,7 @@ impl WorkStore {
             Some(Checked::Brn(conn)) => conn,
             Some(Checked::Empty(conn)) if backup::list(data_dir)?.is_empty() => conn,
             Some(Checked::Foreign(reason)) => return Err(invalid(reason)),
+            Some(Checked::Invalid(error)) => return Err(error),
             // Missing, corrupt or empty with backups: restore, or start fresh.
             unusable => {
                 drop(unusable);
@@ -245,14 +249,33 @@ fn check(db: &Path) -> Result<Checked> {
         Err(e) if is_corruption(&e) => return Ok(Checked::Corrupt),
         Err(e) => return Err(e.into()),
     };
+    let identity = (|| -> rusqlite::Result<(i64, i64)> {
+        Ok((
+            conn.query_row("PRAGMA application_id", [], |r| r.get(0))?,
+            conn.query_row("PRAGMA user_version", [], |r| r.get(0))?,
+        ))
+    })();
+    let (application, version) = match identity {
+        Ok(identity) => identity,
+        Err(e) if is_corruption(&e) => return Ok(Checked::Corrupt),
+        Err(e) => return Err(e.into()),
+    };
+    if application == APPLICATION_ID && (9..=MIGRATIONS.len() as i64).contains(&version) {
+        // SQLite quick_check also reports domain CHECK failures. Validate
+        // readable Findings first so malformed state/hash bindings cannot
+        // silently restore older operational work. Retain the V9 schema.
+        match findings::check_all(&conn) {
+            Err(crate::Error::Sql(e)) if is_corruption(&e) => return Ok(Checked::Corrupt),
+            Err(error) => return Ok(Checked::Invalid(error)),
+            Ok(()) => {}
+        }
+    }
     match conn.query_row("PRAGMA quick_check", [], |r| r.get::<_, String>(0)) {
         Ok(result) if result == "ok" => {}
         Ok(_) => return Ok(Checked::Corrupt),
         Err(e) if is_corruption(&e) => return Ok(Checked::Corrupt),
         Err(e) => return Err(e.into()),
     }
-    let application: i64 = conn.query_row("PRAGMA application_id", [], |r| r.get(0))?;
-    let version: i64 = conn.query_row("PRAGMA user_version", [], |r| r.get(0))?;
     if application == APPLICATION_ID {
         if (1..=MIGRATIONS.len() as i64).contains(&version) {
             return Ok(Checked::Brn(conn));

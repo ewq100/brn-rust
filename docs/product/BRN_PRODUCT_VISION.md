@@ -23,6 +23,27 @@ It combines those capabilities where needed so that a user can bring in work inf
 
 The main user interaction is conversation with BRN. The vault is the durable knowledge base. Operational state such as actions and chat sessions may live outside the vault when that is more appropriate.
 
+### External-agent access
+
+Owner amendment, 2026-10-04: BRN must also serve as a personal knowledge
+platform for external AI agents, including Codex, ChatGPT and other MCP-compatible
+clients. BRN is a headless-capable application platform with multiple clients;
+the desktop application is one client. Meaningful domain capabilities must remain
+available through the shared application boundary, independently of the UI.
+
+External access uses explicit BRN capabilities, never unrestricted vault or
+database access. Default search/read/list access means approved current knowledge;
+Source, History and All require explicit scope. BRN retains authority over
+eligibility, evidence, uncertainty and approval. Internal retrieval replacement
+must preserve these client-facing meanings.
+
+The expected first external protocol is a thin, read-only local MCP adapter over
+stdio. Search, read, list, relationships and provenance consume the existing
+workflow. Future agent-proposed changes use the same human review/approval
+lifecycle. MCP implementation is future work, not an added V1 delivery stage.
+This amendment introduces no daemon, remote service, HTTP listener, cloud/sync,
+authentication infrastructure or multi-user model.
+
 ---
 
 ## 2. Core product principle

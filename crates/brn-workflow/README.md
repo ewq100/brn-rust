@@ -1,8 +1,23 @@
 # brn-workflow
 
-Shared application flow for desktop and headless use: simple manual Markdown
-Save/recovery and Rig chat/read/search through AppWorker. Legacy production
-Store/Workspace/worker and brn-flow paths are removed.
+Shared client-facing application boundary for desktop, CLI and future protocol
+adapters: manual Markdown Save/recovery, knowledge operations and Rig chat/read/
+search through AppWorker. Legacy production Store/Workspace/worker and brn-flow
+paths are removed.
+
+The [architecture client boundary](../../docs/architecture/overview.md#client-and-protocol-boundary)
+permits a future thin read-only stdio MCP adapter. It maps capabilities to this
+crate's commands/events; it does not open vault/SQLite files or implement ranking,
+knowledge scopes, parsing, relationships, provider or proposal rules. External
+search/read/list default to Current; other scopes are explicit. Retrieval remains
+replaceable inside the core. No MCP implementation, daemon or remote service is
+part of this amendment.
+
+Search results expose workflow-owned `NoteHit` evidence (path, whole-note hash,
+byte range, exact quote and relative score). SQLite passage IDs stay inside
+retrieval for ranking/fusion and are not client identifiers. Domain scope and
+relationship DTOs retain their current meaning; adapters must not depend on
+retrieval storage details.
 
 ## Interfaces and source
 

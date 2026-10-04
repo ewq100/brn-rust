@@ -2,7 +2,13 @@
 
 The owner has frozen the reviewed product architecture as of 2026-10-03. [Product vision](product/BRN_PRODUCT_VISION.md) and [architecture/invariants](architecture/invariants.md) govern the outcomes below. This sequence carries forward the dependency corrections in the dated [independent review](audits/BRN_PRODUCT_ARCHITECTURE_REVIEW.md#g-final-build-sequence). The current v1 mission authorizes sequential implementation and integration within these frozen boundaries; each slice still establishes its own acceptance criteria and verification.
 
-[Status](status.md) owns observed implementation, verification, acceptance and integration. Older milestones and the simple-notes Steps 5/6 are historical; they do not select the next task. Keep existing foundations and data while following the frozen six-crate [target](architecture/overview.md#frozen-target).
+[Status](status.md) owns observed implementation, verification, acceptance and integration. Older milestones and the simple-notes Steps 5/6 are historical; they do not select the next task. Keep existing foundations and data while following the stable V1 core [target](architecture/overview.md#frozen-target).
+
+The owner's 2026-10-04 external-agent amendment preserves this sequence. Every
+meaningful domain capability stays headless through workflow/AppWorker. Thin
+future protocol adapters are permitted; read-only local stdio MCP is the expected
+first external interface. MCP, a daemon and remote/network infrastructure are not
+added delivery stages or prerequisites for V1.
 
 ## Reviewed outcomes
 

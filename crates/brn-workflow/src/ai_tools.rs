@@ -1,13 +1,14 @@
 //! Fresh, read-only vault tools. Index text is never trusted without validation.
 use crate::library::{
-    KnowledgeScope, LibraryError, SearchMode, SharedEmbedder, saved_metadata, search_index_scoped,
+    KnowledgeScope, LibraryError, NoteHit, SearchMode, SharedEmbedder, saved_metadata,
+    search_index_scoped,
 };
 use crate::vault::{self, EvidencePath, VaultPath};
 use brn_ai::{
     AiError, AiErrorKind, AiResult, NoteEntry, NotePage, Passage, ReadScope, ReadTools, ToolNote,
     ToolSearch,
 };
-use brn_retrieval::note_index::{IndexedNote, NoteHit, NoteIndexReader};
+use brn_retrieval::note_index::{IndexedNote, NoteIndexReader};
 use std::{
     path::{Path, PathBuf},
     sync::Mutex,

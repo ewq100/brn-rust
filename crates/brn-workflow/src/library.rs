@@ -11,7 +11,7 @@ use std::{
 #[cfg(feature = "native-retrieval")]
 pub use brn_retrieval::native::LocalEmbedder;
 pub use brn_retrieval::note_index::{
-    Embedder, EmbeddingProgress, IndexedNote, KnowledgeScope, NoteHit, NoteMetadata,
+    Embedder, EmbeddingProgress, IndexedNote, KnowledgeScope, NoteMetadata,
 };
 
 /// How many results each side contributes before hybrid fusion.
@@ -70,6 +70,30 @@ pub enum SearchMode {
     Keyword,
     Semantic,
     Hybrid,
+}
+
+#[derive(Debug, Clone, PartialEq)]
+pub struct NoteHit {
+    pub path: String,
+    pub note_sha256: [u8; 32],
+    pub start_byte: usize,
+    pub end_byte: usize,
+    pub quote: String,
+    /// Higher is better; comparable only within one result list.
+    pub score: f32,
+}
+
+fn client_hits(hits: Vec<brn_retrieval::note_index::NoteHit>) -> Vec<NoteHit> {
+    hits.into_iter()
+        .map(|hit| NoteHit {
+            path: hit.path,
+            note_sha256: hit.note_sha256,
+            start_byte: hit.start_byte,
+            end_byte: hit.end_byte,
+            quote: hit.quote,
+            score: hit.score,
+        })
+        .collect()
 }
 
 #[derive(Debug, Clone, PartialEq)]
@@ -138,13 +162,13 @@ pub fn search_index_scoped(
     check_query(query, limit)?;
     let Some(embedder) = embedder else {
         return Ok(SearchResults {
-            hits: index.keyword_scoped(query, limit, scope)?,
+            hits: client_hits(index.keyword_scoped(query, limit, scope)?),
             keyword_only: true,
         });
     };
     if mode == SearchMode::Keyword {
         return Ok(SearchResults {
-            hits: index.keyword_scoped(query, limit, scope)?,
+            hits: client_hits(index.keyword_scoped(query, limit, scope)?),
             keyword_only: false,
         });
     }
@@ -165,7 +189,7 @@ pub fn search_index_scoped(
         fuse_hits(&[&keyword, &semantic], limit)
     };
     Ok(SearchResults {
-        hits,
+        hits: client_hits(hits),
         keyword_only: false,
     })
 }

@@ -264,6 +264,10 @@ Unresolved-link occurrence and used definition can share one file with different
 ranges. Workflow validates actual saved bytes; Store never reads a vault.
 Strict nested JSON, bounded retained/encoded work, hashes and row/creation bindings
 are checked before use and at startup before reconciliation/backup.
+For supported branded V9+ databases, readable Findings are also validated before
+SQLite quick_check so state/hash CHECK violations refuse the main database rather
+than restoring older work. Physical corruption retains backup recovery; malformed
+Findings backup candidates are skipped without modifying the retained backup.
 
 Open version 1 advances once to Resolved or Dismissed version 2 by exact stamp.
 Identical creation or old-stamp/same-outcome closure replay returns retained work;
