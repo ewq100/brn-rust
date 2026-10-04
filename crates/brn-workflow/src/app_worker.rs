@@ -68,6 +68,11 @@ pub enum AppCommand {
     NoteLinks(String),
     PrepareNoteLink(crate::knowledge::LinkRequest),
     Relationships(crate::knowledge::RelationshipRequest),
+    CaptureFinding(crate::findings::CaptureFindingRequest),
+    Findings(crate::findings::FindingListRequest),
+    Finding(Uuid),
+    CloseFinding(crate::findings::CloseFindingRequest),
+    InspectFinding(Uuid),
     CaptureCitation(crate::knowledge::CitationRequest),
     PrepareNoteProvenance(crate::knowledge::ProvenanceRequest),
     CreateProposal(crate::proposals::DraftRequest),
@@ -162,6 +167,9 @@ pub enum AppEvent {
     NoteLinks(Box<crate::knowledge::NoteLinks>),
     NoteLinkDraft(Box<crate::proposals::DraftRequest>),
     Relationships(Box<crate::knowledge::RelationshipPage>),
+    Finding(Box<crate::findings::FindingRecord>),
+    Findings(Box<crate::findings::FindingPage>),
+    FindingInspection(Box<crate::findings::FindingInspection>),
     CitationCaptured(Box<crate::knowledge::CitationCapture>),
     NoteProvenanceDraft(Box<crate::proposals::DraftRequest>),
     Proposal(crate::proposals::ProposalRecord),
@@ -921,6 +929,17 @@ fn dispatch(
         AppCommand::Relationships(request) => {
             AppEvent::Relationships(Box::new(app.relationships(&request)?))
         }
+        AppCommand::CaptureFinding(request) => {
+            AppEvent::Finding(Box::new(app.capture_finding(&request)?))
+        }
+        AppCommand::Findings(request) => AppEvent::Findings(Box::new(app.findings(&request)?)),
+        AppCommand::Finding(id) => AppEvent::Finding(Box::new(app.finding(id)?)),
+        AppCommand::CloseFinding(request) => {
+            AppEvent::Finding(Box::new(app.close_finding(&request)?))
+        }
+        AppCommand::InspectFinding(id) => {
+            AppEvent::FindingInspection(Box::new(app.inspect_finding(id)?))
+        }
         AppCommand::CaptureCitation(request) => {
             AppEvent::CitationCaptured(Box::new(app.capture_citation(&request)?))
         }
@@ -1243,6 +1262,8 @@ fn critical_mutation_command(command: &AppCommand) -> bool {
             | AppCommand::ReconcileEditor(_)
             | AppCommand::RecoverEdit { .. }
             | AppCommand::CreateProposal(_)
+            | AppCommand::CaptureFinding(_)
+            | AppCommand::CloseFinding(_)
             | AppCommand::EditProposal(_)
             | AppCommand::RewriteProposal(_)
             | AppCommand::AddProposalComment(_)

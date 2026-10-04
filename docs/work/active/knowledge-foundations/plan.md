@@ -1007,3 +1007,95 @@ qualification. Download permission remains pending. Transfer requirements remain
 pinned Rust 1.98.1, Apple Silicon/Command Line Tools, cached locked dependencies,
 protobuf, Bash/Python 3, fresh canonical synthetic data/TMPDIR and an unlocked
 session for owner GUI acceptance. Original data and credentials are not inputs.
+
+
+## Thirteenth slice: basic retained review findings
+
+Baseline `main@b9b2338d877be900592fece56eb47988974c122b`; preserve the owner's
+AGENTS.md edit. Add a narrow operational finding record in existing brn.sqlite,
+with additive V9 migration, immutable creation binding, exact saved evidence,
+Open/Resolved/Dismissed lifecycle and bounded pages. Findings are tentative work,
+not knowledge authority or another proposal workflow. Closing changes only queue
+state; correcting Markdown remains an exact approved proposal. Stage 10 owns
+semantic detection, scheduling and web maintenance; this slice supplies basic
+records and two existing deterministic producers, not an AI service/framework.
+
+Freeze FindingOrigin to IdentityAmbiguity(note UUID) or UnresolvedLink(saved path,
+source hash, destination, occurrence start). CaptureFindingRequest binds a nonnil
+finding UUID plus that origin. FindingDraft retains request, VaultRecord, bounded
+title/summary and 1–64 exact FindingEvidence entries (SourceVersion, optional
+observed UUID, optional UTF-8 quote/range). Identity ambiguity needs at least two
+distinct saved paths with that UUID; unresolved-link occurrence/definition quotes
+share the exact source proof. Quotes are at most 16 KiB each; all retained work is
+at most 1 MiB before JSON expansion. Strict validation/hash/row binding precedes
+use. Record version 1 is Open; one exact-stamp Resolve/Dismiss advances to terminal
+version 2. Identical creation/closure replay returns the retained current record;
+changed payload or stale competing closure refuses atomically. No source is
+re-anchored or substituted later. Evidence inspection retains old proof and reports
+fresh drift/unavailability separately.
+
+App captures fresh evidence through existing coordinated saved-source APIs and
+unresolved-change fences. Duplicate identity and unresolved saved links produce
+real bounded findings without changing vault/proposals/credentials. Exact request
+replay precedes fresh vault requirements. Listing/detail/closure remain available
+without current vault evidence. AppWorker owns admitted create/closure and drains
+shutdown. CLI uses only shared workflow DTOs for capture/list/show/close; native
+queue controls follow as the next bounded adapter slice. Preserve source/history
+access and empty-note proof without fabricating quotes or stable identity.
+
+Acceptance: meaningful strict shape/byte/range tests, creation/closure replay and
+conflicts, transactional rollback, V8 upgrade/reopen/backup restoration preserving
+existing work, bounded fresh pages and open counts, real issue capture with exact
+Unicode/BOM/CRLF evidence and unchanged vault, changed/missing source retention,
+worker drain and CLI JSON/human parity. Independent review with verified fixes,
+fresh default gates and concise manual scenario precede local integration. Root
+owns workflow/admission/coherence; a bounded helper implements only the frozen
+store DTO/record seam and its tests. No original-data operations or network work.
+
+The Store refusal-stub lifecycle RED became 13 focused tests. Independent review
+found one valid defect: case-folding distinct evidence paths refused legitimate
+case-sensitive saved-file proofs. Root reproduced the public WorkStore RED,
+changed only exact-path uniqueness and the old duplicate-path fixture, and added
+a full retained-proof/reopen regression. Store findings now pass **14** tests.
+The workflow refusal stubs produced **0 passed / 5 failed**, then the actual
+App/worker suite passed; final **8** cases include original reference/definition
+quotes, Unicode excerpt boundaries, whole fingerprints, same-byte inode drift,
+missing/foreign-vault evidence, current fences, closed replay and shutdown drain.
+Independent workflow review passed **7** then-existing cases and found no defect.
+
+CLI process tests exposed a real scanner conflict between global --version and
+command-local closure --version N. Declared local options now take precedence;
+standalone/global banners retain no-storage behavior. Helper qualification passed
+**71 selected tests** and CLI Clippy; independent Store/CLI review passed **14
+Store + 2 parser/preflight + 4 process tests**, no remaining actionable findings.
+A malformed synthetic reference fixture was corrected; it was not a product
+defect. No review expanded detection or authoritative-write scope.
+
+Fresh final root macOS arm64 / Rust 1.98.1 locked/offline gate passed retirement,
+format/build/all-target Clippy, **935 workspace tests / 0 failed / 3 ignored**,
+and **52 end-to-end assertions**. The two ignored private crash entries remain
+exercised by subprocess matrices; the unchanged case-sensitive link adapter
+retains its prior explicit APFS qualification. Native desktop with
+native-ui,native-retrieval,native-test-support passed **201 / 0 / 0**; both native
+all-target Clippy variants and shipping native build passed. Only the known
+upstream block 0.1.6 future-compiler notice remains. Fresh shipping AppWorker
+startup/restart passed twice with exact synthetic bytes and zero credential files.
+No model download/inference, provider call or original-data inspection occurred.
+
+This thirteenth slice is implemented, independently reviewed, automated verified
+and locally integrated by the commit containing this record. The Store/workflow/
+CLI READMEs retain the active contract and reproducible capture/restart/drift/
+closure scenario; owner/manual acceptance remains pending. Native queue controls
+are the next bounded adapter slice, followed by multilingual implementation/
+qualification. Stage 5 remains unfinished; its checkpoint CI is pending. Stage 4A
+PR #19 merged as `73410a3` after all exact-head macOS/shared checks passed; Windows
+retains the known Unix API failure and overall run is red. Post-merge tree equality,
+8 application tests, 52 fixtures and startup/restart passed. Stage 4B publication
+is proceeding separately. Transfer requirements remain pinned Rust 1.98.1/Apple Silicon/
+Command Line Tools/cached dependencies/protobuf/Bash/Python 3, canonical synthetic
+data/TMPDIR and an unlocked session for GUI acceptance. Original data and
+credentials are not transfer inputs.
+
+Changed-document validation passed **72 local file/fragment links** (literal
+code examples excluded), final format and diff checks. No owner changes were
+staged; AGENTS.md remains the owner’s independent edit.

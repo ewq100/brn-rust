@@ -847,7 +847,7 @@ fn additive_v5_migration_and_backup_restore_preserve_work_and_terminal_rewrite()
     let _base = f.base;
     drop(f.store);
     let conn = raw(&data);
-    conn.execute_batch("ALTER TABLE messages DROP COLUMN started_at_ms; ALTER TABLE messages DROP COLUMN finished_at_ms; ALTER TABLE conversations DROP COLUMN last_activity_at_ms; ALTER TABLE messages DROP COLUMN effort; DROP TABLE proposal_rewrites; PRAGMA user_version=5;")
+    conn.execute_batch("DROP TABLE findings; ALTER TABLE messages DROP COLUMN started_at_ms; ALTER TABLE messages DROP COLUMN finished_at_ms; ALTER TABLE conversations DROP COLUMN last_activity_at_ms; ALTER TABLE messages DROP COLUMN effort; DROP TABLE proposal_rewrites; PRAGMA user_version=5;")
         .unwrap();
     drop(conn);
     let (mut store, _) = WorkStore::open(&data).unwrap();
@@ -880,6 +880,6 @@ fn additive_v5_migration_and_backup_restore_preserve_work_and_terminal_rewrite()
         raw(&data)
             .query_row("PRAGMA user_version", [], |r| r.get::<_, u32>(0))
             .unwrap(),
-        8
+        9
     );
 }
