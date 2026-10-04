@@ -19,7 +19,7 @@ own saved Markdown; disposable retrieval indexes live outside this crate.
 
 ## Database ownership and recovery
 
-WorkStore uses application ID `BRN2`, schema V7, and retains `brn.owner.lock`
+WorkStore uses application ID `BRN2`, schema V8, and retains `brn.owner.lock`
 for its lifetime. Current settings, text-only conversations and unfinished work
 are preserved by additive migrations. Earlier WorkStore V1 unsaved-edit rows
 remain available; matching text moves atomically into the generation-aware
@@ -235,6 +235,20 @@ without provider resubmission or automatic retry.
 An attached ChatStore shares the exact owner lock and uses serialized SQLite
 transactions. Dropping WorkStore cannot release ownership while a chat
 attachment remains active.
+
+V8 exposes existing session creation time and adds nullable session last-activity
+and turn start/finish times. Historical missing times serialize as explicit null;
+migration never reconstructs them. Fresh admission and genuine finalization
+capture one checked clock value atomically with the pair/activity writes, clamped
+against known creation/activity/turn times. Exact running/terminal UUID replay
+reads no clock and does not refresh activity. Startup interruption keeps known
+start time, unknown finish time and unchanged activity, including in its backup.
+Reads/startup validate nonnegative values, equal role-pair times and known temporal
+bounds; empty conversations are checked too. Timestamp metadata is nullable and
+checked during reads/reconciliation, so malformed times cause refusal rather than
+SQLite corruption recovery. Timing does not change exact text, selection, effort,
+replay or attachment ownership. Conversation summaries read their title, count and
+times in one SQLite snapshot while attached chat writers continue independently.
 
 ## Dependencies and verification
 

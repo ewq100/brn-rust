@@ -498,6 +498,13 @@ exits quietly with 0.
 
 ## Subscription actions and Ask
 
+`conversations list` includes known `created_at_ms` and nullable
+`last_activity_at_ms`; `conversations show UUID` includes nullable turn
+`started_at_ms`/`finished_at_ms`. Values are Unix milliseconds. Historical unknown
+times are null, and startup-interrupted turns retain their recorded start with
+unknown finish. Inspecting history or replaying a completed request never refreshes
+session activity. Archive/Restore/Delete remain later session lifecycle work.
+
 Only explicit Connect performs device login. URI/code is sent solely to the
 dedicated transient **stderr login surface**, including under `--json`; it is
 cleared on terminals on a TTY. This deliberate exception is not a log/envelope:

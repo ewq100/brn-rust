@@ -529,6 +529,27 @@ pub fn turn_label(turn: &WorkTurn) -> &'static str {
         WorkTurnStatus::Failed => "Failed",
     }
 }
+pub fn session_activity_label(conversation: &WorkConversation, now_ms: u64) -> String {
+    let Some(activity) = conversation.last_activity_at_ms else {
+        return "Activity time unknown".into();
+    };
+    let Some(elapsed) = now_ms.checked_sub(activity) else {
+        return "Activity time is ahead of this clock".into();
+    };
+    let (count, unit) = if elapsed < 60_000 {
+        return "Last active just now".into();
+    } else if elapsed < 3_600_000 {
+        (elapsed / 60_000, "minute")
+    } else if elapsed < 86_400_000 {
+        (elapsed / 3_600_000, "hour")
+    } else {
+        (elapsed / 86_400_000, "day")
+    };
+    format!(
+        "Last active {count} {unit}{} ago",
+        if count == 1 { "" } else { "s" }
+    )
+}
 fn unfinalized_turn(request: &AskRequest, partial: String) -> WorkTurn {
     WorkTurn {
         id: request.id,
@@ -542,6 +563,8 @@ fn unfinalized_turn(request: &AskRequest, partial: String) -> WorkTurn {
         .into(),
         model: request.selection.model.clone(),
         effort: request.effort.map(|value| value.as_str().to_owned()),
+        started_at_ms: None,
+        finished_at_ms: None,
         status: WorkTurnStatus::Failed,
         error_code: None,
     }
@@ -2507,6 +2530,9 @@ mod tests {
     mod provenance_state {
         include!("provenance_state_tests.rs");
     }
+    mod session_timestamps {
+        include!("session_timestamp_tests.rs");
+    }
     #[cfg(target_os = "macos")]
     mod approval_state {
         include!("approval_state_tests.rs");
@@ -2945,6 +2971,8 @@ mod tests {
             provider: "copilot".into(),
             model: request.selection.model.clone(),
             effort: request.effort.map(|value| value.as_str().to_owned()),
+            started_at_ms: None,
+            finished_at_ms: None,
             status,
             error_code: None,
         }

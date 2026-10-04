@@ -123,6 +123,87 @@ fn terminal(worker: &AppWorker, id: Uuid) -> WorkTurn {
 }
 
 #[test]
+fn session_timestamps_project_through_owned_chat_reads_replay_and_restart() {
+    let fixture = Fixture::new();
+    let calls = Arc::new(std::sync::atomic::AtomicUsize::new(0));
+    let called = calls.clone();
+    let hook: AnswerHook = Arc::new(move |_, _, _, _, _| {
+        called.fetch_add(1, Ordering::SeqCst);
+        Box::pin(async {
+            AiAnswer {
+                text: "Exact synthetic answer õ\r\n".into(),
+                terminal: AiTerminal::Completed,
+            }
+        })
+    });
+    let mut worker = fixture.start(Hooks {
+        rewrite: None,
+        answer: Some(hook),
+        account: None,
+    });
+    let request = fixture.request();
+    worker
+        .submit(request.id, AppCommand::Ask(request.clone()))
+        .unwrap();
+    let completed = terminal(&worker, request.id);
+    assert!(completed.started_at_ms.is_some());
+    assert!(completed.finished_at_ms >= completed.started_at_ms);
+    let snapshot = serde_json::to_value(&completed).unwrap();
+    let read = |worker: &AppWorker, command| {
+        let id = Uuid::new_v4();
+        worker.submit(id, command).unwrap();
+        loop {
+            let (returned, event) = event(worker);
+            if returned == id {
+                return event;
+            }
+        }
+    };
+    let AppEvent::Conversations(conversations) = read(&worker, AppCommand::Conversations) else {
+        panic!("conversations");
+    };
+    assert_eq!(conversations.len(), 1);
+    assert!(conversations[0].created_at_ms <= completed.started_at_ms.unwrap());
+    assert!(conversations[0].last_activity_at_ms >= completed.finished_at_ms);
+    let sessions = serde_json::to_value(conversations).unwrap();
+    let AppEvent::Turns(turns) = read(&worker, AppCommand::Turns(completed.conversation_id)) else {
+        panic!("turns");
+    };
+    assert_eq!(serde_json::to_value(&turns[0]).unwrap(), snapshot);
+    worker
+        .submit(request.id, AppCommand::Ask(request.clone()))
+        .unwrap();
+    assert_eq!(
+        serde_json::to_value(terminal(&worker, request.id)).unwrap(),
+        snapshot
+    );
+    assert_eq!(
+        calls.load(Ordering::SeqCst),
+        1,
+        "replay must not call the answer hook"
+    );
+    worker.shutdown().unwrap();
+    let mut worker = fixture.start(Hooks {
+        rewrite: None,
+        answer: None,
+        account: None,
+    });
+    let AppEvent::Conversations(conversations) = read(&worker, AppCommand::Conversations) else {
+        panic!("restart sessions");
+    };
+    assert_eq!(serde_json::to_value(conversations).unwrap(), sessions);
+    let AppEvent::Turn(Some(turn)) = read(&worker, AppCommand::Turn(completed.id)) else {
+        panic!("restart turn");
+    };
+    assert_eq!(serde_json::to_value(turn).unwrap(), snapshot);
+    worker.shutdown().unwrap();
+    assert_eq!(
+        std::fs::read(fixture.base.path().join("vault/a.md")).unwrap(),
+        b"current"
+    );
+}
+
+#[test]
 fn missing_effort_is_refused_before_vault_selection_or_provider_admission() {
     let fixture = Fixture::new();
     let (called, calls) = mpsc::channel();
@@ -522,6 +603,8 @@ fn history_last_twenty_earlier_terminal_pairs_includes_partials_and_excludes_run
             provider: "copilot".into(),
             model: "snapshot".into(),
             effort: None,
+            started_at_ms: None,
+            finished_at_ms: None,
             status: if i == 22 {
                 WorkTurnStatus::Running
             } else if i % 2 == 0 {

@@ -22,6 +22,12 @@ resolving the original editor. Refresh/search report keyword-only results, unrea
 exact embedding progress. History resumes from WorkStore even without a vault
 or a valid current selection.
 
+Session labels show last-activity age from recorded chat activity. Historical
+unknown activity and a timestamp ahead of the current clock have distinct labels;
+opening history or restarting does not make a session newly active. Turn timing
+is available through the shared workflow/CLI. Archive/Restore/Delete remain later
+session lifecycle work.
+
 After 500 ms without an edit, recovery submits the latest exact buffer to
 WorkStore; only its acknowledgement establishes recoverability. Note-switch,
 document close and guarded window close/Quit wait for the latest recovery and

@@ -490,3 +490,77 @@ data, GUI observation or owner acceptance is claimed. Final documentation checks
 cover local links, formatting and diff whitespace. This slice is implemented,
 automated verified, independently reviewed and locally integrated with this
 change; relationships, findings/timestamps and bilingual qualification remain.
+
+## Seventh slice: reliable session timestamps
+
+Baseline: `main@63c618d685d40780d280c606b3b9d38e09c0b06e`, with only the owner
+AGENTS.md change. Expose known conversation creation time and add nullable
+conversation last-activity and turn start/finish times through a narrow additive
+WorkStore V8 migration. Historical unknown times stay unknown. Capture fresh
+admission and explicit/provider finalization atomically with existing chat writes;
+exact replay, read-only inspection and restart interruption must not refresh
+activity. Keep times monotonic under wall-clock rollback and validate stored
+nonnegative values, pair agreement and temporal ordering before reads/recovery.
+
+Existing workflow Conversations/Turns events and CLI JSON carry these projections;
+native session labels show readable last-activity age or explicit unknown time.
+Unpersisted partials retain unknown timestamps. No new proposal/worker framework,
+clock service, account/model operation or session lifecycle behavior. Archive,
+Restore/Delete and the 30-day policy stay Stage 13 work.
+
+Acceptance: new admission/finalization timing, stable running/terminal replay,
+rollback on failed admission/finalization, owner/attached-writer serialization,
+old-schema upgrade and backup restoration, restart without fabricated activity,
+malformed pair/conversation refusal and exact old content preservation. Verify
+one coherent conversation summary during attached writes, real worker/CLI
+projection and native readable unknown/current/future-clock
+labels. Obtain independent read-only review, validate findings, run fresh Store,
+integrated/default/native checks and update evidence before local integration.
+Manual scenario: inspect sessions/turns from a fresh synthetic completed and
+interrupted turn, restart without new chat and confirm the recorded times do not
+change; inspect a restored older fixture and observe unknown historical activity.
+
+Seventh-slice evidence, 2026-10-04: fresh Store checks passed **201 / 0 failed**,
+including 11 timestamp tests covering atomic rollback, attached writers, legacy
+upgrade/backup restoration, malformed values and unchanged restart/replay timing.
+Real owned worker and actual CLI process regressions qualify the projections;
+native labels keep unknown, future-clock and current activity distinct. The CLI
+regression first reproduced omitted fields before the explicit null/time mapping
+was corrected. Unpersisted partials never acquire invented timing.
+
+Initial independent review passed 33 checks. A subsequent public-API probe
+reproduced five incoherent summaries during 1,000 valid attached writes: a newer
+count could accompany an older activity time. Lead verified the supported-input
+defect; a regression failed before the correction. The summary now uses one
+deferred read transaction across title/count/times. Independent correction review
+passed the new regression and rebuilt the original probe against current code:
+**1,000 admissions/finalizations, 3,040 summaries, 0 inconsistencies**. No remaining
+actionable finding. Whole-history snapshot behavior was not added.
+
+Fresh final pinned Rust 1.98.1/macOS arm64 locked/offline gate:
+`TMPDIR=/private/tmp/brn-timestamps-root-9uvlb86h bash scripts/verify-end-to-end.sh`
+passed retirement, workspace formatting/build/all-target Clippy with warnings
+denied, **809 tests / 0 failed / 2 ignored** and **52 end-to-end assertions**.
+Fresh native desktop tests (`native-ui,native-retrieval,native-test-support`)
+passed **168 / 0 failed**. Both native all-target Clippy configurations and the
+shipping native desktop build without test support passed. Shipping headless
+AppWorker startup/restart and actual CLI history checks passed in separate fresh
+synthetic data and V7-schema upgrade fixtures; unknown legacy values stayed null
+and vault bytes stayed exact. The ignored crash entry points remain exercised by
+subprocess matrices. The known upstream `block v0.1.6` warning remains.
+
+The reproducible owner fixture is
+`/private/tmp/brn-timestamps-root-9uvlb86h/manual`: `data` has completed/interrupted
+synthetic sessions; `legacy-data` has the same shapes with unknown historical
+activity/start/finish times. Run `target/debug/brn conversations list --json
+--data-dir <fixture>/data`, then `conversations show <id>` with the same flags;
+repeat without new chat and compare times. Launch shipping `brn-desktop` with
+`--data-dir <fixture>/data --vault <fixture>/vault`, inspect History and restart.
+Repeat with `legacy-data`; unknown history must not look recently active.
+This fixture was seeded through public Store APIs with no provider request; its
+owned legacy copy was downgraded before testing the supported additive upgrade.
+Logs and ownership metadata are retained outside Git. The Mac is locked, so GUI
+and owner acceptance remain pending. No account calls, model downloads, private
+data inspection or session Archive/Restore/Delete occurred. This slice is
+implemented, automated verified, independently reviewed and locally integrated
+with this change. Stage 5 remains active.

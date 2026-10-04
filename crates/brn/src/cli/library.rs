@@ -550,7 +550,8 @@ fn unexpected() -> CliFailure {
 fn turn_json(turn: &WorkTurn) -> Value {
     json!({"operation_id": turn.id, "session_id": turn.conversation_id, "provider": turn.provider,
         "model": turn.model, "effort": turn.effort, "question": turn.question, "answer": turn.answer,
-        "status": turn.status, "error_code": turn.error_code})
+        "status": turn.status, "error_code": turn.error_code,
+        "started_at_ms": turn.started_at_ms, "finished_at_ms": turn.finished_at_ms})
 }
 
 fn context(
@@ -1314,6 +1315,8 @@ mod tests {
             provider: "chatgpt".into(),
             model: "gpt-5.5".into(),
             effort: None,
+            started_at_ms: None,
+            finished_at_ms: None,
             status,
             error_code: None,
         }

@@ -75,8 +75,8 @@ vault/store with only copied Markdown proves session/index independence; actual
 session Delete remains later qualification. Source CAS, restart, index rebuild
 and Undo are verified; current write/read rules and unresolved-work fences remain
 intact. Independent reviews found no remaining actionable findings. Fresh final
-locked/offline verification passed **794 workspace tests / 0 failed / 2 ignored**,
-**52 end-to-end assertions**, format/build/all-target Clippy, **166 native desktop
+locked/offline verification passed **809 workspace tests / 0 failed / 2 ignored**,
+**52 end-to-end assertions**, format/build/all-target Clippy, **168 native desktop
 tests**, native all-target Clippy and the shipping native desktop build.
 Fresh full-byte refresh catches retained-size/mtime changes;
 unreadable evidence folders report incomplete inspection while readable current
@@ -91,8 +91,14 @@ source inspection preserves unsaved typing, binds late replies to document/
 inspection generations and invalidates inspections after Save/Reload. Exact
 read-only quote widgets retain all source outcomes; a rendered twelve-citation
 regression reproduced and corrected missing overflow scrolling. Final independent
-review passed 15 checks, with no remaining actionable finding. Native GUI/owner
-acceptance remains pending. Relationships, findings/timestamps and multilingual
+review passed 15 checks, with no remaining actionable finding. Session timestamps
+now retain known creation/activity/start/finish times, explicit unknown legacy
+values and stable replay/restart observations. Native history shows recorded
+activity age. A valid concurrent-summary defect was reproduced and corrected with
+one SQLite read snapshot; independent correction review sampled 3,040 summaries
+during 1,000 attached writes with no inconsistencies. Fresh synthetic native
+startup and CLI checks passed for new data and a V7 database upgrade. Native
+GUI/owner acceptance remains pending. Relationships, basic findings and multilingual
 qualification continue next;
 Stage 5 is not complete.
 

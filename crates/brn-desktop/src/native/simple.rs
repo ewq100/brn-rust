@@ -1,6 +1,6 @@
 use super::theme::color;
 use super::*;
-use crate::ai::{Pending, provider_name, scope_name, slot, turn_label};
+use crate::ai::{Pending, provider_name, scope_name, session_activity_label, slot, turn_label};
 use brn_workflow::{
     Provider, ReasoningEffort, Selection,
     app_worker::{AppCommand, AppEvent},
@@ -898,6 +898,10 @@ impl Desktop {
     pub(super) fn render_simple_history(&mut self, cx: &mut Context<Self>) -> AnyElement {
         let p = self.palette();
         let ai = self.ai.as_ref().unwrap();
+        let now_ms = std::time::SystemTime::now()
+            .duration_since(std::time::UNIX_EPOCH)
+            .map(|time| u64::try_from(time.as_millis()).unwrap_or(u64::MAX))
+            .unwrap_or(0);
         let mut list = div()
             .id("history-rail-list")
             .track_scroll(&self.history_scroll)
@@ -916,16 +920,33 @@ impl Desktop {
             );
         for conversation in &ai.conversations {
             let id = conversation.id;
-            list = list.child(
-                Button::new(format!("conversation-{id}"))
-                    .label(format!(
-                        "{} · {} turns",
-                        compact_title(&conversation.title),
-                        conversation.turns
-                    ))
-                    .selected(ai.conversation == Some(id))
-                    .on_click(cx.listener(move |this, _, _, cx| this.simple_history(Some(id), cx))),
-            );
+            list =
+                list.child(
+                    div()
+                        .flex()
+                        .flex_col()
+                        .flex_shrink_0()
+                        .child(
+                            Button::new(format!("conversation-{id}"))
+                                .label(format!(
+                                    "{} · {} turns",
+                                    compact_title(&conversation.title),
+                                    conversation.turns
+                                ))
+                                .selected(ai.conversation == Some(id))
+                                .on_click(cx.listener(move |this, _, _, cx| {
+                                    this.simple_history(Some(id), cx)
+                                })),
+                        )
+                        .child(
+                            div()
+                                .w_full()
+                                .px_2()
+                                .text_xs()
+                                .text_color(color(p.muted))
+                                .child(session_activity_label(conversation, now_ms)),
+                        ),
+                );
         }
         list = list
             .child(

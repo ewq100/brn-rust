@@ -6,7 +6,7 @@ use rusqlite::{Connection, params};
 use uuid::Uuid;
 
 fn fixture() -> tempfile::TempDir {
-    tempfile::tempdir_in(std::fs::canonicalize(".").unwrap()).unwrap()
+    tempfile::tempdir_in(std::env::temp_dir().canonicalize().unwrap()).unwrap()
 }
 
 fn raw(dir: &std::path::Path) -> Connection {
@@ -421,7 +421,7 @@ fn v1_upgrade_and_restored_v1_backup_preserve_work() {
         let version: i64 = raw(dir.path())
             .query_row("PRAGMA user_version", [], |r| r.get(0))
             .unwrap();
-        assert_eq!(version, 7);
+        assert_eq!(version, 8);
     }
 }
 
@@ -449,7 +449,9 @@ fn chat_pair_schema_preserves_constraints_with_optional_effort() {
             "model",
             "status",
             "error_code",
-            "effort"
+            "effort",
+            "started_at_ms",
+            "finished_at_ms"
         ]
     );
     let conversation_columns: Vec<String> = conn
@@ -459,7 +461,10 @@ fn chat_pair_schema_preserves_constraints_with_optional_effort() {
         .unwrap()
         .map(Result::unwrap)
         .collect();
-    assert_eq!(conversation_columns, ["id", "title", "created_at_ms"]);
+    assert_eq!(
+        conversation_columns,
+        ["id", "title", "created_at_ms", "last_activity_at_ms"]
+    );
     let application_id: i64 = conn
         .query_row("PRAGMA application_id", [], |r| r.get(0))
         .unwrap();
@@ -475,8 +480,11 @@ fn chat_pair_schema_preserves_constraints_with_optional_effort() {
     );
     conn.pragma_update(None, "foreign_keys", "ON").unwrap();
     let c = Uuid::new_v4().to_string();
-    conn.execute("INSERT INTO conversations VALUES (?1, '', 0)", [&c])
-        .unwrap();
+    conn.execute(
+        "INSERT INTO conversations(id,title,created_at_ms) VALUES (?1, '', 0)",
+        [&c],
+    )
+    .unwrap();
     let insert = "INSERT INTO messages(turn_id,conversation_id,sequence,role,text,provider,model,status,error_code) VALUES (?1, ?2, 1, ?3, '', ?4, 'model', ?5, NULL)";
     assert!(
         conn.execute(insert, params!["t", "absent", "user", "copilot", "running"])

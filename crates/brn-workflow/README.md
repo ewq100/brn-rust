@@ -360,6 +360,15 @@ resubmitted. Different payloads/generations conflict. Outer submission UUID
 must equal Ask/account operation UUID. Durable replay matches the recorded
 question, conversation, provider and model; generation is a transient
 navigation correlation, not persisted history.
+
+Conversation projections include known `created_at_ms` and nullable
+`last_activity_at_ms`; turns include nullable `started_at_ms`/`finished_at_ms`.
+These are Unix milliseconds from checked WorkStore chat transactions. Historical
+unknowns remain null. New admission and genuine finalization update activity;
+reads, exact replay and startup interruption do not. Recovery does not invent a
+finish time, and a nonpersisted partial has no trusted time. Existing
+Conversations/Turns/Turn commands carry the same values without a new workflow.
+
 `AppCommand::Turn(uuid)` / `AppEvent::Turn(Option<WorkTurn>)` is an owner-lane
 lookup for CLI replay projection. Query Selection explicitly, but use the
 recorded provider/model during replay even if current selection is obsolete.
