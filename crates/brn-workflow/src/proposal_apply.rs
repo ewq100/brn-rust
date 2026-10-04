@@ -94,7 +94,7 @@ pub(crate) fn restore_application_records(
     #[cfg(not(target_os = "macos"))]
     {
         let _ = (store, requested);
-        return Ok(None);
+        Ok(None)
     }
     #[cfg(target_os = "macos")]
     {

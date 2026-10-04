@@ -368,3 +368,13 @@ are exercised by subprocess matrices. Unchanged AI capability-feature source
 retains Stage 3's exact qualification; no live calls or model assets were used.
 Checkpoint CI must qualify the exact latest PR head before merge. Native owner
 acceptance and packaging remain separate; Stage 4 is not complete at checkpoint A.
+
+Stage 4A checkpoint PR #19's initial exact head `731acc6` passed all three
+macOS lanes in CI `37185246372`, but Ubuntu shared Core failed on Clippy
+`needless_return` in the non-macOS recovery tail (`proposal_apply.rs`).
+Independent read-only diagnosis and re-review verified the one-line tail-expression
+correction preserves behavior and leaves the macOS branch unchanged. Fresh local
+locked/offline approval/application tests passed **8 / 0 failed**, and workspace
+all-target Clippy with warnings denied, format and diff checks passed. A corrected
+exact-head CI run is required before integration. Windows retains existing Unix
+API failures; the initial overall run is red. No live account calls were made.
