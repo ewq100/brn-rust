@@ -4,6 +4,8 @@ use crate::{
 };
 use rig::http_client::{DynHttpClient, HttpClientExt, NoBody, Request};
 use rig::providers::{chatgpt, copilot, openai};
+use rig::wire::{Mode, Wire};
+use std::collections::HashSet;
 use std::fs::{File, Metadata, OpenOptions};
 use std::io::{Read, Write};
 use std::os::unix::fs::{DirBuilderExt, MetadataExt, OpenOptionsExt, PermissionsExt};
@@ -376,31 +378,102 @@ impl Auth {
         provider: Provider,
         cancel: CancellationToken,
     ) -> AiResult<Vec<ModelOption>> {
-        if provider == Provider::Chatgpt {
-            let _guard =
-                cancellable(&cancel, async { Ok(self.slot(provider).lock().await) }).await?;
-            self.validate(provider)?;
-            return Ok(vec![ModelOption {
-                id: "gpt-5.5".into(),
-                live_qualified: false,
-            }]);
-        }
         let client = self.resolve_client(provider, &cancel).await?;
-        let OwnedClient::Copilot(client) = client else {
-            return Err(AiError::new(AiErrorKind::Other));
-        };
-        let list = cancellable(&cancel, async {
-            client.list_models().await.map_err(map_provider)
-        })
-        .await?;
-        if list.data.iter().any(|m| !crate::valid_model_id(&m.id)) {
-            return Err(AiError::new(AiErrorKind::Other));
+        match client {
+            OwnedClient::Chatgpt(client) => {
+                cancellable(&cancel, self.subscription_models(&client)).await
+            }
+            OwnedClient::Copilot(client) => {
+                let list = cancellable(&cancel, async {
+                    client.list_models().await.map_err(map_provider)
+                })
+                .await?;
+                validate_model_ids(list.data.iter().map(|m| m.id.as_str()))?;
+                Ok(list
+                    .data
+                    .into_iter()
+                    .map(|m| ModelOption {
+                        id: m.id,
+                        live_qualified: false,
+                    })
+                    .collect())
+            }
         }
-        Ok(list
-            .data
+    }
+
+    async fn subscription_models(&self, client: &openai::OpenAI) -> AiResult<Vec<ModelOption>> {
+        // Rig 0.43 encodes the authenticated subscription route correctly, but
+        // its generic decoder expects data(id), rather than Codex models(slug).
+        let encoded = openai::wire::Models::new(client.config().clone())
+            .encode(None, Mode::Unary)
+            .map_err(|_| AiError::new(AiErrorKind::Other))?;
+        let (mut parts, _) = encoded.request.into_parts();
+        // The Models wire supplies URL/auth; Rig's modality encoding omits
+        // subscription identity headers. Reuse its resolved config values.
+        let config = client.config();
+        if let Some(account_id) = &config.account_id {
+            parts.headers.insert(
+                "chatgpt-account-id",
+                account_id
+                    .parse()
+                    .map_err(|_| AiError::new(AiErrorKind::Other))?,
+            );
+        }
+        if let Some(identity) = &config.identity {
+            parts.headers.insert(
+                "originator",
+                identity
+                    .originator
+                    .parse()
+                    .map_err(|_| AiError::new(AiErrorKind::Other))?,
+            );
+            parts.headers.insert(
+                "user-agent",
+                identity
+                    .user_agent
+                    .parse()
+                    .map_err(|_| AiError::new(AiErrorKind::Other))?,
+            );
+        }
+        let separator = if parts.uri.query().is_some() {
+            '&'
+        } else {
+            '?'
+        };
+        parts.uri = format!(
+            "{}{separator}client_version={}",
+            parts.uri,
+            env!("CARGO_PKG_VERSION")
+        )
+        .parse()
+        .map_err(|_| AiError::new(AiErrorKind::Other))?;
+        let request = Request::from_parts(parts, NoBody);
+        let response = self
+            .http
+            .send::<_, Vec<u8>>(request)
+            .await
+            .map_err(map_transport)?;
+        let status = response.status();
+        let body = response.into_body().await.map_err(map_transport)?;
+        if !status.is_success() {
+            return Err(map_provider(rig::error::ProviderError::from_http_response(
+                status,
+                String::from_utf8_lossy(&body).into_owned(),
+            )));
+        }
+        let mut catalog: SubscriptionModels =
+            serde_json::from_slice(&body).map_err(|_| AiError::new(AiErrorKind::Other))?;
+        validate_model_ids(catalog.models.iter().map(|m| m.slug.as_str()))?;
+        catalog
+            .models
+            .retain(|m| m.visibility == ModelVisibility::List);
+        // Stable ordering preserves the server's order within a priority.
+        catalog.models.sort_by_key(|m| m.priority);
+        Ok(catalog
+            .models
             .into_iter()
             .map(|m| ModelOption {
-                id: m.id,
+                id: m.slug,
                 live_qualified: false,
             })
             .collect())
@@ -465,6 +538,39 @@ impl Auth {
             .map_err(storage)?;
         file.write_all(&bytes).map_err(storage)
     }
+}
+
+// Strict required projection of the Codex models envelope; unused metadata is
+// ignored. Missing models must never turn an API data envelope into an empty list.
+#[derive(serde::Deserialize)]
+struct SubscriptionModels {
+    models: Vec<SubscriptionModel>,
+}
+
+#[derive(serde::Deserialize)]
+struct SubscriptionModel {
+    slug: String,
+    visibility: ModelVisibility,
+    priority: i32,
+}
+
+#[derive(PartialEq, Eq, serde::Deserialize)]
+#[serde(rename_all = "lowercase")]
+enum ModelVisibility {
+    List,
+    Hide,
+    None,
+}
+
+fn validate_model_ids<'a>(ids: impl IntoIterator<Item = &'a str>) -> AiResult<()> {
+    let mut seen = HashSet::new();
+    if ids
+        .into_iter()
+        .any(|id| !crate::valid_model_id(id) || !seen.insert(id))
+    {
+        return Err(AiError::new(AiErrorKind::Other));
+    }
+    Ok(())
 }
 
 struct Finalizer<'a> {
@@ -845,7 +951,9 @@ mod tests {
         let chat_before = std::fs::read(auth.dir.join("chatgpt.json")).unwrap();
         let reopened = Auth::open(&auth.dir)
             .unwrap()
-            .with_http(SequencedHttpClient::new([]));
+            .with_http(SequencedHttpClient::new([MockHttpResponse::success(
+                r#"{"models":[]}"#,
+            )]));
         assert!(reopened.status(Provider::Chatgpt).await.unwrap().connected);
         reopened
             .client(&selection(Provider::Chatgpt), CancellationToken::new())
@@ -1075,15 +1183,8 @@ mod tests {
     }
 
     #[tokio::test]
-    async fn chatgpt_models_are_fixed_and_copilot_discovery_failure_is_not_fallback() {
+    async fn copilot_discovery_failure_is_not_fallback() {
         let (_root, mut auth) = fixture();
-        let options = auth
-            .models(Provider::Chatgpt, CancellationToken::new())
-            .await
-            .unwrap();
-        assert_eq!(options.len(), 1);
-        assert_eq!(options[0].id, "gpt-5.5");
-        assert!(!options[0].live_qualified);
         write(&auth, "github-token", b"SYNTHETIC_GITHUB");
         let http = SequencedHttpClient::new([
             copilot_login_responses()[2].clone(),
@@ -1193,31 +1294,87 @@ mod tests {
     }
 
     #[tokio::test]
-    async fn models_network_wait_does_not_hold_auth_lock() {
-        let (_root, mut auth) = fixture();
-        write(&auth, "github-token", b"SYNTHETIC_GITHUB");
-        let gate = gate("/models");
-        auth.http = DynHttpClient::new(SequencedHttpClient::new([
-            copilot_login_responses()[2].clone(),
-            MockHttpResponse::success(r#"{"data":[{"id":"gpt-5.5"}]}"#),
-        ]))
-        .with_middleware(gate.clone());
-        let cancel = CancellationToken::new();
-        let models = auth.models(Provider::Copilot, cancel.clone());
-        tokio::pin!(models);
-        tokio::select! {
-            _ = gate.entered.notified() => {},
-            result = &mut models => panic!("unexpected early result: {result:?}"),
+    async fn models_network_wait_does_not_hold_auth_lock_and_cancels() {
+        for provider in [Provider::Chatgpt, Provider::Copilot] {
+            let (_root, mut auth) = fixture();
+            let replies = if provider == Provider::Chatgpt {
+                chat_cache(&auth, false);
+                vec![MockHttpResponse::success(r#"{"models":[]}"#)]
+            } else {
+                write(&auth, "github-token", b"SYNTHETIC_GITHUB");
+                vec![
+                    copilot_login_responses()[2].clone(),
+                    MockHttpResponse::success(r#"{"data":[]}"#),
+                ]
+            };
+            let gate = gate("/models");
+            auth.http =
+                DynHttpClient::new(SequencedHttpClient::new(replies)).with_middleware(gate.clone());
+            let cancel = CancellationToken::new();
+            let models = auth.models(provider, cancel.clone());
+            tokio::pin!(models);
+            tokio::select! {
+                _ = gate.entered.notified() => {},
+                result = &mut models => panic!("unexpected early result: {result:?}"),
+            }
+            tokio::time::timeout(std::time::Duration::from_secs(1), auth.status(provider))
+                .await
+                .unwrap()
+                .unwrap();
+            cancel.cancel();
+            assert_eq!(models.await.unwrap_err().kind, AiErrorKind::Other);
         }
-        tokio::time::timeout(
-            std::time::Duration::from_secs(1),
-            auth.status(Provider::Copilot),
-        )
-        .await
-        .unwrap()
-        .unwrap();
+    }
+
+    #[derive(Clone)]
+    struct CatalogNetworkFailure;
+    impl rig::http_client::HttpMiddleware for CatalogNetworkFailure {
+        fn before_request_headers<'a>(
+            &'a self,
+            _: &'a rig::http_client::Method,
+            _: &'a rig::http_client::Uri,
+            _: &'a mut rig::http_client::HeaderMap,
+        ) -> rig_core::wasm_compat::WasmBoxedFuture<'a, rig::http_client::Result<()>> {
+            Box::pin(async {
+                Err(rig::http_client::Error::Instance(Box::new(
+                    std::io::Error::other("SYNTHETIC_SECRET"),
+                )))
+            })
+        }
+    }
+
+    #[tokio::test]
+    async fn subscription_models_require_auth_and_handle_network_and_precancellation_safely() {
+        let (_root, mut auth) = fixture();
+        let http = SequencedHttpClient::new([]);
+        auth.http = DynHttpClient::new(http.clone());
+        assert_eq!(
+            auth.models(Provider::Chatgpt, CancellationToken::new())
+                .await
+                .unwrap_err()
+                .kind,
+            AiErrorKind::ReconnectNeeded
+        );
+        assert!(http.requests().is_empty());
+        chat_cache(&auth, false);
+        let cancel = CancellationToken::new();
         cancel.cancel();
-        assert!(models.await.is_err());
+        assert_eq!(
+            auth.models(Provider::Chatgpt, cancel)
+                .await
+                .unwrap_err()
+                .kind,
+            AiErrorKind::Other
+        );
+        assert!(http.requests().is_empty());
+        auth.http = DynHttpClient::new(http.clone()).with_middleware(CatalogNetworkFailure);
+        let error = auth
+            .models(Provider::Chatgpt, CancellationToken::new())
+            .await
+            .unwrap_err();
+        assert_eq!(error.kind, AiErrorKind::Network);
+        assert!(!format!("{error:?} {error}").contains("SYNTHETIC_SECRET"));
+        assert!(http.requests().is_empty());
     }
 
     #[tokio::test]
@@ -1481,6 +1638,31 @@ mod tests {
         );
     }
 
+    #[tokio::test]
+    async fn copilot_catalog_ids_and_duplicates_are_validated_atomically() {
+        for body in [
+            r#"{"data":[{"id":"good"},{"id":"good"}]}"#,
+            r#"{"data":[{"id":"good"},{"id":"bad id"}]}"#,
+        ] {
+            let (_root, mut auth) = fixture();
+            write(&auth, "github-token", b"SYNTHETIC_GITHUB");
+            let http = SequencedHttpClient::new([
+                copilot_login_responses()[2].clone(),
+                MockHttpResponse::success(body),
+            ]);
+            auth.http = DynHttpClient::new(http.clone());
+            assert_eq!(
+                auth.models(Provider::Copilot, CancellationToken::new())
+                    .await
+                    .unwrap_err()
+                    .kind,
+                AiErrorKind::Other
+            );
+            assert_eq!(http.requests().len(), 2);
+            assert_eq!(http.remaining_responses(), 0);
+        }
+    }
+
     #[test]
     fn selection_and_provider_wire_values_are_explicit_and_validated() {
         assert_eq!(
@@ -1488,33 +1670,59 @@ mod tests {
             serde_json::json!({"provider":"chatgpt","model":"gpt-5.5"})
         );
         assert!(serde_json::from_str::<Provider>(r#""unknown""#).is_err());
-        for model in ["", " gpt-5.5", "gpt-5.5\n", "SYNTHETIC_SECRET🚫"] {
+        for provider in [Provider::Chatgpt, Provider::Copilot] {
+            for model in [
+                "",
+                " gpt-5.5",
+                "gpt-5.5\n",
+                "bad model",
+                "SYNTHETIC_SECRET🚫",
+            ] {
+                assert!(
+                    Selection {
+                        provider,
+                        model: model.into()
+                    }
+                    .validate()
+                    .is_err()
+                );
+            }
             assert!(
                 Selection {
-                    provider: Provider::Copilot,
-                    model: model.into()
+                    provider,
+                    model: "a".repeat(129)
                 }
                 .validate()
                 .is_err()
             );
+            for model in [
+                "gpt-5.4",
+                "gpt-6-sol",
+                "gpt-6-astra",
+                "gpt-6-luna",
+                "unknown.future:model/1",
+                "a",
+            ] {
+                let selected = Selection {
+                    provider,
+                    model: model.into(),
+                };
+                assert!(selected.validate().is_ok());
+                assert_eq!(
+                    serde_json::from_value::<Selection>(serde_json::to_value(&selected).unwrap())
+                        .unwrap(),
+                    selected
+                );
+            }
+            assert!(
+                Selection {
+                    provider,
+                    model: "a".repeat(128)
+                }
+                .validate()
+                .is_ok()
+            );
         }
-        assert!(
-            Selection {
-                provider: Provider::Chatgpt,
-                model: "gpt-5.4".into()
-            }
-            .validate()
-            .is_err()
-        );
-        assert!(selection(Provider::Chatgpt).validate().is_ok());
-        assert!(
-            Selection {
-                provider: Provider::Copilot,
-                model: "explicit-model".into()
-            }
-            .validate()
-            .is_ok()
-        );
     }
 
     #[test]

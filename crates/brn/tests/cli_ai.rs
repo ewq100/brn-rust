@@ -3,7 +3,7 @@ use std::process::Command;
 mod support;
 
 #[test]
-fn status_preserves_accounts_when_explicit_rediscovery_invalidates_selection() {
+fn status_preserves_accounts_and_saved_choice_after_explicit_rediscovery() {
     use brn_workflow::{
         app::{App, AppConfig},
         ModelOption, Provider, Selection,
@@ -39,6 +39,8 @@ fn status_preserves_accounts_when_explicit_rediscovery_invalidates_selection() {
             .unwrap();
         }
         if case == "stale" {
+            app.select_effort(brn_workflow::ReasoningEffort::Low)
+                .unwrap();
             app.record_models(
                 Provider::Copilot,
                 &[ModelOption {
@@ -70,7 +72,7 @@ fn status_preserves_accounts_when_explicit_rediscovery_invalidates_selection() {
             assert_eq!(account["connected"], false);
             assert!(account["name"].is_null());
         }
-        if matches!(case, "stale" | "malformed") {
+        if case == "malformed" {
             assert!(value["data"]["selection"].is_null());
             assert_eq!(value["data"]["selection_error"]["code"], "AI_MODEL_REFUSED");
             assert!(value["data"]["selection_error"]["message"]
@@ -78,7 +80,7 @@ fn status_preserves_accounts_when_explicit_rediscovery_invalidates_selection() {
                 .is_some_and(|message| !message.is_empty()));
         } else {
             assert!(value["data"]["selection_error"].is_null());
-            if case == "valid" {
+            if matches!(case, "valid" | "stale") {
                 assert_eq!(value["data"]["selection"]["provider"], "copilot");
                 assert_eq!(value["data"]["selection"]["model"], "old-model");
             } else {
@@ -143,7 +145,7 @@ fn bad_simple_arguments_fail_before_database_creation() {
             "--provider",
             "chatgpt",
             "--model",
-            "unknown",
+            "bad model\n",
         ],
         vec!["ai", "status", "--legacy"],
         vec!["ai", "effort", "maximum"],
@@ -311,5 +313,55 @@ fn unsafe_credentials_are_typed_and_never_connect() {
         assert_eq!(value["error"]["code"], "AI_UNSAFE_CREDENTIALS");
         assert!(!credentials.exists());
         assert!(!String::from_utf8_lossy(&output.stderr).contains("Login:"));
+    }
+}
+
+#[test]
+fn exact_chatgpt_choices_persist_across_processes_without_discovery_or_fallback() {
+    let dir = support::data_dir();
+    for model in ["gpt-5.5", "gpt-6-luna", "gpt-6.1-sol"] {
+        let selected = Command::new(env!("CARGO_BIN_EXE_brn"))
+            .args([
+                "ai",
+                "select",
+                "--provider",
+                "chatgpt",
+                "--model",
+                model,
+                "--json",
+                "--data-dir",
+            ])
+            .arg(dir.path())
+            .output()
+            .unwrap();
+        assert_eq!(
+            selected.status.code(),
+            Some(0),
+            "{model}: {}",
+            String::from_utf8_lossy(&selected.stdout)
+        );
+        let selected: Value = serde_json::from_slice(&selected.stdout).unwrap();
+        assert_eq!(selected["data"]["selection"]["model"], model);
+        let status = Command::new(env!("CARGO_BIN_EXE_brn"))
+            .args(["ai", "status", "--json", "--data-dir"])
+            .arg(dir.path())
+            .output()
+            .unwrap();
+        assert_eq!(status.status.code(), Some(0));
+        let status: Value = serde_json::from_slice(&status.stdout).unwrap();
+        assert_eq!(status["data"]["selection"]["provider"], "chatgpt");
+        assert_eq!(status["data"]["selection"]["model"], model);
+        assert!(status["data"]["selection_error"].is_null());
+        assert!(status["data"]["accounts"]
+            .as_array()
+            .unwrap()
+            .iter()
+            .all(|account| account["connected"] == false));
+        assert_eq!(
+            std::fs::read_dir(dir.path().with_file_name("data.credentials"))
+                .unwrap()
+                .count(),
+            0
+        );
     }
 }

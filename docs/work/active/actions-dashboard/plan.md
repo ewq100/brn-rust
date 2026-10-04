@@ -419,3 +419,16 @@ or Mac defect. Fresh Mac5Action tests and test-targetClippy passed. Original
 Windows22Unix diagnostics match PR29 unchanged; overallCIred. Corrected exact-head
 applicableCI/merge/post checks remain pending. Publication12tests+52fixtures+
 startup2(V10/exact bytes/zero credentials)+51doclinks passed before that CI round.
+
+
+PR30 mergedb5f7ce857e2fccf8c10eca0090ca253a385ac5f2 at2026-10-04T14:32:29Z after
+correctedexact19ab4fe/run37209028073 passed Mac3+UbuntuShared; Windows repeated22
+unchangedUnix API build errors,overallCIred. No GitHub bypass. Merged tree equals
+qualified candidate; post5workflow+4CLI+3parser tests,52fixtures and startup2 passed,
+V10/exact bytes/zero credentials (qualified-startup-7zhle3cl under the publication
+parent). Main37209641370 completed5success/4failure: Mac3+UbuntuCore/UI passed;
+Ubuntu installer10pass/3fail and Windows3Unix build failures remain. Independent
+actual-log/source analysis found no shared Action defect. Next shared reference/
+dependency validation and whole application/recovery,then explicit Complete and
+dashboard. Current subscription catalog amendment supports bounded Luna-only
+qualification; live/native owner acceptance and wholeStage5/6 remain pending.

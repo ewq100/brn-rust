@@ -301,10 +301,12 @@ impl App {
         self.store
             .setting("ai.selection")?
             .map(|value| {
-                let selection = serde_json::from_str(&value).map_err(|_| {
+                let selection: Selection = serde_json::from_str(&value).map_err(|_| {
                     WorkflowError::typed(ErrorKind::ModelRefused, "stored AI selection is invalid")
                 })?;
-                self.validate_selection(&selection)?;
+                // Refreshing discovery must not erase the user's explicit saved choice.
+                // New requests still use validate_selection for current admission.
+                selection.validate()?;
                 Ok(selection)
             })
             .transpose()

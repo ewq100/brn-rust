@@ -79,16 +79,31 @@ Connect, an authenticated GitHub `/user` request uses the same Rig transport as
 authentication. Provider-specific display metadata is stored only in `0600`
 files in the credential directory, never SQL.
 
-ChatGPT models are a maintained subscription list: currently only `gpt-5.5`,
-`live_qualified: false`. Its broken upstream `list_models` is never called.
-Copilot discovery authenticates with device flow disabled, releases the auth
-mutex, then calls Rig's real `list_models`. Discovery failures are returned
-without a substitute list/model/provider; all returned options remain locally
-unqualified until separately authorized live acceptance.
+ChatGPT discovery authenticates with device flow disabled, then requests the
+subscription `/models` catalog with BRN's actual package version as
+`client_version`. It reuses pinned Rig 0.43's OpenAI Models wire encoding for the
+URL and authorization, copying account and caller identity headers from the
+same authenticated Rig config because the modality encoder omits them. Requests
+use the existing Rig transport. A private decoder requires the Codex `models`
+envelope and each entry's `slug`, known `visibility` and integer `priority`; the generic Rig decoder
+expects the incompatible API `data`/`id` envelope. The catalog format follows
+OpenAI's [endpoint implementation](https://github.com/openai/codex/blob/afb436df8b70bb5bc57b86d9a3e829968988cd21/codex-rs/codex-api/src/endpoint/models.rs)
+and [protocol](https://github.com/openai/codex/blob/afb436df8b70bb5bc57b86d9a3e829968988cd21/codex-rs/protocol/src/openai_models.rs).
+All identifiers and duplicates are validated before returning any options.
+Only `visibility: list` entries are shown, in ascending priority with ties
+preserving server order. `supported_in_api` does not filter a subscription
+catalog. An actual empty catalog returns an empty list; malformed responses and
+failed requests safely fail without a substitute list.
 
-`Selection::validate()` rejects invalid identifiers and ChatGPT models outside
-the maintained list. Copilot discovery membership and atomic persistence as one
-`ai.selection` setting belong to workflow. There is no implicit selection.
+Copilot discovery retains Rig's authenticated `list_models` route. Both providers
+release the auth mutex before catalog network work and return only discovery
+metadata, with every option `live_qualified: false`. Discovery does not establish
+inference support or guarantee account entitlement, and never selects a model.
+
+`Selection::validate()` checks only the exact identifier format for both
+providers, preserving existing saved IDs and allowing explicit future IDs.
+Workflow owns discovery membership policy and atomic persistence as one
+`ai.selection` setting. There is no implicit selection.
 Cancellation returns safe `Other`; the worker uses its cancellation token and
 job identity to classify interruption. No operation automatically retries an
 expired device code: `CodeExpired` supplies safe Retry copy for an explicit new

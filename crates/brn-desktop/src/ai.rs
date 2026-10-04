@@ -1507,6 +1507,13 @@ impl AiState {
             });
             self.accounts[slot(provider)].error = None;
         }
+        if matches!(
+            command,
+            AccountCommand::Connect(_) | AccountCommand::Disconnect(_) | AccountCommand::Models(_)
+        ) {
+            self.accounts[slot(provider)].models.clear();
+            self.accounts[slot(provider)].error = None;
+        }
         self.pending.insert(id, Pending::Account(command.clone()));
         Some((id, AppCommand::Account { id, command }))
     }
@@ -3438,6 +3445,48 @@ mod tests {
                 .is_some()
         );
     }
+    #[test]
+    fn account_refresh_clears_obsolete_picker_options_without_changing_selection() {
+        for command in [
+            AccountCommand::Connect(Provider::Chatgpt),
+            AccountCommand::Disconnect(Provider::Chatgpt),
+            AccountCommand::Models(Provider::Chatgpt),
+        ] {
+            let mut state = ready();
+            let saved = state.selection.clone();
+            state.accounts[0].models = vec![ModelOption {
+                id: "synthetic-old-account".into(),
+                live_qualified: false,
+            }];
+            state.accounts[1].models = vec![ModelOption {
+                id: "synthetic-other-account".into(),
+                live_qualified: false,
+            }];
+            let (id, _) = state.account(command).unwrap();
+            assert!(
+                state.accounts[0].models.is_empty(),
+                "a new account/catalog request hides obsolete options"
+            );
+            state.apply(
+                id,
+                AppEvent::Account(AccountEvent::Finished {
+                    id,
+                    provider: Provider::Chatgpt,
+                    reply: AccountReply::Failed(AiError::new(AiErrorKind::Network)),
+                }),
+            );
+            assert!(
+                state.accounts[0].models.is_empty(),
+                "failed discovery never restores a substitute list"
+            );
+            assert_eq!(state.accounts[1].models[0].id, "synthetic-other-account");
+            assert_eq!(
+                state.selection, saved,
+                "account/catalog refresh never selects another model"
+            );
+        }
+    }
+
     #[test]
     fn login_cancel_exact_operation_and_failed_connect_queries_actual_status() {
         let mut state = ready();

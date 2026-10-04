@@ -267,19 +267,32 @@ overallCIred. Merged tree equality,25focused tests+52fixtures and startup2 passe
 V10,exact bytes,zero credentials. Main37204848736 passed Mac3+UbuntuCore/UI;
 unchanged Ubuntu installer10pass/3fail and Windows3Unix failures leave overallCIred.
 Independent actual-log analysis found no shared Action defect. Shared Action
-reads are published in [PR30](https://github.com/ewq100/brn-rust/pull/30),exact
-1298ee78e6fc788e04e6b76c3634ae1c0c5f1a22 with identical reviewed90e9193 tree.
-Run37208267069 found an Ubuntu test expectation error for macOS-only recovery;
-the corrected test retains shared fences and explicit non-Mac refusal. Independent
-review confirmed no production defect. Corrected exact-head CI/merge remain pending;
-GUI/model/provider qualification,wholeStage5 and wholeStage6 remain pending.
+reads [PR30](https://github.com/ewq100/brn-rust/pull/30) mergedb5f7ce857e2fccf8c10eca0090ca253a385ac5f2
+at2026-10-04T14:32:29Z after exact19ab4fe/run37209028073 passed Mac3+UbuntuShared.
+An initial Ubuntu test wrongly expected macOS-only ordinary recovery to succeed;
+independently reviewed correction retains shared fences and explicit non-Mac
+ToolRejected/refusal. Windows repeated22unchangedUnix compile errors,overallCIred.
+Merged-tree equality,12focused tests+52fixtures+startup2(V10/exact bytes/zero
+credentials) passed. Main37209641370 completed5success/4failure: Mac3+UbuntuCore/UI
+passed;Ubuntu native installer10pass/3fail and Windows3Unix failures remain.
+Independent log/source analysis found no shared Action defect. Current catalog
+qualification,wholeStage5 and wholeStage6 remain pending.
 
-The owner authorized Luna-only BRN app/provider testing on 2026-10-04; development
-and review may use Sol/Luna,never Astra. A fresh synthetic connection and bounded
-exact `gpt-6-luna` qualification are planned. The existing ChatGPT adapter currently
-refuses Luna locally; additive maintained-list support and offline review are
-needed first. No new account calls have run; prior credentials remain untouched.
-This does not authorize model-asset downloads or private data inspection.
+The owner authorized Luna-only BRN app/provider testing on2026-10-04; development
+and review may use Sol/Luna,neverAstra. The reviewed thin Rig adapter now discovers
+the actual ChatGPT subscription catalog,validates exact visible IDs/order,and
+returns safe failures without a substitute list. Saved selections remain readable
+when discovery changes; no refresh chooses a replacement. Native picker refresh
+hides obsolete options. Fresh corrected shared verification passed1019workspace/
+0failed/3ignored+52fixtures,165focused-native-workflow/0failed/2ignored and214
+combined-native-desktop/0failed/0ignored; native Clippy/shipping builds and startup2
+passed(V10/exact bytes/zero credentials). Independent full/correction reviews found
+no defect. Exact-head publication/CI,actual catalog/Luna inference and owner
+acceptance remain pending.
+No new account calls have run; prior credentials remain untouched. A latest native
+attempt still reported Mac locked,so its owned unchanged synthetic app remains
+awaiting normal quit/inspection. The unlock/awake question is pending. This does
+not authorize model-asset downloads or private data inspection.
 
 Release/public distribution, other live calls/model downloads, purchases and
 original/private-data inspection or migration still need applicable owner

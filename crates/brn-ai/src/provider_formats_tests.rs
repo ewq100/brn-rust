@@ -16,8 +16,9 @@ use tokio_util::sync::CancellationToken;
 mod ask_effort_tests {
     use super::*;
 
-    const ROUTES: [(Provider, &str, bool); 3] = [
+    const ROUTES: [(Provider, &str, bool); 4] = [
         (Provider::Chatgpt, "gpt-5.5", true),
+        (Provider::Chatgpt, "gpt-6-luna", true),
         (Provider::Copilot, "gpt-5.5", false),
         (Provider::Copilot, "gpt-5.3-codex", true),
     ];
@@ -1002,10 +1003,9 @@ impl HttpClientExt for ScriptHttp {
         U: From<Bytes> + Send + 'static,
     {
         let expected = self.unary_urls.lock().unwrap().pop_front();
-        let method = if expected
-            .as_deref()
-            .is_some_and(|url| url.starts_with("https://api.github.com/"))
-        {
+        let method = if expected.as_deref().is_some_and(|url| {
+            url.starts_with("https://api.github.com/") || url.contains("/models?client_version=")
+        }) {
             "GET"
         } else {
             "POST"
@@ -2347,7 +2347,11 @@ mod capability_probe_formats {
 
     #[tokio::test]
     async fn probe_low_high_freeze_route_effort_model_and_single_synthetic_read() {
-        for (provider, model, responses) in ROUTES {
+        for (provider, model, responses) in
+            ROUTES
+                .into_iter()
+                .chain([(Provider::Chatgpt, "gpt-6-luna", true)])
+        {
             for (kind, effort) in [(ProbeKind::Low, "low"), (ProbeKind::High, "high")] {
                 let (_root, client, http) = super::client(
                     provider,
@@ -2627,7 +2631,11 @@ mod capability_probe_formats {
 
     #[tokio::test]
     async fn probe_provider_failures_are_safe_and_never_retry_or_fallback() {
-        for (provider, model, responses) in ROUTES {
+        for (provider, model, responses) in
+            ROUTES
+                .into_iter()
+                .chain([(Provider::Chatgpt, "gpt-6-luna", true)])
+        {
             for (reply, kind, delay) in [
                 (
                     Ok(MockHttpResponse::error(
@@ -2697,6 +2705,7 @@ mod capability_probe_formats {
                         .contains("SYNTHETIC_SECRET")
                 );
                 assert_eq!(http.bodies().len(), 1);
+                assert_eq!(http.bodies()[0]["model"], model);
                 http.assert_consumed();
             }
         }
@@ -2809,6 +2818,170 @@ mod capability_probe_formats {
             assert!(report.text.is_empty() && http.bodies().is_empty());
             assert_eq!(report.read_tool_calls, 0);
             http.assert_consumed();
+        }
+    }
+}
+
+mod subscription_catalog_tests {
+    use super::*;
+    use base64::Engine;
+
+    fn catalog_url() -> String {
+        format!(
+            "https://chatgpt.com/backend-api/codex/models?client_version={}",
+            env!("CARGO_PKG_VERSION")
+        )
+    }
+
+    fn auth(reply: MockHttpResponse, expired: bool) -> (tempfile::TempDir, Auth, ScriptHttp) {
+        let root = tempfile::tempdir_in(std::env::temp_dir().canonicalize().unwrap()).unwrap();
+        let dir = root.path().join("credentials");
+        let url = catalog_url();
+        let mut unary = vec![];
+        if expired {
+            unary.push(("https://auth.openai.com/oauth/token", MockHttpResponse::success(json!({
+                "access_token":"SYNTHETIC_ACCESS", "refresh_token":"SYNTHETIC_REFRESH", "expires_in":3600,
+                "id_token": format!("e30.{}.synthetic", base64::engine::general_purpose::URL_SAFE_NO_PAD.encode(
+                    serde_json::to_vec(&json!({"https://api.openai.com/auth":{"chatgpt_account_id":"synthetic-account"}})).unwrap()))
+            }).to_string())));
+        }
+        unary.push((url.as_str(), reply));
+        let http = ScriptHttp::new(unary, vec![]);
+        let auth = Auth::open(&dir).unwrap().with_http(http.clone());
+        let path = dir.join("chatgpt.json");
+        std::fs::write(
+            &path,
+            serde_json::to_vec(&json!({
+                "access_token": if expired { "SYNTHETIC_OLD" } else { "SYNTHETIC_ACCESS" },
+                "refresh_token": "SYNTHETIC_REFRESH",
+                "expires_at": if expired { 1 } else { 4102444800_i64 },
+                "account_id": "synthetic-account"
+            }))
+            .unwrap(),
+        )
+        .unwrap();
+        std::fs::set_permissions(path, std::fs::Permissions::from_mode(0o600)).unwrap();
+        (root, auth, http)
+    }
+
+    #[tokio::test]
+    async fn authenticated_subscription_catalog_preserves_wire_identity_and_server_order() {
+        for expired in [false, true] {
+            let (_root, auth, http) = auth(MockHttpResponse::success(json!({"models":[
+                {"slug":"late-model","visibility":"list","priority":20,"supported_in_api":true},
+                {"slug":"hidden-model","visibility":"hide","priority":0},
+                {"slug":"future.subscription-model","visibility":"list","priority":-1,"supported_in_api":false},
+                {"slug":"tie-one","visibility":"list","priority":3},
+                {"slug":"not-listed","visibility":"none","priority":0},
+                {"slug":"tie-two","visibility":"list","priority":3}
+            ]}).to_string()), expired);
+            let models = auth
+                .models(Provider::Chatgpt, CancellationToken::new())
+                .await
+                .unwrap();
+            assert_eq!(
+                models.iter().map(|m| m.id.as_str()).collect::<Vec<_>>(),
+                [
+                    "future.subscription-model",
+                    "tie-one",
+                    "tie-two",
+                    "late-model"
+                ]
+            );
+            assert!(models.iter().all(|m| !m.live_qualified));
+            let requests = http.unary.requests();
+            assert_eq!(requests.len(), if expired { 2 } else { 1 });
+            let request = requests.last().unwrap();
+            assert_eq!(request.uri, catalog_url());
+            assert!(request.body.is_empty());
+            assert_eq!(request.headers["authorization"], "Bearer SYNTHETIC_ACCESS");
+            assert_eq!(request.headers["chatgpt-account-id"], "synthetic-account");
+            assert_eq!(request.headers["originator"], "rig");
+            assert_eq!(
+                request.headers["user-agent"],
+                format!(
+                    "rig/0.43.0 ({} {}; rig)",
+                    std::env::consts::OS,
+                    std::env::consts::ARCH
+                )
+            );
+            http.assert_consumed();
+        }
+    }
+
+    #[tokio::test]
+    async fn malformed_subscription_catalog_is_an_atomic_safe_failure() {
+        for body in [
+            "SYNTHETIC_SECRET",
+            "{}",
+            r#"{"data":[{"id":"old-api-model"}]}"#,
+            r#"{"models":null}"#,
+            r#"{"models":{}}"#,
+            r#"{"models":["SYNTHETIC_SECRET"]}"#,
+            r#"{"models":[{"slug":"good","visibility":"list","priority":1},{"slug":"bad\n","visibility":"hide","priority":1}]}"#,
+            r#"{"models":[{"slug":"good","visibility":"list","priority":1},{"slug":"good","visibility":"hide","priority":2}]}"#,
+            r#"{"models":[{"slug":"good","visibility":"unknown","priority":1}]}"#,
+            r#"{"models":[{"slug":"good","priority":1}]}"#,
+            r#"{"models":[{"slug":"good","visibility":"list"}]}"#,
+            r#"{"models":[{"slug":42,"visibility":"list","priority":1}]}"#,
+            r#"{"models":[{"slug":"good","visibility":"list","priority":"1"}]}"#,
+            r#"{"models":[{"slug":"good","visibility":"list","priority":1.5}]}"#,
+            r#"{"models":[{"slug":"good","visibility":"list","priority":2147483648}]}"#,
+        ] {
+            let (_root, auth, http) = auth(MockHttpResponse::success(body), false);
+            let error = auth
+                .models(Provider::Chatgpt, CancellationToken::new())
+                .await
+                .unwrap_err();
+            assert_eq!(error.kind, AiErrorKind::Other);
+            assert!(!format!("{error:?} {error}").contains("SYNTHETIC_SECRET"));
+            http.assert_consumed();
+        }
+        let (_root, auth, http) = auth(MockHttpResponse::success(r#"{"models":[]}"#), false);
+        assert!(
+            auth.models(Provider::Chatgpt, CancellationToken::new())
+                .await
+                .unwrap()
+                .is_empty()
+        );
+        http.assert_consumed();
+    }
+
+    #[tokio::test]
+    async fn subscription_catalog_statuses_are_safe_without_fallback_or_retry() {
+        for transport_error in [false, true] {
+            for (status, body, kind, retry) in [
+                (401, "SYNTHETIC_SECRET", AiErrorKind::ReconnectNeeded, None),
+                (403, "SYNTHETIC_SECRET", AiErrorKind::ReconnectNeeded, None),
+                (
+                    429,
+                    r#"{"error":{"resets_in_seconds":42,"message":"SYNTHETIC_SECRET"}}"#,
+                    AiErrorKind::RateLimited,
+                    Some(42),
+                ),
+                (
+                    400,
+                    r#"{"error":{"code":"unsupported_api_for_model","message":"SYNTHETIC_SECRET"}}"#,
+                    AiErrorKind::ModelRefused,
+                    None,
+                ),
+                (500, "SYNTHETIC_SECRET", AiErrorKind::Other, None),
+            ] {
+                let status = http_client::StatusCode::from_u16(status).unwrap();
+                let reply = if transport_error {
+                    MockHttpResponse::error(status, body)
+                } else {
+                    MockHttpResponse::ErrorResponse(status, body.into())
+                };
+                let (_root, auth, http) = auth(reply, false);
+                let error = auth
+                    .models(Provider::Chatgpt, CancellationToken::new())
+                    .await
+                    .unwrap_err();
+                assert_eq!((error.kind, error.retry_after_seconds), (kind, retry));
+                assert!(!format!("{error:?} {error}").contains("SYNTHETIC_SECRET"));
+                http.assert_consumed();
+            }
         }
     }
 }
