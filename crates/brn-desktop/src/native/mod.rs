@@ -34,6 +34,8 @@ use uuid::Uuid;
 mod approval;
 mod draft;
 mod review;
+#[cfg(all(test, target_os = "macos", feature = "native-test-support"))]
+mod scope_tests;
 mod shell;
 mod simple;
 mod theme;
@@ -41,6 +43,7 @@ mod theme;
 #[derive(Clone, Copy, Debug, PartialEq, Eq)]
 enum DocRef {
     SavedNote,
+    Evidence,
     Proposal(Uuid),
     Activity,
     Draft,
@@ -94,6 +97,7 @@ struct Desktop {
     simple_note_path: Option<String>,
     simple_transition: Option<simple::EditorTransition>,
     simple_editor_generation: Option<u64>,
+    evidence_editor_generation: Option<u64>,
     login_dialog: Option<Uuid>,
     closing: Option<(CloseRoute, std::sync::mpsc::Receiver<simple::Closed>)>,
     closed: bool,
@@ -101,6 +105,7 @@ struct Desktop {
     layout_task: Option<Task<()>>,
     query: Entity<EditorState>,
     note_editor: Entity<EditorState>,
+    evidence_editor: Entity<EditorState>,
     review_editor: Entity<EditorState>,
     review_title: Entity<TextareaState>,
     review_comment: Entity<EditorState>,
@@ -150,6 +155,7 @@ impl Desktop {
         });
         let note_path =
             cx.new(|cx| InputState::new(window, cx).placeholder("Vault-relative .md destination"));
+        let evidence_editor = cx.new(|cx| EditorState::new(window, cx).default_value(""));
         let review_editor = cx.new(|cx| {
             EditorState::new(window, cx)
                 .language("markdown")
@@ -382,6 +388,7 @@ impl Desktop {
             simple_note_path: None,
             simple_transition: None,
             simple_editor_generation: None,
+            evidence_editor_generation: None,
             login_dialog: None,
             closing: None,
             closed: false,
@@ -389,6 +396,7 @@ impl Desktop {
             layout_task: None,
             query,
             note_editor,
+            evidence_editor,
             review_editor,
             review_title,
             review_comment,

@@ -1547,6 +1547,92 @@ fn confirmed_completion_wins_over_stop_while_a_retained_tool_lease_drains() {
 }
 
 #[test]
+fn scoped_source_reads_are_forwarded_and_owned_until_the_completed_turn_drains() {
+    use brn_ai::ReadScope;
+    const SOURCE: &str = "\u{feff}---\r\nbrn_kind: source\r\n---\r\nneedle algne allikas\r\n";
+    let fixture = Fixture::new();
+    let source = fixture.base.path().join("vault/source.md");
+    std::fs::write(&source, SOURCE).unwrap();
+    let (release, gate) = mpsc::channel();
+    let gate = Arc::new(Mutex::new(Some(gate)));
+    let (finished_model, finished) = mpsc::channel();
+    let hook: AnswerHook = Arc::new(move |_, _, tools, _, emit| {
+        let gate = gate.lock().unwrap().take().unwrap();
+        let finished_model = finished_model.clone();
+        Box::pin(async move {
+            assert_eq!(
+                tools
+                    .list_notes_scoped(None, None, ReadScope::Source)
+                    .unwrap()
+                    .notes[0]
+                    .path,
+                "source.md"
+            );
+            assert_eq!(
+                tools
+                    .search_notes_scoped("needle", 1, ReadScope::Source)
+                    .unwrap()
+                    .hits[0]
+                    .path,
+                "source.md"
+            );
+            assert_eq!(
+                tools.read_note("source.md").unwrap_err().kind,
+                AiErrorKind::ToolRejected
+            );
+            let _job = tokio::task::spawn_blocking(move || {
+                gate.recv().unwrap();
+                assert_eq!(
+                    tools
+                        .read_note_scoped("source.md", ReadScope::Source)
+                        .unwrap()
+                        .text,
+                    SOURCE
+                );
+            });
+            emit(AiEvent::Text("scoped source observed".into()));
+            finished_model.send(()).unwrap();
+            AiAnswer {
+                text: "scoped source observed".into(),
+                terminal: AiTerminal::Completed,
+            }
+        })
+    });
+    let mut worker = fixture.start(Hooks {
+        rewrite: None,
+        answer: Some(hook),
+        account: None,
+    });
+    let request = fixture.request();
+    worker
+        .submit(request.id, AppCommand::Ask(request.clone()))
+        .unwrap();
+    finished.recv_timeout(Duration::from_secs(10)).unwrap();
+    assert!(matches!(
+        event(&worker).1,
+        AppEvent::Chat(ChatEvent::Text { .. })
+    ));
+    worker
+        .submit(Uuid::new_v4(), AppCommand::CancelTurn(request.id))
+        .unwrap();
+    assert!(matches!(
+        event(&worker).1,
+        AppEvent::TurnCancelRequested { accepted: true, .. }
+    ));
+    assert!(
+        worker
+            .recv_event_timeout(Duration::from_millis(50))
+            .is_err()
+    );
+    release.send(()).unwrap();
+    let turn = terminal(&worker, request.id);
+    assert_eq!(turn.status, WorkTurnStatus::Completed);
+    assert_eq!(turn.answer, "scoped source observed");
+    worker.shutdown().unwrap();
+    assert_eq!(std::fs::read_to_string(source).unwrap(), SOURCE);
+}
+
+#[test]
 fn shutdown_fences_queued_asks_and_reports_each_request_without_another_submission() {
     let fixture = Fixture::new();
     let (started, ready) = mpsc::channel();

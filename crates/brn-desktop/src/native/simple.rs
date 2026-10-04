@@ -1,11 +1,11 @@
 use super::theme::color;
 use super::*;
-use crate::ai::{Pending, provider_name, slot, turn_label};
+use crate::ai::{Pending, provider_name, scope_name, slot, turn_label};
 use brn_workflow::{
     Provider, ReasoningEffort, Selection,
     app_worker::{AppCommand, AppEvent},
     chat_worker::AccountCommand,
-    library::SearchMode,
+    library::KnowledgeScope,
 };
 use gpui_kit::{
     AnyElement,
@@ -19,6 +19,7 @@ pub(super) struct Closed {
 }
 pub(super) enum EditorTransition {
     Note(String),
+    Evidence { path: String, scope: KnowledgeScope },
     Review(Uuid),
     Activity,
     Draft(Option<Uuid>),
@@ -52,19 +53,14 @@ fn ask_command(state: &mut crate::ai::AiState, question: String) -> Option<(Uuid
     Some((request.id, AppCommand::Ask(request)))
 }
 fn search_command(state: &mut crate::ai::AiState, query: String) -> Option<(Uuid, AppCommand)> {
-    if !state.ready || !state.vault_bound || query.trim().is_empty() {
-        return None;
-    }
-    Some(state.command(
-        Pending::Search {
-            generation: state.search_generation,
-        },
-        AppCommand::Search {
-            query,
-            mode: SearchMode::Hybrid,
-            limit: 10,
-        },
-    ))
+    state.search_notes(query)
+}
+
+pub(super) fn evidence_widget(editor: &Entity<EditorState>) -> Editor {
+    Editor::new(editor)
+        .h_full()
+        .readonly(true)
+        .aria_label("Full exact saved evidence")
 }
 fn download_command(
     state: &mut crate::ai::AiState,
@@ -187,6 +183,20 @@ impl Desktop {
                 .update(cx, |editor, cx| editor.set_value(text, window, cx));
             self.simple_editor_generation = Some(self.ai.as_ref().unwrap().note_generation);
         }
+        if let Some(note) = self
+            .ai
+            .as_ref()
+            .unwrap()
+            .evidence
+            .as_ref()
+            .and_then(|evidence| evidence.note.as_ref())
+            && self.evidence_editor_generation != Some(self.ai.as_ref().unwrap().note_generation)
+        {
+            let text = note.text.clone();
+            self.evidence_editor
+                .update(cx, |editor, cx| editor.set_value(text, window, cx));
+            self.evidence_editor_generation = Some(self.ai.as_ref().unwrap().note_generation);
+        }
         if self
             .ai
             .as_ref()
@@ -244,7 +254,8 @@ impl Desktop {
         cx.notify();
     }
     pub(super) fn simple_note(&mut self, path: String, cx: &mut Context<Self>) {
-        if self.simple_note_path.as_deref() == Some(&path)
+        if self.open_doc == Some(DocRef::SavedNote)
+            && self.simple_note_path.as_deref() == Some(&path)
             && self.ai.as_ref().unwrap().editor.is_some()
         {
             self.centre_tab = CentreTab::Document;
@@ -252,6 +263,18 @@ impl Desktop {
             return;
         }
         self.simple_leave(EditorTransition::Note(path), cx);
+    }
+    pub(super) fn simple_scoped_note(
+        &mut self,
+        path: String,
+        scope: KnowledgeScope,
+        cx: &mut Context<Self>,
+    ) {
+        if scope == KnowledgeScope::Current {
+            self.simple_note(path, cx);
+        } else {
+            self.simple_leave(EditorTransition::Evidence { path, scope }, cx);
+        }
     }
     fn simple_open_note(&mut self, path: String, cx: &mut Context<Self>) {
         let ai = self.ai.as_mut().unwrap();
@@ -281,7 +304,7 @@ impl Desktop {
         self.simple_progress_transition(cx);
         cx.notify();
     }
-    fn simple_progress_transition(&mut self, cx: &mut Context<Self>) {
+    pub(super) fn simple_progress_transition(&mut self, cx: &mut Context<Self>) {
         if self.simple_transition.is_none() {
             return;
         }
@@ -317,10 +340,21 @@ impl Desktop {
         }
         match self.simple_transition.take().unwrap() {
             EditorTransition::Note(path) => self.simple_open_note(path, cx),
+            EditorTransition::Evidence { path, scope } => {
+                let ai = self.ai.as_mut().unwrap();
+                ai.review = None;
+                ai.review_generation = ai.review_generation.wrapping_add(1);
+                let command = ai.open_evidence(path.clone(), scope);
+                self.simple_note_path = Some(path);
+                self.open_doc = Some(DocRef::Evidence);
+                self.centre_tab = CentreTab::Document;
+                self.simple_send(command, cx);
+            }
             EditorTransition::Review(id) => {
                 let ai = self.ai.as_mut().unwrap();
                 ai.note_generation = ai.note_generation.wrapping_add(1);
                 ai.editor = None;
+                ai.evidence = None;
                 self.simple_note_path = None;
                 self.review_member = 0;
                 self.open_doc = Some(DocRef::Proposal(id));
@@ -334,6 +368,7 @@ impl Desktop {
                 ai.note_generation = ai.note_generation.wrapping_add(1);
                 ai.review_generation = ai.review_generation.wrapping_add(1);
                 ai.editor = None;
+                ai.evidence = None;
                 ai.review = None;
                 self.simple_note_path = None;
                 self.open_doc = Some(DocRef::Activity);
@@ -352,6 +387,7 @@ impl Desktop {
                 ai.note_generation = ai.note_generation.wrapping_add(1);
                 ai.review_generation = ai.review_generation.wrapping_add(1);
                 ai.editor = None;
+                ai.evidence = None;
                 ai.review = None;
                 self.simple_note_path = None;
                 self.draft_widget_id = None;
@@ -362,6 +398,7 @@ impl Desktop {
                 let ai = self.ai.as_mut().unwrap();
                 ai.note_generation = ai.note_generation.wrapping_add(1);
                 ai.editor = None;
+                ai.evidence = None;
                 ai.review = None;
                 ai.review_generation = ai.review_generation.wrapping_add(1);
                 self.simple_note_path = None;
@@ -804,6 +841,34 @@ impl Desktop {
                     })),
             )
             .child(ai.model_state.clone());
+        let scope = ai.knowledge_scope;
+        let mut scopes = div().flex().flex_wrap().gap_1();
+        for option in [
+            KnowledgeScope::Current,
+            KnowledgeScope::Source,
+            KnowledgeScope::History,
+            KnowledgeScope::All,
+        ] {
+            scopes = scopes.child(
+                Button::new(format!("knowledge-scope-{}", scope_name(option)))
+                    .label(scope_name(option))
+                    .compact()
+                    .selected(scope == option)
+                    .disabled(!ai.ready || !ai.vault_bound || self.closing.is_some() || self.closed)
+                    .on_click(cx.listener(move |this, _, _, cx| {
+                        if let Some(command) = this.ai.as_mut().unwrap().select_scope(option) {
+                            this.simple_send(command, cx);
+                        }
+                    })),
+            );
+        }
+        list = list
+            .child("Browse / Search scope")
+            .child(scopes)
+            .child(format!("Saved notes · {} scope", scope_name(scope)));
+        if let Some(error) = &ai.notes_error {
+            list = list.child(error.clone());
+        }
         if !ai.editors.is_empty() {
             list = list.child("Registered / recovered buffers");
             for record in &ai.editors {
@@ -842,25 +907,19 @@ impl Desktop {
             list = list.child(
                 Button::new(format!("note-{}", note.path))
                     .label(compact_title(&note.title))
-                    .on_click(
-                        cx.listener(move |this, _, _, cx| this.simple_note(path.clone(), cx)),
-                    ),
+                    .on_click(cx.listener(move |this, _, _, cx| {
+                        this.simple_scoped_note(path.clone(), scope, cx)
+                    })),
             );
         }
-        if let Some(cursor) = &ai.next_cursor {
-            let cursor = cursor.clone();
+        if ai.next_cursor.is_some() {
             list = list.child(
                 Button::new("more-notes")
                     .label("More notes")
                     .on_click(cx.listener(move |this, _, _, cx| {
-                        this.simple_command(
-                            Pending::Notes { append: true },
-                            AppCommand::Notes {
-                                folder: None,
-                                cursor: Some(cursor.clone()),
-                            },
-                            cx,
-                        )
+                        if let Some(command) = this.ai.as_mut().unwrap().more_notes() {
+                            this.simple_send(command, cx);
+                        }
                     })),
             );
         }
@@ -977,6 +1036,72 @@ impl Desktop {
             .child(body)
             .into_any_element()
     }
+    pub(super) fn render_evidence_document(&mut self, cx: &mut Context<Self>) -> AnyElement {
+        let p = self.palette();
+        let ai = self.ai.as_ref().unwrap();
+        let mut body = div().flex_1().min_h(px(0.)).flex().flex_col().gap_2().p_3();
+        let title = ai
+            .evidence
+            .as_ref()
+            .map(|evidence| {
+                format!(
+                    "{} · {} scope · Read only",
+                    evidence.path,
+                    scope_name(evidence.scope)
+                )
+            })
+            .unwrap_or_default();
+        if let Some(note) = ai
+            .evidence
+            .as_ref()
+            .and_then(|evidence| evidence.note.as_ref())
+        {
+            let text = note.text.clone();
+            body = body
+                .child(
+                    div()
+                        .flex_1()
+                        .min_h(px(0.))
+                        .child(evidence_widget(&self.evidence_editor)),
+                )
+                .child(
+                    Button::new("copy-exact-evidence")
+                        .label("Copy exact saved text")
+                        .on_click(cx.listener(move |_, _, _, cx| {
+                            cx.write_to_clipboard(gpui_kit::ClipboardItem::new_string(
+                                text.clone(),
+                            ));
+                        })),
+                );
+        } else {
+            body = body.child(
+                ai.note_error
+                    .clone()
+                    .unwrap_or("Opening exact saved evidence…".into()),
+            );
+        }
+        div()
+            .size_full()
+            .flex()
+            .flex_col()
+            .bg(color(p.paper))
+            .child(
+                div()
+                    .flex()
+                    .items_center()
+                    .gap_2()
+                    .p_2()
+                    .child(div().flex_1().min_w(px(0.)).child(title))
+                    .child(
+                        Button::new("close-evidence")
+                            .label("Close")
+                            .compact()
+                            .on_click(cx.listener(|this, _, _, cx| this.close_document(cx))),
+                    ),
+            )
+            .child(body)
+            .into_any_element()
+    }
     pub(super) fn render_simple_chat(&mut self, cx: &mut Context<Self>) -> AnyElement {
         let p = self.palette();
         let ai = self.ai.as_ref().unwrap();
@@ -1073,11 +1198,14 @@ impl Desktop {
             }
         }
         if let Some(results) = &ai.search {
-            body = body.child(if results.keyword_only {
-                "Search: keyword-only (no installed model)"
-            } else {
-                "Search: hybrid"
-            });
+            let scope = ai.search_scope.unwrap_or(KnowledgeScope::Current);
+            body = body
+                .child(format!("Search results · {} scope", scope_name(scope)))
+                .child(if results.keyword_only {
+                    "Search: keyword-only (no installed model)"
+                } else {
+                    "Search: hybrid"
+                });
             for (i, hit) in results.hits.iter().enumerate() {
                 let path = hit.path.clone();
                 body = body
@@ -1088,7 +1216,7 @@ impl Desktop {
                                 hit.path, hit.start_byte, hit.end_byte
                             ))
                             .on_click(cx.listener(move |this, _, _, cx| {
-                                this.simple_note(path.clone(), cx)
+                                this.simple_scoped_note(path.clone(), scope, cx)
                             })),
                     )
                     .child(hit.quote.clone());
@@ -1127,13 +1255,13 @@ impl Desktop {
                             .gap_2()
                             .child(
                                 Button::new("search")
-                                    .label("Search")
+                                    .label(format!("Search {}", scope_name(ai.knowledge_scope)))
                                     .disabled(!ai.ready || !ai.vault_bound)
                                     .on_click(cx.listener(|this, _, _, cx| this.simple_search(cx))),
                             )
                             .child(
                                 Button::new("ask")
-                                    .label("Ask")
+                                    .label("Ask (Current by default)")
                                     .disabled(
                                         !ai.can_ask()
                                             || self.closing.is_some()

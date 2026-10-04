@@ -31,6 +31,29 @@ Dock/system termination cannot veto exit and can lose unacknowledged typing.
 The editor is implemented and automated verified; native/IME/accessibility
 acceptance remains pending in [status](../../docs/status.md).
 
+The Vault rail offers Current, Source, History and All browsing/search scopes.
+Current is the default and opens the existing guarded note editor. Other scopes
+open complete saved text in a separate read-only view, labeled with requested
+scope/path and an exact Copy action; they expose no Save or proposal controls.
+All can contain current notes but remains a read-only combined evidence view.
+Scope changes update browsing/search without discarding an open document or
+changing Ask's default current-knowledge behavior. Pagination/results and opening
+replies are bound to scope/cursor/generation. Registered/recovered buffers retain
+their direct guarded editing route regardless of the selected browsing scope.
+
+For manual acceptance, launch with a fresh synthetic data/vault pair containing
+`current.md`, a `brn_kind: source` note with BOM/CRLF/Unicode, a
+`brn_state: history` note and an archived original. Confirm Current lists only
+current knowledge; select Source/History/All, search and open an original. Its
+requested scope and Read only label must remain visible; typing must not change
+the text, Copy must preserve full exact bytes, and Save must be absent. Switch
+scopes rapidly during list/search/opening and confirm late replies do not change
+the new view. Return to Current, type an unsaved correction and open evidence;
+the existing recovery guard must acknowledge the latest buffer first. Repeat
+with a full review/comment or unsent proposal form to check the retained-input
+guard. Restart and compare fixture source bytes. GUI/IME/accessibility and owner
+acceptance remain separate from state/widget checks.
+
 Settings provides independent ChatGPT/Copilot account status, explicit Connect/
 Disconnect, model discovery, provider/model selection and explicit low/medium/high
 reasoning effort. Ask stays disabled until its effort choice is acknowledged.

@@ -357,6 +357,7 @@ fn malformed_classifications_are_reported_and_never_defaulted_into_scoped_querie
 #[test]
 fn unresolved_application_fences_every_scope_and_preserves_original_sources() {
     use KnowledgeScope::*;
+    use brn_ai::ReadScope;
     let f = Fixture::new();
     f.write("current.md", "current approved\n");
     f.write(
@@ -364,6 +365,7 @@ fn unresolved_application_fences_every_scope_and_preserves_original_sources() {
         "---\nbrn_kind: source\n---\noriginal source\n",
     );
     let mut app = App::open(&f.data, f.config()).unwrap();
+    let tools = app.tools().unwrap();
     let source = app.proposal_source("current.md").unwrap();
     let record = app
         .create_proposal(&DraftRequest {
@@ -400,6 +402,33 @@ fn unresolved_application_fences_every_scope_and_preserves_original_sources() {
                 .unwrap_err()
                 .kind,
             ErrorKind::SaveUncertain
+        );
+        let read_scope = match scope {
+            Current => ReadScope::Current,
+            Source => ReadScope::Source,
+            History => ReadScope::History,
+            All => ReadScope::All,
+        };
+        assert_eq!(
+            tools
+                .list_notes_scoped(None, None, read_scope)
+                .unwrap_err()
+                .kind,
+            AiErrorKind::IndexStale
+        );
+        assert_eq!(
+            tools
+                .search_notes_scoped("source", 10, read_scope)
+                .unwrap_err()
+                .kind,
+            AiErrorKind::IndexStale
+        );
+        assert_eq!(
+            tools
+                .read_note_scoped("current.md", read_scope)
+                .unwrap_err()
+                .kind,
+            AiErrorKind::IndexStale
         );
     }
     assert_eq!(

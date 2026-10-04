@@ -81,6 +81,7 @@ impl Desktop {
 
     pub(super) fn render_document(&mut self, cx: &mut Context<Self>) -> AnyElement {
         match self.open_doc {
+            Some(DocRef::Evidence) => self.render_evidence_document(cx),
             Some(DocRef::Proposal(_)) => self.render_proposal_review(cx),
             Some(DocRef::Activity) => self.render_activity(cx),
             Some(DocRef::Draft) => self.render_draft(cx),

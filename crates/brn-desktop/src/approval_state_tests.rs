@@ -131,6 +131,7 @@ fn drain_reads(worker: &AppWorker, state: &mut AiState, commands: Vec<(Uuid, App
                     | AppCommand::ProposalRecovery
                     | AppCommand::ProposalApply(_)
                     | AppCommand::Notes { .. }
+                    | AppCommand::ScopedNotes { .. }
             ),
             "terminal followups must be read only; no retry or provider commands"
         );

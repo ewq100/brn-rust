@@ -1,10 +1,11 @@
 //! Fresh, read-only vault tools. Index text is never trusted without validation.
 use crate::library::{
-    KnowledgeScope, LibraryError, SearchMode, SharedEmbedder, saved_metadata, search_index,
+    KnowledgeScope, LibraryError, SearchMode, SharedEmbedder, saved_metadata, search_index_scoped,
 };
 use crate::vault::{self, EvidencePath, VaultPath};
 use brn_ai::{
-    AiError, AiErrorKind, AiResult, NoteEntry, NotePage, Passage, ReadTools, ToolNote, ToolSearch,
+    AiError, AiErrorKind, AiResult, NoteEntry, NotePage, Passage, ReadScope, ReadTools, ToolNote,
+    ToolSearch,
 };
 use brn_retrieval::note_index::{IndexedNote, NoteHit, NoteIndexReader};
 use std::{
@@ -73,17 +74,22 @@ impl AiTools {
         }
     }
 
-    fn entries(&self) -> AiResult<Vec<IndexedNote>> {
+    fn entries(&self, scope: KnowledgeScope) -> AiResult<Vec<IndexedNote>> {
         self.reader
             .lock()
             .map_err(|_| AiError::new(AiErrorKind::Storage))?
-            .notes()
+            .notes_scoped(scope)
             .map_err(|_| stale())
     }
 }
 
-pub(crate) fn validate_hits(root: &Path, hits: &[NoteHit]) -> AiResult<()> {
-    validate_hits_scoped(root, hits, KnowledgeScope::Current)
+fn knowledge_scope(scope: ReadScope) -> KnowledgeScope {
+    match scope {
+        ReadScope::Current => KnowledgeScope::Current,
+        ReadScope::Source => KnowledgeScope::Source,
+        ReadScope::History => KnowledgeScope::History,
+        ReadScope::All => KnowledgeScope::All,
+    }
 }
 
 fn read_path(path: &str, scope: KnowledgeScope) -> AiResult<EvidencePath> {
@@ -118,15 +124,6 @@ pub(crate) fn validate_hits_scoped(
         }
     }
     Ok(())
-}
-
-pub(crate) fn note_page(
-    root: &Path,
-    entries: Vec<IndexedNote>,
-    folder: Option<&str>,
-    cursor: Option<&str>,
-) -> AiResult<NotePage> {
-    note_page_scoped(root, entries, folder, cursor, KnowledgeScope::Current)
 }
 
 pub(crate) fn note_page_scoped(
@@ -182,10 +179,20 @@ pub(crate) fn note_page_scoped(
 
 impl ReadTools for AiTools {
     fn search_notes(&self, query: &str, limit: usize) -> AiResult<ToolSearch> {
+        self.search_notes_scoped(query, limit, ReadScope::Current)
+    }
+
+    fn search_notes_scoped(
+        &self,
+        query: &str,
+        limit: usize,
+        scope: ReadScope,
+    ) -> AiResult<ToolSearch> {
         if !(1..=10).contains(&limit) {
             return Err(rejected());
         }
         brn_retrieval::note_index::check_query(query, limit).map_err(|_| rejected())?;
+        let scope = knowledge_scope(scope);
         let epoch = self.check_root()?;
         let mut embedder = self.embedder.clone();
         let results = {
@@ -193,7 +200,7 @@ impl ReadTools for AiTools {
                 .reader
                 .lock()
                 .map_err(|_| AiError::new(AiErrorKind::Storage))?;
-            search_index(
+            search_index_scoped(
                 &*reader,
                 embedder
                     .as_mut()
@@ -201,6 +208,7 @@ impl ReadTools for AiTools {
                 query,
                 SearchMode::Hybrid,
                 limit,
+                scope,
             )
             .map_err(|error| match error {
                 LibraryError::Index(brn_retrieval::Error::Invalid(_)) => rejected(),
@@ -209,7 +217,7 @@ impl ReadTools for AiTools {
                 _ => AiError::new(AiErrorKind::Storage),
             })?
         };
-        validate_hits(&self.root, &results.hits)?;
+        validate_hits_scoped(&self.root, &results.hits, scope)?;
         self.check_current_epoch(epoch)?;
         Ok(ToolSearch {
             hits: results
@@ -227,10 +235,15 @@ impl ReadTools for AiTools {
     }
 
     fn read_note(&self, path: &str) -> AiResult<ToolNote> {
-        let parsed = VaultPath::parse(path).map_err(|_| rejected())?;
+        self.read_note_scoped(path, ReadScope::Current)
+    }
+
+    fn read_note_scoped(&self, path: &str, scope: ReadScope) -> AiResult<ToolNote> {
+        let scope = knowledge_scope(scope);
+        let parsed = read_path(path, scope)?;
         let epoch = self.check_root()?;
-        let note = vault::read_note(&self.root, &parsed).map_err(|_| rejected())?;
-        check_class(&note.text, path, KnowledgeScope::Current).map_err(|_| rejected())?;
+        let note = vault::read_evidence(&self.root, &parsed).map_err(|_| rejected())?;
+        check_class(&note.text, path, scope).map_err(|_| rejected())?;
         let (text, truncated) = brn_ai::capped_text(&note.text);
         self.check_current_epoch(epoch)?;
         Ok(ToolNote {
@@ -241,8 +254,18 @@ impl ReadTools for AiTools {
     }
 
     fn list_notes(&self, folder: Option<&str>, cursor: Option<&str>) -> AiResult<NotePage> {
+        self.list_notes_scoped(folder, cursor, ReadScope::Current)
+    }
+
+    fn list_notes_scoped(
+        &self,
+        folder: Option<&str>,
+        cursor: Option<&str>,
+        scope: ReadScope,
+    ) -> AiResult<NotePage> {
+        let scope = knowledge_scope(scope);
         let epoch = self.check_root()?;
-        let page = note_page(&self.root, self.entries()?, folder, cursor)?;
+        let page = note_page_scoped(&self.root, self.entries(scope)?, folder, cursor, scope)?;
         self.check_current_epoch(epoch)?;
         Ok(page)
     }

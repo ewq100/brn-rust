@@ -261,3 +261,96 @@ AI tool scope arguments/native controls follow next, then durable provenance,
 relationships, findings/timestamps and bilingual qualification. Stage 5 remains
 active. Published CI availability is checked separately; no push or release is
 authorized merely to create a run.
+
+## Fourth slice: AI and native access to explicit evidence scopes
+
+Baseline: `main@4a97dcb0e952b4d78f6ed57d25cecfec33bca0a3`; only the preserved
+owner AGENTS.md change is unrelated. Third slice is locally integrated; hosted
+CI lookup returned no published run. Existing workflow scoped APIs cover this
+slice without changing authority or architecture.
+
+Add a narrow serializable `brn_ai::ReadScope` enum (Current/Source/History/All)
+and scoped read-tool methods, mapping explicitly to workflow KnowledgeScope.
+Existing trait methods/default calls remain Current; old implementers reject
+unsupported explicit scopes rather than silently reading current. The same three
+Rig tools accept optional strict scope arguments and label scope in serialized
+results. Workflow validates scope/class/hash/quotes and all evidence fences;
+the owned drain lease forwards scoped calls, preserving cancellation/shutdown.
+Actual provider routes are checked only with synthetic transports, not live calls.
+
+Native browsing uses a transient selected scope, scoped list/search commands and
+correlated request generations/cursors. Default Current note openings retain the
+existing guarded editor. Source/History/All openings use ScopedNote and a separate
+read-only exact-text view with scope/path and Copy, without editor registration
+or write controls. Existing unsaved editor/review/comment/form navigation guards
+also protect evidence navigation. Scope switching changes browsing only, not
+the open document or Ask's default scope. Late list/search/note/error replies
+cannot replace newer scope/document state; requested scope labels do not invent
+per-note classification.
+
+Acceptance: actual offline Rig routes accept all explicit scopes and reject
+unknown/extra arguments; omitted scope remains Current and result labels agree.
+Fresh source/history reads/search/list preserve exact evidence and current
+exclusions, fences and owned read leases. Native selection/pagination/search/open
+freeze scope and reject stale replies; source/history views preserve BOM/CRLF/
+Unicode exact bytes without Save/proposal admission. Meaningful adapter, worker,
+presentation and native widget checks, independent complete review, fresh relevant
+gates and a disposable manual scenario qualify this slice. Durable provenance,
+relationships, findings/timestamps and real bilingual inference remain later.
+
+Fourth-slice evidence, 2026-10-04: initial scoped workflow regressions failed
+against the unextended adapter; after implementation, 2 new scoped tool, 5
+existing tool and 7 knowledge-scope tests passed, including retained all-scope
+application fences. One real owned-worker test proves scoped list/search/read
+forwarding and Completed waiting for its retained reader despite Stop. Obsolete
+private Current-only wrappers were removed after Clippy exposed their disuse.
+AI library checks passed 84; five new synthetic production-route tests exercise
+all three provider dialects, four scopes, omitted Current compatibility, strict
+refusal before reads and existing caps. Initial schema/error-copy expectations
+were overconstrained: root verified pinned Rig's Copilot Responses strict-schema
+normalization and same-model transient argument parse diagnostics, then rejected
+those unsupported expectations without changing provider policy or local safe
+error/progress handling.
+
+Desktop default checks passed 137 (130 unit + 7 CLI); fresh native/test-support
+checks passed 155 (148 + 7), including real-worker restart, stale correlation,
+actual exact-text readonly widget/Copy and editor/review/comment/form guards.
+Independent complete read-only review against `4a97dcb0`, including untracked
+tests, found no actionable defects and passed 28 focused checks. Its factual
+README carryover was corrected; no product scope was expanded.
+
+Fresh final locked/offline macOS arm64 / Rust 1.98.1 workspace gate passed
+retirement, formatting/build/all-target Clippy with warnings denied, **765 passed /
+0 failed / 2 ignored**, and **52 end-to-end assertions**. Fresh native all-target
+desktop/CLI Clippy and shipping desktop/CLI native builds passed; the final frozen
+desktop native tests above remain applicable. Commands match the third-slice
+native Clippy/build commands and `scripts/verify-end-to-end.sh` with a new owned
+outside-Git TMPDIR. The two ignored crash entry points remain exercised by their
+subprocess matrices. Known upstream `block v0.1.6` warning remains.
+
+Root additionally observed the shipping native binary in a fresh explicit
+synthetic data/vault/credential pair, using a unique local fixture bundle identity
+and fixture-only launcher logs. Current excluded sources/history; Source keyword
+search returned exact original/archived paths; Source and History openings showed
+requested path/scope and Read only with no Save. Confirmed readonly typing changed
+nothing. Browsing scope changes retained the open document; navigation from an
+unsaved current editor to evidence retained registered recovery. Actual Copy→OS
+paste→guarded Save Copy produced **86 identical bytes**, including BOM/CRLF and
+Estonian characters, while current/original/archive/history files stayed exact.
+AX text did not expose the leading BOM; the actual saved-byte comparison qualified
+the copy path. Initial capture failed once and recovered by exact bundle selection;
+stale AX indices refused two operations before refresh, with no unrelated action.
+The Mac then locked before guarded GUI Quit/restart could complete. That native
+restart/owner/IME/accessibility qualification remains pending; synthetic worker
+restart is verified. No provider call, model download or original/private data
+inspection occurred. The synthetic GUI fixture remains owned for that pending
+check; other gate fixtures are cleaned by exact ownership/type/identity guards.
+Final diff checks and 136 local Markdown links across 15 contract/status files
+passed. Root's final gate cleaned five owned layout directories/four regular
+JSON files and its empty parent; logs and ownership metadata remain outside Git.
+
+This slice is implemented, independently reviewed, automated verified and locally
+integrated with this change. [Native manual scenario](../../../../crates/brn-desktop/README.md#current-workspace-native-default)
+is reproducible; partial native observation is distinct from owner acceptance.
+Stage 5 remains active for durable provenance, relationships, findings/timestamps
+and actual English/Estonian retrieval qualification.

@@ -93,8 +93,13 @@ keep identity resolution incomplete without blocking readable current notes.
 Equal size/mtime never substitutes for bytes; equal hashes retain passages/vectors.
 Scopes filter before ranking/limits, then returned passages and list rows recheck
 exact saved class/hash/quote. Explicit EvidenceNote still reads malformed original
-text. Queries never stamp metadata, open editors or mutate sources. AI tool scope
-arguments, native controls and durable provenance remain following Stage 5 work.
+text. Queries never stamp metadata, open editors or mutate sources. AiTools maps
+`brn_ai::ReadScope` explicitly to KnowledgeScope for the same scoped search/list/
+read checks. Existing read calls default to Current. Owned chat/Rewrite leases
+forward scoped calls and retain authority until every blocking read drains.
+Native browsing/search controls use the same scoped commands; non-current
+openings expose full read-only evidence while direct editing keeps its existing
+authority. Durable provenance remains following Stage 5 work.
 
 `proposal_source(path)` / AppWorker `ProposalSource` return the complete saved
 text and trusted file fingerprint for initial review composition. The capture
