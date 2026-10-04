@@ -32,6 +32,8 @@ use std::time::{Duration, Instant};
 use uuid::Uuid;
 
 mod approval;
+#[cfg(all(test, target_os = "macos", feature = "native-test-support"))]
+mod dialog_tests;
 mod draft;
 #[cfg(all(test, target_os = "macos", feature = "native-test-support"))]
 mod draft_link_tests;
@@ -566,6 +568,38 @@ impl Render for Desktop {
         self.render_shell(window, cx)
     }
 }
+
+fn desktop_root(desktop: Entity<Desktop>, window: &mut Window, cx: &mut Context<Root>) -> Root {
+    let view = cx.new(|cx| DesktopWindow::new(desktop, cx));
+    Root::new(view, window, cx)
+}
+
+/// Dialog builders inspect Desktop, so render them outside its mutable render
+/// borrow. The toolkit Root owns modal state but clients render its dialog layer.
+struct DesktopWindow {
+    desktop: Entity<Desktop>,
+    _desktop_updates: Subscription,
+}
+
+impl DesktopWindow {
+    fn new(desktop: Entity<Desktop>, cx: &mut Context<Self>) -> Self {
+        let updates = cx.observe(&desktop, |_, _, cx| cx.notify());
+        Self {
+            desktop,
+            _desktop_updates: updates,
+        }
+    }
+}
+
+impl Render for DesktopWindow {
+    fn render(&mut self, window: &mut Window, cx: &mut Context<Self>) -> impl IntoElement {
+        div()
+            .relative()
+            .size_full()
+            .child(self.desktop.clone())
+            .children(Root::render_dialog_layer(window, cx))
+    }
+}
 /// Routes an app-level action to the desktop entity, like the existing Quit handler.
 fn route<A: gpui_kit::Action>(
     cx: &mut App,
@@ -676,7 +710,7 @@ pub fn run(
                             weak.update(cx, |this, cx| this.close_guard(CloseRoute::Window, cx))
                                 .unwrap_or(true)
                         });
-                        cx.new(|cx| Root::new(desktop, window, cx))
+                        cx.new(|cx| desktop_root(desktop, window, cx))
                     },
                 )
                 .expect("failed to open BRN desktop window");

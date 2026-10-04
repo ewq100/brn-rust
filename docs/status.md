@@ -287,12 +287,30 @@ hides obsolete options. Fresh corrected shared verification passed1019workspace/
 0failed/3ignored+52fixtures,165focused-native-workflow/0failed/2ignored and214
 combined-native-desktop/0failed/0ignored; native Clippy/shipping builds and startup2
 passed(V10/exact bytes/zero credentials). Independent full/correction reviews found
-no defect. Exact-head publication/CI,actual catalog/Luna inference and owner
-acceptance remain pending.
-No new account calls have run; prior credentials remain untouched. A latest native
-attempt still reported Mac locked,so its owned unchanged synthetic app remains
-awaiting normal quit/inspection. The unlock/awake question is pending. This does
-not authorize model-asset downloads or private data inspection.
+no defect. Integration and remaining live qualification are recorded below.
+Catalog [PR31](https://github.com/ewq100/brn-rust/pull/31) merged
+13895d905bd18d0e7615d7623325304f9126cd9d after exact fcc5f633/run37210863902
+passed MacCore/UI/Retrieval and UbuntuShared. Windows failed before tests on22
+unchanged Unix errors; independent log/source review found no shared defect.
+Merged-tree equality,113focused tests,52fixtures and startup2 passed,V10/exact
+BOM/CRLF/Unicode bytes/zero credentials. Main37211590271 completed5success/4failure:
+Mac3+UbuntuCore/UI passed;Ubuntu installer10pass/3fail and Windows22/22/14Unix
+errors remain,overallCIred. Live catalog/Luna inference and owner acceptance stay
+pending. No new account calls have run; prior credentials remain untouched.
+
+Unlocked Luna computer use now captured the synthetic workspace visually and
+quit the older owned app normally with unchanged vault and zero credentials.
+The fresh Current search/read succeeded. Settings button/menu/shortcut exposed
+an existing missing toolkit dialog-render layer. A minimal outer view now renders
+dialogs outside Desktop's mutable borrow and refreshes them on Desktop updates;
+independent review found no production defect and its valid modal-test witness
+finding was corrected. Meaningful original-composition RED0pass/2fail and
+corrected2tests passed; fresh216combined-native tests,both nativeClippy/shipping
+build and startup2(V10/exactbytes/zero credentials)+52fixtures passed. Native fixed
+Settings/login,exact-head integration and owner acceptance remain pending: the Mac
+locked again before relaunch. BRN UI screenshots are retained in
+[the screenshot index](ui/screenshots/2026-10-04/INDEX.md),excluding auth/private data.
+This does not authorize model-asset downloads or private data inspection.
 
 Release/public distribution, other live calls/model downloads, purchases and
 original/private-data inspection or migration still need applicable owner
