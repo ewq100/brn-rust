@@ -307,10 +307,32 @@ independent review found no production defect and its valid modal-test witness
 finding was corrected. Meaningful original-composition RED0pass/2fail and
 corrected2tests passed; fresh216combined-native tests,both nativeClippy/shipping
 build and startup2(V10/exactbytes/zero credentials)+52fixtures passed. Native fixed
-Settings/login,exact-head integration and owner acceptance remain pending: the Mac
-locked again before relaunch. BRN UI screenshots are retained in
+Settings/login and owner acceptance remain pending: the Mac locked again before
+relaunch. [PR32](https://github.com/ewq100/brn-rust/pull/32) merged da2ac23 after
+exact c7456db/run37212894341 passed MacCore/UI/Retrieval and UbuntuShared. Windows
+repeated22 unchanged Unix compile errors,overallCIred. Merged-tree equality,
+2dialog regressions,52fixtures and startup2 passed,V10/exactbytes/zero credentials.
+Main37213574797 completed5success/4failure: Mac3+UbuntuCore/UI passed;unchanged
+Ubuntu installer10pass/3fail and Windows22/22/14Unix errors remain,overallCIred.
+BRN UI screenshots are retained in
 [the screenshot index](ui/screenshots/2026-10-04/INDEX.md),excluding auth/private data.
 This does not authorize model-asset downloads or private data inspection.
+
+Stage6 private reference validation now checks new knowledge UUIDs against full
+captured or same-draft evidence, and checks Action dependency and parent graphs
+separately. All producer guards remain closed. Independent complete review found
+no defect. Fresh1035shared tests/0failed/3ignored+52fixtures,202focused-native
+workflow/0failed/3ignored and216combined-native desktop/0failed/0ignored passed;
+both nativeClippy configurations,shipping build and startup2 passed,V10/exact
+bytes/zero credentials. This is preparation for whole Action approval/recovery;
+identified Complete,dashboard and wholeStage6 remain unfinished.
+
+Reference [PR33](https://github.com/ewq100/brn-rust/pull/33) initially found four
+Ubuntu test assumptions about macOS-only source coordination. The correction
+keeps all shared Action/graph cases,qualifies those four only on macOS,and adds an
+explicit non-Mac ToolRejected/no-effect witness. Independent read-only correction
+review found no shared product defect; fresh Mac16tests and test-targetClippy
+passed. Corrected exact-head applicable CI and integration remain pending.
 
 Release/public distribution, other live calls/model downloads, purchases and
 original/private-data inspection or migration still need applicable owner

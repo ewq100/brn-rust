@@ -505,6 +505,9 @@ impl App {
         if undo.is_none() {
             self.validate_proposal_provenance(draft)?;
             self.validate_proposal_links(draft)?;
+            // Prepared for ordinary Action approval; the early Action guard
+            // above stays closed until whole application/recovery qualifies.
+            self.validate_action_references(draft)?;
         }
         for source in &draft.sources {
             if self

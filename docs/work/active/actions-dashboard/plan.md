@@ -432,3 +432,66 @@ actual-log/source analysis found no shared Action defect. Next shared reference/
 dependency validation and whole application/recovery,then explicit Complete and
 dashboard. Current subscription catalog amendment supports bounded Luna-only
 qualification; live/native owner acceptance and wholeStage5/6 remain pending.
+
+
+## Private reference/dependency checkpoint
+
+Baseline13895d9. Keep all creation/apply/ownedRewrite/Undo Action guards closed.
+Qualify references before whole execution. related_person/project,sources and
+thread are explicit managed Markdown note UUIDs with relation labels; they do not
+create another entity registry or alias BRN chat IDs. Later Inbox/person/project
+views assemble those approved knowledge concepts through the same boundary.
+New UUIDs are compared per optional slot and source membership; only newly added
+references require complete unique same-vault inspection plus an already-captured
+immutable SourceVersion or exact valid same-draft managed bytes. Historical
+unchanged references stay readable; explicit source/history/archive targets are
+allowed with proof. Reuse the existing full-before-fingerprint knowledge overlay
+for links and Action targets. Approval never silently captures new source authority.
+
+Action dependency,parent and follows_up targets use exact UUIDs from reviewed
+Create/Replace after-data or checked Store records. Dependencies and parent
+hierarchy must each be acyclic,checked iteratively through reachable after-state;
+do not impose one combined DAG or a completed-only follow-up restriction. Store
+keeps changed-member full-record CAS; unrelated target completion does not need
+a new frozen target-version DTO. Historical reads/replay/Undo remain unchanged.
+
+Implemented private App::validate_action_references; ordinary fresh preflight
+calls it after link validation but after the still-closed Action guard. Empty
+ordinary Markdown requests return immediately. No public producer was enabled.
+The corrected16-test stub RED passed4/failed12 from invalid cases being accepted;
+actual16tests passed. Full workflow306/0failed/3ignored before final empty-path
+wiring; final affected187/0failed/3ignored and all-targetClippy/format/diff passed.
+Independent Sol complete read-only review found no actionable finding,verified
+unchanged guards and shared link overlay,checked final logs/source hashes,without
+rerunning Cargo. Explicit case-sensitive APFS qualification remains prior evidence
+and was not rerun here. Evidence:action-refs-evidence.md,patch/logs under
+/private/tmp/brn-v1-stage1-checkpoint-s3nawyyb. Fresh integrated/native gates and
+exact-head publication follow; wholeStage6 is not complete. Next whole Action-only
+vaultless/mixed execution,CAS/source drift,crash/repair and headless/native exact
+review,then identified Complete and dashboard. No provider/model/private data.
+
+Final reference checkpoint joined reviewed native-dialog PR32merge da2ac23.
+Fresh locked/offline macOSarm64/Rust1.98.1 gates passed1035workspace/0failed/
+3ignored+52fixtures,202focused-native-workflow/0failed/3ignored and216combined-
+native-Desktop/0failed/0ignored. Native all-targetClippy in both configurations,
+shipping build and startup2 passed,V10/exactBOMCRLFUnicode/zero credentials
+(qualified-startup-78o2f_b2). Source hashes match independent review. Evidence:
+action-refs-{shared,native-workflow,native-clippy,native-desktop,desktop-clippy,
+shipping-clippy,shipping-build,startup}-final.log under the owned parent above.
+No user-facing Action producer exists yet; manual acceptance follows whole exact
+application. Next whole Action-only/mixed approval and crash/repair,then native
+exact typed review,identified Complete and dashboard. Owner-requested screenshot
+retention is indexed under docs/ui/screenshots/; Macmini requirements unchanged.
+
+PR33 initial exactbc4bbad/run37213893288 passed both Mac native lanes; Ubuntu
+Shared failed61pass/4fail because four new source/overlay tests assumed macOS
+coordination. Production already refuses those operations with ToolRejected on
+non-Mac. The narrow correction marks only those four and their NoteChange helper
+as Mac qualification,retains12shared cases,and adds one explicit non-Mac fresh
+source/reference refusal with exact bytes/zero proposals/journals/credentials.
+Independent Luna read-only code/log review found no shared defect. Fresh Mac16
+reference tests and test-targetClippy passed; final diff passed. Windows repeated
+22unchangedUnix errors. Corrected exact-head CI/merge remains pending. Evidence:
+platform-correction-{tests,clippy}.log under /private/tmp/brn-v1-action-references-1xcn7scw.
+PR32main37213574797 completed5success/4failure; actual logs repeat Ubuntu native
+installer10pass/3fail and Windows22/22/14Unix errors,production paths unchanged.
