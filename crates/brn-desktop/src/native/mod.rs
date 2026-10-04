@@ -35,6 +35,9 @@ mod approval;
 mod draft;
 #[cfg(all(test, target_os = "macos", feature = "native-test-support"))]
 mod provenance_tests;
+#[cfg(all(test, target_os = "macos", feature = "native-test-support"))]
+mod relationship_tests;
+mod relationships;
 mod review;
 #[cfg(all(test, target_os = "macos", feature = "native-test-support"))]
 mod scope_tests;
@@ -112,6 +115,9 @@ struct Desktop {
     provenance_snapshot: Option<brn_workflow::knowledge::NoteProvenance>,
     provenance_quotes: Vec<Entity<EditorState>>,
     provenance_scroll: ScrollHandle,
+    document_scroll: ScrollHandle,
+    saved_links: relationships::SavedLinksPane,
+    relationships: relationships::RelationshipsPane,
     review_editor: Entity<EditorState>,
     review_title: Entity<TextareaState>,
     review_comment: Entity<EditorState>,
@@ -407,6 +413,9 @@ impl Desktop {
             provenance_snapshot: None,
             provenance_quotes: Vec::new(),
             provenance_scroll: ScrollHandle::new(),
+            document_scroll: ScrollHandle::new(),
+            saved_links: relationships::SavedLinksPane::new(window, cx),
+            relationships: relationships::RelationshipsPane::new(window, cx),
             review_editor,
             review_title,
             review_comment,

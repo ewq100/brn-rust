@@ -176,6 +176,7 @@ impl Desktop {
         }
         self.sync_draft_widgets(window, cx);
         self.sync_provenance_widgets(window, cx);
+        self.sync_relationship_widgets(window, cx);
         if self
             .ai
             .as_ref()
@@ -303,6 +304,7 @@ impl Desktop {
         }
     }
     fn simple_open_note(&mut self, path: String, cx: &mut Context<Self>) {
+        self.clear_saved_link_panel();
         self.reset_provenance_panel();
         let ai = self.ai.as_mut().unwrap();
         ai.review = None;
@@ -368,6 +370,7 @@ impl Desktop {
         match self.simple_transition.take().unwrap() {
             EditorTransition::Note(path) => self.simple_open_note(path, cx),
             EditorTransition::Evidence { path, scope } => {
+                self.clear_saved_link_panel();
                 self.reset_provenance_panel();
                 let ai = self.ai.as_mut().unwrap();
                 ai.review = None;
@@ -379,6 +382,7 @@ impl Desktop {
                 self.simple_send(command, cx);
             }
             EditorTransition::Review(id) => {
+                self.clear_saved_link_panel();
                 self.clear_saved_sources();
                 let ai = self.ai.as_mut().unwrap();
                 ai.note_generation = ai.note_generation.wrapping_add(1);
@@ -393,6 +397,7 @@ impl Desktop {
                 }
             }
             EditorTransition::Activity => {
+                self.clear_saved_link_panel();
                 self.clear_saved_sources();
                 let ai = self.ai.as_mut().unwrap();
                 ai.note_generation = ai.note_generation.wrapping_add(1);
@@ -413,6 +418,7 @@ impl Desktop {
                     cx.notify();
                     return;
                 }
+                self.clear_saved_link_panel();
                 self.clear_saved_sources();
                 let ai = self.ai.as_mut().unwrap();
                 ai.note_generation = ai.note_generation.wrapping_add(1);
@@ -426,6 +432,7 @@ impl Desktop {
                 self.centre_tab = CentreTab::Document;
             }
             EditorTransition::Hide => {
+                self.clear_saved_link_panel();
                 self.clear_saved_sources();
                 let ai = self.ai.as_mut().unwrap();
                 ai.note_generation = ai.note_generation.wrapping_add(1);
@@ -499,6 +506,7 @@ impl Desktop {
         let mut content = div()
             .id("saved-sources-scroll")
             .overflow_y_scroll()
+            .on_scroll_wheel(|_, _, cx| cx.stop_propagation())
             .track_scroll(&self.provenance_scroll)
             .vertical_scrollbar(&self.provenance_scroll)
             .flex_1()
@@ -1071,6 +1079,9 @@ impl Desktop {
                     .on_click(cx.listener(move |this, _, _, cx| {
                         if let Some(command) = this.ai.as_mut().unwrap().select_scope(option) {
                             this.simple_send(command, cx);
+                            if this.relationships.open {
+                                this.refresh_relationship_page(0, cx);
+                            }
                         }
                     })),
             );
@@ -1079,6 +1090,28 @@ impl Desktop {
             .child("Browse / Search scope")
             .child(scopes)
             .child(format!("Saved notes · {} scope", scope_name(scope)));
+        list = list.child(
+            Button::new("inspect-relationships")
+                .label("Relationships")
+                .selected(self.relationships.open)
+                .disabled(
+                    !ai.ready
+                        || !ai.vault_bound
+                        || ai.application_busy()
+                        || self.closing.is_some()
+                        || self.closed,
+                )
+                .on_click(cx.listener(|this, _, _, cx| {
+                    if this.relationships.open {
+                        this.close_relationship_page(cx);
+                    } else {
+                        this.refresh_relationship_page(0, cx);
+                    }
+                })),
+        );
+        if let Some(relationships) = self.render_relationship_page(cx) {
+            list = list.child(relationships);
+        }
         if let Some(error) = &ai.notes_error {
             list = list.child(error.clone());
         }
@@ -1150,14 +1183,25 @@ impl Desktop {
         let p = self.palette();
         let ai = self.ai.as_ref().unwrap();
         let leaving = self.simple_transition.is_some() || self.closing.is_some() || self.closed;
-        let mut body = div().flex_1().min_h(px(0.)).flex().flex_col().gap_2().p_3();
+        let inspection_open = self.provenance_open || self.saved_links.open;
+        let mut body = div()
+            .id("saved-note-body")
+            .overflow_y_scroll()
+            .track_scroll(&self.document_scroll)
+            .vertical_scrollbar(&self.document_scroll)
+            .flex_1()
+            .min_h(px(0.))
+            .flex()
+            .flex_col()
+            .gap_2()
+            .p_3();
         if let Some(editor) = &ai.editor {
             body = body.child(editor.status());
             if let Some(error) = &editor.error {
                 body = body.child(error.clone());
             }
             body = body
-                .child(div().key_context("MarkdownNote").flex_1().min_h(px(0.)).child(
+                .child(div().key_context("MarkdownNote").flex_1().min_h(px(if inspection_open { 160. } else { 0. })).child(
                     Editor::new(&self.note_editor).h_full()
                         .disabled(leaving || editor.replacing()).aria_label("Markdown note editor")))
                 .child(div().flex().flex_wrap().gap_2()
@@ -1223,6 +1267,9 @@ impl Desktop {
         if let Some(sources) = self.render_saved_sources(cx) {
             body = body.child(sources);
         }
+        if let Some(links) = self.render_saved_links(cx) {
+            body = body.child(links);
+        }
         div()
             .size_full()
             .flex()
@@ -1256,19 +1303,49 @@ impl Desktop {
                             .on_click(cx.listener(|this, _, _, cx| this.inspect_saved_sources(cx))),
                     )
                     .child(
+                        Button::new("saved-note-links")
+                            .label("Links")
+                            .compact()
+                            .selected(self.saved_links.open)
+                            .disabled(
+                                leaving
+                                    || ai.editor.is_none()
+                                    || ai.application_busy()
+                                    || ai.links_loading(),
+                            )
+                            .on_click(cx.listener(|this, _, _, cx| {
+                                if this.saved_links.open {
+                                    this.close_saved_links(cx);
+                                } else {
+                                    this.inspect_saved_links(cx);
+                                }
+                            })),
+                    )
+                    .child(
                         Button::new("close-document")
                             .label("Close")
                             .compact()
                             .on_click(cx.listener(|this, _, _, cx| this.close_document(cx))),
                     ),
             )
-            .child(body)
+            .child(body.test_support())
             .into_any_element()
     }
     pub(super) fn render_evidence_document(&mut self, cx: &mut Context<Self>) -> AnyElement {
         let p = self.palette();
         let ai = self.ai.as_ref().unwrap();
-        let mut body = div().flex_1().min_h(px(0.)).flex().flex_col().gap_2().p_3();
+        let inspection_open = self.provenance_open || self.saved_links.open;
+        let mut body = div()
+            .id("evidence-note-body")
+            .overflow_y_scroll()
+            .track_scroll(&self.document_scroll)
+            .vertical_scrollbar(&self.document_scroll)
+            .flex_1()
+            .min_h(px(0.))
+            .flex()
+            .flex_col()
+            .gap_2()
+            .p_3();
         let title = ai
             .evidence
             .as_ref()
@@ -1290,7 +1367,7 @@ impl Desktop {
                 .child(
                     div()
                         .flex_1()
-                        .min_h(px(0.))
+                        .min_h(px(if inspection_open { 160. } else { 0. }))
                         .child(evidence_widget(&self.evidence_editor)),
                 )
                 .child(
@@ -1311,6 +1388,9 @@ impl Desktop {
         }
         if let Some(sources) = self.render_saved_sources(cx) {
             body = body.child(sources);
+        }
+        if let Some(links) = self.render_saved_links(cx) {
+            body = body.child(links);
         }
         div()
             .size_full()
@@ -1343,13 +1423,37 @@ impl Desktop {
                             .on_click(cx.listener(|this, _, _, cx| this.inspect_saved_sources(cx))),
                     )
                     .child(
+                        Button::new("evidence-links")
+                            .label("Links")
+                            .compact()
+                            .selected(self.saved_links.open)
+                            .disabled(
+                                self.simple_transition.is_some()
+                                    || self.closing.is_some()
+                                    || self.closed
+                                    || ai
+                                        .evidence
+                                        .as_ref()
+                                        .is_none_or(|evidence| evidence.note.is_none())
+                                    || ai.application_busy()
+                                    || ai.links_loading(),
+                            )
+                            .on_click(cx.listener(|this, _, _, cx| {
+                                if this.saved_links.open {
+                                    this.close_saved_links(cx);
+                                } else {
+                                    this.inspect_saved_links(cx);
+                                }
+                            })),
+                    )
+                    .child(
                         Button::new("close-evidence")
                             .label("Close")
                             .compact()
                             .on_click(cx.listener(|this, _, _, cx| this.close_document(cx))),
                     ),
             )
-            .child(body)
+            .child(body.test_support())
             .into_any_element()
     }
     pub(super) fn render_simple_chat(&mut self, cx: &mut Context<Self>) -> AnyElement {

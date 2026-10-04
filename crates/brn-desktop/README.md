@@ -148,6 +148,27 @@ into this form. Failed, provisional or oversized answers cannot become truncated
 drafts. AI writing uses a real stored seed Draft, comments and owned Rewrite.
 GUI/IME/accessibility and owner acceptance are tracked separately.
 
+Saved documents also expose **Links**. This inspects saved Markdown while retaining
+unsaved editor text, showing exact occurrence/reference-definition quotes, source
+and target UUIDs/hashes, and resolved, absent, ambiguous or incomplete outcomes.
+The Vault browser's **Relationships** uses the selected Current/Source/History/All
+scope and distinguishes explicit links from inferred provenance candidates. Each
+25-edge page is a fresh observation; Previous/Next/Refresh replace the page and
+do not promise a snapshot across requests. Selected proofs are read-only and
+**Copy exact quote** preserves their complete bytes. Closing or changing scope
+discards late replies; known Save/Reload/application effects invalidate affected
+observations. Inspection creates no proposal and writes no Markdown.
+
+To try this offline, use fresh disposable data and a vault containing a managed
+current note with `[source](brn://note/<source-uuid>)` and a managed source note
+under `archive/`. Open the current note, type without saving, then inspect Links
+and copy its exact proof. Confirm the typing remains. Relationships in Current
+should exclude the archived endpoint; All should include it. Switch scopes during
+a request or close the pane and confirm a late reply does not reopen it. Open the
+archived note in its read-only evidence view and inspect its Links. Refresh after
+an external change; Save/Reload should clear affected old observations. Actual
+GUI, accessibility and owner acceptance remain pending.
+
 Native retrieval offers a one-time prompt per stored consent decision, showing
 pinned source, bytes/cost and destination. Decline makes no network request.
 Later Download requires fresh explicit approval; its destination is not passed

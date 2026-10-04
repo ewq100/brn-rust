@@ -61,12 +61,12 @@ shipping native build and native Clippy. Default desktop passed **131**; workflo
 **186**. The two ignored private crash entry points are exercised by subprocess
 matrices. Earlier slice counts remain in the evidence, not current gate claims.
 
-Stage 5’s [active plan](work/active/knowledge-foundations/plan.md) records ten
+Stage 5’s [active plan](work/active/knowledge-foundations/plan.md) records eleven
 integrated slices: managed Markdown identities; fresh duplicate/incomplete
 inspection; current/source/history/all retrieval and native read-only browsing;
 durable exact provenance and native source inspection; reliable session/turn
-timestamps; saved CommonMark links; disposable relationships; and exact stable-link
-preparation. Fresh whole-byte observations detect retained-size/mtime changes. UUID links survive moves without
+timestamps; saved CommonMark links; disposable relationships; exact stable-link
+preparation; and native saved-link/relationship inspection. Fresh whole-byte observations detect retained-size/mtime changes. UUID links survive moves without
 path/title guesses. Saved citations retain their exact historical quotes and
 source uncertainty independently of sessions or disposable indexes.
 
@@ -93,20 +93,29 @@ case-sensitive aliases hiding duplicates and opaque metadata supplying false old
 link authority. Final review passed **62 tests / 0 failed / 1 ignored**, and the
 ignored real App case separately passed on fresh owned case-sensitive APFS.
 
-Fresh final Rust 1.98.1/macOS arm64 locked/offline verification passed **884
-workspace tests / 0 failed / 3 ignored**, **52 end-to-end assertions**, retirement,
-format/build/all-target Clippy, **168 native desktop tests**, **164 native workflow
-tests / 0 failed / 3 ignored**, **7 native CLI process tests**, native Clippy
-configurations and the shipping native desktop build. Two ignored private crash
-entry points remain exercised by subprocess matrices; the third case-sensitive
-regression was explicitly qualified. Shipping headless startup/restart and the
-synthetic prepare/Create/Approve/rebuild scenario passed with exact original byte
-prefix/source bytes and no credential files, provider calls or downloads. Actual
-ONNX inference was not exercised. Earlier native scope/Copy/Save Copy observation
-is retained in the plan; final GUI restart and owner acceptance remain pending
-because the Mac is locked.
+Native inspection shows one selected link/edge and persistent exact read-only
+proof, complete identity/hash details, target uncertainty and inspection issues.
+Scoped 25-edge pages replace the prior observation; stale/closed replies cannot
+replace current state. Review reproduced Save Copy changing Unique to Ambiguous
+and stacked panels placing controls outside a 480×480 window. Corrected
+invalidation/scrolling passed **22 independent state/widget tests**, with no
+remaining actionable finding. Unsaved typing and original evidence remain intact.
 
-Native relationship inspection/preparation controls, basic review findings and
+Fresh final Rust 1.98.1/macOS arm64 locked/offline verification passed **894
+workspace tests / 0 failed / 3 ignored**, **52 end-to-end assertions**, retirement,
+format/build/all-target Clippy, **185 native desktop tests / 0 failed / 0 ignored**,
+test-support and shipping native Clippy, and the shipping native desktop build.
+Unchanged native workflow/CLI qualification remains in the preceding slice's
+evidence. Two ignored private crash
+entry points remain exercised by subprocess matrices; the third case-sensitive
+regression was explicitly qualified in the prior unchanged adapter slice.
+Fresh shipping headless startup/restart passed twice with exact synthetic vault
+bytes and zero credential files. The prior synthetic prepare/Create/Approve/rebuild
+scenario is retained. No providers, downloads or actual ONNX inference were used.
+The [native manual scenario](../crates/brn-desktop/README.md) is reproducible;
+unlocked GUI/owner acceptance remains pending.
+
+Native link preparation controls, basic review findings and
 multilingual implementation/qualification remain Stage 5 work. The bounded
 multilingual asset-download permission question is still pending; unrelated safe
 implementation continues. Stage 5 is not complete.
@@ -121,10 +130,13 @@ items do not block later safe implementation. The completed provider round leave
 Copilot GPT-5.5 Chat unsupported, Codex vision accuracy and native citations
 unqualified. Upstream `block v0.1.6` retains a future-compiler warning.
 
-No published CI run exists for the inspected local Stage 4 commits. The latest
-inspected [published main CI](https://github.com/ewq100/brn-rust/actions/runs/37137393000)
-at another commit (`609d859`) failed on Windows and optional Linux paths; it does
-not qualify this tree. Release/public distribution, additional live calls/model
+Milestone publication is now authorized. [Stage 1 PR #16](https://github.com/ewq100/brn-rust/pull/16)
+merged as `3665651a7968d82f5f2724e47ecced462394fc31` after exact head `8b17a3f`
+passed macOS Core/UI/Retrieval and Ubuntu shared Core. Windows failed on existing
+Unix-only APIs; the overall run is red, not an all-platform pass. Post-merge tree
+equality and fresh **47 fixture assertions + 5 editor process tests** passed.
+Stage 2 publication is next; later locally integrated stages and this Stage 5 tree
+have not yet received their checkpoint CI qualification. Release/public distribution, additional live calls/model
 downloads, purchases and original/private-data inspection or migration still need
 applicable owner permission. No original data was migrated or inspected.
 

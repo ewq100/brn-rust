@@ -26,6 +26,8 @@ use std::{
     time::{Duration, Instant},
 };
 use uuid::Uuid;
+#[path = "relationship_state.rs"]
+mod relationship_state;
 
 pub struct ActiveTurn {
     pub request: AskRequest,
@@ -137,6 +139,17 @@ pub enum Pending {
         document_generation: u64,
         inspection_generation: u64,
     },
+    Links {
+        path: String,
+        document_generation: u64,
+        inspection_generation: u64,
+    },
+    Relationships {
+        scope: KnowledgeScope,
+        offset: usize,
+        limit: usize,
+        generation: u64,
+    },
     Editor {
         generation: u64,
         preserve: bool,
@@ -218,6 +231,12 @@ pub struct AiState {
     pub provenance: Option<NoteProvenance>,
     pub provenance_error: Option<String>,
     provenance_generation: u64,
+    pub links: Option<brn_workflow::knowledge::NoteLinks>,
+    pub links_error: Option<String>,
+    links_generation: u64,
+    pub relationships: Option<brn_workflow::knowledge::RelationshipPage>,
+    pub relationships_error: Option<String>,
+    relationships_generation: u64,
     pub editor: Option<SimpleEditor>,
     pub editors: Vec<EditorRecord>,
     pub search: Option<SearchResults>,
@@ -950,6 +969,8 @@ impl AiState {
         proposals: &[Uuid],
         generation: u64,
     ) -> Vec<(Uuid, AppCommand)> {
+        self.clear_links();
+        self.clear_relationships();
         let mut commands = vec![self.command(Pending::Proposals, AppCommand::Proposals(None))];
         if generation == self.review_generation
             && self
@@ -1169,6 +1190,7 @@ impl AiState {
             return None;
         }
         self.knowledge_scope = scope;
+        self.clear_relationships();
         self.composer_changed();
         self.refresh_notes()
     }
@@ -1229,6 +1251,7 @@ impl AiState {
     }
     pub fn open_evidence(&mut self, path: String, scope: KnowledgeScope) -> (Uuid, AppCommand) {
         self.clear_provenance();
+        self.clear_links();
         self.note_generation = self.note_generation.wrapping_add(1);
         self.editor = None;
         self.note_error = None;
@@ -1301,6 +1324,7 @@ impl AiState {
     }
     pub fn open_editor(&mut self, path: String) -> (Uuid, AppCommand) {
         self.clear_provenance();
+        self.clear_links();
         self.note_generation = self.note_generation.wrapping_add(1);
         self.editor = None;
         self.evidence = None;
@@ -2015,6 +2039,7 @@ impl AiState {
                 commands.push(self.command(Pending::Refresh, AppCommand::Refresh));
             }
             AppEvent::Refreshed(report) => {
+                self.clear_relationships();
                 self.refresh = Some(report);
                 if let Some(command) = self.refresh_notes() {
                     commands.push(command);
@@ -2168,14 +2193,14 @@ impl AiState {
             | AppEvent::NoteIdentityResolved(_)
             | AppEvent::EvidenceNote(_)
             | AppEvent::NoteIdentityDraft(_)
-            | AppEvent::NoteLinks(_)
             | AppEvent::NoteLinkDraft(_)
-            | AppEvent::Relationships(_)
             | AppEvent::CitationCaptured(_)
             | AppEvent::NoteProvenanceDraft(_)
             | AppEvent::ProposalApplied(_)
             | AppEvent::ProposalGroupApplied(_)
             | AppEvent::ProposalApplies(_) => {}
+            AppEvent::NoteLinks(links) => self.received_links(pending.as_ref(), *links),
+            AppEvent::Relationships(page) => self.received_relationships(pending.as_ref(), *page),
             AppEvent::NoteProvenance(provenance) => {
                 if let Some(Pending::Provenance {
                     path,
@@ -2218,6 +2243,8 @@ impl AiState {
                         && self.saved_document_path() == Some(record.path.as_str())
                     {
                         self.clear_provenance();
+                        self.clear_links();
+                        self.clear_relationships();
                     }
                     if let Some(editor) = &mut self.editor {
                         if matches!(pending, Some(Pending::EditorReload)) {
@@ -2244,6 +2271,12 @@ impl AiState {
                         && self.saved_document_path() == Some(receipt.path.as_str())
                     {
                         self.clear_provenance();
+                    }
+                    if receipt.outcome == SaveOutcome::Applied {
+                        // A copy can introduce duplicate UUIDs or satisfy a
+                        // formerly absent target even with the original intact.
+                        self.clear_links();
+                        self.clear_relationships();
                     }
                     if let Some(editor) = &mut self.editor {
                         if matches!(pending, Some(Pending::EditorReconcile)) {
@@ -2354,6 +2387,18 @@ impl AiState {
                         *document_generation,
                         *inspection_generation,
                     ),
+                    Some(Pending::Links {
+                        path,
+                        document_generation,
+                        inspection_generation,
+                    }) => !self.links_request_matches(
+                        path,
+                        *document_generation,
+                        *inspection_generation,
+                    ),
+                    Some(Pending::Relationships {
+                        scope, generation, ..
+                    }) => !self.relationship_request_matches(*scope, *generation),
                     _ => false,
                 };
                 if stale_read {
@@ -2365,6 +2410,12 @@ impl AiState {
                 }
                 if matches!(pending, Some(Pending::Provenance { .. })) {
                     self.provenance_error = Some(error.message.clone());
+                }
+                if matches!(pending, Some(Pending::Links { .. })) {
+                    self.links_error = Some(error.message.clone());
+                }
+                if matches!(pending, Some(Pending::Relationships { .. })) {
+                    self.relationships_error = Some(error.message.clone());
                 }
                 if matches!(pending, Some(Pending::Activity { generation, .. }) if generation == self.activity_generation)
                 {
@@ -2532,6 +2583,9 @@ mod tests {
     }
     mod provenance_state {
         include!("provenance_state_tests.rs");
+    }
+    mod relationship_state {
+        include!("relationship_state_tests.rs");
     }
     mod session_timestamps {
         include!("session_timestamp_tests.rs");

@@ -830,3 +830,98 @@ passed. This slice is implemented, automated verified, independently reviewed an
 locally integrated with this change; native controls and owner acceptance remain
 pending. Continue to bounded native relationship inspection before native
 preparation, basic findings and multilingual work. No package versions changed.
+
+
+## Eleventh slice: native saved-link and relationship inspection
+
+Baseline: `main@21f4fb777b18b985fb42765525b46a5aea89d6de`; only the owner
+AGENTS.md change remains. Exact-commit hosted CI query returned no published runs.
+Use existing NoteLinks and Relationships commands; no new workflow/storage API.
+
+Expose a bounded relationship page in the Vault browser using the existing
+current/source/history/all selection. Show explicit links separately from inferred
+provenance candidates, endpoint UUID/path/hash proofs, exact evidence and inspection
+issues/duplicates. Previous/Next/Refresh replace each page: each request is a fresh
+observation, not a cross-page snapshot. Correlate operation UUID, scope, requested
+offset/limit and generation. Closing or changing scope invalidates late success
+and error replies; show pending/refused/empty outcomes without blocking UI.
+
+Add per-document Saved links inspection for current/source/history evidence.
+Retain source identity/hash and uncertainty, target outcomes/observed matches, and
+exact occurrence/used-definition quotes with read-only selectable text and exact
+Copy. Only one selected link/edge proof needs a persistent editor widget; bound
+browser rendering instead of building thousands of proof editors. Saved inspection
+leaves unsaved typing intact and is invalidated on original Save, Reload, navigation
+or panel close. All operations go through the existing application lane and respect
+uncertain-work fences. Inspection neither admits proposals nor writes Markdown.
+
+The native preparation adapter is the following slice: it must preserve complete
+DraftRequest source bindings rather than reconstruct only the consumer source.
+Graph canvas/navigation remains its later roadmap outcome. This inspection slice
+uses existing guarded note browsing; it does not add an unqualified endpoint-open
+shortcut.
+
+Acceptance: state correlation/stale replies/closed panes, scope and checked page
+bounds, exact multiline/Unicode quotes and Copy, source/history read-only behavior,
+retained unsaved buffers, Save/Reload invalidation, pending/empty/refused/ambiguous
+outcomes, and real AppWorker observations with unchanged vault/proposals/credentials.
+Add meaningful state/native widget tests, obtain independent read-only review,
+validate findings, run fresh integrated/native checks and document a reproducible
+synthetic manual scenario. Actual unlocked GUI and owner acceptance remain separate.
+
+Independent review identified two concrete defects. A real AppWorker Save Copy
+probe preserved original/copy bytes while changing source identity Unique to
+Ambiguous; the prior DTO remained displayed. Two behavioral RED failures were
+fixed by invalidating Links as well as Relationships after any Applied Save.
+Fresh focused state verification passed **10 tests / 0 failed / 0 ignored**, with
+unchanged live typing. Full Desktop/Root rendering at the supported 480×480
+minimum also reproduced offscreen Links controls with independent Sources open;
+both saved-note and read-only evidence regressions failed before the bounded
+layout correction. Both valid findings were corrected and re-reviewed below.
+
+The owner now authorizes task-owned milestone branches, PRs and automatic merges
+after independent review/local verification and applicable exact-head macOS/shared
+CI, with GitHub requirements satisfied. Publish completed stages in order while
+Stage 5 continues. [Stage 1 checkpoint PR](https://github.com/ewq100/brn-rust/pull/16)
+preserves `6609442`, incorporates hosted CI and now uses head
+`8b17a3f4af9a7bfd56d0d62ac2dd4631fb950bf8`.
+Fresh isolated local qualification passed **728 tests / 0 failed / 1 ignored**,
+**47 end-to-end assertions**, retirement/format/build/all-target Clippy. Its exact
+initial head passed three macOS lanes but Ubuntu Clippy caught a macOS-only test
+helper without its matching guard. Corrected head `8b17a3f` passed macOS
+Core/UI/Retrieval and Ubuntu shared Core in run `37181606332`; Windows failed on
+existing Unix-only APIs, so the overall run is red. PR #16 merged as
+`3665651a7968d82f5f2724e47ecced462394fc31`. The merged tree equals its qualified
+head, and fresh **47 fixtures + 5 editor process tests** passed. Stage 5 has no
+checkpoint CI qualification yet. The Stage 1
+plan/PR retain acceptance, next-stage and Mac mini environment requirements.
+
+Final independent review of the corrected inspection diff found no remaining
+actionable defects. Fresh locked/offline **10 state + 7 new native widget + 5
+existing Sources widget tests passed / 0 failed / 0 ignored**. Actual full
+480×480 views now reach independent Sources/Links controls and preserve both
+exact quotes; inner-pane wheel events do not move the outer document scroller.
+Fresh root final `TMPDIR=<owned canonical synthetic parent>
+BRN_NATIVE_MODEL_DIR='' bash scripts/verify-end-to-end.sh` passed retirement,
+format/build/all-target Clippy, **894 workspace tests / 0 failed / 3 ignored** and
+**52 end-to-end assertions**. Two pre-existing ignored crash entry points remain
+exercised by subprocess matrices; the third case-sensitive regression was
+explicitly qualified in the prior unchanged adapter slice. Native desktop
+`native-ui,native-retrieval,native-test-support` passed **185 tests / 0 failed /
+0 ignored**. Test-support/shipping all-target Clippy with warnings denied and
+shipping `native-ui,native-retrieval` build passed. Upstream block 0.1.6 retains its
+known future-compiler notice. Fresh shipping AppWorker startup/restart passed
+twice on synthetic managed current/archive source notes, with exact vault bytes
+and zero credential files. No provider calls, assets or actual ONNX inference.
+
+[Native acceptance scenario](../../../../crates/brn-desktop/README.md) exercises
+Links, exact Copy, unsaved typing, Current/All, archived read-only evidence and
+minimum-height independent panes. Actual unlocked GUI/owner acceptance remains
+pending. This slice is implemented, automated verified, independently reviewed
+and locally integrated by the commit containing this record; checkpoint
+publication follows the completed stages. Next: native stable-link preparation
+preserving the complete DraftRequest source bindings, then basic findings and
+multilingual implementation/qualification. Mac mini requirements remain pinned
+Rust 1.98.1, macOS Apple Silicon/Command Line Tools, cached locked dependencies,
+protobuf, Bash/Python 3, fresh canonical synthetic directories and an unlocked
+session for native acceptance. Existing credentials/data are not transfer inputs.
