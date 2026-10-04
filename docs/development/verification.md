@@ -84,7 +84,9 @@ After a successful default build, tests, CLI help and fixtures can still run if
 an earlier independent check fails; the failed check keeps the job red.
 
 Native UI and native retrieval have separate jobs. PRs run both on macOS;
-main and manual runs probe both on all three systems. The native UI job starts
+main and manual runs probe both on all three systems. The native UI job also
+lints and tests actual macOS widgets with `native-test-support`; shipping builds
+remain separately qualified without that feature. The same job starts
 and shuts down the real AppWorker twice against one fresh data directory, checking
 that `brn.sqlite` exists and the retired `brn.sqlite3` does not. Each lane installs the
 pinned toolchain, fetches locked dependencies before offline Cargo checks, and
