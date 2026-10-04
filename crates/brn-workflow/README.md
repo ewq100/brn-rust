@@ -83,14 +83,36 @@ matches `"workshop"`. These APIs never write vault files.
 [Actions](src/actions.rs) expose checked operational records through `App::action`
 and `App::actions`, and correlated `Action`/`Actions` worker commands/events. Reads
 return the full immutable approved origin and exact current replacement baseline.
-No vault, model or provider is required. Pending or uncertain Save/proposal work
+No vault, model or provider is required. Pending or uncertain Save/proposal/completion work
 fences these current reads until reconciliation. Nil IDs, limits outside 1–200 and
 invalid cursors are rejected before authority reads; absent IDs return NotFound.
 Pages default to all states/25 entries, with optional state filtering and an
 exclusive immutable creation-time/UUID cursor. Editing an Action does not reorder
-it. Exact Action creation/replacement uses the proposal lifecycle below. Identified
-direct completion and dashboard controls follow later; owned Action Rewrite and
-Action-bearing Undo remain refused.
+it. Exact Action creation/replacement uses the proposal lifecycle below. Dashboard
+controls follow later; owned Action Rewrite and Action-bearing Undo remain refused.
+
+[Identified completion](src/action_completion.rs) exposes `App::complete_action`
+and `CompleteAction`/`ActionCompleted` through AppWorker. The explicit user request
+binds one nonnil operation UUID and the whole displayed unfinished Action record.
+Full CAS refuses a changed baseline. Completion preserves content and immutable
+approved origin, advances one revision, clears Waiting and records monotonic
+completion time. It never infers that a message was sent or real work performed.
+Completed work stays completed; new related follow-up work uses a new approved
+Action with `follows_up`. There is no AI Complete tool or direct client storage path.
+
+The narrow WorkStore transaction holds write exclusion while workflow publishes
+one checked immutable ordinary completion receipt in the existing recovery folder.
+Only then does SQLite settle the record and receipt atomically. Publication after
+the rename boundary or failed settlement after publication returns uncertainty,
+fencing current application reads and already-held AI tools. Exact retry or startup
+re-syncs checked evidence and reconstructs completion, preserving newer Completed
+work and refusing incompatible origins/forks. Startup imports approved snapshots
+first, then completions before credentials/model loading and AppWorker Ready.
+Terminal replay precedes fresh eligibility and never refreshes time or republishes.
+Admitted Complete drains during shutdown; its outer command ID must equal the
+typed operation UUID. Fresh publication currently requires macOS; other platforms
+refuse before effects. [CLI acceptance](../brn/README.md#manual-action-acceptance)
+exercises full request/retry through this boundary.
 
 Shared reference validation uses explicit managed note UUIDs for person/project,
 source and thread labels. Newly added references need captured source proof or

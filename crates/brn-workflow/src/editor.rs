@@ -78,7 +78,9 @@ impl App {
     }
 
     pub(crate) fn current_evidence_blocked(&self) -> Result<bool> {
-        Ok(self.proposals_have_unresolved()? || self.store.editor_saves()?.iter().any(unresolved))
+        Ok(self.completion_uncertain
+            || self.proposals_have_unresolved()?
+            || self.store.editor_saves()?.iter().any(unresolved))
     }
 
     pub(crate) fn require_current_evidence(&self) -> Result<()> {

@@ -1,4 +1,7 @@
 //! Ordinary approval recovery receipts. This helper never applies vault changes.
+mod completion;
+pub(crate) use completion::CompletionRecoverySnapshot;
+
 use super::{FileFailure, FileResult, note_unsupported};
 #[cfg(target_os = "macos")]
 use super::{FileOutcome, failure};

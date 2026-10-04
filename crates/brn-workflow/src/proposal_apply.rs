@@ -340,7 +340,7 @@ fn check_sources(files: &MacFiles, journal: &ApplyJournal, installed: usize) -> 
 }
 
 impl App {
-    fn application_records(&mut self) -> Result<&ApplyRecoveryFiles> {
+    pub(crate) fn application_records(&mut self) -> Result<&ApplyRecoveryFiles> {
         if self.apply_records.is_none() {
             self.apply_records =
                 Some(ApplyRecoveryFiles::open(self.store.data_dir()).map_err(file_error)?);

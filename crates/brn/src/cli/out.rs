@@ -54,7 +54,14 @@ pub(crate) fn finish_ok_to(
     output: Output,
     out: &mut impl Write,
 ) -> (ExitCode, Option<String>) {
-    let operation_id = output.data["operation_id"].as_str().map(str::to_string);
+    let operation_id = output.data["operation_id"]
+        .as_str()
+        .or_else(|| {
+            (command == "actions.complete")
+                .then(|| output.data["request"]["operation_id"].as_str())
+                .flatten()
+        })
+        .map(str::to_string);
     let payload = if json {
         format!("{}\n", envelope_ok(command, output.data))
     } else {
@@ -275,6 +282,22 @@ mod tests {
         assert!(diag.contains("OUTPUT_DELIVERY_ERROR"), "{diag}");
         assert!(diag.contains("completed"), "{diag}");
         assert!(diag.contains("op-9"), "{diag}");
+    }
+
+    #[test]
+    fn undelivered_action_completion_identifies_its_bound_operation_for_retry() {
+        let mut sink = Scripted::writes(vec![Err(dead())]);
+        let (code, diag) = finish_ok_to(
+            true,
+            "actions.complete",
+            output(serde_json::json!({"request": {"operation_id": "exact-complete-op"}})),
+            &mut sink,
+        );
+        assert_eq!(code, ExitCode::from(1));
+        let diag = diag.unwrap();
+        assert!(diag.contains("OUTPUT_DELIVERY_ERROR"));
+        assert!(diag.contains("completed"));
+        assert!(diag.contains("exact-complete-op"));
     }
 
     #[test]

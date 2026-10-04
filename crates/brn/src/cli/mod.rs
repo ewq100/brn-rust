@@ -142,6 +142,7 @@ Commands:
   brn findings show UUID
   brn findings inspect UUID
   brn findings close UUID --version N --state resolved|dismissed
+  brn actions complete --file REQUEST.json
   brn actions show UUID
   brn actions list [--state open|waiting|blocked|completed|all] [--limit N] [--before-created-at-ms N --before-id UUID]
   brn proposals create --file DRAFT.json

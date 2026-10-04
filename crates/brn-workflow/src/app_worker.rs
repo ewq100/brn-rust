@@ -71,6 +71,7 @@ pub enum AppCommand {
     CaptureFinding(crate::findings::CaptureFindingRequest),
     Actions(crate::actions::ActionListRequest),
     Action(Uuid),
+    CompleteAction(crate::action_completion::CompleteActionRequest),
     Findings(crate::findings::FindingListRequest),
     Finding(Uuid),
     CloseFinding(crate::findings::CloseFindingRequest),
@@ -172,6 +173,7 @@ pub enum AppEvent {
     Finding(Box<crate::findings::FindingRecord>),
     Action(Box<crate::actions::ActionRecord>),
     Actions(Box<crate::actions::ActionPage>),
+    ActionCompleted(Box<crate::action_completion::ActionCompletion>),
     Findings(Box<crate::findings::FindingPage>),
     FindingInspection(Box<crate::findings::FindingInspection>),
     CitationCaptured(Box<crate::knowledge::CitationCapture>),
@@ -323,6 +325,7 @@ impl AppWorker {
             || matches!(&command, AppCommand::StartProposalRewrite(request) if request.id != id)
             || matches!(&command, AppCommand::Account { id: operation, .. } if *operation != id)
             || matches!(&command, AppCommand::SaveEditor(request) if request.operation_id != id)
+            || matches!(&command, AppCommand::CompleteAction(request) if request.operation_id != id)
         {
             return Err(chat_worker::conflict());
         }
@@ -938,6 +941,9 @@ fn dispatch(
         }
         AppCommand::Actions(request) => AppEvent::Actions(Box::new(app.actions(&request)?)),
         AppCommand::Action(id) => AppEvent::Action(Box::new(app.action(id)?)),
+        AppCommand::CompleteAction(request) => {
+            AppEvent::ActionCompleted(Box::new(app.complete_action(&request)?))
+        }
         AppCommand::Findings(request) => AppEvent::Findings(Box::new(app.findings(&request)?)),
         AppCommand::Finding(id) => AppEvent::Finding(Box::new(app.finding(id)?)),
         AppCommand::CloseFinding(request) => {
@@ -1271,6 +1277,7 @@ fn critical_mutation_command(command: &AppCommand) -> bool {
         AppCommand::ReloadEditor(_)
             | AppCommand::RecoverEditor(_)
             | AppCommand::SaveEditor(_)
+            | AppCommand::CompleteAction(_)
             | AppCommand::ReconcileEditor(_)
             | AppCommand::RecoverEdit { .. }
             | AppCommand::CreateProposal(_)
@@ -1289,6 +1296,9 @@ fn critical_mutation_command(command: &AppCommand) -> bool {
             | AppCommand::ApproveProposalGroup(_)
     )
 }
+
+#[cfg(all(test, target_os = "macos"))]
+mod completion_tests;
 
 #[cfg(all(test, target_os = "macos"))]
 mod editor_shutdown_tests {

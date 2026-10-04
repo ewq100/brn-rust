@@ -424,3 +424,82 @@ fn mixed_full_action_references_apply_and_changed_source_refuses_without_partial
     );
     f.quiet();
 }
+
+#[test]
+fn direct_completion_and_identical_file_retry_return_exact_receipt_after_restart() {
+    let f = Fixture::new();
+    let id = Uuid::new_v4();
+    let proposal = Uuid::new_v4();
+    ok(f.write(
+        "create",
+        &draft(
+            proposal,
+            None,
+            json!([create(id, data("Exact direct completion λ"))]),
+        ),
+        false,
+    ));
+    ok(f.approve(proposal, 1, Uuid::new_v4()));
+    let before = f.show(id);
+    let operation = Uuid::new_v4();
+    let input = json!({"operation_id":operation,"before":before});
+    fs::write(&f.input, serde_json::to_vec(&input).unwrap()).unwrap();
+    fs::write(f.vault.join("untouched.md"), b"Exact synthetic vault\r\n").unwrap();
+    let approvals = ok(f.run(&["proposals", "applies"]));
+    let history = ok(f.run(&["activity", "list"]));
+    let args = ["actions", "complete", "--file", f.input.to_str().unwrap()];
+    let mut drift = input.clone();
+    drift["operation_id"] = json!(Uuid::new_v4());
+    drift["before"]["version"] = json!(before["version"].as_u64().unwrap() + 1);
+    drift["before"]["data"]["description"] = json!("valid full CAS drift");
+    fs::write(&f.input, serde_json::to_vec(&drift).unwrap()).unwrap();
+    refused(f.run(&args), "CONTEXT_STALE");
+    assert_eq!(f.show(id), before);
+    fs::write(&f.input, serde_json::to_vec(&input).unwrap()).unwrap();
+    let receipt = ok(f.run(&args));
+    assert_eq!(receipt["request"], input);
+    let after = f.show(id);
+    assert_eq!(receipt["after"], after);
+    assert_eq!(after["origin"], before["origin"]);
+    let mut expected_data = before["data"].clone();
+    expected_data["state"] = json!("completed");
+    assert_eq!(after["data"], expected_data);
+    assert_eq!(
+        after["version"].as_u64().unwrap(),
+        before["version"].as_u64().unwrap() + 1
+    );
+    assert!(after["waiting_since_ms"].is_null());
+    assert_eq!(after["completed_at_ms"], after["updated_at_ms"]);
+    assert_eq!(ok(f.run(&args)), receipt);
+    assert_eq!(f.show(id), after);
+    let mut changed = input.clone();
+    changed["before"]["version"] = json!(before["version"].as_u64().unwrap() + 1);
+    changed["before"]["data"]["description"] = json!("different before");
+    fs::write(&f.input, serde_json::to_vec(&changed).unwrap()).unwrap();
+    refused(f.run(&args), "OPERATION_CONFLICT");
+    let mut stale = input;
+    stale["operation_id"] = json!(Uuid::new_v4());
+    fs::write(&f.input, serde_json::to_vec(&stale).unwrap()).unwrap();
+    refused(f.run(&args), "OPERATION_CONFLICT");
+    assert_eq!(f.show(id), after);
+    assert_eq!(ok(f.run(&["proposals", "applies"])), approvals);
+    assert_eq!(ok(f.run(&["activity", "list"])), history);
+    assert_eq!(
+        fs::read(f.vault.join("untouched.md")).unwrap(),
+        b"Exact synthetic vault\r\n"
+    );
+    assert!(!f.data.join("index.sqlite").exists());
+    assert_eq!(
+        fs::read_dir(&f.data)
+            .unwrap()
+            .filter(|entry| entry
+                .as_ref()
+                .unwrap()
+                .file_name()
+                .to_string_lossy()
+                .starts_with(".brn-complete-"))
+            .count(),
+        1
+    );
+    f.quiet();
+}
