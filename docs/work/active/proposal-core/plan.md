@@ -332,3 +332,39 @@ volumes remain unqualified. Partial/mixed proof is safely fenced; bounded repair
 activity/Undo/Trash retention, AI Rewrite and native review are the next slices.
 This file-application slice is locally integrated under the mission authorization;
 Stage 4 remains active and is not declared complete.
+
+
+## Stage 4 checkpoint A — reviewed proposal application
+
+Publication baseline `151b3afde0c5b4fe286f55531d5a8f2420dc406e` preserves
+`89421f5`, `e84ef7a`, `e04fc52` and incorporates reviewed Stage 3 checkpoint
+`94de976`. Publish Stage 4 in coherent deliverables: A typed review/exact approval/
+whole-file application and recovery; B Activity/Undo/Trash/Repair; C owned Rewrite,
+explicit effort and native review/application/creation. Do not collapse all stages
+into one PR. Original independent reviews and manual scenarios above remain
+historical evidence, not fresh verification claims.
+
+Acceptance for this checkpoint: inherited exact bindings, comments/rejection,
+individual/captured-group approval, interruption/replay and shared evidence fences
+remain intact; preserve full Stage 3 scoped capability evidence and safe route
+refusal without further account calls. Review both merge parents, run fresh
+locked/offline integrated gates and applicable exact-head macOS/shared CI, then
+verify the qualified merged tree and relevant post-merge fixtures. Owner native
+usability/power-loss/other-volume acceptance remains pending. Next checkpoint B
+adds the already-reviewed Activity/Undo/Repair slices. Use fresh synthetic data
+outside Git, pinned Rust 1.98.1, Apple Silicon/Command Line Tools, cached locked
+dependencies, Bash/Python 3 and protobuf for native builds. Credentials and original
+data are not transfer inputs; no release/public distribution is authorized here.
+
+
+Checkpoint A's bounded independent integration review found no actionable defects.
+Original application/fence behavior and the inherited macOS-only adapter guards
+are both preserved; common unsupported signatures remain intact. Stage 3 AI/CI/
+scoped live evidence matches its qualified parent, and final main ancestry changed
+no tracked source tree. Fresh macOS arm64 / Rust 1.98.1 locked/offline integrated
+gates passed retirement, format/build/all-target Clippy, **498 tests / 0 failed /
+2 ignored**, and **52 end-to-end assertions**. Ignored private crash entry points
+are exercised by subprocess matrices. Unchanged AI capability-feature source
+retains Stage 3's exact qualification; no live calls or model assets were used.
+Checkpoint CI must qualify the exact latest PR head before merge. Native owner
+acceptance and packaging remain separate; Stage 4 is not complete at checkpoint A.
