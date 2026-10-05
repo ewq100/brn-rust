@@ -3460,7 +3460,7 @@ mod knowledge_proposal_tool_tests {
         json!({"id":"abc8e3e6-5419-4a09-a5f7-b7d9e98f8f29","title":"Whole knowledge õ\r\n",
             "path":"knowledge/derived.md","note_id":"5b344a65-e247-4b2c-9941-c4b52c405bdb",
             "text":"\u{feff}# Candidate 🦀\r\nWhole candidate.\r\n",
-            "quotes":[{"start_byte":0,"end_byte":12},{"start_byte":24,"end_byte":48}],
+            "quotes":[{"quote":"õ🦀\r\nExact saved wording"},{"quote":"Repeated wording","occurrence":2}],
             "source_paths":["knowledge/λ target.md","archive/history.md","approved/second-source.md"],
             "supersedes":"projects/current.md"})
     }
@@ -3472,7 +3472,7 @@ mod knowledge_proposal_tool_tests {
     struct Proposals {
         calls: AtomicUsize,
         enabled: bool,
-        refuse: bool,
+        refusal: Option<AiErrorKind>,
         expected: Value,
     }
     impl Proposals {
@@ -3480,7 +3480,7 @@ mod knowledge_proposal_tool_tests {
             Self {
                 calls: AtomicUsize::new(0),
                 enabled,
-                refuse,
+                refusal: refuse.then_some(AiErrorKind::ToolRejected),
                 expected: args(),
             }
         }
@@ -3506,8 +3506,8 @@ mod knowledge_proposal_tool_tests {
         fn propose_knowledge(&self, input: KnowledgeProposalArgs) -> AiResult<Value> {
             assert_eq!(serde_json::to_value(input).unwrap(), self.expected);
             self.calls.fetch_add(1, Ordering::SeqCst);
-            if self.refuse {
-                Err(AiError::new(AiErrorKind::ToolRejected))
+            if let Some(kind) = self.refusal {
+                Err(AiError::new(kind))
             } else {
                 Ok(receipt())
             }
@@ -3659,9 +3659,14 @@ mod knowledge_proposal_tool_tests {
                     "items":{"type":"string","minLength":1,"maxLength":512}
                 })
             );
-            closed(
-                &proposal["parameters"]["properties"]["quotes"]["items"],
-                &["start_byte", "end_byte"],
+            assert_eq!(
+                proposal["parameters"]["properties"]["quotes"]["items"],
+                json!({
+                    "type":"object","additionalProperties":false,"properties":{
+                        "quote":{"type":"string","minLength":1,"maxLength":16384},
+                        "occurrence":{"type":["integer","null"],"minimum":1,"maximum":1048576}
+                },"required":if provider == Provider::Copilot && responses { json!(["occurrence","quote"]) } else { json!(["quote"]) }
+                })
             );
             assert_eq!(
                 proposal["parameters"]["properties"]["supersedes"],
@@ -3735,6 +3740,122 @@ mod knowledge_proposal_tool_tests {
                 serde_json::from_str::<Value>(&outputs[0]).unwrap(),
                 receipt()
             );
+        }
+    }
+
+    #[tokio::test]
+    async fn quote_occurrence_defaults_and_domain_values_reach_workflow_on_all_rig_routes() {
+        for (provider, model, responses) in ROUTES {
+            for occurrence in [
+                None,
+                Some(Value::Null),
+                Some(json!(1)),
+                Some(json!(2)),
+                Some(json!(0)),
+                Some(json!(usize::MAX)),
+            ] {
+                let mut input = args();
+                if let Some(value) = &occurrence {
+                    input["quotes"][0]["occurrence"] = value.clone();
+                }
+                let mut backend = Proposals::new(true, false);
+                backend.expected = input.clone();
+                if occurrence.as_ref().is_some_and(Value::is_null) {
+                    backend.expected["quotes"][0]
+                        .as_object_mut()
+                        .unwrap()
+                        .remove("occurrence");
+                }
+                let tools = Arc::new(backend);
+                let (_root, client, http) = client(
+                    provider,
+                    model,
+                    vec![
+                        success(tool_sse(responses, &[("propose_knowledge", input)])),
+                        success(text_sse(responses, "Workflow received exact quotation")),
+                    ],
+                )
+                .await;
+                let result = answer_with_proposals(
+                    client,
+                    "Selected source",
+                    &[],
+                    ReasoningEffort::High,
+                    tools.clone(),
+                    tools.clone(),
+                    CancellationToken::new(),
+                    Arc::new(|_| {}),
+                )
+                .await;
+                assert!(matches!(result.terminal, AiTerminal::Completed));
+                assert_eq!(tools.calls.load(Ordering::SeqCst), 1);
+                assert_eq!(
+                    serde_json::from_str::<Value>(&replies(&http.bodies()[1], responses)[0])
+                        .unwrap(),
+                    receipt()
+                );
+                http.assert_consumed();
+            }
+        }
+    }
+
+    #[tokio::test]
+    async fn typed_quote_refusals_continue_without_exposing_diagnostics_on_all_rig_routes() {
+        for (provider, model, responses) in ROUTES {
+            for kind in [
+                AiErrorKind::QuoteNotFound,
+                AiErrorKind::QuoteAmbiguous,
+                AiErrorKind::QuoteOccurrenceInvalid,
+            ] {
+                let mut backend = Proposals::new(true, false);
+                backend.refusal = Some(kind);
+                let mut input = args();
+                input["quotes"][0]["quote"] = json!("SYNTHETIC_PRIVATE_QUOTE_õ🦀\r\n");
+                input["source_paths"] = json!(["SYNTHETIC_SOURCE_PATH.md"]);
+                backend.expected = input.clone();
+                let tools = Arc::new(backend);
+                let (_root, client, http) = client(
+                    provider,
+                    model,
+                    vec![
+                        success(tool_sse(responses, &[("propose_knowledge", input)])),
+                        success(text_sse(responses, "Quotation refused")),
+                    ],
+                )
+                .await;
+                let result = answer_with_proposals(
+                    client,
+                    "Selected source",
+                    &[],
+                    ReasoningEffort::High,
+                    tools.clone(),
+                    tools.clone(),
+                    CancellationToken::new(),
+                    Arc::new(|_| {}),
+                )
+                .await;
+                assert!(matches!(result.terminal, AiTerminal::Completed));
+                assert_eq!(tools.calls.load(Ordering::SeqCst), 1);
+                let output = replies(&http.bodies()[1], responses);
+                assert_eq!(output.len(), 1);
+                assert_eq!(
+                    serde_json::from_str::<Value>(&output[0]).unwrap(),
+                    json!({
+                        "error":{"kind":kind,"message":AiError::new(kind).to_string()}
+                    })
+                );
+                for forbidden in [
+                    "SYNTHETIC_PRIVATE_QUOTE",
+                    "SYNTHETIC_SOURCE_PATH",
+                    "retry_after_seconds",
+                    "access_token",
+                    "chatgpt",
+                    "copilot",
+                ] {
+                    assert!(!output[0].contains(forbidden));
+                }
+                http.assert_consumed();
+            }
         }
     }
 
@@ -3888,7 +4009,8 @@ mod knowledge_proposal_tool_tests {
             for rejection in [
                 "unknown",
                 "missing",
-                "range",
+                "quote_bytes",
+                "legacy_offsets",
                 "paths_count",
                 "empty_path",
                 "path_bytes",
@@ -3902,7 +4024,8 @@ mod knowledge_proposal_tool_tests {
                     "missing" => {
                         input.as_object_mut().unwrap().remove("quotes");
                     }
-                    "range" => input["quotes"][0]["end_byte"] = json!(16 * 1024 + 1),
+                    "quote_bytes" => input["quotes"][0]["quote"] = json!("x".repeat(16 * 1024 + 1)),
+                    "legacy_offsets" => input["quotes"][0]["start_byte"] = json!(0),
                     "paths_count" => input["source_paths"] = json!(vec!["explicit.md"; 64]),
                     "empty_path" => input["source_paths"] = json!([""]),
                     "path_bytes" => input["source_paths"] = json!(["x".repeat(513)]),
@@ -3954,7 +4077,7 @@ mod knowledge_proposal_tool_tests {
                 let outputs = replies(&http.bodies()[1], responses);
                 assert_eq!(outputs.len(), 1);
                 // Rig parse errors are transient; application refusals use its safe fixed result.
-                if !["unknown", "missing"].contains(&rejection) {
+                if !["unknown", "missing", "legacy_offsets"].contains(&rejection) {
                     assert_eq!(outputs[0], "the tool failed");
                 }
                 assert!(!outputs[0].contains("state"));
@@ -3974,11 +4097,10 @@ mod conflict_tool_tests {
     fn conflict_args() -> Value {
         let source = "\u{feff}Friday õ\r\n";
         let other = "Monday 🦀\r\n";
-        json!({"id":"abc8e3e6-5419-4a09-a5f7-b7d9e98f8f29",
-            "title":"Unresolved date õ\r\n","summary":"The saved dates disagree.",
-            "source_quote":{"start_byte":7,"end_byte":7+source.len(),"quote":source},
+        json!({"title":"Unresolved date õ\r\n","summary":"The saved dates disagree.",
+            "source_quote":{"quote":source},
             "other_path":"knowledge/õ date.md",
-            "other_quote":{"start_byte":3,"end_byte":3+other.len(),"quote":other}})
+            "other_quote":{"quote":other,"occurrence":2}})
     }
     fn receipt() -> Value {
         json!({"id":"abc8e3e6-5419-4a09-a5f7-b7d9e98f8f29","state":"open",
@@ -4044,6 +4166,7 @@ mod conflict_tool_tests {
         conflict_calls: AtomicUsize,
         reads: Mutex<Vec<ConflictRead>>,
         reply: AiResult<Value>,
+        expected: Value,
     }
     impl Backend {
         fn new(enabled: bool, reply: AiResult<Value>) -> Self {
@@ -4052,6 +4175,7 @@ mod conflict_tool_tests {
                 conflict_calls: AtomicUsize::new(0),
                 reads: Mutex::new(vec![]),
                 reply,
+                expected: conflict_args(),
             }
         }
     }
@@ -4087,7 +4211,7 @@ mod conflict_tool_tests {
             self.enabled
         }
         fn report_conflict(&self, args: ConflictArgs) -> AiResult<Value> {
-            assert_eq!(serde_json::to_value(args).unwrap(), conflict_args());
+            assert_eq!(serde_json::to_value(args).unwrap(), self.expected);
             self.conflict_calls.fetch_add(1, Ordering::SeqCst);
             self.reply.clone()
         }
@@ -4143,7 +4267,6 @@ mod conflict_tool_tests {
             );
             let tool = definition(&bodies[0], responses, "report_conflict").unwrap();
             let fields = [
-                "id",
                 "title",
                 "summary",
                 "source_quote",
@@ -4157,9 +4280,20 @@ mod conflict_tool_tests {
             );
             for side in ["source_quote", "other_quote"] {
                 let quote = &tool["parameters"]["properties"][side];
-                closed(quote, &["start_byte", "end_byte", "quote"]);
-                assert_eq!(quote["required"].as_array().unwrap().len(), 3);
-                assert_eq!(quote["properties"]["end_byte"]["maximum"], 1024 * 1024);
+                closed(quote, &["quote", "occurrence"]);
+                assert_eq!(
+                    quote["required"],
+                    if provider == Provider::Copilot && responses {
+                        json!(["occurrence", "quote"])
+                    } else {
+                        json!(["quote"])
+                    },
+                    "quote schema on {provider:?}/{model}/{responses}"
+                );
+                assert_eq!(
+                    quote["properties"]["occurrence"],
+                    json!({"type":["integer","null"],"minimum":1,"maximum":1048576})
+                );
                 assert_eq!(quote["properties"]["quote"]["maxLength"], 16 * 1024);
             }
             let prompt = preamble(&bodies[0], provider, responses);
@@ -4259,7 +4393,6 @@ mod conflict_tool_tests {
     async fn malformed_report_fields_and_byte_bounds_never_invoke_underlying_callback() {
         let mut invalid = vec![];
         for field in [
-            "id",
             "title",
             "summary",
             "source_quote",
@@ -4271,8 +4404,7 @@ mod conflict_tool_tests {
             invalid.push(value);
         }
         for (field, value) in [
-            ("id", json!("")),
-            ("id", json!("x".repeat(65))),
+            ("id", json!("abc8e3e6-5419-4a09-a5f7-b7d9e98f8f29")),
             ("title", json!(" \r\n\t")),
             ("title", json!("õ".repeat(257))),
             ("summary", json!(" \r\n")),
@@ -4286,30 +4418,23 @@ mod conflict_tool_tests {
             invalid.push(args);
         }
         for side in ["source_quote", "other_quote"] {
-            for field in ["start_byte", "end_byte", "quote"] {
-                let mut args = conflict_args();
-                args[side].as_object_mut().unwrap().remove(field);
-                invalid.push(args);
-            }
+            let mut args = conflict_args();
+            args[side].as_object_mut().unwrap().remove("quote");
+            invalid.push(args);
             for (field, value) in [
-                ("start_byte", json!(-1)),
-                ("start_byte", json!(1.5)),
-                ("start_byte", json!(usize::MAX)),
-                ("end_byte", json!(0)),
-                ("end_byte", json!(1024 * 1024 + 1)),
-                ("end_byte", json!(usize::MAX)),
+                ("occurrence", json!(-1)),
+                ("occurrence", json!(1.5)),
+                ("occurrence", json!("1")),
+                ("start_byte", json!(0)),
+                ("end_byte", json!(1)),
                 ("quote", json!("")),
                 ("quote", json!("õ".repeat(8193))),
-                ("quote", json!("wrong byte length")),
                 ("unknown", json!("SYNTHETIC_SECRET")),
             ] {
                 let mut args = conflict_args();
                 args[side][field] = value;
                 invalid.push(args);
             }
-            let mut args = conflict_args();
-            args[side]["start_byte"] = args[side]["end_byte"].clone();
-            invalid.push(args);
         }
         for (provider, model, responses) in ROUTES {
             for args in &invalid {
@@ -4542,6 +4667,12 @@ mod conflict_tool_tests {
                     ),
                     (Err(AiError::new(AiErrorKind::IndexStale)), false),
                     (Err(AiError::new(AiErrorKind::Storage)), false),
+                    (Err(AiError::new(AiErrorKind::QuoteNotFound)), false),
+                    (Err(AiError::new(AiErrorKind::QuoteAmbiguous)), false),
+                    (
+                        Err(AiError::new(AiErrorKind::QuoteOccurrenceInvalid)),
+                        false,
+                    ),
                 ] {
                     let args = if name == "report_conflict" {
                         conflict_args()
@@ -4572,6 +4703,32 @@ mod conflict_tool_tests {
                             serde_json::from_str::<Value>(&outputs[0]).unwrap(),
                             reply.unwrap()
                         );
+                    } else if name == "report_conflict"
+                        && let Err(error) = reply
+                        && matches!(
+                            error.kind,
+                            AiErrorKind::QuoteNotFound
+                                | AiErrorKind::QuoteAmbiguous
+                                | AiErrorKind::QuoteOccurrenceInvalid
+                        )
+                    {
+                        assert_eq!(
+                            serde_json::from_str::<Value>(&outputs[0]).unwrap(),
+                            json!({
+                                "error":{"kind":error.kind,"message":error.to_string()}
+                            })
+                        );
+                        for forbidden in [
+                            "Friday",
+                            "Monday",
+                            "other_path",
+                            "retry_after_seconds",
+                            "access_token",
+                            "chatgpt",
+                            "copilot",
+                        ] {
+                            assert!(!outputs[0].contains(forbidden));
+                        }
                     } else {
                         assert_eq!(outputs[0], "the tool failed");
                     }
@@ -4718,27 +4875,71 @@ mod conflict_tool_tests {
     }
 
     #[test]
-    fn maximum_escaped_report_and_non_domain_ids_remain_complete_within_the_defensive_input_cap() {
+    fn maximum_escaped_report_and_occurrence_domain_rules_remain_within_the_defensive_input_cap() {
         let mut input: ConflictArgs = serde_json::from_value(conflict_args()).unwrap();
-        input.id = "\u{1}".repeat(64);
         input.title = "\u{1}".repeat(512);
         input.summary = "\u{1}".repeat(16 * 1024);
         input.other_path = "\u{1}".repeat(512);
         for quote in [&mut input.source_quote, &mut input.other_quote] {
-            quote.start_byte = 1024 * 1024 - 16 * 1024;
-            quote.end_byte = 1024 * 1024;
+            quote.occurrence = Some(1024 * 1024);
             quote.quote = "\u{1}".repeat(16 * 1024);
         }
         let encoded = serde_json::to_vec(&input).unwrap();
         assert!(encoded.len() > 300_000);
         assert!(encoded.len() < CONFLICT_REPORT_BYTES);
         assert!(input.validate().is_ok());
-        // These are protocol limits; only Workflow can reject invalid UUIDs/paths and body offsets.
+        // These are protocol limits; only Workflow resolves paths and body occurrences.
         let mut input: ConflictArgs = serde_json::from_value(conflict_args()).unwrap();
-        input.id = "Workflow checks UUID".into();
         input.other_path = "Workflow checks saved path".into();
-        input.source_quote.start_byte = 1;
-        input.source_quote.end_byte = 1 + input.source_quote.quote.len();
-        assert!(input.validate().is_ok());
+        for occurrence in [0, usize::MAX] {
+            input.source_quote.occurrence = Some(occurrence);
+            assert!(input.validate().is_ok());
+        }
+    }
+
+    #[tokio::test]
+    async fn conflict_occurrence_defaults_and_domain_values_reach_workflow_on_all_rig_routes() {
+        for (provider, model, responses) in ROUTES {
+            for occurrence in [
+                None,
+                Some(Value::Null),
+                Some(json!(1)),
+                Some(json!(2)),
+                Some(json!(0)),
+                Some(json!(usize::MAX)),
+            ] {
+                let mut input = conflict_args();
+                if let Some(value) = &occurrence {
+                    input["source_quote"]["occurrence"] = value.clone();
+                }
+                let mut backend = Backend::new(true, Ok(receipt()));
+                backend.expected = input.clone();
+                if occurrence.as_ref().is_some_and(Value::is_null) {
+                    backend.expected["source_quote"]
+                        .as_object_mut()
+                        .unwrap()
+                        .remove("occurrence");
+                }
+                let tools = Arc::new(backend);
+                let (_root, client, http) = client(
+                    provider,
+                    model,
+                    vec![
+                        success(tool_sse(responses, &[("report_conflict", input)])),
+                        success(text_sse(responses, "Workflow assigned the finding")),
+                    ],
+                )
+                .await;
+                let (result, _) = inbox(client, tools.clone()).await;
+                assert!(matches!(result.terminal, AiTerminal::Completed));
+                assert_eq!(tools.conflict_calls.load(Ordering::SeqCst), 1);
+                assert_eq!(
+                    serde_json::from_str::<Value>(&replies(&http.bodies()[1], responses)[0])
+                        .unwrap(),
+                    receipt()
+                );
+                http.assert_consumed();
+            }
+        }
     }
 }

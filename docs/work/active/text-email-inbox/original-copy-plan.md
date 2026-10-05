@@ -1,5 +1,24 @@
 # Qualified original-copy removal
 
+## Owner steering after independent review
+
+2026-10-05: the owner ratified approved Source exact preservation plus explicit
+confirmation as text original-copy cleanup admission. Failed analyses, pending
+consequence drafts and later derived-note edits do not block cleanup. Inbox
+processed/dismissed state remains separate. Older semantic attestations and
+consequence qualification below are historical implementation evidence, not the
+current product rule. No automatic removal or permanent purge is authorized.
+
+The immutable lifecycle review snapshot is `7c4f668de467721f728f242c8fac8d14606a6e44`;
+its merge, native removal controls and Stage8 originals are held for the
+[accepted review corrections](../architecture-review-corrections/plan.md).
+Additive WorkStore tables are local implementation details within the frozen
+architecture; retaining V14/no new table is not a requirement. Preserve existing
+recovery proofs while correcting the cost/record shape. New semantic behavior
+follows the [typed authority boundary](../../../architecture/overview.md#semantic-intelligence-and-deterministic-authority).
+
+## Earlier implementation and verification record
+
 Product baseline: PR55 merge `c5aaa6c4c96007e452151adb167964bf9e2b048a`, reviewed tree
 `1477a02aed55a8932b23d41ec89540b37948e87c`, branch
 `codex/v1-stage7-original-copy`. Full V1 goal remains confirmed active, without a

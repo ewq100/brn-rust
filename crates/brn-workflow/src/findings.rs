@@ -192,6 +192,9 @@ impl App {
             summary,
             evidence,
         };
+        self.retain_finding(draft)
+    }
+    pub(super) fn retain_finding(&mut self, draft: FindingDraft) -> Result<FindingRecord> {
         draft
             .validate()
             .map_err(|error| rejected(error.to_string()))?;

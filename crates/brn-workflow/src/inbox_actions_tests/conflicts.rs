@@ -7,17 +7,14 @@ use crate::findings::{
 use crate::library::KnowledgeScope;
 use brn_ai::{ConflictArgs, ConflictQuote};
 
-fn quote(saved: &ProposalSource, wording: &str) -> ConflictQuote {
-    let start_byte = saved.text.find(wording).unwrap();
+fn quote(_saved: &ProposalSource, wording: &str) -> ConflictQuote {
     ConflictQuote {
-        start_byte,
-        end_byte: start_byte + wording.len(),
         quote: wording.into(),
+        occurrence: None,
     }
 }
 fn conflict(source: &SourceFixture, other: &ProposalSource) -> ConflictArgs {
     ConflictArgs {
-        id: Uuid::new_v4().to_string(),
         title: "Unresolved opposing evidence õ".into(),
         summary: "The saved sources disagree; neither has been selected as authoritative.".into(),
         source_quote: quote(&source.source, "Blue õ 🦀"),
@@ -192,7 +189,7 @@ fn inbox_conflict_fresh_capture_refuses_stale_ambiguous_history_and_wrong_body_w
             5 => {
                 input.other_quote = quote(&other, &other.text[..3]);
             }
-            6 => input.other_quote.start_byte += 1,
+            6 => input.other_quote.occurrence = Some(0),
             7 => std::fs::remove_file(f.base.path().join("vault/project.md")).unwrap(),
             _ => unreachable!(),
         }
@@ -243,9 +240,16 @@ fn inbox_conflict_original_callback_replay_preserves_later_closure_after_source_
                     .recv_timeout(Duration::from_secs(10))
                     .unwrap();
                 let same = tool_reply(proposals.report_conflict(args.clone()));
-                let mut changed = args;
+                let mut changed = args.clone();
                 changed.summary.push('!');
-                vec![same, tool_reply(proposals.report_conflict(changed))]
+                let changed_summary = tool_reply(proposals.report_conflict(changed));
+                let mut changed_occurrence = args;
+                changed_occurrence.other_quote.occurrence = Some(1);
+                vec![
+                    same,
+                    changed_summary,
+                    tool_reply(proposals.report_conflict(changed_occurrence)),
+                ]
             })
             .await
             .unwrap();
@@ -284,6 +288,7 @@ fn inbox_conflict_original_callback_replay_preserves_later_closure_after_source_
     let out = results(&turn);
     assert_eq!(out[0]["ok"], json!(closed));
     assert!(out[1].get("error").is_some());
+    assert!(out[2].get("error").is_some());
     assert_eq!(analysis(&w, r.id).findings, vec![(*closed).clone()]);
     w.shutdown().unwrap();
     let mut w = f.start(Hooks::default());
@@ -434,7 +439,11 @@ fn ordinary_ask_conflict_reads_page_complete_records_and_keep_closed_anchor_and_
     let source = capture_source(&w, "Blue õ 🦀\r\n");
     let (_, other) = link_tests::target(&w, "project.md", false);
     *script.lock().unwrap() = (0..3)
-        .map(|_| Step::Conflict(conflict(&source, &other)))
+        .map(|n| {
+            let mut input = conflict(&source, &other);
+            input.title.push_str(&format!(" {n}"));
+            Step::Conflict(input)
+        })
         .collect();
     let r = semantic(&source);
     analyze(&w, &r).unwrap();
@@ -550,10 +559,16 @@ fn mixed_inbox_consequence_cap_counts_conflicts_and_preserves_replay_at_capacity
     let (_, other) = link_tests::target(&w, "project.md", false);
     let original = conflict(&source, &other);
     let mut steps = vec![Step::Conflict(original.clone())];
-    steps.extend((1..20).map(|_| Step::Conflict(conflict(&source, &other))));
+    steps.extend((1..20).map(|n| {
+        let mut input = conflict(&source, &other);
+        input.title.push_str(&format!(" {n}"));
+        Step::Conflict(input)
+    }));
     steps.push(Step::Action(args(&source, Uuid::new_v4(), Uuid::new_v4())));
     steps.push(Step::Knowledge(knowledge(&source)));
-    steps.push(Step::Conflict(conflict(&source, &other)));
+    let mut beyond = conflict(&source, &other);
+    beyond.title.push_str(" beyond cap");
+    steps.push(Step::Conflict(beyond));
     steps.push(Step::Conflict(original));
     *script.lock().unwrap() = steps;
     let r = semantic(&source);
@@ -586,10 +601,9 @@ fn conflict_lookup_refuses_oversized_complete_pages_and_recovers_with_smaller_un
     other.text.push_str(&wording);
     std::fs::write(f.base.path().join("vault/project.md"), &other.text).unwrap();
     let mut inputs = Vec::new();
-    for _ in 0..4 {
+    for n in 0..4 {
         inputs.push(ConflictArgs {
-            id: Uuid::new_v4().to_string(),
-            title: "Whole retained conflicting quotations".into(),
+            title: format!("Whole retained conflicting quotations {n}"),
             summary: wording.clone(),
             source_quote: quote(&source.source, &wording),
             other_path: "project.md".into(),
@@ -658,6 +672,66 @@ fn conflict_lookup_refuses_malformed_managed_provenance_instead_of_claiming_no_c
         ),
         "malformed provenance must not appear as a successful empty lookup"
     );
+    no_credentials(&f);
+    w.shutdown().unwrap();
+}
+
+#[test]
+fn conflict_selected_occurrences_have_rust_ranges_and_exact_intent_ids_within_the_owned_analysis() {
+    let f = Fixture::new();
+    let script = Arc::new(Mutex::new(vec![]));
+    let mut w = f.start(Hooks {
+        proposal_answer: Some(scripted(script.clone())),
+        ..Hooks::default()
+    });
+    let source = capture_source(&w, "Blue õ 🦀\r\nBlue õ 🦀\r\n");
+    let (_, mut other) = link_tests::target(&w, "project.md", false);
+    other.text.push_str("Known context.\r\n");
+    std::fs::write(f.base.path().join("vault/project.md"), &other.text).unwrap();
+    let ambiguous = conflict(&source, &other);
+    let mut first = ambiguous.clone();
+    first.source_quote.occurrence = Some(2);
+    first.other_quote.occurrence = Some(1);
+    let mut second = first.clone();
+    second.other_quote.occurrence = Some(2);
+    *script.lock().unwrap() = vec![ambiguous, first.clone(), first.clone(), second.clone()]
+        .into_iter()
+        .map(Step::Conflict)
+        .collect();
+    let r = semantic(&source);
+    let turn = analyze(&w, &r).unwrap();
+    let out = results(&turn);
+    assert_eq!(out[0]["error"], json!(AiErrorKind::QuoteAmbiguous));
+    assert_eq!(out[1], out[2]);
+    assert_ne!(
+        out[1]["ok"]["draft"]["request"]["id"],
+        out[3]["ok"]["draft"]["request"]["id"]
+    );
+    let all = analysis(&w, r.id);
+    assert_eq!(all.findings.len(), 2);
+    for record in &all.findings {
+        let source_quote = record.draft.evidence[0].quote.as_ref().unwrap();
+        assert_eq!(
+            source_quote.start_byte,
+            source.source.text.rfind("Blue õ 🦀").unwrap()
+        );
+        let other_quote = record.draft.evidence[1].quote.as_ref().unwrap();
+        assert_eq!(
+            other.text.get(other_quote.start_byte..other_quote.end_byte),
+            Some("Known context.")
+        );
+    }
+    *script.lock().unwrap() = vec![Step::Conflict(first)];
+    let later = semantic(&source);
+    analyze(&w, &later).unwrap();
+    let new_record = analysis(&w, later.id).findings.remove(0);
+    assert!(
+        all.findings
+            .iter()
+            .all(|old| old.draft.request.id != new_record.draft.request.id)
+    );
+    no_actions(&w);
+    retained_original(&w, &source);
     no_credentials(&f);
     w.shutdown().unwrap();
 }

@@ -15,8 +15,7 @@ fn semantic(source: &SourceFixture) -> InboxActionRequest {
     r.purpose = InboxAnalysisPurpose::KnowledgeAndActions;
     r
 }
-fn knowledge(source: &SourceFixture) -> KnowledgeProposalArgs {
-    let start = source.source.text.find("Blue õ 🦀").unwrap();
+fn knowledge(_source: &SourceFixture) -> KnowledgeProposalArgs {
     KnowledgeProposalArgs {
         supersedes: None,
         id: Uuid::new_v4().to_string(),
@@ -26,8 +25,8 @@ fn knowledge(source: &SourceFixture) -> KnowledgeProposalArgs {
         source_paths: vec![],
         text: "# Color decision\r\n\r\nThe team chose Blue õ 🦀.\r\n".into(),
         quotes: vec![KnowledgeQuoteArgs {
-            start_byte: start,
-            end_byte: start + "Blue õ 🦀".len(),
+            quote: "Blue õ 🦀".into(),
+            occurrence: None,
         }],
     }
 }
@@ -220,10 +219,10 @@ fn inbox_knowledge_invalid_candidates_and_action_only_scope_never_admit_knowledg
         invalid.push(k);
     }
     let mut k = base.clone();
-    k.quotes[0].start_byte = source.source.text.find('õ').unwrap() + 1;
+    k.quotes[0].quote = "Blue õ 🦀 with fabricated wording".into();
     invalid.push(k);
     let mut k = base.clone();
-    k.quotes[0].end_byte = source.source.text.len() + 1;
+    k.quotes[0].occurrence = Some(2);
     invalid.push(k);
     let mut k = base.clone();
     k.quotes.push(k.quotes[0].clone());
@@ -483,6 +482,68 @@ fn inbox_knowledge_cancelled_turn_waits_for_lease_refuses_new_drafts_and_restart
     let mut w = f.start(Hooks::default());
     assert_eq!(json!(analyze(&w, &r).unwrap()), json!(turn));
     assert!(analysis(&w, r.id).needs_semantic_review);
+    retained_original(&w, &source);
+    no_credentials(&f);
+    w.shutdown().unwrap();
+}
+
+#[test]
+fn knowledge_quote_selection_refuses_metadata_ambiguity_and_invalid_occurrences_before_retention() {
+    let f = Fixture::new();
+    let script = Arc::new(Mutex::new(vec![]));
+    let mut w = f.start(Hooks {
+        proposal_answer: Some(scripted(script.clone())),
+        ..Hooks::default()
+    });
+    let source = capture_source(&w, "\u{feff}Blue õ 🦀\r\nBlue õ 🦀\r\n");
+    let base = knowledge(&source);
+    let mut metadata = base.clone();
+    metadata.quotes[0].quote = "brn_kind: source".into();
+    let mut zero = base.clone();
+    zero.quotes[0].occurrence = Some(0);
+    let mut outside = base.clone();
+    outside.quotes[0].occurrence = Some(3);
+    let mut selected = base.clone();
+    selected.quotes[0].occurrence = Some(2);
+    *script.lock().unwrap() = vec![metadata, base, zero, outside, selected.clone()]
+        .into_iter()
+        .map(Step::Knowledge)
+        .collect();
+    let r = semantic(&source);
+    let turn = analyze(&w, &r).unwrap();
+    let out = results(&turn);
+    for (index, kind) in [
+        AiErrorKind::QuoteNotFound,
+        AiErrorKind::QuoteAmbiguous,
+        AiErrorKind::QuoteOccurrenceInvalid,
+        AiErrorKind::QuoteOccurrenceInvalid,
+    ]
+    .into_iter()
+    .enumerate()
+    {
+        assert_eq!(out[index]["error"], json!(kind));
+    }
+    assert!(out[4].get("ok").is_some(), "{}", turn.answer);
+    let all = analysis(&w, r.id);
+    assert_eq!(all.proposals.len(), 1);
+    let citation = &all.proposals[0]
+        .draft
+        .inbox_knowledge
+        .as_ref()
+        .unwrap()
+        .citations[0];
+    assert_eq!(
+        citation.start_byte,
+        source.source.text.rfind("Blue õ 🦀").unwrap()
+    );
+    assert_eq!(
+        source
+            .source
+            .text
+            .get(citation.start_byte..citation.end_byte),
+        Some(citation.quote.as_str())
+    );
+    no_actions(&w);
     retained_original(&w, &source);
     no_credentials(&f);
     w.shutdown().unwrap();
