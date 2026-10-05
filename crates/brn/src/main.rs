@@ -114,8 +114,8 @@ mod tests {
     use std::sync::atomic::Ordering;
     use std::sync::{Mutex, MutexGuard};
 
-    /// Serializes every test that flips the process-global CANCEL flag: the
-    /// parallel test harness would otherwise interleave the mutations.
+    /// Serializes tests that change CANCEL or execute commands that read it.
+    /// Locking only writers lets a parallel command observe another test's signal.
     static CANCEL_TESTS: Mutex<()> = Mutex::new(());
 
     fn cancel_lock() -> MutexGuard<'static, ()> {
@@ -125,13 +125,13 @@ mod tests {
     /// Holds the shared cancellation lock for the whole test, installs the
     /// required initial CANCEL value and restores the prior one on drop, so a
     /// panicking test cannot poison the process-global flag for the others.
-    struct CancelTestGuard {
+    pub(crate) struct CancelTestGuard {
         previous: bool,
         _lock: MutexGuard<'static, ()>,
     }
 
     impl CancelTestGuard {
-        fn with(value: bool) -> Self {
+        pub(crate) fn with(value: bool) -> Self {
             let _lock = cancel_lock();
             let previous = crate::CANCEL.swap(value, Ordering::SeqCst);
             Self { previous, _lock }

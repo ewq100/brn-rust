@@ -371,6 +371,7 @@ mod tests {
     #[cfg(target_os = "macos")]
     #[test]
     fn source_dispatch_returns_a_complete_bound_draft_and_rejects_forged_replies() {
+        let _cancel = crate::tests::CancelTestGuard::with(false);
         let owner = tempfile::tempdir_in(std::env::temp_dir().canonicalize().unwrap()).unwrap();
         let data = owner.path().join("data");
         let vault = owner.path().join("vault");
@@ -467,6 +468,7 @@ mod tests {
     #[cfg(target_os = "macos")]
     #[test]
     fn actual_cli_owner_copy_show_replay_and_paged_inventory_preserve_exact_input() {
+        let _cancel = crate::tests::CancelTestGuard::with(false);
         let owner = tempfile::tempdir_in(std::env::temp_dir().canonicalize().unwrap()).unwrap();
         let data = owner.path().join("data");
         std::fs::create_dir(&data).unwrap();
