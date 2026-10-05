@@ -636,3 +636,18 @@ ScreenCaptureKit -3812 prevented later input/retained-lookup observation; no liv
 inference or broader native/owner acceptance is claimed. Normal app quit preserved
 Source bytes and zero credentials. Exact-head hosted integration remains pending.
 No account/model/original-private data operations were performed.
+
+PR52 first published exact-content head `07dcd70ca9533bd6d90101cdf8098fc4ddfcd5a1`
+and tree `0b07dec7966109f6a2cfb7f88cb94205f61f7a83`. Run37310192148 exposed a
+widget-only test helper compiled without native-test-support in both macOS native
+Clippy lanes. The helper now uses its callers' macOS/widget feature guard;
+the local native script adds both hosted shipping-feature Clippy combinations.
+Fresh fmt, shell syntax, native-ui/combined/widget all-target Clippy and all282
+Desktop tests passed. Windows24 complete diagnostic blocks match PR51 exactly
+(22 errors/two summaries); Ubuntu shared passed. Latest-head CI and integration
+remain pending. This test-only correction changes no shipping behavior or captured
+screenshots; previous complete-slice review remains applicable to unchanged code.
+Independent read-only refresh of the correction is clean. The final 11-file
+Rust manifest SHA256 is
+`93e4a1a281cbc10be6e4e3cc8133055427559ba46edf121d7182297e628021c1`;
+the other ten Rust files are unchanged. No unresolved review finding remains.

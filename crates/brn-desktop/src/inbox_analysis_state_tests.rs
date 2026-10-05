@@ -192,6 +192,7 @@ impl Fixture {
 }
 
 /// Narrow shared native-widget fixture, not a production testing interface.
+#[cfg(all(target_os = "macos", feature = "native-test-support"))]
 pub(crate) fn source_fixture() -> (tempfile::TempDir, ProposalSource) {
     let (f, mut worker) = Fixture::new();
     f.preserved(&worker);

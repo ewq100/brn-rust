@@ -106,7 +106,11 @@ controls are implemented and independently reviewed. Fresh fmt/build/Clippy,
 navigation was observed; three original safe JPEGs are retained in the
 [screenshot index](ui/screenshots/2026-10-05/INDEX.md). Intermittent ScreenCaptureKit
 failures leave later input/streaming/retained inspection and owner acceptance open.
-Exact-head CI/integration remains pending. Links,
+PR52's first exact-head run37310192148 exposed an unused widget-only fixture in
+both macOS native Clippy lanes. Its feature guard is corrected, and the local
+script now checks both shipping feature combinations without widget support.
+Fresh formatting, all three native Clippy combinations, 282 Desktop tests and
+shell syntax passed. Exact latest-head CI/integration remains pending. Links,
 replacement/history/conflict resolution and safe copy deletion remain following
 Stage7 deliverables. See the [Inbox plan](work/active/text-email-inbox/plan.md).
 No new live/download scope or original/private data operations are being used.
