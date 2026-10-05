@@ -42,8 +42,27 @@ joined. Existing DrainedTools retains blocking calls through Stop/disconnect/
 model changes/quit. The wrapper retains the existing note Arc and all six scoped/
 unscoped note methods. Rig uses spawn_blocking, two concurrent tools, eight tool
 rounds and zero invalid-tool retries. AI remains vault-bound and explicitly selected.
-No Action mutation, Complete, approval, Save, account or generic dispatch tool is
-exposed. Proposal creation is the next separate slice.
+No real Action mutation, Complete, approval, Save, account or generic dispatch
+tool is exposed. Ask receives the separate review capability below.
+
+## Ask Action review capability
+
+Ask uses separate fixed `ActionProposalTools` through the same owner lane/fence.
+Workflow captures the admitted turn and canonical selection/effort, infers its
+session and validates complete Create/Replace data, immutable origins/full CAS,
+references and full saved source proofs (including explicitly supplied history).
+All14 candidate fields and complete Replace before-records must be present.
+Original UUID replay reuses immutable sources before fresh observation and checks
+the original creation hash, preserving later edits/source loss. Changed payload,
+order/path/session refuses. No model-supplied session or approval authority exists.
+
+The complete receipt is bounded before durable creation and contains only
+stamp/state/session/member UUIDs/source bindings. Admitted mutations drain after
+Stop/Quit; late callbacks refuse under the shared cancellation fence. Fatal drains
+refuse queued private replies before joining retained read/proposal leases. Either
+capability retains that same lease, so terminal settlement/restart follows the
+last callback. Rewrite cannot create unrelated proposals. Existing exact approval
+is the only producer of real Actions; this adds no schema/Store writer or framework.
 
 ## Simple app owner and read tools
 

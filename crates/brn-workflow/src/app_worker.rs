@@ -25,6 +25,9 @@ use std::{
 };
 use uuid::Uuid;
 
+mod action_proposals;
+use action_proposals::ActionProposal;
+pub(crate) use action_proposals::ActionProposals;
 mod action_tools;
 use action_tools::{ActionRead, ActionReads};
 
@@ -243,6 +246,7 @@ enum Message {
     ModelDone(Uuid),
     ChatIdle,
     ActionRead(ActionRead),
+    ActionProposal(Box<ActionProposal>),
     #[cfg(test)]
     IdleBarrier(mpsc::Sender<()>),
     #[cfg(test)]
@@ -293,6 +297,8 @@ impl AppWorker {
             (tx.clone(), emit.clone(), controls.clone(), stopping.clone());
         let admission = Arc::new(Mutex::new(()));
         let action_reads = ActionReads::new(tx.clone(), admission.clone(), stopping.clone());
+        let action_proposals =
+            ActionProposals::new(tx.clone(), admission.clone(), stopping.clone());
         let startup = Uuid::new_v4();
         let join = thread::Builder::new()
             .name("brn-app".into())
@@ -306,6 +312,7 @@ impl AppWorker {
                     control,
                     closing,
                     action_reads,
+                    action_proposals,
                     startup,
                     hooks,
                 );
@@ -540,6 +547,7 @@ fn app_lane(
     controls: Arc<Mutex<Controls>>,
     stopping: Arc<AtomicBool>,
     action_reads: ActionReads,
+    action_proposals: ActionProposals,
     startup: Uuid,
     hooks: Hooks,
 ) -> Result<()> {
@@ -596,7 +604,7 @@ fn app_lane(
             let _ = messages.send(Message::ChatIdle);
         }
     });
-    let mut chat = ChatWorker::start(&app, chat_emit, hooks.chat.clone())?;
+    let mut chat = ChatWorker::start(&app, chat_emit, hooks.chat.clone(), action_proposals)?;
     if app.vault_root().is_some() {
         match app.guarded_tools() {
             Ok(tools) => chat.handle.set_tools(Some(action_reads.wrap(tools)))?,
@@ -717,6 +725,8 @@ fn app_lane(
                 }
                 Message::ChatIdle => {}
                 Message::ActionRead(read) => read.settle(&app, stopping.load(Ordering::Acquire)),
+                // Admitted proposal mutations are FIFO critical work, including during Quit.
+                Message::ActionProposal(proposal) => proposal.settle(&mut app),
                 #[cfg(test)]
                 Message::IdleBarrier(barrier) => idle_barriers.push(barrier),
                 #[cfg(test)]
@@ -827,6 +837,7 @@ fn app_lane(
     while let Ok(message) = rx.try_recv() {
         match message {
             Message::ActionRead(read) => read.refuse(private_failure),
+            Message::ActionProposal(proposal) => proposal.refuse(private_failure),
             Message::Command(id, command) => {
                 let _ = emit.send((id, cancelled_command(command)));
             }

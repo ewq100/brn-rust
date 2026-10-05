@@ -1,17 +1,18 @@
 # brn-ai
 
-Thin, fixed ChatGPT/Copilot subscription authentication and streamed read-only
+Thin, fixed ChatGPT/Copilot subscription authentication and streamed
 chat over Rig **0.43.0**. Contains account/selection DTOs, safe errors, checked
-credential storage, owned clients and five read tools. It does not contain
+credential storage, owned clients, five read tools and one separate review-proposal capability. It does not contain
 workers, SQL, selection persistence or frontend state.
 
 `answer_with_effort` freezes an explicit low/medium/high choice with the selected
 client. It sends route-specific reasoning parameters on the initial request and
 tool continuations while preserving ordinary Ask history, provisional text and
 read-tool limits. The older `answer` entry point remains a compatibility seam;
-fresh application Ask uses explicit effort without a provider default.
+fresh application Ask uses `answer_with_proposals` with explicit effort and a
+captured workflow capability, without a provider default.
 
-Both Ask entry points instruct the selected model to normally answer in the
+All Ask entry points instruct the selected model to normally answer in the
 current question's language, honor an explicit language request, handle mixed
 English/Estonian content and preserve original source-quote language. This adds
 no language detector or extra call. Synthetic transport tests qualify instruction
@@ -147,8 +148,8 @@ wire policy and cannot establish the number of real network sends.
 
 Implement the synchronous `ReadTools: Send + Sync` seam in workflow and pass it
 as `Arc<dyn ReadTools>`. Rig tool calls dispatch blocking reads via
-`tokio::task::spawn_blocking`, with at most two concurrent calls. Only
-`search_notes`, `read_note`, `list_notes`, `read_action` and `list_actions` are registered:
+`tokio::task::spawn_blocking`, with at most two concurrent calls. `search_notes`, `read_note`, `list_notes`, `read_action` and `list_actions` are the
+fixed read tools:
 
 The three note tools accept a `scope` enum (`current`, `source`, `history`, `all`), defaulting
 to Current when omitted. Serialized results label that scope alongside existing
@@ -176,7 +177,19 @@ Rust omission compatibility remains supported and verified separately.
 - Argument schemas reject extra properties; Rust deserialization and validation
   also reject invalid arguments when the model ignores the schema. Safe failed
   tool results may continue the turn; they never authorize a retry or fallback.
-  No comment/proposal/write tools are exposed.
+  No comment, real Action write, Complete, approval, Save or account tool is exposed.
+
+`answer_with_proposals` additionally registers fixed `propose_actions` through a
+separate `ActionProposalTools` capability; ordinary read-only entry points and
+Rewrite do not receive it. Input has only proposal UUID/title, ordered source paths
+and1–20 whole Create/Replace members, ≤8MiB encoded. Candidates require all14 fields
+and nulls; Replace requires the complete before-record. Workflow owns UUIDs,
+references, source capture, session inference, exact creation replay and approval.
+The wire uses closed `anyOf` variants and typed discriminant enums from the
+[official supported schema subset](https://developers.openai.com/api/docs/guides/structured-outputs#supported-schemas);
+workflow validates uniqueness and byte limits. This does not qualify live provider
+acceptance. The tool dispatches on spawn_blocking with the same shared limits, returning only
+a whole ≤1MiB receipt, never candidate/comment bodies. It creates review work only.
 
 Invalid scope/type/extra arguments invoke no underlying read. Rig may return its
 parse diagnostic transiently to the model that generated the invalid argument;

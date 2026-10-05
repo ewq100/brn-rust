@@ -1,0 +1,621 @@
+//! Ask-bound proposal callbacks to the application owner; no separate Store writer.
+use super::*;
+use crate::proposals::{ActionChange, DraftRequest, ProposalStamp, ProposalState, SourceVersion};
+use brn_ai::{ActionProposalArgs, ActionProposalTools, AiError, AiErrorKind, AiResult};
+use brn_store::work::WorkTurnStatus;
+use serde::Serialize;
+use serde_json::Value;
+use tokio_util::sync::CancellationToken;
+
+#[derive(Clone)]
+pub(crate) struct ActionProposals {
+    tx: mpsc::Sender<Message>,
+    admission: Arc<Mutex<()>>,
+    stopping: Arc<AtomicBool>,
+}
+impl ActionProposals {
+    pub(super) fn new(
+        tx: mpsc::Sender<Message>,
+        admission: Arc<Mutex<()>>,
+        stopping: Arc<AtomicBool>,
+    ) -> Self {
+        Self {
+            tx,
+            admission,
+            stopping,
+        }
+    }
+    pub(crate) fn bind(
+        &self,
+        request: &AskRequest,
+        turn: &WorkTurn,
+        cancel: CancellationToken,
+    ) -> Arc<dyn ActionProposalTools> {
+        Arc::new(BoundProposal {
+            owner: self.clone(),
+            request: request.clone(),
+            turn: turn.clone(),
+            cancel,
+        })
+    }
+}
+struct BoundProposal {
+    owner: ActionProposals,
+    request: AskRequest,
+    turn: WorkTurn,
+    cancel: CancellationToken,
+}
+pub(super) struct ActionProposal {
+    args: ActionProposalArgs,
+    request: AskRequest,
+    turn: WorkTurn,
+    reply: mpsc::Sender<AiResult<Value>>,
+}
+impl ActionProposalTools for BoundProposal {
+    fn propose_actions(&self, args: ActionProposalArgs) -> AiResult<Value> {
+        self.enqueue(args)?
+            .recv()
+            .map_err(|_| AiError::new(AiErrorKind::Other))?
+    }
+}
+impl BoundProposal {
+    fn enqueue(&self, args: ActionProposalArgs) -> AiResult<mpsc::Receiver<AiResult<Value>>> {
+        args.validate()?;
+        let (reply, rx) = mpsc::channel();
+        {
+            let _admission = self
+                .owner
+                .admission
+                .lock()
+                .map_err(|_| AiError::new(AiErrorKind::Other))?;
+            if self.owner.stopping.load(Ordering::Acquire) || self.cancel.is_cancelled() {
+                return Err(AiError::new(AiErrorKind::ToolRejected));
+            }
+            self.owner
+                .tx
+                .send(Message::ActionProposal(Box::new(ActionProposal {
+                    args,
+                    request: self.request.clone(),
+                    turn: self.turn.clone(),
+                    reply,
+                })))
+                .map_err(|_| AiError::new(AiErrorKind::Other))?;
+        }
+        Ok(rx)
+    }
+}
+impl ActionProposal {
+    pub(super) fn refuse(self, kind: AiErrorKind) {
+        let _ = self.reply.send(Err(AiError::new(kind)));
+    }
+    pub(super) fn settle(self, app: &mut App) {
+        // Admission already checked cancellation under the Stop fence. An admitted
+        // mutation must settle even when Stop/Shutdown has since closed admission.
+        let result = self.run(app);
+        let _ = self.reply.send(result);
+    }
+    fn run(&self, app: &mut App) -> AiResult<Value> {
+        self.args.validate()?;
+        let id = Uuid::parse_str(&self.args.id).map_err(|_| rejected())?;
+        if id.is_nil() {
+            return Err(rejected());
+        }
+        let action_changes = self
+            .args
+            .action_changes
+            .iter()
+            .map(|input| {
+                let change: ActionChange =
+                    serde_json::from_value(input.clone()).map_err(|_| rejected())?;
+                let whole = serde_json::to_value(&change).map_err(|_| rejected())?;
+                // Serde accepts absent nullable fields. This protocol requires complete
+                // candidates and before-records; absence must never silently clear data.
+                if !whole_fields(input, &whole) {
+                    return Err(rejected());
+                }
+                change.validate().map_err(|_| rejected())?;
+                Ok(change)
+            })
+            .collect::<AiResult<Vec<_>>>()?;
+
+        let actual = app
+            .work_store()
+            .turn(self.request.id)
+            .map_err(|e| safe(e.into()))?
+            .ok_or_else(rejected)?;
+        if self.turn.id != self.request.id
+            || actual.id != self.turn.id
+            || actual.conversation_id != self.turn.conversation_id
+            || actual.started_at_ms != self.turn.started_at_ms
+            || actual.status != WorkTurnStatus::Running
+            || self.turn.status != WorkTurnStatus::Running
+        {
+            return Err(rejected());
+        }
+        chat_worker::check_replay(&self.request, &self.turn).map_err(safe)?;
+        chat_worker::check_replay(&self.request, &actual).map_err(safe)?;
+
+        // Original creation replay precedes fresh source observation. Later review
+        // edits or source loss must not change the exact UUID's immutable input.
+        let sources = match app.proposal(id) {
+            Ok(existing) => {
+                if !self
+                    .args
+                    .source_paths
+                    .iter()
+                    .map(String::as_str)
+                    .eq(existing.draft.sources.iter().map(|s| s.path.as_str()))
+                {
+                    return Err(rejected());
+                }
+                existing.draft.sources
+            }
+            Err(e) if e.kind == ErrorKind::NotFound => self
+                .args
+                .source_paths
+                .iter()
+                .map(|path| {
+                    app.proposal_evidence_source(path)
+                        .map(|s| s.source)
+                        .map_err(safe)
+                })
+                .collect::<AiResult<Vec<_>>>()?,
+            Err(e) => return Err(safe(e)),
+        };
+        let request = DraftRequest {
+            id,
+            group_id: None,
+            session_id: Some(actual.conversation_id),
+            title: self.args.title.clone(),
+            changes: vec![],
+            sources,
+            action_changes,
+        };
+        request.validate().map_err(safe)?;
+        // Bound the complete receipt BEFORE creating durable review work. Maximal
+        // stamp/state encodings cover all replay states and future review versions.
+        let mut receipt = Receipt {
+            stamp: ProposalStamp {
+                id,
+                version: u64::MAX,
+            },
+            state: ProposalState::Uncertain,
+            session_id: request.session_id,
+            action_ids: request
+                .action_changes
+                .iter()
+                .map(ActionChange::id)
+                .collect(),
+            sources: request.sources.clone(),
+        };
+        if serde_json::to_vec(&receipt).map_err(|_| rejected())?.len() > brn_ai::READ_ACTION_BYTES {
+            return Err(rejected());
+        }
+        let record = app.create_proposal(&request).map_err(safe)?;
+        receipt.stamp = record.stamp();
+        receipt.state = record.state;
+        serde_json::to_value(receipt).map_err(|_| AiError::new(AiErrorKind::Storage))
+    }
+}
+
+#[derive(Serialize)]
+struct Receipt {
+    stamp: ProposalStamp,
+    state: ProposalState,
+    session_id: Option<Uuid>,
+    action_ids: Vec<Uuid>,
+    sources: Vec<SourceVersion>,
+}
+fn whole_fields(input: &Value, whole: &Value) -> bool {
+    match (input, whole) {
+        (Value::Object(input), Value::Object(whole)) => {
+            input.len() == whole.len()
+                && whole
+                    .iter()
+                    .all(|(key, value)| input.get(key).is_some_and(|v| whole_fields(v, value)))
+        }
+        _ => true,
+    }
+}
+fn rejected() -> AiError {
+    AiError::new(AiErrorKind::ToolRejected)
+}
+fn safe(error: WorkflowError) -> AiError {
+    AiError::new(match error.kind {
+        ErrorKind::ToolRejected | ErrorKind::OperationConflict | ErrorKind::NotFound => {
+            AiErrorKind::ToolRejected
+        }
+        ErrorKind::SaveUncertain
+        | ErrorKind::ContextStale
+        | ErrorKind::IndexStale
+        | ErrorKind::AiIndexStale => AiErrorKind::IndexStale,
+        _ => AiErrorKind::Storage,
+    })
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use crate::{actions::ActionListRequest, chat_worker::Hooks};
+    use serde_json::json;
+    use std::time::{Duration, Instant};
+    fn args() -> ActionProposalArgs {
+        serde_json::from_value(json!({"id":Uuid::new_v4(),"title":"Whole review õ\r\n","source_paths":[],"action_changes":[{
+            "kind":"create","id":Uuid::new_v4(),"data":{"title":"Exact õ","description":"\u{feff}Original 🦀\r\n","state":"open","owner":null,"related_person":null,"related_project":null,"sources":[],"thread":null,"due_on":null,"follow_up_on":null,"dependencies":[],"parent":null,"follows_up":null,"priority":null}
+        }]})).unwrap()
+    }
+    fn event(worker: &AppWorker) -> (Uuid, AppEvent) {
+        worker.recv_event_timeout(Duration::from_secs(10)).unwrap()
+    }
+    struct Active {
+        base: tempfile::TempDir,
+        worker: AppWorker,
+        bound: BoundProposal,
+        lease: Arc<dyn ActionProposalTools>,
+        canceled: mpsc::Receiver<()>,
+    }
+    fn active() -> Active {
+        let base = tempfile::tempdir_in(std::env::temp_dir().canonicalize().unwrap()).unwrap();
+        std::fs::create_dir(base.path().join("data")).unwrap();
+        std::fs::create_dir(base.path().join("vault")).unwrap();
+        std::fs::write(base.path().join("vault/a.md"), b"current").unwrap();
+        let config = config(base.path());
+        let (sent, received) = mpsc::channel();
+        let (noticed, canceled) = mpsc::channel();
+        let hook: crate::simple_worker_tests::ProposalAnswerHook =
+            Arc::new(move |_, _, reads, proposals, cancel, _| {
+                drop(reads);
+                sent.send((proposals, cancel.clone())).unwrap();
+                let noticed = noticed.clone();
+                Box::pin(async move {
+                    cancel.cancelled().await;
+                    noticed.send(()).unwrap();
+                    brn_ai::AiAnswer {
+                        text: "Stopped with retained proposal lease".into(),
+                        terminal: brn_ai::AiTerminal::Interrupted,
+                    }
+                })
+            });
+        let worker = start_test(
+            base.path().join("data"),
+            config,
+            Hooks {
+                proposal_answer: Some(hook),
+                ..Hooks::default()
+            },
+            None,
+            None,
+        )
+        .unwrap();
+        assert!(matches!(event(&worker).1, AppEvent::Ready { .. }));
+        let request = AskRequest {
+            id: Uuid::new_v4(),
+            conversation: None,
+            question: "Synthetic proposal".into(),
+            selection: Selection {
+                provider: Provider::Chatgpt,
+                model: "gpt-6-luna".into(),
+            },
+            effort: Some(ReasoningEffort::Low),
+            generation: 7,
+        };
+        worker
+            .submit(request.id, AppCommand::Ask(request.clone()))
+            .unwrap();
+        let (lease, cancel) = received.recv_timeout(Duration::from_secs(10)).unwrap();
+        let query = Uuid::new_v4();
+        worker.submit(query, AppCommand::Turn(request.id)).unwrap();
+        let turn = loop {
+            let (id, e) = event(&worker);
+            if id == query {
+                break match e {
+                    AppEvent::Turn(Some(t)) => t,
+                    _ => panic!("wrong turn"),
+                };
+            }
+        };
+        let bound = BoundProposal {
+            owner: ActionProposals::new(
+                worker.tx.clone(),
+                worker.admission.clone(),
+                worker.stopping.clone(),
+            ),
+            request,
+            turn,
+            cancel,
+        };
+        Active {
+            base,
+            worker,
+            bound,
+            lease,
+            canceled,
+        }
+    }
+    fn pause(worker: &AppWorker) -> mpsc::Sender<()> {
+        let (entered, wait) = mpsc::channel();
+        let (release, held) = mpsc::channel();
+        worker
+            .submit(
+                Uuid::new_v4(),
+                AppCommand::TestPause {
+                    entered,
+                    release: held,
+                },
+            )
+            .unwrap();
+        wait.recv_timeout(Duration::from_secs(10)).unwrap();
+        release
+    }
+    fn terminal(worker: &AppWorker, id: Uuid) -> WorkTurn {
+        loop {
+            let (_, e) = event(worker);
+            if let AppEvent::Chat(ChatEvent::Finished {
+                id: actual, turn, ..
+            }) = e
+                && actual == id
+            {
+                return turn;
+            }
+        }
+    }
+    fn config(base: &std::path::Path) -> AppConfig {
+        AppConfig {
+            vault_root: Some(base.join("vault")),
+            credentials_dir: Some(base.join("credentials")),
+            model_dir: None,
+        }
+    }
+    fn persisted(base: &std::path::Path, id: Uuid, exists: bool) {
+        let app = App::open(&base.join("data"), config(base)).unwrap();
+        assert_eq!(app.proposal(id).is_ok(), exists);
+        assert!(
+            app.actions(&ActionListRequest::default())
+                .unwrap()
+                .entries
+                .is_empty()
+        );
+        assert_eq!(std::fs::read(base.join("vault/a.md")).unwrap(), b"current");
+        assert_eq!(
+            std::fs::read_dir(base.join("credentials")).unwrap().count(),
+            0
+        );
+    }
+    #[test]
+    fn proposal_admitted_before_stop_settles_and_only_proposal_lease_delays_terminal() {
+        let mut a = active();
+        let input = args();
+        let id = Uuid::parse_str(&input.id).unwrap();
+        let release = pause(&a.worker);
+        // enqueue returns only after sending under the actual admission fence.
+        let receipt = a.bound.enqueue(input.clone()).unwrap();
+        let stop = Uuid::new_v4();
+        a.worker
+            .submit(stop, AppCommand::CancelTurn(a.bound.request.id))
+            .unwrap();
+        a.canceled.recv_timeout(Duration::from_secs(10)).unwrap();
+        assert_eq!(
+            a.lease.propose_actions(args()).unwrap_err().kind,
+            AiErrorKind::ToolRejected
+        );
+        let status = Uuid::new_v4();
+        a.worker.submit(status, AppCommand::Status).unwrap();
+        release.send(()).unwrap();
+        let value = receipt
+            .recv_timeout(Duration::from_secs(10))
+            .unwrap()
+            .unwrap();
+        assert_eq!(value["session_id"], json!(a.bound.turn.conversation_id));
+        let mut saw_stop = false;
+        let mut saw_status = false;
+        while !(saw_stop && saw_status) {
+            let (actual, e) = event(&a.worker);
+            match e {
+                AppEvent::TurnCancelRequested { accepted, .. } => {
+                    assert_eq!(actual, stop);
+                    assert!(accepted);
+                    saw_stop = true;
+                }
+                AppEvent::Status(_) => {
+                    assert_eq!(actual, status);
+                    saw_status = true;
+                }
+                AppEvent::Chat(ChatEvent::Finished { .. }) => {
+                    panic!("proposal lease must delay terminal")
+                }
+                _ => {}
+            }
+        }
+        let query = Uuid::new_v4();
+        a.worker
+            .submit(query, AppCommand::Turn(a.bound.request.id))
+            .unwrap();
+        loop {
+            let (actual, e) = event(&a.worker);
+            if actual == query {
+                assert!(matches!(e,AppEvent::Turn(Some(t))if t.status==WorkTurnStatus::Running));
+                break;
+            }
+        }
+        drop(a.lease);
+        assert_eq!(
+            terminal(&a.worker, a.bound.request.id).status,
+            WorkTurnStatus::Interrupted
+        );
+        a.worker.shutdown().unwrap();
+        persisted(a.base.path(), id, true);
+    }
+    #[test]
+    fn proposal_admitted_before_shutdown_settles_before_final_lease_and_restart() {
+        let a = active();
+        let input = args();
+        let id = Uuid::parse_str(&input.id).unwrap();
+        let release = pause(&a.worker);
+        let receipt = a.bound.enqueue(input).unwrap();
+        let closing = a.worker.stopping.clone();
+        let (done, finished) = mpsc::channel();
+        let join = thread::spawn(move || {
+            let mut w = a.worker;
+            let r = w.shutdown();
+            done.send((w, r)).unwrap();
+        });
+        let deadline = Instant::now() + Duration::from_secs(10);
+        while !closing.load(Ordering::Acquire) {
+            assert!(Instant::now() < deadline);
+            thread::yield_now();
+        }
+        assert_eq!(
+            a.lease.propose_actions(args()).unwrap_err().kind,
+            AiErrorKind::ToolRejected
+        );
+        release.send(()).unwrap();
+        assert!(
+            receipt
+                .recv_timeout(Duration::from_secs(10))
+                .unwrap()
+                .is_ok()
+        );
+        assert!(matches!(
+            finished.recv_timeout(Duration::from_millis(100)),
+            Err(mpsc::RecvTimeoutError::Timeout)
+        ));
+        drop(a.lease);
+        let (w, r) = finished.recv_timeout(Duration::from_secs(10)).unwrap();
+        r.unwrap();
+        join.join().unwrap();
+        assert_eq!(
+            std::iter::from_fn(|| w.try_event())
+                .filter(|(_, e)| matches!(e, AppEvent::Chat(ChatEvent::Finished { .. })))
+                .count(),
+            1
+        );
+        persisted(a.base.path(), id, true);
+    }
+    #[test]
+    fn fatal_lane_refuses_queued_proposal_before_joining_retained_lease_and_preserves_prior_review()
+    {
+        let mut a = active();
+        let first = args();
+        let first_id = Uuid::parse_str(&first.id).unwrap();
+        assert!(a.lease.propose_actions(first).is_ok());
+        let release = pause(&a.worker);
+        {
+            let _fence = a.worker.admission.lock().unwrap();
+            a.worker.tx.send(Message::FailLane).unwrap();
+        }
+        let failed = args();
+        let failed_id = Uuid::parse_str(&failed.id).unwrap();
+        let receipt = a.bound.enqueue(failed).unwrap();
+        let status = Uuid::new_v4();
+        a.worker.submit(status, AppCommand::Status).unwrap();
+        release.send(()).unwrap();
+        let value = receipt.recv_timeout(Duration::from_secs(1));
+        // Release the synthetic lease before asserting, even when witnessing RED.
+        drop(a.lease);
+        let failure = a.worker.shutdown().unwrap_err();
+        assert_eq!(failure.kind, ErrorKind::Other);
+        assert!(
+            matches!(
+                value,
+                Ok(Err(AiError {
+                    kind: AiErrorKind::Storage,
+                    ..
+                }))
+            ),
+            "{value:?}"
+        );
+        assert_eq!(
+            a.bound.propose_actions(args()).unwrap_err().kind,
+            AiErrorKind::ToolRejected
+        );
+        let events = std::iter::from_fn(|| a.worker.try_event()).collect::<Vec<_>>();
+        assert!(events.iter().any(|(id, e)| *id == status
+            && matches!(e,AppEvent::Failed(error)if error.kind==ErrorKind::Cancelled)));
+        assert_eq!(
+            events
+                .iter()
+                .filter(|(_, e)| matches!(e, AppEvent::Chat(ChatEvent::Finished { .. })))
+                .count(),
+            1
+        );
+        persisted(a.base.path(), first_id, true);
+        persisted(a.base.path(), failed_id, false);
+    }
+    #[test]
+    fn mismatched_captured_turn_identity_selection_effort_and_terminal_status_cannot_create_reviews()
+     {
+        let mut a = active();
+        let input = args();
+        let id = Uuid::parse_str(&input.id).unwrap();
+        let mut variants = vec![];
+        let mut turn = a.bound.turn.clone();
+        turn.id = Uuid::new_v4();
+        variants.push(turn);
+        let mut turn = a.bound.turn.clone();
+        turn.conversation_id = Uuid::new_v4();
+        variants.push(turn);
+        let mut turn = a.bound.turn.clone();
+        turn.provider = "copilot".into();
+        variants.push(turn);
+        let mut turn = a.bound.turn.clone();
+        turn.model = "different".into();
+        variants.push(turn);
+        let mut turn = a.bound.turn.clone();
+        turn.effort = Some("high".into());
+        variants.push(turn);
+        let mut turn = a.bound.turn.clone();
+        turn.started_at_ms = Some(0);
+        variants.push(turn);
+        let mut turn = a.bound.turn.clone();
+        turn.status = WorkTurnStatus::Completed;
+        variants.push(turn);
+        for turn in variants {
+            let bad = BoundProposal {
+                owner: a.bound.owner.clone(),
+                request: a.bound.request.clone(),
+                turn,
+                cancel: a.bound.cancel.clone(),
+            };
+            assert!(bad.propose_actions(input.clone()).is_err());
+        }
+        a.worker
+            .submit(Uuid::new_v4(), AppCommand::CancelTurn(a.bound.request.id))
+            .unwrap();
+        drop(a.lease);
+        terminal(&a.worker, a.bound.request.id);
+        a.worker.shutdown().unwrap();
+        persisted(a.base.path(), id, false);
+    }
+    #[test]
+    fn maximal_fixed_receipt_is_small_and_never_contains_candidate_or_comment_bodies() {
+        // A conservative superset even permits maximally escaped path bytes and
+        // u64 values that the evidence adapter would not produce.
+        let receipt = Receipt {
+            stamp: ProposalStamp {
+                id: Uuid::new_v4(),
+                version: u64::MAX,
+            },
+            state: ProposalState::Uncertain,
+            session_id: Some(Uuid::new_v4()),
+            action_ids: vec![Uuid::new_v4(); 20],
+            sources: vec![
+                SourceVersion {
+                    path: "\u{1}".repeat(512),
+                    fingerprint: brn_store::files::FileFingerprint {
+                        device: u64::MAX,
+                        inode: u64::MAX,
+                        len: u64::MAX,
+                        sha256: [255; 32]
+                    },
+                };
+                64
+            ],
+        };
+        let bytes = serde_json::to_vec(&receipt).unwrap();
+        assert!(bytes.len() < brn_ai::READ_ACTION_BYTES);
+        let json = serde_json::from_slice::<Value>(&bytes).unwrap();
+        assert_eq!(json.as_object().unwrap().len(), 5);
+        assert!(json.get("action_changes").is_none());
+        assert!(json.get("comments").is_none());
+    }
+}

@@ -85,7 +85,7 @@ database/backup markers are refused before SQLite opens; no old data is migrated
 | --- | --- |
 | [brn](../../crates/brn/README.md) | Agent-facing CLI over AppWorker |
 | [brn-desktop](../../crates/brn-desktop/README.md) | Native presentation, exact text buffer, layout and AppWorker commands |
-| [brn-workflow](../../crates/brn-workflow/README.md) | Application/chat/account/model lanes, vault, Save/recovery and read-only AI tools |
+| [brn-workflow](../../crates/brn-workflow/README.md) | Application/chat/account/model lanes, vault, Save/recovery and bounded AI capabilities |
 | [brn-store](../../crates/brn-store/README.md) | WorkStore integrity, backups, chat, proposal review, exact editor recovery and Save journals |
 | [brn-retrieval](../../crates/brn-retrieval/README.md) | Disposable current-note FTS5/embedding index and evidence |
 | [brn-ai](../../crates/brn-ai/README.md) | Explicit account/model selection, protected authentication and Rig streaming |
@@ -117,7 +117,9 @@ promise unadmitted typing.
 ## Chat, search and models
 
 New Ask refreshes the vault, freezes explicit provider/model selection and uses
-current read-only tools. Streaming is provisional; durable terminal pairs and
+current read-only tools plus an Ask-only Action review capability. Workflow owns
+its captured session, source proofs and exact creation replay; real Actions still
+require exact human approval. Streaming is provisional; durable terminal pairs and
 visibly unsaved partial failures stay distinct. Bound UUID replay never submits
 another provider request. Chat/account/read leases drain before authority releases.
 

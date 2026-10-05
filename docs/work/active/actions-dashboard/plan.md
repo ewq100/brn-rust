@@ -1178,3 +1178,109 @@ full shared verification passed1139/0failed/6ignored+52fixtures, including
 format/build/all-target Clippy. Production/native/shipping code is unchanged.
 Publish the corrected tree, require fresh exact-head applicable CI and normal merge,
 then post-merge checks before proposal tools. Actual model/UI/owner remains pending.
+
+
+## Ask-only Action proposal tools — next slice
+
+PR42 actually mergedccefc9e/tree6a0497cb after corrected heade5ff922/
+run37241758299 passed Mac3+UbuntuShared. Windows22 full diagnostic blocks match
+main21dd333; overallCIred. Normal expected-head merge met enforced requirements.
+Post11distinct tests(14executions)/0failed/0ignored+52fixtures+shipping startup2
+passed,V11/exact bytes/zero credentials; main37242223886 finished5success/4failure.
+Mac3+UbuntuCore/UI passed. Independent decoded Windows22/22/14 full diagnostics
+match main41; UbuntuNative10pass/3fail has the same errors/assertions/backtraces/
+locations, with only threadIDs/order/duration differing. Failed source blobs stay
+exact; overallCIred, no new sharedMac defect signature. Rootmain and
+both task worktrees fast-forwarded, preserving ownerAGENTS. Native/live/owner
+acceptance remains pending; no account/model/download/private/release operation.
+
+Fixed next outcome oncodex/v1-action-proposal-tools: Ask can propose an Action-only
+Create/Replace review, using a separate narrow ActionProposalTools provider seam.
+ReadTools stays read-only; Rewrite gains no unrelated proposal creation. No direct
+Markdown/Complete/approval/Save/account authority. AppWorker owns the domain and
+existing exact human approval makes Actions real. No schema/crate/database/framework.
+
+Protocol input: explicit proposal UUID/title, ordered source_paths≤64(each≤512UTF8
+bytes) and1–20 whole Action members, total≤8MiB. All14 candidate fields/nulls and
+full Replace before-records are explicit. Workflow validates UUIDs/state/references/
+full CAS; Completed/reopen/unknown/partial members refuse. Bind actual admittedAsk
+and captured canonical selection/effort; infer session from stored turn, never model
+arguments. First source admission captures full saved evidence, including explicit
+historical paths. Exact UUID replay reuses immutable source bindings and original
+creation input before fresh observation; changed payload/order/path/session refuses.
+
+Use the existing private application lane/reply/admission fence and spawn_blocking.
+Check cancellation and enqueue under the same fence as immediate Stop; admitted
+mutations drain before Stop/Shutdown, late ones refuse. Fatal exits safely settle
+queued replies before retained read/proposal leases join. Return only a prebounded
+receipt(stamp/state/memberIDs/immutable sources/session), no candidate/comment body.
+
+Acceptance: actual registered Rig Ask route/unavailable Rewrite; real worker full
+Create/Replace/source/session→review only→exact approval; malformed/stale/full-field
+and identity refusal; original replay after source loss/later review edits; receipt
+bounds before persistence; Stop/shutdown/fatal drain, public events, retained leases,
+restart/replay/no duplicate effects/zero credentials. Independent complete review,
+fresh shared/native/shipping/startup checks, exact-head CI/normal merge/post follow.
+Manual: synthetic saved evidence and explicit qualified model→Ask to propose an
+Action→inspect ordinary review/full sources→edit/reject or separately exactApprove;
+confirm no real Action before approval. Actual model/UI/owner qualification stays
+separate. Then finish Stage6 and begin Stage7; existing Macmini requirements remain.
+
+
+The registered propose_actions synthetic Rig RED failed InvalidToolUse before
+registration. Inspecting its diagnostic independently confirmed pinned rig-agent
+0.43 engine.rs985 prints the current partial assistant choice on InvalidToolCall,
+before hooks and without log/config gating. Unknown names and malformed JSON
+reach that branch; ordinary registered-tool domain failures differ. No selective
+suppression is available in the pinned streaming API. This known qualification
+gap requires a narrow upstream correction/qualified dependency treatment before
+trusted-user packaging; it does not authorize provider redesign, a framework or
+process-wide diagnostic suppression. No actual private/provider data was used.
+
+
+### Ask proposal implementation evidence — 2026-10-05
+
+Actual Rig unknown-tool RED and real-worker denied-producer RED were observed
+before registration/domain dispatch. The existing App producer now creates whole
+Action-only review work with inferred session and captured canonical turn binding.
+Eight focused workflow tests passed, covering full Create/Replace and >50,000byte
+saved evidence/explicit history, exact approval, source-loss original replay after
+newer manual edits, payload/order/path/session conflicts, full-field/nil/domain/CAS
+refusal, admitted-before Stop/Quit versus late refusal, proposal-only retained
+leases, fatal drain and restart/zero real effects/credentials. Four AI tests passed
+for strict outer input/UTF8/whole8MiB/whole1MiB and actual three Rig route formats,
+with proposal capability unavailable to Rewrite. Test-only Box/Config compilation
+corrections preceded those passes; they are not runtime product REDs.
+
+A further actual wire-schema witness required strict-compatible complete tagged
+variants before the final gate. Rig normalizes oneOf only on strict routes; the
+Codex route preserves it. Use explicit anyOf/type+enum and omit unlisted
+uniqueness annotations, keeping all uniqueness/domain checks in workflow. The
+[official schema subset](https://developers.openai.com/api/docs/guides/structured-outputs#supported-schemas)
+supports anyOf and typed enums. This is schema alignment, not live account
+qualification. Final whole independent review/fresh gates/PR/exact-head CI/merge
+and post checks are next; native/live/owner acceptance remains pending.
+
+
+### Ask proposal local qualification — 2026-10-05
+
+Independent complete Sol read-only review found no actionable/advisory defect,
+pinning all9Rust+5docs in action-proposal-tools-review-source.json. All9Rust hashes
+remain exact through fresh pinnedRust1.98.1/macOSarm64 locked/offline verification:
+shared1151/0failed/6ignored+52fixtures, nativeWorkflowModels207/0failed/5ignored,
+nativeDesktop257/0failed/0ignored; native test-support and shipping all-target
+Clippy, shipping Desktop/CLI builds and startup2 passed,V11/exact BOM/CRLF/Unicode/
+zero credentials.53local Markdown links,diff/format passed. Initial shared Clippy
+stopped before tests on the432byte private Message variant and one test guard;
+Box/collapsed guard correction was independently reviewed before fresh full gates.
+Logs action-proposal-tools-*-final.log / qualified-startup-stfm2rw1 remain under the
+owned Stage1 parent. Ignored subprocess helpers are exercised by parent crash
+witnesses. Known upstream block0.1.6 warning remains.
+
+Implemented/automated verified; next checkpoint PR, applicable exact-head CI,
+normal merge/post verification,then finish Stage6 and Text/email Inbox. Manual
+scenario above, actual native/live/owner acceptance and pinned Rig invalid-tool
+stderr qualification remain open. No account/model/download/private/original-data
+or release operation occurred. Macmini needs the pinned toolchain/locked native
+dependencies, protobuf, Bash/Python3 and an existing canonical owned TMPDIR;
+interaction needs an unlocked/awake session, not for builds/tests/CI.
