@@ -41,7 +41,11 @@ flowchart TD
 
 Proposals have one review lifecycle and typed changes enforced by the workflow. Relationships and context use existing records and derived queries; the graph is a view, not another datastore. Source wording, interpretation, approved knowledge and tentative findings stay distinguishable.
 
-Crate boundaries, data ownership and product guarantees stay frozen. Reopen them with the owner only for a changed requirement or a demonstrated blocker the target cannot reasonably handle. Local table, algorithm, tool and UI details can evolve inside those boundaries. [Roadmap](../roadmap.md) owns the reviewed sequence; [status](../status.md) owns actual implementation and qualification.
+Crate boundaries, data ownership and product guarantees stay frozen. Reopen them with the owner only for a changed requirement or a demonstrated blocker the target cannot reasonably handle. Local table, algorithm, tool and UI details can evolve inside those boundaries, including additive WorkStore tables and supported migrations; no schema-version freeze is imposed. [Roadmap](../roadmap.md) owns the reviewed sequence; [status](../status.md) owns actual implementation and qualification.
+
+The [vault format](vault-format.md) records current Markdown fields, exact Source
+and citation encodings, stable links and the History/archive convention. Scope
+classification and provenance describe saved state and evidence, not semantic truth.
 
 ## Semantic intelligence and deterministic authority
 
@@ -51,13 +55,31 @@ from deterministic authority within the frozen six-crate architecture.
 | Responsibility | Owner |
 | --- | --- |
 | Interpret meaning, compare information semantically, decide which evidence to inspect, choose bounded tools, identify possible conflicts/duplicates/supersession, and produce candidate text/proposals | LLM through the existing AI lane |
-| Saved-state authority, scope classification, identity, freshness, provenance verification, exact comparisons, proposal validation, approval, filesystem effects, indexing, recovery and Undo | Rust / shared workflow and its existing storage/file/retrieval boundaries |
+| Saved-state authority, identity minting, quote/range binding, whole before records, scope/freshness, provenance verification, exact comparisons, proposal validation, approval, filesystem effects, indexing, recovery and Undo | Rust / shared workflow and its existing storage/file/retrieval boundaries |
 
 AI output or confidence never substitutes for deterministic evidence checks or
 user approval. Semantic judgments remain candidates; Rust validates their exact
 captured evidence and typed requests before granting any existing authority.
 Clients continue through `brn-workflow` / AppWorker; `brn-ai` remains the thin Rig
 provider adapter.
+
+Tool inputs carry semantic intent, evidence references and exact quote text.
+Rust binds each selected quote to a unique exact occurrence in the fresh saved
+source body and computes its UTF-8 byte range; absent or ambiguous occurrences
+refuse rather than guess. Rust mints durable identifiers, binds provenance and
+the owning turn/group/session, and loads complete before records from checked
+references. Idempotent callbacks bind the owning turn and canonical content.
+Scope, open conflicts and freshness must travel as typed evidence with read
+results; a prompt alone cannot enforce eligibility or authority. AI text cannot
+change managed identity/class/state/provenance outside a validated typed
+transition; explicit owner Save retains its direct byte-editing semantics.
+Deterministic checks establish facts code can prove; semantic uncertainty remains
+for AI assessment and owner decision.
+
+These are required boundaries, not a claim that every existing tool already
+meets them. Model-supplied IDs/ranges/before records, prompt-only truth labels and
+Rewrite metadata protection have pending corrections; [status](../status.md) and
+the affected crate contracts must distinguish implementation from qualification.
 
 New task-specific AI behavior introduced during V1 uses a small centralized typed
 behavior/prompt boundary within the existing `brn-ai` / `brn-workflow` architecture.
@@ -68,6 +90,7 @@ typed captured input and existing deterministic validation at their boundaries.
 Avoid large task instruction strings scattered through unrelated workflow or UI
 code. Migrate existing prompt code only when naturally touched or when the move
 is very small and low risk; this clarification does not require a prompt rewrite.
+Byte-pinned prompt fingerprints detect instruction changes, not semantic effectiveness.
 
 This rule adds no dynamic Skills system, prompt database, plugin framework,
 Context Engine, second agent framework or other V1 architecture. Frozen ownership,
@@ -98,6 +121,13 @@ queries. A protocol connection grants only exposed capabilities, never general
 filesystem/SQL access. Future agent writes must create review work through the
 existing exact proposal/approval lifecycle.
 
+The current CLI is owner-operated and exposes full owner authority, including
+approval, Save and completion. It is not a restricted external-agent channel.
+Agent interfaces expose read/propose capabilities only unless the owner explicitly
+delegates more; possession of a CLI or protocol connection is not delegation.
+Approval, completion, attestation, finding closure and Save remain owner commands.
+This policy does not claim that the current CLI enforces caller identity.
+
 No `brn-mcp` is added merely for this amendment. A daemon, simultaneous-client
 coordination, remote access, HTTP/network listener, cloud service, sync or
 authentication server needs a later concrete requirement. V1 delivery order
@@ -113,7 +143,7 @@ database/backup markers are refused before SQLite opens; no old data is migrated
 
 | Crate | Current responsibility |
 | --- | --- |
-| [brn](../../crates/brn/README.md) | Agent-facing CLI over AppWorker |
+| [brn](../../crates/brn/README.md) | Owner-operated CLI over AppWorker |
 | [brn-desktop](../../crates/brn-desktop/README.md) | Native presentation, exact text buffer, layout and AppWorker commands |
 | [brn-workflow](../../crates/brn-workflow/README.md) | Application/chat/account/model lanes, vault, Save/recovery and bounded AI capabilities |
 | [brn-store](../../crates/brn-store/README.md) | WorkStore integrity, backups, chat, proposal review, exact editor recovery and Save journals |
@@ -199,6 +229,25 @@ completed historical replay preserves subsequent user file edits. Partial or
 incompatible proof stays fenced. Ordinary receipt/comment cleanup never removes
 unexpected artifacts. These receipts implement the frozen ordinary-file recovery
 boundary rather than adding another datastore.
+
+## Inbox copy cleanup and recovery evolution
+
+The owner's [text Inbox copy rule](../product/BRN_PRODUCT_VISION.md#73-original-intake-files)
+requires an approved Source that still proves exact original preservation plus
+explicit owner confirmation. Failed analyses, pending consequence drafts and
+later derived-note edits do not block copy cleanup. Processed/dismissed disposition
+is separate operational state. There is no automatic deletion or purge; removal
+is recoverable and never removes the approved Source. Corrected admission and
+native controls remain pending until their implementation and acceptance are
+recorded; the rule itself is not an original-removal receipt.
+
+Extend approved vault and ordinary-asset effects through existing typed
+proposal-apply members. Extend private intake effects through the original-operation
+family. A new recovery family requires a concrete blocker in those mechanisms and
+an owner decision before implementation. Existing Save/recovery mechanisms remain
+in place; additive WorkStore tables are local implementation choices, not new
+data authorities. This guidance does not authorize automatic migration or removal
+of existing recovery evidence.
 
 ## Build boundaries and remaining work
 
