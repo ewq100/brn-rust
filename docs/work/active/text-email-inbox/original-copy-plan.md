@@ -226,4 +226,49 @@ there is no cancellation command yet. Fresh re-removal after database restoratio
 refuses absent live conversion/analysis evidence while complete historical
 certificates and exact restoration remain available. Native/live/owner acceptance,
 permanent purge, actual assets, remaining Stage7 and later roadmap stages are open.
-Final normal verification and exact review SHA are recorded at snapshot completion.
+The code checkpoint is `cb0c81481f8f323bf916142ba9743f4dff64982a`, tree
+`db0eb93bd36aff59225d6a22a8d01928d0e7b73c`. The final pushed SHA reported to the
+owner includes only subsequent documentation evidence. Read-only review against
+qualified main60 identified two P2 defects: inventory retained all full certificates,
+and archived Knowledge skipped capture purpose/exact quotation checks. Both were
+technically reproduced or validated and fixed; material correction re-review is
+clean. Inventory now retains compact operation/namespace identity and rechecks
+physical copies; live and historical Knowledge use the same private validator.
+Applied-certificate regression recomputes surrounding valid proofs and refuses
+four purpose/quote/range/additional-quote mutations before any import.
+
+Fresh final verification, Darwin arm64 Mac mini / Rust1.98.1 / locked offline /
+canonical owned `TMPDIR=/private/tmp/brn-mini-synthetic-20261005` / no model setting:
+
+| Check | Actual result |
+| --- | --- |
+| `bash scripts/verify-end-to-end.sh` | Exit0; retirement/format/workspace build/all-target Clippy;1,365passed/0failed/9ignored;52fixtures. Atomic record start19:11:37Z/end19:17:00Z, clean unchanged commit/tree. |
+| Standalone included file `rustfmt +1.98.1 --edition 2024 --check crates/brn-workflow/src/files/inbox_original_operations.rs` | Passed; included child file is checked explicitly. |
+| Native Desktop `check` combined; `clippy --all-targets -- -D warnings` for native-ui, combined, combined+native-test-support | Passed with `--locked --offline`; existing upstream `block v0.1.6` future-compiler warning remains. |
+| `cargo +1.98.1 test -p brn-desktop --features native-ui,native-retrieval,native-test-support --locked --offline` |285passed/0failed/0ignored; synthetic/headless widgets. |
+| `cargo +1.98.1 test -p brn-workflow --features native-retrieval --lib --test models --locked --offline` |289passed/0failed/8ignored; subprocess entry ignores intentional. No real asset/inference qualification. |
+| Shipping `cargo +1.98.1 build` Desktop `native-ui,native-retrieval` and CLI `native-retrieval`, each `--locked --offline` | Passed. Two exclusive synthetic `--headless-check startup` runs passed; V14 `brn.sqlite` present, retired `brn.sqlite3` absent. Native sequence19:17:57Z–19:19:47Z, exit0. |
+| `python3 -m unittest discover -s scripts/tests -v` |16passed; no account/network/model calls. |
+| `python3 scripts/check-markdown-links.py`; `git diff --check` |310local links/0failures and whitespace passed; final evidence-only documents checked again before commit. |
+
+The first normal gate on88a80b0 failed Clippy with three new collapsible-if errors
+(exit101 at19:00:33Z–19:00:44Z); these were corrected, and the full fresh gate above
+passed. Early launcher/preflight setup failures (missing evidence parent/tool PATH)
+did not qualify a run and were corrected. Sandbox-only NSFileCoordinator failures
+were reproduced in unchanged qualified Source setup; authorized synthetic macOS
+coordination passed. Other current-unit red regression attempts were corrected and
+are covered by the final suite. No unresolved local check failure is concealed.
+
+Full raw local output remains under the lead's explicit `work/` evidence paths,
+with atomic gate/native result records in the disposable external evidence parent.
+Durable log identities: workspace final154,088bytes SHA256
+`92a81721b62259e9243650e4999cd48454e3bd9dfe2c3c794156462681127459`;
+native final69,420bytes SHA256
+`3d59e630b4dcbfc6dc0c44b2372204e3235495c9827c8e631a21db5de7192305`.
+
+No PR/merge or CI result is claimed for this review branch. Integrated main60
+run37354011334 attempt1 passed applicable macOS/shared and Documentation jobs;
+its actual overall failure remains recorded above with complete baseline-identical
+Windows/Linux diagnostics. Native/live/owner acceptance remains pending. The owner
+requires pause after successful push; goal status is confirmed through Codex and
+reported with the final immutable SHA. No next unit begins before owner review.

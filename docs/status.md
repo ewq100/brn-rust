@@ -21,8 +21,10 @@ Latest integrated checkpoint is removal qualification PR60 at
 acceptance. The unmerged review branch `codex/v1-inbox-recoverable-removal` adds
 exact owner attestations, recoverable private-copy removal/restoration and complete
 historical certificates through the existing Store/files/AppWorker/CLI boundaries.
-Native confirmation controls, remaining Stage7 work and Stages8–16 are incomplete.
-The owner requested an architecture-review pause after this branch is verified,
+The coherent backend unit is locally qualified at `cb0c81481f8f323bf916142ba9743f4dff64982a`;
+the review snapshot records evidence without further source changes. Native
+confirmation controls, remaining Stage7 work and Stages8–16 are incomplete.
+The owner requires an architecture-review pause after this branch is verified,
 committed and pushed; no merge or following implementation unit is authorized
 while awaiting that review. Native/live/owner acceptance remains pending.
 
