@@ -6,6 +6,7 @@ use super::{
 use brn_workflow::{
     app_worker::{AppCommand, AppEvent},
     inbox::{CaptureInboxRequest, InboxKind, InboxListRequest},
+    inbox_processing::{InboxCandidateRequest, ProcessInboxRequest},
 };
 use std::{fmt::Write as _, path::PathBuf};
 use uuid::Uuid;
@@ -19,6 +20,10 @@ pub enum InboxCommand {
     },
     Show(Uuid),
     List(InboxListRequest),
+    Process(PathBuf),
+    Processing(Uuid),
+    Candidate(InboxCandidateRequest),
+    Cancel(Uuid),
 }
 impl InboxCommand {
     pub fn name(&self) -> &'static str {
@@ -26,6 +31,10 @@ impl InboxCommand {
             Self::Add { .. } => "inbox.add",
             Self::Show(_) => "inbox.show",
             Self::List(_) => "inbox.list",
+            Self::Process(_) => "inbox.process",
+            Self::Processing(_) => "inbox.processing",
+            Self::Candidate(_) => "inbox.candidate",
+            Self::Cancel(_) => "inbox.cancel",
         }
     }
 }
@@ -34,7 +43,11 @@ pub(super) fn scan_command(
     globals: &mut Globals,
     name: &mut Option<&'static str>,
 ) -> Result<Scanned, CliError> {
-    let sub = sub_word(tokens, "inbox", "add|show|list")?;
+    let sub = sub_word(
+        tokens,
+        "inbox",
+        "add|show|list|process|processing|candidate|cancel",
+    )?;
     let (label, options): (_, &[(&str, bool)]) = match sub.as_str() {
         "add" => (
             "inbox.add",
@@ -48,7 +61,11 @@ pub(super) fn scan_command(
         ),
         "show" => ("inbox.show", &[]),
         "list" => ("inbox.list", &[("limit", true), ("after", true)]),
-        _ => return Err(usage("unknown Inbox subcommand (expected add|show|list)")),
+        "process" => ("inbox.process", &[("file", true)]),
+        "processing" => ("inbox.processing", &[]),
+        "candidate" => ("inbox.candidate", &[]),
+        "cancel" => ("inbox.cancel", &[]),
+        _ => return Err(usage("unknown Inbox subcommand")),
     };
     *name = Some(label);
     scan(tokens, globals, options)
@@ -71,6 +88,12 @@ fn metadata(command: &InboxCommand) -> Result<(), CliError> {
         .validate()
         .map_err(|e| usage(e.message)),
         InboxCommand::Show(id) if id.is_nil() => Err(usage("Inbox UUID must not be nil")),
+        InboxCommand::Processing(id) | InboxCommand::Cancel(id) if id.is_nil() => {
+            Err(usage("Inbox processing UUID must not be nil"))
+        }
+        InboxCommand::Candidate(r) if r.batch_id.is_nil() || r.index >= 8 => {
+            Err(usage("Inbox candidate needs a UUID and index 0 to 7"))
+        }
         InboxCommand::List(r) => r.validate().map_err(|e| usage(e.to_string())),
         _ => Ok(()),
     }
@@ -115,6 +138,29 @@ pub(super) fn parse_command(name: &str, s: &Scanned) -> Result<InboxCommand, Cli
                 after: s.uuid("after")?,
             })
         }
+        "inbox.process" => {
+            expect_positionals(s, 0)?;
+            InboxCommand::Process(PathBuf::from(
+                s.value("file").ok_or_else(|| usage("missing --file"))?,
+            ))
+        }
+        "inbox.processing" => {
+            expect_positionals(s, 1)?;
+            InboxCommand::Processing(positional_uuid(s, 0, "UUID")?)
+        }
+        "inbox.cancel" => {
+            expect_positionals(s, 1)?;
+            InboxCommand::Cancel(positional_uuid(s, 0, "UUID")?)
+        }
+        "inbox.candidate" => {
+            expect_positionals(s, 2)?;
+            InboxCommand::Candidate(InboxCandidateRequest {
+                batch_id: positional_uuid(s, 0, "UUID")?,
+                index: s.positionals[1]
+                    .parse()
+                    .map_err(|_| usage("invalid candidate INDEX"))?,
+            })
+        }
         _ => unreachable!("scanned Inbox command"),
     };
     metadata(&command)?;
@@ -144,6 +190,16 @@ pub(super) fn prepare(command: &InboxCommand) -> Result<AppCommand, CliFailure> 
         }
         InboxCommand::Show(id) => AppCommand::InboxItem(*id),
         InboxCommand::List(r) => AppCommand::InboxItems(r.clone()),
+        InboxCommand::Process(file) => {
+            let text = super::input::read_text_file(file, "Inbox processing request")?;
+            let request: ProcessInboxRequest = serde_json::from_str(&text)
+                .map_err(|_| usage("invalid Inbox processing request JSON"))?;
+            request.validate().map_err(|e| usage(e.to_string()))?;
+            AppCommand::ProcessInbox(request)
+        }
+        InboxCommand::Processing(id) => AppCommand::InboxProcessing(*id),
+        InboxCommand::Candidate(r) => AppCommand::InboxCandidate(r.clone()),
+        InboxCommand::Cancel(id) => AppCommand::CancelInboxProcessing(*id),
     })
 }
 pub(super) fn output(command: &AppCommand, event: AppEvent) -> Result<Output, CliFailure> {
@@ -160,6 +216,20 @@ pub(super) fn output(command: &AppCommand, event: AppEvent) -> Result<Output, Cl
             if page.entries.len() <= r.limit =>
         {
             serde_json::json!(*page)
+        }
+        (AppCommand::ProcessInbox(r), AppEvent::InboxProcessing(batch))
+            if batch.request == *r && batch.pending_count() == 0 =>
+        {
+            serde_json::json!(*batch)
+        }
+        (
+            AppCommand::InboxProcessing(id) | AppCommand::CancelInboxProcessing(id),
+            AppEvent::InboxProcessing(batch),
+        ) if batch.request.id == *id => serde_json::json!(*batch),
+        (AppCommand::InboxCandidate(r), AppEvent::InboxCandidate(preview))
+            if preview.request == *r =>
+        {
+            serde_json::json!(*preview)
         }
         _ => {
             return Err(
@@ -196,6 +266,10 @@ mod tests {
                 "inbox", "add", "--id", &id, "--title", "Exact õ", "--file", "copy.txt",
             ],
             vec!["inbox", "show", &id],
+            vec!["inbox", "process", "--file", "request.json"],
+            vec!["inbox", "processing", &id],
+            vec!["inbox", "candidate", &id, "0"],
+            vec!["inbox", "cancel", &id],
             vec!["inbox", "list", "--after", &id, "--limit", "100"],
         ] {
             let mut a = args(&tokens);
@@ -215,6 +289,9 @@ mod tests {
                 "00000000-0000-0000-0000-000000000000",
             ],
             vec!["inbox", "show", "../outside"],
+            vec!["inbox", "candidate", &id, "8"],
+            vec!["inbox", "candidate", &id, "-1"],
+            vec!["inbox", "process"],
         ] {
             let mut a = args(&tokens);
             a.extend(args(&["--data-dir", data_path]));
@@ -229,6 +306,8 @@ mod tests {
         let credentials = owner.path().join("credentials");
         let invalid = owner.path().join("invalid.txt");
         std::fs::write(&invalid, [0xff]).unwrap();
+        let invalid_json = owner.path().join("invalid.json");
+        std::fs::write(&invalid_json, "{\"id\":\"not-an-id\",\"items\":[]}").unwrap();
         let oversized = owner.path().join("oversized.txt");
         std::fs::write(&oversized, vec![b'x'; brn_workflow::MAX_NOTE_BYTES + 1]).unwrap();
         let make = |input| InboxCommand::Add {
@@ -240,6 +319,7 @@ mod tests {
         };
         for command in [
             InboxCommand::Show(Uuid::nil()),
+            InboxCommand::Process(invalid_json),
             InboxCommand::List(InboxListRequest {
                 limit: 0,
                 after: None,
@@ -304,6 +384,43 @@ mod tests {
         assert_eq!(listed.data["total_count"], 1);
         assert_eq!(listed.data["entries"][0]["availability"], "available");
         assert_eq!(listed.data["issues"], serde_json::json!([]));
+        let process = ProcessInboxRequest {
+            id: Uuid::new_v4(),
+            items: vec![serde_json::from_value(first.data.clone()).unwrap()],
+        };
+        let input_json = owner.path().join("request.json");
+        std::fs::write(&input_json, serde_json::to_vec(&process).unwrap()).unwrap();
+        let result =
+            crate::cli::execute(&invocation(InboxCommand::Process(input_json.clone()))).unwrap();
+        assert_eq!(result.data["entries"][0]["outcome"]["state"], "converted");
+        assert_eq!(
+            crate::cli::execute(&invocation(InboxCommand::Process(input_json)))
+                .unwrap()
+                .data,
+            result.data
+        );
+        assert_eq!(
+            crate::cli::execute(&invocation(InboxCommand::Processing(process.id)))
+                .unwrap()
+                .data,
+            result.data
+        );
+        let preview = crate::cli::execute(&invocation(InboxCommand::Candidate(
+            InboxCandidateRequest {
+                batch_id: process.id,
+                index: 0,
+            },
+        )))
+        .unwrap();
+        assert!(preview.data["markdown"].as_str().unwrap().contains(exact));
+        assert_eq!(preview.data["needs_semantic_review"], true);
+        assert!(!preview.text.contains('\u{009b}'));
+        assert_eq!(
+            crate::cli::execute(&invocation(InboxCommand::Cancel(process.id)))
+                .unwrap()
+                .data,
+            result.data
+        );
         assert_eq!(std::fs::read(input).unwrap(), exact.as_bytes());
         assert_eq!(std::fs::read_dir(credentials).unwrap().count(), 0);
         assert!(!data.join("index.sqlite").exists());

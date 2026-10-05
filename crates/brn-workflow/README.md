@@ -25,6 +25,21 @@ retrieval storage details.
 
 ## Text/email Inbox boundary
 
+`ProcessInbox`, `InboxProcessing`, `InboxCandidate` and `CancelInboxProcessing`
+extend the same headless boundary. One joined AppWorker lane advances one member
+at a time between commands. Admission binds 1–8 complete retained Inbox snapshots;
+at most 16 members can be pending. WorkStore V13 keeps exact requests, states and
+conversion receipts. Restart interrupts unfinished members; replay never silently
+restarts work. New UUIDs explicitly retry retained originals.
+
+Markdown previews preserve exact bytes; other deliberate text copies use safe
+literal Markdown fences around the exact body. Oversized previews are flagged
+without truncation. Preview reads recheck the original and reproduce the exact
+receipt. Imported frontmatter remains pending text rather than managed metadata.
+These previews require semantic review; attachment/visual interpretation, saved
+source proposals, consequences and safe deletion remain follow-on capabilities.
+No original deletion, provider call or authoritative write occurs here.
+
 `CaptureInbox`, `InboxItem` and `InboxItems` are headless workflow commands for
 explicit bounded text, Markdown, email and Teams copies. AppWorker admits capture
 as a critical mutation and coordinates the private ordinary-copy namespace,
@@ -38,7 +53,7 @@ file, mirror and directory are rechecked and synchronized before acknowledgement
 Unknown, partial, changed, aliased or replaced artifacts stay in place and appear
 as explicit Inbox issues. A known full receipt can reconcile after restart or
 database backup restoration; equal bytes at another inode are insufficient.
-Missing originals are reported without claiming fresh source evidence. This slice
+Missing originals are reported without claiming fresh source evidence. Capture
 does not convert content, call a provider, create knowledge/proposals, or delete
 copies. Future protocol adapters should call these workflow commands rather than
 the file or Store modules.
