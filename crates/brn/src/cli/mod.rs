@@ -147,6 +147,10 @@ Commands:
   brn inbox add --id UUID --title TITLE --file TEXT_FILE [--kind text|markdown|email|teams] [--original-name LABEL]
   brn inbox list [--limit N] [--after UUID]
   brn inbox show UUID
+  brn inbox process --file REQUEST_JSON
+  brn inbox processing UUID
+  brn inbox candidate UUID INDEX
+  brn inbox cancel UUID
   brn actions complete --file REQUEST.json
   brn actions show UUID
   brn actions list [--state open|waiting|blocked|completed|all] [--limit N] [--before-created-at-ms N --before-id UUID]

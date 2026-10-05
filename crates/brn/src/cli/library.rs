@@ -56,6 +56,7 @@ enum Job {
     Rewrite(Uuid),
     Account(Uuid),
     Download(Uuid),
+    Inbox(Uuid),
 }
 
 trait EventLane {
@@ -157,6 +158,7 @@ impl<W: EventLane> Lane<W> {
                         Job::Ask(id) | Job::Rewrite(id) => Some(AppCommand::CancelTurn(id)),
                         Job::Account(id) => Some(AppCommand::CancelAccount(id)),
                         Job::Download(id) => Some(AppCommand::CancelModelDownload(id)),
+                        Job::Inbox(id) => Some(AppCommand::CancelInboxProcessing(id)),
                         Job::Local => None,
                     };
                     if let Some(control) = control {
@@ -262,6 +264,16 @@ fn confirmed_success(event: &AppEvent) -> bool {
             AccountReply::Status(_) | AccountReply::Disconnected | AccountReply::Models(_)
         ),
         AppEvent::ModelInstalled => true,
+        AppEvent::InboxProcessing(batch) => {
+            batch.pending_count() == 0
+                && batch.entries.iter().all(|entry| {
+                    matches!(
+                        entry.outcome,
+                        brn_workflow::inbox_processing::InboxProcessOutcome::Converted { .. }
+                            | brn_workflow::inbox_processing::InboxProcessOutcome::Failed { .. }
+                    )
+                })
+        }
         AppEvent::EditorRecovered(_)
         | AppEvent::EditorSaved(_)
         | AppEvent::ProposalApplied(_)
@@ -375,6 +387,44 @@ fn execute(
                 AppCommand::InboxItem(id) => lane.query(AppCommand::InboxItem(*id))?,
                 AppCommand::InboxItems(request) => {
                     lane.query(AppCommand::InboxItems(request.clone()))?
+                }
+                AppCommand::ProcessInbox(request) => {
+                    lane.worker
+                        .submit(request.id, AppCommand::ProcessInbox(request.clone()))
+                        .map_err(|error| lane.command_error(error))?;
+                    loop {
+                        let (id, event) = lane.next(Job::Inbox(request.id))?;
+                        if id != request.id {
+                            continue;
+                        }
+                        match event {
+                            AppEvent::InboxProcessing(batch) if batch.pending_count() == 0 => {
+                                if lane.stopped.is_some()
+                                    && !confirmed_success(&AppEvent::InboxProcessing(batch.clone()))
+                                {
+                                    return Err(lane.stop_error().into());
+                                }
+                                break AppEvent::InboxProcessing(batch);
+                            }
+                            AppEvent::InboxProcessing(_) => {}
+                            AppEvent::Failed(error) => {
+                                return Err(lane.command_error(error).into())
+                            }
+                            _ => {
+                                return Err(CliError::Workflow(
+                                    "unexpected Inbox processing event".into(),
+                                )
+                                .into())
+                            }
+                        }
+                    }
+                }
+                AppCommand::InboxProcessing(id) => lane.query(AppCommand::InboxProcessing(*id))?,
+                AppCommand::InboxCandidate(request) => {
+                    lane.query(AppCommand::InboxCandidate(request.clone()))?
+                }
+                AppCommand::CancelInboxProcessing(id) => {
+                    lane.query(AppCommand::CancelInboxProcessing(*id))?
                 }
                 _ => unreachable!("prepared Inbox command"),
             };

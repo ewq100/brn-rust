@@ -66,29 +66,22 @@ Evidence: [Actions/dashboard record](work/completed/actions-dashboard/plan.md).
 
 ## Latest integrated checkpoint
 
-[PR44](https://github.com/ewq100/brn-rust/pull/44) merged
-**114090c5d0915daf5ee6c83b421e05b262e90a6d**, exact reviewed treeD39276e3.
-Stage7's immutable original-copy catalog is integrated in WorkStore V12. It stores
-bounded exact metadata/file proof, preserves UUID replay/time, pages chronological
-received-time/UUID inventory and rejects semantic/schema damage before backup
-recovery. Original content stays in ordinary files. This checkpoint does not yet
-expose user intake/processing, convert content or delete copies.
+[PR45](https://github.com/ewq100/brn-rust/pull/45) merged as
+**2a63fafb6f3a3897af5c5fc1d835b3043fe12763**, exact reviewed tree
+`f70806f2cc73fd47600d9c5a7180391597963626`. Stage7 now includes the immutable
+WorkStore V12 original-copy catalog plus owned exact text/email/Markdown/Teams
+capture, private durable mirrors, shared AppWorker capture/read/list and thin CLI
+adapters. Originals remain outside the vault/index and outside Current knowledge;
+no processing, provider call, proposal or deletion is claimed yet.
 
-Independent whole review is clean. Fresh 1160 shared tests (0 failed, 6 ignored),
-52 fixtures, 207 native-workflow model tests (0 failed, 5 ignored), 257 native
-desktop tests (0 failed, 0 ignored), both native Clippy modes, shipping
-builds/startup2 and 95 doc links passed on macOS arm64/Rust1.98.1. Exact
-head45084a8/run37247924577 passed MacCore/UI/NativeRetrieval and UbuntuShared;
-Windows22 full diagnostics match actual Main43. Overall CI red; no
-new shared Mac defect signature. Normal merge met fresh GitHub requirements without
-bypass. Parents/tree/three fast-forwards verified; owner AGENTS.md exact bytes
-preserved. Post-merge 9 focused tests (0 failed, 0 ignored), 52 fixtures and
-startup2 passed, V12/exact bytes/zero credentials. Actual merged-main run37248575388
-finished 5 success/4 failure: MacCore/UI/NativeRetrieval
-and UbuntuCore/UI passed. WindowsCore/UI22 and Native14 full diagnostics match
-actual Main43; UbuntuNative10pass/3fail matches full panic/backtrace messages and
-source, with thread IDs/order/duration differences. Overall CI remains red; no new
-sharedMac defect signature.
+Independent whole review of the copy-intake delta is clean. Its exact-head run
+`37260989631` passed the applicable macOS Native UI, macOS Native Retrieval and
+Ubuntu shared checks; Windows Core/CLI reproduced the known baseline API failures.
+Post-merge run `37261533999` passed macOS Core/UI/Native Retrieval and Ubuntu
+Core/UI plus Ubuntu Native UI. Ubuntu Native Retrieval has the same three known
+synthetic-download failures; Windows Core/UI and Native jobs retain the known
+baseline failures. No new shared macOS defect signature was found. The merge tree,
+parents and local Git blobs were verified before the normal merge.
 
 Stage6 implementation is integrated through [PR43](https://github.com/ewq100/brn-rust/pull/43).
 Dashboard/identified Complete actual observation and eight safe original JPEGs
@@ -98,19 +91,13 @@ Scenarios and integration evidence remain in the
 
 ## Active slice and next work
 
-codex/v1-inbox-copy-intake continues Stage7 over actual merged44: owned exact
-text/email copies, narrow durable mirrors, shared AppWorker capture/read/list and
-thin CLI adapters. Originals stay outside the vault/index and unapproved intake
-stays outside Current queries. Interrupted/unknown work retains copies; no
-original deletion or provider call is in this slice. Owned processing, faithful
-conversion and independently reviewable consequences follow. See the short
-[Inbox plan](work/active/text-email-inbox/plan.md).
-
-The current copy-intake candidate has passed the broad workspace/storage gate,
-52 offline fixtures, native workflow and desktop tests, native shipping builds,
-native Clippy, and the two-run V12 startup/restart witness with exact synthetic
-vault bytes and zero credentials. Its complete independent read-only review is
-clean; exact-head GitHub checks are the remaining integration gate for this slice.
+The task-owned branch now advances Stage7 from the merged copy-intake baseline to
+a small bounded processing queue. The next slice admits individual or bounded
+batch jobs through AppWorker, joins cancellation and restart settlement, and
+performs deterministic faithful text/Markdown conversion while retaining originals
+and preserving the existing proposal/provenance boundary. It does not add a
+provider, write the vault, delete originals or create a second queue framework.
+See the short [Inbox plan](work/active/text-email-inbox/plan.md).
 
 ## Qualification and owner items
 

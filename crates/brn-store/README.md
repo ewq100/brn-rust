@@ -392,6 +392,15 @@ defaults and current-evidence eligibility. No ranking or Action mutation occurs.
 
 ## Original-copy Inbox catalog
 
+V13 adds the bounded Inbox processing queue in `inbox_processing`. A batch owns
+1–8 exact immutable Inbox snapshots and per-member queued/running/converted/failed/
+cancelled/interrupted outcomes; 16 pending members is the admission bound. Exact
+replay preserves timestamps and outcomes. Conversion receipts contain format,
+length and SHA256; original text remains in ordinary Inbox files. Startup validates
+the owned schema, hashes, timestamps and catalog bindings before recovery/backup,
+then interrupts unfinished members. Completed members survive cancellation and
+restart. This is operational review work, never saved source evidence.
+
 V12 adds immutable operational Inbox captures for deliberate text, Markdown,
 email and Teams copies. Full bounded labels/optional original names, UUID and
 ordinary-directory/file identity, byte length and SHA256 remain exact. Payload

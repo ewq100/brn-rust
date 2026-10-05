@@ -9,6 +9,7 @@ pub mod editor;
 mod edits;
 pub mod findings;
 pub mod inbox;
+pub mod inbox_processing;
 pub mod proposal_apply;
 mod proposal_repair;
 pub mod proposal_rewrite;
@@ -76,6 +77,7 @@ const MIGRATIONS: &[&str] = &[
     actions::V10,
     action_completion::V11,
     inbox::V12,
+    inbox_processing::V13,
 ];
 
 #[derive(Debug, Clone, PartialEq, Eq)]
@@ -151,6 +153,7 @@ impl WorkStore {
         action_completion::check_all(&conn)?;
         findings::check_all(&conn)?;
         inbox::check_all(&conn)?;
+        inbox_processing::reconcile(&mut conn)?;
         chat::reconcile(&mut conn)?;
         proposal_rewrite::reconcile(&mut conn)?;
         let backup = backup::create(data_dir, &conn)?;
@@ -269,6 +272,14 @@ fn check(db: &Path) -> Result<Checked> {
         Err(e) if is_corruption(&e) => return Ok(Checked::Corrupt),
         Err(e) => return Err(e.into()),
     };
+    if application == APPLICATION_ID && (13..=MIGRATIONS.len() as i64).contains(&version) {
+        // Readable queue damage must not silently discard pending/review work.
+        match inbox_processing::check_all(&conn) {
+            Err(crate::Error::Sql(e)) if is_corruption(&e) => return Ok(Checked::Corrupt),
+            Err(error) => return Ok(Checked::Invalid(error)),
+            Ok(()) => {}
+        }
+    }
     if application == APPLICATION_ID && (12..=MIGRATIONS.len() as i64).contains(&version) {
         // Readable Inbox damage must not silently restore older operational
         // inventory or be copied into a new startup backup.

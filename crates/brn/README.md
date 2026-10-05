@@ -20,6 +20,10 @@ brn findings close UUID --version N --state resolved|dismissed
 brn inbox add --id UUID --title TITLE --file TEXT_FILE [--kind text|markdown|email|teams] [--original-name LABEL]
 brn inbox list [--limit N] [--after UUID]
 brn inbox show UUID
+brn inbox process --file REQUEST_JSON
+brn inbox processing UUID
+brn inbox candidate UUID INDEX
+brn inbox cancel UUID
 brn actions complete --file REQUEST.json
 brn actions show UUID
 brn actions list [--state open|waiting|blocked|completed|all] [--limit N] [--before-created-at-ms N --before-id UUID]
@@ -87,6 +91,16 @@ the typed request through AppWorker. BRN retains the exact bytes in its private
 ordinary copy namespace and returns an immutable receipt; labels and source kind
 never select a filesystem path. Repeating the same UUID and exact request returns
 the original receipt without refreshing its timestamp or republishing the copy.
+`inbox process` accepts a JSON `ProcessInboxRequest`: a new nonnil `id` and
+`items` containing 1–8 exact `item` snapshots from `inbox show`. It waits for the
+owned AppWorker queue to settle and reports each outcome. The queue holds at most
+16 pending items. Exact request replay retains the existing result; retry uses a
+new batch UUID. `inbox processing` inspects a retained batch, `inbox candidate`
+reads its zero-based converted member, and `inbox cancel` settles pending members.
+Quit/signal joins owned work; restart marks unfinished members Interrupted.
+Converted previews still require semantic review and source-proposal approval.
+Originals are retained; no provider is called and no vault note is written.
+
 `inbox show` reports the complete metadata and either exact original text or an
 explicit missing/changed/unavailable result. `inbox list` reports chronological
 pages plus availability/issues. These commands never write vault Markdown,

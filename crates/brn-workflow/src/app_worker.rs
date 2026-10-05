@@ -82,6 +82,10 @@ pub enum AppCommand {
     CaptureInbox(crate::inbox::CaptureInboxRequest),
     InboxItems(crate::inbox::InboxListRequest),
     InboxItem(Uuid),
+    ProcessInbox(crate::inbox_processing::ProcessInboxRequest),
+    InboxProcessing(Uuid),
+    InboxCandidate(crate::inbox_processing::InboxCandidateRequest),
+    CancelInboxProcessing(Uuid),
     Findings(crate::findings::FindingListRequest),
     Finding(Uuid),
     CloseFinding(crate::findings::CloseFindingRequest),
@@ -188,6 +192,8 @@ pub enum AppEvent {
     InboxCaptured(Box<crate::inbox::InboxItem>),
     InboxItems(Box<crate::inbox::InboxInventory>),
     InboxItem(Box<crate::inbox::InboxRead>),
+    InboxProcessing(Box<crate::inbox_processing::InboxProcessBatch>),
+    InboxCandidate(Box<crate::inbox_processing::InboxConversionPreview>),
     Findings(Box<crate::findings::FindingPage>),
     FindingInspection(Box<crate::findings::FindingInspection>),
     CitationCaptured(Box<crate::knowledge::CitationCapture>),
@@ -264,6 +270,7 @@ enum Message {
 struct Controls {
     chat: Option<ChatHandle>,
     queued_rewrites: HashMap<Uuid, tokio_util::sync::CancellationToken>,
+    queued_inbox: HashMap<Uuid, Arc<AtomicBool>>,
     model: Option<(Uuid, Arc<AtomicBool>)>,
 }
 
@@ -350,11 +357,49 @@ impl AppWorker {
             || matches!(&command, AppCommand::Account { id: operation, .. } if *operation != id)
             || matches!(&command, AppCommand::SaveEditor(request) if request.operation_id != id)
             || matches!(&command, AppCommand::CompleteAction(request) if request.operation_id != id)
+            || matches!(&command, AppCommand::ProcessInbox(request) if request.id != id)
         {
             return Err(chat_worker::conflict());
         }
         // These commands never wait behind a scan, model load, stream or device login.
         match command {
+            AppCommand::ProcessInbox(request) => {
+                request.validate()?;
+                let mut controls = self.controls.lock().expect("owned controls");
+                if !controls.queued_inbox.contains_key(&id) && controls.queued_inbox.len() >= 16 {
+                    return Err(WorkflowError::typed(
+                        ErrorKind::ToolsBusy,
+                        "Inbox admission is full",
+                    ));
+                }
+                controls.queued_inbox.entry(id).or_default();
+                if self
+                    .tx
+                    .send(Message::Command(id, AppCommand::ProcessInbox(request)))
+                    .is_err()
+                {
+                    controls.queued_inbox.remove(&id);
+                    return Err(closed());
+                }
+                Ok(())
+            }
+            AppCommand::CancelInboxProcessing(batch) => {
+                if let Some(cancel) = self
+                    .controls
+                    .lock()
+                    .expect("owned controls")
+                    .queued_inbox
+                    .get(&batch)
+                {
+                    cancel.store(true, Ordering::Release);
+                }
+                self.tx
+                    .send(Message::Command(
+                        id,
+                        AppCommand::CancelInboxProcessing(batch),
+                    ))
+                    .map_err(|_| closed())
+            }
             AppCommand::CancelTurn(turn) => {
                 let controls = self.controls.lock().expect("owned controls");
                 let queued = controls.queued_rewrites.get(&turn).is_some_and(|cancel| {
@@ -461,6 +506,9 @@ impl AppWorker {
             if let Some((_, cancel)) = &controls.model {
                 cancel.store(true, Ordering::Release);
             }
+            for cancel in controls.queued_inbox.values() {
+                cancel.store(true, Ordering::Release);
+            }
             let _ = self.tx.send(Message::Shutdown);
         }
         if let Some(join) = self.join.take() {
@@ -482,6 +530,20 @@ impl Drop for AppWorker {
 }
 fn closed() -> WorkflowError {
     WorkflowError::msg("application lane is closed")
+}
+
+fn advance_inbox_processing(
+    app: &mut App,
+    id: Uuid,
+    cancel: &AtomicBool,
+    emit: &mpsc::Sender<(Uuid, AppEvent)>,
+) -> Result<crate::inbox_processing::InboxProcessBatch> {
+    app.advance_inbox_processing(id, cancel)
+        .inspect_err(|error| {
+            // The batch gets its correlated ending even if Store failure also ends
+            // the application lane. Restart will inspect the retained pending state.
+            let _ = emit.send((id, AppEvent::Failed(error.clone())));
+        })
 }
 
 fn cancelled_command(command: AppCommand) -> AppEvent {
@@ -641,6 +703,28 @@ fn app_lane(
                 Ok(message) => message,
                 Err(mpsc::TryRecvError::Disconnected) => break,
                 Err(mpsc::TryRecvError::Empty) => {
+                    if !stopping.load(Ordering::Acquire)
+                        && let Some(batch) = app.work_store().next_inbox_processing()?
+                    {
+                        let id = batch.request.id;
+                        let cancel = controls
+                            .lock()
+                            .expect("owned controls")
+                            .queued_inbox
+                            .entry(id)
+                            .or_default()
+                            .clone();
+                        let batch = advance_inbox_processing(&mut app, id, &cancel, &emit)?;
+                        if batch.pending_count() == 0 {
+                            controls
+                                .lock()
+                                .expect("owned controls")
+                                .queued_inbox
+                                .remove(&id);
+                        }
+                        let _ = emit.send((id, AppEvent::InboxProcessing(Box::new(batch))));
+                        continue;
+                    }
                     if let Some(id) = indexing.take() {
                         if indexing_job(&app, id)?.is_none() {
                             continue;
@@ -835,6 +919,27 @@ fn app_lane(
     if let Err(error) = lane_result {
         final_error.get_or_insert(error);
     }
+    // Conversion uses this joined lane only. Settle every admitted pending batch
+    // before releasing Store ownership; completed members remain immutable.
+    loop {
+        let result = (|| -> Result<bool> {
+            let Some(batch) = app.work_store().next_inbox_processing()? else {
+                return Ok(false);
+            };
+            let id = batch.request.id;
+            let batch = app.cancel_inbox_processing(id)?;
+            let _ = emit.send((id, AppEvent::InboxProcessing(Box::new(batch))));
+            Ok(true)
+        })();
+        match result {
+            Ok(true) => {}
+            Ok(false) => break,
+            Err(error) => {
+                final_error.get_or_insert(error);
+                break;
+            }
+        }
+    }
     // Close admission BEFORE draining replies. A queued callback cannot outlive
     // this receiver while chat shutdown waits for that callback's tool lease.
     action_reads.close();
@@ -907,6 +1012,11 @@ fn app_lane(
         .queued_rewrites
         .clear();
     controls.lock().expect("owned controls").model = None;
+    controls
+        .lock()
+        .expect("owned controls")
+        .queued_inbox
+        .clear();
     drop(chat);
     drop(app);
     final_error.map_or(Ok(()), Err)
@@ -1023,6 +1133,65 @@ fn dispatch(
         AppCommand::InboxItem(item) => AppEvent::InboxItem(Box::new(app.inbox_item(item)?)),
         AppCommand::InboxItems(request) => {
             AppEvent::InboxItems(Box::new(app.inbox_items(&request)?))
+        }
+        AppCommand::ProcessInbox(request) => {
+            let mut batch = match app.process_inbox(&request) {
+                Ok(batch) => batch,
+                Err(error) => {
+                    if app.work_store().inbox_processing(id)?.is_none() {
+                        controls
+                            .lock()
+                            .expect("owned controls")
+                            .queued_inbox
+                            .remove(&id);
+                    }
+                    return Err(error);
+                }
+            };
+            if batch.pending_count() == 0 {
+                controls
+                    .lock()
+                    .expect("owned controls")
+                    .queued_inbox
+                    .remove(&id);
+            }
+            let cancel = controls
+                .lock()
+                .expect("owned controls")
+                .queued_inbox
+                .get(&id)
+                .is_some_and(|cancel| cancel.load(Ordering::Acquire));
+            if batch.pending_count() > 0
+                && (cancel
+                    || !controls
+                        .lock()
+                        .expect("owned controls")
+                        .queued_inbox
+                        .contains_key(&id))
+            {
+                batch = app.cancel_inbox_processing(id)?;
+                controls
+                    .lock()
+                    .expect("owned controls")
+                    .queued_inbox
+                    .remove(&id);
+            }
+            AppEvent::InboxProcessing(Box::new(batch))
+        }
+        AppCommand::InboxProcessing(batch) => {
+            AppEvent::InboxProcessing(Box::new(app.inbox_processing(batch)?))
+        }
+        AppCommand::InboxCandidate(request) => {
+            AppEvent::InboxCandidate(Box::new(app.inbox_candidate(&request)?))
+        }
+        AppCommand::CancelInboxProcessing(batch) => {
+            let batch = app.cancel_inbox_processing(batch)?;
+            controls
+                .lock()
+                .expect("owned controls")
+                .queued_inbox
+                .remove(&batch.request.id);
+            AppEvent::InboxProcessing(Box::new(batch))
         }
         AppCommand::CompleteAction(request) => {
             AppEvent::ActionCompleted(Box::new(app.complete_action(&request)?))
@@ -1361,6 +1530,8 @@ fn critical_mutation_command(command: &AppCommand) -> bool {
             | AppCommand::SaveEditor(_)
             | AppCommand::CompleteAction(_)
             | AppCommand::CaptureInbox(_)
+            | AppCommand::ProcessInbox(_)
+            | AppCommand::CancelInboxProcessing(_)
             | AppCommand::ReconcileEditor(_)
             | AppCommand::RecoverEdit { .. }
             | AppCommand::CreateProposal(_)

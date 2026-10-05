@@ -219,7 +219,7 @@ struct Row {
     bytes: Option<Vec<u8>>,
     digest: Vec<u8>,
 }
-fn read(conn: &Connection, id: Uuid) -> Result<Option<InboxItem>> {
+pub(super) fn read(conn: &Connection, id: Uuid) -> Result<Option<InboxItem>> {
     nonnil(id)?;
     let row = conn.query_row(
         "SELECT received_at_ms,capture_sha256,CASE WHEN length(record_json)<=?2 THEN record_json END,record_sha256 FROM inbox_items WHERE id=?1",
