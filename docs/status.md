@@ -1,6 +1,6 @@
 # Current development status
 
-2026-10-05. **Stages 1–4 are implemented, automated verified and integrated.
+2026-10-06. **Stages 1–4 are implemented, automated verified and integrated.
 Stage 5 knowledge and Stage 6 Actions/dashboard foundations are integrated,
 with native/live/owner qualification still open.
 Stage 7 Inbox is active; Stages 7–16 are incomplete; complete V1
@@ -15,22 +15,24 @@ and the disposable retrieval index retain their existing roles. The owner's
 permits thin future adapters around the six V1 core crates through workflow/
 AppWorker. No MCP, daemon, HTTP service, extra database or remote work is in V1.
 
-Integrated main is **`7a472875f3b7303460e682a78e1f5d110c55a9c1` (PR62)**.
-Complete retained original review, fresh removal preview and deterministic quote
-selection/Rust conflict identities and AI Rewrite managed-metadata protection are
-integrated. Preview grants no removal authority. Exact-head PR37375653308 attempt1
-passed all four protected Mac/shared jobs and Docs; overall red preserves unchanged
-Windows diagnostics. Fresh merged18 Store Rewrite,1 owned callback and10 provenance
-tests plus52 fixtures passed. Main61 passed all applicable gates; its Windows
-compiler and Linux assertion/backtrace diagnostics match the baseline, with a
-retained Linux case-order difference. Main62 run37376785106 remains in progress.
+Integrated main is **`d36375b23dbf27a575ee73b5843bbf7d40f2a8ab` (PR63)**.
+Complete retained original review, fresh removal preview, deterministic body quote
+selection/Rust conflict and Knowledge identities, and AI Rewrite metadata
+protection are integrated. Preview grants no removal authority. Exact-head
+PR37377504928 attempt1 passed all four protected Mac/shared jobs and Docs; overall
+red retains Windows22 compiler blocks and both summaries matching PR62. Fresh
+merged123 AI/two owned Knowledge callback tests and52 fixtures passed; the initial
+misspelled filter selected zero tests and is not callback qualification. Main62's
+applicable gates passed; retained Windows22/22/14 and three Linux assertions/
+backtraces match main61, with Linux ordering/thread-ID differences retained.
+Merged main63 run37378949287 remains in progress.
 
 The clean, pushed **`7c4f668de467721f728f242c8fac8d14606a6e44`** snapshot on
 `codex/v1-inbox-recoverable-removal` implements recoverable removal/restore,
 mirrors and recovery, but is **not merged**. It is the immutable lifecycle review
 snapshot, not the corrected cleanup contract. Architecture-review corrections
-continue with independently reviewed Rust Knowledge identities on
-`codex/v1-review-knowledge-identities`; A1 record-shape and owner
+continue with Rust-owned Action candidate mechanics on
+`codex/v1-review-action-candidates`; A1 record-shape and owner
 cleanup corrections hold lifecycle integration, native removal and Stage 8.
 The full V1 goal is active.
 

@@ -492,7 +492,7 @@ fn inbox_action_injected_source_counts_toward_complete_proof_limit() {
         ..Hooks::default()
     });
     let source = capture_source(&worker, "Exact selected Source plus bounded evidence\r\n");
-    let paths = (0..brn_store::MAX_PROPOSAL_CHANGES)
+    let paths = (0..crate::proposals::MAX_PROPOSAL_CHANGES)
         .map(|index| {
             let path = format!("evidence-{index}.md");
             std::fs::write(
@@ -516,7 +516,7 @@ fn inbox_action_injected_source_counts_toward_complete_proof_limit() {
     let records = analysis(&worker, request.id).proposals;
     assert_eq!(records.len(), 1);
     let record = &records[0];
-    assert_eq!(record.draft.sources.len(), brn_store::MAX_PROPOSAL_CHANGES);
+    assert_eq!(record.draft.sources.len(), crate::proposals::MAX_PROPOSAL_CHANGES);
     assert_eq!(record.draft.sources[0], source.source.source);
     assert_eq!(
         record.draft.sources[1..]

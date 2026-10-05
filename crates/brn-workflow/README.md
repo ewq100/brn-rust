@@ -77,7 +77,9 @@ adopt its UUID. `InboxActionAnalysis` returns capture, optional turn and grouped
 review records, always with semantic review still required.
 
 The bound Action capability requires exactly one Action change per proposal,
-the selected Source UUID/reference and unchanged captured proof. It assigns the
+the unchanged captured Source proof. Workflow injects that proof as the first
+source and its note UUID exactly once in Action sources; AI source_paths names
+additional evidence and must not repeat the selected path. It assigns the
 analysis UUID as group and permits at most20 separate proposals; exact creation
 replay preserves later review edits even after Source loss. Existing edit/comment/
 Rewrite/reject and exact approval apply. These drafts cause no real Action effect
@@ -94,7 +96,9 @@ application lane. AI owns protocol parsing/bounds only. Workflow checks domain
 UUID/state/opaque ActionCursor, then calls `App::action/actions` freshly, preserving
 full immutable origins/current fields and the current-evidence fence. List default
 is all labeled operational states, limit1–20/default20, cursor≤256bytes; complete
-encoded JSON≤1MiB. Oversized pages refuse whole; callers may reduce the limit.
+encoded JSON≤1MiB. AI read_action adds a typed checked_ref (id/version/full-record
+SHA256), while owner Action commands preserve their existing output. Oversized
+pages refuse whole; callers may reduce the limit.
 
 Each callback has a private reply channel and never reads frontend events or SQL.
 The handle shares AppWorker's admission mutex: enqueue under the fence, release it
@@ -114,10 +118,16 @@ Ask uses separate fixed `ProposalTools` through the same owner lane/fence.
 Workflow captures the admitted turn and canonical selection/effort, infers its
 session and validates complete Create/Replace data, immutable origins/full CAS,
 references and full saved source proofs (including explicitly supplied history).
-All14 candidate fields and complete Replace before-records must be present.
-Original UUID replay reuses immutable sources before fresh observation and checks
-the original creation hash, preserving later edits/source loss. Changed payload,
-order/path/session refuses. No model-supplied session or approval authority exists.
+All14 semantic after-fields are required, including explicit nullable values.
+AI supplies no proposal/Create UUID or full Replace before-record. Rust derives
+proposal/member version8 UUIDs from exact ordered input scoped to the owned turn.
+Replace uses the id/version/full-record SHA256 reference returned by read_action;
+Workflow loads the entire checked baseline. Relationships use existing UUIDs or
+1-based member indices resolved before the established graph validators.
+Original replay uses retained full baselines and ordered proofs before fresh
+observation, preserving newer review/Source loss/Action advancement through the
+original creation-hash check. Changed input or another turn is a distinct draft
+that needs fresh validation. No model-supplied session or approval authority exists.
 
 The complete receipt is bounded before durable creation and contains only
 stamp/state/session/member UUIDs/source bindings. Admitted mutations drain after

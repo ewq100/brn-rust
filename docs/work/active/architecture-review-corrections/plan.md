@@ -224,3 +224,26 @@ follow separately before cleanup/record-shape corrections.
 The existing `capability-spike` offline gate additionally passed123 AI library
 and3 qualification-harness fixture tests plus all-target Clippy at the same Rust
 tree. No discovery request, credentials, live provider or model asset was used.
+
+## Action candidate correction acceptance
+
+Baseline: Knowledge PR63 head `385627a720177e731abbb4ee89ee66c7eb7d518c`,
+branch `codex/v1-review-action-candidates`. This changes only the AI candidate
+transport and owned admission; persisted Actions/proposals, owner APIs, full-record
+approval comparisons and recovery remain unchanged.
+
+- Rust mints proposal/Create identities from exact ordered semantic input in the
+  owned turn. Original replay retains proofs/full replacement baselines and newer
+  review; another turn or changed input is a distinct candidate.
+- Replace carries the typed full-record reference returned by `read_action`, never
+  a model-reconstructed before-record. Fresh admission verifies every baseline
+  field through the reference, including same-version divergence.
+- All14 after-fields stay explicit. Existing UUID and 1-based member references
+  support ordered mixed Create/Replace drafts; invalid indices, duplicate targets,
+  self/cyclic relationships and completed changes refuse.
+- Inbox attaches its selected Source proof and UUID automatically. Additional
+  evidence remains ordered/bounded, duplicated paths/UUIDs refuse; the shared20
+  consequence cap and replay-at-cap remain intact.
+- Real owned callback, strict synthetic Rig schema/capability, Stop/restart, exact
+  approval and meaningful stale/replay tests precede independent review, shared
+  and optional native gates, exact-head CI and normal integration. No live calls.

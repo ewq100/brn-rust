@@ -1,10 +1,14 @@
 //! Ask-bound proposal callbacks to the application owner; no separate Store writer.
 use super::*;
 use crate::proposals::{ActionChange, DraftRequest, ProposalStamp, ProposalState, SourceVersion};
-use brn_ai::{ActionProposalArgs, AiError, AiErrorKind, AiResult, ProposalTools};
+use brn_ai::{
+    ActionCandidate, ActionCandidateData, ActionCandidatePriority, ActionCandidateState,
+    ActionProposalArgs, ActionRef, AiError, AiErrorKind, AiResult, ProposalTools,
+};
 use brn_store::work::WorkTurnStatus;
 use serde::Serialize;
 use serde_json::Value;
+use sha2::{Digest, Sha256};
 use tokio_util::sync::CancellationToken;
 
 #[derive(Clone)]
@@ -183,30 +187,8 @@ impl ActionProposal {
     }
     fn run(&self, app: &mut App) -> AiResult<Value> {
         self.args.validate()?;
-        let id = Uuid::parse_str(&self.args.id).map_err(|_| rejected())?;
-        if id.is_nil() {
-            return Err(rejected());
-        }
-        let action_changes = self
-            .args
-            .action_changes
-            .iter()
-            .map(|input| {
-                let change: ActionChange =
-                    serde_json::from_value(input.clone()).map_err(|_| rejected())?;
-                let whole = serde_json::to_value(&change).map_err(|_| rejected())?;
-                // Serde accepts absent nullable fields. This protocol requires complete
-                // candidates and before-records; absence must never silently clear data.
-                if !whole_fields(input, &whole) {
-                    return Err(rejected());
-                }
-                change.validate().map_err(|_| rejected())?;
-                Ok(change)
-            })
-            .collect::<AiResult<Vec<_>>>()?;
-
         let actual = active_turn(app, &self.request, &self.turn)?;
-
+        let id = candidate_id(b"brn-action-proposal-v1", actual.id, &self.args)?;
         let group_id = if let Some(job) = &self.inbox {
             if job.capture.id != self.request.id
                 || job.question != self.request.question
@@ -216,18 +198,7 @@ impl ActionProposal {
                     .map_err(|e| safe(e.into()))?
                     .as_ref()
                     != Some(job.as_ref())
-                || action_changes.len() != 1
-                || !action_changes[0]
-                    .data()
-                    .sources
-                    .contains(&job.capture.note_id().map_err(|e| safe(e.into()))?)
-                || self
-                    .args
-                    .source_paths
-                    .iter()
-                    .filter(|p| *p == &job.capture.source.path)
-                    .count()
-                    != 1
+                || self.args.action_changes.len() != 1
             {
                 return Err(rejected());
             }
@@ -236,52 +207,114 @@ impl ActionProposal {
             None
         };
 
-        // Original creation replay precedes fresh source observation. Later review
-        // edits or source loss must not change the exact UUID's immutable input.
-        let sources = match app.proposal(id) {
-            Ok(existing) => {
-                if existing.draft.group_id != group_id
-                    || !self
-                        .args
-                        .source_paths
-                        .iter()
-                        .map(String::as_str)
-                        .eq(existing.draft.sources.iter().map(|s| s.path.as_str()))
+        // Replay resolves from retained full baselines and ordered proofs before
+        // observing mutable files/Actions. The Store then checks creation input
+        // and returns the newer review, never resetting it to candidate data.
+        let existing = match app.proposal(id) {
+            Ok(record) => Some(record),
+            Err(e) if e.kind == ErrorKind::NotFound => None,
+            Err(e) => return Err(safe(e)),
+        };
+        let paths = source_paths(&self.args, self.inbox.as_deref())?;
+        let sources = if let Some(record) = &existing {
+            if record.draft.group_id != group_id
+                || record.draft.session_id != Some(actual.conversation_id)
+                || !paths.iter().map(String::as_str).eq(record
+                    .draft
+                    .sources
+                    .iter()
+                    .map(|s| s.path.as_str()))
+            {
+                return Err(rejected());
+            }
+            record.draft.sources.clone()
+        } else {
+            if let Some(job) = &self.inbox {
+                if inbox_consequence_count(app, job)?
+                    >= crate::inbox_actions::MAX_INBOX_ACTION_PROPOSALS
                 {
                     return Err(rejected());
                 }
-                existing.draft.sources
+                app.validate_inbox_action_source(&job.capture)
+                    .map_err(safe)?;
             }
-            Err(e) if e.kind == ErrorKind::NotFound => {
-                if let Some(job) = &self.inbox {
-                    if inbox_consequence_count(app, job)?
-                        >= crate::inbox_actions::MAX_INBOX_ACTION_PROPOSALS
-                    {
-                        return Err(rejected());
-                    }
-                    app.validate_inbox_action_source(&job.capture)
-                        .map_err(safe)?;
-                }
-                self.args
-                    .source_paths
-                    .iter()
-                    .map(|path| {
-                        app.proposal_evidence_source(path)
-                            .map(|s| s.source)
-                            .map_err(safe)
-                    })
-                    .collect::<AiResult<Vec<_>>>()?
-            }
-            Err(e) => return Err(safe(e)),
+            paths
+                .iter()
+                .map(|path| {
+                    app.proposal_evidence_source(path)
+                        .map(|s| s.source)
+                        .map_err(safe)
+                })
+                .collect::<AiResult<Vec<_>>>()?
         };
         if let Some(job) = &self.inbox
-            && sources
-                .iter()
-                .find(|source| source.path == job.capture.source.path)
-                != Some(&job.capture.source)
+            && sources.first() != Some(&job.capture.source)
         {
             return Err(rejected());
         }
+        let member_ids = self
+            .args
+            .action_changes
+            .iter()
+            .enumerate()
+            .map(|(index, change)| match change {
+                ActionCandidate::Create { .. } => {
+                    candidate_id(b"brn-action-member-v1", id, &(index + 1))
+                }
+                ActionCandidate::Replace { target, .. } => non_nil_uuid(&target.id),
+            })
+            .collect::<AiResult<Vec<_>>>()?;
+        let source_id = self
+            .inbox
+            .as_ref()
+            .map(|job| job.capture.note_id().map_err(|e| safe(e.into())))
+            .transpose()?;
+        let action_changes = self
+            .args
+            .action_changes
+            .iter()
+            .enumerate()
+            .map(|(index, candidate)| {
+                let (data, before) = match candidate {
+                    ActionCandidate::Create { data } => (data, None),
+                    ActionCandidate::Replace { target, data } => {
+                        let before = if let Some(record) = &existing {
+                            match record.draft.action_changes.get(index) {
+                                Some(ActionChange::Replace { before, .. }) => {
+                                    before.as_ref().clone()
+                                }
+                                _ => return Err(rejected()),
+                            }
+                        } else {
+                            app.action(member_ids[index]).map_err(safe)?
+                        };
+                        if super::action_tools::checked_reference(&before)? != *target {
+                            return Err(rejected());
+                        }
+                        (data, Some(before))
+                    }
+                };
+                let mut data = action_data(data, &member_ids, member_ids[index])?;
+                // Validate duplicate source UUIDs before injecting the selected proof.
+                // Keep exactly one mandatory Source first, then caller order.
+                if let Some(source) = source_id {
+                    data.sources.retain(|id| *id != source);
+                    data.sources.insert(0, source);
+                }
+                let change = match before {
+                    Some(before) => ActionChange::Replace {
+                        before: Box::new(before),
+                        data,
+                    },
+                    None => ActionChange::Create {
+                        id: member_ids[index],
+                        data,
+                    },
+                };
+                change.validate().map_err(|_| rejected())?;
+                Ok(change)
+            })
+            .collect::<AiResult<Vec<_>>>()?;
         let request = DraftRequest {
             inbox_knowledge: None,
             inbox_source: None,
@@ -331,16 +364,115 @@ struct Receipt {
     action_ids: Vec<Uuid>,
     sources: Vec<SourceVersion>,
 }
-fn whole_fields(input: &Value, whole: &Value) -> bool {
-    match (input, whole) {
-        (Value::Object(input), Value::Object(whole)) => {
-            input.len() == whole.len()
-                && whole
-                    .iter()
-                    .all(|(key, value)| input.get(key).is_some_and(|v| whole_fields(v, value)))
-        }
-        _ => true,
+// Exact ordered typed intent is scoped to this owned turn. Domains separate
+// proposal and member UUIDs; UUID bits describe Rust-minted version8 identities.
+fn candidate_id<T: Serialize>(domain: &[u8], owner: Uuid, value: &T) -> AiResult<Uuid> {
+    let encoded = serde_json::to_vec(value).map_err(|_| rejected())?;
+    let mut digest = Sha256::new();
+    digest.update(domain);
+    digest.update(owner.as_bytes());
+    digest.update(encoded);
+    let hash = digest.finalize();
+    let mut bytes = [0; 16];
+    bytes.copy_from_slice(&hash[..16]);
+    bytes[6] = (bytes[6] & 0x0f) | 0x80;
+    bytes[8] = (bytes[8] & 0x3f) | 0x80;
+    Ok(Uuid::from_bytes(bytes))
+}
+fn non_nil_uuid(text: &str) -> AiResult<Uuid> {
+    let id = Uuid::parse_str(text).map_err(|_| rejected())?;
+    if id.is_nil() {
+        return Err(rejected());
     }
+    Ok(id)
+}
+fn source_paths(
+    args: &ActionProposalArgs,
+    inbox: Option<&crate::inbox_actions::InboxActionJob>,
+) -> AiResult<Vec<String>> {
+    let mut paths = Vec::with_capacity(args.source_paths.len() + usize::from(inbox.is_some()));
+    let mut seen = std::collections::HashSet::new();
+    if let Some(job) = inbox {
+        paths.push(job.capture.source.path.clone());
+        seen.insert(job.capture.source.path.to_ascii_lowercase());
+    }
+    for path in &args.source_paths {
+        if !seen.insert(path.to_ascii_lowercase()) {
+            return Err(rejected());
+        }
+        paths.push(path.clone());
+    }
+    if paths.len() > crate::proposals::MAX_PROPOSAL_CHANGES {
+        return Err(rejected());
+    }
+    Ok(paths)
+}
+fn action_ref(reference: &ActionRef, members: &[Uuid]) -> AiResult<Uuid> {
+    match reference {
+        ActionRef::Existing { id } => non_nil_uuid(id),
+        ActionRef::Member { index } => index
+            .checked_sub(1)
+            .and_then(|index| members.get(index))
+            .copied()
+            .ok_or_else(rejected),
+    }
+}
+fn action_data(
+    input: &ActionCandidateData,
+    members: &[Uuid],
+    id: Uuid,
+) -> AiResult<crate::actions::ActionData> {
+    use crate::actions::{ActionData, ActionPriority, ActionState};
+    let data = ActionData {
+        title: input.title.clone(),
+        description: input.description.clone(),
+        state: match input.state {
+            ActionCandidateState::Open => ActionState::Open,
+            ActionCandidateState::Waiting => ActionState::Waiting,
+            ActionCandidateState::Blocked => ActionState::Blocked,
+        },
+        owner: input.owner.clone(),
+        related_person: input
+            .related_person
+            .as_deref()
+            .map(non_nil_uuid)
+            .transpose()?,
+        related_project: input
+            .related_project
+            .as_deref()
+            .map(non_nil_uuid)
+            .transpose()?,
+        sources: input
+            .sources
+            .iter()
+            .map(|id| non_nil_uuid(id))
+            .collect::<AiResult<Vec<_>>>()?,
+        thread: input.thread.as_deref().map(non_nil_uuid).transpose()?,
+        due_on: input.due_on.clone(),
+        follow_up_on: input.follow_up_on.clone(),
+        dependencies: input
+            .dependencies
+            .iter()
+            .map(|reference| action_ref(reference, members))
+            .collect::<AiResult<Vec<_>>>()?,
+        parent: input
+            .parent
+            .as_ref()
+            .map(|reference| action_ref(reference, members))
+            .transpose()?,
+        follows_up: input
+            .follows_up
+            .as_ref()
+            .map(|reference| action_ref(reference, members))
+            .transpose()?,
+        priority: input.priority.map(|priority| match priority {
+            ActionCandidatePriority::Low => ActionPriority::Low,
+            ActionCandidatePriority::Normal => ActionPriority::Normal,
+            ActionCandidatePriority::High => ActionPriority::High,
+        }),
+    };
+    data.validate(id).map_err(|_| rejected())?;
+    Ok(data)
 }
 pub(super) fn rejected() -> AiError {
     AiError::new(AiErrorKind::ToolRejected)
@@ -406,8 +538,8 @@ mod tests {
     use serde_json::json;
     use std::time::{Duration, Instant};
     fn args() -> ActionProposalArgs {
-        serde_json::from_value(json!({"id":Uuid::new_v4(),"title":"Whole review õ\r\n","source_paths":[],"action_changes":[{
-            "kind":"create","id":Uuid::new_v4(),"data":{"title":"Exact õ","description":"\u{feff}Original 🦀\r\n","state":"open","owner":null,"related_person":null,"related_project":null,"sources":[],"thread":null,"due_on":null,"follow_up_on":null,"dependencies":[],"parent":null,"follows_up":null,"priority":null}
+        serde_json::from_value(json!({"title":"Whole review õ\r\n","source_paths":[],"action_changes":[{
+            "kind":"create","data":{"title":"Exact õ","description":"\u{feff}Original 🦀\r\n","state":"open","owner":null,"related_person":null,"related_project":null,"sources":[],"thread":null,"due_on":null,"follow_up_on":null,"dependencies":[],"parent":null,"follows_up":null,"priority":null}
         }]})).unwrap()
     }
     fn event(worker: &AppWorker) -> (Uuid, AppEvent) {
@@ -552,7 +684,7 @@ mod tests {
     fn proposal_admitted_before_stop_settles_and_only_proposal_lease_delays_terminal() {
         let mut a = active();
         let input = args();
-        let id = Uuid::parse_str(&input.id).unwrap();
+        let id = candidate_id(b"brn-action-proposal-v1", a.bound.turn.id, &input).unwrap();
         let release = pause(&a.worker);
         // enqueue returns only after sending under the actual admission fence.
         let receipt = a.bound.enqueue(input.clone()).unwrap();
@@ -616,7 +748,7 @@ mod tests {
     fn proposal_admitted_before_shutdown_settles_before_final_lease_and_restart() {
         let a = active();
         let input = args();
-        let id = Uuid::parse_str(&input.id).unwrap();
+        let id = candidate_id(b"brn-action-proposal-v1", a.bound.turn.id, &input).unwrap();
         let release = pause(&a.worker);
         let receipt = a.bound.enqueue(input).unwrap();
         let closing = a.worker.stopping.clone();
@@ -663,15 +795,16 @@ mod tests {
     {
         let mut a = active();
         let first = args();
-        let first_id = Uuid::parse_str(&first.id).unwrap();
+        let first_id = candidate_id(b"brn-action-proposal-v1", a.bound.turn.id, &first).unwrap();
         assert!(a.lease.propose_actions(first).is_ok());
         let release = pause(&a.worker);
         {
             let _fence = a.worker.admission.lock().unwrap();
             a.worker.tx.send(Message::FailLane).unwrap();
         }
-        let failed = args();
-        let failed_id = Uuid::parse_str(&failed.id).unwrap();
+        let mut failed = args();
+        failed.title.push_str(" failure");
+        let failed_id = candidate_id(b"brn-action-proposal-v1", a.bound.turn.id, &failed).unwrap();
         let receipt = a.bound.enqueue(failed).unwrap();
         let status = Uuid::new_v4();
         a.worker.submit(status, AppCommand::Status).unwrap();
@@ -713,7 +846,7 @@ mod tests {
      {
         let mut a = active();
         let input = args();
-        let id = Uuid::parse_str(&input.id).unwrap();
+        let id = candidate_id(b"brn-action-proposal-v1", a.bound.turn.id, &input).unwrap();
         let mut variants = vec![];
         let mut turn = a.bound.turn.clone();
         turn.id = Uuid::new_v4();
