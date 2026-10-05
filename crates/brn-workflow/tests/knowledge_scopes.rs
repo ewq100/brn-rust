@@ -369,6 +369,7 @@ fn unresolved_application_fences_every_scope_and_preserves_original_sources() {
     let source = app.proposal_source("current.md").unwrap();
     let record = app
         .create_proposal(&DraftRequest {
+            inbox_knowledge: None,
             inbox_source: None,
             action_changes: Vec::new(),
             id: Uuid::new_v4(),

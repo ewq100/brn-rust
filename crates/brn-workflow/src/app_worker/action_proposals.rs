@@ -1,7 +1,7 @@
 //! Ask-bound proposal callbacks to the application owner; no separate Store writer.
 use super::*;
 use crate::proposals::{ActionChange, DraftRequest, ProposalStamp, ProposalState, SourceVersion};
-use brn_ai::{ActionProposalArgs, ActionProposalTools, AiError, AiErrorKind, AiResult};
+use brn_ai::{ActionProposalArgs, AiError, AiErrorKind, AiResult, ProposalTools};
 use brn_store::work::WorkTurnStatus;
 use serde::Serialize;
 use serde_json::Value;
@@ -30,7 +30,7 @@ impl ActionProposals {
         request: &AskRequest,
         turn: &WorkTurn,
         cancel: CancellationToken,
-    ) -> Arc<dyn ActionProposalTools> {
+    ) -> Arc<dyn ProposalTools> {
         self.bind_inbox(request, turn, cancel, None)
     }
     pub(crate) fn bind_inbox(
@@ -39,7 +39,7 @@ impl ActionProposals {
         turn: &WorkTurn,
         cancel: CancellationToken,
         inbox: Option<Box<crate::inbox_actions::InboxActionJob>>,
-    ) -> Arc<dyn ActionProposalTools> {
+    ) -> Arc<dyn ProposalTools> {
         Arc::new(BoundProposal {
             owner: self.clone(),
             request: request.clone(),
@@ -63,7 +63,47 @@ pub(super) struct ActionProposal {
     reply: mpsc::Sender<AiResult<Value>>,
     inbox: Option<Box<crate::inbox_actions::InboxActionJob>>,
 }
-impl ActionProposalTools for BoundProposal {
+impl ProposalTools for BoundProposal {
+    fn knowledge_enabled(&self) -> bool {
+        self.inbox.as_ref().is_some_and(|job| {
+            job.capture.purpose == crate::inbox_actions::InboxAnalysisPurpose::KnowledgeAndActions
+        })
+    }
+    fn propose_knowledge(&self, args: brn_ai::KnowledgeProposalArgs) -> AiResult<Value> {
+        args.validate()?;
+        if !self.knowledge_enabled() {
+            return Err(rejected());
+        }
+        let (reply, rx) = mpsc::channel();
+        {
+            let _admission = self
+                .owner
+                .admission
+                .lock()
+                .map_err(|_| AiError::new(AiErrorKind::Other))?;
+            if self.owner.stopping.load(Ordering::Acquire) || self.cancel.is_cancelled() {
+                return Err(rejected());
+            }
+            self.owner
+                .tx
+                .send(Message::KnowledgeProposal(Box::new(
+                    super::knowledge_proposals::KnowledgeProposal {
+                        args,
+                        request: self.request.clone(),
+                        turn: self.turn.clone(),
+                        reply,
+                        inbox: self
+                            .inbox
+                            .as_ref()
+                            .expect("qualified knowledge capability")
+                            .clone(),
+                    },
+                )))
+                .map_err(|_| AiError::new(AiErrorKind::Other))?;
+        }
+        rx.recv().map_err(|_| AiError::new(AiErrorKind::Other))?
+    }
+
     fn propose_actions(&self, args: ActionProposalArgs) -> AiResult<Value> {
         self.enqueue(args)?
             .recv()
@@ -131,22 +171,7 @@ impl ActionProposal {
             })
             .collect::<AiResult<Vec<_>>>()?;
 
-        let actual = app
-            .work_store()
-            .turn(self.request.id)
-            .map_err(|e| safe(e.into()))?
-            .ok_or_else(rejected)?;
-        if self.turn.id != self.request.id
-            || actual.id != self.turn.id
-            || actual.conversation_id != self.turn.conversation_id
-            || actual.started_at_ms != self.turn.started_at_ms
-            || actual.status != WorkTurnStatus::Running
-            || self.turn.status != WorkTurnStatus::Running
-        {
-            return Err(rejected());
-        }
-        chat_worker::check_replay(&self.request, &self.turn).map_err(safe)?;
-        chat_worker::check_replay(&self.request, &actual).map_err(safe)?;
+        let actual = active_turn(app, &self.request, &self.turn)?;
 
         let group_id = if let Some(job) = &self.inbox {
             if job.capture.id != self.request.id
@@ -224,6 +249,7 @@ impl ActionProposal {
             return Err(rejected());
         }
         let request = DraftRequest {
+            inbox_knowledge: None,
             inbox_source: None,
             id,
             group_id,
@@ -282,10 +308,10 @@ fn whole_fields(input: &Value, whole: &Value) -> bool {
         _ => true,
     }
 }
-fn rejected() -> AiError {
+pub(super) fn rejected() -> AiError {
     AiError::new(AiErrorKind::ToolRejected)
 }
-fn safe(error: WorkflowError) -> AiError {
+pub(super) fn safe(error: WorkflowError) -> AiError {
     AiError::new(match error.kind {
         ErrorKind::ToolRejected | ErrorKind::OperationConflict | ErrorKind::NotFound => {
             AiErrorKind::ToolRejected
@@ -296,6 +322,27 @@ fn safe(error: WorkflowError) -> AiError {
         | ErrorKind::AiIndexStale => AiErrorKind::IndexStale,
         _ => AiErrorKind::Storage,
     })
+}
+
+pub(super) fn active_turn(app: &App, request: &AskRequest, turn: &WorkTurn) -> AiResult<WorkTurn> {
+    let actual = app
+        .work_store()
+        .turn(request.id)
+        .map_err(|e| safe(e.into()))?
+        .ok_or_else(rejected)?;
+    if turn.id != request.id
+        || actual.id != turn.id
+        || actual.conversation_id != turn.conversation_id
+        || actual.started_at_ms != turn.started_at_ms
+        || actual.status != WorkTurnStatus::Running
+        || turn.status != WorkTurnStatus::Running
+    {
+        return Err(rejected());
+    }
+    chat_worker::check_replay(request, turn).map_err(safe)?;
+    chat_worker::check_replay(request, &actual).map_err(safe)?;
+
+    Ok(actual)
 }
 
 #[cfg(test)]
@@ -316,7 +363,7 @@ mod tests {
         base: tempfile::TempDir,
         worker: AppWorker,
         bound: BoundProposal,
-        lease: Arc<dyn ActionProposalTools>,
+        lease: Arc<dyn ProposalTools>,
         canceled: mpsc::Receiver<()>,
     }
     fn active() -> Active {

@@ -159,7 +159,7 @@ async fn answer_with_tools(
     history: &[HistoryPair],
     effort: ReasoningEffort,
     tools: Arc<dyn ReadTools>,
-    proposals: Option<Arc<dyn crate::ActionProposalTools>>,
+    proposals: Option<Arc<dyn crate::ProposalTools>>,
     cancel: CancellationToken,
     emit: Arc<dyn Fn(AiEvent) + Send + Sync>,
 ) -> AiAnswer {
@@ -208,7 +208,7 @@ pub async fn answer_with_proposals(
     history: &[HistoryPair],
     effort: ReasoningEffort,
     tools: Arc<dyn ReadTools>,
-    proposals: Arc<dyn crate::ActionProposalTools>,
+    proposals: Arc<dyn crate::ProposalTools>,
     cancel: CancellationToken,
     emit: Arc<dyn Fn(AiEvent) + Send + Sync>,
 ) -> AiAnswer {
@@ -305,7 +305,7 @@ async fn run_model(
     question: &str,
     history: &[HistoryPair],
     tools: Arc<dyn ReadTools>,
-    proposals: Option<Arc<dyn crate::ActionProposalTools>>,
+    proposals: Option<Arc<dyn crate::ProposalTools>>,
     cancel: CancellationToken,
     emit: Arc<dyn Fn(AiEvent) + Send + Sync>,
     mode: RunMode,
@@ -338,12 +338,23 @@ async fn run_model(
         }
     };
     let can_propose = proposals.is_some() && !matches!(mode, RunMode::Rewrite { .. });
+    let can_propose_knowledge = can_propose
+        && proposals
+            .as_ref()
+            .is_some_and(|backend| backend.knowledge_enabled());
     let preamble = if can_propose {
         format!(
             "{preamble} You may propose Action review drafts using propose_actions. This never changes real Actions or Markdown. Separate exact human approval is required; do not claim proposed work is already approved or completed. Only explicitly supplied source paths may bind source evidence."
         )
     } else {
         preamble.to_owned()
+    };
+    let preamble = if can_propose_knowledge {
+        format!(
+            "{preamble} You may use propose_knowledge to create one independent current Knowledge Create review draft from the explicitly selected approved Inbox Source. Supply complete candidate Markdown, stable proposal/note UUIDs, a relative destination path and exact source byte ranges. Workflow adds exact saved citations; the tool never approves or writes knowledge."
+        )
+    } else {
+        preamble
     };
     let mut builder = rig::AgentBuilder::new(model)
         .preamble(&preamble)
@@ -357,6 +368,9 @@ async fn run_model(
             limited: limited.clone(),
         });
     if can_propose && let Some(proposals) = proposals {
+        if can_propose_knowledge {
+            builder = builder.tool(crate::proposal_tools::ProposeKnowledge(proposals.clone()));
+        }
         builder = builder.tool(crate::proposal_tools::ProposeActions(proposals));
     }
     if let RunMode::AnswerWithEffort { responses, effort }
@@ -448,6 +462,7 @@ async fn collect_stream(
                         | "read_action"
                         | "list_actions"
                         | "propose_actions"
+                        | "propose_knowledge"
                 ) {
                     emit(AiEvent::ToolStarted {
                         name: name.to_string(),

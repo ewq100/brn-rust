@@ -94,7 +94,7 @@ pub struct IdentityResolution {
 }
 
 impl IdentityInventory {
-    fn resolution(&self, note_id: Uuid) -> IdentityResolution {
+    pub(crate) fn resolution(&self, note_id: Uuid) -> IdentityResolution {
         let matches = self
             .notes
             .iter()
@@ -137,6 +137,12 @@ impl App {
     /// metadata cannot prove identity absence or detect newly introduced aliases.
     pub fn identity_inventory(&self) -> Result<IdentityInventory> {
         self.require_current_evidence()?;
+        self.inspect_identity_inventory()
+    }
+
+    /// Fresh filesystem proof for an already-admitted operation. This does not
+    /// expose Current evidence while application/recovery keeps clients fenced.
+    pub(crate) fn inspect_identity_inventory(&self) -> Result<IdentityInventory> {
         let root = self.require_vault()?;
         let scan = vault::scan_evidence(root).map_err(|error| {
             WorkflowError::msg(format!("could not inspect vault identities: {error}"))
@@ -237,6 +243,7 @@ impl App {
         let text = note_identity::assign(&source.text, request.note_id)
             .map_err(|error| rejected(error.to_string()))?;
         let draft = DraftRequest {
+            inbox_knowledge: None,
             inbox_source: None,
             action_changes: Vec::new(),
             id: request.proposal_id,

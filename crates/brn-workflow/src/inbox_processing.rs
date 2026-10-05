@@ -191,6 +191,7 @@ impl App {
         };
         let text = binding.markdown(&preview.markdown)?;
         let draft = crate::proposals::DraftRequest {
+            inbox_knowledge: None,
             inbox_source: Some(Box::new(binding)),
             id: request.proposal_id,
             group_id: None,

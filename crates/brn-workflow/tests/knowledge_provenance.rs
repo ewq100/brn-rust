@@ -408,6 +408,7 @@ fn approval_refuses_malformed_managed_provenance_but_preserves_unrelated_legacy_
     let invalid = create(
         &worker,
         DraftRequest {
+            inbox_knowledge: None,
             inbox_source: None,
             action_changes: Vec::new(),
             id: Uuid::new_v4(),
@@ -444,6 +445,7 @@ fn approval_refuses_malformed_managed_provenance_but_preserves_unrelated_legacy_
     let record = create(
         &worker,
         DraftRequest {
+            inbox_knowledge: None,
             inbox_source: None,
             action_changes: Vec::new(),
             id: Uuid::new_v4(),
@@ -569,6 +571,7 @@ fn edited_and_rewritten_quotes_require_exact_sources_and_cannot_forge_provenance
     };
     approve(&worker, &record);
     let unbound = DraftRequest {
+        inbox_knowledge: None,
         inbox_source: None,
         action_changes: Vec::new(),
         id: Uuid::new_v4(),
@@ -614,6 +617,7 @@ fn historical_provenance_survives_body_edits_and_exact_undo_after_source_change(
     let record = create(
         &worker,
         DraftRequest {
+            inbox_knowledge: None,
             inbox_source: None,
             action_changes: Vec::new(),
             id: Uuid::new_v4(),

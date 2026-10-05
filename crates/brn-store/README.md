@@ -401,7 +401,7 @@ workflow supplies fresh original-file and initial conversion-receipt qualificati
 
 ## Original-copy Inbox catalog
 
-V14 adds immutable [Inbox Action-analysis admissions](src/work/inbox_actions.rs).
+V14 adds immutable [Inbox analysis admissions](src/work/inbox_actions.rs).
 Each UUID retains the complete explicit provider/model/effort, optional conversation,
 saved Source fingerprint, exact Source text up to 50,000 bytes and bounded generated
 question. Managed identity, Source classification and portable Inbox provenance
@@ -449,3 +449,20 @@ publishes the complete immutable item before INSERT and rolls back on callback o
 SQL failure. `restore_inbox` imports only a workflow-qualified exact snapshot.
 Neither method reads, writes or deletes an original file; AppWorker owns that
 qualification and all client access.
+
+
+Inbox analysis captures now have a typed purpose. Default Actions is omitted
+when serialized, preserving pre-purpose V14 canonical bytes/hashes and retained
+questions. `knowledge_and_actions` is explicit, immutable under replay and uses
+the same WorkTurn lifecycle; schema remains V14. Unknown/noncanonical purposes
+refuse startup/read/backup validation.
+
+`ProposalDraft.inbox_knowledge` is optional immutable authority for one separate
+Knowledge Create. Pure checks bind its analysis UUID, new note UUID, sole selected
+Source and exact citations to the retained semantic capture. The complete Current
+knowledge text keeps that UUID/classification and mandatory citations across
+edit/Rewrite; no Source metadata is copied into knowledge. Ordinary proposal
+serialization is unchanged when absent. Workflow additionally checks saved Source,
+identity uniqueness and new provenance at exact approval. This adds neither a
+second proposal/application lifecycle nor another data authority. Exact Undo
+uses the existing journal and historical bytes.

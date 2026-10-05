@@ -342,9 +342,14 @@ pub fn run(i: &Invocation) -> Result<Output, CliFailure> {
         }
         | Command::ModelDownload { timeout_seconds } => *timeout_seconds,
         Command::Ai(AiCommand::Connect(_, seconds) | AiCommand::Models(_, seconds)) => *seconds,
-        Command::Inbox(super::inbox::InboxCommand::AnalyzeActions {
-            timeout_seconds, ..
-        }) => *timeout_seconds,
+        Command::Inbox(
+            super::inbox::InboxCommand::AnalyzeActions {
+                timeout_seconds, ..
+            }
+            | super::inbox::InboxCommand::Analyze {
+                timeout_seconds, ..
+            },
+        ) => *timeout_seconds,
         _ => 300,
     };
     let ask_id = if let Command::Ask { operation, .. } = i.command {

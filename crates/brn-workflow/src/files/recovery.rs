@@ -780,6 +780,7 @@ mod tests {
             let before = "\u{feff}旧い 🦀\r\n";
             let record = store
                 .create_proposal(&ProposalDraft {
+                    inbox_knowledge: None,
                     inbox_source: None,
                     action_changes: Vec::new(),
                     id: Uuid::new_v4(),
@@ -974,6 +975,7 @@ mod tests {
             .unwrap();
         let ids = [Uuid::new_v4(), Uuid::new_v4()];
         let initial = ProposalDraft {
+            inbox_knowledge: None,
             inbox_source: None,
             id: Uuid::new_v4(),
             group_id: None,

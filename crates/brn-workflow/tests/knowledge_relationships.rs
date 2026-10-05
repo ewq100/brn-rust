@@ -379,6 +379,7 @@ fn invalid_requests_and_uncertain_work_refuse_before_observation() {
     }
     let observed = app.proposal_source("a.md").unwrap();
     let draft = DraftRequest {
+        inbox_knowledge: None,
         inbox_source: None,
         action_changes: Vec::new(),
         id: Uuid::new_v4(),

@@ -20,7 +20,8 @@ fn fixture() -> (tempfile::TempDir, App, ProposalRecord) {
     .unwrap();
     let record = app
         .create_proposal(&DraftRequest {
-            inbox_source: None,
+            inbox_knowledge: None,
+        inbox_source: None,
             action_changes: Vec::new(),
             id: Uuid::new_v4(),
             group_id: None,
@@ -225,7 +226,8 @@ fn rewrite_finishing_after_navigation_cannot_replace_another_review() {
     };
     let other = app
         .create_proposal(&DraftRequest {
-            inbox_source: None,
+            inbox_knowledge: None,
+        inbox_source: None,
             action_changes: Vec::new(),
             id: Uuid::new_v4(),
             group_id: None,
@@ -298,7 +300,8 @@ fn failed_old_refresh_cannot_poison_the_newer_review() {
     let (old, _) = state.refresh_review().unwrap();
     let other = app
         .create_proposal(&DraftRequest {
-            inbox_source: None,
+            inbox_knowledge: None,
+        inbox_source: None,
             action_changes: Vec::new(),
             id: Uuid::new_v4(),
             group_id: None,

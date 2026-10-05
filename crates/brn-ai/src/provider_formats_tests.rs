@@ -3291,7 +3291,7 @@ mod action_proposal_tool_tests {
             panic!("unexpected read")
         }
     }
-    impl ActionProposalTools for Proposals {
+    impl ProposalTools for Proposals {
         fn propose_actions(&self, input: ActionProposalArgs) -> AiResult<Value> {
             assert_eq!(serde_json::to_value(input).unwrap(), args());
             self.0.fetch_add(1, Ordering::SeqCst);
@@ -3443,6 +3443,386 @@ mod action_proposal_tool_tests {
                         d["name"] != "propose_actions"
                     })
             );
+        }
+    }
+}
+
+mod knowledge_proposal_tool_tests {
+    use super::*;
+
+    const ROUTES: [(Provider, &str, bool); 3] = [
+        (Provider::Chatgpt, "gpt-6-luna", true),
+        (Provider::Copilot, "gpt-5.5", false),
+        (Provider::Copilot, "gpt-5.3-codex", true),
+    ];
+    fn args() -> Value {
+        json!({"id":"abc8e3e6-5419-4a09-a5f7-b7d9e98f8f29","title":"Whole knowledge õ\r\n",
+            "path":"knowledge/derived.md","note_id":"5b344a65-e247-4b2c-9941-c4b52c405bdb",
+            "text":"\u{feff}# Candidate 🦀\r\nWhole candidate.\r\n",
+            "quotes":[{"start_byte":0,"end_byte":12},{"start_byte":24,"end_byte":48}]})
+    }
+    fn receipt() -> Value {
+        json!({"stamp":{"id":"abc8e3e6-5419-4a09-a5f7-b7d9e98f8f29","version":1},
+            "state":"draft","note_id":"5b344a65-e247-4b2c-9941-c4b52c405bdb",
+            "source":"approved/source.md"})
+    }
+    struct Proposals {
+        calls: AtomicUsize,
+        enabled: bool,
+        refuse: bool,
+    }
+    impl Proposals {
+        fn new(enabled: bool, refuse: bool) -> Self {
+            Self {
+                calls: AtomicUsize::new(0),
+                enabled,
+                refuse,
+            }
+        }
+    }
+    impl ReadTools for Proposals {
+        fn search_notes(&self, _: &str, _: usize) -> AiResult<ToolSearch> {
+            panic!("unexpected read")
+        }
+        fn read_note(&self, _: &str) -> AiResult<ToolNote> {
+            panic!("unexpected read")
+        }
+        fn list_notes(&self, _: Option<&str>, _: Option<&str>) -> AiResult<NotePage> {
+            panic!("unexpected read")
+        }
+    }
+    impl ProposalTools for Proposals {
+        fn propose_actions(&self, _: ActionProposalArgs) -> AiResult<Value> {
+            panic!("unexpected Action proposal")
+        }
+        fn knowledge_enabled(&self) -> bool {
+            self.enabled
+        }
+        fn propose_knowledge(&self, input: KnowledgeProposalArgs) -> AiResult<Value> {
+            assert_eq!(serde_json::to_value(input).unwrap(), args());
+            self.calls.fetch_add(1, Ordering::SeqCst);
+            if self.refuse {
+                Err(AiError::new(AiErrorKind::ToolRejected))
+            } else {
+                Ok(receipt())
+            }
+        }
+    }
+    fn definition(body: &Value, responses: bool, name: &str) -> Option<Value> {
+        body["tools"].as_array().unwrap().iter().find_map(|tool| {
+            let tool = if responses { tool } else { &tool["function"] };
+            (tool["name"] == name).then(|| tool.clone())
+        })
+    }
+    fn closed(schema: &Value, fields: &[&str]) {
+        assert_eq!(schema["additionalProperties"], false);
+        let properties = schema["properties"].as_object().unwrap();
+        assert_eq!(properties.len(), fields.len());
+        let mut required = schema["required"]
+            .as_array()
+            .unwrap()
+            .iter()
+            .map(|v| v.as_str().unwrap())
+            .collect::<Vec<_>>();
+        required.sort_unstable();
+        let mut expected = fields.to_vec();
+        expected.sort_unstable();
+        assert_eq!(required, expected);
+        assert_eq!(
+            required,
+            properties.keys().map(String::as_str).collect::<Vec<_>>()
+        );
+    }
+    fn replies(body: &Value, responses: bool) -> Vec<String> {
+        body[if responses { "input" } else { "messages" }]
+            .as_array()
+            .unwrap()
+            .iter()
+            .filter(|item| item["type"] == "function_call_output" || item["role"] == "tool")
+            .map(|item| {
+                let content = &item[if responses { "output" } else { "content" }];
+                content
+                    .as_str()
+                    .or_else(|| content[0]["text"].as_str())
+                    .unwrap()
+                    .to_owned()
+            })
+            .collect()
+    }
+    fn preamble(body: &Value, provider: Provider, responses: bool) -> String {
+        if provider == Provider::Chatgpt {
+            body["instructions"].as_str().unwrap().to_owned()
+        } else {
+            body[if responses { "input" } else { "messages" }]
+                .as_array()
+                .unwrap()
+                .iter()
+                .find(|message| message["role"] == "system")
+                .unwrap()["content"]
+                .to_string()
+        }
+    }
+    #[tokio::test]
+    async fn enabled_knowledge_tool_registers_closed_schema_and_continues_on_all_rig_routes() {
+        for (provider, model, responses) in ROUTES {
+            let (_root, client, http) = client(
+                provider,
+                model,
+                vec![
+                    success(tool_sse(responses, &[("propose_knowledge", args())])),
+                    success(text_sse(responses, "Knowledge review ready")),
+                ],
+            )
+            .await;
+            let tools = Arc::new(Proposals::new(true, false));
+            let events = Arc::new(Mutex::new(Vec::new()));
+            let captured = events.clone();
+            let result = answer_with_proposals(
+                client,
+                "Analyze the selected approved Inbox Source",
+                &[],
+                ReasoningEffort::High,
+                tools.clone(),
+                tools.clone(),
+                CancellationToken::new(),
+                Arc::new(move |event| captured.lock().unwrap().push(event)),
+            )
+            .await;
+            assert!(
+                matches!(result.terminal, AiTerminal::Completed),
+                "{provider:?}/{model}: {:?}",
+                result.terminal
+            );
+            assert_eq!(result.text, "Knowledge review ready");
+            assert_eq!(tools.calls.load(Ordering::SeqCst), 1);
+            assert!(matches!(events.lock().unwrap().as_slice(),
+                [AiEvent::ToolStarted { name }, AiEvent::Text(text)]
+                if name == "propose_knowledge" && text == "Knowledge review ready"));
+            http.assert_consumed();
+            let bodies = http.bodies();
+            let outputs = replies(&bodies[1], responses);
+            assert_eq!(outputs.len(), 1);
+            assert_eq!(
+                serde_json::from_str::<Value>(&outputs[0]).unwrap(),
+                receipt()
+            );
+            let proposal = definition(&bodies[0], responses, "propose_knowledge").unwrap();
+            closed(
+                &proposal["parameters"],
+                &["id", "title", "path", "note_id", "text", "quotes"],
+            );
+            closed(
+                &proposal["parameters"]["properties"]["quotes"]["items"],
+                &["start_byte", "end_byte"],
+            );
+            let schema = proposal["parameters"].to_string();
+            for unsupported in ["const", "oneOf", "uniqueItems"] {
+                assert!(!schema.contains(&format!("\"{unsupported}\":")));
+            }
+            let preamble = preamble(&bodies[0], provider, responses);
+            assert!(preamble.contains("Workflow adds exact saved citations"));
+            assert!(preamble.contains("explicitly selected approved Inbox Source"));
+            assert!(definition(&bodies[0], responses, "propose_actions").is_some());
+        }
+    }
+
+    #[tokio::test]
+    async fn knowledge_tool_is_absent_and_cannot_dispatch_for_ordinary_ask_read_only_and_rewrite() {
+        for (provider, model, responses) in ROUTES {
+            for route in [
+                "ordinary_proposals",
+                "read_only",
+                "read_only_effort",
+                "rewrite",
+            ] {
+                let (_root, client, http) = client(
+                    provider,
+                    model,
+                    vec![success(tool_sse(
+                        responses,
+                        &[("propose_knowledge", args())],
+                    ))],
+                )
+                .await;
+                // Even an enabled backend passed as read tools must not add proposals.
+                let tools = Arc::new(Proposals::new(route != "ordinary_proposals", false));
+                let emit = Arc::new(|_| {});
+                let cancel = CancellationToken::new();
+                let result = match route {
+                    "ordinary_proposals" => {
+                        answer_with_proposals(
+                            client,
+                            "ordinary Ask",
+                            &[],
+                            ReasoningEffort::High,
+                            tools.clone(),
+                            tools.clone(),
+                            cancel,
+                            emit,
+                        )
+                        .await
+                    }
+                    "read_only" => {
+                        answer(client, "read-only Ask", &[], tools.clone(), cancel, emit).await
+                    }
+                    "read_only_effort" => {
+                        answer_with_effort(
+                            client,
+                            "read-only Ask",
+                            &[],
+                            ReasoningEffort::High,
+                            tools.clone(),
+                            cancel,
+                            emit,
+                        )
+                        .await
+                    }
+                    "rewrite" => {
+                        rewrite(
+                            client,
+                            "captured review",
+                            ReasoningEffort::High,
+                            tools.clone(),
+                            cancel,
+                            emit,
+                        )
+                        .await
+                    }
+                    _ => unreachable!(),
+                };
+                assert!(
+                    matches!(
+                        result.terminal,
+                        AiTerminal::Failed(AiError {
+                            kind: AiErrorKind::InvalidToolUse,
+                            ..
+                        })
+                    ),
+                    "{provider:?}/{model}/{route}: {:?}",
+                    result.terminal
+                );
+                assert_eq!(tools.calls.load(Ordering::SeqCst), 0);
+                http.assert_consumed();
+                let bodies = http.bodies();
+                assert!(definition(&bodies[0], responses, "propose_knowledge").is_none());
+                assert!(!preamble(&bodies[0], provider, responses).contains("propose_knowledge"));
+                assert_eq!(
+                    definition(&bodies[0], responses, "propose_actions").is_some(),
+                    route == "ordinary_proposals"
+                );
+            }
+        }
+    }
+
+    #[tokio::test]
+    async fn knowledge_tool_shares_the_eight_round_budget_and_never_dispatches_the_ninth() {
+        for (provider, model, responses) in ROUTES {
+            for ninth in [false, true] {
+                let mut streams = (0..if ninth { 9 } else { 8 })
+                    .map(|round| {
+                        success(tool_sse_with_prefix(
+                            responses,
+                            &[("propose_knowledge", args())],
+                            &format!("knowledge_{round}_"),
+                        ))
+                    })
+                    .collect::<Vec<_>>();
+                if !ninth {
+                    streams.push(success(text_sse(responses, "Eight review receipts")));
+                }
+                let (_root, client, http) = client(provider, model, streams).await;
+                let tools = Arc::new(Proposals::new(true, false));
+                let result = answer_with_proposals(
+                    client,
+                    "Selected source",
+                    &[],
+                    ReasoningEffort::High,
+                    tools.clone(),
+                    tools.clone(),
+                    CancellationToken::new(),
+                    Arc::new(|_| {}),
+                )
+                .await;
+                if ninth {
+                    assert!(
+                        matches!(
+                            result.terminal,
+                            AiTerminal::Failed(AiError {
+                                kind: AiErrorKind::ToolLimitReached,
+                                ..
+                            })
+                        ),
+                        "{provider:?}/{model}: {:?}",
+                        result.terminal
+                    );
+                } else {
+                    assert!(
+                        matches!(result.terminal, AiTerminal::Completed),
+                        "{provider:?}/{model}: {:?}",
+                        result.terminal
+                    );
+                    assert_eq!(result.text, "Eight review receipts");
+                }
+                assert_eq!(tools.calls.load(Ordering::SeqCst), 8);
+                http.assert_consumed();
+            }
+        }
+    }
+
+    #[tokio::test]
+    async fn knowledge_protocol_and_owner_refusals_continue_safely_on_all_rig_routes() {
+        for (provider, model, responses) in ROUTES {
+            for rejection in ["unknown", "missing", "range", "owner"] {
+                let mut input = args();
+                match rejection {
+                    "unknown" => input["approve"] = json!(true),
+                    "missing" => {
+                        input.as_object_mut().unwrap().remove("quotes");
+                    }
+                    "range" => input["quotes"][0]["end_byte"] = json!(16 * 1024 + 1),
+                    "owner" => {}
+                    _ => unreachable!(),
+                }
+                let (_root, client, http) = client(
+                    provider,
+                    model,
+                    vec![
+                        success(tool_sse(responses, &[("propose_knowledge", input)])),
+                        success(text_sse(responses, "Review refused")),
+                    ],
+                )
+                .await;
+                let tools = Arc::new(Proposals::new(true, true));
+                let result = answer_with_proposals(
+                    client,
+                    "Selected source",
+                    &[],
+                    ReasoningEffort::High,
+                    tools.clone(),
+                    tools.clone(),
+                    CancellationToken::new(),
+                    Arc::new(|_| {}),
+                )
+                .await;
+                assert!(
+                    matches!(result.terminal, AiTerminal::Completed),
+                    "{provider:?}/{model}/{rejection}: {:?}",
+                    result.terminal
+                );
+                assert_eq!(result.text, "Review refused");
+                assert_eq!(
+                    tools.calls.load(Ordering::SeqCst),
+                    usize::from(rejection == "owner")
+                );
+                http.assert_consumed();
+                let outputs = replies(&http.bodies()[1], responses);
+                assert_eq!(outputs.len(), 1);
+                // Rig parse errors are transient; application refusals use its safe fixed result.
+                if ["range", "owner"].contains(&rejection) {
+                    assert_eq!(outputs[0], "the tool failed");
+                }
+                assert!(!outputs[0].contains("state"));
+            }
         }
     }
 }

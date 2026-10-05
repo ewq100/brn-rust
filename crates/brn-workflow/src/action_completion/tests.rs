@@ -37,6 +37,7 @@ impl Fixture {
         let id = Uuid::new_v4();
         let review = app
             .create_proposal(&DraftRequest {
+                inbox_knowledge: None,
                 inbox_source: None,
                 id: Uuid::new_v4(),
                 group_id: None,
@@ -232,6 +233,7 @@ fn fresh_completion_respects_other_durable_fences_and_terminal_replay_preserves_
     let editor = app.open_editor("a.md").unwrap();
     let proposal = app
         .create_proposal(&DraftRequest {
+            inbox_knowledge: None,
             inbox_source: None,
             id: Uuid::new_v4(),
             group_id: None,
@@ -270,6 +272,7 @@ fn fresh_completion_respects_other_durable_fences_and_terminal_replay_preserves_
     // An independent pending approval does not revoke a checked terminal receipt.
     let second = app
         .create_proposal(&DraftRequest {
+            inbox_knowledge: None,
             inbox_source: None,
             id: Uuid::new_v4(),
             ..proposal_input(&editor)
@@ -290,6 +293,7 @@ fn fresh_completion_respects_other_durable_fences_and_terminal_replay_preserves_
 }
 fn proposal_input(editor: &crate::editor::EditorView) -> DraftRequest {
     DraftRequest {
+        inbox_knowledge: None,
         inbox_source: None,
         id: Uuid::new_v4(),
         group_id: None,

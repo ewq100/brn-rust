@@ -74,6 +74,7 @@ impl Fixture {
         let trash = app.open_editor("trash.md").unwrap().record;
         let draft = app
             .create_proposal(&DraftRequest {
+                inbox_knowledge: None,
                 inbox_source: None,
                 action_changes: Vec::new(),
                 id: Uuid::new_v4(),

@@ -700,10 +700,19 @@ impl Drop for DrainSignal {
     }
 }
 struct DrainedProposals {
-    proposals: Arc<dyn brn_ai::ActionProposalTools>,
+    proposals: Arc<dyn brn_ai::ProposalTools>,
     _drained: Arc<DrainSignal>,
 }
-impl brn_ai::ActionProposalTools for DrainedProposals {
+impl brn_ai::ProposalTools for DrainedProposals {
+    fn knowledge_enabled(&self) -> bool {
+        self.proposals.knowledge_enabled()
+    }
+    fn propose_knowledge(
+        &self,
+        args: brn_ai::KnowledgeProposalArgs,
+    ) -> brn_ai::AiResult<serde_json::Value> {
+        self.proposals.propose_knowledge(args)
+    }
     fn propose_actions(
         &self,
         args: brn_ai::ActionProposalArgs,
@@ -768,7 +777,7 @@ async fn run_turn(
     request: AskRequest,
     history: Vec<HistoryPair>,
     tools: Arc<dyn ReadTools>,
-    proposals: Arc<dyn brn_ai::ActionProposalTools>,
+    proposals: Arc<dyn brn_ai::ProposalTools>,
     cancel: CancellationToken,
     emit: Emit,
     hooks: Hooks,
@@ -779,7 +788,7 @@ async fn run_turn(
         tools,
         _drained: lease.clone(),
     });
-    let proposals: Arc<dyn brn_ai::ActionProposalTools> = Arc::new(DrainedProposals {
+    let proposals: Arc<dyn brn_ai::ProposalTools> = Arc::new(DrainedProposals {
         proposals,
         _drained: lease,
     });
@@ -883,7 +892,7 @@ async fn real_answer(
     request: &AskRequest,
     history: Vec<HistoryPair>,
     tools: Arc<dyn ReadTools>,
-    proposals: Arc<dyn brn_ai::ActionProposalTools>,
+    proposals: Arc<dyn brn_ai::ProposalTools>,
     cancel: CancellationToken,
     emit: Arc<dyn Fn(AiEvent) + Send + Sync>,
 ) -> AiAnswer {
