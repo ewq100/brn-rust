@@ -111,8 +111,20 @@ impl DraftRequest {
     /// Syntactic preparation before either frontend admits operational work.
     pub fn validate(&self) -> Result<()> {
         if let Some(binding) = &self.inbox_knowledge {
-            let [DraftNoteChange::Create { text, .. }] = self.changes.as_slice() else {
-                return Err(invalid("Inbox knowledge requires one independent Create"));
+            let text = match (binding.supersedes.as_ref(), self.changes.as_slice()) {
+                (None, [DraftNoteChange::Create { text, .. }]) => text,
+                (
+                    Some(bound),
+                    [
+                        DraftNoteChange::Create { text, .. },
+                        DraftNoteChange::Replace { path, expected, .. },
+                    ],
+                ) if path == &bound.source.path && expected == &bound.source.fingerprint => text,
+                _ => {
+                    return Err(invalid(
+                        "Inbox knowledge needs its exact Create or Create/History pair",
+                    ));
+                }
             };
             if self.inbox_source.is_some()
                 || !self.action_changes.is_empty()

@@ -1,6 +1,9 @@
 # Text/email Inbox — Stage 7
 
-Current baseline: actual PR49 merge `fab3da64275f02c5498006701b8bb289e27e9a96`,
+Latest integrated baseline: PR53 merge `ceb3d0f9e1e958915bfcb5e6b5e169a5571d13bc`,
+tree `624ae4200a638be52130c41acfb5b7be18beef84`. The final Mac mini handoff is
+recorded below; earlier deliverable checkpoints remain historical evidence.
+The source-processing baseline was PR49 merge `fab3da64275f02c5498006701b8bb289e27e9a96`,
 reviewed tree `3285fdd6e779323676f0c6b4d44797e045f222ad`. The catalog baseline was
 PR44 merge114090c5d0915daf5ee6c83b421e05b262e90a6d/treeD39276e3. Stage6
 implementation is integrated;
@@ -726,5 +729,89 @@ fixtures and two shipping V14 startup/restarts passed, preserving the exact599
 Source bytes and device/inode and zero credentials. Synthetic tests/assets do not
 establish actual inference, ONNX assets or native/live/owner acceptance.
 Changed-document local links/fragments72 and `git diff --check` passed.
-Exact-head hosted CI and normal integration remain pending. The final handoff
-will record the qualified code commit and hosted results before MacBook stop.
+Exact-head hosted CI, normal integration and merged qualification passed under
+the owner policy as recorded in the final handoff below; native/live/owner
+acceptance remains separate. MacBook development stops at this checkpoint.
+
+## Mac mini handoff checkpoint — 2026-10-05
+
+Integrated code: [PR53](https://github.com/ewq100/brn-rust/pull/53), normal merge
+`ceb3d0f9e1e958915bfcb5e6b5e169a5571d13bc`, tree
+`624ae4200a638be52130c41acfb5b7be18beef84`, parents `6c8f0102`/`9090082f`.
+Published candidate `9090082f0804e0f128c84236df6a64f6336e1a10` exactly matches
+local evidence commit `e060bcfcb8ac3f0b144799583ab0db7ef58243ad`.
+Implementation branch: `codex/v1-inbox-knowledge-links`, retained at the qualified
+PR head. Handoff branch: `codex/v1-inbox-knowledge-handoff`. Final checkpoint
+changes are documentation only on the integrated merge above; they are retained
+on this branch, not a second feature slice or a change to merged production code.
+
+Completed behavior: opt-in Inbox knowledge Creates capture the selected Source
+first and complete ordered additional saved target proofs. Original creation
+replay preserves proofs and newer review; changed paths/order/payload refuse.
+Exact approval and apply/recovery/Finish requalify stable target identity and
+bytes. Explicit History/Source evidence retains its scope, relationships rebuild
+after index loss, originals remain retained, and semantic review stays required.
+No new schema, lifecycle, client authority or direct durable AI write was added.
+
+Review and local verification: complete independent review is clean at the
+13-file manifest above. `verify-desktop-shell.sh --native` passed fmt/build,
+workspace and all native-feature Clippy, 1,269 default tests/zero failures/eight
+ignores, 282 native Desktop tests/zero failures/ignores, shipping build and startup.
+`cargo test -p brn-workflow --features native-retrieval --lib --test models --locked --offline`
+passed252/zero failures/seven crash-child ignores; native CLI build passed.
+All52 `verify-end-to-end.sh --fixtures-only` assertions passed. On the actual
+merge, fresh15 Inbox knowledge tests/zero failures/one crash-child ignore,
+52fixtures and two shipping V14 startup/restarts passed, preserving exact599
+Source bytes/device/inode and zero credentials. These are synthetic offline checks.
+
+Hosted qualification: exact PR run37316695174 attempt1 at `9090082f` passed Mac
+Core/UI/Native and Ubuntu shared. Windows Core22 errors/two summaries exactly
+match PR52; every complete diagnostic block was compared independently. Normal
+expected-head merge satisfied GitHub; no bypass. Fresh public branch snapshot
+reported unprotected/required contexts empty and rulesets/reviews/threads empty;
+protected-detail REST itself required authentication, so its401 proves nothing
+about protection. Exact merged-main run37317902962 attempt1 at `ceb3d0f9`
+completed: Mac Core111789197768, UI111789197957, Native111789197980 and Ubuntu
+Core111789197437/UI111789197786 passed. Windows Core111789197839 and UI111789197918
+each retain22 errors/two summaries; Native111789197736 retains14/two summaries.
+Ubuntu Native111789197658 retains10 passed/three installer failures. All four
+failed jobs exactly match PR52's complete compiler/assertion/backtrace/process
+blocks; no new shared/macOS defect was found. Overall CI remains red from these
+informational platform failures. Full independent comparison evidence manifest
+SHA256: `ec23551350ad56c9951c205ac58605dee8f09f1658b33fc9654b7f37fa0905f0`.
+
+Pending acceptance: use a synthetic saved Source referring to an already saved
+managed note; opt into knowledge analysis, inspect the separate draft/target
+proofs, exactly approve and inspect saved links/relationships. Externally change
+the target before approval to observe refusal. Actual inference, broader native/
+owner acceptance and multilingual real-asset/ONNX quality remain pending. The
+earlier Luna catalog round is exhausted; this slice made no provider/download
+calls. Existing packaging logging and platform gaps remain in current status.
+
+Next slice, only after owner resumes on Mac mini: Stage7 replacement/history/
+conflict consequences, then qualified safe original-copy deletion. No next slice
+has begun. MacBook development stops here at the owner's request; resume only
+when the owner requests work on the Mac mini.
+
+Resume requirements: Apple Silicon macOS with Command Line Tools; pinned
+Rust1.98.1 plus rustfmt/Clippy, Cargo.lock and cached locked dependencies,
+protobuf, Bash/Python3 and an existing canonical current-user-owned synthetic
+TMPDIR. GUI checks need an unlocked awake session. Read this checkpoint, status,
+roadmap and frozen workflow before selecting the next accepted deliverable.
+Fetch the handoff branch for checkpoint documentation and the exact integrated
+code above; preserve unrelated checkout edits. Owner checkout remains at
+`114090c5` with its unrelated dirty `AGENTS.md`, untouched. Do not migrate private
+vaults/data/credentials or resume account/download scope from historical evidence.
+
+
+## Mac mini continuation — 2026-10-05
+
+Owner resumed the sequential roadmap on Mac mini. Origin qualification confirmed
+PR53 and the direct documentation-only handoff74725ad. The older primary main
+checkout and its Finder files, existing feature worktrees and historical trial
+checkout remain untouched. Rust1.98.1/locked offline shared/native baseline,
+52fixtures and two V14 shipping starts passed on the new Mac mini before code edits.
+The bounded [supersession consequence](supersession-plan.md) creates one exact
+Current/History pair over existing approval/recovery; conflict capture follows
+before safe original-copy deletion. Candidate review/verification/integration
+are pending in that record. No live/provider/model/private-data operation occurred.

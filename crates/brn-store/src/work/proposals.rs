@@ -311,8 +311,29 @@ fn validate_text(text: &str, total: &mut usize) -> Result<()> {
 
 fn validate_draft(draft: &ProposalDraft) -> Result<usize> {
     if let Some(binding) = &draft.inbox_knowledge {
-        let [NoteChange::Create { text, .. }] = draft.changes.as_slice() else {
-            return Err(invalid("Inbox knowledge requires one independent Create"));
+        let text = match (binding.supersedes.as_ref(), draft.changes.as_slice()) {
+            (None, [NoteChange::Create { text, .. }]) => text,
+            (
+                Some(_),
+                [
+                    NoteChange::Create { text, .. },
+                    NoteChange::Replace {
+                        path,
+                        before,
+                        before_text,
+                        text: history,
+                        ..
+                    },
+                ],
+            ) => {
+                binding.validate_history(path, before, before_text, history)?;
+                text
+            }
+            _ => {
+                return Err(invalid(
+                    "Inbox knowledge requires one Create or an exact Create/History Replace pair",
+                ));
+            }
         };
         if draft.inbox_source.is_some()
             || !draft.action_changes.is_empty()

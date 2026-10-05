@@ -42,11 +42,15 @@ struct Fixture {
     target_id: Uuid,
     source_text: String,
     approved_text: String,
+    predecessor_text: String,
     approval: ApprovalRequest,
 }
 
 impl Fixture {
     fn new() -> (Self, App) {
+        Self::with_supersession(false)
+    }
+    fn with_supersession(supersedes: bool) -> (Self, App) {
         let base = tempfile::tempdir_in(std::env::temp_dir().canonicalize().unwrap()).unwrap();
         let vault = base.path().join("vault");
         let data = base.path().join("data");
@@ -121,18 +125,20 @@ impl Fixture {
             .unwrap();
         let knowledge_id = Uuid::new_v4();
         let target_id = Uuid::new_v4();
-        fs::write(
-            vault.join(TARGET_PATH),
-            note_identity::assign("Saved context õ\r\n", target_id).unwrap(),
-        )
-        .unwrap();
+        let predecessor_text = note_identity::assign("Saved context õ\r\n", target_id).unwrap();
+        fs::write(vault.join(TARGET_PATH), &predecessor_text).unwrap();
         let start = job.capture.source_text.find("Blue õ 🦀").unwrap();
         let args = KnowledgeProposalArgs {
+            supersedes: supersedes.then(|| TARGET_PATH.into()),
             id: Uuid::new_v4().to_string(),
             title: "Exact reviewed knowledge".into(),
             path: KNOWLEDGE_PATH.into(),
             note_id: knowledge_id.to_string(),
-            source_paths: vec![TARGET_PATH.into()],
+            source_paths: if supersedes {
+                vec![]
+            } else {
+                vec![TARGET_PATH.into()]
+            },
             text: format!(
                 "\u{feff}# Reviewed interpretation\r\nBlue õ 🦀 was selected.\r\n\r\n[Context](brn://note/{target_id})\r\n"
             ),
@@ -161,6 +167,7 @@ impl Fixture {
                 target_id,
                 source_text,
                 approved_text,
+                predecessor_text,
                 approval,
             },
             app,
@@ -203,6 +210,9 @@ impl Fixture {
     }
 
     fn crash(&self, phase: &str) {
+        self.crash_member(phase, 0);
+    }
+    fn crash_member(&self, phase: &str, member: usize) {
         fs::write(
             self.base.path().join("approval.json"),
             serde_json::to_vec(&self.approval).unwrap(),
@@ -217,6 +227,7 @@ impl Fixture {
             ])
             .env("BRN_KNOWLEDGE_RECOVERY_BASE", self.base.path())
             .env("BRN_KNOWLEDGE_RECOVERY_PHASE", phase)
+            .env("BRN_KNOWLEDGE_RECOVERY_MEMBER", member.to_string())
             .output()
             .unwrap();
         assert_eq!(
@@ -346,7 +357,11 @@ fn knowledge_recovery_crash_child() {
         },
     )
     .unwrap();
-    APPLY_CHECKPOINT.with(|point| *point.borrow_mut() = Some((phase, 0)));
+    let member = std::env::var("BRN_KNOWLEDGE_RECOVERY_MEMBER")
+        .unwrap()
+        .parse()
+        .unwrap();
+    APPLY_CHECKPOINT.with(|point| *point.borrow_mut() = Some((phase, member)));
     let result = app.approve_proposal(&approval);
     panic!("Requested genuine knowledge interruption was not reached: {result:?}");
 }
@@ -536,4 +551,137 @@ fn admitted_knowledge_finish_refuses_collisions_at_repair_admission_mirror_and_f
             f.assert_exact_installed_knowledge();
         }
     }
+}
+
+#[test]
+fn supersession_process_interruption_finishes_or_restores_the_whole_pair() {
+    for member in [0, 1] {
+        for direction in [RepairDirection::Finish, RepairDirection::Restore] {
+            let (f, app) = Fixture::with_supersession(true);
+            drop(app);
+            f.crash_member("synced", member);
+            let history = brn_store::note_metadata::to_history(&f.predecessor_text).unwrap();
+            assert_eq!(
+                fs::read(f.vault.join(TARGET_PATH)).unwrap(),
+                if member == 0 {
+                    f.predecessor_text.as_bytes()
+                } else {
+                    history.as_bytes()
+                }
+            );
+            // A fresh duplicate predecessor must never be certified by recovery,
+            // even when every own member was installed before process death.
+            let collision = f.insert_collision(Collision::Target);
+            let mut app = f.app();
+            assert_eq!(
+                app.reconcile_proposal(f.approval.operation_id)
+                    .unwrap()
+                    .outcome,
+                ApplyOutcome::Uncertain
+            );
+            assert!(app.current_evidence_blocked().unwrap());
+            let preview = app
+                .preview_proposal_repair(f.approval.operation_id)
+                .unwrap();
+            assert_eq!(
+                preview.phases,
+                vec![
+                    ApplyMemberPhase::Applied,
+                    if member == 0 {
+                        ApplyMemberPhase::Before
+                    } else {
+                        ApplyMemberPhase::Applied
+                    }
+                ]
+            );
+            let attempt = RepairRequest {
+                id: Uuid::new_v4(),
+                operation_id: f.approval.operation_id,
+                expected: preview.expected,
+                direction: RepairDirection::Finish,
+            };
+            assert!(app.repair_proposal(&attempt).is_err());
+            assert_eq!(
+                fs::read(f.vault.join(COLLISION_PATH)).unwrap(),
+                collision.as_bytes()
+            );
+            fs::remove_file(f.vault.join(COLLISION_PATH)).unwrap();
+            let preview = app
+                .preview_proposal_repair(f.approval.operation_id)
+                .unwrap();
+            let attempt = RepairRequest {
+                id: Uuid::new_v4(),
+                operation_id: f.approval.operation_id,
+                expected: preview.expected,
+                direction,
+            };
+            let receipt = app.repair_proposal(&attempt).unwrap();
+            assert_eq!(
+                receipt.outcome,
+                Some(if direction == RepairDirection::Finish {
+                    ApplyOutcome::Applied
+                } else {
+                    ApplyOutcome::NotApplied
+                })
+            );
+            assert_eq!(
+                fs::read(f.vault.join(TARGET_PATH)).unwrap(),
+                if direction == RepairDirection::Finish {
+                    history.as_bytes()
+                } else {
+                    f.predecessor_text.as_bytes()
+                }
+            );
+            if direction == RepairDirection::Finish {
+                f.assert_exact_installed_knowledge();
+            } else {
+                assert!(!f.vault.join(KNOWLEDGE_PATH).exists());
+            }
+            f.assert_source_and_credentials();
+            let later =
+                fs::read_to_string(f.vault.join(TARGET_PATH)).unwrap() + "Later owner context\r\n";
+            fs::write(f.vault.join(TARGET_PATH), &later).unwrap();
+            assert_eq!(app.repair_proposal(&attempt).unwrap(), receipt);
+            drop(app);
+            let mut app = f.app();
+            assert_eq!(app.repair_proposal(&attempt).unwrap(), receipt);
+            assert_eq!(
+                fs::read(f.vault.join(TARGET_PATH)).unwrap(),
+                later.as_bytes()
+            );
+        }
+    }
+}
+
+#[test]
+fn supersession_prepared_predecessor_change_refuses_before_installation() {
+    let (f, mut app) = Fixture::with_supersession(true);
+    let path = f.vault.join(TARGET_PATH);
+    let later = f.predecessor_text.clone() + "Owner changed it\r\n";
+    let injected = later.clone();
+    APPLY_HOOK.with(|hook| {
+        *hook.borrow_mut() = Some(Box::new(move |step, member| {
+            if step == "prepared" && member == 0 {
+                fs::write(&path, &injected).unwrap();
+            }
+        }))
+    });
+    let result = app.approve_proposal(&f.approval);
+    APPLY_HOOK.with(|hook| *hook.borrow_mut() = None);
+    assert!(result.is_err());
+    assert!(!f.vault.join(KNOWLEDGE_PATH).exists());
+    assert_eq!(
+        fs::read(f.vault.join(TARGET_PATH)).unwrap(),
+        later.as_bytes()
+    );
+    assert_eq!(
+        app.proposal_apply(f.approval.operation_id)
+            .unwrap()
+            .unwrap()
+            .receipt
+            .unwrap()
+            .outcome,
+        ApplyOutcome::NotApplied
+    );
+    f.assert_source_and_credentials();
 }

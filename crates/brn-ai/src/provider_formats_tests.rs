@@ -3460,7 +3460,8 @@ mod knowledge_proposal_tool_tests {
             "path":"knowledge/derived.md","note_id":"5b344a65-e247-4b2c-9941-c4b52c405bdb",
             "text":"\u{feff}# Candidate 🦀\r\nWhole candidate.\r\n",
             "quotes":[{"start_byte":0,"end_byte":12},{"start_byte":24,"end_byte":48}],
-            "source_paths":["knowledge/λ target.md","archive/history.md","approved/second-source.md"]})
+            "source_paths":["knowledge/λ target.md","archive/history.md","approved/second-source.md"],
+            "supersedes":"projects/current.md"})
     }
     fn receipt() -> Value {
         json!({"stamp":{"id":"abc8e3e6-5419-4a09-a5f7-b7d9e98f8f29","version":1},
@@ -3620,6 +3621,7 @@ mod knowledge_proposal_tool_tests {
                     "text",
                     "quotes",
                     "source_paths",
+                    "supersedes",
                 ],
             );
             assert_eq!(
@@ -3632,6 +3634,10 @@ mod knowledge_proposal_tool_tests {
             closed(
                 &proposal["parameters"]["properties"]["quotes"]["items"],
                 &["start_byte", "end_byte"],
+            );
+            assert_eq!(
+                proposal["parameters"]["properties"]["supersedes"],
+                json!({"type":["string","null"],"minLength":1,"maxLength":512})
             );
             let schema = proposal["parameters"].to_string();
             for unsupported in ["const", "oneOf", "uniqueItems"] {

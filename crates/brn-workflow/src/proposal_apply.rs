@@ -510,6 +510,16 @@ impl App {
         // and Rewrite output, before any Applying admission or filesystem effect.
         if undo.is_none() {
             self.validate_inbox_knowledge(draft.inbox_knowledge.as_deref())?;
+            if let Some(bound) = draft
+                .inbox_knowledge
+                .as_ref()
+                .and_then(|binding| binding.supersedes.as_ref())
+            {
+                let text = draft.changes[0]
+                    .text()
+                    .ok_or_else(|| stale("knowledge text unavailable"))?;
+                crate::inbox_actions::validate_supersession_link(text, bound)?;
+            }
             self.validate_inbox_source(draft.inbox_source.as_deref())?;
             if let Some(binding) = &draft.inbox_source {
                 self.check_inbox_source_identity(binding.note_id)?;

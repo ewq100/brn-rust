@@ -196,14 +196,19 @@ for a workflow-owned Ask job bound to a selected approved Inbox Source. Ordinary
 backends default to disabled and refuse the callback; read-only Ask and Rewrite
 never register this tool. Its closed, all-required input is proposal UUID/title,
 relative destination path, stable note UUID, complete candidate Markdown and
-exact source byte ranges and ordered additional `source_paths` (0–63 entries,
-each1–512 UTF-8 bytes). The outward schema requires all seven fields; omitted
-legacy `source_paths` safely deserializes as empty. UUID strings are1–64bytes, title/path1–512bytes,
+exact source byte ranges, ordered additional `source_paths` (0–63 entries,
+each1–512 UTF-8 bytes), and nullable `supersedes` (one1–512byte Current path).
+The outward schema requires all eight fields; omitted legacy `source_paths`
+deserializes as empty and omitted `supersedes` as None. A predecessor consumes
+one proof slot, limiting additional paths to62. UUID strings are1–64bytes, title/path1–512bytes,
 text1byte–1MiB, quotes1–32 with start<end≤50,000 and each span≤16KiB; complete
 encoded input≤8MiB and whole receipts≤1MiB. These are protocol bounds only.
 Workflow checks UUID/path/source/current identity and citation rules, adds exact
-saved citations, and creates one independent current Knowledge Create review
-draft. This tool never approves or writes knowledge. Like Action proposals, its
+saved citations, and creates one independent Current knowledge review draft.
+With supersedes, workflow captures the predecessor automatically as second proof,
+adds its Previous version link and a protected History Replace to that same
+proposal. Source/History predecessors refuse; do not repeat the predecessor in
+additional paths. Unresolved authority should be reported as conflict, not guessed. This tool never approves or writes knowledge. Like Action proposals, its
 callback uses `spawn_blocking` and shares the existing tool-round budget.
 The selected Inbox Source is automatically the mandatory first proof and must
 not be repeated among additional paths. Stable `brn://note/UUID` relationships

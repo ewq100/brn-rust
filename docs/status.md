@@ -66,23 +66,25 @@ Evidence: [Actions/dashboard record](work/completed/actions-dashboard/plan.md).
 
 ## Latest integrated checkpoint
 
-[PR52](https://github.com/ewq100/brn-rust/pull/52) merged at
-**6c8f0102562570ce81efc1ecb55eab981c54aef6**, exact reviewed tree
-`a236fee3ddae014a9508ba9928bdf8fca46cee25`. Stage7 delivers exact intake,
+[PR53](https://github.com/ewq100/brn-rust/pull/53) merged at
+**ceb3d0f9e1e958915bfcb5e6b5e169a5571d13bc**, exact reviewed tree
+`624ae4200a638be52130c41acfb5b7be18beef84`. Stage7 delivers exact intake,
 owned conversion, Source review, separate Current knowledge/Action drafts and
-native saved-Source analysis/retained inspection. Exact proposal approval remains
+native saved-Source analysis/retained inspection and captured saved link targets.
+Exact proposal approval remains
 required; originals stay retained and semantic completeness is not claimed.
-Independent review is clean. Local shared/native checks passed 1,260/0/8 and
-282/0/0, Clippy/builds, 52 fixtures and shipping restart. CI exposed a widget-only
-fixture feature guard; it was fixed and all three native Clippy combinations and
-282 tests passed freshly. Exact corrected PR run37311170658 at fde13d7e passed
-Mac Core/UI/Native and Ubuntu shared; Windows22 errors/two summaries match PR51.
-Fresh requirements were satisfied by normal expected-head merge. Verified merge
-parents/tree/fast-forward, then nine analysis tests, shipping build,52fixtures and
-two exact-byte V14 startup/restarts passed. Main run37312435285 completed: all
-Mac lanes and Ubuntu Core/UI passed. Four informational non-Mac failures exactly
-match PR51's complete diagnostics/backtraces. Overall CI is red; no new shared/
-macOS defect was found. Safe native Source/provenance/proof navigation and three
+Independent review is clean. Local shared/native checks passed 1,269/0/8 and
+282/0/0, all three native Clippy combinations/builds, optional workflow252/0/7,
+52 fixtures and two exact-byte V14 shipping restarts. Exact PR run37316695174 at
+9090082f passed Mac Core/UI/Native and Ubuntu shared; Windows22 errors/two summaries
+exactly match PR52. GitHub accepted a normal expected-head merge. Merge parents/
+tree/fast-forward and fresh15 Inbox knowledge tests/0 failures/one child ignore,
+52fixtures and two exact-byte V14 restarts passed. Exact merged-main
+run37317902962 attempt1 completed: all Mac lanes and Ubuntu Core/UI passed.
+Windows Core/UI22 errors/two summaries each, Windows Native14/two summaries and
+Ubuntu Native three installer failures/backtraces exactly match PR52. Overall CI
+is red from these four informational platform failures; no new shared/macOS
+defect was found. Safe native Source/provenance/proof navigation and three
 original JPEGs are retained in the [screenshot index](ui/screenshots/2026-10-05/INDEX.md).
 Later native/live/owner acceptance remains pending. Historical checkpoint evidence
 and scenarios remain in the [Inbox plan](work/active/text-email-inbox/plan.md).
@@ -93,35 +95,35 @@ passed; composition/Rewrite/Ask native/live/owner acceptance remains pending.
 Scenarios and integration evidence remain in the
 [completed Actions record](work/completed/actions-dashboard/plan.md).
 
-## Active slice and next work
+## Mac mini continuation
 
-`codex/v1-inbox-knowledge-links` starts from verified PR52 merge `6c8f0102`.
-Extended existing Knowledge Create input and ordinary source bindings for explicitly
-named saved link targets. Workflow captures full proofs; AI/UI add no domain or
-authority rules. Creation replay preserves original ordered evidence before fresh
-files, and approval/apply/recovery qualify stable identities. Independent review
-is clean; the full shared/native gate passed 1,269 default and 282 native Desktop
-tests, zero failures (eight default ignores). Optional native workflow passed252
-tests with seven crash-child entries ignored; 52 fixtures and two exact-byte V14
-shipping startup/restarts passed. Exact-head CI/integration remain pending.
-The owner requested finishing only this slice and then stopping MacBook
-development. Replacement/history/conflict resolution and safe copy deletion are
-the next Stage7 work after Mac mini resume. See the
-[Inbox plan](work/active/text-email-inbox/plan.md).
-No new live/download scope or original/private data operations are being used.
+Owner resumed development on Mac mini on2026-10-05. The production merge and
+documentation-only74725ad handoff were verified after fetch. An isolated
+`codex/v1-stage7-history` checkout preserves the older primary checkout and all
+unrelated work. Fresh Rust1.98.1 locked offline shared/native baseline passed,
+including1269shared/282Desktop tests,52fixtures and two shipping V14 starts.
+The bounded [supersession slice](work/active/text-email-inbox/supersession-plan.md)
+is implemented with focused passing tests and a clean complete independent
+review after correcting exact footer qualification. Final local checks passed
+1282shared/282Desktop tests,259optional workflow tests,106synthetic capability
+tests,52fixtures and two shipping V14 restarts, with documented ignores.
+Hosted and merged verification remain pending. Conflict capture is next,
+then qualified original-copy deletion. No new live calls or model/private-data
+operations are authorized by historical evidence.
 
 ## Qualification and owner items
 
 - Actual multilingual asset download needs the pending bounded owner permission.
   ONNX compatibility, EN↔ET quality, truncation, scoped restart/rebuild and tool/CLI
   parity remain open.
-- Luna-only BRN app/provider qualification is authorized with fresh human Connect,
+- The prior bounded Luna-only BRN app/provider qualification round used fresh human Connect,
   at most2 catalog calls+2 logical probes,18 completions maximum. Exact gpt-6-luna;
   no fallback, purchases or existing credential/private-vault inspection. After
   fresh sign-in and normal desktop quit, both permitted catalog calls succeeded,
   but the captured extraction established no usable IDs and did not retain raw
   catalog shape/length. Luna availability remains unverified;0logical probes/
-  0completions were made. No further calls in this round. Development/review may
+  0completions were made. This round is exhausted; fresh owner permission is required
+  for any new live call. Development/review may
   use Sol/Luna, neverAstra.
 - Prior unlocked native checks passed synthetic scoped reads, Unicode Save and
   acknowledged buffer recovery after full quit/restart. Safe original UI captures
@@ -146,10 +148,10 @@ No new live/download scope or original/private data operations are being used.
 Pending acceptance does not block later safe implementation when it is not a
 dependency. No original data was inspected or migrated.
 
-For transfer to the Mac mini: preserve this chat/checkpoint and task-owned branches;
+For continuation: preserve the chat/checkpoints and task-owned branches;
 use Apple Silicon macOS/Command Line Tools, pinned Rust1.98.1, locked dependencies,
 protobuf, Bash/Python3 and an explicit existing canonical owned TMPDIR. Native
-interaction needs an unlocked, awake session; fresh human Connect is only for the
-bounded live round. Optional native features and shipping builds need separate
+interaction needs an unlocked, awake session; fresh human Connect and additional
+live calls need fresh owner authorization. Optional native features and shipping builds need separate
 checks. [Verification](development/verification.md) and
 [setup](development/setup.md) contain reproducible commands.

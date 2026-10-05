@@ -23,6 +23,30 @@ pub(super) fn stable_ids(text: &str, body_start: usize) -> Result<BTreeSet<Uuid>
     Ok(ids)
 }
 
+/// Qualify one exact inline occurrence, so another link to the same identity
+/// cannot certify a hidden or otherwise non-link footer.
+pub(super) fn stable_link_at(
+    text: &str,
+    body_start: usize,
+    id: Uuid,
+    start: usize,
+    end: usize,
+) -> Result<bool> {
+    let root = parse(text, body_start)?;
+    for node in nodes(&root) {
+        if let Node::Link(link) = node
+            && let (Some(LinkTarget::Identity(found)), _) = target("", &link.url)
+            && found == id
+        {
+            let evidence = proof(text, body_start, node)?;
+            if evidence.start_byte == start && evidence.end_byte == end {
+                return Ok(true);
+            }
+        }
+    }
+    Ok(false)
+}
+
 pub(super) fn extract(text: &str, body_start: usize) -> Result<Vec<RawMarkdownLink>> {
     let root = parse(text, body_start)?;
     let definitions = definitions(&root);
