@@ -3809,12 +3809,16 @@ mod knowledge_proposal_tool_tests {
             ] {
                 let mut backend = Proposals::new(true, false);
                 backend.refusal = Some(kind);
+                let mut input = args();
+                input["quotes"][0]["quote"] = json!("SYNTHETIC_PRIVATE_QUOTE_õ🦀\r\n");
+                input["source_paths"] = json!(["SYNTHETIC_SOURCE_PATH.md"]);
+                backend.expected = input.clone();
                 let tools = Arc::new(backend);
                 let (_root, client, http) = client(
                     provider,
                     model,
                     vec![
-                        success(tool_sse(responses, &[("propose_knowledge", args())])),
+                        success(tool_sse(responses, &[("propose_knowledge", input)])),
                         success(text_sse(responses, "Quotation refused")),
                     ],
                 )
@@ -3832,10 +3836,24 @@ mod knowledge_proposal_tool_tests {
                 .await;
                 assert!(matches!(result.terminal, AiTerminal::Completed));
                 assert_eq!(tools.calls.load(Ordering::SeqCst), 1);
+                let output = replies(&http.bodies()[1], responses);
+                assert_eq!(output.len(), 1);
                 assert_eq!(
-                    replies(&http.bodies()[1], responses),
-                    vec!["the tool failed"]
+                    serde_json::from_str::<Value>(&output[0]).unwrap(),
+                    json!({
+                        "error":{"kind":kind,"message":AiError::new(kind).to_string()}
+                    })
                 );
+                for forbidden in [
+                    "SYNTHETIC_PRIVATE_QUOTE",
+                    "SYNTHETIC_SOURCE_PATH",
+                    "retry_after_seconds",
+                    "access_token",
+                    "chatgpt",
+                    "copilot",
+                ] {
+                    assert!(!output[0].contains(forbidden));
+                }
                 http.assert_consumed();
             }
         }
@@ -4685,6 +4703,32 @@ mod conflict_tool_tests {
                             serde_json::from_str::<Value>(&outputs[0]).unwrap(),
                             reply.unwrap()
                         );
+                    } else if name == "report_conflict"
+                        && let Err(error) = reply
+                        && matches!(
+                            error.kind,
+                            AiErrorKind::QuoteNotFound
+                                | AiErrorKind::QuoteAmbiguous
+                                | AiErrorKind::QuoteOccurrenceInvalid
+                        )
+                    {
+                        assert_eq!(
+                            serde_json::from_str::<Value>(&outputs[0]).unwrap(),
+                            json!({
+                                "error":{"kind":error.kind,"message":error.to_string()}
+                            })
+                        );
+                        for forbidden in [
+                            "Friday",
+                            "Monday",
+                            "other_path",
+                            "retry_after_seconds",
+                            "access_token",
+                            "chatgpt",
+                            "copilot",
+                        ] {
+                            assert!(!outputs[0].contains(forbidden));
+                        }
                     } else {
                         assert_eq!(outputs[0], "the tool failed");
                     }

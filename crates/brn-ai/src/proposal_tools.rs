@@ -161,6 +161,24 @@ impl ActionProposalArgs {
 fn rejected() -> AiError {
     AiError::new(AiErrorKind::ToolRejected)
 }
+
+// Rig hides Tool::call errors. Only safe quotation selectors get correction
+// feedback as data; callbacks still return their original typed application error.
+fn quote_feedback(result: AiResult<Value>) -> AiResult<Value> {
+    match result {
+        Err(error)
+            if matches!(
+                error.kind,
+                AiErrorKind::QuoteNotFound
+                    | AiErrorKind::QuoteAmbiguous
+                    | AiErrorKind::QuoteOccurrenceInvalid
+            ) =>
+        {
+            Ok(json!({"error":{"kind":error.kind,"message":error.to_string()}}))
+        }
+        other => other,
+    }
+}
 pub(crate) struct ProposeActions(pub(crate) Arc<dyn ProposalTools>);
 pub(crate) struct ProposeKnowledge(pub(crate) Arc<dyn ProposalTools>);
 pub(crate) struct ReportConflict(pub(crate) Arc<dyn ProposalTools>);
@@ -189,7 +207,7 @@ impl Tool for ReportConflict {
         args.validate()?;
         let proposals = self.0.clone();
         tokio::task::spawn_blocking(move || {
-            let receipt = proposals.report_conflict(args)?;
+            let receipt = quote_feedback(proposals.report_conflict(args))?;
             if serde_json::to_vec(&receipt).map_err(|_| rejected())?.len() > READ_ACTION_BYTES {
                 return Err(rejected());
             }
@@ -229,7 +247,7 @@ impl Tool for ProposeKnowledge {
         args.validate()?;
         let proposals = self.0.clone();
         tokio::task::spawn_blocking(move || {
-            let receipt = proposals.propose_knowledge(args)?;
+            let receipt = quote_feedback(proposals.propose_knowledge(args))?;
             if serde_json::to_vec(&receipt).map_err(|_| rejected())?.len() > READ_ACTION_BYTES {
                 return Err(rejected());
             }
@@ -309,6 +327,69 @@ impl Tool for ProposeActions {
 mod tests {
     use super::*;
     use std::sync::atomic::{AtomicUsize, Ordering};
+
+    #[test]
+    fn quote_feedback_is_allowlisted_and_never_serializes_error_metadata() {
+        for kind in [
+            AiErrorKind::QuoteNotFound,
+            AiErrorKind::QuoteAmbiguous,
+            AiErrorKind::QuoteOccurrenceInvalid,
+        ] {
+            let error = AiError {
+                kind,
+                retry_after_seconds: Some(u64::MAX),
+            };
+            let result = quote_feedback(Err(error.clone())).unwrap();
+            assert_eq!(
+                result,
+                json!({"error":{"kind":kind,"message":error.to_string()}})
+            );
+            let bytes = serde_json::to_vec(&result).unwrap();
+            assert!(bytes.len() <= READ_ACTION_BYTES);
+            assert!(!result.to_string().contains("retry_after_seconds"));
+        }
+        for kind in [
+            AiErrorKind::ReconnectNeeded,
+            AiErrorKind::CodeExpired,
+            AiErrorKind::RateLimited,
+            AiErrorKind::Network,
+            AiErrorKind::ModelRefused,
+            AiErrorKind::InvalidToolUse,
+            AiErrorKind::ToolLimitReached,
+            AiErrorKind::UnsafeCredentials,
+            AiErrorKind::ToolRejected,
+            AiErrorKind::IndexStale,
+            AiErrorKind::Storage,
+            AiErrorKind::Other,
+        ] {
+            let error = AiError {
+                kind,
+                retry_after_seconds: Some(42),
+            };
+            assert_eq!(quote_feedback(Err(error.clone())), Err(error));
+        }
+        let receipt = json!({"stamp":{"id":"synthetic draft","version":1}});
+        assert_eq!(quote_feedback(Ok(receipt.clone())), Ok(receipt));
+    }
+
+    struct QuoteRefusal;
+    impl ProposalTools for QuoteRefusal {
+        fn propose_actions(&self, _: ActionProposalArgs) -> AiResult<Value> {
+            Err(AiError::new(AiErrorKind::QuoteAmbiguous))
+        }
+    }
+
+    #[tokio::test]
+    async fn quote_errors_on_action_tools_keep_the_existing_error_boundary() {
+        assert_eq!(
+            ProposeActions(Arc::new(QuoteRefusal))
+                .call(&mut ToolContext::default(), args())
+                .await
+                .unwrap_err()
+                .kind,
+            AiErrorKind::QuoteAmbiguous
+        );
+    }
     struct Backend {
         calls: AtomicUsize,
         receipt: Value,

@@ -225,6 +225,9 @@ the adapter accepts integer occurrence values for that domain check. Negative an
 fractional values and legacy `start_byte`/`end_byte` fields refuse deserialization.
 Copilot Responses' Rig schema normalization requires nullable `occurrence` on the
 wire; ChatGPT and Copilot completion keep it optional. Omitted and null become None.
+Knowledge and conflict tools return the three quotation refusals as bounded
+`{"error":{"kind":"quote_not_found|quote_ambiguous|quote_occurrence_invalid","message":"fixed safe text"}}`
+feedback. Other errors keep Rig's generic failure behavior; no raw diagnostics are exposed.
 With supersedes, workflow captures the predecessor automatically as second proof,
 adds its Previous version link and a protected History Replace to that same
 proposal. Source/History predecessors refuse; do not repeat the predecessor in
