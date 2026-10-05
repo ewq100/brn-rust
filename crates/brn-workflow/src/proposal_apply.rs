@@ -14,6 +14,8 @@ pub use brn_store::work::proposal_apply::{
 mod action_recovery_tests;
 #[cfg(all(test, target_os = "macos"))]
 mod action_repair_tests;
+#[cfg(all(test, target_os = "macos"))]
+mod inbox_knowledge_recovery_tests;
 mod repair;
 use brn_store::work::proposals::{NoteChange, ProposalDraft, ProposalState};
 use brn_store::{
@@ -507,6 +509,7 @@ impl App {
         // checks every newly introduced durable citation, including review edits
         // and Rewrite output, before any Applying admission or filesystem effect.
         if undo.is_none() {
+            self.validate_inbox_knowledge(draft.inbox_knowledge.as_deref())?;
             self.validate_inbox_source(draft.inbox_source.as_deref())?;
             if let Some(binding) = &draft.inbox_source {
                 self.check_inbox_source_identity(binding.note_id)?;
@@ -870,6 +873,7 @@ impl App {
     }
 
     fn check_approved_actions(&self, journal: &ApplyJournal) -> Result<()> {
+        self.check_inbox_knowledge_apply(journal)?;
         self.validate_inbox_source(journal.approved.draft.inbox_source.as_deref())?;
         if !journal.approved.draft.action_changes.is_empty() {
             self.store
@@ -1150,6 +1154,7 @@ mod tests {
             let source = app.open_editor("source.md").unwrap().record.baseline;
             let draft = app
                 .create_proposal(&DraftRequest {
+                    inbox_knowledge: None,
                     inbox_source: None,
                     action_changes: Vec::new(),
                     id: Uuid::new_v4(),

@@ -13,10 +13,40 @@ pub struct ActionProposalArgs {
     pub action_changes: Vec<Value>,
 }
 
-/// One review-only capability, separate from read tools and real Action writes.
-pub trait ActionProposalTools: Send + Sync {
+/// Review-only capabilities, separate from read tools and authoritative writes.
+pub trait ProposalTools: Send + Sync {
     /// Return a whole bounded review receipt; approval remains a separate operation.
     fn propose_actions(&self, args: ActionProposalArgs) -> AiResult<Value>;
+
+    /// Opt in only for an application-owned, explicitly selected source job.
+    fn knowledge_enabled(&self) -> bool {
+        false
+    }
+
+    /// Return a bounded review receipt; existing backends safely refuse knowledge.
+    fn propose_knowledge(&self, _: KnowledgeProposalArgs) -> AiResult<Value> {
+        Err(rejected())
+    }
+}
+
+/// One complete Knowledge Create candidate; workflow owns source and citation rules.
+#[derive(Clone, Debug, Serialize, Deserialize)]
+#[serde(deny_unknown_fields)]
+pub struct KnowledgeProposalArgs {
+    pub id: String,
+    pub title: String,
+    pub path: String,
+    pub note_id: String,
+    pub text: String,
+    pub quotes: Vec<KnowledgeQuoteArgs>,
+}
+
+/// Exact byte range in the selected source, interpreted and checked by workflow.
+#[derive(Clone, Debug, Serialize, Deserialize)]
+#[serde(deny_unknown_fields)]
+pub struct KnowledgeQuoteArgs {
+    pub start_byte: usize,
+    pub end_byte: usize,
 }
 
 use crate::{AiError, AiErrorKind, READ_ACTION_BYTES};
@@ -26,6 +56,29 @@ use std::sync::Arc;
 
 /// Whole encoded proposal input limit, including JSON escaping.
 pub const ACTION_PROPOSAL_BYTES: usize = 8 * 1024 * 1024;
+/// Whole encoded Knowledge proposal input limit, including JSON escaping.
+pub const KNOWLEDGE_PROPOSAL_BYTES: usize = 8 * 1024 * 1024;
+impl KnowledgeProposalArgs {
+    /// Protocol bounds only. Workflow owns UUIDs, paths, source identity and citations.
+    pub fn validate(&self) -> AiResult<()> {
+        if !(1..=64).contains(&self.id.len())
+            || !(1..=512).contains(&self.title.len())
+            || !(1..=512).contains(&self.path.len())
+            || !(1..=64).contains(&self.note_id.len())
+            || !(1..=1024 * 1024).contains(&self.text.len())
+            || !(1..=32).contains(&self.quotes.len())
+            || self.quotes.iter().any(|quote| {
+                quote.start_byte >= quote.end_byte
+                    || quote.end_byte > 50_000
+                    || quote.end_byte - quote.start_byte > 16 * 1024
+            })
+            || serde_json::to_vec(self).map_err(|_| rejected())?.len() > KNOWLEDGE_PROPOSAL_BYTES
+        {
+            return Err(rejected());
+        }
+        Ok(())
+    }
+}
 impl ActionProposalArgs {
     /// Protocol bounds only. Workflow owns identities, full records and authority.
     pub fn validate(&self) -> AiResult<()> {
@@ -47,7 +100,46 @@ impl ActionProposalArgs {
 fn rejected() -> AiError {
     AiError::new(AiErrorKind::ToolRejected)
 }
-pub(crate) struct ProposeActions(pub(crate) Arc<dyn ActionProposalTools>);
+pub(crate) struct ProposeActions(pub(crate) Arc<dyn ProposalTools>);
+pub(crate) struct ProposeKnowledge(pub(crate) Arc<dyn ProposalTools>);
+
+impl Tool for ProposeKnowledge {
+    const NAME: &'static str = "propose_knowledge";
+    type Args = KnowledgeProposalArgs;
+    type Output = Value;
+    type Error = AiError;
+    fn description(&self) -> String {
+        "Create one independent current Knowledge Create review draft from the explicitly selected approved Inbox Source. Supply complete candidate Markdown, stable proposal and note UUIDs, a relative destination path, and exact source byte ranges. Workflow adds exact saved citations. This tool never approves or writes knowledge. Retry only identical original input and UUIDs; human review and separate exact approval are required.".into()
+    }
+    fn parameters(&self) -> Value {
+        json!({"type":"object","additionalProperties":false,"properties":{
+            "id":{"type":"string","format":"uuid","minLength":1,"maxLength":64},
+            "title":{"type":"string","minLength":1,"maxLength":512},
+            "path":{"type":"string","minLength":1,"maxLength":512},
+            "note_id":{"type":"string","format":"uuid","minLength":1,"maxLength":64},
+            "text":{"type":"string","minLength":1,"maxLength":1048576},
+            "quotes":{"type":"array","minItems":1,"maxItems":32,"items":{
+                "type":"object","additionalProperties":false,"properties":{
+                    "start_byte":{"type":"integer","minimum":0,"maximum":49999},
+                    "end_byte":{"type":"integer","minimum":1,"maximum":50000}
+                },"required":["start_byte","end_byte"]
+            }}
+        },"required":["id","title","path","note_id","text","quotes"]})
+    }
+    async fn call(&self, _: &mut ToolContext, args: KnowledgeProposalArgs) -> AiResult<Value> {
+        args.validate()?;
+        let proposals = self.0.clone();
+        tokio::task::spawn_blocking(move || {
+            let receipt = proposals.propose_knowledge(args)?;
+            if serde_json::to_vec(&receipt).map_err(|_| rejected())?.len() > READ_ACTION_BYTES {
+                return Err(rejected());
+            }
+            Ok(receipt)
+        })
+        .await
+        .map_err(|_| AiError::new(AiErrorKind::Other))?
+    }
+}
 
 fn action_data_schema() -> Value {
     let nullable_uuid = json!({"type":["string","null"],"format":"uuid"});
@@ -122,7 +214,7 @@ mod tests {
         calls: AtomicUsize,
         receipt: Value,
     }
-    impl ActionProposalTools for Backend {
+    impl ProposalTools for Backend {
         fn propose_actions(&self, _: ActionProposalArgs) -> AiResult<Value> {
             self.calls.fetch_add(1, Ordering::SeqCst);
             Ok(self.receipt.clone())
@@ -231,6 +323,164 @@ mod tests {
                 .call(&mut ToolContext::default(), args())
                 .await;
             if accepted {
+                assert_eq!(result.unwrap(), receipt);
+            } else {
+                assert_eq!(result.unwrap_err().kind, AiErrorKind::ToolRejected);
+            }
+            assert_eq!(backend.calls.load(Ordering::SeqCst), 1);
+        }
+    }
+
+    fn knowledge_args() -> KnowledgeProposalArgs {
+        KnowledgeProposalArgs {
+            id: "workflow parses this UUID".into(),
+            title: "Exact õ\r\n".into(),
+            path: "workflow checks the destination".into(),
+            note_id: "workflow checks stable identity".into(),
+            text: "\u{feff}Whole candidate 🦀\r\n".into(),
+            quotes: vec![KnowledgeQuoteArgs {
+                start_byte: 0,
+                end_byte: 1,
+            }],
+        }
+    }
+
+    struct KnowledgeBackend {
+        calls: AtomicUsize,
+        receipt: Value,
+    }
+    impl ProposalTools for KnowledgeBackend {
+        fn propose_actions(&self, _: ActionProposalArgs) -> AiResult<Value> {
+            panic!("unexpected Action proposal")
+        }
+        fn knowledge_enabled(&self) -> bool {
+            true
+        }
+        fn propose_knowledge(&self, _: KnowledgeProposalArgs) -> AiResult<Value> {
+            self.calls.fetch_add(1, Ordering::SeqCst);
+            Ok(self.receipt.clone())
+        }
+    }
+
+    #[test]
+    fn knowledge_protocol_is_closed_and_requires_every_candidate_and_quote_field() {
+        let whole = serde_json::to_value(knowledge_args()).unwrap();
+        for field in ["id", "title", "path", "note_id", "text", "quotes"] {
+            let mut partial = whole.clone();
+            partial.as_object_mut().unwrap().remove(field);
+            assert!(serde_json::from_value::<KnowledgeProposalArgs>(partial).is_err());
+        }
+        for field in ["source_path", "session_id", "approve", "citations"] {
+            let mut unknown = whole.clone();
+            unknown[field] = json!("workflow owns this");
+            assert!(serde_json::from_value::<KnowledgeProposalArgs>(unknown).is_err());
+        }
+        for field in ["start_byte", "end_byte"] {
+            let mut partial = whole.clone();
+            partial["quotes"][0].as_object_mut().unwrap().remove(field);
+            assert!(serde_json::from_value::<KnowledgeProposalArgs>(partial).is_err());
+        }
+        let mut unknown = whole;
+        unknown["quotes"][0]["text"] = json!("cannot supply source wording");
+        assert!(serde_json::from_value::<KnowledgeProposalArgs>(unknown).is_err());
+    }
+
+    #[tokio::test]
+    async fn knowledge_bounds_refuse_before_dispatch_and_leave_domain_rules_to_workflow() {
+        let backend = Arc::new(KnowledgeBackend {
+            calls: AtomicUsize::new(0),
+            receipt: json!({"stamp":"ok"}),
+        });
+        let tool = ProposeKnowledge(backend.clone());
+        let mutations: [fn(&mut KnowledgeProposalArgs); 19] = [
+            |v| v.id.clear(),
+            |v| v.id = "x".repeat(65),
+            |v| v.title.clear(),
+            |v| v.title = "õ".repeat(257),
+            |v| v.path.clear(),
+            |v| v.path = "õ".repeat(257),
+            |v| v.note_id.clear(),
+            |v| v.note_id = "õ".repeat(33),
+            |v| v.text.clear(),
+            |v| v.text = "x".repeat(1024 * 1024 + 1),
+            |v| v.text = "õ".repeat(512 * 1024 + 1),
+            |v| v.quotes.clear(),
+            |v| v.quotes = vec![v.quotes[0].clone(); 33],
+            |v| v.quotes[0].end_byte = 0,
+            |v| v.quotes[0].start_byte = 1,
+            |v| v.quotes[0].start_byte = usize::MAX,
+            |v| v.quotes[0].end_byte = 50_001,
+            |v| v.quotes[0].end_byte = usize::MAX,
+            |v| v.quotes[0].end_byte = 16 * 1024 + 1,
+        ];
+        for mutation in mutations {
+            let mut input = knowledge_args();
+            mutation(&mut input);
+            assert_eq!(
+                tool.call(&mut ToolContext::default(), input)
+                    .await
+                    .unwrap_err()
+                    .kind,
+                AiErrorKind::ToolRejected
+            );
+        }
+        assert_eq!(backend.calls.load(Ordering::SeqCst), 0);
+
+        // Non-UUID strings, destination semantics and UTF-8 source boundaries
+        // are deliberately delegated. Only protocol byte/range bounds live here.
+        let input = knowledge_args();
+        assert!(tool.call(&mut ToolContext::default(), input).await.is_ok());
+        let mut maximum = knowledge_args();
+        maximum.id = "x".repeat(64);
+        maximum.title = "õ".repeat(256);
+        maximum.path = "õ".repeat(256);
+        maximum.note_id = "x".repeat(64);
+        maximum.text = "\u{1}".repeat(1024 * 1024);
+        maximum.quotes = vec![
+            KnowledgeQuoteArgs {
+                start_byte: 50_000 - 16 * 1024,
+                end_byte: 50_000,
+            };
+            32
+        ];
+        let encoded = serde_json::to_vec(&maximum).unwrap();
+        assert!(encoded.len() > maximum.text.len());
+        assert!(encoded.len() < KNOWLEDGE_PROPOSAL_BYTES);
+        assert!(
+            tool.call(&mut ToolContext::default(), maximum)
+                .await
+                .is_ok()
+        );
+        assert_eq!(backend.calls.load(Ordering::SeqCst), 2);
+    }
+
+    #[tokio::test]
+    async fn knowledge_defaults_refuse_and_whole_receipts_are_bounded_without_truncation() {
+        let ordinary = Arc::new(Backend {
+            calls: AtomicUsize::new(0),
+            receipt: json!({"stamp":"ordinary"}),
+        });
+        assert!(!ordinary.knowledge_enabled());
+        assert_eq!(
+            ProposeKnowledge(ordinary.clone())
+                .call(&mut ToolContext::default(), knowledge_args())
+                .await
+                .unwrap_err()
+                .kind,
+            AiErrorKind::ToolRejected
+        );
+        assert_eq!(ordinary.calls.load(Ordering::SeqCst), 0);
+        let overhead = serde_json::to_vec(&json!({"stamp":""})).unwrap().len();
+        for extra in [0, 1] {
+            let receipt = json!({"stamp":"x".repeat(READ_ACTION_BYTES - overhead + extra)});
+            let backend = Arc::new(KnowledgeBackend {
+                calls: AtomicUsize::new(0),
+                receipt: receipt.clone(),
+            });
+            let result = ProposeKnowledge(backend.clone())
+                .call(&mut ToolContext::default(), knowledge_args())
+                .await;
+            if extra == 0 {
                 assert_eq!(result.unwrap(), receipt);
             } else {
                 assert_eq!(result.unwrap_err().kind, AiErrorKind::ToolRejected);

@@ -41,9 +41,9 @@ format/length/digest at this boundary. Clients need no hashing or conversion log
 a complete operational preview remains readable even if a later Source wrapper
 would exceed its separate byte bound.
 These previews require semantic review. `PrepareInboxSource` prepares a bound
-whole Source draft for the existing exact approval/recovery boundary. Broader
-knowledge/link/replacement consequences, attachment/visual interpretation and
-safe deletion remain follow-on capabilities.
+whole Source draft for the existing exact approval/recovery boundary. Opt-in
+knowledge and Action review are described below. Links/replacement consequences,
+attachment/visual interpretation and safe deletion remain follow-on capabilities.
 No original deletion, provider call or authoritative write occurs here.
 
 `CaptureInbox`, `InboxItem` and `InboxItems` are headless workflow commands for
@@ -110,7 +110,7 @@ tool is exposed. Ask receives the separate review capability below.
 
 ## Ask Action review capability
 
-Ask uses separate fixed `ActionProposalTools` through the same owner lane/fence.
+Ask uses separate fixed `ProposalTools` through the same owner lane/fence.
 Workflow captures the admitted turn and canonical selection/effort, infers its
 session and validates complete Create/Replace data, immutable origins/full CAS,
 references and full saved source proofs (including explicitly supplied history).
@@ -736,8 +736,38 @@ one complete source Create draft. `CreateProposal` and exact approval retain the
 existing lifecycle; preparing/admitting a draft never writes the vault. Imported
 frontmatter remains body evidence under a new UUID and `brn_kind: source`.
 Portable `brn_inbox_source` provenance is available through `NoteProvenance`.
-Source copies retain exact body/proof through edits and Rewrite; separate semantic
-knowledge/Action/link proposals remain later work. Original proof is checked during
+Source copies retain exact body/proof through edits and Rewrite; separate Action
+and opt-in knowledge proposals are implemented below. Link/replacement/conflict
+consequences remain following work. Original proof is checked during
 unfinished application/Finish repair; completed historical replay and ordinary
 recovery do not require processing rows or the original to remain available. Restore
 repair may remove a partial source without recreating or deleting the original.
+
+
+## Opt-in Inbox knowledge consequences
+
+An `InboxActionRequest` with explicit `purpose: knowledge_and_actions` admits
+knowledge and Actions through the same `AnalyzeInboxActions` command and owned
+Ask/WorkTurn. Omitted purpose remains Actions only; old stored questions and V14
+canonical bytes replay unchanged. `InboxActionAnalysis` exposes the retained
+purpose, whole Source, turn and independently reviewable group. It always marks
+remaining semantic review; no original deletion or completeness is implied.
+
+Only that bound semantic turn enables `propose_knowledge`. One call supplies a
+new note/proposal UUID, Current destination, complete Markdown and selected-Source
+byte ranges. Workflow assigns/protects identity and exact saved quotations in
+`brn_provenance`; it rejects Source/History/invented provenance, invalid UTF-8
+ranges, stale/ambiguous Source and occupied/uninspectable new identity. Actions
+and knowledge share the existing20-draft cap. Creation replay preserves later
+review edits without re-reading lost sources or calling a provider.
+
+Optional `inbox_knowledge` metadata in the existing typed proposal binds analysis,
+identity, Current classification and selected citations across edit/Rewrite.
+Exact approval, application and Finish recheck Source/identity authority; only
+the operation's exact prepared object may already occupy its new UUID. Public
+identity reads stay fenced during unresolved application. Existing recovery,
+Activity and Undo remain the application mechanism. Ordinary Ask, Action-only
+analysis, readonly answers and Rewrite never acquire the new capability. All
+callbacks share admission/cancellation/draining; clients own no persistence or
+provider implementation. Links, replacement/history/conflict resolution and
+native semantic controls remain following Stage7 slices.

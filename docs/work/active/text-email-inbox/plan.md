@@ -460,3 +460,86 @@ deletion and native analysis controls. Transfer remains deferred. Environment:
 Apple Silicon macOS/Command Line Tools, pinned Rust/lockfiles/protobuf/Bash/Python,
 canonical owned synthetic TMPDIR outside Git; native observation needs an unlocked
 awake Mac, and provider qualification needs separately available authorized scope.
+
+
+## Knowledge-capture slice — 2026-10-05
+
+Baseline is PR50 merge `fd24dee7dd640505a51d0978df4e8886fb9da47a`, reviewed
+published tree `441f1de50b0ec741cbc9c35fc687c54d065d65e9`. PR run37294640953
+passed Mac Core/UI/Native and Ubuntu shared; Windows22 errors/two summaries match
+PR49. Fresh merge parents/tree and fast-forward verified. Eight worker tests,
+four CLI Inbox tests, 52 fixtures and two shipping V14 startup/restarts passed.
+The first CLI filter matched zero tests; the corrected whole Inbox module passed.
+Merged-main run37295871888 at exact fd24dee completed: all three Mac lanes and
+Ubuntu Core/UI passed; Ubuntu Native 10/3 prior installer failures and Windows
+Core/UI/Native 22/22/14 compiler errors + two summaries each match complete PR49
+main diagnostics. Overall CI remains red; no new shared/macOS defect. Transfer
+remains deferred.
+
+On `codex/v1-inbox-knowledge-analysis`, extend the existing immutable V14 capture
+with a typed optional purpose; omitted Actions retains canonical legacy bytes and
+old retained questions. New explicit knowledge_and_actions requests opt into
+current Knowledge Create plus Action review. Reuse the owned Ask/WorkTurn and one
+shared 20-proposal group limit; no second execution lifecycle or database.
+
+Acceptance:
+
+1. The thin provider adds an opt-in propose_knowledge protocol. Workflow binds
+   one independent Create to its active semantic Inbox turn; ordinary Ask,
+   Action-only analysis and Rewrite do not get this capability.
+2. BRN assigns/protects a supplied new managed UUID, validates a Current knowledge
+   candidate/destination, and attaches exact nonempty selected-Source quotations.
+   Imported wording and original intake remain unchanged. Invalid byte ranges,
+   forged metadata, stale/ambiguous Source or occupied/ambiguous identity refuse.
+3. Optional immutable knowledge binding in the existing typed proposal preserves
+   analysis, identity, Current classification and selected quotations across
+   edits/Rewrite. Exact approval/apply/Finish recheck Source and new identity;
+   only the operation's exact prepared note may already occupy that UUID. No
+   note exists before approval. Existing recoverable apply/activity/Undo are reused.
+4. Full creation/job replay precedes fresh files/auth, preserves newer review,
+   and never adds a provider call. Purpose changes under an existing UUID conflict.
+   CLI provides explicit semantic submission and retained inspection headlessly.
+
+Meaningful Store backward-canonical/purpose/replay tests, actual worker
+knowledge+Action/approval/provenance/identity/stale/cancel/replay/cap tests, real
+synthetic Rig routes and CLI parity precede complete independent review, fresh
+shared/native checks and exact-head CI/integration. No live/model/private data
+calls. Native controls, links, replacement/history/conflict resolution and safe
+copy deletion remain following Stage7 deliverables, not silently inferred here.
+Owner scenario (pending): approve one synthetic email Source; export full proof,
+submit an explicit knowledge_and_actions request with authorized provider scope;
+inspect separate drafts, edit/reject or exactly approve knowledge, inspect its
+Current UUID/provenance and replay after restart. No new live call is authorized
+by this scenario. Environment requirements are unchanged from the preceding
+checkpoint.
+
+Implementation is complete for this bounded Create slice. Independent read-only
+review against `fd24dee7` is clean after two technically validated corrections:
+startup/backup now reject orphaned analysis bindings; apply/Finish/reconciliation
+recheck Source and new UUID authority after preparation, allowing only the exact
+own prepared object. The prepared-collision test failed before that guard and
+passed afterward. Four recovery tests cover 11 cases with genuine subprocess
+interruptions, exact own-member eligibility and replay preserving later edits;
+one ignored test is their child entry. No separate repair lifecycle was added.
+Final read-only review refresh after the native fixture correction is clean.
+All 93 changed Rust files match reviewed manifest SHA256
+`b94b15e1893ec760c12610a4f95ea868897663531eee5f76d84b3d75d89425b1`.
+
+Fresh `verify-storage.sh` after the final guard/tests passed workspace fmt/build/
+Clippy, all tests (1,254 passed / 0 failed / 8 ignored) and startup. Seven ignored
+tests are subprocess entries; one requires an owned case-sensitive APFS fixture.
+Focused Store tests passed 17/0; actual worker knowledge tests 6/0, CLI Inbox 6/0
+and recovery 4/0/1. Provider routing is included in the full suite (104/0).
+Exact published-head CI/integration remain the next gates. Manual acceptance
+remains pending under the scenario above.
+
+Native Workflow/models passed 247/0/7. Desktop compilation then caught two
+mechanical `inbox_knowledge: None` additions to `NoteProvenance`, which has no
+such field. Removed those lines; one file now exactly matches the baseline.
+Only native test fixtures changed, so shared/default and native Workflow results
+remain applicable. Fresh Desktop tests passed 273/0/0; native Clippy, shipping
+Desktop/CLI builds, 52 offline fixtures and two shipping V14 startup/restarts
+passed, preserving exact BOM/CRLF/Unicode bytes and zero credentials. No actual
+model download/inference, GUI observation or live account call was performed.
+Existing block0.1.6 future-compiler warning remains. Diff check passes; previously
+checked documentation links/command interfaces are unchanged.

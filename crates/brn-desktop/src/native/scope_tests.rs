@@ -148,6 +148,7 @@ fn native_evidence_navigation_keeps_editor_review_comment_and_initial_input_guar
         (
             Uuid::new_v4(),
             AppCommand::CreateProposal(DraftRequest {
+                inbox_knowledge: None,
                 inbox_source: None,
                 action_changes: Vec::new(),
                 id: Uuid::new_v4(),

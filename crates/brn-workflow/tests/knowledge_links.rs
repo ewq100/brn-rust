@@ -214,6 +214,7 @@ fn pending_authoritative_changes_fence_link_observation_before_any_effect() {
     let mut app = fixture.app();
     let source = app.proposal_source(SOURCE).unwrap();
     let draft = DraftRequest {
+        inbox_knowledge: None,
         inbox_source: None,
         action_changes: Vec::new(),
         id: Uuid::new_v4(),

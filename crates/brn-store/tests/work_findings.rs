@@ -897,6 +897,7 @@ fn v8_upgrade_and_backup_restore_preserve_findings_and_existing_operational_work
         let input = draft();
         let proposal = store
             .create_proposal(&ProposalDraft {
+                inbox_knowledge: None,
                 inbox_source: None,
                 id: Uuid::new_v4(),
                 group_id: None,

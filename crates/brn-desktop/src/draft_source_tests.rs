@@ -35,6 +35,7 @@ fn prepared_source() -> DraftRequest {
         }],
         sources: vec![],
         action_changes: vec![],
+        inbox_knowledge: None,
         inbox_source: Some(Box::new(binding)),
     }
 }

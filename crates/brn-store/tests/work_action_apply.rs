@@ -45,6 +45,7 @@ fn data(state: ActionState) -> ActionData {
 }
 fn draft(changes: Vec<ActionChange>) -> ProposalDraft {
     ProposalDraft {
+        inbox_knowledge: None,
         inbox_source: None,
         id: Uuid::new_v4(),
         group_id: None,

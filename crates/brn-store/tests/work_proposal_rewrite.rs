@@ -49,6 +49,7 @@ impl Fixture {
             inode: meta.ino(),
         };
         let draft = ProposalDraft {
+            inbox_knowledge: None,
             inbox_source: None,
             id: Uuid::new_v4(),
             group_id: Some(Uuid::new_v4()),

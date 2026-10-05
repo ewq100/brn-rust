@@ -133,6 +133,8 @@ pub struct SourceVersion {
 #[serde(deny_unknown_fields)]
 pub struct ProposalDraft {
     #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub inbox_knowledge: Option<Box<super::inbox_actions::InboxKnowledgeBinding>>,
+    #[serde(default, skip_serializing_if = "Option::is_none")]
     pub inbox_source: Option<Box<super::inbox_source::InboxSourceBinding>>,
     pub id: Uuid,
     pub group_id: Option<Uuid>,
@@ -308,6 +310,21 @@ fn validate_text(text: &str, total: &mut usize) -> Result<()> {
 }
 
 fn validate_draft(draft: &ProposalDraft) -> Result<usize> {
+    if let Some(binding) = &draft.inbox_knowledge {
+        let [NoteChange::Create { text, .. }] = draft.changes.as_slice() else {
+            return Err(invalid("Inbox knowledge requires one independent Create"));
+        };
+        if draft.inbox_source.is_some()
+            || !draft.action_changes.is_empty()
+            || draft.group_id != Some(binding.analysis_id)
+            || draft.sources.as_slice() != std::slice::from_ref(&binding.source)
+        {
+            return Err(invalid(
+                "Inbox knowledge needs its exact analysis/Source binding",
+            ));
+        }
+        binding.validate_text(text)?;
+    }
     if let Some(binding) = &draft.inbox_source {
         let [NoteChange::Create { text, .. }] = draft.changes.as_slice() else {
             return Err(invalid(
@@ -357,6 +374,9 @@ fn validate_draft(draft: &ProposalDraft) -> Result<usize> {
         ));
     }
     let mut total = 0;
+    if let Some(binding) = &draft.inbox_knowledge {
+        add_bytes(&mut total, encode(binding)?.len())?;
+    }
     if let Some(binding) = &draft.inbox_source {
         add_bytes(
             &mut total,
@@ -538,6 +558,9 @@ pub(super) fn read_proposal(conn: &Connection, id: Uuid) -> Result<Option<Stored
             ));
         }
         validate_record(&stored.record)?;
+        if let Some(binding) = &stored.record.draft.inbox_knowledge {
+            super::inbox_actions::check_knowledge_binding(conn, binding)?;
+        }
         if stored.record.version == 1
             && stored.creation_sha256 != hash(&encode(&stored.record.draft)?)
         {
@@ -548,6 +571,20 @@ pub(super) fn read_proposal(conn: &Connection, id: Uuid) -> Result<Option<Stored
         Ok(stored)
     })
     .transpose()
+}
+
+pub(super) fn check_all(conn: &Connection) -> Result<()> {
+    let ids = conn
+        .prepare("SELECT id FROM proposals ORDER BY rowid")?
+        .query_map([], |row| row.get::<_, String>(0))?
+        .collect::<rusqlite::Result<Vec<_>>>()?;
+    for id in ids {
+        let uuid = Uuid::parse_str(&id).map_err(|_| invalid("invalid stored proposal UUID"))?;
+        if uuid.to_string() != id || read_proposal(conn, uuid)?.is_none() {
+            return Err(invalid("invalid stored proposal row"));
+        }
+    }
+    Ok(())
 }
 
 pub(super) fn write_proposal(conn: &Connection, stored: &StoredProposal) -> Result<()> {
@@ -717,6 +754,9 @@ impl WorkStore {
             return Ok(stored.record);
         }
         validate_draft(draft)?;
+        if let Some(binding) = &draft.inbox_knowledge {
+            super::inbox_actions::check_knowledge_binding(&tx, binding)?;
+        }
         let now = now_ms();
         let stored = StoredProposal {
             creation_sha256: hash(&encode(draft)?),

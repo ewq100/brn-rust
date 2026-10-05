@@ -123,6 +123,7 @@ fn capture_source(worker: &AppWorker, raw: &str) -> SourceFixture {
 
 fn request(source: &SourceFixture) -> InboxActionRequest {
     InboxActionRequest {
+        purpose: Default::default(),
         id: Uuid::new_v4(),
         conversation: None,
         source: Box::new(source.source.clone()),
@@ -950,3 +951,6 @@ fn inbox_action_explicit_historical_source_stays_evidence_and_requires_semantic_
     no_credentials(&fixture);
     worker.shutdown().unwrap();
 }
+
+#[path = "inbox_actions_tests/knowledge.rs"]
+mod knowledge_tests;

@@ -27,6 +27,8 @@ brn inbox source --file REQUEST_JSON
 brn inbox cancel UUID
 brn inbox analyze-actions --file REQUEST_JSON [--timeout-seconds N]
 brn inbox action-analysis UUID
+brn inbox analyze --file REQUEST_JSON [--timeout-seconds N]
+brn inbox analysis UUID
 brn actions complete --file REQUEST.json
 brn actions show UUID
 brn actions list [--state open|waiting|blocked|completed|all] [--limit N] [--before-created-at-ms N --before-id UUID]
@@ -109,17 +111,23 @@ Originals are retained; no provider is called and no vault note is written.
 and full file proof) through AppWorker, including explicitly selected archive
 evidence. Use that whole result as `source` in an `InboxActionRequest` JSON with
 nonnil `id`, optional `conversation`, explicit `selection` (`provider`, `model`),
-`effort` and presentation `generation`. `inbox analyze-actions` admits this bounded
-saved managed Inbox Source on the existing Ask lane and returns its turn receipt.
-`inbox action-analysis UUID` inspects the retained capture/turn/grouped review;
+`effort`, presentation `generation` and `purpose`. `inbox analyze-actions` requires
+`purpose: "actions"`; omitted purpose retains that historical default.
+`inbox analyze` requires explicit `purpose: "knowledge_and_actions"` and never
+infers or changes it. Both admit this bounded saved managed Inbox Source on the
+existing Ask lane and return its turn receipt. `inbox analysis UUID` and the
+preserved `inbox action-analysis UUID` inspect the retained capture/turn/grouped review;
 `proposals list --group UUID` lists the separately reviewable consequences.
 Complete wrapped Source text is limited to50,000 UTF-8 bytes; oversized/changed/
 ambiguous evidence refuses before a new provider request. Exact replay keeps the
 captured choices and answer even after Source loss; changed input conflicts.
 Cancellation joins the same owned worker and preserves its terminal receipt.
-Suggested Actions use existing exact review/edit/Rewrite/reject/approve commands;
-no real Action exists before approval. Other semantic consequences remain pending
-and originals stay retained. The operation is an explicit provider call when new;
+Knowledge-and-Actions analysis can prepare at most20 separately reviewable
+proposals across Actions and new Current knowledge notes. Existing exact
+review/edit/Rewrite/reject/approve commands apply; each authoritative change
+requires its own approval. Replacements, conflicts, links, original deletion and
+native analysis controls remain later slices. Originals stay retained and no
+outcome establishes complete ingestion. The operation is an explicit provider call when new;
 no fallback, automatic retry or completeness/deletion authority is introduced.
 
 `inbox show` reports the complete metadata and either exact original text or an

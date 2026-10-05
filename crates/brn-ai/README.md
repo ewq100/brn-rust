@@ -180,7 +180,7 @@ Rust omission compatibility remains supported and verified separately.
   No comment, real Action write, Complete, approval, Save or account tool is exposed.
 
 `answer_with_proposals` additionally registers fixed `propose_actions` through a
-separate `ActionProposalTools` capability; ordinary read-only entry points and
+separate `ProposalTools` capability; ordinary read-only entry points and
 Rewrite do not receive it. Input has only proposal UUID/title, ordered source paths
 and1–20 whole Create/Replace members, ≤8MiB encoded. Candidates require all14 fields
 and nulls; Replace requires the complete before-record. Workflow owns UUIDs,
@@ -190,6 +190,19 @@ The wire uses closed `anyOf` variants and typed discriminant enums from the
 workflow validates uniqueness and byte limits. This does not qualify live provider
 acceptance. The tool dispatches on spawn_blocking with the same shared limits, returning only
 a whole ≤1MiB receipt, never candidate/comment bodies. It creates review work only.
+
+The same `ProposalTools` capability may explicitly opt in to `propose_knowledge`
+for a workflow-owned Ask job bound to a selected approved Inbox Source. Ordinary
+backends default to disabled and refuse the callback; read-only Ask and Rewrite
+never register this tool. Its closed, all-required input is proposal UUID/title,
+relative destination path, stable note UUID, complete candidate Markdown and
+exact source byte ranges. UUID strings are1–64bytes, title/path1–512bytes,
+text1byte–1MiB, quotes1–32 with start<end≤50,000 and each span≤16KiB; complete
+encoded input≤8MiB and whole receipts≤1MiB. These are protocol bounds only.
+Workflow checks UUID/path/source/current identity and citation rules, adds exact
+saved citations, and creates one independent current Knowledge Create review
+draft. This tool never approves or writes knowledge. Like Action proposals, its
+callback uses `spawn_blocking` and shares the existing tool-round budget.
 
 Invalid scope/type/extra arguments invoke no underlying read. Rig may return its
 parse diagnostic transiently to the model that generated the invalid argument;

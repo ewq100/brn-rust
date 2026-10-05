@@ -7,6 +7,19 @@ use rusqlite::{Connection, OptionalExtension, TransactionBehavior, params};
 use serde::{Deserialize, Serialize};
 use uuid::Uuid;
 
+#[derive(Debug, Clone, Copy, Default, PartialEq, Eq, Serialize, Deserialize)]
+#[serde(rename_all = "snake_case")]
+pub enum InboxAnalysisPurpose {
+    #[default]
+    Actions,
+    KnowledgeAndActions,
+}
+impl InboxAnalysisPurpose {
+    pub fn is_actions(&self) -> bool {
+        *self == Self::Actions
+    }
+}
+
 pub const MAX_INBOX_ACTION_SOURCE_BYTES: usize = 50_000;
 const MAX_QUESTION_BYTES: usize = 512 * 1024;
 const MAX_RECORD_BYTES: usize = 1024 * 1024;
@@ -21,6 +34,9 @@ CREATE TABLE inbox_actions (
 #[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
 #[serde(deny_unknown_fields)]
 pub struct InboxActionCapture {
+    /// Default omissions keep previously stored V14 canonical bytes unchanged.
+    #[serde(default, skip_serializing_if = "InboxAnalysisPurpose::is_actions")]
+    pub purpose: InboxAnalysisPurpose,
     pub id: Uuid,
     pub conversation: Option<Uuid>,
     pub source: SourceVersion,
@@ -212,6 +228,9 @@ pub(super) fn check_all(conn: &Connection) -> Result<()> {
             return Err(invalid("invalid Inbox Action analysis row"));
         }
     }
+    // Checking captures alone cannot detect a proposal whose capture was removed.
+    // Validate the reverse bindings before startup reconciliation or backup.
+    super::proposals::check_all(conn)?;
     Ok(())
 }
 
@@ -268,4 +287,81 @@ impl chat::ChatStore {
     pub fn begin_inbox_action_turn(&mut self, job: &InboxActionJob) -> Result<chat::WorkTurn> {
         chat::begin_inbox_action_turn(&mut self.conn, job)
     }
+}
+
+/// Immutable authority for one independently reviewed knowledge Create.
+/// This is proposal metadata, not a second execution or application lifecycle.
+#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
+#[serde(deny_unknown_fields)]
+pub struct InboxKnowledgeBinding {
+    pub analysis_id: Uuid,
+    pub note_id: Uuid,
+    pub source: SourceVersion,
+    pub citations: Vec<crate::note_provenance::VaultCitation>,
+}
+impl InboxKnowledgeBinding {
+    pub fn validate(&self) -> Result<()> {
+        if self.analysis_id.is_nil() || self.note_id.is_nil() || self.citations.is_empty() {
+            return Err(invalid(
+                "Inbox knowledge needs exact analysis/note identities and citations",
+            ));
+        }
+        super::proposals::validate_path(&self.source.path)?;
+        if self.source.fingerprint.len > MAX_INBOX_ACTION_SOURCE_BYTES as u64 {
+            return Err(invalid(
+                "Inbox knowledge source exceeds its full-capture bound",
+            ));
+        }
+        crate::note_provenance::validate(&self.citations)?;
+        let source_id = self.citations[0].note_id;
+        if source_id == self.note_id
+            || self.citations.iter().any(|c| {
+                c.note_id != source_id
+                    || c.sha256 != self.source.fingerprint.sha256
+                    || c.end_byte as u64 > self.source.fingerprint.len
+            })
+        {
+            return Err(invalid(
+                "Inbox knowledge citations must bind one separate exact Source",
+            ));
+        }
+        Ok(())
+    }
+    pub fn validate_text(&self, text: &str) -> Result<()> {
+        self.validate()?;
+        let citations = crate::note_provenance::read(text)?;
+        if crate::note_identity::read(text)? != Some(self.note_id)
+            || crate::note_metadata::classify(text)?
+                != crate::note_metadata::NoteClassification::default()
+            || super::inbox_source::read_provenance(text)?.is_some()
+            || !self.citations.iter().all(|c| citations.contains(c))
+        {
+            return Err(invalid(
+                "Inbox knowledge must preserve its current identity and exact Source citations",
+            ));
+        }
+        Ok(())
+    }
+}
+
+pub(super) fn check_knowledge_binding(
+    conn: &Connection,
+    binding: &InboxKnowledgeBinding,
+) -> Result<()> {
+    binding.validate()?;
+    let job = reserved(conn, binding.analysis_id)?
+        .ok_or_else(|| invalid("Inbox knowledge analysis capture is unavailable"))?;
+    let source_id = job.capture.note_id()?;
+    if job.capture.purpose != InboxAnalysisPurpose::KnowledgeAndActions
+        || job.capture.source != binding.source
+        || binding.citations.iter().any(|c| {
+            c.note_id != source_id
+                || job.capture.source_text.get(c.start_byte..c.end_byte) != Some(c.quote.as_str())
+        })
+    {
+        return Err(invalid(
+            "Inbox knowledge differs from its retained Source capture",
+        ));
+    }
+    Ok(())
 }

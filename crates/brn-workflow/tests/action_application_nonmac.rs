@@ -28,6 +28,7 @@ fn source_free_review_is_retained_but_unsupported_approval_has_no_effects() {
     .unwrap();
     let id = Uuid::new_v4();
     let request = DraftRequest {
+        inbox_knowledge: None,
         inbox_source: None,
         id: Uuid::new_v4(),
         group_id: None,

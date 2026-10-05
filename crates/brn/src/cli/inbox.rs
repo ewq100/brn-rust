@@ -6,7 +6,7 @@ use super::{
 use brn_workflow::{
     app_worker::{AppCommand, AppEvent},
     inbox::{CaptureInboxRequest, InboxKind, InboxListRequest},
-    inbox_actions::InboxActionRequest,
+    inbox_actions::{InboxActionRequest, InboxAnalysisPurpose},
     inbox_processing::{InboxCandidateRequest, InboxSourceRequest, ProcessInboxRequest},
 };
 use std::{fmt::Write as _, path::PathBuf};
@@ -31,6 +31,11 @@ pub enum InboxCommand {
         timeout_seconds: u64,
     },
     ActionAnalysis(Uuid),
+    Analyze {
+        input: PathBuf,
+        timeout_seconds: u64,
+    },
+    Analysis(Uuid),
 }
 impl InboxCommand {
     pub fn name(&self) -> &'static str {
@@ -45,6 +50,8 @@ impl InboxCommand {
             Self::Cancel(_) => "inbox.cancel",
             Self::AnalyzeActions { .. } => "inbox.analyze-actions",
             Self::ActionAnalysis(_) => "inbox.action-analysis",
+            Self::Analyze { .. } => "inbox.analyze",
+            Self::Analysis(_) => "inbox.analysis",
         }
     }
 }
@@ -56,7 +63,7 @@ pub(super) fn scan_command(
     let sub = sub_word(
         tokens,
         "inbox",
-        "add|show|list|process|processing|candidate|source|cancel|analyze-actions|action-analysis",
+        "add|show|list|process|processing|candidate|source|cancel|analyze-actions|action-analysis|analyze|analysis",
     )?;
     let (label, options): (_, &[(&str, bool)]) = match sub.as_str() {
         "add" => (
@@ -81,6 +88,11 @@ pub(super) fn scan_command(
             &[("file", true), ("timeout-seconds", true)],
         ),
         "action-analysis" => ("inbox.action-analysis", &[]),
+        "analyze" => (
+            "inbox.analyze",
+            &[("file", true), ("timeout-seconds", true)],
+        ),
+        "analysis" => ("inbox.analysis", &[]),
         _ => return Err(usage("unknown Inbox subcommand")),
     };
     *name = Some(label);
@@ -107,10 +119,13 @@ fn metadata(command: &InboxCommand) -> Result<(), CliError> {
         InboxCommand::Processing(id) | InboxCommand::Cancel(id) if id.is_nil() => {
             Err(usage("Inbox processing UUID must not be nil"))
         }
-        InboxCommand::ActionAnalysis(id) if id.is_nil() => {
+        InboxCommand::ActionAnalysis(id) | InboxCommand::Analysis(id) if id.is_nil() => {
             Err(usage("Inbox analysis UUID must not be nil"))
         }
         InboxCommand::AnalyzeActions {
+            timeout_seconds, ..
+        }
+        | InboxCommand::Analyze {
             timeout_seconds, ..
         } if !(1..=3600).contains(timeout_seconds) => Err(usage(
             "analysis deadline must be between 1 and 3600 seconds",
@@ -182,19 +197,33 @@ pub(super) fn parse_command(name: &str, s: &Scanned) -> Result<InboxCommand, Cli
             expect_positionals(s, 1)?;
             InboxCommand::Cancel(positional_uuid(s, 0, "UUID")?)
         }
-        "inbox.action-analysis" => {
+        "inbox.action-analysis" | "inbox.analysis" => {
             expect_positionals(s, 1)?;
-            InboxCommand::ActionAnalysis(positional_uuid(s, 0, "UUID")?)
+            let id = positional_uuid(s, 0, "UUID")?;
+            if name == "inbox.analysis" {
+                InboxCommand::Analysis(id)
+            } else {
+                InboxCommand::ActionAnalysis(id)
+            }
         }
-        "inbox.analyze-actions" => {
+        "inbox.analyze-actions" | "inbox.analyze" => {
             expect_positionals(s, 0)?;
-            InboxCommand::AnalyzeActions {
-                input: PathBuf::from(s.value("file").ok_or_else(|| usage("missing --file"))?),
-                timeout_seconds: s
-                    .value("timeout-seconds")
-                    .map(parse_timeout)
-                    .transpose()?
-                    .unwrap_or(300),
+            let input = PathBuf::from(s.value("file").ok_or_else(|| usage("missing --file"))?);
+            let timeout_seconds = s
+                .value("timeout-seconds")
+                .map(parse_timeout)
+                .transpose()?
+                .unwrap_or(300);
+            if name == "inbox.analyze" {
+                InboxCommand::Analyze {
+                    input,
+                    timeout_seconds,
+                }
+            } else {
+                InboxCommand::AnalyzeActions {
+                    input,
+                    timeout_seconds,
+                }
             }
         }
         "inbox.candidate" => {
@@ -252,14 +281,32 @@ pub(super) fn prepare(command: &InboxCommand) -> Result<AppCommand, CliFailure> 
             AppCommand::PrepareInboxSource(request)
         }
         InboxCommand::Cancel(id) => AppCommand::CancelInboxProcessing(*id),
-        InboxCommand::AnalyzeActions { input, .. } => {
+        InboxCommand::AnalyzeActions { input, .. } | InboxCommand::Analyze { input, .. } => {
             let request: InboxActionRequest = super::proposals::input(input)?;
+            let required = if matches!(command, InboxCommand::Analyze { .. }) {
+                InboxAnalysisPurpose::KnowledgeAndActions
+            } else {
+                InboxAnalysisPurpose::Actions
+            };
+            if request.purpose != required {
+                return Err(usage(match required {
+                    InboxAnalysisPurpose::Actions => {
+                        "inbox analyze-actions requires purpose actions (or its omitted default)"
+                    }
+                    InboxAnalysisPurpose::KnowledgeAndActions => {
+                        "inbox analyze requires explicit purpose knowledge_and_actions"
+                    }
+                })
+                .into());
+            }
             request
                 .validate()
                 .map_err(super::error::classify_workflow)?;
             AppCommand::AnalyzeInboxActions(Box::new(request))
         }
-        InboxCommand::ActionAnalysis(id) => AppCommand::InboxActionAnalysis(*id),
+        InboxCommand::ActionAnalysis(id) | InboxCommand::Analysis(id) => {
+            AppCommand::InboxActionAnalysis(*id)
+        }
     })
 }
 pub(super) fn output(command: &AppCommand, event: AppEvent) -> Result<Output, CliFailure> {
@@ -351,6 +398,15 @@ mod tests {
                 "9",
             ],
             vec!["inbox", "action-analysis", &id],
+            vec![
+                "inbox",
+                "analyze",
+                "--file",
+                "analysis.json",
+                "--timeout-seconds",
+                "11",
+            ],
+            vec!["inbox", "analysis", &id],
             vec!["inbox", "list", "--after", &id, "--limit", "100"],
         ] {
             let mut a = args(&tokens);
@@ -376,6 +432,24 @@ mod tests {
             vec!["inbox", "source"],
             vec!["inbox", "source", "unexpected", "--file", "request.json"],
             vec!["inbox", "analyze-actions"],
+            vec!["inbox", "analyze"],
+            vec!["inbox", "analyze", "unexpected", "--file", "analysis.json"],
+            vec![
+                "inbox",
+                "analyze",
+                "--file",
+                "analysis.json",
+                "--purpose",
+                "knowledge_and_actions",
+            ],
+            vec![
+                "inbox",
+                "analyze",
+                "--file",
+                "analysis.json",
+                "--timeout-seconds",
+                "3601",
+            ],
             vec![
                 "inbox",
                 "analyze-actions",
@@ -389,11 +463,59 @@ mod tests {
                 "action-analysis",
                 "00000000-0000-0000-0000-000000000000",
             ],
+            vec!["inbox", "analysis", "00000000-0000-0000-0000-000000000000"],
+            vec!["inbox", "analysis", "not-a-uuid"],
         ] {
             let mut a = args(&tokens);
             a.extend(args(&["--data-dir", data_path]));
             assert!(crate::cli::parse(&a).is_err());
         }
+    }
+    #[test]
+    fn semantic_parser_preserves_command_names_and_explicit_deadline() {
+        let owner = tempfile::tempdir_in(std::env::temp_dir().canonicalize().unwrap()).unwrap();
+        let data = owner.path().to_str().unwrap();
+        let id = Uuid::new_v4();
+        for seconds in [None, Some("17")] {
+            let mut tokens = args(&[
+                "inbox",
+                "analyze",
+                "--file",
+                "analysis.json",
+                "--data-dir",
+                data,
+            ]);
+            if let Some(value) = seconds {
+                tokens.extend(args(&["--timeout-seconds", value]));
+            }
+            let Outcome::Run(invocation) = crate::cli::parse(&tokens)
+                .unwrap_or_else(|_| panic!("semantic analysis arguments"))
+            else {
+                panic!("semantic analysis invocation");
+            };
+            let Command::Inbox(command) = invocation.command else {
+                panic!("Inbox command");
+            };
+            assert_eq!(command.name(), "inbox.analyze");
+            let InboxCommand::Analyze {
+                input,
+                timeout_seconds,
+            } = command
+            else {
+                panic!("semantic analysis variant");
+            };
+            assert_eq!(input, PathBuf::from("analysis.json"));
+            assert_eq!(timeout_seconds, if seconds.is_some() { 17 } else { 300 });
+        }
+        let tokens = args(&["inbox", "analysis", &id.to_string(), "--data-dir", data]);
+        let Outcome::Run(invocation) =
+            crate::cli::parse(&tokens).unwrap_or_else(|_| panic!("semantic inspection arguments"))
+        else {
+            panic!("semantic inspection invocation");
+        };
+        assert!(
+            matches!(invocation.command, Command::Inbox(InboxCommand::Analysis(actual)) if actual == id)
+        );
     }
     #[test]
     fn invalid_direct_requests_and_input_files_leave_application_state_unopened() {
@@ -422,11 +544,20 @@ mod tests {
                 input: invalid_json.clone(),
                 timeout_seconds: 300,
             },
+            InboxCommand::Analyze {
+                input: invalid_json.clone(),
+                timeout_seconds: 300,
+            },
+            InboxCommand::Analyze {
+                input: invalid_json.clone(),
+                timeout_seconds: 0,
+            },
             InboxCommand::AnalyzeActions {
                 input: invalid_json,
                 timeout_seconds: 0,
             },
             InboxCommand::ActionAnalysis(Uuid::nil()),
+            InboxCommand::Analysis(Uuid::nil()),
             InboxCommand::List(InboxListRequest {
                 limit: 0,
                 after: None,
@@ -447,6 +578,71 @@ mod tests {
             assert!(crate::cli::execute(&i).is_err());
             assert_eq!(std::fs::read_dir(&data).unwrap().count(), 0);
             assert!(!credentials.exists());
+        }
+    }
+    #[test]
+    fn analysis_purpose_mismatch_or_omission_refuses_before_application_open_without_rewriting_input(
+    ) {
+        let _cancel = crate::tests::CancelTestGuard::with(false);
+        let owner = tempfile::tempdir_in(std::env::temp_dir().canonicalize().unwrap()).unwrap();
+        let data = owner.path().join("data");
+        std::fs::create_dir(&data).unwrap();
+        let credentials = owner.path().join("credentials");
+        let input = owner.path().join("analysis.json");
+        for (semantic, purpose) in [
+            (true, None),
+            (true, Some("actions")),
+            (false, Some("knowledge_and_actions")),
+            (true, Some("unknown")),
+        ] {
+            // These complete DTO-shaped bytes isolate the purpose refusal. Their
+            // source is deliberately unusable, so no admission/provider is possible.
+            let mut value = serde_json::json!({
+                "id": Uuid::new_v4(),
+                "conversation": null,
+                "source": {
+                    "source": {
+                        "path": "source.md",
+                        "fingerprint": {"device": 1, "inode": 2, "len": 0, "sha256": vec![0u8; 32]}
+                    },
+                    "text": ""
+                },
+                "selection": {"provider": "chatgpt", "model": "gpt-6-luna"},
+                "effort": "medium",
+                "generation": 5
+            });
+            if let Some(purpose) = purpose {
+                value["purpose"] = serde_json::json!(purpose);
+            }
+            let exact = serde_json::to_vec(&value).unwrap();
+            std::fs::write(&input, &exact).unwrap();
+            let command = if semantic {
+                InboxCommand::Analyze {
+                    input: input.clone(),
+                    timeout_seconds: 30,
+                }
+            } else {
+                InboxCommand::AnalyzeActions {
+                    input: input.clone(),
+                    timeout_seconds: 30,
+                }
+            };
+            let invocation = Invocation {
+                json: true,
+                data_dir: data.clone(),
+                vault: None,
+                credentials_dir: Some(credentials.clone()),
+                model_dir: None,
+                command: Command::Inbox(command),
+            };
+            let error = crate::cli::execute(&invocation).err().unwrap();
+            assert_eq!(error.error.code(), "USAGE");
+            if purpose != Some("unknown") {
+                assert!(error.error.message().contains("purpose"));
+            }
+            assert_eq!(std::fs::read_dir(&data).unwrap().count(), 0);
+            assert!(!credentials.exists());
+            assert_eq!(std::fs::read(&input).unwrap(), exact);
         }
     }
     #[cfg(target_os = "macos")]
@@ -581,73 +777,123 @@ mod tests {
             serde_json::from_value(exported.data).unwrap();
         source.validate().unwrap();
         assert!(source.text.contains(exact));
-        let request = InboxActionRequest {
-            id: Uuid::new_v4(),
-            conversation: None,
-            source: Box::new(source.clone()),
-            selection: brn_workflow::Selection {
-                provider: brn_workflow::Provider::Chatgpt,
-                model: "gpt-6-luna".into(),
-            },
-            effort: brn_workflow::ReasoningEffort::Medium,
-            generation: 77,
-        };
-        let capture = brn_workflow::inbox_actions::InboxActionCapture {
-            id: request.id,
-            conversation: None,
-            source: source.source,
-            source_text: source.text,
-            provider: "chatgpt".into(),
-            model: request.selection.model.clone(),
-            effort: "medium".into(),
-        };
-        {
-            let (mut store, _) = brn_store::WorkStore::open(&data).unwrap();
-            let job = store
-                .reserve_inbox_action(&capture, "Synthetic retained analysis question")
-                .unwrap();
-            store.begin_inbox_action_turn(&job).unwrap();
-            store
-                .finish_turn(
-                    request.id,
-                    brn_workflow::WorkTurnStatus::Completed,
-                    "No Action supported; other consequences still need review.",
-                    None,
-                )
-                .unwrap();
-        }
         std::fs::remove_file(vault.join("source.md")).unwrap();
-        let analysis_file = owner.path().join("analysis.json");
-        std::fs::write(&analysis_file, serde_json::to_vec(&request).unwrap()).unwrap();
-        let replay = crate::cli::execute(&invocation(InboxCommand::AnalyzeActions {
-            input: analysis_file.clone(),
-            timeout_seconds: 30,
-        }))
-        .unwrap();
-        assert_eq!(replay.data["operation_id"], serde_json::json!(request.id));
-        assert_eq!(replay.data["status"], "completed");
-        let inspected =
-            crate::cli::execute(&invocation(InboxCommand::ActionAnalysis(request.id))).unwrap();
-        let analysis: brn_workflow::inbox_actions::InboxActionAnalysis =
-            serde_json::from_value(inspected.data).unwrap();
-        assert_eq!(analysis.job.capture, capture);
-        assert_eq!(
-            analysis.turn.unwrap().status,
-            brn_workflow::WorkTurnStatus::Completed
-        );
-        assert!(analysis.proposals.is_empty());
-        assert!(analysis.needs_semantic_review);
-        let mut changed = request;
-        changed.effort = brn_workflow::ReasoningEffort::High;
-        std::fs::write(&analysis_file, serde_json::to_vec(&changed).unwrap()).unwrap();
-        let failure = crate::cli::execute(&invocation(InboxCommand::AnalyzeActions {
-            input: analysis_file,
-            timeout_seconds: 30,
-        }))
-        .err()
-        .unwrap();
-        assert_eq!(failure.error.code(), "OPERATION_CONFLICT");
-        assert_eq!(std::fs::read_dir(credentials).unwrap().count(), 0);
+        for purpose in [
+            InboxAnalysisPurpose::Actions,
+            InboxAnalysisPurpose::KnowledgeAndActions,
+        ] {
+            let request = InboxActionRequest {
+                purpose,
+                id: Uuid::new_v4(),
+                conversation: None,
+                source: Box::new(source.clone()),
+                selection: brn_workflow::Selection {
+                    provider: brn_workflow::Provider::Chatgpt,
+                    model: "gpt-6-luna".into(),
+                },
+                effort: brn_workflow::ReasoningEffort::Medium,
+                generation: 77,
+            };
+            let capture = brn_workflow::inbox_actions::InboxActionCapture {
+                purpose,
+                id: request.id,
+                conversation: None,
+                source: source.source.clone(),
+                source_text: source.text.clone(),
+                provider: "chatgpt".into(),
+                model: request.selection.model.clone(),
+                effort: "medium".into(),
+            };
+            {
+                let (mut store, _) = brn_store::WorkStore::open(&data).unwrap();
+                let job = store
+                    .reserve_inbox_action(&capture, "Synthetic retained analysis question")
+                    .unwrap();
+                store.begin_inbox_action_turn(&job).unwrap();
+                store
+                    .finish_turn(
+                        request.id,
+                        brn_workflow::WorkTurnStatus::Completed,
+                        "No Action supported; other consequences still need review.",
+                        None,
+                    )
+                    .unwrap();
+            }
+            let analysis_file = owner.path().join("analysis.json");
+            let mut json = serde_json::to_value(&request).unwrap();
+            if purpose == InboxAnalysisPurpose::Actions {
+                json.as_object_mut().unwrap().remove("purpose");
+            }
+            std::fs::write(&analysis_file, serde_json::to_vec(&json).unwrap()).unwrap();
+            let analyze_command = |input| {
+                if purpose == InboxAnalysisPurpose::Actions {
+                    InboxCommand::AnalyzeActions {
+                        input,
+                        timeout_seconds: 30,
+                    }
+                } else {
+                    InboxCommand::Analyze {
+                        input,
+                        timeout_seconds: 30,
+                    }
+                }
+            };
+            let AppCommand::AnalyzeInboxActions(prepared) =
+                prepare(&analyze_command(analysis_file.clone())).unwrap()
+            else {
+                panic!("prepared bound analysis");
+            };
+            assert_eq!(*prepared, request);
+            let replay =
+                crate::cli::execute(&invocation(analyze_command(analysis_file.clone()))).unwrap();
+            assert_eq!(replay.data["operation_id"], serde_json::json!(request.id));
+            assert_eq!(replay.data["status"], "completed");
+            let inspected =
+                crate::cli::execute(&invocation(InboxCommand::Analysis(request.id))).unwrap();
+            let analysis: brn_workflow::inbox_actions::InboxActionAnalysis =
+                serde_json::from_value(inspected.data.clone()).unwrap();
+            assert_eq!(analysis.job.capture, capture);
+            assert_eq!(analysis.job.capture.purpose, purpose);
+            assert_eq!(
+                analysis.job.question,
+                "Synthetic retained analysis question"
+            );
+            assert_eq!(
+                analysis.turn.unwrap().status,
+                brn_workflow::WorkTurnStatus::Completed
+            );
+            assert!(analysis.proposals.is_empty());
+            assert!(analysis.needs_semantic_review);
+            assert_eq!(
+                crate::cli::execute(&invocation(InboxCommand::ActionAnalysis(request.id)))
+                    .unwrap()
+                    .data,
+                inspected.data
+            );
+            let mut new_generation = request.clone();
+            new_generation.generation += 91;
+            std::fs::write(&analysis_file, serde_json::to_vec(&new_generation).unwrap()).unwrap();
+            assert_eq!(
+                crate::cli::execute(&invocation(analyze_command(analysis_file.clone())))
+                    .unwrap()
+                    .data,
+                replay.data
+            );
+            assert_eq!(
+                crate::cli::execute(&invocation(InboxCommand::Analysis(request.id)))
+                    .unwrap()
+                    .data,
+                inspected.data
+            );
+            let mut changed = request;
+            changed.effort = brn_workflow::ReasoningEffort::High;
+            std::fs::write(&analysis_file, serde_json::to_vec(&changed).unwrap()).unwrap();
+            let failure = crate::cli::execute(&invocation(analyze_command(analysis_file)))
+                .err()
+                .unwrap();
+            assert_eq!(failure.error.code(), "OPERATION_CONFLICT");
+            assert_eq!(std::fs::read_dir(&credentials).unwrap().count(), 0);
+        }
     }
     #[cfg(target_os = "macos")]
     #[test]

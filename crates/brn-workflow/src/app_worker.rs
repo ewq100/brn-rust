@@ -26,8 +26,10 @@ use std::{
 use uuid::Uuid;
 
 mod action_proposals;
+mod knowledge_proposals;
 use action_proposals::ActionProposal;
 pub(crate) use action_proposals::ActionProposals;
+use knowledge_proposals::KnowledgeProposal;
 mod action_tools;
 use action_tools::{ActionRead, ActionReads};
 
@@ -265,6 +267,7 @@ enum Message {
     ChatIdle,
     ActionRead(ActionRead),
     ActionProposal(Box<ActionProposal>),
+    KnowledgeProposal(Box<KnowledgeProposal>),
     #[cfg(test)]
     IdleBarrier(mpsc::Sender<()>),
     #[cfg(test)]
@@ -908,6 +911,7 @@ fn app_lane(
                 Message::ActionRead(read) => read.settle(&app, stopping.load(Ordering::Acquire)),
                 // Admitted proposal mutations are FIFO critical work, including during Quit.
                 Message::ActionProposal(proposal) => proposal.settle(&mut app),
+                Message::KnowledgeProposal(proposal) => proposal.settle(&mut app),
                 #[cfg(test)]
                 Message::IdleBarrier(barrier) => idle_barriers.push(barrier),
                 #[cfg(test)]
@@ -1040,6 +1044,7 @@ fn app_lane(
         match message {
             Message::ActionRead(read) => read.refuse(private_failure),
             Message::ActionProposal(proposal) => proposal.refuse(private_failure),
+            Message::KnowledgeProposal(proposal) => proposal.refuse(private_failure),
             Message::Command(id, command) => {
                 let _ = emit.send((id, cancelled_command(command)));
             }
@@ -1759,6 +1764,7 @@ mod editor_shutdown_tests {
         let comment_id = Uuid::new_v4();
         let operations = [
             AppCommand::CreateProposal(DraftRequest {
+                inbox_knowledge: None,
                 inbox_source: None,
                 action_changes: Vec::new(),
                 id,

@@ -45,7 +45,7 @@ pub(crate) type ProposalAnswerHook = Arc<
             AskRequest,
             Vec<HistoryPair>,
             Arc<dyn ReadTools>,
-            Arc<dyn brn_ai::ActionProposalTools>,
+            Arc<dyn brn_ai::ProposalTools>,
             CancellationToken,
             Arc<dyn Fn(AiEvent) + Send + Sync>,
         ) -> AnswerFuture

@@ -66,35 +66,38 @@ Evidence: [Actions/dashboard record](work/completed/actions-dashboard/plan.md).
 
 ## Latest integrated checkpoint
 
-[PR49](https://github.com/ewq100/brn-rust/pull/49) merged at
-**fab3da64275f02c5498006701b8bb289e27e9a96**, exact reviewed tree
-`3285fdd6e779323676f0c6b4d44797e045f222ad`. Stage7 now includes private exact
-capture, V13 bounded conversion, immutable Source preparation/approval/recovery,
-and native Inbox capture, full original/preview inspection, processing controls
-and binding-preserving Source review. Originals remain retained. Semantic
-knowledge/Action/link consequences and safe deletion are still incomplete.
+[PR50](https://github.com/ewq100/brn-rust/pull/50) merged at
+**fd24dee7dd640505a51d0978df4e8886fb9da47a**, exact reviewed tree
+`441f1de50b0ec741cbc9c35fc687c54d065d65e9`. Stage7 includes private exact intake,
+owned conversion, native Inbox capture/preview/processing and exact Source review,
+then one complete saved Source analyzed through the existing owned Ask lane into
+separate Action drafts. V14 retains whole Source/selection capture; generation
+is transient and replay never repeats a retained turn. At most20 independently
+reviewable drafts bind the exact Source. CLI exposes full Source proof, analysis
+submission and retained inspection. No Action takes effect without exact approval;
+originals stay retained. Knowledge/link/replacement/conflict and deletion remain
+incomplete.
 
-Independent complete read-only review is clean after reproduced consumption,
-retry and readonly-review fixes. Fresh default verification passed 1,210 tests
-(seven ignored helpers), format/build/all-target Clippy and startup; native checks
-passed 229 workflow/model tests (six ignored helpers), 273 desktop tests, native
-Clippy, 52 fixtures, shipping builds and two V13 startup/restarts. Exact-head run
-`37287735015` passed all three macOS lanes and Ubuntu shared. Windows Core's full
-normalized diagnostic blocks match PR48; overall CI remains red under the owner
-platform policy. Fresh requirements permitted normal expected-head merge without
-bypass. Merge parents/tree and fast-forward were verified; fresh nine Inbox
-state/widget tests, 52 fixtures and two shipping startup/restarts passed,
-preserving exact vault bytes and zero credentials. Main run `37288829290` at the exact merge passed all three macOS lanes
-and Ubuntu Core/UI. Ubuntu Native retains three prior installer failures
-(10 passed / 3 failed); Windows Core/UI/Native retain the prior 22/22/14 compiler
-errors plus two summaries each. Complete failed-job logs match PR48 after
-incidental normalization; overall CI remains red. Computer use reported the Mac locked; Inbox native observation,
-screenshots and owner acceptance remain pending.
+Independent complete read-only review is clean after a verified transient-generation
+replay fix. Fresh default qualification passed 1,228 results/0failed/7ignored;
+workspace format/build/Clippy passed. An old maximal receipt assertion in the
+broader script was corrected, then all398 Workflow results passed freshly; prior
+830 unchanged package results remain valid. Native workflow/models 237/0/6,
+desktop 273/0/0, native Clippy, shipping builds, 52 fixtures and two V14 startup/
+restarts passed. PR run37294640953 passed all three macOS lanes and Ubuntu shared;
+Windows 22 compiler errors/two summaries exactly match PR49. Normal expected-head
+merge satisfied fresh GitHub requirements without bypass. Verified merge parents/
+identical tree and fast-forward, then eight worker tests, four CLI Inbox tests,
+52 fixtures and two shipping V14 startup/restarts passed freshly with exact vault
+bytes and zero credentials. Main run37295871888 at the exact merge passed all
+three macOS lanes and Ubuntu Core/UI. Ubuntu Native retained 10 passed/3 prior
+installer failures; Windows Core/UI/Native retained 22/22/14 compiler errors plus
+two summaries each. Complete failed diagnostics match PR49 main; overall CI
+remains red. Native Inbox observation/screenshots and owner acceptance remain
+pending; no native analysis controls or live inference are claimed.
 
-PR48's test-only CLI cancellation repair remains integrated and qualified;
-its main run passed all macOS lanes and Ubuntu Core/UI with the known remaining
-Ubuntu Native/Windows failures. The active Inbox record retains historical source
-and race-reproduction evidence.
+PR49 native Inbox and PR48 test-only CLI cancellation repair remain integrated
+and qualified; their historical results remain in the active Inbox record.
 
 Stage6 implementation is integrated through [PR43](https://github.com/ewq100/brn-rust/pull/43).
 Dashboard/identified Complete actual observation and eight safe original JPEGs
@@ -104,22 +107,22 @@ Scenarios and integration evidence remain in the
 
 ## Active slice and next work
 
-The Action-analysis slice is implemented and independently reviewed on
-`codex/v1-inbox-action-analysis`, from merge `fab3da6`. One approved saved Inbox
-Source uses the existing owned Ask and exact proposal boundary. V14 retains a
-whole Source/selection capture; generation is transient and replay never repeats
-a retained turn. At most20 separately reviewable Action proposals bind the exact
-Source; real effects still require approval. CLI exposes full Source proof,
-analysis submission and retained inspection. No original deletion/completeness
-is inferred. Fresh default checks passed 1,228 tests (seven ignored helpers);
-native workflow/models 237 (six ignored), desktop273, default/native Clippy,
-52 fixtures, shipping builds and two V14 startup/restarts passed. The broader
-workspace run exposed an old five-field receipt-test expectation; its corrected
-ordinary/grouped shapes and all workflow tests passed freshly. Hosted CI and
-integration are pending. Manual/live/native acceptance remains pending; no new
-account/model calls occurred. Knowledge/link/replacement consequences and safe
-deletion follow. See the
-[Inbox plan](work/active/text-email-inbox/plan.md).
+`codex/v1-inbox-knowledge-analysis` continues from merged `fd24dee7`. Extend the
+same immutable capture with explicit knowledge_and_actions purpose, preserving
+old Actions canonical bytes/questions. A thin opt-in protocol prepares one
+Current knowledge Create per call with a new UUID and exact selected-Source
+quotes; the existing typed proposal protects these bindings through review and
+exact approval/apply/Finish. Reuse the owned WorkTurn and shared 20-draft group
+limit. Independent review is clean after validated orphan-binding and recovery
+identity corrections. Fresh default checks passed 1,254/0/8; native Workflow/
+models 247/0/7 and Desktop 273/0/0 passed, with Clippy, shipping builds, 52 fixtures
+and two exact-byte V14 startup/restarts. Seven default skips are crash helpers;
+one needs a case-sensitive APFS fixture. Published-head CI/integration and manual
+acceptance remain pending; the complete Stage7 is not claimed.
+Following Stage7 deliverables are links, replacement/history/conflict resolution,
+safe copy deletion and native semantic controls. See the
+[Inbox plan](work/active/text-email-inbox/plan.md). No new live/download scope or
+private/original data operations are being used.
 
 ## Qualification and owner items
 
