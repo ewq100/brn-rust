@@ -292,7 +292,7 @@ impl Tool for ReadAction {
     type Error = AiError;
 
     fn description(&self) -> String {
-        "Read one complete approved Action by UUID, including current fields, state, revision and immutable approved origin. This is read-only; it cannot approve or complete work. Replies over 1 MiB are refused, never truncated.".into()
+        "Read one complete approved Action by UUID, including current fields, state, revision, immutable approved origin and checked_ref binding the complete record. Use this checked_ref as a propose_actions Replace target; do not construct a before record. This is read-only; it cannot approve or complete work. Replies over 1 MiB are refused, never truncated.".into()
     }
     fn parameters(&self) -> Value {
         json!({"type":"object","additionalProperties":false,

@@ -8,6 +8,14 @@ use crate::{
 };
 use serde_json::json;
 
+fn ai_record(record: &ActionRecord) -> serde_json::Value {
+    use sha2::{Digest, Sha256};
+    let hash = format!("{:x}", Sha256::digest(serde_json::to_vec(record).unwrap()));
+    let mut result = serde_json::to_value(record).unwrap();
+    result["checked_ref"] = json!({"id":record.origin.id,"version":record.version,"sha256":hash});
+    result
+}
+
 fn seed(fixture: &Fixture, large: bool) -> Vec<ActionRecord> {
     let mut app = App::open(&fixture.base.path().join("data"), fixture.config()).unwrap();
     for (index, state) in [
@@ -95,7 +103,7 @@ fn action_tools_read_exact_approved_records_and_pages_without_knowledge_mutation
                 for record in &expected {
                     assert_eq!(
                         tools.read_action(&record.origin.id.to_string()).unwrap(),
-                        serde_json::to_value(record).unwrap()
+                        ai_record(record)
                     );
                 }
                 let first = tools.list_actions(None, 1, None).unwrap();
@@ -168,6 +176,26 @@ fn action_tools_read_exact_approved_records_and_pages_without_knowledge_mutation
         answer: Some(hook),
         ..Hooks::default()
     });
+    let query = Uuid::new_v4();
+    worker
+        .submit(query, AppCommand::Action(before[0].origin.id))
+        .unwrap();
+    loop {
+        let (id, event) = event(&worker);
+        if id == query {
+            let AppEvent::Action(record) = event else {
+                panic!("Expected owner Action record");
+            };
+            assert_eq!(*record, before[0]);
+            assert!(
+                serde_json::to_value(record)
+                    .unwrap()
+                    .get("checked_ref")
+                    .is_none()
+            );
+            break;
+        }
+    }
     let request = fixture.request();
     worker
         .submit(request.id, AppCommand::Ask(request.clone()))
@@ -225,7 +253,7 @@ fn action_tools_refuse_malformed_and_oversized_whole_pages_but_single_records_re
                 assert_eq!(tools.list_actions(None,2,None).unwrap_err().kind,AiErrorKind::ToolRejected,"No truncated page or invented cursor");
                 let mut cursor=None;
                 for record in expected {
-                    assert_eq!(tools.read_action(&record.origin.id.to_string()).unwrap(),json!(record));
+                    assert_eq!(tools.read_action(&record.origin.id.to_string()).unwrap(),ai_record(&record));
                     let page=tools.list_actions(None,1,cursor.as_deref()).unwrap();
                     assert_eq!(page["entries"],json!([record]));
                     cursor=page["next_cursor"].as_str().map(str::to_owned);
