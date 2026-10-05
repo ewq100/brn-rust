@@ -2,39 +2,51 @@
 
 Lead-confirmed 2026-10-06: full frozen V1 goal **active**, without a token budget.
 
-- **Integrated:** Action PR64 at `90c36e5c2035d1eea4fc37e7828f085a0f1bfba0`,
-  exact reviewed tree `913c3fa3bbc6d3ddfdbc1fafa87c8cae257d7e02`. Rust mints
-  Action identities/member links, checks full Replace baselines and injects Inbox
-  Source proofs; original replay retains newer reviews. Exact-head PR37380762825
-  attempt1 passed all four protected Mac/shared gates and Docs. Overall red retains
-  Windows22 complete compiler blocks/both summaries matching PR63. Fresh merged
-  127 AI/11 Action callback-fence tests and52 fixtures passed. Main64 run37382000386 attempt1 passed all applicable
-  gates; overall red retains unchanged Windows22/22/14 compiler blocks and three
-  Linux assertions/backtraces, with raw order/thread-ID/duration differences retained.
-- **Verification:** Action independent review clean; shared format/build/Clippy,
-  1,367 tests/0 failures/8 ignores and52 fixtures passed. Optional native checks/
-  three Clippy configurations,291 Workflow/model tests/0/7,285 Desktop/0/0,
-  shipping builds and two V14 restarts passed. Atomic records preserve exact
-  unchanged identity/exit0; no live provider or model assets exercised.
-- **Current:** `codex/v1-source-preservation`, qualified code
-  `95940fe6c143d529f98b70ef5914b1e05decdc20`, tree
-  `5c984a20fab1868cc9ef52633959b94289d9e58c`: one
-  approved Source proving exact original preservation, independently of failed
-  analysis/pending drafts/derived edits. Complete independent review clean;1,382 shared tests/0/8 and52 fixtures plus
-  format/build/Clippy passed.297 native Workflow/model tests/0/7 and285 Desktop/0/0,
-  native builds/checks/Clippy and two V14 restarts passed at unchanged clean identity.
-  Exact-head CI/integration are pending; detailed actual failures/results remain
-  in the correction plan.
-- **Preserved:** lifecycle `7c4f668de467721f728f242c8fac8d14606a6e44` on
+- **Integrated:** Source-preservation [PR65](https://github.com/ewq100/brn-rust/pull/65)
+  at `531517248300c15ce28bcb53f337984103817010`, exact reviewed tree
+  `d63c1827aae5da654410520bc9c48856e1fa5e5a`. One approved Source proves exact
+  original preservation; failed analyses, pending drafts and later derived edits
+  are independent. Explicit owner confirmation remains required; disposition stays
+  separate, and no original is removed by the preview.
+- **Verification:** complete independent review clean. Shared format/build/Clippy,
+  1,382 tests/0 failures/8 ignores and52 fixtures; optional native check/Clippy/build,
+  297 Workflow/model tests/0/7,285 Desktop/0/0 and two V14 restarts passed at unchanged
+  clean code95940fe6c143d529f98b70ef5914b1e05decdc20. Exact PR37384547448 attempt1
+  at660bb50c89d366deb7afb0b13e8f8484461444ee passed all four protected Mac/shared
+  checks and Docs; Windows22 blocks/both summaries match PR64, retaining overall red.
+  Fresh merged9 Store/13 Workflow/6 CLI tests and52 fixtures passed, atomic terminal
+  exit0 at unchanged merged identity (22:55:53–22:56:35UTC). Main65 run37385458794
+  attempt1 passed applicable checks; overall red retains Windows22/22/14 matching
+  main64 and the same three Linux retrieval assertions/backtraces, with changed
+  thread IDs retained.
+- **Current:** `codex/v1-knowledge-capture-recovery`, based on this clean merge.
+  Retain genuine Knowledge analysis captures within the existing proposal-apply
+  recovery family; restore capture/proposal/journal together without invented chat
+  or provider execution. Code10e95e2c8880b6f1295fe630249a6ecd5382d870/tree
+  6a6a33d99039458d644a9f01763d0e08183133a3 has clean complete independent review.
+  Fresh shared1,397/0/8+52 and native304 Workflow/models/0/7+285 Desktop/0/0,
+  native check/Clippy/build/two restarts passed at unchanged identity. Exact-head
+  CI/integration are next; older readers deliberately refuse new companions.
+- **Preserved:** lifecycle7c4f668de467721f728f242c8fac8d14606a6e44 on
   `codex/v1-inbox-recoverable-removal`, unchanged/unmerged and held for correction.
-- **Pending:** explicit confirmation/removal record and recovery corrections,
-  native/live/owner acceptance, real assets and trusted-user packaging. Disposition
-  remains separate; previews grant no deletion authority.
-- **Next:** qualify/integrate Source preservation, then bounded original-operation
-  record/performance/recovery work under the [current plan](../work/active/architecture-review-corrections/plan.md).
-- **Environment:** Darwin arm64 Mac mini, Rust1.98.1 locked/offline, canonical
-  owned `TMPDIR=/private/tmp/brn-mini-synthetic-20261005`, empty native model
-  setting, isolated checkout/targets and disposable synthetic data only.
+- **Pending:** explicit confirmation/removal and bounded record/performance/recovery
+  corrections, native/live/owner acceptance, real assets and trusted-user packaging.
+- **Next:** qualify captured-analysis recovery, then lean original-operation records
+  under the [current plan](../work/active/architecture-review-corrections/plan.md).
+- **Environment:** Darwin arm64 Mac mini, Rust1.98.1 locked/offline, canonical owned
+  `TMPDIR=/private/tmp/brn-mini-synthetic-20261005`, empty native model setting,
+  isolated checkout/targets and disposable synthetic data only.
+
+## Earlier Action/Source milestone evidence
+
+Action PR64 merged90c36e5c2035d1eea4fc37e7828f085a0f1bfba0, tree
+913c3fa3bbc6d3ddfdbc1fafa87c8cae257d7e02. Clean review; shared1,367/0/8+52,
+291 native Workflow/models/0/7+285 Desktop/0/0, native builds/Clippy/two restarts.
+Exact PR37380762825 attempt1 passed all protected checks/Docs. Fresh merged127 AI/
+11 Action tests+52 passed. Main64 run37382000386 passed applicable gates; overall
+red retained unchanged Windows22/22/14 and three Linux retrieval assertions/
+backtraces, with raw order/thread-ID/duration differences retained. Source-preservation
+qualification and meaningful intermediate failures are in the correction plan.
 
 ## Earlier removal-preview checkpoint
 

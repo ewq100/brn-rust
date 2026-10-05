@@ -1,5 +1,6 @@
 //! Ordinary approval recovery receipts. This helper never applies vault changes.
 mod completion;
+mod inbox_capture;
 pub(crate) use completion::CompletionRecoverySnapshot;
 
 use super::{FileFailure, FileResult, note_unsupported};
@@ -370,6 +371,9 @@ impl ApplyRecoveryFiles {
                 .and_then(|rest| rest.strip_suffix(TEMP_SUFFIX))
             {
                 parse_id(id)?;
+                return Ok(());
+            }
+            if self.check_capture_name(filename)? {
                 return Ok(());
             }
             let id = filename

@@ -474,6 +474,26 @@ Activity summaries count both approved Markdown and Action members. Their
 `changes` field lists note paths; the identified full application snapshot retains
 complete Action identities/data/baselines without loading every body into a page.
 
+Knowledge-bound approval operations also retain an immutable
+`.brn-apply-<operation>.inbox-capture` companion. Its canonical hash-checked payload
+holds the exact approval request, Knowledge-binding digest and genuine full
+`InboxActionJob`, bounded at1MiB+4096 encoded bytes. Existing format1 receipt bytes
+and occupied equal inodes remain unchanged. Capture publication precedes effects;
+equal companions are checked/synced and different occupants refuse. Canonical
+companions are validated even without a receipt, but valid prepublished orphans
+remain inert. Unknown/corrupt names or content fail closed. Older builds reject
+the new companion suffix; keep the qualified reader when reopening these data.
+Retained evidence is never removed to permit a downgrade.
+
+Startup imports the genuine capture and approval together in one Store transaction.
+An older receipt may gain its companion from checked retained SQL; missing evidence
+is never synthesized from current Source bytes or provider defaults. Fresh/older
+operational recovery creates no session/turn and cannot resubmit an issued
+historical analysis UUID. Comment cleanup, repair and newer review retain these
+bindings. This uses the existing approval family and grants no new approval or
+filesystem authority. Qualification/integration and remaining acceptance are
+recorded separately in the current checkpoint.
+
 ## Owned AI Rewrite
 
 `proposal_rewrite::RewriteRequest` binds a job UUID, exact proposal stamp, explicit

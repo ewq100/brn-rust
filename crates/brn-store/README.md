@@ -490,6 +490,19 @@ identity uniqueness and new provenance at exact approval. This adds neither a
 second proposal/application lifecycle nor another data authority. Exact Undo
 uses the existing journal and historical bytes.
 
+`InboxKnowledgeBinding::validate_capture` checks one complete genuine
+`InboxActionJob`, including its payload domains, exact analysis UUID, purpose,
+Source version and every citation. It cannot independently recover historical
+question/time/selection values from a journal; retained reservation equality
+checks those values. `restore_proposal_apply_with_capture` restores that exact
+job and approval in one transaction, without creating a Session or turn.
+The ordinary `restore_proposal_apply` wrapper accepts no supplied job and requires
+an already checked capture for Knowledge. Missing captures refuse before commit;
+newly restored proposals undergo contextual checks too. Existing V14 canonical
+job/journal bytes and schema remain unchanged. An issued checked Knowledge
+approval fences a missing historical turn UUID from starting again, while a real
+retained turn replays and an unissued reservation can begin normally.
+
 
 Inbox supersession uses exactly one Current Create and one History Replace.
 `InboxSupersedesBinding` retains the predecessor UUID/full SourceVersion;

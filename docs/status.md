@@ -15,7 +15,7 @@ and the disposable retrieval index retain their existing roles. The owner's
 permits thin future adapters around the six V1 core crates through workflow/
 AppWorker. No MCP, daemon, HTTP service, extra database or remote work is in V1.
 
-Integrated main is **`90c36e5c2035d1eea4fc37e7828f085a0f1bfba0` (PR64)**.
+Integrated main is **`531517248300c15ce28bcb53f337984103817010` (PR65)**.
 Complete retained original review, deterministic saved-body quotes, Rust-owned
 Conflict/Knowledge/Action candidate identities, checked full Action replacement
 baselines and AI Rewrite metadata protection are integrated. Exact approval and
@@ -29,13 +29,16 @@ backtraces, with raw ordering/thread-ID/duration differences retained.
 
 The pushed immutable **`7c4f668de467721f728f242c8fac8d14606a6e44`** snapshot on
 `codex/v1-inbox-recoverable-removal` implements removal/restore and recovery, but is
-**unmerged**. Architecture-review corrections continue on
-`codex/v1-source-preservation`: qualify one approved Source proving exact original
-preservation, with explicit confirmation still required. Failed/pending analysis,
-consequence drafts and later derived edits are independent. Item disposition is
-separate. The current candidate replaces the older conservative preview;
-independent review is clean, and fresh shared/native verification passed at
-95940fe6c143d529f98b70ef5914b1e05decdc20. Exact-head CI/integration are pending. A1 record/performance/recovery
+**unmerged**. Source-preservation correction is integrated: one approved Source proves exact
+original preservation, with explicit confirmation still required. Failed/pending
+analysis, consequence drafts and later derived edits are independent; item
+disposition remains separate. Independent review/shared/native checks and exact-head
+protected CI passed; fresh merged9 Store/13 Workflow/6 CLI tests+52 fixtures passed.
+Captured-analysis recovery on `codex/v1-knowledge-capture-recovery` uses
+the existing proposal-apply family. Complete independent review and fresh
+shared1,397/0/8+52/native304 Workflow/models/0/7+285 Desktop/0/0 passed at10e95e2;
+exact-head CI/integration are pending. Main65 run37385458794 attempt1 passed applicable gates; unchanged Windows/Linux
+failures remain visible. A1 record/performance/recovery
 corrections hold lifecycle integration, native removal and Stage8. No semantic
 completeness, native/live/owner acceptance or full V1 delivery is claimed. The full
 V1 goal remains active. No owner original/private data was inspected or migrated.

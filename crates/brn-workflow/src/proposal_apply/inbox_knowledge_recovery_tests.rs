@@ -51,6 +51,9 @@ impl Fixture {
         Self::with_supersession(false)
     }
     fn with_supersession(supersedes: bool) -> (Self, App) {
+        Self::with_input(supersedes, "Synthetic saved analysis")
+    }
+    fn with_input(supersedes: bool, question: &str) -> (Self, App) {
         let base = tempfile::tempdir_in(std::env::temp_dir().canonicalize().unwrap()).unwrap();
         let vault = base.path().join("vault");
         let data = base.path().join("data");
@@ -110,10 +113,7 @@ impl Fixture {
             model: "gpt-6-luna".into(),
             effort: "medium".into(),
         };
-        let job = app
-            .store
-            .reserve_inbox_action(&capture, "Synthetic saved analysis")
-            .unwrap();
+        let job = app.store.reserve_inbox_action(&capture, question).unwrap();
         let turn = app.store.begin_inbox_action_turn(&job).unwrap();
         app.store
             .finish_turn(
@@ -681,4 +681,341 @@ fn supersession_prepared_predecessor_change_refuses_before_installation() {
         ApplyOutcome::NotApplied
     );
     f.assert_source_and_credentials();
+}
+
+impl Fixture {
+    fn copy_approval_family(&self, label: &str) -> PathBuf {
+        let fresh = self.base.path().join(label);
+        fs::create_dir(&fresh).unwrap();
+        for entry in fs::read_dir(&self.data).unwrap() {
+            let entry = entry.unwrap();
+            if entry
+                .file_name()
+                .to_str()
+                .unwrap()
+                .starts_with(".brn-apply-")
+            {
+                fs::copy(entry.path(), fresh.join(entry.file_name())).unwrap();
+            }
+        }
+        fresh
+    }
+
+    fn open_fresh(&self, data: &std::path::Path) -> Result<App> {
+        App::open(
+            data,
+            AppConfig {
+                vault_root: Some(self.vault.clone()),
+                credentials_dir: Some(self.credentials.clone()),
+                model_dir: None,
+            },
+        )
+    }
+
+    fn capture_path(&self, data: &std::path::Path) -> PathBuf {
+        data.join(format!(
+            ".brn-apply-{}.inbox-capture",
+            self.approval.operation_id
+        ))
+    }
+}
+
+#[test]
+fn knowledge_receipt_restores_genuine_capture_into_fresh_database_without_chat() {
+    for supersedes in [false, true] {
+        let (f, mut app) = Fixture::with_supersession(supersedes);
+        let binding = app
+            .store
+            .proposal(f.approval.expected.id)
+            .unwrap()
+            .unwrap()
+            .draft
+            .inbox_knowledge
+            .unwrap();
+        let original_job = app
+            .store
+            .inbox_action(binding.analysis_id)
+            .unwrap()
+            .unwrap();
+        let receipt = app.approve_proposal(&f.approval).unwrap();
+        assert_eq!(receipt.outcome, ApplyOutcome::Applied);
+        drop(app);
+        let fresh = f.copy_approval_family("fresh-receipt-data");
+        if supersedes {
+            // Recovery uses the historical capture, never today's Source text.
+            fs::remove_file(f.vault.join(SOURCE_PATH)).unwrap();
+        }
+        let reopened = f.open_fresh(&fresh);
+        assert!(
+            reopened.is_ok(),
+            "fresh Knowledge recovery: {:?}",
+            reopened.err()
+        );
+        let mut reopened = reopened.unwrap();
+        assert_eq!(
+            reopened.store.inbox_action(binding.analysis_id).unwrap(),
+            Some(original_job.clone())
+        );
+        assert!(reopened.store.turn(binding.analysis_id).unwrap().is_none());
+        assert!(reopened.store.conversations().unwrap().is_empty());
+        assert!(
+            reopened
+                .store
+                .begin_inbox_action_turn(&original_job)
+                .is_err()
+        );
+        assert_eq!(reopened.approve_proposal(&f.approval).unwrap(), receipt);
+        drop(reopened);
+        assert_eq!(
+            f.open_fresh(&fresh)
+                .unwrap()
+                .store
+                .inbox_action(binding.analysis_id)
+                .unwrap(),
+            Some(original_job)
+        );
+        assert_eq!(fs::read_dir(&f.credentials).unwrap().count(), 0);
+    }
+}
+
+#[test]
+fn legacy_knowledge_receipt_gains_capture_without_changing_receipt_bytes_or_inode() {
+    use std::os::unix::fs::MetadataExt;
+    let (f, mut app) = Fixture::new();
+    app.approve_proposal(&f.approval).unwrap();
+    let receipt_path = f
+        .data
+        .join(format!(".brn-apply-{}.receipt", f.approval.operation_id));
+    let original = fs::read(&receipt_path).unwrap();
+    let inode = fs::metadata(&receipt_path).unwrap().ino();
+    let encoded: serde_json::Value = serde_json::from_slice(&original).unwrap();
+    assert_eq!(encoded["format"], 1);
+    assert_eq!(encoded.as_object().unwrap().len(), 3);
+    fs::remove_file(f.capture_path(&f.data)).unwrap();
+    drop(app);
+    let reopened = f.app();
+    assert!(f.capture_path(&f.data).is_file());
+    assert_eq!(fs::read(&receipt_path).unwrap(), original);
+    assert_eq!(fs::metadata(&receipt_path).unwrap().ino(), inode);
+    drop(reopened);
+    let fresh = f.copy_approval_family("fresh-legacy-data");
+    assert!(f.open_fresh(&fresh).is_ok());
+    assert_eq!(fs::read(&receipt_path).unwrap(), original);
+    assert_eq!(fs::metadata(&receipt_path).unwrap().ino(), inode);
+}
+
+#[test]
+fn missing_corrupt_or_unknown_capture_companions_refuse_without_poisoning_fresh_work() {
+    for damage in ["missing", "hash", "filename", "binding", "oversized"] {
+        let (f, mut app) = Fixture::new();
+        app.approve_proposal(&f.approval).unwrap();
+        drop(app);
+        let fresh = f.copy_approval_family("damaged-data");
+        let capture = f.capture_path(&fresh);
+        let original = fs::read(&capture).unwrap();
+        match damage {
+            "missing" => fs::remove_file(&capture).unwrap(),
+            "hash" => {
+                let mut value: serde_json::Value = serde_json::from_slice(&original).unwrap();
+                value["sha256"][0] = ((value["sha256"][0].as_u64().unwrap() + 1) % 256).into();
+                fs::write(&capture, serde_json::to_vec(&value).unwrap()).unwrap();
+            }
+            "filename" => {
+                fs::rename(
+                    &capture,
+                    fresh.join(format!(".brn-apply-{}.unknown", f.approval.operation_id)),
+                )
+                .unwrap();
+            }
+            "binding" => {
+                fs::rename(
+                    &capture,
+                    fresh.join(format!(".brn-apply-{}.inbox-capture", Uuid::new_v4())),
+                )
+                .unwrap();
+            }
+            "oversized" => {
+                fs::OpenOptions::new()
+                    .write(true)
+                    .open(&capture)
+                    .unwrap()
+                    .set_len(1024 * 1024 + 4096 + 1)
+                    .unwrap();
+            }
+            _ => unreachable!(),
+        }
+        assert!(f.open_fresh(&fresh).is_err(), "{damage}");
+        let db = rusqlite::Connection::open(fresh.join("brn.sqlite")).unwrap();
+        for table in ["proposals", "proposal_applies", "inbox_actions", "messages"] {
+            let count: i64 = db
+                .query_row(&format!("SELECT count(*) FROM {table}"), [], |r| r.get(0))
+                .unwrap();
+            assert_eq!(count, 0, "{damage}/{table}");
+        }
+        assert_eq!(
+            fs::read(f.vault.join(KNOWLEDGE_PATH)).unwrap(),
+            f.approved_text.as_bytes()
+        );
+        f.assert_source_and_credentials();
+    }
+}
+
+#[test]
+fn immutable_capture_replay_keeps_inode_and_rejects_changed_genuine_job() {
+    use std::os::unix::fs::MetadataExt;
+    let (f, mut app) = Fixture::new();
+    app.approve_proposal(&f.approval).unwrap();
+    let journal = app
+        .proposal_apply(f.approval.operation_id)
+        .unwrap()
+        .unwrap();
+    let binding = journal.approved.draft.inbox_knowledge.as_ref().unwrap();
+    let job = app
+        .store
+        .inbox_action(binding.analysis_id)
+        .unwrap()
+        .unwrap();
+    let path = f.capture_path(&f.data);
+    let original = fs::read(&path).unwrap();
+    let inode = fs::metadata(&path).unwrap().ino();
+    let records = app.application_records().unwrap();
+    records.write_inbox_capture(&journal, &job).unwrap();
+    assert_eq!(
+        records.read_inbox_capture(&journal).unwrap(),
+        Some(job.clone())
+    );
+    assert_eq!(fs::read(&path).unwrap(), original);
+    assert_eq!(fs::metadata(&path).unwrap().ino(), inode);
+    for field in ["question", "time", "model"] {
+        let mut changed = job.clone();
+        match field {
+            "question" => changed.question.push_str(" Another question"),
+            "time" => changed.created_at_ms += 1,
+            "model" => changed.capture.model = "another-valid-model".into(),
+            _ => unreachable!(),
+        }
+        changed.validate().unwrap();
+        assert!(
+            records.write_inbox_capture(&journal, &changed).is_err(),
+            "{field}"
+        );
+        assert_eq!(fs::read(&path).unwrap(), original);
+        assert_eq!(fs::metadata(&path).unwrap().ino(), inode);
+    }
+}
+
+#[test]
+fn near_limit_escaped_genuine_capture_fits_fixed_companion_bound_and_recovers() {
+    let question = "\u{1}".repeat(171_000);
+    let (f, mut app) = Fixture::with_input(false, &question);
+    app.approve_proposal(&f.approval).unwrap();
+    let journal = app
+        .proposal_apply(f.approval.operation_id)
+        .unwrap()
+        .unwrap();
+    let id = journal
+        .approved
+        .draft
+        .inbox_knowledge
+        .as_ref()
+        .unwrap()
+        .analysis_id;
+    let job = app.store.inbox_action(id).unwrap().unwrap();
+    let encoded = serde_json::to_vec(&job).unwrap();
+    assert!(encoded.len() > 1024 * 1024 - 32 * 1024);
+    assert!(encoded.len() <= 1024 * 1024);
+    let companion = fs::read(f.capture_path(&f.data)).unwrap();
+    assert!(companion.len() <= 1024 * 1024 + 4096);
+    drop(app);
+    let fresh = f.copy_approval_family("large-capture-data");
+    let recovered = f.open_fresh(&fresh).unwrap();
+    assert_eq!(recovered.store.inbox_action(id).unwrap(), Some(job));
+    assert!(recovered.store.turn(id).unwrap().is_none());
+}
+
+#[test]
+fn capture_publication_interruptions_recover_without_new_chat_or_repeated_effects() {
+    for phase in ["capture-mirrored", "mirror-intent", "prepared", "synced"] {
+        let (f, app) = Fixture::new();
+        drop(app);
+        f.crash(phase);
+        assert!(f.capture_path(&f.data).is_file(), "{phase}");
+        let fresh = f.copy_approval_family("interrupted-data");
+        let mut reopened = f.open_fresh(&fresh).unwrap();
+        let imported = reopened.proposal_apply(f.approval.operation_id).unwrap();
+        if phase == "capture-mirrored" {
+            assert!(imported.is_none());
+            assert!(reopened.store.conversations().unwrap().is_empty());
+            assert!(!f.vault.join(KNOWLEDGE_PATH).exists());
+        } else {
+            let journal = imported.unwrap();
+            let binding = journal.approved.draft.inbox_knowledge.as_ref().unwrap();
+            let job = reopened
+                .store
+                .inbox_action(binding.analysis_id)
+                .unwrap()
+                .unwrap();
+            assert!(reopened.store.turn(binding.analysis_id).unwrap().is_none());
+            assert!(reopened.store.begin_inbox_action_turn(&job).is_err());
+            let receipt = reopened
+                .reconcile_proposal(f.approval.operation_id)
+                .unwrap();
+            assert_eq!(
+                receipt.outcome,
+                if phase == "synced" {
+                    ApplyOutcome::Applied
+                } else {
+                    ApplyOutcome::NotApplied
+                }
+            );
+        }
+        f.assert_source_and_credentials();
+    }
+}
+
+#[test]
+fn capture_sync_failures_keep_admitted_work_fenced_until_recovery() {
+    for failure in [
+        "capture_write",
+        "capture_file_sync",
+        "capture_prepare_sync",
+        "capture_rename",
+        "capture_directory_sync",
+        "capture_postproof",
+    ] {
+        let (f, mut app) = Fixture::new();
+        crate::files::recovery::FAILURE.with(|selected| selected.set(Some(failure)));
+        let result = app.approve_proposal(&f.approval);
+        crate::files::recovery::FAILURE.with(|selected| selected.set(None));
+        assert!(result.is_err(), "{failure}");
+        assert!(!f.vault.join(KNOWLEDGE_PATH).exists(), "{failure}");
+        if failure == "capture_postproof" {
+            // The occupied exact companion was re-read and synced by the
+            // no-effect completion retry. That terminal refusal may clear the
+            // fence; no vault effect occurred or will be repeated.
+            assert!(app.require_current_evidence().is_ok());
+            assert_eq!(
+                app.proposal_apply(f.approval.operation_id)
+                    .unwrap()
+                    .unwrap()
+                    .receipt
+                    .unwrap()
+                    .outcome,
+                ApplyOutcome::NotApplied,
+            );
+        } else {
+            assert!(app.require_current_evidence().is_err(), "{failure}");
+        }
+        drop(app);
+        let mut recovered = f.app();
+        assert_eq!(
+            recovered
+                .reconcile_proposal(f.approval.operation_id)
+                .unwrap()
+                .outcome,
+            ApplyOutcome::NotApplied,
+            "{failure}"
+        );
+        f.assert_source_and_credentials();
+    }
 }

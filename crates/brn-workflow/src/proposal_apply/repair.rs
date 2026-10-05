@@ -190,6 +190,7 @@ impl App {
         mut phases: Vec<ApplyMemberPhase>,
     ) -> Result<Vec<ApplyMemberProof>> {
         let records = self.apply_records.as_ref().expect("opened recovery files");
+        super::retain_inbox_capture(records, &self.store, journal)?;
         let previous = records
             .read(journal.request.operation_id)
             .map_err(file_error)?;
@@ -356,7 +357,9 @@ impl App {
         attempt.outcome = Some(ApplyOutcome::Uncertain);
         let id = attempt.request.id;
         candidate.validate()?;
-        let records = self.application_records()?;
+        self.application_records()?;
+        let records = self.apply_records.as_ref().expect("opened recovery files");
+        super::retain_inbox_capture(records, &self.store, &candidate)?;
         let previous = records
             .read(journal.request.operation_id)
             .map_err(file_error)?;
