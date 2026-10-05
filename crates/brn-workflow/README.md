@@ -825,3 +825,15 @@ conflicts/stale evidence and do not treat incomplete pages/errors as absence.
 Thin CLI and native analysis-to-Needs Review navigation use these shared commands.
 Synthetic transport/worker/headless tests do not establish native usability, live
 provider compliance, semantic completeness or original-copy deletion acceptance.
+
+## Complete original review evidence
+
+`InboxReview` / `inbox_review` obtains the complete checked retained original
+review manifest from one Store snapshot and freshly observes the exact owned
+original. The response contains full review records, their canonical digest,
+original availability/text, and `needs_semantic_review: true`. Whole encoded
+responses over64MiB refuse. Missing/changed copies remain visible rather than
+being mistaken for intentional removal. Saved Source freshness/identity and
+semantic completeness are not qualified by this read. No files, approvals or
+review states change; exact confirmation, recoverable removal and its recovery
+remain subsequent gates. UI and CLI use the shared AppWorker boundary.

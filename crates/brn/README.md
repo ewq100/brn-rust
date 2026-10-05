@@ -901,3 +901,12 @@ exercise the shared coordinator; native acceptance remains a separate check.
 See [verification](../../docs/development/verification.md),
 [architecture](../../docs/architecture/overview.md) and
 [invariants](../../docs/architecture/invariants.md).
+
+`brn inbox review UUID` inspects complete retained review evidence for one original:
+processing attempts, analyses/turns, Source and linked consequence proposals,
+approval journals, and Open/closed findings. JSON includes the canonical digest,
+full records and fresh original availability; text output escapes terminal
+controls. This read always leaves semantic review required and grants no removal
+permission. Missing/changed originals remain visible. There is no pagination or
+clipping; oversized complete evidence refuses. Nil/malformed UUIDs refuse before
+opening application state.

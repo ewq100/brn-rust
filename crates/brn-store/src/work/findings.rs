@@ -445,7 +445,7 @@ struct FindingRow {
     bytes: Option<Vec<u8>>,
     digest: Vec<u8>,
 }
-fn read(conn: &Connection, id: Uuid) -> Result<Option<FindingRecord>> {
+pub(super) fn read(conn: &Connection, id: Uuid) -> Result<Option<FindingRecord>> {
     nonnil(id)?;
     let row=conn.query_row("SELECT state,created_at_ms,creation_sha256,CASE WHEN length(record_json)<=?2 THEN record_json END,record_sha256 FROM findings WHERE id=?1",params![id.to_string(),MAX_STORED_BYTES as i64],|row| Ok(FindingRow{state:row.get(0)?,created:row.get(1)?,creation:row.get(2)?,bytes:row.get(3)?,digest:row.get(4)?})).optional()?;
     row.map(|row| {

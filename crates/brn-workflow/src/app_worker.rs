@@ -87,6 +87,7 @@ pub enum AppCommand {
     CaptureInbox(crate::inbox::CaptureInboxRequest),
     InboxItems(crate::inbox::InboxListRequest),
     InboxItem(Uuid),
+    InboxReview(Uuid),
     ProcessInbox(crate::inbox_processing::ProcessInboxRequest),
     InboxProcessing(Uuid),
     InboxCandidate(crate::inbox_processing::InboxCandidateRequest),
@@ -201,6 +202,7 @@ pub enum AppEvent {
     InboxCaptured(Box<crate::inbox::InboxItem>),
     InboxItems(Box<crate::inbox::InboxInventory>),
     InboxItem(Box<crate::inbox::InboxRead>),
+    InboxReview(Box<crate::inbox::InboxReview>),
     InboxProcessing(Box<crate::inbox_processing::InboxProcessBatch>),
     InboxCandidate(Box<crate::inbox_processing::InboxConversionPreview>),
     InboxSourceDraft(Box<crate::proposals::DraftRequest>),
@@ -1239,6 +1241,7 @@ fn dispatch(
             AppEvent::InboxCaptured(Box::new(app.capture_inbox(&request)?))
         }
         AppCommand::InboxItem(item) => AppEvent::InboxItem(Box::new(app.inbox_item(item)?)),
+        AppCommand::InboxReview(item) => AppEvent::InboxReview(Box::new(app.inbox_review(item)?)),
         AppCommand::InboxItems(request) => {
             AppEvent::InboxItems(Box::new(app.inbox_items(&request)?))
         }

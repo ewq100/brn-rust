@@ -1,5 +1,31 @@
 # Resumable V1 checkpoint
 
+Lead-confirmed 2026-10-05, full V1 goal **active**, without a token budget.
+
+- **Integrated:** tooling PR56 at `03bb83a93c2df88e2699c72fb83e3ec0d78d41c1`,
+  exact reviewed tree `9377f6d8d06db28e2240ca5d0d09ceb929085f95`.
+- **Behavior:** conflicts/supersession remain integrated. Portable preflight,
+  atomic gate evidence, exact CI summaries and deterministic Markdown checks
+  are available. Four Mac/shared PR checks now require strict freshness and
+  administrator enforcement; existing platform failures remain visible.
+- **Verification:** exact-head PR run37340063138 attempt1 passed four required
+  Mac/shared checks plus Documentation/tooling. Windows22 complete compiler
+  blocks/two summaries match qualified main. Clean independent re-review after
+  four validated fixes; fresh merged16 tooling tests,3 offline provider-example
+  tests,292local links and atomic retirement gate passed with unchanged identity.
+- **Pending:** merged-main run37341534594; native/live/owner acceptance, model
+  assets and trusted-user packaging. Raw discovery observations need a scoped
+  Auth interface; built-in synthetic catalog evidence is not live qualification.
+- **Next:** original review evidence on `codex/v1-stage7-original-copy` at this
+  merge, then exact owner attestation and recoverable removal/recovery. See the
+  [current plan](../work/active/text-email-inbox/original-copy-plan.md).
+- **Environment:** Darwin arm64 Mac mini, Rust1.98.1, locked/offline, canonical
+  owned `TMPDIR=/private/tmp/brn-mini-synthetic-20261005`, empty native model
+  setting, isolated checkout/target; synthetic data only. No new live calls,
+  model downloads, private-data operations or public release authorized.
+
+## Earlier product checkpoint
+
 Lead-confirmed 2026-10-05 checkpoint; update this short record at integration.
 Historical observations remain in the linked plans and [status](../status.md).
 

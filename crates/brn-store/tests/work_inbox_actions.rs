@@ -2123,3 +2123,356 @@ fn supersession_hash_valid_semantic_and_owned_schema_damage_refuse_without_resto
         );
     }
 }
+
+fn review_capture(store: &mut WorkStore) -> (InboxItem, InboxActionCapture) {
+    let original = store.capture_inbox(&original()).unwrap();
+    let mut capture = capture();
+    let binding = InboxSourceBinding {
+        batch_id: Uuid::new_v4(),
+        index: 0,
+        original: original.clone(),
+        format: InboxConversionFormat::LiteralTextV1,
+        byte_len: 17,
+        sha256: digest(b"```text\nbody\n```\n"),
+        note_id: capture.note_id().unwrap(),
+    };
+    capture.source_text = binding.markdown("```text\nbody\n```\n").unwrap();
+    capture.purpose = InboxAnalysisPurpose::KnowledgeAndActions;
+    rebind_text(&mut capture);
+    (original, capture)
+}
+
+#[test]
+fn original_review_is_complete_across_processing_analyses_manual_work_and_rejection() {
+    let data = fixture();
+    let (mut store, _) = WorkStore::open(data.path()).unwrap();
+    let (original, capture) = review_capture(&mut store);
+    let empty = store.inbox_review_manifest(original.capture.id).unwrap();
+    let empty_digest = empty.digest().unwrap();
+    assert!(empty.analyses.is_empty() && empty.processing.is_empty());
+    assert_eq!(empty.digest().unwrap(), empty_digest);
+    let processing = ProcessInboxRequest {
+        id: Uuid::new_v4(),
+        items: vec![original.clone()],
+    };
+    store.process_inbox(&processing).unwrap();
+    store
+        .reserve_inbox_action(&capture, "Interpret the exact saved Source")
+        .unwrap();
+    // Another analysis of the same original with a different retained Source.
+    let mut later = capture.clone();
+    later.id = Uuid::new_v4();
+    later.source.path = "Sources/second.md".into();
+    store
+        .reserve_inbox_action(&later, "Inspect the second Source")
+        .unwrap();
+    let unrelated = crate::capture();
+    store
+        .reserve_inbox_action(&unrelated, "Unrelated original")
+        .unwrap();
+    let initial = store.create_proposal(&knowledge_draft(&capture)).unwrap();
+    let creation = digest(&serde_json::to_vec(&initial.draft).unwrap());
+    let mut texts: Vec<Option<String>> = initial
+        .draft
+        .changes
+        .iter()
+        .map(|c| c.text().map(str::to_owned))
+        .collect();
+    texts[0]
+        .as_mut()
+        .unwrap()
+        .push_str("\nNewer review wording\n");
+    let edited = store
+        .edit_proposal(&ProposalEdit {
+            expected: initial.stamp(),
+            title: initial.draft.title.clone(),
+            texts,
+            action_data: vec![],
+        })
+        .unwrap();
+    let rejected = store.reject_proposal(edited.stamp()).unwrap();
+    let mut manual = knowledge_draft(&later);
+    manual.inbox_knowledge = None;
+    manual.group_id = None;
+    let manual = store.create_proposal(&manual).unwrap();
+    // A genuinely unrelated Action proposal is not swept into this review.
+    review(&mut store);
+    let snapshot = store.inbox_review_manifest(original.capture.id).unwrap();
+    assert_eq!(snapshot.original, original);
+    assert_eq!(snapshot.processing.len(), 1);
+    assert_eq!(snapshot.analyses.len(), 2);
+    assert_eq!(snapshot.proposals.len(), 2);
+    assert!(
+        snapshot
+            .analyses
+            .iter()
+            .all(|analysis| analysis.turn.is_none())
+    );
+    let saved = snapshot
+        .proposals
+        .iter()
+        .find(|p| p.record.draft.id == rejected.draft.id)
+        .unwrap();
+    assert_eq!(saved.record, rejected);
+    assert_eq!(saved.creation_sha256, creation);
+    assert_ne!(
+        saved.creation_sha256,
+        digest(&serde_json::to_vec(&rejected.draft).unwrap())
+    );
+    assert!(snapshot.proposals.iter().any(|p| p.record == manual));
+    assert_ne!(snapshot.digest().unwrap(), empty_digest);
+    assert_eq!(
+        snapshot.digest().unwrap(),
+        store
+            .inbox_review_manifest(original.capture.id)
+            .unwrap()
+            .digest()
+            .unwrap()
+    );
+}
+
+#[test]
+fn original_review_identity_changes_for_turn_progress_late_work_and_apply_intent() {
+    let data = fixture();
+    let (mut store, _) = WorkStore::open(data.path()).unwrap();
+    let (original, capture) = review_capture(&mut store);
+    let job = store
+        .reserve_inbox_action(&capture, "Inspect saved evidence")
+        .unwrap();
+    let reserved = store
+        .inbox_review_manifest(original.capture.id)
+        .unwrap()
+        .digest()
+        .unwrap();
+    store.begin_inbox_action_turn(&job).unwrap();
+    let running = store.inbox_review_manifest(original.capture.id).unwrap();
+    assert_eq!(
+        running.analyses[0].turn.as_ref().unwrap().status,
+        WorkTurnStatus::Running
+    );
+    assert_ne!(reserved, running.digest().unwrap());
+    store
+        .finish_turn(
+            job.capture.id,
+            WorkTurnStatus::Failed,
+            "Partial interpretation",
+            Some("other"),
+        )
+        .unwrap();
+    let failed = store.inbox_review_manifest(original.capture.id).unwrap();
+    assert_eq!(
+        failed.analyses[0].turn.as_ref().unwrap().answer,
+        "Partial interpretation"
+    );
+    assert_ne!(running.digest().unwrap(), failed.digest().unwrap());
+    let proposal = store.create_proposal(&knowledge_draft(&capture)).unwrap();
+    let draft = store.inbox_review_manifest(original.capture.id).unwrap();
+    assert_ne!(failed.digest().unwrap(), draft.digest().unwrap());
+    let journal = store
+        .begin_proposal_apply(&ApprovalRequest {
+            operation_id: Uuid::new_v4(),
+            expected: proposal.stamp(),
+        })
+        .unwrap();
+    let applying = store.inbox_review_manifest(original.capture.id).unwrap();
+    assert_eq!(applying.approvals, vec![journal]);
+    assert_eq!(applying.proposals[0].record.state, ProposalState::Applying);
+    assert_ne!(applying.digest().unwrap(), draft.digest().unwrap());
+    assert_eq!(
+        store.inbox_item(original.capture.id).unwrap(),
+        Some(original)
+    );
+}
+
+#[test]
+fn original_review_rejects_forked_provenance_and_malformed_members_without_clipping() {
+    let data = fixture();
+    let (mut store, _) = WorkStore::open(data.path()).unwrap();
+    let (original, mut capture) = review_capture(&mut store);
+    let mut provenance = brn_store::work::inbox_source::read_provenance(&capture.source_text)
+        .unwrap()
+        .unwrap();
+    let encoded = serde_json::to_string(&provenance).unwrap();
+    provenance.title.push_str(" different capture");
+    capture.source_text = capture
+        .source_text
+        .replace(&encoded, &serde_json::to_string(&provenance).unwrap());
+    rebind_text(&mut capture);
+    store
+        .reserve_inbox_action(&capture, "Forked evidence remains visible")
+        .unwrap();
+    assert!(matches!(
+        store.inbox_review_manifest(original.capture.id),
+        Err(Error::Invalid(_))
+    ));
+    assert_eq!(
+        store.inbox_item(original.capture.id).unwrap(),
+        Some(original)
+    );
+    assert!(store.inbox_review_manifest(Uuid::nil()).is_err());
+    assert!(matches!(
+        store.inbox_review_manifest(Uuid::new_v4()),
+        Err(Error::NotFound(_))
+    ));
+}
+
+#[test]
+fn original_review_whole_encoded_bound_refuses_escaped_complete_members() {
+    use brn_store::work::inbox_review::{InboxAnalysisReview, MAX_INBOX_REVIEW_BYTES};
+    let data = fixture();
+    let (mut store, _) = WorkStore::open(data.path()).unwrap();
+    let (original, capture) = review_capture(&mut store);
+    let mut manifest = store.inbox_review_manifest(original.capture.id).unwrap();
+    // Every retained job is individually valid; escaping makes the complete set
+    // exceed its bound even though its raw text is considerably smaller.
+    let question = "\0".repeat(150_000);
+    let mut encoded = 0;
+    while encoded <= MAX_INBOX_REVIEW_BYTES {
+        let mut capture = capture.clone();
+        capture.id = Uuid::new_v4();
+        let job = InboxActionJob {
+            capture,
+            question: question.clone(),
+            created_at_ms: original.received_at_ms,
+        };
+        job.validate().unwrap();
+        encoded += serde_json::to_vec(&job).unwrap().len();
+        manifest
+            .analyses
+            .push(InboxAnalysisReview { job, turn: None });
+    }
+    assert!(manifest.digest().is_err());
+    assert!(
+        store
+            .inbox_review_manifest(original.capture.id)
+            .unwrap()
+            .analyses
+            .is_empty()
+    );
+}
+
+#[test]
+fn original_review_refuses_a_hash_valid_malformed_related_record() {
+    let data = fixture();
+    let (mut store, _) = WorkStore::open(data.path()).unwrap();
+    let (original, capture) = review_capture(&mut store);
+    store
+        .reserve_inbox_action(&capture, "Retained source")
+        .unwrap();
+    let malformed = b"{}";
+    let raw = Connection::open(data.path().join("brn.sqlite")).unwrap();
+    raw.execute(
+        "UPDATE inbox_actions SET record_json=?1,record_sha256=?2 WHERE id=?3",
+        params![
+            malformed.as_slice(),
+            digest(malformed).as_slice(),
+            capture.id.to_string()
+        ],
+    )
+    .unwrap();
+    assert!(matches!(
+        store.inbox_review_manifest(original.capture.id),
+        Err(Error::Invalid(_))
+    ));
+    assert_eq!(
+        store.inbox_item(original.capture.id).unwrap(),
+        Some(original)
+    );
+}
+
+#[test]
+fn original_review_includes_manual_action_unlinks_from_before_and_origin() {
+    use brn_store::work::actions::{ActionOrigin, ActionRecord};
+    let data = fixture();
+    let (mut store, _) = WorkStore::open(data.path()).unwrap();
+    let (original, capture) = review_capture(&mut store);
+    store
+        .reserve_inbox_action(&capture, "Inspect Source")
+        .unwrap();
+    let template_stamp = review(&mut store);
+    let template = store.proposal(template_stamp.id).unwrap().unwrap().draft;
+    for origin_only in [false, true] {
+        let mut linked = template.action_changes[0].data().clone();
+        linked.sources = vec![capture.note_id().unwrap()];
+        let mut current = linked.clone();
+        current.sources.clear();
+        let before = ActionRecord {
+            origin: ActionOrigin {
+                id: Uuid::new_v4(),
+                proposal: ProposalStamp {
+                    id: Uuid::new_v4(),
+                    version: 1,
+                },
+                data: linked.clone(),
+                created_at_ms: 1,
+            },
+            version: if origin_only { 2 } else { 1 },
+            data: if origin_only { current.clone() } else { linked },
+            updated_at_ms: if origin_only { 2 } else { 1 },
+            waiting_since_ms: None,
+            completed_at_ms: None,
+        };
+        before.validate().unwrap();
+        let mut draft = template.clone();
+        draft.id = Uuid::new_v4();
+        draft.action_changes = vec![ActionChange::Replace {
+            before: Box::new(before),
+            data: current,
+        }];
+        let review = store.create_proposal(&draft).unwrap();
+        let snapshot = store.inbox_review_manifest(original.capture.id).unwrap();
+        assert!(
+            snapshot.proposals.iter().any(|p| p.record == review),
+            "immutable baseline Source link was omitted (origin_only={origin_only})"
+        );
+    }
+}
+
+#[test]
+fn original_review_includes_historical_not_applied_action_link_after_edit_and_rejection() {
+    let data = fixture();
+    let (mut store, _) = WorkStore::open(data.path()).unwrap();
+    let (original, capture) = review_capture(&mut store);
+    store
+        .reserve_inbox_action(&capture, "Inspect Source")
+        .unwrap();
+    let template_stamp = review(&mut store);
+    let mut draft = store.proposal(template_stamp.id).unwrap().unwrap().draft;
+    draft.id = Uuid::new_v4();
+    draft.action_changes[0].data_mut().sources = vec![capture.note_id().unwrap()];
+    let created = store.create_proposal(&draft).unwrap();
+    let operation_id = Uuid::new_v4();
+    store
+        .begin_proposal_apply(&ApprovalRequest {
+            operation_id,
+            expected: created.stamp(),
+        })
+        .unwrap();
+    store
+        .refuse_proposal_before_effects(operation_id, Some(&[]))
+        .unwrap();
+    let current = store.proposal(draft.id).unwrap().unwrap();
+    let mut candidate = current.draft.action_changes[0].data().clone();
+    candidate.sources.clear();
+    let edited = store
+        .edit_proposal(&ProposalEdit {
+            expected: current.stamp(),
+            title: current.draft.title.clone(),
+            texts: vec![],
+            action_data: vec![candidate],
+        })
+        .unwrap();
+    let rejected = store.reject_proposal(edited.stamp()).unwrap();
+    let snapshot = store.inbox_review_manifest(original.capture.id).unwrap();
+    assert!(
+        snapshot.proposals.iter().any(|p| p.record == rejected),
+        "historically linked proposal was omitted"
+    );
+    assert!(
+        snapshot
+            .approvals
+            .iter()
+            .any(|j| j.request.operation_id == operation_id),
+        "retained full journal was omitted"
+    );
+}

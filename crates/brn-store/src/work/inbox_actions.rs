@@ -208,7 +208,7 @@ pub(super) fn check_turn(conn: &Connection, turn: &chat::WorkTurn) -> Result<()>
     Ok(())
 }
 
-fn read(conn: &Connection, id: Uuid) -> Result<Option<InboxActionJob>> {
+pub(super) fn read(conn: &Connection, id: Uuid) -> Result<Option<InboxActionJob>> {
     let job = reserved(conn, id)?;
     if job.is_some() {
         chat::read_turn(conn, id)?;

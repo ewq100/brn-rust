@@ -2785,6 +2785,7 @@ impl AiState {
             | AppEvent::InboxCaptured(_)
             | AppEvent::InboxItems(_)
             | AppEvent::InboxItem(_)
+            | AppEvent::InboxReview(_)
             | AppEvent::InboxProcessing(_)
             | AppEvent::InboxSourceDraft(_)
             | AppEvent::InboxCandidate(_) => unreachable!(),

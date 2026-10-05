@@ -186,6 +186,28 @@ fn prepared_inbox_source_uses_exact_proposal_approval_and_source_scope() {
         .unwrap(),
         exact.as_bytes()
     );
+    let AppEvent::InboxReview(review) =
+        processing_reply(&worker, AppCommand::InboxReview(original.capture.id))
+    else {
+        panic!("approved Source review");
+    };
+    assert_eq!(review.manifest.proposals.len(), 1);
+    assert_eq!(
+        review.manifest.proposals[0].record.state,
+        crate::proposals::ProposalState::Applied
+    );
+    assert_eq!(review.manifest.approvals.len(), 1);
+    assert_eq!(
+        review.manifest.approvals[0]
+            .approved
+            .draft
+            .inbox_source
+            .as_ref()
+            .unwrap()
+            .original,
+        original
+    );
+    assert!(review.needs_semantic_review);
     assert_eq!(std::fs::read_dir(credentials).unwrap().count(), 0);
     worker.shutdown().unwrap();
 }
@@ -509,4 +531,51 @@ fn shutdown_drains_an_admitted_capture_cancels_a_queued_read_and_refuses_new_wor
         app.inbox_item(request.id).unwrap().original,
         InboxOriginal::Available { text: request.text }
     );
+}
+
+#[test]
+fn complete_original_review_uses_worker_and_reports_changed_copy_without_effects() {
+    let (_owner, data, mut worker) = processing_fixture();
+    let exact = "\u{feff}Original õ\r\n日本語\r\n";
+    let original = processing_capture(&worker, InboxKind::Email, exact);
+    let AppEvent::InboxReview(first) =
+        processing_reply(&worker, AppCommand::InboxReview(original.capture.id))
+    else {
+        panic!("complete review reply");
+    };
+    assert_eq!(first.manifest.original, original);
+    assert_eq!(
+        first.original,
+        InboxOriginal::Available { text: exact.into() }
+    );
+    assert!(first.needs_semantic_review);
+    assert_eq!(first.digest, first.manifest.digest().unwrap());
+    let process = ProcessInboxRequest {
+        id: Uuid::new_v4(),
+        items: vec![original.clone()],
+    };
+    worker
+        .submit(process.id, AppCommand::ProcessInbox(process.clone()))
+        .unwrap();
+    terminal_batch(&worker, process.id);
+    let AppEvent::InboxReview(processed) =
+        processing_reply(&worker, AppCommand::InboxReview(original.capture.id))
+    else {
+        panic!("processed review");
+    };
+    assert_eq!(processed.manifest.processing.len(), 1);
+    assert_ne!(processed.digest, first.digest);
+    assert!(processed.needs_semantic_review);
+    let path = data.join("inbox").join(original.capture.copy_name());
+    let changed = b"changed original stays retained";
+    std::fs::write(&path, changed).unwrap();
+    let AppEvent::InboxReview(stale) =
+        processing_reply(&worker, AppCommand::InboxReview(original.capture.id))
+    else {
+        panic!("stale review");
+    };
+    assert!(matches!(stale.original, InboxOriginal::Changed { .. }));
+    assert_eq!(stale.digest, processed.digest);
+    assert_eq!(std::fs::read(path).unwrap(), changed);
+    worker.shutdown().unwrap();
 }

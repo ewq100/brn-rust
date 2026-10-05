@@ -20,6 +20,7 @@ pub enum InboxCommand {
         input: PathBuf,
     },
     Show(Uuid),
+    Review(Uuid),
     List(InboxListRequest),
     Process(PathBuf),
     Processing(Uuid),
@@ -42,6 +43,7 @@ impl InboxCommand {
         match self {
             Self::Add { .. } => "inbox.add",
             Self::Show(_) => "inbox.show",
+            Self::Review(_) => "inbox.review",
             Self::List(_) => "inbox.list",
             Self::Process(_) => "inbox.process",
             Self::Processing(_) => "inbox.processing",
@@ -63,7 +65,7 @@ pub(super) fn scan_command(
     let sub = sub_word(
         tokens,
         "inbox",
-        "add|show|list|process|processing|candidate|source|cancel|analyze-actions|action-analysis|analyze|analysis",
+        "add|show|review|list|process|processing|candidate|source|cancel|analyze-actions|action-analysis|analyze|analysis",
     )?;
     let (label, options): (_, &[(&str, bool)]) = match sub.as_str() {
         "add" => (
@@ -77,6 +79,7 @@ pub(super) fn scan_command(
             ],
         ),
         "show" => ("inbox.show", &[]),
+        "review" => ("inbox.review", &[]),
         "list" => ("inbox.list", &[("limit", true), ("after", true)]),
         "process" => ("inbox.process", &[("file", true)]),
         "processing" => ("inbox.processing", &[]),
@@ -115,7 +118,9 @@ fn metadata(command: &InboxCommand) -> Result<(), CliError> {
         }
         .validate()
         .map_err(|e| usage(e.message)),
-        InboxCommand::Show(id) if id.is_nil() => Err(usage("Inbox UUID must not be nil")),
+        InboxCommand::Show(id) | InboxCommand::Review(id) if id.is_nil() => {
+            Err(usage("Inbox UUID must not be nil"))
+        }
         InboxCommand::Processing(id) | InboxCommand::Cancel(id) if id.is_nil() => {
             Err(usage("Inbox processing UUID must not be nil"))
         }
@@ -159,9 +164,14 @@ pub(super) fn parse_command(name: &str, s: &Scanned) -> Result<InboxCommand, Cli
                 input: PathBuf::from(s.value("file").ok_or_else(|| usage("missing --file"))?),
             }
         }
-        "inbox.show" => {
+        "inbox.show" | "inbox.review" => {
             expect_positionals(s, 1)?;
-            InboxCommand::Show(positional_uuid(s, 0, "UUID")?)
+            let id = positional_uuid(s, 0, "UUID")?;
+            if name == "inbox.review" {
+                InboxCommand::Review(id)
+            } else {
+                InboxCommand::Show(id)
+            }
         }
         "inbox.list" => {
             expect_positionals(s, 0)?;
@@ -263,6 +273,7 @@ pub(super) fn prepare(command: &InboxCommand) -> Result<AppCommand, CliFailure> 
             AppCommand::CaptureInbox(request)
         }
         InboxCommand::Show(id) => AppCommand::InboxItem(*id),
+        InboxCommand::Review(id) => AppCommand::InboxReview(*id),
         InboxCommand::List(r) => AppCommand::InboxItems(r.clone()),
         InboxCommand::Process(file) => {
             let text = super::input::read_text_file(file, "Inbox processing request")?;
@@ -318,6 +329,16 @@ pub(super) fn output(command: &AppCommand, event: AppEvent) -> Result<Output, Cl
         }
         (AppCommand::InboxItem(id), AppEvent::InboxItem(item)) if item.item.capture.id == *id => {
             serde_json::json!(*item)
+        }
+        (AppCommand::InboxReview(id), AppEvent::InboxReview(review))
+            if review.manifest.original.capture.id == *id
+                && review.needs_semantic_review
+                && review
+                    .manifest
+                    .digest()
+                    .is_ok_and(|digest| digest == review.digest) =>
+        {
+            serde_json::json!(*review)
         }
         (AppCommand::InboxItems(r), AppEvent::InboxItems(page))
             if page.entries.len() <= r.limit =>
@@ -384,6 +405,7 @@ mod tests {
                 "inbox", "add", "--id", &id, "--title", "Exact õ", "--file", "copy.txt",
             ],
             vec!["inbox", "show", &id],
+            vec!["inbox", "review", &id],
             vec!["inbox", "process", "--file", "request.json"],
             vec!["inbox", "processing", &id],
             vec!["inbox", "candidate", &id, "0"],
@@ -426,6 +448,7 @@ mod tests {
                 "00000000-0000-0000-0000-000000000000",
             ],
             vec!["inbox", "show", "../outside"],
+            vec!["inbox", "review", "00000000-0000-0000-0000-000000000000"],
             vec!["inbox", "candidate", &id, "8"],
             vec!["inbox", "candidate", &id, "-1"],
             vec!["inbox", "process"],
@@ -930,6 +953,14 @@ mod tests {
         let shown = crate::cli::execute(&invocation(InboxCommand::Show(id))).unwrap();
         assert_eq!(shown.data["item"], first.data);
         assert_eq!(shown.data["original"]["text"], exact);
+        let review = crate::cli::execute(&invocation(InboxCommand::Review(id))).unwrap();
+        assert_eq!(review.data["manifest"]["original"], first.data);
+        assert_eq!(review.data["original"]["text"], exact);
+        assert_eq!(review.data["needs_semantic_review"], true);
+        assert_eq!(review.data["manifest"]["analyses"], serde_json::json!([]));
+        assert!(!review.text.contains('\u{009b}'));
+        assert!(review.text.contains("\\u009b"));
+
         assert!(!shown.text.contains('\u{009b}'));
         assert!(shown.text.contains("\\u009b"));
         let listed =
@@ -947,6 +978,14 @@ mod tests {
         let result =
             crate::cli::execute(&invocation(InboxCommand::Process(input_json.clone()))).unwrap();
         assert_eq!(result.data["entries"][0]["outcome"]["state"], "converted");
+        let processed_review = crate::cli::execute(&invocation(InboxCommand::Review(id))).unwrap();
+        assert_eq!(
+            processed_review.data["manifest"]["processing"][0],
+            result.data
+        );
+        assert_ne!(processed_review.data["digest"], review.data["digest"]);
+        assert_eq!(processed_review.data["needs_semantic_review"], true);
+
         assert_eq!(
             crate::cli::execute(&invocation(InboxCommand::Process(input_json)))
                 .unwrap()

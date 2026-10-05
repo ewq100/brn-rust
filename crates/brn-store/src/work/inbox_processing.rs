@@ -194,7 +194,7 @@ fn check_schema(conn: &Connection) -> Result<()> {
     }
     Ok(())
 }
-fn read(conn: &Connection, id: Uuid) -> Result<Option<InboxProcessBatch>> {
+pub(super) fn read(conn: &Connection, id: Uuid) -> Result<Option<InboxProcessBatch>> {
     let row: Option<(i64, i64, Vec<u8>, Vec<u8>)> = conn.query_row("SELECT queued_at_ms,pending,record_json,record_sha256 FROM inbox_processing WHERE id=?1 AND length(record_json)<=?2", params![id.to_string(), MAX_RECORD_BYTES as i64], |r| Ok((r.get(0)?, r.get(1)?, r.get(2)?, r.get(3)?))).optional()?;
     let Some((time, pending, bytes, sha)) = row else {
         let exists: bool = conn.query_row(

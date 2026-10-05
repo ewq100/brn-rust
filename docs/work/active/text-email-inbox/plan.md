@@ -832,3 +832,18 @@ The next [conflict consequence plan](conflicts-plan.md) retains exact tentative
 opposing evidence and adds ordinary Ask lookup through the existing worker.
 The previous milestone's final merged-main qualification passed the applicable
 macOS/shared lanes; conflict implementation proceeds under the existing mission.
+
+
+## Mac mini conflict integration — 2026-10-05
+
+PR55 merged `c5aaa6c4c96007e452151adb167964bf9e2b048a`, exact reviewed candidate
+tree. Durable tentative opposing quotations, complete shared Ask/CLI lookup and
+correlated native Needs Review navigation are integrated. Independent review is
+clean after malformed metadata correction; final local1315shared/285Desktop/
+268optional workflow/116capability tests,52fixtures/two V14 restarts and exact
+head macOS/shared CI passed with documented ignores and unchanged Windows red.
+Fresh merged9worker tests/52fixtures/two restarts passed. Merged-main CI, native/
+live/owner qualification remain separately tracked in the
+[conflict checkpoint](conflicts-plan.md#integrated-checkpoint--2026-10-05).
+Full V1 goal stays active; next branch `codex/v1-stage7-original-copy` qualifies
+semantic review and safe recoverable copy removal. Originals remain retained.

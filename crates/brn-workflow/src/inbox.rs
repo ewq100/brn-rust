@@ -261,6 +261,16 @@ pub(crate) fn restore_inbox_captures(store: &mut WorkStore) -> Result<InboxState
     }
     Ok(state)
 }
+/// Complete retained review evidence and a fresh observation of the original.
+/// This read never approves semantic completeness or authorizes removal.
+#[derive(Debug, Clone, Serialize, Deserialize)]
+#[serde(deny_unknown_fields)]
+pub struct InboxReview {
+    pub manifest: brn_store::work::inbox_review::InboxReviewManifest,
+    pub digest: [u8; 32],
+    pub original: InboxOriginal,
+    pub needs_semantic_review: bool,
+}
 impl App {
     /// Explicit user copy, independent of a vault/model/approval. Retained replay
     /// is an immutable receipt, not a claim that original bytes remain available.
@@ -333,6 +343,25 @@ impl App {
                 ))
             }
         }
+    }
+    pub fn inbox_review(&self, id: Uuid) -> Result<InboxReview> {
+        let manifest = self.store.inbox_review_manifest(id)?;
+        let review = InboxReview {
+            digest: manifest.digest()?,
+            original: self.inbox.original(&manifest.original),
+            manifest,
+            needs_semantic_review: true,
+        };
+        if serde_json::to_vec(&review)
+            .map_err(|_| WorkflowError::msg("could not encode complete Inbox review"))?
+            .len()
+            > brn_store::work::inbox_review::MAX_INBOX_REVIEW_BYTES
+        {
+            return Err(WorkflowError::msg(
+                "complete Inbox review exceeds its encoded bound",
+            ));
+        }
+        Ok(review)
     }
     pub fn inbox_item(&self, id: Uuid) -> Result<InboxRead> {
         if id.is_nil() {

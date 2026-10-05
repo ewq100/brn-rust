@@ -777,3 +777,60 @@ fn hash_valid_conflict_context_damage_skips_newer_backup_during_physical_recover
     assert_eq!(std::fs::read(&damaged_backup).unwrap(), damaged_bytes);
     assert_eq!(std::fs::read(&checked.backup).unwrap(), healthy_bytes);
 }
+
+#[test]
+fn original_review_retains_closed_and_open_conflicts_and_changes_exact_identity() {
+    let data = fixture();
+    let (mut store, _) = WorkStore::open(data.path()).unwrap();
+    let capture = capture();
+    let provenance = brn_store::work::inbox_source::read_provenance(&capture.source_text)
+        .unwrap()
+        .unwrap();
+    let original = InboxItem {
+        capture: InboxCapture {
+            id: provenance.item_id,
+            kind: provenance.kind,
+            title: provenance.title,
+            original_name: provenance.original_name,
+            copy: InboxCopy {
+                directory: "/synthetic/inbox".into(),
+                directory_device: 1,
+                directory_inode: 2,
+                file_device: 1,
+                file_inode: 3,
+                byte_len: provenance.original_byte_len,
+                sha256: provenance.original_sha256,
+            },
+        },
+        received_at_ms: provenance.received_at_ms,
+    };
+    store.restore_inbox(&original).unwrap();
+    reserve(&mut store, &capture);
+    let first = store.create_finding(&draft(&capture)).unwrap();
+    let second = store.create_finding(&draft(&capture)).unwrap();
+    let open = store.inbox_review_manifest(original.capture.id).unwrap();
+    assert_eq!(open.findings.len(), 2);
+    let closed = store
+        .close_finding(&CloseFindingRequest {
+            expected: first.stamp(),
+            state: FindingState::Dismissed,
+        })
+        .unwrap();
+    let review = store.inbox_review_manifest(original.capture.id).unwrap();
+    assert_eq!(review.findings.len(), 2);
+    assert!(review.findings.contains(&closed));
+    assert!(review.findings.contains(&second));
+    assert_ne!(review.digest().unwrap(), open.digest().unwrap());
+    assert_eq!(
+        review.digest().unwrap(),
+        store
+            .inbox_review_manifest(original.capture.id)
+            .unwrap()
+            .digest()
+            .unwrap()
+    );
+    assert_eq!(
+        store.inbox_item(original.capture.id).unwrap(),
+        Some(original)
+    );
+}
