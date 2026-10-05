@@ -2,23 +2,24 @@
 
 Lead-confirmed 2026-10-06: full frozen V1 goal **active**, without a token budget.
 
-- **Integrated:** PR60 at `48941d3ae2c16dd014b6cb0f69a01b8c4ef60fa0`.
-  Main37354011334 attempt1 passed required Mac/shared checks and Docs; overall red
-  retains independently compared unchanged Windows/Linux failures.
+- **Integrated:** PR61 at `d41de3cba09d69eb1a451335dcfee2d54a83c76f`, exact
+  reviewed tree `f22821fc98cbc9ce41f5ae2a9247ddd1fdf524da`. Exact-head
+  PR37373436230 attempt1 passed four protected Mac/shared gates and Docs; overall
+  red preserves unchanged Windows diagnostics. Fresh merged123 AI,34 Inbox
+  callbacks,7 quote checks and52 fixtures passed. Main37375126865 is in progress.
 - **Preserved review snapshot:** `codex/v1-inbox-recoverable-removal` at
   `7c4f668de467721f728f242c8fac8d14606a6e44`, clean and pushed, unmerged. Its
   verified removal/restore implementation retains original evidence. It is held
   for record-shape/performance and owner-ratified cleanup corrections.
-- **Current:** `codex/v1-review-evidence-boundary`, separately based on main60.
-  Reviewed code/evidence commit `e09ca62c158980382fd805b2d33c1f91cf3f40be`;
-  this checkpoint update changes documentation only.
-  Rust resolves model-selected quote text into exact body ranges; missing,
-  ambiguous or invalid occurrences refuse. Conflict identities/replay are owned
-  by the analysis/intent. Documentation records actual vault bytes and the
-  ratified semantic-intelligence/deterministic-authority boundary.
+- **Current:** `codex/v1-rewrite-managed-metadata`, tested code
+  `ed24f992f48feacb288eb15a7c94638db3c6c93e`, now based on main61 with identical
+  tested Rust. AI Rewrite preserves managed field presence/bytes through Store
+  settlement and owned worker preflight; owner metadata edits remain explicit.
+  The separate Knowledge identity correction has clean independent review but
+  awaits its own final integrated/native gates and integration.
 - **Verification:** clean independent review; fresh format/build/all-target
-  Clippy,1,351 shared tests/0 failures/8 ignores and52 fixtures passed. Optional
-  native check/three Clippy configurations,284 Workflow/model tests/0/7,
+  Clippy,1,357 shared tests/0 failures/8 ignores and52 fixtures passed. Optional
+  native check/three Clippy configurations,285 Workflow/model tests/0/7,
   285 Desktop/0/0, shipping builds and two V14 restarts passed. Atomic runs retained
   unchanged snapshot identity and exit0; exact evidence is in the correction plan.
   Exact-head CI and integration remain pending.
@@ -26,8 +27,8 @@ Lead-confirmed 2026-10-06: full frozen V1 goal **active**, without a token budge
   packaging; no new live authorization. Copy cleanup requires approved Source
   exact preservation plus explicit confirmation, separately from disposition.
   Old semantic/consequence gates have not yet been corrected in code.
-- **Next:** qualify exact-head CI and integrate the bounded evidence correction, then managed
-  Rewrite metadata protection and remaining accepted review corrections under
+- **Next:** qualify exact-head CI and integrate Rewrite protection, then Rust-owned
+  Knowledge/Action candidate mechanics and remaining review corrections under
   the [current correction plan](../work/active/architecture-review-corrections/plan.md).
 - **Environment:** Darwin arm64 Mac mini, Rust1.98.1 locked/offline, canonical
   owned `TMPDIR=/private/tmp/brn-mini-synthetic-20261005`, empty native model

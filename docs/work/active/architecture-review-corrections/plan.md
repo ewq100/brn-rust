@@ -4,9 +4,13 @@
 
 Reviewed snapshot: `codex/v1-inbox-recoverable-removal` at
 `7c4f668de467721f728f242c8fac8d14606a6e44`, retained unchanged on GitHub.
-Integrated baseline: PR60, `48941d3ae2c16dd014b6cb0f69a01b8c4ef60fa0`.
-Corrections start separately on `codex/v1-review-evidence-boundary`, reviewed
-code/evidence commit `e09ca62c158980382fd805b2d33c1f91cf3f40be`.
+Initial integrated baseline: PR60, `48941d3ae2c16dd014b6cb0f69a01b8c4ef60fa0`.
+The first correction merged normally in PR61 at
+`d41de3cba09d69eb1a451335dcfee2d54a83c76f`, exact reviewed tree
+`f22821fc98cbc9ce41f5ae2a9247ddd1fdf524da`.
+The current bounded Rewrite correction is on `codex/v1-rewrite-managed-metadata`,
+tested code commit `ed24f992f48feacb288eb15a7c94638db3c6c93e`; merge with main61
+changed ancestry only. Remaining accepted corrections follow this plan.
 The complete V1 goal is confirmed **active** by `get_goal` on 2026-10-05;
 its full objective and roadmap dependency order remain unchanged.
 
@@ -120,9 +124,54 @@ failed its refusal assertion (exit101). The new owned-callback body-selection
 regression passes in the complete gate. The temporary baseline probe was removed
 without changing the separate Rewrite branch. Final documentation-only evidence
 updates do not alter the tested Rust tree. Exact-head CI and integration are the
-next unfinished gate.
+next unfinished gate at that checkpoint. Subsequently PR61 run37373436230
+attempt1 passed all four protected Mac/shared checks and Documentation/tooling at
+`bb08549393a02606f9e80e80b8fdc88911658ab2`. Its overall red result is retained:
+Windows22 complete compiler blocks and both summaries match qualified PR60.
+Normal merge preserved the complete reviewed tree.
+Fresh merged verification passed123 AI tests,34 owned Inbox callbacks,7 quote
+checks and52 fixtures. The first merged attempt exposed stale local package
+artifacts after a baseline probe reused a target: it passed old filtered binaries
+before a production build failed against the old AI library (exit101). Clearing
+only that target's BRN package artifacts and rebuilding reproduced the correct
+merged tests and passed. The failed/zero-test attempt is not qualification;
+the [verification guide](../../../development/verification.md) now records this
+specific target-isolation constraint. Main37375126865 remains in progress.
 
-The separate Rewrite correction passed52 targeted Store tests and the lead's
-owned callback/restart matrix, with clean independent static review. It remains
-on `codex/v1-rewrite-managed-metadata`, code commit
-`742f54cb551dab7e36b31996cfb83a58e09f995e`, pending its own final gates/integration.
+## Rewrite correction evidence
+
+AI Rewrite now preserves exact managed `brn_kind`, `brn_state`, `brn_provenance`
+and `brn_inbox_source` field presence/line bytes, alongside established identity
+guards. Values remain opaque; ambiguous metadata refuses. Store direct Rewrite,
+transactional owned settlement and the worker's preflight all use the same guard.
+Explicit owner edits still repair or change metadata. Refused AI output becomes
+durable `Failed/tool_rejected`, preserving review, comments, vault bytes and replay.
+
+Acceptance: valid body-only Rewrite, all four metadata changes/additions/removals,
+BOM/CRLF/opaque values, ambiguous fields, direct/transactional/owned paths, late
+results, restart and owner repair. Independent full review and integration delta
+review are clean; the later test-only change also passed independent review.
+
+A synthetic old-main60 callback probe completed an AI metadata change where the
+new refusal assertion expected Failed (exit101). The new callback/restart matrix
+passes. The first broad gate then found one obsolete integration-test expectation
+that AI Rewrite could repair provenance; that failed exit101 is retained. The test
+now asserts AI refusal/unchanged review, explicit owner repair and successful
+body-only Rewrite, preserving forged/unbound provenance approval refusal. All10
+provenance integration tests passed.
+
+Final shared gate, 2026-10-05 21:12:55–21:18:13 UTC: format/build/all-target Clippy,
+1,357 workspace tests/0 failures/8 ignores and52 fixtures passed, terminal exit0.
+Native gate 21:12:22–21:14:34 UTC: combined check, three Clippy configurations,
+285 Workflow/model tests/0/7,285 Desktop/0/0, shipping builds and two V14 restarts
+passed, all10 command exits0. Both retained unchanged dirty snapshot
+`de48cb454aaea838449196e57c15c48297271aab5f5921adabf140e457f807a8`
+on parent `3964c22c6e35b0baddce0c593d0eb770cff80da8`. Final code is committed;
+subsequent documentation and main61 ancestry updates do not change tested Rust.
+The upstream block warning and native/live/asset/owner acceptance remain pending.
+Exact-head CI and normal integration are next.
+
+The Knowledge identity helper separately committed
+`f9b2026a247b726220b53d4d6c91c9957b0cb712` with clean independent review,
+123 AI tests,278 Workflow tests/7 ignores and all-target Clippy/format passed.
+Its final integrated/native qualification and integration remain separate gates.
