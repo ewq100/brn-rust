@@ -2,7 +2,7 @@
 //! ordinary intake files; only workflow may observe, install or remove them.
 use super::{MAX_NOTE_BYTES, WorkStore, now_ms};
 use crate::{Error, Result, hash, invalid};
-use rusqlite::{Connection, OptionalExtension, params};
+use rusqlite::{Connection, OptionalExtension, TransactionBehavior, params};
 use serde::{Deserialize, Serialize};
 use std::path::{Component, PathBuf};
 use uuid::Uuid;
@@ -154,6 +154,18 @@ impl InboxListRequest {
         Ok(())
     }
 }
+impl InboxItem {
+    /// Pure snapshot bounds, not proof of current original-file availability.
+    pub fn validate(&self) -> Result<()> {
+        self.capture.validate()?;
+        if self.received_at_ms > i64::MAX as u64 || encode(self)?.len() > MAX_RECORD_BYTES {
+            return Err(invalid(
+                "Inbox snapshot time or encoded size is out of range",
+            ));
+        }
+        Ok(())
+    }
+}
 fn encode<T: Serialize>(value: &T) -> Result<Vec<u8>> {
     serde_json::to_vec(value).map_err(|_| invalid("could not encode Inbox work"))
 }
@@ -223,7 +235,7 @@ fn read(conn: &Connection, id: Uuid) -> Result<Option<InboxItem>> {
         }
         let item: InboxItem =
             serde_json::from_slice(&bytes).map_err(|_| invalid("invalid stored Inbox record"))?;
-        item.capture.validate()?;
+        item.validate()?;
         if item.capture.id != id
             || item.received_at_ms > i64::MAX as u64
             || i64::try_from(item.received_at_ms).ok() != Some(row.received)
@@ -258,8 +270,22 @@ impl WorkStore {
     /// stored and no filesystem write or deletion occurs. Exact UUID replay is
     /// immutable; an explicitly distinct UUID represents a separate copy.
     pub fn capture_inbox(&mut self, capture: &InboxCapture) -> Result<InboxItem> {
+        self.capture_inbox_with(capture, |_| Ok(()))
+    }
+    /// Publish the exact recovery snapshot while holding SQLite write exclusion.
+    /// The workflow publisher must durably retain its mirror and qualify original
+    /// installation before returning success. A callback success alone does not
+    /// establish file durability. Failure rolls back catalog state; recovery must
+    /// inspect the retained mirror rather than repeat unknown filesystem effects.
+    pub fn capture_inbox_with(
+        &mut self,
+        capture: &InboxCapture,
+        publish: impl FnOnce(&InboxItem) -> Result<()>,
+    ) -> Result<InboxItem> {
         capture.validate()?;
-        let tx = self.conn.transaction()?;
+        let tx = self
+            .conn
+            .transaction_with_behavior(TransactionBehavior::Immediate)?;
         check_schema(&tx)?;
         if let Some(item) = read(&tx, capture.id)? {
             if item.capture != *capture {
@@ -267,22 +293,41 @@ impl WorkStore {
                     "Inbox UUID has another original capture".into(),
                 ));
             }
+            tx.commit()?;
             return Ok(item);
         }
         let item = InboxItem {
             capture: capture.clone(),
             received_at_ms: now_ms(),
         };
-        if item.received_at_ms > i64::MAX as u64 {
-            return Err(invalid("Inbox received time is out of range"));
-        }
+        item.validate()?;
         let bytes = encode(&item)?;
-        if bytes.len() > MAX_RECORD_BYTES {
-            return Err(invalid("Inbox record exceeds encoded size limit"));
-        }
+        publish(&item)?;
         tx.execute("INSERT INTO inbox_items(id,received_at_ms,capture_sha256,record_json,record_sha256) VALUES(?1,?2,?3,?4,?5)", params![capture.id.to_string(),item.received_at_ms as i64,hash(&encode(capture)?).as_slice(),bytes,hash(&bytes).as_slice()])?;
         tx.commit()?;
         Ok(item)
+    }
+    /// Import only an already-qualified immutable original-copy snapshot. This
+    /// operation never changes existing capture/time bindings or touches files.
+    pub fn restore_inbox(&mut self, item: &InboxItem) -> Result<InboxItem> {
+        item.validate()?;
+        let tx = self
+            .conn
+            .transaction_with_behavior(TransactionBehavior::Immediate)?;
+        check_schema(&tx)?;
+        if let Some(existing) = read(&tx, item.capture.id)? {
+            if existing != *item {
+                return Err(Error::OperationConflict(
+                    "Inbox recovery conflicts with retained capture".into(),
+                ));
+            }
+            tx.commit()?;
+            return Ok(existing);
+        }
+        let bytes = encode(item)?;
+        tx.execute("INSERT INTO inbox_items(id,received_at_ms,capture_sha256,record_json,record_sha256) VALUES(?1,?2,?3,?4,?5)", params![item.capture.id.to_string(),item.received_at_ms as i64,hash(&encode(&item.capture)?).as_slice(),bytes,hash(&bytes).as_slice()])?;
+        tx.commit()?;
+        Ok(item.clone())
     }
     /// Retained operational proof; callers still need fresh original validation.
     pub fn inbox_item(&self, id: Uuid) -> Result<Option<InboxItem>> {
@@ -325,5 +370,85 @@ impl WorkStore {
             next_after,
             total_count,
         })
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use std::os::unix::fs::MetadataExt;
+
+    #[test]
+    fn sqlite_full_after_publication_rolls_back_then_imports_the_exact_retained_snapshot() {
+        let data = tempfile::tempdir_in(std::env::temp_dir().canonicalize().unwrap()).unwrap();
+        let empty = Connection::open(data.path().join("brn.sqlite")).unwrap();
+        empty.pragma_update(None, "page_size", 512).unwrap();
+        empty.execute_batch("VACUUM").unwrap();
+        drop(empty);
+        let (mut store, _) = WorkStore::open(data.path()).unwrap();
+        let id = Uuid::new_v4();
+        let text = "\u{feff}exact original\r\nÕun λ";
+        let path = data.path().join(format!("{id}.txt"));
+        std::fs::write(&path, text).unwrap();
+        let directory = std::fs::metadata(data.path()).unwrap();
+        let file = std::fs::metadata(&path).unwrap();
+        let capture = InboxCapture {
+            id,
+            kind: InboxKind::Text,
+            title: "\\".repeat(512),
+            original_name: Some("\\".repeat(512)),
+            copy: InboxCopy {
+                directory: data.path().to_owned(),
+                directory_device: directory.dev(),
+                directory_inode: directory.ino(),
+                file_device: file.dev(),
+                file_inode: file.ino(),
+                byte_len: file.len(),
+                sha256: hash(text.as_bytes()),
+            },
+        };
+        let pages: i64 = store
+            .conn
+            .query_row("PRAGMA page_count", [], |r| r.get(0))
+            .unwrap();
+        assert_eq!(
+            store
+                .conn
+                .query_row("PRAGMA freelist_count", [], |r| r.get::<_, i64>(0))
+                .unwrap(),
+            0
+        );
+        store
+            .conn
+            .pragma_update(None, "max_page_count", pages)
+            .unwrap();
+        let mut retained = None;
+        let error = store
+            .capture_inbox_with(&capture, |snapshot| {
+                retained = Some(snapshot.clone());
+                Ok(())
+            })
+            .unwrap_err();
+        assert!(
+            matches!(error, Error::Sql(rusqlite::Error::SqliteFailure(e, _)) if e.code == rusqlite::ErrorCode::DiskFull)
+        );
+        let snapshot = retained.expect("publisher must run before failing SQL insert");
+        assert_eq!(store.inbox_item(id).unwrap(), None);
+        assert_eq!(std::fs::read(&path).unwrap(), text.as_bytes());
+        store
+            .conn
+            .pragma_update(None, "max_page_count", pages + 64)
+            .unwrap();
+        assert_eq!(store.restore_inbox(&snapshot).unwrap(), snapshot);
+        assert_eq!(
+            store
+                .capture_inbox_with(&capture, |_| panic!("recovered replay republishes"))
+                .unwrap(),
+            snapshot
+        );
+        drop(store);
+        let (store, _) = WorkStore::open(data.path()).unwrap();
+        assert_eq!(store.inbox_item(id).unwrap(), Some(snapshot));
+        assert_eq!(std::fs::read(path).unwrap(), text.as_bytes());
     }
 }

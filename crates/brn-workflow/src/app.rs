@@ -37,6 +37,7 @@ pub struct App {
     pub(crate) store: WorkStore,
     pub(crate) apply_records: Option<crate::files::recovery::ApplyRecoveryFiles>,
     pub(crate) completion_uncertain: bool,
+    pub(crate) inbox: crate::inbox::InboxState,
 }
 
 impl App {
@@ -68,6 +69,7 @@ impl App {
             config.vault_root.as_deref(),
         )?;
         crate::action_completion::restore_action_completions(&mut store, apply_records.as_ref())?;
+        let inbox = crate::inbox::restore_inbox_captures(&mut store)?;
         let stored_root = store.setting("vault.root")?.map(PathBuf::from);
         if let (Some(stored), Some(requested)) = (&stored_root, &config.vault_root) {
             let requested = if requested
@@ -112,6 +114,7 @@ impl App {
             editor: crate::editor::EditorState::default(),
             apply_records,
             completion_uncertain: false,
+            inbox,
         };
         app.store.set_setting(
             "ai.credentials_dir",

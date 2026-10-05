@@ -2668,7 +2668,11 @@ impl AiState {
             | AppEvent::ModelCancelRequested { .. } => return commands,
             AppEvent::ProposalRewrite(_) => return commands,
             AppEvent::Rewrite(_) => unreachable!(),
-            AppEvent::Chat(_) | AppEvent::Account(_) => unreachable!(),
+            AppEvent::Chat(_)
+            | AppEvent::Account(_)
+            | AppEvent::InboxCaptured(_)
+            | AppEvent::InboxItems(_)
+            | AppEvent::InboxItem(_) => unreachable!(),
         }
         self.pending.remove(&id);
         commands

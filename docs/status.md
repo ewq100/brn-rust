@@ -66,44 +66,51 @@ Evidence: [Actions/dashboard record](work/completed/actions-dashboard/plan.md).
 
 ## Latest integrated checkpoint
 
-[PR43](https://github.com/ewq100/brn-rust/pull/43) merged
-**d70ec0ac644ff3283ec89425b12ae1013dd94ada**, exact reviewed treec2229a49.
-Ask now prepares full Action Create/Replace proposals through AppWorker, with
-actual captured turn/session/selection, saved evidence, strict whole baselines,
-exact creation replay and joined Stop/shutdown. Real Actions still require exact
-approval. Stage6 also delivers Dashboard, direct identified Complete, new related
-follow-up, native composition and full Action/mixed Rewrite/read tools.
+[PR44](https://github.com/ewq100/brn-rust/pull/44) merged
+**114090c5d0915daf5ee6c83b421e05b262e90a6d**, exact reviewed treeD39276e3.
+Stage7's immutable original-copy catalog is integrated in WorkStore V12. It stores
+bounded exact metadata/file proof, preserves UUID replay/time, pages chronological
+received-time/UUID inventory and rejects semantic/schema damage before backup
+recovery. Original content stays in ordinary files. This checkpoint does not yet
+expose user intake/processing, convert content or delete copies.
 
-Independent whole review is clean. Fresh1151shared/0failed/6ignored+52fixtures,
-207nativeWorkflowModels/0failed/5ignored,257nativeDesktop/0failed/0ignored, both
-native Clippy modes, shipping builds/startup2 and53doc links passed on macOS
-arm64/Rust1.98.1. Exact head66e6f90/run37245263931 passed MacCore/UI/NativeRetrieval
-and UbuntuShared; Windows22 full diagnostics match actual Main42. OverallCIred,
-no new sharedMac defect signature. Normal merge met fresh GitHub requirements
-without bypass. Post-merge8Workflow+4AI/0failed/0ignored+52fixtures+startup2 passed
-on the exact merged tree,V11/exact bytes/zero credentials. Main37246217301 finished5success/4failure: Mac3+UbuntuCore/UI passed.
-Independent decoded Windows22/22/14 diagnostics and UbuntuNative10pass/3fail
-messages/locations/panic blocks match Main42; only Ubuntu thread IDs/order/time
-differ. Failing source blobs are unchanged. OverallCIred; no new sharedMac defect.
+Independent whole review is clean. Fresh 1160 shared tests (0 failed, 6 ignored),
+52 fixtures, 207 native-workflow model tests (0 failed, 5 ignored), 257 native
+desktop tests (0 failed, 0 ignored), both native Clippy modes, shipping
+builds/startup2 and 95 doc links passed on macOS arm64/Rust1.98.1. Exact
+head45084a8/run37247924577 passed MacCore/UI/NativeRetrieval and UbuntuShared;
+Windows22 full diagnostics match actual Main43. Overall CI red; no
+new shared Mac defect signature. Normal merge met fresh GitHub requirements without
+bypass. Parents/tree/three fast-forwards verified; owner AGENTS.md exact bytes
+preserved. Post-merge 9 focused tests (0 failed, 0 ignored), 52 fixtures and
+startup2 passed, V12/exact bytes/zero credentials. Actual merged-main run37248575388
+finished 5 success/4 failure: MacCore/UI/NativeRetrieval
+and UbuntuCore/UI passed. WindowsCore/UI22 and Native14 full diagnostics match
+actual Main43; UbuntuNative10pass/3fail matches full panic/backtrace messages and
+source, with thread IDs/order/duration differences. Overall CI remains red; no new
+sharedMac defect signature.
 
-PR39 Dashboard/Complete actual observation and eight safe original JPEGs are
-integrated. PR40 composition, PR41 Rewrite and PR43 Ask native/live/owner
-acceptance remain pending. All Stage6 slices/scenarios remain preserved in the
+Stage6 implementation is integrated through [PR43](https://github.com/ewq100/brn-rust/pull/43).
+Dashboard/identified Complete actual observation and eight safe original JPEGs
+passed; composition/Rewrite/Ask native/live/owner acceptance remains pending.
+Scenarios and integration evidence remain in the
 [completed Actions record](work/completed/actions-dashboard/plan.md).
 
 ## Active slice and next work
 
-codex/v1-inbox-catalog starts Stage7 over actual merged43. Its first coherent
-deliverable is checked immutable WorkStore metadata for retained ordinary intake
-copies, additive V12 upgrade/recovery, exact replay and bounded FIFO inventory.
-Original content stays in ordinary files. Client intake, owned processing,
-faithful conversion and separate review consequences follow through AppWorker.
-The catalog is implemented; independent review is clean. Fresh1160shared/0failed/
-6ignored+52fixtures,207nativeWorkflowModels/0failed/5ignored,257nativeDesktop/
-0failed/0ignored, both native Clippy modes/shipping builds/startup2 passed,V12/
-exact bytes/zero credentials.95doc links passed. Publication/applicable CI and
-integration follow. User-facing intake/processing remains unimplemented. See the
-short [Inbox plan](work/active/text-email-inbox/plan.md).
+codex/v1-inbox-copy-intake continues Stage7 over actual merged44: owned exact
+text/email copies, narrow durable mirrors, shared AppWorker capture/read/list and
+thin CLI adapters. Originals stay outside the vault/index and unapproved intake
+stays outside Current queries. Interrupted/unknown work retains copies; no
+original deletion or provider call is in this slice. Owned processing, faithful
+conversion and independently reviewable consequences follow. See the short
+[Inbox plan](work/active/text-email-inbox/plan.md).
+
+The current copy-intake candidate has passed the broad workspace/storage gate,
+52 offline fixtures, native workflow and desktop tests, native shipping builds,
+native Clippy, and the two-run V12 startup/restart witness with exact synthetic
+vault bytes and zero credentials. Its complete independent read-only review is
+clean; exact-head GitHub checks are the remaining integration gate for this slice.
 
 ## Qualification and owner items
 

@@ -11,6 +11,7 @@ pub mod editor;
 pub mod error;
 mod files;
 pub mod findings;
+pub mod inbox;
 pub mod knowledge;
 pub mod library;
 pub mod models;

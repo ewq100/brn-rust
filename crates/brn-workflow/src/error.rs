@@ -31,6 +31,8 @@ pub enum ErrorKind {
     IndexStale,
     ContextStale,
     SaveUncertain,
+    InboxUnavailable,
+    InboxUncertain,
     ProfileUnavailable,
     OperationConflict,
     NotFound,

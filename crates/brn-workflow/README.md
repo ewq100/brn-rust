@@ -21,7 +21,27 @@ retrieval storage details.
 
 ## Interfaces and source
 
-[Application](src/app.rs), [commands/events](src/app_worker.rs), [chat lane](src/chat_worker.rs), [editor](src/editor.rs), [proposal review](src/proposals.rs), [proposal application](src/proposal_apply.rs), [durable provenance](src/knowledge/provenance.rs), [activity](src/activity.rs), [file adapter](src/files/mod.rs).
+[Application](src/app.rs), [commands/events](src/app_worker.rs), [chat lane](src/chat_worker.rs), [editor](src/editor.rs), [Inbox boundary](src/inbox.rs), [proposal review](src/proposals.rs), [proposal application](src/proposal_apply.rs), [durable provenance](src/knowledge/provenance.rs), [activity](src/activity.rs), [file adapter](src/files/mod.rs).
+
+## Text/email Inbox boundary
+
+`CaptureInbox`, `InboxItem` and `InboxItems` are headless workflow commands for
+explicit bounded text, Markdown, email and Teams copies. AppWorker admits capture
+as a critical mutation and coordinates the private ordinary-copy namespace,
+immutable WorkStore receipt, exact replay, availability reporting and startup
+recovery. The workflow validates labels, UUIDs, copy identity and complete UTF-8
+text; clients never supply a destination path or open SQLite/files themselves.
+
+Original bytes are retained outside the vault and retrieval index. A typed mirror
+is durably published before exclusive UUID.txt installation, then the installed
+file, mirror and directory are rechecked and synchronized before acknowledgement.
+Unknown, partial, changed, aliased or replaced artifacts stay in place and appear
+as explicit Inbox issues. A known full receipt can reconcile after restart or
+database backup restoration; equal bytes at another inode are insufficient.
+Missing originals are reported without claiming fresh source evidence. This slice
+does not convert content, call a provider, create knowledge/proposals, or delete
+copies. Future protocol adapters should call these workflow commands rather than
+the file or Store modules.
 
 ## Approved Action read tools
 

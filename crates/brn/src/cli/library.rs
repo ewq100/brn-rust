@@ -266,7 +266,8 @@ fn confirmed_success(event: &AppEvent) -> bool {
         | AppEvent::EditorSaved(_)
         | AppEvent::ProposalApplied(_)
         | AppEvent::ProposalRepaired(_)
-        | AppEvent::ProposalGroupApplied(_) => true,
+        | AppEvent::ProposalGroupApplied(_)
+        | AppEvent::InboxCaptured(_) => true,
         _ => false,
     }
 }
@@ -303,6 +304,7 @@ pub fn run(i: &Invocation) -> Result<Output, CliFailure> {
         Command::Links(command) => Some(super::links::prepare(command)?),
         Command::Findings(command) => Some(super::findings::prepare(command)?),
         Command::Actions(command) => Some(super::actions::prepare(command)?),
+        Command::Inbox(command) => Some(super::inbox::prepare(command)?),
         Command::Relationships(request) => Some(super::relationships::prepare(request)?),
         _ => None,
     };
@@ -363,6 +365,20 @@ fn execute(
         Command::Findings(command) => {
             let event = lane.query(knowledge.expect("finding input prepared before startup"))?;
             super::findings::output(command, event)
+        }
+        Command::Inbox(_) => {
+            let prepared = knowledge.expect("Inbox input prepared before startup");
+            let event = match &prepared {
+                AppCommand::CaptureInbox(request) => {
+                    lane.query_with_id(request.id, AppCommand::CaptureInbox(request.clone()))?
+                }
+                AppCommand::InboxItem(id) => lane.query(AppCommand::InboxItem(*id))?,
+                AppCommand::InboxItems(request) => {
+                    lane.query(AppCommand::InboxItems(request.clone()))?
+                }
+                _ => unreachable!("prepared Inbox command"),
+            };
+            super::inbox::output(&prepared, event)
         }
         Command::Actions(_) => {
             let prepared = knowledge.expect("Action input prepared before startup");

@@ -79,6 +79,9 @@ pub enum AppCommand {
     ActionDashboard(crate::dashboard::DashboardRequest),
     Action(Uuid),
     CompleteAction(crate::action_completion::CompleteActionRequest),
+    CaptureInbox(crate::inbox::CaptureInboxRequest),
+    InboxItems(crate::inbox::InboxListRequest),
+    InboxItem(Uuid),
     Findings(crate::findings::FindingListRequest),
     Finding(Uuid),
     CloseFinding(crate::findings::CloseFindingRequest),
@@ -182,6 +185,9 @@ pub enum AppEvent {
     Actions(Box<crate::actions::ActionPage>),
     ActionDashboard(Box<crate::dashboard::DashboardPage>),
     ActionCompleted(Box<crate::action_completion::ActionCompletion>),
+    InboxCaptured(Box<crate::inbox::InboxItem>),
+    InboxItems(Box<crate::inbox::InboxInventory>),
+    InboxItem(Box<crate::inbox::InboxRead>),
     Findings(Box<crate::findings::FindingPage>),
     FindingInspection(Box<crate::findings::FindingInspection>),
     CitationCaptured(Box<crate::knowledge::CitationCapture>),
@@ -1005,6 +1011,19 @@ fn dispatch(
             AppEvent::ActionDashboard(Box::new(app.action_dashboard(&request)?))
         }
         AppCommand::Action(id) => AppEvent::Action(Box::new(app.action(id)?)),
+        AppCommand::CaptureInbox(request) => {
+            if id != request.id {
+                return Err(WorkflowError::typed(
+                    ErrorKind::OperationConflict,
+                    "Inbox command ID must equal its capture UUID",
+                ));
+            }
+            AppEvent::InboxCaptured(Box::new(app.capture_inbox(&request)?))
+        }
+        AppCommand::InboxItem(item) => AppEvent::InboxItem(Box::new(app.inbox_item(item)?)),
+        AppCommand::InboxItems(request) => {
+            AppEvent::InboxItems(Box::new(app.inbox_items(&request)?))
+        }
         AppCommand::CompleteAction(request) => {
             AppEvent::ActionCompleted(Box::new(app.complete_action(&request)?))
         }
@@ -1341,6 +1360,7 @@ fn critical_mutation_command(command: &AppCommand) -> bool {
             | AppCommand::RecoverEditor(_)
             | AppCommand::SaveEditor(_)
             | AppCommand::CompleteAction(_)
+            | AppCommand::CaptureInbox(_)
             | AppCommand::ReconcileEditor(_)
             | AppCommand::RecoverEdit { .. }
             | AppCommand::CreateProposal(_)
@@ -1362,6 +1382,8 @@ fn critical_mutation_command(command: &AppCommand) -> bool {
 
 #[cfg(all(test, target_os = "macos"))]
 mod completion_tests;
+#[cfg(all(test, target_os = "macos"))]
+mod inbox_tests;
 
 #[cfg(all(test, target_os = "macos"))]
 mod editor_shutdown_tests {

@@ -409,5 +409,10 @@ without moving the main database aside or creating a startup backup; invalid
 backup candidates are skipped. Physical corruption retains ordinary restoration.
 SQLite backup preserves catalog metadata, not the separate original-copy files.
 
-This foundation has no client intake, processing job, conversion, proposal
-approval or deletion operation yet. Those follow in the Stage7 workflow slices.
+This foundation is now consumed by the Stage7 workflow capture boundary. It still
+has no processing job, conversion, proposal approval or deletion operation; those
+remain later workflow slices. `capture_inbox_with` holds SQLite writer exclusion,
+publishes the complete immutable item before INSERT and rolls back on callback or
+SQL failure. `restore_inbox` imports only a workflow-qualified exact snapshot.
+Neither method reads, writes or deletes an original file; AppWorker owns that
+qualification and all client access.

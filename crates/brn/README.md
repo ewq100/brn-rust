@@ -17,6 +17,9 @@ brn findings list [--state open|resolved|dismissed|all] [--limit N] [--before UU
 brn findings show UUID
 brn findings inspect UUID
 brn findings close UUID --version N --state resolved|dismissed
+brn inbox add --id UUID --title TITLE --file TEXT_FILE [--kind text|markdown|email|teams] [--original-name LABEL]
+brn inbox list [--limit N] [--after UUID]
+brn inbox show UUID
 brn actions complete --file REQUEST.json
 brn actions show UUID
 brn actions list [--state open|waiting|blocked|completed|all] [--limit N] [--before-created-at-ms N --before-id UUID]
@@ -77,6 +80,18 @@ Credential paths are absolute, current-user-owned, protected and outside Git,
 operational storage and the vault. The default is the sibling
 `<data-directory-name>.credentials`; workflow saves its non-secret location.
 Startup never discovers accounts or models.
+
+`inbox add` is the explicit user intake boundary for bounded UTF-8 text copies.
+The CLI reads the supplied input file before opening the application, then sends
+the typed request through AppWorker. BRN retains the exact bytes in its private
+ordinary copy namespace and returns an immutable receipt; labels and source kind
+never select a filesystem path. Repeating the same UUID and exact request returns
+the original receipt without refreshing its timestamp or republishing the copy.
+`inbox show` reports the complete metadata and either exact original text or an
+explicit missing/changed/unavailable result. `inbox list` reports chronological
+pages plus availability/issues. These commands never write vault Markdown,
+`index.sqlite`, provider state or credentials; incomplete or uncertain copies
+remain retained for inspection.
 
 `actions show` returns the full retained record and immutable approved origin;
 `actions list` defaults to all states and 25 entries, with limits from 1–200.
