@@ -84,11 +84,13 @@ impl AiState {
             return None;
         }
         self.inbox_queue.visible = true;
+        self.open_analysis_view();
         self.inbox_queue.view = self.inbox_queue.view.wrapping_add(1);
         self.refresh_inbox()
     }
     pub fn close_inbox(&mut self) {
         self.inbox_queue.visible = false;
+        self.close_analysis_view();
         self.inbox_queue.view = self.inbox_queue.view.wrapping_add(1);
     }
     pub fn refresh_inbox(&mut self) -> Option<(Uuid, AppCommand)> {

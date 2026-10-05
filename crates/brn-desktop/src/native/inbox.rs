@@ -20,6 +20,13 @@ pub(super) struct InboxPane {
     pub(super) preview: Entity<EditorState>,
     pub(super) source_title: Entity<TextareaState>,
     pub(super) source_path: Entity<TextareaState>,
+    pub(super) analysis_source_path: Entity<TextareaState>,
+    pub(super) analysis_id: Entity<TextareaState>,
+    pub(super) analysis_source: Entity<EditorState>,
+    pub(super) analysis_retained_source: Entity<EditorState>,
+    pub(super) analysis_answer: Entity<EditorState>,
+    /// Explicit guarded entry intention, consumed once without replacing later typing.
+    pub(super) analysis_path_target: Option<String>,
     pub(super) checked: Vec<InboxItem>,
     pub(super) scroll: ScrollHandle,
     selection_error: Option<String>,
@@ -47,6 +54,20 @@ impl InboxPane {
                     .placeholder("New Source note vault-relative .md path")
                     .auto_grow(1, 3)
             }),
+            analysis_source_path: cx.new(|cx| {
+                TextareaState::new(window, cx)
+                    .placeholder("Saved approved Source vault-relative path")
+                    .auto_grow(1, 3)
+            }),
+            analysis_id: cx.new(|cx| {
+                TextareaState::new(window, cx)
+                    .placeholder("Retained analysis UUID")
+                    .auto_grow(1, 3)
+            }),
+            analysis_source: cx.new(|cx| EditorState::new(window, cx).default_value("")),
+            analysis_retained_source: cx.new(|cx| EditorState::new(window, cx).default_value("")),
+            analysis_answer: cx.new(|cx| EditorState::new(window, cx).default_value("")),
+            analysis_path_target: None,
             checked: Vec::new(),
             scroll: ScrollHandle::new(),
             selection_error: None,
@@ -133,8 +154,9 @@ impl Desktop {
                 .update(cx, |editor, cx| editor.set_value(preview, window, cx));
         }
         self.inbox.preview_snapshot = queue.preview.clone();
+        self.sync_inbox_analysis_widgets(window, cx);
     }
-    fn inbox_blocked(&self) -> bool {
+    pub(super) fn inbox_blocked(&self) -> bool {
         !self.ai.as_ref().unwrap().ready
             || self.open_doc != Some(DocRef::Inbox)
             || self.simple_transition.is_some()
@@ -239,6 +261,7 @@ impl Desktop {
         let mut content = div().id("inbox-content").track_scroll(&self.inbox.scroll)
             .flex().flex_col().flex_1().min_h(px(0.)).overflow_y_scroll().p_3().gap_2()
             .child("Inbox")
+            .child(self.render_inbox_analysis(cx))
             .child("Keep an exact UTF-8 text, Markdown, email or Teams copy. Originals stay retained. Conversion previews and Source proposals require review; knowledge changes only after exact approval.")
             .child(Textarea::new(&self.inbox.title).disabled(blocked).aria_label("Retained exact Inbox capture title"));
         let mut kinds = div().flex().flex_wrap().gap_1();

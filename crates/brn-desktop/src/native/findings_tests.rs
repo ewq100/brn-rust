@@ -368,7 +368,8 @@ fn refused_draft_navigation_keeps_findings_visible_and_usable(cx: &mut gpui_kit:
                     },
                     effort: Some(brn_workflow::ReasoningEffort::Low),
                     generation: 1,
-                },
+                }
+                .into(),
                 partial: String::new(),
                 tool: None,
                 stopping: false,

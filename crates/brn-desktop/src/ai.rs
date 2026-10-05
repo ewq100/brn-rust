@@ -10,6 +10,7 @@ use brn_workflow::{
         EditRequest, EditStamp, EditorRecord, EditorView, ReloadRequest, SaveOutcome, SaveReceipt,
         SaveRequest,
     },
+    inbox_actions::InboxActionRequest,
     knowledge::NoteProvenance,
     library::{KnowledgeScope, RefreshReport, SearchMode, SearchResults},
     models::ModelDownloadPrompt,
@@ -36,6 +37,11 @@ mod finding_state;
 #[cfg(all(test, target_os = "macos"))]
 #[path = "finding_state_tests.rs"]
 mod finding_state_tests;
+#[path = "inbox_analysis_state.rs"]
+mod inbox_analysis_state;
+#[cfg(all(test, target_os = "macos"))]
+#[path = "inbox_analysis_state_tests.rs"]
+pub(crate) mod inbox_analysis_state_tests;
 #[path = "inbox_state.rs"]
 mod inbox_state;
 #[cfg(all(test, target_os = "macos"))]
@@ -47,10 +53,76 @@ mod link_preparation_state;
 mod relationship_state;
 
 pub struct ActiveTurn {
-    pub request: AskRequest,
+    pub request: ActiveRequest,
     pub partial: String,
     pub tool: Option<String>,
     pub stopping: bool,
+}
+/// Client capture/correlation only. Inbox's domain prompt remains in workflow.
+pub enum ActiveRequest {
+    Ask(AskRequest),
+    Inbox(Box<InboxActionRequest>),
+}
+impl From<AskRequest> for ActiveRequest {
+    fn from(request: AskRequest) -> Self {
+        Self::Ask(request)
+    }
+}
+impl ActiveRequest {
+    pub fn id(&self) -> Uuid {
+        match self {
+            Self::Ask(r) => r.id,
+            Self::Inbox(r) => r.id,
+        }
+    }
+    pub fn conversation(&self) -> Option<Uuid> {
+        match self {
+            Self::Ask(r) => r.conversation,
+            Self::Inbox(r) => r.conversation,
+        }
+    }
+    pub fn generation(&self) -> u64 {
+        match self {
+            Self::Ask(r) => r.generation,
+            Self::Inbox(r) => r.generation,
+        }
+    }
+    pub fn selection(&self) -> &Selection {
+        match self {
+            Self::Ask(r) => &r.selection,
+            Self::Inbox(r) => &r.selection,
+        }
+    }
+    pub fn effort(&self) -> Option<ReasoningEffort> {
+        match self {
+            Self::Ask(r) => r.effort,
+            Self::Inbox(r) => Some(r.effort),
+        }
+    }
+    pub fn question_label(&self) -> String {
+        match self {
+            Self::Ask(r) => r.question.clone(),
+            Self::Inbox(r) => format!("Analyze saved Inbox Source: {}", r.source.source.path),
+        }
+    }
+    pub fn inbox(&self) -> Option<&InboxActionRequest> {
+        match self {
+            Self::Inbox(r) => Some(r),
+            Self::Ask(_) => None,
+        }
+    }
+    fn accepts_inbox_turn(&self, turn: &WorkTurn) -> bool {
+        let Some(request) = self.inbox() else {
+            return true;
+        };
+        turn.id == request.id
+            && request
+                .conversation
+                .is_none_or(|id| turn.conversation_id == id)
+            && turn.provider == provider_key(request.selection.provider)
+            && turn.model == request.selection.model
+            && turn.effort.as_deref() == Some(request.effort.as_str())
+    }
 }
 pub struct ActiveRewrite {
     pub request: RewriteRequest,
@@ -70,6 +142,7 @@ pub struct AccountRow {
 }
 #[derive(Clone)]
 pub enum Pending {
+    InboxAnalysis(inbox_analysis_state::AnalysisPending),
     Inbox(Box<inbox_state::InboxPending>),
     Dashboard(dashboard_state::DashboardQuery),
     ActionComplete(Box<dashboard_state::CompletionCapture>),
@@ -255,6 +328,7 @@ pub struct AiState {
     pub link_preparation: link_preparation_state::LinkPreparation,
     pub finding_queue: finding_state::FindingQueue,
     pub inbox_queue: inbox_state::InboxQueue,
+    pub inbox_analysis: inbox_analysis_state::InboxAnalysisView,
     pub dashboard: dashboard_state::DashboardView,
     pub last_draft_request: Option<brn_workflow::proposals::DraftRequest>,
     pub provider: Option<Provider>,
@@ -588,6 +662,12 @@ pub fn provider_name(provider: Provider) -> &'static str {
         Provider::Copilot => "Copilot",
     }
 }
+fn provider_key(provider: Provider) -> &'static str {
+    match provider {
+        Provider::Chatgpt => "chatgpt",
+        Provider::Copilot => "copilot",
+    }
+}
 pub fn turn_label(turn: &WorkTurn) -> &'static str {
     match turn.status {
         WorkTurnStatus::Running => "Running (restart recovery pending)",
@@ -617,19 +697,15 @@ pub fn session_activity_label(conversation: &WorkConversation, now_ms: u64) -> S
         if count == 1 { "" } else { "s" }
     )
 }
-fn unfinalized_turn(request: &AskRequest, partial: String) -> WorkTurn {
+fn unfinalized_turn(request: &ActiveRequest, partial: String) -> WorkTurn {
     WorkTurn {
-        id: request.id,
-        conversation_id: request.conversation.unwrap_or(Uuid::nil()),
-        question: request.question.clone(),
+        id: request.id(),
+        conversation_id: request.conversation().unwrap_or(Uuid::nil()),
+        question: request.question_label(),
         answer: partial,
-        provider: match request.selection.provider {
-            Provider::Chatgpt => "chatgpt",
-            Provider::Copilot => "copilot",
-        }
-        .into(),
-        model: request.selection.model.clone(),
-        effort: request.effort.map(|value| value.as_str().to_owned()),
+        provider: provider_key(request.selection().provider).into(),
+        model: request.selection().model.clone(),
+        effort: request.effort().map(|value| value.as_str().to_owned()),
         started_at_ms: None,
         finished_at_ms: None,
         status: WorkTurnStatus::Failed,
@@ -1257,13 +1333,15 @@ impl AiState {
     pub fn display_active(&self) -> Option<&ActiveTurn> {
         self.active
             .as_ref()
-            .filter(|active| match active.request.conversation {
+            .filter(|active| match active.request.conversation() {
                 Some(conversation) => self.conversation == Some(conversation),
-                None => self.conversation.is_none() && active.request.generation == self.generation,
+                None => {
+                    self.conversation.is_none() && active.request.generation() == self.generation
+                }
             })
     }
     pub fn display_turns(&self) -> impl Iterator<Item = &WorkTurn> {
-        let active = self.display_active().map(|active| active.request.id);
+        let active = self.display_active().map(|active| active.request.id());
         self.turns
             .iter()
             .filter(move |turn| turn.status != WorkTurnStatus::Running || active != Some(turn.id))
@@ -1513,7 +1591,7 @@ impl AiState {
             generation: self.generation,
         };
         self.active = Some(ActiveTurn {
-            request: request.clone(),
+            request: request.clone().into(),
             partial: String::new(),
             tool: None,
             stopping: false,
@@ -1524,7 +1602,7 @@ impl AiState {
     pub fn stop(&mut self) -> Option<Uuid> {
         let active = self.active.as_mut()?;
         active.stopping = true;
-        Some(active.request.id)
+        Some(active.request.id())
     }
     pub fn stop_controls(&self) -> Vec<(Uuid, AppCommand)> {
         let mut commands = Vec::new();
@@ -1536,7 +1614,7 @@ impl AiState {
         if let Some(active) = &self.active
             && active.stopping
         {
-            commands.push((Uuid::new_v4(), AppCommand::CancelTurn(active.request.id)));
+            commands.push((Uuid::new_v4(), AppCommand::CancelTurn(active.request.id())));
         }
         if let Some(id) = self.cancelled_login {
             commands.push((Uuid::new_v4(), AppCommand::CancelAccount(id)));
@@ -1660,11 +1738,28 @@ impl AiState {
         }
         if let AppEvent::Chat(event) = event {
             if let Some(active) = &self.active
-                && event.id() == active.request.id
+                && event.id() == active.request.id()
                 && id == event.id()
-                && event.generation() == active.request.generation
+                && event.generation() == active.request.generation()
             {
+                if active.request.inbox().is_some() {
+                    let valid = match &event {
+                        ChatEvent::Finished { turn, .. } => {
+                            active.request.accepts_inbox_turn(turn)
+                                && turn.status != WorkTurnStatus::Running
+                        }
+                        ChatEvent::AlreadyRunning { turn, .. } => {
+                            active.request.accepts_inbox_turn(turn)
+                                && turn.status == WorkTurnStatus::Running
+                        }
+                        _ => true,
+                    };
+                    if !valid {
+                        return commands;
+                    }
+                }
                 let display = self.display_active().is_some();
+                let analysis = active.request.inbox().map(|request| request.id);
                 match event {
                     ChatEvent::Text { text, .. } => {
                         self.active.as_mut().unwrap().partial.push_str(&text);
@@ -1709,6 +1804,7 @@ impl AiState {
                     }
                 }
                 self.active = None;
+                commands.extend(self.analysis_settled(analysis));
             }
             return commands;
         }
@@ -1781,6 +1877,9 @@ impl AiState {
             return commands;
         }
         if self.apply_inbox_event(id, &event) {
+            return commands;
+        }
+        if self.received_inbox_analysis(id, &event) {
             return commands;
         }
         if self.received_link_preparation(id, &event) {
@@ -2582,15 +2681,17 @@ impl AiState {
                 if self
                     .active
                     .as_ref()
-                    .is_some_and(|active| active.request.id == id)
+                    .is_some_and(|active| active.request.id() == id)
                 {
                     let active = self.active.as_ref().unwrap();
+                    let analysis = active.request.inbox().map(|request| request.id);
                     if !active.partial.is_empty() {
                         self.unsaved =
                             Some(unfinalized_turn(&active.request, active.partial.clone()));
                         retained_partial = true;
                     }
                     self.active = None;
+                    commands.extend(self.analysis_settled(analysis));
                 }
                 if let Some(Pending::Account(command)) = &pending {
                     let provider = account_provider(command);
@@ -2775,7 +2876,7 @@ mod tests {
         let query = state.apply(change, AppEvent::EffortSaved)[0].0;
         state.apply(query, AppEvent::Effort(Some(ReasoningEffort::Low)));
         assert_eq!(
-            state.active.as_ref().unwrap().request.effort,
+            state.active.as_ref().unwrap().request.effort(),
             Some(ReasoningEffort::High)
         );
         state.apply(
@@ -3408,8 +3509,8 @@ mod tests {
             model: "other".into(),
         });
         assert_eq!(
-            state.active.as_ref().unwrap().request.selection,
-            selection()
+            state.active.as_ref().unwrap().request.selection(),
+            &selection()
         );
         assert!(state.ask("second".into()).is_none());
         assert_eq!(request.selection, selection());
