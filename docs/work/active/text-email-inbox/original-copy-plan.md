@@ -8,6 +8,16 @@ budget. Current integration baseline is tooling PR56 merge
 `9377f6d8d06db28e2240ca5d0d09ceb929085f95`. [Inbox plan](plan.md) and [conflict checkpoint](conflicts-plan.md#integrated-checkpoint--2026-10-05)
 retain previous qualification and pending native/live/owner acceptance.
 
+## AI authority constraint
+
+Follow the owner's [semantic intelligence and deterministic authority](../../../architecture/overview.md#semantic-intelligence-and-deterministic-authority)
+clarification. The LLM supplies semantic interpretation, bounded evidence/tool
+choices and candidates; Rust/workflow verifies exact evidence and owns approval,
+effects and recovery. New task-specific AI behavior uses a small centralized
+typed static Rust behavior/prompt boundary. Existing prompts move only when
+naturally touched or very small and low risk. No new AI framework or architecture
+is authorized; frozen V1 delivery order remains unchanged.
+
 ## Outcome and boundaries
 
 The owner can inspect a complete exact review of one disposable original, then

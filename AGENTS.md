@@ -39,6 +39,7 @@ Implement the frozen target in [roadmap](docs/roadmap.md) order, preserving exis
 
 - Notes are vault Markdown files; preserve their exact bytes. `index.sqlite` is disposable; `brn.sqlite` holds user work, is checked at start and backed up.
 - AI changes to authoritative knowledge and real actions require approval of the exact proposal. Explicit user commands such as manual Save or completion remain direct commands. No automatic fallback between providers, models or accounts.
+- When adding or changing task-specific AI behavior, follow [semantic intelligence and deterministic authority](docs/architecture/overview.md#semantic-intelligence-and-deterministic-authority): the LLM interprets and proposes; Rust verifies evidence and owns authority. AI output/confidence never replaces exact checks or user approval. New behavior uses a small centralized typed workflow/prompt boundary with static Rust definitions; migrate existing prompts only when naturally touched or very small and low risk. This authorizes no additional AI architecture.
 - Comments are temporary review notes, deleted when the note's review is approved. Never re-anchor a comment by guessing.
 - UI and CLI go through `brn-workflow`; keep provider and retrieval details out of UI state.
 - Use disposable explicit data directories and synthetic fixtures for checks. Preserve the original vault, old data folders and existing trial workspaces.
