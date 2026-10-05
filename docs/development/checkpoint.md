@@ -22,7 +22,11 @@ Lead-confirmed 2026-10-06: full frozen V1 goal **active**, without a token budge
 - **Current:** `codex/v1-knowledge-capture-recovery`, based on this clean merge.
   Retain genuine Knowledge analysis captures within the existing proposal-apply
   recovery family; restore capture/proposal/journal together without invented chat
-  or provider execution. This is a prerequisite for lean original-operation records.
+  or provider execution. Code10e95e2c8880b6f1295fe630249a6ecd5382d870/tree
+  6a6a33d99039458d644a9f01763d0e08183133a3 has clean complete independent review.
+  Fresh shared1,397/0/8+52 and native304 Workflow/models/0/7+285 Desktop/0/0,
+  native check/Clippy/build/two restarts passed at unchanged identity. Exact-head
+  CI/integration are next; older readers deliberately refuse new companions.
 - **Preserved:** lifecycle7c4f668de467721f728f242c8fac8d14606a6e44 on
   `codex/v1-inbox-recoverable-removal`, unchanged/unmerged and held for correction.
 - **Pending:** explicit confirmation/removal and bounded record/performance/recovery

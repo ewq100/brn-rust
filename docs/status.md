@@ -34,8 +34,10 @@ original preservation, with explicit confirmation still required. Failed/pending
 analysis, consequence drafts and later derived edits are independent; item
 disposition remains separate. Independent review/shared/native checks and exact-head
 protected CI passed; fresh merged9 Store/13 Workflow/6 CLI tests+52 fixtures passed.
-Captured-analysis recovery on `codex/v1-knowledge-capture-recovery` is next, within
-the existing proposal-apply family. Main65 run37385458794 attempt1 passed applicable gates; unchanged Windows/Linux
+Captured-analysis recovery on `codex/v1-knowledge-capture-recovery` uses
+the existing proposal-apply family. Complete independent review and fresh
+shared1,397/0/8+52/native304 Workflow/models/0/7+285 Desktop/0/0 passed at10e95e2;
+exact-head CI/integration are pending. Main65 run37385458794 attempt1 passed applicable gates; unchanged Windows/Linux
 failures remain visible. A1 record/performance/recovery
 corrections hold lifecycle integration, native removal and Stage8. No semantic
 completeness, native/live/owner acceptance or full V1 delivery is claimed. The full

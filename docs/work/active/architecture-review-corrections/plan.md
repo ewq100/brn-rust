@@ -432,3 +432,25 @@ publication failures still require fences. Corrected13/0/1 and Store/Workflow
 all-target Clippy passed. A further near-limit escaped genuine capture test passed,
 including fresh recovery and no manufactured chat. Full review/shared/native gates
 and exact-head integration remain pending; intermediate failures are retained.
+
+
+Complete16-file independent read-only review is clean at
+10e95e2c8880b6f1295fe630249a6ecd5382d870/tree6a6a33d99039458d644a9f01763d0e08183133a3.
+Fresh shared atomic gate23:09:28–23:14:18UTC at the same unchanged clean identity
+passed format/workspace build/all-target Clippy,1,397 workspace tests/0 failures/8
+documented ignores and52 fixtures, terminalexit0. Optional native qualification
+also passed combined check, three all-target Clippy configurations,304 Workflow/
+model tests/0/7 and285 Desktop/0/0, shipping builds and two V14 synthetic AppWorker
+restarts; every10 command exits0 at unchanged clean identity. Atomic start/end
+records retain the exact commands/features/environment. Upstream block future-
+compiler warning remains; empty model configuration exercises no real assets,
+inference, live provider, graphical or owner acceptance. Exact-head CI and normal
+integration remain the next gate; subsequent evidence edits leave Rust unchanged.
+
+New companions require the qualified reader: older builds fail closed on their
+unknown family suffix. Existing format1 receipt bytes/hashes and equal inode are
+unchanged; no artifact is removed to permit downgrade. Owner scenario remains
+pending: recover disposable approved Knowledge/supersession from retained ordinary
+receipts into fresh operational state after moving/changing its Source, observe
+original history/review without resubmission, and verify damaged/missing capture
+refusal. No private data, provider call or original removal is authorized by this.

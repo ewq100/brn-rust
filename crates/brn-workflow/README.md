@@ -481,7 +481,9 @@ holds the exact approval request, Knowledge-binding digest and genuine full
 and occupied equal inodes remain unchanged. Capture publication precedes effects;
 equal companions are checked/synced and different occupants refuse. Canonical
 companions are validated even without a receipt, but valid prepublished orphans
-remain inert. Unknown/corrupt names or content fail closed.
+remain inert. Unknown/corrupt names or content fail closed. Older builds reject
+the new companion suffix; keep the qualified reader when reopening these data.
+Retained evidence is never removed to permit a downgrade.
 
 Startup imports the genuine capture and approval together in one Store transaction.
 An older receipt may gain its companion from checked retained SQL; missing evidence
