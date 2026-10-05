@@ -25,7 +25,8 @@ merged123 AI/two owned Knowledge callback tests and52 fixtures passed; the initi
 misspelled filter selected zero tests and is not callback qualification. Main62's
 applicable gates passed; retained Windows22/22/14 and three Linux assertions/
 backtraces match main61, with Linux ordering/thread-ID differences retained.
-Merged main63 run37378949287 remains in progress.
+Merged main63 run37378949287 passed all applicable gates; overall red retains
+the same platform failures with log order/thread-ID/timing differences recorded.
 
 The clean, pushed **`7c4f668de467721f728f242c8fac8d14606a6e44`** snapshot on
 `codex/v1-inbox-recoverable-removal` implements recoverable removal/restore,
@@ -34,7 +35,8 @@ snapshot, not the corrected cleanup contract. Architecture-review corrections
 continue with Rust-owned Action candidate mechanics on
 `codex/v1-review-action-candidates`; A1 record-shape and owner
 cleanup corrections hold lifecycle integration, native removal and Stage 8.
-The full V1 goal is active.
+The Action correction has clean independent review and fresh shared/native
+qualification; exact-head CI/integration is next. The full V1 goal is active.
 
 The owner ratified cleanup based on an approved Source's exact preservation plus
 explicit confirmation. Failed analyses, pending drafts and later derived edits
