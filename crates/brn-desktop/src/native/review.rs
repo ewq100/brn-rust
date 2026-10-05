@@ -268,6 +268,7 @@ impl Desktop {
                         div().h(px(320.)).child(
                             Editor::new(&self.review_editor)
                                 .h_full()
+                                .readonly(review.record.draft.inbox_source.is_some())
                                 .disabled(!editable)
                                 .aria_label("Full proposed Markdown member"),
                         ),

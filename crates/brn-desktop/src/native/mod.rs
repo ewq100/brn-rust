@@ -49,6 +49,11 @@ mod draft_link_tests;
 mod findings;
 #[cfg(all(test, target_os = "macos", feature = "native-test-support"))]
 mod findings_tests;
+mod inbox;
+#[cfg(all(test, target_os = "macos", feature = "native-test-support"))]
+mod inbox_navigation_tests;
+#[cfg(all(test, target_os = "macos", feature = "native-test-support"))]
+mod inbox_tests;
 #[cfg(all(test, target_os = "macos", feature = "native-test-support"))]
 mod login_tests;
 #[cfg(all(test, target_os = "macos", feature = "native-test-support"))]
@@ -71,6 +76,7 @@ enum DocRef {
     Activity,
     Dashboard,
     Findings,
+    Inbox,
     Draft,
 }
 
@@ -139,6 +145,7 @@ struct Desktop {
     saved_links: relationships::SavedLinksPane,
     relationships: relationships::RelationshipsPane,
     findings: findings::FindingsPane,
+    inbox: inbox::InboxPane,
     dashboard: dashboard::DashboardPane,
     action_editors: action_review::ActionEditors,
     initial_action: action_draft::ActionInputs,
@@ -479,6 +486,7 @@ impl Desktop {
             saved_links: relationships::SavedLinksPane::new(window, cx),
             relationships: relationships::RelationshipsPane::new(window, cx),
             findings: findings::FindingsPane::new(window, cx),
+            inbox: inbox::InboxPane::new(window, cx),
             dashboard: dashboard::DashboardPane::new(window, cx),
             action_editors: action_review::ActionEditors::default(),
             initial_action: action_draft::ActionInputs::default(),

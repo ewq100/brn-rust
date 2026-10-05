@@ -49,10 +49,48 @@ pub struct DraftForm {
 mod prepared_tests;
 
 #[cfg(test)]
+#[path = "draft_source_tests.rs"]
+mod source_tests;
+
+#[cfg(test)]
 #[path = "action_draft_tests.rs"]
 mod action_draft_tests;
 
 impl DraftForm {
+    /// Retain the complete workflow-prepared Source creation for exact review.
+    pub fn from_inbox_source(request: DraftRequest) -> brn_workflow::Result<Self> {
+        request.validate()?;
+        let [DraftNoteChange::Create { path, text }] = request.changes.as_slice() else {
+            return Err(brn_workflow::WorkflowError::msg(
+                "Prepared Inbox Source review needs exactly one new Source note.",
+            ));
+        };
+        if request.inbox_source.is_none() {
+            return Err(brn_workflow::WorkflowError::msg(
+                "Prepared Inbox Source review needs its complete original and conversion binding.",
+            ));
+        }
+        Ok(Self {
+            id: request.id,
+            title: request.title.clone(),
+            path: path.clone(),
+            text: text.clone(),
+            kind: DraftKind::Create,
+            session_id: request.session_id,
+            generation: 1,
+            binding_generation: 1,
+            source: None,
+            source_operation: None,
+            source_error: None,
+            submitted: None,
+            pending: false,
+            result: None,
+            error: None,
+            action: None,
+            prepared: Some(request),
+        })
+    }
+
     /// Retain the complete read-only link preparation as ordinary review input.
     /// The consumer and target source versions stay bound; no source text is invented.
     pub fn from_prepared(request: DraftRequest) -> brn_workflow::Result<Self> {
@@ -104,6 +142,12 @@ impl DraftForm {
     /// The validated preparation, including all immutable full source bindings.
     pub fn prepared_request(&self) -> Option<&DraftRequest> {
         self.prepared.as_ref()
+    }
+
+    pub fn is_prepared_source(&self) -> bool {
+        self.prepared
+            .as_ref()
+            .is_some_and(|request| request.inbox_source.is_some())
     }
 
     /// Copy retained input to a new proposal UUID without losing prepared proofs.
@@ -167,6 +211,15 @@ impl DraftForm {
             self.error = Some("Use the retained Action fields to edit this form.".into());
             return;
         }
+        if self.is_prepared_source()
+            && (self.path != path || self.kind != kind || self.text != text)
+        {
+            self.error = Some(
+                "Prepared Inbox Source destination, kind and exact body stay fixed. Only the proposal title is editable."
+                    .into(),
+            );
+            return;
+        }
         if self.prepared.is_some() && (self.path != path || self.kind != kind) {
             self.error = Some("Prepared link destination and kind stay fixed. Copy retained input and prepare another link to change them.".into());
             return;
@@ -220,12 +273,20 @@ impl DraftForm {
         }
         if let Some(prepared) = &self.prepared {
             let mut request = prepared.clone();
-            let DraftNoteChange::Replace { path, text, .. } = &mut request.changes[0] else {
-                unreachable!("from_prepared retains only one Replace")
+            let (path, text, kind) = match &mut request.changes[0] {
+                DraftNoteChange::Create { path, text } if prepared.inbox_source.is_some() => {
+                    (path, text, DraftKind::Create)
+                }
+                DraftNoteChange::Replace { path, text, .. } => (path, text, DraftKind::Replace),
+                _ => unreachable!("prepared forms retain one Source Create or link Replace"),
             };
-            if self.id != request.id || self.kind != DraftKind::Replace || self.path != *path {
+            if self.id != request.id || self.kind != kind || self.path != *path {
                 return Err(brn_workflow::WorkflowError::msg(
-                    "Prepared link destination and kind stay fixed. Copy retained input and prepare another link to change them.",
+                    if prepared.inbox_source.is_some() {
+                        "Prepared Inbox Source identity, destination and kind stay fixed. Copy retained input to use another proposal UUID."
+                    } else {
+                        "Prepared link destination and kind stay fixed. Copy retained input and prepare another link to change them."
+                    },
                 ));
             }
             request.title = self.title.clone();

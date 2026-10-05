@@ -36,6 +36,11 @@ mod finding_state;
 #[cfg(all(test, target_os = "macos"))]
 #[path = "finding_state_tests.rs"]
 mod finding_state_tests;
+#[path = "inbox_state.rs"]
+mod inbox_state;
+#[cfg(all(test, target_os = "macos"))]
+#[path = "inbox_state_tests.rs"]
+mod inbox_state_tests;
 #[path = "link_preparation_state.rs"]
 mod link_preparation_state;
 #[path = "relationship_state.rs"]
@@ -65,6 +70,7 @@ pub struct AccountRow {
 }
 #[derive(Clone)]
 pub enum Pending {
+    Inbox(Box<inbox_state::InboxPending>),
     Dashboard(dashboard_state::DashboardQuery),
     ActionComplete(Box<dashboard_state::CompletionCapture>),
     Status,
@@ -248,6 +254,7 @@ pub struct AiState {
     pub draft: Option<crate::draft::DraftForm>,
     pub link_preparation: link_preparation_state::LinkPreparation,
     pub finding_queue: finding_state::FindingQueue,
+    pub inbox_queue: inbox_state::InboxQueue,
     pub dashboard: dashboard_state::DashboardView,
     pub last_draft_request: Option<brn_workflow::proposals::DraftRequest>,
     pub provider: Option<Provider>,
@@ -1771,6 +1778,9 @@ impl AiState {
             return commands;
         }
         if let Some(commands) = self.received_findings(id, &event) {
+            return commands;
+        }
+        if self.apply_inbox_event(id, &event) {
             return commands;
         }
         if self.received_link_preparation(id, &event) {

@@ -89,6 +89,40 @@ pub struct InboxConversionPreview {
     /// completeness, managed identity, or approved provenance.
     pub needs_semantic_review: bool,
 }
+impl InboxConversionPreview {
+    /// Check a client response against the retained complete conversion receipt.
+    /// This qualifies preview bytes, not source-wrapper size or knowledge approval.
+    pub fn validate_receipt(&self, batch: &InboxProcessBatch) -> Result<()> {
+        batch.validate()?;
+        let Some(entry) = batch.entries.get(self.request.index) else {
+            return Err(WorkflowError::msg(
+                "Inbox preview index differs from its receipt",
+            ));
+        };
+        let InboxProcessOutcome::Converted {
+            format,
+            byte_len,
+            sha256,
+        } = &entry.outcome
+        else {
+            return Err(WorkflowError::msg(
+                "Inbox preview has no completed conversion receipt",
+            ));
+        };
+        if self.request.batch_id != batch.request.id
+            || self.original != batch.request.items[self.request.index]
+            || self.format != *format
+            || self.markdown.len() as u64 != *byte_len
+            || digest(self.markdown.as_bytes()) != *sha256
+            || !self.needs_semantic_review
+        {
+            return Err(WorkflowError::msg(
+                "Inbox preview differs from its complete conversion receipt",
+            ));
+        }
+        Ok(())
+    }
+}
 
 fn digest(bytes: &[u8]) -> [u8; 32] {
     Sha256::digest(bytes).into()
@@ -295,12 +329,7 @@ impl App {
             .entries
             .get(request.index)
             .ok_or_else(|| WorkflowError::msg("invalid Inbox candidate entry"))?;
-        let InboxProcessOutcome::Converted {
-            format,
-            byte_len,
-            sha256,
-        } = &entry.outcome
-        else {
+        let InboxProcessOutcome::Converted { .. } = &entry.outcome else {
             return Err(WorkflowError::typed(
                 ErrorKind::OperationConflict,
                 "Inbox entry has no completed conversion preview",
@@ -315,28 +344,114 @@ impl App {
         };
         let (actual_format, markdown) = convert(item.capture.kind, &text, &AtomicBool::new(false))
             .map_err(|_| WorkflowError::msg("retained Inbox conversion cannot be reproduced"))?;
-        if actual_format != *format
-            || markdown.len() as u64 != *byte_len
-            || digest(markdown.as_bytes()) != *sha256
-        {
-            return Err(WorkflowError::typed(
-                ErrorKind::ContextStale,
-                "Inbox conversion differs from its retained exact receipt",
-            ));
-        }
-        Ok(InboxConversionPreview {
+        let preview = InboxConversionPreview {
             request: request.clone(),
             original: item.clone(),
-            format: *format,
+            format: actual_format,
             markdown,
             needs_semantic_review: true,
-        })
+        };
+        preview.validate_receipt(&batch).map_err(|_| {
+            WorkflowError::typed(
+                ErrorKind::ContextStale,
+                "Inbox conversion differs from its retained exact receipt",
+            )
+        })?;
+        Ok(preview)
     }
 }
 
 #[cfg(test)]
 mod tests {
     use super::*;
+    #[test]
+    fn preview_receipt_preserves_full_size_and_refuses_changed_proof_or_bytes() {
+        use brn_store::work::{
+            inbox::{InboxCapture, InboxCopy, InboxItem},
+            inbox_processing::InboxProcessEntry,
+        };
+        let text = "x".repeat(crate::MAX_NOTE_BYTES);
+        let item = InboxItem {
+            capture: InboxCapture {
+                id: Uuid::new_v4(),
+                kind: InboxKind::Markdown,
+                title: "Exact original".into(),
+                original_name: None,
+                copy: InboxCopy {
+                    directory: "/synthetic/inbox".into(),
+                    directory_device: 7,
+                    directory_inode: 8,
+                    file_device: 7,
+                    file_inode: 9,
+                    byte_len: text.len() as u64,
+                    sha256: digest(text.as_bytes()),
+                },
+            },
+            received_at_ms: 1,
+        };
+        let batch = InboxProcessBatch {
+            request: ProcessInboxRequest {
+                id: Uuid::new_v4(),
+                items: vec![item.clone()],
+            },
+            queued_at_ms: 2,
+            entries: vec![InboxProcessEntry {
+                outcome: InboxProcessOutcome::Converted {
+                    format: InboxConversionFormat::VerbatimMarkdownV1,
+                    byte_len: text.len() as u64,
+                    sha256: digest(text.as_bytes()),
+                },
+                started_at_ms: Some(3),
+                finished_at_ms: Some(4),
+            }],
+        };
+        let preview = InboxConversionPreview {
+            request: InboxCandidateRequest {
+                batch_id: batch.request.id,
+                index: 0,
+            },
+            original: item,
+            format: InboxConversionFormat::VerbatimMarkdownV1,
+            markdown: text,
+            needs_semantic_review: true,
+        };
+        preview.validate_receipt(&batch).unwrap();
+        let binding = InboxSourceBinding {
+            batch_id: batch.request.id,
+            index: 0,
+            original: preview.original.clone(),
+            format: preview.format,
+            byte_len: preview.markdown.len() as u64,
+            sha256: digest(preview.markdown.as_bytes()),
+            note_id: Uuid::new_v4(),
+        };
+        assert!(
+            binding.markdown(&preview.markdown).is_err(),
+            "source wrapper has its own bound"
+        );
+        for mutation in 0..7 {
+            let mut forged = preview.clone();
+            match mutation {
+                0 => forged.request.batch_id = Uuid::new_v4(),
+                1 => forged.request.index = 1,
+                2 => forged.original.capture.title = "Different original".into(),
+                3 => forged.format = InboxConversionFormat::LiteralTextV1,
+                4 => forged.markdown.replace_range(0..1, "y"),
+                5 => {
+                    forged.markdown.pop();
+                }
+                _ => forged.needs_semantic_review = false,
+            }
+            assert!(forged.validate_receipt(&batch).is_err());
+        }
+        let mut pending = batch;
+        pending.entries[0] = InboxProcessEntry {
+            outcome: InboxProcessOutcome::Queued,
+            started_at_ms: None,
+            finished_at_ms: None,
+        };
+        assert!(preview.validate_receipt(&pending).is_err());
+    }
     #[test]
     fn exact_body_and_safe_fences_preserve_control_bom_crlf_and_delimiters() {
         for text in [

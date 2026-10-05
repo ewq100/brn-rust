@@ -25,6 +25,8 @@ pub(super) enum EditorTransition {
     Activity,
     Dashboard,
     Findings,
+    Inbox,
+    InboxSourceDraft,
     Draft(Option<Uuid>),
     ActionDraft(Option<Uuid>),
     Hide,
@@ -199,6 +201,7 @@ impl Desktop {
         self.sync_provenance_widgets(window, cx);
         self.sync_relationship_widgets(window, cx);
         self.sync_finding_widgets(window, cx);
+        self.sync_inbox_widgets(window, cx);
         self.sync_dashboard_widgets(window, cx);
         if self
             .ai
@@ -402,6 +405,15 @@ impl Desktop {
         if !matches!(&transition, EditorTransition::Dashboard) {
             self.ai.as_mut().unwrap().close_dashboard();
         }
+        if !matches!(
+            &transition,
+            EditorTransition::Inbox
+                | EditorTransition::InboxSourceDraft
+                | EditorTransition::Draft(_)
+                | EditorTransition::ActionDraft(_)
+        ) {
+            self.ai.as_mut().unwrap().close_inbox();
+        }
         let action_draft = matches!(&transition, EditorTransition::ActionDraft(_));
         match transition {
             EditorTransition::Note(path) => self.simple_open_note(path, cx),
@@ -481,6 +493,41 @@ impl Desktop {
                     self.simple_send(command, cx);
                 }
             }
+            EditorTransition::Inbox => {
+                self.clear_saved_link_panel();
+                self.clear_saved_sources();
+                let ai = self.ai.as_mut().unwrap();
+                ai.note_generation = ai.note_generation.wrapping_add(1);
+                ai.review_generation = ai.review_generation.wrapping_add(1);
+                ai.editor = None;
+                ai.evidence = None;
+                ai.review = None;
+                self.simple_note_path = None;
+                self.open_doc = Some(DocRef::Inbox);
+                self.centre_tab = CentreTab::Document;
+                if let Some(command) = ai.open_inbox() {
+                    self.simple_send(command, cx);
+                }
+            }
+            EditorTransition::InboxSourceDraft => {
+                if !self.ai.as_mut().unwrap().open_inbox_source_draft() {
+                    cx.notify();
+                    return;
+                }
+                self.ai.as_mut().unwrap().close_inbox();
+                self.clear_saved_link_panel();
+                self.clear_saved_sources();
+                let ai = self.ai.as_mut().unwrap();
+                ai.note_generation = ai.note_generation.wrapping_add(1);
+                ai.review_generation = ai.review_generation.wrapping_add(1);
+                ai.editor = None;
+                ai.evidence = None;
+                ai.review = None;
+                self.simple_note_path = None;
+                self.draft_widget_id = None;
+                self.open_doc = Some(DocRef::Draft);
+                self.centre_tab = CentreTab::Document;
+            }
             EditorTransition::Draft(turn) | EditorTransition::ActionDraft(turn) => {
                 let started = if action_draft {
                     self.ai.as_mut().unwrap().begin_action_draft(turn)
@@ -492,6 +539,7 @@ impl Desktop {
                     return;
                 }
                 self.ai.as_mut().unwrap().close_findings();
+                self.ai.as_mut().unwrap().close_inbox();
                 self.clear_saved_link_panel();
                 self.clear_saved_sources();
                 let ai = self.ai.as_mut().unwrap();
@@ -1099,6 +1147,19 @@ impl Desktop {
                     .disabled(!ai.ready)
                     .on_click(cx.listener(|this, _, _, cx| {
                         this.simple_leave(EditorTransition::Findings, cx)
+                    })),
+            )
+            .child(
+                Button::new("open-inbox")
+                    .label("Inbox")
+                    .selected(self.open_doc == Some(DocRef::Inbox))
+                    .disabled(
+                        !ai.ready || self.closing.is_some() || self.closed || self.close_failed,
+                    )
+                    .on_click(cx.listener(|this, _, window, cx| {
+                        if !window.has_active_dialog(cx) {
+                            this.simple_leave(EditorTransition::Inbox, cx);
+                        }
                     })),
             )
             .child(
