@@ -15,17 +15,21 @@ and the disposable retrieval index retain their existing roles. The owner's
 permits thin future adapters around the six V1 core crates through workflow/
 AppWorker. No MCP, daemon, HTTP service, extra database or remote work is in V1.
 
-Integrated main is **`48941d3ae2c16dd014b6cb0f69a01b8c4ef60fa0` (PR60)**.
-Complete retained original review and fresh removal preview are integrated; the
-preview grants no removal authority. Merged-main run37354011334 attempt1 passed
-all four required jobs and Docs. Overall CI remains red: the four informational
-Windows/Linux failure diagnostics match the qualified main59 baseline.
+Integrated main is **`d41de3cba09d69eb1a451335dcfee2d54a83c76f` (PR61)**.
+Complete retained original review, fresh removal preview and deterministic quote
+selection/Rust conflict identities are integrated. Preview grants no removal
+authority. Exact-head PR37373436230 attempt1 passed all four protected Mac/shared
+jobs and Docs; overall red preserves unchanged Windows diagnostics. Fresh merged
+123 AI,34 Inbox callbacks,7 quote checks and52 fixtures passed. Merged-main
+run37375126865 remains in progress; main60's known Windows/Linux failures remain
+historical evidence, without a claim about this unfinished run.
 
 The clean, pushed **`7c4f668de467721f728f242c8fac8d14606a6e44`** snapshot on
 `codex/v1-inbox-recoverable-removal` implements recoverable removal/restore,
 mirrors and recovery, but is **not merged**. It is the immutable lifecycle review
 snapshot, not the corrected cleanup contract. Architecture-review corrections
-are active on `codex/v1-review-evidence-boundary`; A1 record-shape and owner
+continue with independently reviewed AI Rewrite metadata protection on
+`codex/v1-rewrite-managed-metadata`; A1 record-shape and owner
 cleanup corrections hold lifecycle integration, native removal and Stage 8.
 The full V1 goal is active.
 

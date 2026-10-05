@@ -829,9 +829,15 @@ impl WorkStore {
         Ok(record)
     }
 
-    /// The same exact-version operation as user editing; no AI work occurs here.
+    /// An exact-version Rewrite result, preserving managed metadata before editing.
+    /// No AI work occurs here; ordinary owner edits use `edit_proposal`.
     pub fn rewrite_proposal(&mut self, edit: &ProposalEdit) -> Result<ProposalRecord> {
-        self.edit_proposal(edit)
+        let tx = self.conn.transaction()?;
+        let stored = draft_at(&tx, edit.expected)?;
+        super::proposal_rewrite::validate_rewrite_result(&stored.record, edit)?;
+        let record = edit_in_transaction(&tx, edit)?;
+        tx.commit()?;
+        Ok(record)
     }
 
     pub fn add_proposal_comment(&mut self, request: &CommentRequest) -> Result<ProposalRecord> {

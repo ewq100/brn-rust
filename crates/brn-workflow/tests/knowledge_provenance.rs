@@ -566,8 +566,28 @@ fn edited_and_rewritten_quotes_require_exact_sources_and_cannot_forge_provenance
         title: record.draft.title.clone(),
         texts: vec![Some(good_text.clone())],
     };
-    let AppEvent::Proposal(record) = reply(&worker, AppCommand::RewriteProposal(rewrite)) else {
-        panic!()
+    // AI Rewrite cannot repair or otherwise change provenance metadata. The
+    // owner can explicitly repair it, after which body-only Rewrite remains valid.
+    assert!(matches!(
+        reply(&worker, AppCommand::RewriteProposal(rewrite.clone())),
+        AppEvent::Failed(_)
+    ));
+    assert!(matches!(
+        reply(&worker, AppCommand::Proposal(record.draft.id)),
+        AppEvent::Proposal(unchanged) if unchanged == record
+    ));
+    let AppEvent::Proposal(record) = reply(&worker, AppCommand::EditProposal(rewrite)) else {
+        panic!("explicit owner provenance repair")
+    };
+    let body_rewrite = ProposalEdit {
+        expected: record.stamp(),
+        title: record.draft.title.clone(),
+        texts: vec![Some(good_text.clone() + "\nRewritten body õ 🦀")],
+        action_data: Vec::new(),
+    };
+    let AppEvent::Proposal(record) = reply(&worker, AppCommand::RewriteProposal(body_rewrite))
+    else {
+        panic!("body-only Rewrite preserves repaired provenance")
     };
     approve(&worker, &record);
     let unbound = DraftRequest {

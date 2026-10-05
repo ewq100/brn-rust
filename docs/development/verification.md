@@ -23,6 +23,13 @@ exact-attempt CI summaries and the current Markdown link gate.
 
 Do not repeat entire workspace suites through several scripts when their shared checks already passed, unless a new change or unresolved failure warrants it. Standalone experiment tests are not included by `cargo test --workspace`.
 
+Give each checkout its own Cargo target and keep Cargo calls sequential within
+that target. A baseline probe must not reuse another checkout's package artifacts:
+Cargo's relative dependency paths and timestamps can retain stale local crates
+across different trees. If a task-owned cache was transferred, clean its BRN
+packages before verifying another tree; preserve dependency caches and record the
+failed attempt separately. A zero-test filtered run is not behavioral evidence.
+
 Credential fixtures require an explicit current-user-owned parent outside Git;
 create a private synthetic parent such as `/private/tmp/brn-fixtures`, then set
 `TMPDIR` to that existing canonical directory. Do not use original data or
