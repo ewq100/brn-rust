@@ -50,6 +50,9 @@ mod findings;
 #[cfg(all(test, target_os = "macos", feature = "native-test-support"))]
 mod findings_tests;
 mod inbox;
+mod inbox_analysis;
+#[cfg(all(test, target_os = "macos", feature = "native-test-support"))]
+mod inbox_analysis_tests;
 #[cfg(all(test, target_os = "macos", feature = "native-test-support"))]
 mod inbox_navigation_tests;
 #[cfg(all(test, target_os = "macos", feature = "native-test-support"))]

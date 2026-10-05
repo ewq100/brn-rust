@@ -66,38 +66,26 @@ Evidence: [Actions/dashboard record](work/completed/actions-dashboard/plan.md).
 
 ## Latest integrated checkpoint
 
-[PR50](https://github.com/ewq100/brn-rust/pull/50) merged at
-**fd24dee7dd640505a51d0978df4e8886fb9da47a**, exact reviewed tree
-`441f1de50b0ec741cbc9c35fc687c54d065d65e9`. Stage7 includes private exact intake,
-owned conversion, native Inbox capture/preview/processing and exact Source review,
-then one complete saved Source analyzed through the existing owned Ask lane into
-separate Action drafts. V14 retains whole Source/selection capture; generation
-is transient and replay never repeats a retained turn. At most20 independently
-reviewable drafts bind the exact Source. CLI exposes full Source proof, analysis
-submission and retained inspection. No Action takes effect without exact approval;
-originals stay retained. Knowledge/link/replacement/conflict and deletion remain
-incomplete.
-
-Independent complete read-only review is clean after a verified transient-generation
-replay fix. Fresh default qualification passed 1,228 results/0failed/7ignored;
-workspace format/build/Clippy passed. An old maximal receipt assertion in the
-broader script was corrected, then all398 Workflow results passed freshly; prior
-830 unchanged package results remain valid. Native workflow/models 237/0/6,
-desktop 273/0/0, native Clippy, shipping builds, 52 fixtures and two V14 startup/
-restarts passed. PR run37294640953 passed all three macOS lanes and Ubuntu shared;
-Windows 22 compiler errors/two summaries exactly match PR49. Normal expected-head
-merge satisfied fresh GitHub requirements without bypass. Verified merge parents/
-identical tree and fast-forward, then eight worker tests, four CLI Inbox tests,
-52 fixtures and two shipping V14 startup/restarts passed freshly with exact vault
-bytes and zero credentials. Main run37295871888 at the exact merge passed all
-three macOS lanes and Ubuntu Core/UI. Ubuntu Native retained 10 passed/3 prior
-installer failures; Windows Core/UI/Native retained 22/22/14 compiler errors plus
-two summaries each. Complete failed diagnostics match PR49 main; overall CI
-remains red. Native Inbox observation/screenshots and owner acceptance remain
-pending; no native analysis controls or live inference are claimed.
-
-PR49 native Inbox and PR48 test-only CLI cancellation repair remain integrated
-and qualified; their historical results remain in the active Inbox record.
+[PR51](https://github.com/ewq100/brn-rust/pull/51) merged at
+**65494cdb417cbcc9c85a149958e6f9ea241c98cd**, exact reviewed tree
+`dd1dc2ec18fc65a3cd762ed74981d2ff44243efa`. Stage7 now includes exact intake,
+owned conversion, native Inbox/Source review, and opt-in separate Current knowledge
+and Action drafts with protected UUID/Source quotations. Exact proposal approval
+remains required; originals stay retained and semantic completeness is not claimed.
+Independent review is clean after validated orphan-binding and recovery identity
+corrections. Fresh default checks passed 1,254/0/8, native Workflow/models 247/0/7,
+Desktop 273/0/0, Clippy, shipping builds, 52 fixtures and two V14 startup/restarts.
+Seven default ignores are crash entries; one needs a case-sensitive APFS fixture.
+PR run37302565091 at exact `4d3bd9f3` passed all three macOS lanes and Ubuntu shared;
+Windows22 errors/two summaries exactly match PR50. Fresh requirements were satisfied
+by a normal expected-head merge. Verified parents/tree/fast-forward, then 14 worker,
+four recovery, six CLI and 17 Store tests, 52 fixtures and two exact-byte V14
+startup/restarts passed freshly. Main run37303503106 at exact merge completed:
+Mac Core/UI/Native and Ubuntu Core/UI passed. Ubuntu Native's three installer
+failures and all Windows diagnostic blocks match PR50 main. Overall CI is red;
+these four informational failures expose no new shared/macOS defect.
+Native analysis/owner/live qualification remains pending. Historical PR48–50
+results and reproducible scenarios remain in the [Inbox plan](work/active/text-email-inbox/plan.md).
 
 Stage6 implementation is integrated through [PR43](https://github.com/ewq100/brn-rust/pull/43).
 Dashboard/identified Complete actual observation and eight safe original JPEGs
@@ -107,22 +95,21 @@ Scenarios and integration evidence remain in the
 
 ## Active slice and next work
 
-`codex/v1-inbox-knowledge-analysis` continues from merged `fd24dee7`. Extend the
-same immutable capture with explicit knowledge_and_actions purpose, preserving
-old Actions canonical bytes/questions. A thin opt-in protocol prepares one
-Current knowledge Create per call with a new UUID and exact selected-Source
-quotes; the existing typed proposal protects these bindings through review and
-exact approval/apply/Finish. Reuse the owned WorkTurn and shared 20-draft group
-limit. Independent review is clean after validated orphan-binding and recovery
-identity corrections. Fresh default checks passed 1,254/0/8; native Workflow/
-models 247/0/7 and Desktop 273/0/0 passed, with Clippy, shipping builds, 52 fixtures
-and two exact-byte V14 startup/restarts. Seven default skips are crash helpers;
-one needs a case-sensitive APFS fixture. Published-head CI/integration and manual
-acceptance remain pending; the complete Stage7 is not claimed.
-Following Stage7 deliverables are links, replacement/history/conflict resolution,
-safe copy deletion and native semantic controls. See the
-[Inbox plan](work/active/text-email-inbox/plan.md). No new live/download scope or
-private/original data operations are being used.
+`codex/v1-native-inbox-analysis` starts from verified PR51 merge `65494cdb`.
+Connect native saved-Source analysis and retained-group inspection to existing
+AppWorker capabilities, explicit acknowledged selection/effort and owned Stop/
+stream correlation. UI handles presentation and stale-view correlation only;
+workflow keeps Source/knowledge authority and proposal rules. The bounded native
+controls are implemented and independently reviewed. Fresh fmt/build/Clippy,
+1,260 default tests/0 failed/8 ignored, 282 native Desktop tests/0 failed/0 ignored,
+52 fixtures and shipping startup/restart passed. Native Source/provenance/proof
+navigation was observed; three original safe JPEGs are retained in the
+[screenshot index](ui/screenshots/2026-10-05/INDEX.md). Intermittent ScreenCaptureKit
+failures leave later input/streaming/retained inspection and owner acceptance open.
+Exact-head CI/integration remains pending. Links,
+replacement/history/conflict resolution and safe copy deletion remain following
+Stage7 deliverables. See the [Inbox plan](work/active/text-email-inbox/plan.md).
+No new live/download scope or original/private data operations are being used.
 
 ## Qualification and owner items
 

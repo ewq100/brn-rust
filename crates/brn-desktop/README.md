@@ -169,9 +169,35 @@ open its form, create the review draft, then use existing exact approval. Source
 body/kind/destination are fixed; title and temporary comments remain editable.
 The Source review body stays read-only after creation. Unsent forms guard leaving;
 opening consumes only successfully validated preparation. Source approval never
-deletes the original. Semantic knowledge/Action/link consequences and safe deletion
-remain later Stage7 work. The [Inbox plan](../../docs/work/active/text-email-inbox/plan.md#native-manual-acceptance-scenario)
+deletes the original. The [Inbox plan](../../docs/work/active/text-email-inbox/plan.md#native-manual-acceptance-scenario)
 contains the reproducible native acceptance scenario and pending qualification.
+
+Saved Source analysis uses the same owned Ask lane. In a saved Inbox Source's
+Sources panel, **Inspect this Source for analysis** opens Inbox through the usual
+unfinished-input guards and requests a fresh full proof from AppWorker. Inbox also
+accepts an explicit saved Source path. Inspection does not start inference. Review
+the complete read-only Source, choose an acknowledged provider/model and effort
+in Settings, then explicitly analyze knowledge and Actions. The workflow qualifies
+Inbox eligibility and constructs the domain prompt; the desktop only freezes the
+typed request and correlates responses. Global Stop remains available after
+navigation, and partial text remains provisional until local finalization.
+
+The retained analysis UUID can be inspected after restart without a model or
+provider call. Its captured Source, recorded selection/status and full answer
+remain separate from fresh Source inspection. Returned knowledge and Action
+drafts open the ordinary guarded proposal review and require exact approval.
+No drafts, cancellation or successful model ending establish complete semantic
+ingestion. Links, replacement/history/conflict resolution and safe original-copy
+deletion remain later Stage7 work. Native/live/owner acceptance remains pending.
+
+Manual scenario: approve a fresh synthetic email Source, browse it under Source
+and open Sources, then inspect it for analysis. Confirm exact Copy and read-only
+text, and that inspection alone makes no model request. With separately authorized
+live scope and explicit selection/effort, start analysis, navigate away and Stop
+or wait. Inspect the retained UUID, open each independent draft and edit/reject or
+exactly approve it. Restart, inspect the same UUID with no model selection, and
+compare the original Source/intake bytes. Do not use private/original data or infer
+live/native qualification from automated widget tests.
 
 ### Manual Action review acceptance
 

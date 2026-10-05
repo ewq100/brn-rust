@@ -26,6 +26,7 @@ pub(super) enum EditorTransition {
     Dashboard,
     Findings,
     Inbox,
+    AnalyzeInboxSource(String),
     InboxSourceDraft,
     Draft(Option<Uuid>),
     ActionDraft(Option<Uuid>),
@@ -408,6 +409,7 @@ impl Desktop {
         if !matches!(
             &transition,
             EditorTransition::Inbox
+                | EditorTransition::AnalyzeInboxSource(_)
                 | EditorTransition::InboxSourceDraft
                 | EditorTransition::Draft(_)
                 | EditorTransition::ActionDraft(_)
@@ -415,6 +417,10 @@ impl Desktop {
             self.ai.as_mut().unwrap().close_inbox();
         }
         let action_draft = matches!(&transition, EditorTransition::ActionDraft(_));
+        let analysis_path = match &transition {
+            EditorTransition::AnalyzeInboxSource(path) => Some(path.clone()),
+            _ => None,
+        };
         match transition {
             EditorTransition::Note(path) => self.simple_open_note(path, cx),
             EditorTransition::Evidence { path, scope } => {
@@ -493,7 +499,7 @@ impl Desktop {
                     self.simple_send(command, cx);
                 }
             }
-            EditorTransition::Inbox => {
+            EditorTransition::Inbox | EditorTransition::AnalyzeInboxSource(_) => {
                 self.clear_saved_link_panel();
                 self.clear_saved_sources();
                 let ai = self.ai.as_mut().unwrap();
@@ -507,6 +513,17 @@ impl Desktop {
                 self.centre_tab = CentreTab::Document;
                 if let Some(command) = ai.open_inbox() {
                     self.simple_send(command, cx);
+                }
+                if let Some(path) = analysis_path {
+                    self.inbox.analysis_path_target = Some(path.clone());
+                    if let Some(command) = self
+                        .ai
+                        .as_mut()
+                        .unwrap()
+                        .inspect_inbox_analysis_source(path)
+                    {
+                        self.simple_send(command, cx);
+                    }
                 }
             }
             EditorTransition::InboxSourceDraft => {
@@ -642,6 +659,57 @@ impl Desktop {
         } else if let Some(error) = &ai.provenance_error {
             content = content.child(format!("Saved sources unavailable: {error}"));
         } else if let Some(provenance) = &ai.provenance {
+            if provenance.inbox_source.is_some() {
+                let path = ai
+                    .evidence
+                    .as_ref()
+                    .map(|evidence| evidence.path.clone())
+                    .or_else(|| {
+                        ai.editor
+                            .as_ref()
+                            .map(|editor| editor.view.record.path.clone())
+                    });
+                if let Some(path) = path {
+                    let generation = ai.note_generation;
+                    content = content.child(
+                        Button::new("analyze-saved-inbox-source")
+                            .label("Inspect this Source for analysis")
+                            .disabled(
+                                self.simple_transition.is_some()
+                                    || self.closing.is_some()
+                                    || self.closed
+                                    || self.close_failed
+                                    || ai.application_busy(),
+                            )
+                            .on_click(cx.listener(move |this, _, _, cx| {
+                                let ai = this.ai.as_ref().unwrap();
+                                let current_path = ai
+                                    .evidence
+                                    .as_ref()
+                                    .map(|evidence| &evidence.path)
+                                    .or_else(|| {
+                                        ai.editor.as_ref().map(|editor| &editor.view.record.path)
+                                    });
+                                if this.simple_transition.is_none()
+                                    && this.closing.is_none()
+                                    && !this.closed
+                                    && !this.close_failed
+                                    && ai.note_generation == generation
+                                    && current_path == Some(&path)
+                                    && ai
+                                        .provenance
+                                        .as_ref()
+                                        .is_some_and(|proof| proof.inbox_source.is_some())
+                                {
+                                    this.simple_leave(
+                                        EditorTransition::AnalyzeInboxSource(path.clone()),
+                                        cx,
+                                    );
+                                }
+                            })),
+                    );
+                }
+            }
             if provenance.citations.is_empty() {
                 content = content.child("This saved note has no source citations.");
             }
@@ -1707,7 +1775,11 @@ impl Desktop {
                             .unwrap_or("unavailable in older history"),
                         turn_label(turn)
                     ))
-                    .child(turn.question.clone())
+                    .child(
+                        ai.inbox_analysis_path_for_turn(turn.id)
+                            .map(|path| format!("Analyze saved Inbox Source: {path}"))
+                            .unwrap_or_else(|| turn.question.clone()),
+                    )
                     .child(turn.answer.clone()),
             );
             if turn.status == brn_workflow::WorkTurnStatus::Completed {
@@ -1751,11 +1823,11 @@ impl Desktop {
             body = body
                 .child(format!(
                     "{} / {} · effort: {} · {}",
-                    provider_name(active.request.selection.provider),
-                    active.request.selection.model,
+                    provider_name(active.request.selection().provider),
+                    active.request.selection().model,
                     active
                         .request
-                        .effort
+                        .effort()
                         .map(ReasoningEffort::as_str)
                         .unwrap_or("unavailable"),
                     if active.stopping {
@@ -1764,7 +1836,7 @@ impl Desktop {
                         "Streaming (provisional)"
                     }
                 ))
-                .child(active.request.question.clone())
+                .child(active.request.question_label())
                 .child(active.partial.clone());
             if let Some(tool) = &active.tool {
                 body = body.child(format!("Tool started: {tool}"));

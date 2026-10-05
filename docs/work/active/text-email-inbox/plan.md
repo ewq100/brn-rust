@@ -543,3 +543,96 @@ passed, preserving exact BOM/CRLF/Unicode bytes and zero credentials. No actual
 model download/inference, GUI observation or live account call was performed.
 Existing block0.1.6 future-compiler warning remains. Diff check passes; previously
 checked documentation links/command interfaces are unchanged.
+
+
+PR51 published at `4d3bd9f3fb5e75decec1659684663d8e717e7444`, local evidence
+`ee95bbaf6d0385c0bf920320b2a38ccb5e4c8197`, and normally merged at
+`65494cdb417cbcc9c85a149958e6f9ea241c98cd`. Exact PR run37302565091 attempt1
+passed Mac Core/UI/Native and Ubuntu shared; all 24 Windows diagnostic blocks
+(22 errors/two summaries) exactly match PR50. Overall CI is red. Fresh head/base,
+review/threads and GitHub requirements were satisfied without bypass. Actual merge
+parents fd24dee7 +4d3bd9f3 and identical tree dd1dc2ec were verified, then the
+milestone branch fast-forwarded cleanly. Fresh merged checks passed 14 actual
+Inbox worker tests, recovery4/0/1, CLI6/0, Store17/0, 52 fixtures and two shipping
+V14 startup/restarts with exact bytes and zero credentials. Main push run37303503106
+attempt1 at exact merge completed: Mac Core/UI/Native and Ubuntu Core/UI passed.
+Ubuntu Native's three installer failures and complete Windows Core/UI/Native
+diagnostic blocks match PR50 main. All five applicable checks passed; overall
+CI remains red with four informational failures and no new shared/macOS defect.
+Acceptance remains pending, and complete Stage7 is not claimed.
+
+## Native saved-Source analysis slice — 2026-10-05
+
+Baseline `65494cdb417cbcc9c85a149958e6f9ea241c98cd`, tree dd1dc2ec; branch
+`codex/v1-native-inbox-analysis`. Existing full Source, semantic analysis, retained
+lookup and exact proposal review APIs are sufficient. Add presentation/correlation
+only, without frontend knowledge parsing or a new execution/proposal lifecycle.
+
+Acceptance:
+
+1. A native saved-Source control obtains complete proof through
+   ProposalEvidenceSource and explicitly starts knowledge_and_actions through
+   AnalyzeInboxActions, freezing acknowledged model/effort/session and source.
+   Stale path/view/generation responses never start work or replace selection.
+2. Semantic streams retain the existing global owned Ask admission and Stop,
+   correlate exact operation/generation, survive navigation without dropping
+   ownership, and retain unfinalized partials without claiming durable success.
+   Desktop builds no domain prompt; only a presentation label may be local.
+3. Retained analysis lookup through InboxActionAnalysis shows the captured Source,
+   status, separate returned proposal records and remaining semantic review.
+   Opening a draft uses existing guarded review; no auto-approval/resubmission or
+   original deletion occurs. Older late inspection cannot replace the current view.
+4. Deterministic controller and native widget tests exercise real full-proof
+   capture plus forged/stale replies, explicit admission/cancellation/navigation,
+   terminal replay/group navigation and failure/partial retention. All account,
+   model and original/private-data boundaries remain unchanged.
+
+Checks: affected Desktop/controller tests and workspace Clippy; fresh native UI/
+combined widget tests/Clippy, shipping Desktop and synthetic startup/fixtures,
+complete independent read-only review, documentation/command checks, exact-head
+macOS/shared CI and normal integration. Actual GUI screenshots, if available,
+remain safe originals under the existing repo screenshot index; native/live owner
+acceptance stays separate. No new provider or model call is authorized by this
+plan. Manual scenario (pending): open an approved synthetic Inbox Source, inspect
+its saved provenance/proof, choose acknowledged model/effort, explicitly analyze,
+Stop or wait, inspect the retained group and edit/reject/exactly approve a draft.
+Environment requirements and transfer deferral remain those of the preceding
+checkpoint.
+
+Native controls are implemented. The saved provenance entry uses existing
+unfinished-input/recovery guards, then obtains a complete fresh proof. Start
+freezes the typed semantic request on the global owned Ask/Stop path; workflow
+constructs the domain prompt. Current inspection and retained analysis Source
+snapshots stay separate and complete, read-only and exactly copyable. Returned
+typed draft cards open ordinary guarded review; no inference is automatically
+replayed and originals remain retained.
+
+Six meaningful controller tests use actual capture/conversion/Source preparation/
+exact approval/proof fixtures, then synthetic replies without inference. Three
+actual native widget tests exercise complete proof/copy/read-only text, explicit
+Start with changed path refusal, retained Source/partial distinction and saved
+provenance entry with unfinished-input guards. First checks exposed a display-
+provider versus lowercase wire-key mismatch; both valid receipt matching and its
+symbolic fixture were corrected. A malformed nil draft ID was reproduced as a
+failing retained-lookup regression (5 passed/1 failed), then narrowly refused.
+All capture/turn/group checks now pass. Native Desktop tests passed 275 unit +7
+CLI, zero failed/ignored. Full shared/native gate passed workspace fmt/build/Clippy,
+1,260 default tests/0 failed/8 ignored, native Clippy/shipping build, 282 native
+Desktop tests/0 failed/0 ignored and real startup. Default ignores retain the seven
+crash-child entries and one case-sensitive APFS fixture requirement. Also passed
+52 offline fixture assertions and two shipping V14 startup/restarts preserving
+exact Source bytes/identity and zero credentials. After the final explanatory-text-only
+UI correction, fresh native Clippy,
+282 Desktop tests and the shipping build passed; unchanged shared evidence
+remains applicable.
+
+Complete independent read-only review against 65494cdb is clean, including all
+11 changed Rust files and current contract/status/plan. The exact sorted Rust
+manifest SHA256 is `8821f6d948b1695670b15e84b8ee3dd6dc333381ba1893c7d6f949d95f9695b3`.
+Actual native Source/provenance/analysis-proof navigation was observed in a fresh
+unsigned synthetic workspace. Three original safe JPEGs are retained in the
+[screenshot index](../../../ui/screenshots/2026-10-05/INDEX.md). Intermittent
+ScreenCaptureKit -3812 prevented later input/retained-lookup observation; no live
+inference or broader native/owner acceptance is claimed. Normal app quit preserved
+Source bytes and zero credentials. Exact-head hosted integration remains pending.
+No account/model/original-private data operations were performed.

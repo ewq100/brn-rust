@@ -45,7 +45,7 @@ fn activity_labels_keep_unknown_and_future_times_distinct_from_inactivity() {
 fn unknown_unpersisted_and_old_json_turn_times_are_never_invented() {
     let mut state = ready();
     let request = state.ask("Synthetic unsaved partial".into()).unwrap();
-    let partial = unfinalized_turn(&request, "Exact partial õ\r\n".into());
+    let partial = unfinalized_turn(&request.into(), "Exact partial õ\r\n".into());
     assert!(partial.started_at_ms.is_none());
     assert!(partial.finished_at_ms.is_none());
     let mut old_json = serde_json::to_value(&partial).unwrap();
