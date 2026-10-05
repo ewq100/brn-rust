@@ -14,7 +14,8 @@ Follow the owner's [semantic intelligence and deterministic authority](../../../
 clarification. The LLM supplies semantic interpretation, bounded evidence/tool
 choices and candidates; Rust/workflow verifies exact evidence and owns approval,
 effects and recovery. New task-specific AI behavior uses a small centralized
-typed static Rust behavior/prompt boundary. Existing prompts move only when
+typed static Rust behavior/prompt boundary within the existing `brn-ai` /
+`brn-workflow` architecture, preserving their existing responsibilities. Existing prompts move only when
 naturally touched or very small and low risk. No new AI framework or architecture
 is authorized; frozen V1 delivery order remains unchanged.
 

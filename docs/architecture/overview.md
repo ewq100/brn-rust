@@ -60,7 +60,9 @@ Clients continue through `brn-workflow` / AppWorker; `brn-ai` remains the thin R
 provider adapter.
 
 New task-specific AI behavior introduced during V1 uses a small centralized typed
-behavior/prompt boundary in the shared workflow. Static Rust behavior definitions
+behavior/prompt boundary within the existing `brn-ai` / `brn-workflow` architecture.
+`brn-ai` remains the thin Rig/provider/agent-runtime layer; `brn-workflow` owns
+BRN domain/task context and deterministic application authority. Static Rust behavior definitions
 are sufficient: keep task instructions and bounded tool choices together, with
 typed captured input and existing deterministic validation at their boundaries.
 Avoid large task instruction strings scattered through unrelated workflow or UI

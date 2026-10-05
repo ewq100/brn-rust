@@ -1,5 +1,17 @@
 # Resumable V1 checkpoint
 
+Lead-confirmed 2026-10-05: full frozen V1 goal **active**, without a token budget.
+
+- **Integrated baseline:** original-review PR57 at `c07cc19e4cc9e4aeed84aa86a0a6d6551231458d`, then AI-authority guidance PR58 at `3984e7cba9eb038ab0571604aa09becfebf3b4bd`. Exact reviewed trees were retained by normal merges.
+- **Current:** narrow AI maintainability follow-up on `codex/v1-ai-behavior-boundary`: static agent instructions/capability policy in `brn-ai`, typed captured Inbox/Rewrite input in `brn-workflow`. Original prompt bytes, enabled tools and deterministic authority are preserved. This is not a roadmap stage.
+- **Verification:** clean independent read-only review confirmed byte-equivalent instructions/input assembly and unchanged capabilities. Final format/build/all-target Clippy, 1,326 workspace tests / 0 failures / 8 ignores, 52 fixtures and 303 local links passed. Atomic gate retained terminal exit0 and an unchanged dirty-snapshot identity. PR58's exact-head four protected Mac/shared checks and documentation passed; platform failures remain visible. Merged-main run37348746479 passed all applicable gates. Windows22/22/14 full compiler blocks/summaries match the baseline; Linux retains the same three assertions/backtrace frames, with an earlier interleaved Cargo terminal-error line absent. Full raw logs/differences are retained.
+- **Preserved work:** independently reviewed removal qualification preview remains in its isolated `codex/v1-inbox-removal-qualification` checkout, now based on PR58; four Store/seven Workflow regressions and Clippy passed after three validated fixes. Final broad gate and integration remain pending.
+- **Pending acceptance:** native/live/owner acceptance, real multilingual model assets and trusted-user packaging. No new live provider calls or model downloads are authorized.
+- **Next:** finish this maintainability follow-up, integrate the removal preview, then exact owner attestation and recoverable original-copy removal/recovery under the [current plan](../work/active/text-email-inbox/original-copy-plan.md).
+- **Environment:** Darwin arm64 Mac mini, pinned Rust1.98.1, locked/offline dependencies, canonical owned `TMPDIR=/private/tmp/brn-mini-synthetic-20261005`, empty native model setting, separate checkout/target directories and synthetic data only.
+
+## Earlier tooling checkpoint
+
 Lead-confirmed 2026-10-05, full V1 goal **active**, without a token budget.
 
 - **Integrated:** tooling PR56 at `03bb83a93c2df88e2699c72fb83e3ec0d78d41c1`,

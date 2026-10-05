@@ -2,6 +2,7 @@
 pub mod action_completion;
 pub mod actions;
 pub mod activity;
+mod ai_behavior;
 pub mod ai_tools;
 pub mod app;
 pub mod app_worker;

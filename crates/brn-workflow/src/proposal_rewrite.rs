@@ -4,7 +4,7 @@ pub use brn_ai::ReasoningEffort;
 pub use brn_store::work::proposal_rewrite::{RewriteJob, RewriteSpec, RewriteStatus};
 use brn_store::work::{
     actions::{ActionData, ActionPriority, ActionState},
-    proposals::{ProposalEdit, ProposalRecord, ProposalStamp},
+    proposals::{ProposalEdit, ProposalStamp},
 };
 use serde::{Deserialize, Serialize};
 use uuid::Uuid;
@@ -152,20 +152,6 @@ impl RewriteEvent {
             job,
         }
     }
-}
-
-pub(crate) fn prompt(record: &ProposalRecord) -> Result<String> {
-    // Serialize the complete snapshot, including unresolved exact quote anchors.
-    // Never truncate a member/comment or silently drop evidence to fit a model.
-    let prompt = serde_json::to_string(record)
-        .map_err(|_| WorkflowError::typed(ErrorKind::ToolRejected, "could not capture Rewrite"))?;
-    if prompt.len() > brn_ai::MAX_REWRITE_BYTES {
-        return Err(WorkflowError::typed(
-            ErrorKind::ToolRejected,
-            "full Rewrite capture exceeds its limit",
-        ));
-    }
-    Ok(prompt)
 }
 
 #[derive(Deserialize)]
