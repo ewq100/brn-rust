@@ -47,6 +47,8 @@ impl DraftNoteChange {
 #[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
 #[serde(deny_unknown_fields)]
 pub struct DraftRequest {
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub inbox_source: Option<Box<brn_store::work::inbox_source::InboxSourceBinding>>,
     pub id: Uuid,
     pub group_id: Option<Uuid>,
     pub session_id: Option<Uuid>,
@@ -106,6 +108,19 @@ fn path_check(path: &str) -> Result<()> {
 impl DraftRequest {
     /// Syntactic preparation before either frontend admits operational work.
     pub fn validate(&self) -> Result<()> {
+        if let Some(binding) = &self.inbox_source {
+            let [DraftNoteChange::Create { text, .. }] = self.changes.as_slice() else {
+                return Err(invalid(
+                    "Inbox source proposal requires one source Create member",
+                ));
+            };
+            if !self.sources.is_empty() || !self.action_changes.is_empty() {
+                return Err(invalid(
+                    "Inbox source conversion is separate from semantic consequences",
+                ));
+            }
+            binding.validate_markdown(text)?;
+        }
         if self.id.is_nil()
             || self.group_id.is_some_and(|id| id.is_nil())
             || self.session_id.is_some_and(|id| id.is_nil())
@@ -276,9 +291,28 @@ impl App {
             draft.session_id = request.session_id;
             draft.title = request.title.clone();
             draft.sources = request.sources.clone();
+            draft.inbox_source = request.inbox_source.clone();
             return Ok(self.store.create_proposal(&draft)?);
         }
         self.require_current_evidence()?;
+        self.validate_inbox_source(request.inbox_source.as_deref())?;
+        if let Some(binding) = &request.inbox_source {
+            let preview =
+                self.inbox_candidate(&crate::inbox_processing::InboxCandidateRequest {
+                    batch_id: binding.batch_id,
+                    index: binding.index,
+                })?;
+            if preview.original != binding.original
+                || preview.format != binding.format
+                || preview.markdown.len() as u64 != binding.byte_len
+                || <[u8; 32]>::from(Sha256::digest(preview.markdown.as_bytes())) != binding.sha256
+            {
+                return Err(invalid(
+                    "Inbox source differs from its completed conversion receipt",
+                ));
+            }
+            self.check_inbox_source_identity(binding.note_id)?;
+        }
         if let Some(session) = request.session_id
             && !self
                 .store
@@ -410,6 +444,7 @@ impl App {
             }
         }
         let draft = ProposalDraft {
+            inbox_source: request.inbox_source.clone(),
             action_changes: request.action_changes.clone(),
             id: request.id,
             group_id: request.group_id,

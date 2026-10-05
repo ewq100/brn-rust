@@ -212,6 +212,7 @@ fn class_changes_remain_exact_reviewable_edits_with_replay_and_historical_undo()
         inode: 1,
     };
     let draft = ProposalDraft {
+        inbox_source: None,
         id: Uuid::new_v4(),
         group_id: None,
         session_id: None,
@@ -359,6 +360,7 @@ fn historic_malformed_class_bytes_do_not_gain_a_store_replay_or_edit_constraint(
         inode: 1,
     };
     let draft = ProposalDraft {
+        inbox_source: None,
         id: Uuid::new_v4(),
         group_id: None,
         session_id: None,

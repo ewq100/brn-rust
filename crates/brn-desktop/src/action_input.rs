@@ -118,6 +118,7 @@ impl DraftForm {
             .data()
             .map_err(brn_workflow::WorkflowError::msg)?;
         let request = DraftRequest {
+            inbox_source: None,
             id: self.id,
             group_id: None,
             session_id: self.session_id,

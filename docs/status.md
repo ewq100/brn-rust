@@ -66,22 +66,22 @@ Evidence: [Actions/dashboard record](work/completed/actions-dashboard/plan.md).
 
 ## Latest integrated checkpoint
 
-[PR45](https://github.com/ewq100/brn-rust/pull/45) merged as
-**2a63fafb6f3a3897af5c5fc1d835b3043fe12763**, exact reviewed tree
-`f70806f2cc73fd47600d9c5a7180391597963626`. Stage7 now includes the immutable
-WorkStore V12 original-copy catalog plus owned exact text/email/Markdown/Teams
-capture, private durable mirrors, shared AppWorker capture/read/list and thin CLI
-adapters. Originals remain outside the vault/index and outside Current knowledge;
-no processing, provider call, proposal or deletion is claimed yet.
+[PR46](https://github.com/ewq100/brn-rust/pull/46) merged as
+**d176bc407951df9817f80ae5ded7956c430dc460**, exact reviewed tree
+`c9a91fdfa6ed3acb21e13548d6a677f5c6cceafa`. Stage7 now includes exact private
+text/email/Markdown/Teams capture, durable original mirrors, V13 bounded processing,
+joined cancellation/restart and faithful conversion previews through AppWorker/CLI.
+Originals remain outside Current knowledge. No provider call or deletion is claimed.
 
-Independent whole review of the copy-intake delta is clean. Its exact-head run
-`37260989631` passed the applicable macOS Native UI, macOS Native Retrieval and
-Ubuntu shared checks; Windows Core/CLI reproduced the known baseline API failures.
-Post-merge run `37261533999` passed macOS Core/UI/Native Retrieval and Ubuntu
-Core/UI plus Ubuntu Native UI. Ubuntu Native Retrieval has the same three known
-synthetic-download failures; Windows Core/UI and Native jobs retain the known
-baseline failures. No new shared macOS defect signature was found. The merge tree,
-parents and local Git blobs were verified before the normal merge.
+Independent whole review is clean after verified corrections to correlated queue
+failure reporting and exact Markdown receipts. Fresh local storage/workspace checks
+passed 1,189 tests (zero failed, seven ignored helpers), 52 offline fixtures, native
+workflow/UI tests and Clippy, shipping builds and two V13 startup/restart witnesses.
+Exact-head run `37264423804` passed all three macOS lanes and Ubuntu shared checks;
+Windows Core reproduced baseline compiler failures. Post-merge run `37265419876`
+passed all three macOS lanes and Ubuntu Core/UI. Ubuntu Native Retrieval retained
+three known synthetic-download failures; all Windows lanes failed. Overall CI is
+red under the owner's platform policy; native/owner Inbox acceptance remains open.
 
 Stage6 implementation is integrated through [PR43](https://github.com/ewq100/brn-rust/pull/43).
 Dashboard/identified Complete actual observation and eight safe original JPEGs
@@ -91,13 +91,11 @@ Scenarios and integration evidence remain in the
 
 ## Active slice and next work
 
-The task-owned branch now advances Stage7 from the merged copy-intake baseline to
-a small bounded processing queue. The next slice admits individual or bounded
-batch jobs through AppWorker, joins cancellation and restart settlement, and
-performs deterministic faithful text/Markdown conversion while retaining originals
-and preserving the existing proposal/provenance boundary. It does not add a
-provider, write the vault, delete originals or create a second queue framework.
-See the short [Inbox plan](work/active/text-email-inbox/plan.md).
+The next slice prepares one exact Inbox source Create for the existing proposal/
+review/approval lifecycle. Its immutable original/conversion proof survives the same
+ordinary recovery journals; portable provenance lives in approved source Markdown.
+Originals remain retained. Semantic knowledge, Action/link consequences, native Inbox
+and safe deletion follow in later slices. See the [Inbox plan](work/active/text-email-inbox/plan.md).
 
 ## Qualification and owner items
 

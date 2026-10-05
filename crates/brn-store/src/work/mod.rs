@@ -10,6 +10,7 @@ mod edits;
 pub mod findings;
 pub mod inbox;
 pub mod inbox_processing;
+pub mod inbox_source;
 pub mod proposal_apply;
 mod proposal_repair;
 pub mod proposal_rewrite;

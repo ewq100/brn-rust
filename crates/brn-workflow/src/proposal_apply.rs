@@ -507,6 +507,10 @@ impl App {
         // checks every newly introduced durable citation, including review edits
         // and Rewrite output, before any Applying admission or filesystem effect.
         if undo.is_none() {
+            self.validate_inbox_source(draft.inbox_source.as_deref())?;
+            if let Some(binding) = &draft.inbox_source {
+                self.check_inbox_source_identity(binding.note_id)?;
+            }
             self.validate_proposal_provenance(draft)?;
             self.validate_proposal_links(draft)?;
             self.validate_action_references(draft)?;
@@ -866,6 +870,7 @@ impl App {
     }
 
     fn check_approved_actions(&self, journal: &ApplyJournal) -> Result<()> {
+        self.validate_inbox_source(journal.approved.draft.inbox_source.as_deref())?;
         if !journal.approved.draft.action_changes.is_empty() {
             self.store
                 .validate_proposal_apply_actions(journal.request.operation_id)?;
@@ -1093,7 +1098,7 @@ type CheckpointHook = Box<dyn Fn(&str, usize)>;
 #[cfg(test)]
 thread_local! {
     static APPLY_CHECKPOINT: std::cell::RefCell<Option<(String, usize)>> = const { std::cell::RefCell::new(None) };
-    static APPLY_HOOK: std::cell::RefCell<Option<CheckpointHook>> = const { std::cell::RefCell::new(None) };
+    pub(crate) static APPLY_HOOK: std::cell::RefCell<Option<CheckpointHook>> = const { std::cell::RefCell::new(None) };
 }
 fn checkpoint(step: &str, member: usize) {
     #[cfg(test)]
@@ -1145,6 +1150,7 @@ mod tests {
             let source = app.open_editor("source.md").unwrap().record.baseline;
             let draft = app
                 .create_proposal(&DraftRequest {
+                    inbox_source: None,
                     action_changes: Vec::new(),
                     id: Uuid::new_v4(),
                     group_id: None,

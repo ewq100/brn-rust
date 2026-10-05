@@ -6,7 +6,7 @@ use super::{
 use brn_workflow::{
     app_worker::{AppCommand, AppEvent},
     inbox::{CaptureInboxRequest, InboxKind, InboxListRequest},
-    inbox_processing::{InboxCandidateRequest, ProcessInboxRequest},
+    inbox_processing::{InboxCandidateRequest, InboxSourceRequest, ProcessInboxRequest},
 };
 use std::{fmt::Write as _, path::PathBuf};
 use uuid::Uuid;
@@ -23,6 +23,7 @@ pub enum InboxCommand {
     Process(PathBuf),
     Processing(Uuid),
     Candidate(InboxCandidateRequest),
+    Source(PathBuf),
     Cancel(Uuid),
 }
 impl InboxCommand {
@@ -34,6 +35,7 @@ impl InboxCommand {
             Self::Process(_) => "inbox.process",
             Self::Processing(_) => "inbox.processing",
             Self::Candidate(_) => "inbox.candidate",
+            Self::Source(_) => "inbox.source",
             Self::Cancel(_) => "inbox.cancel",
         }
     }
@@ -46,7 +48,7 @@ pub(super) fn scan_command(
     let sub = sub_word(
         tokens,
         "inbox",
-        "add|show|list|process|processing|candidate|cancel",
+        "add|show|list|process|processing|candidate|source|cancel",
     )?;
     let (label, options): (_, &[(&str, bool)]) = match sub.as_str() {
         "add" => (
@@ -64,6 +66,7 @@ pub(super) fn scan_command(
         "process" => ("inbox.process", &[("file", true)]),
         "processing" => ("inbox.processing", &[]),
         "candidate" => ("inbox.candidate", &[]),
+        "source" => ("inbox.source", &[("file", true)]),
         "cancel" => ("inbox.cancel", &[]),
         _ => return Err(usage("unknown Inbox subcommand")),
     };
@@ -144,6 +147,12 @@ pub(super) fn parse_command(name: &str, s: &Scanned) -> Result<InboxCommand, Cli
                 s.value("file").ok_or_else(|| usage("missing --file"))?,
             ))
         }
+        "inbox.source" => {
+            expect_positionals(s, 0)?;
+            InboxCommand::Source(PathBuf::from(
+                s.value("file").ok_or_else(|| usage("missing --file"))?,
+            ))
+        }
         "inbox.processing" => {
             expect_positionals(s, 1)?;
             InboxCommand::Processing(positional_uuid(s, 0, "UUID")?)
@@ -199,6 +208,13 @@ pub(super) fn prepare(command: &InboxCommand) -> Result<AppCommand, CliFailure> 
         }
         InboxCommand::Processing(id) => AppCommand::InboxProcessing(*id),
         InboxCommand::Candidate(r) => AppCommand::InboxCandidate(r.clone()),
+        InboxCommand::Source(file) => {
+            let text = super::input::read_text_file(file, "Inbox source request")?;
+            let request: InboxSourceRequest = serde_json::from_str(&text)
+                .map_err(|_| usage("invalid Inbox source request JSON"))?;
+            request.validate().map_err(|e| usage(e.to_string()))?;
+            AppCommand::PrepareInboxSource(request)
+        }
         InboxCommand::Cancel(id) => AppCommand::CancelInboxProcessing(*id),
     })
 }
@@ -231,10 +247,16 @@ pub(super) fn output(command: &AppCommand, event: AppEvent) -> Result<Output, Cl
         {
             serde_json::json!(*preview)
         }
+        (AppCommand::PrepareInboxSource(r), AppEvent::InboxSourceDraft(draft))
+            if r.validate_draft(&draft).is_ok() =>
+        {
+            serde_json::json!(*draft)
+        }
         _ => {
-            return Err(
-                CliError::Workflow("unexpected application reply for Inbox command".into()).into(),
+            return Err(CliError::Workflow(
+                "unexpected application reply for Inbox command".into(),
             )
+            .into());
         }
     };
     let pretty = serde_json::to_string_pretty(&data).expect("Inbox DTO serializes");
@@ -269,6 +291,7 @@ mod tests {
             vec!["inbox", "process", "--file", "request.json"],
             vec!["inbox", "processing", &id],
             vec!["inbox", "candidate", &id, "0"],
+            vec!["inbox", "source", "--file", "request.json"],
             vec!["inbox", "cancel", &id],
             vec!["inbox", "list", "--after", &id, "--limit", "100"],
         ] {
@@ -292,6 +315,8 @@ mod tests {
             vec!["inbox", "candidate", &id, "8"],
             vec!["inbox", "candidate", &id, "-1"],
             vec!["inbox", "process"],
+            vec!["inbox", "source"],
+            vec!["inbox", "source", "unexpected", "--file", "request.json"],
         ] {
             let mut a = args(&tokens);
             a.extend(args(&["--data-dir", data_path]));
@@ -319,6 +344,7 @@ mod tests {
         };
         for command in [
             InboxCommand::Show(Uuid::nil()),
+            InboxCommand::Source(invalid_json.clone()),
             InboxCommand::Process(invalid_json),
             InboxCommand::List(InboxListRequest {
                 limit: 0,
@@ -341,6 +367,102 @@ mod tests {
             assert_eq!(std::fs::read_dir(&data).unwrap().count(), 0);
             assert!(!credentials.exists());
         }
+    }
+    #[cfg(target_os = "macos")]
+    #[test]
+    fn source_dispatch_returns_a_complete_bound_draft_and_rejects_forged_replies() {
+        let owner = tempfile::tempdir_in(std::env::temp_dir().canonicalize().unwrap()).unwrap();
+        let data = owner.path().join("data");
+        let vault = owner.path().join("vault");
+        std::fs::create_dir(&data).unwrap();
+        std::fs::create_dir(&vault).unwrap();
+        let credentials = owner.path().join("credentials");
+        let invocation = |command| Invocation {
+            json: true,
+            data_dir: data.clone(),
+            vault: Some(vault.clone()),
+            credentials_dir: Some(credentials.clone()),
+            model_dir: None,
+            command: Command::Inbox(command),
+        };
+        let original = owner.path().join("copy.txt");
+        let exact = "\u{feff}From: synthetic@example.invalid\r\n\r\n````\nBody õ 日本語\0";
+        std::fs::write(&original, exact).unwrap();
+        let captured = crate::cli::execute(&invocation(InboxCommand::Add {
+            id: Uuid::new_v4(),
+            kind: InboxKind::Email,
+            title: "Exact source".into(),
+            original_name: Some("message.eml".into()),
+            input: original.clone(),
+        }))
+        .unwrap();
+        let process = ProcessInboxRequest {
+            id: Uuid::new_v4(),
+            items: vec![serde_json::from_value(captured.data.clone()).unwrap()],
+        };
+        let process_file = owner.path().join("process.json");
+        std::fs::write(&process_file, serde_json::to_vec(&process).unwrap()).unwrap();
+        crate::cli::execute(&invocation(InboxCommand::Process(process_file))).unwrap();
+        let request = InboxSourceRequest {
+            candidate: InboxCandidateRequest {
+                batch_id: process.id,
+                index: 0,
+            },
+            proposal_id: Uuid::new_v4(),
+            note_id: Uuid::new_v4(),
+            path: "source.md".into(),
+            title: "Review this original".into(),
+        };
+        let request_file = owner.path().join("source.json");
+        std::fs::write(&request_file, serde_json::to_vec(&request).unwrap()).unwrap();
+        let source_args = args(&[
+            "inbox",
+            "source",
+            "--file",
+            request_file.to_str().unwrap(),
+            "--data-dir",
+            data.to_str().unwrap(),
+            "--vault",
+            vault.to_str().unwrap(),
+            "--credentials-dir",
+            credentials.to_str().unwrap(),
+        ]);
+        let Outcome::Run(parsed) =
+            crate::cli::parse(&source_args).unwrap_or_else(|_| panic!("source arguments parse"))
+        else {
+            panic!("source invocation");
+        };
+        assert!(matches!(&parsed.command, Command::Inbox(c) if c.name() == "inbox.source"));
+        let result = crate::cli::execute(&parsed).unwrap();
+        let draft: brn_workflow::proposals::DraftRequest =
+            serde_json::from_value(result.data).unwrap();
+        request.validate_draft(&draft).unwrap();
+        let binding = draft.inbox_source.as_ref().unwrap();
+        assert_eq!(binding.original, process.items[0]);
+        assert!(
+            matches!(&draft.changes[0], brn_workflow::proposals::DraftNoteChange::Create { text, .. } if text.contains(exact))
+        );
+        let command = AppCommand::PrepareInboxSource(request);
+        assert!(output(
+            &command,
+            AppEvent::InboxSourceDraft(Box::new(draft.clone()))
+        )
+        .is_ok());
+        for field in ["id", "group_id", "title", "inbox_source", "changes"] {
+            let mut forged = serde_json::to_value(&draft).unwrap();
+            forged[field] = match field {
+                "id" | "group_id" => serde_json::json!(Uuid::new_v4()),
+                "title" => serde_json::json!("Another title"),
+                "inbox_source" => serde_json::Value::Null,
+                "changes" => serde_json::json!([]),
+                _ => unreachable!(),
+            };
+            let forged = serde_json::from_value(forged).unwrap();
+            assert!(output(&command, AppEvent::InboxSourceDraft(Box::new(forged))).is_err());
+        }
+        assert!(!vault.join("source.md").exists());
+        assert_eq!(std::fs::read(original).unwrap(), exact.as_bytes());
+        assert_eq!(std::fs::read_dir(credentials).unwrap().count(), 0);
     }
     #[cfg(target_os = "macos")]
     #[test]

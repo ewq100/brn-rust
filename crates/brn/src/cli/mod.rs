@@ -150,6 +150,7 @@ Commands:
   brn inbox process --file REQUEST_JSON
   brn inbox processing UUID
   brn inbox candidate UUID INDEX
+  brn inbox source --file REQUEST_JSON
   brn inbox cancel UUID
   brn actions complete --file REQUEST.json
   brn actions show UUID

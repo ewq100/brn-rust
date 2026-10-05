@@ -265,6 +265,7 @@ impl DraftForm {
             },
         };
         let request = DraftRequest {
+            inbox_source: None,
             action_changes: Vec::new(),
             id: self.id,
             group_id: None,
@@ -349,6 +350,7 @@ pub fn creation_matches(request: &DraftRequest, record: &ProposalRecord) -> bool
         && record.draft.group_id == request.group_id
         && record.draft.session_id == request.session_id
         && record.draft.sources == request.sources
+        && record.draft.inbox_source == request.inbox_source
         && record.draft.changes.len() == request.changes.len()
         && record.draft.action_changes.len() == request.action_changes.len()
         && record

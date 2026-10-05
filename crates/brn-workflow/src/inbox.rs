@@ -139,7 +139,7 @@ impl InboxState {
             self.issues.push(issue);
         }
     }
-    fn original(&self, item: &InboxItem) -> InboxOriginal {
+    pub(crate) fn original(&self, item: &InboxItem) -> InboxOriginal {
         let Some(files) = &self.files else {
             return InboxOriginal::Unavailable {
                 reason: "owned Inbox originals are unavailable; inspect Inbox issues".into(),

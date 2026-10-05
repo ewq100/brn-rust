@@ -9,6 +9,7 @@ fn action_review() -> (DraftRequest, ProposalRecord) {
     record.draft.sources.clear();
     record.draft.vault = None;
     let request = DraftRequest {
+        inbox_source: None,
         id: record.draft.id,
         group_id: record.draft.group_id,
         session_id: record.draft.session_id,

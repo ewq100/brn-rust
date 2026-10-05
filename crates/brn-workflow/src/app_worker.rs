@@ -85,6 +85,7 @@ pub enum AppCommand {
     ProcessInbox(crate::inbox_processing::ProcessInboxRequest),
     InboxProcessing(Uuid),
     InboxCandidate(crate::inbox_processing::InboxCandidateRequest),
+    PrepareInboxSource(crate::inbox_processing::InboxSourceRequest),
     CancelInboxProcessing(Uuid),
     Findings(crate::findings::FindingListRequest),
     Finding(Uuid),
@@ -194,6 +195,7 @@ pub enum AppEvent {
     InboxItem(Box<crate::inbox::InboxRead>),
     InboxProcessing(Box<crate::inbox_processing::InboxProcessBatch>),
     InboxCandidate(Box<crate::inbox_processing::InboxConversionPreview>),
+    InboxSourceDraft(Box<crate::proposals::DraftRequest>),
     Findings(Box<crate::findings::FindingPage>),
     FindingInspection(Box<crate::findings::FindingInspection>),
     CitationCaptured(Box<crate::knowledge::CitationCapture>),
@@ -1184,6 +1186,9 @@ fn dispatch(
         AppCommand::InboxCandidate(request) => {
             AppEvent::InboxCandidate(Box::new(app.inbox_candidate(&request)?))
         }
+        AppCommand::PrepareInboxSource(request) => {
+            AppEvent::InboxSourceDraft(Box::new(app.prepare_inbox_source(&request)?))
+        }
         AppCommand::CancelInboxProcessing(batch) => {
             let batch = app.cancel_inbox_processing(batch)?;
             controls
@@ -1678,6 +1683,7 @@ mod editor_shutdown_tests {
         let comment_id = Uuid::new_v4();
         let operations = [
             AppCommand::CreateProposal(DraftRequest {
+                inbox_source: None,
                 action_changes: Vec::new(),
                 id,
                 group_id: None,

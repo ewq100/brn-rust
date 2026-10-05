@@ -390,6 +390,15 @@ Completed Actions have no overdue/follow-up signals; other due dates compare
 strictly before the date and follow-up dates on/before it. Workflow owns date
 defaults and current-evidence eligibility. No ranking or Action mutation occurs.
 
+## Inbox source proposal binding
+
+Optional `inbox_source` on the existing ProposalDraft binds one source Create to
+its complete retained Inbox snapshot and exact conversion/UUID. It is omitted for
+older records, preserving their JSON/checksums. Whole edits cannot change its body,
+identity, scope or portable original provenance; title/comments retain normal review.
+The same binding travels in application recovery journals. Store checks shape/bytes;
+workflow supplies fresh original-file and initial conversion-receipt qualification.
+
 ## Original-copy Inbox catalog
 
 V13 adds the bounded Inbox processing queue in `inbox_processing`. A batch owns

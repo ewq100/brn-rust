@@ -137,6 +137,7 @@ fn snapshot(root: &Path) -> Vec<VaultEntry> {
 
 fn draft(source: &SourceVersion, change: DraftNoteChange) -> DraftRequest {
     DraftRequest {
+        inbox_source: None,
         action_changes: Vec::new(),
         id: Uuid::new_v4(),
         group_id: None,

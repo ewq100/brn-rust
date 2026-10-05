@@ -9,10 +9,68 @@ pub use brn_store::work::inbox_processing::{
     InboxConversionFormat, InboxProcessBatch, InboxProcessOutcome, MAX_PROCESS_BATCH,
     ProcessInboxRequest,
 };
+pub use brn_store::work::inbox_source::InboxSourceBinding;
 use serde::{Deserialize, Serialize};
 use sha2::{Digest, Sha256};
 use std::sync::atomic::{AtomicBool, Ordering};
 use uuid::Uuid;
+
+#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
+#[serde(deny_unknown_fields)]
+pub struct InboxSourceRequest {
+    pub candidate: InboxCandidateRequest,
+    pub proposal_id: Uuid,
+    pub note_id: Uuid,
+    pub path: String,
+    pub title: String,
+}
+impl InboxSourceRequest {
+    pub fn validate(&self) -> Result<()> {
+        crate::vault::VaultPath::parse(&self.path)
+            .map_err(|_| WorkflowError::msg("invalid Inbox source destination"))?;
+        if self.proposal_id.is_nil()
+            || self.note_id.is_nil()
+            || self.candidate.batch_id.is_nil()
+            || self.candidate.index >= MAX_PROCESS_BATCH
+            || self.title.trim().is_empty()
+            || self.title.len() > 512
+        {
+            return Err(WorkflowError::msg(
+                "Inbox source needs nonnil IDs, a bounded candidate and title",
+            ));
+        }
+        Ok(())
+    }
+    pub fn validate_draft(&self, draft: &crate::proposals::DraftRequest) -> Result<()> {
+        self.validate()?;
+        draft.validate()?;
+        let Some(binding) = &draft.inbox_source else {
+            return Err(WorkflowError::msg(
+                "Inbox source response has no original binding",
+            ));
+        };
+        let [crate::proposals::DraftNoteChange::Create { path, .. }] = draft.changes.as_slice()
+        else {
+            return Err(WorkflowError::msg(
+                "Inbox source response is not one source Create",
+            ));
+        };
+        if draft.id != self.proposal_id
+            || draft.group_id.is_some()
+            || draft.session_id.is_some()
+            || draft.title != self.title
+            || path != &self.path
+            || binding.note_id != self.note_id
+            || binding.batch_id != self.candidate.batch_id
+            || binding.index != self.candidate.index
+        {
+            return Err(WorkflowError::msg(
+                "Inbox source response differs from the complete preparation request",
+            ));
+        }
+        Ok(())
+    }
+}
 
 #[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
 #[serde(deny_unknown_fields)]
@@ -80,6 +138,93 @@ fn convert(
     Ok((InboxConversionFormat::LiteralTextV1, markdown))
 }
 impl App {
+    /// Prepare exact source review input. Admission and approval remain separate
+    /// existing commands; this never creates a note or discards the original.
+    pub fn prepare_inbox_source(
+        &mut self,
+        request: &InboxSourceRequest,
+    ) -> Result<crate::proposals::DraftRequest> {
+        request.validate()?;
+        let preview = self.inbox_candidate(&request.candidate)?;
+        let binding = InboxSourceBinding {
+            batch_id: request.candidate.batch_id,
+            index: request.candidate.index,
+            original: preview.original,
+            format: preview.format,
+            byte_len: preview.markdown.len() as u64,
+            sha256: digest(preview.markdown.as_bytes()),
+            note_id: request.note_id,
+        };
+        let text = binding.markdown(&preview.markdown)?;
+        let draft = crate::proposals::DraftRequest {
+            inbox_source: Some(Box::new(binding)),
+            id: request.proposal_id,
+            group_id: None,
+            session_id: None,
+            title: request.title.clone(),
+            changes: vec![crate::proposals::DraftNoteChange::Create {
+                path: request.path.clone(),
+                text,
+            }],
+            sources: Vec::new(),
+            action_changes: Vec::new(),
+        };
+        draft.validate()?;
+        self.check_inbox_source_identity(request.note_id)?;
+        Ok(draft)
+    }
+
+    pub(crate) fn check_inbox_source_identity(&self, id: Uuid) -> Result<()> {
+        let resolution = self.resolve_note_identity(id)?;
+        if resolution.outcome != crate::knowledge::IdentityOutcome::Absent {
+            return Err(WorkflowError::typed(
+                ErrorKind::ContextStale,
+                "Inbox source note identity already exists or cannot be completely inspected",
+            ));
+        }
+        Ok(())
+    }
+
+    /// Unfinished application uses retained immutable proof, independent of the
+    /// disposable processing rows. Completed historical receipts bypass this.
+    pub(crate) fn validate_inbox_source(&self, binding: Option<&InboxSourceBinding>) -> Result<()> {
+        let Some(binding) = binding else {
+            return Ok(());
+        };
+        binding.validate()?;
+        if self
+            .store
+            .inbox_item(binding.original.capture.id)?
+            .is_some_and(|item| item != binding.original)
+        {
+            return Err(WorkflowError::typed(
+                ErrorKind::ContextStale,
+                "Inbox source capture changed",
+            ));
+        }
+        let InboxOriginal::Available { text } = self.inbox.original(&binding.original) else {
+            return Err(WorkflowError::typed(
+                ErrorKind::ContextStale,
+                "Inbox source original is missing, changed or unavailable",
+            ));
+        };
+        let (format, markdown) = convert(
+            binding.original.capture.kind,
+            &text,
+            &AtomicBool::new(false),
+        )
+        .map_err(|_| WorkflowError::msg("Inbox source conversion cannot be reproduced"))?;
+        if format != binding.format
+            || markdown.len() as u64 != binding.byte_len
+            || digest(markdown.as_bytes()) != binding.sha256
+        {
+            return Err(WorkflowError::typed(
+                ErrorKind::ContextStale,
+                "Inbox source conversion proof changed",
+            ));
+        }
+        Ok(())
+    }
     /// Explicit admission/replay only. The app lane advances one item at a time.
     pub fn process_inbox(&mut self, request: &ProcessInboxRequest) -> Result<InboxProcessBatch> {
         Ok(self.store.process_inbox(request)?)
@@ -241,3 +386,6 @@ mod tests {
         );
     }
 }
+
+#[cfg(all(test, target_os = "macos"))]
+mod source_tests;

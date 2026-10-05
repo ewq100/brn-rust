@@ -327,6 +327,7 @@ fn closing_sources_invalidates_inspection_without_changing_exact_document_or_sco
             assert!(!desktop.ai.as_ref().unwrap().provenance_loading());
             assert!(desktop.provenance_quotes.is_empty());
             let stale = NoteProvenance {
+                inbox_source: None,
                 path: "current.md".into(),
                 citations: vec![],
             };
@@ -381,6 +382,7 @@ fn accepted_review_draft_and_hide_navigation_clear_the_source_panel(
         (
             Uuid::new_v4(),
             AppCommand::CreateProposal(DraftRequest {
+                inbox_source: None,
                 action_changes: Vec::new(),
                 id: Uuid::new_v4(),
                 group_id: None,

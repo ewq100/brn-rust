@@ -91,6 +91,8 @@ pub struct ResolvedCitation {
 pub struct NoteProvenance {
     pub path: String,
     pub citations: Vec<ResolvedCitation>,
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub inbox_source: Option<brn_store::work::inbox_source::InboxSourceProvenance>,
 }
 
 fn stale(message: &str) -> WorkflowError {
@@ -209,6 +211,7 @@ impl App {
             });
         }
         Ok(NoteProvenance {
+            inbox_source: brn_store::work::inbox_source::read_provenance(&note.text)?,
             path: path.into(),
             citations: resolved,
         })
@@ -261,6 +264,7 @@ impl App {
         let text = note_provenance::write(&target.text, &citations)
             .map_err(|error| rejected(error.to_string()))?;
         let draft = DraftRequest {
+            inbox_source: None,
             action_changes: Vec::new(),
             id: request.proposal_id,
             group_id: None,
@@ -291,6 +295,20 @@ impl App {
             };
             if text == before {
                 continue;
+            }
+            let inbox = brn_store::work::inbox_source::read_provenance(text)?;
+            let previous_inbox =
+                brn_store::work::inbox_source::read_provenance(before).unwrap_or_default();
+            if inbox.is_some()
+                && inbox != previous_inbox
+                && !draft
+                    .inbox_source
+                    .as_ref()
+                    .is_some_and(|binding| Some(binding.provenance()) == inbox)
+            {
+                return Err(rejected(
+                    "New Inbox provenance requires its exact original conversion binding.",
+                ));
             }
             let citations =
                 note_provenance::read(text).map_err(|error| rejected(error.to_string()))?;

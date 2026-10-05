@@ -700,3 +700,16 @@ keyword-only; `native-retrieval` enables the explicit local embedding/installer
 path. Private macOS files/coordinator types enforce manual Save without a generic
 repository or workflow framework. Default and optional native checks remain
 separate; see [verification](../../docs/development/verification.md).
+
+## Inbox source review preparation
+
+`PrepareInboxSource` / `prepare_inbox_source` turns one qualified conversion into
+one complete source Create draft. `CreateProposal` and exact approval retain their
+existing lifecycle; preparing/admitting a draft never writes the vault. Imported
+frontmatter remains body evidence under a new UUID and `brn_kind: source`.
+Portable `brn_inbox_source` provenance is available through `NoteProvenance`.
+Source copies retain exact body/proof through edits and Rewrite; separate semantic
+knowledge/Action/link proposals remain later work. Original proof is checked during
+unfinished application/Finish repair; completed historical replay and ordinary
+recovery do not require processing rows or the original to remain available. Restore
+repair may remove a partial source without recreating or deleting the original.

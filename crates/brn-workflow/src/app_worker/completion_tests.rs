@@ -21,6 +21,7 @@ fn shutdown_drains_an_admitted_exact_completion_and_refuses_new_admission() {
         let id = Uuid::new_v4();
         let review = app
             .create_proposal(&DraftRequest {
+                inbox_source: None,
                 id: Uuid::new_v4(),
                 group_id: None,
                 session_id: None,

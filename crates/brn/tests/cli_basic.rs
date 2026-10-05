@@ -107,6 +107,7 @@ fn non_json_usage_errors_go_to_stderr() {
 #[test]
 fn help_wins_before_required_arguments_at_every_level() {
     let reference = text(&brn(&["--help"]));
+    assert!(reference.contains("brn inbox source --file REQUEST_JSON"));
     let cases: &[&[&str]] = &[
         &["--help"],
         &["status", "--help"],
@@ -117,6 +118,7 @@ fn help_wins_before_required_arguments_at_every_level() {
         &["models", "download", "--help"],
         &["ask", "--help"],
         &["conversations", "show", "--help"],
+        &["inbox", "source", "--help"],
         // Representative --json case: help remains textual, exit 0.
         &["ask", "--help", "--json"],
     ];
