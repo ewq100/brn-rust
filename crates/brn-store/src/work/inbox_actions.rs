@@ -116,6 +116,30 @@ fn conflict() -> Error {
     Error::OperationConflict("Inbox Action analysis UUID has another exact request".into())
 }
 
+fn insert_capture(conn: &Connection, job: &InboxActionJob) -> Result<()> {
+    job.validate()?;
+    let bytes = encode(job)?;
+    conn.execute("INSERT INTO inbox_actions(id,created_at_ms,record_json,record_sha256) VALUES (?1,?2,?3,?4)", params![job.capture.id.to_string(), job.created_at_ms as i64, bytes, hash(&bytes).as_slice()])?;
+    Ok(())
+}
+
+/// Import only an exact retained reservation, without constructing a chat turn.
+pub(super) fn restore_capture(conn: &Connection, job: &InboxActionJob) -> Result<()> {
+    job.validate()?;
+    if let Some(existing) = read(conn, job.capture.id)? {
+        if existing != *job {
+            return Err(conflict());
+        }
+        return Ok(());
+    }
+    if chat::read_turn(conn, job.capture.id)?.is_some()
+        || super::proposal_rewrite::read_job(conn, job.capture.id)?.is_some()
+    {
+        return Err(conflict());
+    }
+    insert_capture(conn, job)
+}
+
 fn normalized(sql: &str) -> String {
     sql.trim()
         .trim_end_matches(';')
@@ -265,9 +289,7 @@ impl WorkStore {
             question: question.into(),
             created_at_ms: now_ms(),
         };
-        job.validate()?;
-        let bytes = encode(&job)?;
-        tx.execute("INSERT INTO inbox_actions(id,created_at_ms,record_json,record_sha256) VALUES (?1,?2,?3,?4)", params![capture.id.to_string(), job.created_at_ms as i64, bytes, hash(&bytes).as_slice()])?;
+        insert_capture(&tx, &job)?;
         tx.commit()?;
         Ok(job)
     }
@@ -311,6 +333,28 @@ pub struct InboxKnowledgeBinding {
     pub citations: Vec<crate::note_provenance::VaultCitation>,
 }
 impl InboxKnowledgeBinding {
+    /// Exact semantic capture and payload domains. Equality to a previously
+    /// retained question/time/selection is checked by reservation import.
+    pub fn validate_capture(&self, job: &InboxActionJob) -> Result<()> {
+        self.validate()?;
+        job.validate()?;
+        let capture = &job.capture;
+        let source_id = capture.note_id()?;
+        if capture.id != self.analysis_id
+            || capture.purpose != InboxAnalysisPurpose::KnowledgeAndActions
+            || capture.source != self.source
+            || self.citations.iter().any(|c| {
+                c.note_id != source_id
+                    || capture.source_text.get(c.start_byte..c.end_byte) != Some(c.quote.as_str())
+            })
+        {
+            return Err(invalid(
+                "Inbox knowledge differs from its retained Source capture",
+            ));
+        }
+        Ok(())
+    }
+
     pub fn validate(&self) -> Result<()> {
         if self.analysis_id.is_nil() || self.note_id.is_nil() || self.citations.is_empty() {
             return Err(invalid(
@@ -446,17 +490,23 @@ pub(super) fn check_knowledge_binding(
     binding.validate()?;
     let job = reserved(conn, binding.analysis_id)?
         .ok_or_else(|| invalid("Inbox knowledge analysis capture is unavailable"))?;
-    let source_id = job.capture.note_id()?;
-    if job.capture.purpose != InboxAnalysisPurpose::KnowledgeAndActions
-        || job.capture.source != binding.source
-        || binding.citations.iter().any(|c| {
-            c.note_id != source_id
-                || job.capture.source_text.get(c.start_byte..c.end_byte) != Some(c.quote.as_str())
-        })
-    {
-        return Err(invalid(
-            "Inbox knowledge differs from its retained Source capture",
-        ));
+    binding.validate_capture(&job)
+}
+
+pub(super) fn has_issued_knowledge(conn: &Connection, job: &InboxActionJob) -> Result<bool> {
+    let mut issued = false;
+    let mut statement =
+        conn.prepare("SELECT operation_id FROM proposal_applies ORDER BY operation_id")?;
+    let mut rows = statement.query([])?;
+    while let Some(row) = rows.next()? {
+        let journal = super::proposal_apply::read_journal(conn, crate::parse_id(row.get(0)?)?)?
+            .ok_or_else(|| invalid("listed Knowledge approval disappeared"))?;
+        if let Some(binding) = &journal.approved.draft.inbox_knowledge
+            && binding.analysis_id == job.capture.id
+        {
+            binding.validate_capture(job)?;
+            issued = true;
+        }
     }
-    Ok(())
+    Ok(issued)
 }

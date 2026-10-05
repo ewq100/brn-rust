@@ -379,6 +379,13 @@ pub(super) fn begin_inbox_action_turn(
     if super::inbox_actions::reserved(&tx, job.capture.id)?.as_ref() != Some(job) {
         return Err(conflict());
     }
+    if read_turn(&tx, job.capture.id)?.is_none()
+        && super::inbox_actions::has_issued_knowledge(&tx, job)?
+    {
+        return Err(Error::StateChanged(
+            "historical Inbox Knowledge analysis needs a fresh UUID; recovery does not create a live turn".into(),
+        ));
+    }
     let capture = &job.capture;
     let turn = begin_in_transaction(
         &tx,

@@ -1073,8 +1073,33 @@ impl WorkStore {
     /// Imports checked ordinary recovery evidence without granting permission to
     /// install files. Newer operational receipts or live review work win.
     pub fn restore_proposal_apply(&mut self, snapshot: &ApplyJournal) -> Result<ApplyJournal> {
+        self.restore_proposal_apply_with_capture(snapshot, None)
+    }
+
+    /// Recover one genuine Inbox Knowledge reservation and its approval in one
+    /// transaction. Missing captures refuse; no Session or turn is manufactured.
+    pub fn restore_proposal_apply_with_capture(
+        &mut self,
+        snapshot: &ApplyJournal,
+        capture: Option<&super::inbox_actions::InboxActionJob>,
+    ) -> Result<ApplyJournal> {
         snapshot.validate()?;
+        if let Some(capture) = capture {
+            snapshot
+                .approved
+                .draft
+                .inbox_knowledge
+                .as_ref()
+                .ok_or_else(|| invalid("capture recovery requires an Inbox Knowledge approval"))?
+                .validate_capture(capture)?;
+        }
         let tx = self.conn.transaction()?;
+        if let Some(capture) = capture {
+            super::inbox_actions::restore_capture(&tx, capture)?;
+        }
+        if let Some(binding) = &snapshot.approved.draft.inbox_knowledge {
+            super::inbox_actions::check_knowledge_binding(&tx, binding)?;
+        }
         let existing = read_journal(&tx, snapshot.request.operation_id)?;
         let current = proposals::read_proposal(&tx, snapshot.approved.draft.id)?;
         let live_applied = current
@@ -1174,6 +1199,8 @@ impl WorkStore {
                 },
             )?;
         }
+        read_journal(&tx, effective.request.operation_id)?
+            .ok_or_else(|| invalid("restored approval is unavailable"))?;
         tx.commit()?;
         Ok(effective)
     }
