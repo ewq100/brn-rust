@@ -177,7 +177,11 @@ Rust omission compatibility remains supported and verified separately.
   truncation flag or records this cap. No BOM/whitespace/CRLF normalization.
 - List accepts optional folder/cursor and rejects adapter pages over 200 rows.
   Workflow owns vault/path/cursor validation, exclusion rules and fresh reads.
-- Action reads return full approved current records, including immutable origins.
+- AI Action reads return full approved current records, including immutable origins,
+  plus a top-level `checked_ref` with UUID string, revision and lowercase SHA256
+  of the complete canonical serialized `ActionRecord`. Replace proposals use that
+  reference; Workflow checks the complete baseline. Owner `App::action` and
+  `AppCommand::Action` records keep their existing shape.
   `read_action(id)` and `list_actions(state?, limit?, cursor?)` carry small protocol
   arguments only; workflow owns UUID/state/cursor checks and operational reads.
   Lists include all labeled states by default, limit1–20/default20 and opaque
@@ -198,15 +202,35 @@ Rust omission compatibility remains supported and verified separately.
 
 `answer_with_proposals` additionally registers fixed `propose_actions` through a
 separate `ProposalTools` capability; ordinary read-only entry points and
-Rewrite do not receive it. Input has only proposal UUID/title, ordered source paths
-and1–20 whole Create/Replace members, ≤8MiB encoded. Candidates require all14 fields
-and nulls; Replace requires the complete before-record. Workflow owns UUIDs,
-references, source capture, session inference, exact creation replay and approval.
-The wire uses closed `anyOf` variants and typed discriminant enums from the
-[official supported schema subset](https://developers.openai.com/api/docs/guides/structured-outputs#supported-schemas);
-workflow validates uniqueness and byte limits. This does not qualify live provider
-acceptance. The tool dispatches on spawn_blocking with the same shared limits, returning only
-a whole ≤1MiB receipt, never candidate/comment bodies. It creates review work only.
+Rewrite do not receive it. Input has only `title`, ordered `source_paths` and
+1–20 typed `action_changes`, ≤8 MiB encoded. Create carries only `data`; Replace
+carries `target: {id, version, sha256}` and `data`. No proposal/member identity or
+full before-record is accepted from the model. Rust mints identities and loads
+complete checked replacement baselines. Exact original input retries only within
+the owning turn retain original proof and newer review; changed intent or another
+turn creates separate review work.
+
+Candidates require all14 semantic fields, including explicit nullable fields:
+`title`, `description`, `state`, `owner`, `related_person`, `related_project`,
+`sources`, `thread`, `due_on`, `follow_up_on`, `dependencies`, `parent`,
+`follows_up`, `priority`. State is open/waiting/blocked; completed work uses a new
+related Action and owner completion remains separate. Priority is null/low/normal/high.
+Only Action relationships (`dependencies`, `parent`, `follows_up`) accept tagged
+`{kind: "existing", id: UUID}` or `{kind: "member", index: 1..20}` references into
+the same ordered proposal. Other UUID references remain strings. Protocol bounds
+are checked here; Workflow owns UUID/date meaning, actual member length,
+relationship validation, source capture, session inference and exact approval.
+All input objects reject unknown fields, including legacy `id` and `before`.
+
+Ordinary proposals capture their explicit source paths in caller order. For Inbox
+analysis Workflow attaches the selected Source path and note identity automatically;
+`source_paths` carry additional evidence. The wire uses closed `anyOf` variants
+and typed discriminant enums from the
+[official supported schema subset](https://developers.openai.com/api/docs/guides/structured-outputs#supported-schemas).
+Synthetic real Rig routes qualify typed dispatch and strict refusal; live provider
+acceptance remains unqualified. The tool dispatches on spawn_blocking with the
+same shared limits, returning only a whole ≤1 MiB receipt, never candidate/comment
+bodies. It creates review work only; human exact approval remains separate.
 
 The same `ProposalTools` capability may explicitly opt in to `propose_knowledge`
 for a workflow-owned Ask job bound to a selected approved Inbox Source. Ordinary

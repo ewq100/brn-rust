@@ -1,3 +1,4 @@
+mod action_candidates;
 mod auth;
 mod behavior;
 #[cfg(any(test, feature = "capability-spike"))]
@@ -9,6 +10,10 @@ mod proposal_tools;
 mod provider_formats_tests;
 mod tools;
 
+pub use action_candidates::{
+    ActionCandidate, ActionCandidateData, ActionCandidatePriority, ActionCandidateState, ActionRef,
+    CheckedActionRef,
+};
 pub use auth::{Auth, ProviderClient};
 pub use chat::{
     AiAnswer, AiEvent, AiTerminal, HistoryPair, MAX_REWRITE_BYTES, ReasoningEffort, answer,

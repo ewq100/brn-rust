@@ -78,13 +78,17 @@ for AI assessment and owner decision.
 
 These are required boundaries, not a claim that every existing tool already
 meets them. AI Rewrite preserves exact managed kind/state/provenance/Inbox Source
-field bytes; ordinary owner edits remain explicit. Remaining model-supplied
-Action IDs and Action before records and typed truth/conflict facts
+field bytes; ordinary owner edits remain explicit. Typed truth/conflict facts
 have pending corrections; [status](../status.md) and
 the affected crate contracts must distinguish implementation from qualification.
 Inbox Knowledge proposal/note IDs and conflict IDs are now derived in Rust from
 the owned analysis and exact semantic input. Original replay retains its evidence
 and newer owner review; another analysis or changed intent is a separate draft.
+Action candidate IDs are also minted in Rust from exact input in the owned turn;
+AI references full replacement records through checked read_action results.
+Workflow loads the full baseline and attaches selected Inbox Source evidence.
+These Action corrections are implemented on their milestone branch; independent
+review, qualification and integration remain distinct gates in status/checkpoint.
 
 New task-specific AI behavior introduced during V1 uses a small centralized typed
 behavior/prompt boundary within the existing `brn-ai` / `brn-workflow` architecture.

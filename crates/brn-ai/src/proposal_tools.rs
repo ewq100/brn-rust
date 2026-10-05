@@ -1,5 +1,5 @@
 //! Narrow proposal protocol; workflow owns all domain and approval decisions.
-use crate::AiResult;
+use crate::{ActionCandidate, AiResult};
 use serde::{Deserialize, Serialize};
 use serde_json::Value;
 
@@ -7,10 +7,9 @@ use serde_json::Value;
 #[serde(deny_unknown_fields)]
 /// Complete, bounded protocol input; workflow checks domain and authority.
 pub struct ActionProposalArgs {
-    pub id: String,
     pub title: String,
     pub source_paths: Vec<String>,
-    pub action_changes: Vec<Value>,
+    pub action_changes: Vec<ActionCandidate>,
 }
 
 /// Review-only capabilities, separate from read tools and authoritative writes.
@@ -139,8 +138,7 @@ impl KnowledgeProposalArgs {
 impl ActionProposalArgs {
     /// Protocol bounds only. Workflow owns identities, full records and authority.
     pub fn validate(&self) -> AiResult<()> {
-        if !(1..=64).contains(&self.id.len())
-            || !(1..=512).contains(&self.title.len())
+        if !(1..=512).contains(&self.title.len())
             || self.source_paths.len() > 64
             || self
                 .source_paths
@@ -150,6 +148,9 @@ impl ActionProposalArgs {
             || serde_json::to_vec(self).map_err(|_| rejected())?.len() > ACTION_PROPOSAL_BYTES
         {
             return Err(rejected());
+        }
+        for candidate in &self.action_changes {
+            candidate.validate()?;
         }
         Ok(())
     }
@@ -252,36 +253,42 @@ impl Tool for ProposeKnowledge {
     }
 }
 
+fn action_ref_schema() -> Value {
+    json!({"anyOf":[
+        {"type":"object","additionalProperties":false,"properties":{
+            "kind":{"type":"string","enum":["existing"]},
+            "id":{"type":"string","format":"uuid","minLength":1,"maxLength":64}
+        },"required":["kind","id"]},
+        {"type":"object","additionalProperties":false,"properties":{
+            "kind":{"type":"string","enum":["member"]},
+            "index":{"type":"integer","minimum":1,"maximum":20}
+        },"required":["kind","index"]}
+    ]})
+}
 fn action_data_schema() -> Value {
-    let nullable_uuid = json!({"type":["string","null"],"format":"uuid"});
-    let uuid_array =
-        json!({"type":"array","maxItems":64,"items":{"type":"string","format":"uuid"}});
+    let nullable_uuid =
+        json!({"type":["string","null"],"format":"uuid","minLength":1,"maxLength":64});
+    let nullable_ref = json!({"anyOf":[action_ref_schema(),{"type":"null"}]});
     json!({"type":"object","additionalProperties":false,"properties":{
         "title":{"type":"string","minLength":1,"maxLength":512},
         "description":{"type":"string","maxLength":65536},
         "state":{"type":"string","enum":["open","waiting","blocked"]},
         "owner":{"type":["string","null"],"maxLength":512},
         "related_person":nullable_uuid,"related_project":nullable_uuid,
-        "sources":uuid_array,"thread":nullable_uuid,
-        "due_on":{"type":["string","null"],"format":"date"},
-        "follow_up_on":{"type":["string","null"],"format":"date"},
-        "dependencies":uuid_array,"parent":nullable_uuid,"follows_up":nullable_uuid,
+        "sources":{"type":"array","maxItems":64,"items":{"type":"string","format":"uuid","minLength":1,"maxLength":64}},"thread":nullable_uuid,
+        "due_on":{"type":["string","null"],"format":"date","maxLength":10},
+        "follow_up_on":{"type":["string","null"],"format":"date","maxLength":10},
+        "dependencies":{"type":"array","maxItems":64,"items":action_ref_schema()},
+        "parent":nullable_ref,"follows_up":nullable_ref,
         "priority":{"type":["string","null"],"enum":[null,"low","normal","high"]}
     },"required":["title","description","state","owner","related_person","related_project","sources","thread","due_on","follow_up_on","dependencies","parent","follows_up","priority"]})
 }
-fn record_schema() -> Value {
-    let data = action_data_schema();
+fn checked_ref_schema() -> Value {
     json!({"type":"object","additionalProperties":false,"properties":{
-        "origin":{"type":"object","additionalProperties":false,"properties":{
-            "id":{"type":"string","format":"uuid"},
-            "proposal":{"type":"object","additionalProperties":false,"properties":{"id":{"type":"string","format":"uuid"},"version":{"type":"integer","minimum":1}},"required":["id","version"]},
-            "data":data,"created_at_ms":{"type":"integer","minimum":0}
-        },"required":["id","proposal","data","created_at_ms"]},
-        "version":{"type":"integer","minimum":1},"data":data,
-        "updated_at_ms":{"type":"integer","minimum":0},
-        "waiting_since_ms":{"type":["integer","null"],"minimum":0},
-        "completed_at_ms":{"type":["integer","null"],"minimum":0}
-    },"required":["origin","version","data","updated_at_ms","waiting_since_ms","completed_at_ms"]})
+        "id":{"type":"string","format":"uuid","minLength":1,"maxLength":64},
+        "version":{"type":"integer","minimum":1,"maximum":i64::MAX},
+        "sha256":{"type":"string","minLength":64,"maxLength":64,"pattern":"^[0-9a-f]{64}$"}
+    },"required":["id","version","sha256"]})
 }
 impl Tool for ProposeActions {
     const NAME: &'static str = "propose_actions";
@@ -289,18 +296,17 @@ impl Tool for ProposeActions {
     type Output = Value;
     type Error = AiError;
     fn description(&self) -> String {
-        "Create an Action-only review proposal, never real Actions or approval. Supply stable proposal/member UUIDs, all14 candidate fields including explicit nulls, and the entire fresh read_action record for Replace. Use new related Actions for completed work. Explicit ordered source_paths capture full saved evidence, including historical evidence when intended; never derive a proof from a truncated read. Retry only identical original input/UUID. Returns an exact review receipt; human review and separate exact approval are required.".into()
+        "Create an Action-only review proposal, never real Actions or approval. Supply semantic after-fields, all14 candidate fields including explicit nulls, and the checked_ref from a fresh read_action as the Replace target. Rust mints proposal and Create member identities and loads complete replacement baselines; do not supply proposal/Create IDs or before records. Action relationships use existing UUID references or 1-based member indices in this ordered 1–20-member proposal. Use new related Actions for completed work. Explicit ordered source_paths capture full saved evidence, including historical evidence when intended; never derive a proof from a truncated read. In Inbox analysis the selected Source path and note identity are attached by Workflow; source_paths are additional evidence. Ordinary proposals use explicit paths as supplied. Retry only identical original input within this owned turn; changed intent creates a separate draft. Returns an exact review receipt; human review and separate exact approval are required.".into()
     }
     fn parameters(&self) -> Value {
         json!({"type":"object","additionalProperties":false,"properties":{
-            "id":{"type":"string","format":"uuid","minLength":1,"maxLength":64},
             "title":{"type":"string","minLength":1,"maxLength":512},
             "source_paths":{"type":"array","maxItems":64,"items":{"type":"string","minLength":1,"maxLength":512}},
             "action_changes":{"type":"array","minItems":1,"maxItems":20,"items":{"anyOf":[
-                {"type":"object","additionalProperties":false,"properties":{"kind":{"type":"string","enum":["create"]},"id":{"type":"string","format":"uuid"},"data":action_data_schema()},"required":["kind","id","data"]},
-                {"type":"object","additionalProperties":false,"properties":{"kind":{"type":"string","enum":["replace"]},"before":record_schema(),"data":action_data_schema()},"required":["kind","before","data"]}
+                {"type":"object","additionalProperties":false,"properties":{"kind":{"type":"string","enum":["create"]},"data":action_data_schema()},"required":["kind","data"]},
+                {"type":"object","additionalProperties":false,"properties":{"kind":{"type":"string","enum":["replace"]},"target":checked_ref_schema(),"data":action_data_schema()},"required":["kind","target","data"]}
             ]}}
-        },"required":["id","title","source_paths","action_changes"]})
+        },"required":["title","source_paths","action_changes"]})
     }
     async fn call(&self, _: &mut ToolContext, args: ActionProposalArgs) -> AiResult<Value> {
         args.validate()?;
@@ -395,22 +401,32 @@ mod tests {
         }
     }
     fn args() -> ActionProposalArgs {
-        ActionProposalArgs {
-            id: "a".into(),
-            title: "Exact õ\r\n".into(),
-            source_paths: vec![],
-            action_changes: vec![json!({})],
+        serde_json::from_value(json!({
+            "title":"Exact õ\r\n", "source_paths":[],"action_changes":[{
+                "kind":"create","data":{
+                    "title":"Semantic candidate", "description":"", "state":"open",
+                    "owner":null,"related_person":null,"related_project":null,"sources":[],"thread":null,
+                    "due_on":null,"follow_up_on":null,"dependencies":[],"parent":null,"follows_up":null,"priority":null
+                }
+            }]
+        })).unwrap()
+    }
+    fn data(args: &mut ActionProposalArgs) -> &mut crate::ActionCandidateData {
+        match &mut args.action_changes[0] {
+            ActionCandidate::Create { data } => data,
+            _ => unreachable!(),
         }
     }
     #[test]
-    fn outer_protocol_is_closed_and_requires_all_four_explicit_fields() {
+    fn outer_protocol_is_closed_and_requires_all_three_explicit_fields() {
         let whole = serde_json::to_value(args()).unwrap();
-        for field in ["id", "title", "source_paths", "action_changes"] {
+        for field in ["title", "source_paths", "action_changes"] {
             let mut partial = whole.clone();
             partial.as_object_mut().unwrap().remove(field);
             assert!(serde_json::from_value::<ActionProposalArgs>(partial).is_err());
         }
         for field in [
+            "id",
             "session_id",
             "group_id",
             "conversation",
@@ -432,7 +448,7 @@ mod tests {
         let mut context = ToolContext::default();
         let mut bad = vec![];
         let mut input = args();
-        input.id = "x".repeat(65);
+        input.title.clear();
         bad.push(input);
         let mut input = args();
         input.title = "õ".repeat(257);
@@ -450,10 +466,15 @@ mod tests {
         input.action_changes = vec![];
         bad.push(input);
         let mut input = args();
-        input.action_changes = vec![json!({}); 21];
+        input.action_changes = vec![input.action_changes[0].clone(); 21];
         bad.push(input);
         let mut input = args();
-        input.action_changes = vec![json!("\u{1}".repeat(ACTION_PROPOSAL_BYTES / 6))];
+        data(&mut input).description = "\u{1}".repeat(65536);
+        data(&mut input).title = "\u{1}".repeat(512);
+        data(&mut input).owner = Some("\u{1}".repeat(512));
+        data(&mut input).sources = vec!["\u{1}".repeat(64); 64];
+        input.action_changes = vec![input.action_changes[0].clone(); 20];
+        assert!(serde_json::to_vec(&input).unwrap().len() > ACTION_PROPOSAL_BYTES);
         bad.push(input);
         for input in bad {
             assert_eq!(
@@ -462,22 +483,34 @@ mod tests {
             );
         }
         assert_eq!(backend.calls.load(Ordering::SeqCst), 0);
+        // Reach the exact whole-JSON boundary while each semantic field still fits.
         let mut exact = args();
-        exact.action_changes = vec![json!("")];
-        let overhead = serde_json::to_vec(&exact).unwrap().len();
-        exact.action_changes[0] = json!("x".repeat(ACTION_PROPOSAL_BYTES - overhead));
+        data(&mut exact).description = "\u{1}".repeat(65536);
+        data(&mut exact).title = "\u{1}".repeat(512);
+        data(&mut exact).owner = Some("\u{1}".repeat(512));
+        data(&mut exact).sources = vec!["\u{1}".repeat(64); 64];
+        exact.action_changes = vec![exact.action_changes[0].clone(); 20];
+        let over = serde_json::to_vec(&exact).unwrap().len() - ACTION_PROPOSAL_BYTES;
+        data(&mut exact)
+            .description
+            .truncate(65536 - over.div_ceil(6));
+        let remaining = ACTION_PROPOSAL_BYTES - serde_json::to_vec(&exact).unwrap().len();
+        data(&mut exact)
+            .description
+            .push_str(&"x".repeat(remaining));
         assert_eq!(
             serde_json::to_vec(&exact).unwrap().len(),
             ACTION_PROPOSAL_BYTES
         );
         assert!(tool.call(&mut context, exact.clone()).await.is_ok());
-        exact.action_changes[0] = json!(format!("{}x", exact.action_changes[0].as_str().unwrap()));
+        data(&mut exact).description.push('x');
         assert_eq!(
             tool.call(&mut context, exact).await.unwrap_err().kind,
             AiErrorKind::ToolRejected
         );
         assert_eq!(backend.calls.load(Ordering::SeqCst), 1);
     }
+
     #[tokio::test]
     async fn complete_receipt_limit_refuses_oversize_without_truncation() {
         for accepted in [true, false] {

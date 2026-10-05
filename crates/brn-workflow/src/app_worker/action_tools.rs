@@ -4,6 +4,19 @@ use brn_ai::{
     AiError, AiErrorKind, AiResult, NotePage, ReadScope, ReadTools, ToolNote, ToolSearch,
 };
 use serde_json::{Value, json};
+use sha2::{Digest, Sha256};
+
+/// Bind every field of the complete checked ActionRecord, including origin and times.
+pub(super) fn checked_reference(
+    record: &crate::actions::ActionRecord,
+) -> AiResult<brn_ai::CheckedActionRef> {
+    let bytes = serde_json::to_vec(record).map_err(|_| rejected())?;
+    Ok(brn_ai::CheckedActionRef {
+        id: record.origin.id.to_string(),
+        version: record.version,
+        sha256: format!("{:x}", Sha256::digest(bytes)),
+    })
+}
 
 pub(super) enum ActionReadRequest {
     Conflicts {
@@ -146,7 +159,14 @@ impl ActionReadRequest {
                     return Err(rejected());
                 }
                 let id = Uuid::parse_str(&id).map_err(|_| rejected())?;
-                serde_json::to_value(app.action(id).map_err(safe)?).map_err(|_| rejected())?
+                let record = app.action(id).map_err(safe)?;
+                let checked_ref = checked_reference(&record)?;
+                let mut result = serde_json::to_value(record).map_err(|_| rejected())?;
+                result.as_object_mut().ok_or_else(rejected)?.insert(
+                    "checked_ref".into(),
+                    serde_json::to_value(checked_ref).map_err(|_| rejected())?,
+                );
+                result
             }
             Self::Page {
                 state,
@@ -267,6 +287,73 @@ mod tests {
         };
         (base, config)
     }
+    #[test]
+    fn checked_reference_binds_every_full_record_field_including_same_version_changes() {
+        let data = json!({"title":"Exact õ\r\n","description":"\u{feff}Whole 🦀\r\n","state":"waiting",
+            "owner":null,"related_person":null,"related_project":null,"sources":[],"thread":null,
+            "due_on":null,"follow_up_on":null,"dependencies":[],"parent":null,"follows_up":null,"priority":null});
+        let whole = json!({
+            "origin":{"id":"11111111-1111-4111-8111-111111111111",
+                "proposal":{"id":"22222222-2222-4222-8222-222222222222","version":1},"data":data,"created_at_ms":100},
+            "version":3,"data":data,"updated_at_ms":200,"waiting_since_ms":200,"completed_at_ms":null
+        });
+        let record: crate::actions::ActionRecord = serde_json::from_value(whole.clone()).unwrap();
+        record.validate().unwrap();
+        let checked = checked_reference(&record).unwrap();
+        checked.validate().unwrap();
+        assert_eq!(checked.id, record.origin.id.to_string());
+        assert_eq!(checked.version, record.version);
+        assert_eq!(checked, checked_reference(&record.clone()).unwrap());
+        let uuid = "33333333-3333-4333-8333-333333333333";
+        let fields = [
+            ("title", json!("changed")),
+            ("description", json!("different\r\n")),
+            ("state", json!("open")),
+            ("owner", json!("someone")),
+            ("related_person", json!(uuid)),
+            ("related_project", json!(uuid)),
+            ("sources", json!([uuid])),
+            ("thread", json!(uuid)),
+            ("due_on", json!("2028-02-29")),
+            ("follow_up_on", json!("2028-03-01")),
+            ("dependencies", json!([uuid])),
+            ("parent", json!(uuid)),
+            ("follows_up", json!(uuid)),
+            ("priority", json!("high")),
+        ];
+        let mut mutations = Vec::new();
+        for prefix in ["/data/", "/origin/data/"] {
+            for (field, value) in &fields {
+                mutations.push((format!("{prefix}{field}"), value.clone()));
+            }
+        }
+        for (path, value) in [
+            ("/origin/id", json!(uuid)),
+            ("/origin/proposal/id", json!(uuid)),
+            ("/origin/proposal/version", json!(2)),
+            ("/origin/created_at_ms", json!(99)),
+            ("/version", json!(4)),
+            ("/updated_at_ms", json!(201)),
+            ("/waiting_since_ms", Value::Null),
+            ("/completed_at_ms", json!(202)),
+        ] {
+            mutations.push((path.into(), value));
+        }
+        for (path, value) in mutations {
+            let mut changed = whole.clone();
+            *changed.pointer_mut(&path).unwrap() = value;
+            let changed: crate::actions::ActionRecord = serde_json::from_value(changed).unwrap();
+            if path != "/version" {
+                assert_eq!(changed.version, record.version);
+            }
+            assert_ne!(
+                checked_reference(&changed).unwrap().sha256,
+                checked.sha256,
+                "{path}"
+            );
+        }
+    }
+
     #[test]
     fn private_action_reads_settle_before_shutdown_without_consuming_public_events() {
         let (base, config) = fixture();

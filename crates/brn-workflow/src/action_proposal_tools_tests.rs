@@ -5,7 +5,7 @@ use crate::{
     proposal_apply::ApprovalRequest,
     proposals::{ActionChange, ProposalRecord, ProposalState},
 };
-use brn_ai::ActionProposalArgs;
+use brn_ai::{ActionCandidate, ActionCandidateData, ActionProposalArgs, ActionRef};
 use serde_json::{Value, json};
 use sha2::Digest;
 
@@ -27,22 +27,53 @@ fn data() -> ActionData {
         priority: Some(ActionPriority::High),
     }
 }
-fn create_args(proposal: Uuid, action: Uuid, source_paths: Vec<String>) -> ActionProposalArgs {
+fn candidate_data(data: &ActionData) -> ActionCandidateData {
+    let mut value = serde_json::to_value(data).unwrap();
+    for field in ["dependencies", "parent", "follows_up"] {
+        if field == "dependencies" {
+            value[field] = json!(
+                data.dependencies
+                    .iter()
+                    .map(|id| ActionRef::Existing { id: id.to_string() })
+                    .collect::<Vec<_>>()
+            );
+        } else {
+            let id = if field == "parent" {
+                data.parent
+            } else {
+                data.follows_up
+            };
+            value[field] = json!(id.map(|id| ActionRef::Existing { id: id.to_string() }));
+        }
+    }
+    serde_json::from_value(value).unwrap()
+}
+fn create_args(source_paths: Vec<String>) -> ActionProposalArgs {
     ActionProposalArgs {
-        id: proposal.to_string(),
         title: "Exact proposal õ\r\n".into(),
         source_paths,
-        action_changes: vec![
-            serde_json::to_value(ActionChange::Create {
-                id: action,
-                data: data(),
-            })
-            .unwrap(),
-        ],
+        action_changes: vec![ActionCandidate::Create {
+            data: candidate_data(&data()),
+        }],
     }
 }
+fn checked_ref(record: &crate::actions::ActionRecord) -> brn_ai::CheckedActionRef {
+    brn_ai::CheckedActionRef {
+        id: record.origin.id.to_string(),
+        version: record.version,
+        sha256: format!(
+            "{:x}",
+            sha2::Sha256::digest(serde_json::to_vec(record).unwrap())
+        ),
+    }
+}
+fn receipt_id(receipt: &Value) -> Uuid {
+    Uuid::parse_str(receipt["stamp"]["id"].as_str().unwrap()).unwrap()
+}
 fn reply(worker: &AppWorker, command: AppCommand) -> AppEvent {
-    let id = Uuid::new_v4();
+    reply_at(worker, Uuid::new_v4(), command)
+}
+fn reply_at(worker: &AppWorker, id: Uuid, command: AppCommand) -> AppEvent {
     worker.submit(id, command).unwrap();
     loop {
         let (actual, value) = event(worker);
@@ -62,9 +93,7 @@ fn proposal(worker: &AppWorker, id: Uuid) -> ProposalRecord {
 fn ask_action_proposal_creates_only_full_review_with_inferred_session_then_exact_approval_and_replay()
  {
     let fixture = Fixture::new();
-    let proposal_id = Uuid::new_v4();
-    let action_id = Uuid::new_v4();
-    let args = create_args(proposal_id, action_id, vec![]);
+    let args = create_args(vec![]);
     let calls = Arc::new(std::sync::atomic::AtomicUsize::new(0));
     let called = calls.clone();
     let hook: ProposalAnswerHook = Arc::new(move |_, _, reads, proposals, _, _| {
@@ -102,6 +131,11 @@ fn ask_action_proposal_creates_only_full_review_with_inferred_session_then_exact
     let saved = terminal(&worker, request.id);
     assert_eq!(saved.status, WorkTurnStatus::Completed);
     let receipt: Value = serde_json::from_str(&saved.answer).unwrap();
+    let proposal_id = receipt_id(&receipt);
+    let action_id = Uuid::parse_str(receipt["action_ids"][0].as_str().unwrap()).unwrap();
+    assert_ne!(proposal_id, action_id);
+    assert_eq!(proposal_id.get_version_num(), 8);
+    assert_eq!(action_id.get_version_num(), 8);
     let review = proposal(&worker, proposal_id);
     assert_eq!(
         receipt["stamp"],
@@ -246,7 +280,6 @@ fn action_proposal_full_replace_sources_and_original_replay_preserve_newer_revie
     std::fs::create_dir(fixture.base.path().join("vault/archive")).unwrap();
     let historical = "\u{feff}---\r\nbrn_state: history\r\n---\r\nOriginal evidence õ\r\n";
     std::fs::write(fixture.base.path().join("vault/archive/old.md"), historical).unwrap();
-    let new_id = Uuid::new_v4();
     let mut candidate = data();
     candidate.related_person = Some(source_id);
     candidate.related_project = Some(source_id);
@@ -258,43 +291,58 @@ fn action_proposal_full_replace_sources_and_original_replay_preserve_newer_revie
     let mut replacement = data();
     replacement.title = "\u{feff}Exact replacement õ\r\n".into();
     replacement.state = ActionState::Blocked;
-    let mut args = create_args(
-        Uuid::new_v4(),
-        new_id,
-        vec!["source.md".into(), "archive/old.md".into()],
-    );
+    let mut args = create_args(vec!["source.md".into(), "archive/old.md".into()]);
+    let reference = checked_ref(&before);
     args.action_changes = vec![
-        serde_json::to_value(ActionChange::Create {
-            id: new_id,
-            data: candidate.clone(),
-        })
-        .unwrap(),
-        serde_json::to_value(ActionChange::Replace {
-            before: Box::new(before.clone()),
-            data: replacement.clone(),
-        })
-        .unwrap(),
+        ActionCandidate::Create {
+            data: candidate_data(&candidate),
+        },
+        ActionCandidate::Replace {
+            target: reference,
+            data: candidate_data(&replacement),
+        },
     ];
-    let steps = Arc::new(Mutex::new(vec![args.clone()]));
+    // Keep the actual owned turn active while owner review and saved evidence
+    // change. Original replay is scoped to that turn, never a later Ask.
+    let (sent, received) = std::sync::mpsc::channel();
+    let hook: ProposalAnswerHook = Arc::new(move |_, _, _, proposals, cancel, _| {
+        sent.send(proposals).unwrap();
+        Box::pin(async move {
+            cancel.cancelled().await;
+            AiAnswer {
+                text: "Stopped".into(),
+                terminal: AiTerminal::Interrupted,
+            }
+        })
+    });
     let mut worker = fixture.start(Hooks {
-        proposal_answer: Some(script(steps.clone())),
+        proposal_answer: Some(hook),
         ..Hooks::default()
     });
     let mut request = fixture.request();
     request.selection.model = "gpt-6-luna".into();
-    let (saved, results) = ask(&worker, &request);
-    let review = proposal(&worker, Uuid::parse_str(&args.id).unwrap());
-    assert_eq!(
-        results[0]["ok"]["action_ids"],
-        json!([new_id, before.origin.id])
-    );
+    worker
+        .submit(request.id, AppCommand::Ask(request.clone()))
+        .unwrap();
+    let lease = received
+        .recv_timeout(std::time::Duration::from_secs(10))
+        .unwrap();
+    let receipt = lease.propose_actions(args.clone()).unwrap();
+    let review = proposal(&worker, receipt_id(&receipt));
+    let new_id = Uuid::parse_str(receipt["action_ids"][0].as_str().unwrap()).unwrap();
+    assert_eq!(receipt["action_ids"], json!([new_id, before.origin.id]));
     assert_eq!(
         review.draft.action_changes,
-        args.action_changes
-            .iter()
-            .cloned()
-            .map(|v| serde_json::from_value(v).unwrap())
-            .collect::<Vec<ActionChange>>()
+        vec![
+            ActionChange::Create {
+                id: new_id,
+                data: candidate.clone()
+            },
+            ActionChange::Replace {
+                before: Box::new(before.clone()),
+                data: replacement.clone()
+            },
+        ]
     );
     for (source, text) in review
         .draft
@@ -309,7 +357,7 @@ fn action_proposal_full_replace_sources_and_original_replay_preserve_newer_revie
         );
     }
     assert_eq!(
-        results[0]["ok"]["sources"],
+        receipt["sources"],
         serde_json::to_value(&review.draft.sources).unwrap()
     );
     assert!(
@@ -334,36 +382,55 @@ fn action_proposal_full_replace_sources_and_original_replay_preserve_newer_revie
     };
     std::fs::remove_file(fixture.base.path().join("vault/source.md")).unwrap();
     std::fs::remove_file(fixture.base.path().join("vault/archive/old.md")).unwrap();
-    *steps.lock().unwrap() = vec![args.clone()];
-    let mut retry = request.clone();
-    retry.id = Uuid::new_v4();
-    retry.conversation = Some(saved.conversation_id);
-    let (_, results) = ask(&worker, &retry);
+    let completion = crate::action_completion::CompleteActionRequest {
+        operation_id: Uuid::new_v4(),
+        before: Box::new(before.clone()),
+    };
+    assert!(matches!(
+        reply_at(
+            &worker,
+            completion.operation_id,
+            AppCommand::CompleteAction(completion)
+        ),
+        AppEvent::ActionCompleted(_)
+    ));
+    let replay = lease.propose_actions(args.clone()).unwrap();
     assert_eq!(
-        results[0]["ok"]["stamp"],
+        replay["stamp"],
         serde_json::to_value(edited.stamp()).unwrap()
     );
     assert_eq!(proposal(&worker, edited.draft.id), edited);
     let mut changed_title = args.clone();
     changed_title.title.push('x');
     let mut changed_data = args.clone();
-    changed_data.action_changes[0]["data"]["title"] = json!("Different original");
+    if let ActionCandidate::Create { data } = &mut changed_data.action_changes[0] {
+        data.title = "Different original".into();
+    }
     let mut changed_order = args.clone();
     changed_order.action_changes.reverse();
     let mut changed_path = args.clone();
     changed_path.source_paths.reverse();
-    *steps.lock().unwrap() = vec![changed_title, changed_data, changed_order, changed_path];
+    for changed in [changed_title, changed_data, changed_order, changed_path] {
+        assert_eq!(
+            lease.propose_actions(changed).unwrap_err().kind,
+            brn_ai::AiErrorKind::IndexStale
+        );
+    }
+    reply(&worker, AppCommand::CancelTurn(request.id));
+    drop(lease);
+    let saved = terminal(&worker, request.id);
+    assert_eq!(saved.status, WorkTurnStatus::Interrupted);
+    worker.shutdown().unwrap();
+    let steps = Arc::new(Mutex::new(vec![args]));
+    let mut worker = fixture.start(Hooks {
+        proposal_answer: Some(script(steps)),
+        ..Hooks::default()
+    });
+    let mut retry = request;
     retry.id = Uuid::new_v4();
+    retry.conversation = Some(saved.conversation_id);
     let (_, results) = ask(&worker, &retry);
-    assert!(
-        results.iter().all(|r| r["error"] == "tool_rejected"),
-        "{results:?}"
-    );
-    *steps.lock().unwrap() = vec![args];
-    retry.id = Uuid::new_v4();
-    retry.conversation = None;
-    let (_, results) = ask(&worker, &retry);
-    assert_eq!(results[0]["error"], "tool_rejected");
+    assert_eq!(results[0]["error"], "index_stale");
     assert_eq!(proposal(&worker, edited.draft.id), edited);
     worker.shutdown().unwrap();
     let mut worker = fixture.start(Hooks::default());
@@ -384,9 +451,10 @@ fn action_proposal_full_replace_sources_and_original_replay_preserve_newer_revie
 fn action_proposal_partial_unknown_nil_stale_and_completed_inputs_refuse_without_durable_effects() {
     let fixture = Fixture::new();
     let before = seed(&fixture);
-    let valid = create_args(Uuid::new_v4(), Uuid::new_v4(), vec![]);
-    let mut invalid = vec![];
-    // Every nullable field must be explicitly present; serde alone would accept these omissions.
+    let valid = create_args(vec![]);
+    let value = serde_json::to_value(&valid).unwrap();
+    // Strict protocol rejects legacy model IDs/full before records, omitted
+    // nullable fields, unknown fields and Completed before owner dispatch.
     for field in [
         "owner",
         "related_person",
@@ -398,72 +466,72 @@ fn action_proposal_partial_unknown_nil_stale_and_completed_inputs_refuse_without
         "follows_up",
         "priority",
     ] {
-        let mut args = valid.clone();
-        args.id = Uuid::new_v4().to_string();
-        args.action_changes[0]["data"]
+        let mut input = value.clone();
+        input["action_changes"][0]["data"]
             .as_object_mut()
             .unwrap()
             .remove(field);
-        invalid.push(args);
+        assert!(serde_json::from_value::<ActionProposalArgs>(input).is_err());
     }
-    for (field, value) in [
+    for (path, injected) in [("id", json!(Uuid::new_v4())), ("legacy", json!(true))] {
+        let mut input = value.clone();
+        input[path] = injected;
+        assert!(serde_json::from_value::<ActionProposalArgs>(input).is_err());
+    }
+    for (field, injected) in [
+        ("id", json!(Uuid::new_v4())),
+        ("before", json!(before)),
         ("extra", json!(true)),
-        ("state", json!("completed")),
+    ] {
+        let mut input = value.clone();
+        input["action_changes"][0][field] = injected;
+        assert!(serde_json::from_value::<ActionProposalArgs>(input).is_err());
+    }
+    let mut completed = value;
+    completed["action_changes"][0]["data"]["state"] = json!("completed");
+    assert!(serde_json::from_value::<ActionProposalArgs>(completed).is_err());
+    let mut invalid = vec![];
+    for (field, value) in [
         ("due_on", json!("2028-02-30")),
         ("owner", json!("õ".repeat(257))),
         ("sources", json!([Uuid::nil()])),
-        ("dependencies", json!([Uuid::new_v4()])),
+        (
+            "dependencies",
+            json!([ActionRef::Existing {
+                id: Uuid::new_v4().to_string()
+            }]),
+        ),
         ("related_person", json!(Uuid::new_v4())),
+        ("thread", json!("not a UUID")),
+        ("dependencies", json!([ActionRef::Member { index: 2 }])),
+        ("parent", json!(ActionRef::Member { index: 1 })),
     ] {
-        let mut args = valid.clone();
-        args.id = Uuid::new_v4().to_string();
-        args.action_changes[0]["data"][field] = value;
-        invalid.push(args);
+        let mut input = serde_json::to_value(&valid).unwrap();
+        input["action_changes"][0]["data"][field] = value;
+        invalid.push(serde_json::from_value(input).unwrap());
     }
-    for id in [Uuid::nil().to_string(), "not a UUID".into()] {
-        let mut args = valid.clone();
-        args.id = id;
-        invalid.push(args);
+    let target = checked_ref(&before);
+    let mut stale_version = target.clone();
+    stale_version.version += 1;
+    let mut divergent = before.clone();
+    divergent.data.title.push_str(" different exact bytes");
+    let mut nil = target.clone();
+    nil.id = Uuid::nil().to_string();
+    for target in [stale_version, checked_ref(&divergent), nil] {
+        let mut input = valid.clone();
+        input.action_changes = vec![ActionCandidate::Replace {
+            target,
+            data: candidate_data(&data()),
+        }];
+        invalid.push(input);
     }
-    let mut args = valid.clone();
-    args.action_changes[0]["id"] = json!(Uuid::nil());
-    invalid.push(args);
-    let mut args = valid.clone();
-    args.action_changes.push(args.action_changes[0].clone());
-    invalid.push(args);
-    let mut args = valid.clone();
-    args.action_changes[0]["kind"] = json!("complete");
-    invalid.push(args);
-    let mut replace = valid.clone();
-    replace.action_changes = vec![
-        serde_json::to_value(ActionChange::Replace {
-            before: Box::new(before.clone()),
-            data: data(),
-        })
-        .unwrap(),
-    ];
-    for path in [
-        "/before/waiting_since_ms",
-        "/before/completed_at_ms",
-        "/before/origin/data/priority",
-    ] {
-        let mut args = replace.clone();
-        args.id = Uuid::new_v4().to_string();
-        let (parent, field) = path.rsplit_once('/').unwrap();
-        args.action_changes[0]
-            .pointer_mut(parent)
-            .unwrap()
-            .as_object_mut()
-            .unwrap()
-            .remove(field);
-        invalid.push(args);
-    }
-    let mut args = replace.clone();
-    args.action_changes[0]["before"]["data"]["title"] = json!("stale full baseline");
-    invalid.push(args);
-    let mut args = replace;
-    args.action_changes[0]["before"]["data"]["state"] = json!("completed");
-    invalid.push(args);
+    let mut duplicate = valid.clone();
+    let replace = ActionCandidate::Replace {
+        target,
+        data: candidate_data(&data()),
+    };
+    duplicate.action_changes = vec![replace.clone(), replace];
+    invalid.push(duplicate);
     for path in [
         "../escape.md",
         "/absolute.md",
@@ -471,14 +539,12 @@ fn action_proposal_partial_unknown_nil_stale_and_completed_inputs_refuse_without
         "missing.md",
     ] {
         let mut args = valid.clone();
-        args.id = Uuid::new_v4().to_string();
         args.source_paths = vec![path.into()];
         invalid.push(args);
     }
-    let steps = Arc::new(Mutex::new(invalid));
-    let expected = steps.lock().unwrap().len();
+    let expected = invalid.len();
     let mut worker = fixture.start(Hooks {
-        proposal_answer: Some(script(steps)),
+        proposal_answer: Some(script(Arc::new(Mutex::new(invalid)))),
         ..Hooks::default()
     });
     let mut request = fixture.request();
@@ -506,4 +572,181 @@ fn action_proposal_partial_unknown_nil_stale_and_completed_inputs_refuse_without
             .count(),
         0
     );
+}
+
+#[test]
+fn action_member_references_resolve_mixed_drafts_and_full_approval_still_checks_the_baseline() {
+    let fixture = Fixture::new();
+    let before = seed(&fixture);
+    let mut input = create_args(vec![]);
+    let mut first = candidate_data(&data());
+    first.dependencies = vec![ActionRef::Member { index: 2 }];
+    first.parent = Some(ActionRef::Member { index: 2 });
+    first.follows_up = Some(ActionRef::Member { index: 2 });
+    input.action_changes = vec![
+        ActionCandidate::Create { data: first },
+        ActionCandidate::Replace {
+            target: checked_ref(&before),
+            data: candidate_data(&data()),
+        },
+    ];
+    let mut cycle = input.clone();
+    if let ActionCandidate::Replace { data, .. } = &mut cycle.action_changes[1] {
+        data.dependencies.push(ActionRef::Member { index: 1 });
+    }
+    let mut hierarchy_cycle = input.clone();
+    if let ActionCandidate::Replace { data, .. } = &mut hierarchy_cycle.action_changes[1] {
+        data.parent = Some(ActionRef::Member { index: 1 });
+    }
+    let mut changed = input.clone();
+    changed.title.push_str(" distinct intent");
+    let steps = Arc::new(Mutex::new(vec![
+        input.clone(),
+        input.clone(),
+        cycle,
+        hierarchy_cycle,
+        changed,
+    ]));
+    let later = steps.clone();
+    let mut worker = fixture.start(Hooks {
+        proposal_answer: Some(script(steps)),
+        ..Hooks::default()
+    });
+    let mut request = fixture.request();
+    request.selection.model = "gpt-6-luna".into();
+    let (_, results) = ask(&worker, &request);
+    assert_eq!(results[0], results[1]);
+    assert!(
+        results[2..4]
+            .iter()
+            .all(|result| result["error"] == "tool_rejected")
+    );
+    assert_ne!(
+        results[4]["ok"]["stamp"]["id"],
+        results[0]["ok"]["stamp"]["id"]
+    );
+    *later.lock().unwrap() = vec![input];
+    let mut other = request.clone();
+    other.id = Uuid::new_v4();
+    let (_, another) = ask(&worker, &other);
+    assert_ne!(
+        another[0]["ok"]["stamp"]["id"],
+        results[0]["ok"]["stamp"]["id"]
+    );
+    assert_ne!(
+        another[0]["ok"]["action_ids"][0],
+        results[0]["ok"]["action_ids"][0]
+    );
+    let review = proposal(&worker, receipt_id(&results[0]["ok"]));
+    assert_eq!(
+        review.draft.action_changes[0].data().dependencies,
+        vec![before.origin.id]
+    );
+    assert_eq!(
+        review.draft.action_changes[0].data().parent,
+        Some(before.origin.id)
+    );
+    assert_eq!(
+        review.draft.action_changes[0].data().follows_up,
+        Some(before.origin.id)
+    );
+    assert_eq!(review.draft.action_changes[1].id(), before.origin.id);
+    let completion = crate::action_completion::CompleteActionRequest {
+        operation_id: Uuid::new_v4(),
+        before: Box::new(before),
+    };
+    assert!(matches!(
+        reply_at(
+            &worker,
+            completion.operation_id,
+            AppCommand::CompleteAction(completion)
+        ),
+        AppEvent::ActionCompleted(_)
+    ));
+    let approval = ApprovalRequest {
+        operation_id: Uuid::new_v4(),
+        expected: review.stamp(),
+    };
+    assert!(matches!(
+        reply_at(
+            &worker,
+            approval.operation_id,
+            AppCommand::ApproveProposal(approval)
+        ),
+        AppEvent::Failed(_)
+    ));
+    assert!(
+        matches!(reply(&worker, AppCommand::Actions(ActionListRequest::default())),AppEvent::Actions(page)if page.entries.len()==1)
+    );
+    worker.shutdown().unwrap();
+}
+
+#[test]
+fn ordinary_twenty_member_semantic_draft_resolves_forward_and_backward_member_links() {
+    let fixture = Fixture::new();
+    let mut input = create_args(vec![]);
+    input.action_changes = (0..20)
+        .map(|index| {
+            let mut after = candidate_data(&data());
+            after.title = format!("Owned member {index}");
+            if index > 0 {
+                after.dependencies = vec![ActionRef::Member { index }];
+            }
+            if index == 0 {
+                after.follows_up = Some(ActionRef::Member { index: 20 });
+            }
+            ActionCandidate::Create { data: after }
+        })
+        .collect();
+    let mut oversized = input.clone();
+    oversized
+        .action_changes
+        .push(oversized.action_changes[0].clone());
+    let steps = Arc::new(Mutex::new(vec![input.clone(), input, oversized]));
+    let mut worker = fixture.start(Hooks {
+        proposal_answer: Some(script(steps)),
+        ..Hooks::default()
+    });
+    let mut request = fixture.request();
+    request.selection.model = "gpt-6-luna".into();
+    let (_, results) = ask(&worker, &request);
+    assert_eq!(results[0], results[1]);
+    assert_eq!(results[2]["error"], "tool_rejected");
+    let review = proposal(&worker, receipt_id(&results[0]["ok"]));
+    let ids: Vec<_> = review
+        .draft
+        .action_changes
+        .iter()
+        .map(ActionChange::id)
+        .collect();
+    assert_eq!(
+        ids.iter().collect::<std::collections::HashSet<_>>().len(),
+        20
+    );
+    assert_eq!(
+        review.draft.action_changes[0].data().follows_up,
+        Some(ids[19])
+    );
+    for (index, change) in review.draft.action_changes.iter().enumerate().skip(1) {
+        assert_eq!(change.data().dependencies, vec![ids[index - 1]]);
+    }
+    assert!(
+        matches!(reply(&worker,AppCommand::Actions(ActionListRequest::default())),AppEvent::Actions(page)if page.entries.is_empty())
+    );
+    let approval = ApprovalRequest {
+        operation_id: Uuid::new_v4(),
+        expected: review.stamp(),
+    };
+    assert!(matches!(
+        reply_at(
+            &worker,
+            approval.operation_id,
+            AppCommand::ApproveProposal(approval)
+        ),
+        AppEvent::ProposalApplied(_)
+    ));
+    assert!(
+        matches!(reply(&worker,AppCommand::Actions(ActionListRequest::default())),AppEvent::Actions(page)if page.entries.len()==20)
+    );
+    worker.shutdown().unwrap();
 }

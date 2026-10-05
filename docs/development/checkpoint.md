@@ -2,36 +2,34 @@
 
 Lead-confirmed 2026-10-06: full frozen V1 goal **active**, without a token budget.
 
-- **Integrated:** PR62 at `7a472875f3b7303460e682a78e1f5d110c55a9c1`, exact
-  reviewed tree `6d93e3ad30b5715d0004099bb776f2b971db86e3`. Exact-head
-  PR37375653308 attempt1 passed four protected Mac/shared gates and Docs; overall
-  red preserves unchanged Windows diagnostics. Fresh merged18 Store Rewrite,
-  1 owned callback,10 provenance tests and52 fixtures passed. Main61's applicable
-  gates passed with known platform failures retained; main37376785106 is in progress.
-- **Preserved review snapshot:** `codex/v1-inbox-recoverable-removal` at
-  `7c4f668de467721f728f242c8fac8d14606a6e44`, clean and pushed, unmerged. Its
-  verified removal/restore implementation retains original evidence. It is held
-  for record-shape/performance and owner-ratified cleanup corrections.
-- **Current:** `codex/v1-review-knowledge-identities`, reviewed code
-  `f9b2026a247b726220b53d4d6c91c9957b0cb712`, qualified tree
-  `a09351f5b2585742f9ebad48067d621f1bf38e7d`, now based on main62 with identical
-  tested Rust. Knowledge proposal/note identities derive from owned analysis and
-  exact semantic input; injected identity refuses. Original replay preserves
-  evidence/newer review; changed intent or another analysis is a separate draft.
-- **Verification:** clean independent review; fresh format/build/all-target
-  Clippy,1,359 shared tests/0 failures/8 ignores and52 fixtures passed. Optional
-  native check/three Clippy configurations,287 Workflow/model tests/0/7,
-  285 Desktop/0/0, shipping builds and two V14 restarts passed. Atomic runs retained
-  unchanged snapshot identity and exit0. Provider-capability fixtures passed
-  123 AI/3 harness tests and Clippy offline; exact evidence is in the correction plan.
-  Exact-head CI and integration remain pending.
-- **Pending:** native/live/owner acceptance, real model assets, trusted-user
-  packaging; no new live authorization. Copy cleanup requires approved Source
-  exact preservation plus explicit confirmation, separately from disposition.
-  Old semantic/consequence gates have not yet been corrected in code.
-- **Next:** qualify exact-head CI and integrate Knowledge identities, then Rust-owned
-  Action candidate mechanics and remaining review corrections under
-  the [current correction plan](../work/active/architecture-review-corrections/plan.md).
+- **Integrated:** Knowledge PR63 at `d36375b23dbf27a575ee73b5843bbf7d40f2a8ab`,
+  reviewed tree `80564adbf04869444c4a6c6af1949cead3fe36b5`. Exact-head
+  PR37377504928 attempt1 and merged-main37378949287 attempt1 passed all protected
+  Mac/shared gates and Docs. Overall red retains known Windows/Linux failures;
+  full diagnostics and meaningful ordering/thread-ID/timing differences survive.
+  Fresh merged123 AI/two owned Knowledge callback tests and52 fixtures passed.
+- **Current:** `codex/v1-review-action-candidates`, reviewed/qualified code
+  `1d9df1204af7df296310e4c1ba56396f525e1462`, tree
+  `8bfc86d6a2ad8d756131fbab277ddab5bf9d8585`. Rust mints Action draft/member
+  IDs, resolves member links, loads full checked Replace baselines and injects
+  selected Inbox Source proofs. Original replay preserves newer review/proofs;
+  changed intent or another owned turn needs a separate fresh draft.
+- **Verification:** complete independent read-only review clean; fresh format/
+  build/all-target Clippy,1,367 shared tests/0 failures/8 ignores and52 fixtures
+  passed. Optional native check/three Clippy configurations,291 Workflow/model
+  tests/0/7,285 Desktop/0/0, shipping builds and two V14 restarts passed. Atomic
+  records retain unchanged clean identity and exit0;127 AI/3 capability fixtures
+  and Clippy passed offline. Exact-head CI/integration
+  remain pending; detailed intermediate failures/evidence are in the correction plan.
+- **Preserved:** pushed clean lifecycle snapshot `7c4f668de467721f728f242c8fac8d14606a6e44`
+  on `codex/v1-inbox-recoverable-removal`, unmerged and held for corrections.
+- **Pending:** native/live/owner acceptance, real assets and trusted-user packaging.
+  Copy cleanup requires approved Source exact preservation plus explicit owner
+  confirmation, separately from disposition. Old semantic/consequence gates and
+  original-operation record/performance/recovery corrections are still pending.
+- **Next:** Action exact-head CI/integration, then Source-preservation cleanup and
+  bounded original-operation corrections under the
+  [current plan](../work/active/architecture-review-corrections/plan.md).
 - **Environment:** Darwin arm64 Mac mini, Rust1.98.1 locked/offline, canonical
   owned `TMPDIR=/private/tmp/brn-mini-synthetic-20261005`, empty native model
   setting, isolated checkout/targets and disposable synthetic data only.

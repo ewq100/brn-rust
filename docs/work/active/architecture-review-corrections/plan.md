@@ -11,10 +11,13 @@ The first correction merged normally in PR61 at
 Rewrite protection merged normally in PR62 at
 `7a472875f3b7303460e682a78e1f5d110c55a9c1`, exact reviewed tree
 `6d93e3ad30b5715d0004099bb776f2b971db86e3`.
-Current Knowledge identity correction: `codex/v1-review-knowledge-identities`,
-reviewed code `f9b2026a247b726220b53d4d6c91c9957b0cb712`, qualified integrated
-tree `a09351f5b2585742f9ebad48067d621f1bf38e7d`. Main62 ancestry integration
-changed no files. Remaining accepted corrections follow this plan.
+Knowledge identities merged normally in PR63 at
+`d36375b23dbf27a575ee73b5843bbf7d40f2a8ab`, exact reviewed tree
+`80564adbf04869444c4a6c6af1949cead3fe36b5`.
+Current Action correction: `codex/v1-review-action-candidates`, independently
+reviewed/qualified `1d9df1204af7df296310e4c1ba56396f525e1462`, tree
+`8bfc86d6a2ad8d756131fbab277ddab5bf9d8585`. Remaining accepted corrections
+follow this plan.
 The complete V1 goal is confirmed **active** by `get_goal` on 2026-10-05;
 its full objective and roadmap dependency order remain unchanged.
 
@@ -224,3 +227,68 @@ follow separately before cleanup/record-shape corrections.
 The existing `capability-spike` offline gate additionally passed123 AI library
 and3 qualification-harness fixture tests plus all-target Clippy at the same Rust
 tree. No discovery request, credentials, live provider or model asset was used.
+
+## Action candidate correction acceptance
+
+Baseline: Knowledge PR63 head `385627a720177e731abbb4ee89ee66c7eb7d518c`,
+branch `codex/v1-review-action-candidates`. This changes only the AI candidate
+transport and owned admission; persisted Actions/proposals, owner APIs, full-record
+approval comparisons and recovery remain unchanged.
+
+- Rust mints proposal/Create identities from exact ordered semantic input in the
+  owned turn. Original replay retains proofs/full replacement baselines and newer
+  review; another turn or changed input is a distinct candidate.
+- Replace carries the typed full-record reference returned by `read_action`, never
+  a model-reconstructed before-record. Fresh admission verifies every baseline
+  field through the reference, including same-version divergence.
+- All14 after-fields stay explicit. Existing UUID and 1-based member references
+  support ordered mixed Create/Replace drafts; invalid indices, duplicate targets,
+  self/cyclic relationships and completed changes refuse.
+- Inbox attaches its selected Source proof and UUID automatically. Additional
+  evidence remains ordered/bounded, duplicated paths/UUIDs refuse; the shared20
+  consequence cap and replay-at-cap remain intact.
+- Real owned callback, strict synthetic Rig schema/capability, Stop/restart, exact
+  approval and meaningful stale/replay tests precede independent review, shared
+  and optional native gates, exact-head CI and normal integration. No live calls.
+
+## Knowledge integration and Action qualification
+
+PR63 exact-head37377504928 attempt1 passed all four protected Mac/shared jobs
+and Docs at385627a720177e731abbb4ee89ee66c7eb7d518c. Overall red retains
+Windows22 full compiler blocks and both summaries matching PR62. Normal merge
+preserved the complete reviewed tree. Fresh merged123 AI/two owned Knowledge
+callback tests and52 fixtures passed. An initial misspelled filter selected zero
+tests; it is retained but not callback qualification. The corrected filters ran
+both intended tests. Merged-main37378949287 attempt1 passed all applicable gates;
+Windows22/22/14 full blocks/summaries match main62. Linux retains three identical
+assertions/source locations/backtraces apart from thread IDs; order and terminal
+duration changed0.04s→1.56s. Complete raw differences remain retained.
+
+Action protocol/admission uses Rust-owned IDs, typed checked full-record
+references and local member indices. Inbox selected Source proof/UUID injection
+is automatic; extra paths remain ordered/bounded. Original same-turn replay
+preserves retained baselines and newer review after Source loss/Action completion.
+All existing owner storage/approval/recovery formats remain unchanged.
+
+Intermediate failures retained: helper PATH, test-local helper compile and
+undersized aggregate fixture errors; root first compile found the Store constant
+path and required ActionData validator argument; the first library run then
+passed280/failed2/ignored7 (old context fingerprint and new-intent Source-loss
+IndexStale expectation). Both were corrected. Ten focused Action callback/fence
+checks, one context guard and the20-member real approval scenario passed. One
+broad formatting gate exited1 before build; its assertion wrapping was corrected.
+Final independent full20-file read-only review through1d9df120 is clean.
+
+Shared atomic gate22:00:46–22:05:37 UTC at clean1d9df120/tree8bfc86d6:
+format/build/all-target Clippy,1,367 workspace tests/0 failures/8 ignores and52
+fixtures passed, terminal exit0. Native atomic gate22:05:50–22:09:05 UTC at the
+same unchanged identity passed combined check, three all-target Clippy
+configurations,291 Workflow/model tests/0/7,285 Desktop/0/0, shipping builds and
+two V14 restarts; all10 commands exited0. The upstream block warning remains;
+empty model configuration exercises no real assets, inference, live provider,
+graphical or owner acceptance. Final documentation changes leave tested Rust
+unchanged. Exact-head CI and normal integration are the next unfinished gate.
+
+The existing capability-spike offline gate passed127 AI library and3 synthetic
+qualification-harness tests plus all-target Clippy. It performed no discovery
+request, authentication, model asset access or live provider call.

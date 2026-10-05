@@ -515,10 +515,11 @@ fn owned_action_rewrite_uses_full_application_action_reads_and_keeps_real_record
                 else {
                     panic!("captured baseline")
                 };
-                assert_eq!(
-                    tools.read_action(&before.origin.id.to_string()).unwrap(),
-                    serde_json::json!(before)
-                );
+                let mut read = tools.read_action(&before.origin.id.to_string()).unwrap();
+                let reference = read.as_object_mut().unwrap().remove("checked_ref").unwrap();
+                assert_eq!(reference["id"], before.origin.id.to_string());
+                assert_eq!(reference["version"], before.version);
+                assert_eq!(read, serde_json::json!(before));
                 let page = tools.list_actions(Some("waiting"), 20, None).unwrap();
                 assert_eq!(page["entries"], serde_json::json!([before]));
                 assert!(page["next_cursor"].is_null());

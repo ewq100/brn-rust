@@ -3268,16 +3268,48 @@ mod action_read_tool_tests {
 
 mod action_proposal_tool_tests {
     use super::*;
+    fn preamble(body: &Value, provider: Provider, responses: bool) -> String {
+        if provider == Provider::Chatgpt {
+            body["instructions"].as_str().unwrap().to_owned()
+        } else {
+            body[if responses { "input" } else { "messages" }]
+                .as_array()
+                .unwrap()
+                .iter()
+                .find(|message| message["role"] == "system")
+                .unwrap()["content"]
+                .to_string()
+        }
+    }
 
     fn args() -> Value {
-        json!({"id":"abc8e3e6-5419-4a09-a5f7-b7d9e98f8f29", "title":"Exact review õ\r\n",
-        "source_paths":["archive/source.md"], "action_changes":[{
-            "kind":"create","id":"5b344a65-e247-4b2c-9941-c4b52c405bdb", "data":{
-                "title":"  Whole action õ  ", "description":"\u{feff}Exact 🦀\r\n", "state":"waiting",
-                "owner":null,"related_person":null,"related_project":null,"sources":[],"thread":null,
-                "due_on":"2028-02-29","follow_up_on":null,"dependencies":[],"parent":null,"follows_up":null,"priority":null
-            }
-        }]})
+        let data = json!({
+            "title":"  Whole action õ  ", "description":"\u{feff}Exact 🦀\r\n", "state":"waiting",
+            "owner":"Anna Õ", "related_person":"aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaaa",
+            "related_project":"bbbbbbbb-bbbb-4bbb-8bbb-bbbbbbbbbbbb",
+            "sources":["cccccccc-cccc-4ccc-8ccc-cccccccccccc"],
+            "thread":"dddddddd-dddd-4ddd-8ddd-dddddddddddd", "due_on":"2028-02-29",
+            "follow_up_on":"2028-03-01", "dependencies":[
+                {"kind":"existing","id":"eeeeeeee-eeee-4eee-8eee-eeeeeeeeeeee"},
+                {"kind":"member","index":2}
+            ], "parent":{"kind":"member","index":2},
+            "follows_up":{"kind":"existing","id":"ffffffff-ffff-4fff-8fff-ffffffffffff"},"priority":"high"
+        });
+        let mut replacement = data.clone();
+        replacement["dependencies"] = json!([]);
+        replacement["parent"] = Value::Null;
+        replacement["follows_up"] = Value::Null;
+        replacement["owner"] = Value::Null;
+        replacement["related_person"] = Value::Null;
+        replacement["related_project"] = Value::Null;
+        replacement["thread"] = Value::Null;
+        replacement["due_on"] = Value::Null;
+        replacement["follow_up_on"] = Value::Null;
+        replacement["priority"] = Value::Null;
+        json!({"title":"Exact review õ\r\n", "source_paths":["archive/source.md"], "action_changes":[
+            {"kind":"create","data":data},
+            {"kind":"replace","target":{"id":"5b344a65-e247-4b2c-9941-c4b52c405bdb","version":7,"sha256":"0123456789abcdef".repeat(4)},"data":replacement}
+        ]})
     }
     #[derive(Default)]
     struct Proposals(AtomicUsize);
@@ -3366,7 +3398,7 @@ mod action_proposal_tool_tests {
                 .map(|v| v.as_str().unwrap())
                 .collect::<Vec<_>>();
             required.sort_unstable();
-            assert_eq!(required, ["action_changes", "id", "source_paths", "title"]);
+            assert_eq!(required, ["action_changes", "source_paths", "title"]);
             let members = &proposal["parameters"]["properties"]["action_changes"]["items"];
             let variants = members["anyOf"]
                 .as_array()
@@ -3388,8 +3420,8 @@ mod action_proposal_tool_tests {
                     fields.keys().map(String::as_str).collect::<Vec<_>>()
                 );
             }
-            for variant in variants {
-                closed(variant, 3);
+            for (index, variant) in variants.iter().enumerate() {
+                closed(variant, if index == 0 { 2 } else { 3 });
                 closed(&variant["properties"]["data"], 14);
             }
             assert_eq!(
@@ -3400,11 +3432,25 @@ mod action_proposal_tool_tests {
                 variants[1]["properties"]["kind"],
                 json!({"type":"string","enum":["replace"]})
             );
-            let before = &variants[1]["properties"]["before"];
-            closed(before, 6);
-            closed(&before["properties"]["data"], 14);
-            closed(&before["properties"]["origin"], 4);
-            closed(&before["properties"]["origin"]["properties"]["data"], 14);
+            closed(&variants[1]["properties"]["target"], 3);
+            assert!(variants[0]["properties"].get("id").is_none());
+            assert!(variants[1]["properties"].get("before").is_none());
+            let relationships = &variants[0]["properties"]["data"]["properties"];
+            for reference in relationships["dependencies"]["items"]["anyOf"]
+                .as_array()
+                .unwrap()
+            {
+                closed(reference, 2);
+            }
+            for explanation in [
+                "Rust mints proposal and Create member identities",
+                "checked_ref",
+                "1-based member indices",
+                "within the owned turn",
+                "Separate exact human approval",
+            ] {
+                assert!(preamble(&bodies[0], provider, responses).contains(explanation));
+            }
             let schema = proposal["parameters"].to_string();
             for unsupported in ["oneOf", "uniqueItems", "const"] {
                 assert!(!schema.contains(&format!("\"{unsupported}\":")));
@@ -3444,6 +3490,159 @@ mod action_proposal_tool_tests {
                         d["name"] != "propose_actions"
                     })
             );
+        }
+    }
+
+    #[tokio::test]
+    async fn strict_action_candidates_refuse_legacy_missing_unknown_and_unbounded_input_on_all_rig_routes()
+     {
+        let mut invalid = Vec::new();
+        let mut input = args();
+        input["id"] = json!("legacy-proposal");
+        invalid.push(input);
+        let mut input = args();
+        input["action_changes"][0]["id"] = json!("legacy-member");
+        invalid.push(input);
+        let mut input = args();
+        input["action_changes"][1]["before"] = json!({"origin":{},"version":7});
+        invalid.push(input);
+        let mut input = args();
+        input["action_changes"][1]
+            .as_object_mut()
+            .unwrap()
+            .remove("target");
+        input["action_changes"][1]["before"] = json!({"origin":{},"version":7});
+        invalid.push(input);
+        for field in [
+            "title",
+            "description",
+            "state",
+            "owner",
+            "related_person",
+            "related_project",
+            "sources",
+            "thread",
+            "due_on",
+            "follow_up_on",
+            "dependencies",
+            "parent",
+            "follows_up",
+            "priority",
+        ] {
+            let mut input = args();
+            input["action_changes"][0]["data"]
+                .as_object_mut()
+                .unwrap()
+                .remove(field);
+            invalid.push(input);
+        }
+        for (path, value) in [
+            ("/action_changes/0/kind", json!("approve")),
+            ("/action_changes/0/data/state", json!("completed")),
+            ("/action_changes/0/data/priority", json!("urgent")),
+            (
+                "/action_changes/0/data/dependencies/0",
+                json!("legacy-uuid"),
+            ),
+            (
+                "/action_changes/0/data/dependencies/0",
+                json!({"kind":"existing","id":"x","version":1}),
+            ),
+            ("/action_changes/0/data/dependencies/1/index", json!(0)),
+            ("/action_changes/0/data/dependencies/1/index", json!(21)),
+            (
+                "/action_changes/0/data/parent",
+                json!({"kind":"member","index":1,"id":"x"}),
+            ),
+            ("/action_changes/1/target/version", json!(0)),
+            (
+                "/action_changes/1/target/version",
+                json!(i64::MAX as u64 + 1),
+            ),
+            ("/action_changes/1/target/sha256", json!("A".repeat(64))),
+            ("/action_changes/1/target/sha256", json!("a".repeat(63))),
+            ("/action_changes/0/data/title", json!("õ".repeat(257))),
+            (
+                "/action_changes/0/data/description",
+                json!("x".repeat(65537)),
+            ),
+            ("/action_changes/0/data/sources", json!(vec!["x"; 65])),
+            ("/action_changes/0/data/owner", json!("x".repeat(513))),
+        ] {
+            let mut input = args();
+            *input.pointer_mut(path).unwrap() = value;
+            invalid.push(input);
+        }
+        let mut input = args();
+        input["action_changes"][0]["data"]["approve"] = json!(true);
+        invalid.push(input);
+        let mut input = args();
+        input["action_changes"][1]["target"]["before"] = json!({});
+        invalid.push(input);
+        for (provider, model, responses) in [
+            (Provider::Chatgpt, "gpt-6-luna", true),
+            (Provider::Copilot, "gpt-5.5", false),
+            (Provider::Copilot, "gpt-5.3-codex", true),
+        ] {
+            for input in &invalid {
+                let (_root, client, http) = client(
+                    provider,
+                    model,
+                    vec![
+                        success(tool_sse(responses, &[("propose_actions", input.clone())])),
+                        success(text_sse(responses, "Refused safely")),
+                    ],
+                )
+                .await;
+                let tools = Arc::new(Proposals::default());
+                let result = answer_with_proposals(
+                    client,
+                    "Review only",
+                    &[],
+                    ReasoningEffort::Low,
+                    tools.clone(),
+                    tools.clone(),
+                    CancellationToken::new(),
+                    Arc::new(|_| {}),
+                )
+                .await;
+                assert!(
+                    matches!(result.terminal, AiTerminal::Completed),
+                    "{provider:?}/{model}: {:?}",
+                    result.terminal
+                );
+                assert_eq!(
+                    tools.0.load(Ordering::SeqCst),
+                    0,
+                    "Malformed input dispatched: {input}"
+                );
+                http.assert_consumed();
+                let body = http.bodies();
+                let replies = body[1][if responses { "input" } else { "messages" }]
+                    .as_array()
+                    .unwrap()
+                    .iter()
+                    .filter_map(|m| {
+                        if responses {
+                            (m["type"] == "function_call_output")
+                                .then(|| m["output"].as_str().unwrap().to_owned())
+                        } else {
+                            (m["role"] == "tool").then(|| {
+                                m["content"]
+                                    .as_str()
+                                    .or_else(|| m["content"][0]["text"].as_str())
+                                    .unwrap()
+                                    .to_owned()
+                            })
+                        }
+                    })
+                    .collect::<Vec<_>>();
+                assert_eq!(replies.len(), 1);
+                assert!(
+                    replies[0] == "the tool failed"
+                        || replies[0].starts_with("failed to parse tool arguments: ")
+                );
+            }
         }
     }
 }
