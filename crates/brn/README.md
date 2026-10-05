@@ -917,8 +917,11 @@ clipping; oversized complete evidence refuses. Nil/malformed UUIDs refuse before
 opening application state.
 
 
-`inbox removal-preview UUID` returns the full shared qualified evidence and
-blockers, preserving `needs_owner_attestation: true`. An empty blockers list grants
+`inbox removal-preview UUID` returns one complete shared Source-preservation
+witness, exact original and blockers, preserving `needs_owner_confirmation: true`.
+Failed analyses, pending consequence drafts and later derived edits do not block
+this qualification. The full retained review is separately available through
+`inbox review UUID`. An empty blockers list grants
 no removal approval; this command never removes an original. JSON preserves exact
 proofs; terminal output escapes control characters. Confirmation and recoverable
 removal are subsequent work.

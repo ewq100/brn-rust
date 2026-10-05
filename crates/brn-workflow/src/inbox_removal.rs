@@ -1,87 +1,89 @@
-//! Read-only qualification before explicit semantic approval and recoverable
-//! original-copy removal. No namespace effects or inferred completeness.
+//! Read-only exact Source preservation qualification before explicit owner
+//! confirmation and recoverable original-copy removal. No namespace effects.
 use crate::{
     ErrorKind, Result, WorkflowError,
     app::App,
-    inbox::InboxOriginal,
-    proposals::{NoteChange, ProposalSource, ProposalState},
+    inbox::{InboxItem, InboxOriginal},
+    proposals::ProposalSource,
 };
-pub use brn_store::work::inbox_removal::InboxRemovalSnapshot;
-use brn_store::work::{
-    chat::WorkTurnStatus, proposal_apply::ApplyOutcome, proposal_rewrite::RewriteStatus,
-};
+use brn_store::work::{inbox_source::InboxSourcePreservation, proposal_apply::ApplyJournal};
 use serde::{Deserialize, Serialize};
 use sha2::{Digest, Sha256};
 use uuid::Uuid;
 
-#[derive(Debug, Clone, Serialize, Deserialize)]
+// Three complete bounded texts (original, approved Source, saved Source), each
+// with worst-case six-byte JSON escaping, plus fixed journal/metadata overhead.
+const MAX_PRESERVATION_EVIDENCE_BYTES: usize = 18 * crate::MAX_NOTE_BYTES + 256 * 1024;
+
+#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
 #[serde(deny_unknown_fields)]
 pub struct InboxApprovedSource {
-    pub operation_id: Uuid,
-    pub proposal_id: Uuid,
-    pub note_id: Uuid,
-    pub saved: ProposalSource,
-}
-#[derive(Debug, Clone, Serialize, Deserialize)]
-#[serde(deny_unknown_fields)]
-pub struct InboxSavedConsequence {
-    pub operation_id: Uuid,
-    pub member_index: usize,
+    pub approval: ApplyJournal,
     pub saved: ProposalSource,
 }
 #[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
 #[serde(tag = "kind", rename_all = "snake_case", deny_unknown_fields)]
 pub enum InboxRemovalBlocker {
     OriginalUnavailable,
-    ConsequenceUnavailable {
-        operation_id: Uuid,
-        member_index: usize,
-        reason: String,
-    },
     SourceRequired,
-    ProcessingPending {
-        batch_id: Uuid,
-        index: usize,
-    },
-    AnalysisUnsettled {
-        analysis_id: Uuid,
-    },
-    ProposalUnsettled {
-        proposal_id: Uuid,
-    },
-    ApprovalUnsettled {
-        operation_id: Uuid,
-    },
-    RewriteRunning {
-        rewrite_id: Uuid,
-    },
-    AppliedUndo {
-        operation_id: Uuid,
-    },
-    SourceUnavailable {
-        proposal_id: Uuid,
-        reason: String,
-    },
 }
 #[derive(Debug, Clone, Serialize, Deserialize)]
 #[serde(deny_unknown_fields)]
 pub struct InboxRemovalEvidence {
-    pub snapshot: InboxRemovalSnapshot,
+    pub item: InboxItem,
     pub original: InboxOriginal,
-    pub sources: Vec<InboxApprovedSource>,
-    pub saved_consequences: Vec<InboxSavedConsequence>,
+    /// One selected, fully checked approval and its freshly observed Source.
+    /// Alternatives and derived work confer no cleanup authority.
+    pub source: Option<InboxApprovedSource>,
     pub blockers: Vec<InboxRemovalBlocker>,
-    /// Even an empty blockers list grants no semantic approval or removal.
-    pub needs_owner_attestation: bool,
+    /// A qualified preview never grants confirmation or removal authority.
+    pub needs_owner_confirmation: bool,
 }
 impl InboxRemovalEvidence {
     pub fn digest(&self) -> Result<[u8; 32]> {
+        self.item.validate()?;
+        let mut blockers = Vec::new();
+        match &self.original {
+            InboxOriginal::Available { text } => {
+                if text.len() as u64 != self.item.capture.copy.byte_len
+                    || <[u8; 32]>::from(Sha256::digest(text.as_bytes()))
+                        != self.item.capture.copy.sha256
+                {
+                    return Err(stale("original bytes differ from their retained capture"));
+                }
+                if let Some(source) = &self.source {
+                    InboxSourcePreservation {
+                        original: &self.item,
+                        original_text: text,
+                        approval: &source.approval,
+                        saved: &source.saved.source,
+                        saved_text: &source.saved.text,
+                    }
+                    .validate()?;
+                }
+            }
+            _ => {
+                blockers.push(InboxRemovalBlocker::OriginalUnavailable);
+                if self.source.is_some() {
+                    return Err(stale(
+                        "Source qualification requires the exact available original",
+                    ));
+                }
+            }
+        }
+        if self.source.is_none() {
+            blockers.push(InboxRemovalBlocker::SourceRequired);
+        }
+        if !self.needs_owner_confirmation || self.blockers != blockers {
+            return Err(stale(
+                "original-removal evidence has inconsistent admission fields",
+            ));
+        }
         let bytes = serde_json::to_vec(self)
             .map_err(|_| WorkflowError::msg("could not encode original-removal evidence"))?;
-        // Reserve outer digest/field metadata within the same complete 64 MiB cap.
-        if bytes.len() > brn_store::work::inbox_review::MAX_INBOX_REVIEW_BYTES - 512 {
+        if bytes.len() > MAX_PRESERVATION_EVIDENCE_BYTES {
             return Err(WorkflowError::msg(
-                "complete original-removal evidence exceeds its encoded bound",
+                "complete Source-preservation evidence exceeds its encoded bound",
             ));
         }
         Ok(Sha256::digest(bytes).into())
@@ -94,174 +96,87 @@ pub struct InboxRemovalPreview {
     pub digest: [u8; 32],
 }
 impl App {
-    /// Exact full backend observation, never a durable approval. Confirmation
-    /// must requalify this evidence and separately bind the owner's attestations.
+    /// Select one approved Source still preserving the complete exact original.
+    /// Pending/failed analysis, drafts and later derived work are independent.
+    /// Confirmation must bind and freshly recheck this same selected witness.
     pub fn preview_inbox_removal(&mut self, id: Uuid) -> Result<InboxRemovalPreview> {
-        let snapshot = self.store.inbox_removal_snapshot(id)?;
-        let original = self.inbox.original(&snapshot.review.original);
+        self.require_current_evidence()?;
+        let item = self
+            .store
+            .inbox_item(id)?
+            .ok_or_else(|| stale("retained original catalog entry is missing"))?;
+        let original = self.inbox.original(&item);
+        let mut source = None;
+        if let InboxOriginal::Available { text } = &original {
+            for operation_id in self.store.inbox_source_approval_ids(id)? {
+                let approval = self
+                    .store
+                    .proposal_apply(operation_id)?
+                    .ok_or_else(|| stale("listed Source approval disappeared"))?;
+                match self.qualify_inbox_preservation(&item, text, &approval) {
+                    Ok(saved) => {
+                        source = Some(InboxApprovedSource { approval, saved });
+                        break;
+                    }
+                    // Another stale Source is not a veto on a valid witness. Actual
+                    // pending Save/Apply authority remains a global error below.
+                    Err(error) if error.kind == ErrorKind::SaveUncertain => return Err(error),
+                    Err(_) => {}
+                }
+            }
+        }
+        self.require_current_evidence()?;
+        if self.store.inbox_item(id)?.as_ref() != Some(&item)
+            || self.inbox.original(&item) != original
+        {
+            return Err(stale("retained original changed during qualification"));
+        }
+        if let Some(selected) = &source {
+            let current = self
+                .store
+                .proposal_apply(selected.approval.request.operation_id)?
+                .ok_or_else(|| stale("selected Source approval disappeared"))?;
+            let InboxOriginal::Available { text } = &original else {
+                unreachable!()
+            };
+            if current != selected.approval
+                || self.qualify_inbox_preservation(&item, text, &current)? != selected.saved
+            {
+                return Err(stale(
+                    "selected Source preservation changed during qualification",
+                ));
+            }
+        }
         let mut blockers = Vec::new();
         if !matches!(original, InboxOriginal::Available { .. }) {
             blockers.push(InboxRemovalBlocker::OriginalUnavailable);
         }
-        for batch in &snapshot.review.processing {
-            for (index, item) in batch.request.items.iter().enumerate() {
-                if item.capture.id == id && batch.entries[index].outcome.pending() {
-                    blockers.push(InboxRemovalBlocker::ProcessingPending {
-                        batch_id: batch.request.id,
-                        index,
-                    });
-                }
-            }
-        }
-        for a in &snapshot.review.analyses {
-            if a.turn
-                .as_ref()
-                .is_none_or(|turn| turn.status != WorkTurnStatus::Completed)
-            {
-                blockers.push(InboxRemovalBlocker::AnalysisUnsettled {
-                    analysis_id: a.job.capture.id,
-                });
-            }
-        }
-        for p in snapshot
-            .review
-            .proposals
-            .iter()
-            .chain(&snapshot.related_reviews)
-        {
-            if !matches!(
-                p.record.state,
-                ProposalState::Applied | ProposalState::Rejected
-            ) {
-                blockers.push(InboxRemovalBlocker::ProposalUnsettled {
-                    proposal_id: p.record.draft.id,
-                });
-            }
-        }
-        for a in &snapshot.lineage {
-            let outcome = a.receipt.as_ref().map(|r| r.outcome);
-            if !matches!(
-                outcome,
-                Some(ApplyOutcome::Applied | ApplyOutcome::NotApplied)
-            ) {
-                blockers.push(InboxRemovalBlocker::ApprovalUnsettled {
-                    operation_id: a.request.operation_id,
-                });
-            }
-            if a.undo.is_some() && outcome == Some(ApplyOutcome::Applied) {
-                blockers.push(InboxRemovalBlocker::AppliedUndo {
-                    operation_id: a.request.operation_id,
-                });
-            }
-        }
-        for job in &snapshot.rewrites {
-            if job.status == RewriteStatus::Running {
-                blockers.push(InboxRemovalBlocker::RewriteRunning {
-                    rewrite_id: job.spec.id,
-                });
-            }
-        }
-        let mut sources = Vec::new();
-        for a in &snapshot.review.approvals {
-            let Some(binding) = &a.approved.draft.inbox_source else {
-                continue;
-            };
-            if a.receipt.as_ref().map(|r| r.outcome) != Some(ApplyOutcome::Applied) {
-                continue;
-            }
-            let qualified = (|| -> Result<ProposalSource> {
-                if binding.original != snapshot.review.original {
-                    return Err(stale("approved Source belongs to a different capture"));
-                }
-                self.validate_inbox_source(Some(binding))?;
-                let [NoteChange::Create { path, text, .. }] = a.approved.draft.changes.as_slice()
-                else {
-                    return Err(stale("approved Source is not one exact Create"));
-                };
-                let saved = self.qualify_inbox_saved_change(a, 0)?;
-                if &saved.text != text {
-                    return Err(stale("approved Source bytes changed"));
-                }
-                binding.validate_markdown(&saved.text)?;
-                let resolution = self.resolve_note_identity(binding.note_id)?;
-                if resolution.outcome != crate::knowledge::IdentityOutcome::Unique
-                    || resolution.matches.len() != 1
-                    || resolution.matches[0].path != *path
-                {
-                    return Err(stale(
-                        "approved Source UUID is ambiguous or incompletely inspected",
-                    ));
-                }
-                Ok(saved)
-            })();
-            match qualified {
-                Ok(saved) => sources.push(InboxApprovedSource {
-                    operation_id: a.request.operation_id,
-                    proposal_id: a.approved.draft.id,
-                    note_id: binding.note_id,
-                    saved,
-                }),
-                Err(e) => blockers.push(InboxRemovalBlocker::SourceUnavailable {
-                    proposal_id: a.approved.draft.id,
-                    reason: e.message,
-                }),
-            }
-        }
-        if sources.is_empty() {
+        if source.is_none() {
             blockers.push(InboxRemovalBlocker::SourceRequired);
         }
-        let mut saved_consequences = Vec::new();
-        for journal in &snapshot.lineage {
-            if journal.undo.is_some()
-                || journal.approved.draft.inbox_source.is_some()
-                || journal.receipt.as_ref().map(|r| r.outcome) != Some(ApplyOutcome::Applied)
-            {
-                continue;
-            }
-            for index in 0..journal.approved.draft.changes.len() {
-                match self.qualify_inbox_saved_change(journal, index) {
-                    Ok(saved) => saved_consequences.push(InboxSavedConsequence {
-                        operation_id: journal.request.operation_id,
-                        member_index: index,
-                        saved,
-                    }),
-                    Err(e) => blockers.push(InboxRemovalBlocker::ConsequenceUnavailable {
-                        operation_id: journal.request.operation_id,
-                        member_index: index,
-                        reason: e.message,
-                    }),
-                }
-            }
-        }
-        // Filesystem observations must not quietly mix with later operational
-        // mutations. No lock spans caller review; eventual confirmation rereads.
-        if self.store.inbox_removal_snapshot(id)?.digest()? != snapshot.digest()? {
-            return Err(stale(
-                "retained original-removal work changed during qualification",
-            ));
-        }
         let evidence = InboxRemovalEvidence {
-            snapshot,
+            item,
             original,
-            sources,
-            saved_consequences,
+            source,
             blockers,
-            needs_owner_attestation: true,
+            needs_owner_confirmation: true,
         };
         let digest = evidence.digest()?;
         Ok(InboxRemovalPreview { evidence, digest })
     }
-    fn qualify_inbox_saved_change(
+
+    fn qualify_inbox_preservation(
         &mut self,
-        journal: &brn_store::work::proposal_apply::ApplyJournal,
-        index: usize,
+        item: &InboxItem,
+        original_text: &str,
+        approval: &ApplyJournal,
     ) -> Result<ProposalSource> {
-        let change = &journal.approved.draft.changes[index];
-        let Some(text) = change.text() else {
-            return Err(stale(
-                "removed knowledge needs a separately qualified retained-copy review",
-            ));
-        };
+        let binding = approval
+            .approved
+            .draft
+            .inbox_source
+            .as_ref()
+            .ok_or_else(|| stale("approval has no bound Inbox Source"))?;
         self.editor_files()?;
         let current = self
             .store
@@ -269,38 +184,29 @@ impl App {
             .ok_or_else(|| stale("current vault identity is missing"))?;
         let bound: brn_store::files::VaultRecord = serde_json::from_str(&current)
             .map_err(|_| stale("current vault identity is malformed"))?;
-        if journal.approved.draft.vault.as_ref() != Some(&bound) {
-            return Err(stale("approved outcome vault changed"));
+        if approval.approved.draft.vault.as_ref() != Some(&bound) {
+            return Err(stale("approved Source vault changed"));
         }
-        let saved = self.proposal_evidence_source(change.path())?;
-        let proof = journal
-            .observations
-            .as_ref()
-            .and_then(|proofs| proofs.get(index))
-            .and_then(|p| p.destination.as_ref())
-            .ok_or_else(|| stale("approval has no terminal saved proof"))?;
-        if &saved.source.fingerprint != proof || saved.text != text {
-            return Err(stale("approved outcome bytes or identity changed"));
+        let resolution = self.resolve_note_identity(binding.note_id)?;
+        if resolution.outcome != crate::knowledge::IdentityOutcome::Unique
+            || resolution.matches.len() != 1
+        {
+            return Err(stale(
+                "approved Source UUID is absent, ambiguous or incompletely inspected",
+            ));
         }
-        for editor in self.store.editors()? {
-            if (editor.path == change.path()
-                || (editor.baseline.device == proof.device && editor.baseline.inode == proof.inode))
-                && editor.text != editor.baseline_text
-            {
-                return Err(stale("approved outcome has retained unsaved editor work"));
-            }
+        let saved = self.proposal_evidence_source(&resolution.matches[0].path)?;
+        if saved.source.fingerprint.sha256 != resolution.matches[0].sha256 {
+            return Err(stale("saved Source changed during identity resolution"));
         }
-        if let Some(id) = brn_store::note_identity::read(&saved.text)? {
-            let resolution = self.resolve_note_identity(id)?;
-            if resolution.outcome != crate::knowledge::IdentityOutcome::Unique
-                || resolution.matches.len() != 1
-                || resolution.matches[0].path != change.path()
-            {
-                return Err(stale(
-                    "approved outcome UUID is ambiguous or incompletely inspected",
-                ));
-            }
+        InboxSourcePreservation {
+            original: item,
+            original_text,
+            approval,
+            saved: &saved.source,
+            saved_text: &saved.text,
         }
+        .validate()?;
         Ok(saved)
     }
 }
@@ -316,7 +222,9 @@ mod tests {
         inbox::{CaptureInboxRequest, InboxKind},
         inbox_processing::{InboxCandidateRequest, InboxSourceRequest, ProcessInboxRequest},
         proposal_apply::{ApprovalRequest, UndoRequest},
+        proposals::ProposalState,
     };
+    use brn_store::work::{chat::WorkTurnStatus, proposal_apply::ApplyOutcome};
     use std::{fs, sync::atomic::AtomicBool};
     struct Fixture {
         _owner: tempfile::TempDir,
@@ -359,6 +267,9 @@ mod tests {
             }
         }
         fn source(&mut self) -> Uuid {
+            self.source_at("source.md")
+        }
+        fn source_at(&mut self, path: &str) -> Uuid {
             let item = self.app.inbox_item(self.item).unwrap().item;
             let batch = self
                 .app
@@ -379,7 +290,7 @@ mod tests {
                     },
                     proposal_id: Uuid::new_v4(),
                     note_id: Uuid::new_v4(),
-                    path: "source.md".into(),
+                    path: path.into(),
                     title: "Exact Source".into(),
                 })
                 .unwrap();
@@ -396,7 +307,7 @@ mod tests {
         }
     }
     #[test]
-    fn conversion_and_applied_source_never_attest_semantic_completeness_or_remove_original() {
+    fn conversion_and_applied_source_still_require_confirmation_and_never_remove_original() {
         let mut f = Fixture::new();
         let empty = f.app.preview_inbox_removal(f.item).unwrap();
         assert!(
@@ -414,12 +325,29 @@ mod tests {
             "{:?}",
             preview.evidence.blockers
         );
-        assert!(preview.evidence.needs_owner_attestation);
-        assert_eq!(preview.evidence.sources.len(), 1);
-        assert_eq!(preview.evidence.sources[0].operation_id, operation);
+        assert!(preview.evidence.needs_owner_confirmation);
+        assert_eq!(usize::from(preview.evidence.source.is_some()), 1);
+        assert_eq!(
+            preview
+                .evidence
+                .source
+                .as_ref()
+                .unwrap()
+                .approval
+                .request
+                .operation_id,
+            operation
+        );
         assert_ne!(preview.digest, empty.digest);
         assert_eq!(
-            preview.evidence.sources[0].saved.text.as_bytes(),
+            preview
+                .evidence
+                .source
+                .as_ref()
+                .unwrap()
+                .saved
+                .text
+                .as_bytes(),
             fs::read(f.vault.join("source.md")).unwrap()
         );
         assert_eq!(fs::read(original).unwrap(), bytes);
@@ -451,17 +379,17 @@ mod tests {
             let bytes = fs::read(&original).unwrap();
             let preview = f.app.preview_inbox_removal(f.item).unwrap();
             assert!(!preview.evidence.blockers.is_empty(), "{mode}");
-            assert!(preview.evidence.sources.is_empty(), "{mode}");
+            assert!(preview.evidence.source.is_none(), "{mode}");
             assert_ne!(preview.digest, before.digest);
             assert_eq!(fs::read(original).unwrap(), bytes);
         }
     }
     #[test]
-    fn pending_related_processing_and_undo_remain_explicit_blockers_in_complete_evidence() {
+    fn pending_processing_is_independent_but_undo_removing_the_only_source_refuses() {
         let mut f = Fixture::new();
         let operation = f.source();
         let good = f.app.preview_inbox_removal(f.item).unwrap();
-        let item = good.evidence.snapshot.review.original.clone();
+        let item = good.evidence.item.clone();
         let batch = f
             .app
             .process_inbox(&ProcessInboxRequest {
@@ -470,17 +398,13 @@ mod tests {
             })
             .unwrap();
         let pending = f.app.preview_inbox_removal(f.item).unwrap();
-        assert!(
-            pending
-                .evidence
-                .blockers
-                .contains(&InboxRemovalBlocker::ProcessingPending {
-                    batch_id: batch.request.id,
-                    index: 0
-                })
-        );
-        assert_ne!(pending.digest, good.digest);
+        assert!(pending.evidence.blockers.is_empty());
+        assert_eq!(pending.digest, good.digest);
         f.app.cancel_inbox_processing(batch.request.id).unwrap();
+        assert_eq!(
+            f.app.preview_inbox_removal(f.item).unwrap().digest,
+            good.digest
+        );
         let undo = f
             .app
             .undo_proposal(&UndoRequest {
@@ -491,26 +415,16 @@ mod tests {
             .unwrap();
         assert_eq!(undo.outcome, ApplyOutcome::Applied);
         let undone = f.app.preview_inbox_removal(f.item).unwrap();
-        assert!(
-            undone
-                .evidence
-                .blockers
-                .contains(&InboxRemovalBlocker::AppliedUndo {
-                    operation_id: undo.operation_id
-                })
+        assert_eq!(
+            undone.evidence.blockers,
+            vec![InboxRemovalBlocker::SourceRequired]
         );
-        assert!(
-            undone
-                .evidence
-                .blockers
-                .contains(&InboxRemovalBlocker::SourceRequired)
-        );
-        assert_eq!(undone.evidence.snapshot.lineage.len(), 2);
+        assert!(undone.evidence.source.is_none());
         assert!(fs::exists(item.capture.copy.directory.join(item.capture.copy_name())).unwrap());
     }
 
     #[test]
-    fn changed_applied_consequence_is_a_visible_blocker() {
+    fn changed_applied_consequence_does_not_change_selected_preservation() {
         let mut f = Fixture::new();
         f.source();
         let saved = f
@@ -518,8 +432,8 @@ mod tests {
             .preview_inbox_removal(f.item)
             .unwrap()
             .evidence
-            .sources
-            .remove(0)
+            .source
+            .unwrap()
             .saved;
         let draft = crate::proposals::DraftRequest {
             inbox_source: None,
@@ -548,18 +462,11 @@ mod tests {
             "{:?}",
             good.evidence.blockers
         );
-        assert_eq!(good.evidence.saved_consequences.len(), 1);
         let retained = f.vault.join("consequence-retained");
         fs::rename(f.vault.join("consequence.md"), &retained).unwrap();
         let missing = f.app.preview_inbox_removal(f.item).unwrap();
-        assert!(
-            missing
-                .evidence
-                .blockers
-                .iter()
-                .any(|b| matches!(b, InboxRemovalBlocker::ConsequenceUnavailable { .. }))
-        );
-        assert_ne!(missing.digest, good.digest);
+        assert!(missing.evidence.blockers.is_empty());
+        assert_eq!(missing.digest, good.digest);
         assert!(
             f.data
                 .join("inbox")
@@ -568,7 +475,7 @@ mod tests {
         );
     }
     #[test]
-    fn absent_running_and_failed_analysis_or_running_rewrite_cannot_qualify_as_completed() {
+    fn absent_running_failed_analysis_pending_drafts_and_rewrite_do_not_block_preservation() {
         use brn_store::work::{
             inbox_actions::InboxActionCapture,
             proposal_rewrite::{RewriteOutcome, RewriteSpec},
@@ -580,9 +487,10 @@ mod tests {
             .preview_inbox_removal(f.item)
             .unwrap()
             .evidence
-            .sources
-            .remove(0)
+            .source
+            .unwrap()
             .saved;
+        let good = f.app.preview_inbox_removal(f.item).unwrap();
         let capture = InboxActionCapture {
             purpose: Default::default(),
             id: Uuid::new_v4(),
@@ -598,37 +506,23 @@ mod tests {
             .store
             .reserve_inbox_action(&capture, "Synthetic analysis; no provider route")
             .unwrap();
-        let expected = InboxRemovalBlocker::AnalysisUnsettled {
-            analysis_id: capture.id,
-        };
-        assert!(
-            f.app
-                .preview_inbox_removal(f.item)
-                .unwrap()
-                .evidence
-                .blockers
-                .contains(&expected)
+        assert_eq!(
+            f.app.preview_inbox_removal(f.item).unwrap().digest,
+            good.digest
         );
+        assert!(good.evidence.blockers.is_empty());
         f.app.store.begin_inbox_action_turn(&job).unwrap();
-        assert!(
-            f.app
-                .preview_inbox_removal(f.item)
-                .unwrap()
-                .evidence
-                .blockers
-                .contains(&expected)
+        assert_eq!(
+            f.app.preview_inbox_removal(f.item).unwrap().digest,
+            good.digest
         );
         f.app
             .store
             .finish_turn(capture.id, WorkTurnStatus::Failed, "", Some("network"))
             .unwrap();
-        assert!(
-            f.app
-                .preview_inbox_removal(f.item)
-                .unwrap()
-                .evidence
-                .blockers
-                .contains(&expected)
+        assert_eq!(
+            f.app.preview_inbox_removal(f.item).unwrap().digest,
+            good.digest
         );
         let draft = crate::proposals::DraftRequest {
             inbox_source: None,
@@ -654,29 +548,17 @@ mod tests {
         };
         f.app.store.begin_proposal_rewrite(&spec).unwrap();
         f.app.store.reject_proposal(p.stamp()).unwrap();
-        assert!(
-            f.app
-                .preview_inbox_removal(f.item)
-                .unwrap()
-                .evidence
-                .blockers
-                .contains(&InboxRemovalBlocker::RewriteRunning {
-                    rewrite_id: spec.id
-                })
+        assert_eq!(
+            f.app.preview_inbox_removal(f.item).unwrap().digest,
+            good.digest
         );
         f.app
             .store
             .finish_proposal_rewrite(spec.id, &RewriteOutcome::Interrupted)
             .unwrap();
-        assert!(
-            !f.app
-                .preview_inbox_removal(f.item)
-                .unwrap()
-                .evidence
-                .blockers
-                .contains(&InboxRemovalBlocker::RewriteRunning {
-                    rewrite_id: spec.id
-                })
+        assert_eq!(
+            f.app.preview_inbox_removal(f.item).unwrap().digest,
+            good.digest
         );
         assert!(
             f.data
@@ -686,7 +568,7 @@ mod tests {
         );
     }
     #[test]
-    fn retained_unsaved_source_editor_blocks_even_when_approved_file_is_unchanged() {
+    fn retained_unsaved_editor_is_not_saved_preservation_authority() {
         let mut f = Fixture::new();
         f.source();
         let good = f.app.preview_inbox_removal(f.item).unwrap();
@@ -701,9 +583,35 @@ mod tests {
             })
             .unwrap();
         let preview = f.app.preview_inbox_removal(f.item).unwrap();
-        assert!(preview.evidence.blockers.iter().any(|b|matches!(b,InboxRemovalBlocker::SourceUnavailable{reason,..} if reason.contains("unsaved editor"))));
-        assert_ne!(preview.digest, good.digest);
+        assert!(preview.evidence.blockers.is_empty());
+        assert_eq!(preview.digest, good.digest);
+        assert_eq!(
+            f.app.store.editor("source.md").unwrap().unwrap().text,
+            good.evidence.source.as_ref().unwrap().saved.text.clone() + "\nUnfinished review"
+        );
         assert_eq!(fs::read(f.vault.join("source.md")).unwrap(), saved);
+        fs::write(
+            f.vault.join("source.md"),
+            b"Saved Source no longer preserves anything",
+        )
+        .unwrap();
+        assert!(
+            f.app
+                .preview_inbox_removal(f.item)
+                .unwrap()
+                .evidence
+                .source
+                .is_none()
+        );
+        assert!(
+            f.app
+                .store
+                .editor("source.md")
+                .unwrap()
+                .unwrap()
+                .text
+                .ends_with("Unfinished review")
+        );
         assert!(
             f.data
                 .join("inbox")
@@ -712,7 +620,7 @@ mod tests {
         );
     }
     #[test]
-    fn not_applied_undo_draft_and_later_review_cannot_disappear_from_qualification() {
+    fn not_applied_undo_and_later_review_do_not_change_preservation() {
         let mut f = Fixture::new();
         let applied = f.source();
         let op = Uuid::new_v4();
@@ -731,14 +639,7 @@ mod tests {
         let proposal = f.app.store.proposal(op).unwrap().unwrap();
         assert_eq!(proposal.state, ProposalState::Draft);
         let preview = f.app.preview_inbox_removal(f.item).unwrap();
-        assert!(
-            preview
-                .evidence
-                .blockers
-                .contains(&InboxRemovalBlocker::ProposalUnsettled { proposal_id: op }),
-            "related Undo Draft was omitted: {:?}",
-            preview.evidence.blockers
-        );
+        assert!(preview.evidence.blockers.is_empty());
         f.app
             .store
             .edit_proposal(&crate::proposals::ProposalEdit {
@@ -748,10 +649,286 @@ mod tests {
                 action_data: vec![],
             })
             .unwrap();
-        assert_ne!(
+        assert_eq!(
             f.app.preview_inbox_removal(f.item).unwrap().digest,
-            preview.digest,
-            "Undo review revision was omitted"
+            preview.digest
         );
+    }
+    #[test]
+    fn owner_save_header_history_archive_and_restart_still_prove_the_exact_body() {
+        use crate::editor::{EditRequest, SaveOutcome, SaveRequest};
+        let mut f = Fixture::new();
+        let operation = f.source();
+        let before = f.app.preview_inbox_removal(f.item).unwrap();
+        let old = before.evidence.source.as_ref().unwrap();
+        let body = brn_store::note_identity::body_start(&old.saved.text).unwrap();
+        let edited_header = old.saved.text[..body]
+            .replace("brn_state: current", "brn_state: history")
+            .replace("---\n", "---\ncustom: owner metadata 日本語\n")
+            .replace('\n', "\r\n");
+        // Remove the closing-delimiter custom field introduced by replace, keeping
+        // only unrelated metadata inside the outer header and exact body bytes.
+        let edited_header = edited_header
+            .strip_suffix("custom: owner metadata 日本語\r\n")
+            .unwrap();
+        let text = format!("\u{feff}{edited_header}{}", &old.saved.text[body..]);
+        let editor = f.app.open_editor("source.md").unwrap().record;
+        let receipt = f
+            .app
+            .save_editor(&SaveRequest {
+                operation_id: Uuid::new_v4(),
+                edit: EditRequest {
+                    path: editor.path,
+                    expected: editor.stamp,
+                    generation: editor.stamp.generation + 1,
+                    text: text.clone(),
+                },
+                destination: None,
+            })
+            .unwrap();
+        assert_eq!(receipt.outcome, SaveOutcome::Applied);
+        let after = f.app.preview_inbox_removal(f.item).unwrap();
+        assert!(after.evidence.blockers.is_empty());
+        let source = after.evidence.source.as_ref().unwrap();
+        assert_eq!(source.approval.request.operation_id, operation);
+        assert_eq!(source.approval, old.approval);
+        assert_ne!(
+            source.saved.source.fingerprint.inode,
+            old.saved.source.fingerprint.inode
+        );
+        assert_eq!(source.saved.text, text);
+        assert_ne!(after.digest, before.digest);
+        fs::create_dir(f.vault.join("archive")).unwrap();
+        fs::rename(f.vault.join("source.md"), f.vault.join("archive/moved.md")).unwrap();
+        let moved = f.app.preview_inbox_removal(f.item).unwrap();
+        assert!(moved.evidence.blockers.is_empty());
+        assert_eq!(
+            moved.evidence.source.as_ref().unwrap().saved.source.path,
+            "archive/moved.md"
+        );
+        assert_ne!(moved.digest, after.digest);
+        drop(f.app);
+        let mut app = App::open(
+            &f.data,
+            AppConfig {
+                vault_root: Some(f.vault),
+                credentials_dir: Some(f._owner.path().join("credentials")),
+                model_dir: None,
+            },
+        )
+        .unwrap();
+        assert_eq!(
+            app.preview_inbox_removal(f.item).unwrap().digest,
+            moved.digest
+        );
+        assert!(
+            f.data
+                .join("inbox")
+                .join(format!("{}.txt", f.item))
+                .exists()
+        );
+    }
+
+    #[test]
+    fn one_valid_source_qualifies_even_when_an_alternative_is_stale() {
+        let mut f = Fixture::new();
+        f.source_at("first.md");
+        let second = f.source_at("second.md");
+        fs::write(f.vault.join("first.md"), "stale alternative").unwrap();
+        let good = f.app.preview_inbox_removal(f.item).unwrap();
+        assert!(good.evidence.blockers.is_empty());
+        assert_eq!(
+            good.evidence
+                .source
+                .as_ref()
+                .unwrap()
+                .approval
+                .request
+                .operation_id,
+            second
+        );
+        fs::write(f.vault.join("first.md"), "different stale alternative").unwrap();
+        assert_eq!(
+            f.app.preview_inbox_removal(f.item).unwrap().digest,
+            good.digest
+        );
+        fs::write(f.vault.join("second.md"), "changed selected body").unwrap();
+        let refused = f.app.preview_inbox_removal(f.item).unwrap();
+        assert_eq!(
+            refused.evidence.blockers,
+            vec![InboxRemovalBlocker::SourceRequired]
+        );
+        assert!(refused.evidence.source.is_none());
+    }
+
+    #[test]
+    fn identity_provenance_classification_and_complete_inventory_remain_required() {
+        for mode in [
+            "identity",
+            "provenance",
+            "kind",
+            "state",
+            "oversized_inventory",
+            "unreadable_inventory",
+        ] {
+            let mut f = Fixture::new();
+            f.source();
+            let good = f.app.preview_inbox_removal(f.item).unwrap();
+            let path = f.vault.join("source.md");
+            let text = fs::read_to_string(&path).unwrap();
+            match mode {
+                "identity" => {
+                    let id = brn_store::note_identity::read(&text).unwrap().unwrap();
+                    fs::write(
+                        &path,
+                        text.replace(&id.to_string(), &Uuid::new_v4().to_string()),
+                    )
+                    .unwrap();
+                }
+                "provenance" => {
+                    fs::write(&path, text.replace("Synthetic copy õ", "Another capture")).unwrap()
+                }
+                "kind" => fs::write(
+                    &path,
+                    text.replace("brn_kind: source", "brn_kind: knowledge"),
+                )
+                .unwrap(),
+                "state" => fs::write(
+                    &path,
+                    text.replace("brn_state: current", "brn_state: guessed"),
+                )
+                .unwrap(),
+                "oversized_inventory" => fs::write(
+                    f.vault.join("unknown.md"),
+                    vec![b'x'; crate::MAX_NOTE_BYTES + 1],
+                )
+                .unwrap(),
+                "unreadable_inventory" => fs::write(f.vault.join("unknown.md"), [0xff]).unwrap(),
+                _ => unreachable!(),
+            }
+            let preview = f.app.preview_inbox_removal(f.item).unwrap();
+            assert!(preview.evidence.source.is_none(), "{mode}");
+            assert_eq!(
+                preview.evidence.blockers,
+                vec![InboxRemovalBlocker::SourceRequired],
+                "{mode}"
+            );
+            assert_ne!(preview.digest, good.digest);
+            assert!(
+                f.data
+                    .join("inbox")
+                    .join(format!("{}.txt", f.item))
+                    .exists()
+            );
+        }
+    }
+
+    #[test]
+    fn interrupted_save_or_apply_fences_preservation_and_never_becomes_a_pending_draft_gate() {
+        use crate::editor::{EditRequest, SaveRequest};
+        for mode in ["save", "apply"] {
+            let mut f = Fixture::new();
+            f.source();
+            let good = f.app.preview_inbox_removal(f.item).unwrap();
+            if mode == "save" {
+                let editor = f.app.open_editor("source.md").unwrap().record;
+                let request = SaveRequest {
+                    operation_id: Uuid::new_v4(),
+                    edit: EditRequest {
+                        path: editor.path,
+                        expected: editor.stamp,
+                        generation: editor.stamp.generation + 1,
+                        text: editor.text + "\nPending Save",
+                    },
+                    destination: None,
+                };
+                let stage =
+                    std::path::PathBuf::from(format!(".brn-{}.stage", request.operation_id));
+                f.app.store.begin_editor_save(&request, &stage).unwrap();
+            } else {
+                let source = good.evidence.source.as_ref().unwrap().saved.source.clone();
+                let draft = crate::proposals::DraftRequest {
+                    inbox_source: None,
+                    inbox_knowledge: None,
+                    id: Uuid::new_v4(),
+                    group_id: None,
+                    session_id: None,
+                    title: "Pending consequence".into(),
+                    changes: vec![crate::proposals::DraftNoteChange::Create {
+                        path: "later.md".into(),
+                        text: "Later".into(),
+                    }],
+                    sources: vec![source],
+                    action_changes: vec![],
+                };
+                let p = f.app.create_proposal(&draft).unwrap();
+                assert_eq!(
+                    f.app.preview_inbox_removal(f.item).unwrap().digest,
+                    good.digest
+                );
+                f.app
+                    .store
+                    .begin_proposal_apply(&ApprovalRequest {
+                        operation_id: Uuid::new_v4(),
+                        expected: p.stamp(),
+                    })
+                    .unwrap();
+            }
+            assert_eq!(
+                f.app.preview_inbox_removal(f.item).unwrap_err().kind,
+                ErrorKind::SaveUncertain,
+                "{mode}"
+            );
+            assert!(
+                f.data
+                    .join("inbox")
+                    .join(format!("{}.txt", f.item))
+                    .exists()
+            );
+        }
+    }
+
+    #[test]
+    fn client_evidence_digest_rejects_forged_readiness_and_saved_proofs() {
+        let mut f = Fixture::new();
+        f.source();
+        let good = f.app.preview_inbox_removal(f.item).unwrap();
+        let mut e = good.evidence.clone();
+        e.needs_owner_confirmation = false;
+        assert!(e.digest().is_err());
+        let mut e = good.evidence.clone();
+        e.blockers.push(InboxRemovalBlocker::SourceRequired);
+        assert!(e.digest().is_err());
+        let mut e = good.evidence.clone();
+        e.source.as_mut().unwrap().saved.text.push('x');
+        assert!(e.digest().is_err());
+        let mut e = good.evidence;
+        e.original = InboxOriginal::Missing;
+        assert!(e.digest().is_err());
+    }
+    #[test]
+    fn worst_case_escaped_original_and_sources_remain_complete_within_fixed_evidence_bound() {
+        let mut f = Fixture::new();
+        let text = "\u{0001}".repeat(crate::MAX_NOTE_BYTES - 4096);
+        let item = f
+            .app
+            .capture_inbox(&CaptureInboxRequest {
+                id: Uuid::new_v4(),
+                kind: InboxKind::Text,
+                title: "Worst-case synthetic JSON".into(),
+                original_name: None,
+                text: text.clone(),
+            })
+            .unwrap();
+        f.item = item.capture.id;
+        f.source();
+        let preview = f.app.preview_inbox_removal(f.item).unwrap();
+        assert!(preview.evidence.blockers.is_empty());
+        assert_eq!(preview.evidence.original, InboxOriginal::Available { text });
+        let encoded = serde_json::to_vec(&preview.evidence).unwrap();
+        assert!(encoded.len() > 17 * crate::MAX_NOTE_BYTES);
+        assert!(encoded.len() < MAX_PRESERVATION_EVIDENCE_BYTES);
+        let replay: InboxRemovalEvidence = serde_json::from_slice(&encoded).unwrap();
+        assert_eq!(replay.digest().unwrap(), preview.digest);
     }
 }

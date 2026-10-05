@@ -132,44 +132,7 @@ fn convert(
     text: &str,
     cancel: &AtomicBool,
 ) -> std::result::Result<(InboxConversionFormat, String), InboxProcessOutcome> {
-    if cancel.load(Ordering::Acquire) {
-        return Err(InboxProcessOutcome::Cancelled);
-    }
-    if kind == InboxKind::Markdown {
-        return Ok((InboxConversionFormat::VerbatimMarkdownV1, text.to_owned()));
-    }
-    // A fence longer than every run cannot be closed by imported delimiters.
-    // Prefer the shorter safe delimiter. The exact body is never normalized.
-    let mut longest = [0usize; 2];
-    let mut runs = [0usize; 2];
-    for (offset, byte) in text.bytes().enumerate() {
-        if offset % 4096 == 0 && cancel.load(Ordering::Acquire) {
-            return Err(InboxProcessOutcome::Cancelled);
-        }
-        for (i, delimiter) in b"`~".iter().copied().enumerate() {
-            runs[i] = if byte == delimiter { runs[i] + 1 } else { 0 };
-            longest[i] = longest[i].max(runs[i]);
-        }
-    }
-    let i = usize::from(longest[1] < longest[0]);
-    let width = (longest[i] + 1).max(3);
-    let delimiter = if i == 0 { '`' } else { '~' };
-    let length = text
-        .len()
-        .checked_add(2 * width + 6 + usize::from(!text.ends_with('\n')));
-    if length.is_none_or(|len| len > crate::MAX_NOTE_BYTES) {
-        return Err(InboxProcessOutcome::Failed {
-            code: "candidate_too_large".into(),
-        });
-    }
-    let fence: String = std::iter::repeat_n(delimiter, width).collect();
-    let mut markdown = format!("{fence}text\n{text}");
-    if !text.ends_with('\n') {
-        markdown.push('\n');
-    }
-    markdown.push_str(&fence);
-    markdown.push('\n');
-    Ok((InboxConversionFormat::LiteralTextV1, markdown))
+    brn_store::work::inbox_source::convert_original(kind, text, cancel)
 }
 impl App {
     /// Prepare exact source review input. Admission and approval remain separate

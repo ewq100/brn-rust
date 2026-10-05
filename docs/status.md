@@ -15,37 +15,34 @@ and the disposable retrieval index retain their existing roles. The owner's
 permits thin future adapters around the six V1 core crates through workflow/
 AppWorker. No MCP, daemon, HTTP service, extra database or remote work is in V1.
 
-Integrated main is **`d36375b23dbf27a575ee73b5843bbf7d40f2a8ab` (PR63)**.
-Complete retained original review, fresh removal preview, deterministic body quote
-selection/Rust conflict and Knowledge identities, and AI Rewrite metadata
-protection are integrated. Preview grants no removal authority. Exact-head
-PR37377504928 attempt1 passed all four protected Mac/shared jobs and Docs; overall
-red retains Windows22 compiler blocks and both summaries matching PR62. Fresh
-merged123 AI/two owned Knowledge callback tests and52 fixtures passed; the initial
-misspelled filter selected zero tests and is not callback qualification. Main62's
-applicable gates passed; retained Windows22/22/14 and three Linux assertions/
-backtraces match main61, with Linux ordering/thread-ID differences retained.
-Merged main63 run37378949287 passed all applicable gates; overall red retains
-the same platform failures with log order/thread-ID/timing differences recorded.
+Integrated main is **`90c36e5c2035d1eea4fc37e7828f085a0f1bfba0` (PR64)**.
+Complete retained original review, deterministic saved-body quotes, Rust-owned
+Conflict/Knowledge/Action candidate identities, checked full Action replacement
+baselines and AI Rewrite metadata protection are integrated. Exact approval and
+original replay retain prior evidence and newer reviews. PR64 exact-head
+37380762825 attempt1 passed all four protected Mac/shared jobs and Docs; overall
+red retains unchanged Windows22 compiler blocks and both summaries matching PR63.
+Fresh merged127 AI,11 Action callback/fence tests and52 fixtures passed. Main64
+37382000386 attempt1 passed all applicable gates. Overall red retains the same
+Windows22/22/14 complete compiler blocks/summaries and three Linux assertions/
+backtraces, with raw ordering/thread-ID/duration differences retained.
 
-The clean, pushed **`7c4f668de467721f728f242c8fac8d14606a6e44`** snapshot on
-`codex/v1-inbox-recoverable-removal` implements recoverable removal/restore,
-mirrors and recovery, but is **not merged**. It is the immutable lifecycle review
-snapshot, not the corrected cleanup contract. Architecture-review corrections
-continue with Rust-owned Action candidate mechanics on
-`codex/v1-review-action-candidates`; A1 record-shape and owner
-cleanup corrections hold lifecycle integration, native removal and Stage 8.
-The Action correction has clean independent review and fresh shared/native
-qualification; exact-head CI/integration is next. The full V1 goal is active.
+The pushed immutable **`7c4f668de467721f728f242c8fac8d14606a6e44`** snapshot on
+`codex/v1-inbox-recoverable-removal` implements removal/restore and recovery, but is
+**unmerged**. Architecture-review corrections continue on
+`codex/v1-source-preservation`: qualify one approved Source proving exact original
+preservation, with explicit confirmation still required. Failed/pending analysis,
+consequence drafts and later derived edits are independent. Item disposition is
+separate. The current candidate replaces the older conservative preview;
+independent review is clean, and fresh shared/native verification passed at
+95940fe6c143d529f98b70ef5914b1e05decdc20. Exact-head CI/integration are pending. A1 record/performance/recovery
+corrections hold lifecycle integration, native removal and Stage8. No semantic
+completeness, native/live/owner acceptance or full V1 delivery is claimed. The full
+V1 goal remains active. No owner original/private data was inspected or migrated.
 
-The owner ratified cleanup based on an approved Source's exact preservation plus
-explicit confirmation. Failed analyses, pending drafts and later derived edits
-do not block cleanup; item disposition is separate. Current main's preview still
-uses the older stricter gates; the unmerged lifecycle snapshot also requires five
-attestations. Their correction is pending. No semantic completeness or corrected
-cleanup readiness is claimed. The [original-copy record](work/active/text-email-inbox/original-copy-plan.md)
-and [resumable checkpoint](development/checkpoint.md) retain evidence and handoff.
-No owner original/private data was inspected or migrated.
+The [original-copy record](work/active/text-email-inbox/original-copy-plan.md),
+[correction plan](work/active/architecture-review-corrections/plan.md) and
+[resumable checkpoint](development/checkpoint.md) retain detailed evidence.
 
 ## Integrated behavior
 

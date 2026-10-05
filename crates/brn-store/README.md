@@ -520,8 +520,21 @@ clipping. No schema/write/recovery, semantic completeness or removal authority
 is added. A digest alone is not an approval token.
 
 
-`inbox_removal_snapshot(item_id)` extends that read in the same checked transaction
+`inbox_removal_snapshot(item_id)` retains the earlier complete consequence
+inspection API; it is no longer cleanup admission. It extends the review in the same checked transaction
 with all related current Actions, exact completion receipts, Rewrite jobs and
 transitive Undo lineage. Current completion authority is checked against retained
 Actions. Ordered complete evidence/digest refuses above64MiB. Store reads never
 qualify physical Sources, decide semantic completeness or remove original copies.
+
+`inbox_source_approval_ids(item_id)` checks approval journals one at a time in a
+consistent read transaction, retaining only IDs of Applied non-Undo Source
+approvals ordered by operation UUID. It does not scan the consequence graph or
+retain unrelated bodies; it still validates all listed journals, so selective
+journal indexing and broader startup costs remain separate work.
+`InboxSourcePreservation` validates the complete original, exact deterministic
+conversion, full Applied Source approval and freshly captured saved body/UUID/
+classification/provenance without filesystem access. The shared conversion core
+preserves existing bytes/cancellation. Strict new Source proposal validation
+remains unchanged; cleanup may recognize later owner header edits or History
+that still preserve exact original content. No schema or namespace effect is added.
