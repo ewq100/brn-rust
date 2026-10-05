@@ -152,11 +152,14 @@ Commands:
   brn inbox candidate UUID INDEX
   brn inbox source --file REQUEST_JSON
   brn inbox cancel UUID
+  brn inbox analyze-actions --file REQUEST_JSON [--timeout-seconds N]
+  brn inbox action-analysis UUID
   brn actions complete --file REQUEST.json
   brn actions show UUID
   brn actions list [--state open|waiting|blocked|completed|all] [--limit N] [--before-created-at-ms N --before-id UUID]
   brn actions dashboard [--as-of YYYY-MM-DD] [--filter active|open|waiting|blocked|completed|overdue|follow-up|all] [--limit N] [--before-created-at-ms N --before-id UUID]
   brn proposals create --file DRAFT.json
+  brn proposals source PATH
   brn proposals list [--group UUID]
   brn proposals show PROPOSAL_ID
   brn proposals edit --file EDIT.json

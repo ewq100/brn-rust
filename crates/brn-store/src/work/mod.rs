@@ -9,6 +9,7 @@ pub mod editor;
 mod edits;
 pub mod findings;
 pub mod inbox;
+pub mod inbox_actions;
 pub mod inbox_processing;
 pub mod inbox_source;
 pub mod proposal_apply;
@@ -79,6 +80,7 @@ const MIGRATIONS: &[&str] = &[
     action_completion::V11,
     inbox::V12,
     inbox_processing::V13,
+    inbox_actions::V14,
 ];
 
 #[derive(Debug, Clone, PartialEq, Eq)]
@@ -154,6 +156,7 @@ impl WorkStore {
         action_completion::check_all(&conn)?;
         findings::check_all(&conn)?;
         inbox::check_all(&conn)?;
+        inbox_actions::check_all(&conn)?;
         inbox_processing::reconcile(&mut conn)?;
         chat::reconcile(&mut conn)?;
         proposal_rewrite::reconcile(&mut conn)?;
@@ -273,6 +276,15 @@ fn check(db: &Path) -> Result<Checked> {
         Err(e) if is_corruption(&e) => return Ok(Checked::Corrupt),
         Err(e) => return Err(e.into()),
     };
+    if application == APPLICATION_ID && (14..=MIGRATIONS.len() as i64).contains(&version) {
+        // A readable reserved analysis or bound turn cannot be replaced by
+        // an older backup, even when its own table remains physically healthy.
+        match inbox_actions::check_all(&conn) {
+            Err(crate::Error::Sql(e)) if is_corruption(&e) => return Ok(Checked::Corrupt),
+            Err(error) => return Ok(Checked::Invalid(error)),
+            Ok(()) => {}
+        }
+    }
     if application == APPLICATION_ID && (13..=MIGRATIONS.len() as i64).contains(&version) {
         // Readable queue damage must not silently discard pending/review work.
         match inbox_processing::check_all(&conn) {

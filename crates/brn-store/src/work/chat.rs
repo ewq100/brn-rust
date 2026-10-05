@@ -192,7 +192,7 @@ struct Message {
     finished: Option<i64>,
 }
 
-fn read_turn(conn: &Connection, id: Uuid) -> Result<Option<(WorkTurn, i64)>> {
+pub(super) fn read_turn(conn: &Connection, id: Uuid) -> Result<Option<(WorkTurn, i64)>> {
     let mut statement = conn.prepare(
         "SELECT conversation_id, sequence, role, text, provider, model, effort, status, error_code, started_at_ms, finished_at_ms
          FROM messages WHERE turn_id = ?1 ORDER BY role DESC",
@@ -259,22 +259,21 @@ fn read_turn(conn: &Connection, id: Uuid) -> Result<Option<(WorkTurn, i64)>> {
     {
         return Err(invalid("invalid stored chat timestamp ordering"));
     }
-    Ok(Some((
-        WorkTurn {
-            id,
-            conversation_id,
-            question: user.text.clone(),
-            answer: assistant.text.clone(),
-            provider: user.provider.clone(),
-            model: user.model.clone(),
-            effort: user.effort.clone(),
-            status,
-            error_code: user.error.clone(),
-            started_at_ms,
-            finished_at_ms,
-        },
-        user.sequence,
-    )))
+    let turn = WorkTurn {
+        id,
+        conversation_id,
+        question: user.text.clone(),
+        answer: assistant.text.clone(),
+        provider: user.provider.clone(),
+        model: user.model.clone(),
+        effort: user.effort.clone(),
+        status,
+        error_code: user.error.clone(),
+        started_at_ms,
+        finished_at_ms,
+    };
+    super::inbox_actions::check_turn(conn, &turn)?;
+    Ok(Some((turn, user.sequence)))
 }
 
 struct ConversationTimes {
@@ -361,10 +360,49 @@ pub(super) fn begin_turn(
     effort: Option<&str>,
 ) -> Result<WorkTurn> {
     let tx = conn.transaction_with_behavior(TransactionBehavior::Immediate)?;
-    if super::proposal_rewrite::read_job(&tx, id)?.is_some() {
+    if super::inbox_actions::reserved(&tx, id)?.is_some() {
         return Err(conflict());
     }
-    if let Some((turn, _)) = read_turn(&tx, id)? {
+    let turn = begin_in_transaction(&tx, id, conversation, question, provider, model, effort)?;
+    tx.commit()?;
+    Ok(turn)
+}
+
+pub(super) fn begin_inbox_action_turn(
+    conn: &mut Connection,
+    job: &super::inbox_actions::InboxActionJob,
+) -> Result<WorkTurn> {
+    let tx = conn.transaction_with_behavior(TransactionBehavior::Immediate)?;
+    if super::inbox_actions::reserved(&tx, job.capture.id)?.as_ref() != Some(job) {
+        return Err(conflict());
+    }
+    let capture = &job.capture;
+    let turn = begin_in_transaction(
+        &tx,
+        capture.id,
+        capture.conversation,
+        &job.question,
+        &capture.provider,
+        &capture.model,
+        Some(&capture.effort),
+    )?;
+    tx.commit()?;
+    Ok(turn)
+}
+
+fn begin_in_transaction(
+    tx: &rusqlite::Transaction<'_>,
+    id: Uuid,
+    conversation: Option<Uuid>,
+    question: &str,
+    provider: &str,
+    model: &str,
+    effort: Option<&str>,
+) -> Result<WorkTurn> {
+    if super::proposal_rewrite::read_job(tx, id)?.is_some() {
+        return Err(conflict());
+    }
+    if let Some((turn, _)) = read_turn(tx, id)? {
         if turn.question != question
             || turn.provider != provider
             || turn.model != model
@@ -373,7 +411,6 @@ pub(super) fn begin_turn(
         {
             return Err(conflict());
         }
-        tx.commit()?;
         return Ok(turn);
     }
     if question.trim().is_empty() {
@@ -382,8 +419,8 @@ pub(super) fn begin_turn(
     validate_selection(provider, model)?;
     validate_effort(effort)?;
     let (conversation_id, started_at_ms) = if let Some(c) = conversation {
-        let known = require_conversation(&tx, c)?;
-        (c, capture_time(clock_floor(&tx, c, &known)?)?)
+        let known = require_conversation(tx, c)?;
+        (c, capture_time(clock_floor(tx, c, &known)?)?)
     } else {
         let c = Uuid::new_v4();
         let created = capture_time(0)?;
@@ -408,10 +445,9 @@ pub(super) fn begin_turn(
         "UPDATE conversations SET last_activity_at_ms=?2 WHERE id=?1",
         params![conversation_id.to_string(), sql_timestamp(started_at_ms)?],
     )?;
-    let turn = read_turn(&tx, id)?
+    let turn = read_turn(tx, id)?
         .ok_or_else(|| invalid("inserted chat turn is missing"))?
         .0;
-    tx.commit()?;
     Ok(turn)
 }
 

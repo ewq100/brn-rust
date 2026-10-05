@@ -12,6 +12,7 @@ pub mod error;
 mod files;
 pub mod findings;
 pub mod inbox;
+pub mod inbox_actions;
 pub mod inbox_processing;
 pub mod knowledge;
 pub mod library;

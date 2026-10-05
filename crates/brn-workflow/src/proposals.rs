@@ -205,7 +205,7 @@ impl App {
 
     /// Read-only full source capture, including archived evidence. This does not
     /// expand destination authority or create an editor/review record.
-    pub(crate) fn proposal_evidence_source(&mut self, path: &str) -> Result<ProposalSource> {
+    pub fn proposal_evidence_source(&mut self, path: &str) -> Result<ProposalSource> {
         EvidencePath::parse(path)
             .map_err(|_| invalid("source needs a contained visible Markdown evidence path"))?;
         self.require_current_evidence()?;

@@ -1939,3 +1939,7 @@ mod action_reads;
 #[cfg(target_os = "macos")]
 #[path = "action_proposal_tools_tests.rs"]
 mod action_proposals;
+
+#[cfg(target_os = "macos")]
+#[path = "inbox_actions_tests.rs"]
+mod inbox_actions;

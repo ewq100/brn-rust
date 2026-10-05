@@ -140,7 +140,10 @@ pub(crate) type Emit = Arc<dyn Fn(Output) + Send + Sync>;
 
 enum Command {
     Tools(Option<Arc<dyn ReadTools>>, mpsc::Sender<Result<()>>),
-    Ask(AskRequest),
+    Ask(
+        AskRequest,
+        Option<Box<crate::inbox_actions::InboxActionJob>>,
+    ),
     Rewrite(RewriteRequest, CancellationToken),
     Account(Uuid, AccountCommand),
     Prompt(Uuid, LoginPrompt),
@@ -157,7 +160,23 @@ pub(crate) struct ChatHandle {
 }
 impl ChatHandle {
     pub(crate) fn ask(&self, request: AskRequest) -> Result<()> {
-        self.send(Command::Ask(request))
+        self.send(Command::Ask(request, None))
+    }
+    pub(crate) fn ask_inbox(
+        &self,
+        request: AskRequest,
+        job: crate::inbox_actions::InboxActionJob,
+    ) -> Result<()> {
+        if request.id != job.capture.id
+            || request.conversation != job.capture.conversation
+            || request.question != job.question
+            || provider_name(request.selection.provider) != job.capture.provider
+            || request.selection.model != job.capture.model
+            || request.effort.map(ReasoningEffort::as_str) != Some(job.capture.effort.as_str())
+        {
+            return Err(conflict());
+        }
+        self.send(Command::Ask(request, Some(Box::new(job))))
     }
     pub(crate) fn rewrite(&self, request: RewriteRequest, cancel: CancellationToken) -> Result<()> {
         self.send(Command::Rewrite(request, cancel))
@@ -422,11 +441,13 @@ async fn run(
                             emit(Output::Account(AccountEvent::Login { id, prompt }));
                         }
                     }
-                    Some(Command::Ask(request)) => {
+                    Some(Command::Ask(request, inbox)) => {
                         let validation = (|| -> Result<Option<WorkTurn>> {
-                            if let Some(previous) = turn_ledger.get(&request.id)
-                                && previous != &request
-                            { return Err(conflict()); }
+                            if let Some(previous) = turn_ledger.get(&request.id) {
+                                let mut previous = previous.clone();
+                                if inbox.is_some() { previous.generation = request.generation; }
+                                if previous != request { return Err(conflict()); }
+                            }
                             if let Some(turn) = store.turn(request.id)? {
                                 check_replay(&request, &turn)?;
                                 return Ok(Some(turn));
@@ -463,11 +484,15 @@ async fn run(
                                     },
                                     None => Vec::new(),
                                 };
-                                match store.begin_turn_with_effort(
-                                    request.id, request.conversation, &request.question,
-                                    provider_name(request.selection.provider), &request.selection.model,
-                                    request.effort.map(ReasoningEffort::as_str),
-                                ) {
+                                let admission = match inbox.as_deref() {
+                                    Some(job) => store.begin_inbox_action_turn(job),
+                                    None => store.begin_turn_with_effort(
+                                        request.id, request.conversation, &request.question,
+                                        provider_name(request.selection.provider), &request.selection.model,
+                                        request.effort.map(ReasoningEffort::as_str),
+                                    ),
+                                };
+                                match admission {
                                     Err(error) => emit(Output::Chat(rejected(&request, error.into()))),
                                     Ok(turn) => {
                                         let cancel = CancellationToken::new();
@@ -477,7 +502,10 @@ async fn run(
                                         let task = jobs.spawn(run_turn(
                                             auth.clone(), request.clone(), history,
                                             tools.as_ref().expect("preflight tools").clone(),
-                                            proposals.bind(&request, &turn, cancel.clone()),
+                                            match inbox {
+                                                Some(job) => proposals.bind_inbox(&request, &turn, cancel.clone(), Some(job)),
+                                                None => proposals.bind(&request, &turn, cancel.clone()),
+                                            },
                                             cancel, emit.clone(), hooks.clone(),
                                         ));
                                         task_ids.insert(task.id(), (request.id, Some(RequestJob::Ask(request.clone())), request.selection.provider));

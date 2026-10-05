@@ -259,7 +259,7 @@ pub(super) fn nonnil(id: Uuid) -> Result<()> {
     Ok(())
 }
 
-fn validate_path(path: &str) -> Result<()> {
+pub(super) fn validate_path(path: &str) -> Result<()> {
     // Same contained Markdown rules as editor work, with hidden/internal paths
     // excluded from proposal targets and source bindings.
     if path.is_empty()

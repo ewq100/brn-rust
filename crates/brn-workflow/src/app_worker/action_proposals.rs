@@ -31,11 +31,21 @@ impl ActionProposals {
         turn: &WorkTurn,
         cancel: CancellationToken,
     ) -> Arc<dyn ActionProposalTools> {
+        self.bind_inbox(request, turn, cancel, None)
+    }
+    pub(crate) fn bind_inbox(
+        &self,
+        request: &AskRequest,
+        turn: &WorkTurn,
+        cancel: CancellationToken,
+        inbox: Option<Box<crate::inbox_actions::InboxActionJob>>,
+    ) -> Arc<dyn ActionProposalTools> {
         Arc::new(BoundProposal {
             owner: self.clone(),
             request: request.clone(),
             turn: turn.clone(),
             cancel,
+            inbox,
         })
     }
 }
@@ -44,12 +54,14 @@ struct BoundProposal {
     request: AskRequest,
     turn: WorkTurn,
     cancel: CancellationToken,
+    inbox: Option<Box<crate::inbox_actions::InboxActionJob>>,
 }
 pub(super) struct ActionProposal {
     args: ActionProposalArgs,
     request: AskRequest,
     turn: WorkTurn,
     reply: mpsc::Sender<AiResult<Value>>,
+    inbox: Option<Box<crate::inbox_actions::InboxActionJob>>,
 }
 impl ActionProposalTools for BoundProposal {
     fn propose_actions(&self, args: ActionProposalArgs) -> AiResult<Value> {
@@ -78,6 +90,7 @@ impl BoundProposal {
                     request: self.request.clone(),
                     turn: self.turn.clone(),
                     reply,
+                    inbox: self.inbox.clone(),
                 })))
                 .map_err(|_| AiError::new(AiErrorKind::Other))?;
         }
@@ -135,37 +148,85 @@ impl ActionProposal {
         chat_worker::check_replay(&self.request, &self.turn).map_err(safe)?;
         chat_worker::check_replay(&self.request, &actual).map_err(safe)?;
 
+        let group_id = if let Some(job) = &self.inbox {
+            if job.capture.id != self.request.id
+                || job.question != self.request.question
+                || app
+                    .work_store()
+                    .inbox_action(self.request.id)
+                    .map_err(|e| safe(e.into()))?
+                    .as_ref()
+                    != Some(job.as_ref())
+                || action_changes.len() != 1
+                || !action_changes[0]
+                    .data()
+                    .sources
+                    .contains(&job.capture.note_id().map_err(|e| safe(e.into()))?)
+                || self
+                    .args
+                    .source_paths
+                    .iter()
+                    .filter(|p| *p == &job.capture.source.path)
+                    .count()
+                    != 1
+            {
+                return Err(rejected());
+            }
+            Some(job.capture.id)
+        } else {
+            None
+        };
+
         // Original creation replay precedes fresh source observation. Later review
         // edits or source loss must not change the exact UUID's immutable input.
         let sources = match app.proposal(id) {
             Ok(existing) => {
-                if !self
-                    .args
-                    .source_paths
-                    .iter()
-                    .map(String::as_str)
-                    .eq(existing.draft.sources.iter().map(|s| s.path.as_str()))
+                if existing.draft.group_id != group_id
+                    || !self
+                        .args
+                        .source_paths
+                        .iter()
+                        .map(String::as_str)
+                        .eq(existing.draft.sources.iter().map(|s| s.path.as_str()))
                 {
                     return Err(rejected());
                 }
                 existing.draft.sources
             }
-            Err(e) if e.kind == ErrorKind::NotFound => self
-                .args
-                .source_paths
-                .iter()
-                .map(|path| {
-                    app.proposal_evidence_source(path)
-                        .map(|s| s.source)
-                        .map_err(safe)
-                })
-                .collect::<AiResult<Vec<_>>>()?,
+            Err(e) if e.kind == ErrorKind::NotFound => {
+                if let Some(job) = &self.inbox {
+                    if app.proposals(group_id).map_err(safe)?.len()
+                        >= crate::inbox_actions::MAX_INBOX_ACTION_PROPOSALS
+                    {
+                        return Err(rejected());
+                    }
+                    app.validate_inbox_action_source(&job.capture)
+                        .map_err(safe)?;
+                }
+                self.args
+                    .source_paths
+                    .iter()
+                    .map(|path| {
+                        app.proposal_evidence_source(path)
+                            .map(|s| s.source)
+                            .map_err(safe)
+                    })
+                    .collect::<AiResult<Vec<_>>>()?
+            }
             Err(e) => return Err(safe(e)),
         };
+        if let Some(job) = &self.inbox
+            && sources
+                .iter()
+                .find(|source| source.path == job.capture.source.path)
+                != Some(&job.capture.source)
+        {
+            return Err(rejected());
+        }
         let request = DraftRequest {
             inbox_source: None,
             id,
-            group_id: None,
+            group_id,
             session_id: Some(actual.conversation_id),
             title: self.args.title.clone(),
             changes: vec![],
@@ -176,6 +237,7 @@ impl ActionProposal {
         // Bound the complete receipt BEFORE creating durable review work. Maximal
         // stamp/state encodings cover all replay states and future review versions.
         let mut receipt = Receipt {
+            group_id,
             stamp: ProposalStamp {
                 id,
                 version: u64::MAX,
@@ -201,6 +263,8 @@ impl ActionProposal {
 
 #[derive(Serialize)]
 struct Receipt {
+    #[serde(skip_serializing_if = "Option::is_none")]
+    group_id: Option<Uuid>,
     stamp: ProposalStamp,
     state: ProposalState,
     session_id: Option<Uuid>,
@@ -324,6 +388,7 @@ mod tests {
             request,
             turn,
             cancel,
+            inbox: None,
         };
         Active {
             base,
@@ -576,6 +641,7 @@ mod tests {
                 request: a.bound.request.clone(),
                 turn,
                 cancel: a.bound.cancel.clone(),
+                inbox: None,
             };
             assert!(bad.propose_actions(input.clone()).is_err());
         }
@@ -591,13 +657,14 @@ mod tests {
     fn maximal_fixed_receipt_is_small_and_never_contains_candidate_or_comment_bodies() {
         // A conservative superset even permits maximally escaped path bytes and
         // u64 values that the evidence adapter would not produce.
-        let receipt = Receipt {
+        let mut receipt = Receipt {
             stamp: ProposalStamp {
                 id: Uuid::new_v4(),
                 version: u64::MAX,
             },
             state: ProposalState::Uncertain,
             session_id: Some(Uuid::new_v4()),
+            group_id: Some(Uuid::new_v4()),
             action_ids: vec![Uuid::new_v4(); 20],
             sources: vec![
                 SourceVersion {
@@ -615,8 +682,12 @@ mod tests {
         let bytes = serde_json::to_vec(&receipt).unwrap();
         assert!(bytes.len() < brn_ai::READ_ACTION_BYTES);
         let json = serde_json::from_slice::<Value>(&bytes).unwrap();
-        assert_eq!(json.as_object().unwrap().len(), 5);
+        assert_eq!(json.as_object().unwrap().len(), 6);
         assert!(json.get("action_changes").is_none());
         assert!(json.get("comments").is_none());
+        receipt.group_id = None;
+        let ordinary = serde_json::to_value(&receipt).unwrap();
+        assert_eq!(ordinary.as_object().unwrap().len(), 5);
+        assert!(ordinary.get("group_id").is_none());
     }
 }

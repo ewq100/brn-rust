@@ -127,8 +127,10 @@ fn restart_interrupts_pending_members_preserves_completed_receipts_and_migrates_
     let saved = request.items[0].clone();
     drop(store);
     let raw = Connection::open(data.path().join("brn.sqlite")).unwrap();
-    raw.execute_batch("DROP TABLE inbox_processing; PRAGMA user_version=12;")
-        .unwrap();
+    raw.execute_batch(
+        "DROP TABLE inbox_actions; DROP TABLE inbox_processing; PRAGMA user_version=12;",
+    )
+    .unwrap();
     drop(raw);
     let (store, _) = WorkStore::open(data.path()).unwrap();
     assert_eq!(store.inbox_item(saved.capture.id).unwrap(), Some(saved));
@@ -137,7 +139,7 @@ fn restart_interrupts_pending_members_preserves_completed_receipts_and_migrates_
     assert_eq!(
         raw.query_row("PRAGMA user_version", [], |r| r.get::<_, i64>(0))
             .unwrap(),
-        13
+        14
     );
 }
 #[test]
