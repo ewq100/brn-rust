@@ -65,7 +65,9 @@ that identity, paginates all jobs and distinguishes the four applicable Mac/shar
 PR jobs from informational Windows and non-Mac native probes. Missing, cancelled,
 pending or failed applicable jobs cannot establish a pass. Unknown jobs require
 review. The overall red result and failed job conclusions remain visible; a failed
-or unfinished overall run exits nonzero. The documentation/tooling job is checked
+or unfinished overall run exits nonzero. Terminal success also requires every
+applicable observed job to be ready; an overall-success run with skipped, missing
+or pending applicable jobs exits nonzero. The documentation/tooling job is checked
 when present; older runs identify it as absent rather than retroactively passing it.
 
 GitHub can queue an automatic PR run for several minutes. No matching exact-head

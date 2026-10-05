@@ -27,12 +27,15 @@ Historical observations remain in the linked plans and [status](../status.md).
   complete compiler error blocks and two summaries matching the qualified
   baseline. Overall PR CI remains red. At exact merge `c5aaa6c`, the lead's
   nine conflict tests, 52 fixtures and two V14 shipping restarts passed.
-  Automatic merged-main CI run `37336763915` remains pending; no future pass
-  is claimed.
-- **Pending:** exact merged-main CI,
-  native/live/owner acceptance, multilingual assets and trusted-user packaging.
-  Full V1 remains incomplete. Next bounded product slice: qualified safe
-  original-copy removal, after the lead completes merged-main CI qualification.
+  Automatic merged-main CI run `37336763915` completed with all four applicable
+  Mac/shared checks passed. Overall main CI remains failed from four informational
+  platform failures: Windows Core/UI/Native retained 22/22/14 complete compiler
+  error blocks and matching summaries; Linux Native retained three matching
+  assertion/backtrace blocks by test name. The lead confirmed normalized full
+  diagnostics and failure-source/CI/setup blobs match the qualified PR54 baseline.
+- **Pending:** native/live/owner acceptance, multilingual assets and trusted-user
+  packaging. Full V1 remains incomplete. Next bounded product slice: qualified
+  safe original-copy removal.
 - **Environment:** Darwin arm64 Mac mini, Rust 1.98.1, locked offline dependencies,
   canonical owned `TMPDIR=/private/tmp/brn-mini-synthetic-20261005`, empty
   `BRN_NATIVE_MODEL_DIR`; isolated checkout/target. No live provider calls,

@@ -90,10 +90,10 @@ def main():
         if len(batch) < 100:
             break
         page += 1
-    report, _ready = summarize(attempt, jobs, opts.commit)
+    report, ready = summarize(attempt, jobs, opts.commit)
     print(report)
     # Informational failures remain red/failed in both report and terminal exit.
-    return 0 if attempt.get('conclusion') == 'success' else 1
+    return 0 if attempt.get('conclusion') == 'success' and ready else 1
 
 
 if __name__ == '__main__':

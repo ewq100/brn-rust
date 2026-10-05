@@ -1,5 +1,7 @@
 """Synthetic tooling regression checks; no Cargo, account or private data access."""
 import importlib.util
+import contextlib
+import io
 import json
 import os
 from pathlib import Path
@@ -9,6 +11,7 @@ import sys
 import tempfile
 import time
 import unittest
+from unittest.mock import patch
 
 SCRIPTS = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(SCRIPTS))
@@ -73,6 +76,29 @@ class MarkdownTests(unittest.TestCase):
         page.write_text('[ok](some%20(file).md#heading-code)\n[angle](<some (file).md#custom> "title")\n')
         self.assertEqual(links.check(self.root, [page]), ([], 2))
 
+    def test_nested_labels_check_outer_links_and_inner_images(self):
+        page = self.root / 'page.md'
+        page.write_text('[![badge](https://example.invalid/badge.svg)](missing.md)\n[a [b]](another-missing.md)\n[![local](missing-image.png)](third-missing.md)\n')
+        errors, count = links.check(self.root, [page])
+        self.assertEqual(count, 4)
+        self.assertEqual(len(errors), 4)
+        for destination in ('missing.md', 'another-missing.md', 'missing-image.png', 'third-missing.md'):
+            self.assertTrue(any(f': {destination}:' in error for error in errors))
+
+    def test_blockquoted_fences_exclude_samples_without_hiding_real_links(self):
+        page = self.root / 'page.md'
+        page.write_text('> ~~~markdown\n> [example](missing.md)\n> ~~~\n> > ~~~markdown\n> > [nested example](missing.md)\n> > ~~~\n> [actual](real-missing.md)\n')
+        errors, count = links.check(self.root, [page])
+        self.assertEqual(count, 1)
+        self.assertEqual(len(errors), 1)
+        self.assertIn('real-missing.md', errors[0])
+
+    def test_heading_link_destinations_with_parentheses_do_not_pollute_slug(self):
+        (self.root / 'file(1).md').write_text('# Destination\n')
+        page = self.root / 'page.md'
+        page.write_text('# a [b](file(1).md)\n[self](#a-b)\n')
+        self.assertEqual(links.check(self.root, [page]), ([], 2))
+
     def test_explicit_historical_policy_still_validates_incoming(self):
         historical = self.root / 'docs/work/completed/old'
         historical.mkdir(parents=True)
@@ -87,7 +113,9 @@ class MarkdownTests(unittest.TestCase):
 
 class CiTests(unittest.TestCase):
     def run_info(self, **updates):
-        return dict(id=12, run_attempt=2, head_sha='a'*40, event='pull_request', status='completed', conclusion='failure', **updates)
+        result = dict(id=12, run_attempt=2, head_sha='a'*40, event='pull_request', status='completed', conclusion='failure')
+        result.update(updates)
+        return result
 
     def test_failed_informational_platform_remains_red(self):
         jobs = [dict(name=name, conclusion='success', status='completed') for name in ci.APPLICABLE]
@@ -104,6 +132,21 @@ class CiTests(unittest.TestCase):
             jobs = [dict(name=name, conclusion=conclusion, status='in_progress') for name in ci.APPLICABLE]
             self.assertFalse(ci.summarize(self.run_info(), jobs, 'a'*40)[1])
         self.assertFalse(ci.summarize(self.run_info(), [], 'a'*40)[1])
+
+    def test_main_exit_requires_overall_success_and_all_applicable_ready(self):
+        for overall, job_result, expected in (
+            ('success', 'success', 0), ('success', 'skipped', 1),
+            ('success', None, 1), ('failure', 'success', 1),
+        ):
+            with self.subTest(overall=overall, job_result=job_result):
+                jobs = [dict(name=name, conclusion='success', status='completed') for name in ci.APPLICABLE]
+                jobs[0].update(conclusion=job_result, status='in_progress' if job_result is None else 'completed')
+                replies = [self.run_info(conclusion=overall), {'jobs': jobs}]
+                argv = ['ci-summary.py', 'run', '--run', '12', '--attempt', '2', '--commit', 'a'*40]
+                with patch.object(sys, 'argv', argv), patch.object(ci, 'gh_json', side_effect=replies), contextlib.redirect_stdout(io.StringIO()):
+                    self.assertEqual(ci.main(), expected)
+        with patch.object(sys, 'argv', argv), patch.object(ci, 'gh_json', side_effect=[self.run_info(conclusion='success'), {'jobs': []}]), contextlib.redirect_stdout(io.StringIO()):
+            self.assertEqual(ci.main(), 1)
 
     def test_comparison_keeps_error_assertion_and_backtrace_differences(self):
         before = '2026-10-05T11:00:00.123Z \x1b[31merror[E0425]: bad name\x1b[0m\nassertion left: 1\n  3: 0x12345678 - caller::first pid=42\n'
