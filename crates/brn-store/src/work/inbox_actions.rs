@@ -5,6 +5,7 @@ use super::{WorkStore, chat, now_ms, proposals::SourceVersion};
 use crate::{Error, Result, hash, invalid};
 use rusqlite::{Connection, OptionalExtension, TransactionBehavior, params};
 use serde::{Deserialize, Serialize};
+use std::collections::HashSet;
 use uuid::Uuid;
 
 #[derive(Debug, Clone, Copy, Default, PartialEq, Eq, Serialize, Deserialize)]
@@ -324,6 +325,30 @@ impl InboxKnowledgeBinding {
             return Err(invalid(
                 "Inbox knowledge citations must bind one separate exact Source",
             ));
+        }
+        Ok(())
+    }
+    /// The selected Inbox Source remains first; additional ordered proofs are
+    /// ordinary proposal evidence. Target eligibility belongs to workflow.
+    pub fn validate_sources(&self, sources: &[SourceVersion]) -> Result<()> {
+        self.validate()?;
+        if !(1..=super::proposals::MAX_PROPOSAL_CHANGES).contains(&sources.len())
+            || sources.first() != Some(&self.source)
+        {
+            return Err(invalid(
+                "Inbox knowledge needs its exact selected Source first and 1 to 64 source bindings",
+            ));
+        }
+        let mut paths = HashSet::new();
+        for source in sources {
+            super::proposals::validate_path(&source.path)?;
+            if source.fingerprint.len > super::MAX_NOTE_BYTES as u64
+                || !paths.insert(source.path.to_ascii_lowercase())
+            {
+                return Err(invalid(
+                    "Inbox knowledge source proofs need unique paths and at most 1 MiB each",
+                ));
+            }
         }
         Ok(())
     }

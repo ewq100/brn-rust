@@ -19,15 +19,17 @@ use std::{fs, path::PathBuf, process::Command};
 
 const SOURCE_PATH: &str = "source.md";
 const KNOWLEDGE_PATH: &str = "knowledge.md";
+const TARGET_PATH: &str = "context.md";
 const COLLISION_PATH: &str = "collision.md";
 
 #[derive(Clone, Copy, Debug)]
 enum Collision {
     Knowledge,
     Source,
+    Target,
 }
 impl Collision {
-    const ALL: [Self; 2] = [Self::Knowledge, Self::Source];
+    const ALL: [Self; 3] = [Self::Knowledge, Self::Source, Self::Target];
 }
 
 struct Fixture {
@@ -37,6 +39,7 @@ struct Fixture {
     credentials: PathBuf,
     source_id: Uuid,
     knowledge_id: Uuid,
+    target_id: Uuid,
     source_text: String,
     approved_text: String,
     approval: ApprovalRequest,
@@ -117,13 +120,22 @@ impl Fixture {
             )
             .unwrap();
         let knowledge_id = Uuid::new_v4();
+        let target_id = Uuid::new_v4();
+        fs::write(
+            vault.join(TARGET_PATH),
+            note_identity::assign("Saved context õ\r\n", target_id).unwrap(),
+        )
+        .unwrap();
         let start = job.capture.source_text.find("Blue õ 🦀").unwrap();
         let args = KnowledgeProposalArgs {
             id: Uuid::new_v4().to_string(),
             title: "Exact reviewed knowledge".into(),
             path: KNOWLEDGE_PATH.into(),
             note_id: knowledge_id.to_string(),
-            text: "\u{feff}# Reviewed interpretation\r\nBlue õ 🦀 was selected.\r\n".into(),
+            source_paths: vec![TARGET_PATH.into()],
+            text: format!(
+                "\u{feff}# Reviewed interpretation\r\nBlue õ 🦀 was selected.\r\n\r\n[Context](brn://note/{target_id})\r\n"
+            ),
             quotes: vec![KnowledgeQuoteArgs {
                 start_byte: start,
                 end_byte: start + "Blue õ 🦀".len(),
@@ -146,6 +158,7 @@ impl Fixture {
                 credentials,
                 source_id,
                 knowledge_id,
+                target_id,
                 source_text,
                 approved_text,
                 approval,
@@ -170,6 +183,7 @@ impl Fixture {
         let id = match collision {
             Collision::Knowledge => self.knowledge_id,
             Collision::Source => self.source_id,
+            Collision::Target => self.target_id,
         };
         note_identity::assign("Independent owner bytes õ\r\n", id).unwrap()
     }
@@ -234,6 +248,39 @@ impl Fixture {
         );
         self.assert_source_and_credentials();
     }
+}
+
+#[test]
+fn prepared_knowledge_target_content_change_retains_owner_bytes_without_install() {
+    let (f, mut app) = Fixture::new();
+    let path = f.vault.join(TARGET_PATH);
+    let changed = fs::read_to_string(&path).unwrap() + "Later owner context\r\n";
+    let injected = changed.clone();
+    APPLY_HOOK.with(|hook| {
+        *hook.borrow_mut() = Some(Box::new(move |step, member| {
+            if step == "prepared" && member == 0 {
+                fs::write(&path, &injected).unwrap();
+            }
+        }));
+    });
+    let result = app.approve_proposal(&f.approval);
+    APPLY_HOOK.with(|hook| *hook.borrow_mut() = None);
+    assert!(result.is_err());
+    assert!(!f.vault.join(KNOWLEDGE_PATH).exists());
+    assert_eq!(
+        fs::read(f.vault.join(TARGET_PATH)).unwrap(),
+        changed.as_bytes()
+    );
+    assert_eq!(
+        app.proposal_apply(f.approval.operation_id)
+            .unwrap()
+            .unwrap()
+            .receipt
+            .unwrap()
+            .outcome,
+        ApplyOutcome::NotApplied
+    );
+    f.assert_source_and_credentials();
 }
 
 #[test]

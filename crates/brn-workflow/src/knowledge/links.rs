@@ -15,6 +15,13 @@ mod preparation;
 mod prepare_text;
 pub use preparation::LinkRequest;
 
+/// Internal identity set for an admitted managed Create. No current-read barrier
+/// is bypassed: callers already own the exact approved application and its files.
+pub(crate) fn stable_link_ids(text: &str) -> Result<std::collections::BTreeSet<Uuid>> {
+    let body = note_identity::body_start(text).map_err(|error| rejected(error.to_string()))?;
+    extract::stable_ids(text, body)
+}
+
 #[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
 #[serde(deny_unknown_fields)]
 pub struct LinkEvidence {

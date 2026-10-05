@@ -317,12 +317,12 @@ fn validate_draft(draft: &ProposalDraft) -> Result<usize> {
         if draft.inbox_source.is_some()
             || !draft.action_changes.is_empty()
             || draft.group_id != Some(binding.analysis_id)
-            || draft.sources.as_slice() != std::slice::from_ref(&binding.source)
         {
             return Err(invalid(
                 "Inbox knowledge needs its exact analysis/Source binding",
             ));
         }
+        binding.validate_sources(&draft.sources)?;
         binding.validate_text(text)?;
     }
     if let Some(binding) = &draft.inbox_source {

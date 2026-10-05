@@ -3459,7 +3459,8 @@ mod knowledge_proposal_tool_tests {
         json!({"id":"abc8e3e6-5419-4a09-a5f7-b7d9e98f8f29","title":"Whole knowledge õ\r\n",
             "path":"knowledge/derived.md","note_id":"5b344a65-e247-4b2c-9941-c4b52c405bdb",
             "text":"\u{feff}# Candidate 🦀\r\nWhole candidate.\r\n",
-            "quotes":[{"start_byte":0,"end_byte":12},{"start_byte":24,"end_byte":48}]})
+            "quotes":[{"start_byte":0,"end_byte":12},{"start_byte":24,"end_byte":48}],
+            "source_paths":["knowledge/λ target.md","archive/history.md","approved/second-source.md"]})
     }
     fn receipt() -> Value {
         json!({"stamp":{"id":"abc8e3e6-5419-4a09-a5f7-b7d9e98f8f29","version":1},
@@ -3470,6 +3471,7 @@ mod knowledge_proposal_tool_tests {
         calls: AtomicUsize,
         enabled: bool,
         refuse: bool,
+        expected: Value,
     }
     impl Proposals {
         fn new(enabled: bool, refuse: bool) -> Self {
@@ -3477,6 +3479,7 @@ mod knowledge_proposal_tool_tests {
                 calls: AtomicUsize::new(0),
                 enabled,
                 refuse,
+                expected: args(),
             }
         }
     }
@@ -3499,7 +3502,7 @@ mod knowledge_proposal_tool_tests {
             self.enabled
         }
         fn propose_knowledge(&self, input: KnowledgeProposalArgs) -> AiResult<Value> {
-            assert_eq!(serde_json::to_value(input).unwrap(), args());
+            assert_eq!(serde_json::to_value(input).unwrap(), self.expected);
             self.calls.fetch_add(1, Ordering::SeqCst);
             if self.refuse {
                 Err(AiError::new(AiErrorKind::ToolRejected))
@@ -3609,7 +3612,22 @@ mod knowledge_proposal_tool_tests {
             let proposal = definition(&bodies[0], responses, "propose_knowledge").unwrap();
             closed(
                 &proposal["parameters"],
-                &["id", "title", "path", "note_id", "text", "quotes"],
+                &[
+                    "id",
+                    "title",
+                    "path",
+                    "note_id",
+                    "text",
+                    "quotes",
+                    "source_paths",
+                ],
+            );
+            assert_eq!(
+                proposal["parameters"]["properties"]["source_paths"],
+                json!({
+                    "type":"array","maxItems":63,
+                    "items":{"type":"string","minLength":1,"maxLength":512}
+                })
             );
             closed(
                 &proposal["parameters"]["properties"]["quotes"]["items"],
@@ -3622,7 +3640,67 @@ mod knowledge_proposal_tool_tests {
             let preamble = preamble(&bodies[0], provider, responses);
             assert!(preamble.contains("Workflow adds exact saved citations"));
             assert!(preamble.contains("explicitly selected approved Inbox Source"));
+            for explanation in [
+                "mandatory first proof; do not include it again",
+                "brn://note/UUID relationships require exact named target evidence",
+                "Read tools default to Current",
+                "extra Source or History paths are evidence, never truth or deletion approval",
+                "separate exact approval",
+            ] {
+                assert!(preamble.contains(explanation));
+                assert!(
+                    proposal["description"]
+                        .as_str()
+                        .unwrap()
+                        .contains(explanation)
+                );
+            }
             assert!(definition(&bodies[0], responses, "propose_actions").is_some());
+        }
+    }
+
+    #[tokio::test]
+    async fn legacy_knowledge_input_omitting_additional_paths_dispatches_empty_on_all_rig_routes() {
+        for (provider, model, responses) in ROUTES {
+            let mut input = args();
+            input.as_object_mut().unwrap().remove("source_paths");
+            let (_root, client, http) = client(
+                provider,
+                model,
+                vec![
+                    success(tool_sse(responses, &[("propose_knowledge", input)])),
+                    success(text_sse(responses, "Legacy review ready")),
+                ],
+            )
+            .await;
+            let mut backend = Proposals::new(true, false);
+            backend.expected["source_paths"] = json!([]);
+            let tools = Arc::new(backend);
+            let result = answer_with_proposals(
+                client,
+                "Selected source",
+                &[],
+                ReasoningEffort::High,
+                tools.clone(),
+                tools.clone(),
+                CancellationToken::new(),
+                Arc::new(|_| {}),
+            )
+            .await;
+            assert!(
+                matches!(result.terminal, AiTerminal::Completed),
+                "{provider:?}/{model}: {:?}",
+                result.terminal
+            );
+            assert_eq!(result.text, "Legacy review ready");
+            assert_eq!(tools.calls.load(Ordering::SeqCst), 1);
+            http.assert_consumed();
+            let outputs = replies(&http.bodies()[1], responses);
+            assert_eq!(outputs.len(), 1);
+            assert_eq!(
+                serde_json::from_str::<Value>(&outputs[0]).unwrap(),
+                receipt()
+            );
         }
     }
 
@@ -3772,7 +3850,17 @@ mod knowledge_proposal_tool_tests {
     #[tokio::test]
     async fn knowledge_protocol_and_owner_refusals_continue_safely_on_all_rig_routes() {
         for (provider, model, responses) in ROUTES {
-            for rejection in ["unknown", "missing", "range", "owner"] {
+            for rejection in [
+                "unknown",
+                "missing",
+                "range",
+                "paths_count",
+                "empty_path",
+                "path_bytes",
+                "utf8_path_bytes",
+                "encoded_bytes",
+                "owner",
+            ] {
                 let mut input = args();
                 match rejection {
                     "unknown" => input["approve"] = json!(true),
@@ -3780,6 +3868,19 @@ mod knowledge_proposal_tool_tests {
                         input.as_object_mut().unwrap().remove("quotes");
                     }
                     "range" => input["quotes"][0]["end_byte"] = json!(16 * 1024 + 1),
+                    "paths_count" => input["source_paths"] = json!(vec!["explicit.md"; 64]),
+                    "empty_path" => input["source_paths"] = json!([""]),
+                    "path_bytes" => input["source_paths"] = json!(["x".repeat(513)]),
+                    "utf8_path_bytes" => input["source_paths"] = json!(["õ".repeat(257)]),
+                    "encoded_bytes" => {
+                        input["text"] = json!(
+                            "\u{1}".repeat(crate::proposal_tools::KNOWLEDGE_PROPOSAL_BYTES / 6 + 1)
+                        );
+                        assert!(
+                            serde_json::to_vec(&input).unwrap().len()
+                                > crate::proposal_tools::KNOWLEDGE_PROPOSAL_BYTES
+                        );
+                    }
                     "owner" => {}
                     _ => unreachable!(),
                 }
@@ -3818,7 +3919,7 @@ mod knowledge_proposal_tool_tests {
                 let outputs = replies(&http.bodies()[1], responses);
                 assert_eq!(outputs.len(), 1);
                 // Rig parse errors are transient; application refusals use its safe fixed result.
-                if ["range", "owner"].contains(&rejection) {
+                if !["unknown", "missing"].contains(&rejection) {
                     assert_eq!(outputs[0], "the tool failed");
                 }
                 assert!(!outputs[0].contains("state"));

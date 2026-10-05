@@ -39,6 +39,9 @@ pub struct KnowledgeProposalArgs {
     pub note_id: String,
     pub text: String,
     pub quotes: Vec<KnowledgeQuoteArgs>,
+    /// Additional explicit evidence paths in caller order; selected Source is first automatically.
+    #[serde(default)]
+    pub source_paths: Vec<String>,
 }
 
 /// Exact byte range in the selected source, interpreted and checked by workflow.
@@ -67,6 +70,11 @@ impl KnowledgeProposalArgs {
             || !(1..=64).contains(&self.note_id.len())
             || !(1..=1024 * 1024).contains(&self.text.len())
             || !(1..=32).contains(&self.quotes.len())
+            || self.source_paths.len() > 63
+            || self
+                .source_paths
+                .iter()
+                .any(|path| !(1..=512).contains(&path.len()))
             || self.quotes.iter().any(|quote| {
                 quote.start_byte >= quote.end_byte
                     || quote.end_byte > 50_000
@@ -109,7 +117,7 @@ impl Tool for ProposeKnowledge {
     type Output = Value;
     type Error = AiError;
     fn description(&self) -> String {
-        "Create one independent current Knowledge Create review draft from the explicitly selected approved Inbox Source. Supply complete candidate Markdown, stable proposal and note UUIDs, a relative destination path, and exact source byte ranges. Workflow adds exact saved citations. This tool never approves or writes knowledge. Retry only identical original input and UUIDs; human review and separate exact approval are required.".into()
+        "Create one independent current Knowledge Create review draft from the explicitly selected approved Inbox Source. Supply complete candidate Markdown, stable proposal and note UUIDs, a relative destination path, exact source byte ranges, and ordered additional source_paths. The selected Inbox Source is automatically the mandatory first proof; do not include it again. Stable brn://note/UUID relationships require exact named target evidence. Read tools default to Current; explicitly named extra Source or History paths are evidence, never truth or deletion approval. Workflow captures complete saved proofs and adds exact saved citations. This tool never approves or writes knowledge. Retry only identical original input and UUIDs; human review and separate exact approval are required.".into()
     }
     fn parameters(&self) -> Value {
         json!({"type":"object","additionalProperties":false,"properties":{
@@ -118,13 +126,14 @@ impl Tool for ProposeKnowledge {
             "path":{"type":"string","minLength":1,"maxLength":512},
             "note_id":{"type":"string","format":"uuid","minLength":1,"maxLength":64},
             "text":{"type":"string","minLength":1,"maxLength":1048576},
+            "source_paths":{"type":"array","maxItems":63,"items":{"type":"string","minLength":1,"maxLength":512}},
             "quotes":{"type":"array","minItems":1,"maxItems":32,"items":{
                 "type":"object","additionalProperties":false,"properties":{
                     "start_byte":{"type":"integer","minimum":0,"maximum":49999},
                     "end_byte":{"type":"integer","minimum":1,"maximum":50000}
                 },"required":["start_byte","end_byte"]
             }}
-        },"required":["id","title","path","note_id","text","quotes"]})
+        },"required":["id","title","path","note_id","text","quotes","source_paths"]})
     }
     async fn call(&self, _: &mut ToolContext, args: KnowledgeProposalArgs) -> AiResult<Value> {
         args.validate()?;
@@ -342,6 +351,7 @@ mod tests {
                 start_byte: 0,
                 end_byte: 1,
             }],
+            source_paths: vec!["workflow interprets this path".into()],
         }
     }
 
@@ -370,6 +380,11 @@ mod tests {
             partial.as_object_mut().unwrap().remove(field);
             assert!(serde_json::from_value::<KnowledgeProposalArgs>(partial).is_err());
         }
+        let mut legacy = whole.clone();
+        legacy.as_object_mut().unwrap().remove("source_paths");
+        let legacy = serde_json::from_value::<KnowledgeProposalArgs>(legacy).unwrap();
+        assert!(legacy.source_paths.is_empty());
+        assert!(legacy.validate().is_ok());
         for field in ["source_path", "session_id", "approve", "citations"] {
             let mut unknown = whole.clone();
             unknown[field] = json!("workflow owns this");
@@ -392,7 +407,7 @@ mod tests {
             receipt: json!({"stamp":"ok"}),
         });
         let tool = ProposeKnowledge(backend.clone());
-        let mutations: [fn(&mut KnowledgeProposalArgs); 19] = [
+        let mutations: [fn(&mut KnowledgeProposalArgs); 24] = [
             |v| v.id.clear(),
             |v| v.id = "x".repeat(65),
             |v| v.title.clear(),
@@ -412,6 +427,14 @@ mod tests {
             |v| v.quotes[0].end_byte = 50_001,
             |v| v.quotes[0].end_byte = usize::MAX,
             |v| v.quotes[0].end_byte = 16 * 1024 + 1,
+            |v| v.source_paths = vec!["explicit.md".into(); 64],
+            |v| v.source_paths = vec![String::new()],
+            |v| v.source_paths = vec!["x".repeat(513)],
+            |v| v.source_paths = vec!["õ".repeat(257)],
+            |v| {
+                v.text = "\u{1}".repeat(KNOWLEDGE_PROPOSAL_BYTES / 6 + 1);
+                assert!(serde_json::to_vec(v).unwrap().len() > KNOWLEDGE_PROPOSAL_BYTES);
+            },
         ];
         for mutation in mutations {
             let mut input = knowledge_args();
@@ -435,6 +458,7 @@ mod tests {
         maximum.title = "õ".repeat(256);
         maximum.path = "õ".repeat(256);
         maximum.note_id = "x".repeat(64);
+        maximum.source_paths = vec!["\u{1}".repeat(512); 63];
         maximum.text = "\u{1}".repeat(1024 * 1024);
         maximum.quotes = vec![
             KnowledgeQuoteArgs {

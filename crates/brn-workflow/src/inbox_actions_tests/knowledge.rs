@@ -21,6 +21,7 @@ fn knowledge(source: &SourceFixture) -> KnowledgeProposalArgs {
         title: "Reviewed color knowledge".into(),
         path: "color.md".into(),
         note_id: Uuid::new_v4().to_string(),
+        source_paths: vec![],
         text: "# Color decision\r\n\r\nThe team chose Blue õ 🦀.\r\n".into(),
         quotes: vec![KnowledgeQuoteArgs {
             start_byte: start,
@@ -28,6 +29,9 @@ fn knowledge(source: &SourceFixture) -> KnowledgeProposalArgs {
         }],
     }
 }
+
+#[path = "knowledge_links.rs"]
+mod link_tests;
 fn scripted(script: Arc<Mutex<Vec<Step>>>) -> ProposalAnswerHook {
     Arc::new(move |ask, _, _, proposals, _, _| {
         let steps = std::mem::take(&mut *script.lock().unwrap());

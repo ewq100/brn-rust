@@ -66,26 +66,26 @@ Evidence: [Actions/dashboard record](work/completed/actions-dashboard/plan.md).
 
 ## Latest integrated checkpoint
 
-[PR51](https://github.com/ewq100/brn-rust/pull/51) merged at
-**65494cdb417cbcc9c85a149958e6f9ea241c98cd**, exact reviewed tree
-`dd1dc2ec18fc65a3cd762ed74981d2ff44243efa`. Stage7 now includes exact intake,
-owned conversion, native Inbox/Source review, and opt-in separate Current knowledge
-and Action drafts with protected UUID/Source quotations. Exact proposal approval
-remains required; originals stay retained and semantic completeness is not claimed.
-Independent review is clean after validated orphan-binding and recovery identity
-corrections. Fresh default checks passed 1,254/0/8, native Workflow/models 247/0/7,
-Desktop 273/0/0, Clippy, shipping builds, 52 fixtures and two V14 startup/restarts.
-Seven default ignores are crash entries; one needs a case-sensitive APFS fixture.
-PR run37302565091 at exact `4d3bd9f3` passed all three macOS lanes and Ubuntu shared;
-Windows22 errors/two summaries exactly match PR50. Fresh requirements were satisfied
-by a normal expected-head merge. Verified parents/tree/fast-forward, then 14 worker,
-four recovery, six CLI and 17 Store tests, 52 fixtures and two exact-byte V14
-startup/restarts passed freshly. Main run37303503106 at exact merge completed:
-Mac Core/UI/Native and Ubuntu Core/UI passed. Ubuntu Native's three installer
-failures and all Windows diagnostic blocks match PR50 main. Overall CI is red;
-these four informational failures expose no new shared/macOS defect.
-Native analysis/owner/live qualification remains pending. Historical PR48–50
-results and reproducible scenarios remain in the [Inbox plan](work/active/text-email-inbox/plan.md).
+[PR52](https://github.com/ewq100/brn-rust/pull/52) merged at
+**6c8f0102562570ce81efc1ecb55eab981c54aef6**, exact reviewed tree
+`a236fee3ddae014a9508ba9928bdf8fca46cee25`. Stage7 delivers exact intake,
+owned conversion, Source review, separate Current knowledge/Action drafts and
+native saved-Source analysis/retained inspection. Exact proposal approval remains
+required; originals stay retained and semantic completeness is not claimed.
+Independent review is clean. Local shared/native checks passed 1,260/0/8 and
+282/0/0, Clippy/builds, 52 fixtures and shipping restart. CI exposed a widget-only
+fixture feature guard; it was fixed and all three native Clippy combinations and
+282 tests passed freshly. Exact corrected PR run37311170658 at fde13d7e passed
+Mac Core/UI/Native and Ubuntu shared; Windows22 errors/two summaries match PR51.
+Fresh requirements were satisfied by normal expected-head merge. Verified merge
+parents/tree/fast-forward, then nine analysis tests, shipping build,52fixtures and
+two exact-byte V14 startup/restarts passed. Main run37312435285 completed: all
+Mac lanes and Ubuntu Core/UI passed. Four informational non-Mac failures exactly
+match PR51's complete diagnostics/backtraces. Overall CI is red; no new shared/
+macOS defect was found. Safe native Source/provenance/proof navigation and three
+original JPEGs are retained in the [screenshot index](ui/screenshots/2026-10-05/INDEX.md).
+Later native/live/owner acceptance remains pending. Historical checkpoint evidence
+and scenarios remain in the [Inbox plan](work/active/text-email-inbox/plan.md).
 
 Stage6 implementation is integrated through [PR43](https://github.com/ewq100/brn-rust/pull/43).
 Dashboard/identified Complete actual observation and eight safe original JPEGs
@@ -95,24 +95,19 @@ Scenarios and integration evidence remain in the
 
 ## Active slice and next work
 
-`codex/v1-native-inbox-analysis` starts from verified PR51 merge `65494cdb`.
-Connect native saved-Source analysis and retained-group inspection to existing
-AppWorker capabilities, explicit acknowledged selection/effort and owned Stop/
-stream correlation. UI handles presentation and stale-view correlation only;
-workflow keeps Source/knowledge authority and proposal rules. The bounded native
-controls are implemented and independently reviewed. Fresh fmt/build/Clippy,
-1,260 default tests/0 failed/8 ignored, 282 native Desktop tests/0 failed/0 ignored,
-52 fixtures and shipping startup/restart passed. Native Source/provenance/proof
-navigation was observed; three original safe JPEGs are retained in the
-[screenshot index](ui/screenshots/2026-10-05/INDEX.md). Intermittent ScreenCaptureKit
-failures leave later input/streaming/retained inspection and owner acceptance open.
-PR52's first exact-head run37310192148 exposed an unused widget-only fixture in
-both macOS native Clippy lanes. Its feature guard is corrected, and the local
-script now checks both shipping feature combinations without widget support.
-Fresh formatting, all three native Clippy combinations, 282 Desktop tests and
-shell syntax passed. Exact latest-head CI/integration remains pending. Links,
-replacement/history/conflict resolution and safe copy deletion remain following
-Stage7 deliverables. See the [Inbox plan](work/active/text-email-inbox/plan.md).
+`codex/v1-inbox-knowledge-links` starts from verified PR52 merge `6c8f0102`.
+Extended existing Knowledge Create input and ordinary source bindings for explicitly
+named saved link targets. Workflow captures full proofs; AI/UI add no domain or
+authority rules. Creation replay preserves original ordered evidence before fresh
+files, and approval/apply/recovery qualify stable identities. Independent review
+is clean; the full shared/native gate passed 1,269 default and 282 native Desktop
+tests, zero failures (eight default ignores). Optional native workflow passed252
+tests with seven crash-child entries ignored; 52 fixtures and two exact-byte V14
+shipping startup/restarts passed. Exact-head CI/integration remain pending.
+The owner requested finishing only this slice and then stopping MacBook
+development. Replacement/history/conflict resolution and safe copy deletion are
+the next Stage7 work after Mac mini resume. See the
+[Inbox plan](work/active/text-email-inbox/plan.md).
 No new live/download scope or original/private data operations are being used.
 
 ## Qualification and owner items
