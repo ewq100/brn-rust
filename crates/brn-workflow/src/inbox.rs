@@ -114,15 +114,18 @@ pub struct InboxInventory {
     pub issues: Vec<InboxIssue>,
     pub issues_truncated: bool,
 }
+// Admission validates the complete historical certificate one at a time.
+// Inventory retains only the identity needed to recheck its physical copy.
+struct RemovedOriginal {
+    operation_id: Uuid,
+    namespace: brn_store::work::inbox_original_operations::InboxOriginalNamespace,
+}
 #[derive(Default)]
 pub(crate) struct InboxState {
     pub(crate) files: Option<InboxFiles>,
     issues: Vec<InboxIssue>,
     truncated: bool,
-    removed: std::collections::HashMap<
-        Uuid,
-        brn_store::work::inbox_original_operations::InboxOriginalRemovalRecord,
-    >,
+    removed: std::collections::HashMap<Uuid, RemovedOriginal>,
 }
 impl InboxState {
     pub(crate) fn issue(&mut self, id: Option<Uuid>, message: impl Into<String>) {
@@ -153,9 +156,9 @@ impl InboxState {
             };
         };
         if let Some(record) = self.removed.get(&item.capture.id) {
-            return match files.retained_original(record) {
+            return match files.retained_copy(item, record.operation_id, &record.namespace) {
                 Ok(()) => InboxOriginal::RemovedRetained {
-                    operation_id: record.request.operation_id,
+                    operation_id: record.operation_id,
                 },
                 Err(error) => InboxOriginal::Unavailable {
                     reason: error.message,
@@ -257,7 +260,13 @@ pub(crate) fn restore_inbox_captures(store: &mut WorkStore) -> Result<InboxState
                     let record = store
                         .inbox_original_removal(head.operation_id)?
                         .ok_or_else(|| WorkflowError::msg("Inbox removal record disappeared"))?;
-                    state.removed.insert(id, record.clone());
+                    state.removed.insert(
+                        id,
+                        RemovedOriginal {
+                            operation_id: record.request.operation_id,
+                            namespace: record.namespace.clone(),
+                        },
+                    );
                     files.retained_original(&record)?;
                     known.insert(format!(".brn-inbox-removed-{}.original", head.operation_id));
                     if files.original_occupied(&item)? {
@@ -271,10 +280,10 @@ pub(crate) fn restore_inbox_captures(store: &mut WorkStore) -> Result<InboxState
                 }
                 if head.settled_at_ms.is_none() {
                     state.issue(Some(id), format!("original operation {} is unsettled; explicit recovery review is required", head.operation_id));
-                    if head.kind == InboxOriginalOperationKind::Restore {
-                        if let Some(parent) = head.parent {
-                            known.insert(format!(".brn-inbox-removed-{parent}.original"));
-                        }
+                    if head.kind == InboxOriginalOperationKind::Restore
+                        && let Some(parent) = head.parent
+                    {
+                        known.insert(format!(".brn-inbox-removed-{parent}.original"));
                     }
                 }
             } else {

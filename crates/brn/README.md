@@ -933,7 +933,8 @@ attestation with all five flags true: `copy_disposable`,
 `meaningful_content_preserved`, `consequences_reviewed`, `conflicts_acknowledged`,
 `exact_copy_removal_intended`. No preview/AI result implies these attestations.
 `inbox restore-original REQUEST_JSON` binds a fresh operation UUID to the exact
-`removal_operation_id` and complete returned `removal_digest`; it refuses an
+`removal_operation_id` and `removal_digest` (the matching removal's complete
+`record_sha256` from `inbox original-operations ITEM_UUID`); it refuses an
 occupied original endpoint. Both commands return complete historical receipts
 and never repeat a settled effect. Lookup/history commands expose retained
 certificates; `archived-analysis` labels historical data and never substitutes

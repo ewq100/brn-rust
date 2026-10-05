@@ -354,10 +354,10 @@ impl App {
             }
         }
         self.inbox = restore_inbox_captures(&mut self.store)?;
-        if let Some(record) = self.store.inbox_original_removal(request.operation_id)? {
-            if record.removed_at_ms.is_some() {
-                return Ok(record);
-            }
+        if let Some(record) = self.store.inbox_original_removal(request.operation_id)?
+            && record.removed_at_ms.is_some()
+        {
+            return Ok(record);
         }
         let pending = self
             .store
@@ -417,10 +417,10 @@ impl App {
             }
         }
         self.inbox = restore_inbox_captures(&mut self.store)?;
-        if let Some(record) = self.store.inbox_original_restore(request.operation_id)? {
-            if record.restored_at_ms.is_some() {
-                return Ok(record);
-            }
+        if let Some(record) = self.store.inbox_original_restore(request.operation_id)?
+            && record.restored_at_ms.is_some()
+        {
+            return Ok(record);
         }
         let files = self
             .inbox

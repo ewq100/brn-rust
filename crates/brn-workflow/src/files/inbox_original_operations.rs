@@ -242,11 +242,25 @@ impl InboxFiles {
         checkpoint("original_operation_synced")
     }
     pub(crate) fn retained_original(&self, record: &InboxOriginalRemovalRecord) -> Result<()> {
-        self.check_operation(&OriginalOperationFile::Remove(Box::new(record.clone())))?;
-        self.exact(
+        record.validate()?;
+        self.retained_copy(
             &record.evidence.snapshot.review.original,
-            &retained(record.request.operation_id),
-        )?;
+            record.request.operation_id,
+            &record.namespace,
+        )
+    }
+    pub(crate) fn retained_copy(
+        &self,
+        item: &InboxItem,
+        operation_id: Uuid,
+        namespace: &InboxOriginalNamespace,
+    ) -> Result<()> {
+        if operation_id.is_nil() || *namespace != self.original_namespace() {
+            return Err(unavailable(
+                "Inbox retained copy belongs to another operation or namespace",
+            ));
+        }
+        self.exact(item, &retained(operation_id))?;
         Ok(())
     }
     pub(crate) fn original_occupied(&self, item: &InboxItem) -> Result<bool> {

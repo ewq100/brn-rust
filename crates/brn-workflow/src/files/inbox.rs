@@ -687,6 +687,14 @@ impl InboxFiles {
     ) -> Result<()> {
         Err(unavailable("Inbox original operations require macOS"))
     }
+    pub(crate) fn retained_copy(
+        &self,
+        _: &InboxItem,
+        _: Uuid,
+        _: &brn_store::work::inbox_original_operations::InboxOriginalNamespace,
+    ) -> Result<()> {
+        Err(unavailable("Inbox original operations require macOS"))
+    }
     pub(crate) fn original_occupied(&self, _: &InboxItem) -> Result<bool> {
         Err(unavailable("Inbox original operations require macOS"))
     }

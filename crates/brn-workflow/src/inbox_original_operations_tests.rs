@@ -75,6 +75,64 @@ fn retained(f: &Fixture, operation: Uuid) -> PathBuf {
 }
 
 #[test]
+fn reopened_removed_inventory_rechecks_each_retained_copy_independently() {
+    let mut f = Fixture::new();
+    f.source();
+    let first_item = f.item;
+    let first_request = removal_request(&mut f);
+    f.app.remove_inbox_original(&first_request).unwrap();
+    fs::rename(f.vault.join("source.md"), f.vault.join("first-source.md")).unwrap();
+    f.item = f
+        .app
+        .capture_inbox(&crate::inbox::CaptureInboxRequest {
+            id: Uuid::new_v4(),
+            kind: crate::inbox::InboxKind::Text,
+            title: "Second synthetic copy".into(),
+            original_name: None,
+            text: "Second exact body".into(),
+        })
+        .unwrap()
+        .capture
+        .id;
+    f.source();
+    let second_request = removal_request(&mut f);
+    let second = f.app.remove_inbox_original(&second_request).unwrap();
+    let mut f = reopen(f);
+    for (item, operation_id) in [
+        (first_item, first_request.operation_id),
+        (f.item, second_request.operation_id),
+    ] {
+        assert_eq!(
+            f.app.inbox_item(item).unwrap().original,
+            InboxOriginal::RemovedRetained { operation_id }
+        );
+    }
+    fs::write(
+        retained(&f, first_request.operation_id),
+        b"Changed after startup",
+    )
+    .unwrap();
+    assert!(matches!(
+        f.app.inbox_item(first_item).unwrap().original,
+        InboxOriginal::Unavailable { .. }
+    ));
+    assert_eq!(
+        f.app.inbox_item(f.item).unwrap().original,
+        InboxOriginal::RemovedRetained {
+            operation_id: second_request.operation_id
+        }
+    );
+    assert!(
+        f.app
+            .restore_inbox_original(&undo(&second))
+            .unwrap()
+            .restored_at_ms
+            .is_some()
+    );
+    assert_eq!(fs::read(original(&f)).unwrap(), b"Second exact body");
+}
+
+#[test]
 fn exact_owner_removal_restoration_and_causal_replay_preserve_bytes_and_identity() {
     let mut f = Fixture::new();
     f.source();
