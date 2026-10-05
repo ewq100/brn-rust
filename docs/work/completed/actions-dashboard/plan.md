@@ -1284,3 +1284,39 @@ stderr qualification remain open. No account/model/download/private/original-dat
 or release operation occurred. Macmini needs the pinned toolchain/locked native
 dependencies, protobuf, Bash/Python3 and an existing canonical owned TMPDIR;
 interaction needs an unlocked/awake session, not for builds/tests/CI.
+
+## Stage 6 integrated checkpoint — 2026-10-05
+
+PR43 merged normally at d70ec0ac644ff3283ec89425b12ae1013dd94ada, exact reviewed
+tree c2229a49e301031850cc5c5e3c6e91b8c43845fd. Ask can prepare whole Action-only
+Create/Replace reviews through AppWorker with captured turn/session/selection,
+saved sources, full baselines, exact replay and joined cancellation/shutdown.
+Rewrite remains captured review editing; real Actions require exact approval.
+Independent whole review was clean. Fresh1151shared/0failed/6ignored+52fixtures,
+207nativeWorkflowModels/0failed/5ignored,257nativeDesktop/0failed/0ignored, both
+native Clippy modes and shipping builds/startup2 passed on pinned Rust1.98.1/
+macOS arm64. Exact head66e6f90/run37245263931 passed MacCore/UI/NativeRetrieval
+and UbuntuShared. Windows22 full diagnostics match actual Main42; overallCIred.
+Fresh GitHub requirements were satisfied; no bypass. Actual merge parents/tree
+and all three checkout fast-forwards were verified; owner AGENTS.md preserved.
+Post-merge8Workflow+4AI/0failed/0ignored,52fixtures and2shipping startup/restarts
+passed,V11/exact BOM-CRLF-Unicode/zero credentials. Main run37246217301 finished5success/4failure: Mac3+UbuntuCore/UI passed.
+Independent decoded Windows22/22/14 and UbuntuNative10pass/3fail full diagnostics/
+panic messages/locations match Main42; Ubuntu thread IDs/order/duration differ.
+Failing source blobs are unchanged. OverallCIred; no new sharedMac defect.
+
+Stage6 implementation/automated verification/integration is complete. Actual
+PR40 composition/PR41 Rewrite/PR43 Ask native and live-model acceptance remains
+pending; manual scenarios above remain reproducible with fresh disposable data
+and a shipping native build. Screenshots require the unlocked awake Mac.
+No provider/account/model/original-data or release action occurred in this slice.
+Pinned Rig0.43.0 can print partial model output to stderr on invalid streaming
+tool calls before its hook. Synthetic evidence established the narrow gap;
+resolve before trusted-user packaging, without global stderr suppression or a
+provider redesign. It does not block safe offline Inbox implementation.
+
+Next: Stage7 safe original intake/catalog, then a small owned processing queue,
+faithful source conversion and independently reviewable consequences, shared
+AppWorker/CLI and native Inbox. Transfer requirements: Apple Silicon macOS,
+Command Line Tools, pinned Rust1.98.1, locked dependencies/protobuf, Bash/Python3,
+explicit canonical current-user-owned TMPDIR; native acceptance needs unlock.

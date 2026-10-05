@@ -8,6 +8,7 @@ pub mod chat;
 pub mod editor;
 mod edits;
 pub mod findings;
+pub mod inbox;
 pub mod proposal_apply;
 mod proposal_repair;
 pub mod proposal_rewrite;
@@ -74,6 +75,7 @@ const MIGRATIONS: &[&str] = &[
     findings::V9,
     actions::V10,
     action_completion::V11,
+    inbox::V12,
 ];
 
 #[derive(Debug, Clone, PartialEq, Eq)]
@@ -148,6 +150,7 @@ impl WorkStore {
         actions::check_all(&conn)?;
         action_completion::check_all(&conn)?;
         findings::check_all(&conn)?;
+        inbox::check_all(&conn)?;
         chat::reconcile(&mut conn)?;
         proposal_rewrite::reconcile(&mut conn)?;
         let backup = backup::create(data_dir, &conn)?;
@@ -266,6 +269,15 @@ fn check(db: &Path) -> Result<Checked> {
         Err(e) if is_corruption(&e) => return Ok(Checked::Corrupt),
         Err(e) => return Err(e.into()),
     };
+    if application == APPLICATION_ID && (12..=MIGRATIONS.len() as i64).contains(&version) {
+        // Readable Inbox damage must not silently restore older operational
+        // inventory or be copied into a new startup backup.
+        match inbox::check_all(&conn) {
+            Err(crate::Error::Sql(e)) if is_corruption(&e) => return Ok(Checked::Corrupt),
+            Err(error) => return Ok(Checked::Invalid(error)),
+            Ok(()) => {}
+        }
+    }
     if application == APPLICATION_ID && (11..=MIGRATIONS.len() as i64).contains(&version) {
         // Readable completion evidence must never be discarded by restoring an
         // older backup. Validate its owned shape, full bindings and current

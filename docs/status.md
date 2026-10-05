@@ -2,7 +2,8 @@
 
 2026-10-05. **Stages 1–4 are implemented, automated verified and integrated.
 Stage 5 foundations are integrated, with live/native qualification still open.
-Stage 6 Actions/dashboard is active. Stages 7–16 are not implemented; complete V1
+Stage 6 Actions/dashboard implementation is integrated, with acceptance open.
+Stage7 Inbox is active; Stages 7–16 are incomplete; complete V1
 delivery is not claimed.**
 
 The [Product Vision](product/BRN_PRODUCT_VISION.md),
@@ -61,61 +62,48 @@ origins/full replacement baselines, exact stored review members, joined Store
 settlement/recovery, shared paged Action reads and explicit reference/dependency
 validation. Dependencies and parent graphs are separate checks; new knowledge
 references require captured or same-draft proof. Completed records cannot reopen.
-Evidence: [Actions/dashboard plan](work/active/actions-dashboard/plan.md).
+Evidence: [Actions/dashboard record](work/completed/actions-dashboard/plan.md).
 
 ## Latest integrated checkpoint
 
-[PR42](https://github.com/ewq100/brn-rust/pull/42) merged
-**ccefc9e0f0b5426b7b186ab19980df7da8322a49**, exact reviewed tree6a0497cb.
-Ask/Rewrite can read complete approved Actions and immutable origins through
-AppWorker, with checked state/page/cursor, default20/all labeled states and a whole
-1MiB response limit. Note scopes, current-evidence checks and retained tool leases
-stay intact. The private callback never consumes frontend events or opens SQLite.
+[PR43](https://github.com/ewq100/brn-rust/pull/43) merged
+**d70ec0ac644ff3283ec89425b12ae1013dd94ada**, exact reviewed treec2229a49.
+Ask now prepares full Action Create/Replace proposals through AppWorker, with
+actual captured turn/session/selection, saved evidence, strict whole baselines,
+exact creation replay and joined Stop/shutdown. Real Actions still require exact
+approval. Stage6 also delivers Dashboard, direct identified Complete, new related
+follow-up, native composition and full Action/mixed Rewrite/read tools.
 
-Independent whole review and the reproduced fatal-lane correction are clean.
-Fresh1139shared/0failed/6ignored+52fixtures,199nativeWorkflowModels/0failed/5ignored
-passed; unchanged production/shipping source retains257nativeDesktop/0failed/
-0ignored,both native Clippy/builds/startup2 qualification. The first CI exposed a
-large-fixture startup timeout; a timed Ready4.748s reproduction and independently
-reviewed minimum-size/bounded startup correction resolved it. Exact corrected
-heade5ff922/run37241758299 passed Mac3+UbuntuShared. Windows22 full diagnostics
-match main21dd333; overallCIred. Normal expected-head merge met GitHub requirements.
-Post11distinct focused tests (14executions)/0failed/0ignored+52fixtures+startup2
-passed on the exact merged tree,V11/exactBOMCRLFUnicode/zero credentials. Main
-run37242223886 finished5success/4failure: Mac3+UbuntuCore/UI passed. Independent
-decoded Windows22/22/14 full compiler diagnostics match main41. UbuntuNative
-10pass/3fail has the same error/assertion/backtrace/source locations (threadIDs/
-order/duration differ). All four failing source blobs are unchanged; overallCIred,
-with no new sharedMac defect signature.
+Independent whole review is clean. Fresh1151shared/0failed/6ignored+52fixtures,
+207nativeWorkflowModels/0failed/5ignored,257nativeDesktop/0failed/0ignored, both
+native Clippy modes, shipping builds/startup2 and53doc links passed on macOS
+arm64/Rust1.98.1. Exact head66e6f90/run37245263931 passed MacCore/UI/NativeRetrieval
+and UbuntuShared; Windows22 full diagnostics match actual Main42. OverallCIred,
+no new sharedMac defect signature. Normal merge met fresh GitHub requirements
+without bypass. Post-merge8Workflow+4AI/0failed/0ignored+52fixtures+startup2 passed
+on the exact merged tree,V11/exact bytes/zero credentials. Main37246217301 finished5success/4failure: Mac3+UbuntuCore/UI passed.
+Independent decoded Windows22/22/14 diagnostics and UbuntuNative10pass/3fail
+messages/locations/panic blocks match Main42; only Ubuntu thread IDs/order/time
+differ. Failing source blobs are unchanged. OverallCIred; no new sharedMac defect.
 
-PR41 Action Rewrite and PR40 native composition are integrated; actual Rewrite/
-composition/model/owner acceptance remains pending while the Mac is locked. PR39
-Dashboard/Complete observation and eight safe original JPEGs are integrated.
-Earlier checkpoint evidence remains in the [Actions plan](work/active/actions-dashboard/plan.md)
-and PRs. Stage5/6/V1 remain unfinished.
+PR39 Dashboard/Complete actual observation and eight safe original JPEGs are
+integrated. PR40 composition, PR41 Rewrite and PR43 Ask native/live/owner
+acceptance remain pending. All Stage6 slices/scenarios remain preserved in the
+[completed Actions record](work/completed/actions-dashboard/plan.md).
 
 ## Active slice and next work
 
-codex/v1-action-proposal-tools is implemented and automated verified over actual
-mergeccefc9e/tree6a0497cb. Ask can prepare whole Action-only Create/Replace reviews
-through AppWorker; captured turn/session, full saved sources, original creation
-replay and cancellation/drain preserve exact approval as the sole real producer.
-Rewrite has no unrelated proposal capability. Full/null fields, source-loss/later
-review replay, changed-input refusal and private lifecycle witnesses pass.
-
-Independent whole Sol review is clean across9Rust+5docs. All9Rust hashes remain
-exact through fresh pinnedRust1.98.1/macOSarm64 locked/offline shared1151/0failed/
-6ignored+52fixtures, nativeWorkflowModels207/0failed/5ignored and nativeDesktop257/
-0failed/0ignored. Both native all-target Clippy modes, shipping Desktop/CLI builds
-and two V11 startup/restart/exact BOM/CRLF/Unicode/zero-credential checks passed.
-53local doc links and diff/format passed. Initial Clippy caught the larger private
-message and a test guard; boxing/collapsing resolved these before final review/gates.
-Actual wire tests now require closed anyOf/typed-enum schemas on all3Rig routes;
-this is not live schema acceptance. PR/exact-head CI/normal merge/post follow.
-
-Then finish Stage6 and continue to Text/email Inbox in roadmap order. Native
-observation continues when the Mac is unlocked. See the
-[Actions plan](work/active/actions-dashboard/plan.md).
+codex/v1-inbox-catalog starts Stage7 over actual merged43. Its first coherent
+deliverable is checked immutable WorkStore metadata for retained ordinary intake
+copies, additive V12 upgrade/recovery, exact replay and bounded FIFO inventory.
+Original content stays in ordinary files. Client intake, owned processing,
+faithful conversion and separate review consequences follow through AppWorker.
+The catalog is implemented; independent review is clean. Fresh1160shared/0failed/
+6ignored+52fixtures,207nativeWorkflowModels/0failed/5ignored,257nativeDesktop/
+0failed/0ignored, both native Clippy modes/shipping builds/startup2 passed,V12/
+exact bytes/zero credentials.95doc links passed. Publication/applicable CI and
+integration follow. User-facing intake/processing remains unimplemented. See the
+short [Inbox plan](work/active/text-email-inbox/plan.md).
 
 ## Qualification and owner items
 
