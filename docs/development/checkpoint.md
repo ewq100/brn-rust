@@ -2,34 +2,31 @@
 
 Lead-confirmed 2026-10-06: full frozen V1 goal **active**, without a token budget.
 
-- **Integrated:** Knowledge PR63 at `d36375b23dbf27a575ee73b5843bbf7d40f2a8ab`,
-  reviewed tree `80564adbf04869444c4a6c6af1949cead3fe36b5`. Exact-head
-  PR37377504928 attempt1 and merged-main37378949287 attempt1 passed all protected
-  Mac/shared gates and Docs. Overall red retains known Windows/Linux failures;
-  full diagnostics and meaningful ordering/thread-ID/timing differences survive.
-  Fresh merged123 AI/two owned Knowledge callback tests and52 fixtures passed.
-- **Current:** `codex/v1-review-action-candidates`, reviewed/qualified code
-  `1d9df1204af7df296310e4c1ba56396f525e1462`, tree
-  `8bfc86d6a2ad8d756131fbab277ddab5bf9d8585`. Rust mints Action draft/member
-  IDs, resolves member links, loads full checked Replace baselines and injects
-  selected Inbox Source proofs. Original replay preserves newer review/proofs;
-  changed intent or another owned turn needs a separate fresh draft.
-- **Verification:** complete independent read-only review clean; fresh format/
-  build/all-target Clippy,1,367 shared tests/0 failures/8 ignores and52 fixtures
-  passed. Optional native check/three Clippy configurations,291 Workflow/model
-  tests/0/7,285 Desktop/0/0, shipping builds and two V14 restarts passed. Atomic
-  records retain unchanged clean identity and exit0;127 AI/3 capability fixtures
-  and Clippy passed offline. Exact-head CI/integration
-  remain pending; detailed intermediate failures/evidence are in the correction plan.
-- **Preserved:** pushed clean lifecycle snapshot `7c4f668de467721f728f242c8fac8d14606a6e44`
-  on `codex/v1-inbox-recoverable-removal`, unmerged and held for corrections.
-- **Pending:** native/live/owner acceptance, real assets and trusted-user packaging.
-  Copy cleanup requires approved Source exact preservation plus explicit owner
-  confirmation, separately from disposition. Old semantic/consequence gates and
-  original-operation record/performance/recovery corrections are still pending.
-- **Next:** Action exact-head CI/integration, then Source-preservation cleanup and
-  bounded original-operation corrections under the
-  [current plan](../work/active/architecture-review-corrections/plan.md).
+- **Integrated:** Action PR64 at `90c36e5c2035d1eea4fc37e7828f085a0f1bfba0`,
+  exact reviewed tree `913c3fa3bbc6d3ddfdbc1fafa87c8cae257d7e02`. Rust mints
+  Action identities/member links, checks full Replace baselines and injects Inbox
+  Source proofs; original replay retains newer reviews. Exact-head PR37380762825
+  attempt1 passed all four protected Mac/shared gates and Docs. Overall red retains
+  Windows22 complete compiler blocks/both summaries matching PR63. Fresh merged
+  127 AI/11 Action callback-fence tests and52 fixtures passed. Main64 run37382000386 attempt1 passed all applicable
+  gates; overall red retains unchanged Windows22/22/14 compiler blocks and three
+  Linux assertions/backtraces, with raw order/thread-ID/duration differences retained.
+- **Verification:** Action independent review clean; shared format/build/Clippy,
+  1,367 tests/0 failures/8 ignores and52 fixtures passed. Optional native checks/
+  three Clippy configurations,291 Workflow/model tests/0/7,285 Desktop/0/0,
+  shipping builds and two V14 restarts passed. Atomic records preserve exact
+  unchanged identity/exit0; no live provider or model assets exercised.
+- **Current:** `codex/v1-source-preservation` at the integrated baseline: one
+  approved Source proving exact original preservation, independently of failed
+  analysis/pending drafts/derived edits. Implementation and focused tests in
+  progress; review/verification/integration remain pending.
+- **Preserved:** lifecycle `7c4f668de467721f728f242c8fac8d14606a6e44` on
+  `codex/v1-inbox-recoverable-removal`, unchanged/unmerged and held for correction.
+- **Pending:** explicit confirmation/removal record and recovery corrections,
+  native/live/owner acceptance, real assets and trusted-user packaging. Disposition
+  remains separate; previews grant no deletion authority.
+- **Next:** qualify/integrate Source preservation, then bounded original-operation
+  record/performance/recovery work under the [current plan](../work/active/architecture-review-corrections/plan.md).
 - **Environment:** Darwin arm64 Mac mini, Rust1.98.1 locked/offline, canonical
   owned `TMPDIR=/private/tmp/brn-mini-synthetic-20261005`, empty native model
   setting, isolated checkout/targets and disposable synthetic data only.

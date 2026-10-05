@@ -246,9 +246,13 @@ requires an approved Source that still proves exact original preservation plus
 explicit owner confirmation. Failed analyses, pending consequence drafts and
 later derived-note edits do not block copy cleanup. Processed/dismissed disposition
 is separate operational state. There is no automatic deletion or purge; removal
-is recoverable and never removes the approved Source. Corrected admission and
-native controls remain pending until their implementation and acceptance are
-recorded; the rule itself is not an original-removal receipt.
+is recoverable and never removes the approved Source. The corrected read-only preview selects one complete approved Source witness:
+Rust reconstructs conversion from the exact original and checks its saved body,
+UUID, provenance and Source classification. Later owner header Save, relocation,
+History or a visible archive may qualify if those proofs survive. Dirty editor
+work is separate; unresolved filesystem authority still fences qualification.
+The full consequence review remains independent. Confirmation/removal recovery
+and native controls remain pending; a preview is not an original-removal receipt.
 
 Extend approved vault and ordinary-asset effects through existing typed
 proposal-apply members. Extend private intake effects through the original-operation

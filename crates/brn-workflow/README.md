@@ -864,15 +864,21 @@ The private typed `ai_behavior::TaskInput` assembles full captured Inbox-analysi
 and Rewrite input. Static agent instructions/tool policy remain in `brn-ai`;
 BRN domain context, evidence validation and application authority stay here.
 
-`PreviewInboxRemoval` / `preview_inbox_removal` reports a complete removal evidence
-snapshot, freshly qualified approved Sources and saved Markdown consequences,
-original bytes/availability and explicit blockers. Qualification checks exact
-terminal fingerprints/text, bound vault, complete unique managed identities and
-retained unsaved editor work. Operational work is reread before returning; the
-full encoded payload/digest refuses above64MiB. Pending processing, unsettled or
-absent analysis, unsettled proposal/application, running Rewrite, applied Undo and
-unqualified saved outputs block this conservative first gate. Rejected proposals
-and Open findings remain visible. `needs_owner_attestation: true` remains even
-with no blockers: the preview grants no semantic approval or removal. No AI call,
-namespace effect or recovery/schema change is introduced. Exact owner attestation
-and recoverable removal/recovery remain the following slice.
+`PreviewInboxRemoval` / `preview_inbox_removal` qualifies one approved Source
+that still preserves the exact original. The selected full Applied approval,
+original bytes and freshly observed saved Source bind the bounded digest. Rust
+reconstructs the existing conversion and verifies the complete saved body,
+managed UUID, Source classification and original provenance. Owner metadata
+Save, a new inode, relocation, History and a visible archive path may qualify;
+changed body/identity/provenance, duplicate identity or incomplete inventory refuse.
+Actual unresolved Save/Apply/completion authority still fences current reads.
+
+Failed or pending analyses, processing, consequence drafts, running Rewrite and
+later derived-note edits do not block preservation or alter its digest. A stale
+alternative Source does not veto a valid selected Source. Unsaved editor work is
+retained independently and never substitutes for saved evidence. The selected
+original/journal/full Source proof is rechecked before returning. The complete
+review remains available through `InboxReview`; it is independent of cleanup
+admission. `needs_owner_confirmation: true` never grants removal authority.
+Explicit confirmation must bind this same witness and requalify it. Removal,
+restore/recovery corrections and native controls remain subsequent work.

@@ -349,8 +349,8 @@ pub(super) fn output(command: &AppCommand, event: AppEvent) -> Result<Output, Cl
             serde_json::json!(*review)
         }
         (AppCommand::PreviewInboxRemoval(id), AppEvent::InboxRemovalPreview(preview))
-            if preview.evidence.snapshot.review.original.capture.id == *id
-                && preview.evidence.needs_owner_attestation
+            if preview.evidence.item.capture.id == *id
+                && preview.evidence.needs_owner_confirmation
                 && preview
                     .evidence
                     .digest()
@@ -826,9 +826,9 @@ mod tests {
         .unwrap();
         let preview: brn_workflow::inbox_removal::InboxRemovalPreview =
             serde_json::from_value(result.data).unwrap();
-        assert!(preview.evidence.needs_owner_attestation);
+        assert!(preview.evidence.needs_owner_confirmation);
         assert!(preview.evidence.blockers.is_empty());
-        assert_eq!(preview.evidence.sources[0].saved, source);
+        assert_eq!(preview.evidence.source.as_ref().unwrap().saved, source);
         let command = AppCommand::PreviewInboxRemoval(process.items[0].capture.id);
         assert!(output(
             &command,

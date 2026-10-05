@@ -14,10 +14,11 @@ Rewrite protection merged normally in PR62 at
 Knowledge identities merged normally in PR63 at
 `d36375b23dbf27a575ee73b5843bbf7d40f2a8ab`, exact reviewed tree
 `80564adbf04869444c4a6c6af1949cead3fe36b5`.
-Current Action correction: `codex/v1-review-action-candidates`, independently
-reviewed/qualified `1d9df1204af7df296310e4c1ba56396f525e1462`, tree
-`8bfc86d6a2ad8d756131fbab277ddab5bf9d8585`. Remaining accepted corrections
-follow this plan.
+Action correction merged normally in PR64 at
+`90c36e5c2035d1eea4fc37e7828f085a0f1bfba0`, exact reviewed tree
+`913c3fa3bbc6d3ddfdbc1fafa87c8cae257d7e02`. Current branch:
+`codex/v1-source-preservation`, based on this clean merge. Remaining accepted
+corrections follow this plan.
 The complete V1 goal is confirmed **active** by `get_goal` on 2026-10-05;
 its full objective and roadmap dependency order remain unchanged.
 
@@ -292,3 +293,36 @@ unchanged. Exact-head CI and normal integration are the next unfinished gate.
 The existing capability-spike offline gate passed127 AI library and3 synthetic
 qualification-harness tests plus all-target Clippy. It performed no discovery
 request, authentication, model asset access or live provider call.
+
+## Source-preservation correction acceptance
+
+Baseline: PR64 merge90c36e5c2035d1eea4fc37e7828f085a0f1bfba0. Correct the
+existing read-only preview first, before adapting the immutable lifecycle snapshot.
+
+- One approved Applied non-Undo Source still proves the exact original through
+  the existing deterministic conversion, complete saved body, UUID, semantic
+  original provenance and Source classification. Strict new-proposal headers stay
+  unchanged. Owner header Save/new inode, relocation, History and visible archives
+  qualify when exact preservation survives.
+- Failed/pending analysis, pending processing, consequence drafts/running Rewrite,
+  NotApplied Undo and later derived edits do not block or change the selected
+  preservation digest. Unsaved editor work remains retained, independently of saved
+  evidence. Actual uncertain Save/Apply/completion authority still fences reads.
+- One valid witness suffices despite stale alternatives. Missing/changed body,
+  identity/provenance/class, ambiguous or incomplete identity inventory refuse.
+  Recheck the selected journal/original/full saved proof before returning;
+  later confirmation must bind the same witness rather than switch alternatives.
+- Keep complete retained review separate. No removal, disposition, permanent purge,
+  new AI call, database/schema or original-operation record change in this slice.
+  Use focused synthetic Store/Workflow/CLI tests, independent full review, shared
+  and relevant native checks, exact-head protected CI and normal integration.
+
+PR64 run37380762825 attempt1 at85947595aacde6728b3c50b337ac694533c0d47b
+passed all four protected Mac/shared gates and Docs. Overall red retains Windows22
+complete compiler blocks and both summaries identical to PR63. Strict protection
+and normal merge requirements passed. Fresh merged127 AI,11 Action callback/fence
+tests and52 fixtures passed; merged tree exactly preserves the reviewed head.
+Merged-main37382000386 attempt1 passed all applicable gates. Overall red retains
+Windows22/22/14 complete blocks/summaries identical to main63 and the same three
+Linux assertions/backtraces. Raw order/thread IDs changed and terminal duration
+changed1.56s→0.04s; full logs/differences are retained.
