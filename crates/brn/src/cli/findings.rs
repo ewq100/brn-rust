@@ -1,15 +1,18 @@
 //! Tentative retained review work through the shared application worker.
 use super::{
-    error::CliError, expect_positionals, positional_uuid, scan, sub_word, usage, CliFailure,
-    Globals, Output, Scanned, Tokens,
+    error::CliError, expect_positionals, parse_scope, positional_uuid, required_positional, scan,
+    sub_word, usage, CliFailure, Globals, Output, Scanned, Tokens,
 };
 use brn_workflow::{
     app_worker::{AppCommand, AppEvent},
     findings::{
-        CaptureFindingRequest, CloseFindingRequest, FindingListRequest, FindingRecord,
-        FindingStamp, FindingState,
+        CaptureFindingRequest, CloseFindingRequest, FindingInspection, FindingListRequest,
+        FindingOrigin, FindingRecord, FindingStamp, FindingState, NoteConflictCursor,
+        NoteConflictRequest,
     },
+    library::KnowledgeScope,
     proposals::SourceVersion,
+    vault::{EvidencePath, VaultPath},
 };
 use std::{fmt::Write as _, fs::File, io::Read, os::unix::fs::OpenOptionsExt, path::Path};
 use uuid::Uuid;
@@ -20,6 +23,7 @@ pub enum FindingsCommand {
     Show(Uuid),
     Inspect(Uuid),
     Close(CloseFindingRequest),
+    Conflicts(NoteConflictRequest),
 }
 impl FindingsCommand {
     pub fn name(&self) -> &'static str {
@@ -29,6 +33,7 @@ impl FindingsCommand {
             Self::Show(_) => "findings.show",
             Self::Inspect(_) => "findings.inspect",
             Self::Close(_) => "findings.close",
+            Self::Conflicts(_) => "findings.conflicts",
         }
     }
 }
@@ -38,7 +43,11 @@ pub(super) fn scan_command(
     globals: &mut Globals,
     name: &mut Option<&'static str>,
 ) -> Result<Scanned, CliError> {
-    let sub = sub_word(tokens, "findings", "capture|list|show|inspect|close")?;
+    let sub = sub_word(
+        tokens,
+        "findings",
+        "capture|list|show|inspect|close|conflicts",
+    )?;
     let (label, options): (_, &[(&str, bool)]) = match sub.as_str() {
         "capture" => ("findings.capture", &[("file", true)]),
         "list" => (
@@ -48,6 +57,10 @@ pub(super) fn scan_command(
         "show" => ("findings.show", &[]),
         "inspect" => ("findings.inspect", &[]),
         "close" => ("findings.close", &[("version", true), ("state", true)]),
+        "conflicts" => (
+            "findings.conflicts",
+            &[("scope", true), ("limit", true), ("cursor", true)],
+        ),
         _ => return Err(usage("unknown findings subcommand")),
     };
     *name = Some(label);
@@ -89,6 +102,55 @@ fn state(raw: &str) -> Result<FindingState, CliError> {
     }
 }
 
+fn cursor(raw: &str) -> Result<NoteConflictCursor, CliError> {
+    if raw.len() > 8192 {
+        return Err(usage("conflict cursor JSON exceeds 8192 bytes"));
+    }
+    #[derive(serde::Deserialize)]
+    #[serde(deny_unknown_fields)]
+    struct Fingerprint {
+        device: u64,
+        inode: u64,
+        len: u64,
+        sha256: [u8; 32],
+    }
+    #[derive(serde::Deserialize)]
+    #[serde(deny_unknown_fields)]
+    struct Source {
+        path: String,
+        fingerprint: Fingerprint,
+    }
+    #[derive(serde::Deserialize)]
+    #[serde(deny_unknown_fields)]
+    struct Cursor {
+        vault_id: Uuid,
+        path: String,
+        note_id: Uuid,
+        scope: KnowledgeScope,
+        source: Source,
+        before: Uuid,
+    }
+    let cursor: Cursor = serde_json::from_str(raw)
+        .map_err(|_| usage("conflict cursor does not match its typed JSON schema"))?;
+    let proof = cursor.source.fingerprint;
+    Ok(NoteConflictCursor {
+        vault_id: cursor.vault_id,
+        path: cursor.path,
+        note_id: cursor.note_id,
+        scope: cursor.scope,
+        source: SourceVersion {
+            path: cursor.source.path,
+            fingerprint: brn_workflow::editor::FileFingerprint {
+                device: proof.device,
+                inode: proof.inode,
+                len: proof.len,
+                sha256: proof.sha256,
+            },
+        },
+        before: cursor.before,
+    })
+}
+
 pub(super) fn validate(command: &FindingsCommand) -> Result<(), CliError> {
     match command {
         FindingsCommand::Capture(request) => {
@@ -99,6 +161,35 @@ pub(super) fn validate(command: &FindingsCommand) -> Result<(), CliError> {
         }
         FindingsCommand::Close(request) => {
             request.validate().map_err(|error| usage(error.to_string()))
+        }
+        FindingsCommand::Conflicts(request) => {
+            if !(1..=100).contains(&request.limit) || request.path.len() > 512 {
+                return Err(usage(
+                    "conflict lookup needs a path up to 512 bytes and --limit 1..100",
+                ));
+            }
+            match request.scope {
+                KnowledgeScope::Current => VaultPath::parse(&request.path).map(|_| ()),
+                _ => EvidencePath::parse(&request.path).map(|_| ()),
+            }
+            .map_err(|error| usage(error.to_string()))?;
+            if let Some(cursor) = &request.cursor {
+                if cursor.vault_id.is_nil()
+                    || cursor.note_id.is_nil()
+                    || cursor.before.is_nil()
+                    || cursor.path != request.path
+                    || cursor.scope != request.scope
+                    || cursor.source.path != request.path
+                    || cursor.source.fingerprint.len > 1024 * 1024
+                    || serde_json::to_vec(cursor)
+                        .map_err(|_| usage("invalid conflict cursor"))?
+                        .len()
+                        > 8192
+                {
+                    return Err(usage("conflict cursor must bind this path and scope with bounded exact proof and nonnil identities"));
+                }
+            }
+            Ok(())
         }
         FindingsCommand::Show(id) | FindingsCommand::Inspect(id) => {
             if id.is_nil() {
@@ -160,6 +251,22 @@ pub(super) fn parse_command(name: &str, scanned: &Scanned) -> Result<FindingsCom
                 )?,
             })
         }
+        "findings.conflicts" => {
+            expect_positionals(scanned, 1)?;
+            FindingsCommand::Conflicts(NoteConflictRequest {
+                path: required_positional(scanned, "PATH.md")?.to_owned(),
+                scope: parse_scope(scanned.value("scope"))?,
+                limit: scanned
+                    .value("limit")
+                    .map(|raw| {
+                        raw.parse::<usize>()
+                            .map_err(|_| usage("invalid --limit integer"))
+                    })
+                    .transpose()?
+                    .unwrap_or(10),
+                cursor: scanned.value("cursor").map(cursor).transpose()?,
+            })
+        }
         _ => unreachable!("scanned findings command"),
     };
     validate(&command)?;
@@ -174,6 +281,7 @@ pub(super) fn prepare(command: &FindingsCommand) -> Result<AppCommand, CliFailur
         FindingsCommand::Show(id) => AppCommand::Finding(*id),
         FindingsCommand::Inspect(id) => AppCommand::InspectFinding(*id),
         FindingsCommand::Close(request) => AppCommand::CloseFinding(request.clone()),
+        FindingsCommand::Conflicts(request) => AppCommand::NoteConflicts(Box::new(request.clone())),
     })
 }
 
@@ -243,6 +351,24 @@ fn record_text(text: &mut String, record: &FindingRecord) {
     }
 }
 
+fn inspection_text(text: &mut String, inspection: &FindingInspection) {
+    record_text(text, &inspection.record);
+    for observation in &inspection.evidence {
+        writeln!(
+            text,
+            "\nFresh observation {}: {:?}",
+            observation.index, observation.outcome
+        )
+        .expect("String write");
+        if let Some(source) = &observation.observed {
+            source_text(text, source);
+        }
+        if let Some(reason) = &observation.reason {
+            writeln!(text, "Reason: {}", exact(reason)).expect("String write");
+        }
+    }
+}
+
 pub(super) fn output(command: &FindingsCommand, event: AppEvent) -> Result<Output, CliFailure> {
     let mut text = String::new();
     let data = match (command, event) {
@@ -289,22 +415,51 @@ pub(super) fn output(command: &FindingsCommand, event: AppEvent) -> Result<Outpu
         (FindingsCommand::Inspect(id), AppEvent::FindingInspection(inspection))
             if inspection.record.draft.request.id == *id =>
         {
-            record_text(&mut text, &inspection.record);
-            for observation in &inspection.evidence {
+            inspection_text(&mut text, &inspection);
+            serde_json::json!(inspection)
+        }
+        (FindingsCommand::Conflicts(request), AppEvent::NoteConflicts(page))
+            if page.path == request.path
+                && page.scope == request.scope
+                && page.source.path == request.path
+                && !page.note_id.is_nil()
+                && page.entries.len() <= request.limit
+                && page.entries.iter().all(|inspection| {
+                    inspection.record.state == FindingState::Open
+                        && matches!(
+                            inspection.record.draft.request.origin,
+                            FindingOrigin::InboxConflict { .. }
+                        )
+                })
+                && page.next_cursor.as_ref().is_none_or(|cursor| {
+                    cursor.path == page.path
+                        && cursor.scope == page.scope
+                        && cursor.note_id == page.note_id
+                        && cursor.source == page.source
+                }) =>
+        {
+            writeln!(text, "Conflict lookup path: {}\nScope: {}\nManaged UUID: {}\nOpen conflicts matching this note: {}", exact(&page.path), serde_json::to_string(&page.scope).expect("scope serializes"), page.note_id, page.open_count).expect("String write");
+            text.push_str("Fresh lookup note proof:\n");
+            source_text(&mut text, &page.source);
+            text.push_str(
+                "Findings are tentative; fresh observations do not establish a winner.\n",
+            );
+            if page.entries.is_empty() {
+                text.push_str("No conflicts in this page.\n");
+            }
+            for inspection in &page.entries {
+                text.push('\n');
+                inspection_text(&mut text, inspection);
+            }
+            if let Some(cursor) = &page.next_cursor {
                 writeln!(
                     text,
-                    "\nFresh observation {}: {:?}",
-                    observation.index, observation.outcome
+                    "Next page cursor JSON: {}",
+                    serde_json::to_string(cursor).expect("cursor serializes")
                 )
                 .expect("String write");
-                if let Some(source) = &observation.observed {
-                    source_text(&mut text, source);
-                }
-                if let Some(reason) = &observation.reason {
-                    writeln!(text, "Reason: {}", exact(reason)).expect("String write");
-                }
             }
-            serde_json::json!(inspection)
+            serde_json::json!(page)
         }
         _ => {
             return Err(CliError::Workflow(
@@ -379,6 +534,18 @@ mod tests {
                 limit: 101,
                 before: None,
             }),
+            FindingsCommand::Conflicts(NoteConflictRequest {
+                path: "../escape.md".into(),
+                scope: KnowledgeScope::All,
+                limit: 10,
+                cursor: None,
+            }),
+            FindingsCommand::Conflicts(NoteConflictRequest {
+                path: "current.md".into(),
+                scope: KnowledgeScope::Current,
+                limit: 101,
+                cursor: None,
+            }),
             FindingsCommand::Show(Uuid::nil()),
             FindingsCommand::Inspect(Uuid::nil()),
             FindingsCommand::Close(CloseFindingRequest {
@@ -411,6 +578,56 @@ mod tests {
                 b"synthetic marker"
             );
             assert!(!credentials.exists());
+        }
+    }
+
+    #[test]
+    fn conflict_parser_preserves_default_current_and_explicit_scopes_without_startup() {
+        let owner = tempfile::tempdir_in(std::env::temp_dir().canonicalize().unwrap()).unwrap();
+        for (scope, expected) in [
+            (None, KnowledgeScope::Current),
+            (Some("source"), KnowledgeScope::Source),
+            (Some("history"), KnowledgeScope::History),
+            (Some("all"), KnowledgeScope::All),
+        ] {
+            let path = if scope.is_none() {
+                "note.md"
+            } else {
+                "archive/note.md"
+            };
+            let mut args = vec![
+                "findings".into(),
+                "conflicts".into(),
+                path.into(),
+                "--data-dir".into(),
+                owner.path().to_str().unwrap().into(),
+            ];
+            if let Some(scope) = scope {
+                args.extend([
+                    "--scope".into(),
+                    scope.into(),
+                    "--limit".into(),
+                    "100".into(),
+                ]);
+            }
+            let super::super::Outcome::Run(invocation) =
+                super::super::parse(&args).unwrap_or_else(|_| panic!("scope parses"))
+            else {
+                panic!("run")
+            };
+            let Command::Findings(FindingsCommand::Conflicts(request)) = invocation.command else {
+                panic!("conflict lookup")
+            };
+            assert_eq!(request.path, path);
+            assert_eq!(request.scope, expected);
+            assert_eq!(request.limit, if scope.is_none() { 10 } else { 100 });
+            assert!(request.cursor.is_none());
+            assert!(matches!(
+                prepare(&FindingsCommand::Conflicts(request))
+                    .unwrap_or_else(|_| panic!("valid lookup")),
+                AppCommand::NoteConflicts(_)
+            ));
+            assert_eq!(std::fs::read_dir(owner.path()).unwrap().count(), 0);
         }
     }
 }

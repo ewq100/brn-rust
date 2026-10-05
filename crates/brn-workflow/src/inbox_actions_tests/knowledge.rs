@@ -8,6 +8,7 @@ use brn_store::{note_identity, note_provenance};
 enum Step {
     Knowledge(KnowledgeProposalArgs),
     Action(ActionProposalArgs),
+    Conflict(brn_ai::ConflictArgs),
 }
 fn semantic(source: &SourceFixture) -> InboxActionRequest {
     let mut r = request(source);
@@ -31,6 +32,8 @@ fn knowledge(source: &SourceFixture) -> KnowledgeProposalArgs {
     }
 }
 
+#[path = "conflicts.rs"]
+mod conflict_tests;
 #[path = "knowledge_links.rs"]
 mod link_tests;
 #[path = "supersession_replay.rs"]
@@ -52,6 +55,7 @@ fn scripted(script: Arc<Mutex<Vec<Step>>>) -> ProposalAnswerHook {
                         tool_reply(match s {
                             Step::Knowledge(k) => proposals.propose_knowledge(k),
                             Step::Action(a) => proposals.propose_actions(a),
+                            Step::Conflict(c) => proposals.report_conflict(c),
                         })
                     })
                     .collect::<Vec<_>>()

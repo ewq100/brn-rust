@@ -815,3 +815,20 @@ The bounded [supersession consequence](supersession-plan.md) creates one exact
 Current/History pair over existing approval/recovery; conflict capture follows
 before safe original-copy deletion. Candidate review/verification/integration
 are pending in that record. No live/provider/model/private-data operation occurred.
+
+### Mac mini supersession integration
+
+[PR54](https://github.com/ewq100/brn-rust/pull/54) merged at
+`eb36b331eb35c9cb5bc5b072060d89c39523ac87` with exact reviewed tree.
+Independent review and final local/macOS/shared candidate CI qualified the
+paired Current replacement/History consequence. Fresh merged39knowledge tests,
+52fixtures and two V14 shipping restarts passed. Exact merged-main CI passed all macOS/shared
+lanes; independently compared platform failures remain unchanged. The [supersession checkpoint](supersession-plan.md#integrated-checkpoint--pr54)
+retains commands, comparison evidence, qualification gaps and continuation.
+Next branch `codex/v1-stage7-conflicts` starts at that merge. Full V1 goal tracking
+is active; BRN's frozen workflow owns continuation, with no routine skill gates.
+
+The next [conflict consequence plan](conflicts-plan.md) retains exact tentative
+opposing evidence and adds ordinary Ask lookup through the existing worker.
+The previous milestone's final merged-main qualification passed the applicable
+macOS/shared lanes; conflict implementation proceeds under the existing mission.

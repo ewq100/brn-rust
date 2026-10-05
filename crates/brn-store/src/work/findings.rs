@@ -12,6 +12,7 @@ use std::{
     path::{Component, Path, PathBuf},
 };
 use uuid::Uuid;
+mod conflicts;
 
 pub(super) const V9: &str = "
 CREATE TABLE findings (
@@ -47,6 +48,14 @@ pub enum FindingOrigin {
         source_sha256: [u8; 32],
         destination: String,
         start_byte: usize,
+    },
+    InboxConflict {
+        analysis_id: Uuid,
+        title: String,
+        summary: String,
+        source_quote: FindingQuote,
+        other_path: String,
+        other_quote: FindingQuote,
     },
 }
 #[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
@@ -174,6 +183,39 @@ impl CaptureFindingRequest {
         nonnil(self.id)?;
         match &self.origin {
             FindingOrigin::IdentityAmbiguity { note_id } => nonnil(*note_id)?,
+            FindingOrigin::InboxConflict {
+                analysis_id,
+                title,
+                summary,
+                source_quote,
+                other_path,
+                other_quote,
+            } => {
+                nonnil(*analysis_id)?;
+                path(other_path)?;
+                if title.trim().is_empty()
+                    || title.len() > 512
+                    || summary.trim().is_empty()
+                    || summary.len() > MAX_SUMMARY_BYTES
+                    || other_path.len() > 512
+                {
+                    return Err(invalid(
+                        "Inbox conflict needs bounded title, summary and other path",
+                    ));
+                }
+                for quote in [source_quote, other_quote] {
+                    if quote.quote.is_empty()
+                        || quote.quote.len() > MAX_QUOTE_BYTES
+                        || quote.start_byte >= quote.end_byte
+                        || quote.end_byte > MAX_NOTE_BYTES
+                        || quote.end_byte - quote.start_byte != quote.quote.len()
+                    {
+                        return Err(invalid(
+                            "Inbox conflict needs two bounded exact quote ranges",
+                        ));
+                    }
+                }
+            }
             FindingOrigin::UnresolvedLink {
                 path: source,
                 destination,
@@ -231,6 +273,44 @@ impl FindingDraft {
             add(&mut total, path.len())?;
             add(&mut total, destination.len())?;
         }
+        if let FindingOrigin::InboxConflict {
+            title,
+            summary,
+            source_quote,
+            other_path,
+            other_quote,
+            ..
+        } = &self.request.origin
+        {
+            let [source, other] = self.evidence.as_slice() else {
+                return Err(invalid(
+                    "Inbox conflict needs exactly two ordered evidence proofs",
+                ));
+            };
+            if self.title != *title
+                || self.summary != *summary
+                || source.note_id.is_none()
+                || other.note_id.is_none()
+                || source.note_id == other.note_id
+                || source.source.path == other.source.path
+                || source.quote.as_ref() != Some(source_quote)
+                || other.quote.as_ref() != Some(other_quote)
+                || other.source.path != *other_path
+            {
+                return Err(invalid(
+                    "Inbox conflict evidence differs from its complete immutable intent",
+                ));
+            }
+            for bytes in [
+                title.len(),
+                summary.len(),
+                source_quote.quote.len(),
+                other_path.len(),
+                other_quote.quote.len(),
+            ] {
+                add(&mut total, bytes)?;
+            }
+        }
         let mut paths = HashSet::new();
         for (index, evidence) in self.evidence.iter().enumerate() {
             path(&evidence.source.path)?;
@@ -265,6 +345,7 @@ impl FindingDraft {
                 add(&mut total, quote.quote.len())?;
             }
             match &self.request.origin {
+                FindingOrigin::InboxConflict { .. } => {}
                 FindingOrigin::IdentityAmbiguity { note_id } => {
                     if evidence.note_id != Some(*note_id)
                         || !paths.insert(evidence.source.path.as_str())
@@ -377,6 +458,7 @@ fn read(conn: &Connection, id: Uuid) -> Result<Option<FindingRecord>> {
         let record: FindingRecord =
             serde_json::from_slice(&bytes).map_err(|_| invalid("invalid stored finding record"))?;
         validate_record(&record)?;
+        conflicts::validate_capture(conn, &record.draft)?;
         if record.draft.request.id != id
             || state_name(record.state) != row.state
             || i64::try_from(record.created_at_ms).ok() != Some(row.created)
@@ -405,6 +487,7 @@ pub(super) fn check_all(conn: &Connection) -> Result<()> {
 }
 fn write(conn: &Connection, record: &FindingRecord, insert: bool) -> Result<()> {
     validate_record(record)?;
+    conflicts::validate_capture(conn, &record.draft)?;
     let bytes = encode(record)?;
     if bytes.len() > MAX_STORED_BYTES {
         return Err(invalid("finding exceeds encoded size limit"));

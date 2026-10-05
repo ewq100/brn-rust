@@ -186,9 +186,16 @@ The retained analysis UUID can be inspected after restart without a model or
 provider call. Its captured Source, recorded selection/status and full answer
 remain separate from fresh Source inspection. Returned knowledge and Action
 drafts open the ordinary guarded proposal review and require exact approval.
-No drafts, cancellation or successful model ending establish complete semantic
-ingestion. Links, replacement/history/conflict resolution and safe original-copy
-deletion remain later Stage7 work. Native/live/owner acceptance remains pending.
+Retained conflicts show their title, summary and Open/Resolved/Dismissed state.
+**Open in Needs Review** opens that exact finding through the existing unfinished
+proposal/comment/editor recovery guards, including findings outside the current
+page. Navigation is bound to the selected analysis and its recorded member; a
+stale analysis/row cannot select another conflict. Needs Review retains both
+saved quotations and separate fresh evidence observations. Resolve/Dismiss
+changes the operational finding only, without changing knowledge or deleting
+evidence. No drafts, findings, cancellation or successful model ending establish
+complete semantic ingestion. Safe original-copy deletion remains later Stage7
+work. Native/live/owner acceptance remains pending.
 
 Manual scenario: approve a fresh synthetic email Source, browse it under Source
 and open Sources, then inspect it for analysis. Confirm exact Copy and read-only

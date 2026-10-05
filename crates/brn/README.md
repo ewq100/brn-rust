@@ -16,6 +16,7 @@ brn findings capture --file REQUEST.json
 brn findings list [--state open|resolved|dismissed|all] [--limit N] [--before UUID]
 brn findings show UUID
 brn findings inspect UUID
+brn findings conflicts PATH [--scope current|source|history|all] [--limit N] [--cursor JSON]
 brn findings close UUID --version N --state resolved|dismissed
 brn inbox add --id UUID --title TITLE --file TEXT_FILE [--kind text|markdown|email|teams] [--original-name LABEL]
 brn inbox list [--limit N] [--after UUID]
@@ -122,11 +123,14 @@ Complete wrapped Source text is limited to50,000 UTF-8 bytes; oversized/changed/
 ambiguous evidence refuses before a new provider request. Exact replay keeps the
 captured choices and answer even after Source loss; changed input conflicts.
 Cancellation joins the same owned worker and preserves its terminal receipt.
-Knowledge-and-Actions analysis can prepare at most20 separately reviewable
-proposals across Actions and new Current knowledge notes. Existing exact
-review/edit/Rewrite/reject/approve commands apply; each authoritative change
-requires its own approval. Replacements, conflicts, links, original deletion and
-native analysis controls remain later slices. Originals stay retained and no
+Knowledge-and-Actions analysis can retain at most20 consequences across separately
+reviewable Action/knowledge proposals and tentative conflicts. Supersession
+proposes a new Current note and the exact predecessor History transition together.
+Existing exact review/edit/Rewrite/reject/approve commands apply; each authoritative
+change requires its own approval. Conflicts retain two exact evidence sides without
+choosing a winner; inspect them with `findings conflicts PATH` and use the existing
+finding closure commands for direct queue review. Original deletion and native
+analysis controls remain later slices. Originals stay retained and no
 outcome establishes complete ingestion. The operation is an explicit provider call when new;
 no fallback, automatic retry or completeness/deletion authority is introduced.
 
@@ -277,6 +281,23 @@ that the issue still exists. Exact version-one Resolve/Dismiss is a direct queue
 operation; correction still requires a separately reviewed approved proposal.
 Identical capture/closure replay survives restart and closure. History and closure
 work without available vault evidence.
+
+`findings conflicts PATH` queries Open Inbox conflicts matching a freshly checked
+managed note in the bound vault. Scope defaults to Current and the page limit to
+10 (range 1–100); explicit Source/History/All scopes allow those saved classes.
+JSON returns the complete page, lookup-note proof, matching Open count, retained
+records and separate fresh Unchanged/Changed/Unavailable evidence observations.
+Text output preserves every retained string, quote and proof using JSON string
+notation. Findings stay tentative: fresh observations and queue closure do not
+establish a winner or change knowledge. An empty page is not an ingestion claim.
+
+Pass the returned `next_cursor` object as one `--cursor JSON` argument with the
+same path and scope. The opaque cursor binds the vault, managed UUID, exact saved
+file proof and page anchor; changed lookup bytes or a different query refuse.
+The anchor remains usable after that finding closes. Malformed paths, limits or
+strict cursor JSON (maximum8192 bytes) refuse before workspace initialization.
+Oversized complete pages refuse through Workflow; request fewer entries. These
+reads never clip records, write a note/proposal or make a provider call.
 
 For manual acceptance, create a fresh synthetic managed note with a reference link
 to `missing.md` and its used definition. Obtain exact proof with `links show`,

@@ -25,6 +25,7 @@ pub(super) enum EditorTransition {
     Activity,
     Dashboard,
     Findings,
+    Finding { analysis: Uuid, id: Uuid },
     Inbox,
     AnalyzeInboxSource(String),
     InboxSourceDraft,
@@ -395,9 +396,25 @@ impl Desktop {
             return;
         }
         let transition = self.simple_transition.take().unwrap();
+        if let EditorTransition::Finding { analysis, id } = &transition
+            && self
+                .ai
+                .as_ref()
+                .unwrap()
+                .inbox_analysis_finding(*analysis, *id)
+                .is_none()
+        {
+            self.ai.as_mut().unwrap().notice = "This conflict no longer belongs to the selected analysis. Refresh the retained analysis before opening Needs Review.".into();
+            return;
+        }
+        let finding = match &transition {
+            EditorTransition::Finding { id, .. } => Some(*id),
+            _ => None,
+        };
         if !matches!(
             &transition,
             EditorTransition::Findings
+                | EditorTransition::Finding { .. }
                 | EditorTransition::Draft(_)
                 | EditorTransition::ActionDraft(_)
         ) {
@@ -483,7 +500,7 @@ impl Desktop {
                     self.simple_send(command, cx);
                 }
             }
-            EditorTransition::Findings => {
+            EditorTransition::Findings | EditorTransition::Finding { .. } => {
                 self.clear_saved_link_panel();
                 self.clear_saved_sources();
                 let ai = self.ai.as_mut().unwrap();
@@ -495,7 +512,9 @@ impl Desktop {
                 self.simple_note_path = None;
                 self.open_doc = Some(DocRef::Findings);
                 self.centre_tab = CentreTab::Document;
-                if let Some(command) = ai.open_findings() {
+                let page = ai.open_findings();
+                let selected = finding.and_then(|id| ai.select_finding(id));
+                for command in [page, selected].into_iter().flatten() {
                     self.simple_send(command, cx);
                 }
             }

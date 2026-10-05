@@ -2410,6 +2410,7 @@ impl AiState {
             | AppEvent::Actions(_)
             | AppEvent::ActionDashboard(_)
             | AppEvent::FindingInspection(_)
+            | AppEvent::NoteConflicts(_)
             | AppEvent::NoteIdentity(_)
             | AppEvent::IdentityInventory(_)
             | AppEvent::NoteIdentityResolved(_)

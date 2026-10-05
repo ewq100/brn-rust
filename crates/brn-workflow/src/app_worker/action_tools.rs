@@ -6,6 +6,12 @@ use brn_ai::{
 use serde_json::{Value, json};
 
 pub(super) enum ActionReadRequest {
+    Conflicts {
+        path: String,
+        scope: ReadScope,
+        limit: usize,
+        cursor: Option<String>,
+    },
     One(String),
     Page {
         state: Option<String>,
@@ -72,7 +78,7 @@ impl ActionRead {
     pub(super) fn refuse(self, kind: AiErrorKind) {
         let _ = self.reply.send(Err(AiError::new(kind)));
     }
-    pub(super) fn settle(self, app: &App, stopping: bool) {
+    pub(super) fn settle(self, app: &mut App, stopping: bool) {
         let result = if stopping {
             Err(rejected())
         } else {
@@ -95,8 +101,46 @@ fn safe(error: WorkflowError) -> AiError {
     })
 }
 impl ActionReadRequest {
-    fn run(self, app: &App) -> AiResult<Value> {
+    fn run(self, app: &mut App) -> AiResult<Value> {
         let result = match self {
+            Self::Conflicts {
+                path,
+                scope,
+                limit,
+                cursor,
+            } => {
+                if path.is_empty()
+                    || path.len() > 512
+                    || !(1..=100).contains(&limit)
+                    || cursor.as_ref().is_some_and(|c| c.len() > 8192)
+                {
+                    return Err(rejected());
+                }
+                let cursor = cursor
+                    .map(|c| serde_json::from_str::<crate::findings::NoteConflictCursor>(&c))
+                    .transpose()
+                    .map_err(|_| rejected())?;
+                let scope = match scope {
+                    ReadScope::Current => KnowledgeScope::Current,
+                    ReadScope::Source => KnowledgeScope::Source,
+                    ReadScope::History => KnowledgeScope::History,
+                    ReadScope::All => KnowledgeScope::All,
+                };
+                let page = app
+                    .note_conflicts(&crate::findings::NoteConflictRequest {
+                        path,
+                        scope,
+                        limit,
+                        cursor,
+                    })
+                    .map_err(safe)?;
+                let next_cursor = page
+                    .next_cursor
+                    .map(|c| serde_json::to_string(&c))
+                    .transpose()
+                    .map_err(|_| rejected())?;
+                json!({"path":page.path,"note_id":page.note_id,"scope":page.scope,"source":page.source,"entries":page.entries,"next_cursor":next_cursor,"open_count":page.open_count})
+            }
             Self::One(id) => {
                 if !(1..=64).contains(&id.len()) {
                     return Err(rejected());
@@ -178,6 +222,20 @@ impl ReadTools for ApplicationReads {
         scope: ReadScope,
     ) -> AiResult<NotePage> {
         self.notes.list_notes_scoped(folder, cursor, scope)
+    }
+    fn read_conflicts(
+        &self,
+        path: &str,
+        scope: ReadScope,
+        limit: usize,
+        cursor: Option<&str>,
+    ) -> AiResult<Value> {
+        self.actions.read(ActionReadRequest::Conflicts {
+            path: path.into(),
+            scope,
+            limit,
+            cursor: cursor.map(str::to_owned),
+        })
     }
     fn read_action(&self, id: &str) -> AiResult<Value> {
         self.actions.read(ActionReadRequest::One(id.into()))
@@ -317,21 +375,24 @@ mod tests {
             cursor: None,
         };
         assert_eq!(
-            page().run(&app).unwrap(),
+            page().run(&mut app).unwrap(),
             json!({"entries":[],"next_cursor":null})
         );
         app.completion_uncertain = true;
-        assert_eq!(page().run(&app).unwrap_err().kind, AiErrorKind::IndexStale);
+        assert_eq!(
+            page().run(&mut app).unwrap_err().kind,
+            AiErrorKind::IndexStale
+        );
         assert_eq!(
             ActionReadRequest::One(Uuid::new_v4().to_string())
-                .run(&app)
+                .run(&mut app)
                 .unwrap_err()
                 .kind,
             AiErrorKind::IndexStale
         );
         app.completion_uncertain = false;
         assert_eq!(
-            page().run(&app).unwrap(),
+            page().run(&mut app).unwrap(),
             json!({"entries":[],"next_cursor":null})
         );
     }
@@ -370,7 +431,7 @@ mod tests {
         );
         join.join().unwrap();
         let (base, config) = fixture();
-        let app = App::open(&base.path().join("data"), config).unwrap();
+        let mut app = App::open(&base.path().join("data"), config).unwrap();
         let (reply, rx) = mpsc::channel();
         drop(rx);
         ActionRead {
@@ -381,7 +442,7 @@ mod tests {
             },
             reply,
         }
-        .settle(&app, false);
+        .settle(&mut app, false);
     }
 
     #[test]

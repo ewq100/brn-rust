@@ -153,6 +153,28 @@ impl Desktop {
         cx.notify();
     }
 
+    pub(super) fn open_analysis_finding(
+        &mut self,
+        analysis: Uuid,
+        id: Uuid,
+        cx: &mut Context<Self>,
+    ) {
+        if self.inbox_blocked()
+            || self
+                .ai
+                .as_ref()
+                .unwrap()
+                .inbox_analysis_finding(analysis, id)
+                .is_none()
+        {
+            return;
+        }
+        self.simple_leave(
+            super::simple::EditorTransition::Finding { analysis, id },
+            cx,
+        );
+    }
+
     pub(super) fn render_inbox_analysis(&self, cx: &mut Context<Self>) -> AnyElement {
         let ai = self.ai.as_ref().unwrap();
         let view = &ai.inbox_analysis;
@@ -335,6 +357,44 @@ impl Desktop {
             }
             if record.proposals.is_empty() {
                 panel = panel.child("No review proposals recorded. Semantic review remains.");
+            }
+            if !record.findings.is_empty() {
+                panel = panel.child("Retained conflicts")
+                    .child("These tentative findings retain opposing saved evidence. Resolve or Dismiss changes Needs Review only; knowledge changes require separate exact approval.");
+            }
+            for finding in &record.findings {
+                let id = finding.draft.request.id;
+                let analysis = capture.id;
+                panel = panel.child(
+                    div()
+                        .id(format!("inbox-analysis-finding-{id}"))
+                        .test_support()
+                        .aria_label(format!(
+                            "Conflict · {} · {} · {}",
+                            super::findings::state_name(finding.state),
+                            finding.draft.title,
+                            finding.draft.summary
+                        ))
+                        .flex()
+                        .flex_col()
+                        .gap_1()
+                        .child(format!(
+                            "Conflict · {}",
+                            super::findings::state_name(finding.state)
+                        ))
+                        .child(finding.draft.title.clone())
+                        .child(finding.draft.summary.clone())
+                        .child(
+                            Button::new(format!("inbox-analysis-open-finding-{id}"))
+                                .label("Open in Needs Review")
+                                .disabled(
+                                    blocked || ai.inbox_analysis_finding(analysis, id).is_none(),
+                                )
+                                .on_click(cx.listener(move |this, _, _, cx| {
+                                    this.open_analysis_finding(analysis, id, cx)
+                                })),
+                        ),
+                );
             }
             for proposal in &record.proposals {
                 let id = proposal.draft.id;

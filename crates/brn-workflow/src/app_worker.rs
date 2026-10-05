@@ -26,9 +26,11 @@ use std::{
 use uuid::Uuid;
 
 mod action_proposals;
+mod conflict_proposals;
 mod knowledge_proposals;
 use action_proposals::ActionProposal;
 pub(crate) use action_proposals::ActionProposals;
+use conflict_proposals::ConflictReport;
 use knowledge_proposals::KnowledgeProposal;
 mod action_tools;
 use action_tools::{ActionRead, ActionReads};
@@ -91,6 +93,7 @@ pub enum AppCommand {
     PrepareInboxSource(crate::inbox_processing::InboxSourceRequest),
     CancelInboxProcessing(Uuid),
     Findings(crate::findings::FindingListRequest),
+    NoteConflicts(Box<crate::findings::NoteConflictRequest>),
     Finding(Uuid),
     CloseFinding(crate::findings::CloseFindingRequest),
     InspectFinding(Uuid),
@@ -203,6 +206,7 @@ pub enum AppEvent {
     InboxSourceDraft(Box<crate::proposals::DraftRequest>),
     InboxActionAnalysis(Box<crate::inbox_actions::InboxActionAnalysis>),
     Findings(Box<crate::findings::FindingPage>),
+    NoteConflicts(Box<crate::findings::NoteConflictPage>),
     FindingInspection(Box<crate::findings::FindingInspection>),
     CitationCaptured(Box<crate::knowledge::CitationCapture>),
     NoteProvenanceDraft(Box<crate::proposals::DraftRequest>),
@@ -268,6 +272,7 @@ enum Message {
     ActionRead(ActionRead),
     ActionProposal(Box<ActionProposal>),
     KnowledgeProposal(Box<KnowledgeProposal>),
+    ConflictReport(Box<ConflictReport>),
     #[cfg(test)]
     IdleBarrier(mpsc::Sender<()>),
     #[cfg(test)]
@@ -908,10 +913,13 @@ fn app_lane(
                     }
                 }
                 Message::ChatIdle => {}
-                Message::ActionRead(read) => read.settle(&app, stopping.load(Ordering::Acquire)),
+                Message::ActionRead(read) => {
+                    read.settle(&mut app, stopping.load(Ordering::Acquire))
+                }
                 // Admitted proposal mutations are FIFO critical work, including during Quit.
                 Message::ActionProposal(proposal) => proposal.settle(&mut app),
                 Message::KnowledgeProposal(proposal) => proposal.settle(&mut app),
+                Message::ConflictReport(report) => report.settle(&mut app),
                 #[cfg(test)]
                 Message::IdleBarrier(barrier) => idle_barriers.push(barrier),
                 #[cfg(test)]
@@ -1045,6 +1053,7 @@ fn app_lane(
             Message::ActionRead(read) => read.refuse(private_failure),
             Message::ActionProposal(proposal) => proposal.refuse(private_failure),
             Message::KnowledgeProposal(proposal) => proposal.refuse(private_failure),
+            Message::ConflictReport(report) => report.refuse(private_failure),
             Message::Command(id, command) => {
                 let _ = emit.send((id, cancelled_command(command)));
             }
@@ -1299,6 +1308,9 @@ fn dispatch(
             AppEvent::ActionCompleted(Box::new(app.complete_action(&request)?))
         }
         AppCommand::Findings(request) => AppEvent::Findings(Box::new(app.findings(&request)?)),
+        AppCommand::NoteConflicts(request) => {
+            AppEvent::NoteConflicts(Box::new(app.note_conflicts(&request)?))
+        }
         AppCommand::Finding(id) => AppEvent::Finding(Box::new(app.finding(id)?)),
         AppCommand::CloseFinding(request) => {
             AppEvent::Finding(Box::new(app.close_finding(&request)?))

@@ -14,8 +14,8 @@ pub use chat::{
     answer_with_effort, answer_with_proposals, rewrite,
 };
 pub use proposal_tools::{
-    ACTION_PROPOSAL_BYTES, ActionProposalArgs, KNOWLEDGE_PROPOSAL_BYTES, KnowledgeProposalArgs,
-    KnowledgeQuoteArgs, ProposalTools,
+    ACTION_PROPOSAL_BYTES, ActionProposalArgs, CONFLICT_REPORT_BYTES, ConflictArgs, ConflictQuote,
+    KNOWLEDGE_PROPOSAL_BYTES, KnowledgeProposalArgs, KnowledgeQuoteArgs, ProposalTools,
 };
 pub use tools::{
     NoteEntry, NotePage, Passage, READ_ACTION_BYTES, READ_NOTE_BYTES, ReadScope, ReadTools,

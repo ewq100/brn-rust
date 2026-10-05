@@ -56,7 +56,7 @@ fn display_text(ai: &crate::ai::AiState) -> String {
     }
     text
 }
-fn state_name(state: FindingState) -> &'static str {
+pub(super) fn state_name(state: FindingState) -> &'static str {
     match state {
         FindingState::Open => "Open",
         FindingState::Resolved => "Resolved",

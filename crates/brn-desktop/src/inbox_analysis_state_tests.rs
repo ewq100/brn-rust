@@ -237,7 +237,7 @@ fn submit(state: &mut AiState) -> InboxActionRequest {
     request.validate().unwrap();
     *request
 }
-fn symbolic_analysis(request: &InboxActionRequest) -> InboxActionAnalysis {
+pub(crate) fn symbolic_analysis(request: &InboxActionRequest) -> InboxActionAnalysis {
     let job = InboxActionJob {
         capture: InboxActionCapture {
             purpose: request.purpose,
@@ -274,6 +274,7 @@ fn symbolic_analysis(request: &InboxActionRequest) -> InboxActionAnalysis {
         job,
         turn: Some(turn),
         proposals: vec![],
+        findings: vec![],
         needs_semantic_review: true,
     }
 }
@@ -634,7 +635,7 @@ fn retained_analysis_lookup_checks_full_capture_turn_group_and_view_without_live
     exact.proposals = vec![group_review(&worker, &request)];
     state.active = None;
     let query = state.inspect_inbox_analysis(request.id).unwrap();
-    for mode in 0..14 {
+    for mode in 0..13 {
         let mut wrong = exact.clone();
         match mode {
             0 => wrong.job.capture.id = Uuid::new_v4(),
@@ -655,15 +656,7 @@ fn retained_analysis_lookup_checks_full_capture_turn_group_and_view_without_live
                 .question
                 .push_str(" forked capture"),
             12 => wrong.proposals[0].draft.id = Uuid::nil(),
-            _ => {
-                wrong.proposals = (0..=brn_workflow::inbox_actions::MAX_INBOX_ACTION_PROPOSALS)
-                    .map(|_| {
-                        let mut record = exact.proposals[0].clone();
-                        record.draft.id = Uuid::new_v4();
-                        record
-                    })
-                    .collect();
-            }
+            _ => unreachable!(),
         }
         state.apply(query.0, AppEvent::InboxActionAnalysis(Box::new(wrong)));
         assert!(state.pending.contains_key(&query.0), "mode {mode}");
@@ -715,5 +708,136 @@ fn retained_analysis_lookup_checks_full_capture_turn_group_and_view_without_live
     assert!(!state.inbox_analysis_loading());
     assert!(state.inspect_inbox_analysis(Uuid::nil()).is_none());
     f.preserved(&worker);
+    worker.shutdown().unwrap();
+}
+
+/// Synthetic retained DTO shared with native widgets; no capture or inference is performed.
+pub(crate) fn symbolic_conflict(
+    record: &InboxActionAnalysis,
+) -> brn_workflow::findings::FindingRecord {
+    use brn_workflow::findings::*;
+    let source_quote = FindingQuote {
+        start_byte: 0,
+        end_byte: "Blue õ".len(),
+        quote: "Blue õ".into(),
+    };
+    let other_quote = FindingQuote {
+        start_byte: 0,
+        end_byte: "Green 🦀".len(),
+        quote: "Green 🦀".into(),
+    };
+    let title = "Conflicting colour õ".to_owned();
+    let summary =
+        "The Source says Blue õ; saved knowledge says Green 🦀. The evidence remains unresolved."
+            .to_owned();
+    let mut other = record.job.capture.source.clone();
+    other.path = "knowledge/other.md".into();
+    other.fingerprint.len = 100;
+    let draft = FindingDraft {
+        request: CaptureFindingRequest { id: Uuid::new_v4(), origin: FindingOrigin::InboxConflict {
+            analysis_id: record.job.capture.id, title: title.clone(), summary: summary.clone(),
+            source_quote: source_quote.clone(), other_path: other.path.clone(), other_quote: other_quote.clone(),
+        }},
+        vault: serde_json::from_value(serde_json::json!({"id":Uuid::new_v4(),"root":"/synthetic/vault","identity":{"device":1,"inode":2}})).unwrap(),
+        title, summary,
+        evidence: vec![
+            FindingEvidence { source: record.job.capture.source.clone(), note_id: Some(record.job.capture.note_id().unwrap()), quote: Some(source_quote) },
+            FindingEvidence { source: other, note_id: Some(Uuid::new_v4()), quote: Some(other_quote) },
+        ],
+    };
+    draft.validate().unwrap();
+    FindingRecord {
+        draft,
+        version: 1,
+        state: FindingState::Open,
+        created_at_ms: 1,
+        updated_at_ms: 1,
+    }
+}
+
+#[test]
+fn retained_conflicts_are_bound_to_analysis_and_unique_members_before_navigation() {
+    use brn_workflow::findings::FindingOrigin;
+    let (fixture, mut worker) = Fixture::new();
+    let mut state = state();
+    load(&mut state, &fixture.source);
+    let request = submit(&mut state);
+    let mut exact = symbolic_analysis(&request);
+    exact.findings = vec![symbolic_conflict(&exact)];
+    let id = exact.findings[0].draft.request.id;
+    state.active = None;
+    let lookup = state.inspect_inbox_analysis(request.id).unwrap();
+    for mode in 0..4 {
+        let mut wrong = exact.clone();
+        match mode {
+            0 => {
+                if let FindingOrigin::InboxConflict { analysis_id, .. } =
+                    &mut wrong.findings[0].draft.request.origin
+                {
+                    *analysis_id = Uuid::new_v4();
+                }
+            }
+            1 => wrong.findings[0].draft.request.id = Uuid::nil(),
+            2 => wrong.findings.push(wrong.findings[0].clone()),
+            3 => {
+                wrong.findings[0].draft.request.origin = FindingOrigin::IdentityAmbiguity {
+                    note_id: Uuid::new_v4(),
+                }
+            }
+            _ => unreachable!(),
+        }
+        state.apply(lookup.0, AppEvent::InboxActionAnalysis(Box::new(wrong)));
+        assert!(state.pending.contains_key(&lookup.0), "mode {mode}");
+        assert!(state.inbox_analysis_finding(request.id, id).is_none());
+    }
+    let template = exact.findings[0].clone();
+    exact.findings.extend((0..20).map(|_| {
+        let mut finding = template.clone();
+        finding.draft.request.id = Uuid::new_v4();
+        finding
+    }));
+    state.apply(
+        lookup.0,
+        AppEvent::InboxActionAnalysis(Box::new(exact.clone())),
+    );
+    assert_eq!(
+        state.inbox_analysis.record.as_ref().unwrap().findings.len(),
+        21,
+        "manual captures remain fully inspectable beyond the AI callback cap"
+    );
+    assert_eq!(
+        state.inbox_analysis_finding(request.id, id),
+        Some(&exact.findings[0])
+    );
+    assert!(state.inbox_analysis_finding(Uuid::new_v4(), id).is_none());
+    assert!(
+        state
+            .inbox_analysis_finding(request.id, Uuid::new_v4())
+            .is_none()
+    );
+    assert!(
+        state
+            .inbox_analysis_finding(request.id, Uuid::nil())
+            .is_none()
+    );
+    // Selection fetches the exact retained ID even when no current page contains it.
+    state.open_findings().unwrap();
+    assert!(state.finding_queue.page.is_none());
+    let selected = state.select_finding(id).unwrap();
+    assert!(matches!(selected.1, AppCommand::Finding(selected) if selected == id));
+    state.apply(
+        selected.0,
+        AppEvent::Finding(Box::new(exact.findings[0].clone())),
+    );
+    assert_eq!(
+        state.finding_queue.selected,
+        Some(exact.findings[0].clone())
+    );
+    state.close_inbox();
+    assert!(state.inbox_analysis_finding(request.id, id).is_none());
+    state.open_inbox().unwrap();
+    state.inspect_inbox_analysis(Uuid::new_v4()).unwrap();
+    assert!(state.inbox_analysis_finding(request.id, id).is_none());
+    fixture.preserved(&worker);
     worker.shutdown().unwrap();
 }

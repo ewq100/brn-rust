@@ -18,6 +18,11 @@ pub trait ProposalTools: Send + Sync {
     /// Return a whole bounded review receipt; approval remains a separate operation.
     fn propose_actions(&self, args: ActionProposalArgs) -> AiResult<Value>;
 
+    /// Record tentative unresolved evidence only; workflow owns saved proofs and identity.
+    fn report_conflict(&self, _: ConflictArgs) -> AiResult<Value> {
+        Err(rejected())
+    }
+
     /// Opt in only for an application-owned, explicitly selected source job.
     fn knowledge_enabled(&self) -> bool {
         false
@@ -53,6 +58,52 @@ pub struct KnowledgeProposalArgs {
 pub struct KnowledgeQuoteArgs {
     pub start_byte: usize,
     pub end_byte: usize,
+}
+
+/// Exact saved body quotation; workflow verifies bytes against full captured evidence.
+#[derive(Clone, Debug, Serialize, Deserialize)]
+#[serde(deny_unknown_fields)]
+pub struct ConflictQuote {
+    pub start_byte: usize,
+    pub end_byte: usize,
+    pub quote: String,
+}
+
+/// Tentative unresolved finding, with no knowledge, Action or approval authority.
+#[derive(Clone, Debug, Serialize, Deserialize)]
+#[serde(deny_unknown_fields)]
+pub struct ConflictArgs {
+    pub id: String,
+    pub title: String,
+    pub summary: String,
+    pub source_quote: ConflictQuote,
+    pub other_path: String,
+    pub other_quote: ConflictQuote,
+}
+
+/// Complete encoded conflict report limit, including JSON escaping.
+pub const CONFLICT_REPORT_BYTES: usize = 512 * 1024;
+impl ConflictArgs {
+    /// Protocol bounds only; workflow owns UUIDs, paths, body boundaries and proofs.
+    pub fn validate(&self) -> AiResult<()> {
+        if !(1..=64).contains(&self.id.len())
+            || self.title.trim().is_empty()
+            || self.title.len() > 512
+            || self.summary.trim().is_empty()
+            || self.summary.len() > 16 * 1024
+            || !(1..=512).contains(&self.other_path.len())
+            || [&self.source_quote, &self.other_quote].iter().any(|q| {
+                !(1..=16 * 1024).contains(&q.quote.len())
+                    || q.start_byte >= q.end_byte
+                    || q.end_byte > 1024 * 1024
+                    || q.end_byte - q.start_byte != q.quote.len()
+            })
+            || serde_json::to_vec(self).map_err(|_| rejected())?.len() > CONFLICT_REPORT_BYTES
+        {
+            return Err(rejected());
+        }
+        Ok(())
+    }
 }
 
 use crate::{AiError, AiErrorKind, READ_ACTION_BYTES};
@@ -117,6 +168,44 @@ fn rejected() -> AiError {
 }
 pub(crate) struct ProposeActions(pub(crate) Arc<dyn ProposalTools>);
 pub(crate) struct ProposeKnowledge(pub(crate) Arc<dyn ProposalTools>);
+pub(crate) struct ReportConflict(pub(crate) Arc<dyn ProposalTools>);
+
+impl Tool for ReportConflict {
+    const NAME: &'static str = "report_conflict";
+    type Args = ConflictArgs;
+    type Output = Value;
+    type Error = AiError;
+    fn description(&self) -> String {
+        "Report a tentative unresolved finding between the explicitly selected approved Inbox Source and one other saved Current knowledge or Source note. Supply two exact opposing saved body quotations with byte ranges, a stable finding UUID, title, summary and other_path. Workflow captures and verifies full saved proofs. Do not choose a winner. This creates no knowledge effects, real Actions or deletion authority; separate exact proposals and human approval still govern those. Retry only identical original input and UUID. Whole receipts are bounded and never clipped.".into()
+    }
+    fn parameters(&self) -> Value {
+        let quote = json!({"type":"object","additionalProperties":false,"properties":{
+            "start_byte":{"type":"integer","minimum":0,"maximum":1048575},
+            "end_byte":{"type":"integer","minimum":1,"maximum":1048576},
+            "quote":{"type":"string","minLength":1,"maxLength":16384}
+        },"required":["start_byte","end_byte","quote"]});
+        json!({"type":"object","additionalProperties":false,"properties":{
+            "id":{"type":"string","format":"uuid","minLength":1,"maxLength":64},
+            "title":{"type":"string","minLength":1,"maxLength":512},
+            "summary":{"type":"string","minLength":1,"maxLength":16384},
+            "source_quote":quote,"other_path":{"type":"string","minLength":1,"maxLength":512},
+            "other_quote":quote
+        },"required":["id","title","summary","source_quote","other_path","other_quote"]})
+    }
+    async fn call(&self, _: &mut ToolContext, args: ConflictArgs) -> AiResult<Value> {
+        args.validate()?;
+        let proposals = self.0.clone();
+        tokio::task::spawn_blocking(move || {
+            let receipt = proposals.report_conflict(args)?;
+            if serde_json::to_vec(&receipt).map_err(|_| rejected())?.len() > READ_ACTION_BYTES {
+                return Err(rejected());
+            }
+            Ok(receipt)
+        })
+        .await
+        .map_err(|_| AiError::new(AiErrorKind::Other))?
+    }
+}
 
 impl Tool for ProposeKnowledge {
     const NAME: &'static str = "propose_knowledge";

@@ -738,7 +738,7 @@ frontmatter remains body evidence under a new UUID and `brn_kind: source`.
 Portable `brn_inbox_source` provenance is available through `NoteProvenance`.
 Source copies retain exact body/proof through edits and Rewrite; separate Action
 and opt-in knowledge proposals with captured saved link targets are implemented
-below. Paired supersession is described below; conflict capture remains following work. Original proof is checked during
+below, including paired supersession and tentative unresolved conflicts. Original proof is checked during
 unfinished application/Finish repair; completed historical replay and ordinary
 recovery do not require processing rows or the original to remain available. Restore
 repair may remove a partial source without recreating or deleting the original.
@@ -760,8 +760,8 @@ means empty), plus optional `supersedes` Current predecessor path. Workflow capt
 explicit Source/History evidence keeps its scope and pending drafts are not saved
 targets. Workflow assigns/protects identity and exact saved quotations in
 `brn_provenance`; it rejects Source/History/invented provenance, invalid UTF-8
-ranges, stale/ambiguous Source and occupied/uninspectable new identity. Actions
-and knowledge share the existing20-draft cap. Creation replay preserves later
+ranges, stale/ambiguous Source and occupied/uninspectable new identity. Actions,
+knowledge and conflicts share the existing20-consequence cap. Creation replay preserves later
 review edits and original ordered proofs without re-reading lost sources or
 calling a provider; changed paths/order or creation payload are refused.
 
@@ -787,5 +787,41 @@ Creation replay reuses retained before_text/proofs ahead of fresh files. Apply,
 recovery and Finish qualify predecessor identity against its exact before or own
 prepared historical object; equal bytes or another inode do not suffice. Current
 retrieval excludes that history; explicit History and existing relationships/Undo
-remain shared and rebuildable. Conflict capture/resolution and safe original-copy
-deletion remain following Stage7 slices.
+remain shared and rebuildable. Safe original-copy deletion remains the next
+Stage7 slice.
+
+
+## Tentative Inbox conflicts
+
+Only the owned KnowledgeAndActions turn admits `report_conflict`. It captures
+one Open Finding with the analysis UUID, exact title/summary and two ordered
+saved body quotations: selected approved Source first, then a distinct managed
+Current knowledge/Source path. Whole proofs and quotation wording/ranges remain
+immutable. Fresh capture requires complete unique identities, exact selected
+Source version, nonhistorical effective scope and UTF8 body ranges. It creates
+no note, Action, relationship or proposal approval. V9 Findings in V14 WorkStore
+protect capture, original request hashes, startup/backup and history-only replay;
+identical callback retries preserve later closure even after saved files vanish.
+Findings remain retained after failed/interrupted turns.
+
+`InboxActionAnalysis.findings` includes every retained conflict, including closed
+work. Existing Needs Review handles exact stamped Resolve/Dismiss; closure changes
+operational review state and conveys no knowledge correction or winner. The
+shared20-consequence admission cap includes Action/knowledge proposals and
+conflicts; original creation replay remains available at capacity.
+
+`NoteConflicts` / `note_conflicts` provides complete Open conflicts for an explicit
+saved managed path and scope (Current default). The active exact vault, stable
+identity, effective scope and full saved version bind its cursor; a closed
+matching anchor can still continue pagination. Match retained path or UUID so
+changed/renamed notes retain visible disagreement. Every entry includes immutable
+proofs and separate fresh Changed/Unavailable observations. Ambiguous/incomplete
+identities cannot appear unchanged. Whole encoded pages exceeding1MiB refuse
+without clipping; smaller pages retain full records and a valid continuation.
+
+Ordinary Ask's `read_conflicts` stays on the owning AppWorker read lane; its opaque
+cursor is the serialized shared DTO. Instructions require disclosure of unresolved
+conflicts/stale evidence and do not treat incomplete pages/errors as absence.
+Thin CLI and native analysis-to-Needs Review navigation use these shared commands.
+Synthetic transport/worker/headless tests do not establish native usability, live
+provider compliance, semantic completeness or original-copy deletion acceptance.

@@ -48,7 +48,7 @@ impl KnowledgeProposal {
                 }
             }
             Err(e) if e.kind == ErrorKind::NotFound => {
-                if app.proposals(request.group_id).map_err(safe)?.len()
+                if super::action_proposals::inbox_consequence_count(app, job)?
                     >= crate::inbox_actions::MAX_INBOX_ACTION_PROPOSALS
                 {
                     return Err(rejected());
