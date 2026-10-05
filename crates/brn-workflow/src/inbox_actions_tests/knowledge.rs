@@ -18,10 +18,8 @@ fn semantic(source: &SourceFixture) -> InboxActionRequest {
 fn knowledge(_source: &SourceFixture) -> KnowledgeProposalArgs {
     KnowledgeProposalArgs {
         supersedes: None,
-        id: Uuid::new_v4().to_string(),
         title: "Reviewed color knowledge".into(),
         path: "color.md".into(),
-        note_id: Uuid::new_v4().to_string(),
         source_paths: vec![],
         text: "# Color decision\r\n\r\nThe team chose Blue õ 🦀.\r\n".into(),
         quotes: vec![KnowledgeQuoteArgs {
@@ -97,7 +95,6 @@ fn inbox_knowledge_mixed_reviews_preserve_exact_quotes_identity_current_and_sepa
     });
     let source = capture_source(&w, "Original exact: Blue õ 🦀\r\nCall Anna.\r\n");
     let input = knowledge(&source);
-    let note_id = Uuid::parse_str(&input.note_id).unwrap();
     let action = args(&source, Uuid::new_v4(), Uuid::new_v4());
     *script.lock().unwrap() = vec![Step::Knowledge(input.clone()), Step::Action(action.clone())];
     let r = semantic(&source);
@@ -110,13 +107,17 @@ fn inbox_knowledge_mixed_reviews_preserve_exact_quotes_identity_current_and_sepa
     let record = all
         .proposals
         .iter()
-        .find(|p| p.draft.id.to_string() == input.id)
+        .find(|p| p.draft.inbox_knowledge.is_some())
         .unwrap();
     assert_eq!(record.draft.group_id, Some(r.id));
     assert_eq!(record.draft.session_id, Some(turn.conversation_id));
     let binding = record.draft.inbox_knowledge.as_ref().unwrap();
     assert_eq!(binding.source, source.source.source);
-    assert_eq!(binding.note_id, note_id);
+    let note_id = binding.note_id;
+    assert_ne!(note_id, record.draft.id);
+    assert_ne!(note_id, source.note_id);
+    assert_eq!(note_id.get_version_num(), 8);
+    assert_eq!(record.draft.id.get_version_num(), 8);
     let citation = &binding.citations[0];
     assert_eq!(citation.note_id, source.note_id);
     assert_eq!(citation.quote, "Blue õ 🦀");
@@ -201,7 +202,7 @@ fn inbox_knowledge_invalid_candidates_and_action_only_scope_never_admit_knowledg
     let base = knowledge(&source);
     let mut invalid = vec![];
     let mut k = base.clone();
-    k.note_id = source.note_id.to_string();
+    k.text = note_identity::assign(&k.text, source.note_id).unwrap();
     invalid.push(k);
     let mut k = base.clone();
     k.path = "archive/color.md".into();
@@ -213,6 +214,7 @@ fn inbox_knowledge_invalid_candidates_and_action_only_scope_never_admit_knowledg
         "---\nbrn_state: history\n---\nold",
         "---\nbrn_kind: source\n---\nSource",
         "---\nbrn_id: bad\n---\nWrong",
+        "---\nbrn_id: 5b344a65-e247-4b2c-9941-c4b52c405bdb\n---\nForged managed identity",
     ] {
         let mut k = base.clone();
         k.text = text.into();
@@ -276,8 +278,6 @@ fn inbox_knowledge_creation_replay_preserves_newer_review_after_source_loss_and_
                 changed.text.push_str("changed");
                 let changed = tool_reply(proposals.propose_knowledge(changed));
                 let mut fresh = k;
-                fresh.id = Uuid::new_v4().to_string();
-                fresh.note_id = Uuid::new_v4().to_string();
                 fresh.path = "fresh.md".into();
                 vec![
                     same,
@@ -304,7 +304,7 @@ fn inbox_knowledge_creation_replay_preserves_newer_review_after_source_loss_and_
     w.submit(r.id, AppCommand::AnalyzeInboxActions(Box::new(r.clone())))
         .unwrap();
     let first = ready.recv_timeout(Duration::from_secs(10)).unwrap();
-    let id = Uuid::parse_str(&k.id).unwrap();
+    let id = Uuid::parse_str(first["stamp"]["id"].as_str().unwrap()).unwrap();
     let AppEvent::Proposal(review) = reply(&w, AppCommand::Proposal(id)) else {
         panic!("review");
     };
@@ -367,7 +367,11 @@ fn inbox_knowledge_fresh_approval_refuses_changed_source_or_new_identity_collisi
         if identity_collision {
             std::fs::write(
                 f.base.path().join("vault/collision.md"),
-                note_identity::assign("Other", Uuid::parse_str(&k.note_id).unwrap()).unwrap(),
+                note_identity::assign(
+                    "Other",
+                    record.draft.inbox_knowledge.as_ref().unwrap().note_id,
+                )
+                .unwrap(),
             )
             .unwrap();
         } else {
@@ -543,6 +547,73 @@ fn knowledge_quote_selection_refuses_metadata_ambiguity_and_invalid_occurrences_
             .get(citation.start_byte..citation.end_byte),
         Some(citation.quote.as_str())
     );
+    no_actions(&w);
+    retained_original(&w, &source);
+    no_credentials(&f);
+    w.shutdown().unwrap();
+}
+
+#[test]
+fn knowledge_exact_intent_replays_and_changed_intent_or_analysis_creates_distinct_review() {
+    let f = Fixture::new();
+    let script = Arc::new(Mutex::new(vec![]));
+    let mut w = f.start(Hooks {
+        proposal_answer: Some(scripted(script.clone())),
+        ..Hooks::default()
+    });
+    let source = capture_source(&w, "Blue õ 🦀\r\nBlue õ 🦀\r\n");
+    let targets = [
+        link_tests::target(&w, "person.md", false),
+        link_tests::target(&w, "project.md", false),
+    ];
+    let previous = link_tests::target(&w, "previous.md", false);
+    let alternate = link_tests::target(&w, "alternate.md", false);
+    let mut base = knowledge(&source);
+    base.quotes[0].occurrence = Some(1);
+    base.source_paths = targets
+        .iter()
+        .map(|(_, saved)| saved.source.path.clone())
+        .collect();
+    let mut steps = vec![Step::Knowledge(base.clone()), Step::Knowledge(base.clone())];
+    for mode in 0..8 {
+        let mut changed = base.clone();
+        match mode {
+            0 => changed.title.push(' '),
+            1 => changed.text = changed.text.replace("\r\n", "\n"),
+            2 => changed.path = "another.md".into(),
+            3 => changed.quotes[0].quote = "Blue".into(),
+            4 => changed.quotes[0].occurrence = Some(2),
+            5 => changed.supersedes = Some(previous.1.source.path.clone()),
+            6 => changed.supersedes = Some(alternate.1.source.path.clone()),
+            _ => changed.source_paths.swap(0, 1),
+        }
+        steps.push(Step::Knowledge(changed));
+    }
+    *script.lock().unwrap() = steps;
+    let r = semantic(&source);
+    let turn = analyze(&w, &r).unwrap();
+    let out = results(&turn);
+    assert!(out.iter().all(|v| v.get("ok").is_some()), "{}", turn.answer);
+    assert_eq!(out[0], out[1]);
+    let records = analysis(&w, r.id).proposals;
+    assert_eq!(records.len(), 9);
+    let mut ids = std::collections::HashSet::new();
+    ids.insert(source.note_id);
+    for record in &records {
+        let binding = record.draft.inbox_knowledge.as_ref().unwrap();
+        assert!(ids.insert(record.draft.id));
+        assert!(ids.insert(binding.note_id));
+        assert_eq!(binding.analysis_id, r.id);
+        assert_eq!(record.draft.sources[0], source.source.source);
+    }
+    *script.lock().unwrap() = vec![Step::Knowledge(base)];
+    let other = semantic(&source);
+    let turn = analyze(&w, &other).unwrap();
+    assert!(results(&turn)[0].get("ok").is_some(), "{}", turn.answer);
+    let record = analysis(&w, other.id).proposals.remove(0);
+    assert!(ids.insert(record.draft.id));
+    assert!(ids.insert(record.draft.inbox_knowledge.as_ref().unwrap().note_id));
+    assert!(!f.base.path().join("vault/color.md").exists());
     no_actions(&w);
     retained_original(&w, &source);
     no_credentials(&f);

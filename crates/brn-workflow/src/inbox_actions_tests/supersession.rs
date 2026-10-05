@@ -94,7 +94,7 @@ fn inbox_supersession_exact_pair_preserves_history_and_rebuilds_then_undoes() {
     assert!(
         edges
             .iter()
-            .any(|e| e.source.note_id.to_string() == k.note_id && e.target.note_id == previous_id)
+            .any(|e| e.source.note_id == binding.note_id && e.target.note_id == previous_id)
     );
     retained_original(&w, &source);
     w.shutdown().unwrap();
@@ -149,10 +149,11 @@ fn inbox_supersession_refuses_history_source_duplicate_and_identity_occupation()
             std::fs::write(f.base.path().join("vault/alias.md"), &previous.text).unwrap();
         }
         if mode == 4 {
-            k.note_id = brn_store::note_identity::read(&previous.text)
-                .unwrap()
-                .unwrap()
-                .to_string();
+            k.text = note_identity::assign(
+                &k.text,
+                note_identity::read(&previous.text).unwrap().unwrap(),
+            )
+            .unwrap();
         }
         if mode == 5 {
             let old_id = brn_store::note_identity::read(&previous.text)

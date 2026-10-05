@@ -35,6 +35,10 @@ Static Ask, Action-review, Inbox-knowledge and Rewrite instructions/capability
 selection live behind the private typed `behavior` boundary. Individual tool
 descriptions remain with their implementations; workflow supplies captured task
 context through its private typed boundary and retains deterministic authority.
+Inbox Knowledge proposal inputs supply semantic candidate text/evidence, without
+proposal/note IDs. Workflow mints both identities and returns them in the review
+receipt; strict legacy `id`/`note_id` input fields are refused. Candidate Markdown
+must omit managed note identity.
 
 ## Authentication contract
 

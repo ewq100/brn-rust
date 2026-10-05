@@ -3457,8 +3457,8 @@ mod knowledge_proposal_tool_tests {
         (Provider::Copilot, "gpt-5.3-codex", true),
     ];
     fn args() -> Value {
-        json!({"id":"abc8e3e6-5419-4a09-a5f7-b7d9e98f8f29","title":"Whole knowledge õ\r\n",
-            "path":"knowledge/derived.md","note_id":"5b344a65-e247-4b2c-9941-c4b52c405bdb",
+        json!({"title":"Whole knowledge õ\r\n",
+            "path":"knowledge/derived.md",
             "text":"\u{feff}# Candidate 🦀\r\nWhole candidate.\r\n",
             "quotes":[{"quote":"õ🦀\r\nExact saved wording"},{"quote":"Repeated wording","occurrence":2}],
             "source_paths":["knowledge/λ target.md","archive/history.md","approved/second-source.md"],
@@ -3642,10 +3642,8 @@ mod knowledge_proposal_tool_tests {
             closed(
                 &proposal["parameters"],
                 &[
-                    "id",
                     "title",
                     "path",
-                    "note_id",
                     "text",
                     "quotes",
                     "source_paths",
@@ -4008,6 +4006,8 @@ mod knowledge_proposal_tool_tests {
         for (provider, model, responses) in ROUTES {
             for rejection in [
                 "unknown",
+                "legacy_id",
+                "legacy_note_id",
                 "missing",
                 "quote_bytes",
                 "legacy_offsets",
@@ -4021,6 +4021,10 @@ mod knowledge_proposal_tool_tests {
                 let mut input = args();
                 match rejection {
                     "unknown" => input["approve"] = json!(true),
+                    "legacy_id" => input["id"] = json!("abc8e3e6-5419-4a09-a5f7-b7d9e98f8f29"),
+                    "legacy_note_id" => {
+                        input["note_id"] = json!("5b344a65-e247-4b2c-9941-c4b52c405bdb")
+                    }
                     "missing" => {
                         input.as_object_mut().unwrap().remove("quotes");
                     }
@@ -4077,7 +4081,15 @@ mod knowledge_proposal_tool_tests {
                 let outputs = replies(&http.bodies()[1], responses);
                 assert_eq!(outputs.len(), 1);
                 // Rig parse errors are transient; application refusals use its safe fixed result.
-                if !["unknown", "missing", "legacy_offsets"].contains(&rejection) {
+                if ![
+                    "unknown",
+                    "missing",
+                    "legacy_offsets",
+                    "legacy_id",
+                    "legacy_note_id",
+                ]
+                .contains(&rejection)
+                {
                     assert_eq!(outputs[0], "the tool failed");
                 }
                 assert!(!outputs[0].contains("state"));
