@@ -66,22 +66,29 @@ Evidence: [Actions/dashboard record](work/completed/actions-dashboard/plan.md).
 
 ## Latest integrated checkpoint
 
-[PR46](https://github.com/ewq100/brn-rust/pull/46) merged as
-**d176bc407951df9817f80ae5ded7956c430dc460**, exact reviewed tree
-`c9a91fdfa6ed3acb21e13548d6a677f5c6cceafa`. Stage7 now includes exact private
-text/email/Markdown/Teams capture, durable original mirrors, V13 bounded processing,
-joined cancellation/restart and faithful conversion previews through AppWorker/CLI.
-Originals remain outside Current knowledge. No provider call or deletion is claimed.
+[PR47](https://github.com/ewq100/brn-rust/pull/47) merged as
+**1adf9e2cb2e30315a41d7a43457685f2349b7152**, exact reviewed tree
+`e2852212a40e6191f2aeca751cdfb15d37bdef95`. Stage7 now includes private exact
+capture, V13 bounded conversion and immutable source Create preparation through
+AppWorker/CLI and existing approval/recovery. Portable origin provenance stays in
+Source Markdown; originals remain retained. Native Inbox and semantic consequences
+remain pending.
 
-Independent whole review is clean after verified corrections to correlated queue
-failure reporting and exact Markdown receipts. Fresh local storage/workspace checks
-passed 1,189 tests (zero failed, seven ignored helpers), 52 offline fixtures, native
-workflow/UI tests and Clippy, shipping builds and two V13 startup/restart witnesses.
-Exact-head run `37264423804` passed all three macOS lanes and Ubuntu shared checks;
-Windows Core reproduced baseline compiler failures. Post-merge run `37265419876`
-passed all three macOS lanes and Ubuntu Core/UI. Ubuntu Native Retrieval retained
-three known synthetic-download failures; all Windows lanes failed. Overall CI is
-red under the owner's platform policy; native/owner Inbox acceptance remains open.
+The independent source review is clean after reproduced link/proof-cleanup fixes.
+Local verification passed 1,199 workspace tests (seven ignored crash helpers),
+52 offline fixtures, 228 native workflow/model and 257 native desktop tests,
+native Clippy, shipping builds and two V13 startup/restart witnesses. Exact-head
+run `37279843873` passed all macOS lanes and Ubuntu shared; Windows Core matched
+PR46 baseline compiler failures. Overall hosted CI remains red.
+
+Post-merge run `37280849545` passed macOS UI/retrieval and Ubuntu shared/UI but
+macOS Core failed an Inbox CLI test with `Interrupted`. Two such failures reproduced
+in 40 parallel unit-suite runs: test-only cancellation writers and actual-command
+readers did not share the same lock. The narrow repair keeps production unchanged
+and holds the existing panic-safe guard for both successful CLI tests. Independent
+review is clean; 100 repetitions (59 tests each, 16 threads) plus fresh default
+workspace format/build/Clippy/1,199 tests and startup passed. Exact-head repair CI
+and integration remain pending. Native/owner Inbox acceptance is still open.
 
 Stage6 implementation is integrated through [PR43](https://github.com/ewq100/brn-rust/pull/43).
 Dashboard/identified Complete actual observation and eight safe original JPEGs
@@ -91,11 +98,11 @@ Scenarios and integration evidence remain in the
 
 ## Active slice and next work
 
-The next slice prepares one exact Inbox source Create for the existing proposal/
-review/approval lifecycle. Its immutable original/conversion proof survives the same
-ordinary recovery journals; portable provenance lives in approved source Markdown.
-Originals remain retained. Semantic knowledge, Action/link consequences, native Inbox
-and safe deletion follow in later slices. See the [Inbox plan](work/active/text-email-inbox/plan.md).
+The native Inbox slice adds deliberate capture, exact original inspection,
+bounded processing/cancellation and a binding-preserving source form using
+AppWorker. The macOS post-merge CLI isolation repair is being qualified separately.
+Semantic knowledge/Action/link consequences and safe deletion follow. See the
+[Inbox plan](work/active/text-email-inbox/plan.md).
 
 ## Qualification and owner items
 

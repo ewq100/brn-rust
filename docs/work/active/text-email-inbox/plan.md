@@ -250,3 +250,25 @@ passed. Shipping native Desktop/CLI builds and two fresh native startup/restart 
 passed, V13/exact synthetic BOM-CRLF-Unicode vault bytes/zero credential files.
 Exact-head applicable CI and integration remain pending; native owner acceptance
 is a separate pending gate.
+
+## Source integration and CLI isolation repair — 2026-10-05
+
+PR47 merged at `1adf9e2cb2e30315a41d7a43457685f2349b7152`; its tree exactly
+matches the reviewed candidate. Exact-head run `37279843873` passed all three
+macOS lanes and Ubuntu shared, with baseline Windows compiler failures.
+Post-merge run `37280849545` failed macOS Core's existing actual CLI capture test
+with `Interrupted`; macOS native lanes and Ubuntu Core/UI passed.
+
+`codex/v1-cli-cancellation-isolation` starts at that actual merge. The successful
+in-process Inbox CLI tests read process-global cancellation while the parallel
+cancellation tests set it. Locking only writers caused false interruptions. Two
+failures reproduced in 40 complete 16-thread suite runs. Both successful readers
+now hold the existing test-only RAII guard false for their whole lifetime; production
+behavior remains unchanged. Independent read-only review is clean. All 100 repeated
+59-test suite runs and fresh format/build/workspace Clippy/1,199 tests (seven ignored
+helpers) plus real AppWorker startup passed. No GUI, accounts or model calls.
+Acceptance: no false interruption during parallel unit execution; explicit signal
+refusal and completed-result preservation remain covered. Exact-head applicable
+hosted CI and integration are the next gate; native Inbox implementation continues
+in its separate worktree. Apple Silicon macOS, pinned Rust1.98.1, locked dependencies
+and an existing canonical owned TMPDIR remain the environment requirements.
