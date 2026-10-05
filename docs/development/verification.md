@@ -1,12 +1,14 @@
 # Verification guide
 
 Run from the repository root. Use the pinned toolchain, lockfiles, disposable explicit data directories and synthetic fixtures. Read scripts before running them. Record actual environment and results; do not copy historical pass counts as new evidence.
+[Development tooling](tooling.md) provides read-only preflight, opt-in gate evidence,
+exact-attempt CI summaries and the current Markdown link gate.
 
 ## Select checks by change
 
 | Changed area | Relevant checks |
 | --- | --- |
-| Documentation only | `git diff --check`; check local Markdown file/fragment links and moved-path references; compare documented commands and features with manifests/scripts |
+| Documentation only | `git diff --check`; `python3 scripts/check-markdown-links.py` for local Markdown file/fragment links and moved-path references; compare documented commands and features with manifests/scripts |
 | Integrated workflow or cross-crate behavior | `bash scripts/verify-end-to-end.sh` (retirement check, workspace format/build/Clippy/tests, current-vault Save/recovery/read/search fixtures); `--fixtures-only` after a completed shared gate |
 | Storage, migrations or recovery | `bash scripts/verify-storage.sh`; inspect relevant process-crash tests in `crates/brn-store/tests` |
 | Drafts or comments | `cargo test -p brn-store -p brn-workflow --locked`; then integrated checks; add native checks if interaction changes |
@@ -17,7 +19,7 @@ Run from the repository root. Use the pinned toolchain, lockfiles, disposable ex
 | Editor experiment | `bash scripts/verify-editor-trial.sh` (includes native build) |
 | Retrieval experiment | `bash scripts/verify-retrieval-trial.sh`; add `--native` for native checks; `scripts/verify-retrieval-state.sh` requires a completed synthetic state directory |
 | Local macOS launcher | `bash scripts/test-make-macos-app.sh`; observe launch/relaunch if behavior changed |
-| Shell scripts | `bash -n scripts/*.sh` plus the affected behavioral script |
+| Shell scripts | `for script in scripts/*.sh; do bash -n "$script"; done` plus the affected behavioral script |
 
 Do not repeat entire workspace suites through several scripts when their shared checks already passed, unless a new change or unresolved failure warrants it. Standalone experiment tests are not included by `cargo test --workspace`.
 

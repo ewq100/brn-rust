@@ -4,6 +4,10 @@ set -euo pipefail
 
 repo_root="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 export PATH="/opt/homebrew/opt/rustup/bin:$PATH"
+# Opt-in durable evidence; the child executes the same existing gate.
+if [[ -n "${BRN_VERIFY_OUTPUT_DIR:-}" && -z "${_BRN_EVIDENCE_CHILD:-}" ]]; then
+  exec python3 "$repo_root/scripts/verification_evidence.py" "$(basename "$0")" -- "$@"
+fi
 
 if [[ -n "${CARGO_TARGET_DIR:-}" ]]; then
   if [[ "$CARGO_TARGET_DIR" != /* ]]; then

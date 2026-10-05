@@ -21,7 +21,7 @@ Start with [AGENTS.md](../AGENTS.md). The owner froze the reviewed product archi
 | Change provider behavior | [Rig AI contract](../crates/brn-ai/README.md), [shared workflow](../crates/brn-workflow/README.md). The [standalone sidecar trial](../experiments/codex-app-server/PACKAGING.md) is historical evidence, not a product gate. |
 | Qualify actual provider capabilities | [Stage 3 qualification](work/completed/provider-capabilities/plan.md): explicit models, effort, native web/citations and images; bounded live results and explicit qualification gaps |
 | Choose and report checks | [Verification](development/verification.md) |
-| Start or hand off a task | [Workflow](development/workflow.md), [active work](work/active/README.md) |
+| Start or hand off a task | [Resumable checkpoint](development/checkpoint.md), [workflow](development/workflow.md), [tooling](development/tooling.md), [active work](work/active/README.md) |
 | Understand an architectural choice | [Decision index](architecture/decisions/README.md), [dependency record](architecture/dependencies.md) |
 | Reproduce an experiment | Its README under [completed work references](work/completed/README.md) |
 

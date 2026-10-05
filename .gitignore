@@ -9,3 +9,6 @@
 /experiments/rig-spike/target/
 
 .DS_Store
+
+# Python tooling caches are disposable, not evidence inputs.
+__pycache__/
