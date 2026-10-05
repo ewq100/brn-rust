@@ -46,6 +46,15 @@ impl App {
         other_path: &str,
         other_quote: &FindingQuote,
     ) -> Result<Vec<FindingEvidence>> {
+        let (source, other) = self.conflict_sources(analysis_id, other_path)?;
+        self.conflict_evidence(&source, &other, source_quote, other_quote)
+    }
+
+    fn conflict_sources(
+        &mut self,
+        analysis_id: Uuid,
+        other_path: &str,
+    ) -> Result<(ProposalSource, ProposalSource)> {
         let job = self
             .store
             .inbox_action(analysis_id)?
@@ -60,9 +69,19 @@ impl App {
             ));
         }
         let other = self.proposal_evidence_source(other_path)?;
+        Ok((source, other))
+    }
+
+    fn conflict_evidence(
+        &mut self,
+        source: &ProposalSource,
+        other: &ProposalSource,
+        source_quote: &FindingQuote,
+        other_quote: &FindingQuote,
+    ) -> Result<Vec<FindingEvidence>> {
         let inventory = self.identity_inventory()?;
         let mut evidence = Vec::with_capacity(2);
-        for (index, (saved, quote)) in [(&source, source_quote), (&other, other_quote)]
+        for (index, (saved, quote)) in [(source, source_quote), (other, other_quote)]
             .into_iter()
             .enumerate()
         {
@@ -108,6 +127,75 @@ impl App {
             ));
         }
         Ok(evidence)
+    }
+
+    /// AI selects wording; Rust mints its ranges against one captured full proof.
+    /// Retain original replay before observing current files, including closure.
+    pub(crate) fn capture_selected_conflict(
+        &mut self,
+        analysis_id: Uuid,
+        id: Uuid,
+        args: &brn_ai::ConflictArgs,
+    ) -> Result<FindingRecord> {
+        let job = self
+            .store
+            .inbox_action(analysis_id)?
+            .ok_or_else(|| rejected("Conflict needs a retained Inbox analysis"))?;
+        let source_range = crate::quote_selection::resolve(
+            &job.capture.source_text,
+            &args.source_quote.quote,
+            args.source_quote.occurrence,
+        )?;
+        let source_quote = FindingQuote {
+            start_byte: source_range.start,
+            end_byte: source_range.end,
+            quote: args.source_quote.quote.clone(),
+        };
+        if let Some(record) = self.store.finding(id)? {
+            let matches = matches!(&record.draft.request.origin, FindingOrigin::InboxConflict { analysis_id: stored_analysis, title, summary, source_quote: stored_source, other_path, other_quote }
+                if *stored_analysis == analysis_id && title == &args.title && summary == &args.summary && stored_source == &source_quote && other_path == &args.other_path && other_quote.quote == args.other_quote.quote);
+            return if matches {
+                Ok(record)
+            } else {
+                Err(WorkflowError::typed(
+                    ErrorKind::OperationConflict,
+                    "Conflict identity has another capture request",
+                ))
+            };
+        }
+        self.require_current_evidence()?;
+        let (source, other) = self.conflict_sources(analysis_id, &args.other_path)?;
+        let other_range = crate::quote_selection::resolve(
+            &other.text,
+            &args.other_quote.quote,
+            args.other_quote.occurrence,
+        )?;
+        let other_quote = FindingQuote {
+            start_byte: other_range.start,
+            end_byte: other_range.end,
+            quote: args.other_quote.quote.clone(),
+        };
+        let evidence = self.conflict_evidence(&source, &other, &source_quote, &other_quote)?;
+        let request = CaptureFindingRequest {
+            id,
+            origin: FindingOrigin::InboxConflict {
+                analysis_id,
+                title: args.title.clone(),
+                summary: args.summary.clone(),
+                source_quote,
+                other_path: args.other_path.clone(),
+                other_quote,
+            },
+        };
+        request.validate().map_err(|e| rejected(e.to_string()))?;
+        let vault = self.finding_vault()?;
+        self.retain_finding(FindingDraft {
+            request,
+            vault,
+            title: args.title.clone(),
+            summary: args.summary.clone(),
+            evidence,
+        })
     }
 
     /// Complete retained conflicts and separate fresh evidence. No winner is

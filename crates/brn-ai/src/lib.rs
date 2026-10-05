@@ -79,6 +79,9 @@ pub struct ModelOption {
 #[derive(Clone, Copy, Debug, PartialEq, Eq, serde::Serialize, serde::Deserialize)]
 #[serde(rename_all = "snake_case")]
 pub enum AiErrorKind {
+    QuoteNotFound,
+    QuoteAmbiguous,
+    QuoteOccurrenceInvalid,
     ReconnectNeeded,
     CodeExpired,
     RateLimited,

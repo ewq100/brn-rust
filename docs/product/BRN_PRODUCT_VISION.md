@@ -41,6 +41,13 @@ The expected first external protocol is a thin, read-only local MCP adapter over
 stdio. Search, read, list, relationships and provenance consume the existing
 workflow. Future agent-proposed changes use the same human review/approval
 lifecycle. MCP implementation is future work, not an added V1 delivery stage.
+
+Owner clarification, 2026-10-05: the current CLI is owner-operated and exposes
+full owner commands. External agents receive read/propose capabilities unless
+the owner explicitly delegates more. Approval, completion, attestation, finding
+closure and Save remain owner decisions; access to the CLI is not delegation.
+The current CLI does not enforce caller identity.
+
 This amendment introduces no daemon, remote service, HTTP listener, cloud/sync,
 authentication infrastructure or multi-user model.
 
@@ -346,9 +353,25 @@ If BRN cannot preserve meaningful source information reliably, processing is inc
 
 The assumption is that files placed in the Inbox are disposable copies.
 
-After successful semantic conversion and user approval, the original intake copy can be deleted.
+After successful meaningful conversion and approval, original-copy cleanup must
+be an explicit owner decision and remain recoverable. No automatic deletion or
+purge is authorized.
 
 If meaningful conversion is incomplete, keep the original and flag the issue.
+
+Owner decision, 2026-10-05, for the current text Inbox formats: cleanup requires
+an approved Source that still proves exact preservation of the original, plus
+explicit owner confirmation. A failed analysis, pending consequence drafts or
+later edits to derived knowledge do not block that cleanup when the Source proof
+still holds. Processing/analysis success is not a semantic-completeness substitute
+and grants no removal authority. Cleanup never removes the approved Source.
+
+Waiting/processed/dismissed disposition is a separate owner decision recorded as
+operational state; it is not proof of conversion and does not imply copy removal.
+The corrected cleanup admission and native confirmation controls remain pending
+until implementation, verification and acceptance are recorded in
+[status](../status.md). Office/visual formats still require meaningful content and
+asset preservation before any owner-confirmed cleanup.
 
 ---
 
@@ -1477,7 +1500,7 @@ The following scenarios should eventually work end to end.
 5. User reviews proposals.
 6. User approves all or selected items.
 7. Markdown becomes durable.
-8. Disposable intake copy is removed.
+8. Once meaningful content/assets are preserved, the owner explicitly confirms recoverable disposable-copy cleanup.
 9. If conversion is incomplete, original is retained and issue flagged.
 
 ### Scenario D: Conflict

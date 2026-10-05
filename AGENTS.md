@@ -6,7 +6,7 @@ This guide applies throughout this repository. Follow the user's current task an
 
 Use the [development workflow](docs/development/workflow.md) as BRN's default method, from the next authorized outcome through review, acceptance and integration.
 
-BRN's product and architecture are frozen as of 2026-10-03. The [product vision](docs/product/BRN_PRODUCT_VISION.md), [target architecture](docs/architecture/overview.md) and [invariants](docs/architecture/invariants.md) govern new work. Reopen architecture only when a product requirement changes or implementation demonstrates a concrete blocker that the frozen architecture cannot reasonably handle; involve the owner in that decision. Local implementation choices can evolve within the frozen boundaries.
+BRN's product and architecture are frozen as of 2026-10-03. The [product vision](docs/product/BRN_PRODUCT_VISION.md), [target architecture](docs/architecture/overview.md) and [invariants](docs/architecture/invariants.md) govern new work. Reopen architecture only when a product requirement changes or implementation demonstrates a concrete blocker that the frozen architecture cannot reasonably handle; involve the owner in that decision. Local implementation choices, including additive WorkStore tables and supported migrations, can evolve within the frozen boundaries; schema versions are not frozen.
 
 These project rules override conflicting skill defaults, including startup-injected Superpowers. Select skills for explicit requests or concrete needs; invocation before every response/action is not required. Approved slices proceed with proportional planning, without another architecture brainstorm or routine reauthorization. The workflow owns routing rather than competing skill chains.
 
@@ -24,7 +24,7 @@ One lead owns coherence and integration with the strongest appropriate selected 
 
 | Path | Responsibility |
 | --- | --- |
-| `crates/brn` | Agent-facing `brn` CLI over the shared workflow |
+| `crates/brn` | Owner-operated `brn` CLI over the shared workflow |
 | `crates/brn-store` | WorkStore integrity, backups, chat, editor records and Save recovery |
 | `crates/brn-ai` | Thin Rig adapter, explicit provider/model selection and protected authentication |
 | `crates/brn-retrieval` | Derived keyword/native retrieval indexes and evidence |
@@ -39,7 +39,9 @@ Implement the frozen target in [roadmap](docs/roadmap.md) order, preserving exis
 
 - Notes are vault Markdown files; preserve their exact bytes. `index.sqlite` is disposable; `brn.sqlite` holds user work, is checked at start and backed up.
 - AI changes to authoritative knowledge and real actions require approval of the exact proposal. Explicit user commands such as manual Save or completion remain direct commands. No automatic fallback between providers, models or accounts.
-- When adding or changing task-specific AI behavior, follow [semantic intelligence and deterministic authority](docs/architecture/overview.md#semantic-intelligence-and-deterministic-authority): the LLM interprets and proposes; Rust verifies evidence and owns authority. AI output/confidence never replaces exact checks or user approval. New behavior uses a small typed behavior/prompt boundary within the existing `brn-ai` / `brn-workflow` architecture with static Rust definitions; migrate existing prompts only when naturally touched or very small and low risk. This authorizes no additional AI architecture.
+- For AI tools, prompts, proposal input or evidence results, follow [semantic intelligence and deterministic authority](docs/architecture/overview.md#semantic-intelligence-and-deterministic-authority); it owns the complete mechanics/behavior rule and its pending implementation gaps.
+- For client permissions, follow the [owner-operated CLI and external-agent boundary](docs/architecture/overview.md#client-and-protocol-boundary); CLI availability is not owner delegation.
+- For intake cleanup or new recoverable effects, follow [Inbox copy cleanup and recovery evolution](docs/architecture/overview.md#inbox-copy-cleanup-and-recovery-evolution). Preserve existing recovery evidence and distinguish ratified requirements from implemented behavior.
 - Comments are temporary review notes, deleted when the note's review is approved. Never re-anchor a comment by guessing.
 - UI and CLI go through `brn-workflow`; keep provider and retrieval details out of UI state.
 - Use disposable explicit data directories and synthetic fixtures for checks. Preserve the original vault, old data folders and existing trial workspaces.

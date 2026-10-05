@@ -1,8 +1,11 @@
 # brn
 
-Agent-facing CLI over [brn-workflow](../brn-workflow/README.md). Every command
+Owner-operated CLI over [brn-workflow](../brn-workflow/README.md). Every command
 uses AppWorker, sharing the desktop's application owner and durable behavior.
-A data directory has one owner at a time.
+A data directory has one owner at a time. The CLI exposes owner effects, including
+Save, approval and completion; it does not authenticate a separate agent role.
+External agents read/propose unless the owner explicitly delegates the relevant
+authority. See the [client boundary](../../docs/architecture/overview.md#client-and-protocol-boundary).
 
 [Entry point](src/main.rs), [parsing/output](src/cli/mod.rs),
 [application dispatch](src/cli/library.rs), [editor adapter](src/cli/editor.rs)

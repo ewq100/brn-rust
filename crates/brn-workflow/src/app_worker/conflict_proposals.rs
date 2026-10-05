@@ -1,10 +1,10 @@
 //! Inbox-bound tentative findings admitted on the existing application lane.
 use super::action_proposals::{active_turn, rejected, safe};
 use super::*;
-use crate::findings::{CaptureFindingRequest, FindingOrigin, FindingQuote};
 use crate::inbox_actions::{InboxActionJob, InboxAnalysisPurpose};
 use brn_ai::{AiError, AiErrorKind, AiResult, ConflictArgs};
 use serde_json::Value;
+use sha2::{Digest, Sha256};
 
 pub(super) struct ConflictReport {
     pub args: ConflictArgs,
@@ -37,28 +37,10 @@ impl ConflictReport {
         {
             return Err(rejected());
         }
-        let request = CaptureFindingRequest {
-            id: Uuid::parse_str(&self.args.id).map_err(|_| rejected())?,
-            origin: FindingOrigin::InboxConflict {
-                analysis_id: job.capture.id,
-                title: self.args.title.clone(),
-                summary: self.args.summary.clone(),
-                source_quote: FindingQuote {
-                    start_byte: self.args.source_quote.start_byte,
-                    end_byte: self.args.source_quote.end_byte,
-                    quote: self.args.source_quote.quote.clone(),
-                },
-                other_path: self.args.other_path.clone(),
-                other_quote: FindingQuote {
-                    start_byte: self.args.other_quote.start_byte,
-                    end_byte: self.args.other_quote.end_byte,
-                    quote: self.args.other_quote.quote.clone(),
-                },
-            },
-        };
+        let id = conflict_id(job.capture.id, &self.args)?;
         if app
             .work_store()
-            .finding(request.id)
+            .finding(id)
             .map_err(|e| safe(e.into()))?
             .is_none()
             && super::action_proposals::inbox_consequence_count(app, job)?
@@ -66,7 +48,9 @@ impl ConflictReport {
         {
             return Err(rejected());
         }
-        let record = app.capture_finding(&request).map_err(safe)?;
+        let record = app
+            .capture_selected_conflict(job.capture.id, id, &self.args)
+            .map_err(safe)?;
         let receipt =
             serde_json::to_value(record).map_err(|_| AiError::new(AiErrorKind::Storage))?;
         if serde_json::to_vec(&receipt).map_err(|_| rejected())?.len() > brn_ai::READ_ACTION_BYTES {
@@ -74,4 +58,20 @@ impl ConflictReport {
         }
         Ok(receipt)
     }
+}
+
+// A candidate identity is application-owned and stable only within this exact
+// analysis/intent. It grants no approval or saved-state authority. Domain and
+// fixed-length analysis separate inputs; encoded struct order is deterministic.
+fn conflict_id(analysis: Uuid, args: &ConflictArgs) -> AiResult<Uuid> {
+    let input = serde_json::to_vec(args).map_err(|_| rejected())?;
+    let mut hash = Sha256::new();
+    hash.update(b"brn/inbox-conflict/v1\0");
+    hash.update(analysis.as_bytes());
+    hash.update(input);
+    let digest = hash.finalize();
+    let mut bytes: [u8; 16] = digest[..16].try_into().expect("SHA-256 prefix");
+    bytes[6] = (bytes[6] & 0x0f) | 0x80;
+    bytes[8] = (bytes[8] & 0x3f) | 0x80;
+    Ok(Uuid::from_bytes(bytes))
 }

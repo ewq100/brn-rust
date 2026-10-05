@@ -127,7 +127,6 @@ impl Fixture {
         let target_id = Uuid::new_v4();
         let predecessor_text = note_identity::assign("Saved context õ\r\n", target_id).unwrap();
         fs::write(vault.join(TARGET_PATH), &predecessor_text).unwrap();
-        let start = job.capture.source_text.find("Blue õ 🦀").unwrap();
         let args = KnowledgeProposalArgs {
             supersedes: supersedes.then(|| TARGET_PATH.into()),
             id: Uuid::new_v4().to_string(),
@@ -143,8 +142,8 @@ impl Fixture {
                 "\u{feff}# Reviewed interpretation\r\nBlue õ 🦀 was selected.\r\n\r\n[Context](brn://note/{target_id})\r\n"
             ),
             quotes: vec![KnowledgeQuoteArgs {
-                start_byte: start,
-                end_byte: start + "Blue õ 🦀".len(),
+                quote: "Blue õ 🦀".into(),
+                occurrence: None,
             }],
         };
         let request = app

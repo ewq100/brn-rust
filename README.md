@@ -1,16 +1,22 @@
 # BRN Rust desktop
 
-BRN is a local-first macOS notes trial: Markdown editing/recovery, saved-note
-search and explicit Rig ChatGPT/Copilot chat, with a shared AppWorker for native and CLI consumers.
-The production workspace uses the frozen six crates; the legacy Store/worker/
-CLI/native paths and App Server are removed. Existing old data stays untouched.
-Simple manual Save/recovery is implemented and automated verified; owner native
-acceptance remains pending. Proposal/approval tools remain future work;
-the old Steps 5/6 are superseded by the current roadmap.
+BRN is a local-first macOS notes application in development, with Markdown
+editing/recovery, saved-note search, explicit Rig ChatGPT/Copilot chat and a shared
+AppWorker for native and CLI consumers. Stages 1–4 are integrated, including whole
+proposal review, exact approval and recoverable application. Stage 5 knowledge
+foundations and Stage 6 Actions/dashboard foundations are integrated; native,
+live-model and owner qualification remain open. Stage 7 Inbox is active. Complete
+V1 delivery is not claimed.
+
+The production workspace uses the frozen six crates; legacy production paths
+and App Server are removed. Existing old data stays untouched. Integrated main
+is `48941d3ae2c16dd014b6cb0f69a01b8c4ef60fa0` (PR60). Recoverable original-copy
+lifecycle work is implemented on a separate, unmerged review branch; the
+[status](docs/status.md) distinguishes that snapshot from current corrections.
 
 Start with [current status](docs/status.md) for implemented capabilities and qualification gaps. Agents should read [AGENTS.md](AGENTS.md); the [documentation index](docs/README.md) routes setup, architecture, testing and task history.
 
-The original TypeScript BRN and vault remain separate. This is a private trial repository; no license or public release decision has been made. The frozen [target architecture](docs/architecture/overview.md#frozen-target) serves the [product vision](docs/product/BRN_PRODUCT_VISION.md); the [roadmap](docs/roadmap.md) now starts with safe Save/recovery, then legacy removal, scoped provider capability checks and whole proposals. The former publication/graph-engine roadmap is retired.
+The original TypeScript BRN and vault remain separate. This is a private trial repository; no license or public release decision has been made. The frozen [target architecture](docs/architecture/overview.md#frozen-target) serves the [product vision](docs/product/BRN_PRODUCT_VISION.md); the [roadmap](docs/roadmap.md) defines the remaining outcomes and prerequisites. The [vault format](docs/architecture/vault-format.md) describes durable Markdown and managed metadata. The former publication/graph-engine roadmap is retired.
 
 ## Quick start
 
@@ -24,7 +30,11 @@ bash scripts/verify-end-to-end.sh
 
 Set `TMPDIR` to an explicit existing disposable synthetic fixture parent outside
 Git before verification (credential safety refuses repository-local paths).
-`brn` is the shared-workflow CLI; see its [reference](crates/brn/README.md).
+`brn` is the owner-operated shared-workflow CLI with the owner's full command
+authority; see its [reference](crates/brn/README.md). Its approval, Save,
+completion and removal commands are not standing authorization for an agent.
+Future external agents use read/propose capabilities unless the owner explicitly
+delegates more authority, through the same workflow boundary.
 The integrated script uses cached dependencies and synthetic current-vault
 Save/recovery/read/search fixtures, without accounts or model assets. `--fixtures-only` avoids repeating a completed workspace gate;
 `--retirement-only` checks production references without builds.

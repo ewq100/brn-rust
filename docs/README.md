@@ -2,21 +2,25 @@
 
 Start with [AGENTS.md](../AGENTS.md). The owner froze the reviewed product architecture on 2026-10-03 and accepted the concise [development workflow](development/workflow.md). Use [current status](status.md) when choosing work; read only task-relevant references.
 
+Stages 1–4 are integrated; Stage 5 knowledge and Stage 6 Actions/dashboard
+foundations are integrated with native/live/owner qualification open. Stage 7
+Inbox is active. Integrated main is `48941d3` (PR60); the unmerged lifecycle
+snapshot and architecture-review corrections are distinguished in [status](status.md).
+
 | Need | Read |
 | --- | --- |
 | Understand the product or run it | [Root README](../README.md), [setup](development/setup.md) |
 | Understand desired product behavior | [Product vision](product/BRN_PRODUCT_VISION.md): requirements and future capabilities, not a claim that all are implemented |
 | Understand the frozen target | [Architecture overview](architecture/overview.md#frozen-target), [invariants](architecture/invariants.md#frozen-target-guarantees). [Opus audit](audits/BRN_PRODUCT_ARCHITECTURE_AUDIT.md) and [independent review](audits/BRN_PRODUCT_ARCHITECTURE_REVIEW.md) are dated rationale, not execution plans |
-| Operate a workspace headlessly as an agent | [brn CLI](../crates/brn/README.md): what `brn` is, how to run it, `--json` envelopes and the command reference; it shares the application workflow, it does not bypass it |
+| Operate a workspace headlessly as its owner | [brn CLI](../crates/brn/README.md): owner-operated full command authority, `--json` envelopes and the command reference. Approval, Save, completion and removal require applicable owner authorization. Future external agents are read/propose unless explicitly delegated more authority; all consumers share workflow/AppWorker. |
 | Find implemented work and open gaps | [Status](status.md) |
 | Choose future work | [Roadmap](roadmap.md) |
-| Inspect historical Markdown-first design | [Design note: finite AI workspaces](superpowers/specs/2026-09-30-markdown-first-ai-workspace-design.md): earlier baseline, not new-work requirements |
-| Review existing local Markdown editing | [Earlier open/save/recovery design](superpowers/specs/2026-10-01-open-and-safely-edit-markdown-notes-design.md), [historical implementation plan](work/active/markdown-note-editing/plan.md), [qualification](work/active/markdown-note-editing/evidence.md): implemented and merged via PR #13; native acceptance pending; new simple Save follows the current roadmap |
 | Review current Save/recovery and legacy removal | [Stage 1 results](work/completed/simple-save/plan.md), [Stage 2 results](work/completed/legacy-removal/plan.md): shared manual Save, exclusive Copy, recovery/interruption checks and six-crate production paths; owner native acceptance pending |
-| Review existing shell and historical UI ideas | [Workspace shell design](superpowers/specs/2026-10-01-workspace-shell-design.md), [historical UI feature backlog](ui/feature-backlog.md), [shell decision](architecture/decisions/2026-10-01-workspace-shell.md); future slices follow the current roadmap |
+| Review integrated proposal and Action behavior | [Proposal Core](work/completed/proposal-core/plan.md), [Actions/dashboard](work/completed/actions-dashboard/plan.md): exact review/approval, recovery and operational Actions; qualification gaps remain explicit |
+| Review knowledge foundations | [Stage 5 record](work/active/knowledge-foundations/plan.md): identity, provenance, scoped reads and relationships; native/live/owner gaps remain open |
+| Continue Stage 7 Inbox | [Inbox plan](work/active/text-email-inbox/plan.md), [supersession](work/active/text-email-inbox/supersession-plan.md), [conflicts](work/active/text-email-inbox/conflicts-plan.md), [original-copy work](work/active/text-email-inbox/original-copy-plan.md); use current status/checkpoint for the correction gate and pending lifecycle integration |
 | Understand code ownership | [Architecture overview](architecture/overview.md), relevant crate README |
-| Review historical Rig/simple-notes work | [Rig-first specification](superpowers/specs/2026-10-01-rig-first-architecture-reset-design.md), [plan pack](work/active/rig-first-reset/plan.md), [evidence](work/active/rig-first-reset/evidence.md), [simple-notes roadmap](work/active/simple-rig-notes/plan.md): historical records, not execution instructions |
-| Find the original reset handoff or paused chat-polish ideas | [Historical reset handoff](architecture/brn-rig-first-architecture-reset.md), [paused brainstorm](work/active/ui-slice-2-chat-polish/paused-brainstorm.md); neither authorizes new implementation |
+| Understand durable vault bytes and managed metadata | [Vault format](architecture/vault-format.md), [invariants](architecture/invariants.md) |
 | Change storage, revisions, comments or retrieval | [Invariants](architecture/invariants.md), [completed task records](work/completed/README.md) |
 | Change provider behavior | [Rig AI contract](../crates/brn-ai/README.md), [shared workflow](../crates/brn-workflow/README.md). The [standalone sidecar trial](../experiments/codex-app-server/PACKAGING.md) is historical evidence, not a product gate. |
 | Qualify actual provider capabilities | [Stage 3 qualification](work/completed/provider-capabilities/plan.md): explicit models, effort, native web/citations and images; bounded live results and explicit qualification gaps |
@@ -24,6 +28,19 @@ Start with [AGENTS.md](../AGENTS.md). The owner froze the reviewed product archi
 | Start or hand off a task | [Resumable checkpoint](development/checkpoint.md), [workflow](development/workflow.md), [tooling](development/tooling.md), [active work](work/active/README.md) |
 | Understand an architectural choice | [Decision index](architecture/decisions/README.md), [dependency record](architecture/dependencies.md) |
 | Reproduce an experiment | Its README under [completed work references](work/completed/README.md) |
+
+## Historical references
+
+These records retain their existing paths. They are supporting evidence, not
+instructions to resume or rename superseded work.
+
+| Need | Read |
+| --- | --- |
+| Inspect historical Markdown-first design | [Design note: finite AI workspaces](superpowers/specs/2026-09-30-markdown-first-ai-workspace-design.md): earlier baseline |
+| Review earlier local Markdown editing | [Earlier open/save/recovery design](superpowers/specs/2026-10-01-open-and-safely-edit-markdown-notes-design.md), [implementation plan](work/active/markdown-note-editing/plan.md), [qualification](work/active/markdown-note-editing/evidence.md): merged via PR13; current Save behavior follows the integrated roadmap work |
+| Review existing shell and historical UI ideas | [Workspace shell design](superpowers/specs/2026-10-01-workspace-shell-design.md), [UI feature backlog](ui/feature-backlog.md), [shell decision](architecture/decisions/2026-10-01-workspace-shell.md) |
+| Review historical Rig/simple-notes work | [Rig-first specification](superpowers/specs/2026-10-01-rig-first-architecture-reset-design.md), [plan pack](work/active/rig-first-reset/plan.md), [evidence](work/active/rig-first-reset/evidence.md), [simple-notes roadmap](work/active/simple-rig-notes/plan.md) |
+| Find the original reset handoff or paused chat-polish ideas | [Reset handoff](architecture/brn-rig-first-architecture-reset.md), [paused brainstorm](work/active/ui-slice-2-chat-polish/paused-brainstorm.md) |
 
 ## Document ownership
 
