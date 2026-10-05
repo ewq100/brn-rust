@@ -10,6 +10,7 @@ mod edits;
 pub mod findings;
 pub mod inbox;
 pub mod inbox_actions;
+pub mod inbox_original_operations;
 pub mod inbox_processing;
 pub mod inbox_removal;
 pub mod inbox_review;
@@ -159,6 +160,7 @@ impl WorkStore {
         findings::check_all(&conn)?;
         inbox::check_all(&conn)?;
         inbox_actions::check_all(&conn)?;
+        inbox_original_operations::check_all(&conn)?;
         inbox_processing::reconcile(&mut conn)?;
         chat::reconcile(&mut conn)?;
         proposal_rewrite::reconcile(&mut conn)?;
@@ -192,6 +194,7 @@ impl WorkStore {
     }
 
     pub fn set_setting(&mut self, key: &str, value: &str) -> Result<()> {
+        inbox_original_operations::guard_setting(key)?;
         self.conn.execute(
             "INSERT INTO settings(key, value) VALUES (?1, ?2)
              ON CONFLICT(key) DO UPDATE SET value = excluded.value",
@@ -201,6 +204,7 @@ impl WorkStore {
     }
 
     pub fn remove_setting(&mut self, key: &str) -> Result<()> {
+        inbox_original_operations::guard_setting(key)?;
         self.conn
             .execute("DELETE FROM settings WHERE key = ?1", [key])?;
         Ok(())
@@ -279,6 +283,11 @@ fn check(db: &Path) -> Result<Checked> {
         Err(e) => return Err(e.into()),
     };
     if application == APPLICATION_ID && (14..=MIGRATIONS.len() as i64).contains(&version) {
+        match inbox_original_operations::check_all(&conn) {
+            Err(crate::Error::Sql(e)) if is_corruption(&e) => return Ok(Checked::Corrupt),
+            Err(error) => return Ok(Checked::Invalid(error)),
+            Ok(()) => {}
+        }
         // A readable reserved analysis or bound turn cannot be replaced by
         // an older backup, even when its own table remains physically healthy.
         match inbox_actions::check_all(&conn) {

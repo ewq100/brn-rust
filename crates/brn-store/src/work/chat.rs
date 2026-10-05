@@ -376,6 +376,14 @@ pub(super) fn begin_inbox_action_turn(
     if super::inbox_actions::reserved(&tx, job.capture.id)?.as_ref() != Some(job) {
         return Err(conflict());
     }
+    if read_turn(&tx, job.capture.id)?.is_none()
+        && super::inbox_original_operations::archived(&tx, job.capture.id)?.is_some()
+    {
+        return Err(Error::StateChanged(
+            "historical Inbox analysis needs a fresh UUID; archived turns are not live Sessions"
+                .into(),
+        ));
+    }
     let capture = &job.capture;
     let turn = begin_in_transaction(
         &tx,

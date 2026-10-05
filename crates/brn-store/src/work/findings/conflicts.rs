@@ -2,17 +2,21 @@
 use super::*;
 
 pub(super) fn validate_capture(conn: &Connection, draft: &FindingDraft) -> Result<()> {
-    let FindingOrigin::InboxConflict {
-        analysis_id,
-        source_quote,
-        ..
-    } = &draft.request.origin
-    else {
+    let FindingOrigin::InboxConflict { analysis_id, .. } = &draft.request.origin else {
         return Ok(());
     };
     let job = super::super::inbox_actions::reserved(conn, *analysis_id)?
         .ok_or_else(|| invalid("Inbox conflict analysis capture is unavailable"))?;
-    let capture = &job.capture;
+    validate_certificate_capture(draft, &job.capture)
+}
+
+pub(super) fn validate_certificate_capture(
+    draft: &FindingDraft,
+    capture: &super::super::inbox_actions::InboxActionCapture,
+) -> Result<()> {
+    let FindingOrigin::InboxConflict { source_quote, .. } = &draft.request.origin else {
+        return Ok(());
+    };
     let source = &draft.evidence[0];
     if capture.purpose != super::super::inbox_actions::InboxAnalysisPurpose::KnowledgeAndActions
         || source.source != capture.source

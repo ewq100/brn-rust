@@ -310,25 +310,14 @@ impl WorkStore {
     /// Import only an already-qualified immutable original-copy snapshot. This
     /// operation never changes existing capture/time bindings or touches files.
     pub fn restore_inbox(&mut self, item: &InboxItem) -> Result<InboxItem> {
-        item.validate()?;
         let tx = self
             .conn
             .transaction_with_behavior(TransactionBehavior::Immediate)?;
-        check_schema(&tx)?;
-        if let Some(existing) = read(&tx, item.capture.id)? {
-            if existing != *item {
-                return Err(Error::OperationConflict(
-                    "Inbox recovery conflicts with retained capture".into(),
-                ));
-            }
-            tx.commit()?;
-            return Ok(existing);
-        }
-        let bytes = encode(item)?;
-        tx.execute("INSERT INTO inbox_items(id,received_at_ms,capture_sha256,record_json,record_sha256) VALUES(?1,?2,?3,?4,?5)", params![item.capture.id.to_string(),item.received_at_ms as i64,hash(&encode(&item.capture)?).as_slice(),bytes,hash(&bytes).as_slice()])?;
+        let item = restore_item(&tx, item)?;
         tx.commit()?;
-        Ok(item.clone())
+        Ok(item)
     }
+
     /// Retained operational proof; callers still need fresh original validation.
     pub fn inbox_item(&self, id: Uuid) -> Result<Option<InboxItem>> {
         let tx = self.conn.unchecked_transaction()?;
@@ -371,6 +360,22 @@ impl WorkStore {
             total_count,
         })
     }
+}
+
+pub(super) fn restore_item(conn: &Connection, item: &InboxItem) -> Result<InboxItem> {
+    item.validate()?;
+    check_schema(conn)?;
+    if let Some(existing) = read(conn, item.capture.id)? {
+        if existing != *item {
+            return Err(Error::OperationConflict(
+                "Inbox recovery conflicts with retained capture".into(),
+            ));
+        }
+        return Ok(existing);
+    }
+    let bytes = encode(item)?;
+    conn.execute("INSERT INTO inbox_items(id,received_at_ms,capture_sha256,record_json,record_sha256) VALUES(?1,?2,?3,?4,?5)", params![item.capture.id.to_string(),item.received_at_ms as i64,hash(&encode(&item.capture)?).as_slice(),bytes,hash(&bytes).as_slice()])?;
+    Ok(item.clone())
 }
 
 #[cfg(test)]

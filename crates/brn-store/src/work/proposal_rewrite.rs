@@ -62,7 +62,7 @@ pub struct RewriteJob {
 }
 
 impl RewriteJob {
-    fn validate(&self) -> Result<()> {
+    pub(super) fn validate(&self) -> Result<()> {
         self.spec.validate()?;
         chat::validate_error(self.error_code.as_deref())?;
         if self.started_at_ms == 0

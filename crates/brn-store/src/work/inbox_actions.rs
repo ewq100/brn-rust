@@ -460,3 +460,22 @@ pub(super) fn check_knowledge_binding(
     }
     Ok(())
 }
+
+/// Restore immutable capture/time only; never construct a Session or turn.
+pub(super) fn restore_capture(conn: &Connection, job: &InboxActionJob) -> Result<()> {
+    job.validate()?;
+    if let Some(existing) = reserved(conn, job.capture.id)? {
+        if existing != *job {
+            return Err(conflict());
+        }
+        return Ok(());
+    }
+    if chat::read_turn(conn, job.capture.id)?.is_some()
+        || super::proposal_rewrite::read_job(conn, job.capture.id)?.is_some()
+    {
+        return Err(conflict());
+    }
+    let bytes = encode(job)?;
+    conn.execute("INSERT INTO inbox_actions(id,created_at_ms,record_json,record_sha256) VALUES (?1,?2,?3,?4)", params![job.capture.id.to_string(), job.created_at_ms as i64, bytes, hash(&bytes).as_slice()])?;
+    Ok(())
+}
