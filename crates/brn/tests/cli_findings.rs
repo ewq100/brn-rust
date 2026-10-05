@@ -471,3 +471,310 @@ fn captures_restart_drift_exact_quotes_and_competing_closure_preserve_knowledge(
     assert!(!f.vault.exists());
     assert_eq!(fs::read_dir(&f.credentials).unwrap().count(), 0);
 }
+
+#[test]
+fn malformed_conflict_lookups_refuse_before_authority_and_cursor_json_is_bounded() {
+    let f = Fixture::new();
+    for args in [
+        vec!["findings", "conflicts"],
+        vec!["findings", "conflicts", "note.md", "extra"],
+        vec!["findings", "conflicts", "../escape.md"],
+        vec!["findings", "conflicts", "archive/old.md"],
+        vec!["findings", "conflicts", "note.md", "--scope", "invalid"],
+        vec!["findings", "conflicts", "note.md", "--limit", "0"],
+        vec!["findings", "conflicts", "note.md", "--limit", "101"],
+        vec!["findings", "conflicts", "note.md", "--limit", "-1"],
+        vec!["findings", "conflicts", "note.md", "--limit", "NaN"],
+        vec![
+            "findings",
+            "conflicts",
+            "note.md",
+            "--limit",
+            "1",
+            "--limit",
+            "2",
+        ],
+        vec!["findings", "conflicts", "note.md", "--cursor", "{}"],
+        vec!["findings", "conflicts", "note.md", "--cursor", "null"],
+        vec!["findings", "conflicts", "note.md", "--cursor", "{"],
+        vec!["findings", "conflicts", "note.md", "--before", "1"],
+    ] {
+        let (code, envelope) = f.run(&args);
+        assert_eq!(code, 2, "{args:?}: {envelope}");
+        assert_eq!(envelope["error"]["code"], "USAGE");
+        f.unopened();
+    }
+    let cursor = json!({"vault_id":Uuid::new_v4(),"path":"note.md","note_id":Uuid::new_v4(),"scope":"current","source":{"path":"note.md","fingerprint":{"device":1,"inode":2,"len":10,"sha256":vec![0;32]}},"before":Uuid::new_v4()});
+    for change in 0..10 {
+        let mut bad = cursor.clone();
+        match change {
+            0 => bad["vault_id"] = json!(Uuid::nil()),
+            1 => bad["note_id"] = json!(Uuid::nil()),
+            2 => bad["before"] = json!(Uuid::nil()),
+            3 => bad["path"] = json!("another.md"),
+            4 => bad["scope"] = json!("all"),
+            5 => bad["source"]["path"] = json!("another.md"),
+            6 => bad["source"]["fingerprint"]["len"] = json!(1024 * 1024 + 1),
+            7 => bad["extra"] = json!(true),
+            8 => bad["source"]["unexpected"] = json!(true),
+            _ => bad["source"]["fingerprint"]["unexpected"] = json!(true),
+        }
+        let text = bad.to_string();
+        assert_eq!(
+            f.run(&["findings", "conflicts", "note.md", "--cursor", &text])
+                .0,
+            2,
+            "cursor change {change}"
+        );
+        f.unopened();
+    }
+    let oversized = format!("{}{}", cursor, " ".repeat(8192));
+    assert_eq!(
+        f.run(&["findings", "conflicts", "note.md", "--cursor", &oversized])
+            .0,
+        2
+    );
+    let duplicate = cursor
+        .to_string()
+        .replacen("\"path\":", "\"path\":\"note.md\",\"path\":", 1);
+    assert_eq!(
+        f.run(&["findings", "conflicts", "note.md", "--cursor", &duplicate])
+            .0,
+        2
+    );
+    f.unopened();
+}
+
+#[cfg(target_os = "macos")]
+#[test]
+fn empty_conflict_lookup_routes_through_worker_preserves_saved_bytes_and_scope() {
+    let f = Fixture::new();
+    let id = Uuid::new_v4();
+    let text = format!("\u{feff}---\r\nbrn_id: {id}\r\n---\r\n# Synthetic õ 日本語\r\n");
+    fs::write(f.vault.join("current.md"), &text).unwrap();
+    let page = f.ok(
+        &[
+            "findings",
+            "conflicts",
+            "current.md",
+            "--vault",
+            f.vault.to_str().unwrap(),
+        ],
+        "findings.conflicts",
+    );
+    assert_eq!(page["path"], "current.md");
+    assert_eq!(page["note_id"], json!(id));
+    assert_eq!(page["scope"], "current");
+    assert_eq!(page["entries"], json!([]));
+    assert_eq!(page["next_cursor"], Value::Null);
+    assert_eq!(page["open_count"], 0);
+    let human = f.process(
+        &[
+            "findings",
+            "conflicts",
+            "current.md",
+            "--scope",
+            "all",
+            "--limit",
+            "100",
+        ],
+        false,
+    );
+    assert!(human.status.success(), "{human:?}");
+    let human = String::from_utf8(human.stdout).unwrap();
+    assert!(human.contains("Open conflicts matching this note: 0"));
+    assert!(human.contains("No conflicts in this page."));
+    assert!(human.contains("SHA-256:"));
+    assert!(human.contains(&id.to_string()));
+    assert_eq!(
+        fs::read(f.vault.join("current.md")).unwrap(),
+        text.as_bytes()
+    );
+    assert!(f
+        .ok(&["proposals", "list"], "proposals.list")
+        .as_array()
+        .unwrap()
+        .is_empty());
+    assert_eq!(fs::read_dir(&f.credentials).unwrap().count(), 0);
+}
+
+#[cfg(target_os = "macos")]
+#[test]
+fn conflict_pages_keep_full_evidence_observations_and_query_bound_cursor_after_closure() {
+    use brn_store::{
+        work::{
+            inbox::{InboxCapture, InboxCopy, InboxItem, InboxKind},
+            inbox_actions::{InboxActionCapture, InboxAnalysisPurpose},
+            inbox_processing::InboxConversionFormat,
+            inbox_source::InboxSourceBinding,
+        },
+        WorkStore,
+    };
+    let f = Fixture::new();
+    let body = "```text\nBlue õ 🦀\n```\n";
+    let source_id = Uuid::new_v4();
+    let current_id = Uuid::new_v4();
+    let analysis = Uuid::new_v4();
+    let binding = InboxSourceBinding {
+        batch_id: Uuid::new_v4(),
+        index: 0,
+        original: InboxItem {
+            capture: InboxCapture {
+                id: Uuid::new_v4(),
+                kind: InboxKind::Email,
+                title: "Synthetic disagreement".into(),
+                original_name: None,
+                copy: InboxCopy {
+                    directory: "/synthetic/inbox".into(),
+                    directory_device: 1,
+                    directory_inode: 2,
+                    file_device: 1,
+                    file_inode: 3,
+                    byte_len: 4,
+                    sha256: [0; 32],
+                },
+            },
+            received_at_ms: 1,
+        },
+        format: InboxConversionFormat::LiteralTextV1,
+        byte_len: body.len() as u64,
+        // SHA-256 of the fixed synthetic UTF-8 body above.
+        sha256: [
+            13, 27, 33, 70, 109, 119, 122, 25, 193, 101, 240, 130, 48, 66, 219, 76, 13, 62, 52,
+            170, 81, 202, 66, 61, 95, 124, 104, 130, 233, 196, 90, 21,
+        ],
+        note_id: source_id,
+    };
+    let source_text = binding.markdown(body).unwrap();
+    let current_text = format!("---\nbrn_id: {current_id}\n---\n# Decision\nGreen 日本語\n");
+    fs::write(f.vault.join("source.md"), &source_text).unwrap();
+    fs::write(f.vault.join("current.md"), &current_text).unwrap();
+    let proof = f.ok(
+        &[
+            "proposals",
+            "source",
+            "source.md",
+            "--vault",
+            f.vault.to_str().unwrap(),
+        ],
+        "proposals.source",
+    );
+    let (mut store, _) = WorkStore::open(f.data.path()).unwrap();
+    store
+        .reserve_inbox_action(
+            &InboxActionCapture {
+                purpose: InboxAnalysisPurpose::KnowledgeAndActions,
+                id: analysis,
+                conversation: None,
+                source: serde_json::from_value(proof["source"].clone()).unwrap(),
+                source_text: source_text.clone(),
+                provider: "chatgpt".into(),
+                model: "gpt-6-luna".into(),
+                effort: "medium".into(),
+            },
+            "Compare synthetic color evidence",
+        )
+        .unwrap();
+    drop(store);
+    let quote = |text: &str, wording: &str| {
+        let start = text.find(wording).unwrap();
+        json!({"start_byte":start,"end_byte":start+wording.len(),"quote":wording})
+    };
+    let summary = format!(
+        "{}\r\nTentative only. \u{001b}[31m",
+        "Evidence õ 日本語 🦀 ".repeat(100)
+    );
+    for n in 0..2 {
+        let request = json!({"id":Uuid::new_v4(),"origin":{"kind":"inbox_conflict","analysis_id":analysis,"title":format!("Unresolved color {n}"),"summary":summary,"source_quote":quote(&source_text,"Blue õ 🦀"),"other_path":"current.md","other_quote":quote(&current_text,"Green 日本語")}});
+        assert_eq!(f.capture(&request).0, 0);
+    }
+    let first = f.ok(
+        &["findings", "conflicts", "current.md", "--limit", "1"],
+        "findings.conflicts",
+    );
+    assert_eq!(first["open_count"], 2);
+    assert_eq!(first["entries"].as_array().unwrap().len(), 1);
+    let cursor = first["next_cursor"].to_string();
+    assert_ne!(first["next_cursor"], Value::Null);
+    let id = first["entries"][0]["record"]["draft"]["request"]["id"]
+        .as_str()
+        .unwrap();
+    f.ok(
+        &[
+            "findings",
+            "close",
+            id,
+            "--version",
+            "1",
+            "--state",
+            "dismissed",
+        ],
+        "findings.close",
+    );
+    fs::remove_file(f.vault.join("source.md")).unwrap();
+    let next = f.ok(
+        &[
+            "findings",
+            "conflicts",
+            "current.md",
+            "--limit",
+            "1",
+            "--cursor",
+            &cursor,
+        ],
+        "findings.conflicts",
+    );
+    assert_eq!(next["open_count"], 1);
+    assert_eq!(next["next_cursor"], Value::Null);
+    let inspection = &next["entries"][0];
+    assert_eq!(inspection["record"]["draft"]["summary"], summary);
+    assert_eq!(inspection["evidence"][0]["outcome"], "unavailable");
+    assert_eq!(inspection["evidence"][1]["outcome"], "unchanged");
+    let human = f.process(&["findings", "conflicts", "current.md"], false);
+    assert!(human.status.success(), "{human:?}");
+    let human = String::from_utf8(human.stdout).unwrap();
+    assert!(human.contains(&serde_json::to_string(&summary).unwrap()));
+    assert!(!human.contains('\u{001b}'));
+    assert!(human.contains("Fresh observation 0: Unavailable"));
+    assert!(human.contains("Fresh observation 1: Unchanged"));
+    for retained in inspection["record"]["draft"]["evidence"]
+        .as_array()
+        .unwrap()
+    {
+        assert!(human.contains(&retained["quote"]["quote"].to_string()));
+        let hash = retained["source"]["fingerprint"]["sha256"]
+            .as_array()
+            .unwrap()
+            .iter()
+            .map(|v| format!("{:02x}", v.as_u64().unwrap()))
+            .collect::<String>();
+        assert!(human.contains(&hash));
+    }
+    assert_eq!(
+        f.run(&[
+            "findings",
+            "conflicts",
+            "current.md",
+            "--scope",
+            "all",
+            "--cursor",
+            &cursor
+        ])
+        .0,
+        2
+    );
+    fs::write(
+        f.vault.join("current.md"),
+        format!("{current_text}Owner edit\n"),
+    )
+    .unwrap();
+    let (code, stale) = f.run(&["findings", "conflicts", "current.md", "--cursor", &cursor]);
+    assert_eq!(code, 1);
+    assert_eq!(stale["error"]["code"], "CONTEXT_STALE");
+    assert!(f
+        .ok(&["proposals", "list"], "proposals.list")
+        .as_array()
+        .unwrap()
+        .is_empty());
+    assert_eq!(fs::read_dir(&f.credentials).unwrap().count(), 0);
+}

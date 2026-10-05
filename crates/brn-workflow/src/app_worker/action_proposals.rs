@@ -69,6 +69,40 @@ impl ProposalTools for BoundProposal {
             job.capture.purpose == crate::inbox_actions::InboxAnalysisPurpose::KnowledgeAndActions
         })
     }
+    fn report_conflict(&self, args: brn_ai::ConflictArgs) -> AiResult<Value> {
+        args.validate()?;
+        if !self.knowledge_enabled() {
+            return Err(rejected());
+        }
+        let (reply, rx) = mpsc::channel();
+        {
+            let _admission = self
+                .owner
+                .admission
+                .lock()
+                .map_err(|_| AiError::new(AiErrorKind::Other))?;
+            if self.owner.stopping.load(Ordering::Acquire) || self.cancel.is_cancelled() {
+                return Err(rejected());
+            }
+            self.owner
+                .tx
+                .send(Message::ConflictReport(Box::new(
+                    super::conflict_proposals::ConflictReport {
+                        args,
+                        request: self.request.clone(),
+                        turn: self.turn.clone(),
+                        reply,
+                        inbox: self
+                            .inbox
+                            .as_ref()
+                            .expect("qualified conflict capability")
+                            .clone(),
+                    },
+                )))
+                .map_err(|_| AiError::new(AiErrorKind::Other))?;
+        }
+        rx.recv().map_err(|_| AiError::new(AiErrorKind::Other))?
+    }
     fn propose_knowledge(&self, args: brn_ai::KnowledgeProposalArgs) -> AiResult<Value> {
         args.validate()?;
         if !self.knowledge_enabled() {
@@ -220,7 +254,7 @@ impl ActionProposal {
             }
             Err(e) if e.kind == ErrorKind::NotFound => {
                 if let Some(job) = &self.inbox {
-                    if app.proposals(group_id).map_err(safe)?.len()
+                    if inbox_consequence_count(app, job)?
                         >= crate::inbox_actions::MAX_INBOX_ACTION_PROPOSALS
                     {
                         return Err(rejected());
@@ -322,6 +356,23 @@ pub(super) fn safe(error: WorkflowError) -> AiError {
         | ErrorKind::AiIndexStale => AiErrorKind::IndexStale,
         _ => AiErrorKind::Storage,
     })
+}
+
+pub(super) fn inbox_consequence_count(
+    app: &App,
+    job: &crate::inbox_actions::InboxActionJob,
+) -> AiResult<usize> {
+    let proposals = app.proposals(Some(job.capture.id)).map_err(safe)?.len();
+    let findings =
+        if job.capture.purpose == crate::inbox_actions::InboxAnalysisPurpose::KnowledgeAndActions {
+            app.work_store()
+                .inbox_conflicts(job.capture.id)
+                .map_err(|e| safe(e.into()))?
+                .len()
+        } else {
+            0
+        };
+    Ok(proposals + findings)
 }
 
 pub(super) fn active_turn(app: &App, request: &AskRequest, turn: &WorkTurn) -> AiResult<WorkTurn> {

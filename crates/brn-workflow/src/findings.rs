@@ -12,6 +12,8 @@ pub use brn_store::work::findings::{
 };
 use serde::{Deserialize, Serialize};
 use uuid::Uuid;
+mod conflicts;
+pub use conflicts::{NoteConflictCursor, NoteConflictPage, NoteConflictRequest};
 #[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
 #[serde(rename_all = "snake_case")]
 pub enum FindingEvidenceOutcome {
@@ -98,6 +100,23 @@ impl App {
                     evidence,
                 )
             }
+            FindingOrigin::InboxConflict {
+                analysis_id,
+                title,
+                summary,
+                source_quote,
+                other_path,
+                other_quote,
+            } => (
+                title.clone(),
+                summary.clone(),
+                self.capture_conflict_evidence(
+                    *analysis_id,
+                    source_quote,
+                    other_path,
+                    other_quote,
+                )?,
+            ),
             FindingOrigin::UnresolvedLink {
                 path,
                 source_sha256,
@@ -187,6 +206,26 @@ impl App {
             }
         }
         self.require_current_evidence()?;
+        if matches!(draft.request.origin, FindingOrigin::InboxConflict { .. }) {
+            // Bound the entire future receipt before retention, including the
+            // widest supported replay stamp/timestamps and terminal state.
+            let maximum = FindingRecord {
+                draft: draft.clone(),
+                version: u64::MAX,
+                state: FindingState::Dismissed,
+                created_at_ms: u64::MAX,
+                updated_at_ms: u64::MAX,
+            };
+            if serde_json::to_vec(&maximum)
+                .map_err(|_| rejected("Conflict receipt could not be encoded"))?
+                .len()
+                > brn_ai::READ_ACTION_BYTES
+            {
+                return Err(rejected(
+                    "Complete conflict receipt exceeds its output limit",
+                ));
+            }
+        }
         Ok(self.store.create_finding(&draft)?)
     }
     pub fn findings(&self, request: &FindingListRequest) -> Result<FindingPage> {
@@ -240,6 +279,36 @@ impl App {
                     reason: Some(error.to_string()),
                 },
             });
+        }
+        if matches!(
+            record.draft.request.origin,
+            FindingOrigin::InboxConflict { .. }
+        ) && availability.is_ok()
+        {
+            // Equal file bytes alone do not certify a uniquely resolvable side.
+            // Keep byte changes distinct, but never report an ambiguous or
+            // incomplete managed identity as unchanged current evidence.
+            let inventory = self.identity_inventory();
+            for observation in &mut evidence {
+                let proof = &record.draft.evidence[observation.index];
+                let qualified = inventory.as_ref().is_ok_and(|inventory| {
+                    let resolution =
+                        inventory.resolution(proof.note_id.expect("checked conflict identity"));
+                    resolution.outcome == crate::knowledge::IdentityOutcome::Unique
+                        && resolution.matches[0].path == proof.source.path
+                        && observation.observed.as_ref().is_some_and(|observed| {
+                            resolution.matches[0].sha256 == observed.fingerprint.sha256
+                        })
+                });
+                if !qualified {
+                    observation.reason =
+                        Some("Conflict side identity is unavailable, ambiguous or changed".into());
+                    if observation.outcome == FindingEvidenceOutcome::Unchanged {
+                        observation.outcome = FindingEvidenceOutcome::Unavailable;
+                        observation.observed = None;
+                    }
+                }
+            }
         }
         Ok(FindingInspection { record, evidence })
     }

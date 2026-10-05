@@ -2,6 +2,7 @@
 use super::{ActiveRequest, ActiveTurn, AiState, Pending};
 use brn_workflow::{
     app_worker::{AppCommand, AppEvent},
+    findings::{FindingOrigin, FindingRecord},
     inbox_actions::{InboxActionAnalysis, InboxActionRequest, InboxAnalysisPurpose},
     proposals::ProposalSource,
 };
@@ -38,6 +39,23 @@ pub struct InboxAnalysisView {
 }
 
 impl AiState {
+    /// Only a member of the currently inspected analysis may open Needs Review.
+    pub fn inbox_analysis_finding(&self, analysis: Uuid, id: Uuid) -> Option<&FindingRecord> {
+        if !self.ready
+            || !self.inbox_analysis.visible
+            || self.inbox_analysis.analysis_id != Some(analysis)
+            || id.is_nil()
+        {
+            return None;
+        }
+        let record = self.inbox_analysis.record.as_ref()?;
+        if record.job.capture.id != analysis {
+            return None;
+        }
+        record.findings.iter().find(|finding| finding.draft.request.id == id
+            && matches!(finding.draft.request.origin, FindingOrigin::InboxConflict { analysis_id, .. } if analysis_id == analysis))
+    }
+
     pub fn inbox_analysis_path_for_turn(&self, id: Uuid) -> Option<&str> {
         if let Some(request) = self
             .inbox_analysis
@@ -252,15 +270,26 @@ fn analysis_matches(
             .proposals
             .iter()
             .any(|proposal| proposal.draft.id.is_nil() || proposal.draft.group_id != Some(id))
+        || record.findings.iter().any(|finding| {
+            finding.draft.request.id.is_nil()
+                || !matches!(finding.draft.request.origin, FindingOrigin::InboxConflict { analysis_id, .. } if analysis_id == id)
+        })
     {
         return false;
     }
     let mut ids = std::collections::HashSet::new();
-    if record.proposals.len() > brn_workflow::inbox_actions::MAX_INBOX_ACTION_PROPOSALS
-        || record
-            .proposals
-            .iter()
-            .any(|proposal| !ids.insert(proposal.draft.id))
+    if record
+        .proposals
+        .iter()
+        .any(|proposal| !ids.insert(proposal.draft.id))
+    {
+        return false;
+    }
+    let mut finding_ids = std::collections::HashSet::new();
+    if record
+        .findings
+        .iter()
+        .any(|finding| !finding_ids.insert(finding.draft.request.id))
     {
         return false;
     }

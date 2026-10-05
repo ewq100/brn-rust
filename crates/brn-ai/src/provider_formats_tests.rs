@@ -1847,6 +1847,7 @@ async fn actual_subscription_formats_continue_tools_and_text_only_history() {
                     "list_actions",
                     "list_notes",
                     "read_action",
+                    "read_conflicts",
                     "read_note",
                     "search_notes"
                 ]
@@ -3931,5 +3932,785 @@ mod knowledge_proposal_tool_tests {
                 assert!(!outputs[0].contains("state"));
             }
         }
+    }
+}
+
+mod conflict_tool_tests {
+    use super::*;
+
+    const ROUTES: [(Provider, &str, bool); 3] = [
+        (Provider::Chatgpt, "gpt-6-luna", true),
+        (Provider::Copilot, "gpt-5.5", false),
+        (Provider::Copilot, "gpt-5.3-codex", true),
+    ];
+    fn conflict_args() -> Value {
+        let source = "\u{feff}Friday õ\r\n";
+        let other = "Monday 🦀\r\n";
+        json!({"id":"abc8e3e6-5419-4a09-a5f7-b7d9e98f8f29",
+            "title":"Unresolved date õ\r\n","summary":"The saved dates disagree.",
+            "source_quote":{"start_byte":7,"end_byte":7+source.len(),"quote":source},
+            "other_path":"knowledge/õ date.md",
+            "other_quote":{"start_byte":3,"end_byte":3+other.len(),"quote":other}})
+    }
+    fn receipt() -> Value {
+        json!({"id":"abc8e3e6-5419-4a09-a5f7-b7d9e98f8f29","state":"open",
+            "tentative":true,"summary":"Exact unresolved õ\r\n"})
+    }
+    fn page(next: Option<&str>) -> Value {
+        json!({"conflicts":[{"state":"open","quotes":["\u{feff}Friday õ\r\n","Monday 🦀\r\n"],
+            "observations":[{"state":"changed"},{"state":"unavailable"}]}],
+            "next_cursor":next,"complete":next.is_none()})
+    }
+    fn definition(body: &Value, responses: bool, name: &str) -> Option<Value> {
+        body["tools"].as_array().unwrap().iter().find_map(|tool| {
+            let tool = if responses { tool } else { &tool["function"] };
+            (tool["name"] == name).then(|| tool.clone())
+        })
+    }
+    fn preamble(body: &Value, provider: Provider, responses: bool) -> String {
+        if provider == Provider::Chatgpt {
+            body["instructions"].as_str().unwrap().into()
+        } else {
+            body[if responses { "input" } else { "messages" }]
+                .as_array()
+                .unwrap()
+                .iter()
+                .find(|m| m["role"] == "system")
+                .unwrap()["content"]
+                .to_string()
+        }
+    }
+    fn replies(body: &Value, responses: bool) -> Vec<String> {
+        body[if responses { "input" } else { "messages" }]
+            .as_array()
+            .unwrap()
+            .iter()
+            .filter(|m| m["type"] == "function_call_output" || m["role"] == "tool")
+            .map(|m| {
+                let output = &m[if responses { "output" } else { "content" }];
+                output
+                    .as_str()
+                    .or_else(|| output[0]["text"].as_str())
+                    .unwrap()
+                    .into()
+            })
+            .collect()
+    }
+    fn closed(schema: &Value, fields: &[&str]) {
+        assert_eq!(schema["additionalProperties"], false);
+        let mut expected = fields.to_vec();
+        expected.sort_unstable();
+        assert_eq!(
+            schema["properties"]
+                .as_object()
+                .unwrap()
+                .keys()
+                .map(String::as_str)
+                .collect::<Vec<_>>(),
+            expected
+        );
+    }
+    type ConflictRead = (String, ReadScope, usize, Option<String>);
+    struct Backend {
+        enabled: bool,
+        conflict_calls: AtomicUsize,
+        reads: Mutex<Vec<ConflictRead>>,
+        reply: AiResult<Value>,
+    }
+    impl Backend {
+        fn new(enabled: bool, reply: AiResult<Value>) -> Self {
+            Self {
+                enabled,
+                conflict_calls: AtomicUsize::new(0),
+                reads: Mutex::new(vec![]),
+                reply,
+            }
+        }
+    }
+    impl ReadTools for Backend {
+        fn search_notes(&self, _: &str, _: usize) -> AiResult<ToolSearch> {
+            panic!("unexpected search")
+        }
+        fn read_note(&self, _: &str) -> AiResult<ToolNote> {
+            panic!("unexpected note")
+        }
+        fn list_notes(&self, _: Option<&str>, _: Option<&str>) -> AiResult<NotePage> {
+            panic!("unexpected list")
+        }
+        fn read_conflicts(
+            &self,
+            path: &str,
+            scope: ReadScope,
+            limit: usize,
+            cursor: Option<&str>,
+        ) -> AiResult<Value> {
+            self.reads
+                .lock()
+                .unwrap()
+                .push((path.into(), scope, limit, cursor.map(str::to_owned)));
+            self.reply.clone()
+        }
+    }
+    impl ProposalTools for Backend {
+        fn propose_actions(&self, _: ActionProposalArgs) -> AiResult<Value> {
+            panic!("unexpected proposal")
+        }
+        fn knowledge_enabled(&self) -> bool {
+            self.enabled
+        }
+        fn report_conflict(&self, args: ConflictArgs) -> AiResult<Value> {
+            assert_eq!(serde_json::to_value(args).unwrap(), conflict_args());
+            self.conflict_calls.fetch_add(1, Ordering::SeqCst);
+            self.reply.clone()
+        }
+    }
+    async fn inbox(client: ProviderClient, tools: Arc<Backend>) -> (AiAnswer, Vec<AiEvent>) {
+        let events = Arc::new(Mutex::new(Vec::new()));
+        let captured = events.clone();
+        let answer = answer_with_proposals(
+            client,
+            "Analyze selected Inbox Source",
+            &[],
+            ReasoningEffort::High,
+            tools.clone(),
+            tools,
+            CancellationToken::new(),
+            Arc::new(move |event| captured.lock().unwrap().push(event)),
+        )
+        .await;
+        let captured = events.lock().unwrap().clone();
+        (answer, captured)
+    }
+
+    #[tokio::test]
+    async fn enabled_report_dispatches_exact_closed_protocol_and_tentative_instructions_on_all_routes()
+     {
+        for (provider, model, responses) in ROUTES {
+            let (_root, client, http) = client(
+                provider,
+                model,
+                vec![
+                    success(tool_sse(responses, &[("report_conflict", conflict_args())])),
+                    success(text_sse(responses, "Unresolved finding retained")),
+                ],
+            )
+            .await;
+            let tools = Arc::new(Backend::new(true, Ok(receipt())));
+            let (result, events) = inbox(client, tools.clone()).await;
+            assert!(
+                matches!(result.terminal, AiTerminal::Completed),
+                "{:?}",
+                result.terminal
+            );
+            assert_eq!(result.text, "Unresolved finding retained");
+            assert_eq!(tools.conflict_calls.load(Ordering::SeqCst), 1);
+            assert!(
+                matches!(events.as_slice(), [AiEvent::ToolStarted { name }, AiEvent::Text(_)] if name == "report_conflict")
+            );
+            http.assert_consumed();
+            let bodies = http.bodies();
+            assert_eq!(
+                serde_json::from_str::<Value>(&replies(&bodies[1], responses)[0]).unwrap(),
+                receipt()
+            );
+            let tool = definition(&bodies[0], responses, "report_conflict").unwrap();
+            let fields = [
+                "id",
+                "title",
+                "summary",
+                "source_quote",
+                "other_path",
+                "other_quote",
+            ];
+            closed(&tool["parameters"], &fields);
+            assert_eq!(
+                tool["parameters"]["required"].as_array().unwrap().len(),
+                fields.len()
+            );
+            for side in ["source_quote", "other_quote"] {
+                let quote = &tool["parameters"]["properties"][side];
+                closed(quote, &["start_byte", "end_byte", "quote"]);
+                assert_eq!(quote["required"].as_array().unwrap().len(), 3);
+                assert_eq!(quote["properties"]["end_byte"]["maximum"], 1024 * 1024);
+                assert_eq!(quote["properties"]["quote"]["maxLength"], 16 * 1024);
+            }
+            let prompt = preamble(&bodies[0], provider, responses);
+            for text in [
+                "two exact opposing saved body quotations",
+                "tentative unresolved finding",
+                "Do not choose a winner",
+                "no knowledge effects, real Actions or deletion authority",
+            ] {
+                assert!(prompt.contains(text), "{prompt}");
+                assert!(
+                    tool["description"].as_str().unwrap().contains(text),
+                    "{tool}"
+                );
+            }
+        }
+    }
+
+    #[tokio::test]
+    async fn report_is_absent_without_inbox_opt_in_even_when_backend_supports_callback() {
+        for (provider, model, responses) in ROUTES {
+            for route in ["ordinary_proposals", "read_only", "effort", "rewrite"] {
+                let (_root, client, http) = client(
+                    provider,
+                    model,
+                    vec![success(tool_sse(
+                        responses,
+                        &[("report_conflict", conflict_args())],
+                    ))],
+                )
+                .await;
+                let tools = Arc::new(Backend::new(route != "ordinary_proposals", Ok(receipt())));
+                let cancel = CancellationToken::new();
+                let emit = Arc::new(|_| {});
+                let result = match route {
+                    "ordinary_proposals" => {
+                        answer_with_proposals(
+                            client,
+                            "Ask",
+                            &[],
+                            ReasoningEffort::High,
+                            tools.clone(),
+                            tools.clone(),
+                            cancel,
+                            emit,
+                        )
+                        .await
+                    }
+                    "read_only" => answer(client, "Ask", &[], tools.clone(), cancel, emit).await,
+                    "effort" => {
+                        answer_with_effort(
+                            client,
+                            "Ask",
+                            &[],
+                            ReasoningEffort::High,
+                            tools.clone(),
+                            cancel,
+                            emit,
+                        )
+                        .await
+                    }
+                    "rewrite" => {
+                        rewrite(
+                            client,
+                            "Captured review",
+                            ReasoningEffort::High,
+                            tools.clone(),
+                            cancel,
+                            emit,
+                        )
+                        .await
+                    }
+                    _ => unreachable!(),
+                };
+                assert!(
+                    matches!(
+                        result.terminal,
+                        AiTerminal::Failed(AiError {
+                            kind: AiErrorKind::InvalidToolUse,
+                            ..
+                        })
+                    ),
+                    "{route}: {:?}",
+                    result.terminal
+                );
+                assert_eq!(tools.conflict_calls.load(Ordering::SeqCst), 0);
+                http.assert_consumed();
+                assert!(definition(&http.bodies()[0], responses, "report_conflict").is_none());
+                assert!(
+                    !preamble(&http.bodies()[0], provider, responses).contains("report_conflict")
+                );
+            }
+        }
+    }
+
+    #[tokio::test]
+    async fn malformed_report_fields_and_byte_bounds_never_invoke_underlying_callback() {
+        let mut invalid = vec![];
+        for field in [
+            "id",
+            "title",
+            "summary",
+            "source_quote",
+            "other_path",
+            "other_quote",
+        ] {
+            let mut value = conflict_args();
+            value.as_object_mut().unwrap().remove(field);
+            invalid.push(value);
+        }
+        for (field, value) in [
+            ("id", json!("")),
+            ("id", json!("x".repeat(65))),
+            ("title", json!(" \r\n\t")),
+            ("title", json!("õ".repeat(257))),
+            ("summary", json!(" \r\n")),
+            ("summary", json!("x".repeat(16 * 1024 + 1))),
+            ("other_path", json!("")),
+            ("other_path", json!("õ".repeat(257))),
+            ("approve", json!(true)),
+        ] {
+            let mut args = conflict_args();
+            args[field] = value;
+            invalid.push(args);
+        }
+        for side in ["source_quote", "other_quote"] {
+            for field in ["start_byte", "end_byte", "quote"] {
+                let mut args = conflict_args();
+                args[side].as_object_mut().unwrap().remove(field);
+                invalid.push(args);
+            }
+            for (field, value) in [
+                ("start_byte", json!(-1)),
+                ("start_byte", json!(1.5)),
+                ("start_byte", json!(usize::MAX)),
+                ("end_byte", json!(0)),
+                ("end_byte", json!(1024 * 1024 + 1)),
+                ("end_byte", json!(usize::MAX)),
+                ("quote", json!("")),
+                ("quote", json!("õ".repeat(8193))),
+                ("quote", json!("wrong byte length")),
+                ("unknown", json!("SYNTHETIC_SECRET")),
+            ] {
+                let mut args = conflict_args();
+                args[side][field] = value;
+                invalid.push(args);
+            }
+            let mut args = conflict_args();
+            args[side]["start_byte"] = args[side]["end_byte"].clone();
+            invalid.push(args);
+        }
+        for (provider, model, responses) in ROUTES {
+            for args in &invalid {
+                let (_root, client, http) = client(
+                    provider,
+                    model,
+                    vec![
+                        success(tool_sse(responses, &[("report_conflict", args.clone())])),
+                        success(text_sse(responses, "Safe refusal")),
+                    ],
+                )
+                .await;
+                let tools = Arc::new(Backend::new(true, Ok(receipt())));
+                let (result, events) = inbox(client, tools.clone()).await;
+                assert!(
+                    matches!(result.terminal, AiTerminal::Completed),
+                    "{args}: {:?}",
+                    result.terminal
+                );
+                assert_eq!(tools.conflict_calls.load(Ordering::SeqCst), 0, "{args}");
+                let outputs = replies(&http.bodies()[1], responses);
+                assert_eq!(outputs.len(), 1);
+                assert!(
+                    outputs[0] == "the tool failed"
+                        || outputs[0].starts_with("failed to parse tool arguments: ")
+                );
+                assert!(!format!("{result:?} {events:?}").contains("SYNTHETIC_SECRET"));
+                http.assert_consumed();
+            }
+        }
+    }
+
+    #[tokio::test]
+    async fn conflict_lookup_preserves_default_explicit_scopes_opaque_cursor_and_incomplete_page() {
+        for (provider, model, responses) in ROUTES {
+            for (input, scope, limit, cursor) in [
+                (
+                    json!({"path":"knowledge/õ date.md"}),
+                    ReadScope::Current,
+                    10,
+                    None,
+                ),
+                (
+                    json!({"path":"knowledge/õ date.md","scope":"current","limit":1,"cursor":null}),
+                    ReadScope::Current,
+                    1,
+                    None,
+                ),
+                (
+                    json!({"path":"knowledge/õ date.md","scope":"source","limit":100,"cursor":"\u{1}Opaque õ\r\n"}),
+                    ReadScope::Source,
+                    100,
+                    Some("\u{1}Opaque õ\r\n"),
+                ),
+                (
+                    json!({"path":"knowledge/õ date.md","scope":"history","limit":10,"cursor":"next-opaque"}),
+                    ReadScope::History,
+                    10,
+                    Some("next-opaque"),
+                ),
+                (
+                    json!({"path":"knowledge/õ date.md","scope":"all"}),
+                    ReadScope::All,
+                    10,
+                    None,
+                ),
+            ] {
+                let (_root, client, http) = client(
+                    provider,
+                    model,
+                    vec![
+                        success(tool_sse(responses, &[("read_conflicts", input)])),
+                        success(text_sse(responses, "Conflict remains unresolved")),
+                    ],
+                )
+                .await;
+                let reply = page(Some("next-opaque"));
+                let tools = Arc::new(Backend::new(false, Ok(reply.clone())));
+                let (result, events) = run(client, tools.clone(), CancellationToken::new()).await;
+                assert!(
+                    matches!(result.terminal, AiTerminal::Completed),
+                    "{:?}",
+                    result.terminal
+                );
+                assert_eq!(
+                    tools.reads.lock().unwrap().as_slice(),
+                    &[(
+                        "knowledge/õ date.md".into(),
+                        scope,
+                        limit,
+                        cursor.map(str::to_owned)
+                    )]
+                );
+                assert!(events.iter().any(
+                    |e| matches!(e, AiEvent::ToolStarted { name } if name == "read_conflicts")
+                ));
+                let bodies = http.bodies();
+                assert_eq!(
+                    serde_json::from_str::<Value>(&replies(&bodies[1], responses)[0]).unwrap(),
+                    reply
+                );
+                let tool = definition(&bodies[0], responses, "read_conflicts").unwrap();
+                closed(&tool["parameters"], &["path", "scope", "limit", "cursor"]);
+                assert_eq!(tool["parameters"]["properties"]["path"]["maxLength"], 512);
+                assert_eq!(
+                    tool["parameters"]["properties"]["cursor"]["maxLength"],
+                    8192
+                );
+                assert_eq!(tool["parameters"]["properties"]["limit"]["maximum"], 100);
+                let prompt = preamble(&bodies[0], provider, responses);
+                for text in [
+                    "relevant saved notes before claiming current facts",
+                    "unresolved conflicts and stale evidence",
+                    "do not choose a winner",
+                    "Incomplete pages or failed lookup never mean no conflict",
+                ] {
+                    assert!(prompt.contains(text), "{prompt}");
+                }
+                assert!(
+                    tool["description"]
+                        .as_str()
+                        .unwrap()
+                        .contains("Incomplete pages or failed lookup never mean no conflict")
+                );
+                http.assert_consumed();
+            }
+            // A second actual completion round consumes the unchanged opaque cursor.
+            let (_root, client, http) = client(
+                provider,
+                model,
+                vec![
+                    success(tool_sse_with_prefix(
+                        responses,
+                        &[("read_conflicts", json!({"path":"knowledge/õ date.md"}))],
+                        "page1_",
+                    )),
+                    success(tool_sse_with_prefix(
+                        responses,
+                        &[(
+                            "read_conflicts",
+                            json!({"path":"knowledge/õ date.md","cursor":"next-opaque"}),
+                        )],
+                        "page2_",
+                    )),
+                    success(text_sse(
+                        responses,
+                        "All retained conflict evidence inspected",
+                    )),
+                ],
+            )
+            .await;
+            let tools = Arc::new(Backend::new(false, Ok(page(Some("next-opaque")))));
+            let (result, _) = run(client, tools.clone(), CancellationToken::new()).await;
+            assert!(matches!(result.terminal, AiTerminal::Completed));
+            assert_eq!(tools.reads.lock().unwrap().len(), 2);
+            assert_eq!(
+                tools.reads.lock().unwrap()[1].3.as_deref(),
+                Some("next-opaque")
+            );
+            assert_eq!(replies(&http.bodies()[2], responses).len(), 2);
+            http.assert_consumed();
+        }
+    }
+
+    #[tokio::test]
+    async fn malformed_lookup_is_refused_before_underlying_read_on_all_routes() {
+        for (provider, model, responses) in ROUTES {
+            for args in [
+                json!({}),
+                json!({"path":null}),
+                json!({"path":1}),
+                json!({"path":""}),
+                json!({"path":"õ".repeat(257)}),
+                json!({"path":"p","scope":"unknown"}),
+                json!({"path":"p","scope":null}),
+                json!({"path":"p","limit":0}),
+                json!({"path":"p","limit":101}),
+                json!({"path":"p","limit":-1}),
+                json!({"path":"p","limit":1.5}),
+                json!({"path":"p","cursor":true}),
+                json!({"path":"p","cursor":"õ".repeat(4097)}),
+                json!({"path":"p","unknown":"SYNTHETIC_SECRET"}),
+            ] {
+                let (_root, client, http) = client(
+                    provider,
+                    model,
+                    vec![
+                        success(tool_sse(responses, &[("read_conflicts", args)])),
+                        success(text_sse(
+                            responses,
+                            "Lookup refused; evidence remains unknown",
+                        )),
+                    ],
+                )
+                .await;
+                let tools = Arc::new(Backend::new(false, Ok(page(None))));
+                let (result, events) = run(client, tools.clone(), CancellationToken::new()).await;
+                assert!(matches!(result.terminal, AiTerminal::Completed));
+                assert!(tools.reads.lock().unwrap().is_empty());
+                let outputs = replies(&http.bodies()[1], responses);
+                assert_eq!(outputs.len(), 1);
+                assert!(
+                    outputs[0] == "the tool failed"
+                        || outputs[0].starts_with("failed to parse tool arguments: ")
+                );
+                assert!(!format!("{result:?} {events:?}").contains("SYNTHETIC_SECRET"));
+                http.assert_consumed();
+            }
+        }
+    }
+
+    #[tokio::test]
+    async fn report_and_lookup_whole_output_caps_and_callback_failures_never_fabricate_empty_records()
+     {
+        let overhead = serde_json::to_vec(&json!({"proof":""})).unwrap().len();
+        for (provider, model, responses) in ROUTES {
+            for name in ["report_conflict", "read_conflicts"] {
+                for (reply, accepted) in [
+                    (
+                        Ok(json!({"proof":"x".repeat(READ_ACTION_BYTES-overhead)})),
+                        true,
+                    ),
+                    (
+                        Ok(json!({"proof":"x".repeat(READ_ACTION_BYTES-overhead+1)})),
+                        false,
+                    ),
+                    (
+                        Ok(json!({"proof":"\u{1}".repeat(READ_ACTION_BYTES/6)})),
+                        false,
+                    ),
+                    (Err(AiError::new(AiErrorKind::IndexStale)), false),
+                    (Err(AiError::new(AiErrorKind::Storage)), false),
+                ] {
+                    let args = if name == "report_conflict" {
+                        conflict_args()
+                    } else {
+                        json!({"path":"p.md"})
+                    };
+                    let (_root, client, http) = client(
+                        provider,
+                        model,
+                        vec![
+                            success(tool_sse(responses, &[(name, args)])),
+                            success(text_sse(responses, "Unresolved or unavailable evidence")),
+                        ],
+                    )
+                    .await;
+                    let tools = Arc::new(Backend::new(true, reply.clone()));
+                    let (result, _) = inbox(client, tools.clone()).await;
+                    assert!(matches!(result.terminal, AiTerminal::Completed));
+                    assert_eq!(
+                        tools.conflict_calls.load(Ordering::SeqCst)
+                            + tools.reads.lock().unwrap().len(),
+                        1
+                    );
+                    let outputs = replies(&http.bodies()[1], responses);
+                    assert_eq!(outputs.len(), 1);
+                    if accepted {
+                        assert_eq!(
+                            serde_json::from_str::<Value>(&outputs[0]).unwrap(),
+                            reply.unwrap()
+                        );
+                    } else {
+                        assert_eq!(outputs[0], "the tool failed");
+                    }
+                    http.assert_consumed();
+                }
+            }
+        }
+    }
+
+    #[tokio::test]
+    async fn lookup_accepts_maximum_utf8_protocol_bytes_without_clipping_arguments() {
+        for (provider, model, responses) in ROUTES {
+            let path = "õ".repeat(256);
+            let cursor = "\u{1}".repeat(8192);
+            let (_root, client, http) = client(
+                provider,
+                model,
+                vec![
+                    success(tool_sse(
+                        responses,
+                        &[(
+                            "read_conflicts",
+                            json!({
+                                "path":path,"scope":"all","limit":100,"cursor":cursor
+                            }),
+                        )],
+                    )),
+                    success(text_sse(responses, "Exact maximum arguments inspected")),
+                ],
+            )
+            .await;
+            let tools = Arc::new(Backend::new(false, Ok(page(None))));
+            let (result, _) = run(client, tools.clone(), CancellationToken::new()).await;
+            assert!(matches!(result.terminal, AiTerminal::Completed));
+            assert_eq!(
+                tools.reads.lock().unwrap().as_slice(),
+                &[(path, ReadScope::All, 100, Some(cursor))]
+            );
+            http.assert_consumed();
+        }
+    }
+
+    #[tokio::test]
+    async fn both_conflict_tools_share_eight_round_budget_and_refuse_ninth_before_dispatch() {
+        for (provider, model, responses) in ROUTES {
+            for ninth in [false, true] {
+                let mut streams = (0..if ninth { 9 } else { 8 })
+                    .map(|round| {
+                        success(tool_sse_with_prefix(
+                            responses,
+                            &[
+                                ("report_conflict", conflict_args()),
+                                ("read_conflicts", json!({"path":"knowledge/õ date.md"})),
+                            ],
+                            &format!("conflict_{round}_"),
+                        ))
+                    })
+                    .collect::<Vec<_>>();
+                if !ninth {
+                    streams.push(success(text_sse(responses, "Eight conflict rounds")));
+                }
+                let (_root, client, http) = client(provider, model, streams).await;
+                let tools = Arc::new(Backend::new(true, Ok(receipt())));
+                let (result, _) = inbox(client, tools.clone()).await;
+                if ninth {
+                    assert!(
+                        matches!(
+                            result.terminal,
+                            AiTerminal::Failed(AiError {
+                                kind: AiErrorKind::ToolLimitReached,
+                                ..
+                            })
+                        ),
+                        "{:?}",
+                        result.terminal
+                    );
+                } else {
+                    assert!(matches!(result.terminal, AiTerminal::Completed));
+                }
+                assert_eq!(tools.conflict_calls.load(Ordering::SeqCst), 8);
+                assert_eq!(tools.reads.lock().unwrap().len(), 8);
+                http.assert_consumed();
+            }
+        }
+    }
+
+    struct Legacy;
+    impl ReadTools for Legacy {
+        fn search_notes(&self, _: &str, _: usize) -> AiResult<ToolSearch> {
+            panic!("unexpected")
+        }
+        fn read_note(&self, _: &str) -> AiResult<ToolNote> {
+            panic!("unexpected")
+        }
+        fn list_notes(&self, _: Option<&str>, _: Option<&str>) -> AiResult<NotePage> {
+            panic!("unexpected")
+        }
+    }
+    impl ProposalTools for Legacy {
+        fn propose_actions(&self, _: ActionProposalArgs) -> AiResult<Value> {
+            panic!("unexpected")
+        }
+        fn knowledge_enabled(&self) -> bool {
+            true
+        }
+    }
+    #[tokio::test]
+    async fn legacy_backends_safely_refuse_both_conflict_callbacks_in_real_routes() {
+        for (provider, model, responses) in ROUTES {
+            let (_root, client, http) = client(
+                provider,
+                model,
+                vec![
+                    success(tool_sse(
+                        responses,
+                        &[
+                            ("report_conflict", conflict_args()),
+                            ("read_conflicts", json!({"path":"p.md"})),
+                        ],
+                    )),
+                    success(text_sse(responses, "Conflict lookup unavailable")),
+                ],
+            )
+            .await;
+            let tools = Arc::new(Legacy);
+            let result = answer_with_proposals(
+                client,
+                "Inbox",
+                &[],
+                ReasoningEffort::High,
+                tools.clone(),
+                tools,
+                CancellationToken::new(),
+                Arc::new(|_| {}),
+            )
+            .await;
+            assert!(matches!(result.terminal, AiTerminal::Completed));
+            assert_eq!(
+                replies(&http.bodies()[1], responses),
+                vec!["the tool failed", "the tool failed"]
+            );
+            http.assert_consumed();
+        }
+    }
+
+    #[test]
+    fn maximum_escaped_report_and_non_domain_ids_remain_complete_within_the_defensive_input_cap() {
+        let mut input: ConflictArgs = serde_json::from_value(conflict_args()).unwrap();
+        input.id = "\u{1}".repeat(64);
+        input.title = "\u{1}".repeat(512);
+        input.summary = "\u{1}".repeat(16 * 1024);
+        input.other_path = "\u{1}".repeat(512);
+        for quote in [&mut input.source_quote, &mut input.other_quote] {
+            quote.start_byte = 1024 * 1024 - 16 * 1024;
+            quote.end_byte = 1024 * 1024;
+            quote.quote = "\u{1}".repeat(16 * 1024);
+        }
+        let encoded = serde_json::to_vec(&input).unwrap();
+        assert!(encoded.len() > 300_000);
+        assert!(encoded.len() < CONFLICT_REPORT_BYTES);
+        assert!(input.validate().is_ok());
+        // These are protocol limits; only Workflow can reject invalid UUIDs/paths and body offsets.
+        let mut input: ConflictArgs = serde_json::from_value(conflict_args()).unwrap();
+        input.id = "Workflow checks UUID".into();
+        input.other_path = "Workflow checks saved path".into();
+        input.source_quote.start_byte = 1;
+        input.source_quote.end_byte = 1 + input.source_quote.quote.len();
+        assert!(input.validate().is_ok());
     }
 }

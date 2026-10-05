@@ -707,6 +707,9 @@ impl brn_ai::ProposalTools for DrainedProposals {
     fn knowledge_enabled(&self) -> bool {
         self.proposals.knowledge_enabled()
     }
+    fn report_conflict(&self, args: brn_ai::ConflictArgs) -> brn_ai::AiResult<serde_json::Value> {
+        self.proposals.report_conflict(args)
+    }
     fn propose_knowledge(
         &self,
         args: brn_ai::KnowledgeProposalArgs,
@@ -721,6 +724,15 @@ impl brn_ai::ProposalTools for DrainedProposals {
     }
 }
 impl ReadTools for DrainedTools {
+    fn read_conflicts(
+        &self,
+        path: &str,
+        scope: brn_ai::ReadScope,
+        limit: usize,
+        cursor: Option<&str>,
+    ) -> brn_ai::AiResult<serde_json::Value> {
+        self.tools.read_conflicts(path, scope, limit, cursor)
+    }
     fn read_action(&self, id: &str) -> brn_ai::AiResult<serde_json::Value> {
         self.tools.read_action(id)
     }

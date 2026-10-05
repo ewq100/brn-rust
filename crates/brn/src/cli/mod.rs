@@ -143,6 +143,7 @@ Commands:
   brn findings list [--state open|resolved|dismissed|all] [--limit N] [--before UUID]
   brn findings show UUID
   brn findings inspect UUID
+  brn findings conflicts PATH [--scope current|source|history|all] [--limit N] [--cursor JSON]
   brn findings close UUID --version N --state resolved|dismissed
   brn inbox add --id UUID --title TITLE --file TEXT_FILE [--kind text|markdown|email|teams] [--original-name LABEL]
   brn inbox list [--limit N] [--after UUID]

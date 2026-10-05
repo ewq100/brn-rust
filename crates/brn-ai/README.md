@@ -2,7 +2,7 @@
 
 Thin, fixed ChatGPT/Copilot subscription authentication and streamed
 chat over Rig **0.43.0**. Contains account/selection DTOs, safe errors, checked
-credential storage, owned clients, five read tools and one separate review-proposal capability. It does not contain
+credential storage, owned clients, six read tools and one separate review-proposal capability. It does not contain
 workers, SQL, selection persistence or frontend state.
 
 `answer_with_effort` freezes an explicit low/medium/high choice with the selected
@@ -148,7 +148,7 @@ wire policy and cannot establish the number of real network sends.
 
 Implement the synchronous `ReadTools: Send + Sync` seam in workflow and pass it
 as `Arc<dyn ReadTools>`. Rig tool calls dispatch blocking reads via
-`tokio::task::spawn_blocking`, with at most two concurrent calls. `search_notes`, `read_note`, `list_notes`, `read_action` and `list_actions` are the
+`tokio::task::spawn_blocking`, with at most two concurrent calls. `search_notes`, `read_note`, `list_notes`, `read_action`, `list_actions` and `read_conflicts` are the
 fixed read tools:
 
 The three note tools accept a `scope` enum (`current`, `source`, `history`, `all`), defaulting
@@ -174,6 +174,14 @@ Rust omission compatibility remains supported and verified separately.
   Lists include all labeled states by default, limit1–20/default20 and opaque
   cursor≤256bytes. Full encoded JSON replies≤1MiB; oversized results are refused,
   never truncated. Existing note-only implementations safely refuse these methods.
+- Conflict reads use `read_conflicts(path, scope?, limit?, cursor?)`. Path is 1–512
+  UTF-8 bytes; scope defaults to Current and supports explicit Source/History/All.
+  Limit is 1–100, default 10; cursor is an opaque optional string ≤8192 bytes, forwarded
+  unchanged. Workflow owns saved path/identity matching, paging and fresh evidence
+  observations. Whole encoded replies ≤1 MiB are returned intact or refused. Legacy
+  read backends safely refuse. Ask instructions require looking up conflicts for
+  relevant saved notes before claiming current facts, disclosing unresolved/stale
+  evidence and choosing no winner. Incomplete pages/errors never mean no conflict.
 - Argument schemas reject extra properties; Rust deserialization and validation
   also reject invalid arguments when the model ignores the schema. Safe failed
   tool results may continue the turn; they never authorize a retry or fallback.
@@ -216,6 +224,22 @@ require exact named target evidence. Read tools default to Current; explicitly
 named extra Source/History paths are evidence, never truth or deletion approval.
 Workflow captures and qualifies the complete proofs; human exact approval stays
 separate.
+
+Inbox's same `knowledge_enabled()` opt-in also registers `report_conflict`.
+Its strict six-field input is `id`, nonblank `title`, nonblank `summary`,
+`source_quote`, `other_path`, and `other_quote`. Both quote objects require exact
+`start_byte`, `end_byte`, and `quote` wording. Protocol bounds are id 1–64 bytes,
+title ≤512 bytes, summary ≤16 KiB, path 1–512 bytes, quote 1–16 KiB with start<end≤1 MiB
+and exact quoted byte length matching the span. Complete encoded input ≤512 KiB;
+whole receipts ≤1 MiB, never clipped. Workflow owns UUID/path/body/proof validation
+and persists only a tentative unresolved finding with two opposing saved
+quotations. The adapter gives no winner, knowledge effects, real Actions or
+deletion authority; exact proposals still govern knowledge and real Actions.
+Ordinary Ask and Rewrite never receive this report capability; legacy proposal
+backends reject it. Dispatch uses the existing blocking lane and shared round
+budget. Synthetic real Rig routes qualify availability, strict schema/arguments,
+exact dispatch, defaults/scopes/cursors/pages, errors, complete byte limits and
+unresolved/stale-answer instructions; live model compliance remains unqualified.
 
 Invalid scope/type/extra arguments invoke no underlying read. Rig may return its
 parse diagnostic transiently to the model that generated the invalid argument;

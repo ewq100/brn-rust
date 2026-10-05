@@ -77,6 +77,17 @@ pub trait ReadTools: Send + Sync {
         Err(rejected())
     }
 
+    /// Read complete conflict evidence; workflow owns path/scope/cursor semantics.
+    fn read_conflicts(
+        &self,
+        _path: &str,
+        _scope: ReadScope,
+        _limit: usize,
+        _cursor: Option<&str>,
+    ) -> AiResult<Value> {
+        Err(rejected())
+    }
+
     fn search_notes_scoped(
         &self,
         query: &str,
@@ -193,6 +204,60 @@ pub(crate) struct ReadNote(pub Arc<dyn ReadTools>);
 pub(crate) struct ListNotes(pub Arc<dyn ReadTools>);
 pub(crate) struct ReadAction(pub Arc<dyn ReadTools>);
 pub(crate) struct ListActions(pub Arc<dyn ReadTools>);
+pub(crate) struct ReadConflicts(pub Arc<dyn ReadTools>);
+
+#[derive(Deserialize, Serialize)]
+#[serde(deny_unknown_fields)]
+pub(crate) struct ReadConflictsArgs {
+    path: String,
+    #[serde(default)]
+    scope: ReadScope,
+    #[serde(default = "conflict_limit")]
+    limit: usize,
+    cursor: Option<String>,
+}
+fn conflict_limit() -> usize {
+    10
+}
+impl Tool for ReadConflicts {
+    const NAME: &'static str = "read_conflicts";
+    type Args = ReadConflictsArgs;
+    type Output = Value;
+    type Error = AiError;
+    fn description(&self) -> String {
+        "Look up unresolved conflicts for a relevant saved note before claiming current facts. Path selects a saved note; omitted scope means Current. Source, History and All explicitly select evidence. Limit defaults to 10 (1–100); pass the opaque next_cursor unchanged for another page. Whole replies over 1 MiB are refused, never clipped. Incomplete pages or failed lookup never mean no conflict. Disclose unresolved or stale evidence and do not choose a winner.".into()
+    }
+    fn parameters(&self) -> Value {
+        json!({"type":"object","additionalProperties":false,"properties":{
+            "path":{"type":"string","minLength":1,"maxLength":512},
+            "scope":{"type":"string","enum":["current","source","history","all"]},
+            "limit":{"type":"integer","minimum":1,"maximum":100},
+            "cursor":{"type":["string","null"],"maxLength":8192}
+        },"required":["path"]})
+    }
+    async fn call(&self, _: &mut ToolContext, args: ReadConflictsArgs) -> AiResult<Value> {
+        if !(1..=512).contains(&args.path.len())
+            || !(1..=100).contains(&args.limit)
+            || args
+                .cursor
+                .as_ref()
+                .is_some_and(|cursor| cursor.len() > 8192)
+        {
+            return Err(rejected());
+        }
+        let tools = self.0.clone();
+        tokio::task::spawn_blocking(move || {
+            complete_action_reply(tools.read_conflicts(
+                &args.path,
+                args.scope,
+                args.limit,
+                args.cursor.as_deref(),
+            )?)
+        })
+        .await
+        .map_err(|_| AiError::new(AiErrorKind::Other))?
+    }
+}
 
 #[derive(Deserialize, Serialize)]
 #[serde(deny_unknown_fields)]

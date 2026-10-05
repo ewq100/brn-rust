@@ -66,28 +66,33 @@ Evidence: [Actions/dashboard record](work/completed/actions-dashboard/plan.md).
 
 ## Latest integrated checkpoint
 
-[PR53](https://github.com/ewq100/brn-rust/pull/53) merged at
-**ceb3d0f9e1e958915bfcb5e6b5e169a5571d13bc**, exact reviewed tree
-`624ae4200a638be52130c41acfb5b7be18beef84`. Stage7 delivers exact intake,
-owned conversion, Source review, separate Current knowledge/Action drafts and
-native saved-Source analysis/retained inspection and captured saved link targets.
-Exact proposal approval remains
-required; originals stay retained and semantic completeness is not claimed.
-Independent review is clean. Local shared/native checks passed 1,269/0/8 and
-282/0/0, all three native Clippy combinations/builds, optional workflow252/0/7,
-52 fixtures and two exact-byte V14 shipping restarts. Exact PR run37316695174 at
-9090082f passed Mac Core/UI/Native and Ubuntu shared; Windows22 errors/two summaries
-exactly match PR52. GitHub accepted a normal expected-head merge. Merge parents/
-tree/fast-forward and fresh15 Inbox knowledge tests/0 failures/one child ignore,
-52fixtures and two exact-byte V14 restarts passed. Exact merged-main
-run37317902962 attempt1 completed: all Mac lanes and Ubuntu Core/UI passed.
-Windows Core/UI22 errors/two summaries each, Windows Native14/two summaries and
-Ubuntu Native three installer failures/backtraces exactly match PR52. Overall CI
-is red from these four informational platform failures; no new shared/macOS
-defect was found. Safe native Source/provenance/proof navigation and three
-original JPEGs are retained in the [screenshot index](ui/screenshots/2026-10-05/INDEX.md).
-Later native/live/owner acceptance remains pending. Historical checkpoint evidence
-and scenarios remain in the [Inbox plan](work/active/text-email-inbox/plan.md).
+[PR54](https://github.com/ewq100/brn-rust/pull/54) merged at
+**eb36b331eb35c9cb5bc5b072060d89c39523ac87**, exact reviewed tree
+`c7ab27798a59ab1fef4577baa099ab783083b9b6`. Inbox knowledge can propose a new
+Current note plus an exact same-path History predecessor, preserving its identity,
+body and provenance. Replay retains original proofs/newer review; stale or
+ambiguous authority refuses. Whole-pair recovery, relationship rebuild and Undo
+are verified. Source/original intake evidence remains retained.
+
+Independent review is clean after reproducing and fixing exact footer occurrence
+qualification. Final local checks passed1282shared/0failures/8ignores,
+282Desktop/0/0,259optional workflow/0/7,106synthetic capability/0/0, all relevant
+builds/Clippy combinations,52fixtures and two shipping V14 restarts. Exact-head PR
+run37325847448 and additional dispatch37325852778 passed allMac/shared lanes.
+Their red Windows/Linux diagnostics exactly match qualified PR53 production,
+with byte-identical failure sources and CI configuration. GitHub accepted a normal
+expected-head merge. Fresh merged39knowledge tests/0/1child ignore,52fixtures and
+two V14 restarts passed. Exact merged-main run37327376228 passed all macOS/shared lanes; independent
+comparison confirms the same four informational platform failures. Overall CI
+remains red; no new supersession defect was found.
+Native/live/owner acceptance remains pending. Evidence and next actions:
+[supersession checkpoint](work/active/text-email-inbox/supersession-plan.md).
+
+The preceding [PR53](https://github.com/ewq100/brn-rust/pull/53) at ceb3d0f9
+qualified complete ordered saved-link targets. Its independent review, macOS/shared
+CI, known platform failures and MacBook handoff remain retained in the
+[Inbox plan](work/active/text-email-inbox/plan.md), including the
+[original safe UI captures](ui/screenshots/2026-10-05/INDEX.md).
 
 Stage6 implementation is integrated through [PR43](https://github.com/ewq100/brn-rust/pull/43).
 Dashboard/identified Complete actual observation and eight safe original JPEGs
@@ -97,19 +102,20 @@ Scenarios and integration evidence remain in the
 
 ## Mac mini continuation
 
-Owner resumed development on Mac mini on2026-10-05. The production merge and
-documentation-only74725ad handoff were verified after fetch. An isolated
-`codex/v1-stage7-history` checkout preserves the older primary checkout and all
-unrelated work. Fresh Rust1.98.1 locked offline shared/native baseline passed,
-including1269shared/282Desktop tests,52fixtures and two shipping V14 starts.
-The bounded [supersession slice](work/active/text-email-inbox/supersession-plan.md)
-is implemented with focused passing tests and a clean complete independent
-review after correcting exact footer qualification. Final local checks passed
-1282shared/282Desktop tests,259optional workflow tests,106synthetic capability
-tests,52fixtures and two shipping V14 restarts, with documented ignores.
-Hosted and merged verification remain pending. Conflict capture is next,
-then qualified original-copy deletion. No new live calls or model/private-data
-operations are authorized by historical evidence.
+Owner resumed on Mac mini from verified production and documentation-only74725ad
+handoff. Isolated work preserves unrelated checkouts. Complete V1 goal tracking
+is confirmed active through trusted-user packaging, without a token budget.
+Current branch `codex/v1-stage7-conflicts` starts at PR54's merge. Retain unresolved conflicts in existing
+Findings and expose matching conflicts to ordinary Ask. The shared worker, strict
+AI tools, CLI and native navigation are implemented in the task branch; final
+independent review is clean after fixing malformed managed provenance refusal.
+Final local gates passed1315shared/285native Desktop/268optional workflow/
+116capability tests,52fixtures and two V14 restarts, with documented ignores.
+Exact-head CI/integration remain pending; native/live/owner acceptance stays open.
+See the [conflict checkpoint](work/active/text-email-inbox/conflicts-plan.md).
+Qualified original-copy deletion follows this slice. BRN's frozen development workflow governs; completed
+work/reviews/checks are reused. Historical evidence authorizes no additional live
+calls, model downloads or private-data operations.
 
 ## Qualification and owner items
 

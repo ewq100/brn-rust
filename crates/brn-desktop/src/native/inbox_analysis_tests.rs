@@ -14,6 +14,8 @@ impl Render for AnalysisProbe {
         self.0.update(cx, |desktop, cx| {
             let pane = if desktop.open_doc == Some(DocRef::Evidence) {
                 desktop.render_evidence_document(cx)
+            } else if desktop.open_doc == Some(DocRef::Findings) {
+                desktop.render_findings(cx)
             } else {
                 desktop.render_inbox(cx)
             };
@@ -186,12 +188,12 @@ fn open(
     );
     (window, capture.borrow().clone().unwrap())
 }
-fn reach(visual: &mut VisualTestContext, id: &'static str) {
+fn reach(visual: &mut VisualTestContext, id: &str) {
     use gpui_kit::{InputEvent as _, MouseMoveEvent, ScrollDelta, ScrollWheelEvent};
     visual.update(|window, cx| {
         window.render_frame(cx);
         let pane = window.find("analysis-test-pane");
-        let target = window.find(id);
+        let target = window.find(id.to_owned());
         let position = pane.bounds().origin + point(px(3.), px(3.));
         let dy = pane.bounds().origin.y + px(20.) - target.bounds().origin.y;
         window.dispatch_event(
@@ -216,7 +218,7 @@ fn reach(visual: &mut VisualTestContext, id: &'static str) {
     visual.run_until_parked();
     visual.update(|window, cx| {
         window.render_frame(cx);
-        let target = window.find(id);
+        let target = window.find(id.to_owned());
         assert!(
             target.visible()
                 && target.bounds().center().y >= px(0.)
@@ -359,6 +361,7 @@ fn retained_source_and_unsaved_partial_are_distinct_copyable_and_readonly(
                 },
                 turn: None,
                 proposals: vec![],
+                findings: vec![],
                 needs_semantic_review: true,
             };
             let (lookup, _) = ai.inspect_inbox_analysis(id).unwrap();
@@ -431,5 +434,222 @@ fn retained_source_and_unsaved_partial_are_distinct_copyable_and_readonly(
     assert_eq!(
         std::fs::read(owner.path().join("vault/source.md")).unwrap(),
         source.text.as_bytes()
+    );
+}
+
+fn load_conflict(desktop: &mut Desktop) -> InboxActionAnalysis {
+    let ai = desktop.ai.as_mut().unwrap();
+    ai.selection = Some(Selection {
+        provider: Provider::Chatgpt,
+        model: "synthetic-luna".into(),
+    });
+    ai.effort = Some(ReasoningEffort::Low);
+    let (_, AppCommand::AnalyzeInboxActions(request)) = ai.analyze_inbox_source().unwrap() else {
+        panic!("analysis request");
+    };
+    ai.active = None;
+    let mut record = crate::ai::inbox_analysis_state_tests::symbolic_analysis(&request);
+    record
+        .findings
+        .push(crate::ai::inbox_analysis_state_tests::symbolic_conflict(
+            &record,
+        ));
+    let (lookup, _) = ai.inspect_inbox_analysis(request.id).unwrap();
+    ai.apply(
+        lookup,
+        AppEvent::InboxActionAnalysis(Box::new(record.clone())),
+    );
+    assert!(ai.inbox_analysis.record.is_some());
+    record
+}
+
+#[gpui_kit::test]
+fn retained_conflict_row_opens_exact_needs_review_member_and_rejects_stale_clicks(
+    cx: &mut gpui_kit::TestAppContext,
+) {
+    use brn_workflow::findings::FindingState;
+    let (owner, source) = crate::ai::inbox_analysis_state_tests::source_fixture();
+    let (window, desktop) = open(cx, &owner, source.clone());
+    let mut visual = VisualTestContext::from_window(window.into(), cx);
+    let record = visual.update(|window, cx| {
+        desktop.update(cx, |d, cx| {
+            let record = load_conflict(d);
+            d.sync_inbox_widgets(window, cx);
+            cx.notify();
+            record
+        })
+    });
+    let analysis = record.job.capture.id;
+    let finding = &record.findings[0];
+    let id = finding.draft.request.id;
+    let row = format!("inbox-analysis-finding-{id}");
+    let button = format!("inbox-analysis-open-finding-{id}");
+    visual.run_until_parked();
+    reach(&mut visual, &button);
+    visual.update(|window, cx| {
+        assert_eq!(
+            window.find(row.clone()).label(),
+            Some(
+                format!(
+                    "Conflict · Open · {} · {}",
+                    finding.draft.title, finding.draft.summary
+                )
+                .as_str()
+            )
+        );
+        assert_eq!(
+            window.find(button.clone()).label(),
+            Some("Open in Needs Review")
+        );
+        desktop.update(cx, |d, cx| {
+            d.open_analysis_finding(Uuid::new_v4(), id, cx);
+            d.open_analysis_finding(analysis, Uuid::new_v4(), cx);
+            assert_eq!(d.open_doc, Some(DocRef::Inbox));
+            assert!(!d.ai.as_ref().unwrap().finding_queue.visible);
+            // Display the retained closure status without hiding its evidence or navigation.
+            let finding = &mut d
+                .ai
+                .as_mut()
+                .unwrap()
+                .inbox_analysis
+                .record
+                .as_mut()
+                .unwrap()
+                .findings[0];
+            finding.state = FindingState::Resolved;
+            finding.version = 2;
+            finding.updated_at_ms = 2;
+            cx.notify();
+        });
+    });
+    visual.run_until_parked();
+    reach(&mut visual, &button);
+    visual.update(|window, cx| {
+        assert_eq!(
+            window.find(row.clone()).label(),
+            Some(
+                format!(
+                    "Conflict · Resolved · {} · {}",
+                    finding.draft.title, finding.draft.summary
+                )
+                .as_str()
+            )
+        );
+        desktop.update(cx, |d, _| {
+            let worker = brn_workflow::app_worker::AppWorker::start(
+                owner.path().join("data"),
+                brn_workflow::app::AppConfig {
+                    vault_root: Some(owner.path().join("vault")),
+                    credentials_dir: Some(owner.path().join("credentials")),
+                    model_dir: None,
+                },
+            )
+            .unwrap();
+            assert!(matches!(
+                worker
+                    .recv_event_timeout(Duration::from_secs(10))
+                    .unwrap()
+                    .1,
+                AppEvent::Ready { .. }
+            ));
+            d.app_worker = Some(worker);
+        });
+        window.click(button.clone(), cx);
+        desktop.update(cx, |d, _| {
+            assert_eq!(d.open_doc, Some(DocRef::Findings));
+            assert!(d.ai.as_ref().unwrap().finding_queue.visible);
+            assert!(
+                d.ai.as_ref()
+                    .unwrap()
+                    .pending
+                    .values()
+                    .any(|pending| matches!(pending,
+                crate::ai::Pending::Finding { capture, .. } if capture.id == id))
+            );
+            assert!(
+                d.ai.as_ref().unwrap().finding_queue.page.is_none(),
+                "selection must not require current page membership"
+            );
+            d.app_worker.take().unwrap().shutdown().unwrap();
+        });
+    });
+    assert_eq!(
+        std::fs::read(owner.path().join("vault/source.md")).unwrap(),
+        source.text.as_bytes()
+    );
+    assert_eq!(
+        std::fs::read_dir(owner.path().join("credentials"))
+            .unwrap()
+            .count(),
+        0
+    );
+}
+
+#[gpui_kit::test]
+fn conflict_navigation_retains_unsent_input_waits_for_latest_recovery_and_rechecks_analysis(
+    cx: &mut gpui_kit::TestAppContext,
+) {
+    use brn_workflow::editor::{EditStamp, EditorRecord, EditorView};
+    let (owner, source) = crate::ai::inbox_analysis_state_tests::source_fixture();
+    let (window, desktop) = open(cx, &owner, source.clone());
+    let mut visual = VisualTestContext::from_window(window.into(), cx);
+    visual.update(|window, cx| desktop.update(cx, |d, cx| {
+        let record = load_conflict(d);
+        let analysis = record.job.capture.id;
+        let id = record.findings[0].draft.request.id;
+        assert!(d.ai.as_mut().unwrap().begin_draft(None));
+        d.sync_draft_widgets(window, cx);
+        d.draft_title.update(cx, |input, cx| input.set_value("Retained unsubmitted title õ", window, cx));
+        d.open_analysis_finding(analysis, id, cx);
+        assert_eq!(d.open_doc, Some(DocRef::Inbox));
+        assert!(d.simple_transition.is_none());
+        assert_eq!(d.ai.as_ref().unwrap().draft.as_ref().unwrap().title, "Retained unsubmitted title õ");
+        assert!(d.ai.as_mut().unwrap().discard_draft());
+        let ai = d.ai.as_mut().unwrap();
+        let (lookup, _) = ai.open_editor("untouched.md".into());
+        let editor = EditorRecord { path: "untouched.md".into(), stamp: EditStamp { baseline: Uuid::new_v4(), generation: 0 },
+            baseline: source.source.fingerprint.clone(), baseline_text: "Original õ".into(), text: "Original õ".into() };
+        ai.apply(lookup, AppEvent::Editor(EditorView { record: editor, saved: Some("Original õ".into()), observed: None, conflict: false, pending: vec![] }));
+        let latest = "Original õ\r\nUnacknowledged latest 🦀";
+        ai.editor.as_mut().unwrap().edit(latest.into(), std::time::Instant::now()).unwrap();
+        d.open_analysis_finding(analysis, id, cx);
+        assert_eq!(d.open_doc, Some(DocRef::Inbox));
+        assert!(matches!(d.simple_transition, Some(simple::EditorTransition::Finding { analysis: selected, id: member }) if selected == analysis && member == id));
+        assert_eq!(d.ai.as_ref().unwrap().editor.as_ref().unwrap().text, latest);
+        let ai = d.ai.as_mut().unwrap();
+        let (recovery, AppCommand::RecoverEditor(request)) = ai.recover_editor().unwrap() else { panic!("exact latest recovery"); };
+        let mut acknowledged = ai.editor.as_ref().unwrap().view.record.clone();
+        acknowledged.stamp.generation = request.generation;
+        acknowledged.text = request.text;
+        ai.apply(recovery, AppEvent::EditorRecovered(acknowledged));
+        assert!(ai.editor.as_ref().unwrap().can_leave());
+        // A refresh selecting another retained analysis invalidates the waiting navigation.
+        ai.inspect_inbox_analysis(Uuid::new_v4()).unwrap();
+        d.simple_progress_transition(cx);
+        assert_eq!(d.open_doc, Some(DocRef::Inbox));
+        assert!(d.simple_transition.is_none());
+        assert!(!d.ai.as_ref().unwrap().finding_queue.visible);
+        assert_eq!(d.ai.as_ref().unwrap().editor.as_ref().unwrap().text, latest);
+        let ai = d.ai.as_mut().unwrap();
+        let (lookup, _) = ai.inspect_inbox_analysis(analysis).unwrap();
+        ai.apply(lookup, AppEvent::InboxActionAnalysis(Box::new(record)));
+        d.open_analysis_finding(analysis, id, cx);
+        assert_eq!(d.open_doc, Some(DocRef::Findings));
+        assert!(d.ai.as_ref().unwrap().editor.is_none());
+        assert!(d.ai.as_ref().unwrap().finding_queue.visible);
+    }));
+    assert_eq!(
+        std::fs::read(owner.path().join("vault/source.md")).unwrap(),
+        source.text.as_bytes()
+    );
+    assert_eq!(
+        std::fs::read(owner.path().join("vault/untouched.md")).unwrap(),
+        "\u{feff}Untouched õ\r\n".as_bytes()
+    );
+    assert_eq!(
+        std::fs::read_dir(owner.path().join("credentials"))
+            .unwrap()
+            .count(),
+        0
     );
 }

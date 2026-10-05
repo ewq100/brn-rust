@@ -121,3 +121,38 @@ draft, edit only Current content, approve exact Current/History effects, inspect
 scoped relationships after index loss, recover each interrupted member and Undo
 exact retained predecessor bytes. Native owner review/live provider compliance
 remains pending and requires separately authorized conditions.
+
+## Integrated checkpoint — PR54
+
+Normal expected-head merge on2026-10-05 at
+`eb36b331eb35c9cb5bc5b072060d89c39523ac87`,
+[PR54](https://github.com/ewq100/brn-rust/pull/54). Reviewed candidate
+`966ad90e453f18413edb2bf2f9b95813f4ecc9a0` and exact merge tree
+`c7ab27798a59ab1fef4577baa099ab783083b9b6` match; merge parents are qualified
+ceb3d0 production and the candidate. Origin was fetched and verified. The older
+primary checkout/unrelated Finder files/worktrees remain untouched.
+
+Exact-head automatic PR run37325847448 passed Mac Core/UI/Native and Ubuntu Core.
+Additional dispatch37325852778 passed allMac lanes and Ubuntu Core/UI. Both
+finished red: independent full diagnostic comparison with qualified production
+run37317902962 found Windows Core/UI22errors+2compile summaries each, Windows
+Native14+2 and Ubuntu Native3full failure/backtrace blocks identical. Only
+log timestamps/ANSI/dynamic thread IDs/addresses were normalized. Failure sources
+and CI/setup configuration are byte-identical; no new candidate defect found.
+Main has no required checks/rulesets at the fresh pre-merge inspection. GitHub
+accepted the normal merge without administrator bypass.
+
+Fresh merged-tree `cargo +1.98.1 test -p brn-workflow --lib knowledge --locked --offline`
+passed39/0/1child harness ignore;52fixtures and two shipping V14 AppWorker starts
+passed with no legacy database/credentials. Automatic merged-main push
+run37327376228 at the exact merge completed: all Mac lanes and Ubuntu Core/UI
+passed. The four platform failures match qualified baseline diagnostics and
+unchanged source/configuration blobs; Ubuntu failure block order alone varied.
+Overall CI remains red; no new supersession defect was found. This milestone does not complete Stage7 or V1.
+
+The isolated checkout is now `codex/v1-stage7-conflicts` at the exact merge.
+Next: durable unresolved conflict capture
+and ordinary Ask lookup using existing Findings/AppWorker, followed by qualified
+original-copy deletion. The owner's complete frozen V1 goal is confirmed active
+through trusted-user packaging, without a token budget. Native/live/owner gaps,
+exhausted provider permission and all mission boundaries remain preserved.

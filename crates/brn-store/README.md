@@ -267,6 +267,15 @@ title/summary and exact source fingerprints with optional UUID/quote ranges.
 Identity ambiguity requires distinct exact saved paths; path case is preserved.
 Unresolved-link occurrence and used definition can share one file with different
 ranges. Workflow validates actual saved bytes; Store never reads a vault.
+`InboxConflict` reuses these records and the V9 table without changing legacy
+canonical encodings. Its origin retains the analysis ID, original title/summary,
+ordered Source/other quote ranges and the other path. Exactly two distinct
+managed UUIDs and exact paths are required; draft title/summary and quotes must
+equal that immutable intent. Reads, writes and startup also bind the first
+evidence to the retained KnowledgeAndActions Inbox capture, including its full
+fingerprint, managed UUID and exact nonhistorical Source body slice. This check
+needs no running turn; Workflow qualifies the other saved note and callback
+authority. Duplicated intent and evidence count toward the retained byte bound.
 Strict nested JSON, bounded retained/encoded work, hashes and row/creation bindings
 are checked before use and at startup before reconciliation/backup.
 For supported branded V9+ databases, readable Findings are also validated before
@@ -281,6 +290,14 @@ state only. Bounded pages use descending creation-time/UUID cursors, including a
 cursor closed between pages, with the open count in the same SQLite snapshot.
 Findings survive ordinary backup/recovery and remain tentative work rather than
 knowledge or proposal authority.
+`inbox_conflicts(analysis_id)` returns complete checked records in all states;
+Workflow owns consequence admission limits. `note_conflicts(vault, path, note_id,
+request)` requires Open state and matches only Inbox conflicts in the exact
+bound vault, by either retained path or managed UUID on either side. It returns
+complete records and the matching Open count in one snapshot, ordered by
+descending creation time/UUID. Its cursor must match the same lookup and vault,
+and remains valid after that finding closes. Workflow owns current saved-note
+qualification and its query-bound external cursor.
 Supported V9+ records are validated before SQLite quick_check: readable semantic
 damage refuses a main database without restoring older work, while an invalid
 backup candidate is skipped. Physical SQLite corruption still uses recovery.
