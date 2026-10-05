@@ -34,7 +34,8 @@ The pushed immutable **`7c4f668de467721f728f242c8fac8d14606a6e44`** snapshot on
 preservation, with explicit confirmation still required. Failed/pending analysis,
 consequence drafts and later derived edits are independent. Item disposition is
 separate. The current candidate replaces the older conservative preview;
-verification/review/integration are pending. A1 record/performance/recovery
+independent review is clean, and fresh shared/native verification passed at
+95940fe6c143d529f98b70ef5914b1e05decdc20. Exact-head CI/integration are pending. A1 record/performance/recovery
 corrections hold lifecycle integration, native removal and Stage8. No semantic
 completeness, native/live/owner acceptance or full V1 delivery is claimed. The full
 V1 goal remains active. No owner original/private data was inspected or migrated.

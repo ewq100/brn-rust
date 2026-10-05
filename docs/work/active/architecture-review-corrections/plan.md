@@ -326,3 +326,41 @@ Merged-main37382000386 attempt1 passed all applicable gates. Overall red retains
 Windows22/22/14 complete blocks/summaries identical to main63 and the same three
 Linux assertions/backtraces. Raw order/thread IDs changed and terminal duration
 changed1.56s→0.04s; full logs/differences are retained.
+
+## Source-preservation qualification evidence
+
+Complete12-file independent read-only review is clean at
+`95940fe6c143d529f98b70ef5914b1e05decdc20`, tree
+`5c984a20fab1868cc9ef52633959b94289d9e58c`. The shared converter preserves old
+bytes/cancellation. Strict Source proposal validation and saved/approval formats
+remain unchanged; the preview now retains one complete selected witness.
+
+Store helper9 focused/364 full tests passed. An initial Clippy needless-reference
+finding was corrected, final focused tests/all-target Clippy/owned format passed.
+Root13 preservation tests passed; an initial CLI `--lib` command failed because
+BRN has only a binary target (exit101); corrected `--bin brn cli::inbox` ran all6
+checks successfully. No product failure was hidden. Tests cover owner metadata
+Save/new inode/History/archive/restart, stale alternatives, exact body/id/provenance/
+class and incomplete-inventory refusal, failed/pending work and derived independence,
+dirty editor retention, genuine interrupted Save/Apply fences and near-limit
+worst-case escaped proof roundtrip.
+
+Fresh shared atomic gate22:36:52–22:41:39UTC at unchanged clean95940fe/tree5c984a20:
+format/workspace build/all-target Clippy,1,382 workspace tests/0 failures/8
+documented ignores and52 fixtures passed, terminalexit0. Optional native atomic
+gate22:42:03–22:43:39UTC at the same unchanged identity passed combined check,
+three all-target Clippy configurations,297 Workflow/model tests/0/7,285 Desktop/0/0,
+shipping combined Desktop/native CLI builds and two V14 synthetic AppWorker
+restarts; all10 command exits0. The upstream block future-compiler warning remains.
+Empty model configuration means no real assets, inference, live provider, graphical
+or owner acceptance was exercised.361 current links/diff checks passed. Later
+qualification documentation does not change tested Rust. Exact-head protected CI
+and normal integration are the next gate; Source qualification grants no removal.
+
+Owner scenario remains pending: in a disposable text Inbox fixture, approve its
+exact Source, retain a failed analysis/pending consequence and change a derived
+note; `inbox removal-preview UUID` should return one saved preservation witness,
+no blockers and `needs_owner_confirmation: true`, with the original still retained.
+Changing that Source body or duplicating its UUID must refuse qualification.
+Explicit confirmation/lifecycle and native controls follow after bounded original
+record/performance/recovery correction. No live authorization is renewed.

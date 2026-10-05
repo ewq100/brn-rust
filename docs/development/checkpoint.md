@@ -16,10 +16,15 @@ Lead-confirmed 2026-10-06: full frozen V1 goal **active**, without a token budge
   three Clippy configurations,291 Workflow/model tests/0/7,285 Desktop/0/0,
   shipping builds and two V14 restarts passed. Atomic records preserve exact
   unchanged identity/exit0; no live provider or model assets exercised.
-- **Current:** `codex/v1-source-preservation` at the integrated baseline: one
+- **Current:** `codex/v1-source-preservation`, qualified code
+  `95940fe6c143d529f98b70ef5914b1e05decdc20`, tree
+  `5c984a20fab1868cc9ef52633959b94289d9e58c`: one
   approved Source proving exact original preservation, independently of failed
-  analysis/pending drafts/derived edits. Implementation and focused tests in
-  progress; review/verification/integration remain pending.
+  analysis/pending drafts/derived edits. Complete independent review clean;1,382 shared tests/0/8 and52 fixtures plus
+  format/build/Clippy passed.297 native Workflow/model tests/0/7 and285 Desktop/0/0,
+  native builds/checks/Clippy and two V14 restarts passed at unchanged clean identity.
+  Exact-head CI/integration are pending; detailed actual failures/results remain
+  in the correction plan.
 - **Preserved:** lifecycle `7c4f668de467721f728f242c8fac8d14606a6e44` on
   `codex/v1-inbox-recoverable-removal`, unchanged/unmerged and held for correction.
 - **Pending:** explicit confirmation/removal record and recovery corrections,
