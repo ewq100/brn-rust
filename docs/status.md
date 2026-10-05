@@ -1,9 +1,9 @@
 # Current development status
 
 2026-10-05. **Stages 1–4 are implemented, automated verified and integrated.
-Stage 5 foundations are integrated, with live/native qualification still open.
-Stage 6 Actions/dashboard implementation is integrated, with acceptance open.
-Stage7 Inbox is active; Stages 7–16 are incomplete; complete V1
+Stage 5 knowledge and Stage 6 Actions/dashboard foundations are integrated,
+with native/live/owner qualification still open.
+Stage 7 Inbox is active; Stages 7–16 are incomplete; complete V1
 delivery is not claimed.**
 
 The [Product Vision](product/BRN_PRODUCT_VISION.md),
@@ -15,11 +15,28 @@ and the disposable retrieval index retain their existing roles. The owner's
 permits thin future adapters around the six V1 core crates through workflow/
 AppWorker. No MCP, daemon, HTTP service, extra database or remote work is in V1.
 
-Latest integrated checkpoint: original-review PR57 at
-`c07cc19e4cc9e4aeed84aa86a0a6d6551231458d`; the
-[resumable checkpoint](development/checkpoint.md) retains exact verification,
-platform failures and pending acceptance. Complete review evidence is implemented;
-removal qualification is active. No originals have been removed.
+Integrated main is **`48941d3ae2c16dd014b6cb0f69a01b8c4ef60fa0` (PR60)**.
+Complete retained original review and fresh removal preview are integrated; the
+preview grants no removal authority. Merged-main run37354011334 attempt1 passed
+all four required jobs and Docs. Overall CI remains red: the four informational
+Windows/Linux failure diagnostics match the qualified main59 baseline.
+
+The clean, pushed **`7c4f668de467721f728f242c8fac8d14606a6e44`** snapshot on
+`codex/v1-inbox-recoverable-removal` implements recoverable removal/restore,
+mirrors and recovery, but is **not merged**. It is the immutable lifecycle review
+snapshot, not the corrected cleanup contract. Architecture-review corrections
+are active on `codex/v1-review-evidence-boundary`; A1 record-shape and owner
+cleanup corrections hold lifecycle integration, native removal and Stage 8.
+The full V1 goal is active.
+
+The owner ratified cleanup based on an approved Source's exact preservation plus
+explicit confirmation. Failed analyses, pending drafts and later derived edits
+do not block cleanup; item disposition is separate. Current main's preview still
+uses the older stricter gates; the unmerged lifecycle snapshot also requires five
+attestations. Their correction is pending. No semantic completeness or corrected
+cleanup readiness is claimed. The [original-copy record](work/active/text-email-inbox/original-copy-plan.md)
+and [resumable checkpoint](development/checkpoint.md) retain evidence and handoff.
+No owner original/private data was inspected or migrated.
 
 ## Integrated behavior
 
@@ -70,7 +87,25 @@ validation. Dependencies and parent graphs are separate checks; new knowledge
 references require captured or same-draft proof. Completed records cannot reopen.
 Evidence: [Actions/dashboard record](work/completed/actions-dashboard/plan.md).
 
-## Latest integrated checkpoint
+Stage 7 integrates text/email intake and processing, selected-Source Action and
+Knowledge drafts, exact Current/History supersession pairs, tentative conflicts
+with shared Ask/CLI lookup, complete retained original review and fresh removal
+preview. Recoverable original removal/restore remains on the unmerged snapshot
+described above. Evidence: [Inbox](work/active/text-email-inbox/plan.md),
+[supersession](work/active/text-email-inbox/supersession-plan.md),
+[conflicts](work/active/text-email-inbox/conflicts-plan.md) and
+[original-copy work](work/active/text-email-inbox/original-copy-plan.md).
+
+The CLI is owner-operated and exposes full shared-workflow authority. Its
+approval, Save, completion and removal commands are not standing authorization
+for an agent. Future external agents use read/propose unless the owner explicitly
+delegates more authority. Durable Markdown and managed metadata are described in
+the [vault format](architecture/vault-format.md).
+
+## Historical integration evidence
+
+The following results describe earlier checkpoints, not fresh verification of
+the current correction branches. Current evidence is in the resumable checkpoint.
 
 [PR55](https://github.com/ewq100/brn-rust/pull/55) merged at
 **c5aaa6c4c96007e452151adb167964bf9e2b048a**, exact reviewed tree
@@ -126,7 +161,10 @@ passed; composition/Rewrite/Ask native/live/owner acceptance remains pending.
 Scenarios and integration evidence remain in the
 [completed Actions record](work/completed/actions-dashboard/plan.md).
 
-## Mac mini continuation
+### Earlier Mac mini continuation
+
+This retained handoff predates PR57–60. Its branch names and pending observations
+are historical; use the current checkpoint above for continuation.
 
 Owner resumed on Mac mini from verified production and documentation-only74725ad
 handoff. Isolated work preserves unrelated checkouts. Complete V1 goal tracking
@@ -137,7 +175,7 @@ preflight. Four Mac/shared checks enforce strict freshness/admin requirements.
 Fresh merged tooling checks pass; main run37341534594 remains pending.
 [Resumable checkpoint](development/checkpoint.md) retains the current full goal.
 
-Current branch `codex/v1-stage7-original-copy` starts at this verified merge. Unresolved Inbox conflicts and shared Ask/CLI/native review are integrated.
+At this handoff, branch `codex/v1-stage7-original-copy` started at this verified merge. Unresolved Inbox conflicts and shared Ask/CLI/native review were integrated.
 Exact semantic qualification and recoverable original-copy removal follow.
 Independent environment/tooling work is isolated on a separate codex branch;
 lead retains architecture and integration.
