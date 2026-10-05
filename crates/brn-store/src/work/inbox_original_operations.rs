@@ -411,13 +411,7 @@ fn validate_snapshot(snapshot: &InboxRemovalSnapshot) -> Result<()> {
                 }
                 continue;
             };
-            if job.job.capture.source != binding.source
-                || job.job.capture.note_id()? != binding.citations[0].note_id
-            {
-                return Err(invalid(
-                    "certificate knowledge differs from its analysis capture",
-                ));
-            }
+            inbox_actions::validate_knowledge_capture(binding, &job.job.capture)?;
         }
     }
     for journal in journals(snapshot)?.values() {

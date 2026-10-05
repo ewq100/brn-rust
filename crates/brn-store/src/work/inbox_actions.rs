@@ -446,12 +446,23 @@ pub(super) fn check_knowledge_binding(
     binding.validate()?;
     let job = reserved(conn, binding.analysis_id)?
         .ok_or_else(|| invalid("Inbox knowledge analysis capture is unavailable"))?;
-    let source_id = job.capture.note_id()?;
-    if job.capture.purpose != InboxAnalysisPurpose::KnowledgeAndActions
-        || job.capture.source != binding.source
+    validate_knowledge_capture(binding, &job.capture)
+}
+
+/// Pure exact binding shared by live SQL reads and historical certificates.
+pub(super) fn validate_knowledge_capture(
+    binding: &InboxKnowledgeBinding,
+    capture: &InboxActionCapture,
+) -> Result<()> {
+    binding.validate()?;
+    capture.validate()?;
+    let source_id = capture.note_id()?;
+    if capture.id != binding.analysis_id
+        || capture.purpose != InboxAnalysisPurpose::KnowledgeAndActions
+        || capture.source != binding.source
         || binding.citations.iter().any(|c| {
             c.note_id != source_id
-                || job.capture.source_text.get(c.start_byte..c.end_byte) != Some(c.quote.as_str())
+                || capture.source_text.get(c.start_byte..c.end_byte) != Some(c.quote.as_str())
         })
     {
         return Err(invalid(

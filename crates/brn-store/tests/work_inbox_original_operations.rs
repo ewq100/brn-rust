@@ -4,7 +4,7 @@ use brn_store::{
     work::{
         WorkTurnStatus,
         inbox::{InboxCapture, InboxCopy, InboxKind},
-        inbox_actions::InboxActionCapture,
+        inbox_actions::{InboxActionCapture, InboxAnalysisPurpose, InboxKnowledgeBinding},
         inbox_original_operations::*,
         inbox_processing::{InboxConversionFormat, InboxProcessOutcome, ProcessInboxRequest},
         inbox_source::InboxSourceBinding,
@@ -805,4 +805,239 @@ fn fresh_recovery_restart_keeps_certificate_without_fabricating_later_removal_el
         ),
         bytes(&removed)
     );
+}
+
+fn knowledge_evidence(store: &mut WorkStore) -> InboxQualifiedRemovalEvidence {
+    let mut e = evidence(store, false);
+    let source = &e.sources[0].saved;
+    let job = store
+        .reserve_inbox_action(
+            &InboxActionCapture {
+                purpose: InboxAnalysisPurpose::KnowledgeAndActions,
+                id: Uuid::new_v4(),
+                conversation: None,
+                source: source.source.clone(),
+                source_text: source.text.clone(),
+                provider: "chatgpt".into(),
+                model: "gpt-6-luna".into(),
+                effort: "medium".into(),
+            },
+            "Interpret this exact Source",
+        )
+        .unwrap();
+    store.begin_inbox_action_turn(&job).unwrap();
+    store
+        .finish_turn(
+            job.capture.id,
+            WorkTurnStatus::Completed,
+            "Synthetic interpretation",
+            None,
+        )
+        .unwrap();
+    let note_id = Uuid::new_v4();
+    let start_byte = source.text.find("body").unwrap();
+    let citation = brn_store::note_provenance::VaultCitation {
+        note_id: e.sources[0].note_id,
+        sha256: source.source.fingerprint.sha256,
+        start_byte,
+        end_byte: start_byte + 4,
+        quote: "body".into(),
+    };
+    let text = brn_store::note_provenance::write(&format!("---\nbrn_id: {note_id}\nbrn_kind: knowledge\nbrn_state: current\n---\n# Interpreted knowledge\n"), std::slice::from_ref(&citation)).unwrap();
+    let draft = ProposalDraft {
+        inbox_knowledge: Some(Box::new(InboxKnowledgeBinding {
+            analysis_id: job.capture.id,
+            note_id,
+            source: source.source.clone(),
+            supersedes: None,
+            citations: vec![citation],
+        })),
+        inbox_source: None,
+        id: Uuid::new_v4(),
+        group_id: Some(job.capture.id),
+        session_id: None,
+        vault: e.snapshot.review.proposals[0].record.draft.vault.clone(),
+        title: "Preserve interpreted knowledge".into(),
+        changes: vec![NoteChange::Create {
+            path: "knowledge/exact.md".into(),
+            parent: VaultIdentity {
+                device: 1,
+                inode: 11,
+            },
+            text: text.clone(),
+        }],
+        sources: vec![source.source.clone()],
+        action_changes: vec![],
+    };
+    let review = store.create_proposal(&draft).unwrap();
+    let req = ApprovalRequest {
+        operation_id: Uuid::new_v4(),
+        expected: review.stamp(),
+    };
+    store.begin_proposal_apply(&req).unwrap();
+    let fp = FileFingerprint {
+        device: 1,
+        inode: 13,
+        len: text.len() as u64,
+        sha256: hash(text.as_bytes()),
+    };
+    store
+        .record_proposal_prepared(req.operation_id, std::slice::from_ref(&fp))
+        .unwrap();
+    store
+        .finish_proposal_apply(
+            req.operation_id,
+            ApplyOutcome::Applied,
+            Some(&[ApplyMemberProof {
+                destination: Some(fp.clone()),
+                staging: None,
+            }]),
+        )
+        .unwrap();
+    e.saved_consequences.push(InboxSavedConsequence {
+        operation_id: req.operation_id,
+        member_index: 0,
+        saved: InboxSourceProof {
+            source: SourceVersion {
+                path: "knowledge/exact.md".into(),
+                fingerprint: fp,
+            },
+            text,
+        },
+    });
+    e.snapshot = store
+        .inbox_removal_snapshot(e.snapshot.review.original.capture.id)
+        .unwrap();
+    e
+}
+
+fn rebind_knowledge_certificate(record: &mut InboxOriginalRemovalRecord, mode: usize) {
+    let evidence = &mut record.evidence;
+    let operation = evidence.saved_consequences[0].operation_id;
+    let proposal = evidence
+        .snapshot
+        .lineage
+        .iter()
+        .find(|j| j.request.operation_id == operation)
+        .unwrap()
+        .approved
+        .draft
+        .id;
+    if mode == 0 {
+        evidence.snapshot.review.analyses[0].job.capture.purpose = InboxAnalysisPurpose::Actions;
+    } else {
+        let draft = &mut evidence
+            .snapshot
+            .review
+            .proposals
+            .iter_mut()
+            .find(|p| p.record.draft.id == proposal)
+            .unwrap()
+            .record
+            .draft;
+        let binding = draft.inbox_knowledge.as_mut().unwrap();
+        match mode {
+            1 => binding.citations[0].quote = "fork".into(),
+            2 => {
+                binding.citations[0].start_byte += 1;
+                binding.citations[0].end_byte += 1;
+            }
+            _ => {
+                let mut forged = binding.citations[0].clone();
+                forged.quote = "fork".into();
+                binding.citations.push(forged);
+            }
+        }
+        binding.validate().unwrap();
+        let citations = binding.citations.clone();
+        let NoteChange::Create { text, .. } = &mut draft.changes[0] else {
+            panic!("expected one Knowledge Create")
+        };
+        *text = brn_store::note_provenance::write(text, &citations).unwrap();
+        let saved = &mut evidence.saved_consequences[0].saved;
+        saved.text = text.clone();
+        saved.source.fingerprint.len = text.len() as u64;
+        saved.source.fingerprint.sha256 = hash(text.as_bytes());
+        let changed_draft = draft.clone();
+        let creation_sha256 = hash(&bytes(&changed_draft));
+        let review = evidence
+            .snapshot
+            .review
+            .proposals
+            .iter_mut()
+            .find(|p| p.record.draft.id == proposal)
+            .unwrap();
+        review.creation_sha256 = creation_sha256;
+        let applied_stamp = review.record.stamp();
+        for journal in evidence
+            .snapshot
+            .review
+            .approvals
+            .iter_mut()
+            .chain(&mut evidence.snapshot.lineage)
+        {
+            if journal.request.operation_id == operation {
+                journal.approved.draft = changed_draft.clone();
+                journal.creation_sha256 = creation_sha256;
+                journal.request.expected = journal.approved.stamp();
+                journal.receipt.as_mut().unwrap().stamp = applied_stamp;
+                journal.prepared = Some(vec![saved.source.fingerprint.clone()]);
+                journal.observations.as_mut().unwrap()[0].destination =
+                    Some(saved.source.fingerprint.clone());
+                journal.validate().unwrap();
+            }
+        }
+        saved.validate().unwrap();
+    }
+    evidence.snapshot.review.analyses[0].job.validate().unwrap();
+    record.request.preview_digest = hash(&bytes(evidence));
+}
+
+#[test]
+fn applied_knowledge_certificates_check_purpose_and_every_exact_citation_before_recovery() {
+    let data = fixture();
+    let (mut store, _) = WorkStore::open(data.path()).unwrap();
+    let e = knowledge_evidence(&mut store);
+    e.validate().unwrap();
+    let valid = terminal(&mut store, &e);
+    valid.validate().unwrap();
+    let fresh = fixture();
+    let (mut target, _) = WorkStore::open(fresh.path()).unwrap();
+    target.restore_inbox_original_removal(&valid).unwrap();
+    assert_eq!(
+        bytes(
+            &target
+                .inbox_original_removal(valid.request.operation_id)
+                .unwrap()
+                .unwrap()
+        ),
+        bytes(&valid)
+    );
+    for mode in 0..4 {
+        let mut bad = valid.clone();
+        rebind_knowledge_certificate(&mut bad, mode);
+        assert_eq!(bad.request.preview_digest, hash(&bytes(&bad.evidence)));
+        assert!(
+            matches!(bad.validate(), Err(Error::Invalid(_))),
+            "validate mode {mode}"
+        );
+        let fresh = fixture();
+        let (mut target, _) = WorkStore::open(fresh.path()).unwrap();
+        assert!(
+            matches!(
+                target.restore_inbox_original_removal(&bad),
+                Err(Error::Invalid(_))
+            ),
+            "import mode {mode}"
+        );
+        assert!(target.inbox_item(valid.request.item_id).unwrap().is_none());
+        assert!(target.inbox_original_operation_ids().unwrap().is_empty());
+        assert!(
+            target
+                .inbox_action(e.snapshot.review.analyses[0].job.capture.id)
+                .unwrap()
+                .is_none()
+        );
+        assert!(target.conversations().unwrap().is_empty());
+    }
 }
