@@ -564,7 +564,7 @@ fn mixed_inbox_consequence_cap_counts_conflicts_and_preserves_replay_at_capacity
         input.title.push_str(&format!(" {n}"));
         Step::Conflict(input)
     }));
-    steps.push(Step::Action(args(&source, Uuid::new_v4(), Uuid::new_v4())));
+    steps.push(Step::Action(args()));
     steps.push(Step::Knowledge(knowledge(&source)));
     let mut beyond = conflict(&source, &other);
     beyond.title.push_str(" beyond cap");

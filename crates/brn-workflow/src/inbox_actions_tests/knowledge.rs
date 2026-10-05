@@ -95,7 +95,7 @@ fn inbox_knowledge_mixed_reviews_preserve_exact_quotes_identity_current_and_sepa
     });
     let source = capture_source(&w, "Original exact: Blue õ 🦀\r\nCall Anna.\r\n");
     let input = knowledge(&source);
-    let action = args(&source, Uuid::new_v4(), Uuid::new_v4());
+    let action = args();
     *script.lock().unwrap() = vec![Step::Knowledge(input.clone()), Step::Action(action.clone())];
     let r = semantic(&source);
     let turn = analyze(&w, &r).unwrap();
@@ -166,7 +166,7 @@ fn inbox_knowledge_mixed_reviews_preserve_exact_quotes_identity_current_and_sepa
     let action_record = all
         .proposals
         .iter()
-        .find(|p| p.draft.id.to_string() == action.id)
+        .find(|p| !p.draft.action_changes.is_empty())
         .unwrap();
     assert_eq!(approved(&w, action_record).outcome, ApplyOutcome::Applied);
     let undo = crate::proposal_apply::UndoRequest {
@@ -415,7 +415,9 @@ fn inbox_knowledge_and_actions_share_twenty_draft_cap_and_creation_replay() {
             k.path = format!("color-{i}.md");
             steps.push(Step::Knowledge(k));
         } else {
-            steps.push(Step::Action(args(&source, Uuid::new_v4(), Uuid::new_v4())));
+            let mut action = args();
+            action.title = format!("Review Inbox consequence {i}");
+            steps.push(Step::Action(action));
         }
     }
     let mut extra = knowledge(&source);

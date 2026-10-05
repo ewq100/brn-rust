@@ -10,7 +10,10 @@ use crate::{
     proposal_apply::{ApplyOutcome, ApprovalRequest},
     proposals::{ActionChange, ProposalEdit, ProposalSource, ProposalState},
 };
-use brn_ai::{ActionProposalArgs, ReadScope};
+use brn_ai::{
+    ActionCandidate, ActionCandidateData, ActionCandidatePriority, ActionCandidateState,
+    ActionProposalArgs, ReadScope,
+};
 use serde_json::{Value, json};
 use sha2::{Digest, Sha256};
 use std::sync::atomic::AtomicUsize;
@@ -155,19 +158,40 @@ fn data(note_id: Uuid) -> ActionData {
     }
 }
 
-fn args(source: &SourceFixture, proposal_id: Uuid, action_id: Uuid) -> ActionProposalArgs {
-    ActionProposalArgs {
-        id: proposal_id.to_string(),
-        title: "Review one Inbox consequence".into(),
-        source_paths: vec![source.source.source.path.clone()],
-        action_changes: vec![
-            serde_json::to_value(ActionChange::Create {
-                id: action_id,
-                data: data(source.note_id),
-            })
-            .unwrap(),
-        ],
+fn candidate_data() -> ActionCandidateData {
+    ActionCandidateData {
+        title: "  Call Anna õ  ".into(),
+        description: "\u{feff}Interpretation kept separate 🦀\r\n".into(),
+        state: ActionCandidateState::Waiting,
+        owner: Some("Anna Õ".into()),
+        related_person: None,
+        related_project: None,
+        sources: vec![],
+        thread: None,
+        due_on: Some("2028-02-29".into()),
+        follow_up_on: Some("2028-03-01".into()),
+        dependencies: vec![],
+        parent: None,
+        follows_up: None,
+        priority: Some(ActionCandidatePriority::High),
     }
+}
+
+fn args() -> ActionProposalArgs {
+    ActionProposalArgs {
+        title: "Review one Inbox consequence".into(),
+        source_paths: vec![],
+        action_changes: vec![ActionCandidate::Create {
+            data: candidate_data(),
+        }],
+    }
+}
+
+fn candidate_data_mut(input: &mut ActionProposalArgs) -> &mut ActionCandidateData {
+    let ActionCandidate::Create { data } = &mut input.action_changes[0] else {
+        panic!("Create fixture");
+    };
+    data
 }
 
 fn tool_reply(result: brn_ai::AiResult<Value>) -> Value {
@@ -307,25 +331,29 @@ fn inbox_action_worker_preserves_scope_group_complete_proof_and_exact_approval()
         "\u{feff}Original exact õ 🦀\r\nCall Anna; confirm date.\r\n",
     );
     *expected.lock().unwrap() = Some(source.source.clone());
-    let proposal_id = Uuid::new_v4();
-    let action_id = Uuid::new_v4();
-    let mut valid = args(&source, proposal_id, action_id);
+    let mut valid = args();
     valid.source_paths.push("a.md".into());
-    let mut no_source_uuid = args(&source, Uuid::new_v4(), Uuid::new_v4());
-    no_source_uuid.action_changes[0]["data"]["sources"] = json!([]);
-    let mut twice = args(&source, Uuid::new_v4(), Uuid::new_v4());
-    twice.source_paths.push("source.md".into());
-    let mut no_source_path = args(&source, Uuid::new_v4(), Uuid::new_v4());
-    no_source_path.source_paths = vec!["a.md".into()];
-    let mut multiple = args(&source, Uuid::new_v4(), Uuid::new_v4());
-    multiple.action_changes.push(
-        serde_json::to_value(ActionChange::Create {
-            id: Uuid::new_v4(),
-            data: data(source.note_id),
-        })
-        .unwrap(),
-    );
-    *steps.lock().unwrap() = vec![no_source_uuid, twice, no_source_path, multiple, valid];
+    let mut repeated_selected = args();
+    repeated_selected.source_paths.push("source.md".into());
+    let mut repeated_additional = args();
+    repeated_additional.source_paths = vec!["a.md".into(), "a.md".into()];
+    let mut duplicate_source_uuid = args();
+    candidate_data_mut(&mut duplicate_source_uuid).sources =
+        vec![source.note_id.to_string(), source.note_id.to_string()];
+    let mut multiple = args();
+    multiple.action_changes.push(ActionCandidate::Create {
+        data: candidate_data(),
+    });
+    let mut with_source_uuid = valid.clone();
+    candidate_data_mut(&mut with_source_uuid).sources = vec![source.note_id.to_string()];
+    *steps.lock().unwrap() = vec![
+        repeated_selected,
+        repeated_additional,
+        duplicate_source_uuid,
+        multiple,
+        valid,
+        with_source_uuid,
+    ];
     let request = request(&source);
     let turn = analyze(&worker, &request).unwrap();
     assert_eq!(turn.status, WorkTurnStatus::Completed);
@@ -339,10 +367,45 @@ fn inbox_action_worker_preserves_scope_group_complete_proof_and_exact_approval()
     assert_eq!(inspected.job.capture.source, source.source.source);
     assert_eq!(inspected.job.capture.source_text, source.source.text);
     assert_eq!(inspected.job.capture.effort, "high");
-    assert_eq!(inspected.proposals.len(), 1);
-    let review = &inspected.proposals[0];
+    assert_eq!(inspected.proposals.len(), 2);
+    assert!(results[4..].iter().all(|result| result.get("ok").is_some()));
+    let proposal_id = Uuid::parse_str(results[4]["ok"]["stamp"]["id"].as_str().unwrap()).unwrap();
+    let action_id = Uuid::parse_str(results[4]["ok"]["action_ids"][0].as_str().unwrap()).unwrap();
+    let review = inspected
+        .proposals
+        .iter()
+        .find(|review| review.draft.id == proposal_id)
+        .unwrap();
     assert_eq!(review.state, ProposalState::Draft);
-    assert_eq!(review.draft.id, proposal_id);
+    assert_eq!(proposal_id.get_version_num(), 8);
+    assert_eq!(action_id.get_version_num(), 8);
+    assert_ne!(proposal_id, action_id);
+    assert_ne!(source.note_id, action_id);
+    for result in &results[4..] {
+        let id = Uuid::parse_str(result["ok"]["stamp"]["id"].as_str().unwrap()).unwrap();
+        let record = inspected
+            .proposals
+            .iter()
+            .find(|record| record.draft.id == id)
+            .unwrap();
+        assert_eq!(
+            record.draft.action_changes[0].data().sources,
+            vec![source.note_id]
+        );
+        assert_eq!(record.draft.sources[0], source.source.source);
+        assert_eq!(
+            result["ok"]["action_ids"],
+            json!([record.draft.action_changes[0].id()])
+        );
+    }
+    assert_ne!(
+        results[4]["ok"]["stamp"]["id"],
+        results[5]["ok"]["stamp"]["id"]
+    );
+    assert_ne!(
+        results[4]["ok"]["action_ids"],
+        results[5]["ok"]["action_ids"]
+    );
     assert_eq!(review.draft.group_id, Some(request.id));
     assert_eq!(review.draft.session_id, Some(turn.conversation_id));
     assert_eq!(review.draft.sources[0], source.source.source);
@@ -403,6 +466,81 @@ fn inbox_action_worker_preserves_scope_group_complete_proof_and_exact_approval()
 }
 
 #[test]
+fn inbox_action_injected_source_counts_toward_complete_proof_limit() {
+    let fixture = Fixture::new();
+    let steps = Arc::new(Mutex::new(Vec::<ActionProposalArgs>::new()));
+    let script = steps.clone();
+    let hook: ProposalAnswerHook = Arc::new(move |_, _, _, proposals, _, _| {
+        let inputs = std::mem::take(&mut *script.lock().unwrap());
+        Box::pin(async move {
+            let out = tokio::task::spawn_blocking(move || {
+                inputs
+                    .into_iter()
+                    .map(|input| tool_reply(proposals.propose_actions(input)))
+                    .collect::<Vec<_>>()
+            })
+            .await
+            .unwrap();
+            AiAnswer {
+                text: serde_json::to_string(&out).unwrap(),
+                terminal: AiTerminal::Completed,
+            }
+        })
+    });
+    let mut worker = fixture.start(Hooks {
+        proposal_answer: Some(hook),
+        ..Hooks::default()
+    });
+    let source = capture_source(&worker, "Exact selected Source plus bounded evidence\r\n");
+    let paths = (0..brn_store::MAX_PROPOSAL_CHANGES)
+        .map(|index| {
+            let path = format!("evidence-{index}.md");
+            std::fs::write(
+                fixture.base.path().join("vault").join(&path),
+                format!("Evidence {index} õ\r\n"),
+            )
+            .unwrap();
+            path
+        })
+        .collect::<Vec<_>>();
+    let mut overflow = args();
+    overflow.source_paths = paths.clone();
+    let mut maximum = overflow.clone();
+    maximum.source_paths.pop();
+    *steps.lock().unwrap() = vec![overflow, maximum];
+    let request = request(&source);
+    let turn = analyze(&worker, &request).unwrap();
+    let out: Vec<Value> = serde_json::from_str(&turn.answer).unwrap();
+    assert_eq!(out[0]["error"], json!(AiErrorKind::ToolRejected));
+    assert!(out[1].get("ok").is_some(), "{}", turn.answer);
+    let records = analysis(&worker, request.id).proposals;
+    assert_eq!(records.len(), 1);
+    let record = &records[0];
+    assert_eq!(record.draft.sources.len(), brn_store::MAX_PROPOSAL_CHANGES);
+    assert_eq!(record.draft.sources[0], source.source.source);
+    assert_eq!(
+        record.draft.sources[1..]
+            .iter()
+            .map(|proof| &proof.path)
+            .collect::<Vec<_>>(),
+        paths[..paths.len() - 1].iter().collect::<Vec<_>>()
+    );
+    assert_eq!(
+        record.draft.action_changes[0].data().sources,
+        vec![source.note_id]
+    );
+    assert_eq!(out[1]["ok"]["stamp"], json!(record.stamp()));
+    assert_eq!(
+        out[1]["ok"]["action_ids"],
+        json!([record.draft.action_changes[0].id()])
+    );
+    no_actions(&worker);
+    retained_original(&worker, &source);
+    no_credentials(&fixture);
+    worker.shutdown().unwrap();
+}
+
+#[test]
 fn inbox_action_exact_restart_replay_survives_source_loss_and_rejects_changed_capture() {
     let fixture = Fixture::new();
     let input = Arc::new(Mutex::new(None::<ActionProposalArgs>));
@@ -429,7 +567,7 @@ fn inbox_action_exact_restart_replay_survives_source_loss_and_rejects_changed_ca
     };
     let mut worker = fixture.start(hooks.clone());
     let source = capture_source(&worker, "Retain this exact evidence õ\r\n");
-    *input.lock().unwrap() = Some(args(&source, Uuid::new_v4(), Uuid::new_v4()));
+    *input.lock().unwrap() = Some(args());
     let request = request(&source);
     let turn = analyze(&worker, &request).unwrap();
     let before = analysis(&worker, request.id);
@@ -519,7 +657,7 @@ fn inbox_action_fresh_consequence_refuses_source_changed_during_the_turn() {
         ..Hooks::default()
     });
     let source = capture_source(&worker, "Original selected evidence\r\n");
-    *input.lock().unwrap() = Some(args(&source, Uuid::new_v4(), Uuid::new_v4()));
+    *input.lock().unwrap() = Some(args());
     let request = request(&source);
     let turn = analyze(&worker, &request).unwrap();
     let result: Value = serde_json::from_str(&turn.answer).unwrap();
@@ -560,8 +698,9 @@ fn inbox_action_creation_replay_keeps_newer_review_after_source_loss_on_the_boun
                     .unwrap();
                 let replay = tool_reply(proposals.propose_actions(input.clone()));
                 let mut fresh = input.clone();
-                fresh.id = Uuid::new_v4().to_string();
-                fresh.action_changes[0]["id"] = json!(Uuid::new_v4());
+                candidate_data_mut(&mut fresh)
+                    .description
+                    .push_str("Different consequence");
                 let refused = tool_reply(proposals.propose_actions(fresh));
                 let mut changed = input;
                 changed.title.push_str(" changed");
@@ -584,8 +723,7 @@ fn inbox_action_creation_replay_keeps_newer_review_after_source_loss_on_the_boun
         ..Hooks::default()
     });
     let source = capture_source(&worker, "One proposed consequence\r\n");
-    let proposal_id = Uuid::new_v4();
-    *input.lock().unwrap() = Some(args(&source, proposal_id, Uuid::new_v4()));
+    *input.lock().unwrap() = Some(args());
     let request = request(&source);
     worker
         .submit(
@@ -594,6 +732,7 @@ fn inbox_action_creation_replay_keeps_newer_review_after_source_loss_on_the_boun
         )
         .unwrap();
     let first = ready.recv_timeout(Duration::from_secs(10)).unwrap();
+    let proposal_id = Uuid::parse_str(first["stamp"]["id"].as_str().unwrap()).unwrap();
     let captured = analysis(&worker, request.id).job;
     let mut current_presentation = request.clone();
     current_presentation.generation += 17;
@@ -647,7 +786,7 @@ fn inbox_action_creation_replay_keeps_newer_review_after_source_loss_on_the_boun
     let results: Vec<Value> = serde_json::from_str(&turn.answer).unwrap();
     assert_eq!(results[0]["ok"]["stamp"], json!(edited.stamp()));
     assert!(results[1].get("error").is_some());
-    assert_eq!(results[2]["error"], json!(AiErrorKind::ToolRejected));
+    assert_eq!(results[2]["error"], json!(AiErrorKind::IndexStale));
     let inspected = analysis(&worker, request.id);
     assert_eq!(inspected.proposals, vec![edited]);
     assert_eq!(inspected.job, captured);
@@ -687,7 +826,11 @@ fn inbox_action_twenty_separate_proposals_refuse_twenty_first_and_allow_exact_re
     });
     let source = capture_source(&worker, "Bounded list of potential follow-ups\r\n");
     let mut inputs = (0..21)
-        .map(|_| args(&source, Uuid::new_v4(), Uuid::new_v4()))
+        .map(|index| {
+            let mut input = args();
+            input.title = format!("Review Inbox consequence {index}");
+            input
+        })
         .collect::<Vec<_>>();
     inputs.push(inputs[0].clone());
     *steps.lock().unwrap() = inputs;
@@ -713,6 +856,32 @@ fn inbox_action_twenty_separate_proposals_refuse_twenty_first_and_allow_exact_re
                 && review.draft.action_changes.len() == 1
                 && review.draft.sources == vec![source.source.source.clone()])
     );
+    let mut ids = std::collections::HashSet::new();
+    ids.insert(source.note_id);
+    for result in &results[..20] {
+        let proposal_id = Uuid::parse_str(result["ok"]["stamp"]["id"].as_str().unwrap()).unwrap();
+        let action_id = Uuid::parse_str(result["ok"]["action_ids"][0].as_str().unwrap()).unwrap();
+        assert!(ids.insert(proposal_id));
+        assert!(ids.insert(action_id));
+        let record = inspected
+            .proposals
+            .iter()
+            .find(|record| record.draft.id == proposal_id)
+            .unwrap();
+        assert_eq!(record.draft.action_changes[0].id(), action_id);
+    }
+    let mut same_intent = args();
+    same_intent.title = "Review Inbox consequence 0".into();
+    *steps.lock().unwrap() = vec![same_intent];
+    let other = self::request(&source);
+    let other_turn = analyze(&worker, &other).unwrap();
+    let other_result: Vec<Value> = serde_json::from_str(&other_turn.answer).unwrap();
+    assert!(other_result[0].get("ok").is_some(), "{}", other_turn.answer);
+    let other_record = analysis(&worker, other.id).proposals.remove(0);
+    assert!(ids.insert(other_record.draft.id));
+    assert!(ids.insert(other_record.draft.action_changes[0].id()));
+    assert_eq!(other_record.draft.group_id, Some(other.id));
+    assert_eq!(other_result[0]["ok"]["stamp"], json!(other_record.stamp()));
     assert!(inspected.needs_semantic_review);
     no_actions(&worker);
     retained_original(&worker, &source);
