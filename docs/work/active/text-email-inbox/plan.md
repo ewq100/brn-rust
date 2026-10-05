@@ -16,7 +16,8 @@ Follow the owner's [semantic intelligence and deterministic authority](../../../
 clarification. The LLM supplies semantic interpretation, bounded evidence/tool
 choices and candidates; Rust/workflow verifies exact evidence and owns approval,
 effects and recovery. New task-specific AI behavior uses a small centralized
-typed static Rust behavior/prompt boundary. Existing prompts move only when
+typed static Rust behavior/prompt boundary within the existing `brn-ai` /
+`brn-workflow` architecture, preserving their existing responsibilities. Existing prompts move only when
 naturally touched or very small and low risk. No new AI framework or architecture
 is authorized; frozen V1 delivery order remains unchanged.
 
@@ -857,3 +858,19 @@ live/owner qualification remain separately tracked in the
 [conflict checkpoint](conflicts-plan.md#integrated-checkpoint--2026-10-05).
 Full V1 goal stays active; next branch `codex/v1-stage7-original-copy` qualifies
 semantic review and safe recoverable copy removal. Originals remain retained.
+
+## Typed AI assembly follow-up (2026-10-05)
+
+The existing production assembly was small enough to consolidate without changing
+behavior: private `brn-ai::behavior::AgentBehavior` owns static agent instructions
+and proposal capability policy; private `brn-workflow::ai_behavior::TaskInput`
+owns captured Inbox/Rewrite context. All four preambles, both Inbox instruction
+variants, full Rewrite JSON/bounds and enabled tools are preserved. Individual
+tool descriptions remain with their implementations; deterministic approval,
+evidence, retrieval and file authority are unchanged. Independent read-only
+review confirmed baseline byte equivalence. Focused byte/safety guards and exact
+tool-set tests cover the three synthetic production Rig routes. Final integrated
+1,326 tests/0failures/8ignores,52fixtures,format/build/Clippy and local links passed.
+No live inference, new framework, datastore or roadmap stage was introduced.
+Exact-head CI/protected integration is the next gate; native/live/owner acceptance
+and the preserved removal-preview slice remain separate.

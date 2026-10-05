@@ -964,7 +964,7 @@ async fn run_rewrite(
     #[cfg(not(test))]
     let _ = hooks;
     let operation = async {
-        let prompt = match proposal_rewrite::prompt(&capture) {
+        let prompt = match crate::ai_behavior::TaskInput::Rewrite(&capture).prompt() {
             Ok(prompt) => prompt,
             Err(_) => return RewriteOutcome::Failed("tool_rejected".into()),
         };

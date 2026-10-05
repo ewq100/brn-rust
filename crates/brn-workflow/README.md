@@ -837,3 +837,7 @@ being mistaken for intentional removal. Saved Source freshness/identity and
 semantic completeness are not qualified by this read. No files, approvals or
 review states change; exact confirmation, recoverable removal and its recovery
 remain subsequent gates. UI and CLI use the shared AppWorker boundary.
+
+The private typed `ai_behavior::TaskInput` assembles full captured Inbox-analysis
+and Rewrite input. Static agent instructions/tool policy remain in `brn-ai`;
+BRN domain context, evidence validation and application authority stay here.

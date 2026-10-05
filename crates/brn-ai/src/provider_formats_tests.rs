@@ -3567,6 +3567,32 @@ mod knowledge_proposal_tool_tests {
                 .to_string()
         }
     }
+    fn exact_behavior_tools(body: &Value, responses: bool, actions: bool, knowledge: bool) {
+        let mut actual = body["tools"]
+            .as_array()
+            .unwrap()
+            .iter()
+            .map(|tool| if responses { tool } else { &tool["function"] })
+            .map(|tool| tool["name"].as_str().unwrap())
+            .collect::<Vec<_>>();
+        let mut expected = vec![
+            "search_notes",
+            "read_note",
+            "list_notes",
+            "read_action",
+            "list_actions",
+            "read_conflicts",
+        ];
+        if actions {
+            expected.push("propose_actions");
+        }
+        if knowledge {
+            expected.extend(["propose_knowledge", "report_conflict"]);
+        }
+        actual.sort_unstable();
+        expected.sort_unstable();
+        assert_eq!(actual, expected);
+    }
     #[tokio::test]
     async fn enabled_knowledge_tool_registers_closed_schema_and_continues_on_all_rig_routes() {
         for (provider, model, responses) in ROUTES {
@@ -3605,6 +3631,7 @@ mod knowledge_proposal_tool_tests {
                 if name == "propose_knowledge" && text == "Knowledge review ready"));
             http.assert_consumed();
             let bodies = http.bodies();
+            exact_behavior_tools(&bodies[0], responses, true, true);
             let outputs = replies(&bodies[1], responses);
             assert_eq!(outputs.len(), 1);
             assert_eq!(
@@ -3789,6 +3816,7 @@ mod knowledge_proposal_tool_tests {
                 assert_eq!(tools.calls.load(Ordering::SeqCst), 0);
                 http.assert_consumed();
                 let bodies = http.bodies();
+                exact_behavior_tools(&bodies[0], responses, route == "ordinary_proposals", false);
                 assert!(definition(&bodies[0], responses, "propose_knowledge").is_none());
                 assert!(!preamble(&bodies[0], provider, responses).contains("propose_knowledge"));
                 assert_eq!(

@@ -1,4 +1,5 @@
 mod auth;
+mod behavior;
 #[cfg(any(test, feature = "capability-spike"))]
 pub mod capability_probe;
 mod chat;
