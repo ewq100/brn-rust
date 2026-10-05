@@ -458,8 +458,11 @@ the same WorkTurn lifecycle; schema remains V14. Unknown/noncanonical purposes
 refuse startup/read/backup validation.
 
 `ProposalDraft.inbox_knowledge` is optional immutable authority for one separate
-Knowledge Create. Pure checks bind its analysis UUID, new note UUID, sole selected
-Source and exact citations to the retained semantic capture. The complete Current
+Knowledge Create. Pure checks bind its analysis UUID, new note UUID, selected
+Source and exact citations to the retained semantic capture. The ordered ordinary
+proposal evidence keeps that Source first, followed by optional target proofs;
+1–64 unique visible paths and the existing 1 MiB proof bound are checked without
+vault access. The complete Current
 knowledge text keeps that UUID/classification and mandatory citations across
 edit/Rewrite; no Source metadata is copied into knowledge. Ordinary proposal
 serialization is unchanged when absent. Workflow additionally checks saved Source,

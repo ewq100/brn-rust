@@ -117,12 +117,12 @@ impl DraftRequest {
             if self.inbox_source.is_some()
                 || !self.action_changes.is_empty()
                 || self.group_id != Some(binding.analysis_id)
-                || self.sources.as_slice() != std::slice::from_ref(&binding.source)
             {
                 return Err(invalid(
                     "Inbox knowledge needs its exact analysis/Source binding",
                 ));
             }
+            binding.validate_sources(&self.sources)?;
             binding.validate_text(text)?;
         }
         if let Some(binding) = &self.inbox_source {

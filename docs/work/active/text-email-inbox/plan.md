@@ -651,3 +651,80 @@ Independent read-only refresh of the correction is clean. The final 11-file
 Rust manifest SHA256 is
 `93e4a1a281cbc10be6e4e3cc8133055427559ba46edf121d7182297e628021c1`;
 the other ten Rust files are unchanged. No unresolved review finding remains.
+
+PR52 integrated at `6c8f0102562570ce81efc1ecb55eab981c54aef6`, exact final tree
+`a236fee3ddae014a9508ba9928bdf8fca46cee25`, parents65494cdb/fde13d7e. Corrected
+PR run37311170658 attempt1 passed Mac Core/UI/Native and Ubuntu shared; Windows
+22 errors/two summaries match PR51. Fresh merge requirements were satisfied by a
+normal expected-head merge. Parent/tree/fast-forward verification, nine analysis
+tests, shipping build, 52 fixtures and two exact-byte V14 startup/restarts passed.
+Main run37312435285 attempt1 at that exact merge completed: Mac Core/UI/Native
+and Ubuntu Core/UI passed. Windows Core/UI22 errors/two summaries each, Native14/
+two summaries, and Ubuntu Native three installer failures/backtraces exactly match
+PR51 main. Overall CI is red from these four informational platform failures;
+complete independent log comparison found no new shared/macOS defect. Native/live/
+owner acceptance remains pending as above.
+
+## Next slice: captured targets for Inbox knowledge links
+
+Baseline: PR52 merge `6c8f0102562570ce81efc1ecb55eab981c54aef6` on
+`codex/v1-inbox-knowledge-links`. Extend the existing Knowledge Create callback
+and ordinary proposal sources; no new schema, relationship system, execution
+lifecycle or client authority. Existing read tools remain Current by default;
+named Source/History evidence remains explicitly requested.
+
+Acceptance and fixed implementation:
+
+1. Knowledge tool input adds ordered additional `source_paths` (0–63 bounded
+   paths; omitted legacy input means empty). The selected captured Inbox Source
+   remains mandatory first proof; up to63 complete saved target proofs follow.
+   Workflow captures them, never the UI/provider adapter or a truncated read.
+2. The existing typed binding validates first Source/unique paths while allowing
+   additional ordinary evidence. Existing exact stable-link/provenance approval
+   guards qualify targets. Other pending drafts do not become saved targets.
+   All consequences stay separate review-only Creates with exact approval.
+3. Identical creation replay reuses original ordered proofs before fresh file
+   checks; newer review survives missing/changed targets. Changed path/order/input
+   with the same UUID is refused. Review/Rewrite cannot alter immutable proofs.
+4. Applying/recovery/Finish recheck new stable UUID targets against complete
+   identity inventory and their captured full proofs, preserving the existing
+   own-prepared candidate exception and settled replay/Undo semantics. Late target
+   alias/content changes stay explicit, never completed success.
+
+Checks: real synthetic Rig routes, real AppWorker creation/replay/review/approval,
+Store restart/backup/binding tests, derived links/relationships after index loss,
+and genuine prepared/synced/Finish collision regression. Fresh affected/full
+shared gates, optional native checks, independent read-only review, documentation
+checks, exact-head macOS/shared CI and normal integration. No provider or download
+calls. Manual scenario (pending): analyze an approved synthetic Source referring
+to an already saved managed note, review its separate knowledge draft and captured
+targets, exactly approve it, then inspect the saved links/relationships; change a
+target before approval to observe refusal. Inference/owner acceptance is separate.
+
+Owner handoff scope: finish only this captured-target Inbox knowledge-analysis
+slice through review, verification and integration, then stop MacBook development.
+Do not start replacement/history/conflict or any other slice before resuming on
+the Mac mini. No machine transfer or SSH/authentication work is part of this slice.
+
+Complete independent read-only review against `6c8f0102` is clean. All13 changed
+Rust files, including the new worker tests, match manifest SHA256
+`4b86ce77abc930bdefa81984a0092a96178713731eeb7857da63c88114f18813`.
+The reviewer identified one stale contract sentence listing saved links as future
+work; inspection confirmed it, and the Workflow README now describes captured
+saved targets. No code correction or scope expansion was required.
+Focused offline verification passed: AI105, Store Inbox20, worker Inbox knowledge15
+with one genuine crash-child entry ignored, link preparation14 with one
+case-sensitive APFS fixture ignored, and relationships8; zero failures.
+The interrupted full gate had no final result and no surviving process; its
+partial output is not counted as a pass. The fresh complete shared/native gate
+passed fmt, locked offline workspace build/all-target Clippy, 1,269 default tests
+(zero failures/eight ignores), shipping native build, all three native Clippy
+feature combinations, 282 Desktop tests (zero failures/ignores), and startup.
+Optional native workflow library/models passed252 tests/zero failures/seven
+genuine crash-child ignores; shipping native CLI build passed. All52 offline
+fixtures and two shipping V14 startup/restarts passed, preserving the exact599
+Source bytes and device/inode and zero credentials. Synthetic tests/assets do not
+establish actual inference, ONNX assets or native/live/owner acceptance.
+Changed-document local links/fragments72 and `git diff --check` passed.
+Exact-head hosted CI and normal integration remain pending. The final handoff
+will record the qualified code commit and hosted results before MacBook stop.

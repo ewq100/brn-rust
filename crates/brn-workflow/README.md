@@ -737,8 +737,8 @@ existing lifecycle; preparing/admitting a draft never writes the vault. Imported
 frontmatter remains body evidence under a new UUID and `brn_kind: source`.
 Portable `brn_inbox_source` provenance is available through `NoteProvenance`.
 Source copies retain exact body/proof through edits and Rewrite; separate Action
-and opt-in knowledge proposals are implemented below. Link/replacement/conflict
-consequences remain following work. Original proof is checked during
+and opt-in knowledge proposals with captured saved link targets are implemented
+below. Replacement/conflict consequences remain following work. Original proof is checked during
 unfinished application/Finish repair; completed historical replay and ordinary
 recovery do not require processing rows or the original to remain available. Restore
 repair may remove a partial source without recreating or deleting the original.
@@ -754,20 +754,26 @@ purpose, whole Source, turn and independently reviewable group. It always marks
 remaining semantic review; no original deletion or completeness is implied.
 
 Only that bound semantic turn enables `propose_knowledge`. One call supplies a
-new note/proposal UUID, Current destination, complete Markdown and selected-Source
-byte ranges. Workflow assigns/protects identity and exact saved quotations in
+new note/proposal UUID, Current destination, complete Markdown, selected-Source
+byte ranges and ordered additional `source_paths` (0–63 paths; legacy omission
+means empty). Workflow captures full saved target proofs after the selected Source;
+explicit Source/History evidence keeps its scope and pending drafts are not saved
+targets. Workflow assigns/protects identity and exact saved quotations in
 `brn_provenance`; it rejects Source/History/invented provenance, invalid UTF-8
 ranges, stale/ambiguous Source and occupied/uninspectable new identity. Actions
 and knowledge share the existing20-draft cap. Creation replay preserves later
-review edits without re-reading lost sources or calling a provider.
+review edits and original ordered proofs without re-reading lost sources or
+calling a provider; changed paths/order or creation payload are refused.
 
 Optional `inbox_knowledge` metadata in the existing typed proposal binds analysis,
 identity, Current classification and selected citations across edit/Rewrite.
-Exact approval, application and Finish recheck Source/identity authority; only
+Exact approval, application, recovery and Finish recheck Source/identity authority
+and captured stable-link target proofs against the complete identity inventory; only
 the operation's exact prepared object may already occupy its new UUID. Public
 identity reads stay fenced during unresolved application. Existing recovery,
 Activity and Undo remain the application mechanism. Ordinary Ask, Action-only
 analysis, readonly answers and Rewrite never acquire the new capability. All
 callbacks share admission/cancellation/draining; clients own no persistence or
-provider implementation. Links, replacement/history/conflict resolution and
-native semantic controls remain following Stage7 slices.
+provider implementation. Saved links and relationships use the existing derived
+queries and rebuild after index loss. Replacement/history/conflict resolution and
+safe original-copy deletion remain following Stage7 slices.

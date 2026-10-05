@@ -196,13 +196,21 @@ for a workflow-owned Ask job bound to a selected approved Inbox Source. Ordinary
 backends default to disabled and refuse the callback; read-only Ask and Rewrite
 never register this tool. Its closed, all-required input is proposal UUID/title,
 relative destination path, stable note UUID, complete candidate Markdown and
-exact source byte ranges. UUID strings are1–64bytes, title/path1–512bytes,
+exact source byte ranges and ordered additional `source_paths` (0–63 entries,
+each1–512 UTF-8 bytes). The outward schema requires all seven fields; omitted
+legacy `source_paths` safely deserializes as empty. UUID strings are1–64bytes, title/path1–512bytes,
 text1byte–1MiB, quotes1–32 with start<end≤50,000 and each span≤16KiB; complete
 encoded input≤8MiB and whole receipts≤1MiB. These are protocol bounds only.
 Workflow checks UUID/path/source/current identity and citation rules, adds exact
 saved citations, and creates one independent current Knowledge Create review
 draft. This tool never approves or writes knowledge. Like Action proposals, its
 callback uses `spawn_blocking` and shares the existing tool-round budget.
+The selected Inbox Source is automatically the mandatory first proof and must
+not be repeated among additional paths. Stable `brn://note/UUID` relationships
+require exact named target evidence. Read tools default to Current; explicitly
+named extra Source/History paths are evidence, never truth or deletion approval.
+Workflow captures and qualifies the complete proofs; human exact approval stays
+separate.
 
 Invalid scope/type/extra arguments invoke no underlying read. Rig may return its
 parse diagnostic transiently to the model that generated the invalid argument;

@@ -351,7 +351,7 @@ async fn run_model(
     };
     let preamble = if can_propose_knowledge {
         format!(
-            "{preamble} You may use propose_knowledge to create one independent current Knowledge Create review draft from the explicitly selected approved Inbox Source. Supply complete candidate Markdown, stable proposal/note UUIDs, a relative destination path and exact source byte ranges. Workflow adds exact saved citations; the tool never approves or writes knowledge."
+            "{preamble} You may use propose_knowledge to create one independent current Knowledge Create review draft from the explicitly selected approved Inbox Source. Supply complete candidate Markdown, stable proposal/note UUIDs, a relative destination path, exact source byte ranges and ordered additional source_paths. The selected Inbox Source is automatically the mandatory first proof; do not include it again. Stable brn://note/UUID relationships require exact named target evidence. Read tools default to Current; explicitly named extra Source or History paths are evidence, never truth or deletion approval. Workflow adds exact saved citations; the tool never approves or writes knowledge. Human review and separate exact approval remain required."
         )
     } else {
         preamble

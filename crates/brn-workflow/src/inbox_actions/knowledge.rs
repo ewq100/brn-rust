@@ -15,10 +15,10 @@ fn rejected(message: &str) -> WorkflowError {
     WorkflowError::typed(ErrorKind::ToolRejected, message)
 }
 impl App {
-    /// Pure retained-capture preparation; fresh authority is checked at admission
-    /// and again before exact approval. Creation replay needs no current files.
+    /// Retained Source citations plus explicit saved context. Original creation
+    /// replay reuses its ordered proofs before observing any current files.
     pub(crate) fn prepare_inbox_knowledge(
-        &self,
+        &mut self,
         job: &InboxActionJob,
         args: &KnowledgeProposalArgs,
         session: Uuid,
@@ -61,6 +61,28 @@ impl App {
         note_provenance::validate(&citations)?;
         let text =
             note_provenance::write(&note_identity::assign(&args.text, note_id)?, &citations)?;
+        let sources = match self.store.proposal(id)? {
+            Some(existing) => {
+                if existing.draft.sources.first() != Some(&job.capture.source)
+                    || !args.source_paths.iter().map(String::as_str).eq(existing
+                        .draft
+                        .sources
+                        .iter()
+                        .skip(1)
+                        .map(|s| s.path.as_str()))
+                {
+                    return Err(rejected("knowledge creation target paths changed"));
+                }
+                existing.draft.sources
+            }
+            None => {
+                let mut sources = vec![job.capture.source.clone()];
+                for path in &args.source_paths {
+                    sources.push(self.proposal_evidence_source(path)?.source);
+                }
+                sources
+            }
+        };
         let request = DraftRequest {
             inbox_knowledge: Some(Box::new(InboxKnowledgeBinding {
                 analysis_id: job.capture.id,
@@ -77,7 +99,7 @@ impl App {
                 path: args.path.clone(),
                 text,
             }],
-            sources: vec![job.capture.source.clone()],
+            sources,
             action_changes: vec![],
         };
         request.validate()?;
@@ -157,6 +179,39 @@ impl App {
                 ErrorKind::ContextStale,
                 "selected Inbox Source identity is ambiguous or incompletely inspected",
             ));
+        }
+        let draft = &journal.approved.draft;
+        let text = draft.changes[0]
+            .text()
+            .ok_or_else(|| rejected("knowledge Create text is unavailable"))?;
+        for id in crate::knowledge::stable_link_ids(text)? {
+            if id == binding.note_id {
+                // The sole Create's identity remains subject to the exact
+                // own-prepared proof check below, including after installation.
+                continue;
+            }
+            let target = inventory.resolution(id);
+            if target.outcome != IdentityOutcome::Unique {
+                return Err(WorkflowError::typed(
+                    ErrorKind::ContextStale,
+                    "knowledge link target identity changed or is incompletely inspected",
+                ));
+            }
+            let target = &target.matches[0];
+            let captured = draft.sources.iter().find(|source| {
+                source.path == target.path && source.fingerprint.sha256 == target.sha256
+            });
+            let observed = files.observe(Path::new(&target.path)).map_err(file_error)?;
+            if captured.is_none_or(|source| source.fingerprint != observed.fingerprint)
+                || crate::library::saved_metadata(&observed.text, &target.path)
+                    .issue
+                    .is_some()
+            {
+                return Err(WorkflowError::typed(
+                    ErrorKind::ContextStale,
+                    "knowledge link target no longer matches exact reviewed saved evidence",
+                ));
+            }
         }
         let candidate = inventory.resolution(binding.note_id);
         if candidate.outcome == IdentityOutcome::Absent {

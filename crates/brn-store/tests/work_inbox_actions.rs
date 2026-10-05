@@ -1176,6 +1176,247 @@ fn knowledge_review_edits_and_rewrite_preserve_identity_classification_and_selec
 }
 
 #[test]
+fn knowledge_ordered_target_proofs_survive_review_replay_restart_and_checked_backup() {
+    let data = fixture();
+    let (mut store, _) = WorkStore::open(data.path()).unwrap();
+    let mut capture = capture();
+    capture.purpose = InboxAnalysisPurpose::KnowledgeAndActions;
+    let job = store
+        .reserve_inbox_action(&capture, "Interpret with captured saved targets")
+        .unwrap();
+    let mut draft = knowledge_draft(&capture);
+    for (i, path) in [
+        "projects/synthetic.md",
+        "people/synthetic.md",
+        "threads/synthetic.md",
+    ]
+    .into_iter()
+    .enumerate()
+    {
+        let bytes = format!("Synthetic target {i} õ");
+        draft.sources.push(SourceVersion {
+            path: path.into(),
+            fingerprint: FileFingerprint {
+                device: 7,
+                inode: 20 + i as u64,
+                len: bytes.len() as u64,
+                sha256: digest(bytes.as_bytes()),
+            },
+        });
+    }
+    let created = store.create_proposal(&draft).unwrap();
+    assert_eq!(created.draft.sources, draft.sources);
+    assert_eq!(store.proposal(draft.id).unwrap(), Some(created.clone()));
+    let edited = store
+        .edit_proposal(&ProposalEdit {
+            expected: created.stamp(),
+            title: "Reviewed targets".into(),
+            texts: vec![Some(
+                draft.changes[0]
+                    .text()
+                    .unwrap()
+                    .replace("Interpreted summary", "Human reviewed summary"),
+            )],
+            action_data: vec![],
+        })
+        .unwrap();
+    let rewritten = store
+        .rewrite_proposal(&ProposalEdit {
+            expected: edited.stamp(),
+            title: "Rewritten with original targets".into(),
+            texts: vec![Some(
+                edited.draft.changes[0]
+                    .text()
+                    .unwrap()
+                    .replace("Human reviewed summary", "Rewritten summary"),
+            )],
+            action_data: vec![],
+        })
+        .unwrap();
+    assert_eq!(rewritten.version, created.version + 2);
+    assert_eq!(rewritten.draft.sources, draft.sources);
+    assert_eq!(rewritten.draft.inbox_knowledge, draft.inbox_knowledge);
+    assert_eq!(store.create_proposal(&draft).unwrap(), rewritten);
+    for mode in 0..7 {
+        let mut changed = draft.clone();
+        match mode {
+            0 => changed.sources.swap(1, 2),
+            1 => changed.sources[1].path = "projects/renamed.md".into(),
+            2 => changed.sources[1].fingerprint.device += 1,
+            3 => changed.sources[1].fingerprint.inode += 1,
+            4 => changed.sources[1].fingerprint.len += 1,
+            5 => changed.sources[1].fingerprint.sha256[0] ^= 1,
+            _ => {
+                changed.sources.pop();
+            }
+        }
+        assert!(
+            matches!(
+                store.create_proposal(&changed),
+                Err(Error::OperationConflict(_))
+            ),
+            "immutable replay mode {mode}"
+        );
+        assert_eq!(store.proposal(draft.id).unwrap(), Some(rewritten.clone()));
+    }
+    drop(store);
+    let (mut store, checked) = WorkStore::open(data.path()).unwrap();
+    assert_eq!(store.proposal(draft.id).unwrap(), Some(rewritten.clone()));
+    assert_eq!(store.create_proposal(&draft).unwrap(), rewritten);
+    assert_eq!(store.inbox_action(capture.id).unwrap(), Some(job.clone()));
+    drop(store);
+    std::fs::write(data.path().join("brn.sqlite"), b"synthetic physical damage").unwrap();
+    let (mut store, restored) = WorkStore::open(data.path()).unwrap();
+    assert_eq!(restored.restored_from, Some(checked.backup));
+    assert_eq!(store.proposal(draft.id).unwrap(), Some(rewritten.clone()));
+    assert_eq!(store.create_proposal(&draft).unwrap(), rewritten);
+    assert_eq!(store.inbox_action(capture.id).unwrap(), Some(job));
+    assert_eq!(
+        Connection::open(data.path().join("brn.sqlite"))
+            .unwrap()
+            .query_row("PRAGMA user_version", [], |r| r.get::<_, i64>(0))
+            .unwrap(),
+        14
+    );
+}
+
+#[test]
+fn knowledge_target_proof_bounds_and_malformed_lists_refuse_before_admission() {
+    let data = fixture();
+    let (mut store, _) = WorkStore::open(data.path()).unwrap();
+    let mut capture = capture();
+    capture.purpose = InboxAnalysisPurpose::KnowledgeAndActions;
+    store
+        .reserve_inbox_action(&capture, "Exact Source and targets")
+        .unwrap();
+    let mut draft = knowledge_draft(&capture);
+    for i in 1..64 {
+        let mut target = capture.source.clone();
+        target.path = format!("targets/{i}.md");
+        target.fingerprint.inode += i;
+        draft.sources.push(target);
+    }
+    draft.sources[1].fingerprint.len = 1024 * 1024;
+    let valid = store.create_proposal(&draft).unwrap();
+    assert_eq!(valid.draft.sources, draft.sources);
+    for mode in 0..12 {
+        let mut bad = draft.clone();
+        bad.id = Uuid::new_v4();
+        match mode {
+            0 => bad.sources.clear(),
+            1 => bad.sources.swap(0, 1),
+            2 => bad.sources[0].fingerprint.inode += 1,
+            3 => bad.sources[1] = bad.sources[0].clone(),
+            4 => {
+                bad.sources[1] = bad.sources[0].clone();
+                bad.sources[1].path = bad.sources[1].path.to_ascii_uppercase();
+            }
+            5 => {
+                bad.sources[2] = bad.sources[1].clone();
+                bad.sources[2].path = bad.sources[2].path.to_ascii_uppercase();
+            }
+            6 => bad.sources[1].path = ".hidden/target.md".into(),
+            7 => bad.sources[1].path = "targets/../target.md".into(),
+            8 => bad.sources[1].path = "/targets/target.md".into(),
+            9 => bad.sources[1].path = "targets/target.txt".into(),
+            10 => bad.sources[1].fingerprint.len += 1,
+            _ => {
+                let mut extra = capture.source.clone();
+                extra.path = "targets/65.md".into();
+                bad.sources.push(extra);
+            }
+        }
+        assert!(
+            matches!(store.create_proposal(&bad), Err(Error::Invalid(_))),
+            "source-list mode {mode}"
+        );
+        assert!(store.proposal(bad.id).unwrap().is_none(), "row mode {mode}");
+        assert_eq!(store.proposal(draft.id).unwrap(), Some(valid.clone()));
+    }
+    assert_eq!(store.proposals(Some(capture.id)).unwrap(), vec![valid]);
+}
+
+#[test]
+fn knowledge_hash_valid_target_list_damage_refuses_read_and_startup_without_backup() {
+    for mode in 0..5 {
+        let data = fixture();
+        let (mut store, _) = WorkStore::open(data.path()).unwrap();
+        let mut capture = capture();
+        capture.purpose = InboxAnalysisPurpose::KnowledgeAndActions;
+        store
+            .reserve_inbox_action(&capture, "Retain selected Source")
+            .unwrap();
+        let mut draft = knowledge_draft(&capture);
+        let mut target = capture.source.clone();
+        target.path = "targets/synthetic.md".into();
+        target.fingerprint.inode += 1;
+        draft.sources.push(target);
+        let created = store.create_proposal(&draft).unwrap();
+        store
+            .edit_proposal(&ProposalEdit {
+                expected: created.stamp(),
+                title: "Newer review retains original ordered targets".into(),
+                texts: vec![Some(draft.changes[0].text().unwrap().to_owned())],
+                action_data: vec![],
+            })
+            .unwrap();
+        let mut damaged_sources = draft.sources.clone();
+        match mode {
+            0 => damaged_sources.swap(0, 1),
+            1 => {
+                damaged_sources[1] = damaged_sources[0].clone();
+                damaged_sources[1].path = damaged_sources[1].path.to_ascii_uppercase();
+            }
+            2 => damaged_sources[1].fingerprint.len = 1024 * 1024 + 1,
+            3 => {
+                damaged_sources.remove(0);
+            }
+            _ => damaged_sources[1].path = "targets/.hidden.md".into(),
+        }
+        let raw = Connection::open(data.path().join("brn.sqlite")).unwrap();
+        let bytes: Vec<u8> = raw
+            .query_row(
+                "SELECT record_json FROM proposals WHERE id=?1",
+                [draft.id.to_string()],
+                |row| row.get(0),
+            )
+            .unwrap();
+        let mut json: serde_json::Value = serde_json::from_slice(&bytes).unwrap();
+        json["record"]["draft"]["sources"] = serde_json::to_value(damaged_sources).unwrap();
+        let changed = serde_json::to_vec(&json).unwrap();
+        raw.execute(
+            "UPDATE proposals SET record_json=?2,record_sha256=?3 WHERE id=?1",
+            params![draft.id.to_string(), changed, digest(&changed).as_slice()],
+        )
+        .unwrap();
+        assert!(
+            matches!(store.proposal(draft.id), Err(Error::Invalid(_))),
+            "read mode {mode}"
+        );
+        drop(raw);
+        drop(store);
+        let before = std::fs::read(data.path().join("brn.sqlite")).unwrap();
+        let backups = std::fs::read_dir(data.path().join("backups"))
+            .unwrap()
+            .count();
+        assert!(
+            matches!(WorkStore::open(data.path()), Err(Error::Invalid(_))),
+            "startup mode {mode}"
+        );
+        assert_eq!(
+            std::fs::read(data.path().join("brn.sqlite")).unwrap(),
+            before
+        );
+        assert_eq!(
+            std::fs::read_dir(data.path().join("backups"))
+                .unwrap()
+                .count(),
+            backups
+        );
+    }
+}
+
+#[test]
 fn knowledge_create_refuses_mixed_members_or_changed_typed_binding_before_effects() {
     let data = fixture();
     let (mut store, _) = WorkStore::open(data.path()).unwrap();
