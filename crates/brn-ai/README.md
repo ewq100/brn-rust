@@ -209,15 +209,22 @@ for a workflow-owned Ask job bound to a selected approved Inbox Source. Ordinary
 backends default to disabled and refuse the callback; read-only Ask and Rewrite
 never register this tool. Its closed, all-required input is proposal UUID/title,
 relative destination path, stable note UUID, complete candidate Markdown and
-exact source byte ranges, ordered additional `source_paths` (0–63 entries,
+exact saved body quotations, ordered additional `source_paths` (0–63 entries,
 each1–512 UTF-8 bytes), and nullable `supersedes` (one1–512byte Current path).
 The outward schema requires all eight fields; omitted legacy `source_paths`
 deserializes as empty and omitted `supersedes` as None. A predecessor consumes
 one proof slot, limiting additional paths to62. UUID strings are1–64bytes, title/path1–512bytes,
-text1byte–1MiB, quotes1–32 with start<end≤50,000 and each span≤16KiB; complete
+text1byte–1MiB, quotes1–32 with each quotation1–16KiB of exact UTF-8 bytes; complete
 encoded input≤8MiB and whole receipts≤1MiB. These are protocol bounds only.
 Workflow checks UUID/path/source/current identity and citation rules, adds exact
 saved citations, and creates one independent Current knowledge review draft.
+Each quote supplies `quote` and optional nullable `occurrence`, a 1-based match in
+the saved body. Without occurrence, wording must match uniquely. Workflow resolves
+exact ranges and returns typed not-found, ambiguous or invalid-occurrence refusals;
+the adapter accepts integer occurrence values for that domain check. Negative and
+fractional values and legacy `start_byte`/`end_byte` fields refuse deserialization.
+Copilot Responses' Rig schema normalization requires nullable `occurrence` on the
+wire; ChatGPT and Copilot completion keep it optional. Omitted and null become None.
 With supersedes, workflow captures the predecessor automatically as second proof,
 adds its Previous version link and a protected History Replace to that same
 proposal. Source/History predecessors refuse; do not repeat the predecessor in
@@ -231,13 +238,16 @@ Workflow captures and qualifies the complete proofs; human exact approval stays
 separate.
 
 Inbox's same `knowledge_enabled()` opt-in also registers `report_conflict`.
-Its strict six-field input is `id`, nonblank `title`, nonblank `summary`,
+Its strict five-field input is nonblank `title`, nonblank `summary`,
 `source_quote`, `other_path`, and `other_quote`. Both quote objects require exact
-`start_byte`, `end_byte`, and `quote` wording. Protocol bounds are id 1–64 bytes,
-title ≤512 bytes, summary ≤16 KiB, path 1–512 bytes, quote 1–16 KiB with start<end≤1 MiB
-and exact quoted byte length matching the span. Complete encoded input ≤512 KiB;
-whole receipts ≤1 MiB, never clipped. Workflow owns UUID/path/body/proof validation
-and persists only a tentative unresolved finding with two opposing saved
+`quote` wording with the same optional occurrence contract. Protocol bounds are
+title ≤512 bytes, summary ≤16 KiB, path 1–512 bytes and quote 1–16 KiB.
+Complete encoded input ≤512 KiB; whole receipts ≤1 MiB, never clipped.
+Workflow assigns the finding UUID from its analysis and exact candidate intent,
+returns it in the receipt and owns path/body/proof validation. Identical intent
+retries return the same finding; changed intent creates a separate draft.
+Caller-supplied finding IDs are rejected. Workflow
+persists only a tentative unresolved finding with two opposing saved
 quotations. The adapter gives no winner, knowledge effects, real Actions or
 deletion authority; exact proposals still govern knowledge and real Actions.
 Ordinary Ask and Rewrite never receive this report capability; legacy proposal

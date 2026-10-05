@@ -52,28 +52,28 @@ pub struct KnowledgeProposalArgs {
     pub source_paths: Vec<String>,
 }
 
-/// Exact byte range in the selected source, interpreted and checked by workflow.
+/// Exact saved body wording; workflow resolves its unique or selected occurrence.
 #[derive(Clone, Debug, Serialize, Deserialize)]
 #[serde(deny_unknown_fields)]
 pub struct KnowledgeQuoteArgs {
-    pub start_byte: usize,
-    pub end_byte: usize,
+    pub quote: String,
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub occurrence: Option<usize>,
 }
 
 /// Exact saved body quotation; workflow verifies bytes against full captured evidence.
 #[derive(Clone, Debug, Serialize, Deserialize)]
 #[serde(deny_unknown_fields)]
 pub struct ConflictQuote {
-    pub start_byte: usize,
-    pub end_byte: usize,
     pub quote: String,
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub occurrence: Option<usize>,
 }
 
 /// Tentative unresolved finding, with no knowledge, Action or approval authority.
 #[derive(Clone, Debug, Serialize, Deserialize)]
 #[serde(deny_unknown_fields)]
 pub struct ConflictArgs {
-    pub id: String,
     pub title: String,
     pub summary: String,
     pub source_quote: ConflictQuote,
@@ -86,18 +86,14 @@ pub const CONFLICT_REPORT_BYTES: usize = 512 * 1024;
 impl ConflictArgs {
     /// Protocol bounds only; workflow owns UUIDs, paths, body boundaries and proofs.
     pub fn validate(&self) -> AiResult<()> {
-        if !(1..=64).contains(&self.id.len())
-            || self.title.trim().is_empty()
+        if self.title.trim().is_empty()
             || self.title.len() > 512
             || self.summary.trim().is_empty()
             || self.summary.len() > 16 * 1024
             || !(1..=512).contains(&self.other_path.len())
-            || [&self.source_quote, &self.other_quote].iter().any(|q| {
-                !(1..=16 * 1024).contains(&q.quote.len())
-                    || q.start_byte >= q.end_byte
-                    || q.end_byte > 1024 * 1024
-                    || q.end_byte - q.start_byte != q.quote.len()
-            })
+            || [&self.source_quote, &self.other_quote]
+                .iter()
+                .any(|q| !(1..=16 * 1024).contains(&q.quote.len()))
             || serde_json::to_vec(self).map_err(|_| rejected())?.len() > CONFLICT_REPORT_BYTES
         {
             return Err(rejected());
@@ -133,11 +129,10 @@ impl KnowledgeProposalArgs {
                 .source_paths
                 .iter()
                 .any(|path| !(1..=512).contains(&path.len()))
-            || self.quotes.iter().any(|quote| {
-                quote.start_byte >= quote.end_byte
-                    || quote.end_byte > 50_000
-                    || quote.end_byte - quote.start_byte > 16 * 1024
-            })
+            || self
+                .quotes
+                .iter()
+                .any(|quote| !(1..=16 * 1024).contains(&quote.quote.len()))
             || serde_json::to_vec(self).map_err(|_| rejected())?.len() > KNOWLEDGE_PROPOSAL_BYTES
         {
             return Err(rejected());
@@ -176,21 +171,19 @@ impl Tool for ReportConflict {
     type Output = Value;
     type Error = AiError;
     fn description(&self) -> String {
-        "Report a tentative unresolved finding between the explicitly selected approved Inbox Source and one other saved Current knowledge or Source note. Supply two exact opposing saved body quotations with byte ranges, a stable finding UUID, title, summary and other_path. Workflow captures and verifies full saved proofs. Do not choose a winner. This creates no knowledge effects, real Actions or deletion authority; separate exact proposals and human approval still govern those. Retry only identical original input and UUID. Whole receipts are bounded and never clipped.".into()
+        "Report a tentative unresolved finding between the explicitly selected approved Inbox Source and one other saved Current knowledge or Source note. Supply two exact opposing saved body quotations, title, summary and other_path. Each quote may specify an optional 1-based occurrence in the saved body; omit it only for unique wording. Workflow resolves exact byte ranges, captures and verifies full saved proofs, and assigns the finding UUID returned in the receipt. Do not choose a winner. This creates no knowledge effects, real Actions or deletion authority; separate exact proposals and human approval still govern those. Retry only identical original input; changed input creates a separate finding draft. Whole receipts are bounded and never clipped.".into()
     }
     fn parameters(&self) -> Value {
         let quote = json!({"type":"object","additionalProperties":false,"properties":{
-            "start_byte":{"type":"integer","minimum":0,"maximum":1048575},
-            "end_byte":{"type":"integer","minimum":1,"maximum":1048576},
-            "quote":{"type":"string","minLength":1,"maxLength":16384}
-        },"required":["start_byte","end_byte","quote"]});
+            "quote":{"type":"string","minLength":1,"maxLength":16384},
+            "occurrence":{"type":["integer","null"],"minimum":1,"maximum":1048576}
+        },"required":["quote"]});
         json!({"type":"object","additionalProperties":false,"properties":{
-            "id":{"type":"string","format":"uuid","minLength":1,"maxLength":64},
             "title":{"type":"string","minLength":1,"maxLength":512},
             "summary":{"type":"string","minLength":1,"maxLength":16384},
             "source_quote":quote,"other_path":{"type":"string","minLength":1,"maxLength":512},
             "other_quote":quote
-        },"required":["id","title","summary","source_quote","other_path","other_quote"]})
+        },"required":["title","summary","source_quote","other_path","other_quote"]})
     }
     async fn call(&self, _: &mut ToolContext, args: ConflictArgs) -> AiResult<Value> {
         args.validate()?;
@@ -213,7 +206,7 @@ impl Tool for ProposeKnowledge {
     type Output = Value;
     type Error = AiError;
     fn description(&self) -> String {
-        "Create one independent current Knowledge review draft from the explicitly selected approved Inbox Source. Supply complete candidate Markdown, stable proposal and note UUIDs, a relative destination path, exact source byte ranges, and ordered additional source_paths. The selected Inbox Source is automatically the mandatory first proof; do not include it again. Stable brn://note/UUID relationships require exact named target evidence. Read tools default to Current; explicitly named extra Source or History paths are evidence, never truth or deletion approval. Optional supersedes names one saved Current knowledge path: workflow captures it as the second proof, adds a Previous version link and a protected History member to this same exact proposal. Do not repeat that path in source_paths or use a Source/History predecessor. Workflow captures complete saved proofs and adds exact saved citations. This tool never approves or writes knowledge. Retry only identical original input and UUIDs; human review and separate exact approval are required.".into()
+        "Create one independent current Knowledge review draft from the explicitly selected approved Inbox Source. Supply complete candidate Markdown, stable proposal and note UUIDs, a relative destination path, exact saved body quotations, and ordered additional source_paths. Each quote may specify an optional 1-based occurrence in the saved body; omit it only for unique wording. Workflow resolves exact byte ranges. The selected Inbox Source is automatically the mandatory first proof; do not include it again. Stable brn://note/UUID relationships require exact named target evidence. Read tools default to Current; explicitly named extra Source or History paths are evidence, never truth or deletion approval. Optional supersedes names one saved Current knowledge path: workflow captures it as the second proof, adds a Previous version link and a protected History member to this same exact proposal. Do not repeat that path in source_paths or use a Source/History predecessor. Workflow captures complete saved proofs and adds exact saved citations. This tool never approves or writes knowledge. Retry only identical original input and UUIDs; human review and separate exact approval are required.".into()
     }
     fn parameters(&self) -> Value {
         json!({"type":"object","additionalProperties":false,"properties":{
@@ -226,9 +219,9 @@ impl Tool for ProposeKnowledge {
             "source_paths":{"type":"array","maxItems":63,"items":{"type":"string","minLength":1,"maxLength":512}},
             "quotes":{"type":"array","minItems":1,"maxItems":32,"items":{
                 "type":"object","additionalProperties":false,"properties":{
-                    "start_byte":{"type":"integer","minimum":0,"maximum":49999},
-                    "end_byte":{"type":"integer","minimum":1,"maximum":50000}
-                },"required":["start_byte","end_byte"]
+                    "quote":{"type":"string","minLength":1,"maxLength":16384},
+                    "occurrence":{"type":["integer","null"],"minimum":1,"maximum":1048576}
+                },"required":["quote"]
             }}
         },"required":["id","title","path","note_id","text","quotes","source_paths","supersedes"]})
     }
@@ -446,8 +439,8 @@ mod tests {
             note_id: "workflow checks stable identity".into(),
             text: "\u{feff}Whole candidate 🦀\r\n".into(),
             quotes: vec![KnowledgeQuoteArgs {
-                start_byte: 0,
-                end_byte: 1,
+                quote: "õ🦀\r\n".into(),
+                occurrence: None,
             }],
             source_paths: vec!["workflow interprets this path".into()],
         }
@@ -488,14 +481,27 @@ mod tests {
             unknown[field] = json!("workflow owns this");
             assert!(serde_json::from_value::<KnowledgeProposalArgs>(unknown).is_err());
         }
-        for field in ["start_byte", "end_byte"] {
-            let mut partial = whole.clone();
-            partial["quotes"][0].as_object_mut().unwrap().remove(field);
-            assert!(serde_json::from_value::<KnowledgeProposalArgs>(partial).is_err());
+        let mut partial = whole.clone();
+        partial["quotes"][0]
+            .as_object_mut()
+            .unwrap()
+            .remove("quote");
+        assert!(serde_json::from_value::<KnowledgeProposalArgs>(partial).is_err());
+        for field in ["text", "start_byte", "end_byte"] {
+            let mut unknown = whole.clone();
+            unknown["quotes"][0][field] = json!(0);
+            assert!(serde_json::from_value::<KnowledgeProposalArgs>(unknown).is_err());
         }
-        let mut unknown = whole;
-        unknown["quotes"][0]["text"] = json!("cannot supply source wording");
-        assert!(serde_json::from_value::<KnowledgeProposalArgs>(unknown).is_err());
+        for value in [json!(-1), json!(1.5), json!("1")] {
+            let mut malformed = whole.clone();
+            malformed["quotes"][0]["occurrence"] = value;
+            assert!(serde_json::from_value::<KnowledgeProposalArgs>(malformed).is_err());
+        }
+        let mut explicit_null = whole.clone();
+        explicit_null["quotes"][0]["occurrence"] = Value::Null;
+        let parsed = serde_json::from_value::<KnowledgeProposalArgs>(explicit_null).unwrap();
+        assert!(parsed.quotes[0].occurrence.is_none());
+        assert_eq!(serde_json::to_value(parsed).unwrap(), whole);
     }
 
     #[tokio::test]
@@ -505,7 +511,7 @@ mod tests {
             receipt: json!({"stamp":"ok"}),
         });
         let tool = ProposeKnowledge(backend.clone());
-        let mutations: [fn(&mut KnowledgeProposalArgs); 24] = [
+        let mutations: [fn(&mut KnowledgeProposalArgs); 22] = [
             |v| v.id.clear(),
             |v| v.id = "x".repeat(65),
             |v| v.title.clear(),
@@ -519,18 +525,27 @@ mod tests {
             |v| v.text = "õ".repeat(512 * 1024 + 1),
             |v| v.quotes.clear(),
             |v| v.quotes = vec![v.quotes[0].clone(); 33],
-            |v| v.quotes[0].end_byte = 0,
-            |v| v.quotes[0].start_byte = 1,
-            |v| v.quotes[0].start_byte = usize::MAX,
-            |v| v.quotes[0].end_byte = 50_001,
-            |v| v.quotes[0].end_byte = usize::MAX,
-            |v| v.quotes[0].end_byte = 16 * 1024 + 1,
+            |v| v.quotes[0].quote.clear(),
+            |v| v.quotes[0].quote = "x".repeat(16 * 1024 + 1),
+            |v| v.quotes[0].quote = "õ".repeat(8193),
             |v| v.source_paths = vec!["explicit.md".into(); 64],
             |v| v.source_paths = vec![String::new()],
             |v| v.source_paths = vec!["x".repeat(513)],
             |v| v.source_paths = vec!["õ".repeat(257)],
             |v| {
                 v.text = "\u{1}".repeat(KNOWLEDGE_PROPOSAL_BYTES / 6 + 1);
+                assert!(serde_json::to_vec(v).unwrap().len() > KNOWLEDGE_PROPOSAL_BYTES);
+            },
+            |v| {
+                // Every individual text fits, but complete JSON escaping does not.
+                v.text = "\u{1}".repeat(1024 * 1024);
+                v.quotes = vec![
+                    KnowledgeQuoteArgs {
+                        quote: "\u{1}".repeat(16 * 1024),
+                        occurrence: None
+                    };
+                    32
+                ];
                 assert!(serde_json::to_vec(v).unwrap().len() > KNOWLEDGE_PROPOSAL_BYTES);
             },
         ];
@@ -547,8 +562,8 @@ mod tests {
         }
         assert_eq!(backend.calls.load(Ordering::SeqCst), 0);
 
-        // Non-UUID strings, destination semantics and UTF-8 source boundaries
-        // are deliberately delegated. Only protocol byte/range bounds live here.
+        // Non-UUID strings, destination semantics and occurrence resolution
+        // are deliberately delegated. Only protocol byte bounds live here.
         let input = knowledge_args();
         assert!(tool.call(&mut ToolContext::default(), input).await.is_ok());
         let mut maximum = knowledge_args();
@@ -560,8 +575,8 @@ mod tests {
         maximum.text = "\u{1}".repeat(1024 * 1024);
         maximum.quotes = vec![
             KnowledgeQuoteArgs {
-                start_byte: 50_000 - 16 * 1024,
-                end_byte: 50_000,
+                quote: "x".repeat(16 * 1024),
+                occurrence: Some(1024 * 1024),
             };
             32
         ];
@@ -574,6 +589,32 @@ mod tests {
                 .is_ok()
         );
         assert_eq!(backend.calls.load(Ordering::SeqCst), 2);
+        for occurrence in [0, usize::MAX] {
+            let mut input = knowledge_args();
+            input.quotes[0].occurrence = Some(occurrence);
+            assert!(tool.call(&mut ToolContext::default(), input).await.is_ok());
+        }
+        assert_eq!(backend.calls.load(Ordering::SeqCst), 4);
+    }
+
+    #[test]
+    fn quote_tool_schemas_leave_nullable_occurrence_optional_and_conflict_ids_owned() {
+        let backend = Arc::new(KnowledgeBackend {
+            calls: AtomicUsize::new(0),
+            receipt: json!({}),
+        });
+        let knowledge = ProposeKnowledge(backend.clone()).parameters();
+        let conflict = ReportConflict(backend).parameters();
+        let expected = json!({"type":"object","additionalProperties":false,"properties":{
+            "quote":{"type":"string","minLength":1,"maxLength":16384},
+            "occurrence":{"type":["integer","null"],"minimum":1,"maximum":1048576}
+        },"required":["quote"]});
+        assert_eq!(knowledge["properties"]["quotes"]["items"], expected);
+        for side in ["source_quote", "other_quote"] {
+            assert_eq!(conflict["properties"][side], expected);
+        }
+        assert!(conflict["properties"].get("id").is_none());
+        assert_eq!(conflict["required"].as_array().unwrap().len(), 5);
     }
 
     #[tokio::test]

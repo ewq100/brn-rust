@@ -16,6 +16,13 @@ impl AiError {
 impl std::fmt::Display for AiError {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         let text = match self.kind {
+            AiErrorKind::QuoteNotFound => "The quotation was not found in the saved note body.",
+            AiErrorKind::QuoteAmbiguous => {
+                "The quotation occurs more than once in the saved note body. Specify its occurrence."
+            }
+            AiErrorKind::QuoteOccurrenceInvalid => {
+                "The quotation occurrence is outside the saved note body."
+            }
             AiErrorKind::ReconnectNeeded => "Reconnect this account before continuing.",
             AiErrorKind::CodeExpired => "Login code expired. Retry Connect to obtain a new code.",
             AiErrorKind::RateLimited => "Account usage limit reached.",
@@ -180,6 +187,38 @@ pub(crate) fn map_provider(error: rig::error::ProviderError) -> AiError {
 #[cfg(test)]
 mod tests {
     use super::*;
+
+    #[test]
+    fn quotation_failures_have_distinct_fixed_safe_messages() {
+        for (kind, name, message) in [
+            (
+                AiErrorKind::QuoteNotFound,
+                "quote_not_found",
+                "The quotation was not found in the saved note body.",
+            ),
+            (
+                AiErrorKind::QuoteAmbiguous,
+                "quote_ambiguous",
+                "The quotation occurs more than once in the saved note body. Specify its occurrence.",
+            ),
+            (
+                AiErrorKind::QuoteOccurrenceInvalid,
+                "quote_occurrence_invalid",
+                "The quotation occurrence is outside the saved note body.",
+            ),
+        ] {
+            let error = AiError {
+                kind,
+                retry_after_seconds: Some(42),
+            };
+            assert_eq!(error.to_string(), message);
+            assert_eq!(serde_json::to_value(kind).unwrap(), name);
+            assert_eq!(
+                serde_json::from_value::<AiErrorKind>(serde_json::json!(name)).unwrap(),
+                kind
+            );
+        }
+    }
 
     #[test]
     fn safe_errors_never_retain_raw_payloads() {
