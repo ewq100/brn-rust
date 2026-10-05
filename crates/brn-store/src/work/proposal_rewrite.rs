@@ -132,9 +132,47 @@ pub enum RewriteOutcome {
     Failed(String),
 }
 
-/// Validates the bounded full result against its captured review without writing it.
+/// Validates an ordinary owner edit against its review without writing it.
 pub fn validate_result(record: &ProposalRecord, edit: &ProposalEdit) -> Result<()> {
     proposals::edited_review(record, edit).map(|_| ())
+}
+
+const PROTECTED_FIELDS: [&str; 4] = [
+    "brn_kind",
+    "brn_state",
+    "brn_provenance",
+    "brn_inbox_source",
+];
+
+fn protected_fields(text: &str) -> Result<[Option<&str>; 4]> {
+    let metadata = crate::note_identity::raw_fields(text, PROTECTED_FIELDS, false)?;
+    Ok(std::array::from_fn(|index| {
+        metadata
+            .as_ref()
+            .and_then(|metadata| metadata.fields[index].as_ref())
+            .map(|field| &text[field.line.clone()])
+    }))
+}
+
+/// AI Rewrite preserves exact managed field presence and line bytes, including
+/// scalar spelling, comments and newlines. Values remain opaque; this does not
+/// impose new metadata requirements on ordinary owner edits or historical rows.
+pub fn validate_rewrite_result(record: &ProposalRecord, edit: &ProposalEdit) -> Result<()> {
+    validate_result(record, edit)?;
+    for (change, text) in record.draft.changes.iter().zip(&edit.texts) {
+        if let (Some(before), Some(after)) = (change.text(), text.as_deref()) {
+            let before = protected_fields(before)?;
+            let after = protected_fields(after)?;
+            for (index, key) in PROTECTED_FIELDS.iter().enumerate() {
+                if before[index] != after[index] {
+                    return Err(invalid(&format!(
+                        "Rewrite must preserve exact {key} field bytes"
+                    )));
+                }
+            }
+        }
+    }
+    Ok(())
 }
 
 fn encode<T: Serialize>(value: &T) -> Result<Vec<u8>> {
@@ -263,6 +301,7 @@ fn settle(conn: &Connection, id: Uuid, outcome: &RewriteOutcome) -> Result<Rewri
     match outcome {
         RewriteOutcome::Completed(edit) => match proposals::draft_at(conn, job.spec.expected) {
             Ok(stored) if hash(&encode(&stored.record)?) == job.capture_sha256 => {
+                validate_rewrite_result(&stored.record, edit)?;
                 let record = proposals::edit_in_transaction(conn, edit)?;
                 job.status = RewriteStatus::Completed;
                 job.result_stamp = Some(record.stamp());

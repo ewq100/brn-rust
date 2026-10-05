@@ -6,6 +6,7 @@ use brn_store::{
         proposal_apply::{ApplyMemberProof, ApplyOutcome, ApprovalRequest},
         proposal_rewrite::{
             RewriteJob, RewriteOutcome, RewriteSpec, RewriteStatus, validate_result,
+            validate_rewrite_result,
         },
         proposals::*,
     },
@@ -173,6 +174,248 @@ fn job_bytes(conn: &Connection, id: Uuid) -> Vec<u8> {
         |row| row.get(0),
     )
     .unwrap()
+}
+
+const MANAGED: [&str; 4] = [
+    "brn_kind: source # exact class 🦀\r\n",
+    "brn_state: 'history'\t# exact state\r\n",
+    "brn_provenance: opaque-captured-proof # exact provenance\r\n",
+    "brn_inbox_source: opaque-captured-origin # exact original\r\n",
+];
+
+fn managed_text() -> String {
+    format!(
+        "\u{feff}---\r\nbrn_id: 9ba6f3d8-6a65-4fd4-b8b6-47dc3185657d\r\n{}custom: 日本語\r\n---\r\nBody λ\r\n",
+        MANAGED.concat()
+    )
+}
+
+#[test]
+fn direct_rewrite_cannot_change_managed_metadata() {
+    let mut f = Fixture::new();
+    if let NoteChange::Create { text, .. } = &mut f.draft.changes[0] {
+        *text = managed_text();
+    }
+    let record = f.store.create_proposal(&f.draft).unwrap();
+    let mut result = edit(&record);
+    result.texts[0] = Some(managed_text().replace("brn_state: 'history'", "brn_state: current"));
+    assert!(matches!(
+        f.store.rewrite_proposal(&result),
+        Err(Error::Invalid(_))
+    ));
+    assert_eq!(f.store.proposal(record.draft.id).unwrap(), Some(record));
+    f.unchanged_vault();
+}
+
+#[test]
+fn rewrite_preserves_exact_managed_lines_while_editing_body_and_unrelated_metadata() {
+    let mut f = Fixture::new();
+    for change in &mut f.draft.changes[..2] {
+        match change {
+            NoteChange::Create { text, .. } | NoteChange::Replace { text, .. } => {
+                *text = managed_text();
+            }
+            _ => unreachable!(),
+        }
+    }
+    let record = f.store.create_proposal(&f.draft).unwrap();
+    let request = spec(&record);
+    f.store.begin_proposal_rewrite(&request).unwrap();
+    let mut result = edit(&record);
+    result.title = "Rewritten title".into();
+    for text in result.texts.iter_mut().flatten() {
+        *text = text
+            .replace(
+                "custom: 日本語",
+                "custom: changed\r\nother: |\r\n  brn_state: nested sample",
+            )
+            .replace(
+                "Body λ",
+                "Rewritten body 🦀\r\nbrn_kind: ordinary body sample",
+            );
+    }
+    validate_rewrite_result(&record, &result).unwrap();
+    let outcome = RewriteOutcome::Completed(result.clone());
+    let finished = f
+        .store
+        .finish_proposal_rewrite(request.id, &outcome)
+        .unwrap();
+    assert_eq!(finished.status, RewriteStatus::Completed);
+    assert_eq!(
+        f.store
+            .finish_proposal_rewrite(request.id, &outcome)
+            .unwrap(),
+        finished
+    );
+    let rewritten = f.store.proposal(record.draft.id).unwrap().unwrap();
+    assert_eq!(rewritten.version, record.version + 1);
+    for (change, text) in rewritten.draft.changes[..2].iter().zip(&result.texts) {
+        assert_eq!(change.text(), text.as_deref());
+        assert!(change.text().unwrap().starts_with("\u{feff}---\r\n"));
+        for line in MANAGED {
+            assert!(change.text().unwrap().contains(line));
+        }
+    }
+    f.unchanged_vault();
+}
+
+#[test]
+fn rewrite_refuses_added_removed_changed_and_reformatted_fields_before_any_write() {
+    for (index, line) in MANAGED.iter().enumerate() {
+        let key = line.split_once(':').unwrap().0;
+        let original = managed_text();
+        let variants = [
+            (original.replace(line, ""), original.clone()), // Added field.
+            (original.clone(), original.replace(line, "")),
+            (
+                original.clone(),
+                original.replace(line, &format!("{key}: changed\r\n")),
+            ),
+            (
+                original.clone(),
+                original.replace(line, &line.replace('#', "# changed")),
+            ),
+            (
+                original.clone(),
+                original.replace(line, &line.replacen(": ", ":  ", 1)),
+            ),
+            (
+                original.clone(),
+                original.replace(line, &line.replace("\r\n", "\n")),
+            ),
+            (
+                original.clone(),
+                original.replace(line, &format!("{line}{line}")),
+            ),
+            (
+                original.clone(),
+                original.replace(line, &format!("'{key}': source\r\n")),
+            ),
+        ];
+        for (before, after) in variants {
+            // Exercise both Create and Replace results, including the path that
+            // skips pure AI validation and submits directly to attached settlement.
+            let member = index % 2;
+            let mut f = Fixture::new();
+            match &mut f.draft.changes[member] {
+                NoteChange::Create { text, .. } | NoteChange::Replace { text, .. } => {
+                    *text = before
+                }
+                _ => unreachable!(),
+            }
+            let record = f.store.create_proposal(&f.draft).unwrap();
+            let request = spec(&record);
+            let (running, _) = f.store.begin_proposal_rewrite(&request).unwrap();
+            let mut result = edit(&record);
+            result.texts[member] = Some(after);
+            assert!(
+                matches!(
+                    validate_rewrite_result(&record, &result),
+                    Err(Error::Invalid(_))
+                ),
+                "{key}"
+            );
+            assert!(
+                matches!(f.store.rewrite_proposal(&result), Err(Error::Invalid(_))),
+                "{key}"
+            );
+            let outcome = RewriteOutcome::Completed(result);
+            let mut attached = f.store.chat_connection().unwrap();
+            assert!(
+                matches!(
+                    attached.finish_proposal_rewrite(request.id, &outcome),
+                    Err(Error::Invalid(_))
+                ),
+                "{key}"
+            );
+            assert!(
+                matches!(
+                    f.store.finish_proposal_rewrite(request.id, &outcome),
+                    Err(Error::Invalid(_))
+                ),
+                "{key}"
+            );
+            assert_eq!(f.store.proposal_rewrite(request.id).unwrap(), Some(running));
+            assert_eq!(f.store.proposal(record.draft.id).unwrap(), Some(record));
+            f.unchanged_vault();
+        }
+    }
+}
+
+#[test]
+fn ambiguous_captured_managed_fields_refuse_rewrite_but_owner_repairs_remain_allowed() {
+    for metadata in [
+        "brn_kind: source\nbrn_kind: source",
+        "brn_state:history",
+        "'brn_provenance': captured",
+        "brn_inbox_source: captured\n  extra scalar text",
+    ] {
+        let mut f = Fixture::new();
+        let original = format!("---\n{metadata}\n---\nBody\n");
+        if let NoteChange::Create { text, .. } = &mut f.draft.changes[0] {
+            *text = original.clone();
+        }
+        let record = f.store.create_proposal(&f.draft).unwrap();
+        let mut result = edit(&record);
+        // Even unchanged ambiguous captures do not authorize an AI Rewrite.
+        assert!(
+            matches!(
+                validate_rewrite_result(&record, &result),
+                Err(Error::Invalid(_))
+            ),
+            "{metadata}"
+        );
+        result.texts[0] = Some(original.replace(metadata, "custom: repaired"));
+        assert!(
+            matches!(
+                validate_rewrite_result(&record, &result),
+                Err(Error::Invalid(_))
+            ),
+            "{metadata}"
+        );
+        validate_result(&record, &result).unwrap();
+        let repaired = f.store.edit_proposal(&result).unwrap();
+        assert_eq!(repaired.draft.changes[0].text(), result.texts[0].as_deref());
+    }
+    let mut f = Fixture::new();
+    if let NoteChange::Create { text, .. } = &mut f.draft.changes[0] {
+        *text = managed_text();
+    }
+    let record = f.store.create_proposal(&f.draft).unwrap();
+    let mut owner = edit(&record);
+    owner.texts[0] = Some(managed_text().replace("brn_state: 'history'", "brn_state: current"));
+    validate_result(&record, &owner).unwrap();
+    f.store.edit_proposal(&owner).unwrap();
+}
+
+#[test]
+fn late_rewrite_does_not_override_owner_metadata_changes_or_validate_against_newer_work() {
+    let mut f = Fixture::new();
+    if let NoteChange::Create { text, .. } = &mut f.draft.changes[0] {
+        *text = managed_text();
+    }
+    let record = f.store.create_proposal(&f.draft).unwrap();
+    let request = spec(&record);
+    f.store.begin_proposal_rewrite(&request).unwrap();
+    let mut owner = edit(&record);
+    owner.texts[0] = Some(managed_text().replace("brn_state: 'history'", "brn_state: current"));
+    let newer = f.store.edit_proposal(&owner).unwrap();
+    let mut late = edit(&record);
+    late.texts[0] = Some(managed_text().replace(MANAGED[0], "brn_kind: changed\r\n"));
+    let outcome = RewriteOutcome::Completed(late);
+    let finished = f
+        .store
+        .finish_proposal_rewrite(request.id, &outcome)
+        .unwrap();
+    assert_eq!(finished.status, RewriteStatus::Stale);
+    assert_eq!(
+        f.store
+            .finish_proposal_rewrite(request.id, &outcome)
+            .unwrap(),
+        finished
+    );
+    assert_eq!(f.store.proposal(record.draft.id).unwrap(), Some(newer));
+    f.unchanged_vault();
 }
 
 #[test]

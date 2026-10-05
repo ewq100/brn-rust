@@ -170,6 +170,8 @@ edits/comments/rejection/approval or capture drift settle Stale without overwrit
 work. Atomic failure leaves both records unchanged. Checked startup interrupts
 Running jobs without retry; terminal request/outcome replay stays immutable.
 The pure `validate_result` uses the same exact edit bounds and anchor rules.
+AI `validate_rewrite_result` and transactional Rewrite settlement preserve exact `brn_kind`,
+`brn_state`, `brn_provenance` and `brn_inbox_source` field presence/bytes; owner edits retain normal rules.
 
 ## Exact Undo and Trash admission
 
