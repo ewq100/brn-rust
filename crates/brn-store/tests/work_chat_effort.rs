@@ -456,7 +456,7 @@ fn v6_upgrade_and_restored_v6_backup_preserve_old_history_and_interrupt_running(
         )
         .unwrap();
         drop(store);
-        conn.execute_batch("DROP TABLE action_completions; DROP TABLE actions; DROP TABLE findings; ALTER TABLE messages DROP COLUMN started_at_ms; ALTER TABLE messages DROP COLUMN finished_at_ms; ALTER TABLE conversations DROP COLUMN last_activity_at_ms; ALTER TABLE messages DROP COLUMN effort; PRAGMA user_version=6;")
+        conn.execute_batch("DROP TABLE inbox_items; DROP TABLE action_completions; DROP TABLE actions; DROP TABLE findings; ALTER TABLE messages DROP COLUMN started_at_ms; ALTER TABLE messages DROP COLUMN finished_at_ms; ALTER TABLE conversations DROP COLUMN last_activity_at_ms; ALTER TABLE messages DROP COLUMN effort; PRAGMA user_version=6;")
             .unwrap();
         let backup = data.path().join("backups/brn-9999999999999.sqlite");
         if restored {
@@ -501,7 +501,7 @@ fn v6_upgrade_and_restored_v6_backup_preserve_old_history_and_interrupt_running(
         assert_eq!(
             conn.query_row("PRAGMA user_version", [], |row| row.get::<_, u32>(0))
                 .unwrap(),
-            11
+            12
         );
         assert_eq!(effort_pair(&conn, completed.id), vec![None, None]);
         assert_eq!(effort_pair(&conn, running.id), vec![None, None]);

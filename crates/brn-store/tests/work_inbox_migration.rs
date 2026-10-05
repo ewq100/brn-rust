@@ -61,14 +61,20 @@ fn upgrade(restored: bool) {
         .finish_proposal_apply(request.operation_id, ApplyOutcome::Applied, Some(&[]))
         .unwrap();
     let proposal = store.proposal(record.draft.id).unwrap().unwrap();
+    let before = store.action(action_id).unwrap().unwrap();
+    let completion = brn_store::work::action_completion::CompleteActionRequest {
+        operation_id: Uuid::new_v4(),
+        before: Box::new(before),
+    };
+    let completed = store
+        .complete_action_with(&completion, 0, |_| Ok(()))
+        .unwrap();
     let action = store.action(action_id).unwrap().unwrap();
     drop(store);
     let db = dir.path().join("brn.sqlite");
     let conn = Connection::open(&db).unwrap();
-    conn.execute_batch(
-        "DROP TABLE inbox_items; DROP TABLE action_completions; PRAGMA user_version=10;",
-    )
-    .unwrap();
+    conn.execute_batch("DROP TABLE inbox_items; PRAGMA user_version=11;")
+        .unwrap();
     let backup = dir.path().join("backups/brn-9999999999999.sqlite");
     if restored {
         conn.backup("main", &backup, None).unwrap();
@@ -76,7 +82,7 @@ fn upgrade(restored: bool) {
     drop(conn);
     let backup_bytes = restored.then(|| std::fs::read(&backup).unwrap());
     if restored {
-        std::fs::write(&db, b"synthetic physical V10 damage").unwrap();
+        std::fs::write(&db, b"synthetic physical V11 damage").unwrap();
     }
     let (mut store, report) = WorkStore::open(dir.path()).unwrap();
     assert_eq!(report.restored_from, restored.then_some(backup.clone()));
@@ -86,6 +92,14 @@ fn upgrade(restored: bool) {
     );
     assert_eq!(store.unsaved_edit("recovery.md").unwrap(), Some(unfinished));
     assert_eq!(store.action(action_id).unwrap(), Some(action));
+    assert_eq!(
+        store
+            .complete_action_with(&completion, 0, |_| panic!(
+                "migration replay must not publish again"
+            ))
+            .unwrap(),
+        completed
+    );
     assert_eq!(store.proposal(record.draft.id).unwrap(), Some(proposal));
     assert_eq!(
         store
@@ -100,7 +114,7 @@ fn upgrade(restored: bool) {
         12
     );
     assert_eq!(
-        conn.query_row("SELECT count(*) FROM action_completions", [], |r| r
+        conn.query_row("SELECT count(*) FROM inbox_items", [], |r| r
             .get::<_, i64>(0))
             .unwrap(),
         0
@@ -111,11 +125,42 @@ fn upgrade(restored: bool) {
 }
 
 #[test]
-fn additive_v10_upgrade_preserves_exact_approved_action_and_unfinished_work() {
+fn additive_v11_upgrade_preserves_exact_action_completion_and_unfinished_work() {
     upgrade(false);
 }
 
 #[test]
-fn validated_v10_backup_restores_then_upgrades_without_losing_approved_action() {
+fn validated_v11_backup_restores_then_upgrades_without_losing_action_completion() {
     upgrade(true);
+}
+
+#[test]
+fn inbox_catalog_adds_v12_without_changing_existing_exact_work() {
+    let data = tempfile::tempdir_in(std::env::temp_dir().canonicalize().unwrap()).unwrap();
+    let (mut store, _) = WorkStore::open(data.path()).unwrap();
+    store.set_setting("synthetic", "\u{feff}Õun\r\nλ").unwrap();
+    store
+        .put_unsaved_edit("retained.md", [3; 32], "\u{feff}exact\r\nλ")
+        .unwrap();
+    let work = store.unsaved_edit("retained.md").unwrap();
+    drop(store);
+    let conn = Connection::open(data.path().join("brn.sqlite")).unwrap();
+    assert_eq!(
+        conn.query_row("PRAGMA user_version", [], |r| r.get::<_, i64>(0))
+            .unwrap(),
+        12
+    );
+    assert_eq!(
+        conn.query_row("SELECT count(*) FROM inbox_items", [], |r| r
+            .get::<_, i64>(0))
+            .unwrap(),
+        0
+    );
+    drop(conn);
+    let (store, _) = WorkStore::open(data.path()).unwrap();
+    assert_eq!(
+        store.setting("synthetic").unwrap().as_deref(),
+        Some("\u{feff}Õun\r\nλ")
+    );
+    assert_eq!(store.unsaved_edit("retained.md").unwrap(), work);
 }

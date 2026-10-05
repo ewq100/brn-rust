@@ -11,6 +11,7 @@ own saved Markdown; disposable retrieval indexes live outside this crate.
 [approval journals](src/work/proposal_apply.rs), [Undo admission](src/work/proposal_undo.rs),
 [explicit repair admission](src/work/proposal_repair.rs),
 [owned Rewrite jobs](src/work/proposal_rewrite.rs),
+[original-copy Inbox catalog](src/work/inbox.rs),
 [managed note identity](src/note_identity.rs),
 [saved note classification](src/note_metadata.rs),
 [durable vault provenance](src/note_provenance.rs),
@@ -19,7 +20,7 @@ own saved Markdown; disposable retrieval indexes live outside this crate.
 
 ## Database ownership and recovery
 
-WorkStore uses application ID `BRN2`, schema V11, and retains `brn.owner.lock`
+WorkStore uses application ID `BRN2`, schema V12, and retains `brn.owner.lock`
 for its lifetime. Current settings, text-only conversations and unfinished work
 are preserved by additive migrations. Earlier WorkStore V1 unsaved-edit rows
 remain available; matching text moves atomically into the generation-aware
@@ -388,3 +389,25 @@ dependency states share that snapshot and preserve ordered/missing targets.
 Completed Actions have no overdue/follow-up signals; other due dates compare
 strictly before the date and follow-up dates on/before it. Workflow owns date
 defaults and current-evidence eligibility. No ranking or Action mutation occurs.
+
+## Original-copy Inbox catalog
+
+V12 adds immutable operational Inbox captures for deliberate text, Markdown,
+email and Teams copies. Full bounded labels/optional original names, UUID and
+ordinary-directory/file identity, byte length and SHA256 remain exact. Payload
+text stays in ordinary files; storage neither reads nor writes/deletes copies.
+Only workflow may submit freshly qualified durable proof; direct clients continue
+through AppWorker. The fixed UUID.txt name is independent of labels or source kind.
+
+Exact creation replay returns original metadata and received time; another payload
+under that UUID refuses. Explicitly separate copies retain separate identities
+even with equal bytes. Pages of1–100 use ascending immutable received-time/UUID
+cursors and a count in one checked snapshot. Canonical complete JSON, encoded
+bounds, hashes, indexed bindings and exact owned table/index objects are checked
+on reads/startup and before SQLite quick_check. Readable semantic damage refuses
+without moving the main database aside or creating a startup backup; invalid
+backup candidates are skipped. Physical corruption retains ordinary restoration.
+SQLite backup preserves catalog metadata, not the separate original-copy files.
+
+This foundation has no client intake, processing job, conversion, proposal
+approval or deletion operation yet. Those follow in the Stage7 workflow slices.

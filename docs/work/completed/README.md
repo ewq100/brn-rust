@@ -4,6 +4,7 @@ These folders preserve bounded implementation history. A completed record does n
 
 | Task | Plan | Evidence |
 | --- | --- | --- |
+| Actions/dashboard (Stage6 implemented/automated verified/integrated; native/live/owner acceptance pending) | [Plan and results](actions-dashboard/plan.md) | — |
 | Proposal Core (roadmap Stage 4; sequential slices implemented/automated verified/integrated, native/live/owner acceptance pending) | [Plan and results](proposal-core/plan.md) | — |
 | Narrow provider capabilities (roadmap Stage 3; bounded live round complete, unsupported/unqualified capabilities explicit) | [Plan and results](provider-capabilities/plan.md) | — |
 | Legacy production removal (roadmap Stage 2; current behavior automated verified, native acceptance pending) | [Plan and results](legacy-removal/plan.md) | — |
