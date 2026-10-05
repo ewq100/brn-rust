@@ -4,16 +4,35 @@ use crate::{
     editor::file_error,
     knowledge::IdentityOutcome,
     proposal_apply::ApplyJournal,
-    proposals::{DraftNoteChange, DraftRequest},
+    proposals::{DraftNoteChange, DraftRequest, NoteChange, ProposalSource},
     vault::VaultPath,
 };
 use brn_ai::KnowledgeProposalArgs;
+use brn_store::work::inbox_actions::InboxSupersedesBinding;
 use brn_store::{note_identity, note_metadata, note_provenance};
 use std::path::Path;
 
 fn rejected(message: &str) -> WorkflowError {
     WorkflowError::typed(ErrorKind::ToolRejected, message)
 }
+pub(crate) fn validate_supersession_link(text: &str, bound: &InboxSupersedesBinding) -> Result<()> {
+    let footer = format!(
+        "\n\nPrevious version: [History](brn://note/{})\n",
+        bound.note_id
+    );
+    let Some(prefix) = text.strip_suffix(&footer) else {
+        return Err(rejected("knowledge predecessor footer is unavailable"));
+    };
+    let start = prefix.len() + "\n\nPrevious version: ".len();
+    let end = text.len() - 1;
+    if !crate::knowledge::stable_link_at(text, bound.note_id, start, end)? {
+        return Err(rejected(
+            "knowledge predecessor footer must be a readable Markdown link",
+        ));
+    }
+    Ok(())
+}
+
 impl App {
     /// Retained Source citations plus explicit saved context. Original creation
     /// replay reuses its ordered proofs before observing any current files.
@@ -59,16 +78,76 @@ impl App {
             });
         }
         note_provenance::validate(&citations)?;
-        let text =
+        let existing = self.store.proposal(id)?;
+        let predecessor = match (&args.supersedes, &existing) {
+            (Some(path), Some(record)) => {
+                let bound = record
+                    .draft
+                    .inbox_knowledge
+                    .as_ref()
+                    .and_then(|binding| binding.supersedes.as_ref())
+                    .filter(|bound| &bound.source.path == path)
+                    .ok_or_else(|| rejected("knowledge creation predecessor changed"))?;
+                let Some(NoteChange::Replace { before_text, .. }) = record.draft.changes.get(1)
+                else {
+                    return Err(rejected("knowledge predecessor baseline is unavailable"));
+                };
+                Some(ProposalSource {
+                    source: bound.source.clone(),
+                    text: before_text.clone(),
+                })
+            }
+            (Some(path), None) => Some(self.proposal_source(path)?),
+            (None, Some(record))
+                if record
+                    .draft
+                    .inbox_knowledge
+                    .as_ref()
+                    .is_some_and(|binding| binding.supersedes.is_some()) =>
+            {
+                return Err(rejected("knowledge creation predecessor changed"));
+            }
+            (None, _) => None,
+        };
+        let supersedes = predecessor
+            .as_ref()
+            .map(|saved| -> Result<_> {
+                let old_id = note_identity::read(&saved.text)?
+                    .ok_or_else(|| rejected("predecessor needs a saved managed identity"))?;
+                if old_id == note_id
+                    || old_id == source_id
+                    || note_metadata::classify(&saved.text)?
+                        != note_metadata::NoteClassification::default()
+                    || brn_store::work::inbox_source::read_provenance(&saved.text)?.is_some()
+                {
+                    return Err(rejected("predecessor must be separate Current knowledge"));
+                }
+                Ok(InboxSupersedesBinding {
+                    note_id: old_id,
+                    source: saved.source.clone(),
+                })
+            })
+            .transpose()?;
+        let mut text =
             note_provenance::write(&note_identity::assign(&args.text, note_id)?, &citations)?;
-        let sources = match self.store.proposal(id)? {
+        if let Some(bound) = &supersedes {
+            text.push_str(&format!(
+                "\n\nPrevious version: [History](brn://note/{})\n",
+                bound.note_id
+            ));
+            validate_supersession_link(&text, bound)?;
+        }
+        let sources = match existing {
             Some(existing) => {
                 if existing.draft.sources.first() != Some(&job.capture.source)
+                    || supersedes
+                        .as_ref()
+                        .is_some_and(|bound| existing.draft.sources.get(1) != Some(&bound.source))
                     || !args.source_paths.iter().map(String::as_str).eq(existing
                         .draft
                         .sources
                         .iter()
-                        .skip(1)
+                        .skip(1 + usize::from(supersedes.is_some()))
                         .map(|s| s.path.as_str()))
                 {
                     return Err(rejected("knowledge creation target paths changed"));
@@ -77,14 +156,29 @@ impl App {
             }
             None => {
                 let mut sources = vec![job.capture.source.clone()];
+                if let Some(bound) = &supersedes {
+                    sources.push(bound.source.clone());
+                }
                 for path in &args.source_paths {
                     sources.push(self.proposal_evidence_source(path)?.source);
                 }
                 sources
             }
         };
+        let mut changes = vec![DraftNoteChange::Create {
+            path: args.path.clone(),
+            text,
+        }];
+        if let Some(saved) = predecessor {
+            changes.push(DraftNoteChange::Replace {
+                path: saved.source.path,
+                expected: saved.source.fingerprint,
+                text: note_metadata::to_history(&saved.text)?,
+            });
+        }
         let request = DraftRequest {
             inbox_knowledge: Some(Box::new(InboxKnowledgeBinding {
+                supersedes,
                 analysis_id: job.capture.id,
                 note_id,
                 source: job.capture.source.clone(),
@@ -95,10 +189,7 @@ impl App {
             group_id: Some(job.capture.id),
             session_id: Some(session),
             title: args.title.clone(),
-            changes: vec![DraftNoteChange::Create {
-                path: args.path.clone(),
-                text,
-            }],
+            changes,
             sources,
             action_changes: vec![],
         };
@@ -106,8 +197,8 @@ impl App {
         Ok(request)
     }
 
-    /// A bound knowledge Create remains tied to the full immutable analysis,
-    /// even after review edits. It never authorizes replacement or deletion.
+    /// A bound consequence retains the full Source and exact Current predecessor.
+    /// Review cannot expand this into other replacements or deletion.
     pub(crate) fn validate_inbox_knowledge(
         &mut self,
         binding: Option<&InboxKnowledgeBinding>,
@@ -122,6 +213,20 @@ impl App {
                 ErrorKind::ContextStale,
                 "knowledge identity already exists or cannot be completely inspected",
             ));
+        }
+        if let Some(bound) = &binding.supersedes {
+            let saved = self.proposal_source(&bound.source.path)?;
+            let identity = self.resolve_note_identity(bound.note_id)?;
+            if saved.source != bound.source
+                || note_identity::read(&saved.text)? != Some(bound.note_id)
+                || identity.outcome != IdentityOutcome::Unique
+                || identity.matches[0].path != bound.source.path
+            {
+                return Err(WorkflowError::typed(
+                    ErrorKind::ContextStale,
+                    "knowledge predecessor changed or is ambiguous",
+                ));
+            }
         }
         Ok(())
     }
@@ -184,8 +289,38 @@ impl App {
         let text = draft.changes[0]
             .text()
             .ok_or_else(|| rejected("knowledge Create text is unavailable"))?;
-        for id in crate::knowledge::stable_link_ids(text)? {
-            if id == binding.note_id {
+        let link_ids = crate::knowledge::stable_link_ids(text)?;
+        if let Some(bound) = &binding.supersedes {
+            validate_supersession_link(text, bound)?;
+            let target = inventory.resolution(bound.note_id);
+            if target.outcome != IdentityOutcome::Unique
+                || target.matches[0].path != bound.source.path
+            {
+                return Err(WorkflowError::typed(
+                    ErrorKind::ContextStale,
+                    "knowledge predecessor identity or relationship changed",
+                ));
+            }
+            let observed = files
+                .observe(Path::new(&bound.source.path))
+                .map_err(file_error)?;
+            let own_history = journal.prepared.as_ref().and_then(|proofs| proofs.get(1));
+            if observed.fingerprint != bound.source.fingerprint
+                && own_history != Some(&observed.fingerprint)
+            {
+                return Err(WorkflowError::typed(
+                    ErrorKind::ContextStale,
+                    "knowledge predecessor is no longer its exact before or prepared History object",
+                ));
+            }
+        }
+        for id in link_ids {
+            if id == binding.note_id
+                || binding
+                    .supersedes
+                    .as_ref()
+                    .is_some_and(|bound| bound.note_id == id)
+            {
                 // The sole Create's identity remains subject to the exact
                 // own-prepared proof check below, including after installation.
                 continue;

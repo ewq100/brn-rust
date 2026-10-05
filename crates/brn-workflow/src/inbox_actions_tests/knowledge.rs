@@ -17,6 +17,7 @@ fn semantic(source: &SourceFixture) -> InboxActionRequest {
 fn knowledge(source: &SourceFixture) -> KnowledgeProposalArgs {
     let start = source.source.text.find("Blue õ 🦀").unwrap();
     KnowledgeProposalArgs {
+        supersedes: None,
         id: Uuid::new_v4().to_string(),
         title: "Reviewed color knowledge".into(),
         path: "color.md".into(),
@@ -32,6 +33,10 @@ fn knowledge(source: &SourceFixture) -> KnowledgeProposalArgs {
 
 #[path = "knowledge_links.rs"]
 mod link_tests;
+#[path = "supersession_replay.rs"]
+mod supersession_replay_tests;
+#[path = "supersession.rs"]
+mod supersession_tests;
 fn scripted(script: Arc<Mutex<Vec<Step>>>) -> ProposalAnswerHook {
     Arc::new(move |ask, _, _, proposals, _, _| {
         let steps = std::mem::take(&mut *script.lock().unwrap());

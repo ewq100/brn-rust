@@ -22,6 +22,11 @@ pub(crate) fn stable_link_ids(text: &str) -> Result<std::collections::BTreeSet<U
     extract::stable_ids(text, body)
 }
 
+pub(crate) fn stable_link_at(text: &str, id: Uuid, start: usize, end: usize) -> Result<bool> {
+    let body = note_identity::body_start(text).map_err(|error| rejected(error.to_string()))?;
+    extract::stable_link_at(text, body, id, start, end)
+}
+
 #[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
 #[serde(deny_unknown_fields)]
 pub struct LinkEvidence {

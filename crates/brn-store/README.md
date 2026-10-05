@@ -458,9 +458,10 @@ the same WorkTurn lifecycle; schema remains V14. Unknown/noncanonical purposes
 refuse startup/read/backup validation.
 
 `ProposalDraft.inbox_knowledge` is optional immutable authority for one separate
-Knowledge Create. Pure checks bind its analysis UUID, new note UUID, selected
+knowledge consequence. Pure checks bind its analysis UUID, new note UUID, selected
 Source and exact citations to the retained semantic capture. The ordered ordinary
-proposal evidence keeps that Source first, followed by optional target proofs;
+proposal evidence keeps that Source first, followed by an exact predecessor when
+optional `supersedes` is present, then ordered additional target proofs;
 1–64 unique visible paths and the existing 1 MiB proof bound are checked without
 vault access. The complete Current
 knowledge text keeps that UUID/classification and mandatory citations across
@@ -469,3 +470,16 @@ serialization is unchanged when absent. Workflow additionally checks saved Sourc
 identity uniqueness and new provenance at exact approval. This adds neither a
 second proposal/application lifecycle nor another data authority. Exact Undo
 uses the existing journal and historical bytes.
+
+
+Inbox supersession uses exactly one Current Create and one History Replace.
+`InboxSupersedesBinding` retains the predecessor UUID/full SourceVersion;
+`validate_history` binds its complete before_text and permits only
+`note_metadata::to_history` output. The pure helper changes only brn_state,
+retaining identity, BOM/newlines, scalar quotes/comments, body and unrelated
+metadata/provenance. Source/already-History/malformed state refuses. Review/Rewrite
+can change Current content while preserving Source citations and the exact
+Previous version footer; the historical member stays exact. Canonical omission
+preserves legacy binding JSON/hashes. Schema remains V14; older readers refuse
+unsupported readable semantic records rather than restoring over them. Missing
+or physically corrupt data still follows existing backup qualification.

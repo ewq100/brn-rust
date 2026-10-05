@@ -1065,6 +1065,7 @@ fn knowledge_draft(capture: &InboxActionCapture) -> ProposalDraft {
             analysis_id: capture.id,
             note_id,
             source: capture.source.clone(),
+            supersedes: None,
             citations: vec![citation],
         })),
         inbox_source: None,
@@ -1699,4 +1700,426 @@ fn knowledge_binding_uses_existing_apply_and_exact_create_undo_journals() {
         store.begin_proposal_undo(&undo).unwrap().receipt,
         Some(undo_receipt)
     );
+}
+
+fn supersession_draft(capture: &InboxActionCapture) -> ProposalDraft {
+    let mut draft = knowledge_draft(capture);
+    let old_id = Uuid::new_v4();
+    let before_text = format!(
+        "\u{feff}---\r\nbrn_id: {old_id}\r\nbrn_state: 'current'\t# exact comment\r\ncustom: λ\r\nbrn_provenance: []\r\n---\r\nPrevious wording 日本語 🦀\r\n"
+    );
+    let before = FileFingerprint {
+        device: 1,
+        inode: 41,
+        len: before_text.len() as u64,
+        sha256: digest(before_text.as_bytes()),
+    };
+    let source = SourceVersion {
+        path: "knowledge/previous.md".into(),
+        fingerprint: before.clone(),
+    };
+    let binding = draft.inbox_knowledge.as_mut().unwrap();
+    let mut encoded = serde_json::to_value(&**binding).unwrap();
+    encoded["supersedes"] = serde_json::json!({"note_id": old_id, "source": source});
+    **binding = serde_json::from_value(encoded).unwrap();
+    if let NoteChange::Create { text, .. } = &mut draft.changes[0] {
+        text.push_str(&format!(
+            "\n\nPrevious version: [History](brn://note/{old_id})\n"
+        ));
+    }
+    draft.sources.push(source);
+    draft.changes.push(NoteChange::Replace {
+        path: "knowledge/previous.md".into(),
+        parent: VaultIdentity {
+            device: 1,
+            inode: 1,
+        },
+        before,
+        before_text: before_text.clone(),
+        text: brn_store::note_metadata::to_history(&before_text).unwrap(),
+    });
+    draft
+}
+
+#[test]
+fn supersession_review_and_rewrite_allow_current_edits_but_protect_exact_history_and_footer() {
+    let data = fixture();
+    let (mut store, _) = WorkStore::open(data.path()).unwrap();
+    let mut capture = capture();
+    capture.purpose = InboxAnalysisPurpose::KnowledgeAndActions;
+    store
+        .reserve_inbox_action(&capture, "Review likely supersession")
+        .unwrap();
+    let draft = supersession_draft(&capture);
+    let created = store.create_proposal(&draft).unwrap();
+    let mut edit = ProposalEdit {
+        expected: created.stamp(),
+        title: "Reviewed supersession".into(),
+        texts: draft
+            .changes
+            .iter()
+            .map(|change| change.text().map(str::to_owned))
+            .collect(),
+        action_data: vec![],
+    };
+    edit.texts[0] = Some(
+        edit.texts[0]
+            .as_ref()
+            .unwrap()
+            .replace("Interpreted summary", "Reviewed current wording"),
+    );
+    let reviewed = store.edit_proposal(&edit).unwrap();
+    edit.expected = reviewed.stamp();
+    edit.texts[0] = Some(
+        edit.texts[0]
+            .as_ref()
+            .unwrap()
+            .replace("Reviewed current wording", "Rewritten current wording"),
+    );
+    let rewritten = store.rewrite_proposal(&edit).unwrap();
+    assert_eq!(rewritten.draft.changes[1], draft.changes[1]);
+    assert_eq!(store.create_proposal(&draft).unwrap(), rewritten);
+    edit.expected = rewritten.stamp();
+    for mode in 0..4 {
+        let mut bad = edit.clone();
+        match mode {
+            0 => {
+                bad.texts[1] = Some(
+                    bad.texts[1]
+                        .as_ref()
+                        .unwrap()
+                        .replace("Previous wording", "Rewritten history"),
+                )
+            }
+            1 => {
+                bad.texts[1] = Some(
+                    bad.texts[1]
+                        .as_ref()
+                        .unwrap()
+                        .replace("'history'", "'current'"),
+                )
+            }
+            2 => {
+                bad.texts[0] = Some(
+                    bad.texts[0]
+                        .as_ref()
+                        .unwrap()
+                        .replace("Previous version: [History]", "Previous version: [Changed]"),
+                )
+            }
+            _ => bad.texts[0]
+                .as_mut()
+                .unwrap()
+                .push_str("After required footer"),
+        }
+        assert!(store.edit_proposal(&bad).is_err(), "edit {mode}");
+        assert!(store.rewrite_proposal(&bad).is_err(), "rewrite {mode}");
+        assert_eq!(store.proposal(draft.id).unwrap(), Some(rewritten.clone()));
+    }
+    drop(store);
+    let (mut store, checked) = WorkStore::open(data.path()).unwrap();
+    assert_eq!(store.create_proposal(&draft).unwrap(), rewritten);
+    drop(store);
+    std::fs::write(data.path().join("brn.sqlite"), b"synthetic physical damage").unwrap();
+    let (mut store, restored) = WorkStore::open(data.path()).unwrap();
+    assert_eq!(restored.restored_from, Some(checked.backup));
+    assert_eq!(store.create_proposal(&draft).unwrap(), rewritten);
+}
+
+#[test]
+fn supersession_binding_refuses_inexact_predecessors_shapes_sources_and_identities() {
+    let data = fixture();
+    let (mut store, _) = WorkStore::open(data.path()).unwrap();
+    let mut capture = capture();
+    capture.purpose = InboxAnalysisPurpose::KnowledgeAndActions;
+    store
+        .reserve_inbox_action(&capture, "Bound supersession")
+        .unwrap();
+    let draft = supersession_draft(&capture);
+    let valid = store.create_proposal(&draft).unwrap();
+    for mode in 0..17 {
+        let mut bad = draft.clone();
+        bad.id = Uuid::new_v4();
+        match mode {
+            0 => {
+                bad.inbox_knowledge
+                    .as_mut()
+                    .unwrap()
+                    .supersedes
+                    .as_mut()
+                    .unwrap()
+                    .note_id = Uuid::nil()
+            }
+            1 => {
+                let binding = bad.inbox_knowledge.as_mut().unwrap();
+                binding.supersedes.as_mut().unwrap().note_id = binding.note_id;
+            }
+            2 => {
+                bad.inbox_knowledge
+                    .as_mut()
+                    .unwrap()
+                    .supersedes
+                    .as_mut()
+                    .unwrap()
+                    .note_id = capture.note_id().unwrap()
+            }
+            3 => {
+                bad.inbox_knowledge
+                    .as_mut()
+                    .unwrap()
+                    .supersedes
+                    .as_mut()
+                    .unwrap()
+                    .source
+                    .path = capture.source.path.to_ascii_uppercase()
+            }
+            4 => {
+                bad.inbox_knowledge
+                    .as_mut()
+                    .unwrap()
+                    .supersedes
+                    .as_mut()
+                    .unwrap()
+                    .source
+                    .fingerprint
+                    .len = 1024 * 1024 + 1
+            }
+            5 => bad.sources.swap(0, 1),
+            6 => {
+                bad.sources.remove(1);
+            }
+            7 => bad.sources[1].fingerprint.inode += 1,
+            8 => {
+                bad.changes.pop();
+            }
+            9 => bad.changes.swap(0, 1),
+            10 => bad.inbox_knowledge.as_mut().unwrap().supersedes = None,
+            11 => {
+                if let NoteChange::Replace { path, .. } = &mut bad.changes[1] {
+                    *path = path.to_ascii_uppercase();
+                }
+            }
+            12 => {
+                if let NoteChange::Replace { before, .. } = &mut bad.changes[1] {
+                    before.inode += 1;
+                }
+            }
+            13 => {
+                if let NoteChange::Replace { before_text, .. } = &mut bad.changes[1] {
+                    before_text.push('x');
+                }
+            }
+            14 => {
+                if let NoteChange::Replace { text, .. } = &mut bad.changes[1] {
+                    *text = text.replace("Previous wording", "Lost wording");
+                }
+            }
+            15 => {
+                if let NoteChange::Create { text, .. } = &mut bad.changes[0] {
+                    *text =
+                        text.replace("Previous version: [History]", "Previous version: [Changed]");
+                }
+            }
+            _ => {
+                if let NoteChange::Replace {
+                    before,
+                    before_text,
+                    text,
+                    ..
+                } = &mut bad.changes[1]
+                {
+                    *before_text = before_text.replace("'current'", "'history'");
+                    *before = FileFingerprint {
+                        device: before.device,
+                        inode: before.inode,
+                        len: before_text.len() as u64,
+                        sha256: digest(before_text.as_bytes()),
+                    };
+                    *text = before_text.clone();
+                    bad.sources[1].fingerprint = before.clone();
+                    bad.inbox_knowledge
+                        .as_mut()
+                        .unwrap()
+                        .supersedes
+                        .as_mut()
+                        .unwrap()
+                        .source
+                        .fingerprint = before.clone();
+                }
+            }
+        }
+        assert!(
+            matches!(store.create_proposal(&bad), Err(Error::Invalid(_))),
+            "mode {mode}"
+        );
+        assert!(store.proposal(bad.id).unwrap().is_none(), "new row {mode}");
+        assert_eq!(store.proposal(draft.id).unwrap(), Some(valid.clone()));
+    }
+}
+
+#[test]
+fn legacy_knowledge_binding_omits_supersedes_canonically_and_keeps_original_replay_hash() {
+    #[derive(serde::Serialize)]
+    struct LegacyBinding<'a> {
+        analysis_id: Uuid,
+        note_id: Uuid,
+        source: &'a SourceVersion,
+        citations: &'a [VaultCitation],
+    }
+    let data = fixture();
+    let (mut store, _) = WorkStore::open(data.path()).unwrap();
+    let mut capture = capture();
+    capture.purpose = InboxAnalysisPurpose::KnowledgeAndActions;
+    store
+        .reserve_inbox_action(&capture, "Legacy Create")
+        .unwrap();
+    let draft = knowledge_draft(&capture);
+    let binding = draft.inbox_knowledge.as_ref().unwrap();
+    let original = serde_json::to_vec(&LegacyBinding {
+        analysis_id: binding.analysis_id,
+        note_id: binding.note_id,
+        source: &binding.source,
+        citations: &binding.citations,
+    })
+    .unwrap();
+    assert_eq!(serde_json::to_vec(&**binding).unwrap(), original);
+    let decoded: InboxKnowledgeBinding = serde_json::from_slice(&original).unwrap();
+    assert_eq!(&decoded, &**binding);
+    let created = store.create_proposal(&draft).unwrap();
+    let raw = Connection::open(data.path().join("brn.sqlite")).unwrap();
+    let before_hash: Vec<u8> = raw
+        .query_row(
+            "SELECT creation_sha256 FROM proposals WHERE id=?1",
+            [draft.id.to_string()],
+            |row| row.get(0),
+        )
+        .unwrap();
+    assert_eq!(before_hash, digest(&serde_json::to_vec(&draft).unwrap()));
+    drop(raw);
+    let edit = ProposalEdit {
+        expected: created.stamp(),
+        title: "Newer legacy review".into(),
+        texts: vec![Some(
+            draft.changes[0]
+                .text()
+                .unwrap()
+                .replace("Interpreted summary", "Reviewed later"),
+        )],
+        action_data: vec![],
+    };
+    let edited = store.edit_proposal(&edit).unwrap();
+    drop(store);
+    let (mut store, _) = WorkStore::open(data.path()).unwrap();
+    assert_eq!(store.create_proposal(&draft).unwrap(), edited);
+    let raw = Connection::open(data.path().join("brn.sqlite")).unwrap();
+    let after_hash: Vec<u8> = raw
+        .query_row(
+            "SELECT creation_sha256 FROM proposals WHERE id=?1",
+            [draft.id.to_string()],
+            |row| row.get(0),
+        )
+        .unwrap();
+    assert_eq!(after_hash, before_hash);
+}
+
+#[test]
+fn supersession_hash_valid_semantic_and_owned_schema_damage_refuse_without_restoring_or_backup() {
+    for mode in 0..6 {
+        let data = fixture();
+        let (mut store, _) = WorkStore::open(data.path()).unwrap();
+        let mut capture = capture();
+        capture.purpose = InboxAnalysisPurpose::KnowledgeAndActions;
+        store
+            .reserve_inbox_action(&capture, "Exact supersession")
+            .unwrap();
+        let draft = supersession_draft(&capture);
+        let created = store.create_proposal(&draft).unwrap();
+        store
+            .edit_proposal(&ProposalEdit {
+                expected: created.stamp(),
+                title: "Retained reviewed pair".into(),
+                texts: draft
+                    .changes
+                    .iter()
+                    .map(|change| change.text().map(str::to_owned))
+                    .collect(),
+                action_data: vec![],
+            })
+            .unwrap();
+        let raw = Connection::open(data.path().join("brn.sqlite")).unwrap();
+        if mode == 5 {
+            raw.execute_batch("CREATE TRIGGER inbox_actions_unexpected AFTER INSERT ON inbox_actions BEGIN SELECT 1; END;").unwrap();
+        } else {
+            let bytes: Vec<u8> = raw
+                .query_row(
+                    "SELECT record_json FROM proposals WHERE id=?1",
+                    [draft.id.to_string()],
+                    |row| row.get(0),
+                )
+                .unwrap();
+            let mut json: serde_json::Value = serde_json::from_slice(&bytes).unwrap();
+            match mode {
+                0 => {
+                    json["record"]["draft"]["inbox_knowledge"]["supersedes"]["note_id"] =
+                        serde_json::json!(Uuid::new_v4())
+                }
+                1 => {
+                    json["record"]["draft"]["changes"][1]["text"] =
+                        serde_json::json!("Lost history")
+                }
+                2 => {
+                    json["record"]["draft"]["sources"][1]["fingerprint"]["inode"] =
+                        serde_json::json!(999)
+                }
+                3 => {
+                    json["record"]["draft"]["inbox_knowledge"]["supersedes"]["unknown"] =
+                        serde_json::json!(true)
+                }
+                _ => {
+                    json["record"]["draft"]["inbox_knowledge"]["supersedes"] =
+                        serde_json::Value::Null
+                }
+            }
+            let changed = serde_json::to_vec(&json).unwrap();
+            raw.execute(
+                "UPDATE proposals SET record_json=?2,record_sha256=?3 WHERE id=?1",
+                params![draft.id.to_string(), changed, digest(&changed).as_slice()],
+            )
+            .unwrap();
+            assert!(
+                matches!(store.proposal(draft.id), Err(Error::Invalid(_))),
+                "read mode {mode}"
+            );
+        }
+        drop(raw);
+        drop(store);
+        let bytes = std::fs::read(data.path().join("brn.sqlite")).unwrap();
+        let backups = std::fs::read_dir(data.path().join("backups"))
+            .unwrap()
+            .count();
+        assert!(
+            matches!(WorkStore::open(data.path()), Err(Error::Invalid(_))),
+            "startup mode {mode}"
+        );
+        assert_eq!(
+            std::fs::read(data.path().join("brn.sqlite")).unwrap(),
+            bytes,
+            "bytes mode {mode}"
+        );
+        assert_eq!(
+            std::fs::read_dir(data.path().join("backups"))
+                .unwrap()
+                .count(),
+            backups,
+            "backups mode {mode}"
+        );
+        assert!(
+            !std::fs::read_dir(data.path()).unwrap().any(|entry| entry
+                .unwrap()
+                .file_name()
+                .to_string_lossy()
+                .contains("corrupt")),
+            "restore mode {mode}"
+        );
+    }
 }

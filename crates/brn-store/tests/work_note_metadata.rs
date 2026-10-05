@@ -396,3 +396,71 @@ fn historic_malformed_class_bytes_do_not_gain_a_store_replay_or_edit_constraint(
     let (mut store, _) = WorkStore::open(&fixture.path().canonicalize().unwrap()).unwrap();
     assert_eq!(store.create_proposal(&draft).unwrap(), updated);
 }
+
+#[test]
+fn history_transition_changes_only_managed_state_and_preserves_exact_other_bytes() {
+    for newline in ["\n", "\r\n"] {
+        for scalar in ["current", "'current'", "\"current\""] {
+            let before = format!(
+                "\u{feff}---{newline}brn_id: {ID}{newline}brn_kind: knowledge{newline}brn_state:\t {scalar}\t# keep 日本語{newline}custom: |{newline}  brn_state: opaque{newline}brn_provenance: []{newline}...{newline}Exact body 🦀{newline}"
+            );
+            let expected = before.replacen(scalar, &scalar.replace("current", "history"), 1);
+            let history = brn_store::note_metadata::to_history(&before).unwrap();
+            assert_eq!(history.as_bytes(), expected.as_bytes());
+            assert_eq!(
+                classify(&history).unwrap(),
+                NoteClassification {
+                    source: false,
+                    history: true
+                }
+            );
+            assert_eq!(
+                note_identity::read(&history).unwrap(),
+                Some(Uuid::parse_str(ID).unwrap())
+            );
+            assert!(brn_store::note_metadata::to_history(&history).is_err());
+        }
+        let before =
+            format!("\u{feff}---{newline}custom: keep{newline}---{newline}Exact body 🦀{newline}");
+        assert_eq!(
+            brn_store::note_metadata::to_history(&before).unwrap(),
+            before.replacen(
+                &format!("---{newline}"),
+                &format!("---{newline}brn_state: history{newline}"),
+                1
+            )
+        );
+        let bare = format!("\u{feff}Exact body 🦀{newline}");
+        assert_eq!(
+            brn_store::note_metadata::to_history(&bare).unwrap(),
+            format!(
+                "\u{feff}---{newline}brn_state: history{newline}---{newline}Exact body 🦀{newline}"
+            )
+        );
+    }
+    assert_eq!(
+        brn_store::note_metadata::to_history("").unwrap(),
+        "---\nbrn_state: history\n---\n"
+    );
+}
+
+#[test]
+fn history_transition_refuses_source_history_malformed_headers_and_size_overflow() {
+    for before in [
+        "---\nbrn_kind: source\n---\nBody\n",
+        "---\nbrn_state: history\n---\nBody\n",
+        "---\nbrn_state: current\nbrn_state: current\n---\nBody\n",
+        "---\nbrn_state: unsupported\n---\nBody\n",
+        "---\nbrn_state: 'current\n---\nBody\n",
+        "---\ncustom: keep\n",
+        "--- \ncustom: keep\n---\nBody\n",
+        "---\n{custom: keep}\n---\nBody\n",
+    ] {
+        assert!(
+            brn_store::note_metadata::to_history(before).is_err(),
+            "{before:?}"
+        );
+    }
+    assert!(brn_store::note_metadata::to_history(&"x".repeat(1024 * 1024)).is_err());
+    assert!(brn_store::note_metadata::to_history(&"x".repeat(1024 * 1024 + 1)).is_err());
+}

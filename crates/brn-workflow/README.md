@@ -42,8 +42,8 @@ a complete operational preview remains readable even if a later Source wrapper
 would exceed its separate byte bound.
 These previews require semantic review. `PrepareInboxSource` prepares a bound
 whole Source draft for the existing exact approval/recovery boundary. Opt-in
-knowledge and Action review are described below. Links/replacement consequences,
-attachment/visual interpretation and safe deletion remain follow-on capabilities.
+knowledge, Action and supersession review are described below.
+Conflict capture, attachment/visual interpretation and safe deletion remain follow-on capabilities.
 No original deletion, provider call or authoritative write occurs here.
 
 `CaptureInbox`, `InboxItem` and `InboxItems` are headless workflow commands for
@@ -738,7 +738,7 @@ frontmatter remains body evidence under a new UUID and `brn_kind: source`.
 Portable `brn_inbox_source` provenance is available through `NoteProvenance`.
 Source copies retain exact body/proof through edits and Rewrite; separate Action
 and opt-in knowledge proposals with captured saved link targets are implemented
-below. Replacement/conflict consequences remain following work. Original proof is checked during
+below. Paired supersession is described below; conflict capture remains following work. Original proof is checked during
 unfinished application/Finish repair; completed historical replay and ordinary
 recovery do not require processing rows or the original to remain available. Restore
 repair may remove a partial source without recreating or deleting the original.
@@ -756,7 +756,7 @@ remaining semantic review; no original deletion or completeness is implied.
 Only that bound semantic turn enables `propose_knowledge`. One call supplies a
 new note/proposal UUID, Current destination, complete Markdown, selected-Source
 byte ranges and ordered additional `source_paths` (0–63 paths; legacy omission
-means empty). Workflow captures full saved target proofs after the selected Source;
+means empty), plus optional `supersedes` Current predecessor path. Workflow captures full saved target proofs after the selected Source;
 explicit Source/History evidence keeps its scope and pending drafts are not saved
 targets. Workflow assigns/protects identity and exact saved quotations in
 `brn_provenance`; it rejects Source/History/invented provenance, invalid UTF-8
@@ -775,5 +775,17 @@ Activity and Undo remain the application mechanism. Ordinary Ask, Action-only
 analysis, readonly answers and Rewrite never acquire the new capability. All
 callbacks share admission/cancellation/draining; clients own no persistence or
 provider implementation. Saved links and relationships use the existing derived
-queries and rebuild after index loss. Replacement/history/conflict resolution and
-safe original-copy deletion remain following Stage7 slices.
+queries and rebuild after index loss. Optional supersedes produces one exact
+Create/History Replace pair: a distinct new Current UUID and the predecessor at
+its existing path with only brn_state changed to history. Workflow adds a Previous
+version link, captures the full predecessor proof automatically second, then
+ordered extra targets (0–62). Do not repeat the predecessor in source_paths.
+Unmanaged/Source/History/ambiguous predecessors refuse. Current content remains
+editable with immutable citations/footer; History bytes remain protected through
+edit/Rewrite. Exact approval also requires the footer to parse as a body link.
+Creation replay reuses retained before_text/proofs ahead of fresh files. Apply,
+recovery and Finish qualify predecessor identity against its exact before or own
+prepared historical object; equal bytes or another inode do not suffice. Current
+retrieval excludes that history; explicit History and existing relationships/Undo
+remain shared and rebuildable. Conflict capture/resolution and safe original-copy
+deletion remain following Stage7 slices.

@@ -29,10 +29,13 @@ pub trait ProposalTools: Send + Sync {
     }
 }
 
-/// One complete Knowledge Create candidate; workflow owns source and citation rules.
+/// One complete Current knowledge consequence; workflow owns source and citation rules.
 #[derive(Clone, Debug, Serialize, Deserialize)]
 #[serde(deny_unknown_fields)]
 pub struct KnowledgeProposalArgs {
+    /// Optional saved Current predecessor; workflow captures it and protects History.
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub supersedes: Option<String>,
     pub id: String,
     pub title: String,
     pub path: String,
@@ -70,7 +73,11 @@ impl KnowledgeProposalArgs {
             || !(1..=64).contains(&self.note_id.len())
             || !(1..=1024 * 1024).contains(&self.text.len())
             || !(1..=32).contains(&self.quotes.len())
-            || self.source_paths.len() > 63
+            || self
+                .supersedes
+                .as_ref()
+                .is_some_and(|path| !(1..=512).contains(&path.len()))
+            || self.source_paths.len() > if self.supersedes.is_some() { 62 } else { 63 }
             || self
                 .source_paths
                 .iter()
@@ -117,7 +124,7 @@ impl Tool for ProposeKnowledge {
     type Output = Value;
     type Error = AiError;
     fn description(&self) -> String {
-        "Create one independent current Knowledge Create review draft from the explicitly selected approved Inbox Source. Supply complete candidate Markdown, stable proposal and note UUIDs, a relative destination path, exact source byte ranges, and ordered additional source_paths. The selected Inbox Source is automatically the mandatory first proof; do not include it again. Stable brn://note/UUID relationships require exact named target evidence. Read tools default to Current; explicitly named extra Source or History paths are evidence, never truth or deletion approval. Workflow captures complete saved proofs and adds exact saved citations. This tool never approves or writes knowledge. Retry only identical original input and UUIDs; human review and separate exact approval are required.".into()
+        "Create one independent current Knowledge review draft from the explicitly selected approved Inbox Source. Supply complete candidate Markdown, stable proposal and note UUIDs, a relative destination path, exact source byte ranges, and ordered additional source_paths. The selected Inbox Source is automatically the mandatory first proof; do not include it again. Stable brn://note/UUID relationships require exact named target evidence. Read tools default to Current; explicitly named extra Source or History paths are evidence, never truth or deletion approval. Optional supersedes names one saved Current knowledge path: workflow captures it as the second proof, adds a Previous version link and a protected History member to this same exact proposal. Do not repeat that path in source_paths or use a Source/History predecessor. Workflow captures complete saved proofs and adds exact saved citations. This tool never approves or writes knowledge. Retry only identical original input and UUIDs; human review and separate exact approval are required.".into()
     }
     fn parameters(&self) -> Value {
         json!({"type":"object","additionalProperties":false,"properties":{
@@ -126,6 +133,7 @@ impl Tool for ProposeKnowledge {
             "path":{"type":"string","minLength":1,"maxLength":512},
             "note_id":{"type":"string","format":"uuid","minLength":1,"maxLength":64},
             "text":{"type":"string","minLength":1,"maxLength":1048576},
+            "supersedes":{"type":["string","null"],"minLength":1,"maxLength":512},
             "source_paths":{"type":"array","maxItems":63,"items":{"type":"string","minLength":1,"maxLength":512}},
             "quotes":{"type":"array","minItems":1,"maxItems":32,"items":{
                 "type":"object","additionalProperties":false,"properties":{
@@ -133,7 +141,7 @@ impl Tool for ProposeKnowledge {
                     "end_byte":{"type":"integer","minimum":1,"maximum":50000}
                 },"required":["start_byte","end_byte"]
             }}
-        },"required":["id","title","path","note_id","text","quotes","source_paths"]})
+        },"required":["id","title","path","note_id","text","quotes","source_paths","supersedes"]})
     }
     async fn call(&self, _: &mut ToolContext, args: KnowledgeProposalArgs) -> AiResult<Value> {
         args.validate()?;
@@ -342,6 +350,7 @@ mod tests {
 
     fn knowledge_args() -> KnowledgeProposalArgs {
         KnowledgeProposalArgs {
+            supersedes: None,
             id: "workflow parses this UUID".into(),
             title: "Exact õ\r\n".into(),
             path: "workflow checks the destination".into(),

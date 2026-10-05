@@ -6,7 +6,7 @@ use crate::{
     proposals::{DraftNoteChange, DraftRequest},
 };
 
-fn target(worker: &AppWorker, path: &str, history: bool) -> (Uuid, ProposalSource) {
+pub(super) fn target(worker: &AppWorker, path: &str, history: bool) -> (Uuid, ProposalSource) {
     let id = Uuid::new_v4();
     let request = DraftRequest {
         inbox_knowledge: None,
@@ -49,7 +49,10 @@ fn linked(source: &SourceFixture, targets: &[(Uuid, ProposalSource)]) -> Knowled
     k
 }
 
-fn relationships(worker: &AppWorker, scope: KnowledgeScope) -> crate::knowledge::RelationshipPage {
+pub(super) fn relationships(
+    worker: &AppWorker,
+    scope: KnowledgeScope,
+) -> crate::knowledge::RelationshipPage {
     let AppEvent::Relationships(page) = reply(
         worker,
         AppCommand::Relationships(RelationshipRequest {

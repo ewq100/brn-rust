@@ -802,3 +802,16 @@ Fetch the handoff branch for checkpoint documentation and the exact integrated
 code above; preserve unrelated checkout edits. Owner checkout remains at
 `114090c5` with its unrelated dirty `AGENTS.md`, untouched. Do not migrate private
 vaults/data/credentials or resume account/download scope from historical evidence.
+
+
+## Mac mini continuation — 2026-10-05
+
+Owner resumed the sequential roadmap on Mac mini. Origin qualification confirmed
+PR53 and the direct documentation-only handoff74725ad. The older primary main
+checkout and its Finder files, existing feature worktrees and historical trial
+checkout remain untouched. Rust1.98.1/locked offline shared/native baseline,
+52fixtures and two V14 shipping starts passed on the new Mac mini before code edits.
+The bounded [supersession consequence](supersession-plan.md) creates one exact
+Current/History pair over existing approval/recovery; conflict capture follows
+before safe original-copy deletion. Candidate review/verification/integration
+are pending in that record. No live/provider/model/private-data operation occurred.

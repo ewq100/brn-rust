@@ -12,6 +12,7 @@ pub use brn_store::work::inbox_actions::{
 use serde::{Deserialize, Serialize};
 use uuid::Uuid;
 mod knowledge;
+pub(crate) use knowledge::validate_supersession_link;
 
 pub const MAX_INBOX_ACTION_PROPOSALS: usize = 20;
 
@@ -73,7 +74,7 @@ fn question(capture: &InboxActionCapture) -> Result<String> {
         "source_text": capture.source_text,
     });
     let knowledge = if capture.purpose == InboxAnalysisPurpose::KnowledgeAndActions {
-        " Also propose useful current knowledge using propose_knowledge: one independent new note per call, a stable new note UUID and relative destination, complete candidate Markdown, and exact selected-Source quote byte ranges. Keep interpretation separate from evidence; BRN will add identity and exact provenance. Search Current first for duplicates, conflicts or likely replacement. For proposed stable brn://note/UUID links, name every additional saved target path in source_paths; the selected Source is captured automatically, so do not repeat its path. Pending drafts are not saved targets. Explicit historical targets remain evidence, not current truth. Exact human approval must validate all captured targets. Do not replace existing knowledge, invent agreement or treat historical Source as current truth. If new current knowledge is not supported, report the conflict/uncertainty instead. The shared cap is20 Action/knowledge drafts. Knowledge capture does not establish semantic completeness or original-copy deletion authority."
+        " Also propose useful current knowledge using propose_knowledge: one independent new note per call, a stable new note UUID and relative destination, complete candidate Markdown, and exact selected-Source quote byte ranges. Keep interpretation separate from evidence; BRN will add identity and exact provenance. Search Current first for duplicates, conflicts or likely replacement. For proposed stable brn://note/UUID links, name every additional saved target path in source_paths; the selected Source is captured automatically, so do not repeat its path. Pending drafts are not saved targets. Explicit historical targets remain evidence, not current truth. Exact human approval must validate all captured targets. When evidence supports replacement, optional supersedes names one saved Current knowledge path, distinct from the new note and Source. BRN captures that predecessor as the second proof, adds a Previous version link and protects its exact History member in this same atomic proposal; do not repeat that path in source_paths. Do not invent agreement or treat historical Source as current truth. If new current knowledge is not supported, report the conflict/uncertainty instead. The shared cap is20 Action/knowledge drafts. Knowledge capture does not establish semantic completeness or original-copy deletion authority."
     } else {
         ""
     };

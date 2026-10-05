@@ -95,30 +95,35 @@ passed; composition/Rewrite/Ask native/live/owner acceptance remains pending.
 Scenarios and integration evidence remain in the
 [completed Actions record](work/completed/actions-dashboard/plan.md).
 
-## Mac mini handoff
+## Mac mini continuation
 
-The requested Inbox knowledge-analysis slice is integrated and qualified under
-the macOS/shared CI policy. MacBook development stops at this checkpoint at the
-owner's request. `codex/v1-inbox-knowledge-handoff` retains the exact
-integrated code and a final documentation-only checkpoint. Replacement/history/
-conflict resolution, then safe original-copy deletion, are the next Stage7 work
-only after Mac mini resume; no next slice has begun. Completed behavior, exact
-identities, verification, pending acceptance and environment requirements are in
-the [handoff checkpoint](work/active/text-email-inbox/plan.md#mac-mini-handoff-checkpoint--2026-10-05).
-No provider/download calls or original/private data operations were performed.
+Owner resumed development on Mac mini on2026-10-05. The production merge and
+documentation-only74725ad handoff were verified after fetch. An isolated
+`codex/v1-stage7-history` checkout preserves the older primary checkout and all
+unrelated work. Fresh Rust1.98.1 locked offline shared/native baseline passed,
+including1269shared/282Desktop tests,52fixtures and two shipping V14 starts.
+The bounded [supersession slice](work/active/text-email-inbox/supersession-plan.md)
+is implemented with focused passing tests and a clean complete independent
+review after correcting exact footer qualification. Final local checks passed
+1282shared/282Desktop tests,259optional workflow tests,106synthetic capability
+tests,52fixtures and two shipping V14 restarts, with documented ignores.
+Hosted and merged verification remain pending. Conflict capture is next,
+then qualified original-copy deletion. No new live calls or model/private-data
+operations are authorized by historical evidence.
 
 ## Qualification and owner items
 
 - Actual multilingual asset download needs the pending bounded owner permission.
   ONNX compatibility, EN↔ET quality, truncation, scoped restart/rebuild and tool/CLI
   parity remain open.
-- Luna-only BRN app/provider qualification is authorized with fresh human Connect,
+- The prior bounded Luna-only BRN app/provider qualification round used fresh human Connect,
   at most2 catalog calls+2 logical probes,18 completions maximum. Exact gpt-6-luna;
   no fallback, purchases or existing credential/private-vault inspection. After
   fresh sign-in and normal desktop quit, both permitted catalog calls succeeded,
   but the captured extraction established no usable IDs and did not retain raw
   catalog shape/length. Luna availability remains unverified;0logical probes/
-  0completions were made. No further calls in this round. Development/review may
+  0completions were made. This round is exhausted; fresh owner permission is required
+  for any new live call. Development/review may
   use Sol/Luna, neverAstra.
 - Prior unlocked native checks passed synthetic scoped reads, Unicode Save and
   acknowledged buffer recovery after full quit/restart. Safe original UI captures
@@ -143,10 +148,10 @@ No provider/download calls or original/private data operations were performed.
 Pending acceptance does not block later safe implementation when it is not a
 dependency. No original data was inspected or migrated.
 
-For transfer to the Mac mini: preserve this chat/checkpoint and task-owned branches;
+For continuation: preserve the chat/checkpoints and task-owned branches;
 use Apple Silicon macOS/Command Line Tools, pinned Rust1.98.1, locked dependencies,
 protobuf, Bash/Python3 and an explicit existing canonical owned TMPDIR. Native
-interaction needs an unlocked, awake session; fresh human Connect is only for the
-bounded live round. Optional native features and shipping builds need separate
+interaction needs an unlocked, awake session; fresh human Connect and additional
+live calls need fresh owner authorization. Optional native features and shipping builds need separate
 checks. [Verification](development/verification.md) and
 [setup](development/setup.md) contain reproducible commands.

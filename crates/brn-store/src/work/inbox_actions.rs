@@ -2,7 +2,7 @@
 //! execution lifecycle; saved Source bytes/proofs are retained as operational
 //! evidence, never modified or promoted to knowledge here.
 use super::{WorkStore, chat, now_ms, proposals::SourceVersion};
-use crate::{Error, Result, hash, invalid};
+use crate::{Error, Result, files::FileFingerprint, hash, invalid};
 use rusqlite::{Connection, OptionalExtension, TransactionBehavior, params};
 use serde::{Deserialize, Serialize};
 use std::collections::HashSet;
@@ -290,7 +290,15 @@ impl chat::ChatStore {
     }
 }
 
-/// Immutable authority for one independently reviewed knowledge Create.
+/// Exact predecessor authority inside an independently reviewed supersession.
+#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
+#[serde(deny_unknown_fields)]
+pub struct InboxSupersedesBinding {
+    pub note_id: Uuid,
+    pub source: SourceVersion,
+}
+
+/// Immutable authority for one independently reviewed knowledge consequence.
 /// This is proposal metadata, not a second execution or application lifecycle.
 #[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
 #[serde(deny_unknown_fields)]
@@ -298,6 +306,8 @@ pub struct InboxKnowledgeBinding {
     pub analysis_id: Uuid,
     pub note_id: Uuid,
     pub source: SourceVersion,
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub supersedes: Option<InboxSupersedesBinding>,
     pub citations: Vec<crate::note_provenance::VaultCitation>,
 }
 impl InboxKnowledgeBinding {
@@ -326,10 +336,23 @@ impl InboxKnowledgeBinding {
                 "Inbox knowledge citations must bind one separate exact Source",
             ));
         }
+        if let Some(previous) = &self.supersedes {
+            super::proposals::validate_path(&previous.source.path)?;
+            if previous.note_id.is_nil()
+                || previous.note_id == self.note_id
+                || previous.note_id == source_id
+                || previous.source.path.eq_ignore_ascii_case(&self.source.path)
+                || previous.source.fingerprint.len > super::MAX_NOTE_BYTES as u64
+            {
+                return Err(invalid(
+                    "Inbox supersession needs a separate bounded predecessor identity and path",
+                ));
+            }
+        }
         Ok(())
     }
-    /// The selected Inbox Source remains first; additional ordered proofs are
-    /// ordinary proposal evidence. Target eligibility belongs to workflow.
+    /// Selected Source is first and a bound predecessor is second. Remaining
+    /// ordered proofs are ordinary evidence; target eligibility belongs to workflow.
     pub fn validate_sources(&self, sources: &[SourceVersion]) -> Result<()> {
         self.validate()?;
         if !(1..=super::proposals::MAX_PROPOSAL_CHANGES).contains(&sources.len())
@@ -337,6 +360,13 @@ impl InboxKnowledgeBinding {
         {
             return Err(invalid(
                 "Inbox knowledge needs its exact selected Source first and 1 to 64 source bindings",
+            ));
+        }
+        if let Some(previous) = &self.supersedes
+            && sources.get(1) != Some(&previous.source)
+        {
+            return Err(invalid(
+                "Inbox supersession needs its exact predecessor source second",
             ));
         }
         let mut paths = HashSet::new();
@@ -365,6 +395,46 @@ impl InboxKnowledgeBinding {
                 "Inbox knowledge must preserve its current identity and exact Source citations",
             ));
         }
+        if let Some(previous) = &self.supersedes
+            && !text.ends_with(&format!(
+                "\n\nPrevious version: [History](brn://note/{})\n",
+                previous.note_id
+            ))
+        {
+            return Err(invalid(
+                "Inbox supersession must preserve its exact previous-version footer",
+            ));
+        }
+        Ok(())
+    }
+
+    /// Validate the sole historical member against its immutable complete proof.
+    /// Review and Rewrite cannot change any of its generated History bytes.
+    pub fn validate_history(
+        &self,
+        path: &str,
+        before: &FileFingerprint,
+        before_text: &str,
+        text: &str,
+    ) -> Result<()> {
+        self.validate()?;
+        let previous = self
+            .supersedes
+            .as_ref()
+            .ok_or_else(|| invalid("Inbox knowledge has no supersession binding"))?;
+        if path != previous.source.path
+            || before != &previous.source.fingerprint
+            || before.len != before_text.len() as u64
+            || before.sha256 != hash(before_text.as_bytes())
+            || crate::note_identity::read(before_text)? != Some(previous.note_id)
+            || super::inbox_source::read_provenance(before_text)?.is_some()
+            || text != crate::note_metadata::to_history(before_text)?
+        {
+            return Err(invalid(
+                "Inbox History member differs from its exact current predecessor",
+            ));
+        }
+        crate::note_provenance::read(before_text)?;
         Ok(())
     }
 }
