@@ -10,6 +10,8 @@ Lead-confirmed 2026-10-06: full frozen V1 goal **active**, without a token budge
   verified removal/restore implementation retains original evidence. It is held
   for record-shape/performance and owner-ratified cleanup corrections.
 - **Current:** `codex/v1-review-evidence-boundary`, separately based on main60.
+  Reviewed code/evidence commit `e09ca62c158980382fd805b2d33c1f91cf3f40be`;
+  this checkpoint update changes documentation only.
   Rust resolves model-selected quote text into exact body ranges; missing,
   ambiguous or invalid occurrences refuse. Conflict identities/replay are owned
   by the analysis/intent. Documentation records actual vault bytes and the

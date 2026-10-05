@@ -5,7 +5,8 @@
 Reviewed snapshot: `codex/v1-inbox-recoverable-removal` at
 `7c4f668de467721f728f242c8fac8d14606a6e44`, retained unchanged on GitHub.
 Integrated baseline: PR60, `48941d3ae2c16dd014b6cb0f69a01b8c4ef60fa0`.
-Corrections start separately on `codex/v1-review-evidence-boundary`.
+Corrections start separately on `codex/v1-review-evidence-boundary`, reviewed
+code/evidence commit `e09ca62c158980382fd805b2d33c1f91cf3f40be`.
 The complete V1 goal is confirmed **active** by `get_goal` on 2026-10-05;
 its full objective and roadmap dependency order remain unchanged.
 
