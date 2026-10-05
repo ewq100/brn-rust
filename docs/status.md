@@ -66,6 +66,26 @@ Evidence: [Actions/dashboard record](work/completed/actions-dashboard/plan.md).
 
 ## Latest integrated checkpoint
 
+[PR55](https://github.com/ewq100/brn-rust/pull/55) merged at
+**c5aaa6c4c96007e452151adb167964bf9e2b048a**, exact reviewed tree
+`1477a02aed55a8932b23d41ec89540b37948e87c`. Inbox retains tentative unresolved
+conflicts with two exact saved body proofs; shared Ask/CLI lookup keeps complete
+pages and fresh staleness/ambiguity explicit. Native analysis opens the exact
+Needs Review finding through editor recovery guards. No knowledge/Action changes
+or original-copy deletion occur. Independent review is clean after reproducing
+and fixing malformed managed metadata acceptance.
+
+Final local1315shared/0fail/8ignores,285Desktop/0/0,268optional workflow/0/7,
+116capability/0/0,52fixtures/two V14 restarts and relevant builds/Clippy passed.
+Automatic exact-head PR run37335653379 attempt1 passed all macOS/shared lanes.
+Windows22complete compiler blocks/two summaries and failure sources exactly match
+qualified PR54 main. Normal merge satisfied current GitHub requirements. Fresh
+merged9worker tests/52fixtures/two restarts passed; merged-main37336763915 attempt1 passed all four applicable Mac/shared jobs.
+Overall red retains four baseline-identical informational platform failures. Native/live/owner acceptance stays pending. Evidence:
+[conflict checkpoint](work/active/text-email-inbox/conflicts-plan.md).
+
+Previous integrated supersession milestone:
+
 [PR54](https://github.com/ewq100/brn-rust/pull/54) merged at
 **eb36b331eb35c9cb5bc5b072060d89c39523ac87**, exact reviewed tree
 `c7ab27798a59ab1fef4577baa099ab783083b9b6`. Inbox knowledge can propose a new
@@ -105,13 +125,16 @@ Scenarios and integration evidence remain in the
 Owner resumed on Mac mini from verified production and documentation-only74725ad
 handoff. Isolated work preserves unrelated checkouts. Complete V1 goal tracking
 is confirmed active through trusted-user packaging, without a token budget.
-Current branch `codex/v1-stage7-conflicts` starts at PR54's merge. Retain unresolved conflicts in existing
-Findings and expose matching conflicts to ordinary Ask. The shared worker, strict
-AI tools, CLI and native navigation are implemented in the task branch; final
-independent review is clean after fixing malformed managed provenance refusal.
-Final local gates passed1315shared/285native Desktop/268optional workflow/
-116capability tests,52fixtures and two V14 restarts, with documented ignores.
-Exact-head CI/integration remain pending; native/live/owner acceptance stays open.
+Tooling PR56 is integrated at `03bb83a93c2df88e2699c72fb83e3ec0d78d41c1`:
+atomic verification evidence, exact CI summaries, Markdown CI checks and portable
+preflight. Four Mac/shared checks enforce strict freshness/admin requirements.
+Fresh merged tooling checks pass; main run37341534594 remains pending.
+[Resumable checkpoint](development/checkpoint.md) retains the current full goal.
+
+Current branch `codex/v1-stage7-original-copy` starts at this verified merge. Unresolved Inbox conflicts and shared Ask/CLI/native review are integrated.
+Exact semantic qualification and recoverable original-copy removal follow.
+Independent environment/tooling work is isolated on a separate codex branch;
+lead retains architecture and integration.
 See the [conflict checkpoint](work/active/text-email-inbox/conflicts-plan.md).
 Qualified original-copy deletion follows this slice. BRN's frozen development workflow governs; completed
 work/reviews/checks are reused. Historical evidence authorizes no additional live

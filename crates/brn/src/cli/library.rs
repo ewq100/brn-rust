@@ -402,6 +402,7 @@ fn execute(
                     lane.query_with_id(request.id, AppCommand::CaptureInbox(request.clone()))?
                 }
                 AppCommand::InboxItem(id) => lane.query(AppCommand::InboxItem(*id))?,
+                AppCommand::InboxReview(id) => lane.query(AppCommand::InboxReview(*id))?,
                 AppCommand::InboxItems(request) => {
                     lane.query(AppCommand::InboxItems(request.clone()))?
                 }

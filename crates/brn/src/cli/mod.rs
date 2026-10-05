@@ -148,6 +148,7 @@ Commands:
   brn inbox add --id UUID --title TITLE --file TEXT_FILE [--kind text|markdown|email|teams] [--original-name LABEL]
   brn inbox list [--limit N] [--after UUID]
   brn inbox show UUID
+  brn inbox review UUID
   brn inbox process --file REQUEST_JSON
   brn inbox processing UUID
   brn inbox candidate UUID INDEX

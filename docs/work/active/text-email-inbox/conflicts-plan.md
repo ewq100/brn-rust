@@ -119,3 +119,36 @@ conflicts. Live execution of that scenario requires fresh bounded authorization.
 
 Next unfinished gate: commit/push one PR and qualify its
 exact latest-head macOS/shared CI and GitHub requirements before normal merge.
+
+## Integrated checkpoint — 2026-10-05
+
+[PR55](https://github.com/ewq100/brn-rust/pull/55) merged normally at
+**c5aaa6c4c96007e452151adb167964bf9e2b048a**, parents PR54 merge plus candidate
+`569e654d5c99899037db1cc7d83d30d00d30ae42`; exact reviewed tree
+`1477a02aed55a8932b23d41ec89540b37948e87c`. Automatic PR run37335653379 attempt1
+passed macOS Core/CLI, Native UI, Native Retrieval and Ubuntu Core/CLI on that
+exact head. Windows Core remains failed;22complete compiler blocks and two
+summaries exactly match qualified PR54 main, with byte-identical auth/Store-lib
+failure sources and CI/setup configuration. Current GitHub main has no additional
+protection/ruleset requirements; normal expected-head merge used no bypass.
+
+Fresh merged checks passed9conflict worker tests,52end-to-end fixtures and two
+shipping V14 restarts, no legacy database or credential files. Merged-main
+run37336763915 attempt1 passed all four applicable Mac/shared jobs. Overall red
+retains four informational platform failures: full compiler blocks/summaries
+match PR54 main; three complete Linux assertion/backtrace blocks match by test
+name. Failure sources and CI/setup blobs are unchanged. Native/live/provider
+compliance and owner acceptance remain pending. No new live calls/model assets/
+private data were used. Full V1 goal remains confirmed active, without budget.
+
+Current continuation is `codex/v1-stage7-original-copy` at this merge in the same
+isolated checkout. Next: exact semantic qualification and recoverable removal
+of one disposable intake copy; successful conversion/proposal approval/finding
+closure alone never confer completeness or deletion authority. Recovery must
+recognize certified removal before ordinary capture recovery can resurrect a
+missing copy. Preserve approved Source, captured proofs and review evidence.
+
+Independent environment/tooling work uses `codex/development-environment` in a
+separate checkout/target; lead retains V1 architecture/review/integration. No
+global skill/settings changes or extra helper goal. macOS arm64/Rust1.98.1,
+locked/offline dependencies and canonical owned TMPDIR remain the environment.

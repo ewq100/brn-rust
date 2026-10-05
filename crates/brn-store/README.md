@@ -500,3 +500,19 @@ Previous version footer; the historical member stays exact. Canonical omission
 preserves legacy binding JSON/hashes. Schema remains V14; older readers refuse
 unsupported readable semantic records rather than restoring over them. Missing
 or physically corrupt data still follows existing backup qualification.
+
+## Complete Inbox original review
+
+`inbox_review_manifest(item_id)` returns one consistent checked V14 snapshot:
+exact immutable original, all related processing attempts and analyses (including
+reserved/failed/interrupted/absent turns), Source proposals, grouped and manual
+Source-linked consequences, full approval journals and Open/closed findings.
+Manual membership also checks full Action before/origin data and all historical
+approved drafts; clearing mutable Source links never hides retained review work.
+Manual links use known Source paths or note UUIDs; path matches conservatively
+include work even when its older proof differs. Original metadata forks refuse.
+Stable timestamp/UUID ordering and canonical whole-record digest bind membership,
+review versions, lifecycle outcomes and original proposal creation digests.
+The complete encoded manifest is bounded at64MiB; oversize refuses without
+clipping. No schema/write/recovery, semantic completeness or removal authority
+is added. A digest alone is not an approval token.
