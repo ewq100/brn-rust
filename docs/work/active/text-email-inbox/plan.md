@@ -10,6 +10,16 @@ implementation is integrated;
 its native/live acceptance remains pending. Frozen vision§7/§23, architecture,
 invariants and the development workflow govern this work.
 
+## AI authority constraint
+
+Follow the owner's [semantic intelligence and deterministic authority](../../../architecture/overview.md#semantic-intelligence-and-deterministic-authority)
+clarification. The LLM supplies semantic interpretation, bounded evidence/tool
+choices and candidates; Rust/workflow verifies exact evidence and owns approval,
+effects and recovery. New task-specific AI behavior uses a small centralized
+typed static Rust behavior/prompt boundary. Existing prompts move only when
+naturally touched or very small and low risk. No new AI framework or architecture
+is authorized; frozen V1 delivery order remains unchanged.
+
 ## First deliverable: checked original-copy catalog
 
 WorkStore V12 adds a narrow immutable Inbox catalog. Each nonnil item UUID binds

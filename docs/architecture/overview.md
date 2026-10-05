@@ -43,6 +43,34 @@ Proposals have one review lifecycle and typed changes enforced by the workflow. 
 
 Crate boundaries, data ownership and product guarantees stay frozen. Reopen them with the owner only for a changed requirement or a demonstrated blocker the target cannot reasonably handle. Local table, algorithm, tool and UI details can evolve inside those boundaries. [Roadmap](../roadmap.md) owns the reviewed sequence; [status](../status.md) owns actual implementation and qualification.
 
+## Semantic intelligence and deterministic authority
+
+Owner clarification, 2026-10-05: BRN deliberately separates semantic intelligence
+from deterministic authority within the frozen six-crate architecture.
+
+| Responsibility | Owner |
+| --- | --- |
+| Interpret meaning, compare information semantically, decide which evidence to inspect, choose bounded tools, identify possible conflicts/duplicates/supersession, and produce candidate text/proposals | LLM through the existing AI lane |
+| Saved-state authority, scope classification, identity, freshness, provenance verification, exact comparisons, proposal validation, approval, filesystem effects, indexing, recovery and Undo | Rust / shared workflow and its existing storage/file/retrieval boundaries |
+
+AI output or confidence never substitutes for deterministic evidence checks or
+user approval. Semantic judgments remain candidates; Rust validates their exact
+captured evidence and typed requests before granting any existing authority.
+Clients continue through `brn-workflow` / AppWorker; `brn-ai` remains the thin Rig
+provider adapter.
+
+New task-specific AI behavior introduced during V1 uses a small centralized typed
+behavior/prompt boundary in the shared workflow. Static Rust behavior definitions
+are sufficient: keep task instructions and bounded tool choices together, with
+typed captured input and existing deterministic validation at their boundaries.
+Avoid large task instruction strings scattered through unrelated workflow or UI
+code. Migrate existing prompt code only when naturally touched or when the move
+is very small and low risk; this clarification does not require a prompt rewrite.
+
+This rule adds no dynamic Skills system, prompt database, plugin framework,
+Context Engine, second agent framework or other V1 architecture. Frozen ownership,
+exact proposal approval and current roadmap dependency order remain unchanged.
+
 ## Client and protocol boundary
 
 `brn-workflow` / AppWorker is the stable client-facing application boundary.
