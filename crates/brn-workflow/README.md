@@ -841,3 +841,16 @@ remain subsequent gates. UI and CLI use the shared AppWorker boundary.
 The private typed `ai_behavior::TaskInput` assembles full captured Inbox-analysis
 and Rewrite input. Static agent instructions/tool policy remain in `brn-ai`;
 BRN domain context, evidence validation and application authority stay here.
+
+`PreviewInboxRemoval` / `preview_inbox_removal` reports a complete removal evidence
+snapshot, freshly qualified approved Sources and saved Markdown consequences,
+original bytes/availability and explicit blockers. Qualification checks exact
+terminal fingerprints/text, bound vault, complete unique managed identities and
+retained unsaved editor work. Operational work is reread before returning; the
+full encoded payload/digest refuses above64MiB. Pending processing, unsettled or
+absent analysis, unsettled proposal/application, running Rewrite, applied Undo and
+unqualified saved outputs block this conservative first gate. Rejected proposals
+and Open findings remain visible. `needs_owner_attestation: true` remains even
+with no blockers: the preview grants no semantic approval or removal. No AI call,
+namespace effect or recovery/schema change is introduced. Exact owner attestation
+and recoverable removal/recovery remain the following slice.

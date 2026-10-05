@@ -21,6 +21,8 @@ brn findings close UUID --version N --state resolved|dismissed
 brn inbox add --id UUID --title TITLE --file TEXT_FILE [--kind text|markdown|email|teams] [--original-name LABEL]
 brn inbox list [--limit N] [--after UUID]
 brn inbox show UUID
+brn inbox review UUID
+brn inbox removal-preview UUID
 brn inbox process --file REQUEST_JSON
 brn inbox processing UUID
 brn inbox candidate UUID INDEX
@@ -910,3 +912,10 @@ controls. This read always leaves semantic review required and grants no removal
 permission. Missing/changed originals remain visible. There is no pagination or
 clipping; oversized complete evidence refuses. Nil/malformed UUIDs refuse before
 opening application state.
+
+
+`inbox removal-preview UUID` returns the full shared qualified evidence and
+blockers, preserving `needs_owner_attestation: true`. An empty blockers list grants
+no removal approval; this command never removes an original. JSON preserves exact
+proofs; terminal output escapes control characters. Confirmation and recoverable
+removal are subsequent work.
