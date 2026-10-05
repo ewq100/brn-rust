@@ -87,8 +87,8 @@ and newer owner review; another analysis or changed intent is a separate draft.
 Action candidate IDs are also minted in Rust from exact input in the owned turn;
 AI references full replacement records through checked read_action results.
 Workflow loads the full baseline and attaches selected Inbox Source evidence.
-These Action corrections are implemented on their milestone branch; independent
-review, qualification and integration remain distinct gates in status/checkpoint.
+These Action corrections are integrated; independent review, automated
+qualification and pending native/live/owner acceptance remain distinct in status/checkpoint.
 
 New task-specific AI behavior introduced during V1 uses a small centralized typed
 behavior/prompt boundary within the existing `brn-ai` / `brn-workflow` architecture.
@@ -260,7 +260,11 @@ family. A new recovery family requires a concrete blocker in those mechanisms an
 an owner decision before implementation. Existing Save/recovery mechanisms remain
 in place; additive WorkStore tables are local implementation choices, not new
 data authorities. This guidance does not authorize automatic migration or removal
-of existing recovery evidence.
+of existing recovery evidence. Knowledge approvals need their genuine captured
+analysis when recovered into older/fresh operational state; retain that minimal
+evidence within the existing proposal-apply family before shrinking duplicated
+original-operation records. Do not reconstruct provider choices, questions, times
+or historical Source bytes, and do not create a new execution during recovery.
 
 ## Build boundaries and remaining work
 

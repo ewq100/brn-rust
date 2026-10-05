@@ -17,7 +17,9 @@ Knowledge identities merged normally in PR63 at
 Action correction merged normally in PR64 at
 `90c36e5c2035d1eea4fc37e7828f085a0f1bfba0`, exact reviewed tree
 `913c3fa3bbc6d3ddfdbc1fafa87c8cae257d7e02`. Current branch:
-`codex/v1-source-preservation`, based on this clean merge. Remaining accepted
+`codex/v1-knowledge-capture-recovery`, based on PR65 merge
+`531517248300c15ce28bcb53f337984103817010`, exact reviewed tree
+`d63c1827aae5da654410520bc9c48856e1fa5e5a`. Remaining accepted
 corrections follow this plan.
 The complete V1 goal is confirmed **active** by `get_goal` on 2026-10-05;
 its full objective and roadmap dependency order remain unchanged.
@@ -364,3 +366,69 @@ no blockers and `needs_owner_confirmation: true`, with the original still retain
 Changing that Source body or duplicating its UUID must refuse qualification.
 Explicit confirmation/lifecycle and native controls follow after bounded original
 record/performance/recovery correction. No live authorization is renewed.
+
+
+## Captured-analysis recovery acceptance
+
+Source-preservation PR65 merged normally after clean review and exact-head
+PR37384547448 attempt1 protected checks/Docs passed; Windows22 compiler blocks
+and both summaries match PR64. Fresh merged9 Store/13 Workflow/6 CLI tests+52
+fixtures passed at unchanged5315172/tree d63c1827, terminalexit0. Main65
+run37385458794 attempt1 passed all applicable gates; Windows22/22/14 complete
+blocks/summaries match main64. Linux retrieval retains the same three assertions/
+backtraces/order/terminal summary; only thread IDs changed, retained in full logs.
+
+Inspection confirms a prerequisite to shrinking legacy original-operation records:
+ordinary Knowledge approval receipts retain the journal, but not its genuine
+`InboxActionJob`. A fresh database import can commit an uncheckable Knowledge
+proposal before a later contextual read refuses it. Old lifecycle certificates
+restore these captures incidentally; removing that graph without a replacement
+would lose recovery evidence. Existing capture limits remain50,000 Source bytes,
+512KiB question and1MiB encoded job.
+
+- Retain one genuine immutable captured job per Knowledge-bound approval in the
+  existing `.brn-apply-<operation>` family. Keep format1 receipt bytes/hashes and
+  equal occupied files unchanged; no new recovery family, database/schema, chat
+  framework or provider call. Pure payload checks validate shape/binding; equality
+  to retained evidence protects original question/time/selection, never invents them.
+- Exclusively publish the bounded hash-checked capture companion before effects;
+  equal occupied companions are checked/synced, different/corrupt occupants refuse.
+  Valid prepublished orphan captures retain no apply/provider authority. Unknown
+  family names and corrupt canonical companions remain fail-closed.
+- Import capture/proposal/journal in one Store transaction, checking exact Source,
+  purpose, analysis UUID and every citation before commit. Missing capture refuses
+  without partial work. Existing checked SQL or validated legacy evidence can seed
+  an older receipt's companion; unavailable evidence is never reconstructed.
+- Preserve newer review, comments cleanup, supersession and repair. No fabricated
+  session/turn or repeated provider work under a recovered historical analysis UUID.
+- Prove fresh/older-database recovery, legacy receipt byte/inode compatibility,
+  mismatched/missing/corrupt evidence rollback, exclusive/equal replay, interruptions
+  and historical execution refusal with synthetic tests. Independent full review,
+  relevant shared/native checks, exact-head protected CI and normal merge follow.
+
+Lean original-operation records/lifecycle integration follow this prerequisite;
+native/live/owner acceptance and trusted-user packaging remain separately pending.
+
+
+Captured-analysis implementation retains the exact job plus approval request and
+immutable Knowledge-binding digest in a canonical hash-checked companion bounded
+at1MiB+4096 bytes. Companion publication/import/repair stays in the existing
+approval family. Format1 receipts remain unchanged. A valid prepublished orphan
+is checked and inert; it cannot create a proposal, chat or filesystem authority.
+
+The lead's baseline regression failed exit101 on fresh Applied Knowledge recovery:
+`Inbox knowledge analysis capture is unavailable`. The Store helper independently
+reproduced the old fresh import committing uncheckable work before fixing the
+transaction. Helper8 new recovery tests and112 related Store tests passed,
+all-target Clippy/owned format/link checks passed; supplied capture and restored
+journal are fully checked before one commit. Genuine question/time/selection are
+retained exactly; fresh structural validation never claims to derive those facts.
+
+Initial integrated Workflow run passed12, failed1, ignored1. The failing test
+incorrectly required a fence after an occupied exact companion was rechecked/
+synced and the no-effect refusal was durably completed. Its expectation was
+corrected to require terminal NotApplied with no vault effects; earlier unresolved
+publication failures still require fences. Corrected13/0/1 and Store/Workflow
+all-target Clippy passed. A further near-limit escaped genuine capture test passed,
+including fresh recovery and no manufactured chat. Full review/shared/native gates
+and exact-head integration remain pending; intermediate failures are retained.

@@ -17,6 +17,7 @@ mod action_repair_tests;
 #[cfg(all(test, target_os = "macos"))]
 mod inbox_knowledge_recovery_tests;
 mod repair;
+use brn_store::work::inbox_actions::InboxActionJob;
 use brn_store::work::proposals::{NoteChange, ProposalDraft, ProposalState};
 use brn_store::{
     WorkStore,
@@ -231,6 +232,7 @@ pub(crate) fn restore_application_records(
                 .read(id)
                 .map_err(file_error)?
                 .ok_or_else(|| stale("approval recovery record disappeared"))?;
+            let capture = retain_inbox_capture(&records, store, &snapshot.journal)?;
             if snapshot
                 .journal
                 .receipt
@@ -242,7 +244,8 @@ pub(crate) fn restore_application_records(
             records
                 .write(&snapshot.journal, Some(&snapshot))
                 .map_err(file_error)?;
-            let effective = store.restore_proposal_apply(&snapshot.journal)?;
+            let effective =
+                store.restore_proposal_apply_with_capture(&snapshot.journal, capture.as_ref())?;
             if effective != snapshot.journal {
                 if effective
                     .receipt
@@ -258,6 +261,37 @@ pub(crate) fn restore_application_records(
         }
         Ok(Some(records))
     }
+}
+
+/// Preserve only genuine saved analysis work. A journal cannot reconstruct its
+/// historical provider/question/time or Source bytes from current vault contents.
+fn retain_inbox_capture(
+    records: &ApplyRecoveryFiles,
+    store: &WorkStore,
+    journal: &ApplyJournal,
+) -> Result<Option<InboxActionJob>> {
+    let Some(binding) = journal.approved.draft.inbox_knowledge.as_deref() else {
+        return Ok(None);
+    };
+    let retained = records.read_inbox_capture(journal).map_err(file_error)?;
+    let stored = store.inbox_action(binding.analysis_id)?;
+    if retained
+        .as_ref()
+        .zip(stored.as_ref())
+        .is_some_and(|(a, b)| a != b)
+    {
+        return Err(stale(
+            "approval analysis companion differs from retained work",
+        ));
+    }
+    let job = retained
+        .or(stored)
+        .ok_or_else(|| stale("approval analysis capture is unavailable"))?;
+    binding.validate_capture(&job)?;
+    records
+        .write_inbox_capture(journal, &job)
+        .map_err(file_error)?;
+    Ok(Some(job))
 }
 
 fn clean_snapshot_comments(records: &ApplyRecoveryFiles, approved: &ApplyJournal) -> Result<()> {
@@ -606,6 +640,8 @@ impl App {
         attempted: &Cell<bool>,
     ) -> Result<Vec<ApplyMemberProof>> {
         let records = self.apply_records.as_ref().expect("opened recovery files");
+        retain_inbox_capture(records, &self.store, journal)?;
+        checkpoint("capture-mirrored", 0);
         let snapshot = records.write(journal, None).map_err(file_error)?;
         checkpoint("mirror-intent", 0);
         self.check_approved_actions(journal)?;
@@ -853,7 +889,9 @@ impl App {
             self.check_applied_eligibility(journal)?;
         }
         let candidate = completion(journal, outcome, observations, no_effects)?;
-        let records = self.application_records()?;
+        self.application_records()?;
+        let records = self.apply_records.as_ref().expect("opened recovery files");
+        retain_inbox_capture(records, &self.store, &candidate)?;
         let previous = records
             .read(journal.request.operation_id)
             .map_err(file_error)?;
@@ -941,7 +979,14 @@ impl App {
                     &snapshot.journal,
                 )?;
             }
-            journal = self.store.restore_proposal_apply(&snapshot.journal)?;
+            let capture = retain_inbox_capture(
+                self.apply_records.as_ref().expect("opened records"),
+                &self.store,
+                &snapshot.journal,
+            )?;
+            journal = self
+                .store
+                .restore_proposal_apply_with_capture(&snapshot.journal, capture.as_ref())?;
         }
         if !unsettled(&journal) {
             self.synchronize_current_barrier()?;
