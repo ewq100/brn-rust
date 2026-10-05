@@ -2778,7 +2778,14 @@ impl AiState {
             AppEvent::TurnCancelRequested { .. }
             | AppEvent::AccountCancelRequested { .. }
             | AppEvent::ModelCancelRequested { .. } => return commands,
-            AppEvent::ProposalRewrite(_) | AppEvent::InboxActionAnalysis(_) => return commands,
+            AppEvent::ProposalRewrite(_)
+            | AppEvent::InboxActionAnalysis(_)
+            | AppEvent::InboxOriginalRemoved(_)
+            | AppEvent::InboxOriginalRestored(_)
+            | AppEvent::InboxOriginalRemoval { .. }
+            | AppEvent::InboxOriginalRestore { .. }
+            | AppEvent::InboxOriginalOperations { .. }
+            | AppEvent::ArchivedInboxAnalysis { .. } => return commands,
             AppEvent::Rewrite(_) => unreachable!(),
             AppEvent::Chat(_)
             | AppEvent::Account(_)

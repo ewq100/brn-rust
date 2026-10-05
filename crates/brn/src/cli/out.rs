@@ -5,7 +5,7 @@
 //! was not delivered. Error reporting keeps the original exit code whatever
 //! happens to the report write. The SIGPIPE disposition is never changed.
 
-use super::{envelope_err, envelope_ok, CliFailure, Output};
+use super::{CliFailure, Output, envelope_err, envelope_ok};
 use std::io::{self, Write};
 use std::process::ExitCode;
 
@@ -57,9 +57,12 @@ pub(crate) fn finish_ok_to(
     let operation_id = output.data["operation_id"]
         .as_str()
         .or_else(|| {
-            (command == "actions.complete")
-                .then(|| output.data["request"]["operation_id"].as_str())
-                .flatten()
+            matches!(
+                command,
+                "actions.complete" | "inbox.remove-original" | "inbox.restore-original"
+            )
+            .then(|| output.data["request"]["operation_id"].as_str())
+            .flatten()
         })
         .map(str::to_string);
     let payload = if json {
@@ -285,19 +288,25 @@ mod tests {
     }
 
     #[test]
-    fn undelivered_action_completion_identifies_its_bound_operation_for_retry() {
-        let mut sink = Scripted::writes(vec![Err(dead())]);
-        let (code, diag) = finish_ok_to(
-            true,
+    fn undelivered_identified_mutation_keeps_its_bound_operation_for_retry() {
+        for command in [
             "actions.complete",
-            output(serde_json::json!({"request": {"operation_id": "exact-complete-op"}})),
-            &mut sink,
-        );
-        assert_eq!(code, ExitCode::from(1));
-        let diag = diag.unwrap();
-        assert!(diag.contains("OUTPUT_DELIVERY_ERROR"));
-        assert!(diag.contains("completed"));
-        assert!(diag.contains("exact-complete-op"));
+            "inbox.remove-original",
+            "inbox.restore-original",
+        ] {
+            let mut sink = Scripted::writes(vec![Err(dead())]);
+            let (code, diag) = finish_ok_to(
+                true,
+                command,
+                output(serde_json::json!({"request": {"operation_id": "exact-complete-op"}})),
+                &mut sink,
+            );
+            assert_eq!(code, ExitCode::from(1));
+            let diag = diag.unwrap();
+            assert!(diag.contains("OUTPUT_DELIVERY_ERROR"));
+            assert!(diag.contains("completed"));
+            assert!(diag.contains("exact-complete-op"));
+        }
     }
 
     #[test]

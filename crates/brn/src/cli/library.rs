@@ -1,18 +1,18 @@
 //! Simple authority dispatch and the owned, correlated application event loop.
 use super::{
-    ai::{self, AiCommand},
-    error::{classify_workflow, CliError},
     CliFailure, Command, Invocation, Output,
+    ai::{self, AiCommand},
+    error::{CliError, classify_workflow},
 };
 use brn_workflow::{
+    ErrorKind, Provider, Selection, WorkTurn, WorkTurnStatus, WorkspaceMode,
     app::AppConfig,
     app_worker::{AppCommand, AppEvent, AppWorker},
     chat_worker::{AccountCommand, AccountEvent, AccountReply, AskRequest, ChatEvent},
     library::SearchMode,
     proposal_rewrite::{RewriteEvent, RewriteJob, RewriteRequest, RewriteStatus},
-    ErrorKind, Provider, Selection, WorkTurn, WorkTurnStatus, WorkspaceMode,
 };
-use serde_json::{json, Value};
+use serde_json::{Value, json};
 use std::{
     io::Write as _,
     sync::atomic::Ordering,
@@ -264,6 +264,8 @@ fn confirmed_success(event: &AppEvent) -> bool {
             AccountReply::Status(_) | AccountReply::Disconnected | AccountReply::Models(_)
         ),
         AppEvent::ModelInstalled => true,
+        AppEvent::InboxOriginalRemoved(record) => record.removed_at_ms.is_some(),
+        AppEvent::InboxOriginalRestored(record) => record.restored_at_ms.is_some(),
         AppEvent::InboxProcessing(batch) => {
             batch.pending_count() == 0
                 && batch.entries.iter().all(|entry| {
@@ -405,6 +407,26 @@ fn execute(
                 AppCommand::InboxReview(id) => lane.query(AppCommand::InboxReview(*id))?,
                 AppCommand::PreviewInboxRemoval(id) => {
                     lane.query(AppCommand::PreviewInboxRemoval(*id))?
+                }
+                AppCommand::RemoveInboxOriginal(request) => lane.query_with_id(
+                    request.operation_id,
+                    AppCommand::RemoveInboxOriginal(request.clone()),
+                )?,
+                AppCommand::RestoreInboxOriginal(request) => lane.query_with_id(
+                    request.operation_id,
+                    AppCommand::RestoreInboxOriginal(request.clone()),
+                )?,
+                AppCommand::InboxOriginalRemoval(id) => {
+                    lane.query(AppCommand::InboxOriginalRemoval(*id))?
+                }
+                AppCommand::InboxOriginalRestore(id) => {
+                    lane.query(AppCommand::InboxOriginalRestore(*id))?
+                }
+                AppCommand::InboxOriginalOperations(id) => {
+                    lane.query(AppCommand::InboxOriginalOperations(*id))?
+                }
+                AppCommand::ArchivedInboxAnalysis(id) => {
+                    lane.query(AppCommand::ArchivedInboxAnalysis(*id))?
                 }
                 AppCommand::InboxItems(request) => {
                     lane.query(AppCommand::InboxItems(request.clone()))?
@@ -1250,7 +1272,7 @@ fn wait_download<W: EventLane>(
 #[cfg(test)]
 mod tests {
     use super::*;
-    use brn_workflow::{library::KnowledgeScope, WorkflowError};
+    use brn_workflow::{WorkflowError, library::KnowledgeScope};
     use std::{
         cell::{Cell, RefCell},
         collections::VecDeque,

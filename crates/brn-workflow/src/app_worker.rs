@@ -89,6 +89,12 @@ pub enum AppCommand {
     InboxItem(Uuid),
     InboxReview(Uuid),
     PreviewInboxRemoval(Uuid),
+    RemoveInboxOriginal(crate::inbox_original_operations::RemoveInboxOriginalRequest),
+    RestoreInboxOriginal(crate::inbox_original_operations::RestoreInboxOriginalRequest),
+    InboxOriginalRemoval(Uuid),
+    InboxOriginalRestore(Uuid),
+    InboxOriginalOperations(Uuid),
+    ArchivedInboxAnalysis(Uuid),
     ProcessInbox(crate::inbox_processing::ProcessInboxRequest),
     InboxProcessing(Uuid),
     InboxCandidate(crate::inbox_processing::InboxCandidateRequest),
@@ -205,6 +211,24 @@ pub enum AppEvent {
     InboxItem(Box<crate::inbox::InboxRead>),
     InboxReview(Box<crate::inbox::InboxReview>),
     InboxRemovalPreview(Box<crate::inbox_removal::InboxRemovalPreview>),
+    InboxOriginalRemoved(Box<crate::inbox_original_operations::InboxOriginalRemovalRecord>),
+    InboxOriginalRestored(Box<crate::inbox_original_operations::InboxOriginalRestoreRecord>),
+    InboxOriginalRemoval {
+        operation_id: Uuid,
+        record: Option<Box<crate::inbox_original_operations::InboxOriginalRemovalRecord>>,
+    },
+    InboxOriginalRestore {
+        operation_id: Uuid,
+        record: Option<Box<crate::inbox_original_operations::InboxOriginalRestoreRecord>>,
+    },
+    InboxOriginalOperations {
+        item_id: Uuid,
+        operations: Vec<crate::inbox_original_operations::InboxOriginalOperationSummary>,
+    },
+    ArchivedInboxAnalysis {
+        operation_id: Uuid,
+        analysis: Option<Box<crate::inbox_original_operations::ArchivedInboxAnalysis>>,
+    },
     InboxProcessing(Box<crate::inbox_processing::InboxProcessBatch>),
     InboxCandidate(Box<crate::inbox_processing::InboxConversionPreview>),
     InboxSourceDraft(Box<crate::proposals::DraftRequest>),
@@ -377,6 +401,8 @@ impl AppWorker {
             || matches!(&command, AppCommand::SaveEditor(request) if request.operation_id != id)
             || matches!(&command, AppCommand::CompleteAction(request) if request.operation_id != id)
             || matches!(&command, AppCommand::ProcessInbox(request) if request.id != id)
+            || matches!(&command, AppCommand::RemoveInboxOriginal(request) if request.operation_id != id)
+            || matches!(&command, AppCommand::RestoreInboxOriginal(request) if request.operation_id != id)
         {
             return Err(chat_worker::conflict());
         }
@@ -1247,6 +1273,28 @@ fn dispatch(
         AppCommand::PreviewInboxRemoval(item) => {
             AppEvent::InboxRemovalPreview(Box::new(app.preview_inbox_removal(item)?))
         }
+        AppCommand::RemoveInboxOriginal(request) => {
+            AppEvent::InboxOriginalRemoved(Box::new(app.remove_inbox_original(&request)?))
+        }
+        AppCommand::RestoreInboxOriginal(request) => {
+            AppEvent::InboxOriginalRestored(Box::new(app.restore_inbox_original(&request)?))
+        }
+        AppCommand::InboxOriginalRemoval(operation_id) => AppEvent::InboxOriginalRemoval {
+            operation_id,
+            record: app.inbox_original_removal(operation_id)?.map(Box::new),
+        },
+        AppCommand::InboxOriginalRestore(operation_id) => AppEvent::InboxOriginalRestore {
+            operation_id,
+            record: app.inbox_original_restore(operation_id)?.map(Box::new),
+        },
+        AppCommand::InboxOriginalOperations(item_id) => AppEvent::InboxOriginalOperations {
+            item_id,
+            operations: app.inbox_original_operations(item_id)?,
+        },
+        AppCommand::ArchivedInboxAnalysis(operation_id) => AppEvent::ArchivedInboxAnalysis {
+            operation_id,
+            analysis: app.archived_inbox_analysis(operation_id)?.map(Box::new),
+        },
         AppCommand::InboxItems(request) => {
             AppEvent::InboxItems(Box::new(app.inbox_items(&request)?))
         }
@@ -1636,6 +1684,8 @@ fn critical_mutation_command(command: &AppCommand) -> bool {
             | AppCommand::SaveEditor(_)
             | AppCommand::CompleteAction(_)
             | AppCommand::CaptureInbox(_)
+            | AppCommand::RemoveInboxOriginal(_)
+            | AppCommand::RestoreInboxOriginal(_)
             | AppCommand::ProcessInbox(_)
             | AppCommand::CancelInboxProcessing(_)
             | AppCommand::ReconcileEditor(_)
