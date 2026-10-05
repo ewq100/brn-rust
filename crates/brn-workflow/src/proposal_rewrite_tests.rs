@@ -566,3 +566,94 @@ fn running_replay_does_not_promise_completion_for_a_new_presentation_generation(
 
 #[path = "action_rewrite_tests.rs"]
 mod actions;
+
+#[test]
+fn ai_rewrite_preserves_managed_metadata_and_retains_refusals_without_changing_owner_review() {
+    for mode in 0..5 {
+        let fixture = Fixture::new();
+        let hook: crate::proposal_rewrite::RewriteHook = Arc::new(move |_, prompt, tools, _, _| {
+            let captured: ProposalRecord = serde_json::from_str(&prompt).unwrap();
+            let mut texts = captured
+                .draft
+                .changes
+                .iter()
+                .map(|change| change.text().map(str::to_string))
+                .collect::<Vec<_>>();
+            let original = texts[0].take().unwrap();
+            texts[0] = Some(match mode {
+                0 => original.replace("Owner body", "Rewritten body"),
+                1 => original.replace("brn_kind: knowledge", "brn_kind: source"),
+                2 => original.replace("brn_state: current", "brn_state: history"),
+                3 => original.replace("brn_provenance: []\r\n", ""),
+                4 => original.replace(
+                    "brn_kind: knowledge",
+                    "brn_kind: knowledge\r\nbrn_inbox_source: {}",
+                ),
+                _ => unreachable!(),
+            });
+            drop(tools);
+            Box::pin(async move {
+                AiAnswer {
+                    text: serde_json::json!({"title":"AI suggestion", "texts":texts}).to_string(),
+                    terminal: AiTerminal::Completed,
+                }
+            })
+        });
+        let mut worker = fixture.start(Hooks {
+            rewrite: Some(hook),
+            ..Hooks::default()
+        });
+        let original = create(&worker);
+        let original_text = "\u{feff}---\r\nbrn_kind: knowledge\r\nbrn_state: current\r\nbrn_provenance: []\r\n---\r\nOwner body õ 🦀\r\n";
+        let edit = ProposalEdit {
+            expected: original.stamp(),
+            title: original.draft.title.clone(),
+            texts: vec![
+                Some(original_text.into()),
+                original.draft.changes[1].text().map(str::to_string),
+            ],
+            action_data: vec![],
+        };
+        let id = Uuid::new_v4();
+        worker.submit(id, AppCommand::EditProposal(edit)).unwrap();
+        let AppEvent::Proposal(original) = reply(&worker, id) else {
+            panic!("owner metadata edit");
+        };
+        let request = request(&original);
+        start(&worker, &request);
+        let job = finish(&worker, &request);
+        let after = review(&worker, original.draft.id);
+        if mode == 0 {
+            assert_eq!(job.status, RewriteStatus::Completed);
+            assert_eq!(
+                after.draft.changes[0].text(),
+                Some(
+                    original_text
+                        .replace("Owner body", "Rewritten body")
+                        .as_str()
+                )
+            );
+        } else {
+            assert_eq!(job.status, RewriteStatus::Failed);
+            assert_eq!(job.error_code.as_deref(), Some("tool_rejected"));
+            assert_eq!(after, original);
+        }
+        assert_eq!(
+            std::fs::read(fixture.base.path().join("vault/a.md")).unwrap(),
+            b"current"
+        );
+        assert!(!fixture.base.path().join("vault/new.md").exists());
+        worker.shutdown().unwrap();
+        let mut worker = fixture.start(Hooks::default());
+        worker
+            .submit(
+                request.id,
+                AppCommand::StartProposalRewrite(request.clone()),
+            )
+            .unwrap();
+        let replay = finish(&worker, &request);
+        assert_eq!(replay, job);
+        assert_eq!(review(&worker, original.draft.id), after);
+        worker.shutdown().unwrap();
+    }
+}

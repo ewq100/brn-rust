@@ -979,7 +979,7 @@ async fn run_rewrite(
         match answer.terminal {
             AiTerminal::Completed => match proposal_rewrite::decode(&request, &answer.text)
                 .and_then(|edit| {
-                    brn_store::work::proposal_rewrite::validate_result(&capture, &edit)?;
+                    brn_store::work::proposal_rewrite::validate_rewrite_result(&capture, &edit)?;
                     Ok(edit)
                 }) {
                 Ok(edit) => RewriteOutcome::Completed(edit),
