@@ -15,6 +15,12 @@ and the disposable retrieval index retain their existing roles. The owner's
 permits thin future adapters around the six V1 core crates through workflow/
 AppWorker. No MCP, daemon, HTTP service, extra database or remote work is in V1.
 
+Latest integrated checkpoint: original-review PR57 at
+`c07cc19e4cc9e4aeed84aa86a0a6d6551231458d`; the
+[resumable checkpoint](development/checkpoint.md) retains exact verification,
+platform failures and pending acceptance. Complete review evidence is implemented;
+removal qualification is active. No originals have been removed.
+
 ## Integrated behavior
 
 Stages 1–2 deliver exact Markdown Save, generation-bound unfinished-edit recovery,

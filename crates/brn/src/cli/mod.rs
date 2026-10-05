@@ -149,6 +149,7 @@ Commands:
   brn inbox list [--limit N] [--after UUID]
   brn inbox show UUID
   brn inbox review UUID
+  brn inbox removal-preview UUID
   brn inbox process --file REQUEST_JSON
   brn inbox processing UUID
   brn inbox candidate UUID INDEX

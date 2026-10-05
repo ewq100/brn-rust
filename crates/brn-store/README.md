@@ -516,3 +516,10 @@ review versions, lifecycle outcomes and original proposal creation digests.
 The complete encoded manifest is bounded at64MiB; oversize refuses without
 clipping. No schema/write/recovery, semantic completeness or removal authority
 is added. A digest alone is not an approval token.
+
+
+`inbox_removal_snapshot(item_id)` extends that read in the same checked transaction
+with all related current Actions, exact completion receipts, Rewrite jobs and
+transitive Undo lineage. Current completion authority is checked against retained
+Actions. Ordered complete evidence/digest refuses above64MiB. Store reads never
+qualify physical Sources, decide semantic completeness or remove original copies.

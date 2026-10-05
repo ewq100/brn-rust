@@ -15,6 +15,7 @@ pub mod findings;
 pub mod inbox;
 pub mod inbox_actions;
 pub mod inbox_processing;
+pub mod inbox_removal;
 pub mod knowledge;
 pub mod library;
 pub mod models;

@@ -2476,3 +2476,285 @@ fn original_review_includes_historical_not_applied_action_link_after_edit_and_re
         "retained full journal was omitted"
     );
 }
+
+#[test]
+fn removal_snapshot_tracks_current_actions_completions_and_running_rewrite_without_clipping() {
+    use brn_store::work::{
+        action_completion::CompleteActionRequest,
+        proposal_rewrite::{RewriteOutcome, RewriteStatus},
+    };
+    let data = fixture();
+    let (mut store, _) = WorkStore::open(data.path()).unwrap();
+    let (original, capture) = review_capture(&mut store);
+    store
+        .reserve_inbox_action(&capture, "Inspect exact Source")
+        .unwrap();
+    let template = review(&mut store);
+    let mut draft = store.proposal(template.id).unwrap().unwrap().draft;
+    draft.id = Uuid::new_v4();
+    draft.group_id = Some(capture.id);
+    draft.action_changes[0].data_mut().sources = vec![capture.note_id().unwrap()];
+    let created = store.create_proposal(&draft).unwrap();
+    let request = ApprovalRequest {
+        operation_id: Uuid::new_v4(),
+        expected: created.stamp(),
+    };
+    store.begin_proposal_apply(&request).unwrap();
+    store
+        .record_proposal_prepared(request.operation_id, &[])
+        .unwrap();
+    store
+        .finish_proposal_apply(request.operation_id, ApplyOutcome::Applied, Some(&[]))
+        .unwrap();
+    let before = store.inbox_removal_snapshot(original.capture.id).unwrap();
+    assert_eq!(before.actions.len(), 1);
+    assert_eq!(before.lineage.len(), 1);
+    let old_digest = before.digest().unwrap();
+    let completion = store
+        .complete_action_with(
+            &CompleteActionRequest {
+                operation_id: Uuid::new_v4(),
+                before: Box::new(before.actions[0].clone()),
+            },
+            before.actions[0].updated_at_ms + 1,
+            |_| Ok(()),
+        )
+        .unwrap();
+    let after = store.inbox_removal_snapshot(original.capture.id).unwrap();
+    assert_eq!(after.completions, vec![completion.clone()]);
+    assert_eq!(after.actions, vec![completion.after]);
+    assert_ne!(after.digest().unwrap(), old_digest);
+    assert_eq!(
+        after.review.digest().unwrap(),
+        before.review.digest().unwrap(),
+        "completion is separate from proposal history"
+    );
+    let mut rewrite_draft = draft.clone();
+    rewrite_draft.id = Uuid::new_v4();
+    rewrite_draft.action_changes[0] = ActionChange::Create {
+        id: Uuid::new_v4(),
+        data: draft.action_changes[0].data().clone(),
+    };
+    let proposal = store.create_proposal(&rewrite_draft).unwrap();
+    let spec = RewriteSpec {
+        id: Uuid::new_v4(),
+        expected: proposal.stamp(),
+        provider: "chatgpt".into(),
+        model: "gpt-6-luna".into(),
+        effort: "medium".into(),
+    };
+    let (running, _) = store.begin_proposal_rewrite(&spec).unwrap();
+    store.reject_proposal(proposal.stamp()).unwrap();
+    let running_snapshot = store.inbox_removal_snapshot(original.capture.id).unwrap();
+    assert_eq!(running_snapshot.rewrites, vec![running]);
+    let running_digest = running_snapshot.digest().unwrap();
+    store
+        .finish_proposal_rewrite(spec.id, &RewriteOutcome::Interrupted)
+        .unwrap();
+    let final_snapshot = store.inbox_removal_snapshot(original.capture.id).unwrap();
+    assert_eq!(
+        final_snapshot.rewrites[0].status,
+        RewriteStatus::Interrupted
+    );
+    assert_ne!(final_snapshot.digest().unwrap(), running_digest);
+    assert_eq!(
+        store.inbox_item(original.capture.id).unwrap(),
+        Some(original)
+    );
+}
+
+#[test]
+fn removal_snapshot_retains_undo_lineage_even_when_undo_draft_has_no_source_links() {
+    let data = fixture();
+    let (mut store, _) = WorkStore::open(data.path()).unwrap();
+    let (original, capture) = review_capture(&mut store);
+    store
+        .reserve_inbox_action(&capture, "Inspect exact Source")
+        .unwrap();
+    let draft = knowledge_draft(&capture);
+    let created = store.create_proposal(&draft).unwrap();
+    let request = ApprovalRequest {
+        operation_id: Uuid::new_v4(),
+        expected: created.stamp(),
+    };
+    let journal = store.begin_proposal_apply(&request).unwrap();
+    let text = draft.changes[0].text().unwrap();
+    let installed = FileFingerprint {
+        device: 1,
+        inode: 71,
+        len: text.len() as u64,
+        sha256: digest(text.as_bytes()),
+    };
+    store
+        .record_proposal_prepared(request.operation_id, std::slice::from_ref(&installed))
+        .unwrap();
+    store
+        .finish_proposal_apply(
+            request.operation_id,
+            ApplyOutcome::Applied,
+            Some(&[ApplyMemberProof {
+                destination: Some(installed),
+                staging: None,
+            }]),
+        )
+        .unwrap();
+    let before = store.inbox_removal_snapshot(original.capture.id).unwrap();
+    let undo = UndoRequest {
+        operation_id: Uuid::new_v4(),
+        target_operation_id: request.operation_id,
+        trash_member: None,
+    };
+    let undo_journal = store.begin_proposal_undo(&undo).unwrap();
+    assert!(undo_journal.approved.draft.sources.is_empty());
+    assert!(undo_journal.approved.draft.inbox_knowledge.is_none());
+    let after = store.inbox_removal_snapshot(original.capture.id).unwrap();
+    assert_eq!(after.lineage.len(), 2);
+    assert!(
+        after
+            .lineage
+            .iter()
+            .any(|a| a.request.operation_id == undo.operation_id)
+    );
+    assert_ne!(before.digest().unwrap(), after.digest().unwrap());
+    assert_eq!(
+        after
+            .lineage
+            .iter()
+            .find(|a| a.request.operation_id == request.operation_id)
+            .unwrap()
+            .approved,
+        journal.approved
+    );
+}
+
+fn settle_removal_action(
+    store: &mut WorkStore,
+    draft: &ProposalDraft,
+) -> brn_store::work::actions::ActionRecord {
+    let proposal = store.create_proposal(draft).unwrap();
+    let op = Uuid::new_v4();
+    store
+        .begin_proposal_apply(&ApprovalRequest {
+            operation_id: op,
+            expected: proposal.stamp(),
+        })
+        .unwrap();
+    store.record_proposal_prepared(op, &[]).unwrap();
+    store
+        .finish_proposal_apply(op, ApplyOutcome::Applied, Some(&[]))
+        .unwrap();
+    store.action(draft.action_changes[0].id()).unwrap().unwrap()
+}
+#[test]
+fn removal_snapshot_retains_action_family_after_source_links_are_cleared() {
+    let data = fixture();
+    let (mut store, _) = WorkStore::open(data.path()).unwrap();
+    let (original, capture) = review_capture(&mut store);
+    store
+        .reserve_inbox_action(&capture, "Inspect Source")
+        .unwrap();
+    let template = review(&mut store);
+    let mut draft = store.proposal(template.id).unwrap().unwrap().draft;
+    draft.id = Uuid::new_v4();
+    let mut action = settle_removal_action(&mut store, &draft);
+    for linked in [true, false] {
+        draft.id = Uuid::new_v4();
+        let mut candidate = action.data.clone();
+        candidate.sources = if linked {
+            vec![capture.note_id().unwrap()]
+        } else {
+            vec![]
+        };
+        draft.action_changes = vec![ActionChange::Replace {
+            before: Box::new(action),
+            data: candidate,
+        }];
+        action = settle_removal_action(&mut store, &draft);
+    }
+    draft.id = Uuid::new_v4();
+    let mut candidate = action.data.clone();
+    candidate.title = "Later pending Action review".into();
+    draft.action_changes = vec![ActionChange::Replace {
+        before: Box::new(action),
+        data: candidate,
+    }];
+    let pending = store.create_proposal(&draft).unwrap();
+    let before = store.inbox_removal_snapshot(original.capture.id).unwrap();
+    let spec = RewriteSpec {
+        id: Uuid::new_v4(),
+        expected: pending.stamp(),
+        provider: "chatgpt".into(),
+        model: "gpt-6-luna".into(),
+        effort: "medium".into(),
+    };
+    let (rewrite, _) = store.begin_proposal_rewrite(&spec).unwrap();
+    let after = store.inbox_removal_snapshot(original.capture.id).unwrap();
+    assert_ne!(
+        before.digest().unwrap(),
+        after.digest().unwrap(),
+        "Source-unlinked pending Action Rewrite was omitted"
+    );
+    assert!(after.rewrites.contains(&rewrite));
+    assert!(after.related_reviews.iter().any(|p| p.record == pending
+        && p.creation_sha256 == digest(&serde_json::to_vec(&pending.draft).unwrap())));
+}
+#[test]
+fn removal_snapshot_refuses_missing_known_applied_action_or_completion_authority() {
+    use brn_store::work::action_completion::CompleteActionRequest;
+    let mut missed = vec![];
+    for mode in ["open_action", "completed_action", "completion", "proposal"] {
+        let data = fixture();
+        let (mut store, _) = WorkStore::open(data.path()).unwrap();
+        let (original, capture) = review_capture(&mut store);
+        store
+            .reserve_inbox_action(&capture, "Inspect Source")
+            .unwrap();
+        let template = review(&mut store);
+        let mut draft = store.proposal(template.id).unwrap().unwrap().draft;
+        draft.id = Uuid::new_v4();
+        draft.group_id = Some(capture.id);
+        draft.action_changes[0].data_mut().sources = vec![capture.note_id().unwrap()];
+        let action = settle_removal_action(&mut store, &draft);
+        if mode != "open_action" {
+            store
+                .complete_action_with(
+                    &CompleteActionRequest {
+                        operation_id: Uuid::new_v4(),
+                        before: Box::new(action.clone()),
+                    },
+                    action.updated_at_ms + 1,
+                    |_| Ok(()),
+                )
+                .unwrap();
+        }
+        let good = store.inbox_removal_snapshot(original.capture.id).unwrap();
+        assert_eq!(good.actions.len(), 1);
+        let raw = Connection::open(data.path().join("brn.sqlite")).unwrap();
+        if mode == "proposal" {
+            // Synthetic integrity fault, never an application mutation.
+            raw.execute_batch("PRAGMA foreign_keys=OFF;").unwrap();
+            raw.execute("DELETE FROM proposals WHERE id=?1", [draft.id.to_string()])
+                .unwrap();
+        } else if mode == "completion" {
+            raw.execute(
+                "DELETE FROM action_completions WHERE action_id=?1",
+                [action.origin.id.to_string()],
+            )
+            .unwrap();
+        } else {
+            raw.execute(
+                "DELETE FROM actions WHERE id=?1",
+                [action.origin.id.to_string()],
+            )
+            .unwrap();
+        }
+        drop(raw);
+        if store.inbox_removal_snapshot(original.capture.id).is_ok() {
+            missed.push(mode);
+        }
+    }
+    assert!(
+        missed.is_empty(),
+        "Known durable authority disappeared silently: {missed:?}"
+    );
+}

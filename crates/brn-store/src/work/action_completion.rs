@@ -143,7 +143,7 @@ struct CompletionRow {
     bytes: Option<Vec<u8>>,
     completion_hash: Vec<u8>,
 }
-fn read(conn: &Connection, operation_id: Uuid) -> Result<Option<ActionCompletion>> {
+pub(super) fn read(conn: &Connection, operation_id: Uuid) -> Result<Option<ActionCompletion>> {
     if operation_id.is_nil() {
         return Err(invalid("Action completion UUID must not be nil"));
     }
@@ -206,7 +206,10 @@ fn bound_replay(
     request.validate()?;
     Ok(completion)
 }
-fn require_retained_completion(conn: &Connection, completion: &ActionCompletion) -> Result<()> {
+pub(super) fn require_retained_completion(
+    conn: &Connection,
+    completion: &ActionCompletion,
+) -> Result<()> {
     let current = actions::read(conn, completion.after.origin.id)?
         .ok_or_else(|| invalid("Stored Action completion has no retained Action"))?;
     if current.origin != completion.after.origin

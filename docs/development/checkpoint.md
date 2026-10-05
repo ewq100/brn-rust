@@ -2,6 +2,17 @@
 
 Lead-confirmed 2026-10-05: full frozen V1 goal **active**, without a token budget.
 
+- **Baseline:** AI-maintainability [PR59](https://github.com/ewq100/brn-rust/pull/59) merged normally at `d120fd41d43b993ff235931ee955ffb5c6e30680`, exact reviewed tree `e4339072d9a6b226109f570ea90e98c955ac1eb6`. Exact-head PR37351058169 attempt1 passed four protected Mac/shared gates plus documentation; unchanged Windows22 compiler blocks/two summaries remain red. Fresh merged116 AI/one Workflow byte guard and303 links passed. Main37352315271 remains in progress.
+- **Current slice:** `codex/v1-inbox-removal-qualification` reports complete retained operational evidence and freshly qualifies saved Sources/consequences. It grants no semantic approval or removal authority and keeps originals retained.
+- **Review/verification:** three independent P2 findings were reproduced and fixed; material re-review is clean. Fresh final format/build/all-target Clippy, 1,337 workspace tests / 0 failures / 8 ignores, 52 fixtures, 306 local links and native combined compile passed with the typed AI assembly included. Atomic evidence retained terminal exit0 and unchanged dirty-snapshot identity. Exact-head protected integration is next.
+- **Pending acceptance:** native/live/owner acceptance, real model assets and trusted-user packaging. Completed review/conflict/supersession evidence remains below and in the [current plan](../work/active/text-email-inbox/original-copy-plan.md).
+- **Next:** qualified preview integration, then exact semantic owner attestation and recoverable original-copy removal/recovery. No original has been removed.
+- **Environment:** Darwin arm64 Mac mini, Rust1.98.1 locked/offline, canonical owned `TMPDIR=/private/tmp/brn-mini-synthetic-20261005`, empty native model setting, isolated checkout/target and synthetic data only. No new live calls, downloads or private-data operations authorized.
+
+## Earlier maintainability checkpoint
+
+Lead-confirmed 2026-10-05: full frozen V1 goal **active**, without a token budget.
+
 - **Integrated baseline:** original-review PR57 at `c07cc19e4cc9e4aeed84aa86a0a6d6551231458d`, then AI-authority guidance PR58 at `3984e7cba9eb038ab0571604aa09becfebf3b4bd`. Exact reviewed trees were retained by normal merges.
 - **Current:** narrow AI maintainability follow-up on `codex/v1-ai-behavior-boundary`: static agent instructions/capability policy in `brn-ai`, typed captured Inbox/Rewrite input in `brn-workflow`. Original prompt bytes, enabled tools and deterministic authority are preserved. This is not a roadmap stage.
 - **Verification:** clean independent read-only review confirmed byte-equivalent instructions/input assembly and unchanged capabilities. Final format/build/all-target Clippy, 1,326 workspace tests / 0 failures / 8 ignores, 52 fixtures and 303 local links passed. Atomic gate retained terminal exit0 and an unchanged dirty-snapshot identity. PR58's exact-head four protected Mac/shared checks and documentation passed; platform failures remain visible. Merged-main run37348746479 passed all applicable gates. Windows22/22/14 full compiler blocks/summaries match the baseline; Linux retains the same three assertions/backtrace frames, with an earlier interleaved Cargo terminal-error line absent. Full raw logs/differences are retained.
@@ -9,6 +20,34 @@ Lead-confirmed 2026-10-05: full frozen V1 goal **active**, without a token budge
 - **Pending acceptance:** native/live/owner acceptance, real multilingual model assets and trusted-user packaging. No new live provider calls or model downloads are authorized.
 - **Next:** finish this maintainability follow-up, integrate the removal preview, then exact owner attestation and recoverable original-copy removal/recovery under the [current plan](../work/active/text-email-inbox/original-copy-plan.md).
 - **Environment:** Darwin arm64 Mac mini, pinned Rust1.98.1, locked/offline dependencies, canonical owned `TMPDIR=/private/tmp/brn-mini-synthetic-20261005`, empty native model setting, separate checkout/target directories and synthetic data only.
+
+## Earlier original-review checkpoint
+
+Lead-confirmed 2026-10-05, full V1 goal **active**, without a token budget.
+
+- **Integrated:** original review [PR57](https://github.com/ewq100/brn-rust/pull/57)
+  at `c07cc19e4cc9e4aeed84aa86a0a6d6551231458d`, exact reviewed tree
+  `fe3fde771b4c86c4277641fc4df2ede9e70979c5`.
+- **Behavior:** complete retained original review through shared AppWorker/CLI;
+  historical Action links, rejected work, original creation proofs and all
+  findings remain visible. No semantic completeness or removal authority inferred.
+- **Verification:** clean independent re-review; final1,324 shared/0/8,
+  format/build/all-target Clippy, native combined check and52fixtures passed.
+  Exact-head PR37343478777 attempt1 passed four protected Mac/shared gates plus
+  Documentation/tooling. Fresh merged8Store,6worker,6CLI tests and52fixtures passed.
+  Merged-main37344761493 passed all applicable gates; overall CI remains red.
+  Windows22/22/14 compiler blocks/summaries match; Linux's three assertions and
+  backtrace frames match, with one interleaved Cargo terminal-error line retained
+  as a log difference. Failure-source/CI/setup blobs are unchanged.
+- **Pending:** native/live/owner acceptance, model assets and trusted-user
+  packaging. Full V1 is incomplete; no original has been removed.
+- **Next:** exact removal qualification on `codex/v1-inbox-removal-qualification`,
+  then explicit semantic owner attestation, recoverable removal and recovery.
+  See the [current plan](../work/active/text-email-inbox/original-copy-plan.md).
+- **Environment:** Darwin arm64 Mac mini, Rust1.98.1, locked/offline, canonical
+  owned `TMPDIR=/private/tmp/brn-mini-synthetic-20261005`, empty native model
+  setting, isolated checkout/target; synthetic data only. No new live calls,
+  model downloads, private-data operations or public release authorized.
 
 ## Earlier tooling checkpoint
 
@@ -25,7 +64,11 @@ Lead-confirmed 2026-10-05, full V1 goal **active**, without a token budget.
   blocks/two summaries match qualified main. Clean independent re-review after
   four validated fixes; fresh merged16 tooling tests,3 offline provider-example
   tests,292local links and atomic retirement gate passed with unchanged identity.
-- **Pending:** merged-main run37341534594; native/live/owner acceptance, model
+- **Merged-main:** run37341534594 attempt1 passed all applicable gates plus
+  Documentation/tooling; overall red retained Windows22/22/14 compiler blocks
+  and Linux three full assertion/backtrace blocks identical to PR55 main.
+  Existing CI jobs and failure-source/setup blobs are unchanged.
+- **Pending:** native/live/owner acceptance, model
   assets and trusted-user packaging. Raw discovery observations need a scoped
   Auth interface; built-in synthetic catalog evidence is not live qualification.
 - **Next:** original review evidence on `codex/v1-stage7-original-copy` at this

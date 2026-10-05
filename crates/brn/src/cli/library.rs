@@ -403,6 +403,9 @@ fn execute(
                 }
                 AppCommand::InboxItem(id) => lane.query(AppCommand::InboxItem(*id))?,
                 AppCommand::InboxReview(id) => lane.query(AppCommand::InboxReview(*id))?,
+                AppCommand::PreviewInboxRemoval(id) => {
+                    lane.query(AppCommand::PreviewInboxRemoval(*id))?
+                }
                 AppCommand::InboxItems(request) => {
                     lane.query(AppCommand::InboxItems(request.clone()))?
                 }

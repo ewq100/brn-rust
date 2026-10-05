@@ -21,6 +21,7 @@ pub enum InboxCommand {
     },
     Show(Uuid),
     Review(Uuid),
+    RemovalPreview(Uuid),
     List(InboxListRequest),
     Process(PathBuf),
     Processing(Uuid),
@@ -44,6 +45,7 @@ impl InboxCommand {
             Self::Add { .. } => "inbox.add",
             Self::Show(_) => "inbox.show",
             Self::Review(_) => "inbox.review",
+            Self::RemovalPreview(_) => "inbox.removal-preview",
             Self::List(_) => "inbox.list",
             Self::Process(_) => "inbox.process",
             Self::Processing(_) => "inbox.processing",
@@ -65,7 +67,7 @@ pub(super) fn scan_command(
     let sub = sub_word(
         tokens,
         "inbox",
-        "add|show|review|list|process|processing|candidate|source|cancel|analyze-actions|action-analysis|analyze|analysis",
+        "add|show|review|removal-preview|list|process|processing|candidate|source|cancel|analyze-actions|action-analysis|analyze|analysis",
     )?;
     let (label, options): (_, &[(&str, bool)]) = match sub.as_str() {
         "add" => (
@@ -80,6 +82,7 @@ pub(super) fn scan_command(
         ),
         "show" => ("inbox.show", &[]),
         "review" => ("inbox.review", &[]),
+        "removal-preview" => ("inbox.removal-preview", &[]),
         "list" => ("inbox.list", &[("limit", true), ("after", true)]),
         "process" => ("inbox.process", &[("file", true)]),
         "processing" => ("inbox.processing", &[]),
@@ -118,7 +121,9 @@ fn metadata(command: &InboxCommand) -> Result<(), CliError> {
         }
         .validate()
         .map_err(|e| usage(e.message)),
-        InboxCommand::Show(id) | InboxCommand::Review(id) if id.is_nil() => {
+        InboxCommand::Show(id) | InboxCommand::Review(id) | InboxCommand::RemovalPreview(id)
+            if id.is_nil() =>
+        {
             Err(usage("Inbox UUID must not be nil"))
         }
         InboxCommand::Processing(id) | InboxCommand::Cancel(id) if id.is_nil() => {
@@ -164,10 +169,12 @@ pub(super) fn parse_command(name: &str, s: &Scanned) -> Result<InboxCommand, Cli
                 input: PathBuf::from(s.value("file").ok_or_else(|| usage("missing --file"))?),
             }
         }
-        "inbox.show" | "inbox.review" => {
+        "inbox.show" | "inbox.review" | "inbox.removal-preview" => {
             expect_positionals(s, 1)?;
             let id = positional_uuid(s, 0, "UUID")?;
-            if name == "inbox.review" {
+            if name == "inbox.removal-preview" {
+                InboxCommand::RemovalPreview(id)
+            } else if name == "inbox.review" {
                 InboxCommand::Review(id)
             } else {
                 InboxCommand::Show(id)
@@ -274,6 +281,7 @@ pub(super) fn prepare(command: &InboxCommand) -> Result<AppCommand, CliFailure> 
         }
         InboxCommand::Show(id) => AppCommand::InboxItem(*id),
         InboxCommand::Review(id) => AppCommand::InboxReview(*id),
+        InboxCommand::RemovalPreview(id) => AppCommand::PreviewInboxRemoval(*id),
         InboxCommand::List(r) => AppCommand::InboxItems(r.clone()),
         InboxCommand::Process(file) => {
             let text = super::input::read_text_file(file, "Inbox processing request")?;
@@ -339,6 +347,16 @@ pub(super) fn output(command: &AppCommand, event: AppEvent) -> Result<Output, Cl
                     .is_ok_and(|digest| digest == review.digest) =>
         {
             serde_json::json!(*review)
+        }
+        (AppCommand::PreviewInboxRemoval(id), AppEvent::InboxRemovalPreview(preview))
+            if preview.evidence.snapshot.review.original.capture.id == *id
+                && preview.evidence.needs_owner_attestation
+                && preview
+                    .evidence
+                    .digest()
+                    .is_ok_and(|digest| digest == preview.digest) =>
+        {
+            serde_json::json!(*preview)
         }
         (AppCommand::InboxItems(r), AppEvent::InboxItems(page))
             if page.entries.len() <= r.limit =>
@@ -406,6 +424,7 @@ mod tests {
             ],
             vec!["inbox", "show", &id],
             vec!["inbox", "review", &id],
+            vec!["inbox", "removal-preview", &id],
             vec!["inbox", "process", "--file", "request.json"],
             vec!["inbox", "processing", &id],
             vec!["inbox", "candidate", &id, "0"],
@@ -561,6 +580,7 @@ mod tests {
         };
         for command in [
             InboxCommand::Show(Uuid::nil()),
+            InboxCommand::RemovalPreview(Uuid::nil()),
             InboxCommand::Source(invalid_json.clone()),
             InboxCommand::Process(invalid_json.clone()),
             InboxCommand::AnalyzeActions {
@@ -800,6 +820,29 @@ mod tests {
             serde_json::from_value(exported.data).unwrap();
         source.validate().unwrap();
         assert!(source.text.contains(exact));
+        let result = crate::cli::execute(&invocation(InboxCommand::RemovalPreview(
+            process.items[0].capture.id,
+        )))
+        .unwrap();
+        let preview: brn_workflow::inbox_removal::InboxRemovalPreview =
+            serde_json::from_value(result.data).unwrap();
+        assert!(preview.evidence.needs_owner_attestation);
+        assert!(preview.evidence.blockers.is_empty());
+        assert_eq!(preview.evidence.sources[0].saved, source);
+        let command = AppCommand::PreviewInboxRemoval(process.items[0].capture.id);
+        assert!(output(
+            &command,
+            AppEvent::InboxRemovalPreview(Box::new(preview.clone()))
+        )
+        .is_ok());
+        let mut forged = preview.clone();
+        forged.digest[0] ^= 1;
+        assert!(output(&command, AppEvent::InboxRemovalPreview(Box::new(forged))).is_err());
+        assert!(output(
+            &AppCommand::PreviewInboxRemoval(Uuid::new_v4()),
+            AppEvent::InboxRemovalPreview(Box::new(preview))
+        )
+        .is_err());
         std::fs::remove_file(vault.join("source.md")).unwrap();
         for purpose in [
             InboxAnalysisPurpose::Actions,

@@ -87,8 +87,98 @@ format, workspace build/all-target Clippy and52fixtures; final native combined
 check passed (known upstream future-compiler warning retained). Atomic evidence
 records terminalpassed/exit0 and unchanged dirty snapshot identity at
 03bb83a baseline, snapshotSHA256 `0bf38b2ec03a5646bf1a9419ba60c58a94b1624ceaa54f32b0dba2f3821082c8`.
-Current32Markdown files/298local links pass. Candidate commit, exact-head hosted
-CI and normal integration remain gates.
+Current32Markdown files/298local links passed. Candidate `3b74ff4fef1a9a134ea8d9b542ac64c1d91eb3ec`
+merged normally through PR57 at `c07cc19e4cc9e4aeed84aa86a0a6d6551231458d`,
+parents03bb83a/3b74ff4 and exact reviewed tree `fe3fde771b4c86c4277641fc4df2ede9e70979c5`.
+Exact-head PR37343478777 attempt1 passed all four protected Mac/shared gates and
+Documentation/tooling. Windows22complete diagnostics/two summaries and failure
+sources/CI match qualified main. Fresh merged8Store/6worker/6CLI and52fixtures
+passed. Merged-main37344761493 passed all applicable gates; overall red retains
+Windows22/22/14 matching compiler blocks/summaries and three matching Linux
+assertions/backtrace frames. One interleaved Cargo terminal-error line is retained
+in the Linux log difference; relevant failure-source/CI/setup blobs are unchanged.
 Unchanged relevant broad verification may be reused explicitly; new/changed
 membership cases require the fresh checks above. No originals or vault bytes are
 removed. Owner semantic attestation and removal/recovery remain following work.
+
+
+## Removal qualification deliverable
+
+Baseline is the exact PR59 merge `d120fd41d43b993ff235931ee955ffb5c6e30680`,
+retaining the reviewed typed AI assembly tree `e4339072d9a6b226109f570ea90e98c955ac1eb6`; branch
+`codex/v1-inbox-removal-qualification`. This bounded read-only gate establishes
+current saved evidence before adding any removal mutation/recovery protocol.
+Keep complete Action records/completions, current Action-family and Undo reviews,
+proposal Rewrite jobs and transitively related approval/Undo journals in the same
+checked Store transaction as retained review. Membership closes over immutable
+proposal/Action/operation UUIDs even after mutable Source links disappear.
+Freshly qualify applied Sources and saved Markdown consequences against terminal
+approval fingerprints, exact bytes, bound vault and complete unique managed UUID
+observation. Retained unsaved editor work blocks that output. Preserve complete
+encoded evidence/digest within64MiB; oversize refuses rather than clips.
+
+Shared `PreviewInboxRemoval` and `brn inbox removal-preview UUID` report exact
+proofs and explicit blockers. Pending item processing, absent/running/failed
+analyses, Draft/Applying/Uncertain proposals, unresolved approvals and running
+Rewrite remain blockers. The first gate conservatively blocks applied Undo and
+applied Trash or changed/missing/ambiguous outcomes; later qualified reconciliation
+must deliberately handle their retained-copy lineage. Rejected proposals and Open
+findings stay visible without being relabeled complete/closed. Empty blockers
+never establish semantic completeness, owner approval or permission to remove.
+No writes, removal intent, namespace effects, recovery imports or schema changes
+are part of this deliverable. The following mutation slice binds fresh complete
+evidence to explicit owner attestation and the existing recovery boundary.
+
+Acceptance: exact applied Source alone still requires owner attestation and keeps
+the original; changed/duplicate/missing Source or original, changed consequences,
+unsaved editor work, unsettled analyses/Rewrite and related Undo produce blockers.
+Action completion, late operational work and lineage change the complete digest.
+No provider request, credentials or original/vault mutation occurs during preview.
+Independent review, fresh relevant locked/offline checks, native combined compile,
+fixtures, exact-head Mac/shared CI and normal protected integration remain gates.
+
+
+Qualification review reproduced threeP2 defects: no-effect Undo left a hidden
+Draft; Source-unlinked later Action review/Rewrite was omitted; missing known
+Applied Action or Completed-action receipt silently became absence. Actual red
+Store/Workflow cases confirmed all three. Corrected identity membership retains
+current related reviews and original creation digests, all approval attempts and
+Rewrite ownership. Reverse authority checks refuse missing related proposals,
+known Applied Action origins/revisions and exact completion authority. Fresh
+4Store/7Workflow regressions and workspace all-target Clippy pass. Pre-fix broad
+gate passed1,332workspace/0/8 and52fixtures with atomic terminal evidence; it is
+superseded for final integration by the following fresh final gate. Material
+correction re-review is clean. Fresh final integrated gate including PR59 passed1,337workspace/0/8,52fixtures,
+format/build/all-target Clippy and native combined compile (known upstream
+block0.1.6 future-compiler warning retained). Atomic record retained terminal
+passed/exit0 and unchanged dirty-snapshot identity at d5b90bfa baseline, snapshot
+SHA256 `a976fb852ad943e6592448047acf5afb728b4d497c01f37f01db86ad7940390f`.
+Current32Markdown files/306local links passed. Exact-head protected integration
+is the next gate. Originals and vault bytes remain retained.
+
+
+## Following removal/recovery seam
+
+Read-only investigation confirmed the existing Store/files boundaries can support
+an exact versioned owner request, typed owned setting records, ordinary full
+intent/terminal mirrors and an operation-derived private retained-copy name. No
+new table/service is needed. Replay must precede fresh eligibility; a settled
+request never touches a recreated original endpoint. New effects require the
+complete unchanged preview digest and explicit disposable-copy, meaningful
+preservation, reviewed-disposition/conflict acknowledgement and exact-removal
+attestations. Original recovery must discover removal evidence before capture
+installation; startup may certify an already-performed exact move, never initiate
+another removal from an intent alone.
+
+Ordinary approval recovery does not retain all analysis/rejected/closed-finding
+or processing history, and WorkTurn lacks Session sequence/metadata. Preserve the
+full qualified evidence as an explicit immutable historical certificate rather
+than inventing restored live Sessions or enqueueing unrelated processing batches.
+Bootstrap only exact required catalog/analysis capture before dependent approval
+recovery; retain historical review/creation proofs/times/closures in that
+certificate. The whole attestation/envelope needs its own64MiB bound. Acceptance
+includes stale confirmation, exact replay after later work, crashes across intent,
+rename/sync/terminal/SQL acknowledgement, occupied/swapped endpoints, older/fresh
+DB restoration without resurrection and exact recoverable restoration refusing
+an occupied original endpoint. This follows preview integration; no removal
+mutation is implemented or authorized by a preview result.
