@@ -9,6 +9,7 @@ pub mod error;
 pub mod evidence;
 pub mod findings;
 pub mod identity;
+pub mod inbox;
 mod input;
 pub mod library;
 pub mod links;
@@ -44,6 +45,7 @@ pub enum Command {
     Links(links::LinksCommand),
     Findings(findings::FindingsCommand),
     Actions(actions::ActionsCommand),
+    Inbox(inbox::InboxCommand),
     Relationships(brn_workflow::knowledge::RelationshipRequest),
     Proposals(proposals::ProposalCommand),
     Ai(ai::AiCommand),
@@ -142,6 +144,9 @@ Commands:
   brn findings show UUID
   brn findings inspect UUID
   brn findings close UUID --version N --state resolved|dismissed
+  brn inbox add --id UUID --title TITLE --file TEXT_FILE [--kind text|markdown|email|teams] [--original-name LABEL]
+  brn inbox list [--limit N] [--after UUID]
+  brn inbox show UUID
   brn actions complete --file REQUEST.json
   brn actions show UUID
   brn actions list [--state open|waiting|blocked|completed|all] [--limit N] [--before-created-at-ms N --before-id UUID]
@@ -544,6 +549,7 @@ fn parse_inner(
         "links" => links::scan_command(&mut tokens, g, command)?,
         "findings" => findings::scan_command(&mut tokens, g, command)?,
         "actions" => actions::scan_command(&mut tokens, g, command)?,
+        "inbox" => inbox::scan_command(&mut tokens, g, command)?,
         "relationships" => relationships::scan_command(&mut tokens, g, command)?,
         "proposals" => proposals::scan_command(&mut tokens, g, command)?,
         "activity" => activity::scan_command(&mut tokens, g, command)?,
@@ -625,6 +631,7 @@ fn parse_inner(
         "links" => Command::Links(links::parse_command(command.unwrap(), &scanned)?),
         "findings" => Command::Findings(findings::parse_command(command.unwrap(), &scanned)?),
         "actions" => Command::Actions(actions::parse_command(command.unwrap(), &scanned)?),
+        "inbox" => Command::Inbox(inbox::parse_command(command.unwrap(), &scanned)?),
         "relationships" => Command::Relationships(relationships::parse_command(&scanned)?),
         "proposals" => Command::Proposals(proposals::parse_command(command.unwrap(), &scanned)?),
         "activity" => Command::Activity(activity::parse_command(&scanned)?),

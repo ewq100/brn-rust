@@ -443,3 +443,109 @@ fn valid_catalog_backup_restores_physical_damage_and_skips_semantically_invalid_
         ORIGINAL.as_bytes()
     );
 }
+
+#[test]
+fn exact_capture_publication_holds_write_exclusion_and_replay_never_republishes() {
+    let data = fixture();
+    let input = capture(data.path(), InboxKind::Email);
+    let (mut store, _) = WorkStore::open(data.path()).unwrap();
+    store.set_setting("publisher-race", "before").unwrap();
+    let mut published = None;
+    let item = store.capture_inbox_with(&input, |snapshot| {
+        snapshot.validate()?;
+        assert_eq!(snapshot.capture, input);
+        let other = raw(data.path());
+        other.busy_timeout(std::time::Duration::from_millis(1)).unwrap();
+        assert_eq!(other.query_row("SELECT count(*) FROM inbox_items", [], |r| r.get::<_, i64>(0)).unwrap(), 0);
+        assert!(matches!(other.execute("UPDATE settings SET value='raced' WHERE key='publisher-race'", []), Err(rusqlite::Error::SqliteFailure(error, _)) if error.code == rusqlite::ErrorCode::DatabaseBusy));
+        published = Some(snapshot.clone());
+        Ok(())
+    }).unwrap();
+    assert_eq!(published, Some(item.clone()));
+    assert_eq!(
+        store.setting("publisher-race").unwrap().as_deref(),
+        Some("before")
+    );
+    assert_eq!(
+        store
+            .capture_inbox_with(&input, |_| panic!("replay must not publish"))
+            .unwrap(),
+        item
+    );
+    let mut changed = input;
+    changed.title.push('λ');
+    assert!(matches!(
+        store.capture_inbox_with(&changed, |_| panic!("conflict must not publish")),
+        Err(Error::OperationConflict(_))
+    ));
+}
+
+#[test]
+fn failed_publication_rolls_back_catalog_and_exact_qualified_snapshot_restores_once() {
+    let data = fixture();
+    let input = capture(data.path(), InboxKind::Text);
+    let (mut store, _) = WorkStore::open(data.path()).unwrap();
+    let mut retained = None;
+    assert!(
+        store
+            .capture_inbox_with(&input, |item| {
+                retained = Some(item.clone());
+                Err(Error::Invalid(
+                    "synthetic publisher failure after retaining snapshot".into(),
+                ))
+            })
+            .is_err()
+    );
+    let item = retained.unwrap();
+    assert_eq!(store.inbox_item(input.id).unwrap(), None);
+    assert_eq!(
+        store
+            .inbox_items(&InboxListRequest::default())
+            .unwrap()
+            .total_count,
+        0
+    );
+    drop(store);
+    let (mut store, _) = WorkStore::open(data.path()).unwrap();
+    // This seam represents already-qualified workflow evidence. It does not
+    // establish original-copy publication or filesystem recovery by itself.
+    assert_eq!(store.restore_inbox(&item).unwrap(), item);
+    assert_eq!(store.restore_inbox(&item).unwrap(), item);
+    assert_eq!(
+        store
+            .capture_inbox_with(&input, |_| panic!("recovered capture must not publish"))
+            .unwrap(),
+        item
+    );
+    for field in 0..3 {
+        let mut fork = item.clone();
+        match field {
+            0 => fork.received_at_ms += 1,
+            1 => fork.capture.title.push('λ'),
+            _ => fork.capture.copy.sha256[0] ^= 1,
+        }
+        assert!(matches!(
+            store.restore_inbox(&fork),
+            Err(Error::OperationConflict(_))
+        ));
+        assert_eq!(store.inbox_item(input.id).unwrap(), Some(item.clone()));
+    }
+    let mut invalid = item.clone();
+    invalid.capture.id = Uuid::new_v4();
+    invalid.received_at_ms = u64::MAX;
+    assert!(matches!(
+        store.restore_inbox(&invalid),
+        Err(Error::Invalid(_))
+    ));
+    assert_eq!(
+        store
+            .inbox_items(&InboxListRequest::default())
+            .unwrap()
+            .total_count,
+        1
+    );
+    assert_eq!(
+        std::fs::read(input.copy.directory.join(input.copy_name())).unwrap(),
+        ORIGINAL.as_bytes()
+    );
+}

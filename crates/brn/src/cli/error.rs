@@ -35,6 +35,8 @@ impl CliError {
                 ErrorKind::ModelDownloadFailed => "MODEL_DOWNLOAD_FAILED",
                 ErrorKind::ToolsBusy => "TOOLS_BUSY",
                 ErrorKind::SaveUncertain => "SAVE_UNCERTAIN",
+                ErrorKind::InboxUnavailable => "INBOX_UNAVAILABLE",
+                ErrorKind::InboxUncertain => "INBOX_UNCERTAIN",
                 ErrorKind::IndexStale => "INDEX_STALE",
                 ErrorKind::ContextStale => "CONTEXT_STALE",
                 ErrorKind::ProfileUnavailable => "PROFILE_UNAVAILABLE",

@@ -1,3 +1,4 @@
+pub(crate) mod inbox;
 #[cfg(target_os = "macos")]
 mod macos;
 pub(crate) mod recovery;
