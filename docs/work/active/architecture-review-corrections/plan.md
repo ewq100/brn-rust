@@ -16,10 +16,12 @@ Knowledge identities merged normally in PR63 at
 `80564adbf04869444c4a6c6af1949cead3fe36b5`.
 Action correction merged normally in PR64 at
 `90c36e5c2035d1eea4fc37e7828f085a0f1bfba0`, exact reviewed tree
-`913c3fa3bbc6d3ddfdbc1fafa87c8cae257d7e02`. Current branch:
-`codex/v1-knowledge-capture-recovery`, based on PR65 merge
-`531517248300c15ce28bcb53f337984103817010`, exact reviewed tree
-`d63c1827aae5da654410520bc9c48856e1fa5e5a`. Remaining accepted
+`913c3fa3bbc6d3ddfdbc1fafa87c8cae257d7e02`. Source preservation merged in PR65
+at531517248300c15ce28bcb53f337984103817010/tree d63c1827aae5da654410520bc9c48856e1fa5e5a.
+Knowledge capture recovery merged in PR66 at
+`504f6be33e1add8c5819e28eed08628bc8dec8d0`, reviewed tree
+`77ec79e33c75a6a0bbed3100c3815648dcb6fd68`. Current branch:
+`codex/v1-original-operation-records`, based on that clean merge. Remaining accepted
 corrections follow this plan.
 The complete V1 goal is confirmed **active** by `get_goal` on 2026-10-05;
 its full objective and roadmap dependency order remain unchanged.
@@ -454,3 +456,55 @@ pending: recover disposable approved Knowledge/supersession from retained ordina
 receipts into fresh operational state after moving/changing its Source, observe
 original history/review without resubmission, and verify damaged/missing capture
 refusal. No private data, provider call or original removal is authorized by this.
+
+
+## Captured-analysis integration
+
+PR66 run37387682980 attempt1 at1eeef2b9f6d1ff100aa8e8955d3cba07ca2c20cf
+passed all four strict protected Mac/shared checks and documentation/tooling.
+Overall red retains Windows22 complete compiler blocks and both summaries
+identical to PR65. Mac workspace tests passed in495seconds versus PR65's388;
+no rerun or substituted evidence. Fresh protection/head checks and normal merge
+produced504f6be33e1add8c5819e28eed08628bc8dec8d0, exactly the reviewed tree.
+Fresh merged8 Store/14 Workflow tests/0 failures/1 documented subprocess ignore
+and52 fixtures passed, atomic exit0 with unchanged clean identity at
+23:32:41–23:32:51UTC. Exact main37389066259 attempt1 passed all applicable gates.
+Overall red retains Windows22/22/14 complete compiler blocks/both terminal
+summaries identical to main65; Linux native retrieval keeps the same three
+assertions/source locations/backtraces. Raw order/thread IDs and duration0.04s→0.81s
+differ and are retained. Mac workspace tests478seconds/job595seconds passed;
+no rerun or mutation. Native/live/owner
+acceptance remains pending; no original was removed.
+
+## Original-operation Store prerequisite acceptance
+
+Baseline504f6be33e1add8c5819e28eed08628bc8dec8d0. Implement Store records first;
+filesystem effects, shared worker/client commands and native controls follow.
+Reuse useful code/tests from immutable7c4f668. The owner-ratified preservation
+rule is fixed; schema/table layout can evolve within existing WorkStore.
+
+- New bounded Remove records bind the exact available original, one complete
+  approved Source journal and fresh saved Source proof, the exact preview digest,
+  one versioned explicit owner confirmation, namespace and monotonic times.
+  Pure preservation checks grant no filesystem freshness or execution authority.
+- Use one direct prior Restore UUID/digest; Restore binds one Remove UUID/digest.
+  No accumulated history, processing, chat, finding or consequence graph in new
+  records. Preserve legacy format1/five-attestation setting bytes, hashes and
+  full semantic validation; new behavior does not inherit those historical gates.
+- Add an owned V15 table with canonical complete bodies and cross-checked indexed
+  summaries. V14 upgrades and validated backup recovery preserve exact user work.
+  Readable semantic/schema damage refuses without replacement or new backup.
+- A compact checked inventory parses/checks/drops each full body once per pass;
+  check catalog/origin/namespace, parent digests/opposite settled kind, times,
+  forks/cycles and legacy cumulative history. No unproved summary or mirror-only
+  authority. Atomic import rolls back missing/forked/malformed evidence.
+- Test meaningful new/mixed legacy chains, rehashed metadata and Source damage,
+  historical byte/digest compatibility, migrations/backups and long/multi-item
+  scaling. Measure actual full-body parsing/encoded size/time; V15 alone is not
+  evidence of bounded cost. Independent full review, shared/native qualification,
+  exact-head required CI, normal merge and fresh merged checks remain gates.
+
+The following lifecycle slice must reuse the existing private Remove/Restore
+family, preserve equal mirror bytes/inodes, import exact Item/legacy genuine
+captures before approval companions, surface bootstrap failures and prevent
+intake resurrection. No new recovery family, datastore or semantic gate is added.

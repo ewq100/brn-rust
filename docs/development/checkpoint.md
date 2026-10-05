@@ -2,6 +2,40 @@
 
 Lead-confirmed 2026-10-06: full frozen V1 goal **active**, without a token budget.
 
+- **Integrated:** Knowledge capture recovery [PR66](https://github.com/ewq100/brn-rust/pull/66)
+  at `504f6be33e1add8c5819e28eed08628bc8dec8d0`, exact reviewed tree
+  `77ec79e33c75a6a0bbed3100c3815648dcb6fd68`.
+- **Behavior:** genuine immutable analysis captures accompany Knowledge approval
+  receipts; fresh/older recovery imports both atomically, preserving exact evidence
+  and newer review without chat or provider execution. Existing format1 receipts
+  stay unchanged. New companions require the qualified reader. PR65's approved
+  Source preservation rule is integrated; explicit confirmation remains required.
+- **Verification:** full independent review clean; unchanged code10e95e2 passed
+  shared format/build/Clippy,1,397 tests/0 failures/8 ignores+52 fixtures; native
+  304 Workflow/model tests/0/7,285 Desktop/0/0, check/Clippy/build/two V14 restarts.
+  Exact-head PR37387682980 attempt1 passed four protected Mac/shared jobs and Docs;
+  overall red preserves unchanged Windows22 compiler blocks/both summaries.
+  Fresh merged8 Store/14 Workflow tests/0 failures/1 subprocess ignore+52 fixtures
+  passed at unchanged merged identity, atomic exit0 (23:32:41–23:32:51UTC).
+  Exact main37389066259 attempt1 passed applicable checks; overall red retains
+  Windows22/22/14 matching main65 and the same three Linux retrieval assertions/
+  backtraces, with raw order/thread-ID/duration differences retained.
+- **Current/next:** `codex/v1-original-operation-records` at this merge. Correct
+  original-operation record shape/storage and validation cost before reusing the
+  lifecycle effects; follow the [correction plan](../work/active/architecture-review-corrections/plan.md).
+- **Preserved:** lifecycle7c4f668 on `codex/v1-inbox-recoverable-removal` stays
+  unchanged/unmerged. Actual removal/native controls follow the Store prerequisite.
+- **Pending:** native/live/owner acceptance, real model assets, cleanup confirmation
+  and lifecycle qualification, later roadmap stages and trusted-user packaging.
+- **Environment:** Darwin arm64 Mac mini, Rust1.98.1 locked/offline, canonical owned
+  `TMPDIR=/private/tmp/brn-mini-synthetic-20261005`, empty native model setting,
+  isolated targets and disposable synthetic data. No new live calls, downloads,
+  private-data operations or release authorized.
+
+# Earlier Source/capture qualification checkpoint
+
+Lead-confirmed 2026-10-06: full frozen V1 goal **active**, without a token budget.
+
 - **Integrated:** Source-preservation [PR65](https://github.com/ewq100/brn-rust/pull/65)
   at `531517248300c15ce28bcb53f337984103817010`, exact reviewed tree
   `d63c1827aae5da654410520bc9c48856e1fa5e5a`. One approved Source proves exact
