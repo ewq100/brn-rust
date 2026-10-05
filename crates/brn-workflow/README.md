@@ -36,6 +36,10 @@ Markdown previews preserve exact bytes; other deliberate text copies use safe
 literal Markdown fences around the exact body. Oversized previews are flagged
 without truncation. Preview reads recheck the original and reproduce the exact
 receipt. Imported frontmatter remains pending text rather than managed metadata.
+`InboxConversionPreview::validate_receipt` checks the complete batch/original/
+format/length/digest at this boundary. Clients need no hashing or conversion logic;
+a complete operational preview remains readable even if a later Source wrapper
+would exceed its separate byte bound.
 These previews require semantic review; attachment/visual interpretation, saved
 source proposals, consequences and safe deletion remain follow-on capabilities.
 No original deletion, provider call or authoritative write occurs here.

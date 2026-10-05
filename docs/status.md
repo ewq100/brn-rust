@@ -87,8 +87,12 @@ in 40 parallel unit-suite runs: test-only cancellation writers and actual-comman
 readers did not share the same lock. The narrow repair keeps production unchanged
 and holds the existing panic-safe guard for both successful CLI tests. Independent
 review is clean; 100 repetitions (59 tests each, 16 threads) plus fresh default
-workspace format/build/Clippy/1,199 tests and startup passed. Exact-head repair CI
-and integration remain pending. Native/owner Inbox acceptance is still open.
+workspace format/build/Clippy/1,199 tests and startup passed. PR48 merged at `5f40ec8c73039dac2a6d41114f9ff708c45f45bb`. Exact-head
+run `37283384246` passed all macOS lanes and Ubuntu shared; Windows diagnostics
+matched PR47. Merge tree matches candidate. Fresh post-merge CLI59 tests passed; main run
+`37284367543` passed all macOS lanes and Ubuntu Core/UI. Ubuntu Native retained
+three known synthetic-installer failures; Windows error signatures matched the
+previous main. Overall CI remains red; the reproduced cancellation race is resolved. Native/owner Inbox acceptance is still open.
 
 Stage6 implementation is integrated through [PR43](https://github.com/ewq100/brn-rust/pull/43).
 Dashboard/identified Complete actual observation and eight safe original JPEGs
@@ -100,7 +104,13 @@ Scenarios and integration evidence remain in the
 
 The native Inbox slice adds deliberate capture, exact original inspection,
 bounded processing/cancellation and a binding-preserving source form using
-AppWorker. The macOS post-merge CLI isolation repair is being qualified separately.
+AppWorker. The macOS post-merge CLI isolation repair is verified and integrated.
+The candidate passed independent review, 1,210 default tests (seven ignored
+helpers), 229 native workflow/model tests (six ignored helpers), 273 native
+desktop tests, default/native Clippy, 52 offline fixtures, shipping builds and two
+V13 startup/restarts preserving exact synthetic vault bytes with zero credentials.
+Computer use reported the Mac locked; native Inbox observation/screenshots and
+owner acceptance remain pending. Applicable exact-head CI and integration are next.
 Semantic knowledge/Action/link consequences and safe deletion follow. See the
 [Inbox plan](work/active/text-email-inbox/plan.md).
 

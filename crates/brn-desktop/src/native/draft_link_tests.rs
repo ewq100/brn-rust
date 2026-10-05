@@ -439,3 +439,252 @@ fn native_link_inputs_and_later_typing_survive_stale_inspection_acknowledgement(
     });
     fixture.unchanged();
 }
+
+fn prepared_source_form() -> (crate::draft::DraftForm, DraftRequest) {
+    use brn_workflow::inbox_processing::InboxSourceBinding;
+    use sha2::{Digest, Sha256};
+    let hash: [u8; 32] = Sha256::digest(SAVED.as_bytes()).into();
+    let binding: InboxSourceBinding = serde_json::from_value(serde_json::json!({
+        "batch_id": Uuid::new_v4(), "index": 1,
+        "original": {
+            "capture": {
+                "id": Uuid::new_v4(), "kind": "markdown", "title": "Origin 日本語 λ",
+                "original_name": "Imported 🦀.md",
+                "copy": {"directory": "/synthetic/intake", "directory_device": 11,
+                    "directory_inode": 21, "file_device": 11, "file_inode": 22,
+                    "byte_len": SAVED.len(), "sha256": hash}
+            }, "received_at_ms": 100
+        },
+        "format": "verbatim_markdown_v1", "byte_len": SAVED.len(), "sha256": hash,
+        "note_id": Uuid::new_v4()
+    }))
+    .unwrap();
+    let request = DraftRequest {
+        id: Uuid::new_v4(),
+        group_id: None,
+        session_id: None,
+        title: "Prepared Source 日本語 λ".into(),
+        changes: vec![DraftNoteChange::Create {
+            path: "source.md".into(),
+            text: binding.markdown(SAVED).unwrap(),
+        }],
+        sources: vec![],
+        action_changes: vec![],
+        inbox_source: Some(Box::new(binding)),
+    };
+    (
+        crate::draft::DraftForm::from_inbox_source(request.clone()).unwrap(),
+        request,
+    )
+}
+
+fn source_record(request: &DraftRequest) -> brn_workflow::proposals::ProposalRecord {
+    let DraftNoteChange::Create { path, text } = &request.changes[0] else {
+        panic!("Source Create")
+    };
+    serde_json::from_value(serde_json::json!({
+        "draft": {
+            "id": request.id, "group_id": request.group_id, "session_id": request.session_id,
+            "vault": {"id": Uuid::new_v4(), "root": "/synthetic/vault", "identity": {"device": 11, "inode": 30}},
+            "title": "Persisted review title λ",
+            "changes": [{"kind": "create", "path": path, "parent": {"device": 11, "inode": 30}, "text": text}],
+            "sources": [], "inbox_source": request.inbox_source
+        },
+        "version": 2, "state": "draft", "comments": [], "created_at_ms": 1, "updated_at_ms": 2
+    })).unwrap()
+}
+
+#[gpui_kit::test]
+fn native_source_form_locks_exact_body_and_copies_portable_proof_without_rebinding_note(
+    cx: &mut gpui_kit::TestAppContext,
+) {
+    let fixture = Fixture::new();
+    let (form, request) = prepared_source_form();
+    let full = form.text.clone();
+    let binding = request.inbox_source.as_ref().unwrap();
+    let (window, desktop) = open_form(cx, &fixture, form);
+    let mut visual = VisualTestContext::from_window(window.into(), cx);
+    visual.run_until_parked();
+    let proofs = visual.update(|window, cx| {
+        window.render_frame(cx);
+        assert!(window.try_find("prepare-initial-note-link").is_none());
+        assert!(window.try_find("load-initial-proposal-source").is_none());
+        let proofs = desktop
+            .read(cx)
+            .draft_link_proofs
+            .read(cx)
+            .value()
+            .to_string();
+        assert!(proofs.contains(&serde_json::to_string_pretty(&binding.provenance()).unwrap()));
+        assert!(proofs.contains(&binding.batch_id.to_string()));
+        assert!(proofs.contains(&binding.note_id.to_string()));
+        assert!(proofs.contains("Converted bytes:"));
+        assert!(proofs.contains("Converted SHA-256:"));
+        assert!(!proofs.contains("/synthetic/intake"));
+        assert!(!proofs.contains("directory_inode"));
+        proofs
+    });
+    for id in ["initial-kind-Replace", "initial-kind-Trash"] {
+        scroll_to(&mut visual, id);
+        visual.update(|window, cx| window.click(id, cx));
+        visual.run_until_parked();
+    }
+    let title = "\u{feff}Later Source title 日本語\r\nλ\r";
+    visual.update(|window, cx| {
+        let fields = desktop.read(cx);
+        let (title_field, path_field, body) = (
+            fields.draft_title.clone(),
+            fields.draft_path.clone(),
+            fields.draft_editor.clone(),
+        );
+        title_field.update(cx, |input, cx| {
+            let end = input.value().encode_utf16().count();
+            input.replace_text_in_range(Some(0..end), title, window, cx)
+        });
+        path_field.update(cx, |input, cx| {
+            input.replace_text_in_range(Some(0..0), "rebound/", window, cx)
+        });
+        body.update(cx, |input, cx| {
+            let end = input.value().encode_utf16().count();
+            input.replace_text_in_range(Some(0..end), "changed source", window, cx);
+            assert_eq!(input.value().as_bytes(), full.as_bytes());
+        });
+    });
+    visual.run_until_parked();
+    visual.update(|_, cx| {
+        desktop.update(cx, |desktop, cx| {
+            desktop.capture_draft_widgets(cx);
+            let form = desktop.ai.as_ref().unwrap().draft.as_ref().unwrap();
+            let mut expected = request.clone();
+            expected.title = title.into();
+            assert_eq!(form.request().unwrap(), expected);
+            assert_eq!(form.prepared_request(), Some(&request));
+        });
+    });
+    scroll_to(&mut visual, "copy-prepared-source-proofs");
+    visual.update(|window, cx| {
+        let proof = desktop.read(cx).draft_link_proofs.clone();
+        proof.update(cx, |editor, cx| {
+            editor.replace_text_in_range(Some(0..0), "changed origin", window, cx);
+            assert_eq!(editor.value().as_ref(), proofs);
+        });
+        window.click("copy-prepared-source-proofs", cx);
+        assert_eq!(
+            cx.read_from_clipboard().and_then(|item| item.text()),
+            Some(proofs.clone())
+        );
+    });
+    scroll_to(&mut visual, "copy-initial-full-body");
+    visual.update(|window, cx| {
+        window.click("copy-initial-full-body", cx);
+        assert_eq!(
+            cx.read_from_clipboard().and_then(|item| item.text()),
+            Some(full.clone())
+        );
+    });
+    scroll_to(&mut visual, "separate-initial-proposal");
+    visual.update(|window, cx| window.click("separate-initial-proposal", cx));
+    visual.run_until_parked();
+    visual.update(|_, cx| {
+        let desktop = desktop.read(cx);
+        let form = desktop.ai.as_ref().unwrap().draft.as_ref().unwrap();
+        assert!(form.is_prepared_source());
+        assert_ne!(form.id, request.id);
+        let actual = form.request().unwrap();
+        assert_eq!(actual.inbox_source, request.inbox_source);
+        assert_eq!(actual.changes, request.changes);
+        assert_eq!(actual.title, title);
+        assert_eq!(
+            desktop.draft_editor.read(cx).value().as_bytes(),
+            full.as_bytes()
+        );
+        assert_eq!(desktop.draft_link_proofs.read(cx).value().as_ref(), proofs);
+        assert!(form.submitted.is_none());
+    });
+    fixture.unchanged();
+}
+
+#[gpui_kit::test]
+fn native_source_retry_and_late_ack_keep_widgets_and_full_bound_submission(
+    cx: &mut gpui_kit::TestAppContext,
+) {
+    let fixture = Fixture::new();
+    let (form, request) = prepared_source_form();
+    let full = form.text.clone();
+    let (window, desktop) = open_form(cx, &fixture, form);
+    let mut visual = VisualTestContext::from_window(window.into(), cx);
+    visual.run_until_parked();
+    let operation = visual.update(|_, cx| {
+        desktop.update(cx, |desktop, _| {
+            let (operation, command) = desktop.ai.as_mut().unwrap().create_draft().unwrap();
+            assert!(matches!(command, AppCommand::CreateProposal(actual) if actual == request));
+            operation
+        })
+    });
+    let retry = visual.update(|_, cx| {
+        desktop.update(cx, |desktop, _| {
+            let ai = desktop.ai.as_mut().unwrap();
+            ai.apply(
+                operation,
+                AppEvent::Failed(brn_workflow::WorkflowError::msg("synthetic failure")),
+            );
+            let (retry, command) = ai.create_draft().unwrap();
+            assert_ne!(retry, operation);
+            assert!(matches!(command, AppCommand::CreateProposal(actual) if actual == request));
+            retry
+        })
+    });
+    let later_title = "Later native title 日本語 λ";
+    visual.update(|window, cx| {
+        window.render_frame(cx);
+        let title = desktop.read(cx).draft_title.clone();
+        title.update(cx, |input, cx| {
+            let end = input.value().encode_utf16().count();
+            input.replace_text_in_range(Some(0..end), later_title, window, cx)
+        });
+    });
+    visual.run_until_parked();
+    let record = source_record(&request);
+    visual.update(|window, cx| {
+        desktop.update(cx, |desktop, cx| {
+            desktop.capture_draft_widgets(cx);
+            let ai = desktop.ai.as_mut().unwrap();
+            let mut wrong = record.clone();
+            wrong
+                .draft
+                .inbox_source
+                .as_mut()
+                .unwrap()
+                .original
+                .received_at_ms += 1;
+            assert!(ai.apply(retry, AppEvent::Proposal(wrong)).is_empty());
+            assert!(ai.draft.as_ref().unwrap().pending);
+            assert!(
+                ai.apply(operation, AppEvent::Proposal(record.clone()))
+                    .is_empty()
+            );
+            ai.apply(retry, AppEvent::Proposal(record.clone()));
+            let form = ai.draft.as_ref().unwrap();
+            assert!(!form.pending);
+            assert_eq!(form.title, later_title);
+            assert_eq!(form.submitted.as_ref().unwrap().request, request);
+            assert_eq!(form.result.as_ref().unwrap().1, record);
+            assert_eq!(form.text.as_bytes(), full.as_bytes());
+            assert!(!form.can_leave());
+            desktop.sync_draft_widgets(window, cx);
+            assert_eq!(desktop.draft_title.read(cx).value().as_ref(), later_title);
+            assert_eq!(
+                desktop.draft_editor.read(cx).value().as_bytes(),
+                full.as_bytes()
+            );
+            assert!(
+                desktop
+                    .draft_link_proofs
+                    .read(cx)
+                    .value()
+                    .contains(&request.inbox_source.as_ref().unwrap().note_id.to_string())
+            );
+        });
+    });
+    fixture.unchanged();
+}

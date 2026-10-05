@@ -86,6 +86,7 @@ impl Desktop {
             Some(DocRef::Activity) => self.render_activity(cx),
             Some(DocRef::Dashboard) => self.render_dashboard(cx),
             Some(DocRef::Findings) => self.render_findings(cx),
+            Some(DocRef::Inbox) => self.render_inbox(cx),
             Some(DocRef::Draft) => self.render_draft(cx),
             _ => self.render_simple_document(cx),
         }

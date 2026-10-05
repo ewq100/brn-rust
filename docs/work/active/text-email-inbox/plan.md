@@ -244,7 +244,7 @@ Fresh final storage/shared verification passed format/build/all-target Clippy,
 1,199 tests (zero failed, seven ignored helpers) and actual AppWorker startup.
 The 52 offline fixtures and 66 local Markdown file links passed. Focused Inbox
 and CLI checks plus the reproduced cleanup/link corrections passed. Native workflow passed 221 library tests (six ignored crash helpers exercised by
-parents) plus seven model tests. Native desktop passed 250 library tests plus seven
+parents) plus seven model tests. Native desktop passed 250 binary tests plus seven
 CLI/startup tests, zero failures. Combined native all-target Clippy and fresh format
 passed. Shipping native Desktop/CLI builds and two fresh native startup/restart witnesses
 passed, V13/exact synthetic BOM-CRLF-Unicode vault bytes/zero credential files.
@@ -272,3 +272,90 @@ refusal and completed-result preservation remain covered. Exact-head applicable
 hosted CI and integration are the next gate; native Inbox implementation continues
 in its separate worktree. Apple Silicon macOS, pinned Rust1.98.1, locked dependencies
 and an existing canonical owned TMPDIR remain the environment requirements.
+
+## CLI repair integration / native Inbox slice
+
+PR48 merged at `5f40ec8c73039dac2a6d41114f9ff708c45f45bb`; its tree equals
+reviewed candidate `b932ab4`. Exact-head run `37283384246` passed all three macOS
+lanes and Ubuntu shared. Windows Core's full normalized compiler diagnostics match
+PR47,22 errors/two summaries. Normal expected-head merge satisfied fresh GitHub
+requirements. Fresh post-merge CLI59 tests passed. Main run `37284367543` passed all macOS
+lanes and Ubuntu Core/UI; Ubuntu Native retained three known installer failures
+and Windows signatures match previous main. Overall CI remains red. This closes
+the reproduced local test race;
+source behavior and native/owner acceptance remain distinct.
+
+Next branch `codex/v1-native-inbox` continues over actual PR48 merge `5f40ec8c73039dac2a6d41114f9ff708c45f45bb`. Reuse shared Inbox
+commands and existing source/proposal review; desktop adds presentation/correlation
+only. Native captures deliberate text/Markdown/email/Teams, pages/inspects originals,
+processes 1–8 exact selected items with correlated progress/cancellation, and prepares
+a full binding-preserving source Create for existing review/approval. User input and
+late results remain retained; stale page/selection replies cannot hijack the view.
+No semantic AI call, original deletion or new workflow/storage system in this slice.
+
+Acceptance: source/original bytes stay exact through capture and preparation;
+processing uses its batch UUID and keeps Pending until terminal state. Source
+preparation retains the complete typed binding through submission/retry/copy and
+acknowledgement, with immutable source body/kind/destination and editable review
+title/comments. Navigation guards unsent forms/unfinished work. Source approval
+continues only through shared exact approval, with Source/Current distinction clear.
+Meaningful state/native widget/actual worker tests, complete independent review,
+fresh applicable local/native/CI gates and safe original screenshots where native
+computer use works. Owner/native observation remains distinct from headless tests.
+
+
+## Native manual acceptance scenario
+
+Use a fresh synthetic data folder and a separate empty vault with no account/model
+connection. Open Inbox, choose Email copy, enter a title and multiline Unicode text,
+and capture it. Inspect the acknowledged original: its complete bytes and Copy
+must match; later capture typing remains. Refresh inventory, check one original,
+and process it. Watch the per-entry outcome; preview the complete conversion.
+Repeat with several items, capped at eight, and cancel remaining conversions.
+Missing/changed/unavailable original status must remain explicit.
+
+Enter a Source title and new relative `.md` path, prepare it, then explicitly open
+the source form. Body, kind and destination are fixed; title and comments remain
+review input. Create the proposal, inspect its complete source body and provenance,
+and approve the exact current proposal in the existing approval flow. Before
+approval there is no Source note. Afterwards the note is visible in Source/All,
+excluded from default Current, and the original remains available through Inbox.
+Quit/restart and inspect both retained original and approved source. Unsent source
+forms must block navigation until creation or explicit discard; failed batches must
+remain retryable with the exact submitted UUID after inventory refresh.
+
+Native screenshot observation and owner acceptance are pending until actually
+performed. Widget/worker tests alone do not establish those results. Semantic
+knowledge/Action/link consequences and safe original deletion follow this slice.
+
+## Native Inbox candidate checkpoint — 2026-10-05
+
+Implemented against actual PR48 merge `5f40ec8`. Complete independent read-only
+review is clean; final 15-file Rust manifest SHA256
+`3b4f8ef6e1e81fd56c78e193fa63bdc61c2db0912cb9a9b0fa70b1708a929f9d`.
+Verified findings corrected consumed Source preparation and retry availability
+after inventory refresh. Actual native regressions reproduced those failures and
+the Source review body's unintended editability before their fixes. Original
+bytes/proofs remain immutable, newer input is retained, and explicit navigation
+continues through shared application guards.
+
+Fresh macOS arm64/Rust1.98.1, locked/offline, canonical owned TMPDIR: storage gate
+passed format/build/workspace all-target Clippy, 1,210 tests/zero failed/seven
+ignored helpers and real AppWorker startup. Native workflow library+models passed
+229 tests/zero failed/six ignored crash helpers; native desktop with
+`native-ui,native-retrieval,native-test-support` passed 273 tests/zero failed.
+Native all-target Clippy, 52 end-to-end fixture assertions/retirement, shipping
+Desktop/CLI builds and two fresh shipping V13 startup/restarts passed, preserving
+exact BOM/CRLF/Unicode vault bytes and producing zero credential files.
+Ignored children are exercised by their parent crash tests; no actual model,
+provider or original/private data was used. Known upstream block0.1.6 warning
+remains. Computer use reported the Mac locked; no GUI observation or screenshot
+is claimed. Owner acceptance is pending, with the scenario above.
+
+Next: exact-head applicable macOS/Ubuntu CI, normal authorized integration and
+post-merge verification. Then semantic consequences through the same application
+and proposal boundary; originals stay retained until meaningful conversion and
+approval are established. Mac mini transfer remains deferred. Environment:
+Apple Silicon macOS/Command Line Tools, pinned Rust1.98.1, locked dependencies,
+protobuf, Bash/Python3 and an existing canonical owned TMPDIR; GUI needs an
+unlocked, awake session. No further live calls or downloads are authorized here.

@@ -154,6 +154,25 @@ into this form. Failed, provisional or oversized answers cannot become truncated
 drafts. AI writing uses a real stored seed Draft, comments and owned Rewrite.
 GUI/IME/accessibility and owner acceptance are tracked separately.
 
+### Native text/email Inbox
+
+Inbox captures deliberate exact UTF-8 text, Markdown, email and Teams copies
+through AppWorker. Capture fields remain intact after acknowledgement, failure or
+navigation. Inventory pages and original inspection expose workflow availability;
+full originals/conversion previews are read-only and copyable without truncation.
+Checked batches retain 1–8 complete original snapshots across page changes, with
+explicit removal, progress, cancellation and exact failed-admission retry. Refresh
+does not hide a retained batch retry. Late replies cannot replace a newer view.
+
+Source preparation retains the entire typed original/conversion proof. Explicitly
+open its form, create the review draft, then use existing exact approval. Source
+body/kind/destination are fixed; title and temporary comments remain editable.
+The Source review body stays read-only after creation. Unsent forms guard leaving;
+opening consumes only successfully validated preparation. Source approval never
+deletes the original. Semantic knowledge/Action/link consequences and safe deletion
+remain later Stage7 work. The [Inbox plan](../../docs/work/active/text-email-inbox/plan.md#native-manual-acceptance-scenario)
+contains the reproducible native acceptance scenario and pending qualification.
+
 ### Manual Action review acceptance
 
 Use a fresh explicit data directory and synthetic fixtures; no provider is needed.

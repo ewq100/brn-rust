@@ -40,6 +40,22 @@ pub(super) fn link_label_state(
 
 fn source_proofs(form: &crate::draft::DraftForm) -> String {
     form.prepared_request().map_or_else(String::new, |request| {
+        if let Some(binding) = &request.inbox_source {
+            let hash: String = binding
+                .sha256
+                .iter()
+                .map(|byte| format!("{byte:02x}"))
+                .collect();
+            return format!(
+                "Inbox Source origin\n{}\n\nBatch: {}\nIndex: {}\nNote UUID: {}\nConverted bytes: {}\nConverted SHA-256: {hash}",
+                serde_json::to_string_pretty(&binding.provenance())
+                    .expect("portable provenance serializes"),
+                binding.batch_id,
+                binding.index,
+                binding.note_id,
+                binding.byte_len,
+            );
+        }
         request
             .sources
             .iter()
@@ -286,6 +302,7 @@ impl Desktop {
         let editable = !leaving && (!ai.application_busy() || form.pending);
         let command_blocked = self.draft_command_blocked();
         let prepared = form.prepared_request().is_some();
+        let prepared_source = form.is_prepared_source();
         body = body
             .child(format!(
                 "Proposal {} · input generation {}{}",
@@ -344,6 +361,7 @@ impl Desktop {
                 div().h(px(320.)).flex_shrink_0().child(
                     Editor::new(&self.draft_editor)
                         .h_full()
+                        .readonly(prepared_source)
                         .disabled(!editable)
                         .aria_label("Exact full initial proposal body"),
                 ),
@@ -482,16 +500,38 @@ impl Desktop {
             }
         }
         if prepared {
+            let (message, proof_label, copy_label) = if prepared_source {
+                (
+                    "Prepared Inbox Source destination, kind and exact converted body are fixed. The proposal title remains editable. The original stays retained; Markdown changes only after exact approval.",
+                    "Complete portable Inbox origin and conversion proof",
+                    "Copy full Inbox origin and conversion proof",
+                )
+            } else {
+                (
+                    "Prepared destination and both saved source bindings are fixed. Title and full proposed body remain editable; Markdown changes only after exact approval.",
+                    "Complete immutable consumer and target source bindings",
+                    "Copy both full source bindings",
+                )
+            };
             body = body
-                .child("Prepared destination and both saved source bindings are fixed. Title and full proposed body remain editable; Markdown changes only after exact approval.")
-                .child(div().h(px(210.)).flex_shrink_0().child(
-                    Editor::new(&self.draft_link_proofs).h_full().readonly(true)
-                        .aria_label("Complete immutable consumer and target source bindings")))
-                .child(Button::new("copy-prepared-source-proofs").label("Copy both full source bindings")
-                    .on_click(cx.listener(|this, _, _, cx| {
-                        cx.write_to_clipboard(gpui_kit::ClipboardItem::new_string(
-                            this.draft_link_proofs.read(cx).value().to_string()));
-                    })));
+                .child(message)
+                .child(
+                    div().h(px(210.)).flex_shrink_0().child(
+                        Editor::new(&self.draft_link_proofs)
+                            .h_full()
+                            .readonly(true)
+                            .aria_label(proof_label),
+                    ),
+                )
+                .child(
+                    Button::new("copy-prepared-source-proofs")
+                        .label(copy_label)
+                        .on_click(cx.listener(|this, _, _, cx| {
+                            cx.write_to_clipboard(gpui_kit::ClipboardItem::new_string(
+                                this.draft_link_proofs.read(cx).value().to_string(),
+                            ));
+                        })),
+                );
         }
         if form.kind == DraftKind::Trash {
             body = body.child("Trash proposes moving the captured original. Any retained proposed body must be copied or explicitly discarded first.");
