@@ -1,0 +1,14 @@
+{
+  "required_status_checks": {
+    "strict": true,
+    "checks": [
+      {"context": "Core and CLI (ubuntu-24.04)", "app_id": 15368},
+      {"context": "Core and CLI (macos-15)", "app_id": 15368},
+      {"context": "Native UI build and state (macos-15)", "app_id": 15368},
+      {"context": "Native retrieval and combined build (macos-15)", "app_id": 15368}
+    ]
+  },
+  "enforce_admins": true,
+  "required_pull_request_reviews": null,
+  "restrictions": null
+}

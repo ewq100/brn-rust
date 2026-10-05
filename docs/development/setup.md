@@ -2,6 +2,10 @@
 
 Run commands from the repository root. [rust-toolchain.toml](../../rust-toolchain.toml) pins Rust 1.98.1 with rustfmt and Clippy. Use Rustup with that toolchain installed; preserve [Cargo.lock](../../Cargo.lock).
 
+Run `python3 scripts/development-preflight.py` (add `--native` for native prerequisites)
+to report this checkout and available tools before choosing checks. See
+[tooling](tooling.md) for skill portability and retained evidence.
+
 ## Default workspace
 
 ```sh

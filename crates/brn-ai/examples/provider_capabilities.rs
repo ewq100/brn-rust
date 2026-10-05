@@ -7,11 +7,89 @@ use std::sync::atomic::{AtomicBool, Ordering};
 use std::time::Duration;
 use tokio_util::sync::CancellationToken;
 
-const USAGE: &str = "usage: provider-capabilities --live chatgpt|copilot ABSOLUTE_CREDENTIALS_DIR EXACT_MODEL low|high|image|web\n\
+const USAGE: &str = "usage: provider-capabilities --synthetic-catalog (built-in offline fixtures only)\n\
+provider-capabilities --live chatgpt|copilot ABSOLUTE_CREDENTIALS_DIR EXACT_MODEL low|high|image|web\n\
 Runs a bounded synthetic probe against an already connected, task-specific account.\n\
 Owner authorization is required for provider calls; there is no default provider or model.";
 
 static INTERRUPTED: AtomicBool = AtomicBool::new(false);
+
+/// Offline harness observation only. Never retain bodies, arbitrary metadata,
+/// messages, headers, credentials or account identifiers.
+#[derive(Debug, PartialEq, Eq, serde::Serialize)]
+struct CatalogObservation {
+    provider: &'static str,
+    envelope_shape: &'static str,
+    container: &'static str,
+    container_shape: &'static str,
+    raw_count: Option<usize>,
+    ids: Option<Vec<String>>,
+}
+
+fn shape(value: &serde_json::Value) -> &'static str {
+    match value {
+        serde_json::Value::Null => "null",
+        serde_json::Value::Bool(_) => "boolean",
+        serde_json::Value::Number(_) => "number",
+        serde_json::Value::String(_) => "string",
+        serde_json::Value::Array(_) => "array",
+        serde_json::Value::Object(_) => "object",
+    }
+}
+
+fn catalog_observation(provider: Provider, body: &serde_json::Value) -> CatalogObservation {
+    let (provider_name, container, key) = match provider {
+        Provider::Chatgpt => ("chatgpt", "models", "slug"),
+        Provider::Copilot => ("copilot", "data", "id"),
+    };
+    let entries = body.get(container).and_then(serde_json::Value::as_array);
+    let mut seen = std::collections::HashSet::new();
+    let ids = entries.and_then(|entries| {
+        entries
+            .iter()
+            .map(|entry| {
+                let id = entry.get(key)?.as_str()?;
+                let selection = Selection {
+                    provider,
+                    model: id.to_owned(),
+                };
+                (selection.validate().is_ok() && seen.insert(id)).then(|| id.to_owned())
+            })
+            .collect::<Option<Vec<_>>>()
+    });
+    CatalogObservation {
+        provider: provider_name,
+        envelope_shape: shape(body),
+        container,
+        container_shape: body.get(container).map(shape).unwrap_or("missing"),
+        raw_count: entries.map(Vec::len),
+        ids,
+    }
+}
+
+// Built-in synthetic payloads only: this path cannot read files or open Auth.
+fn synthetic_catalog_observations() -> Vec<CatalogObservation> {
+    [
+        (
+            Provider::Chatgpt,
+            serde_json::json!({"models": [
+            {"slug": "synthetic-first", "visibility": "list", "priority": 2},
+            {"slug": "synthetic-hidden", "visibility": "hide", "priority": 0}
+        ], "metadata": "SYNTHETIC_SECRET"}),
+        ),
+        (
+            Provider::Copilot,
+            serde_json::json!({"data": [
+                {"id": "synthetic-one"}, {"id": "synthetic-two"}
+            ]}),
+        ),
+        (Provider::Chatgpt, serde_json::json!({"data": []})),
+        (Provider::Chatgpt, serde_json::json!({"models": []})),
+    ]
+    .into_iter()
+    .map(|(provider, body)| catalog_observation(provider, &body))
+    .collect()
+}
 
 extern "C" fn on_sigint(_: libc::c_int) {
     INTERRUPTED.store(true, Ordering::SeqCst);
@@ -66,6 +144,13 @@ fn arguments() -> Result<(Selection, PathBuf, ProbeKind), ()> {
 
 #[tokio::main]
 async fn main() -> ExitCode {
+    if std::env::args_os().skip(1).collect::<Vec<_>>() == ["--synthetic-catalog"] {
+        println!(
+            "{}",
+            serde_json::to_string_pretty(&synthetic_catalog_observations()).unwrap()
+        );
+        return ExitCode::SUCCESS;
+    }
     let Ok((selection, credentials, kind)) = arguments() else {
         eprintln!("{USAGE}");
         return ExitCode::from(2);
@@ -160,6 +245,57 @@ async fn main() -> ExitCode {
 #[cfg(test)]
 mod tests {
     use super::*;
+
+    #[test]
+    fn synthetic_discovery_retains_shape_count_and_exact_order_without_metadata() {
+        let reports = synthetic_catalog_observations();
+        assert_eq!(reports[0].raw_count, Some(2));
+        assert_eq!(
+            reports[0].ids.as_ref().unwrap(),
+            &["synthetic-first", "synthetic-hidden"]
+        );
+        assert_eq!(
+            reports[1].ids.as_ref().unwrap(),
+            &["synthetic-one", "synthetic-two"]
+        );
+        assert_eq!(reports[2].container_shape, "missing");
+        assert_eq!(reports[2].raw_count, None);
+        assert_eq!(reports[2].ids, None);
+        assert_eq!(reports[3].raw_count, Some(0));
+        assert_eq!(reports[3].ids, Some(vec![]));
+        assert!(
+            !serde_json::to_string(&reports)
+                .unwrap()
+                .contains("SYNTHETIC_SECRET")
+        );
+    }
+
+    #[test]
+    fn malformed_discovery_preserves_observed_count_without_partial_ids() {
+        for body in [
+            serde_json::json!({"models": [{"slug":"valid"}, {"slug":"bad\n"}]}),
+            serde_json::json!({"models": [{"slug":"same"}, {"slug":"same"}]}),
+            serde_json::json!({"models": [{"slug":"valid"}, {"other":"SYNTHETIC_SECRET"}]}),
+        ] {
+            let report = catalog_observation(Provider::Chatgpt, &body);
+            assert_eq!(report.raw_count, Some(2));
+            assert_eq!(report.ids, None);
+            assert!(
+                !serde_json::to_string(&report)
+                    .unwrap()
+                    .contains("SYNTHETIC_SECRET")
+            );
+        }
+        for body in [
+            serde_json::json!(null),
+            serde_json::json!([]),
+            serde_json::json!({"models":null}),
+        ] {
+            let report = catalog_observation(Provider::Chatgpt, &body);
+            assert_eq!(report.raw_count, None);
+            assert_eq!(report.ids, None);
+        }
+    }
 
     #[test]
     fn cancellation_preserves_protected_authentication_failures() {
