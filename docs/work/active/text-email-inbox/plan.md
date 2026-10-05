@@ -1,7 +1,7 @@
 # Text/email Inbox — Stage 7
 
-Current baseline: actual PR46 merge `d176bc407951df9817f80ae5ded7956c430dc460`,
-reviewed tree `c9a91fdfa6ed3acb21e13548d6a677f5c6cceafa`. The catalog baseline was
+Current baseline: actual PR49 merge `fab3da64275f02c5498006701b8bb289e27e9a96`,
+reviewed tree `3285fdd6e779323676f0c6b4d44797e045f222ad`. The catalog baseline was
 PR44 merge114090c5d0915daf5ee6c83b421e05b262e90a6d/treeD39276e3. Stage6
 implementation is integrated;
 its native/live acceptance remains pending. Frozen vision§7/§23, architecture,
@@ -225,7 +225,7 @@ fresh shared/storage/native checks and exact-head applicable GitHub CI before me
 Manual scenario: in a disposable vault/data folder, capture/process one item, write
 an InboxSourceRequest JSON (`candidate`, `proposal_id`, `note_id`, `path`, `title`)
 and run `brn inbox source --file REQUEST --json`. Submit its draft through
-`brn proposal create`, inspect the full source/provenance, then approve its exact
+`brn proposals create`, inspect the full source/provenance, then approve its exact
 stamp. The source appears only in Source/All; its original remains available.
 Native/owner observation is pending and is not a dependency for this headless slice.
 
@@ -359,3 +359,104 @@ approval are established. Mac mini transfer remains deferred. Environment:
 Apple Silicon macOS/Command Line Tools, pinned Rust1.98.1, locked dependencies,
 protobuf, Bash/Python3 and an existing canonical owned TMPDIR; GUI needs an
 unlocked, awake session. No further live calls or downloads are authorized here.
+
+## Native integration / next Action-analysis slice
+
+PR49 merged normally at `fab3da64275f02c5498006701b8bb289e27e9a96` from
+published head `46159de`. GitHub adapter publication produced the exact locally
+verified `c73fa72` tree; the local evidence commit is retained separately.
+Exact-head run `37287735015` passed all three macOS lanes and Ubuntu shared;
+Windows Core's complete normalized diagnostic blocks match PR48 (22 errors/two
+summaries), so overall CI remains red. Fresh GitHub requirements were satisfied
+without bypass. Merge parents and identical tree/fast-forward were verified.
+Fresh post-merge nine Inbox state/widget tests, 52 fixtures and two shipping V13
+startup/restarts passed with exact vault bytes and zero credentials. Main run
+`37288829290` at exact `fab3da6` passed all macOS lanes and Ubuntu Core/UI; overall CI remains red. Complete failed-job logs match PR48: Ubuntu Native 10 passed / 3 installer failures, Windows Core/UI/Native 22/22/14 compiler errors plus two summaries each. No new shared/macOS defect identified. Native/owner acceptance stays pending as recorded above.
+
+`codex/v1-inbox-action-analysis` continues from that actual merged baseline.
+Analyze one explicit approved saved Inbox Source through the existing owned Ask
+lane. Produce separately reviewable Actions or an explicit no-Action/uncertainty
+answer, using Current context and existing Action reads. This advances semantic
+ingestion without claiming knowledge/link/replacement detection or completeness.
+Those consequences and original deletion remain following deliverables.
+
+Acceptance and implementation:
+
+1. A typed request binds operation UUID, optional conversation, complete
+   ProposalSource and explicit provider/model/effort; presentation generation is
+   transient. Validate full managed Source identity/provenance and fresh exact
+   saved proof before new admission. Initially refuse complete Sources over the
+   existing 50,000-byte AI read bound; never truncate or mark them complete.
+2. Add one narrow immutable WorkStore V14 admission record containing exact
+   capture and generated question. Reuse the existing WorkTurn lifecycle and
+   owned/joined ChatWorker; no second execution framework or competing authority.
+   Whole request replay precedes fresh source/auth checks. A retained turn never
+   resubmits a provider request; a prepared record without a turn is safe for
+   explicit retry after fresh validation. Generic Ask/Rewrite must not adopt its
+   reserved UUID. Additive migration/startup/backup validation preserve work.
+3. A private bound proposal capability requires one Action change per call,
+   selected Source UUID and exact captured proof, assigns the analysis UUID as
+   group, and bounds the group to 20 separate proposals. Creation replay keeps
+   the immutable original input and newer review edits. Changed/missing evidence
+   refuses a fresh consequence. Real Actions still require exact approval.
+4. Keep existing edit/comment/Rewrite/reject and cancellation/drain semantics.
+   Headless command/CLI inspect the retained capture, turn and grouped review.
+   Failed, cancelled, rejected or uncertain analysis never authorizes deletion;
+   raw originals and approved Source wording remain exact.
+
+Checks: meaningful Store migration/replay/namespace/damage/restore tests; actual
+AppWorker synthetic provider hooks for source binding, no preapproval effects,
+20/21 bound, replay/changed input, stale evidence, cancellation and restart; thin
+CLI parity. Independent complete read-only review, fresh relevant shared/native
+gates, exact-head applicable CI and verified normal integration follow. No live
+provider calls, original/private data, downloads or new account scope here.
+
+
+Manual acceptance for Action analysis (pending): use a disposable synthetic
+workspace and an explicitly authorized provider/effort. Capture/process a short
+email asking for a concrete reply, prepare/review/approve its Source, then export
+`brn proposals source source.md --json`. Put its `data` in `source` of an
+InboxActionRequest with fresh `id`, `conversation: null`, explicit `selection`,
+`effort` and `generation`. Run `brn inbox analyze-actions --file analysis.json`;
+inspect `inbox action-analysis UUID` and `proposals list --group UUID`. Expect
+separate drafts or an explicit no-Action/uncertainty answer, retained exact Source
+and no real Action until exact approval. Edit/comment/reject or approve one draft;
+restart and replay the identical request without a second model call. A changed
+Source refuses a fresh consequence and changed request under the same UUID
+conflicts. Oversized complete Sources stay retained with no silent truncation.
+This scenario does not authorize any new live call; current live qualification
+scope is exhausted. Native analysis controls are a later client slice.
+
+
+## Action-analysis candidate checkpoint — 2026-10-05
+
+Baseline `main@fab3da64275f02c5498006701b8bb289e27e9a96`, tree
+`3285fdd6e779323676f0c6b4d44797e045f222ad`; branch
+`codex/v1-inbox-action-analysis`. Independent complete read-only review is clean;
+31-Rust-file manifest SHA256
+`c725cdaa8d4b6716d50786b4b6ebddfbeece556d4be8792a35cb70e18bc016e7`.
+Validated generation replay defect fixed in both bound-only ledgers; actual-worker
+Running/Completed regressions pass. Store55 targeted tests, eight new actual-worker
+cases and four CLI tests passed before broader qualification.
+
+Fresh pinned1.98.1/macOS/locked/offline checks: workspace format/build/Clippy,
+830 non-Workflow package tests and all398 final Workflow results passed
+(total1,228 passed /0failed /7ignored helpers). `verify-storage.sh` initially
+stopped at the old maximal receipt test's five-field expectation; corrected test
+checks grouped6 versus ordinary5/absent-group. Complete
+`cargo test -p brn-workflow --locked --offline` and final workspace Clippy passed;
+unchanged prior package results remain valid. Native workflow/models237/0/6,
+desktop273/0/0, native Clippy, shipping Desktop/CLI builds, 52 offline fixtures and
+two V14 shipping startup/restarts passed, preserving exact BOM/CRLF/Unicode and
+zero credentials. Original copies stay retained. All78 local documentation links
+(including four fragments) resolve; CLI help/parser checked. Narrow stale plural
+command/catalog wording corrected; diff check passes.
+
+Published commit/PR/exact-head CI and verified integration are the next gate.
+Acceptance is pending under the scenario above; no live calls/downloads or
+private/original data inspection. Next deliverable is knowledge/link/replacement
+consequences through the same exact proposal lifecycle, then explicit safe-copy
+deletion and native analysis controls. Transfer remains deferred. Environment:
+Apple Silicon macOS/Command Line Tools, pinned Rust/lockfiles/protobuf/Bash/Python,
+canonical owned synthetic TMPDIR outside Git; native observation needs an unlocked
+awake Mac, and provider qualification needs separately available authorized scope.

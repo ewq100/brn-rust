@@ -65,6 +65,7 @@ pub enum AppCommand {
     Editors,
     ReconcileEditor(Uuid),
     ProposalSource(String),
+    ProposalEvidenceSource(String),
     NoteIdentity(String),
     IdentityInventory,
     ResolveNoteIdentity(Uuid),
@@ -138,6 +139,8 @@ pub enum AppCommand {
     Turns(Uuid),
     Turn(Uuid),
     Ask(AskRequest),
+    AnalyzeInboxActions(Box<crate::inbox_actions::InboxActionRequest>),
+    InboxActionAnalysis(Uuid),
     CancelTurn(Uuid),
     Account {
         id: Uuid,
@@ -196,6 +199,7 @@ pub enum AppEvent {
     InboxProcessing(Box<crate::inbox_processing::InboxProcessBatch>),
     InboxCandidate(Box<crate::inbox_processing::InboxConversionPreview>),
     InboxSourceDraft(Box<crate::proposals::DraftRequest>),
+    InboxActionAnalysis(Box<crate::inbox_actions::InboxActionAnalysis>),
     Findings(Box<crate::findings::FindingPage>),
     FindingInspection(Box<crate::findings::FindingInspection>),
     CitationCaptured(Box<crate::knowledge::CitationCapture>),
@@ -355,6 +359,7 @@ impl AppWorker {
             return Err(WorkflowError::cancelled());
         }
         if matches!(&command, AppCommand::Ask(request) if request.id != id)
+            || matches!(&command, AppCommand::AnalyzeInboxActions(request) if request.id != id)
             || matches!(&command, AppCommand::StartProposalRewrite(request) if request.id != id)
             || matches!(&command, AppCommand::Account { id: operation, .. } if *operation != id)
             || matches!(&command, AppCommand::SaveEditor(request) if request.operation_id != id)
@@ -556,6 +561,11 @@ fn cancelled_command(command: AppCommand) -> AppEvent {
         AppCommand::Ask(request) => {
             AppEvent::Chat(chat_worker::rejected(&request, WorkflowError::cancelled()))
         }
+        AppCommand::AnalyzeInboxActions(request) => AppEvent::Chat(ChatEvent::Rejected {
+            id: request.id,
+            generation: request.generation,
+            error: WorkflowError::cancelled(),
+        }),
         AppCommand::Account { id, command } => {
             let provider = match command {
                 AccountCommand::Connect(provider)
@@ -570,6 +580,85 @@ fn cancelled_command(command: AppCommand) -> AppEvent {
             })
         }
         _ => AppEvent::Failed(WorkflowError::cancelled()),
+    }
+}
+
+#[allow(clippy::too_many_arguments)]
+fn admit_ask(
+    app: &mut App,
+    chat: &chat_worker::ChatHandle,
+    emit: &mpsc::Sender<(Uuid, AppEvent)>,
+    id: Uuid,
+    request: AskRequest,
+    ask_ledger: &mut HashMap<Uuid, AskRequest>,
+    inbox: Option<crate::inbox_actions::InboxActionCapture>,
+) {
+    let result = (|| {
+        if let Some(previous) = ask_ledger.get(&id) {
+            let mut previous = previous.clone();
+            if inbox.is_some() {
+                // Presentation correlation is not part of the immutable job.
+                previous.generation = request.generation;
+            }
+            if previous != request {
+                return Err(chat_worker::conflict());
+            }
+        }
+        let reserved = app.work_store().inbox_action(id)?;
+        match (&inbox, &reserved) {
+            (None, Some(_)) => return Err(chat_worker::conflict()),
+            (Some(capture), Some(job))
+                if capture != &job.capture || request.question != job.question =>
+            {
+                return Err(chat_worker::conflict());
+            }
+            _ => {}
+        }
+        // Full bound replay precedes fresh source, selection and credential gates.
+        if let Some(turn) = app.work_store().turn(id)? {
+            if inbox.is_some() && reserved.is_none() {
+                return Err(chat_worker::conflict());
+            }
+            chat_worker::check_replay(&request, &turn)?;
+            ask_ledger.insert(id, request.clone());
+            return Ok(Some(chat_worker::replay(&request, turn)));
+        }
+        if request.effort.is_none() {
+            return Err(WorkflowError::typed(
+                ErrorKind::SelectionRequired,
+                "choose an explicit reasoning effort before asking AI",
+            ));
+        }
+        if let Some(conversation) = request.conversation {
+            app.turns(conversation)?;
+        }
+        app.refresh()?;
+        app.validate_selection(&request.selection)?;
+        drop(app.tools()?);
+        if let Some(capture) = inbox {
+            if reserved.is_none() && !app.proposals(Some(id))?.is_empty() {
+                return Err(chat_worker::conflict());
+            }
+            app.validate_inbox_action_source(&capture)?;
+            let job = app
+                .work_store_mut()
+                .reserve_inbox_action(&capture, &request.question)?;
+            ask_ledger.insert(id, request.clone());
+            chat.ask_inbox(request.clone(), job)?;
+        } else {
+            ask_ledger.insert(id, request.clone());
+            chat.ask(request.clone())?;
+        }
+        Ok(None)
+    })();
+    match result {
+        Ok(Some(event)) => {
+            let _ = emit.send((id, AppEvent::Chat(event)));
+        }
+        Ok(None) => {}
+        Err(error) => {
+            let _ = emit.send((id, AppEvent::Chat(chat_worker::rejected(&request, error))));
+        }
     }
 }
 
@@ -1094,6 +1183,9 @@ fn dispatch(
         AppCommand::ProposalSource(path) => {
             AppEvent::ProposalSource(Box::new(app.proposal_source(&path)?))
         }
+        AppCommand::ProposalEvidenceSource(path) => {
+            AppEvent::ProposalSource(Box::new(app.proposal_evidence_source(&path)?))
+        }
         AppCommand::NoteIdentity(path) => AppEvent::NoteIdentity(app.note_identity(&path)?),
         AppCommand::IdentityInventory => {
             AppEvent::IdentityInventory(Box::new(app.identity_inventory()?))
@@ -1382,45 +1474,29 @@ fn dispatch(
         AppCommand::Turns(conversation) => AppEvent::Turns(app.turns(conversation)?),
         AppCommand::Turn(turn) => AppEvent::Turn(app.work_store().turn(turn)?),
         AppCommand::Ask(request) => {
-            let result = (|| {
-                if let Some(previous) = ask_ledger.get(&id)
-                    && previous != &request
-                {
-                    return Err(chat_worker::conflict());
+            admit_ask(app, chat, emit, id, request, ask_ledger, None);
+            return Ok(());
+        }
+        AppCommand::AnalyzeInboxActions(request) => {
+            match app.prepare_inbox_action_request(&request) {
+                Ok((ask, capture)) => {
+                    admit_ask(app, chat, emit, id, ask, ask_ledger, Some(capture))
                 }
-                // History-only replay is before refresh, selection and credential access.
-                if let Some(turn) = app.work_store().turn(id)? {
-                    chat_worker::check_replay(&request, &turn)?;
-                    ask_ledger.insert(id, request.clone());
-                    return Ok(Some(chat_worker::replay(&request, turn)));
-                }
-                if request.effort.is_none() {
-                    return Err(WorkflowError::typed(
-                        ErrorKind::SelectionRequired,
-                        "choose an explicit reasoning effort before asking AI",
-                    ));
-                }
-                if let Some(conversation) = request.conversation {
-                    app.turns(conversation)?;
-                }
-                app.refresh()?;
-                app.validate_selection(&request.selection)?;
-                // Tools were installed at binding/startup. This lease verifies current availability.
-                drop(app.tools()?);
-                ask_ledger.insert(id, request.clone());
-                chat.ask(request.clone())?;
-                Ok(None)
-            })();
-            match result {
-                Ok(Some(event)) => {
-                    let _ = emit.send((id, AppEvent::Chat(event)));
-                }
-                Ok(None) => {}
                 Err(error) => {
-                    let _ = emit.send((id, AppEvent::Chat(chat_worker::rejected(&request, error))));
+                    let _ = emit.send((
+                        id,
+                        AppEvent::Chat(ChatEvent::Rejected {
+                            id: request.id,
+                            generation: request.generation,
+                            error,
+                        }),
+                    ));
                 }
             }
             return Ok(());
+        }
+        AppCommand::InboxActionAnalysis(operation) => {
+            AppEvent::InboxActionAnalysis(Box::new(app.inbox_action_analysis(operation)?))
         }
         AppCommand::Account { id, command } => {
             chat.account(id, command)?;

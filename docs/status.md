@@ -66,33 +66,35 @@ Evidence: [Actions/dashboard record](work/completed/actions-dashboard/plan.md).
 
 ## Latest integrated checkpoint
 
-[PR47](https://github.com/ewq100/brn-rust/pull/47) merged as
-**1adf9e2cb2e30315a41d7a43457685f2349b7152**, exact reviewed tree
-`e2852212a40e6191f2aeca751cdfb15d37bdef95`. Stage7 now includes private exact
-capture, V13 bounded conversion and immutable source Create preparation through
-AppWorker/CLI and existing approval/recovery. Portable origin provenance stays in
-Source Markdown; originals remain retained. Native Inbox and semantic consequences
-remain pending.
+[PR49](https://github.com/ewq100/brn-rust/pull/49) merged at
+**fab3da64275f02c5498006701b8bb289e27e9a96**, exact reviewed tree
+`3285fdd6e779323676f0c6b4d44797e045f222ad`. Stage7 now includes private exact
+capture, V13 bounded conversion, immutable Source preparation/approval/recovery,
+and native Inbox capture, full original/preview inspection, processing controls
+and binding-preserving Source review. Originals remain retained. Semantic
+knowledge/Action/link consequences and safe deletion are still incomplete.
 
-The independent source review is clean after reproduced link/proof-cleanup fixes.
-Local verification passed 1,199 workspace tests (seven ignored crash helpers),
-52 offline fixtures, 228 native workflow/model and 257 native desktop tests,
-native Clippy, shipping builds and two V13 startup/restart witnesses. Exact-head
-run `37279843873` passed all macOS lanes and Ubuntu shared; Windows Core matched
-PR46 baseline compiler failures. Overall hosted CI remains red.
+Independent complete read-only review is clean after reproduced consumption,
+retry and readonly-review fixes. Fresh default verification passed 1,210 tests
+(seven ignored helpers), format/build/all-target Clippy and startup; native checks
+passed 229 workflow/model tests (six ignored helpers), 273 desktop tests, native
+Clippy, 52 fixtures, shipping builds and two V13 startup/restarts. Exact-head run
+`37287735015` passed all three macOS lanes and Ubuntu shared. Windows Core's full
+normalized diagnostic blocks match PR48; overall CI remains red under the owner
+platform policy. Fresh requirements permitted normal expected-head merge without
+bypass. Merge parents/tree and fast-forward were verified; fresh nine Inbox
+state/widget tests, 52 fixtures and two shipping startup/restarts passed,
+preserving exact vault bytes and zero credentials. Main run `37288829290` at the exact merge passed all three macOS lanes
+and Ubuntu Core/UI. Ubuntu Native retains three prior installer failures
+(10 passed / 3 failed); Windows Core/UI/Native retain the prior 22/22/14 compiler
+errors plus two summaries each. Complete failed-job logs match PR48 after
+incidental normalization; overall CI remains red. Computer use reported the Mac locked; Inbox native observation,
+screenshots and owner acceptance remain pending.
 
-Post-merge run `37280849545` passed macOS UI/retrieval and Ubuntu shared/UI but
-macOS Core failed an Inbox CLI test with `Interrupted`. Two such failures reproduced
-in 40 parallel unit-suite runs: test-only cancellation writers and actual-command
-readers did not share the same lock. The narrow repair keeps production unchanged
-and holds the existing panic-safe guard for both successful CLI tests. Independent
-review is clean; 100 repetitions (59 tests each, 16 threads) plus fresh default
-workspace format/build/Clippy/1,199 tests and startup passed. PR48 merged at `5f40ec8c73039dac2a6d41114f9ff708c45f45bb`. Exact-head
-run `37283384246` passed all macOS lanes and Ubuntu shared; Windows diagnostics
-matched PR47. Merge tree matches candidate. Fresh post-merge CLI59 tests passed; main run
-`37284367543` passed all macOS lanes and Ubuntu Core/UI. Ubuntu Native retained
-three known synthetic-installer failures; Windows error signatures matched the
-previous main. Overall CI remains red; the reproduced cancellation race is resolved. Native/owner Inbox acceptance is still open.
+PR48's test-only CLI cancellation repair remains integrated and qualified;
+its main run passed all macOS lanes and Ubuntu Core/UI with the known remaining
+Ubuntu Native/Windows failures. The active Inbox record retains historical source
+and race-reproduction evidence.
 
 Stage6 implementation is integrated through [PR43](https://github.com/ewq100/brn-rust/pull/43).
 Dashboard/identified Complete actual observation and eight safe original JPEGs
@@ -102,16 +104,21 @@ Scenarios and integration evidence remain in the
 
 ## Active slice and next work
 
-The native Inbox slice adds deliberate capture, exact original inspection,
-bounded processing/cancellation and a binding-preserving source form using
-AppWorker. The macOS post-merge CLI isolation repair is verified and integrated.
-The candidate passed independent review, 1,210 default tests (seven ignored
-helpers), 229 native workflow/model tests (six ignored helpers), 273 native
-desktop tests, default/native Clippy, 52 offline fixtures, shipping builds and two
-V13 startup/restarts preserving exact synthetic vault bytes with zero credentials.
-Computer use reported the Mac locked; native Inbox observation/screenshots and
-owner acceptance remain pending. Applicable exact-head CI and integration are next.
-Semantic knowledge/Action/link consequences and safe deletion follow. See the
+The Action-analysis slice is implemented and independently reviewed on
+`codex/v1-inbox-action-analysis`, from merge `fab3da6`. One approved saved Inbox
+Source uses the existing owned Ask and exact proposal boundary. V14 retains a
+whole Source/selection capture; generation is transient and replay never repeats
+a retained turn. At most20 separately reviewable Action proposals bind the exact
+Source; real effects still require approval. CLI exposes full Source proof,
+analysis submission and retained inspection. No original deletion/completeness
+is inferred. Fresh default checks passed 1,228 tests (seven ignored helpers);
+native workflow/models 237 (six ignored), desktop273, default/native Clippy,
+52 fixtures, shipping builds and two V14 startup/restarts passed. The broader
+workspace run exposed an old five-field receipt-test expectation; its corrected
+ordinary/grouped shapes and all workflow tests passed freshly. Hosted CI and
+integration are pending. Manual/live/native acceptance remains pending; no new
+account/model calls occurred. Knowledge/link/replacement consequences and safe
+deletion follow. See the
 [Inbox plan](work/active/text-email-inbox/plan.md).
 
 ## Qualification and owner items

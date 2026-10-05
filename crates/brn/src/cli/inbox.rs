@@ -1,11 +1,12 @@
 //! Explicit input preparation and protocol mapping; originals are owned by AppWorker.
 use super::{
-    error::CliError, expect_positionals, positional_uuid, scan, sub_word, usage, CliFailure,
-    Globals, Output, Scanned, Tokens,
+    error::CliError, expect_positionals, parse_timeout, positional_uuid, scan, sub_word, usage,
+    CliFailure, Globals, Output, Scanned, Tokens,
 };
 use brn_workflow::{
     app_worker::{AppCommand, AppEvent},
     inbox::{CaptureInboxRequest, InboxKind, InboxListRequest},
+    inbox_actions::InboxActionRequest,
     inbox_processing::{InboxCandidateRequest, InboxSourceRequest, ProcessInboxRequest},
 };
 use std::{fmt::Write as _, path::PathBuf};
@@ -25,6 +26,11 @@ pub enum InboxCommand {
     Candidate(InboxCandidateRequest),
     Source(PathBuf),
     Cancel(Uuid),
+    AnalyzeActions {
+        input: PathBuf,
+        timeout_seconds: u64,
+    },
+    ActionAnalysis(Uuid),
 }
 impl InboxCommand {
     pub fn name(&self) -> &'static str {
@@ -37,6 +43,8 @@ impl InboxCommand {
             Self::Candidate(_) => "inbox.candidate",
             Self::Source(_) => "inbox.source",
             Self::Cancel(_) => "inbox.cancel",
+            Self::AnalyzeActions { .. } => "inbox.analyze-actions",
+            Self::ActionAnalysis(_) => "inbox.action-analysis",
         }
     }
 }
@@ -48,7 +56,7 @@ pub(super) fn scan_command(
     let sub = sub_word(
         tokens,
         "inbox",
-        "add|show|list|process|processing|candidate|source|cancel",
+        "add|show|list|process|processing|candidate|source|cancel|analyze-actions|action-analysis",
     )?;
     let (label, options): (_, &[(&str, bool)]) = match sub.as_str() {
         "add" => (
@@ -68,6 +76,11 @@ pub(super) fn scan_command(
         "candidate" => ("inbox.candidate", &[]),
         "source" => ("inbox.source", &[("file", true)]),
         "cancel" => ("inbox.cancel", &[]),
+        "analyze-actions" => (
+            "inbox.analyze-actions",
+            &[("file", true), ("timeout-seconds", true)],
+        ),
+        "action-analysis" => ("inbox.action-analysis", &[]),
         _ => return Err(usage("unknown Inbox subcommand")),
     };
     *name = Some(label);
@@ -94,6 +107,14 @@ fn metadata(command: &InboxCommand) -> Result<(), CliError> {
         InboxCommand::Processing(id) | InboxCommand::Cancel(id) if id.is_nil() => {
             Err(usage("Inbox processing UUID must not be nil"))
         }
+        InboxCommand::ActionAnalysis(id) if id.is_nil() => {
+            Err(usage("Inbox analysis UUID must not be nil"))
+        }
+        InboxCommand::AnalyzeActions {
+            timeout_seconds, ..
+        } if !(1..=3600).contains(timeout_seconds) => Err(usage(
+            "analysis deadline must be between 1 and 3600 seconds",
+        )),
         InboxCommand::Candidate(r) if r.batch_id.is_nil() || r.index >= 8 => {
             Err(usage("Inbox candidate needs a UUID and index 0 to 7"))
         }
@@ -161,6 +182,21 @@ pub(super) fn parse_command(name: &str, s: &Scanned) -> Result<InboxCommand, Cli
             expect_positionals(s, 1)?;
             InboxCommand::Cancel(positional_uuid(s, 0, "UUID")?)
         }
+        "inbox.action-analysis" => {
+            expect_positionals(s, 1)?;
+            InboxCommand::ActionAnalysis(positional_uuid(s, 0, "UUID")?)
+        }
+        "inbox.analyze-actions" => {
+            expect_positionals(s, 0)?;
+            InboxCommand::AnalyzeActions {
+                input: PathBuf::from(s.value("file").ok_or_else(|| usage("missing --file"))?),
+                timeout_seconds: s
+                    .value("timeout-seconds")
+                    .map(parse_timeout)
+                    .transpose()?
+                    .unwrap_or(300),
+            }
+        }
         "inbox.candidate" => {
             expect_positionals(s, 2)?;
             InboxCommand::Candidate(InboxCandidateRequest {
@@ -216,6 +252,14 @@ pub(super) fn prepare(command: &InboxCommand) -> Result<AppCommand, CliFailure> 
             AppCommand::PrepareInboxSource(request)
         }
         InboxCommand::Cancel(id) => AppCommand::CancelInboxProcessing(*id),
+        InboxCommand::AnalyzeActions { input, .. } => {
+            let request: InboxActionRequest = super::proposals::input(input)?;
+            request
+                .validate()
+                .map_err(super::error::classify_workflow)?;
+            AppCommand::AnalyzeInboxActions(Box::new(request))
+        }
+        InboxCommand::ActionAnalysis(id) => AppCommand::InboxActionAnalysis(*id),
     })
 }
 pub(super) fn output(command: &AppCommand, event: AppEvent) -> Result<Output, CliFailure> {
@@ -251,6 +295,11 @@ pub(super) fn output(command: &AppCommand, event: AppEvent) -> Result<Output, Cl
             if r.validate_draft(&draft).is_ok() =>
         {
             serde_json::json!(*draft)
+        }
+        (AppCommand::InboxActionAnalysis(id), AppEvent::InboxActionAnalysis(analysis))
+            if analysis.job.capture.id == *id =>
+        {
+            serde_json::json!(*analysis)
         }
         _ => {
             return Err(CliError::Workflow(
@@ -293,6 +342,15 @@ mod tests {
             vec!["inbox", "candidate", &id, "0"],
             vec!["inbox", "source", "--file", "request.json"],
             vec!["inbox", "cancel", &id],
+            vec![
+                "inbox",
+                "analyze-actions",
+                "--file",
+                "analysis.json",
+                "--timeout-seconds",
+                "9",
+            ],
+            vec!["inbox", "action-analysis", &id],
             vec!["inbox", "list", "--after", &id, "--limit", "100"],
         ] {
             let mut a = args(&tokens);
@@ -317,6 +375,20 @@ mod tests {
             vec!["inbox", "process"],
             vec!["inbox", "source"],
             vec!["inbox", "source", "unexpected", "--file", "request.json"],
+            vec!["inbox", "analyze-actions"],
+            vec![
+                "inbox",
+                "analyze-actions",
+                "--file",
+                "analysis.json",
+                "--timeout-seconds",
+                "0",
+            ],
+            vec![
+                "inbox",
+                "action-analysis",
+                "00000000-0000-0000-0000-000000000000",
+            ],
         ] {
             let mut a = args(&tokens);
             a.extend(args(&["--data-dir", data_path]));
@@ -345,7 +417,16 @@ mod tests {
         for command in [
             InboxCommand::Show(Uuid::nil()),
             InboxCommand::Source(invalid_json.clone()),
-            InboxCommand::Process(invalid_json),
+            InboxCommand::Process(invalid_json.clone()),
+            InboxCommand::AnalyzeActions {
+                input: invalid_json.clone(),
+                timeout_seconds: 300,
+            },
+            InboxCommand::AnalyzeActions {
+                input: invalid_json,
+                timeout_seconds: 0,
+            },
+            InboxCommand::ActionAnalysis(Uuid::nil()),
             InboxCommand::List(InboxListRequest {
                 limit: 0,
                 after: None,
@@ -463,6 +544,109 @@ mod tests {
         }
         assert!(!vault.join("source.md").exists());
         assert_eq!(std::fs::read(original).unwrap(), exact.as_bytes());
+        assert_eq!(std::fs::read_dir(&credentials).unwrap().count(), 0);
+
+        // Qualify new CLI full-proof export, retained-analysis inspection and
+        // exact replay without a provider route, current choice or saved Source.
+        let draft_file = owner.path().join("draft.json");
+        std::fs::write(&draft_file, serde_json::to_vec(&draft).unwrap()).unwrap();
+        let proposal_invocation = |command| Invocation {
+            json: true,
+            data_dir: data.clone(),
+            vault: Some(vault.clone()),
+            credentials_dir: Some(credentials.clone()),
+            model_dir: None,
+            command: Command::Proposals(command),
+        };
+        let created = crate::cli::execute(&proposal_invocation(
+            super::super::proposals::ProposalCommand::Create(draft_file),
+        ))
+        .unwrap();
+        let review: brn_workflow::proposals::ProposalRecord =
+            serde_json::from_value(created.data).unwrap();
+        crate::cli::execute(&proposal_invocation(
+            super::super::proposals::ProposalCommand::Approve(
+                brn_workflow::proposal_apply::ApprovalRequest {
+                    operation_id: Uuid::new_v4(),
+                    expected: review.stamp(),
+                },
+            ),
+        ))
+        .unwrap();
+        let exported = crate::cli::execute(&proposal_invocation(
+            super::super::proposals::ProposalCommand::Source("source.md".into()),
+        ))
+        .unwrap();
+        let source: brn_workflow::proposals::ProposalSource =
+            serde_json::from_value(exported.data).unwrap();
+        source.validate().unwrap();
+        assert!(source.text.contains(exact));
+        let request = InboxActionRequest {
+            id: Uuid::new_v4(),
+            conversation: None,
+            source: Box::new(source.clone()),
+            selection: brn_workflow::Selection {
+                provider: brn_workflow::Provider::Chatgpt,
+                model: "gpt-6-luna".into(),
+            },
+            effort: brn_workflow::ReasoningEffort::Medium,
+            generation: 77,
+        };
+        let capture = brn_workflow::inbox_actions::InboxActionCapture {
+            id: request.id,
+            conversation: None,
+            source: source.source,
+            source_text: source.text,
+            provider: "chatgpt".into(),
+            model: request.selection.model.clone(),
+            effort: "medium".into(),
+        };
+        {
+            let (mut store, _) = brn_store::WorkStore::open(&data).unwrap();
+            let job = store
+                .reserve_inbox_action(&capture, "Synthetic retained analysis question")
+                .unwrap();
+            store.begin_inbox_action_turn(&job).unwrap();
+            store
+                .finish_turn(
+                    request.id,
+                    brn_workflow::WorkTurnStatus::Completed,
+                    "No Action supported; other consequences still need review.",
+                    None,
+                )
+                .unwrap();
+        }
+        std::fs::remove_file(vault.join("source.md")).unwrap();
+        let analysis_file = owner.path().join("analysis.json");
+        std::fs::write(&analysis_file, serde_json::to_vec(&request).unwrap()).unwrap();
+        let replay = crate::cli::execute(&invocation(InboxCommand::AnalyzeActions {
+            input: analysis_file.clone(),
+            timeout_seconds: 30,
+        }))
+        .unwrap();
+        assert_eq!(replay.data["operation_id"], serde_json::json!(request.id));
+        assert_eq!(replay.data["status"], "completed");
+        let inspected =
+            crate::cli::execute(&invocation(InboxCommand::ActionAnalysis(request.id))).unwrap();
+        let analysis: brn_workflow::inbox_actions::InboxActionAnalysis =
+            serde_json::from_value(inspected.data).unwrap();
+        assert_eq!(analysis.job.capture, capture);
+        assert_eq!(
+            analysis.turn.unwrap().status,
+            brn_workflow::WorkTurnStatus::Completed
+        );
+        assert!(analysis.proposals.is_empty());
+        assert!(analysis.needs_semantic_review);
+        let mut changed = request;
+        changed.effort = brn_workflow::ReasoningEffort::High;
+        std::fs::write(&analysis_file, serde_json::to_vec(&changed).unwrap()).unwrap();
+        let failure = crate::cli::execute(&invocation(InboxCommand::AnalyzeActions {
+            input: analysis_file,
+            timeout_seconds: 30,
+        }))
+        .err()
+        .unwrap();
+        assert_eq!(failure.error.code(), "OPERATION_CONFLICT");
         assert_eq!(std::fs::read_dir(credentials).unwrap().count(), 0);
     }
     #[cfg(target_os = "macos")]

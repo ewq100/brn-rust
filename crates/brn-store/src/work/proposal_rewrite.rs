@@ -165,12 +165,12 @@ pub(super) fn read_job(conn: &Connection, id: Uuid) -> Result<Option<RewriteJob>
         }
         job.validate()?;
         let collision: bool = conn.query_row(
-            "SELECT EXISTS(SELECT 1 FROM messages WHERE turn_id=?1)",
+            "SELECT EXISTS(SELECT 1 FROM messages WHERE turn_id=?1) OR EXISTS(SELECT 1 FROM inbox_actions WHERE id=?1)",
             [id.to_string()],
             |row| row.get(0),
         )?;
         if collision {
-            return Err(invalid("stored Rewrite UUID also belongs to a chat turn"));
+            return Err(invalid("stored Rewrite UUID also belongs to another owned job"));
         }
         Ok(job)
     })
@@ -209,6 +209,9 @@ fn begin(
         return Ok((job, None));
     }
     spec.validate()?;
+    if super::inbox_actions::reserved(&tx, spec.id)?.is_some() {
+        return Err(conflict());
+    }
     let collision: bool = tx.query_row(
         "SELECT EXISTS(SELECT 1 FROM messages WHERE turn_id=?1)",
         [spec.id.to_string()],

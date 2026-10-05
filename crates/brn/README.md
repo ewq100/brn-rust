@@ -23,12 +23,16 @@ brn inbox show UUID
 brn inbox process --file REQUEST_JSON
 brn inbox processing UUID
 brn inbox candidate UUID INDEX
+brn inbox source --file REQUEST_JSON
 brn inbox cancel UUID
+brn inbox analyze-actions --file REQUEST_JSON [--timeout-seconds N]
+brn inbox action-analysis UUID
 brn actions complete --file REQUEST.json
 brn actions show UUID
 brn actions list [--state open|waiting|blocked|completed|all] [--limit N] [--before-created-at-ms N --before-id UUID]
 brn actions dashboard [--as-of YYYY-MM-DD] [--filter active|open|waiting|blocked|completed|overdue|follow-up|all] [--limit N] [--before-created-at-ms N --before-id UUID]
 brn proposals create --file DRAFT.json
+brn proposals source PATH
   brn identity inventory
   brn identity resolve NOTE_UUID
   brn evidence read PATH
@@ -100,6 +104,23 @@ reads its zero-based converted member, and `inbox cancel` settles pending member
 Quit/signal joins owned work; restart marks unfinished members Interrupted.
 Converted previews still require semantic review and source-proposal approval.
 Originals are retained; no provider is called and no vault note is written.
+
+`proposals source PATH` obtains a complete readonly `ProposalSource` (exact text
+and full file proof) through AppWorker, including explicitly selected archive
+evidence. Use that whole result as `source` in an `InboxActionRequest` JSON with
+nonnil `id`, optional `conversation`, explicit `selection` (`provider`, `model`),
+`effort` and presentation `generation`. `inbox analyze-actions` admits this bounded
+saved managed Inbox Source on the existing Ask lane and returns its turn receipt.
+`inbox action-analysis UUID` inspects the retained capture/turn/grouped review;
+`proposals list --group UUID` lists the separately reviewable consequences.
+Complete wrapped Source text is limited to50,000 UTF-8 bytes; oversized/changed/
+ambiguous evidence refuses before a new provider request. Exact replay keeps the
+captured choices and answer even after Source loss; changed input conflicts.
+Cancellation joins the same owned worker and preserves its terminal receipt.
+Suggested Actions use existing exact review/edit/Rewrite/reject/approve commands;
+no real Action exists before approval. Other semantic consequences remain pending
+and originals stay retained. The operation is an explicit provider call when new;
+no fallback, automatic retry or completeness/deletion authority is introduced.
 
 `inbox show` reports the complete metadata and either exact original text or an
 explicit missing/changed/unavailable result. `inbox list` reports chronological

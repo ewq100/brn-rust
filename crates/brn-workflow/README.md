@@ -40,8 +40,10 @@ receipt. Imported frontmatter remains pending text rather than managed metadata.
 format/length/digest at this boundary. Clients need no hashing or conversion logic;
 a complete operational preview remains readable even if a later Source wrapper
 would exceed its separate byte bound.
-These previews require semantic review; attachment/visual interpretation, saved
-source proposals, consequences and safe deletion remain follow-on capabilities.
+These previews require semantic review. `PrepareInboxSource` prepares a bound
+whole Source draft for the existing exact approval/recovery boundary. Broader
+knowledge/link/replacement consequences, attachment/visual interpretation and
+safe deletion remain follow-on capabilities.
 No original deletion, provider call or authoritative write occurs here.
 
 `CaptureInbox`, `InboxItem` and `InboxItems` are headless workflow commands for
@@ -61,6 +63,28 @@ Missing originals are reported without claiming fresh source evidence. Capture
 does not convert content, call a provider, create knowledge/proposals, or delete
 copies. Future protocol adapters should call these workflow commands rather than
 the file or Store modules.
+
+`AnalyzeInboxActions` accepts one complete saved managed Inbox Source, an operation
+UUID, optional conversation and explicit provider/model/effort. Full Source bytes
+including metadata must fit 50,000 bytes; no truncation occurs. New admission
+checks the fresh full file proof and unique UUID. WorkStore V14 retains the exact
+capture and generated question; the existing owned Ask turn holds execution
+status, cancellation and restart interruption. No second queue/lifecycle exists.
+Exact replay precedes fresh Source/choice/account checks, never repeats a retained
+turn, and treats presentation generation as transient. An admitted record without
+a turn permits explicit retry after fresh validation; ordinary Ask/Rewrite cannot
+adopt its UUID. `InboxActionAnalysis` returns capture, optional turn and grouped
+review records, always with semantic review still required.
+
+The bound Action capability requires exactly one Action change per proposal,
+the selected Source UUID/reference and unchanged captured proof. It assigns the
+analysis UUID as group and permits at most20 separate proposals; exact creation
+replay preserves later review edits even after Source loss. Existing edit/comment/
+Rewrite/reject and exact approval apply. These drafts cause no real Action effect
+before approval. History is explicit Source evidence, while context tools default
+to Current. `ProposalEvidenceSource` captures full readonly evidence including
+archive; the existing current-only `ProposalSource` and destination rules remain.
+No analysis outcome authorizes original deletion or establishes complete ingestion.
 
 ## Approved Action read tools
 

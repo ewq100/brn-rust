@@ -401,6 +401,20 @@ workflow supplies fresh original-file and initial conversion-receipt qualificati
 
 ## Original-copy Inbox catalog
 
+V14 adds immutable [Inbox Action-analysis admissions](src/work/inbox_actions.rs).
+Each UUID retains the complete explicit provider/model/effort, optional conversation,
+saved Source fingerprint, exact Source text up to 50,000 bytes and bounded generated
+question. Managed identity, Source classification and portable Inbox provenance
+are checked without filesystem access; explicit historical Sources remain valid.
+Whole replay preserves capture/question/time before fresh admission checks.
+
+The existing WorkTurn is the execution lifecycle. `begin_inbox_action_turn` verifies
+the exact reserved job and begins/replays its ordinary chat turn atomically; generic
+Ask/Rewrite cannot adopt that UUID. A reservation without a turn survives restart,
+while a running turn receives existing interruption semantics. Read/startup/backup
+checks cover canonical JSON/hash/index/schema and retained turn bindings. No
+generation, duplicate status, new queue or knowledge mutation is stored here.
+
 V13 adds the bounded Inbox processing queue in `inbox_processing`. A batch owns
 1–8 exact immutable Inbox snapshots and per-member queued/running/converted/failed/
 cancelled/interrupted outcomes; 16 pending members is the admission bound. Exact
@@ -427,9 +441,10 @@ without moving the main database aside or creating a startup backup; invalid
 backup candidates are skipped. Physical corruption retains ordinary restoration.
 SQLite backup preserves catalog metadata, not the separate original-copy files.
 
-This foundation is now consumed by the Stage7 workflow capture boundary. It still
-has no processing job, conversion, proposal approval or deletion operation; those
-remain later workflow slices. `capture_inbox_with` holds SQLite writer exclusion,
+This catalog is consumed by the Stage7 workflow capture boundary; processing,
+Source preparation/approval and Action analysis use their separate typed records
+and shared workflow operations. Original deletion remains a following slice.
+`capture_inbox_with` holds SQLite writer exclusion,
 publishes the complete immutable item before INSERT and rolls back on callback or
 SQL failure. `restore_inbox` imports only a workflow-qualified exact snapshot.
 Neither method reads, writes or deletes an original file; AppWorker owns that

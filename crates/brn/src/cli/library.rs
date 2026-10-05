@@ -324,6 +324,10 @@ pub fn run(i: &Invocation) -> Result<Output, CliFailure> {
         Some((_, AppCommand::StartProposalRewrite(request))) => Some(request.clone()),
         _ => None,
     };
+    let inbox_request = match &knowledge {
+        Some(AppCommand::AnalyzeInboxActions(request)) => Some(request.clone()),
+        _ => None,
+    };
     if matches!(i.command, Command::ModelDownload { .. })
         && !brn_workflow::native_retrieval_compiled()
     {
@@ -338,6 +342,9 @@ pub fn run(i: &Invocation) -> Result<Output, CliFailure> {
         }
         | Command::ModelDownload { timeout_seconds } => *timeout_seconds,
         Command::Ai(AiCommand::Connect(_, seconds) | AiCommand::Models(_, seconds)) => *seconds,
+        Command::Inbox(super::inbox::InboxCommand::AnalyzeActions {
+            timeout_seconds, ..
+        }) => *timeout_seconds,
         _ => 300,
     };
     let ask_id = if let Command::Ask { operation, .. } = i.command {
@@ -354,6 +361,11 @@ pub fn run(i: &Invocation) -> Result<Output, CliFailure> {
         if let Some(request) = &rewrite_request {
             if failure.context.is_none() {
                 failure.context = Some(rewrite_context(request, None));
+            }
+        }
+        if let Some(request) = &inbox_request {
+            if failure.context.is_none() {
+                failure.context = Some(context(request.id, request.conversation, None, None));
             }
         }
         if let (Some(op), Command::Ask { session, .. }) = (ask_id, &i.command) {
@@ -428,6 +440,12 @@ fn execute(
                 }
                 AppCommand::CancelInboxProcessing(id) => {
                     lane.query(AppCommand::CancelInboxProcessing(*id))?
+                }
+                AppCommand::AnalyzeInboxActions(request) => {
+                    return analyze_inbox_actions(lane, request.as_ref().clone());
+                }
+                AppCommand::InboxActionAnalysis(id) => {
+                    lane.query(AppCommand::InboxActionAnalysis(*id))?
                 }
                 _ => unreachable!("prepared Inbox command"),
             };
@@ -546,7 +564,7 @@ fn execute(
             };
             Ok(super::activity::output(page))
         }
-        Command::Proposals(_) => {
+        Command::Proposals(proposal_command) => {
             let (id, command) = proposal.expect("proposal input prepared before startup");
             if let AppCommand::StartProposalRewrite(request) = command {
                 return rewrite(lane, request);
@@ -561,6 +579,12 @@ fn execute(
                 AppEvent::ProposalRepairPreview(preview) => json!(preview),
                 AppEvent::ProposalRepaired(receipt) => json!(receipt),
                 AppEvent::ProposalRewrite(job) => json!(job),
+                AppEvent::ProposalSource(source)
+                    if matches!(proposal_command, super::proposals::ProposalCommand::Source(path) if path == &source.source.path)
+                        && source.validate().is_ok() =>
+                {
+                    json!(*source)
+                }
                 _ => return Err(unexpected()),
             };
             Ok(output(data))
@@ -763,6 +787,15 @@ fn wait_ask<W: EventLane>(
     op: Uuid,
     session: Option<Uuid>,
 ) -> Result<Output, CliFailure> {
+    wait_ask_generation(lane, op, session, 0)
+}
+
+fn wait_ask_generation<W: EventLane>(
+    lane: &mut Lane<W>,
+    op: Uuid,
+    session: Option<Uuid>,
+    generation: u64,
+) -> Result<Output, CliFailure> {
     let mut partial = String::new();
     loop {
         let (id, event) = lane.next(Job::Ask(op)).map_err(|mut failure| {
@@ -776,51 +809,70 @@ fn wait_ask<W: EventLane>(
         }
         match event {
             AppEvent::Failed(error) => return Err(lane.command_error(error).into()),
-            AppEvent::Chat(event) if event.id() == op && event.generation() == 0 => match event {
-                ChatEvent::Text { text, .. } => {
-                    partial.push_str(&text);
-                    let _ = write!(std::io::stderr(), "{text}");
-                }
-                ChatEvent::ToolStarted { name, .. } => {
-                    let _ = writeln!(std::io::stderr(), "\ntool: {name}");
-                }
-                ChatEvent::Finished { turn, .. } | ChatEvent::AlreadyRunning { turn, .. } => {
-                    if turn.status == WorkTurnStatus::Completed {
-                        return Ok(Output {
-                            text: format!("{}\n", turn.answer),
-                            data: turn_json(&turn),
+            AppEvent::Chat(event) if event.id() == op && event.generation() == generation => {
+                match event {
+                    ChatEvent::Text { text, .. } => {
+                        partial.push_str(&text);
+                        let _ = write!(std::io::stderr(), "{text}");
+                    }
+                    ChatEvent::ToolStarted { name, .. } => {
+                        let _ = writeln!(std::io::stderr(), "\ntool: {name}");
+                    }
+                    ChatEvent::Finished { turn, .. } | ChatEvent::AlreadyRunning { turn, .. } => {
+                        if turn.status == WorkTurnStatus::Completed {
+                            return Ok(Output {
+                                text: format!("{}\n", turn.answer),
+                                data: turn_json(&turn),
+                            });
+                        }
+                        let error = if matches!(
+                            turn.status,
+                            WorkTurnStatus::Failed | WorkTurnStatus::Running
+                        ) {
+                            recorded_error(&turn)
+                        } else if lane.stopped.is_some() {
+                            lane.stop_error()
+                        } else if turn.status == WorkTurnStatus::Interrupted {
+                            CliError::Interrupted(
+                                "recorded turn was interrupted; no automatic retry".into(),
+                            )
+                        } else {
+                            recorded_error(&turn)
+                        };
+                        return Err(CliFailure {
+                            error,
+                            context: Some(context(op, session, Some(&turn), Some(&turn.answer))),
                         });
                     }
-                    let error = if matches!(
-                        turn.status,
-                        WorkTurnStatus::Failed | WorkTurnStatus::Running
-                    ) {
-                        recorded_error(&turn)
-                    } else if lane.stopped.is_some() {
-                        lane.stop_error()
-                    } else if turn.status == WorkTurnStatus::Interrupted {
-                        CliError::Interrupted(
-                            "recorded turn was interrupted; no automatic retry".into(),
-                        )
-                    } else {
-                        recorded_error(&turn)
-                    };
-                    return Err(CliFailure {
-                        error,
-                        context: Some(context(op, session, Some(&turn), Some(&turn.answer))),
-                    });
+                    ChatEvent::Rejected { error, .. } => {
+                        return Err(lane.command_error(error).into());
+                    }
+                    ChatEvent::PersistenceFailed { partial, error, .. } => {
+                        return Err(CliFailure {
+                            error: classify_workflow(error),
+                            context: Some(context(op, session, None, Some(&partial))),
+                        });
+                    }
                 }
-                ChatEvent::Rejected { error, .. } => return Err(lane.command_error(error).into()),
-                ChatEvent::PersistenceFailed { partial, error, .. } => {
-                    return Err(CliFailure {
-                        error: classify_workflow(error),
-                        context: Some(context(op, session, None, Some(&partial))),
-                    });
-                }
-            },
+            }
             _ => {}
         }
     }
+}
+
+fn analyze_inbox_actions<W: EventLane>(
+    lane: &mut Lane<W>,
+    request: brn_workflow::inbox_actions::InboxActionRequest,
+) -> Result<Output, CliFailure> {
+    lane.worker
+        .submit(
+            request.id,
+            AppCommand::AnalyzeInboxActions(Box::new(request.clone())),
+        )
+        .map_err(|error| lane.command_error(error))?;
+    // Use the same cancellation/join/terminal handling as Ask; no current-choice
+    // queries or automatic retry can replace the explicit immutable capture.
+    wait_ask_generation(lane, request.id, request.conversation, request.generation)
 }
 
 fn recorded_error(turn: &WorkTurn) -> CliError {

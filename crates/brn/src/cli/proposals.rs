@@ -19,6 +19,7 @@ use std::{
 use uuid::Uuid;
 
 pub enum ProposalCommand {
+    Source(String),
     Create(PathBuf),
     List(Option<Uuid>),
     Show(Uuid),
@@ -47,6 +48,7 @@ pub enum ProposalCommand {
 impl ProposalCommand {
     pub fn name(&self) -> &'static str {
         match self {
+            Self::Source(_) => "proposals.source",
             Self::Create(_) => "proposals.create",
             Self::List(_) => "proposals.list",
             Self::Show(_) => "proposals.show",
@@ -79,9 +81,10 @@ pub(super) fn scan_command(
     let sub = sub_word(
         tokens,
         "proposals",
-        "create|list|show|edit|rewrite|rewrite-status|rewrite-result|comment|comment-update|comment-remove|reject|approve|reconcile|approve-group|applies|undo-preview|undo|restore-trash|repair-preview|repair",
+        "source|create|list|show|edit|rewrite|rewrite-status|rewrite-result|comment|comment-update|comment-remove|reject|approve|reconcile|approve-group|applies|undo-preview|undo|restore-trash|repair-preview|repair",
     )?;
     let (label, options): (_, &[(&str, bool)]) = match sub.as_str() {
+        "source" => ("proposals.source", &[]),
         "create" => ("proposals.create", &[("file", true)]),
         "list" => ("proposals.list", &[("group", true)]),
         "show" => ("proposals.show", &[]),
@@ -123,7 +126,8 @@ pub(super) fn scan_command(
 pub(super) fn parse_command(name: &str, s: &Scanned) -> Result<ProposalCommand, CliError> {
     let positional = matches!(
         name,
-        "proposals.show"
+        "proposals.source"
+            | "proposals.show"
             | "proposals.rewrite-status"
             | "proposals.comment-remove"
             | "proposals.reject"
@@ -155,6 +159,11 @@ pub(super) fn parse_command(name: &str, s: &Scanned) -> Result<ProposalCommand, 
         Ok(expected)
     };
     match name {
+        "proposals.source" => {
+            let path = required_positional(s, "PATH")?;
+            brn_workflow::vault::EvidencePath::parse(path).map_err(|e| usage(e.to_string()))?;
+            Ok(ProposalCommand::Source(path.to_owned()))
+        }
         "proposals.create" => Ok(ProposalCommand::Create(file()?)),
         "proposals.list" => Ok(ProposalCommand::List(s.uuid("group")?)),
         "proposals.show" => Ok(ProposalCommand::Show(id()?)),
@@ -273,6 +282,10 @@ fn prepare_input(command: &ProposalCommand) -> Result<(Uuid, AppCommand), CliFai
         _ => Uuid::new_v4(),
     };
     let command = match command {
+        ProposalCommand::Source(path) => {
+            brn_workflow::vault::EvidencePath::parse(path).map_err(|e| usage(e.to_string()))?;
+            AppCommand::ProposalEvidenceSource(path.clone())
+        }
         ProposalCommand::Create(file) => {
             let request: DraftRequest = input(file)?;
             request
