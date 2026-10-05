@@ -24,6 +24,7 @@ mod models_tests;
 pub mod proposal_apply;
 pub mod proposal_rewrite;
 pub mod proposals;
+mod quote_selection;
 #[cfg(test)]
 mod simple_worker_tests;
 pub mod vault;

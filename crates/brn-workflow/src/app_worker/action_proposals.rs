@@ -347,6 +347,9 @@ pub(super) fn rejected() -> AiError {
 }
 pub(super) fn safe(error: WorkflowError) -> AiError {
     AiError::new(match error.kind {
+        ErrorKind::QuoteNotFound => AiErrorKind::QuoteNotFound,
+        ErrorKind::QuoteAmbiguous => AiErrorKind::QuoteAmbiguous,
+        ErrorKind::QuoteOccurrenceInvalid => AiErrorKind::QuoteOccurrenceInvalid,
         ErrorKind::ToolRejected | ErrorKind::OperationConflict | ErrorKind::NotFound => {
             AiErrorKind::ToolRejected
         }
@@ -787,5 +790,33 @@ mod tests {
         let ordinary = serde_json::to_value(&receipt).unwrap();
         assert_eq!(ordinary.as_object().unwrap().len(), 5);
         assert!(ordinary.get("group_id").is_none());
+    }
+}
+
+#[cfg(test)]
+mod quote_refusal_tests {
+    use super::*;
+    #[test]
+    fn quote_refusals_keep_only_allowlisted_categories_and_fixed_messages() {
+        for (workflow, kind) in [
+            (ErrorKind::QuoteNotFound, AiErrorKind::QuoteNotFound),
+            (ErrorKind::QuoteAmbiguous, AiErrorKind::QuoteAmbiguous),
+            (
+                ErrorKind::QuoteOccurrenceInvalid,
+                AiErrorKind::QuoteOccurrenceInvalid,
+            ),
+        ] {
+            let error = safe(WorkflowError::typed(
+                workflow,
+                "SYNTHETIC_PRIVATE_DIAGNOSTIC",
+            ));
+            assert_eq!(error.kind, kind);
+            assert!(!format!("{error:?} {error}").contains("SYNTHETIC_PRIVATE_DIAGNOSTIC"));
+            assert!(
+                !serde_json::to_string(&error)
+                    .unwrap()
+                    .contains("SYNTHETIC_PRIVATE_DIAGNOSTIC")
+            );
+        }
     }
 }

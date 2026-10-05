@@ -77,8 +77,9 @@ Deterministic checks establish facts code can prove; semantic uncertainty remain
 for AI assessment and owner decision.
 
 These are required boundaries, not a claim that every existing tool already
-meets them. Model-supplied IDs/ranges/before records, prompt-only truth labels and
-Rewrite metadata protection have pending corrections; [status](../status.md) and
+meets them. Remaining model-supplied Action/Knowledge IDs and Action before
+records, typed truth/conflict facts and Rewrite metadata protection have pending
+corrections; [status](../status.md) and
 the affected crate contracts must distinguish implementation from qualification.
 
 New task-specific AI behavior introduced during V1 uses a small centralized typed

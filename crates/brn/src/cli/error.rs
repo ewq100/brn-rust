@@ -28,6 +28,9 @@ impl CliError {
                 ErrorKind::AiStorage => "AI_STORAGE_ERROR",
                 ErrorKind::AiIndexStale => "AI_INDEX_STALE",
                 ErrorKind::ToolRejected => "AI_TOOL_REJECTED",
+                ErrorKind::QuoteNotFound => "AI_QUOTE_NOT_FOUND",
+                ErrorKind::QuoteAmbiguous => "AI_QUOTE_AMBIGUOUS",
+                ErrorKind::QuoteOccurrenceInvalid => "AI_QUOTE_OCCURRENCE_INVALID",
                 ErrorKind::VaultNotBound => "VAULT_NOT_BOUND",
                 ErrorKind::VaultUnavailable => "VAULT_UNAVAILABLE",
                 ErrorKind::ModelInvalid => "MODEL_INVALID",
@@ -133,6 +136,12 @@ mod tests {
             (AiErrorKind::UnsafeCredentials, "AI_UNSAFE_CREDENTIALS"),
             (AiErrorKind::Storage, "AI_STORAGE_ERROR"),
             (AiErrorKind::ToolRejected, "AI_TOOL_REJECTED"),
+            (AiErrorKind::QuoteNotFound, "AI_QUOTE_NOT_FOUND"),
+            (AiErrorKind::QuoteAmbiguous, "AI_QUOTE_AMBIGUOUS"),
+            (
+                AiErrorKind::QuoteOccurrenceInvalid,
+                "AI_QUOTE_OCCURRENCE_INVALID",
+            ),
             (AiErrorKind::IndexStale, "AI_INDEX_STALE"),
             (AiErrorKind::Other, "WORKFLOW_ERROR"),
         ] {

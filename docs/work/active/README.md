@@ -4,6 +4,7 @@ New slices follow the frozen [target](../../architecture/overview.md#frozen-targ
 
 | Task | State | Records |
 | --- | --- | --- |
+| Independent V1 review corrections | Exact quote/body evidence and Rust conflict identity passed independent review and local gates; exact-head CI/integration next. Rewrite protection follows separately; ratified cleanup and record-shape/performance corrections hold lifecycle integration. | [Correction plan](architecture-review-corrections/plan.md) |
 | Knowledge foundations | Stage 5 foundations integrated; native/live/model/owner qualification remains open. | [Plan](knowledge-foundations/plan.md) |
 | Text/email Inbox | Stage 7 active: intake, processing, knowledge/Action drafts, supersession, conflicts and original-review/removal preview integrated. Recoverable lifecycle snapshot `7c4f668` is unmerged; architecture-review corrections, including A1 record shape and owner cleanup, precede lifecycle integration/native removal/Stage 8. | [Inbox plan](text-email-inbox/plan.md), [supersession](text-email-inbox/supersession-plan.md), [conflicts](text-email-inbox/conflicts-plan.md), [original-copy work](text-email-inbox/original-copy-plan.md) |
 

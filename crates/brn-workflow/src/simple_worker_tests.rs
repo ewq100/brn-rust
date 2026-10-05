@@ -1943,3 +1943,47 @@ mod action_proposals;
 #[cfg(target_os = "macos")]
 #[path = "inbox_actions_tests.rs"]
 mod inbox_actions;
+
+#[test]
+fn quote_failure_categories_are_durable_and_replay_after_restart_without_provider_calls() {
+    for (kind, code) in [
+        (AiErrorKind::QuoteNotFound, "quote_not_found"),
+        (AiErrorKind::QuoteAmbiguous, "quote_ambiguous"),
+        (
+            AiErrorKind::QuoteOccurrenceInvalid,
+            "quote_occurrence_invalid",
+        ),
+    ] {
+        let fixture = Fixture::new();
+        let hook: AnswerHook = Arc::new(move |_, _, tools, _, _| {
+            drop(tools);
+            Box::pin(async move {
+                AiAnswer {
+                    text: "Retained partial synthetic reply".into(),
+                    terminal: AiTerminal::Failed(AiError::new(kind)),
+                }
+            })
+        });
+        let mut worker = fixture.start(Hooks {
+            answer: Some(hook),
+            ..Hooks::default()
+        });
+        let request = fixture.request();
+        worker
+            .submit(request.id, AppCommand::Ask(request.clone()))
+            .unwrap();
+        let turn = terminal(&worker, request.id);
+        assert_eq!(turn.status, WorkTurnStatus::Failed);
+        assert_eq!(turn.error_code.as_deref(), Some(code));
+        worker.shutdown().unwrap();
+        let mut worker = fixture.start(Hooks::default());
+        worker
+            .submit(request.id, AppCommand::Ask(request.clone()))
+            .unwrap();
+        assert_eq!(
+            serde_json::to_value(terminal(&worker, request.id)).unwrap(),
+            serde_json::to_value(turn).unwrap()
+        );
+        worker.shutdown().unwrap();
+    }
+}

@@ -755,12 +755,15 @@ remaining semantic review; no original deletion or completeness is implied.
 
 Only that bound semantic turn enables `propose_knowledge`. One call supplies a
 new note/proposal UUID, Current destination, complete Markdown, selected-Source
-byte ranges and ordered additional `source_paths` (0–63 paths; legacy omission
+exact quote text with optional 1-based body occurrences and ordered additional `source_paths` (0–63 paths; legacy omission
 means empty), plus optional `supersedes` Current predecessor path. Workflow captures full saved target proofs after the selected Source;
 explicit Source/History evidence keeps its scope and pending drafts are not saved
 targets. Workflow assigns/protects identity and exact saved quotations in
-`brn_provenance`; it rejects Source/History/invented provenance, invalid UTF-8
-ranges, stale/ambiguous Source and occupied/uninspectable new identity. Actions,
+`brn_provenance`; Rust computes UTF-8 byte ranges within the retained saved body.
+Omitted occurrence requires a unique match; overlaps count in start-byte order.
+Missing text, ambiguous matches and invalid occurrences produce fixed typed
+refusals. Metadata and normalized/guessed wording cannot establish a quote.
+It rejects Source/History/invented provenance, stale/ambiguous Source and occupied/uninspectable new identity. Actions,
 knowledge and conflicts share the existing20-consequence cap. Creation replay preserves later
 review edits and original ordered proofs without re-reading lost sources or
 calling a provider; changed paths/order or creation payload are refused.
@@ -797,7 +800,12 @@ Only the owned KnowledgeAndActions turn admits `report_conflict`. It captures
 one Open Finding with the analysis UUID, exact title/summary and two ordered
 saved body quotations: selected approved Source first, then a distinct managed
 Current knowledge/Source path. Whole proofs and quotation wording/ranges remain
-immutable. Fresh capture requires complete unique identities, exact selected
+immutable. The tool supplies quotation text and optional 1-based body occurrences;
+Rust resolves exact ranges and mints a stable UUID from the owned analysis and
+exact candidate intent. Identical input retries reuse original proof/closure;
+changed intent or a different analysis has another identity. No cross-task
+semantic deduplication or approval authority follows from that identity.
+Fresh capture requires complete unique identities, exact selected
 Source version, nonhistorical effective scope and UTF8 body ranges. It creates
 no note, Action, relationship or proposal approval. V9 Findings in V14 WorkStore
 protect capture, original request hashes, startup/backup and history-only replay;

@@ -63,18 +63,18 @@ impl App {
         }
         let source_id = job.capture.note_id()?;
         let mut citations = Vec::new();
-        for range in &args.quotes {
-            let quote = job
-                .capture
-                .source_text
-                .get(range.start_byte..range.end_byte)
-                .ok_or_else(|| rejected("Source quote is outside full text or splits UTF-8"))?;
+        for selection in &args.quotes {
+            let range = crate::quote_selection::resolve(
+                &job.capture.source_text,
+                &selection.quote,
+                selection.occurrence,
+            )?;
             citations.push(note_provenance::VaultCitation {
                 note_id: source_id,
                 sha256: job.capture.source.fingerprint.sha256,
-                start_byte: range.start_byte,
-                end_byte: range.end_byte,
-                quote: quote.into(),
+                start_byte: range.start,
+                end_byte: range.end,
+                quote: selection.quote.clone(),
             });
         }
         note_provenance::validate(&citations)?;

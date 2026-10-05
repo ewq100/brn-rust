@@ -1,5 +1,11 @@
 # Text/email Inbox — Stage 7
 
+Current continuation follows the
+[architecture-review correction plan](../architecture-review-corrections/plan.md)
+from the retained immutable lifecycle snapshot. The owner-ratified cleanup rule
+and existing two-crate typed AI boundary govern new work; dated implementation
+choices below do not freeze table layout or restore stricter semantic gates.
+
 Latest integrated baseline: PR53 merge `ceb3d0f9e1e958915bfcb5e6b5e169a5571d13bc`,
 tree `624ae4200a638be52130c41acfb5b7be18beef84`. The final Mac mini handoff is
 recorded below; earlier deliverable checkpoints remain historical evidence.
