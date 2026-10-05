@@ -25,12 +25,14 @@ Historical observations remain in the linked plans and [status](../status.md).
   passed. Exact-head automatic PR CI run `37335653379`, attempt 1, passed all
   four applicable Mac/shared checks. Windows Core remained failed with 22
   complete compiler error blocks and two summaries matching the qualified
-  baseline. Overall CI remains red. Post-merge verification and automatic main
-  CI were pending at this checkpoint; no future pass is claimed.
-- **Pending:** post-merge evidence and exact merged-main CI,
+  baseline. Overall PR CI remains red. At exact merge `c5aaa6c`, the lead's
+  nine conflict tests, 52 fixtures and two V14 shipping restarts passed.
+  Automatic merged-main CI run `37336763915` remains pending; no future pass
+  is claimed.
+- **Pending:** exact merged-main CI,
   native/live/owner acceptance, multilingual assets and trusted-user packaging.
   Full V1 remains incomplete. Next bounded product slice: qualified safe
-  original-copy removal, after the lead completes post-merge qualification.
+  original-copy removal, after the lead completes merged-main CI qualification.
 - **Environment:** Darwin arm64 Mac mini, Rust 1.98.1, locked offline dependencies,
   canonical owned `TMPDIR=/private/tmp/brn-mini-synthetic-20261005`, empty
   `BRN_NATIVE_MODEL_DIR`; isolated checkout/target. No live provider calls,

@@ -115,9 +115,22 @@ shape, raw count and exact wire-order IDs. Missing/malformed containers differ
 from an actual empty catalog; invalid/duplicate IDs yield no partial ID list.
 Only fixed diagnostic fields are retained. This route reads no files, credentials
 or account state and makes no calls. It does not qualify Luna availability or
-change the product discovery parser. Future authorized live qualification must
-retain equivalent safe observations explicitly; past failed extraction remains
-historical evidence rather than a new live result.
+change the product discovery parser. **This is synthetic observation coverage,
+not integration with actual live model discovery.** The example's existing live
+path calls `Auth::client` and runs completion probes; it does not call
+`Auth::models`.
+
+The existing discovery API returns only `Vec<ModelOption>` (`id` and
+`live_qualified`). A future authorized harness caller could retain that processed
+list's count and IDs. It cannot reconstruct raw envelope shape/count: ChatGPT's
+private `subscription_models` consumes the body, validates it, then filters and
+sorts entries; Copilot's `list_models` exposes only decoded typed data. Transport
+injection is currently private and test-only. Retaining safe raw observations
+requires a separately scoped Auth/transport observation interface; this concrete
+finding was returned to the lead and that part stopped without changing product
+interfaces or duplicating authentication/network routes. Past failed extraction
+remains historical evidence; no actual catalog or Luna availability is newly
+qualified.
 
 ## Main protection proposal
 
