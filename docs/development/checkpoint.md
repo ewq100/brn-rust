@@ -2,33 +2,35 @@
 
 Lead-confirmed 2026-10-06: full frozen V1 goal **active**, without a token budget.
 
-- **Integrated:** PR61 at `d41de3cba09d69eb1a451335dcfee2d54a83c76f`, exact
-  reviewed tree `f22821fc98cbc9ce41f5ae2a9247ddd1fdf524da`. Exact-head
-  PR37373436230 attempt1 passed four protected Mac/shared gates and Docs; overall
-  red preserves unchanged Windows diagnostics. Fresh merged123 AI,34 Inbox
-  callbacks,7 quote checks and52 fixtures passed. Main37375126865 is in progress.
+- **Integrated:** PR62 at `7a472875f3b7303460e682a78e1f5d110c55a9c1`, exact
+  reviewed tree `6d93e3ad30b5715d0004099bb776f2b971db86e3`. Exact-head
+  PR37375653308 attempt1 passed four protected Mac/shared gates and Docs; overall
+  red preserves unchanged Windows diagnostics. Fresh merged18 Store Rewrite,
+  1 owned callback,10 provenance tests and52 fixtures passed. Main61's applicable
+  gates passed with known platform failures retained; main37376785106 is in progress.
 - **Preserved review snapshot:** `codex/v1-inbox-recoverable-removal` at
   `7c4f668de467721f728f242c8fac8d14606a6e44`, clean and pushed, unmerged. Its
   verified removal/restore implementation retains original evidence. It is held
   for record-shape/performance and owner-ratified cleanup corrections.
-- **Current:** `codex/v1-rewrite-managed-metadata`, tested code
-  `ed24f992f48feacb288eb15a7c94638db3c6c93e`, now based on main61 with identical
-  tested Rust. AI Rewrite preserves managed field presence/bytes through Store
-  settlement and owned worker preflight; owner metadata edits remain explicit.
-  The separate Knowledge identity correction has clean independent review but
-  awaits its own final integrated/native gates and integration.
+- **Current:** `codex/v1-review-knowledge-identities`, reviewed code
+  `f9b2026a247b726220b53d4d6c91c9957b0cb712`, qualified tree
+  `a09351f5b2585742f9ebad48067d621f1bf38e7d`, now based on main62 with identical
+  tested Rust. Knowledge proposal/note identities derive from owned analysis and
+  exact semantic input; injected identity refuses. Original replay preserves
+  evidence/newer review; changed intent or another analysis is a separate draft.
 - **Verification:** clean independent review; fresh format/build/all-target
-  Clippy,1,357 shared tests/0 failures/8 ignores and52 fixtures passed. Optional
-  native check/three Clippy configurations,285 Workflow/model tests/0/7,
+  Clippy,1,359 shared tests/0 failures/8 ignores and52 fixtures passed. Optional
+  native check/three Clippy configurations,287 Workflow/model tests/0/7,
   285 Desktop/0/0, shipping builds and two V14 restarts passed. Atomic runs retained
-  unchanged snapshot identity and exit0; exact evidence is in the correction plan.
+  unchanged snapshot identity and exit0. Provider-capability fixtures passed
+  123 AI/3 harness tests and Clippy offline; exact evidence is in the correction plan.
   Exact-head CI and integration remain pending.
 - **Pending:** native/live/owner acceptance, real model assets, trusted-user
   packaging; no new live authorization. Copy cleanup requires approved Source
   exact preservation plus explicit confirmation, separately from disposition.
   Old semantic/consequence gates have not yet been corrected in code.
-- **Next:** qualify exact-head CI and integrate Rewrite protection, then Rust-owned
-  Knowledge/Action candidate mechanics and remaining review corrections under
+- **Next:** qualify exact-head CI and integrate Knowledge identities, then Rust-owned
+  Action candidate mechanics and remaining review corrections under
   the [current correction plan](../work/active/architecture-review-corrections/plan.md).
 - **Environment:** Darwin arm64 Mac mini, Rust1.98.1 locked/offline, canonical
   owned `TMPDIR=/private/tmp/brn-mini-synthetic-20261005`, empty native model
