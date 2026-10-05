@@ -516,7 +516,10 @@ fn inbox_action_injected_source_counts_toward_complete_proof_limit() {
     let records = analysis(&worker, request.id).proposals;
     assert_eq!(records.len(), 1);
     let record = &records[0];
-    assert_eq!(record.draft.sources.len(), crate::proposals::MAX_PROPOSAL_CHANGES);
+    assert_eq!(
+        record.draft.sources.len(),
+        crate::proposals::MAX_PROPOSAL_CHANGES
+    );
     assert_eq!(record.draft.sources[0], source.source.source);
     assert_eq!(
         record.draft.sources[1..]
