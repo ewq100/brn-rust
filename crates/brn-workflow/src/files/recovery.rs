@@ -199,6 +199,7 @@ fn covered_review(older: &ApplyJournal, applied: &ApplyJournal) -> bool {
         && before.draft.group_id == after.draft.group_id
         && before.draft.session_id == after.draft.session_id
         && before.draft.sources == after.draft.sources
+        && before.draft.inbox_source == after.draft.inbox_source
         && before.draft.action_changes.len() == after.draft.action_changes.len()
         && before
             .draft
@@ -779,6 +780,7 @@ mod tests {
             let before = "\u{feff}旧い 🦀\r\n";
             let record = store
                 .create_proposal(&ProposalDraft {
+                    inbox_source: None,
                     action_changes: Vec::new(),
                     id: Uuid::new_v4(),
                     group_id: None,
@@ -972,6 +974,7 @@ mod tests {
             .unwrap();
         let ids = [Uuid::new_v4(), Uuid::new_v4()];
         let initial = ProposalDraft {
+            inbox_source: None,
             id: Uuid::new_v4(),
             group_id: None,
             session_id: None,

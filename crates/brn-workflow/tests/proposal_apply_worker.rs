@@ -88,6 +88,7 @@ fn admitted_approval_later_old_stamp_recovery_and_reconciliation_drain_before_re
     let draft = match request(
         &worker,
         AppCommand::CreateProposal(DraftRequest {
+            inbox_source: None,
             action_changes: Vec::new(),
             id: proposal_id,
             group_id: None,
@@ -241,6 +242,7 @@ fn recovery_summaries_exclude_history_and_identified_snapshots_preserve_partial_
         let AppEvent::Proposal(record) = request(
             &worker,
             AppCommand::CreateProposal(DraftRequest {
+                inbox_source: None,
                 action_changes: Vec::new(),
                 id: Uuid::new_v4(),
                 group_id: None,
@@ -268,6 +270,7 @@ fn recovery_summaries_exclude_history_and_identified_snapshots_preserve_partial_
     let AppEvent::Proposal(mixed) = request(
         &worker,
         AppCommand::CreateProposal(DraftRequest {
+            inbox_source: None,
             action_changes: Vec::new(),
             id: Uuid::new_v4(),
             group_id: None,

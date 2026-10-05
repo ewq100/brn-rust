@@ -1,7 +1,7 @@
 # Text/email Inbox — Stage 7
 
-Current baseline: actual PR45 merge2a63fafb6f3a3897af5c5fc1d835b3043fe12763,
-reviewed tree f70806f2cc73fd47600d9c5a7180391597963626. The catalog baseline was
+Current baseline: actual PR46 merge `d176bc407951df9817f80ae5ded7956c430dc460`,
+reviewed tree `c9a91fdfa6ed3acb21e13548d6a677f5c6cceafa`. The catalog baseline was
 PR44 merge114090c5d0915daf5ee6c83b421e05b262e90a6d/treeD39276e3. Stage6
 implementation is integrated;
 its native/live acceptance remains pending. Frozen vision§7/§23, architecture,
@@ -183,13 +183,70 @@ Store-failure reporting and exact Markdown conversion receipt validation. The
 reviewed 24-file Rust manifest SHA256 is
 `94089badd833fc95ce6698dda4d68e76e964c5e7ad29ca4a49c30c01c5c34aed`.
 
+PR46 is integrated as `d176bc4`. Exact-head run `37264423804` passed all three
+macOS lanes and Ubuntu shared checks; Windows Core retained the baseline failure.
+Post-merge run `37265419876` passed all three macOS lanes and Ubuntu Core/UI;
+Ubuntu Native Retrieval retained the three known synthetic-download failures and
+all Windows lanes failed. Overall CI remains red under the owner's platform policy.
+
 Fresh pinned macOS arm64 workspace/storage verification passed format/build/
 all-target Clippy, 1,189 tests (zero failed, seven ignored helpers) and real
 AppWorker startup. Focused correction verification passed four Store queue tests,
 12 workflow Inbox tests (one ignored crash child exercised by its parent), CLI
 parity and the public App-boundary test. Real SQLite writer exclusion reproduced
 the correlated batch failure and joined settlement without losing the original.
-69 local doc links and diff check passed. Offline fixtures, native features,
-shipping restart and exact PR-commit CI remain integration gates. Native Inbox
+69 local doc links and diff check passed. The 52 offline fixtures, native workflow/UI tests, native Clippy, shipping builds
+and two shipping V13 startup/restart witnesses also passed for PR46. Native Inbox
 interaction and owner acceptance are pending; semantic source/consequence
 proposals and safe original deletion are the next deliverables.
+
+
+## Active slice: exact Inbox source proposal
+
+Branch `codex/v1-inbox-source-proposals` starts at actual PR46 merge `d176bc4`.
+Prepare one source Create through AppWorker, then use existing create/review/exact
+approval. Carry immutable original identity and conversion proof in the same typed
+proposal/journal, with portable original provenance in ordinary source Markdown.
+No new database/schema, provider call, queue framework or mutation bypass.
+
+Acceptance: no vault write before approval; exact converted body including imported
+frontmatter stays literal under managed source identity/scope. Source edits cannot
+change those bytes/proofs; title/comments use existing review. Initial creation and
+unfinished approval/application qualify the original afresh and refuse missing,
+changed, forged or ambiguous inputs. Completed historical replay/restoration must
+not depend on retained originals or processing rows. Originals remain retained.
+The workflow/CLI expose preparation and provenance headlessly. Semantic knowledge,
+Action/link consequences, native Inbox and approved-copy deletion are later slices.
+
+Checks: actual AppWorker parity, source bytes/scopes/provenance, edit/Rewrite refusal,
+changed/missing-original refusal, duplicate UUID refusal, bounded wrapper, ordinary
+recovery without DB/processing rows; then independent complete read-only review,
+fresh shared/storage/native checks and exact-head applicable GitHub CI before merge.
+Manual scenario: in a disposable vault/data folder, capture/process one item, write
+an InboxSourceRequest JSON (`candidate`, `proposal_id`, `note_id`, `path`, `title`)
+and run `brn inbox source --file REQUEST --json`. Submit its draft through
+`brn proposal create`, inspect the full source/provenance, then approve its exact
+stamp. The source appears only in Source/All; its original remains available.
+Native/owner observation is pending and is not a dependency for this headless slice.
+
+## Source candidate checkpoint — 2026-10-05
+
+The complete independent read-only review is clean after two verified defects:
+faithful imported UUID links were incorrectly treated as newly asserted knowledge
+links; a source-bound-only exception preserves them as Source evidence. Recovery
+cleanup omitted the immutable Inbox binding; an actual version-2 journal witness
+reproduced deletion of a differing valid temporary, and exact comparison now
+retains it. Each failing witness passed after correction. Boxed optional bindings
+keep AppWorker messages bounded without changing absent historical JSON.
+Reviewed 87-file Rust manifest SHA256:
+`aaedd62c62834f591665f43c8aaaa7aa5201c8792e08ba699447d3a9a6874106`.
+Fresh final storage/shared verification passed format/build/all-target Clippy,
+1,199 tests (zero failed, seven ignored helpers) and actual AppWorker startup.
+The 52 offline fixtures and 66 local Markdown file links passed. Focused Inbox
+and CLI checks plus the reproduced cleanup/link corrections passed. Native workflow passed 221 library tests (six ignored crash helpers exercised by
+parents) plus seven model tests. Native desktop passed 250 library tests plus seven
+CLI/startup tests, zero failures. Combined native all-target Clippy and fresh format
+passed. Shipping native Desktop/CLI builds and two fresh native startup/restart witnesses
+passed, V13/exact synthetic BOM-CRLF-Unicode vault bytes/zero credential files.
+Exact-head applicable CI and integration remain pending; native owner acceptance
+is a separate pending gate.

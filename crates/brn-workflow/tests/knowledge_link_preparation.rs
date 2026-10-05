@@ -162,6 +162,7 @@ fn approve(app: &mut App, record: &ProposalRecord) -> ApprovalRequest {
 fn raw(app: &mut App, text: String) -> DraftRequest {
     let source = app.proposal_source(CURRENT).unwrap();
     DraftRequest {
+        inbox_source: None,
         action_changes: Vec::new(),
         id: Uuid::new_v4(),
         group_id: None,

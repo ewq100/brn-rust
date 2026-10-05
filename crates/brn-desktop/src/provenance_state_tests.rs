@@ -4,6 +4,7 @@ use brn_workflow::knowledge::{CitationOutcome, NoteProvenance, ResolvedCitation,
 const QUOTE: &str = "\u{feff}Original õäöü\r\n原文 🦀\n";
 fn provenance(path: &str, outcome: CitationOutcome) -> AppEvent {
     AppEvent::NoteProvenance(Box::new(NoteProvenance {
+        inbox_source: None,
         path: path.into(),
         citations: vec![ResolvedCitation {
             citation: VaultCitation {

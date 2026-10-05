@@ -131,6 +131,7 @@ fn gpui_rope_full_review_and_exact_comment_reattachment_survive_worker_restart()
         (
             Uuid::new_v4(),
             AppCommand::CreateProposal(DraftRequest {
+                inbox_source: None,
                 action_changes: Vec::new(),
                 id: proposal,
                 group_id: None,
@@ -339,6 +340,7 @@ fn actual_title_widget_preserves_multiline_bytes_through_loading_typing_and_work
         (
             Uuid::new_v4(),
             AppCommand::CreateProposal(DraftRequest {
+                inbox_source: None,
                 action_changes: Vec::new(),
                 id: proposal,
                 group_id: None,

@@ -76,6 +76,7 @@ fn action(worker: &AppWorker, id: Uuid) -> ActionRecord {
 fn approved(worker: &AppWorker, follows_up: Option<Uuid>) -> ActionRecord {
     let id = Uuid::new_v4();
     let input = DraftRequest {
+        inbox_source: None,
         id: Uuid::new_v4(),
         group_id: None,
         session_id: None,

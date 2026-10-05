@@ -599,6 +599,7 @@ fn full_document_at_minimum_height(cx: &mut gpui_kit::TestAppContext, read_only:
                 }
                 ai.links = Some(links(path));
                 ai.provenance = Some(NoteProvenance {
+                    inbox_source: None,
                     path: path.into(),
                     citations: vec![ResolvedCitation {
                         citation: VaultCitation {

@@ -60,6 +60,13 @@ impl App {
     /// Called only on fresh ordinary approval. Historical links, exact Undo and
     /// completed operation replay retain their existing authority.
     pub(crate) fn validate_proposal_links(&mut self, draft: &ProposalDraft) -> Result<()> {
+        if draft.inbox_source.is_some() {
+            // The checked single source Create retains the exact imported body.
+            // Its historical links are source evidence, not newly asserted BRN
+            // knowledge relationships. Separate semantic proposals still need
+            // the ordinary saved/same-draft target proof below.
+            return Ok(());
+        }
         let mut added = BTreeSet::new();
         for change in &draft.changes {
             let Some(text) = change.text() else { continue };

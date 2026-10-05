@@ -163,6 +163,7 @@ impl ActionProposal {
             Err(e) => return Err(safe(e)),
         };
         let request = DraftRequest {
+            inbox_source: None,
             id,
             group_id: None,
             session_id: Some(actual.conversation_id),

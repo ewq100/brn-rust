@@ -132,6 +132,8 @@ pub struct SourceVersion {
 #[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
 #[serde(deny_unknown_fields)]
 pub struct ProposalDraft {
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub inbox_source: Option<Box<super::inbox_source::InboxSourceBinding>>,
     pub id: Uuid,
     pub group_id: Option<Uuid>,
     pub session_id: Option<Uuid>,
@@ -306,6 +308,19 @@ fn validate_text(text: &str, total: &mut usize) -> Result<()> {
 }
 
 fn validate_draft(draft: &ProposalDraft) -> Result<usize> {
+    if let Some(binding) = &draft.inbox_source {
+        let [NoteChange::Create { text, .. }] = draft.changes.as_slice() else {
+            return Err(invalid(
+                "Inbox source proposal requires one source Create member",
+            ));
+        };
+        if !draft.sources.is_empty() || !draft.action_changes.is_empty() {
+            return Err(invalid(
+                "Inbox source conversion is separate from semantic consequences",
+            ));
+        }
+        binding.validate_markdown(text)?;
+    }
     nonnil(draft.id)?;
     for id in [draft.group_id, draft.session_id].into_iter().flatten() {
         nonnil(id)?;
@@ -342,6 +357,14 @@ fn validate_draft(draft: &ProposalDraft) -> Result<usize> {
         ));
     }
     let mut total = 0;
+    if let Some(binding) = &draft.inbox_source {
+        add_bytes(
+            &mut total,
+            serde_json::to_vec(binding)
+                .map_err(|_| invalid("could not encode Inbox source binding"))?
+                .len(),
+        )?;
+    }
     add_bytes(&mut total, root.len())?;
     add_bytes(&mut total, draft.title.len())?;
     let mut paths = HashSet::new();

@@ -26,6 +26,7 @@ fn unsupported_direct_completion_preserves_checked_action_and_has_no_recovery_ef
     let id = Uuid::new_v4();
     let review = store
         .create_proposal(&ProposalDraft {
+            inbox_source: None,
             id: Uuid::new_v4(),
             group_id: None,
             session_id: None,

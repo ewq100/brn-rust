@@ -2674,6 +2674,7 @@ impl AiState {
             | AppEvent::InboxItems(_)
             | AppEvent::InboxItem(_)
             | AppEvent::InboxProcessing(_)
+            | AppEvent::InboxSourceDraft(_)
             | AppEvent::InboxCandidate(_) => unreachable!(),
         }
         self.pending.remove(&id);

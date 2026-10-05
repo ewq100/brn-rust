@@ -1,7 +1,8 @@
 use super::*;
 use crate::inbox::{CaptureInboxRequest, InboxKind, InboxOriginal};
 use crate::inbox_processing::{
-    InboxCandidateRequest, InboxProcessBatch, InboxProcessOutcome, ProcessInboxRequest,
+    InboxCandidateRequest, InboxProcessBatch, InboxProcessOutcome, InboxSourceRequest,
+    ProcessInboxRequest,
 };
 
 fn processing_fixture() -> (tempfile::TempDir, std::path::PathBuf, AppWorker) {
@@ -57,6 +58,136 @@ fn terminal_batch(worker: &AppWorker, id: Uuid) -> InboxProcessBatch {
             _ => {}
         }
     }
+}
+fn processing_reply(worker: &AppWorker, command: AppCommand) -> AppEvent {
+    let operation = Uuid::new_v4();
+    worker.submit(operation, command).unwrap();
+    loop {
+        let (id, event) = worker.recv_event_timeout(Duration::from_secs(10)).unwrap();
+        if id == operation {
+            return event;
+        }
+    }
+}
+#[test]
+fn prepared_inbox_source_uses_exact_proposal_approval_and_source_scope() {
+    let owner = tempfile::tempdir_in(std::env::temp_dir().canonicalize().unwrap()).unwrap();
+    let data = owner.path().join("data");
+    let vault = owner.path().join("vault");
+    let credentials = owner.path().join("credentials");
+    std::fs::create_dir(&data).unwrap();
+    std::fs::create_dir(&vault).unwrap();
+    let mut worker = AppWorker::start(
+        data,
+        AppConfig {
+            vault_root: Some(vault.clone()),
+            credentials_dir: Some(credentials.clone()),
+            model_dir: None,
+        },
+    )
+    .unwrap();
+    assert!(matches!(
+        worker
+            .recv_event_timeout(Duration::from_secs(10))
+            .unwrap()
+            .1,
+        AppEvent::Ready { .. }
+    ));
+    let imported_id = Uuid::new_v4();
+    let exact = format!(
+        "\u{feff}---\r\nbrn_id: {imported_id}\r\nbrn_kind: knowledge\r\n---\r\nOriginal õ 日本語\r\n"
+    );
+    let original = processing_capture(&worker, InboxKind::Markdown, &exact);
+    let process = ProcessInboxRequest {
+        id: Uuid::new_v4(),
+        items: vec![original.clone()],
+    };
+    worker
+        .submit(process.id, AppCommand::ProcessInbox(process.clone()))
+        .unwrap();
+    let batch = terminal_batch(&worker, process.id);
+    assert!(matches!(
+        batch.entries[0].outcome,
+        InboxProcessOutcome::Converted { .. }
+    ));
+    let request = InboxSourceRequest {
+        candidate: InboxCandidateRequest {
+            batch_id: process.id,
+            index: 0,
+        },
+        proposal_id: Uuid::new_v4(),
+        note_id: Uuid::new_v4(),
+        path: "source.md".into(),
+        title: "Review exact original".into(),
+    };
+    let AppEvent::InboxSourceDraft(draft) =
+        processing_reply(&worker, AppCommand::PrepareInboxSource(request.clone()))
+    else {
+        panic!("source draft response");
+    };
+    request.validate_draft(&draft).unwrap();
+    let [crate::proposals::DraftNoteChange::Create { text, .. }] = draft.changes.as_slice() else {
+        panic!("source Create");
+    };
+    let approved_text = text.clone();
+    assert!(approved_text.ends_with(&exact));
+    assert_eq!(
+        brn_store::note_identity::read(&approved_text).unwrap(),
+        Some(request.note_id)
+    );
+    assert!(!vault.join(&request.path).exists());
+    assert!(
+        matches!(processing_reply(&worker, AppCommand::Proposals(None)), AppEvent::Proposals(records) if records.is_empty())
+    );
+    let AppEvent::Proposal(proposal) =
+        processing_reply(&worker, AppCommand::CreateProposal(*draft))
+    else {
+        panic!("source proposal response");
+    };
+    assert!(!vault.join(&request.path).exists());
+    let approval = crate::proposal_apply::ApprovalRequest {
+        operation_id: Uuid::new_v4(),
+        expected: proposal.stamp(),
+    };
+    assert!(
+        matches!(processing_reply(&worker, AppCommand::ApproveProposal(approval)), AppEvent::ProposalApplied(receipt) if receipt.outcome == crate::proposal_apply::ApplyOutcome::Applied)
+    );
+    assert_eq!(
+        std::fs::read(vault.join(&request.path)).unwrap(),
+        approved_text.as_bytes()
+    );
+    assert!(
+        matches!(processing_reply(&worker, AppCommand::Note(request.path.clone())), AppEvent::Failed(error) if error.kind == ErrorKind::ToolRejected)
+    );
+    assert!(matches!(processing_reply(&worker, AppCommand::ScopedNote {
+        scope: crate::library::KnowledgeScope::Source,
+        path: request.path.clone(),
+    }), AppEvent::Note(note) if note.text == approved_text));
+    let AppEvent::InboxItem(read) =
+        processing_reply(&worker, AppCommand::InboxItem(original.capture.id))
+    else {
+        panic!("retained original response");
+    };
+    assert_eq!(read.item, original);
+    assert_eq!(
+        read.original,
+        InboxOriginal::Available {
+            text: exact.clone()
+        }
+    );
+    assert_eq!(
+        std::fs::read(
+            original
+                .capture
+                .copy
+                .directory
+                .join(original.capture.copy_name())
+        )
+        .unwrap(),
+        exact.as_bytes()
+    );
+    assert_eq!(std::fs::read_dir(credentials).unwrap().count(), 0);
+    worker.shutdown().unwrap();
 }
 #[test]
 fn storage_failure_during_admitted_step_emits_batch_error_and_retains_restart_work() {

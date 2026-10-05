@@ -32,6 +32,7 @@ fn create(worker: &AppWorker) -> ProposalRecord {
         panic!("editor")
     };
     let request = DraftRequest {
+        inbox_source: None,
         action_changes: Vec::new(),
         id: Uuid::new_v4(),
         group_id: None,

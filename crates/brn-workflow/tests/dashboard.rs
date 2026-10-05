@@ -17,6 +17,7 @@ use uuid::Uuid;
 
 fn draft(state: ActionState) -> ProposalDraft {
     ProposalDraft {
+        inbox_source: None,
         id: Uuid::new_v4(),
         group_id: None,
         session_id: None,

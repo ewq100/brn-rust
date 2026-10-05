@@ -189,7 +189,7 @@ impl<W: EventLane> Lane<W> {
                     return Err(CliError::Workflow(
                         "application event lane closed without a terminal reply".into(),
                     )
-                    .into())
+                    .into());
                 }
             }
         }
@@ -408,13 +408,13 @@ fn execute(
                             }
                             AppEvent::InboxProcessing(_) => {}
                             AppEvent::Failed(error) => {
-                                return Err(lane.command_error(error).into())
+                                return Err(lane.command_error(error).into());
                             }
                             _ => {
                                 return Err(CliError::Workflow(
                                     "unexpected Inbox processing event".into(),
                                 )
-                                .into())
+                                .into());
                             }
                         }
                     }
@@ -422,6 +422,9 @@ fn execute(
                 AppCommand::InboxProcessing(id) => lane.query(AppCommand::InboxProcessing(*id))?,
                 AppCommand::InboxCandidate(request) => {
                     lane.query(AppCommand::InboxCandidate(request.clone()))?
+                }
+                AppCommand::PrepareInboxSource(request) => {
+                    lane.query(AppCommand::PrepareInboxSource(request.clone()))?
                 }
                 AppCommand::CancelInboxProcessing(id) => {
                     lane.query(AppCommand::CancelInboxProcessing(*id))?
@@ -1163,7 +1166,7 @@ fn wait_download<W: EventLane>(
             AppEvent::ModelInstalled => {
                 return Ok(output(
                     json!({"operation_id": op, "installed": true, "directory": target, "download": downloaded}),
-                ))
+                ));
             }
             AppEvent::Failed(error) => {
                 return Err(CliFailure {
@@ -1175,7 +1178,7 @@ fn wait_download<W: EventLane>(
                     context: Some(
                         json!({"operation_id": op, "installed": false, "download": downloaded}),
                     ),
-                })
+                });
             }
             AppEvent::ModelDownloadDeclined => return Err(unexpected()),
             _ => {}
