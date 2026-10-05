@@ -10,6 +10,7 @@ use crate::{
 use brn_ai::KnowledgeProposalArgs;
 use brn_store::work::inbox_actions::InboxSupersedesBinding;
 use brn_store::{note_identity, note_metadata, note_provenance};
+use sha2::{Digest, Sha256};
 use std::path::Path;
 
 fn rejected(message: &str) -> WorkflowError {
@@ -33,6 +34,28 @@ pub(crate) fn validate_supersession_link(text: &str, bound: &InboxSupersedesBind
     Ok(())
 }
 
+// Hash exact semantic input before adding Rust metadata or observing mutable files.
+// Distinct domains separate proposal/note identities within one owned analysis.
+fn knowledge_ids(analysis: Uuid, args: &KnowledgeProposalArgs) -> Result<(Uuid, Uuid)> {
+    let input =
+        serde_json::to_vec(args).map_err(|_| rejected("knowledge intent cannot be encoded"))?;
+    let mint = |domain: &[u8]| {
+        let mut hash = Sha256::new();
+        hash.update(domain);
+        hash.update(analysis.as_bytes());
+        hash.update(&input);
+        let digest = hash.finalize();
+        let mut bytes: [u8; 16] = digest[..16].try_into().expect("SHA-256 prefix");
+        bytes[6] = (bytes[6] & 0x0f) | 0x80;
+        bytes[8] = (bytes[8] & 0x3f) | 0x80;
+        Uuid::from_bytes(bytes)
+    };
+    Ok((
+        mint(b"brn/inbox-knowledge-proposal/v1\0"),
+        mint(b"brn/inbox-knowledge-note/v1\0"),
+    ))
+}
+
 impl App {
     /// Retained Source citations plus explicit saved context. Original creation
     /// replay reuses its ordered proofs before observing any current files.
@@ -47,18 +70,16 @@ impl App {
         if job.capture.purpose != InboxAnalysisPurpose::KnowledgeAndActions {
             return Err(rejected("this analysis did not admit knowledge proposals"));
         }
-        let id =
-            Uuid::parse_str(&args.id).map_err(|_| rejected("knowledge proposal needs a UUID"))?;
-        let note_id =
-            Uuid::parse_str(&args.note_id).map_err(|_| rejected("knowledge note needs a UUID"))?;
+        let (id, note_id) = knowledge_ids(job.capture.id, args)?;
         VaultPath::parse(&args.path)
             .map_err(|_| rejected("knowledge destination must be Current"))?;
-        if note_metadata::classify(&args.text)? != note_metadata::NoteClassification::default()
+        if note_identity::read(&args.text)?.is_some()
+            || note_metadata::classify(&args.text)? != note_metadata::NoteClassification::default()
             || brn_store::work::inbox_source::read_provenance(&args.text)?.is_some()
             || !note_provenance::read(&args.text)?.is_empty()
         {
             return Err(rejected(
-                "knowledge candidate cannot invent Source/provenance or History authority",
+                "knowledge candidate cannot invent identity, Source/provenance or History authority",
             ));
         }
         let source_id = job.capture.note_id()?;
@@ -374,5 +395,70 @@ impl App {
             ));
         }
         Ok(())
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use brn_ai::KnowledgeQuoteArgs;
+
+    #[test]
+    fn identities_bind_exact_ordered_semantic_intent_and_analysis_with_distinct_domains() {
+        let analysis = Uuid::from_u128(1);
+        let args = KnowledgeProposalArgs {
+            supersedes: Some("previous.md".into()),
+            title: "Interpretation õ".into(),
+            path: "current.md".into(),
+            text: "\u{feff}# Candidate 🦀\r\nExact bytes\r\n".into(),
+            quotes: vec![
+                KnowledgeQuoteArgs {
+                    quote: "First õ".into(),
+                    occurrence: Some(1),
+                },
+                KnowledgeQuoteArgs {
+                    quote: "Second 🦀".into(),
+                    occurrence: None,
+                },
+            ],
+            source_paths: vec!["person.md".into(), "project.md".into()],
+        };
+        let original = knowledge_ids(analysis, &args).unwrap();
+        assert_eq!(knowledge_ids(analysis, &args).unwrap(), original);
+        assert_ne!(original.0, original.1);
+        for id in [original.0, original.1] {
+            assert_eq!(id.get_version_num(), 8);
+            assert_eq!(id.get_variant(), uuid::Variant::RFC4122);
+        }
+        let mut identities = vec![original];
+        for mode in 0..10 {
+            let mut changed = args.clone();
+            match mode {
+                0 => changed.title.push(' '),
+                1 => changed.text = changed.text.replace("\r\n", "\n"),
+                2 => changed.path = "another.md".into(),
+                3 => changed.quotes[0].quote.push(' '),
+                4 => changed.quotes[0].occurrence = Some(2),
+                5 => changed.quotes[0].occurrence = None,
+                6 => changed.supersedes = Some("other.md".into()),
+                7 => changed.supersedes = None,
+                8 => changed.source_paths.swap(0, 1),
+                _ => changed.quotes.swap(0, 1),
+            }
+            let new = knowledge_ids(analysis, &changed).unwrap();
+            assert!(
+                identities
+                    .iter()
+                    .all(|old| old.0 != new.0 && old.1 != new.1),
+                "mode {mode}"
+            );
+            identities.push(new);
+        }
+        let other_analysis = knowledge_ids(Uuid::from_u128(2), &args).unwrap();
+        assert!(
+            identities
+                .iter()
+                .all(|old| old.0 != other_analysis.0 && old.1 != other_analysis.1)
+        );
     }
 }

@@ -24,7 +24,7 @@ fn inbox_question(capture: &InboxActionCapture) -> Result<String> {
         "source_text": capture.source_text,
     });
     let knowledge = if capture.purpose == InboxAnalysisPurpose::KnowledgeAndActions {
-        " Also propose useful current knowledge using propose_knowledge: one independent new note per call, a stable new note UUID and relative destination, complete candidate Markdown, and exact selected-Source quote text with an optional 1-based body occurrence (omit only for a unique match). Keep interpretation separate from evidence; BRN will add identity and exact provenance. Search Current first for duplicates, conflicts or likely replacement. For proposed stable brn://note/UUID links, name every additional saved target path in source_paths; the selected Source is captured automatically, so do not repeat its path. Pending drafts are not saved targets. Explicit historical targets remain evidence, not current truth. Exact human approval must validate all captured targets. When evidence supports replacement, optional supersedes names one saved Current knowledge path, distinct from the new note and Source. BRN captures that predecessor as the second proof, adds a Previous version link and protects its exact History member in this same atomic proposal; do not repeat that path in source_paths. Do not invent agreement or treat historical Source as current truth. When saved sources disagree, use report_conflict to retain tentative unresolved opposing exact body quotations from this Source and one saved nonhistorical Current/Source note; never choose a winner. Supply title/summary and each exact quote text with an optional 1-based body occurrence, naming the other path. BRN computes saved byte ranges and a stable finding identity for this exact analysis/input; retry identical input. Findings appear in Needs Review; closure does not change knowledge. The shared cap is20 independently reviewable consequences (Action/knowledge drafts and conflicts). Knowledge capture does not establish semantic completeness or original-copy deletion authority."
+        " Also propose useful current knowledge using propose_knowledge: one independent new note per call, a relative destination, complete candidate Markdown, and exact selected-Source quote text with an optional 1-based body occurrence (omit only for a unique match). Keep interpretation separate from evidence; BRN assigns proposal/note UUIDs for this exact analysis/input and adds exact provenance. Do not include managed note identity in candidate Markdown; retry identical input, and changed intent creates a separate draft. Search Current first for duplicates, conflicts or likely replacement. For proposed stable brn://note/UUID links, name every additional saved target path in source_paths; the selected Source is captured automatically, so do not repeat its path. Pending drafts are not saved targets. Explicit historical targets remain evidence, not current truth. Exact human approval must validate all captured targets. When evidence supports replacement, optional supersedes names one saved Current knowledge path, distinct from the new note and Source. BRN captures that predecessor as the second proof, adds a Previous version link and protects its exact History member in this same atomic proposal; do not repeat that path in source_paths. Do not invent agreement or treat historical Source as current truth. When saved sources disagree, use report_conflict to retain tentative unresolved opposing exact body quotations from this Source and one saved nonhistorical Current/Source note; never choose a winner. Supply title/summary and each exact quote text with an optional 1-based body occurrence, naming the other path. BRN computes saved byte ranges and a stable finding identity for this exact analysis/input; retry identical input. Findings appear in Needs Review; closure does not change knowledge. The shared cap is20 independently reviewable consequences (Action/knowledge drafts and conflicts). Knowledge capture does not establish semantic completeness or original-copy deletion authority."
     } else {
         ""
     };
@@ -65,6 +65,8 @@ mod tests {
     use sha2::{Digest, Sha256};
     use uuid::Uuid;
 
+    // Knowledge identity wording deliberately updates its SHA256 guard;
+    // Action-only context and full evidence bytes remain unchanged.
     #[test]
     fn inbox_instructions_and_full_evidence_preserve_qualified_bytes() {
         let text =
@@ -98,8 +100,8 @@ mod tests {
             (
                 InboxAnalysisPurpose::KnowledgeAndActions,
                 [
-                    164, 109, 180, 84, 220, 248, 253, 5, 154, 240, 216, 237, 200, 192, 149, 224,
-                    131, 78, 194, 89, 205, 102, 39, 219, 192, 17, 63, 135, 205, 51, 131, 71,
+                    126, 203, 46, 113, 234, 146, 119, 74, 117, 119, 25, 6, 36, 7, 197, 227, 111,
+                    108, 151, 68, 173, 236, 161, 56, 64, 143, 130, 202, 219, 150, 107, 241,
                 ],
             ),
         ] {
@@ -123,6 +125,9 @@ mod tests {
             if purpose == InboxAnalysisPurpose::KnowledgeAndActions {
                 for instruction in [
                     "omit only for a unique match",
+                    "BRN assigns proposal/note UUIDs for this exact analysis/input",
+                    "Do not include managed note identity in candidate Markdown",
+                    "changed intent creates a separate draft",
                     "BRN computes saved byte ranges",
                     "Exact human approval must validate all captured targets",
                     "never choose a winner",

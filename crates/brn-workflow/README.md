@@ -754,7 +754,7 @@ purpose, whole Source, turn and independently reviewable group. It always marks
 remaining semantic review; no original deletion or completeness is implied.
 
 Only that bound semantic turn enables `propose_knowledge`. One call supplies a
-new note/proposal UUID, Current destination, complete Markdown, selected-Source
+Current destination, complete candidate Markdown without managed identity, selected-Source
 exact quote text with optional 1-based body occurrences and ordered additional `source_paths` (0–63 paths; legacy omission
 means empty), plus optional `supersedes` Current predecessor path. Workflow captures full saved target proofs after the selected Source;
 explicit Source/History evidence keeps its scope and pending drafts are not saved
@@ -763,10 +763,14 @@ targets. Workflow assigns/protects identity and exact saved quotations in
 Omitted occurrence requires a unique match; overlaps count in start-byte order.
 Missing text, ambiguous matches and invalid occurrences produce fixed typed
 refusals. Metadata and normalized/guessed wording cannot establish a quote.
-It rejects Source/History/invented provenance, stale/ambiguous Source and occupied/uninspectable new identity. Actions,
+Rust mints distinct proposal/note UUIDs from the owned analysis and exact serialized
+semantic intent before adding metadata or observing mutable evidence. Exact input
+retries reuse the original capture and return newer owner review; changed intent or
+another analysis creates different identities. IDs grant no approval authority.
+It rejects model-injected identity, Source/History/invented provenance, stale/ambiguous Source and occupied/uninspectable new identity. Actions,
 knowledge and conflicts share the existing20-consequence cap. Creation replay preserves later
 review edits and original ordered proofs without re-reading lost sources or
-calling a provider; changed paths/order or creation payload are refused.
+calling a provider; changed intent takes fresh capture and validation under a new identity.
 
 Optional `inbox_knowledge` metadata in the existing typed proposal binds analysis,
 identity, Current classification and selected citations across edit/Rewrite.

@@ -75,7 +75,7 @@ fn inbox_supersession_creation_replay_preserves_history_targets_and_newer_review
         )
         .unwrap();
     let receipt = ready.recv_timeout(Duration::from_secs(10)).unwrap();
-    let proposal_id = Uuid::parse_str(&candidate.id).unwrap();
+    let proposal_id = Uuid::parse_str(receipt["stamp"]["id"].as_str().unwrap()).unwrap();
     let AppEvent::Proposal(record) = reply(&worker, AppCommand::Proposal(proposal_id)) else {
         panic!("retained supersession review")
     };

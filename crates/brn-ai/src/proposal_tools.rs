@@ -41,10 +41,8 @@ pub struct KnowledgeProposalArgs {
     /// Optional saved Current predecessor; workflow captures it and protects History.
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub supersedes: Option<String>,
-    pub id: String,
     pub title: String,
     pub path: String,
-    pub note_id: String,
     pub text: String,
     pub quotes: Vec<KnowledgeQuoteArgs>,
     /// Additional explicit evidence paths in caller order; selected Source is first automatically.
@@ -114,10 +112,8 @@ pub const KNOWLEDGE_PROPOSAL_BYTES: usize = 8 * 1024 * 1024;
 impl KnowledgeProposalArgs {
     /// Protocol bounds only. Workflow owns UUIDs, paths, source identity and citations.
     pub fn validate(&self) -> AiResult<()> {
-        if !(1..=64).contains(&self.id.len())
-            || !(1..=512).contains(&self.title.len())
+        if !(1..=512).contains(&self.title.len())
             || !(1..=512).contains(&self.path.len())
-            || !(1..=64).contains(&self.note_id.len())
             || !(1..=1024 * 1024).contains(&self.text.len())
             || !(1..=32).contains(&self.quotes.len())
             || self
@@ -224,14 +220,12 @@ impl Tool for ProposeKnowledge {
     type Output = Value;
     type Error = AiError;
     fn description(&self) -> String {
-        "Create one independent current Knowledge review draft from the explicitly selected approved Inbox Source. Supply complete candidate Markdown, stable proposal and note UUIDs, a relative destination path, exact saved body quotations, and ordered additional source_paths. Each quote may specify an optional 1-based occurrence in the saved body; omit it only for unique wording. Workflow resolves exact byte ranges. The selected Inbox Source is automatically the mandatory first proof; do not include it again. Stable brn://note/UUID relationships require exact named target evidence. Read tools default to Current; explicitly named extra Source or History paths are evidence, never truth or deletion approval. Optional supersedes names one saved Current knowledge path: workflow captures it as the second proof, adds a Previous version link and a protected History member to this same exact proposal. Do not repeat that path in source_paths or use a Source/History predecessor. Workflow captures complete saved proofs and adds exact saved citations. This tool never approves or writes knowledge. Retry only identical original input and UUIDs; human review and separate exact approval are required.".into()
+        "Create one independent current Knowledge review draft from the explicitly selected approved Inbox Source. Supply complete candidate Markdown, a relative destination path, exact saved body quotations, and ordered additional source_paths. Each quote may specify an optional 1-based occurrence in the saved body; omit it only for unique wording. Workflow resolves exact byte ranges and assigns proposal and note UUIDs returned in the receipt. Do not include managed note identity in candidate Markdown. The selected Inbox Source is automatically the mandatory first proof; do not include it again. Stable brn://note/UUID relationships require exact named target evidence. Read tools default to Current; explicitly named extra Source or History paths are evidence, never truth or deletion approval. Optional supersedes names one saved Current knowledge path: workflow captures it as the second proof, adds a Previous version link and a protected History member to this same exact proposal. Do not repeat that path in source_paths or use a Source/History predecessor. Workflow captures complete saved proofs and adds exact saved citations. This tool never approves or writes knowledge. Retry only identical original input; changed intent creates a separate draft. Human review and separate exact approval are required.".into()
     }
     fn parameters(&self) -> Value {
         json!({"type":"object","additionalProperties":false,"properties":{
-            "id":{"type":"string","format":"uuid","minLength":1,"maxLength":64},
             "title":{"type":"string","minLength":1,"maxLength":512},
             "path":{"type":"string","minLength":1,"maxLength":512},
-            "note_id":{"type":"string","format":"uuid","minLength":1,"maxLength":64},
             "text":{"type":"string","minLength":1,"maxLength":1048576},
             "supersedes":{"type":["string","null"],"minLength":1,"maxLength":512},
             "source_paths":{"type":"array","maxItems":63,"items":{"type":"string","minLength":1,"maxLength":512}},
@@ -241,7 +235,7 @@ impl Tool for ProposeKnowledge {
                     "occurrence":{"type":["integer","null"],"minimum":1,"maximum":1048576}
                 },"required":["quote"]
             }}
-        },"required":["id","title","path","note_id","text","quotes","source_paths","supersedes"]})
+        },"required":["title","path","text","quotes","source_paths","supersedes"]})
     }
     async fn call(&self, _: &mut ToolContext, args: KnowledgeProposalArgs) -> AiResult<Value> {
         args.validate()?;
@@ -514,10 +508,8 @@ mod tests {
     fn knowledge_args() -> KnowledgeProposalArgs {
         KnowledgeProposalArgs {
             supersedes: None,
-            id: "workflow parses this UUID".into(),
             title: "Exact õ\r\n".into(),
             path: "workflow checks the destination".into(),
-            note_id: "workflow checks stable identity".into(),
             text: "\u{feff}Whole candidate 🦀\r\n".into(),
             quotes: vec![KnowledgeQuoteArgs {
                 quote: "õ🦀\r\n".into(),
@@ -547,7 +539,7 @@ mod tests {
     #[test]
     fn knowledge_protocol_is_closed_and_requires_every_candidate_and_quote_field() {
         let whole = serde_json::to_value(knowledge_args()).unwrap();
-        for field in ["id", "title", "path", "note_id", "text", "quotes"] {
+        for field in ["title", "path", "text", "quotes"] {
             let mut partial = whole.clone();
             partial.as_object_mut().unwrap().remove(field);
             assert!(serde_json::from_value::<KnowledgeProposalArgs>(partial).is_err());
@@ -557,7 +549,14 @@ mod tests {
         let legacy = serde_json::from_value::<KnowledgeProposalArgs>(legacy).unwrap();
         assert!(legacy.source_paths.is_empty());
         assert!(legacy.validate().is_ok());
-        for field in ["source_path", "session_id", "approve", "citations"] {
+        for field in [
+            "id",
+            "note_id",
+            "source_path",
+            "session_id",
+            "approve",
+            "citations",
+        ] {
             let mut unknown = whole.clone();
             unknown[field] = json!("workflow owns this");
             assert!(serde_json::from_value::<KnowledgeProposalArgs>(unknown).is_err());
@@ -592,15 +591,11 @@ mod tests {
             receipt: json!({"stamp":"ok"}),
         });
         let tool = ProposeKnowledge(backend.clone());
-        let mutations: [fn(&mut KnowledgeProposalArgs); 22] = [
-            |v| v.id.clear(),
-            |v| v.id = "x".repeat(65),
+        let mutations: [fn(&mut KnowledgeProposalArgs); 18] = [
             |v| v.title.clear(),
             |v| v.title = "õ".repeat(257),
             |v| v.path.clear(),
             |v| v.path = "õ".repeat(257),
-            |v| v.note_id.clear(),
-            |v| v.note_id = "õ".repeat(33),
             |v| v.text.clear(),
             |v| v.text = "x".repeat(1024 * 1024 + 1),
             |v| v.text = "õ".repeat(512 * 1024 + 1),
@@ -643,15 +638,13 @@ mod tests {
         }
         assert_eq!(backend.calls.load(Ordering::SeqCst), 0);
 
-        // Non-UUID strings, destination semantics and occurrence resolution
+        // Destination semantics and occurrence resolution
         // are deliberately delegated. Only protocol byte bounds live here.
         let input = knowledge_args();
         assert!(tool.call(&mut ToolContext::default(), input).await.is_ok());
         let mut maximum = knowledge_args();
-        maximum.id = "x".repeat(64);
         maximum.title = "õ".repeat(256);
         maximum.path = "õ".repeat(256);
-        maximum.note_id = "x".repeat(64);
         maximum.source_paths = vec!["\u{1}".repeat(512); 63];
         maximum.text = "\u{1}".repeat(1024 * 1024);
         maximum.quotes = vec![

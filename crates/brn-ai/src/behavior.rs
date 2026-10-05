@@ -56,13 +56,14 @@ const REWRITE: &str = "Suggest a rewrite of the captured proposal using read-onl
 
 const ACTIONS: &str = "You may propose Action review drafts using propose_actions. This never changes real Actions or Markdown. Separate exact human approval is required; do not claim proposed work is already approved or completed. Only explicitly supplied source paths may bind source evidence.";
 
-const KNOWLEDGE: &str = "You may use propose_knowledge to create one independent current Knowledge review draft from the explicitly selected approved Inbox Source. Supply complete candidate Markdown, stable proposal/note UUIDs, a relative destination path, exact saved body quotations and ordered additional source_paths. Each quote may specify an optional 1-based occurrence in the saved body; omit it only for unique wording. Workflow resolves exact byte ranges. The selected Inbox Source is automatically the mandatory first proof; do not include it again. Stable brn://note/UUID relationships require exact named target evidence. Read tools default to Current; explicitly named extra Source or History paths are evidence, never truth or deletion approval. Optional supersedes names one saved Current predecessor; workflow adds its exact protected History member and Previous version link to the same proposal. Do not repeat it in source_paths. If authority is unresolved, use report_conflict with two exact opposing saved body quotations as a tentative unresolved finding. Workflow assigns the finding UUID returned in the receipt; retry only identical original input, and changed input creates a separate finding draft. Do not choose a winner; conflict reporting creates no knowledge effects, real Actions or deletion authority. Workflow adds exact saved citations; the tool never approves or writes knowledge. Human review and separate exact approval remain required.";
+const KNOWLEDGE: &str = "You may use propose_knowledge to create one independent current Knowledge review draft from the explicitly selected approved Inbox Source. Supply complete candidate Markdown, a relative destination path, exact saved body quotations and ordered additional source_paths. Each quote may specify an optional 1-based occurrence in the saved body; omit it only for unique wording. Workflow resolves exact byte ranges and assigns proposal and note UUIDs returned in the receipt. Do not include managed note identity in candidate Markdown. The selected Inbox Source is automatically the mandatory first proof; do not include it again. Stable brn://note/UUID relationships require exact named target evidence. Read tools default to Current; explicitly named extra Source or History paths are evidence, never truth or deletion approval. Optional supersedes names one saved Current predecessor; workflow adds its exact protected History member and Previous version link to the same proposal. Do not repeat it in source_paths. If authority is unresolved, use report_conflict with two exact opposing saved body quotations as a tentative unresolved finding. Workflow assigns the finding UUID returned in the receipt; retry only identical original input, and changed input creates a separate finding draft. Do not choose a winner; conflict reporting creates no knowledge effects, real Actions or deletion authority. Retry only identical Knowledge input; changed intent creates a separate draft. Workflow adds exact saved citations; the tool never approves or writes knowledge. Human review and separate exact approval remain required.";
 
 #[cfg(test)]
 mod tests {
     use super::*;
-    // Qualified byte fingerprints; only Inbox Knowledge's quote protocol was
-    // deliberately updated. Regression guard, never evidence/identity authority.
+    // Inbox Knowledge identity protocol intentionally changes its fingerprint
+    // from 17140197384036395397 to 10735711606083408164. Other behavior bytes
+    // stay qualified. Regression guard, never evidence/identity authority.
     fn fingerprint(text: &str) -> u64 {
         text.bytes().fold(0xcbf29ce484222325_u64, |hash, byte| {
             (hash ^ u64::from(byte)).wrapping_mul(0x100000001b3)
@@ -80,7 +81,7 @@ mod tests {
             ),
             (
                 AgentBehavior::InboxKnowledgeReview,
-                17140197384036395397_u64,
+                10735711606083408164_u64,
                 true,
                 true,
             ),
@@ -102,6 +103,12 @@ mod tests {
                 assert!(prompt.contains("This never changes real Actions or Markdown"));
             }
             if knowledge {
+                assert!(prompt.contains("assigns proposal and note UUIDs returned in the receipt"));
+                assert!(
+                    prompt.contains("Do not include managed note identity in candidate Markdown")
+                );
+                assert!(prompt.contains("changed intent creates a separate draft"));
+                assert!(!prompt.contains("stable proposal/note UUIDs"));
                 assert!(prompt.contains("evidence, never truth or deletion approval"));
                 assert!(
                     prompt.contains("Human review and separate exact approval remain required")

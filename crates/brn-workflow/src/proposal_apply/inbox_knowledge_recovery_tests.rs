@@ -123,16 +123,13 @@ impl Fixture {
                 None,
             )
             .unwrap();
-        let knowledge_id = Uuid::new_v4();
         let target_id = Uuid::new_v4();
         let predecessor_text = note_identity::assign("Saved context õ\r\n", target_id).unwrap();
         fs::write(vault.join(TARGET_PATH), &predecessor_text).unwrap();
         let args = KnowledgeProposalArgs {
             supersedes: supersedes.then(|| TARGET_PATH.into()),
-            id: Uuid::new_v4().to_string(),
             title: "Exact reviewed knowledge".into(),
             path: KNOWLEDGE_PATH.into(),
-            note_id: knowledge_id.to_string(),
             source_paths: if supersedes {
                 vec![]
             } else {
@@ -149,6 +146,7 @@ impl Fixture {
         let request = app
             .prepare_inbox_knowledge(&job, &args, turn.conversation_id)
             .unwrap();
+        let knowledge_id = request.inbox_knowledge.as_ref().unwrap().note_id;
         let review = app.create_proposal(&request).unwrap();
         let approved_text = review.draft.changes[0].text().unwrap().to_owned();
         let approval = ApprovalRequest {

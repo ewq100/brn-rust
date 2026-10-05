@@ -103,7 +103,7 @@ fn inbox_knowledge_links_bind_complete_named_targets_and_rebuild_with_explicit_h
             .iter()
             .all(|l| l.outcome == NoteLinkOutcome::Resolved)
     );
-    let id = Uuid::parse_str(&k.note_id).unwrap();
+    let id = record.draft.inbox_knowledge.as_ref().unwrap().note_id;
     let all_edges = relationships(&w, KnowledgeScope::All);
     assert_eq!(
         all_edges
@@ -294,8 +294,8 @@ fn inbox_knowledge_link_creation_replay_preserves_original_target_order_without_
     let r = semantic(&source);
     w.submit(r.id, AppCommand::AnalyzeInboxActions(Box::new(r.clone())))
         .unwrap();
-    ready.recv_timeout(Duration::from_secs(10)).unwrap();
-    let id = Uuid::parse_str(&k.id).unwrap();
+    let receipt = ready.recv_timeout(Duration::from_secs(10)).unwrap();
+    let id = Uuid::parse_str(receipt["stamp"]["id"].as_str().unwrap()).unwrap();
     let AppEvent::Proposal(record) = reply(&w, AppCommand::Proposal(id)) else {
         panic!("review")
     };
