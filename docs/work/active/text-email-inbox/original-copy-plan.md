@@ -182,3 +182,48 @@ rename/sync/terminal/SQL acknowledgement, occupied/swapped endpoints, older/fres
 DB restoration without resurrection and exact recoverable restoration refusing
 an occupied original endpoint. This follows preview integration; no removal
 mutation is implemented or authorized by a preview result.
+
+
+Preview integration: candidate `e44494f12f88a3f50843552ab8971049c2b205dc` merged
+normally through PR60 at `48941d3ae2c16dd014b6cb0f69a01b8c4ef60fa0`, parents
+d120fd41/e44494f1 and exact reviewed tree `60d1e3f6e8e588675859e3b332c2fcea6559000d`.
+Exact-head PR37352633068 attempt1 passed all four protected Mac/shared checks plus
+documentation. Windows22 full compiler blocks/two summaries match qualifiedmain59.
+Fresh merged4Store/7Workflow/6CLI tests,52fixtures and306local links passed. Merged-main37354011334 attempt1 passed all four required checks plus Documentation;
+overall red preserves Windows22/22/14 full compiler blocks/two summaries and
+three Linux assertion/backtrace blocks identical to main59. The full V1 goal remains active; next branch
+`codex/v1-inbox-recoverable-removal` starts at this exact merge. No original or
+vault bytes have been removed; native/live/owner acceptance remains pending.
+
+
+## Owner architecture-review checkpoint
+
+The owner requested completion only of the current coherent backend unit, normal
+verification, a committed/pushed immutable review branch, and then a V1 pause.
+Review branch `codex/v1-inbox-recoverable-removal` is based on PR60 merge48941d3;
+it is not merged into main. The full goal remains incomplete and is preserved;
+lead marks it paused after successful push. No next unit starts before owner review.
+
+This unit adds typed exact version1 five-part owner attestation, fresh full-preview
+admission, owned V14 setting records (no new schema/datastore), bounded ordinary
+intent/terminal mirrors and exclusive private-copy retention/restoration. Causal
+Remove/Restore identities bind history independently of clock ordering. Startup
+reserves exact original/analysis captures before dependent approval recovery;
+full historical processing/turn/review/finding evidence remains a certificate,
+without inventing live Sessions or restarting processing. Intent alone never
+initiates an effect. AppWorker/CLI expose complete records and correlated owner
+commands; native confirmation controls remain the next unfinished unit.
+
+Targeted synthetic tests cover stale/false attestations, occupied/symlink/hardlink/
+rebound endpoints, replay, database restoration, corrupted/missing mirrors and
+process crashes across intent/rename/sync/terminal/SQL acknowledgement for both
+removal and restoration. Current sandbox rejects macOS coordinator even in the
+unchanged qualified Source fixture; authorized unsandboxed offline synthetic
+runs distinguish that environment failure from actual product results.
+
+Conservative limitations: untouched intents remain pending after changed evidence;
+there is no cancellation command yet. Fresh re-removal after database restoration
+refuses absent live conversion/analysis evidence while complete historical
+certificates and exact restoration remain available. Native/live/owner acceptance,
+permanent purge, actual assets, remaining Stage7 and later roadmap stages are open.
+Final normal verification and exact review SHA are recorded at snapshot completion.

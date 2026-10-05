@@ -1127,6 +1127,17 @@ fn merge_restore(
     Ok(result)
 }
 impl WorkStore {
+    pub fn inbox_original_operation_summary(
+        &self,
+        id: Uuid,
+    ) -> Result<Option<InboxOriginalOperationSummary>> {
+        nonnil(id)?;
+        let tx = self.conn.unchecked_transaction()?;
+        check_all(&tx)?;
+        let result = read(&tx, id)?.map(|r| r.summary()).transpose()?;
+        tx.commit()?;
+        Ok(result)
+    }
     pub fn inbox_original_removal(&self, id: Uuid) -> Result<Option<InboxOriginalRemovalRecord>> {
         nonnil(id)?;
         let tx = self.conn.unchecked_transaction()?;

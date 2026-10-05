@@ -20,7 +20,7 @@ own saved Markdown; disposable retrieval indexes live outside this crate.
 
 ## Database ownership and recovery
 
-WorkStore uses application ID `BRN2`, schema V12, and retains `brn.owner.lock`
+WorkStore uses application ID `BRN2`, schema V14, and retains `brn.owner.lock`
 for its lifetime. Current settings, text-only conversations and unfinished work
 are preserved by additive migrations. Earlier WorkStore V1 unsaved-edit rows
 remain available; matching text moves atomically into the generation-aware
@@ -523,3 +523,16 @@ with all related current Actions, exact completion receipts, Rewrite jobs and
 transitive Undo lineage. Current completion authority is checked against retained
 Actions. Ordered complete evidence/digest refuses above64MiB. Store reads never
 qualify physical Sources, decide semantic completeness or remove original copies.
+
+
+## Recoverable original-copy certificates
+
+[Original operations](src/work/inbox_original_operations.rs) own bounded canonical
+V14 settings for exact owner removal/restoration requests, complete qualified
+historical evidence, data/capture identity, causal parents and immutable terminal
+times. New admission compares the complete current snapshot; replay preserves
+settled receipts before fresh eligibility. Owned rows are checked before startup
+backup and cannot be mutated through generic settings. No new table or database.
+Recovery imports only exact original/analysis reservations, retaining historical
+turns, processing, reviews and findings in the full certificate rather than
+fabricating live Sessions. Workflow owns ordinary mirrors and all file effects.

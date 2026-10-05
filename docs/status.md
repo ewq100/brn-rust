@@ -15,11 +15,16 @@ and the disposable retrieval index retain their existing roles. The owner's
 permits thin future adapters around the six V1 core crates through workflow/
 AppWorker. No MCP, daemon, HTTP service, extra database or remote work is in V1.
 
-Latest integrated checkpoint: original-review PR57 at
-`c07cc19e4cc9e4aeed84aa86a0a6d6551231458d`; the
-[resumable checkpoint](development/checkpoint.md) retains exact verification,
-platform failures and pending acceptance. Complete review evidence is implemented;
-removal qualification is active. No originals have been removed.
+Latest integrated checkpoint is removal qualification PR60 at
+`48941d3ae2c16dd014b6cb0f69a01b8c4ef60fa0`. The
+[resumable checkpoint](development/checkpoint.md) retains exact evidence and pending
+acceptance. The unmerged review branch `codex/v1-inbox-recoverable-removal` adds
+exact owner attestations, recoverable private-copy removal/restoration and complete
+historical certificates through the existing Store/files/AppWorker/CLI boundaries.
+Native confirmation controls, remaining Stage7 work and Stages8–16 are incomplete.
+The owner requested an architecture-review pause after this branch is verified,
+committed and pushed; no merge or following implementation unit is authorized
+while awaiting that review. Native/live/owner acceptance remains pending.
 
 ## Integrated behavior
 
@@ -70,7 +75,7 @@ validation. Dependencies and parent graphs are separate checks; new knowledge
 references require captured or same-draft proof. Completed records cannot reopen.
 Evidence: [Actions/dashboard record](work/completed/actions-dashboard/plan.md).
 
-## Latest integrated checkpoint
+## Earlier integrated checkpoint
 
 [PR55](https://github.com/ewq100/brn-rust/pull/55) merged at
 **c5aaa6c4c96007e452151adb167964bf9e2b048a**, exact reviewed tree

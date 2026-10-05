@@ -853,4 +853,19 @@ unqualified saved outputs block this conservative first gate. Rejected proposals
 and Open findings remain visible. `needs_owner_attestation: true` remains even
 with no blockers: the preview grants no semantic approval or removal. No AI call,
 namespace effect or recovery/schema change is introduced. Exact owner attestation
-and recoverable removal/recovery remain the following slice.
+and recoverable removal/recovery use the separate owner-command boundary below.
+
+
+## Exact original removal and restoration
+
+[Original operations](src/inbox_original_operations.rs) admit complete preview
+identity plus all five version1 owner attestations. Fresh saved proofs and exact
+private-copy identity are rechecked before exclusive rename. Durable intent and
+terminal mirrors surround the effect; unknown endpoints stay retained. Restoration
+moves only the same retained copy to a vacant original endpoint. Exact replay
+returns historical receipts without touching a recreated path. Startup certifies
+already-performed moves and fences old capture installation; intents alone never
+initiate effects. Historical analysis lookup is explicit and never replaces a
+current live turn. AppWorker/CLI share these typed commands; native confirmation
+controls and cancellation remain unfinished. Fresh re-removal after DB restoration
+conservatively refuses missing live conversion/analysis evidence.

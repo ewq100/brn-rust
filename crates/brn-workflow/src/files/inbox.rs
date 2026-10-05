@@ -35,6 +35,59 @@ pub(crate) fn receipt_id(name: &str) -> Option<Uuid> {
     (!id.is_nil() && id.to_string() == raw).then_some(id)
 }
 
+#[derive(Debug, Clone, Serialize, Deserialize)]
+#[serde(
+    tag = "kind",
+    content = "record",
+    rename_all = "snake_case",
+    deny_unknown_fields
+)]
+pub(crate) enum OriginalOperationFile {
+    Remove(Box<brn_store::work::inbox_original_operations::InboxOriginalRemovalRecord>),
+    Restore(Box<brn_store::work::inbox_original_operations::InboxOriginalRestoreRecord>),
+}
+impl OriginalOperationFile {
+    pub(crate) fn id(&self) -> Uuid {
+        match self {
+            Self::Remove(r) => r.request.operation_id,
+            Self::Restore(r) => r.request.operation_id,
+        }
+    }
+    pub(crate) fn item(&self) -> &InboxItem {
+        match self {
+            Self::Remove(r) => &r.evidence.snapshot.review.original,
+            Self::Restore(r) => &r.original,
+        }
+    }
+    pub(crate) fn settled(&self) -> bool {
+        match self {
+            Self::Remove(r) => r.removed_at_ms.is_some(),
+            Self::Restore(r) => r.restored_at_ms.is_some(),
+        }
+    }
+    pub(crate) fn name(&self) -> String {
+        let kind = match self {
+            Self::Remove(_) => "removal",
+            Self::Restore(_) => "restore",
+        };
+        let phase = if self.settled() { "receipt" } else { "intent" };
+        format!(".brn-inbox-{kind}-{}.{phase}", self.id())
+    }
+    pub(crate) fn validate(&self) -> Result<()> {
+        match self {
+            Self::Remove(r) => r.validate()?,
+            Self::Restore(r) => r.validate()?,
+        }
+        Ok(())
+    }
+}
+pub(crate) fn original_operation_name(name: &str) -> bool {
+    [".brn-inbox-removal-", ".brn-inbox-restore-"]
+        .iter()
+        .any(|prefix| name.starts_with(prefix))
+        && (name.ends_with(".intent") || name.ends_with(".receipt"))
+}
+
 #[cfg(test)]
 thread_local! {
     pub(crate) static FAULT: std::cell::Cell<Option<(&'static str, bool)>> = const { std::cell::Cell::new(None) };
@@ -74,6 +127,10 @@ mod platform {
     };
     const MAX_MIRROR_BYTES: usize = 64 * 1024;
     const MAX_ENTRIES: usize = 16_384;
+
+    mod original_operations {
+        include!("inbox_original_operations.rs");
+    }
 
     #[derive(Serialize, Deserialize)]
     #[serde(deny_unknown_fields)]
@@ -606,5 +663,31 @@ impl InboxFiles {
     }
     pub(crate) fn names(&self) -> Result<Vec<String>> {
         Err(unavailable("Inbox copy reads require macOS"))
+    }
+    pub(crate) fn operation(&self, _: &str) -> Result<OriginalOperationFile> {
+        Err(unavailable("Inbox original operations require macOS"))
+    }
+    pub(crate) fn publish_operation(&self, _: &OriginalOperationFile) -> Result<()> {
+        Err(unavailable("Inbox original operations require macOS"))
+    }
+    pub(crate) fn original_namespace(
+        &self,
+    ) -> brn_store::work::inbox_original_operations::InboxOriginalNamespace {
+        unreachable!("unsupported Inbox files cannot open")
+    }
+    pub(crate) fn move_original(&self, _: &OriginalOperationFile) -> Result<()> {
+        Err(unavailable("Inbox original operations require macOS"))
+    }
+    pub(crate) fn operation_effect_observed(&self, _: &OriginalOperationFile) -> Result<bool> {
+        Err(unavailable("Inbox original operations require macOS"))
+    }
+    pub(crate) fn retained_original(
+        &self,
+        _: &brn_store::work::inbox_original_operations::InboxOriginalRemovalRecord,
+    ) -> Result<()> {
+        Err(unavailable("Inbox original operations require macOS"))
+    }
+    pub(crate) fn original_occupied(&self, _: &InboxItem) -> Result<bool> {
+        Err(unavailable("Inbox original operations require macOS"))
     }
 }

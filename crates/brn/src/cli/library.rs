@@ -1,18 +1,18 @@
 //! Simple authority dispatch and the owned, correlated application event loop.
 use super::{
-    CliFailure, Command, Invocation, Output,
     ai::{self, AiCommand},
-    error::{CliError, classify_workflow},
+    error::{classify_workflow, CliError},
+    CliFailure, Command, Invocation, Output,
 };
 use brn_workflow::{
-    ErrorKind, Provider, Selection, WorkTurn, WorkTurnStatus, WorkspaceMode,
     app::AppConfig,
     app_worker::{AppCommand, AppEvent, AppWorker},
     chat_worker::{AccountCommand, AccountEvent, AccountReply, AskRequest, ChatEvent},
     library::SearchMode,
     proposal_rewrite::{RewriteEvent, RewriteJob, RewriteRequest, RewriteStatus},
+    ErrorKind, Provider, Selection, WorkTurn, WorkTurnStatus, WorkspaceMode,
 };
-use serde_json::{Value, json};
+use serde_json::{json, Value};
 use std::{
     io::Write as _,
     sync::atomic::Ordering,
@@ -1272,7 +1272,7 @@ fn wait_download<W: EventLane>(
 #[cfg(test)]
 mod tests {
     use super::*;
-    use brn_workflow::{WorkflowError, library::KnowledgeScope};
+    use brn_workflow::{library::KnowledgeScope, WorkflowError};
     use std::{
         cell::{Cell, RefCell},
         collections::VecDeque,

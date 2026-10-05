@@ -6,6 +6,7 @@ use crate::{
     inbox::InboxOriginal,
     proposals::{NoteChange, ProposalSource, ProposalState},
 };
+pub use brn_store::work::inbox_original_operations::{InboxApprovedSource, InboxSavedConsequence};
 pub use brn_store::work::inbox_removal::InboxRemovalSnapshot;
 use brn_store::work::{
     chat::WorkTurnStatus, proposal_apply::ApplyOutcome, proposal_rewrite::RewriteStatus,
@@ -14,24 +15,12 @@ use serde::{Deserialize, Serialize};
 use sha2::{Digest, Sha256};
 use uuid::Uuid;
 
-#[derive(Debug, Clone, Serialize, Deserialize)]
-#[serde(deny_unknown_fields)]
-pub struct InboxApprovedSource {
-    pub operation_id: Uuid,
-    pub proposal_id: Uuid,
-    pub note_id: Uuid,
-    pub saved: ProposalSource,
-}
-#[derive(Debug, Clone, Serialize, Deserialize)]
-#[serde(deny_unknown_fields)]
-pub struct InboxSavedConsequence {
-    pub operation_id: Uuid,
-    pub member_index: usize,
-    pub saved: ProposalSource,
-}
 #[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
 #[serde(tag = "kind", rename_all = "snake_case", deny_unknown_fields)]
 pub enum InboxRemovalBlocker {
+    OriginalOperationUnsettled {
+        operation_id: Uuid,
+    },
     OriginalUnavailable,
     ConsequenceUnavailable {
         operation_id: Uuid,
@@ -39,6 +28,9 @@ pub enum InboxRemovalBlocker {
         reason: String,
     },
     SourceRequired,
+    SourceConversionHistoryUnavailable {
+        proposal_id: Uuid,
+    },
     ProcessingPending {
         batch_id: Uuid,
         index: usize,
@@ -100,6 +92,13 @@ impl App {
         let snapshot = self.store.inbox_removal_snapshot(id)?;
         let original = self.inbox.original(&snapshot.review.original);
         let mut blockers = Vec::new();
+        for operation in &snapshot.original_operations {
+            if operation.settled_at_ms.is_none() {
+                blockers.push(InboxRemovalBlocker::OriginalOperationUnsettled {
+                    operation_id: operation.operation_id,
+                });
+            }
+        }
         if !matches!(original, InboxOriginal::Available { .. }) {
             blockers.push(InboxRemovalBlocker::OriginalUnavailable);
         }
@@ -169,6 +168,19 @@ impl App {
             if a.receipt.as_ref().map(|r| r.outcome) != Some(ApplyOutcome::Applied) {
                 continue;
             }
+            if !snapshot
+                .review
+                .processing
+                .iter()
+                .any(|batch| batch.request.id == binding.batch_id)
+            {
+                // The historical certificate remains readable after fresh DB
+                // restoration. It does not manufacture live conversion work or
+                // silently qualify another fresh removal from absent rows.
+                blockers.push(InboxRemovalBlocker::SourceConversionHistoryUnavailable {
+                    proposal_id: a.approved.draft.id,
+                });
+            }
             let qualified = (|| -> Result<ProposalSource> {
                 if binding.original != snapshot.review.original {
                     return Err(stale("approved Source belongs to a different capture"));
@@ -199,7 +211,10 @@ impl App {
                     operation_id: a.request.operation_id,
                     proposal_id: a.approved.draft.id,
                     note_id: binding.note_id,
-                    saved,
+                    saved: brn_store::work::inbox_original_operations::InboxSourceProof {
+                        source: saved.source,
+                        text: saved.text,
+                    },
                 }),
                 Err(e) => blockers.push(InboxRemovalBlocker::SourceUnavailable {
                     proposal_id: a.approved.draft.id,
@@ -213,7 +228,12 @@ impl App {
         let mut saved_consequences = Vec::new();
         for journal in &snapshot.lineage {
             if journal.undo.is_some()
-                || journal.approved.draft.inbox_source.is_some()
+                || journal
+                    .approved
+                    .draft
+                    .inbox_source
+                    .as_ref()
+                    .is_some_and(|binding| binding.original.capture.id == id)
                 || journal.receipt.as_ref().map(|r| r.outcome) != Some(ApplyOutcome::Applied)
             {
                 continue;
@@ -223,7 +243,10 @@ impl App {
                     Ok(saved) => saved_consequences.push(InboxSavedConsequence {
                         operation_id: journal.request.operation_id,
                         member_index: index,
-                        saved,
+                        saved: brn_store::work::inbox_original_operations::InboxSourceProof {
+                            source: saved.source,
+                            text: saved.text,
+                        },
                     }),
                     Err(e) => blockers.push(InboxRemovalBlocker::ConsequenceUnavailable {
                         operation_id: journal.request.operation_id,
@@ -309,7 +332,7 @@ fn stale(message: &str) -> WorkflowError {
 }
 
 #[cfg(all(test, target_os = "macos"))]
-mod tests {
+pub(crate) mod tests {
     use super::*;
     use crate::{
         app::AppConfig,
@@ -318,15 +341,15 @@ mod tests {
         proposal_apply::{ApprovalRequest, UndoRequest},
     };
     use std::{fs, sync::atomic::AtomicBool};
-    struct Fixture {
-        _owner: tempfile::TempDir,
-        data: std::path::PathBuf,
-        vault: std::path::PathBuf,
-        app: App,
-        item: Uuid,
+    pub(crate) struct Fixture {
+        pub(crate) _owner: tempfile::TempDir,
+        pub(crate) data: std::path::PathBuf,
+        pub(crate) vault: std::path::PathBuf,
+        pub(crate) app: App,
+        pub(crate) item: Uuid,
     }
     impl Fixture {
-        fn new() -> Self {
+        pub(crate) fn new() -> Self {
             let owner = tempfile::tempdir_in(std::env::temp_dir().canonicalize().unwrap()).unwrap();
             let data = owner.path().join("data");
             let vault = owner.path().join("vault");
@@ -358,7 +381,7 @@ mod tests {
                 item: item.capture.id,
             }
         }
-        fn source(&mut self) -> Uuid {
+        pub(crate) fn source(&mut self) -> Uuid {
             let item = self.app.inbox_item(self.item).unwrap().item;
             let batch = self
                 .app

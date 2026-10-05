@@ -1,5 +1,32 @@
 # Resumable V1 checkpoint
 
+Owner-directed architecture review checkpoint, 2026-10-05. Full frozen V1
+objective is preserved and incomplete; confirmed goal status during preparation
+is **active**. The owner requires **pause after push**, pending their independent
+architecture review. No merge or next feature follows this snapshot.
+
+- **Review branch:** `codex/v1-inbox-recoverable-removal`, based on qualified main PR60 merge `48941d3ae2c16dd014b6cb0f69a01b8c4ef60fa0`. Use the exact pushed SHA reported with this checkpoint, rather than a moving branch name.
+- **Behavior:** version1 owner attestations bind the complete fresh preview. Exact originals move exclusively to operation-owned retained copies; explicit restoration requires vacancy and the same identity/bytes. Replay never repeats effects. Full bounded ordinary intent/terminal certificates preserve history; startup certifies already-performed moves and fences capture installation before approval recovery. Typed AppWorker/CLI commands expose complete receipts, history and explicitly historical analyses.
+- **Verification:** targeted Store, workflow, CLI and worker checks passed; final normal workspace/native checks and snapshot commit are being finalized. Earlier sandbox-only Source failures were reproduced in an unchanged fixture; authorized offline synthetic macOS coordination is used for actual qualification. Relevant failures and final results are recorded in the [active plan](../work/active/text-email-inbox/original-copy-plan.md).
+- **Intentionally incomplete:** native removal/attestation controls; cancellation of untouched removal intents; fresh re-removal qualification after database restoration when live conversion/analysis evidence is absent (explicit blocker, retained historical certificate remains readable). No permanent purge or automatic intent-driven effects. Native/live/owner acceptance, real model assets, remaining Stage7 and Stages8–16/packaging remain pending.
+- **Normal next unit:** native shared review/confirmation/recovery flow and remaining historical eligibility, after the owner provides the independent architecture review. No implementation starts during the pause.
+- **Environment:** Darwin arm64 Mac mini; Rust1.98.1 locked/offline; canonical owned `TMPDIR=/private/tmp/brn-mini-synthetic-20261005`; separate checkout/target; synthetic data only; no live calls, model downloads, private-data operations or release.
+
+## Integrated baseline before review checkpoint
+
+
+Lead-confirmed 2026-10-05: full frozen V1 goal **active**, without a token budget.
+
+- **Integrated:** removal-preview [PR60](https://github.com/ewq100/brn-rust/pull/60) at `48941d3ae2c16dd014b6cb0f69a01b8c4ef60fa0`, exact reviewed tree `60d1e3f6e8e588675859e3b332c2fcea6559000d`, parents `d120fd41` / `e44494f1`.
+- **Behavior:** complete retained operational evidence plus exact fresh saved Source/consequence qualification, explicit blockers and owner attestation still required. Originals remain retained; preview causes no filesystem effects or semantic approval.
+- **Verification:** clean independent material re-review after three reproduced P2 fixes; final1,337workspace/0failures/8ignores,52fixtures,format/build/Clippy,nativecombinedcheck and306links passed. Exact-head PR37352633068 attempt1 passed four protected Mac/shared checks plus documentation; Windows22 full compiler blocks/two summaries match main59. Fresh merged4Store/7Workflow/6CLI,52fixtures and306links passed. Merged-main37354011334 attempt1 passed all four required gates plus Documentation. Overall red retains Windows22/22/14 full compiler blocks/two summaries and three Linux assertion/backtrace blocks identical to main59.
+- **AI boundary:** PR59 is fully integrated at `d120fd41d43b993ff235931ee955ffb5c6e30680`; all applicable PR and main37352315271 checks passed. Fresh merged116 AI/one Workflow byte guard and303links passed. Main's Windows22/22/14 and Linux three complete assertion/backtrace diagnostics match PR58; actual overall red retained.
+- **Next:** `codex/v1-inbox-recoverable-removal` starts here. Implement exact versioned owner attestations and recoverable private-copy retention, then recovery/restore witnesses using the [current plan](../work/active/text-email-inbox/original-copy-plan.md). Preserve full historical certificates without inventing live Session metadata; exact captures must precede dependent approval recovery.
+- **Pending acceptance:** native/live/owner acceptance, real model assets and trusted-user packaging. Full V1 remains incomplete.
+- **Environment:** Darwin arm64 Mac mini, Rust1.98.1 locked/offline, canonical owned `TMPDIR=/private/tmp/brn-mini-synthetic-20261005`, empty native model setting, isolated checkout/target and synthetic data only. No new live calls, downloads, private-data operations or release authorized.
+
+## Earlier preview qualification checkpoint
+
 Lead-confirmed 2026-10-05: full frozen V1 goal **active**, without a token budget.
 
 - **Baseline:** AI-maintainability [PR59](https://github.com/ewq100/brn-rust/pull/59) merged normally at `d120fd41d43b993ff235931ee955ffb5c6e30680`, exact reviewed tree `e4339072d9a6b226109f570ea90e98c955ac1eb6`. Exact-head PR37351058169 attempt1 passed four protected Mac/shared gates plus documentation; unchanged Windows22 compiler blocks/two summaries remain red. Fresh merged116 AI/one Workflow byte guard and303 links passed. Main37352315271 remains in progress.

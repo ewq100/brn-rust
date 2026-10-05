@@ -62,6 +62,7 @@ impl CaptureInboxRequest {
 #[serde(rename_all = "snake_case")]
 pub enum InboxAvailability {
     Available,
+    RemovedRetained,
     Missing,
     Changed,
     Unavailable,
@@ -70,6 +71,7 @@ pub enum InboxAvailability {
 #[serde(tag = "state", rename_all = "snake_case", deny_unknown_fields)]
 pub enum InboxOriginal {
     Available { text: String },
+    RemovedRetained { operation_id: Uuid },
     Missing,
     Changed { reason: String },
     Unavailable { reason: String },
@@ -78,6 +80,7 @@ impl InboxOriginal {
     fn availability(&self) -> InboxAvailability {
         match self {
             Self::Available { .. } => InboxAvailability::Available,
+            Self::RemovedRetained { .. } => InboxAvailability::RemovedRetained,
             Self::Missing => InboxAvailability::Missing,
             Self::Changed { .. } => InboxAvailability::Changed,
             Self::Unavailable { .. } => InboxAvailability::Unavailable,
@@ -113,12 +116,16 @@ pub struct InboxInventory {
 }
 #[derive(Default)]
 pub(crate) struct InboxState {
-    files: Option<InboxFiles>,
+    pub(crate) files: Option<InboxFiles>,
     issues: Vec<InboxIssue>,
     truncated: bool,
+    removed: std::collections::HashMap<
+        Uuid,
+        brn_store::work::inbox_original_operations::InboxOriginalRemovalRecord,
+    >,
 }
 impl InboxState {
-    fn issue(&mut self, id: Option<Uuid>, message: impl Into<String>) {
+    pub(crate) fn issue(&mut self, id: Option<Uuid>, message: impl Into<String>) {
         if self.issues.len() == MAX_ISSUES {
             self.truncated = true;
             return;
@@ -145,6 +152,16 @@ impl InboxState {
                 reason: "owned Inbox originals are unavailable; inspect Inbox issues".into(),
             };
         };
+        if let Some(record) = self.removed.get(&item.capture.id) {
+            return match files.retained_original(record) {
+                Ok(()) => InboxOriginal::RemovedRetained {
+                    operation_id: record.request.operation_id,
+                },
+                Err(error) => InboxOriginal::Unavailable {
+                    reason: error.message,
+                },
+            };
+        }
         match files.read(item) {
             Ok(Some(text)) => InboxOriginal::Available { text },
             Ok(None) => InboxOriginal::Missing,
@@ -206,6 +223,17 @@ pub(crate) fn restore_inbox_captures(store: &mut WorkStore) -> Result<InboxState
     };
     let mut qualified = bound.is_some();
     let mut known = std::collections::HashSet::new();
+    let operation_names =
+        match crate::inbox_original_operations::restore_records(store, &files, &names) {
+            Ok(names) => names,
+            Err(error) => {
+                // A damaged removal certificate must never fall through to capture
+                // recovery and reinstall an original from an old capture stage.
+                state.issue(None, error.message);
+                return Ok(state);
+            }
+        };
+    known.extend(operation_names);
     for name in &names {
         let Some(id) = receipt_id(name) else {
             continue;
@@ -221,10 +249,42 @@ pub(crate) fn restore_inbox_captures(store: &mut WorkStore) -> Result<InboxState
                     "Inbox mirror conflicts with the retained immutable capture",
                 ));
             }
-            files.recover(&item)?;
+            if let Some(head) = store.inbox_original_operation_head(id)? {
+                use brn_store::work::inbox_original_operations::InboxOriginalOperationKind;
+                // Any retained operation fences installation from capture stages.
+                // Recoverable Undo has its own exact vacancy/identity protocol.
+                if head.kind == InboxOriginalOperationKind::Remove && head.settled_at_ms.is_some() {
+                    let record = store
+                        .inbox_original_removal(head.operation_id)?
+                        .ok_or_else(|| WorkflowError::msg("Inbox removal record disappeared"))?;
+                    state.removed.insert(id, record.clone());
+                    files.retained_original(&record)?;
+                    known.insert(format!(".brn-inbox-removed-{}.original", head.operation_id));
+                    if files.original_occupied(&item)? {
+                        state.issue(Some(id), "removed original endpoint is occupied by an unqualified artifact; it remains untouched");
+                    }
+                } else if head.settled_at_ms.is_some() && files.read(&item)?.is_none() {
+                    return Err(WorkflowError::typed(
+                        ErrorKind::InboxUnavailable,
+                        "restored original is missing; capture installation remains fenced",
+                    ));
+                }
+                if head.settled_at_ms.is_none() {
+                    state.issue(Some(id), format!("original operation {} is unsettled; explicit recovery review is required", head.operation_id));
+                    if head.kind == InboxOriginalOperationKind::Restore {
+                        if let Some(parent) = head.parent {
+                            known.insert(format!(".brn-inbox-removed-{parent}.original"));
+                        }
+                    }
+                }
+            } else {
+                files.recover(&item)?;
+            }
             store.restore_inbox(&item)?;
             known.insert(name.clone());
-            known.insert(item.capture.copy_name());
+            if !state.removed.contains_key(&id) {
+                known.insert(item.capture.copy_name());
+            }
             if !qualified {
                 bind(store, files.root())?;
                 qualified = true;

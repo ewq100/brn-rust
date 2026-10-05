@@ -1,7 +1,7 @@
 //! Explicit input preparation and protocol mapping; originals are owned by AppWorker.
 use super::{
-    CliFailure, Globals, Output, Scanned, Tokens, error::CliError, expect_positionals,
-    parse_timeout, positional_uuid, scan, sub_word, usage,
+    error::CliError, expect_positionals, parse_timeout, positional_uuid, scan, sub_word, usage,
+    CliFailure, Globals, Output, Scanned, Tokens,
 };
 use brn_workflow::{
     app_worker::{AppCommand, AppEvent},
@@ -907,8 +907,8 @@ mod tests {
         }
     }
     #[test]
-    fn analysis_purpose_mismatch_or_omission_refuses_before_application_open_without_rewriting_input()
-     {
+    fn analysis_purpose_mismatch_or_omission_refuses_before_application_open_without_rewriting_input(
+    ) {
         let _cancel = crate::tests::CancelTestGuard::with(false);
         let owner = tempfile::tempdir_in(std::env::temp_dir().canonicalize().unwrap()).unwrap();
         let data = owner.path().join("data");
@@ -1047,13 +1047,11 @@ mod tests {
             matches!(&draft.changes[0], brn_workflow::proposals::DraftNoteChange::Create { text, .. } if text.contains(exact))
         );
         let command = AppCommand::PrepareInboxSource(request);
-        assert!(
-            output(
-                &command,
-                AppEvent::InboxSourceDraft(Box::new(draft.clone()))
-            )
-            .is_ok()
-        );
+        assert!(output(
+            &command,
+            AppEvent::InboxSourceDraft(Box::new(draft.clone()))
+        )
+        .is_ok());
         for field in ["id", "group_id", "title", "inbox_source", "changes"] {
             let mut forged = serde_json::to_value(&draft).unwrap();
             forged[field] = match field {
@@ -1116,23 +1114,19 @@ mod tests {
         assert_eq!(preview.evidence.sources[0].saved.source, source.source);
         assert_eq!(preview.evidence.sources[0].saved.text, source.text);
         let command = AppCommand::PreviewInboxRemoval(process.items[0].capture.id);
-        assert!(
-            output(
-                &command,
-                AppEvent::InboxRemovalPreview(Box::new(preview.clone()))
-            )
-            .is_ok()
-        );
+        assert!(output(
+            &command,
+            AppEvent::InboxRemovalPreview(Box::new(preview.clone()))
+        )
+        .is_ok());
         let mut forged = preview.clone();
         forged.digest[0] ^= 1;
         assert!(output(&command, AppEvent::InboxRemovalPreview(Box::new(forged))).is_err());
-        assert!(
-            output(
-                &AppCommand::PreviewInboxRemoval(Uuid::new_v4()),
-                AppEvent::InboxRemovalPreview(Box::new(preview))
-            )
-            .is_err()
-        );
+        assert!(output(
+            &AppCommand::PreviewInboxRemoval(Uuid::new_v4()),
+            AppEvent::InboxRemovalPreview(Box::new(preview))
+        )
+        .is_err());
         let archived_id = Uuid::new_v4();
         {
             let capture = brn_workflow::inbox_actions::InboxActionCapture {
@@ -1233,16 +1227,14 @@ mod tests {
         assert!(!archived.text.contains('\u{009b}'));
         let mut forged = archived_record;
         forged.analysis.job.capture.id = Uuid::new_v4();
-        assert!(
-            output(
-                &AppCommand::ArchivedInboxAnalysis(archived_id),
-                AppEvent::ArchivedInboxAnalysis {
-                    operation_id: archived_id,
-                    analysis: Some(Box::new(forged))
-                }
-            )
-            .is_err()
-        );
+        assert!(output(
+            &AppCommand::ArchivedInboxAnalysis(archived_id),
+            AppEvent::ArchivedInboxAnalysis {
+                operation_id: archived_id,
+                analysis: Some(Box::new(forged))
+            }
+        )
+        .is_err());
         let restore = RestoreInboxOriginalRequest {
             operation_id: Uuid::new_v4(),
             removal_operation_id: removal.operation_id,
@@ -1273,13 +1265,11 @@ mod tests {
         );
         let mut forged = restore_record.clone();
         forged.request.removal_digest[0] ^= 1;
-        assert!(
-            output(
-                &AppCommand::RestoreInboxOriginal(restore.clone()),
-                AppEvent::InboxOriginalRestored(Box::new(forged))
-            )
-            .is_err()
-        );
+        assert!(output(
+            &AppCommand::RestoreInboxOriginal(restore.clone()),
+            AppEvent::InboxOriginalRestored(Box::new(forged))
+        )
+        .is_err());
         let history = crate::cli::execute(&invocation(InboxCommand::OriginalOperations(
             removal.item_id,
         )))
@@ -1304,46 +1294,38 @@ mod tests {
             );
         }
         let foreign = Uuid::new_v4();
-        assert!(
-            output(
-                &AppCommand::InboxOriginalRemoval(removal.operation_id),
-                AppEvent::InboxOriginalRemoval {
-                    operation_id: foreign,
-                    record: None
-                }
-            )
-            .is_err()
-        );
-        assert!(
-            output(
-                &AppCommand::InboxOriginalRestore(restore.operation_id),
-                AppEvent::InboxOriginalRestore {
-                    operation_id: foreign,
-                    record: None
-                }
-            )
-            .is_err()
-        );
-        assert!(
-            output(
-                &AppCommand::InboxOriginalOperations(removal.item_id),
-                AppEvent::InboxOriginalOperations {
-                    item_id: foreign,
-                    operations: vec![]
-                }
-            )
-            .is_err()
-        );
-        assert!(
-            output(
-                &AppCommand::ArchivedInboxAnalysis(foreign),
-                AppEvent::ArchivedInboxAnalysis {
-                    operation_id: Uuid::new_v4(),
-                    analysis: None
-                }
-            )
-            .is_err()
-        );
+        assert!(output(
+            &AppCommand::InboxOriginalRemoval(removal.operation_id),
+            AppEvent::InboxOriginalRemoval {
+                operation_id: foreign,
+                record: None
+            }
+        )
+        .is_err());
+        assert!(output(
+            &AppCommand::InboxOriginalRestore(restore.operation_id),
+            AppEvent::InboxOriginalRestore {
+                operation_id: foreign,
+                record: None
+            }
+        )
+        .is_err());
+        assert!(output(
+            &AppCommand::InboxOriginalOperations(removal.item_id),
+            AppEvent::InboxOriginalOperations {
+                item_id: foreign,
+                operations: vec![]
+            }
+        )
+        .is_err());
+        assert!(output(
+            &AppCommand::ArchivedInboxAnalysis(foreign),
+            AppEvent::ArchivedInboxAnalysis {
+                operation_id: Uuid::new_v4(),
+                analysis: None
+            }
+        )
+        .is_err());
         assert_eq!(std::fs::read(&original).unwrap(), exact.as_bytes());
         std::fs::remove_file(vault.join("source.md")).unwrap();
         for purpose in [

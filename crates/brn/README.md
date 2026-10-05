@@ -23,6 +23,12 @@ brn inbox list [--limit N] [--after UUID]
 brn inbox show UUID
 brn inbox review UUID
 brn inbox removal-preview UUID
+brn inbox remove-original REQUEST_JSON
+brn inbox restore-original REQUEST_JSON
+brn inbox original-removal OPERATION_UUID
+brn inbox original-restore OPERATION_UUID
+brn inbox original-operations ITEM_UUID
+brn inbox archived-analysis ANALYSIS_UUID
 brn inbox process --file REQUEST_JSON
 brn inbox processing UUID
 brn inbox candidate UUID INDEX
@@ -918,4 +924,18 @@ opening application state.
 blockers, preserving `needs_owner_attestation: true`. An empty blockers list grants
 no removal approval; this command never removes an original. JSON preserves exact
 proofs; terminal output escapes control characters. Confirmation and recoverable
-removal are subsequent work.
+removal use the separate exact owner commands below.
+
+
+`inbox remove-original REQUEST_JSON` requires `operation_id`, `item_id`, the exact
+`preview_digest`, `previous_restore` (null for the first removal), and version1
+attestation with all five flags true: `copy_disposable`,
+`meaningful_content_preserved`, `consequences_reviewed`, `conflicts_acknowledged`,
+`exact_copy_removal_intended`. No preview/AI result implies these attestations.
+`inbox restore-original REQUEST_JSON` binds a fresh operation UUID to the exact
+`removal_operation_id` and complete returned `removal_digest`; it refuses an
+occupied original endpoint. Both commands return complete historical receipts
+and never repeat a settled effect. Lookup/history commands expose retained
+certificates; `archived-analysis` labels historical data and never substitutes
+it for an existing live turn. This unmerged backend checkpoint does not implement
+native confirmation controls or establish native/live/owner acceptance.

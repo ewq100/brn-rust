@@ -5,7 +5,7 @@
 //! was not delivered. Error reporting keeps the original exit code whatever
 //! happens to the report write. The SIGPIPE disposition is never changed.
 
-use super::{CliFailure, Output, envelope_err, envelope_ok};
+use super::{envelope_err, envelope_ok, CliFailure, Output};
 use std::io::{self, Write};
 use std::process::ExitCode;
 

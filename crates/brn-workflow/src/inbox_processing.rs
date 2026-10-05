@@ -297,9 +297,11 @@ impl App {
                 },
                 Err(outcome) => outcome,
             },
-            InboxOriginal::Missing => InboxProcessOutcome::Failed {
-                code: "original_missing".into(),
-            },
+            InboxOriginal::Missing | InboxOriginal::RemovedRetained { .. } => {
+                InboxProcessOutcome::Failed {
+                    code: "original_missing".into(),
+                }
+            }
             InboxOriginal::Changed { .. } => InboxProcessOutcome::Failed {
                 code: "original_changed".into(),
             },
