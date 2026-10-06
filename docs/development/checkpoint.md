@@ -20,9 +20,9 @@ an explicitly selected [handoff task](../work/active/v1-handoff.md#ordered-task-
 - **Current work:** documentation-only `codex/v1-closeout-handoff`; canonical reuse
   rule, six concrete decisions and five bounded tasks. No reuse replacement or next
   feature was implemented. [Handoff](../work/active/v1-handoff.md) owns continuation.
-- **Next:** publish the reviewed documentation snapshot and report its exact
-  commit/PR, leaving its own CI/normal integration distinguishable from PR77.
-  Then stop; further implementation requires explicit task selection.
+- **Next:** [closeout PR78](https://github.com/ewq100/brn-rust/pull/78) is pushed,
+  open and unmerged; its own latest-head CI/normal integration remains pending.
+  This session stops here; further implementation requires explicit task selection.
 - **Pending:** native GUI (locked Mac; owner explicitly deferred), live/real-model/
   owner acceptance, broader Stage8 and9–16, binary cleanup and trusted-user packaging.
   Originals remain retained; generic ZIP intake is excluded. V1 is incomplete.

@@ -54,6 +54,13 @@ were preserved. No task-owned uncommitted product code remains.
 
 ## Closeout deliverable and pending qualification
 
+The documentation snapshot `2f7c05e9bce69a5aa638e3e688411543900a0c51` was
+committed/pushed and opened as [PR78](https://github.com/ewq100/brn-rust/pull/78).
+The present follow-up records publication metadata only. PR78 is **open, unmerged**;
+its own exact latest-head macOS/shared CI and normal merge requirements are pending.
+Do not merge on PR77 evidence. Before integration, obtain the actual current head
+from GitHub and validate that exact run attempt; no further feature work is running.
+
 `codex/v1-closeout-handoff` contains documentation only: the
 [reuse decision](../../architecture/decisions/2026-10-06-compatible-reuse.md),
 canonical workflow guidance, corrected status and the queue below. Obtain its

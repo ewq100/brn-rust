@@ -43,6 +43,8 @@ and an [explicitly selected task queue](work/active/v1-handoff.md#ordered-task-q
 Native GUI observation is owner-deferred while the Mac is locked; live/real-model and
 owner acceptance remain pending. No new product slice is underway. Further implementation
 starts only from a selected handoff task; this pause does not change roadmap order.
+Documentation closeout is pushed as [PR78](https://github.com/ewq100/brn-rust/pull/78),
+open/unmerged pending its own exact latest-head CI and normal integration requirements.
 
 ### Earlier integrated milestone evidence
 
