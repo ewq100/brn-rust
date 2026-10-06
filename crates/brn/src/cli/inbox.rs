@@ -558,6 +558,7 @@ pub(super) fn output(command: &AppCommand, event: AppEvent) -> Result<Output, Cl
 mod tests {
     use super::*;
     use crate::cli::{Command, Invocation, Outcome};
+    #[cfg(target_os = "macos")]
     use brn_workflow::inbox_original_operations::InboxOriginalOperation;
     fn args(tokens: &[&str]) -> Vec<String> {
         tokens.iter().map(|t| (*t).into()).collect()
