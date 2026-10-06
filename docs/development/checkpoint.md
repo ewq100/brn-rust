@@ -1,5 +1,35 @@
 # Resumable V1 checkpoint
 
+Goal status confirmed2026-10-06: full frozen V1 goal **active**, without a token budget.
+
+- **Integrated:** original-operation Store prerequisite [PR67](https://github.com/ewq100/brn-rust/pull/67)
+  at `1ebff1a6f6099568c339e6b605bf819e1dbf6e6f`, exact reviewed tree
+  `611dfcb1ce0bb4d4d09d39ad643efde48cd39710`. Lean V15 records retain exact original,
+  one approved preserving Source, explicit confirmation and direct parent;
+  checked compact inventory/streaming/visitor and unchanged legacy bytes.
+- **Verification:** complete code/doc review clean. Unchanged code48faf3f passed
+  shared format/build/Clippy,1,412/0/8+52 fixtures; native305 Workflow/models/0/7,
+  285 Desktop/0/0,11 commands/V15 startups and restart passed. Exact PR37393114364
+  attempt1 passed four strict protected Mac/shared checks+Docs; overall red retains
+  unchanged Windows22 blocks/both summaries. Normal merge preserved reviewed tree.
+  Fresh merged default build,14 Store/1 Workflow tests+52 fixtures passed at clean
+  merged identity, atomic exit0 (00:27:54–00:29:17UTC). Main37394115918 attempt1 is
+  in progress; its terminal result and platform differences will be recorded.
+- **Current/next:** `codex/v1-original-copy-lifecycle`, based on this merge. Adapt
+  preserved lifecycle7c4f668 through the existing private family: streamed mirror
+  recovery, explicit bootstrap errors/no resurrection, exact replay and approved
+  Source+confirmation admission. Isolated filesystem adaptercef5cd5 is committed
+  with9 focused+6 capture tests passed; full integration/review remains pending.
+- **Pending:** lifecycle/native controls, broader startup/backup cost, truthful
+  retrieval facts, native/live/owner acceptance, real assets and trusted packaging.
+- **Environment:** Darwin arm64 Mac mini, Rust1.98.1 locked/offline, canonical owned
+  `TMPDIR=/private/tmp/brn-mini-synthetic-20261005`, empty native model setting,
+  isolated targets/disposable synthetic data. Immutable7c4f668 remains unchanged;
+  no new live calls/downloads, private-data operations or release authorized.
+  Continue under the [correction plan](../work/active/architecture-review-corrections/plan.md).
+
+# Earlier original-record qualification checkpoint
+
 Goal status confirmed on 2026-10-06: full frozen V1 goal **active**, without a token budget.
 
 - **Baseline:** integrated PR66 at 504f6be33e1add8c5819e28eed08628bc8dec8d0.

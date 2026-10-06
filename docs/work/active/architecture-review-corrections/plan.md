@@ -21,8 +21,9 @@ at531517248300c15ce28bcb53f337984103817010/tree d63c1827aae5da654410520bc9c48856
 Knowledge capture recovery merged in PR66 at
 `504f6be33e1add8c5819e28eed08628bc8dec8d0`, reviewed tree
 `77ec79e33c75a6a0bbed3100c3815648dcb6fd68`. Current branch:
-`codex/v1-original-operation-records`, based on that clean merge. Remaining accepted
-corrections follow this plan.
+`codex/v1-original-copy-lifecycle`, based on original-record PR67 merge
+1ebff1a6f6099568c339e6b605bf819e1dbf6e6f/tree611dfcb1ce0bb4d4d09d39ad643efde48cd39710.
+Remaining accepted corrections follow this plan.
 The complete V1 goal is confirmed **active** by `get_goal` on 2026-10-06;
 its full objective and roadmap dependency order remain unchanged.
 
@@ -570,3 +571,54 @@ equal legacy bytes/inodes, surface bootstrap errors before approval companions,
 never start a move at startup or install capture stages for any operation head.
 Native/live/owner acceptance, later roadmap work and trusted-user packaging remain
 pending; full V1 goal remains active.
+
+
+## Original-record integration and following lifecycle acceptance
+
+PR67 automatic run37393114364 attempt1 at017770390d8f9c8a17a829dabd088f03692a2196
+passed all four strict protected Mac/shared checks and Docs. Overall failure
+retains unchanged Windows22 complete blocks/both summaries matching PR66.
+Ubuntu/macOS tests401s/473s (prior153s/495s) passed without reruns; actual timing
+and full failed/skipped diagnostics are retained. Fresh actual protection and
+latest head were checked; normal merge preserved exact reviewed tree611dfcb1.
+Fresh merged default build,14 Store/1 Workflow tests and52 fixtures passed,
+atomic exit0 at unchanged clean1ebff1a identity00:27:54–00:29:17UTC. Exact main
+37394115918 attempt1 is in progress; no platform result is inferred from PR.
+
+Following slice acceptance, baseline1ebff1a:
+
+- Reuse private endpoints/exclusive rename/ownership/sync from immutable7c4f668.
+  Exact format1 mirror bytes/hash/inode stay unchanged; explicit format2 carries
+  lean records in the same family, with bounded envelope overhead. Equal occupied
+  mirrors are checked/synced; unknown/corrupt occupants refuse without overwrite.
+- Restore checked mirror families through one atomic fallible streaming import;
+  republish SQL-only mirrors through the checked visitor. Compute causal heads
+  once. Observe/publish already-performed pending outcomes without mutating Store
+  within its read transaction, then bulk-import terminal mirrors. No startup move.
+- Bootstrap exact Items and genuine legacy jobs before current Knowledge
+  companions/approval/completion recovery; surface errors explicitly. Never invent
+  processing/chat/provider state, and never install capture stages for any
+  operation head, even pending or settled Restore. Namespace remains exact.
+- Admission uses current Source preview, true version1 exact-copy confirmation,
+  preview digest and settled direct Restore UUID/digest. Recheck selected witness
+  immediately before rename; preserve actual uncertainty fences. Replay precedes
+  fresh qualification. Restore checks settled direct Remove/retained original and
+  vacant destination; it does not add a Source freshness gate.
+- Thin shared AppWorker and bounded owner-operated CLI preserve exact request/reply
+  correlation, shutdown draining, complete escaped JSON and explicitly versioned
+  historical lookup. No AI cleanup capability or native UI scope is added here.
+- Preserve old useful stale/occupied/namespace/replay/older-fresh SQL/no-resurrection
+  tests and both seven-window process-crash parents. Add literallegacy/mixed1→2,
+  >64MiB streamed mirror repair, bootstrap error, Knowledge companion ordering,
+  false confirmation/changed selected Source refusal and independent-item damage.
+  Full independent review, affected shared/native checks, exact-head CI, normal
+  merge and fresh merged verification follow. Owner/native/live acceptance remains
+  pending, and full V1 goal stays active.
+
+Bounded isolated filesystem adaptercef5cd5133bfa1325f4934bb8d9f3ba4a67d9e6e
+retains this fixed interface. Its9 private tests and6 existing capture-worker tests
+passed. Initial sandbox run1passed/6failed due known NSFileCoordinator restriction;
+exact authorized synthetic reruns passed. All-target Clippy exit0 currently has15
+expected unwired dead-code warnings, with no suppression; full lead wiring must
+pass -D warnings before review/PR. No Store/worker/CLI/UI boundary was changed by
+that helper commit. Its independent full-slice review is still pending.
