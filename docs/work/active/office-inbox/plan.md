@@ -57,3 +57,39 @@ merged checks remain next. The native widget test is implemented but not yet
 qualified. Native GUI/live/assets/owner acceptance remains pending; the CLI
 contract supplies a disposable owner scenario. No provider/model/private-data
 operation or architecture change occurred.
+
+## Full local qualification — 2026-10-06
+
+Clean source `8352c968e98f477358a6c63a068f0aae372c0b73`, tree
+`bc1ad35d889184cce822966a210cd5cfef91c3f9`: the normal shared gate passed
+04:45:17–04:53:02 UTC, 1,477 tests/0 failed/13 documented ignores plus 52 fixtures;
+format/build/strict workspace Clippy/retirement passed. Three slow-test notices
+subsequently passed. No compiler warning occurred in this default gate.
+
+Native qualification first failed at the new widget test's private-field assertion
+under test-support Clippy. The one-line test correction at `e22a8585` passed that
+lint, then the full Desktop suite exposed missing observation registration for
+the new proof div. The pinned toolkit's existing `test_support()` was added to
+that element; normal builds return the original native element. The new test now
+also asserts the accepted complete binary proof and uses the existing minimum-size
+scroll helper. No authority, text or layout behavior changed; both failed native
+terminal attempts remain retained.
+
+Final source `b27de8df68c704edc1439b1b1b66997167662f53`, tree
+`987ae61942c7418ed99b34489706fd476421e57d`: fresh affected native gate passed
+04:53:14–04:53:49 UTC. The new widget test and full 294 Desktop tests passed;
+combined check, all three affected UI Clippy lanes, native Desktop/CLI builds,
+52 fixtures, launcher and documentation checks passed. Fresh default and combined
+startup/restart each observed schema V15 and exactly one original-operation table.
+Unchanged native Retrieval 15/0/0 and Workflow library/models 345/0/11, plus
+Workflow native Clippy, reuse their actual earlier successful commands. The
+failed Desktop suite is not reused. A reuse-index metadata typo was corrected
+with its original record and audit retained; all command statuses/logs are unchanged.
+Default-feature code is unchanged by the native-only corrections, so the shared
+gate above remains applicable; fresh full formatting passed at final source.
+
+The upstream `block0.1.6` future-compiler warning remains. Empty model configuration,
+synthetic fixtures and self-skipped local-model tests do not qualify real assets
+or inference. Headless widget checks do not establish unlocked native owner
+acceptance. Latest-head PR CI, normal integration and fresh merged checks remain
+pending; binary conversion/assets/cleanup and full V1 delivery are not claimed.

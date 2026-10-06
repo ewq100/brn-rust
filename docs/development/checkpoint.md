@@ -14,10 +14,14 @@ Full frozen V1 goal confirmed **active** by `get_goal` on 2026-10-06; no token b
   at unchanged clean main73. Exact automatic main73 run37413517751 attempt1
   passed all applicable checks; known Windows/Linux failures remain recorded.
 - **Current:** `codex/v1-binary-original-capture`, baseline main73 above.
-  [Stage8 plan](../work/active/office-inbox/plan.md): bounded binary retention through
-  existing private capture mechanisms; no conversion/Source/binary cleanup authority.
-- **Next:** finish independent review and shared/native qualification of implemented
-  exact binary capture, replay/recovery and fresh proof reporting, then integrate.
+  [Stage8 plan](../work/active/office-inbox/plan.md), source
+  `b27de8df68c704edc1439b1b1b66997167662f53`, tree `987ae619`:
+  bounded binary retention/replay/recovery and fresh proof reporting implemented.
+  Shared1,477/0/13+52 at unchanged default code8352c968; native294 Desktop/0/0,
+  345 Workflow/models/0/11 and15 Retrieval/0/0 with V15 restarts passed separately.
+  Initial fixture/native-test failures and corrections are retained. No
+  conversion/Source/binary cleanup authority; independent source review is clean.
+- **Next:** exact latest-head PR CI, qualified integration and fresh merged checks.
   Ordinary assets and meaningful Office
   conversion follow through existing proposal apply; incomplete conversion retains originals.
 - **Pending:** native GUI/live/assets/owner acceptance, residual startup/backup cost,
