@@ -20,17 +20,18 @@ fn full_text(label: &str, text: &str) -> Div {
         .child(div().p_2().child(text.to_owned()))
 }
 
-fn asset_line(scope: &str, field: &str, label: String) -> Div {
+fn asset_line(scope: &str, field: &str, label: String) -> AnyElement {
     div()
         .id(format!("{scope}-{field}"))
         .test_support()
         .aria_label(label.clone())
         .child(label)
+        .into_any_element()
 }
 
 /// Exact held-payload proof, shared by review and captured approval/Undo/repair.
 /// Assets never become Markdown editor input or a text selection surface.
-pub(super) fn asset_body(scope: &str, change: &NoteChange) -> Div {
+pub(super) fn asset_body(scope: &str, change: &NoteChange) -> AnyElement {
     let kind = match change {
         NoteChange::CreateAsset { .. } => "Create asset",
         NoteChange::ReplaceAsset { .. } => "Replace asset",
@@ -96,6 +97,7 @@ pub(super) fn asset_body(scope: &str, change: &NoteChange) -> Div {
         ))
     };
     body.child("Asset bytes stay fixed in this review and are not interpreted as text.")
+        .into_any_element()
 }
 
 /// Render the actual draft supplied by approval, Undo or repair without inventing a review record.
