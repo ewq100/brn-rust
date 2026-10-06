@@ -1,6 +1,8 @@
 //! Private ordinary originals and immutable capture mirrors. No vault authority.
 use crate::{ErrorKind, Result, WorkflowError};
 use brn_store::work::inbox::{InboxCopy, InboxItem};
+#[cfg(target_os = "macos")]
+use brn_store::work::inbox::{InboxKind, MAX_INBOX_BINARY_BYTES};
 use serde::{Deserialize, Serialize};
 use std::path::{Path, PathBuf};
 use uuid::Uuid;
@@ -28,6 +30,10 @@ fn receipt(id: Uuid) -> String {
 #[cfg(target_os = "macos")]
 fn original(id: Uuid) -> String {
     format!("{id}.txt")
+}
+#[cfg(all(test, target_os = "macos"))]
+thread_local! {
+    pub(crate) static OBSERVE_HOOK: std::cell::RefCell<Option<Box<dyn FnOnce()>>> = const { std::cell::RefCell::new(None) };
 }
 pub(crate) fn receipt_id(name: &str) -> Option<Uuid> {
     let raw = name.strip_prefix(".brn-inbox-")?.strip_suffix(".receipt")?;
@@ -153,7 +159,7 @@ pub(crate) fn checkpoint(_step: &str) -> Result<()> {
 mod platform {
     use super::*;
     use crate::files::{
-        cstring, full_sync, open_at, open_directory, read_file, rename_flags, sync_directory,
+        cstring, full_sync, open_at, open_directory, read_file_bytes, rename_flags, sync_directory,
     };
     use sha2::{Digest, Sha256};
     use std::{
@@ -373,11 +379,17 @@ mod platform {
             }
         }
         pub(crate) fn prepare(&self, id: Uuid, text: &str) -> Result<InboxCopy> {
-            if id.is_nil() || text.len() > crate::MAX_NOTE_BYTES {
+            self.prepare_bytes(id, text.as_bytes(), crate::MAX_NOTE_BYTES)
+        }
+        pub(crate) fn prepare_binary(&self, id: Uuid, bytes: &[u8]) -> Result<InboxCopy> {
+            self.prepare_bytes(id, bytes, MAX_INBOX_BINARY_BYTES)
+        }
+        fn prepare_bytes(&self, id: Uuid, bytes: &[u8], max: usize) -> Result<InboxCopy> {
+            if id.is_nil() || bytes.len() > max {
                 return Err(unavailable("invalid original-copy request"));
             }
             self.validate()?;
-            for name in [original(id), stage(id), receipt(id)] {
+            for name in [original(id), format!("{id}.bin"), stage(id), receipt(id)] {
                 if !self.absent(&name)? {
                     return Err(unavailable(
                         "Inbox capture target or recovery artifact is occupied",
@@ -391,13 +403,27 @@ mod platform {
                 0o600,
             )
             .map_err(file_error)?;
-            file.write_all(text.as_bytes()).map_err(io)?;
+            file.write_all(bytes).map_err(io)?;
             full_sync(&file).map_err(file_error)?;
             sync_directory(&self.directory).map_err(file_error)?;
-            private_file(&file.metadata().map_err(io)?, crate::MAX_NOTE_BYTES)?;
-            let written = read_file(&file).map_err(file_error)?;
-            let observed = self.observe_name(&stage(id))?;
-            if observed.fingerprint != written.fingerprint || observed.text != text {
+            private_file(&file.metadata().map_err(io)?, max)?;
+            let written = read_file_bytes(
+                &file,
+                max,
+                if max == crate::MAX_NOTE_BYTES {
+                    "note exceeds 1 MiB"
+                } else {
+                    "Binary Inbox original exceeds 16 MiB"
+                },
+            )
+            .map_err(file_error)?;
+            if max == crate::MAX_NOTE_BYTES {
+                String::from_utf8(written.bytes)
+                    .map_err(crate::files::note_utf8_failure)
+                    .map_err(file_error)?;
+            }
+            let observed = self.observe_bytes(&stage(id), max)?;
+            if observed.fingerprint != written.fingerprint || observed.bytes != bytes {
                 return Err(unavailable(
                     "Inbox staged original differs from explicit input",
                 ));
@@ -425,28 +451,63 @@ mod platform {
             }
             Ok(())
         }
-        fn observe_name(&self, name: &str) -> Result<crate::files::FileObservation> {
+        fn observe_bytes(
+            &self,
+            name: &str,
+            max: usize,
+        ) -> Result<crate::files::FileByteObservation> {
             self.validate()?;
             let file = open_at(&self.directory, OsStr::new(name), libc::O_RDONLY, 0)
                 .map_err(file_error)?;
-            private_file(&file.metadata().map_err(io)?, crate::MAX_NOTE_BYTES)?;
-            let result = read_file(&file).map_err(file_error)?;
-            private_file(&file.metadata().map_err(io)?, crate::MAX_NOTE_BYTES)?;
+            private_file(&file.metadata().map_err(io)?, max)?;
+            let result = read_file_bytes(
+                &file,
+                max,
+                if max == crate::MAX_NOTE_BYTES {
+                    "note exceeds 1 MiB"
+                } else {
+                    "Binary Inbox original exceeds 16 MiB"
+                },
+            )
+            .map_err(file_error)?;
+            private_file(&file.metadata().map_err(io)?, max)?;
+            #[cfg(test)]
+            OBSERVE_HOOK.with(|hook| {
+                if let Some(hook) = hook.borrow_mut().take() {
+                    hook();
+                }
+            });
             let current = open_at(&self.directory, OsStr::new(name), libc::O_RDONLY, 0)
                 .map_err(file_error)?;
             let m = current.metadata().map_err(io)?;
-            private_file(&m, crate::MAX_NOTE_BYTES)?;
+            private_file(&m, max)?;
             if (m.dev(), m.ino()) != (result.fingerprint.device, result.fingerprint.inode) {
                 return Err(unavailable("Inbox filename changed during observation"));
             }
             self.validate()?;
             Ok(result)
         }
-        fn exact(&self, item: &InboxItem, name: &str) -> Result<String> {
+        fn exact_bytes(
+            &self,
+            item: &InboxItem,
+            name: &str,
+        ) -> Result<crate::files::FileByteObservation> {
             self.validate_item(item)?;
-            let observed = self.observe_name(name)?;
+            let max = if item.capture.kind == InboxKind::Binary {
+                MAX_INBOX_BINARY_BYTES
+            } else {
+                crate::MAX_NOTE_BYTES
+            };
+            let observed = self.observe_bytes(name, max)?;
+            self.validate_copy(item, &observed.fingerprint)?;
+            Ok(observed)
+        }
+        fn validate_copy(
+            &self,
+            item: &InboxItem,
+            f: &brn_store::files::FileFingerprint,
+        ) -> Result<()> {
             let c = &item.capture.copy;
-            let f = observed.fingerprint;
             if (f.device, f.inode, f.len, f.sha256)
                 != (c.file_device, c.file_inode, c.byte_len, c.sha256)
             {
@@ -455,23 +516,61 @@ mod platform {
                     "Inbox original identity or bytes changed",
                 ));
             }
-            Ok(observed.text)
+            Ok(())
+        }
+        fn exact(&self, item: &InboxItem, name: &str) -> Result<String> {
+            self.validate_item(item)?;
+            if item.capture.kind == InboxKind::Binary {
+                return Err(unavailable("Binary Inbox originals cannot be read as text"));
+            }
+            let observed = self.observe_bytes(name, crate::MAX_NOTE_BYTES)?;
+            // Text decoding precedes captured-proof comparison, preserving the
+            // existing refusal precedence for a damaged non-UTF8 text copy.
+            let text = String::from_utf8(observed.bytes)
+                .map_err(crate::files::note_utf8_failure)
+                .map_err(file_error)?;
+            self.validate_copy(item, &observed.fingerprint)?;
+            Ok(text)
+        }
+        fn exact_copy(&self, item: &InboxItem, name: &str) -> Result<()> {
+            if item.capture.kind == InboxKind::Binary {
+                self.exact_bytes(item, name).map(|_| ())
+            } else {
+                self.exact(item, name).map(|_| ())
+            }
         }
         pub(crate) fn read(&self, item: &InboxItem) -> Result<Option<String>> {
             self.validate_item(item)?;
             self.validate()?;
-            let name = original(item.capture.id);
+            let name = item.capture.copy_name();
             if self.absent(&name)? {
                 return Ok(None);
             }
             self.exact(item, &name).map(Some)
         }
+        pub(crate) fn read_binary(
+            &self,
+            item: &InboxItem,
+        ) -> Result<Option<brn_store::files::FileFingerprint>> {
+            self.validate_item(item)?;
+            if item.capture.kind != InboxKind::Binary {
+                return Err(unavailable("Binary Inbox proof requires a binary capture"));
+            }
+            self.validate()?;
+            let name = item.capture.copy_name();
+            if self.absent(&name)? {
+                return Ok(None);
+            }
+            Ok(Some(self.exact_bytes(item, &name)?.fingerprint))
+        }
         /// Publish immutable proof before any installation. Unknown effects are
         /// preserved; equal bytes never substitute for the captured file identity.
         pub(crate) fn publish(&self, item: &InboxItem) -> Result<()> {
             self.validate_item(item)?;
-            self.exact(item, &stage(item.capture.id))?;
-            if !self.absent(&original(item.capture.id))? {
+            self.exact_copy(item, &stage(item.capture.id))?;
+            if !self.absent(&original(item.capture.id))?
+                || !self.absent(&format!("{}.bin", item.capture.id))?
+            {
                 return Err(unavailable("Inbox original destination is occupied"));
             }
             let bytes = encode(item)?;
@@ -556,8 +655,8 @@ mod platform {
             Ok(envelope.item)
         }
         fn flush_original(&self, item: &InboxItem) -> Result<()> {
-            let name = original(item.capture.id);
-            self.exact(item, &name)?;
+            let name = item.capture.copy_name();
+            self.exact_copy(item, &name)?;
             let file = open_at(&self.directory, OsStr::new(&name), libc::O_RDONLY, 0)
                 .map_err(file_error)?;
             let m = file.metadata().map_err(io)?;
@@ -568,7 +667,7 @@ mod platform {
             }
             full_sync(&file).map_err(file_error)?;
             sync_directory(&self.directory).map_err(file_error)?;
-            self.exact(item, &name)?;
+            self.exact_copy(item, &name)?;
             self.validate()
         }
         pub(crate) fn recover(&self, item: &InboxItem) -> Result<()> {
@@ -576,7 +675,7 @@ mod platform {
             if self.mirror(item.capture.id)? != *item {
                 return Err(unavailable("Inbox recovery mirror differs from its item"));
             }
-            let target = original(item.capture.id);
+            let target = item.capture.copy_name();
             let prepared = stage(item.capture.id);
             if !self.absent(&target)? {
                 if !self.absent(&prepared)? {
@@ -587,7 +686,7 @@ mod platform {
                 self.flush_original(item)?;
                 return self.confirm_mirror(item);
             }
-            self.exact(item, &prepared)?;
+            self.exact_copy(item, &prepared)?;
             self.validate()?;
             rename_flags(
                 &self.directory,
@@ -692,6 +791,15 @@ impl InboxFiles {
     }
     pub(crate) fn publish(&self, _: &InboxItem) -> Result<()> {
         Err(unavailable("Inbox copy durability requires macOS"))
+    }
+    pub(crate) fn prepare_binary(&self, _: Uuid, _: &[u8]) -> Result<InboxCopy> {
+        Err(unavailable("Inbox copy durability requires macOS"))
+    }
+    pub(crate) fn read_binary(
+        &self,
+        _: &InboxItem,
+    ) -> Result<Option<brn_store::files::FileFingerprint>> {
+        Err(unavailable("Inbox copy reads require macOS"))
     }
     pub(crate) fn mirror(&self, _: Uuid) -> Result<InboxItem> {
         Err(unavailable("Inbox copy durability requires macOS"))

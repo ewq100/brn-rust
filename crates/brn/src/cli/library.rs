@@ -407,6 +407,9 @@ fn execute(
                 AppCommand::CaptureInbox(request) => {
                     lane.query_with_id(request.id, AppCommand::CaptureInbox(request.clone()))?
                 }
+                AppCommand::CaptureBinaryInbox(request) => {
+                    lane.query_with_id(request.id, AppCommand::CaptureBinaryInbox(request.clone()))?
+                }
                 AppCommand::InboxItem(id) => lane.query(AppCommand::InboxItem(*id))?,
                 AppCommand::InboxReview(id) => lane.query(AppCommand::InboxReview(*id))?,
                 AppCommand::PreviewInboxRemoval(id) => {

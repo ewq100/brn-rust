@@ -108,7 +108,10 @@ integration atee4715c retains the exact tested tree. PR73 merged normally at54fc
 after final evidence review and exact4ce4cdff/run37412604011 attempt1 passed all
 four protected checks and Docs; Windows22 full source-inclusive blocks/both
 summaries/exit101 match PR72. Fresh merged build/12index/9relationship tests
-and52fixtures passed at unchanged clean identity. Automatic main73 CI is pending.
+and52fixtures passed at unchanged clean identity. Exact automatic main73
+run37413517751 attempt1 passed all four protected checks, Docs and extra Ubuntu UI.
+Overall red retains Windows22/22/14 full diagnostic blocks/summaries matching
+main72 and Linux3 matching assertions/six frames with raw order/IDs/time differences.
 The [Stage8 binary-retention plan](work/active/office-inbox/plan.md) is next;
 Office conversion/assets and binary cleanup remain unimplemented. Broader startup/backup cost remains
 separate. No semantic

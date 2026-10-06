@@ -679,3 +679,41 @@ fn intent_terminal_replay_never_rewrites_immutable_witness_or_clocks() {
         settled.digest().unwrap()
     );
 }
+
+#[test]
+fn binary_forged_new_remove_and_restore_records_are_unsupported() {
+    let (_owner, mut store) = fixture();
+    let w = witness(&mut store, InboxKind::Text, "body");
+    let remove = removal(&w, None, w.original.received_at_ms);
+    let mut restored = restore(&remove, w.original.received_at_ms);
+    let InboxOriginalOperation::Restore(record) = &mut restored else {
+        unreachable!()
+    };
+    record.original.capture.kind = InboxKind::Binary;
+    assert!(
+        record
+            .validate()
+            .unwrap_err()
+            .to_string()
+            .contains("Binary")
+    );
+    let InboxOriginalOperation::Remove(mut record) = remove else {
+        unreachable!()
+    };
+    record.evidence.item.capture.kind = InboxKind::Binary;
+    assert!(
+        record
+            .validate()
+            .unwrap_err()
+            .to_string()
+            .contains("Binary")
+    );
+    assert!(record.evidence.digest().is_err());
+    let (_fresh, mut target) = fixture();
+    assert!(
+        target
+            .restore_inbox_original_operations(&[InboxOriginalOperation::Remove(record)], &[])
+            .is_err()
+    );
+    assert!(target.inbox_item(w.original.capture.id).unwrap().is_none());
+}

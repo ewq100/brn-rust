@@ -173,6 +173,9 @@ impl RemoveInboxOriginalRequest {
 }
 impl InboxQualifiedRemovalEvidence {
     fn checked_bytes(&self) -> Result<Vec<u8>> {
+        if self.item.capture.kind == super::inbox::InboxKind::Binary {
+            return Err(invalid("Binary Inbox original removal is not supported"));
+        }
         let InboxQualifiedOriginal::Available { text } = &self.original;
         let source = self.source.as_ref().ok_or_else(|| {
             invalid("original removal requires one exact approved Source witness")
@@ -226,6 +229,9 @@ impl InboxOriginalRestoreRecord {
     fn checked_digest(&self) -> Result<[u8; 32]> {
         self.request.validate()?;
         self.original.validate()?;
+        if self.original.capture.kind == super::inbox::InboxKind::Binary {
+            return Err(invalid("Binary Inbox original restore is not supported"));
+        }
         self.namespace.validate()?;
         time(self.prepared_at_ms, self.restored_at_ms)?;
         if self.prepared_at_ms < self.original.received_at_ms {

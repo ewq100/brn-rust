@@ -11,12 +11,14 @@ Full frozen V1 goal confirmed **active** by `get_goal` on 2026-10-06; no token b
   Exact `4ce4cdff` / run37412604011 attempt1 passed four protected checks and Docs.
   Overall red retains Windows22 compiler blocks/summaries matching PR72.
   Fresh merged build, 12 index / 9 relationship tests and 52 fixtures passed
-  at unchanged clean main73. Main72 applicable CI passed; automatic main73 pending.
+  at unchanged clean main73. Exact automatic main73 run37413517751 attempt1
+  passed all applicable checks; known Windows/Linux failures remain recorded.
 - **Current:** `codex/v1-binary-original-capture`, baseline main73 above.
   [Stage8 plan](../work/active/office-inbox/plan.md): bounded binary retention through
   existing private capture mechanisms; no conversion/Source/binary cleanup authority.
-- **Next:** implement exact binary bytes, immutable replay/recovery and fresh proof
-  reporting, then review/verify/integrate. Ordinary assets and meaningful Office
+- **Next:** finish independent review and shared/native qualification of implemented
+  exact binary capture, replay/recovery and fresh proof reporting, then integrate.
+  Ordinary assets and meaningful Office
   conversion follow through existing proposal apply; incomplete conversion retains originals.
 - **Pending:** native GUI/live/assets/owner acceptance, residual startup/backup cost,
   legacy pending-intent retry, Stages8–16 and trusted-user packaging. No owner

@@ -30,3 +30,30 @@ Recovery may finish only an exact already-published explicit capture through the
 Focused Store/Workflow filesystem, recovery and admission tests; CLI/worker/native state tests; formatting/strict affected Clippy; full shared gate plus relevant native offline build/check/Clippy/tests and fresh V15 restarts. One complete independent read-only review, validated fixes, exact-head applicable CI/normal merge and fresh merged checks. Disposable synthetic data/canonical owned TMPDIR, locked pinned compiler, checkout-owned targets; no competing Cargo in one target.
 
 Pending native GUI/live/assets/owner acceptance remains separate. Full V1 goal remains active. Then add typed ordinary assets to the existing whole-proposal apply/recovery/Undo boundary before claiming meaningful Office conversion; incomplete conversion must retain originals. No new recovery family/datastore/framework or live authorization follows from this slice.
+
+## Implementation checkpoint — 2026-10-06
+
+Implemented the bounded capture/read/list/recovery and explicit refusal boundary;
+no conversion/assets/Source/binary cleanup capability. Complete independent
+read-only review is clean against main73 at `2bb0e20d` plus dirty source snapshot
+`4b5661a7c97fb6cbf2ce910e74f2b3d3e1161bc4ee1d65f7dcc2c34a6e4061bd`.
+All 31 reviewed files, including three new tests, were pinned; current contract
+and navigation updates follow without a Rust change.
+
+Pinned Rust1.98.1 locked/offline on Mac mini, 04:36:21–04:42:59 UTC:
+workspace check; 29 affected Store and 12 text Store tests; 11 binary/observer
+Workflow and 6 existing text Workflow tests; 3 CLI and 1 default Desktop tests;
+formatting/diff and strict four-crate all-target Clippy passed. Binary and existing
+text crash children each have one intentional ignore exercised by their parent.
+Zero-filter integration targets do not add behavioral evidence. The initial
+Workflow run failed 10/1/1 because the new worker test supplied a mismatched
+processing UUID; the test now exercises the actual synchronous Binary refusal
+and its rerun passed 11/0/1. The new Store fixture was also made portable with
+explicit symbolic proof IDs and its three tests reran successfully. Both prior
+snapshots and the failed terminal result remain retained, not relabeled as passes.
+
+Fresh full shared/native verification, latest-head CI, normal integration and
+merged checks remain next. The native widget test is implemented but not yet
+qualified. Native GUI/live/assets/owner acceptance remains pending; the CLI
+contract supplies a disposable owner scenario. No provider/model/private-data
+operation or architecture change occurred.

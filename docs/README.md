@@ -4,8 +4,9 @@ Start with [AGENTS.md](../AGENTS.md). The owner froze the reviewed product archi
 
 Stages 1–4 are integrated; Stage 5 knowledge and Stage 6 Actions/dashboard
 foundations are integrated with native/live/owner qualification open. Stage 7
-Inbox is active. Integrated main is `48941d3` (PR60); the unmerged lifecycle
-snapshot and architecture-review corrections are distinguished in [status](status.md).
+text Inbox is integrated with acceptance pending. Stage8 bounded binary retention
+is active. Integrated main is `54fcbe1` (PR73); the retained unmerged review
+snapshot and qualification gaps are distinguished in [status](status.md).
 
 | Need | Read |
 | --- | --- |
@@ -18,7 +19,8 @@ snapshot and architecture-review corrections are distinguished in [status](statu
 | Review current Save/recovery and legacy removal | [Stage 1 results](work/completed/simple-save/plan.md), [Stage 2 results](work/completed/legacy-removal/plan.md): shared manual Save, exclusive Copy, recovery/interruption checks and six-crate production paths; owner native acceptance pending |
 | Review integrated proposal and Action behavior | [Proposal Core](work/completed/proposal-core/plan.md), [Actions/dashboard](work/completed/actions-dashboard/plan.md): exact review/approval, recovery and operational Actions; qualification gaps remain explicit |
 | Review knowledge foundations | [Stage 5 record](work/active/knowledge-foundations/plan.md): identity, provenance, scoped reads and relationships; native/live/owner gaps remain open |
-| Continue Stage 7 Inbox | [Inbox plan](work/active/text-email-inbox/plan.md), [supersession](work/active/text-email-inbox/supersession-plan.md), [conflicts](work/active/text-email-inbox/conflicts-plan.md), [original-copy work](work/active/text-email-inbox/original-copy-plan.md); use current status/checkpoint for the correction gate and pending lifecycle integration |
+| Review Stage 7 Inbox | [Inbox plan](work/active/text-email-inbox/plan.md), [supersession](work/active/text-email-inbox/supersession-plan.md), [conflicts](work/active/text-email-inbox/conflicts-plan.md), [original-copy work](work/active/text-email-inbox/original-copy-plan.md); current status/checkpoint distinguishes integration from pending external acceptance |
+| Continue Stage 8 Inbox | [Binary retention plan](work/active/office-inbox/plan.md): exact originals first, ordinary assets and meaningful Office conversion next through existing proposal apply |
 | Understand code ownership | [Architecture overview](architecture/overview.md), relevant crate README |
 | Understand durable vault bytes and managed metadata | [Vault format](architecture/vault-format.md), [invariants](architecture/invariants.md) |
 | Change storage, revisions, comments or retrieval | [Invariants](architecture/invariants.md), [completed task records](work/completed/README.md) |

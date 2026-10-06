@@ -42,6 +42,11 @@ pub struct InboxRemovalEvidence {
 impl InboxRemovalEvidence {
     pub fn digest(&self) -> Result<[u8; 32]> {
         self.item.validate()?;
+        if self.item.capture.kind == crate::inbox::InboxKind::Binary {
+            return Err(WorkflowError::msg(
+                "Binary Inbox original removal is not supported",
+            ));
+        }
         let mut blockers = Vec::new();
         match &self.original {
             InboxOriginal::Available { text } => {
@@ -105,6 +110,11 @@ impl App {
             .store
             .inbox_item(id)?
             .ok_or_else(|| stale("retained original catalog entry is missing"))?;
+        if item.capture.kind == crate::inbox::InboxKind::Binary {
+            return Err(WorkflowError::msg(
+                "Binary Inbox original removal is not supported",
+            ));
+        }
         let original = self.inbox.original(&item);
         let mut source = None;
         if let InboxOriginal::Available { text } = &original {

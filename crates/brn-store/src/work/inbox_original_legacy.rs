@@ -530,6 +530,9 @@ fn saved_member<'a>(
 }
 impl InboxQualifiedRemovalEvidence {
     pub fn validate(&self) -> Result<()> {
+        if self.snapshot.review.original.capture.kind == super::inbox::InboxKind::Binary {
+            return Err(invalid("Binary Inbox original removal is not supported"));
+        }
         validate_snapshot(&self.snapshot)?;
         let InboxQualifiedOriginal::Available { text } = &self.original;
         let original = &self.snapshot.review.original;
@@ -674,6 +677,9 @@ impl InboxOriginalRestoreRecord {
     pub fn validate(&self) -> Result<()> {
         self.request.validate()?;
         self.original.validate()?;
+        if self.original.capture.kind == super::inbox::InboxKind::Binary {
+            return Err(invalid("Binary Inbox original restore is not supported"));
+        }
         self.namespace.validate()?;
         time(self.prepared_at_ms, self.restored_at_ms)?;
         encode(self)?;

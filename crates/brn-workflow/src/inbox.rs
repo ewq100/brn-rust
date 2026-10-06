@@ -4,7 +4,7 @@ use crate::{
     app::App,
     files::inbox::{InboxFiles, InboxRoot, receipt_id},
 };
-pub use brn_store::work::inbox::{InboxItem, InboxKind, InboxListRequest};
+pub use brn_store::work::inbox::{InboxItem, InboxKind, InboxListRequest, MAX_INBOX_BINARY_BYTES};
 use brn_store::{WorkStore, work::inbox::InboxCapture};
 use serde::{Deserialize, Serialize};
 use sha2::{Digest, Sha256};
@@ -23,6 +23,11 @@ pub struct CaptureInboxRequest {
 }
 impl CaptureInboxRequest {
     pub fn validate(&self) -> Result<()> {
+        if self.kind == InboxKind::Binary {
+            return Err(WorkflowError::msg(
+                "Binary Inbox capture requires an explicit byte request",
+            ));
+        }
         if self.id.is_nil() || self.text.len() > crate::MAX_NOTE_BYTES {
             return Err(WorkflowError::msg(
                 "Inbox needs a nonnil UUID and exact UTF-8 text up to 1 MiB",
@@ -58,6 +63,66 @@ impl CaptureInboxRequest {
             && <[u8; 32]>::from(Sha256::digest(self.text.as_bytes())) == c.copy.sha256
     }
 }
+/// Explicit byte retention, without conversion or an inferred document type.
+#[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
+#[serde(deny_unknown_fields)]
+pub struct CaptureBinaryInboxRequest {
+    pub id: Uuid,
+    pub title: String,
+    pub original_name: Option<String>,
+    pub bytes: Vec<u8>,
+}
+impl CaptureBinaryInboxRequest {
+    pub fn validate(&self) -> Result<()> {
+        if self.id.is_nil() || self.bytes.len() > MAX_INBOX_BINARY_BYTES {
+            return Err(WorkflowError::msg(
+                "Binary Inbox needs a nonnil UUID and exact bytes up to 16 MiB",
+            ));
+        }
+        for value in std::iter::once(&self.title).chain(self.original_name.iter()) {
+            if value.trim().is_empty() || value.len() > 512 || value.chars().any(char::is_control) {
+                return Err(WorkflowError::msg(
+                    "Inbox labels must be visible and at most 512 UTF-8 bytes",
+                ));
+            }
+        }
+        Ok(())
+    }
+    pub fn validate_receipt(&self, item: &InboxItem) -> Result<()> {
+        self.validate()?;
+        item.validate()?;
+        if !matches_capture(
+            item,
+            self.id,
+            InboxKind::Binary,
+            &self.title,
+            &self.original_name,
+            &self.bytes,
+        ) {
+            return Err(WorkflowError::typed(
+                ErrorKind::OperationConflict,
+                "Inbox receipt differs from the complete explicit input",
+            ));
+        }
+        Ok(())
+    }
+}
+fn matches_capture(
+    item: &InboxItem,
+    id: Uuid,
+    kind: InboxKind,
+    title: &str,
+    original_name: &Option<String>,
+    bytes: &[u8],
+) -> bool {
+    let c = &item.capture;
+    id == c.id
+        && kind == c.kind
+        && title == c.title
+        && original_name == &c.original_name
+        && bytes.len() as u64 == c.copy.byte_len
+        && <[u8; 32]>::from(Sha256::digest(bytes)) == c.copy.sha256
+}
 #[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
 #[serde(rename_all = "snake_case")]
 pub enum InboxAvailability {
@@ -71,6 +136,7 @@ pub enum InboxAvailability {
 #[serde(tag = "state", rename_all = "snake_case", deny_unknown_fields)]
 pub enum InboxOriginal {
     Available { text: String },
+    AvailableBinary { byte_len: u64, sha256: [u8; 32] },
     RemovedRetained { operation_id: Uuid },
     Missing,
     Changed { reason: String },
@@ -79,7 +145,7 @@ pub enum InboxOriginal {
 impl InboxOriginal {
     fn availability(&self) -> InboxAvailability {
         match self {
-            Self::Available { .. } => InboxAvailability::Available,
+            Self::Available { .. } | Self::AvailableBinary { .. } => InboxAvailability::Available,
             Self::RemovedRetained { .. } => InboxAvailability::RemovedRetained,
             Self::Missing => InboxAvailability::Missing,
             Self::Changed { .. } => InboxAvailability::Changed,
@@ -92,6 +158,39 @@ impl InboxOriginal {
 pub struct InboxRead {
     pub item: InboxItem,
     pub original: InboxOriginal,
+}
+impl InboxRead {
+    /// DTO consistency only; fresh filesystem availability is established by App.
+    pub fn validate_receipt(&self) -> Result<()> {
+        self.item.validate()?;
+        let c = &self.item.capture;
+        match &self.original {
+            InboxOriginal::Available { text } => CaptureInboxRequest {
+                id: c.id,
+                kind: c.kind,
+                title: c.title.clone(),
+                original_name: c.original_name.clone(),
+                text: text.clone(),
+            }
+            .validate_receipt(&self.item),
+            InboxOriginal::AvailableBinary { byte_len, sha256 } => {
+                if c.kind != InboxKind::Binary
+                    || *byte_len != c.copy.byte_len
+                    || *sha256 != c.copy.sha256
+                {
+                    return Err(WorkflowError::typed(
+                        ErrorKind::OperationConflict,
+                        "Binary original response differs from its complete capture",
+                    ));
+                }
+                Ok(())
+            }
+            InboxOriginal::RemovedRetained { .. } if c.kind == InboxKind::Binary => Err(
+                WorkflowError::msg("Binary Inbox original removal is not supported"),
+            ),
+            _ => Ok(()),
+        }
+    }
 }
 #[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
 #[serde(deny_unknown_fields)]
@@ -167,6 +266,19 @@ impl InboxState {
                 Err(error) => InboxOriginal::Unavailable {
                     reason: error.message,
                 },
+            };
+        }
+        if item.capture.kind == InboxKind::Binary {
+            return match files.read_binary(item) {
+                Ok(Some(proof)) => InboxOriginal::AvailableBinary {
+                    byte_len: proof.len,
+                    sha256: proof.sha256,
+                },
+                Ok(None) => InboxOriginal::Missing,
+                Err(e) if e.kind == ErrorKind::ContextStale => {
+                    InboxOriginal::Changed { reason: e.message }
+                }
+                Err(e) => InboxOriginal::Unavailable { reason: e.message },
             };
         }
         match files.read(item) {
@@ -318,12 +430,51 @@ impl App {
     /// is an immutable receipt, not a claim that original bytes remain available.
     pub fn capture_inbox(&mut self, request: &CaptureInboxRequest) -> Result<InboxItem> {
         request.validate()?;
-        if let Some(item) = self.store.inbox_item(request.id)? {
-            return replay(request, &item);
+        self.capture_inbox_bytes(
+            request.id,
+            request.kind,
+            &request.title,
+            &request.original_name,
+            request.text.as_bytes(),
+        )
+    }
+    pub fn capture_binary_inbox(
+        &mut self,
+        request: &CaptureBinaryInboxRequest,
+    ) -> Result<InboxItem> {
+        request.validate()?;
+        self.capture_inbox_bytes(
+            request.id,
+            InboxKind::Binary,
+            &request.title,
+            &request.original_name,
+            &request.bytes,
+        )
+    }
+    fn capture_inbox_bytes(
+        &mut self,
+        id: Uuid,
+        kind: InboxKind,
+        title: &str,
+        original_name: &Option<String>,
+        bytes: &[u8],
+    ) -> Result<InboxItem> {
+        let retained = |item: InboxItem| {
+            if matches_capture(&item, id, kind, title, original_name, bytes) {
+                Ok(item)
+            } else {
+                Err(WorkflowError::typed(
+                    ErrorKind::OperationConflict,
+                    "Inbox UUID already identifies another exact copy request",
+                ))
+            }
+        };
+        if let Some(item) = self.store.inbox_item(id)? {
+            return retained(item);
         }
         self.inbox = restore_inbox_captures(&mut self.store)?;
-        if let Some(item) = self.store.inbox_item(request.id)? {
-            return replay(request, &item);
+        if let Some(item) = self.store.inbox_item(id)? {
+            return retained(item);
         }
         if self.inbox.files.is_none() {
             if !self.inbox.issues.is_empty() {
@@ -348,10 +499,18 @@ impl App {
             .files
             .as_ref()
             .expect("capture owns its checked namespace");
-        let copy = match files.prepare(request.id, &request.text) {
+        let prepared = if kind == InboxKind::Binary {
+            files.prepare_binary(id, bytes)
+        } else {
+            files.prepare(
+                id,
+                std::str::from_utf8(bytes).expect("validated text capture"),
+            )
+        };
+        let copy = match prepared {
             Ok(copy) => copy,
             Err(e) => {
-                self.inbox.issue(Some(request.id), e.message.clone());
+                self.inbox.issue(Some(id), e.message.clone());
                 return Err(WorkflowError::typed(
                     ErrorKind::InboxUncertain,
                     format!("Inbox capture was not acknowledged; artifacts remain retained: {e}"),
@@ -359,10 +518,10 @@ impl App {
             }
         };
         let capture = InboxCapture {
-            id: request.id,
-            kind: request.kind,
-            title: request.title.clone(),
-            original_name: request.original_name.clone(),
+            id,
+            kind,
+            title: title.to_owned(),
+            original_name: original_name.clone(),
             copy,
         };
         let result = self.store.capture_inbox_with(&capture, |item| {
@@ -376,7 +535,7 @@ impl App {
                 Ok(item)
             }
             Err(e) => {
-                self.inbox.issue(Some(request.id), e.to_string());
+                self.inbox.issue(Some(id), e.to_string());
                 Err(WorkflowError::typed(
                     ErrorKind::InboxUncertain,
                     format!(
@@ -434,16 +593,6 @@ impl App {
         })
     }
 }
-fn replay(request: &CaptureInboxRequest, item: &InboxItem) -> Result<InboxItem> {
-    if !request.matches(item) {
-        return Err(WorkflowError::typed(
-            ErrorKind::OperationConflict,
-            "Inbox UUID already identifies another exact copy request",
-        ));
-    }
-    Ok(item.clone())
-}
-
 #[cfg(all(test, target_os = "macos"))]
 mod tests {
     use super::*;
@@ -815,3 +964,7 @@ mod tests {
         panic!("checkpoint did not terminate the child");
     }
 }
+
+#[cfg(test)]
+#[path = "inbox_binary_tests.rs"]
+mod binary_tests;
