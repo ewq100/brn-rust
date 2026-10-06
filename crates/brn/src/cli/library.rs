@@ -264,6 +264,12 @@ fn confirmed_success(event: &AppEvent) -> bool {
             AccountReply::Status(_) | AccountReply::Disconnected | AccountReply::Models(_)
         ),
         AppEvent::ModelInstalled => true,
+        AppEvent::InboxOriginalRemoved(record) => {
+            record.removed_at_ms.is_some() && record.validate().is_ok()
+        }
+        AppEvent::InboxOriginalRestored(record) => {
+            record.restored_at_ms.is_some() && record.validate().is_ok()
+        }
         AppEvent::InboxProcessing(batch) => {
             batch.pending_count() == 0
                 && batch.entries.iter().all(|entry| {
@@ -405,6 +411,26 @@ fn execute(
                 AppCommand::InboxReview(id) => lane.query(AppCommand::InboxReview(*id))?,
                 AppCommand::PreviewInboxRemoval(id) => {
                     lane.query(AppCommand::PreviewInboxRemoval(*id))?
+                }
+                AppCommand::RemoveInboxOriginal(request) => lane.query_with_id(
+                    request.operation_id,
+                    AppCommand::RemoveInboxOriginal(request.clone()),
+                )?,
+                AppCommand::RestoreInboxOriginal(request) => lane.query_with_id(
+                    request.operation_id,
+                    AppCommand::RestoreInboxOriginal(request.clone()),
+                )?,
+                AppCommand::InboxOriginalRemoval(id) => {
+                    lane.query(AppCommand::InboxOriginalRemoval(*id))?
+                }
+                AppCommand::InboxOriginalRestore(id) => {
+                    lane.query(AppCommand::InboxOriginalRestore(*id))?
+                }
+                AppCommand::InboxOriginalOperations(id) => {
+                    lane.query(AppCommand::InboxOriginalOperations(*id))?
+                }
+                AppCommand::ArchivedInboxAnalysis(id) => {
+                    lane.query(AppCommand::ArchivedInboxAnalysis(*id))?
                 }
                 AppCommand::InboxItems(request) => {
                     lane.query(AppCommand::InboxItems(request.clone()))?

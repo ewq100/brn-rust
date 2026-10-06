@@ -150,6 +150,12 @@ Commands:
   brn inbox show UUID
   brn inbox review UUID
   brn inbox removal-preview UUID
+  brn inbox remove-original REQUEST_JSON
+  brn inbox restore-original REQUEST_JSON
+  brn inbox original-removal OPERATION_UUID
+  brn inbox original-restore OPERATION_UUID
+  brn inbox original-operations ITEM_UUID
+  brn inbox archived-analysis ANALYSIS_UUID
   brn inbox process --file REQUEST_JSON
   brn inbox processing UUID
   brn inbox candidate UUID INDEX

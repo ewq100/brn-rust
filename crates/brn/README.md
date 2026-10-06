@@ -26,6 +26,12 @@ brn inbox list [--limit N] [--after UUID]
 brn inbox show UUID
 brn inbox review UUID
 brn inbox removal-preview UUID
+brn inbox remove-original REQUEST_JSON
+brn inbox restore-original REQUEST_JSON
+brn inbox original-removal OPERATION_UUID
+brn inbox original-restore OPERATION_UUID
+brn inbox original-operations ITEM_UUID
+brn inbox archived-analysis ANALYSIS_UUID
 brn inbox process --file REQUEST_JSON
 brn inbox processing UUID
 brn inbox candidate UUID INDEX
@@ -923,5 +929,29 @@ Failed analyses, pending consequence drafts and later derived edits do not block
 this qualification. The full retained review is separately available through
 `inbox review UUID`. An empty blockers list grants
 no removal approval; this command never removes an original. JSON preserves exact
-proofs; terminal output escapes control characters. Confirmation and recoverable
-removal are subsequent work.
+proofs; terminal output escapes control characters.
+
+The owner-operated `inbox remove-original REQUEST_JSON` command requires the exact
+fresh preview digest and explicit confirmation. Its bounded JSON request contains
+`operation_id`, `item_id`, `preview_digest` (32 byte values), `previous_restore`
+(null for the first removal, otherwise the direct Restore's `operation_id` and
+`record_sha256`), and `confirmation: {"version": 1, "exact_copy_removal_intended": true}`.
+Failed analyses, pending consequence drafts and later derived edits remain separate;
+the approved Source must still preserve the exact original. The command moves the
+exact private copy into recoverable retention; it does not purge bytes or remove
+the Source. This CLI is owner authority, not delegation to an external agent.
+
+`inbox restore-original REQUEST_JSON` requires a new `operation_id`, the exact
+`removal_operation_id` and its 32-byte `removal_digest`. It restores the same retained
+copy only into a vacant original endpoint. Exact request replay returns the retained
+receipt. Neither command overwrites a recreated endpoint. Nil IDs, unknown fields,
+invalid confirmation/version and malformed hashes refuse before application startup.
+
+`inbox original-removal`, `inbox original-restore` and `inbox original-operations`
+inspect retained records and causal history. Historical lookups explicitly preserve
+`remove`, `restore`, `legacy_remove` or `legacy_restore` tags; missing records are
+null. History `record_sha256` binds the precise record used for Restore or a later
+Remove. `inbox archived-analysis ANALYSIS_UUID` exposes only genuinely retained
+legacy analysis evidence. New cleanup records do not archive analysis/chat graphs.
+JSON returns full records; terminal output escapes control characters. Native
+confirmation controls remain separately pending.
