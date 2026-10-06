@@ -235,7 +235,10 @@ pub(crate) mod tests {
     }
     impl Fixture {
         pub(crate) fn new() -> Self {
-            let owner = tempfile::tempdir_in(std::env::temp_dir().canonicalize().unwrap()).unwrap();
+            Self::new_in(&std::env::temp_dir().canonicalize().unwrap())
+        }
+        pub(crate) fn new_in(parent: &std::path::Path) -> Self {
+            let owner = tempfile::tempdir_in(parent).unwrap();
             let data = owner.path().join("data");
             let vault = owner.path().join("vault");
             fs::create_dir(&data).unwrap();
