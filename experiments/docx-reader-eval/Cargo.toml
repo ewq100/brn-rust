@@ -7,13 +7,18 @@ publish = false
 
 # H4 throwaway evaluator. Nothing in the product workspace depends on it.
 [dependencies]
-# Published release under evaluation. The optional `image` preview decoder is
-# left off: BRN would only use the original-bytes seam (previews disabled).
+# Published releases under evaluation, read through their public APIs only.
+# docx-rs: the optional `image` preview decoder is off; BRN would use the
+# original-bytes seam (previews disabled).
 docx-rs = { version = "=0.4.22", default-features = false }
+rdocx = { version = "=0.15.0", default-features = false }
+office_oxide = { version = "=0.1.13", default-features = false }
+betteroffice-docx-parse = { version = "=0.3.0", default-features = false }
 # Same pinned versions BRN already locks; used only to build synthetic fixtures.
 zip = { version = "=8.6.0", default-features = false, features = ["deflate-flate2-zlib-rs"] }
 flate2 = { version = "=1.1.10", default-features = false, features = ["zlib-rs"] }
 crc32fast = "=1.5.2"
 serde_json = "=1.0.151"
+base64 = "=0.22.1"
 
 [workspace]

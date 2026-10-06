@@ -138,8 +138,24 @@ CRC mismatch panicked. Catching these needs BRN's full package, XML, OPC and str
 document walk, so adoption would be a second interpreter that removes no BRN code.
 Body images kept their exact bytes (two PNGs, a repeated relationship, an ordinary
 JPEG). Header and body images sharing an rId were ambiguous, and the default reader
-without the `image` feature omitted a JPEG. The observations below were the
-pre-evaluation basis.
+without the `image` feature omitted a JPEG.
+
+That JPEG observation (case I4) is from the first pass at commit `ff85ed8`.
+
+At the owner's request the same matrix also ran against rdocx0.15.0,
+office_oxide0.1.13 and betteroffice-docx-parse0.3.0. All three handle namespace
+prefixes and footnotes.
+
+- office_oxide and betteroffice drop text inside an element they don't model, and
+  the base and phonetic text of a real ruby annotation, with no error or warning.
+- rdocx reports such elements as `UnsupportedXml`, so an adapter could refuse them.
+  But it drops the picture title that BRN's supported profile keeps from its typed
+  model with no flag, leaves an internal-DTD entity unresolved as literal text, and
+  adds 45 packages.
+- None offers cancellation.
+
+None is adopted. An rdocx adapter prototype is the reuse step to consider if those
+gaps are resolved. The observations below were the pre-evaluation basis.
 
 Requirement: replace meaningful custom OOXML interpretation while preserving complete
 meaningful content or explicit refusal, bounds, originals and exact assets.

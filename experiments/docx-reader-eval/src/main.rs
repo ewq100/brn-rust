@@ -1,14 +1,18 @@
-//! H4 evaluator: does published docx-rs 0.4.22 retain enough of a synthetic DOCX
-//! for a small BRN admission/mapping adapter? Every fixture is synthetic. Each
-//! case records the observed verdict and fails the run if it differs from the
-//! recorded expectation, so the findings are reproducible assertions.
+//! H4 evaluator: can a published DOCX reader replace part of BRN's bounded
+//! converter behind a small admission/mapping adapter? Every fixture is
+//! synthetic. Each (case, reader) pair runs in its own child process, so a
+//! reader abort or hang is recorded instead of ending the run. Every verdict is
+//! compared with the recorded expectation; any difference exits 1.
 use std::alloc::{GlobalAlloc, Layout, System};
-use std::io::{Cursor, Write};
 use std::panic::{AssertUnwindSafe, catch_unwind};
+use std::process::{Command, Stdio};
 use std::sync::atomic::{AtomicBool, AtomicUsize, Ordering::Relaxed};
-use std::time::Instant;
+use std::time::{Duration, Instant};
 
-use docx_rs::{Docx, ReadDocxOptions, read_docx, read_docx_with_options};
+mod fixtures;
+mod readers;
+
+use readers::{Model, READERS};
 
 // ---------------------------------------------------------------- allocation
 
@@ -48,168 +52,10 @@ unsafe impl GlobalAlloc for Counting {
 #[global_allocator]
 static GLOBAL: Counting = Counting;
 
-// ------------------------------------------------------------------ fixtures
-
-const W: &str = "http://schemas.openxmlformats.org/wordprocessingml/2006/main";
-const REL: &str = "http://schemas.openxmlformats.org/officeDocument/2006/relationships";
-const NS: &str = concat!(
-    r#"xmlns:w="http://schemas.openxmlformats.org/wordprocessingml/2006/main" "#,
-    r#"xmlns:r="http://schemas.openxmlformats.org/officeDocument/2006/relationships" "#,
-    r#"xmlns:wp="http://schemas.openxmlformats.org/drawingml/2006/wordprocessingDrawing" "#,
-    r#"xmlns:a="http://schemas.openxmlformats.org/drawingml/2006/main" "#,
-    r#"xmlns:pic="http://schemas.openxmlformats.org/drawingml/2006/picture" "#,
-    r#"xmlns:v="urn:schemas-microsoft-com:vml""#
-);
-const ROOT_RELS: &str = r#"<Relationships xmlns="http://schemas.openxmlformats.org/package/2006/relationships"><Relationship Id="rId1" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/officeDocument" Target="word/document.xml"/></Relationships>"#;
-const JPEG: &[u8] = include_bytes!("../fixtures/ordinary.jpg");
-
-fn archive(parts: &[(&str, &[u8])], method: zip::CompressionMethod) -> Vec<u8> {
-    let mut writer = zip::ZipWriter::new(Cursor::new(Vec::new()));
-    for &(name, bytes) in parts {
-        let options = zip::write::SimpleFileOptions::default().compression_method(method);
-        writer.start_file(name, options).unwrap();
-        writer.write_all(bytes).unwrap();
-    }
-    writer.finish().unwrap().into_inner()
-}
-
-fn types(extra: &str) -> String {
-    format!(
-        concat!(
-            r#"<Types xmlns="http://schemas.openxmlformats.org/package/2006/content-types">"#,
-            r#"<Default Extension="rels" ContentType="application/vnd.openxmlformats-package.relationships+xml"/>"#,
-            r#"<Default Extension="xml" ContentType="application/xml"/>"#,
-            r#"<Default Extension="png" ContentType="image/png"/>"#,
-            r#"<Default Extension="jpg" ContentType="image/jpeg"/>"#,
-            r#"<Default Extension="html" ContentType="text/html"/>"#,
-            r#"<Override PartName="/word/document.xml" ContentType="application/vnd.openxmlformats-officedocument.wordprocessingml.document.main+xml"/>"#,
-            "{}</Types>"
-        ),
-        extra
-    )
-}
-fn document(body: &str) -> String {
-    format!("<w:document {NS}><w:body>{body}</w:body></w:document>")
-}
-fn rels(entries: &[(&str, &str, &str)]) -> String {
-    let mut out = String::from(
-        r#"<Relationships xmlns="http://schemas.openxmlformats.org/package/2006/relationships">"#,
-    );
-    for (id, kind, target) in entries {
-        let mode = if *kind == "hyperlink" {
-            r#" TargetMode="External""#
-        } else {
-            ""
-        };
-        out.push_str(&format!(
-            r#"<Relationship Id="{id}" Type="{REL}/{kind}" Target="{target}"{mode}/>"#
-        ));
-    }
-    out + "</Relationships>"
-}
-
-/// Ordinary package: content types, root rels, document, document rels, extra parts.
-struct Package {
-    types: String,
-    document: Vec<u8>,
-    rels: Option<String>,
-    extra: Vec<(String, Vec<u8>)>,
-    method: zip::CompressionMethod,
-}
-impl Package {
-    fn new(body: &str) -> Self {
-        Self {
-            types: types(""),
-            document: document(body).into_bytes(),
-            rels: Some(rels(&[])),
-            extra: Vec::new(),
-            method: zip::CompressionMethod::Deflated,
-        }
-    }
-    fn rels(mut self, entries: &[(&str, &str, &str)]) -> Self {
-        self.rels = Some(rels(entries));
-        self
-    }
-    fn part(mut self, name: &str, bytes: impl Into<Vec<u8>>) -> Self {
-        self.extra.push((name.into(), bytes.into()));
-        self
-    }
-    fn types(mut self, overrides: &str) -> Self {
-        self.types = types(overrides);
-        self
-    }
-    fn bytes(&self) -> Vec<u8> {
-        let mut parts: Vec<(&str, &[u8])> = vec![
-            ("[Content_Types].xml", self.types.as_bytes()),
-            ("_rels/.rels", ROOT_RELS.as_bytes()),
-            ("word/document.xml", &self.document),
-        ];
-        if let Some(rels) = &self.rels {
-            parts.push(("word/_rels/document.xml.rels", rels.as_bytes()));
-        }
-        for (name, bytes) in &self.extra {
-            parts.push((name, bytes));
-        }
-        archive(&parts, self.method)
-    }
-}
-
-fn p(text: &str) -> String {
-    format!("<w:p><w:r><w:t>{text}</w:t></w:r></w:p>")
-}
-fn png(pixel: [u8; 4]) -> Vec<u8> {
-    fn chunk(kind: &[u8; 4], data: &[u8]) -> Vec<u8> {
-        let mut out = (data.len() as u32).to_be_bytes().to_vec();
-        out.extend_from_slice(kind);
-        out.extend_from_slice(data);
-        out.extend_from_slice(&crc32fast::hash(&out[4..]).to_be_bytes());
-        out
-    }
-    let mut header = 1u32.to_be_bytes().to_vec();
-    header.extend(1u32.to_be_bytes());
-    header.extend([8, 6, 0, 0, 0]);
-    let mut z = flate2::write::ZlibEncoder::new(Vec::new(), flate2::Compression::default());
-    z.write_all(&[0, pixel[0], pixel[1], pixel[2], pixel[3]])
-        .unwrap();
-    let mut out = b"\x89PNG\r\n\x1a\n".to_vec();
-    out.extend(chunk(b"IHDR", &header));
-    out.extend(chunk(b"IDAT", &z.finish().unwrap()));
-    out.extend(chunk(b"IEND", &[]));
-    out
-}
-fn drawing(rid: &str, descr: &str) -> String {
-    drawing_titled(rid, descr, "Picture caption")
-}
-fn drawing_titled(rid: &str, descr: &str, title: &str) -> String {
-    format!(
-        concat!(
-            r#"<w:drawing><wp:inline><wp:extent cx="9525" cy="9525"/><wp:docPr id="1" name="Picture" descr="{descr}" title="{title}"/>"#,
-            r#"<a:graphic><a:graphicData uri="http://schemas.openxmlformats.org/drawingml/2006/picture"><pic:pic>"#,
-            r#"<pic:nvPicPr><pic:cNvPr id="0" name="Picture"/><pic:cNvPicPr/></pic:nvPicPr>"#,
-            r#"<pic:blipFill><a:blip r:embed="{rid}"/><a:stretch><a:fillRect/></a:stretch></pic:blipFill>"#,
-            r#"<pic:spPr><a:xfrm><a:off x="0" y="0"/><a:ext cx="9525" cy="9525"/></a:xfrm><a:prstGeom prst="rect"><a:avLst/></a:prstGeom></pic:spPr>"#,
-            r#"</pic:pic></a:graphicData></a:graphic></wp:inline></w:drawing>"#
-        ),
-        rid = rid,
-        descr = descr,
-        title = title
-    )
-}
-fn image_run(rid: &str, descr: &str) -> String {
-    format!(
-        "<w:p><w:r><w:t>Before õ</w:t>{}<w:t>After</w:t></w:r></w:p>",
-        drawing(rid, descr)
-    )
-}
-const HEADER_CT: &str = r#"<Override PartName="/word/header1.xml" ContentType="application/vnd.openxmlformats-officedocument.wordprocessingml.header+xml"/>"#;
-fn header(body: &str) -> String {
-    format!("<w:hdr {NS}>{body}</w:hdr>")
-}
-
 // ------------------------------------------------------------------- reading
 
 enum Read {
-    Ok(Box<Docx>),
+    Ok(Model),
     Err(String),
     Panic(String),
 }
@@ -219,22 +65,29 @@ struct Measured {
     peak: usize,
     millis: u128,
 }
-fn measure(f: impl FnOnce() -> Result<Docx, docx_rs::ReaderError>) -> Measured {
+fn measure(reader: &str, bytes: &[u8]) -> Measured {
     LARGEST.store(0, Relaxed);
     CURRENT.store(0, Relaxed);
     PEAK.store(0, Relaxed);
-    let start = Instant::now();
-    TRACK.store(true, Relaxed);
     // Silence only the reader's own panic; evaluator panics stay visible.
     let hook = std::panic::take_hook();
     std::panic::set_hook(Box::new(|_| {}));
-    let result = catch_unwind(AssertUnwindSafe(f));
-    std::panic::set_hook(hook);
+    let start = Instant::now();
+    TRACK.store(true, Relaxed);
+    let parsed = catch_unwind(AssertUnwindSafe(|| readers::parse(reader, bytes)));
     TRACK.store(false, Relaxed);
     let millis = start.elapsed().as_millis();
+    // Building the inspection model (rendering, serialization) is not timed,
+    // but a panic there is still the reader's.
+    let result = match parsed {
+        Ok(Ok(parsed)) => catch_unwind(AssertUnwindSafe(|| readers::model(parsed))),
+        Ok(Err(e)) => Ok(Err(e)),
+        Err(payload) => Err(payload),
+    };
+    std::panic::set_hook(hook);
     let read = match result {
-        Ok(Ok(docx)) => Read::Ok(Box::new(docx)),
-        Ok(Err(e)) => Read::Err(format!("{e:?}")),
+        Ok(Ok(model)) => Read::Ok(model),
+        Ok(Err(e)) => Read::Err(e),
         Err(payload) => Read::Panic(
             payload
                 .downcast_ref::<String>()
@@ -250,952 +103,754 @@ fn measure(f: impl FnOnce() -> Result<Docx, docx_rs::ReaderError>) -> Measured {
         millis,
     }
 }
-thread_local! {
-    static CASE: std::cell::RefCell<(&'static str, usize)> = const { std::cell::RefCell::new(("", 0)) };
-}
-/// `DOCX_EVAL_FIXTURES=DIR` writes every evaluated package to DIR/<case>-<n>.docx
-/// so the identical bytes can be replayed through BRN's current converter.
-fn keep(bytes: &[u8]) {
-    if let Some(dir) = std::env::var_os("DOCX_EVAL_FIXTURES") {
-        let name = CASE.with_borrow_mut(|(id, n)| {
-            *n += 1;
-            format!("{id}-{n}.docx")
-        });
-        std::fs::write(std::path::Path::new(&dir).join(name), bytes).unwrap();
-    }
-}
-fn originals(bytes: &[u8]) -> Measured {
-    keep(bytes);
-    let m = measure(|| {
-        read_docx_with_options(bytes, ReadDocxOptions::default().with_image_previews(false))
-    });
-    // `DOCX_EVAL_DUMP=1` prints each serialized read model for inspection.
-    if std::env::var_os("DOCX_EVAL_DUMP").is_some()
-        && let Some(model) = json(&m.read)
-    {
-        eprintln!("{model}");
-    }
-    m
-}
 
 // ------------------------------------------------------------------ verdicts
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 enum Verdict {
-    /// Content/asset retained in the read model.
+    /// Content/asset retained in the reader's output.
     Retained,
     /// Reader returned an error (an explicit refusal BRN could map).
     Refused,
-    /// Read succeeded; the meaningful content is absent from the model and
-    /// nothing in the model shows that it was dropped.
+    /// Read succeeded; meaningful content is absent and nothing in the output
+    /// (no trace, no warning) shows that it was dropped.
     SilentLoss,
-    /// Read succeeded and gives a meaning BRN's admission rejects
-    /// (non-DOCX namespace, alias, encoding) without signalling it.
+    /// Read succeeded and produced wrong or arbitrary content without
+    /// signalling it (foreign namespace read as text, one alias chosen,
+    /// corrupt bytes, an unresolved entity kept as literal text).
     Misread,
-    /// Wording survives but structure/semantics are flattened unobservably.
+    /// Read succeeded on input BRN's admission refuses, and the content is
+    /// right (UTF-16, backslash name, declared size that disagrees with data).
+    Lenient,
+    /// Wording survives but its structure/semantics are gone unobservably.
     Flattened,
-    /// Asset/occurrence mapping cannot be resolved from the model alone.
+    /// Asset/occurrence mapping cannot be resolved from the output alone.
     Ambiguous,
-    /// The gap is visible in the model (adapter can refuse).
+    /// Content is missing but a trace, a warning or an unmodelled-item report
+    /// remains (adapter can refuse).
     DetectableGap,
-    /// Reader panicked on malformed input.
+    /// Reader panicked (caught).
     Panic,
-    /// Allocation is driven by advertised, untrusted sizes.
+    /// Allocation driven by an advertised, untrusted size.
     AdvertisedAllocation,
+    /// Child process died (abort, signal) or exceeded the time limit.
+    Abort,
+}
+use Verdict::*;
+
+enum Check {
+    /// All `wanted` must appear; a missing one with a `trace` id or a warning
+    /// is a DetectableGap.
+    Text(&'static [&'static str], &'static [&'static str]),
+    /// Success with any `wanted` alternative present means input BRN
+    /// refuses was accepted: Lenient when `true` (content right), otherwise
+    /// Misread. A warning makes it a DetectableGap.
+    Accepts(&'static [&'static str], bool),
+    /// `wanted` present but none of the `structure` alternatives: Flattened.
+    /// The structure needles double as traces when wording is missing.
+    Structure(&'static [&'static str], &'static [&'static str]),
+    Picture,
+    TwoImages,
+    SharedImage,
+    Jpeg,
+    SameRid,
+    MissingImage,
+    Advertised,
+    Timed,
 }
 
 struct Case {
     id: &'static str,
     group: &'static str,
     title: &'static str,
+    /// BRN's converter at baseline 450eaa2 on the identical bytes.
     brn: &'static str,
-    expected: Verdict,
-    run: fn() -> (Verdict, String),
+    check: Check,
+    /// Recorded verdicts in `READERS` order.
+    expected: [Verdict; 4],
 }
-
-/// Compact JSON of only the `document` subtree (body content and drawings),
-/// excluding the top-level `images` list.
-fn document_json(read: &Read) -> Option<String> {
-    match read {
-        Read::Ok(docx) => {
-            Some(
-                serde_json::from_str::<serde_json::Value>(&docx.json())
-                    .expect("docx-rs emits JSON")["document"]
-                    .to_string(),
-            )
-        }
-        _ => None,
-    }
-}
-fn json(read: &Read) -> Option<String> {
-    match read {
-        // Compact form so needles do not depend on pretty-printing.
-        Read::Ok(docx) => Some(
-            serde_json::from_str::<serde_json::Value>(&docx.json())
-                .expect("docx-rs emits JSON")
-                .to_string(),
-        ),
-        _ => None,
-    }
-}
-fn summary(m: &Measured) -> String {
-    match &m.read {
-        Read::Ok(_) => "Ok".into(),
-        Read::Err(e) => format!("Err({e})"),
-        Read::Panic(p) => format!("panic: {p}"),
-    }
-}
-/// Generic sentinel oracle over the complete serialized read model.
-fn sentinel(bytes: &[u8], wanted: &[&str]) -> (Verdict, String) {
-    traced(bytes, wanted, None)
-}
-/// As `sentinel`, but a missing sentinel with `trace` still present in the
-/// model is a gap an adapter could detect and refuse.
-fn traced(bytes: &[u8], wanted: &[&str], trace: Option<&str>) -> (Verdict, String) {
-    let m = originals(bytes);
-    let Some(model) = json(&m.read) else {
-        return match m.read {
-            Read::Panic(_) => (Verdict::Panic, summary(&m)),
-            _ => (Verdict::Refused, summary(&m)),
-        };
-    };
-    // docx-rs serializes through hand-written `Serialize` impls; also search the
-    // derived `Debug` form so data retained but not serialized is not "lost".
-    let debug = match &m.read {
-        Read::Ok(docx) => format!("{docx:?}"),
-        _ => String::new(),
-    };
-    let missing: Vec<_> = wanted
-        .iter()
-        .filter(|s| !model.contains(**s) && !debug.contains(**s))
-        .collect();
-    if missing.is_empty() {
-        (Verdict::Retained, "Ok; all sentinels in model".into())
-    } else if let Some(trace) = trace.filter(|t| model.contains(*t)) {
-        (
-            Verdict::DetectableGap,
-            format!("Ok; absent from model: {missing:?}; trace kept: {trace}"),
-        )
-    } else {
-        (
-            Verdict::SilentLoss,
-            format!("Ok; absent from model: {missing:?}"),
-        )
-    }
-}
-fn images(read: &Read) -> Vec<(String, String, Vec<u8>)> {
-    match read {
-        Read::Ok(docx) => docx
-            .images
-            .iter()
-            .map(|(id, path, image, _)| (id.clone(), path.clone(), image.0.clone()))
-            .collect(),
-        _ => Vec::new(),
-    }
-}
-fn count(model: &str, needle: &str) -> usize {
-    model.matches(needle).count()
-}
-
-// --------------------------------------------------------------------- cases
 
 fn cases() -> Vec<Case> {
+    use Check::*;
+    let c = |id, group, title, brn, check, expected| Case {
+        id,
+        group,
+        title,
+        brn,
+        check,
+        expected,
+    };
     vec![
-        // ---- supported BRN profile ----
-        Case {
-            id: "S0",
-            group: "supported",
-            title: "Minimal package without word/_rels/document.xml.rels",
-            brn: "Ok DocxTextV1",
-            expected: Verdict::Refused,
-            run: || {
-                let mut package = Package::new(&p("Minimal õ"));
-                package.rels = None;
-                sentinel(&package.bytes(), &["Minimal õ"])
-            },
-        },
-        Case {
-            id: "S1",
-            group: "supported",
-            title: "Unicode paragraphs, Stored and Deflate",
-            brn: "Ok DocxTextV1 (exact)",
-            expected: Verdict::Retained,
-            run: || {
-                let mut out = Vec::new();
-                for method in [
-                    zip::CompressionMethod::Stored,
-                    zip::CompressionMethod::Deflated,
-                ] {
-                    let mut package = Package::new(&(p("First õ 日本語") + &p("Second preserved")));
-                    package.method = method;
-                    let (v, d) =
-                        sentinel(&package.bytes(), &["First õ 日本語", "Second preserved"]);
-                    if v != Verdict::Retained {
-                        return (v, format!("{method:?}: {d}"));
-                    }
-                    out.push(format!("{method:?} ok"));
-                }
-                (Verdict::Retained, out.join(", "))
-            },
-        },
-        Case {
-            id: "S2",
-            group: "supported",
-            title: "Heading style, numbered list, external link, simple table",
-            brn: "Ok DocxTextV1 (exact)",
-            expected: Verdict::Retained,
-            run: || {
-                let body = concat!(
-                    r#"<w:p><w:pPr><w:pStyle w:val="Heading1"/></w:pPr><w:r><w:t>Heading õ</w:t></w:r></w:p>"#,
-                    r#"<w:p><w:pPr><w:numPr><w:ilvl w:val="0"/><w:numId w:val="7"/></w:numPr></w:pPr><w:r><w:t>First item</w:t></w:r></w:p>"#,
-                    r#"<w:p><w:hyperlink r:id="link"><w:r><w:t>Reference</w:t></w:r></w:hyperlink></w:p>"#,
-                    r#"<w:tbl><w:tr><w:tc><w:p><w:r><w:t>left cell</w:t></w:r></w:p></w:tc><w:tc><w:p><w:r><w:t>right cell</w:t></w:r></w:p></w:tc></w:tr></w:tbl>"#
-                );
-                let styles = format!(
-                    r#"<w:styles xmlns:w="{W}"><w:style w:type="paragraph" w:styleId="Heading1"><w:pPr><w:outlineLvl w:val="0"/></w:pPr></w:style></w:styles>"#
-                );
-                let numbering = format!(
-                    r#"<w:numbering xmlns:w="{W}"><w:abstractNum w:abstractNumId="0"><w:lvl w:ilvl="0"><w:start w:val="1"/><w:numFmt w:val="decimal"/><w:lvlText w:val="%1)"/></w:lvl></w:abstractNum><w:num w:numId="7"><w:abstractNumId w:val="0"/></w:num></w:numbering>"#
-                );
-                let bytes = Package::new(body)
-                    .types(concat!(
-                        r#"<Override PartName="/word/styles.xml" ContentType="application/vnd.openxmlformats-officedocument.wordprocessingml.styles+xml"/>"#,
-                        r#"<Override PartName="/word/numbering.xml" ContentType="application/vnd.openxmlformats-officedocument.wordprocessingml.numbering+xml"/>"#
-                    ))
-                    .rels(&[
-                        ("styles", "styles", "styles.xml"),
-                        ("numbering", "numbering", "numbering.xml"),
-                        ("link", "hyperlink", "https://example.invalid/a?q=one&amp;b=two"),
-                    ])
-                    .part("word/styles.xml", styles)
-                    .part("word/numbering.xml", numbering)
-                    .bytes();
-                sentinel(
-                    &bytes,
-                    &[
-                        "Heading õ",
-                        "\"Heading1\"",
-                        "First item",
-                        "%1)",
-                        "Reference",
-                        "https://example.invalid/a?q=one&b=two",
-                        "left cell",
-                        "right cell",
-                    ],
-                )
-            },
-        },
-        Case {
-            id: "S3",
-            group: "supported",
-            title: "One inline PNG: exact bytes, occurrence order, alt/title wording",
-            brn: "Ok DocxInlinePngV1 (bytes, position, alt, title)",
-            expected: Verdict::SilentLoss,
-            run: || {
-                let image = png([0, 255, 0, 128]);
-                let run = format!(
-                    "<w:p><w:r><w:t>Before õ</w:t>{}<w:t>After</w:t></w:r></w:p>",
-                    drawing_titled("image1", "ALT-SENTINEL 日本語", "TITLE-SENTINEL")
-                );
-                let bytes = Package::new(&run)
-                    .rels(&[("image1", "image", "media/picture.png")])
-                    .part("word/media/picture.png", image.clone())
-                    .bytes();
-                let m = originals(&bytes);
-                let Some(model) = document_json(&m.read) else {
-                    return (Verdict::Refused, summary(&m));
-                };
-                let debug = match &m.read {
-                    Read::Ok(docx) => format!("{docx:?}"),
-                    _ => String::new(),
-                };
-                let found = images(&m.read);
-                let exact = found.len() == 1 && found[0].0 == "image1" && found[0].2 == image;
-                let before = model.find("Before õ");
-                let pic = model.find("\"image1\"");
-                let after = model.find("After");
-                let ordered =
-                    matches!((before, pic, after), (Some(b), Some(i), Some(a)) if b < i && i < a);
-                let alt = model.contains("ALT-SENTINEL 日本語") || debug.contains("ALT-SENTINEL");
-                let title = model.contains("TITLE-SENTINEL") || debug.contains("TITLE-SENTINEL");
-                let detail = format!(
-                    "Ok; exact bytes={exact}, rId in run order={ordered}; docPr alt text in model={alt}, title in model={title}"
-                );
-                if exact && ordered && alt && title {
-                    (Verdict::Retained, detail)
-                } else {
-                    (Verdict::SilentLoss, detail)
-                }
-            },
-        },
-        // ---- meaningful content outside the BRN profile ----
-        Case {
-            id: "M1",
-            group: "meaningful",
-            title: "Final-section default header",
-            brn: "docx_unsupported",
-            expected: Verdict::Retained,
-            run: || {
-                let body = p("Body")
-                    + r#"<w:sectPr><w:headerReference w:type="default" r:id="h1"/></w:sectPr>"#;
-                let bytes = Package::new(&body)
-                    .types(HEADER_CT)
-                    .rels(&[("h1", "header", "header1.xml")])
-                    .part("word/header1.xml", header(&p("HEADER-SENTINEL")))
-                    .bytes();
-                sentinel(&bytes, &["HEADER-SENTINEL"])
-            },
-        },
-        Case {
-            id: "M2",
-            group: "meaningful",
-            title: "Header referenced only by an earlier section",
-            brn: "docx_unsupported",
-            expected: Verdict::DetectableGap,
-            run: || {
-                let body = concat!(
-                    r#"<w:p><w:pPr><w:sectPr><w:headerReference w:type="default" r:id="h1"/></w:sectPr></w:pPr><w:r><w:t>Section one</w:t></w:r></w:p>"#,
-                    r#"<w:p><w:r><w:t>Section two</w:t></w:r></w:p><w:sectPr/>"#
-                );
-                let bytes = Package::new(body)
-                    .types(HEADER_CT)
-                    .rels(&[("h1", "header", "header1.xml")])
-                    .part("word/header1.xml", header(&p("EARLY-HEADER-SENTINEL")))
-                    .bytes();
-                traced(
-                    &bytes,
-                    &["Section one", "EARLY-HEADER-SENTINEL"],
-                    Some(r#""headerReference":{"headerType":"default","id":"h1"}"#),
-                )
-            },
-        },
-        Case {
-            id: "M3",
-            group: "meaningful",
-            title: "Final-section default footer",
-            brn: "docx_unsupported",
-            expected: Verdict::Retained,
-            run: || {
-                let body = p("Body")
-                    + r#"<w:sectPr><w:footerReference w:type="default" r:id="f1"/></w:sectPr>"#;
-                let bytes = Package::new(&body)
-                    .types(r#"<Override PartName="/word/footer1.xml" ContentType="application/vnd.openxmlformats-officedocument.wordprocessingml.footer+xml"/>"#)
-                    .rels(&[("f1", "footer", "footer1.xml")])
-                    .part("word/footer1.xml", format!("<w:ftr {NS}>{}</w:ftr>", p("FOOTER-SENTINEL")))
-                    .bytes();
-                sentinel(&bytes, &["Body", "FOOTER-SENTINEL"])
-            },
-        },
-        Case {
-            id: "M4",
-            group: "meaningful",
-            title: "Footnote reference (same run as text) and footnotes part",
-            brn: "docx_unsupported",
-            expected: Verdict::SilentLoss,
-            run: || {
-                let body =
-                    r#"<w:p><w:r><w:t>Claim</w:t><w:footnoteReference w:id="1"/></w:r></w:p>"#;
-                let notes = format!(
-                    r#"<w:footnotes xmlns:w="{W}"><w:footnote w:id="1"><w:p><w:r><w:t>FOOTNOTE-SENTINEL</w:t></w:r></w:p></w:footnote></w:footnotes>"#
-                );
-                let bytes = Package::new(body)
-                    .types(r#"<Override PartName="/word/footnotes.xml" ContentType="application/vnd.openxmlformats-officedocument.wordprocessingml.footnotes+xml"/>"#)
-                    .rels(&[("fn", "footnotes", "footnotes.xml")])
-                    .part("word/footnotes.xml", notes)
-                    .bytes();
-                sentinel(&bytes, &["Claim", "FOOTNOTE-SENTINEL"])
-            },
-        },
-        Case {
-            id: "M5",
-            group: "meaningful",
-            title: "Comment range, reference and comments part",
-            brn: "docx_unsupported",
-            expected: Verdict::Retained,
-            run: || {
-                let body = r#"<w:p><w:commentRangeStart w:id="0"/><w:r><w:t>Commented</w:t></w:r><w:commentRangeEnd w:id="0"/><w:r><w:commentReference w:id="0"/></w:r></w:p>"#;
-                let comments = format!(
-                    r#"<w:comments xmlns:w="{W}"><w:comment w:id="0" w:author="Synthetic"><w:p><w:r><w:t>COMMENT-SENTINEL</w:t></w:r></w:p></w:comment></w:comments>"#
-                );
-                let bytes = Package::new(body)
-                    .types(r#"<Override PartName="/word/comments.xml" ContentType="application/vnd.openxmlformats-officedocument.wordprocessingml.comments+xml"/>"#)
-                    .rels(&[("c", "comments", "comments.xml")])
-                    .part("word/comments.xml", comments)
-                    .bytes();
-                sentinel(&bytes, &["Commented", "COMMENT-SENTINEL"])
-            },
-        },
-        Case {
-            id: "M6",
-            group: "meaningful",
-            title: "Tracked insertion and deletion",
-            brn: "docx_unsupported",
-            expected: Verdict::Retained,
-            run: || {
-                let body = r#"<w:p><w:ins w:id="1" w:author="A"><w:r><w:t>INSERTED-SENTINEL</w:t></w:r></w:ins><w:del w:id="2" w:author="A"><w:r><w:delText>DELETED-SENTINEL</w:delText></w:r></w:del></w:p>"#;
-                sentinel(
-                    &Package::new(body).bytes(),
-                    &["INSERTED-SENTINEL", "DELETED-SENTINEL"],
-                )
-            },
-        },
-        Case {
-            id: "M7",
-            group: "meaningful",
-            title: "Second prefix bound to WordprocessingML inside a `w:` run",
-            brn: "Ok DocxTextV1 (both wordings)",
-            expected: Verdict::SilentLoss,
-            run: || {
-                let xml = format!(
-                    r#"<w:document xmlns:w="{W}" xmlns:x="{W}"><w:body><w:p><w:r><w:t>Visible </w:t><x:t>PREFIX-SENTINEL</x:t></w:r></w:p></w:body></w:document>"#
-                );
-                let mut package = Package::new("");
-                package.document = xml.into_bytes();
-                sentinel(&package.bytes(), &["Visible ", "PREFIX-SENTINEL"])
-            },
-        },
-        Case {
-            id: "M8",
-            group: "meaningful",
-            title: "WordprocessingML as the default namespace (no prefix)",
-            brn: "Ok DocxTextV1 (wording kept)",
-            expected: Verdict::SilentLoss,
-            run: || {
-                let xml = format!(
-                    r#"<document xmlns="{W}"><body><p><r><t>DEFAULT-NS-SENTINEL</t></r></p></body></document>"#
-                );
-                let mut package = Package::new("");
-                package.document = xml.into_bytes();
-                sentinel(&package.bytes(), &["DEFAULT-NS-SENTINEL"])
-            },
-        },
-        Case {
-            id: "M9",
-            group: "meaningful",
-            title: "`w` prefix bound to a non-WordprocessingML namespace",
-            brn: "docx_unsupported",
-            expected: Verdict::Misread,
-            run: || {
-                let xml = r#"<w:document xmlns:w="urn:example:not-wordprocessingml"><w:body><w:p><w:r><w:t>FOREIGN-SENTINEL</w:t></w:r></w:p></w:body></w:document>"#;
-                let mut package = Package::new("");
-                package.document = xml.as_bytes().to_vec();
-                match sentinel(&package.bytes(), &["FOREIGN-SENTINEL"]) {
-                    (Verdict::Retained, _) => (
-                        Verdict::Misread,
-                        "Ok; foreign-namespace wording read as document text".into(),
-                    ),
-                    other => other,
-                }
-            },
-        },
-        Case {
-            id: "M10",
-            group: "meaningful",
-            title: "Body-level altChunk imported part",
-            brn: "docx_unsupported",
-            expected: Verdict::SilentLoss,
-            run: || {
-                let body = p("Before chunk") + r#"<w:altChunk r:id="alt"/>"#;
-                let bytes = Package::new(&body)
-                    .rels(&[("alt", "aFChunk", "afchunk.html")])
-                    .part(
-                        "word/afchunk.html",
-                        "<html><body>ALTCHUNK-SENTINEL</body></html>",
-                    )
-                    .bytes();
-                sentinel(&bytes, &["Before chunk", "ALTCHUNK-SENTINEL"])
-            },
-        },
-        Case {
-            id: "M11",
-            group: "meaningful",
-            title: "Legacy VML text box (w:pict/v:shape/v:textbox)",
-            brn: "docx_unsupported",
-            expected: Verdict::DetectableGap,
-            run: || {
-                let body = concat!(
-                    r#"<w:p><w:r><w:t>Anchor</w:t></w:r><w:r><w:pict><v:shape id="s1" style="width:100pt;height:40pt">"#,
-                    r#"<v:textbox><w:txbxContent><w:p><w:r><w:t>VML-SENTINEL</w:t></w:r></w:p></w:txbxContent></v:textbox>"#,
-                    r#"</v:shape></w:pict></w:r></w:p>"#
-                );
-                traced(
-                    &Package::new(body).bytes(),
-                    &["Anchor", "VML-SENTINEL"],
-                    Some(r#""type":"shape""#),
-                )
-            },
-        },
-        Case {
-            id: "M12",
-            group: "meaningful",
-            title: "Ruby annotation (base and phonetic text)",
-            brn: "docx_unsupported",
-            expected: Verdict::Flattened,
-            run: || {
-                let body = concat!(
-                    r#"<w:p><w:r><w:ruby><w:rubyPr/><w:rt><w:r><w:t>RUBY-TEXT</w:t></w:r></w:rt>"#,
-                    r#"<w:rubyBase><w:r><w:t>RUBY-BASE</w:t></w:r></w:rubyBase></w:ruby></w:r>"#,
-                    r#"<w:r><w:t>Tail</w:t></w:r></w:p>"#
-                );
-                match sentinel(
-                    &Package::new(body).bytes(),
-                    &["RUBY-TEXT", "RUBY-BASE", "Tail", "ruby"],
-                ) {
-                    (Verdict::SilentLoss, d) if d.contains("\"ruby\"") && !d.contains("RUBY-") => (
-                        Verdict::Flattened,
-                        "Ok; phonetic guide and base become consecutive plain runs".into(),
-                    ),
-                    other => other,
-                }
-            },
-        },
-        Case {
-            id: "M13",
-            group: "meaningful",
-            title: "Simple HYPERLINK field: destination vs cached result",
-            brn: "docx_unsupported",
-            expected: Verdict::SilentLoss,
-            run: || {
-                let body = r#"<w:p><w:fldSimple w:instr=" HYPERLINK &quot;https://field.invalid/&quot; "><w:r><w:t>FIELD-RESULT</w:t></w:r></w:fldSimple></w:p>"#;
-                match sentinel(&Package::new(body).bytes(), &["FIELD-RESULT", "field.invalid"]) {
-                    (Verdict::SilentLoss, d) if d.contains("field.invalid") && !d.contains("FIELD-RESULT") => (
-                        Verdict::SilentLoss,
-                        "Ok; result wording kept as plain run; instruction and link destination absent".into(),
-                    ),
-                    other => other,
-                }
-            },
-        },
-        Case {
-            id: "M14",
-            group: "meaningful",
-            title: "Inline customXml wrapper around a run",
-            brn: "docx_unsupported",
-            expected: Verdict::Flattened,
-            run: || {
-                let body = r#"<w:p><w:customXml w:uri="urn:example:tags" w:element="secret"><w:r><w:t>CUSTOMXML-WORDING</w:t></w:r></w:customXml></w:p>"#;
-                match sentinel(
-                    &Package::new(body).bytes(),
-                    &["CUSTOMXML-WORDING", "urn:example:tags"],
-                ) {
-                    (Verdict::SilentLoss, d) if !d.contains("CUSTOMXML-WORDING") => (
-                        Verdict::Flattened,
-                        "Ok; wording kept as plain run, wrapper semantics absent".into(),
-                    ),
-                    other => other,
-                }
-            },
-        },
-        // ---- budgets, integrity and package aliases ----
-        Case {
-            id: "B1",
-            group: "budget",
-            title: "Document entry advertising 3.75 GiB (0xF0000000) uncompressed size",
-            brn: "docx_limit",
-            expected: Verdict::AdvertisedAllocation,
-            run: || {
-                let mut bytes = Package::new(&p("tiny")).bytes();
-                let declared = 0xF000_0000usize;
-                patch_entry(&mut bytes, "word/document.xml", |b, local, central| {
-                    set32(b, local + 22, declared);
-                    set32(b, central + 24, declared);
-                });
-                let m = originals(&bytes);
-                let detail = format!(
-                    "{}; largest single allocation {} bytes",
-                    summary(&m),
-                    m.largest
-                );
-                if m.largest >= declared {
-                    (Verdict::AdvertisedAllocation, detail)
-                } else {
-                    (Verdict::Refused, detail)
-                }
-            },
-        },
-        Case {
-            id: "B2",
-            group: "budget",
-            title: "Stored document entry with corrupted bytes (CRC mismatch)",
-            brn: "docx_invalid",
-            expected: Verdict::Panic,
-            run: || {
-                let mut package = Package::new(&p("CRC-SENTINEL"));
-                package.method = zip::CompressionMethod::Stored;
-                let mut bytes = package.bytes();
-                let at = find(&bytes, b"CRC-SENTINEL").unwrap();
-                bytes[at] = b'X';
-                sentinel(&bytes, &["XRC-SENTINEL"])
-            },
-        },
-        Case {
-            id: "B3",
-            group: "budget",
-            title: "Main part stored under a backslash name",
-            brn: "docx_invalid",
-            expected: Verdict::Refused,
-            run: || {
-                let mut bytes = Package::new(&p("BACKSLASH-SENTINEL")).bytes();
-                rename_entry(&mut bytes, "word/document.xml", "word\\document.xml");
-                match sentinel(&bytes, &["BACKSLASH-SENTINEL"]) {
-                    (Verdict::Retained, _) => (
-                        Verdict::Misread,
-                        "Ok; backslash-named entry read as the main part".into(),
-                    ),
-                    other => other,
-                }
-            },
-        },
-        Case {
-            id: "B4",
-            group: "budget",
-            title: "Case-alias second main part (word/ vs WORD/)",
-            brn: "docx_invalid",
-            expected: Verdict::Misread,
-            run: || {
-                let bytes = Package::new(&p("LOWER-SENTINEL"))
-                    .part("WORD/document.xml", document(&p("UPPER-SENTINEL")))
-                    .bytes();
-                let (v, d) = sentinel(&bytes, &["LOWER-SENTINEL"]);
-                if v == Verdict::Retained {
-                    (
-                        Verdict::Misread,
-                        "Ok; one alias silently chosen, the other ignored".into(),
-                    )
-                } else {
-                    (v, d)
-                }
-            },
-        },
-        Case {
-            id: "B5",
-            group: "budget",
-            title: "Internal DTD entity in document text",
-            brn: "docx_unsupported",
-            expected: Verdict::Refused,
-            run: || {
-                let xml = format!(
-                    r#"<!DOCTYPE w:document [<!ENTITY s "ENTITY-SENTINEL">]><w:document xmlns:w="{W}"><w:body><w:p><w:r><w:t>A&s;B</w:t></w:r></w:p></w:body></w:document>"#
-                );
-                let mut package = Package::new("");
-                package.document = xml.into_bytes();
-                sentinel(&package.bytes(), &["AENTITY-SENTINELB"])
-            },
-        },
-        Case {
-            id: "B6",
-            group: "budget",
-            title: "UTF-16 encoded main part",
-            brn: "docx_unsupported",
-            expected: Verdict::Refused,
-            run: || {
-                let xml = format!(
-                    r#"<?xml version="1.0" encoding="UTF-16"?><w:document xmlns:w="{W}"><w:body><w:p><w:r><w:t>UTF16-SENTINEL</w:t></w:r></w:p></w:body></w:document>"#
-                );
-                let mut encoded = vec![0xff, 0xfe];
-                for unit in xml.encode_utf16() {
-                    encoded.extend(unit.to_le_bytes());
-                }
-                let mut package = Package::new("");
-                package.document = encoded;
-                match sentinel(&package.bytes(), &["UTF16-SENTINEL"]) {
-                    (Verdict::Retained, _) => (Verdict::Misread, "Ok; UTF-16 accepted".into()),
-                    other => other,
-                }
-            },
-        },
-        Case {
-            id: "B7",
-            group: "budget",
-            title: "Body inside BRN's XML budget (8,001 paragraphs, ~7.1 MiB XML): uncancellable read",
-            brn: "docx_limit (1 MiB output cap; XML budget passes)",
-            expected: Verdict::Retained,
-            run: || {
-                // BRN's XML guard: <= 8 MiB total XML and <= 50,000 raw `<`/`=`
-                // delimiters per part. This body passes both, so BRN refuses only
-                // at its 1 MiB rendered-output cap.
-                let line = format!("<w:p><w:r><w:t>{}</w:t></w:r></w:p>", "a".repeat(900));
-                let body = line.repeat(8_000) + &p("LAST-SENTINEL");
-                let xml = document(&body);
-                let delimiters = xml.bytes().filter(|b| matches!(b, b'<' | b'=')).count();
-                assert!(delimiters <= 50_000 && xml.len() < 8 * 1024 * 1024 - 4096);
-                let bytes = Package::new(&body).bytes();
-                let m = originals(&bytes);
-                let ok = json(&m.read).is_some_and(|j| j.contains("LAST-SENTINEL"));
-                let detail = format!(
-                    "{}; {} ms in one call with no cancellation hook; peak heap {} MiB; xml {} bytes, {} delimiters",
-                    summary(&m),
-                    m.millis,
-                    m.peak / (1024 * 1024),
-                    xml.len(),
-                    delimiters
-                );
-                (
-                    if ok {
-                        Verdict::Retained
-                    } else {
-                        Verdict::SilentLoss
-                    },
-                    detail,
-                )
-            },
-        },
-        // ---- images ----
-        Case {
-            id: "I1",
-            group: "images",
-            title: "Two distinct PNGs, two relationships, two occurrences",
-            brn: "docx_unsupported",
-            expected: Verdict::Retained,
-            run: || {
-                let (a, b) = (png([255, 0, 0, 255]), png([0, 0, 255, 255]));
-                let bytes = Package::new(&(image_run("imgA", "A") + &image_run("imgB", "B")))
-                    .rels(&[
-                        ("imgA", "image", "media/a.png"),
-                        ("imgB", "image", "media/b.png"),
-                    ])
-                    .part("word/media/a.png", a.clone())
-                    .part("word/media/b.png", b.clone())
-                    .bytes();
-                let m = originals(&bytes);
-                let found = images(&m.read);
-                let model = document_json(&m.read).unwrap_or_default();
-                let exact = found.iter().any(|i| i.0 == "imgA" && i.2 == a)
-                    && found.iter().any(|i| i.0 == "imgB" && i.2 == b);
-                let ordered = matches!((model.find("\"imgA\""), model.find("\"imgB\"")), (Some(x), Some(y)) if x < y);
-                if exact && ordered && found.len() == 2 {
-                    (
-                        Verdict::Retained,
-                        "exact bytes; occurrences in document order by rId".into(),
-                    )
-                } else {
-                    (
-                        Verdict::SilentLoss,
-                        format!("{} images exact={exact} ordered={ordered}", found.len()),
-                    )
-                }
-            },
-        },
-        Case {
-            id: "I2",
-            group: "images",
-            title: "One relationship used by two occurrences",
-            brn: "docx_unsupported",
-            expected: Verdict::Retained,
-            run: || {
-                let image = png([1, 2, 3, 255]);
-                let bytes =
-                    Package::new(&(image_run("img", "first") + &image_run("img", "second")))
-                        .rels(&[("img", "image", "media/one.png")])
-                        .part("word/media/one.png", image.clone())
-                        .bytes();
-                let m = originals(&bytes);
-                let found = images(&m.read);
-                let model = document_json(&m.read).unwrap_or_default();
-                let refs = count(&model, "\"img\"");
-                if found.len() == 1 && found[0].2 == image && refs == 2 {
-                    (
-                        Verdict::Retained,
-                        format!("one asset; {refs} drawings in the document name its rId"),
-                    )
-                } else {
-                    (
-                        Verdict::SilentLoss,
-                        format!("{} images, {refs} references", found.len()),
-                    )
-                }
-            },
-        },
-        Case {
-            id: "I3",
-            group: "images",
-            title: "Ordinary JPEG with previews disabled",
-            brn: "docx_unsupported",
-            expected: Verdict::Retained,
-            run: || {
-                let bytes = Package::new(&image_run("jpg", "photo"))
-                    .rels(&[("jpg", "image", "media/photo.jpg")])
-                    .part("word/media/photo.jpg", JPEG)
-                    .bytes();
-                let m = originals(&bytes);
-                let found = images(&m.read);
-                if found.len() == 1 && found[0].2 == JPEG {
-                    (
-                        Verdict::Retained,
-                        "exact original JPEG bytes and rId retained".into(),
-                    )
-                } else {
-                    (Verdict::SilentLoss, format!("{} images", found.len()))
-                }
-            },
-        },
-        Case {
-            id: "I4",
-            group: "images",
-            title: "Same JPEG through default read_docx without the `image` feature",
-            brn: "docx_unsupported",
-            expected: Verdict::SilentLoss,
-            run: || {
-                let bytes = Package::new(&image_run("jpg", "photo"))
-                    .rels(&[("jpg", "image", "media/photo.jpg")])
-                    .part("word/media/photo.jpg", JPEG)
-                    .bytes();
-                keep(&bytes);
-                let m = measure(|| read_docx(&bytes));
-                let found = images(&m.read);
-                match &m.read {
-                    Read::Ok(_) if found.is_empty() => (
-                        Verdict::SilentLoss,
-                        "Ok; image omitted from Docx::images while the drawing remains".into(),
-                    ),
-                    Read::Ok(_) => (Verdict::Retained, format!("{} images", found.len())),
-                    _ => (Verdict::Refused, summary(&m)),
-                }
-            },
-        },
-        Case {
-            id: "I5",
-            group: "images",
-            title: "Header image and body image both use relationship id rId1",
-            brn: "docx_unsupported",
-            expected: Verdict::Ambiguous,
-            run: || {
-                let (body_png, header_png) = (png([10, 10, 10, 255]), png([200, 200, 200, 255]));
-                let body = image_run("rId1", "body")
-                    + r#"<w:sectPr><w:headerReference w:type="default" r:id="h1"/></w:sectPr>"#;
-                let hdr = header(&image_run("rId1", "header"));
-                let bytes = Package::new(&body)
-                    .types(HEADER_CT)
-                    .rels(&[
-                        ("rId1", "image", "media/body.png"),
-                        ("h1", "header", "header1.xml"),
-                    ])
-                    .part("word/header1.xml", hdr)
-                    .part(
-                        "word/_rels/header1.xml.rels",
-                        rels(&[("rId1", "image", "media/header.png")]),
-                    )
-                    .part("word/media/body.png", body_png.clone())
-                    .part("word/media/header.png", header_png.clone())
-                    .bytes();
-                let m = originals(&bytes);
-                let found = images(&m.read);
-                let matching: Vec<_> = found.iter().filter(|i| i.0 == "rId1").collect();
-                let first_is_body = matching.first().is_some_and(|i| i.2 == body_png);
-                if matching.len() > 1 {
-                    (
-                        Verdict::Ambiguous,
-                        format!(
-                            "{} images share id rId1 (first is body image: {first_is_body}); paths {:?}",
-                            matching.len(),
-                            matching.iter().map(|i| i.1.as_str()).collect::<Vec<_>>()
-                        ),
-                    )
-                } else {
-                    (Verdict::Retained, format!("{} images", found.len()))
-                }
-            },
-        },
-        Case {
-            id: "I6",
-            group: "images",
-            title: "Image relationship whose part is missing",
-            brn: "docx_invalid",
-            expected: Verdict::DetectableGap,
-            run: || {
-                let bytes = Package::new(&image_run("gone", "missing"))
-                    .rels(&[("gone", "image", "media/missing.png")])
-                    .bytes();
-                let m = originals(&bytes);
-                let found = images(&m.read);
-                let model = json(&m.read).unwrap_or_default();
-                match &m.read {
-                    Read::Ok(_) if found.is_empty() && model.contains("\"gone\"") => (
-                        Verdict::DetectableGap,
-                        "Ok; no image entry, drawing still names rId (adapter can refuse)".into(),
-                    ),
-                    _ => (Verdict::Refused, summary(&m)),
-                }
-            },
-        },
+        c(
+            "S0",
+            "supported",
+            "Minimal package, no word/_rels/document.xml.rels",
+            "Ok DocxTextV1",
+            Text(&["Minimal õ"], &[]),
+            [Refused, Retained, Retained, Retained],
+        ),
+        c(
+            "S1a",
+            "supported",
+            "Unicode paragraphs, Stored",
+            "Ok DocxTextV1 (exact)",
+            Text(&["First õ 日本語", "Second preserved"], &[]),
+            [Retained, Retained, Retained, Retained],
+        ),
+        c(
+            "S1b",
+            "supported",
+            "Unicode paragraphs, Deflate",
+            "Ok DocxTextV1 (exact)",
+            Text(&["First õ 日本語", "Second preserved"], &[]),
+            [Retained, Retained, Retained, Retained],
+        ),
+        c(
+            "S2",
+            "supported",
+            "Heading style, numbered list, external link, simple table",
+            "Ok DocxTextV1 (exact)",
+            Text(
+                &[
+                    "Heading õ",
+                    "First item",
+                    "Reference",
+                    "https://example.invalid/a?q=one&b=two",
+                    "left cell",
+                    "right cell",
+                ],
+                &[],
+            ),
+            [Retained, Retained, Retained, Retained],
+        ),
+        c(
+            "S3",
+            "supported",
+            "One inline PNG: exact bytes, alt text and title",
+            "Ok DocxInlinePngV1 (bytes, position, alt, title)",
+            Picture,
+            [SilentLoss, SilentLoss, SilentLoss, Retained],
+        ),
+        c(
+            "S4",
+            "supported",
+            "External hyperlink with a tooltip",
+            "Ok DocxTextV1 (tooltip as link title)",
+            Text(
+                &[
+                    "Linked words",
+                    "https://example.invalid/tip",
+                    "TOOLTIP-SENTINEL",
+                ],
+                &[],
+            ),
+            [SilentLoss, Retained, Retained, Retained],
+        ),
+        c(
+            "M1",
+            "meaningful",
+            "Final-section default header",
+            "docx_unsupported",
+            Text(&["Body", "HEADER-SENTINEL"], &[]),
+            [Retained, Retained, Retained, Retained],
+        ),
+        c(
+            "M2",
+            "meaningful",
+            "Header referenced only by an earlier section",
+            "docx_unsupported",
+            Text(&["Section one", "EARLY-HEADER-SENTINEL"], &["rIdEarlyHdr7"]),
+            [DetectableGap, Retained, Retained, Retained],
+        ),
+        c(
+            "M3",
+            "meaningful",
+            "Final-section default footer",
+            "docx_unsupported",
+            Text(&["Body", "FOOTER-SENTINEL"], &[]),
+            [Retained, Retained, Retained, Retained],
+        ),
+        c(
+            "M4",
+            "meaningful",
+            "Footnote reference (same run as text) and footnotes part",
+            "docx_unsupported",
+            Text(&["Claim", "FOOTNOTE-SENTINEL"], &["7731"]),
+            [SilentLoss, Retained, Retained, Retained],
+        ),
+        c(
+            "M5",
+            "meaningful",
+            "Comment range, reference and comments part",
+            "docx_unsupported",
+            Text(&["Commented", "COMMENT-SENTINEL"], &[]),
+            [Retained, Retained, Retained, Retained],
+        ),
+        c(
+            "M6",
+            "meaningful",
+            "Tracked insertion and deletion",
+            "docx_unsupported",
+            Text(&["INSERTED-SENTINEL", "DELETED-SENTINEL"], &["ReviserZ9"]),
+            [Retained, DetectableGap, SilentLoss, Retained],
+        ),
+        c(
+            "M7",
+            "meaningful",
+            "Second prefix bound to WordprocessingML inside a `w:` run",
+            "Ok DocxTextV1 (both wordings)",
+            Text(&["Visible ", "PREFIX-SENTINEL"], &[]),
+            [SilentLoss, Retained, Retained, Retained],
+        ),
+        c(
+            "M8",
+            "meaningful",
+            "WordprocessingML as the default namespace",
+            "Ok DocxTextV1 (wording kept)",
+            Text(&["DEFAULT-NS-SENTINEL"], &[]),
+            [SilentLoss, Retained, Retained, Retained],
+        ),
+        c(
+            "M9",
+            "meaningful",
+            "`w` prefix bound to a non-WordprocessingML namespace",
+            "docx_unsupported",
+            Accepts(&["FOREIGN-SENTINEL"], false),
+            [Misread, Refused, Refused, Misread],
+        ),
+        c(
+            "M10",
+            "meaningful",
+            "Body-level altChunk imported part",
+            "docx_unsupported",
+            Text(&["Before chunk", "ALTCHUNK-SENTINEL"], &["rIdAltChunk9"]),
+            [SilentLoss, DetectableGap, Retained, DetectableGap],
+        ),
+        c(
+            "M11",
+            "meaningful",
+            "Legacy VML text box (w:pict/v:shape/v:textbox)",
+            "docx_unsupported",
+            Text(&["Anchor", "VML-SENTINEL"], &["VmlShape42", "width:101pt"]),
+            [DetectableGap, Retained, Retained, SilentLoss],
+        ),
+        c(
+            "M12",
+            "meaningful",
+            "Ruby annotation (base and phonetic text)",
+            "docx_unsupported",
+            Structure(
+                &["RUBY-TEXT", "RUBY-BASE", "Tail"],
+                &["<ruby", "\"ruby\"", "Ruby"],
+            ),
+            [Flattened, DetectableGap, SilentLoss, SilentLoss],
+        ),
+        c(
+            "M13",
+            "meaningful",
+            "Simple HYPERLINK field: destination vs cached result",
+            "docx_unsupported",
+            Text(&["FIELD-RESULT", "field.invalid"], &[]),
+            [SilentLoss, Retained, Retained, Retained],
+        ),
+        c(
+            "M14",
+            "meaningful",
+            "Inline customXml wrapper around a run",
+            "docx_unsupported",
+            Structure(&["CUSTOMXML-WORDING"], &["urn:example:tags", "secret"]),
+            [Flattened, DetectableGap, Flattened, Flattened],
+        ),
+        c(
+            "M15",
+            "meaningful",
+            "Unknown WordprocessingML element wrapping a run",
+            "docx_unsupported",
+            Structure(&["Seen", "UNKNOWN-WRAPPED"], &["unknownWrapper"]),
+            [Flattened, DetectableGap, SilentLoss, SilentLoss],
+        ),
+        c(
+            "B1",
+            "budget",
+            "Main part advertising 3.75 GiB (0xF0000000) uncompressed",
+            "docx_limit",
+            Advertised,
+            [AdvertisedAllocation, Refused, Refused, Lenient],
+        ),
+        c(
+            "B2",
+            "budget",
+            "Stored main part with a corrupted byte (CRC mismatch)",
+            "docx_invalid",
+            Accepts(&["XRC-SENTINEL"], false),
+            [Panic, Refused, DetectableGap, Refused],
+        ),
+        c(
+            "B3",
+            "budget",
+            "Main part stored under a backslash name",
+            "docx_invalid",
+            Accepts(&["BACKSLASH-SENTINEL"], true),
+            [Refused, Refused, Lenient, Refused],
+        ),
+        c(
+            "B4",
+            "budget",
+            "Case-alias second main part (word/ vs WORD/)",
+            "docx_invalid",
+            Accepts(&["LOWER-SENTINEL", "UPPER-SENTINEL"], false),
+            [Misread, Refused, Refused, Refused],
+        ),
+        c(
+            "B5",
+            "budget",
+            "Internal DTD entity in document text",
+            "docx_unsupported",
+            Accepts(&["AENTITY-SENTINELB", "A&s;B"], false),
+            [Refused, Misread, Misread, Refused],
+        ),
+        c(
+            "B6",
+            "budget",
+            "UTF-16 encoded main part",
+            "docx_unsupported",
+            Accepts(&["UTF16-SENTINEL"], true),
+            [Refused, Refused, Lenient, Refused],
+        ),
+        c(
+            "B7",
+            "budget",
+            "Body inside BRN's XML budget (8,001 paragraphs, ~7.1 MiB XML)",
+            "docx_limit (1 MiB output cap)",
+            Timed,
+            [Retained, Retained, Retained, Retained],
+        ),
+        c(
+            "I1",
+            "images",
+            "Two PNGs, two relationships, two occurrences",
+            "docx_unsupported",
+            TwoImages,
+            [Retained, Retained, Retained, Retained],
+        ),
+        c(
+            "I2",
+            "images",
+            "One relationship used by two occurrences",
+            "docx_unsupported",
+            SharedImage,
+            [Retained, Retained, Retained, Retained],
+        ),
+        c(
+            "I3",
+            "images",
+            "Ordinary 8x8 JPEG",
+            "docx_unsupported",
+            Jpeg,
+            [Retained, Retained, Retained, Retained],
+        ),
+        c(
+            "I5",
+            "images",
+            "Header and body images both rId1: body occurrence maps to body bytes (header image not verified)",
+            "docx_unsupported",
+            SameRid,
+            [Ambiguous, Retained, Retained, Retained],
+        ),
+        c(
+            "I6",
+            "images",
+            "Image relationship whose part is missing",
+            "docx_invalid",
+            MissingImage,
+            [DetectableGap, DetectableGap, DetectableGap, DetectableGap],
+        ),
     ]
 }
 
-// --------------------------------------------------------------- zip patches
+fn present(model: &Model, needle: &str) -> bool {
+    model.dump.contains(needle)
+}
 
-fn u16_at(b: &[u8], at: usize) -> usize {
-    u16::from_le_bytes(b[at..at + 2].try_into().unwrap()) as usize
-}
-fn u32_at(b: &[u8], at: usize) -> usize {
-    u32::from_le_bytes(b[at..at + 4].try_into().unwrap()) as usize
-}
-fn set32(b: &mut [u8], at: usize, value: usize) {
-    b[at..at + 4].copy_from_slice(&(value as u32).to_le_bytes());
-}
-fn find(haystack: &[u8], needle: &[u8]) -> Option<usize> {
-    haystack.windows(needle.len()).position(|w| w == needle)
-}
-/// Calls `f(bytes, local_header, central_header)` for the named entry.
-fn patch_entry(b: &mut Vec<u8>, name: &str, f: impl FnOnce(&mut Vec<u8>, usize, usize)) {
-    let footer = b.len() - 22;
-    let count = u16_at(b, footer + 10);
-    let mut at = u32_at(b, footer + 16);
-    for _ in 0..count {
-        let len = u16_at(b, at + 28);
-        let next = at + 46 + len + u16_at(b, at + 30) + u16_at(b, at + 32);
-        if &b[at + 46..at + 46 + len] == name.as_bytes() {
-            let local = u32_at(b, at + 42);
-            f(b, local, at);
-            return;
-        }
-        at = next;
+/// Content is missing: detectable if a trace, warning or unmodelled-item
+/// report remains, otherwise silent.
+fn gap(model: &Model, what: &str, trace: &[&str]) -> (Verdict, String) {
+    if let Some(t) = trace.iter().find(|t| present(model, t)) {
+        return (DetectableGap, format!("Ok; {what}; trace kept: {t}"));
     }
-    panic!("entry {name} not found");
-}
-/// Same-length rename in both local and central headers.
-fn rename_entry(b: &mut Vec<u8>, from: &str, to: &str) {
-    assert_eq!(from.len(), to.len());
-    patch_entry(b, from, |b, local, central| {
-        b[local + 30..local + 30 + to.len()].copy_from_slice(to.as_bytes());
-        b[central + 46..central + 46 + to.len()].copy_from_slice(to.as_bytes());
-    });
-}
-
-// ---------------------------------------------------------------------- main
-
-fn main() {
-    println!(
-        "| ID | Group | Case | BRN converter at 450eaa2 | docx-rs 0.4.22 verdict | Observation |"
-    );
-    println!("| --- | --- | --- | --- | --- | --- |");
-    let mut mismatches = 0;
-    // Optional argument: run only the listed case IDs.
-    let only: Vec<String> = std::env::args().skip(1).collect();
-    for case in cases() {
-        if !only.is_empty() && !only.iter().any(|id| id == case.id) {
-            continue;
-        }
-        CASE.with_borrow_mut(|c| *c = (case.id, 0));
-        let (verdict, detail) = (case.run)();
-        let flag = if verdict == case.expected {
-            ""
-        } else {
-            mismatches += 1;
-            " **(unexpected)**"
-        };
-        println!(
-            "| {} | {} | {} | {} | {:?}{} | {} |",
-            case.id,
-            case.group,
-            case.title,
-            case.brn,
-            verdict,
-            flag,
-            detail.replace('|', "\\|")
+    if !model.unmodelled.is_empty() {
+        return (
+            DetectableGap,
+            format!("Ok; {what}; reported unmodelled {:?}", model.unmodelled),
         );
     }
+    if !model.warnings.is_empty() {
+        return (
+            DetectableGap,
+            format!("Ok; {what}; warnings: {:?}", model.warnings),
+        );
+    }
+    (
+        SilentLoss,
+        format!("Ok; {what}, no trace, warning or unmodelled report"),
+    )
+}
+
+fn judge(check: &Check, m: &Measured) -> (Verdict, String) {
+    let model = match &m.read {
+        Read::Ok(model) => model,
+        Read::Err(e) => {
+            if matches!(check, Check::Advertised) {
+                return (
+                    Refused,
+                    format!("Err({e}); largest allocation {} bytes", m.largest),
+                );
+            }
+            return (
+                Refused,
+                format!("Err({})", e.chars().take(160).collect::<String>()),
+            );
+        }
+        Read::Panic(p) => return (Panic, format!("panic: {p}")),
+    };
+    let warned = if model.warnings.is_empty() {
+        String::new()
+    } else {
+        format!("; warnings: {:?}", model.warnings)
+    };
+    match check {
+        Check::Text(wanted, trace) => {
+            let missing: Vec<_> = wanted.iter().filter(|s| !present(model, s)).collect();
+            if missing.is_empty() {
+                return (Retained, format!("Ok; all present{warned}"));
+            }
+            gap(model, &format!("missing {missing:?}"), trace)
+        }
+        Check::Accepts(wanted, lenient) => {
+            if let Some(found) = wanted.iter().find(|s| present(model, s)) {
+                if !model.warnings.is_empty() {
+                    (
+                        DetectableGap,
+                        format!("Ok; {found:?} read as content{warned}"),
+                    )
+                } else if *lenient {
+                    (Lenient, format!("Ok; accepted, {found:?} read correctly"))
+                } else {
+                    (Misread, format!("Ok; accepted, {found:?} read as content"))
+                }
+            } else {
+                gap(model, &format!("nothing refused, {wanted:?} absent"), &[])
+            }
+        }
+        Check::Structure(wanted, structure) => {
+            let missing: Vec<_> = wanted.iter().filter(|s| !present(model, s)).collect();
+            if !missing.is_empty() {
+                return gap(model, &format!("missing {missing:?}"), structure);
+            }
+            match structure.iter().find(|s| present(model, s)) {
+                Some(s) => (
+                    Retained,
+                    format!("Ok; wording and structure ({s}) kept{warned}"),
+                ),
+                None if !model.unmodelled.is_empty() || !model.warnings.is_empty() => (
+                    DetectableGap,
+                    format!(
+                        "Ok; wording kept, structure absent; reported unmodelled {:?}{warned}",
+                        model.unmodelled
+                    ),
+                ),
+                None => (
+                    Flattened,
+                    "Ok; wording kept as plain text, structure absent".into(),
+                ),
+            }
+        }
+        Check::Picture => {
+            let image = fixtures::png_bytes(fixtures::PNG_ONE);
+            let exact = model.images.iter().any(|(_, b)| *b == image);
+            let alt = present(model, "ALT-SENTINEL 日本語");
+            let title = present(model, "TITLE-SENTINEL");
+            let one = model.occurrences.len() == 1;
+            let detail = format!(
+                "Ok; exact bytes={exact}, one occurrence={one}, alt text={alt}, title={title}{warned}"
+            );
+            if exact && one && alt && title {
+                (Retained, detail)
+            } else {
+                (SilentLoss, detail)
+            }
+        }
+        Check::TwoImages => {
+            let (a, b) = (
+                fixtures::png_bytes(fixtures::PNG_A),
+                fixtures::png_bytes(fixtures::PNG_B),
+            );
+            let exact = model.images.iter().any(|(_, x)| *x == a)
+                && model.images.iter().any(|(_, x)| *x == b);
+            let detail = format!(
+                "Ok; occurrences {:?}, both exact={exact}",
+                model.occurrences
+            );
+            if exact && model.occurrences.len() == 2 {
+                (Retained, detail)
+            } else {
+                (SilentLoss, detail)
+            }
+        }
+        Check::SharedImage => {
+            let shared = fixtures::png_bytes(fixtures::PNG_SHARED);
+            let exact = model.images.iter().any(|(_, x)| *x == shared);
+            let detail = format!("Ok; occurrences {:?}, exact={exact}", model.occurrences);
+            if exact && model.occurrences.len() == 2 {
+                (Retained, detail)
+            } else {
+                (SilentLoss, detail)
+            }
+        }
+        Check::Jpeg => {
+            let exact = model.images.iter().any(|(_, x)| x == fixtures::jpeg());
+            let detail = format!(
+                "Ok; occurrences {:?}, exact original JPEG={exact}",
+                model.occurrences
+            );
+            if exact && model.occurrences.len() == 1 {
+                (Retained, detail)
+            } else {
+                (SilentLoss, detail)
+            }
+        }
+        Check::SameRid => {
+            let body = fixtures::png_bytes(fixtures::PNG_BODY);
+            let header = fixtures::png_bytes(fixtures::PNG_HEADER);
+            // Ambiguous when one id the reader uses for occurrences maps to both
+            // the body and the header bytes.
+            let mut ambiguous = false;
+            let mut body_mapped = false;
+            for id in &model.occurrences {
+                let bytes: Vec<_> = model
+                    .images
+                    .iter()
+                    .filter(|(i, _)| i == id)
+                    .map(|(_, b)| b)
+                    .collect();
+                let (has_body, has_header) = (bytes.contains(&&body), bytes.contains(&&header));
+                ambiguous |= has_body && has_header;
+                body_mapped |= has_body && !has_header;
+            }
+            let detail = format!(
+                "Ok; occurrences {:?}; image ids {:?}",
+                model.occurrences,
+                model
+                    .images
+                    .iter()
+                    .map(|(i, _)| i.as_str())
+                    .collect::<Vec<_>>()
+            );
+            if ambiguous {
+                (Ambiguous, detail)
+            } else if body_mapped {
+                (Retained, detail)
+            } else {
+                (SilentLoss, detail)
+            }
+        }
+        Check::MissingImage => {
+            let detail = format!(
+                "Ok; occurrences {:?}, {} images{warned}",
+                model.occurrences,
+                model.images.len()
+            );
+            if !model.occurrences.is_empty() || !model.warnings.is_empty() {
+                (DetectableGap, detail)
+            } else {
+                (SilentLoss, detail)
+            }
+        }
+        Check::Advertised => {
+            let detail = format!("Ok; largest single allocation {} bytes{warned}", m.largest);
+            if m.largest >= fixtures::B1_DECLARED {
+                (AdvertisedAllocation, detail)
+            } else {
+                (
+                    Lenient,
+                    format!("{detail}; entry whose declared size disagrees with its data accepted"),
+                )
+            }
+        }
+        Check::Timed => {
+            let (len, delimiters) = fixtures::b7_stats();
+            let ok = present(model, "LAST-SENTINEL");
+            let detail = format!(
+                "Ok; {} ms in one call, no cancellation hook; peak heap {} MiB; XML {len} bytes, {delimiters} delimiters",
+                m.millis,
+                m.peak / (1024 * 1024)
+            );
+            (if ok { Retained } else { SilentLoss }, detail)
+        }
+    }
+}
+
+// ---------------------------------------------------------------- processes
+
+const CHILD_TIMEOUT: Duration = Duration::from_secs(120);
+
+fn child(reader: &str, id: &str) {
+    let case = cases()
+        .into_iter()
+        .find(|c| c.id == id)
+        .expect("known case");
+    let bytes = fixtures::build(id);
+    let m = measure(reader, &bytes);
+    if std::env::var_os("DOCX_EVAL_DUMP").is_some()
+        && let Read::Ok(model) = &m.read
+    {
+        eprintln!("{}", model.dump);
+    }
+    let (verdict, detail) = judge(&case.check, &m);
+    println!("{verdict:?}\t{}", detail.replace(['\n', '\t'], " "));
+}
+
+fn run_child(reader: &str, id: &str) -> (Verdict, String) {
+    let exe = std::env::current_exe().expect("own path");
+    let mut process = Command::new(exe)
+        .args(["--child", reader, id])
+        .stdout(Stdio::piped())
+        .stderr(Stdio::inherit())
+        .spawn()
+        .expect("spawn child");
+    let start = Instant::now();
+    loop {
+        if let Some(status) = process.try_wait().expect("wait") {
+            let output = process.wait_with_output().expect("output");
+            let line = String::from_utf8_lossy(&output.stdout).trim().to_owned();
+            if status.success()
+                && let Some((v, d)) = line.split_once('\t')
+            {
+                let verdict = parse_verdict(v);
+                return (verdict, d.to_owned());
+            }
+            return (Abort, format!("child exited {status}; stdout {line:?}"));
+        }
+        if start.elapsed() > CHILD_TIMEOUT {
+            let _ = process.kill();
+            return (
+                Abort,
+                format!("no result after {}s", CHILD_TIMEOUT.as_secs()),
+            );
+        }
+        std::thread::sleep(Duration::from_millis(20));
+    }
+}
+fn parse_verdict(v: &str) -> Verdict {
+    [
+        Retained,
+        Refused,
+        SilentLoss,
+        Misread,
+        Lenient,
+        Flattened,
+        Ambiguous,
+        DetectableGap,
+        Panic,
+        AdvertisedAllocation,
+        Abort,
+    ]
+    .into_iter()
+    .find(|x| format!("{x:?}") == v)
+    .unwrap_or(Abort)
+}
+
+fn main() {
+    let args: Vec<String> = std::env::args().skip(1).collect();
+    if args.first().map(String::as_str) == Some("--child") {
+        child(&args[1], &args[2]);
+        return;
+    }
+    // Optional filters: reader names and/or case IDs.
+    let only_readers: Vec<&str> = READERS
+        .iter()
+        .copied()
+        .filter(|r| args.iter().any(|a| a == r))
+        .collect();
+    let only_cases: Vec<&String> = args
+        .iter()
+        .filter(|a| !READERS.contains(&a.as_str()))
+        .collect();
+    let readers: Vec<(usize, &str)> = READERS
+        .iter()
+        .copied()
+        .enumerate()
+        .filter(|(_, r)| only_readers.is_empty() || only_readers.contains(r))
+        .collect();
+    let cases: Vec<Case> = cases()
+        .into_iter()
+        .filter(|c| only_cases.is_empty() || only_cases.iter().any(|a| *a == c.id))
+        .collect();
+
+    // `DOCX_EVAL_FIXTURES=DIR` writes every package to DIR/<case>.docx so the
+    // identical bytes can be replayed through BRN's current converter.
+    if let Some(dir) = std::env::var_os("DOCX_EVAL_FIXTURES") {
+        for case in &cases {
+            let path = std::path::Path::new(&dir).join(format!("{}.docx", case.id));
+            std::fs::write(path, fixtures::build(case.id)).expect("write fixture");
+        }
+    }
+
+    if cases.is_empty() || readers.is_empty() {
+        eprintln!("no case or reader matches {args:?}");
+        std::process::exit(1);
+    }
+    let mut results = Vec::new();
+    let mut mismatches = 0;
+    for case in &cases {
+        let mut row = Vec::new();
+        for &(index, reader) in &readers {
+            let (verdict, detail) = run_child(reader, case.id);
+            let unexpected = verdict != case.expected[index];
+            mismatches += usize::from(unexpected);
+            row.push((reader, verdict, detail, unexpected));
+        }
+        results.push((case, row));
+    }
+
+    print!("| ID | Group | Case | BRN at 450eaa2 |");
+    for (_, r) in &readers {
+        print!(" {r} |");
+    }
+    println!();
+    println!(
+        "| --- | --- | --- | --- |{}",
+        " --- |".repeat(readers.len())
+    );
+    for (case, row) in &results {
+        print!(
+            "| {} | {} | {} | {} |",
+            case.id, case.group, case.title, case.brn
+        );
+        for (_, verdict, _, unexpected) in row {
+            print!(
+                " {verdict:?}{} |",
+                if *unexpected { " **(unexpected)**" } else { "" }
+            );
+        }
+        println!();
+    }
+    for &(_, reader) in &readers {
+        println!("\n### {reader}\n");
+        println!("| ID | Verdict | Observation |");
+        println!("| --- | --- | --- |");
+        for (case, row) in &results {
+            if let Some((_, verdict, detail, _)) = row.iter().find(|r| r.0 == reader) {
+                println!(
+                    "| {} | {verdict:?} | {} |",
+                    case.id,
+                    detail.replace('|', "\\|")
+                );
+            }
+        }
+    }
     if mismatches > 0 {
-        eprintln!("{mismatches} case(s) differ from the recorded expectation");
+        eprintln!("{mismatches} result(s) differ from the recorded expectation");
         std::process::exit(1);
     }
 }

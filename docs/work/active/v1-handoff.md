@@ -84,7 +84,7 @@ Inspected unchanged product code at main a8deb9d: at that inspection none of H1â
 | H1 | Implemented candidate; see record for verification/integration | Settled title fix; [executable spec](preparation-checkpoint/next-specs.md#h1--titles-from-saved-markdown), [H1 record](h1-library-titles/evidence.md) |
 | H2 | Implemented candidate; see record for verification/integration | Narrow accepted derivation, equivalence first; [spec](preparation-checkpoint/next-specs.md#h2--one-compatible-action-schema), [H2 record](h2-action-schema/evidence.md) |
 | H3 | Ready for evaluation | Offline route feasibility; enabling live routes remains conditional on qualification |
-| H4 | Evaluated; not adopted; result PR pending | docx-rs0.4.22 drops alt/title and namespace-variant wording silently; [findings](../../../experiments/docx-reader-eval/FINDINGS.md) |
+| H4 | Evaluated; not adopted; result PR pending | docx-rs0.4.22, rdocx0.15.0, office_oxide0.1.13 and betteroffice-docx-parse0.3.0 each lose some content silently (rdocx only the picture title); [findings](../../../experiments/docx-reader-eval/FINDINGS.md) |
 | H5 | Ready for evaluation | CLI adoption unresolved; migration conditional on result |
 
 Lead owns shared documentation and integration. Each implementer/evaluator records actual baseline, candidate, result and stop reason in its own task record; lead reconciles the common queue/ADR/status. Evaluations have no product API changes or owner acceptance requirement beyond reviewing the recommendation; no credentials/hardware beyond ordinary pinned Rust/macOS fixtures. H3â€“H5 finish with reproducible synthetic evidence and an adoption/non-adoption/blocker decision, independent review and focused result PR. H4/H5 isolate manifest, lock and target. Parent/spec links above do not select work.
@@ -176,7 +176,12 @@ qualification. Only the selected task may proceed.
   advertised-size allocation and a CRC panic. The
   [evaluator findings](../../../experiments/docx-reader-eval/FINDINGS.md) hold the
   matrix, BRN replay, adapter-scope estimate, independent review and next Stage8
-  acceptance. The result PR, CI and merge are pending.
+  acceptance. At the owner's request rdocx0.15.0, office_oxide0.1.13 and
+  betteroffice-docx-parse0.3.0 ran through the same matrix. office_oxide and
+  betteroffice silently drop text inside unmodelled elements (including ruby).
+  rdocx reports those elements but drops the picture title from its typed model
+  with no flag, and adds 45 packages. None is adopted. The result PR, CI and merge
+  are pending.
 - **Original task.** Question: can immutable docx-rs0.4.22 replace a meaningful
   part of OOXML interpretation with a small BRN admission/mapping adapter?
 - Read the [office plan](office-inbox/plan.md), Store `src/work/inbox_source/docx/`

@@ -1,41 +1,86 @@
-# H4 findings: docx-rs 0.4.22 as BRN's DOCX reader
+# H4 findings: published DOCX readers vs BRN's converter
 
-**Recommendation: do not adopt.** Keep BRN's own bounded converter (decision
-**build**, unchanged). Evaluated 2026-10-06 for the
+**Recommendation: adopt none of the four readers now.** Keep BRN's own bounded
+converter (decision **build**, unchanged). Evaluated 2026-10-06 for the
 [H4 task](../../docs/work/active/v1-handoff.md#h4--evaluate-published-docx-reader-before-broader-stage8).
-This is a result record. It changes no product code. Review and integration
-state is under [review and integration](#review-and-integration).
+The first pass covered docx-rs 0.4.22, the reader the task named. At the owner's
+request a second pass added rdocx 0.15.0, office_oxide 0.1.13 and
+betteroffice-docx-parse 0.3.0. This is a result record. It changes no product
+code. Review and integration state is under
+[review and integration](#review-and-integration).
 
 ## Question and stop rule
 
-Can immutable docx-rs 0.4.22 replace a meaningful part of BRN's OOXML
-interpretation behind a small admission/mapping adapter? The task stops on the
-first irrecoverable silent loss, unavailable original asset or occurrence,
-unbounded allocation, or need for a second full interpreter.
+Can a published reader replace a meaningful part of BRN's OOXML interpretation
+behind a small admission/mapping adapter? The task stops on the first
+irrecoverable silent loss, unavailable original asset or occurrence, unbounded
+allocation, or need for a second full interpreter.
 
-The stop fired on the first silent-loss case, S3, in BRN's supported profile.
-The reader drops the inline picture's alt text and title, which BRN preserves
-today. (S0, the case before it, is a false refusal: docx-rs requires a part BRN
-treats as optional. That is a compatibility gap, not a loss.) More general
-witnesses followed. M7 and M8 drop wording when WordprocessingML uses a prefix
-other than `w`. M4, M10 and M13 drop footnote text, altChunk content and a field's
-link destination with nothing left in the model. An adapter can only catch these
-by walking every XML element itself. That walk is BRN's current `document.rs` and
-`image.rs`, so adoption would mean running two interpreters. All observations come
-from one harness run. No adapter was built.
+Every candidate hit the stop on BRN's supported profile or on content an adapter
+cannot see:
+
+| Reader | First silent loss in matrix order | All losses an adapter cannot see |
+| --- | --- | --- |
+| docx-rs 0.4.22 | S3: alt text and title | S3, S4, M4, M7, M8, M10, M13 |
+| rdocx 0.15.0 | S3: picture title | S3 |
+| office_oxide 0.1.13 | S3: picture title | S3, M6, M12, M15 |
+| betteroffice-docx-parse 0.3.0 | M11: VML text box text | M11, M12, M15 |
+
+The readers fail in different places.
+
+- **rdocx is the closest.** Its reader facade reports elements it does not model
+  as `UnsupportedXml` items, and it lists revisions. So altChunk, ruby, customXml
+  and the unknown wrapper (M10, M12, M14, M15) all leave something an adapter can
+  refuse on. Its one silent loss is the picture title (`wp:docPr/@title`) in BRN's
+  supported profile. No typed API exposes it and no flag marks it. It survives only
+  in raw captured XML (`StoryItemSnapshot::xml()`), which this method excludes
+  because re-reading source XML is the job being delegated. rdocx also left an
+  internal-DTD entity unresolved as literal text (B5).
+- **office_oxide and betteroffice-docx-parse** drop text inside an element they
+  don't model (M15). They also drop both the base text and the phonetic guide of a
+  real ruby annotation (M12, as used in Japanese and Chinese text). Neither leaves
+  an error, warning or trace. For these two, "preserve completely or refuse
+  explicitly" still needs BRN's strict walk over every element next to the reader.
+  That is the second interpreter the stop rule excludes.
+- **betteroffice-docx-parse** has the strongest admission (DTD, alias, CRC and
+  encoding refusal) and keeps alt text and title, but has the M11/M12/M15 losses.
+
+Nothing here is a verdict on these libraries for their own purposes. All four
+read S1, S2 and the image bytes of I1 to I3 correctly.
 
 ## Identity and environment
 
 | Item | Value |
 | --- | --- |
-| Baseline | `origin/main` `450eaa2` (PR79 merge), worktree branch `codex/h4-docx-reader-evaluation` |
-| Candidate | crates.io `docx-rs` 0.4.22, latest published release at evaluation time |
-| Release checksum | index `cksum`, downloaded `.crate` SHA-256 and the evaluator lock all `7fdf00e8af6d0b3e92d4bbf9b76f773d8b84ea80f310324ad16cbdc2e653e02c` |
-| Source identity | `.cargo_vcs_info.json` names `bokuweb/docx-rs` `f04cf8b47a925b2b6fff850dcb75069aae89dab4` (`docx-core`), 2026-07-21. `diff -r` of the crate `src/` against that commit's `docx-core/src`: identical. `Cargo.toml.orig` identical. `git ls-remote --tags` on 2026-10-06 listed 23 tags, the newest `0.4.21`; there is no `0.4.22` tag. |
-| Unreleased main | `4ff72dc8` (the ADR's earlier inspection) adds ASCII part-name validation and picture rotation. `read_zip` still sizes buffers from the header and unwraps reads. The run reader still dispatches on the literal `w` prefix. Conclusions below are for the release. |
-| Features | `default-features = false`, so the `image` preview decoder is off. BRN would call `read_docx_with_options(bytes, ReadDocxOptions::default().with_image_previews(false))`. |
+| Baseline | `origin/main` `450eaa2` (PR79 merge), branch `codex/h4-docx-reader-evaluation` |
+| docx-rs | 0.4.22, MIT. `.crate` SHA-256 `7fdf00e8af6d0b3e92d4bbf9b76f773d8b84ea80f310324ad16cbdc2e653e02c` matches the index and the lock. Source identical (`diff -r`) to `bokuweb/docx-rs` `f04cf8b4` `docx-core`. `git ls-remote --tags` on 2026-10-06 listed 23 tags, newest `0.4.21`; no `0.4.22` tag. |
+| rdocx | 0.15.0, MIT OR Apache-2.0, first release 2026-02-22. `.crate` SHA-256 `9e295053c3b11857677607d05a50b2687db159b316b406c698a619f70d0f50bc` matches the lock. VCS `tensorbee/rdocx` `9d019472` (`crates/rdocx`). |
+| office_oxide | 0.1.13, MIT OR Apache-2.0, first release 2026-04-28. `.crate` SHA-256 `22582556784e5c9005e12e2c2e78c2959674ca082edf806d939fff4ffceca9de` matches the lock. VCS `yfedoseev/office_oxide` `7fce6094`. |
+| betteroffice-docx-parse | 0.3.0, Apache-2.0, first release 2026-07-18 (with `betteroffice-opc`). `.crate` SHA-256 `697674f35c2ff2eb311e892b015697412c8e1c7671126b74d58f9adcf4e795f3`; `betteroffice-opc` 0.3.0 `18653484735ca856523c32d3b8b59aaf3e2c9980aa00b8dddea71f82296d9689`. Both match the lock. VCS `openooxml/betteroffice` `34b9e93a`. |
+| Source checks | docx-rs source was compared with its upstream commit. For the other three only the crate checksum was checked, not upstream source identity. |
 | Platform | Darwin 25.5.0 arm64, Rust 1.98.1 (pinned), evaluator lock in this directory, target `/private/tmp/brn-h4-eval/target` |
-| Dependency cost | Against BRN's lock, the evaluator adds only `docx-rs` 0.4.22 and `zopfli` 0.8.3 (from docx-rs's `zip/deflate` feature). It would also unify `quick-xml/encoding` (pulling `encoding_rs`) into BRN's graph. |
+
+How each reader was called, with BRN's budgets wherever the reader accepts them:
+
+| Reader | Call | Limits | What the oracle inspects |
+| --- | --- | --- | --- |
+| docx-rs | `read_docx_with_options`, previews off, `image` feature off | none available | `Docx::json()`, `Debug`, `Docx::images` |
+| rdocx | `Document::from_bytes_with_limits` (default features off) | 256 entries, 8 MiB part, 32 MiB total | `to_markdown`, `to_html`, `images`/`image_data`, `links`, `footnotes`, `revisions`, `comments`, story item text, and the reader facade (`body_items` → paragraph, hyperlink and run items): `UnsupportedXml` names, field instructions, hyperlink tooltips, `has_unmodeled_semantic_attributes` flags |
+| office_oxide | `Document::from_reader(.., Docx)` + `to_ir` | process-global `set_max_package_entries(256)`, `set_max_package_bytes(32 MiB)`; the fixed per-part limit is 512 MiB (`MAX_PART_SIZE`) | `to_markdown`, IR JSON (base64 image bytes), IR `warnings`, and `as_docx()`: body and header/footer model, image parts by relationship id, `unreadable_parts` |
+| betteroffice | `parse_docx_s9_wire_with_limits` | `ParseLimits` with 8 MiB XML and depth 64; the ZIP layer's 512 MiB/5,000-entry ceiling is fixed | wire JSON (per-occurrence image data URLs, media entries, relationships), `warnings` |
+
+Raw package XML is never part of what the oracle searches, and neither are the
+raw bytes behind rdocx's `UnsupportedXml` items (only their names). Re-reading the
+source is the job the library is supposed to take over.
+
+Dependency cost against BRN's lock (normal graph of each reader):
+
+| Reader | Packages | Not in BRN's lock |
+| --- | --- | --- |
+| docx-rs | 36 | 2 (`docx-rs`, `zopfli`) |
+| rdocx | 149 | 45 (fonts, shaping, HTML parsing, PDF/raster layout, `oxml-*`, `rdocx-*`) |
+| office_oxide | 38 | 6 (incl. a second `quick-xml` 0.42) |
+| betteroffice-docx-parse | 46 | 6 (incl. `libc` 0.2.190, which differs from BRN's) |
 
 ## Commands and results
 
@@ -44,134 +89,244 @@ From `experiments/docx-reader-eval`, with `CARGO_TARGET_DIR=/private/tmp/brn-h4-
 ```sh
 cargo fmt --check                                     # passed
 cargo clippy --locked --all-targets -- -D warnings    # passed
-cargo run --locked --release                          # exit 0, 31 rows, 0 unexpected
+cargo run --locked --release                          # exit 0, 33 cases x 4 readers, 0 unexpected
 ```
 
-Each case asserts the verdict recorded in `src/main.rs`. A different observation
-prints `(unexpected)` and exits 1. Verdicts come from the read model: the
-compact `Docx::json()` (only its `document` subtree where order or occurrence
-counts matter), its derived `Debug` form, and `Docx::images`. A sentinel missing
-from all of these cannot be recovered by an adapter that only consumes docx-rs
-output.
+Every (case, reader) pair runs in a separate child process with a 120 s limit, so
+an abort or hang would be recorded rather than ending the run. None happened.
+Each verdict is checked against the expectation recorded in `src/main.rs`, and any
+difference exits 1. Two consecutive full runs gave identical verdicts.
 
 The BRN column came from replaying the identical bytes (`DOCX_EVAL_FIXTURES=DIR`)
 through BRN's `convert_source` at `450eaa2`, using the temporary test under
-[BRN replay](#brn-replay). That run had 1 passed, 0 failed, and the test was removed
-afterwards.
+[BRN replay](#brn-replay). That run had 1 passed and 0 failed, and the test was
+removed afterwards.
 
-| ID | Case | BRN at 450eaa2 | docx-rs 0.4.22 | Observation |
-| --- | --- | --- | --- | --- |
-| S0 | Minimal package, no `word/_rels/document.xml.rels` | Ok DocxTextV1 | Refused | `Err(ZipError(FileNotFound))`. The reader requires that optional part. |
-| S1 | Unicode paragraphs, Stored and Deflate | Ok, exact | Retained | |
-| S2 | Heading style, numbered list, external link, simple table | Ok, exact | Retained | Style id, `%1)` level text, decoded link target and cells all in the model |
-| **S3** | **One inline PNG with alt text and title** | Ok DocxInlinePngV1, exact bytes/position/alt/title | **SilentLoss** | Bytes and rId order kept. `wp:docPr` `descr` and `title` are absent; `Pic` has no field for them. |
-| M1 | Final-section default header | docx_unsupported | Retained | |
-| M2 | Header referenced only by an earlier section | docx_unsupported | DetectableGap | Header text dropped; the paragraph `sectPr` keeps `headerReference` id `h1` with no content |
-| M3 | Final-section default footer | docx_unsupported | Retained | |
-| M4 | `w:footnoteReference` in the same run as text, plus footnotes part | docx_unsupported | SilentLoss | Footnote text and the reference both gone; the run holds only `Claim`. 0.4.22 never reads footnotes. |
-| M5 | Comment range, reference and comments part | docx_unsupported | Retained | |
-| M6 | Tracked `w:ins`/`w:del` | docx_unsupported | Retained | Kept as Insert/Delete, so an adapter could refuse them |
-| **M7** | **Second prefix bound to the WordprocessingML URI inside a `w:` run** | Ok, both wordings | **SilentLoss** | `<x:t>` text vanishes. `Run::read` only matches prefix `w`. No trace remains. |
-| **M8** | **WordprocessingML as the default namespace** | Ok, wording kept | **SilentLoss** | Paragraph and run shells exist, all text gone |
-| M9 | `w` prefix bound to a foreign namespace | docx_unsupported | Misread | Non-OOXML wording read as document text. Body dispatch uses local names only. |
-| M10 | Body `w:altChunk` with imported part | docx_unsupported | SilentLoss | Element and part both absent |
-| M11 | VML text box (`w:pict/v:shape/v:textbox`) | docx_unsupported | DetectableGap | Text dropped; a bare `shape` child with only `style` remains |
-| M12 | Ruby annotation | docx_unsupported | Flattened | Phonetic guide and base become two consecutive plain runs |
-| M13 | `w:fldSimple` HYPERLINK | docx_unsupported | SilentLoss | Result text kept as a plain run; instruction and link destination gone |
-| M14 | Inline `w:customXml` | docx_unsupported | Flattened | Wording kept; wrapper gone |
-| B1 | Entry advertising 3.75 GiB (`0xF0000000`) uncompressed | docx_limit | AdvertisedAllocation | Read succeeds after one 4,026,531,840-byte allocation (`Vec::with_capacity(entry.size())`) |
-| B2 | Stored entry with a corrupted byte (CRC mismatch) | docx_invalid | Panic | `read_zip` unwraps `read_to_end`: "Invalid checksum" |
-| B3 | Main part named `word\document.xml` | docx_invalid | Refused | Not found |
-| B4 | Case alias `WORD/document.xml` beside `word/document.xml` | docx_invalid | Misread | One alias read, the other ignored |
-| B5 | Internal DTD entity | docx_unsupported | Refused | `XMLReadError` |
-| B6 | UTF-16 main part | docx_unsupported | Refused | `XMLReadError` |
-| B7 | 7,464,492-byte XML body, 8,001 paragraphs, 48,016 `<`/`=` delimiters (inside BRN's 8 MiB and 50,000-delimiter XML guard) | docx_limit (1 MiB rendered-output cap) | Retained | 14 ms (release) in one call with no cancellation hook; 42 MiB peak heap |
-| I1 | Two PNGs, two relationships, two occurrences | docx_unsupported | Retained | Exact bytes; both drawings in document order by rId |
-| I2 | One relationship used twice | docx_unsupported | Retained | One asset; exactly two drawings in the document name it |
-| I3 | Ordinary 8x8 JPEG, previews off | docx_unsupported | Retained | Exact original bytes |
-| I4 | Same JPEG through default `read_docx` without the `image` feature | docx_unsupported | SilentLoss | Image missing from `Docx::images`; the drawing remains |
-| I5 | Header image and body image both `rId1` | docx_unsupported | Ambiguous | Two `images` entries share id `rId1`, header first. A body drawing cannot be mapped to its bytes from the model. |
-| I6 | Image relationship to a missing part | docx_invalid | DetectableGap | No image entry; the drawing still names the rId |
+Verdicts:
 
-Source-only observations, not executed: `read_headers`/`read_footers` and
-`add_images` discard parse or read failures with `filter_map`/`if let Ok`;
-`Paragraph::read` drops a failing `pPr`; `read_width` panics via `expect` on a
-non-numeric width. Through ZIP64, an entry can advertise more than ZIP32's
-4 GiB. Above `isize::MAX` the `Vec::with_capacity` call panics, and a smaller
-allocation the host cannot satisfy aborts the process. None of these changes the
-decision.
+- **Retained:** the wording or asset is in the reader's output.
+- **Refused:** the reader returned an error.
+- **SilentLoss:** read succeeded, and content is missing with no trace, warning or
+  unmodelled-item report.
+- **DetectableGap:** content is missing, but a trace (relationship id, revision
+  author, shape style), a warning or an unmodelled-item report remains, so an
+  adapter could refuse.
+- **Misread:** read succeeded and produced wrong or arbitrary content without
+  saying so (foreign namespace read as text, one of two aliases chosen, an
+  unresolved entity kept as literal text).
+- **Lenient:** read succeeded on input BRN's admission refuses, and the content is
+  right (UTF-16, backslash part name, declared size that disagrees with the data).
+- **Flattened:** the wording survives but its structure is gone.
+- **Ambiguous:** an image occurrence can't be mapped to one set of bytes.
+- **Panic / AdvertisedAllocation / Abort:** as named.
 
-## Adapter scope if adopted anyway
+| ID | Case | BRN at 450eaa2 | docx-rs | rdocx | office_oxide | betteroffice |
+| --- | --- | --- | --- | --- | --- | --- |
+| S0 | Minimal package, no `word/_rels/document.xml.rels` | Ok DocxTextV1 | Refused | Retained | Retained | Retained |
+| S1a | Unicode paragraphs, Stored | Ok, exact | Retained | Retained | Retained | Retained |
+| S1b | Unicode paragraphs, Deflate | Ok, exact | Retained | Retained | Retained | Retained |
+| S2 | Heading style, numbered list, external link, simple table | Ok, exact | Retained | Retained | Retained | Retained |
+| S3 | One inline PNG: exact bytes, alt text and title | Ok DocxInlinePngV1 (bytes, position, alt, title) | SilentLoss (alt, title) | SilentLoss (title) | SilentLoss (title) | Retained |
+| S4 | External hyperlink with a tooltip | Ok DocxTextV1 (tooltip as link title) | SilentLoss (tooltip) | Retained | Retained | Retained |
+| M1 | Final-section default header | docx_unsupported | Retained | Retained | Retained | Retained |
+| M2 | Header referenced only by an earlier section | docx_unsupported | DetectableGap | Retained | Retained | Retained |
+| M3 | Final-section default footer | docx_unsupported | Retained | Retained | Retained | Retained |
+| M4 | Footnote reference in the same run as text, plus footnotes part | docx_unsupported | SilentLoss | Retained | Retained | Retained |
+| M5 | Comment range, reference and comments part | docx_unsupported | Retained | Retained | Retained | Retained |
+| M6 | Tracked insertion and deletion | docx_unsupported | Retained | DetectableGap (deleted text not rendered; `revisions()` lists it) | SilentLoss (deleted text gone) | Retained |
+| M7 | Second prefix bound to WordprocessingML inside a `w:` run | Ok, both wordings | SilentLoss | Retained | Retained | Retained |
+| M8 | WordprocessingML as the default namespace | Ok, wording kept | SilentLoss | Retained | Retained | Retained |
+| M9 | `w` prefix bound to a foreign namespace | docx_unsupported | Misread | Refused | Refused | Misread |
+| M10 | Body `w:altChunk` with imported part | docx_unsupported | SilentLoss | DetectableGap (`UnsupportedXml:w:altChunk`) | Retained | DetectableGap (relationship kept) |
+| M11 | VML text box (`w:pict/v:shape/v:textbox`) | docx_unsupported | DetectableGap | Retained | Retained | SilentLoss |
+| M12 | Ruby annotation | docx_unsupported | Flattened | DetectableGap (`UnsupportedXml:w:ruby`, both texts gone) | SilentLoss (both texts) | SilentLoss (both texts) |
+| M13 | `w:fldSimple` HYPERLINK | docx_unsupported | SilentLoss (destination) | Retained (field instruction) | Retained | Retained |
+| M14 | Inline `w:customXml` | docx_unsupported | Flattened | DetectableGap (`UnsupportedXml:w:customXml`) | Flattened | Flattened |
+| M15 | Unknown WordprocessingML element wrapping a run | docx_unsupported | Flattened | DetectableGap (`UnsupportedXml:w:unknownWrapper`) | SilentLoss | SilentLoss |
+| B1 | Entry advertising 3.75 GiB (`0xF0000000`) uncompressed | docx_limit | AdvertisedAllocation (4,026,531,840 bytes) | Refused (8 MiB part limit) | Refused (512 MiB part limit) | Lenient (size mismatch ignored; largest allocation 47 KB) |
+| B2 | Stored entry with a corrupted byte (CRC mismatch) | docx_invalid | Panic | Refused | DetectableGap (corrupt text read, CRC warning) | Refused |
+| B3 | Main part named `word\document.xml` | docx_invalid | Refused | Refused | Lenient | Refused |
+| B4 | Case alias `WORD/document.xml` beside `word/document.xml` | docx_invalid | Misread | Refused | Refused | Refused |
+| B5 | Internal DTD entity | docx_unsupported | Refused | Misread (`A&s;B` as literal text) | Misread (`A&s;B` as literal text) | Refused |
+| B6 | UTF-16 main part | docx_unsupported | Refused | Refused | Lenient | Refused |
+| B7 | 7,464,492-byte XML body, 8,001 paragraphs, 48,016 `<`/`=` (inside BRN's XML guard) | docx_limit (1 MiB output cap) | Retained, 10 ms, 42 MiB | Retained, 35 ms, 74 MiB | Retained, 24 ms, 20 MiB | Retained, 35 ms, 121 MiB |
+| I1 | Two PNGs, two relationships, two occurrences | docx_unsupported | Retained | Retained | Retained | Retained |
+| I2 | One relationship used twice | docx_unsupported | Retained | Retained | Retained | Retained |
+| I3 | Ordinary 8x8 JPEG | docx_unsupported | Retained | Retained | Retained | Retained |
+| I5 | Header and body images both `rId1`: body occurrence maps to body bytes (header image not verified) | docx_unsupported | Ambiguous | Retained | Retained | Retained |
+| I6 | Image relationship to a missing part | docx_invalid | DetectableGap | DetectableGap | DetectableGap (`as_docx()` keeps the drawing; Markdown shows only italic alt text and the IR omits the image) | DetectableGap |
 
-docx-rs reads the content BRN already supports: paragraph text, styles,
-numbering, external links, simple tables, comments, tracked changes and raw image
-bytes. That is not enough. To keep "preserve completely or refuse explicitly",
-BRN would still have to keep the following production code. This is an estimate
-from the evidence; no adapter was built.
+B7 times and peak heap cover the library's parse call only (for office_oxide,
+parse plus `to_ir`). They are from one release-mode run and vary between runs (an
+independent rerun saw 10 to 36 ms). None of the readers offers a cancellation hook.
 
-| BRN production code (lines) | Why it stays |
-| --- | --- |
-| `package.rs` (339) | B1 advertised allocation, B2 panic, B4 alias acceptance. Every byte must pass BRN's inventory before docx-rs sees it, and docx-rs then inflates every part a second time. |
-| `xml.rs` (92) | docx-rs has no item or depth limit and no cancellation. Every part would be parsed twice. |
-| `opc.rs` (580) | docx-rs parses `[Content_Types].xml` and then discards it, and it never looks at unreferenced parts. M4 and M10 are only detectable from relationships. |
-| `image.rs` (822) | docx-rs does not validate PNGs, and S3 means BRN must parse `wp:inline`/`docPr` itself |
-| `document.rs` (about 1,370) | M7, M8, M9, M12, M13 and M14 are undetectable in the model. Only a strict namespace-aware walk that refuses unknown elements catches them, and that walk is this file. |
-| `docx.rs` (111) | Entry points and failure mapping |
+## Per-reader notes
 
-That is about 3,300 lines. Adoption would add a dependency and a second parse
-while all of it stays.
+- **docx-rs 0.4.22.** It dispatches on the literal `w` prefix, so M7 and M8 lose
+  text, and it has no tooltip or docPr title support. It has no limits API, sizes
+  buffers from ZIP headers (B1) and unwraps decompression errors (B2 panic).
+  Source-only: header, footer and media read failures are discarded with
+  `filter_map`/`if let Ok`; `read_width` panics on a non-numeric width. Unreleased
+  main `4ff72dc8` adds part-name validation but keeps the B1/B2 code and the prefix
+  dispatch.
+- **rdocx 0.15.0.** It is the closest to BRN's rule.
+  - It is namespace-correct, takes caller-supplied ZIP limits and refuses case
+    aliases.
+  - Its facade reports unmodelled body, paragraph, hyperlink and run children as
+    `UnsupportedXml`, and it flags unmodelled attributes on hyperlinks, fields and
+    tables.
+  - It still drops the picture title from its typed model with no flag, because
+    `DrawingRef` exposes only kind, name, description, size and relationship. The
+    title remains only in raw captured XML. It leaves an internal-DTD entity
+    unresolved as the literal text `&s;` (B5).
+  - M6 is conservative: a second `Document` after `reject_all()` renders the
+    deleted text, so a richer adapter could keep it.
+  - Its parser models `w:ruby` only as a paragraph child; ECMA-376 puts it inside
+    `w:r`, as M12 does, so it lands in `UnsupportedXml`.
+  - An adapter would still need BRN's XML guard (B5), BRN's own docPr parsing for
+    the title, a facade walk that also covers tables, headers, notes, content
+    controls, equations and revisions (not exercised here), and mapping code that re-expresses BRN's refusal policies
+    (paint, list forms, table shapes) over rdocx's model.
+  - Cost: the `rdocx` crate alone is about 114,000 lines of source, first released
+    2026-02-22, with 17 releases through 0.15.0 (2026-10-04, two days before this
+    evaluation). Its normal graph adds 45 packages (fonts,
+    shaping, HTML parsing, PDF and raster layout) even with default features off,
+    for a read-only use.
+- **office_oxide 0.1.13.** It has the most permissive admission and the only
+  warnings channel that fired (B2). It reads altChunk content and field
+  destinations. It drops tracked deletions, ruby and text inside unknown elements
+  with no trace. It accepts backslash names, UTF-16 and literal entity text. Its IR
+  and Markdown turn a missing image into italic alt text, though `as_docx()` still
+  shows the drawing. Its package limits are process-global setters, so one BRN
+  setting would affect every caller in the process. Parsing may run on a spawned
+  thread with a larger stack.
+- **betteroffice-docx-parse 0.3.0.** It has the strongest admission: bounded XML
+  (`ParseLimits`), DTD refusal, alias and CRC refusal, exact image data per
+  occurrence, alt text, title, tooltip and a `warnings` field. It still drops VML
+  text boxes, ruby and text inside unknown elements silently. It reads
+  foreign-namespace elements with the `w` prefix as document text, and ignores an
+  entry's declared size. Source-only: styles, settings and theme are looked up at
+  the literal paths `word/styles.xml`, `word/settings.xml` and
+  `word/theme/theme1.xml` rather than through relationships.
+
+## Adapter scope if one were adopted anyway
+
+No adapter was built; this is an estimate.
+
+- **docx-rs, office_oxide, betteroffice-docx-parse.** Each loses content silently
+  in a case only a strict element-by-element walk catches (M7/M8, or M12/M15).
+  That walk is BRN's `document.rs` (about 1,370 lines) plus the drawing parser in
+  `image.rs`. Each also differs from BRN's package and XML admission somewhere
+  (B1, B3, B5, B6, M9), so `package.rs` (339), `xml.rs` (92) and `opc.rs` (580)
+  stay too. That keeps about 3,300 lines of BRN code and adds a dependency and a
+  second parse of every part.
+- **rdocx.** It is not excluded by an element-level loss. Its blockers are
+  narrower:
+  - the silent title loss in BRN's supported profile, which needs BRN's own docPr
+    parsing;
+  - B5, which needs BRN's `xml.rs` guard in front;
+  - the dependency weight and the lack of cancellation.
+
+  Whether an rdocx adapter would be smaller than BRN's `document.rs` is
+  unmeasured. It would need a facade walk over every story and container, plus
+  BRN's refusal and Markdown policies re-expressed over rdocx's model. Answering
+  that takes a bounded adapter prototype, which is not justified while the title
+  loss and dependency cost stand.
 
 ## Next Stage8 acceptance
 
-- Broader DOCX support extends BRN's existing strict converter. A future reader
-  library needs a new evaluation that covers this matrix first: namespace-correct
-  dispatch, explicit unknown-element reporting, caller-supplied size limits and
-  cancellation, and no panics on corrupt input.
-- Multiple inline raster occurrences (the I1 and I2 shapes) are the nearest
-  extension of the integrated PNG profile. They reuse BRN's existing image and
-  relationship code, with exact bytes, alt/title and position for each occurrence.
-  An ordinary JPEG would follow as its own decoder-validation decision. The owner
-  has not selected that slice, and no JPEG/PDF/PPTX work follows from this result.
-- Keep the evaluator fixtures as acceptance witnesses for any later slice that
-  touches these shapes. M7 and M8 already pass in BRN. I5 and M2 need explicit
-  per-part relationship scoping once headers are supported.
+- Broader DOCX support extends BRN's existing strict converter.
+- Re-evaluate a reader if it reports every unmodelled element and attribute
+  (rdocx does this for the element positions exercised here), takes caller-scoped limits and supports
+  cancellation. If the owner wants reuse later, the useful next step is a bounded
+  rdocx adapter prototype measured against this matrix and BRN's `document.rs`
+  tests. Before that, the title gap and the 45-package graph need an answer
+  (upstream or by accepting them).
+- Multiple inline raster occurrences (I1 and I2) are the nearest extension of the
+  integrated PNG profile. They reuse BRN's image and relationship code, with exact
+  bytes, alt/title and position for each occurrence. An ordinary JPEG would follow
+  as its own decoder-validation decision. The owner has not selected that slice.
+  No JPEG/PDF/PPTX work follows from this result.
+- Keep these fixtures as acceptance witnesses. M7 and M8 already pass in BRN. I5
+  and M2 need explicit per-part relationship scoping once headers are supported.
+  M12 (ruby) and M15 must refuse until BRN models them.
 
 ## Limitations
 
 - Synthetic fixtures only; no private Office files or Word-generated samples.
-  Word itself always writes the `w` prefix. M7/M8 show that the reader is not
-  namespace-correct, not that common Word files lose text.
-- The sentinel oracle checks presence, not position, except in S3, I1 and I2.
-  "Retained" means the wording is somewhere in the model, not that BRN-equivalent
-  Markdown would follow.
-- B1 succeeds on macOS because the 3.75 GiB allocation is committed lazily. On a
-  host with strict overcommit, the evaluator itself could abort there.
-- B7 timing is from one release-mode run on this Mac and is only a rough figure.
-- Allocation figures come from the evaluator's counting global allocator. They
-  measure requested sizes, not resident memory.
+  Word writes the `w` prefix, so M7/M8 show namespace handling, not common Word
+  output. M15's element is not in the schema. It stands for any element a reader
+  doesn't model, which M12 shows with a real one.
+- The oracle checks for sentinels in each reader's public output, plus image
+  occurrence order and counts. It does not check text position; office_oxide's IR,
+  for example, moves an inline image after its paragraph, while `as_docx()` keeps
+  it in place. It covers only the APIs listed above. rdocx's facade walk skips
+  tables, headers, notes, content controls, equations and revision contents.
+- Any warning or unmodelled-item report counts as making a gap detectable, even
+  when it is about something else. No case had an unrelated report; the dumps were
+  checked. rdocx M15's "trace kept: unknownWrapper" comes from the adapter's own
+  recorded `UnsupportedXml` name, which is the reader's report. The Picture check
+  does not use the trace rule, and the Advertised check does not verify content
+  (betteroffice's B1 content was checked by hand).
+- I5 checks only that the body occurrence maps to the body bytes; the header
+  image occurrence is not verified.
+- Case I4 from the first pass (docx-rs's default `read_docx` without the `image`
+  feature omitted a JPEG; commit `ff85ed8`) is not in the generic matrix, because
+  it tests a docx-rs-specific option.
+- B1 asks docx-rs for a 3.75 GiB allocation. That works on macOS because memory
+  is committed lazily. On a host with strict overcommit the child may abort, which
+  is recorded as Abort. A panic in the evaluator's own child code is also reported
+  as Abort.
+- Allocation figures come from the evaluator's counting allocator. They measure
+  requested sizes, not resident memory.
+- Only the docx-rs source was compared with its upstream commit; the other three
+  were checked by crate checksum only.
 - Not run: BRN workspace checks, since no product code changed. The BRN replay
   used a focused `brn-store --lib` test.
 
 ## Review and integration
 
-Independent read-only review (a separate agent with its own Cargo target) re-ran
-the evaluator, regenerated byte-identical fixtures, replayed them through BRN at
-`450eaa2` from a `git archive` copy, and checked S3, M4, M7, M8, M10, B1 and B2
-against the release source. It found no blocking defects. Its findings were all
-validated and addressed:
+**First pass (docx-rs only).** An independent read-only review re-ran the
+evaluator, regenerated byte-identical fixtures, replayed them through BRN from a
+`git archive` of `450eaa2`, and checked the stop witnesses against the release
+source. It found no blocking defects. All findings were validated and addressed:
+B7 resized into BRN's XML budget, image checks tightened, panic hook scoped,
+wording corrected, a footer case added.
 
-- B7 was outside BRN's XML guard (72,016 delimiters). It was resized to fit, and
-  BRN's refusal reason is now the output cap.
-- I1, I2 and S3 checks could pass on wrong output. They now use the `document`
-  subtree, an exact count of two, and distinct alt and title sentinels. The oracle
-  also searches the derived `Debug` form.
-- Wording fixes: "first silent-loss case", 3.75 GiB, `read_docx_with_options`,
-  the content-types and DTD wording, line totals labelled as an estimate, and how
-  the tag list was checked. M13 was relabelled SilentLoss. A footer case (M3)
-  was added.
-- The evaluator now silences panics only around the reader call, and pins
-  `serde_json`.
-- Shared docs now say "evaluated, not adopted" and leave integration pending.
+**Second pass (four readers).** Fixtures were split per case (`S1a`/`S1b`). M15 and
+S4 were added. Unique trace ids were added to M2, M4, M6 and M10, and I6's alt text
+was renamed. The harness moved to one child process per (case, reader), and it
+now times only the parse call.
+
+An independent read-only review of this pass found two blockers. Both were about
+rdocx, and both were valid:
+
+- **Rdocx adapter.** The rdocx adapter missed its reader facade. That facade
+  reports unmodelled children as `UnsupportedXml` and exposes field instructions.
+  Fix: the adapter now walks the facade, recording names and flags only.
+- **Rdocx conclusions.** FINDINGS and the shared docs stated the resulting rdocx
+  losses as fact. Fix: rdocx's M10, M12, M14 and M15 are now DetectableGap and M13
+  is Retained, and the conclusions are rewritten around rdocx's actual blockers
+  (S3 title, B5, dependencies, cancellation).
+
+The other findings were also fixed:
+
+- The structure check can now return DetectableGap.
+- The office_oxide adapter now includes `as_docx()`, which makes I6 a
+  DetectableGap.
+- I5 was renamed to state its limit.
+- The removal of I4 is recorded.
+- `Misread` was split from `Lenient`.
+- B4 accepts either alias.
+- An empty filter now exits 1.
+
+A focused re-review of these corrections found no remaining blocker. Its wording
+fixes are applied: the title survives only in raw captured XML, B5 is an
+internal-DTD entity, I6's IR omits the image, the coverage limits are wider, the
+release count is corrected, and the I1–I3 summary is narrowed.
+
+Adding S4 (tooltip) after the review showed that rdocx exposes tooltips through
+`HyperlinkRef::tooltip`. The adapter now records them.
 
 The focused result PR, its CI and merge are pending. This record does not claim
 them.
@@ -203,8 +358,8 @@ fn h4_replay_evaluator_fixtures() {
 ```
 
 ```sh
-mkdir -p /private/tmp/brn-h4-eval/fixtures
-DOCX_EVAL_FIXTURES=/private/tmp/brn-h4-eval/fixtures cargo run --locked --release   # in this directory
-CARGO_TARGET_DIR=/private/tmp/brn-h4-eval/brn-target H4_FIXTURES=/private/tmp/brn-h4-eval/fixtures \
-  cargo test -q -p brn-store --lib --locked --offline h4_replay -- --nocapture       # at the repository root
+mkdir -p /private/tmp/brn-h4b/fixtures
+DOCX_EVAL_FIXTURES=/private/tmp/brn-h4b/fixtures cargo run --locked --release -- docx-rs   # in this directory
+CARGO_TARGET_DIR=/private/tmp/brn-h4-eval/brn-target H4_FIXTURES=/private/tmp/brn-h4b/fixtures \
+  cargo test -q -p brn-store --lib --locked --offline h4_replay -- --nocapture             # at the repository root
 ```

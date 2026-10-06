@@ -44,7 +44,8 @@ Native GUI observation is owner-deferred while the Mac is locked; live/real-mode
 owner acceptance remain pending. No new product slice is underway. Further implementation
 starts only from a selected handoff task; this pause does not change roadmap order.
 Selected evaluation H4 is evaluated with a **non-adoption** recommendation: BRN keeps
-its own DOCX converter rather than docx-rs0.4.22 ([findings](../experiments/docx-reader-eval/FINDINGS.md)).
+its own DOCX converter rather than docx-rs0.4.22, rdocx0.15.0, office_oxide0.1.13
+or betteroffice-docx-parse0.3.0 ([findings](../experiments/docx-reader-eval/FINDINGS.md)).
 No product code changed; the result PR is pending.
 Documentation closeout [PR78](https://github.com/ewq100/brn-rust/pull/78) is merged
 at `a8deb9d8e94665b1731034675b490fb134aae091`, the remote main inspected in this
