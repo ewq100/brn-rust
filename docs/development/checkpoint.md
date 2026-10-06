@@ -2,6 +2,36 @@
 
 Full frozen V1 goal confirmed **active** by `get_goal` on 2026-10-06; no token budget.
 
+- **Integrated:** [PR76](https://github.com/ewq100/brn-rust/pull/76), exact main
+  `b6a13313d9807be66baa49aca2a0e3c96e60d18d`, tree
+  `8619cc994145a91ae7cbfa3f24b0537d7c5c6ad6`. Bounded DOCX text/structure
+  converts through existing Source/proposal approval; originals stay retained.
+  Meaningful unsupported content refuses; generic ZIP intake is excluded.
+- **Verified:** complete/correction reviews clean; full shared1,557/0/14+52,
+  native687/0/12, strict feature Clippy, shipping builds and restarts passed.
+  Exactfb78/run37435614131 attempt1 passed all four strict protected macOS/shared
+  checks and Docs; overall red retains the same22 Windows error locations with
+  complete ordering/progress/footer/terminal differences. Fresh merged19-command
+  gate08:50:47–08:51:39UTC passed127/0/0+52, native widgets/builds and default/combined
+  V15 restarts with the original-operation table present. Exact merged-main
+  run37438639577 attempt1 is live; its actual platform failures remain retained.
+- **Current/next:** `codex/v1-docx-visual-sources` starts from main above;
+  [fixed next acceptance](../work/active/office-inbox/plan.md#next-slice-inline-png-source-and-local-interpretation)
+  couples one checked inline PNG, Source/asset proofs and explicit reviewed local
+  interpretation in the existing AI lane. Implementation has not started.
+- **Pending:** native GUI/live/real-model/owner acceptance, broader Stage8,
+  Stages9–16/trusted-user packaging, binary cleanup, legacy pending-intent retry
+  and residual startup/backup cost. Full V1 delivery is not claimed.
+- **Environment:** Mac mini Darwin arm64, Rust1.98.1 locked/offline; owned canonical
+  `TMPDIR=/private/tmp/brn-mini-synthetic-20261005`, synthetic explicit data,
+  empty model setting and separate checkout targets. No new live calls, downloads,
+  private-data operations, purchases or release. Immutable7c4f668 and unrelated
+  work remain preserved. Detailed evidence/history follows.
+
+# Earlier bounded DOCX qualification checkpoint
+
+Full frozen V1 goal confirmed **active** by `get_goal` on 2026-10-06; no token budget.
+
 - **Integrated:** [PR75](https://github.com/ewq100/brn-rust/pull/75), exact main
   `f1af1b41139e0bad0fdd838af274ada6aac0af2b`, tree
   `4eab8f24dfc1a06eb622776a7dd2900e3e31eace`. Ordinary asset

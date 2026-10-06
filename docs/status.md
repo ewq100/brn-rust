@@ -4,7 +4,7 @@
 Stage 5 knowledge and Stage 6 Actions/dashboard foundations are integrated,
 with native/live/owner qualification still open.
 Stage 7 text Inbox implementation is integrated with acceptance pending.
-Stage 8 binary retention and ordinary asset proposals are integrated; bounded DOCX Source conversion is implemented and locally qualified, with CI/integration pending.
+Stage 8 binary retention, ordinary asset proposals and bounded DOCX text/structure Source conversion are implemented, automated verified and integrated; visuals remain unfinished.
 Stages 7–16 remain incomplete; complete V1
 delivery is not claimed.**
 
@@ -17,32 +17,28 @@ and the disposable retrieval index retain their existing roles. The owner's
 permits thin future adapters around the six V1 core crates through workflow/
 AppWorker. No MCP, daemon, HTTP service, extra database or remote work is in V1.
 
-Integrated main is **`f1af1b41139e0bad0fdd838af274ada6aac0af2b` (PR75)**.
-Ordinary asset Create/Replace/Trash, exact proof review, recovery and Undo are
-integrated through the existing proposal family. Complete/correction reviews
-are clean; shared1,513/0/14+52 and native300 Desktop/0/0,360 Workflow/models/0/12,
-15 Retrieval/0/0, strict feature Clippy, shipping builds/fixtures/V15 restarts
-passed separately. Exacta99d433/run37424171208 attempt1 passed all four strict
-protected macOS/shared checks and Docs. Overall red retains Windows22 complete
-compiler blocks/all suggestions/both summaries matching PR74 (161 lines), with
-whole-log differences preserved. Fresh unchanged merged17-command gate passed
-119/0/1+52fixtures, exact native widgets/builds and default/combined V15 restarts.
-Exact main run37426257383 attempt1 passed all four protected macOS/shared checks,
-Docs and supplemental Ubuntu UI. Overall failure retains Windows22/22/14 compiler
-blocks and three Linux native assertions/backtraces matching main74. The changed
-Windows native terminal summary and raw differences
-remain retained. The [Stage8 plan](work/active/office-inbox/plan.md#next-slice-bounded-docx-text-source)
-now defines bounded DOCX text/structure Source conversion. Its complete independent
-review found underline-paint loss and wide-numbered-list nesting defects; both
-were technically validated and fixed, with correction review clean. Focused
-parser/Workflow/client checks pass. Clean c53b408/tree8d1673c passed full
-shared1,557/0/14+52 fixtures and native301 Desktop/0/0,371 Workflow/models/0/12,
-15 Retrieval/0/0, strict feature Clippy, shipping builds and two AppWorker
-startup/restarts. Exact-head CI/normal integration are pending.
-ZIP is an internal DOCX container, with generic
-archive ingestion excluded. Binary originals remain
-retained; Office visuals, broader conversion and binary cleanup are unimplemented.
-GUI/live/real-model/owner acceptance and full V1 delivery are not claimed.
+Integrated main is **`b6a13313d9807be66baa49aca2a0e3c96e60d18d` (PR76)**,
+tree `8619cc994145a91ae7cbfa3f24b0537d7c5c6ad6`. Bounded DOCX text/structure
+now follows the existing retained-Binary processing, exact Source proposal,
+approval and recovery path. Complete/correction reviews are clean; validated
+underline-paint and wide-list nesting defects are fixed. Full shared1,557/0/14+52,
+native301 Desktop/0/0,371 Workflow/models/0/12,15 Retrieval/0/0, strict feature
+Clippy, shipping builds and startup/restarts passed. Exactfb78/run37435614131
+attempt1 passed all four protected macOS/shared checks and Docs. Overall CI stays
+red from the same22 Windows error locations; complete raw ordering/progress/footer/
+terminal differences are retained. Fresh clean merged19-command gate passed
+127/0/0+52fixtures, native widgets/builds and default/combined V15 restarts.
+Exact main run37438639577 attempt1 is live; confirmed unchanged Linux assertions/
+backtraces and actual Windows compiler/terminal differences remain visible.
+
+The [next Stage8 slice](work/active/office-inbox/plan.md#next-slice-inline-png-source-and-local-interpretation)
+will couple a checked inline PNG, bound Source/asset approval and explicit local
+visual interpretation through the existing owned AI lane. Implementation has not
+started; current conversion still refuses meaningful visuals. Generic ZIP intake
+is excluded. Broader DOCX/PDF/PowerPoint/URLs and binary cleanup remain unfinished.
+All binary originals remain retained. GUI/live/real-model/owner acceptance and
+full V1 delivery are not claimed. Previous asset/DOCX evidence remains in the
+[office plan](work/active/office-inbox/plan.md) and [checkpoint history](development/checkpoint.md).
 
 Complete retained original review, deterministic saved-body quotes, Rust-owned
 Conflict/Knowledge/Action candidate identities, checked full Action replacement

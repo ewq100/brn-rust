@@ -1,14 +1,13 @@
 # Stage 8: Office Inbox foundations
 
-Current baseline is integrated [PR75](https://github.com/ewq100/brn-rust/pull/75)
-`f1af1b41139e0bad0fdd838af274ada6aac0af2b`, tree
-`4eab8f24dfc1a06eb622776a7dd2900e3e31eace`. Binary retention and ordinary asset
-proposal members are qualified and integrated. [Bounded DOCX Source
-conversion](#next-slice-bounded-docx-text-source) is implemented and undergoing
-qualification on `codex/v1-docx-text-sources`; full shared/native gates and
-exact-head CI/integration are unfinished.
-Full V1 goal remains confirmed active, without a budget. Native/live/owner
-acceptance and broader Stage8 outcomes remain separate and incomplete.
+Current baseline is integrated [PR76](https://github.com/ewq100/brn-rust/pull/76)
+`b6a13313d9807be66baa49aca2a0e3c96e60d18d`, tree
+`8619cc994145a91ae7cbfa3f24b0537d7c5c6ad6`. Binary retention, ordinary assets
+and bounded DOCX text/structure Source conversion are qualified and integrated.
+[Inline PNG plus explicit local interpretation](#next-slice-inline-png-source-and-local-interpretation)
+is the next bounded deliverable on `codex/v1-docx-visual-sources`; implementation
+has not started. Full V1 goal remains confirmed active without a budget.
+Native/live/owner acceptance and broader Stage8 remain separate and unfinished.
 
 ## Binary capture baseline and acceptance
 
@@ -282,6 +281,9 @@ GUI/live/real-model/owner acceptance remains pending. No original is removed.
 
 ## Next slice: bounded DOCX text Source
 
+This earlier text slice is now integrated in PR76; its acceptance and evidence
+remain below. The current next slice is [inline PNG and local interpretation](#next-slice-inline-png-source-and-local-interpretation).
+
 Baseline is clean main75 above. Preserve the existing queue, source binding,
 whole-proposal approval and apply/recovery family; no new datastore, effect family,
 agent/prompt framework or provider call. This is the first useful Office conversion
@@ -420,3 +422,96 @@ Atomic receipts/full logs are under the explicit synthetic parent with prefix
 `brn-docx-lead-`; independent reports remain in task work. No private data or new
 live authorization was used. Dependency acquisition added only zip8.6.0 and
 typed-path0.12.3; all prior package versions remain locked unchanged.
+
+## DOCX integration checkpoint — 2026-10-06
+
+PR76 merged normally at08:48:51UTC: main
+`b6a13313d9807be66baa49aca2a0e3c96e60d18d`, tree
+`8619cc994145a91ae7cbfa3f24b0537d7c5c6ad6`, exact parents main75/fb78 and an
+empty PR-head-to-merge diff. Exactfb78/run37435614131 attempt1 passed all four
+strict protected macOS/shared checks and Docs. Overall FAILURE/ci-summary exit1
+retains the same22 Windows error locations;21 full keyed blocks match and the
+remaining Store block differs only by compiler progress interleaving. Actual
+ordered158 versus161 lines, footer and Store2/AI20 summary order differences
+remain retained. All numbered source/suggestion, note/help and location coverage
+is complete. Six full logs and50 hashed artifacts remain in task work.
+
+Fresh clean merged gate08:50:47–08:51:39UTC passed19 commands and127/0/0 tests:
+pure converter25, Store records39, default/native DOCX Workflow13 each, owner
+CLI14, Desktop Inbox19 and four actual native Inbox widgets. Workspace build,
+shipping combined Desktop/CLI builds,52 fixtures, launcher, format/diff/local
+links and two default plus two combined AppWorker restarts passed. Both synthetic
+lanes observed schemaV15 and exactly one original-operation table; no retired
+brn.sqlite3 appeared. Full suites/maximum16MiB witnesses reuse qualifiedc53 only
+after exact Rust/manifests/lock/scripts/features equality. Atomic unchanged
+start/end identities and terminal exit0 are retained in
+`docx-merged-1b8ckm8z`, log SHA256
+`8e30469154cb209357d7915f2f936200fcfa1d773f0eb39c7f5943ff0c40a591`.
+Exact main run37438639577 attempt1 is live; actual red platform results and
+complete compiler/assertion/backtrace/terminal differences remain retained.
+Native GUI/live/real-model/owner acceptance is still pending; no new authorization
+was consumed. Binary cleanup is still refused and originals remain retained.
+
+## Next slice: inline PNG Source and local interpretation
+
+Baseline is clean merged PR76 above. The outcome is one genuine DOCX containing
+one ordinary inline PNG illustration and supported wording/structure: preserve
+complete original/image bytes and document occurrence, obtain exact Source/asset
+approval, then explicitly request a tentative local interpretation and approve
+its exact durable text. A retained PNG/path/alt text alone is not completion of
+this visual outcome. No generic ZIP intake, standalone PNG intake, broader visual
+profile, binary cleanup, provider fallback or new framework is added.
+
+- Reuse the bounded package/XML/relationship/converter guards. The first PNG
+  profile is at most1MiB encoded,4096 per dimension and4,194,304 pixels, with a
+  hard32MiB decoder budget and complete integrity/EOF validation. Reject animation,
+  malformed/external/missing/duplicate references and meaningful unsupported
+  cropping/transforms/drawings/charts. Preserve exact alt/title/caption wording,
+  occurrence order and all existing text profile/golden wire bytes. Limits refuse
+  explicitly; no resizing, truncation or silent text-only fallback.
+- Extend the existing Source binding/proposal family for this distinct profile,
+  with one Source Create and its exact contained ordinary asset Create. Rust
+  reconstructs body/relative links, validates the complete manifest/payload and
+  rechecks original/asset identity, freshness and provenance before new admission
+  and late effects. Processing/preparation has no vault effects. Whole review,
+  apply, repair, recovery and Undo remain the existing family; terminal history
+  stays self-contained without original/queue rows or provider reruns.
+- Preserve deterministic provider-free processing. Visual interpretation follows
+  the fresh saved Source/asset, through an explicit selected provider/model/effort
+  request in the existing owned AI lane. Use a small typed single-image input and
+  centralized static behavior within brn-ai/brn-workflow; brn-ai stays the thin
+  Rig/runtime layer and Workflow owns task capture/authority. Model confidence,
+  MIME/paths or supplied alt text never replace actual image/evidence checks.
+  Keep current Ask/Rewrite/Inbox capabilities and tool descriptions intact.
+- Produce a labelled, tentative interpretation and uncertainty for the exact
+  selected occurrence. An exact proposal annotates only its designated Source
+  visual section; literal converted wording, metadata/provenance and asset
+  references remain unchanged. No AI text becomes durable until owner approval.
+  Failed/unsupported/interrupted analysis exposes incompleteness and retains
+  Source/assets/originals. Keep the existing bounded Source-analysis admission;
+  an over-budget Source gets an explicit refusal, not a clipped request.
+- Shared AppWorker, owner CLI and native views expose the actual visual/proofs,
+  provisional/pending interpretation and full proposed annotation before effects.
+  Source/asset approval is distinct from semantic annotation approval and does
+  not authorize original-copy cleanup. No separate universal approval-journal
+  prerequisite is invented for otherwise owner-authoritative saved Sources.
+
+Meaningful witnesses: genuine Stored/Deflate inline PNG and exact wording/asset
+position; image CRC/EOF/dimension/pixel/decoder limits and unsupported content;
+forged self-consistent manifests/payloads/path aliases, changed/substituted
+original/Source/asset and late races; no preapproval effects; whole mixed recovery/
+repair/Undo and older/fresh SQL/replay without resurrection; exact production
+Rig image bytes/media/detail/selection and tool allowlists on synthetic transports;
+proposed annotation/uncertainty and preserved literal text; cancellation/failure/
+unsupported responses without fallback. Preserve old golden envelopes and all
+Binary cleanup refusals. Native widgets/client state and relevant optional builds
+are separate from GUI/live/real-model/owner acceptance.
+
+Implement converter/bindings, explicit typed image interpretation/annotation and
+thin clients as one coherent deliverable; obtain complete read-only review,
+technically validate/fix findings, run relevant shared/native checks, exact latest-
+head applicable CI and normal merge requirements, then verify the merged result.
+Only synthetic fixtures/offline transport responses are authorized. No new live
+calls, discovery, downloads, private data, authentication, purchases or release.
+Broader images/charts/diagrams, PDF/PowerPoint/URLs and meaningful binary-copy
+cleanup remain subsequent dependencies; complete Stage8/V1 is not claimed.
