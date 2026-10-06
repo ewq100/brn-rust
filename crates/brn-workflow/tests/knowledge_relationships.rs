@@ -4,7 +4,7 @@ use brn_workflow::{
     ErrorKind,
     app::{App, AppConfig},
     app_worker::{AppCommand, AppEvent, AppWorker},
-    knowledge::{EdgeOrigin, EvidenceEndpoint, RelationshipRequest},
+    knowledge::{EdgeEvidence, EdgeOrigin, EvidenceEndpoint, RelationshipRequest},
     library::KnowledgeScope,
     proposal_apply::ApprovalRequest,
     proposals::{DraftNoteChange, DraftRequest},
@@ -152,10 +152,87 @@ fn accepted_maximum_reference_link_count_fits_coalesced_relationship_proofs() {
         .unwrap();
     assert_eq!(page.total, 1);
     assert_eq!(page.edges[0].evidence.len(), 4097);
+    let occurrence = "[x][r]";
+    let definition = "[r]: archive/source.md";
+    let proof = |start: usize, quote: &str| EdgeEvidence {
+        endpoint: EvidenceEndpoint::Source,
+        start_byte: start,
+        end_byte: start + quote.len(),
+        quote: quote.into(),
+    };
+    let starts = text
+        .match_indices(occurrence)
+        .map(|(start, _)| start)
+        .collect::<Vec<_>>();
+    let mut expected = vec![
+        proof(starts[0], occurrence),
+        proof(text.find(definition).unwrap(), definition),
+    ];
+    expected.extend(starts[1..].iter().map(|start| proof(*start, occurrence)));
+    assert_eq!(page.edges[0].evidence, expected);
     assert_eq!(
         fs::read(fixture.vault.join("a.md")).unwrap(),
         text.as_bytes()
     );
+}
+
+#[test]
+fn maximum_distinct_reference_proofs_preserve_first_seen_unicode_byte_order() {
+    let fixture = Fixture::new();
+    let mut text = format!("\u{feff}---\r\nbrn_id: {A}\r\n---\r\n");
+    let mut occurrences = Vec::new();
+    for index in (0..4096).rev() {
+        let quote = format!("[õ{index}][r{index}]");
+        occurrences.push((text.len(), quote.clone()));
+        text.push_str(&quote);
+        text.push_str("\r\n");
+    }
+    text.push_str("\r\n");
+    let mut definitions = Vec::new();
+    for index in (0..4096).rev() {
+        let quote = format!("[r{index}]: archive/source.md");
+        definitions.push((text.len(), quote.clone()));
+        text.push_str(&quote);
+        text.push_str("\r\n");
+    }
+    let expected = occurrences
+        .into_iter()
+        .zip(definitions)
+        .flat_map(|(occurrence, definition)| {
+            [occurrence, definition].map(|(start, quote)| EdgeEvidence {
+                endpoint: EvidenceEndpoint::Source,
+                start_byte: start,
+                end_byte: start + quote.len(),
+                quote,
+            })
+        })
+        .collect::<Vec<_>>();
+    assert_eq!(expected.len(), 8192);
+    fs::write(fixture.vault.join("a.md"), &text).unwrap();
+    let mut app = fixture.app();
+    for _ in 0..2 {
+        let page = app
+            .relationships(&request(KnowledgeScope::All, 0, 50))
+            .unwrap();
+        assert!(page.issues.is_empty() && page.duplicates.is_empty());
+        assert_eq!(page.total, 1);
+        assert_eq!(page.edges[0].evidence, expected);
+        assert_eq!(
+            page.edges[0].source.sha256,
+            <[u8; 32]>::from(Sha256::digest(text.as_bytes()))
+        );
+        for proof in &page.edges[0].evidence {
+            assert_eq!(
+                text.get(proof.start_byte..proof.end_byte),
+                Some(proof.quote.as_str())
+            );
+        }
+    }
+    assert_eq!(
+        fs::read(fixture.vault.join("a.md")).unwrap(),
+        text.as_bytes()
+    );
+    assert!(app.work_store().proposals(None).unwrap().is_empty());
 }
 
 #[test]

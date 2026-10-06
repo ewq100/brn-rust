@@ -4,7 +4,7 @@ use crate::{Error, Result};
 use rusqlite::{Connection, Row, TransactionBehavior, params};
 use serde::{Deserialize, Serialize};
 use sha2::{Digest, Sha256};
-use std::collections::{BTreeMap, BTreeSet, HashSet};
+use std::collections::{BTreeMap, BTreeSet, HashMap, HashSet};
 use uuid::Uuid;
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq, PartialOrd, Ord, Serialize, Deserialize)]
@@ -86,12 +86,14 @@ struct CachedNote {
 struct Validator<'a> {
     conn: &'a Connection,
     notes: BTreeMap<String, CachedNote>,
+    aliases: Option<HashMap<Vec<u8>, i64>>,
 }
 impl<'a> Validator<'a> {
     fn new(conn: &'a Connection) -> Self {
         Self {
             conn,
             notes: BTreeMap::new(),
+            aliases: None,
         }
     }
     fn endpoint(&mut self, endpoint: &EdgeEndpoint) -> Result<()> {
@@ -101,7 +103,7 @@ impl<'a> Validator<'a> {
             ));
         }
         if !self.notes.contains_key(&endpoint.path) {
-            let cached = cached_note(self.conn, &endpoint.path)?;
+            let cached = cached_note(self.conn, &endpoint.path, &mut self.aliases)?;
             self.notes.insert(endpoint.path.clone(), cached);
         }
         let cached = &self.notes[&endpoint.path];
@@ -157,19 +159,48 @@ impl<'a> Validator<'a> {
     }
 }
 
-fn cached_note(conn: &Connection, path: &str) -> Result<CachedNote> {
+fn cached_note(
+    conn: &Connection,
+    path: &str,
+    aliases: &mut Option<HashMap<Vec<u8>, i64>>,
+) -> Result<CachedNote> {
     let metadata =
         super::note_metadata(conn, path)?.ok_or(Error::Invalid("edge endpoint is absent"))?;
     let id = metadata
         .note_id
         .filter(|_| metadata.issue.is_none())
         .ok_or(Error::Invalid("edge endpoint is unmanaged or ineligible"))?;
-    let aliases: i64 = conn.query_row(
-        "SELECT count(*) FROM notes WHERE note_id=?1",
-        [id.to_string()],
-        |row| row.get(0),
-    )?;
-    if aliases != 1 {
+    if aliases.is_none() {
+        // Preserve raw SQL equality to the canonical endpoint ID. Ineligible
+        // rows still count; NULL/non-TEXT values cannot equal that TEXT ID.
+        // Keep raw bytes: unrelated invalid UTF-8 TEXT was never decoded by
+        // the old endpoint-specific count and must not change its refusal.
+        let mut statement = conn.prepare(
+            "SELECT note_id,count(*) FROM notes WHERE typeof(note_id)='text' GROUP BY note_id",
+        )?;
+        let counts = statement
+            .query_map([], |row| {
+                let id = match row.get_ref(0)? {
+                    rusqlite::types::ValueRef::Text(bytes) => bytes.to_vec(),
+                    value => {
+                        return Err(rusqlite::Error::InvalidColumnType(
+                            0,
+                            "note_id".into(),
+                            value.data_type(),
+                        ));
+                    }
+                };
+                Ok((id, row.get::<_, i64>(1)?))
+            })?
+            .collect::<rusqlite::Result<HashMap<_, _>>>()?;
+        *aliases = Some(counts);
+    }
+    if aliases
+        .as_ref()
+        .expect("loaded alias counts")
+        .get(id.to_string().as_bytes())
+        != Some(&1)
+    {
         return Err(Error::Invalid(
             "edge endpoint identity is not unique in cached notes",
         ));
