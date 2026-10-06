@@ -21,9 +21,10 @@ managed metadata merely to be readable as ordinary current knowledge.
 
 Images and other meaningful assets belong in ordinary files alongside Markdown,
 as required by the [product vision](../product/BRN_PRODUCT_VISION.md).
-Ordinary Markdown links/images may refer to them. The current text-only Inbox
-conversion formats below do not implement binary extraction, asset placement or
-a new managed asset field; those capabilities follow the [roadmap](../roadmap.md).
+Ordinary Markdown links/images may refer to them. The integrated bounded DOCX profile preserves one ordinary inline PNG through
+paired exact Source/asset approval and supports a separately approved provisional
+annotation. Broader visuals/formats and binary cleanup remain unfinished; see the
+[Office plan](../work/active/office-inbox/plan.md#pr77-integration-and-controlled-closeout--2026-10-06).
 Asset links are not automatically note-to-note relationships.
 
 ## Managed frontmatter
@@ -95,11 +96,12 @@ original-copy conversion proof.
 Generated Sources have an LF header in this exact field order: `brn_id`,
 `brn_kind: source`, `brn_state: current`, `brn_inbox_source`, then `---` and the
 complete converted body. Imported Markdown frontmatter stays inside that body;
-it never replaces the new managed header. The JSON object has these fields in
-the generated order:
+it never replaces the new managed header. The JSON object has these top-level
+fields in generated order; the optional visual profile precedes the common fields:
 
 | JSON field | Current encoding |
 | --- | --- |
+| `visual` | Omitted for text-only profiles; required object for `docx_inline_png_v1`, retaining exact original asset/occurrence proof; separately approved interpretation lives in the Source body. Nested shape is owned by [InboxSourceVisual](../../crates/brn-store/src/work/inbox_visual.rs). |
 | `item_id` | Nonnil original Inbox item UUID. |
 | `kind` | `text`, `markdown`, `email`, `teams` or `binary`; all are deliberate retained copies. |
 | `title` | Nonempty title, at most 512 UTF-8 bytes, without control characters. |
@@ -107,7 +109,7 @@ the generated order:
 | `received_at_ms` | Nonnegative integer milliseconds, at most `i64::MAX`. |
 | `original_byte_len` | Exact original byte count, at most 1 MiB for text kinds or 16 MiB for Binary. |
 | `original_sha256` | SHA-256 of the original bytes, as a 32-byte integer array. |
-| `format` | `verbatim_markdown_v1` for Markdown; `literal_text_v1` for Text/Email/Teams; `docx_text_v1` only for qualified Binary DOCX. |
+| `format` | `verbatim_markdown_v1` for Markdown; `literal_text_v1` for Text/Email/Teams; `docx_text_v1` or `docx_inline_png_v1` for the qualified bounded Binary DOCX profiles. |
 
 Objects reject unknown fields. `verbatim_markdown_v1` preserves all original
 Markdown bytes as the body. `literal_text_v1` encloses exact original text in a
@@ -131,6 +133,13 @@ provenance. Fresh draft/application checks reconstruct conversion from the exact
 held original. Source approval does not authorize Binary copy cleanup: this
 profile does not qualify full Office preservation. ZIP is only an internal DOCX
 container, with no generic archive intake or extraction.
+
+The additional `docx_inline_png_v1` profile retains exact PNG asset bytes and
+occurrence proof with the Source. The text-only JSON example below omits `visual`. The
+[typed Source binding](../../crates/brn-store/src/work/inbox_source.rs)
+owns that shape, and [visual workflow](../../crates/brn-workflow/src/inbox_actions/visual.rs)
+owns separately approved annotation. Annotation adds interpretation while preserving
+the original Source/image proof; it never establishes complete Office preservation.
 
 ## Vault citations
 

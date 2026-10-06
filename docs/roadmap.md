@@ -1,6 +1,6 @@
 # Delivery roadmap
 
-The owner has frozen the reviewed product architecture as of 2026-10-03. [Product vision](product/BRN_PRODUCT_VISION.md) and [architecture/invariants](architecture/invariants.md) govern the outcomes below. This sequence carries forward the dependency corrections in the dated [independent review](audits/BRN_PRODUCT_ARCHITECTURE_REVIEW.md#g-final-build-sequence). The current v1 mission authorizes sequential implementation and integration within these frozen boundaries; each slice still establishes its own acceptance criteria and verification.
+The owner has frozen the reviewed product architecture as of 2026-10-03. [Product vision](product/BRN_PRODUCT_VISION.md) and [architecture/invariants](architecture/invariants.md) govern the outcomes below. This sequence carries forward the dependency corrections in the dated [independent review](audits/BRN_PRODUCT_ARCHITECTURE_REVIEW.md#g-final-build-sequence). The V1 mission is paused at the owner's 2026-10-06 checkpoint. Each explicitly selected slice establishes its own scope, acceptance criteria and verification; roadmap order alone authorizes no work.
 
 [Status](status.md) owns observed implementation, verification, acceptance and integration. Older milestones and the simple-notes Steps 5/6 are historical; they do not select the next task. Keep existing foundations and data while following the stable V1 core [target](architecture/overview.md#frozen-target).
 
@@ -9,6 +9,8 @@ meaningful domain capability stays headless through workflow/AppWorker. Thin
 future protocol adapters are permitted; read-only local stdio MCP is the expected
 first external interface. MCP, a daemon and remote/network infrastructure are not
 added delivery stages or prerequisites for V1.
+
+See the [remaining dependency/specification map](work/active/preparation-checkpoint/v1-map.md) for the current gaps and safe independent selections.
 
 ## Reviewed outcomes
 
@@ -41,8 +43,8 @@ paused; use the [handoff queue](work/active/v1-handoff.md#ordered-task-queue) on
 after explicit task selection. This does not change the dependency order below.
 
 Select the next incomplete dependency from [status](status.md), establishing the
-actual merged baseline and its pending qualification. Continue sequential
-reviewable slices under the current V1 authorization. Pending owner acceptance
+actual merged baseline and its pending qualification. Continue only the explicitly selected
+reviewable slice; then stop at its handoff. Pending owner acceptance
 need not block later safe work when it is not a dependency. Original-data
 inspection/migration, additional live calls, downloads, purchases and release or
 public distribution still require applicable owner permission. Use the

@@ -18,19 +18,30 @@ A subsystem already covered by the frozen target is a feature slice, not automat
 
 ## Compatible reuse
 
-Before implementing new functionality, check whether existing repository code,
-the standard library or platform, current pinned dependencies, or a suitable
-maintained published component already provides it. Prefer compatible reuse when
+Before specifying or implementing a meaningful new component, check existing
+project code/shared abstractions, standard-library/platform facilities, pinned
+dependency capabilities, suitable published companion modules and maintained
+external libraries/tools. For agent development, check existing skills and workflow
+components first. Ordinary small edits need no separate research report. Prefer compatible reuse when
 it reduces overall complexity and maintenance. Add custom code only for an actual
 unmet requirement or when a small local implementation is demonstrably simpler.
-Keep the investigation proportional to the change and briefly record material
-decisions.
+Keep the investigation proportional to the decision. Check actual APIs, published
+versions, compatibility and required behavior; a similar name or advertised
+capability does not establish fit. Record **reuse**, **adapt** or **build** in the
+existing spec/task with a short reason and evidence. Custom code covers only the
+specific unmet gap. Revisit the decision during implementation when discoveries
+change the approach.
 
 This applies to AI, CLI, parsing, storage utilities, import/conversion, UI
 infrastructure and development tooling. For a material choice, record the
 requirement, option/version, decision, remaining BRN responsibility and specific
 reason for custom code or deferral. Count adapters, duplicated validation,
-dependency/platform costs and verification, rather than lines alone. Routine
+dependency/platform costs and verification, rather than lines alone. For general-purpose AI machinery, explicitly check pinned Rig (currently0.43.0)
+and suitable published companion modules before custom machinery; add only what
+the requirement needs. Start from H1–H5 and the decision below. Reopen a conclusion
+only for changed requirements/code/version/evidence, a concrete prior gap or a
+new component not assessed before. Material uncertainty gets a bounded evaluation
+task; dependent implementation stays conditional on its result. Routine
 reuse does not reopen the frozen architecture. The
 [current reassessment](../architecture/decisions/2026-10-06-compatible-reuse.md)
 distinguishes implemented mechanisms, accepted follow-ups and unresolved candidates.
@@ -68,6 +79,22 @@ For changed user-visible behavior, provide a reproducible scenario for the owner
 Integrate with current authorization for the target/action and applicable acceptance or explicit deferral. Carry out an already-authorized merge/push without another options menu; verify a changed merge result appropriately. Historical permissions do not authorize future live checks, release or migration. Stage task-owned files and use accurate attribution.
 
 ## Records and handoff
+
+Development terms remain separate from product terms: **Defined** means accepted
+behavior/requirements; **Build-ready** means a sufficient executable approach and
+resolved material assumptions; **Candidate** means the actual implementation tree
+awaiting or satisfying named gates; **Integrated** means the merged result is
+confirmed with applicable post-merge evidence. A brief defines behavior; a parent
+spec defines a bounded engineering outcome; tasks are independently verifiable
+units within it. Verified names a specific check scope; accepted names the relevant
+owner decision. Neither means merged. Readiness never selects a task.
+
+For a lead transfer, commit/push the task, baseline/candidate identity, authorization
+and exclusions, decisions, finding dispositions, gate evidence and exact next
+action. The receiving lead rechecks remote/dirty state and accepts responsibility
+for the selected outcome. Use repository documents across runtimes; runtime tools
+and model availability do not change product authority. See the proposed
+[hybrid workflow design](https://github.com/ewq100/product-to-production/blob/docs/hybrid-workflow-design/docs/hybrid-workflow.md).
 
 Keep concise results in the task/PR description or plan. Use existing `evidence.md` records, or add one when observations need a durable handoff; every plan need not create a second file. Record baseline/tested tree, environment/features, commands/results/limitations, changed behavior, unresolved findings and next action. Keep critical observations durable; temporary paths alone are insufficient. Never record credentials.
 

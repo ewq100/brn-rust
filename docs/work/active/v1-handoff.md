@@ -52,34 +52,17 @@ task directory's `work/docx-visual-*-evidence`, `work/ci-pr77-*` and
 for a new agent. Unrelated worktrees, stashes, old review SHA7c4f668 and private data
 were preserved. No task-owned uncommitted product code remains.
 
-## Closeout deliverable and pending qualification
+## Integrated closeout and preparation
 
-The documentation snapshot `2f7c05e9bce69a5aa638e3e688411543900a0c51` was
-committed/pushed and opened as [PR78](https://github.com/ewq100/brn-rust/pull/78).
-The present follow-up records publication metadata only. PR78 is **open, unmerged**;
-its own exact latest-head macOS/shared CI and normal merge requirements are pending.
-Do not merge on PR77 evidence. Before integration, obtain the actual current head
-from GitHub and validate that exact run attempt; no further feature work is running.
+PR78 is **merged** at `a8deb9d8e94665b1731034675b490fb134aae091`, checked remote main on2026-10-06. Actual head was `788d633e2fc79b11eb08eb55e3902c7d6e2cc6ae`. Exact-head run37464020406 and merged-main run37475432892 passed all four strict required checks and Documentation; main run is complete, overall red from informational Windows core/UI/retrieval and Ubuntu native retrieval. No new portability qualification or Rust run is claimed. The [preparation evidence](preparation-checkpoint/evidence.md) records policy, review and final publication state.
 
-`codex/v1-closeout-handoff` contains documentation only: the
-[reuse decision](../../architecture/decisions/2026-10-06-compatible-reuse.md),
-canonical workflow guidance, corrected status and the queue below. Obtain its
-exact committed SHA and PR state from Git/GitHub (`git rev-parse HEAD`,
-`gh pr view --json url,state,headRefOid`); the product checkpoint above
-does not change. If this session ends before push, preserve task-owned dirty
-documentation and finish its documentation checks/commit/push. No product code
-or reuse replacement was added by closeout.
-
-Closeout qualification: one bounded independent read-only documentation review
-found an overly broad download restriction; it was validated and narrowed to
-model downloads. No other actionable finding remained. Current Markdown check
-passed37 files/420 local links/0 failures; explicitly checking the new decision
-and decision index with the same checker passed2 files/5 local links/0 failures
-(the default historical policy excludes outgoing ADR-folder links). Existing
-development-tooling tests passed18/0; `git diff --check` passed. Rust, dependency,
-feature, script and vendor files are unchanged, so the full product qualification
-above is reused rather than reported as new runs. Closeout integration still needs
-its own exact-head CI and normal merge requirements; do not merge on PR77 evidence.
+The existing product checkpoint and pending acceptance above remain unchanged.
+PR78's prior pre-merge observations are preserved in Git history and its PR body;
+they are superseded for continuation by this verified disposition. Preparation
+adds [H1/H2 specs](preparation-checkpoint/next-specs.md), [remaining V1 map](preparation-checkpoint/v1-map.md),
+[product glossary](../../product/glossary.md) and the proposed
+[hybrid design](https://github.com/ewq100/product-to-production/blob/docs/hybrid-workflow-design/docs/hybrid-workflow.md).
+No dependency replacement, evaluation, skill installation or product slice was run.
 
 GUI qualification is explicitly deferred by the owner, not a failed automated
 gate. On a later unlocked Mac and explicit selection, recreate a synthetic genuine
@@ -92,6 +75,19 @@ requires fresh owner authorization; prior live usage is exhausted. Do not bundle
 live calls into GUI observation. Owner acceptance remains pending.
 
 ## Ordered task queue
+
+Inspected unchanged product code at main a8deb9d: none of H1–H5 is completed or superseded. H1 still scans raw title lines; H2 still duplicates schema and has no direct Schemars dependency; visual output still uses prompt JSON without `output_schema`; no docx-rs/clap dependency is present. H3–H5 questions remain unresolved. Existing decision evidence is sufficient to prepare evaluations, not adopt replacements.
+
+| ID | Kind / classification | Detail |
+| --- | --- | --- |
+| H1 | Ready for implementation | Settled title fix; [executable spec](preparation-checkpoint/next-specs.md#h1--titles-from-saved-markdown) |
+| H2 | Ready for implementation with compatibility stop | Narrow accepted derivation, equivalence first; [spec](preparation-checkpoint/next-specs.md#h2--one-compatible-action-schema) |
+| H3 | Ready for evaluation | Offline route feasibility; enabling live routes remains conditional on qualification |
+| H4 | Ready for evaluation | Published release fit unresolved; broader replacement conditional on result |
+| H5 | Ready for evaluation | CLI adoption unresolved; migration conditional on result |
+
+Lead owns shared documentation and integration. Each implementer/evaluator records actual baseline, candidate, result and stop reason in its own task record; lead reconciles the common queue/ADR/status. Evaluations have no product API changes or owner acceptance requirement beyond reviewing the recommendation; no credentials/hardware beyond ordinary pinned Rust/macOS fixtures. H3–H5 finish with reproducible synthetic evidence and an adoption/non-adoption/blocker decision, independent review and focused result PR. H4/H5 isolate manifest, lock and target. Parent/spec links above do not select work.
+
 
 **Ready** means technically ready for explicit task selection; it is not permission
 to resume the paused roadmap automatically. Each task uses a separate `codex/`
@@ -212,10 +208,9 @@ qualification. Only the selected task may proceed.
 
 ## Parallel work and start prompt
 
-H1, H4 and H5 have independent product files and can run in separate worktrees.
+H1, H4 and H5 have independent product/evaluator files and can run in separate worktrees after explicit selection. H4/H5 own result records only; lead owns shared documentation.
 H2 and H3 share AI schema/provider tests and should run sequentially or on explicitly
-fixed independent interfaces. All tasks share decision/handoff records: each updates
-only its own section; the lead reconciles documentation at integration. Keep Cargo
+fixed independent interfaces. All tasks share decision/handoff records: implementers return task-owned evidence; the lead reconciles shared documentation at integration. Keep Cargo
 sequential per target. H4 informs the next Stage8 expansion; other maintenance tasks
 are not new roadmap dependencies. Deferred GUI/live/owner qualification remains open.
 

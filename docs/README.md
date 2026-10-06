@@ -11,6 +11,8 @@ one task from the [controlled handoff](work/active/v1-handoff.md).
 
 | Need | Read |
 | --- | --- |
+| Clarify product language | [Product glossary](product/glossary.md), [domain consistency](architecture/overview.md#domain-consistency-checkpoint) |
+| Select a prepared task | [Handoff](work/active/v1-handoff.md), [next specs](work/active/preparation-checkpoint/next-specs.md), [remaining V1 map](work/active/preparation-checkpoint/v1-map.md) |
 | Understand the product or run it | [Root README](../README.md), [setup](development/setup.md) |
 | Understand desired product behavior | [Product vision](product/BRN_PRODUCT_VISION.md): requirements and future capabilities, not a claim that all are implemented |
 | Understand the frozen target | [Architecture overview](architecture/overview.md#frozen-target), [invariants](architecture/invariants.md#frozen-target-guarantees). [Opus audit](audits/BRN_PRODUCT_ARCHITECTURE_AUDIT.md) and [independent review](audits/BRN_PRODUCT_ARCHITECTURE_REVIEW.md) are dated rationale, not execution plans |
