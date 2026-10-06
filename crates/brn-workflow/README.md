@@ -43,7 +43,8 @@ would exceed its separate byte bound.
 These previews require semantic review. `PrepareInboxSource` prepares a bound
 whole Source draft for the existing exact approval/recovery boundary. Opt-in
 knowledge, Action and supersession review are described below.
-Conflict capture, attachment/visual interpretation and safe deletion remain follow-on capabilities.
+Conflict capture and explicitly confirmed text-copy Remove/Restore are described
+below. Attachment conversion and visual interpretation remain follow-on work.
 No original deletion, provider call or authoritative write occurs here.
 
 `CaptureInbox`, `InboxItem` and `InboxItems` are headless workflow commands for
@@ -63,6 +64,21 @@ Missing originals are reported without claiming fresh source evidence. Capture
 does not convert content, call a provider, create knowledge/proposals, or delete
 copies. Future protocol adapters should call these workflow commands rather than
 the file or Store modules.
+
+`CaptureBinaryInbox` uses the same capture family and `InboxCaptured` reply for
+explicit opaque originals up to 16 MiB, including empty and invalid UTF-8 bytes.
+`CaptureBinaryInboxRequest` binds UUID, labels and complete bytes; text capture
+rejects Binary. UUID.bin is derived from the typed receipt, while existing text
+kinds retain UUID.txt and their 1 MiB limit. Capture refuses either occupied suffix;
+recovery never substitutes one suffix for the other. Catalog schema V15 and the
+metadata-only format1 capture mirror remain unchanged.
+
+`InboxOriginal::AvailableBinary` reports only complete length/hash after a fresh
+stable private-file identity/byte observation. `InboxRead::validate_receipt`
+checks client DTO consistency; it does not establish fresh filesystem authority.
+Binary items can be listed and inspected, but processing, Source conversion and
+new/legacy original-copy lifecycle validation explicitly refuse them. No binary
+payload is rendered as text, and binary cleanup is not enabled by this boundary.
 
 `AnalyzeInboxActions` accepts one complete saved managed Inbox Source, an operation
 UUID, optional conversation and explicit provider/model/effort. Full Source bytes

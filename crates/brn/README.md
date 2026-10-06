@@ -22,6 +22,7 @@ brn findings inspect UUID
 brn findings conflicts PATH [--scope current|source|history|all] [--limit N] [--cursor JSON]
 brn findings close UUID --version N --state resolved|dismissed
 brn inbox add --id UUID --title TITLE --file TEXT_FILE [--kind text|markdown|email|teams] [--original-name LABEL]
+brn inbox add-binary --id UUID --title TITLE --file BINARY_FILE [--original-name LABEL]
 brn inbox list [--limit N] [--after UUID]
 brn inbox show UUID
 brn inbox review UUID
@@ -109,6 +110,22 @@ the typed request through AppWorker. BRN retains the exact bytes in its private
 ordinary copy namespace and returns an immutable receipt; labels and source kind
 never select a filesystem path. Repeating the same UUID and exact request returns
 the original receipt without refreshing its timestamp or republishing the copy.
+
+`inbox add-binary` retains complete opaque bytes up to 16 MiB through the same
+AppWorker capture family. The CLI bounds and reads the explicitly selected regular
+file before application startup. UUID.bin is workflow-derived; optional filenames
+are labels. Empty files and invalid UTF-8 are supported. `inbox show` and `review`
+return fresh proof metadata for an available binary original, without a text
+payload. Binary processing, Source conversion and Remove/Restore remain unsupported.
+
+For a disposable owner check, use a fresh UUID and synthetic binary file with
+`inbox add-binary`, then `inbox show UUID` and `inbox review UUID` in the same
+explicit synthetic data directory. Repeat the exact capture and verify the
+receipt/time remain identical; change the supplied bytes under that UUID and
+verify refusal. The native Inbox should show a retained binary original with
+conversion unavailable and no process selection or text-copy control. Automated
+headless tests do not replace this pending unlocked owner observation.
+
 `inbox process` accepts a JSON `ProcessInboxRequest`: a new nonnil `id` and
 `items` containing 1–8 exact `item` snapshots from `inbox show`. It waits for the
 owned AppWorker queue to settle and reports each outcome. The queue holds at most

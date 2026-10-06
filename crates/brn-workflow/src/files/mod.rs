@@ -124,6 +124,13 @@ pub(crate) struct FileObservation {
     pub text: String,
 }
 
+#[cfg(target_os = "macos")]
+#[derive(Debug)]
+pub(crate) struct FileByteObservation {
+    pub fingerprint: FileFingerprint,
+    pub bytes: Vec<u8>,
+}
+
 fn failure(code: FileErrorCode, message: impl Into<String>) -> FileFailure {
     FileFailure {
         code,
@@ -812,17 +819,30 @@ fn validate_regular(metadata: &Metadata) -> FileResult<()> {
 }
 
 #[cfg(target_os = "macos")]
-fn read_file(mut file: &File) -> FileResult<FileObservation> {
+fn read_file(file: &File) -> FileResult<FileObservation> {
+    let observation = read_file_bytes(file, crate::MAX_NOTE_BYTES, "note exceeds 1 MiB")?;
+    Ok(FileObservation {
+        fingerprint: observation.fingerprint,
+        text: String::from_utf8(observation.bytes).map_err(note_utf8_failure)?,
+    })
+}
+
+#[cfg(target_os = "macos")]
+fn read_file_bytes(
+    mut file: &File,
+    max: usize,
+    limit_message: &str,
+) -> FileResult<FileByteObservation> {
     let before = file.metadata().map_err(note_io_failure)?;
     validate_regular(&before)?;
     file.rewind().map_err(note_io_failure)?;
     let mut bytes = Vec::new();
     Read::by_ref(&mut file)
-        .take((crate::MAX_NOTE_BYTES + 1) as u64)
+        .take((max + 1) as u64)
         .read_to_end(&mut bytes)
         .map_err(note_io_failure)?;
-    if bytes.len() > crate::MAX_NOTE_BYTES {
-        return Err(note_unsupported("note exceeds 1 MiB"));
+    if bytes.len() > max {
+        return Err(note_unsupported(limit_message));
     }
     let after = file.metadata().map_err(note_io_failure)?;
     validate_regular(&after)?;
@@ -852,10 +872,7 @@ fn read_file(mut file: &File) -> FileResult<FileObservation> {
         len: after.len(),
         sha256: Sha256::digest(&bytes).into(),
     };
-    Ok(FileObservation {
-        fingerprint,
-        text: String::from_utf8(bytes).map_err(note_utf8_failure)?,
-    })
+    Ok(FileByteObservation { fingerprint, bytes })
 }
 
 #[cfg(target_os = "macos")]
@@ -1225,6 +1242,43 @@ mod tests {
     use uuid::Uuid;
     fn directory() -> tempfile::TempDir {
         tempfile::tempdir_in(std::env::temp_dir().canonicalize().unwrap()).unwrap()
+    }
+
+    #[test]
+    fn binary_observation_core_preserves_text_utf8_limit_and_fingerprint_behavior() {
+        let data = directory();
+        let path = data.path().join("opaque.bin");
+        let bytes = [0, 0xff, 0x80, b'a'];
+        std::fs::write(&path, bytes).unwrap();
+        let file = File::open(&path).unwrap();
+        let observed = read_file_bytes(&file, 16 * 1024 * 1024, "binary bound").unwrap();
+        assert_eq!(observed.bytes, bytes);
+        assert_eq!(
+            observed.fingerprint.sha256,
+            <[u8; 32]>::from(Sha256::digest(bytes))
+        );
+        assert_eq!(observed.fingerprint.len, 4);
+        let error = read_file(&file).unwrap_err();
+        assert_eq!(error.code, FileErrorCode::Unsupported);
+        assert!(error.message.starts_with("note is not UTF-8:"));
+        std::fs::write(&path, vec![b'x'; crate::MAX_NOTE_BYTES + 1]).unwrap();
+        let error = read_file(&file).unwrap_err();
+        assert_eq!(error.code, FileErrorCode::Unsupported);
+        assert_eq!(error.message, "note exceeds 1 MiB");
+        assert_eq!(
+            read_file_bytes(&file, 16 * 1024 * 1024, "binary bound")
+                .unwrap()
+                .bytes
+                .len(),
+            crate::MAX_NOTE_BYTES + 1
+        );
+        std::fs::write(&path, b"BOM\r\nbody\n").unwrap();
+        let text = read_file(&file).unwrap();
+        let raw = read_file_bytes(&file, crate::MAX_NOTE_BYTES, "note exceeds 1 MiB").unwrap();
+        assert_eq!(text.text.as_bytes(), raw.bytes);
+        assert_eq!(text.fingerprint, raw.fingerprint);
+        std::fs::hard_link(&path, data.path().join("alias")).unwrap();
+        assert!(read_file_bytes(&file, 16 * 1024 * 1024, "binary bound").is_err());
     }
 
     fn registered(root: &Path) -> VaultRecord {

@@ -2,9 +2,7 @@
 use super::{AiState, Pending};
 use brn_workflow::{
     app_worker::{AppCommand, AppEvent},
-    inbox::{
-        CaptureInboxRequest, InboxInventory, InboxItem, InboxListRequest, InboxOriginal, InboxRead,
-    },
+    inbox::{CaptureInboxRequest, InboxInventory, InboxItem, InboxListRequest, InboxRead},
     inbox_processing::{
         InboxCandidateRequest, InboxConversionFormat, InboxConversionPreview, InboxProcessBatch,
         InboxProcessOutcome, InboxSourceBinding, InboxSourceRequest, ProcessInboxRequest,
@@ -543,21 +541,7 @@ impl ConversionCapture {
     }
 }
 fn read_valid(read: &InboxRead) -> bool {
-    if read.item.validate().is_err() {
-        return false;
-    }
-    if let InboxOriginal::Available { text } = &read.original {
-        let request = CaptureInboxRequest {
-            id: read.item.capture.id,
-            kind: read.item.capture.kind,
-            title: read.item.capture.title.clone(),
-            original_name: read.item.capture.original_name.clone(),
-            text: text.clone(),
-        };
-        request.validate_receipt(&read.item).is_ok()
-    } else {
-        true
-    }
+    read.validate_receipt().is_ok()
 }
 fn page_valid(page: &InboxInventory, request: &InboxListRequest) -> bool {
     let mut ids = std::collections::HashSet::new();

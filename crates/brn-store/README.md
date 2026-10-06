@@ -449,7 +449,12 @@ email and Teams copies. Full bounded labels/optional original names, UUID and
 ordinary-directory/file identity, byte length and SHA256 remain exact. Payload
 text stays in ordinary files; storage neither reads nor writes/deletes copies.
 Only workflow may submit freshly qualified durable proof; direct clients continue
-through AppWorker. The fixed UUID.txt name is independent of labels or source kind.
+through AppWorker. The fixed UUID.txt name for these four text kinds is independent
+of labels. Stage8 adds Binary metadata with a separate 16 MiB bound and UUID.bin;
+the four text bounds remain 1 MiB. Empty binary bytes are valid only with the empty
+digest. Existing canonical text JSON, SQL schema and receipt hashes are unchanged.
+No binary payload enters SQLite. Binary process requests/results, Source bindings/
+provenance/preservation and new/legacy Remove/Restore records explicitly refuse.
 
 Exact creation replay returns original metadata and received time; another payload
 under that UUID refuses. Explicitly separate copies retain separate identities
@@ -463,7 +468,9 @@ SQLite backup preserves catalog metadata, not the separate original-copy files.
 
 This catalog is consumed by the Stage7 workflow capture boundary; processing,
 Source preparation/approval and Action analysis use their separate typed records
-and shared workflow operations. Original deletion remains a following slice.
+and shared workflow operations. Explicit text-copy Remove/Restore uses the
+separate qualified original-operation records described below; binary cleanup
+remains unsupported.
 `capture_inbox_with` holds SQLite writer exclusion,
 publishes the complete immutable item before INSERT and rolls back on callback or
 SQL failure. `restore_inbox` imports only a workflow-qualified exact snapshot.

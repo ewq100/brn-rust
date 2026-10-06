@@ -579,3 +579,168 @@ fn complete_original_review_uses_worker_and_reports_changed_copy_without_effects
     assert_eq!(std::fs::read(path).unwrap(), changed);
     worker.shutdown().unwrap();
 }
+
+#[test]
+fn binary_capture_correlates_uuid_and_reports_fresh_proof_without_processing() {
+    use crate::inbox::CaptureBinaryInboxRequest;
+    let (owner, data, mut worker) = processing_fixture();
+    let request = CaptureBinaryInboxRequest {
+        id: Uuid::new_v4(),
+        title: "Retained binary õ".into(),
+        original_name: Some("Synthetic.pdf".into()),
+        bytes: vec![0, 0xff, 0xfe, b'\r', b'\n'],
+    };
+    let wrong = Uuid::new_v4();
+    worker
+        .submit(wrong, AppCommand::CaptureBinaryInbox(request.clone()))
+        .unwrap();
+    assert!(
+        matches!(worker.recv_event_timeout(Duration::from_secs(10)).unwrap(), (id, AppEvent::Failed(error)) if id == wrong && error.kind == ErrorKind::OperationConflict)
+    );
+    assert!(!data.join("inbox").exists());
+    worker
+        .submit(request.id, AppCommand::CaptureBinaryInbox(request.clone()))
+        .unwrap();
+    let (id, AppEvent::InboxCaptured(item)) =
+        worker.recv_event_timeout(Duration::from_secs(10)).unwrap()
+    else {
+        panic!("binary capture receipt")
+    };
+    assert_eq!(id, request.id);
+    request.validate_receipt(&item).unwrap();
+    let AppEvent::InboxItem(read) = processing_reply(&worker, AppCommand::InboxItem(request.id))
+    else {
+        panic!("binary read")
+    };
+    read.validate_receipt().unwrap();
+    assert!(
+        matches!(&read.original, InboxOriginal::AvailableBinary { byte_len, sha256 } if *byte_len == request.bytes.len() as u64 && *sha256 == item.capture.copy.sha256)
+    );
+    assert!(
+        serde_json::to_value(&read).unwrap()["original"]
+            .get("text")
+            .is_none()
+    );
+    let process = ProcessInboxRequest {
+        id: Uuid::new_v4(),
+        items: vec![(*item).clone()],
+    };
+    assert!(
+        worker
+            .submit(process.id, AppCommand::ProcessInbox(process))
+            .unwrap_err()
+            .message
+            .contains("Binary")
+    );
+    assert!(matches!(
+        processing_reply(&worker, AppCommand::PreviewInboxRemoval(request.id)),
+        AppEvent::Failed(_)
+    ));
+    worker.shutdown().unwrap();
+    let app = App::open(
+        &data,
+        AppConfig {
+            vault_root: None,
+            credentials_dir: Some(owner.path().join("credentials")),
+            model_dir: None,
+        },
+    )
+    .unwrap();
+    assert_eq!(app.inbox_item(request.id).unwrap().item, *item);
+    assert_eq!(
+        std::fs::read(data.join("inbox").join(item.capture.copy_name())).unwrap(),
+        request.bytes
+    );
+    assert_eq!(
+        std::fs::read_dir(owner.path().join("credentials"))
+            .unwrap()
+            .count(),
+        0
+    );
+}
+
+#[test]
+fn shutdown_drains_admitted_binary_capture_and_cancels_a_queued_read() {
+    use crate::inbox::CaptureBinaryInboxRequest;
+    let (owner, data, mut worker) = processing_fixture();
+    let (entered_tx, entered) = mpsc::channel();
+    let (release, release_rx) = mpsc::channel();
+    worker
+        .submit(
+            Uuid::new_v4(),
+            AppCommand::TestPause {
+                entered: entered_tx,
+                release: release_rx,
+            },
+        )
+        .unwrap();
+    entered.recv_timeout(Duration::from_secs(10)).unwrap();
+    let request = CaptureBinaryInboxRequest {
+        id: Uuid::new_v4(),
+        title: "Admitted binary λ".into(),
+        original_name: None,
+        bytes: vec![0, 0xff, 0x80],
+    };
+    worker
+        .submit(request.id, AppCommand::CaptureBinaryInbox(request.clone()))
+        .unwrap();
+    let read_id = Uuid::new_v4();
+    worker
+        .submit(read_id, AppCommand::InboxItem(request.id))
+        .unwrap();
+    let stopping = worker.stopping.clone();
+    let join = std::thread::spawn(move || {
+        worker.shutdown().unwrap();
+        worker
+    });
+    let deadline = std::time::Instant::now() + Duration::from_secs(10);
+    while !stopping.load(Ordering::Acquire) {
+        assert!(std::time::Instant::now() < deadline);
+        std::thread::sleep(Duration::from_millis(1));
+    }
+    release.send(()).unwrap();
+    let worker = join.join().unwrap();
+    let mut item = None;
+    let mut cancelled = false;
+    while let Some((id, event)) = worker.try_event() {
+        if id == request.id {
+            match event {
+                AppEvent::InboxCaptured(value) => item = Some(*value),
+                AppEvent::Failed(e) => panic!("admitted binary capture: {e}"),
+                _ => panic!("capture reply"),
+            }
+        } else if id == read_id {
+            assert!(matches!(event, AppEvent::Failed(e) if e.kind == ErrorKind::Cancelled));
+            cancelled = true;
+        }
+    }
+    let item = item.expect("admitted binary capture settles before shutdown");
+    request.validate_receipt(&item).unwrap();
+    assert!(cancelled);
+    assert_eq!(
+        worker
+            .submit(request.id, AppCommand::CaptureBinaryInbox(request.clone()))
+            .unwrap_err()
+            .kind,
+        ErrorKind::Cancelled
+    );
+    drop(worker);
+    let mut app = App::open(
+        &data,
+        AppConfig {
+            vault_root: None,
+            credentials_dir: Some(owner.path().join("credentials")),
+            model_dir: None,
+        },
+    )
+    .unwrap();
+    assert_eq!(app.capture_binary_inbox(&request).unwrap(), item);
+    assert_eq!(
+        std::fs::read(data.join("inbox").join(item.capture.copy_name())).unwrap(),
+        request.bytes
+    );
+    app.inbox_item(request.id)
+        .unwrap()
+        .validate_receipt()
+        .unwrap();
+}

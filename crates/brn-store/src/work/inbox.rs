@@ -21,7 +21,10 @@ const MAX_DIRECTORY_BYTES: usize = 4096;
 // Escaped labels/path plus fixed UUID, numeric and digest fields, never content.
 const MAX_RECORD_BYTES: usize = 40 * 1024;
 
-/// Deliberate text copies, not inferred MIME types or live account imports.
+/// Complete opaque originals are bounded separately from text notes.
+pub const MAX_INBOX_BINARY_BYTES: usize = 16 * 1024 * 1024;
+
+/// Deliberate copies, not inferred MIME types or live account imports.
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize, Deserialize)]
 #[serde(rename_all = "snake_case")]
 pub enum InboxKind {
@@ -29,6 +32,7 @@ pub enum InboxKind {
     Markdown,
     Email,
     Teams,
+    Binary,
 }
 
 /// Exact proof of one original copy in a workflow-owned ordinary directory.
@@ -108,6 +112,11 @@ impl InboxCapture {
         if let Some(name) = &self.original_name {
             label(name)?;
         }
+        let max_bytes = if self.kind == InboxKind::Binary {
+            MAX_INBOX_BINARY_BYTES
+        } else {
+            MAX_NOTE_BYTES
+        };
         let path = self
             .copy
             .directory
@@ -129,7 +138,7 @@ impl InboxCapture {
             || self.copy.file_inode == 0
             || self.copy.file_device != self.copy.directory_device
             || self.copy.file_inode == self.copy.directory_inode
-            || self.copy.byte_len > MAX_NOTE_BYTES as u64
+            || self.copy.byte_len > max_bytes as u64
             || self.copy.byte_len == 0 && self.copy.sha256 != hash(&[])
         {
             return Err(invalid(
@@ -138,9 +147,17 @@ impl InboxCapture {
         }
         Ok(())
     }
-    /// This fixed name is independent of user labels and the interpreted kind.
+    /// Fixed names are independent of labels; existing text kinds retain `.txt`.
     pub fn copy_name(&self) -> String {
-        format!("{}.txt", self.id)
+        format!(
+            "{}.{}",
+            self.id,
+            if self.kind == InboxKind::Binary {
+                "bin"
+            } else {
+                "txt"
+            }
+        )
     }
 }
 impl InboxListRequest {

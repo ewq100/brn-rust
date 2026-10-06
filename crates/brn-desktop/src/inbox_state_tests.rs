@@ -437,3 +437,62 @@ fn complete_operational_preview_remains_visible_when_source_wrapper_exceeds_limi
     fixture.unchanged();
     worker.shutdown().unwrap();
 }
+
+#[test]
+fn binary_reads_verify_complete_proofs_and_cannot_enter_text_processing() {
+    use brn_workflow::inbox::CaptureBinaryInboxRequest;
+    let fixture = Fixture::new();
+    let mut worker = fixture.worker();
+    let request = CaptureBinaryInboxRequest {
+        id: Uuid::new_v4(),
+        title: "Binary original".into(),
+        original_name: Some("Synthetic.pdf".into()),
+        bytes: b"Binary may also be valid UTF-8\r\n".to_vec(),
+    };
+    let (_, AppEvent::InboxCaptured(item)) = reply(
+        &worker,
+        (request.id, AppCommand::CaptureBinaryInbox(request.clone())),
+    ) else {
+        panic!("binary receipt")
+    };
+    let mut state = state();
+    let open = state.open_inbox().unwrap();
+    settle(&worker, &mut state, open);
+    let select = state.select_inbox(request.id).unwrap();
+    let id = select.0;
+    let (_, AppEvent::InboxItem(read)) = reply(&worker, select) else {
+        panic!("binary original")
+    };
+    let mut forged = read.clone();
+    forged.original = InboxOriginal::Available {
+        text: String::from_utf8(request.bytes.clone()).unwrap(),
+    };
+    state.apply(id, AppEvent::InboxItem(forged));
+    assert!(state.inbox_queue.selected.is_none());
+    assert!(state.pending.contains_key(&id));
+    let mut forged = read.clone();
+    if let InboxOriginal::AvailableBinary { sha256, .. } = &mut forged.original {
+        sha256[0] ^= 1;
+    }
+    state.apply(id, AppEvent::InboxItem(forged));
+    assert!(state.inbox_queue.selected.is_none());
+    state.apply(id, AppEvent::InboxItem(read.clone()));
+    assert_eq!(state.inbox_queue.selected.as_ref().unwrap().item, *item);
+    assert!(!state.pending.contains_key(&id));
+    assert!(state.process_inbox_items(vec![(*item).clone()]).is_none());
+    assert!(!state.processing_pending());
+    assert!(!state.can_retry_process());
+    assert!(
+        state
+            .capture_inbox(CaptureInboxRequest {
+                id: Uuid::new_v4(),
+                kind: InboxKind::Binary,
+                title: "No text coercion".into(),
+                original_name: None,
+                text: String::from_utf8(request.bytes.clone()).unwrap()
+            })
+            .is_none()
+    );
+    fixture.unchanged();
+    worker.shutdown().unwrap();
+}

@@ -260,6 +260,11 @@ impl App {
                 },
                 Err(outcome) => outcome,
             },
+            InboxOriginal::AvailableBinary { .. } => {
+                return Err(WorkflowError::msg(
+                    "Binary Inbox conversion is not supported",
+                ));
+            }
             InboxOriginal::Missing => InboxProcessOutcome::Failed {
                 code: "original_missing".into(),
             },

@@ -1,5 +1,40 @@
 # Resumable V1 checkpoint
 
+Full frozen V1 goal confirmed **active** by `get_goal` on 2026-10-06; no token budget.
+
+- **Integrated:** [PR73](https://github.com/ewq100/brn-rust/pull/73) at
+  `54fcbe1e39364a2bcb7f8a6d6023326738fdc749`, qualified tree
+  `22361798cea09bacb49711e21ec44f2d737d8678`. Request-local proof membership and
+  snapshot-local raw-byte alias counts preserve exact saved evidence and fresh fences.
+- **Verification:** complete source, shipping and final evidence reviews clean;
+  shared 1,456/0/12 + 52 fixtures; relevant native checks passed separately.
+  Exact `4ce4cdff` / run37412604011 attempt1 passed four protected checks and Docs.
+  Overall red retains Windows22 compiler blocks/summaries matching PR72.
+  Fresh merged build, 12 index / 9 relationship tests and 52 fixtures passed
+  at unchanged clean main73. Exact automatic main73 run37413517751 attempt1
+  passed all applicable checks; known Windows/Linux failures remain recorded.
+- **Current:** `codex/v1-binary-original-capture`, baseline main73 above.
+  [Stage8 plan](../work/active/office-inbox/plan.md), source
+  `b27de8df68c704edc1439b1b1b66997167662f53`, tree `987ae619`:
+  bounded binary retention/replay/recovery and fresh proof reporting implemented.
+  Shared1,477/0/13+52 at unchanged default code8352c968; native294 Desktop/0/0,
+  345 Workflow/models/0/11 and15 Retrieval/0/0 with V15 restarts passed separately.
+  Initial fixture/native-test failures and corrections are retained. No
+  conversion/Source/binary cleanup authority; independent source review is clean.
+- **Next:** exact latest-head PR CI, qualified integration and fresh merged checks.
+  Ordinary assets and meaningful Office
+  conversion follow through existing proposal apply; incomplete conversion retains originals.
+- **Pending:** native GUI/live/assets/owner acceptance, residual startup/backup cost,
+  legacy pending-intent retry, Stages8–16 and trusted-user packaging. No owner
+  original removed; full V1 delivery is not claimed.
+- **Environment:** Mac mini Darwin arm64, Rust1.98.1 locked/offline; preflight tools
+  and router/PR skills available. Canonical owned
+  `TMPDIR=/private/tmp/brn-mini-synthetic-20261005`, empty model setting and own
+  checkout targets. No new live calls/downloads/private-data operations/release.
+  Immutable7c4f668 remains unchanged; earlier evidence follows below.
+
+# Earlier relationship qualification checkpoint
+
 Full frozen V1 goal confirmed **active** by `get_goal` on2026-10-06; no token budget.
 
 - **Integrated:** [PR72](https://github.com/ewq100/brn-rust/pull/72) at

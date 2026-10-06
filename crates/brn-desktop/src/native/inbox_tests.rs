@@ -436,3 +436,57 @@ fn native_inbox_checked_batch_is_bounded_and_keeps_exact_snapshots_after_page_ch
     });
     fixture.unchanged();
 }
+
+#[gpui_kit::test]
+fn native_binary_original_has_proof_view_without_text_copy_or_batch_admission(
+    cx: &mut gpui_kit::TestAppContext,
+) {
+    let fixture = Fixture::new();
+    let mut binary = originals(1).remove(0);
+    binary.capture.kind = InboxKind::Binary;
+    binary.capture.title = "Retained binary".into();
+    let (window, desktop) = open_pane(cx, &fixture, vec![binary.clone()]);
+    let mut visual = VisualTestContext::from_window(window.into(), cx);
+    visual.run_until_parked();
+    scroll_to(&mut visual, "inbox-check-0");
+    visual.update(|window, cx| {
+        window.click("inbox-check-0", cx);
+    });
+    visual.run_until_parked();
+    visual.update(|window, cx| {
+        desktop.update(cx, |desktop, cx| {
+            assert!(desktop.inbox.checked.is_empty());
+            desktop.check_inbox_item(binary.clone(), true, cx);
+            assert!(desktop.inbox.checked.is_empty());
+            let ai = desktop.ai.as_mut().unwrap();
+            let (read, _) = ai.select_inbox(binary.capture.id).unwrap();
+            ai.apply(
+                read,
+                AppEvent::InboxItem(Box::new(InboxRead {
+                    item: binary.clone(),
+                    original: InboxOriginal::AvailableBinary {
+                        byte_len: binary.capture.copy.byte_len,
+                        sha256: binary.capture.copy.sha256,
+                    },
+                })),
+            );
+            let selected = ai.inbox_queue.selected.as_ref().unwrap();
+            assert_eq!(selected.item, binary);
+            assert!(matches!(
+                selected.original,
+                InboxOriginal::AvailableBinary { .. }
+            ));
+            desktop.sync_inbox_widgets(window, cx);
+            assert!(desktop.inbox.original.read(cx).value().is_empty());
+            cx.notify();
+        });
+    });
+    visual.run_until_parked();
+    scroll_to(&mut visual, "inbox-binary-original");
+    visual.update(|window, cx| {
+        window.render_frame(cx);
+        assert!(window.try_find("inbox-binary-original").is_some());
+        assert!(window.try_find("copy-inbox-original").is_none());
+    });
+    fixture.unchanged();
+}

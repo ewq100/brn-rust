@@ -85,6 +85,7 @@ pub enum AppCommand {
     Action(Uuid),
     CompleteAction(crate::action_completion::CompleteActionRequest),
     CaptureInbox(crate::inbox::CaptureInboxRequest),
+    CaptureBinaryInbox(crate::inbox::CaptureBinaryInboxRequest),
     InboxItems(crate::inbox::InboxListRequest),
     InboxItem(Uuid),
     InboxReview(Uuid),
@@ -1268,6 +1269,15 @@ fn dispatch(
             }
             AppEvent::InboxCaptured(Box::new(app.capture_inbox(&request)?))
         }
+        AppCommand::CaptureBinaryInbox(request) => {
+            if id != request.id {
+                return Err(WorkflowError::typed(
+                    ErrorKind::OperationConflict,
+                    "Inbox command ID must equal its capture UUID",
+                ));
+            }
+            AppEvent::InboxCaptured(Box::new(app.capture_binary_inbox(&request)?))
+        }
         AppCommand::InboxItem(item) => AppEvent::InboxItem(Box::new(app.inbox_item(item)?)),
         AppCommand::InboxReview(item) => AppEvent::InboxReview(Box::new(app.inbox_review(item)?)),
         AppCommand::PreviewInboxRemoval(item) => {
@@ -1684,6 +1694,7 @@ fn critical_mutation_command(command: &AppCommand) -> bool {
             | AppCommand::SaveEditor(_)
             | AppCommand::CompleteAction(_)
             | AppCommand::CaptureInbox(_)
+            | AppCommand::CaptureBinaryInbox(_)
             | AppCommand::RemoveInboxOriginal(_)
             | AppCommand::RestoreInboxOriginal(_)
             | AppCommand::ProcessInbox(_)

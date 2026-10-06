@@ -610,3 +610,23 @@ fn checked_source_inventory_does_not_hide_unrelated_corrupt_rows() {
         );
     }
 }
+
+#[test]
+fn binary_source_preservation_cannot_reuse_a_text_approval() {
+    let (_dir, mut store) = fixture();
+    let mut w = witness(&mut store, InboxKind::Text, "synthetic exact body");
+    w.original.capture.kind = InboxKind::Binary;
+    assert!(
+        InboxSourcePreservation {
+            original: &w.original,
+            original_text: &w.original_text,
+            approval: &w.approval,
+            saved: &w.saved,
+            saved_text: &w.saved_text,
+        }
+        .validate()
+        .unwrap_err()
+        .to_string()
+        .contains("Binary")
+    );
+}

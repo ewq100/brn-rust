@@ -764,3 +764,36 @@ fn actual_failed_and_completed_turn_replay_precedes_legacy_historical_fence() {
         assert_eq!(store.conversations().unwrap().len(), conversations);
     }
 }
+
+#[test]
+fn binary_forged_legacy_remove_and_restore_records_are_unsupported() {
+    let mut remove = golden();
+    let mut restored = InboxOriginalRestoreRecord {
+        request: RestoreInboxOriginalRequest {
+            operation_id: Uuid::new_v4(),
+            removal_operation_id: remove.request.operation_id,
+            removal_digest: remove.digest().unwrap(),
+        },
+        original: remove.evidence.snapshot.review.original.clone(),
+        namespace: remove.namespace.clone(),
+        prepared_at_ms: remove.prepared_at_ms,
+        restored_at_ms: None,
+    };
+    restored.original.capture.kind = brn_store::work::inbox::InboxKind::Binary;
+    assert!(
+        restored
+            .validate()
+            .unwrap_err()
+            .to_string()
+            .contains("Binary")
+    );
+    remove.evidence.snapshot.review.original.capture.kind =
+        brn_store::work::inbox::InboxKind::Binary;
+    assert!(
+        remove
+            .validate()
+            .unwrap_err()
+            .to_string()
+            .contains("Binary")
+    );
+}

@@ -5,7 +5,7 @@ use super::{
 };
 use brn_workflow::{
     app_worker::{AppCommand, AppEvent},
-    inbox::{CaptureInboxRequest, InboxKind, InboxListRequest},
+    inbox::{CaptureBinaryInboxRequest, CaptureInboxRequest, InboxKind, InboxListRequest},
     inbox_actions::{InboxActionRequest, InboxAnalysisPurpose},
     inbox_original_operations::{
         InboxOriginalOperation, RemoveInboxOriginalRequest, RestoreInboxOriginalRequest,
@@ -18,6 +18,12 @@ pub enum InboxCommand {
     Add {
         id: Uuid,
         kind: InboxKind,
+        title: String,
+        original_name: Option<String>,
+        input: PathBuf,
+    },
+    AddBinary {
+        id: Uuid,
         title: String,
         original_name: Option<String>,
         input: PathBuf,
@@ -52,6 +58,7 @@ impl InboxCommand {
     pub fn name(&self) -> &'static str {
         match self {
             Self::Add { .. } => "inbox.add",
+            Self::AddBinary { .. } => "inbox.add-binary",
             Self::Show(_) => "inbox.show",
             Self::Review(_) => "inbox.review",
             Self::RemovalPreview(_) => "inbox.removal-preview",
@@ -82,7 +89,7 @@ pub(super) fn scan_command(
     let sub = sub_word(
         tokens,
         "inbox",
-        "add|show|review|removal-preview|remove-original|restore-original|original-removal|original-restore|original-operations|archived-analysis|list|process|processing|candidate|source|cancel|analyze-actions|action-analysis|analyze|analysis",
+        "add|add-binary|show|review|removal-preview|remove-original|restore-original|original-removal|original-restore|original-operations|archived-analysis|list|process|processing|candidate|source|cancel|analyze-actions|action-analysis|analyze|analysis",
     )?;
     let (label, options): (_, &[(&str, bool)]) = match sub.as_str() {
         "add" => (
@@ -90,6 +97,15 @@ pub(super) fn scan_command(
             &[
                 ("id", true),
                 ("kind", true),
+                ("title", true),
+                ("original-name", true),
+                ("file", true),
+            ],
+        ),
+        "add-binary" => (
+            "inbox.add-binary",
+            &[
+                ("id", true),
                 ("title", true),
                 ("original-name", true),
                 ("file", true),
@@ -139,6 +155,19 @@ fn metadata(command: &InboxCommand) -> Result<(), CliError> {
             title: title.clone(),
             original_name: original_name.clone(),
             text: String::new(),
+        }
+        .validate()
+        .map_err(|e| usage(e.message)),
+        InboxCommand::AddBinary {
+            id,
+            title,
+            original_name,
+            ..
+        } => CaptureBinaryInboxRequest {
+            id: *id,
+            title: title.clone(),
+            original_name: original_name.clone(),
+            bytes: Vec::new(),
         }
         .validate()
         .map_err(|e| usage(e.message)),
@@ -192,6 +221,18 @@ pub(super) fn parse_command(name: &str, s: &Scanned) -> Result<InboxCommand, Cli
             InboxCommand::Add {
                 id: s.uuid("id")?.ok_or_else(|| usage("missing --id"))?,
                 kind,
+                title: s
+                    .value("title")
+                    .ok_or_else(|| usage("missing --title"))?
+                    .into(),
+                original_name: s.value("original-name").map(str::to_owned),
+                input: PathBuf::from(s.value("file").ok_or_else(|| usage("missing --file"))?),
+            }
+        }
+        "inbox.add-binary" => {
+            expect_positionals(s, 0)?;
+            InboxCommand::AddBinary {
+                id: s.uuid("id")?.ok_or_else(|| usage("missing --id"))?,
                 title: s
                     .value("title")
                     .ok_or_else(|| usage("missing --title"))?
@@ -332,6 +373,23 @@ pub(super) fn prepare(command: &InboxCommand) -> Result<AppCommand, CliFailure> 
                 .map_err(super::error::classify_workflow)?;
             AppCommand::CaptureInbox(request)
         }
+        InboxCommand::AddBinary {
+            id,
+            title,
+            original_name,
+            input,
+        } => {
+            let request = CaptureBinaryInboxRequest {
+                id: *id,
+                title: title.clone(),
+                original_name: original_name.clone(),
+                bytes: super::input::read_binary_file(input)?,
+            };
+            request
+                .validate()
+                .map_err(super::error::classify_workflow)?;
+            AppCommand::CaptureBinaryInbox(request)
+        }
         InboxCommand::Show(id) => AppCommand::InboxItem(*id),
         InboxCommand::Review(id) => AppCommand::InboxReview(*id),
         InboxCommand::RemovalPreview(id) => AppCommand::PreviewInboxRemoval(*id),
@@ -406,12 +464,25 @@ pub(super) fn output(command: &AppCommand, event: AppEvent) -> Result<Output, Cl
         {
             serde_json::json!(*item)
         }
-        (AppCommand::InboxItem(id), AppEvent::InboxItem(item)) if item.item.capture.id == *id => {
+        (AppCommand::CaptureBinaryInbox(r), AppEvent::InboxCaptured(item))
+            if r.validate_receipt(&item).is_ok() =>
+        {
+            serde_json::json!(*item)
+        }
+        (AppCommand::InboxItem(id), AppEvent::InboxItem(item))
+            if item.item.capture.id == *id && item.validate_receipt().is_ok() =>
+        {
             serde_json::json!(*item)
         }
         (AppCommand::InboxReview(id), AppEvent::InboxReview(review))
             if review.manifest.original.capture.id == *id
                 && review.needs_semantic_review
+                && (brn_workflow::inbox::InboxRead {
+                    item: review.manifest.original.clone(),
+                    original: review.original.clone(),
+                })
+                .validate_receipt()
+                .is_ok()
                 && review
                     .manifest
                     .digest()
@@ -554,6 +625,10 @@ pub(super) fn output(command: &AppCommand, event: AppEvent) -> Result<Output, Cl
     text.push('\n');
     Ok(Output { text, data })
 }
+#[cfg(test)]
+#[path = "inbox_binary_tests.rs"]
+mod binary_tests;
+
 #[cfg(test)]
 mod tests {
     use super::*;

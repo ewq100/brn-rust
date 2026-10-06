@@ -35,6 +35,9 @@ impl ProcessInboxRequest {
         let mut ids = std::collections::HashSet::new();
         for item in &self.items {
             item.validate()?;
+            if item.capture.kind == super::inbox::InboxKind::Binary {
+                return Err(invalid("Binary Inbox conversion is not supported"));
+            }
             if !ids.insert(item.capture.id) {
                 return Err(invalid("Inbox processing contains a duplicate item"));
             }

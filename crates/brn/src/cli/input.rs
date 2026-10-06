@@ -26,3 +26,43 @@ pub(super) fn read_text_file(path: &Path, kind: &str) -> Result<String, CliError
     String::from_utf8(bytes)
         .map_err(|_| CliError::Workflow(format!("{kind} text file is not valid UTF-8")))
 }
+
+/// An explicit owner-selected binary input, bounded before workflow startup.
+/// The workflow independently proves its owned installed copy, never this path.
+pub(super) fn read_binary_file(path: &Path) -> Result<Vec<u8>, CliError> {
+    fn io(error: std::io::Error) -> CliError {
+        CliError::Workflow(error.to_string())
+    }
+    let limit = brn_workflow::inbox::MAX_INBOX_BINARY_BYTES;
+    let meta = fs::metadata(path).map_err(io)?;
+    if !meta.is_file() || meta.len() > limit as u64 {
+        return Err(CliError::Workflow(
+            "Inbox binary original requires a regular file up to 16 MiB".into(),
+        ));
+    }
+    let mut file = fs::File::open(path).map_err(io)?;
+    let before = file.metadata().map_err(io)?;
+    if !before.is_file() || before.len() > limit as u64 {
+        return Err(CliError::Workflow(
+            "Inbox binary original requires a regular file up to 16 MiB".into(),
+        ));
+    }
+    let modified = before.modified().map_err(io)?;
+    let mut bytes = Vec::new();
+    Read::by_ref(&mut file)
+        .take((limit + 1) as u64)
+        .read_to_end(&mut bytes)
+        .map_err(io)?;
+    let after = file.metadata().map_err(io)?;
+    if bytes.len() > limit
+        || !after.is_file()
+        || before.len() != after.len()
+        || after.len() != bytes.len() as u64
+        || modified != after.modified().map_err(io)?
+    {
+        return Err(CliError::Workflow(
+            "Inbox binary original changed or exceeded 16 MiB during input".into(),
+        ));
+    }
+    Ok(bytes)
+}

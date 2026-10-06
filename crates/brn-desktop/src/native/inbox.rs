@@ -93,6 +93,7 @@ fn kind_name(kind: InboxKind) -> &'static str {
         InboxKind::Markdown => "Markdown",
         InboxKind::Email => "Email copy",
         InboxKind::Teams => "Teams copy",
+        InboxKind::Binary => "Binary original",
     }
 }
 fn availability_name(availability: &InboxAvailability) -> &'static str {
@@ -192,6 +193,9 @@ impl Desktop {
                 .checked
                 .retain(|bound| bound.capture.id != item.capture.id);
             self.inbox.selection_error = None;
+        } else if item.capture.kind == InboxKind::Binary {
+            self.inbox.selection_error =
+                Some("Binary originals are retained; conversion is unavailable.".into());
         } else if !self
             .ai
             .as_ref()
@@ -441,6 +445,7 @@ impl Desktop {
                                         .checked(checked)
                                         .disabled(
                                             blocked
+                                                || item.capture.kind == InboxKind::Binary
                                                 || ai.processing_pending()
                                                 || (!checked
                                                     && self.inbox.checked.len()
@@ -574,6 +579,11 @@ impl Desktop {
                             "Copy full exact original",
                             text.clone(),
                         ));
+                }
+                InboxOriginal::AvailableBinary { byte_len, .. } => {
+                    content = content.child(div().id("inbox-binary-original").test_support().child(format!(
+                        "Binary original retained exactly · {byte_len} bytes. Conversion is unavailable; the original remains retained."
+                    )));
                 }
                 InboxOriginal::Missing => {
                     content = content.child("The workflow reports this original is missing.")

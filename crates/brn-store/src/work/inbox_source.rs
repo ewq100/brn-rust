@@ -21,6 +21,11 @@ pub fn convert_original(
     if cancel.load(Ordering::Acquire) {
         return Err(InboxProcessOutcome::Cancelled);
     }
+    if kind == InboxKind::Binary {
+        return Err(InboxProcessOutcome::Failed {
+            code: "binary_unsupported".into(),
+        });
+    }
     if kind == InboxKind::Markdown {
         return Ok((InboxConversionFormat::VerbatimMarkdownV1, text.to_owned()));
     }
@@ -70,6 +75,9 @@ pub struct InboxSourcePreservation<'a> {
 impl InboxSourcePreservation<'_> {
     pub fn validate(&self) -> Result<()> {
         self.original.validate()?;
+        if self.original.capture.kind == InboxKind::Binary {
+            return Err(invalid("Binary Inbox Source preservation is not supported"));
+        }
         self.approval.validate()?;
         if self.approval.undo.is_some()
             || self.approval.receipt.as_ref().map(|r| r.outcome) != Some(ApplyOutcome::Applied)
@@ -231,6 +239,9 @@ pub fn read_provenance(text: &str) -> Result<Option<InboxSourceProvenance>> {
         .ok_or_else(|| invalid("Inbox provenance needs an ordinary root field"))?;
     let value: InboxSourceProvenance = serde_json::from_str(field.value)
         .map_err(|_| invalid("Inbox provenance needs strict single-line JSON"))?;
+    if value.kind == InboxKind::Binary {
+        return Err(invalid("Binary Inbox Source provenance is not supported"));
+    }
     if value.item_id.is_nil()
         || value.received_at_ms > i64::MAX as u64
         || value.original_byte_len > MAX_NOTE_BYTES as u64
@@ -249,6 +260,9 @@ pub fn read_provenance(text: &str) -> Result<Option<InboxSourceProvenance>> {
 impl InboxSourceBinding {
     pub fn validate(&self) -> Result<()> {
         self.original.validate()?;
+        if self.original.capture.kind == InboxKind::Binary {
+            return Err(invalid("Binary Inbox Source conversion is not supported"));
+        }
         if self.batch_id.is_nil()
             || self.index >= super::inbox_processing::MAX_PROCESS_BATCH
             || self.note_id.is_nil()

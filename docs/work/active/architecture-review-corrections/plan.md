@@ -1237,3 +1237,31 @@ no identical-wrapper, randomization, cold-cache or uniform benefit claim.
 Source now integrates actual normally merged main72 without conflict atee4715c.
 Treea48527ae and four-file patch SHA7406e6ec are unchanged, so relevant shared/native
 qualification is reused. Latest evidence-head CI remains required before merge.
+
+
+## Relationship integration and roadmap continuation
+
+PR73 merged normally on 2026-10-06 at 04:23:54UTC:
+`54fcbe1e39364a2bcb7f8a6d6023326738fdc749`, tree
+`22361798cea09bacb49711e21ec44f2d737d8678`, exact parents main72 and4ce4cdff.
+Complete four-file, shipping and final documentation reviews are clean. Exact
+head4ce4cdff/run37412604011 attempt1 passed four strict/admin-enforced protected
+Mac/shared checks and Docs. Overall failure preserves Windows22 complete
+source-inclusive152-line blocks, both Store2/AI20 summaries and exit101,
+identical finalPR72. Whole-log/time differences remain retained. Mac workspace
+541s versus541s, Ubuntu261s versus343s; all slow notices later passed.
+
+Fresh merged atomic gate04:24:07–04:24:22UTC at unchanged clean main73 passed
+all six commands: workspace build,12index tests,9relationship tests, diff/Markdown
+links (35files/374links), and52fixtures. Tested code/tree matches qualified PR.
+No zero-test run or stale binary is counted. Automatic main73 CI remains pending.
+Main72 run37411855251 attempt1 passed protected checks, Docs and extraUbuntuUI;
+overall red retains Windows22/22/14 and Linux3 failures. Windows core/UI raw
+order/interleaving and terminal summaries differ; native14 blocks match. Linux
+source/assertions/six frames match while ordering/IDs/1.16→1.46s remain explicit.
+
+The full V1 goal remains active. The [Stage8 binary-retention plan](../office-inbox/plan.md)
+starts from this qualified baseline through existing capture/approval mechanisms.
+No conversion, assets or binary cleanup is implemented by that first slice.
+Native/live/assets/owner acceptance and residual startup/backup cost remain open;
+no new provider/model/private-data/release authorization is inferred.
