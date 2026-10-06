@@ -2,6 +2,41 @@
 
 Full frozen V1 goal confirmed **active** on2026-10-06, without a token budget.
 
+- **Integrated:** [PR69](https://github.com/ewq100/brn-rust/pull/69) at
+  `b5bcb0a7430de437533532f2bfab6a9df751509e`, reviewed tree
+  `1abaa112874aa30af6969394d2c863d31cf57de3`. Native copy controls capture complete
+  Source/removal proofs and explicit confirmation; AppWorker owns history/effects,
+  stale-reply checks and same-request retry. Typing/drafts/reviews remain separate.
+- **Verification:** independent reviews clean; shared1,446/0/10+52 and native
+  330 Workflow/models/0/9+292 Desktop/0/0,11commands/V15 restarts passed.
+  Exact99ba833 run37401164589 attempt1 passed four protected checks and Docs;
+  unchanged Windows22 failure remains. Fresh merged build/5state+2widget tests
+  and52fixtures passed. Exact main69 run37402543978 attempt1 passed all applicable
+  checks; unchanged Windows22/22/14 and Linux3 failures retain raw differences.
+- **Current:** `codex/v1-ai-note-facts`, task commit
+  `6413e7ae251c00c4dd2e53411eb42414d29e6f8c`, merged with qualified main69 at
+  `a135a6d80343cdc8f2a9156d7d4f571bb62c6aef`. Typed results retain full saved-byte
+  hashes, managed identity, Source/History and explicit unknown/known conflict
+  knowledge. Focused128 AI/3 scopes/5 read guards/1 question/10 conflicts and
+  affected Clippy pass; failed sandbox/diagnostic attempts are retained.
+  Next: final independent review, fresh shared/native gates and exact-head CI,
+  then normal integration. Startup witness runs separately on
+  `codex/v1-copy-startup-witness`; release builds passed, measurements are in
+  progress and no optimization or measured benefit is claimed yet.
+- **Pending:** native GUI/live/assets/owner acceptance, startup/relationship cost,
+  later roadmap stages and trusted-user packaging. Legacy pending-intent retry is
+  unsupported; historical inspection/already-performed settlement remain supported.
+  No owner original removed; full V1 delivery is not claimed.
+- **Environment:** Darwin arm64 Mac mini, Rust1.98.1 locked/offline, canonical owned
+  `TMPDIR=/private/tmp/brn-mini-synthetic-20261005`, empty model setting, isolated
+  checkouts/targets and disposable synthetic data. No new live calls/downloads,
+  private-data operations or release authorized. Immutable7c4f668 stays unchanged.
+  Continue under the [correction plan](../work/active/architecture-review-corrections/plan.md).
+
+# Earlier native copy-control qualification checkpoint
+
+Full frozen V1 goal confirmed **active** on2026-10-06, without a token budget.
+
 - **Integrated:** [PR68](https://github.com/ewq100/brn-rust/pull/68) at
   `a799c3369cad61117113de40d7b1d95dad589100`, reviewed tree
   `6c7aee29c32368c690b50e27ae813e6ce5f213c5`. Approved preserving Source plus

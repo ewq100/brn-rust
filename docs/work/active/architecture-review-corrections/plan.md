@@ -20,16 +20,20 @@ Action correction merged normally in PR64 at
 at531517248300c15ce28bcb53f337984103817010/tree d63c1827aae5da654410520bc9c48856e1fa5e5a.
 Knowledge capture recovery merged in PR66 at
 `504f6be33e1add8c5819e28eed08628bc8dec8d0`, reviewed tree
-`77ec79e33c75a6a0bbed3100c3815648dcb6fd68`. Current branch:
-`codex/v1-original-copy-lifecycle`, based on original-record PR67 merge
-1ebff1a6f6099568c339e6b605bf819e1dbf6e6f/tree611dfcb1ce0bb4d4d09d39ad643efde48cd39710.
+`77ec79e33c75a6a0bbed3100c3815648dcb6fd68`. Original-record PR67, lifecycle PR68
+and native controls PR69 are integrated. Current main is
+`b5bcb0a7430de437533532f2bfab6a9df751509e`, reviewed tree
+`1abaa112874aa30af6969394d2c863d31cf57de3`. Current branch is
+`codex/v1-ai-note-facts`: task commit6413e7a merged with qualified main69 at
+`a135a6d80343cdc8f2a9156d7d4f571bb62c6aef`; final review/shared/native gates and
+exact-head integration are next. Startup witness runs in its isolated checkout.
 Remaining accepted corrections follow this plan.
 The complete V1 goal is confirmed **active** by `get_goal` on 2026-10-06;
 its full objective and roadmap dependency order remain unchanged.
 
-The lifecycle snapshot is implemented and automated verified, but unmerged.
-Its removal/restore merge, native removal controls and Stage8 originals wait for
-record-shape/performance and cleanup corrections. Native/live/owner acceptance
+Lifecycle and native controls are implemented, automated verified and merged.
+Startup/relationship cost and retrieval-fact corrections precede Stage8.
+Native/live/owner acceptance
 remains pending. Historical live authorization is exhausted; all checks here
 use disposable synthetic data, pinned Rust and locked dependencies.
 
@@ -761,8 +765,11 @@ Raw commands/exits/times and per-file hashes are retained in
 `/private/tmp/brn-r6-focused-nye9eytp/record.json`; these paragraph counts are the
 durable summary. The qualified11-file Rust-only binary patch against the baseline
 has SHA256 `6cf306fbd072286a089836ec2087961e6f320ba5b731ff61e32b4f59a822f06d`;
-subsequent edits here affect only this evidence and crate documentation. Main69 integration, reviewed final diff and fresh relevant gates
-are lead-owned next steps; this branch remains based on PR68 with task-owned changes.
+subsequent edits here affect only this evidence and crate documentation. Task-owned
+changes committed as6413e7a/tree7a9b4ce9. Qualified main69 merged normally into
+this branch ata135a6d/tree16b0262e; code merged without conflict. The sole plan
+append conflict preserves both complete evidence sections. Final review and fresh
+relevant gates remain pending, with Cargo held during the isolated B2 timings.
 
 ## Lifecycle integration and native controls checkpoint
 
@@ -826,3 +833,13 @@ and0.60→0.05s are preserved. Mac workspace tests passed in738s versus436s on
 main67 (corrected PR68 was495s); four over60s notices subsequently passed.
 Full successful Mac output/durations and failed raw platform comparisons remain
 retained. No rerun/substitution or unrelated platform fix was made.
+
+Main69 native controls merged normally atb5bcb0a after exact99ba833
+run37401164589 attempt1 passed four protected checks and Docs; Windows22 remains
+identical to corrected PR68. Fresh merged build/5state+2widget regressions and
+52fixtures passed at unchanged clean identity. Automatic merged-main run37402543978
+attempt1 passed all applicable checks and extra Ubuntu UI. Overall failure retains
+Windows22/22/14 complete blocks/terminals matching main68 and Linux3 matching
+assertions/backtraces, with raw order/PIDs/0.05s→0.20s differences preserved.
+Mac tests508s versus738s and Ubuntu345s versus347s are recorded observations,
+not product benchmarks. GUI/live/assets/owner acceptance remains pending.
