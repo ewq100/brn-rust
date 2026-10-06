@@ -205,3 +205,48 @@ and older-SQL receipt import passed. The asset Workflow suite took404.61s; the
 earlier failed837.45s run remains retained, and no production performance claim
 is made. Full shared/native gates, exact-head CI and integration remain next.
 Existing Action-bearing Undo remains refused; no new inverse capability is claimed.
+
+
+## Ordinary asset qualification — 2026-10-06
+
+Complete source, test/profile correction, native return-type and final fixture
+reviews are clean. Source `837c7f66b991a84ae74eaa6b597f30e683b0cd1e`, tree
+`7ef81adaa13710eb7e3f0ffb0119505a38d9e05e`, retains the approved fixed interfaces.
+Fresh shared gate06:05:38–06:19:37UTC at unchanged clean2fcd259/tree7581d6b passed
+retirement, formatting, workspace build, strict all-target Clippy,1,513 tests/
+0failures/14documented ignores and52fixtures. Both long maximum-payload notices
+subsequently passed; there were no default compiler warnings. This default code
+is unchanged by the later two native-only files.
+
+Native qualification retains three terminal failures: helper Div return types
+mismatched the pinned observed element before tests; the private custom probe
+then lacked an ElementId; after registration, its missing production dialog layer
+prevented captured proof observation. The helpers now return the same owned
+AnyElement after observation; the private fixture uses existing `desktop_root`
+with the actual dialog layer. All proof/immutability assertions remain unchanged.
+Fresh focused2widgets/0/0, full293 Desktop+7CLI tests/0/0 and affected strict native
+Clippy passed at837c7f6; remaining native commands are still running. No failed
+attempt is rewritten as successful. Known block0.1.6 future-compiler warning stays
+separate. Exact-head CI/normal integration and fresh merged verification follow.
+
+The [CLI contract](../../../../crates/brn/README.md#typed-review-foundation) contains
+a disposable-data owner scenario. Native GUI/live/real-model/owner acceptance,
+Office conversion and binary cleanup remain pending; no original is removed.
+
+
+Final native gate06:16:46–06:25:52UTC passed all17 commands at unchanged clean
+837c7f6/tree7ef81ada. Two exact widget tests and full300 Desktop/0/0 passed;
+Workflow native library353/0/12 plus7models/0/0, and Retrieval13/0/0 plus2download
+fixtures/0/0 passed. Full maximum-payload recovery/Undo passed in457.48s.
+All four strict feature Clippy commands, combined Desktop/CLI shipping builds,
+52fixtures, launcher, two actual combined AppWorker startup/restarts and final
+schemaV15/original-operation table proof, format/Markdown/diff passed. The12
+Workflow ignores retain their exact reasons: ten subprocess children exercised
+by parents and two explicit expensive historical Inbox/B2 witnesses outside this
+slice. Filtered zero-test targets add no behavioral evidence. Empty model setting
+and synthetic transports do not qualify actual models/inference or GUI acceptance.
+Known block0.1.6 future-compiler warning and all three earlier failures remain.
+Final default build after native integration passed; default code is unchanged.
+Final local documentation-only amendments pass36files/383links; all38 changed
+Rust/manifest/lock paths match the complete independent review/correction chain.
+Exact-head CI, normal merge and fresh merged verification remain next.

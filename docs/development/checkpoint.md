@@ -19,10 +19,13 @@ Full frozen V1 goal confirmed **active** by `get_goal` on 2026-10-06; no token b
 - **Current/next:** `codex/v1-ordinary-assets`, baseline main74 above;
   [fixed acceptance/interfaces](../work/active/office-inbox/plan.md#next-slice-ordinary-asset-proposal-members)
   extend the existing whole-proposal review/apply/recovery/Undo boundary.
-  Store, workflow and clients are implemented; complete and correction reviews
-  are clean. Frozen dirty snapshot `2a3bdf07` passed all-target check and 31 focused
-  tests/0/1, including full16 MiB recovery/Undo. Full shared/native verification,
-  exact-head CI and integration remain unfinished gates.
+  Source `837c7f66b991a84ae74eaa6b597f30e683b0cd1e`, tree `7ef81adaa13710eb7e3f0ffb0119505a38d9e05e`,
+  implements Store/workflow/clients. Complete and correction reviews are clean.
+  Shared1,513/0/14+52 at2fcd259 passed; its default code is unchanged by the two
+  native-only corrections. Focused31/0/1 and full16 MiB recovery/Undo passed.
+  Native2 widgets,300 Desktop/0/0,360 Workflow/models/0/12,15 Retrieval/0/0,
+  strict feature Clippy, shipping builds,52fixtures/launcher/V15 restarts passed.
+  Exact-head CI, normal integration and fresh merged checks are next.
   Meaningful Office conversion follows; incomplete conversion retains originals.
 - **Pending:** native GUI/live/real-model/owner acceptance, residual startup/backup
   cost, legacy pending-intent retry, Stages8–16 and trusted-user packaging.

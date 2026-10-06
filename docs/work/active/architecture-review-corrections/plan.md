@@ -2,6 +2,19 @@
 
 ## Current checkpoint
 
+Full frozen V1 goal remains confirmed active on2026-10-06, without a token budget.
+Integrated main is PR74 `c7ed57d106f14b9b9c4c94fc875ad7cd60b61e15`: accepted
+semantic/identity/recovery corrections, text copy lifecycle and binary retention
+are integrated. Ordinary assets at837c7f6 are reviewed and qualifying in the
+existing proposal family; full shared1,513/0/14+52 and affected native results are
+recorded in the [Stage8 plan](../office-inbox/plan.md). Local native gates passed;
+exact-head CI/integration precede Office conversion. Native/live/owner acceptance,
+residual startup/backup cost and trusted-user packaging remain unfinished.
+The [resumable checkpoint](../../../development/checkpoint.md) owns current
+navigation. Historical checkpoints/evidence below remain retained.
+
+## Earlier correction checkpoint
+
 Reviewed snapshot: `codex/v1-inbox-recoverable-removal` at
 `7c4f668de467721f728f242c8fac8d14606a6e44`, retained unchanged on GitHub.
 Initial integrated baseline: PR60, `48941d3ae2c16dd014b6cb0f69a01b8c4ef60fa0`.

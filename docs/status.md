@@ -29,11 +29,12 @@ and launcher/docs passed at unchanged clean identity. Exact merged-main
 run37417163005 attempt1 passed all applicable gates and extra Ubuntu UI. Overall
 red retains the same Windows22/22/14 complete compiler blocks/summaries and three
 Linux assertions/backtraces; raw ordering, IDs and timing differences remain
-recorded. Ordinary asset implementation is complete in the existing proposal
-apply/recovery/Undo family; complete/correction reviews are clean, and all-target
-check plus31 focused tests/0/1 passed at frozen snapshot2a3bdf07. Full shared/native
-verification, exact-head CI/integration and meaningful Office conversion/binary
-cleanup remain pending.
+recorded. Ordinary assets are implemented at837c7f6 in the existing proposal
+apply/recovery/Undo family; complete/correction reviews are clean. Shared
+1,513/0/14+52 at2fcd259 (unchanged default code),31 focused/0/1, two native widgets,
+300 Desktop/0/0,360 Workflow/models/0/12,15 Retrieval/0/0, strict feature Clippy,
+shipping builds/52fixtures/launcher/V15 restarts passed. Exact-head CI/integration
+and meaningful Office conversion/binary cleanup are pending.
 Complete retained original review, deterministic saved-body quotes, Rust-owned
 Conflict/Knowledge/Action candidate identities, checked full Action replacement
 baselines and AI Rewrite metadata protection are integrated. Exact approval and
