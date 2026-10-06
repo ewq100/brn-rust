@@ -73,6 +73,7 @@ mod scope_tests;
 mod shell;
 mod simple;
 mod theme;
+mod visual;
 
 #[derive(Clone, Copy, Debug, PartialEq, Eq)]
 enum DocRef {

@@ -10,6 +10,7 @@ use uuid::Uuid;
 
 #[derive(Clone)]
 pub enum AnalysisPending {
+    Visual(Box<super::visual_analysis_state::VisualPending>),
     Source {
         view: u64,
         generation: u64,
@@ -27,15 +28,19 @@ pub struct InboxAnalysisView {
     pub source_path: Option<String>,
     pub source: Option<ProposalSource>,
     pub source_error: Option<String>,
+    pub visual: Option<brn_workflow::inbox_actions::InboxVisualEvidence>,
+    pub visual_error: Option<String>,
+    pub annotation: Option<brn_workflow::proposals::DraftRequest>,
+    pub annotation_review: Option<Uuid>,
     pub analysis_id: Option<Uuid>,
     pub record: Option<InboxActionAnalysis>,
     pub error: Option<String>,
     /// Last explicit submission is retained for reply correlation, never resubmitted.
     pub request: Option<InboxActionRequest>,
-    visible: bool,
-    view: u64,
-    source_generation: u64,
-    inspection_generation: u64,
+    pub(super) visible: bool,
+    pub(super) view: u64,
+    pub(super) source_generation: u64,
+    pub(super) inspection_generation: u64,
 }
 
 impl AiState {
@@ -76,6 +81,7 @@ impl AiState {
         self.inbox_analysis.view = self.inbox_analysis.view.wrapping_add(1);
     }
     pub(super) fn close_analysis_view(&mut self) {
+        self.invalidate_visual_analysis();
         self.inbox_analysis.visible = false;
         self.inbox_analysis.view = self.inbox_analysis.view.wrapping_add(1);
     }
@@ -87,6 +93,7 @@ impl AiState {
         {
             return None;
         }
+        self.invalidate_visual_analysis();
         let view = &mut self.inbox_analysis;
         view.source_generation = view.source_generation.wrapping_add(1);
         view.source_path = Some(path.clone());
@@ -121,9 +128,16 @@ impl AiState {
         if !self.can_analyze_inbox_source() {
             return None;
         }
+        self.start_source_analysis(InboxAnalysisPurpose::KnowledgeAndActions, None)
+    }
+    pub(super) fn start_source_analysis(
+        &mut self,
+        purpose: InboxAnalysisPurpose,
+        visual_asset: Option<brn_workflow::proposals::SourceVersion>,
+    ) -> Option<(Uuid, AppCommand)> {
         let request = InboxActionRequest {
-            visual_asset: None,
-            purpose: InboxAnalysisPurpose::KnowledgeAndActions,
+            visual_asset,
+            purpose,
             id: Uuid::new_v4(),
             conversation: self.conversation,
             source: Box::new(self.inbox_analysis.source.clone()?),
@@ -135,6 +149,8 @@ impl AiState {
             self.inbox_analysis.source_error = Some(error.message);
             return None;
         }
+        self.inbox_analysis.annotation = None;
+        self.inbox_analysis.annotation_review = None;
         self.inbox_analysis.analysis_id = Some(request.id);
         self.inbox_analysis.inspection_generation =
             self.inbox_analysis.inspection_generation.wrapping_add(1);
@@ -157,6 +173,8 @@ impl AiState {
         if !self.ready || !self.inbox_analysis.visible || analysis.is_nil() {
             return None;
         }
+        self.inbox_analysis.annotation = None;
+        self.inbox_analysis.annotation_review = None;
         let view = &mut self.inbox_analysis;
         view.inspection_generation = view.inspection_generation.wrapping_add(1);
         view.analysis_id = Some(analysis);
@@ -192,8 +210,13 @@ impl AiState {
         let Some(Pending::InboxAnalysis(pending)) = self.pending.get(&id).cloned() else {
             return false;
         };
+        if let AnalysisPending::Visual(pending) = pending {
+            self.received_visual_analysis(id, *pending, event);
+            return true;
+        }
         let state = &mut self.inbox_analysis;
         match pending {
+            AnalysisPending::Visual(_) => unreachable!(),
             AnalysisPending::Source {
                 view,
                 generation,
@@ -298,6 +321,7 @@ fn analysis_matches(
         return true;
     };
     capture.purpose == request.purpose
+        && capture.visual_asset == request.visual_asset
         && capture.conversation == request.conversation
         && capture.source == request.source.source
         && capture.source_text == request.source.text

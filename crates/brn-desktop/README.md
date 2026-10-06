@@ -182,6 +182,24 @@ Inbox eligibility and constructs the domain prompt; the desktop only freezes the
 typed request and correlates responses. Global Stop remains available after
 navigation, and partial text remains provisional until local finalization.
 
+For a saved inline-PNG Source, **Inspect saved PNG** requests the complete checked
+image bytes and displays the actual PNG, original alt/title, occurrence and full
+Source/asset device, inode, length and SHA-256 proofs. Conversion preview also
+renders the actual image. Exact Source/asset approval preserves evidence; its
+interpretation remains pending. **Interpret this PNG** explicitly uses the same
+acknowledged provider/model/effort and owned Stop lane. The complete captured
+Source and answer remain available; model wording is tentative.
+
+After a Completed visual analysis, **Prepare tentative annotation** requests a
+provider-free draft and shows its full proposed Source text. **Create annotation
+review** and **Open annotation review** are separate explicit actions. The ordinary
+proposal review permits owner wording edits and exact separate approval; preparation,
+creation and navigation perform no durable Source write or automatic approval.
+Changing the selected Source or analysis invalidates pending presentation replies.
+Restarted analysis inspection requires fresh exact PNG inspection before annotation
+preparation. Failed/interrupted/unfinalized work remains incomplete and preserves
+evidence.
+
 The retained analysis UUID can be inspected after restart without a model or
 provider call. Its captured Source, recorded selection/status and full answer
 remain separate from fresh Source inspection. Returned knowledge and Action
