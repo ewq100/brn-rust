@@ -16,6 +16,25 @@ Inspect branch, HEAD and working-tree changes; preserve unrelated work. Use [sta
 
 A subsystem already covered by the frozen target is a feature slice, not automatically an architecture change. Plans describe decisions and work, without mandatory implementation/test bodies, two-minute steps or agent/model machinery. Self-check the plan; additional plan review needs a concrete risk or explicit request.
 
+## Compatible reuse
+
+Before implementing new functionality, check whether existing repository code,
+the standard library or platform, current pinned dependencies, or a suitable
+maintained published component already provides it. Prefer compatible reuse when
+it reduces overall complexity and maintenance. Add custom code only for an actual
+unmet requirement or when a small local implementation is demonstrably simpler.
+Keep the investigation proportional to the change and briefly record material
+decisions.
+
+This applies to AI, CLI, parsing, storage utilities, import/conversion, UI
+infrastructure and development tooling. For a material choice, record the
+requirement, option/version, decision, remaining BRN responsibility and specific
+reason for custom code or deferral. Count adapters, duplicated validation,
+dependency/platform costs and verification, rather than lines alone. Routine
+reuse does not reopen the frozen architecture. The
+[current reassessment](../architecture/decisions/2026-10-06-compatible-reuse.md)
+distinguishes implemented mechanisms, accepted follow-ups and unresolved candidates.
+
 ## Skills and helpers
 
 Select a helper when explicitly requested or when it solves a concrete task need; invocation before every response/action is not required. Honor explicit requests within current scope and project constraints. Skills cannot add scope, external actions, approval gates or configuration changes on their own.

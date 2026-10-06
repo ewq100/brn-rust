@@ -1,19 +1,25 @@
 # Stage 8: Office Inbox foundations
 
-Current baseline is integrated [PR76](https://github.com/ewq100/brn-rust/pull/76)
-`b6a13313d9807be66baa49aca2a0e3c96e60d18d`, tree
-`8619cc994145a91ae7cbfa3f24b0537d7c5c6ad6`. Binary retention, ordinary assets
-and bounded DOCX text/structure Source conversion are qualified and integrated.
-[Inline PNG plus explicit local interpretation](#next-slice-inline-png-source-and-local-interpretation)
-is the current bounded deliverable on `codex/v1-docx-visual-sources`. Qualified
-source `b34a2897a63c1032c0398532e80648d9dceedf72`, tree
-`0ecfab025fed520bc967d3b4bb6093e430a25d4b`, implements conversion,
-Source/asset approval, typed separately approved interpretation, checked image
-inspection and CLI/native presentation/controls. Complete independent review
-and fresh shared/native qualification pass. Exact-head CI, normal integration
-and merged checks remain unfinished. Full V1 goal remains confirmed active
-without a budget.
-Native/live/owner acceptance and broader Stage8 remain separate and unfinished.
+Current product baseline is integrated [PR77](https://github.com/ewq100/brn-rust/pull/77)
+`c75803832f3140347192bb08f2fdf13bb5fba1d4`, tree
+`f9a725ac08e48d040df48a76a94b969c3b4b8292`. Binary retention, ordinary assets,
+bounded DOCX text/structure and one ordinary inline PNG plus separately approved
+provisional interpretation are implemented, independently reviewed, automated verified
+and integrated. Binary cleanup remains refused; originals stay retained.
+
+The full V1 goal is **confirmed paused** at the owner's2026-10-06 controlled-stop
+request, preserving its complete objective. Native GUI observation is explicitly
+deferred while the Mac is locked; live/real-model/owner acceptance and broader Stage8
+remain unfinished. No next feature is underway. The [handoff](../v1-handoff.md) owns
+explicit task selection, and the [reuse decision](../../../architecture/decisions/2026-10-06-compatible-reuse.md)
+bounds the reader evaluation before further Office expansion. No replacement is
+claimed implemented. Detailed current integration is recorded at the
+[closeout checkpoint](#pr77-integration-and-controlled-closeout--2026-10-06).
+
+## Historical slice plans and qualification
+
+The following baseline/goal/next-step statements are retained observations from
+before PR77 integration, not current continuation instructions.
 
 ## Binary capture baseline and acceptance
 
@@ -670,3 +676,72 @@ fresh merged verification are the next gate. No visual PR/merge yet. Broader
 meaningful DOCX/PDF/PowerPoint/suppliedURLs, Office cleanup, native/live/real-model/
 owner acceptance and full V1 remain unfinished. Full goal confirmed active;
 no live/provider discovery/model download/private-data/account/release action.
+
+
+## PR77 integration and controlled closeout — 2026-10-06
+
+Normal PR77 merge at12:02:07UTC produced `c75803832f3140347192bb08f2fdf13bb5fba1d4`,
+parents main76 `b6a13313d9807be66baa49aca2a0e3c96e60d18d` and reviewed/qualified
+PR head `ae5d704b465eca174674a69b680e29e9f559ad7d`. Tree
+`f9a725ac08e48d040df48a76a94b969c3b4b8292` equals that PR head. Its only changes
+from fully locally qualified b34 source are documentation; Rust, manifests,
+lockfiles, scripts, vendor and features are identical. Complete independent review
+pins all152 files; all reviewed hashes were validated. Full source qualification,
+commands, time ranges, exclusions and log hashes remain in the preceding section.
+
+[Exact PR run37454141784 attempt1](https://github.com/ewq100/brn-rust/actions/runs/37454141784/attempts/1)
+completed: four protected macOS/shared checks and Docs SUCCESS; overall FAILURE.
+Protection was strict, enforced for admins and required the four current PR
+contexts from GitHub Actions app15368; no bypass was used. Documentation/tooling
+was an additional applicable passing check. Actual Windows compiler comparison
+against PR76 retains22 locations,21 identical full keyed blocks,160 vs158 ordered
+lines, an extra blank/progress line at auth geteuid, and Store errors reordered
+behind AI. Both summaries/footer/exit101 remain the same; raw equality is not claimed.
+Main-only platform jobs were not substituted as PR requirements.
+
+Fresh merged gate at12:04:54–12:05:37UTC on clean unchanged c758 completed all24
+commands, terminal exit0:309 passed/0 failed/4 intentional subprocess-entry
+exclusions+52 fixtures. Workspace build, focused Store DOCX/visual/proposal lifecycle,
+AI wire tests, Workflow default/native visual crash/Finish/Restore/Undo, CLI and
+native actual-image widget tests, shipping native Desktop/CLI builds, formatting,
+launcher, Markdown and two default/two combined V15 AppWorker starts passed.
+Restart inspection proved the original-operation table/item index and no retired
+brn.sqlite3. Full maximum16MiB lifecycle witness is reused from the unchanged full
+shared/native qualification rather than repeated. Merged log SHA256
+`3f381e37606216afd6b330526cf4049462662f3370d83315256593b5884b2f55`;
+local atomic receipt, runner and hashes: `work/docx-visual-merged-evidence`.
+Known upstream block0.1.6 future-compiler warnings remain.
+
+[Merged-main run37460415851 attempt1](https://github.com/ewq100/brn-rust/actions/runs/37460415851/attempts/1)
+is terminal at exact c758: all four protected macOS/shared checks, Docs and
+supplemental Ubuntu UI SUCCESS. Overall FAILURE/ci-summary exit1 remains actual.
+Main Mac workspace1608/0/16+52, capability139/0/1; native15 Retrieval/0/0,
+386 Workflow/models/0/14 and247 Desktop/0/0; native widgets73/0/0 with226 filtered
+and two restarts passed. Mac Core1258s, native1080s, UI229s, Ubuntu Core471s.
+Upstream native block0.1.6 warnings and documented skips/long-test notices remain.
+
+All ten full raw logs, exact job/check URLs/head/parents/tree and fresh strict/admin
+four app15368 protection contexts were audited; all61 artifact hashes were independently
+validated by the lead. Reviews remain absent/null and rulesets empty; no protection
+was removed. Informational Windows Core/UI/native and Linux native are FAILURE.
+Actual Windows UI has22 errors/161 lines versus20/150 in main76, including two Store
+Unix errors at unchanged lib.rs4:15/96:44, changed summary placement and interleaved
+progress. Windows Core retains22/160 vs22/158; native14/101 full ordered blocks
+and both summaries match. Linux retains three download-test assertions/six frames
+each with actual thread IDs and0.44s vs0.04s differences. No full raw equality or
+new portability qualification is claimed. Full comparisons remain local in
+`work/ci-main77-evidence.md`, ten logs and its61-file manifest. CI links provide
+repository-accessible raw evidence independently of this Mac's paths.
+
+Synthetic native GUI fixture was captured/converted/approved through actual CLI,
+then the own disposable app wrapper launched. Observation obtained only an empty
+AX window shell/menus and no screenshot/body rendering: the Mac is locked.
+Original/Source/PNG bytes remained unchanged, provider calls0 and model downloads0.
+The owner explicitly selected **leave GUI qualification pending**. No native
+usability, actual provider inference or owner acceptance is claimed. Reproduce on
+an unlocked Mac with a fresh synthetic scenario; local `work/docx-visual-gui-fixture`
+is supplemental evidence, not a dependency for another agent.
+
+The full goal is confirmed paused; the [controlled handoff](../v1-handoff.md)
+contains five selected-task candidates. No JPEG/multiple-image/PDF/PPTX/URL feature,
+reuse refactor, binary cleanup, release or private-data action followed PR77.

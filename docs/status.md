@@ -4,7 +4,7 @@
 Stage 5 knowledge and Stage 6 Actions/dashboard foundations are integrated,
 with native/live/owner qualification still open.
 Stage 7 text Inbox implementation is integrated with acceptance pending.
-Stage 8 binary retention, ordinary asset proposals and bounded DOCX text/structure Source conversion are implemented, automated verified and integrated; visuals remain unfinished.
+Stage 8 binary retention, ordinary asset proposals and bounded DOCX text/structure Source conversion are implemented, automated verified and integrated, including one ordinary inline PNG and separately approved provisional interpretation; broader visuals remain unfinished.
 Stages 7–16 remain incomplete; complete V1
 delivery is not claimed.**
 
@@ -17,39 +17,37 @@ and the disposable retrieval index retain their existing roles. The owner's
 permits thin future adapters around the six V1 core crates through workflow/
 AppWorker. No MCP, daemon, HTTP service, extra database or remote work is in V1.
 
-Integrated main is **`b6a13313d9807be66baa49aca2a0e3c96e60d18d` (PR76)**,
-tree `8619cc994145a91ae7cbfa3f24b0537d7c5c6ad6`. Bounded DOCX text/structure
-now follows the existing retained-Binary processing, exact Source proposal,
-approval and recovery path. Complete/correction reviews are clean; validated
-underline-paint and wide-list nesting defects are fixed. Full shared1,557/0/14+52,
-native301 Desktop/0/0,371 Workflow/models/0/12,15 Retrieval/0/0, strict feature
-Clippy, shipping builds and startup/restarts passed. Exactfb78/run37435614131
-attempt1 passed all four protected macOS/shared checks and Docs. Overall CI stays
-red from the same22 Windows error locations; complete raw ordering/progress/footer/
-terminal differences are retained. Fresh clean merged19-command gate passed
-127/0/0+52fixtures, native widgets/builds and default/combined V15 restarts.
-Exact main run37438639577 attempt1 completed with all four protected checks,
-Docs and supplemental Ubuntu UI passing. Overall failure retains Windows22/20/14
-emitted errors and three Linux native failures. Complete assertions/backtraces,
-compiler suggestions and actual ordering/progress/terminal differences remain visible.
+Integrated product main is **`c75803832f3140347192bb08f2fdf13bb5fba1d4` (PR77)**,
+tree `f9a725ac08e48d040df48a76a94b969c3b4b8292`. One ordinary inline DOCX PNG
+now preserves an exact paired Source/asset proposal and supports complete saved-image
+inspection through CLI/native AppWorker. Explicit selected-model interpretation
+produces a tentative Source annotation through separate exact approval. Actual
+annotation crash/Finish/Restore/Undo witnesses preserve immutable history and fresh-SQL
+recovery without provider reexecution. Originals remain retained; binary cleanup is
+refused. Generic ZIP ingestion is excluded. Broader DOCX/PDF/PPTX/suppliedURLs remain
+unfinished; no whole-Office preservation claim is made.
 
-The [next Stage8 slice](work/active/office-inbox/plan.md#next-slice-inline-png-source-and-local-interpretation)
-couples a checked inline PNG, bound Source/asset approval and explicit local
-visual interpretation through the existing owned AI lane. Unmerged qualified
-source `b34a2897a63c1032c0398532e80648d9dceedf72`, tree
-`0ecfab025fed520bc967d3b4bb6093e430a25d4b`, implements the converter, exact
-Source/PNG pair, owned typed interpretation, separately approved Source-only
-annotation, complete saved-image inspection and CLI/native actual-image controls.
-Complete independent review is clean. Fresh unchanged shared1,608/0/16 +52 and
-native707/0/14 +52, strict feature Clippy, shipping builds, launcher and V15
-AppWorker restarts pass. Actual annotation crash/Finish/Restore/Undo witnesses
-qualify fresh-SQL immutable history without provider reexecution. Exact-head CI,
-normal integration and merged checks are next. Integrated main still refuses
-meaningful visuals. Generic ZIP intake
-is excluded. Broader DOCX/PDF/PowerPoint/URLs and binary cleanup remain unfinished.
-All binary originals remain retained. GUI/live/real-model/owner acceptance and
-full V1 delivery are not claimed. Previous asset/DOCX evidence remains in the
-[office plan](work/active/office-inbox/plan.md) and [checkpoint history](development/checkpoint.md).
+Complete independent review is clean. Qualified unchanged source passed shared
+1,608/0/16 documented exclusions+52 and native707/0/14+52, formatting/build/strict
+feature Clippy, shipping builds, launcher and V15 restarts. Exact ae5 PR run37454141784
+attempt1 passed four protected macOS/shared checks and Docs; overall CI is red from
+Windows compiler failures with actual differences retained. Fresh merged24-command
+gate passed309/0/4 intentional child-entry exclusions+52, native image widget/builds
+and restarts. See the [office integration record](work/active/office-inbox/plan.md#pr77-integration-and-controlled-closeout--2026-10-06)
+for exact CI, warnings, local evidence and pending acceptance.
+
+The full V1 goal is **confirmed paused** at the owner's controlled closeout request,
+with its full objective preserved. Documentation-only closeout records
+[compatible reuse decisions](architecture/decisions/2026-10-06-compatible-reuse.md)
+and an [explicitly selected task queue](work/active/v1-handoff.md#ordered-task-queue).
+Native GUI observation is owner-deferred while the Mac is locked; live/real-model and
+owner acceptance remain pending. No new product slice is underway. Further implementation
+starts only from a selected handoff task; this pause does not change roadmap order.
+
+### Earlier integrated milestone evidence
+
+These retained observations precede PR77; their branch/goal/next-step descriptions
+are historical. Use the current checkpoint and handoff above for continuation.
 
 Complete retained original review, deterministic saved-body quotes, Rust-owned
 Conflict/Knowledge/Action candidate identities, checked full Action replacement

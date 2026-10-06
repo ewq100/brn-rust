@@ -36,6 +36,10 @@ Safe Save and verified recovery precede legacy removal; removal precedes Proposa
 
 ## Starting the next slice
 
+The owner requested a controlled stop on2026-10-06. The full V1 goal is confirmed
+paused; use the [handoff queue](work/active/v1-handoff.md#ordered-task-queue) only
+after explicit task selection. This does not change the dependency order below.
+
 Select the next incomplete dependency from [status](status.md), establishing the
 actual merged baseline and its pending qualification. Continue sequential
 reviewable slices under the current V1 authorization. Pending owner acceptance
