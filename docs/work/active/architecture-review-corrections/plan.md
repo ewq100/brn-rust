@@ -890,3 +890,45 @@ checks, preserving full untrusted decoding, startup checks and backup contract.
 A same-byte inode replacement after sync reproduced a genuine old-path failure;
 the correction has13 focused tests and strict Workflow Clippy passing. Complete
 review and post-change release measurements remain pending; no benefit claimed.
+
+
+## R4 dependency stderr correction
+
+Bounded correction prepared from qualified main70 `34e3601d00d1b251b995ba176a1714da28d371e6`
+on2026-10-06. The published Rig agent0.43.0 streamed-invalid-tool path printed
+full partial assistant content with an unconditional stderr call before BRN hooks.
+Fixed typed AiError/progress behavior and telemetry settings could not prevent it.
+The new parent/child regression genuinely failed against the unpatched package
+(exit101,03:14:45–03:14:49UTC), after the child positively validated three real
+synthetic provider routes, InvalidToolUse, zero backend reads and no retry.
+
+The [exact repository dependency patch](../../../../vendor/README.md) removes only
+that print. All88 released package files and modes are retained and compared;
+only the documented engine line differs. The archive checksum matches the
+original lock entry. A separately identified same-release MIT license supplements
+the package, which did not ship a standalone license file. Requests, descriptions,
+provider selection, history, limits and refusal behavior are unchanged.
+
+Initial offline `cargo update -p rig-agent` completed but rewrote unrelated Windows
+resolution edges. That result is retained as rejected preparation evidence;
+the final lock changes only rig-agent's registry source/checksum to the local path.
+Full locked/offline AI library tests at that minimal lock passed129/0/1
+(03:15:57–03:16:04UTC); the ignored child runs explicitly and passes under its
+normal parent. Strict all-target/all-feature AI Clippy including capability-spike
+passed03:16:29–03:16:33UTC, and workspace rustfmt check passed03:16:54–03:16:56UTC
+without reformatting upstream bytes. Atomic command logs remain under the
+owned synthetic TMP parent as `brn-r4-*`; helper handoff lists exact receipts.
+
+Preserving upstream README bytes initially failed the local Markdown gate on its
+absent sibling package link (37files/371links/1failure). The checker now explicitly
+excludes only outgoing links in retained third-party `vendor/rig-agent/` source;
+BRN links into it still validate files/fragments, other vendor paths remain
+checked, and explicit `--all` still audits retained outgoing links. Two genuine
+red policy regressions then pass, including incoming missing-file/fragment
+refusals; the complete tooling suite has18passing tests and the default Markdown
+gate has35files/371links/0failures after the final evidence append.
+
+Independent review, shared/native integration and owner/live qualification remain
+lead-owned and pending. This removes one unconditional stderr leak; arbitrary
+verbose upstream tracing is a separate diagnostic surface and is not qualified.
+No account, model asset or live provider work was performed.

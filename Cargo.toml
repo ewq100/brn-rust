@@ -1,6 +1,7 @@
 [workspace]
 members = ["crates/brn", "crates/brn-store", "crates/brn-retrieval", "crates/brn-workflow", "crates/brn-desktop", "crates/brn-ai"]
 default-members = ["crates/brn"]
+exclude = ["vendor/rig-agent"]
 resolver = "2"
 
 # Native retrieval/UI graphs are large; keep trial debug artifacts bounded.
@@ -8,3 +9,7 @@ resolver = "2"
 debug = 0
 [profile.test]
 debug = 0
+
+# Exact 0.43.0 safety patch; see vendor/README.md.
+[patch.crates-io]
+rig-agent = { path = "vendor/rig-agent" }
