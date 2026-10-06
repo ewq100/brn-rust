@@ -16,15 +16,20 @@ Full frozen V1 goal confirmed **active** on2026-10-06, without a token budget.
   Fresh merged build/14 Store/15 Workflow/10 CLI tests/0failures/2ignores+52 fixtures
   passed at unchanged clean identity, atomic exit0 (01:31:07–01:32:43UTC).
 - **Current:** `codex/v1-inbox-copy-controls`, code
-  `aaa87fcb277293388730f385b5af2750b200fb96`. Native proof/history, exact captured
+  `e522813372f32b73a6faa4a5e676a165e238a923`. Native proof/history, exact captured
   confirmation and same-request retry are implemented. Five actual-worker state
   and two shipping-root widget tests plus strict native Clippy pass; independent
   complete/final-delta review is clean. Fresh shared gate at unchanged clean
   c91a008/tree04bdb307 passed format/build/Clippy,1,446/0/10+52 fixtures,
-  atomic exit0 (01:38:05–01:44:58UTC). Full native qualification is next.
-- **Pending:** main68 CI terminal results; unlocked native/live/owner acceptance,
+  atomic exit0 (01:38:05–01:44:58UTC). Native gate at clean e522813/tree6f825b75
+  passed11commands,330 Workflow/models/0/9+292 Desktop/0/0 and V15 restarts,
+  atomic exit0 (01:45:55–01:47:57UTC). Exact-head CI/normal integration is next.
+- **Pending:** unlocked native/live/owner acceptance,
   real assets, broader startup/relationship cost, truthful retrieval facts, later
   roadmap stages and trusted-user packaging. No owner original removed.
+  Main68 run37399517358 attempt1 passed all applicable jobs; overall red retains
+  Windows22/22/14 and the same Linux3 assertions/backtraces with raw differences.
+  Mac workspace tests738s versus436s baseline; the slowdown remains recorded.
 - **Environment:** Darwin arm64 Mac mini, Rust1.98.1 locked/offline, canonical owned
   `TMPDIR=/private/tmp/brn-mini-synthetic-20261005`, empty model setting, isolated
   checkouts/targets and disposable synthetic data. No new live calls/downloads,

@@ -58,10 +58,15 @@ shared1,441/0/10+52 and native330 Workflow/models/0/9+285 Desktop/0/0,
 failure was corrected; exact e8ab9de run37398589455 attempt1 passed four protected
 Mac/shared checks and Docs, retaining unchanged Windows22 failure. Fresh merged
 build/14 Store/15 Workflow/10 CLI tests/0/2+52 fixtures passed at unchanged clean
-identity; main68 terminal CI remains pending. Native controls are implemented on
-codex/v1-inbox-copy-controls ataaa87fcb: five worker-state/two headless-root widget
-tests and strict native Clippy pass; complete/final-delta independent review clean.
-Full qualification/CI/integration, unlocked owner observation and Stage8 remain
+identity. Main68 run37399517358 attempt1 passed all applicable jobs; overall red
+retains unchanged Windows22/22/14 and the same three Linux assertions/backtraces
+with raw differences. Mac workspace tests738s versus436s remain recorded.
+Native controls are qualified locally on codex/v1-inbox-copy-controls ate522813:
+shared1,446/0/10+52, native330 Workflow/models/0/9+292 Desktop/0/0 and11commands/V15
+restarts passed; complete/final-delta independent review clean. Documentation
+review's legacy pending-retry claim was corrected: inspection/already-performed
+settlement is supported; retry requires new-format intents.
+Exact-head CI/integration, unlocked owner observation and Stage8 remain
 pending; broader startup/backup cost is separate. No semantic
 completeness, native/live/owner acceptance or full V1 delivery is claimed. The full
 V1 goal remains active. No owner original/private data was inspected or migrated.

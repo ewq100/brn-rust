@@ -756,3 +756,22 @@ validation confirmed the new request decoder and replay variants cannot retry
 pending legacy operations. The correction records historical inspection and
 already-performed settlement support, with pending legacy retry unsupported;
 new-format same-request retry remains covered. No behavior change was added.
+
+Native-control atomic gate01:45:55–01:47:57UTC at unchanged clean
+`e522813372f32b73a6faa4a5e676a165e238a923`, tree
+`6f825b759a724a7795fea14f007b6e2649f2c7f8`, passed all11commands: combined
+Desktop check, three all-target Clippy configurations,330 Workflow/models/0/9,
+292 Desktop/0/0, combined Desktop/native CLI builds, default startup and two
+combined-native restarts. Fresh SQLite queries confirm V15/owned operation table
+in both lanes. This is offline/headless qualification; GUI/live/assets/owner
+acceptance remain pending. Final later changes are evidence documentation only.
+
+Main68 exact a799c33 automatic run37399517358 attempt1 completed overall failure
+with all four protected Mac/shared scopes, Docs and extra Ubuntu UI successful.
+Windows22/22/14 complete source-inclusive compiler blocks and all terminal
+summaries are identical to main67. Linux has the same three assertions/source
+locations/backtrace frames; changed block order, thread IDs, terminal placement
+and0.60→0.05s are preserved. Mac workspace tests passed in738s versus436s on
+main67 (corrected PR68 was495s); four over60s notices subsequently passed.
+Full successful Mac output/durations and failed raw platform comparisons remain
+retained. No rerun/substitution or unrelated platform fix was made.
