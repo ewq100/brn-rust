@@ -287,6 +287,7 @@ impl App {
             });
         }
         let draft = crate::proposals::DraftRequest {
+            inbox_visual: None,
             inbox_knowledge: None,
             inbox_source: Some(Box::new(binding)),
             id: request.proposal_id,

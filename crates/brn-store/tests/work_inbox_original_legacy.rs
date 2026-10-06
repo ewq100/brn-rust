@@ -85,6 +85,7 @@ fn evidence(store: &mut WorkStore, analysis: bool) -> InboxQualifiedRemovalEvide
     };
     let text = binding.markdown(converted).unwrap();
     let draft = ProposalDraft {
+        inbox_visual: None,
         inbox_knowledge: None,
         inbox_source: Some(Box::new(binding.clone())),
         id: Uuid::new_v4(),
@@ -143,6 +144,7 @@ fn evidence(store: &mut WorkStore, analysis: bool) -> InboxQualifiedRemovalEvide
         let job = store
             .reserve_inbox_action(
                 &InboxActionCapture {
+                    visual_asset: None,
                     purpose: Default::default(),
                     id: Uuid::new_v4(),
                     conversation: None,
@@ -225,6 +227,7 @@ fn knowledge_evidence_with_status(
     let job = store
         .reserve_inbox_action(
             &InboxActionCapture {
+                visual_asset: None,
                 purpose: InboxAnalysisPurpose::KnowledgeAndActions,
                 id: Uuid::new_v4(),
                 conversation: None,
@@ -257,6 +260,7 @@ fn knowledge_evidence_with_status(
     };
     let text = brn_store::note_provenance::write(&format!("---\nbrn_id: {note_id}\nbrn_kind: knowledge\nbrn_state: current\n---\n# Interpreted knowledge\n"), std::slice::from_ref(&citation)).unwrap();
     let draft = ProposalDraft {
+        inbox_visual: None,
         inbox_knowledge: Some(Box::new(InboxKnowledgeBinding {
             analysis_id: job.capture.id,
             note_id,

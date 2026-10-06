@@ -664,6 +664,7 @@ fn conflict_pages_keep_full_evidence_observations_and_query_bound_cursor_after_c
     store
         .reserve_inbox_action(
             &InboxActionCapture {
+                visual_asset: None,
                 purpose: InboxAnalysisPurpose::KnowledgeAndActions,
                 id: analysis,
                 conversation: None,

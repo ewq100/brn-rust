@@ -347,6 +347,7 @@ fn retained_source_and_unsaved_partial_are_distinct_copyable_and_readonly(
             let record = InboxActionAnalysis {
                 job: InboxActionJob {
                     capture: InboxActionCapture {
+                        visual_asset: None,
                         purpose: request.purpose,
                         id,
                         conversation: request.conversation,

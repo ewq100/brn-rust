@@ -70,6 +70,7 @@ fn capture() -> InboxActionCapture {
     };
     let text = binding.markdown(body).unwrap();
     InboxActionCapture {
+        visual_asset: None,
         purpose: InboxAnalysisPurpose::KnowledgeAndActions,
         id: Uuid::new_v4(),
         conversation: None,

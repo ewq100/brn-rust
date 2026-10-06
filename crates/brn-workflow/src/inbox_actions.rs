@@ -1,5 +1,6 @@
 //! One captured Inbox Source analyzed on the existing owned chat lane.
 //! Action review work is separate from approval and semantic completeness.
+use crate::proposals::SourceVersion;
 use crate::{
     ErrorKind, ReasoningEffort, Result, Selection, WorkTurn, WorkflowError,
     app::App,
@@ -12,6 +13,7 @@ pub use brn_store::work::inbox_actions::{
 use serde::{Deserialize, Serialize};
 use uuid::Uuid;
 mod knowledge;
+mod visual;
 pub(crate) use knowledge::validate_supersession_link;
 
 pub const MAX_INBOX_ACTION_PROPOSALS: usize = 20;
@@ -19,6 +21,8 @@ pub const MAX_INBOX_ACTION_PROPOSALS: usize = 20;
 #[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
 #[serde(deny_unknown_fields)]
 pub struct InboxActionRequest {
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub visual_asset: Option<SourceVersion>,
     #[serde(default)]
     pub purpose: InboxAnalysisPurpose,
     pub id: Uuid,
@@ -37,6 +41,7 @@ impl InboxActionRequest {
     }
     pub(crate) fn capture(&self) -> InboxActionCapture {
         InboxActionCapture {
+            visual_asset: self.visual_asset.clone(),
             purpose: self.purpose,
             id: self.id,
             conversation: self.conversation,

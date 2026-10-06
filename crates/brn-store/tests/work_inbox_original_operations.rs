@@ -79,6 +79,7 @@ fn witness(store: &mut WorkStore, kind: InboxKind, text: &str) -> Witness {
     let review = store
         .create_proposal(&ProposalDraft {
             inbox_source: Some(Box::new(binding)),
+            inbox_visual: None,
             inbox_knowledge: None,
             id: Uuid::new_v4(),
             group_id: None,

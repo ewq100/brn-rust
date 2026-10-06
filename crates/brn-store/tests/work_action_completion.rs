@@ -37,6 +37,7 @@ fn approved(store: &mut WorkStore) -> ActionRecord {
     };
     let review = store
         .create_proposal(&ProposalDraft {
+            inbox_visual: None,
             inbox_knowledge: None,
             inbox_source: None,
             id: Uuid::new_v4(),

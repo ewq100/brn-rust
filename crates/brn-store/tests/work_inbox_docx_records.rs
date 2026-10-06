@@ -106,6 +106,7 @@ fn draft(binding: &InboxSourceBinding, text: String) -> ProposalDraft {
         sources: vec![],
         action_changes: vec![],
         inbox_source: Some(Box::new(binding.clone())),
+        inbox_visual: None,
         inbox_knowledge: None,
     }
 }

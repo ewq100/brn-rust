@@ -320,6 +320,7 @@ fn docx_forged_self_consistent_receipt_and_source_body_are_not_fresh_authority()
         sources: vec![],
         action_changes: vec![],
         inbox_source: Some(Box::new(binding)),
+        inbox_visual: None,
         inbox_knowledge: None,
     };
     draft.validate().unwrap();

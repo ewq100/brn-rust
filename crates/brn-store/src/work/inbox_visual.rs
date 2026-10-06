@@ -13,6 +13,8 @@ const SECTION_END: &str = "\n<!-- brn:visual-interpretation:1:end -->\n";
 const PENDING: &str = "Pending explicit visual interpretation. Source and asset approval does not approve an interpretation.";
 const TENTATIVE: &str =
     "Tentative model interpretation; approved wording does not establish verified source facts.";
+const DESCRIPTION: &str = "\n\n**Tentative description:**\n";
+const UNCERTAINTY: &str = "\n\n**Uncertainty:**\n";
 
 /// Path-neutral original/image metadata. The asset basename is reconstructed
 /// from the complete original digest, never adopted from a package path.
@@ -123,7 +125,8 @@ impl InboxSourceVisual {
             .ok_or_else(|| invalid("Inbox visual body is incomplete"))?;
         self.validate_converted(original_sha256, converted)?;
         let section = &body[end..];
-        if section.len() > MAX_VISUAL_SECTION_BYTES
+        if section.len() < SECTION_START.len() + SECTION_END.len()
+            || section.len() > MAX_VISUAL_SECTION_BYTES
             || !section.starts_with(SECTION_START)
             || !section.ends_with(SECTION_END)
             || section[SECTION_START.len()..section.len() - SECTION_END.len()]
@@ -141,6 +144,30 @@ impl InboxSourceVisual {
 
 pub fn pending_section() -> String {
     format!("{SECTION_START}{PENDING}{SECTION_END}")
+}
+
+pub fn validate_capture_asset(
+    source_path: &str,
+    source_text: &str,
+    asset: &SourceVersion,
+) -> Result<()> {
+    let provenance = inbox_source::read_provenance(source_text)?
+        .ok_or_else(|| invalid("Visual analysis needs retained original provenance"))?;
+    let visual = provenance
+        .visual
+        .as_ref()
+        .ok_or_else(|| invalid("Visual analysis needs a bound PNG occurrence"))?;
+    if asset.path != visual.asset_path(source_path, &provenance.original_sha256)?
+        || asset.fingerprint.len != visual.byte_len
+        || asset.fingerprint.sha256 != visual.sha256
+        || asset.fingerprint.device == 0
+        || asset.fingerprint.inode == 0
+    {
+        return Err(invalid(
+            "Visual asset differs from its exact Source manifest",
+        ));
+    }
+    Ok(())
 }
 
 fn escaped_literal(text: &str) -> String {
@@ -191,6 +218,22 @@ pub struct InboxVisualAnnotationBinding {
 }
 
 impl InboxVisualAnnotationBinding {
+    pub fn validate_capture(&self, job: &super::inbox_actions::InboxActionJob) -> Result<()> {
+        self.validate()?;
+        job.validate()?;
+        if job.capture.purpose != super::inbox_actions::InboxAnalysisPurpose::VisualInterpretation
+            || job.capture.id != self.analysis_id
+            || job.capture.note_id()? != self.note_id
+            || job.capture.source != self.source
+            || job.capture.source_text != self.source_text
+            || job.capture.visual_asset.as_ref() != Some(&self.asset)
+        {
+            return Err(invalid(
+                "Visual proposal differs from its exact analysis capture",
+            ));
+        }
+        Ok(())
+    }
     pub fn validate(&self) -> Result<()> {
         if self.analysis_id.is_nil()
             || self.note_id.is_nil()
@@ -215,14 +258,7 @@ impl InboxVisualAnnotationBinding {
             &provenance.original_sha256,
             &self.source_text[crate::note_identity::body_start(&self.source_text)?..],
         )?;
-        if self.asset.path != visual.asset_path(&self.source.path, &provenance.original_sha256)?
-            || self.asset.fingerprint.len != visual.byte_len
-            || self.asset.fingerprint.sha256 != visual.sha256
-        {
-            return Err(invalid(
-                "Visual annotation asset differs from its exact Source manifest",
-            ));
-        }
+        validate_capture_asset(&self.source.path, &self.source_text, &self.asset)?;
         validate_text(&self.description)?;
         validate_text(&self.uncertainty)?;
         Ok(())
@@ -240,7 +276,7 @@ impl InboxVisualAnnotationBinding {
             )
             .ok_or_else(|| invalid("Visual annotation body size is invalid"))?;
         let section = format!(
-            "{SECTION_START}{TENTATIVE}\n\n**Tentative description:**\n{}\n\n**Uncertainty:**\n{}{SECTION_END}",
+            "{SECTION_START}{TENTATIVE}{DESCRIPTION}{}{UNCERTAINTY}{}{SECTION_END}",
             escaped_literal(&self.description),
             escaped_literal(&self.uncertainty),
         );
@@ -264,17 +300,54 @@ impl InboxVisualAnnotationBinding {
         candidate: &str,
     ) -> Result<()> {
         self.validate()?;
+        let original = self.candidate_text()?;
+        let fixed_end = original.len()
+            - original
+                .rsplit_once(SECTION_START)
+                .ok_or_else(|| invalid("Visual annotation section is missing"))?
+                .1
+                .len();
+        let section = candidate
+            .get(fixed_end..)
+            .ok_or_else(|| invalid("Visual annotation is incomplete"))?;
+        let wording = section
+            .strip_prefix(&format!("{TENTATIVE}{DESCRIPTION}"))
+            .and_then(|s| s.strip_suffix(SECTION_END))
+            .ok_or_else(|| {
+                invalid("Visual annotation must retain tentative labels and uncertainty")
+            })?;
+        let (description, uncertainty) = wording
+            .split_once(UNCERTAINTY)
+            .ok_or_else(|| invalid("Visual annotation must retain separate uncertainty"))?;
         if path != self.source.path
             || before != &self.source.fingerprint
             || before_text != self.source_text
-            || candidate != self.candidate_text()?
+            || candidate.get(..fixed_end) != original.get(..fixed_end)
+            || candidate.len() > MAX_NOTE_BYTES
+            || section.len() + SECTION_START.len() > MAX_VISUAL_SECTION_BYTES
+            || description.trim().is_empty()
+            || uncertainty.trim().is_empty()
+            || section.contains(['\0', '\r'])
+            || section.contains(SECTION_START)
+            || wording.contains(SECTION_END)
+            || uncertainty.contains(UNCERTAINTY)
+            || wording.contains(DESCRIPTION)
         {
             return Err(invalid(
-                "Visual annotation must retain its exact target, wording and section",
+                "Visual annotation must retain its exact target and protected literal Source",
             ));
         }
         Ok(())
     }
+}
+
+pub(super) fn check_binding(
+    conn: &rusqlite::Connection,
+    binding: &InboxVisualAnnotationBinding,
+) -> Result<()> {
+    let job = super::inbox_actions::reserved(conn, binding.analysis_id)?
+        .ok_or_else(|| invalid("Visual annotation analysis capture is unavailable"))?;
+    binding.validate_capture(&job)
 }
 
 #[cfg(test)]
@@ -468,6 +541,27 @@ mod tests {
         assert!(candidate.contains("\\[link\\]\\(bad\\)"));
         assert!(candidate.contains("**Uncertainty:**"));
         assert_eq!(annotation.source_text, source_text);
+        let edited =
+            candidate.replacen("A tentative shape", "An owner-reviewed tentative shape", 1);
+        annotation
+            .validate_replace(
+                source_path,
+                &annotation.source.fingerprint,
+                &source_text,
+                &edited,
+            )
+            .unwrap();
+        let missing_uncertainty = edited.replacen("**Uncertainty:**", "**Verified:**", 1);
+        assert!(
+            annotation
+                .validate_replace(
+                    source_path,
+                    &annotation.source.fingerprint,
+                    &source_text,
+                    &missing_uncertainty
+                )
+                .is_err()
+        );
         let modified = candidate.replacen("Exact caption", "Invented caption", 1);
         assert!(
             annotation
@@ -518,5 +612,16 @@ mod tests {
         let text = binding.markdown(&converted).unwrap();
         let extra = text + "unbound trailing wording\n";
         assert!(inbox_source::read_provenance(&extra).is_err());
+        // The start/end markers can share one newline in malformed untrusted
+        // input. This must refuse rather than slice with an inverted range.
+        let overlapped = format!("{converted}{SECTION_START}{}", &SECTION_END[1..]);
+        assert!(
+            binding
+                .visual
+                .as_ref()
+                .unwrap()
+                .validate_source_body(&binding.original.capture.copy.sha256, &overlapped,)
+                .is_err()
+        );
     }
 }

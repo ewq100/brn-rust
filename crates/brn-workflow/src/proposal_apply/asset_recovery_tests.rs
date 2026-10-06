@@ -49,6 +49,7 @@ impl Fixture {
         let before = app.proposal_asset("assets/a.bin").unwrap().fingerprint;
         let trash = app.proposal_asset("assets/trash.bin").unwrap().fingerprint;
         DraftRequest {
+            inbox_visual: None,
             inbox_knowledge: None,
             inbox_source: None,
             action_changes: vec![],
@@ -269,6 +270,7 @@ fn maximum_asset_replacement_recovers_from_fresh_sql_and_undo_without_text_decod
     let before = app.proposal_asset("assets/a.bin").unwrap().fingerprint;
     let review = app
         .create_proposal(&DraftRequest {
+            inbox_visual: None,
             inbox_knowledge: None,
             inbox_source: None,
             action_changes: vec![],

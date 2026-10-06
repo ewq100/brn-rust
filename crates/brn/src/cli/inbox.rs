@@ -444,6 +444,9 @@ pub(super) fn prepare(command: &InboxCommand) -> Result<AppCommand, CliFailure> 
                     InboxAnalysisPurpose::KnowledgeAndActions => {
                         "inbox analyze requires explicit purpose knowledge_and_actions"
                     }
+                    InboxAnalysisPurpose::VisualInterpretation => {
+                        "visual interpretation requires its explicit command"
+                    }
                 })
                 .into());
             }
@@ -1534,6 +1537,7 @@ mod tests {
             InboxAnalysisPurpose::KnowledgeAndActions,
         ] {
             let request = InboxActionRequest {
+                visual_asset: None,
                 purpose,
                 id: Uuid::new_v4(),
                 conversation: None,
@@ -1546,6 +1550,7 @@ mod tests {
                 generation: 77,
             };
             let capture = brn_workflow::inbox_actions::InboxActionCapture {
+                visual_asset: None,
                 purpose,
                 id: request.id,
                 conversation: None,

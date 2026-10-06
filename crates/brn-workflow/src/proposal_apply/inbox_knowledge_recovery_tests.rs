@@ -105,6 +105,7 @@ impl Fixture {
         fs::write(vault.join(SOURCE_PATH), &source_text).unwrap();
         let source = app.proposal_source(SOURCE_PATH).unwrap();
         let capture = InboxActionCapture {
+            visual_asset: None,
             purpose: InboxAnalysisPurpose::KnowledgeAndActions,
             id: Uuid::new_v4(),
             conversation: None,

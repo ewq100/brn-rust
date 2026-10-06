@@ -122,6 +122,7 @@ impl AiState {
             return None;
         }
         let request = InboxActionRequest {
+            visual_asset: None,
             purpose: InboxAnalysisPurpose::KnowledgeAndActions,
             id: Uuid::new_v4(),
             conversation: self.conversation,

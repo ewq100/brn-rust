@@ -126,6 +126,7 @@ fn capture_source(worker: &AppWorker, raw: &str) -> SourceFixture {
 
 fn request(source: &SourceFixture) -> InboxActionRequest {
     InboxActionRequest {
+        visual_asset: None,
         purpose: Default::default(),
         id: Uuid::new_v4(),
         conversation: None,
@@ -1126,3 +1127,6 @@ fn inbox_action_explicit_historical_source_stays_evidence_and_requires_semantic_
 
 #[path = "inbox_actions_tests/knowledge.rs"]
 mod knowledge_tests;
+
+#[path = "inbox_actions_tests/visual.rs"]
+mod visual_tests;

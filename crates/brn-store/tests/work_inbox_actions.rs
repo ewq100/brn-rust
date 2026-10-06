@@ -66,6 +66,7 @@ fn capture() -> InboxActionCapture {
     };
     let source_text = binding.markdown("```text\nbody\n```\n").unwrap();
     InboxActionCapture {
+        visual_asset: None,
         purpose: Default::default(),
         id: Uuid::new_v4(),
         conversation: None,
@@ -91,6 +92,7 @@ fn rebind_text(capture: &mut InboxActionCapture) {
 fn review(store: &mut WorkStore) -> ProposalStamp {
     store
         .create_proposal(&ProposalDraft {
+            inbox_visual: None,
             inbox_knowledge: None,
             inbox_source: None,
             id: Uuid::new_v4(),
@@ -1067,6 +1069,7 @@ fn knowledge_draft(capture: &InboxActionCapture) -> ProposalDraft {
         inode: 1,
     };
     ProposalDraft {
+        inbox_visual: None,
         inbox_knowledge: Some(Box::new(InboxKnowledgeBinding {
             analysis_id: capture.id,
             note_id,

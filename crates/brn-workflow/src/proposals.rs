@@ -74,6 +74,8 @@ impl DraftNoteChange {
 #[serde(deny_unknown_fields)]
 pub struct DraftRequest {
     #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub inbox_visual: Option<Box<brn_store::work::inbox_visual::InboxVisualAnnotationBinding>>,
+    #[serde(default, skip_serializing_if = "Option::is_none")]
     pub inbox_knowledge: Option<Box<brn_store::work::inbox_actions::InboxKnowledgeBinding>>,
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub inbox_source: Option<Box<brn_store::work::inbox_source::InboxSourceBinding>>,
@@ -181,6 +183,7 @@ impl DraftRequest {
                 }
             };
             if self.inbox_source.is_some()
+                || self.inbox_visual.is_some()
                 || !self.action_changes.is_empty()
                 || self.group_id != Some(binding.analysis_id)
             {
@@ -209,7 +212,10 @@ impl DraftRequest {
                     ));
                 }
             };
-            if !self.sources.is_empty() || !self.action_changes.is_empty() {
+            if self.inbox_visual.is_some()
+                || !self.sources.is_empty()
+                || !self.action_changes.is_empty()
+            {
                 return Err(invalid(
                     "Inbox source conversion is separate from semantic consequences",
                 ));
@@ -218,6 +224,29 @@ impl DraftRequest {
             if let Some((asset_path, bytes)) = asset {
                 binding.validate_asset(path, asset_path, bytes)?;
             }
+        }
+        if let Some(binding) = &self.inbox_visual {
+            if self.inbox_source.is_some()
+                || self.inbox_knowledge.is_some()
+                || !self.action_changes.is_empty()
+                || self.group_id != Some(binding.analysis_id)
+                || self.sources.as_slice() != std::slice::from_ref(&binding.source)
+            {
+                return Err(invalid(
+                    "Visual annotation needs its exact analysis and Source",
+                ));
+            }
+            let [
+                DraftNoteChange::Replace {
+                    path,
+                    expected,
+                    text,
+                },
+            ] = self.changes.as_slice()
+            else {
+                return Err(invalid("Visual annotation needs one Source Replace"));
+            };
+            binding.validate_replace(path, expected, &binding.source_text, text)?;
         }
         if self.id.is_nil()
             || self.group_id.is_some_and(|id| id.is_nil())
@@ -459,11 +488,13 @@ impl App {
             draft.sources = request.sources.clone();
             draft.inbox_source = request.inbox_source.clone();
             draft.inbox_knowledge = request.inbox_knowledge.clone();
+            draft.inbox_visual = request.inbox_visual.clone();
             return Ok(self.store.create_proposal(&draft)?);
         }
         self.require_current_evidence()?;
         self.validate_inbox_source(request.inbox_source.as_deref())?;
         self.validate_inbox_knowledge(request.inbox_knowledge.as_deref())?;
+        self.validate_inbox_visual(request.inbox_visual.as_deref())?;
         if let Some(binding) = &request.inbox_source {
             let preview =
                 self.inbox_candidate(&crate::inbox_processing::InboxCandidateRequest {
@@ -634,6 +665,7 @@ impl App {
         }
         let draft = ProposalDraft {
             inbox_knowledge: request.inbox_knowledge.clone(),
+            inbox_visual: request.inbox_visual.clone(),
             inbox_source: request.inbox_source.clone(),
             action_changes: request.action_changes.clone(),
             id: request.id,

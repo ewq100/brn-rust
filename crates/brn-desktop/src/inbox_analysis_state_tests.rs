@@ -240,6 +240,7 @@ fn submit(state: &mut AiState) -> InboxActionRequest {
 pub(crate) fn symbolic_analysis(request: &InboxActionRequest) -> InboxActionAnalysis {
     let job = InboxActionJob {
         capture: InboxActionCapture {
+            visual_asset: None,
             purpose: request.purpose,
             id: request.id,
             conversation: request.conversation,
@@ -284,6 +285,7 @@ fn group_review(worker: &AppWorker, request: &InboxActionRequest) -> ProposalRec
         (
             Uuid::new_v4(),
             AppCommand::CreateProposal(DraftRequest {
+                inbox_visual: None,
                 inbox_knowledge: None,
                 inbox_source: None,
                 id: Uuid::new_v4(),

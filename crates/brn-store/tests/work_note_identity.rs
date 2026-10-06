@@ -23,6 +23,7 @@ fn draft(create: &str, replace: &str) -> ProposalDraft {
     };
     let original = "\u{feff}Original 日本語\r\n";
     ProposalDraft {
+        inbox_visual: None,
         inbox_knowledge: None,
         inbox_source: None,
         id: Uuid::new_v4(),

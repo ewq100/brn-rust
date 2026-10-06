@@ -2789,7 +2789,9 @@ impl AiState {
             AppEvent::TurnCancelRequested { .. }
             | AppEvent::AccountCancelRequested { .. }
             | AppEvent::ModelCancelRequested { .. } => return commands,
-            AppEvent::ProposalRewrite(_) | AppEvent::InboxActionAnalysis(_) => return commands,
+            AppEvent::ProposalRewrite(_)
+            | AppEvent::InboxActionAnalysis(_)
+            | AppEvent::InboxVisualDraft(_) => return commands,
             AppEvent::Rewrite(_) => unreachable!(),
             AppEvent::Chat(_)
             | AppEvent::Account(_)

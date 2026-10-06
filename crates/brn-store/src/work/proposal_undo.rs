@@ -203,6 +203,7 @@ fn derive(conn: &Connection, request: &UndoRequest) -> Result<UndoPreview> {
         title.truncate(end);
     }
     let draft = ProposalDraft {
+        inbox_visual: None,
         inbox_knowledge: None,
         inbox_source: None,
         id: request.operation_id,

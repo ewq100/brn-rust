@@ -198,6 +198,7 @@ impl App {
             });
         }
         let request = DraftRequest {
+            inbox_visual: None,
             inbox_knowledge: Some(Box::new(InboxKnowledgeBinding {
                 supersedes,
                 analysis_id: job.capture.id,
