@@ -27,8 +27,14 @@ Full frozen V1 goal confirmed **active** by `get_goal` on 2026-10-06; no token b
   `d9f5f928c2d9551e2ee8fd95af892101c1864a5a`; evidence documentation follows.
   Fresh exact binary observation and a bounded pure converter feed the existing
   processing/Source proposal path. Complete review's underline-paint/nesting
-  findings are fixed; focused parser/Workflow/client gates pass. Full shared/native
-  verification, exact-head CI and normal integration are next. Generic ZIP
+  findings are fixed; complete/correction reviews are clean. Clean qualification
+  commit `c53b408719ab2aef64612bc0a9e019663d558be1`, tree
+  `8d1673cce3aae467016d7a50040143570190c76f`, passed full shared1,557/0/14
+  +52 fixtures (08:01:51–08:16:08UTC) and native301 Desktop/0/0,
+  371 Workflow/models/0/12,15 Retrieval/0/0 (08:03:15–08:13:58UTC), strict
+  feature Clippy, shipping builds and two actual AppWorker startup/restarts.
+  Documentation-only evidence follows; exact-head CI and normal integration are
+  next. Generic ZIP
   ingestion is excluded; unsupported meaningful content refuses;
   visuals, PDF/PowerPoint/URLs and meaningful Office cleanup remain later Stage8 work.
 - **Pending:** native GUI/live/real-model/owner acceptance, residual startup/backup

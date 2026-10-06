@@ -10,7 +10,9 @@ and ordinary assets are integrated. Independent reviews, full shared1,513/0/14
 passed; exact main CI also passed applicable checks, retaining known platform
 failures. Evidence is in the [Stage8 plan](../office-inbox/plan.md). Bounded DOCX
 Source conversion is implemented within the existing processing/proposal family;
-review findings are fixed and full qualification/integration is next. Native/live/owner acceptance,
+review findings are fixed and clean c53b408 full shared1,557/0/14+52 and
+native687/0/12 qualification passed. Exact-head CI/integration is next.
+Native/live/owner acceptance,
 residual startup/backup cost and trusted-user packaging remain unfinished.
 The [resumable checkpoint](../../../development/checkpoint.md) owns current
 navigation. Historical checkpoints/evidence below remain retained.

@@ -4,7 +4,7 @@
 Stage 5 knowledge and Stage 6 Actions/dashboard foundations are integrated,
 with native/live/owner qualification still open.
 Stage 7 text Inbox implementation is integrated with acceptance pending.
-Stage 8 binary retention and ordinary asset proposals are integrated; bounded DOCX Source conversion is implemented and undergoing qualification.
+Stage 8 binary retention and ordinary asset proposals are integrated; bounded DOCX Source conversion is implemented and locally qualified, with CI/integration pending.
 Stages 7–16 remain incomplete; complete V1
 delivery is not claimed.**
 
@@ -35,8 +35,11 @@ remain retained. The [Stage8 plan](work/active/office-inbox/plan.md#next-slice-b
 now defines bounded DOCX text/structure Source conversion. Its complete independent
 review found underline-paint loss and wide-numbered-list nesting defects; both
 were technically validated and fixed, with correction review clean. Focused
-parser/Workflow/client checks pass; full shared/native and exact-head CI/normal
-integration are still pending. ZIP is an internal DOCX container, with generic
+parser/Workflow/client checks pass. Clean c53b408/tree8d1673c passed full
+shared1,557/0/14+52 fixtures and native301 Desktop/0/0,371 Workflow/models/0/12,
+15 Retrieval/0/0, strict feature Clippy, shipping builds and two AppWorker
+startup/restarts. Exact-head CI/normal integration are pending.
+ZIP is an internal DOCX container, with generic
 archive ingestion excluded. Binary originals remain
 retained; Office visuals, broader conversion and binary cleanup are unimplemented.
 GUI/live/real-model/owner acceptance and full V1 delivery are not claimed.

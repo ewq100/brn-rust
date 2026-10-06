@@ -382,10 +382,32 @@ the existing Markdown parser's parent/child/grandchild/restart assertions.
 Focused default checks passed:25 pure parser tests,39 Store record/legacy/lifecycle
 tests,137 affected Workflow tests/0/6 documented ignores,13 focused DOCX Workflow,
 19 Desktop Inbox and14 owner CLI Inbox. Strict affected all-target Clippy and
-format pass. These receipts retain their actual commit/dirty identities; final
-full shared/native verification and exact-head CI/integration are still pending.
+format pass. These receipts retain their actual commit/dirty identities.
+
+Clean full qualification at commit `c53b408719ab2aef64612bc0a9e019663d558be1`,
+tree `8d1673cce3aae467016d7a50040143570190c76f`, passed with unchanged start/end
+identities and terminal exit0. Default `bash scripts/verify-end-to-end.sh`
+(08:01:51–08:16:08UTC) passed format, workspace build, strict all-target Clippy,
+1,557 tests/0/14 documented ignores and52 fixtures; log SHA256
+`796f2c7405c846548f1665b523d1e24674905c0ce7e0427667a92a8d2a70cf92`.
+Optional native qualification (08:03:15–08:13:58UTC) passed12 commands:
+combined check, strict Desktop native-ui/combined/test-support and Workflow
+native-retrieval Clippy; Retrieval15/0/0, Workflow/models371/0/12,
+Desktop301/0/0; shipping Desktop/CLI builds without test-support; two real
+AppWorker headless startup/restarts. Both full suites exercised the existing
+maximum16MiB asset recovery/Undo witness. Native log SHA256
+`3e940326ba244405844da70974894692c070141457b13fdb33c4d8e4c4b102af`.
+Atomic receipts/full logs are retained in the explicit evidence parent as
+`verify-end-to-end-10afm82d` and `docx-native-wycf1ern`; documentation-only updates
+follow this tested source. Exact latest-head CI/normal integration is next.
+
 All inputs are synthetic, locked/offline Rust1.98.1, canonical owned TMPDIR and
-separate targets. Native GUI/live/real-model/owner acceptance remains pending.
+separate targets. Native incremental compilation was disabled to bound disk use.
+Twelve native ignores cover ten private subprocess children exercised by parent
+tests and two explicit expensive historical aggregate witnesses. Unset model
+self-skips and the existing upstream block0.1.6 future-compiler warning remain
+limitations; no real ONNX/model/live/GUI qualification is claimed.
+Native GUI/live/real-model/owner acceptance remains pending.
 
 Failed runs are retained: restricted macOS coordination6failures resolved by the
 authorized native execution route; one fresh-SQL test incorrectly expected an
