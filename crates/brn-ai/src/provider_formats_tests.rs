@@ -3721,6 +3721,7 @@ mod action_read_tool_tests {
 
 mod action_proposal_tool_tests {
     use super::*;
+    use rig::tool::Tool;
     fn preamble(body: &Value, provider: Provider, responses: bool) -> String {
         if provider == Provider::Chatgpt {
             body["instructions"].as_str().unwrap().to_owned()
@@ -3843,6 +3844,14 @@ mod action_proposal_tool_tests {
                 .iter()
                 .find(|t| t["name"] == "propose_actions")
                 .unwrap();
+            // The exact emitted schema reaches each route without references.
+            // Routes may reorder set-valued keywords such as `required`.
+            use crate::proposal_tools::{ProposeActions, tests::canonical};
+            assert_eq!(
+                canonical(&proposal["parameters"]),
+                canonical(&ProposeActions(tools.clone()).parameters())
+            );
+            assert!(!proposal["parameters"].to_string().contains("\"$ref\""));
             assert_eq!(proposal["parameters"]["additionalProperties"], false);
             let mut required = proposal["parameters"]["required"]
                 .as_array()
