@@ -511,3 +511,658 @@ fn docx_malformed_actual_package_failure_is_durable_and_never_has_a_candidate() 
     assert_eq!(app.process_inbox(&process).unwrap(), terminal);
     assert!(app.proposals(None).unwrap().is_empty());
 }
+
+// Fixed ZIP32 timestamps/order; actual OOXML relationship/drawing and complete
+// 1x1 RGBA PNG. Stored and Deflate packages contain identical original wording.
+const VISUAL_DOCX: &[u8] = include_bytes!("fixtures/inline-png.docx");
+const VISUAL_DEFLATE: &[u8] = include_bytes!("fixtures/inline-png-deflate.docx");
+const INLINE_PNG: &[u8] = include_bytes!("fixtures/inline.png");
+const ALTERNATE_PNG: &[u8] = include_bytes!("fixtures/alternate-inline.png");
+const VISUAL_PATH: &str = "sources/visual.md";
+
+impl Fixture {
+    fn prepare_visual(
+        &self,
+        app: &mut App,
+        bytes: &[u8],
+    ) -> (crate::inbox::InboxItem, DraftRequest) {
+        fs::create_dir_all(self.vault.join("sources")).unwrap();
+        let (item, process) = self.queue(app, bytes);
+        let terminal = app
+            .advance_inbox_processing(process.id, &AtomicBool::new(false))
+            .unwrap();
+        assert!(matches!(
+            terminal.entries[0].outcome,
+            InboxProcessOutcome::Converted {
+                format: InboxConversionFormat::DocxInlinePngV1,
+                ..
+            }
+        ));
+        assert_eq!(app.process_inbox(&process).unwrap(), terminal);
+        let candidate = InboxCandidateRequest {
+            batch_id: process.id,
+            index: 0,
+        };
+        let preview = app.inbox_candidate(&candidate).unwrap();
+        preview.validate_receipt(&terminal).unwrap();
+        assert!(preview.needs_semantic_review);
+        let visual = preview.visual.as_ref().unwrap();
+        assert_eq!(visual.bytes, INLINE_PNG);
+        assert_eq!((visual.proof.width, visual.proof.height), (1, 1));
+        assert_eq!(visual.proof.byte_len, INLINE_PNG.len() as u64);
+        assert_eq!(visual.proof.sha256, digest(INLINE_PNG));
+        assert_eq!(visual.proof.part_name, "word/media/picture.png");
+        assert_eq!(visual.proof.relationship_id, "image1");
+        assert_eq!(visual.proof.alt_text.as_deref(), Some("A & [B] 日本語"));
+        assert_eq!(visual.proof.title.as_deref(), Some("T \"Q\" <tag>"));
+        let markup = format!(
+            r#"![A &amp; \[B\] 日本語]({} "T &quot;Q&quot; &lt;tag&gt;")"#,
+            visual.proof.asset_name
+        );
+        assert_eq!(
+            preview.markdown,
+            format!("First õ 日本語\n\nBefore õ{markup}After\n\nExact caption and last\n")
+        );
+        assert_eq!(
+            &preview.markdown[visual.proof.image_start..visual.proof.image_end],
+            markup
+        );
+        let request = InboxSourceRequest {
+            candidate,
+            proposal_id: Uuid::new_v4(),
+            note_id: Uuid::new_v4(),
+            path: VISUAL_PATH.into(),
+            title: "Whole original and visual Source review".into(),
+        };
+        let draft = app.prepare_inbox_source(&request).unwrap();
+        request.validate_draft(&draft).unwrap();
+        let binding = draft.inbox_source.as_ref().unwrap();
+        assert_eq!(binding.original, item);
+        assert_eq!(binding.visual.as_ref(), Some(&visual.proof));
+        assert_eq!(binding.byte_len, preview.markdown.len() as u64);
+        assert_eq!(binding.sha256, digest(preview.markdown.as_bytes()));
+        let (text, asset, payload) = visual_members(&draft);
+        assert_eq!(text, binding.markdown(&preview.markdown).unwrap());
+        assert_eq!(payload, INLINE_PNG);
+        assert_eq!(asset, format!("sources/{}", visual.proof.asset_name));
+        assert!(!self.vault.join(VISUAL_PATH).exists());
+        assert!(!self.vault.join(asset).exists());
+        assert_eq!(fs::read(original(&item)).unwrap(), bytes);
+        (item, draft)
+    }
+    fn crash_visual(&self, phase: &str, member: usize, mode: &str) {
+        let _guard = crate::SUBPROCESS_FIXTURES.lock().unwrap();
+        let output = std::process::Command::new(std::env::current_exe().unwrap())
+            .args([
+                "--exact",
+                "inbox_processing::docx_tests::docx_visual_crash_child",
+                "--ignored",
+                "--test-threads=1",
+            ])
+            .env("BRN_DOCX_VISUAL_TEST_BASE", self._owner.path())
+            .env("BRN_DOCX_VISUAL_TEST_PHASE", phase)
+            .env("BRN_DOCX_VISUAL_TEST_MEMBER", member.to_string())
+            .env("BRN_DOCX_VISUAL_TEST_MODE", mode)
+            .output()
+            .unwrap();
+        assert_eq!(
+            output.status.code(),
+            Some(86),
+            "{phase}/{member}/{mode}: {} {}",
+            String::from_utf8_lossy(&output.stdout),
+            String::from_utf8_lossy(&output.stderr)
+        );
+    }
+    fn assert_visual(&self, draft: &DraftRequest, installed: bool) {
+        let (text, asset, bytes) = visual_members(draft);
+        if installed {
+            assert_eq!(
+                fs::read(self.vault.join(VISUAL_PATH)).unwrap(),
+                text.as_bytes()
+            );
+            assert_eq!(fs::read(self.vault.join(asset)).unwrap(), bytes);
+        } else {
+            assert!(!self.vault.join(VISUAL_PATH).exists());
+            assert!(!self.vault.join(asset).exists());
+        }
+    }
+}
+fn visual_members(draft: &DraftRequest) -> (&str, &str, &[u8]) {
+    let [
+        DraftNoteChange::Create { path, text },
+        DraftNoteChange::CreateAsset { path: asset, bytes },
+    ] = draft.changes.as_slice()
+    else {
+        panic!("one exact Source Create plus one ordinary asset Create");
+    };
+    assert_eq!(path, VISUAL_PATH);
+    (text, asset, bytes)
+}
+fn visual_approval(app: &mut App, draft: &DraftRequest) -> ApprovalRequest {
+    let record = app.create_proposal(draft).unwrap();
+    ApprovalRequest {
+        operation_id: Uuid::new_v4(),
+        expected: record.stamp(),
+    }
+}
+fn visual_request_file(f: &Fixture, name: &str, request: &impl serde::Serialize) {
+    fs::write(
+        f._owner.path().join(name),
+        serde_json::to_vec(request).unwrap(),
+    )
+    .unwrap();
+}
+
+#[test]
+fn docx_visual_source_and_asset_require_whole_exact_approval_and_keep_original_provenance() {
+    for package in [VISUAL_DOCX, VISUAL_DEFLATE] {
+        let f = Fixture::new();
+        let mut app = f.app();
+        let (item, draft) = f.prepare_visual(&mut app, package);
+        let original_inode = original(&item).metadata().unwrap().ino();
+        let approval = visual_approval(&mut app, &draft);
+        f.assert_visual(&draft, false);
+        let mut stale = approval.clone();
+        stale.operation_id = Uuid::new_v4();
+        stale.expected.version += 1;
+        assert!(app.approve_proposal(&stale).is_err());
+        f.assert_visual(&draft, false);
+        let receipt = app.approve_proposal(&approval).unwrap();
+        assert_eq!(receipt.outcome, ApplyOutcome::Applied);
+        assert_eq!(app.approve_proposal(&approval).unwrap(), receipt);
+        f.assert_visual(&draft, true);
+        let source = app.proposal_evidence_source(VISUAL_PATH).unwrap();
+        let asset = app.proposal_asset(visual_members(&draft).1).unwrap();
+        assert_eq!(source.text, visual_members(&draft).0);
+        assert_eq!(asset.fingerprint.sha256, digest(INLINE_PNG));
+        assert_eq!(
+            app.note_provenance(VISUAL_PATH).unwrap().inbox_source,
+            Some(draft.inbox_source.as_ref().unwrap().provenance())
+        );
+        assert_eq!(fs::read(original(&item)).unwrap(), package);
+        assert_eq!(original(&item).metadata().unwrap().ino(), original_inode);
+        assert!(app.preview_inbox_removal(item.capture.id).is_err());
+        assert!(
+            app.inbox_original_operations(item.capture.id)
+                .unwrap()
+                .is_empty()
+        );
+        drop(app);
+        let mut app = f.app();
+        assert_eq!(app.approve_proposal(&approval).unwrap(), receipt);
+        assert_eq!(app.proposal_asset(visual_members(&draft).1).unwrap(), asset);
+        assert_eq!(
+            app.proposal_evidence_source(VISUAL_PATH).unwrap().source,
+            source.source
+        );
+        f.assert_visual(&draft, true);
+    }
+}
+
+#[test]
+fn docx_visual_self_consistent_forged_metadata_body_and_payload_are_not_original_authority() {
+    for forgery in 0..5 {
+        let f = Fixture::new();
+        let mut app = f.app();
+        let (item, mut draft) = f.prepare_visual(&mut app, VISUAL_DOCX);
+        let binding = draft.inbox_source.as_mut().unwrap();
+        let mut converted = brn_store::work::inbox_source::convert_docx_source(
+            VISUAL_DOCX,
+            &AtomicBool::new(false),
+        )
+        .unwrap()
+        .body;
+        let visual = binding.visual.as_mut().unwrap();
+        match forgery {
+            0 => visual.part_name = "word/media/other.png".into(),
+            1 => visual.relationship_id = "differentRelationship".into(),
+            2 => {
+                visual.sha256 = digest(ALTERNATE_PNG);
+                visual.byte_len = ALTERNATE_PNG.len() as u64;
+                let DraftNoteChange::CreateAsset { bytes, .. } = &mut draft.changes[1] else {
+                    panic!("asset");
+                };
+                *bytes = ALTERNATE_PNG.to_vec();
+            }
+            3 => {
+                converted = converted.replacen("First", "Invented", 1);
+                visual.image_start += 3;
+                visual.image_end += 3;
+            }
+            _ => {
+                visual.alt_text = Some("Forged & [B] 日本語".into());
+                converted = converted.replacen("A &amp;", "Forged &amp;", 1);
+                visual.image_end += 5;
+            }
+        }
+        binding.byte_len = converted.len() as u64;
+        binding.sha256 = digest(converted.as_bytes());
+        visual.converted_byte_len = binding.byte_len;
+        visual.converted_sha256 = binding.sha256;
+        let text = binding.markdown(&converted).unwrap();
+        let DraftNoteChange::Create {
+            text: candidate, ..
+        } = &mut draft.changes[0]
+        else {
+            panic!("Source");
+        };
+        *candidate = text;
+        draft.validate().unwrap(); // Pure complete hashes/shapes must not confer freshness.
+        assert_eq!(
+            app.create_proposal(&draft).unwrap_err().kind,
+            ErrorKind::ContextStale,
+            "{forgery}"
+        );
+        assert!(app.proposals(None).unwrap().is_empty());
+        f.assert_visual(&draft, false);
+        assert_eq!(fs::read(original(&item)).unwrap(), VISUAL_DOCX);
+    }
+    for alias in [
+        "sources/../image.png",
+        "other/image.png",
+        "sources/image.png",
+    ] {
+        let f = Fixture::new();
+        let mut app = f.app();
+        let (_, mut draft) = f.prepare_visual(&mut app, VISUAL_DOCX);
+        let DraftNoteChange::CreateAsset { path, .. } = &mut draft.changes[1] else {
+            panic!("asset");
+        };
+        *path = alias.into();
+        assert!(draft.validate().is_err());
+        assert!(app.create_proposal(&draft).is_err());
+        assert!(app.proposals(None).unwrap().is_empty());
+        assert!(!f.vault.join(VISUAL_PATH).exists());
+    }
+}
+
+#[test]
+fn docx_visual_original_damage_and_asset_occupancy_refuse_before_effects_and_at_late_checks() {
+    for damage in 0..5 {
+        let f = Fixture::new();
+        let mut app = f.app();
+        let (item, draft) = f.prepare_visual(&mut app, VISUAL_DOCX);
+        let approval = visual_approval(&mut app, &draft);
+        let path = original(&item);
+        match damage {
+            0 => fs::remove_file(&path).unwrap(),
+            1 => private_write(&path, b"changed original"),
+            2 => {
+                fs::rename(&path, path.with_extension("kept")).unwrap();
+                private_write(&path, VISUAL_DOCX);
+            }
+            3 => fs::hard_link(&path, path.with_extension("alias")).unwrap(),
+            _ => fs::set_permissions(&path, fs::Permissions::from_mode(0o644)).unwrap(),
+        }
+        assert_eq!(
+            app.approve_proposal(&approval).unwrap_err().kind,
+            ErrorKind::ContextStale
+        );
+        f.assert_visual(&draft, false);
+        assert!(
+            app.create_proposal(&draft).is_ok(),
+            "historical draft replay does not re-convert"
+        );
+    }
+    for same_bytes in [false, true] {
+        let f = Fixture::new();
+        let mut app = f.app();
+        let (item, draft) = f.prepare_visual(&mut app, VISUAL_DOCX);
+        let approval = visual_approval(&mut app, &draft);
+        let source = f.vault.join(VISUAL_PATH);
+        let occupant = if same_bytes {
+            visual_members(&draft).0.as_bytes()
+        } else {
+            b"Unrelated Source occupant"
+        };
+        fs::write(&source, occupant).unwrap();
+        let inode = source.metadata().unwrap().ino();
+        assert!(app.approve_proposal(&approval).is_err());
+        assert_eq!(fs::read(&source).unwrap(), occupant);
+        assert_eq!(source.metadata().unwrap().ino(), inode);
+        assert!(!f.vault.join(visual_members(&draft).1).exists());
+        assert_eq!(fs::read(original(&item)).unwrap(), VISUAL_DOCX);
+    }
+    for phase in ["before-admission", "prepared", "member"] {
+        let f = Fixture::new();
+        let mut app = f.app();
+        let (item, draft) = f.prepare_visual(&mut app, VISUAL_DOCX);
+        let approval = visual_approval(&mut app, &draft);
+        let asset = f.vault.join(visual_members(&draft).1);
+        let inode = std::sync::Arc::new(std::sync::atomic::AtomicU64::new(0));
+        if phase == "before-admission" {
+            fs::write(&asset, INLINE_PNG).unwrap(); // Equal bytes still belong to another occupant.
+            inode.store(
+                asset.metadata().unwrap().ino(),
+                std::sync::atomic::Ordering::SeqCst,
+            );
+        } else {
+            let occupant = asset.clone();
+            let observed_inode = inode.clone();
+            crate::proposal_apply::APPLY_HOOK.with(|hook| {
+                *hook.borrow_mut() = Some(Box::new(move |step, member| {
+                    if step == phase && member == 0 {
+                        fs::write(&occupant, INLINE_PNG).unwrap();
+                        observed_inode.store(
+                            occupant.metadata().unwrap().ino(),
+                            std::sync::atomic::Ordering::SeqCst,
+                        );
+                    }
+                }));
+            });
+        }
+        assert!(app.approve_proposal(&approval).is_err(), "{phase}");
+        crate::proposal_apply::APPLY_HOOK.with(|hook| *hook.borrow_mut() = None);
+        assert_eq!(fs::read(&asset).unwrap(), INLINE_PNG);
+        assert_eq!(
+            asset.metadata().unwrap().ino(),
+            inode.load(std::sync::atomic::Ordering::SeqCst)
+        );
+        assert_eq!(f.vault.join(VISUAL_PATH).exists(), phase == "member");
+        assert_eq!(fs::read(original(&item)).unwrap(), VISUAL_DOCX);
+        if phase != "before-admission" {
+            let outcome = app
+                .work_store()
+                .proposal_apply(approval.operation_id)
+                .unwrap()
+                .unwrap()
+                .receipt
+                .unwrap()
+                .outcome;
+            assert_eq!(
+                outcome,
+                if phase == "member" {
+                    ApplyOutcome::Uncertain
+                } else {
+                    ApplyOutcome::NotApplied
+                }
+            );
+            drop(app);
+            let mut app = f.app();
+            assert_eq!(
+                app.reconcile_proposal(approval.operation_id)
+                    .unwrap()
+                    .outcome,
+                outcome
+            );
+            assert_eq!(fs::read(&asset).unwrap(), INLINE_PNG);
+            assert_eq!(
+                asset.metadata().unwrap().ino(),
+                inode.load(std::sync::atomic::Ordering::SeqCst)
+            );
+        }
+    }
+    for (phase, member) in [("prepared", 0), ("member", 0), ("member", 1)] {
+        let f = Fixture::new();
+        let mut app = f.app();
+        let (item, draft) = f.prepare_visual(&mut app, VISUAL_DOCX);
+        let approval = visual_approval(&mut app, &draft);
+        let path = original(&item);
+        crate::proposal_apply::APPLY_HOOK.with(|hook| {
+            *hook.borrow_mut() = Some(Box::new(move |step, index| {
+                if step == phase && index == member {
+                    fs::remove_file(&path).unwrap();
+                }
+            }));
+        });
+        assert!(app.approve_proposal(&approval).is_err());
+        crate::proposal_apply::APPLY_HOOK.with(|hook| *hook.borrow_mut() = None);
+        let outcome = app
+            .work_store()
+            .proposal_apply(approval.operation_id)
+            .unwrap()
+            .unwrap()
+            .receipt
+            .unwrap()
+            .outcome;
+        assert_eq!(
+            outcome,
+            if phase == "prepared" {
+                ApplyOutcome::NotApplied
+            } else {
+                ApplyOutcome::Uncertain
+            }
+        );
+        assert_eq!(f.vault.join(VISUAL_PATH).exists(), phase == "member");
+        assert_eq!(
+            f.vault.join(visual_members(&draft).1).exists(),
+            phase == "member" && member == 1
+        );
+    }
+}
+
+#[test]
+#[ignore = "private subprocess entry exercised by genuine visual Source apply/repair/Undo"]
+fn docx_visual_crash_child() {
+    let base = PathBuf::from(std::env::var_os("BRN_DOCX_VISUAL_TEST_BASE").unwrap());
+    let phase = std::env::var("BRN_DOCX_VISUAL_TEST_PHASE").unwrap();
+    let member: usize = std::env::var("BRN_DOCX_VISUAL_TEST_MEMBER")
+        .unwrap()
+        .parse()
+        .unwrap();
+    let mut app = App::open(
+        &base.join("data"),
+        AppConfig {
+            vault_root: Some(base.join("vault")),
+            credentials_dir: None,
+            model_dir: None,
+        },
+    )
+    .unwrap();
+    crate::proposal_apply::APPLY_HOOK.with(|hook| {
+        *hook.borrow_mut() = Some(Box::new(move |step, index| {
+            if step == phase && index == member {
+                std::process::exit(86);
+            }
+        }));
+    });
+    match std::env::var("BRN_DOCX_VISUAL_TEST_MODE").unwrap().as_str() {
+        "apply" => {
+            let request =
+                serde_json::from_slice(&fs::read(base.join("visual-approval.json")).unwrap())
+                    .unwrap();
+            app.approve_proposal(&request).unwrap();
+        }
+        "undo" => {
+            let request =
+                serde_json::from_slice(&fs::read(base.join("visual-undo.json")).unwrap()).unwrap();
+            app.undo_proposal(&request).unwrap();
+        }
+        "repair" => {
+            let request =
+                serde_json::from_slice(&fs::read(base.join("visual-repair.json")).unwrap())
+                    .unwrap();
+            app.repair_proposal(&request).unwrap();
+        }
+        _ => panic!("private fixture mode"),
+    }
+    panic!("selected real mixed-family checkpoint not reached");
+}
+
+#[test]
+fn docx_visual_actual_crashes_finish_restore_and_interrupted_undo_keep_whole_endpoints() {
+    use crate::proposal_apply::{RepairDirection, RepairRequest, UndoRequest};
+    for (phase, member, expected) in [
+        ("prepared", 0, ApplyOutcome::NotApplied),
+        ("member", 0, ApplyOutcome::Uncertain),
+        ("member", 1, ApplyOutcome::Applied),
+        ("completion", 0, ApplyOutcome::Applied),
+    ] {
+        for direction in [RepairDirection::Finish, RepairDirection::Restore] {
+            let f = Fixture::new();
+            let mut app = f.app();
+            let (item, draft) = f.prepare_visual(&mut app, VISUAL_DOCX);
+            let approval = visual_approval(&mut app, &draft);
+            visual_request_file(&f, "visual-approval.json", &approval);
+            drop(app);
+            f.crash_visual(phase, member, "apply");
+            let mut app = f.app();
+            let receipt = app.reconcile_proposal(approval.operation_id).unwrap();
+            assert_eq!(receipt.outcome, expected, "{phase}/{member}");
+            assert_eq!(app.approve_proposal(&approval).unwrap(), receipt);
+            let installed = if expected == ApplyOutcome::Uncertain {
+                assert!(app.tools().is_err());
+                let preview = app.preview_proposal_repair(approval.operation_id).unwrap();
+                let repair = RepairRequest {
+                    id: Uuid::new_v4(),
+                    operation_id: approval.operation_id,
+                    expected: preview.expected,
+                    direction,
+                };
+                let repaired = app.repair_proposal(&repair).unwrap();
+                assert_eq!(app.repair_proposal(&repair).unwrap(), repaired);
+                direction == RepairDirection::Finish
+            } else {
+                expected == ApplyOutcome::Applied
+            };
+            f.assert_visual(&draft, installed);
+            assert_eq!(fs::read(original(&item)).unwrap(), VISUAL_DOCX);
+            assert!(app.tools().is_ok());
+            if installed {
+                let undo = UndoRequest {
+                    operation_id: Uuid::new_v4(),
+                    target_operation_id: approval.operation_id,
+                    trash_member: None,
+                };
+                visual_request_file(&f, "visual-undo.json", &undo);
+                drop(app);
+                f.crash_visual("member", 0, "undo");
+                let mut app = f.app();
+                assert_eq!(
+                    app.reconcile_proposal(undo.operation_id).unwrap().outcome,
+                    ApplyOutcome::Uncertain
+                );
+                let preview = app.preview_proposal_repair(undo.operation_id).unwrap();
+                let repair = RepairRequest {
+                    id: Uuid::new_v4(),
+                    operation_id: undo.operation_id,
+                    expected: preview.expected,
+                    direction: RepairDirection::Finish,
+                };
+                assert_eq!(
+                    app.repair_proposal(&repair).unwrap().outcome,
+                    Some(ApplyOutcome::Applied)
+                );
+                f.assert_visual(&draft, false);
+                assert_eq!(fs::read(original(&item)).unwrap(), VISUAL_DOCX);
+            }
+        }
+    }
+}
+
+#[test]
+fn docx_visual_terminal_older_and_fresh_sql_replay_do_not_resurrect_undone_files_or_original() {
+    use crate::proposal_apply::UndoRequest;
+    for fresh in [false, true] {
+        let f = Fixture::new();
+        let mut app = f.app();
+        let (item, draft) = f.prepare_visual(&mut app, VISUAL_DOCX);
+        let approval = visual_approval(&mut app, &draft);
+        drop(app);
+        let earlier = fs::read(f.data.join("brn.sqlite")).unwrap();
+        let mut app = f.app();
+        let applied = app.approve_proposal(&approval).unwrap();
+        assert_eq!(applied.outcome, ApplyOutcome::Applied);
+        let asset = app.proposal_asset(visual_members(&draft).1).unwrap();
+        drop(app);
+        fs::write(f.data.join("brn.sqlite"), &earlier).unwrap();
+        let mut app = f.app();
+        assert_eq!(app.approve_proposal(&approval).unwrap(), applied);
+        assert_eq!(app.proposal_asset(visual_members(&draft).1).unwrap(), asset);
+        f.assert_visual(&draft, true);
+        let undo = UndoRequest {
+            operation_id: Uuid::new_v4(),
+            target_operation_id: approval.operation_id,
+            trash_member: None,
+        };
+        let undone = app.undo_proposal(&undo).unwrap();
+        assert_eq!(undone.outcome, ApplyOutcome::Applied);
+        f.assert_visual(&draft, false);
+        drop(app);
+        fs::remove_file(original(&item)).unwrap();
+        if fresh {
+            fs::remove_file(f.data.join("brn.sqlite")).unwrap();
+            fs::remove_dir_all(f.data.join("backups")).unwrap();
+        } else {
+            fs::write(f.data.join("brn.sqlite"), earlier).unwrap();
+        }
+        let mut app = f.app();
+        assert_eq!(app.approve_proposal(&approval).unwrap(), applied);
+        assert_eq!(app.undo_proposal(&undo).unwrap(), undone);
+        assert_eq!(
+            app.create_proposal(&draft).unwrap().draft.inbox_source,
+            draft.inbox_source
+        );
+        f.assert_visual(&draft, false);
+        assert!(!original(&item).exists());
+    }
+}
+
+#[test]
+fn docx_visual_interrupted_finish_and_restore_resume_exact_owned_members() {
+    use crate::proposal_apply::{RepairDirection, RepairRequest};
+    for direction in [RepairDirection::Finish, RepairDirection::Restore] {
+        for phase in ["repair-member", "repair-synced"] {
+            let f = Fixture::new();
+            let mut app = f.app();
+            let (item, draft) = f.prepare_visual(&mut app, VISUAL_DOCX);
+            let approval = visual_approval(&mut app, &draft);
+            visual_request_file(&f, "visual-approval.json", &approval);
+            drop(app);
+            f.crash_visual("member", 0, "apply");
+            let mut app = f.app();
+            assert_eq!(
+                app.reconcile_proposal(approval.operation_id)
+                    .unwrap()
+                    .outcome,
+                ApplyOutcome::Uncertain
+            );
+            let preview = app.preview_proposal_repair(approval.operation_id).unwrap();
+            let repair = RepairRequest {
+                id: Uuid::new_v4(),
+                operation_id: approval.operation_id,
+                expected: preview.expected,
+                direction,
+            };
+            visual_request_file(&f, "visual-repair.json", &repair);
+            drop(app);
+            let member = if phase == "repair-member" && direction == RepairDirection::Restore {
+                0
+            } else {
+                1
+            };
+            f.crash_visual(phase, member, "repair");
+            let mut app = f.app();
+            let settled = app.reconcile_proposal(approval.operation_id).unwrap();
+            if settled.outcome == ApplyOutcome::Uncertain {
+                let preview = app.preview_proposal_repair(approval.operation_id).unwrap();
+                let resume = RepairRequest {
+                    id: Uuid::new_v4(),
+                    operation_id: approval.operation_id,
+                    expected: preview.expected,
+                    direction,
+                };
+                let result = app.repair_proposal(&resume).unwrap();
+                assert_eq!(app.repair_proposal(&resume).unwrap(), result);
+            }
+            let installed = direction == RepairDirection::Finish;
+            f.assert_visual(&draft, installed);
+            assert_eq!(
+                app.reconcile_proposal(approval.operation_id)
+                    .unwrap()
+                    .outcome,
+                if installed {
+                    ApplyOutcome::Applied
+                } else {
+                    ApplyOutcome::NotApplied
+                }
+            );
+            assert_eq!(fs::read(original(&item)).unwrap(), VISUAL_DOCX);
+            assert!(app.tools().is_ok());
+            drop(app);
+            let app = f.app();
+            f.assert_visual(&draft, installed);
+            assert!(app.tools().is_ok());
+        }
+    }
+}
