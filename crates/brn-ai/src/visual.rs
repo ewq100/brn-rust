@@ -109,11 +109,10 @@ fn require_natural_finish(
 ) -> Result<MultiTurnStreamItem, StreamingError> {
     match item {
         Ok(MultiTurnStreamItem::FinalResponse(ref response))
-            if response.completion_calls.last().is_some_and(|call| {
-                call.finish_reason
-                    .as_ref()
-                    .is_some_and(|reason| *reason != FinishReason::Stop)
-            }) =>
+            if !response
+                .completion_calls
+                .last()
+                .is_some_and(|call| call.finish_reason.as_ref() == Some(&FinishReason::Stop)) =>
         {
             Err(StreamingError::Completion(
                 rig::error::ProviderError::Response(

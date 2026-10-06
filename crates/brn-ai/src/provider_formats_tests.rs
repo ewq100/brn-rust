@@ -322,6 +322,29 @@ mod visual_tests {
     }
 
     #[tokio::test]
+    async fn visual_missing_known_finish_rejects_complete_json_and_done_without_retry() {
+        let original = text_sse(false, OUTPUT);
+        let first = original.split("\n\n").next().unwrap();
+        let sse = format!("{first}\n\ndata: [DONE]\n\n");
+        assert!(!sse.contains("\"finish_reason\":\"stop\""));
+        let (_root, client, http) = client(Provider::Copilot, "gpt-5.5", vec![success(sse)]).await;
+        let answer = run(
+            client,
+            "captured",
+            ReasoningEffort::Low,
+            CancellationToken::new(),
+        )
+        .await;
+        assert!(
+            matches!(answer.terminal, AiTerminal::Failed(_)),
+            "{answer:?}"
+        );
+        assert!(answer.text.is_empty());
+        assert_eq!(http.bodies().len(), 1);
+        http.assert_consumed();
+    }
+
+    #[tokio::test]
     async fn visual_nonstop_provider_finish_rejects_even_complete_json_without_retry() {
         for (provider, model, responses) in ROUTES {
             for reason in ["max_output_tokens", "content_filter", "synthetic_unknown"] {
