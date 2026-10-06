@@ -63,6 +63,7 @@ adds [H1/H2 specs](preparation-checkpoint/next-specs.md), [remaining V1 map](pre
 [product glossary](../../product/glossary.md) and the proposed
 [hybrid design](https://github.com/ewq100/product-to-production/blob/docs/hybrid-workflow-design/docs/hybrid-workflow.md).
 No dependency replacement, evaluation, skill installation or product slice was run.
+Preparation is pushed on `codex/preparation-checkpoint` as [PR79](https://github.com/ewq100/brn-rust/pull/79), OPEN/unmerged with its own final-head CI pending at publication; [evidence](preparation-checkpoint/evidence.md#publication-checkpoint) owns candidate/branch/qualification state.
 
 GUI qualification is explicitly deferred by the owner, not a failed automated
 gate. On a later unlocked Mac and explicit selection, recreate a synthetic genuine
