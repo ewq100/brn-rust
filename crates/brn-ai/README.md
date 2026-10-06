@@ -303,6 +303,12 @@ unresolved/stale-answer instructions; live model compliance remains unqualified.
 Invalid scope/type/extra arguments invoke no underlying read. Rig may return its
 parse diagnostic transiently to the model that generated the invalid argument;
 local progress still exposes only allowlisted tool names and typed BRN errors.
+BRN's repository-owned exact Rig0.43.0 [safety patch](../../vendor/README.md)
+removes one unconditional dependency stderr print before invalid-tool hooks.
+All three synthetic provider routes retain InvalidToolUse/no dispatch/no retry;
+a child-process regression checks private arguments and prior partial text never
+reach stderr. This does not authorize verbose upstream tracing or establish a
+general provider logging guarantee.
 
 History is limited to the last 20 earlier `HistoryPair` values, converted to
 text-only user/assistant messages. Empty assistant text is omitted on the wire

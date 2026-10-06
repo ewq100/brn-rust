@@ -111,6 +111,39 @@ class MarkdownTests(unittest.TestCase):
         self.assertEqual(len(links.check(self.root, [page])[0]), 1)
 
 
+    def test_retained_rig_vendor_outgoing_policy_is_exact_not_all_vendor(self):
+        upstream = self.root / 'vendor/rig-agent/README.md'
+        upstream.parent.mkdir(parents=True)
+        upstream.write_text('# Kept\n[upstream sibling](../rig-cassette/README.md)\n')
+        policy = self.root / 'vendor/README.md'
+        policy.write_text('[own bad](missing.md)\n')
+        other = self.root / 'vendor/rig-agent-other/README.md'
+        other.parent.mkdir()
+        other.write_text('[other bad](missing.md)\n')
+        subprocess.run(['git', 'init', '-q', str(self.root)], check=True)
+        current = links.current_paths(self.root)
+        self.assertEqual(current, {policy, other})
+        self.assertEqual(len(links.check(self.root, current)[0]), 2)
+        # Explicit all-path audit still reports the retained upstream defect.
+        self.assertEqual(len(links.check(self.root, [upstream])[0]), 1)
+
+    def test_retained_vendor_incoming_file_and_fragment_are_checked(self):
+        upstream = self.root / 'vendor/rig-agent/README.md'
+        upstream.parent.mkdir(parents=True)
+        upstream.write_text('# Kept\n[upstream sibling](../rig-cassette/README.md)\n')
+        page = self.root / 'README.md'
+        page.write_text('[ok](vendor/rig-agent/README.md#kept)\n'
+                        '[missing file](vendor/rig-agent/missing.md)\n'
+                        '[missing fragment](vendor/rig-agent/README.md#absent)\n')
+        subprocess.run(['git', 'init', '-q', str(self.root)], check=True)
+        self.assertEqual(links.current_paths(self.root), {page})
+        errors, count = links.check(self.root, links.current_paths(self.root))
+        self.assertEqual(count, 3)
+        self.assertEqual(len(errors), 2)
+        self.assertTrue(any('missing.md: missing file' in error for error in errors))
+        self.assertTrue(any('#absent: missing fragment' in error for error in errors))
+
+
 class CiTests(unittest.TestCase):
     def run_info(self, **updates):
         result = dict(id=12, run_attempt=2, head_sha='a'*40, event='pull_request', status='completed', conclusion='failure')

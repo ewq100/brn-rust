@@ -6342,8 +6342,6 @@ dependencies = [
 [[package]]
 name = "rig-agent"
 version = "0.43.0"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "eb11364e7ec4cb4cc20b7dda77a1963652baab01070f0ef2ac275aea3a6081f8"
 dependencies = [
  "async-stream",
  "futures",

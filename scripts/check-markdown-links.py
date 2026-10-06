@@ -18,6 +18,9 @@ HISTORICAL = (
     'docs/work/active/rig-first-reset/', 'docs/work/active/simple-rig-notes/',
     'docs/work/active/markdown-note-editing/', 'docs/work/active/ui-slice-2-chat-polish/',
 )
+# Exact upstream package bytes retain links to siblings outside the vendored copy.
+# BRN links into this retained third-party source are always checked.
+RETAINED_THIRD_PARTY = ('vendor/rig-agent/',)
 
 
 def without_fences(text):
@@ -181,19 +184,19 @@ def check(root, paths):
 def current_paths(root):
     names = subprocess.check_output(['git', '-C', str(root), 'ls-files', '--cached', '--others', '--exclude-standard', '-z']).split(b'\0')
     return {root / name.decode() for name in names if name.decode().endswith('.md')
-            and not name.decode().startswith(HISTORICAL)}
+            and not name.decode().startswith(HISTORICAL + RETAINED_THIRD_PARTY)}
 
 
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
-    parser.add_argument('--all', action='store_true', help='also audit outgoing historical links (never silently suppressed)')
+    parser.add_argument('--all', action='store_true', help='also audit outgoing historical and retained third-party links')
     opts = parser.parse_args()
     paths = current_paths(ROOT) if not opts.all else {ROOT / name.decode() for name in subprocess.check_output(
         ['git', '-C', str(ROOT), 'ls-files', '--cached', '--others', '--exclude-standard', '-z']).split(b'\0') if name.endswith(b'.md')}
     errors, count = check(ROOT, paths)
     for error in errors:
         print(error, file=sys.stderr)
-    print(f'Markdown links: {len(paths)} files, {count} local links, {len(errors)} failures; historical outgoing policy={"audit all" if opts.all else "explicit excluded prefixes"}')
+    print(f'Markdown links: {len(paths)} files, {count} local links, {len(errors)} failures; historical outgoing policy={"audit all" if opts.all else "explicit excluded prefixes"}; retained third-party outgoing policy={"audit all" if opts.all else "vendor/rig-agent/ only"}')
     return int(bool(errors))
 
 
