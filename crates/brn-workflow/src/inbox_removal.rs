@@ -907,6 +907,35 @@ mod tests {
         assert!(e.digest().is_err());
     }
     #[test]
+    fn qualified_source_preview_matches_the_lean_store_record_without_extra_admission_gates() {
+        use brn_store::work::inbox_original_operations::InboxQualifiedRemovalEvidence;
+
+        let mut f = Fixture::new();
+        f.source();
+        let preview = f.app.preview_inbox_removal(f.item).unwrap();
+        let encoded = serde_json::to_vec(&preview.evidence).unwrap();
+        let qualified: InboxQualifiedRemovalEvidence = serde_json::from_slice(&encoded).unwrap();
+        qualified.validate().unwrap();
+        assert_eq!(qualified.digest().unwrap(), preview.digest);
+        assert_eq!(serde_json::to_vec(&qualified).unwrap(), encoded);
+
+        let mut changed = serde_json::to_value(&qualified).unwrap();
+        changed["needs_owner_confirmation"] = serde_json::json!(false);
+        let changed: InboxQualifiedRemovalEvidence = serde_json::from_value(changed).unwrap();
+        assert!(changed.validate().is_err());
+
+        let mut f = Fixture::new();
+        let blocked = f.app.preview_inbox_removal(f.item).unwrap();
+        assert!(!blocked.evidence.blockers.is_empty());
+        assert!(
+            serde_json::from_value::<InboxQualifiedRemovalEvidence>(
+                serde_json::to_value(blocked.evidence).unwrap()
+            )
+            .is_err()
+        );
+    }
+
+    #[test]
     fn worst_case_escaped_original_and_sources_remain_complete_within_fixed_evidence_bound() {
         let mut f = Fixture::new();
         let text = "\u{0001}".repeat(crate::MAX_NOTE_BYTES - 4096);
@@ -930,5 +959,9 @@ mod tests {
         assert!(encoded.len() < MAX_PRESERVATION_EVIDENCE_BYTES);
         let replay: InboxRemovalEvidence = serde_json::from_slice(&encoded).unwrap();
         assert_eq!(replay.digest().unwrap(), preview.digest);
+        let qualified: brn_store::work::inbox_original_operations::InboxQualifiedRemovalEvidence =
+            serde_json::from_slice(&encoded).unwrap();
+        assert_eq!(qualified.digest().unwrap(), preview.digest);
+        assert_eq!(serde_json::to_vec(&qualified).unwrap(), encoded);
     }
 }

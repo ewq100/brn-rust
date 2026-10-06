@@ -522,8 +522,10 @@ fn upgrade_v13(restored: bool) {
     drop(store);
     let db = data.path().join("brn.sqlite");
     let raw = Connection::open(&db).unwrap();
-    raw.execute_batch("DROP TABLE inbox_original_operations; DROP TABLE inbox_actions; PRAGMA user_version=13;")
-        .unwrap();
+    raw.execute_batch(
+        "DROP TABLE inbox_original_operations; DROP TABLE inbox_actions; PRAGMA user_version=13;",
+    )
+    .unwrap();
     let backup = data.path().join("backups/brn-9999999999999.sqlite");
     if restored {
         raw.backup("main", &backup, None).unwrap();
