@@ -2,6 +2,45 @@
 
 Full frozen V1 goal confirmed **active** on2026-10-06, without a token budget.
 
+- **Integrated:** [PR70](https://github.com/ewq100/brn-rust/pull/70) at
+  `34e3601d00d1b251b995ba176a1714da28d371e6`, reviewed tree
+  `529acd9e4f073f90d14b7b3eccfdd51f96c9c28c`. AI read results retain saved hash,
+  managed identity, Source/History and explicit unknown/known conflict facts;
+  facts confer no truth, approval or filesystem authority. Native copy controls
+  retain approved Source preservation plus explicit confirmation.
+- **Verification:** complete/final reviews clean; shared1,448/0/10+52 and native
+  330 Workflow/models/0/9+292 Desktop/0/0,11commands/V15 restarts passed.
+  Exact2a4589b run37406761932 attempt1 passed four protected checks and Docs;
+  unchanged Windows22 failure remains. Fresh merged build/128 AI/3 scope/
+  10 conflict tests and52fixtures passed at unchanged clean identity.
+  Exact main70 run37407911967 attempt1 passed applicable checks; overall red
+  retains unchanged Windows22/22/14 and Linux3 assertions/backtraces with raw differences.
+- **Current:** `codex/v1-copy-startup-witness`, reviewed code
+  `1060b82bdcd6f91512bc04d5699d675b2b53b728`, integrated with qualified main70.
+  Equal canonical mirrors use one held private file across comparison/sync/recheck;
+  untrusted decoding and backups remain unchanged. Focused13 tests/Clippy and
+  independent review pass. Three warm release samples/scenario passed all36
+  complete-history and36 shipping probes. Large-dataset CLI healthy median
+  38.903→28.193s; fresh SQL36.154→24.997s; SQL repair13.439→13.607s.
+  Inputs are regenerated, with actual sizes retained. Complete integration review
+  is clean; fresh shared1,452/0/11+52 and native334 Workflow/models/0/10+
+  292 Desktop/0/0,11commands/V15 restarts passed at clean
+  `622a23ff323d8a2942a02efc352a0e856858d2fa`.
+  Next: final evidence review, exact latest-head CI and normal integration.
+- **Pending:** broader startup/relationship cost, safe-provider stderr correction,
+  native GUI/live/assets/owner acceptance, later stages and trusted-user packaging.
+  Legacy pending-intent retry remains unsupported. No owner original removed;
+  full V1 delivery is not claimed.
+- **Environment:** Darwin arm64 Mac mini, Rust1.98.1 locked/offline, canonical owned
+  `TMPDIR=/private/tmp/brn-mini-synthetic-20261005`, empty model setting, isolated
+  checkouts/targets and disposable synthetic data. No new live calls/downloads,
+  private-data operations or release authorized. Immutable7c4f668 stays unchanged.
+  Continue under the [correction plan](../work/active/architecture-review-corrections/plan.md).
+
+# Earlier note-facts qualification checkpoint
+
+Full frozen V1 goal confirmed **active** on2026-10-06, without a token budget.
+
 - **Integrated:** [PR69](https://github.com/ewq100/brn-rust/pull/69) at
   `b5bcb0a7430de437533532f2bfab6a9df751509e`, reviewed tree
   `1abaa112874aa30af6969394d2c863d31cf57de3`. Native copy controls capture complete

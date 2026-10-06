@@ -208,14 +208,23 @@ impl InboxFiles {
         let bytes = encode(operation)?;
         let name = operation.name();
         if !self.absent(&name)? {
-            if encode(&self.operation(&name)?)? != bytes {
-                return Err(WorkflowError::typed(
-                    ErrorKind::OperationConflict,
-                    "Inbox operation mirror is occupied by another exact record",
+            let mut file = open_at(&self.directory, OsStr::new(&name), libc::O_RDONLY, 0)
+                .map_err(file_error)?;
+            let before = file.metadata().map_err(io)?;
+            if !self.matches_operation_bytes(&mut file, &name, &before, &bytes)? {
+                // Untrusted unequal occupants retain the complete typed reader's
+                // semantic/canonical refusals and valid-different classification.
+                if encode(&self.operation(&name)?)? != bytes {
+                    return Err(WorkflowError::typed(
+                        ErrorKind::OperationConflict,
+                        "Inbox operation mirror is occupied by another exact record",
+                    ));
+                }
+                return Err(unavailable(
+                    "Inbox operation mirror changed during observation",
                 ));
             }
-            self.flush_operation(&name)?;
-            return Ok(());
+            return self.flush_operation(file, &name, &before, &bytes);
         }
         let temp = format!(".brn-inbox-operation-{}.stage", Uuid::new_v4());
         let mut file = open_at(
@@ -256,14 +265,78 @@ impl InboxFiles {
             "original_operation_intent"
         })
     }
-    fn flush_operation(&self, name: &str) -> Result<()> {
-        let expected = encode(&self.operation(name)?)?;
-        let file =
+    // A caller has already validated the expected typed operation and encoded
+    // its canonical envelope. Complete byte equality can prove that same record
+    // without parsing/encoding additional untrusted copies. Hold one descriptor
+    // throughout both observations and durability; a new identical inode differs.
+    fn matches_operation_bytes(
+        &self,
+        file: &mut File,
+        name: &str,
+        before: &Metadata,
+        expected: &[u8],
+    ) -> Result<bool> {
+        private_file(before, MAX_ORIGINAL_OPERATION_BYTES)?;
+        self.validate()?;
+        let observed = file.metadata().map_err(io)?;
+        private_file(&observed, MAX_ORIGINAL_OPERATION_BYTES)?;
+        if !same(before, &observed) {
+            return Err(unavailable("Inbox operation mirror identity changed"));
+        }
+        std::io::Seek::rewind(file).map_err(io)?;
+        let mut reader = Read::by_ref(file).take((MAX_ORIGINAL_OPERATION_BYTES + 1) as u64);
+        let mut buffer = [0u8; 64 * 1024];
+        let mut offset = 0;
+        let mut equal = true;
+        loop {
+            let count = reader.read(&mut buffer).map_err(io)?;
+            if count == 0 {
+                break;
+            }
+            let end = offset + count;
+            equal &= expected.get(offset..end) == Some(&buffer[..count]);
+            offset = end;
+        }
+        let after = file.metadata().map_err(io)?;
+        private_file(&after, MAX_ORIGINAL_OPERATION_BYTES)?;
+        if !same(before, &after) || offset as u64 != after.len() {
+            return Err(unavailable(
+                "Inbox operation mirror changed during bounded observation",
+            ));
+        }
+        #[cfg(test)]
+        READ_HOOK.with(|hook| {
+            if let Some(hook) = hook.borrow_mut().take() {
+                hook();
+            }
+        });
+        let current =
             open_at(&self.directory, OsStr::new(name), libc::O_RDONLY, 0).map_err(file_error)?;
-        private_file(&file.metadata().map_err(io)?, MAX_ORIGINAL_OPERATION_BYTES)?;
+        let named = current.metadata().map_err(io)?;
+        private_file(&named, MAX_ORIGINAL_OPERATION_BYTES)?;
+        if !same(&after, &named) {
+            return Err(unavailable("Inbox operation mirror filename changed"));
+        }
+        self.validate()?;
+        Ok(equal && offset == expected.len())
+    }
+    fn flush_operation(
+        &self,
+        mut file: File,
+        name: &str,
+        before: &Metadata,
+        expected: &[u8],
+    ) -> Result<()> {
+        // Sync the same descriptor whose complete private bytes/name were proven.
         full_sync(&file).map_err(file_error)?;
+        #[cfg(test)]
+        SYNC_HOOK.with(|hook| {
+            if let Some(hook) = hook.borrow_mut().take() {
+                hook();
+            }
+        });
         sync_directory(&self.directory).map_err(file_error)?;
-        if encode(&self.operation(name)?)? != expected {
+        if !self.matches_operation_bytes(&mut file, name, before, expected)? {
             return Err(unavailable(
                 "Inbox operation mirror changed during durability confirmation",
             ));
@@ -381,6 +454,7 @@ impl InboxFiles {
 #[cfg(test)]
 thread_local! {
     static READ_HOOK: std::cell::RefCell<Option<Box<dyn FnOnce()>>> = const { std::cell::RefCell::new(None) };
+    static SYNC_HOOK: std::cell::RefCell<Option<Box<dyn FnOnce()>>> = const { std::cell::RefCell::new(None) };
 }
 #[cfg(test)]
 mod tests {
