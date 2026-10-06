@@ -85,7 +85,7 @@ Inspected unchanged product code at main a8deb9d: none of H1–H5 is completed o
 | H2 | Ready for implementation with compatibility stop | Narrow accepted derivation, equivalence first; [spec](preparation-checkpoint/next-specs.md#h2--one-compatible-action-schema) |
 | H3 | Ready for evaluation | Offline route feasibility; enabling live routes remains conditional on qualification |
 | H4 | Ready for evaluation | Published release fit unresolved; broader replacement conditional on result |
-| H5 | Ready for evaluation | CLI adoption unresolved; migration conditional on result |
+| H5 | Evaluated: not adopted | clap would add more adapter code than it removes and still change error order; [result](../../../experiments/h5-clap-cli/README.md) |
 
 Lead owns shared documentation and integration. Each implementer/evaluator records actual baseline, candidate, result and stop reason in its own task record; lead reconciles the common queue/ADR/status. Evaluations have no product API changes or owner acceptance requirement beyond reviewing the recommendation; no credentials/hardware beyond ordinary pinned Rust/macOS fixtures. H3–H5 finish with reproducible synthetic evidence and an adoption/non-adoption/blocker decision, independent review and focused result PR. H4/H5 isolate manifest, lock and target. Parent/spec links above do not select work.
 
@@ -191,7 +191,12 @@ qualification. Only the selected task may proceed.
 
 ### H5 — evaluate replacing generic CLI scanning
 
-- **Evaluation; ready.** Question: does clap4.6.7 reduce total maintenance after
+- **Evaluated 2026-10-06 on `codex/h5-cli-parsing-evaluation`: not adopted.** The
+  [evaluator record](../../../experiments/h5-clap-cli/README.md) and
+  [decision](../../architecture/decisions/2026-10-06-compatible-reuse.md#a--cli-parsing-evaluated-not-adopted-h5)
+  hold the matrix, costs and reopen conditions. No implementation follows.
+  Merge state is recorded by the focused result PR.
+- **Evaluation.** Question: does clap4.6.7 reduce total maintenance after
   preserving BRN's existing errors/help and command-validation order?
 - Read `crates/brn/src/cli/mod.rs`, `input.rs`, one nested Inbox command module and
   CLI contract/tests. Compare a representative nested command and global options in

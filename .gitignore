@@ -8,6 +8,8 @@
 
 /experiments/rig-spike/target/
 
+/experiments/h5-clap-cli/target/
+
 .DS_Store
 
 # Python tooling caches are disposable, not evidence inputs.

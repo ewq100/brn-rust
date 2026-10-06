@@ -51,6 +51,8 @@ informational Windows jobs and Ubuntu native retrieval; no pending job. Product
 code remains PR77. The [preparation checkpoint](work/active/preparation-checkpoint/evidence.md)
 records fresh baseline/policy checks; [next specs](work/active/preparation-checkpoint/next-specs.md)
 and [remaining V1 map](work/active/preparation-checkpoint/v1-map.md) are planning only.
+Handoff evaluation H5 found clap not worth adopting for CLI scanning; the
+[evaluator record](../experiments/h5-clap-cli/README.md) changes no product code.
 
 ### Historical qualification
 
