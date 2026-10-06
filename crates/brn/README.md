@@ -117,15 +117,26 @@ AppWorker capture family. The CLI bounds and reads the explicitly selected regul
 file before application startup. UUID.bin is workflow-derived; optional filenames
 are labels. Empty files and invalid UTF-8 are supported. `inbox show` and `review`
 return fresh proof metadata for an available binary original, without a text
-payload. Binary processing, Source conversion and Remove/Restore remain unsupported.
+payload. Binary processing attempts bounded DOCX text/structure conversion through
+the same queue. Genuine supported packages produce `docx_text_v1`; non-DOCX,
+invalid, unsupported or over-budget packages fail durably. Names do not establish
+type or validity. Generic ZIP intake/extraction is outside scope. Remove/Restore
+remain unsupported for Binary, even after Source approval.
 
 For a disposable owner check, use a fresh UUID and synthetic binary file with
 `inbox add-binary`, then `inbox show UUID` and `inbox review UUID` in the same
 explicit synthetic data directory. Repeat the exact capture and verify the
 receipt/time remain identical; change the supplied bytes under that UUID and
-verify refusal. The native Inbox should show a retained binary original with
-conversion unavailable and no process selection or text-copy control. Automated
-headless tests do not replace this pending unlocked owner observation.
+verify refusal. The native Inbox shows retained binary proofs and permits a
+bounded DOCX processing attempt; opaque original bytes have no text-copy control.
+For supported conversion, use the repository's synthetic
+[basic DOCX fixture](../brn-workflow/src/inbox_processing/fixtures/basic-text.docx)
+with a fresh capture UUID. Open Inbox, process that exact item and inspect the
+complete `First õ 日本語` / `Second preserved` Source preview. Prepare/open the
+Source proposal: no note exists until exact approval, and the binary original
+remains retained afterward. Repeat with an unsupported synthetic binary and
+expect an explicit failed outcome. Automated headless tests do not replace this
+pending unlocked owner observation.
 
 `inbox process` accepts a JSON `ProcessInboxRequest`: a new nonnil `id` and
 `items` containing 1–8 exact `item` snapshots from `inbox show`. It waits for the
@@ -167,8 +178,10 @@ no fallback, automatic retry or completeness/deletion authority is introduced.
 `inbox show` reports the complete metadata and either exact original text or an
 explicit removed-retained/missing/changed/unavailable result. `inbox list` reports chronological
 pages plus availability/issues. These commands never write vault Markdown,
-`index.sqlite`, provider state or credentials; incomplete or uncertain copies
-remain retained for inspection.
+provider state or credentials. Ordinary bound-vault startup can refresh the
+disposable index from saved notes; retained originals and prepared Source previews
+are not saved retrieval evidence. Incomplete or uncertain copies remain retained
+for inspection.
 
 `actions show` returns the full retained record and immutable approved origin;
 `actions list` defaults to all states and 25 entries, with limits from 1–200.

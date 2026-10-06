@@ -76,9 +76,16 @@ metadata-only format1 capture mirror remain unchanged.
 `InboxOriginal::AvailableBinary` reports only complete length/hash after a fresh
 stable private-file identity/byte observation. `InboxRead::validate_receipt`
 checks client DTO consistency; it does not establish fresh filesystem authority.
-Binary items can be listed and inspected, but processing, Source conversion and
-new/legacy original-copy lifecycle validation explicitly refuse them. No binary
-payload is rendered as text, and binary cleanup is not enabled by this boundary.
+Binary processing attempts the bounded DOCX text/structure profile described in
+the [Stage8 plan](../../docs/work/active/office-inbox/plan.md#next-slice-bounded-docx-text-source).
+Workflow observes complete bytes through the held original-file boundary and
+rederives conversion for a fresh candidate, new Source draft and unfinished
+approval/application. A converted receipt is operational evidence, never fresh
+authority by itself. Historical terminal Source recovery stays self-contained.
+Unsupported or malformed packages fail durably; no generic ZIP ingestion,
+extraction or external relationship fetch occurs. Binary payloads are not
+rendered as text. Binary preservation and new/legacy Remove/Restore remain refused,
+including after exact Source approval.
 
 `AnalyzeInboxActions` accepts one complete saved managed Inbox Source, an operation
 UUID, optional conversation and explicit provider/model/effort. Full Source bytes

@@ -3,8 +3,10 @@
 Current baseline is integrated [PR75](https://github.com/ewq100/brn-rust/pull/75)
 `f1af1b41139e0bad0fdd838af274ada6aac0af2b`, tree
 `4eab8f24dfc1a06eb622776a7dd2900e3e31eace`. Binary retention and ordinary asset
-proposal members are qualified and integrated. Next is [bounded DOCX Source
-conversion](#next-slice-bounded-docx-text-source) on `codex/v1-docx-text-sources`.
+proposal members are qualified and integrated. [Bounded DOCX Source
+conversion](#next-slice-bounded-docx-text-source) is implemented and undergoing
+qualification on `codex/v1-docx-text-sources`; full shared/native gates and
+exact-head CI/integration are unfinished.
 Full V1 goal remains confirmed active, without a budget. Native/live/owner
 acceptance and broader Stage8 outcomes remain separate and incomplete.
 
@@ -270,8 +272,10 @@ original-operation table in each data directory, format/launcher/Markdown/diff.
 Store maximum payload passed afresh. The full16MiB Workflow witness reuses exact
 unchanged Rust/manifests/lock/features from its successful default/native gates;
 new crash/replay/older/freshSQL/Undo witnesses ran afresh. Known block0.1.6 warning
-remains. Main run37426257383 attempt1 is running; completed Windows/Linux failures
-have the same compiler/assertion/source/backtrace diagnostics as main74. Windows
+remains. Exact main run37426257383 attempt1 completed with all four protected
+macOS/shared checks, Docs and supplemental Ubuntu UI passing. Overall failure
+retains Windows22/22/14 compiler blocks and three Linux native assertions with
+the same source/backtrace diagnostics as main74. Windows
 native now emits the lib14-error summary without the prior lib-test summary; that
 terminal difference and actual raw order/IDs/timing differences remain retained.
 GUI/live/real-model/owner acceptance remains pending. No original is removed.
@@ -292,6 +296,15 @@ tracked changes, complex/merged tables, unsupported fields/list forms and
 headers/footers/notes/comments that are not preserved. Never silently drop a
 meaningful part, fetch a relationship or infer conversion validity from a filename.
 Exact captured originals remain retained even after Source approval.
+
+ZIP is only the DOCX package container, not another accepted Inbox file format.
+The owner explicitly excluded generic `.zip` ingestion. This first profile uses
+UTF-8 XML and literal ASCII part names, headings1–6, ordinary same-level `%N.` or
+`%N)` decimal/bullet markers and rectangular tables. Orphan nesting, heading/list
+table cells, multiple header rows, unsupported conditional table formatting and
+meaningful explicit/theme paint refuse. Neutral automatic paint remains allowed.
+These limits do not complete the frozen Office requirement; broader meaningful
+DOCX content remains later work, with originals retained throughout.
 
 Fixed boundaries:
 
@@ -351,3 +364,37 @@ exact latest-head protected CI, normal integration and fresh merged verification
 Own canonical TMPDIR and separate Cargo targets; only synthetic/offline fixtures.
 Broader DOCX visuals, PDF/PowerPoint/suppliedURLs and qualified meaningful original
 cleanup remain later dependencies under the unchanged full V1 goal.
+
+## DOCX implementation checkpoint — 2026-10-06
+
+Source commit `2dfea163f2c245a4ba3f8a535c2552441d750809`, tree
+`d9f5f928c2d9551e2ee8fd95af892101c1864a5a`, contains the bounded converter,
+Store matrix, fresh Workflow observation/rederivation and existing worker/client
+paths. No AI capability or cleanup authority was added. ZIP is internal only.
+
+Complete independent read-only review pinned56aff/e528 found two preservation
+defects: meaningful underline paint was dropped and wide decimal markers lost
+nested Markdown structure. Lead validated both, integrated c92a2c9 and refreshed
+the small correction review. Direct/style/default paint refusals and faithful
+wide/deeper/bullet goldens pass. A genuine five-part synthetic package also passes
+the existing Markdown parser's parent/child/grandchild/restart assertions.
+
+Focused default checks passed:25 pure parser tests,39 Store record/legacy/lifecycle
+tests,137 affected Workflow tests/0/6 documented ignores,13 focused DOCX Workflow,
+19 Desktop Inbox and14 owner CLI Inbox. Strict affected all-target Clippy and
+format pass. These receipts retain their actual commit/dirty identities; final
+full shared/native verification and exact-head CI/integration are still pending.
+All inputs are synthetic, locked/offline Rust1.98.1, canonical owned TMPDIR and
+separate targets. Native GUI/live/real-model/owner acceptance remains pending.
+
+Failed runs are retained: restricted macOS coordination6failures resolved by the
+authorized native execution route; one fresh-SQL test incorrectly expected an
+unqualified missing original in the rebuilt catalog; Desktop test missing enum
+import and unopened Inbox view; five strict collapsible-if lints; and one CLI test
+incorrectly expected no disposable index despite existing bound-vault startup.
+Corrections retain exact Source history/no resurrection, real view guards and all
+original/vault/credential proofs. No unrelated production problem was changed.
+Atomic receipts/full logs are under the explicit synthetic parent with prefix
+`brn-docx-lead-`; independent reports remain in task work. No private data or new
+live authorization was used. Dependency acquisition added only zip8.6.0 and
+typed-path0.12.3; all prior package versions remain locked unchanged.

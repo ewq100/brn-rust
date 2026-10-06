@@ -16,13 +16,20 @@ Full frozen V1 goal confirmed **active** by `get_goal` on 2026-10-06; no token b
   Fresh unchanged merged gate06:53:23–06:55:51UTC passed17 commands,119/0/1 tests
   +52fixtures, native widgets/builds and default/combined V15 restarts. The full
   16MiB Workflow witness reuses identical qualified code/features; Store max passed
-  afresh. Main run37426257383 attempt1 is running; completed Windows/Linux failures
-  have the same diagnostics; the changed Windows native terminal summary and all
+  afresh. Exact main run37426257383 attempt1 completed with four protected
+  macOS/shared checks, Docs and supplemental Ubuntu UI passing; overall failure
+  retains Windows22/22/14 and three Linux native assertions/backtraces matching
+  main74. The changed Windows native terminal summary and all
   raw differences are retained.
 - **Current/next:** `codex/v1-docx-text-sources`, baseline above; follow
   [DOCX acceptance](../work/active/office-inbox/plan.md#next-slice-bounded-docx-text-source).
+  Source commit `2dfea163f2c245a4ba3f8a535c2552441d750809`, tree
+  `d9f5f928c2d9551e2ee8fd95af892101c1864a5a`; evidence documentation follows.
   Fresh exact binary observation and a bounded pure converter feed the existing
-  processing/Source proposal path. Unsupported meaningful content refuses;
+  processing/Source proposal path. Complete review's underline-paint/nesting
+  findings are fixed; focused parser/Workflow/client gates pass. Full shared/native
+  verification, exact-head CI and normal integration are next. Generic ZIP
+  ingestion is excluded; unsupported meaningful content refuses;
   visuals, PDF/PowerPoint/URLs and meaningful Office cleanup remain later Stage8 work.
 - **Pending:** native GUI/live/real-model/owner acceptance, residual startup/backup
   cost, legacy pending-intent retry, Stages8–16 and trusted-user packaging.

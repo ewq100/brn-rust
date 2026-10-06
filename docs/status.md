@@ -4,7 +4,7 @@
 Stage 5 knowledge and Stage 6 Actions/dashboard foundations are integrated,
 with native/live/owner qualification still open.
 Stage 7 text Inbox implementation is integrated with acceptance pending.
-Stage 8 binary retention and ordinary asset proposals are integrated; bounded DOCX Source conversion is next.
+Stage 8 binary retention and ordinary asset proposals are integrated; bounded DOCX Source conversion is implemented and undergoing qualification.
 Stages 7–16 remain incomplete; complete V1
 delivery is not claimed.**
 
@@ -27,10 +27,17 @@ protected macOS/shared checks and Docs. Overall red retains Windows22 complete
 compiler blocks/all suggestions/both summaries matching PR74 (161 lines), with
 whole-log differences preserved. Fresh unchanged merged17-command gate passed
 119/0/1+52fixtures, exact native widgets/builds and default/combined V15 restarts.
-Main run37426257383 attempt1 is pending; completed Windows/Linux diagnostics
-match main74. The changed Windows native terminal summary and raw differences
+Exact main run37426257383 attempt1 passed all four protected macOS/shared checks,
+Docs and supplemental Ubuntu UI. Overall failure retains Windows22/22/14 compiler
+blocks and three Linux native assertions/backtraces matching main74. The changed
+Windows native terminal summary and raw differences
 remain retained. The [Stage8 plan](work/active/office-inbox/plan.md#next-slice-bounded-docx-text-source)
-now defines bounded DOCX text/structure Source conversion. Binary originals remain
+now defines bounded DOCX text/structure Source conversion. Its complete independent
+review found underline-paint loss and wide-numbered-list nesting defects; both
+were technically validated and fixed, with correction review clean. Focused
+parser/Workflow/client checks pass; full shared/native and exact-head CI/normal
+integration are still pending. ZIP is an internal DOCX container, with generic
+archive ingestion excluded. Binary originals remain
 retained; Office visuals, broader conversion and binary cleanup are unimplemented.
 GUI/live/real-model/owner acceptance and full V1 delivery are not claimed.
 
