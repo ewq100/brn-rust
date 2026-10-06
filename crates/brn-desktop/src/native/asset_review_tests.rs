@@ -13,6 +13,7 @@ impl Render for ReviewProbe {
     fn render(&mut self, _: &mut Window, cx: &mut Context<Self>) -> impl IntoElement {
         self.0.update(cx, |desktop, cx| {
             div()
+                .id("asset-review-test-pane")
                 .size_full()
                 .flex()
                 .flex_col()
