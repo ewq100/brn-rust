@@ -1,4 +1,11 @@
-# Stage 8: bounded binary original capture
+# Stage 8: Office Inbox foundations
+
+Current baseline is integrated PR74 `c7ed57d106f14b9b9c4c94fc875ad7cd60b61e15`,
+tree `bf083499bc6625081ed64eccd08f4655ad99bba6`. Binary capture is qualified;
+ordinary asset proposal members are next on `codex/v1-ordinary-assets`.
+Full V1 goal remains confirmed active, without a budget.
+
+## Binary capture baseline and acceptance
 
 Baseline: clean merged main73 `54fcbe1e39364a2bcb7f8a6d6023326738fdc749`, tree `22361798cea09bacb49711e21ec44f2d737d8678`, on isolated `codex/v1-binary-original-capture`. PR73 review, applicable exact-head CI and fresh merged qualification passed. Full V1 goal confirmed active on 2026-10-06; objective unchanged. This is retention and fresh proof admission through the existing Inbox capture family, not Office conversion or a new architecture.
 
@@ -93,3 +100,79 @@ synthetic fixtures and self-skipped local-model tests do not qualify real assets
 or inference. Headless widget checks do not establish unlocked native owner
 acceptance. Latest-head PR CI, normal integration and fresh merged checks remain
 pending; binary conversion/assets/cleanup and full V1 delivery are not claimed.
+
+## Binary capture integration — 2026-10-06
+
+PR74 merged normally at the baseline above after exact head
+`fa2e9d4e7bba81585f7a0d7231db54e6d51838ab`, automatic run37416140200 attempt1,
+passed all four strict protected Mac/shared checks and Docs. Overall failure and
+ci-summary exit1 remain: Windows22 complete source-inclusive compiler blocks,
+both terminal summaries and exit101 match PR73/main73. Whole log differences are
+retained. No Linux native lane applies to this PR; no bypass or rerun occurred.
+
+Fresh merged verification 05:10:08–05:12:01 UTC passed 15 commands at unchanged
+clean identity: workspace build, 29 affected Store, 11 Workflow (one intentional
+crash-child ignore exercised by its parent), 3 CLI, 1 default Desktop and 1 exact
+native widget test; native build, 52 fixtures, launcher and documentation checks.
+Two default and two combined restarts each proved V15 and one original-operation
+table. Upstream block0.1.6 future-compiler warnings remain. Automatic main74 CI
+is observed separately; GUI/live/real-model/owner acceptance remains pending.
+
+## Next slice: ordinary asset proposal members
+
+Extend the existing whole-proposal review/apply/recovery/Undo family, with no new
+effect family, datastore or agent architecture. These ordinary vault files are
+durable assets, not managed Markdown identities or retrieval evidence. No Office
+conversion or binary Source/cleanup capability follows from this prerequisite.
+
+Fixed interfaces and bounds:
+
+- Add `NoteChange::CreateAsset { path, parent, bytes }`,
+  `ReplaceAsset { path, parent, before, before_bytes, bytes }` and
+  `TrashAsset { path, parent, before, before_bytes }`. Existing Markdown variants,
+  literal JSON/hash arrays and omission defaults stay unchanged. Add corresponding
+  `DraftNoteChange` variants; replacement/trash requests supply an exact expected
+  fingerprint, and Workflow captures complete before bytes itself.
+- Assets use visible contained relative non-Markdown paths, with the existing
+  current-target archive policy at Workflow admission. No suffix-based MIME or
+  conversion claim. Parents must already exist; keep held-root/parent identity,
+  regular single-link, exact staging ownership, exclusive install/exchange and
+  durability protections. Assets never enter the note editor or text reader.
+- Each complete candidate/before payload is bounded at 16 MiB. Sum asset payloads
+  independently at 32 MiB; keep the existing 8 MiB Markdown/comment/binding/Action
+  budget and 64-member/source limits. Paths and ordinary metadata still count.
+  Use canonical standard padded base64 for these new payload fields only, with
+  encoded-length checks before decoding and exact decoded bounds. Reuse locked
+  base640.22.1 through a direct Store dependency; no new package/version/download.
+- Preserve the existing encoded proposal, journal and 64 MiB receipt limits.
+  Admission must reserve prepared/terminal/Undo/64-attempt repair metadata and
+  reject an over-budget mixed proposal atomically before durable effects. One
+  max-before/max-after asset replacement fits; no truncation, partial installation
+  or silently discarded member is permitted. Inverse cycles retain compact direct
+  lineage, never recursively nested parent payloads.
+- Full review displays each asset's operation, destination, exact byte length/hash
+  and before proof. Asset bytes are immutable in text edits/Rewrite; exact whole
+  approval still binds their complete payload. Keep opaque payloads out of model
+  input without truncating editable Markdown/comments/evidence or changing existing
+  tools. Note-only prompts remain byte-identical. No asset AI tool is added.
+- Extend the existing AppWorker proposal commands rather than adding a parallel
+  asset lifecycle. Existing owner CLI JSON creation, inspection, approval,
+  repair and Undo must support the typed members with bounded input. Native review
+  must show proof details without offering a text editor for opaque bytes.
+
+Acceptance: exact non-UTF8/empty/16 MiB Create/Replace/Trash; mixed Markdown/assets;
+approval of immutable bytes; changed identity/hash, duplicate/occupied paths,
+symlink/hardlink/root/parent substitution and oversize refusal before effects;
+real interrupted apply, Finish/Restore and healthy/older/fresh SQL import; whole
+and scoped Trash Undo with repeated inverse cycles and byte-identical endpoints;
+maximal payload/escaped-text/repair admission; unchanged legacy literal bytes and
+all existing Source/history/text lifecycle fences. Incomplete later conversion
+must retain originals and report the limitation.
+
+Checks: focused Store/domain/codec/budget tests and real macOS filesystem/worker/
+CLI/native review tests; one complete independent read-only review with technically
+validated fixes; full shared and affected native offline gates; exact latest-head
+protected CI/normal merge/fresh merged verification. Use pinned Rust1.98.1,
+canonical owned TMPDIR, disposable synthetic data and separate checkout targets.
+Native GUI/live/assets/owner acceptance remains separate; no live call, download,
+private-data operation, purchase or release is authorized by this slice.

@@ -2,6 +2,34 @@
 
 Full frozen V1 goal confirmed **active** by `get_goal` on 2026-10-06; no token budget.
 
+- **Integrated:** [PR74](https://github.com/ewq100/brn-rust/pull/74) at
+  `c7ed57d106f14b9b9c4c94fc875ad7cd60b61e15`, tree
+  `bf083499bc6625081ed64eccd08f4655ad99bba6`. Bounded 16 MiB opaque Inbox
+  originals retain exact capture/replay/recovery and fresh length/hash proofs.
+  Existing text remains unchanged; binary processing/Source/cleanup stays refused.
+- **Verification:** independent source/final-delta reviews clean; shared
+  1,477/0/13 +52 fixtures and affected native gates passed separately.
+  Exact fa2e9d4 / run37416140200 attempt1 passed four protected checks and Docs;
+  overall red retains unchanged Windows22 compiler blocks/both summaries.
+  Fresh clean merged build, 45 focused tests/0/1 +52 fixtures, native widget/build,
+  default/combined V15 restarts and launcher/docs passed. Main74 CI is separate.
+- **Current/next:** `codex/v1-ordinary-assets`, baseline main74 above;
+  [fixed acceptance/interfaces](../work/active/office-inbox/plan.md#next-slice-ordinary-asset-proposal-members)
+  extend the existing whole-proposal review/apply/recovery/Undo boundary.
+  Meaningful Office conversion follows; incomplete conversion retains originals.
+- **Pending:** native GUI/live/real-model/owner acceptance, residual startup/backup
+  cost, legacy pending-intent retry, Stages8–16 and trusted-user packaging.
+  No owner original removed; full V1 delivery is not claimed.
+- **Environment:** Mac mini Darwin arm64; pinned Rust1.98.1 locked/offline;
+  canonical owned `TMPDIR=/private/tmp/brn-mini-synthetic-20261005`, empty model
+  setting, separate checkout targets and disposable synthetic data. No new live
+  calls/downloads/private-data operations/purchases/release. Immutable7c4f668 and
+  unrelated work remain preserved; earlier evidence follows below.
+
+# Earlier binary capture qualification checkpoint
+
+Full frozen V1 goal confirmed **active** by `get_goal` on 2026-10-06; no token budget.
+
 - **Integrated:** [PR73](https://github.com/ewq100/brn-rust/pull/73) at
   `54fcbe1e39364a2bcb7f8a6d6023326738fdc749`, qualified tree
   `22361798cea09bacb49711e21ec44f2d737d8678`. Request-local proof membership and
