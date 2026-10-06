@@ -208,6 +208,25 @@ retrieval-owned read-only reader and a clone of Library's one
 Semantic once and fuse Hybrid's top 50 keyword/semantic passages. Model
 identity/dimension mismatches are errors, never fallback.
 
+Indexed note titles come from saved bytes and never change them. Refresh counts
+the first 50 physical lines after an optional BOM, header lines included. It
+skips a complete leading header through Store's `note_identity::body_start`
+(`---` opening, `---` or `...` closing). When that reader refuses a malformed
+managed layout, the note stays indexed and the existing exact `---` framing
+adapter locates the body, or the whole text is the body. The pinned Markdown
+1.0.0 parser then decides block structure, so headings inside fenced or
+indented code and HTML blocks never count. The title is the first level-1
+heading whose physical line starts exactly `# ` and whose trimmed raw suffix is
+nonempty. Inline markup, links, escapes and closing hashes stay literal. Setext,
+indented, `#NoSpace`, `#`-tab and lower-level headings never count. A header
+that ends after line 50, a parser failure or no eligible heading gives the file
+name without `.md`. The parser skips inline constructs and stops at the last
+candidate line. Refresh re-derives titles for unchanged bytes and re-indexes a
+note whose stored title differs, which drops its cached passage vectors once.
+Pinned Markdown 1.0.0 panics on a setext heading, an adjacent `---` break and
+another setext heading. Refresh catches that and falls back, but the default
+panic hook still writes the message to stderr.
+
 Every tool revalidates visibility and fresh bytes. Search checks the hash,
 UTF-8 range and exact quote before exposing any candidate; stale/removed
 notes return safe `IndexStale`. Unsafe arguments return `ToolRejected`.

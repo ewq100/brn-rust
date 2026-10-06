@@ -51,6 +51,10 @@ informational Windows jobs and Ubuntu native retrieval; no pending job. Product
 code remains PR77. The [preparation checkpoint](work/active/preparation-checkpoint/evidence.md)
 records fresh baseline/policy checks; [next specs](work/active/preparation-checkpoint/next-specs.md)
 and [remaining V1 map](work/active/preparation-checkpoint/v1-map.md) are planning only.
+PR79 merged that preparation at `450eaa2`. The owner then selected handoff task H1
+(library titles ignore code/HTML pseudo-headings). Its implementation, checks,
+review, acceptance and integration state are in the [H1 record](work/active/h1-library-titles/evidence.md).
+The rest of the roadmap stays paused.
 
 ### Historical qualification
 

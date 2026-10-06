@@ -365,3 +365,29 @@ fn symlinks_oversize_and_non_utf8_files_never_become_note_text() {
     );
     assert_eq!(checksum(vault.path()), before);
 }
+
+#[test]
+fn listed_titles_ignore_fenced_pseudo_headings_and_search_keeps_exact_evidence() {
+    let vault = tempfile::tempdir().unwrap();
+    let data = tempfile::tempdir().unwrap();
+    let text = "\u{feff}---\r\ntitle: x\r\n...\r\n```md\r\n# Fake heading\r\n```\r\n# Real **heading**\r\nneedle\r\n";
+    write(vault.path(), "fenced.md", text);
+    let before = checksum(vault.path());
+    let index = data.path().join("index.sqlite");
+    let mut library = Library::open(vault.path(), &index, None).unwrap();
+    library.refresh().unwrap();
+    let tools = AiTools::open(vault.path(), &index, None).unwrap();
+    let listed = tools.list_notes(None, None).unwrap();
+    assert_eq!(listed.notes.len(), 1);
+    assert_eq!(listed.notes[0].path, "fenced.md");
+    assert_eq!(listed.notes[0].title, "Real **heading**");
+    let hits = tools.search_notes("needle", 10).unwrap().hits;
+    assert_eq!(hits.len(), 1);
+    assert_eq!(hits[0].path, "fenced.md");
+    assert_eq!(
+        text.get(hits[0].start_byte..hits[0].end_byte),
+        Some(hits[0].quote.as_str())
+    );
+    assert!(hits[0].quote.contains("needle"));
+    assert_eq!(checksum(vault.path()), before);
+}

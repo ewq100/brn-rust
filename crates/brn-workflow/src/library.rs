@@ -267,13 +267,16 @@ impl Library {
             };
             let size = note.text.len() as u64;
             let metadata = saved_metadata(&note.text, path);
+            let title = title(&note.text, path);
             if metadata.issue.is_some() {
                 report.unreadable.push(Unreadable {
                     path: path.into(),
                     reason: "invalid managed metadata",
                 });
             }
-            if old.is_some_and(|old| old.sha256 == note.sha256) {
+            // Equal bytes keep passages unless an older title policy derived
+            // a different title for them.
+            if old.is_some_and(|old| old.sha256 == note.sha256 && old.title == title) {
                 self.index.update_metadata(path, size, file.modified_ns)?;
                 self.index.update_note_metadata(path, &metadata)?;
                 report.unchanged += 1;
@@ -281,7 +284,7 @@ impl Library {
             }
             let record = IndexedNote {
                 path: path.to_owned(),
-                title: title(&note.text, path),
+                title,
                 size,
                 modified_ns: file.modified_ns,
                 sha256: note.sha256,
@@ -400,30 +403,143 @@ fn unreadable_reason(error: &ReadError) -> Option<&'static str> {
     }
 }
 
-/// The first nonempty level-1 Markdown heading in the first 50 lines, excluding
-/// leading YAML frontmatter, or the file name without `.md`.
+/// Saved physical lines, counted from after an optional BOM and including
+/// frontmatter, that may supply a note title.
+const TITLE_LINES: usize = 50;
+
+/// The first nonempty level-1 Markdown heading in the first 50 saved lines,
+/// outside supported leading frontmatter, or the file name without `.md`.
 fn title(text: &str, path: &str) -> String {
-    let text = text.strip_prefix('\u{feff}').unwrap_or(text);
-    let lines = text.lines().take(50);
-    let skip = if lines.clone().next() == Some("---") {
-        lines
-            .clone()
-            .skip(1)
-            .position(|line| line == "---")
-            .map_or(0, |closing| closing + 2)
-    } else {
-        0
-    };
-    lines
-        .skip(skip)
-        .find_map(|line| {
-            line.strip_prefix("# ")
-                .map(str::trim)
-                .filter(|heading| !heading.is_empty())
-        })
-        .map(str::to_owned)
-        .unwrap_or_else(|| {
+    heading_title(text).map_or_else(
+        || {
             let name = path.rsplit('/').next().unwrap_or(path);
             name[..name.len() - 3].to_owned()
-        })
+        },
+        str::to_owned,
+    )
+}
+
+/// Markdown structure decides which lines are ATX headings, so code, HTML and
+/// setext text cannot supply a title. Eligible headings keep the literal
+/// `# ` line policy and their raw trimmed line suffix, not rendered text.
+fn heading_title(text: &str) -> Option<&str> {
+    let lines = if text.starts_with('\u{feff}') { 3 } else { 0 };
+    let window_end = text[lines..]
+        .match_indices('\n')
+        .nth(TITLE_LINES - 1)
+        .map_or(text.len(), |(newline, _)| lines + newline + 1);
+    // Unsupported managed layouts stay indexable. Their exact legacy header
+    // framing, or no header at all, preserves the previous title boundary.
+    let body = brn_store::note_identity::body_start(text)
+        .ok()
+        .or_else(|| legacy_body_start(text))
+        .unwrap_or(lines);
+    let window = text.get(body..window_end)?;
+    // Only nonempty literal `# ` lines can supply a title. The prefix through
+    // the last one fixes their block structure; later lines cannot change it.
+    let mut line_start = 0;
+    let mut candidates_end = None;
+    for line in window.split_inclusive('\n') {
+        line_start += line.len();
+        if line
+            .strip_prefix("# ")
+            .is_some_and(|title| !title.trim().is_empty())
+        {
+            candidates_end = Some(line_start);
+        }
+    }
+    let source = &window[..candidates_end?];
+    // Inline constructs cannot change block structure; skipping them bounds
+    // parse cost. The pinned parser can panic on some valid setext/thematic
+    // break sequences, which is a parse failure with filename fallback.
+    let mut options = markdown::ParseOptions::default();
+    let constructs = &mut options.constructs;
+    constructs.attention = false;
+    constructs.autolink = false;
+    constructs.character_escape = false;
+    constructs.character_reference = false;
+    constructs.code_text = false;
+    constructs.hard_break_escape = false;
+    constructs.hard_break_trailing = false;
+    constructs.html_text = false;
+    constructs.label_start_image = false;
+    constructs.label_start_link = false;
+    constructs.label_end = false;
+    let root = std::panic::catch_unwind(std::panic::AssertUnwindSafe(|| {
+        markdown::to_mdast(source, &options)
+    }))
+    .ok()?
+    .ok()?;
+    root.children()?.iter().find_map(|node| {
+        let markdown::mdast::Node::Heading(heading) = node else {
+            return None;
+        };
+        let start = heading.position.as_ref()?.start.offset;
+        if heading.depth != 1 || start != 0 && !source[..start].ends_with('\n') {
+            return None;
+        }
+        source[start..]
+            .split('\n')
+            .next()?
+            .strip_prefix("# ")
+            .map(str::trim)
+            .filter(|title| !title.is_empty())
+    })
+}
+
+/// Exact complete `---` header framing for unsupported legacy metadata. It
+/// locates the body without interpreting opaque YAML; an unsupported or
+/// incomplete delimiter never supplies a guessed boundary.
+pub(crate) fn legacy_body_start(text: &str) -> Option<usize> {
+    let (mut offset, text) = text
+        .strip_prefix('\u{feff}')
+        .map_or((0, text), |body| (3, body));
+    let mut lines = text.split_inclusive('\n');
+    let first = lines.next()?;
+    if !matches!(first, "---\n" | "---\r\n") {
+        return None;
+    }
+    offset += first.len();
+    for line in lines {
+        offset += line.len();
+        let content = line
+            .strip_suffix("\r\n")
+            .or_else(|| line.strip_suffix('\n'))
+            .unwrap_or(line);
+        if matches!(content, "---" | "...") {
+            return Some(offset);
+        }
+    }
+    None
+}
+
+#[cfg(test)]
+mod tests {
+    use super::title;
+
+    #[test]
+    fn unsupported_managed_layouts_use_exact_legacy_header_framing() {
+        for (text, expected) in [
+            (
+                "---\n# yaml comment\nbrn_id:bad\n---\n```\n# Fake\n```\n# Malformed Title\n",
+                "Malformed Title",
+            ),
+            (
+                "\u{feff}---\r\n# yaml comment\r\nbrn_id: a\r\nbrn_id: b\r\n...\r\n# Duplicate Title\r\n",
+                "Duplicate Title",
+            ),
+            ("--- \n# Opening Title\n---\n", "Opening Title"),
+            (
+                "---\nbrn_id:bad\n--- x\n# Unclosed Managed\n",
+                "Unclosed Managed",
+            ),
+        ] {
+            assert!(
+                brn_store::note_identity::body_start(text).is_err(),
+                "{text:?}"
+            );
+            assert_eq!(title(text, "dir/fallback.md"), expected, "{text:?}");
+        }
+        assert_eq!(title("", "dir/fallback.md"), "fallback");
+    }
 }

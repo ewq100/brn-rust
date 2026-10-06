@@ -5,7 +5,7 @@ use crate::{
     app::App,
     editor::file_error,
     knowledge::note_identity,
-    library::saved_metadata,
+    library::{legacy_body_start, saved_metadata},
     proposals::{NoteChange, ProposalDraft},
     vault::EvidencePath,
 };
@@ -22,29 +22,6 @@ fn ids(text: &str) -> Result<BTreeSet<Uuid>> {
         Err(error) => legacy_body_start(text).ok_or_else(|| rejected(error.to_string()))?,
     };
     extract::stable_ids(text, body)
-}
-
-fn legacy_body_start(text: &str) -> Option<usize> {
-    let (mut offset, text) = text
-        .strip_prefix('\u{feff}')
-        .map_or((0, text), |body| (3, body));
-    let mut lines = text.split_inclusive('\n');
-    let first = lines.next()?;
-    if !matches!(first, "---\n" | "---\r\n") {
-        return None;
-    }
-    offset += first.len();
-    for line in lines {
-        offset += line.len();
-        let content = line
-            .strip_suffix("\r\n")
-            .or_else(|| line.strip_suffix('\n'))
-            .unwrap_or(line);
-        if matches!(content, "---" | "...") {
-            return Some(offset);
-        }
-    }
-    None
 }
 
 struct Target<'a> {
