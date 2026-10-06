@@ -304,6 +304,50 @@ mod saved {
         }
     }
     #[test]
+    fn visual_archive_inspection_keeps_read_only_evidence_scope() {
+        let _cancel = crate::tests::CancelTestGuard::with(false);
+        let f = Fixture::new();
+        let old = f.evidence();
+        fs::create_dir(f.vault.join("archive")).unwrap();
+        fs::rename(f.vault.join("source.md"), f.vault.join("archive/source.md")).unwrap();
+        let asset_path = format!("archive/{}", old.asset.path);
+        fs::rename(f.vault.join(&old.asset.path), f.vault.join(&asset_path)).unwrap();
+        let mut app = brn_workflow::app::App::open(
+            &f.data,
+            brn_workflow::app::AppConfig {
+                vault_root: Some(f.vault.clone()),
+                credentials_dir: Some(f.credentials.clone()),
+                model_dir: None,
+            },
+        )
+        .unwrap();
+        let expected = app.inbox_visual_evidence("archive/source.md").unwrap();
+        assert_eq!(expected.source.text, old.source.text);
+        assert_eq!(expected.asset.path, asset_path);
+        assert_eq!(expected.bytes, PNG);
+        drop(app);
+        let output = f
+            .inbox(InboxCommand::Visual("archive/source.md".into()))
+            .unwrap();
+        let observed: InboxVisualEvidence = serde_json::from_value(output.data).unwrap();
+        assert_eq!(observed, expected);
+        let request = f.request(&observed);
+        f.finish(&request, brn_workflow::WorkTurnStatus::Completed);
+        assert!(f.inbox(InboxCommand::VisualAnnotation(request.id)).is_err());
+        assert_eq!(
+            fs::read_to_string(f.vault.join("archive/source.md")).unwrap(),
+            old.source.text
+        );
+        assert_eq!(fs::read(f.vault.join(asset_path)).unwrap(), PNG);
+        for path in [
+            "archive/../source.md",
+            "archive/.hidden.md",
+            "archive/image.png",
+        ] {
+            assert!(super::super::metadata(&InboxCommand::Visual(path.into())).is_err());
+        }
+    }
+    #[test]
     fn visual_complete_bytes_proofs_and_annotation_are_correlated_and_provider_free() {
         let _cancel = crate::tests::CancelTestGuard::with(false);
         let f = Fixture::new();

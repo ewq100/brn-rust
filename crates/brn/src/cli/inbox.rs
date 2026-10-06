@@ -204,7 +204,7 @@ fn metadata(command: &InboxCommand) -> Result<(), CliError> {
         InboxCommand::Processing(id) | InboxCommand::Cancel(id) if id.is_nil() => {
             Err(usage("Inbox processing UUID must not be nil"))
         }
-        InboxCommand::Visual(path) => brn_workflow::vault::VaultPath::parse(path)
+        InboxCommand::Visual(path) => brn_workflow::vault::EvidencePath::parse(path)
             .map(|_| ())
             .map_err(|e| usage(e.to_string())),
         InboxCommand::VisualAnnotation(id)

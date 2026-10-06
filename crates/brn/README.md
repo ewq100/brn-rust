@@ -182,7 +182,9 @@ no fallback, automatic retry or completeness/deletion authority is introduced.
 worker without creating work or calling a provider. `--json` returns the complete
 `InboxVisualEvidence`: exact Source text/proof, full asset proof and canonical
 padded-base64 PNG `bytes`. Text output identifies the Source/asset, byte length,
-dimensions and full SHA256, and points to that full JSON. Missing, changed or unsupported evidence refuses.
+dimensions and full SHA256, and points to that full JSON. Explicit read-only
+inspection includes qualified Sources under `archive/`; existing annotation and
+destination restrictions remain. Missing, changed or unsupported evidence refuses.
 
 `inbox interpret-visual --file REQUEST_JSON [--timeout-seconds N]` requires an
 `InboxActionRequest` with explicit `purpose: "visual_interpretation"`, the complete
