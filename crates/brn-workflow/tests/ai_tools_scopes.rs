@@ -1,5 +1,6 @@
-use brn_ai::{AiErrorKind, ReadScope, ReadTools};
+use brn_ai::{AiErrorKind, ConflictKnowledge, NoteFacts, ReadScope, ReadTools};
 use brn_workflow::{ai_tools::AiTools, library::Library};
+use sha2::{Digest, Sha256};
 use std::path::Path;
 
 fn write(root: &Path, path: &str, text: &str) {
@@ -12,7 +13,11 @@ fn fixture() -> (tempfile::TempDir, tempfile::TempDir, Library, AiTools) {
     let parent = std::env::temp_dir().canonicalize().unwrap();
     let vault = tempfile::tempdir_in(&parent).unwrap();
     let data = tempfile::tempdir_in(&parent).unwrap();
-    write(vault.path(), "current.md", "needle current");
+    write(
+        vault.path(),
+        "current.md",
+        "---\nbrn_id: ABCDEFAB-CDEF-4ABC-8DEF-ABCDEFABCDEF\n---\nneedle current",
+    );
     write(
         vault.path(),
         "source.md",
@@ -89,6 +94,24 @@ fn scoped_ai_search_list_read_preserve_saved_originals_and_current_defaults() {
             assert_eq!(
                 saved.get(hit.start_byte..hit.end_byte),
                 Some(hit.quote.as_str())
+            );
+            let facts = NoteFacts {
+                note_id: (path == "current.md")
+                    .then(|| "abcdefab-cdef-4abc-8def-abcdefabcdef".into()),
+                sha256: Sha256::digest(saved.as_bytes()).into(),
+                source: matches!(path, "source.md" | "archive/original.md"),
+                history: matches!(path, "old.md" | "archive/original.md"),
+                conflicts: ConflictKnowledge::Unknown,
+            };
+            assert_eq!(note.facts, facts);
+            assert_eq!(hit.facts, facts);
+            assert_eq!(
+                page.notes
+                    .iter()
+                    .find(|note| note.path == path)
+                    .unwrap()
+                    .facts,
+                facts
             );
         }
         for path in ["../source.md", ".hidden.md", "/source.md", "bad.md"] {
@@ -178,6 +201,18 @@ fn retained_scoped_tools_reject_stale_class_hash_and_preserve_utf8_cap() {
     assert!(note.truncated);
     assert_eq!(note.text, &long[..49_999]);
     assert_eq!(
+        note.facts.sha256,
+        <[u8; 32]>::from(Sha256::digest(long.as_bytes()))
+    );
+    assert_ne!(
+        note.facts.sha256,
+        <[u8; 32]>::from(Sha256::digest(note.text.as_bytes()))
+    );
+    assert!(note.facts.source);
+    assert!(!note.facts.history);
+    assert_eq!(note.facts.note_id, None);
+    assert_eq!(note.facts.conflicts, ConflictKnowledge::Unknown);
+    assert_eq!(
         std::fs::read_to_string(vault.path().join("source.md")).unwrap(),
         long
     );
@@ -200,6 +235,44 @@ fn retained_scoped_tools_reject_stale_class_hash_and_preserve_utf8_cap() {
                 .unwrap_err()
                 .kind,
             AiErrorKind::ToolRejected
+        );
+    }
+}
+
+#[test]
+fn ambiguous_managed_metadata_is_refused_instead_of_inventing_note_facts() {
+    let (vault, _data, mut library, tools) = fixture();
+    write(
+        vault.path(),
+        "bad.md",
+        "---\nbrn_id: 00000000-0000-0000-0000-000000000001\nbrn_id: 00000000-0000-0000-0000-000000000002\n---\nneedle ambiguous",
+    );
+    library.refresh().unwrap();
+    for scope in [
+        ReadScope::Current,
+        ReadScope::Source,
+        ReadScope::History,
+        ReadScope::All,
+    ] {
+        assert_eq!(
+            tools.read_note_scoped("bad.md", scope).unwrap_err().kind,
+            AiErrorKind::ToolRejected
+        );
+        assert!(
+            !tools
+                .list_notes_scoped(None, None, scope)
+                .unwrap()
+                .notes
+                .iter()
+                .any(|note| note.path == "bad.md")
+        );
+        assert!(
+            !tools
+                .search_notes_scoped("needle", 10, scope)
+                .unwrap()
+                .hits
+                .iter()
+                .any(|hit| hit.path == "bad.md")
         );
     }
 }

@@ -152,7 +152,7 @@ impl ActionReadRequest {
                     .map(|c| serde_json::to_string(&c))
                     .transpose()
                     .map_err(|_| rejected())?;
-                json!({"path":page.path,"note_id":page.note_id,"scope":page.scope,"source":page.source,"entries":page.entries,"next_cursor":next_cursor,"open_count":page.open_count})
+                json!({"path":page.path,"note_id":page.note_id,"scope":page.scope,"source":page.source,"entries":page.entries,"next_cursor":next_cursor,"open_count":page.open_count,"facts":page.facts})
             }
             Self::One(id) => {
                 if !(1..=64).contains(&id.len()) {

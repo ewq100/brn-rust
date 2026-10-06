@@ -13,6 +13,17 @@ use std::sync::{
 };
 use tokio_util::sync::CancellationToken;
 
+// Synthetic adapter facts; Workflow tests separately prove byte-derived hashes.
+fn fixture_facts() -> NoteFacts {
+    NoteFacts {
+        note_id: None,
+        sha256: [17; 32],
+        source: false,
+        history: false,
+        conflicts: ConflictKnowledge::Unknown,
+    }
+}
+
 mod ask_effort_tests {
     use super::*;
 
@@ -66,6 +77,7 @@ mod ask_effort_tests {
                 path: path.into(),
                 text: MIXED_SOURCE.into(),
                 truncated: false,
+                facts: fixture_facts(),
             })
         }
 
@@ -188,7 +200,7 @@ mod ask_effort_tests {
                 };
                 assert_eq!(
                     serde_json::from_str::<Value>(&encoded).unwrap(),
-                    json!({"scope":"current","path":"tähtaeg.md","text":MIXED_SOURCE,"truncated":false})
+                    json!({"scope":"current","path":"tähtaeg.md","text":MIXED_SOURCE,"truncated":false,"facts":fixture_facts()})
                 );
                 http.assert_consumed();
             }
@@ -309,7 +321,7 @@ mod ask_effort_tests {
                 };
                 assert_eq!(
                     serde_json::from_str::<Value>(&encoded).unwrap(),
-                    json!({"scope":"current","path":"a.md","text":"fresh note","truncated":false})
+                    json!({"scope":"current","path":"a.md","text":"fresh note","truncated":false,"facts":fixture_facts()})
                 );
                 http.assert_consumed();
             }
@@ -1075,6 +1087,7 @@ impl ReadTools for Notes {
                 start_byte: 0,
                 end_byte: 5,
                 quote: "fresh".into(),
+                facts: fixture_facts(),
             }],
             keyword_only: true,
         })
@@ -1085,6 +1098,7 @@ impl ReadTools for Notes {
             path: path.into(),
             text: "fresh note".into(),
             truncated: false,
+            facts: fixture_facts(),
         })
     }
     fn list_notes(&self, _: Option<&str>, _: Option<&str>) -> AiResult<NotePage> {
@@ -1342,6 +1356,7 @@ mod scoped_read_tools_tests {
                     start_byte: 0,
                     end_byte: quote.len(),
                     quote: quote.into(),
+                    facts: scope_facts(scope),
                 }],
                 keyword_only: true,
             })
@@ -1358,6 +1373,7 @@ mod scoped_read_tools_tests {
                 path: path.into(),
                 text: format!("\u{feff}Exact {} Eesti 日本語 🦀\r\n", scope_name(scope)),
                 truncated: false,
+                facts: scope_facts(scope),
             })
         }
         fn list_notes_scoped(
@@ -1378,9 +1394,19 @@ mod scoped_read_tools_tests {
                 notes: vec![NoteEntry {
                     path: format!("{}/資料.MD", scope_name(scope)),
                     title: "\u{feff}Eesti 日本語\r\n".into(),
+                    facts: scope_facts(scope),
                 }],
                 next_cursor: Some(format!("{}/next.md", scope_name(scope))),
             })
+        }
+    }
+
+    fn scope_facts(scope: ReadScope) -> NoteFacts {
+        NoteFacts {
+            note_id: Some("00000000-0000-0000-0000-000000000001".into()),
+            source: matches!(scope, ReadScope::Source | ReadScope::All),
+            history: matches!(scope, ReadScope::History | ReadScope::All),
+            ..fixture_facts()
         }
     }
 
@@ -1522,15 +1548,15 @@ mod scoped_read_tools_tests {
                 let quote = "\u{feff}Eesti 日本語\r\n";
                 assert_eq!(
                     payload("call_0"),
-                    json!({"scope":name,"hits":[{"path":format!("{name}/資料.MD"),"start_byte":0,"end_byte":quote.len(),"quote":quote}],"keyword_only":true})
+                    json!({"scope":name,"hits":[{"path":format!("{name}/資料.MD"),"start_byte":0,"end_byte":quote.len(),"quote":quote,"facts":scope_facts(scope)}],"keyword_only":true})
                 );
                 assert_eq!(
                     payload("call_1"),
-                    json!({"scope":name,"path":"archive/資料.MD","text":format!("\u{feff}Exact {name} Eesti 日本語 🦀\r\n"),"truncated":false})
+                    json!({"scope":name,"path":"archive/資料.MD","text":format!("\u{feff}Exact {name} Eesti 日本語 🦀\r\n"),"truncated":false,"facts":scope_facts(scope)})
                 );
                 assert_eq!(
                     payload("call_2"),
-                    json!({"scope":name,"notes":[{"path":format!("{name}/資料.MD"),"title":quote}],"next_cursor":format!("{name}/next.md")})
+                    json!({"scope":name,"notes":[{"path":format!("{name}/資料.MD"),"title":quote,"facts":scope_facts(scope)}],"next_cursor":format!("{name}/next.md")})
                 );
                 http.assert_consumed();
             }
@@ -1577,8 +1603,8 @@ mod scoped_read_tools_tests {
                         .iter()
                         .map(|(_, text)| serde_json::from_str::<Value>(text).unwrap())
                         .collect::<Vec<_>>();
-                    assert!(payloads.contains(&json!({"scope":"current","hits":[{"path":"a.md","start_byte":0,"end_byte":5,"quote":"fresh"}],"keyword_only":true})));
-                    assert!(payloads.contains(&json!({"scope":"current","path":"a.md","text":"fresh note","truncated":false})));
+                    assert!(payloads.contains(&json!({"scope":"current","hits":[{"path":"a.md","start_byte":0,"end_byte":5,"quote":"fresh","facts":fixture_facts()}],"keyword_only":true})));
+                    assert!(payloads.contains(&json!({"scope":"current","path":"a.md","text":"fresh note","truncated":false,"facts":fixture_facts()})));
                     assert!(
                         payloads
                             .contains(&json!({"scope":"current","notes":[],"next_cursor":null}))
@@ -1723,7 +1749,7 @@ mod scoped_read_tools_tests {
             .unwrap();
             assert_eq!(
                 note,
-                json!({"scope":"history","path":"archive/a.md","text":"x".repeat(49_999),"truncated":true})
+                json!({"scope":"history","path":"archive/a.md","text":"x".repeat(49_999),"truncated":true,"facts":fixture_facts()})
             );
             for id in ["call_1", "call_2"] {
                 assert_eq!(
@@ -2222,6 +2248,7 @@ impl ReadTools for OversizedNotes {
                     start_byte: 0,
                     end_byte: 1,
                     quote: "x".into(),
+                    facts: fixture_facts(),
                 })
                 .collect(),
             keyword_only: true,
@@ -2232,6 +2259,7 @@ impl ReadTools for OversizedNotes {
             path: path.into(),
             text: format!("{}é", "x".repeat(49_999)),
             truncated: false,
+            facts: fixture_facts(),
         })
     }
     fn list_notes(&self, _: Option<&str>, _: Option<&str>) -> AiResult<NotePage> {
@@ -2240,6 +2268,7 @@ impl ReadTools for OversizedNotes {
                 NoteEntry {
                     path: "a.md".into(),
                     title: "a".into(),
+                    facts: fixture_facts(),
                 };
                 201
             ],
@@ -2279,6 +2308,7 @@ async fn actual_tools_enforce_utf8_note_cap_and_adapter_result_caps() {
     let note: Value = serde_json::from_str(results[0]["content"].as_str().unwrap()).unwrap();
     assert_eq!(note["text"].as_str().unwrap(), "x".repeat(49_999));
     assert_eq!(note["truncated"], true);
+    assert_eq!(note["facts"], json!(fixture_facts()));
     for result in &results[1..] {
         let content = result["content"].as_str().unwrap();
         assert_eq!(content, "the tool failed");
@@ -4318,7 +4348,14 @@ mod conflict_tool_tests {
             "tentative":true,"summary":"Exact unresolved õ\r\n"})
     }
     fn page(next: Option<&str>) -> Value {
-        json!({"conflicts":[{"state":"open","quotes":["\u{feff}Friday õ\r\n","Monday 🦀\r\n"],
+        let facts = NoteFacts {
+            note_id: Some("00000000-0000-0000-0000-000000000001".into()),
+            conflicts: ConflictKnowledge::Known { open_count: 1 },
+            ..fixture_facts()
+        };
+        json!({"note_id":facts.note_id,"source":{"path":"knowledge/õ date.md",
+            "fingerprint":{"device":1,"inode":2,"len":27,"sha256":facts.sha256}},
+            "open_count":1,"facts":facts,"conflicts":[{"state":"open","quotes":["\u{feff}Friday õ\r\n","Monday 🦀\r\n"],
             "observations":[{"state":"changed"},{"state":"unavailable"}]}],
             "next_cursor":next,"complete":next.is_none()})
     }
@@ -4761,6 +4798,8 @@ mod conflict_tool_tests {
                     "unresolved conflicts and stale evidence",
                     "do not choose a winner",
                     "Incomplete pages or failed lookup never mean no conflict",
+                    "uninspected conflicts are not zero",
+                    "Even known zero cannot establish consistency",
                 ] {
                     assert!(prompt.contains(text), "{prompt}");
                 }

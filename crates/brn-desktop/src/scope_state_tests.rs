@@ -6,6 +6,13 @@ fn page(path: &str, next: Option<&str>) -> AppEvent {
         notes: vec![NoteEntry {
             path: path.into(),
             title: path.into(),
+            facts: brn_workflow::NoteFacts {
+                note_id: None,
+                sha256: [7; 32],
+                source: false,
+                history: false,
+                conflicts: brn_workflow::ConflictKnowledge::Unknown,
+            },
         }],
         next_cursor: next.map(str::to_owned),
     })

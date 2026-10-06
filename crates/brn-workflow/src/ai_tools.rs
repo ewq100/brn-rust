@@ -5,8 +5,8 @@ use crate::library::{
 };
 use crate::vault::{self, EvidencePath, VaultPath};
 use brn_ai::{
-    AiError, AiErrorKind, AiResult, NoteEntry, NotePage, Passage, ReadScope, ReadTools, ToolNote,
-    ToolSearch,
+    AiError, AiErrorKind, AiResult, ConflictKnowledge, NoteEntry, NoteFacts, NotePage, Passage,
+    ReadScope, ReadTools, ToolNote, ToolSearch,
 };
 use brn_retrieval::note_index::{IndexedNote, NoteIndexReader};
 use std::{
@@ -100,12 +100,23 @@ fn read_path(path: &str, scope: KnowledgeScope) -> AiResult<EvidencePath> {
     EvidencePath::parse(path).map_err(|_| rejected())
 }
 
-fn check_class(text: &str, path: &str, scope: KnowledgeScope) -> AiResult<()> {
+fn checked_facts(
+    text: &str,
+    path: &str,
+    scope: KnowledgeScope,
+    sha256: [u8; 32],
+) -> AiResult<NoteFacts> {
     let metadata = saved_metadata(text, path);
     if metadata.issue.is_some() || !scope.includes(metadata.source, metadata.history) {
         Err(stale())
     } else {
-        Ok(())
+        Ok(NoteFacts {
+            note_id: metadata.note_id.map(|id| id.to_string()),
+            sha256,
+            source: metadata.source,
+            history: metadata.history,
+            conflicts: ConflictKnowledge::Unknown,
+        })
     }
 }
 
@@ -114,15 +125,25 @@ pub(crate) fn validate_hits_scoped(
     hits: &[NoteHit],
     scope: KnowledgeScope,
 ) -> AiResult<()> {
+    visit_hits_scoped(root, hits, scope, |_| {})
+}
+
+fn visit_hits_scoped(
+    root: &Path,
+    hits: &[NoteHit],
+    scope: KnowledgeScope,
+    mut visit: impl FnMut(NoteFacts),
+) -> AiResult<()> {
     for hit in hits {
         let path = read_path(&hit.path, scope)?;
         let note = vault::read_evidence(root, &path).map_err(|_| stale())?;
-        check_class(&note.text, &hit.path, scope)?;
+        let facts = checked_facts(&note.text, &hit.path, scope, note.sha256)?;
         if note.sha256 != hit.note_sha256
             || note.text.get(hit.start_byte..hit.end_byte) != Some(hit.quote.as_str())
         {
             return Err(stale());
         }
+        visit(facts);
     }
     Ok(())
 }
@@ -157,13 +178,14 @@ pub(crate) fn note_page_scoped(
             continue;
         }
         let current = vault::read_evidence(root, &path).map_err(|_| stale())?;
-        check_class(&current.text, &entry.path, scope)?;
+        let facts = checked_facts(&current.text, &entry.path, scope, current.sha256)?;
         if current.sha256 != entry.sha256 {
             return Err(stale());
         }
         notes.push(NoteEntry {
             path: entry.path,
             title: entry.title,
+            facts,
         });
         if notes.len() == 201 {
             break;
@@ -218,17 +240,20 @@ impl ReadTools for AiTools {
                 _ => AiError::new(AiErrorKind::Storage),
             })?
         };
-        validate_hits_scoped(&self.root, &results.hits, scope)?;
+        let mut facts = Vec::with_capacity(results.hits.len());
+        visit_hits_scoped(&self.root, &results.hits, scope, |fact| facts.push(fact))?;
         self.check_current_epoch(epoch)?;
         Ok(ToolSearch {
             hits: results
                 .hits
                 .into_iter()
-                .map(|hit| Passage {
+                .zip(facts)
+                .map(|(hit, facts)| Passage {
                     path: hit.path,
                     start_byte: hit.start_byte,
                     end_byte: hit.end_byte,
                     quote: hit.quote,
+                    facts,
                 })
                 .collect(),
             keyword_only: results.keyword_only,
@@ -244,13 +269,14 @@ impl ReadTools for AiTools {
         let parsed = read_path(path, scope)?;
         let epoch = self.check_root()?;
         let note = vault::read_evidence(&self.root, &parsed).map_err(|_| rejected())?;
-        check_class(&note.text, path, scope).map_err(|_| rejected())?;
+        let facts = checked_facts(&note.text, path, scope, note.sha256).map_err(|_| rejected())?;
         let (text, truncated) = brn_ai::capped_text(&note.text);
         self.check_current_epoch(epoch)?;
         Ok(ToolNote {
             path: path.to_owned(),
             text: text.to_owned(),
             truncated,
+            facts,
         })
     }
 

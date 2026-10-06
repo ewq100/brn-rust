@@ -15,7 +15,7 @@ and the disposable retrieval index retain their existing roles. The owner's
 permits thin future adapters around the six V1 core crates through workflow/
 AppWorker. No MCP, daemon, HTTP service, extra database or remote work is in V1.
 
-Integrated main is **`a799c3369cad61117113de40d7b1d95dad589100` (PR68)**.
+Integrated main is **`b5bcb0a7430de437533532f2bfab6a9df751509e` (PR69)**.
 Complete retained original review, deterministic saved-body quotes, Rust-owned
 Conflict/Knowledge/Action candidate identities, checked full Action replacement
 baselines and AI Rewrite metadata protection are integrated. Exact approval and
@@ -66,8 +66,23 @@ shared1,446/0/10+52, native330 Workflow/models/0/9+292 Desktop/0/0 and11commands
 restarts passed; complete/final-delta independent review clean. Documentation
 review's legacy pending-retry claim was corrected: inspection/already-performed
 settlement is supported; retry requires new-format intents.
-Exact-head CI/integration, unlocked owner observation and Stage8 remain
-pending; broader startup/backup cost is separate. No semantic
+PR69 merged normally atb5bcb0a after exact99ba833 run37401164589 attempt1 passed
+four protected checks and Docs; unchanged Windows22 remains visible. Fresh merged
+build/5state+2widget tests and52fixtures passed. Main69 run37402543978 attempt1
+passed all applicable checks; unchanged Windows22/22/14 and Linux3 assertions/
+backtraces retain raw order/IDs/timing differences. Unlocked owner observation
+and Stage8 remain pending. R6 typed note facts are implemented at6413e7a and
+merged with qualified main69 ata135a6d. Focused128 AI/3 scopes/5 read guards/
+1 question/10 conflicts and affected Clippy passed; complete and documentation
+reviews are clean. Fresh shared1,448/0/10+52 and native330 Workflow/models/0/9+
+292 Desktop/0/0,11commands/V15 restarts passed at unchanged clean3a35aaf.
+Initial exact-head run37404986639 attempt1 passed four protected checks and Docs;
+unchanged Windows22 remains red. Latest evidence-head CI and integration are next.
+Startup witness baseline at5f1f11d passed36 history and36 shipping probes;
+near-limit healthy shipping CLI median38.903s. Private publication correction
+has13 focused tests/Clippy passing; independent review and post-change timings
+remain pending, with no optimization benefit claimed yet. Broader startup/backup cost is
+separate. No semantic
 completeness, native/live/owner acceptance or full V1 delivery is claimed. The full
 V1 goal remains active. No owner original/private data was inspected or migrated.
 

@@ -20,16 +20,22 @@ Action correction merged normally in PR64 at
 at531517248300c15ce28bcb53f337984103817010/tree d63c1827aae5da654410520bc9c48856e1fa5e5a.
 Knowledge capture recovery merged in PR66 at
 `504f6be33e1add8c5819e28eed08628bc8dec8d0`, reviewed tree
-`77ec79e33c75a6a0bbed3100c3815648dcb6fd68`. Current branch:
-`codex/v1-original-copy-lifecycle`, based on original-record PR67 merge
-1ebff1a6f6099568c339e6b605bf819e1dbf6e6f/tree611dfcb1ce0bb4d4d09d39ad643efde48cd39710.
+`77ec79e33c75a6a0bbed3100c3815648dcb6fd68`. Original-record PR67, lifecycle PR68
+and native controls PR69 are integrated. Current main is
+`b5bcb0a7430de437533532f2bfab6a9df751509e`, reviewed tree
+`1abaa112874aa30af6969394d2c863d31cf57de3`. Current branch is
+`codex/v1-ai-note-facts`: task commit6413e7a merged with qualified main69 at
+`a135a6d80343cdc8f2a9156d7d4f571bb62c6aef`. Complete/doc reviews and fresh shared/
+native gates pass at clean3a35aaf; latest evidence-head CI and normal integration
+are next. Startup baseline is measured; private publication correction has
+focused checks passing, with independent review/post-change timings pending.
 Remaining accepted corrections follow this plan.
 The complete V1 goal is confirmed **active** by `get_goal` on 2026-10-06;
 its full objective and roadmap dependency order remain unchanged.
 
-The lifecycle snapshot is implemented and automated verified, but unmerged.
-Its removal/restore merge, native removal controls and Stage8 originals wait for
-record-shape/performance and cleanup corrections. Native/live/owner acceptance
+Lifecycle and native controls are implemented, automated verified and merged.
+Startup/relationship cost and retrieval-fact corrections precede Stage8.
+Native/live/owner acceptance
 remains pending. Historical live authorization is exhausted; all checks here
 use disposable synthetic data, pinned Rust and locked dependencies.
 
@@ -713,6 +719,60 @@ unrelated platform fix was added. Latest-head applicable CI is still required;
 earlier passing local evidence applies only to unchanged relevant code/features.
 
 
+## R6 typed retrieval facts acceptance
+
+This bounded implementation starts from PR68 merge
+`a799c3369cad61117113de40d7b1d95dad589100` on `codex/v1-ai-note-facts`.
+Required `NoteFacts` in the existing AI result boundary report an optional canonical
+managed UUID, full saved-note SHA256 array, independent Source/History flags and
+explicit Unknown conflict knowledge. The existing checked conflict lookup adds
+Known retained open count bound to its original exact UUID/SourceVersion, retaining
+all fields, full evidence, count and cursor. No eager lookup, extra file I/O,
+cache, tool, dependency, datastore or authority path is introduced. Classification,
+provenance and even Known zero do not establish consistency, semantic truth or a
+winner; stale findings remain disclosed. Captured questions/replay, keyword-only
+labels, scope, pagination, limits, evidence epochs and exact approval stay intact.
+
+Focused acceptance covers mixed All/current/Source/History/archived Source,
+canonical optional identity, same complete hash before UTF-8 text cap, uninspected
+Unknown, checked positive counts independent of page size and checked zero,
+malformed/stale/ambiguous refusal, retained stale evidence and real synthetic Rig
+tool JSON on the existing routes. Instruction guards retain authority/capability
+rules. Lead reviewed and approved this bounded interface/population/guidance before
+qualification. Latest-main integration and complete independent/shared/native
+qualification remain pending; live semantic disclosure and owner acceptance are
+separate gates.
+
+Focused offline qualification on2026-10-06 02:17:33–02:23:23UTC used pinned1.98.1,
+locked dependencies, this checkout's existing exclusive target and a new physical
+synthetic fixture parent. Owned-file rustfmt and strict default-feature all-target
+Clippy for AI/Workflow/Desktop passed. Actual tests passed128 AI/3 scoped notes/
+5 existing read tools/1 captured Inbox instruction guard/10 Workflow conflicts,
+all0failures/0ignores. The restored single conflict witness separately passed1/0.
+No full workspace/native gate, provider call, model asset or owner interaction ran.
+
+Failures remain recorded: a missing formatter shell PATH (Pythonexit1, no Rust
+command launched), a Cargo invocation unable to find rustc (exit101, no compile),
+and initial AI127/1 (exit101). That new assertion incorrectly expected Serde's
+internally tagged unit Unknown to reject an attached count; the corrected assertion
+proves it remains Unknown rather than becoming Known zero. A wrong Workflow filter
+selected0tests, so it supplies no behavioral evidence. Actual sandboxed conflict
+runs failed10/10, then1/1 before new facts assertions; an initial diagnostic failed
+to compile because AppEvent lacks Debug (exit101). Corrected diagnostic revealed
+macOS coordination refusal at Source creation (exit101). The diagnostic was restored
+byte-for-byte; the exact restored witness and full10 conflict tests then passed
+outside that sandbox without weakening any fixture/product check. Nonfatal toolchain
+rust-objcopy/libLLVM warnings from the direct-bin invocation remain in the logs.
+Raw commands/exits/times and per-file hashes are retained in
+`/private/tmp/brn-r6-focused-nye9eytp/record.json`; these paragraph counts are the
+durable summary. The qualified11-file Rust-only binary patch against the baseline
+has SHA256 `6cf306fbd072286a089836ec2087961e6f320ba5b731ff61e32b4f59a822f06d`;
+subsequent edits here affect only this evidence and crate documentation. Task-owned
+changes committed as6413e7a/tree7a9b4ce9. Qualified main69 merged normally into
+this branch ata135a6d/tree16b0262e; code merged without conflict. The sole plan
+append conflict preserves both complete evidence sections. Final review and fresh
+relevant gates remain pending, with Cargo held during the isolated B2 timings.
+
 ## Lifecycle integration and native controls checkpoint
 
 PR68 merged normally on2026-10-06 01:30:28UTC at
@@ -775,3 +835,58 @@ and0.60→0.05s are preserved. Mac workspace tests passed in738s versus436s on
 main67 (corrected PR68 was495s); four over60s notices subsequently passed.
 Full successful Mac output/durations and failed raw platform comparisons remain
 retained. No rerun/substitution or unrelated platform fix was made.
+
+Main69 native controls merged normally atb5bcb0a after exact99ba833
+run37401164589 attempt1 passed four protected checks and Docs; Windows22 remains
+identical to corrected PR68. Fresh merged build/5state+2widget regressions and
+52fixtures passed at unchanged clean identity. Automatic merged-main run37402543978
+attempt1 passed all applicable checks and extra Ubuntu UI. Overall failure retains
+Windows22/22/14 complete blocks/terminals matching main68 and Linux3 matching
+assertions/backtraces, with raw order/PIDs/0.05s→0.20s differences preserved.
+Mac tests508s versus738s and Ubuntu345s versus347s are recorded observations,
+not product benchmarks. GUI/live/assets/owner acceptance remains pending.
+
+## Typed note-facts qualification
+
+Complete independent review of the task and integration delta is clean. The
+11-file Rust patch is byte-identical through main69 integration; final crate/
+evidence documentation review is also clean. Fresh shared atomic gate at clean
+`3a35aaf869e45fe7709602c07beaac93ddb49bd4`, tree
+`620fd4089c6d14c6549e1afeae111a15df39e413`, on2026-10-06
+02:39:30–02:46:07UTC passed format/workspace build/all-target Clippy,
+1,448 tests/0failures/10documented ignores and52 fixtures. All commands exit0.
+Nonfatal rust-objcopy/libLLVM warnings remain retained; no toolchain change made.
+Native atomic gate02:48:05–02:50:13UTC at the same unchanged clean identity
+passed all11commands: startup, combined check, three Clippy configurations,
+330 Workflow/models/0/9,292 Desktop/0/0, builds and two native restarts. Fresh
+SQLite queries confirm V15/owned operation table. No GUI/live/owner claim made.
+
+Initial exact PR70 run37404986639 attempt1 passed all four protected Mac/shared
+checks and Docs. Overall failure retains Windows22 full source-inclusive compiler
+blocks/both terminal summaries, identical to PR69; metadata/order/timing differences
+remain separate. GitHub test-merge644839f has exact reviewed tree620fd408.
+Mac tests447s versus663s and Ubuntu350s versus294s are observations; all long-test
+notices subsequently passed, without cancellation/timeout. Final evidence-only
+head still needs exact-head CI before normal merge and fresh merged verification.
+
+## Startup baseline and bounded correction
+
+Clean witness baseline5f1f11d on2026-10-06 passed all36 full-history probes
+(02:25:18–02:30:56UTC) and36 default shipping CLI probes
+(02:33:21–02:38:11UTC), three warm repetitions/scenario with exclusive local CPU.
+Near-limit dataset has7 operations,150,452,382 encoded mirror bytes,
+75,227,526 receipt bytes and four Remove receipts totaling75,222,931 bytes.
+Healthy medians: Store1.515s, complete App39.159s, shipping CLI38.903s;
+SQL-only repair App13.520s/CLI13.439s; fresh-SQL App36.151s/CLI36.154s.
+App includes Store: these times must not be summed. Fresh-schema Store is not
+comparable to populated Store. Complete byte/inode/history/no-effect and backup
+1..5 checks passed. These are warm synthetic results, without cold-cache/GUI claims.
+
+The first shipping permission preflight failed before any child launched. Only
+owned synthetic fixture directory modes were tightened0755→0700 outside timing;
+byte/inode proofs were unchanged and failure retained. Private equal-publication
+optimization is limited to stable complete canonical bytes and same-file durability
+checks, preserving full untrusted decoding, startup checks and backup contract.
+A same-byte inode replacement after sync reproduced a genuine old-path failure;
+the correction has13 focused tests and strict Workflow Clippy passing. Complete
+review and post-change release measurements remain pending; no benefit claimed.
