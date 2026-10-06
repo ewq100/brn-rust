@@ -15,7 +15,7 @@ and the disposable retrieval index retain their existing roles. The owner's
 permits thin future adapters around the six V1 core crates through workflow/
 AppWorker. No MCP, daemon, HTTP service, extra database or remote work is in V1.
 
-Integrated main is **`a799c3369cad61117113de40d7b1d95dad589100` (PR68)**.
+Integrated main is **`b5bcb0a7430de437533532f2bfab6a9df751509e` (PR69)**.
 Complete retained original review, deterministic saved-body quotes, Rust-owned
 Conflict/Knowledge/Action candidate identities, checked full Action replacement
 baselines and AI Rewrite metadata protection are integrated. Exact approval and
@@ -66,8 +66,13 @@ shared1,446/0/10+52, native330 Workflow/models/0/9+292 Desktop/0/0 and11commands
 restarts passed; complete/final-delta independent review clean. Documentation
 review's legacy pending-retry claim was corrected: inspection/already-performed
 settlement is supported; retry requires new-format intents.
-Exact-head CI/integration, unlocked owner observation and Stage8 remain
-pending; broader startup/backup cost is separate. No semantic
+PR69 merged normally atb5bcb0a with exact reviewed tree1abaa112 after run37401164589
+attempt1 passed all four protected Mac/shared scopes and Docs. Windows22 full
+blocks/summaries match PR68; actual red remains. Fresh merged build/5state+2widget
+regressions+52fixtures passed at unchanged clean identity (02:06:51–02:06:56UTC).
+Main69 CI, unlocked owner observation and Stage8 remain pending. Startup-cost
+witness preparation is test-only and unmeasured; R6 facts are prepared separately.
+Broader startup/backup cost remains separate. No semantic
 completeness, native/live/owner acceptance or full V1 delivery is claimed. The full
 V1 goal remains active. No owner original/private data was inspected or migrated.
 
@@ -128,7 +133,8 @@ Stage 7 integrates text/email intake and processing, selected-Source Action and
 Knowledge drafts, exact Current/History supersession pairs, tentative conflicts
 with shared Ask/CLI lookup, complete retained original review and fresh removal
 preview. Source+confirmation recoverable original removal and exact Restore are integrated;
-native controls are under qualification separately. The historical snapshot stays unmerged. Evidence: [Inbox](work/active/text-email-inbox/plan.md),
+native controls are integrated after headless qualification; GUI/live/owner acceptance
+remain separate. The historical snapshot stays unmerged. Evidence: [Inbox](work/active/text-email-inbox/plan.md),
 [supersession](work/active/text-email-inbox/supersession-plan.md),
 [conflicts](work/active/text-email-inbox/conflicts-plan.md) and
 [original-copy work](work/active/text-email-inbox/original-copy-plan.md).

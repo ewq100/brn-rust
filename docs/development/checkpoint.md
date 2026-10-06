@@ -2,6 +2,38 @@
 
 Full frozen V1 goal confirmed **active** on2026-10-06, without a token budget.
 
+- **Integrated:** [PR69](https://github.com/ewq100/brn-rust/pull/69) at
+  `b5bcb0a7430de437533532f2bfab6a9df751509e`, reviewed tree
+  `1abaa112874aa30af6969394d2c863d31cf57de3`. Native copy controls capture complete
+  Source/removal proofs and exact confirmation; AppWorker owns history/effects,
+  stale-reply checks and same-request retry. Typing/drafts/reviews remain separate.
+- **Verification:** independent Rust/evidence reviews clean; shared1,446/0/10+52
+  and native330 Workflow/models/0/9+292 Desktop/0/0,11commands/V15 restarts passed.
+  Exact99ba833 run37401164589 attempt1 passed four protected Mac/shared checks
+  and Docs. Windows22 source-inclusive blocks/summaries match PR68; red remains.
+  Fresh merged build/5state+2widget regressions+52fixtures passed at clean b5bcb0a,
+  atomic unchanged exit0 (02:06:51–02:06:56UTC). Main69 CI is pending.
+- **Current:** `codex/v1-copy-startup-witness`, prepared code
+  `f280abd8e801f491f7335b2d692dac2ff893473f`. Test-only synthetic startup witness
+  has mandatory fixtures-only/full modes; no optimization, Cargo qualification or
+  BRN measurement is claimed yet. Fixed shipping runner's eight synthetic safety/
+  interruption tests pass. Next: release fixture generation, actual release CLI
+  warm measurements, then only a measured bounded correction. R6 typed note facts
+  are prepared separately; qualification/review/integration remain pending.
+- **Pending:** native GUI/live/assets/owner acceptance, startup/relationship cost,
+  later roadmap stages and trusted-user packaging. Legacy pending-intent retry is
+  unsupported; historical inspection/already-performed settlement remain supported.
+  No owner original removed. Full V1 delivery is not claimed.
+- **Environment:** Darwin arm64 Mac mini, Rust1.98.1 locked/offline, canonical owned
+  `TMPDIR=/private/tmp/brn-mini-synthetic-20261005`, empty model setting, isolated
+  checkouts/targets and disposable synthetic data. No new live calls/downloads,
+  private-data operations or release authorized. Immutable7c4f668 stays unchanged.
+  Continue under the [correction plan](../work/active/architecture-review-corrections/plan.md).
+
+# Earlier native copy-control qualification checkpoint
+
+Full frozen V1 goal confirmed **active** on2026-10-06, without a token budget.
+
 - **Integrated:** [PR68](https://github.com/ewq100/brn-rust/pull/68) at
   `a799c3369cad61117113de40d7b1d95dad589100`, reviewed tree
   `6c7aee29c32368c690b50e27ae813e6ce5f213c5`. Approved preserving Source plus

@@ -775,3 +775,41 @@ and0.60→0.05s are preserved. Mac workspace tests passed in738s versus436s on
 main67 (corrected PR68 was495s); four over60s notices subsequently passed.
 Full successful Mac output/durations and failed raw platform comparisons remain
 retained. No rerun/substitution or unrelated platform fix was made.
+
+## Native copy-control integration and B2 startup witness
+
+PR69 merged normally on2026-10-06 02:06:44UTC at
+`b5bcb0a7430de437533532f2bfab6a9df751509e`, preserving reviewed tree
+`1abaa112874aa30af6969394d2c863d31cf57de3`. Exact99ba833 run37401164589
+attempt1 passed all four strict protected Mac/shared checks and Docs. Overall
+failure retains Windows22 complete source-inclusive compiler blocks/149lines,
+both terminal summaries and skips identical to corrected PR68. Mac tests663s
+versus495s (main68 was738s), Ubuntu294s versus345s remain recorded. No timeout,
+cancel or substituted run. Fresh protection retained strict/admin enforcement,
+four existing checks and no extra rulesets; normal merge used exact expected head.
+Fresh merged atomic gate02:06:51–02:06:56UTC at unchanged clean b5bcb0a passed
+workspace build, all5copy-state/all2shipping-root widget tests and52fixtures,
+all four commands exit0. Zero filtered secondary binaries are not counted as
+behavioral qualification. Main69 automatic CI remains pending.
+
+B2 witness starts from this qualified product baseline. Acceptance: exclusively
+generated owned synthetic roots; empty,256small,mixed legacy/new and seven-record/
+four-near-limit escaped families; healthy mirrors, SQL-only repair and fresh-SQL
+recovery. Separate fixture creation and complete Store/App timings; App includes
+Store and those times must not be added. Fixed fixtures-only mode enables actual
+shipping release CLI measurements without requiring long debug repeats first.
+Report exact code/artifact/feature identity, encoded bytes, warm repeat spread,
+backup count/bytes and actual exits. Existing inventory counters are separate
+post-timing probes, never total-startup counters. Preserve full canonical bytes,
+existing endpoint/mirror inodes, legacy proof, no startup move/resurrection,
+checked pre/post-migration startup and backup on every open/keep5.
+
+Prepared codef280abd8 is an ignored test with three private test seams, no
+production optimization. Owned rustfmt/diff checks pass; fixed task-work shipping
+runner reuses atomic evidence helpers and eight pure synthetic tests cover binding,
+selective reset, symlink/backup refusal, result states and owned-child interruption.
+No Cargo build, fixture generation, BRN startup measurement or performance benefit
+has been qualified yet. Release fixture/CLI qualification and independent review
+are next. Correct only a measured bounded hotspot; degraded startup or a changed
+backup-retention contract remains a separate owner decision. Full V1 goal is active;
+GUI/live/assets/owner acceptance and trusted packaging remain pending.
