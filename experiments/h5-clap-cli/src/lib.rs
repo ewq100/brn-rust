@@ -1,8 +1,9 @@
 //! H5 candidate: clap 4.6.7 replaces BRN's generic argv scanner for a
 //! representative subset (globals, `help`, `status`, `search`, `notes show`,
-//! nested `inbox add|list|show` and `findings close` with its local
-//! `--version`). BRN keeps its static help text, the exact `--help`/`--json`
-//! pre-scan, typed validation, data-directory admission and envelope policy.
+//! nested `inbox add|list|show`, `findings close` with its local `--version`
+//! and `models download` with a local boolean flag). BRN keeps its static help
+//! text, the exact `--help`/`--json` pre-scan, typed validation,
+//! data-directory admission and envelope policy.
 //!
 //! The file has three marked sections so the evaluation can count them:
 //! DECLARATIONS (what replaces BRN's option tables), ADAPTER (compatibility
@@ -59,6 +60,11 @@ const GROUPS: &[Group] = &[
         word: "inbox",
         expected: "add|add-binary|show|review|removal-preview|remove-original|restore-original|original-removal|original-restore|original-operations|archived-analysis|list|process|processing|candidate|source|visual|interpret-visual|visual-annotation|cancel|analyze-actions|action-analysis|analyze|analysis",
         unknown: |_| "unknown Inbox subcommand".into(),
+    },
+    Group {
+        word: "models",
+        expected: "download",
+        unknown: |_| "unknown models subcommand".into(),
     },
     Group {
         word: "findings",
@@ -122,6 +128,12 @@ const LEAVES: &[Leaf] = &[
         group: Some("findings"),
         word: "close",
         options: &[("version", true), ("state", true)],
+    },
+    Leaf {
+        label: "models.download",
+        group: Some("models"),
+        word: "download",
+        options: &[("approve-download", false), ("timeout-seconds", true)],
     },
 ];
 
@@ -286,8 +298,12 @@ fn run(args: &[String], walk: &Walk) -> Result<Outcome, String> {
             scanned.positionals.push(value.clone());
         }
     }
-    for &(name, _) in leaf.options {
-        if let Some(value) = option_value(matches, name, args)? {
+    for &(name, takes_value) in leaf.options {
+        if !takes_value {
+            if matches.get_flag(name) {
+                scanned.flags.push(name.to_string());
+            }
+        } else if let Some(value) = option_value(matches, name, args)? {
             scanned.values.push((name.to_string(), value));
         }
     }
@@ -373,6 +389,10 @@ fn clap_message(error: &clap::Error, args: &[String], walk: &Walk) -> String {
             raw(option)
         ),
         (ErrorKind::UnknownArgument, Walk::Root) => format!("unknown command: {invalid}"),
+        // BRN takes a single-dash token as the (unknown) subcommand word.
+        (ErrorKind::UnknownArgument, Walk::Group(group)) if !option.starts_with("--") => {
+            (group.unknown)(&invalid)
+        }
         (ErrorKind::UnknownArgument | ErrorKind::MissingSubcommand, Walk::Group(group)) => {
             format!("missing {0} subcommand ({1})", group.word, group.expected)
         }
@@ -391,6 +411,15 @@ fn clap_message(error: &clap::Error, args: &[String], walk: &Walk) -> String {
         }
         (ErrorKind::ArgumentConflict, _) => format!("duplicate option: {}", raw(option)),
         (ErrorKind::InvalidValue, _) => format!("missing value for {option}"),
+        // BRN names a leaf-local flag by label but echoes a global's token.
+        (ErrorKind::TooManyValues, Walk::Leaf(leaf))
+            if leaf
+                .options
+                .iter()
+                .any(|(o, _)| Some(*o) == option.strip_prefix("--")) =>
+        {
+            format!("{option} does not take a value")
+        }
         (ErrorKind::TooManyValues, _) => {
             format!("{} does not take a value", raw_token(args, option, true))
         }
@@ -424,12 +453,16 @@ impl Globals {
 #[derive(Default)]
 struct Scanned {
     positionals: Vec<String>,
+    flags: Vec<String>,
     values: Vec<(String, String)>,
 }
 
 impl Scanned {
     const MAX_GENERATION: u64 = i64::MAX as u64;
 
+    fn flag(&self, name: &str) -> bool {
+        self.flags.iter().any(|f| f == name)
+    }
     fn value(&self, name: &str) -> Option<&str> {
         self.values
             .iter()
@@ -564,6 +597,22 @@ fn typed(leaf: &Leaf, s: &Scanned, g: &mut Globals) -> Result<Outcome, String> {
                 return Err("--state must be open|resolved|dismissed|all for listing, or resolved|dismissed for closure".into());
             }
         }
+        "models.download" => {
+            expect_positionals(s, 0)?;
+            if !s.flag("approve-download") {
+                return Err("models download requires --approve-download".into());
+            }
+            if let Some(raw) = s.value("timeout-seconds") {
+                let seconds: u64 = raw
+                    .parse()
+                    .map_err(|_| format!("invalid --timeout-seconds: {raw}"))?;
+                if !(1..=3600).contains(&seconds) {
+                    return Err(format!(
+                        "--timeout-seconds must be between 1 and 3600: {raw}"
+                    ));
+                }
+            }
+        }
         _ => unreachable!("declared leaf"),
     }
     if g.version {
@@ -593,6 +642,15 @@ fn typed(leaf: &Leaf, s: &Scanned, g: &mut Globals) -> Result<Outcome, String> {
             .is_some_and(|p| !PathBuf::from(p).is_absolute())
         {
             return Err(format!("{name} must be an absolute path"));
+        }
+    }
+    if let Some(vault) = g.vault.as_deref().map(PathBuf::from) {
+        if !vault.is_dir()
+            || vault
+                .symlink_metadata()
+                .is_ok_and(|m| m.file_type().is_symlink())
+        {
+            return Err("--vault must be an existing regular directory".into());
         }
     }
     Ok(Outcome::Run {

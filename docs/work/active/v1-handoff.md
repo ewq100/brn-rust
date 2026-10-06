@@ -77,7 +77,7 @@ live calls into GUI observation. Owner acceptance remains pending.
 
 ## Ordered task queue
 
-Inspected unchanged product code at main a8deb9d: none of H1–H5 is completed or superseded. H1 still scans raw title lines; H2 still duplicates schema and has no direct Schemars dependency; visual output still uses prompt JSON without `output_schema`; no docx-rs/clap dependency is present. H3–H5 questions remain unresolved. Existing decision evidence is sufficient to prepare evaluations, not adopt replacements.
+Inspected unchanged product code at main a8deb9d (before H5 was evaluated): none of H1–H5 was completed or superseded. H1 still scans raw title lines; H2 still duplicates schema and has no direct Schemars dependency; visual output still uses prompt JSON without `output_schema`; no docx-rs/clap dependency is present. H3–H5 questions remained unresolved; H5 has since been evaluated (row below). Existing decision evidence is sufficient to prepare evaluations, not adopt replacements.
 
 | ID | Kind / classification | Detail |
 | --- | --- | --- |
@@ -85,7 +85,7 @@ Inspected unchanged product code at main a8deb9d: none of H1–H5 is completed o
 | H2 | Ready for implementation with compatibility stop | Narrow accepted derivation, equivalence first; [spec](preparation-checkpoint/next-specs.md#h2--one-compatible-action-schema) |
 | H3 | Ready for evaluation | Offline route feasibility; enabling live routes remains conditional on qualification |
 | H4 | Ready for evaluation | Published release fit unresolved; broader replacement conditional on result |
-| H5 | Evaluated: not adopted | clap would add more adapter code than it removes and still change error order; [result](../../../experiments/h5-clap-cli/README.md) |
+| H5 | Evaluated: not adopted | clap would add more adapter code than it removes and still change some usage messages; [result](../../../experiments/h5-clap-cli/README.md) |
 
 Lead owns shared documentation and integration. Each implementer/evaluator records actual baseline, candidate, result and stop reason in its own task record; lead reconciles the common queue/ADR/status. Evaluations have no product API changes or owner acceptance requirement beyond reviewing the recommendation; no credentials/hardware beyond ordinary pinned Rust/macOS fixtures. H3–H5 finish with reproducible synthetic evidence and an adoption/non-adoption/blocker decision, independent review and focused result PR. H4/H5 isolate manifest, lock and target. Parent/spec links above do not select work.
 

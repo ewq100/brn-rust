@@ -45,18 +45,19 @@ decision and migration boundary; do not migrate the entire CLI during evaluation
 
 **Result, 2026-10-06 (build: keep the local scanner).** The
 [H5 evaluator](../../../experiments/h5-clap-cli/README.md) ran a clap4.6.7 candidate
-for globals, `status`, `search`, `notes show`, nested `inbox add|list|show` and
-`findings close` against the real `brn` binary at `main@450eaa2` over 88 synthetic
-argv cases. 84 matched exactly; in the other 4 usage errors, the candidate reported
-a different first problem. No case touched the data directory. To get there, clap
-had to be configured against its defaults: BRN's exact-token help pre-scan and static
-help stay, globals are declared per level because propagated globals overwrite
-silently, hyphen values are enabled and re-checked, `--` is pre-rejected, and argv is
-re-walked because clap errors carry no subcommand path. The candidate needs about
-240 lines of tree builder and adapter to replace about 130 lines of generic
-scanning, adds `clap`, `clap_builder` and `clap_lex`, and leaves the command tables
-unchanged. There is no migration boundary. Reopen only if the owner accepts
-clap-generated help, wording or ordering, or a new requirement such as shell
+for globals, `status`, `search`, `notes show`, nested `inbox add|list|show`,
+`findings close` and `models download` against the real `brn` binary at
+`main@450eaa2` over 101 synthetic argv cases. 93 matched exactly. The other 8 were
+usage errors with the same exit code and envelope command but a different message.
+Every run stopped at parsing or admission and created nothing in the data directory.
+To get there, clap had to be configured against its defaults: BRN's exact-token help
+pre-scan and static help stay, globals are declared per level because propagated
+globals overwrite silently, hyphen values are enabled and re-checked, `--` is
+pre-rejected, and argv is re-walked because clap errors carry no subcommand path.
+The candidate needs about 255 lines of tree builder and adapter to replace about 130
+lines of generic scanning, adds `clap`, `clap_builder` and `clap_lex`, and leaves the
+command tables unchanged. There is no migration boundary. Reopen only if the owner
+accepts clap-generated help, wording or ordering, or a new requirement such as shell
 completion outgrows the local scanner.
 
 ## B — tool-schema structure: accepted later, task H2

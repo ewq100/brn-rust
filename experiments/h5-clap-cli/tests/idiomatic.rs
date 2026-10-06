@@ -109,3 +109,40 @@ fn repeated_set_true_flag_is_refused() {
         ErrorKind::ArgumentConflict
     );
 }
+
+#[test]
+fn errors_carry_no_subcommand_path() {
+    let cmd = || {
+        Command::new("brn")
+            .subcommand(Command::new("status"))
+            .subcommand(Command::new("inbox").subcommand(Command::new("add")))
+    };
+    // BRN's envelope names the command reached; clap reports the same error
+    // and context at the root, a leaf and a nested leaf.
+    let errors: Vec<_> = [
+        &["--bogus"][..],
+        &["status", "--bogus"],
+        &["inbox", "add", "--bogus"],
+    ]
+    .into_iter()
+    .map(|argv| {
+        let error = cmd()
+            .no_binary_name(true)
+            .try_get_matches_from(argv)
+            .unwrap_err();
+        let context: Vec<_> = error
+            .context()
+            .map(|(kind, value)| format!("{kind:?}={value}"))
+            .collect();
+        (error.kind(), context)
+    })
+    .collect();
+    assert_eq!(
+        errors[0],
+        (
+            ErrorKind::UnknownArgument,
+            vec!["InvalidArg=--bogus".to_string()]
+        )
+    );
+    assert!(errors.iter().all(|e| *e == errors[0]));
+}
