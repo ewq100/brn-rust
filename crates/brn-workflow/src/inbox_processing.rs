@@ -1,4 +1,4 @@
-//! Owned bounded text conversion. A preview is pending review work; it is not
+//! Owned bounded text and DOCX conversion. A preview is pending review work; it is not
 //! a saved source, a proposal, or permission to discard its retained original.
 use crate::{
     ErrorKind, Result, WorkflowError,
@@ -135,6 +135,47 @@ fn convert(
     brn_store::work::inbox_source::convert_original(kind, text, cancel)
 }
 impl App {
+    fn convert_fresh_inbox_original(
+        &self,
+        item: &crate::inbox::InboxItem,
+        cancel: &AtomicBool,
+    ) -> std::result::Result<(InboxConversionFormat, String), InboxProcessOutcome> {
+        if item.capture.kind == InboxKind::Binary {
+            let Some(files) = &self.inbox.files else {
+                return Err(InboxProcessOutcome::Failed {
+                    code: "original_unavailable".into(),
+                });
+            };
+            return match files.read_binary_bytes(item) {
+                Ok(Some(bytes)) => {
+                    brn_store::work::inbox_source::convert_docx_original(&bytes, cancel)
+                }
+                Ok(None) => Err(InboxProcessOutcome::Failed {
+                    code: "original_missing".into(),
+                }),
+                Err(error) => Err(InboxProcessOutcome::Failed {
+                    code: if error.kind == ErrorKind::ContextStale {
+                        "original_changed"
+                    } else {
+                        "original_unavailable"
+                    }
+                    .into(),
+                }),
+            };
+        }
+        match self.inbox.original(item) {
+            InboxOriginal::Available { text } => convert(item.capture.kind, &text, cancel),
+            original => Err(InboxProcessOutcome::Failed {
+                code: match original {
+                    InboxOriginal::Missing => "original_missing",
+                    InboxOriginal::RemovedRetained { .. } => "original_removed_retained",
+                    InboxOriginal::Changed { .. } => "original_changed",
+                    _ => "original_unavailable",
+                }
+                .into(),
+            }),
+        }
+    }
     /// Prepare exact source review input. Admission and approval remain separate
     /// existing commands; this never creates a note or discards the original.
     pub fn prepare_inbox_source(
@@ -200,18 +241,28 @@ impl App {
                 "Inbox source capture changed",
             ));
         }
-        let InboxOriginal::Available { text } = self.inbox.original(&binding.original) else {
-            return Err(WorkflowError::typed(
-                ErrorKind::ContextStale,
-                "Inbox source original is missing, changed or unavailable",
-            ));
+        let (format, markdown) = if binding.original.capture.kind == InboxKind::Binary {
+            self.convert_fresh_inbox_original(&binding.original, &AtomicBool::new(false))
+                .map_err(|_| {
+                    WorkflowError::typed(
+                        ErrorKind::ContextStale,
+                        "Inbox source original is missing, changed, unavailable or cannot be reproduced",
+                    )
+                })?
+        } else {
+            let InboxOriginal::Available { text } = self.inbox.original(&binding.original) else {
+                return Err(WorkflowError::typed(
+                    ErrorKind::ContextStale,
+                    "Inbox source original is missing, changed or unavailable",
+                ));
+            };
+            convert(
+                binding.original.capture.kind,
+                &text,
+                &AtomicBool::new(false),
+            )
+            .map_err(|_| WorkflowError::msg("Inbox source conversion cannot be reproduced"))?
         };
-        let (format, markdown) = convert(
-            binding.original.capture.kind,
-            &text,
-            &AtomicBool::new(false),
-        )
-        .map_err(|_| WorkflowError::msg("Inbox source conversion cannot be reproduced"))?;
         if format != binding.format
             || markdown.len() as u64 != binding.byte_len
             || digest(markdown.as_bytes()) != binding.sha256
@@ -251,32 +302,16 @@ impl App {
             .ok_or_else(|| WorkflowError::msg("Inbox processing has no pending entry"))?;
         let batch = self.store.start_inbox_processing(id, index)?;
         let item = &batch.request.items[index];
-        let outcome = match self.inbox_item(item.capture.id)?.original {
-            InboxOriginal::Available { text } => match convert(item.capture.kind, &text, cancel) {
-                Ok((format, markdown)) => InboxProcessOutcome::Converted {
-                    format,
-                    byte_len: markdown.len() as u64,
-                    sha256: digest(markdown.as_bytes()),
-                },
-                Err(outcome) => outcome,
+        self.store.inbox_item(item.capture.id)?.ok_or_else(|| {
+            WorkflowError::typed(ErrorKind::NotFound, "Inbox item does not exist")
+        })?;
+        let outcome = match self.convert_fresh_inbox_original(item, cancel) {
+            Ok((format, markdown)) => InboxProcessOutcome::Converted {
+                format,
+                byte_len: markdown.len() as u64,
+                sha256: digest(markdown.as_bytes()),
             },
-            InboxOriginal::AvailableBinary { .. } => {
-                return Err(WorkflowError::msg(
-                    "Binary Inbox conversion is not supported",
-                ));
-            }
-            InboxOriginal::Missing => InboxProcessOutcome::Failed {
-                code: "original_missing".into(),
-            },
-            InboxOriginal::RemovedRetained { .. } => InboxProcessOutcome::Failed {
-                code: "original_removed_retained".into(),
-            },
-            InboxOriginal::Changed { .. } => InboxProcessOutcome::Failed {
-                code: "original_changed".into(),
-            },
-            InboxOriginal::Unavailable { .. } => InboxProcessOutcome::Failed {
-                code: "original_unavailable".into(),
-            },
+            Err(outcome) => outcome,
         };
         let outcome = if cancel.load(Ordering::Acquire) {
             InboxProcessOutcome::Cancelled
@@ -308,14 +343,31 @@ impl App {
             ));
         };
         let item = &batch.request.items[request.index];
-        let InboxOriginal::Available { text } = self.inbox_item(item.capture.id)?.original else {
-            return Err(WorkflowError::typed(
-                ErrorKind::ContextStale,
-                "Inbox original is unavailable or changed; conversion preview cannot be qualified",
-            ));
+        let (actual_format, markdown) = if item.capture.kind == InboxKind::Binary {
+            // Candidate lookup retains its catalog prerequisite; unfinished
+            // approval can use the immutable binding without processing rows.
+            if self.store.inbox_item(item.capture.id)?.as_ref() != Some(item) {
+                return Err(WorkflowError::typed(
+                    ErrorKind::ContextStale,
+                    "Inbox original capture differs from its conversion receipt",
+                ));
+            }
+            self.convert_fresh_inbox_original(item, &AtomicBool::new(false))
+                .map_err(|_| WorkflowError::typed(
+                    ErrorKind::ContextStale,
+                    "Inbox original is unavailable or changed; conversion preview cannot be qualified",
+                ))?
+        } else {
+            let InboxOriginal::Available { text } = self.inbox_item(item.capture.id)?.original
+            else {
+                return Err(WorkflowError::typed(
+                    ErrorKind::ContextStale,
+                    "Inbox original is unavailable or changed; conversion preview cannot be qualified",
+                ));
+            };
+            convert(item.capture.kind, &text, &AtomicBool::new(false))
+                .map_err(|_| WorkflowError::msg("retained Inbox conversion cannot be reproduced"))?
         };
-        let (actual_format, markdown) = convert(item.capture.kind, &text, &AtomicBool::new(false))
-            .map_err(|_| WorkflowError::msg("retained Inbox conversion cannot be reproduced"))?;
         let preview = InboxConversionPreview {
             request: request.clone(),
             original: item.clone(),
@@ -474,5 +526,7 @@ mod tests {
     }
 }
 
+#[cfg(all(test, target_os = "macos"))]
+mod docx_tests;
 #[cfg(all(test, target_os = "macos"))]
 mod source_tests;
