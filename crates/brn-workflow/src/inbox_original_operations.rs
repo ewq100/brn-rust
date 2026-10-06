@@ -571,3 +571,7 @@ impl App {
         Ok(record)
     }
 }
+
+#[cfg(all(test, target_os = "macos"))]
+#[path = "inbox_original_operations_tests.rs"]
+mod tests;
