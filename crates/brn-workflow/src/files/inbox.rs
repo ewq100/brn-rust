@@ -111,6 +111,7 @@ impl OriginalOperationFile {
         let phase = if self.settled() { "receipt" } else { "intent" };
         format!(".brn-inbox-{kind}-{}.{phase}", self.id())
     }
+    #[cfg(target_os = "macos")]
     pub(crate) fn validate(&self) -> Result<()> {
         match self {
             Self::Remove(r) => r.validate()?,
