@@ -13,7 +13,8 @@ Full frozen V1 goal confirmed **active** on2026-10-06, without a token budget.
   Exact2a4589b run37406761932 attempt1 passed four protected checks and Docs;
   unchanged Windows22 failure remains. Fresh merged build/128 AI/3 scope/
   10 conflict tests and52fixtures passed at unchanged clean identity.
-  Automatic main70 CI remains pending; failed historical platform results stay visible.
+  Exact main70 run37407911967 attempt1 passed applicable checks; overall red
+  retains unchanged Windows22/22/14 and Linux3 assertions/backtraces with raw differences.
 - **Current:** `codex/v1-copy-startup-witness`, reviewed code
   `1060b82bdcd6f91512bc04d5699d675b2b53b728`, integrated with qualified main70.
   Equal canonical mirrors use one held private file across comparison/sync/recheck;
@@ -21,8 +22,11 @@ Full frozen V1 goal confirmed **active** on2026-10-06, without a token budget.
   independent review pass. Three warm release samples/scenario passed all36
   complete-history and36 shipping probes. Large-dataset CLI healthy median
   38.903→28.193s; fresh SQL36.154→24.997s; SQL repair13.439→13.607s.
-  Inputs are regenerated, with actual sizes retained. Next: fresh integrated
-  shared/native qualification, final review, exact-head CI and normal integration.
+  Inputs are regenerated, with actual sizes retained. Complete integration review
+  is clean; fresh shared1,452/0/11+52 and native334 Workflow/models/0/10+
+  292 Desktop/0/0,11commands/V15 restarts passed at clean
+  `622a23ff323d8a2942a02efc352a0e856858d2fa`.
+  Next: final evidence review, exact latest-head CI and normal integration.
 - **Pending:** broader startup/relationship cost, safe-provider stderr correction,
   native GUI/live/assets/owner acceptance, later stages and trusted-user packaging.
   Legacy pending-intent retry remains unsupported. No owner original removed;

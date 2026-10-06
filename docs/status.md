@@ -76,13 +76,17 @@ complete/final reviews clean; shared1,448/0/10+52 and native330 Workflow/models/
 292 Desktop/0/0,11commands/V15 restarts passed at unchanged clean3a35aaf.
 Final exact2a4589b run37406761932 attempt1 passed four protected checks and Docs;
 unchanged Windows22 remains red. Fresh merged build/128 AI/3 scopes/10 conflicts
-and52 fixtures passed at unchanged clean34e3601. Automatic main70 CI is pending.
+and52 fixtures passed at unchanged clean34e3601. Main70 run37407911967 attempt1
+passed applicable checks; overall red retains unchanged Windows22/22/14 and
+Linux3 assertions/backtraces with raw IDs/timing/terminal-placement differences.
 Startup correction at1060b82 has13 focused tests/Clippy and independent review
 passing; full36 history and36 shipping probes passed. Three warm samples/scenario:
 near-limit CLI healthy median38.903→28.193s, fresh SQL36.154→24.997s,
 SQL repair13.439→13.607s. Regenerated input dimensions are recorded. Source is
-integrated with qualified main70; fresh shared/native gates, final review and
-exact-head CI/normal integration are next. Broader startup/backup cost is
+integrated with qualified main70 at622a23f; complete review clean, fresh
+shared1,452/0/11+52 and native334 Workflow/models/0/10+292 Desktop/0/0,
+11commands/V15 restarts passed. Final evidence review and exact latest-head
+CI/normal integration are next. Broader startup/backup cost is
 separate. No semantic
 completeness, native/live/owner acceptance or full V1 delivery is claimed. The full
 V1 goal remains active. No owner original/private data was inspected or migrated.

@@ -26,8 +26,9 @@ native controls PR69 and typed note facts PR70 are integrated. Current main is
 `529acd9e4f073f90d14b7b3eccfdd51f96c9c28c`. Current branch is
 `codex/v1-copy-startup-witness`, reviewed code
 `1060b82bdcd6f91512bc04d5699d675b2b53b728`. Full/shipping release measurements
-passed; source is integrated with qualified main70. Fresh shared/native gates,
-final review and exact-head CI/normal integration are next.
+passed; source is integrated with qualified main70 at622a23f. Complete review
+and fresh shared/native gates pass. Final evidence review and exact latest-head
+CI/normal integration are next.
 Remaining accepted corrections follow this plan.
 The complete V1 goal is confirmed **active** by `get_goal` on 2026-10-06;
 its full objective and roadmap dependency order remain unchanged.
@@ -1010,3 +1011,31 @@ Source now integrates qualified main70 without code conflict. Only checkpoint,
 status and appended plan evidence needed resolution; both histories are retained.
 Fresh integrated shared/native gates, final review and exact-head CI/normal merge
 remain next. Safe-provider stderr correction and B3 relationships remain separate.
+
+## Equal-mirror integrated qualification
+
+Complete independent integration review against actual main70 is clean:
+publication/test patch and all six changed Rust files match reviewed1060b82
+byte-for-byte. All documentation matches measured dimensions/timings/limits.
+Fresh shared atomic gate03:16:38–03:23:03UTC at unchanged clean
+`622a23ff323d8a2942a02efc352a0e856858d2fa`, tree
+`5be1cde021f9b3c7eecf882fbab498788267fbfa`, passed format/workspace build/
+all-target Clippy,1,452 tests/0failures/11documented ignores and52fixtures.
+The owned reused qualification checkout retains its own target; no artifacts
+were transferred between checkouts. Nonfatal rust-objcopy/libLLVM warning retained.
+Fresh native atomic gate03:24:19–03:26:35UTC at the same unchanged clean identity
+passed all11commands: default startup, combined check, three Desktop Clippy
+configurations,334 Workflow/models/0/10,292 Desktop/0/0, combined builds and two
+native restarts. Fresh SQLite checks prove V15/original table in both lanes.
+No model assets/live/GUI/owner qualification is claimed. Later edits are evidence
+only; final evidence review and exact latest-head CI remain before normal merge.
+
+Exact main70 run37407911967 attempt1 completed overall failure, with all four
+protected Mac/shared checks, Docs and extra Ubuntu UI successful. Windows
+22/22/14 complete blocks/149/149/101 source-inclusive lines, every terminal
+summary and exit101 are identical to main69. Linux retains the same three
+assertions/locations/six backtrace frames per test; changed thread IDs,
+0.20→1.62s and error terminal placement inside the concurrent backtrace block
+remain explicit. Mac workspace473s versus508s and Ubuntu344s versus345s are
+hosted observations, not benchmarks. All long-test notices subsequently passed;
+no timeout/cancellation/rerun or unrelated platform fix was substituted.
