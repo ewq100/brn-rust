@@ -2,6 +2,41 @@
 
 Full frozen V1 goal confirmed **active** by `get_goal` on2026-10-06; no token budget.
 
+- **Integrated:** [PR72](https://github.com/ewq100/brn-rust/pull/72) at
+  `9e5d5d2b0a7b19044d19338b0586fe8a47eeb656`, reviewed tree
+  `fdba641ada642bd3063c9fcd495a5db445e6ad73`. Exact Rig0.43.0 patch removes
+  one raw invalid-tool stderr print. Typed refusal, tools and authority are unchanged.
+  Source+confirmation Remove/Restore and native controls remain integrated.
+- **Verification:** complete/integration/final reviews clean; exacta022b141
+  run37410830737 attempt1 passed four protected Mac/shared checks and Docs.
+  Windows22 source errors remain; raw ordering/interleaving differences retained.
+  Fresh merged build/129 AI/18 tooling/52fixtures passed at unchanged clean identity.
+  Main71 applicable CI passed; actual main72 automatic CI remains pending.
+- **Current:** `codex/v1-relationships-local`, reviewed code
+  `dea197ad44fe0350c9f668b6fd2ded0b42e69dc4`, integrated with actual main72 atee4715c.
+  Request-local proof sets and snapshot-local raw-byte alias counts preserve fresh
+  reads/fences/order/validation. Source and shipping evidence reviews clean;
+  same-vault warm release chain median3.689→1.026s,8,192proofs0.333→0.319s
+  (small/noise). All9 JSON outputs and all5,002 vault-byte/inode proofs match.
+  Shared1,456/0/12+52; native27 Retrieval/0/0+343 Workflow/models/relationships/0/10+
+  292 Desktop/0/0 and corrected fresh default/V15 restarts passed at unchanged b1fbf8c.
+  Treea48527ae is unchanged by actual main72 integration. Final evidence review,
+  exact latest-head CI and normal integration are next.
+- **Next:** smallest Stage8 binary-original/Office dependency through existing
+  intake and proposal-apply mechanisms. Investigation only; no implementation begun.
+- **Pending:** residual startup/backup cost, native GUI/live/assets/owner acceptance,
+  Stages8–16/trusted-user packaging. Legacy pending-intent retry remains unsupported.
+  No owner original removed; full V1 delivery is not claimed.
+- **Environment:** Mac mini Darwin arm64, Rust1.98.1 locked/offline, canonical owned
+  `TMPDIR=/private/tmp/brn-mini-synthetic-20261005`, empty model setting, isolated
+  checkouts/targets and synthetic data. No new live calls/downloads/private-data
+  operations/release. Immutable7c4f668 stays unchanged. Follow the
+  [correction plan](../work/active/architecture-review-corrections/plan.md).
+
+# Earlier provider integration checkpoint
+
+Full frozen V1 goal confirmed **active** by `get_goal` on2026-10-06; no token budget.
+
 - **Integrated:** [PR71](https://github.com/ewq100/brn-rust/pull/71),
   `cbec4ff67e686998a9242be418c81d49b213fbd6`, reviewed tree
   `0617e39583af58ed1e9cc5bcf0e203698d749f35`. Equal Inbox mirrors retain one

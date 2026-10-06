@@ -21,13 +21,14 @@ at531517248300c15ce28bcb53f337984103817010/tree d63c1827aae5da654410520bc9c48856
 Knowledge capture recovery merged in PR66 at
 `504f6be33e1add8c5819e28eed08628bc8dec8d0`, reviewed tree
 `77ec79e33c75a6a0bbed3100c3815648dcb6fd68`. Original-record PR67, lifecycle PR68
-native controls PR69, typed note facts PR70 and startup publication PR71 are integrated.
-Current main is `cbec4ff67e686998a9242be418c81d49b213fbd6`, reviewed tree
-`0617e39583af58ed1e9cc5bcf0e203698d749f35`. Current branch is
-`codex/v1-provider-stderr`, reviewed code `14fe4489ddfbf201ebfe2f8c07c3d2678c27e5a5`,
-integrated with qualified main71 atb586892. Complete dependency/provenance review,
-shared/native/composed gates pass; exact-head CI/normal integration is next.
-The bounded relationship correction follows.
+native controls PR69, typed note facts PR70, startup PR71 and provider stderr
+PR72 are integrated. Current main is `9e5d5d2b0a7b19044d19338b0586fe8a47eeb656`,
+reviewed tree `fdba641ada642bd3063c9fcd495a5db445e6ad73`. Current branch is
+`codex/v1-relationships-local`, reviewed code `dea197ad44fe0350c9f668b6fd2ded0b42e69dc4`,
+integrated with actual main72 atee4715c; treea48527ae matches qualified b1fbf8c.
+Complete source/evidence reviews, shared/native gates and shipping comparison
+pass. Final evidence review, exact latest-head CI and normal integration are next.
+Smallest Stage8 dependency inspection follows; no new implementation has begun.
 Remaining accepted corrections follow this plan.
 The complete V1 goal is confirmed **active** by `get_goal` on 2026-10-06;
 its full objective and roadmap dependency order remain unchanged.
@@ -1130,3 +1131,109 @@ incoming main71 non-plan files byte-identical to their qualified sources;
 resolved plan retains both histories. No new source change after qualification.
 Known block0.1.6 future-compiler warning is retained. Actual native GUI/live/
 assets/owner acceptance remains pending; latest-head CI/normal integration follows.
+
+## B3 request-local relationship correction
+
+Acceptance is limited to two existing quadratic membership paths. Per-edge exact
+proof sets retain the first-seen ordered result; each existing SQLite Validator
+loads raw-TEXT-byte alias counts once within its own current snapshot. Include
+ineligible aliases and preserve raw canonical equality, endpoint refusal precedence,
+full bytes/hash/coverage/proofs, independent retained readers, fresh Workflow
+source/target/final witnesses and current-evidence fences. No schema/index/public
+DTO/features/cross-request cache/read reuse or authority change.
+
+Four-file implementation `dea197ad44fe0350c9f668b6fd2ded0b42e69dc4`, tree
+`eee6170bc4f2db2f39a9bb4ecf7126e355803f96`, has clean complete independent review.
+Final producer snapshot9c728df2 passed12edge/9relationship tests, strict affected
+all-target Clippy and formatting. The lead-confirmed String-map invalidUTF8 parity
+red and overly narrow fresh-reader error assertions are retained. Raw-byte keys
+preserve previous retained-reader behavior; fresh Reader still refuses malformed
+metadata. No tests were removed or authority checks weakened.
+
+Conflict-free integration with qualified R4 candidate a022 produced
+`b1fbf8c28c48ec55e4e6dc482184cbdaa12920ec`, tree
+`a48527aecdc3bbdce1c3980355c9996ad0b483d6`. Exact four-file patch remains SHA256
+7406e6ec6117c6637540b04b3a6a2f68957e0b1a127bc4efd6d6565794caf6c8.
+Actual normal merged-main72 integration and exact-head CI remain before B3 merge.
+
+Default release CLI built locked/offline in the SAME checkout's own target at
+clean a022 (03:48:33–03:49:08UTC) and clean b1 (03:53:35–03:54:00UTC).
+Shipping witnesses03:52:16–03:52:36 and03:54:25–03:54:33 both passed9 probes,
+using the same synthetic vault-byte/device/inode manifest, SHA256
+87a4f1d13ad92e53bbee6dad97eb3b44f07e47ee8d5fb5f34a85f36ee3eaada5.
+Two-note8,192-proof fixture is286,860B;5,000-note chain633,833B has4,999 edges.
+One excluded warmup, then three sequential warm page0/limit200 samples per case;
+chain additionally checks offset4800/last199 edges. All9 complete JSON outputs
+match exactly, all hashes/quotes/pages prove exact saved bytes, vault sets/bytes/
+inodes are unchanged and there are zero proposals/applies/Actions/credential files.
+No local Cargo competed during either timing window.
+
+| Shipping page | Median before→after, s | Range before→after, s |
+| --- | ---: | ---: |
+| 8,192 proofs |0.332853→0.318747|0.320717–0.333300→0.314664–0.320368|
+| 5,000-note chain |3.688809→1.026240|3.683741–3.691127→1.005699–1.046579|
+
+Release binary hashes48341eaa57457e30d602f6ed8609cfa9743f9ffe750ad09897bd3c7715fc7732
+→685bad68ffb023c34987102187566643e05419b85c074778f213a73ae5b578df.
+The fixed recipe uses UUIDv5/DNS with prefix `brn-b3-fixed-synthetic-v1/`,
+UTF8/BOM/CRLF and4,096 distinct reference definitions for8,192 proofs or
+v00000..v04999 linked as a chain. Phase-specific empty operational/credential
+directories keep startup state separate while vault files stay identical.
+Three nonrandomized warm process samples include startup/rendering. The small
+proof-case difference may be noise; no cold-cache/native-GUI/total-read-count,
+uniform speedup or full5,000-note product acceptance claim. Other fresh reads,
+identity scans and broader startup/backup cost remain.
+
+Fresh shared/native exact b1 qualification is recorded below once terminal.
+
+## Provider merge and preserved platform evidence
+
+PR72 merged normally04:02:58UTC on2026-10-06 at
+`9e5d5d2b0a7b19044d19338b0586fe8a47eeb656`, reviewed tree
+`fdba641ada642bd3063c9fcd495a5db445e6ad73`. Exact a022b141 automatic
+run37410830737 attempt1 passed four protected Mac/shared checks and Docs.
+Windows still has22source errors; raw equality is false: Store2 precedes AI20,
+both terminal summaries reverse, and one block interleaves two compile-progress
+lines plus a blank line (149→152lines). All21other keyed full blocks match.
+Full raw/source-inclusive comparisons and hosted times remain retained.
+Mac workspace541s versus585s; Ubuntu343s versus346s are hosted observations,
+not relationship measurements. Strict/admin-enforced four-check protection remains.
+Fresh merged atomic gate04:03:39–04:04:09UTC at unchanged clean9e5d5d2/treefdba641
+passed all5commands: workspace build,129AI/0/1 parent-executed child ignore,
+18tooling tests,35files/373local links and52fixtures. Main72 automatic CI pending.
+
+Main71 automatic run37410130134 attempt1/cbec4ff completed with all four protected
+Mac/shared checks, Docs and extra UbuntuUI successful; overall red preserves
+Windows22/22/14 source-inclusive149/149/101lines and both summaries/exit101,
+identical main70. Linux3 assertions/locations/six frames per test remain the same;
+raw IDs3477/3466/3472 versus3687/3676/3682,1.62→1.16s and Cargo error placement
+inside-backtrace→afterFAILEDsummary remain explicit. Mac workspace727s versus473s
+and Ubuntu210s versus344s are retained; all long notices eventually passed.
+
+## B3 integrated qualification
+
+Fresh shared atomic gate03:56:15–04:04:53UTC at unchanged clean
+`b1fbf8c28c48ec55e4e6dc482184cbdaa12920ec`, tree
+`a48527aecdc3bbdce1c3980355c9996ad0b483d6`, passed retirement, formatting,
+workspace build, strict all-target Clippy,1,456 tests/0failures/12documented ignores
+and52fixtures. Three long notices subsequently passed; no compiler warning.
+The first helper permission preflight refused before any child because it
+incorrectly required output-parent0700; the existing recorder accepts canonical
+owned0755. No permissions/configuration changed; that exit1 is retained separately.
+
+Native atomic gate03:56:12–03:59:32UTC at that same unchanged identity passed
+Retrieval native Clippy and27 Retrieval/0/0,343 Workflow/models/relationships/0/10,
+292 Desktop/0/0, three Desktop Clippy feature lanes, combined builds and two
+V15/original-table restarts. All14commands exited0. The initial default startup
+was accidentally inserted before its fresh build; that one invocation is excluded
+from fresh-head qualification. A separate correct default-build/startup atomic
+run04:00:03–04:00:04UTC passed2commands at unchanged b1 and proved V15/table1.
+Other native results remain qualified. Known block0.1.6 future-compiler warning
+is retained; no GUI, actual model assets/live/owner qualification is claimed.
+
+Independent shipping evidence audit is clean: all9 JSON pairs and all5,002 exact
+source byte/device/inode proofs match. Phase-specific wrapper identity differs;
+no identical-wrapper, randomization, cold-cache or uniform benefit claim.
+Source now integrates actual normally merged main72 without conflict atee4715c.
+Treea48527ae and four-file patch SHA7406e6ec are unchanged, so relevant shared/native
+qualification is reused. Latest evidence-head CI remains required before merge.

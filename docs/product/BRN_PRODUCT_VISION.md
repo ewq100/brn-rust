@@ -368,9 +368,9 @@ and grants no removal authority. Cleanup never removes the approved Source.
 
 Waiting/processed/dismissed disposition is a separate owner decision recorded as
 operational state; it is not proof of conversion and does not imply copy removal.
-The corrected cleanup admission and native confirmation controls remain pending
-until implementation, verification and acceptance are recorded in
-[status](../status.md). Office/visual formats still require meaningful content and
+Cleanup admission, recoverable Remove/Restore and native confirmation controls
+are implemented, automated verified and integrated; native/live/owner acceptance
+remains separately pending in [status](../status.md). Office/visual formats still require meaningful content and
 asset preservation before any owner-confirmed cleanup.
 
 ---

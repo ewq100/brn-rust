@@ -551,3 +551,128 @@ fn retained_reader_rechecks_current_payload_and_pagination_is_one_snapshot() {
         Err(Error::Corrupt(_))
     ));
 }
+
+#[test]
+fn each_validator_snapshot_counts_ineligible_aliases_without_trusting_retained_reader() {
+    let mut f = Fixture::new();
+    let edges = f.edges();
+    f.index.replace_edges(&edges).unwrap();
+    let reader = NoteIndexReader::open(&f.path).unwrap();
+    let baseline = reader.edges(KnowledgeScope::All, 0, 200).unwrap();
+    let alias_id = Uuid::new_v4();
+    add(
+        &mut f.index,
+        "ineligible.md",
+        "unrelated exact bytes",
+        &NoteMetadata {
+            note_id: Some(alias_id),
+            issue: Some("unresolved classification".into()),
+            ..NoteMetadata::default()
+        },
+    );
+    let raw = Connection::open(&f.path).unwrap();
+    for id in [f.source.note_id, f.target.note_id] {
+        // External mutation deliberately bypasses ordinary edge invalidation.
+        raw.execute(
+            "UPDATE notes SET note_id=?1 WHERE path='ineligible.md'",
+            [id.to_string()],
+        )
+        .unwrap();
+        assert!(matches!(
+            f.index.replace_edges(&edges),
+            Err(Error::Invalid(_))
+        ));
+        for scope in [
+            KnowledgeScope::Current,
+            KnowledgeScope::Source,
+            KnowledgeScope::History,
+            KnowledgeScope::All,
+        ] {
+            assert!(matches!(reader.edges(scope, 0, 1), Err(Error::Corrupt(_))));
+            assert!(matches!(f.index.edges(scope, 0, 1), Err(Error::Corrupt(_))));
+        }
+        raw.execute(
+            "UPDATE notes SET note_id=?1 WHERE path='ineligible.md'",
+            [alias_id.to_string()],
+        )
+        .unwrap();
+        assert_eq!(reader.edges(KnowledgeScope::All, 0, 200).unwrap(), baseline);
+        f.index.replace_edges(&edges).unwrap();
+    }
+    // Raw SQL equality is unchanged: unrelated malformed TEXT, NULL and BLOB
+    // identities are not normalized into this endpoint's canonical UUID.
+    for value in [
+        rusqlite::types::Value::Text("not-a-uuid".into()),
+        rusqlite::types::Value::Null,
+        rusqlite::types::Value::Blob(f.target.note_id.to_string().into_bytes()),
+    ] {
+        raw.execute(
+            "UPDATE notes SET note_id=?1 WHERE path='ineligible.md'",
+            [value],
+        )
+        .unwrap();
+        f.index.replace_edges(&edges).unwrap();
+        assert_eq!(reader.edges(KnowledgeScope::All, 0, 200).unwrap(), baseline);
+    }
+    raw.execute_batch("UPDATE notes SET note_id=CAST(x'80' AS TEXT) WHERE path='ineligible.md';")
+        .unwrap();
+    for id in [f.source.note_id, f.target.note_id] {
+        let aliases: i64 = raw
+            .query_row(
+                "SELECT count(*) FROM notes WHERE note_id=?1",
+                [id.to_string()],
+                |row| row.get(0),
+            )
+            .unwrap();
+        assert_eq!(aliases, 1);
+    }
+    assert_eq!(reader.edges(KnowledgeScope::All, 0, 200).unwrap(), baseline);
+    f.index.replace_edges(&edges).unwrap();
+    assert_eq!(
+        f.index.edges(KnowledgeScope::All, 0, 200).unwrap(),
+        baseline
+    );
+    // The independently checked reader-opening contract still rejects damaged
+    // unrelated metadata; retained edge snapshots keep their original scope.
+    assert!(NoteIndexReader::open(&f.path).is_err());
+    raw.execute(
+        "UPDATE notes SET note_id=?1 WHERE path='ineligible.md'",
+        [alias_id.to_string()],
+    )
+    .unwrap();
+    raw.execute(
+        "UPDATE passages SET text='changed' WHERE path='a.md' AND start_byte=0",
+        [],
+    )
+    .unwrap();
+    assert!(matches!(
+        reader.edges(KnowledgeScope::All, 0, 1),
+        Err(Error::Corrupt(_))
+    ));
+    assert!(matches!(
+        f.index.edges(KnowledgeScope::All, 0, 1),
+        Err(Error::Corrupt(_))
+    ));
+    assert!(f.index.replace_edges(&edges).is_err());
+}
+
+#[test]
+fn alias_count_query_failures_never_become_unique_or_absent_endpoints() {
+    let mut f = Fixture::new();
+    let edges = f.edges();
+    f.index.replace_edges(&edges).unwrap();
+    let reader = NoteIndexReader::open(&f.path).unwrap();
+    Connection::open(&f.path)
+        .unwrap()
+        .execute_batch("ALTER TABLE notes RENAME COLUMN note_id TO unexpected_identity;")
+        .unwrap();
+    assert!(f.index.replace_edges(&edges).is_err());
+    assert!(matches!(
+        reader.edges(KnowledgeScope::All, 0, 1),
+        Err(Error::Corrupt(_))
+    ));
+    assert!(matches!(
+        f.index.edges(KnowledgeScope::All, 0, 1),
+        Err(Error::Corrupt(_))
+    ));
+}

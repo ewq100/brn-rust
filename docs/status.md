@@ -15,7 +15,7 @@ and the disposable retrieval index retain their existing roles. The owner's
 permits thin future adapters around the six V1 core crates through workflow/
 AppWorker. No MCP, daemon, HTTP service, extra database or remote work is in V1.
 
-Integrated main is **`cbec4ff67e686998a9242be418c81d49b213fbd6` (PR71)**.
+Integrated main is **`9e5d5d2b0a7b19044d19338b0586fe8a47eeb656` (PR72)**.
 Complete retained original review, deterministic saved-body quotes, Rust-owned
 Conflict/Knowledge/Action candidate identities, checked full Action replacement
 baselines and AI Rewrite metadata protection are integrated. Exact approval and
@@ -93,8 +93,16 @@ at14fe448 has clean independent/provenance review, shared1,449/0/11+52 and nativ
 330 Workflow/models/0/9+292 Desktop/0/0,12commands/V15 restarts passing. It is
 integrated with main71 atb586892; review is clean and fresh composed
 format/build/129 AI/13 filesystem/18 tooling/52fixtures, strict AI Clippy and
-combined native check passed at unchanged0644c54. Exact-head CI is next.
-Relationship local-cost correction follows. Broader startup/backup cost remains
+combined native check passed at unchanged0644c54. PR72 merged normally at9e5d5d2 after exacta022b141/run37410830737 attempt1 passed
+four protected checks and Docs. Windows source errors remain, with changed raw
+order/interleaving/summaries retained. Fresh merged build/129AI/18tooling/52fixtures
+passed at unchanged identity. Main71 applicable CI passed; main72 pending.
+Relationship correction is locally qualified atb1fbf8c: complete source/evidence
+reviews clean; shared1,456/0/12+52, native27 Retrieval/0/0+343 Workflow/models/
+relationships/0/10+292 Desktop/0/0 and corrected default/V15 restarts pass.
+Same-vault warm release chain median3.689→1.026s and8,192proofs0.333→0.319s
+(small/noise), all9 JSON outputs/5,002 byte-inode proofs match. Actual main72
+integration atee4715c retains the exact tested tree; final evidence/headCI are next. Broader startup/backup cost remains
 separate. No semantic
 completeness, native/live/owner acceptance or full V1 delivery is claimed. The full
 V1 goal remains active. No owner original/private data was inspected or migrated.
@@ -156,7 +164,7 @@ Stage 7 integrates text/email intake and processing, selected-Source Action and
 Knowledge drafts, exact Current/History supersession pairs, tentative conflicts
 with shared Ask/CLI lookup, complete retained original review and fresh removal
 preview. Source+confirmation recoverable original removal and exact Restore are integrated;
-native controls are under qualification separately. The historical snapshot stays unmerged. Evidence: [Inbox](work/active/text-email-inbox/plan.md),
+native controls are integrated; unlocked native GUI/live/owner acceptance remains pending. The historical snapshot stays unmerged. Evidence: [Inbox](work/active/text-email-inbox/plan.md),
 [supersession](work/active/text-email-inbox/supersession-plan.md),
 [conflicts](work/active/text-email-inbox/conflicts-plan.md) and
 [original-copy work](work/active/text-email-inbox/original-copy-plan.md).

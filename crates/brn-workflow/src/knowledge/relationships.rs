@@ -10,7 +10,7 @@ use crate::{
 };
 use brn_store::{note_identity, note_provenance};
 use serde::{Deserialize, Serialize};
-use std::collections::BTreeMap;
+use std::collections::{BTreeMap, HashSet};
 
 pub use brn_retrieval::note_index::{
     EdgeEndpoint, EdgeEvidence, EdgeOrigin, EvidenceEndpoint, NoteEdge,
@@ -54,7 +54,7 @@ impl App {
         self.refresh()?;
         let inventory = self.identity_inventory()?;
         let mut issues = inventory.issues.clone();
-        let mut edges = BTreeMap::<(String, String, EdgeOrigin), NoteEdge>::new();
+        let mut edges = BTreeMap::<(String, String, EdgeOrigin), CoalescedEdge>::new();
         if inventory.issues.is_empty() {
             for source in &inventory.notes {
                 let Some(source_endpoint) = endpoint(source) else {
@@ -74,7 +74,10 @@ impl App {
                 }
             }
         }
-        let mut edges = edges.into_values().collect::<Vec<_>>();
+        let mut edges = edges
+            .into_values()
+            .map(|value| value.edge)
+            .collect::<Vec<_>>();
         // Each endpoint must still match the exact saved version used above.
         // A later external edit is reported, never certified by cached metadata.
         let endpoints = edges
@@ -122,7 +125,7 @@ impl App {
         &self,
         source: &NoteIdentityInfo,
         inventory: &IdentityInventory,
-        edges: &mut BTreeMap<(String, String, EdgeOrigin), NoteEdge>,
+        edges: &mut BTreeMap<(String, String, EdgeOrigin), CoalescedEdge>,
         issues: &mut Vec<IdentityIssue>,
     ) -> Result<()> {
         let note = self.evidence_note(&source.path)?;
@@ -223,7 +226,22 @@ fn endpoint(note: &NoteIdentityInfo) -> Option<EdgeEndpoint> {
     })
 }
 
-fn merge(edges: &mut BTreeMap<(String, String, EdgeOrigin), NoteEdge>, edge: NoteEdge) {
+// Membership is request-local; the Vec remains the first-seen output order.
+struct CoalescedEdge {
+    edge: NoteEdge,
+    proofs: HashSet<(bool, usize, usize, String)>,
+}
+
+fn proof_key(proof: &EdgeEvidence) -> (bool, usize, usize, String) {
+    (
+        proof.endpoint == EvidenceEndpoint::Source,
+        proof.start_byte,
+        proof.end_byte,
+        proof.quote.clone(),
+    )
+}
+
+fn merge(edges: &mut BTreeMap<(String, String, EdgeOrigin), CoalescedEdge>, edge: NoteEdge) {
     if edge.source.note_id == edge.target.note_id {
         return;
     }
@@ -234,11 +252,12 @@ fn merge(edges: &mut BTreeMap<(String, String, EdgeOrigin), NoteEdge>, edge: Not
     );
     if let Some(previous) = edges.get_mut(&key) {
         for proof in edge.evidence {
-            if !previous.evidence.contains(&proof) {
-                previous.evidence.push(proof);
+            if previous.proofs.insert(proof_key(&proof)) {
+                previous.edge.evidence.push(proof);
             }
         }
     } else {
-        edges.insert(key, edge);
+        let proofs = edge.evidence.iter().map(proof_key).collect();
+        edges.insert(key, CoalescedEdge { edge, proofs });
     }
 }

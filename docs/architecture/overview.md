@@ -78,8 +78,8 @@ for AI assessment and owner decision.
 
 These are required boundaries, not a claim that every existing tool already
 meets them. AI Rewrite preserves exact managed kind/state/provenance/Inbox Source
-field bytes; ordinary owner edits remain explicit. Typed truth/conflict facts
-have pending corrections; [status](../status.md) and
+field bytes; ordinary owner edits remain explicit. Typed read results now retain saved hash, identity, Source/History and explicit
+unknown/known conflict facts; semantic disclosure remains unqualified; [status](../status.md) and
 the affected crate contracts must distinguish implementation from qualification.
 Inbox Knowledge proposal/note IDs and conflict IDs are now derived in Rust from
 the owned analysis and exact semantic input. Original replay retains its evidence
@@ -255,8 +255,9 @@ The full consequence review remains independent. The Store prerequisite now
 provides typed lean Remove/Restore records in V15: one preservation witness,
 explicit confirmation and a direct settled parent. Its checked inventory and
 atomic streaming import retain full authority, while historical format1 bytes
-and semantic checks remain readable unchanged. Filesystem admission/effects and
-native controls remain pending; imported evidence is not permission to remove.
+and semantic checks remain readable unchanged. Removal/Restore admission and effects plus native controls are implemented,
+automated verified and integrated; unlocked native/live/owner acceptance remains
+pending. Imported evidence is not permission to remove.
 
 Extend approved vault and ordinary-asset effects through existing typed
 proposal-apply members. Extend private intake effects through the original-operation
