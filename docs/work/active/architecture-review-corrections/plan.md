@@ -3,12 +3,12 @@
 ## Current checkpoint
 
 Full frozen V1 goal remains confirmed active on2026-10-06, without a token budget.
-Integrated main is PR74 `c7ed57d106f14b9b9c4c94fc875ad7cd60b61e15`: accepted
+Integrated main is PR75 `f1af1b41139e0bad0fdd838af274ada6aac0af2b`: accepted
 semantic/identity/recovery corrections, text copy lifecycle and binary retention
-are integrated. Ordinary assets at837c7f6 are reviewed and qualifying in the
-existing proposal family; full shared1,513/0/14+52 and affected native results are
-recorded in the [Stage8 plan](../office-inbox/plan.md). Local native gates passed;
-exact-head CI/integration precede Office conversion. Native/live/owner acceptance,
+and ordinary assets are integrated. Independent reviews, full shared1,513/0/14
++52, affected native gates, exact-head protected CI and fresh merged119/0/1+52
+passed; evidence is in the [Stage8 plan](../office-inbox/plan.md). Bounded DOCX
+Source conversion follows within the existing processing/proposal family. Native/live/owner acceptance,
 residual startup/backup cost and trusted-user packaging remain unfinished.
 The [resumable checkpoint](../../../development/checkpoint.md) owns current
 navigation. Historical checkpoints/evidence below remain retained.

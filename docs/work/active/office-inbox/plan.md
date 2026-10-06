@@ -1,9 +1,12 @@
 # Stage 8: Office Inbox foundations
 
-Current baseline is integrated PR74 `c7ed57d106f14b9b9c4c94fc875ad7cd60b61e15`,
-tree `bf083499bc6625081ed64eccd08f4655ad99bba6`. Binary capture is qualified;
-ordinary asset proposal members are next on `codex/v1-ordinary-assets`.
-Full V1 goal remains confirmed active, without a budget.
+Current baseline is integrated [PR75](https://github.com/ewq100/brn-rust/pull/75)
+`f1af1b41139e0bad0fdd838af274ada6aac0af2b`, tree
+`4eab8f24dfc1a06eb622776a7dd2900e3e31eace`. Binary retention and ordinary asset
+proposal members are qualified and integrated. Next is [bounded DOCX Source
+conversion](#next-slice-bounded-docx-text-source) on `codex/v1-docx-text-sources`.
+Full V1 goal remains confirmed active, without a budget. Native/live/owner
+acceptance and broader Stage8 outcomes remain separate and incomplete.
 
 ## Binary capture baseline and acceptance
 
@@ -250,3 +253,101 @@ Final default build after native integration passed; default code is unchanged.
 Final local documentation-only amendments pass36files/383links; all38 changed
 Rust/manifest/lock paths match the complete independent review/correction chain.
 Exact-head CI, normal merge and fresh merged verification remain next.
+
+## Ordinary asset integration — 2026-10-06
+
+PR75 merged normally06:52:44UTC at the baseline above after exacta99d433,
+automatic PR run37424171208 attempt1, passed all four strict protected
+macOS/shared checks and Docs. Overall failure/ci-summary exit1 remains: Windows22
+complete ordered source/help blocks161lines, both compiler summaries and exit101
+match PR74. Initial152-line extraction omitted numbered suggestions; it is
+retained as incomplete, with final full coverage checked against unchanged raw
+logs. Whole logs differ and remain retained. No Linux native PR lane applies.
+Fresh merged06:53:23–06:55:51UTC passed17 commands at unchanged clean root/native
+identities:119 tests/0/1 intentional subprocess ignore,52fixtures, actual two native
+proof widgets, default/combined builds and two restarts each, finalV15 and one
+original-operation table in each data directory, format/launcher/Markdown/diff.
+Store maximum payload passed afresh. The full16MiB Workflow witness reuses exact
+unchanged Rust/manifests/lock/features from its successful default/native gates;
+new crash/replay/older/freshSQL/Undo witnesses ran afresh. Known block0.1.6 warning
+remains. Main run37426257383 attempt1 is running; completed Windows/Linux failures
+have the same compiler/assertion/source/backtrace diagnostics as main74. Windows
+native now emits the lib14-error summary without the prior lib-test summary; that
+terminal difference and actual raw order/IDs/timing differences remain retained.
+GUI/live/real-model/owner acceptance remains pending. No original is removed.
+
+## Next slice: bounded DOCX text Source
+
+Baseline is clean main75 above. Preserve the existing queue, source binding,
+whole-proposal approval and apply/recovery family; no new datastore, effect family,
+agent/prompt framework or provider call. This is the first useful Office conversion
+path, not completion of Stage8 or permission for binary cleanup.
+
+Supported profile: genuine nonencrypted ZIP32 OOXML DOCX with ordered Unicode
+paragraphs, headings, ordinary bullet/decimal lists, external hyperlinks and
+simple rectangular tables. Preserve complete wording, paragraph/cell/list order,
+link destinations and meaningful run emphasis. Explicitly refuse meaningful
+unsupported content, including visuals/charts/text boxes/embedded objects,
+tracked changes, complex/merged tables, unsupported fields/list forms and
+headers/footers/notes/comments that are not preserved. Never silently drop a
+meaningful part, fetch a relationship or infer conversion validity from a filename.
+Exact captured originals remain retained even after Source approval.
+
+Fixed boundaries:
+
+- Keep `InboxKind::Binary` and the existing request/receipt family. Add only
+  `InboxConversionFormat::DocxTextV1`; Binary processing may produce that format
+  only after actual package conversion. Text formats/wire remain unchanged.
+  Non-DOCX, malformed, unsupported or over-budget input gets an explicit durable
+  Failed outcome; cancellation/interruption stay owned by the existing queue.
+- A small pure Store `inbox_source` child converts complete supplied binary bytes;
+  Workflow supplies the fresh held-file observation and invokes it during
+  processing, candidate preparation, new draft and unfinished approval/effect
+  eligibility. Output is never client/model authority. Historical terminal
+  imports remain self-contained full-proof checks without requiring live originals
+  or disposable processing rows. Do not store binary copies in each journal.
+- Add exact Binary/DocxTextV1 versus text/legacy-format validation in processing,
+  bindings and provenance; retain complete converted body length/hash, source UUID,
+  original16MiB proof and the existing full1MiB managed Source limit. Existing
+  one-Source Create/no-assets/no-Actions guard remains for this profile.
+  Binary Source preservation and Remove/Restore continue refusing; the text-only
+  owner cleanup amendment does not qualify Office meaningful preservation.
+- Use pinned maintained ZIP decompression and already-locked XML parsers:
+  zip8.6.0 defaults off with `deflate-flate2-zlib-rs`; quick-xml0.41.0 and
+  roxmltree0.21.1. Add only necessary direct dependencies and lock edges/packages,
+  preserving unrelated locked versions. ZIP decoding is in memory, never arbitrary
+  archive extraction. A small structural preflight must bound/validate ZIP32
+  inventory before eager constructor allocation and reject duplicate/ambiguous
+  names/local-central ranges, encryption/unsupported methods and ZIP64/Unicode
+  name aliases. Stored/Deflate and checked data descriptors are supported.
+- Compressed input remains16MiB; parser limits are256 entries,32MiB total expanded,
+  8MiB per entry,8MiB total XML,50,000 XML nodes/attributes,64 attributes per
+  element,64 nesting depth and1MiB output. Bound raw DOM preallocation estimates
+  from delimiter counts before parsing.
+  Check declared and actual lengths, complete decoded EOF/CRC, safe part inventory
+  and XML validity/DTD/entity/attribute/depth limits before effects. Bounded
+  streaming XML preflight precedes DOM navigation; no generic parser framework.
+  Oversize refuses, without truncation or relaxing proposal/journal limits.
+- Existing owner CLI and native Inbox controls use the same AppWorker queue,
+  preview and Source preparation; display honest incomplete/refusal results and
+  retain original proofs. Approved Source semantic analysis reuses the existing
+  typed behavior/tools without enabling opaque ZIP or new asset tools.
+
+Acceptance/tests: genuine synthetic Stored/Deflate DOCX exact Unicode/structure/
+links/lists/tables; malformed/footer-count/duplicate/alias/local-central/CRC/range/
+expanded/XML-depth/node/DTD/entity/unsupported-content refusal; no clipped success
+or effects; durable outcomes/cancel/interruption/replay; fresh candidate/Source
+identity/provenance/body; forged self-consistent output and stale/substituted
+original refusal; exact approval/restart/healthy/older/freshSQL historical import
+after original loss without resurrection; Binary cleanup still refused and legacy
+text wire/source/history/cleanup unchanged. Add real AppWorker/owner CLI and focused
+native proof/processing/Source review tests. Native GUI/live/model/owner acceptance
+remains separately pending; provide a disposable owner scenario.
+
+Checks: focused pure Store/admission/legacy tests and macOS workflow/recovery/
+worker/CLI/native tests, strict affected Clippy/format, full shared plus relevant
+native offline gates, complete independent read-only review/validated findings,
+exact latest-head protected CI, normal integration and fresh merged verification.
+Own canonical TMPDIR and separate Cargo targets; only synthetic/offline fixtures.
+Broader DOCX visuals, PDF/PowerPoint/suppliedURLs and qualified meaningful original
+cleanup remain later dependencies under the unchanged full V1 goal.
