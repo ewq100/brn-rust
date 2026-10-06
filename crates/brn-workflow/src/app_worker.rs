@@ -102,6 +102,7 @@ pub enum AppCommand {
     InboxCandidate(crate::inbox_processing::InboxCandidateRequest),
     PrepareInboxSource(crate::inbox_processing::InboxSourceRequest),
     PrepareInboxVisualAnnotation(Uuid),
+    InboxVisualEvidence(String),
     CancelInboxProcessing(Uuid),
     Findings(crate::findings::FindingListRequest),
     NoteConflicts(Box<crate::findings::NoteConflictRequest>),
@@ -237,6 +238,7 @@ pub enum AppEvent {
     InboxCandidate(Box<crate::inbox_processing::InboxConversionPreview>),
     InboxSourceDraft(Box<crate::proposals::DraftRequest>),
     InboxVisualDraft(Box<crate::proposals::DraftRequest>),
+    InboxVisualEvidence(Box<crate::inbox_actions::InboxVisualEvidence>),
     InboxActionAnalysis(Box<crate::inbox_actions::InboxActionAnalysis>),
     Findings(Box<crate::findings::FindingPage>),
     NoteConflicts(Box<crate::findings::NoteConflictPage>),
@@ -1371,6 +1373,9 @@ fn dispatch(
         }
         AppCommand::PrepareInboxVisualAnnotation(analysis) => {
             AppEvent::InboxVisualDraft(Box::new(app.prepare_inbox_visual_annotation(analysis)?))
+        }
+        AppCommand::InboxVisualEvidence(path) => {
+            AppEvent::InboxVisualEvidence(Box::new(app.inbox_visual_evidence(&path)?))
         }
         AppCommand::CancelInboxProcessing(batch) => {
             let batch = app.cancel_inbox_processing(batch)?;

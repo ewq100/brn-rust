@@ -9,7 +9,7 @@ use crate::{
 use brn_store::work::{
     WorkTurnStatus, inbox_visual::InboxVisualAnnotationBinding, proposal_apply::ApplyJournal,
 };
-use serde::Deserialize;
+use serde::{Deserialize, Serialize};
 use sha2::{Digest, Sha256};
 use std::{path::Path, sync::atomic::AtomicBool};
 
@@ -27,7 +27,93 @@ struct Interpretation {
     uncertainty: String,
 }
 
+/// Complete read-only Source and PNG inspection for owner clients. The bytes
+/// are transient presentation data, never retrieval evidence or approval.
+#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
+#[serde(deny_unknown_fields)]
+pub struct InboxVisualEvidence {
+    pub source: Box<ProposalSource>,
+    pub asset: SourceVersion,
+    #[serde(with = "brn_store::work::proposals::asset_payload")]
+    pub bytes: Vec<u8>,
+}
+
+impl InboxVisualEvidence {
+    pub fn validate(&self) -> Result<()> {
+        self.source.validate()?;
+        brn_store::work::inbox_visual::validate_capture_asset(
+            &self.source.source.path,
+            &self.source.text,
+            &self.asset,
+        )?;
+        let provenance = brn_store::work::inbox_source::read_provenance(&self.source.text)?
+            .ok_or_else(|| rejected("visual Source has no provenance"))?;
+        let visual = provenance
+            .visual
+            .as_ref()
+            .expect("validated visual manifest");
+        let facts =
+            brn_store::work::inbox_source::validate_png_image(&self.bytes, &AtomicBool::new(false))
+                .map_err(|_| rejected("visual inspection needs a complete bounded PNG"))?;
+        if self.bytes.len() as u64 != self.asset.fingerprint.len
+            || <[u8; 32]>::from(Sha256::digest(&self.bytes)) != self.asset.fingerprint.sha256
+            || facts.width != visual.width
+            || facts.height != visual.height
+        {
+            return Err(rejected(
+                "visual bytes differ from their complete saved proof",
+            ));
+        }
+        Ok(())
+    }
+}
+
 impl App {
+    /// Observe a qualified saved Source and its one exact PNG without creating
+    /// work, calling a provider or changing files. New analysis rechecks both.
+    pub fn inbox_visual_evidence(&mut self, path: &str) -> Result<InboxVisualEvidence> {
+        let source = self.proposal_evidence_source(path)?;
+        let provenance = brn_store::work::inbox_source::read_provenance(&source.text)?
+            .ok_or_else(|| rejected("visual Source has no provenance"))?;
+        let visual = provenance
+            .visual
+            .as_ref()
+            .ok_or_else(|| rejected("this Source has no supported visual occurrence"))?;
+        let note_id = brn_store::note_identity::read(&source.text)?
+            .ok_or_else(|| rejected("visual Source needs a saved note identity"))?;
+        let identity = self.resolve_note_identity(note_id)?;
+        if identity.outcome != crate::knowledge::IdentityOutcome::Unique
+            || identity.matches.len() != 1
+            || identity.matches[0].path != path
+            || identity.matches[0].sha256 != source.source.fingerprint.sha256
+        {
+            return Err(stale(
+                "visual Source identity is ambiguous or incompletely inspected",
+            ));
+        }
+        let asset_path = visual.asset_path(path, &provenance.original_sha256)?;
+        let observed = self
+            .editor
+            .files
+            .as_ref()
+            .ok_or_else(|| stale("visual files are unavailable"))?
+            .observe_asset(Path::new(&asset_path))
+            .map_err(file_error)?;
+        let evidence = InboxVisualEvidence {
+            source: Box::new(source),
+            asset: SourceVersion {
+                path: asset_path,
+                fingerprint: observed.fingerprint,
+            },
+            bytes: observed.bytes,
+        };
+        evidence.validate()?;
+        if self.proposal_evidence_source(path)? != *evidence.source {
+            return Err(stale("visual Source changed during inspection"));
+        }
+        Ok(evidence)
+    }
+
     /// Fresh complete image qualification after terminal replay has been ruled
     /// out. No payload is persisted in the analysis question or job.
     pub(crate) fn inbox_visual_image(

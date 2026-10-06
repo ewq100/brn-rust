@@ -12,6 +12,57 @@ const DOCX: &[u8] = include_bytes!("../inbox_processing/fixtures/inline-png.docx
 const PNG: &[u8] = include_bytes!("../inbox_processing/fixtures/inline.png");
 const RESULT: &str = r#"{"description":"A tentative illustration õ. <script> [data](bad)","uncertainty":"The image alone does not establish its meaning."}"#;
 
+#[test]
+fn visual_inspection_returns_actual_png_and_refuses_forged_or_lost_evidence() {
+    let f = Fixture::new();
+    let mut w = f.start(Hooks::default());
+    let (source, asset) = captured_visual(&w);
+    let AppEvent::InboxVisualEvidence(evidence) = reply(
+        &w,
+        AppCommand::InboxVisualEvidence(source.source.source.path.clone()),
+    ) else {
+        panic!("complete inspection")
+    };
+    evidence.validate().unwrap();
+    assert_eq!(*evidence.source, source.source);
+    assert_eq!(evidence.asset, asset);
+    assert_eq!(evidence.bytes, PNG);
+    let wire = serde_json::to_vec(&evidence).unwrap();
+    let roundtrip: crate::inbox_actions::InboxVisualEvidence =
+        serde_json::from_slice(&wire).unwrap();
+    assert_eq!(roundtrip, *evidence);
+    for mutate in 0..4 {
+        let mut forged = (*evidence).clone();
+        match mutate {
+            0 => forged.bytes[20] ^= 1,
+            1 => forged.asset.path = "another.png".into(),
+            2 => forged.asset.fingerprint.sha256[0] ^= 1,
+            _ => forged.source.text.push_str("changed"),
+        }
+        assert!(forged.validate().is_err());
+    }
+    fs::write(
+        f.base.path().join("vault").join("duplicate.md"),
+        &source.raw,
+    )
+    .unwrap();
+    assert!(matches!(
+        reply(&w, AppCommand::InboxVisualEvidence("source.md".into())),
+        AppEvent::Failed(_)
+    ));
+    fs::remove_file(f.base.path().join("vault").join("duplicate.md")).unwrap();
+    fs::write(f.base.path().join("vault").join(&asset.path), b"not a PNG").unwrap();
+    assert!(matches!(
+        reply(&w, AppCommand::InboxVisualEvidence("source.md".into())),
+        AppEvent::Failed(_)
+    ));
+    assert_eq!(
+        fs::read_to_string(f.base.path().join("vault").join("source.md")).unwrap(),
+        source.raw
+    );
+    w.shutdown().unwrap();
+}
+
 fn captured_visual(worker: &AppWorker) -> (SourceFixture, SourceVersion) {
     let capture = CaptureBinaryInboxRequest {
         id: Uuid::new_v4(),

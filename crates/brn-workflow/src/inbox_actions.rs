@@ -15,6 +15,7 @@ use uuid::Uuid;
 mod knowledge;
 mod visual;
 pub(crate) use knowledge::validate_supersession_link;
+pub use visual::InboxVisualEvidence;
 
 pub const MAX_INBOX_ACTION_PROPOSALS: usize = 20;
 
