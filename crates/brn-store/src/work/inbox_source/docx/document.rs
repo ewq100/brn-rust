@@ -209,6 +209,68 @@ fn run_properties(node: Node<'_, '_>, mut emphasis: Emphasis, toggle: bool) -> R
     }
     Ok(emphasis)
 }
+fn layout_run_properties(node: Node<'_, '_>) -> Result<()> {
+    run_properties(node, Emphasis::default(), false)?;
+    if children(node)?.iter().any(|n| {
+        matches!(
+            word(*n).ok(),
+            Some("b" | "i" | "u" | "strike" | "vertAlign" | "rStyle")
+        )
+    }) {
+        return Err(Failure::Unsupported);
+    }
+    Ok(())
+}
+fn table_properties(node: Node<'_, '_>, allow_style: bool) -> Result<()> {
+    let mut seen = BTreeSet::new();
+    for property in children(node)? {
+        let name = word(property)?;
+        if !seen.insert(name) {
+            return Err(Failure::Invalid);
+        }
+        if name == "tblStyle" && allow_style {
+            val(property)?;
+            continue;
+        }
+        if !matches!(
+            name,
+            "tblW"
+                | "tblInd"
+                | "tblBorders"
+                | "tblLayout"
+                | "tblCellMar"
+                | "tblLook"
+                | "jc"
+                | "tblCaption"
+                | "tblDescription"
+        ) {
+            return Err(Failure::Unsupported);
+        }
+        metadata(property)?;
+        if matches!(name, "tblCaption" | "tblDescription") && !val(property)?.is_empty() {
+            return Err(Failure::Unsupported);
+        }
+    }
+    Ok(())
+}
+fn cell_properties(node: Node<'_, '_>) -> Result<()> {
+    let mut seen = BTreeSet::new();
+    for property in children(node)? {
+        let name = word(property)?;
+        if !seen.insert(name) {
+            return Err(Failure::Invalid);
+        }
+        if !matches!(
+            name,
+            "tcW" | "tcBorders" | "shd" | "tcMar" | "vAlign" | "noWrap" | "hideMark"
+        ) {
+            return Err(Failure::Unsupported);
+        }
+        metadata(property)?;
+    }
+    Ok(())
+}
+
 fn paragraph_properties(node: Node<'_, '_>, mut p: Paragraph) -> Result<Paragraph> {
     let mut seen = BTreeSet::new();
     for n in children(node)? {
@@ -268,6 +330,7 @@ struct Styles<'a, 'i> {
     by_id: BTreeMap<&'a str, Node<'a, 'i>>,
     paragraph_default: Option<&'a str>,
     character_default: Option<&'a str>,
+    table_default: Option<&'a str>,
     cancel: &'a AtomicBool,
 }
 impl<'a, 'i> Styles<'a, 'i> {
@@ -277,6 +340,7 @@ impl<'a, 'i> Styles<'a, 'i> {
             by_id: BTreeMap::new(),
             paragraph_default: None,
             character_default: None,
+            table_default: None,
             cancel,
         };
         if let Some(doc) = document {
@@ -295,6 +359,7 @@ impl<'a, 'i> Styles<'a, 'i> {
                             let default = match attr(n, "type") {
                                 Some("paragraph") => &mut styles.paragraph_default,
                                 Some("character") => &mut styles.character_default,
+                                Some("table") => &mut styles.table_default,
                                 _ => continue,
                             };
                             if default.replace(id).is_some() {
@@ -377,10 +442,18 @@ impl<'a, 'i> Styles<'a, 'i> {
                         | "rsid"
                         | "pPr"
                         | "rPr"
+                        | "tblPr"
+                        | "trPr"
+                        | "tcPr"
                 ) {
                     return Err(Failure::Unsupported);
                 }
-                if !matches!(word(n)?, "pPr" | "rPr") && !children(n)?.is_empty() {
+                if matches!(word(n)?, "tblPr" | "trPr" | "tcPr") && expected != "table" {
+                    return Err(Failure::Unsupported);
+                }
+                if !matches!(word(n)?, "pPr" | "rPr" | "tblPr" | "trPr" | "tcPr")
+                    && !children(n)?.is_empty()
+                {
                     return Err(Failure::Unsupported);
                 }
             }
@@ -427,6 +500,42 @@ impl<'a, 'i> Styles<'a, 'i> {
         }
         Ok((p, e))
     }
+    fn table(&self, id: Option<&str>) -> Result<()> {
+        let Some(id) = id.or(self.table_default) else {
+            return Ok(());
+        };
+        for style in self.chain(id, "table")? {
+            for n in children(style)? {
+                match word(n)? {
+                    "rPr" => layout_run_properties(n)?,
+                    "pPr" => {
+                        if child(n, "pStyle")?.is_some()
+                            || child(n, "outlineLvl")?.is_some()
+                            || child(n, "numPr")?.is_some()
+                        {
+                            return Err(Failure::Unsupported);
+                        }
+                        paragraph_properties(n, Paragraph::default())?;
+                        if let Some(r) = child(n, "rPr")? {
+                            layout_run_properties(r)?;
+                        }
+                    }
+                    "tblPr" => table_properties(n, false)?,
+                    "trPr" => {
+                        for property in children(n)? {
+                            if !matches!(word(property)?, "cantSplit" | "trHeight" | "jc") {
+                                return Err(Failure::Unsupported);
+                            }
+                            metadata(property)?;
+                        }
+                    }
+                    "tcPr" => cell_properties(n)?,
+                    _ => {} // chain() has already checked the remaining style metadata.
+                }
+            }
+        }
+        Ok(())
+    }
     fn run(&self, node: Option<Node<'_, '_>>, mut e: Emphasis) -> Result<Emphasis> {
         let explicit = node
             .map(|n| child(n, "rStyle"))
@@ -455,6 +564,7 @@ impl<'a, 'i> Styles<'a, 'i> {
 struct Level {
     start: u32,
     decimal: bool,
+    delimiter: char,
     restart: u32,
 }
 struct Numbering<'a, 'i> {
@@ -600,8 +710,13 @@ impl<'a, 'i> Numbering<'a, 'i> {
         start = start_override.unwrap_or(start);
         let decimal = decimal.ok_or(Failure::Invalid)?;
         let pattern = pattern.ok_or(Failure::Invalid)?;
+        let delimiter = if decimal && pattern == format!("%{})", index + 1) {
+            ')'
+        } else {
+            '.'
+        };
         if decimal {
-            if pattern != format!("%{}.", index + 1) {
+            if pattern != format!("%{}{delimiter}", index + 1) {
                 return Err(Failure::Unsupported);
             }
         } else if !matches!(
@@ -613,6 +728,7 @@ impl<'a, 'i> Numbering<'a, 'i> {
         Ok(Level {
             start,
             decimal,
+            delimiter,
             restart,
         })
     }
@@ -649,7 +765,7 @@ impl<'a, 'i> Numbering<'a, 'i> {
         let indent = "    ".repeat(index as usize);
         // Supported glyphs are ordinary unordered-list markers, not literal body wording.
         Ok(if level.decimal {
-            format!("{indent}{current}. ")
+            format!("{indent}{current}{} ", level.delimiter)
         } else {
             format!("{indent}- ")
         })
@@ -809,6 +925,14 @@ impl Renderer<'_, '_> {
     }
     fn table(&mut self, table: Node<'_, '_>) -> Result<String> {
         self.last_list = None;
+        let properties = child(table, "tblPr")?;
+        let style = properties
+            .map(|n| child(n, "tblStyle"))
+            .transpose()?
+            .flatten()
+            .map(val)
+            .transpose()?;
+        self.styles.table(style)?;
         let mut accumulated = 0usize;
         let mut rows = Vec::new();
         let mut header = false;
@@ -823,28 +947,7 @@ impl Renderer<'_, '_> {
                         return Err(Failure::Invalid);
                     }
                     seen_props = true;
-                    for property in children(n)? {
-                        if !matches!(
-                            word(property)?,
-                            "tblW"
-                                | "tblInd"
-                                | "tblBorders"
-                                | "tblLayout"
-                                | "tblCellMar"
-                                | "tblLook"
-                                | "jc"
-                                | "tblCaption"
-                                | "tblDescription"
-                        ) {
-                            return Err(Failure::Unsupported);
-                        }
-                        metadata(property)?;
-                        if matches!(word(property)?, "tblCaption" | "tblDescription")
-                            && !val(property)?.is_empty()
-                        {
-                            return Err(Failure::Unsupported);
-                        }
-                    }
+                    table_properties(n, true)?;
                 }
                 "tblGrid" => {
                     if grid.is_some() || !rows.is_empty() {
@@ -881,21 +984,7 @@ impl Renderer<'_, '_> {
                                 for part in children(cell)? {
                                     match word(part)? {
                                         "tcPr" => {
-                                            for property in children(part)? {
-                                                metadata(property)?;
-                                                if !matches!(
-                                                    word(property)?,
-                                                    "tcW"
-                                                        | "tcBorders"
-                                                        | "shd"
-                                                        | "tcMar"
-                                                        | "vAlign"
-                                                        | "noWrap"
-                                                        | "hideMark"
-                                                ) {
-                                                    return Err(Failure::Unsupported);
-                                                }
-                                            }
+                                            cell_properties(part)?;
                                         }
                                         "p" => {
                                             if count > 0 {
@@ -1184,6 +1273,47 @@ mod tests {
                 None,
                 Some(&numbering().replace("%1.", "%1.%2."))
             ),
+            Err(Failure::Unsupported)
+        ));
+    }
+    #[test]
+    fn ordinary_parenthesis_decimal_markers_are_preserved() {
+        let numbering = numbering().replace("%1.", "%1)").replace("%2.", "%2)");
+        assert_eq!(
+            convert(
+                &(numbered(1, 0, "A") + &numbered(1, 1, "nested") + &numbered(1, 0, "B")),
+                None,
+                Some(&numbering)
+            )
+            .unwrap(),
+            "4) A\n\n    1) nested\n\n5) B\n"
+        );
+    }
+    #[test]
+    fn common_table_grid_and_default_layout_style_preserve_simple_table() {
+        let styles = format!(
+            r#"<w:styles xmlns:w="{W}"><w:style w:type="table" w:default="1" w:styleId="TableNormal"><w:name w:val="Normal Table"/><w:tblPr><w:tblInd w:w="0" w:type="dxa"/><w:tblCellMar><w:top w:w="0"/><w:left w:w="108"/><w:bottom w:w="0"/><w:right w:w="108"/></w:tblCellMar></w:tblPr></w:style><w:style w:type="table" w:styleId="TableGrid"><w:name w:val="Table Grid"/><w:basedOn w:val="TableNormal"/><w:pPr><w:spacing w:after="0"/></w:pPr><w:tblPr><w:tblBorders><w:top w:val="single"/><w:left w:val="single"/><w:bottom w:val="single"/><w:right w:val="single"/><w:insideH w:val="single"/><w:insideV w:val="single"/></w:tblBorders></w:tblPr></w:style></w:styles>"#
+        );
+        let row = "<w:tr><w:tc><w:p><w:r><w:t>ordinary</w:t></w:r></w:p></w:tc></w:tr>";
+        let expected = "|  |\n| --- |\n| ordinary |\n";
+        assert_eq!(convert(&format!("<w:tbl><w:tblPr><w:tblStyle w:val=\"TableGrid\"/><w:tblW w:w=\"0\" w:type=\"auto\"/></w:tblPr>{row}</w:tbl>"), Some(&styles), None).unwrap(), expected);
+        assert_eq!(
+            convert(&format!("<w:tbl>{row}</w:tbl>"), Some(&styles), None).unwrap(),
+            expected
+        );
+        let conditional = styles.replace("<w:name w:val=\"Table Grid\"/>", "<w:name w:val=\"Table Grid\"/><w:tblStylePr w:type=\"firstRow\"><w:rPr><w:b/></w:rPr></w:tblStylePr>");
+        let body =
+            format!("<w:tbl><w:tblPr><w:tblStyle w:val=\"TableGrid\"/></w:tblPr>{row}</w:tbl>");
+        assert!(matches!(
+            convert(&body, Some(&conditional), None),
+            Err(Failure::Unsupported)
+        ));
+        let emphasized = styles.replace(
+            "<w:name w:val=\"Table Grid\"/>",
+            "<w:name w:val=\"Table Grid\"/><w:rPr><w:b/></w:rPr>",
+        );
+        assert!(matches!(
+            convert(&body, Some(&emphasized), None),
             Err(Failure::Unsupported)
         ));
     }
