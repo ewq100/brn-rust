@@ -59,11 +59,16 @@ fn boolean(node: Node<'_, '_>) -> Result<bool> {
         _ => Err(Failure::Invalid),
     }
 }
-fn push(out: &mut String, text: &str) -> Result<()> {
-    if out.len().checked_add(text.len()).is_none_or(|n| n > LIMIT) {
+fn push(out: &mut impl TextOutput, text: &str) -> Result<()> {
+    if out
+        .text()
+        .len()
+        .checked_add(text.len())
+        .is_none_or(|n| n > LIMIT)
+    {
         return Err(Failure::Limit);
     }
-    out.push_str(text);
+    out.text_mut().push_str(text);
     Ok(())
 }
 fn escaped(text: &str, cancel: &AtomicBool) -> Result<String> {
@@ -132,7 +137,16 @@ fn neutral_paint(node: Node<'_, '_>) -> Result<()> {
     Ok(())
 }
 
-fn tooltip_title(out: &mut String, tooltip: &str, cancel: &AtomicBool) -> Result<()> {
+fn tooltip_title(out: &mut impl TextOutput, tooltip: &str, cancel: &AtomicBool) -> Result<()> {
+    literal_title(out, tooltip, cancel, false)
+}
+
+fn literal_title(
+    out: &mut impl TextOutput,
+    tooltip: &str,
+    cancel: &AtomicBool,
+    escape_pipe: bool,
+) -> Result<()> {
     if tooltip.is_empty() {
         return Ok(());
     }
@@ -140,6 +154,7 @@ fn tooltip_title(out: &mut String, tooltip: &str, cancel: &AtomicBool) -> Result
     for character in tooltip.chars() {
         check_cancel(cancel)?;
         match character {
+            '|' if escape_pipe => push(out, "&#124;")?,
             '&' => push(out, "&amp;")?,
             '<' => push(out, "&lt;")?,
             '>' => push(out, "&gt;")?,
@@ -849,20 +864,137 @@ impl<'a, 'i> Numbering<'a, 'i> {
     }
 }
 
+// Ranges travel with each rendered fragment, including emphasis, list prefixes
+// and table cells. No placeholder or search/replacement can alias source wording.
+trait TextOutput {
+    fn text(&self) -> &str;
+    fn text_mut(&mut self) -> &mut String;
+}
+impl TextOutput for String {
+    fn text(&self) -> &str {
+        self
+    }
+    fn text_mut(&mut self) -> &mut String {
+        self
+    }
+}
+#[derive(Clone, Default)]
+pub(super) struct Rendered {
+    pub text: String,
+    pub image_range: Option<std::ops::Range<usize>>,
+}
+impl TextOutput for Rendered {
+    fn text(&self) -> &str {
+        &self.text
+    }
+    fn text_mut(&mut self) -> &mut String {
+        &mut self.text
+    }
+}
+impl std::ops::Deref for Rendered {
+    type Target = str;
+    fn deref(&self) -> &str {
+        &self.text
+    }
+}
+impl From<&str> for Rendered {
+    fn from(value: &str) -> Self {
+        Self {
+            text: value.into(),
+            image_range: None,
+        }
+    }
+}
+fn append(out: &mut Rendered, value: &Rendered) -> Result<()> {
+    let offset = out.text.len();
+    if let Some(range) = &value.image_range {
+        if out.image_range.is_some() {
+            return Err(Failure::Unsupported);
+        }
+        out.image_range = Some(range.start + offset..range.end + offset);
+    }
+    push(out, &value.text)
+}
+pub(super) struct ImageOccurrence {
+    pub node_id: roxmltree::NodeId,
+    pub markdown: String,
+    pub used: std::cell::Cell<bool>,
+}
+
+pub(super) fn image_markdown(
+    asset: &str,
+    alt: Option<&str>,
+    title: Option<&str>,
+    cancel: &AtomicBool,
+) -> Result<String> {
+    let hash = asset
+        .strip_prefix("brn-inbox-image-")
+        .and_then(|v| v.strip_suffix("-1.png"))
+        .ok_or(Failure::Invalid)?;
+    if hash.len() != 64
+        || !hash
+            .bytes()
+            .all(|b| b.is_ascii_digit() || (b'a'..=b'f').contains(&b))
+    {
+        return Err(Failure::Invalid);
+    }
+    if [alt, title].into_iter().flatten().any(|v| v.len() > 2048) {
+        return Err(Failure::Limit);
+    }
+    if [alt, title].into_iter().flatten().any(|v| {
+        v.chars()
+            .any(|c| c.is_control() && !matches!(c, '\n' | '\r' | '\t'))
+    }) {
+        return Err(Failure::Invalid);
+    }
+    let mut out = String::from("![");
+    for c in alt.unwrap_or("").chars() {
+        match c {
+            '\r' => push(&mut out, "&#13;")?,
+            '\t' => push(&mut out, "&#9;")?,
+            _ => push(&mut out, &escaped(c.encode_utf8(&mut [0; 4]), cancel)?)?,
+        }
+    }
+    push(&mut out, "](")?;
+    push(&mut out, asset)?;
+    if let Some(title) = title {
+        // Keep an explicitly supplied empty title distinguishable in Markdown.
+        if title.is_empty() {
+            push(&mut out, " \"\"")?;
+        } else {
+            literal_title(&mut out, title, cancel, true)?;
+        }
+    }
+    push(&mut out, ")")?;
+    Ok(out)
+}
+
+#[cfg(test)]
+pub(super) fn render(
+    document: &Document<'_>,
+    styles: Option<&Document<'_>>,
+    numbering: Option<&Document<'_>>,
+    links: &BTreeMap<String, String>,
+    cancel: &AtomicBool,
+) -> Result<String> {
+    render_with_image(document, styles, numbering, links, cancel, None).map(|r| r.text)
+}
+
 struct Renderer<'a, 'i> {
     styles: Styles<'a, 'i>,
     numbering: Numbering<'a, 'i>,
     links: &'a BTreeMap<String, String>,
     cancel: &'a AtomicBool,
     last_list: Option<(u32, u32)>,
+    image: Option<&'a ImageOccurrence>,
 }
 impl Renderer<'_, '_> {
-    fn run(&self, node: Node<'_, '_>, inherited: Emphasis) -> Result<String> {
+    fn run(&self, node: Node<'_, '_>, inherited: Emphasis) -> Result<Rendered> {
         let e = self.styles.run(child(node, "rPr")?, inherited)?;
-        let mut text = String::new();
+        let mut text = Rendered::default();
         for n in children(node)? {
             check_cancel(self.cancel)?;
-            if !matches!(word(n)?, "rPr" | "t") && !children(n)?.is_empty() {
+            if !matches!(word(n)?, "rPr" | "t" | "drawing") && !children(n)?.is_empty() {
                 return Err(Failure::Unsupported);
             }
             match word(n)? {
@@ -877,6 +1009,15 @@ impl Renderer<'_, '_> {
                             &escaped(wording.text().unwrap_or_default(), self.cancel)?,
                         )?;
                     }
+                }
+                "drawing" => {
+                    let image = self.image.ok_or(Failure::Unsupported)?;
+                    if n.id() != image.node_id || image.used.replace(true) {
+                        return Err(Failure::Unsupported);
+                    }
+                    let start = text.text.len();
+                    push(&mut text, &image.markdown)?;
+                    text.image_range = Some(start..text.text.len());
                 }
                 "tab" => push(&mut text, "\t")?,
                 "br" => {
@@ -897,7 +1038,7 @@ impl Renderer<'_, '_> {
         if text.is_empty() {
             return Ok(text);
         }
-        let mut out = String::new();
+        let mut out = Rendered::default();
         for (on, tag) in [
             (e.bold, "<strong>"),
             (e.italic, "<em>"),
@@ -910,7 +1051,7 @@ impl Renderer<'_, '_> {
                 push(&mut out, tag)?;
             }
         }
-        push(&mut out, &text)?;
+        append(&mut out, &text)?;
         for (on, tag) in [
             (e.vertical == -1, "</sub>"),
             (e.vertical == 1, "</sup>"),
@@ -925,13 +1066,13 @@ impl Renderer<'_, '_> {
         }
         Ok(out)
     }
-    fn inline(&self, node: Node<'_, '_>, e: Emphasis, hyperlink: bool) -> Result<String> {
-        let mut out = String::new();
+    fn inline(&self, node: Node<'_, '_>, e: Emphasis, hyperlink: bool) -> Result<Rendered> {
+        let mut out = Rendered::default();
         for n in children(node)? {
             check_cancel(self.cancel)?;
             match word(n)? {
                 "pPr" if !hyperlink => {}
-                "r" => push(&mut out, &self.run(n, e)?)?,
+                "r" => append(&mut out, &self.run(n, e)?)?,
                 "hyperlink" if !hyperlink => {
                     if attr(n, "anchor").is_some() || attr(n, "docLocation").is_some() {
                         return Err(Failure::Unsupported);
@@ -942,8 +1083,11 @@ impl Renderer<'_, '_> {
                         .ok_or(Failure::Invalid)?;
                     let destination = self.links.get(id).ok_or(Failure::Invalid)?;
                     let label = self.inline(n, e, true)?;
+                    if label.image_range.is_some() {
+                        return Err(Failure::Unsupported);
+                    }
                     push(&mut out, "[")?;
-                    push(&mut out, &label)?;
+                    append(&mut out, &label)?;
                     push(&mut out, "](<")?;
                     for byte in destination.bytes() {
                         if byte == b'&' {
@@ -973,7 +1117,7 @@ impl Renderer<'_, '_> {
         }
         Ok(out)
     }
-    fn paragraph(&mut self, node: Node<'_, '_>, table: bool) -> Result<String> {
+    fn paragraph(&mut self, node: Node<'_, '_>, table: bool) -> Result<Rendered> {
         let (p, e) = self.styles.paragraph(child(node, "pPr")?)?;
         if table && (p.outline.is_some() || p.list.is_some()) {
             return Err(Failure::Unsupported);
@@ -981,7 +1125,7 @@ impl Renderer<'_, '_> {
         if p.outline.is_some() && p.list.is_some() {
             return Err(Failure::Unsupported);
         }
-        let mut out = String::new();
+        let mut out = Rendered::default();
         if let Some(level) = p.outline {
             push(&mut out, &"#".repeat(level as usize + 1))?;
             push(&mut out, " ")?;
@@ -1003,10 +1147,10 @@ impl Renderer<'_, '_> {
             push(&mut out, &self.numbering.prefix(id, level)?)?;
         }
         self.last_list = p.list;
-        push(&mut out, &self.inline(node, e, false)?)?;
+        append(&mut out, &self.inline(node, e, false)?)?;
         Ok(out)
     }
-    fn table(&mut self, table: Node<'_, '_>) -> Result<String> {
+    fn table(&mut self, table: Node<'_, '_>) -> Result<Rendered> {
         self.last_list = None;
         let properties = child(table, "tblPr")?;
         let style = properties
@@ -1065,7 +1209,7 @@ impl Renderer<'_, '_> {
                             }
                             "tc" => {
                                 child(cell, "tcPr")?;
-                                let mut value = String::new();
+                                let mut value = Rendered::default();
                                 let mut count = 0;
                                 for part in children(cell)? {
                                     match word(part)? {
@@ -1079,7 +1223,7 @@ impl Renderer<'_, '_> {
                                             if count > 0 {
                                                 push(&mut value, "<br><br>")?;
                                             }
-                                            push(&mut value, &self.paragraph(part, true)?)?;
+                                            append(&mut value, &self.paragraph(part, true)?)?;
                                             count += 1;
                                         }
                                         _ => return Err(Failure::Unsupported),
@@ -1118,35 +1262,36 @@ impl Renderer<'_, '_> {
         if grid.is_some_and(|n| n != columns) {
             return Err(Failure::Invalid);
         }
-        let mut out = String::new();
-        let emit = |out: &mut String, row: &[String]| -> Result<()> {
+        let mut out = Rendered::default();
+        let emit = |out: &mut Rendered, row: &[Rendered]| -> Result<()> {
             push(out, "|")?;
             for cell in row {
                 push(out, " ")?;
-                push(out, cell)?;
+                append(out, cell)?;
                 push(out, " |")?;
             }
             push(out, "\n")
         };
-        let empty_header = vec![String::new(); columns];
+        let empty_header = vec![Rendered::default(); columns];
         let first = if header { &rows[0] } else { &empty_header };
         emit(&mut out, first)?;
         emit(&mut out, &vec!["---".into(); columns])?;
         for row in rows.iter().skip(usize::from(header)) {
             emit(&mut out, row)?;
         }
-        out.pop();
+        out.text.pop();
         Ok(out)
     }
 }
 
-pub(super) fn render(
+pub(super) fn render_with_image(
     document: &Document<'_>,
     styles: Option<&Document<'_>>,
     numbering: Option<&Document<'_>>,
     links: &BTreeMap<String, String>,
     cancel: &AtomicBool,
-) -> Result<String> {
+    image: Option<&ImageOccurrence>,
+) -> Result<Rendered> {
     check_cancel(cancel)?;
     let root = document.root_element();
     if word(root)? != "document" {
@@ -1168,8 +1313,9 @@ pub(super) fn render(
         links,
         cancel,
         last_list: None,
+        image,
     };
-    let mut out = String::new();
+    let mut out = Rendered::default();
     let mut blocks = 0;
     let mut section = false;
     for n in children(body)? {
@@ -1212,7 +1358,7 @@ pub(super) fn render(
         if blocks > 0 {
             push(&mut out, "\n\n")?;
         }
-        push(&mut out, &block)?;
+        append(&mut out, &block)?;
         blocks += 1;
     }
     if blocks > 0 {

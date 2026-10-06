@@ -13,6 +13,61 @@ use uuid::Uuid;
 
 mod docx;
 
+/// Fully decoded PNG dimensions; bytes remain authoritative and unchanged.
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub struct PngImageFacts {
+    pub width: u32,
+    pub height: u32,
+}
+
+/// Pure bounded conversion, before Source construction or any effects.
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub struct DocxSourceConversion {
+    pub format: InboxConversionFormat,
+    pub body: String,
+    pub visual: Option<DocxInlinePng>,
+}
+
+/// One validated image occurrence and its exact raw package part.
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub struct DocxInlinePng {
+    pub part_name: String,
+    pub relationship_id: String,
+    pub asset_name: String,
+    pub byte_len: u64,
+    pub sha256: [u8; 32],
+    pub width: u32,
+    pub height: u32,
+    pub alt_text: Option<String>,
+    pub title: Option<String>,
+    pub image_start: usize,
+    pub image_end: usize,
+    pub bytes: Vec<u8>,
+}
+
+pub fn convert_docx_source(
+    bytes: &[u8],
+    cancel: &AtomicBool,
+) -> std::result::Result<DocxSourceConversion, InboxProcessOutcome> {
+    docx::convert_source(bytes, cancel)
+}
+
+/// The exact safe literal markup used by the converted occurrence.
+pub fn docx_inline_png_markdown(
+    asset_name: &str,
+    alt_text: Option<&str>,
+    title: Option<&str>,
+) -> Result<String> {
+    docx::image_markdown(asset_name, alt_text, title)
+}
+
+pub fn validate_png_image(
+    bytes: &[u8],
+    cancel: &AtomicBool,
+) -> std::result::Result<PngImageFacts, InboxProcessOutcome> {
+    docx::validate_png(bytes, cancel)
+}
+
 /// Deterministic bounded DOCX conversion from complete bytes. Workflow owns
 /// fresh original observation and exact proposal authority; this performs no IO.
 pub fn convert_docx_original(

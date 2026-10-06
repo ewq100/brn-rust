@@ -49,6 +49,7 @@ pub enum InboxConversionFormat {
     VerbatimMarkdownV1,
     LiteralTextV1,
     DocxTextV1,
+    DocxInlinePngV1,
 }
 
 #[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]

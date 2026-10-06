@@ -1,11 +1,11 @@
 use super::*;
 use std::io::{Cursor, Write};
 
-const TYPES: &str = r#"<Types xmlns="http://schemas.openxmlformats.org/package/2006/content-types"><Default Extension="rels" ContentType="application/vnd.openxmlformats-package.relationships+xml"/><Default Extension="xml" ContentType="application/xml"/><Override PartName="/word/document.xml" ContentType="application/vnd.openxmlformats-officedocument.wordprocessingml.document.main+xml"/></Types>"#;
-const RELS: &str = r#"<Relationships xmlns="http://schemas.openxmlformats.org/package/2006/relationships"><Relationship Id="rId1" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/officeDocument" Target="word/document.xml"/></Relationships>"#;
-const WORD: &str = "http://schemas.openxmlformats.org/wordprocessingml/2006/main";
+pub(super) const TYPES: &str = r#"<Types xmlns="http://schemas.openxmlformats.org/package/2006/content-types"><Default Extension="rels" ContentType="application/vnd.openxmlformats-package.relationships+xml"/><Default Extension="xml" ContentType="application/xml"/><Override PartName="/word/document.xml" ContentType="application/vnd.openxmlformats-officedocument.wordprocessingml.document.main+xml"/></Types>"#;
+pub(super) const RELS: &str = r#"<Relationships xmlns="http://schemas.openxmlformats.org/package/2006/relationships"><Relationship Id="rId1" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/officeDocument" Target="word/document.xml"/></Relationships>"#;
+pub(super) const WORD: &str = "http://schemas.openxmlformats.org/wordprocessingml/2006/main";
 
-fn archive(parts: &[(&str, &[u8])], method: zip::CompressionMethod) -> Vec<u8> {
+pub(super) fn archive(parts: &[(&str, &[u8])], method: zip::CompressionMethod) -> Vec<u8> {
     let mut writer = zip::ZipWriter::new(Cursor::new(Vec::new()));
     for &(name, bytes) in parts {
         writer
@@ -18,7 +18,7 @@ fn archive(parts: &[(&str, &[u8])], method: zip::CompressionMethod) -> Vec<u8> {
     }
     writer.finish().unwrap().into_inner()
 }
-fn docx(body: &str, method: zip::CompressionMethod) -> Vec<u8> {
+pub(super) fn docx(body: &str, method: zip::CompressionMethod) -> Vec<u8> {
     let doc = format!("<w:document xmlns:w=\"{WORD}\"><w:body>{body}</w:body></w:document>");
     archive(
         &[
@@ -29,7 +29,7 @@ fn docx(body: &str, method: zip::CompressionMethod) -> Vec<u8> {
         method,
     )
 }
-fn paragraph(text: &str) -> String {
+pub(super) fn paragraph(text: &str) -> String {
     format!("<w:p><w:r><w:t>{text}</w:t></w:r></w:p>")
 }
 fn failed(bytes: &[u8], code: &str) {

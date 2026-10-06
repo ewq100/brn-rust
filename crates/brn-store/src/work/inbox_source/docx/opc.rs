@@ -341,6 +341,22 @@ fn relationship_part(base: &str) -> String {
 }
 
 pub(super) fn render(parts: &BTreeMap<String, Vec<u8>>, cancel: &AtomicBool) -> Result<String> {
+    render_inner(parts, None, cancel).map(|r| r.body)
+}
+
+pub(super) fn render_source(
+    parts: &BTreeMap<String, Vec<u8>>,
+    original: &[u8],
+    cancel: &AtomicBool,
+) -> Result<super::super::DocxSourceConversion> {
+    render_inner(parts, Some(original), cancel)
+}
+
+fn render_inner(
+    parts: &BTreeMap<String, Vec<u8>>,
+    original: Option<&[u8]>,
+    cancel: &AtomicBool,
+) -> Result<super::super::DocxSourceConversion> {
     let mut budget = xml::Budget::default();
     let ct = budget.parse(
         parts.get("[Content_Types].xml").ok_or(Failure::Invalid)?,
@@ -354,6 +370,9 @@ pub(super) fn render(parts: &BTreeMap<String, Vec<u8>>, cancel: &AtomicBool) -> 
     {
         check_cancel(cancel)?;
         let kind = types.get(path).ok_or(Failure::Invalid)?.as_str();
+        if kind == "image/png" && original.is_some() {
+            continue;
+        }
         if !matches!(
             kind,
             WORD | STYLES
@@ -405,6 +424,7 @@ pub(super) fn render(parts: &BTreeMap<String, Vec<u8>>, cancel: &AtomicBool) -> 
     let mut style_path = None;
     let mut numbering_path = None;
     let mut links = BTreeMap::new();
+    let mut image_relationship = None;
     let mut admitted = std::collections::BTreeSet::from(["_rels/.rels", main]);
     if docs.contains_key(relation_path.as_str()) {
         admitted.insert(relation_path.as_str());
@@ -414,6 +434,14 @@ pub(super) fn render(parts: &BTreeMap<String, Vec<u8>>, cancel: &AtomicBool) -> 
     }
     for (id, relationship) in &main_rels {
         match relationship.kind.as_str() {
+            "image"
+                if original.is_some()
+                    && !relationship.external
+                    && image_relationship.is_none()
+                    && types.get(&relationship.target).map(String::as_str) == Some("image/png") =>
+            {
+                image_relationship = Some((id.as_str(), relationship.target.as_str()));
+            }
             "hyperlink" if relationship.external => {
                 links.insert(id.clone(), relationship.target.clone());
             }
@@ -450,7 +478,11 @@ pub(super) fn render(parts: &BTreeMap<String, Vec<u8>>, cancel: &AtomicBool) -> 
     }
     // Unreferenced parts and subordinate relationships can carry meaningful
     // content too. Never hide them behind a successful main-body extraction.
-    if docs.keys().any(|path| !admitted.contains(path)) {
+    if parts
+        .keys()
+        .filter(|path| path.as_str() != "[Content_Types].xml")
+        .any(|path| !admitted.contains(path.as_str()))
+    {
         return Err(Failure::Unsupported);
     }
     for path in admitted
@@ -461,11 +493,88 @@ pub(super) fn render(parts: &BTreeMap<String, Vec<u8>>, cancel: &AtomicBool) -> 
             return Err(Failure::Unsupported);
         }
     }
-    document::render(
-        docs.get(main).ok_or(Failure::Invalid)?,
+    let main_doc = docs.get(main).ok_or(Failure::Invalid)?;
+    let mut visual = None;
+    let mut occurrence = None;
+    if let Some((id, path)) = image_relationship {
+        let original = original.ok_or(Failure::Unsupported)?;
+        let drawings: Vec<_> = main_doc
+            .descendants()
+            .filter(|n| {
+                n.is_element()
+                    && matches!(
+                        n.tag_name().namespace(),
+                        Some(
+                            "http://schemas.openxmlformats.org/wordprocessingml/2006/main"
+                                | "http://purl.oclc.org/ooxml/wordprocessingml/main"
+                        )
+                    )
+                    && n.tag_name().name() == "drawing"
+            })
+            .collect();
+        if drawings.len() != 1 {
+            return Err(Failure::Unsupported);
+        }
+        let parsed = super::image::inline(drawings[0], cancel)?;
+        if parsed.relationship_id != id {
+            return Err(Failure::Invalid);
+        }
+        let bytes = parts.get(path).ok_or(Failure::Invalid)?;
+        let facts = super::image::validate_png(bytes, cancel)?;
+        let digest: String = crate::hash(original)
+            .iter()
+            .map(|b| format!("{b:02x}"))
+            .collect();
+        let asset_name = format!("brn-inbox-image-{digest}-1.png");
+        let markdown = document::image_markdown(
+            &asset_name,
+            parsed.alt_text.as_deref(),
+            parsed.title.as_deref(),
+            cancel,
+        )?;
+        occurrence = Some(document::ImageOccurrence {
+            node_id: drawings[0].id(),
+            markdown,
+            used: std::cell::Cell::new(false),
+        });
+        visual = Some(super::super::DocxInlinePng {
+            part_name: path.into(),
+            relationship_id: id.into(),
+            asset_name,
+            byte_len: bytes.len() as u64,
+            sha256: crate::hash(bytes),
+            width: facts.width,
+            height: facts.height,
+            alt_text: parsed.alt_text,
+            title: parsed.title,
+            image_start: 0,
+            image_end: 0,
+            bytes: bytes.clone(),
+        });
+    }
+    let rendered = document::render_with_image(
+        main_doc,
         style_path.and_then(|p| docs.get(p)),
         numbering_path.and_then(|p| docs.get(p)),
         &links,
         cancel,
-    )
+        occurrence.as_ref(),
+    )?;
+    if let Some(image) = &mut visual {
+        if occurrence.as_ref().is_none_or(|o| !o.used.get()) {
+            return Err(Failure::Unsupported);
+        }
+        let range = rendered.image_range.ok_or(Failure::Invalid)?;
+        image.image_start = range.start;
+        image.image_end = range.end;
+    }
+    Ok(super::super::DocxSourceConversion {
+        format: if visual.is_some() {
+            super::super::InboxConversionFormat::DocxInlinePngV1
+        } else {
+            super::super::InboxConversionFormat::DocxTextV1
+        },
+        body: rendered.text,
+        visual,
+    })
 }
