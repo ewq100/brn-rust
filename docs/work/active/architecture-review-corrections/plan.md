@@ -21,14 +21,13 @@ at531517248300c15ce28bcb53f337984103817010/tree d63c1827aae5da654410520bc9c48856
 Knowledge capture recovery merged in PR66 at
 `504f6be33e1add8c5819e28eed08628bc8dec8d0`, reviewed tree
 `77ec79e33c75a6a0bbed3100c3815648dcb6fd68`. Original-record PR67, lifecycle PR68
-native controls PR69 and typed note facts PR70 are integrated. Current main is
-`34e3601d00d1b251b995ba176a1714da28d371e6`, reviewed tree
-`529acd9e4f073f90d14b7b3eccfdd51f96c9c28c`. Current branch is
-`codex/v1-copy-startup-witness`, reviewed code
-`1060b82bdcd6f91512bc04d5699d675b2b53b728`. Full/shipping release measurements
-passed; source is integrated with qualified main70 at622a23f. Complete review
-and fresh shared/native gates pass. Final evidence review and exact latest-head
-CI/normal integration are next.
+native controls PR69, typed note facts PR70 and startup publication PR71 are integrated.
+Current main is `cbec4ff67e686998a9242be418c81d49b213fbd6`, reviewed tree
+`0617e39583af58ed1e9cc5bcf0e203698d749f35`. Current branch is
+`codex/v1-provider-stderr`, reviewed code `14fe4489ddfbf201ebfe2f8c07c3d2678c27e5a5`,
+integrated with qualified main71 atb586892. Complete dependency/provenance review,
+shared/native gates pass; composed qualification and exact-head CI/normal
+integration are next. The bounded relationship correction follows.
 Remaining accepted corrections follow this plan.
 The complete V1 goal is confirmed **active** by `get_goal` on 2026-10-06;
 its full objective and roadmap dependency order remain unchanged.
@@ -1080,3 +1079,34 @@ Independent review, shared/native integration and owner/live qualification remai
 lead-owned and pending. This removes one unconditional stderr leak; arbitrary
 verbose upstream tracing is a separate diagnostic surface and is not qualified.
 No account, model asset or live provider work was performed.
+
+## Startup publication integration and provider qualification
+
+PR71 merged normally03:40:58UTC on2026-10-06 at
+`cbec4ff67e686998a9242be418c81d49b213fbd6`, preserving reviewed tree
+`0617e39583af58ed1e9cc5bcf0e203698d749f35`. Exact e4ec195 automatic
+run37409116674 attempt1 passed all four protected Mac/shared checks and Docs.
+Overall failure remains Windows22: complete149 numbered source-inclusive
+compiler lines, both summaries and exit101 match qualified final PR70.
+Mac workspace585s versus569s, native355s versus269s and Ubuntu416s versus390s
+are retained hosted observations. No bypass/cancellation/rerun; strict four-check
+protection and admin enforcement remain. Fresh merged checks/main CI follow.
+
+R4 complete independent review verified all88 upstream package files/modes,
+original archive checksum, the sole print deletion, source-only lock changes
+and separate same-release/same-VCS MIT license provenance. No new framework or
+upgrade is introduced. Fresh shared gate03:24:12–03:32:29UTC at unchanged clean
+`14fe4489ddfbf201ebfe2f8c07c3d2678c27e5a5`, tree
+`448ce3811298281eaa4aacf81c7b530db79674fc`, passed format/workspace build/
+all-target Clippy,1,449 tests/0failures/11documented ignores and52fixtures.
+Native gate03:32:27–03:34:52UTC at that same unchanged identity passed all12
+commands: default build/startup, combined check, three Desktop Clippy feature
+configurations,330 Workflow/models/0/9,292 Desktop/0/0, combined shipping builds
+and two real AppWorker V15 restarts with the original-operation table checked.
+No GUI, real assets, live inference or owner acceptance is claimed.
+
+R4 integrates actual main71 atb586892 without source conflict. All reviewed
+owned files except appended plan evidence remain byte-identical14fe448; both
+histories are preserved. Relevant unchanged shared/native evidence is reused;
+fresh composed verification and exact latest-head CI remain required. This is
+one unconditional stderr correction, not a general verbose tracing audit.

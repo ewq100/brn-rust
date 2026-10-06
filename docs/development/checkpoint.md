@@ -1,5 +1,37 @@
 # Resumable V1 checkpoint
 
+Full frozen V1 goal confirmed **active** by `get_goal` on2026-10-06; no token budget.
+
+- **Integrated:** [PR71](https://github.com/ewq100/brn-rust/pull/71),
+  `cbec4ff67e686998a9242be418c81d49b213fbd6`, reviewed tree
+  `0617e39583af58ed1e9cc5bcf0e203698d749f35`. Equal Inbox mirrors retain one
+  private file across complete compare/sync/recheck. Full checked startup,
+  untrusted decoding, recovery, approval and five backups remain unchanged.
+- **Verification:** independent reviews clean; shared1,452/0/11+52 and native
+  334 Workflow/models/0/10+292 Desktop/0/0, V15 restarts passed. Exact head
+  e4ec195/run37409116674 attempt1 passed four protected Mac/shared checks and Docs;
+  unchanged Windows22 compiler failures remain red. Fresh merged checks and
+  automatic main71 results are being recorded in the correction plan.
+- **Current:** `codex/v1-provider-stderr`, reviewed code
+  `14fe4489ddfbf201ebfe2f8c07c3d2678c27e5a5`, integrated with main71 atb586892.
+  An exact published Rig0.43.0 package patch removes one unconditional raw
+  partial/tool-argument stderr print. Full provenance review is clean; unchanged
+  code passed shared1,449/0/11+52 and native330 Workflow/models/0/9+
+  292 Desktop/0/0,12commands/V15 restarts. Fresh composed checks and exact-head
+  CI/normal integration are next. No protocol, tool or authority behavior changes.
+- **Next:** bounded request-local relationship membership/alias-count correction;
+  full fresh reads/fences remain. Then the current Stage7/roadmap dependencies.
+- **Pending:** residual startup/backup cost, native GUI/live/assets/owner acceptance,
+  later stages and trusted-user packaging. Legacy pending-intent retry remains
+  unsupported. No owner original removed; full V1 delivery is not claimed.
+- **Environment:** Mac mini Darwin arm64, Rust1.98.1 locked/offline, canonical owned
+  `TMPDIR=/private/tmp/brn-mini-synthetic-20261005`, empty model setting, isolated
+  checkouts/targets and disposable synthetic data. No new live calls/downloads,
+  private-data operations or release. Immutable7c4f668 stays unchanged. Follow the
+  [correction plan](../work/active/architecture-review-corrections/plan.md).
+
+# Earlier startup publication qualification checkpoint
+
 Full frozen V1 goal confirmed **active** on2026-10-06, without a token budget.
 
 - **Integrated:** [PR70](https://github.com/ewq100/brn-rust/pull/70) at
