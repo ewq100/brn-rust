@@ -15,7 +15,7 @@ and the disposable retrieval index retain their existing roles. The owner's
 permits thin future adapters around the six V1 core crates through workflow/
 AppWorker. No MCP, daemon, HTTP service, extra database or remote work is in V1.
 
-Integrated main is **`b5bcb0a7430de437533532f2bfab6a9df751509e` (PR69)**.
+Integrated main is **`34e3601d00d1b251b995ba176a1714da28d371e6` (PR70)**.
 Complete retained original review, deterministic saved-body quotes, Rust-owned
 Conflict/Knowledge/Action candidate identities, checked full Action replacement
 baselines and AI Rewrite metadata protection are integrated. Exact approval and
@@ -66,18 +66,24 @@ shared1,446/0/10+52, native330 Workflow/models/0/9+292 Desktop/0/0 and11commands
 restarts passed; complete/final-delta independent review clean. Documentation
 review's legacy pending-retry claim was corrected: inspection/already-performed
 settlement is supported; retry requires new-format intents.
-PR69 merged normally atb5bcb0a with exact reviewed tree1abaa112 after run37401164589
-attempt1 passed all four protected Mac/shared scopes and Docs. Windows22 full
-blocks/summaries match PR68; actual red remains. Fresh merged build/5state+2widget
-regressions+52fixtures passed at unchanged clean identity (02:06:51–02:06:56UTC).
-Main69 run37402543978 attempt1 passed all applicable checks; unchanged
-Windows22/22/14 compiler blocks/terminals and Linux3 assertions/backtraces match
-main68, with raw order/IDs/timing differences retained. Unlocked owner observation
-and Stage8 remain pending. Startup-cost witness preparation is test-only:
-independent static review, debug/release compile, Workflow Clippy and default
-release CLI build passed. Initial unused-result Clippy failure is retained;
-no startup measurements or optimization are qualified. R6 facts are prepared separately.
-Broader startup/backup cost remains separate. No semantic
+PR69 merged normally atb5bcb0a after exact99ba833 run37401164589 attempt1 passed
+four protected checks and Docs; unchanged Windows22 remains visible. Fresh merged
+build/5state+2widget tests and52fixtures passed. Main69 run37402543978 attempt1
+passed all applicable checks; unchanged Windows22/22/14 and Linux3 assertions/
+backtraces retain raw order/IDs/timing differences. Unlocked owner observation
+and Stage8 remain pending. R6 typed note facts merged normally in PR70:
+complete/final reviews clean; shared1,448/0/10+52 and native330 Workflow/models/0/9+
+292 Desktop/0/0,11commands/V15 restarts passed at unchanged clean3a35aaf.
+Final exact2a4589b run37406761932 attempt1 passed four protected checks and Docs;
+unchanged Windows22 remains red. Fresh merged build/128 AI/3 scopes/10 conflicts
+and52 fixtures passed at unchanged clean34e3601. Automatic main70 CI is pending.
+Startup correction at1060b82 has13 focused tests/Clippy and independent review
+passing; full36 history and36 shipping probes passed. Three warm samples/scenario:
+near-limit CLI healthy median38.903→28.193s, fresh SQL36.154→24.997s,
+SQL repair13.439→13.607s. Regenerated input dimensions are recorded. Source is
+integrated with qualified main70; fresh shared/native gates, final review and
+exact-head CI/normal integration are next. Broader startup/backup cost is
+separate. No semantic
 completeness, native/live/owner acceptance or full V1 delivery is claimed. The full
 V1 goal remains active. No owner original/private data was inspected or migrated.
 
@@ -138,8 +144,7 @@ Stage 7 integrates text/email intake and processing, selected-Source Action and
 Knowledge drafts, exact Current/History supersession pairs, tentative conflicts
 with shared Ask/CLI lookup, complete retained original review and fresh removal
 preview. Source+confirmation recoverable original removal and exact Restore are integrated;
-native controls are integrated after headless qualification; GUI/live/owner acceptance
-remain separate. The historical snapshot stays unmerged. Evidence: [Inbox](work/active/text-email-inbox/plan.md),
+native controls are under qualification separately. The historical snapshot stays unmerged. Evidence: [Inbox](work/active/text-email-inbox/plan.md),
 [supersession](work/active/text-email-inbox/supersession-plan.md),
 [conflicts](work/active/text-email-inbox/conflicts-plan.md) and
 [original-copy work](work/active/text-email-inbox/original-copy-plan.md).

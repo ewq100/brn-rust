@@ -21,18 +21,19 @@ at531517248300c15ce28bcb53f337984103817010/tree d63c1827aae5da654410520bc9c48856
 Knowledge capture recovery merged in PR66 at
 `504f6be33e1add8c5819e28eed08628bc8dec8d0`, reviewed tree
 `77ec79e33c75a6a0bbed3100c3815648dcb6fd68`. Original-record PR67, lifecycle PR68
-and native controls PR69 are integrated. Current main is
-`b5bcb0a7430de437533532f2bfab6a9df751509e`, reviewed tree
-`1abaa112874aa30af6969394d2c863d31cf57de3`. Current branch is
-`codex/v1-copy-startup-witness`; test-only code is
-`fd306371cd527c6d6d18d46154b02a0129f1dc60`. Startup measurement is the next gate;
-R6 typed note facts are prepared separately, awaiting qualification/integration.
+native controls PR69 and typed note facts PR70 are integrated. Current main is
+`34e3601d00d1b251b995ba176a1714da28d371e6`, reviewed tree
+`529acd9e4f073f90d14b7b3eccfdd51f96c9c28c`. Current branch is
+`codex/v1-copy-startup-witness`, reviewed code
+`1060b82bdcd6f91512bc04d5699d675b2b53b728`. Full/shipping release measurements
+passed; source is integrated with qualified main70. Fresh shared/native gates,
+final review and exact-head CI/normal integration are next.
 Remaining accepted corrections follow this plan.
 The complete V1 goal is confirmed **active** by `get_goal` on 2026-10-06;
 its full objective and roadmap dependency order remain unchanged.
 
 Lifecycle and native controls are implemented, automated verified and merged.
-Startup/relationship cost and retrieval-fact corrections precede Stage8.
+Startup/relationship cost and safe-provider diagnostics corrections precede Stage8.
 Native/live/owner acceptance
 remains pending. Historical live authorization is exhausted; all checks here
 use disposable synthetic data, pinned Rust and locked dependencies.
@@ -717,6 +718,60 @@ unrelated platform fix was added. Latest-head applicable CI is still required;
 earlier passing local evidence applies only to unchanged relevant code/features.
 
 
+## R6 typed retrieval facts acceptance
+
+This bounded implementation starts from PR68 merge
+`a799c3369cad61117113de40d7b1d95dad589100` on `codex/v1-ai-note-facts`.
+Required `NoteFacts` in the existing AI result boundary report an optional canonical
+managed UUID, full saved-note SHA256 array, independent Source/History flags and
+explicit Unknown conflict knowledge. The existing checked conflict lookup adds
+Known retained open count bound to its original exact UUID/SourceVersion, retaining
+all fields, full evidence, count and cursor. No eager lookup, extra file I/O,
+cache, tool, dependency, datastore or authority path is introduced. Classification,
+provenance and even Known zero do not establish consistency, semantic truth or a
+winner; stale findings remain disclosed. Captured questions/replay, keyword-only
+labels, scope, pagination, limits, evidence epochs and exact approval stay intact.
+
+Focused acceptance covers mixed All/current/Source/History/archived Source,
+canonical optional identity, same complete hash before UTF-8 text cap, uninspected
+Unknown, checked positive counts independent of page size and checked zero,
+malformed/stale/ambiguous refusal, retained stale evidence and real synthetic Rig
+tool JSON on the existing routes. Instruction guards retain authority/capability
+rules. Lead reviewed and approved this bounded interface/population/guidance before
+qualification. Latest-main integration and complete independent/shared/native
+qualification remain pending; live semantic disclosure and owner acceptance are
+separate gates.
+
+Focused offline qualification on2026-10-06 02:17:33–02:23:23UTC used pinned1.98.1,
+locked dependencies, this checkout's existing exclusive target and a new physical
+synthetic fixture parent. Owned-file rustfmt and strict default-feature all-target
+Clippy for AI/Workflow/Desktop passed. Actual tests passed128 AI/3 scoped notes/
+5 existing read tools/1 captured Inbox instruction guard/10 Workflow conflicts,
+all0failures/0ignores. The restored single conflict witness separately passed1/0.
+No full workspace/native gate, provider call, model asset or owner interaction ran.
+
+Failures remain recorded: a missing formatter shell PATH (Pythonexit1, no Rust
+command launched), a Cargo invocation unable to find rustc (exit101, no compile),
+and initial AI127/1 (exit101). That new assertion incorrectly expected Serde's
+internally tagged unit Unknown to reject an attached count; the corrected assertion
+proves it remains Unknown rather than becoming Known zero. A wrong Workflow filter
+selected0tests, so it supplies no behavioral evidence. Actual sandboxed conflict
+runs failed10/10, then1/1 before new facts assertions; an initial diagnostic failed
+to compile because AppEvent lacks Debug (exit101). Corrected diagnostic revealed
+macOS coordination refusal at Source creation (exit101). The diagnostic was restored
+byte-for-byte; the exact restored witness and full10 conflict tests then passed
+outside that sandbox without weakening any fixture/product check. Nonfatal toolchain
+rust-objcopy/libLLVM warnings from the direct-bin invocation remain in the logs.
+Raw commands/exits/times and per-file hashes are retained in
+`/private/tmp/brn-r6-focused-nye9eytp/record.json`; these paragraph counts are the
+durable summary. The qualified11-file Rust-only binary patch against the baseline
+has SHA256 `6cf306fbd072286a089836ec2087961e6f320ba5b731ff61e32b4f59a822f06d`;
+subsequent edits here affect only this evidence and crate documentation. Task-owned
+changes committed as6413e7a/tree7a9b4ce9. Qualified main69 merged normally into
+this branch ata135a6d/tree16b0262e; code merged without conflict. The sole plan
+append conflict preserves both complete evidence sections. Final review and fresh
+relevant gates remain pending, with Cargo held during the isolated B2 timings.
+
 ## Lifecycle integration and native controls checkpoint
 
 PR68 merged normally on2026-10-06 01:30:28UTC at
@@ -832,3 +887,126 @@ exclusive release measurement window is next. Correct only a measured bounded
 hotspot; degraded startup or a changed
 backup-retention contract remains a separate owner decision. Full V1 goal is active;
 GUI/live/assets/owner acceptance and trusted packaging remain pending.
+
+Main69 native controls merged normally atb5bcb0a after exact99ba833
+run37401164589 attempt1 passed four protected checks and Docs; Windows22 remains
+identical to corrected PR68. Fresh merged build/5state+2widget regressions and
+52fixtures passed at unchanged clean identity. Automatic merged-main run37402543978
+attempt1 passed all applicable checks and extra Ubuntu UI. Overall failure retains
+Windows22/22/14 complete blocks/terminals matching main68 and Linux3 matching
+assertions/backtraces, with raw order/PIDs/0.05s→0.20s differences preserved.
+Mac tests508s versus738s and Ubuntu345s versus347s are recorded observations,
+not product benchmarks. GUI/live/assets/owner acceptance remains pending.
+
+## Typed note-facts qualification
+
+Complete independent review of the task and integration delta is clean. The
+11-file Rust patch is byte-identical through main69 integration; final crate/
+evidence documentation review is also clean. Fresh shared atomic gate at clean
+`3a35aaf869e45fe7709602c07beaac93ddb49bd4`, tree
+`620fd4089c6d14c6549e1afeae111a15df39e413`, on2026-10-06
+02:39:30–02:46:07UTC passed format/workspace build/all-target Clippy,
+1,448 tests/0failures/10documented ignores and52 fixtures. All commands exit0.
+Nonfatal rust-objcopy/libLLVM warnings remain retained; no toolchain change made.
+Native atomic gate02:48:05–02:50:13UTC at the same unchanged clean identity
+passed all11commands: startup, combined check, three Clippy configurations,
+330 Workflow/models/0/9,292 Desktop/0/0, builds and two native restarts. Fresh
+SQLite queries confirm V15/owned operation table. No GUI/live/owner claim made.
+
+Initial exact PR70 run37404986639 attempt1 passed all four protected Mac/shared
+checks and Docs. Overall failure retains Windows22 full source-inclusive compiler
+blocks/both terminal summaries, identical to PR69; metadata/order/timing differences
+remain separate. GitHub test-merge644839f has exact reviewed tree620fd408.
+Mac tests447s versus663s and Ubuntu350s versus294s are observations; all long-test
+notices subsequently passed, without cancellation/timeout. Final evidence-only
+head still needs exact-head CI before normal merge and fresh merged verification.
+
+## Startup baseline and bounded correction
+
+Clean witness baseline5f1f11d on2026-10-06 passed all36 full-history probes
+(02:25:18–02:30:56UTC) and36 default shipping CLI probes
+(02:33:21–02:38:11UTC), three warm repetitions/scenario with exclusive local CPU.
+Near-limit dataset has7 operations,150,452,382 encoded mirror bytes,
+75,227,526 receipt bytes and four Remove receipts totaling75,222,931 bytes.
+Healthy medians: Store1.515s, complete App39.159s, shipping CLI38.903s;
+SQL-only repair App13.520s/CLI13.439s; fresh-SQL App36.151s/CLI36.154s.
+App includes Store: these times must not be summed. Fresh-schema Store is not
+comparable to populated Store. Complete byte/inode/history/no-effect and backup
+1..5 checks passed. These are warm synthetic results, without cold-cache/GUI claims.
+
+The first shipping permission preflight failed before any child launched. Only
+owned synthetic fixture directory modes were tightened0755→0700 outside timing;
+byte/inode proofs were unchanged and failure retained. Private equal-publication
+optimization is limited to stable complete canonical bytes and same-file durability
+checks, preserving full untrusted decoding, startup checks and backup contract.
+A same-byte inode replacement after sync reproduced a genuine old-path failure;
+the correction has13 focused tests and strict Workflow Clippy passing. Complete
+review and post-change release measurements remain pending; no benefit claimed.
+
+## Note-facts integration and equal-mirror correction
+
+PR70 merged normally on2026-10-06 03:12:49UTC at
+`34e3601d00d1b251b995ba176a1714da28d371e6`, preserving reviewed tree
+`529acd9e4f073f90d14b7b3eccfdd51f96c9c28c`. Final exact2a4589b automatic
+run37406761932 attempt1 passed four protected Mac/shared checks and Docs.
+Windows22 complete source-inclusive compiler blocks/149lines, both summaries
+and exit101 are identical to PR69 and initial PR70; overall red remains.
+Mac workspace tests569s versus447s initial/663s PR69 and Ubuntu334s versus350s
+remain observations. All four Mac long-test notices, two Ubuntu and one native
+notice subsequently passed. The failed running-job HTTP404 log read and later
+complete terminal output remain retained; no cancelled/substituted gate.
+Fresh actual protection retains four strict checks/admin enforcement/rulesets[].
+Fresh merged atomic gate03:13:07–03:13:26UTC at unchanged clean34e3601/tree529acd
+passed all five commands: workspace build,128 AI/3 real scoped-adapter/10 conflict
+tests and52fixtures, all exits0. Main70 automatic CI remains pending.
+
+Bounded equal-publication acceptance preserves complete typed expected validation
+and canonical encoding. One held owned/private/single-link/bounded file proves
+complete equality, syncs itself plus directory, and rechecks bytes/metadata/name/
+inode/root namespace. Unequal occupants retain the complete original decoder and
+canonical/hash/semantic/namespace/filename refusal or valid-fork classification.
+Untrusted reads, absence/effect paths, approval, original retention, checked startup
+and backup retention are unchanged. No cache or persisted byte/schema change.
+
+Complete independent review of the two-file260+/11- delta is clean, with patch
+SHA256 `1ea6ecfa256d78f2590f5880a2dab91569ac6097a5dd48252f8fbe70b4958fc9`.
+The genuine old-path same-byte inode replacement after sync failed the new
+regression with exit101. First focused12/1 failed an incorrect expected refusal;
+the test now compares the unchanged untrusted-reader classification. Final13/0
+and strict Workflow Clippy passed; failures retained. Code committed as
+`1060b82bdcd6f91512bc04d5699d675b2b53b728`, tree
+`4e76812220a4b0a184a4ca72f2eb17933785739f`.
+
+Actual default release builds at unchanged clean1060b82 passed with pinned Rust,
+locked/offline dependencies. Full witness03:01:44–03:06:16UTC and shipping CLI
+03:06:57–03:10:41UTC passed exit0. All36 complete-history and36 shipping
+preservation probes passed; bytes/file sets/existing inodes/Source proofs and
+original endpoints remain exact. All backup counts stay1..5; no startup move or
+resurrection. Libtest SHA256364152d72889618dd6f413a8d0003a4b4942dbc1103fc1695186cc4007123fce;
+shipping SHA256716a4bec7f8c73b4d3aa2f3410a01f4caba17365b7fedf0a97a7d00a3533f84f.
+Independent terminal evidence audit is clean. Three warm samples per cell:
+
+| Dataset/scenario | Store median before→after, s | Complete App median, s | Shipping CLI median, s |
+| --- | ---: | ---: | ---: |
+| 256 small, healthy | 0.034→0.036 | 1.145→0.896 | 1.141→0.856 |
+| 256 small, SQL repair | 0.039→0.038 | 4.873→4.872 | 4.943→5.008 |
+| Mixed legacy/current, healthy | 0.009→0.009 | 0.035→0.032 | 0.052→0.046 |
+| Seven near-limit, healthy | 1.515→1.540 | 39.159→28.299 | 38.903→28.193 |
+| Seven near-limit, SQL repair | 1.532→1.538 | 13.520→13.560 | 13.439→13.607 |
+| Seven near-limit, fresh SQL | 0.013→0.013 | 36.151→24.925 | 36.154→24.997 |
+
+Near-limit shipping healthy ranges38.440–39.161→27.908–28.215s; fresh
+36.135–36.191→24.945–25.015s. App includes Store and must not be added to it.
+Fresh-SQL Store opens an empty database, unlike populated Store. Actual mirrors
+before→after:256small1,591,301→1,588,722B; mixed29,066→29,052B;
+seven near-limit150,452,382→150,452,480B. Receipt bytes include capture companions:
+797,411→796,152B /15,185→15,190B /75,227,526→75,227,571B respectively.
+Sources475/475/1,044,949B are unchanged in size. UUIDs/timestamps/namespaces/hashes
+are regenerated; inputs are not byte-identical. Each run binds its own manifest.
+No cold-cache/randomization/native-GUI/total-parse-count/uniform improvement claim.
+SQL repair remains essentially unchanged; residual startup/backup cost remains.
+
+Source now integrates qualified main70 without code conflict. Only checkpoint,
+status and appended plan evidence needed resolution; both histories are retained.
+Fresh integrated shared/native gates, final review and exact-head CI/normal merge
+remain next. Safe-provider stderr correction and B3 relationships remain separate.

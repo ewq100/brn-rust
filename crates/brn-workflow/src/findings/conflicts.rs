@@ -36,6 +36,8 @@ pub struct NoteConflictPage {
     pub entries: Vec<FindingInspection>,
     pub next_cursor: Option<NoteConflictCursor>,
     pub open_count: usize,
+    /// Known retained count bound to this page's exact managed identity/source proof.
+    pub facts: brn_ai::NoteFacts,
 }
 
 impl App {
@@ -278,6 +280,15 @@ impl App {
             source: saved.source.clone(),
             before,
         });
+        let facts = brn_ai::NoteFacts {
+            note_id: Some(note_id.to_string()),
+            sha256: saved.source.fingerprint.sha256,
+            source: metadata.source,
+            history: metadata.history,
+            conflicts: brn_ai::ConflictKnowledge::Known {
+                open_count: page.open_count,
+            },
+        };
         let result = NoteConflictPage {
             path: request.path.clone(),
             note_id,
@@ -286,6 +297,7 @@ impl App {
             entries,
             next_cursor,
             open_count: page.open_count,
+            facts,
         };
         if serde_json::to_vec(&result)
             .map_err(|_| rejected("Conflict page could not be encoded"))?

@@ -2,32 +2,70 @@
 
 Full frozen V1 goal confirmed **active** on2026-10-06, without a token budget.
 
+- **Integrated:** [PR70](https://github.com/ewq100/brn-rust/pull/70) at
+  `34e3601d00d1b251b995ba176a1714da28d371e6`, reviewed tree
+  `529acd9e4f073f90d14b7b3eccfdd51f96c9c28c`. AI read results retain saved hash,
+  managed identity, Source/History and explicit unknown/known conflict facts;
+  facts confer no truth, approval or filesystem authority. Native copy controls
+  retain approved Source preservation plus explicit confirmation.
+- **Verification:** complete/final reviews clean; shared1,448/0/10+52 and native
+  330 Workflow/models/0/9+292 Desktop/0/0,11commands/V15 restarts passed.
+  Exact2a4589b run37406761932 attempt1 passed four protected checks and Docs;
+  unchanged Windows22 failure remains. Fresh merged build/128 AI/3 scope/
+  10 conflict tests and52fixtures passed at unchanged clean identity.
+  Automatic main70 CI remains pending; failed historical platform results stay visible.
+- **Current:** `codex/v1-copy-startup-witness`, reviewed code
+  `1060b82bdcd6f91512bc04d5699d675b2b53b728`, integrated with qualified main70.
+  Equal canonical mirrors use one held private file across comparison/sync/recheck;
+  untrusted decoding and backups remain unchanged. Focused13 tests/Clippy and
+  independent review pass. Three warm release samples/scenario passed all36
+  complete-history and36 shipping probes. Large-dataset CLI healthy median
+  38.903→28.193s; fresh SQL36.154→24.997s; SQL repair13.439→13.607s.
+  Inputs are regenerated, with actual sizes retained. Next: fresh integrated
+  shared/native qualification, final review, exact-head CI and normal integration.
+- **Pending:** broader startup/relationship cost, safe-provider stderr correction,
+  native GUI/live/assets/owner acceptance, later stages and trusted-user packaging.
+  Legacy pending-intent retry remains unsupported. No owner original removed;
+  full V1 delivery is not claimed.
+- **Environment:** Darwin arm64 Mac mini, Rust1.98.1 locked/offline, canonical owned
+  `TMPDIR=/private/tmp/brn-mini-synthetic-20261005`, empty model setting, isolated
+  checkouts/targets and disposable synthetic data. No new live calls/downloads,
+  private-data operations or release authorized. Immutable7c4f668 stays unchanged.
+  Continue under the [correction plan](../work/active/architecture-review-corrections/plan.md).
+
+# Earlier note-facts qualification checkpoint
+
+Full frozen V1 goal confirmed **active** on2026-10-06, without a token budget.
+
 - **Integrated:** [PR69](https://github.com/ewq100/brn-rust/pull/69) at
   `b5bcb0a7430de437533532f2bfab6a9df751509e`, reviewed tree
   `1abaa112874aa30af6969394d2c863d31cf57de3`. Native copy controls capture complete
-  Source/removal proofs and exact confirmation; AppWorker owns history/effects,
+  Source/removal proofs and explicit confirmation; AppWorker owns history/effects,
   stale-reply checks and same-request retry. Typing/drafts/reviews remain separate.
-- **Verification:** independent Rust/evidence reviews clean; shared1,446/0/10+52
-  and native330 Workflow/models/0/9+292 Desktop/0/0,11commands/V15 restarts passed.
-  Exact99ba833 run37401164589 attempt1 passed four protected Mac/shared checks
-  and Docs. Windows22 source-inclusive blocks/summaries match PR68; red remains.
-  Fresh merged build/5state+2widget regressions+52fixtures passed at clean b5bcb0a,
-  atomic unchanged exit0 (02:06:51–02:06:56UTC). Exact merged-main run37402543978
-  attempt1 passed all applicable checks; unchanged Windows22/22/14 and Linux3
-  failures remain visible, including raw ordering/IDs/timing differences.
-- **Current:** `codex/v1-copy-startup-witness`, prepared code
-  `fd306371cd527c6d6d18d46154b02a0129f1dc60`. Test-only synthetic startup witness
-  has mandatory fixtures-only/full modes. Independent static review, debug/release
-  compile, strict Workflow Clippy and actual default release CLI build pass;
-  initial unused-result Clippy failure is retained. No optimization or BRN
-  startup measurement is claimed yet. Fixed shipping runner's eight synthetic safety/
-  interruption tests pass. Next: release fixture generation, actual release CLI
-  warm measurements, then only a measured bounded correction. R6 typed note facts
-  are prepared separately; qualification/review/integration remain pending.
+- **Verification:** independent reviews clean; shared1,446/0/10+52 and native
+  330 Workflow/models/0/9+292 Desktop/0/0,11commands/V15 restarts passed.
+  Exact99ba833 run37401164589 attempt1 passed four protected checks and Docs;
+  unchanged Windows22 failure remains. Fresh merged build/5state+2widget tests
+  and52fixtures passed. Exact main69 run37402543978 attempt1 passed all applicable
+  checks; unchanged Windows22/22/14 and Linux3 failures retain raw differences.
+- **Current:** `codex/v1-ai-note-facts`, task commit
+  `6413e7ae251c00c4dd2e53411eb42414d29e6f8c`, merged with qualified main69 at
+  `a135a6d80343cdc8f2a9156d7d4f571bb62c6aef`. Typed results retain full saved-byte
+  hashes, managed identity, Source/History and explicit unknown/known conflict
+  knowledge. Complete and documentation reviews are clean. At clean
+  `3a35aaf869e45fe7709602c07beaac93ddb49bd4`, fresh shared1,448/0/10+52 and native
+  330 Workflow/models/0/9+292 Desktop/0/0,11commands/V15 restarts passed.
+  Initial exact-head run37404986639 attempt1 passed four protected checks and
+  Docs; unchanged Windows22 failure remains. Failed local attempts are retained.
+  Next: latest evidence-head CI and normal integration. Separately, startup
+  witness baseline at5f1f11d passed all36 history and36 shipping probes:
+  near-limit healthy shipping CLI median38.903s. Private publication correction
+  has13 focused tests/Clippy passing; review and post-change measurements remain
+  pending, with no benefit claimed. See the correction plan for sizes/limits.
 - **Pending:** native GUI/live/assets/owner acceptance, startup/relationship cost,
   later roadmap stages and trusted-user packaging. Legacy pending-intent retry is
   unsupported; historical inspection/already-performed settlement remain supported.
-  No owner original removed. Full V1 delivery is not claimed.
+  No owner original removed; full V1 delivery is not claimed.
 - **Environment:** Darwin arm64 Mac mini, Rust1.98.1 locked/offline, canonical owned
   `TMPDIR=/private/tmp/brn-mini-synthetic-20261005`, empty model setting, isolated
   checkouts/targets and disposable synthetic data. No new live calls/downloads,

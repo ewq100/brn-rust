@@ -319,6 +319,13 @@ Native browsing/search controls use the same scoped commands; non-current
 openings expose full read-only evidence while direct editing keeps its existing
 authority.
 
+AI passage/read/list results also carry required `NoteFacts` derived from those
+same complete checked bytes: optional canonical managed UUID, full-note SHA256,
+independent Source/History flags and explicit unknown conflict status. All scope
+includes mixed classifications, not an inferred class. Read text truncation does
+not truncate its hash proof. These facts add no extra scans or file reads, no uniqueness
+claim, and no approval or semantic truth authority.
+
 `NoteProvenance` reads durable `brn_provenance` citations from ordinary Markdown,
 then freshly resolves each source UUID across current/archive evidence. Matched,
 Changed, Absent, Ambiguous and Incomplete outcomes retain the saved exact quote;
@@ -860,6 +867,11 @@ changed/renamed notes retain visible disagreement. Every entry includes immutabl
 proofs and separate fresh Changed/Unavailable observations. Ambiguous/incomplete
 identities cannot appear unchanged. Whole encoded pages exceeding1MiB refuse
 without clipping; smaller pages retain full records and a valid continuation.
+The result adds `NoteFacts` from the same full saved proof/classification, with
+Known open count bound to its existing managed UUID and `SourceVersion`. The count
+covers retained open findings across pages, including stale evidence. Basic AI
+search/read/list remain Unknown; errors never become zero. Known zero establishes
+no retained open finding for that lookup, never consistency, truth or a winner.
 
 Ordinary Ask's `read_conflicts` stays on the owning AppWorker read lane; its opaque
 cursor is the serialized shared DTO. Instructions require disclosure of unresolved

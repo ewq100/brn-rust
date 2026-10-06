@@ -5,7 +5,7 @@ use crate::findings::{
     NoteConflictRequest,
 };
 use crate::library::KnowledgeScope;
-use brn_ai::{ConflictArgs, ConflictQuote};
+use brn_ai::{ConflictArgs, ConflictKnowledge, ConflictQuote};
 
 fn quote(_saved: &ProposalSource, wording: &str) -> ConflictQuote {
     ConflictQuote {
@@ -81,6 +81,14 @@ fn inbox_conflict_keeps_exact_opposing_proofs_without_knowledge_writes_and_survi
     );
     let current = page(&w, "project.md", KnowledgeScope::Current);
     assert_eq!(current.open_count, 1);
+    assert_eq!(current.facts.note_id, Some(other_id.to_string()));
+    assert_eq!(current.facts.sha256, current.source.fingerprint.sha256);
+    assert_eq!(
+        current.facts.conflicts,
+        ConflictKnowledge::Known { open_count: 1 }
+    );
+    assert!(!current.facts.source);
+    assert!(!current.facts.history);
     assert_eq!(current.entries[0].record, *record);
     assert!(
         current.entries[0]
@@ -92,9 +100,15 @@ fn inbox_conflict_keeps_exact_opposing_proofs_without_knowledge_writes_and_survi
         lookup(&w, "source.md", KnowledgeScope::Current, 10, None),
         AppEvent::Failed(_)
     ));
+    let original = page(&w, "source.md", KnowledgeScope::Source);
+    assert_eq!(original.entries[0].record, *record);
+    assert_eq!(original.facts.note_id, Some(source.note_id.to_string()));
+    assert_eq!(original.facts.sha256, original.source.fingerprint.sha256);
+    assert!(original.facts.source);
+    assert!(!original.facts.history);
     assert_eq!(
-        page(&w, "source.md", KnowledgeScope::Source).entries[0].record,
-        *record
+        original.facts.conflicts,
+        ConflictKnowledge::Known { open_count: 1 }
     );
     assert_eq!(
         std::fs::read_to_string(f.base.path().join("vault/project.md")).unwrap(),
@@ -124,11 +138,14 @@ fn inbox_conflict_keeps_exact_opposing_proofs_without_knowledge_writes_and_survi
     };
     assert_eq!(closed.draft, record.draft);
     assert_eq!(closed.version, record.version + 1);
-    assert!(
-        page(&w, "project.md", KnowledgeScope::Current)
-            .entries
-            .is_empty()
+    let empty = page(&w, "project.md", KnowledgeScope::Current);
+    assert!(empty.entries.is_empty());
+    assert_eq!(empty.open_count, 0);
+    assert_eq!(
+        empty.facts.conflicts,
+        ConflictKnowledge::Known { open_count: 0 }
     );
+    assert_eq!(empty.facts.sha256, empty.source.fingerprint.sha256);
     let AppEvent::Finding(replayed) = reply(&w, AppCommand::CloseFinding(close)) else {
         panic!("closure replay")
     };
@@ -325,6 +342,11 @@ fn conflict_lookup_keeps_changed_unavailable_and_ambiguous_sides_distinct_from_r
             _ => unreachable!(),
         }
         let p = page(&w, "source.md", KnowledgeScope::Source);
+        assert_eq!(
+            p.facts.conflicts,
+            ConflictKnowledge::Known { open_count: 1 }
+        );
+        assert_eq!(p.facts.sha256, source.source.source.fingerprint.sha256);
         assert_eq!(p.entries[0].record, retained);
         assert_eq!(
             p.entries[0].evidence[0].outcome,
@@ -367,6 +389,17 @@ fn ordinary_ask_conflict_reads_page_complete_records_and_keep_closed_anchor_and_
                     .unwrap();
                 assert_eq!(first["entries"].as_array().unwrap().len(), 1);
                 assert_eq!(first["open_count"], 3);
+                assert_eq!(
+                    first["facts"]["conflicts"],
+                    json!({"status":"known","open_count":3})
+                );
+                assert_eq!(first["facts"]["note_id"], first["note_id"]);
+                assert_eq!(
+                    first["facts"]["sha256"],
+                    first["source"]["fingerprint"]["sha256"]
+                );
+                assert_eq!(first["facts"]["source"], false);
+                assert_eq!(first["facts"]["history"], false);
                 let cursor = first["next_cursor"].as_str().unwrap().to_string();
                 shown.send(first.clone()).unwrap();
                 resume
@@ -411,6 +444,10 @@ fn ordinary_ask_conflict_reads_page_complete_records_and_keep_closed_anchor_and_
                     .unwrap();
                 assert_eq!(rest["entries"].as_array().unwrap().len(), 2);
                 assert_eq!(rest["open_count"], 2);
+                assert_eq!(
+                    rest["facts"]["conflicts"],
+                    json!({"status":"known","open_count":2})
+                );
                 assert!(rest["next_cursor"].is_null());
                 json!({"first":first,"rest":rest})
             })
@@ -631,6 +668,12 @@ fn conflict_lookup_refuses_oversized_complete_pages_and_recovers_with_smaller_un
             panic!("smaller complete page")
         };
         assert_eq!(page.open_count, 4);
+        assert_eq!(
+            page.facts.conflicts,
+            ConflictKnowledge::Known { open_count: 4 }
+        );
+        assert_eq!(page.facts.note_id, Some(page.note_id.to_string()));
+        assert_eq!(page.facts.sha256, page.source.fingerprint.sha256);
         assert_eq!(page.entries.len(), 1);
         let record = &page.entries[0].record;
         assert_eq!(record.draft.summary, wording);

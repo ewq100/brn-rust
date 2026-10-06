@@ -15,12 +15,38 @@ pub fn capped_text(text: &str) -> (&str, bool) {
     (&text[..end], end < text.len())
 }
 
+/// Retained conflict knowledge for the exact saved-note proof in this result.
+/// Unknown is never zero; a checked lookup can report a count without a winner.
+#[derive(Clone, Debug, Default, PartialEq, Eq, Serialize, Deserialize)]
+#[serde(tag = "status", rename_all = "snake_case", deny_unknown_fields)]
+pub enum ConflictKnowledge {
+    #[default]
+    Unknown,
+    Known {
+        open_count: usize,
+    },
+}
+
+/// Workflow-observed classification of the complete saved bytes, before text caps.
+/// Source/History may overlap. Neither classification nor conflict count proves truth.
+#[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
+#[serde(deny_unknown_fields)]
+pub struct NoteFacts {
+    /// Canonical managed UUID, when present; unmanaged notes remain supported.
+    pub note_id: Option<String>,
+    pub sha256: [u8; 32],
+    pub source: bool,
+    pub history: bool,
+    pub conflicts: ConflictKnowledge,
+}
+
 #[derive(Clone, Debug, Serialize, Deserialize)]
 pub struct Passage {
     pub path: String,
     pub start_byte: usize,
     pub end_byte: usize,
     pub quote: String,
+    pub facts: NoteFacts,
 }
 
 #[derive(Clone, Debug, Serialize, Deserialize)]
@@ -34,12 +60,14 @@ pub struct ToolNote {
     pub path: String,
     pub text: String,
     pub truncated: bool,
+    pub facts: NoteFacts,
 }
 
 #[derive(Clone, Debug, Serialize, Deserialize)]
 pub struct NoteEntry {
     pub path: String,
     pub title: String,
+    pub facts: NoteFacts,
 }
 
 #[derive(Clone, Debug, Serialize, Deserialize)]
@@ -225,7 +253,7 @@ impl Tool for ReadConflicts {
     type Output = Value;
     type Error = AiError;
     fn description(&self) -> String {
-        "Look up unresolved conflicts for a relevant saved note before claiming current facts. Path selects a saved note; omitted scope means Current. Source, History and All explicitly select evidence. Limit defaults to 10 (1–100); pass the opaque next_cursor unchanged for another page. Whole replies over 1 MiB are refused, never clipped. Incomplete pages or failed lookup never mean no conflict. Disclose unresolved or stale evidence and do not choose a winner.".into()
+        "Look up unresolved conflicts for a relevant saved note before claiming current facts. Path selects a saved note; omitted scope means Current. Source, History and All explicitly select evidence. Limit defaults to 10 (1–100); pass the opaque next_cursor unchanged for another page. Results retain exact note_id/source proof and facts with known open_count across pages, including stale findings. Known zero proves no retained open findings, never consistency or a winner. Whole replies over 1 MiB are refused, never clipped. Incomplete pages or failed lookup never mean no conflict. Disclose unresolved or stale evidence and do not choose a winner.".into()
     }
     fn parameters(&self) -> Value {
         json!({"type":"object","additionalProperties":false,"properties":{
@@ -352,7 +380,7 @@ impl Tool for SearchNotes {
     type Error = AiError;
 
     fn description(&self) -> String {
-        "Search current knowledge by default. Select source for original evidence, history for historical notes, or all when explicitly relevant. Results label scope; keyword_only indicates keyword rather than semantic results.".into()
+        "Search current knowledge by default. Select source for original evidence, history for historical notes, or all when explicitly relevant. Results label requested scope separately from each hit’s facts for the complete saved bytes: optional managed note_id, sha256, independent source/history and unknown conflict status. Unknown is not zero; classification is evidence, not truth. keyword_only indicates keyword rather than semantic results.".into()
     }
     fn parameters(&self) -> Value {
         json!({
@@ -392,7 +420,7 @@ impl Tool for ReadNote {
     type Error = AiError;
 
     fn description(&self) -> String {
-        "Read fresh saved text. Omitted scope means current knowledge; source/history/all permit explicit original or historical evidence. Results label scope and preserve bytes, capped at 50000 UTF-8 bytes with a truncation flag."
+        "Read fresh saved text. Omitted scope means current knowledge; source/history/all permit explicit original or historical evidence. Results label requested scope and facts for complete saved bytes: optional managed note_id, full sha256, independent source/history and unknown conflict status. Unknown is not zero; classification is evidence, not truth. Text preserves bytes, capped at 50000 UTF-8 bytes with a truncation flag; facts.sha256 still covers the full note."
             .into()
     }
     fn parameters(&self) -> Value {
@@ -434,7 +462,7 @@ impl Tool for ListNotes {
     type Error = AiError;
 
     fn description(&self) -> String {
-        "List at most 200 saved notes per page, optionally within a folder or after a cursor. Omitted scope means current knowledge; select source/history/all for explicit evidence. Results label scope."
+        "List at most 200 saved notes per page, optionally within a folder or after a cursor. Omitted scope means current knowledge; select source/history/all for explicit evidence. Results label requested scope separately from each note’s facts for complete saved bytes: optional managed note_id, sha256, independent source/history and unknown conflict status. Unknown is not zero; classification is evidence, not truth."
             .into()
     }
     fn parameters(&self) -> Value {
@@ -509,12 +537,50 @@ mod tests {
     }
 
     #[test]
+    fn note_results_require_explicit_conflict_knowledge_without_unknown_to_zero() {
+        let note = json!({"path":"a.md","text":"exact","truncated":false});
+        assert!(serde_json::from_value::<ToolNote>(note.clone()).is_err());
+        let mut facts = json!({"note_id":null,"sha256":([17; 32]),"source":true,"history":true,
+            "conflicts":{"status":"unknown"}});
+        let mut note = note;
+        note["facts"] = facts.clone();
+        let unknown: ToolNote = serde_json::from_value(note.clone()).unwrap();
+        assert_eq!(unknown.facts.conflicts, ConflictKnowledge::Unknown);
+        assert!(unknown.facts.source && unknown.facts.history);
+        facts["conflicts"] = json!({"status":"known","open_count":0});
+        note["facts"] = facts;
+        let known: ToolNote = serde_json::from_value(note.clone()).unwrap();
+        assert_eq!(
+            known.facts.conflicts,
+            ConflictKnowledge::Known { open_count: 0 }
+        );
+        assert_ne!(known.facts, unknown.facts);
+        note["facts"].as_object_mut().unwrap().remove("conflicts");
+        assert!(serde_json::from_value::<ToolNote>(note).is_err());
+        assert!(serde_json::from_value::<ConflictKnowledge>(json!({"status":"known"})).is_err());
+        // Serde's tagged unit variant ignores payload fields. They cannot
+        // promote uninspected evidence to a checked zero count.
+        assert_eq!(
+            serde_json::from_value::<ConflictKnowledge>(json!({"status":"unknown","open_count":0}))
+                .unwrap(),
+            ConflictKnowledge::Unknown
+        );
+    }
+
+    #[test]
     fn oversized_page_is_rejected_not_silently_changed() {
         let page = NotePage {
             notes: vec![
                 NoteEntry {
                     path: "a.md".into(),
-                    title: "a".into()
+                    title: "a".into(),
+                    facts: NoteFacts {
+                        note_id: None,
+                        sha256: [17; 32],
+                        source: false,
+                        history: false,
+                        conflicts: ConflictKnowledge::Unknown,
+                    },
                 };
                 201
             ],
