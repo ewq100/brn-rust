@@ -251,8 +251,12 @@ Rust reconstructs conversion from the exact original and checks its saved body,
 UUID, provenance and Source classification. Later owner header Save, relocation,
 History or a visible archive may qualify if those proofs survive. Dirty editor
 work is separate; unresolved filesystem authority still fences qualification.
-The full consequence review remains independent. Confirmation/removal recovery
-and native controls remain pending; a preview is not an original-removal receipt.
+The full consequence review remains independent. The Store prerequisite now
+provides typed lean Remove/Restore records in V15: one preservation witness,
+explicit confirmation and a direct settled parent. Its checked inventory and
+atomic streaming import retain full authority, while historical format1 bytes
+and semantic checks remain readable unchanged. Filesystem admission/effects and
+native controls remain pending; imported evidence is not permission to remove.
 
 Extend approved vault and ordinary-asset effects through existing typed
 proposal-apply members. Extend private intake effects through the original-operation
@@ -261,9 +265,9 @@ an owner decision before implementation. Existing Save/recovery mechanisms remai
 in place; additive WorkStore tables are local implementation choices, not new
 data authorities. This guidance does not authorize automatic migration or removal
 of existing recovery evidence. Knowledge approvals need their genuine captured
-analysis when recovered into older/fresh operational state; retain that minimal
-evidence within the existing proposal-apply family before shrinking duplicated
-original-operation records. Do not reconstruct provider choices, questions, times
+analysis when recovered into older/fresh operational state; the exact capture
+companion retains that minimal evidence within the existing proposal-apply
+family independently of original-operation records. Do not reconstruct provider choices, questions, times
 or historical Source bytes, and do not create a new execution during recovery.
 
 ## Build boundaries and remaining work

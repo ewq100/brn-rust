@@ -41,8 +41,13 @@ and Docs; overall red retains unchanged Windows22 compiler blocks/both summaries
 Fresh merged8 Store/14 Workflow tests+52 fixtures passed with one documented
 subprocess ignore. Exact main37389066259 attempt1 passed applicable checks;
 unchanged Windows/Linux failures and raw log differences remain visible. Main65 run37385458794 attempt1 passed applicable gates; unchanged Windows/Linux
-failures remain visible. A1 record/performance/recovery
-corrections hold lifecycle integration, native removal and Stage8. No semantic
+failures remain visible. The A1 Store prerequisite is implemented on
+`codex/v1-original-operation-records`: lean V15 records, byte-preserving legacy
+reader, checked compact inventory/atomic streaming/visitor and historical analysis
+fence. Complete independent review is clean; fresh shared1,412/0/8+52 and native
+305 Workflow/models/0/7+285 Desktop/0/0 with V15 startup/restart checks passed at
+48faf3f. Exact-head integration is next. Lifecycle effects/native removal and
+Stage8 remain pending; broader startup/backup cost is a separate correction. No semantic
 completeness, native/live/owner acceptance or full V1 delivery is claimed. The full
 V1 goal remains active. No owner original/private data was inspected or migrated.
 

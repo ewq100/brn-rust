@@ -1,5 +1,33 @@
 # Resumable V1 checkpoint
 
+Goal status confirmed on 2026-10-06: full frozen V1 goal **active**, without a token budget.
+
+- **Baseline:** integrated PR66 at 504f6be33e1add8c5819e28eed08628bc8dec8d0.
+- **Current:** `codex/v1-original-operation-records`, qualified code
+  `48faf3f6a50eae152c80509a3316b7a6e6b94045`, tree
+  `c0872f36ea59fc5378d8f10b9ed9ba40b7e29575`. Lean V15 records bind exact original,
+  one approved preserving Source, explicit confirmation and direct parent.
+  Checked compact inventory/atomic streaming/visitor retain full authority and
+  unchanged legacy v1 bytes. No original-copy effect is introduced here.
+- **Verification:** complete 30-file independent review clean; shared format/build/
+  Clippy,1,412 tests/0 failures/8 ignores+52 fixtures passed at unchanged identity.
+  Native11 commands passed:305 Workflow/models/0/7,285 Desktop/0/0, check/Clippy/
+  builds/default startup/two native restarts; fresh V15/table queried in both lanes.
+  Historical execution regression and intermediate lint/format failures preserved;
+  corrected checks pass. Exact-head CI and normal integration are next.
+- **Next:** adapt preserved lifecycle7c4f668 through the existing private family;
+  stream mirror recovery, surface bootstrap errors, prevent capture resurrection,
+  retain exact replay and apply the approved Source+confirmation rule. See the
+  [correction plan](../work/active/architecture-review-corrections/plan.md).
+- **Pending:** lifecycle/native controls, broader startup cost, truthful retrieval
+  facts, native/live/owner acceptance, real assets and trusted-user packaging.
+- **Environment:** Darwin arm64 Mac mini, Rust1.98.1 locked/offline, owned canonical
+  `TMPDIR=/private/tmp/brn-mini-synthetic-20261005`, empty native model setting,
+  isolated targets and disposable synthetic data. No new live calls/downloads,
+  private-data operations or release authorized. Immutable7c4f668 stays unchanged.
+
+# Earlier captured-analysis checkpoint
+
 Lead-confirmed 2026-10-06: full frozen V1 goal **active**, without a token budget.
 
 - **Integrated:** Knowledge capture recovery [PR66](https://github.com/ewq100/brn-rust/pull/66)
