@@ -27,6 +27,10 @@ fn visual_inspection_returns_actual_png_and_refuses_forged_or_lost_evidence() {
     assert_eq!(*evidence.source, source.source);
     assert_eq!(evidence.asset, asset);
     assert_eq!(evidence.bytes, PNG);
+    assert_eq!(
+        evidence.visual_proof().unwrap().sha256,
+        asset.fingerprint.sha256
+    );
     let wire = serde_json::to_vec(&evidence).unwrap();
     let roundtrip: crate::inbox_actions::InboxVisualEvidence =
         serde_json::from_slice(&wire).unwrap();
@@ -598,4 +602,194 @@ fn visual_annotation_late_asset_substitution_refuses_before_installing_model_tex
         PNG
     );
     no_credentials(&f);
+}
+
+fn annotation_crash(f: &Fixture, phase: &str) {
+    let _guard = crate::SUBPROCESS_FIXTURES.lock().unwrap();
+    let output = std::process::Command::new(std::env::current_exe().unwrap())
+        .args([
+            "--exact",
+            "simple_worker_tests::inbox_actions::visual_tests::visual_annotation_crash_child",
+            "--ignored",
+            "--test-threads=1",
+        ])
+        .env("BRN_VISUAL_ANNOTATION_TEST_BASE", f.base.path())
+        .env("BRN_VISUAL_ANNOTATION_TEST_PHASE", phase)
+        .output()
+        .unwrap();
+    assert_eq!(
+        output.status.code(),
+        Some(86),
+        "{} {}",
+        String::from_utf8_lossy(&output.stdout),
+        String::from_utf8_lossy(&output.stderr)
+    );
+}
+
+fn copy_approval_records(from: &std::path::Path, to: &std::path::Path) {
+    fs::create_dir(to).unwrap();
+    for entry in fs::read_dir(from).unwrap() {
+        let entry = entry.unwrap();
+        if entry
+            .file_name()
+            .to_string_lossy()
+            .starts_with(".brn-apply-")
+        {
+            fs::copy(entry.path(), to.join(entry.file_name())).unwrap();
+        }
+    }
+}
+
+#[test]
+#[ignore = "private subprocess entry exercised by visual annotation recovery"]
+fn visual_annotation_crash_child() {
+    let base =
+        std::path::PathBuf::from(std::env::var_os("BRN_VISUAL_ANNOTATION_TEST_BASE").unwrap());
+    let phase = std::env::var("BRN_VISUAL_ANNOTATION_TEST_PHASE").unwrap();
+    let mut app = crate::app::App::open(
+        &base.join("data"),
+        crate::app::AppConfig {
+            vault_root: Some(base.join("vault")),
+            credentials_dir: Some(base.join("credentials")),
+            model_dir: None,
+        },
+    )
+    .unwrap();
+    crate::proposal_apply::APPLY_HOOK.with(|hook| {
+        *hook.borrow_mut() = Some(Box::new(move |step, index| {
+            if step == phase && index == 0 {
+                std::process::exit(86);
+            }
+        }));
+    });
+    let request =
+        serde_json::from_slice(&fs::read(base.join("annotation-approval.json")).unwrap()).unwrap();
+    app.approve_proposal(&request).unwrap();
+    panic!("selected annotation checkpoint was not reached");
+}
+
+#[test]
+fn visual_annotation_crash_recovery_finish_and_restore_preserve_authority_and_undo_history() {
+    use crate::proposal_apply::{RepairDirection, RepairRequest, UndoRequest};
+    for direction in [RepairDirection::Finish, RepairDirection::Restore] {
+        let f = Fixture::new();
+        let mut w = f.start(hooks(Arc::new(AtomicUsize::new(0)), completed()));
+        let (source, asset) = captured_visual(&w);
+        let r = visual_request(&source, &asset);
+        analyze(&w, &r).unwrap();
+        let draft = prepared(&w, r.id);
+        let proposed = candidate(&draft).to_owned();
+        let AppEvent::Proposal(record) = reply(&w, AppCommand::CreateProposal(draft)) else {
+            panic!("review")
+        };
+        w.shutdown().unwrap();
+        let approval = ApprovalRequest {
+            operation_id: Uuid::new_v4(),
+            expected: record.stamp(),
+        };
+        fs::write(
+            f.base.path().join("annotation-approval.json"),
+            serde_json::to_vec(&approval).unwrap(),
+        )
+        .unwrap();
+        annotation_crash(&f, "member");
+        assert_eq!(
+            fs::read_to_string(f.base.path().join("vault/source.md")).unwrap(),
+            proposed
+        );
+        let image_path = f.base.path().join("vault").join(&asset.path);
+        let kept = image_path.with_extension("retained");
+        fs::rename(&image_path, &kept).unwrap();
+        fs::write(&image_path, PNG).unwrap();
+        assert_ne!(
+            image_path.metadata().unwrap().ino(),
+            asset.fingerprint.inode
+        );
+        let fresh = f.base.path().join("recovered-data");
+        copy_approval_records(&f.base.path().join("data"), &fresh);
+        let mut app = crate::app::App::open(&fresh, f.config()).unwrap();
+        assert_eq!(
+            app.store.inbox_action(r.id).unwrap().unwrap().capture,
+            r.capture()
+        );
+        assert!(app.store.turn(r.id).unwrap().is_none());
+        let uncertain = app.reconcile_proposal(approval.operation_id).unwrap();
+        assert_eq!(uncertain.outcome, ApplyOutcome::Uncertain);
+        let preview = app.preview_proposal_repair(approval.operation_id).unwrap();
+        let refused = RepairRequest {
+            id: Uuid::new_v4(),
+            operation_id: approval.operation_id,
+            expected: preview.expected,
+            direction: RepairDirection::Finish,
+        };
+        assert!(app.repair_proposal(&refused).is_err());
+        assert_eq!(
+            fs::read_to_string(f.base.path().join("vault/source.md")).unwrap(),
+            proposed
+        );
+        if direction == RepairDirection::Finish {
+            fs::remove_file(&image_path).unwrap();
+            fs::rename(&kept, &image_path).unwrap();
+        }
+        let repair = RepairRequest {
+            id: Uuid::new_v4(),
+            operation_id: approval.operation_id,
+            expected: preview.expected,
+            direction,
+        };
+        let receipt = app.repair_proposal(&repair).unwrap();
+        assert_eq!(
+            receipt.outcome,
+            Some(if direction == RepairDirection::Finish {
+                ApplyOutcome::Applied
+            } else {
+                ApplyOutcome::NotApplied
+            })
+        );
+        assert_eq!(app.repair_proposal(&repair).unwrap(), receipt);
+        let settled = app.approve_proposal(&approval).unwrap();
+        fs::remove_file(&image_path).unwrap();
+        fs::remove_file(
+            source
+                .original
+                .capture
+                .copy
+                .directory
+                .join(source.original.capture.copy_name()),
+        )
+        .unwrap();
+        if direction == RepairDirection::Finish {
+            let undo = UndoRequest {
+                operation_id: Uuid::new_v4(),
+                target_operation_id: approval.operation_id,
+                trash_member: None,
+            };
+            let undone = app.undo_proposal(&undo).unwrap();
+            assert_eq!(undone.outcome, ApplyOutcome::Applied);
+            assert_eq!(app.undo_proposal(&undo).unwrap(), undone);
+        }
+        assert_eq!(
+            fs::read_to_string(f.base.path().join("vault/source.md")).unwrap(),
+            source.raw
+        );
+        assert_eq!(app.repair_proposal(&repair).unwrap(), receipt);
+        assert_eq!(app.approve_proposal(&approval).unwrap(), settled);
+        assert!(
+            app.store
+                .begin_inbox_action_turn(&app.store.inbox_action(r.id).unwrap().unwrap())
+                .is_err()
+        );
+        drop(app);
+        let later = f.base.path().join("later-data");
+        copy_approval_records(&fresh, &later);
+        let mut app = crate::app::App::open(&later, f.config()).unwrap();
+        assert_eq!(app.repair_proposal(&repair).unwrap(), receipt);
+        assert_eq!(app.approve_proposal(&approval).unwrap(), settled);
+        assert_eq!(
+            fs::read_to_string(f.base.path().join("vault/source.md")).unwrap(),
+            source.raw
+        );
+        assert!(app.store.turn(r.id).unwrap().is_none());
+        no_credentials(&f);
+    }
 }

@@ -39,6 +39,15 @@ pub struct InboxVisualEvidence {
 }
 
 impl InboxVisualEvidence {
+    /// Read the typed retained occurrence for presentation. This grants no
+    /// filesystem freshness or authority; clients validate the complete reply.
+    pub fn visual_proof(&self) -> Result<crate::inbox_processing::InboxSourceVisual> {
+        self.source.validate()?;
+        brn_store::work::inbox_source::read_provenance(&self.source.text)?
+            .and_then(|provenance| provenance.visual)
+            .ok_or_else(|| rejected("visual Source has no supported occurrence"))
+    }
+
     pub fn validate(&self) -> Result<()> {
         self.source.validate()?;
         brn_store::work::inbox_visual::validate_capture_asset(
