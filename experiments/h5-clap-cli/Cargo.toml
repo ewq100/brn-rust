@@ -1,0 +1,20 @@
+[package]
+name = "h5-clap-cli"
+version = "0.0.0"
+edition = "2021"
+rust-version = "1.98.1"
+publish = false
+
+# H5 evaluator only: the published clap Command API with the smallest feature set
+# that still exposes error kinds and context to a BRN adapter. No help/usage
+# rendering, colour or suggestions: BRN keeps its own static help text.
+[dependencies]
+clap = { version = "=4.6.7", default-features = false, features = ["std", "error-context"] }
+# Same major as the product CLI; only used to mirror its UUID validation.
+uuid = "=1.26.1"
+
+[dev-dependencies]
+serde_json = "=1.0.151"
+
+# Keep this evaluator outside the production Cargo workspace.
+[workspace]

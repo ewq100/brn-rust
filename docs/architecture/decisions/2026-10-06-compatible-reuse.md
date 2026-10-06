@@ -26,7 +26,7 @@ validation/approval, filesystem effects, indexing, recovery and Undo remain Rust
 responsibilities. Library parse success and AI confidence grant no authority.
 No Pi migration or new framework/datastore follows from this reassessment.
 
-## A — CLI parsing: unresolved, bounded task H5
+## A — CLI parsing: evaluated, not adopted (H5)
 
 Requirement: remove generic scanner/help maintenance while preserving BRN commands,
 JSON errors, exact-token help precedence and validation before workspace access.
@@ -42,6 +42,23 @@ until one representative nested command, duplicate/unknown/global option matrix
 and current help precedence prove compatibility. Count the new dependency graph,
 help/error adapters and command declarations. Stop that evaluation with an adoption
 decision and migration boundary; do not migrate the entire CLI during evaluation.
+
+**Result, 2026-10-06 (build: keep the local scanner).** The
+[H5 evaluator](../../../experiments/h5-clap-cli/README.md) ran a clap4.6.7 candidate
+for globals, `status`, `search`, `notes show`, nested `inbox add|list|show`,
+`findings close` and `models download` against the real `brn` binary at
+`main@450eaa2` over 104 synthetic argv cases. 95 matched exactly. The other 9 were
+usage errors with the same exit code and envelope command but a different message.
+Every run stopped at parsing or admission and created nothing in the data directory.
+To get there, clap had to be configured against its defaults: BRN's exact-token help
+pre-scan and static help stay, globals are declared per level because propagated
+globals overwrite silently, hyphen values are enabled and re-checked, `--` is
+pre-rejected, and argv is re-walked because clap errors carry no subcommand path.
+The candidate needs about 255 lines of tree builder and adapter to replace about 130
+lines of generic scanning, adds `clap`, `clap_builder` and `clap_lex`, and leaves the
+command tables unchanged. There is no migration boundary. Reopen only if the owner
+accepts clap-generated help, wording or ordering, or a new requirement such as shell
+completion outgrows the local scanner.
 
 ## B — tool-schema structure: accepted later, task H2
 
