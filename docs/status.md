@@ -52,8 +52,12 @@ Fresh merged14 Store/1 Workflow tests+52 fixtures passed at unchanged identity.
 Main37394115918 attempt1 passed required Mac/shared+Docs and extra Ubuntu UI;
 overall red retains Windows22/22/14 matching main66 and the same three Linux
 assertions/backtraces, with IDs, duration and terminal-line placement recorded.
-Lifecycle effects/native removal and
-Stage8 remain pending; broader startup/backup cost is a separate correction. No semantic
+Lifecycle workflow/owner CLI is now locally qualified on
+codex/v1-original-copy-lifecycle at dacb56f: full independent review clean;
+shared1,441/0/10+52 at8ca7e5d and native330 Workflow/models/0/9+285 Desktop/0/0,
+11 commands/V15 startup/restart atdacb56f pass. The sole later shared Rust delta is
+a Mac-only helper cfg; enabled Mac code is unchanged. Exact-head CI/integration,
+native controls and Stage8 remain pending; broader startup/backup cost is separate. No semantic
 completeness, native/live/owner acceptance or full V1 delivery is claimed. The full
 V1 goal remains active. No owner original/private data was inspected or migrated.
 

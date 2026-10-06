@@ -1,35 +1,32 @@
 # Resumable V1 checkpoint
 
-Goal status confirmed2026-10-06: full frozen V1 goal **active**, without a token budget.
+Full frozen V1 goal confirmed **active** on2026-10-06, without a token budget.
 
-- **Integrated:** original-operation Store prerequisite [PR67](https://github.com/ewq100/brn-rust/pull/67)
-  at `1ebff1a6f6099568c339e6b605bf819e1dbf6e6f`, exact reviewed tree
-  `611dfcb1ce0bb4d4d09d39ad643efde48cd39710`. Lean V15 records retain exact original,
-  one approved preserving Source, explicit confirmation and direct parent;
-  checked compact inventory/streaming/visitor and unchanged legacy bytes.
-- **Verification:** complete code/doc review clean. Unchanged code48faf3f passed
-  shared format/build/Clippy,1,412/0/8+52 fixtures; native305 Workflow/models/0/7,
-  285 Desktop/0/0,11 commands/V15 startups and restart passed. Exact PR37393114364
-  attempt1 passed four strict protected Mac/shared checks+Docs; overall red retains
-  unchanged Windows22 blocks/both summaries. Normal merge preserved reviewed tree.
-  Fresh merged default build,14 Store/1 Workflow tests+52 fixtures passed at clean
-  merged identity, atomic exit0 (00:27:54–00:29:17UTC). Main37394115918 attempt1
-  passed required Mac/shared+Docs and extra Ubuntu UI. Overall red preserves four
-  platform failures: Windows22/22/14 match main66; Linux retains three assertions/
-  backtraces, with thread IDs,0.81→0.60s and terminal-line placement recorded.
-- **Current/next:** `codex/v1-original-copy-lifecycle`, based on this merge. Adapt
-  preserved lifecycle7c4f668 through the existing private family: streamed mirror
-  recovery, explicit bootstrap errors/no resurrection, exact replay and approved
-  Source+confirmation admission. Filesystem adapter30ebe41 and workflowabbaf788
-  are committed; workflow check/all-target Clippy pass. Client routesfcc41bc are
-  locally integrated, with focused qualification and preserved lifecycle tests
-  underway. Full independent review/shared/native qualification remains pending.
-- **Pending:** lifecycle/native controls, broader startup/backup cost, truthful
-  retrieval facts, native/live/owner acceptance, real assets and trusted packaging.
+- **Candidate:** `codex/v1-original-copy-lifecycle`, qualified code
+  `dacb56faa0f78603e90126ea887f24914f28bfdb`, tree
+  `b8885073de7459daafe34d513ddb1fca04939c3f`; base PR67 merge
+  `1ebff1a6f6099568c339e6b605bf819e1dbf6e6f`. Approved exact Source plus explicit
+  confirmation admits recoverable Remove; exact retained copy admits Restore.
+  Lean format2/unchanged legacy mirrors, atomic streamed recovery, causal heads,
+  bootstrap-before-Knowledge-companions, immutable replay and no resurrection.
+- **Verification:** complete review/correction reviews clean; shared8ca7e5d passed
+  format/build/Clippy,1,441/0/10+52 fixtures, atomic unchanged exit0. Only later
+  Rust delta gates a Mac-only file helper to macOS; enabled Mac code is unchanged,
+  fresh format/Workflow Clippy and native qualification pass at dacb56f.
+  Native11 commands passed:330 Workflow/models/0/9,285 Desktop/0/0, builds and V15
+  default/native startup/restart. Explicit75,222,612-byte mirror recovery passed.
+  Initial setup/build/lint and real overflow-regression failures remain retained.
+- **Next gate:** exact-head applicable Mac/shared CI+Docs and normal PR integration,
+  then fresh merged verification/checkpoint. Native cleanup controls follow;
+  broader startup/backup cost and truthful retrieval facts remain corrections.
+- **Pending:** native/live/owner acceptance, real assets, later roadmap stages and
+  trusted-user packaging. Overall main67 red remains visible: required Mac/shared
+  and Docs pass, unchanged Windows22/22/14 and three Linux assertions/backtraces
+  retain raw IDs/duration/terminal-placement differences. No owner original removed.
 - **Environment:** Darwin arm64 Mac mini, Rust1.98.1 locked/offline, canonical owned
-  `TMPDIR=/private/tmp/brn-mini-synthetic-20261005`, empty native model setting,
-  isolated targets/disposable synthetic data. Immutable7c4f668 remains unchanged;
-  no new live calls/downloads, private-data operations or release authorized.
+  `TMPDIR=/private/tmp/brn-mini-synthetic-20261005`, empty model setting, isolated
+  targets/disposable synthetic data. No new live calls/downloads/private-data
+  operations or release authorized. Immutable7c4f668 stays unchanged/unmerged.
   Continue under the [correction plan](../work/active/architecture-review-corrections/plan.md).
 
 # Earlier original-record qualification checkpoint
