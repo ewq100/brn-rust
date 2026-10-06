@@ -20,16 +20,20 @@ Action correction merged normally in PR64 at
 at531517248300c15ce28bcb53f337984103817010/tree d63c1827aae5da654410520bc9c48856e1fa5e5a.
 Knowledge capture recovery merged in PR66 at
 `504f6be33e1add8c5819e28eed08628bc8dec8d0`, reviewed tree
-`77ec79e33c75a6a0bbed3100c3815648dcb6fd68`. Current branch:
-`codex/v1-original-copy-lifecycle`, based on original-record PR67 merge
-1ebff1a6f6099568c339e6b605bf819e1dbf6e6f/tree611dfcb1ce0bb4d4d09d39ad643efde48cd39710.
+`77ec79e33c75a6a0bbed3100c3815648dcb6fd68`. Original-record PR67, lifecycle PR68
+and native controls PR69 are integrated. Current main is
+`b5bcb0a7430de437533532f2bfab6a9df751509e`, reviewed tree
+`1abaa112874aa30af6969394d2c863d31cf57de3`. Current branch is
+`codex/v1-copy-startup-witness`; test-only code is
+`fd306371cd527c6d6d18d46154b02a0129f1dc60`. Startup measurement is the next gate;
+R6 typed note facts are prepared separately, awaiting qualification/integration.
 Remaining accepted corrections follow this plan.
 The complete V1 goal is confirmed **active** by `get_goal` on 2026-10-06;
 its full objective and roadmap dependency order remain unchanged.
 
-The lifecycle snapshot is implemented and automated verified, but unmerged.
-Its removal/restore merge, native removal controls and Stage8 originals wait for
-record-shape/performance and cleanup corrections. Native/live/owner acceptance
+Lifecycle and native controls are implemented, automated verified and merged.
+Startup/relationship cost and retrieval-fact corrections precede Stage8.
+Native/live/owner acceptance
 remains pending. Historical live authorization is exhausted; all checks here
 use disposable synthetic data, pinned Rust and locked dependencies.
 
@@ -790,7 +794,11 @@ four existing checks and no extra rulesets; normal merge used exact expected hea
 Fresh merged atomic gate02:06:51–02:06:56UTC at unchanged clean b5bcb0a passed
 workspace build, all5copy-state/all2shipping-root widget tests and52fixtures,
 all four commands exit0. Zero filtered secondary binaries are not counted as
-behavioral qualification. Main69 automatic CI remains pending.
+behavioral qualification. Main69 automatic run37402543978 attempt1 passed four
+protected Mac/shared scopes, Docs and Ubuntu UI. Overall failure retains
+Windows22/22/14 complete compiler blocks/terminals matching main68 and Linux3
+matching assertions/backtraces. Raw order, PIDs and0.05s→0.20s remain recorded;
+Mac tests508s versus738s, Ubuntu345s versus347s are observations, not benchmarks.
 
 B2 witness starts from this qualified product baseline. Acceptance: exclusively
 generated owned synthetic roots; empty,256small,mixed legacy/new and seven-record/
@@ -808,8 +816,19 @@ Prepared codef280abd8 is an ignored test with three private test seams, no
 production optimization. Owned rustfmt/diff checks pass; fixed task-work shipping
 runner reuses atomic evidence helpers and eight pure synthetic tests cover binding,
 selective reset, symlink/backup refusal, result states and owned-child interruption.
-No Cargo build, fixture generation, BRN startup measurement or performance benefit
-has been qualified yet. Release fixture/CLI qualification and independent review
-are next. Correct only a measured bounded hotspot; degraded startup or a changed
+Initial compile qualification02:16:18–02:18:51UTC retained the unused
+TempDir::keep results Clippy exit101. The six-line witness correction checks
+returned paths; corrected debug compile, strict Workflow all-target Clippy,
+release libtest compile and actual default release CLI build all exit0 at
+65ba500 plus unchanged dirty snapshot194728ba7d8b71a0c6208be6190cad7af58f76cb56172f3161b44dc56380f828.
+That exact code is committed asfd306371. Release libtest SHA256 is
+ac33edc709e9243a4ba726175db83cd195f482d17137cefbafc852d8df052bb4;
+actual default release CLI SHA256 is
+979c149471dcc3eb8fa7d91f81800262d8544b06dbb557788f5eb044371b4705.
+Independent static witness review found no blocking defect; atomic build receipts
+retain exact commands/features/timestamps/identities. No fixture generation,
+BRN startup measurement or performance benefit has been qualified yet. An
+exclusive release measurement window is next. Correct only a measured bounded
+hotspot; degraded startup or a changed
 backup-retention contract remains a separate owner decision. Full V1 goal is active;
 GUI/live/assets/owner acceptance and trusted packaging remain pending.

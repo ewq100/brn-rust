@@ -70,8 +70,13 @@ PR69 merged normally atb5bcb0a with exact reviewed tree1abaa112 after run3740116
 attempt1 passed all four protected Mac/shared scopes and Docs. Windows22 full
 blocks/summaries match PR68; actual red remains. Fresh merged build/5state+2widget
 regressions+52fixtures passed at unchanged clean identity (02:06:51–02:06:56UTC).
-Main69 CI, unlocked owner observation and Stage8 remain pending. Startup-cost
-witness preparation is test-only and unmeasured; R6 facts are prepared separately.
+Main69 run37402543978 attempt1 passed all applicable checks; unchanged
+Windows22/22/14 compiler blocks/terminals and Linux3 assertions/backtraces match
+main68, with raw order/IDs/timing differences retained. Unlocked owner observation
+and Stage8 remain pending. Startup-cost witness preparation is test-only:
+independent static review, debug/release compile, Workflow Clippy and default
+release CLI build passed. Initial unused-result Clippy failure is retained;
+no startup measurements or optimization are qualified. R6 facts are prepared separately.
 Broader startup/backup cost remains separate. No semantic
 completeness, native/live/owner acceptance or full V1 delivery is claimed. The full
 V1 goal remains active. No owner original/private data was inspected or migrated.

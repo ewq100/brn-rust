@@ -12,11 +12,15 @@ Full frozen V1 goal confirmed **active** on2026-10-06, without a token budget.
   Exact99ba833 run37401164589 attempt1 passed four protected Mac/shared checks
   and Docs. Windows22 source-inclusive blocks/summaries match PR68; red remains.
   Fresh merged build/5state+2widget regressions+52fixtures passed at clean b5bcb0a,
-  atomic unchanged exit0 (02:06:51–02:06:56UTC). Main69 CI is pending.
+  atomic unchanged exit0 (02:06:51–02:06:56UTC). Exact merged-main run37402543978
+  attempt1 passed all applicable checks; unchanged Windows22/22/14 and Linux3
+  failures remain visible, including raw ordering/IDs/timing differences.
 - **Current:** `codex/v1-copy-startup-witness`, prepared code
-  `f280abd8e801f491f7335b2d692dac2ff893473f`. Test-only synthetic startup witness
-  has mandatory fixtures-only/full modes; no optimization, Cargo qualification or
-  BRN measurement is claimed yet. Fixed shipping runner's eight synthetic safety/
+  `fd306371cd527c6d6d18d46154b02a0129f1dc60`. Test-only synthetic startup witness
+  has mandatory fixtures-only/full modes. Independent static review, debug/release
+  compile, strict Workflow Clippy and actual default release CLI build pass;
+  initial unused-result Clippy failure is retained. No optimization or BRN
+  startup measurement is claimed yet. Fixed shipping runner's eight synthetic safety/
   interruption tests pass. Next: release fixture generation, actual release CLI
   warm measurements, then only a measured bounded correction. R6 typed note facts
   are prepared separately; qualification/review/integration remain pending.
