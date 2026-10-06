@@ -3,7 +3,8 @@
 2026-10-06. **Stages 1–4 are implemented, automated verified and integrated.
 Stage 5 knowledge and Stage 6 Actions/dashboard foundations are integrated,
 with native/live/owner qualification still open.
-Stage 7 Inbox is active; Stages 7–16 are incomplete; complete V1
+Stage 7 text Inbox implementation is integrated with acceptance pending.
+Stage 8 binary-retention work is active; Stages 7–16 remain incomplete; complete V1
 delivery is not claimed.**
 
 The [Product Vision](product/BRN_PRODUCT_VISION.md),
@@ -15,7 +16,7 @@ and the disposable retrieval index retain their existing roles. The owner's
 permits thin future adapters around the six V1 core crates through workflow/
 AppWorker. No MCP, daemon, HTTP service, extra database or remote work is in V1.
 
-Integrated main is **`9e5d5d2b0a7b19044d19338b0586fe8a47eeb656` (PR72)**.
+Integrated main is **`54fcbe1e39364a2bcb7f8a6d6023326738fdc749` (PR73)**.
 Complete retained original review, deterministic saved-body quotes, Rust-owned
 Conflict/Knowledge/Action candidate identities, checked full Action replacement
 baselines and AI Rewrite metadata protection are integrated. Exact approval and
@@ -96,13 +97,20 @@ format/build/129 AI/13 filesystem/18 tooling/52fixtures, strict AI Clippy and
 combined native check passed at unchanged0644c54. PR72 merged normally at9e5d5d2 after exacta022b141/run37410830737 attempt1 passed
 four protected checks and Docs. Windows source errors remain, with changed raw
 order/interleaving/summaries retained. Fresh merged build/129AI/18tooling/52fixtures
-passed at unchanged identity. Main71 applicable CI passed; main72 pending.
+passed at unchanged identity. Main72 applicable checks and extra Ubuntu UI passed;
+overall red preserves Windows22/22/14 and Linux3 failures with full raw differences.
 Relationship correction is locally qualified atb1fbf8c: complete source/evidence
 reviews clean; shared1,456/0/12+52, native27 Retrieval/0/0+343 Workflow/models/
 relationships/0/10+292 Desktop/0/0 and corrected default/V15 restarts pass.
 Same-vault warm release chain median3.689→1.026s and8,192proofs0.333→0.319s
 (small/noise), all9 JSON outputs/5,002 byte-inode proofs match. Actual main72
-integration atee4715c retains the exact tested tree; final evidence/headCI are next. Broader startup/backup cost remains
+integration atee4715c retains the exact tested tree. PR73 merged normally at54fcbe1
+after final evidence review and exact4ce4cdff/run37412604011 attempt1 passed all
+four protected checks and Docs; Windows22 full source-inclusive blocks/both
+summaries/exit101 match PR72. Fresh merged build/12index/9relationship tests
+and52fixtures passed at unchanged clean identity. Automatic main73 CI is pending.
+The [Stage8 binary-retention plan](work/active/office-inbox/plan.md) is next;
+Office conversion/assets and binary cleanup remain unimplemented. Broader startup/backup cost remains
 separate. No semantic
 completeness, native/live/owner acceptance or full V1 delivery is claimed. The full
 V1 goal remains active. No owner original/private data was inspected or migrated.
