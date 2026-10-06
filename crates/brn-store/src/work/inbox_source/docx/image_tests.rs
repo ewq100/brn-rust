@@ -25,6 +25,35 @@ fn png(width: u32, height: u32, depth: u8, color: u8, raw: &[u8]) -> Vec<u8> {
 fn small_png() -> Vec<u8> {
     png(1, 1, 8, 6, &[0, 255, 0, 128, 255])
 }
+#[test]
+fn valid_consecutive_empty_idat_chunks_preserve_the_complete_inline_png() {
+    let valid = small_png();
+    let size = u32::from_be_bytes(valid[33..37].try_into().unwrap()) as usize;
+    let idat_end = 33 + 12 + size;
+    for at in [33, idat_end] {
+        let mut image = valid[..at].to_vec();
+        image.extend(chunk(b"IDAT", &[]));
+        image.extend_from_slice(&valid[at..]);
+        assert_eq!(
+            image::validate_png(&image, &AtomicBool::new(false)).unwrap(),
+            super::super::PngImageFacts {
+                width: 1,
+                height: 1
+            },
+        );
+        let converted = convert_source(
+            &package(
+                &run(DRAWING),
+                &image,
+                IMAGE_RELS,
+                zip::CompressionMethod::Stored,
+            ),
+            &AtomicBool::new(false),
+        )
+        .unwrap();
+        assert_eq!(converted.visual.unwrap().bytes, image);
+    }
+}
 fn package(body: &str, image: &[u8], rels: &str, method: zip::CompressionMethod) -> Vec<u8> {
     let types = TYPES.replace(
         "</Types>",

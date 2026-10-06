@@ -214,11 +214,23 @@ pub(super) fn validate_png(bytes: &[u8], cancel: &AtomicBool) -> Result<PngImage
         strict.set_ignore_crc(false);
         strict.set_skip_ancillary_crc_failures(false);
         let mut input = bytes;
+        let mut state_only = false;
         while !input.is_empty() {
             check_cancel(cancel)?;
             let (consumed, event) = strict.update(input, None).map_err(|_| Failure::Invalid)?;
-            if matches!(event, png::Decoded::BadAncillaryChunk(_)) || consumed == 0 {
+            if matches!(event, png::Decoded::BadAncillaryChunk(_)) {
                 return Err(Failure::Invalid);
+            }
+            // The pinned decoder reports an empty IDAT as a state-only
+            // ImageData event, then consumes its CRC on the next call. Permit
+            // this bounded transition without permitting a nonprogress loop.
+            if consumed == 0 {
+                if state_only || !matches!(event, png::Decoded::ImageData) {
+                    return Err(Failure::Invalid);
+                }
+                state_only = true;
+            } else {
+                state_only = false;
             }
             input = &input[consumed..];
         }
