@@ -700,3 +700,14 @@ Exact-head CI/normal integration and fresh merged verification are next. Full V1
 goal remains active; native/live/owner acceptance, assets and trusted-user packaging
 are separate pending gates. The current original-copy plan contains a disposable
 owner CLI scenario. No private original, credentials, live route or release is used.
+
+PR68 initial run37397938144 attempt1 at25838e8 exposed a new required Ubuntu
+Clippy failure: an outer test import used only by a Mac-gated actual CLI test
+was unused on Linux (`cli/inbox.rs:561`, exit101). Workspace tests continued and
+passed; the run remains failed. Windows22 complete compiler blocks and both
+terminal summaries match PR67. A matching macOS cfg on that test import corrects
+the failure without changing production code or enabled Mac test behavior.
+Independent read-only delta review is clean; fresh format, strict all-target CLI
+Clippy and all10 Inbox CLI tests pass at code36a9dad. No warning suppression or
+unrelated platform fix was added. Latest-head applicable CI is still required;
+earlier passing local evidence applies only to unchanged relevant code/features.

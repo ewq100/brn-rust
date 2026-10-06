@@ -3,8 +3,8 @@
 Full frozen V1 goal confirmed **active** on2026-10-06, without a token budget.
 
 - **Candidate:** `codex/v1-original-copy-lifecycle`, qualified code
-  `dacb56faa0f78603e90126ea887f24914f28bfdb`, tree
-  `b8885073de7459daafe34d513ddb1fca04939c3f`; base PR67 merge
+  `36a9dad0d7c24b5692fcac3289867ec79adb4aff`, tree
+  `b0fe9791e4bfbfe072082476ed94c6efa2998bbd`; base PR67 merge
   `1ebff1a6f6099568c339e6b605bf819e1dbf6e6f`. Approved exact Source plus explicit
   confirmation admits recoverable Remove; exact retained copy admits Restore.
   Lean format2/unchanged legacy mirrors, atomic streamed recovery, causal heads,
@@ -16,6 +16,10 @@ Full frozen V1 goal confirmed **active** on2026-10-06, without a token budget.
   Native11 commands passed:330 Workflow/models/0/9,285 Desktop/0/0, builds and V15
   default/native startup/restart. Explicit75,222,612-byte mirror recovery passed.
   Initial setup/build/lint and real overflow-regression failures remain retained.
+  PR68 run37397938144 at25838e8 failed required Ubuntu Clippy for a Mac-only
+  test import; Windows22 compiler blocks/summaries match PR67. A matching cfg
+  correction has clean independent review and fresh format/CLI Clippy/10 tests.
+  Enabled Mac code is unchanged; latest-head CI remains required.
 - **Next gate:** exact-head applicable Mac/shared CI+Docs and normal PR integration,
   then fresh merged verification/checkpoint. Native cleanup controls follow;
   broader startup/backup cost and truthful retrieval facts remain corrections.
