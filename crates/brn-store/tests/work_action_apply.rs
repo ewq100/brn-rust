@@ -93,6 +93,8 @@ fn prepared(store: &mut WorkStore, journal: &ApplyJournal) -> ApplyJournal {
                 sha256: hash(text.as_bytes()),
             },
             NoteChange::Trash { before, .. } => before.clone(),
+
+            _ => unreachable!("Markdown-only fixture"),
         })
         .collect::<Vec<_>>();
     store
@@ -119,6 +121,8 @@ fn observations(journal: &ApplyJournal) -> Vec<ApplyMemberProof> {
                 destination: None,
                 staging: Some(before.clone()),
             },
+
+            _ => unreachable!("Markdown-only fixture"),
         })
         .collect()
 }

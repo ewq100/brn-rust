@@ -133,6 +133,186 @@ fn invalid_typed_inputs_and_incomplete_approval_fail_before_workspace_open() {
     assert_eq!(fs::read_dir(&f.data).unwrap().count(), 0);
 }
 
+#[test]
+fn asset_paths_and_noncanonical_payloads_refuse_before_workspace_open() {
+    for path in [
+        "../escape.bin",
+        ".hidden.bin",
+        "note.md",
+        "archive/old.bin",
+        "a//b.bin",
+    ] {
+        let f = Fixture::new();
+        let result = f.run(&["proposals", "asset", path]);
+        assert_eq!(result.0, 2, "{}", result.1);
+        assert_eq!(result.1["command"], "proposals.asset");
+        assert_eq!(fs::read_dir(&f.data).unwrap().count(), 0);
+    }
+    for bytes in [
+        json!([0, 255]),
+        json!("AP8BgA"),
+        json!("AP8BgA==="),
+        json!("AP8B gA=="),
+        json!("AP8BgB=="),
+    ] {
+        let f = Fixture::new();
+        f.input(
+            &json!({"id":Uuid::new_v4(),"group_id":null,"session_id":null,"title":"Assets",
+            "changes":[{"kind":"create_asset","path":"asset.bin","bytes":bytes}],"sources":[]}),
+        );
+        assert_ne!(f.write("create").0, 0);
+        assert_eq!(fs::read_dir(&f.data).unwrap().count(), 0);
+        assert_eq!(fs::read_dir(&f.vault).unwrap().count(), 0);
+    }
+    let f = Fixture::new();
+    let file = fs::File::create(&f.input).unwrap();
+    file.set_len(64 * 1024 * 1024 + 1).unwrap();
+    assert_ne!(f.write("create").0, 0);
+    assert_eq!(fs::read_dir(&f.data).unwrap().count(), 0);
+}
+
+#[cfg(target_os = "macos")]
+fn asset(f: &Fixture, path: &str) -> Value {
+    let proof = ok(f.run(&[
+        "proposals",
+        "asset",
+        path,
+        "--vault",
+        f.vault.to_str().unwrap(),
+    ]));
+    assert_eq!(proof["path"], path);
+    assert_eq!(proof.as_object().unwrap().len(), 2);
+    assert!(proof.get("bytes").is_none() && proof.get("text").is_none());
+    assert!(proof["fingerprint"]["device"].as_u64().unwrap() > 0);
+    assert!(proof["fingerprint"]["inode"].as_u64().unwrap() > 0);
+    proof["fingerprint"].clone()
+}
+
+#[cfg(target_os = "macos")]
+#[test]
+fn asset_create_fresh_proof_replace_trash_and_exact_undo_use_the_real_worker() {
+    let f = Fixture::new();
+    fs::create_dir(f.vault.join("assets")).unwrap();
+    let path = "assets/exact.bin";
+    let id = Uuid::new_v4();
+    f.input(
+        &json!({"id":id,"group_id":null,"session_id":null,"title":"Mixed assets",
+        "changes":[{"kind":"create_asset","path":path,"bytes":"AP8BgA=="},
+            {"kind":"create","path":"note.md","text":"Original note λ\r\n"}],"sources":[]}),
+    );
+    let created = ok(f.write("create"));
+    assert_eq!(created["draft"]["changes"][0]["bytes"], "AP8BgA==");
+    assert!(!f.vault.join(path).exists() && !f.vault.join("note.md").exists());
+    f.input(&json!({"expected":{"id":id,"version":1},"title":"Forged text edit","texts":["opaque bytes","note"]}));
+    assert_ne!(f.write("edit").0, 0);
+    f.input(&json!({"expected":{"id":id,"version":1},"title":"Owner title","texts":[null,"Owner note λ\r\n"]}));
+    let edited = ok(f.write("edit"));
+    assert_eq!(edited["version"], 2);
+    assert_eq!(
+        edited["draft"]["changes"][0],
+        created["draft"]["changes"][0]
+    );
+    let create = Uuid::new_v4();
+    assert_eq!(ok(approve(&f, id, 2, create))["outcome"], "applied");
+    assert_eq!(fs::read(f.vault.join(path)).unwrap(), [0, 255, 1, 128]);
+    assert_eq!(
+        fs::read(f.vault.join("note.md")).unwrap(),
+        "Owner note λ\r\n".as_bytes()
+    );
+    let original = asset(&f, path);
+    assert_eq!(original["len"], 4);
+
+    let inverse = Uuid::new_v4();
+    assert_eq!(
+        ok(f.run(&[
+            "proposals",
+            "undo",
+            &create.to_string(),
+            "--operation",
+            &inverse.to_string()
+        ]))["outcome"],
+        "applied"
+    );
+    assert!(!f.vault.join(path).exists() && !f.vault.join("note.md").exists());
+    assert_eq!(
+        ok(f.run(&[
+            "proposals",
+            "undo",
+            &inverse.to_string(),
+            "--operation",
+            &Uuid::new_v4().to_string()
+        ]))["outcome"],
+        "applied"
+    );
+    assert_eq!(asset(&f, path), original);
+    assert_eq!(fs::read(f.vault.join(path)).unwrap(), [0, 255, 1, 128]);
+
+    let replacement = Uuid::new_v4();
+    f.input(&json!({"id":replacement,"group_id":null,"session_id":null,"title":"Replace asset",
+        "changes":[{"kind":"replace_asset","path":path,"expected":original,"bytes":"/gB/"}],"sources":[]}));
+    let captured = ok(f.write("create"));
+    assert_eq!(captured["draft"]["changes"][0]["before_bytes"], "AP8BgA==");
+    let replace = Uuid::new_v4();
+    assert_eq!(
+        ok(approve(&f, replacement, 1, replace))["outcome"],
+        "applied"
+    );
+    assert_eq!(fs::read(f.vault.join(path)).unwrap(), [254, 0, 127]);
+    let replaced = asset(&f, path);
+    assert_ne!(replaced, original);
+    assert_eq!(
+        ok(f.run(&[
+            "proposals",
+            "undo",
+            &replace.to_string(),
+            "--operation",
+            &Uuid::new_v4().to_string()
+        ]))["outcome"],
+        "applied"
+    );
+    assert_eq!(asset(&f, path), original);
+
+    let trash = Uuid::new_v4();
+    f.input(
+        &json!({"id":trash,"group_id":null,"session_id":null,"title":"Trash asset",
+        "changes":[{"kind":"trash_asset","path":path,"expected":original}],"sources":[]}),
+    );
+    let captured = ok(f.write("create"));
+    assert_eq!(captured["draft"]["changes"][0]["before_bytes"], "AP8BgA==");
+    let moved = Uuid::new_v4();
+    assert_eq!(ok(approve(&f, trash, 1, moved))["outcome"], "applied");
+    assert!(!f.vault.join(path).exists());
+    let restore = Uuid::new_v4();
+    assert_eq!(
+        ok(f.run(&[
+            "proposals",
+            "restore-trash",
+            &moved.to_string(),
+            "--member",
+            "0",
+            "--operation",
+            &restore.to_string()
+        ]))["outcome"],
+        "applied"
+    );
+    assert_eq!(asset(&f, path), original);
+    assert_eq!(fs::read(f.vault.join(path)).unwrap(), [0, 255, 1, 128]);
+    let restored = asset(&f, path);
+    assert_eq!(
+        ok(f.run(&[
+            "proposals",
+            "restore-trash",
+            &moved.to_string(),
+            "--member",
+            "0",
+            "--operation",
+            &restore.to_string()
+        ]))["outcome"],
+        "applied"
+    );
+    assert_eq!(asset(&f, path), restored);
+}
+
 #[cfg(target_os = "macos")]
 fn observe(f: &Fixture, path: &str) -> Value {
     let result = ok(f.run(&["edit", "open", path, "--vault", f.vault.to_str().unwrap()]));

@@ -131,6 +131,241 @@ fn answer() -> AiAnswer {
     AiAnswer { text: serde_json::json!({"title":"Revised", "texts":["\u{feff}Full λ 🦀\r\n", "Full second\r\n"]}).to_string(), terminal: AiTerminal::Completed }
 }
 
+fn asset_review(fixture: &Fixture, worker: &AppWorker) -> ProposalRecord {
+    use crate::proposals::{MAX_ASSET_BYTES, SourceVersion};
+    fn asset(worker: &AppWorker, path: &str) -> crate::proposals::ProposalAsset {
+        let query = Uuid::new_v4();
+        worker
+            .submit(query, AppCommand::ProposalAsset(path.into()))
+            .unwrap();
+        match reply(worker, query) {
+            AppEvent::ProposalAsset(proof) => *proof,
+            _ => panic!("expected complete asset proof"),
+        }
+    }
+    std::fs::write(
+        fixture.base.path().join("vault/replace.bin"),
+        b"\xff\0Before",
+    )
+    .unwrap();
+    std::fs::write(fixture.base.path().join("vault/trash.bin"), b"\xfe\0Trash").unwrap();
+    let before = asset(worker, "replace.bin");
+    let trash = asset(worker, "trash.bin");
+    let query = Uuid::new_v4();
+    worker
+        .submit(query, AppCommand::OpenEditor("a.md".into()))
+        .unwrap();
+    let AppEvent::Editor(editor) = reply(worker, query) else {
+        panic!("editor")
+    };
+    let query = Uuid::new_v4();
+    worker
+        .submit(
+            query,
+            AppCommand::CreateProposal(DraftRequest {
+                inbox_knowledge: None,
+                inbox_source: None,
+                action_changes: vec![],
+                id: Uuid::new_v4(),
+                group_id: None,
+                session_id: None,
+                title: "Full mixed asset rewrite".into(),
+                changes: vec![
+                    DraftNoteChange::CreateAsset {
+                        path: "new.bin".into(),
+                        bytes: b"\0OPAQUE_CREATE_NOT_MODEL_CONTEXT\xff".to_vec(),
+                    },
+                    DraftNoteChange::ReplaceAsset {
+                        path: "replace.bin".into(),
+                        expected: before.fingerprint,
+                        bytes: vec![0xff; MAX_ASSET_BYTES],
+                    },
+                    DraftNoteChange::TrashAsset {
+                        path: "trash.bin".into(),
+                        expected: trash.fingerprint,
+                    },
+                    DraftNoteChange::Replace {
+                        path: "a.md".into(),
+                        expected: editor.record.baseline.clone(),
+                        text: "Full candidate λ\r\n".into(),
+                    },
+                    DraftNoteChange::Create {
+                        path: "new.md".into(),
+                        text: "Whole new 🦀\r\n".into(),
+                    },
+                ],
+                sources: vec![SourceVersion {
+                    path: "a.md".into(),
+                    fingerprint: editor.record.baseline,
+                }],
+            }),
+        )
+        .unwrap();
+    let AppEvent::Proposal(record) = reply(worker, query) else {
+        panic!("asset review")
+    };
+    let query = Uuid::new_v4();
+    worker
+        .submit(
+            query,
+            AppCommand::AddProposalComment(CommentRequest {
+                expected: record.stamp(),
+                comment: ReviewComment {
+                    id: Uuid::new_v4(),
+                    text: "Preserve all opaque proofs and ordered slots".into(),
+                    target: CommentTarget::Proposal,
+                },
+            }),
+        )
+        .unwrap();
+    let AppEvent::Proposal(record) = reply(worker, query) else {
+        panic!("comment")
+    };
+    record
+}
+
+#[test]
+fn actual_asset_rewrite_omits_payloads_but_hashes_full_capture_and_preserves_null_slots() {
+    use sha2::{Digest, Sha256};
+    let fixture = Fixture::new();
+    let (send, captured) = mpsc::channel();
+    let calls = Arc::new(std::sync::atomic::AtomicUsize::new(0));
+    let called = calls.clone();
+    let hook: crate::proposal_rewrite::RewriteHook = Arc::new(move |_, prompt, tools, _, _| {
+        called.fetch_add(1, Ordering::SeqCst);
+        send.send(prompt).unwrap();
+        Box::pin(async move {
+            assert_eq!(tools.read_note("a.md").unwrap().text, "current");
+            assert!(tools.read_note("replace.bin").is_err());
+            AiAnswer { text: serde_json::json!({"title":"Rewritten mixed review", "texts":[null,null,null,"Rewritten full λ\r\n","Whole rewritten 🦀\r\n"]}).to_string(), terminal: AiTerminal::Completed }
+        })
+    });
+    let mut worker = fixture.start(Hooks {
+        rewrite: Some(hook),
+        ..Hooks::default()
+    });
+    let original = asset_review(&fixture, &worker);
+    let request = request(&original);
+    let running = start(&worker, &request);
+    assert_eq!(
+        running.capture_sha256,
+        <[u8; 32]>::from(Sha256::digest(serde_json::to_vec(&original).unwrap()))
+    );
+    let prompt = captured.recv_timeout(Duration::from_secs(10)).unwrap();
+    assert!(prompt.len() < 8192);
+    assert!(prompt.starts_with("This capture includes immutable ordinary asset members."));
+    let projected: serde_json::Value =
+        serde_json::from_str(prompt.split_once("\n\n").unwrap().1).unwrap();
+    let changes = projected["draft"]["changes"].as_array().unwrap();
+    assert_eq!(changes.len(), 5);
+    for (index, change) in original.draft.changes.iter().take(3).enumerate() {
+        assert_eq!(changes[index]["path"], change.path());
+        assert_eq!(
+            changes[index]["parent"],
+            serde_json::to_value(change.parent()).unwrap()
+        );
+        assert_eq!(
+            changes[index]["before"],
+            serde_json::to_value(change.before()).unwrap()
+        );
+        assert_eq!(changes[index]["texts_slot"], serde_json::Value::Null);
+        assert!(changes[index].get("bytes").is_none());
+        assert!(changes[index].get("before_bytes").is_none());
+        if let Some(bytes) = change.candidate_bytes() {
+            assert_eq!(changes[index]["candidate"]["byte_len"], bytes.len());
+            assert_eq!(
+                changes[index]["candidate"]["sha256"],
+                serde_json::to_value(<[u8; 32]>::from(Sha256::digest(bytes))).unwrap()
+            );
+        }
+    }
+    assert_eq!(
+        projected["comments"],
+        serde_json::to_value(&original.comments).unwrap()
+    );
+    assert_eq!(
+        projected["draft"]["sources"],
+        serde_json::to_value(&original.draft.sources).unwrap()
+    );
+    let completed = finish(&worker, &request);
+    assert_eq!(completed.status, RewriteStatus::Completed);
+    let rewritten = review(&worker, original.draft.id);
+    assert_eq!(rewritten.draft.changes[..3], original.draft.changes[..3]);
+    assert_eq!(
+        rewritten.draft.changes[3].text(),
+        Some("Rewritten full λ\r\n")
+    );
+    assert_eq!(
+        rewritten.draft.changes[4].text(),
+        Some("Whole rewritten 🦀\r\n")
+    );
+    assert_eq!(rewritten.comments, original.comments);
+    worker
+        .submit(
+            request.id,
+            AppCommand::StartProposalRewrite(request.clone()),
+        )
+        .unwrap();
+    assert_eq!(finish(&worker, &request), completed);
+    assert_eq!(calls.load(Ordering::SeqCst), 1);
+    assert!(!fixture.base.path().join("vault/new.bin").exists());
+    std::fs::write(
+        fixture.base.path().join("vault/replace.bin"),
+        b"Changed after Rewrite",
+    )
+    .unwrap();
+    let query = Uuid::new_v4();
+    worker
+        .submit(
+            query,
+            AppCommand::ApproveProposal(crate::proposal_apply::ApprovalRequest {
+                operation_id: query,
+                expected: rewritten.stamp(),
+            }),
+        )
+        .unwrap();
+    assert!(
+        matches!(reply(&worker, query), AppEvent::Failed(error) if error.kind == ErrorKind::ContextStale)
+    );
+    assert_eq!(review(&worker, original.draft.id), rewritten);
+    assert!(!fixture.base.path().join("vault/new.bin").exists());
+    worker.shutdown().unwrap();
+}
+
+#[test]
+fn nonnull_asset_rewrite_output_is_rejected_as_a_whole_and_replays_without_calls() {
+    let fixture = Fixture::new();
+    let calls = Arc::new(std::sync::atomic::AtomicUsize::new(0));
+    let called = calls.clone();
+    let hook: crate::proposal_rewrite::RewriteHook = Arc::new(move |_, _, _, _, _| {
+        called.fetch_add(1, Ordering::SeqCst);
+        Box::pin(async {
+            AiAnswer { text: serde_json::json!({"title":"Forbidden partial asset edit", "texts":["changed opaque payload",null,null,"Text that must not install","Text that must not install"]}).to_string(), terminal: AiTerminal::Completed }
+        })
+    });
+    let mut worker = fixture.start(Hooks {
+        rewrite: Some(hook),
+        ..Hooks::default()
+    });
+    let original = asset_review(&fixture, &worker);
+    let request = request(&original);
+    start(&worker, &request);
+    let failed = finish(&worker, &request);
+    assert_eq!(failed.status, RewriteStatus::Failed);
+    assert_eq!(failed.error_code.as_deref(), Some("tool_rejected"));
+    assert_eq!(review(&worker, original.draft.id), original);
+    worker
+        .submit(
+            request.id,
+            AppCommand::StartProposalRewrite(request.clone()),
+        )
+        .unwrap();
+    assert_eq!(finish(&worker, &request), failed);
+    assert_eq!(calls.load(Ordering::SeqCst), 1);
+    assert!(!fixture.base.path().join("vault/new.bin").exists());
+    worker.shutdown().unwrap();
+}
+
 #[test]
 fn rewrite_captures_full_review_and_atomically_installs_only_review_text() {
     let fixture = Fixture::new();

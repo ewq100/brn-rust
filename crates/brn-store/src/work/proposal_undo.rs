@@ -65,7 +65,12 @@ fn derive(conn: &Connection, request: &UndoRequest) -> Result<UndoPreview> {
             .draft
             .changes
             .get(index)
-            .is_some_and(|change| matches!(change, NoteChange::Trash { .. }))
+            .is_some_and(|change| {
+                matches!(
+                    change,
+                    NoteChange::Trash { .. } | NoteChange::TrashAsset { .. }
+                )
+            })
     {
         return Err(invalid(
             "Trash restore must identify an original Trash member",
@@ -127,6 +132,54 @@ fn derive(conn: &Connection, request: &UndoRequest) -> Result<UndoPreview> {
                     path: path.clone(),
                     parent: parent.clone(),
                     text: before_text.clone(),
+                });
+                originals.push(Some(UndoOriginal {
+                    member_id: member.id,
+                    fingerprint: before.clone(),
+                }));
+            }
+            NoteChange::CreateAsset {
+                path,
+                parent,
+                bytes,
+            } => {
+                changes.push(NoteChange::TrashAsset {
+                    path: path.clone(),
+                    parent: parent.clone(),
+                    before: installed.clone(),
+                    before_bytes: bytes.clone(),
+                });
+                originals.push(None);
+            }
+            NoteChange::ReplaceAsset {
+                path,
+                parent,
+                before,
+                before_bytes,
+                bytes,
+            } => {
+                changes.push(NoteChange::ReplaceAsset {
+                    path: path.clone(),
+                    parent: parent.clone(),
+                    before: installed.clone(),
+                    before_bytes: bytes.clone(),
+                    bytes: before_bytes.clone(),
+                });
+                originals.push(Some(UndoOriginal {
+                    member_id: member.id,
+                    fingerprint: before.clone(),
+                }));
+            }
+            NoteChange::TrashAsset {
+                path,
+                parent,
+                before,
+                before_bytes,
+            } => {
+                changes.push(NoteChange::CreateAsset {
+                    path: path.clone(),
+                    parent: parent.clone(),
+                    bytes: before_bytes.clone(),
                 });
                 originals.push(Some(UndoOriginal {
                     member_id: member.id,

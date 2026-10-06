@@ -34,17 +34,17 @@ fn phases(
         .zip(observations)
         .map(|((change, prepared), proof)| {
             let (before, applied) = match change {
-                NoteChange::Create { .. } => (
+                NoteChange::Create { .. } | NoteChange::CreateAsset { .. } => (
                     proof.destination.is_none() && proof.staging.as_ref() == Some(prepared),
                     proof.destination.as_ref() == Some(prepared) && proof.staging.is_none(),
                 ),
-                NoteChange::Replace { before, .. } => (
+                NoteChange::Replace { before, .. } | NoteChange::ReplaceAsset { before, .. } => (
                     proof.destination.as_ref() == Some(before)
                         && proof.staging.as_ref() == Some(prepared),
                     proof.destination.as_ref() == Some(prepared)
                         && proof.staging.as_ref() == Some(before),
                 ),
-                NoteChange::Trash { before, .. } => (
+                NoteChange::Trash { before, .. } | NoteChange::TrashAsset { before, .. } => (
                     proof.destination.as_ref() == Some(before) && proof.staging.is_none(),
                     proof.destination.is_none() && proof.staging.as_ref() == Some(before),
                 ),

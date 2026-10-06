@@ -10,6 +10,11 @@ debug = 0
 [profile.test]
 debug = 0
 
+# Full asset recovery witnesses repeatedly verify complete bounded payloads.
+# Optimize only the pinned checksum crate in tests; keep all evidence checks.
+[profile.test.package.sha2]
+opt-level = 3
+
 # Exact 0.43.0 safety patch; see vendor/README.md.
 [patch.crates-io]
 rig-agent = { path = "vendor/rig-agent" }

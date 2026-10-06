@@ -4,7 +4,8 @@
 Stage 5 knowledge and Stage 6 Actions/dashboard foundations are integrated,
 with native/live/owner qualification still open.
 Stage 7 text Inbox implementation is integrated with acceptance pending.
-Stage 8 binary-retention work is active; Stages 7–16 remain incomplete; complete V1
+Stage 8 binary retention is integrated; ordinary asset proposal work is active.
+Stages 7–16 remain incomplete; complete V1
 delivery is not claimed.**
 
 The [Product Vision](product/BRN_PRODUCT_VISION.md),
@@ -16,7 +17,24 @@ and the disposable retrieval index retain their existing roles. The owner's
 permits thin future adapters around the six V1 core crates through workflow/
 AppWorker. No MCP, daemon, HTTP service, extra database or remote work is in V1.
 
-Integrated main is **`54fcbe1e39364a2bcb7f8a6d6023326738fdc749` (PR73)**.
+Integrated main is **`c7ed57d106f14b9b9c4c94fc875ad7cd60b61e15` (PR74)**.
+Bounded opaque Inbox originals retain exact bytes and full fresh proofs, without
+conversion/Source/binary cleanup authority. Complete independent review is clean;
+shared1,477/0/13+52 and affected native294 Desktop/0/0,345 Workflow/models/0/11,
+15 Retrieval/0/0 and V15 restarts passed. Exact fa2e9d4/run37416140200 attempt1
+passed four protected Mac/shared checks and Docs; overall red retains Windows22
+complete compiler blocks/both summaries matching PR73/main73. Fresh merged build,
+45 focused tests/0/1+52 fixtures, native widget/build, default/combined V15 restarts
+and launcher/docs passed at unchanged clean identity. Exact merged-main
+run37417163005 attempt1 passed all applicable gates and extra Ubuntu UI. Overall
+red retains the same Windows22/22/14 complete compiler blocks/summaries and three
+Linux assertions/backtraces; raw ordering, IDs and timing differences remain
+recorded. Ordinary assets are implemented at837c7f6 in the existing proposal
+apply/recovery/Undo family; complete/correction reviews are clean. Shared
+1,513/0/14+52 at2fcd259 (unchanged default code),31 focused/0/1, two native widgets,
+300 Desktop/0/0,360 Workflow/models/0/12,15 Retrieval/0/0, strict feature Clippy,
+shipping builds/52fixtures/launcher/V15 restarts passed. Exact-head CI/integration
+and meaningful Office conversion/binary cleanup are pending.
 Complete retained original review, deterministic saved-body quotes, Rust-owned
 Conflict/Knowledge/Action candidate identities, checked full Action replacement
 baselines and AI Rewrite metadata protection are integrated. Exact approval and
@@ -112,7 +130,7 @@ and52fixtures passed at unchanged clean identity. Exact automatic main73
 run37413517751 attempt1 passed all four protected checks, Docs and extra Ubuntu UI.
 Overall red retains Windows22/22/14 full diagnostic blocks/summaries matching
 main72 and Linux3 matching assertions/six frames with raw order/IDs/time differences.
-The [Stage8 binary-retention plan](work/active/office-inbox/plan.md) is next;
+The [Stage8 Office Inbox plan](work/active/office-inbox/plan.md) now tracks ordinary assets;
 Office conversion/assets and binary cleanup remain unimplemented. Broader startup/backup cost remains
 separate. No semantic
 completeness, native/live/owner acceptance or full V1 delivery is claimed. The full

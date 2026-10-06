@@ -522,6 +522,9 @@ fn same_bindings(left: &ProposalRecord, right: &ProposalRecord) -> bool {
             ) => {
                 a_path == b_path && a_parent == b_parent && a_before == b_before && a_text == b_text
             }
+            (NoteChange::CreateAsset { .. }, NoteChange::CreateAsset { .. })
+            | (NoteChange::ReplaceAsset { .. }, NoteChange::ReplaceAsset { .. })
+            | (NoteChange::TrashAsset { .. }, NoteChange::TrashAsset { .. }) => a == b,
             _ => false,
         })
 }
@@ -552,3 +555,7 @@ mod tests;
 #[cfg(test)]
 #[path = "action_review_tests.rs"]
 pub(crate) mod action_tests;
+
+#[cfg(test)]
+#[path = "review_asset_tests.rs"]
+pub(crate) mod asset_tests;

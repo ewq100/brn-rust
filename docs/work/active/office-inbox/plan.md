@@ -1,4 +1,11 @@
-# Stage 8: bounded binary original capture
+# Stage 8: Office Inbox foundations
+
+Current baseline is integrated PR74 `c7ed57d106f14b9b9c4c94fc875ad7cd60b61e15`,
+tree `bf083499bc6625081ed64eccd08f4655ad99bba6`. Binary capture is qualified;
+ordinary asset proposal members are next on `codex/v1-ordinary-assets`.
+Full V1 goal remains confirmed active, without a budget.
+
+## Binary capture baseline and acceptance
 
 Baseline: clean merged main73 `54fcbe1e39364a2bcb7f8a6d6023326738fdc749`, tree `22361798cea09bacb49711e21ec44f2d737d8678`, on isolated `codex/v1-binary-original-capture`. PR73 review, applicable exact-head CI and fresh merged qualification passed. Full V1 goal confirmed active on 2026-10-06; objective unchanged. This is retention and fresh proof admission through the existing Inbox capture family, not Office conversion or a new architecture.
 
@@ -93,3 +100,153 @@ synthetic fixtures and self-skipped local-model tests do not qualify real assets
 or inference. Headless widget checks do not establish unlocked native owner
 acceptance. Latest-head PR CI, normal integration and fresh merged checks remain
 pending; binary conversion/assets/cleanup and full V1 delivery are not claimed.
+
+## Binary capture integration — 2026-10-06
+
+PR74 merged normally at the baseline above after exact head
+`fa2e9d4e7bba81585f7a0d7231db54e6d51838ab`, automatic run37416140200 attempt1,
+passed all four strict protected Mac/shared checks and Docs. Overall failure and
+ci-summary exit1 remain: Windows22 complete source-inclusive compiler blocks,
+both terminal summaries and exit101 match PR73/main73. Whole log differences are
+retained. No Linux native lane applies to this PR; no bypass or rerun occurred.
+
+Fresh merged verification 05:10:08–05:12:01 UTC passed 15 commands at unchanged
+clean identity: workspace build, 29 affected Store, 11 Workflow (one intentional
+crash-child ignore exercised by its parent), 3 CLI, 1 default Desktop and 1 exact
+native widget test; native build, 52 fixtures, launcher and documentation checks.
+Two default and two combined restarts each proved V15 and one original-operation
+table. Upstream block0.1.6 future-compiler warnings remain. Automatic main74
+run37417163005 attempt1 completed: four protected checks, Docs and extra Ubuntu UI
+passed. Overall red retains Windows22/22/14 exact source-inclusive compiler blocks
+and terminal summaries, plus the same three Linux native assertions/all backtrace
+frames. Actual raw order/thread IDs/timing/log differences remain retained.
+GUI/live/real-model/owner acceptance remains pending.
+
+## Next slice: ordinary asset proposal members
+
+Extend the existing whole-proposal review/apply/recovery/Undo family, with no new
+effect family, datastore or agent architecture. These ordinary vault files are
+durable assets, not managed Markdown identities or retrieval evidence. No Office
+conversion or binary Source/cleanup capability follows from this prerequisite.
+
+Fixed interfaces and bounds:
+
+- Add `NoteChange::CreateAsset { path, parent, bytes }`,
+  `ReplaceAsset { path, parent, before, before_bytes, bytes }` and
+  `TrashAsset { path, parent, before, before_bytes }`. Existing Markdown variants,
+  literal JSON/hash arrays and omission defaults stay unchanged. Add corresponding
+  `DraftNoteChange` variants; replacement/trash requests supply an exact expected
+  fingerprint, and Workflow captures complete before bytes itself.
+- Assets use visible contained relative non-Markdown paths, with the existing
+  current-target archive policy at Workflow admission. No suffix-based MIME or
+  conversion claim. Parents must already exist; keep held-root/parent identity,
+  regular single-link, exact staging ownership, exclusive install/exchange and
+  durability protections. Assets never enter the note editor or text reader.
+- Each complete candidate/before payload is bounded at 16 MiB. Sum asset payloads
+  independently at 32 MiB; keep the existing 8 MiB Markdown/comment/binding/Action
+  budget and 64-member/source limits. Paths and ordinary metadata still count.
+  Use canonical standard padded base64 for these new payload fields only, with
+  encoded-length checks before decoding and exact decoded bounds. Reuse locked
+  base640.22.1 through a direct Store dependency; no new package/version/download.
+- Preserve the existing encoded proposal, journal and 64 MiB receipt limits.
+  Admission must reserve prepared/terminal/Undo/64-attempt repair metadata and
+  reject an over-budget mixed proposal atomically before durable effects. One
+  max-before/max-after asset replacement fits; no truncation, partial installation
+  or silently discarded member is permitted. Inverse cycles retain compact direct
+  lineage, never recursively nested parent payloads.
+- Full review displays each asset's operation, destination, exact byte length/hash
+  and before proof. Asset bytes are immutable in text edits/Rewrite; exact whole
+  approval still binds their complete payload. Keep opaque payloads out of model
+  input without truncating editable Markdown/comments/evidence or changing existing
+  tools. Note-only prompts remain byte-identical. No asset AI tool is added.
+- Extend the existing AppWorker proposal commands rather than adding a parallel
+  asset lifecycle. Existing owner CLI JSON creation, inspection, approval,
+  repair and Undo must support the typed members with bounded input. Native review
+  must show proof details without offering a text editor for opaque bytes.
+- Add read-only `ProposalAsset(path)` / `ProposalAsset { path, fingerprint }` on
+  this same AppWorker boundary for complete fresh current asset proof capture.
+  Owner CLI `proposals asset PATH` uses it before exact replacement/trash drafts;
+  it exposes no payload text, note identity, retrieval source or AI tool.
+
+Acceptance: exact non-UTF8/empty/16 MiB Create/Replace/Trash; mixed Markdown/assets;
+approval of immutable bytes; changed identity/hash, duplicate/occupied paths,
+symlink/hardlink/root/parent substitution and oversize refusal before effects;
+real interrupted apply, Finish/Restore and healthy/older/fresh SQL import; whole
+and scoped Trash Undo with repeated inverse cycles and byte-identical endpoints;
+maximal payload/escaped-text/repair admission; unchanged legacy literal bytes and
+all existing Source/history/text lifecycle fences. Incomplete later conversion
+must retain originals and report the limitation.
+
+Checks: focused Store/domain/codec/budget tests and real macOS filesystem/worker/
+CLI/native review tests; one complete independent read-only review with technically
+validated fixes; full shared and affected native offline gates; exact latest-head
+protected CI/normal merge/fresh merged verification. Use pinned Rust1.98.1,
+canonical owned TMPDIR, disposable synthetic data and separate checkout targets.
+Native GUI/live/assets/owner acceptance remains separate; no live call, download,
+private-data operation, purchase or release is authorized by this slice.
+
+Qualification in progress: complete independent read-only review at dirty
+snapshot71e01c88 found no production defect and one new test expecting unsupported
+Action-bearing Undo. Lead validated the existing refusal and corrected only that
+expectation, retaining exact mixed approval/replay and unchanged effects. Store
+14asset+106legacy/Action tests and check/strict Clippy/format pass at c02c0a19;
+the integrated all-target check passes. The first integrated asset run retained
+13passed/1failed/1ignored, with the full16 MiB replacement/fresh-SQL/Undo witness
+passing in the837.45s suite. Its live stack sample shows pinned SHA256 software
+compression dominates full saved proposal checks. A narrow test-only sha2
+opt-level3 override retains full witnesses and unchanged production/lockfile
+versions. The correction review is clean at frozen dirty snapshot
+`2a3bdf072bea747554414c8b4f07a8a8d4b1fdf8265d5781cd43b9a2ebacb4dd`.
+Fresh locked/offline focused qualification 05:57:08–06:04:28 UTC passed unchanged
+identity: all-target workspace check,15 Workflow/0/1 (intentional crash child),
+4 Desktop binding/0/0,1 CLI admission/0/0 and11 full CLI proposal tests/0/0.
+The full16 MiB replacement/fresh-SQL/Undo witness, corrected mixed Action refusal
+and older-SQL receipt import passed. The asset Workflow suite took404.61s; the
+earlier failed837.45s run remains retained, and no production performance claim
+is made. Full shared/native gates, exact-head CI and integration remain next.
+Existing Action-bearing Undo remains refused; no new inverse capability is claimed.
+
+
+## Ordinary asset qualification — 2026-10-06
+
+Complete source, test/profile correction, native return-type and final fixture
+reviews are clean. Source `837c7f66b991a84ae74eaa6b597f30e683b0cd1e`, tree
+`7ef81adaa13710eb7e3f0ffb0119505a38d9e05e`, retains the approved fixed interfaces.
+Fresh shared gate06:05:38–06:19:37UTC at unchanged clean2fcd259/tree7581d6b passed
+retirement, formatting, workspace build, strict all-target Clippy,1,513 tests/
+0failures/14documented ignores and52fixtures. Both long maximum-payload notices
+subsequently passed; there were no default compiler warnings. This default code
+is unchanged by the later two native-only files.
+
+Native qualification retains three terminal failures: helper Div return types
+mismatched the pinned observed element before tests; the private custom probe
+then lacked an ElementId; after registration, its missing production dialog layer
+prevented captured proof observation. The helpers now return the same owned
+AnyElement after observation; the private fixture uses existing `desktop_root`
+with the actual dialog layer. All proof/immutability assertions remain unchanged.
+Fresh focused2widgets/0/0, full293 Desktop+7CLI tests/0/0 and affected strict native
+Clippy passed at837c7f6; remaining native commands are still running. No failed
+attempt is rewritten as successful. Known block0.1.6 future-compiler warning stays
+separate. Exact-head CI/normal integration and fresh merged verification follow.
+
+The [CLI contract](../../../../crates/brn/README.md#typed-review-foundation) contains
+a disposable-data owner scenario. Native GUI/live/real-model/owner acceptance,
+Office conversion and binary cleanup remain pending; no original is removed.
+
+
+Final native gate06:16:46–06:25:52UTC passed all17 commands at unchanged clean
+837c7f6/tree7ef81ada. Two exact widget tests and full300 Desktop/0/0 passed;
+Workflow native library353/0/12 plus7models/0/0, and Retrieval13/0/0 plus2download
+fixtures/0/0 passed. Full maximum-payload recovery/Undo passed in457.48s.
+All four strict feature Clippy commands, combined Desktop/CLI shipping builds,
+52fixtures, launcher, two actual combined AppWorker startup/restarts and final
+schemaV15/original-operation table proof, format/Markdown/diff passed. The12
+Workflow ignores retain their exact reasons: ten subprocess children exercised
+by parents and two explicit expensive historical Inbox/B2 witnesses outside this
+slice. Filtered zero-test targets add no behavioral evidence. Empty model setting
+and synthetic transports do not qualify actual models/inference or GUI acceptance.
+Known block0.1.6 future-compiler warning and all three earlier failures remain.
+Final default build after native integration passed; default code is unchanged.
+Final local documentation-only amendments pass36files/383links; all38 changed
+Rust/manifest/lock paths match the complete independent review/correction chain.
+Exact-head CI, normal merge and fresh merged verification remain next.

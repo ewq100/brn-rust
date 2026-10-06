@@ -15,6 +15,8 @@ mod action_recovery_tests;
 #[cfg(all(test, target_os = "macos"))]
 mod action_repair_tests;
 #[cfg(all(test, target_os = "macos"))]
+mod asset_recovery_tests;
+#[cfg(all(test, target_os = "macos"))]
 mod inbox_knowledge_recovery_tests;
 mod repair;
 use brn_store::work::inbox_actions::InboxActionJob;
@@ -320,17 +322,10 @@ fn clean_snapshot_comments(records: &ApplyRecoveryFiles, approved: &ApplyJournal
 }
 
 fn original(change: &NoteChange) -> Option<&FileFingerprint> {
-    match change {
-        NoteChange::Create { .. } => None,
-        NoteChange::Replace { before, .. } | NoteChange::Trash { before, .. } => Some(before),
-    }
+    change.before()
 }
 fn parent(change: &NoteChange) -> &brn_store::files::VaultIdentity {
-    match change {
-        NoteChange::Create { parent, .. }
-        | NoteChange::Replace { parent, .. }
-        | NoteChange::Trash { parent, .. } => parent,
-    }
+    change.parent()
 }
 fn observed(files: &MacFiles, path: &Path) -> Result<Option<FileFingerprint>> {
     match files.artifact(path).map_err(file_error)? {
@@ -343,6 +338,51 @@ fn observed(files: &MacFiles, path: &Path) -> Result<Option<FileFingerprint>> {
         )),
     }
 }
+
+fn observed_member(
+    files: &MacFiles,
+    path: &Path,
+    change: &NoteChange,
+) -> Result<Option<FileFingerprint>> {
+    if !change.is_asset() {
+        return observed(files, path);
+    }
+    match files.artifact(path).map_err(file_error)? {
+        None => Ok(None),
+        Some(_) => Ok(Some(
+            files
+                .observe_asset_uncoordinated(path)
+                .map_err(file_error)?
+                .fingerprint,
+        )),
+    }
+}
+
+fn install_member(
+    files: &MacFiles,
+    prepared: &PreparedFile,
+    path: &Path,
+    change: &NoteChange,
+) -> crate::files::FileResult<()> {
+    if change.is_asset() {
+        files.install_asset_exclusive(prepared, path)
+    } else {
+        files.install_exclusive(prepared, path)
+    }
+}
+
+fn exchange_member(
+    files: &MacFiles,
+    prepared: &PreparedFile,
+    path: &Path,
+    change: &NoteChange,
+) -> crate::files::FileResult<()> {
+    if change.is_asset() {
+        files.exchange_asset(prepared, path)
+    } else {
+        files.exchange(prepared, path)
+    }
+}
 fn check_targets(files: &MacFiles, draft: &ProposalDraft) -> Result<()> {
     for change in &draft.changes {
         let path = Path::new(change.path());
@@ -352,7 +392,7 @@ fn check_targets(files: &MacFiles, draft: &ProposalDraft) -> Result<()> {
                     if files.parent_identity(path).map_err(file_error)? != *parent(change) {
                         return Err(stale("reviewed proposal parent changed"));
                     }
-                    if observed(files, path)?.as_ref() != original(change) {
+                    if observed_member(files, path, change)?.as_ref() != original(change) {
                         return Err(stale("reviewed proposal destination changed"));
                     }
                     Ok(())
@@ -588,7 +628,7 @@ impl App {
                             Ok((|| -> Result<()> {
                                 if files.parent_identity(destination).map_err(file_error)?
                                     != *parent(change)
-                                    || observed(files, &staging)?.as_ref()
+                                    || observed_member(files, &staging, change)?.as_ref()
                                         != Some(&original.fingerprint)
                                 {
                                     return Err(stale("retained Undo original changed"));
@@ -697,7 +737,8 @@ impl App {
                     Ok((|| -> Result<FileFingerprint> {
                         if files.parent_identity(destination).map_err(file_error)?
                             != *parent(change)
-                            || observed(files, destination)?.as_ref() != original(change)
+                            || observed_member(files, destination, change)?.as_ref()
+                                != original(change)
                         {
                             return Err(stale("proposal member changed before preparation"));
                         }
@@ -706,7 +747,7 @@ impl App {
                             .as_ref()
                             .and_then(|binding| binding.originals[i].as_ref())
                         {
-                            if observed(files, &member.staging)?.as_ref()
+                            if observed_member(files, &member.staging, change)?.as_ref()
                                 != Some(&original.fingerprint)
                             {
                                 return Err(stale(
@@ -714,7 +755,7 @@ impl App {
                                 ));
                             }
                             files.flush_artifact(&member.staging).map_err(file_error)?;
-                            if observed(files, &member.staging)?.as_ref()
+                            if observed_member(files, &member.staging, change)?.as_ref()
                                 != Some(&original.fingerprint)
                             {
                                 return Err(stale(
@@ -753,7 +794,30 @@ impl App {
                                     .map_err(file_error)?
                                     .fingerprint
                             }
-                            NoteChange::Trash { before, .. } => before.clone(),
+                            NoteChange::CreateAsset { bytes, .. } => {
+                                files
+                                    .prepare_asset_copy(
+                                        member.id,
+                                        &member.staging,
+                                        destination,
+                                        bytes,
+                                    )
+                                    .map_err(file_error)?
+                                    .fingerprint
+                            }
+                            NoteChange::ReplaceAsset { bytes, .. } => {
+                                files
+                                    .prepare_asset_replace(
+                                        member.id,
+                                        &member.staging,
+                                        destination,
+                                        bytes,
+                                    )
+                                    .map_err(file_error)?
+                                    .fingerprint
+                            }
+                            NoteChange::Trash { before, .. }
+                            | NoteChange::TrashAsset { before, .. } => before.clone(),
                         })
                     })())
                 })
@@ -789,7 +853,8 @@ impl App {
                     Ok((|| -> Result<()> {
                         if files.parent_identity(destination).map_err(file_error)?
                             != *parent(change)
-                            || observed(files, destination)?.as_ref() != original(change)
+                            || observed_member(files, destination, change)?.as_ref()
+                                != original(change)
                         {
                             return Err(stale("proposal destination changed before installation"));
                         }
@@ -799,27 +864,36 @@ impl App {
                             fingerprint: proof.clone(),
                         };
                         match change {
-                            NoteChange::Create { .. } => {
-                                files.install_exclusive(&staged, destination)
+                            NoteChange::Create { .. } | NoteChange::CreateAsset { .. } => {
+                                install_member(files, &staged, destination, change)
                             }
-                            NoteChange::Replace { .. } => files.exchange(&staged, destination),
-                            NoteChange::Trash { before, .. } => files.install_exclusive(
+                            NoteChange::Replace { .. } | NoteChange::ReplaceAsset { .. } => {
+                                exchange_member(files, &staged, destination, change)
+                            }
+                            NoteChange::Trash { before, .. }
+                            | NoteChange::TrashAsset { before, .. } => install_member(
+                                files,
                                 &PreparedFile {
                                     relative: destination.to_owned(),
                                     fingerprint: before.clone(),
                                 },
                                 &member.staging,
+                                change,
                             ),
                         }
                         .map_err(file_error)?;
                         checkpoint("member", i);
                         match change {
-                            NoteChange::Create { .. } => files.flush_artifact(destination),
-                            NoteChange::Replace { .. } => {
+                            NoteChange::Create { .. } | NoteChange::CreateAsset { .. } => {
+                                files.flush_artifact(destination)
+                            }
+                            NoteChange::Replace { .. } | NoteChange::ReplaceAsset { .. } => {
                                 files.flush_artifact(destination).map_err(file_error)?;
                                 files.flush_artifact(&member.staging)
                             }
-                            NoteChange::Trash { .. } => files.flush_artifact(&member.staging),
+                            NoteChange::Trash { .. } | NoteChange::TrashAsset { .. } => {
+                                files.flush_artifact(&member.staging)
+                            }
                         }
                         .map_err(file_error)?;
                         checkpoint("synced", i);
@@ -868,8 +942,8 @@ impl App {
                                 return Err(stale("proposal member parent changed"));
                             }
                             Ok(ApplyMemberProof {
-                                destination: observed(files, destination)?,
-                                staging: observed(files, &member.staging)?,
+                                destination: observed_member(files, destination, change)?,
+                                staging: observed_member(files, &member.staging, change)?,
                             })
                         })())
                     })
@@ -1036,7 +1110,7 @@ impl App {
             let files = self.editor.files.as_ref().expect("opened files");
             for (change, member) in journal.approved.draft.changes.iter().zip(&journal.members) {
                 for path in [Path::new(change.path()), member.staging.as_path()] {
-                    if observed(files, path)?.is_some() {
+                    if observed_member(files, path, change)?.is_some() {
                         files.flush_artifact(path).map_err(file_error)?;
                     }
                 }

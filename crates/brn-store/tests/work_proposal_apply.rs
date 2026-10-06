@@ -125,6 +125,8 @@ fn prepared(journal: &ApplyJournal) -> Vec<FileFingerprint> {
                 fingerprint(text, 100 + index as u64)
             }
             NoteChange::Trash { before, .. } => before.clone(),
+
+            _ => unreachable!("Markdown-only fixture"),
         })
         .collect()
 }
@@ -149,6 +151,8 @@ fn applied(journal: &ApplyJournal) -> Vec<ApplyMemberProof> {
                 destination: None,
                 staging: Some(before.clone()),
             },
+
+            _ => unreachable!("Markdown-only fixture"),
         })
         .collect()
 }
@@ -166,6 +170,8 @@ fn unchanged(journal: &ApplyJournal) -> Vec<ApplyMemberProof> {
                 NoteChange::Replace { before, .. } | NoteChange::Trash { before, .. } => {
                     Some(before.clone())
                 }
+
+                _ => unreachable!("Markdown-only fixture"),
             },
             // Bounded unexpected staging is observation only, not ownership proof.
             staging: Some(fingerprint("unexpected occupant", 900 + index as u64)),

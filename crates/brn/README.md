@@ -48,6 +48,7 @@ brn actions list [--state open|waiting|blocked|completed|all] [--limit N] [--bef
 brn actions dashboard [--as-of YYYY-MM-DD] [--filter active|open|waiting|blocked|completed|overdue|follow-up|all] [--limit N] [--before-created-at-ms N --before-id UUID]
 brn proposals create --file DRAFT.json
 brn proposals source PATH
+brn proposals asset PATH
   brn identity inventory
   brn identity resolve NOTE_UUID
   brn evidence read PATH
@@ -374,6 +375,30 @@ conversation. Drafts keep exact bytes and never write a vault file.
  "title":"Review a note","changes":[{"kind":"create","path":"new.md","text":"Draft text"}],"sources":[]}
 ```
 
+Ordinary assets use `create_asset`, `replace_asset` or `trash_asset`, visible
+non-Markdown paths and canonical padded base64 for the new payload fields.
+Each before/candidate payload is limited to 16 MiB, with 32 MiB total asset bytes;
+the existing separate text/metadata and encoded proposal limits still apply.
+Parents must already exist. Replace/Trash require `expected` from the fresh
+`proposals asset PATH` proof; Workflow captures the full original bytes itself.
+
+```json
+{"id":"11111111-1111-4111-8111-111111111111","group_id":null,"session_id":null,
+ "title":"Review an opaque asset","changes":[{"kind":"create_asset","path":"asset.bin","bytes":"AP8BgA=="}],"sources":[]}
+```
+
+For an owner check, use fresh disposable data and vault directories. Submit this
+JSON with `proposals create --file DRAFT.json --data-dir DATA --vault VAULT --json`;
+creation must leave `asset.bin` absent. Review it in Desktop: the operation,
+destination, parent and exact four-byte length/hash appear, with title/whole
+comments editable and no asset text editor or selection comment. Open exact
+approval, inspect the captured proofs and approve. `proposals asset asset.bin`
+then returns the full current fingerprint. Approve Replace/Trash using that exact
+proof, and use the existing Undo/Trash restore commands to recover the exact
+bytes. Restart retains the proposal and operation receipts. GUI/owner observation
+remains pending; these commands do not convert Office originals or enable their
+cleanup.
+
 Action-only input uses `changes: []`, `sources: []` and
 `action_changes: [{kind: "create", id: ACTION_UUID, data: ActionData}]` without a
 vault. Replace uses `{kind: "replace", before: ActionRecord, data: ActionData}`;
@@ -387,8 +412,9 @@ exact full retained baseline.
 
 `edit` and `rewrite-result` accept `{expected: {id, version}, title, texts}` plus
 the ordered `action_data` array when the proposal has Action members.
-`texts` supplies one full string per Create/Replace and null per Trash, preserving
-bound destinations/baselines. `rewrite-result` imports a captured result; it does
+`texts` supplies one full string per Markdown Create/Replace and null per Markdown
+Trash or asset member, preserving bound destinations/baselines and immutable
+asset bytes. `rewrite-result` imports a captured result; it does
 not invoke AI. Any newer edit/comment/rejection makes the old version stale.
 `comment`/`comment-update` accept `{expected, comment: {id, text, target}}`; targets
 are `{kind: "proposal"}` or `{kind: "text", anchor: {change_index, start, end,

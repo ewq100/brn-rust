@@ -20,6 +20,7 @@ use uuid::Uuid;
 
 pub enum ProposalCommand {
     Source(String),
+    Asset(String),
     Create(PathBuf),
     List(Option<Uuid>),
     Show(Uuid),
@@ -49,6 +50,7 @@ impl ProposalCommand {
     pub fn name(&self) -> &'static str {
         match self {
             Self::Source(_) => "proposals.source",
+            Self::Asset(_) => "proposals.asset",
             Self::Create(_) => "proposals.create",
             Self::List(_) => "proposals.list",
             Self::Show(_) => "proposals.show",
@@ -81,10 +83,11 @@ pub(super) fn scan_command(
     let sub = sub_word(
         tokens,
         "proposals",
-        "source|create|list|show|edit|rewrite|rewrite-status|rewrite-result|comment|comment-update|comment-remove|reject|approve|reconcile|approve-group|applies|undo-preview|undo|restore-trash|repair-preview|repair",
+        "source|asset|create|list|show|edit|rewrite|rewrite-status|rewrite-result|comment|comment-update|comment-remove|reject|approve|reconcile|approve-group|applies|undo-preview|undo|restore-trash|repair-preview|repair",
     )?;
     let (label, options): (_, &[(&str, bool)]) = match sub.as_str() {
         "source" => ("proposals.source", &[]),
+        "asset" => ("proposals.asset", &[]),
         "create" => ("proposals.create", &[("file", true)]),
         "list" => ("proposals.list", &[("group", true)]),
         "show" => ("proposals.show", &[]),
@@ -127,6 +130,7 @@ pub(super) fn parse_command(name: &str, s: &Scanned) -> Result<ProposalCommand, 
     let positional = matches!(
         name,
         "proposals.source"
+            | "proposals.asset"
             | "proposals.show"
             | "proposals.rewrite-status"
             | "proposals.comment-remove"
@@ -163,6 +167,12 @@ pub(super) fn parse_command(name: &str, s: &Scanned) -> Result<ProposalCommand, 
             let path = required_positional(s, "PATH")?;
             brn_workflow::vault::EvidencePath::parse(path).map_err(|e| usage(e.to_string()))?;
             Ok(ProposalCommand::Source(path.to_owned()))
+        }
+        "proposals.asset" => {
+            let path = required_positional(s, "PATH")?;
+            brn_workflow::proposals::validate_asset_path(path)
+                .map_err(|error| usage(error.message))?;
+            Ok(ProposalCommand::Asset(path.to_owned()))
         }
         "proposals.create" => Ok(ProposalCommand::Create(file()?)),
         "proposals.list" => Ok(ProposalCommand::List(s.uuid("group")?)),
@@ -242,8 +252,8 @@ pub(super) fn parse_command(name: &str, s: &Scanned) -> Result<ProposalCommand, 
 }
 
 pub(super) fn input<T: DeserializeOwned>(path: &PathBuf) -> Result<T, CliError> {
-    // JSON escaping can expand bounded proposal text by six times. The encoded
-    // envelope has its own hard cap; domain limits are checked after decoding.
+    // Keep the existing envelope cap for escaped text and canonical asset
+    // base64. Separate domain/payload limits are checked after decoding.
     const MAX_JSON_BYTES: usize = brn_workflow::proposals::MAX_PROPOSAL_BYTES * 8;
     let io = |e: std::io::Error| CliError::Workflow(e.to_string());
     // Reject non-regular inputs from the opened descriptor without blocking on
@@ -285,6 +295,11 @@ fn prepare_input(command: &ProposalCommand) -> Result<(Uuid, AppCommand), CliFai
         ProposalCommand::Source(path) => {
             brn_workflow::vault::EvidencePath::parse(path).map_err(|e| usage(e.to_string()))?;
             AppCommand::ProposalEvidenceSource(path.clone())
+        }
+        ProposalCommand::Asset(path) => {
+            brn_workflow::proposals::validate_asset_path(path)
+                .map_err(super::error::classify_workflow)?;
+            AppCommand::ProposalAsset(path.clone())
         }
         ProposalCommand::Create(file) => {
             let request: DraftRequest = input(file)?;
@@ -366,6 +381,41 @@ mod tests {
     use super::*;
     use brn_workflow::proposal_apply::RepairDirection;
     use brn_workflow::{proposal_rewrite::ReasoningEffort, Provider, Selection};
+
+    #[test]
+    fn asset_parser_and_direct_preparation_share_the_workflow_path_boundary() {
+        let directory = tempfile::tempdir_in(std::env::temp_dir().canonicalize().unwrap()).unwrap();
+        let args = [
+            "proposals",
+            "asset",
+            "assets/proof.bin",
+            "--data-dir",
+            directory.path().to_str().unwrap(),
+        ]
+        .map(str::to_owned);
+        let parsed = crate::cli::parse(&args)
+            .unwrap_or_else(|failure| panic!("{}", failure.error.message()));
+        let crate::cli::Outcome::Run(invocation) = parsed else {
+            panic!("asset invocation")
+        };
+        let crate::cli::Command::Proposals(command) = invocation.command else {
+            panic!("proposal command")
+        };
+        assert_eq!(command.name(), "proposals.asset");
+        let (id, request) = prepare_input(&command).unwrap();
+        assert!(!id.is_nil());
+        assert!(matches!(request, AppCommand::ProposalAsset(path) if path == "assets/proof.bin"));
+        for path in [
+            "../outside.bin",
+            ".hidden.bin",
+            "note.MD",
+            "archive/old.bin",
+            "a//b.bin",
+        ] {
+            assert!(prepare_input(&ProposalCommand::Asset(path.into())).is_err());
+        }
+        assert_eq!(std::fs::read_dir(directory.path()).unwrap().count(), 0);
+    }
 
     #[test]
     fn rewrite_submission_preserves_exact_job_uuid_and_generation() {

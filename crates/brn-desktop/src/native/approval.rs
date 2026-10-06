@@ -5,6 +5,7 @@ use brn_workflow::{
     proposals::{CommentTarget, NoteChange, ProposalDraft, ProposalRecord},
 };
 use gpui_kit::{AnyElement, Div, TestSupportExt, base::Disableable, component::WindowExt};
+use sha2::{Digest, Sha256};
 
 fn sha256(bytes: &[u8; 32]) -> String {
     bytes.iter().map(|byte| format!("{byte:02x}")).collect()
@@ -17,6 +18,86 @@ fn full_text(label: &str, text: &str) -> Div {
         .gap_1()
         .child(format!("{label} · {} UTF-8 bytes", text.len()))
         .child(div().p_2().child(text.to_owned()))
+}
+
+fn asset_line(scope: &str, field: &str, label: String) -> AnyElement {
+    div()
+        .id(format!("{scope}-{field}"))
+        .test_support()
+        .aria_label(label.clone())
+        .child(label)
+        .into_any_element()
+}
+
+/// Exact held-payload proof, shared by review and captured approval/Undo/repair.
+/// Assets never become Markdown editor input or a text selection surface.
+pub(super) fn asset_body(scope: &str, change: &NoteChange) -> AnyElement {
+    let kind = match change {
+        NoteChange::CreateAsset { .. } => "Create asset",
+        NoteChange::ReplaceAsset { .. } => "Replace asset",
+        NoteChange::TrashAsset { .. } => "Move asset to Trash",
+        _ => unreachable!("asset presentation requires a typed asset member"),
+    };
+    let mut body = div()
+        .id(format!("{scope}-proof"))
+        .test_support()
+        .flex()
+        .flex_col()
+        .gap_1()
+        .child(asset_line(scope, "kind", kind.into()))
+        .child(asset_line(
+            scope,
+            "destination",
+            format!("Destination: {}", change.path()),
+        ))
+        .child(asset_line(
+            scope,
+            "parent",
+            format!(
+                "Captured parent · device {} · inode {}",
+                change.parent().device,
+                change.parent().inode
+            ),
+        ));
+    body = if let Some(before) = change.before() {
+        body.child(asset_line(
+            scope,
+            "before",
+            format!(
+                "Captured before · device {} · inode {} · {} bytes · SHA-256 {}",
+                before.device,
+                before.inode,
+                before.len,
+                sha256(&before.sha256)
+            ),
+        ))
+    } else {
+        body.child(asset_line(
+            scope,
+            "before",
+            "Before: no asset at the captured destination".into(),
+        ))
+    };
+    body = if let Some(bytes) = change.candidate_bytes() {
+        let hash: [u8; 32] = Sha256::digest(bytes).into();
+        body.child(asset_line(
+            scope,
+            "candidate",
+            format!(
+                "Exact proposed asset · {} bytes · SHA-256 {}",
+                bytes.len(),
+                sha256(&hash)
+            ),
+        ))
+    } else {
+        body.child(asset_line(
+            scope,
+            "candidate",
+            "Proposed: move the exact captured asset to recoverable Trash".into(),
+        ))
+    };
+    body.child("Asset bytes stay fixed in this review and are not interpreted as text.")
+        .into_any_element()
 }
 
 /// Render the actual draft supplied by approval, Undo or repair without inventing a review record.
@@ -32,12 +113,19 @@ fn draft_body(draft: &ProposalDraft) -> Div {
             NoteChange::Create { .. } => "Create",
             NoteChange::Replace { .. } => "Replace",
             NoteChange::Trash { .. } => "Move to Trash",
+            NoteChange::CreateAsset { .. } => "Create asset",
+            NoteChange::ReplaceAsset { .. } => "Replace asset",
+            NoteChange::TrashAsset { .. } => "Move asset to Trash",
         };
         let mut member = div().flex().flex_col().gap_2().child(format!(
             "Member {} · {kind} · {}",
             index + 1,
             change.path()
         ));
+        if change.is_asset() {
+            body = body.child(member.child(asset_body(&format!("captured-asset-{index}"), change)));
+            continue;
+        }
         match change {
             NoteChange::Create { .. } => {
                 member = member.child("Before: no note at the captured destination");
@@ -60,6 +148,9 @@ fn draft_body(draft: &ProposalDraft) -> Div {
                     ))
                     .child(full_text("Full before text", before_text));
             }
+            NoteChange::CreateAsset { .. }
+            | NoteChange::ReplaceAsset { .. }
+            | NoteChange::TrashAsset { .. } => unreachable!("assets use their proof presentation"),
         }
         member = match change.text() {
             Some(text) => member.child(full_text("Full proposed text", text)),
@@ -479,7 +570,7 @@ impl Desktop {
                     if journal.receipt.as_ref().is_some_and(|receipt| receipt.outcome == ApplyOutcome::Applied) {
                         // Enumerate the complete original snapshot before selecting Trash members.
                         for (index, change) in journal.approved.draft.changes.iter().enumerate() {
-                            if matches!(change, NoteChange::Trash { .. }) {
+                            if matches!(change, NoteChange::Trash { .. } | NoteChange::TrashAsset { .. }) {
                                 let desktop = desktop.clone();
                                 body = body.child(Button::new(format!("preview-trash-restore-{operation}-{index}"))
                                     .label(format!("Review original Trash member {} restore…", index + 1))

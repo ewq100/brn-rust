@@ -14,6 +14,10 @@ use gpui_kit::{
 #[path = "review_tests.rs"]
 mod tests;
 
+#[cfg(all(test, target_os = "macos", feature = "native-test-support"))]
+#[path = "asset_review_tests.rs"]
+mod asset_tests;
+
 impl Desktop {
     pub(super) fn settle_comment_draft(
         &mut self,
@@ -219,6 +223,12 @@ impl Desktop {
         if let Some(review) = &ai.review {
             let editable = ai.review_editable() && !leaving;
             let can_mutate = ai.review_can_mutate() && !leaving;
+            let selected_text = review
+                .record
+                .draft
+                .changes
+                .get(self.review_member)
+                .is_some_and(|change| change.text().is_some());
             body = body.child(format!("{:?} · review version {} · {}", review.record.state, review.record.version,
                 if review.pending() { "Awaiting full review acknowledgement" } else if review.dirty() { "Local text is not acknowledged" } else { "Full review is recoverable" }))
                 .child("Proposal edits and Rewrite do not change vault knowledge. Approval is a separate exact full-proposal operation.")
@@ -234,6 +244,9 @@ impl Desktop {
                     NoteChange::Create { .. } => "Create",
                     NoteChange::Replace { .. } => "Replace",
                     NoteChange::Trash { .. } => "Trash",
+                    NoteChange::CreateAsset { .. } => "Create asset",
+                    NoteChange::ReplaceAsset { .. } => "Replace asset",
+                    NoteChange::TrashAsset { .. } => "Trash asset",
                 };
                 body = body.child(
                     Button::new(format!("review-member-{index}"))
@@ -262,18 +275,30 @@ impl Desktop {
                                 .child(before_text.clone()),
                         );
                     }
+                    NoteChange::CreateAsset { .. }
+                    | NoteChange::ReplaceAsset { .. }
+                    | NoteChange::TrashAsset { .. } => {
+                        body = body.child(super::approval::asset_body(
+                            &format!("review-asset-{}", self.review_member),
+                            change,
+                        ));
+                    }
                 }
                 if change.text().is_some() {
                     body = body.child("Full proposed text").child(
-                        div().h(px(320.)).child(
-                            Editor::new(&self.review_editor)
-                                .h_full()
-                                .readonly(review.record.draft.inbox_source.is_some())
-                                .disabled(!editable)
-                                .aria_label("Full proposed Markdown member"),
-                        ),
+                        div()
+                            .id("review-text-editor")
+                            .test_support()
+                            .h(px(320.))
+                            .child(
+                                Editor::new(&self.review_editor)
+                                    .h_full()
+                                    .readonly(review.record.draft.inbox_source.is_some())
+                                    .disabled(!editable)
+                                    .aria_label("Full proposed Markdown member"),
+                            ),
                     );
-                } else {
+                } else if !change.is_asset() {
                     body =
                         body.child("Proposed: move this exact original note to recoverable Trash");
                 }
@@ -323,14 +348,16 @@ impl Desktop {
                                     this.review_comment_dialog(false, Some(id), window, cx)
                                 })),
                         )
-                        .child(
-                            Button::new(format!("reattach-comment-{id}"))
-                                .label("Reattach to selected text…")
-                                .disabled(!can_mutate)
-                                .on_click(cx.listener(move |this, _, window, cx| {
-                                    this.review_comment_dialog(true, Some(id), window, cx)
-                                })),
-                        )
+                        .when(selected_text, |row| {
+                            row.child(
+                                Button::new(format!("reattach-comment-{id}"))
+                                    .label("Reattach to selected text…")
+                                    .disabled(!can_mutate)
+                                    .on_click(cx.listener(move |this, _, window, cx| {
+                                        this.review_comment_dialog(true, Some(id), window, cx)
+                                    })),
+                            )
+                        })
                         .child(
                             Button::new(format!("delete-comment-{id}"))
                                 .label("Remove comment")
@@ -372,14 +399,16 @@ impl Desktop {
                                 this.review_comment_dialog(false, None, window, cx)
                             })),
                     )
-                    .child(
-                        Button::new("review-comment-selection")
-                            .label("Comment selected text…")
-                            .disabled(!can_mutate)
-                            .on_click(cx.listener(|this, _, window, cx| {
-                                this.review_comment_dialog(true, None, window, cx)
-                            })),
-                    )
+                    .when(selected_text, |row| {
+                        row.child(
+                            Button::new("review-comment-selection")
+                                .label("Comment selected text…")
+                                .disabled(!can_mutate)
+                                .on_click(cx.listener(|this, _, window, cx| {
+                                    this.review_comment_dialog(true, None, window, cx)
+                                })),
+                        )
+                    })
                     .child(
                         Button::new("review-rewrite")
                             .label("Rewrite")

@@ -174,7 +174,10 @@ impl UndoCapture {
         }
         if request.trash_member.is_some()
             && (preview.draft.changes.len() != 1
-                || !matches!(preview.draft.changes[0], NoteChange::Create { .. })
+                || !matches!(
+                    preview.draft.changes[0],
+                    NoteChange::Create { .. } | NoteChange::CreateAsset { .. }
+                )
                 || preview.binding.originals[0].is_none())
         {
             return None;
