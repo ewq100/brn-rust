@@ -42,6 +42,12 @@ pub enum InboxCommand {
     Processing(Uuid),
     Candidate(InboxCandidateRequest),
     Source(PathBuf),
+    Visual(String),
+    VisualAnnotation(Uuid),
+    InterpretVisual {
+        input: PathBuf,
+        timeout_seconds: u64,
+    },
     Cancel(Uuid),
     AnalyzeActions {
         input: PathBuf,
@@ -73,6 +79,9 @@ impl InboxCommand {
             Self::Processing(_) => "inbox.processing",
             Self::Candidate(_) => "inbox.candidate",
             Self::Source(_) => "inbox.source",
+            Self::Visual(_) => "inbox.visual",
+            Self::VisualAnnotation(_) => "inbox.visual-annotation",
+            Self::InterpretVisual { .. } => "inbox.interpret-visual",
             Self::Cancel(_) => "inbox.cancel",
             Self::AnalyzeActions { .. } => "inbox.analyze-actions",
             Self::ActionAnalysis(_) => "inbox.action-analysis",
@@ -89,7 +98,7 @@ pub(super) fn scan_command(
     let sub = sub_word(
         tokens,
         "inbox",
-        "add|add-binary|show|review|removal-preview|remove-original|restore-original|original-removal|original-restore|original-operations|archived-analysis|list|process|processing|candidate|source|cancel|analyze-actions|action-analysis|analyze|analysis",
+        "add|add-binary|show|review|removal-preview|remove-original|restore-original|original-removal|original-restore|original-operations|archived-analysis|list|process|processing|candidate|source|visual|interpret-visual|visual-annotation|cancel|analyze-actions|action-analysis|analyze|analysis",
     )?;
     let (label, options): (_, &[(&str, bool)]) = match sub.as_str() {
         "add" => (
@@ -125,6 +134,12 @@ pub(super) fn scan_command(
         "processing" => ("inbox.processing", &[]),
         "candidate" => ("inbox.candidate", &[]),
         "source" => ("inbox.source", &[("file", true)]),
+        "visual" => ("inbox.visual", &[]),
+        "visual-annotation" => ("inbox.visual-annotation", &[]),
+        "interpret-visual" => (
+            "inbox.interpret-visual",
+            &[("file", true), ("timeout-seconds", true)],
+        ),
         "cancel" => ("inbox.cancel", &[]),
         "analyze-actions" => (
             "inbox.analyze-actions",
@@ -189,10 +204,20 @@ fn metadata(command: &InboxCommand) -> Result<(), CliError> {
         InboxCommand::Processing(id) | InboxCommand::Cancel(id) if id.is_nil() => {
             Err(usage("Inbox processing UUID must not be nil"))
         }
-        InboxCommand::ActionAnalysis(id) | InboxCommand::Analysis(id) if id.is_nil() => {
+        InboxCommand::Visual(path) => brn_workflow::vault::VaultPath::parse(path)
+            .map(|_| ())
+            .map_err(|e| usage(e.to_string())),
+        InboxCommand::VisualAnnotation(id)
+        | InboxCommand::ActionAnalysis(id)
+        | InboxCommand::Analysis(id)
+            if id.is_nil() =>
+        {
             Err(usage("Inbox analysis UUID must not be nil"))
         }
-        InboxCommand::AnalyzeActions {
+        InboxCommand::InterpretVisual {
+            timeout_seconds, ..
+        }
+        | InboxCommand::AnalyzeActions {
             timeout_seconds, ..
         }
         | InboxCommand::Analyze {
@@ -304,6 +329,14 @@ pub(super) fn parse_command(name: &str, s: &Scanned) -> Result<InboxCommand, Cli
             expect_positionals(s, 1)?;
             InboxCommand::Processing(positional_uuid(s, 0, "UUID")?)
         }
+        "inbox.visual" => {
+            expect_positionals(s, 1)?;
+            InboxCommand::Visual(super::required_positional(s, "SOURCE_PATH")?.into())
+        }
+        "inbox.visual-annotation" => {
+            expect_positionals(s, 1)?;
+            InboxCommand::VisualAnnotation(positional_uuid(s, 0, "ANALYSIS_UUID")?)
+        }
         "inbox.cancel" => {
             expect_positionals(s, 1)?;
             InboxCommand::Cancel(positional_uuid(s, 0, "UUID")?)
@@ -317,7 +350,7 @@ pub(super) fn parse_command(name: &str, s: &Scanned) -> Result<InboxCommand, Cli
                 InboxCommand::ActionAnalysis(id)
             }
         }
-        "inbox.analyze-actions" | "inbox.analyze" => {
+        "inbox.analyze-actions" | "inbox.analyze" | "inbox.interpret-visual" => {
             expect_positionals(s, 0)?;
             let input = PathBuf::from(s.value("file").ok_or_else(|| usage("missing --file"))?);
             let timeout_seconds = s
@@ -325,7 +358,12 @@ pub(super) fn parse_command(name: &str, s: &Scanned) -> Result<InboxCommand, Cli
                 .map(parse_timeout)
                 .transpose()?
                 .unwrap_or(300);
-            if name == "inbox.analyze" {
+            if name == "inbox.interpret-visual" {
+                InboxCommand::InterpretVisual {
+                    input,
+                    timeout_seconds,
+                }
+            } else if name == "inbox.analyze" {
                 InboxCommand::Analyze {
                     input,
                     timeout_seconds,
@@ -428,10 +466,16 @@ pub(super) fn prepare(command: &InboxCommand) -> Result<AppCommand, CliFailure> 
             request.validate().map_err(|e| usage(e.to_string()))?;
             AppCommand::PrepareInboxSource(request)
         }
+        InboxCommand::Visual(path) => AppCommand::InboxVisualEvidence(path.clone()),
+        InboxCommand::VisualAnnotation(id) => AppCommand::PrepareInboxVisualAnnotation(*id),
         InboxCommand::Cancel(id) => AppCommand::CancelInboxProcessing(*id),
-        InboxCommand::AnalyzeActions { input, .. } | InboxCommand::Analyze { input, .. } => {
+        InboxCommand::AnalyzeActions { input, .. }
+        | InboxCommand::Analyze { input, .. }
+        | InboxCommand::InterpretVisual { input, .. } => {
             let request: InboxActionRequest = super::proposals::input(input)?;
-            let required = if matches!(command, InboxCommand::Analyze { .. }) {
+            let required = if matches!(command, InboxCommand::InterpretVisual { .. }) {
+                InboxAnalysisPurpose::VisualInterpretation
+            } else if matches!(command, InboxCommand::Analyze { .. }) {
                 InboxAnalysisPurpose::KnowledgeAndActions
             } else {
                 InboxAnalysisPurpose::Actions
@@ -445,7 +489,7 @@ pub(super) fn prepare(command: &InboxCommand) -> Result<AppCommand, CliFailure> 
                         "inbox analyze requires explicit purpose knowledge_and_actions"
                     }
                     InboxAnalysisPurpose::VisualInterpretation => {
-                        "visual interpretation requires its explicit command"
+                        "inbox interpret-visual requires explicit purpose visual_interpretation"
                     }
                 })
                 .into());
@@ -461,6 +505,7 @@ pub(super) fn prepare(command: &InboxCommand) -> Result<AppCommand, CliFailure> 
     })
 }
 pub(super) fn output(command: &AppCommand, event: AppEvent) -> Result<Output, CliFailure> {
+    let mut visual_dimensions = None;
     let data = match (command, event) {
         (AppCommand::CaptureInbox(r), AppEvent::InboxCaptured(item))
             if r.validate_receipt(&item).is_ok() =>
@@ -604,6 +649,27 @@ pub(super) fn output(command: &AppCommand, event: AppEvent) -> Result<Output, Cl
         {
             serde_json::json!(*draft)
         }
+        (AppCommand::InboxVisualEvidence(path), AppEvent::InboxVisualEvidence(evidence))
+            if evidence.source.source.path == *path && evidence.validate().is_ok() =>
+        {
+            let proof = evidence
+                .visual_proof()
+                .map_err(super::error::classify_workflow)?;
+            visual_dimensions = Some((proof.width, proof.height));
+            serde_json::json!(*evidence)
+        }
+        (AppCommand::PrepareInboxVisualAnnotation(id), AppEvent::InboxVisualDraft(draft))
+            if draft.validate().is_ok()
+                && draft.session_id.is_some()
+                && draft.inbox_visual.as_ref().is_some_and(|binding| {
+                    binding.analysis_id == *id
+                        && matches!(draft.changes.as_slice(),
+                            [brn_workflow::proposals::DraftNoteChange::Replace { text, .. }]
+                            if binding.candidate_text().is_ok_and(|candidate| *text == candidate))
+                }) =>
+        {
+            serde_json::json!(*draft)
+        }
         (AppCommand::InboxActionAnalysis(id), AppEvent::InboxActionAnalysis(analysis))
             if analysis.job.capture.id == *id =>
         {
@@ -616,6 +682,23 @@ pub(super) fn output(command: &AppCommand, event: AppEvent) -> Result<Output, Cl
             .into());
         }
     };
+    if let Some((width, height)) = visual_dimensions {
+        let digest: String = data["asset"]["fingerprint"]["sha256"]
+            .as_array()
+            .expect("validated digest")
+            .iter()
+            .map(|byte| format!("{:02x}", byte.as_u64().expect("digest byte")))
+            .collect();
+        return Ok(Output {
+            text: format!(
+                "Visual Source: {}\nPNG: {} ({} bytes, {width} × {height})\nSHA256: {digest}\nComplete PNG bytes and Source/asset proofs: use --json.\n",
+                data["source"]["source"]["path"],
+                data["asset"]["path"],
+                data["asset"]["fingerprint"]["len"],
+            ),
+            data,
+        });
+    }
     let pretty = serde_json::to_string_pretty(&data).expect("Inbox DTO serializes");
     let mut text = String::with_capacity(pretty.len() + 1);
     for ch in pretty.chars() {
@@ -628,6 +711,10 @@ pub(super) fn output(command: &AppCommand, event: AppEvent) -> Result<Output, Cl
     text.push('\n');
     Ok(Output { text, data })
 }
+#[cfg(test)]
+#[path = "inbox_visual_tests.rs"]
+mod visual_tests;
+
 #[cfg(test)]
 #[path = "inbox_binary_tests.rs"]
 mod binary_tests;

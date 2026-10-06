@@ -161,6 +161,9 @@ Commands:
   brn inbox processing UUID
   brn inbox candidate UUID INDEX
   brn inbox source --file REQUEST_JSON
+  brn inbox visual SOURCE_PATH
+  brn inbox interpret-visual --file REQUEST_JSON [--timeout-seconds N]
+  brn inbox visual-annotation ANALYSIS_UUID
   brn inbox cancel UUID
   brn inbox analyze-actions --file REQUEST_JSON [--timeout-seconds N]
   brn inbox action-analysis UUID
