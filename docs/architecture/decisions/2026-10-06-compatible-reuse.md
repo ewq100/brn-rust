@@ -64,6 +64,17 @@ route tests. Keep matching manual schema sections if the adapter costs more than
 the duplication removed. Evidence: pinned1.2.2 sources and
 [Schemars attributes](https://docs.rs/schemars/1.2.2/schemars/derive.JsonSchema.html).
 
+H2 result, 2026-10-06 (candidate; see the [H2 record](../../work/active/h2-action-schema/evidence.md)
+for verification and integration state). **Reuse:** Schemars1.2.2 derive on the
+existing Serde Action types, now a direct exact dependency with no new locked
+package. **Adapt:** a schema-only `RequiredNullable<T>` keeps the nine nullable
+fields required while admitting null; `WireId`/`WireDate` carry uuid/date formats;
+one recursive transform inlines subschemas and emits `anyOf`, one-value `enum` tags
+and no generated metadata or integer formats. **Build:** nothing else. The emitted
+schema equals the pre-H2 schema modulo set order; that schema stays as a test
+oracle until the next reviewed structural change. Bounds remain in Rust `validate`.
+Production code grew by about 40 lines; the gain is one structural source.
+
 ## C — Rig structured output: unresolved, bounded task H3
 
 Requirement: schema-constrained candidates without weakening streamed completion,

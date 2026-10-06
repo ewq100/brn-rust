@@ -54,7 +54,9 @@ and [remaining V1 map](work/active/preparation-checkpoint/v1-map.md) are plannin
 PR79 merged that preparation at `450eaa2`. The owner then selected handoff task H1
 (library titles ignore code/HTML pseudo-headings). Its implementation, checks,
 review, acceptance and integration state are in the [H1 record](work/active/h1-library-titles/evidence.md).
-The rest of the roadmap stays paused.
+PR81 merged H1 at `f3cf699`. The owner then selected H2 (derive the `propose_actions`
+schema from its Serde types, with no change to the emitted schema). Its state is in the
+[H2 record](work/active/h2-action-schema/evidence.md). The rest of the roadmap stays paused.
 
 ### Historical qualification
 

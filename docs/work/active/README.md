@@ -9,6 +9,7 @@ New slices follow the frozen [target](../../architecture/overview.md#frozen-targ
 | Knowledge foundations | Stage 5 foundations integrated; native/live/model/owner qualification remains open. | [Plan](knowledge-foundations/plan.md) |
 | Text/email Inbox | Stage 7 text intake/consequences and approved-Source+confirmation Remove/Restore/native controls integrated. Native/live/owner acceptance remains pending; immutable `7c4f668` is retained unmerged as historical review evidence. | [Inbox plan](text-email-inbox/plan.md), [supersession](text-email-inbox/supersession-plan.md), [conflicts](text-email-inbox/conflicts-plan.md), [original-copy work](text-email-inbox/original-copy-plan.md) |
 | H1 library titles | Selected maintenance task H1 from the V1 handoff queue. The candidate is implemented and reviewed. Its record holds verification, acceptance and integration state. | [Record](h1-library-titles/evidence.md) |
+| H2 Action tool schema | Selected maintenance task H2 from the V1 handoff queue. The candidate is implemented and reviewed. Its record holds verification, acceptance and integration state. | [Record](h2-action-schema/evidence.md) |
 | Office/binary Inbox | Stage8 bounded binary retention/assets/DOCX text and one inline PNG are integrated through PR77. Broader Office/URLs, binary cleanup and external qualification remain incomplete. | [Plan](office-inbox/plan.md) |
 
 Integrated product main is `c7580383` (PR77). The full V1 goal is confirmed

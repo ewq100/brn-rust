@@ -82,7 +82,7 @@ Inspected unchanged product code at main a8deb9d: none of H1–H5 is completed o
 | ID | Kind / classification | Detail |
 | --- | --- | --- |
 | H1 | Implemented candidate; see record for verification/integration | Settled title fix; [executable spec](preparation-checkpoint/next-specs.md#h1--titles-from-saved-markdown), [H1 record](h1-library-titles/evidence.md) |
-| H2 | Ready for implementation with compatibility stop | Narrow accepted derivation, equivalence first; [spec](preparation-checkpoint/next-specs.md#h2--one-compatible-action-schema) |
+| H2 | Implemented candidate; see record for verification/integration | Narrow accepted derivation, equivalence first; [spec](preparation-checkpoint/next-specs.md#h2--one-compatible-action-schema), [H2 record](h2-action-schema/evidence.md) |
 | H3 | Ready for evaluation | Offline route feasibility; enabling live routes remains conditional on qualification |
 | H4 | Ready for evaluation | Published release fit unresolved; broader replacement conditional on result |
 | H5 | Ready for evaluation | CLI adoption unresolved; migration conditional on result |
@@ -130,7 +130,7 @@ qualification. Only the selected task may proceed.
 
 ### H2 — derive one Action tool schema compatibly
 
-- **Implementation; ready with compatibility gate.** Outcome: remove duplicated
+- **Implementation; candidate implemented** (state in the [H2 record](h2-action-schema/evidence.md)). Outcome: remove duplicated
   Action argument structure using already locked Schemars1.2.2.
 - Read `crates/brn-ai/src/action_candidates.rs`, `proposal_tools.rs`, current schema/
   provider-format tests and pinned Schemars generation/Option code. Limit the first
