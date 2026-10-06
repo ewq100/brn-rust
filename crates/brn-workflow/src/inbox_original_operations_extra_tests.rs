@@ -152,7 +152,7 @@ fn failed_analysis_and_pending_consequence_do_not_veto_confirmed_exact_copy_clea
     );
 }
 
-fn legacy_record(f: &mut Fixture) -> legacy::InboxOriginalRemovalRecord {
+pub(super) fn legacy_record(f: &mut Fixture) -> legacy::InboxOriginalRemovalRecord {
     let preview = f.app.preview_inbox_removal(f.item).unwrap();
     let source = preview.evidence.source.unwrap();
     let binding = source

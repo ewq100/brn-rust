@@ -588,3 +588,7 @@ mod extra_tests;
 #[cfg(all(test, target_os = "macos"))]
 #[path = "inbox_original_knowledge_cleanup_tests.rs"]
 mod knowledge_cleanup_tests;
+
+#[cfg(all(test, target_os = "macos"))]
+#[path = "inbox_copy_startup_witness.rs"]
+mod startup_witness;

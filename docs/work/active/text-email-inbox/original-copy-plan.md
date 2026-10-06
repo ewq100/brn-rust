@@ -11,7 +11,7 @@ current product rule. No automatic removal or permanent purge is authorized.
 
 The immutable lifecycle review snapshot is `7c4f668de467721f728f242c8fac8d14606a6e44`;
 it remains unchanged/unmerged. Corrected workflow/CLI lifecycle is integrated in
-PR68; native controls are under qualification, with remaining
+PR68 and native controls in PR69; owner acceptance and remaining
 [accepted review corrections](../architecture-review-corrections/plan.md) tracked before release.
 Additive WorkStore tables are local implementation details within the frozen
 architecture; retaining V14/no new table is not a requirement. Preserve existing
@@ -26,9 +26,11 @@ PR67 merge1ebff1a6f6099568c339e6b605bf819e1dbf6e6f. It reuses the private endpoi
 exclusive-move protocol with lean format2 certificates, preserved format1 readers,
 streamed recovery and Source+confirmation admission. Full qualification/integration
 is tracked in the [correction plan](../architecture-review-corrections/plan.md).
-Native controls and owner acceptance remain pending.
+Native controls merged in PR69 atb5bcb0a7430de437533532f2bfab6a9df751509e after
+headless qualification and exact-head applicable CI. GUI/live/owner acceptance
+remain pending.
 
-## Native copy controls acceptance
+## Native copy controls acceptance (headless qualification and integration complete)
 
 Native slice baseline: lifecycle PR68 merge
 `a799c3369cad61117113de40d7b1d95dad589100`, reviewed tree

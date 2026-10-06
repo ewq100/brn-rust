@@ -313,6 +313,11 @@ fn occupied_or_substituted_operation_artifacts_are_refused_without_overwrite() {
     fs::remove_file(&path).unwrap();
     fs::hard_link(&held, &path).unwrap();
     assert!(f.files.operation(&name).is_err());
+    assert_eq!(
+        f.files.publish_operation(&operation).unwrap_err().kind,
+        ErrorKind::InboxUnavailable
+    );
+    assert_eq!(fs::read(&held).unwrap(), initial);
     fs::remove_file(&path).unwrap();
     fs::rename(&held, &path).unwrap();
     // A byte-identical inode replacement during the stable read is still refused.
@@ -384,6 +389,10 @@ fn operation_reader_refuses_oversize_and_changed_namespace_before_effects() {
     file.set_len((MAX_ORIGINAL_OPERATION_BYTES + 1) as u64)
         .unwrap();
     assert!(f.files.operation(&operation.name()).is_err());
+    assert_eq!(
+        f.files.publish_operation(&operation).unwrap_err().kind,
+        ErrorKind::InboxUnavailable
+    );
     assert!(f.files.move_original(&operation).is_err());
     assert!(f.path(&original(operation.item().capture.id)).exists());
     fs::remove_file(&path).unwrap();
@@ -476,5 +485,171 @@ fn fault_checkpoints_distinguish_untouched_intent_from_already_observed_move() {
             !observed
         );
         assert_eq!(f.path(&retained(operation.id())).exists(), observed);
+    }
+}
+
+#[test]
+fn equal_publication_durability_replacement_is_refused() {
+    let f = Fixture::new();
+    let operation = f.operation();
+    f.files.publish_operation(&operation).unwrap();
+    let mirror = f.path(&operation.name());
+    let initial = fs::read(&mirror).unwrap();
+    let original_path = f.path(&original(operation.item().capture.id));
+    let original_bytes = fs::read(&original_path).unwrap();
+    let original_inode = file_identity(&original_path);
+    let replacement = f.path("byte-identical-durability-replacement");
+    fs::write(&replacement, &initial).unwrap();
+    fs::set_permissions(&replacement, fs::Permissions::from_mode(0o600)).unwrap();
+    let target = mirror.clone();
+    SYNC_HOOK.with(|hook| {
+        *hook.borrow_mut() = Some(Box::new(move || fs::rename(replacement, target).unwrap()))
+    });
+    assert_eq!(
+        f.files.publish_operation(&operation).unwrap_err().kind,
+        ErrorKind::InboxUnavailable
+    );
+    assert_eq!(fs::read(&mirror).unwrap(), initial);
+    assert_eq!(fs::read(&original_path).unwrap(), original_bytes);
+    assert_eq!(file_identity(&original_path), original_inode);
+    assert!(!f.path(&retained(operation.id())).exists());
+}
+
+#[test]
+fn equal_publication_observation_replacement_is_refused() {
+    let mut f = Fixture::new();
+    f.remove();
+    for operation in [f.restore(false), f.restore(true)] {
+        f.files.publish_operation(&operation).unwrap();
+        let mirror = f.path(&operation.name());
+        let initial = fs::read(&mirror).unwrap();
+        let replacement = f.path("byte-identical-read-replacement");
+        fs::write(&replacement, &initial).unwrap();
+        fs::set_permissions(&replacement, fs::Permissions::from_mode(0o600)).unwrap();
+        let target = mirror.clone();
+        READ_HOOK.with(|hook| {
+            *hook.borrow_mut() = Some(Box::new(move || fs::rename(replacement, target).unwrap()))
+        });
+        assert_eq!(
+            f.files.publish_operation(&operation).unwrap_err().kind,
+            ErrorKind::InboxUnavailable
+        );
+        assert_eq!(fs::read(&mirror).unwrap(), initial);
+        assert!(!f.path(&original(operation.item().capture.id)).exists());
+        f.files
+            .retained_copy(
+                operation.item(),
+                f.record.request.operation_id,
+                &f.record.namespace,
+            )
+            .unwrap();
+    }
+}
+
+#[test]
+fn equal_publication_post_sync_content_changes_are_unavailable_not_conflicts() {
+    for identical_body in [false, true] {
+        let f = Fixture::new();
+        let operation = f.operation();
+        f.files.publish_operation(&operation).unwrap();
+        let mirror = f.path(&operation.name());
+        let mut changed = f.record.clone();
+        changed.prepared_at_ms += 1;
+        let bytes = if identical_body {
+            fs::read(&mirror).unwrap()
+        } else {
+            encode(&OriginalOperationFile::Remove(Box::new(changed))).unwrap()
+        };
+        let target = mirror.clone();
+        let expected = bytes.clone();
+        SYNC_HOOK.with(|hook| {
+            *hook.borrow_mut() = Some(Box::new(move || fs::write(target, bytes).unwrap()))
+        });
+        assert_eq!(
+            f.files.publish_operation(&operation).unwrap_err().kind,
+            ErrorKind::InboxUnavailable
+        );
+        assert_eq!(fs::read(&mirror).unwrap(), expected);
+        assert!(f.path(&original(operation.item().capture.id)).exists());
+        assert!(!f.path(&retained(operation.id())).exists());
+    }
+}
+
+#[test]
+fn occupied_publication_keeps_full_semantic_refusals_and_never_overwrites() {
+    for case in [
+        "syntax",
+        "noncanonical",
+        "hash",
+        "semantic",
+        "namespace",
+        "filename",
+        "permissions",
+    ] {
+        let f = Fixture::new();
+        let operation = f.operation();
+        f.files.publish_operation(&operation).unwrap();
+        let mirror = f.path(&operation.name());
+        let original_path = f.path(&original(operation.item().capture.id));
+        let original_bytes = fs::read(&original_path).unwrap();
+        let original_inode = file_identity(&original_path);
+        let source_path = f._owner.path().join("vault/source.md");
+        let source_bytes = fs::read(&source_path).unwrap();
+        let source_inode = file_identity(&source_path);
+        let mut changed = f.record.clone();
+        let bytes = match case {
+            "syntax" => b"{".to_vec(),
+            "noncanonical" => {
+                let mut bytes = encode(&operation).unwrap();
+                bytes.push(b' ');
+                bytes
+            }
+            "hash" => {
+                let body =
+                    serialize(&OperationRef::Remove(&f.record), MAX_NEW_MIRROR_BYTES).unwrap();
+                let mut sha256 = digest(&body);
+                sha256[0] ^= 1;
+                serialize(
+                    &OperationEnvelope {
+                        format: 2,
+                        sha256,
+                        operation: OperationRef::Remove(&f.record),
+                    },
+                    MAX_NEW_MIRROR_BYTES,
+                )
+                .unwrap()
+            }
+            "semantic" => {
+                changed.request.confirmation.exact_copy_removal_intended = false;
+                envelope(OperationRef::Remove(&changed), 2, MAX_NEW_MIRROR_BYTES).unwrap()
+            }
+            "namespace" => {
+                changed.namespace.data_inode += 1;
+                envelope(OperationRef::Remove(&changed), 2, MAX_NEW_MIRROR_BYTES).unwrap()
+            }
+            "filename" => {
+                changed.request.operation_id = Uuid::new_v4();
+                encode(&OriginalOperationFile::Remove(Box::new(changed))).unwrap()
+            }
+            _ => encode(&operation).unwrap(),
+        };
+        fs::write(&mirror, &bytes).unwrap();
+        if case == "permissions" {
+            fs::set_permissions(&mirror, fs::Permissions::from_mode(0o644)).unwrap();
+        }
+        let mirror_inode = file_identity(&mirror);
+        let existing_refusal = f.files.operation(&operation.name()).unwrap_err().kind;
+        assert_eq!(
+            f.files.publish_operation(&operation).unwrap_err().kind,
+            existing_refusal,
+            "{case}"
+        );
+        assert_eq!(fs::read(&mirror).unwrap(), bytes, "{case}");
+        assert_eq!(file_identity(&mirror), mirror_inode, "{case}");
+        assert_eq!(fs::read(&original_path).unwrap(), original_bytes, "{case}");
+        assert_eq!(file_identity(&original_path), original_inode, "{case}");
+        assert_eq!(fs::read(&source_path).unwrap(), source_bytes, "{case}");
+        assert_eq!(file_identity(&source_path), source_inode, "{case}");
+        assert!(!f.path(&retained(operation.id())).exists(), "{case}");
     }
 }
