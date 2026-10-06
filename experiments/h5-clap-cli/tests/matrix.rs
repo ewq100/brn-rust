@@ -345,6 +345,14 @@ fn cases() -> Vec<(&'static str, Vec<&'static str>, Option<&'static str>)> {
         ),
         ("group.single-dash", vec!["inbox", "-x"], None),
         ("group.notes-single-dash", vec!["notes", "-x"], None),
+        ("group.short-cluster", vec!["notes", "-ab"], None),
+        ("group.short-inline", vec!["notes", "-x=1"], None),
+        (
+            "unknown.then-inline-flag",
+            vec!["status", "--bogus", "--json=1"],
+            // The hyphen slot holds `--bogus` until clap finishes; its error wins.
+            Some("--json=1 does not take a value"),
+        ),
         // A leaf-local boolean flag.
         (
             "flag.valid",

@@ -218,7 +218,8 @@ pub fn parse(args: &[String]) -> Result<Outcome, Failure> {
 /// root globals and command words.
 enum Walk {
     Root,
-    Group(&'static Group),
+    /// The group word, with the raw token where BRN expects a subcommand.
+    Group(&'static Group, Option<String>),
     Leaf(&'static Leaf),
 }
 
@@ -257,8 +258,8 @@ fn walk(args: &[String]) -> Walk {
         Some(sub) => LEAVES
             .iter()
             .find(|l| l.group == Some(group.word) && l.word == sub)
-            .map_or(Walk::Group(group), Walk::Leaf),
-        None => Walk::Group(group),
+            .map_or_else(|| Walk::Group(group, Some(sub.clone())), Walk::Leaf),
+        None => Walk::Group(group, None),
     }
 }
 
@@ -389,18 +390,19 @@ fn clap_message(error: &clap::Error, args: &[String], walk: &Walk) -> String {
             raw(option)
         ),
         (ErrorKind::UnknownArgument, Walk::Root) => format!("unknown command: {invalid}"),
-        // BRN takes a single-dash token as the (unknown) subcommand word.
-        (ErrorKind::UnknownArgument, Walk::Group(group)) if !option.starts_with("--") => {
-            (group.unknown)(&invalid)
+        // BRN takes a whole single-dash token as the (unknown) subcommand
+        // word; clap reports only its first short flag.
+        (ErrorKind::UnknownArgument, Walk::Group(group, Some(sub))) if !sub.starts_with("--") => {
+            (group.unknown)(sub)
         }
-        (ErrorKind::UnknownArgument | ErrorKind::MissingSubcommand, Walk::Group(group)) => {
+        (ErrorKind::UnknownArgument | ErrorKind::MissingSubcommand, Walk::Group(group, _)) => {
             format!("missing {0} subcommand ({1})", group.word, group.expected)
         }
         (ErrorKind::UnknownArgument, _) if option.starts_with("--") => {
             format!("unknown option: {}", raw(option))
         }
         (ErrorKind::UnknownArgument, _) => format!("unexpected argument: {invalid}"),
-        (ErrorKind::InvalidSubcommand, Walk::Group(group)) => {
+        (ErrorKind::InvalidSubcommand, Walk::Group(group, _)) => {
             (group.unknown)(&context(ContextKind::InvalidSubcommand))
         }
         (ErrorKind::InvalidSubcommand, _) => {

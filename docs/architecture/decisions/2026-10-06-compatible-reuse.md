@@ -47,7 +47,7 @@ decision and migration boundary; do not migrate the entire CLI during evaluation
 [H5 evaluator](../../../experiments/h5-clap-cli/README.md) ran a clap4.6.7 candidate
 for globals, `status`, `search`, `notes show`, nested `inbox add|list|show`,
 `findings close` and `models download` against the real `brn` binary at
-`main@450eaa2` over 101 synthetic argv cases. 93 matched exactly. The other 8 were
+`main@450eaa2` over 104 synthetic argv cases. 95 matched exactly. The other 9 were
 usage errors with the same exit code and envelope command but a different message.
 Every run stopped at parsing or admission and created nothing in the data directory.
 To get there, clap had to be configured against its defaults: BRN's exact-token help

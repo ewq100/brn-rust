@@ -6,7 +6,7 @@ that stayed empty; `$MISSING` is an absent absolute path. Each case ran as given
 and with `--json` appended when absent; the table shows the `--json` run, and
 `same` means both runs matched.
 
-101 cases: 93 identical, 8 diverging.
+104 cases: 95 identical, 9 diverging.
 
 | Case | BRN (--json) | clap candidate |
 | --- | --- | --- |
@@ -77,6 +77,9 @@ and with `--json` appended when absent; the table shows the `--json` run, and
 | `group.escape` | usage `null`: missing inbox subcommand (add\|add-binary\|show\|review\|removal-preview\|remove-original\|restore-original\|original-removal\|original-restore\|original-operations\|archived-analysis\|list\|process\|processing\|candidate\|source\|visual\|interpret-visual\|visual-annotation\|cancel\|analyze-actions\|action-analysis\|analyze\|analysis) | DIVERGES: usage `null`: unknown option: -- |
 | `group.single-dash` | usage `null`: unknown Inbox subcommand | same |
 | `group.notes-single-dash` | usage `null`: unknown notes subcommand: -x | same |
+| `group.short-cluster` | usage `null`: unknown notes subcommand: -ab | same |
+| `group.short-inline` | usage `null`: unknown notes subcommand: -x=1 | same |
+| `unknown.then-inline-flag` | usage `status`: unknown option: --bogus | DIVERGES: usage `status`: --json=1 does not take a value |
 | `flag.valid` | usage `models.download`: --data-dir does not exist: $MISSING | same |
 | `flag.inline-value` | usage `models.download`: --approve-download does not take a value | same |
 | `flag.duplicate` | usage `models.download`: duplicate option: --approve-download | same |
