@@ -1,31 +1,35 @@
 # Resumable V1 checkpoint
 
-Full frozen V1 goal confirmed **active** by `get_goal` on 2026-10-06; no token budget.
+Full frozen V1 goal confirmed **paused** by the goal tool on2026-10-06 at the
+owner's controlled-stop request; objective preserved, no token budget. Resume only
+an explicitly selected [handoff task](../work/active/v1-handoff.md#ordered-task-queue).
 
-- **Integrated:** main76 `b6a13313d9807be66baa49aca2a0e3c96e60d18d`; bounded
-  DOCX text/structure Source conversion, ordinary asset proposals and retained
-  binary originals. Generic ZIP intake is excluded.
-- **Current:** unmerged `codex/v1-docx-visual-sources`, qualified source
-  `b34a2897a63c1032c0398532e80648d9dceedf72`, tree
-  `0ecfab025fed520bc967d3b4bb6093e430a25d4b`. One ordinary inline PNG is preserved
-  with its Source through exact paired approval. CLI/native display the actual
-  checked image/proofs; explicit selected-model interpretation produces a tentative
-  annotation through separate proposal creation, review and exact approval.
-- **Verified:** complete independent review is clean; all152 reviewed file hashes
-  match. Fresh unchanged shared gate passed1,608/0/16 documented exclusions +52
-  fixtures; native707/0/14 +52 fixtures, strict feature Clippy, shipping builds,
-  launcher and two V15 AppWorker restarts passed. Commands, times, exclusions,
-  log hashes and retained failures are in the [office plan](../work/active/office-inbox/plan.md#full-inline-png-deliverable-qualification--2026-10-06).
-- **Next:** push the focused PR, qualify exact-head macOS/shared CI and normal
-  merge requirements, merge and verify the merged result. Then continue broader
-  meaningful Office/supplied-URL preservation in Stage8. No visual PR/merge yet.
-- **Pending:** GUI/live/real-model/owner acceptance, broader Stage8 and9–16,
-  trusted-user packaging, binary cleanup and recorded legacy/startup limitations.
-  Originals remain retained; complete V1 delivery is not claimed.
-- **Environment:** Mac mini Darwin arm64, pinned Rust1.98.1 locked/offline,
+- **Integrated product:** [PR77](https://github.com/ewq100/brn-rust/pull/77), exact
+  main `c75803832f3140347192bb08f2fdf13bb5fba1d4`, tree
+  `f9a725ac08e48d040df48a76a94b969c3b4b8292`. One ordinary inline DOCX PNG,
+  exact Source/asset pair approval, actual-image inspection and separately approved
+  provisional interpretation use the existing AppWorker and recovery/Undo boundary.
+- **Verified:** complete independent review clean; shared1,608/0/16 exclusions+52
+  fixtures, native707/0/14+52, fmt/build/strict feature Clippy and V15 restarts passed.
+  Exact ae5 PR CI/run37454141784 attempt1 passed all four protected macOS/shared
+  checks and Docs; overall Windows failure is retained. Fresh merged24-command gate
+  passed309/0/4 intentional child-entry exclusions+52, builds/native widget/restarts.
+  Exact c758 merged-main run37460415851 attempt1 passed protected+Docs; overall
+  Windows/Linux failure and full raw differences are retained.
+  Full unchanged-code evidence and limitations: [office plan](../work/active/office-inbox/plan.md#pr77-integration-and-controlled-closeout--2026-10-06).
+- **Current work:** documentation-only `codex/v1-closeout-handoff`; canonical reuse
+  rule, six concrete decisions and five bounded tasks. No reuse replacement or next
+  feature was implemented. [Handoff](../work/active/v1-handoff.md) owns continuation.
+- **Next:** [closeout PR78](https://github.com/ewq100/brn-rust/pull/78) is pushed,
+  open and unmerged; its own latest-head CI/normal integration remains pending.
+  This session stops here; further implementation requires explicit task selection.
+- **Pending:** native GUI (locked Mac; owner explicitly deferred), live/real-model/
+  owner acceptance, broader Stage8 and9–16, binary cleanup and trusted-user packaging.
+  Originals remain retained; generic ZIP intake is excluded. V1 is incomplete.
+- **Environment:** Mac mini Darwin arm64, pinned Rust1.98.1 locked/offline;
   canonical owned `/private/tmp/brn-mini-synthetic-20261005`, synthetic explicit
-  data and separate targets. No new live calls, model downloads, private-data
-  operations, purchases or release. Immutable7c4f668/unrelated work is preserved.
+  data and separate targets. No new live calls, model downloads, private-data,
+  account, purchase or release actions. Unrelated work and immutable7c4f668 retained.
 
 # Earlier inline PNG inspection checkpoint
 

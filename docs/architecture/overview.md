@@ -165,6 +165,15 @@ and retrieval implementation out of presentation state. AppWorker owns admission
 cancellation and joined work; credential selection/settings reads happen inside
 its lane. Native defaults to BRN-simple and its protected credential sibling.
 
+## Reusable mechanisms and BRN responsibilities
+
+Use the [compatible reuse decision](decisions/2026-10-06-compatible-reuse.md)
+when choosing implementation mechanisms. It records the existing Rig, Markdown,
+SQLite, GPUI and Office decoder dependencies separately from BRN's deterministic
+authority and preservation contracts, and distinguishes pending replacements from
+implemented architecture. The [workflow](../development/workflow.md#compatible-reuse)
+owns the proportional reuse rule across all development.
+
 ## Simple Markdown Save and recovery
 
 `brn-workflow::editor` coordinates exact WorkStore baselines, buffers, intents

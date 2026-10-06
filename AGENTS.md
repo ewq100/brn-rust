@@ -19,6 +19,8 @@ One lead owns coherence and integration with the strongest appropriate selected 
 3. Read relevant crate contracts and architecture/invariants for the behavior or boundary being changed. Reuse already-read context unless it changes; a small documentation fix does not require a full architecture read.
 4. For ongoing planned work, read its current plan and evidence under [active work](docs/work/active/README.md). Historical or superseded specifications, model assignments, process headers and attribution requirements are supporting evidence, not current instructions.
 5. Select checks from [verification](docs/development/verification.md) before making changes.
+6. Before adding functionality in any crate or tooling, apply the workflow's
+   [compatible reuse rule](docs/development/workflow.md#compatible-reuse).
 
 ## Repository map
 
