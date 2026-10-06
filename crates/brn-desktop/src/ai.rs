@@ -2787,6 +2787,12 @@ impl AiState {
             | AppEvent::InboxItem(_)
             | AppEvent::InboxReview(_)
             | AppEvent::InboxRemovalPreview(_)
+            | AppEvent::InboxOriginalRemoved(_)
+            | AppEvent::InboxOriginalRestored(_)
+            | AppEvent::InboxOriginalRemoval { .. }
+            | AppEvent::InboxOriginalRestore { .. }
+            | AppEvent::InboxOriginalOperations { .. }
+            | AppEvent::ArchivedInboxAnalysis { .. }
             | AppEvent::InboxProcessing(_)
             | AppEvent::InboxSourceDraft(_)
             | AppEvent::InboxCandidate(_) => unreachable!(),
