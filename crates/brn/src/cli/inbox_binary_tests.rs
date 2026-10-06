@@ -149,7 +149,7 @@ fn invalid_binary_input_refuses_before_application_startup() {
 
 #[cfg(target_os = "macos")]
 #[test]
-fn binary_cli_retains_exact_bytes_replays_and_rejects_forged_proofs_and_conversion() {
+fn binary_cli_retains_exact_bytes_and_durable_unsupported_failure() {
     use brn_workflow::inbox::{InboxItem, InboxOriginal, InboxRead, InboxReview};
     let _cancel = crate::tests::CancelTestGuard::with(false);
     let owner = tempfile::tempdir_in(std::env::temp_dir().canonicalize().unwrap()).unwrap();
@@ -235,7 +235,44 @@ fn binary_cli_retains_exact_bytes_replays_and_rejects_forged_proofs_and_conversi
     };
     let process_file = owner.path().join("process.json");
     fs::write(&process_file, serde_json::to_vec(&process).unwrap()).unwrap();
-    assert!(crate::cli::execute(&invoke(InboxCommand::Process(process_file))).is_err());
+    let processed =
+        crate::cli::execute(&invoke(InboxCommand::Process(process_file.clone()))).unwrap();
+    let batch: brn_workflow::inbox_processing::InboxProcessBatch =
+        serde_json::from_value(processed.data.clone()).unwrap();
+    batch.validate().unwrap();
+    assert_eq!(batch.request, process);
+    assert_eq!(batch.pending_count(), 0);
+    assert!(matches!(
+        &batch.entries[0].outcome,
+        brn_workflow::inbox_processing::InboxProcessOutcome::Failed { code }
+            if code == "binary_unsupported"
+    ));
+    assert_eq!(
+        crate::cli::execute(&invoke(InboxCommand::Processing(process.id)))
+            .unwrap()
+            .data,
+        processed.data
+    );
+    assert_eq!(
+        crate::cli::execute(&invoke(InboxCommand::Process(process_file)))
+            .unwrap()
+            .data,
+        processed.data
+    );
+    assert!(
+        crate::cli::execute(&invoke(InboxCommand::Candidate(InboxCandidateRequest {
+            batch_id: process.id,
+            index: 0,
+        })))
+        .is_err()
+    );
+    let mut forged = batch.clone();
+    forged.entries.clear();
+    assert!(output(
+        &AppCommand::ProcessInbox(process.clone()),
+        AppEvent::InboxProcessing(Box::new(forged))
+    )
+    .is_err());
     assert!(crate::cli::execute(&invoke(InboxCommand::RemovalPreview(id))).is_err());
     bytes[0] ^= 1;
     fs::write(&input, &bytes).unwrap();
