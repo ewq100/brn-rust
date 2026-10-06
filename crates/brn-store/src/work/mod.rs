@@ -10,6 +10,8 @@ mod edits;
 pub mod findings;
 pub mod inbox;
 pub mod inbox_actions;
+pub mod inbox_original_legacy;
+pub mod inbox_original_operations;
 pub mod inbox_processing;
 pub mod inbox_removal;
 pub mod inbox_review;
@@ -83,6 +85,7 @@ const MIGRATIONS: &[&str] = &[
     inbox::V12,
     inbox_processing::V13,
     inbox_actions::V14,
+    inbox_original_operations::V15,
 ];
 
 #[derive(Debug, Clone, PartialEq, Eq)]
@@ -159,6 +162,7 @@ impl WorkStore {
         findings::check_all(&conn)?;
         inbox::check_all(&conn)?;
         inbox_actions::check_all(&conn)?;
+        inbox_original_operations::check_all(&conn)?;
         inbox_processing::reconcile(&mut conn)?;
         chat::reconcile(&mut conn)?;
         proposal_rewrite::reconcile(&mut conn)?;
@@ -192,6 +196,7 @@ impl WorkStore {
     }
 
     pub fn set_setting(&mut self, key: &str, value: &str) -> Result<()> {
+        inbox_original_operations::guard_setting(key)?;
         self.conn.execute(
             "INSERT INTO settings(key, value) VALUES (?1, ?2)
              ON CONFLICT(key) DO UPDATE SET value = excluded.value",
@@ -201,6 +206,7 @@ impl WorkStore {
     }
 
     pub fn remove_setting(&mut self, key: &str) -> Result<()> {
+        inbox_original_operations::guard_setting(key)?;
         self.conn
             .execute("DELETE FROM settings WHERE key = ?1", [key])?;
         Ok(())
@@ -278,6 +284,18 @@ fn check(db: &Path) -> Result<Checked> {
         Err(e) if is_corruption(&e) => return Ok(Checked::Corrupt),
         Err(e) => return Err(e.into()),
     };
+    if application == APPLICATION_ID && (12..=MIGRATIONS.len() as i64).contains(&version) {
+        let result = if version >= 15 {
+            inbox_original_operations::check_all(&conn)
+        } else {
+            inbox_original_operations::check_legacy(&conn)
+        };
+        match result {
+            Err(crate::Error::Sql(e)) if is_corruption(&e) => return Ok(Checked::Corrupt),
+            Err(error) => return Ok(Checked::Invalid(error)),
+            Ok(()) => {}
+        }
+    }
     if application == APPLICATION_ID && (14..=MIGRATIONS.len() as i64).contains(&version) {
         // A readable reserved analysis or bound turn cannot be replaced by
         // an older backup, even when its own table remains physically healthy.

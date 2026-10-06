@@ -116,7 +116,7 @@ fn fresh_database_has_checked_empty_action_storage() {
     assert_eq!(
         conn.query_row("PRAGMA user_version", [], |row| row.get::<_, i64>(0))
             .unwrap(),
-        14
+        15
     );
 }
 
@@ -1117,7 +1117,7 @@ fn v9_additive_upgrade_and_physical_backup_restore_preserve_all_operational_work
         drop(store);
         let conn = raw(path.path());
         conn.execute_batch(
-            "DROP TABLE inbox_actions; DROP TABLE inbox_processing; DROP TABLE inbox_items; DROP TABLE action_completions; DROP TABLE actions; PRAGMA user_version=9;",
+            "DROP TABLE inbox_original_operations; DROP TABLE inbox_actions; DROP TABLE inbox_processing; DROP TABLE inbox_items; DROP TABLE action_completions; DROP TABLE actions; PRAGMA user_version=9;",
         )
         .unwrap();
         let old_backup = path.path().join("backups/brn-9999999999999.sqlite");
@@ -1138,7 +1138,7 @@ fn v9_additive_upgrade_and_physical_backup_restore_preserve_all_operational_work
             raw(path.path())
                 .query_row("PRAGMA user_version", [], |r| r.get::<_, i64>(0))
                 .unwrap(),
-            14
+            15
         );
         assert!(
             store

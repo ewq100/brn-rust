@@ -1285,7 +1285,7 @@ fn additive_v4_migration_and_backups_preserve_review_and_uncertain_application()
     drop(store);
     let conn = raw(dir.path());
     conn.execute_batch(
-        "DROP TABLE inbox_actions; DROP TABLE inbox_processing; DROP TABLE inbox_items; DROP TABLE action_completions; DROP TABLE actions; DROP TABLE findings; ALTER TABLE messages DROP COLUMN started_at_ms; ALTER TABLE messages DROP COLUMN finished_at_ms; ALTER TABLE conversations DROP COLUMN last_activity_at_ms; ALTER TABLE messages DROP COLUMN effort; DROP TABLE proposal_rewrites; DROP TABLE proposal_applies; PRAGMA user_version=4;",
+        "DROP TABLE inbox_original_operations; DROP TABLE inbox_actions; DROP TABLE inbox_processing; DROP TABLE inbox_items; DROP TABLE action_completions; DROP TABLE actions; DROP TABLE findings; ALTER TABLE messages DROP COLUMN started_at_ms; ALTER TABLE messages DROP COLUMN finished_at_ms; ALTER TABLE conversations DROP COLUMN last_activity_at_ms; ALTER TABLE messages DROP COLUMN effort; DROP TABLE proposal_rewrites; DROP TABLE proposal_applies; PRAGMA user_version=4;",
     )
     .unwrap();
     drop(conn);
@@ -1338,7 +1338,7 @@ fn additive_v4_migration_and_backups_preserve_review_and_uncertain_application()
         raw(dir.path())
             .query_row("PRAGMA user_version", [], |row| row.get::<_, u32>(0))
             .unwrap(),
-        14
+        15
     );
 }
 
@@ -1521,7 +1521,7 @@ fn legacy_v5_json_without_no_effects_is_unchanged_by_reads_and_replays() {
     assert_eq!(
         conn.query_row("PRAGMA user_version", [], |row| row.get::<_, u32>(0))
             .unwrap(),
-        14
+        15
     );
 }
 
@@ -1723,7 +1723,7 @@ fn recovery_from_healthy_older_v5_backup_preserves_other_operational_state() {
     std::fs::copy(&report.backup, old_dir.path().join("brn.sqlite")).unwrap();
     let conn = raw(old_dir.path());
     conn.execute_batch(
-        "DROP TABLE inbox_actions; DROP TABLE inbox_processing; DROP TABLE inbox_items; DROP TABLE action_completions; DROP TABLE actions; DROP TABLE findings; ALTER TABLE messages DROP COLUMN started_at_ms; ALTER TABLE messages DROP COLUMN finished_at_ms; ALTER TABLE conversations DROP COLUMN last_activity_at_ms; ALTER TABLE messages DROP COLUMN effort; DROP TABLE proposal_rewrites; DROP TABLE proposal_applies; PRAGMA user_version=4;",
+        "DROP TABLE inbox_original_operations; DROP TABLE inbox_actions; DROP TABLE inbox_processing; DROP TABLE inbox_items; DROP TABLE action_completions; DROP TABLE actions; DROP TABLE findings; ALTER TABLE messages DROP COLUMN started_at_ms; ALTER TABLE messages DROP COLUMN finished_at_ms; ALTER TABLE conversations DROP COLUMN last_activity_at_ms; ALTER TABLE messages DROP COLUMN effort; DROP TABLE proposal_rewrites; DROP TABLE proposal_applies; PRAGMA user_version=4;",
     )
     .unwrap();
     drop(conn);
@@ -1738,7 +1738,7 @@ fn recovery_from_healthy_older_v5_backup_preserves_other_operational_state() {
         raw(old_dir.path())
             .query_row("PRAGMA user_version", [], |row| row.get::<_, u32>(0))
             .unwrap(),
-        14
+        15
     );
 }
 

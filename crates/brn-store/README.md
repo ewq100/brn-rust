@@ -1,8 +1,9 @@
 # brn-store
 
 Operational SQLite authority for BRN. WorkStore owns `brn.sqlite`, checked
-migrations, local chat, settings, proposal review/approval journals and unfinished editor/save recovery. Vault files
-own saved Markdown; disposable retrieval indexes live outside this crate.
+migrations, local chat, settings, proposal review/approval journals, Actions and
+completion records, Inbox captures/recovery, findings and unfinished editor/Save
+recovery. Vault files own saved Markdown; disposable retrieval indexes live outside this crate.
 
 ## Interfaces and source
 
@@ -20,7 +21,7 @@ own saved Markdown; disposable retrieval indexes live outside this crate.
 
 ## Database ownership and recovery
 
-WorkStore uses application ID `BRN2`, schema V12, and retains `brn.owner.lock`
+WorkStore uses application ID `BRN2`, schema V15, and retains `brn.owner.lock`
 for its lifetime. Current settings, text-only conversations and unfinished work
 are preserved by additive migrations. Earlier WorkStore V1 unsaved-edit rows
 remain available; matching text moves atomically into the generation-aware
@@ -551,3 +552,53 @@ classification/provenance without filesystem access. The shared conversion core
 preserves existing bytes/cancellation. Strict new Source proposal validation
 remains unchanged; cleanup may recognize later owner header edits or History
 that still preserve exact original content. No schema or namespace effect is added.
+
+## Versioned original-copy recovery records
+
+V15 adds the owned `inbox_original_operations` table and exact summary index.
+New version2 Remove evidence serializes exactly as the qualified preservation
+preview: Item, complete available original text, one full Applied Source approval
+and fresh saved Source proof/text, empty blockers and `needs_owner_confirmation`.
+`InboxSourcePreservation` checks the complete historical approval and exact
+original body; saved History/archive/header changes and a new inode may preserve
+that body. One explicit true version1 exact-copy confirmation binds the preview
+digest. Direct parents bind a settled opposite-kind operation UUID and digest;
+new records carry no accumulated history or consequence/chat arrays. Restore
+retains the exact Remove parent, original identity, namespace and timestamps.
+
+These APIs import retained evidence, not fresh removal admission or filesystem
+permission. `restore_inbox_original_operation_records` consumes one fallible
+record iterator within one transaction, restores the exact Item and only genuine
+legacy analysis reservations, and validates the complete final causal inventory.
+Iterator errors, missing parents, forks or inconsistent proofs roll back all
+writes. The slice convenience API forwards to the same transaction. Bodies have
+individual encoded bounds (new evidence: three worst-case escaped 1 MiB texts
+plus 256 KiB; new operation: another 4 KiB); inventory/import count is at most
+16,384. There is no aggregate input cap or accumulated full-family body list.
+
+`inbox_original_operations(selected)` parses each owned body once per checked
+read. History orders Item UUID ascending, then causal order; selected bodies
+follow caller order. Missing or duplicate selections refuse. Selected results
+allow at most 128 complete bodies and 64 MiB aggregate canonical bytes.
+`visit_inbox_original_operations` checks the entire compact inventory before its
+first callback, then visits bounded checked bodies in causal order within the
+same read snapshot. At most two full-body reads per record are needed; consumer
+errors preserve their type. Diagnostic `parsed_bodies` counts all SQL body reads in that operation and
+confers no authority. Import counts its fixed initial/final inventories and at
+most one keyed existing-record read per incoming record.
+
+Historical `inbox.original-operation.v1.` settings are guarded typed legacy
+records. Their original five attestations, complete certificates, envelopes,
+canonical bytes and digests remain readable without rewriting or migration.
+The historical snapshot owns its unchanged cumulative-history field separately
+from today's review DTO. New and old records can share one fully checked causal
+family; genuine archived jobs remain reserved without fabricating turns or
+Sessions. Startup checks full semantic records, indexed metadata, exact catalogue
+identity, schema/index objects and cross-record lineage before reconciliation or
+backup. A readable malformed V14 legacy setting refuses before V15 migration;
+physical database corruption retains the existing checked backup route.
+
+A legacy-only archived analysis reservation with no actual WorkTurn refuses a
+new turn even when ordinary approval receipts are absent. Existing actual failed
+or completed turns retain exact replay precedence; genuine unissued reservations
+still start normally. The checked legacy-ID fence creates no turns or Sessions.

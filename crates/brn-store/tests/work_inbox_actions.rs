@@ -522,7 +522,7 @@ fn upgrade_v13(restored: bool) {
     drop(store);
     let db = data.path().join("brn.sqlite");
     let raw = Connection::open(&db).unwrap();
-    raw.execute_batch("DROP TABLE inbox_actions; PRAGMA user_version=13;")
+    raw.execute_batch("DROP TABLE inbox_original_operations; DROP TABLE inbox_actions; PRAGMA user_version=13;")
         .unwrap();
     let backup = data.path().join("backups/brn-9999999999999.sqlite");
     if restored {
@@ -555,7 +555,7 @@ fn upgrade_v13(restored: bool) {
     assert_eq!(
         raw.query_row("PRAGMA user_version", [], |r| r.get::<_, i64>(0))
             .unwrap(),
-        14
+        15
     );
     if let Some(bytes) = backup_bytes {
         assert_eq!(std::fs::read(backup).unwrap(), bytes);
@@ -897,7 +897,7 @@ fn legacy_action_bytes_and_question_survive_bound_chat_shutdown_and_restart() {
     assert_eq!(
         raw.query_row("PRAGMA user_version", [], |r| r.get::<_, i64>(0))
             .unwrap(),
-        14
+        15
     );
 }
 
@@ -1280,7 +1280,7 @@ fn knowledge_ordered_target_proofs_survive_review_replay_restart_and_checked_bac
             .unwrap()
             .query_row("PRAGMA user_version", [], |r| r.get::<_, i64>(0))
             .unwrap(),
-        14
+        15
     );
 }
 
