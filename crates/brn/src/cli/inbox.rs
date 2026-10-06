@@ -7,7 +7,9 @@ use brn_workflow::{
     app_worker::{AppCommand, AppEvent},
     inbox::{CaptureInboxRequest, InboxKind, InboxListRequest},
     inbox_actions::{InboxActionRequest, InboxAnalysisPurpose},
-    inbox_original_operations::{RemoveInboxOriginalRequest, RestoreInboxOriginalRequest},
+    inbox_original_operations::{
+        InboxOriginalOperation, RemoveInboxOriginalRequest, RestoreInboxOriginalRequest,
+    },
     inbox_processing::{InboxCandidateRequest, InboxSourceRequest, ProcessInboxRequest},
 };
 use std::{fmt::Write as _, path::PathBuf};
@@ -172,24 +174,6 @@ fn metadata(command: &InboxCommand) -> Result<(), CliError> {
         InboxCommand::Candidate(r) if r.batch_id.is_nil() || r.index >= 8 => {
             Err(usage("Inbox candidate needs a UUID and index 0 to 7"))
         }
-        InboxCommand::RemoveOriginal(file) => {
-            let text = super::input::read_text_file(file, "Inbox original removal request")?;
-            let request: RemoveInboxOriginalRequest = serde_json::from_str(&text)
-                .map_err(|_| usage("invalid Inbox original removal request JSON"))?;
-            request.validate().map_err(|e| usage(e.to_string()))?;
-            AppCommand::RemoveInboxOriginal(request)
-        }
-        InboxCommand::RestoreOriginal(file) => {
-            let text = super::input::read_text_file(file, "Inbox original restoration request")?;
-            let request: RestoreInboxOriginalRequest = serde_json::from_str(&text)
-                .map_err(|_| usage("invalid Inbox original restoration request JSON"))?;
-            request.validate().map_err(|e| usage(e.to_string()))?;
-            AppCommand::RestoreInboxOriginal(request)
-        }
-        InboxCommand::OriginalRemoval(id) => AppCommand::InboxOriginalRemoval(*id),
-        InboxCommand::OriginalRestore(id) => AppCommand::InboxOriginalRestore(*id),
-        InboxCommand::OriginalOperations(id) => AppCommand::InboxOriginalOperations(*id),
-        InboxCommand::ArchivedAnalysis(id) => AppCommand::ArchivedInboxAnalysis(*id),
         InboxCommand::List(r) => r.validate().map_err(|e| usage(e.to_string())),
         _ => Ok(()),
     }
@@ -351,6 +335,24 @@ pub(super) fn prepare(command: &InboxCommand) -> Result<AppCommand, CliFailure> 
         InboxCommand::Show(id) => AppCommand::InboxItem(*id),
         InboxCommand::Review(id) => AppCommand::InboxReview(*id),
         InboxCommand::RemovalPreview(id) => AppCommand::PreviewInboxRemoval(*id),
+        InboxCommand::RemoveOriginal(file) => {
+            let text = super::input::read_text_file(file, "Inbox original removal request")?;
+            let request: RemoveInboxOriginalRequest = serde_json::from_str(&text)
+                .map_err(|_| usage("invalid Inbox original removal request JSON"))?;
+            request.validate().map_err(|e| usage(e.to_string()))?;
+            AppCommand::RemoveInboxOriginal(request)
+        }
+        InboxCommand::RestoreOriginal(file) => {
+            let text = super::input::read_text_file(file, "Inbox original restoration request")?;
+            let request: RestoreInboxOriginalRequest = serde_json::from_str(&text)
+                .map_err(|_| usage("invalid Inbox original restoration request JSON"))?;
+            request.validate().map_err(|e| usage(e.to_string()))?;
+            AppCommand::RestoreInboxOriginal(request)
+        }
+        InboxCommand::OriginalRemoval(id) => AppCommand::InboxOriginalRemoval(*id),
+        InboxCommand::OriginalRestore(id) => AppCommand::InboxOriginalRestore(*id),
+        InboxCommand::OriginalOperations(id) => AppCommand::InboxOriginalOperations(*id),
+        InboxCommand::ArchivedAnalysis(id) => AppCommand::ArchivedInboxAnalysis(*id),
         InboxCommand::List(r) => AppCommand::InboxItems(r.clone()),
         InboxCommand::Process(file) => {
             let text = super::input::read_text_file(file, "Inbox processing request")?;
@@ -448,9 +450,14 @@ pub(super) fn output(command: &AppCommand, event: AppEvent) -> Result<Output, Cl
                 record,
             },
         ) if *id == operation_id
-            && record
-                .as_ref()
-                .is_none_or(|r| r.validate().is_ok() && r.summary().is_ok_and(|summary| summary.operation_id == *id && summary.kind == brn_store::work::inbox_original_operations::InboxOriginalOperationKind::Remove)) =>
+            && record.as_ref().is_none_or(|r| {
+                r.validate().is_ok()
+                    && matches!(
+                        r.as_ref(),
+                        InboxOriginalOperation::Remove(_) | InboxOriginalOperation::LegacyRemove(_)
+                    )
+                    && r.summary().is_ok_and(|summary| summary.operation_id == *id)
+            }) =>
         {
             serde_json::json!(record)
         }
@@ -461,9 +468,15 @@ pub(super) fn output(command: &AppCommand, event: AppEvent) -> Result<Output, Cl
                 record,
             },
         ) if *id == operation_id
-            && record
-                .as_ref()
-                .is_none_or(|r| r.validate().is_ok() && r.summary().is_ok_and(|summary| summary.operation_id == *id && summary.kind == brn_store::work::inbox_original_operations::InboxOriginalOperationKind::Restore)) =>
+            && record.as_ref().is_none_or(|r| {
+                r.validate().is_ok()
+                    && matches!(
+                        r.as_ref(),
+                        InboxOriginalOperation::Restore(_)
+                            | InboxOriginalOperation::LegacyRestore(_)
+                    )
+                    && r.summary().is_ok_and(|summary| summary.operation_id == *id)
+            }) =>
         {
             serde_json::json!(record)
         }
