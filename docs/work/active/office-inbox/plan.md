@@ -5,12 +5,14 @@ Current baseline is integrated [PR76](https://github.com/ewq100/brn-rust/pull/76
 `8619cc994145a91ae7cbfa3f24b0537d7c5c6ad6`. Binary retention, ordinary assets
 and bounded DOCX text/structure Source conversion are qualified and integrated.
 [Inline PNG plus explicit local interpretation](#next-slice-inline-png-source-and-local-interpretation)
-is the current bounded deliverable on `codex/v1-docx-visual-sources`. Buildable
-core checkpoint `ae958567bab8b8c9c1d4b1e6cb3329549a781106` implements conversion,
-Source/asset approval, typed separately approved interpretation and checked image
-inspection. Core/inspection/recovery reviews are clean. Clients,
-complete milestone review/qualification and integration remain unfinished. Full V1 goal remains
-confirmed active without a budget.
+is the current bounded deliverable on `codex/v1-docx-visual-sources`. Qualified
+source `b34a2897a63c1032c0398532e80648d9dceedf72`, tree
+`0ecfab025fed520bc967d3b4bb6093e430a25d4b`, implements conversion,
+Source/asset approval, typed separately approved interpretation, checked image
+inspection and CLI/native presentation/controls. Complete independent review
+and fresh shared/native qualification pass. Exact-head CI, normal integration
+and merged checks remain unfinished. Full V1 goal remains confirmed active
+without a budget.
 Native/live/owner acceptance and broader Stage8 remain separate and unfinished.
 
 ## Binary capture baseline and acceptance
@@ -607,3 +609,64 @@ qualification, exact-head CI, normal integration and merged checks remain pendin
 No visual PR/merge, GUI/live/model/owner acceptance or binary cleanup is claimed.
 Full frozen goal remains confirmed active; pinned Mac mini preflight passes with
 `/opt/homebrew/opt/rustup/bin` on PATH, canonical synthetic TMPDIR and separate targets.
+
+## Full inline PNG deliverable qualification — 2026-10-06
+
+Clean qualified source `b34a2897a63c1032c0398532e80648d9dceedf72`, tree
+`0ecfab025fed520bc967d3b4bb6093e430a25d4b`, completes the bounded deliverable:
+genuine DOCX/PNG preservation and exact Source/asset approval; complete saved
+inspection; explicitly selected provider/model/effort interpretation; provider-free
+annotation preparation and separately reviewed exact approval. CLI and native
+controls expose the actual checked PNG, occurrence metadata, complete current and
+captured proofs, full Source/answer/candidate and separate preparation/creation/
+review controls. Newer valid owner wording survives creation replay. Read-only
+archived evidence inspection is allowed; annotation destination restrictions remain.
+Original DOCX copies and images stay retained; binary cleanup still refuses.
+
+Complete independent read-only review against integrated main76 is clean.
+All152 changed file hashes match the reviewed source; earlier core/inspection/
+recovery and client evidence remains pinned to its actual snapshots. The final
+archive preflight defect was reproduced with a genuine approved Source/PNG moved
+together: Workflow inspection passed, CLI refused. The corrected CLI witness
+requires full API/CLI proof and image equality, while preserving unsafe-path and
+annotation destination refusals. Earlier missing terminal-finish, empty-IDAT,
+malformed-section, test-wiring, sandbox and lint failures remain retained; none
+is relabeled as a successful qualification.
+
+Fresh `bash scripts/verify-end-to-end.sh` passed10:46:18–11:01:04UTC at unchanged
+clean identity: retirement, format, workspace build/strict all-target Clippy,
+1,608tests/0failed/16 documented exclusions and52fixture assertions. Exclusions:
+13 private subprocess entries exercised by their parents,2 explicit expensive
+original-operation cost/aggregate witnesses,1 separate case-sensitive APFS witness.
+Full output SHA256 `e32f130037e13e1ef57ffe5ab7e50aa2183f2e24cce797eb9acc747d9d26d694`.
+Atomic receipt and complete output are retained in taskwork
+`work/docx-visual-shared-evidence` and the explicit evidence parent
+`verify-end-to-end-5dq2x2tc`. No default compiler warning occurred.
+
+Fresh optional native qualification passed13/13 commands10:48:07–10:57:24UTC at
+the same unchanged clean commit/tree in its separate checkout-owned target:
+Retrieval13+2/0/0; Workflow379+7/0/14; Desktop299+7/0/0. Workflow excludes12 private
+subprocess entries exercised by their parents and the same2 explicit expensive
+witnesses. Both full Workflow feature lanes ran the existing maximum16MiB asset
+recovery/fresh-SQL/Undo witness. Strict Workflow/native Desktop support and shipping
+Clippy, native Desktop/CLI shipping builds,52fixtures and launcher passed. Two
+actual combined AppWorker restarts on one exclusive fresh synthetic data directory
+proved V15, the original-operation table/item index and no retired database.
+Full native log SHA256
+`c5a03f356043d91e90cfcedff1dfa66728562dd0211d36b5acb8cf03fd51604a`.
+Exact commands, atomic receipt, logs, startup proof and verified eight-file hashes
+are retained in `work/docx-visual-integrated-native-evidence`; no duplicate baseline
+workspace gate was run through native scripts.
+
+Pinned Rust1.98.1, locked/offline dependencies, canonical owned synthetic TMPDIR,
+jobs2/incremental0 and an empty native-model setting were used. Known upstream
+block0.1.6 future-compiler warnings remain in native output. Synthetic model tests
+and headless widgets do not establish real assets/inference or GUI acceptance.
+Disposable owner scenarios are in the existing [CLI](../../../../crates/brn/README.md)
+and [Desktop](../../../../crates/brn-desktop/README.md) contracts.
+
+Exact latest-head protected macOS/shared CI, Docs, normal merge requirements and
+fresh merged verification are the next gate. No visual PR/merge yet. Broader
+meaningful DOCX/PDF/PowerPoint/suppliedURLs, Office cleanup, native/live/real-model/
+owner acceptance and full V1 remain unfinished. Full goal confirmed active;
+no live/provider discovery/model download/private-data/account/release action.

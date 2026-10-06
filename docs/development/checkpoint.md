@@ -2,6 +2,35 @@
 
 Full frozen V1 goal confirmed **active** by `get_goal` on 2026-10-06; no token budget.
 
+- **Integrated:** main76 `b6a13313d9807be66baa49aca2a0e3c96e60d18d`; bounded
+  DOCX text/structure Source conversion, ordinary asset proposals and retained
+  binary originals. Generic ZIP intake is excluded.
+- **Current:** unmerged `codex/v1-docx-visual-sources`, qualified source
+  `b34a2897a63c1032c0398532e80648d9dceedf72`, tree
+  `0ecfab025fed520bc967d3b4bb6093e430a25d4b`. One ordinary inline PNG is preserved
+  with its Source through exact paired approval. CLI/native display the actual
+  checked image/proofs; explicit selected-model interpretation produces a tentative
+  annotation through separate proposal creation, review and exact approval.
+- **Verified:** complete independent review is clean; all152 reviewed file hashes
+  match. Fresh unchanged shared gate passed1,608/0/16 documented exclusions +52
+  fixtures; native707/0/14 +52 fixtures, strict feature Clippy, shipping builds,
+  launcher and two V15 AppWorker restarts passed. Commands, times, exclusions,
+  log hashes and retained failures are in the [office plan](../work/active/office-inbox/plan.md#full-inline-png-deliverable-qualification--2026-10-06).
+- **Next:** push the focused PR, qualify exact-head macOS/shared CI and normal
+  merge requirements, merge and verify the merged result. Then continue broader
+  meaningful Office/supplied-URL preservation in Stage8. No visual PR/merge yet.
+- **Pending:** GUI/live/real-model/owner acceptance, broader Stage8 and9–16,
+  trusted-user packaging, binary cleanup and recorded legacy/startup limitations.
+  Originals remain retained; complete V1 delivery is not claimed.
+- **Environment:** Mac mini Darwin arm64, pinned Rust1.98.1 locked/offline,
+  canonical owned `/private/tmp/brn-mini-synthetic-20261005`, synthetic explicit
+  data and separate targets. No new live calls, model downloads, private-data
+  operations, purchases or release. Immutable7c4f668/unrelated work is preserved.
+
+# Earlier inline PNG inspection checkpoint
+
+Full frozen V1 goal confirmed **active** by `get_goal` on 2026-10-06; no token budget.
+
 - **Integrated:** [PR76](https://github.com/ewq100/brn-rust/pull/76), exact main
   `b6a13313d9807be66baa49aca2a0e3c96e60d18d`, tree
   `8619cc994145a91ae7cbfa3f24b0537d7c5c6ad6`. Bounded DOCX text/structure

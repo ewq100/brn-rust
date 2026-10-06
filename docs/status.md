@@ -35,15 +35,17 @@ compiler suggestions and actual ordering/progress/terminal differences remain vi
 
 The [next Stage8 slice](work/active/office-inbox/plan.md#next-slice-inline-png-source-and-local-interpretation)
 couples a checked inline PNG, bound Source/asset approval and explicit local
-visual interpretation through the existing owned AI lane. Unmerged internal
-checkpoint `ae958567bab8b8c9c1d4b1e6cb3329549a781106` implements the converter,
-exact Source/PNG pair, owned typed interpretation, separately approved Source-only
-annotation and complete saved-image inspection. Core/inspection reviews are clean;
-focused offline checks and actual annotation crash/Finish/Restore/Undo witnesses
-pass. The recovery/getter review is also clean.
-CLI/native actual-image presentation, complete milestone review/qualification
-and integration remain unfinished. Integrated main still refuses meaningful
-visuals. Generic ZIP intake
+visual interpretation through the existing owned AI lane. Unmerged qualified
+source `b34a2897a63c1032c0398532e80648d9dceedf72`, tree
+`0ecfab025fed520bc967d3b4bb6093e430a25d4b`, implements the converter, exact
+Source/PNG pair, owned typed interpretation, separately approved Source-only
+annotation, complete saved-image inspection and CLI/native actual-image controls.
+Complete independent review is clean. Fresh unchanged shared1,608/0/16 +52 and
+native707/0/14 +52, strict feature Clippy, shipping builds, launcher and V15
+AppWorker restarts pass. Actual annotation crash/Finish/Restore/Undo witnesses
+qualify fresh-SQL immutable history without provider reexecution. Exact-head CI,
+normal integration and merged checks are next. Integrated main still refuses
+meaningful visuals. Generic ZIP intake
 is excluded. Broader DOCX/PDF/PowerPoint/URLs and binary cleanup remain unfinished.
 All binary originals remain retained. GUI/live/real-model/owner acceptance and
 full V1 delivery are not claimed. Previous asset/DOCX evidence remains in the
