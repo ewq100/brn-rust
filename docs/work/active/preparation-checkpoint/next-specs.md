@@ -6,6 +6,8 @@ Parent outcome: reduce duplicated general mechanisms while preserving observable
 
 ## H1 — titles from saved Markdown
 
+**State:** implemented and independently reviewed as a candidate; verification, acceptance and integration are recorded separately in the [H1 record](../h1-library-titles/evidence.md).
+
 **Kind/readiness:** implementation, ready. Outcome: a fenced pseudo-heading cannot become a library title. Reuse Markdown1.0.0 AST and Store `note_identity::body_start`; build only the title-policy adapter. No new dependency, generic Markdown framework or note write.
 
 **Files:** `crates/brn-workflow/src/library.rs`, `crates/brn-workflow/tests/library.rs`; examples of existing position-based parsing in `src/knowledge/links/extract.rs`; body contract in `crates/brn-store/src/note_identity.rs`. Current `title` scans raw lines and misses fenced blocks and `...` header closure. Existing library tests fix unmanaged, unclosed, BOM/CRLF and empty-heading behavior.

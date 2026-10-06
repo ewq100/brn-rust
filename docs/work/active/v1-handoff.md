@@ -81,7 +81,7 @@ Inspected unchanged product code at main a8deb9d: none of H1–H5 is completed o
 
 | ID | Kind / classification | Detail |
 | --- | --- | --- |
-| H1 | Ready for implementation | Settled title fix; [executable spec](preparation-checkpoint/next-specs.md#h1--titles-from-saved-markdown) |
+| H1 | Implemented candidate; see record for verification/integration | Settled title fix; [executable spec](preparation-checkpoint/next-specs.md#h1--titles-from-saved-markdown), [H1 record](h1-library-titles/evidence.md) |
 | H2 | Ready for implementation with compatibility stop | Narrow accepted derivation, equivalence first; [spec](preparation-checkpoint/next-specs.md#h2--one-compatible-action-schema) |
 | H3 | Ready for evaluation | Offline route feasibility; enabling live routes remains conditional on qualification |
 | H4 | Ready for evaluation | Published release fit unresolved; broader replacement conditional on result |
@@ -111,7 +111,7 @@ qualification. Only the selected task may proceed.
 
 ### H1 — reuse Markdown title parsing
 
-- **Implementation; ready.** Outcome: library titles ignore fenced-code pseudo
+- **Implementation; candidate implemented** (state in the [H1 record](h1-library-titles/evidence.md)). Outcome: library titles ignore fenced-code pseudo
   headings using existing mechanisms. No dependency on another queued task.
 - Read `crates/brn-workflow/src/library.rs`, `tests/library.rs`,
   `src/knowledge/links/extract.rs`, `crates/brn-store/src/note_identity.rs`.

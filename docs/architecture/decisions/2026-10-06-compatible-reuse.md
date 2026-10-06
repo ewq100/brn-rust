@@ -100,6 +100,17 @@ unmanaged notes. Store's body reader checks managed layouts and the1MiB bound;
 do not silently propagate stricter eligibility into previously indexable notes.
 AST positions and the exact original body stay authoritative; no note bytes change.
 
+H1 result, 2026-10-06 (candidate; see the [H1 record](../../work/active/h1-library-titles/evidence.md)
+for verification and integration state). **Reuse:** Store `body_start`, pinned
+Markdown1.0.0 mdast positions and the existing exact-framing `legacy_body_start`
+adapter, moved from link approval into `library.rs` for shared use. **Adapt:** the
+title parse turns off inline constructs and stops at the last literal `# ` line.
+Default inline parsing took 129.6s for one 400KB synthetic note in a debug build;
+the adapted parse took 0.21s. A `catch_unwind` around the parser turns a pinned
+parser panic into filename fallback. **Build:** only the title-policy adapter.
+The policy matches the spec. Changes from the old line scan are limited to code/HTML
+pseudo-headings, `...` closings and headers ending after line50.
+
 ## E — DOCX reader: unresolved, bounded task H4
 
 Requirement: replace meaningful custom OOXML interpretation while preserving complete

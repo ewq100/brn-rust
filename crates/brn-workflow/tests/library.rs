@@ -1,6 +1,7 @@
 use brn_workflow::library::{
-    Embedder, EmbeddingProgress, Library, RefreshReport, SearchMode, Unreadable,
+    Embedder, EmbeddingProgress, KnowledgeScope, Library, RefreshReport, SearchMode, Unreadable,
 };
+use sha2::{Digest, Sha256};
 use std::{
     path::Path,
     time::{Duration, SystemTime},
@@ -201,6 +202,309 @@ fn title_skips_frontmatter_and_handles_crlf() {
         let note = notes.iter().find(|note| note.path == path).unwrap();
         assert_eq!(note.title, expected, "{path}");
     }
+}
+
+fn refreshed_titles(cases: &[(&str, String, &str)]) -> (Setup, Library) {
+    let s = Setup::new();
+    for (path, text, _) in cases {
+        write(s.vault.path(), path, text.as_bytes());
+    }
+    let mut library = s.open(None);
+    library.refresh().unwrap();
+    let notes = library.notes_scoped(KnowledgeScope::All).unwrap();
+    for (path, text, expected) in cases {
+        let note = notes
+            .iter()
+            .find(|note| note.path == *path)
+            .unwrap_or_else(|| panic!("{path} remains indexed"));
+        assert_eq!(note.title, *expected, "{path}");
+        let saved = std::fs::read(s.vault.path().join(path)).unwrap();
+        assert_eq!(saved, text.as_bytes(), "{path} bytes are unchanged");
+        assert_eq!(
+            note.sha256,
+            <[u8; 32]>::from(Sha256::digest(&saved)),
+            "{path}"
+        );
+    }
+    (s, library)
+}
+
+#[test]
+fn title_ignores_markdown_code_and_html_pseudo_headings() {
+    let cases = [
+        (
+            "backtick.md",
+            "```md\n# Fake backtick\n```\n# Real backtick\n".to_owned(),
+            "Real backtick",
+        ),
+        (
+            "tilde.md",
+            "~~~\r\n# Fake tilde\r\n~~~\r\n# Real tilde\r\n".to_owned(),
+            "Real tilde",
+        ),
+        (
+            "unclosed-fence.md",
+            "intro\n```\n# Fake unclosed\n".to_owned(),
+            "unclosed-fence",
+        ),
+        (
+            "html.md",
+            "<div>\n# Fake html\n</div>\n\n<h1>Html heading</h1>\n\n# Real html\n".to_owned(),
+            "Real html",
+        ),
+        (
+            "indented-code.md",
+            "    # Fake indented\n\n# Real indented\n".to_owned(),
+            "Real indented",
+        ),
+        ("fallback.md", "no heading here\n".to_owned(), "fallback"),
+    ];
+    refreshed_titles(&cases);
+}
+
+#[test]
+fn title_keeps_literal_atx_line_policy() {
+    let cases = [
+        (
+            "inline.md",
+            "# *Emph* [link](x.md) \\# `code` <b>x</b> ##  \n".to_owned(),
+            "*Emph* [link](x.md) \\# `code` <b>x</b> ##",
+        ),
+        (
+            "unicode.md",
+            "# Pealkiri ÕÄÖÜ 🦀\nbody".to_owned(),
+            "Pealkiri ÕÄÖÜ 🦀",
+        ),
+        (
+            "rejected-forms.md",
+            "Setext\n======\n #  Indented\n#\tTab\n#NoSpace\n## Second\n> # Quote\n# \n#   Real literal  \n"
+                .to_owned(),
+            "Real literal",
+        ),
+        (
+            "setext-only.md",
+            "Setext only\n===========\n".to_owned(),
+            "setext-only",
+        ),
+    ];
+    refreshed_titles(&cases);
+}
+
+#[test]
+fn title_skips_supported_headers_and_preserves_compatible_layouts() {
+    let cases = [
+        (
+            "dots.md",
+            "---\n# yaml comment\ntitle: x\n...\n# Dots Title\n".to_owned(),
+            "Dots Title",
+        ),
+        (
+            "bom-crlf-dots.md",
+            "\u{feff}---\r\n# yaml comment\r\n...\r\n```\r\n# Fake\r\n```\r\n# BOM Dots\r\n"
+                .to_owned(),
+            "BOM Dots",
+        ),
+        (
+            "unmanaged-unclosed.md",
+            "---\ntitle: x\n# Unclosed Body Title\n".to_owned(),
+            "Unclosed Body Title",
+        ),
+        (
+            "source.md",
+            "---\nbrn_kind: source\n---\n```\n# Fake source\n```\n# Source Title\n".to_owned(),
+            "Source Title",
+        ),
+    ];
+    let (_setup, library) = refreshed_titles(&cases);
+    let current: Vec<_> = library
+        .notes()
+        .unwrap()
+        .into_iter()
+        .map(|note| note.path)
+        .collect();
+    assert!(!current.contains(&"source.md".to_owned()));
+    assert!(current.contains(&"dots.md".to_owned()));
+    assert_eq!(
+        library.notes_scoped(KnowledgeScope::Source).unwrap()[0].path,
+        "source.md"
+    );
+}
+
+#[test]
+fn malformed_metadata_titles_do_not_change_refresh_eligibility() {
+    let s = Setup::new();
+    let cases = [
+        (
+            "malformed-managed.md",
+            "---\n# yaml comment\nbrn_id:bad\n---\n```\n# Fake\n```\n# Malformed Title\n",
+        ),
+        ("malformed-opening.md", "--- \n# Opening Title\n---\n"),
+    ];
+    for (path, text) in cases {
+        write(s.vault.path(), path, text.as_bytes());
+    }
+    let mut library = s.open(None);
+    let report = library.refresh().unwrap();
+    assert_eq!(report.added, 2, "refresh keeps indexing both notes");
+    assert_eq!(
+        report.unreadable,
+        cases
+            .iter()
+            .map(|(path, _)| Unreadable {
+                path: (*path).into(),
+                reason: "invalid managed metadata"
+            })
+            .collect::<Vec<_>>()
+    );
+    assert!(
+        library
+            .notes_scoped(KnowledgeScope::All)
+            .unwrap()
+            .is_empty()
+    );
+    for (path, text) in cases {
+        assert_eq!(
+            std::fs::read(s.vault.path().join(path)).unwrap(),
+            text.as_bytes()
+        );
+    }
+    assert_eq!(
+        library.refresh().unwrap().unchanged,
+        2,
+        "stable derived titles keep the unchanged fast path"
+    );
+}
+
+#[test]
+fn markdown_parser_failure_falls_back_without_aborting_refresh() {
+    // Pinned markdown 1.0.0 panics on this valid setext/thematic-break order.
+    let cases = [
+        (
+            "parser-failure.md",
+            "Meeting notes\n-------------\n---\nAgenda\n------\n# Title\n".to_owned(),
+            "parser-failure",
+        ),
+        (
+            "failure-after-title.md",
+            "# Kept Title\nMeeting notes\n-------------\n---\nAgenda\n------\n".to_owned(),
+            "Kept Title",
+        ),
+        ("ordinary.md", "# Ordinary\n".to_owned(), "Ordinary"),
+    ];
+    let (s, mut library) = refreshed_titles(&cases);
+    assert_eq!(
+        library.refresh().unwrap(),
+        RefreshReport {
+            unchanged: 3,
+            ..Default::default()
+        }
+    );
+    drop(s);
+}
+
+#[test]
+fn title_parsing_stays_bounded_for_inline_heavy_notes() {
+    let line = "**b** [x".repeat(1_200);
+    let text = format!("{}# Late Title\n", format!("{line}\n").repeat(49));
+    assert!(text.len() > 400_000);
+    let started = std::time::Instant::now();
+    refreshed_titles(&[("inline-heavy.md", text, "Late Title")]);
+    // Default inline parsing took about two minutes here in a debug build.
+    assert!(started.elapsed() < Duration::from_secs(30));
+}
+
+#[test]
+fn refresh_replaces_titles_derived_by_an_older_policy() {
+    let s = Setup::new();
+    let text = "```\n# Fake\n```\n# Real\n";
+    write(s.vault.path(), "stale.md", text.as_bytes());
+    write(s.vault.path(), "kept.md", b"# Kept\n");
+    let mut library = s.open(None);
+    library.refresh().unwrap();
+    drop(library);
+    let index_path = s.data.path().join("index.sqlite");
+    let (mut index, _) = brn_retrieval::note_index::NoteIndex::open(&index_path).unwrap();
+    let mut stale = index.note("stale.md").unwrap().unwrap();
+    stale.title = "Fake".into();
+    index.upsert_note(&stale, text).unwrap();
+    drop(index);
+    let mut library = s.open(None);
+    assert_eq!(
+        library.refresh().unwrap(),
+        RefreshReport {
+            updated: 1,
+            unchanged: 1,
+            ..Default::default()
+        }
+    );
+    let titles: Vec<_> = library
+        .notes()
+        .unwrap()
+        .into_iter()
+        .map(|note| (note.path, note.title))
+        .collect();
+    assert_eq!(
+        titles,
+        [
+            ("kept.md".into(), "Kept".into()),
+            ("stale.md".into(), "Real".into())
+        ]
+    );
+}
+
+#[test]
+fn title_counts_fifty_physical_saved_lines_including_headers() {
+    let filler = |count: usize, newline: &str| {
+        (1..=count)
+            .map(|n| format!("line {n}{newline}"))
+            .collect::<String>()
+    };
+    let header = |lines: usize| {
+        format!(
+            "---\n# yaml comment\n{}---\n",
+            (3..lines).map(|n| format!("k{n}: v\n")).collect::<String>()
+        )
+    };
+    let cases = [
+        (
+            "line-50.md",
+            format!("{}# Line Fifty\n", filler(49, "\n")),
+            "Line Fifty",
+        ),
+        (
+            "line-51.md",
+            format!("{}# Line Fifty-One\n", filler(50, "\n")),
+            "line-51",
+        ),
+        (
+            "crlf-bom-50.md",
+            format!("\u{feff}{}# CRLF Fifty\r\n", filler(49, "\r\n")),
+            "CRLF Fifty",
+        ),
+        (
+            "header-50.md",
+            format!("{}{}# Header Fifty\n", header(4), filler(45, "\n")),
+            "Header Fifty",
+        ),
+        (
+            "header-51.md",
+            format!("{}{}# Header Fifty-One\n", header(4), filler(46, "\n")),
+            "header-51",
+        ),
+        (
+            "long-header.md",
+            format!("{}# After Long Header\n", header(51)),
+            "long-header",
+        ),
+        (
+            "fence-crosses-window.md",
+            format!("```\n{}# Fake\n```\n# After\n", filler(48, "\n")),
+            "fence-crosses-window",
+        ),
+    ];
+    assert_eq!(header(4).lines().count(), 4);
+    assert_eq!(header(51).lines().count(), 51);
+    refreshed_titles(&cases);
 }
 
 #[test]
