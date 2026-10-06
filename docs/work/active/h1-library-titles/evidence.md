@@ -1,4 +1,4 @@
-# H1 library titles — task record
+# H1 library titles: task record
 
 The owner selected H1 on 2026-10-06. Only H1 is in scope. The rest of the
 paused V1 roadmap stays paused. The spec is
@@ -158,5 +158,30 @@ not needed for H1 and was not done.
 
 ## Integration
 
-Pending. The PR, its exact-head CI, the merge and the post-merge check are recorded
-below when they happen.
+- PR [#81](https://github.com/ewq100/brn-rust/pull/81) has head
+  `d6cbffe10ec1d4720ea5b430e980ce67bba1aa87` (tree `e28ce372`), based on main `450eaa2`.
+- Exact-head run `37520020413`, attempt 1. The four required checks and
+  Documentation passed: Core and CLI Ubuntu/macOS, Native UI macOS, Native
+  retrieval macOS. Windows Core and CLI failed at "Build the default workspace" on
+  the known Unix-only APIs in `brn-store` and `brn-ai`. That is the same step that
+  failed on PR79, and it is informational.
+- Under the owner's authorization, I merged with `--match-head-commit` on
+  2026-10-06T19:58:44Z. The merge commit is
+  `f3cf6992e65134a4f2c7bb1ac52b7d0aab62d035`. Its tree, `e28ce372`, is identical to
+  the tested candidate tree.
+- Merged-main run `37522942806`, attempt 1, is complete. The four required checks,
+  Documentation and the extra Ubuntu Native UI job passed. The overall result is
+  FAILURE from Windows Core/UI/retrieval and Ubuntu native retrieval
+  (`brn-retrieval` `native::download_tests`). Those are the same jobs, steps and
+  tests that failed on the previous main run `37511118203` at `450eaa2`, and they
+  touch no H1 file.
+
+States: H1 is implemented, verified at the scopes above, independently reviewed,
+and integrated at `f3cf699`. Owner acceptance is still pending. This integration
+record is a separate documentation follow-up. Its own PR state is on GitHub.
+
+## Next action
+
+None inside H1. The owner can check the acceptance scenario above. Any further
+task needs an explicit selection from the [queue](../v1-handoff.md#ordered-task-queue).
+The roadmap is not resumed automatically.

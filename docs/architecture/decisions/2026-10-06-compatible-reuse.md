@@ -100,8 +100,8 @@ unmanaged notes. Store's body reader checks managed layouts and the1MiB bound;
 do not silently propagate stricter eligibility into previously indexable notes.
 AST positions and the exact original body stay authoritative; no note bytes change.
 
-H1 result, 2026-10-06 (candidate; see the [H1 record](../../work/active/h1-library-titles/evidence.md)
-for verification and integration state). **Reuse:** Store `body_start`, pinned
+H1 result, 2026-10-06. Integrated at `f3cf699` through PR81; see the
+[H1 record](../../work/active/h1-library-titles/evidence.md). **Reuse:** Store `body_start`, pinned
 Markdown1.0.0 mdast positions and the existing exact-framing `legacy_body_start`
 adapter, moved from link approval into `library.rs` for shared use. **Adapt:** the
 title parse turns off inline constructs and stops at the last literal `# ` line.

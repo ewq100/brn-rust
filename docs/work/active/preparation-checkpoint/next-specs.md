@@ -6,7 +6,7 @@ Parent outcome: reduce duplicated general mechanisms while preserving observable
 
 ## H1 — titles from saved Markdown
 
-**State:** implemented and independently reviewed as a candidate; verification, acceptance and integration are recorded separately in the [H1 record](../h1-library-titles/evidence.md).
+**State:** integrated at `f3cf699` through PR81, with owner acceptance pending. The [H1 record](../h1-library-titles/evidence.md) has the checks, review and CI.
 
 **Kind/readiness:** implementation, ready. Outcome: a fenced pseudo-heading cannot become a library title. Reuse Markdown1.0.0 AST and Store `note_identity::body_start`; build only the title-policy adapter. No new dependency, generic Markdown framework or note write.
 
