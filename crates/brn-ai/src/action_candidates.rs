@@ -123,6 +123,9 @@ impl<T: JsonSchema> JsonSchema for RequiredNullable<T> {
     fn schema_name() -> Cow<'static, str> {
         <Option<T>>::schema_name()
     }
+    fn schema_id() -> Cow<'static, str> {
+        <Option<T>>::schema_id()
+    }
     fn json_schema(generator: &mut SchemaGenerator) -> Schema {
         <Option<T>>::json_schema(generator)
     }

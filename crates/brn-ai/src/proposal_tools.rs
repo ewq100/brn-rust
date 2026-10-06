@@ -316,8 +316,31 @@ impl Tool for ProposeActions {
     }
 }
 
+// JSON Schema treats `required`, `enum` and `type` arrays as sets; every
+// other array (including anyOf variant order) stays order-sensitive.
 #[cfg(test)]
-pub(crate) mod tests {
+pub(crate) fn canonical_schema(value: &Value) -> Value {
+    match value {
+        Value::Object(map) => Value::Object(
+            map.iter()
+                .map(|(key, value)| {
+                    let mut value = canonical_schema(value);
+                    if let ("required" | "enum" | "type", Value::Array(items)) =
+                        (key.as_str(), &mut value)
+                    {
+                        items.sort_by_key(|item| item.to_string());
+                    }
+                    (key.clone(), value)
+                })
+                .collect(),
+        ),
+        Value::Array(items) => Value::Array(items.iter().map(canonical_schema).collect()),
+        other => other.clone(),
+    }
+}
+
+#[cfg(test)]
+mod tests {
     use super::*;
     use std::sync::atomic::{AtomicUsize, Ordering};
 
@@ -764,32 +787,13 @@ pub(crate) mod tests {
         },"required":["title","source_paths","action_changes"]})
     }
 
-    // JSON Schema treats `required`, `enum` and `type` arrays as sets; every
-    // other array (including anyOf variant order) stays order-sensitive.
-    pub(crate) fn canonical(value: &Value) -> Value {
-        match value {
-            Value::Object(map) => Value::Object(
-                map.iter()
-                    .map(|(key, value)| {
-                        let mut value = canonical(value);
-                        if let ("required" | "enum" | "type", Value::Array(items)) =
-                            (key.as_str(), &mut value)
-                        {
-                            items.sort_by_key(|item| item.to_string());
-                        }
-                        (key.clone(), value)
-                    })
-                    .collect(),
-            ),
-            Value::Array(items) => Value::Array(items.iter().map(canonical).collect()),
-            other => other.clone(),
-        }
-    }
-
     #[test]
     fn action_tool_schema_is_equivalent_to_the_frozen_manual_contract() {
         let schema = ProposeActions(Arc::new(QuoteRefusal)).parameters();
-        assert_eq!(canonical(&schema), canonical(&manual_action_schema()));
+        assert_eq!(
+            canonical_schema(&schema),
+            canonical_schema(&manual_action_schema())
+        );
         // Equality above also excludes $ref/$defs, const, oneOf and metadata.
         let data =
             &schema["properties"]["action_changes"]["items"]["anyOf"][0]["properties"]["data"];
