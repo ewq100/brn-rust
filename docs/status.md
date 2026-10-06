@@ -87,10 +87,13 @@ integrated with qualified main70 at622a23f; complete review clean, fresh
 shared1,452/0/11+52 and native334 Workflow/models/0/10+292 Desktop/0/0,
 11commands/V15 restarts passed. PR71 merged normally atcbec4ff after exacte4ec195/run37409116674 attempt1 passed
 four protected checks and Docs; unchanged Windows22 remains red. Fresh merged
-checks and automatic main71 results are being recorded. Provider stderr patch
+build/13 filesystem/15 lifecycle tests (3 documented ignores) and52fixtures pass;
+wrong zero-test filter is retained as non-qualifying. Automatic main71 CI pending. Provider stderr patch
 at14fe448 has clean independent/provenance review, shared1,449/0/11+52 and native
 330 Workflow/models/0/9+292 Desktop/0/0,12commands/V15 restarts passing. It is
-integrated with main71 atb586892; composed checks/exact-head CI are next.
+integrated with main71 atb586892; review is clean and fresh composed
+format/build/129 AI/13 filesystem/18 tooling/52fixtures, strict AI Clippy and
+combined native check passed at unchanged0644c54. Exact-head CI is next.
 Relationship local-cost correction follows. Broader startup/backup cost remains
 separate. No semantic
 completeness, native/live/owner acceptance or full V1 delivery is claimed. The full

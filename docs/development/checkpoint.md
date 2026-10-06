@@ -10,15 +10,18 @@ Full frozen V1 goal confirmed **active** by `get_goal` on2026-10-06; no token bu
 - **Verification:** independent reviews clean; shared1,452/0/11+52 and native
   334 Workflow/models/0/10+292 Desktop/0/0, V15 restarts passed. Exact head
   e4ec195/run37409116674 attempt1 passed four protected Mac/shared checks and Docs;
-  unchanged Windows22 compiler failures remain red. Fresh merged checks and
-  automatic main71 results are being recorded in the correction plan.
+  unchanged Windows22 compiler failures remain red. Fresh merged build,
+  13 filesystem/15 lifecycle tests (3 documented ignores) and52fixtures passed.
+  A wrong zero-test filter is retained as non-qualifying. Main71 CI is pending.
 - **Current:** `codex/v1-provider-stderr`, reviewed code
   `14fe4489ddfbf201ebfe2f8c07c3d2678c27e5a5`, integrated with main71 atb586892.
   An exact published Rig0.43.0 package patch removes one unconditional raw
   partial/tool-argument stderr print. Full provenance review is clean; unchanged
   code passed shared1,449/0/11+52 and native330 Workflow/models/0/9+
-  292 Desktop/0/0,12commands/V15 restarts. Fresh composed checks and exact-head
-  CI/normal integration are next. No protocol, tool or authority behavior changes.
+  292 Desktop/0/0,12commands/V15 restarts. Integration review is clean; fresh
+  composed format/build/129 AI/13 filesystem/18 tooling tests/52fixtures,
+  strict AI Clippy and combined native check passed at unchanged0644c54.
+  Exact-head CI/normal integration is next. No tool/authority behavior changes.
 - **Next:** bounded request-local relationship membership/alias-count correction;
   full fresh reads/fences remain. Then the current Stage7/roadmap dependencies.
 - **Pending:** residual startup/backup cost, native GUI/live/assets/owner acceptance,

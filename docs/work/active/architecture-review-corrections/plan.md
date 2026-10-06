@@ -26,8 +26,8 @@ Current main is `cbec4ff67e686998a9242be418c81d49b213fbd6`, reviewed tree
 `0617e39583af58ed1e9cc5bcf0e203698d749f35`. Current branch is
 `codex/v1-provider-stderr`, reviewed code `14fe4489ddfbf201ebfe2f8c07c3d2678c27e5a5`,
 integrated with qualified main71 atb586892. Complete dependency/provenance review,
-shared/native gates pass; composed qualification and exact-head CI/normal
-integration are next. The bounded relationship correction follows.
+shared/native/composed gates pass; exact-head CI/normal integration is next.
+The bounded relationship correction follows.
 Remaining accepted corrections follow this plan.
 The complete V1 goal is confirmed **active** by `get_goal` on 2026-10-06;
 its full objective and roadmap dependency order remain unchanged.
@@ -1110,3 +1110,23 @@ owned files except appended plan evidence remain byte-identical14fe448; both
 histories are preserved. Relevant unchanged shared/native evidence is reused;
 fresh composed verification and exact latest-head CI remain required. This is
 one unconditional stderr correction, not a general verbose tracing audit.
+
+Fresh merged main71 atomic checks03:41:22–03:41:38UTC passed build,
+15 lifecycle tests/0failures/3documented ignores and52fixtures at unchanged
+clean cbec4ff/tree0617e395. The intended file-module filter selected zero tests;
+that invocation is explicitly non-qualifying despite its terminal exit0.
+After resolving the actual test module name, a separate atomic run
+03:42:42–03:43:39UTC passed all13 filesystem publication tests/0/0 at that same
+unchanged identity. No product defect or unrelated test change was needed.
+
+Fresh R4/main71 composed gate03:45:04–03:46:37UTC at unchanged clean
+`0644c5459cf7bd520734d7726fc4b439239dd684`, tree
+`303c7de97e7f72fa4fb118dcb314aaf56096a022`, passed all9commands:
+format, workspace build,129 AI/0failures/1explicitly parent-executed child ignore,
+strict all-target/all-feature AI Clippy,13 filesystem/0/0,18 tooling tests,
+35files/373local links,52fixtures and combined native Desktop check.
+Complete integration review verified all98 prior R4 non-plan files and all9
+incoming main71 non-plan files byte-identical to their qualified sources;
+resolved plan retains both histories. No new source change after qualification.
+Known block0.1.6 future-compiler warning is retained. Actual native GUI/live/
+assets/owner acceptance remains pending; latest-head CI/normal integration follows.
