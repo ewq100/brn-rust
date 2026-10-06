@@ -87,7 +87,7 @@ fn binary_catalog_is_metadata_only_exact_bounded_and_restartable() {
     );
 }
 #[test]
-fn binary_processing_source_and_text_shaped_provenance_refuse_before_writes() {
+fn binary_queue_admits_but_text_conversion_and_provenance_still_refuse() {
     let data = fixture();
     let copies = fixture();
     let (mut store, _) = WorkStore::open(data.path()).unwrap();
@@ -98,15 +98,9 @@ fn binary_processing_source_and_text_shaped_provenance_refuse_before_writes() {
         id: Uuid::new_v4(),
         items: vec![item.clone()],
     };
-    assert!(
-        request
-            .validate()
-            .unwrap_err()
-            .to_string()
-            .contains("Binary")
-    );
-    assert!(store.process_inbox(&request).is_err());
-    assert!(store.inbox_processing(request.id).unwrap().is_none());
+    request.validate().unwrap();
+    let queued = store.process_inbox(&request).unwrap();
+    assert_eq!(store.inbox_processing(request.id).unwrap(), Some(queued));
     let forged = InboxProcessBatch {
         request,
         queued_at_ms: 1,

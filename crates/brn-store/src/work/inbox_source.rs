@@ -239,17 +239,29 @@ pub fn read_provenance(text: &str) -> Result<Option<InboxSourceProvenance>> {
         .ok_or_else(|| invalid("Inbox provenance needs an ordinary root field"))?;
     let value: InboxSourceProvenance = serde_json::from_str(field.value)
         .map_err(|_| invalid("Inbox provenance needs strict single-line JSON"))?;
-    if value.kind == InboxKind::Binary {
+    if value.kind == InboxKind::Binary
+        && (value.format != InboxConversionFormat::DocxTextV1
+            || !(22..=super::inbox::MAX_INBOX_BINARY_BYTES as u64)
+                .contains(&value.original_byte_len))
+    {
         return Err(invalid("Binary Inbox Source provenance is not supported"));
     }
     if value.item_id.is_nil()
         || value.received_at_ms > i64::MAX as u64
-        || value.original_byte_len > MAX_NOTE_BYTES as u64
         || std::iter::once(&value.title)
             .chain(value.original_name.iter())
             .any(|s| s.trim().is_empty() || s.len() > 512 || s.chars().any(char::is_control))
-        || (value.kind == super::inbox::InboxKind::Markdown)
-            != (value.format == InboxConversionFormat::VerbatimMarkdownV1)
+        || !match value.kind {
+            InboxKind::Binary => value.format == InboxConversionFormat::DocxTextV1,
+            InboxKind::Markdown => {
+                value.format == InboxConversionFormat::VerbatimMarkdownV1
+                    && value.original_byte_len <= MAX_NOTE_BYTES as u64
+            }
+            _ => {
+                value.format == InboxConversionFormat::LiteralTextV1
+                    && value.original_byte_len <= MAX_NOTE_BYTES as u64
+            }
+        }
         || value.original_byte_len == 0 && value.original_sha256 != hash(&[])
     {
         return Err(invalid("Inbox provenance has invalid original metadata"));
@@ -260,8 +272,15 @@ pub fn read_provenance(text: &str) -> Result<Option<InboxSourceProvenance>> {
 impl InboxSourceBinding {
     pub fn validate(&self) -> Result<()> {
         self.original.validate()?;
-        if self.original.capture.kind == InboxKind::Binary {
-            return Err(invalid("Binary Inbox Source conversion is not supported"));
+        if self.original.capture.kind == InboxKind::Binary
+            && (self.format != InboxConversionFormat::DocxTextV1
+                || !(22..=super::inbox::MAX_INBOX_BINARY_BYTES as u64)
+                    .contains(&self.original.capture.copy.byte_len)
+                || self.byte_len == 0 && self.sha256 != hash(&[]))
+        {
+            return Err(invalid(
+                "Binary Inbox Source conversion needs an exact DOCX proof",
+            ));
         }
         if self.batch_id.is_nil()
             || self.index >= super::inbox_processing::MAX_PROCESS_BATCH
@@ -273,6 +292,7 @@ impl InboxSourceBinding {
             ));
         }
         match self.original.capture.kind {
+            InboxKind::Binary if self.format == InboxConversionFormat::DocxTextV1 => {}
             super::inbox::InboxKind::Markdown
                 if self.format == InboxConversionFormat::VerbatimMarkdownV1
                     && self.byte_len == self.original.capture.copy.byte_len
