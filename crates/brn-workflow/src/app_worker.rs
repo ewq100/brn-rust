@@ -70,6 +70,7 @@ pub enum AppCommand {
     ReconcileEditor(Uuid),
     ProposalSource(String),
     ProposalEvidenceSource(String),
+    ProposalAsset(String),
     NoteIdentity(String),
     IdentityInventory,
     ResolveNoteIdentity(Uuid),
@@ -193,6 +194,7 @@ pub enum AppEvent {
     EditorSaved(crate::editor::SaveReceipt),
     Editors(Vec<crate::editor::EditorRecord>),
     ProposalSource(Box<crate::proposals::ProposalSource>),
+    ProposalAsset(Box<crate::proposals::ProposalAsset>),
     NoteIdentity(crate::knowledge::NoteIdentityInfo),
     IdentityInventory(Box<crate::knowledge::IdentityInventory>),
     NoteIdentityResolved(Box<crate::knowledge::IdentityResolution>),
@@ -1230,6 +1232,9 @@ fn dispatch(
         }
         AppCommand::ProposalEvidenceSource(path) => {
             AppEvent::ProposalSource(Box::new(app.proposal_evidence_source(&path)?))
+        }
+        AppCommand::ProposalAsset(path) => {
+            AppEvent::ProposalAsset(Box::new(app.proposal_asset(&path)?))
         }
         AppCommand::NoteIdentity(path) => AppEvent::NoteIdentity(app.note_identity(&path)?),
         AppCommand::IdentityInventory => {

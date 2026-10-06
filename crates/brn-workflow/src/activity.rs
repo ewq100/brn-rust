@@ -141,9 +141,15 @@ impl App {
                     .into_iter()
                     .map(|change| {
                         let kind = match &change {
-                            NoteChange::Create { .. } => ActivityChangeKind::Created,
-                            NoteChange::Replace { .. } => ActivityChangeKind::Replaced,
-                            NoteChange::Trash { .. } => ActivityChangeKind::Trashed,
+                            NoteChange::Create { .. } | NoteChange::CreateAsset { .. } => {
+                                ActivityChangeKind::Created
+                            }
+                            NoteChange::Replace { .. } | NoteChange::ReplaceAsset { .. } => {
+                                ActivityChangeKind::Replaced
+                            }
+                            NoteChange::Trash { .. } | NoteChange::TrashAsset { .. } => {
+                                ActivityChangeKind::Trashed
+                            }
                         };
                         ActivityChange {
                             kind,

@@ -58,7 +58,10 @@ fn reply(baseline: &ProposalRecord, edit: &ProposalEdit, version: u64) -> Propos
             | NoteChange::Replace { text: current, .. } => {
                 *current = text.clone().unwrap();
             }
-            NoteChange::Trash { .. } => assert!(text.is_none()),
+            NoteChange::Trash { .. }
+            | NoteChange::CreateAsset { .. }
+            | NoteChange::ReplaceAsset { .. }
+            | NoteChange::TrashAsset { .. } => assert!(text.is_none()),
         }
     }
     record

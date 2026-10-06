@@ -623,6 +623,12 @@ fn execute(
                 {
                     json!(*source)
                 }
+                AppEvent::ProposalAsset(asset)
+                    if matches!(proposal_command, super::proposals::ProposalCommand::Asset(path) if path == &asset.path)
+                        && asset.validate().is_ok() =>
+                {
+                    json!(*asset)
+                }
                 _ => return Err(unexpected()),
             };
             Ok(output(data))

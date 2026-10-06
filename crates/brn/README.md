@@ -48,6 +48,7 @@ brn actions list [--state open|waiting|blocked|completed|all] [--limit N] [--bef
 brn actions dashboard [--as-of YYYY-MM-DD] [--filter active|open|waiting|blocked|completed|overdue|follow-up|all] [--limit N] [--before-created-at-ms N --before-id UUID]
 brn proposals create --file DRAFT.json
 brn proposals source PATH
+brn proposals asset PATH
   brn identity inventory
   brn identity resolve NOTE_UUID
   brn evidence read PATH
@@ -387,8 +388,9 @@ exact full retained baseline.
 
 `edit` and `rewrite-result` accept `{expected: {id, version}, title, texts}` plus
 the ordered `action_data` array when the proposal has Action members.
-`texts` supplies one full string per Create/Replace and null per Trash, preserving
-bound destinations/baselines. `rewrite-result` imports a captured result; it does
+`texts` supplies one full string per Markdown Create/Replace and null per Markdown
+Trash or asset member, preserving bound destinations/baselines and immutable
+asset bytes. `rewrite-result` imports a captured result; it does
 not invoke AI. Any newer edit/comment/rejection makes the old version stale.
 `comment`/`comment-update` accept `{expected, comment: {id, text, target}}`; targets
 are `{kind: "proposal"}` or `{kind: "text", anchor: {change_index, start, end,

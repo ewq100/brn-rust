@@ -461,6 +461,33 @@ pub fn creation_matches(request: &DraftRequest, record: &ProposalRecord) -> bool
                         expected: proof,
                     },
                 ) => path == expected && before == proof,
+                (
+                    NoteChange::CreateAsset { path, bytes, .. },
+                    DraftNoteChange::CreateAsset {
+                        path: expected,
+                        bytes: proposed,
+                    },
+                ) => path == expected && bytes == proposed,
+                (
+                    NoteChange::ReplaceAsset {
+                        path,
+                        before,
+                        bytes,
+                        ..
+                    },
+                    DraftNoteChange::ReplaceAsset {
+                        path: expected,
+                        expected: proof,
+                        bytes: proposed,
+                    },
+                ) => path == expected && before == proof && bytes == proposed,
+                (
+                    NoteChange::TrashAsset { path, before, .. },
+                    DraftNoteChange::TrashAsset {
+                        path: expected,
+                        expected: proof,
+                    },
+                ) => path == expected && before == proof,
                 _ => false,
             })
 }

@@ -25,9 +25,15 @@ shared1,477/0/13+52 and affected native294 Desktop/0/0,345 Workflow/models/0/11,
 passed four protected Mac/shared checks and Docs; overall red retains Windows22
 complete compiler blocks/both summaries matching PR73/main73. Fresh merged build,
 45 focused tests/0/1+52 fixtures, native widget/build, default/combined V15 restarts
-and launcher/docs passed at unchanged clean identity. Main74 CI is observed
-separately. Ordinary assets now follow the existing proposal apply/recovery/Undo
-family; meaningful Office conversion and binary cleanup remain pending.
+and launcher/docs passed at unchanged clean identity. Exact merged-main
+run37417163005 attempt1 passed all applicable gates and extra Ubuntu UI. Overall
+red retains the same Windows22/22/14 complete compiler blocks/summaries and three
+Linux assertions/backtraces; raw ordering, IDs and timing differences remain
+recorded. Ordinary asset implementation is complete in the existing proposal
+apply/recovery/Undo family; complete/correction reviews are clean, and all-target
+check plus31 focused tests/0/1 passed at frozen snapshot2a3bdf07. Full shared/native
+verification, exact-head CI/integration and meaningful Office conversion/binary
+cleanup remain pending.
 Complete retained original review, deterministic saved-body quotes, Rust-owned
 Conflict/Knowledge/Action candidate identities, checked full Action replacement
 baselines and AI Rewrite metadata protection are integrated. Exact approval and

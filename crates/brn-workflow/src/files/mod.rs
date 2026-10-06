@@ -124,11 +124,36 @@ pub(crate) struct FileObservation {
     pub text: String,
 }
 
-#[cfg(target_os = "macos")]
 #[derive(Debug)]
 pub(crate) struct FileByteObservation {
     pub fingerprint: FileFingerprint,
     pub bytes: Vec<u8>,
+}
+
+#[cfg(target_os = "macos")]
+#[derive(Clone, Copy)]
+enum PayloadKind {
+    Note,
+    Asset,
+}
+
+#[cfg(target_os = "macos")]
+impl PayloadKind {
+    fn validate(self, bytes: &[u8]) -> FileResult<()> {
+        match self {
+            Self::Note
+                if bytes.len() > crate::MAX_NOTE_BYTES || std::str::from_utf8(bytes).is_err() =>
+            {
+                Err(note_unsupported(
+                    "submitted note must be UTF-8 and at most 1 MiB",
+                ))
+            }
+            Self::Asset if bytes.len() > brn_store::work::proposals::MAX_ASSET_BYTES => {
+                Err(note_unsupported("submitted asset must be at most 16 MiB"))
+            }
+            _ => Ok(()),
+        }
+    }
 }
 
 fn failure(code: FileErrorCode, message: impl Into<String>) -> FileFailure {
@@ -310,12 +335,38 @@ impl MacFiles {
     }
 
     pub(crate) fn observe_uncoordinated(&self, relative: &Path) -> FileResult<FileObservation> {
+        let observation = self.observe_payload_uncoordinated(relative, PayloadKind::Note)?;
+        Ok(FileObservation {
+            fingerprint: observation.fingerprint,
+            text: String::from_utf8(observation.bytes).map_err(note_utf8_failure)?,
+        })
+    }
+
+    pub(crate) fn observe_asset(&self, relative: &Path) -> FileResult<FileByteObservation> {
+        self.parent(relative)?;
+        self.coordination.read(&self.root.join(relative), || {
+            self.observe_asset_uncoordinated(relative)
+        })
+    }
+
+    pub(crate) fn observe_asset_uncoordinated(
+        &self,
+        relative: &Path,
+    ) -> FileResult<FileByteObservation> {
+        self.observe_payload_uncoordinated(relative, PayloadKind::Asset)
+    }
+
+    fn observe_payload_uncoordinated(
+        &self,
+        relative: &Path,
+        kind: PayloadKind,
+    ) -> FileResult<FileByteObservation> {
         let (parent, name) = self.parent(relative)?;
         let file = open_at(&parent, OsStr::from_bytes(name.as_bytes()), 0, 0)?;
         if file.metadata().map_err(note_io_failure)?.dev() != self.identity.device {
             return Err(note_unsupported("note crosses a filesystem boundary"));
         }
-        let observation = read_file(&file)?;
+        let observation = read_payload(&file, kind)?;
         self.validate_parent(relative, &parent)?;
         let current = open_at(&parent, OsStr::from_bytes(name.as_bytes()), 0, 0)?;
         if identity(&current.metadata().map_err(note_io_failure)?)
@@ -351,11 +402,28 @@ impl MacFiles {
         destination: &Path,
         bytes: &[u8],
     ) -> FileResult<PreparedFile> {
-        if bytes.len() > crate::MAX_NOTE_BYTES || std::str::from_utf8(bytes).is_err() {
-            return Err(note_unsupported(
-                "submitted note must be UTF-8 and at most 1 MiB",
-            ));
-        }
+        self.prepare_payload_replace(op, staging, destination, bytes, PayloadKind::Note)
+    }
+
+    pub(crate) fn prepare_asset_replace(
+        &self,
+        op: Uuid,
+        staging: &Path,
+        destination: &Path,
+        bytes: &[u8],
+    ) -> FileResult<PreparedFile> {
+        self.prepare_payload_replace(op, staging, destination, bytes, PayloadKind::Asset)
+    }
+
+    fn prepare_payload_replace(
+        &self,
+        op: Uuid,
+        staging: &Path,
+        destination: &Path,
+        bytes: &[u8],
+        kind: PayloadKind,
+    ) -> FileResult<PreparedFile> {
+        kind.validate(bytes)?;
         let expected = format!(".brn-{op}.stage");
         if staging.file_name() != Some(OsStr::new(&expected))
             || staging.parent() != destination.parent()
@@ -394,15 +462,19 @@ impl MacFiles {
         prepare_failure("directory_sync")?;
         sync_directory(&parent)?;
         self.validate_parent(destination, &parent)?;
-        let observed = read_file(&stage)?;
-        if observed.text.as_bytes() != bytes {
+        let observed = read_payload(&stage, kind)?;
+        if observed.bytes != bytes {
             return Err(failure(FileErrorCode::Conflict, "prepared bytes changed"));
         }
         let prepared = PreparedFile {
             relative: staging.to_owned(),
             fingerprint: observed.fingerprint,
         };
-        if self.observe_uncoordinated(staging)?.fingerprint != prepared.fingerprint {
+        if self
+            .observe_payload_uncoordinated(staging, kind)?
+            .fingerprint
+            != prepared.fingerprint
+        {
             return Err(failure(
                 FileErrorCode::Conflict,
                 "prepared path identity changed",
@@ -539,11 +611,28 @@ impl MacFiles {
         destination: &Path,
         bytes: &[u8],
     ) -> FileResult<PreparedFile> {
-        if bytes.len() > crate::MAX_NOTE_BYTES || std::str::from_utf8(bytes).is_err() {
-            return Err(note_unsupported(
-                "submitted note must be UTF-8 and at most 1 MiB",
-            ));
-        }
+        self.prepare_payload_copy(op, staging, destination, bytes, PayloadKind::Note)
+    }
+
+    pub(crate) fn prepare_asset_copy(
+        &self,
+        op: Uuid,
+        staging: &Path,
+        destination: &Path,
+        bytes: &[u8],
+    ) -> FileResult<PreparedFile> {
+        self.prepare_payload_copy(op, staging, destination, bytes, PayloadKind::Asset)
+    }
+
+    fn prepare_payload_copy(
+        &self,
+        op: Uuid,
+        staging: &Path,
+        destination: &Path,
+        bytes: &[u8],
+        kind: PayloadKind,
+    ) -> FileResult<PreparedFile> {
+        kind.validate(bytes)?;
         let expected = format!(".brn-{op}.stage");
         if staging.file_name() != Some(OsStr::new(&expected))
             || staging.parent() != destination.parent()
@@ -571,9 +660,12 @@ impl MacFiles {
         prepare_failure("directory_sync")?;
         sync_directory(&parent)?;
         self.validate_parent(destination, &parent)?;
-        let observed = read_file(&stage)?;
-        if observed.text.as_bytes() != bytes
-            || self.observe_uncoordinated(staging)?.fingerprint != observed.fingerprint
+        let observed = read_payload(&stage, kind)?;
+        if observed.bytes != bytes
+            || self
+                .observe_payload_uncoordinated(staging, kind)?
+                .fingerprint
+                != observed.fingerprint
         {
             return Err(failure(FileErrorCode::Conflict, "prepared copy changed"));
         }
@@ -588,12 +680,33 @@ impl MacFiles {
         prepared: &PreparedFile,
         destination: &Path,
     ) -> FileResult<()> {
+        self.install_payload_exclusive(prepared, destination, PayloadKind::Note)
+    }
+
+    pub(crate) fn install_asset_exclusive(
+        &self,
+        prepared: &PreparedFile,
+        destination: &Path,
+    ) -> FileResult<()> {
+        self.install_payload_exclusive(prepared, destination, PayloadKind::Asset)
+    }
+
+    fn install_payload_exclusive(
+        &self,
+        prepared: &PreparedFile,
+        destination: &Path,
+        kind: PayloadKind,
+    ) -> FileResult<()> {
         if prepared.relative.parent() != destination.parent() || prepared.relative == destination {
             return Err(note_unsupported(
                 "exclusive installation requires distinct sibling paths",
             ));
         }
-        if self.observe_uncoordinated(&prepared.relative)?.fingerprint != prepared.fingerprint {
+        if self
+            .observe_payload_uncoordinated(&prepared.relative, kind)?
+            .fingerprint
+            != prepared.fingerprint
+        {
             return Err(failure(FileErrorCode::Conflict, "prepared copy changed"));
         }
         let (parent, target) = self.parent(destination)?;
@@ -613,12 +726,33 @@ impl MacFiles {
     }
 
     pub(crate) fn exchange(&self, prepared: &PreparedFile, destination: &Path) -> FileResult<()> {
+        self.exchange_payload(prepared, destination, PayloadKind::Note)
+    }
+
+    pub(crate) fn exchange_asset(
+        &self,
+        prepared: &PreparedFile,
+        destination: &Path,
+    ) -> FileResult<()> {
+        self.exchange_payload(prepared, destination, PayloadKind::Asset)
+    }
+
+    fn exchange_payload(
+        &self,
+        prepared: &PreparedFile,
+        destination: &Path,
+        kind: PayloadKind,
+    ) -> FileResult<()> {
         if prepared.relative.parent() != destination.parent() || prepared.relative == destination {
             return Err(note_unsupported(
                 "exchange requires distinct paths in one validated parent",
             ));
         }
-        if self.observe_uncoordinated(&prepared.relative)?.fingerprint != prepared.fingerprint {
+        if self
+            .observe_payload_uncoordinated(&prepared.relative, kind)?
+            .fingerprint
+            != prepared.fingerprint
+        {
             return Err(failure(
                 FileErrorCode::Conflict,
                 "prepared artifact changed",
@@ -825,6 +959,24 @@ fn read_file(file: &File) -> FileResult<FileObservation> {
         fingerprint: observation.fingerprint,
         text: String::from_utf8(observation.bytes).map_err(note_utf8_failure)?,
     })
+}
+
+#[cfg(target_os = "macos")]
+fn read_payload(file: &File, kind: PayloadKind) -> FileResult<FileByteObservation> {
+    match kind {
+        PayloadKind::Note => {
+            let observation = read_file(file)?;
+            Ok(FileByteObservation {
+                fingerprint: observation.fingerprint,
+                bytes: observation.text.into_bytes(),
+            })
+        }
+        PayloadKind::Asset => read_file_bytes(
+            file,
+            brn_store::work::proposals::MAX_ASSET_BYTES,
+            "asset exceeds 16 MiB",
+        ),
+    }
 }
 
 #[cfg(target_os = "macos")]
@@ -1102,6 +1254,48 @@ pub(crate) struct MacFiles;
 
 #[cfg(not(target_os = "macos"))]
 impl MacFiles {
+    pub(crate) fn observe_asset(&self, _: &Path) -> FileResult<FileByteObservation> {
+        Err(note_unsupported(
+            "managed assets require macOS filesystem coordination",
+        ))
+    }
+    pub(crate) fn observe_asset_uncoordinated(&self, _: &Path) -> FileResult<FileByteObservation> {
+        Err(note_unsupported(
+            "managed assets require macOS filesystem coordination",
+        ))
+    }
+    pub(crate) fn prepare_asset_copy(
+        &self,
+        _: Uuid,
+        _: &Path,
+        _: &Path,
+        _: &[u8],
+    ) -> FileResult<PreparedFile> {
+        Err(note_unsupported(
+            "managed assets require macOS filesystem coordination",
+        ))
+    }
+    pub(crate) fn prepare_asset_replace(
+        &self,
+        _: Uuid,
+        _: &Path,
+        _: &Path,
+        _: &[u8],
+    ) -> FileResult<PreparedFile> {
+        Err(note_unsupported(
+            "managed assets require macOS filesystem coordination",
+        ))
+    }
+    pub(crate) fn install_asset_exclusive(&self, _: &PreparedFile, _: &Path) -> FileResult<()> {
+        Err(note_unsupported(
+            "managed assets require macOS filesystem coordination",
+        ))
+    }
+    pub(crate) fn exchange_asset(&self, _: &PreparedFile, _: &Path) -> FileResult<()> {
+        Err(note_unsupported(
+            "managed assets require macOS filesystem coordination",
+        ))
+    }
     pub(crate) fn open(_: &VaultRecord, _: &Path, _: NoteNoticeSink) -> FileResult<Self> {
         Err(note_unsupported(
             "managed notes require macOS filesystem coordination",
@@ -1291,6 +1485,145 @@ mod tests {
                 inode: metadata.ino(),
             },
         }
+    }
+
+    #[test]
+    fn asset_preparation_preserves_complete_max_bytes_and_note_guards() {
+        let vault = directory();
+        let data = directory();
+        let files = MacFiles::open(
+            &registered(vault.path()),
+            data.path(),
+            Arc::new(Mutex::new(NoteNoticeQueue::default())),
+        )
+        .unwrap();
+        let destination = Path::new("visual.bin");
+        let id = Uuid::new_v4();
+        let staging = std::path::PathBuf::from(format!(".brn-{id}.stage"));
+        let bytes = vec![0xff; brn_store::work::proposals::MAX_ASSET_BYTES];
+        assert!(
+            files
+                .prepare_copy(id, &staging, destination, &bytes)
+                .is_err()
+        );
+        assert!(files.artifact(&staging).unwrap().is_none());
+        let prepared = files
+            .coordinate(destination, || {
+                files.prepare_asset_copy(id, &staging, destination, &bytes)
+            })
+            .unwrap();
+        assert_eq!(prepared.fingerprint.len, bytes.len() as u64);
+        assert_eq!(
+            prepared.fingerprint.sha256,
+            <[u8; 32]>::from(Sha256::digest(&bytes))
+        );
+        files
+            .coordinate(destination, || {
+                files.install_asset_exclusive(&prepared, destination)
+            })
+            .unwrap();
+        files.flush_artifact(destination).unwrap();
+        let original = files.observe_asset(destination).unwrap();
+        assert_eq!(original.fingerprint, prepared.fingerprint);
+        assert_eq!(original.bytes, bytes);
+        assert_eq!(
+            files.observe(destination).unwrap_err().message,
+            "note exceeds 1 MiB"
+        );
+
+        let replacement_id = Uuid::new_v4();
+        let replacement_stage = std::path::PathBuf::from(format!(".brn-{replacement_id}.stage"));
+        let replacement = files
+            .coordinate(destination, || {
+                files.prepare_asset_replace(replacement_id, &replacement_stage, destination, &[])
+            })
+            .unwrap();
+        files
+            .coordinate(destination, || {
+                files.exchange_asset(&replacement, destination)
+            })
+            .unwrap();
+        files.flush_artifact(destination).unwrap();
+        files.flush_artifact(&replacement_stage).unwrap();
+        assert!(files.observe_asset(destination).unwrap().bytes.is_empty());
+        let retained = files.observe_asset(&replacement_stage).unwrap();
+        assert_eq!(retained.fingerprint, original.fingerprint);
+        assert_eq!(retained.bytes, bytes);
+        files
+            .coordinate(destination, || {
+                files.exchange_asset(&replacement, destination)
+            })
+            .unwrap_err();
+        assert!(files.observe_asset(destination).unwrap().bytes.is_empty());
+
+        let oversized_id = Uuid::new_v4();
+        let oversized_stage = std::path::PathBuf::from(format!(".brn-{oversized_id}.stage"));
+        let oversized = vec![0xff; brn_store::work::proposals::MAX_ASSET_BYTES + 1];
+        assert!(
+            files
+                .prepare_asset_copy(oversized_id, &oversized_stage, destination, &oversized)
+                .is_err()
+        );
+        assert!(files.artifact(&oversized_stage).unwrap().is_none());
+    }
+
+    #[test]
+    fn asset_namespace_effects_refuse_changed_proof_occupancy_and_aliases() {
+        let vault = directory();
+        let data = directory();
+        let outside = directory();
+        let files = MacFiles::open(
+            &registered(vault.path()),
+            data.path(),
+            Arc::new(Mutex::new(NoteNoticeQueue::default())),
+        )
+        .unwrap();
+        let destination = Path::new("opaque.bin");
+        let id = Uuid::new_v4();
+        let staging = std::path::PathBuf::from(format!(".brn-{id}.stage"));
+        let prepared = files
+            .prepare_asset_copy(id, &staging, destination, &[0xff, 0, 0x80])
+            .unwrap();
+        std::fs::write(vault.path().join(&staging), [0xff, 1, 0x80]).unwrap();
+        assert!(
+            files
+                .install_asset_exclusive(&prepared, destination)
+                .is_err()
+        );
+        assert!(files.artifact(destination).unwrap().is_none());
+        std::fs::write(vault.path().join(&staging), [0xff, 0, 0x80]).unwrap();
+        std::fs::write(vault.path().join(destination), b"occupied").unwrap();
+        assert!(
+            files
+                .install_asset_exclusive(&prepared, destination)
+                .is_err()
+        );
+        assert_eq!(
+            std::fs::read(vault.path().join(destination)).unwrap(),
+            b"occupied"
+        );
+        std::fs::hard_link(vault.path().join(&staging), vault.path().join("alias.bin")).unwrap();
+        assert!(files.observe_asset(&staging).is_err());
+        assert!(
+            files
+                .install_asset_exclusive(&prepared, destination)
+                .is_err()
+        );
+        std::os::unix::fs::symlink(outside.path(), vault.path().join("linked")).unwrap();
+        let escaped = Path::new("linked/opaque.bin");
+        let linked_stage = std::path::PathBuf::from(format!("linked/.brn-{id}.stage"));
+        assert!(
+            files
+                .prepare_asset_copy(id, &linked_stage, escaped, &[0xff])
+                .is_err()
+        );
+        assert!(std::fs::read_dir(outside.path()).unwrap().next().is_none());
+        std::os::unix::fs::symlink(
+            vault.path().join(destination),
+            vault.path().join("symlink.bin"),
+        )
+        .unwrap();
+        assert!(files.observe_asset(Path::new("symlink.bin")).is_err());
     }
 
     #[test]

@@ -567,6 +567,8 @@ fn late_results_after_comments_edits_rejection_application_or_missing_review_set
                                 fingerprint(text, 100 + i as u64)
                             }
                             NoteChange::Trash { before, .. } => before.clone(),
+
+                            _ => unreachable!("Markdown-only fixture"),
                         })
                         .collect();
                     f.store
@@ -590,6 +592,8 @@ fn late_results_after_comments_edits_rejection_application_or_missing_review_set
                                 destination: None,
                                 staging: Some(before.clone()),
                             },
+
+                            _ => unreachable!("Markdown-only fixture"),
                         })
                         .collect();
                     f.store

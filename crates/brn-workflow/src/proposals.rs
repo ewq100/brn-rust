@@ -7,9 +7,10 @@ use crate::{
 };
 use brn_store::files::{FileFingerprint, VaultRecord};
 pub use brn_store::work::proposals::{
-    ActionChange, CommentRequest, CommentTarget, MAX_COMMENT_BYTES, MAX_PROPOSAL_BYTES,
-    MAX_PROPOSAL_CHANGES, MAX_PROPOSAL_COMMENTS, NoteChange, ProposalDraft, ProposalEdit,
-    ProposalRecord, ProposalStamp, ProposalState, ReviewComment, SourceVersion, TextAnchor,
+    ActionChange, CommentRequest, CommentTarget, MAX_ASSET_BYTES, MAX_ASSET_PROPOSAL_BYTES,
+    MAX_COMMENT_BYTES, MAX_PROPOSAL_BYTES, MAX_PROPOSAL_CHANGES, MAX_PROPOSAL_COMMENTS, NoteChange,
+    ProposalDraft, ProposalEdit, ProposalRecord, ProposalStamp, ProposalState, ReviewComment,
+    SourceVersion, TextAnchor,
 };
 use serde::{Deserialize, Serialize};
 use sha2::{Digest, Sha256};
@@ -32,15 +33,40 @@ pub enum DraftNoteChange {
         path: String,
         expected: FileFingerprint,
     },
+    CreateAsset {
+        path: String,
+        #[serde(with = "brn_store::work::proposals::asset_payload")]
+        bytes: Vec<u8>,
+    },
+    ReplaceAsset {
+        path: String,
+        expected: FileFingerprint,
+        #[serde(with = "brn_store::work::proposals::asset_payload")]
+        bytes: Vec<u8>,
+    },
+    TrashAsset {
+        path: String,
+        expected: FileFingerprint,
+    },
 }
 
 impl DraftNoteChange {
     fn path(&self) -> &str {
         match self {
-            Self::Create { path, .. } | Self::Replace { path, .. } | Self::Trash { path, .. } => {
-                path
-            }
+            Self::Create { path, .. }
+            | Self::Replace { path, .. }
+            | Self::Trash { path, .. }
+            | Self::CreateAsset { path, .. }
+            | Self::ReplaceAsset { path, .. }
+            | Self::TrashAsset { path, .. } => path,
         }
+    }
+
+    fn is_asset(&self) -> bool {
+        matches!(
+            self,
+            Self::CreateAsset { .. } | Self::ReplaceAsset { .. } | Self::TrashAsset { .. }
+        )
     }
 }
 
@@ -66,6 +92,27 @@ pub struct DraftRequest {
 pub struct ProposalSource {
     pub source: SourceVersion,
     pub text: String,
+}
+
+/// Fresh complete byte proof for an ordinary asset, without exposing its payload.
+#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
+#[serde(deny_unknown_fields)]
+pub struct ProposalAsset {
+    pub path: String,
+    pub fingerprint: FileFingerprint,
+}
+
+impl ProposalAsset {
+    pub fn validate(&self) -> Result<()> {
+        validate_asset_path(&self.path)?;
+        if self.fingerprint.len > MAX_ASSET_BYTES as u64
+            || self.fingerprint.device == 0
+            || self.fingerprint.inode == 0
+        {
+            return Err(invalid("invalid complete asset proof"));
+        }
+        Ok(())
+    }
 }
 
 impl ProposalSource {
@@ -105,6 +152,13 @@ fn path_check(path: &str) -> Result<()> {
         ));
     }
     Ok(())
+}
+
+/// Pure current asset destination validation; this grants no filesystem proof.
+pub fn validate_asset_path(path: &str) -> Result<()> {
+    brn_store::work::proposals::validate_asset_path(path)?;
+    VaultPath::validate_folder(path)
+        .map_err(|_| invalid("asset needs a contained current vault path"))
 }
 
 impl DraftRequest {
@@ -165,10 +219,15 @@ impl DraftRequest {
             return Err(invalid("invalid proposal identity, title or member count"));
         }
         let mut bytes = self.title.len();
+        let mut asset_bytes = 0usize;
         let mut paths = std::collections::HashSet::new();
         for change in &self.changes {
             let path = change.path();
-            path_check(path)?;
+            if change.is_asset() {
+                validate_asset_path(path)?;
+            } else {
+                path_check(path)?;
+            }
             if !paths.insert(path.to_ascii_lowercase()) {
                 return Err(invalid("proposal contains duplicate destinations"));
             }
@@ -181,6 +240,14 @@ impl DraftRequest {
                     bytes = bytes.saturating_add(text.len());
                 }
                 DraftNoteChange::Trash { .. } => {}
+                DraftNoteChange::CreateAsset { bytes, .. }
+                | DraftNoteChange::ReplaceAsset { bytes, .. } => {
+                    if bytes.len() > MAX_ASSET_BYTES {
+                        return Err(invalid("proposed asset exceeds 16 MiB"));
+                    }
+                    asset_bytes = asset_bytes.saturating_add(bytes.len());
+                }
+                DraftNoteChange::TrashAsset { .. } => {}
             }
             match change {
                 DraftNoteChange::Replace { expected, .. }
@@ -190,6 +257,14 @@ impl DraftRequest {
                     return Err(invalid("expected note exceeds 1 MiB"));
                 }
                 _ => {}
+            }
+            if let DraftNoteChange::ReplaceAsset { expected, .. }
+            | DraftNoteChange::TrashAsset { expected, .. } = change
+            {
+                if expected.len > MAX_ASSET_BYTES as u64 {
+                    return Err(invalid("expected asset exceeds 16 MiB"));
+                }
+                asset_bytes = asset_bytes.saturating_add(expected.len as usize);
             }
         }
         let mut sources = std::collections::HashSet::new();
@@ -221,11 +296,31 @@ impl DraftRequest {
         if bytes > MAX_PROPOSAL_BYTES {
             return Err(invalid("proposal review work exceeds 8 MiB"));
         }
+        if asset_bytes > MAX_ASSET_PROPOSAL_BYTES {
+            return Err(invalid("proposal asset payloads exceed 32 MiB"));
+        }
         Ok(())
     }
 }
 
 impl App {
+    /// Read-only proof capture for a current ordinary asset. This grants no
+    /// source/retrieval identity, conversion, approval or filesystem authority.
+    pub fn proposal_asset(&mut self, path: &str) -> Result<ProposalAsset> {
+        validate_asset_path(path)?;
+        self.require_current_evidence()?;
+        let observed = self
+            .editor_files()?
+            .observe_asset(Path::new(path))
+            .map_err(file_error)?;
+        let asset = ProposalAsset {
+            path: path.into(),
+            fingerprint: observed.fingerprint,
+        };
+        asset.validate()?;
+        Ok(asset)
+    }
+
     /// Captures full saved source bytes without creating editor or review work.
     pub fn proposal_source(&mut self, path: &str) -> Result<ProposalSource> {
         path_check(path)?;
@@ -294,6 +389,33 @@ impl App {
                     (
                         DraftNoteChange::Trash { path, expected },
                         NoteChange::Trash {
+                            path: old, before, ..
+                        },
+                    ) if path == old && expected == before => {}
+                    (
+                        DraftNoteChange::CreateAsset { path, bytes },
+                        NoteChange::CreateAsset {
+                            path: old,
+                            bytes: out,
+                            ..
+                        },
+                    ) if path == old && bytes == out => {}
+                    (
+                        DraftNoteChange::ReplaceAsset {
+                            path,
+                            expected,
+                            bytes,
+                        },
+                        NoteChange::ReplaceAsset {
+                            path: old,
+                            before,
+                            bytes: out,
+                            ..
+                        },
+                    ) if path == old && expected == before && bytes == out => {}
+                    (
+                        DraftNoteChange::TrashAsset { path, expected },
+                        NoteChange::TrashAsset {
                             path: old, before, ..
                         },
                     ) if path == old && expected == before => {}
@@ -377,7 +499,7 @@ impl App {
         };
         let mut changes = Vec::with_capacity(request.changes.len());
         for (index, input) in request.changes.iter().enumerate() {
-            let files = files.ok_or_else(|| invalid("Markdown changes require a vault"))?;
+            let files = files.ok_or_else(|| invalid("file changes require a vault"))?;
             for previous in &request.changes[..index] {
                 if files
                     .reserved_copy_path_matches(Path::new(input.path()), Path::new(previous.path()))
@@ -457,6 +579,27 @@ impl App {
                                     before: before.fingerprint,
                                     before_text: before.text,
                                 })
+                            }
+                            DraftNoteChange::CreateAsset { path: name, bytes } => {
+                                files.validate_copy_destination(path).map_err(file_error)?;
+                                if files.artifact(path).map_err(file_error)?.is_some() {
+                                    return Err(WorkflowError::typed(ErrorKind::ContextStale, "proposed asset destination is occupied"));
+                                }
+                                Ok(NoteChange::CreateAsset { path: name.clone(), parent, bytes: bytes.clone() })
+                            }
+                            DraftNoteChange::ReplaceAsset { path: name, expected, bytes } => {
+                                let before = files.observe_asset_uncoordinated(path).map_err(file_error)?;
+                                if before.fingerprint != *expected {
+                                    return Err(WorkflowError::typed(ErrorKind::ContextStale, "proposed asset replacement baseline changed"));
+                                }
+                                Ok(NoteChange::ReplaceAsset { path: name.clone(), parent, before: before.fingerprint, before_bytes: before.bytes, bytes: bytes.clone() })
+                            }
+                            DraftNoteChange::TrashAsset { path: name, expected } => {
+                                let before = files.observe_asset_uncoordinated(path).map_err(file_error)?;
+                                if before.fingerprint != *expected {
+                                    return Err(WorkflowError::typed(ErrorKind::ContextStale, "proposed asset Trash baseline changed"));
+                                }
+                                Ok(NoteChange::TrashAsset { path: name.clone(), parent, before: before.fingerprint, before_bytes: before.bytes })
                             }
                         }
                     })())

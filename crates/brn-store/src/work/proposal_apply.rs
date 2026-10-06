@@ -1,6 +1,6 @@
 //! Whole-proposal approval journals and exact file proofs. No filesystem I/O.
 use super::{
-    MAX_NOTE_BYTES, WorkStore,
+    WorkStore,
     actions::{self, ActionOrigin, ActionRecord, ActionState},
     now_ms,
     proposals::{self, ActionChange, NoteChange, ProposalRecord, ProposalStamp, ProposalState},
@@ -28,7 +28,7 @@ CREATE UNIQUE INDEX one_unresolved_proposal_apply ON proposal_applies((1))
 
 const MAX_METADATA_BYTES: usize = 256 * 1024;
 const MAX_UNDO_METADATA_BYTES: usize = proposals::MAX_PROPOSAL_CHANGES * 512 + 1024;
-// A fingerprint has two u64 identities, a <=1 MiB length and 32 byte values;
+// A fingerprint has two u64 identities, a bounded <=16 MiB length and 32 byte values;
 // even maximal decimal JSON plus field names fits 512 bytes. Three proof slots
 // per member cover preparation/destination/staging; 2048 covers receipt/time
 // and version widths independently of the invariant path base.
@@ -226,11 +226,13 @@ fn next_version(version: u64, steps: u64) -> Result<u64> {
         .ok_or_else(|| invalid("proposal approval version overflow"))
 }
 
-fn bounded_fingerprint(proof: &FileFingerprint) -> Result<()> {
-    if proof.len > MAX_NOTE_BYTES as u64 {
-        return Err(invalid(
-            "proposal approval proof exceeds the 1 MiB note limit",
-        ));
+fn bounded_fingerprint(change: &NoteChange, proof: &FileFingerprint) -> Result<()> {
+    if proof.len > change.byte_limit() as u64 {
+        return Err(invalid(if change.is_asset() {
+            "proposal approval asset proof exceeds the 16 MiB limit"
+        } else {
+            "proposal approval proof exceeds the 1 MiB note limit"
+        }));
     }
     Ok(())
 }
@@ -286,6 +288,28 @@ fn action_records(approved: &ProposalRecord, started_at_ms: u64) -> Result<Vec<A
             Ok(record)
         })
         .collect()
+}
+
+/// Assets add a second raw budget but not a larger recovery envelope. Reserve
+/// complete Action snapshots plus inverse member/clock growth before any SQL
+/// admission. Each of at most 64 inverse members adds at most one fingerprint
+/// (<512 bytes), payload field spelling and fixed DTO widths; 1 KiB/member plus
+/// 4 KiB covers those and the StoredProposal wrapper. Existing journal allowances
+/// separately reserve all prepared/terminal/Undo/64-repair proof metadata.
+pub(super) fn reserve_asset_review(record: &ProposalRecord) -> Result<()> {
+    if !record.draft.changes.iter().any(NoteChange::is_asset) {
+        return Ok(());
+    }
+    // Use the widest clock accepted by the persisted Action domain.
+    let records = action_records(record, i64::MAX as u64)?;
+    let payload = encode(&(record, records))?;
+    let reserve = proposals::MAX_PROPOSAL_CHANGES * 1024 + 4096;
+    if payload.len() > proposals::MAX_STORED_BYTES - reserve {
+        return Err(invalid(
+            "asset review exceeds encoded recovery settlement budget",
+        ));
+    }
+    Ok(())
 }
 
 impl ApplyJournal {
@@ -351,9 +375,9 @@ impl ApplyJournal {
                     "approval journal requires a complete observation set",
                 ));
             }
-            for proof in observations {
+            for (change, proof) in self.approved.draft.changes.iter().zip(observations) {
                 for fingerprint in [&proof.destination, &proof.staging].into_iter().flatten() {
-                    bounded_fingerprint(fingerprint)?;
+                    bounded_fingerprint(change, fingerprint)?;
                 }
             }
         }
@@ -402,7 +426,10 @@ impl ApplyJournal {
             self.started_at_ms,
         );
         let metadata = encode(&metadata)?;
-        let bounded = if self.undo.is_some() || self.repair.is_some() {
+        let bounded = if self.undo.is_some()
+            || self.repair.is_some()
+            || self.approved.draft.changes.iter().any(NoteChange::is_asset)
+        {
             // Paths/member count stay invariant across repairs and whole inverses
             // (or shrink for scoped Trash). Normalize integer/hash widths and
             // reserve separate fixed slots for one prepared and two observed
@@ -466,7 +493,10 @@ impl ApplyJournal {
             || binding.trash_member.is_some_and(|index| {
                 index >= proposals::MAX_PROPOSAL_CHANGES
                     || self.members.len() != 1
-                    || !matches!(self.approved.draft.changes[0], NoteChange::Create { .. })
+                    || !matches!(
+                        self.approved.draft.changes[0],
+                        NoteChange::Create { .. } | NoteChange::CreateAsset { .. }
+                    )
                     || binding.originals[0].is_none()
             })
         {
@@ -482,16 +512,13 @@ impl ApplyJournal {
             .zip(&self.members)
             .zip(&self.approved.draft.changes)
         {
-            match (change, original) {
-                (
-                    NoteChange::Create { text, .. } | NoteChange::Replace { text, .. },
-                    Some(original),
-                ) => {
+            match (change.candidate_bytes(), original) {
+                (Some(bytes), Some(original)) => {
                     proposals::nonnil(original.member_id)?;
-                    bounded_fingerprint(&original.fingerprint)?;
+                    bounded_fingerprint(change, &original.fingerprint)?;
                     if original.member_id != member.id
-                        || original.fingerprint.len != text.len() as u64
-                        || original.fingerprint.sha256 != hash(text.as_bytes())
+                        || original.fingerprint.len != bytes.len() as u64
+                        || original.fingerprint.sha256 != hash(bytes)
                         || !ids.insert(original.member_id)
                         || !identities
                             .insert((original.fingerprint.device, original.fingerprint.inode))
@@ -501,7 +528,7 @@ impl ApplyJournal {
                         ));
                     }
                 }
-                (NoteChange::Trash { .. }, None) => {}
+                (None, None) => {}
                 _ => {
                     return Err(invalid(
                         "Undo originals require exactly Create/Replace members",
@@ -520,7 +547,7 @@ impl ApplyJournal {
         }
         let mut old = HashSet::new();
         for change in &self.approved.draft.changes {
-            if let NoteChange::Replace { before, .. } | NoteChange::Trash { before, .. } = change {
+            if let Some(before) = change.before() {
                 old.insert((before.device, before.inode));
             }
         }
@@ -530,7 +557,7 @@ impl ApplyJournal {
         let mut new = HashSet::new();
         for (index, (change, proof)) in self.approved.draft.changes.iter().zip(prepared).enumerate()
         {
-            bounded_fingerprint(proof)?;
+            bounded_fingerprint(change, proof)?;
             if let Some(original) = self
                 .undo
                 .as_ref()
@@ -541,10 +568,10 @@ impl ApplyJournal {
                     "prepared Undo member differs from its bound retained original",
                 ));
             }
-            match change {
-                NoteChange::Create { text, .. } | NoteChange::Replace { text, .. } => {
-                    if proof.len != text.len() as u64
-                        || proof.sha256 != hash(text.as_bytes())
+            match change.candidate_bytes() {
+                Some(bytes) => {
+                    if proof.len != bytes.len() as u64
+                        || proof.sha256 != hash(bytes)
                         || old.contains(&(proof.device, proof.inode))
                         || !new.insert((proof.device, proof.inode))
                     {
@@ -553,10 +580,8 @@ impl ApplyJournal {
                         ));
                     }
                 }
-                NoteChange::Trash { before, .. } if proof == before => {}
-                NoteChange::Trash { .. } => {
-                    return Err(invalid("prepared Trash proof must be its exact original"));
-                }
+                None if change.before() == Some(proof) => {}
+                None => return Err(invalid("prepared Trash proof must be its exact original")),
             }
         }
         Ok(())
@@ -586,14 +611,16 @@ impl ApplyJournal {
                     .zip(observations)
                 {
                     let exact = match change {
-                        NoteChange::Create { .. } => {
+                        NoteChange::Create { .. } | NoteChange::CreateAsset { .. } => {
                             observed.destination.as_ref() == Some(new) && observed.staging.is_none()
                         }
-                        NoteChange::Replace { before, .. } => {
+                        NoteChange::Replace { before, .. }
+                        | NoteChange::ReplaceAsset { before, .. } => {
                             observed.destination.as_ref() == Some(new)
                                 && observed.staging.as_ref() == Some(before)
                         }
-                        NoteChange::Trash { before, .. } => {
+                        NoteChange::Trash { before, .. }
+                        | NoteChange::TrashAsset { before, .. } => {
                             observed.destination.is_none()
                                 && observed.staging.as_ref() == Some(before)
                         }
@@ -615,8 +642,13 @@ impl ApplyJournal {
                     .enumerate()
                 {
                     let exact = match change {
-                        NoteChange::Create { .. } => observed.destination.is_none(),
-                        NoteChange::Replace { before, .. } | NoteChange::Trash { before, .. } => {
+                        NoteChange::Create { .. } | NoteChange::CreateAsset { .. } => {
+                            observed.destination.is_none()
+                        }
+                        NoteChange::Replace { before, .. }
+                        | NoteChange::Trash { before, .. }
+                        | NoteChange::ReplaceAsset { before, .. }
+                        | NoteChange::TrashAsset { before, .. } => {
                             observed.destination.as_ref() == Some(before)
                         }
                     };
@@ -914,7 +946,10 @@ fn immutable_review_bindings(record: &ProposalRecord) -> ImmutableReviewBindings
     for change in &mut draft.changes {
         match change {
             NoteChange::Create { text, .. } | NoteChange::Replace { text, .. } => text.clear(),
-            NoteChange::Trash { .. } => {}
+            NoteChange::Trash { .. }
+            | NoteChange::CreateAsset { .. }
+            | NoteChange::ReplaceAsset { .. }
+            | NoteChange::TrashAsset { .. } => {}
         }
     }
     let actions = draft

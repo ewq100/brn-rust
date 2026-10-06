@@ -2413,6 +2413,7 @@ impl AiState {
             | AppEvent::ProposalRepairPreview(_)
             | AppEvent::ProposalRepaired(_)
             | AppEvent::ProposalSource(_)
+            | AppEvent::ProposalAsset(_)
             | AppEvent::Finding(_)
             | AppEvent::Findings(_)
             | AppEvent::Action(_)

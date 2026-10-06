@@ -28,7 +28,11 @@ pub(super) fn check_phase_sources(
             .enumerate()
             .find(|(_, change)| original(change) == Some(&source.fingerprint));
         let expected = match own {
-            Some((i, NoteChange::Trash { .. })) if phases[i] == ApplyMemberPhase::Applied => None,
+            Some((i, NoteChange::Trash { .. } | NoteChange::TrashAsset { .. }))
+                if phases[i] == ApplyMemberPhase::Applied =>
+            {
+                None
+            }
             Some((i, _)) if phases[i] == ApplyMemberPhase::Applied => {
                 journal.prepared.as_ref().and_then(|proofs| proofs.get(i))
             }
@@ -232,8 +236,8 @@ impl App {
                             return Err(stale("repair member parent changed"));
                         }
                         let proof = ApplyMemberProof {
-                            destination: observed(files, destination)?,
-                            staging: observed(files, &member.staging)?,
+                            destination: observed_member(files, destination, change)?,
+                            staging: observed_member(files, &member.staging, change)?,
                         };
                         let mut current = journal
                             .repair
@@ -251,47 +255,65 @@ impl App {
                                 fingerprint: prepared[i].clone(),
                             };
                             match (direction, change) {
-                                (RepairDirection::Finish, NoteChange::Create { .. }) => {
-                                    files.install_exclusive(&staged, destination)
-                                }
-                                (RepairDirection::Finish, NoteChange::Replace { .. }) => {
-                                    files.exchange(&staged, destination)
-                                }
-                                (RepairDirection::Finish, NoteChange::Trash { before, .. }) => {
-                                    files.install_exclusive(
-                                        &PreparedFile {
-                                            relative: destination.to_owned(),
-                                            fingerprint: before.clone(),
-                                        },
-                                        &member.staging,
-                                    )
-                                }
-                                (RepairDirection::Restore, NoteChange::Create { .. }) => files
-                                    .install_exclusive(
-                                        &PreparedFile {
-                                            relative: destination.to_owned(),
-                                            fingerprint: prepared[i].clone(),
-                                        },
-                                        &member.staging,
-                                    ),
-                                (RepairDirection::Restore, NoteChange::Replace { before, .. }) => {
-                                    files.exchange(
-                                        &PreparedFile {
-                                            relative: member.staging.clone(),
-                                            fingerprint: before.clone(),
-                                        },
-                                        destination,
-                                    )
-                                }
-                                (RepairDirection::Restore, NoteChange::Trash { before, .. }) => {
-                                    files.install_exclusive(
-                                        &PreparedFile {
-                                            relative: member.staging.clone(),
-                                            fingerprint: before.clone(),
-                                        },
-                                        destination,
-                                    )
-                                }
+                                (
+                                    RepairDirection::Finish,
+                                    NoteChange::Create { .. } | NoteChange::CreateAsset { .. },
+                                ) => install_member(files, &staged, destination, change),
+                                (
+                                    RepairDirection::Finish,
+                                    NoteChange::Replace { .. } | NoteChange::ReplaceAsset { .. },
+                                ) => exchange_member(files, &staged, destination, change),
+                                (
+                                    RepairDirection::Finish,
+                                    NoteChange::Trash { before, .. }
+                                    | NoteChange::TrashAsset { before, .. },
+                                ) => install_member(
+                                    files,
+                                    &PreparedFile {
+                                        relative: destination.to_owned(),
+                                        fingerprint: before.clone(),
+                                    },
+                                    &member.staging,
+                                    change,
+                                ),
+                                (
+                                    RepairDirection::Restore,
+                                    NoteChange::Create { .. } | NoteChange::CreateAsset { .. },
+                                ) => install_member(
+                                    files,
+                                    &PreparedFile {
+                                        relative: destination.to_owned(),
+                                        fingerprint: prepared[i].clone(),
+                                    },
+                                    &member.staging,
+                                    change,
+                                ),
+                                (
+                                    RepairDirection::Restore,
+                                    NoteChange::Replace { before, .. }
+                                    | NoteChange::ReplaceAsset { before, .. },
+                                ) => exchange_member(
+                                    files,
+                                    &PreparedFile {
+                                        relative: member.staging.clone(),
+                                        fingerprint: before.clone(),
+                                    },
+                                    destination,
+                                    change,
+                                ),
+                                (
+                                    RepairDirection::Restore,
+                                    NoteChange::Trash { before, .. }
+                                    | NoteChange::TrashAsset { before, .. },
+                                ) => install_member(
+                                    files,
+                                    &PreparedFile {
+                                        relative: member.staging.clone(),
+                                        fingerprint: before.clone(),
+                                    },
+                                    destination,
+                                    change,
+                                ),
                             }
                             .map_err(file_error)?;
                             checkpoint("repair-member", i);
@@ -299,14 +321,14 @@ impl App {
                         }
                         // Flush skipped members too: endpoint proof alone is not durability.
                         for path in [destination, member.staging.as_path()] {
-                            if observed(files, path)?.is_some() {
+                            if observed_member(files, path, change)?.is_some() {
                                 files.flush_artifact(path).map_err(file_error)?;
                             }
                         }
                         checkpoint("repair-synced", i);
                         let proof = ApplyMemberProof {
-                            destination: observed(files, destination)?,
-                            staging: observed(files, &member.staging)?,
+                            destination: observed_member(files, destination, change)?,
+                            staging: observed_member(files, &member.staging, change)?,
                         };
                         current[i] = proof;
                         if journal.repair_preview(&current)?.phases[i] != desired {
@@ -447,6 +469,12 @@ mod tests {
                     },
                     destination,
                 ),
+                (
+                    _,
+                    NoteChange::CreateAsset { .. }
+                    | NoteChange::ReplaceAsset { .. }
+                    | NoteChange::TrashAsset { .. },
+                ) => unreachable!("Markdown-only phase fixture"),
             }
             .unwrap();
             for path in [destination, member.staging.as_path()] {

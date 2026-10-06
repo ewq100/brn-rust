@@ -115,8 +115,12 @@ clean identity: workspace build, 29 affected Store, 11 Workflow (one intentional
 crash-child ignore exercised by its parent), 3 CLI, 1 default Desktop and 1 exact
 native widget test; native build, 52 fixtures, launcher and documentation checks.
 Two default and two combined restarts each proved V15 and one original-operation
-table. Upstream block0.1.6 future-compiler warnings remain. Automatic main74 CI
-is observed separately; GUI/live/real-model/owner acceptance remains pending.
+table. Upstream block0.1.6 future-compiler warnings remain. Automatic main74
+run37417163005 attempt1 completed: four protected checks, Docs and extra Ubuntu UI
+passed. Overall red retains Windows22/22/14 exact source-inclusive compiler blocks
+and terminal summaries, plus the same three Linux native assertions/all backtrace
+frames. Actual raw order/thread IDs/timing/log differences remain retained.
+GUI/live/real-model/owner acceptance remains pending.
 
 ## Next slice: ordinary asset proposal members
 
@@ -159,6 +163,10 @@ Fixed interfaces and bounds:
   asset lifecycle. Existing owner CLI JSON creation, inspection, approval,
   repair and Undo must support the typed members with bounded input. Native review
   must show proof details without offering a text editor for opaque bytes.
+- Add read-only `ProposalAsset(path)` / `ProposalAsset { path, fingerprint }` on
+  this same AppWorker boundary for complete fresh current asset proof capture.
+  Owner CLI `proposals asset PATH` uses it before exact replacement/trash drafts;
+  it exposes no payload text, note identity, retrieval source or AI tool.
 
 Acceptance: exact non-UTF8/empty/16 MiB Create/Replace/Trash; mixed Markdown/assets;
 approval of immutable bytes; changed identity/hash, duplicate/occupied paths,
@@ -176,3 +184,24 @@ protected CI/normal merge/fresh merged verification. Use pinned Rust1.98.1,
 canonical owned TMPDIR, disposable synthetic data and separate checkout targets.
 Native GUI/live/assets/owner acceptance remains separate; no live call, download,
 private-data operation, purchase or release is authorized by this slice.
+
+Qualification in progress: complete independent read-only review at dirty
+snapshot71e01c88 found no production defect and one new test expecting unsupported
+Action-bearing Undo. Lead validated the existing refusal and corrected only that
+expectation, retaining exact mixed approval/replay and unchanged effects. Store
+14asset+106legacy/Action tests and check/strict Clippy/format pass at c02c0a19;
+the integrated all-target check passes. The first integrated asset run retained
+13passed/1failed/1ignored, with the full16 MiB replacement/fresh-SQL/Undo witness
+passing in the837.45s suite. Its live stack sample shows pinned SHA256 software
+compression dominates full saved proposal checks. A narrow test-only sha2
+opt-level3 override retains full witnesses and unchanged production/lockfile
+versions. The correction review is clean at frozen dirty snapshot
+`2a3bdf072bea747554414c8b4f07a8a8d4b1fdf8265d5781cd43b9a2ebacb4dd`.
+Fresh locked/offline focused qualification 05:57:08–06:04:28 UTC passed unchanged
+identity: all-target workspace check,15 Workflow/0/1 (intentional crash child),
+4 Desktop binding/0/0,1 CLI admission/0/0 and11 full CLI proposal tests/0/0.
+The full16 MiB replacement/fresh-SQL/Undo witness, corrected mixed Action refusal
+and older-SQL receipt import passed. The asset Workflow suite took404.61s; the
+earlier failed837.45s run remains retained, and no production performance claim
+is made. Full shared/native gates, exact-head CI and integration remain next.
+Existing Action-bearing Undo remains refused; no new inverse capability is claimed.

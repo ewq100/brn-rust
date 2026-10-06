@@ -425,6 +425,22 @@ source fingerprints and refuses occupied or aliased destinations. Creation repla
 precedes fresh-vault checks and returns existing edited review work; a conflicting
 initial payload cannot reuse its UUID. Review text/comments are operational work,
 never current vault evidence.
+
+Ordinary asset members use additive `CreateAsset`, `ReplaceAsset` and `TrashAsset`
+variants in this same family. `ProposalAsset(path)` captures a complete fresh
+fingerprint for a visible contained current non-Markdown file; it returns no
+payload, note identity or retrieval evidence. Workflow captures exact before
+bytes itself. Each payload is at most16 MiB, with32 MiB total before/candidate
+bytes, alongside unchanged Markdown and operational bounds. Only the new raw
+payload fields use canonical padded base64; legacy Markdown serialization remains
+unchanged. Parents must already exist. Approval, recovery, repair and Undo use
+the same held-root/parent, exact byte/identity, single-link, exclusive namespace
+and durable receipt protections. Assets have no text editor or AI tool. Rewrite
+receives ordered full proof summaries and null asset text slots; the saved
+capture still binds complete immutable bytes. This prerequisite adds no Office
+conversion, binary Source preservation or original-copy deletion authority.
+The existing Action-bearing Undo refusal remains; asset/Markdown-only whole
+Undo and scoped asset Trash restore use the existing inverse family.
 `DraftRequest::action_changes` admits exact typed Action Create/Replace members,
 including mixed Markdown/Action drafts. Replace fixes the complete checked current
 record; edits cannot alter its baseline or immutable origin. The existing budget

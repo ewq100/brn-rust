@@ -172,6 +172,7 @@ Commands:
   brn actions dashboard [--as-of YYYY-MM-DD] [--filter active|open|waiting|blocked|completed|overdue|follow-up|all] [--limit N] [--before-created-at-ms N --before-id UUID]
   brn proposals create --file DRAFT.json
   brn proposals source PATH
+  brn proposals asset PATH
   brn proposals list [--group UUID]
   brn proposals show PROPOSAL_ID
   brn proposals edit --file EDIT.json

@@ -107,7 +107,10 @@ impl App {
             for change in &draft.changes {
                 let before = match change {
                     NoteChange::Replace { before, .. } | NoteChange::Trash { before, .. } => before,
-                    NoteChange::Create { .. } => continue,
+                    NoteChange::Create { .. }
+                    | NoteChange::CreateAsset { .. }
+                    | NoteChange::ReplaceAsset { .. }
+                    | NoteChange::TrashAsset { .. } => continue,
                 };
                 if files
                     .reserved_copy_path_matches(Path::new(path), Path::new(change.path()))

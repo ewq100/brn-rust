@@ -117,6 +117,20 @@ these helpers do not write files, resolve sources or change operational storage.
 
 ## Whole-proposal approval journal
 
+Additive ordinary asset Create/Replace/Trash members retain complete candidate
+and before bytes inside the existing proposal/application/repair/Undo records;
+no schema or separate lifecycle is added. New payload fields use bounded canonical
+standard padded base64, leaving legacy Markdown JSON and hash arrays unchanged.
+Each payload is at most16 MiB and combined before/candidate payloads at most32 MiB.
+Asset paths are visible contained non-Markdown paths; workflow additionally owns
+current-target policy and fresh filesystem authority. Assets have no managed note
+identity or editable text slot. Full edits and Rewrite retain null asset slots
+and cannot alter their bytes or proofs. Admission reserves whole encoded journal
+growth, terminal proofs, Action snapshots and bounded repair history before effects.
+Existing encoded proposal/journal/64 MiB receipt bounds remain unchanged; inverse
+lineage is compact, without recursively embedding earlier payload snapshots.
+Existing Action-bearing Undo remains explicitly refused.
+
 V5 adds a narrow application journal. An exact review stamp and operation UUID
 freeze the full Draft snapshot and original creation binding, allocate sibling
 staging identities, and advance the review to Applying in one transaction. At

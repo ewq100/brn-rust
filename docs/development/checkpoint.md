@@ -12,10 +12,17 @@ Full frozen V1 goal confirmed **active** by `get_goal` on 2026-10-06; no token b
   Exact fa2e9d4 / run37416140200 attempt1 passed four protected checks and Docs;
   overall red retains unchanged Windows22 compiler blocks/both summaries.
   Fresh clean merged build, 45 focused tests/0/1 +52 fixtures, native widget/build,
-  default/combined V15 restarts and launcher/docs passed. Main74 CI is separate.
+  default/combined V15 restarts and launcher/docs passed. Exact merged-main
+  run37417163005 attempt1 passed four protected checks, Docs and extra Ubuntu UI;
+  overall red retains unchanged Windows compiler blocks and three Linux native
+  assertions/backtraces, with raw ordering/IDs/timing differences preserved.
 - **Current/next:** `codex/v1-ordinary-assets`, baseline main74 above;
   [fixed acceptance/interfaces](../work/active/office-inbox/plan.md#next-slice-ordinary-asset-proposal-members)
   extend the existing whole-proposal review/apply/recovery/Undo boundary.
+  Store, workflow and clients are implemented; complete and correction reviews
+  are clean. Frozen dirty snapshot `2a3bdf07` passed all-target check and 31 focused
+  tests/0/1, including full16 MiB recovery/Undo. Full shared/native verification,
+  exact-head CI and integration remain unfinished gates.
   Meaningful Office conversion follows; incomplete conversion retains originals.
 - **Pending:** native GUI/live/real-model/owner acceptance, residual startup/backup
   cost, legacy pending-intent retry, Stages8–16 and trusted-user packaging.

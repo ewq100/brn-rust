@@ -16,6 +16,9 @@ use uuid::Uuid;
 
 pub const MAX_PROPOSAL_CHANGES: usize = 64;
 pub const MAX_PROPOSAL_BYTES: usize = 8 * 1024 * 1024;
+pub const MAX_ASSET_BYTES: usize = 16 * 1024 * 1024;
+pub const MAX_ASSET_PROPOSAL_BYTES: usize = 32 * 1024 * 1024;
+pub mod asset_payload;
 pub const MAX_PROPOSAL_COMMENTS: usize = 64;
 pub const MAX_COMMENT_BYTES: usize = 16 * 1024;
 
@@ -54,20 +57,99 @@ pub enum NoteChange {
         before: FileFingerprint,
         before_text: String,
     },
+    CreateAsset {
+        path: String,
+        parent: VaultIdentity,
+        #[serde(with = "asset_payload")]
+        bytes: Vec<u8>,
+    },
+    ReplaceAsset {
+        path: String,
+        parent: VaultIdentity,
+        before: FileFingerprint,
+        #[serde(with = "asset_payload")]
+        before_bytes: Vec<u8>,
+        #[serde(with = "asset_payload")]
+        bytes: Vec<u8>,
+    },
+    TrashAsset {
+        path: String,
+        parent: VaultIdentity,
+        before: FileFingerprint,
+        #[serde(with = "asset_payload")]
+        before_bytes: Vec<u8>,
+    },
 }
 
 impl NoteChange {
     pub fn path(&self) -> &str {
         match self {
-            Self::Create { path, .. } | Self::Replace { path, .. } | Self::Trash { path, .. } => {
-                path
-            }
+            Self::Create { path, .. }
+            | Self::Replace { path, .. }
+            | Self::Trash { path, .. }
+            | Self::CreateAsset { path, .. }
+            | Self::ReplaceAsset { path, .. }
+            | Self::TrashAsset { path, .. } => path,
         }
     }
     pub fn text(&self) -> Option<&str> {
         match self {
             Self::Create { text, .. } | Self::Replace { text, .. } => Some(text),
-            Self::Trash { .. } => None,
+            Self::Trash { .. }
+            | Self::CreateAsset { .. }
+            | Self::ReplaceAsset { .. }
+            | Self::TrashAsset { .. } => None,
+        }
+    }
+    /// Complete candidate bytes; Trash has no candidate.
+    pub fn candidate_bytes(&self) -> Option<&[u8]> {
+        match self {
+            Self::Create { text, .. } | Self::Replace { text, .. } => Some(text.as_bytes()),
+            Self::CreateAsset { bytes, .. } | Self::ReplaceAsset { bytes, .. } => Some(bytes),
+            Self::Trash { .. } | Self::TrashAsset { .. } => None,
+        }
+    }
+    pub fn before_bytes(&self) -> Option<&[u8]> {
+        match self {
+            Self::Replace { before_text, .. } | Self::Trash { before_text, .. } => {
+                Some(before_text.as_bytes())
+            }
+            Self::ReplaceAsset { before_bytes, .. } | Self::TrashAsset { before_bytes, .. } => {
+                Some(before_bytes)
+            }
+            Self::Create { .. } | Self::CreateAsset { .. } => None,
+        }
+    }
+    pub fn before(&self) -> Option<&FileFingerprint> {
+        match self {
+            Self::Replace { before, .. }
+            | Self::Trash { before, .. }
+            | Self::ReplaceAsset { before, .. }
+            | Self::TrashAsset { before, .. } => Some(before),
+            Self::Create { .. } | Self::CreateAsset { .. } => None,
+        }
+    }
+    pub fn parent(&self) -> &VaultIdentity {
+        match self {
+            Self::Create { parent, .. }
+            | Self::Replace { parent, .. }
+            | Self::Trash { parent, .. }
+            | Self::CreateAsset { parent, .. }
+            | Self::ReplaceAsset { parent, .. }
+            | Self::TrashAsset { parent, .. } => parent,
+        }
+    }
+    pub fn is_asset(&self) -> bool {
+        matches!(
+            self,
+            Self::CreateAsset { .. } | Self::ReplaceAsset { .. } | Self::TrashAsset { .. }
+        )
+    }
+    pub fn byte_limit(&self) -> usize {
+        if self.is_asset() {
+            MAX_ASSET_BYTES
+        } else {
+            MAX_NOTE_BYTES
         }
     }
 }
@@ -215,7 +297,7 @@ impl ProposalRecord {
     }
 }
 
-/// Full replacement text for every change: Trash requires None, the others Some.
+/// Full replacement text for Markdown Create/Replace; Trash/assets require None.
 /// Bound destinations, source versions and before-text cannot be changed here.
 #[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
 #[serde(deny_unknown_fields)]
@@ -278,6 +360,58 @@ pub(super) fn validate_path(path: &str) -> Result<()> {
     {
         return Err(invalid(
             "proposal needs a visible contained relative Markdown path",
+        ));
+    }
+    Ok(())
+}
+
+/// Visible, contained relative ordinary-asset path; Markdown remains separate.
+pub fn validate_asset_path(path: &str) -> Result<()> {
+    if path.is_empty()
+        || path.contains(['\\', '\0'])
+        || path
+            .split('/')
+            .any(|part| part.is_empty() || part.starts_with('.'))
+        || Path::new(path)
+            .components()
+            .any(|part| !matches!(part, Component::Normal(_)))
+        || Path::new(path)
+            .extension()
+            .is_some_and(|ext| ext.eq_ignore_ascii_case("md"))
+    {
+        return Err(invalid(
+            "asset needs a visible contained relative non-Markdown path",
+        ));
+    }
+    Ok(())
+}
+fn add_asset_bytes(total: &mut usize, bytes: &[u8]) -> Result<()> {
+    if bytes.len() > MAX_ASSET_BYTES {
+        return Err(invalid("asset payload exceeds 16 MiB"));
+    }
+    *total = total
+        .checked_add(bytes.len())
+        .ok_or_else(|| invalid("asset proposal size overflow"))?;
+    if *total > MAX_ASSET_PROPOSAL_BYTES {
+        return Err(invalid("asset proposal payloads exceed 32 MiB"));
+    }
+    Ok(())
+}
+fn validate_asset_before(
+    before: &FileFingerprint,
+    bytes: &[u8],
+    total: &mut usize,
+    identities: &mut HashSet<(u64, u64)>,
+) -> Result<()> {
+    add_asset_bytes(total, bytes)?;
+    if before.len != bytes.len() as u64 || before.sha256 != hash(bytes) {
+        return Err(invalid(
+            "asset before fingerprint does not match exact bytes",
+        ));
+    }
+    if !identities.insert((before.device, before.inode)) {
+        return Err(invalid(
+            "proposal contains repeated existing file identities",
         ));
     }
     Ok(())
@@ -395,6 +529,7 @@ fn validate_draft(draft: &ProposalDraft) -> Result<usize> {
         ));
     }
     let mut total = 0;
+    let mut asset_total = 0;
     if let Some(binding) = &draft.inbox_knowledge {
         add_bytes(&mut total, encode(binding)?.len())?;
     }
@@ -411,7 +546,11 @@ fn validate_draft(draft: &ProposalDraft) -> Result<usize> {
     let mut paths = HashSet::new();
     let mut identities = HashSet::new();
     for change in &draft.changes {
-        validate_path(change.path())?;
+        if change.is_asset() {
+            validate_asset_path(change.path())?;
+        } else {
+            validate_path(change.path())?;
+        }
         add_bytes(&mut total, change.path().len())?;
         if !paths.insert(change.path().to_ascii_lowercase()) {
             return Err(invalid("proposal contains duplicate target paths"));
@@ -433,6 +572,23 @@ fn validate_draft(draft: &ProposalDraft) -> Result<usize> {
                 ..
             } => {
                 validate_before(before, before_text, &mut total, &mut identities)?;
+            }
+            NoteChange::CreateAsset { bytes, .. } => add_asset_bytes(&mut asset_total, bytes)?,
+            NoteChange::ReplaceAsset {
+                before,
+                before_bytes,
+                bytes,
+                ..
+            } => {
+                validate_asset_before(before, before_bytes, &mut asset_total, &mut identities)?;
+                add_asset_bytes(&mut asset_total, bytes)?;
+            }
+            NoteChange::TrashAsset {
+                before,
+                before_bytes,
+                ..
+            } => {
+                validate_asset_before(before, before_bytes, &mut asset_total, &mut identities)?;
             }
         }
     }
@@ -551,6 +707,7 @@ pub(super) fn validate_record(record: &ProposalRecord) -> Result<()> {
         }
         validate_comment(comment, &record.draft, false, &mut total)?;
     }
+    super::proposal_apply::reserve_asset_review(record)?;
     Ok(())
 }
 
@@ -717,7 +874,13 @@ pub(super) fn edited_review(
                     *old = text.clone();
                 }
             }
-            (NoteChange::Trash { .. }, None) => {}
+            (
+                NoteChange::Trash { .. }
+                | NoteChange::CreateAsset { .. }
+                | NoteChange::ReplaceAsset { .. }
+                | NoteChange::TrashAsset { .. },
+                None,
+            ) => {}
             _ => {
                 return Err(invalid(
                     "proposal edit text does not match its typed change",
@@ -790,7 +953,11 @@ impl WorkStore {
                 updated_at_ms: now,
             },
         };
+        validate_record(&stored.record)?;
         let bytes = encode(&stored)?;
+        if bytes.len() > MAX_STORED_BYTES {
+            return Err(invalid("proposal exceeds its encoded size limit"));
+        }
         tx.execute(
             "INSERT INTO proposals(id,group_id,creation_sha256,record_json,record_sha256) VALUES(?1,?2,?3,?4,?5)",
             params![draft.id.to_string(), draft.group_id.map(|id| id.to_string()), stored.creation_sha256.as_slice(), bytes, hash(&bytes).as_slice()],

@@ -272,6 +272,9 @@ fn covered_review(older: &ApplyJournal, applied: &ApplyJournal) -> bool {
                         && before_proof == after_proof
                         && before_text == after_text
                 }
+                (NoteChange::CreateAsset { .. }, NoteChange::CreateAsset { .. })
+                | (NoteChange::ReplaceAsset { .. }, NoteChange::ReplaceAsset { .. })
+                | (NoteChange::TrashAsset { .. }, NoteChange::TrashAsset { .. }) => before == after,
                 _ => false,
             })
 }
@@ -907,6 +910,11 @@ mod tests {
                         }
                     }
                     NoteChange::Trash { before, .. } => before.clone(),
+                    NoteChange::CreateAsset { .. }
+                    | NoteChange::ReplaceAsset { .. }
+                    | NoteChange::TrashAsset { .. } => {
+                        unreachable!("Markdown-only historical fixture")
+                    }
                 }
             })
             .collect();
@@ -930,6 +938,11 @@ mod tests {
                         destination: None,
                         staging: Some(before.clone()),
                     },
+                    NoteChange::CreateAsset { .. }
+                    | NoteChange::ReplaceAsset { .. }
+                    | NoteChange::TrashAsset { .. } => {
+                        unreachable!("Markdown-only historical fixture")
+                    }
                 })
                 .collect(),
         );
@@ -1772,7 +1785,10 @@ mod tests {
                 NoteChange::Create { text, .. } | NoteChange::Replace { text, .. } => {
                     *text = "x".repeat(crate::MAX_NOTE_BYTES)
                 }
-                NoteChange::Trash { .. } => unreachable!(),
+                NoteChange::Trash { .. }
+                | NoteChange::CreateAsset { .. }
+                | NoteChange::ReplaceAsset { .. }
+                | NoteChange::TrashAsset { .. } => unreachable!("Create/Replace Markdown fixture"),
             }
         }
         journal.creation_sha256 = digest(&serde_json::to_vec(&journal.approved.draft).unwrap());

@@ -90,6 +90,8 @@ fn prepared(store: &mut WorkStore, draft: &ProposalDraft) -> ApplyJournal {
                 fingerprint(text, 100 + index as u64)
             }
             NoteChange::Trash { before, .. } => before.clone(),
+
+            _ => unreachable!("Markdown-only fixture"),
         })
         .collect();
     store
@@ -119,6 +121,8 @@ fn observed(journal: &ApplyJournal, mask: u64) -> Vec<ApplyMemberProof> {
                     destination: (!applied).then(|| before.clone()),
                     staging: applied.then(|| before.clone()),
                 },
+
+                _ => unreachable!("Markdown-only fixture"),
             }
         })
         .collect()
