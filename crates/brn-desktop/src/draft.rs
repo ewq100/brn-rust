@@ -326,6 +326,7 @@ impl DraftForm {
             },
         };
         let request = DraftRequest {
+            inbox_visual: None,
             inbox_knowledge: None,
             inbox_source: None,
             action_changes: Vec::new(),

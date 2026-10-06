@@ -3,19 +3,23 @@
 ## Current checkpoint
 
 Full frozen V1 goal remains confirmed active on2026-10-06, without a token budget.
-Integrated main is PR75 `f1af1b41139e0bad0fdd838af274ada6aac0af2b`: accepted
-semantic/identity/recovery corrections, text copy lifecycle and binary retention
-and ordinary assets are integrated. Independent reviews, full shared1,513/0/14
-+52, affected native gates, exact-head protected CI and fresh merged119/0/1+52
-passed; exact main CI also passed applicable checks, retaining known platform
-failures. Evidence is in the [Stage8 plan](../office-inbox/plan.md). Bounded DOCX
-Source conversion is implemented within the existing processing/proposal family;
-review findings are fixed and clean c53b408 full shared1,557/0/14+52 and
-native687/0/12 qualification passed. Exact-head CI/integration is next.
-Native/live/owner acceptance,
+Integrated main is PR76 `b6a13313d9807be66baa49aca2a0e3c96e60d18d`:
+accepted semantic/identity/recovery corrections, text copy lifecycle, binary
+retention, ordinary assets and bounded DOCX text Source conversion are integrated.
+Complete/correction reviews, full shared1,557/0/14+52 and native687/0/12 passed.
+Exactfb78/run37435614131 attempt1 passed four protected macOS/shared checks and
+Docs, retaining the actual Windows22 red result and all meaningful differences.
+Fresh merged19-command gate passed127/0/0+52, native widgets/builds and V15 restarts.
+Exact merged-main run37438639577 attempt1 passed four protected checks and Docs;
+overall failure retains actual Windows22/20/14 errors and three Linux native
+failures with complete meaningful differences. The
+[office plan](../office-inbox/plan.md#next-slice-inline-png-source-and-local-interpretation)
+now selects checked inline-PNG Source/asset preservation and explicit local
+interpretation; pure converter and thin runtime components are in progress,
+while production integration/qualification remain unfinished. Native/live/owner acceptance,
 residual startup/backup cost and trusted-user packaging remain unfinished.
-The [resumable checkpoint](../../../development/checkpoint.md) owns current
-navigation. Historical checkpoints/evidence below remain retained.
+The [resumable checkpoint](../../../development/checkpoint.md) owns navigation;
+historical evidence below remains retained.
 
 ## Earlier correction checkpoint
 

@@ -328,6 +328,7 @@ fn real_worker_approved_action_completion_dashboard_refresh_and_restart_need_no_
     action_data.due_on = Some("0001-01-01".into());
     action_data.follow_up_on = Some("0001-01-01".into());
     let create = AppCommand::CreateProposal(DraftRequest {
+        inbox_visual: None,
         inbox_knowledge: None,
         inbox_source: None,
         id: Uuid::new_v4(),

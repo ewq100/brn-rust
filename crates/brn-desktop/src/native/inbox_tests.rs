@@ -300,6 +300,7 @@ fn native_inbox_original_and_preview_are_readonly_and_copy_complete_exact_bytes(
         ai.apply(process, AppEvent::InboxProcessing(Box::new(batch)));
         let (operation, AppCommand::InboxCandidate(request)) = ai.preview_inbox_candidate(0).unwrap() else { panic!("typed preview") };
         ai.apply(operation, AppEvent::InboxCandidate(Box::new(InboxConversionPreview {
+            visual: None,
             request, original: original.clone(), format: InboxConversionFormat::VerbatimMarkdownV1,
             markdown: EXACT.into(), needs_semantic_review: true,
         })));

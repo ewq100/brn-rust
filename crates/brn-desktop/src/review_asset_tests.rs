@@ -71,6 +71,7 @@ fn creation_acknowledgement_keeps_asset_kind_path_payload_and_expected_proof() {
         sources: record.draft.sources.clone(),
         action_changes: Vec::new(),
         inbox_source: None,
+        inbox_visual: None,
         inbox_knowledge: None,
     };
     assert!(crate::draft::creation_matches(&request, &record));

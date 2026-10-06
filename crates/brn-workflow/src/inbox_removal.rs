@@ -450,6 +450,7 @@ pub(crate) mod tests {
             .saved;
         let draft = crate::proposals::DraftRequest {
             inbox_source: None,
+            inbox_visual: None,
             inbox_knowledge: None,
             id: Uuid::new_v4(),
             group_id: None,
@@ -505,6 +506,7 @@ pub(crate) mod tests {
             .saved;
         let good = f.app.preview_inbox_removal(f.item).unwrap();
         let capture = InboxActionCapture {
+            visual_asset: None,
             purpose: Default::default(),
             id: Uuid::new_v4(),
             conversation: None,
@@ -539,6 +541,7 @@ pub(crate) mod tests {
         );
         let draft = crate::proposals::DraftRequest {
             inbox_source: None,
+            inbox_visual: None,
             inbox_knowledge: None,
             id: Uuid::new_v4(),
             group_id: Some(capture.id),
@@ -862,6 +865,7 @@ pub(crate) mod tests {
                 let source = good.evidence.source.as_ref().unwrap().saved.source.clone();
                 let draft = crate::proposals::DraftRequest {
                     inbox_source: None,
+                    inbox_visual: None,
                     inbox_knowledge: None,
                     id: Uuid::new_v4(),
                     group_id: None,

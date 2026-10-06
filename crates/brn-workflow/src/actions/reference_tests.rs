@@ -83,6 +83,7 @@ fn create(id: Uuid) -> ActionChange {
 }
 fn draft(changes: Vec<ActionChange>) -> ProposalDraft {
     ProposalDraft {
+        inbox_visual: None,
         inbox_knowledge: None,
         inbox_source: None,
         id: Uuid::new_v4(),

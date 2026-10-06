@@ -26,6 +26,7 @@ pub(super) struct InboxPane {
     pub(super) analysis_source: Entity<EditorState>,
     pub(super) analysis_retained_source: Entity<EditorState>,
     pub(super) analysis_answer: Entity<EditorState>,
+    pub(super) visual_annotation: Entity<EditorState>,
     /// Explicit guarded entry intention, consumed once without replacing later typing.
     pub(super) analysis_path_target: Option<String>,
     pub(super) checked: Vec<InboxItem>,
@@ -69,6 +70,7 @@ impl InboxPane {
             analysis_source: cx.new(|cx| EditorState::new(window, cx).default_value("")),
             analysis_retained_source: cx.new(|cx| EditorState::new(window, cx).default_value("")),
             analysis_answer: cx.new(|cx| EditorState::new(window, cx).default_value("")),
+            visual_annotation: cx.new(|cx| EditorState::new(window, cx).default_value("")),
             analysis_path_target: None,
             checked: Vec::new(),
             scroll: ScrollHandle::new(),
@@ -672,8 +674,12 @@ impl Desktop {
                     "Copy full converted preview",
                     preview.markdown.clone(),
                 ));
+            if let Some(visual) = &preview.visual {
+                content = content.child(super::visual::png_panel("inbox-preview-png", &visual.bytes, &visual.proof))
+                    .child("Pending explicit visual interpretation. Exact Source and PNG approval is separate from interpretation approval.");
+            }
             if preview.needs_semantic_review {
-                content = content.child("The conversion still needs semantic review. Attachments and visual completeness are not established by this text copy.");
+                content = content.child("The conversion still needs semantic review. Original wording and images remain evidence; approval does not complete interpretation.");
             }
         }
         content = content

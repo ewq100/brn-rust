@@ -46,6 +46,11 @@ pub(crate) mod inbox_analysis_state_tests;
 mod inbox_copy_state;
 #[path = "inbox_state.rs"]
 mod inbox_state;
+#[path = "visual_analysis_state.rs"]
+mod visual_analysis_state;
+#[cfg(all(test, target_os = "macos"))]
+#[path = "visual_analysis_state_tests.rs"]
+pub(crate) mod visual_analysis_state_tests;
 #[cfg(feature = "native-ui")]
 pub use inbox_copy_state::{InboxCopyConfirmation, InboxCopyRequest};
 #[cfg(all(test, target_os = "macos"))]
@@ -2789,7 +2794,10 @@ impl AiState {
             AppEvent::TurnCancelRequested { .. }
             | AppEvent::AccountCancelRequested { .. }
             | AppEvent::ModelCancelRequested { .. } => return commands,
-            AppEvent::ProposalRewrite(_) | AppEvent::InboxActionAnalysis(_) => return commands,
+            AppEvent::ProposalRewrite(_)
+            | AppEvent::InboxActionAnalysis(_)
+            | AppEvent::InboxVisualEvidence(_)
+            | AppEvent::InboxVisualDraft(_) => return commands,
             AppEvent::Rewrite(_) => unreachable!(),
             AppEvent::Chat(_)
             | AppEvent::Account(_)

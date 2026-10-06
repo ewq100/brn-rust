@@ -130,6 +130,7 @@ fn applied_fixture(worker: &AppWorker) -> (ApprovalRequest, EditorRecord, Editor
     let AppEvent::Proposal(draft) = request_event(
         worker,
         AppCommand::CreateProposal(DraftRequest {
+            inbox_visual: None,
             inbox_knowledge: None,
             inbox_source: None,
             action_changes: Vec::new(),

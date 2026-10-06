@@ -184,6 +184,7 @@ fn captured_replace_exposes_link_inspection_and_preparation_in_scrolled_form(
 fn prepared_form() -> (crate::draft::DraftForm, DraftRequest) {
     let consumer = source();
     let request = DraftRequest {
+        inbox_visual: None,
         inbox_knowledge: None,
         inbox_source: None,
         action_changes: Vec::new(),
@@ -471,6 +472,7 @@ fn prepared_source_form() -> (crate::draft::DraftForm, DraftRequest) {
         }],
         sources: vec![],
         action_changes: vec![],
+        inbox_visual: None,
         inbox_knowledge: None,
         inbox_source: Some(Box::new(binding)),
     };

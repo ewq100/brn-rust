@@ -31,7 +31,7 @@ application retry or fallback. A consumed completed result can win later cancell
 validates strict full-member JSON and commits review work through WorkStore CAS;
 this adapter never applies knowledge or persists prompts/comments/results.
 
-Static Ask, Action-review, Inbox-knowledge and Rewrite instructions/capability
+Static Ask, Action-review, Inbox-knowledge, visual interpretation and Rewrite instructions/capability
 selection live behind the private typed `behavior` boundary. Individual tool
 descriptions remain with their implementations; workflow supplies captured task
 context through its private typed boundary and retains deterministic authority.
@@ -39,6 +39,15 @@ Inbox Knowledge proposal inputs supply semantic candidate text/evidence, without
 proposal/note IDs. Workflow mints both identities and returns them in the review
 receipt; strict legacy `id`/`note_id` input fields are refused. Candidate Markdown
 must omit managed note identity.
+
+`interpret_visual` transports one checked PNG through the explicitly selected
+provider/model/effort, using the static visual behavior and no tools, history,
+retry or fallback. `VisualImage` checks only its1MiB transport bound/signature;
+Workflow qualifies complete PNG integrity, dimensions, provenance and freshness.
+The prompt is bounded at64KiB and UTF-8 output at16KiB. Only a present final Stop
+finish reason completes; missing/unknown/incomplete finish metadata refuses.
+Description/uncertainty remain provisional until Workflow validates them and the
+owner approves a separate exact Source annotation proposal.
 
 ## Authentication contract
 

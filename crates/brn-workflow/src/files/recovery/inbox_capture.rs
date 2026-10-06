@@ -42,26 +42,28 @@ impl Capture {
         self.job
             .validate()
             .map_err(|_| invalid("invalid approval analysis capture"))?;
-        if self.job.capture.purpose != InboxAnalysisPurpose::KnowledgeAndActions {
-            return Err(invalid("approval needs a Knowledge analysis capture"));
+        if !matches!(
+            self.job.capture.purpose,
+            InboxAnalysisPurpose::KnowledgeAndActions | InboxAnalysisPurpose::VisualInterpretation
+        ) {
+            return Err(invalid("approval needs a bound semantic analysis capture"));
         }
         Ok(())
     }
 
     fn check_journal(&self, journal: &ApplyJournal) -> FileResult<()> {
         self.validate()?;
-        let binding = journal
+        journal
             .approved
             .draft
-            .inbox_knowledge
-            .as_deref()
-            .ok_or_else(|| invalid("approval has no Knowledge capture binding"))?;
-        binding
-            .validate_capture(&self.job)
+            .validate_inbox_analysis_capture(&self.job)
             .map_err(|_| invalid("approval analysis capture binding differs"))?;
-        let bytes = serde_json::to_vec(binding)
-            .map_err(|_| invalid("could not encode approval Knowledge binding"))?;
-        if self.request != journal.request || self.binding_sha256 != digest(&bytes) {
+        let binding_sha256 = journal
+            .approved
+            .draft
+            .inbox_analysis_binding_hash()
+            .map_err(|_| invalid("could not bind approval analysis"))?;
+        if self.request != journal.request || self.binding_sha256 != binding_sha256 {
             return Err(invalid(
                 "approval companion belongs to another exact request",
             ));
@@ -214,17 +216,11 @@ impl ApplyRecoveryFiles {
             .map_err(|_| invalid("invalid captured approval journal"))?;
         let capture = Capture {
             request: journal.request.clone(),
-            binding_sha256: digest(
-                &serde_json::to_vec(
-                    journal
-                        .approved
-                        .draft
-                        .inbox_knowledge
-                        .as_deref()
-                        .ok_or_else(|| invalid("approval has no Knowledge capture binding"))?,
-                )
-                .map_err(|_| invalid("could not encode approval Knowledge binding"))?,
-            ),
+            binding_sha256: journal
+                .approved
+                .draft
+                .inbox_analysis_binding_hash()
+                .map_err(|_| invalid("could not bind approval analysis"))?,
             job: job.clone(),
         };
         capture.check_journal(journal)?;

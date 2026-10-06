@@ -215,6 +215,8 @@ pub struct SourceVersion {
 #[serde(deny_unknown_fields)]
 pub struct ProposalDraft {
     #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub inbox_visual: Option<Box<super::inbox_visual::InboxVisualAnnotationBinding>>,
+    #[serde(default, skip_serializing_if = "Option::is_none")]
     pub inbox_knowledge: Option<Box<super::inbox_actions::InboxKnowledgeBinding>>,
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub inbox_source: Option<Box<super::inbox_source::InboxSourceBinding>>,
@@ -227,6 +229,35 @@ pub struct ProposalDraft {
     pub sources: Vec<SourceVersion>,
     #[serde(default, skip_serializing_if = "Vec::is_empty")]
     pub action_changes: Vec<ActionChange>,
+}
+
+impl ProposalDraft {
+    pub fn inbox_analysis_id(&self) -> Option<Uuid> {
+        self.inbox_knowledge
+            .as_ref()
+            .map(|b| b.analysis_id)
+            .or_else(|| self.inbox_visual.as_ref().map(|b| b.analysis_id))
+    }
+    pub fn validate_inbox_analysis_capture(
+        &self,
+        job: &super::inbox_actions::InboxActionJob,
+    ) -> Result<()> {
+        match (&self.inbox_knowledge, &self.inbox_visual) {
+            (Some(binding), None) => binding.validate_capture(job),
+            (None, Some(binding)) => binding.validate_capture(job),
+            _ => Err(invalid("approval needs one exact Inbox analysis binding")),
+        }
+    }
+    /// Preserve the literal existing knowledge-binding hash; the companion
+    /// remains the same recovery family and carries no discriminator wrapper.
+    pub fn inbox_analysis_binding_hash(&self) -> Result<[u8; 32]> {
+        let bytes = match (&self.inbox_knowledge, &self.inbox_visual) {
+            (Some(binding), None) => encode(binding)?,
+            (None, Some(binding)) => encode(binding)?,
+            _ => return Err(invalid("approval needs one exact Inbox analysis binding")),
+        };
+        Ok(hash(&bytes))
+    }
 }
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize, Deserialize)]
@@ -470,6 +501,7 @@ fn validate_draft(draft: &ProposalDraft) -> Result<usize> {
             }
         };
         if draft.inbox_source.is_some()
+            || draft.inbox_visual.is_some()
             || !draft.action_changes.is_empty()
             || draft.group_id != Some(binding.analysis_id)
         {
@@ -481,17 +513,40 @@ fn validate_draft(draft: &ProposalDraft) -> Result<usize> {
         binding.validate_text(text)?;
     }
     if let Some(binding) = &draft.inbox_source {
-        let [NoteChange::Create { text, .. }] = draft.changes.as_slice() else {
-            return Err(invalid(
-                "Inbox source proposal requires one source Create member",
-            ));
-        };
-        if !draft.sources.is_empty() || !draft.action_changes.is_empty() {
+        if draft.inbox_visual.is_some()
+            || !draft.sources.is_empty()
+            || !draft.action_changes.is_empty()
+        {
             return Err(invalid(
                 "Inbox source conversion is separate from semantic consequences",
             ));
         }
-        binding.validate_markdown(text)?;
+        binding.validate_members(&draft.changes)?;
+    }
+    if let Some(binding) = &draft.inbox_visual {
+        if draft.inbox_source.is_some()
+            || draft.inbox_knowledge.is_some()
+            || !draft.action_changes.is_empty()
+            || draft.group_id != Some(binding.analysis_id)
+            || draft.sources.as_slice() != std::slice::from_ref(&binding.source)
+        {
+            return Err(invalid(
+                "Visual annotation needs only its exact analysis and Source",
+            ));
+        }
+        let [
+            NoteChange::Replace {
+                path,
+                before,
+                before_text,
+                text,
+                ..
+            },
+        ] = draft.changes.as_slice()
+        else {
+            return Err(invalid("Visual annotation needs one exact Source Replace"));
+        };
+        binding.validate_replace(path, before, before_text, text)?;
     }
     nonnil(draft.id)?;
     for id in [draft.group_id, draft.session_id].into_iter().flatten() {
@@ -540,6 +595,9 @@ fn validate_draft(draft: &ProposalDraft) -> Result<usize> {
                 .map_err(|_| invalid("could not encode Inbox source binding"))?
                 .len(),
         )?;
+    }
+    if let Some(binding) = &draft.inbox_visual {
+        add_bytes(&mut total, encode(binding)?.len())?;
     }
     add_bytes(&mut total, root.len())?;
     add_bytes(&mut total, draft.title.len())?;
@@ -738,6 +796,9 @@ pub(super) fn read_proposal(conn: &Connection, id: Uuid) -> Result<Option<Stored
         validate_record(&stored.record)?;
         if let Some(binding) = &stored.record.draft.inbox_knowledge {
             super::inbox_actions::check_knowledge_binding(conn, binding)?;
+        }
+        if let Some(binding) = &stored.record.draft.inbox_visual {
+            super::inbox_visual::check_binding(conn, binding)?;
         }
         if stored.record.version == 1
             && stored.creation_sha256 != hash(&encode(&stored.record.draft)?)
@@ -940,6 +1001,9 @@ impl WorkStore {
         validate_draft(draft)?;
         if let Some(binding) = &draft.inbox_knowledge {
             super::inbox_actions::check_knowledge_binding(&tx, binding)?;
+        }
+        if let Some(binding) = &draft.inbox_visual {
+            super::inbox_visual::check_binding(&tx, binding)?;
         }
         let now = now_ms();
         let stored = StoredProposal {

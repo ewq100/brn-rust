@@ -8,6 +8,7 @@ use brn_ai::{
 use brn_store::work::{WorkTurn, WorkTurnStatus, chat::ChatStore};
 use brn_store::work::{proposal_rewrite::RewriteOutcome, proposals::ProposalRecord};
 use futures::FutureExt;
+use sha2::{Digest, Sha256};
 use std::{
     collections::HashMap,
     sync::{
@@ -143,6 +144,7 @@ enum Command {
     Ask(
         AskRequest,
         Option<Box<crate::inbox_actions::InboxActionJob>>,
+        Option<brn_ai::VisualImage>,
     ),
     Rewrite(RewriteRequest, CancellationToken),
     Account(Uuid, AccountCommand),
@@ -160,12 +162,13 @@ pub(crate) struct ChatHandle {
 }
 impl ChatHandle {
     pub(crate) fn ask(&self, request: AskRequest) -> Result<()> {
-        self.send(Command::Ask(request, None))
+        self.send(Command::Ask(request, None, None))
     }
     pub(crate) fn ask_inbox(
         &self,
         request: AskRequest,
         job: crate::inbox_actions::InboxActionJob,
+        image: Option<brn_ai::VisualImage>,
     ) -> Result<()> {
         if request.id != job.capture.id
             || request.conversation != job.capture.conversation
@@ -176,7 +179,15 @@ impl ChatHandle {
         {
             return Err(conflict());
         }
-        self.send(Command::Ask(request, Some(Box::new(job))))
+        match (job.capture.visual_asset.as_ref(), image.as_ref()) {
+            (Some(asset), Some(image))
+                if asset.fingerprint.len == image.png_bytes().len() as u64
+                    && asset.fingerprint.sha256
+                        == <[u8; 32]>::from(Sha256::digest(image.png_bytes())) => {}
+            (None, None) => {}
+            _ => return Err(conflict()),
+        }
+        self.send(Command::Ask(request, Some(Box::new(job)), image))
     }
     pub(crate) fn rewrite(&self, request: RewriteRequest, cancel: CancellationToken) -> Result<()> {
         self.send(Command::Rewrite(request, cancel))
@@ -353,6 +364,8 @@ pub(crate) fn rejected(request: &AskRequest, error: WorkflowError) -> ChatEvent 
 #[derive(Clone, Default)]
 pub(crate) struct Hooks {
     #[cfg(test)]
+    pub(crate) visual: Option<VisualHook>,
+    #[cfg(test)]
     pub(crate) answer: Option<super::simple_worker_tests::AnswerHook>,
     #[cfg(test)]
     pub(crate) proposal_answer: Option<super::simple_worker_tests::ProposalAnswerHook>,
@@ -361,6 +374,18 @@ pub(crate) struct Hooks {
     #[cfg(test)]
     pub(crate) rewrite: Option<proposal_rewrite::RewriteHook>,
 }
+
+#[cfg(test)]
+pub(crate) type VisualHook = Arc<
+    dyn Fn(
+            AskRequest,
+            brn_ai::VisualImage,
+            CancellationToken,
+            Arc<dyn Fn(AiEvent) + Send + Sync>,
+        ) -> std::pin::Pin<Box<dyn std::future::Future<Output = AiAnswer> + Send>>
+        + Send
+        + Sync,
+>;
 
 struct Active {
     provider: Provider,
@@ -441,7 +466,7 @@ async fn run(
                             emit(Output::Account(AccountEvent::Login { id, prompt }));
                         }
                     }
-                    Some(Command::Ask(request, inbox)) => {
+                    Some(Command::Ask(request, inbox, image)) => {
                         let validation = (|| -> Result<Option<WorkTurn>> {
                             if let Some(previous) = turn_ledger.get(&request.id) {
                                 let mut previous = previous.clone();
@@ -500,7 +525,7 @@ async fn run(
                                         active = Some(Active { provider: request.selection.provider, cancel: cancel.clone() });
                                         turn_ledger.insert(request.id, request.clone());
                                         let task = jobs.spawn(run_turn(
-                                            auth.clone(), request.clone(), history,
+                                            auth.clone(), request.clone(), history, image,
                                             tools.as_ref().expect("preflight tools").clone(),
                                             match inbox {
                                                 Some(job) => proposals.bind_inbox(&request, &turn, cancel.clone(), Some(job)),
@@ -791,12 +816,17 @@ async fn run_turn(
     auth: Arc<Auth>,
     request: AskRequest,
     history: Vec<HistoryPair>,
+    image: Option<brn_ai::VisualImage>,
     tools: Arc<dyn ReadTools>,
     proposals: Arc<dyn brn_ai::ProposalTools>,
     cancel: CancellationToken,
     emit: Emit,
     hooks: Hooks,
 ) -> JobResult {
+    if let Some(image) = image {
+        drop((history, tools, proposals));
+        return run_visual_turn(auth, request, image, cancel, emit, hooks).await;
+    }
     let (drained, wait) = oneshot::channel();
     let lease = Arc::new(DrainSignal(Some(drained)));
     let tools: Arc<dyn ReadTools> = Arc::new(DrainedTools {
@@ -898,6 +928,71 @@ async fn run_turn(
         )
     {
         answer.terminal = AiTerminal::Interrupted;
+    }
+    JobResult::Turn(request, answer)
+}
+
+async fn run_visual_turn(
+    auth: Arc<Auth>,
+    request: AskRequest,
+    image: brn_ai::VisualImage,
+    cancel: CancellationToken,
+    emit: Emit,
+    hooks: Hooks,
+) -> JobResult {
+    let request_events = request.clone();
+    let events: Arc<dyn Fn(AiEvent) + Send + Sync> = Arc::new(move |event| {
+        if let AiEvent::Text(text) = event {
+            emit(Output::Chat(ChatEvent::Text {
+                id: request_events.id,
+                generation: request_events.generation,
+                text,
+            }));
+        }
+    });
+    #[cfg(not(test))]
+    let _ = hooks;
+    let operation = async {
+        #[cfg(test)]
+        if let Some(fake) = hooks.visual {
+            return fake(request.clone(), image, cancel.clone(), events).await;
+        }
+        let Some(effort) = request.effort else {
+            return AiAnswer {
+                text: String::new(),
+                terminal: AiTerminal::Failed(AiError::new(AiErrorKind::ModelRefused)),
+            };
+        };
+        match auth.client(&request.selection, cancel.clone()).await {
+            Ok(client) => {
+                brn_ai::interpret_visual(
+                    client,
+                    &request.question,
+                    &image,
+                    effort,
+                    cancel.clone(),
+                    events,
+                )
+                .await
+            }
+            Err(error) => AiAnswer {
+                text: String::new(),
+                terminal: AiTerminal::Failed(error),
+            },
+        }
+    };
+    let mut answer = std::panic::AssertUnwindSafe(operation)
+        .catch_unwind()
+        .await
+        .unwrap_or_else(|_| AiAnswer {
+            text: String::new(),
+            terminal: AiTerminal::Failed(AiError::new(AiErrorKind::Other)),
+        });
+    if cancel.is_cancelled() {
+        answer.terminal = AiTerminal::Interrupted;
+    }
+    if !matches!(answer.terminal, AiTerminal::Completed) {
+        answer.text.clear();
     }
     JobResult::Turn(request, answer)
 }

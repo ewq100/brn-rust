@@ -316,6 +316,7 @@ impl ActionProposal {
             })
             .collect::<AiResult<Vec<_>>>()?;
         let request = DraftRequest {
+            inbox_visual: None,
             inbox_knowledge: None,
             inbox_source: None,
             id,

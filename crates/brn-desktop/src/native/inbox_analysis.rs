@@ -83,6 +83,22 @@ impl Desktop {
                     editor.set_value(retained_source, window, cx)
                 });
         }
+        let annotation = ai
+            .inbox_analysis
+            .annotation
+            .as_ref()
+            .and_then(|draft| match draft.changes.first() {
+                Some(brn_workflow::proposals::DraftNoteChange::Replace { text, .. }) => {
+                    Some(text.as_str())
+                }
+                _ => None,
+            })
+            .unwrap_or("");
+        if self.inbox.visual_annotation.read(cx).value().as_ref() != annotation {
+            self.inbox
+                .visual_annotation
+                .update(cx, |editor, cx| editor.set_value(annotation, window, cx));
+        }
         let answer = answer_text(ai);
         if self.inbox.analysis_answer.read(cx).value().as_ref() != answer {
             self.inbox
@@ -245,6 +261,119 @@ impl Desktop {
                 .disabled(blocked || !ai.can_analyze_inbox_source()
                     || !self.analysis_source_matches_input(cx))
                 .on_click(cx.listener(|this, _, window, cx| this.start_inbox_analysis(window, cx))));
+        panel = panel.child(
+            Button::new("inbox-visual-inspect")
+                .label("Inspect saved PNG")
+                .disabled(
+                    blocked
+                        || !ai.ready
+                        || !ai.vault_bound
+                        || ai.application_busy()
+                        || ai.inbox_analysis_source_loading()
+                        || view.source.is_none()
+                        || !self.analysis_source_matches_input(cx)
+                        || ai.visual_analysis_pending(),
+                )
+                .on_click(cx.listener(|this, _, _, cx| {
+                    if this.inbox_blocked() || !this.analysis_source_matches_input(cx) {
+                        return;
+                    }
+                    if let Some(command) = this.ai.as_mut().unwrap().inspect_inbox_visual() {
+                        this.simple_send(command, cx);
+                    }
+                    cx.notify();
+                })),
+        );
+        if let Some(visual) = &view.visual {
+            if let Ok(proof) = visual.visual_proof() {
+                panel = panel.child(super::visual::png_panel(
+                    "inbox-saved-png",
+                    &visual.bytes,
+                    &proof,
+                ));
+            }
+            panel = panel.child(div().id("inbox-visual-source-proof").test_support()
+                .aria_label(super::visual::file_proof("Full Source proof", &visual.source.source))
+                .child(super::visual::file_proof("Full Source proof", &visual.source.source)))
+                .child(div().id("inbox-visual-asset-proof").test_support()
+                .aria_label(super::visual::file_proof("Full PNG asset proof", &visual.asset))
+                .child(super::visual::file_proof("Full PNG asset proof", &visual.asset)))
+                .child(div().id("inbox-visual-interpretation-status").test_support()
+                .aria_label("Source and asset approval preserves evidence. Interpretation remains pending or tentative until separately reviewed and exactly approved.")
+                .child("Source and asset approval preserves evidence. Interpretation remains pending or tentative until separately reviewed and exactly approved."));
+        }
+        panel = panel
+            .child(
+                Button::new("inbox-visual-start")
+                    .label("Interpret this PNG")
+                    .disabled(
+                        blocked
+                            || !self.analysis_source_matches_input(cx)
+                            || !ai.can_interpret_inbox_visual(),
+                    )
+                    .on_click(cx.listener(|this, _, window, cx| {
+                        if this.inbox_blocked() || !this.analysis_source_matches_input(cx) {
+                            return;
+                        }
+                        if let Some(command) = this.ai.as_mut().unwrap().interpret_inbox_visual() {
+                            this.inbox.analysis_id.update(cx, |input, cx| {
+                                input.set_value(command.0.to_string(), window, cx)
+                            });
+                            this.simple_send(command, cx);
+                        }
+                        cx.notify();
+                    })),
+            )
+            .child(
+                Button::new("inbox-visual-prepare")
+                    .label("Prepare tentative annotation")
+                    .disabled(
+                        blocked
+                            || !self.analysis_source_matches_input(cx)
+                            || !ai.can_prepare_visual_annotation(),
+                    )
+                    .on_click(cx.listener(|this, _, _, cx| {
+                        if this.inbox_blocked() || !this.analysis_source_matches_input(cx) {
+                            return;
+                        }
+                        if let Some(command) = this.ai.as_mut().unwrap().prepare_visual_annotation()
+                        {
+                            this.simple_send(command, cx);
+                        }
+                        cx.notify();
+                    })),
+            );
+        if let Some(error) = &view.visual_error {
+            panel = panel.child(format!("Visual inspection or preparation: {error}"));
+        }
+        if view.annotation.is_some() {
+            panel = panel.child("Tentative annotation candidate: complete Source text. No durable text changes before separate exact approval.")
+                .child(div().h(px(220.)).child(readonly(&self.inbox.visual_annotation, "Complete tentative annotation Source candidate")))
+                .child(Button::new("inbox-visual-create").label("Create annotation review")
+                    .disabled(blocked || !self.analysis_source_matches_input(cx) || !ai.can_prepare_visual_annotation() || view.annotation_review.is_some())
+                    .on_click(cx.listener(|this, _, _, cx| {
+                        if this.inbox_blocked() || !this.analysis_source_matches_input(cx) { return; }
+                        if let Some(command) = this.ai.as_mut().unwrap().create_visual_annotation() { this.simple_send(command, cx); }
+                        cx.notify();
+                    })));
+        }
+        if let Some(id) = view.annotation_review {
+            panel = panel.child(
+                Button::new("inbox-visual-open-review")
+                    .label("Open annotation review for exact approval")
+                    .disabled(blocked || !self.analysis_source_matches_input(cx))
+                    .on_click(cx.listener(move |this, _, _, cx| {
+                        if this.inbox_blocked()
+                            || !this.analysis_source_matches_input(cx)
+                            || this.ai.as_ref().unwrap().inbox_analysis.annotation_review
+                                != Some(id)
+                        {
+                            return;
+                        }
+                        this.simple_leave(super::simple::EditorTransition::Review(id), cx);
+                    })),
+            );
+        }
         if let Some(error) = &ai.selection_error {
             panel = panel.child(format!("Selection unavailable: {error}"));
         }
@@ -344,6 +473,20 @@ impl Desktop {
                     "Copy captured Source",
                     capture.source_text.clone(),
                 ));
+            panel = panel.child(super::visual::file_proof(
+                "Captured full Source proof",
+                &capture.source,
+            ));
+            if let Some(asset) = &capture.visual_asset {
+                let proof = super::visual::file_proof("Captured full PNG asset proof", asset);
+                panel = panel.child(
+                    div()
+                        .id("inbox-visual-captured-asset-proof")
+                        .test_support()
+                        .aria_label(proof.clone())
+                        .child(proof),
+                );
+            }
             if let Some(turn) = &record.turn {
                 panel = panel.child(format!("Retained status: {}", turn_label(turn)));
                 if let Some(code) = &turn.error_code {

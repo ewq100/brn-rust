@@ -37,6 +37,9 @@ brn inbox process --file REQUEST_JSON
 brn inbox processing UUID
 brn inbox candidate UUID INDEX
 brn inbox source --file REQUEST_JSON
+brn inbox visual SOURCE_PATH
+brn inbox interpret-visual --file REQUEST_JSON [--timeout-seconds N]
+brn inbox visual-annotation ANALYSIS_UUID
 brn inbox cancel UUID
 brn inbox analyze-actions --file REQUEST_JSON [--timeout-seconds N]
 brn inbox action-analysis UUID
@@ -174,6 +177,48 @@ later work; the explicit owner cleanup commands below retain the original at an
 operation-owned endpoint. No analysis
 outcome establishes complete ingestion. The operation is an explicit provider call when new;
 no fallback, automatic retry or completeness/deletion authority is introduced.
+
+`inbox visual SOURCE_PATH` inspects one saved inline-PNG Source through the shared
+worker without creating work or calling a provider. `--json` returns the complete
+`InboxVisualEvidence`: exact Source text/proof, full asset proof and canonical
+padded-base64 PNG `bytes`. Text output identifies the Source/asset, byte length,
+dimensions and full SHA256, and points to that full JSON. Explicit read-only
+inspection includes qualified Sources under `archive/`; existing annotation and
+destination restrictions remain. Missing, changed or unsupported evidence refuses.
+
+`inbox interpret-visual --file REQUEST_JSON [--timeout-seconds N]` requires an
+`InboxActionRequest` with explicit `purpose: "visual_interpretation"`, the complete
+`source` and `visual_asset` from that inspection, a fresh nonnil `id`, explicit
+provider/model `selection`, `effort` and presentation `generation` (optional
+`conversation`). It uses the same owned lane, deadline (1–3600 seconds, default300),
+cancellation/join and exact terminal replay as existing Inbox analysis. A new
+request is an explicit provider call; there is no default model, fallback or retry.
+Source/asset proofs are rechecked before admission. Interpretation remains tentative;
+Source/asset approval and model confidence grant no semantic or cleanup authority.
+
+For a disposable synthetic Source already approved as `source.md`, replace DATA
+and VAULT below with existing absolute synthetic directories:
+
+```sh
+brn --json --data-dir DATA --vault VAULT inbox visual source.md
+brn --json --data-dir DATA --vault VAULT inbox interpret-visual --file visual-request.json --timeout-seconds 30
+brn --json --data-dir DATA --vault VAULT inbox visual-annotation ANALYSIS_UUID
+```
+
+Copy the whole inspection's `data.source` and `data.asset` into the request's
+`source` and `visual_asset` fields; do not replace them with paths or shortened
+proofs. Select provider/model and effort explicitly before running interpretation.
+No automatic provider call follows inspection.
+
+`inbox visual-annotation ANALYSIS_UUID` prepares a provider-free complete
+`DraftRequest` from a completed interpretation. The result carries exact
+`inbox_visual` binding, matching analysis group, Source/asset proofs and one
+protected Source Replace containing the full tentative description/uncertainty.
+Save its whole `data` as draft JSON, then explicitly `proposals create --file DRAFT.json`, inspect/comment/reject it or approve its exact current review stamp
+with existing proposal commands. Preparation neither creates a proposal nor
+writes annotation text. Failed/interrupted analysis cannot become an annotation;
+originals and PNG remain retained. CLI availability does not delegate these owner
+operations to an external agent.
 
 `inbox show` reports the complete metadata and either exact original text or an
 explicit removed-retained/missing/changed/unavailable result. `inbox list` reports chronological

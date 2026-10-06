@@ -21,6 +21,7 @@ fn upgrade(restored: bool) {
     let action_id = Uuid::new_v4();
     let record = store
         .create_proposal(&ProposalDraft {
+            inbox_visual: None,
             inbox_knowledge: None,
             inbox_source: None,
             id: Uuid::new_v4(),

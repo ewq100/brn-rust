@@ -9,6 +9,9 @@ mod proposal_tools;
 #[cfg(test)]
 mod provider_formats_tests;
 mod tools;
+mod visual;
+
+pub use visual::{VisualImage, interpret_visual};
 
 pub use action_candidates::{
     ActionCandidate, ActionCandidateData, ActionCandidatePriority, ActionCandidateState, ActionRef,

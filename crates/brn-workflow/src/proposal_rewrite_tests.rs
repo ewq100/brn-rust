@@ -32,6 +32,7 @@ fn create(worker: &AppWorker) -> ProposalRecord {
         panic!("editor")
     };
     let request = DraftRequest {
+        inbox_visual: None,
         inbox_knowledge: None,
         inbox_source: None,
         action_changes: Vec::new(),
@@ -163,6 +164,7 @@ fn asset_review(fixture: &Fixture, worker: &AppWorker) -> ProposalRecord {
         .submit(
             query,
             AppCommand::CreateProposal(DraftRequest {
+                inbox_visual: None,
                 inbox_knowledge: None,
                 inbox_source: None,
                 action_changes: vec![],

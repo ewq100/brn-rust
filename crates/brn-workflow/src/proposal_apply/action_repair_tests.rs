@@ -46,6 +46,7 @@ fn data(title: &str) -> ActionData {
 
 fn input(action_changes: Vec<ActionChange>) -> DraftRequest {
     DraftRequest {
+        inbox_visual: None,
         inbox_knowledge: None,
         inbox_source: None,
         id: Uuid::new_v4(),

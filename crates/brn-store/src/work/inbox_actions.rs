@@ -14,6 +14,7 @@ pub enum InboxAnalysisPurpose {
     #[default]
     Actions,
     KnowledgeAndActions,
+    VisualInterpretation,
 }
 impl InboxAnalysisPurpose {
     pub fn is_actions(&self) -> bool {
@@ -35,6 +36,8 @@ CREATE TABLE inbox_actions (
 #[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
 #[serde(deny_unknown_fields)]
 pub struct InboxActionCapture {
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub visual_asset: Option<SourceVersion>,
     /// Default omissions keep previously stored V14 canonical bytes unchanged.
     #[serde(default, skip_serializing_if = "InboxAnalysisPurpose::is_actions")]
     pub purpose: InboxAnalysisPurpose,
@@ -68,6 +71,21 @@ impl InboxActionCapture {
             return Err(invalid(
                 "Inbox Action analysis needs a managed Inbox Source",
             ));
+        }
+        match (self.purpose, self.visual_asset.as_ref()) {
+            (InboxAnalysisPurpose::VisualInterpretation, Some(asset)) => {
+                super::inbox_visual::validate_capture_asset(
+                    &self.source.path,
+                    &self.source_text,
+                    asset,
+                )?;
+            }
+            (InboxAnalysisPurpose::VisualInterpretation, None) | (_, Some(_)) => {
+                return Err(invalid(
+                    "Visual analysis needs its exact single image proof",
+                ));
+            }
+            _ => {}
         }
         chat::validate_selection(&self.provider, &self.model)?;
         if !matches!(self.effort.as_str(), "low" | "medium" | "high") {
@@ -502,6 +520,12 @@ pub(super) fn has_issued_knowledge(conn: &Connection, job: &InboxActionJob) -> R
         let journal = super::proposal_apply::read_journal(conn, crate::parse_id(row.get(0)?)?)?
             .ok_or_else(|| invalid("listed Knowledge approval disappeared"))?;
         if let Some(binding) = &journal.approved.draft.inbox_knowledge
+            && binding.analysis_id == job.capture.id
+        {
+            binding.validate_capture(job)?;
+            issued = true;
+        }
+        if let Some(binding) = &journal.approved.draft.inbox_visual
             && binding.analysis_id == job.capture.id
         {
             binding.validate_capture(job)?;

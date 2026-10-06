@@ -101,6 +101,8 @@ pub enum AppCommand {
     InboxProcessing(Uuid),
     InboxCandidate(crate::inbox_processing::InboxCandidateRequest),
     PrepareInboxSource(crate::inbox_processing::InboxSourceRequest),
+    PrepareInboxVisualAnnotation(Uuid),
+    InboxVisualEvidence(String),
     CancelInboxProcessing(Uuid),
     Findings(crate::findings::FindingListRequest),
     NoteConflicts(Box<crate::findings::NoteConflictRequest>),
@@ -235,6 +237,8 @@ pub enum AppEvent {
     InboxProcessing(Box<crate::inbox_processing::InboxProcessBatch>),
     InboxCandidate(Box<crate::inbox_processing::InboxConversionPreview>),
     InboxSourceDraft(Box<crate::proposals::DraftRequest>),
+    InboxVisualDraft(Box<crate::proposals::DraftRequest>),
+    InboxVisualEvidence(Box<crate::inbox_actions::InboxVisualEvidence>),
     InboxActionAnalysis(Box<crate::inbox_actions::InboxActionAnalysis>),
     Findings(Box<crate::findings::FindingPage>),
     NoteConflicts(Box<crate::findings::NoteConflictPage>),
@@ -681,11 +685,12 @@ fn admit_ask(
                 return Err(chat_worker::conflict());
             }
             app.validate_inbox_action_source(&capture)?;
+            let image = app.inbox_visual_image(&capture)?;
             let job = app
                 .work_store_mut()
                 .reserve_inbox_action(&capture, &request.question)?;
             ask_ledger.insert(id, request.clone());
-            chat.ask_inbox(request.clone(), job)?;
+            chat.ask_inbox(request.clone(), job, image)?;
         } else {
             ask_ledger.insert(id, request.clone());
             chat.ask(request.clone())?;
@@ -1366,6 +1371,12 @@ fn dispatch(
         AppCommand::PrepareInboxSource(request) => {
             AppEvent::InboxSourceDraft(Box::new(app.prepare_inbox_source(&request)?))
         }
+        AppCommand::PrepareInboxVisualAnnotation(analysis) => {
+            AppEvent::InboxVisualDraft(Box::new(app.prepare_inbox_visual_annotation(analysis)?))
+        }
+        AppCommand::InboxVisualEvidence(path) => {
+            AppEvent::InboxVisualEvidence(Box::new(app.inbox_visual_evidence(&path)?))
+        }
         AppCommand::CancelInboxProcessing(batch) => {
             let batch = app.cancel_inbox_processing(batch)?;
             controls
@@ -1852,6 +1863,7 @@ mod editor_shutdown_tests {
         let comment_id = Uuid::new_v4();
         let operations = [
             AppCommand::CreateProposal(DraftRequest {
+                inbox_visual: None,
                 inbox_knowledge: None,
                 inbox_source: None,
                 action_changes: Vec::new(),

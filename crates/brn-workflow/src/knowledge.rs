@@ -243,6 +243,7 @@ impl App {
         let text = note_identity::assign(&source.text, request.note_id)
             .map_err(|error| rejected(error.to_string()))?;
         let draft = DraftRequest {
+            inbox_visual: None,
             inbox_knowledge: None,
             inbox_source: None,
             action_changes: Vec::new(),

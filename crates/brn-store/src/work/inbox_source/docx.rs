@@ -2,10 +2,13 @@
 use std::sync::atomic::{AtomicBool, Ordering};
 
 mod document;
+mod image;
 mod opc;
 mod package;
 mod xml;
 
+#[cfg(test)]
+mod image_tests;
 #[cfg(test)]
 mod tests;
 
@@ -61,4 +64,48 @@ pub(super) fn convert(
                 code: "docx_limit".into(),
             },
         })
+}
+
+fn outcome(failure: Failure, prefix: &str) -> super::InboxProcessOutcome {
+    use super::InboxProcessOutcome;
+    let suffix = match failure {
+        Failure::Cancelled => return InboxProcessOutcome::Cancelled,
+        Failure::Invalid => "invalid",
+        Failure::Unsupported => "unsupported",
+        Failure::Limit => "limit",
+    };
+    InboxProcessOutcome::Failed {
+        code: format!("{prefix}_{suffix}"),
+    }
+}
+
+pub(super) fn validate_png(
+    bytes: &[u8],
+    cancel: &AtomicBool,
+) -> std::result::Result<super::PngImageFacts, super::InboxProcessOutcome> {
+    image::validate_png(bytes, cancel).map_err(|failure| outcome(failure, "png"))
+}
+
+pub(super) fn convert_source(
+    bytes: &[u8],
+    cancel: &AtomicBool,
+) -> std::result::Result<super::DocxSourceConversion, super::InboxProcessOutcome> {
+    check_cancel(cancel).map_err(|failure| outcome(failure, "docx"))?;
+    if !bytes.starts_with(b"PK\x03\x04") {
+        return Err(super::InboxProcessOutcome::Failed {
+            code: "binary_unsupported".into(),
+        });
+    }
+    package::load(bytes, cancel)
+        .and_then(|parts| opc::render_source(&parts, bytes, cancel))
+        .map_err(|failure| outcome(failure, "docx"))
+}
+
+pub(super) fn image_markdown(
+    asset: &str,
+    alt: Option<&str>,
+    title: Option<&str>,
+) -> crate::Result<String> {
+    document::image_markdown(asset, alt, title, &AtomicBool::new(false))
+        .map_err(|_| crate::invalid("Invalid or over-budget DOCX inline PNG markup"))
 }

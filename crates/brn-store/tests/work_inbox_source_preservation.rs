@@ -73,6 +73,7 @@ fn witness(store: &mut WorkStore, kind: InboxKind, text: &str) -> Witness {
         .unwrap();
     let (format, converted) = convert_original(kind, text, &AtomicBool::new(false)).unwrap();
     let binding = InboxSourceBinding {
+        visual: None,
         original: original.clone(),
         batch_id: Uuid::new_v4(),
         index: 0,
@@ -89,6 +90,7 @@ fn witness(store: &mut WorkStore, kind: InboxKind, text: &str) -> Witness {
     let review = store
         .create_proposal(&ProposalDraft {
             inbox_source: Some(Box::new(binding)),
+            inbox_visual: None,
             inbox_knowledge: None,
             id: Uuid::new_v4(),
             group_id: None,

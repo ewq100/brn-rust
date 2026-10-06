@@ -52,6 +52,7 @@ fn original() -> InboxCapture {
 }
 fn capture() -> InboxActionCapture {
     let binding = InboxSourceBinding {
+        visual: None,
         batch_id: Uuid::new_v4(),
         index: 0,
         original: InboxItem {
@@ -65,6 +66,7 @@ fn capture() -> InboxActionCapture {
     };
     let source_text = binding.markdown("```text\nbody\n```\n").unwrap();
     InboxActionCapture {
+        visual_asset: None,
         purpose: Default::default(),
         id: Uuid::new_v4(),
         conversation: None,
@@ -90,6 +92,7 @@ fn rebind_text(capture: &mut InboxActionCapture) {
 fn review(store: &mut WorkStore) -> ProposalStamp {
     store
         .create_proposal(&ProposalDraft {
+            inbox_visual: None,
             inbox_knowledge: None,
             inbox_source: None,
             id: Uuid::new_v4(),
@@ -1066,6 +1069,7 @@ fn knowledge_draft(capture: &InboxActionCapture) -> ProposalDraft {
         inode: 1,
     };
     ProposalDraft {
+        inbox_visual: None,
         inbox_knowledge: Some(Box::new(InboxKnowledgeBinding {
             analysis_id: capture.id,
             note_id,
@@ -1456,6 +1460,7 @@ fn knowledge_create_refuses_mixed_members_or_changed_typed_binding_before_effect
             }
             5 => {
                 bad.inbox_source = Some(Box::new(InboxSourceBinding {
+                    visual: None,
                     batch_id: Uuid::new_v4(),
                     index: 0,
                     original: InboxItem {
@@ -2133,6 +2138,7 @@ fn review_capture(store: &mut WorkStore) -> (InboxItem, InboxActionCapture) {
     let original = store.capture_inbox(&original()).unwrap();
     let mut capture = capture();
     let binding = InboxSourceBinding {
+        visual: None,
         batch_id: Uuid::new_v4(),
         index: 0,
         original: original.clone(),

@@ -23,6 +23,7 @@ fn removed_original_bootstraps_before_genuine_knowledge_companion_recovery_witho
     let source_journal = f.app.proposal_apply(source_operation).unwrap().unwrap();
     let source = f.app.proposal_source("source.md").unwrap();
     let capture = InboxActionCapture {
+        visual_asset: None,
         purpose: InboxAnalysisPurpose::KnowledgeAndActions,
         id: Uuid::new_v4(),
         conversation: None,

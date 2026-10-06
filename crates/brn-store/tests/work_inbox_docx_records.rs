@@ -65,6 +65,7 @@ fn batch(original: InboxItem, result: InboxProcessOutcome) -> InboxProcessBatch 
 }
 fn binding(original: InboxItem, format: InboxConversionFormat, body: &str) -> InboxSourceBinding {
     InboxSourceBinding {
+        visual: None,
         batch_id: Uuid::from_u128(2),
         index: 0,
         original,
@@ -105,6 +106,7 @@ fn draft(binding: &InboxSourceBinding, text: String) -> ProposalDraft {
         sources: vec![],
         action_changes: vec![],
         inbox_source: Some(Box::new(binding.clone())),
+        inbox_visual: None,
         inbox_knowledge: None,
     }
 }

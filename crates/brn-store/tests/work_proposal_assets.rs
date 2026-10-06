@@ -14,6 +14,7 @@ fn parent() -> VaultIdentity {
 }
 fn draft(changes: Vec<NoteChange>) -> ProposalDraft {
     ProposalDraft {
+        inbox_visual: None,
         inbox_knowledge: None,
         inbox_source: None,
         id: Uuid::new_v4(),
@@ -668,6 +669,7 @@ fn valid_inbox_bindings_do_not_authorize_asset_shapes() {
         .unwrap();
     let (format, text) = convert_original(InboxKind::Text, "x", &AtomicBool::new(false)).unwrap();
     let source = InboxSourceBinding {
+        visual: None,
         batch_id: Uuid::new_v4(),
         index: 0,
         original,

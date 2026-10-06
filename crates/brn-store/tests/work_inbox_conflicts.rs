@@ -42,6 +42,7 @@ fn quote(text: &str, wording: &str) -> FindingQuote {
 fn capture() -> InboxActionCapture {
     let body = "```text\nBlue õ 🦀\n```\n";
     let binding = InboxSourceBinding {
+        visual: None,
         batch_id: Uuid::new_v4(),
         index: 0,
         original: InboxItem {
@@ -69,6 +70,7 @@ fn capture() -> InboxActionCapture {
     };
     let text = binding.markdown(body).unwrap();
     InboxActionCapture {
+        visual_asset: None,
         purpose: InboxAnalysisPurpose::KnowledgeAndActions,
         id: Uuid::new_v4(),
         conversation: None,

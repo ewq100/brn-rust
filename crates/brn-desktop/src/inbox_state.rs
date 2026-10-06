@@ -24,6 +24,7 @@ pub struct ConversionCapture {
     format: InboxConversionFormat,
     byte_len: u64,
     sha256: [u8; 32],
+    visual: Option<brn_workflow::inbox_processing::InboxVisualPreview>,
 }
 #[derive(Clone)]
 pub enum InboxPending {
@@ -387,6 +388,14 @@ impl AiState {
             return None;
         };
         Some(ConversionCapture {
+            visual: self
+                .inbox_queue
+                .preview
+                .as_ref()
+                .filter(|preview| {
+                    preview.request.batch_id == batch.request.id && preview.request.index == index
+                })
+                .and_then(|preview| preview.visual.clone()),
             request: InboxCandidateRequest {
                 batch_id: batch.request.id,
                 index,
@@ -502,6 +511,7 @@ impl AiState {
                 },
                 AppEvent::InboxSourceDraft(draft),
             ) if request.validate_draft(draft).is_ok()
+                && conversion.visual.as_ref().is_none_or(|visual| draft.changes.iter().any(|change| matches!(change, brn_workflow::proposals::DraftNoteChange::CreateAsset { bytes, .. } if bytes == &visual.bytes)))
                 && draft
                     .inbox_source
                     .as_deref()
@@ -538,6 +548,10 @@ impl ConversionCapture {
             && binding.format == self.format
             && binding.byte_len == self.byte_len
             && binding.sha256 == self.sha256
+            && self
+                .visual
+                .as_ref()
+                .is_none_or(|visual| binding.visual.as_ref() == Some(&visual.proof))
     }
 }
 fn read_valid(read: &InboxRead) -> bool {

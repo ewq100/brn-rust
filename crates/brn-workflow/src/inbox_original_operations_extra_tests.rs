@@ -93,6 +93,7 @@ fn failed_analysis_and_pending_consequence_do_not_veto_confirmed_exact_copy_clea
         .store
         .reserve_inbox_action(
             &InboxActionCapture {
+                visual_asset: None,
                 purpose: InboxAnalysisPurpose::KnowledgeAndActions,
                 id: Uuid::new_v4(),
                 conversation: None,
@@ -114,6 +115,7 @@ fn failed_analysis_and_pending_consequence_do_not_veto_confirmed_exact_copy_clea
         .app
         .create_proposal(&crate::proposals::DraftRequest {
             inbox_source: None,
+            inbox_visual: None,
             inbox_knowledge: None,
             id: Uuid::new_v4(),
             group_id: None,
@@ -232,6 +234,7 @@ fn legacy_removal_bootstrap_then_new_restore_and_removal_preserve_mirror_bytes_a
         .store
         .reserve_inbox_action(
             &InboxActionCapture {
+                visual_asset: None,
                 purpose: InboxAnalysisPurpose::KnowledgeAndActions,
                 id: Uuid::new_v4(),
                 conversation: None,

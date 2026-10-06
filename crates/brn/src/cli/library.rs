@@ -352,6 +352,9 @@ pub fn run(i: &Invocation) -> Result<Output, CliFailure> {
             super::inbox::InboxCommand::AnalyzeActions {
                 timeout_seconds, ..
             }
+            | super::inbox::InboxCommand::InterpretVisual {
+                timeout_seconds, ..
+            }
             | super::inbox::InboxCommand::Analyze {
                 timeout_seconds, ..
             },
@@ -475,6 +478,12 @@ fn execute(
                 }
                 AppCommand::PrepareInboxSource(request) => {
                     lane.query(AppCommand::PrepareInboxSource(request.clone()))?
+                }
+                AppCommand::InboxVisualEvidence(path) => {
+                    lane.query(AppCommand::InboxVisualEvidence(path.clone()))?
+                }
+                AppCommand::PrepareInboxVisualAnnotation(id) => {
+                    lane.query(AppCommand::PrepareInboxVisualAnnotation(*id))?
                 }
                 AppCommand::CancelInboxProcessing(id) => {
                     lane.query(AppCommand::CancelInboxProcessing(*id))?
@@ -840,6 +849,16 @@ fn wait_ask_generation<W: EventLane>(
     session: Option<Uuid>,
     generation: u64,
 ) -> Result<Output, CliFailure> {
+    wait_ask_generation_checked(lane, op, session, generation, None)
+}
+
+fn wait_ask_generation_checked<W: EventLane>(
+    lane: &mut Lane<W>,
+    op: Uuid,
+    session: Option<Uuid>,
+    generation: u64,
+    visual: Option<&brn_workflow::inbox_actions::InboxActionRequest>,
+) -> Result<Output, CliFailure> {
     let mut partial = String::new();
     loop {
         let (id, event) = lane.next(Job::Ask(op)).map_err(|mut failure| {
@@ -863,6 +882,22 @@ fn wait_ask_generation<W: EventLane>(
                         let _ = writeln!(std::io::stderr(), "\ntool: {name}");
                     }
                     ChatEvent::Finished { turn, .. } | ChatEvent::AlreadyRunning { turn, .. } => {
+                        if let Some(request) = visual {
+                            let provider = match request.selection.provider {
+                                Provider::Chatgpt => "chatgpt",
+                                Provider::Copilot => "copilot",
+                            };
+                            if turn.id != request.id
+                                || turn.provider != provider
+                                || turn.model != request.selection.model
+                                || turn.effort.as_deref() != Some(request.effort.as_str())
+                                || request
+                                    .conversation
+                                    .is_some_and(|id| id != turn.conversation_id)
+                            {
+                                return Err(unexpected());
+                            }
+                        }
                         if turn.status == WorkTurnStatus::Completed {
                             return Ok(Output {
                                 text: format!("{}\n", turn.answer),
@@ -916,7 +951,16 @@ fn analyze_inbox_actions<W: EventLane>(
         .map_err(|error| lane.command_error(error))?;
     // Use the same cancellation/join/terminal handling as Ask; no current-choice
     // queries or automatic retry can replace the explicit immutable capture.
-    wait_ask_generation(lane, request.id, request.conversation, request.generation)
+    let visual = (request.purpose
+        == brn_workflow::inbox_actions::InboxAnalysisPurpose::VisualInterpretation)
+        .then_some(&request);
+    wait_ask_generation_checked(
+        lane,
+        request.id,
+        request.conversation,
+        request.generation,
+        visual,
+    )
 }
 
 fn recorded_error(turn: &WorkTurn) -> CliError {
@@ -1423,10 +1467,14 @@ mod tests {
         selected: Option<Selection>,
         selected_effort: Option<brn_workflow::ReasoningEffort>,
         ask_request: RefCell<Option<AskRequest>>,
+        inbox_request: RefCell<Option<Box<brn_workflow::inbox_actions::InboxActionRequest>>>,
         download_request: RefCell<Option<(bool, std::path::PathBuf)>>,
     }
     impl EventLane for Projection {
         fn submit(&self, id: Uuid, command: AppCommand) -> brn_workflow::Result<()> {
+            if let AppCommand::AnalyzeInboxActions(request) = &command {
+                self.inbox_request.replace(Some(request.clone()));
+            }
             if self.query_replies {
                 match &command {
                     AppCommand::Turn(_) => self
@@ -1521,6 +1569,7 @@ mod tests {
                 }),
                 selected_effort: Some(brn_workflow::ReasoningEffort::High),
                 ask_request: RefCell::new(None),
+                inbox_request: RefCell::new(None),
                 download_request: RefCell::new(None),
             },
             deadline: Instant::now() - Duration::from_secs(1),
@@ -1550,6 +1599,131 @@ mod tests {
             status,
             error_code: None,
         }
+    }
+
+    fn visual_request() -> brn_workflow::inbox_actions::InboxActionRequest {
+        // Protocol projection only; authority validation is exercised through
+        // actual saved Source/PNG fixtures in inbox::visual_tests.
+        serde_json::from_value(json!({
+            "id": Uuid::new_v4(), "conversation": null,
+            "source": {"source": {"path": "source.md", "fingerprint": {
+                "device": 1, "inode": 2, "len": 0, "sha256": vec![0u8; 32]}}, "text": ""},
+            "visual_asset": {"path": "image.png", "fingerprint": {
+                "device": 1, "inode": 3, "len": 0, "sha256": vec![0u8; 32]}},
+            "purpose": "visual_interpretation",
+            "selection": {"provider": "chatgpt", "model": "gpt-6-luna"},
+            "effort": "medium", "generation": 73
+        }))
+        .unwrap()
+    }
+    fn visual_ending(
+        request: &brn_workflow::inbox_actions::InboxActionRequest,
+        status: WorkTurnStatus,
+    ) -> AppEvent {
+        let mut recorded = turn(request.id, status);
+        recorded.model = request.selection.model.clone();
+        recorded.effort = Some(request.effort.as_str().into());
+        AppEvent::Chat(ChatEvent::Finished {
+            id: request.id,
+            generation: request.generation,
+            turn: recorded,
+        })
+    }
+    #[test]
+    fn visual_analysis_keeps_exact_request_and_ignores_other_generation_and_operation() {
+        let request = visual_request();
+        let mut lane = lane(request.id, AppEvent::SelectionSaved);
+        lane.worker.ending = None;
+        lane.deadline = Instant::now() + Duration::from_secs(3);
+        let mut old = request.clone();
+        old.generation -= 1;
+        let mut other = request.clone();
+        other.id = Uuid::new_v4();
+        lane.worker.events.borrow_mut().extend([
+            (other.id, visual_ending(&other, WorkTurnStatus::Completed)),
+            (request.id, visual_ending(&old, WorkTurnStatus::Completed)),
+            (
+                request.id,
+                visual_ending(&request, WorkTurnStatus::Completed),
+            ),
+        ]);
+        let result = analyze_inbox_actions(&mut lane, request.clone()).unwrap();
+        assert_eq!(result.data["operation_id"], json!(request.id));
+        assert_eq!(
+            lane.worker.inbox_request.borrow().as_deref(),
+            Some(&request)
+        );
+        assert_eq!(lane.worker.selection_queries.get(), 0);
+        assert_eq!(lane.worker.effort_queries.get(), 0);
+        assert!(lane.worker.ask_request.borrow().is_none());
+        assert!(!lane.worker.joined && !lane.worker.cancelled.get());
+        assert!(lane.worker.events.borrow().is_empty());
+    }
+    #[test]
+    fn visual_analysis_terminal_choice_or_identity_mismatch_is_refused() {
+        let request = visual_request();
+        for field in 0..5 {
+            let mut event = visual_ending(&request, WorkTurnStatus::Completed);
+            let AppEvent::Chat(ChatEvent::Finished { turn, .. }) = &mut event else {
+                unreachable!()
+            };
+            match field {
+                0 => turn.id = Uuid::new_v4(),
+                1 => turn.provider = "copilot".into(),
+                2 => turn.model = "another-model".into(),
+                3 => turn.effort = None,
+                _ => turn.conversation_id = Uuid::nil(),
+            }
+            let mut expected = request.clone();
+            if field == 4 {
+                expected.conversation = Some(Uuid::new_v4());
+            }
+            let mut lane = lane(request.id, AppEvent::SelectionSaved);
+            lane.worker
+                .events
+                .borrow_mut()
+                .push_back((request.id, event));
+            assert!(analyze_inbox_actions(&mut lane, expected).is_err());
+        }
+    }
+    #[test]
+    fn visual_analysis_deadline_and_signal_cancel_exact_turn_join_and_keep_terminal() {
+        let request = visual_request();
+        for signal in [false, true] {
+            let mut lane = lane(
+                request.id,
+                visual_ending(&request, WorkTurnStatus::Interrupted),
+            );
+            if signal {
+                lane.observe_cancel = true;
+                lane.deadline = Instant::now() + Duration::from_secs(300);
+                let event = lane.next_observing(Job::Ask(request.id), || true).unwrap();
+                lane.worker.events.borrow_mut().push_back(event);
+            }
+            let failure = analyze_inbox_actions(&mut lane, request.clone())
+                .err()
+                .unwrap();
+            assert_eq!(failure.error.exit_code(), if signal { 130 } else { 124 });
+            assert_eq!(failure.context.unwrap()["recorded_status"], "interrupted");
+            assert_eq!(lane.worker.cancelled_turn.get(), Some(request.id));
+            assert!(lane.worker.joined);
+            assert_eq!(
+                lane.worker.inbox_request.borrow().as_deref(),
+                Some(&request)
+            );
+        }
+        let mut lane = lane(
+            request.id,
+            visual_ending(&request, WorkTurnStatus::Completed),
+        );
+        assert_eq!(
+            analyze_inbox_actions(&mut lane, request.clone())
+                .unwrap()
+                .data["status"],
+            "completed"
+        );
+        assert!(lane.worker.joined);
+        assert_eq!(lane.worker.cancelled_turn.get(), Some(request.id));
     }
 
     fn rewrite_request() -> RewriteRequest {

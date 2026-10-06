@@ -347,6 +347,7 @@ fn retained_source_and_unsaved_partial_are_distinct_copyable_and_readonly(
             let record = InboxActionAnalysis {
                 job: InboxActionJob {
                     capture: InboxActionCapture {
+                        visual_asset: None,
                         purpose: request.purpose,
                         id,
                         conversation: request.conversation,
@@ -651,5 +652,188 @@ fn conflict_navigation_retains_unsent_input_waits_for_latest_recovery_and_rechec
             .unwrap()
             .count(),
         0
+    );
+}
+
+#[gpui_kit::test]
+fn visual_png_widget_uses_actual_checked_bytes_full_proofs_and_explicit_annotation_controls(
+    cx: &mut gpui_kit::TestAppContext,
+) {
+    use crate::ai::visual_analysis_state_tests::{
+        annotation, annotation_record, visual_analysis, visual_fixture_with_preview,
+    };
+    let (owner, evidence, preview) = visual_fixture_with_preview();
+    let (window, desktop) = open(cx, &owner, (*evidence.source).clone());
+    let mut visual = VisualTestContext::from_window(window.into(), cx);
+    visual.update(|window, cx| {
+        desktop.update(cx, |d, cx| {
+            let ai = d.ai.as_mut().unwrap();
+            ai.inbox_queue.preview = Some(preview.clone());
+            let (id, _) = ai.inspect_inbox_visual().unwrap();
+            assert!(
+                ai.apply(
+                    id,
+                    AppEvent::InboxVisualEvidence(Box::new(evidence.clone()))
+                )
+                .is_empty()
+            );
+            assert!(ai.inbox_analysis.request.is_none());
+            assert!(ai.inbox_analysis.annotation.is_none());
+            d.sync_inbox_widgets(window, cx);
+            cx.notify();
+        })
+    });
+    visual.run_until_parked();
+    visual.update(|window, cx| {
+        window.render_frame(cx);
+        assert_eq!(
+            window.find("inbox-preview-png").label(),
+            Some(
+                format!(
+                    "Actual checked PNG image {}",
+                    super::visual::png_image(&evidence.bytes).id()
+                )
+                .as_str()
+            )
+        );
+        assert_eq!(
+            window.find("inbox-saved-png").label(),
+            Some(
+                format!(
+                    "Actual checked PNG image {}",
+                    super::visual::png_image(&evidence.bytes).id()
+                )
+                .as_str()
+            )
+        );
+        assert_eq!(
+            window.find("inbox-visual-source-proof").label(),
+            Some(super::visual::file_proof("Full Source proof", &evidence.source.source).as_str())
+        );
+        assert_eq!(
+            window.find("inbox-visual-asset-proof").label(),
+            Some(super::visual::file_proof("Full PNG asset proof", &evidence.asset).as_str())
+        );
+        assert!(
+            window
+                .find("inbox-visual-interpretation-status")
+                .label()
+                .unwrap()
+                .contains("pending or tentative")
+        );
+        assert_eq!(
+            window.find("inbox-saved-png-alt").label(),
+            Some("Original alt text: A & [B] 日本語")
+        );
+        assert_eq!(
+            window.find("inbox-saved-png-title").label(),
+            Some("Original title: T \"Q\" <tag>")
+        );
+        assert_eq!(
+            window.find("inbox-visual-start").label(),
+            Some("Interpret this PNG")
+        );
+        assert_eq!(
+            window.find("inbox-visual-prepare").label(),
+            Some("Prepare tentative annotation")
+        );
+        desktop.update(cx, |d, _| {
+            assert!(!d.ai.as_ref().unwrap().can_prepare_visual_annotation())
+        });
+    });
+    visual.update(|window, cx| {
+        desktop.update(cx, |d, cx| {
+            let ai = d.ai.as_mut().unwrap();
+            ai.selection = Some(Selection {
+                provider: Provider::Chatgpt,
+                model: "gpt-6-luna".into(),
+            });
+            ai.effort = Some(ReasoningEffort::High);
+            let (_, AppCommand::AnalyzeInboxActions(request)) =
+                ai.interpret_inbox_visual().unwrap()
+            else {
+                panic!("explicit visual request")
+            };
+            let record = visual_analysis(&request);
+            let commands = ai.apply(
+                request.id,
+                AppEvent::Chat(ChatEvent::Finished {
+                    id: request.id,
+                    generation: request.generation,
+                    turn: record.turn.clone().unwrap(),
+                }),
+            );
+            let (id, _) = commands
+                .into_iter()
+                .find(|(_, c)| matches!(c, AppCommand::InboxActionAnalysis(_)))
+                .unwrap();
+            assert!(
+                ai.apply(id, AppEvent::InboxActionAnalysis(Box::new(record.clone())))
+                    .is_empty()
+            );
+            let draft = annotation(&record);
+            let (id, _) = ai.prepare_visual_annotation().unwrap();
+            assert!(
+                ai.apply(id, AppEvent::InboxVisualDraft(Box::new(draft.clone())))
+                    .is_empty()
+            );
+            assert!(ai.inbox_analysis.annotation_review.is_none());
+            d.sync_inbox_widgets(window, cx);
+            assert_eq!(
+                d.inbox.visual_annotation.read(cx).value().as_ref(),
+                draft
+                    .inbox_visual
+                    .as_ref()
+                    .unwrap()
+                    .candidate_text()
+                    .unwrap()
+            );
+            assert_eq!(d.open_doc, Some(DocRef::Inbox));
+            cx.notify();
+        })
+    });
+    visual.run_until_parked();
+    reach(&mut visual, "inbox-visual-create");
+    visual.update(|window, cx| {
+        assert_eq!(
+            window.find("inbox-visual-captured-asset-proof").label(),
+            Some(
+                super::visual::file_proof("Captured full PNG asset proof", &evidence.asset)
+                    .as_str()
+            )
+        );
+        assert_eq!(
+            window.find("inbox-visual-create").label(),
+            Some("Create annotation review")
+        );
+        desktop.update(cx, |d, cx| {
+            let ai = d.ai.as_mut().unwrap();
+            let draft = ai.inbox_analysis.annotation.clone().unwrap();
+            let (id, _) = ai.create_visual_annotation().unwrap();
+            assert!(
+                ai.apply(id, AppEvent::Proposal(annotation_record(&draft)))
+                    .is_empty()
+            );
+            assert!(ai.review.is_none());
+            assert_eq!(d.open_doc, Some(DocRef::Inbox));
+            cx.notify();
+        });
+    });
+    visual.run_until_parked();
+    reach(&mut visual, "inbox-visual-open-review");
+    visual.update(|window, cx| {
+        assert_eq!(
+            window.find("inbox-visual-open-review").label(),
+            Some("Open annotation review for exact approval")
+        );
+        desktop.update(cx, |d, _| assert!(d.ai.as_ref().unwrap().review.is_none()));
+    });
+    assert_eq!(
+        std::fs::read(owner.path().join("vault/source.md")).unwrap(),
+        evidence.source.text.as_bytes()
+    );
+    assert_eq!(
+        std::fs::read(owner.path().join("vault").join(&evidence.asset.path)).unwrap(),
+        evidence.bytes
     );
 }

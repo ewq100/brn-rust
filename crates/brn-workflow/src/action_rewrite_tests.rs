@@ -40,6 +40,7 @@ fn action_review(
         .submit(
             query,
             AppCommand::CreateProposal(DraftRequest {
+                inbox_visual: None,
                 inbox_knowledge: None,
                 inbox_source: None,
                 id: Uuid::new_v4(),
@@ -86,6 +87,7 @@ fn action_review(
         .submit(
             query,
             AppCommand::CreateProposal(DraftRequest {
+                inbox_visual: None,
                 inbox_knowledge: None,
                 inbox_source: None,
                 id: Uuid::new_v4(),

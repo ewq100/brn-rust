@@ -426,12 +426,23 @@ defaults and current-evidence eligibility. No ranking or Action mutation occurs.
 
 ## Inbox source proposal binding
 
-Optional `inbox_source` on the existing ProposalDraft binds one source Create to
-its complete retained Inbox snapshot and exact conversion/UUID. It is omitted for
+Optional `inbox_source` on the existing ProposalDraft binds one source Create
+(and, for the inline PNG profile, its exact ordinary asset Create) to the complete
+retained Inbox snapshot and exact conversion/UUID. It is omitted for
 older records, preserving their JSON/checksums. Whole edits cannot change its body,
 identity, scope or portable original provenance; title/comments retain normal review.
 The same binding travels in application recovery journals. Store checks shape/bytes;
 workflow supplies fresh original-file and initial conversion-receipt qualification.
+
+Optional `inbox_visual` binds one Source Replace to its genuine
+`visual_interpretation` capture, exact saved Source/asset versions and original
+generated description/uncertainty. It protects the entire literal/header/image
+prefix and requires separate tentative-description/uncertainty labels, while
+allowing owner wording edits inside the designated section. Capture and draft
+fields omit None to preserve older JSON/hashes. This uses existing exact approval
+records and the retained analysis companion; historical capture import cannot
+fabricate a WorkTurn or rerun an already issued analysis. Store checks retained
+shape/bytes; Workflow qualifies fresh physical identity and filesystem effects.
 
 ## Original-copy Inbox catalog
 
@@ -468,8 +479,9 @@ of labels. Stage8 adds Binary metadata with a separate 16 MiB bound and UUID.bin
 the four text bounds remain 1 MiB. Empty binary bytes are valid only with the empty
 digest. Existing canonical text JSON, SQL schema and receipt hashes are unchanged.
 No original binary payload enters SQLite. Binary process requests can retain
-`docx_text_v1` receipts; Source bindings/provenance require that exact kind/format
-pair and complete converted-body proof. The pure
+`docx_text_v1` or `docx_inline_png_v1` receipts; Source bindings/provenance require
+the exact kind/format pair and complete converted-body proof. The latter retains
+one typed image manifest, complete raw PNG proof and exact document occurrence. The pure
 [DOCX converter](src/work/inbox_source/docx.rs) accepts complete supplied bytes
 and performs no filesystem, catalog or provider operation. Fresh observation and
 approval authority remain in Workflow. Other binary conversions are refused.

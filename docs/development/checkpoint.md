@@ -2,6 +2,77 @@
 
 Full frozen V1 goal confirmed **active** by `get_goal` on 2026-10-06; no token budget.
 
+- **Integrated:** main76 `b6a13313d9807be66baa49aca2a0e3c96e60d18d`; bounded
+  DOCX text/structure Source conversion, ordinary asset proposals and retained
+  binary originals. Generic ZIP intake is excluded.
+- **Current:** unmerged `codex/v1-docx-visual-sources`, qualified source
+  `b34a2897a63c1032c0398532e80648d9dceedf72`, tree
+  `0ecfab025fed520bc967d3b4bb6093e430a25d4b`. One ordinary inline PNG is preserved
+  with its Source through exact paired approval. CLI/native display the actual
+  checked image/proofs; explicit selected-model interpretation produces a tentative
+  annotation through separate proposal creation, review and exact approval.
+- **Verified:** complete independent review is clean; all152 reviewed file hashes
+  match. Fresh unchanged shared gate passed1,608/0/16 documented exclusions +52
+  fixtures; native707/0/14 +52 fixtures, strict feature Clippy, shipping builds,
+  launcher and two V15 AppWorker restarts passed. Commands, times, exclusions,
+  log hashes and retained failures are in the [office plan](../work/active/office-inbox/plan.md#full-inline-png-deliverable-qualification--2026-10-06).
+- **Next:** push the focused PR, qualify exact-head macOS/shared CI and normal
+  merge requirements, merge and verify the merged result. Then continue broader
+  meaningful Office/supplied-URL preservation in Stage8. No visual PR/merge yet.
+- **Pending:** GUI/live/real-model/owner acceptance, broader Stage8 and9–16,
+  trusted-user packaging, binary cleanup and recorded legacy/startup limitations.
+  Originals remain retained; complete V1 delivery is not claimed.
+- **Environment:** Mac mini Darwin arm64, pinned Rust1.98.1 locked/offline,
+  canonical owned `/private/tmp/brn-mini-synthetic-20261005`, synthetic explicit
+  data and separate targets. No new live calls, model downloads, private-data
+  operations, purchases or release. Immutable7c4f668/unrelated work is preserved.
+
+# Earlier inline PNG inspection checkpoint
+
+Full frozen V1 goal confirmed **active** by `get_goal` on 2026-10-06; no token budget.
+
+- **Integrated:** [PR76](https://github.com/ewq100/brn-rust/pull/76), exact main
+  `b6a13313d9807be66baa49aca2a0e3c96e60d18d`, tree
+  `8619cc994145a91ae7cbfa3f24b0537d7c5c6ad6`. Bounded DOCX text/structure
+  converts through existing Source/proposal approval; originals stay retained.
+  Meaningful unsupported content refuses; generic ZIP intake is excluded.
+- **Verified:** complete/correction reviews clean; full shared1,557/0/14+52,
+  native687/0/12, strict feature Clippy, shipping builds and restarts passed.
+  Exactfb78/run37435614131 attempt1 passed all four strict protected macOS/shared
+  checks and Docs; overall red retains the same22 Windows error locations with
+  complete ordering/progress/footer/terminal differences. Fresh merged19-command
+  gate08:50:47–08:51:39UTC passed127/0/0+52, native widgets/builds and default/combined
+  V15 restarts with the original-operation table present. Exact merged-main
+  run37438639577 attempt1 completed: four protected checks, Docs and supplemental
+  Ubuntu UI passed. Overall failure retains Windows22/20/14 emitted errors and
+  three Linux native assertions/backtraces; actual raw differences remain retained.
+- **Current/next:** `codex/v1-docx-visual-sources` starts from main above;
+  [fixed next acceptance](../work/active/office-inbox/plan.md#next-slice-inline-png-source-and-local-interpretation)
+  couples one checked inline PNG, Source/asset proofs and explicit reviewed local
+  interpretation in the existing AI lane. Internal buildable source checkpoint
+  `ae958567bab8b8c9c1d4b1e6cb3329549a781106`, tree
+  `935d57f10690c60c5a681df5b113e825a8b22cef`, adds checked Source/PNG creation,
+  typed owned interpretation, separately approved Source-only annotations and
+  complete actual-image inspection through AppWorker. Core and inspection reviews
+  are clean. Focused checks pass, including9 visual tests/1 private child exercised
+  through2 actual annotation crashes, stale-image Finish refusal, Restore/Undo and
+  fresh-SQL history without provider reexecution. The recovery/getter review is also clean.
+  Next: actual-image CLI/native presentation, complete-slice review and fresh
+  shared/native qualification, then exact-head CI/normal integration. Unmerged;
+  no complete visual outcome or provider/native acceptance is claimed.
+- **Pending:** native GUI/live/real-model/owner acceptance, broader Stage8,
+  Stages9–16/trusted-user packaging, binary cleanup, legacy pending-intent retry
+  and residual startup/backup cost. Full V1 delivery is not claimed.
+- **Environment:** Mac mini Darwin arm64, Rust1.98.1 locked/offline; owned canonical
+  `TMPDIR=/private/tmp/brn-mini-synthetic-20261005`, synthetic explicit data,
+  empty model setting and separate checkout targets. No new live calls, downloads,
+  private-data operations, purchases or release. Immutable7c4f668 and unrelated
+  work remain preserved. Detailed evidence/history follows.
+
+# Earlier bounded DOCX qualification checkpoint
+
+Full frozen V1 goal confirmed **active** by `get_goal` on 2026-10-06; no token budget.
+
 - **Integrated:** [PR75](https://github.com/ewq100/brn-rust/pull/75), exact main
   `f1af1b41139e0bad0fdd838af274ada6aac0af2b`, tree
   `4eab8f24dfc1a06eb622776a7dd2900e3e31eace`. Ordinary asset

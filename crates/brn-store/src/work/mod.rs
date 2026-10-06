@@ -16,6 +16,7 @@ pub mod inbox_processing;
 pub mod inbox_removal;
 pub mod inbox_review;
 pub mod inbox_source;
+pub mod inbox_visual;
 pub mod proposal_apply;
 mod proposal_repair;
 pub mod proposal_rewrite;

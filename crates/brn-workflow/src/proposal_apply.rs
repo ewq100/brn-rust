@@ -272,11 +272,11 @@ fn retain_inbox_capture(
     store: &WorkStore,
     journal: &ApplyJournal,
 ) -> Result<Option<InboxActionJob>> {
-    let Some(binding) = journal.approved.draft.inbox_knowledge.as_deref() else {
+    let Some(analysis_id) = journal.approved.draft.inbox_analysis_id() else {
         return Ok(None);
     };
     let retained = records.read_inbox_capture(journal).map_err(file_error)?;
-    let stored = store.inbox_action(binding.analysis_id)?;
+    let stored = store.inbox_action(analysis_id)?;
     if retained
         .as_ref()
         .zip(stored.as_ref())
@@ -289,7 +289,10 @@ fn retain_inbox_capture(
     let job = retained
         .or(stored)
         .ok_or_else(|| stale("approval analysis capture is unavailable"))?;
-    binding.validate_capture(&job)?;
+    journal
+        .approved
+        .draft
+        .validate_inbox_analysis_capture(&job)?;
     records
         .write_inbox_capture(journal, &job)
         .map_err(file_error)?;
@@ -584,6 +587,7 @@ impl App {
         // and Rewrite output, before any Applying admission or filesystem effect.
         if undo.is_none() {
             self.validate_inbox_knowledge(draft.inbox_knowledge.as_deref())?;
+            self.validate_inbox_visual(draft.inbox_visual.as_deref())?;
             if let Some(bound) = draft
                 .inbox_knowledge
                 .as_ref()
@@ -996,6 +1000,7 @@ impl App {
 
     fn check_approved_actions(&self, journal: &ApplyJournal) -> Result<()> {
         self.check_inbox_knowledge_apply(journal)?;
+        self.check_inbox_visual_apply(journal)?;
         self.validate_inbox_source(journal.approved.draft.inbox_source.as_deref())?;
         if !journal.approved.draft.action_changes.is_empty() {
             self.store
@@ -1283,6 +1288,7 @@ mod tests {
             let source = app.open_editor("source.md").unwrap().record.baseline;
             let draft = app
                 .create_proposal(&DraftRequest {
+                    inbox_visual: None,
                     inbox_knowledge: None,
                     inbox_source: None,
                     action_changes: Vec::new(),

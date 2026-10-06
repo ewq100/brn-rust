@@ -75,6 +75,7 @@ impl Fixture {
         // Portable provenance describes synthetic input. Only the saved Source
         // is filesystem authority for this downstream knowledge qualification.
         let binding = InboxSourceBinding {
+            visual: None,
             batch_id: Uuid::new_v4(),
             index: 0,
             original: InboxItem {
@@ -104,6 +105,7 @@ impl Fixture {
         fs::write(vault.join(SOURCE_PATH), &source_text).unwrap();
         let source = app.proposal_source(SOURCE_PATH).unwrap();
         let capture = InboxActionCapture {
+            visual_asset: None,
             purpose: InboxAnalysisPurpose::KnowledgeAndActions,
             id: Uuid::new_v4(),
             conversation: None,

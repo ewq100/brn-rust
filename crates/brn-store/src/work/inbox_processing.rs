@@ -49,6 +49,7 @@ pub enum InboxConversionFormat {
     VerbatimMarkdownV1,
     LiteralTextV1,
     DocxTextV1,
+    DocxInlinePngV1,
 }
 
 #[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
@@ -124,9 +125,12 @@ impl InboxProcessBatch {
                                 && *sha256 == item.capture.copy.sha256
                         }
                         super::inbox::InboxKind::Binary => {
-                            *format == InboxConversionFormat::DocxTextV1
-                                && (22..=super::inbox::MAX_INBOX_BINARY_BYTES as u64)
-                                    .contains(&item.capture.copy.byte_len)
+                            matches!(
+                                format,
+                                InboxConversionFormat::DocxTextV1
+                                    | InboxConversionFormat::DocxInlinePngV1
+                            ) && (22..=super::inbox::MAX_INBOX_BINARY_BYTES as u64)
+                                .contains(&item.capture.copy.byte_len)
                                 && (*byte_len != 0 || *sha256 == hash(&[]))
                         }
                         _ => {

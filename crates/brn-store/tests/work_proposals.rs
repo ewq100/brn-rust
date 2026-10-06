@@ -23,6 +23,7 @@ fn digest(bytes: &[u8]) -> [u8; 32] {
 
 fn draft() -> ProposalDraft {
     ProposalDraft {
+        inbox_visual: None,
         inbox_knowledge: None,
         inbox_source: None,
         id: Uuid::new_v4(),

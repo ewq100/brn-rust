@@ -1091,6 +1091,7 @@ fn v9_additive_upgrade_and_physical_backup_restore_preserve_all_operational_work
             .unwrap();
         let proposal = store
             .create_proposal(&ProposalDraft {
+                inbox_visual: None,
                 inbox_knowledge: None,
                 inbox_source: None,
                 id: Uuid::new_v4(),

@@ -41,6 +41,7 @@ impl Fixture {
 }
 fn create(app: &mut App, path: &str) -> brn_workflow::proposals::ProposalRecord {
     app.create_proposal(&DraftRequest {
+        inbox_visual: None,
         inbox_knowledge: None,
         inbox_source: None,
         action_changes: Vec::new(),
@@ -85,6 +86,7 @@ fn settled_activity_is_body_free_and_survives_later_bytes_and_database_restore()
         .conversation_id;
     let draft = app
         .create_proposal(&DraftRequest {
+            inbox_visual: None,
             inbox_knowledge: None,
             inbox_source: None,
             action_changes: Vec::new(),

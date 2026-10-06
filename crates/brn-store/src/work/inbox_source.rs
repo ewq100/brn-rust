@@ -13,6 +13,61 @@ use uuid::Uuid;
 
 mod docx;
 
+/// Fully decoded PNG dimensions; bytes remain authoritative and unchanged.
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub struct PngImageFacts {
+    pub width: u32,
+    pub height: u32,
+}
+
+/// Pure bounded conversion, before Source construction or any effects.
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub struct DocxSourceConversion {
+    pub format: InboxConversionFormat,
+    pub body: String,
+    pub visual: Option<DocxInlinePng>,
+}
+
+/// One validated image occurrence and its exact raw package part.
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub struct DocxInlinePng {
+    pub part_name: String,
+    pub relationship_id: String,
+    pub asset_name: String,
+    pub byte_len: u64,
+    pub sha256: [u8; 32],
+    pub width: u32,
+    pub height: u32,
+    pub alt_text: Option<String>,
+    pub title: Option<String>,
+    pub image_start: usize,
+    pub image_end: usize,
+    pub bytes: Vec<u8>,
+}
+
+pub fn convert_docx_source(
+    bytes: &[u8],
+    cancel: &AtomicBool,
+) -> std::result::Result<DocxSourceConversion, InboxProcessOutcome> {
+    docx::convert_source(bytes, cancel)
+}
+
+/// The exact safe literal markup used by the converted occurrence.
+pub fn docx_inline_png_markdown(
+    asset_name: &str,
+    alt_text: Option<&str>,
+    title: Option<&str>,
+) -> Result<String> {
+    docx::image_markdown(asset_name, alt_text, title)
+}
+
+pub fn validate_png_image(
+    bytes: &[u8],
+    cancel: &AtomicBool,
+) -> std::result::Result<PngImageFacts, InboxProcessOutcome> {
+    docx::validate_png(bytes, cancel)
+}
+
 /// Deterministic bounded DOCX conversion from complete bytes. Workflow owns
 /// fresh original observation and exact proposal authority; this performs no IO.
 pub fn convert_docx_original(
@@ -211,6 +266,8 @@ impl WorkStore {
 #[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
 #[serde(deny_unknown_fields)]
 pub struct InboxSourceBinding {
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub visual: Option<super::inbox_visual::InboxSourceVisual>,
     pub batch_id: Uuid,
     pub index: usize,
     pub original: InboxItem,
@@ -224,6 +281,8 @@ pub struct InboxSourceBinding {
 #[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
 #[serde(deny_unknown_fields)]
 pub struct InboxSourceProvenance {
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub visual: Option<super::inbox_visual::InboxSourceVisual>,
     pub item_id: Uuid,
     pub kind: super::inbox::InboxKind,
     pub title: String,
@@ -251,9 +310,11 @@ pub fn read_provenance(text: &str) -> Result<Option<InboxSourceProvenance>> {
     let value: InboxSourceProvenance = serde_json::from_str(field.value)
         .map_err(|_| invalid("Inbox provenance needs strict single-line JSON"))?;
     if value.kind == InboxKind::Binary
-        && (value.format != InboxConversionFormat::DocxTextV1
-            || !(22..=super::inbox::MAX_INBOX_BINARY_BYTES as u64)
-                .contains(&value.original_byte_len))
+        && (!matches!(
+            value.format,
+            InboxConversionFormat::DocxTextV1 | InboxConversionFormat::DocxInlinePngV1
+        ) || !(22..=super::inbox::MAX_INBOX_BINARY_BYTES as u64)
+            .contains(&value.original_byte_len))
     {
         return Err(invalid("Binary Inbox Source provenance is not supported"));
     }
@@ -263,7 +324,10 @@ pub fn read_provenance(text: &str) -> Result<Option<InboxSourceProvenance>> {
             .chain(value.original_name.iter())
             .any(|s| s.trim().is_empty() || s.len() > 512 || s.chars().any(char::is_control))
         || !match value.kind {
-            InboxKind::Binary => value.format == InboxConversionFormat::DocxTextV1,
+            InboxKind::Binary => matches!(
+                value.format,
+                InboxConversionFormat::DocxTextV1 | InboxConversionFormat::DocxInlinePngV1
+            ),
             InboxKind::Markdown => {
                 value.format == InboxConversionFormat::VerbatimMarkdownV1
                     && value.original_byte_len <= MAX_NOTE_BYTES as u64
@@ -277,6 +341,20 @@ pub fn read_provenance(text: &str) -> Result<Option<InboxSourceProvenance>> {
     {
         return Err(invalid("Inbox provenance has invalid original metadata"));
     }
+    match (&value.visual, value.format) {
+        (Some(visual), InboxConversionFormat::DocxInlinePngV1) => {
+            visual.validate_source_body(
+                &value.original_sha256,
+                &text[crate::note_identity::body_start(text)?..],
+            )?;
+        }
+        (None, format) if format != InboxConversionFormat::DocxInlinePngV1 => {}
+        _ => {
+            return Err(invalid(
+                "Inbox visual provenance differs from its conversion profile",
+            ));
+        }
+    }
     Ok(Some(value))
 }
 
@@ -284,14 +362,34 @@ impl InboxSourceBinding {
     pub fn validate(&self) -> Result<()> {
         self.original.validate()?;
         if self.original.capture.kind == InboxKind::Binary
-            && (self.format != InboxConversionFormat::DocxTextV1
-                || !(22..=super::inbox::MAX_INBOX_BINARY_BYTES as u64)
-                    .contains(&self.original.capture.copy.byte_len)
+            && (!matches!(
+                self.format,
+                InboxConversionFormat::DocxTextV1 | InboxConversionFormat::DocxInlinePngV1
+            ) || !(22..=super::inbox::MAX_INBOX_BINARY_BYTES as u64)
+                .contains(&self.original.capture.copy.byte_len)
                 || self.byte_len == 0 && self.sha256 != hash(&[]))
         {
             return Err(invalid(
                 "Binary Inbox Source conversion needs an exact DOCX proof",
             ));
+        }
+        match (&self.visual, self.format) {
+            (Some(visual), InboxConversionFormat::DocxInlinePngV1) => {
+                visual.validate(&self.original.capture.copy.sha256)?;
+                if visual.converted_byte_len != self.byte_len
+                    || visual.converted_sha256 != self.sha256
+                {
+                    return Err(invalid(
+                        "Inbox visual differs from its complete conversion proof",
+                    ));
+                }
+            }
+            (None, format) if format != InboxConversionFormat::DocxInlinePngV1 => {}
+            _ => {
+                return Err(invalid(
+                    "Inbox visual binding differs from its conversion profile",
+                ));
+            }
         }
         if self.batch_id.is_nil()
             || self.index >= super::inbox_processing::MAX_PROCESS_BATCH
@@ -303,7 +401,11 @@ impl InboxSourceBinding {
             ));
         }
         match self.original.capture.kind {
-            InboxKind::Binary if self.format == InboxConversionFormat::DocxTextV1 => {}
+            InboxKind::Binary
+                if matches!(
+                    self.format,
+                    InboxConversionFormat::DocxTextV1 | InboxConversionFormat::DocxInlinePngV1
+                ) => {}
             super::inbox::InboxKind::Markdown
                 if self.format == InboxConversionFormat::VerbatimMarkdownV1
                     && self.byte_len == self.original.capture.copy.byte_len
@@ -322,6 +424,7 @@ impl InboxSourceBinding {
     pub fn provenance(&self) -> InboxSourceProvenance {
         let capture = &self.original.capture;
         InboxSourceProvenance {
+            visual: self.visual.clone(),
             item_id: capture.id,
             kind: capture.kind,
             title: capture.title.clone(),
@@ -344,25 +447,90 @@ impl InboxSourceBinding {
     /// Imported frontmatter is body evidence, never adopted as managed authority.
     pub fn markdown(&self, converted: &str) -> Result<String> {
         let header = self.header()?;
+        let section = if let Some(visual) = &self.visual {
+            visual.validate_converted(&self.original.capture.copy.sha256, converted)?;
+            super::inbox_visual::pending_section()
+        } else {
+            String::new()
+        };
         if converted.len() as u64 != self.byte_len
             || hash(converted.as_bytes()) != self.sha256
             || header
                 .len()
                 .checked_add(converted.len())
+                .and_then(|len| len.checked_add(section.len()))
                 .is_none_or(|len| len > MAX_NOTE_BYTES)
         {
             return Err(invalid(
                 "Inbox source exceeds the note limit or differs from exact conversion",
             ));
         }
-        Ok(header + converted)
+        Ok(header + converted + &section)
     }
     pub fn validate_markdown(&self, text: &str) -> Result<()> {
         let header = self.header()?;
         let body = text.strip_prefix(&header).ok_or_else(|| {
             invalid("Inbox source must preserve its identity, scope and original provenance")
         })?;
-        self.markdown(body)?;
+        let converted = if self.visual.is_some() {
+            body.strip_suffix(&super::inbox_visual::pending_section())
+                .ok_or_else(|| {
+                    invalid("Inbox visual Create needs its pending interpretation section")
+                })?
+        } else {
+            body
+        };
+        if self.markdown(converted)? != text {
+            return Err(invalid(
+                "Inbox Source Create differs from its exact reconstructed bytes",
+            ));
+        }
+        Ok(())
+    }
+    pub fn validate_members(&self, changes: &[NoteChange]) -> Result<()> {
+        let (path, text, asset) = match changes {
+            [NoteChange::Create { path, text, .. }] if self.visual.is_none() => (path, text, None),
+            [
+                NoteChange::Create { path, text, .. },
+                NoteChange::CreateAsset {
+                    path: asset_path,
+                    bytes,
+                    ..
+                },
+            ] if self.visual.is_some() => (path, text, Some((asset_path, bytes))),
+            _ => {
+                return Err(invalid(
+                    "Inbox Source requires its exact Create and optional bound PNG Create",
+                ));
+            }
+        };
+        self.validate_markdown(text)?;
+        if let Some((asset_path, bytes)) = asset {
+            self.validate_asset(path, asset_path, bytes)?;
+        }
+        Ok(())
+    }
+    pub fn validate_asset(&self, source_path: &str, asset_path: &str, bytes: &[u8]) -> Result<()> {
+        self.validate()?;
+        let visual = self
+            .visual
+            .as_ref()
+            .ok_or_else(|| invalid("Inbox Source has no visual binding"))?;
+        if asset_path != visual.asset_path(source_path, &self.original.capture.copy.sha256)?
+            || bytes.len() as u64 != visual.byte_len
+            || hash(bytes) != visual.sha256
+        {
+            return Err(invalid(
+                "Inbox Source asset differs from its complete PNG binding",
+            ));
+        }
+        let facts = validate_png_image(bytes, &AtomicBool::new(false))
+            .map_err(|_| invalid("Inbox Source asset is not a complete bounded PNG"))?;
+        if facts.width != visual.width || facts.height != visual.height {
+            return Err(invalid(
+                "Inbox Source PNG dimensions differ from its decoded bytes",
+            ));
+        }
         Ok(())
     }
 }

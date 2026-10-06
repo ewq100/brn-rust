@@ -43,6 +43,7 @@ fn fixture() -> Fixture {
 fn draft(f: &mut Fixture) -> DraftRequest {
     let before = f.app.open_editor("note.md").unwrap().record.baseline;
     DraftRequest {
+        inbox_visual: None,
         inbox_knowledge: None,
         inbox_source: None,
         action_changes: Vec::new(),
@@ -86,6 +87,7 @@ fn invalid_action_drafts_refuse_before_workflow_admission_or_note_effects() {
     .unwrap();
     for changes in [Vec::new(), notes.changes.clone()] {
         let request = DraftRequest {
+            inbox_visual: None,
             inbox_knowledge: None,
             inbox_source: None,
             id: Uuid::new_v4(),
@@ -250,6 +252,7 @@ fn source_identity_creation_occupant_and_aliases_are_not_accepted_as_fresh_conte
         ErrorKind::ContextStale
     );
     let source_only = DraftRequest {
+        inbox_visual: None,
         inbox_knowledge: None,
         inbox_source: None,
         action_changes: Vec::new(),
@@ -265,6 +268,7 @@ fn source_identity_creation_occupant_and_aliases_are_not_accepted_as_fresh_conte
         ErrorKind::ContextStale
     );
     let occupied = DraftRequest {
+        inbox_visual: None,
         inbox_knowledge: None,
         inbox_source: None,
         action_changes: Vec::new(),
@@ -281,6 +285,7 @@ fn source_identity_creation_occupant_and_aliases_are_not_accepted_as_fresh_conte
         ErrorKind::ContextStale
     );
     let aliased = DraftRequest {
+        inbox_visual: None,
         inbox_knowledge: None,
         inbox_source: None,
         action_changes: Vec::new(),

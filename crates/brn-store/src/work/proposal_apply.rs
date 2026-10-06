@@ -1111,7 +1111,7 @@ impl WorkStore {
         self.restore_proposal_apply_with_capture(snapshot, None)
     }
 
-    /// Recover one genuine Inbox Knowledge reservation and its approval in one
+    /// Recover one genuine Inbox semantic reservation and its approval in one
     /// transaction. Missing captures refuse; no Session or turn is manufactured.
     pub fn restore_proposal_apply_with_capture(
         &mut self,
@@ -1123,10 +1123,7 @@ impl WorkStore {
             snapshot
                 .approved
                 .draft
-                .inbox_knowledge
-                .as_ref()
-                .ok_or_else(|| invalid("capture recovery requires an Inbox Knowledge approval"))?
-                .validate_capture(capture)?;
+                .validate_inbox_analysis_capture(capture)?;
         }
         let tx = self.conn.transaction()?;
         if let Some(capture) = capture {
@@ -1134,6 +1131,9 @@ impl WorkStore {
         }
         if let Some(binding) = &snapshot.approved.draft.inbox_knowledge {
             super::inbox_actions::check_knowledge_binding(&tx, binding)?;
+        }
+        if let Some(binding) = &snapshot.approved.draft.inbox_visual {
+            super::inbox_visual::check_binding(&tx, binding)?;
         }
         let existing = read_journal(&tx, snapshot.request.operation_id)?;
         let current = proposals::read_proposal(&tx, snapshot.approved.draft.id)?;
