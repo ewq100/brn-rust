@@ -44,7 +44,8 @@ These previews require semantic review. `PrepareInboxSource` prepares a bound
 whole Source draft for the existing exact approval/recovery boundary. Opt-in
 knowledge, Action and supersession review are described below.
 Conflict capture and explicitly confirmed text-copy Remove/Restore are described
-below. Attachment conversion and visual interpretation remain follow-on work.
+below. The bounded DOCX inline PNG/interpretation profile is described below;
+broader attachments and visual formats remain follow-on work.
 No original deletion, provider call or authoritative write occurs here.
 
 `CaptureInbox`, `InboxItem` and `InboxItems` are headless workflow commands for
@@ -76,8 +77,8 @@ metadata-only format1 capture mirror remain unchanged.
 `InboxOriginal::AvailableBinary` reports only complete length/hash after a fresh
 stable private-file identity/byte observation. `InboxRead::validate_receipt`
 checks client DTO consistency; it does not establish fresh filesystem authority.
-Binary processing attempts the bounded DOCX text/structure profile described in
-the [Stage8 plan](../../docs/work/active/office-inbox/plan.md#next-slice-bounded-docx-text-source).
+Binary processing attempts the bounded DOCX text/structure or single inline PNG
+profiles described in the [Stage8 plan](../../docs/work/active/office-inbox/plan.md#next-slice-bounded-docx-text-source).
 Workflow observes complete bytes through the held original-file boundary and
 rederives conversion for a fresh candidate, new Source draft and unfinished
 approval/application. A converted receipt is operational evidence, never fresh
@@ -808,7 +809,8 @@ separate; see [verification](../../docs/development/verification.md).
 ## Inbox source review preparation
 
 `PrepareInboxSource` / `prepare_inbox_source` turns one qualified conversion into
-one complete source Create draft. `CreateProposal` and exact approval retain their
+one complete Source Create draft, paired with its exact ordinary PNG asset Create
+for the visual profile. `CreateProposal` and exact approval retain their
 existing lifecycle; preparing/admitting a draft never writes the vault. Imported
 frontmatter remains body evidence under a new UUID and `brn_kind: source`.
 Portable `brn_inbox_source` provenance is available through `NoteProvenance`.
@@ -819,6 +821,37 @@ unfinished application/Finish repair; completed historical replay and ordinary
 recovery do not require processing rows or the original to remain available. Restore
 repair may remove a partial source without recreating or deleting the original.
 
+
+## DOCX inline PNG and explicit interpretation
+
+The first visual profile accepts one ordinary inline PNG at most1MiB encoded,
+4096 per dimension and4,194,304 pixels. Complete integrity/EOF and a hard32MiB
+decoder-owned allocation budget are checked; animation, meaningful unsupported
+cropping/transforms/drawings/charts and extra meaningful images refuse. Exact
+alt/title/caption wording and occurrence survive conversion. Source/asset creation
+uses the existing whole proposal/apply/recovery/Undo family; no preview effects
+or original-copy cleanup are authorized.
+
+`InboxVisualEvidence(source_path)` returns the complete saved Source and asset
+proofs plus actual checked PNG bytes after unique Source identity qualification
+and final Source reobservation. Its typed `visual_proof` accessor serves client
+presentation; inspection is provider-free and grants no approval authority.
+`AnalyzeInboxActions` with explicit `purpose: visual_interpretation` and the exact
+`visual_asset` uses the existing owned WorkTurn lane and explicitly selected
+provider/model/effort. New admission rechecks Source/PNG proofs; the ephemeral
+image is not stored in the question/job. The narrow AI route receives no tools
+or history. Existing Action/Knowledge purposes keep their capabilities unchanged.
+
+Only a completed bounded exact description/uncertainty JSON result can prepare
+`PrepareInboxVisualAnnotation(analysis_id)`. It reconstructs one tentative
+Source-only Replace, protecting literal text, metadata and image reference.
+Preparation is provider-free; clients explicitly create/review that draft before
+separate exact approval. Creation replay preserves original binding and newer
+review; historical apply/capture recovery and provider-free Undo retain existing
+semantics. Failed/interrupted/malformed results cannot prepare an annotation.
+Binary originals remain retained; broader Office/visual formats and meaningful
+Office cleanup are unfinished. GUI/live/model/owner acceptance is separate from
+automated qualification.
 
 ## Opt-in Inbox knowledge consequences
 
