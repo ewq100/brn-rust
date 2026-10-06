@@ -794,10 +794,12 @@ impl Renderer<'_, '_> {
                     if n.children().any(|c| c.is_element()) {
                         return Err(Failure::Invalid);
                     }
-                    push(
-                        &mut text,
-                        &escaped(n.text().unwrap_or_default(), self.cancel)?,
-                    )?;
+                    for wording in n.children().filter(Node::is_text) {
+                        push(
+                            &mut text,
+                            &escaped(wording.text().unwrap_or_default(), self.cancel)?,
+                        )?;
+                    }
                 }
                 "tab" => push(&mut text, "\t")?,
                 "br" => {
@@ -969,6 +971,9 @@ impl Renderer<'_, '_> {
                     for cell in children(n)? {
                         match word(cell)? {
                             "trPr" => {
+                                if !row.is_empty() {
+                                    return Err(Failure::Invalid);
+                                }
                                 for property in children(cell)? {
                                     match word(property)? {
                                         "tblHeader" => row_header = boolean(property)?,
@@ -984,6 +989,9 @@ impl Renderer<'_, '_> {
                                 for part in children(cell)? {
                                     match word(part)? {
                                         "tcPr" => {
+                                            if count > 0 {
+                                                return Err(Failure::Invalid);
+                                            }
                                             cell_properties(part)?;
                                         }
                                         "p" => {
@@ -1197,6 +1205,7 @@ mod tests {
     fn plain_empty_and_strict_documents_have_no_invented_wording() {
         assert_eq!(convert("", None, None).unwrap(), "");
         assert_eq!(convert("<w:p/>", None, None).unwrap(), "\n");
+        assert_eq!(convert("<w:p><w:r><w:t>First<!-- metadata -->last<![CDATA[ & literal ]]></w:t></w:r></w:p>", None, None).unwrap(), "Firstlast &amp; literal \n");
         assert_eq!(
             convert(&(p("First õ 日本語") + &p("Second preserved")), None, None).unwrap(),
             "First õ 日本語\n\nSecond preserved\n"
