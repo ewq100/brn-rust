@@ -900,5 +900,33 @@ retained independently and never substitutes for saved evidence. The selected
 original/journal/full Source proof is rechecked before returning. The complete
 review remains available through `InboxReview`; it is independent of cleanup
 admission. `needs_owner_confirmation: true` never grants removal authority.
-Explicit confirmation must bind this same witness and requalify it. Removal,
-restore/recovery corrections and native controls remain subsequent work.
+Explicit confirmation must bind this same witness and requalify it. The following
+original-copy lifecycle implements that command; native controls remain later work.
+
+## Recoverable original-copy lifecycle
+
+`RemoveInboxOriginal` accepts a complete typed request: operation/capture UUID,
+exact preview digest, version1 true exact-copy confirmation and, after a prior
+cycle, the current settled Restore UUID/record digest. Workflow rechecks the same
+approved preserving Source before the exclusive move. Catalog, capture receipt,
+Source and semantic review work remain retained. `RemovedRetained` identifies the
+operation-owned exact copy; each read rechecks it and the vacant ordinary endpoint.
+No automatic removal, disposition change, permanent purge or AI cleanup tool exists.
+
+`RestoreInboxOriginal` binds the current settled Remove UUID/digest, exact retained
+bytes/inode/namespace and vacant destination. Source freshness is independent of
+restoration. Both commands return immutable original receipts on exact replay
+before fresh admission and never repeat an old effect against a recreated path.
+AppWorker correlates effects by operation UUID and drains admitted work at shutdown;
+the owner-operated CLI is a thin bounded request/reply adapter.
+
+Checked Store records and ordinary mirrors share the existing private family.
+New lean certificates use explicit format2; format1 historical bodies, omitted
+empty-history fields and digests remain unchanged. Historical lookup returns an
+explicit legacy variant. Bootstrap imports exact catalog identities/genuine legacy
+jobs before approval companions and exposes invalid certificates as startup errors.
+It never fabricates chat or processing state. Intake imports mirrors atomically,
+computes causal heads once and visits checked SQL records to repair missing mirrors.
+Startup only acknowledges exact already-performed moves; untouched intents remain
+pending, and any head fences capture-stage installation. Unknown/conflicting files
+remain retained. Native/live/owner qualification is separate from automated tests.

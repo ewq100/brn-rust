@@ -215,7 +215,7 @@ fn stale(message: &str) -> WorkflowError {
 }
 
 #[cfg(all(test, target_os = "macos"))]
-mod tests {
+pub(crate) mod tests {
     use super::*;
     use crate::{
         app::AppConfig,
@@ -226,15 +226,15 @@ mod tests {
     };
     use brn_store::work::{chat::WorkTurnStatus, proposal_apply::ApplyOutcome};
     use std::{fs, sync::atomic::AtomicBool};
-    struct Fixture {
-        _owner: tempfile::TempDir,
-        data: std::path::PathBuf,
-        vault: std::path::PathBuf,
-        app: App,
-        item: Uuid,
+    pub(crate) struct Fixture {
+        pub(crate) _owner: tempfile::TempDir,
+        pub(crate) data: std::path::PathBuf,
+        pub(crate) vault: std::path::PathBuf,
+        pub(crate) app: App,
+        pub(crate) item: Uuid,
     }
     impl Fixture {
-        fn new() -> Self {
+        pub(crate) fn new() -> Self {
             let owner = tempfile::tempdir_in(std::env::temp_dir().canonicalize().unwrap()).unwrap();
             let data = owner.path().join("data");
             let vault = owner.path().join("vault");
@@ -266,10 +266,10 @@ mod tests {
                 item: item.capture.id,
             }
         }
-        fn source(&mut self) -> Uuid {
+        pub(crate) fn source(&mut self) -> Uuid {
             self.source_at("source.md")
         }
-        fn source_at(&mut self, path: &str) -> Uuid {
+        pub(crate) fn source_at(&mut self, path: &str) -> Uuid {
             let item = self.app.inbox_item(self.item).unwrap().item;
             let batch = self
                 .app

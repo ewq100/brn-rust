@@ -96,6 +96,7 @@ fn kind_name(kind: InboxKind) -> &'static str {
 fn availability_name(availability: &InboxAvailability) -> &'static str {
     match availability {
         InboxAvailability::Available => "Original available",
+        InboxAvailability::RemovedRetained => "Original removed; exact copy retained",
         InboxAvailability::Missing => "Original missing",
         InboxAvailability::Changed => "Original changed",
         InboxAvailability::Unavailable => "Original unavailable",
@@ -573,6 +574,11 @@ impl Desktop {
                 }
                 InboxOriginal::Missing => {
                     content = content.child("The workflow reports this original is missing.")
+                }
+                InboxOriginal::RemovedRetained { operation_id } => {
+                    content = content.child(format!(
+                        "Original deliberately removed; exact copy retained by operation {operation_id}."
+                    ))
                 }
                 InboxOriginal::Changed { reason } => {
                     content = content.child(format!(

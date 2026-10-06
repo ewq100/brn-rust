@@ -1,5 +1,40 @@
 # Resumable V1 checkpoint
 
+Full frozen V1 goal confirmed **active** on2026-10-06, without a token budget.
+
+- **Candidate:** `codex/v1-original-copy-lifecycle`, qualified code
+  `36a9dad0d7c24b5692fcac3289867ec79adb4aff`, tree
+  `b0fe9791e4bfbfe072082476ed94c6efa2998bbd`; base PR67 merge
+  `1ebff1a6f6099568c339e6b605bf819e1dbf6e6f`. Approved exact Source plus explicit
+  confirmation admits recoverable Remove; exact retained copy admits Restore.
+  Lean format2/unchanged legacy mirrors, atomic streamed recovery, causal heads,
+  bootstrap-before-Knowledge-companions, immutable replay and no resurrection.
+- **Verification:** complete review/correction reviews clean; shared8ca7e5d passed
+  format/build/Clippy,1,441/0/10+52 fixtures, atomic unchanged exit0. Only later
+  Rust delta gates a Mac-only file helper to macOS; enabled Mac code is unchanged,
+  fresh format/Workflow Clippy and native qualification pass at dacb56f.
+  Native11 commands passed:330 Workflow/models/0/9,285 Desktop/0/0, builds and V15
+  default/native startup/restart. Explicit75,222,612-byte mirror recovery passed.
+  Initial setup/build/lint and real overflow-regression failures remain retained.
+  PR68 run37397938144 at25838e8 failed required Ubuntu Clippy for a Mac-only
+  test import; Windows22 compiler blocks/summaries match PR67. A matching cfg
+  correction has clean independent review and fresh format/CLI Clippy/10 tests.
+  Enabled Mac code is unchanged; latest-head CI remains required.
+- **Next gate:** exact-head applicable Mac/shared CI+Docs and normal PR integration,
+  then fresh merged verification/checkpoint. Native cleanup controls follow;
+  broader startup/backup cost and truthful retrieval facts remain corrections.
+- **Pending:** native/live/owner acceptance, real assets, later roadmap stages and
+  trusted-user packaging. Overall main67 red remains visible: required Mac/shared
+  and Docs pass, unchanged Windows22/22/14 and three Linux assertions/backtraces
+  retain raw IDs/duration/terminal-placement differences. No owner original removed.
+- **Environment:** Darwin arm64 Mac mini, Rust1.98.1 locked/offline, canonical owned
+  `TMPDIR=/private/tmp/brn-mini-synthetic-20261005`, empty model setting, isolated
+  targets/disposable synthetic data. No new live calls/downloads/private-data
+  operations or release authorized. Immutable7c4f668 stays unchanged/unmerged.
+  Continue under the [correction plan](../work/active/architecture-review-corrections/plan.md).
+
+# Earlier original-record qualification checkpoint
+
 Goal status confirmed on 2026-10-06: full frozen V1 goal **active**, without a token budget.
 
 - **Baseline:** integrated PR66 at 504f6be33e1add8c5819e28eed08628bc8dec8d0.

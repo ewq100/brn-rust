@@ -17,6 +17,25 @@ architecture; retaining V14/no new table is not a requirement. Preserve existing
 recovery proofs while correcting the cost/record shape. New semantic behavior
 follows the [typed authority boundary](../../../architecture/overview.md#semantic-intelligence-and-deterministic-authority).
 
+## Current lifecycle adaptation
+
+The current adaptation is `codex/v1-original-copy-lifecycle`, based on qualified
+PR67 merge1ebff1a6f6099568c339e6b605bf819e1dbf6e6f. It reuses the private endpoint/
+exclusive-move protocol with lean format2 certificates, preserved format1 readers,
+streamed recovery and Source+confirmation admission. Full qualification/integration
+is tracked in the [correction plan](../architecture-review-corrections/plan.md).
+Native controls and owner acceptance remain pending.
+
+Owner scenario for this bounded CLI slice: use disposable synthetic data; capture
+text, convert it and approve its exact Source. Inspect `inbox removal-preview`,
+then submit `remove-original` with its unchanged digest and version1 true explicit
+confirmation. Confirm the Source and pending semantic review remain unchanged and
+the original is reported RemovedRetained. Inspect the retained removal and submit
+`restore-original` with its exact operation UUID/digest; confirm exact bytes return.
+Repeat both original requests to check immutable replay. An occupied restoration
+destination, changed Source/original or false confirmation must refuse without
+overwriting/removing bytes. Use no live provider or private original data.
+
 ## Earlier implementation and verification record
 
 Product baseline: PR55 merge `c5aaa6c4c96007e452151adb167964bf9e2b048a`, reviewed tree

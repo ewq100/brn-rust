@@ -263,6 +263,9 @@ impl App {
             InboxOriginal::Missing => InboxProcessOutcome::Failed {
                 code: "original_missing".into(),
             },
+            InboxOriginal::RemovedRetained { .. } => InboxProcessOutcome::Failed {
+                code: "original_removed_retained".into(),
+            },
             InboxOriginal::Changed { .. } => InboxProcessOutcome::Failed {
                 code: "original_changed".into(),
             },

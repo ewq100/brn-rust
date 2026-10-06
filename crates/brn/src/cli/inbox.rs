@@ -7,6 +7,9 @@ use brn_workflow::{
     app_worker::{AppCommand, AppEvent},
     inbox::{CaptureInboxRequest, InboxKind, InboxListRequest},
     inbox_actions::{InboxActionRequest, InboxAnalysisPurpose},
+    inbox_original_operations::{
+        InboxOriginalOperation, RemoveInboxOriginalRequest, RestoreInboxOriginalRequest,
+    },
     inbox_processing::{InboxCandidateRequest, InboxSourceRequest, ProcessInboxRequest},
 };
 use std::{fmt::Write as _, path::PathBuf};
@@ -22,6 +25,12 @@ pub enum InboxCommand {
     Show(Uuid),
     Review(Uuid),
     RemovalPreview(Uuid),
+    RemoveOriginal(PathBuf),
+    RestoreOriginal(PathBuf),
+    OriginalRemoval(Uuid),
+    OriginalRestore(Uuid),
+    OriginalOperations(Uuid),
+    ArchivedAnalysis(Uuid),
     List(InboxListRequest),
     Process(PathBuf),
     Processing(Uuid),
@@ -46,6 +55,12 @@ impl InboxCommand {
             Self::Show(_) => "inbox.show",
             Self::Review(_) => "inbox.review",
             Self::RemovalPreview(_) => "inbox.removal-preview",
+            Self::RemoveOriginal(_) => "inbox.remove-original",
+            Self::RestoreOriginal(_) => "inbox.restore-original",
+            Self::OriginalRemoval(_) => "inbox.original-removal",
+            Self::OriginalRestore(_) => "inbox.original-restore",
+            Self::OriginalOperations(_) => "inbox.original-operations",
+            Self::ArchivedAnalysis(_) => "inbox.archived-analysis",
             Self::List(_) => "inbox.list",
             Self::Process(_) => "inbox.process",
             Self::Processing(_) => "inbox.processing",
@@ -67,7 +82,7 @@ pub(super) fn scan_command(
     let sub = sub_word(
         tokens,
         "inbox",
-        "add|show|review|removal-preview|list|process|processing|candidate|source|cancel|analyze-actions|action-analysis|analyze|analysis",
+        "add|show|review|removal-preview|remove-original|restore-original|original-removal|original-restore|original-operations|archived-analysis|list|process|processing|candidate|source|cancel|analyze-actions|action-analysis|analyze|analysis",
     )?;
     let (label, options): (_, &[(&str, bool)]) = match sub.as_str() {
         "add" => (
@@ -83,6 +98,12 @@ pub(super) fn scan_command(
         "show" => ("inbox.show", &[]),
         "review" => ("inbox.review", &[]),
         "removal-preview" => ("inbox.removal-preview", &[]),
+        "remove-original" => ("inbox.remove-original", &[]),
+        "restore-original" => ("inbox.restore-original", &[]),
+        "original-removal" => ("inbox.original-removal", &[]),
+        "original-restore" => ("inbox.original-restore", &[]),
+        "original-operations" => ("inbox.original-operations", &[]),
+        "archived-analysis" => ("inbox.archived-analysis", &[]),
         "list" => ("inbox.list", &[("limit", true), ("after", true)]),
         "process" => ("inbox.process", &[("file", true)]),
         "processing" => ("inbox.processing", &[]),
@@ -121,10 +142,20 @@ fn metadata(command: &InboxCommand) -> Result<(), CliError> {
         }
         .validate()
         .map_err(|e| usage(e.message)),
-        InboxCommand::Show(id) | InboxCommand::Review(id) | InboxCommand::RemovalPreview(id)
+        InboxCommand::Show(id)
+        | InboxCommand::Review(id)
+        | InboxCommand::RemovalPreview(id)
+        | InboxCommand::OriginalOperations(id)
             if id.is_nil() =>
         {
             Err(usage("Inbox UUID must not be nil"))
+        }
+        InboxCommand::OriginalRemoval(id)
+        | InboxCommand::OriginalRestore(id)
+        | InboxCommand::ArchivedAnalysis(id)
+            if id.is_nil() =>
+        {
+            Err(usage("Inbox operation UUID must not be nil"))
         }
         InboxCommand::Processing(id) | InboxCommand::Cancel(id) if id.is_nil() => {
             Err(usage("Inbox processing UUID must not be nil"))
@@ -178,6 +209,28 @@ pub(super) fn parse_command(name: &str, s: &Scanned) -> Result<InboxCommand, Cli
                 InboxCommand::Review(id)
             } else {
                 InboxCommand::Show(id)
+            }
+        }
+        "inbox.remove-original" | "inbox.restore-original" => {
+            expect_positionals(s, 1)?;
+            let input = PathBuf::from(super::required_positional(s, "REQUEST_JSON")?);
+            if name == "inbox.remove-original" {
+                InboxCommand::RemoveOriginal(input)
+            } else {
+                InboxCommand::RestoreOriginal(input)
+            }
+        }
+        "inbox.original-removal"
+        | "inbox.original-restore"
+        | "inbox.original-operations"
+        | "inbox.archived-analysis" => {
+            expect_positionals(s, 1)?;
+            let id = positional_uuid(s, 0, "UUID")?;
+            match name {
+                "inbox.original-removal" => InboxCommand::OriginalRemoval(id),
+                "inbox.original-restore" => InboxCommand::OriginalRestore(id),
+                "inbox.original-operations" => InboxCommand::OriginalOperations(id),
+                _ => InboxCommand::ArchivedAnalysis(id),
             }
         }
         "inbox.list" => {
@@ -282,6 +335,24 @@ pub(super) fn prepare(command: &InboxCommand) -> Result<AppCommand, CliFailure> 
         InboxCommand::Show(id) => AppCommand::InboxItem(*id),
         InboxCommand::Review(id) => AppCommand::InboxReview(*id),
         InboxCommand::RemovalPreview(id) => AppCommand::PreviewInboxRemoval(*id),
+        InboxCommand::RemoveOriginal(file) => {
+            let text = super::input::read_text_file(file, "Inbox original removal request")?;
+            let request: RemoveInboxOriginalRequest = serde_json::from_str(&text)
+                .map_err(|_| usage("invalid Inbox original removal request JSON"))?;
+            request.validate().map_err(|e| usage(e.to_string()))?;
+            AppCommand::RemoveInboxOriginal(request)
+        }
+        InboxCommand::RestoreOriginal(file) => {
+            let text = super::input::read_text_file(file, "Inbox original restoration request")?;
+            let request: RestoreInboxOriginalRequest = serde_json::from_str(&text)
+                .map_err(|_| usage("invalid Inbox original restoration request JSON"))?;
+            request.validate().map_err(|e| usage(e.to_string()))?;
+            AppCommand::RestoreInboxOriginal(request)
+        }
+        InboxCommand::OriginalRemoval(id) => AppCommand::InboxOriginalRemoval(*id),
+        InboxCommand::OriginalRestore(id) => AppCommand::InboxOriginalRestore(*id),
+        InboxCommand::OriginalOperations(id) => AppCommand::InboxOriginalOperations(*id),
+        InboxCommand::ArchivedAnalysis(id) => AppCommand::ArchivedInboxAnalysis(*id),
         InboxCommand::List(r) => AppCommand::InboxItems(r.clone()),
         InboxCommand::Process(file) => {
             let text = super::input::read_text_file(file, "Inbox processing request")?;
@@ -358,6 +429,83 @@ pub(super) fn output(command: &AppCommand, event: AppEvent) -> Result<Output, Cl
         {
             serde_json::json!(*preview)
         }
+        (AppCommand::RemoveInboxOriginal(request), AppEvent::InboxOriginalRemoved(record))
+            if record.request == *request
+                && record.validate().is_ok()
+                && record.removed_at_ms.is_some() =>
+        {
+            serde_json::json!(*record)
+        }
+        (AppCommand::RestoreInboxOriginal(request), AppEvent::InboxOriginalRestored(record))
+            if record.request == *request
+                && record.validate().is_ok()
+                && record.restored_at_ms.is_some() =>
+        {
+            serde_json::json!(*record)
+        }
+        (
+            AppCommand::InboxOriginalRemoval(id),
+            AppEvent::InboxOriginalRemoval {
+                operation_id,
+                record,
+            },
+        ) if *id == operation_id
+            && record.as_ref().is_none_or(|r| {
+                r.validate().is_ok()
+                    && matches!(
+                        r.as_ref(),
+                        InboxOriginalOperation::Remove(_) | InboxOriginalOperation::LegacyRemove(_)
+                    )
+                    && r.summary().is_ok_and(|summary| summary.operation_id == *id)
+            }) =>
+        {
+            serde_json::json!(record)
+        }
+        (
+            AppCommand::InboxOriginalRestore(id),
+            AppEvent::InboxOriginalRestore {
+                operation_id,
+                record,
+            },
+        ) if *id == operation_id
+            && record.as_ref().is_none_or(|r| {
+                r.validate().is_ok()
+                    && matches!(
+                        r.as_ref(),
+                        InboxOriginalOperation::Restore(_)
+                            | InboxOriginalOperation::LegacyRestore(_)
+                    )
+                    && r.summary().is_ok_and(|summary| summary.operation_id == *id)
+            }) =>
+        {
+            serde_json::json!(record)
+        }
+        (
+            AppCommand::InboxOriginalOperations(id),
+            AppEvent::InboxOriginalOperations {
+                item_id,
+                operations,
+            },
+        ) if *id == item_id
+            && operations
+                .iter()
+                .all(|r| r.item_id == *id && r.validate().is_ok()) =>
+        {
+            serde_json::json!(operations)
+        }
+        (
+            AppCommand::ArchivedInboxAnalysis(id),
+            AppEvent::ArchivedInboxAnalysis {
+                operation_id,
+                analysis,
+            },
+        ) if *id == operation_id
+            && analysis.as_ref().is_none_or(|a| {
+                a.analysis.job.capture.id == *id && a.analysis.job.validate().is_ok()
+            }) =>
+        {
+            serde_json::json!(analysis)
+        }
         (AppCommand::InboxItems(r), AppEvent::InboxItems(page))
             if page.entries.len() <= r.limit =>
         {
@@ -410,8 +558,339 @@ pub(super) fn output(command: &AppCommand, event: AppEvent) -> Result<Output, Cl
 mod tests {
     use super::*;
     use crate::cli::{Command, Invocation, Outcome};
+    #[cfg(target_os = "macos")]
+    use brn_workflow::inbox_original_operations::InboxOriginalOperation;
     fn args(tokens: &[&str]) -> Vec<String> {
         tokens.iter().map(|t| (*t).into()).collect()
+    }
+    fn removal_request() -> RemoveInboxOriginalRequest {
+        RemoveInboxOriginalRequest {
+            operation_id: Uuid::new_v4(),
+            item_id: Uuid::new_v4(),
+            preview_digest: [19; 32],
+            previous_restore: None,
+            confirmation: brn_workflow::inbox_original_operations::InboxRemovalConfirmation {
+                version: 1,
+                exact_copy_removal_intended: true,
+            },
+        }
+    }
+    #[test]
+    fn original_operation_parser_is_explicit_and_bounded() {
+        let owner = tempfile::tempdir_in(std::env::temp_dir().canonicalize().unwrap()).unwrap();
+        let id = Uuid::new_v4().to_string();
+        for (command, input) in [
+            ("remove-original", "request.json"),
+            ("restore-original", "request.json"),
+            ("original-removal", &id),
+            ("original-restore", &id),
+            ("original-operations", &id),
+            ("archived-analysis", &id),
+        ] {
+            let arguments = |extra: &[&str]| {
+                let mut tokens = vec!["inbox", command];
+                tokens.extend_from_slice(extra);
+                tokens.extend(["--data-dir", owner.path().to_str().unwrap()]);
+                args(&tokens)
+            };
+            assert!(matches!(
+                crate::cli::parse(&arguments(&[input])),
+                Ok(Outcome::Run(_))
+            ));
+            for extra in [
+                vec![],
+                vec![input, "extra"],
+                vec![input, "--approve"],
+                vec![input, "--ready"],
+                vec!["--file", input],
+            ] {
+                assert!(crate::cli::parse(&arguments(&extra)).is_err());
+            }
+            if !command.ends_with("-original") {
+                assert!(
+                    crate::cli::parse(&arguments(&["00000000-0000-0000-0000-000000000000"]))
+                        .is_err()
+                );
+            }
+        }
+    }
+    #[test]
+    fn original_requests_validate_all_confirmation_fields_before_owner_startup() {
+        let owner = tempfile::tempdir_in(std::env::temp_dir().canonicalize().unwrap()).unwrap();
+        let data = owner.path().join("data");
+        std::fs::create_dir(&data).unwrap();
+        let credentials = owner.path().join("credentials");
+        let input = owner.path().join("request.json");
+        let request = removal_request();
+        for field in [
+            "exact_copy_removal_intended",
+            "version",
+            "missing",
+            "unknown",
+            "operation_id",
+            "item_id",
+            "preview_digest",
+        ] {
+            let mut value = serde_json::to_value(&request).unwrap();
+            match field {
+                "version" => value["confirmation"][field] = serde_json::json!(2),
+                "missing" => {
+                    value["confirmation"]
+                        .as_object_mut()
+                        .unwrap()
+                        .remove("exact_copy_removal_intended");
+                }
+                "unknown" => value["confirmation"]["approve"] = serde_json::json!(true),
+                "operation_id" | "item_id" => value[field] = serde_json::json!(Uuid::nil()),
+                "preview_digest" => value[field] = serde_json::json!([0]),
+                _ => value["confirmation"][field] = serde_json::json!(false),
+            }
+            let exact = serde_json::to_vec(&value).unwrap();
+            std::fs::write(&input, &exact).unwrap();
+            let invocation = Invocation {
+                json: true,
+                data_dir: data.clone(),
+                vault: None,
+                credentials_dir: Some(credentials.clone()),
+                model_dir: None,
+                command: Command::Inbox(InboxCommand::RemoveOriginal(input.clone())),
+            };
+            let failure = crate::cli::execute(&invocation).err().unwrap();
+            assert_eq!(failure.error.code(), "USAGE", "{field}");
+            assert_eq!(std::fs::read_dir(&data).unwrap().count(), 0, "{field}");
+            assert!(!credentials.exists());
+            assert_eq!(std::fs::read(&input).unwrap(), exact);
+        }
+        let mut chained = request.clone();
+        chained.previous_restore = Some(
+            brn_workflow::inbox_original_operations::InboxOriginalParent {
+                operation_id: Uuid::new_v4(),
+                record_sha256: [23; 32],
+            },
+        );
+        for damage in [
+            "nil_parent",
+            "own_parent",
+            "short_hash",
+            "large_byte",
+            "unknown_parent",
+            "old_attestation",
+            "wrong_bool",
+            "wrong_version_type",
+        ] {
+            let mut value = serde_json::to_value(&chained).unwrap();
+            match damage {
+                "nil_parent" => {
+                    value["previous_restore"]["operation_id"] = serde_json::json!(Uuid::nil())
+                }
+                "own_parent" => {
+                    value["previous_restore"]["operation_id"] =
+                        serde_json::json!(request.operation_id)
+                }
+                "short_hash" => value["previous_restore"]["record_sha256"] = serde_json::json!([0]),
+                "large_byte" => value["preview_digest"][0] = serde_json::json!(256),
+                "unknown_parent" => value["previous_restore"]["extra"] = true.into(),
+                "old_attestation" => {
+                    value["attestation"] = serde_json::json!({"copy_disposable": true})
+                }
+                "wrong_bool" => {
+                    value["confirmation"]["exact_copy_removal_intended"] = "true".into()
+                }
+                _ => value["confirmation"]["version"] = true.into(),
+            }
+            let exact = serde_json::to_vec(&value).unwrap();
+            std::fs::write(&input, &exact).unwrap();
+            let invocation = Invocation {
+                json: true,
+                data_dir: data.clone(),
+                vault: None,
+                credentials_dir: Some(credentials.clone()),
+                model_dir: None,
+                command: Command::Inbox(InboxCommand::RemoveOriginal(input.clone())),
+            };
+            assert_eq!(
+                crate::cli::execute(&invocation).err().unwrap().error.code(),
+                "USAGE",
+                "{damage}"
+            );
+            assert_eq!(std::fs::read_dir(&data).unwrap().count(), 0);
+            assert!(!credentials.exists());
+            assert_eq!(std::fs::read(&input).unwrap(), exact);
+        }
+        std::fs::write(&input, serde_json::to_vec(&chained).unwrap()).unwrap();
+        assert!(
+            matches!(prepare(&InboxCommand::RemoveOriginal(input.clone())).unwrap(),AppCommand::RemoveInboxOriginal(r) if r == chained)
+        );
+        std::fs::write(&input, serde_json::to_vec(&request).unwrap()).unwrap();
+        assert!(
+            matches!(prepare(&InboxCommand::RemoveOriginal(input.clone())).unwrap(), AppCommand::RemoveInboxOriginal(r) if r == request)
+        );
+        let restore = RestoreInboxOriginalRequest {
+            operation_id: Uuid::new_v4(),
+            removal_operation_id: request.operation_id,
+            removal_digest: [7; 32],
+        };
+        std::fs::write(&input, serde_json::to_vec(&restore).unwrap()).unwrap();
+        assert!(
+            matches!(prepare(&InboxCommand::RestoreOriginal(input.clone())).unwrap(), AppCommand::RestoreInboxOriginal(r) if r == restore)
+        );
+        for field in [
+            "operation_id",
+            "removal_operation_id",
+            "removal_digest",
+            "unknown",
+        ] {
+            let mut value = serde_json::to_value(&restore).unwrap();
+            value[field] = match field {
+                "removal_digest" => serde_json::json!([0]),
+                "unknown" => serde_json::json!(true),
+                _ => serde_json::json!(Uuid::nil()),
+            };
+            std::fs::write(&input, serde_json::to_vec(&value).unwrap()).unwrap();
+            let invocation = Invocation {
+                json: true,
+                data_dir: data.clone(),
+                vault: None,
+                credentials_dir: Some(credentials.clone()),
+                model_dir: None,
+                command: Command::Inbox(InboxCommand::RestoreOriginal(input.clone())),
+            };
+            assert_eq!(
+                crate::cli::execute(&invocation).err().unwrap().error.code(),
+                "USAGE"
+            );
+            assert_eq!(std::fs::read_dir(&data).unwrap().count(), 0);
+            assert!(!credentials.exists());
+        }
+    }
+
+    #[test]
+    fn original_request_file_bounds_refuse_before_owner_startup() {
+        let owner = tempfile::tempdir_in(std::env::temp_dir().canonicalize().unwrap()).unwrap();
+        let data = owner.path().join("data");
+        std::fs::create_dir(&data).unwrap();
+        let credentials = owner.path().join("credentials");
+        let oversized = owner.path().join("oversized.json");
+        std::fs::write(&oversized, vec![b' '; brn_workflow::MAX_NOTE_BYTES + 1]).unwrap();
+        let invalid = owner.path().join("invalid.json");
+        std::fs::write(&invalid, [0xff]).unwrap();
+        for input in [
+            oversized,
+            invalid,
+            owner.path().to_owned(),
+            owner.path().join("missing.json"),
+        ] {
+            for restore in [false, true] {
+                let command = if restore {
+                    InboxCommand::RestoreOriginal(input.clone())
+                } else {
+                    InboxCommand::RemoveOriginal(input.clone())
+                };
+                let invocation = Invocation {
+                    json: true,
+                    data_dir: data.clone(),
+                    vault: None,
+                    credentials_dir: Some(credentials.clone()),
+                    model_dir: None,
+                    command: Command::Inbox(command),
+                };
+                assert!(crate::cli::execute(&invocation).is_err());
+                assert_eq!(std::fs::read_dir(&data).unwrap().count(), 0);
+                assert!(!credentials.exists());
+            }
+        }
+    }
+    #[test]
+    fn historical_original_replies_keep_version_tags_and_refuse_wrong_kind_or_identity() {
+        use brn_workflow::inbox_original_operations::InboxOriginalOperation;
+        let fixture: serde_json::Value = serde_json::from_slice(include_bytes!(
+            "../../../brn-store/tests/fixtures/inbox-original-v1.json"
+        ))
+        .unwrap();
+        let legacy: brn_store::work::inbox_original_legacy::Operation =
+            serde_json::from_value(fixture["operation"].clone()).unwrap();
+        let brn_store::work::inbox_original_legacy::Operation::Remove(record) = legacy else {
+            unreachable!()
+        };
+        let id = record.request.operation_id;
+        let analysis = brn_workflow::inbox_original_operations::ArchivedInboxAnalysis {
+            removal_operation_id: id,
+            analysis: record.evidence.snapshot.review.analyses[0].clone(),
+        };
+        let restored = brn_store::work::inbox_original_legacy::InboxOriginalRestoreRecord {
+            request: RestoreInboxOriginalRequest {
+                operation_id: Uuid::new_v4(),
+                removal_operation_id: id,
+                removal_digest: record.digest().unwrap(),
+            },
+            original: record.evidence.snapshot.review.original.clone(),
+            namespace: record.namespace.clone(),
+            prepared_at_ms: record.removed_at_ms.unwrap() + 1,
+            restored_at_ms: None,
+        };
+        let restore_id = restored.request.operation_id;
+        let historical_restore = InboxOriginalOperation::LegacyRestore(Box::new(restored));
+        let reply = output(
+            &AppCommand::InboxOriginalRestore(restore_id),
+            AppEvent::InboxOriginalRestore {
+                operation_id: restore_id,
+                record: Some(Box::new(historical_restore.clone())),
+            },
+        )
+        .unwrap();
+        assert_eq!(reply.data["kind"], "legacy_restore");
+        assert_eq!(reply.data, serde_json::json!(historical_restore));
+        let historical = InboxOriginalOperation::LegacyRemove(record);
+        let event = |operation_id, record| AppEvent::InboxOriginalRemoval {
+            operation_id,
+            record: Some(Box::new(record)),
+        };
+        let reply = output(
+            &AppCommand::InboxOriginalRemoval(id),
+            event(id, historical.clone()),
+        )
+        .unwrap();
+        assert_eq!(reply.data["kind"], "legacy_remove");
+        assert_eq!(reply.data, serde_json::json!(historical));
+        assert!(output(
+            &AppCommand::InboxOriginalRemoval(Uuid::new_v4()),
+            event(id, historical.clone())
+        )
+        .is_err());
+        assert!(output(
+            &AppCommand::InboxOriginalRemoval(id),
+            event(Uuid::new_v4(), historical.clone())
+        )
+        .is_err());
+        assert!(output(
+            &AppCommand::InboxOriginalRestore(id),
+            AppEvent::InboxOriginalRestore {
+                operation_id: id,
+                record: Some(Box::new(historical.clone()))
+            }
+        )
+        .is_err());
+        let mut forged = historical;
+        let InboxOriginalOperation::LegacyRemove(record) = &mut forged else {
+            unreachable!()
+        };
+        record.request.preview_digest[0] ^= 1;
+        assert!(output(&AppCommand::InboxOriginalRemoval(id), event(id, forged)).is_err());
+        let analysis_id = analysis.analysis.job.capture.id;
+        let event = |operation_id, analysis| AppEvent::ArchivedInboxAnalysis {
+            operation_id,
+            analysis: Some(Box::new(analysis)),
+        };
+        assert!(output(
+            &AppCommand::ArchivedInboxAnalysis(analysis_id),
+            event(analysis_id, analysis.clone())
+        )
+        .is_ok());
+        assert!(output(
+            &AppCommand::ArchivedInboxAnalysis(Uuid::new_v4()),
+            event(analysis_id, analysis)
+        )
+        .is_err());
     }
     #[test]
     fn bounded_parser_rejects_invalid_intake_metadata_and_paging() {
@@ -707,7 +1186,7 @@ mod tests {
             command: Command::Inbox(command),
         };
         let original = owner.path().join("copy.txt");
-        let exact = "\u{feff}From: synthetic@example.invalid\r\n\r\n````\nBody õ 日本語\0";
+        let exact = "\u{feff}From: synthetic@example.invalid\r\n\r\n````\nBody õ 日本語\u{009b}\0";
         std::fs::write(&original, exact).unwrap();
         let captured = crate::cli::execute(&invocation(InboxCommand::Add {
             id: Uuid::new_v4(),
@@ -782,7 +1261,7 @@ mod tests {
             assert!(output(&command, AppEvent::InboxSourceDraft(Box::new(forged))).is_err());
         }
         assert!(!vault.join("source.md").exists());
-        assert_eq!(std::fs::read(original).unwrap(), exact.as_bytes());
+        assert_eq!(std::fs::read(&original).unwrap(), exact.as_bytes());
         assert_eq!(std::fs::read_dir(&credentials).unwrap().count(), 0);
 
         // Qualify new CLI full-proof export, retained-analysis inspection and
@@ -840,9 +1319,140 @@ mod tests {
         assert!(output(&command, AppEvent::InboxRemovalPreview(Box::new(forged))).is_err());
         assert!(output(
             &AppCommand::PreviewInboxRemoval(Uuid::new_v4()),
-            AppEvent::InboxRemovalPreview(Box::new(preview))
+            AppEvent::InboxRemovalPreview(Box::new(preview.clone()))
         )
         .is_err());
+        let removal = RemoveInboxOriginalRequest {
+            operation_id: Uuid::new_v4(),
+            item_id: process.items[0].capture.id,
+            preview_digest: preview.digest,
+            previous_restore: None,
+            confirmation: brn_workflow::inbox_original_operations::InboxRemovalConfirmation {
+                version: 1,
+                exact_copy_removal_intended: true,
+            },
+        };
+        let removal_file = owner.path().join("remove.json");
+        std::fs::write(&removal_file, serde_json::to_vec(&removal).unwrap()).unwrap();
+        let removed = crate::cli::execute(&invocation(InboxCommand::RemoveOriginal(
+            removal_file.clone(),
+        )))
+        .unwrap();
+        let record: brn_workflow::inbox_original_operations::InboxOriginalRemovalRecord =
+            serde_json::from_value(removed.data.clone()).unwrap();
+        assert_eq!(record.request, removal);
+        assert!(record.removed_at_ms.is_some());
+        let inspected = crate::cli::execute(&invocation(InboxCommand::OriginalRemoval(
+            removal.operation_id,
+        )))
+        .unwrap();
+        assert_eq!(
+            inspected.data,
+            serde_json::json!(InboxOriginalOperation::Remove(Box::new(record.clone())))
+        );
+        assert_eq!(
+            crate::cli::execute(&invocation(InboxCommand::RemoveOriginal(removal_file)))
+                .unwrap()
+                .data,
+            removed.data
+        );
+        assert_eq!(std::fs::read(&original).unwrap(), exact.as_bytes());
+        assert!(!removed.text.contains('\u{009b}'));
+        assert!(removed.text.contains("\\u009b"));
+        let command = AppCommand::RemoveInboxOriginal(removal.clone());
+        let mut forged = record.clone();
+        forged.request.operation_id = Uuid::new_v4();
+        assert!(output(&command, AppEvent::InboxOriginalRemoved(Box::new(forged))).is_err());
+        let mut forged = record.clone();
+        forged.request.preview_digest[0] ^= 1;
+        assert!(output(&command, AppEvent::InboxOriginalRemoved(Box::new(forged))).is_err());
+        let mut forged = record.clone();
+        forged.removed_at_ms = None;
+        assert!(output(&command, AppEvent::InboxOriginalRemoved(Box::new(forged))).is_err());
+        let restore = RestoreInboxOriginalRequest {
+            operation_id: Uuid::new_v4(),
+            removal_operation_id: removal.operation_id,
+            removal_digest: record.digest().unwrap(),
+        };
+        let restore_file = owner.path().join("restore.json");
+        std::fs::write(&restore_file, serde_json::to_vec(&restore).unwrap()).unwrap();
+        let restored = crate::cli::execute(&invocation(InboxCommand::RestoreOriginal(
+            restore_file.clone(),
+        )))
+        .unwrap();
+        let restored_record: brn_workflow::inbox_original_operations::InboxOriginalRestoreRecord =
+            serde_json::from_value(restored.data.clone()).unwrap();
+        assert_eq!(restored_record.request, restore);
+        let inspected_restore = crate::cli::execute(&invocation(InboxCommand::OriginalRestore(
+            restore.operation_id,
+        )))
+        .unwrap();
+        assert_eq!(
+            inspected_restore.data,
+            serde_json::json!(InboxOriginalOperation::Restore(Box::new(
+                restored_record.clone()
+            )))
+        );
+        assert_eq!(
+            crate::cli::execute(&invocation(InboxCommand::RestoreOriginal(restore_file)))
+                .unwrap()
+                .data,
+            restored.data
+        );
+        let lookup = |id, record| AppEvent::InboxOriginalRemoval {
+            operation_id: id,
+            record: Some(Box::new(record)),
+        };
+        assert!(output(
+            &AppCommand::InboxOriginalRemoval(removal.operation_id),
+            lookup(
+                removal.operation_id,
+                InboxOriginalOperation::Restore(Box::new(restored_record.clone()))
+            )
+        )
+        .is_err());
+        assert!(output(
+            &AppCommand::InboxOriginalRestore(restore.operation_id),
+            AppEvent::InboxOriginalRestore {
+                operation_id: restore.operation_id,
+                record: Some(Box::new(InboxOriginalOperation::Remove(Box::new(
+                    record.clone()
+                ))))
+            }
+        )
+        .is_err());
+        assert!(output(
+            &AppCommand::InboxOriginalRemoval(Uuid::new_v4()),
+            lookup(
+                removal.operation_id,
+                InboxOriginalOperation::Remove(Box::new(record.clone()))
+            )
+        )
+        .is_err());
+        let history = crate::cli::execute(&invocation(InboxCommand::OriginalOperations(
+            removal.item_id,
+        )))
+        .unwrap();
+        assert_eq!(history.data.as_array().unwrap().len(), 2);
+        assert_eq!(
+            history.data[0]["record_sha256"],
+            serde_json::json!(record.digest().unwrap())
+        );
+        assert_eq!(
+            history.data[1]["record_sha256"],
+            serde_json::json!(restored_record.digest().unwrap())
+        );
+        let absent = Uuid::new_v4();
+        for command in [
+            InboxCommand::OriginalRemoval(absent),
+            InboxCommand::OriginalRestore(absent),
+            InboxCommand::ArchivedAnalysis(absent),
+        ] {
+            assert_eq!(
+                crate::cli::execute(&invocation(command)).unwrap().data,
+                serde_json::Value::Null
+            );
+        }
         std::fs::remove_file(vault.join("source.md")).unwrap();
         for purpose in [
             InboxAnalysisPurpose::Actions,

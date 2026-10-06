@@ -330,6 +330,9 @@ fn native_inbox_original_and_preview_are_readonly_and_copy_complete_exact_bytes(
         });
     }
     for unavailable in [
+        InboxOriginal::RemovedRetained {
+            operation_id: Uuid::new_v4(),
+        },
         InboxOriginal::Missing,
         InboxOriginal::Changed {
             reason: "synthetic changed bytes".into(),

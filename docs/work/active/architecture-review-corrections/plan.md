@@ -21,8 +21,9 @@ at531517248300c15ce28bcb53f337984103817010/tree d63c1827aae5da654410520bc9c48856
 Knowledge capture recovery merged in PR66 at
 `504f6be33e1add8c5819e28eed08628bc8dec8d0`, reviewed tree
 `77ec79e33c75a6a0bbed3100c3815648dcb6fd68`. Current branch:
-`codex/v1-original-operation-records`, based on that clean merge. Remaining accepted
-corrections follow this plan.
+`codex/v1-original-copy-lifecycle`, based on original-record PR67 merge
+1ebff1a6f6099568c339e6b605bf819e1dbf6e6f/tree611dfcb1ce0bb4d4d09d39ad643efde48cd39710.
+Remaining accepted corrections follow this plan.
 The complete V1 goal is confirmed **active** by `get_goal` on 2026-10-06;
 its full objective and roadmap dependency order remain unchanged.
 
@@ -570,3 +571,143 @@ equal legacy bytes/inodes, surface bootstrap errors before approval companions,
 never start a move at startup or install capture stages for any operation head.
 Native/live/owner acceptance, later roadmap work and trusted-user packaging remain
 pending; full V1 goal remains active.
+
+
+## Original-record integration and following lifecycle acceptance
+
+PR67 automatic run37393114364 attempt1 at017770390d8f9c8a17a829dabd088f03692a2196
+passed all four strict protected Mac/shared checks and Docs. Overall failure
+retains unchanged Windows22 complete blocks/both summaries matching PR66.
+Ubuntu/macOS tests401s/473s (prior153s/495s) passed without reruns; actual timing
+and full failed/skipped diagnostics are retained. Fresh actual protection and
+latest head were checked; normal merge preserved exact reviewed tree611dfcb1.
+Fresh merged default build,14 Store/1 Workflow tests and52 fixtures passed,
+atomic exit0 at unchanged clean1ebff1a identity00:27:54–00:29:17UTC. Exact main
+37394115918 attempt1 passed all four strict protected Mac/shared checks, Docs and
+extra Ubuntu UI, with overall failure retained. Windows22/22/14 complete blocks
+and terminal summaries match main66. Linux retains the same three assertions/
+backtraces and block order; thread IDs change,0.81→0.60s, and the same terminal
+test-error line now occurs after the first backtrace before the remaining blocks.
+The complete-block comparator reports DIFFERENT because of that placement;
+raw differences and terminal order are preserved. Ubuntu/macOS workspace tests
+343s/436s and jobs414s/519s passed without reruns.
+
+Following slice acceptance, baseline1ebff1a:
+
+- Reuse private endpoints/exclusive rename/ownership/sync from immutable7c4f668.
+  Exact format1 mirror bytes/hash/inode stay unchanged; explicit format2 carries
+  lean records in the same family, with bounded envelope overhead. Equal occupied
+  mirrors are checked/synced; unknown/corrupt occupants refuse without overwrite.
+- Restore checked mirror families through one atomic fallible streaming import;
+  republish SQL-only mirrors through the checked visitor. Compute causal heads
+  once. Observe/publish already-performed pending outcomes without mutating Store
+  within its read transaction, then bulk-import terminal mirrors. No startup move.
+- Bootstrap exact Items and genuine legacy jobs before current Knowledge
+  companions/approval/completion recovery; surface errors explicitly. Never invent
+  processing/chat/provider state, and never install capture stages for any
+  operation head, even pending or settled Restore. Namespace remains exact.
+- Admission uses current Source preview, true version1 exact-copy confirmation,
+  preview digest and settled direct Restore UUID/digest. Recheck selected witness
+  immediately before rename; preserve actual uncertainty fences. Replay precedes
+  fresh qualification. Restore checks settled direct Remove/retained original and
+  vacant destination; it does not add a Source freshness gate.
+- Thin shared AppWorker and bounded owner-operated CLI preserve exact request/reply
+  correlation, shutdown draining, complete escaped JSON and explicitly versioned
+  historical lookup. No AI cleanup capability or native UI scope is added here.
+- Preserve old useful stale/occupied/namespace/replay/older-fresh SQL/no-resurrection
+  tests and both seven-window process-crash parents. Add literallegacy/mixed1→2,
+  >64MiB streamed mirror repair, bootstrap error, Knowledge companion ordering,
+  false confirmation/changed selected Source refusal and independent-item damage.
+  Full independent review, affected shared/native checks, exact-head CI, normal
+  merge and fresh merged verification follow. Owner/native/live acceptance remains
+  pending, and full V1 goal stays active.
+
+Bounded isolated filesystem adaptercef5cd5133bfa1325f4934bb8d9f3ba4a67d9e6e
+retains this fixed interface. Its9 private tests and6 existing capture-worker tests
+passed. Initial sandbox run1passed/6failed due known NSFileCoordinator restriction;
+exact authorized synthetic reruns passed. All-target Clippy exit0 currently has15
+expected unwired dead-code warnings, with no suppression; full lead wiring must
+pass -D warnings before review/PR. No Store/worker/CLI/UI boundary was changed by
+that helper commit. Its independent full-slice review is still pending.
+
+
+## Original-copy lifecycle qualification
+
+Candidate code dacb56faa0f78603e90126ea887f24914f28bfdb/tree
+b8885073de7459daafe34d513ddb1fca04939c3f on codex/v1-original-copy-lifecycle;
+baseline1ebff1a6f6099568c339e6b605bf819e1dbf6e6f. Adapter30ebe41, domainabbaf788,
+clientsfcc41bc/2ff17ab and preserved tests2a31a86 are integrated locally. New
+format2 mirrors reuse the private family; equal legacy bytes/inodes remain checked.
+Atomic streaming import computes compact causal heads; snapshot visitation repairs
+SQL-only mirrors, then observed terminal receipts import after the read transaction.
+Bootstrap restores catalog/genuine legacy jobs before ordinary approval/Knowledge
+companions, with explicit checked-family errors. No move starts at startup or
+capture stage installs for any head. Source+true version1 confirmation binds fresh
+admission and direct Restore UUID/digest; immutable replay precedes freshness.
+Restore needs exact retained original/current settled Remove and vacant destination,
+independently of Source freshness. Thin AppWorker/owner CLI preserve correlation,
+critical shutdown draining, complete escaped JSON and explicit historical variants.
+Native controls remain later work; the native display/test only distinguishes
+RemovedRetained and prevents copying unavailable ordinary original text.
+
+Independent complete review of baseline→2a31a86 plus extra tests is clean. It
+identified missing direct Knowledge-companion ordering coverage; genuine witness
+9e16c6f now covers real Source+Knowledge approvals, new Remove and fresh SQL recovery,
+full captures/journals/replay, exact bytes/inodes and no fabricated chat. Delta review
+at0c7a825 is clean. Root15 focused lifecycle tests passed/0failed/2ignored; both
+seven-window removal/restoration crash parents run, with only their child ignored.
+The other ignore is the expensive explicit escaped-size recovery qualification.
+Helper client10 CLI/1 worker tests and strict all-target Clippy passed after two
+client insertion/dependency corrections; their failed compiler/lint logs remain.
+
+A non-UTF8 fixture setup failed on APFS(error92), so it establishes no product bug.
+Actual oversized-intake regression then failed exit101: with no original-operation
+history, bootstrap incorrectly fenced the whole App. Guarding only that ordinary
+namespace error preserves existing Inbox-local reporting and current Source reads;
+checked original families still fail explicitly. The corrected regression passes.
+The first atomic shared gate at clean0c7a825 failed exit101 during workspace build
+for missing exhaustive Desktop event cases. An intermediate correction misspelled
+one variant (exit101); six exact cases then build successfully, with independent
+review clean at8ca7e5d. These failures are retained and are not qualification.
+
+Fresh shared atomic gate on2026-10-06 01:00:08–01:06:43UTC at unchanged clean
+8ca7e5d84ad3dc9600dce85ba2dc16daeb3bfe51/treee0ca3de153776f27448bc31cc4d91fdb6f8b2a43
+passed format/workspace build/all-target Clippy,1,441 tests/0failures/10documented
+ignores and52 fixtures, terminalexit0. The only later Rust delta adds a macOS cfg
+to a helper called only by the macOS file adapter, avoiding a non-Mac dead-code lint;
+enabled Mac code is unchanged. Fresh format and Workflow all-target Clippy pass.
+Final exact-head CI must qualify that platform selection too.
+
+Native atomic gate01:07:30–01:09:27UTC at unchanged clean dacb56f passed all11
+commands: combined check, three Desktop Clippy feature configurations,
+330 Workflow/models/0failures/9ignores and285 Desktop/0/0, shipping combined Desktop/
+native CLI builds, default startup and two native restarts. Actual fresh SQLite
+queries confirm V15/owned original table in both lanes. Upstream block0.1.6 future-
+compiler warning remains. Empty model setting means no real assets/inference/live
+provider/GUI or owner acceptance. Relevant retrieval code is unchanged; previous
+native Retrieval qualification is reused rather than duplicated.
+
+The explicit expensive synthetic mirror test passed1/0/0: four near-limit escaped
+Remove receipts total75,222,612 bytes, seven alternating causal records, no selected
+body retention. Mirror import133.909s and SQL-only mirror repair129.594s; whole test
+434.60s in debug. This measures bounded-family behavior, not release latency;
+broader B2 startup/backup cost remains pending. Its relevant successful-path code
+is unchanged by the ordinary-inventory guard/platform cfg. A pinned19,574-byte
+legacy ordinary mirror retains SHA554c9dfa1ed157f014306ea1cf3e9817a01b89239baf04605d9f6dbeaad9aab4.
+No separate historical binary execution is claimed.
+
+Exact-head CI/normal integration and fresh merged verification are next. Full V1
+goal remains active; native/live/owner acceptance, assets and trusted-user packaging
+are separate pending gates. The current original-copy plan contains a disposable
+owner CLI scenario. No private original, credentials, live route or release is used.
+
+PR68 initial run37397938144 attempt1 at25838e8 exposed a new required Ubuntu
+Clippy failure: an outer test import used only by a Mac-gated actual CLI test
+was unused on Linux (`cli/inbox.rs:561`, exit101). Workspace tests continued and
+passed; the run remains failed. Windows22 complete compiler blocks and both
+terminal summaries match PR67. A matching macOS cfg on that test import corrects
+the failure without changing production code or enabled Mac test behavior.
+Independent read-only delta review is clean; fresh format, strict all-target CLI
+Clippy and all10 Inbox CLI tests pass at code36a9dad. No warning suppression or
+unrelated platform fix was added. Latest-head applicable CI is still required;
+earlier passing local evidence applies only to unchanged relevant code/features.

@@ -46,8 +46,18 @@ failures remain visible. The A1 Store prerequisite is implemented on
 reader, checked compact inventory/atomic streaming/visitor and historical analysis
 fence. Complete independent review is clean; fresh shared1,412/0/8+52 and native
 305 Workflow/models/0/7+285 Desktop/0/0 with V15 startup/restart checks passed at
-48faf3f. Exact-head integration is next. Lifecycle effects/native removal and
-Stage8 remain pending; broader startup/backup cost is a separate correction. No semantic
+48faf3f. PR67 merged normally at1ebff1a6f6099568c339e6b605bf819e1dbf6e6f after exact-head
+protected CI/Docs passed; Windows22 complete blocks/both summaries match PR66.
+Fresh merged14 Store/1 Workflow tests+52 fixtures passed at unchanged identity.
+Main37394115918 attempt1 passed required Mac/shared+Docs and extra Ubuntu UI;
+overall red retains Windows22/22/14 matching main66 and the same three Linux
+assertions/backtraces, with IDs, duration and terminal-line placement recorded.
+Lifecycle workflow/owner CLI is now locally qualified on
+codex/v1-original-copy-lifecycle at dacb56f: full independent review clean;
+shared1,441/0/10+52 at8ca7e5d and native330 Workflow/models/0/9+285 Desktop/0/0,
+11 commands/V15 startup/restart atdacb56f pass. The sole later shared Rust delta is
+a Mac-only helper cfg; enabled Mac code is unchanged. Exact-head CI/integration,
+native controls and Stage8 remain pending; broader startup/backup cost is separate. No semantic
 completeness, native/live/owner acceptance or full V1 delivery is claimed. The full
 V1 goal remains active. No owner original/private data was inspected or migrated.
 
