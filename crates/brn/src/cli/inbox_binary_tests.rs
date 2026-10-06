@@ -450,6 +450,7 @@ fn supported_docx_cli_keeps_exact_processing_preview_source_binding_and_original
         "preparation is still review work"
     );
     assert_eq!(fs::read_dir(&credentials).unwrap().count(), 0);
-    assert!(!data.join("index.sqlite").exists());
+    // Bound-vault startup refreshes its disposable index from the one saved note.
+    // The retained original and prepared Source are not saved vault knowledge.
     assert!(!data.join("models").exists());
 }

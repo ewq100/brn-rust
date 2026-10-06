@@ -11,6 +11,17 @@ use serde::{Deserialize, Serialize};
 use std::sync::atomic::{AtomicBool, Ordering};
 use uuid::Uuid;
 
+mod docx;
+
+/// Deterministic bounded DOCX conversion from complete bytes. Workflow owns
+/// fresh original observation and exact proposal authority; this performs no IO.
+pub fn convert_docx_original(
+    bytes: &[u8],
+    cancel: &AtomicBool,
+) -> std::result::Result<(InboxConversionFormat, String), InboxProcessOutcome> {
+    docx::convert(bytes, cancel)
+}
+
 /// The deterministic original conversion used by proposal admission and later
 /// preservation checks. Imported Markdown remains verbatim body evidence.
 pub fn convert_original(

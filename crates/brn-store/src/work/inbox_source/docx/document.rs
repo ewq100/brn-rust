@@ -34,10 +34,8 @@ fn children<'a, 'i>(node: Node<'a, 'i>) -> Result<Vec<Node<'a, 'i>>> {
 fn child<'a, 'i>(node: Node<'a, 'i>, name: &str) -> Result<Option<Node<'a, 'i>>> {
     let mut found = None;
     for n in children(node)? {
-        if word(n)? == name {
-            if found.replace(n).is_some() {
-                return Err(Failure::Invalid);
-            }
+        if word(n)? == name && found.replace(n).is_some() {
+            return Err(Failure::Invalid);
         }
     }
     Ok(found)
@@ -536,14 +534,12 @@ impl<'a, 'i> Styles<'a, 'i> {
     fn paragraph(&self, properties: Option<Node<'_, '_>>) -> Result<(Paragraph, Emphasis)> {
         let mut p = Paragraph::default();
         let mut e = self.defaults()?;
-        if let Some(doc) = self.document {
-            if let Some(defaults) = child(doc.root_element(), "docDefaults")? {
-                if let Some(default) = child(defaults, "pPrDefault")? {
-                    if let Some(n) = child(default, "pPr")? {
-                        p = paragraph_properties(n, p)?;
-                    }
-                }
-            }
+        if let Some(doc) = self.document
+            && let Some(defaults) = child(doc.root_element(), "docDefaults")?
+            && let Some(default) = child(defaults, "pPrDefault")?
+            && let Some(n) = child(default, "pPr")?
+        {
+            p = paragraph_properties(n, p)?;
         }
         let explicit = properties
             .map(|n| child(n, "pStyle"))

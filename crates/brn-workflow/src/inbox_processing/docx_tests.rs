@@ -14,6 +14,51 @@ use std::{
 
 const DOCX: &[u8] = include_bytes!("fixtures/basic-text.docx");
 const BODY: &str = "First õ 日本語\n\nSecond preserved\n";
+
+#[test]
+fn docx_wide_numbered_lists_keep_parentage_in_the_actual_markdown_parser() {
+    use markdown::mdast::Node;
+    let (_, body) = brn_store::work::inbox_source::convert_docx_original(
+        include_bytes!("fixtures/wide-lists.docx"),
+        &AtomicBool::new(false),
+    )
+    .unwrap();
+    let tree = markdown::to_mdast(&body, &markdown::ParseOptions::default()).unwrap();
+    let [Node::List(parents)] = tree.children().unwrap().as_slice() else {
+        panic!("one ordered parent list: {tree:?}")
+    };
+    assert!(parents.ordered);
+    assert_eq!(parents.start, Some(99));
+    assert_eq!(parents.children.len(), 2);
+    for (parent, wording) in parents.children.iter().zip(["Before", "After"]) {
+        let Node::ListItem(parent) = parent else {
+            panic!("parent item")
+        };
+        let [Node::Paragraph(label), Node::List(children)] = parent.children.as_slice() else {
+            panic!("child stays inside its parent: {parent:?}")
+        };
+        assert_eq!(label.children[0].to_string(), wording);
+        assert!(children.ordered);
+        assert_eq!(children.start, Some(1000));
+        let [Node::ListItem(child)] = children.children.as_slice() else {
+            panic!("one ordered child")
+        };
+        let [Node::Paragraph(label), Node::List(grandchildren)] = child.children.as_slice() else {
+            panic!("grandchild stays inside its child: {child:?}")
+        };
+        assert_eq!(label.children[0].to_string(), "Child");
+        assert!(!grandchildren.ordered);
+        assert_eq!(grandchildren.start, None);
+        let [Node::ListItem(grandchild)] = grandchildren.children.as_slice() else {
+            panic!("one bullet grandchild")
+        };
+        let [Node::Paragraph(label)] = grandchild.children.as_slice() else {
+            panic!("grandchild wording")
+        };
+        assert_eq!(label.children[0].to_string(), "Grandchild õ");
+    }
+}
+
 struct Fixture {
     _owner: tempfile::TempDir,
     data: PathBuf,
@@ -332,9 +377,18 @@ fn docx_terminal_source_recovers_fresh_sql_without_original_or_processing() {
         app.inbox_processing(draft.inbox_source.as_ref().unwrap().batch_id)
             .is_err()
     );
+    // A fresh catalog may not adopt a capture whose original is unqualified.
+    // Terminal Source history still imports independently of that catalog.
     assert_eq!(
-        app.inbox_item(item.capture.id).unwrap().original,
-        InboxOriginal::Missing
+        app.inbox_item(item.capture.id).unwrap_err().kind,
+        ErrorKind::NotFound
+    );
+    assert!(
+        app.inbox_items(&crate::inbox::InboxListRequest::default())
+            .unwrap()
+            .issues
+            .iter()
+            .any(|issue| issue.item_id == Some(item.capture.id))
     );
     assert!(
         !original(&item).exists(),

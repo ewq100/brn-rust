@@ -3,7 +3,9 @@ use brn_workflow::{
     app::AppConfig,
     app_worker::AppWorker,
     inbox::{CaptureInboxRequest, InboxItem, InboxKind, InboxOriginal},
-    inbox_processing::{InboxCandidateRequest, InboxProcessBatch, InboxSourceRequest},
+    inbox_processing::{
+        InboxCandidateRequest, InboxProcessBatch, InboxProcessOutcome, InboxSourceRequest,
+    },
     proposals::DraftNoteChange,
 };
 use std::{fs, os::unix::fs::PermissionsExt};
@@ -597,6 +599,8 @@ fn docx_worker_preview_binds_format_complete_bytes_and_exact_source_review() {
     };
     request.validate_receipt(&item).unwrap();
     let mut state = state();
+    let open = state.open_inbox().unwrap();
+    settle(&worker, &mut state, open);
     let batch = process(&worker, &mut state, vec![(*item).clone()]);
     assert!(matches!(
         batch.entries[0].outcome,
