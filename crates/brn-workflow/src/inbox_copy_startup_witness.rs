@@ -522,7 +522,8 @@ fn synthetic_copy_startup_cost_witness() {
         // separately built shipping CLI run; canonical bytes remain unchanged.
         manifest.push(json!({"binding":bound,"inbox_files":files(&dataset.data.join("inbox")),
             "vault_files":files(&dataset.vault),"history":dataset.history,"mirror_encoded_bytes":mirror_bytes}));
-        dataset.owner.keep();
+        let retained = dataset.owner.keep();
+        assert_eq!(directory_identity(&retained), bound["root"]);
     }
     let manifest_path = run.path().join("manifest.json");
     fs::write(
@@ -533,5 +534,6 @@ fn synthetic_copy_startup_cost_witness() {
     )
     .unwrap();
     emit(json!({"phase":"shipping_fixtures_retained","manifest":manifest_path,"success":true}));
-    run.keep();
+    let retained = run.keep();
+    assert_eq!(retained.join("manifest.json"), manifest_path);
 }
