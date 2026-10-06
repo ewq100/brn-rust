@@ -28,13 +28,20 @@ attempt1 passed all four protected macOS/shared checks and Docs. Overall CI stay
 red from the same22 Windows error locations; complete raw ordering/progress/footer/
 terminal differences are retained. Fresh clean merged19-command gate passed
 127/0/0+52fixtures, native widgets/builds and default/combined V15 restarts.
-Exact main run37438639577 attempt1 is live; confirmed unchanged Linux assertions/
-backtraces and actual Windows compiler/terminal differences remain visible.
+Exact main run37438639577 attempt1 completed with all four protected checks,
+Docs and supplemental Ubuntu UI passing. Overall failure retains Windows22/20/14
+emitted errors and three Linux native failures. Complete assertions/backtraces,
+compiler suggestions and actual ordering/progress/terminal differences remain visible.
 
 The [next Stage8 slice](work/active/office-inbox/plan.md#next-slice-inline-png-source-and-local-interpretation)
-will couple a checked inline PNG, bound Source/asset approval and explicit local
-visual interpretation through the existing owned AI lane. Implementation has not
-started; current conversion still refuses meaningful visuals. Generic ZIP intake
+couples a checked inline PNG, bound Source/asset approval and explicit local
+visual interpretation through the existing owned AI lane. Unmerged internal
+checkpoint `2056ccbd5ab1a0abab82f7de055cf8f61df7887e` implements the converter,
+exact Source/PNG pair, owned typed interpretation and separately approved
+Source-only annotation. Focused offline checks pass; core review is underway.
+CLI/native actual-image presentation, complete milestone review/qualification
+and integration remain unfinished. Integrated main still refuses meaningful
+visuals. Generic ZIP intake
 is excluded. Broader DOCX/PDF/PowerPoint/URLs and binary cleanup remain unfinished.
 All binary originals remain retained. GUI/live/real-model/owner acceptance and
 full V1 delivery are not claimed. Previous asset/DOCX evidence remains in the

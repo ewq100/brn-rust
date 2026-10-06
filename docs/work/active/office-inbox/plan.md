@@ -5,8 +5,11 @@ Current baseline is integrated [PR76](https://github.com/ewq100/brn-rust/pull/76
 `8619cc994145a91ae7cbfa3f24b0537d7c5c6ad6`. Binary retention, ordinary assets
 and bounded DOCX text/structure Source conversion are qualified and integrated.
 [Inline PNG plus explicit local interpretation](#next-slice-inline-png-source-and-local-interpretation)
-is the next bounded deliverable on `codex/v1-docx-visual-sources`; implementation
-has not started. Full V1 goal remains confirmed active without a budget.
+is the current bounded deliverable on `codex/v1-docx-visual-sources`. Buildable
+core checkpoint `2056ccbd5ab1a0abab82f7de055cf8f61df7887e` implements conversion,
+Source/asset approval and typed separately approved interpretation. Clients,
+complete milestone review/qualification and integration remain unfinished. Full V1 goal remains
+confirmed active without a budget.
 Native/live/owner acceptance and broader Stage8 remain separate and unfinished.
 
 ## Binary capture baseline and acceptance
@@ -447,8 +450,18 @@ after exact Rust/manifests/lock/scripts/features equality. Atomic unchanged
 start/end identities and terminal exit0 are retained in
 `docx-merged-1b8ckm8z`, log SHA256
 `8e30469154cb209357d7915f2f936200fcfa1d773f0eb39c7f5943ff0c40a591`.
-Exact main run37438639577 attempt1 is live; actual red platform results and
-complete compiler/assertion/backtrace/terminal differences remain retained.
+Exact main run37438639577 attempt1 at this merge completed with four protected
+macOS/shared checks, Docs and supplemental Ubuntu UI passing. Overall failure
+and summary exit1 retain Windows Core22, UI20 and Native14 emitted errors and
+three Linux native failures. All error locations/assertions/six-frame backtraces
+match the qualified prior baseline; Windows UI no longer emits its two Store
+errors, Windows Native adds its lib-test terminal, and actual ordering/progress/
+terminal/thread-ID differences remain retained rather than normalized away.
+The lead rechecked all56 artifact hashes and fresh terminal GitHub job/head
+results. Mac workspace1,557/0/14+132/0/1 capability tests+52fixtures, Ubuntu
+1,066/0/1+132/0/1, native15 Retrieval+371 Workflow/models/0/12+243 Desktop/CLI,
+72 widgets and two actual AppWorker startups passed. Native synthetic fixtures,
+unset real-model settings and headless state do not establish live/GUI acceptance.
 Native GUI/live/real-model/owner acceptance is still pending; no new authorization
 was consumed. Binary cleanup is still refused and originals remain retained.
 
@@ -515,3 +528,50 @@ Only synthetic fixtures/offline transport responses are authorized. No new live
 calls, discovery, downloads, private data, authentication, purchases or release.
 Broader images/charts/diagrams, PDF/PowerPoint/URLs and meaningful binary-copy
 cleanup remain subsequent dependencies; complete Stage8/V1 is not claimed.
+
+## Inline PNG internal core checkpoint — 2026-10-06
+
+Unmerged source `2056ccbd5ab1a0abab82f7de055cf8f61df7887e`, tree
+`5d27ca45b52285abc7149fd3a528518d7c43b125`, builds on main76. One checked PNG
+occurrence converts to an exact Source Create/ordinary asset Create pair, with
+pending interpretation separate from approval. A typed visual purpose captures
+complete saved Source/asset proofs; the existing owned chat lane receives PNG
+bytes transiently, with no tools/history/fallback. Completed bounded JSON can
+prepare one tentative Source-only Replace for separate exact owner approval.
+Review can edit annotation wording; literal converted text, metadata, image
+reference, tentative labels and separate uncertainty stay protected. The existing
+approval capture companion and historical no-provider fence support this binding;
+no new recovery family or universal Source approval-journal gate is added.
+
+Independent runtime review found missing provider finish metadata accepted as
+success; a real synthetic Copilot text-plus-DONE witness failed before the guard
+was tightened to present Stop only. Fresh full AI136/0/1 and strict AI Clippy
+passed; narrow correction review is clean. Pure converter review found valid
+empty IDAT chunks rejected as no progress: existing36 pure tests passed and the
+new genuine witness failed, then the bounded state-only transition fixed it.
+Reviewer found no additional concrete component defect, including the pinned
+decoder-owned allocation bound; this is not a whole-process memory measurement.
+
+Fresh lead Source gate passed all-target workspace check, Store3, DOCX37 and
+Workflow19/0/1 (intentional child exercised through21 actual subprocess crashes).
+Fresh visual gate10:07:29–10:07:58UTC passed all-target workspace check,7 owned
+visual witnesses,3 behavior tests,43 Inbox records,6 DOCX record/golden tests,
+18 Rewrite tests and strict Store/Workflow all-target Clippy. Source/asset
+identity races, cancellation, incomplete/malformed output, separate exact review,
+protected literal wording and fresh-SQL recovery without chat/provider rerun are
+covered. Lead self-inspection then reproduced an overlapping-section-marker
+panic (2purepassed/1failed); the minimum-length guard now refuses it. Final
+affected Store3/Workflow7, strict all-target Clippy, formatting and diff pass at
+unchanged source. Actual dirty identities, timings, commands and every terminal
+failure remain retained in the task's `work/docx-visual-lead-evidence`; no failed
+or unexecuted command is counted as successful. Compiler-only test wiring
+failures are retained separately from the two production component defects and
+the malformed-section defect.
+
+Independent complete core review is underway. Next unfinished gate is thin
+owner CLI/native actual-PNG/proof presentation and explicit interpretation/draft
+preparation, followed by complete deliverable review and relevant fresh shared/
+native checks, exact-head applicable CI, normal integration and merged checks.
+No PR or merge exists for this branch. GUI/live/real-model/owner acceptance,
+broader visual formats and binary cleanup stay pending. Full goal remains
+confirmed active and unchanged; only synthetic offline fixtures were used.

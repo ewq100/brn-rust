@@ -10,10 +10,13 @@ Complete/correction reviews, full shared1,557/0/14+52 and native687/0/12 passed.
 Exactfb78/run37435614131 attempt1 passed four protected macOS/shared checks and
 Docs, retaining the actual Windows22 red result and all meaningful differences.
 Fresh merged19-command gate passed127/0/0+52, native widgets/builds and V15 restarts.
-Exact merged-main CI is live; known platform failures remain visible. The
+Exact merged-main run37438639577 attempt1 passed four protected checks and Docs;
+overall failure retains actual Windows22/20/14 errors and three Linux native
+failures with complete meaningful differences. The
 [office plan](../office-inbox/plan.md#next-slice-inline-png-source-and-local-interpretation)
 now selects checked inline-PNG Source/asset preservation and explicit local
-interpretation; implementation has not started. Native/live/owner acceptance,
+interpretation; pure converter and thin runtime components are in progress,
+while production integration/qualification remain unfinished. Native/live/owner acceptance,
 residual startup/backup cost and trusted-user packaging remain unfinished.
 The [resumable checkpoint](../../../development/checkpoint.md) owns navigation;
 historical evidence below remains retained.

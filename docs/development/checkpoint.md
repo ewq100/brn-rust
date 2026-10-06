@@ -14,11 +14,20 @@ Full frozen V1 goal confirmed **active** by `get_goal` on 2026-10-06; no token b
   complete ordering/progress/footer/terminal differences. Fresh merged19-command
   gate08:50:47–08:51:39UTC passed127/0/0+52, native widgets/builds and default/combined
   V15 restarts with the original-operation table present. Exact merged-main
-  run37438639577 attempt1 is live; its actual platform failures remain retained.
+  run37438639577 attempt1 completed: four protected checks, Docs and supplemental
+  Ubuntu UI passed. Overall failure retains Windows22/20/14 emitted errors and
+  three Linux native assertions/backtraces; actual raw differences remain retained.
 - **Current/next:** `codex/v1-docx-visual-sources` starts from main above;
   [fixed next acceptance](../work/active/office-inbox/plan.md#next-slice-inline-png-source-and-local-interpretation)
   couples one checked inline PNG, Source/asset proofs and explicit reviewed local
-  interpretation in the existing AI lane. Implementation has not started.
+  interpretation in the existing AI lane. Internal buildable source checkpoint
+  `2056ccbd5ab1a0abab82f7de055cf8f61df7887e`, tree
+  `5d27ca45b52285abc7149fd3a528518d7c43b125`, adds checked Source/PNG creation,
+  typed owned interpretation and separately approved Source-only annotations.
+  Offline focused compile/tests/Clippy pass; independent core review is underway.
+  Next: actual-image CLI/native presentation, complete-slice review and fresh
+  shared/native qualification, then exact-head CI/normal integration. Unmerged;
+  no complete visual outcome or provider/native acceptance is claimed.
 - **Pending:** native GUI/live/real-model/owner acceptance, broader Stage8,
   Stages9–16/trusted-user packaging, binary cleanup, legacy pending-intent retry
   and residual startup/backup cost. Full V1 delivery is not claimed.
