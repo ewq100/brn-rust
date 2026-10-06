@@ -711,3 +711,67 @@ Independent read-only delta review is clean; fresh format, strict all-target CLI
 Clippy and all10 Inbox CLI tests pass at code36a9dad. No warning suppression or
 unrelated platform fix was added. Latest-head applicable CI is still required;
 earlier passing local evidence applies only to unchanged relevant code/features.
+
+
+## Lifecycle integration and native controls checkpoint
+
+PR68 merged normally on2026-10-06 01:30:28UTC at
+`a799c3369cad61117113de40d7b1d95dad589100`, preserving exact reviewed tree
+`6c7aee29c32368c690b50e27ae813e6ce5f213c5`. Corrected-head PR run37398589455
+attempt1 passed all four protected Mac/shared jobs and Docs; overall red preserves
+Windows22 complete compiler blocks, numbered source lines and both summaries,
+identical to PR67. Initial run37397938144 remains failed from the validated Ubuntu
+import lint and informational Windows baseline; its Mac core was cancelled by the
+new push. No cancelled/zero-test result is qualification. Fresh actual protection
+keeps strict freshness/admin enforcement and existing four checks; no bypass used.
+
+Fresh merged atomic gate01:31:07–01:32:43UTC at unchanged clean a799c33/tree6c7aee
+passed workspace build,14 Store/15 Workflow/10 CLI tests (0failures,2documented
+Workflow ignores) and52 fixtures, all five commands exit0. Main68 automatic run
+37399517358 attempt1 is pending. Initial observations retain unchanged Windows
+22/22/14 compiler blocks/summaries and the same three Linux assertions/backtraces;
+raw block order/PIDs/terminal placement/elapsed0.60→0.05s differences are retained.
+
+Native controls continue on codex/v1-inbox-copy-controls, codeaaa87fcb. AppWorker
+owns all reads/effects; UI captures exact view/item/proof/request, handles typed
+history/lookup, stale/forged/out-of-order replies and preserves pending intent
+UUIDs across restart for explicit retry. Drafts/typing/semantic reviews remain
+independent; disposition is separate. Legacy records support historical inspection
+and recovery settlement of already-performed moves; retry of a pending legacy
+intent is unsupported. New-format intents support exact native retry. Five real-worker state
+regressions and two minimum480×480 shipping-root widget tests pass, with strict
+native all-target Clippy and clean complete/final-delta independent review.
+Initial test-helper name/shutdown compile errors, hidden-background-widget fixture
+failure and single-match Clippy failure are retained; corrected checks pass.
+Full shared/native qualification and exact-head integration are next. Goal remains
+active; native/live/asset/owner acceptance and trusted packaging stay pending.
+
+Native-control shared gate passed at unchanged clean
+`c91a008a0469b60fcb23ee9c6ce9f4af4a037ee4`, tree
+`04bdb307dc9407b7b3a16120f3c7529b386df5e3`, on2026-10-06
+01:38:05–01:44:58UTC: format, workspace build, all-target Clippy,
+1,446 tests/0failures/10documented ignores and52 fixtures, atomic exit0.
+Documentation review found an overstated legacy CLI retry claim. Technical
+validation confirmed the new request decoder and replay variants cannot retry
+pending legacy operations. The correction records historical inspection and
+already-performed settlement support, with pending legacy retry unsupported;
+new-format same-request retry remains covered. No behavior change was added.
+
+Native-control atomic gate01:45:55–01:47:57UTC at unchanged clean
+`e522813372f32b73a6faa4a5e676a165e238a923`, tree
+`6f825b759a724a7795fea14f007b6e2649f2c7f8`, passed all11commands: combined
+Desktop check, three all-target Clippy configurations,330 Workflow/models/0/9,
+292 Desktop/0/0, combined Desktop/native CLI builds, default startup and two
+combined-native restarts. Fresh SQLite queries confirm V15/owned operation table
+in both lanes. This is offline/headless qualification; GUI/live/assets/owner
+acceptance remain pending. Final later changes are evidence documentation only.
+
+Main68 exact a799c33 automatic run37399517358 attempt1 completed overall failure
+with all four protected Mac/shared scopes, Docs and extra Ubuntu UI successful.
+Windows22/22/14 complete source-inclusive compiler blocks and all terminal
+summaries are identical to main67. Linux has the same three assertions/source
+locations/backtrace frames; changed block order, thread IDs, terminal placement
+and0.60→0.05s are preserved. Mac workspace tests passed in738s versus436s on
+main67 (corrected PR68 was495s); four over60s notices subsequently passed.
+Full successful Mac output/durations and failed raw platform comparisons remain
+retained. No rerun/substitution or unrelated platform fix was made.

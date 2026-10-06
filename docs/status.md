@@ -15,7 +15,7 @@ and the disposable retrieval index retain their existing roles. The owner's
 permits thin future adapters around the six V1 core crates through workflow/
 AppWorker. No MCP, daemon, HTTP service, extra database or remote work is in V1.
 
-Integrated main is **`504f6be33e1add8c5819e28eed08628bc8dec8d0` (PR66)**.
+Integrated main is **`a799c3369cad61117113de40d7b1d95dad589100` (PR68)**.
 Complete retained original review, deterministic saved-body quotes, Rust-owned
 Conflict/Knowledge/Action candidate identities, checked full Action replacement
 baselines and AI Rewrite metadata protection are integrated. Exact approval and
@@ -52,12 +52,22 @@ Fresh merged14 Store/1 Workflow tests+52 fixtures passed at unchanged identity.
 Main37394115918 attempt1 passed required Mac/shared+Docs and extra Ubuntu UI;
 overall red retains Windows22/22/14 matching main66 and the same three Linux
 assertions/backtraces, with IDs, duration and terminal-line placement recorded.
-Lifecycle workflow/owner CLI is now locally qualified on
-codex/v1-original-copy-lifecycle at dacb56f: full independent review clean;
-shared1,441/0/10+52 at8ca7e5d and native330 Workflow/models/0/9+285 Desktop/0/0,
-11 commands/V15 startup/restart atdacb56f pass. The sole later shared Rust delta is
-a Mac-only helper cfg; enabled Mac code is unchanged. Exact-head CI/integration,
-native controls and Stage8 remain pending; broader startup/backup cost is separate. No semantic
+Lifecycle workflow/owner CLI is integrated in PR68: full independent review clean;
+shared1,441/0/10+52 and native330 Workflow/models/0/9+285 Desktop/0/0,
+11 commands/V15 startup/restart passed. Initial required Ubuntu test-import lint
+failure was corrected; exact e8ab9de run37398589455 attempt1 passed four protected
+Mac/shared checks and Docs, retaining unchanged Windows22 failure. Fresh merged
+build/14 Store/15 Workflow/10 CLI tests/0/2+52 fixtures passed at unchanged clean
+identity. Main68 run37399517358 attempt1 passed all applicable jobs; overall red
+retains unchanged Windows22/22/14 and the same three Linux assertions/backtraces
+with raw differences. Mac workspace tests738s versus436s remain recorded.
+Native controls are qualified locally on codex/v1-inbox-copy-controls ate522813:
+shared1,446/0/10+52, native330 Workflow/models/0/9+292 Desktop/0/0 and11commands/V15
+restarts passed; complete/final-delta independent review clean. Documentation
+review's legacy pending-retry claim was corrected: inspection/already-performed
+settlement is supported; retry requires new-format intents.
+Exact-head CI/integration, unlocked owner observation and Stage8 remain
+pending; broader startup/backup cost is separate. No semantic
 completeness, native/live/owner acceptance or full V1 delivery is claimed. The full
 V1 goal remains active. No owner original/private data was inspected or migrated.
 
@@ -117,8 +127,8 @@ Evidence: [Actions/dashboard record](work/completed/actions-dashboard/plan.md).
 Stage 7 integrates text/email intake and processing, selected-Source Action and
 Knowledge drafts, exact Current/History supersession pairs, tentative conflicts
 with shared Ask/CLI lookup, complete retained original review and fresh removal
-preview. Recoverable original removal/restore remains on the unmerged snapshot
-described above. Evidence: [Inbox](work/active/text-email-inbox/plan.md),
+preview. Source+confirmation recoverable original removal and exact Restore are integrated;
+native controls are under qualification separately. The historical snapshot stays unmerged. Evidence: [Inbox](work/active/text-email-inbox/plan.md),
 [supersession](work/active/text-email-inbox/supersession-plan.md),
 [conflicts](work/active/text-email-inbox/conflicts-plan.md) and
 [original-copy work](work/active/text-email-inbox/original-copy-plan.md).
