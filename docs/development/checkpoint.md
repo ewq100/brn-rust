@@ -2,6 +2,37 @@
 
 Full frozen V1 goal confirmed **active** on2026-10-06, without a token budget.
 
+- **Integrated:** [PR68](https://github.com/ewq100/brn-rust/pull/68) at
+  `a799c3369cad61117113de40d7b1d95dad589100`, reviewed tree
+  `6c7aee29c32368c690b50e27ae813e6ce5f213c5`. Approved preserving Source plus
+  explicit confirmation admits recoverable Remove; exact retained copy admits
+  Restore. Legacy bytes, immutable replay, streamed recovery and no resurrection
+  retain deterministic authority. Semantic reviews/disposition remain separate.
+- **Verification:** full/correction review clean; shared1,441/0/10+52 and native
+  330 Workflow/models/0/9+285 Desktop/0/0,11 commands/V15 restarts passed.
+  Initial PR Ubuntu import lint failure and cancelled Mac core remain retained;
+  corrected exact e8ab9de run37398589455 attempt1 passed four protected Mac/shared
+  checks and Docs. Windows22 full blocks/summaries match PR67; overall red remains.
+  Fresh merged build/14 Store/15 Workflow/10 CLI tests/0failures/2ignores+52 fixtures
+  passed at unchanged clean identity, atomic exit0 (01:31:07–01:32:43UTC).
+- **Current:** `codex/v1-inbox-copy-controls`, code
+  `aaa87fcb277293388730f385b5af2750b200fb96`. Native proof/history, exact captured
+  confirmation and same-request retry are implemented. Five actual-worker state
+  and two shipping-root widget tests plus strict native Clippy pass; independent
+  complete/final-delta review is clean. Full shared/native qualification is next.
+- **Pending:** main68 CI terminal results; unlocked native/live/owner acceptance,
+  real assets, broader startup/relationship cost, truthful retrieval facts, later
+  roadmap stages and trusted-user packaging. No owner original removed.
+- **Environment:** Darwin arm64 Mac mini, Rust1.98.1 locked/offline, canonical owned
+  `TMPDIR=/private/tmp/brn-mini-synthetic-20261005`, empty model setting, isolated
+  checkouts/targets and disposable synthetic data. No new live calls/downloads,
+  private-data operations or release authorized. Immutable7c4f668 stays unchanged.
+  Continue under the [correction plan](../work/active/architecture-review-corrections/plan.md).
+
+# Earlier lifecycle qualification checkpoint
+
+Full frozen V1 goal confirmed **active** on2026-10-06, without a token budget.
+
 - **Candidate:** `codex/v1-original-copy-lifecycle`, qualified code
   `36a9dad0d7c24b5692fcac3289867ec79adb4aff`, tree
   `b0fe9791e4bfbfe072082476ed94c6efa2998bbd`; base PR67 merge
