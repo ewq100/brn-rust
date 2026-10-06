@@ -3,12 +3,15 @@ use crate::{ActionCandidate, AiResult};
 use serde::{Deserialize, Serialize};
 use serde_json::Value;
 
-#[derive(Clone, Debug, Serialize, Deserialize)]
+#[derive(Clone, Debug, Serialize, Deserialize, schemars::JsonSchema)]
 #[serde(deny_unknown_fields)]
 /// Complete, bounded protocol input; workflow checks domain and authority.
 pub struct ActionProposalArgs {
+    #[schemars(length(min = 1, max = 512))]
     pub title: String,
+    #[schemars(length(max = 64), inner(length(min = 1, max = 512)))]
     pub source_paths: Vec<String>,
+    #[schemars(length(min = 1, max = 20))]
     pub action_changes: Vec<ActionCandidate>,
 }
 
@@ -253,42 +256,39 @@ impl Tool for ProposeKnowledge {
     }
 }
 
-fn action_ref_schema() -> Value {
-    json!({"anyOf":[
-        {"type":"object","additionalProperties":false,"properties":{
-            "kind":{"type":"string","enum":["existing"]},
-            "id":{"type":"string","format":"uuid","minLength":1,"maxLength":64}
-        },"required":["kind","id"]},
-        {"type":"object","additionalProperties":false,"properties":{
-            "kind":{"type":"string","enum":["member"]},
-            "index":{"type":"integer","minimum":1,"maximum":20}
-        },"required":["kind","index"]}
-    ]})
-}
-fn action_data_schema() -> Value {
-    let nullable_uuid =
-        json!({"type":["string","null"],"format":"uuid","minLength":1,"maxLength":64});
-    let nullable_ref = json!({"anyOf":[action_ref_schema(),{"type":"null"}]});
-    json!({"type":"object","additionalProperties":false,"properties":{
-        "title":{"type":"string","minLength":1,"maxLength":512},
-        "description":{"type":"string","maxLength":65536},
-        "state":{"type":"string","enum":["open","waiting","blocked"]},
-        "owner":{"type":["string","null"],"maxLength":512},
-        "related_person":nullable_uuid,"related_project":nullable_uuid,
-        "sources":{"type":"array","maxItems":64,"items":{"type":"string","format":"uuid","minLength":1,"maxLength":64}},"thread":nullable_uuid,
-        "due_on":{"type":["string","null"],"format":"date","maxLength":10},
-        "follow_up_on":{"type":["string","null"],"format":"date","maxLength":10},
-        "dependencies":{"type":"array","maxItems":64,"items":action_ref_schema()},
-        "parent":nullable_ref,"follows_up":nullable_ref,
-        "priority":{"type":["string","null"],"enum":[null,"low","normal","high"]}
-    },"required":["title","description","state","owner","related_person","related_project","sources","thread","due_on","follow_up_on","dependencies","parent","follows_up","priority"]})
-}
-fn checked_ref_schema() -> Value {
-    json!({"type":"object","additionalProperties":false,"properties":{
-        "id":{"type":"string","format":"uuid","minLength":1,"maxLength":64},
-        "version":{"type":"integer","minimum":1,"maximum":i64::MAX},
-        "sha256":{"type":"string","minLength":64,"maxLength":64,"pattern":"^[0-9a-f]{64}$"}
-    },"required":["id","version","sha256"]})
+/// The propose_actions schema, derived once from the Serde input types and
+/// adapted to the self-contained subset BRN's three tool routes accept:
+/// inlined subschemas, `anyOf` unions, single-value `enum` tags, and no
+/// generated titles/descriptions or Rust integer formats.
+fn action_proposal_schema() -> Value {
+    use schemars::{Schema, generate::SchemaSettings, transform::RecursiveTransform};
+    static SCHEMA: std::sync::LazyLock<Value> = std::sync::LazyLock::new(|| {
+        let adapt = |schema: &mut Schema| {
+            if let Some(variants) = schema.remove("oneOf") {
+                schema.insert("anyOf".into(), variants);
+            }
+            if let Some(tag) = schema.remove("const") {
+                schema.insert("enum".into(), json!([tag]));
+            }
+            schema.remove("title");
+            schema.remove("description");
+            if schema.get("type") == Some(&json!("integer")) {
+                schema.remove("format");
+            }
+        };
+        let generator = SchemaSettings::draft2020_12()
+            .for_deserialize()
+            .with(|s| {
+                s.inline_subschemas = true;
+                s.meta_schema = None;
+            })
+            .with_transform(RecursiveTransform(adapt))
+            .into_generator();
+        generator
+            .into_root_schema_for::<ActionProposalArgs>()
+            .to_value()
+    });
+    SCHEMA.clone()
 }
 impl Tool for ProposeActions {
     const NAME: &'static str = "propose_actions";
@@ -299,14 +299,7 @@ impl Tool for ProposeActions {
         "Create an Action-only review proposal, never real Actions or approval. Supply semantic after-fields, all14 candidate fields including explicit nulls, and the checked_ref from a fresh read_action as the Replace target. Rust mints proposal and Create member identities and loads complete replacement baselines; do not supply proposal/Create IDs or before records. Action relationships use existing UUID references or 1-based member indices in this ordered 1–20-member proposal. Use new related Actions for completed work. Explicit ordered source_paths capture full saved evidence, including historical evidence when intended; never derive a proof from a truncated read. In Inbox analysis the selected Source path and note identity are attached by Workflow; source_paths are additional evidence. Ordinary proposals use explicit paths as supplied. Retry only identical original input within this owned turn; changed intent creates a separate draft. Returns an exact review receipt; human review and separate exact approval are required.".into()
     }
     fn parameters(&self) -> Value {
-        json!({"type":"object","additionalProperties":false,"properties":{
-            "title":{"type":"string","minLength":1,"maxLength":512},
-            "source_paths":{"type":"array","maxItems":64,"items":{"type":"string","minLength":1,"maxLength":512}},
-            "action_changes":{"type":"array","minItems":1,"maxItems":20,"items":{"anyOf":[
-                {"type":"object","additionalProperties":false,"properties":{"kind":{"type":"string","enum":["create"]},"data":action_data_schema()},"required":["kind","data"]},
-                {"type":"object","additionalProperties":false,"properties":{"kind":{"type":"string","enum":["replace"]},"target":checked_ref_schema(),"data":action_data_schema()},"required":["kind","target","data"]}
-            ]}}
-        },"required":["title","source_paths","action_changes"]})
+        action_proposal_schema()
     }
     async fn call(&self, _: &mut ToolContext, args: ActionProposalArgs) -> AiResult<Value> {
         args.validate()?;
@@ -798,7 +791,8 @@ pub(crate) mod tests {
         let schema = ProposeActions(Arc::new(QuoteRefusal)).parameters();
         assert_eq!(canonical(&schema), canonical(&manual_action_schema()));
         // Equality above also excludes $ref/$defs, const, oneOf and metadata.
-        let data = &schema["properties"]["action_changes"]["items"]["anyOf"][0]["properties"]["data"];
+        let data =
+            &schema["properties"]["action_changes"]["items"]["anyOf"][0]["properties"]["data"];
         let required = data["required"].as_array().unwrap();
         assert_eq!(required.len(), 14);
         for field in [
