@@ -54,7 +54,7 @@ impl Fixture {
             credentials_dir: Some(owner.path().join("credentials")),
             model_dir: None,
         };
-        let worker = AppWorker::start(owner.path().join("data"), config).unwrap();
+        let mut worker = AppWorker::start(owner.path().join("data"), config).unwrap();
         assert!(matches!(
             worker
                 .recv_event_timeout(Duration::from_secs(10))
@@ -341,8 +341,22 @@ fn copy_cleanup_source_and_complete_confirmation_are_readonly_cancel_preserves_i
         assert!(window.has_active_dialog(cx));
         assert!(window.find("confirm-inbox-copy").visible());
         let pending = desktop.read(cx).ai.as_ref().unwrap().pending.len();
-        window.click("settings-footer", cx);
-        assert!(window.try_find("settings-body").is_none());
+        window.click("inspect-inbox-copy", cx);
+        assert!(window.has_active_dialog(cx));
+        assert_eq!(
+            desktop
+                .read(cx)
+                .ai
+                .as_ref()
+                .unwrap()
+                .inbox_copy
+                .preview
+                .as_ref()
+                .unwrap()
+                .digest,
+            fixture.preview.digest,
+            "modal blocks the background inspection/refresh"
+        );
         window.click("copy-inbox-copy-confirmation", cx);
         let captured: serde_json::Value = serde_json::from_str(&clipboard(cx)).unwrap();
         assert_eq!(

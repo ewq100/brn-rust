@@ -337,7 +337,10 @@ impl Desktop {
                             let mut admitted = false;
                             let _ = desktop.update(cx, |this, cx| {
                                 if this.inbox_blocked() { return; }
-                                let Some(command) = this.ai.as_mut().unwrap().confirm_inbox_copy(&capture) else { cx.notify(); return; };
+                                let Some(command) = this.ai.as_mut().unwrap().confirm_inbox_copy(&capture) else {
+                                    this.ai.as_mut().unwrap().inbox_copy.error = Some("This confirmation changed or is unavailable. Cancel and inspect this original again before confirming.".into());
+                                    cx.notify(); return;
+                                };
                                 admitted = true;
                                 this.simple_send(command, cx);
                             });
