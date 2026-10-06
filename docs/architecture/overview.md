@@ -280,6 +280,32 @@ companion retains that minimal evidence within the existing proposal-apply
 family independently of original-operation records. Do not reconstruct provider choices, questions, times
 or historical Source bytes, and do not create a new execution during recovery.
 
+## Domain consistency checkpoint
+
+The [product glossary](../product/glossary.md) consolidates settled language; it
+adds no product decision, schema change or code rename. Product Vision plus owner
+amendments govern intended behavior; architecture/invariants preserve ownership;
+current contracts/source establish implementation, and evidence establishes only
+its observed qualification. Historical plans do not override these authorities.
+
+| Concrete case | Settled rule and observed gap |
+| --- | --- |
+| An approved Source says blue; current knowledge says red | Source approval preserves evidence. It does not promote blue or resolve the contradiction. A separate exact knowledge proposal is required; Findings remain tentative. |
+| A visual description is approved | One ordinary inline DOCX PNG and separately approved provisional annotation are integrated. Original image/wording stay distinct; broader visuals and semantic completeness are unqualified. |
+| A Source has `brn_state: current` | It remains excluded from default Current knowledge; explicit Source can include historical Sources. History and Source overlap; All is not permission to treat every claim as current truth. |
+| A supersession succeeds | The predecessor becomes History at its existing path; it is not trashed. Top-level archive is a read-only History alias, not the universal removal destination. |
+| A Finding is Resolved | The queue state changes; this alone changes no note or Action. Existing evidence inspection can say Changed/Unavailable without guessing a new anchor. |
+| An Action is completed, then new work arrives | Completion remains direct owner authority; follow-up is a new approved related Action. Action-bearing Undo remains refused pending its inverse contract. |
+| An application is uncertain | Existing Finish/Restore repair resolves checked effects; it is distinct from Undo of an already Applied change and from restoring a trashed object. |
+| A binary Source is approved | Binary original-copy cleanup remains refused. Text-copy removal has its separate exact-preservation and owner-confirmation contract. Broader binary cleanup is an implementation gap, not implied permission. |
+| A session is archived or deleted | Product requires reversible Archive and capture warning before Delete, preserving durable knowledge. Stage13 remains unimplemented; existing note History/Trash does not establish session lifecycle. |
+
+Documentation disagreements corrected here: status/handoff still called landed
+PR78 open; vault-format's asset paragraph still described a text-only baseline.
+The paused roadmap language is reconciled without changing its sequence. The
+remaining gaps above require selected slices and their own acceptance evidence;
+no ADR is needed because this pass preserves existing decisions.
+
 ## Build boundaries and remaining work
 
 Default workspace checks exclude optional native UI/retrieval. Standalone

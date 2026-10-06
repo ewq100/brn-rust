@@ -33,3 +33,5 @@ not work to resume or rename.
 The early CLI foundation and PR2 review fixes are recorded under [completed work](../completed/README.md). The current CLI is owner-operated and exposes full workflow authority; future external agents are read/propose unless the owner explicitly delegates more. See [current status](../../status.md) and the [roadmap](../../roadmap.md) for other outcomes.
 
 List newly authorized planned work here with a descriptive task folder and one short plan. Keep results in that plan or use an evidence record when a durable handoff needs it, following the development workflow. Small changes need no new task folder. Do not copy completed tasks into active work solely because wider product qualification remains open.
+
+Preparation-only checkpoint: [baseline/evidence](preparation-checkpoint/evidence.md), [next settled specs](preparation-checkpoint/next-specs.md), [remaining V1 map](preparation-checkpoint/v1-map.md). No product implementation is authorized by these documents.
