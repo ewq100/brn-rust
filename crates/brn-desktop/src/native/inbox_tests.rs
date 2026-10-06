@@ -470,12 +470,19 @@ fn native_binary_original_has_proof_view_without_text_copy_or_batch_admission(
                     },
                 })),
             );
+            let selected = ai.inbox_queue.selected.as_ref().unwrap();
+            assert_eq!(selected.item, binary);
+            assert!(matches!(
+                selected.original,
+                InboxOriginal::AvailableBinary { .. }
+            ));
             desktop.sync_inbox_widgets(window, cx);
             assert!(desktop.inbox.original.read(cx).value().is_empty());
             cx.notify();
         });
     });
     visual.run_until_parked();
+    scroll_to(&mut visual, "inbox-binary-original");
     visual.update(|window, cx| {
         window.render_frame(cx);
         assert!(window.try_find("inbox-binary-original").is_some());

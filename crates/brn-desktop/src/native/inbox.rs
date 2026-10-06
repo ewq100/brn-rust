@@ -581,7 +581,7 @@ impl Desktop {
                         ));
                 }
                 InboxOriginal::AvailableBinary { byte_len, .. } => {
-                    content = content.child(div().id("inbox-binary-original").child(format!(
+                    content = content.child(div().id("inbox-binary-original").test_support().child(format!(
                         "Binary original retained exactly · {byte_len} bytes. Conversion is unavailable; the original remains retained."
                     )));
                 }
