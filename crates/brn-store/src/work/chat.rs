@@ -380,10 +380,12 @@ pub(super) fn begin_inbox_action_turn(
         return Err(conflict());
     }
     if read_turn(&tx, job.capture.id)?.is_none()
-        && super::inbox_actions::has_issued_knowledge(&tx, job)?
+        && (super::inbox_actions::has_issued_knowledge(&tx, job)?
+            || super::inbox_original_operations::has_archived_analysis(&tx, job.capture.id)?)
     {
         return Err(Error::StateChanged(
-            "historical Inbox Knowledge analysis needs a fresh UUID; recovery does not create a live turn".into(),
+            "historical Inbox analysis needs a fresh UUID; recovery does not create a live turn"
+                .into(),
         ));
     }
     let capture = &job.capture;

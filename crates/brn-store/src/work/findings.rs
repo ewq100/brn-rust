@@ -422,7 +422,7 @@ fn state_name(state: FindingState) -> &'static str {
 fn encode<T: Serialize>(value: &T) -> Result<Vec<u8>> {
     serde_json::to_vec(value).map_err(|_| invalid("could not encode finding work"))
 }
-fn validate_record(record: &FindingRecord) -> Result<()> {
+pub(super) fn validate_record(record: &FindingRecord) -> Result<()> {
     record.draft.validate()?;
     if record.created_at_ms > record.updated_at_ms
         || record.updated_at_ms > i64::MAX as u64
@@ -672,4 +672,11 @@ fn strict_vault<'de, D: serde::Deserializer<'de>>(
             inode: vault.identity.inode,
         },
     })
+}
+
+pub(super) fn validate_inbox_certificate_capture(
+    draft: &FindingDraft,
+    capture: &super::inbox_actions::InboxActionCapture,
+) -> Result<()> {
+    conflicts::validate_certificate_capture(draft, capture)
 }

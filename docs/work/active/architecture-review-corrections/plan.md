@@ -16,12 +16,14 @@ Knowledge identities merged normally in PR63 at
 `80564adbf04869444c4a6c6af1949cead3fe36b5`.
 Action correction merged normally in PR64 at
 `90c36e5c2035d1eea4fc37e7828f085a0f1bfba0`, exact reviewed tree
-`913c3fa3bbc6d3ddfdbc1fafa87c8cae257d7e02`. Current branch:
-`codex/v1-knowledge-capture-recovery`, based on PR65 merge
-`531517248300c15ce28bcb53f337984103817010`, exact reviewed tree
-`d63c1827aae5da654410520bc9c48856e1fa5e5a`. Remaining accepted
+`913c3fa3bbc6d3ddfdbc1fafa87c8cae257d7e02`. Source preservation merged in PR65
+at531517248300c15ce28bcb53f337984103817010/tree d63c1827aae5da654410520bc9c48856e1fa5e5a.
+Knowledge capture recovery merged in PR66 at
+`504f6be33e1add8c5819e28eed08628bc8dec8d0`, reviewed tree
+`77ec79e33c75a6a0bbed3100c3815648dcb6fd68`. Current branch:
+`codex/v1-original-operation-records`, based on that clean merge. Remaining accepted
 corrections follow this plan.
-The complete V1 goal is confirmed **active** by `get_goal` on 2026-10-05;
+The complete V1 goal is confirmed **active** by `get_goal` on 2026-10-06;
 its full objective and roadmap dependency order remain unchanged.
 
 The lifecycle snapshot is implemented and automated verified, but unmerged.
@@ -454,3 +456,117 @@ pending: recover disposable approved Knowledge/supersession from retained ordina
 receipts into fresh operational state after moving/changing its Source, observe
 original history/review without resubmission, and verify damaged/missing capture
 refusal. No private data, provider call or original removal is authorized by this.
+
+
+## Captured-analysis integration
+
+PR66 run37387682980 attempt1 at1eeef2b9f6d1ff100aa8e8955d3cba07ca2c20cf
+passed all four strict protected Mac/shared checks and documentation/tooling.
+Overall red retains Windows22 complete compiler blocks and both summaries
+identical to PR65. Mac workspace tests passed in495seconds versus PR65's388;
+no rerun or substituted evidence. Fresh protection/head checks and normal merge
+produced504f6be33e1add8c5819e28eed08628bc8dec8d0, exactly the reviewed tree.
+Fresh merged8 Store/14 Workflow tests/0 failures/1 documented subprocess ignore
+and52 fixtures passed, atomic exit0 with unchanged clean identity at
+23:32:41–23:32:51UTC. Exact main37389066259 attempt1 passed all applicable gates.
+Overall red retains Windows22/22/14 complete compiler blocks/both terminal
+summaries identical to main65; Linux native retrieval keeps the same three
+assertions/source locations/backtraces. Raw order/thread IDs and duration0.04s→0.81s
+differ and are retained. Mac workspace tests478seconds/job595seconds passed;
+no rerun or mutation. Native/live/owner
+acceptance remains pending; no original was removed.
+
+## Original-operation Store prerequisite acceptance
+
+Baseline504f6be33e1add8c5819e28eed08628bc8dec8d0. Implement Store records first;
+filesystem effects, shared worker/client commands and native controls follow.
+Reuse useful code/tests from immutable7c4f668. The owner-ratified preservation
+rule is fixed; schema/table layout can evolve within existing WorkStore.
+
+- New bounded Remove records bind the exact available original, one complete
+  approved Source journal and fresh saved Source proof, the exact preview digest,
+  one versioned explicit owner confirmation, namespace and monotonic times.
+  Pure preservation checks grant no filesystem freshness or execution authority.
+- Use one direct prior Restore UUID/digest; Restore binds one Remove UUID/digest.
+  No accumulated history, processing, chat, finding or consequence graph in new
+  records. Preserve legacy format1/five-attestation setting bytes, hashes and
+  full semantic validation; new behavior does not inherit those historical gates.
+- Add an owned V15 table with canonical complete bodies and cross-checked indexed
+  summaries. V14 upgrades and validated backup recovery preserve exact user work.
+  Readable semantic/schema damage refuses without replacement or new backup.
+- A compact checked inventory parses/checks/drops each full body once per pass;
+  check catalog/origin/namespace, parent digests/opposite settled kind, times,
+  forks/cycles and legacy cumulative history. No unproved summary or mirror-only
+  authority. Atomic import rolls back missing/forked/malformed evidence.
+- Test meaningful new/mixed legacy chains, rehashed metadata and Source damage,
+  historical byte/digest compatibility, migrations/backups and long/multi-item
+  scaling. Measure actual full-body parsing/encoded size/time; V15 alone is not
+  evidence of bounded cost. Independent full review, shared/native qualification,
+  exact-head required CI, normal merge and fresh merged checks remain gates.
+
+The following lifecycle slice must reuse the existing private Remove/Restore
+family, preserve equal mirror bytes/inodes, import exact Item/legacy genuine
+captures before approval companions, surface bootstrap failures and prevent
+intake resurrection. No new recovery family, datastore or semantic gate is added.
+
+
+## Original-operation Store qualification
+
+Implemented code48faf3f6a50eae152c80509a3316b7a6e6b94045, tree
+c0872f36ea59fc5378d8f10b9ed9ba40b7e29575, clean independent read-only review of
+all30 changed files against504f6be. Helper05fc6b3 was integrated as1d81b34;
+the lead added exact current Workflow preview JSON/digest and escaped-limit
+compatibility checks. New records carry no cumulative consequence/chat graph.
+V15 owns canonical bodies and checked indexed metadata; compact inventory drops
+bodies per pass. Fallible streaming import is atomic, without an aggregate input
+list/cap; selected bodies stay bounded128/64MiB. Snapshot-consistent visitation
+checks all authority before its first callback, then reads at most2N bodies.
+Legacy v1 envelopes/five attestations/digests remain unchanged and fully checked.
+
+A literal19,563-byte legacy fixture pins envelope hash
+380a30650a5a8e605283ccc83e6a23c0eb8ca9c1cf40ceae5790753dd90e303b and old
+record digest acc1203cb8773872226b7d0ecfc4856999aa97322a5f55f6c84776bda95f4630.
+Its layout derives from immutable7c4f668; no separate old-binary execution is
+claimed. Tests cover exact V14 migration/backup bytes, malformed pre-migration
+settings, mixed histories, missing/forked parents, rehashed schema/metadata/body
+corruption, iterator rollback, visit snapshot/error ordering and exact replay.
+
+The legacy-only historical analysis regression failed exit101: recovering the
+certificate without a real WorkTurn let its UUID start new execution. The checked
+legacy reservation fence fixes this without creating Sessions or turns; actual
+failed/completed turn replay still precedes the fence and unissued reservations
+still start. Preserve the red log. Helper's initial Clippy found one test-only
+cloned-ref-to-slice lint, fixed with from_ref. Lead workspace rustfmt found one
+missed long migration-fixture SQL line, formatted before the final gate; neither
+failed attempt is qualification. Helper final Store386/0/0 and all-target Clippy
+passed; lead Workflow14/0/0 passed, including complete escaped preview equality.
+
+Fresh shared atomic gate00:06:22–00:12:44UTC on2026-10-06 passed format, workspace
+build/all-target Clippy,1,412 tests/0 failures/8 documented ignores and52 fixtures,
+terminalexit0 with unchanged clean48faf3f identity. Fresh offline native gate
+00:12:58–00:14:37UTC at the same identity passed all11 command exits0: combined
+check, three Desktop Clippy feature configurations,305 Workflow/model tests/0/7,
+285 Desktop/0/0, shipping combined Desktop/native CLI builds, default AppWorker
+startup and two combined-native restarts. Actual SQLite queries confirmed V15 and
+the owned table in both fresh directories. Exact commands/features and start/end
+identity remain in atomic records. The existing storage gate's shared checks are
+covered once here; its default startup is included rather than repeating the
+workspace suite. Upstream block future-compiler warning remains; empty model
+configuration uses no real assets/inference/live provider/GUI or owner acceptance.
+
+Debug synthetic observations:256-row streaming import351ms and inventory172ms;
+seven-operation family with75,368,088 bytes of four near-limit escaped Remove
+bodies imported in30.91s, visitor18.54s/14 reads, inventory9.28s/7 reads. Selected
+four bodies correctly refuse the64MiB output bound. These are elapsed debug
+observations, not release benchmarks; broader B2 startup/backup cost remains
+pending. New table alone is not a performance claim.
+
+Exact-head CI and normal integration are the next gate; later evidence-only
+Markdown updates do not change tested Rust. No original filesystem effect is
+introduced. Following lifecycle adaptation reuses immutable7c4f668's endpoint/
+exclusive-rename protocol, distinct version2 envelopes in the same private family,
+streamed mirror import/repair and current Source+confirmation admission. Preserve
+equal legacy bytes/inodes, surface bootstrap errors before approval companions,
+never start a move at startup or install capture stages for any operation head.
+Native/live/owner acceptance, later roadmap work and trusted-user packaging remain
+pending; full V1 goal remains active.
