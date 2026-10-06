@@ -102,7 +102,68 @@ struct Paragraph {
     list: Option<(u32, u32)>,
 }
 
+fn neutral_paint(node: Node<'_, '_>) -> Result<()> {
+    if !children(node)?.is_empty() {
+        return Err(Failure::Unsupported);
+    }
+    let name = word(node)?;
+    let allowed: &[&str] = if name == "shd" {
+        &["val", "color", "fill"]
+    } else {
+        &["val"]
+    };
+    for attribute in node.attributes() {
+        if !matches!(attribute.namespace(), Some(W | WS)) || !allowed.contains(&attribute.name()) {
+            return Err(Failure::Unsupported);
+        }
+    }
+    match name {
+        "color" if val(node)? == "auto" => {}
+        "highlight" if val(node)? == "none" => {}
+        "shd"
+            if matches!(val(node)?, "nil" | "clear")
+                && ["color", "fill"]
+                    .into_iter()
+                    .all(|key| attr(node, key).is_none_or(|value| value == "auto")) => {}
+        _ => return Err(Failure::Unsupported),
+    }
+    Ok(())
+}
+
+fn tooltip_title(out: &mut String, tooltip: &str, cancel: &AtomicBool) -> Result<()> {
+    if tooltip.is_empty() {
+        return Ok(());
+    }
+    push(out, " \"")?;
+    for character in tooltip.chars() {
+        check_cancel(cancel)?;
+        match character {
+            '&' => push(out, "&amp;")?,
+            '<' => push(out, "&lt;")?,
+            '>' => push(out, "&gt;")?,
+            '"' => push(out, "&quot;")?,
+            '\\' => push(out, "&#92;")?,
+            '\n' => push(out, "&#10;")?,
+            '\r' => push(out, "&#13;")?,
+            '\t' => push(out, "&#9;")?,
+            _ => push(out, character.encode_utf8(&mut [0; 4]))?,
+        }
+    }
+    push(out, "\"")
+}
+
 fn metadata(node: Node<'_, '_>) -> Result<()> {
+    // Layout may be discarded only when its paint carries no additional emphasis.
+    if word(node)? == "shd" {
+        neutral_paint(node)?;
+    }
+    for attribute in node.attributes() {
+        if attribute.name().starts_with("theme")
+            || (matches!(attribute.name(), "color" | "fill") && attribute.value() != "auto")
+        {
+            return Err(Failure::Unsupported);
+        }
+    }
     // Only known layout/property containers and leaves may be discarded.
     for n in children(node)? {
         if !matches!(
@@ -194,8 +255,9 @@ fn run_properties(node: Node<'_, '_>, mut emphasis: Emphasis, toggle: bool) -> R
                     return Err(Failure::Unsupported);
                 }
             }
-            "rStyle" | "rFonts" | "sz" | "szCs" | "color" | "lang" | "spacing" | "kern"
-            | "position" | "highlight" | "shd" | "noProof" | "snapToGrid" => {
+            "color" | "highlight" | "shd" => neutral_paint(n)?,
+            "rStyle" | "rFonts" | "sz" | "szCs" | "lang" | "spacing" | "kern" | "position"
+            | "noProof" | "snapToGrid" => {
                 // Position modifies baseline semantics; only neutral positioning is accepted.
                 if name == "position" && val(n)? != "0" {
                     return Err(Failure::Unsupported);
@@ -880,7 +942,11 @@ impl Renderer<'_, '_> {
                             push(&mut out, (byte as char).encode_utf8(&mut [0; 4]))?;
                         }
                     }
-                    push(&mut out, ">)")?;
+                    push(&mut out, ">")?;
+                    if let Some(tooltip) = attr(n, "tooltip") {
+                        tooltip_title(&mut out, tooltip, self.cancel)?;
+                    }
+                    push(&mut out, ")")?;
                 }
                 "bookmarkStart" | "bookmarkEnd" | "proofErr" => {
                     if !children(n)?.is_empty() {
@@ -1459,6 +1525,158 @@ mod tests {
             convert("<w:p>unwrapped wording</w:p>", None, None),
             Err(Failure::Invalid)
         ));
+    }
+
+    #[test]
+    fn paint_is_neutral_or_refused_directly_and_through_used_styles() {
+        let neutral = r#"<w:color w:val="auto"/><w:highlight w:val="none"/><w:shd w:val="clear" w:color="auto" w:fill="auto"/>"#;
+        assert_eq!(
+            convert(
+                &format!("<w:p><w:r><w:rPr>{neutral}</w:rPr><w:t>Neutral</w:t></w:r></w:p>"),
+                None,
+                None
+            )
+            .unwrap(),
+            "Neutral\n"
+        );
+        for paint in [
+            r#"<w:color w:val="FF0000"/>"#,
+            r#"<w:color w:val="auto" w:themeColor="accent1"/>"#,
+            r#"<w:highlight w:val="yellow"/>"#,
+            r#"<w:shd w:val="clear" w:fill="FFFF00"/>"#,
+            r#"<w:shd w:val="solid" w:color="auto" w:fill="auto"/>"#,
+            r#"<w:shd w:val="nil" w:themeFill="accent1"/>"#,
+            r#"<w:highlight w:val="none"><w:drawing/></w:highlight>"#,
+        ] {
+            let direct = format!("<w:p><w:r><w:rPr>{paint}</w:rPr><w:t>Meaning</w:t></w:r></w:p>");
+            assert!(
+                matches!(convert(&direct, None, None), Err(Failure::Unsupported)),
+                "direct {paint}"
+            );
+            let inherited = format!(
+                r#"<w:styles xmlns:w="{W}"><w:style w:type="paragraph" w:styleId="base"><w:rPr>{paint}</w:rPr></w:style><w:style w:type="paragraph" w:styleId="derived" w:default="1"><w:basedOn w:val="base"/></w:style></w:styles>"#
+            );
+            assert!(
+                matches!(
+                    convert(&p("Inherited"), Some(&inherited), None),
+                    Err(Failure::Unsupported)
+                ),
+                "inherited {paint}"
+            );
+            let character = format!(
+                r#"<w:styles xmlns:w="{W}"><w:style w:type="character" w:styleId="base"><w:rPr>{paint}</w:rPr></w:style><w:style w:type="character" w:styleId="derived"><w:basedOn w:val="base"/></w:style></w:styles>"#
+            );
+            let styled_run = "<w:p><w:r><w:rPr><w:rStyle w:val=\"derived\"/></w:rPr><w:t>Styled</w:t></w:r></w:p>";
+            assert!(
+                matches!(
+                    convert(styled_run, Some(&character), None),
+                    Err(Failure::Unsupported)
+                ),
+                "character {paint}"
+            );
+            let defaults = format!(
+                r#"<w:styles xmlns:w="{W}"><w:docDefaults><w:rPrDefault><w:rPr>{paint}</w:rPr></w:rPrDefault></w:docDefaults></w:styles>"#
+            );
+            assert!(
+                matches!(
+                    convert(&p("Default"), Some(&defaults), None),
+                    Err(Failure::Unsupported)
+                ),
+                "default {paint}"
+            );
+            let numbered_styles = numbering().replace(
+                "<w:lvlText w:val=\"%1.\"/>",
+                &format!("<w:lvlText w:val=\"%1.\"/><w:rPr>{paint}</w:rPr>"),
+            );
+            assert!(
+                matches!(
+                    convert(&numbered(1, 0, "Numbered"), None, Some(&numbered_styles)),
+                    Err(Failure::Unsupported)
+                ),
+                "numbering {paint}"
+            );
+        }
+        let neutral_defaults = format!(
+            r#"<w:styles xmlns:w="{W}"><w:docDefaults><w:rPrDefault><w:rPr>{neutral}</w:rPr></w:rPrDefault></w:docDefaults></w:styles>"#
+        );
+        assert_eq!(
+            convert(&p("Default"), Some(&neutral_defaults), None).unwrap(),
+            "Default\n"
+        );
+    }
+    #[test]
+    fn cell_paragraph_and_table_style_shading_cannot_silently_disappear() {
+        for shading in [
+            r#"<w:shd w:val="clear" w:fill="FFFF00"/>"#,
+            r#"<w:shd w:val="nil" w:themeFill="accent2"/>"#,
+            r#"<w:shd w:val="clear"><w:object/></w:shd>"#,
+        ] {
+            let cell = format!(
+                "<w:tbl><w:tr><w:tc><w:tcPr>{shading}</w:tcPr>{}</w:tc></w:tr></w:tbl>",
+                p("Cell")
+            );
+            assert!(matches!(
+                convert(&cell, None, None),
+                Err(Failure::Unsupported)
+            ));
+            let paragraph =
+                format!("<w:p><w:pPr>{shading}</w:pPr><w:r><w:t>Paragraph</w:t></w:r></w:p>");
+            assert!(matches!(
+                convert(&paragraph, None, None),
+                Err(Failure::Unsupported)
+            ));
+            let styles = format!(
+                r#"<w:styles xmlns:w="{W}"><w:style w:type="table" w:styleId="TableNormal" w:default="1"><w:tcPr>{shading}</w:tcPr></w:style><w:style w:type="table" w:styleId="TableGrid"><w:basedOn w:val="TableNormal"/></w:style></w:styles>"#
+            );
+            let table = format!(
+                "<w:tbl><w:tblPr><w:tblStyle w:val=\"TableGrid\"/></w:tblPr><w:tr><w:tc>{}</w:tc></w:tr></w:tbl>",
+                p("Styled")
+            );
+            assert!(matches!(
+                convert(&table, Some(&styles), None),
+                Err(Failure::Unsupported)
+            ));
+            let table_default =
+                format!("<w:tbl><w:tr><w:tc>{}</w:tc></w:tr></w:tbl>", p("Default"));
+            assert!(matches!(
+                convert(&table_default, Some(&styles), None),
+                Err(Failure::Unsupported)
+            ));
+        }
+        for neutral in [
+            r#"<w:shd w:val="nil"/>"#,
+            r#"<w:shd w:val="clear" w:color="auto" w:fill="auto"/>"#,
+        ] {
+            let cell = format!(
+                "<w:tbl><w:tr><w:tc><w:tcPr>{neutral}</w:tcPr>{}</w:tc></w:tr></w:tbl>",
+                p("Cell")
+            );
+            assert_eq!(
+                convert(&cell, None, None).unwrap(),
+                "|  |\n| --- |\n| Cell |\n"
+            );
+        }
+        assert!(matches!(
+            convert(
+                "<w:p><w:pPr><w:pBdr><w:bottom w:color=\"FF0000\"/></w:pBdr></w:pPr></w:p>",
+                None,
+                None
+            ),
+            Err(Failure::Unsupported)
+        ));
+    }
+    #[test]
+    fn hyperlink_tooltip_is_preserved_without_title_or_markup_injection() {
+        let body = r#"<w:p><w:hyperlink r:id="link" w:tooltip="Exact &quot;title&quot; \ &amp; &lt;tag&gt;&#10;next 日本語"><w:r><w:t>Link</w:t></w:r></w:hyperlink></w:p>"#;
+        assert_eq!(
+            convert(body, None, None).unwrap(),
+            "[Link](<https://example.invalid/a%20b?q=%C3%B5&amp;x=%3Cvalue%3E> \"Exact &quot;title&quot; &#92; &amp; &lt;tag&gt;&#10;next 日本語\")\n"
+        );
+        let empty = r#"<w:p><w:hyperlink r:id="link" w:tooltip=""><w:r><w:t>Link</w:t></w:r></w:hyperlink></w:p>"#;
+        assert_eq!(
+            convert(empty, None, None).unwrap(),
+            "[Link](<https://example.invalid/a%20b?q=%C3%B5&amp;x=%3Cvalue%3E>)\n"
+        );
     }
     #[test]
     fn output_bounds_and_cancel_refuse_without_partial_success() {
