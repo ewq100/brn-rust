@@ -25,8 +25,10 @@ and native controls PR69 are integrated. Current main is
 `b5bcb0a7430de437533532f2bfab6a9df751509e`, reviewed tree
 `1abaa112874aa30af6969394d2c863d31cf57de3`. Current branch is
 `codex/v1-ai-note-facts`: task commit6413e7a merged with qualified main69 at
-`a135a6d80343cdc8f2a9156d7d4f571bb62c6aef`; final review/shared/native gates and
-exact-head integration are next. Startup witness runs in its isolated checkout.
+`a135a6d80343cdc8f2a9156d7d4f571bb62c6aef`. Complete/doc reviews and fresh shared/
+native gates pass at clean3a35aaf; latest evidence-head CI and normal integration
+are next. Startup baseline is measured; private publication correction has
+focused checks passing, with independent review/post-change timings pending.
 Remaining accepted corrections follow this plan.
 The complete V1 goal is confirmed **active** by `get_goal` on 2026-10-06;
 its full objective and roadmap dependency order remain unchanged.
@@ -843,3 +845,48 @@ Windows22/22/14 complete blocks/terminals matching main68 and Linux3 matching
 assertions/backtraces, with raw order/PIDs/0.05s→0.20s differences preserved.
 Mac tests508s versus738s and Ubuntu345s versus347s are recorded observations,
 not product benchmarks. GUI/live/assets/owner acceptance remains pending.
+
+## Typed note-facts qualification
+
+Complete independent review of the task and integration delta is clean. The
+11-file Rust patch is byte-identical through main69 integration; final crate/
+evidence documentation review is also clean. Fresh shared atomic gate at clean
+`3a35aaf869e45fe7709602c07beaac93ddb49bd4`, tree
+`620fd4089c6d14c6549e1afeae111a15df39e413`, on2026-10-06
+02:39:30–02:46:07UTC passed format/workspace build/all-target Clippy,
+1,448 tests/0failures/10documented ignores and52 fixtures. All commands exit0.
+Nonfatal rust-objcopy/libLLVM warnings remain retained; no toolchain change made.
+Native atomic gate02:48:05–02:50:13UTC at the same unchanged clean identity
+passed all11commands: startup, combined check, three Clippy configurations,
+330 Workflow/models/0/9,292 Desktop/0/0, builds and two native restarts. Fresh
+SQLite queries confirm V15/owned operation table. No GUI/live/owner claim made.
+
+Initial exact PR70 run37404986639 attempt1 passed all four protected Mac/shared
+checks and Docs. Overall failure retains Windows22 full source-inclusive compiler
+blocks/both terminal summaries, identical to PR69; metadata/order/timing differences
+remain separate. GitHub test-merge644839f has exact reviewed tree620fd408.
+Mac tests447s versus663s and Ubuntu350s versus294s are observations; all long-test
+notices subsequently passed, without cancellation/timeout. Final evidence-only
+head still needs exact-head CI before normal merge and fresh merged verification.
+
+## Startup baseline and bounded correction
+
+Clean witness baseline5f1f11d on2026-10-06 passed all36 full-history probes
+(02:25:18–02:30:56UTC) and36 default shipping CLI probes
+(02:33:21–02:38:11UTC), three warm repetitions/scenario with exclusive local CPU.
+Near-limit dataset has7 operations,150,452,382 encoded mirror bytes,
+75,227,526 receipt bytes and four Remove receipts totaling75,222,931 bytes.
+Healthy medians: Store1.515s, complete App39.159s, shipping CLI38.903s;
+SQL-only repair App13.520s/CLI13.439s; fresh-SQL App36.151s/CLI36.154s.
+App includes Store: these times must not be summed. Fresh-schema Store is not
+comparable to populated Store. Complete byte/inode/history/no-effect and backup
+1..5 checks passed. These are warm synthetic results, without cold-cache/GUI claims.
+
+The first shipping permission preflight failed before any child launched. Only
+owned synthetic fixture directory modes were tightened0755→0700 outside timing;
+byte/inode proofs were unchanged and failure retained. Private equal-publication
+optimization is limited to stable complete canonical bytes and same-file durability
+checks, preserving full untrusted decoding, startup checks and backup contract.
+A same-byte inode replacement after sync reproduced a genuine old-path failure;
+the correction has13 focused tests and strict Workflow Clippy passing. Complete
+review and post-change release measurements remain pending; no benefit claimed.

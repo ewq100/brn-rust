@@ -17,12 +17,16 @@ Full frozen V1 goal confirmed **active** on2026-10-06, without a token budget.
   `6413e7ae251c00c4dd2e53411eb42414d29e6f8c`, merged with qualified main69 at
   `a135a6d80343cdc8f2a9156d7d4f571bb62c6aef`. Typed results retain full saved-byte
   hashes, managed identity, Source/History and explicit unknown/known conflict
-  knowledge. Focused128 AI/3 scopes/5 read guards/1 question/10 conflicts and
-  affected Clippy pass; failed sandbox/diagnostic attempts are retained.
-  Next: final independent review, fresh shared/native gates and exact-head CI,
-  then normal integration. Startup witness runs separately on
-  `codex/v1-copy-startup-witness`; release builds passed, measurements are in
-  progress and no optimization or measured benefit is claimed yet.
+  knowledge. Complete and documentation reviews are clean. At clean
+  `3a35aaf869e45fe7709602c07beaac93ddb49bd4`, fresh shared1,448/0/10+52 and native
+  330 Workflow/models/0/9+292 Desktop/0/0,11commands/V15 restarts passed.
+  Initial exact-head run37404986639 attempt1 passed four protected checks and
+  Docs; unchanged Windows22 failure remains. Failed local attempts are retained.
+  Next: latest evidence-head CI and normal integration. Separately, startup
+  witness baseline at5f1f11d passed all36 history and36 shipping probes:
+  near-limit healthy shipping CLI median38.903s. Private publication correction
+  has13 focused tests/Clippy passing; review and post-change measurements remain
+  pending, with no benefit claimed. See the correction plan for sizes/limits.
 - **Pending:** native GUI/live/assets/owner acceptance, startup/relationship cost,
   later roadmap stages and trusted-user packaging. Legacy pending-intent retry is
   unsupported; historical inspection/already-performed settlement remain supported.

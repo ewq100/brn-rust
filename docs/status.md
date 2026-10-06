@@ -73,10 +73,15 @@ passed all applicable checks; unchanged Windows22/22/14 and Linux3 assertions/
 backtraces retain raw order/IDs/timing differences. Unlocked owner observation
 and Stage8 remain pending. R6 typed note facts are implemented at6413e7a and
 merged with qualified main69 ata135a6d. Focused128 AI/3 scopes/5 read guards/
-1 question/10 conflicts and affected Clippy passed; final independent review,
-fresh shared/native qualification and integration remain pending. Startup witness
-release builds passed in its isolated checkout; measurements are in progress,
-with no optimization or benefit claimed yet. Broader startup/backup cost is
+1 question/10 conflicts and affected Clippy passed; complete and documentation
+reviews are clean. Fresh shared1,448/0/10+52 and native330 Workflow/models/0/9+
+292 Desktop/0/0,11commands/V15 restarts passed at unchanged clean3a35aaf.
+Initial exact-head run37404986639 attempt1 passed four protected checks and Docs;
+unchanged Windows22 remains red. Latest evidence-head CI and integration are next.
+Startup witness baseline at5f1f11d passed36 history and36 shipping probes;
+near-limit healthy shipping CLI median38.903s. Private publication correction
+has13 focused tests/Clippy passing; independent review and post-change timings
+remain pending, with no optimization benefit claimed yet. Broader startup/backup cost is
 separate. No semantic
 completeness, native/live/owner acceptance or full V1 delivery is claimed. The full
 V1 goal remains active. No owner original/private data was inspected or migrated.
