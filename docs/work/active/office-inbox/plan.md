@@ -6,8 +6,9 @@ Current baseline is integrated [PR76](https://github.com/ewq100/brn-rust/pull/76
 and bounded DOCX text/structure Source conversion are qualified and integrated.
 [Inline PNG plus explicit local interpretation](#next-slice-inline-png-source-and-local-interpretation)
 is the current bounded deliverable on `codex/v1-docx-visual-sources`. Buildable
-core checkpoint `2056ccbd5ab1a0abab82f7de055cf8f61df7887e` implements conversion,
-Source/asset approval and typed separately approved interpretation. Clients,
+core checkpoint `ae958567bab8b8c9c1d4b1e6cb3329549a781106` implements conversion,
+Source/asset approval, typed separately approved interpretation and checked image
+inspection. Core/inspection/recovery reviews are clean. Clients,
 complete milestone review/qualification and integration remain unfinished. Full V1 goal remains
 confirmed active without a budget.
 Native/live/owner acceptance and broader Stage8 remain separate and unfinished.
@@ -575,3 +576,34 @@ native checks, exact-head applicable CI, normal integration and merged checks.
 No PR or merge exists for this branch. GUI/live/real-model/owner acceptance,
 broader visual formats and binary cleanup stay pending. Full goal remains
 confirmed active and unchanged; only synthetic offline fixtures were used.
+
+## Inline PNG inspection and recovery checkpoint — 2026-10-06
+
+Unmerged source `ae958567bab8b8c9c1d4b1e6cb3329549a781106`, tree
+`935d57f10690c60c5a681df5b113e825a8b22cef`. Immutable2056 core review is clean;
+the later exact saved-image inspection delta40e9 is independently clean. That
+read-only AppWorker operation returns complete Source/asset proofs and actual
+validated PNG bytes after unique Source identity and final Source reobservation;
+it creates no work or provider call. A small typed occurrence accessor serves
+client presentation without client frontmatter parsing or new authority.
+
+Fresh visual inspection gate passed workspace all-target check,8 visual witnesses,
+3 behavior tests, Store43/6/18 and strict affected Clippy. The composed annotation
+recovery witness uses2 actual process exits86: fresh SQL imports the genuine
+capture without a turn, same-byte new-inode image substitution refuses Finish,
+the exact retained object permits Finish, and Restore/Undo plus later fresh SQL
+retain immutable approval/repair history without resurrection or provider rerun.
+Final affected gate10:28:50–10:29:02UTC passed Store3, Workflow9/0/1 (private child
+exercised by the parent), strict Store/Workflow all-target Clippy, fmt and diff.
+An earlier actual Clippy failure from a test-only clone of a Copy hash remains
+retained; corrected passes do not relabel that run. Exact actual dirty snapshot
+`603860ab86570f6755d8ebb30d755a6c0f6e63afd8364ff0b7579efd94a555e6` and all
+terminal receipts/full logs remain in `work/docx-visual-lead-evidence`. Read-only
+recovery/getter delta review is clean.
+
+Owner CLI/native presentation and explicit interpretation/draft controls are in
+bounded isolated implementation; complete deliverable review, fresh shared/native
+qualification, exact-head CI, normal integration and merged checks remain pending.
+No visual PR/merge, GUI/live/model/owner acceptance or binary cleanup is claimed.
+Full frozen goal remains confirmed active; pinned Mac mini preflight passes with
+`/opt/homebrew/opt/rustup/bin` on PATH, canonical synthetic TMPDIR and separate targets.

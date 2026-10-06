@@ -21,10 +21,13 @@ Full frozen V1 goal confirmed **active** by `get_goal` on 2026-10-06; no token b
   [fixed next acceptance](../work/active/office-inbox/plan.md#next-slice-inline-png-source-and-local-interpretation)
   couples one checked inline PNG, Source/asset proofs and explicit reviewed local
   interpretation in the existing AI lane. Internal buildable source checkpoint
-  `2056ccbd5ab1a0abab82f7de055cf8f61df7887e`, tree
-  `5d27ca45b52285abc7149fd3a528518d7c43b125`, adds checked Source/PNG creation,
-  typed owned interpretation and separately approved Source-only annotations.
-  Offline focused compile/tests/Clippy pass; independent core review is underway.
+  `ae958567bab8b8c9c1d4b1e6cb3329549a781106`, tree
+  `935d57f10690c60c5a681df5b113e825a8b22cef`, adds checked Source/PNG creation,
+  typed owned interpretation, separately approved Source-only annotations and
+  complete actual-image inspection through AppWorker. Core and inspection reviews
+  are clean. Focused checks pass, including9 visual tests/1 private child exercised
+  through2 actual annotation crashes, stale-image Finish refusal, Restore/Undo and
+  fresh-SQL history without provider reexecution. The recovery/getter review is also clean.
   Next: actual-image CLI/native presentation, complete-slice review and fresh
   shared/native qualification, then exact-head CI/normal integration. Unmerged;
   no complete visual outcome or provider/native acceptance is claimed.

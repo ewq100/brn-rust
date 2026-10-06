@@ -36,9 +36,11 @@ compiler suggestions and actual ordering/progress/terminal differences remain vi
 The [next Stage8 slice](work/active/office-inbox/plan.md#next-slice-inline-png-source-and-local-interpretation)
 couples a checked inline PNG, bound Source/asset approval and explicit local
 visual interpretation through the existing owned AI lane. Unmerged internal
-checkpoint `2056ccbd5ab1a0abab82f7de055cf8f61df7887e` implements the converter,
-exact Source/PNG pair, owned typed interpretation and separately approved
-Source-only annotation. Focused offline checks pass; core review is underway.
+checkpoint `ae958567bab8b8c9c1d4b1e6cb3329549a781106` implements the converter,
+exact Source/PNG pair, owned typed interpretation, separately approved Source-only
+annotation and complete saved-image inspection. Core/inspection reviews are clean;
+focused offline checks and actual annotation crash/Finish/Restore/Undo witnesses
+pass. The recovery/getter review is also clean.
 CLI/native actual-image presentation, complete milestone review/qualification
 and integration remain unfinished. Integrated main still refuses meaningful
 visuals. Generic ZIP intake
