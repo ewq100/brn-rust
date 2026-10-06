@@ -736,11 +736,23 @@ Native controls continue on codex/v1-inbox-copy-controls, codeaaa87fcb. AppWorke
 owns all reads/effects; UI captures exact view/item/proof/request, handles typed
 history/lookup, stale/forged/out-of-order replies and preserves pending intent
 UUIDs across restart for explicit retry. Drafts/typing/semantic reviews remain
-independent; disposition is separate. Legacy intent retry remains the existing
-qualified CLI path; new intents support native retry. Five real-worker state
+independent; disposition is separate. Legacy records support historical inspection
+and recovery settlement of already-performed moves; retry of a pending legacy
+intent is unsupported. New-format intents support exact native retry. Five real-worker state
 regressions and two minimum480×480 shipping-root widget tests pass, with strict
 native all-target Clippy and clean complete/final-delta independent review.
 Initial test-helper name/shutdown compile errors, hidden-background-widget fixture
 failure and single-match Clippy failure are retained; corrected checks pass.
 Full shared/native qualification and exact-head integration are next. Goal remains
 active; native/live/asset/owner acceptance and trusted packaging stay pending.
+
+Native-control shared gate passed at unchanged clean
+`c91a008a0469b60fcb23ee9c6ce9f4af4a037ee4`, tree
+`04bdb307dc9407b7b3a16120f3c7529b386df5e3`, on2026-10-06
+01:38:05–01:44:58UTC: format, workspace build, all-target Clippy,
+1,446 tests/0failures/10documented ignores and52 fixtures, atomic exit0.
+Documentation review found an overstated legacy CLI retry claim. Technical
+validation confirmed the new request decoder and replay variants cannot retry
+pending legacy operations. The correction records historical inspection and
+already-performed settlement support, with pending legacy retry unsupported;
+new-format same-request retry remains covered. No behavior change was added.

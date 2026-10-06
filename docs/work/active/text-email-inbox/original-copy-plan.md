@@ -41,9 +41,11 @@ Implementation continues on `codex/v1-inbox-copy-controls` in an isolated checko
   removal. Only explicit confirmation submits Remove/Restore; late/forged replies
   cannot acknowledge another request or replace newer selection. Preserve local
   capture typing, prepared drafts and semantic review; disposition stays separate.
-- Retain exact UUID/request on delivery failure and expose checked pending intents
+- Retain exact UUID/request on delivery failure and expose checked new-format pending intents
   after restart for explicit same-request retry. Workflow still checks evidence,
   causal head, retained bytes, namespace and vacant destination.
+  Historical legacy records remain inspectable; recovery can settle already-performed
+  moves, but retry of a pending legacy intent is unsupported.
 - Real worker tests cover confirmation/restart/restoration, stale proof and retry;
   shipping-root widget tests cover full read-only proof/copy, modal background
   blocking/cancel and minimum480×480 reachability. Qualify relevant shared/native
