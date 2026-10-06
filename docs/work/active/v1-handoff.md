@@ -77,14 +77,14 @@ live calls into GUI observation. Owner acceptance remains pending.
 
 ## Ordered task queue
 
-Inspected unchanged product code at main a8deb9d: none of H1–H5 is completed or superseded. H1 still scans raw title lines; H2 still duplicates schema and has no direct Schemars dependency; visual output still uses prompt JSON without `output_schema`; no docx-rs/clap dependency is present. H3–H5 questions remain unresolved. Existing decision evidence is sufficient to prepare evaluations, not adopt replacements.
+Inspected unchanged product code at main a8deb9d: at that inspection none of H1–H5 was completed or superseded. H1 still scans raw title lines; H2 still duplicates schema and has no direct Schemars dependency; visual output still uses prompt JSON without `output_schema`; no docx-rs/clap dependency is present. H3–H5 questions remain unresolved. Existing decision evidence is sufficient to prepare evaluations, not adopt replacements.
 
 | ID | Kind / classification | Detail |
 | --- | --- | --- |
 | H1 | Implemented candidate; see record for verification/integration | Settled title fix; [executable spec](preparation-checkpoint/next-specs.md#h1--titles-from-saved-markdown), [H1 record](h1-library-titles/evidence.md) |
 | H2 | Implemented candidate; see record for verification/integration | Narrow accepted derivation, equivalence first; [spec](preparation-checkpoint/next-specs.md#h2--one-compatible-action-schema), [H2 record](h2-action-schema/evidence.md) |
 | H3 | Ready for evaluation | Offline route feasibility; enabling live routes remains conditional on qualification |
-| H4 | Ready for evaluation | Published release fit unresolved; broader replacement conditional on result |
+| H4 | Evaluated; not adopted; result PR pending | docx-rs0.4.22 drops alt/title and namespace-variant wording silently; [findings](../../../experiments/docx-reader-eval/FINDINGS.md) |
 | H5 | Ready for evaluation | CLI adoption unresolved; migration conditional on result |
 
 Lead owns shared documentation and integration. Each implementer/evaluator records actual baseline, candidate, result and stop reason in its own task record; lead reconciles the common queue/ADR/status. Evaluations have no product API changes or owner acceptance requirement beyond reviewing the recommendation; no credentials/hardware beyond ordinary pinned Rust/macOS fixtures. H3–H5 finish with reproducible synthetic evidence and an adoption/non-adoption/blocker decision, independent review and focused result PR. H4/H5 isolate manifest, lock and target. Parent/spec links above do not select work.
@@ -169,7 +169,15 @@ qualification. Only the selected task may proceed.
 
 ### H4 — evaluate published DOCX reader before broader Stage8
 
-- **Evaluation; ready.** Question: can immutable docx-rs0.4.22 replace a meaningful
+- **Result 2026-10-06: evaluated, not adopted (build).** Baseline main `450eaa2`;
+  checksum-verified release source `f04cf8b4`. The stop fired on the first silent-loss
+  case, in BRN's supported profile: the inline PNG's alt text and title are absent
+  from the read model. Further synthetic witnesses showed silent wording loss,
+  advertised-size allocation and a CRC panic. The
+  [evaluator findings](../../../experiments/docx-reader-eval/FINDINGS.md) hold the
+  matrix, BRN replay, adapter-scope estimate, independent review and next Stage8
+  acceptance. The result PR, CI and merge are pending.
+- **Original task.** Question: can immutable docx-rs0.4.22 replace a meaningful
   part of OOXML interpretation with a small BRN admission/mapping adapter?
 - Read the [office plan](office-inbox/plan.md), Store `src/work/inbox_source/docx/`
   package/document/image code and fixtures, Workflow DOCX tests, plus pinned published

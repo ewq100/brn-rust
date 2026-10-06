@@ -122,7 +122,24 @@ parser panic into filename fallback. **Build:** only the title-policy adapter.
 The policy matches the spec. Changes from the old line scan are limited to code/HTML
 pseudo-headings, `...` closings and headers ending after line50.
 
-## E — DOCX reader: unresolved, bounded task H4
+## E — DOCX reader: evaluated, not adopted (H4)
+
+**Recommendation (2026-10-06): build; keep BRN's converter.** The H4 evaluation of
+the published release is in the
+[evaluator findings](../../../experiments/docx-reader-eval/FINDINGS.md); its result
+PR is pending. The release `.crate` checksum matches the index, and its source is
+identical to `docx-core` at `f04cf8b4`. On synthetic DOCX,
+`read_docx_with_options` with previews off returned `Ok` while dropping
+inline-picture alt text and title, which BRN's supported profile keeps. It also
+dropped wording under a non-`w` WordprocessingML prefix or default namespace, plus
+footnote text, altChunk content and a field's link destination, leaving no trace in
+the model. An entry advertising 3.75 GiB produced an allocation of that size, and a
+CRC mismatch panicked. Catching these needs BRN's full package, XML, OPC and strict
+document walk, so adoption would be a second interpreter that removes no BRN code.
+Body images kept their exact bytes (two PNGs, a repeated relationship, an ordinary
+JPEG). Header and body images sharing an rId were ambiguous, and the default reader
+without the `image` feature omitted a JPEG. The observations below were the
+pre-evaluation basis.
 
 Requirement: replace meaningful custom OOXML interpretation while preserving complete
 meaningful content or explicit refusal, bounds, originals and exact assets.

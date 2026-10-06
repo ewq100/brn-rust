@@ -8,6 +8,8 @@
 
 /experiments/rig-spike/target/
 
+/experiments/docx-reader-eval/target/
+
 .DS_Store
 
 # Python tooling caches are disposable, not evidence inputs.
