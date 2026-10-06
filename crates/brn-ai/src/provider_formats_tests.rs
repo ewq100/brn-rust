@@ -5193,3 +5193,6 @@ mod conflict_tool_tests {
         }
     }
 }
+
+#[path = "provider_stderr_tests.rs"]
+mod provider_stderr_tests;

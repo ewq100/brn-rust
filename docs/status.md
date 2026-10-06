@@ -15,7 +15,7 @@ and the disposable retrieval index retain their existing roles. The owner's
 permits thin future adapters around the six V1 core crates through workflow/
 AppWorker. No MCP, daemon, HTTP service, extra database or remote work is in V1.
 
-Integrated main is **`34e3601d00d1b251b995ba176a1714da28d371e6` (PR70)**.
+Integrated main is **`cbec4ff67e686998a9242be418c81d49b213fbd6` (PR71)**.
 Complete retained original review, deterministic saved-body quotes, Rust-owned
 Conflict/Knowledge/Action candidate identities, checked full Action replacement
 baselines and AI Rewrite metadata protection are integrated. Exact approval and
@@ -85,8 +85,16 @@ near-limit CLI healthy median38.903→28.193s, fresh SQL36.154→24.997s,
 SQL repair13.439→13.607s. Regenerated input dimensions are recorded. Source is
 integrated with qualified main70 at622a23f; complete review clean, fresh
 shared1,452/0/11+52 and native334 Workflow/models/0/10+292 Desktop/0/0,
-11commands/V15 restarts passed. Final evidence review and exact latest-head
-CI/normal integration are next. Broader startup/backup cost is
+11commands/V15 restarts passed. PR71 merged normally atcbec4ff after exacte4ec195/run37409116674 attempt1 passed
+four protected checks and Docs; unchanged Windows22 remains red. Fresh merged
+build/13 filesystem/15 lifecycle tests (3 documented ignores) and52fixtures pass;
+wrong zero-test filter is retained as non-qualifying. Automatic main71 CI pending. Provider stderr patch
+at14fe448 has clean independent/provenance review, shared1,449/0/11+52 and native
+330 Workflow/models/0/9+292 Desktop/0/0,12commands/V15 restarts passing. It is
+integrated with main71 atb586892; review is clean and fresh composed
+format/build/129 AI/13 filesystem/18 tooling/52fixtures, strict AI Clippy and
+combined native check passed at unchanged0644c54. Exact-head CI is next.
+Relationship local-cost correction follows. Broader startup/backup cost remains
 separate. No semantic
 completeness, native/live/owner acceptance or full V1 delivery is claimed. The full
 V1 goal remains active. No owner original/private data was inspected or migrated.
