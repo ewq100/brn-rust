@@ -380,7 +380,7 @@ async fn run_model(
         cancel,
         emit,
         limited,
-        matches!(mode, RunMode::Rewrite { .. }),
+        matches!(mode, RunMode::Rewrite { .. }).then_some(MAX_REWRITE_BYTES),
     )
     .await
 }
@@ -400,12 +400,12 @@ fn map_stream_error(error: StreamingError) -> AiError {
     }
 }
 
-async fn collect_stream(
+pub(crate) async fn collect_stream(
     mut stream: StreamingResult,
     cancel: CancellationToken,
     emit: Arc<dyn Fn(AiEvent) + Send + Sync>,
     limited: Arc<AtomicBool>,
-    rewrite: bool,
+    strict_output_limit: Option<usize>,
 ) -> AiAnswer {
     let mut text = String::new();
     let terminal = loop {
@@ -418,11 +418,13 @@ async fn collect_stream(
             Some(Ok(MultiTurnStreamItem::StreamAssistantItem(Item::Event(
                 StreamEvent::Text { text: delta, .. },
             )))) => {
-                if rewrite && delta.len() > MAX_REWRITE_BYTES.saturating_sub(text.len()) {
+                if strict_output_limit
+                    .is_some_and(|limit| delta.len() > limit.saturating_sub(text.len()))
+                {
                     break AiTerminal::Failed(AiError::new(AiErrorKind::ToolRejected));
                 }
                 text.push_str(&delta);
-                if !rewrite {
+                if strict_output_limit.is_none() {
                     emit(AiEvent::Text(delta));
                 }
             }
@@ -457,7 +459,7 @@ async fn collect_stream(
     } else {
         terminal
     };
-    if rewrite && !matches!(terminal, AiTerminal::Completed) {
+    if strict_output_limit.is_some() && !matches!(terminal, AiTerminal::Completed) {
         text = String::new();
     }
     AiAnswer { text, terminal }
@@ -498,7 +500,7 @@ mod tests {
             CancellationToken::new(),
             Arc::new(|_| {}),
             Arc::new(AtomicBool::new(false)),
-            false,
+            None,
         )
         .await
     }
@@ -556,7 +558,7 @@ mod tests {
             cancel,
             Arc::new(|_| {}),
             Arc::new(AtomicBool::new(false)),
-            false,
+            None,
         )
         .await;
         assert!(matches!(a.terminal, AiTerminal::Completed));
@@ -572,7 +574,7 @@ mod tests {
             cancel,
             Arc::new(|_| {}),
             limited,
-            false,
+            None,
         )
         .await;
         assert!(matches!(
@@ -595,7 +597,7 @@ mod tests {
             CancellationToken::new(),
             Arc::new(|_| panic!("Rewrite raw text must not be emitted")),
             Arc::new(AtomicBool::new(false)),
-            true,
+            Some(MAX_REWRITE_BYTES),
         )
         .await;
         assert!(matches!(answer.terminal, AiTerminal::Completed));
@@ -618,7 +620,7 @@ mod tests {
             cancel,
             Arc::new(|_| panic!("Rewrite raw text must not be emitted")),
             Arc::new(AtomicBool::new(false)),
-            true,
+            Some(MAX_REWRITE_BYTES),
         )
         .await;
         assert!(matches!(answer.terminal, AiTerminal::Completed));
@@ -628,7 +630,7 @@ mod tests {
             CancellationToken::new(),
             Arc::new(|_| {}),
             Arc::new(AtomicBool::new(false)),
-            true,
+            Some(MAX_REWRITE_BYTES),
         )
         .await;
         assert!(matches!(failed.terminal, AiTerminal::Failed(_)));
