@@ -2,26 +2,8 @@
 use super::super::*;
 use crate::review::{ProposalReview, asset_tests::fixture};
 use brn_workflow::proposals::NoteChange;
-use gpui_kit::{
-    EntityInputHandler, TestSupportExt, VisualTestContext, component::WindowExt,
-    test::TestWindowExt,
-};
+use gpui_kit::{EntityInputHandler, VisualTestContext, component::WindowExt, test::TestWindowExt};
 use sha2::{Digest, Sha256};
-
-struct ReviewProbe(Entity<Desktop>);
-impl Render for ReviewProbe {
-    fn render(&mut self, _: &mut Window, cx: &mut Context<Self>) -> impl IntoElement {
-        self.0.update(cx, |desktop, cx| {
-            div()
-                .id("asset-review-test-pane")
-                .size_full()
-                .flex()
-                .flex_col()
-                .child(desktop.render_proposal_review(cx))
-                .test_support()
-        })
-    }
-}
 
 fn window(
     cx: &mut gpui_kit::TestAppContext,
@@ -55,6 +37,8 @@ fn window(
                 cx,
             );
             desktop.app_worker.take().unwrap().shutdown().unwrap();
+            desktop.open_doc = Some(DocRef::Proposal(record.draft.id));
+            desktop.centre_tab = CentreTab::Document;
             let ai = desktop.ai.as_mut().unwrap();
             ai.ready = true;
             ai.vault_bound = true;
@@ -64,8 +48,7 @@ fn window(
             desktop
         });
         *capture.borrow_mut() = Some(desktop.clone());
-        let probe = cx.new(|_| ReviewProbe(desktop));
-        Root::new(probe, window, cx)
+        desktop_root(desktop, window, cx)
     });
     let desktop = saved.borrow().clone().unwrap();
     (fixture, handle, desktop)
