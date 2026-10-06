@@ -13,13 +13,17 @@ Goal status confirmed2026-10-06: full frozen V1 goal **active**, without a token
   attempt1 passed four strict protected Mac/shared checks+Docs; overall red retains
   unchanged Windows22 blocks/both summaries. Normal merge preserved reviewed tree.
   Fresh merged default build,14 Store/1 Workflow tests+52 fixtures passed at clean
-  merged identity, atomic exit0 (00:27:54–00:29:17UTC). Main37394115918 attempt1 is
-  in progress; its terminal result and platform differences will be recorded.
+  merged identity, atomic exit0 (00:27:54–00:29:17UTC). Main37394115918 attempt1
+  passed required Mac/shared+Docs and extra Ubuntu UI. Overall red preserves four
+  platform failures: Windows22/22/14 match main66; Linux retains three assertions/
+  backtraces, with thread IDs,0.81→0.60s and terminal-line placement recorded.
 - **Current/next:** `codex/v1-original-copy-lifecycle`, based on this merge. Adapt
   preserved lifecycle7c4f668 through the existing private family: streamed mirror
   recovery, explicit bootstrap errors/no resurrection, exact replay and approved
-  Source+confirmation admission. Isolated filesystem adaptercef5cd5 is committed
-  with9 focused+6 capture tests passed; full integration/review remains pending.
+  Source+confirmation admission. Filesystem adapter30ebe41 and workflowabbaf788
+  are committed; workflow check/all-target Clippy pass. Client routesfcc41bc are
+  locally integrated, with focused qualification and preserved lifecycle tests
+  underway. Full independent review/shared/native qualification remains pending.
 - **Pending:** lifecycle/native controls, broader startup/backup cost, truthful
   retrieval facts, native/live/owner acceptance, real assets and trusted packaging.
 - **Environment:** Darwin arm64 Mac mini, Rust1.98.1 locked/offline, canonical owned

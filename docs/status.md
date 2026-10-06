@@ -49,7 +49,10 @@ fence. Complete independent review is clean; fresh shared1,412/0/8+52 and native
 48faf3f. PR67 merged normally at1ebff1a6f6099568c339e6b605bf819e1dbf6e6f after exact-head
 protected CI/Docs passed; Windows22 complete blocks/both summaries match PR66.
 Fresh merged14 Store/1 Workflow tests+52 fixtures passed at unchanged identity.
-Main37394115918 attempt1 remains in progress. Lifecycle effects/native removal and
+Main37394115918 attempt1 passed required Mac/shared+Docs and extra Ubuntu UI;
+overall red retains Windows22/22/14 matching main66 and the same three Linux
+assertions/backtraces, with IDs, duration and terminal-line placement recorded.
+Lifecycle effects/native removal and
 Stage8 remain pending; broader startup/backup cost is a separate correction. No semantic
 completeness, native/live/owner acceptance or full V1 delivery is claimed. The full
 V1 goal remains active. No owner original/private data was inspected or migrated.

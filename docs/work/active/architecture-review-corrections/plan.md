@@ -583,7 +583,14 @@ and full failed/skipped diagnostics are retained. Fresh actual protection and
 latest head were checked; normal merge preserved exact reviewed tree611dfcb1.
 Fresh merged default build,14 Store/1 Workflow tests and52 fixtures passed,
 atomic exit0 at unchanged clean1ebff1a identity00:27:54–00:29:17UTC. Exact main
-37394115918 attempt1 is in progress; no platform result is inferred from PR.
+37394115918 attempt1 passed all four strict protected Mac/shared checks, Docs and
+extra Ubuntu UI, with overall failure retained. Windows22/22/14 complete blocks
+and terminal summaries match main66. Linux retains the same three assertions/
+backtraces and block order; thread IDs change,0.81→0.60s, and the same terminal
+test-error line now occurs after the first backtrace before the remaining blocks.
+The complete-block comparator reports DIFFERENT because of that placement;
+raw differences and terminal order are preserved. Ubuntu/macOS workspace tests
+343s/436s and jobs414s/519s passed without reruns.
 
 Following slice acceptance, baseline1ebff1a:
 

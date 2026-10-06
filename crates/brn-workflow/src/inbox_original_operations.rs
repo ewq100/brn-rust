@@ -172,7 +172,13 @@ pub(crate) fn bootstrap(store: &mut WorkStore) -> Result<()> {
         }
         Err(error) => return Err(error),
     };
-    let names = files.names()?;
+    let names = match files.names() {
+        Ok(names) => names,
+        // With no checked original family, ordinary intake still owns its
+        // bounded namespace errors and reports them without fencing the vault.
+        Err(_) if !has_records => return Ok(()),
+        Err(error) => return Err(error),
+    };
     if has_records || names.iter().any(|n| original_operation_name(n)) {
         import_mirrors(store, &files, &names)?;
     }
@@ -575,3 +581,11 @@ impl App {
 #[cfg(all(test, target_os = "macos"))]
 #[path = "inbox_original_operations_tests.rs"]
 mod tests;
+
+#[cfg(all(test, target_os = "macos"))]
+#[path = "inbox_original_operations_extra_tests.rs"]
+mod extra_tests;
+
+#[cfg(all(test, target_os = "macos"))]
+#[path = "inbox_original_knowledge_cleanup_tests.rs"]
+mod knowledge_cleanup_tests;

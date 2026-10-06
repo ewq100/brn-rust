@@ -140,13 +140,14 @@ proposes a new Current note and the exact predecessor History transition togethe
 Existing exact review/edit/Rewrite/reject/approve commands apply; each authoritative
 change requires its own approval. Conflicts retain two exact evidence sides without
 choosing a winner; inspect them with `findings conflicts PATH` and use the existing
-finding closure commands for direct queue review. Original deletion and native
-analysis controls remain later slices. Originals stay retained and no
+finding closure commands for direct queue review. Native removal controls remain
+later work; the explicit owner cleanup commands below retain the original at an
+operation-owned endpoint. No analysis
 outcome establishes complete ingestion. The operation is an explicit provider call when new;
 no fallback, automatic retry or completeness/deletion authority is introduced.
 
 `inbox show` reports the complete metadata and either exact original text or an
-explicit missing/changed/unavailable result. `inbox list` reports chronological
+explicit removed-retained/missing/changed/unavailable result. `inbox list` reports chronological
 pages plus availability/issues. These commands never write vault Markdown,
 `index.sqlite`, provider state or credentials; incomplete or uncertain copies
 remain retained for inspection.
