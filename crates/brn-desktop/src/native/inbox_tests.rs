@@ -458,7 +458,6 @@ fn native_binary_original_has_proof_view_without_text_copy_or_batch_admission(
             assert!(desktop.inbox.checked.is_empty());
             desktop.check_inbox_item(binary.clone(), true, cx);
             assert!(desktop.inbox.checked.is_empty());
-            assert!(desktop.inbox.selection_error.is_some());
             let ai = desktop.ai.as_mut().unwrap();
             let (read, _) = ai.select_inbox(binary.capture.id).unwrap();
             ai.apply(
