@@ -62,6 +62,7 @@ impl CaptureInboxRequest {
 #[serde(rename_all = "snake_case")]
 pub enum InboxAvailability {
     Available,
+    RemovedRetained,
     Missing,
     Changed,
     Unavailable,
@@ -70,6 +71,7 @@ pub enum InboxAvailability {
 #[serde(tag = "state", rename_all = "snake_case", deny_unknown_fields)]
 pub enum InboxOriginal {
     Available { text: String },
+    RemovedRetained { operation_id: Uuid },
     Missing,
     Changed { reason: String },
     Unavailable { reason: String },
@@ -78,6 +80,7 @@ impl InboxOriginal {
     fn availability(&self) -> InboxAvailability {
         match self {
             Self::Available { .. } => InboxAvailability::Available,
+            Self::RemovedRetained { .. } => InboxAvailability::RemovedRetained,
             Self::Missing => InboxAvailability::Missing,
             Self::Changed { .. } => InboxAvailability::Changed,
             Self::Unavailable { .. } => InboxAvailability::Unavailable,
@@ -113,7 +116,8 @@ pub struct InboxInventory {
 }
 #[derive(Default)]
 pub(crate) struct InboxState {
-    files: Option<InboxFiles>,
+    pub(crate) files: Option<InboxFiles>,
+    removed: std::collections::HashMap<Uuid, crate::inbox_original_operations::RemovedOriginal>,
     issues: Vec<InboxIssue>,
     truncated: bool,
 }
@@ -145,6 +149,26 @@ impl InboxState {
                 reason: "owned Inbox originals are unavailable; inspect Inbox issues".into(),
             };
         };
+        if let Some(removed) = self.removed.get(&item.capture.id) {
+            return match files.retained_copy(item, removed.operation_id, &removed.namespace) {
+                Ok(()) => match files.original_occupied(item) {
+                    Ok(false) => InboxOriginal::RemovedRetained {
+                        operation_id: removed.operation_id,
+                    },
+                    Ok(true) => InboxOriginal::Changed {
+                        reason:
+                            "removed original endpoint is occupied; retained copy remains untouched"
+                                .into(),
+                    },
+                    Err(error) => InboxOriginal::Unavailable {
+                        reason: error.message,
+                    },
+                },
+                Err(error) => InboxOriginal::Unavailable {
+                    reason: error.message,
+                },
+            };
+        }
         match files.read(item) {
             Ok(Some(text)) => InboxOriginal::Available { text },
             Ok(None) => InboxOriginal::Missing,
@@ -204,8 +228,22 @@ pub(crate) fn restore_inbox_captures(store: &mut WorkStore) -> Result<InboxState
             return Ok(state);
         }
     };
-    let mut qualified = bound.is_some();
-    let mut known = std::collections::HashSet::new();
+    let operations = match crate::inbox_original_operations::restore_records(store, &files, &names)
+    {
+        Ok(operations) => operations,
+        Err(error) => {
+            state.issue(None, error.message);
+            // No ordinary capture recovery may resurrect an original while its
+            // checked operation family or mirror is damaged or ambiguous.
+            return Ok(state);
+        }
+    };
+    let mut qualified = bound.is_some() || !operations.heads.is_empty();
+    if bound.is_none() && qualified {
+        bind(store, files.root())?;
+    }
+    let mut known = operations.known;
+    state.removed = operations.removed;
     for name in &names {
         let Some(id) = receipt_id(name) else {
             continue;
@@ -221,7 +259,11 @@ pub(crate) fn restore_inbox_captures(store: &mut WorkStore) -> Result<InboxState
                     "Inbox mirror conflicts with the retained immutable capture",
                 ));
             }
-            files.recover(&item)?;
+            // A pending or settled original-operation head always fences stage
+            // installation. Missing ordinary bytes alone never undo removal.
+            if !operations.heads.contains_key(&id) {
+                files.recover(&item)?;
+            }
             store.restore_inbox(&item)?;
             known.insert(name.clone());
             known.insert(item.capture.copy_name());

@@ -64,6 +64,7 @@ impl App {
             validate_vault_separation(&data_dir, &root.canonicalize().map_err(|_| unavailable())?)?;
         }
         let (mut store, report) = WorkStore::open(&data_dir)?;
+        crate::inbox_original_operations::bootstrap(&mut store)?;
         let apply_records = crate::proposal_apply::restore_application_records(
             &mut store,
             config.vault_root.as_deref(),
