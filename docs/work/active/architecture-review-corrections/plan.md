@@ -711,3 +711,55 @@ Independent read-only delta review is clean; fresh format, strict all-target CLI
 Clippy and all10 Inbox CLI tests pass at code36a9dad. No warning suppression or
 unrelated platform fix was added. Latest-head applicable CI is still required;
 earlier passing local evidence applies only to unchanged relevant code/features.
+
+
+## R6 typed retrieval facts acceptance
+
+This bounded implementation starts from PR68 merge
+`a799c3369cad61117113de40d7b1d95dad589100` on `codex/v1-ai-note-facts`.
+Required `NoteFacts` in the existing AI result boundary report an optional canonical
+managed UUID, full saved-note SHA256 array, independent Source/History flags and
+explicit Unknown conflict knowledge. The existing checked conflict lookup adds
+Known retained open count bound to its original exact UUID/SourceVersion, retaining
+all fields, full evidence, count and cursor. No eager lookup, extra file I/O,
+cache, tool, dependency, datastore or authority path is introduced. Classification,
+provenance and even Known zero do not establish consistency, semantic truth or a
+winner; stale findings remain disclosed. Captured questions/replay, keyword-only
+labels, scope, pagination, limits, evidence epochs and exact approval stay intact.
+
+Focused acceptance covers mixed All/current/Source/History/archived Source,
+canonical optional identity, same complete hash before UTF-8 text cap, uninspected
+Unknown, checked positive counts independent of page size and checked zero,
+malformed/stale/ambiguous refusal, retained stale evidence and real synthetic Rig
+tool JSON on the existing routes. Instruction guards retain authority/capability
+rules. Lead reviewed and approved this bounded interface/population/guidance before
+qualification. Latest-main integration and complete independent/shared/native
+qualification remain pending; live semantic disclosure and owner acceptance are
+separate gates.
+
+Focused offline qualification on2026-10-06 02:17:33–02:23:23UTC used pinned1.98.1,
+locked dependencies, this checkout's existing exclusive target and a new physical
+synthetic fixture parent. Owned-file rustfmt and strict default-feature all-target
+Clippy for AI/Workflow/Desktop passed. Actual tests passed128 AI/3 scoped notes/
+5 existing read tools/1 captured Inbox instruction guard/10 Workflow conflicts,
+all0failures/0ignores. The restored single conflict witness separately passed1/0.
+No full workspace/native gate, provider call, model asset or owner interaction ran.
+
+Failures remain recorded: a missing formatter shell PATH (Pythonexit1, no Rust
+command launched), a Cargo invocation unable to find rustc (exit101, no compile),
+and initial AI127/1 (exit101). That new assertion incorrectly expected Serde's
+internally tagged unit Unknown to reject an attached count; the corrected assertion
+proves it remains Unknown rather than becoming Known zero. A wrong Workflow filter
+selected0tests, so it supplies no behavioral evidence. Actual sandboxed conflict
+runs failed10/10, then1/1 before new facts assertions; an initial diagnostic failed
+to compile because AppEvent lacks Debug (exit101). Corrected diagnostic revealed
+macOS coordination refusal at Source creation (exit101). The diagnostic was restored
+byte-for-byte; the exact restored witness and full10 conflict tests then passed
+outside that sandbox without weakening any fixture/product check. Nonfatal toolchain
+rust-objcopy/libLLVM warnings from the direct-bin invocation remain in the logs.
+Raw commands/exits/times and per-file hashes are retained in
+`/private/tmp/brn-r6-focused-nye9eytp/record.json`; these paragraph counts are the
+durable summary. The qualified11-file Rust-only binary patch against the baseline
+has SHA256 `6cf306fbd072286a089836ec2087961e6f320ba5b731ff61e32b4f59a822f06d`;
+subsequent edits here affect only this evidence and crate documentation. Main69 integration, reviewed final diff and fresh relevant gates
+are lead-owned next steps; this branch remains based on PR68 with task-owned changes.

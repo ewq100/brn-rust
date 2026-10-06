@@ -31,8 +31,9 @@ mod simple_worker_tests;
 pub mod vault;
 
 pub use brn_ai::{
-    AccountStatus, AiError, AiErrorKind, Auth, HistoryPair, LoginPrompt, ModelOption, NoteEntry,
-    NotePage, Passage, Provider, ReadTools, ReasoningEffort, Selection, ToolNote, ToolSearch,
+    AccountStatus, AiError, AiErrorKind, Auth, ConflictKnowledge, HistoryPair, LoginPrompt,
+    ModelOption, NoteEntry, NoteFacts, NotePage, Passage, Provider, ReadTools, ReasoningEffort,
+    Selection, ToolNote, ToolSearch,
 };
 pub use brn_store::work::{MAX_NOTE_BYTES, WorkConversation, WorkTurn, WorkTurnStatus};
 pub use brn_store::workspace_mode::WorkspaceMode;

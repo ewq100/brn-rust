@@ -169,6 +169,14 @@ selects read-only evidence, never approval or mutation authority. The pinned
 Copilot Responses strict schema makes every property required on the wire;
 Rust omission compatibility remains supported and verified separately.
 
+Each passage, read and list row requires `NoteFacts`: optional canonical managed
+UUID string, complete saved-note SHA256 as the existing 32-byte JSON array,
+independent `source`/`history` flags and tagged `conflicts: {status: "unknown"}`.
+Workflow derives these from the same complete checked bytes before any text cap;
+requested scope does not substitute for saved classification. Source and History
+can overlap. A managed UUID is not a uniqueness or approval proof; classification
+and provenance are evidence, never semantic truth. No eager conflict lookup occurs.
+
 - Search queries are 1–512 **UTF-8 bytes**, limits are integers in 1–10 and
   returned hits cannot exceed the requested limit. `ToolSearch.keyword_only`
   reaches the model unchanged.
@@ -195,6 +203,11 @@ Rust omission compatibility remains supported and verified separately.
   read backends safely refuse. Ask instructions require looking up conflicts for
   relevant saved notes before claiming current facts, disclosing unresolved/stale
   evidence and choosing no winner. Incomplete pages/errors never mean no conflict.
+  The same facts DTO adds `conflicts: {status: "known", open_count: N}`, bound to
+  the existing exact managed `note_id` and full `SourceVersion`. The retained open
+  count covers all pages, including findings with stale evidence; original fields,
+  count, cursor and full inspections remain. Unknown is never zero, and even known
+  zero cannot establish consistency, semantic truth or a winner.
 - Argument schemas reject extra properties; Rust deserialization and validation
   also reject invalid arguments when the model ignores the schema. Safe failed
   tool results may continue the turn; they never authorize a retry or fallback.
