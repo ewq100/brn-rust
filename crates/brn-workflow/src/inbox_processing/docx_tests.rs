@@ -299,6 +299,7 @@ fn docx_forged_self_consistent_receipt_and_source_body_are_not_fresh_authority()
         .is_err()
     );
     let binding = InboxSourceBinding {
+        visual: None,
         batch_id: process.id,
         index: 0,
         original: item,

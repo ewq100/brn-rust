@@ -195,6 +195,7 @@ pub(super) fn read(conn: &Connection, item_id: Uuid) -> Result<InboxReviewManife
         if provenance.item_id == item_id {
             let capture = &manifest.original.capture;
             let expected = inbox_source::InboxSourceProvenance {
+                visual: provenance.visual.clone(),
                 item_id,
                 kind: capture.kind,
                 title: capture.title.clone(),

@@ -668,6 +668,7 @@ fn valid_inbox_bindings_do_not_authorize_asset_shapes() {
         .unwrap();
     let (format, text) = convert_original(InboxKind::Text, "x", &AtomicBool::new(false)).unwrap();
     let source = InboxSourceBinding {
+        visual: None,
         batch_id: Uuid::new_v4(),
         index: 0,
         original,

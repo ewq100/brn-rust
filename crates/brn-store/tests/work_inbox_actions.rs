@@ -52,6 +52,7 @@ fn original() -> InboxCapture {
 }
 fn capture() -> InboxActionCapture {
     let binding = InboxSourceBinding {
+        visual: None,
         batch_id: Uuid::new_v4(),
         index: 0,
         original: InboxItem {
@@ -1456,6 +1457,7 @@ fn knowledge_create_refuses_mixed_members_or_changed_typed_binding_before_effect
             }
             5 => {
                 bad.inbox_source = Some(Box::new(InboxSourceBinding {
+                    visual: None,
                     batch_id: Uuid::new_v4(),
                     index: 0,
                     original: InboxItem {
@@ -2133,6 +2135,7 @@ fn review_capture(store: &mut WorkStore) -> (InboxItem, InboxActionCapture) {
     let original = store.capture_inbox(&original()).unwrap();
     let mut capture = capture();
     let binding = InboxSourceBinding {
+        visual: None,
         batch_id: Uuid::new_v4(),
         index: 0,
         original: original.clone(),

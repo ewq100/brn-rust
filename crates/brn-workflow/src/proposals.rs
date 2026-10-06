@@ -192,10 +192,22 @@ impl DraftRequest {
             binding.validate_text(text)?;
         }
         if let Some(binding) = &self.inbox_source {
-            let [DraftNoteChange::Create { text, .. }] = self.changes.as_slice() else {
-                return Err(invalid(
-                    "Inbox source proposal requires one source Create member",
-                ));
+            let (path, text, asset) = match self.changes.as_slice() {
+                [DraftNoteChange::Create { path, text }] if binding.visual.is_none() => {
+                    (path, text, None)
+                }
+                [
+                    DraftNoteChange::Create { path, text },
+                    DraftNoteChange::CreateAsset {
+                        path: asset_path,
+                        bytes,
+                    },
+                ] if binding.visual.is_some() => (path, text, Some((asset_path, bytes))),
+                _ => {
+                    return Err(invalid(
+                        "Inbox Source needs its exact Create and optional bound PNG Create",
+                    ));
+                }
             };
             if !self.sources.is_empty() || !self.action_changes.is_empty() {
                 return Err(invalid(
@@ -203,6 +215,9 @@ impl DraftRequest {
                 ));
             }
             binding.validate_markdown(text)?;
+            if let Some((asset_path, bytes)) = asset {
+                binding.validate_asset(path, asset_path, bytes)?;
+            }
         }
         if self.id.is_nil()
             || self.group_id.is_some_and(|id| id.is_nil())

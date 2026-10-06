@@ -42,6 +42,7 @@ fn quote(text: &str, wording: &str) -> FindingQuote {
 fn capture() -> InboxActionCapture {
     let body = "```text\nBlue õ 🦀\n```\n";
     let binding = InboxSourceBinding {
+        visual: None,
         batch_id: Uuid::new_v4(),
         index: 0,
         original: InboxItem {

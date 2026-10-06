@@ -616,6 +616,7 @@ fn conflict_pages_keep_full_evidence_observations_and_query_bound_cursor_after_c
     let current_id = Uuid::new_v4();
     let analysis = Uuid::new_v4();
     let binding = InboxSourceBinding {
+        visual: None,
         batch_id: Uuid::new_v4(),
         index: 0,
         original: InboxItem {

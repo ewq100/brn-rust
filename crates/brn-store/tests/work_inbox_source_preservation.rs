@@ -73,6 +73,7 @@ fn witness(store: &mut WorkStore, kind: InboxKind, text: &str) -> Witness {
         .unwrap();
     let (format, converted) = convert_original(kind, text, &AtomicBool::new(false)).unwrap();
     let binding = InboxSourceBinding {
+        visual: None,
         original: original.clone(),
         batch_id: Uuid::new_v4(),
         index: 0,

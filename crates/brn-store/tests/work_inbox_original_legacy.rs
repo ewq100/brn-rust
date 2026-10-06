@@ -74,6 +74,7 @@ fn evidence(store: &mut WorkStore, analysis: bool) -> InboxQualifiedRemovalEvide
         )
         .unwrap();
     let binding = InboxSourceBinding {
+        visual: None,
         batch_id: process.id,
         index: 0,
         original: original.clone(),

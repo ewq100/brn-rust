@@ -481,17 +481,12 @@ fn validate_draft(draft: &ProposalDraft) -> Result<usize> {
         binding.validate_text(text)?;
     }
     if let Some(binding) = &draft.inbox_source {
-        let [NoteChange::Create { text, .. }] = draft.changes.as_slice() else {
-            return Err(invalid(
-                "Inbox source proposal requires one source Create member",
-            ));
-        };
         if !draft.sources.is_empty() || !draft.action_changes.is_empty() {
             return Err(invalid(
                 "Inbox source conversion is separate from semantic consequences",
             ));
         }
-        binding.validate_markdown(text)?;
+        binding.validate_members(&draft.changes)?;
     }
     nonnil(draft.id)?;
     for id in [draft.group_id, draft.session_id].into_iter().flatten() {

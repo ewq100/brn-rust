@@ -75,6 +75,7 @@ impl Fixture {
         // Portable provenance describes synthetic input. Only the saved Source
         // is filesystem authority for this downstream knowledge qualification.
         let binding = InboxSourceBinding {
+            visual: None,
             batch_id: Uuid::new_v4(),
             index: 0,
             original: InboxItem {

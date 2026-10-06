@@ -126,6 +126,7 @@ fn binary_queue_admits_but_text_conversion_and_provenance_still_refuse() {
         Err(InboxProcessOutcome::Cancelled)
     );
     let binding = InboxSourceBinding {
+        visual: None,
         original: item,
         batch_id: Uuid::new_v4(),
         index: 0,

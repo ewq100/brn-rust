@@ -65,6 +65,7 @@ fn batch(original: InboxItem, result: InboxProcessOutcome) -> InboxProcessBatch 
 }
 fn binding(original: InboxItem, format: InboxConversionFormat, body: &str) -> InboxSourceBinding {
     InboxSourceBinding {
+        visual: None,
         batch_id: Uuid::from_u128(2),
         index: 0,
         original,
