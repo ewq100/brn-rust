@@ -109,6 +109,8 @@ fn neutral_paint(node: Node<'_, '_>) -> Result<()> {
     let name = word(node)?;
     let allowed: &[&str] = if name == "shd" {
         &["val", "color", "fill"]
+    } else if name == "u" {
+        &["val", "color"]
     } else {
         &["val"]
     };
@@ -120,6 +122,8 @@ fn neutral_paint(node: Node<'_, '_>) -> Result<()> {
     match name {
         "color" if val(node)? == "auto" => {}
         "highlight" if val(node)? == "none" => {}
+        "u" if matches!(attr(node, "val").unwrap_or("single"), "single" | "none")
+            && attr(node, "color").is_none_or(|value| value == "auto") => {}
         "shd"
             if matches!(val(node)?, "nil" | "clear")
                 && ["color", "fill"]
@@ -232,6 +236,7 @@ fn run_properties(node: Node<'_, '_>, mut emphasis: Emphasis, toggle: bool) -> R
                 emphasis.italic = if toggle { emphasis.italic ^ v } else { v };
             }
             "u" => {
+                neutral_paint(n)?;
                 emphasis.underline = match attr(n, "val").unwrap_or("single") {
                     "none" => false,
                     "single" => true,
@@ -824,7 +829,21 @@ impl<'a, 'i> Numbering<'a, 'i> {
             return Err(Failure::Unsupported);
         }
         *slot = Some(current);
-        let indent = "    ".repeat(index as usize);
+        let active = *counters;
+        let mut indentation = 0usize;
+        for ancestor in 0..index {
+            let parent = self.level(id, ancestor)?;
+            let count = active[ancestor as usize].ok_or(Failure::Unsupported)?;
+            let width = if parent.decimal {
+                count.to_string().len() + 2
+            } else {
+                2
+            };
+            indentation = indentation
+                .checked_add(width.max(4))
+                .ok_or(Failure::Limit)?;
+        }
+        let indent = " ".repeat(indentation);
         // Supported glyphs are ordinary unordered-list markers, not literal body wording.
         Ok(if level.decimal {
             format!("{indent}{current}{} ", level.delimiter)
@@ -1676,6 +1695,94 @@ mod tests {
         assert_eq!(
             convert(empty, None, None).unwrap(),
             "[Link](<https://example.invalid/a%20b?q=%C3%B5&amp;x=%3Cvalue%3E>)\n"
+        );
+    }
+
+    #[test]
+    fn underline_paint_is_checked_directly_in_styles_and_defaults() {
+        for paint in [
+            r#"<w:u w:val="single" w:color="FF0000"/>"#,
+            r#"<w:u w:val="single" w:themeColor="accent1"/>"#,
+            r#"<w:u w:val="single" w:themeTint="80"/>"#,
+            r#"<w:u w:val="single" w:themeShade="80"/>"#,
+        ] {
+            let direct = format!("<w:p><w:r><w:rPr>{paint}</w:rPr><w:t>Meaning</w:t></w:r></w:p>");
+            assert!(matches!(
+                convert(&direct, None, None),
+                Err(Failure::Unsupported)
+            ));
+            let inherited = format!(
+                r#"<w:styles xmlns:w="{W}"><w:style w:type="paragraph" w:styleId="base"><w:rPr>{paint}</w:rPr></w:style><w:style w:type="paragraph" w:styleId="derived" w:default="1"><w:basedOn w:val="base"/></w:style></w:styles>"#
+            );
+            assert!(matches!(
+                convert(&p("Inherited"), Some(&inherited), None),
+                Err(Failure::Unsupported)
+            ));
+            let defaults = format!(
+                r#"<w:styles xmlns:w="{W}"><w:docDefaults><w:rPrDefault><w:rPr>{paint}</w:rPr></w:rPrDefault></w:docDefaults></w:styles>"#
+            );
+            assert!(matches!(
+                convert(&p("Default"), Some(&defaults), None),
+                Err(Failure::Unsupported)
+            ));
+        }
+        for neutral in [r#"<w:u/>"#, r#"<w:u w:val="single" w:color="auto"/>"#] {
+            let body = format!("<w:p><w:r><w:rPr>{neutral}</w:rPr><w:t>Neutral</w:t></w:r></w:p>");
+            assert_eq!(convert(&body, None, None).unwrap(), "<u>Neutral</u>\n");
+            let defaults = format!(
+                r#"<w:styles xmlns:w="{W}"><w:docDefaults><w:rPrDefault><w:rPr>{neutral}</w:rPr></w:rPrDefault></w:docDefaults></w:styles>"#
+            );
+            assert_eq!(
+                convert(&p("Default"), Some(&defaults), None).unwrap(),
+                "<u>Default</u>\n"
+            );
+        }
+    }
+    #[test]
+    fn wide_parent_and_deeper_decimal_markers_keep_nested_markdown_lists() {
+        let numbering = format!(
+            r#"<w:numbering xmlns:w="{W}"><w:abstractNum w:abstractNumId="0"><w:lvl w:ilvl="0"><w:start w:val="100"/><w:numFmt w:val="decimal"/><w:lvlText w:val="%1."/></w:lvl><w:lvl w:ilvl="1"><w:start w:val="1000"/><w:numFmt w:val="decimal"/><w:lvlText w:val="%2)"/></w:lvl><w:lvl w:ilvl="2"><w:start w:val="1"/><w:numFmt w:val="bullet"/><w:lvlText w:val="•"/></w:lvl></w:abstractNum><w:num w:numId="1"><w:abstractNumId w:val="0"/></w:num></w:numbering>"#
+        );
+        let body = numbered(1, 0, "Wide parent")
+            + &numbered(1, 1, "Wide child")
+            + &numbered(1, 2, "Grandchild")
+            + &numbered(1, 1, "Next child")
+            + &numbered(1, 2, "Next grandchild");
+        assert_eq!(
+            convert(&body, None, Some(&numbering)).unwrap(),
+            "100. Wide parent\n\n     1000) Wide child\n\n           - Grandchild\n\n     1001) Next child\n\n           - Next grandchild\n"
+        );
+    }
+    #[test]
+    fn decimal_counter_boundary_changes_child_indent_without_changing_bullets() {
+        let numbering = numbering().replace(
+            r#"<w:startOverride w:val="4"/>"#,
+            r#"<w:startOverride w:val="99"/>"#,
+        );
+        let body = numbered(1, 0, "Before boundary")
+            + &numbered(1, 1, "Child")
+            + &numbered(1, 0, "After boundary")
+            + &numbered(1, 1, "Child");
+        assert_eq!(
+            convert(&body, None, Some(&numbering)).unwrap(),
+            "99. Before boundary\n\n    1. Child\n\n100. After boundary\n\n     1. Child\n"
+        );
+
+        let bullets = numbering.replace(
+            "<w:numFmt w:val=\"decimal\"/><w:lvlText w:val=\"%1.\"/>",
+            "<w:numFmt w:val=\"bullet\"/><w:lvlText w:val=\"•\"/>",
+        );
+        assert_eq!(
+            convert(
+                &(numbered(1, 0, "Bullet")
+                    + &numbered(1, 1, "Nested")
+                    + &numbered(1, 0, "Bullet again")
+                    + &numbered(1, 1, "Nested again")),
+                None,
+                Some(&bullets)
+            )
+            .unwrap(),
+            "- Bullet\n\n    1. Nested\n\n- Bullet again\n\n    1. Nested again\n"
         );
     }
     #[test]
