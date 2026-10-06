@@ -42,8 +42,12 @@ mod inbox_analysis_state;
 #[cfg(all(test, target_os = "macos"))]
 #[path = "inbox_analysis_state_tests.rs"]
 pub(crate) mod inbox_analysis_state_tests;
+#[path = "inbox_copy_state.rs"]
+mod inbox_copy_state;
 #[path = "inbox_state.rs"]
 mod inbox_state;
+#[cfg(feature = "native-ui")]
+pub use inbox_copy_state::{InboxCopyConfirmation, InboxCopyRequest};
 #[cfg(all(test, target_os = "macos"))]
 #[path = "inbox_state_tests.rs"]
 mod inbox_state_tests;
@@ -142,6 +146,7 @@ pub struct AccountRow {
 }
 #[derive(Clone)]
 pub enum Pending {
+    InboxCopy(Box<inbox_copy_state::CopyPending>),
     InboxAnalysis(inbox_analysis_state::AnalysisPending),
     Inbox(Box<inbox_state::InboxPending>),
     Dashboard(dashboard_state::DashboardQuery),
@@ -328,6 +333,7 @@ pub struct AiState {
     pub link_preparation: link_preparation_state::LinkPreparation,
     pub finding_queue: finding_state::FindingQueue,
     pub inbox_queue: inbox_state::InboxQueue,
+    pub inbox_copy: inbox_copy_state::InboxCopyView,
     pub inbox_analysis: inbox_analysis_state::InboxAnalysisView,
     pub dashboard: dashboard_state::DashboardView,
     pub last_draft_request: Option<brn_workflow::proposals::DraftRequest>,
@@ -714,18 +720,19 @@ fn unfinalized_turn(request: &ActiveRequest, partial: String) -> WorkTurn {
 }
 impl AiState {
     pub fn application_busy(&self) -> bool {
-        self.pending.values().any(|pending| {
-            matches!(
-                pending,
-                Pending::ActionComplete(_)
-                    | Pending::Approval { .. }
-                    | Pending::ApplyReconcile { .. }
-                    | Pending::AppliedReview { .. }
-                    | Pending::Undo { .. }
-                    | Pending::Repair { .. }
-                    | Pending::DraftCreate { .. }
-            )
-        })
+        self.inbox_copy_pending()
+            || self.pending.values().any(|pending| {
+                matches!(
+                    pending,
+                    Pending::ActionComplete(_)
+                        | Pending::Approval { .. }
+                        | Pending::ApplyReconcile { .. }
+                        | Pending::AppliedReview { .. }
+                        | Pending::Undo { .. }
+                        | Pending::Repair { .. }
+                        | Pending::DraftCreate { .. }
+                )
+            })
     }
     pub fn begin_draft(&mut self, turn: Option<Uuid>) -> bool {
         if !self.ready
@@ -1874,6 +1881,9 @@ impl AiState {
             return commands;
         }
         if let Some(commands) = self.received_findings(id, &event) {
+            return commands;
+        }
+        if let Some(commands) = self.received_inbox_copy(id, &event) {
             return commands;
         }
         if self.apply_inbox_event(id, &event) {

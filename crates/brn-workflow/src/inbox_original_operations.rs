@@ -9,15 +9,14 @@ use crate::{
 };
 pub use brn_store::work::inbox_original_operations::legacy::ArchivedInboxAnalysis;
 pub use brn_store::work::inbox_original_operations::{
-    InboxOriginalOperation, InboxOriginalOperationSummary, InboxOriginalParent,
-    InboxOriginalRemovalRecord, InboxOriginalRestoreRecord, InboxRemovalConfirmation,
-    RemoveInboxOriginalRequest, RestoreInboxOriginalRequest,
+    InboxOriginalOperation, InboxOriginalOperationKind, InboxOriginalOperationSummary,
+    InboxOriginalParent, InboxOriginalRemovalRecord, InboxOriginalRestoreRecord,
+    InboxRemovalConfirmation, MAX_ORIGINAL_OPERATIONS, RemoveInboxOriginalRequest,
+    RestoreInboxOriginalRequest,
 };
 use brn_store::{
     WorkStore,
-    work::inbox_original_operations::{
-        InboxOriginalNamespace, InboxOriginalOperationKind, InboxQualifiedRemovalEvidence,
-    },
+    work::inbox_original_operations::{InboxOriginalNamespace, InboxQualifiedRemovalEvidence},
 };
 use std::collections::{BTreeMap, HashMap, HashSet};
 use uuid::Uuid;

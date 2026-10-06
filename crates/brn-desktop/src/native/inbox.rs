@@ -18,6 +18,7 @@ pub(super) struct InboxPane {
     pub(super) kind: InboxKind,
     pub(super) original: Entity<EditorState>,
     pub(super) preview: Entity<EditorState>,
+    pub(super) copy_source: Entity<EditorState>,
     pub(super) source_title: Entity<TextareaState>,
     pub(super) source_path: Entity<TextareaState>,
     pub(super) analysis_source_path: Entity<TextareaState>,
@@ -44,6 +45,7 @@ impl InboxPane {
             kind: InboxKind::Text,
             original: cx.new(|cx| EditorState::new(window, cx).default_value("")),
             preview: cx.new(|cx| EditorState::new(window, cx).default_value("")),
+            copy_source: cx.new(|cx| EditorState::new(window, cx).default_value("")),
             source_title: cx.new(|cx| {
                 TextareaState::new(window, cx)
                     .placeholder("Source proposal title")
@@ -155,6 +157,7 @@ impl Desktop {
                 .update(cx, |editor, cx| editor.set_value(preview, window, cx));
         }
         self.inbox.preview_snapshot = queue.preview.clone();
+        self.sync_inbox_copy_widgets(window, cx);
         self.sync_inbox_analysis_widgets(window, cx);
     }
     pub(super) fn inbox_blocked(&self) -> bool {
@@ -592,6 +595,7 @@ impl Desktop {
                 }
             }
         }
+        content = content.child(self.render_inbox_copy(cx));
         if let Some(batch) = &queue.batch {
             content = content.child(format!(
                 "Batch {} · {} remaining conversions",

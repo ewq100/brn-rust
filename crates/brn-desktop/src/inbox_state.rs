@@ -13,7 +13,7 @@ use brn_workflow::{
 };
 use uuid::Uuid;
 
-#[derive(Clone)]
+#[derive(Clone, PartialEq, Eq)]
 pub struct InboxViewCapture {
     view: u64,
     page: u64,
@@ -84,12 +84,14 @@ impl AiState {
             return None;
         }
         self.inbox_queue.visible = true;
+        self.invalidate_inbox_copy();
         self.open_analysis_view();
         self.inbox_queue.view = self.inbox_queue.view.wrapping_add(1);
         self.refresh_inbox()
     }
     pub fn close_inbox(&mut self) {
         self.inbox_queue.visible = false;
+        self.invalidate_inbox_copy();
         self.close_analysis_view();
         self.inbox_queue.view = self.inbox_queue.view.wrapping_add(1);
     }
@@ -104,6 +106,7 @@ impl AiState {
         if !self.ready || !self.inbox_queue.visible {
             return None;
         }
+        self.invalidate_inbox_copy();
         let queue = &mut self.inbox_queue;
         queue.page_generation = queue.page_generation.wrapping_add(1);
         queue.selection = queue.selection.wrapping_add(1);
@@ -137,6 +140,7 @@ impl AiState {
             return None;
         }
         let expected = self.known_inbox_item(id).cloned();
+        self.invalidate_inbox_copy();
         let queue = &mut self.inbox_queue;
         queue.selection = queue.selection.wrapping_add(1);
         queue.selected_id = Some(id);
@@ -343,7 +347,7 @@ impl AiState {
         self.inbox_queue.source_error = None;
         true
     }
-    fn inbox_view_capture(&self) -> InboxViewCapture {
+    pub(super) fn inbox_view_capture(&self) -> InboxViewCapture {
         let queue = &self.inbox_queue;
         InboxViewCapture {
             view: queue.view,
@@ -351,7 +355,7 @@ impl AiState {
             selection: queue.selection,
         }
     }
-    fn inbox_view_current(&self, capture: &InboxViewCapture) -> bool {
+    pub(super) fn inbox_view_current(&self, capture: &InboxViewCapture) -> bool {
         let queue = &self.inbox_queue;
         self.inbox_page_current(capture) && queue.selection == capture.selection
     }

@@ -10,8 +10,9 @@ consequence qualification below are historical implementation evidence, not the
 current product rule. No automatic removal or permanent purge is authorized.
 
 The immutable lifecycle review snapshot is `7c4f668de467721f728f242c8fac8d14606a6e44`;
-its merge, native removal controls and Stage8 originals are held for the
-[accepted review corrections](../architecture-review-corrections/plan.md).
+it remains unchanged/unmerged. Corrected workflow/CLI lifecycle is integrated in
+PR68; native controls are under qualification, with remaining
+[accepted review corrections](../architecture-review-corrections/plan.md) tracked before release.
 Additive WorkStore tables are local implementation details within the frozen
 architecture; retaining V14/no new table is not a requirement. Preserve existing
 recovery proofs while correcting the cost/record shape. New semantic behavior
@@ -19,12 +20,37 @@ follows the [typed authority boundary](../../../architecture/overview.md#semanti
 
 ## Current lifecycle adaptation
 
-The current adaptation is `codex/v1-original-copy-lifecycle`, based on qualified
+The workflow/CLI adaptation merged in PR68 at
+a799c3369cad61117113de40d7b1d95dad589100, after qualified
 PR67 merge1ebff1a6f6099568c339e6b605bf819e1dbf6e6f. It reuses the private endpoint/
 exclusive-move protocol with lean format2 certificates, preserved format1 readers,
 streamed recovery and Source+confirmation admission. Full qualification/integration
 is tracked in the [correction plan](../architecture-review-corrections/plan.md).
 Native controls and owner acceptance remain pending.
+
+## Native copy controls acceptance
+
+Native slice baseline: lifecycle PR68 merge
+`a799c3369cad61117113de40d7b1d95dad589100`, reviewed tree
+`6c7aee29c32368c690b50e27ae813e6ce5f213c5`.
+Implementation continues on `codex/v1-inbox-copy-controls` in an isolated checkout.
+
+- Inspect selected original, complete approved preserving Source and causal
+  operation history through AppWorker. Reads/copy/cancel never admit effects.
+- An immutable modal binds item/view, preview and prior Restore or exact retained
+  removal. Only explicit confirmation submits Remove/Restore; late/forged replies
+  cannot acknowledge another request or replace newer selection. Preserve local
+  capture typing, prepared drafts and semantic review; disposition stays separate.
+- Retain exact UUID/request on delivery failure and expose checked new-format pending intents
+  after restart for explicit same-request retry. Workflow still checks evidence,
+  causal head, retained bytes, namespace and vacant destination.
+  Historical legacy records remain inspectable; recovery can settle already-performed
+  moves, but retry of a pending legacy intent is unsupported.
+- Real worker tests cover confirmation/restart/restoration, stale proof and retry;
+  shipping-root widget tests cover full read-only proof/copy, modal background
+  blocking/cancel and minimum480×480 reachability. Qualify relevant shared/native
+  lanes, obtain independent review and exact-head CI before normal integration.
+  Unlocked native/live/model/owner acceptance remains separately pending.
 
 Owner scenario for this bounded CLI slice: use disposable synthetic data; capture
 text, convert it and approve its exact Source. Inspect `inbox removal-preview`,
