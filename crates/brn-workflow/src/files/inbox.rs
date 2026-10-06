@@ -563,6 +563,19 @@ mod platform {
             }
             Ok(Some(self.exact_bytes(item, &name)?.fingerprint))
         }
+        /// Complete fresh bytes remain inside Workflow conversion authority.
+        pub(crate) fn read_binary_bytes(&self, item: &InboxItem) -> Result<Option<Vec<u8>>> {
+            self.validate_item(item)?;
+            if item.capture.kind != InboxKind::Binary {
+                return Err(unavailable("Binary Inbox bytes require a binary capture"));
+            }
+            self.validate()?;
+            let name = item.capture.copy_name();
+            if self.absent(&name)? {
+                return Ok(None);
+            }
+            Ok(Some(self.exact_bytes(item, &name)?.bytes))
+        }
         /// Publish immutable proof before any installation. Unknown effects are
         /// preserved; equal bytes never substitute for the captured file identity.
         pub(crate) fn publish(&self, item: &InboxItem) -> Result<()> {
@@ -799,6 +812,9 @@ impl InboxFiles {
         &self,
         _: &InboxItem,
     ) -> Result<Option<brn_store::files::FileFingerprint>> {
+        Err(unavailable("Inbox copy reads require macOS"))
+    }
+    pub(crate) fn read_binary_bytes(&self, _: &InboxItem) -> Result<Option<Vec<u8>>> {
         Err(unavailable("Inbox copy reads require macOS"))
     }
     pub(crate) fn mirror(&self, _: Uuid) -> Result<InboxItem> {

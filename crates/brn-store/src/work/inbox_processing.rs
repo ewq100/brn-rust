@@ -35,9 +35,6 @@ impl ProcessInboxRequest {
         let mut ids = std::collections::HashSet::new();
         for item in &self.items {
             item.validate()?;
-            if item.capture.kind == super::inbox::InboxKind::Binary {
-                return Err(invalid("Binary Inbox conversion is not supported"));
-            }
             if !ids.insert(item.capture.id) {
                 return Err(invalid("Inbox processing contains a duplicate item"));
             }
@@ -51,6 +48,7 @@ impl ProcessInboxRequest {
 pub enum InboxConversionFormat {
     VerbatimMarkdownV1,
     LiteralTextV1,
+    DocxTextV1,
 }
 
 #[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
@@ -119,15 +117,24 @@ impl InboxProcessBatch {
                     byte_len,
                     sha256,
                 } => {
-                    let exact_format = if item.capture.kind == super::inbox::InboxKind::Markdown {
-                        *format == InboxConversionFormat::VerbatimMarkdownV1
-                            && *byte_len == item.capture.copy.byte_len
-                            && *sha256 == item.capture.copy.sha256
-                    } else {
-                        *format == InboxConversionFormat::LiteralTextV1
-                            && *byte_len >= item.capture.copy.byte_len + 12
-                            && (item.capture.copy.byte_len != 0
-                                || (*byte_len == 13 && *sha256 == hash(b"```text\n\n```\n")))
+                    let exact_format = match item.capture.kind {
+                        super::inbox::InboxKind::Markdown => {
+                            *format == InboxConversionFormat::VerbatimMarkdownV1
+                                && *byte_len == item.capture.copy.byte_len
+                                && *sha256 == item.capture.copy.sha256
+                        }
+                        super::inbox::InboxKind::Binary => {
+                            *format == InboxConversionFormat::DocxTextV1
+                                && (22..=super::inbox::MAX_INBOX_BINARY_BYTES as u64)
+                                    .contains(&item.capture.copy.byte_len)
+                                && (*byte_len != 0 || *sha256 == hash(&[]))
+                        }
+                        _ => {
+                            *format == InboxConversionFormat::LiteralTextV1
+                                && *byte_len >= item.capture.copy.byte_len + 12
+                                && (item.capture.copy.byte_len != 0
+                                    || (*byte_len == 13 && *sha256 == hash(b"```text\n\n```\n")))
+                        }
                     };
                     exact_format
                         && *byte_len <= MAX_NOTE_BYTES as u64
@@ -141,6 +148,10 @@ impl InboxProcessBatch {
                             | "original_changed"
                             | "original_unavailable"
                             | "candidate_too_large"
+                            | "binary_unsupported"
+                            | "docx_invalid"
+                            | "docx_unsupported"
+                            | "docx_limit"
                     ) && entry.started_at_ms.is_some()
                         && entry.finished_at_ms.is_some()
                 }

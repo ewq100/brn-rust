@@ -467,8 +467,14 @@ through AppWorker. The fixed UUID.txt name for these four text kinds is independ
 of labels. Stage8 adds Binary metadata with a separate 16 MiB bound and UUID.bin;
 the four text bounds remain 1 MiB. Empty binary bytes are valid only with the empty
 digest. Existing canonical text JSON, SQL schema and receipt hashes are unchanged.
-No binary payload enters SQLite. Binary process requests/results, Source bindings/
-provenance/preservation and new/legacy Remove/Restore records explicitly refuse.
+No original binary payload enters SQLite. Binary process requests can retain
+`docx_text_v1` receipts; Source bindings/provenance require that exact kind/format
+pair and complete converted-body proof. The pure
+[DOCX converter](src/work/inbox_source/docx.rs) accepts complete supplied bytes
+and performs no filesystem, catalog or provider operation. Fresh observation and
+approval authority remain in Workflow. Other binary conversions are refused.
+Binary Source preservation and new/legacy Remove/Restore records still refuse;
+converted text never qualifies meaningful Office cleanup.
 
 Exact creation replay returns original metadata and received time; another payload
 under that UUID refuses. Explicitly separate copies retain separate identities

@@ -171,6 +171,16 @@ mod files {
             let read = app.inbox_item(r.id).unwrap();
             read.validate_receipt().unwrap();
             assert_eq!(read.original, proof(&r));
+            assert_eq!(
+                app.inbox
+                    .files
+                    .as_ref()
+                    .unwrap()
+                    .read_binary_bytes(&item)
+                    .unwrap()
+                    .as_deref(),
+                Some(r.bytes.as_slice())
+            );
             assert_eq!(app.capture_binary_inbox(&r).unwrap(), item);
             assert_eq!(path.metadata().unwrap().ino(), before);
             assert_eq!(fs::read(&receipt).unwrap(), receipt_bytes);
@@ -242,6 +252,14 @@ mod files {
             assert!(
                 !matches!(result.original, InboxOriginal::AvailableBinary { .. }),
                 "damage {damage}"
+            );
+            assert!(
+                app.inbox
+                    .files
+                    .as_ref()
+                    .unwrap()
+                    .read_binary_bytes(&item)
+                    .is_err()
             );
             assert_eq!(app.capture_binary_inbox(&r).unwrap(), item);
         }
@@ -328,7 +346,7 @@ mod files {
         }
     }
     #[test]
-    fn binary_admission_refuses_processing_source_and_cleanup_without_any_effects() {
+    fn non_docx_binary_processing_fails_durably_and_cleanup_stays_unsupported() {
         let (_base, data) = fixture();
         let mut app = App::open(&data, config(&data)).unwrap();
         let r = request(b"looks like text".to_vec());
@@ -337,11 +355,20 @@ mod files {
             id: Uuid::new_v4(),
             items: vec![item.clone()],
         };
+        app.process_inbox(&process).unwrap();
+        let failed = app
+            .advance_inbox_processing(process.id, &std::sync::atomic::AtomicBool::new(false))
+            .unwrap();
         assert!(
-            app.process_inbox(&process)
-                .unwrap_err()
-                .message
-                .contains("Binary")
+            matches!(&failed.entries[0].outcome, crate::inbox_processing::InboxProcessOutcome::Failed { code } if code == "binary_unsupported")
+        );
+        assert_eq!(app.process_inbox(&process).unwrap(), failed);
+        assert!(
+            app.inbox_candidate(&crate::inbox_processing::InboxCandidateRequest {
+                batch_id: process.id,
+                index: 0
+            })
+            .is_err()
         );
         assert!(
             app.preview_inbox_removal(r.id)

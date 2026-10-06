@@ -581,7 +581,7 @@ fn complete_original_review_uses_worker_and_reports_changed_copy_without_effects
 }
 
 #[test]
-fn binary_capture_correlates_uuid_and_reports_fresh_proof_without_processing() {
+fn binary_capture_correlates_uuid_and_non_docx_processing_fails_durably() {
     use crate::inbox::CaptureBinaryInboxRequest;
     let (owner, data, mut worker) = processing_fixture();
     let request = CaptureBinaryInboxRequest {
@@ -625,13 +625,14 @@ fn binary_capture_correlates_uuid_and_reports_fresh_proof_without_processing() {
         id: Uuid::new_v4(),
         items: vec![(*item).clone()],
     };
+    worker
+        .submit(process.id, AppCommand::ProcessInbox(process.clone()))
+        .unwrap();
+    let terminal = terminal_batch(&worker, process.id);
     assert!(
-        worker
-            .submit(process.id, AppCommand::ProcessInbox(process))
-            .unwrap_err()
-            .message
-            .contains("Binary")
+        matches!(&terminal.entries[0].outcome, InboxProcessOutcome::Failed { code } if code == "binary_unsupported")
     );
+    assert_eq!(terminal.request, process);
     assert!(matches!(
         processing_reply(&worker, AppCommand::PreviewInboxRemoval(request.id)),
         AppEvent::Failed(_)
@@ -743,4 +744,121 @@ fn shutdown_drains_admitted_binary_capture_and_cancels_a_queued_read() {
         .unwrap()
         .validate_receipt()
         .unwrap();
+}
+
+#[test]
+fn docx_worker_uses_binary_capture_queue_exact_candidate_and_source_approval() {
+    use crate::inbox::CaptureBinaryInboxRequest;
+    let owner = tempfile::tempdir_in(std::env::temp_dir().canonicalize().unwrap()).unwrap();
+    let data = owner.path().join("data");
+    let vault = owner.path().join("vault");
+    std::fs::create_dir(&data).unwrap();
+    std::fs::create_dir(&vault).unwrap();
+    let mut worker = AppWorker::start(
+        data.clone(),
+        AppConfig {
+            vault_root: Some(vault.clone()),
+            credentials_dir: Some(owner.path().join("credentials")),
+            model_dir: None,
+        },
+    )
+    .unwrap();
+    assert!(matches!(
+        worker
+            .recv_event_timeout(Duration::from_secs(10))
+            .unwrap()
+            .1,
+        AppEvent::Ready { .. }
+    ));
+    let capture = CaptureBinaryInboxRequest {
+        id: Uuid::new_v4(),
+        title: "Actual synthetic DOCX".into(),
+        original_name: Some("label.bin".into()),
+        bytes: include_bytes!("../inbox_processing/fixtures/basic-text.docx").to_vec(),
+    };
+    worker
+        .submit(capture.id, AppCommand::CaptureBinaryInbox(capture.clone()))
+        .unwrap();
+    let (id, AppEvent::InboxCaptured(item)) =
+        worker.recv_event_timeout(Duration::from_secs(10)).unwrap()
+    else {
+        panic!("binary capture")
+    };
+    assert_eq!(id, capture.id);
+    capture.validate_receipt(&item).unwrap();
+    let process = ProcessInboxRequest {
+        id: Uuid::new_v4(),
+        items: vec![(*item).clone()],
+    };
+    worker
+        .submit(process.id, AppCommand::ProcessInbox(process.clone()))
+        .unwrap();
+    let batch = terminal_batch(&worker, process.id);
+    assert!(matches!(
+        batch.entries[0].outcome,
+        InboxProcessOutcome::Converted {
+            format: crate::inbox_processing::InboxConversionFormat::DocxTextV1,
+            ..
+        }
+    ));
+    let candidate = InboxCandidateRequest {
+        batch_id: process.id,
+        index: 0,
+    };
+    let AppEvent::InboxCandidate(preview) =
+        processing_reply(&worker, AppCommand::InboxCandidate(candidate.clone()))
+    else {
+        panic!("exact candidate")
+    };
+    preview.validate_receipt(&batch).unwrap();
+    assert_eq!(preview.markdown, "First õ 日本語\n\nSecond preserved\n");
+    let request = InboxSourceRequest {
+        candidate,
+        proposal_id: Uuid::new_v4(),
+        note_id: Uuid::new_v4(),
+        path: "source.md".into(),
+        title: "Review DOCX Source".into(),
+    };
+    let AppEvent::InboxSourceDraft(draft) =
+        processing_reply(&worker, AppCommand::PrepareInboxSource(request.clone()))
+    else {
+        panic!("Source draft")
+    };
+    request.validate_draft(&draft).unwrap();
+    let [crate::proposals::DraftNoteChange::Create { text, .. }] = draft.changes.as_slice() else {
+        panic!("Source Create")
+    };
+    let saved = text.clone();
+    assert!(saved.ends_with(&preview.markdown));
+    assert!(!vault.join("source.md").exists());
+    let AppEvent::Proposal(record) = processing_reply(&worker, AppCommand::CreateProposal(*draft))
+    else {
+        panic!("Source review")
+    };
+    let approval = crate::proposal_apply::ApprovalRequest {
+        operation_id: Uuid::new_v4(),
+        expected: record.stamp(),
+    };
+    assert!(
+        matches!(processing_reply(&worker, AppCommand::ApproveProposal(approval)), AppEvent::ProposalApplied(receipt) if receipt.outcome == crate::proposal_apply::ApplyOutcome::Applied)
+    );
+    assert_eq!(
+        std::fs::read(vault.join("source.md")).unwrap(),
+        saved.as_bytes()
+    );
+    assert_eq!(
+        std::fs::read(item.capture.copy.directory.join(item.capture.copy_name())).unwrap(),
+        capture.bytes
+    );
+    assert!(matches!(
+        processing_reply(&worker, AppCommand::PreviewInboxRemoval(capture.id)),
+        AppEvent::Failed(_)
+    ));
+    worker.shutdown().unwrap();
+    assert_eq!(
+        std::fs::read_dir(owner.path().join("credentials"))
+            .unwrap()
+            .count(),
+        0
+    );
 }

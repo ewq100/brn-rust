@@ -101,13 +101,13 @@ the generated order:
 | JSON field | Current encoding |
 | --- | --- |
 | `item_id` | Nonnil original Inbox item UUID. |
-| `kind` | `text`, `markdown`, `email` or `teams`; these are deliberate text copies. |
+| `kind` | `text`, `markdown`, `email`, `teams` or `binary`; all are deliberate retained copies. |
 | `title` | Nonempty title, at most 512 UTF-8 bytes, without control characters. |
 | `original_name` | Original label as a string with the same bounds, or `null`; not a machine-specific filesystem path. |
 | `received_at_ms` | Nonnegative integer milliseconds, at most `i64::MAX`. |
-| `original_byte_len` | Exact original byte count, at most 1 MiB. |
+| `original_byte_len` | Exact original byte count, at most 1 MiB for text kinds or 16 MiB for Binary. |
 | `original_sha256` | SHA-256 of the original bytes, as a 32-byte integer array. |
-| `format` | `verbatim_markdown_v1` for Markdown; `literal_text_v1` for other current kinds. |
+| `format` | `verbatim_markdown_v1` for Markdown; `literal_text_v1` for Text/Email/Teams; `docx_text_v1` only for qualified Binary DOCX. |
 
 Objects reject unknown fields. `verbatim_markdown_v1` preserves all original
 Markdown bytes as the body. `literal_text_v1` encloses exact original text in a
@@ -121,6 +121,16 @@ through review and application. Conversion alone does not establish semantic
 completeness, approved knowledge or original-removal authority. See
 [Source binding](../../crates/brn-store/src/work/inbox_source.rs) and
 [conversion](../../crates/brn-workflow/src/inbox_processing.rs).
+
+`docx_text_v1` is deterministic Markdown for the
+[bounded DOCX text/structure profile](../work/active/office-inbox/plan.md#next-slice-bounded-docx-text-source):
+complete ordered wording, supported headings/lists/links/emphasis and simple
+tables. Unsupported meaningful content refuses conversion. Body and managed
+wrapper remain bounded to 1 MiB; the original's complete length/hash remains in
+provenance. Fresh draft/application checks reconstruct conversion from the exact
+held original. Source approval does not authorize Binary copy cleanup: this
+profile does not qualify full Office preservation. ZIP is only an internal DOCX
+container, with no generic archive intake or extraction.
 
 ## Vault citations
 

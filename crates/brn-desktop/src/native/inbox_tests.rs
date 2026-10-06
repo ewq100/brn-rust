@@ -438,7 +438,7 @@ fn native_inbox_checked_batch_is_bounded_and_keeps_exact_snapshots_after_page_ch
 }
 
 #[gpui_kit::test]
-fn native_binary_original_has_proof_view_without_text_copy_or_batch_admission(
+fn native_binary_original_has_proof_view_and_batch_admission_without_text_copy(
     cx: &mut gpui_kit::TestAppContext,
 ) {
     let fixture = Fixture::new();
@@ -455,9 +455,9 @@ fn native_binary_original_has_proof_view_without_text_copy_or_batch_admission(
     visual.run_until_parked();
     visual.update(|window, cx| {
         desktop.update(cx, |desktop, cx| {
-            assert!(desktop.inbox.checked.is_empty());
+            assert_eq!(desktop.inbox.checked, vec![binary.clone()]);
             desktop.check_inbox_item(binary.clone(), true, cx);
-            assert!(desktop.inbox.checked.is_empty());
+            assert_eq!(desktop.inbox.checked, vec![binary.clone()]);
             let ai = desktop.ai.as_mut().unwrap();
             let (read, _) = ai.select_inbox(binary.capture.id).unwrap();
             ai.apply(

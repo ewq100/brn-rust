@@ -2,6 +2,54 @@
 
 Full frozen V1 goal confirmed **active** by `get_goal` on 2026-10-06; no token budget.
 
+- **Integrated:** [PR75](https://github.com/ewq100/brn-rust/pull/75), exact main
+  `f1af1b41139e0bad0fdd838af274ada6aac0af2b`, tree
+  `4eab8f24dfc1a06eb622776a7dd2900e3e31eace`. Ordinary asset
+  Create/Replace/Trash, immutable exact review, recovery and Undo use the existing
+  proposal family. Binary originals stay retained; Office cleanup stays refused.
+- **Verification:** independent source/correction reviews clean; shared1,513/0/14
+  +52 fixtures; native300 Desktop/0/0,360 Workflow/models/0/12,15 Retrieval/0/0,
+  strict feature Clippy, shipping builds and V15 restarts passed. Exacta99d433 /
+  run37424171208 attempt1 passed four strict protected macOS/shared checks and Docs.
+  Overall red retains Windows22 complete compiler blocks, all suggestions and both
+  summaries matching PR74 (161 lines; whole-log differences retained).
+  Fresh unchanged merged gate06:53:23–06:55:51UTC passed17 commands,119/0/1 tests
+  +52fixtures, native widgets/builds and default/combined V15 restarts. The full
+  16MiB Workflow witness reuses identical qualified code/features; Store max passed
+  afresh. Exact main run37426257383 attempt1 completed with four protected
+  macOS/shared checks, Docs and supplemental Ubuntu UI passing; overall failure
+  retains Windows22/22/14 and three Linux native assertions/backtraces matching
+  main74. The changed Windows native terminal summary and all
+  raw differences are retained.
+- **Current/next:** `codex/v1-docx-text-sources`, baseline above; follow
+  [DOCX acceptance](../work/active/office-inbox/plan.md#next-slice-bounded-docx-text-source).
+  Source commit `2dfea163f2c245a4ba3f8a535c2552441d750809`, tree
+  `d9f5f928c2d9551e2ee8fd95af892101c1864a5a`; evidence documentation follows.
+  Fresh exact binary observation and a bounded pure converter feed the existing
+  processing/Source proposal path. Complete review's underline-paint/nesting
+  findings are fixed; complete/correction reviews are clean. Clean qualification
+  commit `c53b408719ab2aef64612bc0a9e019663d558be1`, tree
+  `8d1673cce3aae467016d7a50040143570190c76f`, passed full shared1,557/0/14
+  +52 fixtures (08:01:51–08:16:08UTC) and native301 Desktop/0/0,
+  371 Workflow/models/0/12,15 Retrieval/0/0 (08:03:15–08:13:58UTC), strict
+  feature Clippy, shipping builds and two actual AppWorker startup/restarts.
+  Documentation-only evidence follows; exact-head CI and normal integration are
+  next. Generic ZIP
+  ingestion is excluded; unsupported meaningful content refuses;
+  visuals, PDF/PowerPoint/URLs and meaningful Office cleanup remain later Stage8 work.
+- **Pending:** native GUI/live/real-model/owner acceptance, residual startup/backup
+  cost, legacy pending-intent retry, Stages8–16 and trusted-user packaging.
+  The CLI contract supplies a disposable-data asset review scenario.
+- **Environment:** Mac mini Darwin arm64, pinned Rust1.98.1 locked/offline;
+  canonical owned `TMPDIR=/private/tmp/brn-mini-synthetic-20261005`, empty model
+  setting, separate checkout targets and disposable synthetic data. No new live
+  calls, model downloads, private-data operations, purchases or release.
+  Immutable7c4f668 and unrelated work remain preserved; history follows below.
+
+# Earlier ordinary asset qualification checkpoint
+
+Full frozen V1 goal confirmed **active** by `get_goal` on 2026-10-06; no token budget.
+
 - **Integrated:** [PR74](https://github.com/ewq100/brn-rust/pull/74) at
   `c7ed57d106f14b9b9c4c94fc875ad7cd60b61e15`, tree
   `bf083499bc6625081ed64eccd08f4655ad99bba6`. Bounded 16 MiB opaque Inbox

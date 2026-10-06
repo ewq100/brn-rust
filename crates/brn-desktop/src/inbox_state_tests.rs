@@ -3,7 +3,9 @@ use brn_workflow::{
     app::AppConfig,
     app_worker::AppWorker,
     inbox::{CaptureInboxRequest, InboxItem, InboxKind, InboxOriginal},
-    inbox_processing::{InboxCandidateRequest, InboxProcessBatch, InboxSourceRequest},
+    inbox_processing::{
+        InboxCandidateRequest, InboxProcessBatch, InboxProcessOutcome, InboxSourceRequest,
+    },
     proposals::DraftNoteChange,
 };
 use std::{fs, os::unix::fs::PermissionsExt};
@@ -439,7 +441,7 @@ fn complete_operational_preview_remains_visible_when_source_wrapper_exceeds_limi
 }
 
 #[test]
-fn binary_reads_verify_complete_proofs_and_cannot_enter_text_processing() {
+fn binary_reads_verify_complete_proofs_and_queue_durable_unsupported_failure() {
     use brn_workflow::inbox::CaptureBinaryInboxRequest;
     let fixture = Fixture::new();
     let mut worker = fixture.worker();
@@ -479,7 +481,20 @@ fn binary_reads_verify_complete_proofs_and_cannot_enter_text_processing() {
     state.apply(id, AppEvent::InboxItem(read.clone()));
     assert_eq!(state.inbox_queue.selected.as_ref().unwrap().item, *item);
     assert!(!state.pending.contains_key(&id));
-    assert!(state.process_inbox_items(vec![(*item).clone()]).is_none());
+    let batch = process(&worker, &mut state, vec![(*item).clone()]);
+    assert!(matches!(
+        &batch.entries[0].outcome,
+        InboxProcessOutcome::Failed { code } if code == "binary_unsupported"
+    ));
+    assert!(state.preview_inbox_candidate(0).is_none());
+    let poll = reply(
+        &worker,
+        (
+            Uuid::new_v4(),
+            AppCommand::InboxProcessing(batch.request.id),
+        ),
+    );
+    assert!(matches!(poll.1, AppEvent::InboxProcessing(retained) if *retained == batch));
     assert!(!state.processing_pending());
     assert!(!state.can_retry_process());
     assert!(
@@ -494,5 +509,155 @@ fn binary_reads_verify_complete_proofs_and_cannot_enter_text_processing() {
             .is_none()
     );
     fixture.unchanged();
+    worker.shutdown().unwrap();
+}
+
+// Independent tiny Stored ZIP fixture; complete bytes reach the real AppWorker.
+fn synthetic_docx() -> Vec<u8> {
+    let parts = [
+        (
+            "[Content_Types].xml",
+            r#"<Types xmlns="http://schemas.openxmlformats.org/package/2006/content-types"><Default Extension="rels" ContentType="application/vnd.openxmlformats-package.relationships+xml"/><Default Extension="xml" ContentType="application/xml"/><Override PartName="/word/document.xml" ContentType="application/vnd.openxmlformats-officedocument.wordprocessingml.document.main+xml"/></Types>"#,
+        ),
+        (
+            "_rels/.rels",
+            r#"<Relationships xmlns="http://schemas.openxmlformats.org/package/2006/relationships"><Relationship Id="rId1" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/officeDocument" Target="word/document.xml"/></Relationships>"#,
+        ),
+        (
+            "word/document.xml",
+            r#"<w:document xmlns:w="http://schemas.openxmlformats.org/wordprocessingml/2006/main"><w:body><w:p><w:r><w:t>First õ 日本語</w:t></w:r></w:p><w:p><w:r><w:t>Second preserved</w:t></w:r></w:p></w:body></w:document>"#,
+        ),
+    ];
+    let mut bytes = Vec::new();
+    let mut central = Vec::new();
+    for (name, text) in parts {
+        let payload = text.as_bytes();
+        let mut crc = u32::MAX;
+        for byte in payload {
+            crc ^= u32::from(*byte);
+            for _ in 0..8 {
+                crc = (crc >> 1) ^ (0xedb88320 & 0u32.wrapping_sub(crc & 1));
+            }
+        }
+        crc = !crc;
+        let offset = bytes.len() as u32;
+        bytes.extend(0x04034b50u32.to_le_bytes());
+        for value in [20u16, 0, 0, 0, 0] {
+            bytes.extend(value.to_le_bytes());
+        }
+        for value in [crc, payload.len() as u32, payload.len() as u32] {
+            bytes.extend(value.to_le_bytes());
+        }
+        bytes.extend((name.len() as u16).to_le_bytes());
+        bytes.extend(0u16.to_le_bytes());
+        bytes.extend(name.as_bytes());
+        bytes.extend(payload);
+        central.extend(0x02014b50u32.to_le_bytes());
+        for value in [20u16, 20, 0, 0, 0, 0] {
+            central.extend(value.to_le_bytes());
+        }
+        for value in [crc, payload.len() as u32, payload.len() as u32] {
+            central.extend(value.to_le_bytes());
+        }
+        for value in [name.len() as u16, 0, 0, 0, 0] {
+            central.extend(value.to_le_bytes());
+        }
+        central.extend(0u32.to_le_bytes());
+        central.extend(offset.to_le_bytes());
+        central.extend(name.as_bytes());
+    }
+    let offset = bytes.len() as u32;
+    let len = central.len() as u32;
+    bytes.extend(central);
+    bytes.extend(0x06054b50u32.to_le_bytes());
+    for value in [0u16, 0, 3, 3] {
+        bytes.extend(value.to_le_bytes());
+    }
+    bytes.extend(len.to_le_bytes());
+    bytes.extend(offset.to_le_bytes());
+    bytes.extend(0u16.to_le_bytes());
+    bytes
+}
+
+#[test]
+fn docx_worker_preview_binds_format_complete_bytes_and_exact_source_review() {
+    use brn_workflow::inbox::CaptureBinaryInboxRequest;
+    use brn_workflow::inbox_processing::InboxConversionFormat;
+    let fixture = Fixture::new();
+    let mut worker = fixture.worker();
+    let request = CaptureBinaryInboxRequest {
+        id: Uuid::new_v4(),
+        title: "Actual DOCX with misleading label".into(),
+        original_name: Some("synthetic.pdf".into()),
+        bytes: synthetic_docx(),
+    };
+    let (_, AppEvent::InboxCaptured(item)) = reply(
+        &worker,
+        (request.id, AppCommand::CaptureBinaryInbox(request.clone())),
+    ) else {
+        panic!("binary capture")
+    };
+    request.validate_receipt(&item).unwrap();
+    let mut state = state();
+    let open = state.open_inbox().unwrap();
+    settle(&worker, &mut state, open);
+    let batch = process(&worker, &mut state, vec![(*item).clone()]);
+    assert!(matches!(
+        batch.entries[0].outcome,
+        InboxProcessOutcome::Converted {
+            format: InboxConversionFormat::DocxTextV1,
+            ..
+        }
+    ));
+    let command = state.preview_inbox_candidate(0).unwrap();
+    let (id, AppEvent::InboxCandidate(preview)) = reply(&worker, command) else {
+        panic!("DOCX preview")
+    };
+    assert_eq!(preview.markdown, "First õ 日本語\n\nSecond preserved\n");
+    assert!(preview.needs_semantic_review);
+    for alteration in 0..5 {
+        let mut forged = preview.clone();
+        match alteration {
+            0 => forged.markdown.push_str("Clipped or invented"),
+            1 => forged.needs_semantic_review = false,
+            2 => forged.original.capture.copy.sha256[0] ^= 1,
+            3 => forged.request.batch_id = Uuid::new_v4(),
+            _ => forged.format = InboxConversionFormat::LiteralTextV1,
+        }
+        state.apply(id, AppEvent::InboxCandidate(forged));
+        assert!(state.inbox_queue.preview.is_none());
+        assert!(state.pending.contains_key(&id));
+    }
+    state.apply(id, AppEvent::InboxCandidate(preview));
+    let source = source_request(&batch);
+    let command = state.prepare_inbox_source(source.clone()).unwrap();
+    settle(&worker, &mut state, command);
+    let prepared = state.inbox_queue.prepared.as_ref().unwrap().clone();
+    source.validate_draft(&prepared).unwrap();
+    assert_eq!(
+        prepared.inbox_source.as_ref().unwrap().format,
+        InboxConversionFormat::DocxTextV1
+    );
+    assert!(
+        matches!(&prepared.changes[0], DraftNoteChange::Create { text, .. }
+        if text.ends_with("First õ 日本語\n\nSecond preserved\n"))
+    );
+    assert!(state.draft.is_none());
+    assert!(state.open_inbox_source_draft());
+    let command = state.create_draft().unwrap();
+    settle(&worker, &mut state, command);
+    assert_eq!(state.last_draft_request.as_ref(), Some(&prepared));
+    fixture.unchanged();
+    assert_eq!(
+        fs::read(
+            fixture
+                .0
+                .path()
+                .join("data/inbox")
+                .join(item.capture.copy_name())
+        )
+        .unwrap(),
+        request.bytes
+    );
     worker.shutdown().unwrap();
 }

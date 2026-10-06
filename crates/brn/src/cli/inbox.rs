@@ -583,14 +583,14 @@ pub(super) fn output(command: &AppCommand, event: AppEvent) -> Result<Output, Cl
             serde_json::json!(*page)
         }
         (AppCommand::ProcessInbox(r), AppEvent::InboxProcessing(batch))
-            if batch.request == *r && batch.pending_count() == 0 =>
+            if batch.request == *r && batch.pending_count() == 0 && batch.validate().is_ok() =>
         {
             serde_json::json!(*batch)
         }
         (
             AppCommand::InboxProcessing(id) | AppCommand::CancelInboxProcessing(id),
             AppEvent::InboxProcessing(batch),
-        ) if batch.request.id == *id => serde_json::json!(*batch),
+        ) if batch.request.id == *id && batch.validate().is_ok() => serde_json::json!(*batch),
         (AppCommand::InboxCandidate(r), AppEvent::InboxCandidate(preview))
             if preview.request == *r =>
         {
