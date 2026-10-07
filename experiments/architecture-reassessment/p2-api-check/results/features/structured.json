@@ -1,0 +1,920 @@
+{
+  "schemaVersion": 1,
+  "revisionView": "accepted",
+  "anchorScope": "snapshot",
+  "includedStories": [
+    "body",
+    "headers",
+    "footers",
+    "footnotes",
+    "endnotes",
+    "comments"
+  ],
+  "includeFormatting": true,
+  "stories": [
+    {
+      "story": "body",
+      "kind": "body",
+      "part": "word/document.xml",
+      "noteId": null,
+      "comment": null,
+      "uses": [],
+      "blocks": [
+        {
+          "id": "s0.b0",
+          "anchor": {
+            "kind": "paragraph",
+            "story": "body",
+            "paraId": "body:p0"
+          },
+          "kind": "paragraph",
+          "paragraph": {
+            "styleId": "Title",
+            "inlines": [
+              {
+                "id": "s0.b0.i0",
+                "anchor": {
+                  "kind": "range",
+                  "story": "body",
+                  "start": {
+                    "paraId": "body:p0",
+                    "offset": 0
+                  },
+                  "end": {
+                    "paraId": "body:p0",
+                    "offset": 25
+                  },
+                  "view": "accepted"
+                },
+                "marks": [],
+                "link": null,
+                "revisions": [],
+                "kind": "text",
+                "text": "Harbor water-saving pilot"
+              }
+            ]
+          }
+        },
+        {
+          "id": "s0.b1",
+          "anchor": {
+            "kind": "paragraph",
+            "story": "body",
+            "paraId": "body:p1"
+          },
+          "kind": "paragraph",
+          "paragraph": {
+            "styleId": null,
+            "inlines": [
+              {
+                "id": "s0.b1.i0",
+                "anchor": {
+                  "kind": "range",
+                  "story": "body",
+                  "start": {
+                    "paraId": "body:p1",
+                    "offset": 0
+                  },
+                  "end": {
+                    "paraId": "body:p1",
+                    "offset": 108
+                  },
+                  "view": "accepted"
+                },
+                "marks": [],
+                "link": null,
+                "revisions": [],
+                "kind": "text",
+                "text": "Decision: extend the pilot to Pier B on 15 October 2026. Owner: Mira. The chart is evidence, not decoration."
+              }
+            ]
+          }
+        },
+        {
+          "id": "s0.b2",
+          "anchor": {
+            "kind": "table",
+            "story": "body",
+            "tableIndex": 0
+          },
+          "kind": "table",
+          "table": {
+            "gridColumns": 3,
+            "rows": [
+              {
+                "header": false,
+                "gridBefore": 0,
+                "gridAfter": 0,
+                "cells": [
+                  {
+                    "anchor": {
+                      "kind": "paragraph",
+                      "story": "body:t0:r0c0",
+                      "paraId": "body:t0:r0c0:p0"
+                    },
+                    "story": "body:t0:r0c0",
+                    "column": 0,
+                    "gridSpan": 1,
+                    "rowSpan": 1,
+                    "verticalMerge": "none",
+                    "mergeOrigin": null,
+                    "blocks": [
+                      {
+                        "id": "s0.b2.r0.c0.b0",
+                        "anchor": {
+                          "kind": "paragraph",
+                          "story": "body:t0:r0c0",
+                          "paraId": "body:t0:r0c0:p0"
+                        },
+                        "kind": "paragraph",
+                        "paragraph": {
+                          "styleId": null,
+                          "inlines": [
+                            {
+                              "id": "s0.b2.r0.c0.b0.i0",
+                              "anchor": {
+                                "kind": "range",
+                                "story": "body:t0:r0c0",
+                                "start": {
+                                  "paraId": "body:t0:r0c0:p0",
+                                  "offset": 0
+                                },
+                                "end": {
+                                  "paraId": "body:t0:r0c0:p0",
+                                  "offset": 4
+                                },
+                                "view": "accepted"
+                              },
+                              "marks": [],
+                              "link": null,
+                              "revisions": [],
+                              "kind": "text",
+                              "text": "Site"
+                            }
+                          ]
+                        }
+                      }
+                    ]
+                  },
+                  {
+                    "anchor": {
+                      "kind": "paragraph",
+                      "story": "body:t0:r0c1",
+                      "paraId": "body:t0:r0c1:p0"
+                    },
+                    "story": "body:t0:r0c1",
+                    "column": 1,
+                    "gridSpan": 1,
+                    "rowSpan": 1,
+                    "verticalMerge": "none",
+                    "mergeOrigin": null,
+                    "blocks": [
+                      {
+                        "id": "s0.b2.r0.c1.b0",
+                        "anchor": {
+                          "kind": "paragraph",
+                          "story": "body:t0:r0c1",
+                          "paraId": "body:t0:r0c1:p0"
+                        },
+                        "kind": "paragraph",
+                        "paragraph": {
+                          "styleId": null,
+                          "inlines": [
+                            {
+                              "id": "s0.b2.r0.c1.b0.i0",
+                              "anchor": {
+                                "kind": "range",
+                                "story": "body:t0:r0c1",
+                                "start": {
+                                  "paraId": "body:t0:r0c1:p0",
+                                  "offset": 0
+                                },
+                                "end": {
+                                  "paraId": "body:t0:r0c1:p0",
+                                  "offset": 6
+                                },
+                                "view": "accepted"
+                              },
+                              "marks": [],
+                              "link": null,
+                              "revisions": [],
+                              "kind": "text",
+                              "text": "Before"
+                            }
+                          ]
+                        }
+                      }
+                    ]
+                  },
+                  {
+                    "anchor": {
+                      "kind": "paragraph",
+                      "story": "body:t0:r0c2",
+                      "paraId": "body:t0:r0c2:p0"
+                    },
+                    "story": "body:t0:r0c2",
+                    "column": 2,
+                    "gridSpan": 1,
+                    "rowSpan": 1,
+                    "verticalMerge": "none",
+                    "mergeOrigin": null,
+                    "blocks": [
+                      {
+                        "id": "s0.b2.r0.c2.b0",
+                        "anchor": {
+                          "kind": "paragraph",
+                          "story": "body:t0:r0c2",
+                          "paraId": "body:t0:r0c2:p0"
+                        },
+                        "kind": "paragraph",
+                        "paragraph": {
+                          "styleId": null,
+                          "inlines": [
+                            {
+                              "id": "s0.b2.r0.c2.b0.i0",
+                              "anchor": {
+                                "kind": "range",
+                                "story": "body:t0:r0c2",
+                                "start": {
+                                  "paraId": "body:t0:r0c2:p0",
+                                  "offset": 0
+                                },
+                                "end": {
+                                  "paraId": "body:t0:r0c2:p0",
+                                  "offset": 5
+                                },
+                                "view": "accepted"
+                              },
+                              "marks": [],
+                              "link": null,
+                              "revisions": [],
+                              "kind": "text",
+                              "text": "After"
+                            }
+                          ]
+                        }
+                      }
+                    ]
+                  }
+                ]
+              },
+              {
+                "header": false,
+                "gridBefore": 0,
+                "gridAfter": 0,
+                "cells": [
+                  {
+                    "anchor": {
+                      "kind": "paragraph",
+                      "story": "body:t0:r1c0",
+                      "paraId": "body:t0:r1c0:p0"
+                    },
+                    "story": "body:t0:r1c0",
+                    "column": 0,
+                    "gridSpan": 1,
+                    "rowSpan": 1,
+                    "verticalMerge": "none",
+                    "mergeOrigin": null,
+                    "blocks": [
+                      {
+                        "id": "s0.b2.r1.c0.b0",
+                        "anchor": {
+                          "kind": "paragraph",
+                          "story": "body:t0:r1c0",
+                          "paraId": "body:t0:r1c0:p0"
+                        },
+                        "kind": "paragraph",
+                        "paragraph": {
+                          "styleId": null,
+                          "inlines": [
+                            {
+                              "id": "s0.b2.r1.c0.b0.i0",
+                              "anchor": {
+                                "kind": "range",
+                                "story": "body:t0:r1c0",
+                                "start": {
+                                  "paraId": "body:t0:r1c0:p0",
+                                  "offset": 0
+                                },
+                                "end": {
+                                  "paraId": "body:t0:r1c0:p0",
+                                  "offset": 6
+                                },
+                                "view": "accepted"
+                              },
+                              "marks": [],
+                              "link": null,
+                              "revisions": [],
+                              "kind": "text",
+                              "text": "Pier A"
+                            }
+                          ]
+                        }
+                      }
+                    ]
+                  },
+                  {
+                    "anchor": {
+                      "kind": "paragraph",
+                      "story": "body:t0:r1c1",
+                      "paraId": "body:t0:r1c1:p0"
+                    },
+                    "story": "body:t0:r1c1",
+                    "column": 1,
+                    "gridSpan": 1,
+                    "rowSpan": 1,
+                    "verticalMerge": "none",
+                    "mergeOrigin": null,
+                    "blocks": [
+                      {
+                        "id": "s0.b2.r1.c1.b0",
+                        "anchor": {
+                          "kind": "paragraph",
+                          "story": "body:t0:r1c1",
+                          "paraId": "body:t0:r1c1:p0"
+                        },
+                        "kind": "paragraph",
+                        "paragraph": {
+                          "styleId": null,
+                          "inlines": [
+                            {
+                              "id": "s0.b2.r1.c1.b0.i0",
+                              "anchor": {
+                                "kind": "range",
+                                "story": "body:t0:r1c1",
+                                "start": {
+                                  "paraId": "body:t0:r1c1:p0",
+                                  "offset": 0
+                                },
+                                "end": {
+                                  "paraId": "body:t0:r1c1:p0",
+                                  "offset": 9
+                                },
+                                "view": "accepted"
+                              },
+                              "marks": [],
+                              "link": null,
+                              "revisions": [],
+                              "kind": "text",
+                              "text": "120 L/day"
+                            }
+                          ]
+                        }
+                      }
+                    ]
+                  },
+                  {
+                    "anchor": {
+                      "kind": "paragraph",
+                      "story": "body:t0:r1c2",
+                      "paraId": "body:t0:r1c2:p0"
+                    },
+                    "story": "body:t0:r1c2",
+                    "column": 2,
+                    "gridSpan": 1,
+                    "rowSpan": 1,
+                    "verticalMerge": "none",
+                    "mergeOrigin": null,
+                    "blocks": [
+                      {
+                        "id": "s0.b2.r1.c2.b0",
+                        "anchor": {
+                          "kind": "paragraph",
+                          "story": "body:t0:r1c2",
+                          "paraId": "body:t0:r1c2:p0"
+                        },
+                        "kind": "paragraph",
+                        "paragraph": {
+                          "styleId": null,
+                          "inlines": [
+                            {
+                              "id": "s0.b2.r1.c2.b0.i0",
+                              "anchor": {
+                                "kind": "range",
+                                "story": "body:t0:r1c2",
+                                "start": {
+                                  "paraId": "body:t0:r1c2:p0",
+                                  "offset": 0
+                                },
+                                "end": {
+                                  "paraId": "body:t0:r1c2:p0",
+                                  "offset": 8
+                                },
+                                "view": "accepted"
+                              },
+                              "marks": [],
+                              "link": null,
+                              "revisions": [],
+                              "kind": "text",
+                              "text": "72 L/day"
+                            }
+                          ]
+                        }
+                      }
+                    ]
+                  }
+                ]
+              },
+              {
+                "header": false,
+                "gridBefore": 0,
+                "gridAfter": 0,
+                "cells": [
+                  {
+                    "anchor": {
+                      "kind": "paragraph",
+                      "story": "body:t0:r2c0",
+                      "paraId": "body:t0:r2c0:p0"
+                    },
+                    "story": "body:t0:r2c0",
+                    "column": 0,
+                    "gridSpan": 1,
+                    "rowSpan": 1,
+                    "verticalMerge": "none",
+                    "mergeOrigin": null,
+                    "blocks": [
+                      {
+                        "id": "s0.b2.r2.c0.b0",
+                        "anchor": {
+                          "kind": "paragraph",
+                          "story": "body:t0:r2c0",
+                          "paraId": "body:t0:r2c0:p0"
+                        },
+                        "kind": "paragraph",
+                        "paragraph": {
+                          "styleId": null,
+                          "inlines": [
+                            {
+                              "id": "s0.b2.r2.c0.b0.i0",
+                              "anchor": {
+                                "kind": "range",
+                                "story": "body:t0:r2c0",
+                                "start": {
+                                  "paraId": "body:t0:r2c0:p0",
+                                  "offset": 0
+                                },
+                                "end": {
+                                  "paraId": "body:t0:r2c0:p0",
+                                  "offset": 6
+                                },
+                                "view": "accepted"
+                              },
+                              "marks": [],
+                              "link": null,
+                              "revisions": [],
+                              "kind": "text",
+                              "text": "Pier B"
+                            }
+                          ]
+                        }
+                      }
+                    ]
+                  },
+                  {
+                    "anchor": {
+                      "kind": "paragraph",
+                      "story": "body:t0:r2c1",
+                      "paraId": "body:t0:r2c1:p0"
+                    },
+                    "story": "body:t0:r2c1",
+                    "column": 1,
+                    "gridSpan": 1,
+                    "rowSpan": 1,
+                    "verticalMerge": "none",
+                    "mergeOrigin": null,
+                    "blocks": [
+                      {
+                        "id": "s0.b2.r2.c1.b0",
+                        "anchor": {
+                          "kind": "paragraph",
+                          "story": "body:t0:r2c1",
+                          "paraId": "body:t0:r2c1:p0"
+                        },
+                        "kind": "paragraph",
+                        "paragraph": {
+                          "styleId": null,
+                          "inlines": [
+                            {
+                              "id": "s0.b2.r2.c1.b0.i0",
+                              "anchor": {
+                                "kind": "range",
+                                "story": "body:t0:r2c1",
+                                "start": {
+                                  "paraId": "body:t0:r2c1:p0",
+                                  "offset": 0
+                                },
+                                "end": {
+                                  "paraId": "body:t0:r2c1:p0",
+                                  "offset": 7
+                                },
+                                "view": "accepted"
+                              },
+                              "marks": [],
+                              "link": null,
+                              "revisions": [],
+                              "kind": "text",
+                              "text": "Pending"
+                            }
+                          ]
+                        }
+                      }
+                    ]
+                  },
+                  {
+                    "anchor": {
+                      "kind": "paragraph",
+                      "story": "body:t0:r2c2",
+                      "paraId": "body:t0:r2c2:p0"
+                    },
+                    "story": "body:t0:r2c2",
+                    "column": 2,
+                    "gridSpan": 1,
+                    "rowSpan": 1,
+                    "verticalMerge": "none",
+                    "mergeOrigin": null,
+                    "blocks": [
+                      {
+                        "id": "s0.b2.r2.c2.b0",
+                        "anchor": {
+                          "kind": "paragraph",
+                          "story": "body:t0:r2c2",
+                          "paraId": "body:t0:r2c2:p0"
+                        },
+                        "kind": "paragraph",
+                        "paragraph": {
+                          "styleId": null,
+                          "inlines": [
+                            {
+                              "id": "s0.b2.r2.c2.b0.i0",
+                              "anchor": {
+                                "kind": "range",
+                                "story": "body:t0:r2c2",
+                                "start": {
+                                  "paraId": "body:t0:r2c2:p0",
+                                  "offset": 0
+                                },
+                                "end": {
+                                  "paraId": "body:t0:r2c2:p0",
+                                  "offset": 7
+                                },
+                                "view": "accepted"
+                              },
+                              "marks": [],
+                              "link": null,
+                              "revisions": [],
+                              "kind": "text",
+                              "text": "Pending"
+                            }
+                          ]
+                        }
+                      }
+                    ]
+                  }
+                ]
+              }
+            ]
+          }
+        },
+        {
+          "id": "s0.b3",
+          "anchor": {
+            "kind": "paragraph",
+            "story": "body",
+            "paraId": "body:p2"
+          },
+          "kind": "paragraph",
+          "paragraph": {
+            "styleId": null,
+            "inlines": [
+              {
+                "id": "s0.b3.i0",
+                "anchor": {
+                  "kind": "range",
+                  "story": "body",
+                  "start": {
+                    "paraId": "body:p2",
+                    "offset": 0
+                  },
+                  "end": {
+                    "paraId": "body:p2",
+                    "offset": 26
+                  },
+                  "view": "accepted"
+                },
+                "marks": [],
+                "link": null,
+                "revisions": [],
+                "kind": "text",
+                "text": "Water use before and after"
+              }
+            ]
+          }
+        },
+        {
+          "id": "s0.b4",
+          "anchor": {
+            "kind": "paragraph",
+            "story": "body",
+            "paraId": "body:p3"
+          },
+          "kind": "paragraph",
+          "paragraph": {
+            "styleId": null,
+            "inlines": [
+              {
+                "id": "s0.b4.i0",
+                "anchor": {
+                  "kind": "range",
+                  "story": "body",
+                  "start": {
+                    "paraId": "body:p3",
+                    "offset": 0
+                  },
+                  "end": {
+                    "paraId": "body:p3",
+                    "offset": 1
+                  },
+                  "view": "accepted"
+                },
+                "marks": [],
+                "link": null,
+                "revisions": [],
+                "kind": "image",
+                "altText": "120 to 72 litres/day, a 40% reduction",
+                "relationshipId": "rId11",
+                "part": "word/media/image1.png",
+                "externalTarget": null
+              }
+            ]
+          }
+        },
+        {
+          "id": "s0.b5",
+          "anchor": {
+            "kind": "paragraph",
+            "story": "body",
+            "paraId": "body:p4"
+          },
+          "kind": "paragraph",
+          "paragraph": {
+            "styleId": null,
+            "inlines": [
+              {
+                "id": "s0.b5.i0",
+                "anchor": {
+                  "kind": "range",
+                  "story": "body",
+                  "start": {
+                    "paraId": "body:p4",
+                    "offset": 0
+                  },
+                  "end": {
+                    "paraId": "body:p4",
+                    "offset": 33
+                  },
+                  "view": "accepted"
+                },
+                "marks": [],
+                "link": null,
+                "revisions": [],
+                "kind": "text",
+                "text": "Same chart for operations handoff"
+              }
+            ]
+          }
+        },
+        {
+          "id": "s0.b6",
+          "anchor": {
+            "kind": "paragraph",
+            "story": "body",
+            "paraId": "body:p5"
+          },
+          "kind": "paragraph",
+          "paragraph": {
+            "styleId": null,
+            "inlines": [
+              {
+                "id": "s0.b6.i0",
+                "anchor": {
+                  "kind": "range",
+                  "story": "body",
+                  "start": {
+                    "paraId": "body:p5",
+                    "offset": 0
+                  },
+                  "end": {
+                    "paraId": "body:p5",
+                    "offset": 1
+                  },
+                  "view": "accepted"
+                },
+                "marks": [],
+                "link": null,
+                "revisions": [],
+                "kind": "image",
+                "altText": "Same chart for operations handoff",
+                "relationshipId": "rId11",
+                "part": "word/media/image1.png",
+                "externalTarget": null
+              }
+            ]
+          }
+        },
+        {
+          "id": "s0.b7",
+          "anchor": {
+            "kind": "paragraph",
+            "story": "body",
+            "paraId": "body:p6"
+          },
+          "kind": "paragraph",
+          "paragraph": {
+            "styleId": null,
+            "inlines": [
+              {
+                "id": "s0.b7.i0",
+                "anchor": {
+                  "kind": "range",
+                  "story": "body",
+                  "start": {
+                    "paraId": "body:p6",
+                    "offset": 0
+                  },
+                  "end": {
+                    "paraId": "body:p6",
+                    "offset": 1
+                  },
+                  "view": "accepted"
+                },
+                "marks": [],
+                "link": null,
+                "revisions": [],
+                "kind": "unsupported",
+                "element": "c:chart",
+                "altText": null
+              }
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "story": "hf:rId9",
+      "kind": "header",
+      "part": "word/header1.xml",
+      "noteId": null,
+      "comment": null,
+      "uses": [
+        {
+          "sectionIndex": 0,
+          "variant": "default"
+        }
+      ],
+      "blocks": [
+        {
+          "id": "s1.b0",
+          "anchor": {
+            "kind": "paragraph",
+            "story": "hf:rId9",
+            "paraId": "hf:rId9:p0"
+          },
+          "kind": "paragraph",
+          "paragraph": {
+            "styleId": "Header",
+            "inlines": [
+              {
+                "id": "s1.b0.i0",
+                "anchor": {
+                  "kind": "range",
+                  "story": "hf:rId9",
+                  "start": {
+                    "paraId": "hf:rId9:p0",
+                    "offset": 0
+                  },
+                  "end": {
+                    "paraId": "hf:rId9:p0",
+                    "offset": 57
+                  },
+                  "view": "accepted"
+                },
+                "marks": [],
+                "link": null,
+                "revisions": [],
+                "kind": "text",
+                "text": "Internal synthetic briefing — review date 12 October 2026"
+              }
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "story": "hf:rId10",
+      "kind": "footer",
+      "part": "word/footer1.xml",
+      "noteId": null,
+      "comment": null,
+      "uses": [
+        {
+          "sectionIndex": 0,
+          "variant": "default"
+        }
+      ],
+      "blocks": [
+        {
+          "id": "s2.b0",
+          "anchor": {
+            "kind": "paragraph",
+            "story": "hf:rId10",
+            "paraId": "hf:rId10:p0"
+          },
+          "kind": "paragraph",
+          "paragraph": {
+            "styleId": "Footer",
+            "inlines": [
+              {
+                "id": "s2.b0.i0",
+                "anchor": {
+                  "kind": "range",
+                  "story": "hf:rId10",
+                  "start": {
+                    "paraId": "hf:rId10:p0",
+                    "offset": 0
+                  },
+                  "end": {
+                    "paraId": "hf:rId10:p0",
+                    "offset": 46
+                  },
+                  "view": "accepted"
+                },
+                "marks": [],
+                "link": null,
+                "revisions": [],
+                "kind": "text",
+                "text": "Footer constraint: budget capped at EUR 4,000."
+              }
+            ]
+          }
+        }
+      ]
+    }
+  ],
+  "diagnostics": [
+    {
+      "code": "image-data-omitted",
+      "severity": "info",
+      "anchor": {
+        "kind": "range",
+        "story": "body",
+        "start": {
+          "paraId": "body:p3",
+          "offset": 0
+        },
+        "end": {
+          "paraId": "body:p3",
+          "offset": 1
+        },
+        "view": "accepted"
+      },
+      "message": "Image data is not exported; the image is described by its alt text and relationship."
+    },
+    {
+      "code": "image-data-omitted",
+      "severity": "info",
+      "anchor": {
+        "kind": "range",
+        "story": "body",
+        "start": {
+          "paraId": "body:p5",
+          "offset": 0
+        },
+        "end": {
+          "paraId": "body:p5",
+          "offset": 1
+        },
+        "view": "accepted"
+      },
+      "message": "Image data is not exported; the image is described by its alt text and relationship."
+    },
+    {
+      "code": "unsupported-content",
+      "severity": "warning",
+      "anchor": {
+        "kind": "range",
+        "story": "body",
+        "start": {
+          "paraId": "body:p6",
+          "offset": 0
+        },
+        "end": {
+          "paraId": "body:p6",
+          "offset": 1
+        },
+        "view": "accepted"
+      },
+      "message": "An inline c:chart is not represented in the export."
+    }
+  ],
+  "truncated": false
+}

@@ -1,0 +1,96 @@
+{
+  "host": "Apple Silicon aarch64-apple-darwin",
+  "toolchain": "rustc 1.98.1 (48a229cea 2026-09-01)",
+  "builds": [
+    {
+      "scope": "clean target, source/dependency cache present",
+      "wall_seconds": 35.805,
+      "child_peak_rss_bytes": 1684504576,
+      "exit": 0
+    },
+    {
+      "scope": "warm no-change build",
+      "wall_seconds": 0.095,
+      "child_peak_rss_bytes": 44695552,
+      "exit": 0
+    }
+  ],
+  "locked_registry_packages": 56,
+  "enabled_normal_registry_packages_arm64": 53,
+  "incremental_exact_name_version_pairs_vs_root_lock": [
+    [
+      "betteroffice-docx-parse",
+      "0.3.0"
+    ],
+    [
+      "betteroffice-drawingml",
+      "0.3.0"
+    ],
+    [
+      "betteroffice-opc",
+      "0.3.0"
+    ],
+    [
+      "betteroffice-pptx-parse",
+      "0.3.0"
+    ],
+    [
+      "hashify",
+      "0.2.9"
+    ],
+    [
+      "libc",
+      "0.2.190"
+    ],
+    [
+      "mail-parser",
+      "0.11.8"
+    ],
+    [
+      "ryu-js",
+      "1.0.3"
+    ],
+    [
+      "serde_json",
+      "1.0.145"
+    ],
+    [
+      "zopfli",
+      "0.8.3"
+    ]
+  ],
+  "new_package_names_vs_root_lock": [
+    "betteroffice-docx-parse",
+    "betteroffice-drawingml",
+    "betteroffice-opc",
+    "betteroffice-pptx-parse",
+    "hashify",
+    "mail-parser",
+    "ryu-js",
+    "zopfli"
+  ],
+  "enabled_source_archives_bytes": 6082560,
+  "incremental_source_archives_bytes": 2479002,
+  "source_lines": {
+    "main.rs": 400,
+    "runner.py": 69,
+    "render.py": 60,
+    "oracle.py": 57,
+    "fixtures.py": 60
+  },
+  "helper_release_bytes": 5156192,
+  "helper_stripped_bytes": 4297440,
+  "helper_sha256": "b7c67dad57c15d201cdc9f4487e30fbb1826968e792eca8830522718ab35d556",
+  "stripped_empty_helper_bytes": 373040,
+  "stripped_helper_increment_bytes": 3924400,
+  "full_helper_tar_gz_bytes": 1881572,
+  "install_and_full_replacement_update_scope": "isolated helper binary only; no Python/models/runtime payload needed by native helper",
+  "unmeasured": [
+    "full BRN application bundle/link delta",
+    "signed/notarized distributable",
+    "clean-machine offline installation/upgrade/rollback",
+    "delta-update transfer size",
+    "lifetime maintenance cost",
+    "rendering service/package deployment"
+  ]
+}

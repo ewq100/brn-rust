@@ -1,0 +1,18 @@
+{
+  "passed": true,
+  "checks": [
+    "ordinary text/header/footer/table",
+    "two image occurrences distinct anchors same resolved part",
+    "Markdown marker map and intentional empty image URLs",
+    "Title style retained/plain Markdown",
+    "title-only fallback versus separate title omission",
+    "native chart unsupported anchor+diagnostic",
+    "namespace-prefix-only relationship resolution gap",
+    "OPC inflation/path and count/DTD limits"
+  ],
+  "fixture_sha256": {
+    "features.docx": "04db9ac31374868d55d0ff579f23ad5bc558fb9fe9a2363305498817e335ea6d",
+    "prefix-variation.docx": "7c2c8f4f4866db174495ad616d6995f002b63479d3ba3a22b182fb8151493709",
+    "../p1-office-mime/fixtures/harbor.docx": "46a227162352ff616344ab5bc91350d1c1f2810bb099f873ab49979c3133df85"
+  }
+}

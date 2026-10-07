@@ -1,0 +1,526 @@
+{
+  "markdown": "<!-- docx-story: body body -->\n\n<!-- docx-export:0 -->\nHarbor water-saving pilot\n\n<!-- docx-export:1 -->\nDecision: extend the pilot to Pier B on 15 October 2026. Owner: Mira. The chart is evidence, not decoration.\n\n<!-- docx-export:2 -->\n<table>\n<tr><td><!-- docx-export:3 --><!-- docx-unsupported: xw:tcPr --><!-- docx-export:4 --><p>Site</p></td><td><!-- docx-export:5 --><!-- docx-unsupported: xw:tcPr --><!-- docx-export:6 --><p>Before</p></td><td><!-- docx-export:7 --><!-- docx-unsupported: xw:tcPr --><!-- docx-export:8 --><p>After</p></td></tr>\n<tr><td><!-- docx-export:9 --><!-- docx-unsupported: xw:tcPr --><!-- docx-export:10 --><p>Pier A</p></td><td><!-- docx-export:11 --><!-- docx-unsupported: xw:tcPr --><!-- docx-export:12 --><p>120 L/day</p></td><td><!-- docx-export:13 --><!-- docx-unsupported: xw:tcPr --><!-- docx-export:14 --><p>72 L/day</p></td></tr>\n<tr><td><!-- docx-export:15 --><!-- docx-unsupported: xw:tcPr --><!-- docx-export:16 --><p>Pier B</p></td><td><!-- docx-export:17 --><!-- docx-unsupported: xw:tcPr --><!-- docx-export:18 --><p>Pending</p></td><td><!-- docx-export:19 --><!-- docx-unsupported: xw:tcPr --><!-- docx-export:20 --><p>Pending</p></td></tr>\n</table>\n\n<!-- docx-export:21 -->\nWater use before and after\n\n<!-- docx-export:22 -->\n![120 to 72 litres/day, a 40% reduction]()\n\n<!-- docx-export:23 -->\nSame chart for operations handoff\n\n<!-- docx-export:24 -->\n![120 to 72 litres/day, a 40% reduction]()\n\n<!-- docx-story: hf:rId9 header -->\n\n<!-- docx-export:25 -->\nInternal synthetic briefing — review date 12 October 2026\n\n<!-- docx-story: hf:rId10 footer -->\n\n<!-- docx-export:26 -->\nFooter constraint: budget capped at EUR 4,000.\n",
+  "anchors": [
+    {
+      "marker": "docx-export:0",
+      "anchor": {
+        "kind": "paragraph",
+        "story": "body",
+        "paraId": "body:p0"
+      }
+    },
+    {
+      "marker": "docx-export:1",
+      "anchor": {
+        "kind": "paragraph",
+        "story": "body",
+        "paraId": "body:p1"
+      }
+    },
+    {
+      "marker": "docx-export:2",
+      "anchor": {
+        "kind": "table",
+        "story": "body",
+        "tableIndex": 0
+      }
+    },
+    {
+      "marker": "docx-export:3",
+      "anchor": {
+        "kind": "sourcePart",
+        "part": "word/document.xml",
+        "partSha256": "f9c0e70b5156338bcf4d1012e0322c8ddd3956ef820420a5a6d7390090136deb",
+        "path": [
+          0,
+          2,
+          2,
+          0,
+          0
+        ]
+      }
+    },
+    {
+      "marker": "docx-export:4",
+      "anchor": {
+        "kind": "paragraph",
+        "story": "body:t0:r0c0",
+        "paraId": "body:t0:r0c0:p0"
+      }
+    },
+    {
+      "marker": "docx-export:5",
+      "anchor": {
+        "kind": "sourcePart",
+        "part": "word/document.xml",
+        "partSha256": "f9c0e70b5156338bcf4d1012e0322c8ddd3956ef820420a5a6d7390090136deb",
+        "path": [
+          0,
+          2,
+          2,
+          1,
+          0
+        ]
+      }
+    },
+    {
+      "marker": "docx-export:6",
+      "anchor": {
+        "kind": "paragraph",
+        "story": "body:t0:r0c1",
+        "paraId": "body:t0:r0c1:p0"
+      }
+    },
+    {
+      "marker": "docx-export:7",
+      "anchor": {
+        "kind": "sourcePart",
+        "part": "word/document.xml",
+        "partSha256": "f9c0e70b5156338bcf4d1012e0322c8ddd3956ef820420a5a6d7390090136deb",
+        "path": [
+          0,
+          2,
+          2,
+          2,
+          0
+        ]
+      }
+    },
+    {
+      "marker": "docx-export:8",
+      "anchor": {
+        "kind": "paragraph",
+        "story": "body:t0:r0c2",
+        "paraId": "body:t0:r0c2:p0"
+      }
+    },
+    {
+      "marker": "docx-export:9",
+      "anchor": {
+        "kind": "sourcePart",
+        "part": "word/document.xml",
+        "partSha256": "f9c0e70b5156338bcf4d1012e0322c8ddd3956ef820420a5a6d7390090136deb",
+        "path": [
+          0,
+          2,
+          3,
+          0,
+          0
+        ]
+      }
+    },
+    {
+      "marker": "docx-export:10",
+      "anchor": {
+        "kind": "paragraph",
+        "story": "body:t0:r1c0",
+        "paraId": "body:t0:r1c0:p0"
+      }
+    },
+    {
+      "marker": "docx-export:11",
+      "anchor": {
+        "kind": "sourcePart",
+        "part": "word/document.xml",
+        "partSha256": "f9c0e70b5156338bcf4d1012e0322c8ddd3956ef820420a5a6d7390090136deb",
+        "path": [
+          0,
+          2,
+          3,
+          1,
+          0
+        ]
+      }
+    },
+    {
+      "marker": "docx-export:12",
+      "anchor": {
+        "kind": "paragraph",
+        "story": "body:t0:r1c1",
+        "paraId": "body:t0:r1c1:p0"
+      }
+    },
+    {
+      "marker": "docx-export:13",
+      "anchor": {
+        "kind": "sourcePart",
+        "part": "word/document.xml",
+        "partSha256": "f9c0e70b5156338bcf4d1012e0322c8ddd3956ef820420a5a6d7390090136deb",
+        "path": [
+          0,
+          2,
+          3,
+          2,
+          0
+        ]
+      }
+    },
+    {
+      "marker": "docx-export:14",
+      "anchor": {
+        "kind": "paragraph",
+        "story": "body:t0:r1c2",
+        "paraId": "body:t0:r1c2:p0"
+      }
+    },
+    {
+      "marker": "docx-export:15",
+      "anchor": {
+        "kind": "sourcePart",
+        "part": "word/document.xml",
+        "partSha256": "f9c0e70b5156338bcf4d1012e0322c8ddd3956ef820420a5a6d7390090136deb",
+        "path": [
+          0,
+          2,
+          4,
+          0,
+          0
+        ]
+      }
+    },
+    {
+      "marker": "docx-export:16",
+      "anchor": {
+        "kind": "paragraph",
+        "story": "body:t0:r2c0",
+        "paraId": "body:t0:r2c0:p0"
+      }
+    },
+    {
+      "marker": "docx-export:17",
+      "anchor": {
+        "kind": "sourcePart",
+        "part": "word/document.xml",
+        "partSha256": "f9c0e70b5156338bcf4d1012e0322c8ddd3956ef820420a5a6d7390090136deb",
+        "path": [
+          0,
+          2,
+          4,
+          1,
+          0
+        ]
+      }
+    },
+    {
+      "marker": "docx-export:18",
+      "anchor": {
+        "kind": "paragraph",
+        "story": "body:t0:r2c1",
+        "paraId": "body:t0:r2c1:p0"
+      }
+    },
+    {
+      "marker": "docx-export:19",
+      "anchor": {
+        "kind": "sourcePart",
+        "part": "word/document.xml",
+        "partSha256": "f9c0e70b5156338bcf4d1012e0322c8ddd3956ef820420a5a6d7390090136deb",
+        "path": [
+          0,
+          2,
+          4,
+          2,
+          0
+        ]
+      }
+    },
+    {
+      "marker": "docx-export:20",
+      "anchor": {
+        "kind": "paragraph",
+        "story": "body:t0:r2c2",
+        "paraId": "body:t0:r2c2:p0"
+      }
+    },
+    {
+      "marker": "docx-export:21",
+      "anchor": {
+        "kind": "paragraph",
+        "story": "body",
+        "paraId": "body:p2"
+      }
+    },
+    {
+      "marker": "docx-export:22",
+      "anchor": {
+        "kind": "paragraph",
+        "story": "body",
+        "paraId": "body:p3"
+      }
+    },
+    {
+      "marker": "docx-export:23",
+      "anchor": {
+        "kind": "paragraph",
+        "story": "body",
+        "paraId": "body:p4"
+      }
+    },
+    {
+      "marker": "docx-export:24",
+      "anchor": {
+        "kind": "paragraph",
+        "story": "body",
+        "paraId": "body:p5"
+      }
+    },
+    {
+      "marker": "docx-export:25",
+      "anchor": {
+        "kind": "paragraph",
+        "story": "hf:rId9",
+        "paraId": "hf:rId9:p0"
+      }
+    },
+    {
+      "marker": "docx-export:26",
+      "anchor": {
+        "kind": "paragraph",
+        "story": "hf:rId10",
+        "paraId": "hf:rId10:p0"
+      }
+    }
+  ],
+  "diagnostics": [
+    {
+      "code": "provenance-unavailable",
+      "severity": "warning",
+      "anchor": {
+        "kind": "sourcePart",
+        "part": "word/document.xml",
+        "partSha256": "f9c0e70b5156338bcf4d1012e0322c8ddd3956ef820420a5a6d7390090136deb",
+        "path": [
+          0,
+          7
+        ]
+      },
+      "message": "A xw:sectPr block of story body lost every block after it, so its position is unknown."
+    },
+    {
+      "code": "unsupported-content",
+      "severity": "warning",
+      "anchor": {
+        "kind": "sourcePart",
+        "part": "word/document.xml",
+        "partSha256": "f9c0e70b5156338bcf4d1012e0322c8ddd3956ef820420a5a6d7390090136deb",
+        "path": [
+          0,
+          2,
+          2,
+          0,
+          0
+        ]
+      },
+      "message": "A xw:tcPr block is not represented in the export."
+    },
+    {
+      "code": "unsupported-content",
+      "severity": "warning",
+      "anchor": {
+        "kind": "sourcePart",
+        "part": "word/document.xml",
+        "partSha256": "f9c0e70b5156338bcf4d1012e0322c8ddd3956ef820420a5a6d7390090136deb",
+        "path": [
+          0,
+          2,
+          2,
+          1,
+          0
+        ]
+      },
+      "message": "A xw:tcPr block is not represented in the export."
+    },
+    {
+      "code": "unsupported-content",
+      "severity": "warning",
+      "anchor": {
+        "kind": "sourcePart",
+        "part": "word/document.xml",
+        "partSha256": "f9c0e70b5156338bcf4d1012e0322c8ddd3956ef820420a5a6d7390090136deb",
+        "path": [
+          0,
+          2,
+          2,
+          2,
+          0
+        ]
+      },
+      "message": "A xw:tcPr block is not represented in the export."
+    },
+    {
+      "code": "unsupported-content",
+      "severity": "warning",
+      "anchor": {
+        "kind": "sourcePart",
+        "part": "word/document.xml",
+        "partSha256": "f9c0e70b5156338bcf4d1012e0322c8ddd3956ef820420a5a6d7390090136deb",
+        "path": [
+          0,
+          2,
+          3,
+          0,
+          0
+        ]
+      },
+      "message": "A xw:tcPr block is not represented in the export."
+    },
+    {
+      "code": "unsupported-content",
+      "severity": "warning",
+      "anchor": {
+        "kind": "sourcePart",
+        "part": "word/document.xml",
+        "partSha256": "f9c0e70b5156338bcf4d1012e0322c8ddd3956ef820420a5a6d7390090136deb",
+        "path": [
+          0,
+          2,
+          3,
+          1,
+          0
+        ]
+      },
+      "message": "A xw:tcPr block is not represented in the export."
+    },
+    {
+      "code": "unsupported-content",
+      "severity": "warning",
+      "anchor": {
+        "kind": "sourcePart",
+        "part": "word/document.xml",
+        "partSha256": "f9c0e70b5156338bcf4d1012e0322c8ddd3956ef820420a5a6d7390090136deb",
+        "path": [
+          0,
+          2,
+          3,
+          2,
+          0
+        ]
+      },
+      "message": "A xw:tcPr block is not represented in the export."
+    },
+    {
+      "code": "unsupported-content",
+      "severity": "warning",
+      "anchor": {
+        "kind": "sourcePart",
+        "part": "word/document.xml",
+        "partSha256": "f9c0e70b5156338bcf4d1012e0322c8ddd3956ef820420a5a6d7390090136deb",
+        "path": [
+          0,
+          2,
+          4,
+          0,
+          0
+        ]
+      },
+      "message": "A xw:tcPr block is not represented in the export."
+    },
+    {
+      "code": "unsupported-content",
+      "severity": "warning",
+      "anchor": {
+        "kind": "sourcePart",
+        "part": "word/document.xml",
+        "partSha256": "f9c0e70b5156338bcf4d1012e0322c8ddd3956ef820420a5a6d7390090136deb",
+        "path": [
+          0,
+          2,
+          4,
+          1,
+          0
+        ]
+      },
+      "message": "A xw:tcPr block is not represented in the export."
+    },
+    {
+      "code": "unsupported-content",
+      "severity": "warning",
+      "anchor": {
+        "kind": "sourcePart",
+        "part": "word/document.xml",
+        "partSha256": "f9c0e70b5156338bcf4d1012e0322c8ddd3956ef820420a5a6d7390090136deb",
+        "path": [
+          0,
+          2,
+          4,
+          2,
+          0
+        ]
+      },
+      "message": "A xw:tcPr block is not represented in the export."
+    },
+    {
+      "code": "unresolved-reference",
+      "severity": "warning",
+      "anchor": {
+        "kind": "range",
+        "story": "body",
+        "start": {
+          "paraId": "body:p3",
+          "offset": 0
+        },
+        "end": {
+          "paraId": "body:p3",
+          "offset": 1
+        },
+        "view": "accepted"
+      },
+      "message": "Part word/document.xml has no relationship  for this image."
+    },
+    {
+      "code": "image-data-omitted",
+      "severity": "info",
+      "anchor": {
+        "kind": "range",
+        "story": "body",
+        "start": {
+          "paraId": "body:p3",
+          "offset": 0
+        },
+        "end": {
+          "paraId": "body:p3",
+          "offset": 1
+        },
+        "view": "accepted"
+      },
+      "message": "Image data is not exported; the image is described by its alt text and relationship."
+    },
+    {
+      "code": "unresolved-reference",
+      "severity": "warning",
+      "anchor": {
+        "kind": "range",
+        "story": "body",
+        "start": {
+          "paraId": "body:p5",
+          "offset": 0
+        },
+        "end": {
+          "paraId": "body:p5",
+          "offset": 1
+        },
+        "view": "accepted"
+      },
+      "message": "Part word/document.xml has no relationship  for this image."
+    },
+    {
+      "code": "image-data-omitted",
+      "severity": "info",
+      "anchor": {
+        "kind": "range",
+        "story": "body",
+        "start": {
+          "paraId": "body:p5",
+          "offset": 0
+        },
+        "end": {
+          "paraId": "body:p5",
+          "offset": 1
+        },
+        "view": "accepted"
+      },
+      "message": "Image data is not exported; the image is described by its alt text and relationship."
+    }
+  ],
+  "truncated": false
+}

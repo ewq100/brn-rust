@@ -1,0 +1,102 @@
+brn-p1-office-mime v0.0.0 (/Users/evokessler/repos/brn-p1-office-mime/experiments/architecture-reassessment/p1-office-mime)
+betteroffice-docx-parse v0.3.0
+base64 v0.22.1
+betteroffice-drawingml v0.3.0
+indexmap v2.14.2
+equivalent v1.0.2
+hashbrown v0.17.1
+serde_core v1.0.229
+serde v1.0.229
+serde_core v1.0.229
+serde_derive v1.0.229 (proc-macro)
+proc-macro2 v1.0.107
+unicode-ident v1.0.26
+quote v1.0.47
+proc-macro2 v1.0.107 (*)
+syn v3.0.6
+proc-macro2 v1.0.107 (*)
+quote v1.0.47 (*)
+unicode-ident v1.0.26
+betteroffice-opc v0.3.0
+quick-xml v0.41.0
+encoding_rs v0.8.42
+cfg-if v1.0.5
+multiversion_no_op v1.0.0 (proc-macro)
+scopeguard v1.2.0
+simdutf8 v0.1.5
+memchr v2.8.3
+zip v8.6.0
+crc32fast v1.5.2
+cfg-if v1.0.5
+flate2 v1.1.10
+zlib-rs v0.6.8
+indexmap v2.14.2 (*)
+memchr v2.8.3
+typed-path v0.12.3
+zopfli v0.8.3
+bumpalo v3.20.3
+crc32fast v1.5.2 (*)
+log v0.4.34
+simd-adler32 v0.3.10
+indexmap v2.14.2 (*)
+quick-xml v0.41.0 (*)
+ryu-js v1.0.3
+serde v1.0.229 (*)
+serde_json v1.0.145
+itoa v1.0.18
+memchr v2.8.3
+ryu v1.0.23
+serde_core v1.0.229
+sha2 v0.10.9
+cfg-if v1.0.5
+cpufeatures v0.2.17
+libc v0.2.190
+digest v0.10.7
+block-buffer v0.10.4
+generic-array v0.14.7
+typenum v1.20.1
+crypto-common v0.1.7
+generic-array v0.14.7 (*)
+typenum v1.20.1
+thiserror v2.0.21
+thiserror-impl v2.0.21 (proc-macro)
+proc-macro2 v1.0.107 (*)
+quote v1.0.47 (*)
+syn v3.0.6 (*)
+wasm-bindgen v0.2.129
+cfg-if v1.0.5
+once_cell v1.21.4
+wasm-bindgen-macro v0.2.129 (proc-macro)
+quote v1.0.47 (*)
+wasm-bindgen-macro-support v0.2.129
+bumpalo v3.20.3
+proc-macro2 v1.0.107 (*)
+quote v1.0.47 (*)
+syn v3.0.6 (*)
+wasm-bindgen-shared v0.2.129
+unicode-ident v1.0.26
+wasm-bindgen-shared v0.2.129
+unicode-ident v1.0.26
+betteroffice-pptx-parse v0.3.0
+base64 v0.22.1
+betteroffice-drawingml v0.3.0 (*)
+betteroffice-opc v0.3.0 (*)
+quick-xml v0.41.0 (*)
+serde v1.0.229 (*)
+thiserror v2.0.21 (*)
+mail-parser v0.11.8
+encoding_rs v0.8.42 (*)
+hashify v0.2.9 (proc-macro)
+indexmap v2.14.2
+equivalent v1.0.2
+hashbrown v0.17.1
+proc-macro2 v1.0.107 (*)
+quote v1.0.47 (*)
+syn v2.0.119
+proc-macro2 v1.0.107 (*)
+quote v1.0.47 (*)
+unicode-ident v1.0.26
+quick-xml v0.41.0 (*)
+serde_json v1.0.145 (*)
+sha2 v0.10.9 (*)
+zip v8.6.0 (*)

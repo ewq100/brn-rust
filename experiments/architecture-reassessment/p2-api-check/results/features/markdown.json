@@ -1,0 +1,214 @@
+{
+  "markdown": "<!-- docx-story: body body -->\n\n<!-- docx-export:0 -->\nHarbor water-saving pilot\n\n<!-- docx-export:1 -->\nDecision: extend the pilot to Pier B on 15 October 2026. Owner: Mira. The chart is evidence, not decoration.\n\n<!-- docx-export:2 -->\n| <!-- docx-export:3 -->Site | <!-- docx-export:4 -->Before | <!-- docx-export:5 -->After |\n| --- | --- | --- |\n| <!-- docx-export:6 -->Pier A | <!-- docx-export:7 -->120 L/day | <!-- docx-export:8 -->72 L/day |\n| <!-- docx-export:9 -->Pier B | <!-- docx-export:10 -->Pending | <!-- docx-export:11 -->Pending |\n\n<!-- docx-export:12 -->\nWater use before and after\n\n<!-- docx-export:13 -->\n![120 to 72 litres/day, a 40% reduction]()\n\n<!-- docx-export:14 -->\nSame chart for operations handoff\n\n<!-- docx-export:15 -->\n![Same chart for operations handoff]()\n\n<!-- docx-export:16 -->\n<!-- docx-unsupported: c:chart -->\n\n<!-- docx-story: hf:rId9 header -->\n\n<!-- docx-export:17 -->\nInternal synthetic briefing — review date 12 October 2026\n\n<!-- docx-story: hf:rId10 footer -->\n\n<!-- docx-export:18 -->\nFooter constraint: budget capped at EUR 4,000.\n",
+  "anchors": [
+    {
+      "marker": "docx-export:0",
+      "anchor": {
+        "kind": "paragraph",
+        "story": "body",
+        "paraId": "body:p0"
+      }
+    },
+    {
+      "marker": "docx-export:1",
+      "anchor": {
+        "kind": "paragraph",
+        "story": "body",
+        "paraId": "body:p1"
+      }
+    },
+    {
+      "marker": "docx-export:2",
+      "anchor": {
+        "kind": "table",
+        "story": "body",
+        "tableIndex": 0
+      }
+    },
+    {
+      "marker": "docx-export:3",
+      "anchor": {
+        "kind": "paragraph",
+        "story": "body:t0:r0c0",
+        "paraId": "body:t0:r0c0:p0"
+      }
+    },
+    {
+      "marker": "docx-export:4",
+      "anchor": {
+        "kind": "paragraph",
+        "story": "body:t0:r0c1",
+        "paraId": "body:t0:r0c1:p0"
+      }
+    },
+    {
+      "marker": "docx-export:5",
+      "anchor": {
+        "kind": "paragraph",
+        "story": "body:t0:r0c2",
+        "paraId": "body:t0:r0c2:p0"
+      }
+    },
+    {
+      "marker": "docx-export:6",
+      "anchor": {
+        "kind": "paragraph",
+        "story": "body:t0:r1c0",
+        "paraId": "body:t0:r1c0:p0"
+      }
+    },
+    {
+      "marker": "docx-export:7",
+      "anchor": {
+        "kind": "paragraph",
+        "story": "body:t0:r1c1",
+        "paraId": "body:t0:r1c1:p0"
+      }
+    },
+    {
+      "marker": "docx-export:8",
+      "anchor": {
+        "kind": "paragraph",
+        "story": "body:t0:r1c2",
+        "paraId": "body:t0:r1c2:p0"
+      }
+    },
+    {
+      "marker": "docx-export:9",
+      "anchor": {
+        "kind": "paragraph",
+        "story": "body:t0:r2c0",
+        "paraId": "body:t0:r2c0:p0"
+      }
+    },
+    {
+      "marker": "docx-export:10",
+      "anchor": {
+        "kind": "paragraph",
+        "story": "body:t0:r2c1",
+        "paraId": "body:t0:r2c1:p0"
+      }
+    },
+    {
+      "marker": "docx-export:11",
+      "anchor": {
+        "kind": "paragraph",
+        "story": "body:t0:r2c2",
+        "paraId": "body:t0:r2c2:p0"
+      }
+    },
+    {
+      "marker": "docx-export:12",
+      "anchor": {
+        "kind": "paragraph",
+        "story": "body",
+        "paraId": "body:p2"
+      }
+    },
+    {
+      "marker": "docx-export:13",
+      "anchor": {
+        "kind": "paragraph",
+        "story": "body",
+        "paraId": "body:p3"
+      }
+    },
+    {
+      "marker": "docx-export:14",
+      "anchor": {
+        "kind": "paragraph",
+        "story": "body",
+        "paraId": "body:p4"
+      }
+    },
+    {
+      "marker": "docx-export:15",
+      "anchor": {
+        "kind": "paragraph",
+        "story": "body",
+        "paraId": "body:p5"
+      }
+    },
+    {
+      "marker": "docx-export:16",
+      "anchor": {
+        "kind": "paragraph",
+        "story": "body",
+        "paraId": "body:p6"
+      }
+    },
+    {
+      "marker": "docx-export:17",
+      "anchor": {
+        "kind": "paragraph",
+        "story": "hf:rId9",
+        "paraId": "hf:rId9:p0"
+      }
+    },
+    {
+      "marker": "docx-export:18",
+      "anchor": {
+        "kind": "paragraph",
+        "story": "hf:rId10",
+        "paraId": "hf:rId10:p0"
+      }
+    }
+  ],
+  "diagnostics": [
+    {
+      "code": "image-data-omitted",
+      "severity": "info",
+      "anchor": {
+        "kind": "range",
+        "story": "body",
+        "start": {
+          "paraId": "body:p3",
+          "offset": 0
+        },
+        "end": {
+          "paraId": "body:p3",
+          "offset": 1
+        },
+        "view": "accepted"
+      },
+      "message": "Image data is not exported; the image is described by its alt text and relationship."
+    },
+    {
+      "code": "image-data-omitted",
+      "severity": "info",
+      "anchor": {
+        "kind": "range",
+        "story": "body",
+        "start": {
+          "paraId": "body:p5",
+          "offset": 0
+        },
+        "end": {
+          "paraId": "body:p5",
+          "offset": 1
+        },
+        "view": "accepted"
+      },
+      "message": "Image data is not exported; the image is described by its alt text and relationship."
+    },
+    {
+      "code": "unsupported-content",
+      "severity": "warning",
+      "anchor": {
+        "kind": "range",
+        "story": "body",
+        "start": {
+          "paraId": "body:p6",
+          "offset": 0
+        },
+        "end": {
+          "paraId": "body:p6",
+          "offset": 1
+        },
+        "view": "accepted"
+      },
+      "message": "An inline c:chart is not represented in the export."
+    }
+  ],
+  "truncated": false
+}

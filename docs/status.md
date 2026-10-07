@@ -1,5 +1,19 @@
 # Current development status
 
+## PR86 accepted specification and integration handoff — 2026-10-07
+
+The owner accepts the revised maintained-adapter [P2 specification and retirement inventory](work/active/architecture-reassessment/p2-conditional-spec.md), with unavailable separate picture titles allowed when exact mapping is unqualified, correct image/source/occurrence associations and honest omission reporting required, and no title-driven custom XML scanner. Retirement, unfinished-work recovery, higher-level API reuse and V1 scope decisions are preserved. Only PR86 finalization/merge after final-head checks and applicable policy is authorized now; P2 implementation remains unselected.
+
+The [canonical fresh-agent handoff](work/active/architecture-reassessment/plan.md#pr86-finalization-and-canonical-fresh-agent-handoff) owns accepted decisions, remaining integration/acceptance, known gaps and the existing bounded Sol/Luna authorization. [PR86's integration receipt](https://github.com/ewq100/brn-rust/pull/86) owns the final head, checks and merged baseline SHA. No further experiments, live-model calls, release or unrelated cleanup occur in finalization. Earlier status entries below are dated observations, superseded by this acceptance where they differ.
+
+## Selected P1 preparation — 2026-10-07
+
+**Later owner clarification:** maintained DOCX/MIME is the agreed direction, with no retained/rebuilt bespoke DOCX interpreter. The [updated P2 specification](work/active/architecture-reassessment/p2-conditional-spec.md) separates saved-record readers from conversion and requires retained originals, exact-proof recovery and renewed review for unfinished legacy work. A focused 0.3.0 API check demonstrates structured/Markdown/package reuse with a larger graph and explicit title/prefix gaps. Production adoption/implementation and merge remain unselected.
+
+Fresh remote main is `3d59cdd4d6379b526fed19f6a339cfd2dce2dead`, the confirmed PR85 merge. The owner has now selected the bounded Office/MIME adoption evaluation and authorized a conditional P2 specification, checks, independent review and one reviewable PR. The [P1 evidence and handoff](work/active/architecture-reassessment/p1-evidence.md) and [conditional P2 specification](work/active/architecture-reassessment/p2-conditional-spec.md) own this later pass. Production dependency adoption, implementation and merge remain pending owner selection; no live-model campaign or private-data operation is part of it. Existing worktrees and dirty work are preserved.
+
+P1 now demonstrates useful producer DOCX/PPTX/MIME extraction, exact parent/attachment/repeated-PNG associations, visible chart omissions, native helper restrictions and cancellation, with measured isolated costs. Recommend bounded BetterOffice DOCX 0.3.0 + mail-parser 0.11.8 adoption for P2, conditional on owner selection and production gates. The actual P2 replacement/retirement inventory and two acceptance stories are specified. Oracle, strict experiment Clippy/format, artifact/graph checks and independent Sol High review passed. Native/live product usefulness, hard RSS enforcement and full bundle/install/update qualification remain open; no production change, acceptance or merge is claimed.
+
 ## Current reassessment checkpoint — 2026-10-07
 
 Fetched main is `67818388112c400802097763b9eeed8aa87bb465` (PR83/H2), including H1 at f3cf699. The PR77 identity below is the Office feature checkpoint, not current HEAD. Open result/docs PRs inspected: PR84 H4 head0f3e277, PR80 H5 headbe59a7a, PR82 H1 integration head8018755. H1/H2 are implemented and merged; H1 owner acceptance remains pending. Prior test counts are historical; this reassessment does not add native/live/owner qualification.
