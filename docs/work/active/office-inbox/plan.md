@@ -1,5 +1,7 @@
 # Stage 8: Office Inbox foundations
 
+> Current planning context, 2026-10-07: the [proposed whole-system plan](../architecture-reassessment/plan.md) supersedes the old next-task order, custom-converter expansion and mandatory incidental-compatibility rules for reassessment. Existing observations/tests remain evidence; implementation is paused. Actual EML is required V1 and is not implemented by pasted Email text. Partial conversion may enter qualified draft review; original cleanup remains a separate protected operation. AI may recommend resolutions and revise unapproved work. No new design is accepted solely by this notice.
+
 Current product baseline is integrated [PR77](https://github.com/ewq100/brn-rust/pull/77)
 `c75803832f3140347192bb08f2fdf13bb5fba1d4`, tree
 `f9a725ac08e48d040df48a76a94b969c3b4b8292`. Binary retention, ordinary assets,

@@ -1,7 +1,8 @@
 # Architectural invariants
 
-The owner froze the reviewed architecture on 2026-10-03 and amended its client
-boundary on 2026-10-04 for future external-agent access. New work follows the [product vision](../product/BRN_PRODUCT_VISION.md), [target ownership](overview.md#frozen-target) and guarantees below. The owner's resolved action, relationship and outbound rules are recorded in the dated [independent review](../audits/BRN_PRODUCT_ARCHITECTURE_REVIEW.md#c-what-opus-got-wrong-or-overcomplicated); its other recommendations remain advisory evidence. [Status](../status.md) distinguishes these requirements from implemented behavior.
+> Current authority (2026-10-07): the [owner amendment](../product/BRN_PRODUCT_VISION.md#owner-amendment--2026-10-07) supersedes freeze, mandatory roadmap ordering and mechanism-preservation instructions below for this authorized whole-system reassessment. Those descriptions record the previous target/current contracts; they cannot prohibit investigation or proposed replacement. Product outcomes remain binding. Production implementation is paused; new design/sequence choices remain PROPOSED pending acceptance.
+
+The [owner amendment](../product/BRN_PRODUCT_VISION.md#owner-amendment--2026-10-07) supersedes the architecture freeze. The outcome guarantees below remain requirements where consistent with that amendment; syscall sequences, exact generated formatting, limits and current data structures describe implemented contracts, open to proposed change. [Reassessment](../audits/BRN_ARCHITECTURE_REASSESSMENT_2026-10-07.md) separates retained outcomes from challenged mechanisms; [status](../status.md) records qualification.
 
 ## Frozen target guarantees
 
@@ -15,7 +16,7 @@ boundary on 2026-10-04 for future external-agent access. New work follows the [p
 - Current queries use approved current knowledge. Explicit source/history access can still reach archived originals. Inferred relationships are derived evidence-backed candidates; approved relationships live in Markdown and rebuild offline without silently invoking AI.
 - Keep incomplete intake until meaningful conversion is complete and approved. Trash/undo are recoverable; important superseded knowledge remains readable history. Backup/restore must preserve operational work and reconcile vault receipts.
 - Text Inbox copy cleanup follows the [owner's exact-preservation and confirmation rule](../product/BRN_PRODUCT_VISION.md#73-original-intake-files), independently of analysis/consequence outcomes and processed/dismissed disposition. No automatic deletion or purge is authorized.
-- Recovery evolution follows the [existing effect families](overview.md#inbox-copy-cleanup-and-recovery-evolution): vault/assets extend typed proposal apply; private intake extends original operations. A new family needs a concrete blocker and owner decision. Additive WorkStore tables and supported migrations remain local choices; schema versions are not frozen.
+- Recovery evolution follows the [existing effect families](overview.md#inbox-copy-cleanup-and-recovery-evolution): vault/assets extend typed proposal apply; private intake extends original operations. A new family needs a concrete simplification or unmet-outcome justification and implementation selection. Additive WorkStore tables and supported migrations remain local choices; schema versions are not frozen.
 - Desktop, CLI and future protocol clients use `brn-workflow` / AppWorker as the shared application boundary. Meaningful domain capabilities remain usable headlessly; clients do not implement private knowledge rules or directly access vault/persistence, retrieval, provider or proposal internals. AppWorker owns admission, cancellation and joined work.
 - The existing six crates form the V1 core, not a permanent crate-count ceiling. Thin presentation/protocol adapters may surround it when required; they add no competing data authority or domain logic. Internal retrieval replacement preserves client-facing scopes, evidence and authority semantics.
 - External knowledge access defaults to Current approved source-of-truth knowledge. Source, History and All require explicit scope. A connection exposes explicit BRN capabilities, never unrestricted filesystem or SQL access. The first future MCP adapter is read-only local stdio over AppWorker; future agent changes use the existing proposal/human-approval boundary.
@@ -23,7 +24,7 @@ boundary on 2026-10-04 for future external-agent access. New work follows the [p
 - This client-boundary amendment adds no MCP implementation, daemon, remote/cloud service, HTTP listener, sync, authentication server or multi-user model to V1.
 - Provider/model/account selection is explicit with no automatic fallback; credentials stay protected outside Git, vault, SQLite and logs.
 
-Reopen these guarantees or ownership boundaries only with the owner after a changed requirement or a concrete blocker that the frozen architecture cannot reasonably handle. Follow the [roadmap](../roadmap.md) for delivery, not superseded specifications.
+The owner has reopened mechanisms and sequencing for this reassessment. Future implementation follows an accepted selected plan; current contracts cannot veto evaluation. No authoritative autonomy is enabled.
 
 ## Current Save and recovery contracts
 

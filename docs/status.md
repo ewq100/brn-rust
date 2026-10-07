@@ -1,5 +1,13 @@
 # Current development status
 
+## Current reassessment checkpoint — 2026-10-07
+
+Fetched main is `67818388112c400802097763b9eeed8aa87bb465` (PR83/H2), including H1 at f3cf699. The PR77 identity below is the Office feature checkpoint, not current HEAD. Open result/docs PRs inspected: PR84 H4 head0f3e277, PR80 H5 headbe59a7a, PR82 H1 integration head8018755. H1/H2 are implemented and merged; H1 owner acceptance remains pending. Prior test counts are historical; this reassessment does not add native/live/owner qualification.
+
+The [owner amendment](product/BRN_PRODUCT_VISION.md#owner-amendment--2026-10-07) reopens architecture/reuse for documentation, review and isolated evaluation. Production implementation stays paused. Real EML import is newly explicit V1; current Email enum/literal fencing is insufficient. The [reassessment](audits/BRN_ARCHITECTURE_REASSESSMENT_2026-10-07.md) records fresh native library/MIME probes and whole-system dispositions; the [ordered plan](work/active/architecture-reassessment/plan.md) is PROPOSED, not an accepted replacement or task selection. Existing actual source/proposal/Action foundations remain; broad conversion/AI/reviewability and later V1 work remain incomplete.
+
+## Previous checkpoint and qualification evidence
+
 2026-10-06. **Stages 1–4 are implemented, automated verified and integrated.
 Stage 5 knowledge and Stage 6 Actions/dashboard foundations are integrated,
 with native/live/owner qualification still open.

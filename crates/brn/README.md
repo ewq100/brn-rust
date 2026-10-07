@@ -1,5 +1,7 @@
 # brn
 
+> Requirements/qualification context (2026-10-07): this README describes implemented behavior, not mandatory limits or acceptance of the proposed replacement. The [owner amendment](../../docs/product/BRN_PRODUCT_VISION.md#owner-amendment--2026-10-07), [reassessment](../../docs/audits/BRN_ARCHITECTURE_REASSESSMENT_2026-10-07.md) and [proposed plan](../../docs/work/active/architecture-reassessment/plan.md) reopen mechanisms. Email enum/literal text is not real EML ingestion; broader conversion, AI draft freedom/budgets and practical reviewability remain gaps. No production behavior changed in this documentation task.
+
 Owner-operated CLI over [brn-workflow](../brn-workflow/README.md). Every command
 uses AppWorker, sharing the desktop's application owner and durable behavior.
 A data directory has one owner at a time. The CLI exposes owner effects, including

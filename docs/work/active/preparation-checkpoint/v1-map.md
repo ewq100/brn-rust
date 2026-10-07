@@ -1,25 +1,22 @@
 # Remaining V1 dependency map
 
-2026-10-06; planning only, no roadmap resumption. [Status](../../../status.md) owns implemented/qualified state; [roadmap](../../../roadmap.md) and [Product Vision](../../../product/BRN_PRODUCT_VISION.md) own intended outcomes. Existing [Office plan](../office-inbox/plan.md), [text Inbox plan](../text-email-inbox/plan.md), [knowledge plan](../knowledge-foundations/plan.md) and [invariants](../../../architecture/invariants.md) remain authoritative inputs. H1/H2 specs are [here](next-specs.md); H3–H5 remain evaluations in the [queue](../v1-handoff.md#ordered-task-queue).
+2026-10-07, **PROPOSED**, production implementation paused. [Product Vision](../../../product/BRN_PRODUCT_VISION.md#owner-amendment--2026-10-07) owns requirements; [status](../../../status.md) owns observed qualification. The [whole-system reassessment](../../../audits/BRN_ARCHITECTURE_REASSESSMENT_2026-10-07.md) verifies built work and reuse evidence. The [ordered proposed plan](../architecture-reassessment/plan.md) is the single detailed slice/dependency/acceptance map, replacing the old H1–H5 recommendation order. No new library/architecture is accepted by this map.
 
-| Stage / state | Actual prerequisite and next specification gap |
+| Original work | Proposed dependency / specification change |
 | --- | --- |
-| 5–7 foundations integrated; qualification incomplete | Native usability, multilingual/corpus search, live semantic behavior and owner acceptance need named acceptance tasks. Findings native queue/scheduled detection and deeper semantic qualification remain gaps; do not call synthetic results product acceptance. |
-| 8 partial: bounded DOCX and one PNG integrated | H4 evaluates reuse before **broader DOCX** specification. Then select one content/asset profile with explicit preserve/refuse/bounds and recovery witnesses. JPEG/multiple occurrences, charts/diagrams, PDF/PPTX and supplied URLs lack executable specs. Binary cleanup depends on a qualified meaningful-preservation proof and separate owner confirmation, not merely Source approval. |
-| 9 web research | Provider native-web capability evidence from Stage3 is an input, not full attribution support. Specify evidence/citation capture, limits/cancellation and durable proposal path; depends on Source/provenance foundations. Supplied-URL capture may share this work only after a concrete common requirement. |
-| 10 Needs Review/maintenance | Builds on current/history/conflict facts and Findings. Specify one detector→evidence→review outcome and freshness/repetition/closure policy; web-dependent detectors additionally need Stage9 evidence. Findings do not grant knowledge application authority. |
-| 11 project/person views | Identity/links/Actions/current evidence exist. Specify one read-only context view and uncertain/missing references; full views need no graph canvas, maintenance refactor or H1–H5 dependency. |
-| 12 bounded helpers | Uses shared AI/application lanes and approved tools. Specify delegation budget, evidence return, cancellation/joining and no independent durable write; first check Rig0.43.0 and companions. No new orchestration service implied. |
-| 13 sessions/preferences | Existing sessions/timestamps provide foundations for proposed Archive/Restore, inactivity30days, warning before Delete and preservation of captured knowledge. Specify warning evidence and offline lifecycle; unresolved exact deletion/Undo/retention mechanics require a bounded spec, not guessed behavior. Preferences require separate exact approval. |
-| 14 graph view | Derived relationships exist. Specify one view/navigation slice using existing queries/index; no graph datastore. Depends on relationship evidence, not all profile/maintenance work. |
-| 15 vault cleanup | Existing proposals/identity/history underpin reviewable organization/metadata/supersession batches. Specify one bounded batch, ambiguous identity/refusal and Undo limits. Does not depend on graph; private-vault inspection/migration needs selection/authorization. |
-| 16 trusted-user delivery | Needs selected V1 acceptance, packaging/upgrades/backup recovery and clean-machine evidence. Signing, distribution, accounts and model acquisition require their own authorization. Informational portability failures do not gate unrelated prep/maintenance. |
+| Stages1–4 foundations | Keep Save/recovery/shared exact approval; broaden draft freedom and meaningful review in P2/P3. No recovery rewrite prerequisite. |
+| Stage5 knowledge and6 Actions | Keep identity/provenance/scopes; P3 ranged/raw evidence, P7 multilingual quality/Action inverse/backups. Qualification remains pending separately. |
+| Stage7 text/email | Actual EML is newly explicit V1, absent from current enum/literal fencing. P1 MIME/Office probe then P2 narrow real-email+attachment demonstration, before general all-format work. |
+| Stage8 Office/URLs | Common library adapter strategy, P1/P2 then P5 profiles. Useful partial review is allowed; misleading omissions and incomplete original cleanup are not. PDF/layout decision independent of first Office/MIME adoption; charts/SmartArt need actual preview evidence. |
+| Stage9 web | P6 attributable web tools in shared agent/draft path; bounded later live qualification separately authorized. |
+| Stage10 review/maintenance | P4 offline conflict/staleness/neglected-action demo, P6 for web-dependent detectors. AI may recommend resolution; exact approval makes truth changes. |
+| Stage11 project/person | P8 projections over current records; not dependent on graph canvas or full maintenance rewrite. |
+| Stage12 helpers | P10 uses shared budget/evidence/cancellation after P3; inspect Rig before custom orchestration. |
+| Stage13 session/preferences | P9 reversible Archive/Restore,30day inactivity, warning before Delete, approved preferences. Offline lifecycle independent of converters. |
+| Stage14 graph | P8 view over explicit/derived links, no graph store. |
+| Stage15 cleanup | P11 structural draft batches, can precede graph; preserve actual files and require separate actual-private-vault selection. |
+| Stage16 trusted-user delivery | P13 clean-machine Apple Silicon/native/provider/upgrade/recovery/license/performance qualification, selected format profiles. No release authorization. |
+| H1/H2 | Merged at f3cf699/6781838; retain useful reuse. Exact generated compatibility is conditional, not permanent owner requirement. |
+| H3/H4/H5 | H3 offline route question remains; H4/H5 result PRs unmerged. Preserve observations, reopen adoption assumptions; dispositions in proposed plan. |
 
-Detailed specs beyond H1/H2 would exceed evidence here. The table identifies future spec work, not ready implementation tickets. No new maintenance prerequisite is imposed on unrelated product outcomes.
-
-## Recommended explicit selections
-
-1. **H1**: small, settled visible defect; already pinned parser and test seam; best first task for a cross-agent handoff trial.
-2. **H4 evaluation**: resolves the reuse question directly ahead of broader Stage8. Its complete outcome can be non-adoption. Do not start conversion replacement until this result is reviewed and a next slice selected.
-
-H2 is also technically ready within its compatibility stop; H3/H5 are ready for bounded evaluation. H1/H4/H5 have disjoint product/evaluator files and may run in separate worktrees if each is selected; H2/H3 should be serialized. Lead alone integrates and updates shared status, ADR, queue and parent specs. Evaluators return their findings in task-owned records for lead reconciliation. Recheck overlap after fetching the actual baseline; use distinct Cargo targets and one Cargo process per target. The paused roadmap remains paused after any one task.
+P1 gates only the narrow P2 profile. Public producer-generated benign fixtures and hostile safety fixtures assess different outcomes. The early owner scenario is one EML with one DOCX attachment and meaningful known PNG, one revised proposal/action group, exact approval and restart/history; P3 adds general structural drafting. A separate conflict/maintenance scenario proves reasoning and review. No code, manifests/locks or CI changes are authorized by this planning map.

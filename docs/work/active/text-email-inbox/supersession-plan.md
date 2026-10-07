@@ -1,5 +1,7 @@
 # Inbox supersession consequence — Mac mini
 
+> Current planning context, 2026-10-07: the [proposed whole-system plan](../architecture-reassessment/plan.md) supersedes the old next-task order, custom-converter expansion and mandatory incidental-compatibility rules for reassessment. Existing observations/tests remain evidence; implementation is paused. Actual EML is required V1 and is not implemented by pasted Email text. Partial conversion may enter qualified draft review; original cleanup remains a separate protected operation. AI may recommend resolutions and revise unapproved work. No new design is accepted solely by this notice.
+
 ## Baseline and authorization
 
 2026-10-05: owner resumed sequential V1 development on Mac mini, permitting

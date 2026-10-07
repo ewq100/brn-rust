@@ -1,0 +1,80 @@
+From: Anna <anna@example.test>
+To: Owner <owner@example.test>
+Cc: Team <team@example.test>
+Subject: Paint =?utf-8?b?4oCTIHbDpHJ2?=
+Date: Wed, 07 Oct 2026 10:15:00 +0300
+Message-ID: <paint-2@example.test>
+In-Reply-To: <paint-1@example.test>
+References: <paint-0@example.test> <paint-1@example.test>
+MIME-Version: 1.0
+Content-Type: multipart/mixed; boundary="===============7451665209211986310=="
+
+--===============7451665209211986310==
+Content-Type: multipart/alternative;
+ boundary="===============2370378766330989852=="
+
+--===============2370378766330989852==
+Content-Type: text/plain; charset="iso-8859-1"
+Content-Transfer-Encoding: quoted-printable
+
+V=E4rv: blue. Please review the attached plan.
+
+--===============2370378766330989852==
+MIME-Version: 1.0
+Content-Type: multipart/related;
+ boundary="===============0312014930903478178=="
+
+--===============0312014930903478178==
+Content-Type: text/html; charset="utf-8"
+Content-Transfer-Encoding: 8bit
+
+<html><body><p>Värv: blue.</p><img src="cid:paint-image"></body></html>
+
+--===============0312014930903478178==
+Content-Type: image/png
+Content-Transfer-Encoding: base64
+Content-ID: <paint-image>
+MIME-Version: 1.0
+Content-Disposition: inline
+
+c3ludGhldGljLWltYWdlLWJ5dGVz
+
+--===============0312014930903478178==--
+
+--===============2370378766330989852==--
+
+--===============7451665209211986310==
+Content-Type: application/vnd.openxmlformats-officedocument.wordprocessingml.document
+Content-Transfer-Encoding: base64
+Content-Disposition: attachment; filename="plan.docx"
+MIME-Version: 1.0
+
+UEsDBBQAAAAAAJNMR110JJxTPgEAAD4BAAATAAAAW0NvbnRlbnRfVHlwZXNdLnhtbDxUeXBlcyB4
+bWxucz0iaHR0cDovL3NjaGVtYXMub3BlbnhtbGZvcm1hdHMub3JnL3BhY2thZ2UvMjAwNi9jb250
+ZW50LXR5cGVzIj48RGVmYXVsdCBFeHRlbnNpb249InJlbHMiIENvbnRlbnRUeXBlPSJhcHBsaWNh
+dGlvbi92bmQub3BlbnhtbGZvcm1hdHMtcGFja2FnZS5yZWxhdGlvbnNoaXBzK3htbCIvPjxPdmVy
+cmlkZSBQYXJ0TmFtZT0iL3dvcmQvZG9jdW1lbnQueG1sIiBDb250ZW50VHlwZT0iYXBwbGljYXRp
+b24vdm5kLm9wZW54bWxmb3JtYXRzLW9mZmljZWRvY3VtZW50LndvcmRwcm9jZXNzaW5nbWwuZG9j
+dW1lbnQubWFpbit4bWwiLz48L1R5cGVzPlBLAwQUAAAAAACTTEddYXsvQ/IAAADyAAAACwAAAF9y
+ZWxzLy5yZWxzPFJlbGF0aW9uc2hpcHMgeG1sbnM9Imh0dHA6Ly9zY2hlbWFzLm9wZW54bWxmb3Jt
+YXRzLm9yZy9wYWNrYWdlLzIwMDYvcmVsYXRpb25zaGlwcyI+PFJlbGF0aW9uc2hpcCBJZD0icklk
+MSIgVHlwZT0iaHR0cDovL3NjaGVtYXMub3BlbnhtbGZvcm1hdHMub3JnL29mZmljZURvY3VtZW50
+LzIwMDYvcmVsYXRpb25zaGlwcy9vZmZpY2VEb2N1bWVudCIgVGFyZ2V0PSJ3b3JkL2RvY3VtZW50
+LnhtbCIvPjwvUmVsYXRpb25zaGlwcz5QSwMEFAAAAAAAk0xHXS86fMSsAAAArAAAABEAAAB3b3Jk
+L2RvY3VtZW50LnhtbDx3OmRvY3VtZW50IHhtbG5zOnc9Imh0dHA6Ly9zY2hlbWFzLm9wZW54bWxm
+b3JtYXRzLm9yZy93b3JkcHJvY2Vzc2luZ21sLzIwMDYvbWFpbiI+PHc6Ym9keT48dzpwPjx3OnI+
+PHc6dD5QYWludCBzcGVjaWZpY2F0aW9uOiBibHVlLjwvdzp0PjwvdzpyPjwvdzpwPjwvdzpib2R5
+Pjwvdzpkb2N1bWVudD5QSwECFAMUAAAAAACTTEdddCScUz4BAAA+AQAAEwAAAAAAAAAAAAAAgAEA
+AAAAW0NvbnRlbnRfVHlwZXNdLnhtbFBLAQIUAxQAAAAAAJNMR11hey9D8gAAAPIAAAALAAAAAAAA
+AAAAAACAAW8BAABfcmVscy8ucmVsc1BLAQIUAxQAAAAAAJNMR10vOnzErAAAAKwAAAARAAAAAAAA
+AAAAAACAAYoCAAB3b3JkL2RvY3VtZW50LnhtbFBLBQYAAAAAAwADALkAAABlAwAAAAA=
+
+--===============7451665209211986310==
+Content-Type: application/octet-stream
+Content-Transfer-Encoding: base64
+Content-Disposition: attachment; filename="unprocessed.bin"
+MIME-Version: 1.0
+
+dW5zdXBwb3J0ZWQtYXR0YWNobWVudA==
+
+--===============7451665209211986310==--

@@ -1,0 +1,2 @@
+# Preserve exact RFC5322 CRLF bytes; display fixture as binary evidence.
+fixture.eml -text -diff

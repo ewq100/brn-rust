@@ -1,0 +1,28 @@
+{
+  "platform": "macOS-27.0.1-arm64-arm-64bit-Mach-O",
+  "machine": "arm64",
+  "binary_bytes": 4972416,
+  "runs": [
+    {
+      "run": 1,
+      "exit": 0,
+      "cumulative_child_peak_rss_bytes": 5029888,
+      "stdout": "DOCX image data URL exposed: yes; wire bytes: 3065; elapsed_us: 2112\nDOCX H4 ruby/unknown-wrapper content loss independently reproduced; original part remains available: yes\nPPTX slide text, notes, image alt and exact asset: yes; image title exposed: false; elapsed_us: 786\nTargeted title supplement from retained PPTX part: yes; elapsed_us: 38\nXLSX sheet and string/number model: yes; elapsed_us: 298\n",
+      "stderr": ""
+    },
+    {
+      "run": 2,
+      "exit": 0,
+      "cumulative_child_peak_rss_bytes": 5095424,
+      "stdout": "DOCX image data URL exposed: yes; wire bytes: 3065; elapsed_us: 406\nDOCX H4 ruby/unknown-wrapper content loss independently reproduced; original part remains available: yes\nPPTX slide text, notes, image alt and exact asset: yes; image title exposed: false; elapsed_us: 396\nTargeted title supplement from retained PPTX part: yes; elapsed_us: 21\nXLSX sheet and string/number model: yes; elapsed_us: 93\n",
+      "stderr": ""
+    },
+    {
+      "run": 3,
+      "exit": 0,
+      "cumulative_child_peak_rss_bytes": 5095424,
+      "stdout": "DOCX image data URL exposed: yes; wire bytes: 3065; elapsed_us: 427\nDOCX H4 ruby/unknown-wrapper content loss independently reproduced; original part remains available: yes\nPPTX slide text, notes, image alt and exact asset: yes; image title exposed: false; elapsed_us: 292\nTargeted title supplement from retained PPTX part: yes; elapsed_us: 17\nXLSX sheet and string/number model: yes; elapsed_us: 68\n",
+      "stderr": ""
+    }
+  ]
+}

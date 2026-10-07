@@ -1,7 +1,8 @@
 # Architecture overview
 
-The owner froze the reviewed product architecture on 2026-10-03 and amended its
-client boundary on 2026-10-04 for future external-agent access. [Product vision](../product/BRN_PRODUCT_VISION.md)
+> Current authority (2026-10-07): the [owner amendment](../product/BRN_PRODUCT_VISION.md#owner-amendment--2026-10-07) supersedes freeze, mandatory roadmap ordering and mechanism-preservation instructions below for this authorized whole-system reassessment. Those descriptions record the previous target/current contracts; they cannot prohibit investigation or proposed replacement. Product outcomes remain binding. Production implementation is paused; new design/sequence choices remain PROPOSED pending acceptance.
+
+The 2026-10-03 reviewed target and 2026-10-04 client amendment describe the previous baseline; the 2026-10-07 owner amendment reopens mechanisms for reassessment. [Product vision](../product/BRN_PRODUCT_VISION.md)
 supplies requirements; [invariants](invariants.md) records the governing guarantees
 and resolved rules. The dated [audit](../audits/BRN_PRODUCT_ARCHITECTURE_AUDIT.md) and
 [independent review](../audits/BRN_PRODUCT_ARCHITECTURE_REVIEW.md) explain the decisions,
@@ -10,14 +11,13 @@ not implementation authorization.
 ## Frozen target
 
 BRN is a headless-capable knowledge/application platform with multiple clients.
-Keep the existing six crates as the V1 core: `brn-desktop` and `brn` consume
+The current V1 core has six crates: `brn-desktop` and `brn` consume
 `brn-workflow` / AppWorker, which coordinates `brn-store`, `brn-retrieval` and the
 thin `brn-ai` Rig adapter. Presentation and protocol adapters may be added when
 required around this stable core; they consume the shared application boundary
 without duplicating domain logic or establishing competing data authority.
 An adapter crate such as future `brn-mcp` does not require a core redesign.
-Retain WorkStore, current retrieval and AppWorker ownership. No additional
-database, service or framework is justified by the external-agent requirement.
+The reassessment proposes retaining WorkStore, derived retrieval and AppWorker initially; replacements require evidence of a simpler way to deliver the owner outcomes.
 
 ```mermaid
 flowchart TD
@@ -41,7 +41,7 @@ flowchart TD
 
 Proposals have one review lifecycle and typed changes enforced by the workflow. Relationships and context use existing records and derived queries; the graph is a view, not another datastore. Source wording, interpretation, approved knowledge and tentative findings stay distinguishable.
 
-Crate boundaries, data ownership and product guarantees stay frozen. Reopen them with the owner only for a changed requirement or a demonstrated blocker the target cannot reasonably handle. Local table, algorithm, tool and UI details can evolve inside those boundaries, including additive WorkStore tables and supported migrations; no schema-version freeze is imposed. [Roadmap](../roadmap.md) owns the reviewed sequence; [status](../status.md) owns actual implementation and qualification.
+Crate count, internal ownership mechanisms, parser policies and roadmap order are open to proposed revision under the owner amendment. Portable knowledge, explicit authority, provider choice, recoverability and shared headless capabilities remain required outcomes. The [reassessment](../audits/BRN_ARCHITECTURE_REASSESSMENT_2026-10-07.md) owns the proposed direction; [plan](../work/active/architecture-reassessment/plan.md) owns proposed sequencing. Neither authorizes production work.
 
 The [vault format](vault-format.md) records current Markdown fields, exact Source
 and citation encodings, stable links and the History/archive convention. Scope
@@ -50,14 +50,14 @@ classification and provenance describe saved state and evidence, not semantic tr
 ## Semantic intelligence and deterministic authority
 
 Owner clarification, 2026-10-05: BRN deliberately separates semantic intelligence
-from deterministic authority within the frozen six-crate architecture.
+from deterministic authority within the current implementation.
 
 | Responsibility | Owner |
 | --- | --- |
 | Interpret meaning, compare information semantically, decide which evidence to inspect, choose bounded tools, identify possible conflicts/duplicates/supersession, and produce candidate text/proposals | LLM through the existing AI lane |
 | Saved-state authority, identity minting, quote/range binding, whole before records, scope/freshness, provenance verification, exact comparisons, proposal validation, approval, filesystem effects, indexing, recovery and Undo | Rust / shared workflow and its existing storage/file/retrieval boundaries |
 
-AI output or confidence never substitutes for deterministic evidence checks or
+AI may recommend evidence-backed resolutions and revise private drafts; it cannot silently make them authoritative. AI output or confidence never substitutes for deterministic evidence checks or
 user approval. Semantic judgments remain candidates; Rust validates their exact
 captured evidence and typed requests before granting any existing authority.
 Clients continue through `brn-workflow` / AppWorker; `brn-ai` remains the thin Rig
@@ -102,8 +102,7 @@ is very small and low risk; this clarification does not require a prompt rewrite
 Byte-pinned prompt fingerprints detect instruction changes, not semantic effectiveness.
 
 This rule adds no dynamic Skills system, prompt database, plugin framework,
-Context Engine, second agent framework or other V1 architecture. Frozen ownership,
-exact proposal approval and current roadmap dependency order remain unchanged.
+Context Engine, second agent framework or other V1 architecture. Exact proposal approval remains required; internal ownership and roadmap ordering are open to proposed changes.
 
 ## Client and protocol boundary
 
@@ -139,8 +138,7 @@ This policy does not claim that the current CLI enforces caller identity.
 
 No `brn-mcp` is added merely for this amendment. A daemon, simultaneous-client
 coordination, remote access, HTTP/network listener, cloud service, sync or
-authentication server needs a later concrete requirement. V1 delivery order
-remains unchanged.
+authentication server needs a later concrete requirement. The proposed V1 delivery order is recorded in the reassessment plan.
 
 ## Implemented baseline
 
@@ -245,7 +243,7 @@ persisted before SQLite finalization. Every startup imports retained records
 before binding current evidence, including healthy older/fresh databases;
 completed historical replay preserves subsequent user file edits. Partial or
 incompatible proof stays fenced. Ordinary receipt/comment cleanup never removes
-unexpected artifacts. These receipts implement the frozen ordinary-file recovery
+unexpected artifacts. These receipts implement the current ordinary-file recovery
 boundary rather than adding another datastore.
 
 ## Inbox copy cleanup and recovery evolution
@@ -270,8 +268,7 @@ pending. Imported evidence is not permission to remove.
 
 Extend approved vault and ordinary-asset effects through existing typed
 proposal-apply members. Extend private intake effects through the original-operation
-family. A new recovery family requires a concrete blocker in those mechanisms and
-an owner decision before implementation. Existing Save/recovery mechanisms remain
+family. A proposed new recovery mechanism must show why existing mechanisms are insufficient or more complex; implementation still needs owner selection. Existing Save/recovery mechanisms remain
 in place; additive WorkStore tables are local implementation choices, not new
 data authorities. This guidance does not authorize automatic migration or removal
 of existing recovery evidence. Knowledge approvals need their genuine captured
@@ -302,9 +299,7 @@ its observed qualification. Historical plans do not override these authorities.
 
 Documentation disagreements corrected here: status/handoff still called landed
 PR78 open; vault-format's asset paragraph still described a text-only baseline.
-The paused roadmap language is reconciled without changing its sequence. The
-remaining gaps above require selected slices and their own acceptance evidence;
-no ADR is needed because this pass preserves existing decisions.
+The paused roadmap language is reconciled without changing its sequence. The remaining gaps require selected slices and their own acceptance evidence. The dated reassessment reopens mechanisms without claiming a production change.
 
 ## Build boundaries and remaining work
 
