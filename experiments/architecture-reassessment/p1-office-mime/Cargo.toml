@@ -1,0 +1,13 @@
+[package]
+name = "brn-p1-office-mime"
+version = "0.0.0"
+edition = "2024"
+[workspace]
+[dependencies]
+betteroffice-docx-parse = "=0.3.0"
+betteroffice-pptx-parse = "=0.3.0"
+mail-parser = { version = "=0.11.8", features = ["full_encoding"] }
+serde_json = "=1.0.145"
+quick-xml = "=0.41.0"
+zip = { version = "=8.6.0", default-features = false, features = ["deflate"] }
+sha2 = "=0.10.9"

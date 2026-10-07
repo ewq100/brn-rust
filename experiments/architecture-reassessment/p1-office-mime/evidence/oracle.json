@@ -1,0 +1,14 @@
+{
+  "result": "PASS",
+  "checks": [
+    "producer ZIP picture title/relationship/exact PNG",
+    "repeated PNG preserves two picture occurrences",
+    "titled nonpicture excluded",
+    "DOCX ordered duplicate cells and story content",
+    "PPTX notes/shape text; chart visual visibly omitted",
+    "stdlib MIME exact CID/attachment bytes and independent parent nodes",
+    "unsupported XLSX retained/unprocessed",
+    "four hostile outer-admission rejections",
+    "actual negative-access and process-tree cancellation witnesses"
+  ]
+}

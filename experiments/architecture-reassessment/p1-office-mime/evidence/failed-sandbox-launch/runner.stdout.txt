@@ -1,0 +1,182 @@
+{
+  "host": "macOS-27.0.1-arm64-arm-64bit-Mach-O",
+  "architecture": "arm64",
+  "environment": {},
+  "limits": {
+    "input_bytes": 8388608,
+    "inflated_bytes": 16777216,
+    "members": 512,
+    "xml_depth": 128,
+    "xml_events_per_part": 200000,
+    "cpu_seconds": 3,
+    "output_bytes_per_file": 33554432,
+    "file_descriptors": 64,
+    "hard_rss_limit": "not established on macOS; byte/event caps + measured RSS"
+  },
+  "runs": [
+    {
+      "exit": -6,
+      "wall_ms": 8.04,
+      "peak_rss_bytes": 737280,
+      "stderr": "",
+      "fixture": "harbor.docx",
+      "attempt": 0,
+      "cache_scope": "first process (OS caches uncontrolled)"
+    },
+    {
+      "exit": -6,
+      "wall_ms": 7.489,
+      "peak_rss_bytes": 737280,
+      "stderr": "",
+      "fixture": "harbor.docx",
+      "attempt": 1,
+      "cache_scope": "warm process"
+    },
+    {
+      "exit": -6,
+      "wall_ms": 7.355,
+      "peak_rss_bytes": 737280,
+      "stderr": "",
+      "fixture": "harbor.docx",
+      "attempt": 2,
+      "cache_scope": "warm process"
+    },
+    {
+      "exit": -6,
+      "wall_ms": 7.253,
+      "peak_rss_bytes": 737280,
+      "stderr": "",
+      "fixture": "harbor.pptx",
+      "attempt": 0,
+      "cache_scope": "first process (OS caches uncontrolled)"
+    },
+    {
+      "exit": -6,
+      "wall_ms": 7.635,
+      "peak_rss_bytes": 737280,
+      "stderr": "",
+      "fixture": "harbor.pptx",
+      "attempt": 1,
+      "cache_scope": "warm process"
+    },
+    {
+      "exit": -6,
+      "wall_ms": 7.712,
+      "peak_rss_bytes": 737280,
+      "stderr": "",
+      "fixture": "harbor.pptx",
+      "attempt": 2,
+      "cache_scope": "warm process"
+    },
+    {
+      "exit": -6,
+      "wall_ms": 7.658,
+      "peak_rss_bytes": 737280,
+      "stderr": "",
+      "fixture": "single.eml",
+      "attempt": 0,
+      "cache_scope": "first process (OS caches uncontrolled)"
+    },
+    {
+      "exit": -6,
+      "wall_ms": 13.14,
+      "peak_rss_bytes": 737280,
+      "stderr": "",
+      "fixture": "single.eml",
+      "attempt": 1,
+      "cache_scope": "warm process"
+    },
+    {
+      "exit": -6,
+      "wall_ms": 8.332,
+      "peak_rss_bytes": 737280,
+      "stderr": "",
+      "fixture": "single.eml",
+      "attempt": 2,
+      "cache_scope": "warm process"
+    },
+    {
+      "exit": -6,
+      "wall_ms": 18.154,
+      "peak_rss_bytes": 737280,
+      "stderr": "",
+      "fixture": "plural.eml",
+      "attempt": 0,
+      "cache_scope": "first process (OS caches uncontrolled)"
+    },
+    {
+      "exit": -6,
+      "wall_ms": 10.62,
+      "peak_rss_bytes": 737280,
+      "stderr": "",
+      "fixture": "plural.eml",
+      "attempt": 1,
+      "cache_scope": "warm process"
+    },
+    {
+      "exit": -6,
+      "wall_ms": 10.151,
+      "peak_rss_bytes": 737280,
+      "stderr": "",
+      "fixture": "plural.eml",
+      "attempt": 2,
+      "cache_scope": "warm process"
+    },
+    {
+      "exit": -6,
+      "wall_ms": 13.415,
+      "peak_rss_bytes": 737280,
+      "stderr": "",
+      "fixture": "hostile-path.docx",
+      "attempt": 0,
+      "cache_scope": "first process (OS caches uncontrolled)"
+    },
+    {
+      "exit": -6,
+      "wall_ms": 10.354,
+      "peak_rss_bytes": 737280,
+      "stderr": "",
+      "fixture": "hostile-dtd.docx",
+      "attempt": 0,
+      "cache_scope": "first process (OS caches uncontrolled)"
+    },
+    {
+      "exit": -6,
+      "wall_ms": 9.66,
+      "peak_rss_bytes": 737280,
+      "stderr": "",
+      "fixture": "hostile-inflate.docx",
+      "attempt": 0,
+      "cache_scope": "first process (OS caches uncontrolled)"
+    },
+    {
+      "exit": -6,
+      "wall_ms": 8.458,
+      "peak_rss_bytes": 737280,
+      "stderr": "",
+      "fixture": "hostile-members.docx",
+      "attempt": 0,
+      "cache_scope": "first process (OS caches uncontrolled)"
+    }
+  ],
+  "restrictions": {
+    "exit": -6,
+    "wall_ms": 7.462,
+    "peak_rss_bytes": 737280,
+    "stderr": "",
+    "assertions": {
+      "vault_read_denied": false,
+      "credential_read_denied": false,
+      "repository_read_denied": false,
+      "network_denied": false
+    }
+  },
+  "cancel": {
+    "parent_exit": -6,
+    "pids": [],
+    "states_after": {},
+    "wall_ms": 0.332,
+    "assertion": false,
+    "note": "empty or zombie is terminated; orphan reaping is OS responsibility"
+  }
+}

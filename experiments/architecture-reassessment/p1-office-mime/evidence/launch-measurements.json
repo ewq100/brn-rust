@@ -1,0 +1,162 @@
+[
+  {
+    "exit": 0,
+    "wall_timeout": false,
+    "wall_ms": 28.291,
+    "peak_rss_bytes": 46923776,
+    "stderr": "",
+    "fixture": "harbor.docx",
+    "attempt": 0,
+    "cache_scope": "first process (OS caches uncontrolled)"
+  },
+  {
+    "exit": 0,
+    "wall_timeout": false,
+    "wall_ms": 25.697,
+    "peak_rss_bytes": 46923776,
+    "stderr": "",
+    "fixture": "harbor.docx",
+    "attempt": 1,
+    "cache_scope": "warm process"
+  },
+  {
+    "exit": 0,
+    "wall_timeout": false,
+    "wall_ms": 25.782,
+    "peak_rss_bytes": 46972928,
+    "stderr": "",
+    "fixture": "harbor.docx",
+    "attempt": 2,
+    "cache_scope": "warm process"
+  },
+  {
+    "exit": 0,
+    "wall_timeout": false,
+    "wall_ms": 10.759,
+    "peak_rss_bytes": 10158080,
+    "stderr": "",
+    "fixture": "harbor.pptx",
+    "attempt": 0,
+    "cache_scope": "first process (OS caches uncontrolled)"
+  },
+  {
+    "exit": 0,
+    "wall_timeout": false,
+    "wall_ms": 10.302,
+    "peak_rss_bytes": 10223616,
+    "stderr": "",
+    "fixture": "harbor.pptx",
+    "attempt": 1,
+    "cache_scope": "warm process"
+  },
+  {
+    "exit": 0,
+    "wall_timeout": false,
+    "wall_ms": 10.135,
+    "peak_rss_bytes": 10141696,
+    "stderr": "",
+    "fixture": "harbor.pptx",
+    "attempt": 2,
+    "cache_scope": "warm process"
+  },
+  {
+    "exit": 0,
+    "wall_timeout": false,
+    "wall_ms": 26.32,
+    "peak_rss_bytes": 46989312,
+    "stderr": "",
+    "fixture": "single.eml",
+    "attempt": 0,
+    "cache_scope": "first process (OS caches uncontrolled)"
+  },
+  {
+    "exit": 0,
+    "wall_timeout": false,
+    "wall_ms": 26.453,
+    "peak_rss_bytes": 46989312,
+    "stderr": "",
+    "fixture": "single.eml",
+    "attempt": 1,
+    "cache_scope": "warm process"
+  },
+  {
+    "exit": 0,
+    "wall_timeout": false,
+    "wall_ms": 26.294,
+    "peak_rss_bytes": 47038464,
+    "stderr": "",
+    "fixture": "single.eml",
+    "attempt": 2,
+    "cache_scope": "warm process"
+  },
+  {
+    "exit": 0,
+    "wall_timeout": false,
+    "wall_ms": 26.526,
+    "peak_rss_bytes": 47022080,
+    "stderr": "",
+    "fixture": "plural.eml",
+    "attempt": 0,
+    "cache_scope": "first process (OS caches uncontrolled)"
+  },
+  {
+    "exit": 0,
+    "wall_timeout": false,
+    "wall_ms": 30.972,
+    "peak_rss_bytes": 47087616,
+    "stderr": "",
+    "fixture": "plural.eml",
+    "attempt": 1,
+    "cache_scope": "warm process"
+  },
+  {
+    "exit": 0,
+    "wall_timeout": false,
+    "wall_ms": 26.964,
+    "peak_rss_bytes": 47071232,
+    "stderr": "",
+    "fixture": "plural.eml",
+    "attempt": 2,
+    "cache_scope": "warm process"
+  },
+  {
+    "exit": 0,
+    "wall_timeout": false,
+    "wall_ms": 7.119,
+    "peak_rss_bytes": 5636096,
+    "stderr": "",
+    "fixture": "hostile-path.docx",
+    "attempt": 0,
+    "cache_scope": "first process (OS caches uncontrolled)"
+  },
+  {
+    "exit": 0,
+    "wall_timeout": false,
+    "wall_ms": 7.138,
+    "peak_rss_bytes": 5685248,
+    "stderr": "",
+    "fixture": "hostile-dtd.docx",
+    "attempt": 0,
+    "cache_scope": "first process (OS caches uncontrolled)"
+  },
+  {
+    "exit": 0,
+    "wall_timeout": false,
+    "wall_ms": 6.853,
+    "peak_rss_bytes": 5701632,
+    "stderr": "",
+    "fixture": "hostile-inflate.docx",
+    "attempt": 0,
+    "cache_scope": "first process (OS caches uncontrolled)"
+  },
+  {
+    "exit": 0,
+    "wall_timeout": false,
+    "wall_ms": 7.058,
+    "peak_rss_bytes": 5734400,
+    "stderr": "",
+    "fixture": "hostile-members.docx",
+    "attempt": 0,
+    "cache_scope": "first process (OS caches uncontrolled)"
+  }
+]

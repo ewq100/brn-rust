@@ -1,0 +1,4 @@
+read /private/tmp/brn-p1-forbidden-jy1yopbe/vault.md Err(Os { code: 1, kind: PermissionDenied, message: "Operation not permitted" })
+read /private/tmp/brn-p1-forbidden-jy1yopbe/credential Err(Os { code: 1, kind: PermissionDenied, message: "Operation not permitted" })
+read /Users/evokessler/repos/brn-p1-office-mime/experiments/architecture-reassessment/p1-office-mime/Cargo.toml Err(Os { code: 1, kind: PermissionDenied, message: "Operation not permitted" })
+network Err(Os { code: 1, kind: PermissionDenied, message: "Operation not permitted" })

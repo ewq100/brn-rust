@@ -1,0 +1,66 @@
+{
+  "charts_without_visual_preview": [
+    "ppt/charts/chart1.xml"
+  ],
+  "converter": "BetterOffice-pptx-0.3.0",
+  "gaps": [
+    "Reflowed slide/notes evidence view, not a DrawingML renderer. Spatial dependencies, chart appearance and inherited layout are not qualified. Inspect retained slide preview."
+  ],
+  "occurrences": [
+    {
+      "asset_part": "ppt/media/image1.png",
+      "asset_sha256": "f76dd37920a0fc5889b1d53a0c448f7ec6c619ed8200eef5d31621e36ca4d61d",
+      "description": "Water savings evidence",
+      "name": "Picture 2",
+      "occurrence": 1,
+      "part": "ppt/slides/slide1.xml",
+      "picture_id": "3",
+      "relationship": "rId2",
+      "source": "8fa8c3d08fc157cd08d4a5cb17c48c54ca7b7723930b6d35c484f9b975455280",
+      "title": "Primary water chart"
+    },
+    {
+      "asset_part": "ppt/media/image1.png",
+      "asset_sha256": "f76dd37920a0fc5889b1d53a0c448f7ec6c619ed8200eef5d31621e36ca4d61d",
+      "description": "Water savings evidence",
+      "name": "Picture 3",
+      "occurrence": 2,
+      "part": "ppt/slides/slide1.xml",
+      "picture_id": "4",
+      "relationship": "rId2",
+      "source": "8fa8c3d08fc157cd08d4a5cb17c48c54ca7b7723930b6d35c484f9b975455280",
+      "title": "Repeated water chart"
+    }
+  ],
+  "original_sha256": "8fa8c3d08fc157cd08d4a5cb17c48c54ca7b7723930b6d35c484f9b975455280",
+  "source": "8fa8c3d08fc157cd08d4a5cb17c48c54ca7b7723930b6d35c484f9b975455280",
+  "status": "partial",
+  "text": [
+    "Presenter note: ask Mira to book the inspection by 12 October.",
+    "Harbor decision and dependencies",
+    "CRITICAL: installation may start only after valve inspection.",
+    "Visual-only scheduling evidence: inspection capacity"
+  ],
+  "text_evidence": [
+    {
+      "source_ordinal": null,
+      "text": "Presenter note: ask Mira to book the inspection by 12 October.",
+      "wire_pointer": "/slides/0/notes"
+    },
+    {
+      "source_ordinal": null,
+      "text": "Harbor decision and dependencies",
+      "wire_pointer": "/slides/0/shapes/0/text/paragraphs/0/runs/0/text"
+    },
+    {
+      "source_ordinal": null,
+      "text": "CRITICAL: installation may start only after valve inspection.",
+      "wire_pointer": "/slides/0/shapes/3/text/paragraphs/0/runs/0/text"
+    },
+    {
+      "source_ordinal": null,
+      "text": "Visual-only scheduling evidence: inspection capacity",
+      "wire_pointer": "/slides/1/shapes/0/text/paragraphs/0/runs/0/text"
+    }
+  ]
+}

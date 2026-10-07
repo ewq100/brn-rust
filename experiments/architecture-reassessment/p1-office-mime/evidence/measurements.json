@@ -1,0 +1,222 @@
+{
+  "host": "macOS-27.0.1-arm64-arm-64bit-Mach-O",
+  "architecture": "arm64",
+  "environment": {},
+  "limits": {
+    "input_bytes": 8388608,
+    "inflated_bytes": 16777216,
+    "members": 512,
+    "xml_depth": 128,
+    "xml_events_per_part": 200000,
+    "cpu_seconds": 3,
+    "wall_seconds": 5,
+    "output_bytes_per_file": 33554432,
+    "file_descriptors": 64,
+    "hard_rss_limit": "not established on macOS; byte/event caps + measured RSS"
+  },
+  "runs": [
+    {
+      "exit": 0,
+      "wall_timeout": false,
+      "wall_ms": 28.291,
+      "peak_rss_bytes": 46923776,
+      "stderr": "",
+      "fixture": "harbor.docx",
+      "attempt": 0,
+      "cache_scope": "first process (OS caches uncontrolled)"
+    },
+    {
+      "exit": 0,
+      "wall_timeout": false,
+      "wall_ms": 25.697,
+      "peak_rss_bytes": 46923776,
+      "stderr": "",
+      "fixture": "harbor.docx",
+      "attempt": 1,
+      "cache_scope": "warm process"
+    },
+    {
+      "exit": 0,
+      "wall_timeout": false,
+      "wall_ms": 25.782,
+      "peak_rss_bytes": 46972928,
+      "stderr": "",
+      "fixture": "harbor.docx",
+      "attempt": 2,
+      "cache_scope": "warm process"
+    },
+    {
+      "exit": 0,
+      "wall_timeout": false,
+      "wall_ms": 10.759,
+      "peak_rss_bytes": 10158080,
+      "stderr": "",
+      "fixture": "harbor.pptx",
+      "attempt": 0,
+      "cache_scope": "first process (OS caches uncontrolled)"
+    },
+    {
+      "exit": 0,
+      "wall_timeout": false,
+      "wall_ms": 10.302,
+      "peak_rss_bytes": 10223616,
+      "stderr": "",
+      "fixture": "harbor.pptx",
+      "attempt": 1,
+      "cache_scope": "warm process"
+    },
+    {
+      "exit": 0,
+      "wall_timeout": false,
+      "wall_ms": 10.135,
+      "peak_rss_bytes": 10141696,
+      "stderr": "",
+      "fixture": "harbor.pptx",
+      "attempt": 2,
+      "cache_scope": "warm process"
+    },
+    {
+      "exit": 0,
+      "wall_timeout": false,
+      "wall_ms": 26.32,
+      "peak_rss_bytes": 46989312,
+      "stderr": "",
+      "fixture": "single.eml",
+      "attempt": 0,
+      "cache_scope": "first process (OS caches uncontrolled)"
+    },
+    {
+      "exit": 0,
+      "wall_timeout": false,
+      "wall_ms": 26.453,
+      "peak_rss_bytes": 46989312,
+      "stderr": "",
+      "fixture": "single.eml",
+      "attempt": 1,
+      "cache_scope": "warm process"
+    },
+    {
+      "exit": 0,
+      "wall_timeout": false,
+      "wall_ms": 26.294,
+      "peak_rss_bytes": 47038464,
+      "stderr": "",
+      "fixture": "single.eml",
+      "attempt": 2,
+      "cache_scope": "warm process"
+    },
+    {
+      "exit": 0,
+      "wall_timeout": false,
+      "wall_ms": 26.526,
+      "peak_rss_bytes": 47022080,
+      "stderr": "",
+      "fixture": "plural.eml",
+      "attempt": 0,
+      "cache_scope": "first process (OS caches uncontrolled)"
+    },
+    {
+      "exit": 0,
+      "wall_timeout": false,
+      "wall_ms": 30.972,
+      "peak_rss_bytes": 47087616,
+      "stderr": "",
+      "fixture": "plural.eml",
+      "attempt": 1,
+      "cache_scope": "warm process"
+    },
+    {
+      "exit": 0,
+      "wall_timeout": false,
+      "wall_ms": 26.964,
+      "peak_rss_bytes": 47071232,
+      "stderr": "",
+      "fixture": "plural.eml",
+      "attempt": 2,
+      "cache_scope": "warm process"
+    },
+    {
+      "exit": 0,
+      "wall_timeout": false,
+      "wall_ms": 7.119,
+      "peak_rss_bytes": 5636096,
+      "stderr": "",
+      "fixture": "hostile-path.docx",
+      "attempt": 0,
+      "cache_scope": "first process (OS caches uncontrolled)"
+    },
+    {
+      "exit": 0,
+      "wall_timeout": false,
+      "wall_ms": 7.138,
+      "peak_rss_bytes": 5685248,
+      "stderr": "",
+      "fixture": "hostile-dtd.docx",
+      "attempt": 0,
+      "cache_scope": "first process (OS caches uncontrolled)"
+    },
+    {
+      "exit": 0,
+      "wall_timeout": false,
+      "wall_ms": 6.853,
+      "peak_rss_bytes": 5701632,
+      "stderr": "",
+      "fixture": "hostile-inflate.docx",
+      "attempt": 0,
+      "cache_scope": "first process (OS caches uncontrolled)"
+    },
+    {
+      "exit": 0,
+      "wall_timeout": false,
+      "wall_ms": 7.058,
+      "peak_rss_bytes": 5734400,
+      "stderr": "",
+      "fixture": "hostile-members.docx",
+      "attempt": 0,
+      "cache_scope": "first process (OS caches uncontrolled)"
+    }
+  ],
+  "restrictions": {
+    "exit": 0,
+    "wall_timeout": false,
+    "wall_ms": 6.684,
+    "peak_rss_bytes": 5455872,
+    "stderr": "",
+    "assertions": {
+      "vault_read_denied": true,
+      "credential_read_denied": true,
+      "repository_read_denied": true,
+      "network_denied": true
+    }
+  },
+  "cancel": {
+    "parent_exit": -15,
+    "pids": [
+      23088,
+      23089,
+      23090
+    ],
+    "states_after": {
+      "23088": "",
+      "23089": "",
+      "23090": ""
+    },
+    "wall_ms": 16.188,
+    "assertion": true,
+    "note": "empty or zombie is terminated; orphan reaping is OS responsibility"
+  },
+  "wall_timeout_witness": {
+    "exit": -9,
+    "wall_timeout": true,
+    "wall_ms": 5014.812,
+    "peak_rss_bytes": 5357568,
+    "stderr": ""
+  },
+  "activation_failure_witness": {
+    "exit": 70,
+    "wall_timeout": false,
+    "wall_ms": 16.897,
+    "peak_rss_bytes": 5210112,
+    "stderr": "sandbox initialization failed: unbound variable: invalid at <input string>, line 1, column 2\n\nBacktrace: \n<input string>:1:2:\n\tinvalid\n\nsandbox_init: unbound variable: invalid at <input string>, line 1, column 2\n\nBacktrace: \n<input string>:1:2:\n\tinvalid\n\n"
+  }
+}
