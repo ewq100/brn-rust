@@ -6,6 +6,16 @@ Fetched main is `67818388112c400802097763b9eeed8aa87bb465` (PR83/H2), including 
 
 The [owner amendment](product/BRN_PRODUCT_VISION.md#owner-amendment--2026-10-07) reopens architecture/reuse for documentation, review and isolated evaluation. Production implementation stays paused. Real EML import is newly explicit V1; current Email enum/literal fencing is insufficient. The [reassessment](audits/BRN_ARCHITECTURE_REASSESSMENT_2026-10-07.md) records fresh native library/MIME probes and whole-system dispositions; the [ordered plan](work/active/architecture-reassessment/plan.md) is PROPOSED, not an accepted replacement or task selection. Existing actual source/proposal/Action foundations remain; broad conversion/AI/reviewability and later V1 work remain incomplete.
 
+## PR85 finalization and fresh-agent handoff — 2026-10-07
+
+The owner authorizes focused requirements/planning corrections and merge of [PR85](https://github.com/ewq100/brn-rust/pull/85) after final-head required checks, then stop. This selects no production work, new probe or live call in the finalization session. Final candidate/check/merge identities belong to PR85; no other checkout is reset to synchronize main.
+
+**Settled V1 scope:** full XLSX and standalone-image import are excluded, with no partial XLSX assumption. Embedded meaningful visuals in supported documents and inline email images remain required. Unsupported attachments, including XLSX, may be preserved with the parent email and visibly unprocessed; preservation is not conversion. The first one-EML/one-DOCX/one-PNG demonstration does not cap schema/application cardinality; planned collections and a small plural/repeated-occurrence acceptance case are required.
+
+**Fresh-agent entry point:** [the existing plan's durable handoff](work/active/architecture-reassessment/plan.md#task-verification-and-durable-fresh-agent-handoff) owns completed evidence/limits, focused module follow-through, replacement/retirement expectations, P1 question and endpoint, pending choices and next-action prerequisites. The broad architecture audit is complete; do not repeat it. P1 remains proposed and must be selected; production implementation still requires selection. P1 ends with useful adaptation, correct associations, visible gaps, relevant containment/cancellation evidence and measured integration cost, not perfect formatting or every Office feature. PDF/layout remains a separate later decision.
+
+**Later live authorization:** the owner authorizes a fresh agent's bounded BRN runtime comparison of GPT-6.1 Sol Medium against GPT-6 Luna Medium, including bounded other supported Luna efforts. Follow the [existing comparison plan](work/active/architecture-reassessment/plan.md#later-solluna-runtime-comparison); verify actual provider identifiers/effort support and predeclare aggregate limits, with no silent fallback, private uploads, new paid accounts or unrestricted spending. Owner model/scope choices are settled; numerical experimental ceilings are assistant proposals. Earlier exhausted-call/no-live observations below remain historical and do not revoke this later authorization. No live-model qualification is claimed by recording it.
+
 ## Previous checkpoint and qualification evidence
 
 2026-10-06. **Stages 1–4 are implemented, automated verified and integrated.
@@ -102,8 +112,8 @@ checkpoint. No original data was inspected or migrated.
   fresh sign-in and normal desktop quit, both permitted catalog calls succeeded,
   but the captured extraction established no usable IDs and did not retain raw
   catalog shape/length. Luna availability remains unverified;0logical probes/
-  0completions were made. This round is exhausted; fresh owner permission is required
-  for any new live call. Development/review may
+  0completions were made. This historical round is exhausted; the later campaign now has the explicit
+  bounded authorization above, without reusing this round's counts or claiming availability. Development/review may
   use Sol/Luna, neverAstra.
 - Prior unlocked native checks passed synthetic scoped reads, Unicode Save and
   acknowledged buffer recovery after full quit/restart. Safe original UI captures
@@ -129,7 +139,8 @@ dependency. No original data was inspected or migrated.
 For continuation: preserve the chat/checkpoints and task-owned branches;
 use Apple Silicon macOS/Command Line Tools, pinned Rust1.98.1, locked dependencies,
 protobuf, Bash/Python3 and an explicit existing canonical owned TMPDIR. Native
-interaction needs an unlocked, awake session; fresh human Connect and additional
-live calls need fresh owner authorization. Optional native features and shipping builds need separate
+interaction needs an unlocked, awake session. The later bounded Sol/Luna campaign
+has the authorization above; human account access must remain explicit and calls
+outside that campaign need their applicable authorization. Optional native features and shipping builds need separate
 checks. [Verification](development/verification.md) and
 [setup](development/setup.md) contain reproducible commands.
