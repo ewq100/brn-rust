@@ -225,6 +225,11 @@ fn run() -> Result<(), String> {
     }
 }
 fn main() -> ExitCode {
+    #[cfg(all(target_os = "macos", feature = "native-capture"))]
+    if std::env::var_os("BRN_DESIGN_CAPTURE").is_some() {
+        native::capture::run();
+        return ExitCode::SUCCESS;
+    }
     match run() {
         Ok(()) => ExitCode::SUCCESS,
         Err(error) => {

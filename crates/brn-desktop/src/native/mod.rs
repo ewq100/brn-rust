@@ -39,6 +39,8 @@ mod action_review;
 #[cfg(all(test, target_os = "macos", feature = "native-test-support"))]
 mod action_review_tests;
 mod approval;
+#[cfg(all(target_os = "macos", feature = "native-capture"))]
+pub mod capture;
 mod dashboard;
 #[cfg(all(test, target_os = "macos", feature = "native-test-support"))]
 mod dashboard_tests;

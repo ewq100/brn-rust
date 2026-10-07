@@ -810,6 +810,7 @@ dependencies = [
 name = "brn-desktop"
 version = "0.1.0"
 dependencies = [
+ "brn-store",
  "brn-workflow",
  "gpui-kit",
  "serde",

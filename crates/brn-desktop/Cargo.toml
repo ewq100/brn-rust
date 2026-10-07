@@ -9,10 +9,13 @@ default = []
 native-ui = ["dep:gpui-kit", "dep:sha2"]
 native-retrieval = ["native-ui", "brn-workflow/native-retrieval"]
 native-test-support = ["native-ui", "gpui-kit/test-support"]
+# Development-only design-handbook captures; never part of a shipping build.
+native-capture = ["native-ui", "gpui-kit/test-support", "dep:brn-store"]
 
 [dependencies]
 gpui-kit = { version = "=0.6.6", optional = true }
 brn-workflow = { path = "../brn-workflow" }
+brn-store = { path = "../brn-store", optional = true }
 uuid = { version = "1", features = ["v4"] }
 serde = { version = "1", features = ["derive"] }
 serde_json = "1"
