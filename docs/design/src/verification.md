@@ -8,7 +8,7 @@ Each line names what was checked and how; none of it is owner acceptance.
 
 | Check | Scope | Result |
 | --- | --- | --- |
-| `cargo test -p brn-desktop --features native-ui,native-retrieval,native-test-support` | Unit, state and native widget tests (synthetic interaction via the toolkit test context) | 300 passed + 7 CLI tests passed (baseline 299 + 7; one new `utc_time` test) |
+| `cargo test -p brn-desktop --features native-ui,native-retrieval,native-test-support` | Unit, state and native widget tests (synthetic interaction via the toolkit test context) | 301 passed + 7 CLI tests passed (baseline 299 + 7; new `utc_time` and right-click comment tests) |
 | `cargo clippy -D warnings` | brn-desktop with default, `native-ui`, `native-ui,native-retrieval,native-test-support`, `native-capture` | Clean (upstream `block` future-incompatibility note only) |
 | `cargo fmt --check` | Workspace | Clean |
 | `bash scripts/verify-desktop-shell.sh --native` | Repository desktop gate: fmt, workspace build/clippy/tests, native builds, clippy for every native feature set, native tests, headless AppWorker startup | Passed (exit 0) after review fixes |
@@ -57,10 +57,22 @@ capture tooling) by a separate reviewer agent. Findings and dispositions:
 | `python3 scripts/check-markdown-links.py` | Passes |
 | `python3 -m unittest discover -s scripts/tests` | Passes, including token drift and contrast tests |
 
+### Owner feedback round 1 (2026-10-07)
+
+Feedback: too busy and distracting; unclear what the vault rail is; model and
+thinking effort should be in the chat box; select-and-right-click commenting;
+should resemble the ChatGPT desktop app; theme liked. Implemented as D16–D18 and
+re-verified: native tests 301 + 7 pass; clippy clean for all feature sets;
+headless captures refreshed and inspected. A new widget test dispatches the
+right-click *Comment on selection…* action on a real selection and checks that
+the exact-selection comment dialog opens. Native right-click by hand remains to
+be tried.
+
 ## Owner acceptance
 
 | Item | Decision | Date |
 | --- | --- | --- |
 | Design direction and decisions D1–D15 | *Pending review* | — |
+| D16–D18 (minimal layout, composer pickers, right-click comments) | Owner-directed; result pending your next look | 2026-10-07 |
 | Current-app restyle on this branch | *Pending review* | — |
 | Future designs and prototype | *Pending review* | — |

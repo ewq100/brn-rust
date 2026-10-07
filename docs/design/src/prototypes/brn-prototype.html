@@ -84,8 +84,10 @@
   .chip { font: 10px var(--brn-font-mono); padding: 0 4px; margin-left: 3px; vertical-align: 1px; border: 1px solid; cursor: pointer; }
   .trail { font: 11.5px var(--brn-font-mono); color: var(--brn-muted); margin: 4px 0 8px; }
   .trail b { color: var(--brn-purple); font-weight: normal; }
-  .composer { border-top: 1px solid var(--brn-line); background: var(--brn-panel); padding: 8px 12px; }
-  .composer textarea { width: 100%; height: 64px; resize: none; background: var(--brn-paper); color: var(--brn-text); border: 1px solid var(--brn-line); padding: 8px; font: 13px var(--brn-font-ui); }
+  .composer { margin: 0 24px 12px; border: 1px solid var(--brn-line); background: var(--brn-panel); padding: 8px 12px; }
+  .picker { font: 12px var(--brn-font-ui); color: var(--brn-text); background: transparent; border: 0; padding: 2px 4px; }
+  .q { margin-left: auto; width: fit-content; }
+  .composer textarea { width: 100%; height: 56px; resize: none; background: transparent; color: var(--brn-text); border: 0; padding: 4px; font: 14px var(--brn-font-ui); }
   .status { display: flex; align-items: center; gap: 12px; padding: 0 12px; background: var(--brn-panel); border-top: 1px solid var(--brn-line); font-size: 11.5px; color: var(--brn-muted); }
   .draft { font-size: 14px; line-height: 1.65; }
   .draft mark { background: none; color: inherit; border-bottom: 2px solid var(--tone); }
@@ -115,15 +117,15 @@
 </div>
 <div class="app">
   <header>
-    <span class="brand">brn</span><span style="color:var(--brn-muted)">work-vault</span>
-    <span id="phase" class="badge t-success">Ready</span>
+    <span class="brand">brn</span>
+    <span id="phase" class="badge t-success" hidden>Ready</span>
     <span style="flex:1"></span>
     <span id="budget" class="meta"></span>
     <button id="stop" class="btn-danger" hidden>Stop</button>
     <button class="btn-ghost" id="focus" title="Hide both rails (⇧⌘↩)">Focus</button>
     <button class="btn-ghost" id="vaultToggle" title="Show or hide the vault (⌥⌘0)">Vault</button>
   </header>
-  <div class="main" id="main">
+  <div class="main novault" id="main">
     <nav aria-label="Navigator">
       <button class="row btn-outline" data-go="chat" data-new>＋ <span class="grow">New chat</span><span class="meta">⌘N</span></button>
       <div class="label">Workspace</div>
@@ -294,7 +296,7 @@ function renderChat() {
     Three Serna Actions are unfinished. The most urgent is replying to Anna’s three questions — due yesterday<span class="chip t-success" onclick="explain('vault')">vault</span>. You are also waiting for her final specification<span class="chip t-success" onclick="explain('vault')">vault</span>, which blocks the paint order<span class="chip t-success" onclick="explain('vault')">vault</span>.</div>
     <div class="q"><div class="who">YOU</div>Write an answer to Anna.</div><div class="a" id="draftAnswer"></div></div>`;
   }
-  $('#chat').innerHTML = body + `<div class="composer"><textarea id="composer" aria-label="Message" placeholder="${offline ? 'AI unavailable — you can still search, browse and review' : 'Ask about your notes, sources and Actions…'}"></textarea><div class="flex spread" style="margin-top:6px"><span>${offline ? badge('ChatGPT unavailable · checked 09:38', 'danger') : '<span class="meta">ChatGPT / gpt-6.1-sol · medium · budget 40 k tokens</span>'}</span><span class="flex">${badge('Current scope', 'success')}<button class="btn-outline">Search Current</button><button class="btn-primary" ${offline ? 'disabled' : ''} onclick="draftReply()">Ask</button></span></div></div>`;
+  $('#chat').innerHTML = body + `<div class="composer"><textarea id="composer" aria-label="Message" placeholder="${offline ? 'AI unavailable — you can still search, browse and review' : 'Ask about your notes, sources and Actions…'}"></textarea><div class="flex spread" style="margin-top:6px"><span class="flex"><select aria-label="Model" class="picker"><option>gpt-6.1-sol</option><option>gpt-6-luna</option><option>GPT-6 Astra (Copilot)</option></select><select aria-label="Thinking effort" class="picker"><option>Low thinking</option><option selected>Medium thinking</option><option>High thinking</option></select>${offline ? badge('ChatGPT unavailable', 'danger') : ''}</span><span class="flex"><button class="btn-ghost" title="Search notes (no AI)">⌕</button><button class="btn-primary" ${offline ? 'disabled' : ''} onclick="draftReply()" aria-label="Ask">↑</button></span></div></div>`;
   renderDraftAnswer();
 }
 function renderDraftAnswer() {
@@ -307,7 +309,7 @@ function renderDraftAnswer() {
   <div class="flex" style="margin-top:8px"><button class="btn-primary" onclick="go('review')">Open reply proposal (v${S.version})</button><button class="btn-ghost" onclick="go('needs-review')">See colour conflict</button></div>
   ${callout('ai', 'Possible outcome to capture: <b>Anna asked about window frames</b> → add to the Serna project. <button class="btn-outline">Propose capture…</button> <button class="btn-ghost">Not now</button>')}`;
 }
-function busy(on, label) { $('#stop').hidden = !on; $('#phase').className = 'badge ' + (on ? 't-ai' : 't-success'); $('#phase').textContent = on ? (label || 'Answering · provisional') : 'Ready'; $('#budget').textContent = on ? 'budget 40 k tokens · ⌘. to stop' : ''; }
+function busy(on, label) { $('#stop').hidden = !on; $('#phase').hidden = !on; $('#phase').className = 'badge ' + (on ? 't-ai' : 't-success'); $('#phase').textContent = on ? (label || 'Answering · provisional') : 'Ready'; $('#budget').textContent = on ? 'budget 40 k tokens · ⌘. to stop' : ''; }
 function draftReply() {
   chatMode = 'draft'; location.hash = 'chat'; streaming = true; busy(true); route();
   const steps = ['Searching vault', 'checking 8 sources', 'reading thread “Serna paint spec”', 'web: Värvikoda lead times', 'drafting'];

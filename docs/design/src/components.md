@@ -21,7 +21,9 @@ themed by [`theme.rs`](../../../crates/brn-desktop/src/native/theme.rs).
 | Button tiers | `ui::primary`, `ui::secondary`, `ui::quiet`, or `Button` + `.primary()/.outline()/.ghost()/.danger()` | See below | — | Implemented |
 | Count tile | inline in [`dashboard.rs`](../../../crates/brn-desktop/src/native/dashboard.rs) | Dashboard counts; tone only when non-zero | General statistics | Implemented (candidate for `ui`) |
 | Decision bar | inline in [`review.rs`](../../../crates/brn-desktop/src/native/review.rs) | Persistent bottom bar for a proposal decision | Non-binding actions | Implemented (candidate for `ui`) |
-| Chat exchange | `chat_exchange` in [`simple.rs`](../../../crates/brn-desktop/src/native/simple.rs) | Question block, BRN label with recorded provider/model/effort, status badge, answer | — | Implemented |
+| Chat exchange | `chat_exchange` in [`simple.rs`](../../../crates/brn-desktop/src/native/simple.rs) | Right-aligned question bubble, plain answer, quiet recorded provider · model · effort line; a status badge only when not Completed | — | Implemented |
+| Composer pickers | `render_composer` in [`simple.rs`](../../../crates/brn-desktop/src/native/simple.rs) | Model and thinking-effort dropdowns in the composer; same commands as Settings | Account connection (stays in Settings) | Implemented |
+| More options | `tools_toggle` in [`simple.rs`](../../../crates/brn-desktop/src/native/simple.rs) | Hiding rarely needed recovery/advanced commands; they show automatically when needed | Primary actions | Implemented |
 | Claim chip | prototype `.chip` | Inline provenance label on a claim | — | Prototype |
 | Activity trail | prototype `.trail` | One-line summary of AI steps, time and tokens | Raw tool transcripts | Prototype |
 | Review group list | prototype Inbox | Checkbox list of independent proposals + one approval | — | Prototype |
@@ -37,6 +39,13 @@ themed by [`theme.rs`](../../../crates/brn-desktop/src/native/theme.rs).
 
 Use `.small()` in panes and rails; reserve default size for dialogs. Labels are
 verbs; an ellipsis (…) means a dialog or form follows.
+
+## Minimal by default
+
+Owner direction (D16): show the least that lets the owner act. Prefer no badge
+for the normal state, tooltips over always-visible metadata, one short sentence
+over a paragraph, and sections that appear only when they apply. Safety
+statements stay, but say it once and plainly.
 
 ## States every component must show
 

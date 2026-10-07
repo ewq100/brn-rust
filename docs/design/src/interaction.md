@@ -15,6 +15,7 @@ Implemented shortcuts (menus *BRN*, *View*, *Navigate*):
 | ⇧⌘↩ | Focus mode |
 | ← → (⇧ for larger steps) | Move a focused divider |
 | Esc | Close a dialog |
+| Right-click selected proposal text | *Comment on selection…*, Copy, Select All |
 
 Rules: every action is reachable by keyboard; focus is always visible (2 pt cyan
 ring); dialogs move focus to their safest default, never to a destructive

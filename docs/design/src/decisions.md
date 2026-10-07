@@ -21,6 +21,10 @@ owner column. Add new decisions at the end; supersede rather than rewrite.
 | D13 | Handbook in Markdown + mdBook; tokens generated from code | Proposed, implemented | — |
 | D14 | Real-view headless captures for documentation | Proposed, implemented | — |
 | D15 | Recorded times shown in UTC for now | Proposed, implemented; preference open | — |
+| D16 | Minimal, ChatGPT-desktop-like chat; vault rail closed by default | Owner direction, implemented | Owner feedback 2026-10-07 |
+| D17 | Model and thinking-effort pickers in the composer | Owner direction, implemented | Owner feedback 2026-10-07 |
+| D18 | Select text and right-click to comment in proposals | Owner direction, implemented | Owner feedback 2026-10-07 |
+| D19 | Keep the refined-terminal theme | Owner liked it (feedback 2026-10-07) | Liked; formal acceptance pending |
 
 ## D1 Keep the refined-terminal identity, correct its typography
 
@@ -106,6 +110,33 @@ is visual evidence only.
 The UI had raw millisecond values. UTC is exact and identical across clients;
 local-time display is a preference to settle (see
 [open preferences](open-questions.md)).
+
+## D16 Minimal, ChatGPT-desktop-like chat
+
+Owner feedback, 2026-10-07: “extremely busy… too much info… should resemble the
+GPT desktop app… needs to be more minimal”. Changes: vault rail closed on first
+run (header toggle opens it; a saved layout keeps your choice); collapsed rails
+take no space; header shows only toggles and a phase badge when not Ready; the
+status strip appears only for real notices; the empty chat centres a greeting and
+the composer; questions are right-aligned bubbles, answers plain text with a
+quiet model line; sidebar without the Workspace label, Draft badges or chat ages
+(ages in tooltips); fewer explanatory sentences; recovery and advanced commands
+behind *More options* unless they are needed; Inbox cleanup and Source
+preparation appear only when relevant.
+
+## D17 Model and thinking-effort pickers in the composer
+
+Owner feedback: model and effort “should not be hidden in Settings”. The
+composer shows two dropdowns (model from discovered models, Low / Medium / High
+thinking). They send the same selection commands as Settings, so each request
+still freezes its choice and BRN never switches silently. Connecting accounts
+and discovering models stay in Settings (linked from the model menu).
+
+## D18 Right-click to comment
+
+Owner feedback: commenting should work by selecting text and right-clicking.
+The proposed-text editor's right-click menu offers *Comment on selection…*,
+*Copy* and *Select All*; the existing exact-selection comment flow is reused.
 
 ## Earlier design material reconciled
 

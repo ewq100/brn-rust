@@ -2,41 +2,46 @@
 
 ## Window regions
 
+Minimal by default (owner direction D16): sidebar and chat only; the vault rail
+opens on demand.
+
 ```text
-┌ Header: brn · vault name · phase badge ·········· Stop · Focus · Vault ┐
-├ Navigator ┬ Centre: document pane ┃ chat ─────────────┬ Vault rail ──┤
-│ New chat  │ (a surface or note)   ┃ transcript        │ identity     │
-│ Workspace │                       ┃                   │ scope        │
-│ Chats     │                       ┃ composer          │ notes, index │
-│ Review    │                       ┃                   │              │
+┌ Header: ▯ brn · (phase badge only when not Ready) ······ Stop · ⤢ · ▯ ┐
+├ Sidebar ──┬ Centre: document pane ┃ chat ─────────────┬ (Vault rail) ┤
+│ New chat  │ (a surface or note)   ┃    question  ▐    │ closed by    │
+│ Dashboard │                       ┃ answer            │ default      │
+│ Inbox  3  │                       ┃ model · effort    │              │
+│ Needs Rev │                       ┃ ┌ composer ─────┐ │              │
+│ Review    │                       ┃ │ model▾ think▾ │ │              │
+│ Chats     │                       ┃ └───────────────┘ │              │
 │ Settings  │                       ┃                   │              │
-├───────────┴───────────────────────┸───────────────────┴──────────────┤
-└ Status strip: last event · (future) model and budget                 ┘
+└───────────┴───────────────────────┸───────────────────┴──────────────┘
+  (status strip appears only for a real notice)
 ```
 
-- **Header** — identity and global state only: brand, vault name, a phase badge
-  (Ready / Answering · provisional / Rewriting · knowledge unchanged / Workspace
-  unavailable), Stop while work runs, Focus, Vault toggle, and Settings when the
-  navigator is collapsed.
-- **Navigator (left rail)** — *where work lives*. Groups, in order:
+- **Header** — sidebar toggle, brand, a phase badge only when not Ready
+  (Answering · provisional / Rewriting · knowledge unchanged / Workspace
+  unavailable), Stop while work runs, Focus, vault toggle, and Settings when the
+  sidebar is hidden.
+- **Sidebar (left)** — *where work lives*, in order:
   1. **New chat** (⌘N).
-  2. **Workspace** — the operational surfaces, each with a count only when the
-     count is already known: *Dashboard* (future *Today*), *Inbox*,
-     *Needs Review*, *Activity*; later *Projects*, *People*, *Graph*.
-  3. **Chats** — active sessions, newest first, with last-activity age; later a
-     link to all chats and the archive.
-  4. **Review** — proposals awaiting a decision, each with a state badge;
-     decided proposals collapse under *Decided (n)*. Small create commands
-     (*Proposal*, *Action*) sit here because creating means drafting for review.
+  2. **Dashboard** (future *Today*), **Inbox**, **Needs Review**, **Activity**
+     — each with a count only when it is already known.
+  3. **Review** — proposals awaiting a decision (no badge for ordinary drafts);
+     *Proposal* / *Action* create commands; *Decided (n)* collapsed.
+  4. **Chats** — titles only; last activity is in the tooltip.
   5. **Settings** (⌘,) pinned to the bottom.
-- **Centre** — chat is always present. Opening a surface or note shows it in the
-  **document pane** beside the chat (resizable divider). With nothing open, the
-  chat takes the whole centre. Narrow windows switch to *Document | Chat* tabs.
-- **Vault rail (right)** — *what you know*: vault identity, retrieval scope
-  (Current / Source / History / All, with the scope's meaning), relationships,
-  notes in that scope, recovered edits and index state.
-- **Status strip** — the last event in a sentence, and persistent workspace
-  notices (startup failure, restored backup, layout warning).
+- **Centre** — chat is always present, as a centred reading column. With no
+  conversation the greeting and composer sit together in the middle. Opening a
+  surface or note shows it in the **document pane** beside the chat. Narrow
+  windows switch to *Document | Chat* tabs.
+- **Composer** — the question box, the **model** and **thinking-effort**
+  pickers (D17), Search (no AI) and Ask / Stop.
+- **Vault rail (right, closed by default)** — the Markdown vault: notes in the
+  selected retrieval scope (Current / Source / History / All), relationships,
+  recovered edits and index state. Open it with the header toggle or ⌥⌘0.
+- **Status strip** — only when there is something to say: a last event worth
+  reading, startup failure, restored backup or layout warning.
 
 ## Full-product navigation model
 
