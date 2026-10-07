@@ -1,6 +1,6 @@
 # UI feature backlog
 
-**Historical handoff, superseded for planning on 2026-10-03.** The slice numbers and prerequisites below preserve earlier UI ideas, not an approved feature queue. New UI work follows the frozen [target](../architecture/overview.md#frozen-target) and [current roadmap](../roadmap.md), using the shared workflow.
+**Historical handoff, superseded for planning on 2026-10-03.** Current UX/UI direction lives in the [design handbook](../design/README.md). The slice numbers and prerequisites below preserve earlier UI ideas, not an approved feature queue. New UI work follows the frozen [target](../architecture/overview.md#frozen-target) and [current roadmap](../roadmap.md), using the shared workflow.
 
 These features were hidden from [slice 1](../superpowers/specs/2026-10-01-workspace-shell-design.md) so the shell did not present fixture data as connected behaviour. Source: the BRN UI/UX handoff (`UI-SPEC.md`, `COMPONENT-INVENTORY.md`). Its Pi SDK assumption and BRN's former App Server direction are historical; the current AI adapter uses Rig.
 

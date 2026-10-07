@@ -16,6 +16,10 @@ The owner authorizes focused requirements/planning corrections and merge of [PR8
 
 **Later live authorization:** the owner authorizes a fresh agent's bounded BRN runtime comparison of GPT-6.1 Sol Medium against GPT-6 Luna Medium, including bounded other supported Luna efforts. Follow the [existing comparison plan](work/active/architecture-reassessment/plan.md#later-solluna-runtime-comparison); verify actual provider identifiers/effort support and predeclare aggregate limits, with no silent fallback, private uploads, new paid accounts or unrestricted spending. Owner model/scope choices are settled; numerical experimental ceilings are assistant proposals. Earlier exhausted-call/no-live observations below remain historical and do not revoke this later authorization. No live-model qualification is claimed by recording it.
 
+## UX/UI design baseline — 2026-10-07
+
+Owner-requested design work on branch `ux/design-handbook`: a full-product [design handbook](design/README.md), clickable prototype and reversible restyle of existing desktop views (no workflow behaviour change). Automated checks pass; native interaction and owner acceptance are pending; not merged. Record: [UX design handbook](work/active/ux-design-handbook/plan.md).
+
 ## Previous checkpoint and qualification evidence
 
 2026-10-06. **Stages 1–4 are implemented, automated verified and integrated.

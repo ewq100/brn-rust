@@ -12,7 +12,7 @@ exact-attempt CI summaries and the current Markdown link gate.
 | Integrated workflow or cross-crate behavior | `bash scripts/verify-end-to-end.sh` (retirement check, workspace format/build/Clippy/tests, current-vault Save/recovery/read/search fixtures); `--fixtures-only` after a completed shared gate |
 | Storage, migrations or recovery | `bash scripts/verify-storage.sh`; inspect relevant process-crash tests in `crates/brn-store/tests` |
 | Drafts or comments | `cargo test -p brn-store -p brn-workflow --locked`; then integrated checks; add native checks if interaction changes |
-| Native UI | `bash scripts/verify-desktop-shell.sh --native`; manually exercise changed flows on the unlocked target Mac with fresh disposable data; retain safe captures in the [UI screenshot index](../ui/screenshots/README.md) |
+| Native UI | `bash scripts/verify-desktop-shell.sh --native`; manually exercise changed flows on the unlocked target Mac with fresh disposable data; retain safe captures in the [UI screenshot index](../ui/screenshots/README.md). For appearance changes also run `scripts/design-capture.sh DIR` and follow the [design handbook checklist](../design/src/agents.md) |
 | Rig AI/auth adapter | `cargo test -p brn-ai --lib --locked --offline` (real Rig routes with synthetic transports); standalone `verify-trial.sh` is historical, never a product gate |
 | Search index or keyword retrieval | `cargo test -p brn-retrieval --locked`; integrated workflow checks |
 | Native retrieval | `cargo test -p brn-retrieval --features native --locked` (set `BRN_NATIVE_MODEL_DIR` to run the local model test; otherwise it is skipped); `cargo check -p brn-desktop --features native-ui,native-retrieval --locked` |

@@ -35,6 +35,10 @@ One lead owns coherence and integration with the strongest appropriate selected 
 | `experiments` | Standalone trials with their own manifests and lockfiles |
 | `scripts` | Verification and local macOS launcher helpers |
 
+## UI and design
+
+For any desktop UI change, start at the [design handbook entry point](docs/design/README.md) and read only the sections your task needs. Reuse its tokens (`crates/brn-desktop/src/tokens.rs`) and components (`crates/brn-desktop/src/native/ui.rs`); check where the feature sits in the full-product design; explain any departure from a convention; update the handbook's canonical sources, screenshots, readiness and verification record with the change. The handbook is a working baseline pending owner review: treat only decisions recorded as owner-accepted as accepted direction.
+
 ## Rules to preserve
 
 For future authorized implementation, use the accepted plan and preserve work until a verified replacement or authorized removal. The reassessment may propose changes to built and upcoming work without preserving incidental behavior. The dated [architecture audit](docs/audits/BRN_PRODUCT_ARCHITECTURE_AUDIT.md) and [independent review](docs/audits/BRN_PRODUCT_ARCHITECTURE_REVIEW.md) explain the reviewed basis; they are not execution plans.

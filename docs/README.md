@@ -14,6 +14,7 @@ one task from the [controlled handoff](work/active/v1-handoff.md).
 | Reassess architecture and select proposed work | [Owner amendment](product/BRN_PRODUCT_VISION.md#owner-amendment--2026-10-07), [evidence-backed reassessment](audits/BRN_ARCHITECTURE_REASSESSMENT_2026-10-07.md), [ordered proposed plan](work/active/architecture-reassessment/plan.md) |
 | Clarify product language | [Product glossary](product/glossary.md), [domain consistency](architecture/overview.md#domain-consistency-checkpoint) |
 | Select a prepared task | [Handoff](work/active/v1-handoff.md), [next specs](work/active/preparation-checkpoint/next-specs.md), [remaining V1 map](work/active/preparation-checkpoint/v1-map.md) |
+| Design or change desktop UI | [Design handbook](design/README.md): direction, IA, tokens, components, trust patterns, prototypes and the agent checklist (working baseline pending owner review) |
 | Understand the product or run it | [Root README](../README.md), [setup](development/setup.md) |
 | Understand desired product behavior | [Product vision](product/BRN_PRODUCT_VISION.md): requirements and future capabilities, not a claim that all are implemented |
 | Understand current foundations and proposed changes | [Architecture overview](architecture/overview.md#frozen-target), [invariants](architecture/invariants.md#frozen-target-guarantees). [Opus audit](audits/BRN_PRODUCT_ARCHITECTURE_AUDIT.md) and [independent review](audits/BRN_PRODUCT_ARCHITECTURE_REVIEW.md) are dated rationale, not execution plans |

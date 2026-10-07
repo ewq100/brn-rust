@@ -4,6 +4,12 @@
 
 Desktop entry point, GPUI views and transient interaction state. All operations go through AppWorker. The headless startup check opens and joins the same current workflow without GPUI.
 
+Visual design follows the [design handbook](../../docs/design/README.md). Design
+values live in [`src/tokens.rs`](src/tokens.rs) and shared view components in
+[`src/native/ui.rs`](src/native/ui.rs). The development-only `native-capture`
+feature renders the real views headlessly for handbook screenshots
+(`scripts/design-capture.sh`); it is never part of a shipping build.
+
 ## Current workspace (native default)
 
 The default is **`~/Library/Application Support/BRN-simple`**, with the exact
