@@ -1,5 +1,11 @@
 # Current development status
 
+## PR86 accepted specification and integration handoff — 2026-10-07
+
+The owner accepts the revised maintained-adapter [P2 specification and retirement inventory](work/active/architecture-reassessment/p2-conditional-spec.md), with unavailable separate picture titles allowed when exact mapping is unqualified, correct image/source/occurrence associations and honest omission reporting required, and no title-driven custom XML scanner. Retirement, unfinished-work recovery, higher-level API reuse and V1 scope decisions are preserved. Only PR86 finalization/merge after final-head checks and applicable policy is authorized now; P2 implementation remains unselected.
+
+The [canonical fresh-agent handoff](work/active/architecture-reassessment/plan.md#pr86-finalization-and-canonical-fresh-agent-handoff) owns accepted decisions, remaining integration/acceptance, known gaps and the existing bounded Sol/Luna authorization. [PR86's integration receipt](https://github.com/ewq100/brn-rust/pull/86) owns the final head, checks and merged baseline SHA. No further experiments, live-model calls, release or unrelated cleanup occur in finalization. Earlier status entries below are dated observations, superseded by this acceptance where they differ.
+
 ## Selected P1 preparation — 2026-10-07
 
 **Later owner clarification:** maintained DOCX/MIME is the agreed direction, with no retained/rebuilt bespoke DOCX interpreter. The [updated P2 specification](work/active/architecture-reassessment/p2-conditional-spec.md) separates saved-record readers from conversion and requires retained originals, exact-proof recovery and renewed review for unfinished legacy work. A focused 0.3.0 API check demonstrates structured/Markdown/package reuse with a larger graph and explicit title/prefix gaps. Production adoption/implementation and merge remain unselected.

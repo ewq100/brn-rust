@@ -4,7 +4,7 @@ New selected slices follow owner requirements and the current [target](../../arc
 
 | Task | State | Records |
 | --- | --- | --- |
-| Architecture reassessment | PR85 integrated. Owner selected P1 isolated Office/MIME evaluation and conditional P2 specification; production adoption/implementation remain unapproved. | [Report](../../audits/BRN_ARCHITECTURE_REASSESSMENT_2026-10-07.md), [ordered plan](architecture-reassessment/plan.md), [P1 evidence](architecture-reassessment/p1-evidence.md), [conditional P2](architecture-reassessment/p2-conditional-spec.md) |
+| Architecture reassessment | PR85 integrated. Revised P2 specification/maintained-adapter direction and converter retirement accepted; PR86 alone authorized for merge after final-head checks/policy. Production implementation remains unselected. | [Canonical handoff](architecture-reassessment/plan.md#pr86-finalization-and-canonical-fresh-agent-handoff), [report](../../audits/BRN_ARCHITECTURE_REASSESSMENT_2026-10-07.md), [P1 evidence](architecture-reassessment/p1-evidence.md), [accepted conditional P2](architecture-reassessment/p2-conditional-spec.md) |
 | V1 controlled handoff | Full V1 goal paused at owner request; PR77 product checkpoint integrated. Closeout records and explicitly selected follow-up tasks only. | [Handoff](v1-handoff.md) |
 | Independent V1 review corrections | Bounded corrections through PR73 are reviewed, automated verified and integrated; residual startup/backup cost and external qualification remain recorded. | [Correction plan](architecture-review-corrections/plan.md) |
 | Knowledge foundations | Stage 5 foundations integrated; native/live/model/owner qualification remains open. | [Plan](knowledge-foundations/plan.md) |
