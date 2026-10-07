@@ -261,15 +261,16 @@ impl Desktop {
         }
         cx.notify();
     }
-    pub(super) fn render_inbox(&mut self, cx: &mut Context<Self>) -> AnyElement {
+    #[inline(never)]
+    fn render_inbox_capture(&mut self, cx: &mut Context<Self>) -> AnyElement {
         let ai = self.ai.as_ref().unwrap();
         let queue = &ai.inbox_queue;
         let blocked = self.inbox_blocked();
-        let mut content = div().id("inbox-content").track_scroll(&self.inbox.scroll)
-            .flex().flex_col().flex_1().min_h(px(0.)).overflow_y_scroll().p_3().gap_2()
-            .child("Inbox")
-            .child(self.render_inbox_analysis(cx))
-            .child("Keep an exact UTF-8 text, Markdown, email or Teams copy. Originals stay retained. Conversion previews and Source proposals require review; knowledge changes only after exact approval.")
+        use super::ui::{self, Tone};
+        let p = self.palette();
+        let mut capture = div().flex().flex_col().gap_2()
+            .child(ui::section_label("Add a copy to the Inbox", p).px_0())
+            .child(ui::hint("Keep an exact UTF-8 text, Markdown, email or Teams copy. Originals stay retained. Conversion previews and Source proposals require review; knowledge changes only after exact approval.", p))
             .child(Textarea::new(&self.inbox.title).disabled(blocked).aria_label("Retained exact Inbox capture title"));
         let mut kinds = div().flex().flex_wrap().gap_1();
         for kind in [
@@ -281,6 +282,9 @@ impl Desktop {
             kinds = kinds.child(
                 Button::new(format!("inbox-kind-{kind:?}"))
                     .label(kind_name(kind))
+                    .small()
+                    .when(self.inbox.kind == kind, |button| button.primary())
+                    .when(self.inbox.kind != kind, |button| button.ghost())
                     .selected(self.inbox.kind == kind)
                     .disabled(blocked)
                     .on_click(cx.listener(move |this, _, _, cx| {
@@ -291,7 +295,7 @@ impl Desktop {
                     })),
             );
         }
-        content = content
+        capture = capture
             .child(kinds)
             .child(
                 div().h(px(240.)).flex_shrink_0().child(
@@ -309,12 +313,16 @@ impl Desktop {
                     .child(
                         Button::new("capture-inbox-original")
                             .label("Capture exact original")
+                            .primary()
+                            .small()
                             .disabled(blocked || ai.capture_pending())
                             .on_click(cx.listener(|this, _, _, cx| this.capture_inbox_input(cx))),
                     )
                     .child(
                         Button::new("retry-inbox-capture")
                             .label("Retry exact submitted capture")
+                            .ghost()
+                            .small()
                             .disabled(
                                 blocked || ai.capture_pending() || queue.capture_error.is_none(),
                             )
@@ -331,6 +339,8 @@ impl Desktop {
                     .child(
                         Button::new("copy-inbox-capture-text")
                             .label("Copy full capture text")
+                            .ghost()
+                            .small()
                             .on_click(cx.listener(|this, _, _, cx| {
                                 cx.write_to_clipboard(gpui_kit::ClipboardItem::new_string(
                                     this.inbox.body.read(cx).value().to_string(),
@@ -339,12 +349,14 @@ impl Desktop {
                     ),
             );
         if ai.capture_pending() {
-            content = content
-                .child("Retaining the exact submitted capture. Later typing stays in this form.");
+            capture = capture.child(ui::hint(
+                "Retaining the exact submitted capture. Later typing stays in this form.",
+                p,
+            ));
         }
         if let Some(item) = &queue.capture_result {
             let id = item.capture.id;
-            content = content
+            capture = capture
                 .child(format!(
                     "Captured {} · {} · {} bytes",
                     item.capture.title, id, item.capture.copy.byte_len
@@ -352,6 +364,8 @@ impl Desktop {
                 .child(
                     Button::new("inspect-captured-inbox-original")
                         .label("Inspect captured original")
+                        .ghost()
+                        .small()
                         .disabled(blocked || ai.inbox_loading())
                         .on_click(cx.listener(move |this, _, _, cx| {
                             if this.inbox_blocked() {
@@ -365,16 +379,31 @@ impl Desktop {
                 );
         }
         if let Some(error) = &queue.capture_error {
-            content = content.child(error.clone());
+            capture = capture.child(ui::callout(Tone::Danger, error.clone(), p));
         }
-        content = content.child("FIFO originals").child(
-            div()
-                .flex()
-                .flex_wrap()
-                .gap_1()
+        capture.into_any_element()
+    }
+    #[inline(never)]
+    fn render_inbox_queue(&mut self, cx: &mut Context<Self>) -> AnyElement {
+        let ai = self.ai.as_ref().unwrap();
+        let queue = &ai.inbox_queue;
+        let blocked = self.inbox_blocked();
+        use super::ui::{self, Tone};
+        let p = self.palette();
+        let mut content = div().flex().flex_col().gap_2();
+        content = content.child(
+            ui::toolbar()
+                .child(
+                    ui::section_label("Waiting in the Inbox · oldest first", p)
+                        .px_0()
+                        .flex_1()
+                        .min_w(px(0.)),
+                )
                 .child(
                     Button::new("refresh-inbox-inventory")
                         .label("Refresh first page")
+                        .ghost()
+                        .small()
                         .disabled(blocked || ai.inbox_loading())
                         .on_click(cx.listener(|this, _, _, cx| {
                             if this.inbox_blocked() {
@@ -389,6 +418,8 @@ impl Desktop {
                 .child(
                     Button::new("next-inbox-inventory")
                         .label("Next page")
+                        .ghost()
+                        .small()
                         .disabled(
                             blocked
                                 || ai.inbox_loading()
@@ -409,14 +440,24 @@ impl Desktop {
                 ),
         );
         if ai.inbox_loading() {
-            content = content.child("Loading current Inbox inventory or original…");
+            content = content.child(ui::hint("Loading current Inbox inventory or original…", p));
         }
         if let Some(page) = &queue.page {
-            content = content.child(format!(
-                "{} retained originals · {} on this page",
-                page.total_count,
-                page.entries.len()
+            content = content.child(ui::meta(
+                format!(
+                    "{} retained originals · {} on this page",
+                    page.total_count,
+                    page.entries.len()
+                ),
+                p,
             ));
+            if page.entries.is_empty() {
+                content = content.child(ui::empty_state(
+                    "The Inbox is empty",
+                    "Add a copy below. BRN keeps the exact original and proposes reviewable consequences.",
+                    p,
+                ));
+            }
             for (index, entry) in page.entries.iter().enumerate() {
                 let item = entry.item.clone();
                 let inspect_id = item.capture.id;
@@ -426,12 +467,28 @@ impl Desktop {
                         .flex()
                         .flex_col()
                         .gap_1()
-                        .child(format!(
-                            "{} · {} · received {} · {}",
-                            item.capture.title,
-                            kind_name(item.capture.kind),
-                            item.received_at_ms,
-                            availability_name(&entry.availability)
+                        .px(px(tokens::space::MD))
+                        .py(px(tokens::space::SM))
+                        .border_1()
+                        .border_color(super::theme::color(if checked { p.cyan } else { p.line }))
+                        .child(
+                            ui::toolbar()
+                                .child(ui::badge(kind_name(item.capture.kind), Tone::Neutral, p))
+                                .child(
+                                    div()
+                                        .flex_1()
+                                        .min_w(px(0.))
+                                        .font_weight(gpui_kit::FontWeight::MEDIUM)
+                                        .child(item.capture.title.clone()),
+                                ),
+                        )
+                        .child(ui::meta(
+                            format!(
+                                "received {} · {}",
+                                ui::utc_time(item.received_at_ms),
+                                availability_name(&entry.availability)
+                            ),
+                            p,
                         ))
                         .child(
                             div()
@@ -456,6 +513,8 @@ impl Desktop {
                                 .child(
                                     Button::new(format!("inspect-inbox-original-{index}"))
                                         .label("Inspect full original")
+                                        .ghost()
+                                        .small()
                                         .disabled(blocked || ai.inbox_loading())
                                         .on_click(cx.listener(move |this, _, _, cx| {
                                             if this.inbox_blocked() {
@@ -473,9 +532,10 @@ impl Desktop {
                 );
             }
             for issue in &page.issues {
-                content = content.child(format!(
-                    "Inbox issue {:?}: {}",
-                    issue.item_id, issue.message
+                content = content.child(ui::callout(
+                    Tone::Attention,
+                    format!("Inbox issue {:?}: {}", issue.item_id, issue.message),
+                    p,
                 ));
             }
             if page.issues_truncated {
@@ -483,10 +543,15 @@ impl Desktop {
                     .child("Additional Inbox issues were reported beyond this page's issue limit.");
             }
         }
-        content = content.child(format!(
-            "{} exact original snapshots checked · choose 1–{MAX_PROCESS_BATCH}",
-            self.inbox.checked.len()
-        ));
+        content = content
+            .child(ui::section_label("Process", p).px_0())
+            .child(ui::hint(
+                format!(
+                    "{} exact original snapshots checked · choose 1–{MAX_PROCESS_BATCH}",
+                    self.inbox.checked.len()
+                ),
+                p,
+            ));
         for (index, item) in self.inbox.checked.iter().enumerate() {
             let id = item.capture.id;
             content = content.child(
@@ -501,6 +566,8 @@ impl Desktop {
                     .child(
                         Button::new(format!("remove-inbox-checked-{index}"))
                             .label("Remove from batch selection")
+                            .ghost()
+                            .small()
                             .disabled(blocked || ai.processing_pending())
                             .on_click(cx.listener(move |this, _, _, cx| {
                                 if this.inbox_blocked()
@@ -516,7 +583,7 @@ impl Desktop {
             );
         }
         if let Some(error) = &self.inbox.selection_error {
-            content = content.child(error.clone());
+            content = content.child(ui::callout(Tone::Danger, error.clone(), p));
         }
         content = content.child(
             div()
@@ -526,6 +593,8 @@ impl Desktop {
                 .child(
                     Button::new("process-checked-inbox")
                         .label("Process checked originals")
+                        .primary()
+                        .small()
                         .disabled(
                             blocked || ai.processing_pending() || self.inbox.checked.is_empty(),
                         )
@@ -534,6 +603,8 @@ impl Desktop {
                 .child(
                     Button::new("retry-inbox-processing")
                         .label("Retry exact submitted batch")
+                        .ghost()
+                        .small()
                         .disabled(blocked || !ai.can_retry_process())
                         .on_click(cx.listener(|this, _, _, cx| {
                             if this.inbox_blocked() {
@@ -548,6 +619,8 @@ impl Desktop {
                 .child(
                     Button::new("cancel-inbox-processing")
                         .label("Cancel remaining conversions")
+                        .ghost()
+                        .small()
                         .disabled(blocked || !ai.processing_pending())
                         .on_click(cx.listener(|this, _, _, cx| {
                             if this.inbox_blocked() {
@@ -561,10 +634,12 @@ impl Desktop {
                 ),
         );
         if let Some(read) = &queue.selected {
-            content = content.child(format!(
-                "Inspected original: {} · {}",
-                read.item.capture.title, read.item.capture.id
-            ));
+            content = content
+                .child(ui::section_label("Inspected original", p).px_0())
+                .child(ui::meta(
+                    format!("{} · {}", read.item.capture.title, read.item.capture.id),
+                    p,
+                ));
             match &read.original {
                 InboxOriginal::Available { text } => {
                     content = content
@@ -623,6 +698,8 @@ impl Desktop {
                     .child(
                         Button::new(format!("preview-inbox-conversion-{index}"))
                             .label("Inspect full converted preview")
+                            .ghost()
+                            .small()
                             .disabled(
                                 blocked
                                     || !matches!(
@@ -654,7 +731,7 @@ impl Desktop {
             }
         }
         if let Some(error) = &queue.error {
-            content = content.child(error.clone());
+            content = content.child(ui::callout(Tone::Danger, error.clone(), p));
         }
         if let Some(preview) = &queue.preview {
             content = content
@@ -679,11 +756,14 @@ impl Desktop {
                     .child("Pending explicit visual interpretation. Exact Source and PNG approval is separate from interpretation approval.");
             }
             if preview.needs_semantic_review {
-                content = content.child("The conversion still needs semantic review. Original wording and images remain evidence; approval does not complete interpretation.");
+                content = content.child(ui::callout(Tone::Attention, "The conversion still needs semantic review. Original wording and images remain evidence; approval does not complete interpretation.", p));
             }
         }
         content = content
-            .child("Prepare a Source proposal from the inspected conversion")
+            .child(
+                ui::section_label("Prepare a Source proposal from the inspected conversion", p)
+                    .px_0(),
+            )
             .child(
                 Textarea::new(&self.inbox.source_title)
                     .disabled(blocked)
@@ -697,6 +777,8 @@ impl Desktop {
             .child(
                 Button::new("prepare-inbox-source")
                     .label("Prepare Source review input")
+                    .outline()
+                    .small()
                     .disabled(
                         blocked
                             || !ai.vault_bound
@@ -717,6 +799,8 @@ impl Desktop {
                 .child(
                     Button::new("open-inbox-source-form")
                         .label("Open retained Source proposal form")
+                        .ghost()
+                        .small()
                         .disabled(blocked)
                         .on_click(cx.listener(|this, _, _, cx| {
                             if !this.inbox_blocked() {
@@ -726,13 +810,54 @@ impl Desktop {
                 );
         }
         if let Some(error) = &queue.source_error {
-            content = content.child(error.clone());
+            content = content.child(ui::callout(Tone::Danger, error.clone(), p));
         }
+        content.into_any_element()
+    }
+    pub(super) fn render_inbox(&mut self, cx: &mut Context<Self>) -> AnyElement {
+        use super::ui;
+        let p = self.palette();
+        let capture = self.render_inbox_capture(cx);
+        let content = self.render_inbox_queue(cx);
+        let analysis = self.render_inbox_analysis(cx);
+        let ai = self.ai.as_ref().unwrap();
+        let queue = &ai.inbox_queue;
+        let total = queue.page.as_ref().map(|page| page.total_count);
+        let body = div()
+            .id("inbox-content")
+            .track_scroll(&self.inbox.scroll)
+            .flex()
+            .flex_col()
+            .flex_1()
+            .min_h(px(0.))
+            .overflow_y_scroll()
+            .px(px(tokens::space::LG))
+            .py(px(tokens::space::MD))
+            .gap(px(tokens::space::LG))
+            .child(
+                ui::view_header(
+                    "Inbox",
+                    None,
+                    Some(match total {
+                        Some(total) => format!("{total} retained originals · exact copies, oldest first"),
+                        None => "Exact copies of what you bring in. Nothing changes knowledge until you approve.".into(),
+                    }),
+                    p,
+                )
+                .mx(px(-tokens::space::LG))
+                .mt(px(-tokens::space::MD)),
+            )
+            .child(content)
+            .child(div().h(px(1.)).bg(super::theme::color(p.line)))
+            .child(capture)
+            .child(div().h(px(1.)).bg(super::theme::color(p.line)))
+            .child(analysis);
         div()
             .size_full()
             .flex()
             .flex_col()
-            .child(content.test_support())
+            .bg(super::theme::color(p.paper))
+            .child(body.test_support())
             .into_any_element()
     }
 }

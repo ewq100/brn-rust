@@ -56,7 +56,8 @@ pub fn apply(appearance: Appearance, window: &mut Window, cx: &mut App) -> Resul
         let theme = Theme::global_mut(cx);
         theme.dark_theme = dark;
         theme.light_theme = light;
-        theme.font_family = tokens::CHROME_FONT.into();
+        theme.font_family = tokens::UI_FONT.into();
+        theme.mono_font_family = tokens::MONO_FONT.into();
     }
     let mode = match appearance.scheme(system_dark(window)) {
         Scheme::Dark => gpui_kit::component::ThemeMode::Dark,

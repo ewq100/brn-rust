@@ -10,7 +10,7 @@ impl Desktop {
         window.open_dialog(cx, move |dialog, _, cx| {
             dialog
                 .title("Settings")
-                .w(px(460.))
+                .w(px(520.))
                 .child(settings_body(&desktop, cx))
         });
     }
@@ -27,6 +27,9 @@ fn settings_body(desktop: &Entity<Desktop>, cx: &App) -> impl IntoElement {
         Button::new(id)
             .label(label)
             .compact()
+            .small()
+            .when(prefs.appearance == value, |button| button.primary())
+            .when(prefs.appearance != value, |button| button.ghost())
             .selected(prefs.appearance == value)
             .on_click(move |_, window, cx| {
                 let _ = target.update(cx, |this, cx| this.set_appearance(value, window, cx));
@@ -37,6 +40,8 @@ fn settings_body(desktop: &Entity<Desktop>, cx: &App) -> impl IntoElement {
         Button::new(id)
             .label(label)
             .compact()
+            .small()
+            .outline()
             .on_click(move |_, _, cx| {
                 let _ = target.update(cx, |this, cx| {
                     this.layout.resize_rail(rail, delta);
@@ -50,7 +55,7 @@ fn settings_body(desktop: &Entity<Desktop>, cx: &App) -> impl IntoElement {
         .test_support()
         .flex()
         .flex_col()
-        .max_h(px(340.))
+        .max_h(px(520.))
         .overflow_y_scroll()
         .gap_3()
         .child(section_label("Workspace", p))

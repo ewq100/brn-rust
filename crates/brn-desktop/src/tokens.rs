@@ -1,4 +1,12 @@
-//! BRN handoff colour and font tokens for the refined-terminal direction.
+//! BRN design tokens: the single source for colour, type, spacing and size values.
+//!
+//! The design handbook (`docs/design`) generates its token tables and prototype
+//! CSS from this file with `scripts/design-handbook.py`; keep each value a plain
+//! literal on its own line so that generator can read it. Semantic roles:
+//! cyan = focus, links, evidence and the primary action; amber = needs attention,
+//! review or changed state; purple = AI-generated or provisional; green = approved,
+//! saved or done; red = failure, destructive or overdue. Colour never carries
+//! meaning alone: pair it with text or a symbol.
 
 use crate::layout::Scheme;
 
@@ -15,6 +23,7 @@ pub struct Palette {
     pub amber: u32,
     pub purple: u32,
     pub green: u32,
+    pub red: u32,
 }
 
 pub const DARK: Palette = Palette {
@@ -29,6 +38,7 @@ pub const DARK: Palette = Palette {
     amber: 0xefc378,
     purple: 0xc4acf2,
     green: 0x9cdbad,
+    red: 0xf2a2a2,
 };
 
 pub const LIGHT: Palette = Palette {
@@ -43,10 +53,52 @@ pub const LIGHT: Palette = Palette {
     amber: 0x81510c,
     purple: 0x765299,
     green: 0x326342,
+    red: 0xa3323a,
 };
 
-/// Interface chrome, paths, statuses and controls.
-pub const CHROME_FONT: &str = "Menlo";
+/// Interface chrome, labels and reading text: the platform UI sans.
+pub const UI_FONT: &str = ".SystemUIFont";
+/// Technical identity: paths, UUIDs, model ids, byte ranges, counts and editors.
+pub const MONO_FONT: &str = "Menlo";
+
+/// Type scale in points. Chrome stays compact; reading text is larger.
+pub mod text {
+    /// Section labels and badges.
+    pub const CAPTION: f32 = 11.0;
+    /// Monospace metadata lines.
+    pub const META: f32 = 11.5;
+    /// Default chrome, list rows and controls.
+    pub const BODY: f32 = 13.0;
+    /// Chat answers, questions and reading prose.
+    pub const READING: f32 = 14.0;
+    /// View titles in the document pane.
+    pub const TITLE: f32 = 17.0;
+    /// Welcome and empty-state headlines.
+    pub const DISPLAY: f32 = 22.0;
+}
+
+/// Spacing steps in points (4-point rhythm).
+pub mod space {
+    pub const XS: f32 = 4.0;
+    pub const SM: f32 = 8.0;
+    pub const MD: f32 = 12.0;
+    pub const LG: f32 = 16.0;
+    pub const XL: f32 = 24.0;
+}
+
+/// Component sizes in points.
+pub mod size {
+    /// Navigation and list rows.
+    pub const ROW: f32 = 28.0;
+    /// Minimum status-strip height.
+    pub const STATUS_STRIP: f32 = 26.0;
+    /// Accent bar on callouts and selected rows.
+    pub const ACCENT_BAR: f32 = 2.0;
+    /// Corner radius: square panes and controls by approved direction.
+    pub const RADIUS: u32 = 0;
+    /// Readable line length for chat and reading panes.
+    pub const READING_MAX_WIDTH: f32 = 760.0;
+}
 
 pub fn palette(scheme: Scheme) -> Palette {
     match scheme {
@@ -71,10 +123,12 @@ pub fn theme_config_json(scheme: Scheme) -> serde_json::Value {
         "is_default": false,
         "name": name,
         "mode": mode,
-        "radius": 0,
-        "radius.lg": 0,
+        "radius": size::RADIUS,
+        "radius.lg": size::RADIUS,
         "shadow": false,
-        "mono_font.family": CHROME_FONT,
+        "font.family": UI_FONT,
+        "font.size": text::BODY,
+        "mono_font.family": MONO_FONT,
         "colors": {
             "background": hex(p.background),
             "foreground": hex(p.text),
@@ -119,6 +173,9 @@ pub fn theme_config_json(scheme: Scheme) -> serde_json::Value {
             "tab.active.foreground": hex(p.cyan),
             "tab_bar.background": hex(p.panel),
             "success.background": hex(p.green),
+            "danger.background": hex(p.red),
+            "danger.foreground": hex(p.background),
+            "base.red": hex(p.red),
             "warning.background": hex(p.amber),
             "info.background": hex(p.cyan),
             "base.cyan": hex(p.cyan),
@@ -157,6 +214,7 @@ mod tests {
                 amber: 0xefc378,
                 purple: 0xc4acf2,
                 green: 0x9cdbad,
+                red: 0xf2a2a2,
             }
         );
     }
@@ -177,6 +235,7 @@ mod tests {
                 amber: 0x81510c,
                 purple: 0x765299,
                 green: 0x326342,
+                red: 0xa3323a,
             }
         );
     }
@@ -202,6 +261,9 @@ mod tests {
         assert_eq!(dark["colors"]["button.background"], "#141c20");
         assert_eq!(dark["colors"]["ring"], "#71d8e7");
         assert_eq!(dark["colors"]["base.magenta"], "#c4acf2");
+        assert_eq!(dark["colors"]["danger.background"], "#f2a2a2");
+        assert_eq!(dark["font.family"], UI_FONT);
+        assert_eq!(dark["mono_font.family"], MONO_FONT);
         assert_eq!(dark["highlight"]["editor.background"], "#141c20");
         let light = theme_config_json(Scheme::Light);
         assert_eq!(light["mode"], "light");

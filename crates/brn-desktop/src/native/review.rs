@@ -209,6 +209,8 @@ impl Desktop {
             || self.closing.is_some()
             || self.closed
             || self.close_failed;
+        use super::ui::{self, Tone};
+        let mut decision: Option<gpui_kit::Div> = None;
         let mut body = div()
             .id("full-proposal-review")
             .test_support()
@@ -219,7 +221,8 @@ impl Desktop {
             .min_h(px(0.))
             .overflow_y_scroll()
             .gap_2()
-            .p_3();
+            .px(px(tokens::space::LG))
+            .py(px(tokens::space::MD));
         if let Some(review) = &ai.review {
             let editable = ai.review_editable() && !leaving;
             let can_mutate = ai.review_can_mutate() && !leaving;
@@ -229,15 +232,22 @@ impl Desktop {
                 .changes
                 .get(self.review_member)
                 .is_some_and(|change| change.text().is_some());
-            body = body.child(format!("{:?} · review version {} · {}", review.record.state, review.record.version,
-                if review.pending() { "Awaiting full review acknowledgement" } else if review.dirty() { "Local text is not acknowledged" } else { "Full review is recoverable" }))
-                .child("Proposal edits and Rewrite do not change vault knowledge. Approval is a separate exact full-proposal operation.")
+            body = body
+                .child(ui::callout(
+                    Tone::Info,
+                    "Proposal edits and Rewrite do not change vault knowledge. Approval is a separate exact full-proposal operation.",
+                    p,
+                ))
+                .child(ui::section_label("Title", p).px_0())
                 .child(Textarea::new(&self.review_title).disabled(!editable).aria_label("Full proposal title"));
             if let Some(error) = &review.error {
-                body = body.child(error.clone());
+                body = body.child(ui::callout(Tone::Danger, error.clone(), p));
             }
             if let Some(observed) = &review.observed {
-                body = body.child(format!("Current review is version {} / {:?}. Local text is retained; copy or explicitly discard it before continuing.", observed.version, observed.state));
+                body = body.child(ui::callout(Tone::Attention, format!("Current review is version {} / {:?}. Local text is retained; copy or explicitly discard it before continuing.", observed.version, observed.state), p));
+            }
+            if !review.record.draft.changes.is_empty() {
+                body = body.child(ui::section_label("Changes", p).px_0());
             }
             for (index, change) in review.record.draft.changes.iter().enumerate() {
                 let kind = match change {
@@ -249,31 +259,39 @@ impl Desktop {
                     NoteChange::TrashAsset { .. } => "Trash asset",
                 };
                 body = body.child(
-                    Button::new(format!("review-member-{index}"))
-                        .label(format!("{kind} · {}", change.path()))
-                        .selected(index == self.review_member)
-                        .disabled(leaving)
-                        .on_click(cx.listener(move |this, _, window, cx| {
-                            this.review_member = index;
-                            this.sync_review_widgets(window, cx);
-                            cx.notify();
-                        })),
+                    ui::list_row(
+                        format!("review-member-{index}"),
+                        change.path().to_owned(),
+                        None,
+                        Some(ui::badge(kind, member_tone(kind), p).into_any_element()),
+                        p,
+                    )
+                    .selected(index == self.review_member)
+                    .disabled(leaving)
+                    .on_click(cx.listener(move |this, _, window, cx| {
+                        this.review_member = index;
+                        this.sync_review_widgets(window, cx);
+                        cx.notify();
+                    })),
                 );
             }
             if let Some(change) = review.record.draft.changes.get(self.review_member) {
                 match change {
                     NoteChange::Create { .. } => {
-                        body = body.child("Before: no note at the captured destination");
+                        body =
+                            body.child(ui::hint("Before: no note at the captured destination", p));
                     }
                     NoteChange::Replace { before_text, .. }
                     | NoteChange::Trash { before_text, .. } => {
-                        body = body.child("Full captured before text").child(
-                            div()
-                                .id("review-before")
-                                .max_h(px(220.))
-                                .overflow_y_scroll()
-                                .child(before_text.clone()),
-                        );
+                        body = body
+                            .child(ui::section_label("Full captured before text", p).px_0())
+                            .child(
+                                div()
+                                    .id("review-before")
+                                    .max_h(px(220.))
+                                    .overflow_y_scroll()
+                                    .child(before_text.clone()),
+                            );
                     }
                     NoteChange::CreateAsset { .. }
                     | NoteChange::ReplaceAsset { .. }
@@ -285,19 +303,21 @@ impl Desktop {
                     }
                 }
                 if change.text().is_some() {
-                    body = body.child("Full proposed text").child(
-                        div()
-                            .id("review-text-editor")
-                            .test_support()
-                            .h(px(320.))
-                            .child(
-                                Editor::new(&self.review_editor)
-                                    .h_full()
-                                    .readonly(review.record.draft.inbox_source.is_some())
-                                    .disabled(!editable)
-                                    .aria_label("Full proposed Markdown member"),
-                            ),
-                    );
+                    body = body
+                        .child(ui::section_label("Full proposed text", p).px_0())
+                        .child(
+                            div()
+                                .id("review-text-editor")
+                                .test_support()
+                                .h(px(320.))
+                                .child(
+                                    Editor::new(&self.review_editor)
+                                        .h_full()
+                                        .readonly(review.record.draft.inbox_source.is_some())
+                                        .disabled(!editable)
+                                        .aria_label("Full proposed Markdown member"),
+                                ),
+                        );
                 } else if !change.is_asset() {
                     body =
                         body.child("Proposed: move this exact original note to recoverable Trash");
@@ -306,9 +326,9 @@ impl Desktop {
             for (index, change) in review.record.draft.action_changes.iter().enumerate() {
                 body = body.child(self.action_editor_body(index, change, editable, cx));
             }
-            body = body.child("Captured source versions");
+            body = body.child(ui::section_label("Captured source versions", p).px_0());
             if review.record.draft.sources.is_empty() {
-                body = body.child("No source files recorded for this proposal");
+                body = body.child(ui::hint("No source files recorded for this proposal", p));
             }
             for source in &review.record.draft.sources {
                 let hash: String = source
@@ -317,9 +337,15 @@ impl Desktop {
                     .iter()
                     .map(|byte| format!("{byte:02x}"))
                     .collect();
-                body = body.child(format!("{} · captured SHA-256 {hash}", source.path));
+                body = body.child(ui::meta(
+                    format!("{} · captured SHA-256 {hash}", source.path),
+                    p,
+                ));
             }
-            body = body.child("Temporary review comments");
+            body = body.child(ui::section_label("Comments and Rewrite", p).px_0()).child(ui::hint(
+                "Comments are temporary review notes for Rewrite. They are deleted after successful approval.",
+                p,
+            ));
             for comment in &review.record.comments {
                 let id = comment.id;
                 let label = match &comment.target {
@@ -335,65 +361,62 @@ impl Desktop {
                         anchor.quote
                     ),
                 };
-                body = body.child(label).child(comment.text.clone()).child(
-                    div()
-                        .flex()
-                        .flex_wrap()
-                        .gap_1()
-                        .child(
-                            Button::new(format!("edit-comment-{id}"))
-                                .label("Edit comment…")
-                                .disabled(!can_mutate)
-                                .on_click(cx.listener(move |this, _, window, cx| {
-                                    this.review_comment_dialog(false, Some(id), window, cx)
-                                })),
-                        )
-                        .when(selected_text, |row| {
-                            row.child(
-                                Button::new(format!("reattach-comment-{id}"))
-                                    .label("Reattach to selected text…")
+                body = body
+                    .child(ui::callout(
+                        Tone::Attention,
+                        div()
+                            .flex()
+                            .flex_col()
+                            .gap_1()
+                            .child(ui::meta(label, p))
+                            .child(comment.text.clone()),
+                        p,
+                    ))
+                    .child(
+                        ui::toolbar()
+                            .child(
+                                Button::new(format!("edit-comment-{id}"))
+                                    .label("Edit comment…")
+                                    .ghost()
+                                    .small()
                                     .disabled(!can_mutate)
                                     .on_click(cx.listener(move |this, _, window, cx| {
-                                        this.review_comment_dialog(true, Some(id), window, cx)
+                                        this.review_comment_dialog(false, Some(id), window, cx)
                                     })),
                             )
-                        })
-                        .child(
-                            Button::new(format!("delete-comment-{id}"))
-                                .label("Remove comment")
-                                .disabled(!can_mutate)
-                                .on_click(cx.listener(move |this, _, _, cx| {
-                                    if let Some(command) =
-                                        this.ai.as_mut().unwrap().remove_review_comment(id)
-                                    {
-                                        this.simple_send(command, cx);
-                                    }
-                                })),
-                        ),
-                );
+                            .when(selected_text, |row| {
+                                row.child(
+                                    Button::new(format!("reattach-comment-{id}"))
+                                        .label("Reattach to selected text…")
+                                        .disabled(!can_mutate)
+                                        .on_click(cx.listener(move |this, _, window, cx| {
+                                            this.review_comment_dialog(true, Some(id), window, cx)
+                                        })),
+                                )
+                            })
+                            .child(
+                                Button::new(format!("delete-comment-{id}"))
+                                    .label("Remove comment")
+                                    .ghost()
+                                    .small()
+                                    .disabled(!can_mutate)
+                                    .on_click(cx.listener(move |this, _, _, cx| {
+                                        if let Some(command) =
+                                            this.ai.as_mut().unwrap().remove_review_comment(id)
+                                        {
+                                            this.simple_send(command, cx);
+                                        }
+                                    })),
+                            ),
+                    );
             }
             body = body.child(
-                div()
-                    .flex()
-                    .flex_wrap()
-                    .gap_2()
-                    .child(
-                        Button::new("review-flush")
-                            .label("Flush / retry full review")
-                            .disabled(review.pending() || leaving)
-                            .on_click(cx.listener(|this, _, _, cx| {
-                                if let Some(review) = &mut this.ai.as_mut().unwrap().review {
-                                    review.retry();
-                                }
-                                if let Some(command) = this.ai.as_mut().unwrap().recover_review() {
-                                    this.simple_send(command, cx);
-                                }
-                                cx.notify();
-                            })),
-                    )
+                ui::toolbar()
                     .child(
                         Button::new("review-comment-whole")
                             .label("Comment on proposal…")
+                            .outline()
+                            .small()
                             .disabled(!can_mutate)
                             .on_click(cx.listener(|this, _, window, cx| {
                                 this.review_comment_dialog(false, None, window, cx)
@@ -403,6 +426,8 @@ impl Desktop {
                         row.child(
                             Button::new("review-comment-selection")
                                 .label("Comment selected text…")
+                                .outline()
+                                .small()
                                 .disabled(!can_mutate)
                                 .on_click(cx.listener(|this, _, window, cx| {
                                     this.review_comment_dialog(true, None, window, cx)
@@ -412,24 +437,128 @@ impl Desktop {
                     .child(
                         Button::new("review-rewrite")
                             .label("Rewrite")
+                            .outline()
+                            .small()
+                            .tooltip("Ask the selected model to rewrite the whole proposal using your comments. Knowledge stays unchanged.")
                             .disabled(leaving || !ai.can_rewrite())
                             .on_click(cx.listener(|this, _, _, cx| {
                                 if let Some(command) = this.ai.as_mut().unwrap().start_rewrite() {
                                     this.simple_send(command, cx);
                                 }
                             })),
-                    )
+                    ),
+            );
+            body = body
+                .child(ui::section_label("Review state", p).px_0())
+                .child(ui::meta(
+                    format!(
+                        "Review version {} · {}",
+                        review.record.version,
+                        if review.pending() {
+                            "Awaiting full review acknowledgement"
+                        } else if review.dirty() {
+                            "Local text is not acknowledged"
+                        } else {
+                            "Full review is recoverable"
+                        }
+                    ),
+                    p,
+                ))
+                .child(
+                    ui::toolbar()
+                        .child(
+                            Button::new("review-flush")
+                                .label("Flush / retry full review")
+                                .ghost()
+                                .small()
+                                .disabled(review.pending() || leaving)
+                                .on_click(cx.listener(|this, _, _, cx| {
+                                    if let Some(review) = &mut this.ai.as_mut().unwrap().review {
+                                        review.retry();
+                                    }
+                                    if let Some(command) =
+                                        this.ai.as_mut().unwrap().recover_review()
+                                    {
+                                        this.simple_send(command, cx);
+                                    }
+                                    cx.notify();
+                                })),
+                        )
+                        .child(
+                            Button::new("review-observe")
+                                .label("Observe current review")
+                                .ghost()
+                                .small()
+                                .disabled(review.pending())
+                                .on_click(cx.listener(|this, _, _, cx| {
+                                    if let Some(command) =
+                                        this.ai.as_mut().unwrap().refresh_review()
+                                    {
+                                        this.simple_send(command, cx);
+                                    }
+                                })),
+                        )
+                        .child(
+                            Button::new("review-copy-local")
+                                .label("Copy full local review")
+                                .ghost()
+                                .small()
+                                .on_click(cx.listener(|this, _, _, cx| {
+                                    if let Some(review) = &this.ai.as_ref().unwrap().review
+                                        && let Ok(text) = review.copy_local()
+                                    {
+                                        cx.write_to_clipboard(gpui_kit::ClipboardItem::new_string(
+                                            text,
+                                        ));
+                                    }
+                                })),
+                        )
+                        .child(
+                            Button::new("review-discard-local")
+                                .label("Discard retained local text…")
+                                .ghost()
+                                .small()
+                                .disabled(
+                                    review.pending() || (!review.dirty() && review.error.is_none()),
+                                )
+                                .on_click(cx.listener(|this, _, window, cx| {
+                                    this.discard_review_dialog(window, cx)
+                                })),
+                        ),
+                );
+            decision = Some(
+                div()
+                    .flex()
+                    .flex_col()
+                    .gap_1()
+                    .child(ui::hint(
+                        format!(
+                            "Approval applies exactly review version {} after you inspect the complete change.",
+                            review.record.version
+                        ),
+                        p,
+                    ))
                     .child(
-                        Button::new("review-approve")
-                            .label("Review exact approval…")
-                            .disabled(!can_mutate || ai.application_busy() || ai.rewrite.is_some())
-                            .on_click(cx.listener(|this, _, window, cx| {
-                                this.open_approval_dialog(false, window, cx)
+                ui::toolbar()
+                    .justify_end()
+                    .child(
+                        Button::new("review-reject")
+                            .label("Reject proposal")
+                            .outline()
+                            .small()
+                            .disabled(!can_mutate)
+                            .on_click(cx.listener(|this, _, _, cx| {
+                                if let Some(command) = this.ai.as_mut().unwrap().reject_review() {
+                                    this.simple_send(command, cx);
+                                }
                             })),
                     )
-                    .child(
+                    .when(review.record.draft.group_id.is_some(), |row| {
+                        row.child(
                         Button::new("review-approve-group")
                             .label("Review captured group approval…")
+                            .outline()
+                            .small()
                             .disabled(
                                 !can_mutate
                                     || review.record.draft.group_id.is_none()
@@ -440,48 +569,18 @@ impl Desktop {
                                 this.open_approval_dialog(true, window, cx)
                             })),
                     )
+                    })
                     .child(
-                        Button::new("review-reject")
-                            .label("Reject proposal")
-                            .disabled(!can_mutate)
-                            .on_click(cx.listener(|this, _, _, cx| {
-                                if let Some(command) = this.ai.as_mut().unwrap().reject_review() {
-                                    this.simple_send(command, cx);
-                                }
-                            })),
-                    )
-                    .child(
-                        Button::new("review-observe")
-                            .label("Observe current review")
-                            .disabled(review.pending())
-                            .on_click(cx.listener(|this, _, _, cx| {
-                                if let Some(command) = this.ai.as_mut().unwrap().refresh_review() {
-                                    this.simple_send(command, cx);
-                                }
-                            })),
-                    )
-                    .child(
-                        Button::new("review-copy-local")
-                            .label("Copy full local review")
-                            .on_click(cx.listener(|this, _, _, cx| {
-                                if let Some(review) = &this.ai.as_ref().unwrap().review
-                                    && let Ok(text) = review.copy_local()
-                                {
-                                    cx.write_to_clipboard(gpui_kit::ClipboardItem::new_string(
-                                        text,
-                                    ));
-                                }
-                            })),
-                    )
-                    .child(
-                        Button::new("review-discard-local")
-                            .label("Discard retained local text…")
-                            .disabled(
-                                review.pending() || (!review.dirty() && review.error.is_none()),
-                            )
+                        Button::new("review-approve")
+                            .label("Review exact approval…")
+                            .primary()
+                            .small()
+                            .tooltip("Inspect exactly what will change, then approve this version")
+                            .disabled(!can_mutate || ai.application_busy() || ai.rewrite.is_some())
                             .on_click(cx.listener(|this, _, window, cx| {
-                                this.discard_review_dialog(window, cx)
+                                this.open_approval_dialog(false, window, cx)
                             })),
+                    ),
                     ),
             );
             if let Some(active) = &ai.rewrite {
@@ -508,9 +607,13 @@ impl Desktop {
             if let Some(job) = &ai.last_rewrite
                 && job.spec.expected.id == review.record.draft.id
             {
-                body = body.child(format!("Last Rewrite: {:?}", job.status));
+                body = body.child(ui::meta(format!("Last Rewrite: {:?}", job.status), p));
                 if let Some(error) = &job.error_code {
-                    body = body.child(format!("Safe failure category: {error}"));
+                    body = body.child(ui::callout(
+                        Tone::Danger,
+                        format!("Safe failure category: {error}"),
+                        p,
+                    ));
                 }
             }
             if ai.application_busy() {
@@ -526,7 +629,7 @@ impl Desktop {
                 ));
             }
             if let Some(error) = &ai.approval_error {
-                body = body.child(error.clone());
+                body = body.child(ui::callout(Tone::Danger, error.clone(), p));
             }
             if self.review_comment_draft.is_some()
                 && !self.review_comment.read(cx).value().is_empty()
@@ -582,25 +685,59 @@ impl Desktop {
                     .unwrap_or("Opening full proposal review…".into()),
             );
         }
-        div()
+        let (title, kind, identity) = match &ai.review {
+            Some(review) => {
+                let (label, tone) = super::simple::proposal_state_badge(review.record.state);
+                (
+                    review.record.draft.title.clone(),
+                    Some((format!("Proposal · {label}"), tone)),
+                    Some(format!(
+                        "{} · version {}",
+                        review.record.draft.id, review.record.version
+                    )),
+                )
+            }
+            None => ("Full proposal review".to_owned(), None, None),
+        };
+        let mut pane = div()
             .size_full()
             .flex()
             .flex_col()
             .bg(super::theme::color(p.paper))
             .child(
-                div()
-                    .flex()
-                    .items_center()
-                    .gap_2()
-                    .p_2()
-                    .child("Full proposal review")
-                    .child(
-                        Button::new("close-proposal-review")
-                            .label("Close")
-                            .on_click(cx.listener(|this, _, _, cx| this.close_document(cx))),
-                    ),
+                ui::view_header(
+                    title,
+                    kind.as_ref().map(|(label, tone)| (label.as_str(), *tone)),
+                    identity,
+                    p,
+                )
+                .child(
+                    ui::quiet("close-proposal-review", "Close")
+                        .on_click(cx.listener(|this, _, _, cx| this.close_document(cx))),
+                ),
             )
-            .child(body)
-            .into_any_element()
+            .child(body);
+        if let Some(decision) = decision {
+            pane = pane.child(
+                decision
+                    .px(px(tokens::space::LG))
+                    .py(px(tokens::space::SM))
+                    .border_t_1()
+                    .border_color(super::theme::color(p.line))
+                    .bg(super::theme::color(p.panel)),
+            );
+        }
+        pane.into_any_element()
+    }
+}
+
+fn member_tone(kind: &str) -> super::ui::Tone {
+    use super::ui::Tone;
+    if kind.starts_with("Trash") {
+        Tone::Danger
+    } else if kind.starts_with("Replace") {
+        Tone::Attention
+    } else {
+        Tone::Info
     }
 }

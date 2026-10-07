@@ -593,6 +593,7 @@ impl Desktop {
     }
 
     pub(super) fn render_activity(&mut self, cx: &mut Context<Self>) -> AnyElement {
+        use super::ui::{self, Tone};
         let blocked = self.approval_native_blocked(cx);
         let operation_blocked = self.operation_native_blocked(cx);
         let ai = self.ai.as_ref().unwrap();
@@ -604,13 +605,16 @@ impl Desktop {
             .flex_1()
             .min_h(px(0.))
             .overflow_y_scroll()
-            .gap_3()
-            .p_3()
-            .child("Approved changes")
-            .child("Activity records completed approvals. Current vault files may have changed afterward.")
+            .gap(px(tokens::space::MD))
+            .px(px(tokens::space::LG))
+            .py(px(tokens::space::MD))
+            .child(ui::hint("Activity records completed approvals. Current vault files may have changed afterward.", p))
             .child(
                 Button::new("refresh-approval-activity")
+                    .icon(gpui_kit::assets::IconName::RotateCw)
                     .label("Refresh activity and recovery")
+                    .ghost()
+                    .small()
                     .disabled(blocked)
                     .on_click(cx.listener(|this, _, _, cx| {
                         if this.approval_native_blocked(cx) {
@@ -626,32 +630,46 @@ impl Desktop {
                     })),
             );
         if let Some(error) = &ai.activity_error {
-            body = body.child(error.clone());
+            body = body.child(ui::callout(Tone::Danger, error.clone(), p));
         }
+        body = body.child(ui::section_label("Approved changes", p).px_0());
         if let Some(page) = &ai.activity {
             if page.entries.is_empty() {
-                body = body.child("No completed approvals recorded");
+                body = body.child(ui::empty_state(
+                    "No completed approvals recorded",
+                    "Every approved change to knowledge or Actions appears here with its proposal and operation.",
+                    p,
+                ));
             }
             for entry in &page.entries {
-                let mut row =
-                    div()
-                        .flex()
-                        .flex_col()
-                        .gap_2()
-                        .p_3()
-                        .border_1()
-                        .border_color(theme::color(p.line))
-                        .child(entry.approved_at_utc.clone().unwrap_or_else(|| {
-                            format!("{} ms since Unix epoch", entry.approved_at_ms)
-                        }))
-                        .child(full_text("Approved title", &entry.title))
-                        .child(entry.summary.clone())
-                        .child(format!(
+                let mut row = div()
+                    .flex()
+                    .flex_col()
+                    .gap_2()
+                    .p_3()
+                    .border_1()
+                    .border_color(theme::color(p.line))
+                    .child(
+                        ui::toolbar()
+                            .child(ui::badge("Approved", Tone::Success, p))
+                            .child(ui::meta(
+                                entry.approved_at_utc.clone().unwrap_or_else(|| {
+                                    format!("{} ms since Unix epoch", entry.approved_at_ms)
+                                }),
+                                p,
+                            )),
+                    )
+                    .child(full_text("Approved title", &entry.title))
+                    .child(ui::hint(entry.summary.clone(), p))
+                    .child(ui::meta(
+                        format!(
                             "Operation {} · proposal {}",
                             entry.operation_id, entry.proposal_id
-                        ));
+                        ),
+                        p,
+                    ));
                 for change in &entry.changes {
-                    row = row.child(format!("{:?} · {}", change.kind, change.path));
+                    row = row.child(ui::meta(format!("{:?} · {}", change.kind, change.path), p));
                 }
                 if let Some(undo) = &entry.undo {
                     row = row.child(format!(
@@ -666,6 +684,8 @@ impl Desktop {
                 row = row.child(
                     Button::new(format!("inspect-approved-{operation}"))
                         .label("Inspect full recorded approval…")
+                        .ghost()
+                        .small()
                         .disabled(blocked)
                         .on_click(cx.listener(move |this, _, window, cx| {
                             this.open_application_snapshot(operation, window, cx)
@@ -674,6 +694,8 @@ impl Desktop {
                 row = row.child(
                     Button::new(format!("preview-full-undo-{operation}"))
                         .label("Review full Undo…")
+                        .ghost()
+                        .small()
                         .disabled(operation_blocked)
                         .on_click(cx.listener(move |this, _, window, cx| {
                             this.open_undo_dialog(operation, None, window, cx);
@@ -684,6 +706,8 @@ impl Desktop {
             body = body.child(
                 Button::new("more-approval-activity")
                     .label("Load earlier activity")
+                    .ghost()
+                    .small()
                     .disabled(blocked || page.next_before.is_none())
                     .on_click(cx.listener(|this, _, _, cx| {
                         if !this.approval_native_blocked(cx)
@@ -694,9 +718,9 @@ impl Desktop {
                     })),
             );
         } else {
-            body = body.child("Activity has not loaded yet");
+            body = body.child(ui::hint("Activity has not loaded yet", p));
         }
-        body = body.child("Latest application results");
+        body = body.child(ui::section_label("Latest application results", p).px_0());
         if let Some(error) = &ai.approval_error {
             body = body.child(error.clone());
         }
@@ -759,12 +783,12 @@ impl Desktop {
                 .child(Button::new(format!("inspect-requested-repair-{}", request.id)).label("Inspect recorded repair operation…").disabled(blocked)
                     .on_click(cx.listener(move |this, _, window, cx| this.open_application_snapshot(operation, window, cx))));
         }
-        body = body.child("Recovery requiring attention");
+        body = body.child(ui::section_label("Recovery requiring attention", p).px_0());
         if let Some(error) = &ai.applies_error {
             body = body.child(error.clone());
         }
         if ai.applies.is_empty() {
-            body = body.child("No pending or uncertain application is loaded");
+            body = body.child(ui::hint("No pending or uncertain application is loaded", p));
         }
         for summary in &ai.applies {
             let operation = summary.request.operation_id;
@@ -810,6 +834,18 @@ impl Desktop {
                     ),
             );
         }
-        body.into_any_element()
+        div()
+            .size_full()
+            .flex()
+            .flex_col()
+            .bg(theme::color(p.paper))
+            .child(ui::view_header(
+                "Activity",
+                None,
+                Some("Approved durable changes, Undo and interrupted-operation recovery".into()),
+                p,
+            ))
+            .child(body)
+            .into_any_element()
     }
 }

@@ -14,11 +14,7 @@ use crate::tokens::{self, Palette};
 use gpui_kit::{AnyElement, MouseButton, component::Selectable};
 
 fn section_label(text: &str, p: Palette) -> impl IntoElement {
-    div()
-        .pt_2()
-        .text_size(px(10.))
-        .text_color(color(p.muted))
-        .child(text.to_uppercase())
+    super::ui::section_label(text.to_owned(), p).px_0()
 }
 
 impl Desktop {
@@ -130,8 +126,8 @@ impl Desktop {
             .flex_col()
             .bg(color(p.background))
             .text_color(color(p.text))
-            .font_family(tokens::CHROME_FONT)
-            .text_size(px(12.))
+            .font_family(tokens::UI_FONT)
+            .text_size(px(tokens::text::BODY))
             .on_mouse_move(
                 cx.listener(|this, event: &gpui_kit::MouseMoveEvent, window, cx| {
                     this.drag_divider(event, window, cx)
@@ -146,8 +142,8 @@ impl Desktop {
                 cx.listener(|this, _, _, cx| this.end_divider_drag(cx)),
             )
             .child(self.render_header(&resolved, cx))
-            .child(self.render_status_line(cx))
             .child(row)
+            .child(self.render_status_line(cx))
     }
 
     fn render_rail_slot(

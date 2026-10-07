@@ -153,11 +153,13 @@ impl Desktop {
         });
     }
     pub(super) fn render_dashboard(&self, cx: &mut Context<Self>) -> AnyElement {
+        use super::ui::{self, Tone};
+        let p = self.palette();
         let ai = self.ai.as_ref().unwrap();
         let state = &ai.dashboard;
         let blocked = self.dashboard_blocked();
         let loading = ai.dashboard_loading();
-        let mut filters = div().flex().flex_wrap().gap_1();
+        let mut filters = div().flex().flex_wrap().gap(px(2.));
         for (index, (label, filter)) in [
             ("Active", DashboardFilter::Active),
             ("Open", DashboardFilter::Open),
@@ -175,6 +177,9 @@ impl Desktop {
                 Button::new(format!("dashboard-filter-{index}"))
                     .label(label)
                     .compact()
+                    .small()
+                    .when(state.filter == filter, |button| button.primary())
+                    .when(state.filter != filter, |button| button.ghost())
                     .selected(state.filter == filter)
                     .disabled(blocked || loading)
                     .on_click(cx.listener(move |this, _, window, cx| {
@@ -196,39 +201,37 @@ impl Desktop {
             .min_h(px(0.))
             .flex()
             .flex_col()
-            .gap_2()
-            .p_2()
-            .child("Dashboard · Actions")
-            .child(filters)
+            .gap(px(tokens::space::MD))
+            .px(px(tokens::space::LG))
+            .py(px(tokens::space::MD))
+            .child(filters);
+        let header_actions = ui::toolbar()
             .child(
-                div()
-                    .flex()
-                    .flex_wrap()
-                    .gap_1()
-                    .child(
-                        Button::new("refresh-dashboard")
-                            .label("Refresh today")
-                            .compact()
-                            .disabled(blocked || loading)
-                            .on_click(cx.listener(move |this, _, window, cx| {
-                                this.dashboard_page(filter, false, window, cx)
-                            })),
-                    )
-                    .child(
-                        Button::new("older-dashboard")
-                            .label("Older page")
-                            .compact()
-                            .disabled(blocked || loading || !older)
-                            .on_click(cx.listener(move |this, _, window, cx| {
-                                this.dashboard_page(filter, true, window, cx)
-                            })),
-                    ),
+                Button::new("refresh-dashboard")
+                    .icon(gpui_kit::assets::IconName::RotateCw)
+                    .label("Refresh today")
+                    .ghost()
+                    .small()
+                    .disabled(blocked || loading)
+                    .on_click(cx.listener(move |this, _, window, cx| {
+                        this.dashboard_page(filter, false, window, cx)
+                    })),
+            )
+            .child(
+                Button::new("older-dashboard")
+                    .label("Older page")
+                    .ghost()
+                    .small()
+                    .disabled(blocked || loading || !older)
+                    .on_click(cx.listener(move |this, _, window, cx| {
+                        this.dashboard_page(filter, true, window, cx)
+                    })),
             );
         if loading {
-            content = content.child("Loading Dashboard…");
+            content = content.child(ui::hint("Loading Dashboard…", p));
         }
         if let Some(error) = &state.error {
-            content = content.child(format!("Dashboard: {error}"));
+            content = content.child(ui::callout(Tone::Danger, format!("Dashboard: {error}"), p));
         }
         if let Some(page) = &state.page {
             let counts = &page.counts;
@@ -242,54 +245,142 @@ impl Desktop {
                 counts.overdue,
                 counts.follow_up
             );
-            content = content.child(div().id("dashboard-counts").test_support().aria_label(label.clone()).child(label))
-                .child("Counts cover all retained Actions. Overdue starts the day after the due date; follow-up starts on its named day. Date signals may overlap. Dependencies are observations, not automatic state changes.");
+            let tile = |name: &'static str, value: u64, tone: Tone| {
+                let active = value > 0 && tone != Tone::Neutral;
+                div()
+                    .flex()
+                    .flex_col()
+                    .min_w(px(84.))
+                    .px(px(tokens::space::MD))
+                    .py(px(tokens::space::SM))
+                    .border_1()
+                    .border_color(if active {
+                        tone.hsla(p).opacity(0.6)
+                    } else {
+                        super::theme::color(p.line)
+                    })
+                    .bg(if active {
+                        tone.hsla(p).opacity(0.08)
+                    } else {
+                        super::theme::color(p.panel)
+                    })
+                    .child(
+                        div()
+                            .text_size(px(tokens::text::TITLE))
+                            .font_weight(gpui_kit::FontWeight::SEMIBOLD)
+                            .text_color(if active {
+                                tone.hsla(p)
+                            } else {
+                                super::theme::color(p.text)
+                            })
+                            .child(value.to_string()),
+                    )
+                    .child(
+                        div()
+                            .text_size(px(tokens::text::CAPTION))
+                            .text_color(super::theme::color(p.muted))
+                            .child(name),
+                    )
+            };
+            content = content
+                .child(
+                    div()
+                        .id("dashboard-counts")
+                        .test_support()
+                        .aria_label(label.clone())
+                        .flex()
+                        .flex_wrap()
+                        .gap(px(tokens::space::SM))
+                        .child(tile("Overdue", counts.overdue, Tone::Danger))
+                        .child(tile("Follow-up", counts.follow_up, Tone::Attention))
+                        .child(tile("Open", counts.open, Tone::Neutral))
+                        .child(tile("Waiting", counts.waiting, Tone::Neutral))
+                        .child(tile("Blocked", counts.blocked, Tone::Neutral))
+                        .child(tile("Completed", counts.completed, Tone::Neutral)),
+                )
+                .child(ui::hint("Counts cover all retained Actions. Overdue starts the day after the due date; follow-up starts on its named day. Date signals may overlap. Dependencies are observations, not automatic state changes.", p));
             if page.entries.is_empty() {
-                content = content.child("No Actions in this page.");
+                content = content.child(ui::empty_state(
+                    "No Actions in this page.",
+                    "Actions appear here after you approve them from a proposal, the Inbox or a chat.",
+                    p,
+                ));
             }
             for entry in &page.entries {
                 let id = entry.action.origin.id;
-                let mut signals = Vec::new();
+                let mut trailing = ui::toolbar().gap(px(tokens::space::XS));
                 if entry.overdue {
-                    signals.push("overdue");
+                    trailing = trailing.child(ui::badge("overdue", Tone::Danger, p));
                 }
                 if entry.follow_up {
-                    signals.push("follow-up");
+                    trailing = trailing.child(ui::badge("follow-up", Tone::Attention, p));
                 }
                 if entry.dependency_blocked {
-                    signals.push("unfinished/missing dependency");
+                    trailing = trailing.child(ui::badge(
+                        "unfinished/missing dependency",
+                        Tone::Attention,
+                        p,
+                    ));
+                }
+                let data = &entry.action.data;
+                let state_tone = match data.state {
+                    brn_workflow::actions::ActionState::Completed => Tone::Success,
+                    brn_workflow::actions::ActionState::Blocked => Tone::Danger,
+                    brn_workflow::actions::ActionState::Waiting => Tone::Attention,
+                    _ => Tone::Info,
+                };
+                let mut detail = vec![format!("{:?}", data.state)];
+                if let Some(due) = &data.due_on {
+                    detail.push(format!("due {due}"));
+                }
+                if let Some(follow) = &data.follow_up_on {
+                    detail.push(format!("follow up {follow}"));
+                }
+                if let Some(owner) = data.owner.as_ref().filter(|owner| !owner.is_empty()) {
+                    detail.push(owner.clone());
                 }
                 content = content.child(
-                    Button::new(format!("dashboard-action-{id}"))
-                        .label(format!(
-                            "{:?} · {} · {}",
-                            entry.action.data.state,
-                            compact_title(&entry.action.data.title),
-                            signals.join(" · ")
-                        ))
-                        .selected(
-                            state
-                                .selected
-                                .as_ref()
-                                .is_some_and(|entry| entry.action.origin.id == id),
-                        )
-                        .disabled(blocked || loading)
-                        .on_click(cx.listener(move |this, _, window, cx| {
-                            if this.dashboard_blocked() || window.has_active_dialog(cx) {
-                                return;
-                            }
-                            this.ai.as_mut().unwrap().select_dashboard_action(id);
-                            this.sync_dashboard_widgets(window, cx);
-                            cx.notify();
-                        })),
+                    ui::list_row(
+                        format!("dashboard-action-{id}"),
+                        data.title.clone(),
+                        Some(detail.join(" · ")),
+                        Some(
+                            div()
+                                .flex()
+                                .items_center()
+                                .gap(px(tokens::space::XS))
+                                .child(ui::badge(format!("{:?}", data.state), state_tone, p))
+                                .child(trailing)
+                                .into_any_element(),
+                        ),
+                        p,
+                    )
+                    .selected(
+                        state
+                            .selected
+                            .as_ref()
+                            .is_some_and(|entry| entry.action.origin.id == id),
+                    )
+                    .disabled(blocked || loading)
+                    .on_click(cx.listener(move |this, _, window, cx| {
+                        if this.dashboard_blocked() || window.has_active_dialog(cx) {
+                            return;
+                        }
+                        this.ai.as_mut().unwrap().select_dashboard_action(id);
+                        this.sync_dashboard_widgets(window, cx);
+                        cx.notify();
+                    })),
                 );
             }
         }
+        content = content.child(ui::section_label("Selected Action", p).px_0());
         if state.selected.is_some() {
             content = content.child(
                 Button::new("complete-selected-action")
                     .label("Complete…")
-                    .compact()
+                    .primary()
+                    .small()
+                    .tooltip("Record that you finished this real-world Action. BRN never completes Actions on its own.")
                     .disabled(blocked || !ai.action_completion_available())
                     .on_click(
                         cx.listener(|this, _, window, cx| this.open_complete_action(window, cx)),
@@ -303,6 +394,8 @@ impl Desktop {
             content = content.child(
                 Button::new("new-related-action")
                     .label("New related follow-up…")
+                    .outline()
+                    .small()
                     .disabled(blocked || loading || ai.application_busy())
                     .on_click(cx.listener(move |this, _, window, cx| {
                         if this.dashboard_blocked()
@@ -342,7 +435,8 @@ impl Desktop {
                 proof_text(ai, self.dashboard.attempt),
             ));
         if !state.attempts.is_empty() {
-            content = content.child("Retained completion requests in this app session");
+            content = content
+                .child(ui::section_label("Completion requests in this app session", p).px_0());
         }
         for attempt in &state.attempts {
             let operation = attempt.request.operation_id;
@@ -353,12 +447,19 @@ impl Desktop {
             } else {
                 "Awaiting acknowledgement"
             };
-            content = content.child(format!(
-                "{} · Action {} · {status}",
-                operation, attempt.request.before.origin.id
+            content = content.child(ui::meta(
+                format!(
+                    "{} · Action {} · {status}",
+                    operation, attempt.request.before.origin.id
+                ),
+                p,
             ));
             if let Some(error) = &attempt.error {
-                content = content.child(format!("{:?}: {}", error.kind, error.message));
+                content = content.child(ui::callout(
+                    Tone::Danger,
+                    format!("{:?}: {}", error.kind, error.message),
+                    p,
+                ));
             }
             content = content
                 .child(
@@ -407,10 +508,17 @@ impl Desktop {
                 );
             }
         }
+        let as_of = state
+            .page
+            .as_ref()
+            .map(|page| format!("Actions as of {}", page.as_of))
+            .unwrap_or_else(|| "Actions".into());
         div()
             .size_full()
             .flex()
             .flex_col()
+            .bg(super::theme::color(p.paper))
+            .child(ui::view_header("Dashboard", None, Some(as_of), p).child(header_actions))
             .child(content.test_support())
             .into_any_element()
     }

@@ -61,15 +61,17 @@ impl Desktop {
         }
     }
     pub(super) fn render_inbox_copy(&self, cx: &mut Context<Self>) -> AnyElement {
+        use super::ui::{self, Tone};
+        let p = self.palette();
         let ai = self.ai.as_ref().unwrap();
         let state = &ai.inbox_copy;
         let blocked = self.inbox_blocked();
         let busy = ai.inbox_copy_loading() || ai.inbox_copy_pending();
         let mut panel = div().id("inbox-copy-panel").test_support().flex().flex_col().gap_2()
-            .child("Recoverable original-copy cleanup")
-            .child("An approved Source must still preserve this exact original. Cleanup requires your explicit confirmation and retains a recoverable copy. Inbox disposition and semantic reviews are separate.")
-            .child(div().flex().flex_wrap().gap_1()
-                .child(Button::new("inspect-inbox-copy").label("Inspect copy cleanup")
+            .child(ui::section_label("Recoverable original-copy cleanup", p).px_0())
+            .child(ui::callout(Tone::Attention, "An approved Source must still preserve this exact original. Cleanup requires your explicit confirmation and retains a recoverable copy. Inbox disposition and semantic reviews are separate.", p))
+            .child(ui::toolbar()
+                .child(Button::new("inspect-inbox-copy").label("Inspect copy cleanup").ghost().small()
                     .disabled(blocked || busy || ai.inbox_queue.selected.is_none())
                     .on_click(cx.listener(|this, _, window, cx| {
                         if this.inbox_blocked() || window.has_active_dialog(cx) { return; }
@@ -77,13 +79,13 @@ impl Desktop {
                         for command in commands { this.simple_send(command, cx); }
                         cx.notify();
                     })))
-                .child(Button::new("review-inbox-copy-removal").label("Review recoverable removal")
+                .child(Button::new("review-inbox-copy-removal").label("Review recoverable removal").ghost().small()
                     .disabled(blocked || busy || !ai.can_remove_inbox_copy())
                     .on_click(cx.listener(|this, _, window, cx| this.open_inbox_copy_confirmation(true, window, cx))))
-                .child(Button::new("review-inbox-copy-restore").label("Review exact copy restore")
+                .child(Button::new("review-inbox-copy-restore").label("Review exact copy restore").ghost().small()
                     .disabled(blocked || busy || !ai.can_restore_inbox_copy())
                     .on_click(cx.listener(|this, _, window, cx| this.open_inbox_copy_confirmation(false, window, cx))))
-                .child(Button::new("retry-inbox-copy").label("Retry exact recorded request")
+                .child(Button::new("retry-inbox-copy").label("Retry exact recorded request").ghost().small()
                     .disabled(blocked || !ai.can_retry_inbox_copy())
                     .on_click(cx.listener(|this, _, window, cx| {
                         if this.inbox_blocked() || window.has_active_dialog(cx) { return; }

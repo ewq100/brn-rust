@@ -1,11 +1,12 @@
 use crate::layout::{self, LayoutState, Loaded, Rail, ResolvedLayout};
+use crate::tokens;
 use gpui_kit::{
     App, AppContext, Bounds, Context, Entity, FocusHandle, Focusable, KeyBinding, Menu, MenuItem,
     PathPromptOptions, ScrollHandle, Subscription, Task, WeakEntity, Window, WindowBounds,
     WindowOptions,
     component::{
-        Root, TitleBar,
-        button::Button,
+        Root, Sizable, TitleBar,
+        button::{Button, ButtonVariants},
         input::{Editor, EditorState, Input, InputEvent, InputState, TextareaState},
         scroll::ScrollableElement,
     },
@@ -73,6 +74,7 @@ mod scope_tests;
 mod shell;
 mod simple;
 mod theme;
+pub(crate) mod ui;
 mod visual;
 
 #[derive(Clone, Copy, Debug, PartialEq, Eq)]
@@ -188,6 +190,7 @@ struct Desktop {
     dragging: Option<shell::divider::DividerDrag>,
     divider_focus: [FocusHandle; 3],
     focus_composer: bool,
+    show_decided: bool,
     message: String,
     _subscriptions: Vec<Subscription>,
     _poll_task: Task<()>,
@@ -200,7 +203,14 @@ impl Desktop {
         window: &mut Window,
         cx: &mut Context<Self>,
     ) -> Self {
-        let query = cx.new(|cx| EditorState::new(window, cx).default_value(""));
+        let query = cx.new(|cx| {
+            EditorState::new(window, cx)
+                .line_number(false)
+                .folding(false)
+                .soft_wrap(true)
+                .placeholder("Ask about your notes, sources and Actions…")
+                .default_value("")
+        });
         let note_editor = cx.new(|cx| {
             EditorState::new(window, cx)
                 .language("markdown")
@@ -533,6 +543,7 @@ impl Desktop {
                 cx.focus_handle().tab_stop(true),
             ],
             focus_composer: false,
+            show_decided: false,
             message: "Opening workspace…".into(),
             _subscriptions: vec![
                 query_subscription,

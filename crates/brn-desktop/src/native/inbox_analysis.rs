@@ -192,6 +192,8 @@ impl Desktop {
     }
 
     pub(super) fn render_inbox_analysis(&self, cx: &mut Context<Self>) -> AnyElement {
+        use super::ui::{self, Tone};
+        let p = self.palette();
         let ai = self.ai.as_ref().unwrap();
         let view = &ai.inbox_analysis;
         let blocked = self.inbox_blocked();
@@ -200,13 +202,15 @@ impl Desktop {
             .flex()
             .flex_col()
             .gap_2()
-            .child("Analyze a saved Source")
-            .child("Inspect an approved Inbox Source before starting. BRN checks that its saved text is unchanged. Knowledge and Action drafts need separate review and exact approval; originals stay retained.")
+            .child(ui::section_label("Analyze an approved Source", p).px_0())
+            .child(ui::hint("Inspect an approved Inbox Source before starting. BRN checks that its saved text is unchanged. Knowledge and Action drafts need separate review and exact approval; originals stay retained.", p))
             .child(Textarea::new(&self.inbox.analysis_source_path)
                 .disabled(blocked)
                 .aria_label("Saved Source path for analysis"))
             .child(Button::new("inbox-analysis-inspect-source")
                 .label("Inspect Source")
+                .outline()
+                .small()
                 .disabled(blocked || !ai.vault_bound || ai.application_busy()
                     || ai.inbox_analysis_source_loading()
                     || self.inbox.analysis_source_path.read(cx).value().is_empty())
@@ -258,12 +262,16 @@ impl Desktop {
             .child(format!("Selected for a new analysis: {selection} · effort: {effort}. Change these in Settings."))
             .child(Button::new("inbox-analysis-start")
                 .label("Analyze knowledge + Actions")
+                .outline()
+                .small()
                 .disabled(blocked || !ai.can_analyze_inbox_source()
                     || !self.analysis_source_matches_input(cx))
                 .on_click(cx.listener(|this, _, window, cx| this.start_inbox_analysis(window, cx))));
         panel = panel.child(
             Button::new("inbox-visual-inspect")
                 .label("Inspect saved PNG")
+                .outline()
+                .small()
                 .disabled(
                     blocked
                         || !ai.ready
@@ -306,6 +314,8 @@ impl Desktop {
             .child(
                 Button::new("inbox-visual-start")
                     .label("Interpret this PNG")
+                    .outline()
+                    .small()
                     .disabled(
                         blocked
                             || !self.analysis_source_matches_input(cx)
@@ -327,6 +337,8 @@ impl Desktop {
             .child(
                 Button::new("inbox-visual-prepare")
                     .label("Prepare tentative annotation")
+                    .outline()
+                    .small()
                     .disabled(
                         blocked
                             || !self.analysis_source_matches_input(cx)
@@ -378,10 +390,14 @@ impl Desktop {
             panel = panel.child(format!("Selection unavailable: {error}"));
         }
         if let Some(error) = &ai.effort_error {
-            panel = panel.child(format!("Reasoning effort unavailable: {error}"));
+            panel = panel.child(ui::callout(
+                Tone::Danger,
+                format!("Reasoning effort unavailable: {error}"),
+                p,
+            ));
         }
         panel = panel
-            .child("Inspect a retained analysis")
+            .child(ui::section_label("Inspect a retained analysis", p).px_0())
             .child(
                 Textarea::new(&self.inbox.analysis_id)
                     .disabled(blocked)
@@ -390,6 +406,8 @@ impl Desktop {
             .child(
                 Button::new("inbox-analysis-inspect")
                     .label("Inspect retained analysis")
+                    .outline()
+                    .small()
                     .disabled(blocked || ai.inbox_analysis_loading())
                     .on_click(cx.listener(|this, _, _, cx| this.inspect_analysis_input(cx))),
             );

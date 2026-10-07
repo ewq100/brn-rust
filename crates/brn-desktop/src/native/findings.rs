@@ -209,12 +209,14 @@ impl Desktop {
         cx.notify();
     }
     pub(super) fn render_findings(&self, cx: &mut Context<Self>) -> AnyElement {
+        use super::ui::{self, Tone};
+        let p = self.palette();
         let ai = self.ai.as_ref().unwrap();
         let queue = &ai.finding_queue;
         let full_text = display_text(ai);
         let blocked = self.findings_blocked();
         let state = queue.state;
-        let mut filters = div().flex().flex_wrap().gap_1();
+        let mut filters = div().flex().flex_wrap().gap(px(2.));
         for (index, (label, filter)) in [
             ("Open", Some(FindingState::Open)),
             ("Resolved", Some(FindingState::Resolved)),
@@ -228,6 +230,9 @@ impl Desktop {
                 Button::new(format!("finding-filter-{index}"))
                     .label(label)
                     .compact()
+                    .small()
+                    .when(state == filter, |button| button.primary())
+                    .when(state != filter, |button| button.ghost())
                     .selected(state == filter)
                     .disabled(blocked)
                     .on_click(cx.listener(move |this, _, _, cx| {
@@ -235,22 +240,27 @@ impl Desktop {
                     })),
             );
         }
+        let count = queue
+            .page
+            .as_ref()
+            .map(|page| format!("{} open findings", page.open_count))
+            .unwrap_or_else(|| "Tentative findings with retained evidence".into());
         let before = queue.page.as_ref().and_then(|page| page.next_before);
-        let mut content = div().id("findings-scroll").track_scroll(&self.findings.scroll).overflow_y_scroll().vertical_scrollbar(&self.findings.scroll).flex_1().min_h(px(0.)).flex().flex_col().gap_2().p_2()
-            .child("Needs Review")
-            .child("Tentative findings retain saved evidence. Resolve or Dismiss changes this queue only; correcting knowledge requires a reviewed proposal.")
+        let mut content = div().id("findings-scroll").track_scroll(&self.findings.scroll).overflow_y_scroll().vertical_scrollbar(&self.findings.scroll).flex_1().min_h(px(0.)).flex().flex_col().gap(px(tokens::space::MD)).px(px(tokens::space::LG)).py(px(tokens::space::MD))
+            .child(ui::view_header("Needs Review", None, Some(count), p).mx(px(-tokens::space::LG)).mt(px(-tokens::space::MD)))
+            .child(ui::callout(Tone::Attention, "Tentative findings retain saved evidence. Resolve or Dismiss changes this queue only; correcting knowledge requires a reviewed proposal.", p))
             .child(filters)
-            .child(div().flex().flex_wrap().gap_1()
-                .child(Button::new("refresh-findings").label("Newest findings").compact().disabled(blocked || ai.findings_loading()).on_click(cx.listener(move |this, _, _, cx| this.refresh_finding_page(state, None, cx))))
-                .child(Button::new("older-findings").label("Older page").compact().disabled(blocked || ai.findings_loading() || before.is_none()).on_click(cx.listener(move |this, _, _, cx| { if let Some(before) = before { this.refresh_finding_page(state, Some(before), cx); } }))));
+            .child(ui::toolbar()
+                .child(Button::new("refresh-findings").label("Newest findings").ghost().small().disabled(blocked || ai.findings_loading()).on_click(cx.listener(move |this, _, _, cx| this.refresh_finding_page(state, None, cx))))
+                .child(Button::new("older-findings").label("Older page").ghost().small().disabled(blocked || ai.findings_loading() || before.is_none()).on_click(cx.listener(move |this, _, _, cx| { if let Some(before) = before { this.refresh_finding_page(state, Some(before), cx); } }))));
         if ai.findings_loading() {
-            content = content.child("Loading findings…");
+            content = content.child(ui::hint("Loading findings…", p));
         }
         if let Some(error) = &queue.error {
-            content = content.child(format!("Findings: {error}"));
+            content = content.child(ui::callout(Tone::Danger, format!("Findings: {error}"), p));
         }
         if let Some(error) = &queue.capture_error {
-            content = content.child(format!("Capture: {error}"));
+            content = content.child(ui::callout(Tone::Danger, format!("Capture: {error}"), p));
         }
         if let Some(request) = ai.finding_capture_retry_request() {
             content = content
@@ -322,7 +332,11 @@ impl Desktop {
                 page.entries.len()
             ));
             if page.entries.is_empty() {
-                content = content.child("No findings in this page.");
+                content = content.child(ui::empty_state(
+                    "No findings in this page.",
+                    "Conflicts, stale knowledge and identity questions appear here without interrupting your work.",
+                    p,
+                ));
             }
             for record in &page.entries {
                 let id = record.draft.request.id;
@@ -376,7 +390,10 @@ impl Desktop {
                 content = content.child("This evidence has no captured quote.");
             }
         } else {
-            content = content.child("Select a finding to inspect its complete retained proof.");
+            content = content.child(ui::hint(
+                "Select a finding to inspect its complete retained proof.",
+                p,
+            ));
             if !full_text.is_empty() {
                 content = content
                     .child(
@@ -396,6 +413,7 @@ impl Desktop {
             .size_full()
             .flex()
             .flex_col()
+            .bg(super::theme::color(p.paper))
             .child(content.test_support())
             .into_any_element()
     }

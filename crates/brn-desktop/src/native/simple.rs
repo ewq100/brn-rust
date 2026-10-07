@@ -1154,12 +1154,63 @@ impl Desktop {
         true
     }
     pub(super) fn render_simple_history(&mut self, cx: &mut Context<Self>) -> AnyElement {
+        use super::ui::{self, Tone};
+        use gpui_kit::assets::IconName;
         let p = self.palette();
         let ai = self.ai.as_ref().unwrap();
+        let blocked = self.closing.is_some() || self.closed || self.close_failed;
         let now_ms = std::time::SystemTime::now()
             .duration_since(std::time::UNIX_EPOCH)
             .map(|time| u64::try_from(time.as_millis()).unwrap_or(u64::MAX))
             .unwrap_or(0);
+        let dashboard_signal = ai.dashboard.page.as_ref().and_then(|page| {
+            let counts = &page.counts;
+            if counts.overdue > 0 {
+                Some((format!("{} overdue", counts.overdue), Tone::Danger))
+            } else if counts.follow_up > 0 {
+                Some((format!("{} follow-up", counts.follow_up), Tone::Attention))
+            } else {
+                let unfinished = counts.open + counts.waiting + counts.blocked;
+                (unfinished > 0).then(|| (unfinished.to_string(), Tone::Neutral))
+            }
+        });
+        let inbox_signal = ai
+            .inbox_queue
+            .page
+            .as_ref()
+            .filter(|page| page.total_count > 0)
+            .map(|page| (page.total_count.to_string(), Tone::Attention));
+        let findings_signal = ai
+            .finding_queue
+            .page
+            .as_ref()
+            .filter(|page| page.open_count > 0)
+            .map(|page| (page.open_count.to_string(), Tone::Attention));
+        let awaiting: Vec<_> = ai
+            .proposals
+            .iter()
+            .filter(|record| {
+                !matches!(
+                    record.state,
+                    brn_workflow::proposals::ProposalState::Applied
+                        | brn_workflow::proposals::ProposalState::Rejected
+                )
+            })
+            .collect();
+        let decided: Vec<_> = ai
+            .proposals
+            .iter()
+            .filter(|record| {
+                matches!(
+                    record.state,
+                    brn_workflow::proposals::ProposalState::Applied
+                        | brn_workflow::proposals::ProposalState::Rejected
+                )
+            })
+            .collect();
+        let review_signal =
+            (!awaiting.is_empty()).then(|| (awaiting.len().to_string(), Tone::Attention));
+
         let mut list = div()
             .id("history-rail-list")
             .track_scroll(&self.history_scroll)
@@ -1168,81 +1219,42 @@ impl Desktop {
             .flex_1()
             .min_h(px(0.))
             .overflow_y_scroll()
-            .gap_1()
-            .p_2()
+            .px_2()
+            .pt_2()
+            .pb_3()
             .child(
-                Button::new("new-session")
-                    .label("+ New chat")
-                    .disabled(!ai.ready)
-                    .on_click(cx.listener(|this, _, _, cx| this.simple_history(None, cx))),
-            );
-        for conversation in &ai.conversations {
-            let id = conversation.id;
-            list =
-                list.child(
-                    div()
-                        .flex()
-                        .flex_col()
-                        .flex_shrink_0()
-                        .child(
-                            Button::new(format!("conversation-{id}"))
-                                .label(format!(
-                                    "{} · {} turns",
-                                    compact_title(&conversation.title),
-                                    conversation.turns
-                                ))
-                                .selected(ai.conversation == Some(id))
-                                .on_click(cx.listener(move |this, _, _, cx| {
-                                    this.simple_history(Some(id), cx)
-                                })),
-                        )
-                        .child(
-                            div()
-                                .w_full()
-                                .px_2()
-                                .text_xs()
-                                .text_color(color(p.muted))
-                                .child(session_activity_label(conversation, now_ms)),
-                        ),
-                );
-        }
-        list = list
+                ui::nav_row(
+                    "new-session",
+                    IconName::Plus,
+                    "New chat",
+                    Some(("⌘N".into(), Tone::Neutral)),
+                    p,
+                )
+                .outline()
+                .disabled(!ai.ready)
+                .on_click(cx.listener(|this, _, _, cx| this.simple_history(None, cx))),
+            )
+            .child(ui::section_label("Workspace", p))
             .child(
-                Button::new("open-dashboard")
-                    .label("Dashboard")
-                    .selected(self.open_doc == Some(DocRef::Dashboard))
-                    .disabled(!ai.ready)
-                    .on_click(cx.listener(|this, _, window, cx| {
-                        if !window.has_active_dialog(cx) {
-                            this.simple_leave(EditorTransition::Dashboard, cx);
-                        }
-                    })),
+                ui::nav_row(
+                    "open-dashboard",
+                    IconName::LayoutDashboard,
+                    "Dashboard",
+                    dashboard_signal,
+                    p,
+                )
+                .selected(self.open_doc == Some(DocRef::Dashboard))
+                .disabled(!ai.ready)
+                .on_click(cx.listener(|this, _, window, cx| {
+                    if !window.has_active_dialog(cx) {
+                        this.simple_leave(EditorTransition::Dashboard, cx);
+                    }
+                })),
             )
             .child(
-                Button::new("open-activity")
-                    .label("Activity and recovery")
-                    .selected(self.open_doc == Some(DocRef::Activity))
-                    .disabled(!ai.ready)
-                    .on_click(cx.listener(|this, _, _, cx| {
-                        this.simple_leave(EditorTransition::Activity, cx)
-                    })),
-            )
-            .child(
-                Button::new("open-findings")
-                    .label("Needs Review")
-                    .selected(self.open_doc == Some(DocRef::Findings))
-                    .disabled(!ai.ready)
-                    .on_click(cx.listener(|this, _, _, cx| {
-                        this.simple_leave(EditorTransition::Findings, cx)
-                    })),
-            )
-            .child(
-                Button::new("open-inbox")
-                    .label("Inbox")
+                ui::nav_row("open-inbox", IconName::Inbox, "Inbox", inbox_signal, p)
                     .selected(self.open_doc == Some(DocRef::Inbox))
-                    .disabled(
-                        !ai.ready || self.closing.is_some() || self.closed || self.close_failed,
-                    )
+                    .disabled(!ai.ready || blocked)
                     .on_click(cx.listener(|this, _, window, cx| {
                         if !window.has_active_dialog(cx) {
                             this.simple_leave(EditorTransition::Inbox, cx);
@@ -1250,67 +1262,172 @@ impl Desktop {
                     })),
             )
             .child(
-                Button::new("new-action-form")
-                    .label("+ New Action…")
-                    .selected(
-                        self.open_doc == Some(DocRef::Draft)
-                            && ai.draft.as_ref().is_some_and(|form| form.action.is_some()),
-                    )
-                    .disabled(
-                        !ai.ready
-                            || ai.application_busy()
-                            || self.closing.is_some()
-                            || self.closed
-                            || self.close_failed,
-                    )
-                    .on_click(cx.listener(|this, _, window, cx| {
-                        if !window.has_active_dialog(cx) {
-                            this.simple_leave(EditorTransition::ActionDraft(None), cx);
-                        }
-                    })),
-            )
-            .child("Proposal review")
-            .child(
-                Button::new("new-proposal-form")
-                    .label("+ New proposal…")
-                    .selected(
-                        self.open_doc == Some(DocRef::Draft)
-                            && ai.draft.as_ref().is_some_and(|form| form.action.is_none()),
-                    )
-                    .disabled(
-                        !ai.ready
-                            || !ai.vault_bound
-                            || ai.application_busy()
-                            || self.closing.is_some()
-                            || self.closed
-                            || self.close_failed,
-                    )
-                    .on_click(cx.listener(|this, _, _, cx| {
-                        this.simple_leave(EditorTransition::Draft(None), cx)
-                    })),
+                ui::nav_row(
+                    "open-findings",
+                    IconName::Bell,
+                    "Needs Review",
+                    findings_signal,
+                    p,
+                )
+                .selected(self.open_doc == Some(DocRef::Findings))
+                .disabled(!ai.ready)
+                .on_click(
+                    cx.listener(|this, _, _, cx| this.simple_leave(EditorTransition::Findings, cx)),
+                ),
             )
             .child(
-                Button::new("refresh-proposal-list")
-                    .label("Refresh proposals")
-                    .disabled(!ai.ready)
-                    .on_click(cx.listener(|this, _, _, cx| {
-                        this.simple_command(Pending::Proposals, AppCommand::Proposals(None), cx)
-                    })),
-            );
-        for proposal in &ai.proposals {
-            let id = proposal.draft.id;
+                ui::nav_row(
+                    "open-activity",
+                    IconName::GalleryVerticalEnd,
+                    "Activity",
+                    None,
+                    p,
+                )
+                .selected(self.open_doc == Some(DocRef::Activity))
+                .disabled(!ai.ready)
+                .on_click(
+                    cx.listener(|this, _, _, cx| this.simple_leave(EditorTransition::Activity, cx)),
+                ),
+            )
+            .child(ui::section_label("Chats", p));
+        if ai.conversations.is_empty() {
+            list = list.child(ui::hint("No saved chats yet.", p).px_2());
+        }
+        for conversation in &ai.conversations {
+            let id = conversation.id;
             list = list.child(
-                Button::new(format!("proposal-{id}"))
-                    .label(format!(
-                        "{} · {:?}",
-                        compact_title(&proposal.draft.title),
-                        proposal.state
-                    ))
-                    .selected(self.open_doc == Some(DocRef::Proposal(id)))
-                    .on_click(cx.listener(move |this, _, _, cx| {
-                        this.simple_leave(EditorTransition::Review(id), cx)
-                    })),
+                ui::list_row(
+                    format!("conversation-{id}"),
+                    compact_title(&conversation.title),
+                    Some(format!(
+                        "{} · {} turn{}",
+                        session_activity_label(conversation, now_ms),
+                        conversation.turns,
+                        if conversation.turns == 1 { "" } else { "s" }
+                    )),
+                    None,
+                    p,
+                )
+                .selected(ai.conversation == Some(id))
+                .on_click(cx.listener(move |this, _, _, cx| this.simple_history(Some(id), cx))),
             );
+        }
+        list = list.child(
+            div()
+                .flex()
+                .items_center()
+                .child(ui::section_label("Review", p).flex_1())
+                .when_some(review_signal, |row, (count, tone)| {
+                    row.child(
+                        div()
+                            .pt(px(tokens::space::MD))
+                            .pb(px(tokens::space::XS))
+                            .child(ui::badge(format!("{count} waiting"), tone, p)),
+                    )
+                })
+                .child(
+                    div().pt(px(tokens::space::SM)).child(
+                        Button::new("refresh-proposal-list")
+                            .icon(IconName::RotateCw)
+                            .ghost()
+                            .xsmall()
+                            .tooltip("Refresh proposals")
+                            .disabled(!ai.ready)
+                            .on_click(cx.listener(|this, _, _, cx| {
+                                this.simple_command(
+                                    Pending::Proposals,
+                                    AppCommand::Proposals(None),
+                                    cx,
+                                )
+                            })),
+                    ),
+                ),
+        );
+        if awaiting.is_empty() {
+            list = list.child(ui::hint("Nothing waiting for approval.", p).px_2());
+        }
+        let proposal_row = |record: &brn_workflow::proposals::ProposalRecord| {
+            let id = record.draft.id;
+            let (label, tone) = proposal_state_badge(record.state);
+            ui::list_row(
+                format!("proposal-{id}"),
+                compact_title(&record.draft.title),
+                None,
+                Some(ui::badge(label, tone, p).into_any_element()),
+                p,
+            )
+            .selected(self.open_doc == Some(DocRef::Proposal(id)))
+            .on_click(cx.listener(move |this, _, _, cx| {
+                this.simple_leave(EditorTransition::Review(id), cx)
+            }))
+        };
+        for record in &awaiting {
+            list = list.child(proposal_row(record));
+        }
+        list = list.child(
+            ui::toolbar()
+                .px_1()
+                .pt_1()
+                .child(
+                    Button::new("new-proposal-form")
+                        .icon(IconName::Plus)
+                        .label("Proposal")
+                        .ghost()
+                        .small()
+                        .tooltip("Draft a new note proposal for review")
+                        .selected(
+                            self.open_doc == Some(DocRef::Draft)
+                                && ai.draft.as_ref().is_some_and(|form| form.action.is_none()),
+                        )
+                        .disabled(!ai.ready || !ai.vault_bound || ai.application_busy() || blocked)
+                        .on_click(cx.listener(|this, _, _, cx| {
+                            this.simple_leave(EditorTransition::Draft(None), cx)
+                        })),
+                )
+                .child(
+                    Button::new("new-action-form")
+                        .icon(IconName::Plus)
+                        .label("Action")
+                        .ghost()
+                        .small()
+                        .tooltip("Draft a new Action for review")
+                        .selected(
+                            self.open_doc == Some(DocRef::Draft)
+                                && ai.draft.as_ref().is_some_and(|form| form.action.is_some()),
+                        )
+                        .disabled(!ai.ready || ai.application_busy() || blocked)
+                        .on_click(cx.listener(|this, _, window, cx| {
+                            if !window.has_active_dialog(cx) {
+                                this.simple_leave(EditorTransition::ActionDraft(None), cx);
+                            }
+                        })),
+                ),
+        );
+        if !decided.is_empty() {
+            let open = self.show_decided;
+            list = list.child(
+                div().pt_2().child(
+                    Button::new("toggle-decided")
+                        .icon(if open {
+                            IconName::ChevronDown
+                        } else {
+                            IconName::ChevronRight
+                        })
+                        .label(format!("Decided ({})", decided.len()))
+                        .ghost()
+                        .xsmall()
+                        .tooltip("Approved and rejected proposals. Activity has the full history.")
+                        .on_click(cx.listener(|this, _, _, cx| {
+                            this.show_decided = !this.show_decided;
+                            cx.notify();
+                        })),
+                ),
+            );
+            if open {
+                for record in &decided {
+                    list = list.child(proposal_row(record));
+                }
+            }
         }
         div()
             .w(px(self.layout.history_w))
@@ -1326,50 +1443,78 @@ impl Desktop {
                     .border_t_1()
                     .border_color(color(p.line))
                     .p_2()
-                    .child(Button::new("settings-footer").label("⚙ Settings").on_click(
-                        cx.listener(|this, _, window, cx| this.open_settings(window, cx)),
-                    )),
+                    .child(
+                        ui::nav_row(
+                            "settings-footer",
+                            IconName::Settings,
+                            "Settings",
+                            Some(("⌘,".into(), Tone::Neutral)),
+                            p,
+                        )
+                        .on_click(
+                            cx.listener(|this, _, window, cx| this.open_settings(window, cx)),
+                        ),
+                    ),
             )
             .into_any_element()
     }
     pub(super) fn render_simple_vault(&mut self, cx: &mut Context<Self>) -> AnyElement {
+        use super::ui::{self, Tone};
+        use gpui_kit::assets::IconName;
         let p = self.palette();
         let ai = self.ai.as_ref().unwrap();
-        let mut list = div()
-            .id("vault-rail-list")
-            .track_scroll(&self.vault_scroll)
-            .flex()
-            .flex_col()
-            .flex_1()
-            .min_h(px(0.))
-            .overflow_y_scroll()
-            .gap_2()
-            .p_2()
-            .child("Markdown notes")
-            .child(
-                ai.vault_root
-                    .as_ref()
-                    .map_or("No vault selected".into(), |p| {
-                        spaced_identifier(&p.display().to_string())
-                    }),
-            )
-            .child(
-                Button::new("choose-vault")
-                    .label("Choose vault…")
-                    .disabled(!ai.ready || ai.vault_bound || self.choosing_file)
-                    .on_click(cx.listener(|this, _, _, cx| this.simple_choose_vault(cx))),
-            )
-            .child(
-                Button::new("refresh-vault")
-                    .label("Refresh saved notes")
-                    .disabled(!ai.ready || !ai.vault_bound)
-                    .on_click(cx.listener(|this, _, _, cx| {
-                        this.simple_command(Pending::Refresh, AppCommand::Refresh, cx)
-                    })),
-            )
-            .child(ai.model_state.clone());
         let scope = ai.knowledge_scope;
-        let mut scopes = div().flex().flex_wrap().gap_1();
+        let mut header = div()
+            .flex()
+            .items_center()
+            .child(ui::section_label("Vault", p).flex_1())
+            .child(
+                div().pt(px(tokens::space::SM)).child(
+                    Button::new("refresh-vault")
+                        .icon(IconName::RotateCw)
+                        .ghost()
+                        .xsmall()
+                        .tooltip("Rescan saved notes")
+                        .disabled(!ai.ready || !ai.vault_bound)
+                        .on_click(cx.listener(|this, _, _, cx| {
+                            this.simple_command(Pending::Refresh, AppCommand::Refresh, cx)
+                        })),
+                ),
+            );
+        if !ai.vault_bound {
+            header = header.child(
+                div().pt(px(tokens::space::SM)).child(
+                    Button::new("choose-vault")
+                        .label("Choose vault…")
+                        .primary()
+                        .xsmall()
+                        .disabled(!ai.ready || ai.vault_bound || self.choosing_file)
+                        .on_click(cx.listener(|this, _, _, cx| this.simple_choose_vault(cx))),
+                ),
+            );
+        }
+        let identity = match &ai.vault_root {
+            Some(root) => div()
+                .flex()
+                .flex_col()
+                .gap(px(2.))
+                .px_2()
+                .child(
+                    div()
+                        .font_weight(gpui_kit::FontWeight::MEDIUM)
+                        .child(
+                            root.file_name()
+                                .map(|name| name.to_string_lossy().into_owned())
+                                .unwrap_or_else(|| root.display().to_string()),
+                        ),
+                )
+                .child(ui::meta(spaced_identifier(&home_relative(root)), p)),
+            None => div().px_2().child(ui::hint(
+                "No vault selected. Choose the Markdown folder BRN should read; BRN never moves or rewrites it without an approved proposal.",
+                p,
+            )),
+        };
+        let mut scopes = div().flex().gap(px(2.)).px_2();
         for option in [
             KnowledgeScope::Current,
             KnowledgeScope::Source,
@@ -1380,6 +1525,9 @@ impl Desktop {
                 Button::new(format!("knowledge-scope-{}", scope_name(option)))
                     .label(scope_name(option))
                     .compact()
+                    .small()
+                    .when(scope == option, |button| button.primary())
+                    .when(scope != option, |button| button.ghost())
                     .selected(scope == option)
                     .disabled(!ai.ready || !ai.vault_bound || self.closing.is_some() || self.closed)
                     .on_click(cx.listener(move |this, _, _, cx| {
@@ -1392,89 +1540,146 @@ impl Desktop {
                     })),
             );
         }
-        list = list
-            .child("Browse / Search scope")
+        let mut list = div()
+            .id("vault-rail-list")
+            .track_scroll(&self.vault_scroll)
+            .flex()
+            .flex_col()
+            .flex_1()
+            .min_h(px(0.))
+            .overflow_y_scroll()
+            .gap_1()
+            .px_2()
+            .pb_3()
+            .child(header)
+            .child(identity)
+            .child(ui::section_label("Browse and search", p))
             .child(scopes)
-            .child(format!("Saved notes · {} scope", scope_name(scope)));
-        list = list.child(
-            Button::new("inspect-relationships")
-                .label("Relationships")
-                .selected(self.relationships.open)
-                .disabled(
-                    !ai.ready
-                        || !ai.vault_bound
-                        || ai.application_busy()
-                        || self.closing.is_some()
-                        || self.closed,
-                )
-                .on_click(cx.listener(|this, _, _, cx| {
-                    if this.relationships.open {
-                        this.close_relationship_page(cx);
-                    } else {
-                        this.refresh_relationship_page(0, cx);
-                    }
-                })),
-        );
+            .child(ui::hint(scope_description(scope), p).px_2().pt_1())
+            .child(
+                ui::toolbar().px_1().pt_1().child(
+                    Button::new("inspect-relationships")
+                        .icon(IconName::Network)
+                        .label("Relationships")
+                        .ghost()
+                        .small()
+                        .selected(self.relationships.open)
+                        .disabled(
+                            !ai.ready
+                                || !ai.vault_bound
+                                || ai.application_busy()
+                                || self.closing.is_some()
+                                || self.closed,
+                        )
+                        .on_click(cx.listener(|this, _, _, cx| {
+                            if this.relationships.open {
+                                this.close_relationship_page(cx);
+                            } else {
+                                this.refresh_relationship_page(0, cx);
+                            }
+                        })),
+                ),
+            );
         if let Some(relationships) = self.render_relationship_page(cx) {
             list = list.child(relationships);
         }
         if let Some(error) = &ai.notes_error {
-            list = list.child(error.clone());
+            list = list.child(ui::callout(Tone::Danger, error.clone(), p));
         }
         if !ai.editors.is_empty() {
-            list = list.child("Registered / recovered buffers");
+            list = list.child(ui::section_label("Recovered edits", p));
             for record in &ai.editors {
                 let path = record.path.clone();
                 let unsaved = record.text != record.baseline_text;
                 list = list.child(
-                    Button::new(format!("recovered-{}", record.path))
-                        .label(format!(
-                            "{}{}",
-                            compact_title(&record.path),
-                            if unsaved { " · unsaved" } else { "" }
-                        ))
-                        .on_click(
-                            cx.listener(move |this, _, _, cx| this.simple_note(path.clone(), cx)),
-                        ),
+                    ui::list_row(
+                        format!("recovered-{}", record.path),
+                        compact_title(&record.path),
+                        None,
+                        unsaved
+                            .then(|| ui::badge("unsaved", Tone::Attention, p).into_any_element()),
+                        p,
+                    )
+                    .on_click(
+                        cx.listener(move |this, _, _, cx| this.simple_note(path.clone(), cx)),
+                    ),
                 );
             }
         }
-        if let Some((_, embedded, total)) = ai.indexing {
-            list = list.child(format!("Indexed embeddings: {embedded}/{total}"));
-        }
-        if let Some(report) = &ai.refresh {
-            list = list.child(format!(
-                "Refresh: {} added · {} updated · {} removed · {} unchanged",
-                report.added, report.updated, report.removed, report.unchanged
-            ));
-            for unreadable in &report.unreadable {
-                list = list.child(format!(
-                    "Unreadable: {} · {}",
-                    unreadable.path, unreadable.reason
-                ));
-            }
+        list = list.child(
+            div()
+                .flex()
+                .items_center()
+                .child(ui::section_label(format!("{} notes", scope_name(scope)), p).flex_1())
+                .when(!ai.notes.is_empty(), |row| {
+                    row.child(
+                        div()
+                            .pt(px(tokens::space::MD))
+                            .pb(px(tokens::space::XS))
+                            .px_2()
+                            .child(ui::meta(
+                                format!(
+                                    "{}{}",
+                                    ai.notes.len(),
+                                    if ai.next_cursor.is_some() { "+" } else { "" }
+                                ),
+                                p,
+                            )),
+                    )
+                }),
+        );
+        if ai.vault_bound && ai.notes.is_empty() && ai.notes_error.is_none() {
+            list = list.child(ui::hint("No saved notes in this scope.", p).px_2());
         }
         for note in &ai.notes {
             let path = note.path.clone();
             list = list.child(
-                Button::new(format!("note-{}", note.path))
-                    .label(compact_title(&note.title))
-                    .on_click(cx.listener(move |this, _, _, cx| {
-                        this.simple_scoped_note(path.clone(), scope, cx)
-                    })),
+                ui::list_row(
+                    format!("note-{}", note.path),
+                    compact_title(&note.title),
+                    Some(note.path.clone()),
+                    None,
+                    p,
+                )
+                .on_click(cx.listener(move |this, _, _, cx| {
+                    this.simple_scoped_note(path.clone(), scope, cx)
+                })),
             );
         }
         if ai.next_cursor.is_some() {
-            list = list.child(
-                Button::new("more-notes")
-                    .label("More notes")
-                    .on_click(cx.listener(move |this, _, _, cx| {
-                        if let Some(command) = this.ai.as_mut().unwrap().more_notes() {
-                            this.simple_send(command, cx);
-                        }
-                    })),
-            );
+            list = list.child(ui::quiet("more-notes", "More notes").on_click(cx.listener(
+                move |this, _, _, cx| {
+                    if let Some(command) = this.ai.as_mut().unwrap().more_notes() {
+                        this.simple_send(command, cx);
+                    }
+                },
+            )));
         }
+        let mut index = div().flex().flex_col().gap_1().px_2().pt_2();
+        index = index.child(ui::hint(ai.model_state.clone(), p));
+        if let Some((_, embedded, total)) = ai.indexing {
+            index = index.child(ui::meta(
+                format!("Indexed embeddings: {embedded}/{total}"),
+                p,
+            ));
+        }
+        if let Some(report) = &ai.refresh {
+            index = index.child(ui::meta(
+                format!(
+                    "Refresh: {} added · {} updated · {} removed · {} unchanged",
+                    report.added, report.updated, report.removed, report.unchanged
+                ),
+                p,
+            ));
+            for unreadable in &report.unreadable {
+                index = index.child(ui::callout(
+                    Tone::Attention,
+                    format!("Unreadable: {} · {}", unreadable.path, unreadable.reason),
+                    p,
+                ));
+            }
+        }
+        list = list.child(ui::section_label("Index", p)).child(index);
         div()
             .w(px(self.layout.vault_w))
             .flex_shrink_0()
@@ -1486,6 +1691,7 @@ impl Desktop {
             .into_any_element()
     }
     pub(super) fn render_simple_document(&mut self, cx: &mut Context<Self>) -> AnyElement {
+        use super::ui::{self, Tone};
         let p = self.palette();
         let ai = self.ai.as_ref().unwrap();
         let leaving = self.simple_transition.is_some() || self.closing.is_some() || self.closed;
@@ -1500,46 +1706,48 @@ impl Desktop {
             .flex()
             .flex_col()
             .gap_2()
-            .p_3();
+            .px(px(tokens::space::LG))
+            .py(px(tokens::space::MD));
         if let Some(editor) = &ai.editor {
-            body = body.child(editor.status());
+            body = body.child(ui::meta(editor.status(), p));
             if let Some(error) = &editor.error {
-                body = body.child(error.clone());
+                body = body.child(ui::callout(Tone::Danger, error.clone(), p));
             }
             body = body
                 .child(div().key_context("MarkdownNote").flex_1().min_h(px(if inspection_open { 160. } else { 0. })).child(
                     Editor::new(&self.note_editor).h_full()
                         .disabled(leaving || editor.replacing()).aria_label("Markdown note editor")))
-                .child(div().flex().flex_wrap().gap_2()
-                    .child(Button::new("simple-save").label("Save to Markdown (Cmd-S)")
+                .child(ui::toolbar()
+                    .child(Button::new("simple-save").label("Save to Markdown").primary().small().tooltip("Write this exact text to the Markdown file (⌘S)")
                         .disabled(leaving || !editor.can_save())
                         .on_click(cx.listener(|this, _, _, cx| this.simple_save(None, cx))))
-                    .child(Button::new("simple-flush-recovery").label("Flush / retry recovery")
+                    .child(Button::new("simple-flush-recovery").label("Flush / retry recovery").ghost().small()
                         .disabled(editor.pending())
                         .on_click(cx.listener(|this, _, _, cx| {
                             if let Some(editor) = this.ai.as_mut().unwrap().editor.as_mut() { editor.retry_recovery(); }
                             if let Some(command) = this.ai.as_mut().unwrap().recover_editor() { this.simple_send(command, cx); }
                         })))
-                    .child(Button::new("simple-observe-disk").label("Observe disk")
+                    .child(Button::new("simple-observe-disk").label("Observe disk").ghost().small()
                         .disabled(leaving || editor.pending())
                         .on_click(cx.listener(|this, _, _, cx| {
                             if let Some(command) = this.ai.as_mut().unwrap().refresh_editor() { this.simple_send(command, cx); }
                         })))
-                    .child(Button::new("simple-compare").label("Compare baseline / local / disk")
+                    .child(Button::new("simple-compare").label("Compare baseline / local / disk").ghost().small()
                         .on_click(cx.listener(|this, _, window, cx| this.simple_compare(window, cx))))
-                    .child(Button::new("simple-reload").label("Reload reviewed disk…")
+                    .child(Button::new("simple-reload").label("Reload reviewed disk…").ghost().small()
                         .disabled(leaving || editor.reload_request().is_none())
                         .on_click(cx.listener(|this, _, window, cx| this.simple_confirm_reload(window, cx))))
-                    .child(Button::new("cancel-simple-leave").label("Cancel pending close / navigation")
+                    .child(Button::new("cancel-simple-leave").label("Cancel pending close / navigation").ghost().small()
                         .disabled(self.simple_transition.is_none())
                         .on_click(cx.listener(|this, _, _, cx| {
                             this.simple_transition = None;
                             this.ai.as_mut().unwrap().notice = "Close / navigation cancelled; editor retained.".into();
                             cx.notify();
                         }))))
+                .child(ui::section_label("Save a copy", p).px_0())
                 .child(div().flex().gap_2()
                     .child(Input::new(&self.note_path).aria_label("Unused vault-relative .md copy destination"))
-                    .child(Button::new("simple-save-copy").label("Save Copy")
+                    .child(Button::new("simple-save-copy").label("Save Copy").outline().small()
                         .disabled(leaving || editor.pending())
                         .on_click(cx.listener(|this, _, _, cx| {
                             let destination = this.note_path.read(cx).value().to_string();
@@ -1553,6 +1761,8 @@ impl Desktop {
                 body = body.child(
                     Button::new(format!("reconcile-{operation}"))
                         .label("Reconcile uncertain Save")
+                        .outline()
+                        .small()
                         .disabled(editor.pending() || leaving)
                         .on_click(cx.listener(move |this, _, _, cx| {
                             this.simple_command(
@@ -1564,11 +1774,10 @@ impl Desktop {
                 );
             }
         } else {
-            body = body.child(
-                ai.note_error
-                    .clone()
-                    .unwrap_or("Opening Markdown / recovery buffer…".into()),
-            );
+            body = body.child(match &ai.note_error {
+                Some(error) => ui::callout(Tone::Danger, error.clone(), p).into_any_element(),
+                None => ui::hint("Opening Markdown / recovery buffer…", p).into_any_element(),
+            });
         }
         if let Some(sources) = self.render_saved_sources(cx) {
             body = body.child(sources);
@@ -1582,62 +1791,66 @@ impl Desktop {
             .flex_col()
             .bg(color(p.paper))
             .child(
-                div()
-                    .flex()
-                    .items_center()
-                    .gap_2()
-                    .p_2()
-                    .child(
-                        div()
-                            .flex_1()
-                            .min_w(px(0.))
-                            .overflow_hidden()
-                            .whitespace_nowrap()
-                            .child(self.simple_note_path.clone().unwrap_or_default()),
-                    )
-                    .child(
-                        Button::new("saved-note-sources")
-                            .label("Sources")
-                            .compact()
-                            .selected(self.provenance_open)
-                            .disabled(
-                                leaving
-                                    || ai.editor.is_none()
-                                    || ai.application_busy()
-                                    || ai.provenance_loading(),
-                            )
-                            .on_click(cx.listener(|this, _, _, cx| this.inspect_saved_sources(cx))),
-                    )
-                    .child(
-                        Button::new("saved-note-links")
-                            .label("Links")
-                            .compact()
-                            .selected(self.saved_links.open)
-                            .disabled(
-                                leaving
-                                    || ai.editor.is_none()
-                                    || ai.application_busy()
-                                    || ai.links_loading(),
-                            )
-                            .on_click(cx.listener(|this, _, _, cx| {
-                                if this.saved_links.open {
-                                    this.close_saved_links(cx);
-                                } else {
-                                    this.inspect_saved_links(cx);
-                                }
-                            })),
-                    )
-                    .child(
-                        Button::new("close-document")
-                            .label("Close")
-                            .compact()
-                            .on_click(cx.listener(|this, _, _, cx| this.close_document(cx))),
-                    ),
+                ui::view_header(
+                    self.simple_note_path
+                        .as_ref()
+                        .and_then(|path| ai.notes.iter().find(|note| &note.path == path))
+                        .map(|note| note.title.clone())
+                        .unwrap_or_else(|| note_title(self.simple_note_path.as_deref())),
+                    Some(("Current · editable", Tone::Success)),
+                    self.simple_note_path.clone(),
+                    p,
+                )
+                .child(
+                    Button::new("saved-note-sources")
+                        .ghost()
+                        .small()
+                        .label("Sources")
+                        .compact()
+                        .selected(self.provenance_open)
+                        .disabled(
+                            leaving
+                                || ai.editor.is_none()
+                                || ai.application_busy()
+                                || ai.provenance_loading(),
+                        )
+                        .on_click(cx.listener(|this, _, _, cx| this.inspect_saved_sources(cx))),
+                )
+                .child(
+                    Button::new("saved-note-links")
+                        .ghost()
+                        .small()
+                        .label("Links")
+                        .compact()
+                        .selected(self.saved_links.open)
+                        .disabled(
+                            leaving
+                                || ai.editor.is_none()
+                                || ai.application_busy()
+                                || ai.links_loading(),
+                        )
+                        .on_click(cx.listener(|this, _, _, cx| {
+                            if this.saved_links.open {
+                                this.close_saved_links(cx);
+                            } else {
+                                this.inspect_saved_links(cx);
+                            }
+                        })),
+                )
+                .child(
+                    Button::new("close-document")
+                        .ghost()
+                        .small()
+                        .label("Close")
+                        .compact()
+                        .on_click(cx.listener(|this, _, _, cx| this.close_document(cx))),
+                ),
             )
             .child(body.test_support())
             .into_any_element()
     }
     pub(super) fn render_evidence_document(&mut self, cx: &mut Context<Self>) -> AnyElement {
+        use super::ui::{self, Tone};
         let p = self.palette();
         let ai = self.ai.as_ref().unwrap();
         let inspection_open = self.provenance_open || self.saved_links.open;
@@ -1651,7 +1864,22 @@ impl Desktop {
             .flex()
             .flex_col()
             .gap_2()
-            .p_3();
+            .px(px(tokens::space::LG))
+            .py(px(tokens::space::MD));
+        let (kind, tone) = match ai.evidence.as_ref().map(|evidence| evidence.scope) {
+            Some(KnowledgeScope::Source) => ("Source · read only", Tone::Info),
+            Some(KnowledgeScope::History) => ("History · read only", Tone::Neutral),
+            Some(KnowledgeScope::All) => ("All scopes · read only", Tone::Neutral),
+            _ => ("Read only", Tone::Neutral),
+        };
+        let heading = ai
+            .evidence
+            .as_ref()
+            .and_then(|evidence| ai.notes.iter().find(|note| note.path == evidence.path))
+            .map(|note| note.title.clone())
+            .unwrap_or_else(|| {
+                note_title(ai.evidence.as_ref().map(|evidence| evidence.path.as_str()))
+            });
         let title = ai
             .evidence
             .as_ref()
@@ -1679,6 +1907,8 @@ impl Desktop {
                 .child(
                     Button::new("copy-exact-evidence")
                         .label("Copy exact saved text")
+                        .outline()
+                        .small()
                         .on_click(cx.listener(move |_, _, _, cx| {
                             cx.write_to_clipboard(gpui_kit::ClipboardItem::new_string(
                                 text.clone(),
@@ -1686,11 +1916,10 @@ impl Desktop {
                         })),
                 );
         } else {
-            body = body.child(
-                ai.note_error
-                    .clone()
-                    .unwrap_or("Opening exact saved evidence…".into()),
-            );
+            body = body.child(match &ai.note_error {
+                Some(error) => ui::callout(Tone::Danger, error.clone(), p).into_any_element(),
+                None => ui::hint("Opening exact saved evidence…", p).into_any_element(),
+            });
         }
         if let Some(sources) = self.render_saved_sources(cx) {
             body = body.child(sources);
@@ -1704,14 +1933,11 @@ impl Desktop {
             .flex_col()
             .bg(color(p.paper))
             .child(
-                div()
-                    .flex()
-                    .items_center()
-                    .gap_2()
-                    .p_2()
-                    .child(div().flex_1().min_w(px(0.)).child(title))
+                ui::view_header(heading, Some((kind, tone)), Some(title), p)
                     .child(
                         Button::new("evidence-sources")
+                            .ghost()
+                            .small()
                             .label("Sources")
                             .compact()
                             .selected(self.provenance_open)
@@ -1730,6 +1956,8 @@ impl Desktop {
                     )
                     .child(
                         Button::new("evidence-links")
+                            .ghost()
+                            .small()
                             .label("Links")
                             .compact()
                             .selected(self.saved_links.open)
@@ -1754,6 +1982,8 @@ impl Desktop {
                     )
                     .child(
                         Button::new("close-evidence")
+                            .ghost()
+                            .small()
                             .label("Close")
                             .compact()
                             .on_click(cx.listener(|this, _, _, cx| this.close_document(cx))),
@@ -1763,8 +1993,11 @@ impl Desktop {
             .into_any_element()
     }
     pub(super) fn render_simple_chat(&mut self, cx: &mut Context<Self>) -> AnyElement {
+        use super::ui::{self, Tone};
+        use gpui_kit::assets::IconName;
         let p = self.palette();
         let ai = self.ai.as_ref().unwrap();
+        let blocked = self.closing.is_some() || self.closed || self.close_failed;
         let mut body = div()
             .id("chat-transcript")
             .track_scroll(&self.chat_scroll)
@@ -1774,74 +2007,103 @@ impl Desktop {
             .flex_1()
             .min_h(px(0.))
             .overflow_y_scroll()
-            .gap_3()
-            .p_3();
-        if ai.turns.is_empty() {
-            body = body.child("Select a provider, model and reasoning effort in Settings, then ask about saved notes. AI has read-only tools.");
+            .gap(px(tokens::space::XL))
+            .px(px(tokens::space::XL))
+            .py(px(tokens::space::LG));
+        if ai.turns.is_empty() && ai.active.is_none() && ai.unsaved.is_none() && ai.search.is_none()
+        {
+            body = body.child(self.render_chat_welcome(cx));
         }
+        let ai = self.ai.as_ref().unwrap();
         for turn in ai.display_turns() {
-            body = body.child(
-                div()
-                    .flex()
-                    .flex_col()
-                    .gap_2()
-                    .child(format!(
-                        "{} / {} · effort: {} · {}",
-                        turn.provider,
-                        turn.model,
-                        turn.effort
-                            .as_deref()
-                            .unwrap_or("unavailable in older history"),
-                        turn_label(turn)
-                    ))
-                    .child(
-                        ai.inbox_analysis_path_for_turn(turn.id)
-                            .map(|path| format!("Analyze saved Inbox Source: {path}"))
-                            .unwrap_or_else(|| turn.question.clone()),
-                    )
-                    .child(turn.answer.clone()),
+            let tone = match turn.status {
+                brn_workflow::WorkTurnStatus::Completed => Tone::Success,
+                brn_workflow::WorkTurnStatus::Running => Tone::Ai,
+                brn_workflow::WorkTurnStatus::Interrupted => Tone::Attention,
+                brn_workflow::WorkTurnStatus::Failed => Tone::Danger,
+            };
+            let question = ai
+                .inbox_analysis_path_for_turn(turn.id)
+                .map(|path| format!("Analyze saved Inbox Source: {path}"))
+                .unwrap_or_else(|| turn.question.clone());
+            let mut block = chat_exchange(
+                question,
+                turn.answer.clone(),
+                format!(
+                    "{} · {} · effort {}",
+                    turn.provider,
+                    turn.model,
+                    turn.effort
+                        .as_deref()
+                        .unwrap_or("unavailable in older history"),
+                ),
+                ui::badge(turn_label(turn), tone, p),
+                p,
             );
+            if let Some(code) = &turn.error_code {
+                block = block.child(ui::callout(
+                    Tone::Danger,
+                    format!("Safe failure category: {code}"),
+                    p,
+                ));
+            }
             if turn.status == brn_workflow::WorkTurnStatus::Completed {
                 let id = turn.id;
-                body = body.child(
-                    Button::new(format!("review-completed-answer-{id}"))
-                        .label("Review as new note…")
-                        .disabled(
-                            !ai.ready
-                                || !ai.vault_bound
-                                || ai.application_busy()
-                                || self.closing.is_some()
-                                || self.closed
-                                || self.close_failed,
-                        )
-                        .on_click(cx.listener(move |this, _, _, cx| {
-                            this.simple_leave(EditorTransition::Draft(Some(id)), cx)
-                        })),
+                block = block.child(
+                    ui::toolbar().child(
+                        Button::new(format!("review-completed-answer-{id}"))
+                            .icon(IconName::Plus)
+                            .label("Review as new note…")
+                            .ghost()
+                            .small()
+                            .tooltip("Prepare a note proposal from this answer. Nothing is saved until you approve it.")
+                            .disabled(
+                                !ai.ready || !ai.vault_bound || ai.application_busy() || blocked,
+                            )
+                            .on_click(cx.listener(move |this, _, _, cx| {
+                                this.simple_leave(EditorTransition::Draft(Some(id)), cx)
+                            })),
+                    ),
                 );
             }
-            if let Some(code) = &turn.error_code {
-                body = body.child(format!("Safe failure category: {code}"));
-            }
+            body = body.child(block);
         }
         if let Some(turn) = &ai.unsaved {
             let partial = turn.answer.clone();
-            body = body
-                .child(format!(
-                    "{} / {} · effort: {} · Failed · in-memory partial · finalization not acknowledged",
-                    turn.provider, turn.model, turn.effort.as_deref().unwrap_or("unavailable")
+            body = body.child(
+                chat_exchange(
+                    turn.question.clone(),
+                    turn.answer.clone(),
+                    format!(
+                        "{} · {} · effort {}",
+                        turn.provider,
+                        turn.model,
+                        turn.effort.as_deref().unwrap_or("unavailable")
+                    ),
+                    ui::badge("Failed · in-memory partial · finalization not acknowledged", Tone::Danger, p),
+                    p,
+                )
+                .child(ui::callout(
+                    Tone::Danger,
+                    "Copy this partial before closing/restarting. Further Ask is blocked until this unfinalized workspace is reopened.",
+                    p,
                 ))
-                .child(turn.question.clone())
-                .child(turn.answer.clone())
-                .child("Copy this partial before closing/restarting. Further Ask is blocked until this unfinalized workspace is reopened.")
-                .child(Button::new("copy-unfinalized-partial").label("Copy in-memory partial")
-                    .on_click(cx.listener(move |_, _, _, cx| {
-                        cx.write_to_clipboard(gpui_kit::ClipboardItem::new_string(partial.clone()));
-                    })));
+                .child(
+                    ui::toolbar().child(
+                        ui::secondary("copy-unfinalized-partial", "Copy in-memory partial")
+                            .on_click(cx.listener(move |_, _, _, cx| {
+                                cx.write_to_clipboard(gpui_kit::ClipboardItem::new_string(partial.clone()));
+                            })),
+                    ),
+                ),
+            );
         }
         if let Some(active) = ai.display_active() {
-            body = body
-                .child(format!(
-                    "{} / {} · effort: {} · {}",
+            let mut block = chat_exchange(
+                active.request.question_label(),
+                active.partial.clone(),
+                format!(
+                    "{} · {} · effort {}",
                     provider_name(active.request.selection().provider),
                     active.request.selection().model,
                     active
@@ -1849,42 +2111,70 @@ impl Desktop {
                         .effort()
                         .map(ReasoningEffort::as_str)
                         .unwrap_or("unavailable"),
+                ),
+                ui::badge(
                     if active.stopping {
                         "Stopping (not finalized)"
                     } else {
                         "Streaming (provisional)"
-                    }
-                ))
-                .child(active.request.question_label())
-                .child(active.partial.clone());
+                    },
+                    Tone::Ai,
+                    p,
+                ),
+                p,
+            );
             if let Some(tool) = &active.tool {
-                body = body.child(format!("Tool started: {tool}"));
+                block = block.child(ui::meta(format!("Tool started: {tool}"), p));
             }
+            body = body.child(block);
         }
         if let Some(results) = &ai.search {
             let scope = ai.search_scope.unwrap_or(KnowledgeScope::Current);
-            body = body
-                .child(format!("Search results · {} scope", scope_name(scope)))
-                .child(if results.keyword_only {
-                    "Search: keyword-only (no installed model)"
-                } else {
-                    "Search: hybrid"
-                });
+            let mut section = div().flex().flex_col().gap_2().child(
+                ui::toolbar()
+                    .child(
+                        div()
+                            .font_weight(gpui_kit::FontWeight::SEMIBOLD)
+                            .child(format!("Search results · {} scope", scope_name(scope))),
+                    )
+                    .child(ui::badge(
+                        if results.keyword_only {
+                            "Search: keyword-only (no installed model)"
+                        } else {
+                            "Search: hybrid"
+                        },
+                        Tone::Neutral,
+                        p,
+                    )),
+            );
+            if results.hits.is_empty() {
+                section = section.child(ui::hint("No saved notes matched.", p));
+            }
             for (i, hit) in results.hits.iter().enumerate() {
                 let path = hit.path.clone();
-                body = body
-                    .child(
-                        Button::new(format!("simple-hit-{i}"))
-                            .label(format!(
-                                "{} · bytes {}..{}",
-                                hit.path, hit.start_byte, hit.end_byte
-                            ))
-                            .on_click(cx.listener(move |this, _, _, cx| {
-                                this.simple_scoped_note(path.clone(), scope, cx)
-                            })),
-                    )
-                    .child(hit.quote.clone());
+                section = section.child(
+                    div()
+                        .flex()
+                        .flex_col()
+                        .gap_1()
+                        .child(
+                            ui::list_row(
+                                format!("simple-hit-{i}"),
+                                hit.path.clone(),
+                                Some(format!("bytes {}..{}", hit.start_byte, hit.end_byte)),
+                                None,
+                                p,
+                            )
+                            .on_click(cx.listener(
+                                move |this, _, _, cx| {
+                                    this.simple_scoped_note(path.clone(), scope, cx)
+                                },
+                            )),
+                        )
+                        .child(ui::callout(Tone::Info, hit.quote.clone(), p)),
+                );
             }
+            body = body.child(section);
         }
         div()
             .size_full()
@@ -1892,57 +2182,256 @@ impl Desktop {
             .flex_col()
             .bg(color(p.paper))
             .child(body)
+            .child(self.render_composer(cx))
+            .into_any_element()
+    }
+
+    fn render_chat_welcome(&mut self, cx: &mut Context<Self>) -> AnyElement {
+        use super::ui::{self, Tone};
+        use gpui_kit::assets::IconName;
+        let p = self.palette();
+        let ai = self.ai.as_ref().unwrap();
+        let check = |done: bool, label: String, todo: &'static str, ready: &'static str| {
+            let detail = if done { ready } else { todo };
+            div()
+                .flex()
+                .items_start()
+                .gap_2()
+                .child(ui::badge(
+                    if done { "ready" } else { "to do" },
+                    if done { Tone::Success } else { Tone::Attention },
+                    p,
+                ))
+                .child(
+                    div()
+                        .flex()
+                        .flex_col()
+                        .flex_1()
+                        .min_w(px(0.))
+                        .child(div().min_w(px(0.)).child(label))
+                        .child(ui::hint(detail, p)),
+                )
+        };
+        let model = match (&ai.selection, ai.effort) {
+            (Some(selection), Some(effort)) => format!(
+                "Model: {} / {} · effort {}",
+                provider_name(selection.provider),
+                selection.model,
+                effort.as_str()
+            ),
+            (Some(selection), None) => format!(
+                "Model: {} / {} · choose an effort",
+                provider_name(selection.provider),
+                selection.model
+            ),
+            _ => "Model: not selected".into(),
+        };
+        let mut examples = ui::toolbar();
+        for (index, example) in [
+            "Are there any open actions?",
+            "What am I waiting for from other people?",
+            "What changed in my notes this week?",
+        ]
+        .into_iter()
+        .enumerate()
+        {
+            examples = examples.child(
+                Button::new(("chat-example", index))
+                    .label(example)
+                    .outline()
+                    .small()
+                    .tooltip("Put this question in the composer")
+                    .on_click(cx.listener(move |this, _, window, cx| {
+                        this.query
+                            .update(cx, |query, cx| query.set_value(example, window, cx));
+                        this.focus_composer = true;
+                        cx.notify();
+                    })),
+            );
+        }
+        div()
+            .flex()
+            .flex_col()
+            .gap(px(tokens::space::LG))
+            .max_w(px(tokens::size::READING_MAX_WIDTH))
+            .pt(px(tokens::space::XL))
+            .child(
+                div()
+                    .text_size(px(tokens::text::DISPLAY))
+                    .font_weight(gpui_kit::FontWeight::SEMIBOLD)
+                    .child("What are you working on?"),
+            )
+            .child(
+                div()
+                    .text_size(px(tokens::text::READING))
+                    .line_height(px(22.))
+                    .text_color(color(p.muted))
+                    .child("Ask about your notes, sources and Actions. BRN answers from approved current knowledge by default, labels what it cannot establish, and never changes knowledge or Actions without your approval."),
+            )
             .child(
                 div()
                     .flex()
                     .flex_col()
                     .gap_2()
-                    .p_2()
-                    .border_t_1()
-                    .border_color(color(p.line))
-                    .bg(color(p.panel))
-                    .child(
-                        Editor::new(&self.query)
-                            .h(px(100.))
-                            .aria_label("Question about saved notes"),
-                    )
-                    .child(
-                        ai.selection
+                    .child(check(
+                        ai.vault_bound,
+                        ai.vault_root
                             .as_ref()
-                            .map_or("No explicit provider/model selected".into(), |s| {
-                                format!("{} / {}", provider_name(s.provider), s.model)
-                            }),
-                    )
-                    .child(
-                        div()
-                            .flex()
-                            .gap_2()
-                            .child(
-                                Button::new("search")
-                                    .label(format!("Search {}", scope_name(ai.knowledge_scope)))
-                                    .disabled(!ai.ready || !ai.vault_bound)
-                                    .on_click(cx.listener(|this, _, _, cx| this.simple_search(cx))),
-                            )
-                            .child(
-                                Button::new("ask")
-                                    .label("Ask (Current by default)")
-                                    .disabled(
-                                        !ai.can_ask()
-                                            || self.closing.is_some()
-                                            || self.close_failed,
-                                    )
-                                    .on_click(cx.listener(|this, _, _, cx| this.simple_ask(cx))),
-                            )
-                            .child(
-                                Button::new("stop")
-                                    .label("Stop")
-                                    .disabled(ai.active.is_none())
-                                    .on_click(cx.listener(|this, _, _, cx| this.simple_stop(cx))),
+                            .map(|root| {
+                                format!(
+                                    "Vault: {}",
+                                    root.file_name()
+                                        .map(|name| name.to_string_lossy().into_owned())
+                                        .unwrap_or_else(|| home_relative(root))
+                                )
+                            })
+                            .unwrap_or_else(|| "Vault: not selected".into()),
+                        "Choose a vault in the Vault rail.",
+                        "Notes stay ordinary Markdown files you own.",
+                    ))
+                    .child(check(
+                        ai.selection.is_some() && ai.effort.is_some(),
+                        model,
+                        "Choose the provider, model and reasoning effort in Settings.",
+                        "BRN keeps this choice until you change it; it never switches silently.",
+                    ))
+                    .when(ai.selection.is_none() || ai.effort.is_none(), |list| {
+                        list.child(
+                            ui::toolbar().child(
+                                Button::new("welcome-settings")
+                                    .icon(IconName::Settings)
+                                    .label("Open Settings")
+                                    .outline()
+                                    .small()
+                                    .on_click(cx.listener(|this, _, window, cx| this.open_settings(window, cx))),
                             ),
-                    ),
+                        )
+                    }),
             )
+            .child(ui::section_label("Try asking", p).px_0())
+            .child(examples)
             .into_any_element()
     }
+
+    fn render_composer(&mut self, cx: &mut Context<Self>) -> AnyElement {
+        use super::ui::{self, Tone};
+        use gpui_kit::assets::IconName;
+        let p = self.palette();
+        let ai = self.ai.as_ref().unwrap();
+        let model = match &ai.selection {
+            Some(selection) => ui::meta(
+                format!(
+                    "{} / {} · effort {}",
+                    provider_name(selection.provider),
+                    selection.model,
+                    ai.effort.map(ReasoningEffort::as_str).unwrap_or("not set")
+                ),
+                p,
+            )
+            .into_any_element(),
+            None => ui::badge("No explicit provider/model selected", Tone::Attention, p)
+                .into_any_element(),
+        };
+        let mut actions = ui::toolbar().child(model).child(div().flex_1()).child(
+            Button::new("search")
+                .icon(IconName::Search)
+                .label(format!("Search {}", scope_name(ai.knowledge_scope)))
+                .outline()
+                .small()
+                .tooltip("Search saved notes in the selected vault scope. No AI is used.")
+                .disabled(!ai.ready || !ai.vault_bound)
+                .on_click(cx.listener(|this, _, _, cx| this.simple_search(cx))),
+        );
+        if ai.active.is_some() {
+            actions = actions.child(
+                Button::new("stop")
+                    .label("Stop")
+                    .danger()
+                    .small()
+                    .on_click(cx.listener(|this, _, _, cx| this.simple_stop(cx))),
+            );
+        }
+        actions = actions.child(
+            ui::primary("ask", "Ask")
+                .icon(IconName::ArrowUp)
+                .tooltip("Ask BRN. Answers use approved Current knowledge by default.")
+                .disabled(!ai.can_ask() || self.closing.is_some() || self.close_failed)
+                .on_click(cx.listener(|this, _, _, cx| this.simple_ask(cx))),
+        );
+        div()
+            .flex()
+            .flex_col()
+            .flex_shrink_0()
+            .gap_2()
+            .px(px(tokens::space::MD))
+            .py(px(tokens::space::SM))
+            .border_t_1()
+            .border_color(color(p.line))
+            .bg(color(p.panel))
+            .child(
+                Editor::new(&self.query)
+                    .h(px(76.))
+                    .aria_label("Question about saved notes"),
+            )
+            .child(actions)
+            .into_any_element()
+    }
+}
+
+/// One question and its answer, with the answer's recorded provider/model/effort.
+fn chat_exchange(
+    question: String,
+    answer: String,
+    provenance: String,
+    status: gpui_kit::Div,
+    p: crate::tokens::Palette,
+) -> gpui_kit::Div {
+    use super::ui;
+    div()
+        .flex()
+        .flex_col()
+        .gap(px(tokens::space::SM))
+        .max_w(px(tokens::size::READING_MAX_WIDTH))
+        .child(
+            div()
+                .flex()
+                .flex_col()
+                .gap_1()
+                .px(px(tokens::space::MD))
+                .py(px(tokens::space::SM))
+                .bg(color(p.active))
+                .child(
+                    div()
+                        .text_size(px(tokens::text::CAPTION))
+                        .font_weight(gpui_kit::FontWeight::SEMIBOLD)
+                        .text_color(color(p.muted))
+                        .child("YOU"),
+                )
+                .child(
+                    div()
+                        .text_size(px(tokens::text::READING))
+                        .line_height(px(21.))
+                        .child(question),
+                ),
+        )
+        .child(
+            ui::toolbar()
+                .child(
+                    div()
+                        .text_size(px(tokens::text::CAPTION))
+                        .font_weight(gpui_kit::FontWeight::SEMIBOLD)
+                        .text_color(color(p.purple))
+                        .child("BRN"),
+                )
+                .child(ui::meta(provenance, p))
+                .child(status),
+        )
+        .child(
+            div()
+                .text_size(px(tokens::text::READING))
+                .line_height(px(22.))
+                .child(answer),
+        )
 }
 
 pub(super) fn account_settings(desktop: &Entity<Desktop>, cx: &App) -> AnyElement {
@@ -2135,6 +2624,47 @@ pub(super) fn account_settings(desktop: &Entity<Desktop>, cx: &App) -> AnyElemen
                     this.simple_send((Uuid::new_v4(), AppCommand::CancelModelDownload(id)), cx);
                 }
             }); })).into_any_element()
+}
+
+pub(super) fn proposal_state_badge(
+    state: brn_workflow::proposals::ProposalState,
+) -> (&'static str, super::ui::Tone) {
+    use super::ui::Tone;
+    use brn_workflow::proposals::ProposalState;
+    match state {
+        ProposalState::Draft => ("Draft", Tone::Attention),
+        ProposalState::Applying => ("Applying", Tone::Info),
+        ProposalState::Uncertain => ("Uncertain", Tone::Danger),
+        ProposalState::Applied => ("Applied", Tone::Success),
+        ProposalState::Rejected => ("Rejected", Tone::Neutral),
+    }
+}
+
+fn scope_description(scope: KnowledgeScope) -> &'static str {
+    match scope {
+        KnowledgeScope::Current => "Approved current knowledge. Ask uses this by default.",
+        KnowledgeScope::Source => "Imported originals and evidence. Read only.",
+        KnowledgeScope::History => "Superseded and archived knowledge. Read only.",
+        KnowledgeScope::All => "Every saved note, labelled by kind. Read only.",
+    }
+}
+
+/// Display a path with the home directory abbreviated to `~`.
+fn home_relative(path: &std::path::Path) -> String {
+    let display = path.display().to_string();
+    match std::env::var("HOME") {
+        Ok(home) if !home.is_empty() && display.starts_with(&home) => {
+            format!("~{}", &display[home.len()..])
+        }
+        _ => display,
+    }
+}
+
+/// Human title for a vault-relative path: the file stem, or a placeholder.
+fn note_title(path: Option<&str>) -> String {
+    path.and_then(|path| std::path::Path::new(path).file_stem())
+        .map(|stem| stem.to_string_lossy().replace(['-', '_'], " "))
+        .unwrap_or_else(|| "Note".into())
 }
 
 #[cfg(test)]

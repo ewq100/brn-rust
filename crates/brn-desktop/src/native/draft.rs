@@ -280,12 +280,15 @@ impl Desktop {
         {
             return self.render_initial_action(cx);
         }
+        use super::ui::{self, Tone};
+        let p = self.palette();
         let ai = self.ai.as_ref().unwrap();
         let mut body = div().id("initial-full-proposal-form")
             .track_scroll(&self.draft_scroll).flex().flex_col().flex_1()
-            .min_h(px(0.)).overflow_y_scroll().gap_2().p_3()
-            .child("New full note proposal")
-            .child("Create saves review work. Vault Markdown changes only after exact proposal approval. Unsubmitted or later input stays in this form until explicitly discarded.");
+            .min_h(px(0.)).overflow_y_scroll().gap_2().px(px(tokens::space::LG)).py(px(tokens::space::MD))
+            .bg(super::theme::color(p.paper))
+            .child(ui::view_header("New note proposal", Some(("Draft", Tone::Ai)), None, p).mx(px(-tokens::space::LG)).mt(px(-tokens::space::MD)))
+            .child(ui::callout(Tone::Info, "Create saves review work. Vault Markdown changes only after exact proposal approval. Unsubmitted or later input stays in this form until explicitly discarded.", p));
         let Some(form) = &ai.draft else {
             return body.child("No retained initial form. Choose New proposal or Review as new note on a completed answer.").into_any_element();
         };
