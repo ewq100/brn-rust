@@ -1,0 +1,15 @@
+[book]
+title = "BRN Design Handbook"
+authors = ["BRN"]
+language = "en"
+src = "src"
+
+[build]
+build-dir = "../../target/design-handbook"
+create-missing = false
+
+[output.html]
+default-theme = "navy"
+preferred-dark-theme = "navy"
+no-section-label = true
+git-repository-url = "https://github.com/ewq100/brn-rust/tree/main/docs/design"

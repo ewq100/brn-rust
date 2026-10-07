@@ -1,0 +1,364 @@
+<!doctype html>
+<!--
+  PROTOTYPE — BRN full-product experience. Not the production app.
+  Purpose: communicate layout and interaction intent for planned capabilities
+  (docs/design/src/screens/future.md). All data is fictional and in memory;
+  nothing is saved. Colours and type come from ../generated/tokens.css, which
+  is generated from the app's tokens.rs. Routes: #today #chat #inbox #review
+  #needs-review #project #person #graph #sessions #activity.
+  Query: ?state=empty|loading|error|offline and ?scheme=light.
+-->
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>PROTOTYPE · BRN full-product experience</title>
+<link rel="stylesheet" href="../generated/tokens.css">
+<style>
+  * { box-sizing: border-box; }
+  html, body { margin: 0; height: 100%; }
+  body { background: var(--brn-background); color: var(--brn-text); font: var(--brn-text-body)/1.45 var(--brn-font-ui); }
+  button { font: inherit; color: inherit; background: none; border: 1px solid transparent; padding: 3px 10px; cursor: pointer; border-radius: 0; }
+  button:focus-visible, [tabindex]:focus-visible, input:focus-visible, textarea:focus-visible, select:focus-visible { outline: 2px solid var(--brn-cyan); outline-offset: 2px; }
+  button:disabled { opacity: .45; cursor: default; }
+  .btn-primary { background: var(--brn-cyan); color: var(--brn-background); font-weight: 600; }
+  .btn-outline { border-color: var(--brn-line); }
+  .btn-ghost:hover, .btn-outline:hover { background: var(--brn-active); }
+  .btn-danger { background: var(--brn-red); color: var(--brn-background); font-weight: 600; }
+  .mono, .meta { font-family: var(--brn-font-mono); }
+  .meta { font-size: var(--brn-text-meta); color: var(--brn-muted); }
+  .hint { color: var(--brn-muted); font-size: 12px; }
+  .label { font-size: var(--brn-text-caption); font-weight: 600; color: var(--brn-muted); text-transform: uppercase; letter-spacing: .03em; margin: 14px 0 6px; }
+  .badge { display: inline-flex; align-items: center; height: 18px; padding: 0 6px; font: 10.5px var(--brn-font-mono); white-space: nowrap; border: 1px solid; }
+  .t-neutral { --c: var(--brn-muted); } .t-info { --c: var(--brn-cyan); } .t-attention { --c: var(--brn-amber); } .t-ai { --c: var(--brn-purple); } .t-success { --c: var(--brn-green); } .t-danger { --c: var(--brn-red); }
+  .badge, .chip { color: var(--c); border-color: color-mix(in srgb, var(--c) 45%, transparent); background: color-mix(in srgb, var(--c) 14%, transparent); }
+  .callout { display: flex; background: color-mix(in srgb, var(--tone) 7%, transparent); margin: 8px 0; }
+  .callout::before { content: ""; width: 2px; flex: none; background: var(--tone); }
+  .callout > div { padding: 8px 12px; font-size: 12.5px; }
+  .tone-info { --tone: var(--brn-cyan); } .tone-attention { --tone: var(--brn-amber); } .tone-danger { --tone: var(--brn-red); } .tone-ai { --tone: var(--brn-purple); } .tone-success { --tone: var(--brn-green); } .tone-neutral { --tone: var(--brn-muted); }
+  .proto-bar { display: flex; gap: 8px; align-items: center; height: 29px; padding: 0 12px; background: repeating-linear-gradient(45deg, color-mix(in srgb, var(--brn-amber) 22%, transparent) 0 10px, transparent 10px 20px); border-bottom: 1px solid var(--brn-amber); font-size: 12px; }
+  .proto-bar strong { color: var(--brn-amber); font-family: var(--brn-font-mono); }
+  .proto-bar select { font: inherit; background: var(--brn-panel); color: var(--brn-text); border: 1px solid var(--brn-line); }
+  .app { display: grid; grid-template-rows: 40px 1fr 26px; height: calc(100% - 29px); }
+  header { display: flex; align-items: center; gap: 10px; padding: 0 12px 0 80px; background: var(--brn-panel); border-bottom: 1px solid var(--brn-line); }
+  header .brand { font: 700 13px var(--brn-font-mono); color: var(--brn-cyan); }
+  .main { display: grid; grid-template-columns: 228px 1fr 260px; min-height: 0; }
+  .main.focus { grid-template-columns: 0 1fr 0; }
+  .main.novault { grid-template-columns: 228px 1fr 0; }
+  nav, aside { background: var(--brn-panel); overflow: auto; padding: 8px; min-width: 0; }
+  nav { border-right: 1px solid var(--brn-line); } aside { border-left: 1px solid var(--brn-line); }
+  .row { display: flex; align-items: center; gap: 8px; width: 100%; text-align: left; padding: 5px 8px; min-height: 28px; }
+  .row:hover { background: var(--brn-active); }
+  .row.sel { background: var(--brn-active); box-shadow: inset 2px 0 var(--brn-cyan); }
+  .row .grow { flex: 1; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .row .count { font: 11px var(--brn-font-mono); }
+  .row small { display: block; color: var(--brn-muted); font-size: 11px; }
+  .centre { display: grid; grid-template-columns: minmax(380px, 58fr) 6px minmax(300px, 42fr); min-height: 0; }
+  .centre.chat-only { grid-template-columns: 1fr; }
+  .centre.chat-only .doc, .centre.chat-only .divider { display: none; }
+  .doc, .chat { background: var(--brn-paper); min-height: 0; overflow: hidden; display: flex; flex-direction: column; }
+  .divider { background: var(--brn-background); cursor: col-resize; }
+  .view-head { display: flex; align-items: center; gap: 8px; padding: 12px 16px; border-bottom: 1px solid var(--brn-line); }
+  .view-head h1 { margin: 0; font-size: var(--brn-text-title); font-weight: 600; }
+  .view-head .grow { flex: 1; min-width: 0; }
+  .scroll { overflow: auto; padding: 12px 16px; flex: 1; }
+  .decision { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; justify-content: flex-end; padding: 8px 16px; background: var(--brn-panel); border-top: 1px solid var(--brn-line); }
+  .decision .hint { flex: 1 1 100%; }
+  .tiles { display: flex; flex-wrap: wrap; gap: 8px; }
+  .tile { min-width: 96px; padding: 8px 12px; border: 1px solid var(--brn-line); background: var(--brn-panel); }
+  .tile b { display: block; font-size: 17px; }
+  .tile.danger { border-color: color-mix(in srgb, var(--brn-red) 60%, transparent); color: var(--brn-red); }
+  .tile.attention { border-color: color-mix(in srgb, var(--brn-amber) 60%, transparent); color: var(--brn-amber); }
+  .tile span { color: var(--brn-muted); font-size: 11px; }
+  .card { border: 1px solid var(--brn-line); padding: 10px 12px; margin: 8px 0; }
+  .card.sel { border-color: var(--brn-cyan); }
+  .card h3 { margin: 0 0 4px; font-size: 13.5px; font-weight: 600; }
+  .flex { display: flex; gap: 8px; align-items: center; flex-wrap: wrap; }
+  .spread { justify-content: space-between; }
+  .end { justify-content: flex-end; }
+  .chat .scroll { padding: 16px 24px; }
+  .q { background: var(--brn-active); padding: 8px 12px; max-width: 760px; font-size: var(--brn-text-reading); }
+  .who { font: 600 11px var(--brn-font-ui); color: var(--brn-muted); }
+  .a { max-width: 760px; margin: 8px 0 24px; font-size: var(--brn-text-reading); line-height: 1.6; }
+  .a .who { color: var(--brn-purple); }
+  .chip { font: 10px var(--brn-font-mono); padding: 0 4px; margin-left: 3px; vertical-align: 1px; border: 1px solid; cursor: pointer; }
+  .trail { font: 11.5px var(--brn-font-mono); color: var(--brn-muted); margin: 4px 0 8px; }
+  .trail b { color: var(--brn-purple); font-weight: normal; }
+  .composer { border-top: 1px solid var(--brn-line); background: var(--brn-panel); padding: 8px 12px; }
+  .composer textarea { width: 100%; height: 64px; resize: none; background: var(--brn-paper); color: var(--brn-text); border: 1px solid var(--brn-line); padding: 8px; font: 13px var(--brn-font-ui); }
+  .status { display: flex; align-items: center; gap: 12px; padding: 0 12px; background: var(--brn-panel); border-top: 1px solid var(--brn-line); font-size: 11.5px; color: var(--brn-muted); }
+  .draft { font-size: 14px; line-height: 1.65; }
+  .draft mark { background: none; color: inherit; border-bottom: 2px solid var(--tone); }
+  .comment { border-left: 2px solid var(--brn-amber); padding: 4px 10px; margin: 6px 0; background: color-mix(in srgb, var(--brn-amber) 6%, transparent); font-size: 12.5px; }
+  .diff-del { text-decoration: line-through; color: var(--brn-red); }
+  .diff-add { color: var(--brn-green); }
+  .skeleton { height: 12px; margin: 10px 0; background: linear-gradient(90deg, var(--brn-panel), var(--brn-active), var(--brn-panel)); background-size: 200% 100%; animation: sh 1.2s infinite; }
+  @media (prefers-reduced-motion: reduce) { .skeleton { animation: none; } }
+  @keyframes sh { to { background-position: -200% 0; } }
+  svg text { fill: var(--brn-text); font: 11px var(--brn-font-ui); }
+  .graph-node { cursor: pointer; }
+  table.kv { border-collapse: collapse; width: 100%; } table.kv td { padding: 4px 0; vertical-align: top; } table.kv td:first-child { color: var(--brn-muted); width: 34%; }
+  dialog { background: var(--brn-panel); color: var(--brn-text); border: 1px solid var(--brn-line); width: min(540px, 92vw); padding: 0; }
+  dialog::backdrop { background: rgba(0,0,0,.5); }
+  dialog .body { padding: 12px 16px; }
+</style>
+</head>
+<body>
+<div class="proto-bar" role="note">
+  <strong>PROTOTYPE</strong>
+  <span>Planned BRN experience · fictional data · nothing is saved · not the production app</span>
+  <span style="flex:1"></span>
+  <label>State <select id="state">
+    <option value="normal">Normal</option><option value="empty">Empty</option><option value="loading">Loading</option>
+    <option value="error">Error</option><option value="offline">AI unavailable</option></select></label>
+  <label>Theme <select id="scheme"><option value="dark">Dark</option><option value="light">Light</option></select></label>
+</div>
+<div class="app">
+  <header>
+    <span class="brand">brn</span><span style="color:var(--brn-muted)">work-vault</span>
+    <span id="phase" class="badge t-success">Ready</span>
+    <span style="flex:1"></span>
+    <span id="budget" class="meta"></span>
+    <button id="stop" class="btn-danger" hidden>Stop</button>
+    <button class="btn-ghost" id="focus" title="Hide both rails (⇧⌘↩)">Focus</button>
+    <button class="btn-ghost" id="vaultToggle" title="Show or hide the vault (⌥⌘0)">Vault</button>
+  </header>
+  <div class="main" id="main">
+    <nav aria-label="Navigator">
+      <button class="row btn-outline" data-go="chat" data-new>＋ <span class="grow">New chat</span><span class="meta">⌘N</span></button>
+      <div class="label">Workspace</div>
+      <button class="row" data-go="today">◫ <span class="grow">Today</span><span class="count" style="color:var(--brn-red)">1 overdue</span></button>
+      <button class="row" data-go="inbox">⌂ <span class="grow">Inbox</span><span class="count" style="color:var(--brn-amber)" id="inboxCount">3</span></button>
+      <button class="row" data-go="needs-review">⚑ <span class="grow">Needs Review</span><span class="count" style="color:var(--brn-amber)">3</span></button>
+      <button class="row" data-go="project">▣ <span class="grow">Projects</span></button>
+      <button class="row" data-go="person">◉ <span class="grow">People</span></button>
+      <button class="row" data-go="graph">⋔ <span class="grow">Graph</span></button>
+      <button class="row" data-go="activity">≡ <span class="grow">Activity</span></button>
+      <div class="label">Chats</div>
+      <button class="row" data-go="chat"><span class="grow">Reply to Anna about Serna<small>active 3 min ago · 4 turns</small></span></button>
+      <button class="row" data-go="chat"><span class="grow">How we buy paint<small>yesterday · 6 turns</small></span></button>
+      <button class="row" data-go="sessions"><span class="grow" style="color:var(--brn-muted)">All chats and archive</span></button>
+      <div class="label flex spread">Review <span class="badge t-attention">2 waiting</span></div>
+      <button class="row" data-go="review"><span class="grow">Reply to Anna</span><span class="badge t-attention">Draft</span></button>
+      <button class="row" data-go="inbox"><span class="grow">Anna’s email · 6 consequences</span><span class="badge t-attention">Group</span></button>
+      <div style="height:16px"></div>
+      <button class="row" data-dialog="settings">⚙ <span class="grow">Settings</span><span class="meta">⌘,</span></button>
+    </nav>
+    <div class="centre" id="centre">
+      <section class="doc" id="doc" aria-label="Document"></section>
+      <div class="divider" role="separator" tabindex="0" aria-label="Resize document and chat"></div>
+      <section class="chat" id="chat" aria-label="Chat"></section>
+    </div>
+    <aside aria-label="Vault">
+      <div class="label">Vault</div>
+      <div style="padding:0 8px"><b>work-vault</b><div class="meta">~/Documents/work-vault</div></div>
+      <div class="label">Browse and search</div>
+      <div class="flex" style="padding:0 8px;gap:2px"><button class="btn-primary">Current</button><button class="btn-ghost">Source</button><button class="btn-ghost">History</button><button class="btn-ghost">All</button></div>
+      <div class="hint" style="padding:4px 8px">Approved current knowledge. Ask uses this by default.</div>
+      <div class="label">Current notes · 412</div>
+      <button class="row" data-go="project"><span class="grow">Serna house renovation<small>projects/serna.md</small></span></button>
+      <button class="row" data-go="person"><span class="grow">Anna Tamm<small>people/anna-tamm.md</small></span></button>
+      <button class="row"><span class="grow">Serna exterior colour<small>decisions/serna-exterior-colour.md</small></span></button>
+      <button class="row"><span class="grow">Purchasing process<small>processes/purchasing.md</small></span></button>
+      <div class="label">Index</div>
+      <div class="hint" style="padding:0 8px">Hybrid search · 412 notes · rebuilt 09:12</div>
+    </aside>
+  </div>
+  <div class="status"><span id="statusText">Workspace ready.</span><span style="flex:1"></span><span class="meta">ChatGPT / gpt-6.1-sol · effort medium</span></div>
+</div>
+
+<dialog id="dlg" aria-labelledby="dlgTitle"><div class="view-head"><h1 id="dlgTitle" class="grow"></h1><button class="btn-ghost" data-close aria-label="Close">✕</button></div><div class="body" id="dlgBody"></div></dialog>
+
+<script>
+const params = new URLSearchParams(location.search);
+const S = {
+  state: params.get('state') || 'normal',
+  version: 1, approved: false, sent: false, rewriting: false, appliedGroup: false,
+  comments: [{ quote: 'we can deliver by Friday 10 Oct', text: 'Do not promise a date before Värvikoda confirms.' }],
+  consequences: [
+    { id: 'src', kind: 'Source', tone: 'info', title: 'Preserve email as Source', detail: 'sources/2026-10-06-anna-serna-questions.md · exact original retained', on: true },
+    { id: 'thread', kind: 'Link', tone: 'info', title: 'Connect to thread “Serna paint spec”', detail: 'In-Reply-To matches message of 1 Oct · evidence: header', on: true },
+    { id: 'act1', kind: 'Action', tone: 'attention', title: 'Reply to Anna’s three Serna questions', detail: 'Open · due 2026-10-08 (“before Wednesday”) · Anna is waiting', on: true },
+    { id: 'act2', kind: 'Action', tone: 'attention', title: 'Waiting: final paint specification from Anna', detail: 'Waiting · follow up 2026-10-10', on: true },
+    { id: 'proj', kind: 'Update', tone: 'attention', title: 'Add open question to Serna project', detail: 'projects/serna.md · “Window frames: same product line?”', on: false },
+    { id: 'conf', kind: 'Conflict', tone: 'danger', title: 'Colour: Anna asks about blue; current knowledge says dark red', detail: 'Sent to Needs Review · knowledge unchanged', on: true },
+  ],
+  needs: [
+    { id: 'c1', kind: 'Unresolved conflict', tone: 'danger', title: 'Serna exterior colour', body: 'Anna (6 Oct email) asks about blue; weekly sync (6 Oct) says the client prefers blue; site meeting (1 Oct) discussed green vs red without a decision. Current knowledge: dark red (12 Sep decision).', rec: 'Recommendation (tentative): ask Anna to confirm; do not change current knowledge yet.', state: 'open' },
+    { id: 'c2', kind: 'Likely supersession', tone: 'attention', title: 'Purchasing approval threshold', body: 'Weekly sync (6 Oct): orders above 2 000 EUR need two approvers. Current process: team lead approves under 5 000 EUR.', rec: 'Proposed update: change the threshold, keep the previous rule as history.', state: 'open' },
+    { id: 'c3', kind: 'Stale knowledge', tone: 'neutral', title: '“Supplier decision expected by June 2026”', body: 'No later update found by October 2026 (projects/heating.md).', rec: 'Ask whether a decision was made, or archive the note.', state: 'open' },
+  ],
+  sessions: [
+    { id: 1, title: 'Reply to Anna about Serna', when: 'active 3 min ago', state: 'active', outcomes: 0 },
+    { id: 2, title: 'How we buy paint', when: 'yesterday', state: 'active', outcomes: 1 },
+    { id: 3, title: 'Supplier comparison notes', when: '34 days ago', state: 'archived', outcomes: 0 },
+    { id: 4, title: 'Heating project kickoff', when: '41 days ago', state: 'archived', outcomes: 2 },
+  ],
+};
+let chatMode = 'draft', streaming = false, timer = null;
+const $ = s => document.querySelector(s);
+const esc = s => String(s).replace(/[&<>"]/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
+const badge = (t, tone) => `<span class="badge t-${tone}">${esc(t)}</span>`;
+const callout = (tone, html) => `<div class="callout tone-${tone}"><div>${html}</div></div>`;
+const head = (title, kind, meta, actions = '') => `<div class="view-head"><div class="grow"><div class="flex">${kind ? badge(kind[0], kind[1]) : ''}<h1>${esc(title)}</h1></div>${meta ? `<div class="meta">${esc(meta)}</div>` : ''}</div>${actions}</div>`;
+const setStatus = t => { $('#statusText').textContent = t; };
+const loadingBody = () => '<div class="scroll" aria-busy="true"><div class="skeleton" style="width:60%"></div><div class="skeleton"></div><div class="skeleton" style="width:80%"></div><div class="hint">Loading… the chat stays usable; earlier content is never cleared before the new result arrives.</div></div>';
+const errorBody = what => `<div class="scroll">${callout('danger', `<b>${esc(what)} could not be loaded.</b> The workflow reported <span class="mono">STORE_BUSY</span>. Nothing changed. <button class="btn-outline" onclick="setState('normal')">Retry</button>`)}</div>`;
+
+const V = {};
+V.today = () => {
+  if (S.state === 'empty') return head('Today', null, 'Wednesday 7 October 2026') + `<div class="scroll"><h3>Nothing needs you right now</h3><p class="hint">No open, overdue or waiting Actions, Inbox items or findings. Ask BRN anything, or add a copy to the Inbox.</p></div>`;
+  return head('Today', null, 'Wednesday 7 October 2026 · as of 09:40', '<button class="btn-ghost" onclick="setStatus(\'Refreshed.\')">Refresh</button>') + `<div class="scroll">
+  <div class="tiles"><div class="tile danger"><b>1</b><span>Overdue</span></div><div class="tile attention"><b>2</b><span>Follow-up today</span></div><div class="tile"><b>3</b><span>Open</span></div><div class="tile"><b>1</b><span>Waiting</span></div><div class="tile"><b>1</b><span>Blocked</span></div></div>
+  <div class="label">Suggested focus ${badge('BRN suggestion · you decide', 'ai')}</div>
+  <div class="card"><div class="flex spread"><h3>1 · Reply to Anna’s three Serna questions</h3>${badge('overdue', 'danger')}</div><div class="hint">Why: due yesterday; Anna is waiting; it unblocks the paint order (due 10 Oct) and scaffolding on 20 Oct.</div><div class="flex" style="margin-top:6px"><button class="btn-primary" onclick="draftReply()">Draft reply</button><button class="btn-ghost">Open Action</button></div></div>
+  <div class="card"><div class="flex spread"><h3>2 · Chase Anna for the final specification</h3>${badge('follow-up', 'attention')}</div><div class="hint">Why: follow-up date is today; promised 4 Oct; blocks “Place Serna paint order”.</div></div>
+  <div class="card"><div class="flex spread"><h3>3 · Resolve the Serna colour conflict</h3>${badge('Needs Review', 'attention')}</div><div class="hint">Why: the reply to Anna depends on it.</div><button class="btn-ghost" onclick="go('needs-review')">Open in Needs Review</button></div>
+  <div class="label">Waiting on others</div>
+  <div class="card"><h3>Anna Tamm · final paint specification</h3><div class="meta">waiting since 2026-10-04 · follow up 2026-10-07</div></div>
+  <div class="label">Inbox · 3 waiting</div><button class="btn-outline" onclick="go('inbox')">Process Inbox</button></div>`;
+};
+V.inbox = () => {
+  if (S.state === 'empty') return head('Inbox', null, 'Exact copies of what you bring in') + `<div class="scroll"><h3>The Inbox is empty</h3><p class="hint">Add an email (.eml), DOCX, PDF, PowerPoint, text or a URL. BRN keeps the exact original and proposes reviewable consequences.</p><div class="card" style="border-style:dashed;text-align:center;padding:28px">Drop files or paste here</div></div>`;
+  const applied = S.appliedGroup;
+  const chosen = S.consequences.filter(c => c.on).length;
+  const rows = S.consequences.map(c => `<label class="card flex" style="align-items:flex-start"><input type="checkbox" ${c.on ? 'checked' : ''} ${applied ? 'disabled' : ''} onchange="toggleC('${c.id}', this.checked)"><div style="flex:1;min-width:0"><div class="flex">${badge(c.kind, c.tone)}<b>${esc(c.title)}</b>${applied && c.on ? badge('Applied', 'success') : ''}</div><div class="meta">${esc(c.detail)}</div></div><button class="btn-ghost" type="button" onclick="event.preventDefault();openConsequence('${c.id}')">Inspect</button></label>`).join('');
+  return head('Inbox', null, '3 waiting · oldest first', '<button class="btn-outline">Add copy…</button>') + `<div class="scroll">
+  <div class="label">Waiting</div>
+  <div class="card sel"><div class="flex">${badge('EML', 'neutral')}<b>Anna Tamm — Serna: three questions before the paint spec</b></div><div class="meta">received 2026-10-06 09:14 +03:00 · Message-ID &lt;8812@tamm-partners.example&gt; · 1 attachment</div><div class="flex" style="margin-top:4px">${badge(applied ? 'processed' : 'analysed · review below', applied ? 'success' : 'attention')}</div></div>
+  <div class="card"><div class="flex">${badge('DOCX', 'neutral')}<b>Serna paint specification draft.docx</b></div><div class="meta">attachment of Anna’s email · 2 pages · 1 chart</div>${callout('attention', '<b>Partial conversion.</b> Text and the colour table converted; the bar chart on page 2 is preserved as an image but its values were not extracted. The original stays retained and cannot be cleaned up until this is resolved.')}</div>
+  <div class="card"><div class="flex">${badge('Teams', 'neutral')}<b>Serna build chat (6 Oct)</b></div><div class="meta">received 2026-10-06 16:40 · not analysed</div><button class="btn-outline">Analyse</button></div>
+  <div class="label">Proposed consequences of Anna’s email · one review group</div>
+  ${callout('info', 'Each item is a separate proposal. Nothing changes until you approve. Approving applies only the checked items, each exactly as shown.')}${rows}</div>
+  <div class="decision"><div class="hint">${applied ? 'Applied. The original is retained; cleanup is a separate explicit choice.' : `${chosen} of ${S.consequences.length} selected · grouped approval binds these exact versions and stops at the first refusal.`}</div>${applied ? '<button class="btn-outline" onclick="cleanup()">Review original-copy cleanup…</button>' : `<button class="btn-outline" onclick="setStatus('Unchecked proposals rejected. Knowledge unchanged.')">Reject unchecked</button><button class="btn-primary" onclick="approveGroup()" ${chosen ? '' : 'disabled'}>Approve ${chosen} selected…</button>`}</div>`;
+};
+V.review = () => {
+  const ver = S.version, rewritten = ver > 1, offline = S.state === 'offline';
+  const draft = S.rewriting ? loadingBody() : `<div class="scroll">
+    ${callout('info', 'This is a <b>reply draft</b>. Approving records the final text; it does <b>not</b> send the email or complete the Action. You send it yourself, then tell BRN it was sent.')}
+    <div class="flex"><span class="hint">Claim labels:</span>${badge('vault', 'success')}${badge('source', 'info')}${badge('web', 'neutral')}${badge('proposed', 'ai')}${badge('unknown', 'attention')}${badge('conflict', 'danger')}</div>
+    <div class="label">Draft · version ${ver}</div>
+    <div class="draft"><p>Hi Anna,</p>
+      <p>1. <mark class="tone-danger">The exterior colour is not settled.</mark><span class="chip t-danger" onclick="explain('conflict')">conflict</span> The approved decision from 12 September is dark red (RAL 3011)<span class="chip t-success" onclick="explain('vault')">vault</span>, but the client has since mentioned blue<span class="chip t-info" onclick="explain('source')">source</span>. I will confirm by Thursday.</p>
+      <p>2. <mark class="tone-attention">Whether the window frames use the same product line has not been decided.</mark><span class="chip t-attention" onclick="explain('unknown')">unknown</span></p>
+      <p>3. Värvikoda’s lead time is 10 working days from a confirmed specification<span class="chip t-success" onclick="explain('vault')">vault</span>, so ${rewritten ? '<span class="diff-add">delivery by 20 October depends on confirming the specification this week</span>' : '<span>we can deliver by Friday 10 Oct</span>'}<span class="chip t-ai" onclick="explain('proposed')">proposed</span>.</p>
+      <p>Best,<br>Evo</p></div>
+    <div class="label">Comments for Rewrite</div>
+    ${S.comments.map(c => `<div class="comment"><div class="meta">on “${esc(c.quote)}”${rewritten ? ' · addressed in v' + ver : ''}</div>${esc(c.text)}</div>`).join('') || '<div class="hint">No comments.</div>'}
+    <div class="flex"><button class="btn-outline" onclick="addComment()">Comment on selection…</button><button class="btn-outline" onclick="rewrite()" ${offline || S.approved ? 'disabled' : ''}>Rewrite with comments</button>${offline ? '<span class="hint">AI unavailable: Rewrite is disabled. You can still edit, comment, approve or reject.</span>' : ''}</div>
+    <div class="label">Evidence used</div>
+    <div class="meta">decisions/serna-exterior-colour.md · sources/2026-10-06-anna-serna-questions.md · decisions/serna-paint-supplier.md · meetings/2026-10-06-weekly-sync.md</div></div>`;
+  const decision = S.approved
+    ? `<div class="hint">Approved version ${ver}. The Action stays Open until you confirm the reply was sent.</div><button class="btn-outline" onclick="setStatus('Copied the exact approved reply.')">Copy reply</button><button class="btn-primary" onclick="markSent()" ${S.sent ? 'disabled' : ''}>${S.sent ? 'Action completed' : 'I sent it — complete Action…'}</button>`
+    : `<div class="hint">Approval applies exactly version ${ver}. Any later edit or Rewrite makes it a new version that needs its own approval.</div><button class="btn-outline" onclick="setStatus('Proposal rejected. Comments kept.')">Reject</button><button class="btn-primary" onclick="approveReply()">Review exact approval…</button>`;
+  return head('Reply to Anna’s three Serna questions', [S.approved ? 'Proposal · Approved' : 'Proposal · Draft', S.approved ? 'success' : 'attention'], `reply draft · version ${ver} · from chat “Reply to Anna about Serna”`, '<button class="btn-ghost" onclick="go(\'chat\')">Close</button>') + draft + `<div class="decision">${decision}</div>`;
+};
+V['needs-review'] = () => {
+  if (S.state === 'empty') return head('Needs Review', null, '0 open findings') + '<div class="scroll"><h3>Nothing needs review</h3><p class="hint">Conflicts, stale knowledge, identity questions and conversion problems appear here quietly, without interrupting your work.</p></div>';
+  const items = S.needs.map(n => `<div class="card"><div class="flex spread"><div class="flex">${badge(n.kind, n.tone)}<h3 style="margin:0">${esc(n.title)}</h3></div>${n.state !== 'open' ? badge(n.state, 'success') : ''}</div><p style="margin:6px 0">${esc(n.body)}</p>${callout('ai', esc(n.rec))}<div class="flex"><button class="btn-outline" onclick="inspect('${n.id}')">Inspect evidence</button>${n.id === 'c2' ? '<button class="btn-primary" onclick="supersede()">Review proposed update…</button>' : `<button class="btn-outline" onclick="closeNeed('${n.id}','resolved')">Mark resolved</button>`}<button class="btn-ghost" onclick="closeNeed('${n.id}','dismissed')">Dismiss</button></div></div>`).join('');
+  return head('Needs Review', null, `${S.needs.filter(n => n.state === 'open').length} open findings · newest first`) + `<div class="scroll">${callout('attention', 'Findings are tentative and keep their evidence. Resolving or dismissing changes this queue only; changing knowledge needs a reviewed proposal.')}${items}</div>`;
+};
+V.project = () => head('Serna house renovation', ['Project · Active', 'success'], 'projects/serna.md · approved summary + live context', '<button class="btn-ghost">Open note</button>') + `<div class="scroll">
+  <div class="label">Current state ${badge('approved', 'success')}</div>
+  <table class="kv"><tr><td>Exterior repaint</td><td>late October 2026 · scaffolding 20 Oct</td></tr><tr><td>Colour</td><td>dark red (RAL 3011) ${badge('conflict open', 'danger')}</td></tr><tr><td>Supplier</td><td>Värvikoda OÜ</td></tr></table>
+  <div class="label">Open work ${badge('live', 'neutral')}</div>
+  <div class="card flex spread"><span>Reply to Anna’s three questions</span>${badge('overdue', 'danger')}</div>
+  <div class="card flex spread"><span>Final paint specification from Anna</span>${badge('waiting', 'attention')}</div>
+  <div class="card flex spread"><span>Place paint order with Värvikoda</span>${badge('blocked by spec', 'neutral')}</div>
+  <div class="label">Recent communication</div>
+  <div class="meta">6 Oct · Anna Tamm · email “three questions” · 6 Oct · Teams build chat · 1 Oct · site meeting notes</div>
+  <div class="label">People</div><button class="btn-ghost" onclick="go('person')">Anna Tamm · architect</button> <button class="btn-ghost">Märt · builder</button>
+  ${callout('ai', 'BRN noticed 2 facts in recent sources not yet in the project summary. <button class="btn-outline">Propose summary update…</button>')}</div>`;
+V.person = () => head('Anna Tamm', ['Person', 'info'], 'people/anna-tamm.md · anna@tamm-partners.example · aliases: Anna T.') + `<div class="scroll">
+  <div class="label">What am I waiting for from Anna?</div><div class="card flex spread"><span>Final paint specification (Serna)</span>${badge('follow up today', 'attention')}</div>
+  <div class="label">My commitments to Anna</div><div class="card flex spread"><span>Reply to three Serna questions</span>${badge('overdue', 'danger')}</div>
+  <div class="label">Projects</div><button class="btn-ghost" onclick="go('project')">Serna house renovation</button>
+  <div class="label">Identity</div>${callout('attention', '“A. Tamm” in the Teams chat may be Anna Tamm. The evidence is insufficient, so the identities are <b>not</b> merged. <button class="btn-outline">Confirm same person…</button>')}</div>`;
+V.graph = () => {
+  const n = [['Serna', 300, 160, 'success'], ['Anna Tamm', 140, 80, 'info'], ['Exterior colour', 460, 90, 'success'], ['Paint supplier', 470, 230, 'success'], ['Site meeting 1 Oct', 160, 250, 'info'], ['Anna email 6 Oct', 300, 300, 'info'], ['Plan v1 (history)', 120, 340, 'neutral']];
+  const e = [[0, 1], [0, 2], [0, 3], [0, 4], [0, 5], [1, 5], [2, 4], [0, 6]];
+  const col = { success: 'var(--brn-green)', info: 'var(--brn-cyan)', neutral: 'var(--brn-muted)' };
+  return head('Graph', null, 'Notes and their saved relationships · derived suggestions dashed') + `<div class="scroll"><svg viewBox="0 0 620 380" width="100%" role="img" aria-label="Relationship graph around Serna">${e.map(([a, b], i) => `<line x1="${n[a][1]}" y1="${n[a][2]}" x2="${n[b][1]}" y2="${n[b][2]}" stroke="var(--brn-line)" ${i === 6 ? 'stroke-dasharray="4 4"' : ''}/>`).join('')}${n.map(([t, x, y, k]) => `<g class="graph-node" tabindex="0" onclick="setStatus('Selected ${t}. Opening it shows the note beside the chat.')"><circle cx="${x}" cy="${y}" r="9" fill="${col[k]}"/><text x="${x + 14}" y="${y + 4}">${t}</text></g>`).join('')}</svg><div class="flex">${badge('current', 'success')}${badge('source', 'info')}${badge('history', 'neutral')}<span class="hint">Dashed: derived suggestion, not approved.</span></div></div>`;
+};
+V.sessions = () => head('Chats', null, 'Active chats stay visible · inactive for 30 days archive automatically') + `<div class="scroll">${S.sessions.map(s => `<div class="card flex spread"><div><b>${esc(s.title)}</b><div class="meta">${s.when} · ${s.state}${s.outcomes ? ` · ${s.outcomes} uncaptured outcome${s.outcomes > 1 ? 's' : ''}` : ''}</div></div><div class="flex">${s.state === 'archived' ? `<button class="btn-outline" onclick="sessionDo(${s.id},'active')">Restore</button>` : `<button class="btn-ghost" onclick="sessionDo(${s.id},'archived')">Archive</button>`}<button class="btn-ghost" onclick="deleteSession(${s.id})">Delete…</button></div></div>`).join('')}</div>`;
+V.activity = () => head('Activity', null, 'Approved durable changes') + `<div class="scroll">${['Created Action “Reply to Anna’s three Serna questions” · from Inbox group', 'Preserved Source sources/2026-10-06-anna-serna-questions.md', 'Updated Serna project · previous colour kept as history', 'Captured web fact “RAL 3011 is purple red” · ral-colours.example · retrieved 2026-10-05'].map(t => `<div class="card"><div class="flex">${badge('Approved', 'success')}<span class="meta">2026-10-07</span></div>${esc(t)}<div><button class="btn-ghost">Inspect</button><button class="btn-ghost">Undo…</button></div></div>`).join('')}</div>`;
+
+function renderChat() {
+  const offline = S.state === 'offline';
+  let body;
+  if (S.state === 'empty' || chatMode === 'new') {
+    body = `<div class="scroll"><h2 style="font-size:22px;margin:24px 0 8px">What are you working on?</h2><p class="hint" style="font-size:14px;max-width:640px">Ask about your notes, sources and Actions. BRN answers from approved current knowledge by default, labels what it cannot establish, and never changes knowledge or Actions without your approval.</p><div class="label">Try asking</div><div class="flex"><button class="btn-outline" onclick="draftReply()">Write a reply to Anna</button><button class="btn-outline" onclick="go('today')">What should I focus on today?</button><button class="btn-outline" onclick="go('person')">What am I waiting for from Anna?</button></div></div>`;
+  } else {
+    body = `<div class="scroll"><div class="q"><div class="who">YOU</div>Are there any open actions?</div>
+    <div class="a"><div class="flex"><span class="who">BRN</span><span class="meta">ChatGPT · gpt-6.1-sol · medium</span>${badge('Completed', 'success')}</div><div class="trail">Searched vault → 3 Actions → 2 sources · <b>12 s</b> · 9 k tokens</div>
+    Three Serna Actions are unfinished. The most urgent is replying to Anna’s three questions — due yesterday<span class="chip t-success" onclick="explain('vault')">vault</span>. You are also waiting for her final specification<span class="chip t-success" onclick="explain('vault')">vault</span>, which blocks the paint order<span class="chip t-success" onclick="explain('vault')">vault</span>.</div>
+    <div class="q"><div class="who">YOU</div>Write an answer to Anna.</div><div class="a" id="draftAnswer"></div></div>`;
+  }
+  $('#chat').innerHTML = body + `<div class="composer"><textarea id="composer" aria-label="Message" placeholder="${offline ? 'AI unavailable — you can still search, browse and review' : 'Ask about your notes, sources and Actions…'}"></textarea><div class="flex spread" style="margin-top:6px"><span>${offline ? badge('ChatGPT unavailable · checked 09:38', 'danger') : '<span class="meta">ChatGPT / gpt-6.1-sol · medium · budget 40 k tokens</span>'}</span><span class="flex">${badge('Current scope', 'success')}<button class="btn-outline">Search Current</button><button class="btn-primary" ${offline ? 'disabled' : ''} onclick="draftReply()">Ask</button></span></div></div>`;
+  renderDraftAnswer();
+}
+function renderDraftAnswer() {
+  const el = $('#draftAnswer'); if (!el) return;
+  if (S.state === 'error') { el.innerHTML = `<div class="flex"><span class="who">BRN</span>${badge('Failed', 'danger')}</div>${callout('danger', 'ChatGPT returned a rate limit after 2 retries on the same model. Nothing changed and no other model was tried. Kept: vault search results. <button class="btn-outline" onclick="setState(\'normal\')">Retry same model</button>')}`; return; }
+  if (S.state === 'offline') { el.innerHTML = `<div class="flex"><span class="who">BRN</span>${badge('Not sent', 'neutral')}</div>${callout('neutral', 'AI is unavailable, so this question was not sent. You can still open Anna’s email, the Serna project and the Action.')}`; return; }
+  if (streaming) { el.innerHTML = `<div class="flex"><span class="who">BRN</span><span class="meta">ChatGPT · gpt-6.1-sol · medium</span>${badge('Working · provisional', 'ai')}</div><div class="trail" id="trail" aria-live="polite"></div>`; return; }
+  el.innerHTML = `<div class="flex"><span class="who">BRN</span><span class="meta">ChatGPT · gpt-6.1-sol · medium</span>${badge('Completed', 'success')}</div><div class="trail">Searched vault → checked 8 sources → read thread → web: Värvikoda lead times → drafted · <b>41 s</b> · 31 k of 40 k tokens</div>
+  I drafted a reply as a proposal. Two things I could not establish: <b>the final colour</b> (current knowledge says dark red, newer sources mention blue<span class="chip t-danger" onclick="explain('conflict')">conflict</span>) and <b>the window-frame product line</b><span class="chip t-attention" onclick="explain('unknown')">unknown</span>. I did not promise a delivery date.
+  <div class="flex" style="margin-top:8px"><button class="btn-primary" onclick="go('review')">Open reply proposal (v${S.version})</button><button class="btn-ghost" onclick="go('needs-review')">See colour conflict</button></div>
+  ${callout('ai', 'Possible outcome to capture: <b>Anna asked about window frames</b> → add to the Serna project. <button class="btn-outline">Propose capture…</button> <button class="btn-ghost">Not now</button>')}`;
+}
+function busy(on, label) { $('#stop').hidden = !on; $('#phase').className = 'badge ' + (on ? 't-ai' : 't-success'); $('#phase').textContent = on ? (label || 'Answering · provisional') : 'Ready'; $('#budget').textContent = on ? 'budget 40 k tokens · ⌘. to stop' : ''; }
+function draftReply() {
+  chatMode = 'draft'; location.hash = 'chat'; streaming = true; busy(true); route();
+  const steps = ['Searching vault', 'checking 8 sources', 'reading thread “Serna paint spec”', 'web: Värvikoda lead times', 'drafting'];
+  let i = 0; clearInterval(timer);
+  timer = setInterval(() => { const t = $('#trail'); if (t) t.innerHTML = steps.slice(0, i + 1).join(' → ') + `… · <b>${(i + 1) * 8} s</b>`; if (++i >= steps.length) { clearInterval(timer); streaming = false; busy(false); renderDraftAnswer(); setStatus('Reply drafted as a proposal. Knowledge unchanged.'); } }, 650);
+}
+$('#stop').onclick = () => { clearInterval(timer); if (S.rewriting) { S.rewriting = false; busy(false); setStatus('Rewrite stopped. Version ' + S.version + ' unchanged.'); route(); return; } streaming = false; busy(false); const el = $('#draftAnswer'); if (el) el.innerHTML = `<div class="flex"><span class="who">BRN</span>${badge('Stopped', 'attention')}</div>${callout('attention', 'Stopped by you. Partial search results are kept; no proposal was created and nothing changed.')}`; setStatus('Stopped. Nothing changed.'); };
+
+function go(view) { location.hash = view; }
+function route() {
+  const view = (location.hash || '#today').slice(1);
+  document.querySelectorAll('nav .row').forEach(r => r.classList.toggle('sel', r.dataset.go === view && !r.hasAttribute('data-new')));
+  if (view === 'chat') { $('#centre').classList.add('chat-only'); renderChat(); return; }
+  $('#centre').classList.remove('chat-only');
+  const name = { 'needs-review': 'Needs Review', today: 'Today', inbox: 'Inbox', review: 'Proposal' }[view] || view[0].toUpperCase() + view.slice(1);
+  $('#doc').innerHTML = S.state === 'loading' ? head(name, null, '') + loadingBody() : (S.state === 'error' && view !== 'review') ? head(name, null, '') + errorBody(name) : (V[view] || V.today)();
+  renderChat();
+}
+function setState(s) { S.state = s; $('#state').value = s; route(); setStatus({ normal: 'Workspace ready.', empty: 'Empty workspace (prototype state).', loading: 'Loading (prototype state).', error: 'An operation failed. Nothing changed.', offline: 'AI unavailable. Browsing, local search and review still work.' }[s]); }
+function toggleC(id, on) { S.consequences.find(c => c.id === id).on = on; route(); }
+function modal(title, html, onConfirm) { $('#dlgTitle').textContent = title; $('#dlgBody').innerHTML = html; const d = $('#dlg'); d.showModal(); const c = $('#confirm'); const safe = $('#dlgBody [data-close]') || $('#dlg [data-close]'); safe.focus(); if (c) c.onclick = () => { d.close(); onConfirm && onConfirm(); }; }
+const actionsRow = (cancel, confirm, cls = 'btn-primary') => `<div class="flex end"><button class="btn-outline" data-close>${cancel}</button><button class="${cls}" id="confirm">${confirm}</button></div>`;
+function approveGroup() { const chosen = S.consequences.filter(c => c.on); modal(`Approve ${chosen.length} selected proposals?`, `<p>BRN applies exactly these versions, in order, and stops at the first refusal:</p><ol>${chosen.map(c => `<li>${badge(c.kind, c.tone)} ${esc(c.title)}</li>`).join('')}</ol>${callout('info', 'Unchecked items stay as drafts. The original email stays retained.')}${actionsRow('Cancel', 'Approve ' + chosen.length)}`, () => { S.appliedGroup = true; $('#inboxCount').textContent = '2'; setStatus(`Applied ${chosen.length} proposals. Activity updated.`); route(); }); }
+function cleanup() { modal('Remove the original email copy?', `${callout('attention', 'The approved Source still matches the original byte for byte. Removal moves the copy to recoverable storage; restore it from Activity.')}<p class="hint">The DOCX attachment is excluded: its conversion is partial.</p>${actionsRow('Keep original', 'Move to recoverable storage')}`, () => setStatus('Original moved to recoverable storage. Restore from Activity.')); }
+function openConsequence(id) { const c = S.consequences.find(x => x.id === id); modal(c.title, `<div class="flex">${badge(c.kind, c.tone)}</div><p class="meta">${esc(c.detail)}</p>${callout('info', 'Evidence: original email lines 7–12 (exact quote) · converter extraction · AI interpretation, each shown separately.')}<div class="flex end"><button class="btn-outline" data-close>Close</button></div>`); }
+function approveReply() { modal(`Approve reply version ${S.version}?`, `<p>This records the exact text as the approved reply. It does not send email and does not complete the Action.</p><div class="card meta">Hi Anna, 1. The exterior colour is not settled…</div>${actionsRow('Cancel', 'Approve version ' + S.version)}`, () => { S.approved = true; setStatus(`Approved reply v${S.version}. The Action stays Open until you confirm it was sent.`); route(); }); }
+function markSent() { modal('Complete “Reply to Anna’s three Serna questions”?', `<p>Confirm that you sent the reply outside BRN. BRN marks this exact Action Completed and records the time. Follow-up work becomes a new related Action.</p>${actionsRow('Not yet', 'Yes, I sent it')}`, () => { S.sent = true; setStatus('Action completed.'); route(); }); }
+function addComment() { const t = prompt('Comment on the selected text (prototype):', 'Shorter, please.'); if (t) { S.comments.push({ quote: 'selected text', text: t }); route(); } }
+function rewrite() { S.rewriting = true; busy(true, 'Rewriting · knowledge unchanged'); route(); clearInterval(timer); timer = setTimeout(() => { S.rewriting = false; S.version++; busy(false); setStatus(`Rewrite produced version ${S.version}. It needs its own approval.`); route(); }, 1600); }
+function explain(kind) { const m = { conflict: ['conflict', 'danger', 'Current knowledge (dark red, 12 Sep) disagrees with newer sources (blue, 6 Oct). Unresolved in Needs Review.'], vault: ['vault', 'success', 'Supported by approved current knowledge: decisions/serna-exterior-colour.md, approved 2026-09-12.'], source: ['source', 'info', 'Supported by source evidence: Anna’s email of 6 Oct, line 9 — “…or did the team move to blue?”'], unknown: ['unknown', 'attention', 'Not established: no note or source states the window-frame product line.'], proposed: ['proposed', 'ai', 'Proposed by BRN: an inference from the 10-day lead time, not a fact in the vault.'] }[kind]; modal('Where this claim comes from', `${badge(m[0], m[1])}<p>${esc(m[2])}</p><div class="flex end"><button class="btn-outline">Open evidence</button><button class="btn-outline" data-close>Close</button></div>`); }
+function inspect(id) { const n = S.needs.find(x => x.id === id); modal(n.title, `<p>${esc(n.body)}</p>${callout('info', 'Retained quotes are shown exactly; a later file change is reported as Changed, never silently re-anchored.')}<div class="flex end"><button class="btn-outline" data-close>Close</button></div>`); }
+function closeNeed(id, state) { S.needs.find(x => x.id === id).state = state; setStatus(`Finding ${state}. Knowledge unchanged.`); route(); }
+function supersede() { modal('Proposed update · Purchasing process', `<p><span class="diff-del">Team lead approves requests under 5 000 EUR</span><br><span class="diff-add">Orders above 2 000 EUR need two approvers</span></p>${callout('info', 'The previous rule moves to history with its source. Evidence: weekly sync 2026-10-06.')}${actionsRow('Cancel', 'Approve update')}`, () => { S.needs.find(x => x.id === 'c2').state = 'resolved'; setStatus('Process updated; the previous rule is kept as history.'); route(); }); }
+function sessionDo(id, state) { S.sessions.find(s => s.id === id).state = state; setStatus(state === 'active' ? 'Chat restored.' : 'Chat archived. Restore any time.'); route(); }
+function deleteSession(id) { const s = S.sessions.find(x => x.id === id); modal(`Delete “${s.title}”?`, `${s.outcomes ? callout('attention', `BRN found <b>${s.outcomes} likely outcome${s.outcomes > 1 ? 's' : ''}</b> not yet captured. <button class="btn-outline">Review outcomes first</button>`) : callout('neutral', 'No uncaptured outcomes found.')}<p class="hint">Knowledge already captured from this chat is not deleted.</p>${actionsRow('Cancel', 'Delete chat', 'btn-danger')}`, () => { S.sessions = S.sessions.filter(x => x.id !== id); setStatus('Chat deleted. Captured knowledge unchanged.'); route(); }); }
+function settings() { modal('Settings', `<div class="label">AI</div><table class="kv"><tr><td>Provider</td><td>ChatGPT · connected</td></tr><tr><td>Model</td><td class="mono">gpt-6.1-sol</td></tr><tr><td>Effort</td><td>medium</td></tr><tr><td>Work budget</td><td>40 k tokens per request · ask before exceeding</td></tr><tr><td>Helpers</td><td class="mono">gpt-6-luna · bounded, no durable writes</td></tr></table>${callout('info', 'BRN keeps this provider and model until you change it. It never switches silently.')}<div class="label">Working preferences</div><div class="card flex spread">Prefer concise supplier emails ${badge('approved', 'success')}</div><div class="card flex spread">Reply in Estonian to Estonian emails ${badge('suggested', 'ai')}</div>`); }
+
+document.addEventListener('click', e => {
+  if (e.target.closest('[data-close]')) $('#dlg').close();
+  const g = e.target.closest('[data-go]');
+  if (g) { chatMode = g.hasAttribute('data-new') ? 'new' : 'draft'; if (location.hash === '#' + g.dataset.go) route(); else go(g.dataset.go); }
+  if (e.target.closest('[data-dialog]')) settings();
+});
+document.addEventListener('keydown', e => { if (e.metaKey && e.key === '.') { e.preventDefault(); if (!$('#stop').hidden) $('#stop').click(); } if (e.metaKey && e.key.toLowerCase() === 'n') { e.preventDefault(); chatMode = 'new'; location.hash === '#chat' ? route() : go('chat'); } });
+$('#focus').onclick = () => $('#main').classList.toggle('focus');
+$('#vaultToggle').onclick = () => $('#main').classList.toggle('novault');
+$('#state').onchange = e => setState(e.target.value);
+$('#scheme').onchange = e => { document.documentElement.dataset.scheme = e.target.value; };
+if (params.get('scheme') === 'light') { document.documentElement.dataset.scheme = 'light'; $('#scheme').value = 'light'; }
+window.addEventListener('hashchange', route);
+setState(S.state);
+</script>
+</body>
+</html>
