@@ -1,0 +1,11 @@
+{
+  "assets": [
+    {
+      "bytes": 19936,
+      "part": "word/media/image1.png",
+      "sha256": "f76dd37920a0fc5889b1d53a0c448f7ec6c619ed8200eef5d31621e36ca4d61d"
+    }
+  ],
+  "facade_checked": false,
+  "parts": 21
+}
