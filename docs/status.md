@@ -56,7 +56,11 @@ PR79 merged that preparation at `450eaa2`. The owner then selected handoff task 
 review, acceptance and integration state are in the [H1 record](work/active/h1-library-titles/evidence.md).
 PR81 merged H1 at `f3cf699`. The owner then selected H2 (derive the `propose_actions`
 schema from its Serde types, with no change to the emitted schema). Its state is in the
-[H2 record](work/active/h2-action-schema/evidence.md). The rest of the roadmap stays paused.
+[H2 record](work/active/h2-action-schema/evidence.md). The owner also selected evaluation
+H4. It recommends **non-adoption**: BRN keeps its own DOCX converter rather than
+docx-rs0.4.22, rdocx0.15.0, office_oxide0.1.13 or betteroffice-docx-parse0.3.0
+([findings](../experiments/docx-reader-eval/FINDINGS.md)). No product code changed; its
+result PR is pending. The rest of the roadmap stays paused.
 
 ### Historical qualification
 
