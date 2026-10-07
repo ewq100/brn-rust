@@ -1,5 +1,16 @@
 # Current development status
 
+## P2 selected implementation — 2026-10-07
+
+The owner selects the merged [P2 specification](work/active/architecture-reassessment/p2-conditional-spec.md)
+and authorizes production implementation and an implementation PR. Earlier pause
+and finalization-only statements below are historical. Baseline PR86 merge
+`47f12c05dadcabd899f015f4d8e2b904f12d8557`; the
+[execution checkpoint](work/active/architecture-reassessment/plan.md#selected-p2-implementation--2026-10-07)
+tracks milestones, replacement/retirement and gates. No merge/release/P3/private
+vault operation is authorized. Implementation is underway; no new native/live
+qualification or owner acceptance is claimed.
+
 ## PR86 accepted specification and integration handoff — 2026-10-07
 
 The owner accepts the revised maintained-adapter [P2 specification and retirement inventory](work/active/architecture-reassessment/p2-conditional-spec.md), with unavailable separate picture titles allowed when exact mapping is unqualified, correct image/source/occurrence associations and honest omission reporting required, and no title-driven custom XML scanner. Retirement, unfinished-work recovery, higher-level API reuse and V1 scope decisions are preserved. Only PR86 finalization/merge after final-head checks and applicable policy is authorized now; P2 implementation remains unselected.

@@ -1,5 +1,55 @@
 # Proposed architecture change plan — 2026-10-07
 
+## Selected P2 implementation — 2026-10-07
+
+The owner now selects the accepted P2 specification and authorizes production code,
+dependencies, lockfile, tests, documentation, bounded paired live validation and an
+implementation PR. This supersedes earlier pause/finalization-only restrictions for
+P2; the dated evidence below remains historical. No merge, release, private data,
+global configuration, new account/billing or P3 work is authorized.
+
+Baseline: PR86 final head `4e6c5a294582ad765e011cf2708fc000fac3b185`, merged
+at `47f12c05dadcabd899f015f4d8e2b904f12d8557`, verified against fetched
+`origin/main`. Clean task branch `codex/p2-email-docx-intake`, worktree
+`/Users/evokessler/repos/brn-p2-email-docx-intake`; all existing work preserved.
+One lead integrates; two bounded Sol High helpers isolate maintained adapter and
+snapshot persistence. Reassess only on a material containment, association or
+recovery blocker; use task-owned targets and preserve unknown usage as unknown.
+
+Execution milestones from the accepted specification:
+
+- [ ] Retain versioned extraction, original/attachment/image/occurrence collections
+  and exact hashes; verify old-record readability and proof-based legacy Restore.
+- [ ] Integrate pinned BetterOffice structured/Markdown/package exports and MIME in
+  a helper restricted before input; validate untrusted bounded output, cancellation
+  and failures. Replace converter reconstruction with retained snapshot validation.
+- [ ] Admit private snapshot investigation through Rig, exact citations and Source
+  prerequisites; prepare/revise knowledge, History transition and related Actions.
+- [ ] Expose evidence, images, gaps, reasons and exact selected changes in shared
+  CLI/native grouped review; demonstrate simple/plural cases and quit/restart.
+- [ ] Run appropriate integrated/storage/native gates, bounded paired Sol/Luna
+  scenarios, independent actual-tree review, fix validated defects, commit and PR.
+
+Checkpoint (implementation in progress): maintained-adapter library/protocol/native
+restriction tests pass 16 tests in `target/intake-helper`; snapshot persistence
+passes 7 tests plus strict scoped Clippy in `target/store-snapshot`. These are
+focused fresh checks, not the final integrated/native/live gates. Workflow compiled
+at its first snapshot-integration checkpoint; private-analysis changes are now in
+progress and the full tree is not yet verified. Historical fixture payloads were
+captured before deleting the old converter; the new compatibility/crash suite uses
+saved bytes and generic preparation/Restore, never legacy conversion. Snapshot
+mirrors now use the existing private Inbox namespace for old/fresh SQL recovery;
+SQLite retains the canonical complete record and normal backups.
+
+Current seam disposition verified against baseline: keep capture no-follow proofs,
+atomic proposal/apply/repair receipts, canonical historical readers and Rig. Adapt
+Source bindings, private analysis and grouped review. Replace synchronous DOCX
+reconstruction and literal EML conversion; remove Word/package interpreter and its
+entry points/defaults/fallbacks after legacy transition witnesses. Snapshot payloads
+are stored together in one canonical hashed SQLite transaction, so backup includes
+manifest and bytes and a receipt cannot outlive an external blob. This avoids a
+second filesystem transaction engine; absence/damage blocks evidence use.
+
 ## PR86 finalization and canonical fresh-agent handoff
 
 **Latest owner decision, 2026-10-07:** the revised [P2 specification and retirement inventory](p2-conditional-spec.md) and maintained DOCX/MIME direction are accepted. Finalize and merge [PR86](https://github.com/ewq100/brn-rust/pull/86) only after final-head required checks and applicable merge policy, then stop. P2 production implementation, new probes/experiments, live-model calls, release, other merges and unrelated cleanup are excluded from this session. The older decisions below are dated history, superseded where this later decision differs; the broader P3–P13 queue remains proposed.
