@@ -797,6 +797,7 @@ dependencies = [
  "rig",
  "rig-core",
  "rig-reqwest",
+ "schemars",
  "serde",
  "serde_json",
  "tempfile",

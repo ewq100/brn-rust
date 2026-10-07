@@ -28,6 +28,8 @@ Required policy:
 
 ## H2 — one compatible Action schema
 
+**State:** implemented and independently reviewed as a candidate; verification, acceptance and integration are recorded separately in the [H2 record](../h2-action-schema/evidence.md).
+
 **Kind/readiness:** implementation, ready with an explicit equivalence gate and non-adoption stop. No unresolved product requirement. Reuse already locked Schemars1.2.2 for structural derivation; adapt only required-nullable/provider representation. Existing manual schema remains the compatibility oracle until evidence supports removal. No H1/H3 dependency.
 
 **Files:** `crates/brn-ai/src/action_candidates.rs`, `proposal_tools.rs`, `provider_formats_tests.rs`, `crates/brn-ai/Cargo.toml`, lockfile and pinned Schemars source. Current Serde data has14 required fields and tagged closed enums; tool schema independently duplicates them. Domain validation and deterministic Workflow authority remain unchanged.

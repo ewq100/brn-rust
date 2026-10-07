@@ -246,7 +246,11 @@ All input objects reject unknown fields, including legacy `id` and `before`.
 
 Ordinary proposals capture their explicit source paths in caller order. For Inbox
 analysis Workflow attaches the selected Source path and note identity automatically;
-`source_paths` carry additional evidence. The wire uses closed `anyOf` variants
+`source_paths` carry additional evidence. The tool schema is derived once with
+Schemars from these Serde types (`ActionProposalArgs`, `ActionCandidate` and its
+parts), then inlined and adapted; a frozen copy of the earlier hand-written schema
+checks equivalence in tests. Its length bounds are hints; `validate` enforces UTF-8
+byte limits. The wire uses closed `anyOf` variants
 and typed discriminant enums from the
 [official supported schema subset](https://developers.openai.com/api/docs/guides/structured-outputs#supported-schemas).
 Synthetic real Rig routes qualify typed dispatch and strict refusal; live provider

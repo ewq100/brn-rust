@@ -1,8 +1,14 @@
 //! Semantic Action candidates; workflow owns UUID parsing and deterministic admission.
+//!
+//! These Serde types are also the single structural source of the
+//! `propose_actions` tool schema. Schema bounds are provider hints; the Rust
+//! `validate` methods below remain the UTF-8 byte-limit authority.
 use crate::{AiError, AiErrorKind, AiResult};
+use schemars::{JsonSchema, Schema, SchemaGenerator};
 use serde::{Deserialize, Deserializer, Serialize};
+use std::{borrow::Cow, marker::PhantomData};
 
-#[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
+#[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize, JsonSchema)]
 #[serde(tag = "kind", rename_all = "snake_case", deny_unknown_fields)]
 pub enum ActionCandidate {
     Create {
@@ -15,30 +21,39 @@ pub enum ActionCandidate {
 }
 
 /// Exact full-record reference returned by read_action; never ID-only authority.
-#[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
+#[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize, JsonSchema)]
 #[serde(deny_unknown_fields)]
 pub struct CheckedActionRef {
+    #[schemars(with = "WireId")]
     pub id: String,
+    #[schemars(range(min = 1, max = i64::MAX))]
     pub version: u64,
+    #[schemars(length(equal = 64), regex(pattern = "^[0-9a-f]{64}$"))]
     pub sha256: String,
 }
 
 /// Existing UUID or a 1-based member in this same ordered proposal.
-#[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
+#[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize, JsonSchema)]
 #[serde(tag = "kind", rename_all = "snake_case", deny_unknown_fields)]
 pub enum ActionRef {
-    Existing { id: String },
-    Member { index: usize },
+    Existing {
+        #[schemars(with = "WireId")]
+        id: String,
+    },
+    Member {
+        #[schemars(range(min = 1, max = 20))]
+        index: usize,
+    },
 }
 
-#[derive(Clone, Copy, Debug, PartialEq, Eq, Serialize, Deserialize)]
+#[derive(Clone, Copy, Debug, PartialEq, Eq, Serialize, Deserialize, JsonSchema)]
 #[serde(rename_all = "snake_case")]
 pub enum ActionCandidateState {
     Open,
     Waiting,
     Blocked,
 }
-#[derive(Clone, Copy, Debug, PartialEq, Eq, Serialize, Deserialize)]
+#[derive(Clone, Copy, Debug, PartialEq, Eq, Serialize, Deserialize, JsonSchema)]
 #[serde(rename_all = "snake_case")]
 pub enum ActionCandidatePriority {
     Low,
@@ -46,32 +61,74 @@ pub enum ActionCandidatePriority {
     High,
 }
 
-#[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
+#[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize, JsonSchema)]
 #[serde(deny_unknown_fields)]
 pub struct ActionCandidateData {
+    #[schemars(length(min = 1, max = 512))]
     pub title: String,
+    #[schemars(length(max = 65536))]
     pub description: String,
     pub state: ActionCandidateState,
     #[serde(deserialize_with = "required_nullable")]
+    #[schemars(with = "RequiredNullable<String>", length(max = 512))]
     pub owner: Option<String>,
     #[serde(deserialize_with = "required_nullable")]
+    #[schemars(with = "RequiredNullable<WireId>")]
     pub related_person: Option<String>,
     #[serde(deserialize_with = "required_nullable")]
+    #[schemars(with = "RequiredNullable<WireId>")]
     pub related_project: Option<String>,
+    #[schemars(with = "Vec<WireId>", length(max = 64))]
     pub sources: Vec<String>,
     #[serde(deserialize_with = "required_nullable")]
+    #[schemars(with = "RequiredNullable<WireId>")]
     pub thread: Option<String>,
     #[serde(deserialize_with = "required_nullable")]
+    #[schemars(with = "RequiredNullable<WireDate>")]
     pub due_on: Option<String>,
     #[serde(deserialize_with = "required_nullable")]
+    #[schemars(with = "RequiredNullable<WireDate>")]
     pub follow_up_on: Option<String>,
+    #[schemars(length(max = 64))]
     pub dependencies: Vec<ActionRef>,
     #[serde(deserialize_with = "required_nullable")]
+    #[schemars(with = "RequiredNullable<ActionRef>")]
     pub parent: Option<ActionRef>,
     #[serde(deserialize_with = "required_nullable")]
+    #[schemars(with = "RequiredNullable<ActionRef>")]
     pub follows_up: Option<ActionRef>,
     #[serde(deserialize_with = "required_nullable")]
+    #[schemars(with = "RequiredNullable<ActionCandidatePriority>")]
     pub priority: Option<ActionCandidatePriority>,
+}
+
+// Schema-only wire forms. Workflow parses UUIDs/dates; `validate` owns bytes.
+#[derive(JsonSchema)]
+#[expect(dead_code, reason = "schema-only")]
+#[schemars(extend("format" = "uuid"))]
+struct WireId(#[schemars(length(min = 1, max = 64))] String);
+#[derive(JsonSchema)]
+#[expect(dead_code, reason = "schema-only")]
+#[schemars(extend("format" = "date"))]
+struct WireDate(#[schemars(length(max = 10))] String);
+
+/// Schema for an `Option` read through `required_nullable`: the field stays
+/// required while explicit null remains valid. `schemars(required)` alone would
+/// drop null, because it uses `T`'s non-optional schema.
+struct RequiredNullable<T>(PhantomData<T>);
+impl<T: JsonSchema> JsonSchema for RequiredNullable<T> {
+    fn inline_schema() -> bool {
+        true
+    }
+    fn schema_name() -> Cow<'static, str> {
+        <Option<T>>::schema_name()
+    }
+    fn schema_id() -> Cow<'static, str> {
+        <Option<T>>::schema_id()
+    }
+    fn json_schema(generator: &mut SchemaGenerator) -> Schema {
+        <Option<T>>::json_schema(generator)
+    }
 }
 
 // A deserialize_with field is required even when its type is Option. Explicit
