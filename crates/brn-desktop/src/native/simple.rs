@@ -2226,6 +2226,7 @@ impl Desktop {
             ),
             _ => "Model: not selected".into(),
         };
+        let composer_empty = self.query.read(cx).value().trim().is_empty();
         let mut examples = ui::toolbar();
         for (index, example) in [
             "Are there any open actions?",
@@ -2240,10 +2241,22 @@ impl Desktop {
                     .label(example)
                     .outline()
                     .small()
-                    .tooltip("Put this question in the composer")
+                    .tooltip(if composer_empty {
+                        "Put this question in the composer"
+                    } else {
+                        "Clear the composer to use an example"
+                    })
+                    .disabled(!composer_empty)
                     .on_click(cx.listener(move |this, _, window, cx| {
+                        if !this.query.read(cx).value().trim().is_empty() {
+                            return;
+                        }
                         this.query
                             .update(cx, |query, cx| query.set_value(example, window, cx));
+                        // set_value emits no Change event; invalidate a pending search as typing does.
+                        if let Some(ai) = this.ai.as_mut() {
+                            ai.composer_changed();
+                        }
                         this.focus_composer = true;
                         cx.notify();
                     })),
@@ -2651,13 +2664,11 @@ fn scope_description(scope: KnowledgeScope) -> &'static str {
 
 /// Display a path with the home directory abbreviated to `~`.
 fn home_relative(path: &std::path::Path) -> String {
-    let display = path.display().to_string();
-    match std::env::var("HOME") {
-        Ok(home) if !home.is_empty() && display.starts_with(&home) => {
-            format!("~{}", &display[home.len()..])
-        }
-        _ => display,
-    }
+    std::env::var_os("HOME")
+        .filter(|home| !home.is_empty())
+        .and_then(|home| path.strip_prefix(home).ok().map(|rest| rest.to_path_buf()))
+        .map(|rest| format!("~/{}", rest.display()))
+        .unwrap_or_else(|| path.display().to_string())
 }
 
 /// Human title for a vault-relative path: the file stem, or a placeholder.
