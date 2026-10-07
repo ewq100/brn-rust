@@ -282,23 +282,21 @@ impl Desktop {
                             .child(name),
                     )
             };
-            content = content
-                .child(
-                    div()
-                        .id("dashboard-counts")
-                        .test_support()
-                        .aria_label(label.clone())
-                        .flex()
-                        .flex_wrap()
-                        .gap(px(tokens::space::SM))
-                        .child(tile("Overdue", counts.overdue, Tone::Danger))
-                        .child(tile("Follow-up", counts.follow_up, Tone::Attention))
-                        .child(tile("Open", counts.open, Tone::Neutral))
-                        .child(tile("Waiting", counts.waiting, Tone::Neutral))
-                        .child(tile("Blocked", counts.blocked, Tone::Neutral))
-                        .child(tile("Completed", counts.completed, Tone::Neutral)),
-                )
-                .child(ui::hint("Counts cover all retained Actions. Overdue starts the day after the due date; follow-up starts on its named day. Date signals may overlap. Dependencies are observations, not automatic state changes.", p));
+            content = content.child(
+                div()
+                    .id("dashboard-counts")
+                    .test_support()
+                    .aria_label(label.clone())
+                    .flex()
+                    .flex_wrap()
+                    .gap(px(tokens::space::SM))
+                    .child(tile("Overdue", counts.overdue, Tone::Danger))
+                    .child(tile("Follow-up", counts.follow_up, Tone::Attention))
+                    .child(tile("Open", counts.open, Tone::Neutral))
+                    .child(tile("Waiting", counts.waiting, Tone::Neutral))
+                    .child(tile("Blocked", counts.blocked, Tone::Neutral))
+                    .child(tile("Completed", counts.completed, Tone::Neutral)),
+            );
             if page.entries.is_empty() {
                 content = content.child(ui::empty_state(
                     "No Actions in this page.",

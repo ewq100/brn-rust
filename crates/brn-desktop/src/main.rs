@@ -201,7 +201,12 @@ fn run() -> Result<(), String> {
         validate_data_dir(&options.data_dir, true)?;
         let path = std::fs::canonicalize(&options.data_dir)
             .map_err(|e| format!("cannot canonicalize data directory: {e}"))?;
-        let preferences = layout::load(&path);
+        let mut preferences = layout::load(&path);
+        // First run: start minimal with the vault rail closed (owner direction 2026-10-07).
+        // A saved layout keeps the owner's own choice.
+        if matches!(preferences.1, layout::Loaded::Missing) {
+            preferences.0.vault_collapsed = true;
+        }
         native::run(
             path,
             brn_workflow::app::AppConfig {

@@ -19,12 +19,7 @@ impl Desktop {
         } else {
             Tone::Neutral
         };
-        let vault = ai
-            .vault_root
-            .as_ref()
-            .and_then(|root| root.file_name())
-            .map(|name| name.to_string_lossy().into_owned())
-            .unwrap_or_else(|| "No vault".into());
+        let running = running || self.closing.is_some();
         let mut bar = div()
             .flex()
             .items_center()
@@ -33,25 +28,31 @@ impl Desktop {
             .min_w(px(0.))
             .pr_2()
             .child(
+                Button::new("toggle-history")
+                    .icon(gpui_kit::assets::IconName::PanelLeft)
+                    .ghost()
+                    .small()
+                    .tooltip("Show or hide the sidebar (⌘0)")
+                    .selected(resolved.history == RailDisplay::Open)
+                    .on_click(cx.listener(|this, _, _, cx| this.toggle_rail(Rail::History, cx))),
+            )
+            .child(
                 div()
                     .flex_shrink_0()
                     .font_family(tokens::MONO_FONT)
                     .font_weight(gpui_kit::FontWeight::BOLD)
                     .text_color(color(p.cyan))
                     .child("brn"),
-            )
-            .child(
-                div()
-                    .flex_shrink_0()
-                    .text_color(color(p.muted))
-                    .child(vault),
-            )
-            .child(div().min_w(px(0.)).overflow_hidden().child(ui::badge(
+            );
+        // Ready is the normal state; only other phases earn a badge.
+        if tone != Tone::Success {
+            bar = bar.child(div().min_w(px(0.)).overflow_hidden().child(ui::badge(
                 self.phase_status(),
                 tone,
                 p,
-            )))
-            .child(div().flex_1());
+            )));
+        }
+        bar = bar.child(div().flex_1());
         if running {
             bar = bar.child(
                 Button::new("cancel")
@@ -65,20 +66,20 @@ impl Desktop {
         bar = bar
             .child(
                 Button::new("toggle-focus")
-                    .label("Focus")
+                    .icon(gpui_kit::assets::IconName::Maximize)
                     .ghost()
                     .small()
-                    .tooltip("Hide both rails (⇧⌘↩)")
+                    .tooltip("Focus: hide both sidebars (⇧⌘↩)")
                     .selected(self.layout.focus)
                     .toggled(self.layout.focus)
                     .on_click(cx.listener(|this, _, _, cx| this.toggle_focus(cx))),
             )
             .child(
                 Button::new("toggle-vault")
-                    .label("Vault")
+                    .icon(gpui_kit::assets::IconName::PanelRight)
                     .ghost()
                     .small()
-                    .tooltip("Show or hide the vault rail (⌥⌘0)")
+                    .tooltip("Vault: browse notes, sources and history (⌥⌘0)")
                     .selected(resolved.vault == RailDisplay::Open)
                     .toggled(resolved.vault == RailDisplay::Open)
                     .on_click(cx.listener(|this, _, _, cx| this.toggle_rail(Rail::Vault, cx))),
@@ -95,8 +96,21 @@ impl Desktop {
         }
         TitleBar::new().child(bar)
     }
-    pub(super) fn render_status_line(&self, cx: &mut Context<Self>) -> impl IntoElement {
+    pub(super) fn render_status_line(&self, cx: &mut Context<Self>) -> AnyElement {
         let p = self.palette();
+        let ai = self.ai.as_ref();
+        let notices = self.layout_note.is_some()
+            || ai.is_some_and(|ai| ai.startup_failed || ai.restored.is_some())
+            || self.close_failed;
+        // Routine readiness needs no strip; keep the chrome quiet.
+        if !notices
+            && matches!(
+                self.message.as_str(),
+                "" | "Workspace ready." | "Opening workspace…"
+            )
+        {
+            return div().id("status-line").into_any_element();
+        }
         let mut line = div()
             .id("status-line")
             .flex()
@@ -139,6 +153,6 @@ impl Desktop {
                 );
             }
         }
-        line
+        line.into_any_element()
     }
 }

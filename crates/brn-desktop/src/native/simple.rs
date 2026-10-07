@@ -1208,8 +1208,6 @@ impl Desktop {
                 )
             })
             .collect();
-        let review_signal =
-            (!awaiting.is_empty()).then(|| (awaiting.len().to_string(), Tone::Attention));
 
         let mut list = div()
             .id("history-rail-list")
@@ -1234,7 +1232,7 @@ impl Desktop {
                 .disabled(!ai.ready)
                 .on_click(cx.listener(|this, _, _, cx| this.simple_history(None, cx))),
             )
-            .child(ui::section_label("Workspace", p))
+            .child(div().h(px(tokens::space::SM)))
             .child(
                 ui::nav_row(
                     "open-dashboard",
@@ -1288,43 +1286,12 @@ impl Desktop {
                 .on_click(
                     cx.listener(|this, _, _, cx| this.simple_leave(EditorTransition::Activity, cx)),
                 ),
-            )
-            .child(ui::section_label("Chats", p));
-        if ai.conversations.is_empty() {
-            list = list.child(ui::hint("No saved chats yet.", p).px_2());
-        }
-        for conversation in &ai.conversations {
-            let id = conversation.id;
-            list = list.child(
-                ui::list_row(
-                    format!("conversation-{id}"),
-                    compact_title(&conversation.title),
-                    Some(format!(
-                        "{} · {} turn{}",
-                        session_activity_label(conversation, now_ms),
-                        conversation.turns,
-                        if conversation.turns == 1 { "" } else { "s" }
-                    )),
-                    None,
-                    p,
-                )
-                .selected(ai.conversation == Some(id))
-                .on_click(cx.listener(move |this, _, _, cx| this.simple_history(Some(id), cx))),
             );
-        }
         list = list.child(
             div()
                 .flex()
                 .items_center()
                 .child(ui::section_label("Review", p).flex_1())
-                .when_some(review_signal, |row, (count, tone)| {
-                    row.child(
-                        div()
-                            .pt(px(tokens::space::MD))
-                            .pb(px(tokens::space::XS))
-                            .child(ui::badge(format!("{count} waiting"), tone, p)),
-                    )
-                })
                 .child(
                     div().pt(px(tokens::space::SM)).child(
                         Button::new("refresh-proposal-list")
@@ -1343,17 +1310,18 @@ impl Desktop {
                     ),
                 ),
         );
-        if awaiting.is_empty() {
-            list = list.child(ui::hint("Nothing waiting for approval.", p).px_2());
-        }
         let proposal_row = |record: &brn_workflow::proposals::ProposalRecord| {
             let id = record.draft.id;
             let (label, tone) = proposal_state_badge(record.state);
+            // Drafts are the normal waiting state; only unusual states earn a badge.
+            let badge = (record.state != brn_workflow::proposals::ProposalState::Draft
+                && record.state != brn_workflow::proposals::ProposalState::Applied)
+                .then(|| ui::badge(label, tone, p).into_any_element());
             ui::list_row(
                 format!("proposal-{id}"),
                 compact_title(&record.draft.title),
                 None,
-                Some(ui::badge(label, tone, p).into_any_element()),
+                badge,
                 p,
             )
             .selected(self.open_doc == Some(DocRef::Proposal(id)))
@@ -1428,6 +1396,27 @@ impl Desktop {
                     list = list.child(proposal_row(record));
                 }
             }
+        }
+        list = list.child(ui::section_label("Chats", p));
+        for conversation in &ai.conversations {
+            let id = conversation.id;
+            list = list.child(
+                ui::list_row(
+                    format!("conversation-{id}"),
+                    compact_title(&conversation.title),
+                    None,
+                    None,
+                    p,
+                )
+                .tooltip(format!(
+                    "{} · {} turn{}",
+                    session_activity_label(conversation, now_ms),
+                    conversation.turns,
+                    if conversation.turns == 1 { "" } else { "s" }
+                ))
+                .selected(ai.conversation == Some(id))
+                .on_click(cx.listener(move |this, _, _, cx| this.simple_history(Some(id), cx))),
+            );
         }
         div()
             .w(px(self.layout.history_w))
@@ -1709,18 +1698,46 @@ impl Desktop {
             .px(px(tokens::space::LG))
             .py(px(tokens::space::MD));
         if let Some(editor) = &ai.editor {
+            // Recovery tools appear when they are needed, or when the owner asks for them.
+            let auto_tools = editor.error.is_some()
+                || editor.reload_request().is_some()
+                || self.simple_transition.is_some()
+                || !editor.view.pending.is_empty();
+            let tools = auto_tools || self.show_tools;
             body = body.child(ui::meta(editor.status(), p));
             if let Some(error) = &editor.error {
                 body = body.child(ui::callout(Tone::Danger, error.clone(), p));
             }
             body = body
-                .child(div().key_context("MarkdownNote").flex_1().min_h(px(if inspection_open { 160. } else { 0. })).child(
-                    Editor::new(&self.note_editor).h_full()
-                        .disabled(leaving || editor.replacing()).aria_label("Markdown note editor")))
-                .child(ui::toolbar()
-                    .child(Button::new("simple-save").label("Save to Markdown").primary().small().tooltip("Write this exact text to the Markdown file (⌘S)")
-                        .disabled(leaving || !editor.can_save())
-                        .on_click(cx.listener(|this, _, _, cx| this.simple_save(None, cx))))
+                .child(
+                    div()
+                        .key_context("MarkdownNote")
+                        .flex_1()
+                        .min_h(px(if inspection_open { 160. } else { 0. }))
+                        .child(
+                            Editor::new(&self.note_editor)
+                                .h_full()
+                                .disabled(leaving || editor.replacing())
+                                .aria_label("Markdown note editor"),
+                        ),
+                )
+                .child(
+                    ui::toolbar()
+                        .child(
+                            Button::new("simple-save")
+                                .label("Save to Markdown")
+                                .primary()
+                                .small()
+                                .tooltip("Write this exact text to the Markdown file (⌘S)")
+                                .disabled(leaving || !editor.can_save())
+                                .on_click(cx.listener(|this, _, _, cx| this.simple_save(None, cx))),
+                        )
+                        .when(!auto_tools, |row| {
+                            row.child(tools_toggle(self.show_tools, cx))
+                        }),
+                );
+            if tools {
+                body = body.child(ui::toolbar()
                     .child(Button::new("simple-flush-recovery").label("Flush / retry recovery").ghost().small()
                         .disabled(editor.pending())
                         .on_click(cx.listener(|this, _, _, cx| {
@@ -1756,6 +1773,7 @@ impl Desktop {
                                 cx.notify();
                             } else { this.simple_save(Some(destination), cx); }
                         }))));
+            }
             for operation in &editor.view.pending {
                 let operation = *operation;
                 body = body.child(
@@ -1998,30 +2016,25 @@ impl Desktop {
         let p = self.palette();
         let ai = self.ai.as_ref().unwrap();
         let blocked = self.closing.is_some() || self.closed || self.close_failed;
-        let mut body = div()
-            .id("chat-transcript")
-            .track_scroll(&self.chat_scroll)
-            .vertical_scrollbar(&self.chat_scroll)
+        let empty = ai.turns.is_empty()
+            && ai.active.is_none()
+            && ai.unsaved.is_none()
+            && ai.search.is_none();
+        let mut column = div()
             .flex()
             .flex_col()
-            .flex_1()
-            .min_h(px(0.))
-            .overflow_y_scroll()
-            .gap(px(tokens::space::XL))
-            .px(px(tokens::space::XL))
-            .py(px(tokens::space::LG));
-        if ai.turns.is_empty() && ai.active.is_none() && ai.unsaved.is_none() && ai.search.is_none()
-        {
-            body = body.child(self.render_chat_welcome(cx));
-        }
-        let ai = self.ai.as_ref().unwrap();
+            .w_full()
+            .max_w(px(tokens::size::READING_MAX_WIDTH))
+            .mx_auto()
+            .gap(px(tokens::space::XL));
         for turn in ai.display_turns() {
-            let tone = match turn.status {
-                brn_workflow::WorkTurnStatus::Completed => Tone::Success,
-                brn_workflow::WorkTurnStatus::Running => Tone::Ai,
-                brn_workflow::WorkTurnStatus::Interrupted => Tone::Attention,
-                brn_workflow::WorkTurnStatus::Failed => Tone::Danger,
-            };
+            let status = match turn.status {
+                brn_workflow::WorkTurnStatus::Completed => None,
+                brn_workflow::WorkTurnStatus::Running => Some(Tone::Ai),
+                brn_workflow::WorkTurnStatus::Interrupted => Some(Tone::Attention),
+                brn_workflow::WorkTurnStatus::Failed => Some(Tone::Danger),
+            }
+            .map(|tone| ui::badge(turn_label(turn), tone, p));
             let question = ai
                 .inbox_analysis_path_for_turn(turn.id)
                 .map(|path| format!("Analyze saved Inbox Source: {path}"))
@@ -2030,14 +2043,14 @@ impl Desktop {
                 question,
                 turn.answer.clone(),
                 format!(
-                    "{} · {} · effort {}",
+                    "{} · {} · {}",
                     turn.provider,
                     turn.model,
                     turn.effort
                         .as_deref()
-                        .unwrap_or("unavailable in older history"),
+                        .unwrap_or("effort unavailable in older history"),
                 ),
-                ui::badge(turn_label(turn), tone, p),
+                status,
                 p,
             );
             if let Some(code) = &turn.error_code {
@@ -2055,7 +2068,7 @@ impl Desktop {
                             .icon(IconName::Plus)
                             .label("Review as new note…")
                             .ghost()
-                            .small()
+                            .xsmall()
                             .tooltip("Prepare a note proposal from this answer. Nothing is saved until you approve it.")
                             .disabled(
                                 !ai.ready || !ai.vault_bound || ai.application_busy() || blocked,
@@ -2066,21 +2079,25 @@ impl Desktop {
                     ),
                 );
             }
-            body = body.child(block);
+            column = column.child(block);
         }
         if let Some(turn) = &ai.unsaved {
             let partial = turn.answer.clone();
-            body = body.child(
+            column = column.child(
                 chat_exchange(
                     turn.question.clone(),
                     turn.answer.clone(),
                     format!(
-                        "{} · {} · effort {}",
+                        "{} · {} · {}",
                         turn.provider,
                         turn.model,
-                        turn.effort.as_deref().unwrap_or("unavailable")
+                        turn.effort.as_deref().unwrap_or("effort unavailable")
                     ),
-                    ui::badge("Failed · in-memory partial · finalization not acknowledged", Tone::Danger, p),
+                    Some(ui::badge(
+                        "Failed · in-memory partial · finalization not acknowledged",
+                        Tone::Danger,
+                        p,
+                    )),
                     p,
                 )
                 .child(ui::callout(
@@ -2103,16 +2120,16 @@ impl Desktop {
                 active.request.question_label(),
                 active.partial.clone(),
                 format!(
-                    "{} · {} · effort {}",
+                    "{} · {} · {}",
                     provider_name(active.request.selection().provider),
                     active.request.selection().model,
                     active
                         .request
                         .effort()
                         .map(ReasoningEffort::as_str)
-                        .unwrap_or("unavailable"),
+                        .unwrap_or("effort unavailable"),
                 ),
-                ui::badge(
+                Some(ui::badge(
                     if active.stopping {
                         "Stopping (not finalized)"
                     } else {
@@ -2120,13 +2137,13 @@ impl Desktop {
                     },
                     Tone::Ai,
                     p,
-                ),
+                )),
                 p,
             );
             if let Some(tool) = &active.tool {
                 block = block.child(ui::meta(format!("Tool started: {tool}"), p));
             }
-            body = body.child(block);
+            column = column.child(block);
         }
         if let Some(results) = &ai.search {
             let scope = ai.search_scope.unwrap_or(KnowledgeScope::Current);
@@ -2137,13 +2154,12 @@ impl Desktop {
                             .font_weight(gpui_kit::FontWeight::SEMIBOLD)
                             .child(format!("Search results · {} scope", scope_name(scope))),
                     )
-                    .child(ui::badge(
+                    .child(ui::meta(
                         if results.keyword_only {
-                            "Search: keyword-only (no installed model)"
+                            "keyword-only (no installed model)"
                         } else {
-                            "Search: hybrid"
+                            "hybrid"
                         },
-                        Tone::Neutral,
                         p,
                     )),
             );
@@ -2174,216 +2190,280 @@ impl Desktop {
                         .child(ui::callout(Tone::Info, hit.quote.clone(), p)),
                 );
             }
-            body = body.child(section);
+            column = column.child(section);
         }
-        div()
-            .size_full()
-            .flex()
-            .flex_col()
-            .bg(color(p.paper))
-            .child(body)
-            .child(self.render_composer(cx))
-            .into_any_element()
+        let composer = self.render_composer(cx);
+        let mut pane = div().size_full().flex().flex_col().bg(color(p.paper));
+        if empty {
+            // Empty chat: greeting and composer centred together, like a fresh desktop chat.
+            let welcome = self.render_chat_welcome(cx);
+            pane = pane.child(
+                div()
+                    .id("chat-transcript")
+                    .flex_1()
+                    .min_h(px(0.))
+                    .flex()
+                    .flex_col()
+                    .justify_center()
+                    .px(px(tokens::space::XL))
+                    .child(
+                        div()
+                            .flex()
+                            .flex_col()
+                            .w_full()
+                            .max_w(px(tokens::size::READING_MAX_WIDTH))
+                            .mx_auto()
+                            .gap(px(tokens::space::LG))
+                            .child(welcome)
+                            .child(composer),
+                    ),
+            );
+        } else {
+            pane = pane
+                .child(
+                    div()
+                        .id("chat-transcript")
+                        .track_scroll(&self.chat_scroll)
+                        .vertical_scrollbar(&self.chat_scroll)
+                        .flex_1()
+                        .min_h(px(0.))
+                        .overflow_y_scroll()
+                        .px(px(tokens::space::XL))
+                        .py(px(tokens::space::LG))
+                        .child(column),
+                )
+                .child(
+                    div()
+                        .flex_shrink_0()
+                        .px(px(tokens::space::XL))
+                        .pb(px(tokens::space::MD))
+                        .child(
+                            div()
+                                .w_full()
+                                .max_w(px(tokens::size::READING_MAX_WIDTH))
+                                .mx_auto()
+                                .child(composer),
+                        ),
+                );
+        }
+        pane.into_any_element()
     }
 
     fn render_chat_welcome(&mut self, cx: &mut Context<Self>) -> AnyElement {
-        use super::ui::{self, Tone};
-        use gpui_kit::assets::IconName;
+        use super::ui;
         let p = self.palette();
         let ai = self.ai.as_ref().unwrap();
-        let check = |done: bool, label: String, todo: &'static str, ready: &'static str| {
-            let detail = if done { ready } else { todo };
-            div()
-                .flex()
-                .items_start()
-                .gap_2()
-                .child(ui::badge(
-                    if done { "ready" } else { "to do" },
-                    if done { Tone::Success } else { Tone::Attention },
-                    p,
-                ))
-                .child(
-                    div()
-                        .flex()
-                        .flex_col()
-                        .flex_1()
-                        .min_w(px(0.))
-                        .child(div().min_w(px(0.)).child(label))
-                        .child(ui::hint(detail, p)),
-                )
-        };
-        let model = match (&ai.selection, ai.effort) {
-            (Some(selection), Some(effort)) => format!(
-                "Model: {} / {} · effort {}",
-                provider_name(selection.provider),
-                selection.model,
-                effort.as_str()
-            ),
-            (Some(selection), None) => format!(
-                "Model: {} / {} · choose an effort",
-                provider_name(selection.provider),
-                selection.model
-            ),
-            _ => "Model: not selected".into(),
-        };
-        let composer_empty = self.query.read(cx).value().trim().is_empty();
-        let mut examples = ui::toolbar();
-        for (index, example) in [
-            "Are there any open actions?",
-            "What am I waiting for from other people?",
-            "What changed in my notes this week?",
-        ]
-        .into_iter()
-        .enumerate()
-        {
-            examples = examples.child(
-                Button::new(("chat-example", index))
-                    .label(example)
-                    .outline()
-                    .small()
-                    .tooltip(if composer_empty {
-                        "Put this question in the composer"
-                    } else {
-                        "Clear the composer to use an example"
-                    })
-                    .disabled(!composer_empty)
-                    .on_click(cx.listener(move |this, _, window, cx| {
-                        if !this.query.read(cx).value().trim().is_empty() {
-                            return;
-                        }
-                        this.query
-                            .update(cx, |query, cx| query.set_value(example, window, cx));
-                        // set_value emits no Change event; invalidate a pending search as typing does.
-                        if let Some(ai) = this.ai.as_mut() {
-                            ai.composer_changed();
-                        }
-                        this.focus_composer = true;
-                        cx.notify();
-                    })),
-            );
-        }
-        div()
+        let mut welcome = div()
             .flex()
             .flex_col()
-            .gap(px(tokens::space::LG))
-            .max_w(px(tokens::size::READING_MAX_WIDTH))
-            .pt(px(tokens::space::XL))
+            .items_center()
+            .gap(px(tokens::space::SM))
             .child(
                 div()
                     .text_size(px(tokens::text::DISPLAY))
                     .font_weight(gpui_kit::FontWeight::SEMIBOLD)
                     .child("What are you working on?"),
-            )
-            .child(
-                div()
-                    .text_size(px(tokens::text::READING))
-                    .line_height(px(22.))
-                    .text_color(color(p.muted))
-                    .child("Ask about your notes, sources and Actions. BRN answers from approved current knowledge by default, labels what it cannot establish, and never changes knowledge or Actions without your approval."),
-            )
-            .child(
-                div()
-                    .flex()
-                    .flex_col()
-                    .gap_2()
-                    .child(check(
-                        ai.vault_bound,
-                        ai.vault_root
-                            .as_ref()
-                            .map(|root| {
-                                format!(
-                                    "Vault: {}",
-                                    root.file_name()
-                                        .map(|name| name.to_string_lossy().into_owned())
-                                        .unwrap_or_else(|| home_relative(root))
-                                )
-                            })
-                            .unwrap_or_else(|| "Vault: not selected".into()),
-                        "Choose a vault in the Vault rail.",
-                        "Notes stay ordinary Markdown files you own.",
-                    ))
-                    .child(check(
-                        ai.selection.is_some() && ai.effort.is_some(),
-                        model,
-                        "Choose the provider, model and reasoning effort in Settings.",
-                        "BRN keeps this choice until you change it; it never switches silently.",
-                    ))
-                    .when(ai.selection.is_none() || ai.effort.is_none(), |list| {
-                        list.child(
-                            ui::toolbar().child(
-                                Button::new("welcome-settings")
-                                    .icon(IconName::Settings)
-                                    .label("Open Settings")
-                                    .outline()
-                                    .small()
-                                    .on_click(cx.listener(|this, _, window, cx| this.open_settings(window, cx))),
-                            ),
-                        )
-                    }),
-            )
-            .child(ui::section_label("Try asking", p).px_0())
-            .child(examples)
-            .into_any_element()
+            );
+        if !ai.vault_bound {
+            welcome = welcome
+                .child(ui::hint(
+                    "Choose the Markdown folder BRN should read. It stays ordinary files you own.",
+                    p,
+                ))
+                .child(
+                    Button::new("welcome-choose-vault")
+                        .label("Choose vault…")
+                        .primary()
+                        .small()
+                        .disabled(!ai.ready || self.choosing_file)
+                        .on_click(cx.listener(|this, _, _, cx| this.simple_choose_vault(cx))),
+                );
+        } else if ai.selection.is_none() || ai.effort.is_none() {
+            welcome = welcome.child(ui::hint(
+                "Pick a model and thinking effort below to start. BRN never switches them silently.",
+                p,
+            ));
+        }
+        welcome.into_any_element()
     }
 
     fn render_composer(&mut self, cx: &mut Context<Self>) -> AnyElement {
-        use super::ui::{self, Tone};
+        use super::ui;
         use gpui_kit::assets::IconName;
+        use gpui_kit::component::menu::{DropdownMenu, PopupMenuItem};
         let p = self.palette();
         let ai = self.ai.as_ref().unwrap();
-        let model = match &ai.selection {
-            Some(selection) => ui::meta(
-                format!(
-                    "{} / {} · effort {}",
-                    provider_name(selection.provider),
-                    selection.model,
-                    ai.effort.map(ReasoningEffort::as_str).unwrap_or("not set")
-                ),
-                p,
-            )
-            .into_any_element(),
-            None => ui::badge("No explicit provider/model selected", Tone::Attention, p)
-                .into_any_element(),
+        let desktop = cx.entity().downgrade();
+        let selection_busy = !ai.ready
+            || self.closed
+            || self.closing.is_some()
+            || self.close_failed
+            || ai.pending.values().any(|pending| {
+                matches!(
+                    pending,
+                    Pending::Select | Pending::Effort | Pending::SelectEffort
+                )
+            });
+
+        // Model picker: the models already discovered for each connected provider.
+        let mut models: Vec<(Selection, bool)> = Vec::new();
+        for provider in [Provider::Chatgpt, Provider::Copilot] {
+            for model in &ai.accounts[crate::ai::slot(provider)].models {
+                models.push((
+                    Selection {
+                        provider,
+                        model: model.id.clone(),
+                    },
+                    model.live_qualified,
+                ));
+            }
+        }
+        let current = ai.selection.clone();
+        let model_label = current
+            .as_ref()
+            .map(|selection| selection.model.clone())
+            .unwrap_or_else(|| "Choose model".into());
+        let model_picker = {
+            let desktop = desktop.clone();
+            Button::new("composer-model")
+                .label(model_label)
+                .ghost()
+                .xsmall()
+                .dropdown_caret(true)
+                .tooltip("Model for new questions. Each answer keeps the model it used.")
+                .disabled(selection_busy)
+                .dropdown_menu(move |mut menu, _, _| {
+                    if models.is_empty() {
+                        menu = menu.label("No models loaded yet");
+                    }
+                    for (selection, qualified) in &models {
+                        let target = desktop.clone();
+                        let chosen = selection.clone();
+                        menu = menu.item(
+                            PopupMenuItem::new(format!(
+                                "{} · {}{}",
+                                provider_name(selection.provider),
+                                selection.model,
+                                if *qualified {
+                                    ""
+                                } else {
+                                    " (not live-qualified)"
+                                }
+                            ))
+                            .checked(current.as_ref() == Some(selection))
+                            .on_click(move |_, _, cx| {
+                                let _ = target.update(cx, |this, cx| {
+                                    this.simple_command(
+                                        Pending::Select,
+                                        AppCommand::Select(chosen.clone()),
+                                        cx,
+                                    )
+                                });
+                            }),
+                        );
+                    }
+                    let target = desktop.clone();
+                    menu.separator().item(
+                        PopupMenuItem::new("Connect accounts and load models…").on_click(
+                            move |_, window, cx| {
+                                let _ =
+                                    target.update(cx, |this, cx| this.open_settings(window, cx));
+                            },
+                        ),
+                    )
+                })
         };
-        let mut actions = ui::toolbar().child(model).child(div().flex_1()).child(
-            Button::new("search")
-                .icon(IconName::Search)
-                .label(format!("Search {}", scope_name(ai.knowledge_scope)))
-                .outline()
-                .small()
-                .tooltip("Search saved notes in the selected vault scope. No AI is used.")
-                .disabled(!ai.ready || !ai.vault_bound)
-                .on_click(cx.listener(|this, _, _, cx| this.simple_search(cx))),
-        );
+        let effort = ai.effort;
+        let effort_picker = {
+            let desktop = desktop.clone();
+            Button::new("composer-effort")
+                .label(match effort {
+                    Some(ReasoningEffort::Low) => "Low thinking",
+                    Some(ReasoningEffort::Medium) => "Medium thinking",
+                    Some(ReasoningEffort::High) => "High thinking",
+                    None => "Choose thinking",
+                })
+                .ghost()
+                .xsmall()
+                .dropdown_caret(true)
+                .tooltip("Reasoning effort for new questions and Rewrite")
+                .disabled(selection_busy)
+                .dropdown_menu(move |mut menu, _, _| {
+                    for (label, value) in [
+                        ("Low", ReasoningEffort::Low),
+                        ("Medium", ReasoningEffort::Medium),
+                        ("High", ReasoningEffort::High),
+                    ] {
+                        let target = desktop.clone();
+                        menu = menu.item(
+                            PopupMenuItem::new(label)
+                                .checked(effort == Some(value))
+                                .on_click(move |_, _, cx| {
+                                    let _ = target.update(cx, |this, cx| {
+                                        this.simple_command(
+                                            Pending::SelectEffort,
+                                            AppCommand::SelectEffort(value),
+                                            cx,
+                                        )
+                                    });
+                                }),
+                        );
+                    }
+                    menu
+                })
+        };
+        let mut actions = ui::toolbar()
+            .gap(px(tokens::space::XS))
+            .child(model_picker)
+            .child(effort_picker)
+            .child(div().flex_1())
+            .child(
+                Button::new("search")
+                    .icon(IconName::Search)
+                    .ghost()
+                    .xsmall()
+                    .tooltip(format!(
+                        "Search {} notes for this text. No AI is used.",
+                        scope_name(ai.knowledge_scope)
+                    ))
+                    .disabled(!ai.ready || !ai.vault_bound)
+                    .on_click(cx.listener(|this, _, _, cx| this.simple_search(cx))),
+            );
         if ai.active.is_some() {
             actions = actions.child(
                 Button::new("stop")
                     .label("Stop")
                     .danger()
-                    .small()
+                    .xsmall()
+                    .tooltip("Stop (⌘.)")
                     .on_click(cx.listener(|this, _, _, cx| this.simple_stop(cx))),
             );
+        } else {
+            actions = actions.child(
+                Button::new("ask")
+                    .icon(IconName::ArrowUp)
+                    .primary()
+                    .xsmall()
+                    .tooltip("Ask BRN. Answers use approved Current knowledge by default.")
+                    .disabled(!ai.can_ask() || self.closing.is_some() || self.close_failed)
+                    .on_click(cx.listener(|this, _, _, cx| this.simple_ask(cx))),
+            );
         }
-        actions = actions.child(
-            ui::primary("ask", "Ask")
-                .icon(IconName::ArrowUp)
-                .tooltip("Ask BRN. Answers use approved Current knowledge by default.")
-                .disabled(!ai.can_ask() || self.closing.is_some() || self.close_failed)
-                .on_click(cx.listener(|this, _, _, cx| this.simple_ask(cx))),
-        );
         div()
             .flex()
             .flex_col()
             .flex_shrink_0()
-            .gap_2()
-            .px(px(tokens::space::MD))
-            .py(px(tokens::space::SM))
-            .border_t_1()
+            .gap_1()
+            .p(px(tokens::space::SM))
+            .border_1()
             .border_color(color(p.line))
             .bg(color(p.panel))
             .child(
                 Editor::new(&self.query)
-                    .h(px(76.))
+                    .h(px(64.))
+                    .bordered(false)
+                    .font_family(tokens::UI_FONT)
+                    .text_size(px(tokens::text::READING))
                     .aria_label("Question about saved notes"),
             )
             .child(actions)
@@ -2396,7 +2476,7 @@ fn chat_exchange(
     question: String,
     answer: String,
     provenance: String,
-    status: gpui_kit::Div,
+    status: Option<gpui_kit::Div>,
     p: crate::tokens::Palette,
 ) -> gpui_kit::Div {
     use super::ui;
@@ -2404,46 +2484,29 @@ fn chat_exchange(
         .flex()
         .flex_col()
         .gap(px(tokens::space::SM))
-        .max_w(px(tokens::size::READING_MAX_WIDTH))
         .child(
-            div()
-                .flex()
-                .flex_col()
-                .gap_1()
-                .px(px(tokens::space::MD))
-                .py(px(tokens::space::SM))
-                .bg(color(p.active))
-                .child(
-                    div()
-                        .text_size(px(tokens::text::CAPTION))
-                        .font_weight(gpui_kit::FontWeight::SEMIBOLD)
-                        .text_color(color(p.muted))
-                        .child("YOU"),
-                )
-                .child(
-                    div()
-                        .text_size(px(tokens::text::READING))
-                        .line_height(px(21.))
-                        .child(question),
-                ),
-        )
-        .child(
-            ui::toolbar()
-                .child(
-                    div()
-                        .text_size(px(tokens::text::CAPTION))
-                        .font_weight(gpui_kit::FontWeight::SEMIBOLD)
-                        .text_color(color(p.purple))
-                        .child("BRN"),
-                )
-                .child(ui::meta(provenance, p))
-                .child(status),
+            div().flex().justify_end().child(
+                div()
+                    .max_w(px(tokens::size::READING_MAX_WIDTH * 0.8))
+                    .px(px(tokens::space::MD))
+                    .py(px(tokens::space::SM))
+                    .bg(color(p.active))
+                    .text_size(px(tokens::text::READING))
+                    .line_height(px(21.))
+                    .child(question),
+            ),
         )
         .child(
             div()
                 .text_size(px(tokens::text::READING))
                 .line_height(px(22.))
                 .child(answer),
+        )
+        .child(
+            ui::toolbar()
+                .gap(px(tokens::space::XS))
+                .child(ui::meta(provenance, p))
+                .children(status),
         )
 }
 
@@ -2676,6 +2739,22 @@ fn note_title(path: Option<&str>) -> String {
     path.and_then(|path| std::path::Path::new(path).file_stem())
         .map(|stem| stem.to_string_lossy().replace(['-', '_'], " "))
         .unwrap_or_else(|| "Note".into())
+}
+
+/// Small disclosure for rarely needed recovery and advanced commands.
+pub(super) fn tools_toggle(open: bool, cx: &mut Context<Desktop>) -> Button {
+    Button::new("toggle-tools")
+        .label(if open {
+            "Fewer options"
+        } else {
+            "More options"
+        })
+        .ghost()
+        .small()
+        .on_click(cx.listener(|this, _, _, cx| {
+            this.show_tools = !this.show_tools;
+            cx.notify();
+        }))
 }
 
 #[cfg(test)]

@@ -25,7 +25,8 @@ gpui_kit::actions!(
         NewChat,
         OpenSettings,
         CancelRunning,
-        SaveNote
+        SaveNote,
+        CommentOnSelection
     ]
 );
 use std::path::PathBuf;
@@ -41,6 +42,8 @@ mod action_review_tests;
 mod approval;
 #[cfg(all(target_os = "macos", feature = "native-capture"))]
 pub mod capture;
+#[cfg(all(test, target_os = "macos", feature = "native-test-support"))]
+mod comment_menu_tests;
 mod dashboard;
 #[cfg(all(test, target_os = "macos", feature = "native-test-support"))]
 mod dashboard_tests;
@@ -193,6 +196,8 @@ struct Desktop {
     divider_focus: [FocusHandle; 3],
     focus_composer: bool,
     show_decided: bool,
+    /// Owner-opened recovery/advanced tools in note and proposal views.
+    show_tools: bool,
     message: String,
     _subscriptions: Vec<Subscription>,
     _poll_task: Task<()>,
@@ -546,6 +551,7 @@ impl Desktop {
             ],
             focus_composer: false,
             show_decided: false,
+            show_tools: false,
             message: "Opening workspace…".into(),
             _subscriptions: vec![
                 query_subscription,

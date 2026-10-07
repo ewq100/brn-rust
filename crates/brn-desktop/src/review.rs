@@ -550,7 +550,7 @@ pub fn selection_target(
 
 #[cfg(test)]
 #[path = "review_tests.rs"]
-mod tests;
+pub(crate) mod tests;
 
 #[cfg(test)]
 #[path = "action_review_tests.rs"]

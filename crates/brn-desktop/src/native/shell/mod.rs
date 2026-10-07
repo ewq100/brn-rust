@@ -159,44 +159,10 @@ impl Desktop {
                 Rail::History => self.render_history_rail(cx).into_any_element(),
                 Rail::Vault => self.render_vault_rail(cx).into_any_element(),
             },
+            // Collapsed rails take no space; the header toggles reopen them.
             RailDisplay::Collapsed | RailDisplay::AutoCollapsed => {
-                let auto = display == RailDisplay::AutoCollapsed;
-                let (id, label, tip) = match (rail, auto) {
-                    (Rail::History, false) => ("expand-history", "›", "Show history (⌘0)"),
-                    (Rail::History, true) => (
-                        "expand-history",
-                        "›",
-                        "History is hidden to fit the window. Widen the window to show it.",
-                    ),
-                    (Rail::Vault, false) => ("expand-vault", "‹", "Show vault (⌥⌘0)"),
-                    (Rail::Vault, true) => (
-                        "expand-vault",
-                        "‹",
-                        "Vault is hidden to fit the window. Widen the window to show it.",
-                    ),
-                };
-                let slot = div()
-                    .w(px(layout::COLLAPSED_RAIL))
-                    .flex_shrink_0()
-                    .h_full()
-                    .flex()
-                    .flex_col()
-                    .items_center()
-                    .pt_2()
-                    .bg(color(p.panel))
-                    .border_color(color(if auto { p.amber } else { p.line }));
-                let slot = match rail {
-                    Rail::History => slot.border_r_1(),
-                    Rail::Vault => slot.border_l_1(),
-                };
-                slot.child(
-                    Button::new(id)
-                        .label(label)
-                        .compact()
-                        .tooltip(tip)
-                        .on_click(cx.listener(move |this, _, _, cx| this.toggle_rail(rail, cx))),
-                )
-                .into_any_element()
+                let _ = (rail, p);
+                div().into_any_element()
             }
         }
     }

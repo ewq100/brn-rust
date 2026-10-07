@@ -246,13 +246,54 @@ impl Desktop {
             .map(|page| format!("{} open findings", page.open_count))
             .unwrap_or_else(|| "Tentative findings with retained evidence".into());
         let before = queue.page.as_ref().and_then(|page| page.next_before);
-        let mut content = div().id("findings-scroll").track_scroll(&self.findings.scroll).overflow_y_scroll().vertical_scrollbar(&self.findings.scroll).flex_1().min_h(px(0.)).flex().flex_col().gap(px(tokens::space::MD)).px(px(tokens::space::LG)).py(px(tokens::space::MD))
-            .child(ui::view_header("Needs Review", None, Some(count), p).mx(px(-tokens::space::LG)).mt(px(-tokens::space::MD)))
-            .child(ui::callout(Tone::Attention, "Tentative findings retain saved evidence. Resolve or Dismiss changes this queue only; correcting knowledge requires a reviewed proposal.", p))
+        let mut content = div()
+            .id("findings-scroll")
+            .track_scroll(&self.findings.scroll)
+            .overflow_y_scroll()
+            .vertical_scrollbar(&self.findings.scroll)
+            .flex_1()
+            .min_h(px(0.))
+            .flex()
+            .flex_col()
+            .gap(px(tokens::space::MD))
+            .px(px(tokens::space::LG))
+            .py(px(tokens::space::MD))
+            .child(
+                ui::view_header("Needs Review", None, Some(count), p)
+                    .mx(px(-tokens::space::LG))
+                    .mt(px(-tokens::space::MD)),
+            )
+            .child(ui::callout(
+                Tone::Attention,
+                "Resolving or dismissing a finding changes only this list, never your knowledge.",
+                p,
+            ))
             .child(filters)
-            .child(ui::toolbar()
-                .child(Button::new("refresh-findings").label("Newest findings").ghost().small().disabled(blocked || ai.findings_loading()).on_click(cx.listener(move |this, _, _, cx| this.refresh_finding_page(state, None, cx))))
-                .child(Button::new("older-findings").label("Older page").ghost().small().disabled(blocked || ai.findings_loading() || before.is_none()).on_click(cx.listener(move |this, _, _, cx| { if let Some(before) = before { this.refresh_finding_page(state, Some(before), cx); } }))));
+            .child(
+                ui::toolbar()
+                    .child(
+                        Button::new("refresh-findings")
+                            .label("Newest findings")
+                            .ghost()
+                            .small()
+                            .disabled(blocked || ai.findings_loading())
+                            .on_click(cx.listener(move |this, _, _, cx| {
+                                this.refresh_finding_page(state, None, cx)
+                            })),
+                    )
+                    .child(
+                        Button::new("older-findings")
+                            .label("Older page")
+                            .ghost()
+                            .small()
+                            .disabled(blocked || ai.findings_loading() || before.is_none())
+                            .on_click(cx.listener(move |this, _, _, cx| {
+                                if let Some(before) = before {
+                                    this.refresh_finding_page(state, Some(before), cx);
+                                }
+                            })),
+                    ),
+            );
         if ai.findings_loading() {
             content = content.child(ui::hint("Loading findings…", p));
         }

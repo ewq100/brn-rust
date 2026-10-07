@@ -268,10 +268,20 @@ impl Desktop {
         let blocked = self.inbox_blocked();
         use super::ui::{self, Tone};
         let p = self.palette();
-        let mut capture = div().flex().flex_col().gap_2()
+        let mut capture = div()
+            .flex()
+            .flex_col()
+            .gap_2()
             .child(ui::section_label("Add a copy to the Inbox", p).px_0())
-            .child(ui::hint("Keep an exact UTF-8 text, Markdown, email or Teams copy. Originals stay retained. Conversion previews and Source proposals require review; knowledge changes only after exact approval.", p))
-            .child(Textarea::new(&self.inbox.title).disabled(blocked).aria_label("Retained exact Inbox capture title"));
+            .child(ui::hint(
+                "Paste text, Markdown, an email or a Teams thread. BRN keeps the exact original.",
+                p,
+            ))
+            .child(
+                Textarea::new(&self.inbox.title)
+                    .disabled(blocked)
+                    .aria_label("Retained exact Inbox capture title"),
+            );
         let mut kinds = div().flex().flex_wrap().gap_1();
         for kind in [
             InboxKind::Text,
@@ -394,7 +404,7 @@ impl Desktop {
         content = content.child(
             ui::toolbar()
                 .child(
-                    ui::section_label("Waiting in the Inbox · oldest first", p)
+                    ui::section_label("Waiting · oldest first", p)
                         .px_0()
                         .flex_1()
                         .min_w(px(0.)),
@@ -443,14 +453,6 @@ impl Desktop {
             content = content.child(ui::hint("Loading current Inbox inventory or original…", p));
         }
         if let Some(page) = &queue.page {
-            content = content.child(ui::meta(
-                format!(
-                    "{} retained originals · {} on this page",
-                    page.total_count,
-                    page.entries.len()
-                ),
-                p,
-            ));
             if page.entries.is_empty() {
                 content = content.child(ui::empty_state(
                     "The Inbox is empty",
@@ -543,15 +545,13 @@ impl Desktop {
                     .child("Additional Inbox issues were reported beyond this page's issue limit.");
             }
         }
-        content = content
-            .child(ui::section_label("Process", p).px_0())
-            .child(ui::hint(
-                format!(
-                    "{} exact original snapshots checked · choose 1–{MAX_PROCESS_BATCH}",
-                    self.inbox.checked.len()
-                ),
-                p,
-            ));
+        content = content.child(ui::hint(
+            format!(
+                "Check up to {MAX_PROCESS_BATCH} items, then process them · {} checked",
+                self.inbox.checked.len()
+            ),
+            p,
+        ));
         for (index, item) in self.inbox.checked.iter().enumerate() {
             let id = item.capture.id;
             content = content.child(
@@ -678,7 +678,20 @@ impl Desktop {
                 }
             }
         }
-        content = content.child(self.render_inbox_copy(cx));
+        let copy_view = &ai.inbox_copy;
+        let copy_relevant = queue.selected.is_some()
+            || ai.inbox_copy_loading()
+            || ai.inbox_copy_pending()
+            || copy_view.preview.is_some()
+            || copy_view.history.is_some()
+            || copy_view.removal.is_some()
+            || copy_view.operation.is_some()
+            || copy_view.receipt.is_some()
+            || copy_view.error.is_some()
+            || copy_view.message.is_some();
+        if copy_relevant {
+            content = content.child(self.render_inbox_copy(cx));
+        }
         if let Some(batch) = &queue.batch {
             content = content.child(format!(
                 "Batch {} · {} remaining conversions",
@@ -758,6 +771,16 @@ impl Desktop {
             if preview.needs_semantic_review {
                 content = content.child(ui::callout(Tone::Attention, "The conversion still needs semantic review. Original wording and images remain evidence; approval does not complete interpretation.", p));
             }
+        }
+        let source_typed = !self.inbox.source_title.read(cx).value().is_empty()
+            || !self.inbox.source_path.read(cx).value().is_empty();
+        let source_relevant = queue.preview.is_some()
+            || queue.prepared.is_some()
+            || queue.source_error.is_some()
+            || ai.source_pending()
+            || source_typed;
+        if !source_relevant {
+            return content.into_any_element();
         }
         content = content
             .child(
@@ -839,8 +862,8 @@ impl Desktop {
                     "Inbox",
                     None,
                     Some(match total {
-                        Some(total) => format!("{total} retained originals · exact copies, oldest first"),
-                        None => "Exact copies of what you bring in. Nothing changes knowledge until you approve.".into(),
+                        Some(total) => format!("{total} waiting"),
+                        None => "Copies you bring in, kept exactly".into(),
                     }),
                     p,
                 )

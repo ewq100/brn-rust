@@ -40,8 +40,10 @@ impl Capture {
         let captured = saved.clone();
         let data = data.to_path_buf();
         let vault = vault.to_path_buf();
+        // Matches a first run of the app: minimal, vault rail closed.
         let layout = LayoutState {
             appearance,
+            vault_collapsed: true,
             ..LayoutState::default()
         };
         let handle = cx

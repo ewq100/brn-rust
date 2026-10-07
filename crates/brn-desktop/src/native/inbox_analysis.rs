@@ -203,7 +203,7 @@ impl Desktop {
             .flex_col()
             .gap_2()
             .child(ui::section_label("Analyze an approved Source", p).px_0())
-            .child(ui::hint("Inspect an approved Inbox Source before starting. BRN checks that its saved text is unchanged. Knowledge and Action drafts need separate review and exact approval; originals stay retained.", p))
+            .child(ui::hint("BRN drafts knowledge and Action proposals from an approved Source. You review them before anything changes.", p))
             .child(Textarea::new(&self.inbox.analysis_source_path)
                 .disabled(blocked)
                 .aria_label("Saved Source path for analysis"))

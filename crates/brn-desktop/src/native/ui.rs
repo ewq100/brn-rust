@@ -306,11 +306,6 @@ pub fn secondary(id: impl Into<ElementId>, label: impl Into<SharedString>) -> Bu
     Button::new(id).outline().small().label(label)
 }
 
-/// The one main command of a region (Ask, Save, Approve...).
-pub fn primary(id: impl Into<ElementId>, label: impl Into<SharedString>) -> Button {
-    Button::new(id).primary().small().label(label)
-}
-
 /// `YYYY-MM-DD HH:MM UTC` for a Unix-millisecond timestamp. Recorded times are
 /// shown in UTC so that every client renders the same exact value.
 pub fn utc_time(ms: u64) -> String {
