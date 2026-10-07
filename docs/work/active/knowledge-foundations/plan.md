@@ -1,5 +1,7 @@
 # Knowledge foundations — roadmap Stage 5
 
+> Current planning context, 2026-10-07: the [proposed whole-system plan](../architecture-reassessment/plan.md) supersedes the old next-task order, custom-converter expansion and mandatory incidental-compatibility rules for reassessment. Existing observations/tests remain evidence; implementation is paused. Actual EML is required V1 and is not implemented by pasted Email text. Partial conversion may enter qualified draft review; original cleanup remains a separate protected operation. AI may recommend resolutions and revise unapproved work. No new design is accepted solely by this notice.
+
 Baseline: `main@15d4608db7e1b9308a2870b50b8ad0e73f4f23cf`, 2026-10-04.
 The owner’s AGENTS.md change is preserved. Stage 4 is implemented, automated
 verified and locally integrated; GUI/live/owner acceptance remains separate.

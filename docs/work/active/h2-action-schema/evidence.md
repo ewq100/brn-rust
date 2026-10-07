@@ -130,5 +130,4 @@ acceptance step.
 
 ## Integration
 
-Pending. The PR, its exact-head CI, the merge and the post-merge check are recorded
-here when they happen. Merge needs the owner's authorization.
+Rechecked 2026-10-07: PR83 is merged at `67818388112c400802097763b9eeed8aa87bb465`; fetched main contains candidate `3db27a4c3143fb1fda0e8a8b254570f58353d9f9`. The prior “Pending” integration statement is superseded by Git ancestry. This reassessment did not rerun candidate or merged-main Rust/CI checks and does not claim fresh owner acceptance. See the [current baseline](../../../audits/BRN_ARCHITECTURE_REASSESSMENT_2026-10-07.md#baseline-and-obligations).

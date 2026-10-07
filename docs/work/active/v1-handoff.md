@@ -1,5 +1,7 @@
 # V1 controlled handoff — 2026-10-06
 
+> Current planning context, 2026-10-07: the [proposed whole-system plan](architecture-reassessment/plan.md) supersedes the old next-task order, custom-converter expansion and mandatory incidental-compatibility rules for reassessment. Existing observations/tests remain evidence; implementation is paused. Actual EML is required V1 and is not implemented by pasted Email text. Partial conversion may enter qualified draft review; original cleanup remains a separate protected operation. AI may recommend resolutions and revise unapproved work. No new design is accepted solely by this notice. Current [status](../../status.md#pr85-finalization-and-fresh-agent-handoff--2026-10-07) and the existing proposed plan own PR85 finalization, settled XLSX/standalone-image exclusions and the later bounded Sol/Luna runtime authorization; historical no-live/next-task statements below do not supersede them.
+
 The full frozen V1 goal was confirmed **paused** through the goal tool on
 2026-10-06 at the owner's controlled-stop request. Its complete objective is
 preserved; V1 is incomplete. Further implementation starts only from an explicitly
@@ -75,7 +77,11 @@ rendering was obtained here. Live provider/real-model qualification separately
 requires fresh owner authorization; prior live usage is exhausted. Do not bundle
 live calls into GUI observation. Owner acceptance remains pending.
 
-## Ordered task queue
+<a id="ordered-task-queue"></a>
+
+## Historical ordered task queue
+
+The following was the 2026-10-06 pre-H1/H2 queue and compatibility policy; task-selection instructions below are historical. Use the 2026-10-07 proposed plan for reassessment and future selection.
 
 Inspected unchanged product code at main a8deb9d: none of H1–H5 is completed or superseded. H1 still scans raw title lines; H2 still duplicates schema and has no direct Schemars dependency; visual output still uses prompt JSON without `output_schema`; no docx-rs/clap dependency is present. H3–H5 questions remain unresolved. Existing decision evidence is sufficient to prepare evaluations, not adopt replacements.
 

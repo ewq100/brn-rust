@@ -1,5 +1,7 @@
 # BRN product and architecture audit
 
+> Historical observation: the [2026-10-07 reassessment](BRN_ARCHITECTURE_REASSESSMENT_2026-10-07.md) verifies these findings against main6781838. Legacy/absent-feature diagnoses and freeze/build-sequence recommendations below are superseded where identified there; valid integrity evidence is retained.
+
 **Date:** 2026-10-03\
 **Audited:** `ewq100/brn-rust`, branch `main`, HEAD `f164470`\
 **Requirements baseline:** [BRN product vision](../product/BRN_PRODUCT_VISION.md), cited below as "Vision §N"\

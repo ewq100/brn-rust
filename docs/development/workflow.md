@@ -1,8 +1,10 @@
 # Development workflow
 
+> Current authority (2026-10-07): the [owner amendment](../product/BRN_PRODUCT_VISION.md#owner-amendment--2026-10-07) supersedes freeze, mandatory roadmap ordering and mechanism-preservation instructions below for this authorized whole-system reassessment. Those descriptions record the previous target/current contracts; they cannot prohibit investigation or proposed replacement. Product outcomes remain binding. Production implementation is paused; new design/sequence choices remain PROPOSED pending acceptance. The owner separately authorizes focused PR85 documentation finalization/merge, then stop, and a fresh agent's later [bounded Sol/Luna runtime campaign](../work/active/architecture-reassessment/plan.md#later-solluna-runtime-comparison). Neither selects production work or authorizes live calls in this finalization session.
+
 Pick the next authorized roadmap outcome. Use the smallest necessary plan. Implement with meaningful tests. Get an independent review, validate its findings and fix real defects. Verify the final result, let the owner try changed user-visible behavior, and merge when authorized.
 
-This is BRN's development method. [AGENTS.md](../../AGENTS.md) sets the frozen architecture and safety boundaries; [verification](verification.md) owns check selection. Skills are helpers, not additional mandatory lifecycles.
+This is BRN's development method. [AGENTS.md](../../AGENTS.md) sets current task authority and product safety outcomes; [verification](verification.md) owns check selection. Skills are helpers, not additional mandatory lifecycles.
 
 ## Scope and planning
 
@@ -14,7 +16,7 @@ Inspect branch, HEAD and working-tree changes; preserve unrelated work. Use [sta
 | Multi-step feature slice | One short `docs/work/active/<task-name>/plan.md`: baseline, outcome/scope, contracts, dependencies/steps, risks, acceptance and checks. Fix interfaces before delegated implementation. |
 | Changed requirement or concrete architectural blocker | Present evidence and involve the owner. Amend existing requirements/architecture after the decision; use a formal design record when warranted. |
 
-A subsystem already covered by the frozen target is a feature slice, not automatically an architecture change. Plans describe decisions and work, without mandatory implementation/test bodies, two-minute steps or agent/model machinery. Self-check the plan; additional plan review needs a concrete risk or explicit request.
+A subsystem already covered by accepted product outcomes is ordinarily a feature slice. The authorized reassessment may challenge its mechanism. Plans describe decisions and work, without mandatory implementation/test bodies, two-minute steps or agent/model machinery. Self-check the plan; additional plan review needs a concrete risk or explicit request.
 
 ## Compatible reuse
 
@@ -38,12 +40,8 @@ requirement, option/version, decision, remaining BRN responsibility and specific
 reason for custom code or deferral. Count adapters, duplicated validation,
 dependency/platform costs and verification, rather than lines alone. For general-purpose AI machinery, explicitly check pinned Rig (currently0.43.0)
 and suitable published companion modules before custom machinery; add only what
-the requirement needs. Start from H1–H5 and the decision below. Reopen a conclusion
-only for changed requirements/code/version/evidence, a concrete prior gap or a
-new component not assessed before. Material uncertainty gets a bounded evaluation
-task; dependent implementation stays conditional on its result. Routine
-reuse does not reopen the frozen architecture. The
-[current reassessment](../architecture/decisions/2026-10-06-compatible-reuse.md)
+the requirement needs. Start from current code and H1–H5 observations, testing their assumptions against owner outcomes. The 2026-10-07 amendment explicitly reopens their scope and conclusions. Material uncertainty gets a bounded evaluation
+task; dependent implementation stays conditional on its result. The [historical reuse decision](../architecture/decisions/2026-10-06-compatible-reuse.md)
 distinguishes implemented mechanisms, accepted follow-ups and unresolved candidates.
 
 ## Skills and helpers
@@ -56,17 +54,19 @@ Select a helper when explicitly requested or when it solves a concrete task need
 | Bug/test failure | Evidence-first systematic debugging: reproduce where practical, inspect the path, test a hypothesis, verify the fix. Reserve Matt's fuller diagnosis for hard bugs; choose one method. Failed attempts prompt better investigation, not architecture reopening by count. |
 | Review/feedback | Independent defect-first review plus accepted requirements and relevant Rust rules; technically validate feedback. Matt's two-axis review is manual-only; missing tracker setup is not a blocker. |
 | Independent work/isolation | Bounded helpers or a worktree when useful. Reuse suitable worktrees; working in place is valid. Availability alone does not require delegation. |
-| Specific unresolved question | Targeted research when useful. Prototype, grilling, domain/interface exploration and human-only wizards remain manual specialists. Architecture exploration requires the freeze exception. Use existing document locations; save research only when useful. |
+| Specific unresolved question | Targeted research when useful. Prototype, grilling, domain/interface exploration and human-only wizards remain manual specialists. Architecture exploration is authorized for this reassessment. Use existing document locations; save research only when useful. |
 
-`using-superpowers` is not BRN's router. Both installed `writing-plans` variants, competing execution chains and ticket/spec generators do not own default development. Use this workflow. Manual-only means explicitly requested, not inferred from overlap. Subagent-driven development is explicit opt-in and still follows these delegation/review rules. Architecture-improvement and wayfinder chains are outside frozen implementation. Skill discovery/maintenance and formal Superpowers incident analysis are manual tasks. Global skills/settings remain shared with other projects.
+`using-superpowers` is not BRN's router. Both installed `writing-plans` variants, competing execution chains and ticket/spec generators do not own default development. Use this workflow. Manual-only means explicitly requested, not inferred from overlap. Subagent-driven development is explicit opt-in and still follows these delegation/review rules. Workflow chains do not add implementation authorization. Skill discovery/maintenance and formal Superpowers incident analysis are manual tasks. Global skills/settings remain shared with other projects.
 
-One lead maintains coherence with the strongest appropriate selected model. Helpers receive scope, accepted criteria, relevant frozen constraints, context and allowed actions; extracted task text or built-in reviewers may omit repository/global constraints. Helpers do not redesign adjacent work or add agents unless the lead assigns that work. Installed model tables do not override owner choices or current tool contracts.
+The [whole-system reassessment](../audits/BRN_ARCHITECTURE_REASSESSMENT_2026-10-07.md) and [proposed change plan](../work/active/architecture-reassessment/plan.md) are the current review/planning handoff. Production work remains paused.
+
+One lead maintains coherence with the strongest appropriate selected model. Helpers receive scope, accepted criteria, relevant current owner outcomes and task permission boundaries, context and allowed actions; extracted task text or built-in reviewers may omit repository/global constraints. Helpers do not redesign adjacent work or add agents unless the lead assigns that work. Installed model tables do not override owner choices or current tool contracts.
 
 ## Independent review
 
 For meaningful code changes, normally obtain one read-only independent review of the complete change; trivial documentation or wiring gets proportionate review. Additional specialists/checkpoints need a concrete risk. Report unavailable independence rather than presenting self-review as independent.
 
-Pin the actual baseline and review staged, unstaged and relevant untracked changes. Branch review uses the verified merge base, not an assumed `HEAD~1`. Supply accepted criteria and frozen constraints. Check correctness, missing requirements and safety. Speculative features/style are advisory; concrete valid-input failures remain defects even when the specification does not enumerate every trigger. The Rust checklist supplements review; verification supplies commands/features.
+Pin the actual baseline and review staged, unstaged and relevant untracked changes. Branch review uses the verified merge base, not an assumed `HEAD~1`. Supply accepted criteria and current owner outcomes and task permission boundaries. Check correctness, missing requirements and safety. Speculative features/style are advisory; concrete valid-input failures remain defects even when the specification does not enumerate every trigger. The Rust checklist supplements review; verification supplies commands/features.
 
 Understand and verify each actionable finding before fixing it. Fix valid findings, reject unsupported ones with a reason, and distinguish deferred work from blockers. Clarify only dependent work when a finding is unclear. Review does not expand scope. Re-review material corrections when risk warrants it, without fixed round counts or a blanket ban on re-review.
 

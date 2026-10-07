@@ -1,5 +1,7 @@
 # Next settled specifications
 
+> Current planning context, 2026-10-07: the [proposed whole-system plan](../architecture-reassessment/plan.md) supersedes the old next-task order, custom-converter expansion and mandatory incidental-compatibility rules for reassessment. Existing observations/tests remain evidence; implementation is paused. Actual EML is required V1 and is not implemented by pasted Email text. Partial conversion may enter qualified draft review; original cleanup remains a separate protected operation. AI may recommend resolutions and revise unapproved work. No new design is accepted solely by this notice.
+
 Written 2026-10-06; **Build-ready for explicit selection only**. Baseline is integrated main `a8deb9d8e94665b1731034675b490fb134aae091`, with unchanged product at PR77 `c75803832f3140347192bb08f2fdf13bb5fba1d4`. Recheck remote and candidate before work. No implementation was performed here.
 
 Parent outcome: reduce duplicated general mechanisms while preserving observable BRN behavior. These are independent maintenance slices, not a prerequisite chain for V1. [H1–H5](../v1-handoff.md#ordered-task-queue) remain the tracker; this parent supplies detailed H1/H2 contracts rather than new duplicate tickets. [Reuse rule](../../../development/workflow.md#compatible-reuse), [reuse decision](../../../architecture/decisions/2026-10-06-compatible-reuse.md), [invariants](../../../architecture/invariants.md) apply.

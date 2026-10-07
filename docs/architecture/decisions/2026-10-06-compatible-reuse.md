@@ -1,5 +1,7 @@
 # Compatible reuse within frozen V1 — 2026-10-06
 
+> Supersession context, 2026-10-07: the owner has reopened whole-system reuse. [Reassessment](../../audits/BRN_ARCHITECTURE_REASSESSMENT_2026-10-07.md) and [proposed plan](../../work/active/architecture-reassessment/plan.md) govern current recommendations. H1/H2 are merged at f3cf699/6781838. H4/H5 result PRs remain unmerged; their old complete-or-refuse and exact-help assumptions do not bind the new evaluation. Statements below retain their original scope/history, not compulsory mechanisms.
+
 **Status:** accepted development rule, explicitly requested by the owner on
 2026-10-06. The [workflow rule](../../development/workflow.md#compatible-reuse)
 is canonical. Component replacements below are separately classified; they are

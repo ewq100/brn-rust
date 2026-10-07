@@ -1,29 +1,35 @@
 # Delivery roadmap
 
-The owner has frozen the reviewed product architecture as of 2026-10-03. [Product vision](product/BRN_PRODUCT_VISION.md) and [architecture/invariants](architecture/invariants.md) govern the outcomes below. This sequence carries forward the dependency corrections in the dated [independent review](audits/BRN_PRODUCT_ARCHITECTURE_REVIEW.md#g-final-build-sequence). The V1 mission is paused at the owner's 2026-10-06 checkpoint. Each explicitly selected slice establishes its own scope, acceptance criteria and verification; roadmap order alone authorizes no work.
+> Current authority (2026-10-07): the [owner amendment](product/BRN_PRODUCT_VISION.md#owner-amendment--2026-10-07) supersedes freeze, mandatory roadmap ordering and mechanism-preservation instructions below for this authorized whole-system reassessment. Those descriptions record the previous target/current contracts; they cannot prohibit investigation or proposed replacement. Product outcomes remain binding. Production implementation is paused; new design/sequence choices remain PROPOSED pending acceptance.
 
-[Status](status.md) owns observed implementation, verification, acceptance and integration. Older milestones and the simple-notes Steps 5/6 are historical; they do not select the next task. Keep existing foundations and data while following the stable V1 core [target](architecture/overview.md#frozen-target).
+The owner reopened architecture and sequencing on 2026-10-07 for reassessment; production V1 work remains paused. [Product vision](product/BRN_PRODUCT_VISION.md) and [architecture/invariants](architecture/invariants.md) govern the outcomes below. This sequence carries forward the dependency corrections in the dated [independent review](audits/BRN_PRODUCT_ARCHITECTURE_REVIEW.md#g-final-build-sequence). The V1 mission is paused at the owner's 2026-10-06 checkpoint. Each explicitly selected slice establishes its own scope, acceptance criteria and verification; roadmap order alone authorizes no work.
 
-The owner's 2026-10-04 external-agent amendment preserves this sequence. Every
+[Status](status.md) owns observed implementation, verification, acceptance and integration. Older milestones and the simple-notes Steps 5/6 are historical; they do not select the next task. Preserve existing work/data. The current core is an implementation baseline, not a required permanent mechanism.
+
+The owner's 2026-10-04 external-agent amendment preserves shared headless capabilities. Every
 meaningful domain capability stays headless through workflow/AppWorker. Thin
 future protocol adapters are permitted; read-only local stdio MCP is the expected
 first external interface. MCP, a daemon and remote/network infrastructure are not
 added delivery stages or prerequisites for V1.
 
+The **PROPOSED** [ordered change plan](work/active/architecture-reassessment/plan.md) maps every stage to retained, revised and added work. [Reassessment](audits/BRN_ARCHITECTURE_REASSESSMENT_2026-10-07.md) supplies evidence and adoption gates. The table below retains V1 outcomes subject to the settled exclusion of full XLSX and standalone-image import, not mandatory delivery order. Do not introduce partial XLSX support; embedded meaningful visuals and inline email images remain in scope. Unsupported attachments can be retained/unprocessed. The [existing plan](work/active/architecture-reassessment/plan.md#later-solluna-runtime-comparison) records later bounded Sol/Luna runtime authorization; production task selection remains separate.
+
 See the [remaining dependency/specification map](work/active/preparation-checkpoint/v1-map.md) for the current gaps and safe independent selections.
 
-## Reviewed outcomes
+<a id="reviewed-outcomes"></a>
+
+## Previous stage labels and retained outcomes
 
 | Stage | Outcome |
 | --- | --- |
-| 0 | Retire conflicting guidance and use the frozen product/architecture with the concise development workflow. |
+| 0 | Retire conflicting guidance and use current owner requirements and reviewed architecture with the concise development workflow. |
 | 1 | Simple manual Save preserves bytes, detects conflicts, avoids overwriting new destinations and recovers unfinished edits. Verify Save/recovery before removal. |
 | 2 | Remove legacy production paths and obsolete tests while preserving historical records, existing data and trial workspaces. Export valuable legacy data only when its need is established and authorized. |
-| 3 | Narrow capability spikes establish selected-model, effort, retry, native web and image support on actual provider routes. Live checks need separate task authorization. |
+| 3 | Narrow capability spikes establish selected-model, effort, retry, native web and image support on actual provider routes. The later bounded Sol/Luna runtime comparison has owner authorization in the existing plan; other live checks need applicable task authorization. |
 | 4 | Complete typed proposals support editing, temporary comments, Rewrite, individual/group approval, recoverable application, activity and practical Undo/Trash. |
 | 5 | Minimal note identities, durable provenance, current/history retrieval, relationship extraction and qualified multilingual search. Basic review findings and session timestamps support later work. |
 | 6 | Actions/dashboard support approved creation, direct explicit completion and new related follow-up actions. |
-| 7 | Text/email Inbox produces independently reviewable consequences, using identity foundations and a small owned AI queue. |
+| 7 | Text/email Inbox, including actual EML import, produces independently reviewable consequences, using identity foundations and a small owned AI queue. |
 | 8 | Office documents and supplied URLs preserve meaningful content/assets; incomplete conversion retains originals. |
 | 9 | Autonomous web research returns attributable evidence and proposes approved durable captures. |
 | 10 | Needs Review and maintenance handle stale knowledge, conflicts and neglected work, including web-dependent checks. |
@@ -40,7 +46,7 @@ Safe Save and verified recovery precede legacy removal; removal precedes Proposa
 
 The owner requested a controlled stop on2026-10-06. The full V1 goal is confirmed
 paused; use the [handoff queue](work/active/v1-handoff.md#ordered-task-queue) only
-after explicit task selection. This does not change the dependency order below.
+after explicit task selection. The new proposed sequence supersedes this queue as planning guidance; no implementation is automatically selected.
 
 Select the next incomplete dependency from [status](status.md), establishing the
 actual merged baseline and its pending qualification. Continue only the explicitly selected

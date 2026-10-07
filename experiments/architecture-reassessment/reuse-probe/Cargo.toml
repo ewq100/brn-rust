@@ -1,0 +1,11 @@
+[package]
+name = "brn-reuse-probe"
+version = "0.0.0"
+edition = "2024"
+[workspace]
+[dependencies]
+betteroffice-docx-parse = "=0.3.0"
+betteroffice-pptx-parse = "=0.3.0"
+betteroffice-xlsx-parse = "=0.3.0"
+serde_json = "=1.0.145"
+quick-xml = "=0.41.0"

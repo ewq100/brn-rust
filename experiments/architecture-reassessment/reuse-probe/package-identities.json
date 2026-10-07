@@ -1,0 +1,80 @@
+[
+  {
+    "name": "betteroffice-docx-parse",
+    "version": "0.3.0",
+    "lib": "docx_parse",
+    "license": "Apache-2.0",
+    "archive_sha256": "697674f35c2ff2eb311e892b015697412c8e1c7671126b74d58f9adcf4e795f3",
+    "vcs": {
+      "git": {
+        "sha1": "34b9e93a657158fcf3d1d1035df3202031625bdd"
+      },
+      "path_in_vcs": "crates/docx-parse"
+    }
+  },
+  {
+    "name": "betteroffice-pptx-parse",
+    "version": "0.3.0",
+    "lib": "pptx_parse",
+    "license": "Apache-2.0",
+    "archive_sha256": "45080f3d3381f53698af3412be1de2afc4a15ef17330b283e2dc65538a8961c2",
+    "vcs": {
+      "git": {
+        "sha1": "34b9e93a657158fcf3d1d1035df3202031625bdd"
+      },
+      "path_in_vcs": "crates/pptx-parse"
+    }
+  },
+  {
+    "name": "betteroffice-xlsx-parse",
+    "version": "0.3.0",
+    "lib": "xlsx_parse",
+    "license": "Apache-2.0",
+    "archive_sha256": "f45b864682248e8fe42d1565fa04fd667910d0cdee58bcbd4ad89e2b0b8b643a",
+    "vcs": {
+      "git": {
+        "sha1": "34b9e93a657158fcf3d1d1035df3202031625bdd"
+      },
+      "path_in_vcs": "crates/xlsx-parse"
+    }
+  },
+  {
+    "name": "betteroffice-opc",
+    "version": "0.3.0",
+    "lib": "ooxml_opc",
+    "license": "Apache-2.0",
+    "archive_sha256": "18653484735ca856523c32d3b8b59aaf3e2c9980aa00b8dddea71f82296d9689",
+    "vcs": {
+      "git": {
+        "sha1": "34b9e93a657158fcf3d1d1035df3202031625bdd"
+      },
+      "path_in_vcs": "crates/ooxml-opc"
+    }
+  },
+  {
+    "name": "betteroffice-drawingml",
+    "version": "0.3.0",
+    "lib": "ooxml_drawingml",
+    "license": "Apache-2.0",
+    "archive_sha256": "c08e5d5536bd72e63472c3bad08a4c8fd859f6b6a0c94503204f3b0ab688ed8e",
+    "vcs": {
+      "git": {
+        "sha1": "34b9e93a657158fcf3d1d1035df3202031625bdd"
+      },
+      "path_in_vcs": "crates/ooxml-drawingml"
+    }
+  },
+  {
+    "name": "betteroffice-xlsx-model",
+    "version": "0.3.0",
+    "lib": "xlsx_model",
+    "license": "Apache-2.0",
+    "archive_sha256": "27ad02baab45f66ff69e0b98eeb59d1261b4b5051da13a530cf741a8540a58d1",
+    "vcs": {
+      "git": {
+        "sha1": "34b9e93a657158fcf3d1d1035df3202031625bdd"
+      },
+      "path_in_vcs": "crates/xlsx-model"
+    }
+  }
+]

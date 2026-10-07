@@ -1,5 +1,7 @@
 # brn-ai
 
+> Requirements/qualification context (2026-10-07): this README describes implemented behavior, not mandatory limits or acceptance of the proposed replacement. The [owner amendment](../../docs/product/BRN_PRODUCT_VISION.md#owner-amendment--2026-10-07), [reassessment](../../docs/audits/BRN_ARCHITECTURE_REASSESSMENT_2026-10-07.md) and [proposed plan](../../docs/work/active/architecture-reassessment/plan.md) reopen mechanisms. Email enum/literal text is not real EML ingestion; broader conversion, AI draft freedom/budgets and practical reviewability remain gaps. No production behavior changed in this documentation task.
+
 Thin, fixed ChatGPT/Copilot subscription authentication and streamed
 chat over Rig **0.43.0**. Contains account/selection DTOs, safe errors, checked
 credential storage, owned clients, six read tools and one separate review-proposal capability. It does not contain

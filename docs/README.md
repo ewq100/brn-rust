@@ -11,11 +11,12 @@ one task from the [controlled handoff](work/active/v1-handoff.md).
 
 | Need | Read |
 | --- | --- |
+| Reassess architecture and select proposed work | [Owner amendment](product/BRN_PRODUCT_VISION.md#owner-amendment--2026-10-07), [evidence-backed reassessment](audits/BRN_ARCHITECTURE_REASSESSMENT_2026-10-07.md), [ordered proposed plan](work/active/architecture-reassessment/plan.md) |
 | Clarify product language | [Product glossary](product/glossary.md), [domain consistency](architecture/overview.md#domain-consistency-checkpoint) |
 | Select a prepared task | [Handoff](work/active/v1-handoff.md), [next specs](work/active/preparation-checkpoint/next-specs.md), [remaining V1 map](work/active/preparation-checkpoint/v1-map.md) |
 | Understand the product or run it | [Root README](../README.md), [setup](development/setup.md) |
 | Understand desired product behavior | [Product vision](product/BRN_PRODUCT_VISION.md): requirements and future capabilities, not a claim that all are implemented |
-| Understand the frozen target | [Architecture overview](architecture/overview.md#frozen-target), [invariants](architecture/invariants.md#frozen-target-guarantees). [Opus audit](audits/BRN_PRODUCT_ARCHITECTURE_AUDIT.md) and [independent review](audits/BRN_PRODUCT_ARCHITECTURE_REVIEW.md) are dated rationale, not execution plans |
+| Understand current foundations and proposed changes | [Architecture overview](architecture/overview.md#frozen-target), [invariants](architecture/invariants.md#frozen-target-guarantees). [Opus audit](audits/BRN_PRODUCT_ARCHITECTURE_AUDIT.md) and [independent review](audits/BRN_PRODUCT_ARCHITECTURE_REVIEW.md) are dated rationale, not execution plans |
 | Operate a workspace headlessly as its owner | [brn CLI](../crates/brn/README.md): owner-operated full command authority, `--json` envelopes and the command reference. Approval, Save, completion and removal require applicable owner authorization. Future external agents are read/propose unless explicitly delegated more authority; all consumers share workflow/AppWorker. |
 | Find implemented work and open gaps | [Status](status.md) |
 | Choose future work | [Roadmap](roadmap.md) |
@@ -49,11 +50,11 @@ instructions to resume or rename superseded work.
 
 ## Document ownership
 
-- Product vision owns requirements, with resolved owner clarifications captured in the frozen invariants.
+- Product vision owns requirements, with resolved owner clarifications captured in the dated owner amendments/invariants.
 - `development/workflow.md` owns the normal development method; `development/verification.md` owns checks. Skills support those rules.
 - `status.md` is the current progress summary, scoped to a stated commit and date.
 - `roadmap.md` defines future outcomes and prerequisites, not implementation authorization.
-- Architecture overview/invariants distinguish the frozen target from existing compatibility contracts. Dated audits/decisions retain rationale and supersession history.
+- Architecture overview/invariants distinguish required outcomes, current contracts and proposed changes. Dated audits/decisions retain rationale and supersession history.
 - Crate READMEs describe local responsibilities, interfaces and tests; Rust source remains the API definition.
 - Active plans define scope and acceptance. Evidence records observations, commands and limitations.
 - Completed records preserve historical results. Their old branch names, machine paths, model assignments and permissions are not current instructions.

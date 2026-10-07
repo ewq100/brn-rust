@@ -1,5 +1,7 @@
 # Independent BRN product and architecture review
 
+> Historical observation: the [2026-10-07 reassessment](BRN_ARCHITECTURE_REASSESSMENT_2026-10-07.md) verifies these findings against main6781838. Legacy/absent-feature diagnoses and freeze/build-sequence recommendations below are superseded where identified there; valid integrity evidence is retained.
+
 **Date:** 2026-10-03\
 **Reviewed:** `main@6183cfc1d0619a6ac7150c5fec91fa0b778579bc`\
 **Requirements:** [BRN Product Vision](../product/BRN_PRODUCT_VISION.md), plus the owner's resolved rules in this review\

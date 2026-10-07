@@ -6,11 +6,11 @@ This guide applies throughout this repository. Follow the user's current task an
 
 Use the [development workflow](docs/development/workflow.md) as BRN's default method, from the next authorized outcome through review, acceptance and integration.
 
-BRN's product and architecture are frozen as of 2026-10-03. The [product vision](docs/product/BRN_PRODUCT_VISION.md), [target architecture](docs/architecture/overview.md) and [invariants](docs/architecture/invariants.md) govern new work. Reopen architecture only when a product requirement changes or implementation demonstrates a concrete blocker that the frozen architecture cannot reasonably handle; involve the owner in that decision. Local implementation choices, including additive WorkStore tables and supported migrations, can evolve within the frozen boundaries; schema versions are not frozen.
+The [2026-10-07 owner amendment](docs/product/BRN_PRODUCT_VISION.md#owner-amendment--2026-10-07) reopens the whole architecture and reuse strategy for requirements, research, review, isolated evaluation and proposed planning. It supersedes the 2026-10-03 freeze, roadmap sequencing constraints, six-crate assumptions and earlier non-adoption decisions wherever they would prevent this task. Production implementation remains paused. The owner separately authorizes focused documentation corrections and merge of PR85 after required checks, then a stop; no other PR merge, release, private data access or product dependency change is authorized. The later bounded Sol/Luna runtime campaign is authorized under the [current plan](docs/work/active/architecture-reassessment/plan.md#later-solluna-runtime-comparison); no live calls or new probes occur in this finalization session. Product outcomes remain requirements; existing mechanisms and tests are evidence. New designs remain PROPOSED until accepted. Preserve historical evidence and other work.
 
 These project rules override conflicting skill defaults, including startup-injected Superpowers. Select skills for explicit requests or concrete needs; invocation before every response/action is not required. Approved slices proceed with proportional planning, without another architecture brainstorm or routine reauthorization. The workflow owns routing rather than competing skill chains.
 
-One lead owns coherence and integration with the strongest appropriate selected model. Helpers are bounded to investigation, research, test analysis, review or fixed-interface implementation. Include frozen constraints in their briefs. Availability alone does not require delegation; skill model tables do not override owner choices or current tools.
+One lead owns coherence and integration with the strongest appropriate selected model. Helpers are bounded to investigation, research, test analysis, review or fixed-interface implementation. Include current owner outcomes and task permission boundaries in their briefs. Availability alone does not require delegation; skill model tables do not override owner choices or current tools.
 
 ## Start here
 
@@ -37,7 +37,7 @@ One lead owns coherence and integration with the strongest appropriate selected 
 
 ## Rules to preserve
 
-Implement the frozen target in [roadmap](docs/roadmap.md) order, preserving existing behavior until its verified replacement or authorized removal. The dated [architecture audit](docs/audits/BRN_PRODUCT_ARCHITECTURE_AUDIT.md) and [independent review](docs/audits/BRN_PRODUCT_ARCHITECTURE_REVIEW.md) explain the reviewed basis; they are not execution plans.
+For future authorized implementation, use the accepted plan and preserve work until a verified replacement or authorized removal. The reassessment may propose changes to built and upcoming work without preserving incidental behavior. The dated [architecture audit](docs/audits/BRN_PRODUCT_ARCHITECTURE_AUDIT.md) and [independent review](docs/audits/BRN_PRODUCT_ARCHITECTURE_REVIEW.md) explain the reviewed basis; they are not execution plans.
 
 - Notes are vault Markdown files; preserve their exact bytes. `index.sqlite` is disposable; `brn.sqlite` holds user work, is checked at start and backed up.
 - AI changes to authoritative knowledge and real actions require approval of the exact proposal. Explicit user commands such as manual Save or completion remain direct commands. No automatic fallback between providers, models or accounts.

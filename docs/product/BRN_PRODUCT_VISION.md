@@ -7,6 +7,40 @@
 
 ---
 
+## Owner amendment — 2026-10-07
+
+This owner-authorized amendment governs the architecture reassessment and supersedes conflicting freeze, roadmap-order, six-crate, refusal, formatting and implementation-specific requirements. Existing code/tests and H1–H5 conclusions are evidence to verify, not mandatory product behavior. Rust/macOS is the starting point; retained foundations, non-Rust libraries and local subprocesses are all eligible. No rewrite or library adoption is approved by evaluation alone.
+
+### Authority, drafts and AI work
+
+AI may investigate in multiple steps, improve conversion, interpret visuals, compare evidence, organize information, maintain private drafts and revise proposals before approval. Persisting that work is allowed without promoting it to approved current knowledge. AI may recommend conflict resolution with evidence and uncertainty; only reviewed approval makes it authoritative. In this document, “durable changes require approval” means authoritative knowledge and real actions, not every persisted draft, read, conversion or reasoning step. Material uncertainty must be visible; it does not prohibit a tentative recommendation.
+
+Review must expose relevant originals, extracted content, separate AI interpretations, proposed changes, reasons and known gaps. Useful grouped/batch review is required without approval of each mechanical step. Approval binds the displayed version; subsequent changes require renewed review. Unapproved drafts and incomplete extraction must not masquerade as approved current knowledge.
+
+Work budgets must be visible, configurable and cancellable. Reassess fixed tool-round, read-size, retry and output limits against actual tasks. Useful model reasoning may spend more tokens; invisible spending and uncontrolled loops are unacceptable. Never silently change provider, model or account. Future operation-specific autonomy may be explicitly delegated after evaluation; none is enabled now. Auditability/recovery do not depend on autonomy level or approval percentage.
+
+### Common intake, fidelity and format scope
+
+Ingestion is one workflow across formats, not a requirement for a custom parser per extension. Existing V1 intent includes email content, Teams content, Markdown/text, DOCX, PDF, PowerPoint and supplied URLs/webpages. Actual EML file import is now explicit V1. Owner settlement at PR85 finalization: full XLSX import and standalone-image import are **OUT OF SCOPE for V1**; do not infer partial XLSX support. Remove both from active V1 evaluation and implementation; retain existing research as historical evidence. Meaningful embedded visuals in supported documents and inline email images remain required. Unsupported attachments, including XLSX, may be retained with their parent email and shown as unprocessed; preservation is not conversion support. Candidate support does not automatically add formats to V1.
+
+Preserve original bytes and meaningful assets; distinguish source wording, converter extraction and AI interpretation. Reviewed normalization remains a derivative. Exact quotations need accessible evidence. Useful partial conversion may reach clearly qualified review with the original available. Known omissions and uncertainty must be reported; parser success or model confidence does not establish completeness. Original retention does not excuse misleading presentation. Incomplete conversion never authorizes original-copy cleanup; existing explicit, recoverable owner cleanup rules remain.
+
+### Real EML ingestion (V1)
+
+Import actual `.eml` bytes, not only an Email enum, pasted email, fenced MIME or opaque retention. Preserve and usefully present available sender/recipient/subject/date headers, original timestamp/timezone, Message-ID, In-Reply-To and References; decoded text/HTML alternatives, CID inline images, attachments and original EML bytes. Prefer an existing MIME/email library for multipart/encoding handling. Do not invent missing identifiers, authenticate header claims, or merge threads from matching subjects alone.
+
+Supported attachments use common ingestion and retain parent-email relationships. Unsupported attachments remain retained and visibly unprocessed. Intake/evidence structures must support collections of attachments and visual occurrences, including repeated use of one asset; P2's one-EML/one-DOCX/one-PNG example is the first demonstration, not a permanent schema or application limit. This adds no account connector, direct sending or full email client.
+
+### Outcomes and task permission
+
+Keep portable Markdown/assets, source evidence, understandable approval, explicit provider/model choice, recoverability and a shared headless application interface. Their mechanisms may be challenged. Preserve files/work; establish actual users/compatibility/persistence obligations from repository evidence without opening private vaults. Do not infer them from synthetic fixtures.
+
+The original reassessment authorized requirements/documentation edits, public research, repository inspection and isolated public/synthetic probes outside product dependencies; its evidence is complete. The owner now authorizes only focused documentation/planning corrections, required checks and merge of PR85, then stop. No other PR merge, production implementation, release, new probe or live-model evaluation is authorized in this finalization session. Product dependencies/CI protection/global settings, private data, credential inspection, migrations/deletions, new paid accounts and large model downloads remain excluded. Proposed architecture/adoption and production scope still require selection.
+
+For a fresh agent, the owner authorizes bounded **BRN runtime** comparison of **GPT-6.1 Sol, Medium** and **GPT-6 Luna, Medium**, with bounded experiments at other supported Luna reasoning efforts, to test whether Luna can perform the same useful BRN tasks. Verify actual provider identifiers and effort support before use; never silently switch model, provider or account. Use public/synthetic fixtures, preserved evidence, existing approval boundaries and visible cancellation/spending limits. No private-data uploads, new paid accounts or unrestricted spending. The [existing plan](../work/active/architecture-reassessment/plan.md#later-solluna-runtime-comparison) carries forward the bounded campaign and distinguishes owner choices from assistant-proposed ceilings. Earlier blanket no-live statements describe the reassessment/finalization session, not a prohibition or missing authorization for this later campaign. No live call is made now.
+
+---
+
 ## 1. Product definition
 
 BRN is a **chat-first personal work and knowledge assistant** with a Markdown vault underneath it.
@@ -55,7 +89,7 @@ authentication infrastructure or multi-user model.
 
 ## 2. Core product principle
 
-### Read and investigate autonomously; change durable state only through approval
+### Investigate and revise drafts freely; approve authoritative knowledge and real actions
 
 BRN may autonomously:
 
@@ -75,9 +109,9 @@ BRN may autonomously:
 - propose document rewrites,
 - propose profile updates.
 
-BRN must not silently make durable changes.
+BRN must not silently change authoritative knowledge or real actions. Private drafts, extracted evidence and tentative proposals may be persisted and revised before approval.
 
-Durable changes require explicit user approval, including:
+Authoritative changes require explicit user approval, including:
 
 - creating or updating a Markdown note,
 - promoting source information into curated knowledge,
@@ -106,7 +140,7 @@ BRN must never:
 6. Change AI provider or model without the user's knowledge.
 7. Permanently delete meaningful information without a recoverable path.
 8. Treat AI-generated text as equivalent to approved knowledge.
-9. Guess when identity, relationship, source authority, or meaning is materially uncertain.
+9. Present a guess as established identity, relationship, source authority or meaning. Evidence-backed tentative recommendations may state material uncertainty and alternatives.
 10. Mark a real-world action complete merely because BRN drafted or approved an output.
 
 If the user's request conflicts with approved current knowledge, BRN should surface the contradiction and ask for clarification rather than blindly producing a misleading result.
@@ -300,7 +334,7 @@ The user deliberately adds copies of information into BRN.
 
 Supported intake should include, as practical:
 
-- email content,
+- email content and actual `.eml` files with MIME structure, available headers, CID images and attachments (see the dated EML amendment),
 - Teams conversation content,
 - Markdown/text,
 - DOCX,
@@ -786,7 +820,7 @@ BRN should manage:
 - relationships,
 - structural metadata
 
-automatically.
+by preparing/revising proposals automatically. Authoritative metadata changes require approval; derived non-authoritative suggestions may update without promotion.
 
 The user should not need to maintain metadata manually.
 
@@ -840,7 +874,7 @@ Primary v1 graph use case:
 
 Graph relationships should be proactively maintained by BRN.
 
-Clear relationships may be added automatically.
+Clear derived relationship suggestions may be indexed automatically as non-authoritative evidence. Durable authoritative relationships require reviewed approval unless the owner later delegates a specific operation; no such autonomy is enabled by the 2026-10-07 amendment.
 
 Uncertain relationships should be surfaced for confirmation.
 
