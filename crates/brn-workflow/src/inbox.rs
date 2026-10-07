@@ -311,10 +311,10 @@ pub(crate) fn restore_intake_snapshot_mirrors(store: &mut WorkStore) -> Result<(
         Ok(bound) => bound,
         Err(_) => return Ok(()),
     };
-    if let (Some(raw), Some(bound)) = (&raw, &bound) {
-        if serde_json::to_string(bound).ok().as_ref() != Some(raw) {
-            return Ok(());
-        }
+    if let (Some(raw), Some(bound)) = (&raw, &bound)
+        && serde_json::to_string(bound).ok().as_ref() != Some(raw)
+    {
+        return Ok(());
     }
     let files = match InboxFiles::open(store.data_dir(), bound.as_ref(), false) {
         Ok(Some(files)) => files,

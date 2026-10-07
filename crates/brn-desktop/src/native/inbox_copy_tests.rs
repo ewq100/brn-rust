@@ -64,7 +64,7 @@ impl Fixture {
         ));
         let request = CaptureInboxRequest {
             id: Uuid::new_v4(),
-            kind: InboxKind::Email,
+            kind: InboxKind::Text,
             title: "Synthetic copy 日本語".into(),
             original_name: Some("copy.eml".into()),
             text: EXACT.into(),

@@ -1519,7 +1519,7 @@ mod tests {
         std::fs::write(&original, exact).unwrap();
         let captured = crate::cli::execute(&invocation(InboxCommand::Add {
             id: Uuid::new_v4(),
-            kind: InboxKind::Email,
+            kind: InboxKind::Text,
             title: "Exact source".into(),
             original_name: Some("message.eml".into()),
             input: original.clone(),
@@ -1928,7 +1928,7 @@ mod tests {
         };
         let add = || InboxCommand::Add {
             id,
-            kind: InboxKind::Email,
+            kind: InboxKind::Text,
             title: "Email õ".into(),
             original_name: Some("../../label.eml".into()),
             input: input.clone(),

@@ -28,6 +28,14 @@ pub enum AnalysisPending {
         generation: u64,
         analysis: Uuid,
     },
+    Extraction {
+        view: u64,
+        source_generation: u64,
+        inspection_generation: u64,
+        generation: u64,
+        snapshot_id: Uuid,
+        digest: [u8; 32],
+    },
 }
 
 #[derive(Default)]
@@ -42,6 +50,8 @@ pub struct InboxAnalysisView {
     pub annotation_review: Option<Uuid>,
     pub analysis_id: Option<Uuid>,
     pub record: Option<InboxActionAnalysis>,
+    pub retained_extraction: Option<brn_workflow::inbox_processing::IntakeSnapshot>,
+    pub extraction_error: Option<String>,
     pub error: Option<String>,
     /// Last explicit submission is retained for reply correlation, never resubmitted.
     pub request: Option<InboxActionRequest>,
@@ -49,9 +59,59 @@ pub struct InboxAnalysisView {
     pub(super) view: u64,
     pub(super) source_generation: u64,
     pub(super) inspection_generation: u64,
+    pub(super) extraction_generation: u64,
 }
 
 impl AiState {
+    pub fn inbox_analysis_is_visible(&self) -> bool {
+        self.inbox_analysis.visible
+    }
+    /// Exact retained receipt selected by the current analysis or checked Source evidence.
+    pub fn retained_extraction_binding(&self) -> Option<(Uuid, [u8; 32])> {
+        if let Some(record) = &self.inbox_analysis.record {
+            if let Some(intake) = &record.job.capture.intake {
+                return Some((intake.snapshot_id, intake.snapshot_sha256));
+            }
+            return source_extraction_receipt(&record.job.capture.source_text);
+        }
+        if let Some(intake) = &self.inbox_analysis.intake {
+            return Some((intake.snapshot_id, intake.snapshot_sha256));
+        }
+        source_extraction_receipt(&self.inbox_analysis.source.as_ref()?.text)
+    }
+    pub fn inspect_retained_extraction(&mut self) -> Option<(Uuid, AppCommand)> {
+        if !self.ready || !self.inbox_analysis.visible || self.application_busy() {
+            return None;
+        }
+        let (snapshot_id, digest) = self.retained_extraction_binding()?;
+        let state = &mut self.inbox_analysis;
+        state.extraction_generation = state.extraction_generation.wrapping_add(1);
+        state.retained_extraction = None;
+        state.extraction_error = None;
+        let pending = AnalysisPending::Extraction {
+            view: state.view,
+            source_generation: state.source_generation,
+            inspection_generation: state.inspection_generation,
+            generation: state.extraction_generation,
+            snapshot_id,
+            digest,
+        };
+        Some(self.command(
+            Pending::InboxAnalysis(pending),
+            AppCommand::InboxExtraction(snapshot_id),
+        ))
+    }
+    pub fn retained_extraction_loading(&self) -> bool {
+        self.pending.values().any(|pending| matches!(pending,
+            Pending::InboxAnalysis(AnalysisPending::Extraction {view, generation, ..})
+            if *view == self.inbox_analysis.view && *generation == self.inbox_analysis.extraction_generation))
+    }
+    fn clear_retained_extraction(&mut self) {
+        self.inbox_analysis.extraction_generation =
+            self.inbox_analysis.extraction_generation.wrapping_add(1);
+        self.inbox_analysis.retained_extraction = None;
+        self.inbox_analysis.extraction_error = None;
+    }
     /// Only a member of the currently inspected analysis may open Needs Review.
     pub fn inbox_analysis_finding(&self, analysis: Uuid, id: Uuid) -> Option<&FindingRecord> {
         if !self.ready
@@ -93,6 +153,7 @@ impl AiState {
         self.inbox_analysis.view = self.inbox_analysis.view.wrapping_add(1);
     }
     pub(super) fn close_analysis_view(&mut self) {
+        self.clear_retained_extraction();
         self.invalidate_visual_analysis();
         self.inbox_analysis.visible = false;
         self.inbox_analysis.view = self.inbox_analysis.view.wrapping_add(1);
@@ -105,6 +166,7 @@ impl AiState {
         {
             return None;
         }
+        self.clear_retained_extraction();
         self.invalidate_visual_analysis();
         let view = &mut self.inbox_analysis;
         view.source_generation = view.source_generation.wrapping_add(1);
@@ -133,6 +195,7 @@ impl AiState {
         {
             return None;
         }
+        self.clear_retained_extraction();
         self.invalidate_visual_analysis();
         let view = &mut self.inbox_analysis;
         view.source_generation = view.source_generation.wrapping_add(1);
@@ -191,6 +254,7 @@ impl AiState {
             self.inbox_analysis.source_error = Some(error.message);
             return None;
         }
+        self.clear_retained_extraction();
         self.inbox_analysis.annotation = None;
         self.inbox_analysis.annotation_review = None;
         self.inbox_analysis.analysis_id = Some(request.id);
@@ -215,6 +279,7 @@ impl AiState {
         if !self.ready || !self.inbox_analysis.visible || analysis.is_nil() {
             return None;
         }
+        self.clear_retained_extraction();
         self.inbox_analysis.annotation = None;
         self.inbox_analysis.annotation_review = None;
         let view = &mut self.inbox_analysis;
@@ -256,9 +321,40 @@ impl AiState {
             self.received_visual_analysis(id, *pending, event);
             return true;
         }
+        let expected = self.retained_extraction_binding();
         let state = &mut self.inbox_analysis;
         match pending {
             AnalysisPending::Visual(_) => unreachable!(),
+            AnalysisPending::Extraction {
+                view,
+                source_generation,
+                inspection_generation,
+                generation,
+                snapshot_id,
+                digest,
+            } => {
+                if !state.visible
+                    || state.view != view
+                    || state.source_generation != source_generation
+                    || state.inspection_generation != inspection_generation
+                    || state.extraction_generation != generation
+                    || expected != Some((snapshot_id, digest))
+                {
+                    self.pending.remove(&id);
+                    return true;
+                }
+                match event {
+                    AppEvent::InboxExtraction(snapshot)
+                        if snapshot.id == snapshot_id
+                            && snapshot.digest().is_ok_and(|actual| actual == digest) =>
+                    {
+                        state.retained_extraction = Some((**snapshot).clone());
+                        state.extraction_error = None;
+                    }
+                    AppEvent::Failed(error) => state.extraction_error = Some(error.message.clone()),
+                    _ => return true,
+                }
+            }
             AnalysisPending::Intake {
                 view,
                 generation,
@@ -395,4 +491,10 @@ fn analysis_matches(
         && capture.provider == super::provider_key(request.selection.provider)
         && capture.model == request.selection.model
         && capture.effort == request.effort.as_str()
+}
+
+fn source_extraction_receipt(text: &str) -> Option<(Uuid, [u8; 32])> {
+    let provenance = brn_workflow::inbox_processing::read_inbox_source_provenance(text).ok()??;
+    let receipt = provenance.extraction?;
+    Some((receipt.snapshot_id, receipt.snapshot_sha256))
 }

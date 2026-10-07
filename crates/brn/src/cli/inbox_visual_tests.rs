@@ -166,8 +166,7 @@ mod saved {
     use brn_workflow::{
         inbox::InboxItem,
         inbox_actions::{InboxActionCapture, InboxVisualEvidence},
-        proposal_apply::ApprovalRequest,
-        proposals::{DraftNoteChange, DraftRequest, ProposalRecord},
+        proposals::{DraftNoteChange, DraftRequest},
     };
     const DOCX: &[u8] =
         include_bytes!("../../../brn-workflow/src/inbox_processing/fixtures/inline-png.docx");

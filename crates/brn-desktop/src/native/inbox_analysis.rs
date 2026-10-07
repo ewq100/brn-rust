@@ -64,6 +64,16 @@ impl Desktop {
                 .analysis_source
                 .update(cx, |editor, cx| editor.set_value(source, window, cx));
         }
+        let extraction = ai
+            .inbox_analysis
+            .retained_extraction
+            .as_ref()
+            .map_or("", |snapshot| snapshot.extraction.markdown.as_str());
+        if self.inbox.retained_extraction.read(cx).value().as_ref() != extraction {
+            self.inbox
+                .retained_extraction
+                .update(cx, |editor, cx| editor.set_value(extraction, window, cx));
+        }
         let retained_source = ai
             .inbox_analysis
             .record
@@ -474,6 +484,42 @@ impl Desktop {
             panel = panel.child(format!("{} / {} · effort: {} · Failed · in-memory partial · finalization not acknowledged",
                 turn.provider, turn.model, turn.effort.as_deref().unwrap_or("unavailable")))
                 .child("Copy this partial before closing or restarting. Further AI requests remain blocked until the workspace is reopened.");
+        }
+        if ai.retained_extraction_binding().is_some() {
+            panel = panel.child(
+                Button::new("inbox-inspect-retained-extraction")
+                    .label("Inspect retained extraction")
+                    .disabled(blocked || ai.application_busy() || ai.retained_extraction_loading())
+                    .on_click(cx.listener(|this, _, _, cx| {
+                        if this.inbox_blocked() {
+                            return;
+                        }
+                        if let Some(command) =
+                            this.ai.as_mut().unwrap().inspect_retained_extraction()
+                        {
+                            this.simple_send(command, cx);
+                        }
+                        cx.notify();
+                    })),
+            );
+        }
+        if ai.retained_extraction_loading() {
+            panel = panel.child("Loading exact retained extraction…");
+        }
+        if let Some(error) = &view.extraction_error {
+            panel = panel.child(format!("Retained extraction: {error}"));
+        }
+        if let Some(snapshot) = &view.retained_extraction {
+            let checked_digest = ai
+                .retained_extraction_binding()
+                .filter(|(id, _)| *id == snapshot.id)
+                .map(|(_, digest)| fingerprint_hash(&digest))
+                .unwrap_or_else(|| "unavailable".into());
+            panel = panel.child(div().id("retained-intake-extraction").test_support()
+                .child(format!("Retained extraction {} · SHA-256 {} · original {}. Read-only historical evidence; original files and conversion are not required.", snapshot.id, checked_digest, snapshot.original.capture.title)))
+                .child(div().h(px(300.)).flex_shrink_0().child(readonly(&self.inbox.retained_extraction, "Complete retained extraction Markdown")))
+                .child(copy("copy-retained-extraction", "Copy full retained extraction", snapshot.extraction.markdown.clone()))
+                .child(self.render_intake_extraction(&snapshot.extraction, true, blocked, cx));
         }
         if let Some(record) = &view.record {
             let capture = &record.job.capture;

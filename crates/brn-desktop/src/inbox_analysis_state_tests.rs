@@ -60,7 +60,7 @@ impl Fixture {
         let raw = "Exact email evidence: Blue õ 🦀\r\nFollow up with Anna.\r\n".to_owned();
         let request = CaptureInboxRequest {
             id: Uuid::new_v4(),
-            kind: InboxKind::Email,
+            kind: InboxKind::Text,
             title: "Synthetic source to analyze".into(),
             original_name: Some("synthetic-email.txt".into()),
             text: raw.clone(),
@@ -929,4 +929,312 @@ fn late_private_binding_cannot_replace_a_newer_source_selection() {
         state.inbox_analysis.source_path.as_deref(),
         Some("different.md")
     );
+}
+
+/// Synthetic retained analysis and actual immutable store record, without a converter or provider.
+fn seed_retained_analysis() -> (
+    Fixture,
+    brn_workflow::inbox_processing::IntakeSnapshot,
+    Uuid,
+) {
+    use brn_intake::{Extraction, ImageAsset, ImageOccurrence, SourceNode, digest, hex};
+    use brn_store::work::{
+        WorkStore,
+        inbox_source::{ExtractionAsset, ExtractionBinding, InboxSourceBinding},
+    };
+    let (mut fixture, mut worker) = Fixture::new();
+    worker.shutdown().unwrap();
+    let image = include_bytes!(
+        "../../../experiments/architecture-reassessment/p1-office-mime/fixtures/water-use.png"
+    )
+    .to_vec();
+    let hash = digest(&image);
+    let (width, height) = brn_intake::validate_png_image(&image).unwrap();
+    let asset = ImageAsset {
+        id: format!("asset-{}", hex(&hash)),
+        sha256: hash,
+        width,
+        height,
+        media_type: "image/png".into(),
+        bytes: image,
+    };
+    let link = format!(
+        "![retained image]({})",
+        brn_intake::asset_file_name(&asset).unwrap()
+    );
+    let markdown = format!("Exact retained extraction λ\n{link}\nRepeated exact image\n{link}\n");
+    let occurrences = markdown
+        .match_indices(&link)
+        .enumerate()
+        .map(|(i, (start, _))| ImageOccurrence {
+            id: format!("occurrence-{i}"),
+            source_id: "root".into(),
+            asset_id: asset.id.clone(),
+            locator: format!("image/{i}"),
+            alt: Some("retained image".into()),
+            start,
+            end: start + link.len(),
+        })
+        .collect();
+    let snapshot = brn_workflow::inbox_processing::IntakeSnapshot {
+        id: Uuid::new_v4(),
+        batch_id: Uuid::new_v4(),
+        index: 0,
+        original: fixture.original.clone(),
+        extraction: Extraction {
+            limits: Default::default(),
+            consumed: None,
+            schema: 1,
+            converter: brn_intake::CONVERTER.into(),
+            original_sha256: digest(fixture.raw.as_bytes()),
+            markdown: markdown.clone(),
+            sources: vec![SourceNode {
+                id: "root".into(),
+                parent: None,
+                name: "retained.eml".into(),
+                media_type: "message/rfc822".into(),
+                locator: "original".into(),
+                status: "partial".into(),
+                bytes: fixture.raw.as_bytes().to_vec(),
+                text: markdown,
+            }],
+            assets: vec![asset],
+            occurrences,
+            gaps: vec!["Charts require exact original inspection.".into()],
+        },
+    };
+    snapshot.validate().unwrap();
+    let note_id = Uuid::new_v4();
+    let materialized = snapshot
+        .extraction
+        .materialize_for_source(&note_id.to_string())
+        .unwrap();
+    let source_binding = InboxSourceBinding {
+        extraction: Some(ExtractionBinding {
+            snapshot_id: snapshot.id,
+            snapshot_sha256: snapshot.digest().unwrap(),
+            assets: snapshot
+                .extraction
+                .assets
+                .iter()
+                .map(|asset| ExtractionAsset {
+                    name: brn_intake::asset_file_name_for_source(asset, &note_id.to_string())
+                        .unwrap(),
+                    byte_len: asset.bytes.len() as u64,
+                    sha256: asset.sha256,
+                })
+                .collect(),
+        }),
+        visual: None,
+        batch_id: snapshot.batch_id,
+        index: 0,
+        original: fixture.original.clone(),
+        format: brn_workflow::inbox_processing::InboxConversionFormat::MaintainedExtractionV1,
+        byte_len: materialized.markdown.len() as u64,
+        sha256: digest(materialized.markdown.as_bytes()),
+        note_id,
+    };
+    fixture.source.text = source_binding.markdown(&materialized.markdown).unwrap();
+    fixture.source.source.fingerprint.len = fixture.source.text.len() as u64;
+    fixture.source.source.fingerprint.sha256 = digest(fixture.source.text.as_bytes());
+    fixture.source.validate().unwrap();
+    fs::write(
+        fixture.base.path().join("vault/source.md"),
+        &fixture.source.text,
+    )
+    .unwrap();
+    let (mut store, _) = WorkStore::open(&fixture.base.path().join("data")).unwrap();
+    store.restore_intake_snapshot(&snapshot).unwrap();
+    let analysis_id = Uuid::new_v4();
+    store
+        .reserve_inbox_action(
+            &InboxActionCapture {
+                visual_asset: None,
+                purpose: InboxAnalysisPurpose::KnowledgeAndActions,
+                id: analysis_id,
+                conversation: None,
+                source: Some(fixture.source.source.clone()),
+                intake: None,
+                source_text: fixture.source.text.clone(),
+                provider: "chatgpt".into(),
+                model: "gpt-6-luna".into(),
+                effort: "high".into(),
+            },
+            "Synthetic retained review, no provider execution",
+        )
+        .unwrap();
+    drop(store);
+    fs::remove_dir_all(&fixture.original.capture.copy.directory).unwrap();
+    (fixture, snapshot, analysis_id)
+}
+
+#[cfg(all(target_os = "macos", feature = "native-test-support"))]
+pub(crate) fn retained_analysis_fixture() -> (
+    tempfile::TempDir,
+    brn_workflow::inbox_processing::IntakeSnapshot,
+    InboxActionAnalysis,
+) {
+    let (fixture, snapshot, analysis_id) = seed_retained_analysis();
+    let mut worker = AppWorker::start(
+        fixture.base.path().join("data"),
+        AppConfig {
+            vault_root: Some(fixture.base.path().join("vault")),
+            credentials_dir: Some(fixture.base.path().join("credentials")),
+            model_dir: None,
+        },
+    )
+    .unwrap();
+    assert!(matches!(
+        worker
+            .recv_event_timeout(Duration::from_secs(10))
+            .unwrap()
+            .1,
+        AppEvent::Ready { .. }
+    ));
+    let AppEvent::InboxActionAnalysis(record) = reply(
+        &worker,
+        (Uuid::new_v4(), AppCommand::InboxActionAnalysis(analysis_id)),
+    ) else {
+        panic!("retained analysis")
+    };
+    let AppEvent::InboxExtraction(checked) = reply(
+        &worker,
+        (Uuid::new_v4(), AppCommand::InboxExtraction(snapshot.id)),
+    ) else {
+        panic!("readonly retained extraction")
+    };
+    assert_eq!(*checked, snapshot);
+    worker.shutdown().unwrap();
+    (fixture.base, snapshot, *record)
+}
+
+#[test]
+fn retained_analysis_reopens_exact_images_after_restart_without_original_or_conversion() {
+    let (fixture, snapshot, analysis_id) = seed_retained_analysis();
+    let mut worker = AppWorker::start(
+        fixture.base.path().join("data"),
+        AppConfig {
+            vault_root: Some(fixture.base.path().join("vault")),
+            credentials_dir: Some(fixture.base.path().join("credentials")),
+            model_dir: None,
+        },
+    )
+    .unwrap();
+    assert!(matches!(
+        worker
+            .recv_event_timeout(Duration::from_secs(10))
+            .unwrap()
+            .1,
+        AppEvent::Ready { .. }
+    ));
+    let mut state = state();
+    let command = state.inspect_inbox_analysis(analysis_id).unwrap();
+    let id = command.0;
+    state.apply(id, reply(&worker, command));
+    assert!(state.inbox_queue.preview.is_none());
+    assert!(state.inbox_queue.batch.is_none());
+    assert!(state.inbox_analysis.source.is_none());
+    assert_eq!(
+        state.retained_extraction_binding(),
+        Some((snapshot.id, snapshot.digest().unwrap()))
+    );
+    let command = state.inspect_retained_extraction().unwrap();
+    assert!(matches!(command.1, AppCommand::InboxExtraction(id) if id == snapshot.id));
+    let id = command.0;
+    let event = reply(&worker, command);
+    let mut forged = snapshot.clone();
+    forged.extraction.gaps.push("different valid record".into());
+    state.apply(id, AppEvent::InboxExtraction(Box::new(forged)));
+    assert!(state.inbox_analysis.retained_extraction.is_none());
+    assert!(state.pending.contains_key(&id));
+    state.apply(id, event);
+    assert_eq!(
+        state.inbox_analysis.retained_extraction.as_ref(),
+        Some(&snapshot)
+    );
+    assert_eq!(snapshot.extraction.occurrences.len(), 2);
+    assert!(!fixture.original.capture.copy.directory.exists());
+    worker.shutdown().unwrap();
+}
+
+#[test]
+fn late_retained_extraction_cannot_replace_newer_analysis_or_closed_view() {
+    let (fixture, snapshot, analysis_id) = seed_retained_analysis();
+    let (store, _) = brn_store::work::WorkStore::open(&fixture.base.path().join("data")).unwrap();
+    let record = InboxActionAnalysis {
+        job: store.inbox_action(analysis_id).unwrap().unwrap(),
+        turn: None,
+        proposals: vec![],
+        findings: vec![],
+        needs_semantic_review: true,
+    };
+    drop(store);
+    let mut state = state();
+    let (id, _) = state.inspect_inbox_analysis(analysis_id).unwrap();
+    state.apply(id, AppEvent::InboxActionAnalysis(Box::new(record.clone())));
+    let (stale, _) = state.inspect_retained_extraction().unwrap();
+    state.inspect_inbox_analysis(Uuid::new_v4()).unwrap();
+    state.apply(stale, AppEvent::InboxExtraction(Box::new(snapshot.clone())));
+    assert!(state.inbox_analysis.retained_extraction.is_none());
+    let (id, _) = state.inspect_inbox_analysis(analysis_id).unwrap();
+    state.apply(id, AppEvent::InboxActionAnalysis(Box::new(record)));
+    let (stale, _) = state.inspect_retained_extraction().unwrap();
+    state.close_analysis_view();
+    state.apply(stale, AppEvent::InboxExtraction(Box::new(snapshot)));
+    assert!(state.inbox_analysis.retained_extraction.is_none());
+}
+
+#[test]
+fn admitted_new_source_analysis_clears_other_retained_extraction_but_refusal_preserves_it() {
+    let (fixture_a, snapshot_a, analysis_a) = seed_retained_analysis();
+    let (fixture_b, mut worker_b) = Fixture::new();
+    worker_b.shutdown().unwrap();
+    let (store, _) = brn_store::work::WorkStore::open(&fixture_a.base.path().join("data")).unwrap();
+    let record_a = InboxActionAnalysis {
+        job: store.inbox_action(analysis_a).unwrap().unwrap(),
+        turn: None,
+        proposals: vec![],
+        findings: vec![],
+        needs_semantic_review: true,
+    };
+    drop(store);
+    let mut state = state();
+    load(&mut state, &fixture_b.source);
+    let (id, _) = state.inspect_inbox_analysis(analysis_a).unwrap();
+    state.apply(id, AppEvent::InboxActionAnalysis(Box::new(record_a)));
+    let (stale, _) = state.inspect_retained_extraction().unwrap();
+    let (current, _) = state.inspect_retained_extraction().unwrap();
+    state.apply(
+        current,
+        AppEvent::InboxExtraction(Box::new(snapshot_a.clone())),
+    );
+    assert_eq!(
+        state.inbox_analysis.retained_extraction.as_ref(),
+        Some(&snapshot_a)
+    );
+    let extraction_generation = state.inbox_analysis.extraction_generation;
+    let selection = state.selection.take();
+    assert!(state.analyze_inbox_source().is_none());
+    assert_eq!(
+        state.inbox_analysis.retained_extraction.as_ref(),
+        Some(&snapshot_a)
+    );
+    assert_eq!(
+        state.inbox_analysis.extraction_generation,
+        extraction_generation
+    );
+    assert_eq!(state.inbox_analysis.analysis_id, Some(analysis_a));
+    state.selection = selection;
+    let (analysis_b, command) = state.analyze_inbox_source().unwrap();
+    let AppCommand::AnalyzeInboxActions(request_b) = command else {
+        panic!("new Source analysis")
+    };
+    assert_eq!(request_b.source.as_deref(), Some(&fixture_b.source));
+    assert_ne!(analysis_b, analysis_a);
+    assert!(state.inbox_analysis.retained_extraction.is_none());
+    assert!(state.inbox_analysis.record.is_none());
+    state.apply(stale, AppEvent::InboxExtraction(Box::new(snapshot_a)));
+    assert!(state.inbox_analysis.retained_extraction.is_none());
+    assert_eq!(state.inbox_analysis.analysis_id, Some(analysis_b));
+    assert!(!state.pending.contains_key(&stale));
 }

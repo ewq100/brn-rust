@@ -50,21 +50,21 @@ fn intake_at(
         .unwrap();
     loop {
         let (id, value) = event(worker);
-        if id == process.id {
-            if let AppEvent::InboxProcessing(batch) = value {
-                if batch.pending_count() == 0 {
-                    assert!(
-                        matches!(
-                            batch.entries[0].outcome,
-                            InboxProcessOutcome::Converted { .. }
-                        ),
-                        "{batch:?}"
-                    );
-                    break;
-                }
-            }
+        if id == process.id
+            && let AppEvent::InboxProcessing(batch) = value
+            && batch.pending_count() == 0
+        {
+            assert!(
+                matches!(
+                    batch.entries[0].outcome,
+                    InboxProcessOutcome::Converted { .. }
+                ),
+                "{batch:?}"
+            );
+            break;
         }
     }
+
     let candidate = InboxCandidateRequest {
         batch_id: process.id,
         index: 0,
@@ -301,5 +301,26 @@ fn repeated_imports_with_shared_images_apply_to_one_source_directory() {
             AppEvent::ProposalApplied(_)
         ));
     }
+    worker.shutdown().unwrap();
+}
+
+#[test]
+fn short_valid_eml_does_not_inherit_the_legacy_zip_size_floor() {
+    let f = Fixture::new();
+    let mut worker = f.start(Hooks::default());
+    let (_, source) = intake_at(
+        &worker,
+        b"Subject: a\r\n\r\nb",
+        "short.eml",
+        "short-source.md",
+    );
+    let AppEvent::InboxIntakeBinding(_) = reply(
+        &worker,
+        AppCommand::InboxIntakeBinding {
+            source_proposal_id: source.draft.id,
+        },
+    ) else {
+        panic!("short MIME Source must support private review");
+    };
     worker.shutdown().unwrap();
 }

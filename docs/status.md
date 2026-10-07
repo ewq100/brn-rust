@@ -8,8 +8,14 @@ and finalization-only statements below are historical. Baseline PR86 merge
 `47f12c05dadcabd899f015f4d8e2b904f12d8557`; the
 [execution checkpoint](work/active/architecture-reassessment/plan.md#selected-p2-implementation--2026-10-07)
 tracks milestones, replacement/retirement and gates. No merge/release/P3/private
-vault operation is authorized. Implementation is underway; no new native/live
-qualification or owner acceptance is claimed.
+vault operation is authorized. Maintained EML/DOCX extraction, immutable evidence,
+private investigation and exact grouped consequences are implemented in the task
+branch; the default workspace gate passed 1,613 tests plus 52 fixture assertions.
+Native feature checks passed 726 tests, shipping builds, two AppWorker restarts
+and a fresh 52-assertion fixture run. Actual BRN GUI review/restart is blocked by
+the locked Mac. The standard subscription route is
+disconnected, so live Sol/Luna usefulness and owner acceptance remain unverified.
+This is an implementation checkpoint, not a merge or P2 acceptance claim.
 
 ## PR86 accepted specification and integration handoff — 2026-10-07
 

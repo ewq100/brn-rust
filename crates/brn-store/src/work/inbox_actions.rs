@@ -637,12 +637,7 @@ impl IntakeCitation {
                 let span_end = index + 1;
                 let span_start = span_end - needle.len();
                 if span_start <= start && end <= span_end {
-                    if selected
-                        .replace((start - span_start, end - span_start))
-                        .is_some()
-                    {
-                        return Err(invalid("private quote has ambiguous source-text placement"));
-                    }
+                    selected = Some((start - span_start, end - span_start));
                 }
                 matched = prefix[matched - 1];
             }

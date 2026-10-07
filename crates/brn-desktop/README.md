@@ -156,7 +156,26 @@ into this form. Failed, provisional or oversized answers cannot become truncated
 drafts. AI writing uses a real stored seed Draft, comments and owned Rewrite.
 GUI/IME/accessibility and owner acceptance are tracked separately.
 
-### Native text/email Inbox
+### Native EML/DOCX and text Inbox
+
+P2 adds an explicit EML/DOCX file chooser over `CaptureBinaryInbox`, with retry
+bound to the same exact bytes. Extraction review shows decoded text, source/parent
+relationships, every repeated image occurrence, quotas/consumption and gaps.
+Owner-triggered original inspection uses Quick Look over exact retained bytes in
+an owned temporary preview; explicit Close, replacing the preview or quitting
+joins its process group. Navigation retains the owned preview until one of those
+actions.
+Unsupported XLSX attachments remain visible as retained/unprocessed.
+
+A prepared pending Source can be selected for private investigation before
+approval. The same owned Rig turn prepares grouped knowledge and related Action
+reviews; comments and Rewrite keep existing version guards. Group checkboxes
+select displayed stamps and require the matching pending Source prerequisite.
+Review exposes full proposed changes, recorded interpretation/reasons and retained
+evidence. Unselected members remain pending. No Source or Action is applied by
+inspection, extraction, model completion or Rewrite. The historical saved-Source
+analysis/inline-PNG annotation paths below remain available for old saved work.
+
 
 Inbox captures deliberate exact UTF-8 text, Markdown, email and Teams copies
 through AppWorker. Capture fields remain intact after acknowledgement, failure or

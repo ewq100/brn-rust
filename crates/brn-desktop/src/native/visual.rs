@@ -76,21 +76,26 @@ pub(super) fn file_proof(label: &str, source: &SourceVersion) -> String {
     )
 }
 
+pub(super) fn intake_image(asset: &brn_intake::ImageAsset) -> Option<Arc<Image>> {
+    let format = match asset.media_type.as_str() {
+        "image/png" => ImageFormat::Png,
+        "image/jpeg" => ImageFormat::Jpeg,
+        _ => return None,
+    };
+    Some(Arc::new(Image::from_bytes(format, asset.bytes.clone())))
+}
+
 pub(super) fn intake_image_panel(
     index: usize,
     asset: &brn_intake::ImageAsset,
     occurrence: &brn_intake::ImageOccurrence,
+    image: Option<Arc<Image>>,
 ) -> AnyElement {
-    let format = match asset.media_type.as_str() {
-        "image/png" => ImageFormat::Png,
-        "image/jpeg" => ImageFormat::Jpeg,
-        _ => {
-            return div()
-                .child("Image inspection unavailable for this media type.")
-                .into_any_element();
-        }
+    let Some(image) = image else {
+        return div()
+            .child("Image inspection unavailable for this media type.")
+            .into_any_element();
     };
-    let image = Arc::new(Image::from_bytes(format, asset.bytes.clone()));
     div()
         .id(format!("intake-image-{index}"))
         .test_support()

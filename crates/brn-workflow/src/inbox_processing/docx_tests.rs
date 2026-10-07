@@ -571,16 +571,21 @@ impl Fixture {
         assert_eq!(binding.original, item);
         assert!(binding.visual.is_none());
         assert!(binding.extraction.is_some());
-        assert_eq!(binding.byte_len, preview.markdown.len() as u64);
-        assert_eq!(binding.sha256, digest(preview.markdown.as_bytes()));
+        let source_body = extraction
+            .materialize_for_source(&request.note_id.to_string())
+            .unwrap()
+            .markdown;
+        assert_eq!(binding.byte_len, source_body.len() as u64);
+        assert_eq!(binding.sha256, digest(source_body.as_bytes()));
         let (text, asset, payload) = visual_members(&draft);
-        assert_eq!(text, binding.markdown(&preview.markdown).unwrap());
+        assert_eq!(text, binding.markdown(&source_body).unwrap());
         assert_eq!(payload, INLINE_PNG);
         assert_eq!(
             asset,
             format!(
                 "sources/{}",
-                brn_intake::asset_file_name(image_asset).unwrap()
+                brn_intake::asset_file_name_for_source(image_asset, &request.note_id.to_string())
+                    .unwrap()
             )
         );
         assert!(!self.vault.join(VISUAL_PATH).exists());
@@ -722,7 +727,12 @@ fn snapshot_source_self_consistent_forgery_is_not_retained_authority() {
                     .intake_snapshot(binding.extraction.as_ref().unwrap().snapshot_id)
                     .unwrap()
                     .unwrap();
-                let body = snapshot.extraction.markdown.replace("First", "Invented");
+                let body = snapshot
+                    .extraction
+                    .materialize_for_source(&binding.note_id.to_string())
+                    .unwrap()
+                    .markdown
+                    + "Invented output\n";
                 binding.byte_len = body.len() as u64;
                 binding.sha256 = digest(body.as_bytes());
                 let text = binding.markdown(&body).unwrap();
@@ -739,7 +749,15 @@ fn snapshot_source_self_consistent_forgery_is_not_retained_authority() {
                 .intake_snapshot_for(binding.batch_id, binding.index)
                 .unwrap()
                 .unwrap();
-            let text = binding.markdown(&original.extraction.markdown).unwrap();
+            let text = binding
+                .markdown(
+                    &original
+                        .extraction
+                        .materialize_for_source(&binding.note_id.to_string())
+                        .unwrap()
+                        .markdown,
+                )
+                .unwrap();
             let DraftNoteChange::Create { text: out, .. } = &mut draft.changes[0] else {
                 panic!("source")
             };
@@ -1139,4 +1157,30 @@ fn docx_visual_interrupted_finish_and_restore_resume_exact_owned_members() {
             assert!(app.tools().is_ok());
         }
     }
+}
+
+#[test]
+fn readonly_retained_intake_survives_restart_missing_original_and_removed_queue() {
+    let f = Fixture::new();
+    let mut app = f.app();
+    let (original, draft) = f.prepare(&mut app);
+    let receipt = draft
+        .inbox_source
+        .as_ref()
+        .unwrap()
+        .extraction
+        .as_ref()
+        .unwrap();
+    let snapshot = app.retained_intake(receipt.snapshot_id).unwrap();
+    assert_eq!(snapshot.digest().unwrap(), receipt.snapshot_sha256);
+    drop(app);
+    fs::remove_dir_all(&original.capture.copy.directory).unwrap();
+    let raw = rusqlite::Connection::open(f.data.join("brn.sqlite")).unwrap();
+    raw.execute("DELETE FROM inbox_processing", []).unwrap();
+    raw.execute("DELETE FROM inbox_items", []).unwrap();
+    drop(raw);
+    let restarted = f.app();
+    assert_eq!(restarted.retained_intake(snapshot.id).unwrap(), snapshot);
+    assert!(restarted.retained_intake(Uuid::new_v4()).is_err());
+    assert!(!original.capture.copy.directory.exists());
 }

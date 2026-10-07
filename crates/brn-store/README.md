@@ -429,7 +429,8 @@ defaults and current-evidence eligibility. No ranking or Action mutation occurs.
 ## Inbox source proposal binding
 
 Optional `inbox_source` on the existing ProposalDraft binds one source Create
-(and, for the inline PNG profile, its exact ordinary asset Create) to the complete
+(and every exact ordinary asset Create for maintained extraction, or the single
+asset in the historical inline PNG profile) to the complete
 retained Inbox snapshot and exact conversion/UUID. It is omitted for
 older records, preserving their JSON/checksums. Whole edits cannot change its body,
 identity, scope or portable original provenance; title/comments retain normal review.
@@ -447,6 +448,14 @@ fabricate a WorkTurn or rerun an already issued analysis. Store checks retained
 shape/bytes; Workflow qualifies fresh physical identity and filesystem effects.
 
 ## Original-copy Inbox catalog
+
+P2 analysis admissions can instead retain `InboxIntakeBinding` with the exact
+pending Source proposal stamp, snapshot digest, note UUID, selected images and
+occurrences. The saved Source proof is absent in that private profile; no unsaved
+SourceVersion is invented. Typed private knowledge citations retain exact node
+text ranges and locators in the immutable snapshot. Source-specific filenames are
+a mechanical materialization; ambiguous attachment text ownership refuses.
+
 
 V14 adds immutable [Inbox analysis admissions](src/work/inbox_actions.rs).
 Each UUID retains the complete explicit provider/model/effort, optional conversation,
@@ -502,7 +511,8 @@ bounds, hashes, indexed bindings and exact owned table/index objects are checked
 on reads/startup and before SQLite quick_check. Readable semantic damage refuses
 without moving the main database aside or creating a startup backup; invalid
 backup candidates are skipped. Physical corruption retains ordinary restoration.
-SQLite backup preserves catalog metadata, not the separate original-copy files.
+SQLite backup preserves catalog metadata and any V16 snapshot payloads. It does
+not preserve the separate original-copy file identity or recreate missing files.
 
 This catalog is consumed by the Stage7 workflow capture boundary; processing,
 Source preparation/approval and Action analysis use their separate typed records

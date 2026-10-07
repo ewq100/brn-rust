@@ -623,3 +623,59 @@ fn native_plural_extraction_shows_repeated_images_sources_and_visible_gaps(
     });
     fixture.unchanged();
 }
+
+#[gpui_kit::test]
+fn native_retained_analysis_reopens_plural_images_without_a_queue_preview(
+    cx: &mut gpui_kit::TestAppContext,
+) {
+    let (owner, snapshot, record) =
+        crate::ai::inbox_analysis_state_tests::retained_analysis_fixture();
+    let fixture = Fixture(owner);
+    assert!(!snapshot.original.capture.copy.directory.exists());
+    let (window, desktop) = open_pane(cx, &fixture, vec![]);
+    let mut visual = VisualTestContext::from_window(window.into(), cx);
+    visual.update(|window, cx| {
+        desktop.update(cx, |desktop, cx| {
+            desktop.inbox.body.update(cx, |editor, cx| editor.set_value(LATER, window, cx));
+            let ai = desktop.ai.as_mut().unwrap();
+            assert!(ai.inbox_queue.preview.is_none());
+            let (id, _) = ai.inspect_inbox_analysis(record.job.capture.id).unwrap();
+            ai.apply(id, AppEvent::InboxActionAnalysis(Box::new(record.clone())));
+            let (id, command) = ai.inspect_retained_extraction().unwrap();
+            assert!(matches!(command, AppCommand::InboxExtraction(requested) if requested == snapshot.id));
+            ai.apply(id, AppEvent::InboxExtraction(Box::new(snapshot.clone())));
+            desktop.sync_inbox_widgets(window, cx);
+            cx.notify();
+        });
+    });
+    visual.run_until_parked();
+    visual.update(|window, cx| {
+        window.render_frame(cx);
+        for id in [
+            "inbox-inspect-retained-extraction",
+            "retained-intake-extraction",
+            "intake-extraction-summary",
+            "intake-source-0",
+            "intake-image-0",
+            "intake-image-1",
+            "intake-gap-0",
+        ] {
+            assert!(
+                window.try_find(id).is_some(),
+                "missing reopened retained extraction widget {id}"
+            );
+        }
+        let desktop = desktop.read(cx);
+        assert!(desktop.ai.as_ref().unwrap().inbox_queue.preview.is_none());
+        assert_eq!(
+            desktop.inbox.retained_extraction.read(cx).value().as_ref(),
+            snapshot.extraction.markdown
+        );
+        assert_eq!(desktop.inbox.body.read(cx).value().as_ref(), LATER);
+        assert_eq!(
+            desktop.inbox.intake_images.len(),
+            1,
+            "two repeated occurrences share one checked image allocation"
+        );
+    });
+}

@@ -593,18 +593,34 @@ impl AiState {
 
 impl ConversionCapture {
     fn binding_matches(&self, binding: &InboxSourceBinding) -> bool {
+        let (byte_len, sha256) = if let Some(extraction) = &self.extraction {
+            let Ok(materialized) = extraction.materialize_for_source(&binding.note_id.to_string())
+            else {
+                return false;
+            };
+            (
+                materialized.markdown.len() as u64,
+                brn_intake::digest(materialized.markdown.as_bytes()),
+            )
+        } else {
+            (self.byte_len, self.sha256)
+        };
         binding.batch_id == self.request.batch_id
             && binding.index == self.request.index
             && binding.original == self.original
             && binding.format == self.format
-            && binding.byte_len == self.byte_len
-            && binding.sha256 == self.sha256
+            && binding.byte_len == byte_len
+            && binding.sha256 == sha256
             && match (&self.extraction, &binding.extraction) {
                 (None, None) => true,
                 (Some(extraction), Some(receipt)) => {
                     receipt.assets.len() == extraction.assets.len()
                         && extraction.assets.iter().all(|asset| {
-                            brn_intake::asset_file_name(asset).is_ok_and(|name| {
+                            brn_intake::asset_file_name_for_source(
+                                asset,
+                                &binding.note_id.to_string(),
+                            )
+                            .is_ok_and(|name| {
                                 receipt.assets.iter().any(|stored| {
                                     stored.name == name
                                         && stored.sha256 == asset.sha256

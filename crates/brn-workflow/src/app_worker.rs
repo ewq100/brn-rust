@@ -100,6 +100,7 @@ pub enum AppCommand {
     ProcessInbox(crate::inbox_processing::ProcessInboxRequest),
     InboxProcessing(Uuid),
     InboxCandidate(crate::inbox_processing::InboxCandidateRequest),
+    InboxExtraction(Uuid),
     PrepareInboxSource(crate::inbox_processing::InboxSourceRequest),
     PrepareInboxVisualAnnotation(Uuid),
     InboxVisualEvidence(String),
@@ -239,6 +240,7 @@ pub enum AppEvent {
     },
     InboxProcessing(Box<crate::inbox_processing::InboxProcessBatch>),
     InboxCandidate(Box<crate::inbox_processing::InboxConversionPreview>),
+    InboxExtraction(Box<crate::inbox_processing::IntakeSnapshot>),
     InboxSourceDraft(Box<crate::proposals::DraftRequest>),
     InboxVisualDraft(Box<crate::proposals::DraftRequest>),
     InboxVisualEvidence(Box<crate::inbox_actions::InboxVisualEvidence>),
@@ -1371,6 +1373,9 @@ fn dispatch(
         }
         AppCommand::InboxCandidate(request) => {
             AppEvent::InboxCandidate(Box::new(app.inbox_candidate(&request)?))
+        }
+        AppCommand::InboxExtraction(id) => {
+            AppEvent::InboxExtraction(Box::new(app.retained_intake(id)?))
         }
         AppCommand::PrepareInboxSource(request) => {
             AppEvent::InboxSourceDraft(Box::new(app.prepare_inbox_source(&request)?))

@@ -665,3 +665,66 @@ fn docx_worker_preview_binds_format_complete_bytes_and_exact_source_review() {
     );
     worker.shutdown().unwrap();
 }
+
+#[test]
+fn plural_mail_source_preparation_accepts_exact_source_materialization() {
+    use brn_workflow::inbox::CaptureBinaryInboxRequest;
+    let fixture = Fixture::new();
+    let mut worker = fixture.worker();
+    let request = CaptureBinaryInboxRequest {
+        id: Uuid::new_v4(),
+        title: "Plural public email".into(),
+        original_name: Some("plural.eml".into()),
+        bytes: include_bytes!(concat!(
+            env!("CARGO_MANIFEST_DIR"),
+            "/../../experiments/architecture-reassessment/p1-office-mime/fixtures/plural.eml"
+        ))
+        .to_vec(),
+    };
+    let (_, AppEvent::InboxCaptured(item)) = reply(
+        &worker,
+        (request.id, AppCommand::CaptureBinaryInbox(request.clone())),
+    ) else {
+        panic!("capture")
+    };
+    let mut state = state();
+    let open = state.open_inbox().unwrap();
+    settle(&worker, &mut state, open);
+    let batch = process(&worker, &mut state, vec![*item]);
+    let preview = state.preview_inbox_candidate(0).unwrap();
+    settle(&worker, &mut state, preview);
+    let extraction = state
+        .inbox_queue
+        .preview
+        .as_ref()
+        .unwrap()
+        .extraction
+        .as_ref()
+        .unwrap()
+        .clone();
+    assert!(extraction.occurrences.len() > 1);
+    let source = source_request(&batch);
+    let command = state.prepare_inbox_source(source.clone()).unwrap();
+    settle(&worker, &mut state, command);
+    let prepared = state
+        .inbox_queue
+        .prepared
+        .as_ref()
+        .expect("source-specific filenames must pass native response qualification")
+        .clone();
+    source.validate_draft(&prepared).unwrap();
+    let body = extraction
+        .materialize_for_source(&source.note_id.to_string())
+        .unwrap()
+        .markdown;
+    assert!(
+        matches!(&prepared.changes[0],DraftNoteChange::Create{text,..} if text.ends_with(&body))
+    );
+    assert_eq!(prepared.changes.len(), 1 + extraction.assets.len());
+    assert!(state.open_inbox_source_draft());
+    let command = state.create_draft().unwrap();
+    settle(&worker, &mut state, command);
+    assert_eq!(state.last_draft_request.as_ref(), Some(&prepared));
+    fixture.unchanged();
+    worker.shutdown().unwrap();
+}

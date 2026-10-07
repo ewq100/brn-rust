@@ -18,45 +18,112 @@ recovery blocker; use task-owned targets and preserve unknown usage as unknown.
 
 Execution milestones from the accepted specification:
 
-- [ ] Retain versioned extraction, original/attachment/image/occurrence collections
+- [x] Retain versioned extraction, original/attachment/image/occurrence collections
   and exact hashes; verify old-record readability and proof-based legacy Restore.
-- [ ] Integrate pinned BetterOffice structured/Markdown/package exports and MIME in
+- [x] Integrate pinned BetterOffice structured/Markdown/package exports and MIME in
   a helper restricted before input; validate untrusted bounded output, cancellation
   and failures. Replace converter reconstruction with retained snapshot validation.
-- [ ] Admit private snapshot investigation through Rig, exact citations and Source
+- [x] Admit private snapshot investigation through Rig, exact citations and Source
   prerequisites; prepare/revise knowledge, History transition and related Actions.
 - [ ] Expose evidence, images, gaps, reasons and exact selected changes in shared
   CLI/native grouped review; demonstrate simple/plural cases and quit/restart.
 - [ ] Run appropriate integrated/storage/native gates, bounded paired Sol/Luna
   scenarios, independent actual-tree review, fix validated defects, commit and PR.
 
-Checkpoint (implementation implemented; final qualification in progress): the
+Checkpoint (implementation present; review handoff qualification): the
 maintained adapter/helper, V16 immutable snapshot/mirror recovery, private Rig
 investigation, exact Source dependencies and CLI/native collection review are in
 the task-owned tree. The old DOCX package/XML/Word interpreter is removed; saved
-markup/proof readers remain. Focused workflow checks pass 8 tests, including
-single/plural private investigation, comment/Rewrite, exact group approval and
-restart, shared-image imports and repeated preservation of a snapshot, original/
-asset freshness, legacy renewed-review and real partial-application Restore.
-The ignored private crash entry is exercised by its parent test.
+markup/proof readers remain. The complete default workspace gate passed 1,613
+tests, with 17 documented ignored entries, and 52 end-to-end fixture assertions.
+This gate preceded the final retained-extraction viewer and Source-form corrections;
+those changes receive fresh targeted and native checks below.
 
-Independent actual-tree review found and prompted fixes for Applied dependency
-freshness, shared-image filename collisions, lost refusal categories and ambiguous
-identical source-text ownership. Re-review found no remaining actionable static
-finding. Source UUID namespaces edit only exact qualified image destinations;
-citations map back to immutable text ranges, and ambiguous ownership refuses.
-A broad first workflow run exposed incidental old literal-Email fixtures and
-preview assumptions, plus cascading poisoned subprocess guards; those fixture
-roles and assertions are being corrected openly, with complete gates pending.
-The snapshot bootstrap's oversized-inventory global-startup regression was fixed
-and its existing witness passes. No final native/live qualification is claimed.
+The retained snapshot reader now reopens extraction without an original, queue row,
+converter or model. Focused workflow intake checks pass 10 tests, including the
+readonly restart witness, single/plural private investigation, comment/Rewrite,
+exact group approval and restart, shared-image imports, repeated preservation of a
+snapshot, original/asset freshness, short valid EML and legacy renewed-review/partial
+Restore. The ignored private crash entry is exercised by its parent test. Adapter
+qualification passed 22 tests, including native restrictions and process cancellation.
+
+Independent actual-tree review prompted fixes for Applied dependency freshness,
+shared-image filename collisions, lost refusal categories, ambiguous identical
+source-text ownership, selected prerequisite group membership, stale retained
+extraction display and the native multi-asset Source form. Re-review found no
+remaining actionable static defect. The real plural email now passes native state
+qualification through Source draft creation with all validated image assets.
+Source UUID namespaces edit only exact qualified image destinations; citations map
+back to immutable text ranges, and ambiguous ownership refuses. Old generic
+literal-Email cleanup fixtures now use Text; real MIME fixtures test EML behavior.
+Raw-versus-materialized filename assertions were updated openly. Meaningful
+freshness/recovery assertions remain. The snapshot bootstrap's oversized-inventory
+startup regression was fixed and its existing witness passes.
 
 Live campaign usage ledger/numeric remaining allowance was not found in committed
-records; an owner clarification is pending. Session provider completion calls are
-zero, prior campaign usage/remaining allowance unknown. This is not a reset or a
-claim of live usefulness. Public Harbor QuickLook thumbnail showed text, table,
+records; an owner clarification is pending. Protected `brn ai status` on the
+standard BRN-simple credential route reports ChatGPT and Copilot disconnected,
+no selected model or effort. No token/cache contents were inspected. Session
+provider completion calls are zero, prior campaign usage/remaining allowance
+unknown. Actual Sol/Luna identifiers, supported efforts/tools/images and usefulness
+remain unqualified; no fallback, login, new account/billing or allowance reset occurred. Public Harbor QuickLook thumbnail showed text, table,
 images and footer; the feature-rich variation stalled and was cancelled. Full
 native review/restart acceptance remains a separate gate.
+
+Native checkpoint: strict default-workspace and all three desktop feature Clippy
+variants passed. Native desktop tests passed 308 unit/widget + 7 integration tests;
+native retrieval passed 13 library + 2 download tests. The complete native workflow
+library passed 389 tests with 15 documented exclusions, and its unfiltered
+model-contract integration suite passed 7 tests. Across these native commands,
+726 tests passed, none failed and 15 were ignored. The maximum-size asset crash/
+recovery test completed in the 440.84-second library run. These are offline synthetic
+checks; real model assets were not loaded. The 15 ignored entries comprise 13
+private subprocess entries exercised by parent witnesses and two preexisting
+explicit expensive witnesses: aggregate-over-64-MiB mirror recovery and synthetic
+copy startup cost. Those two were not run. Shipping desktop (`native-ui,native-retrieval`, without test support) and native
+CLI builds passed; the shipping desktop passed two fresh AppWorker startup/shutdown
+runs against the same new V16 database. The final fixture-only run passed 52
+assertions and the launcher check passed. CUA attempted to open a unique task-owned local app and
+reported the Mac locked; automatic unlock failed. An unlock request is pending.
+No BRN GUI interaction or full GUI quit/restart is claimed. The earlier public
+Harbor Quick Look capture is in the [screenshot index](../../../ui/screenshots/2026-10-07/INDEX.md).
+
+Verification environment: Apple Silicon macOS, pinned Rust 1.98.1, locked/offline
+Cargo, sequential task-owned target `target/intake-ui`, incremental compilation
+disabled, and existing private `TMPDIR=/private/tmp/brn-p2-fixtures`. The complete
+shared gate was `bash scripts/verify-end-to-end.sh`; the fresh native commands were
+all three desktop Clippy feature variants from the verification guide, desktop
+`native-ui,native-retrieval,native-test-support` tests, retrieval `native` library/
+model-download tests, workflow `native-retrieval --lib --test models` **unfiltered**,
+and the shipping builds. The final native Rust source matches the implementation
+handoff tree; only documentation changed afterward. Python tooling passed 18 tests,
+all shell scripts passed `bash -n`, retirement checks passed, Markdown validation
+passed 48 files / 560 local links, and `git diff --check` passed. The upstream
+`block 0.1.6` future-compiler warning remains; no real ONNX, corpus or live-model
+qualification is inferred from synthetic/native tests.
+
+The helper copied into that unsigned local app is byte-identical to the tested
+helper (SHA-256 `8a7dae346aac826c2178c1e7666f1db6e52effa5288836a1fabb4a9ebc4bde71`).
+With an empty environment it parsed the real 111,544-byte plural EML into 8 sources,
+1 deduplicated image, 3 distinct occurrences and 4 explicit gaps. Its native sandbox
+denied an existing synthetic file and a live loopback listener; its actual owned
+helper/child/grandchild process group was cancelled and joined. An initial ad-hoc
+qualification assertion incorrectly expected two unique assets; inspection confirmed
+the fixture intentionally shares one image across the three occurrences, and the
+corrected check passed. This qualifies the copied helper, not release distribution.
+
+Remaining acceptance is explicit: unlock the Mac for actual BRN review/original
+inspection and full GUI Quit/restart; restore the existing subscription route and
+provide the prior campaign usage/remaining allowance for equivalent paired Sol/Luna
+trials. The smallest next step is those existing-route/fixture acceptance runs,
+not another parser or renderer. Picture titles remain unavailable where exact
+mapping is unqualified; charts/SmartArt/shapes, layout and unresolved-prefix images
+have visible gaps. JPEG is reviewable but the existing AI transport carries PNG
+only. The existing 50 KB wrapped analysis-input limit remains; larger context is P3.
+Ambiguous duplicate-node citations refuse instead of guessing. Non-macOS helper
+profiles fail closed; hard RSS and signed distribution are unqualified. No P2
+owner acceptance, merge/release or P3 continuation is claimed. The implementation
+is a draft review candidate with these external qualification gates pending.
 
 Current seam disposition verified against baseline: keep capture no-follow proofs,
 atomic proposal/apply/repair receipts, canonical historical readers and Rig. Adapt
@@ -66,6 +133,45 @@ entry points/defaults/fallbacks after legacy transition witnesses. Snapshot payl
 are stored together in one canonical hashed SQLite transaction, so backup includes
 manifest and bytes and a receipt cannot outlive an external blob. This avoids a
 second filesystem transaction engine; absence/damage blocks evidence use.
+
+### Local owner scenario (P2 implementation checkout)
+
+Use only public fixtures and a fresh explicit workspace. Build the sibling helper
+and shipping native executable (pinned toolchain 1.98.1):
+
+```bash
+cd /Users/evokessler/repos/brn-p2-email-docx-intake
+export PATH="/opt/homebrew/opt/rustup/bin:$PATH"
+export CARGO_TARGET_DIR="$PWD/target/intake-ui"
+cargo build -p brn-intake --features helper --bin brn-intake-helper --locked --offline
+cargo build -p brn-desktop --features native-ui,native-retrieval --locked --offline
+p2_owner="$(mktemp -d /private/tmp/brn-p2-owner.XXXXXX)"
+mkdir "$p2_owner/data" "$p2_owner/vault"
+"$CARGO_TARGET_DIR/debug/brn-desktop" --data-dir "$p2_owner/data" --vault "$p2_owner/vault"
+```
+
+In Inbox, **Import EML or DOCX file** selects
+`experiments/architecture-reassessment/p1-office-mime/fixtures/plural.eml`.
+Include it in the batch, **Process checked originals**, then **Inspect full
+converted preview**. Inspect decoded email, Harbor/appendix attachments, the
+retained unprocessed XLSX, inline imagery and repeated document images; use
+**Inspect exact original with Quick Look** and review every stated gap.
+Prepare the Source input at a new `.md` path and open its review; it remains
+unapplied. Private investigation requires an explicitly connected subscription,
+model and effort. Select that pending Source for investigation, request knowledge
+and a related Action, comment that inspection and the EUR 4,000 cap must remain,
+then Rewrite and review the exact versions. Select the Source prerequisite and
+wanted consequences in grouped review, approve, fully Quit and reopen the same
+workspace. Verify Source, Current, History where a predecessor was selected,
+Action and retained evidence. Repeat with `single.eml` in the same Source folder;
+shared image bytes use independent Source filenames.
+
+This scenario distinguishes available implementation from acceptance: offline
+synthetic Rig hooks establish lifecycle/authority, not model quality. The local
+standard account route is disconnected and prior campaign usage unknown. Live
+paired validation and owner acceptance remain pending. Full feature-rich original
+preview also remains unqualified: a second bounded Quick Look thumbnail attempt
+returned no image before cancellation at20seconds; Harbor rendered successfully.
 
 ## PR86 finalization and canonical fresh-agent handoff
 

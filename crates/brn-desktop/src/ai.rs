@@ -1026,7 +1026,7 @@ impl AiState {
             let dependencies: Vec<_> = records
                 .iter()
                 .filter_map(crate::approval::intake_dependency)
-                .map(|binding| binding.source_proposal.clone())
+                .map(|binding| binding.source_proposal)
                 .collect();
             for stamp in dependencies {
                 if let Some(source) = self
@@ -2825,6 +2825,7 @@ impl AiState {
             | AppEvent::InboxActionAnalysis(_)
             | AppEvent::InboxVisualEvidence(_)
             | AppEvent::InboxVisualDraft(_)
+            | AppEvent::InboxExtraction(_)
             | AppEvent::InboxIntakeBinding(_) => return commands,
             AppEvent::Rewrite(_) => unreachable!(),
             AppEvent::Chat(_)

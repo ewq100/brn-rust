@@ -25,7 +25,7 @@ retrieval storage details.
 
 [Application](src/app.rs), [commands/events](src/app_worker.rs), [chat lane](src/chat_worker.rs), [editor](src/editor.rs), [Inbox boundary](src/inbox.rs), [proposal review](src/proposals.rs), [proposal application](src/proposal_apply.rs), [durable provenance](src/knowledge/provenance.rs), [activity](src/activity.rs), [file adapter](src/files/mod.rs).
 
-## Text/email Inbox boundary
+## Inbox evidence boundary
 
 `ProcessInbox`, `InboxProcessing`, `InboxCandidate` and `CancelInboxProcessing`
 extend the same headless boundary. One joined AppWorker lane advances one member
@@ -34,10 +34,12 @@ at most 16 members can be pending. WorkStore V13 keeps exact requests, states an
 conversion receipts. Restart interrupts unfinished members; replay never silently
 restarts work. New UUIDs explicitly retry retained originals.
 
-Markdown previews preserve exact bytes; other deliberate text copies use safe
-literal Markdown fences around the exact body. Oversized previews are flagged
-without truncation. Preview reads recheck the original and reproduce the exact
-receipt. Imported frontmatter remains pending text rather than managed metadata.
+Markdown previews preserve exact bytes; deliberate Text/Teams copies use safe
+literal Markdown fences around the exact body. Email uses maintained MIME extraction
+as described below. Oversized previews are flagged without truncation. Literal
+preview reads recheck originals; maintained previews read immutable retained
+snapshots even after original loss. Fresh effects require separately qualified
+original/evidence proofs. Imported frontmatter remains pending text rather than managed metadata.
 `InboxConversionPreview::validate_receipt` checks the complete batch/original/
 format/length/digest at this boundary. Clients need no hashing or conversion logic;
 a complete operational preview remains readable even if a later Source wrapper

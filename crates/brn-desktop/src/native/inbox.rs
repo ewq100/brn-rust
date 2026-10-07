@@ -21,6 +21,7 @@ pub(super) struct InboxPane {
     pub(super) kind: InboxKind,
     pub(super) original: Entity<EditorState>,
     pub(super) preview: Entity<EditorState>,
+    pub(super) retained_extraction: Entity<EditorState>,
     pub(super) copy_source: Entity<EditorState>,
     pub(super) source_title: Entity<TextareaState>,
     pub(super) source_path: Entity<TextareaState>,
@@ -37,6 +38,9 @@ pub(super) struct InboxPane {
     selection_error: Option<String>,
     preview_snapshot: Option<InboxConversionPreview>,
     original_preview: Option<super::intake_preview::OriginalPreview>,
+    /// One encoded image allocation and GPUI image identity per unique checked content.
+    pub(super) intake_images:
+        std::collections::BTreeMap<(String, [u8; 32]), std::sync::Arc<gpui_kit::Image>>,
 }
 impl InboxPane {
     pub(super) fn new(window: &mut Window, cx: &mut Context<Desktop>) -> Self {
@@ -50,6 +54,7 @@ impl InboxPane {
             kind: InboxKind::Text,
             original: cx.new(|cx| EditorState::new(window, cx).default_value("")),
             preview: cx.new(|cx| EditorState::new(window, cx).default_value("")),
+            retained_extraction: cx.new(|cx| EditorState::new(window, cx).default_value("")),
             copy_source: cx.new(|cx| EditorState::new(window, cx).default_value("")),
             source_title: cx.new(|cx| {
                 TextareaState::new(window, cx)
@@ -81,6 +86,7 @@ impl InboxPane {
             selection_error: None,
             preview_snapshot: None,
             original_preview: None,
+            intake_images: Default::default(),
         }
     }
     fn capture_request(&self, cx: &App) -> CaptureInboxRequest {
@@ -181,6 +187,37 @@ impl Desktop {
         self.inbox.preview_snapshot = queue.preview.clone();
         self.sync_inbox_copy_widgets(window, cx);
         self.sync_inbox_analysis_widgets(window, cx);
+        self.sync_intake_image_cache();
+    }
+    fn sync_intake_image_cache(&mut self) {
+        let ai = self.ai.as_ref().unwrap();
+        let extractions = [
+            ai.inbox_queue
+                .preview
+                .as_ref()
+                .and_then(|preview| preview.extraction.as_ref()),
+            ai.inbox_analysis
+                .retained_extraction
+                .as_ref()
+                .map(|snapshot| &snapshot.extraction),
+        ];
+        let assets: std::collections::BTreeMap<_, _> = extractions
+            .into_iter()
+            .flatten()
+            .flat_map(|extraction| extraction.assets.iter())
+            .map(|asset| ((asset.media_type.clone(), asset.sha256), asset))
+            .collect();
+        self.inbox
+            .intake_images
+            .retain(|key, _| assets.contains_key(key));
+        for (key, asset) in assets {
+            if let std::collections::btree_map::Entry::Vacant(entry) =
+                self.inbox.intake_images.entry(key)
+                && let Some(image) = super::visual::intake_image(asset)
+            {
+                entry.insert(image);
+            }
+        }
     }
     pub(super) fn inbox_blocked(&self) -> bool {
         !self.ai.as_ref().unwrap().ready
@@ -244,20 +281,134 @@ impl Desktop {
         }).detach();
         cx.notify();
     }
-    fn inspect_extraction_original(&mut self, source_id: &str, cx: &mut Context<Self>) {
+    pub(super) fn render_intake_extraction(
+        &self,
+        extraction: &brn_intake::Extraction,
+        retained: bool,
+        blocked: bool,
+        cx: &mut Context<Self>,
+    ) -> AnyElement {
+        let mut panel = div()
+            .id(if retained {
+                "retained-extraction-collection"
+            } else {
+                "queue-extraction-collection"
+            })
+            .flex()
+            .flex_col()
+            .gap_2();
+        panel = panel.child(div().id("intake-extraction-summary").test_support().child(format!("Private extraction · {} sources · {} exact images · {} distinct occurrences · {} gaps", extraction.sources.len(), extraction.assets.len(), extraction.occurrences.len(), extraction.gaps.len())));
+        let limits = &extraction.limits;
+        panel = panel.child(format!("Selected limits · input {} bytes · expanded {} bytes · package/MIME parts {}/{} · MIME depth {} · decoded {} bytes · image pixels {}/{} total · output {} bytes · {} ms", limits.max_input_bytes, limits.max_expanded_bytes, limits.max_package_parts, limits.max_mime_parts, limits.max_mime_depth, limits.max_decoded_bytes, limits.max_image_pixels, limits.max_total_image_pixels, limits.max_output_bytes, limits.wall_time_ms));
+        if let Some(usage) = &extraction.consumed {
+            panel = panel.child(div().id("intake-consumed-scope").test_support().child(format!("Consumed scope · input {} bytes · expanded {} bytes · package/MIME parts {}/{} · MIME depth {} · decoded {} bytes · unique image pixels {} · output {} bytes", usage.input_bytes, usage.expanded_bytes, usage.package_parts, usage.mime_parts, usage.mime_depth, usage.decoded_bytes, usage.image_pixels, usage.output_bytes)));
+        } else {
+            panel = panel.child("Consumed scope unavailable for this historical/synthetic record.");
+        }
+        for (index, source) in extraction.sources.iter().enumerate() {
+            let source_id = source.id.clone();
+            let expected_digest = brn_intake::digest(&source.bytes);
+            let supported_preview = matches!(
+                source.media_type.as_str(),
+                "message/rfc822"
+                    | "application/vnd.openxmlformats-officedocument.wordprocessingml.document"
+            );
+            panel = panel.child(
+                div()
+                    .id(format!("intake-source-{index}"))
+                    .test_support()
+                    .flex()
+                    .flex_col()
+                    .gap_1()
+                    .child(format!(
+                        "{} · {} · {} · {} bytes · parent {} · {}",
+                        source.id,
+                        source.name,
+                        source.status,
+                        source.bytes.len(),
+                        source.parent.as_deref().unwrap_or("original root"),
+                        source.locator
+                    ))
+                    .child(
+                        Button::new(format!("inspect-intake-original-{index}"))
+                            .label("Inspect exact original with Quick Look")
+                            .disabled(blocked || !supported_preview)
+                            .on_click(cx.listener(move |this, _, _, cx| {
+                                this.inspect_extraction_original(
+                                    &source_id,
+                                    expected_digest,
+                                    retained,
+                                    cx,
+                                )
+                            })),
+                    ),
+            );
+        }
+        for (index, image) in extraction.occurrences.iter().enumerate() {
+            if let Some(asset) = extraction.assets.iter().find(|a| a.id == image.asset_id) {
+                panel = panel.child(super::visual::intake_image_panel(
+                    index,
+                    asset,
+                    image,
+                    self.inbox
+                        .intake_images
+                        .get(&(asset.media_type.clone(), asset.sha256))
+                        .cloned(),
+                ));
+            }
+        }
+        for (index, gap) in extraction.gaps.iter().enumerate() {
+            panel = panel.child(
+                div()
+                    .id(format!("intake-gap-{index}"))
+                    .test_support()
+                    .child(format!("Extraction gap: {gap}")),
+            );
+        }
+        if self.inbox.original_preview.is_some() {
+            panel = panel.child(
+                Button::new("close-intake-original-preview")
+                    .label("Close original preview and remove private inspection copy")
+                    .on_click(cx.listener(|this, _, _, cx| {
+                        this.inbox.original_preview = None;
+                        cx.notify();
+                    })),
+            );
+        }
+        panel.into_any_element()
+    }
+    fn inspect_extraction_original(
+        &mut self,
+        source_id: &str,
+        expected_digest: [u8; 32],
+        retained: bool,
+        cx: &mut Context<Self>,
+    ) {
         if self.inbox_blocked() {
             return;
         }
-        let source = self
-            .ai
-            .as_ref()
-            .unwrap()
-            .inbox_queue
-            .preview
-            .as_ref()
-            .and_then(|p| p.extraction.as_ref())
-            .and_then(|e| e.sources.iter().find(|s| s.id == source_id));
-        let Some(source) = source else {
+        let ai = self.ai.as_ref().unwrap();
+        let extraction = if retained {
+            ai.inbox_analysis
+                .retained_extraction
+                .as_ref()
+                .filter(|_| ai.inbox_analysis_is_visible())
+                .map(|snapshot| &snapshot.extraction)
+        } else {
+            ai.inbox_queue
+                .preview
+                .as_ref()
+                .and_then(|preview| preview.extraction.as_ref())
+        };
+        let source = extraction.and_then(|extraction| {
+            extraction
+                .sources
+                .iter()
+                .find(|source| source.id == source_id)
+        });
+        let Some(source) =
+            source.filter(|source| brn_intake::digest(&source.bytes) == expected_digest)
+        else {
             return;
         };
         let result =
@@ -267,7 +418,14 @@ impl Desktop {
                 self.inbox.original_preview = Some(preview);
                 self.ai.as_mut().unwrap().notice = "System Quick Look is inspecting the exact retained original. Reflowed extraction is shown separately; close the preview when finished.".into();
             }
-            Err(error) => self.ai.as_mut().unwrap().inbox_queue.error = Some(error),
+            Err(error) => {
+                let ai = self.ai.as_mut().unwrap();
+                if retained {
+                    ai.inbox_analysis.extraction_error = Some(error);
+                } else {
+                    ai.inbox_queue.error = Some(error);
+                }
+            }
         }
         cx.notify();
     }
@@ -771,72 +929,8 @@ impl Desktop {
                     preview.markdown.clone(),
                 ));
             if let Some(extraction) = &preview.extraction {
-                content = content.child(div().id("intake-extraction-summary").test_support().child(format!("Private extraction · {} sources · {} exact images · {} distinct occurrences · {} gaps", extraction.sources.len(), extraction.assets.len(), extraction.occurrences.len(), extraction.gaps.len())));
-                let limits = &extraction.limits;
-                content = content.child(format!("Selected limits · input {} bytes · expanded {} bytes · package/MIME parts {}/{} · MIME depth {} · decoded {} bytes · image pixels {}/{} total · output {} bytes · {} ms", limits.max_input_bytes, limits.max_expanded_bytes, limits.max_package_parts, limits.max_mime_parts, limits.max_mime_depth, limits.max_decoded_bytes, limits.max_image_pixels, limits.max_total_image_pixels, limits.max_output_bytes, limits.wall_time_ms));
-                if let Some(usage) = &extraction.consumed {
-                    content = content.child(div().id("intake-consumed-scope").test_support().child(format!("Consumed scope · input {} bytes · expanded {} bytes · package/MIME parts {}/{} · MIME depth {} · decoded {} bytes · unique image pixels {} · output {} bytes", usage.input_bytes, usage.expanded_bytes, usage.package_parts, usage.mime_parts, usage.mime_depth, usage.decoded_bytes, usage.image_pixels, usage.output_bytes)));
-                } else {
-                    content = content
-                        .child("Consumed scope unavailable for this historical/synthetic record.");
-                }
-                for (index, source) in extraction.sources.iter().enumerate() {
-                    let source_id = source.id.clone();
-                    let supported_preview = matches!(
-                        source.media_type.as_str(),
-                        "message/rfc822"
-                            | "application/vnd.openxmlformats-officedocument.wordprocessingml.document"
-                    );
-                    content = content.child(
-                        div()
-                            .id(format!("intake-source-{index}"))
-                            .test_support()
-                            .flex()
-                            .flex_col()
-                            .gap_1()
-                            .child(format!(
-                                "{} · {} · {} · {} bytes · parent {} · {}",
-                                source.id,
-                                source.name,
-                                source.status,
-                                source.bytes.len(),
-                                source.parent.as_deref().unwrap_or("original root"),
-                                source.locator
-                            ))
-                            .child(
-                                Button::new(format!("inspect-intake-original-{index}"))
-                                    .label("Inspect exact original with Quick Look")
-                                    .disabled(blocked || !supported_preview)
-                                    .on_click(cx.listener(move |this, _, _, cx| {
-                                        this.inspect_extraction_original(&source_id, cx)
-                                    })),
-                            ),
-                    );
-                }
-                for (index, image) in extraction.occurrences.iter().enumerate() {
-                    if let Some(asset) = extraction.assets.iter().find(|a| a.id == image.asset_id) {
-                        content =
-                            content.child(super::visual::intake_image_panel(index, asset, image));
-                    }
-                }
-                for (index, gap) in extraction.gaps.iter().enumerate() {
-                    content = content.child(
-                        div()
-                            .id(format!("intake-gap-{index}"))
-                            .test_support()
-                            .child(format!("Extraction gap: {gap}")),
-                    );
-                }
-                if self.inbox.original_preview.is_some() {
-                    content = content.child(
-                        Button::new("close-intake-original-preview")
-                            .label("Close original preview and remove private inspection copy")
-                            .on_click(cx.listener(|this, _, _, cx| {
-                                this.inbox.original_preview = None;
-                                cx.notify();
-                            })),
-                    );
-                }
+                content =
+                    content.child(self.render_intake_extraction(extraction, false, blocked, cx));
             }
             if let Some(visual) = &preview.visual {
                 content = content.child(super::visual::png_panel("inbox-preview-png", &visual.bytes, &visual.proof))

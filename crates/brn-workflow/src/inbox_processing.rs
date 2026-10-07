@@ -10,8 +10,10 @@ pub use brn_store::work::inbox_processing::{
     ProcessInboxRequest,
 };
 pub use brn_store::work::inbox_source::InboxSourceBinding;
+pub use brn_store::work::inbox_source::read_provenance as read_inbox_source_provenance;
 use brn_store::work::inbox_source::{ExtractionAsset, ExtractionBinding};
 pub use brn_store::work::inbox_visual::InboxSourceVisual;
+pub use brn_store::work::intake::IntakeSnapshot;
 use serde::{Deserialize, Serialize};
 use sha2::{Digest, Sha256};
 use std::sync::atomic::{AtomicBool, Ordering};
@@ -579,6 +581,15 @@ impl App {
             Ok(batch)
         }
     }
+    /// Read immutable historical evidence without consulting the operational queue or original files.
+    pub fn retained_intake(&self, snapshot_id: Uuid) -> Result<IntakeSnapshot> {
+        let snapshot = self.store.intake_snapshot(snapshot_id)?.ok_or_else(|| {
+            WorkflowError::typed(ErrorKind::NotFound, "retained extraction is unavailable")
+        })?;
+        snapshot.validate()?;
+        Ok(snapshot)
+    }
+
     /// Reproduce only from fresh exact original proof; missing/changed originals
     /// never fall back to an obsolete or guessed preview.
     pub fn inbox_candidate(

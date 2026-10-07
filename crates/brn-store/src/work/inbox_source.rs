@@ -331,8 +331,9 @@ pub fn read_provenance(text: &str) -> Result<Option<InboxSourceProvenance>> {
             InboxConversionFormat::DocxTextV1
                 | InboxConversionFormat::DocxInlinePngV1
                 | InboxConversionFormat::MaintainedExtractionV1
-        ) || !(22..=super::inbox::MAX_INBOX_BINARY_BYTES as u64)
-            .contains(&value.original_byte_len))
+        ) || value.original_byte_len > super::inbox::MAX_INBOX_BINARY_BYTES as u64
+            || (value.format != InboxConversionFormat::MaintainedExtractionV1
+                && value.original_byte_len < 22))
     {
         return Err(invalid("Binary Inbox Source provenance is not supported"));
     }
