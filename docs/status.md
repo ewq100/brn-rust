@@ -43,10 +43,6 @@ and an [explicitly selected task queue](work/active/v1-handoff.md#ordered-task-q
 Native GUI observation is owner-deferred while the Mac is locked; live/real-model and
 owner acceptance remain pending. No new product slice is underway. Further implementation
 starts only from a selected handoff task; this pause does not change roadmap order.
-Selected evaluation H4 is evaluated with a **non-adoption** recommendation: BRN keeps
-its own DOCX converter rather than docx-rs0.4.22, rdocx0.15.0, office_oxide0.1.13
-or betteroffice-docx-parse0.3.0 ([findings](../experiments/docx-reader-eval/FINDINGS.md)).
-No product code changed; the result PR is pending.
 Documentation closeout [PR78](https://github.com/ewq100/brn-rust/pull/78) is merged
 at `a8deb9d8e94665b1731034675b490fb134aae091`, the remote main inspected in this
 preparation pass. Exact-head and merged-main runs passed all four required checks
@@ -60,7 +56,11 @@ PR79 merged that preparation at `450eaa2`. The owner then selected handoff task 
 review, acceptance and integration state are in the [H1 record](work/active/h1-library-titles/evidence.md).
 PR81 merged H1 at `f3cf699`. The owner then selected H2 (derive the `propose_actions`
 schema from its Serde types, with no change to the emitted schema). Its state is in the
-[H2 record](work/active/h2-action-schema/evidence.md). The rest of the roadmap stays paused.
+[H2 record](work/active/h2-action-schema/evidence.md). The owner also selected evaluation
+H4. It recommends **non-adoption**: BRN keeps its own DOCX converter rather than
+docx-rs0.4.22, rdocx0.15.0, office_oxide0.1.13 or betteroffice-docx-parse0.3.0
+([findings](../experiments/docx-reader-eval/FINDINGS.md)). No product code changed; its
+result PR is pending. The rest of the roadmap stays paused.
 
 ### Historical qualification
 

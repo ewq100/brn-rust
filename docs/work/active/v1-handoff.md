@@ -169,10 +169,10 @@ qualification. Only the selected task may proceed.
 
 ### H4 — evaluate published DOCX reader before broader Stage8
 
-- **Result 2026-10-06: evaluated, not adopted (build).** Baseline main `450eaa2`;
-  checksum-verified release source `f04cf8b4`. The stop fired on the first silent-loss
-  case, in BRN's supported profile: the inline PNG's alt text and title are absent
-  from the read model. Further synthetic witnesses showed silent wording loss,
+- **Result 2026-10-06: evaluated, not adopted (build).** Evaluated at main
+  `450eaa2`, rebased onto `6781838`; checksum-verified release source `f04cf8b4`.
+  The stop fired on the first silent-loss case, in BRN's supported profile: the
+  inline PNG's alt text and title are absent from the read model. Further synthetic witnesses showed silent wording loss,
   advertised-size allocation and a CRC panic. The
   [evaluator findings](../../../experiments/docx-reader-eval/FINDINGS.md) hold the
   matrix, BRN replay, adapter-scope estimate, independent review and next Stage8

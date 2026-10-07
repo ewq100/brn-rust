@@ -52,7 +52,7 @@ read S1, S2 and the image bytes of I1 to I3 correctly.
 
 | Item | Value |
 | --- | --- |
-| Baseline | `origin/main` `450eaa2` (PR79 merge), branch `codex/h4-docx-reader-evaluation` |
+| Baseline | `origin/main` `450eaa2` (PR79 merge), branch `codex/h4-docx-reader-evaluation`. The branch was rebased onto `6781838` (H1/H2 merged) for the PR. `crates/brn-store` is identical between the two, so the BRN replay at `450eaa2` still applies. |
 | docx-rs | 0.4.22, MIT. `.crate` SHA-256 `7fdf00e8af6d0b3e92d4bbf9b76f773d8b84ea80f310324ad16cbdc2e653e02c` matches the index and the lock. Source identical (`diff -r`) to `bokuweb/docx-rs` `f04cf8b4` `docx-core`. `git ls-remote --tags` on 2026-10-06 listed 23 tags, newest `0.4.21`; no `0.4.22` tag. |
 | rdocx | 0.15.0, MIT OR Apache-2.0, first release 2026-02-22. `.crate` SHA-256 `9e295053c3b11857677607d05a50b2687db159b316b406c698a619f70d0f50bc` matches the lock. VCS `tensorbee/rdocx` `9d019472` (`crates/rdocx`). |
 | office_oxide | 0.1.13, MIT OR Apache-2.0, first release 2026-04-28. `.crate` SHA-256 `22582556784e5c9005e12e2c2e78c2959674ca082edf806d939fff4ffceca9de` matches the lock. VCS `yfedoseev/office_oxide` `7fce6094`. |
