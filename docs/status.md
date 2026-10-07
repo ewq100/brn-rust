@@ -15,7 +15,10 @@ Native feature checks passed 726 tests, shipping builds, two AppWorker restarts
 and a fresh 52-assertion fixture run. Actual BRN GUI review/restart is blocked by
 the locked Mac. The standard subscription route is
 disconnected, so live Sol/Luna usefulness and owner acceptance remain unverified.
-This is an implementation checkpoint, not a merge or P2 acceptance claim.
+[Draft PR87](https://github.com/ewq100/brn-rust/pull/87) carries the implementation
+review handoff. Tested implementation source is `55ef38840bc08f2acf42a380a911cade9dbc7214`;
+subsequent handoff edits are documentation only. This is an implementation
+checkpoint, not a merge or P2 acceptance claim.
 
 ## PR86 accepted specification and integration handoff — 2026-10-07
 

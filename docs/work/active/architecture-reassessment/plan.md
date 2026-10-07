@@ -123,7 +123,12 @@ only. The existing 50 KB wrapped analysis-input limit remains; larger context is
 Ambiguous duplicate-node citations refuse instead of guessing. Non-macOS helper
 profiles fail closed; hard RSS and signed distribution are unqualified. No P2
 owner acceptance, merge/release or P3 continuation is claimed. The implementation
-is a draft review candidate with these external qualification gates pending.
+is [draft PR87](https://github.com/ewq100/brn-rust/pull/87), with these external
+qualification gates pending. Tested implementation source is
+`55ef38840bc08f2acf42a380a911cade9dbc7214`; subsequent handoff edits are documentation
+only. The branch is pushed, independent review is clean, and no merge/release or
+P3 continuation is authorized. Hosted checks are separate from the local results
+above; inspect the PR's exact current attempt before any later integration.
 
 Current seam disposition verified against baseline: keep capture no-follow proofs,
 atomic proposal/apply/repair receipts, canonical historical readers and Rig. Adapt
