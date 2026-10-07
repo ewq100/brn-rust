@@ -32,6 +32,8 @@ fn fixture() -> tempfile::TempDir {
 }
 fn request(store: &mut WorkStore, count: usize) -> ProcessInboxRequest {
     ProcessInboxRequest {
+        limits: None,
+
         id: Uuid::new_v4(),
         items: (0..count).map(|_| item(store)).collect(),
     }
@@ -128,7 +130,7 @@ fn restart_interrupts_pending_members_preserves_completed_receipts_and_migrates_
     drop(store);
     let raw = Connection::open(data.path().join("brn.sqlite")).unwrap();
     raw.execute_batch(
-        "DROP TABLE inbox_original_operations; DROP TABLE inbox_actions; DROP TABLE inbox_processing; PRAGMA user_version=12;",
+        "DROP TABLE intake_snapshots; DROP TABLE inbox_original_operations; DROP TABLE inbox_actions; DROP TABLE inbox_processing; PRAGMA user_version=12;",
     )
     .unwrap();
     drop(raw);
@@ -139,7 +141,7 @@ fn restart_interrupts_pending_members_preserves_completed_receipts_and_migrates_
     assert_eq!(
         raw.query_row("PRAGMA user_version", [], |r| r.get::<_, i64>(0))
             .unwrap(),
-        15
+        16
     );
 }
 #[test]
@@ -210,6 +212,8 @@ fn rehashed_markdown_receipt_cannot_fork_format_length_or_exact_original_hash() 
         captured.kind = InboxKind::Markdown;
         let item = store.capture_inbox(&captured).unwrap();
         let request = ProcessInboxRequest {
+            limits: None,
+
             id: Uuid::new_v4(),
             items: vec![item],
         };

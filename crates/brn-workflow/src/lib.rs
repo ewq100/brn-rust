@@ -52,3 +52,7 @@ pub fn workspace_mode(data: &std::path::Path) -> Result<WorkspaceMode> {
 pub fn native_retrieval_compiled() -> bool {
     cfg!(feature = "native-retrieval")
 }
+
+mod intake_helper;
+
+mod intake_dependencies;

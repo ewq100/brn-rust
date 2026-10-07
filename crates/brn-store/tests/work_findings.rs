@@ -897,6 +897,7 @@ fn v8_upgrade_and_backup_restore_preserve_findings_and_existing_operational_work
         let input = draft();
         let proposal = store
             .create_proposal(&ProposalDraft {
+                intake: None,
                 inbox_visual: None,
                 inbox_knowledge: None,
                 inbox_source: None,
@@ -917,7 +918,7 @@ fn v8_upgrade_and_backup_restore_preserve_findings_and_existing_operational_work
         store.set_setting("synthetic", "retained").unwrap();
         drop(store);
         let conn = raw(data.path());
-        conn.execute_batch("DROP TABLE inbox_original_operations; DROP TABLE inbox_actions; DROP TABLE inbox_processing; DROP TABLE inbox_items; DROP TABLE action_completions; DROP TABLE actions; DROP TABLE findings; PRAGMA user_version=8;")
+        conn.execute_batch("DROP TABLE intake_snapshots; DROP TABLE inbox_original_operations; DROP TABLE inbox_actions; DROP TABLE inbox_processing; DROP TABLE inbox_items; DROP TABLE action_completions; DROP TABLE actions; DROP TABLE findings; PRAGMA user_version=8;")
             .unwrap();
         let old_backup = data.path().join("backups/brn-9999999999999.sqlite");
         if restored_v8 {
@@ -933,7 +934,7 @@ fn v8_upgrade_and_backup_restore_preserve_findings_and_existing_operational_work
             raw(data.path())
                 .query_row("PRAGMA user_version", [], |r| r.get::<_, i64>(0))
                 .unwrap(),
-            15
+            16
         );
         assert!(
             store

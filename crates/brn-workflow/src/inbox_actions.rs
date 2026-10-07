@@ -8,7 +8,8 @@ use crate::{
     proposals::{ProposalRecord, ProposalSource},
 };
 pub use brn_store::work::inbox_actions::{
-    InboxActionCapture, InboxActionJob, InboxAnalysisPurpose, InboxKnowledgeBinding,
+    InboxActionCapture, InboxActionJob, InboxAnalysisPurpose, InboxIntakeBinding,
+    InboxKnowledgeBinding,
 };
 use serde::{Deserialize, Serialize};
 use uuid::Uuid;
@@ -28,16 +29,42 @@ pub struct InboxActionRequest {
     pub purpose: InboxAnalysisPurpose,
     pub id: Uuid,
     pub conversation: Option<Uuid>,
-    pub source: Box<ProposalSource>,
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub source: Option<Box<ProposalSource>>,
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub intake: Option<InboxIntakeBinding>,
     pub selection: Selection,
     pub effort: ReasoningEffort,
     pub generation: u64,
 }
 impl InboxActionRequest {
     pub fn validate(&self) -> Result<()> {
-        self.source.validate()?;
+        match (&self.source, &self.intake) {
+            (Some(source), None) => {
+                source.validate()?;
+                self.capture().validate()?;
+            }
+            (None, Some(intake)) => {
+                intake.validate()?;
+                if self.id.is_nil()
+                    || self.conversation.is_some_and(|id| id.is_nil())
+                    || self.visual_asset.is_some()
+                    || self.purpose == InboxAnalysisPurpose::VisualInterpretation
+                {
+                    return Err(WorkflowError::typed(
+                        ErrorKind::ToolRejected,
+                        "invalid private intake analysis request",
+                    ));
+                }
+            }
+            _ => {
+                return Err(WorkflowError::typed(
+                    ErrorKind::ToolRejected,
+                    "analysis needs exactly one saved Source or private intake binding",
+                ));
+            }
+        }
         self.selection.validate()?;
-        self.capture().validate()?;
         Ok(())
     }
     pub(crate) fn capture(&self) -> InboxActionCapture {
@@ -46,8 +73,12 @@ impl InboxActionRequest {
             purpose: self.purpose,
             id: self.id,
             conversation: self.conversation,
-            source: self.source.source.clone(),
-            source_text: self.source.text.clone(),
+            source: self.source.as_ref().map(|source| source.source.clone()),
+            intake: self.intake.clone(),
+            source_text: self
+                .source
+                .as_ref()
+                .map_or_else(String::new, |source| source.text.clone()),
             provider: crate::chat_worker::provider_name(self.selection.provider).into(),
             model: self.selection.model.clone(),
             effort: self.effort.as_str().into(),
@@ -80,11 +111,54 @@ impl App {
         request: &InboxActionRequest,
     ) -> Result<(AskRequest, InboxActionCapture)> {
         request.validate()?;
-        let capture = request.capture();
+        let mut capture = request.capture();
+        if let Some(intake) = &capture.intake {
+            if let Some(job) = self.store.inbox_action(request.id)? {
+                capture.source_text = job.capture.source_text;
+            } else {
+                let source = self
+                    .store
+                    .proposal(intake.source_proposal.id)?
+                    .ok_or_else(|| {
+                        WorkflowError::typed(
+                            ErrorKind::NotFound,
+                            "planned Source proposal is unavailable",
+                        )
+                    })?;
+                capture.source_text = source
+                    .draft
+                    .changes
+                    .first()
+                    .and_then(|change| change.text())
+                    .ok_or_else(|| {
+                        WorkflowError::typed(
+                            ErrorKind::ToolRejected,
+                            "planned Source text is unavailable",
+                        )
+                    })?
+                    .to_owned();
+            }
+        }
+        capture.validate()?;
         let question = match self.store.inbox_action(request.id)? {
             Some(job) if job.capture == capture => job.question,
             Some(_) => return Err(conflict()),
-            None => crate::ai_behavior::TaskInput::Inbox(&capture).prompt()?,
+            None => {
+                if let Some(intake) = &capture.intake {
+                    let snapshot =
+                        self.store
+                            .intake_snapshot(intake.snapshot_id)?
+                            .ok_or_else(|| {
+                                WorkflowError::typed(
+                                    ErrorKind::ContextStale,
+                                    "private extraction is unavailable",
+                                )
+                            })?;
+                    crate::ai_behavior::TaskInput::Intake(&capture, &snapshot).prompt()?
+                } else {
+                    crate::ai_behavior::TaskInput::Inbox(&capture).prompt()?
+                }
+            }
         };
         Ok((
             AskRequest {
@@ -104,8 +178,32 @@ impl App {
         capture: &InboxActionCapture,
     ) -> Result<()> {
         capture.validate()?;
-        let fresh = self.proposal_evidence_source(&capture.source.path)?;
-        if fresh.source != capture.source || fresh.text != capture.source_text {
+        if let Some(intake) = &capture.intake {
+            self.validate_intake_dependency(Some(intake), false)?;
+            let snapshot = self
+                .store
+                .intake_snapshot(intake.snapshot_id)?
+                .ok_or_else(|| {
+                    WorkflowError::typed(
+                        ErrorKind::ContextStale,
+                        "private extraction is unavailable",
+                    )
+                })?;
+            intake.validate_snapshot(&snapshot)?;
+            let source = self
+                .store
+                .proposal(intake.source_proposal.id)?
+                .ok_or_else(|| {
+                    WorkflowError::typed(ErrorKind::ContextStale, "planned Source is unavailable")
+                })?;
+            self.validate_inbox_source(source.draft.inbox_source.as_deref())?;
+            return Ok(());
+        }
+        let source = capture.source.as_ref().ok_or_else(|| {
+            WorkflowError::typed(ErrorKind::ToolRejected, "saved Source proof is unavailable")
+        })?;
+        let fresh = self.proposal_evidence_source(&source.path)?;
+        if fresh.source != *source || fresh.text != capture.source_text {
             return Err(WorkflowError::typed(
                 ErrorKind::ContextStale,
                 "selected Inbox Source changed",
@@ -114,7 +212,7 @@ impl App {
         let resolution = self.resolve_note_identity(capture.note_id()?)?;
         if resolution.outcome != crate::knowledge::IdentityOutcome::Unique
             || resolution.matches.len() != 1
-            || resolution.matches[0].path != capture.source.path
+            || resolution.matches[0].path != source.path
         {
             return Err(WorkflowError::typed(
                 ErrorKind::ContextStale,
@@ -122,6 +220,80 @@ impl App {
             ));
         }
         Ok(())
+    }
+
+    /// Mint the private analysis binding from a checked retained Source draft.
+    /// Callers may explicitly select a smaller image/occurrence collection later.
+    pub fn intake_analysis_binding(&self, source_proposal_id: Uuid) -> Result<InboxIntakeBinding> {
+        let source = self.store.proposal(source_proposal_id)?.ok_or_else(|| {
+            WorkflowError::typed(ErrorKind::NotFound, "Source proposal is unavailable")
+        })?;
+        if source.state != crate::proposals::ProposalState::Draft {
+            return Err(WorkflowError::typed(
+                ErrorKind::OperationConflict,
+                "private analysis preparation needs a pending Source proposal",
+            ));
+        }
+        let extraction = source
+            .draft
+            .inbox_source
+            .as_deref()
+            .and_then(|binding| binding.extraction.as_ref())
+            .ok_or_else(|| {
+                WorkflowError::typed(ErrorKind::ToolRejected, "Source has no retained extraction")
+            })?;
+        let snapshot = self
+            .store
+            .intake_snapshot(extraction.snapshot_id)?
+            .ok_or_else(|| {
+                WorkflowError::typed(
+                    ErrorKind::ContextStale,
+                    "retained extraction is unavailable",
+                )
+            })?;
+        let change = source.draft.changes.first().ok_or_else(|| {
+            WorkflowError::typed(
+                ErrorKind::ToolRejected,
+                "planned Source member is unavailable",
+            )
+        })?;
+        let text = change.text().ok_or_else(|| {
+            WorkflowError::typed(
+                ErrorKind::ToolRejected,
+                "planned Source text is unavailable",
+            )
+        })?;
+        let assets = snapshot
+            .extraction
+            .assets
+            .iter()
+            .filter(|asset| asset.media_type == "image/png")
+            .map(|asset| asset.id.clone())
+            .collect::<Vec<_>>();
+        let binding = InboxIntakeBinding {
+            snapshot_id: snapshot.id,
+            snapshot_sha256: snapshot.digest()?,
+            source_proposal: source.stamp(),
+            source_path: change.path().to_owned(),
+            source_note_id: brn_store::note_identity::read(text)?.ok_or_else(|| {
+                WorkflowError::typed(
+                    ErrorKind::ToolRejected,
+                    "planned Source identity is unavailable",
+                )
+            })?,
+            source_text_sha256: brn_intake::digest(text.as_bytes()),
+            occurrences: snapshot
+                .extraction
+                .occurrences
+                .iter()
+                .filter(|occurrence| assets.contains(&occurrence.asset_id))
+                .map(|occurrence| occurrence.id.clone())
+                .collect(),
+            assets,
+        };
+        binding.validate_text(text)?;
+        binding.validate_snapshot(&snapshot)?;
+        Ok(binding)
     }
 
     pub fn inbox_action_analysis(&self, id: Uuid) -> Result<InboxActionAnalysis> {

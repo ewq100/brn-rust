@@ -215,6 +215,8 @@ pub struct SourceVersion {
 #[serde(deny_unknown_fields)]
 pub struct ProposalDraft {
     #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub intake: Option<Box<super::inbox_actions::InboxIntakeBinding>>,
+    #[serde(default, skip_serializing_if = "Option::is_none")]
     pub inbox_visual: Option<Box<super::inbox_visual::InboxVisualAnnotationBinding>>,
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub inbox_knowledge: Option<Box<super::inbox_actions::InboxKnowledgeBinding>>,
@@ -233,15 +235,23 @@ pub struct ProposalDraft {
 
 impl ProposalDraft {
     pub fn inbox_analysis_id(&self) -> Option<Uuid> {
-        self.inbox_knowledge
-            .as_ref()
-            .map(|b| b.analysis_id)
-            .or_else(|| self.inbox_visual.as_ref().map(|b| b.analysis_id))
+        self.intake.as_ref().and(self.group_id).or_else(|| {
+            self.inbox_knowledge
+                .as_ref()
+                .map(|b| b.analysis_id)
+                .or_else(|| self.inbox_visual.as_ref().map(|b| b.analysis_id))
+        })
     }
     pub fn validate_inbox_analysis_capture(
         &self,
         job: &super::inbox_actions::InboxActionJob,
     ) -> Result<()> {
+        if let Some(intake) = &self.intake {
+            if self.group_id != Some(job.capture.id) {
+                return Err(invalid("private Action analysis differs"));
+            }
+            return intake.validate_capture(job);
+        }
         match (&self.inbox_knowledge, &self.inbox_visual) {
             (Some(binding), None) => binding.validate_capture(job),
             (None, Some(binding)) => binding.validate_capture(job),
@@ -251,6 +261,9 @@ impl ProposalDraft {
     /// Preserve the literal existing knowledge-binding hash; the companion
     /// remains the same recovery family and carries no discriminator wrapper.
     pub fn inbox_analysis_binding_hash(&self) -> Result<[u8; 32]> {
+        if let Some(intake) = &self.intake {
+            return Ok(hash(&encode(intake)?));
+        }
         let bytes = match (&self.inbox_knowledge, &self.inbox_visual) {
             (Some(binding), None) => encode(binding)?,
             (None, Some(binding)) => encode(binding)?,
@@ -475,6 +488,20 @@ fn validate_text(text: &str, total: &mut usize) -> Result<()> {
 }
 
 fn validate_draft(draft: &ProposalDraft) -> Result<usize> {
+    if let Some(intake) = &draft.intake {
+        intake.validate()?;
+        if draft.group_id.is_none()
+            || draft.inbox_source.is_some()
+            || draft.inbox_knowledge.is_some()
+            || draft.inbox_visual.is_some()
+            || !draft.changes.is_empty()
+            || draft.action_changes.is_empty()
+        {
+            return Err(invalid(
+                "private Action needs one captured analysis dependency",
+            ));
+        }
+    }
     if let Some(binding) = &draft.inbox_knowledge {
         let text = match (binding.supersedes.as_ref(), draft.changes.as_slice()) {
             (None, [NoteChange::Create { text, .. }]) => text,

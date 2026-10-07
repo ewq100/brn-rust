@@ -27,6 +27,7 @@ fn partial() -> (Fixture, ApplyJournal) {
     let source = app.open_editor("source.md").unwrap().record;
     let draft = app
         .create_proposal(&DraftRequest {
+            intake: None,
             inbox_visual: None,
             inbox_knowledge: None,
         inbox_source: None,

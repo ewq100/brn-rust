@@ -300,6 +300,7 @@ fn native_inbox_original_and_preview_are_readonly_and_copy_complete_exact_bytes(
         ai.apply(process, AppEvent::InboxProcessing(Box::new(batch)));
         let (operation, AppCommand::InboxCandidate(request)) = ai.preview_inbox_candidate(0).unwrap() else { panic!("typed preview") };
         ai.apply(operation, AppEvent::InboxCandidate(Box::new(InboxConversionPreview {
+            extraction: None,
             visual: None,
             request, original: original.clone(), format: InboxConversionFormat::VerbatimMarkdownV1,
             markdown: EXACT.into(), needs_semantic_review: true,
@@ -488,6 +489,137 @@ fn native_binary_original_has_proof_view_and_batch_admission_without_text_copy(
         window.render_frame(cx);
         assert!(window.try_find("inbox-binary-original").is_some());
         assert!(window.try_find("copy-inbox-original").is_none());
+    });
+    fixture.unchanged();
+}
+
+#[gpui_kit::test]
+fn native_plural_extraction_shows_repeated_images_sources_and_visible_gaps(
+    cx: &mut gpui_kit::TestAppContext,
+) {
+    let fixture = Fixture::new();
+    let original = originals(1).remove(0);
+    let image = include_bytes!(
+        "../../../../experiments/architecture-reassessment/p1-office-mime/fixtures/water-use.png"
+    )
+    .to_vec();
+    let sha256 = brn_intake::digest(&image);
+    let (width, height) = brn_intake::validate_png_image(&image).unwrap();
+    let asset = brn_intake::ImageAsset {
+        id: format!("asset-{}", brn_intake::hex(&sha256)),
+        sha256,
+        width,
+        height,
+        media_type: "image/png".into(),
+        bytes: image,
+    };
+    let link = format!("![image]({})", brn_intake::asset_file_name(&asset).unwrap());
+    let markdown = format!("First actual picture\n{link}\nRepeated actual picture\n{link}\n");
+    let first = markdown.find(&link).unwrap();
+    let second = markdown.rfind(&link).unwrap();
+    let extraction = brn_intake::Extraction {
+        limits: Default::default(),
+        consumed: None,
+        schema: 1,
+        converter: brn_intake::CONVERTER.into(),
+        original_sha256: original.capture.copy.sha256,
+        markdown: markdown.clone(),
+        sources: vec![
+            brn_intake::SourceNode {
+                id: "source-0".into(),
+                parent: None,
+                name: "synthetic retained original".into(),
+                media_type: "text/plain".into(),
+                locator: "original".into(),
+                status: "partial".into(),
+                bytes: EXACT.as_bytes().to_vec(),
+                text: markdown.clone(),
+            },
+            brn_intake::SourceNode {
+                id: "source-1".into(),
+                parent: Some("source-0".into()),
+                name: "forecast.xlsx".into(),
+                media_type: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
+                    .into(),
+                locator: "mime/part/2".into(),
+                status: "unprocessed".into(),
+                bytes: b"opaque synthetic XLSX".to_vec(),
+                text: String::new(),
+            },
+        ],
+        assets: vec![asset.clone()],
+        occurrences: vec![
+            brn_intake::ImageOccurrence {
+                id: "occurrence-0".into(),
+                source_id: "source-0".into(),
+                asset_id: asset.id.clone(),
+                locator: "document/image/1".into(),
+                alt: Some("120 to 72 litres/day".into()),
+                start: first,
+                end: first + link.len(),
+            },
+            brn_intake::ImageOccurrence {
+                id: "occurrence-1".into(),
+                source_id: "source-0".into(),
+                asset_id: asset.id.clone(),
+                locator: "document/image/2".into(),
+                alt: Some("Repeated operational evidence".into()),
+                start: second,
+                end: second + link.len(),
+            },
+        ],
+        gaps: vec![
+            "Unsupported XLSX remains retained and unprocessed.".into(),
+            "Native chart content unavailable; inspect original.".into(),
+        ],
+    };
+    extraction.validate().unwrap();
+    let (window, desktop) = open_pane(cx, &fixture, vec![original.clone()]);
+    let mut visual = VisualTestContext::from_window(window.into(), cx);
+    visual.update(|window, cx| {
+        desktop.update(cx, |desktop, cx| {
+            desktop.ai.as_mut().unwrap().inbox_queue.preview = Some(InboxConversionPreview {
+                extraction: Some(extraction.clone()),
+                visual: None,
+                request: brn_workflow::inbox_processing::InboxCandidateRequest {
+                    batch_id: Uuid::new_v4(),
+                    index: 0,
+                },
+                original: original.clone(),
+                format: InboxConversionFormat::MaintainedExtractionV1,
+                markdown: markdown.clone(),
+                needs_semantic_review: true,
+            });
+            desktop.sync_inbox_widgets(window, cx);
+            cx.notify();
+        })
+    });
+    visual.run_until_parked();
+    visual.update(|window, cx| {
+        window.render_frame(cx);
+        for id in [
+            "import-intake-file",
+            "intake-extraction-summary",
+            "intake-source-0",
+            "intake-source-1",
+            "intake-image-0",
+            "intake-image-1",
+            "intake-gap-0",
+            "intake-gap-1",
+        ] {
+            assert!(
+                window.try_find(id).is_some(),
+                "missing plural inspection widget {id}"
+            );
+        }
+        assert!(
+            window.try_find("inbox-preview-png").is_none(),
+            "New extraction is a collection, not the historical singleton."
+        );
+        assert_eq!(
+            desktop.read(cx).inbox.preview.read(cx).value().as_ref(),
+            markdown
+        );
     });
     fixture.unchanged();
 }

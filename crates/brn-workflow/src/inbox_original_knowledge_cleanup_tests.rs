@@ -23,11 +23,12 @@ fn removed_original_bootstraps_before_genuine_knowledge_companion_recovery_witho
     let source_journal = f.app.proposal_apply(source_operation).unwrap().unwrap();
     let source = f.app.proposal_source("source.md").unwrap();
     let capture = InboxActionCapture {
+        intake: None,
         visual_asset: None,
         purpose: InboxAnalysisPurpose::KnowledgeAndActions,
         id: Uuid::new_v4(),
         conversation: None,
-        source: source.source,
+        source: Some(source.source),
         source_text: source.text,
         provider: "chatgpt".into(),
         model: "gpt-6-luna".into(),
@@ -57,6 +58,7 @@ fn removed_original_bootstraps_before_genuine_knowledge_companion_recovery_witho
         source_paths: vec![],
         text: "# Reviewed interpretation\nThe captured body contains Japanese text.\n".into(),
         quotes: vec![KnowledgeQuoteArgs {
+            source_id: None,
             quote: "Exact body 日本語".into(),
             occurrence: None,
         }],

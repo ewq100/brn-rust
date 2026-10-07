@@ -30,16 +30,33 @@ Execution milestones from the accepted specification:
 - [ ] Run appropriate integrated/storage/native gates, bounded paired Sol/Luna
   scenarios, independent actual-tree review, fix validated defects, commit and PR.
 
-Checkpoint (implementation in progress): maintained-adapter library/protocol/native
-restriction tests pass 16 tests in `target/intake-helper`; snapshot persistence
-passes 7 tests plus strict scoped Clippy in `target/store-snapshot`. These are
-focused fresh checks, not the final integrated/native/live gates. Workflow compiled
-at its first snapshot-integration checkpoint; private-analysis changes are now in
-progress and the full tree is not yet verified. Historical fixture payloads were
-captured before deleting the old converter; the new compatibility/crash suite uses
-saved bytes and generic preparation/Restore, never legacy conversion. Snapshot
-mirrors now use the existing private Inbox namespace for old/fresh SQL recovery;
-SQLite retains the canonical complete record and normal backups.
+Checkpoint (implementation implemented; final qualification in progress): the
+maintained adapter/helper, V16 immutable snapshot/mirror recovery, private Rig
+investigation, exact Source dependencies and CLI/native collection review are in
+the task-owned tree. The old DOCX package/XML/Word interpreter is removed; saved
+markup/proof readers remain. Focused workflow checks pass 8 tests, including
+single/plural private investigation, comment/Rewrite, exact group approval and
+restart, shared-image imports and repeated preservation of a snapshot, original/
+asset freshness, legacy renewed-review and real partial-application Restore.
+The ignored private crash entry is exercised by its parent test.
+
+Independent actual-tree review found and prompted fixes for Applied dependency
+freshness, shared-image filename collisions, lost refusal categories and ambiguous
+identical source-text ownership. Re-review found no remaining actionable static
+finding. Source UUID namespaces edit only exact qualified image destinations;
+citations map back to immutable text ranges, and ambiguous ownership refuses.
+A broad first workflow run exposed incidental old literal-Email fixtures and
+preview assumptions, plus cascading poisoned subprocess guards; those fixture
+roles and assertions are being corrected openly, with complete gates pending.
+The snapshot bootstrap's oversized-inventory global-startup regression was fixed
+and its existing witness passes. No final native/live qualification is claimed.
+
+Live campaign usage ledger/numeric remaining allowance was not found in committed
+records; an owner clarification is pending. Session provider completion calls are
+zero, prior campaign usage/remaining allowance unknown. This is not a reset or a
+claim of live usefulness. Public Harbor QuickLook thumbnail showed text, table,
+images and footer; the feature-rich variation stalled and was cancelled. Full
+native review/restart acceptance remains a separate gate.
 
 Current seam disposition verified against baseline: keep capture no-follow proofs,
 atomic proposal/apply/repair receipts, canonical historical readers and Rig. Adapt

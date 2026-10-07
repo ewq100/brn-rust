@@ -93,11 +93,12 @@ fn failed_analysis_and_pending_consequence_do_not_veto_confirmed_exact_copy_clea
         .store
         .reserve_inbox_action(
             &InboxActionCapture {
+                intake: None,
                 visual_asset: None,
                 purpose: InboxAnalysisPurpose::KnowledgeAndActions,
                 id: Uuid::new_v4(),
                 conversation: None,
-                source: source.source.clone(),
+                source: Some(source.source.clone()),
                 source_text: source.text,
                 provider: "chatgpt".into(),
                 model: "gpt-6-luna".into(),
@@ -114,6 +115,7 @@ fn failed_analysis_and_pending_consequence_do_not_veto_confirmed_exact_copy_clea
     let draft = f
         .app
         .create_proposal(&crate::proposals::DraftRequest {
+            intake: None,
             inbox_source: None,
             inbox_visual: None,
             inbox_knowledge: None,
@@ -234,11 +236,12 @@ fn legacy_removal_bootstrap_then_new_restore_and_removal_preserve_mirror_bytes_a
         .store
         .reserve_inbox_action(
             &InboxActionCapture {
+                intake: None,
                 visual_asset: None,
                 purpose: InboxAnalysisPurpose::KnowledgeAndActions,
                 id: Uuid::new_v4(),
                 conversation: None,
-                source: source.source,
+                source: Some(source.source),
                 source_text: source.text,
                 provider: "chatgpt".into(),
                 model: "gpt-6-luna".into(),

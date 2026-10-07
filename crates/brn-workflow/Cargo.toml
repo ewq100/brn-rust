@@ -9,6 +9,7 @@ default = []
 native-retrieval = ["brn-retrieval/native"]
 
 [dependencies]
+brn-intake = { path = "../brn-intake" }
 brn-ai = { path = "../brn-ai" }
 brn-store = { path = "../brn-store" }
 brn-retrieval = { path = "../brn-retrieval" }

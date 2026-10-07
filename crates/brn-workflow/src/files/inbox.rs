@@ -733,6 +733,92 @@ mod platform {
             }
             self.validate()
         }
+        /// Immutable extraction companion in the existing original namespace.
+        pub(crate) fn write_snapshot(
+            &self,
+            snapshot: &brn_store::work::intake::IntakeSnapshot,
+        ) -> Result<()> {
+            snapshot.validate()?;
+            self.validate_item(&snapshot.original)?;
+            self.validate()?;
+            let name = format!(".brn-intake-{}.snapshot", snapshot.id);
+            if !self.absent(&name)? {
+                if self.read_snapshot(snapshot.id)? != *snapshot {
+                    return Err(unavailable("extraction snapshot mirror conflicts"));
+                }
+                return Ok(());
+            }
+            let payload = serde_json::to_vec(snapshot)
+                .map_err(|_| unavailable("snapshot encoding failed"))?;
+            let encoded = serde_json::to_vec(&(digest(&payload), snapshot))
+                .map_err(|_| unavailable("snapshot envelope encoding failed"))?;
+            let max = brn_intake::MAX_OUTPUT_BYTES + 128 * 1024;
+            if encoded.len() > max {
+                return Err(unavailable("snapshot mirror exceeds budget"));
+            }
+            let temp = format!(".brn-intake-{}.stage", Uuid::new_v4());
+            let mut file = open_at(
+                &self.directory,
+                OsStr::new(&temp),
+                libc::O_RDWR | libc::O_CREAT | libc::O_EXCL,
+                0o600,
+            )
+            .map_err(file_error)?;
+            file.write_all(&encoded).map_err(io)?;
+            full_sync(&file).map_err(file_error)?;
+            sync_directory(&self.directory).map_err(file_error)?;
+            self.validate()?;
+            let held = file.metadata().map_err(io)?;
+            let named = self.observe_bytes(&temp, max)?;
+            if (held.dev(), held.ino()) != (named.fingerprint.device, named.fingerprint.inode)
+                || named.bytes != encoded
+            {
+                return Err(unavailable("snapshot stage changed"));
+            }
+            rename_flags(
+                &self.directory,
+                &cstring(Path::new(&temp)).map_err(file_error)?,
+                &cstring(Path::new(&name)).map_err(file_error)?,
+                libc::RENAME_EXCL,
+            )
+            .map_err(file_error)?;
+            full_sync(&file).map_err(file_error)?;
+            sync_directory(&self.directory).map_err(file_error)?;
+            if self.read_snapshot(snapshot.id)? != *snapshot {
+                return Err(unavailable("installed snapshot differs"));
+            }
+            Ok(())
+        }
+        pub(crate) fn read_snapshot(
+            &self,
+            id: Uuid,
+        ) -> Result<brn_store::work::intake::IntakeSnapshot> {
+            if id.is_nil() {
+                return Err(unavailable("invalid snapshot id"));
+            }
+            let bytes = self
+                .observe_bytes(
+                    &format!(".brn-intake-{id}.snapshot"),
+                    brn_intake::MAX_OUTPUT_BYTES + 128 * 1024,
+                )?
+                .bytes;
+            let (sha, snapshot): ([u8; 32], brn_store::work::intake::IntakeSnapshot) =
+                serde_json::from_slice(&bytes)
+                    .map_err(|_| unavailable("damaged extraction snapshot envelope"))?;
+            snapshot.validate()?;
+            self.validate_item(&snapshot.original)?;
+            let payload = serde_json::to_vec(&snapshot)
+                .map_err(|_| unavailable("snapshot encoding failed"))?;
+            if snapshot.id != id
+                || digest(&payload) != sha
+                || serde_json::to_vec(&(sha, &snapshot)).ok().as_ref() != Some(&bytes)
+            {
+                return Err(unavailable(
+                    "extraction snapshot hash or canonical bytes differ",
+                ));
+            }
+            Ok(snapshot)
+        }
         /// Descriptor-relative bounded inventory. Unknown entries remain intact.
         pub(crate) fn names(&self) -> Result<Vec<String>> {
             self.validate()?;
@@ -789,6 +875,12 @@ pub(crate) use platform::InboxFiles;
 pub(crate) struct InboxFiles;
 #[cfg(not(target_os = "macos"))]
 impl InboxFiles {
+    pub(crate) fn write_snapshot(&self, _: &brn_store::work::intake::IntakeSnapshot) -> Result<()> {
+        Err(unavailable("intake durability requires macOS"))
+    }
+    pub(crate) fn read_snapshot(&self, _: Uuid) -> Result<brn_store::work::intake::IntakeSnapshot> {
+        Err(unavailable("intake durability requires macOS"))
+    }
     pub(crate) fn open(_: &Path, _: Option<&InboxRoot>, create: bool) -> Result<Option<Self>> {
         if create {
             Err(unavailable("Inbox copy durability requires macOS"))

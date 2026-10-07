@@ -484,7 +484,7 @@ fn binary_reads_verify_complete_proofs_and_queue_durable_unsupported_failure() {
     let batch = process(&worker, &mut state, vec![(*item).clone()]);
     assert!(matches!(
         &batch.entries[0].outcome,
-        InboxProcessOutcome::Failed { code } if code == "binary_unsupported"
+        InboxProcessOutcome::Failed { code } if code == "intake_invalid"
     ));
     assert!(state.preview_inbox_candidate(0).is_none());
     let poll = reply(
@@ -605,7 +605,7 @@ fn docx_worker_preview_binds_format_complete_bytes_and_exact_source_review() {
     assert!(matches!(
         batch.entries[0].outcome,
         InboxProcessOutcome::Converted {
-            format: InboxConversionFormat::DocxTextV1,
+            format: InboxConversionFormat::MaintainedExtractionV1,
             ..
         }
     ));
@@ -613,7 +613,11 @@ fn docx_worker_preview_binds_format_complete_bytes_and_exact_source_review() {
     let (id, AppEvent::InboxCandidate(preview)) = reply(&worker, command) else {
         panic!("DOCX preview")
     };
-    assert_eq!(preview.markdown, "First õ 日本語\n\nSecond preserved\n");
+    assert_eq!(
+        preview.markdown,
+        "<!-- docx-story: body body -->\n\n<!-- docx-export:0 -->\nFirst õ 日本語\n\n<!-- docx-export:1 -->\nSecond preserved\n"
+    );
+    assert!(preview.extraction.is_some());
     assert!(preview.needs_semantic_review);
     for alteration in 0..5 {
         let mut forged = preview.clone();
@@ -636,11 +640,11 @@ fn docx_worker_preview_binds_format_complete_bytes_and_exact_source_review() {
     source.validate_draft(&prepared).unwrap();
     assert_eq!(
         prepared.inbox_source.as_ref().unwrap().format,
-        InboxConversionFormat::DocxTextV1
+        InboxConversionFormat::MaintainedExtractionV1
     );
     assert!(
         matches!(&prepared.changes[0], DraftNoteChange::Create { text, .. }
-        if text.ends_with("First õ 日本語\n\nSecond preserved\n"))
+        if text.contains("First õ 日本語") && text.ends_with("Second preserved\n"))
     );
     assert!(state.draft.is_none());
     assert!(state.open_inbox_source_draft());

@@ -73,6 +73,8 @@ impl Fixture {
         };
         request.validate_receipt(&original).unwrap();
         let process = ProcessInboxRequest {
+            limits: None,
+
             id: Uuid::new_v4(),
             items: vec![(*original).clone()],
         };
@@ -244,8 +246,9 @@ pub(crate) fn symbolic_analysis(request: &InboxActionRequest) -> InboxActionAnal
             purpose: request.purpose,
             id: request.id,
             conversation: request.conversation,
-            source: request.source.source.clone(),
-            source_text: request.source.text.clone(),
+            source: request.source.as_ref().map(|s| s.source.clone()),
+            intake: None,
+            source_text: request.source.as_ref().unwrap().text.clone(),
             provider: match request.selection.provider {
                 Provider::Chatgpt => "chatgpt",
                 Provider::Copilot => "copilot",
@@ -285,6 +288,7 @@ fn group_review(worker: &AppWorker, request: &InboxActionRequest) -> ProposalRec
         (
             Uuid::new_v4(),
             AppCommand::CreateProposal(DraftRequest {
+                intake: None,
                 inbox_visual: None,
                 inbox_knowledge: None,
                 inbox_source: None,
@@ -296,7 +300,7 @@ fn group_review(worker: &AppWorker, request: &InboxActionRequest) -> ProposalRec
                     path: "candidate.md".into(),
                     text: "# Independent candidate\r\n".into(),
                 }],
-                sources: vec![request.source.source.clone()],
+                sources: vec![request.source.as_ref().unwrap().source.clone()],
                 action_changes: vec![],
             }),
         ),
@@ -322,7 +326,7 @@ fn actual_approved_source_submission_freezes_selection_effort_generation_and_ses
     let generation = state.generation;
     let request = submit(&mut state);
     assert_eq!(request.purpose, InboxAnalysisPurpose::KnowledgeAndActions);
-    assert_eq!(*request.source, f.source);
+    assert_eq!(**request.source.as_ref().unwrap(), f.source);
     assert_eq!(request.conversation, conversation);
     assert_eq!(request.selection, selection);
     assert_eq!(request.effort, ReasoningEffort::High);
@@ -641,8 +645,17 @@ fn retained_analysis_lookup_checks_full_capture_turn_group_and_view_without_live
         let mut wrong = exact.clone();
         match mode {
             0 => wrong.job.capture.id = Uuid::new_v4(),
-            1 => wrong.job.capture.source.fingerprint.sha256[0] ^= 1,
-            2 => wrong.job.capture.source.path = "other.md".into(),
+            1 => {
+                wrong
+                    .job
+                    .capture
+                    .source
+                    .as_mut()
+                    .unwrap()
+                    .fingerprint
+                    .sha256[0] ^= 1
+            }
+            2 => wrong.job.capture.source.as_mut().unwrap().path = "other.md".into(),
             3 => wrong.job.capture.purpose = InboxAnalysisPurpose::Actions,
             4 => wrong.turn.as_mut().unwrap().id = Uuid::new_v4(),
             5 => wrong.turn.as_mut().unwrap().model = "different-model".into(),
@@ -732,7 +745,7 @@ pub(crate) fn symbolic_conflict(
     let summary =
         "The Source says Blue õ; saved knowledge says Green 🦀. The evidence remains unresolved."
             .to_owned();
-    let mut other = record.job.capture.source.clone();
+    let mut other = record.job.capture.source.clone().unwrap();
     other.path = "knowledge/other.md".into();
     other.fingerprint.len = 100;
     let draft = FindingDraft {
@@ -743,7 +756,7 @@ pub(crate) fn symbolic_conflict(
         vault: serde_json::from_value(serde_json::json!({"id":Uuid::new_v4(),"root":"/synthetic/vault","identity":{"device":1,"inode":2}})).unwrap(),
         title, summary,
         evidence: vec![
-            FindingEvidence { source: record.job.capture.source.clone(), note_id: Some(record.job.capture.note_id().unwrap()), quote: Some(source_quote) },
+            FindingEvidence { source: record.job.capture.source.clone().unwrap(), note_id: Some(record.job.capture.note_id().unwrap()), quote: Some(source_quote) },
             FindingEvidence { source: other, note_id: Some(Uuid::new_v4()), quote: Some(other_quote) },
         ],
     };
@@ -842,4 +855,78 @@ fn retained_conflicts_are_bound_to_analysis_and_unique_members_before_navigation
     assert!(state.inbox_analysis_finding(request.id, id).is_none());
     fixture.preserved(&worker);
     worker.shutdown().unwrap();
+}
+
+#[test]
+fn private_intake_binding_can_start_investigation_before_source_approval() {
+    use brn_workflow::inbox_actions::InboxIntakeBinding;
+    let mut state = state();
+    let source_proposal_id = Uuid::new_v4();
+    let (id, command) = state.inspect_private_intake(source_proposal_id).unwrap();
+    assert!(
+        matches!(command, AppCommand::InboxIntakeBinding { source_proposal_id: requested } if requested == source_proposal_id)
+    );
+    assert!(!state.can_analyze_inbox_source());
+    let binding = InboxIntakeBinding {
+        snapshot_id: Uuid::new_v4(),
+        snapshot_sha256: [7; 32],
+        source_proposal: brn_workflow::proposals::ProposalStamp {
+            id: source_proposal_id,
+            version: 1,
+        },
+        source_path: "source.md".into(),
+        source_note_id: Uuid::new_v4(),
+        source_text_sha256: [9; 32],
+        assets: vec![],
+        occurrences: vec![],
+    };
+    let mut unrelated = binding.clone();
+    unrelated.source_proposal.id = Uuid::new_v4();
+    state.apply(id, AppEvent::InboxIntakeBinding(Box::new(unrelated)));
+    assert!(state.inbox_analysis.intake.is_none());
+    assert!(state.pending.contains_key(&id));
+    state.apply(id, AppEvent::InboxIntakeBinding(Box::new(binding.clone())));
+    assert!(state.inbox_analysis.source.is_none());
+    assert_eq!(state.inbox_analysis.intake, Some(binding.clone()));
+    let (analysis, command) = state.analyze_inbox_source().unwrap();
+    let AppCommand::AnalyzeInboxActions(request) = command else {
+        panic!("private analysis request")
+    };
+    request.validate().unwrap();
+    assert_eq!(request.id, analysis);
+    assert!(request.source.is_none());
+    assert_eq!(request.intake, Some(binding));
+    assert_eq!(
+        state.inbox_analysis_path_for_turn(analysis),
+        Some("source.md")
+    );
+}
+
+#[test]
+fn late_private_binding_cannot_replace_a_newer_source_selection() {
+    let mut state = state();
+    let proposal = Uuid::new_v4();
+    let (first, _) = state.inspect_private_intake(proposal).unwrap();
+    state
+        .inspect_inbox_analysis_source("different.md".into())
+        .unwrap();
+    let binding = brn_workflow::inbox_actions::InboxIntakeBinding {
+        snapshot_id: Uuid::new_v4(),
+        snapshot_sha256: [7; 32],
+        source_proposal: brn_workflow::proposals::ProposalStamp {
+            id: proposal,
+            version: 1,
+        },
+        source_path: "source.md".into(),
+        source_note_id: Uuid::new_v4(),
+        source_text_sha256: [9; 32],
+        assets: vec![],
+        occurrences: vec![],
+    };
+    state.apply(first, AppEvent::InboxIntakeBinding(Box::new(binding)));
+    assert!(state.inbox_analysis.intake.is_none());
+    assert_eq!(
+        state.inbox_analysis.source_path.as_deref(),
+        Some("different.md")
+    );
 }

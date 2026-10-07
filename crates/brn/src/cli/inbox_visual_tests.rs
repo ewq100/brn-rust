@@ -204,42 +204,33 @@ mod saved {
                 })
                 .unwrap();
             let item: InboxItem = serde_json::from_value(result.data).unwrap();
-            let process = ProcessInboxRequest {
-                id: Uuid::new_v4(),
-                items: vec![item],
-            };
-            let file = f.json_file("process.json", &process);
-            f.inbox(InboxCommand::Process(file)).unwrap();
-            let source = InboxSourceRequest {
-                candidate: InboxCandidateRequest {
-                    batch_id: process.id,
-                    index: 0,
-                },
-                proposal_id: Uuid::new_v4(),
-                note_id: Uuid::new_v4(),
-                path: "source.md".into(),
-                title: "Literal visual Source".into(),
-            };
-            let result = f
-                .inbox(InboxCommand::Source(f.json_file("source.json", &source)))
-                .unwrap();
-            let draft: DraftRequest = serde_json::from_value(result.data).unwrap();
-            source.validate_draft(&draft).unwrap();
-            // Preparation is provider-free and has no preapproval vault effects.
-            assert_eq!(fs::read_dir(&f.vault).unwrap().count(), 0);
-            let result = f
-                .run(Command::Proposals(ProposalCommand::Create(
-                    f.json_file("draft.json", &draft),
-                )))
-                .unwrap();
-            let proposal: ProposalRecord = serde_json::from_value(result.data).unwrap();
-            f.run(Command::Proposals(ProposalCommand::Approve(
-                ApprovalRequest {
-                    operation_id: Uuid::new_v4(),
-                    expected: proposal.stamp(),
-                },
-            )))
+            // Seed a canonical historical saved singleton profile; new imports must not
+            // dispatch to the retired converter merely to exercise historical readers.
+            let asset_name = brn_store::work::inbox_visual::asset_name(&item.capture.copy.sha256);
+            let payload: serde_json::Value = serde_json::from_str(include_str!(
+                "../../../brn-workflow/src/inbox_processing/fixtures/inline-png.legacy.json"
+            ))
             .unwrap();
+            let body = payload["body"].as_str().unwrap().to_owned();
+            let mut metadata = payload["visual"].clone();
+            metadata.as_object_mut().unwrap().remove("bytes");
+            metadata["converted_byte_len"] = body.len().into();
+            metadata["converted_sha256"] = serde_json::json!(brn_intake::digest(body.as_bytes()));
+            let proof: brn_workflow::inbox_processing::InboxSourceVisual =
+                serde_json::from_value(metadata).unwrap();
+            let binding = brn_workflow::inbox_processing::InboxSourceBinding {
+                extraction: None,
+                visual: Some(proof),
+                batch_id: Uuid::new_v4(),
+                index: 0,
+                original: item,
+                format: brn_workflow::inbox_processing::InboxConversionFormat::DocxInlinePngV1,
+                byte_len: body.len() as u64,
+                sha256: brn_intake::digest(body.as_bytes()),
+                note_id: Uuid::new_v4(),
+            };
+            fs::write(f.vault.join("source.md"), binding.markdown(&body).unwrap()).unwrap();
+            fs::write(f.vault.join(asset_name), PNG).unwrap();
             f
         }
         fn json_file(&self, name: &str, value: &impl serde::Serialize) -> PathBuf {
@@ -272,7 +263,8 @@ mod saved {
             InboxActionRequest {
                 id: Uuid::new_v4(),
                 conversation: None,
-                source: evidence.source.clone(),
+                source: Some(evidence.source.clone()),
+                intake: None,
                 selection: brn_workflow::Selection {
                     provider: brn_workflow::Provider::Chatgpt,
                     model: "gpt-6-luna".into(),
@@ -287,8 +279,9 @@ mod saved {
             let capture = InboxActionCapture {
                 id: request.id,
                 conversation: request.conversation,
-                source: request.source.source.clone(),
-                source_text: request.source.text.clone(),
+                source: request.source.as_ref().map(|s| s.source.clone()),
+                intake: None,
+                source_text: request.source.as_ref().unwrap().text.clone(),
                 provider: "chatgpt".into(),
                 model: request.selection.model.clone(),
                 effort: "medium".into(),

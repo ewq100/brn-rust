@@ -31,8 +31,10 @@ if (($#)); then printf '%s\n' "$@" > "$BRN_LAUNCH_ARGS_FILE"; else : > "$BRN_LAU
 STUB
 chmod +x "$binary"
 
-"$root/scripts/make-macos-app.sh" --output "$bundle" --binary "$binary" --data-dir "$data_dir" --model-dir "$model_dir"
+"$root/scripts/make-macos-app.sh" --output "$bundle" --binary "$binary" --intake-helper "$binary" --data-dir "$data_dir" --model-dir "$model_dir"
 plutil -lint "$bundle/Contents/Info.plist" >/dev/null
+cmp "$binary" "$bundle/Contents/Resources/bin/brn-intake-helper"
+test -x "$bundle/Contents/Resources/bin/brn-intake-helper"
 cd "$scratch"
 BRN_LAUNCH_ARGS_FILE="$scratch/args" BRN_LAUNCH_LOG_DIR="$scratch/logs" BRN_LAUNCH_TEST_NO_OPEN=1 "$bundle/Contents/MacOS/BRN-Usability-Trial"
 printf '%s\n' --data-dir "$data_dir" --model-dir "$model_dir" > "$scratch/expected"

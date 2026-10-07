@@ -65,6 +65,7 @@ impl App {
         }
         let (mut store, report) = WorkStore::open(&data_dir)?;
         crate::inbox_original_operations::bootstrap(&mut store)?;
+        crate::inbox::restore_intake_snapshot_mirrors(&mut store)?;
         let apply_records = crate::proposal_apply::restore_application_records(
             &mut store,
             config.vault_root.as_deref(),

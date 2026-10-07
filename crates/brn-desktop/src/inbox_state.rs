@@ -2,7 +2,10 @@
 use super::{AiState, Pending};
 use brn_workflow::{
     app_worker::{AppCommand, AppEvent},
-    inbox::{CaptureInboxRequest, InboxInventory, InboxItem, InboxListRequest, InboxRead},
+    inbox::{
+        CaptureBinaryInboxRequest, CaptureInboxRequest, InboxInventory, InboxItem,
+        InboxListRequest, InboxRead,
+    },
     inbox_processing::{
         InboxCandidateRequest, InboxConversionFormat, InboxConversionPreview, InboxProcessBatch,
         InboxProcessOutcome, InboxSourceBinding, InboxSourceRequest, ProcessInboxRequest,
@@ -25,6 +28,7 @@ pub struct ConversionCapture {
     byte_len: u64,
     sha256: [u8; 32],
     visual: Option<brn_workflow::inbox_processing::InboxVisualPreview>,
+    extraction: Option<brn_intake::Extraction>,
 }
 #[derive(Clone)]
 pub enum InboxPending {
@@ -38,6 +42,7 @@ pub enum InboxPending {
         expected: Option<InboxItem>,
     },
     Capture(CaptureInboxRequest),
+    CaptureBinary(CaptureBinaryInboxRequest),
     Process(ProcessInboxRequest),
     Cancel(ProcessInboxRequest),
     Preview {
@@ -73,6 +78,7 @@ pub struct InboxQueue {
     preview_generation: u64,
     source_generation: u64,
     last_capture: Option<CaptureInboxRequest>,
+    last_binary_capture: Option<CaptureBinaryInboxRequest>,
     last_process: Option<ProcessInboxRequest>,
     process_failed: bool,
 }
@@ -155,7 +161,7 @@ impl AiState {
     pub fn capture_pending(&self) -> bool {
         self.pending.values().any(|pending| {
             matches!(pending,
-            Pending::Inbox(pending) if matches!(pending.as_ref(), InboxPending::Capture(_)))
+            Pending::Inbox(pending) if matches!(pending.as_ref(), InboxPending::Capture(_) | InboxPending::CaptureBinary(_)))
         })
     }
     pub fn capture_inbox(&mut self, request: CaptureInboxRequest) -> Option<(Uuid, AppCommand)> {
@@ -169,6 +175,7 @@ impl AiState {
             return None;
         }
         self.inbox_queue.last_capture = Some(request.clone());
+        self.inbox_queue.last_binary_capture = None;
         self.inbox_queue.capture_error = None;
         let id = request.id;
         if self.pending.contains_key(&id) {
@@ -181,9 +188,36 @@ impl AiState {
         );
         Some((id, AppCommand::CaptureInbox(request)))
     }
+    pub fn capture_binary_inbox(
+        &mut self,
+        request: CaptureBinaryInboxRequest,
+    ) -> Option<(Uuid, AppCommand)> {
+        if let Err(error) = request.validate() {
+            self.inbox_queue.capture_error = Some(error.message);
+            return None;
+        }
+        if !self.ready || self.capture_pending() || self.pending.contains_key(&request.id) {
+            self.inbox_queue.capture_error =
+                Some("Wait for the admitted Inbox capture to settle.".into());
+            return None;
+        }
+        self.inbox_queue.last_binary_capture = Some(request.clone());
+        self.inbox_queue.last_capture = None;
+        self.inbox_queue.capture_error = None;
+        let id = request.id;
+        self.pending.insert(
+            id,
+            Pending::Inbox(Box::new(InboxPending::CaptureBinary(request.clone()))),
+        );
+        Some((id, AppCommand::CaptureBinaryInbox(request)))
+    }
     pub fn retry_capture(&mut self) -> Option<(Uuid, AppCommand)> {
         self.inbox_queue.capture_error.as_ref()?;
-        self.capture_inbox(self.inbox_queue.last_capture.clone()?)
+        if let Some(request) = self.inbox_queue.last_binary_capture.clone() {
+            self.capture_binary_inbox(request)
+        } else {
+            self.capture_inbox(self.inbox_queue.last_capture.clone()?)
+        }
     }
     pub fn processing_pending(&self) -> bool {
         self.pending.values().any(|pending| {
@@ -193,6 +227,8 @@ impl AiState {
     }
     pub fn process_inbox_items(&mut self, items: Vec<InboxItem>) -> Option<(Uuid, AppCommand)> {
         self.submit_inbox_process(ProcessInboxRequest {
+            limits: None,
+
             id: Uuid::new_v4(),
             items,
         })
@@ -388,6 +424,14 @@ impl AiState {
             return None;
         };
         Some(ConversionCapture {
+            extraction: self
+                .inbox_queue
+                .preview
+                .as_ref()
+                .filter(|preview| {
+                    preview.request.batch_id == batch.request.id && preview.request.index == index
+                })
+                .and_then(|preview| preview.extraction.clone()),
             visual: self
                 .inbox_queue
                 .preview
@@ -512,6 +556,7 @@ impl AiState {
                 AppEvent::InboxSourceDraft(draft),
             ) if request.validate_draft(draft).is_ok()
                 && conversion.visual.as_ref().is_none_or(|visual| draft.changes.iter().any(|change| matches!(change, brn_workflow::proposals::DraftNoteChange::CreateAsset { bytes, .. } if bytes == &visual.bytes)))
+                && conversion.extraction.as_ref().is_none_or(|extraction| extraction.assets.iter().all(|asset| draft.changes.iter().any(|change| matches!(change, brn_workflow::proposals::DraftNoteChange::CreateAsset { bytes, .. } if bytes == &asset.bytes))))
                 && draft
                     .inbox_source
                     .as_deref()
@@ -520,7 +565,13 @@ impl AiState {
                 self.inbox_queue.prepared = Some((**draft).clone());
                 self.inbox_queue.source_error = None;
             }
-            (InboxPending::Capture(_), AppEvent::Failed(error)) => {
+            (InboxPending::CaptureBinary(request), AppEvent::InboxCaptured(item))
+                if request.id == id && request.validate_receipt(item).is_ok() => {
+                self.inbox_queue.capture_result = Some((**item).clone());
+                self.inbox_queue.capture_error = None;
+                self.notice = "Exact EML/DOCX file retained in Inbox. Inspect extraction and originals before approval.".into();
+            }
+            (InboxPending::Capture(_) | InboxPending::CaptureBinary(_), AppEvent::Failed(error)) => {
                 self.inbox_queue.capture_error = Some(error.message.clone())
             }
             (InboxPending::Source { .. }, AppEvent::Failed(error)) => {
@@ -548,6 +599,22 @@ impl ConversionCapture {
             && binding.format == self.format
             && binding.byte_len == self.byte_len
             && binding.sha256 == self.sha256
+            && match (&self.extraction, &binding.extraction) {
+                (None, None) => true,
+                (Some(extraction), Some(receipt)) => {
+                    receipt.assets.len() == extraction.assets.len()
+                        && extraction.assets.iter().all(|asset| {
+                            brn_intake::asset_file_name(asset).is_ok_and(|name| {
+                                receipt.assets.iter().any(|stored| {
+                                    stored.name == name
+                                        && stored.sha256 == asset.sha256
+                                        && stored.byte_len == asset.bytes.len() as u64
+                                })
+                            })
+                        })
+                }
+                _ => false,
+            }
             && self
                 .visual
                 .as_ref()

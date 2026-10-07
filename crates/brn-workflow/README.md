@@ -47,7 +47,7 @@ whole Source draft for the existing exact approval/recovery boundary. Opt-in
 knowledge, Action and supersession review are described below.
 Conflict capture and explicitly confirmed text-copy Remove/Restore are described
 below. The bounded DOCX inline PNG/interpretation profile is described below;
-broader attachments and visual formats remain follow-on work.
+the maintained EML/DOCX profile below supports plural attachments and images.
 No original deletion, provider call or authoritative write occurs here.
 
 `CaptureInbox`, `InboxItem` and `InboxItems` are headless workflow commands for
@@ -73,24 +73,37 @@ explicit opaque originals up to 16 MiB, including empty and invalid UTF-8 bytes.
 `CaptureBinaryInboxRequest` binds UUID, labels and complete bytes; text capture
 rejects Binary. UUID.bin is derived from the typed receipt, while existing text
 kinds retain UUID.txt and their 1 MiB limit. Capture refuses either occupied suffix;
-recovery never substitutes one suffix for the other. Catalog schema V15 and the
+recovery never substitutes one suffix for the other. Catalog schema V16 and the
 metadata-only format1 capture mirror remain unchanged.
 
 `InboxOriginal::AvailableBinary` reports only complete length/hash after a fresh
 stable private-file identity/byte observation. `InboxRead::validate_receipt`
 checks client DTO consistency; it does not establish fresh filesystem authority.
-Binary processing attempts the bounded DOCX text/structure or single inline PNG
-profiles described in the [Stage8 plan](../../docs/work/active/office-inbox/plan.md#next-slice-bounded-docx-text-source).
-Workflow observes complete bytes through the held original-file boundary and
-rederives conversion for a fresh candidate, new Source draft and unfinished
-approval/application. A converted receipt is operational evidence, never fresh
-authority by itself. Historical terminal Source recovery stays self-contained.
-Unsupported or malformed packages fail durably; no generic ZIP ingestion,
-extraction or external relationship fetch occurs. Binary payloads are not
-rendered as text. Binary preservation and new/legacy Remove/Restore remain refused,
-including after exact Source approval.
+Binary processing selects EML by its captured `.eml` name and otherwise DOCX;
+the Email text kind also invokes the maintained MIME helper. The owned helper is
+restricted before stdin, uses empty environment and bounded pipes, and is joined
+on cancellation, timeout and failure. Complete output is validated before an
+immutable hashed extraction snapshot and private recovery mirror are published.
+Candidates and historical review read that snapshot without reconversion. Fresh
+Source approval still checks the exact original file, snapshot, body and every
+asset. Unsupported attachments remain retained and visibly unprocessed.
 
-`AnalyzeInboxActions` accepts one complete saved managed Inbox Source, an operation
+`InboxIntakeBinding` binds private investigation to the exact pending Source
+proposal stamp, snapshot digest, note identity and text. `AnalyzeInboxActions`
+accepts either this binding or the historical saved Source profile. Private
+knowledge citations bind exact source-node text ranges; Actions retain the same
+prerequisite. No SourceVersion is fabricated for unsaved evidence. Related
+knowledge, History and Actions use existing proposals, comment/Rewrite and
+application journals. Group approval validates selected stamps and applies the
+Source prerequisite before dependent members. Individual dependent approval
+requires its exact Applied Source receipt and current saved bytes.
+
+Old DOCX drafts cannot approve or Finish through reconversion. Original bytes and
+saved records remain available; exact-proof Restore can undo partial effects,
+while absent/changed proof blocks recovery and preserves artifacts. Renewed
+extraction and review create new authority. Binary copy cleanup remains refused.
+
+The historical saved-Source profile of `AnalyzeInboxActions` accepts one complete managed Inbox Source, an operation
 UUID, optional conversation and explicit provider/model/effort. Full Source bytes
 including metadata must fit 50,000 bytes; no truncation occurs. New admission
 checks the fresh full file proof and unique UUID. WorkStore V14 retains the exact

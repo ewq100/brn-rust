@@ -110,6 +110,7 @@ impl App {
         let text =
             prepare_text::append(&source.text, body, &request.label, request.target_note_id)?;
         let draft = DraftRequest {
+            intake: None,
             inbox_visual: None,
             inbox_knowledge: None,
             inbox_source: None,

@@ -20,7 +20,7 @@ pub use action_candidates::{
 pub use auth::{Auth, ProviderClient};
 pub use chat::{
     AiAnswer, AiEvent, AiTerminal, HistoryPair, MAX_REWRITE_BYTES, ReasoningEffort, answer,
-    answer_with_effort, answer_with_proposals, rewrite,
+    answer_with_effort, answer_with_proposals, answer_with_proposals_and_images, rewrite,
 };
 pub use proposal_tools::{
     ACTION_PROPOSAL_BYTES, ActionProposalArgs, CONFLICT_REPORT_BYTES, ConflictArgs, ConflictQuote,

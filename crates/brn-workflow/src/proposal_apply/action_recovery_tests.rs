@@ -117,6 +117,7 @@ fn data(title: &str, state: ActionState) -> ActionData {
 
 fn draft(change: ActionChange) -> ProposalDraft {
     ProposalDraft {
+        intake: None,
         inbox_visual: None,
         inbox_knowledge: None,
         inbox_source: None,
@@ -245,6 +246,7 @@ fn workflow_action_creation_replay_and_exact_replace_are_vaultless() {
     let f = Fixture::new();
     let mut app = f.app();
     let input = DraftRequest {
+        intake: None,
         inbox_visual: None,
         inbox_knowledge: None,
         inbox_source: None,
@@ -294,6 +296,7 @@ fn workflow_action_creation_replay_and_exact_replace_are_vaultless() {
     let mut after = before.data.clone();
     after.state = ActionState::Waiting;
     let replacement = DraftRequest {
+        intake: None,
         inbox_visual: None,
         inbox_knowledge: None,
         inbox_source: None,
@@ -639,6 +642,7 @@ fn vaultless_action_mirrors_do_not_relax_bound_vault_refusal() {
         };
         let note = store
             .create_proposal(&ProposalDraft {
+                intake: None,
                 inbox_visual: None,
                 inbox_knowledge: None,
                 inbox_source: None,
@@ -709,6 +713,7 @@ fn vaultless_action_mirrors_do_not_relax_bound_vault_refusal() {
 
 fn action_input(change: ActionChange) -> crate::proposals::DraftRequest {
     crate::proposals::DraftRequest {
+        intake: None,
         inbox_visual: None,
         inbox_knowledge: None,
         inbox_source: None,

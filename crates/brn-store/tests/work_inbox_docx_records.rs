@@ -52,6 +52,8 @@ fn outcome(format: InboxConversionFormat, len: u64, sha: [u8; 32]) -> InboxProce
 fn batch(original: InboxItem, result: InboxProcessOutcome) -> InboxProcessBatch {
     InboxProcessBatch {
         request: ProcessInboxRequest {
+            limits: None,
+
             id: Uuid::from_u128(2),
             items: vec![original],
         },
@@ -65,6 +67,7 @@ fn batch(original: InboxItem, result: InboxProcessOutcome) -> InboxProcessBatch 
 }
 fn binding(original: InboxItem, format: InboxConversionFormat, body: &str) -> InboxSourceBinding {
     InboxSourceBinding {
+        extraction: None,
         visual: None,
         batch_id: Uuid::from_u128(2),
         index: 0,
@@ -89,6 +92,7 @@ fn draft(binding: &InboxSourceBinding, text: String) -> ProposalDraft {
         inode: 4,
     };
     ProposalDraft {
+        intake: None,
         id: Uuid::from_u128(4),
         group_id: None,
         session_id: None,
@@ -208,6 +212,8 @@ fn docx_queue_failures_replay_restart_and_failed_update_are_atomic() {
         capture.id = Uuid::new_v4();
         let saved = store.capture_inbox(&capture).unwrap();
         let r = ProcessInboxRequest {
+            limits: None,
+
             id: Uuid::new_v4(),
             items: vec![saved],
         };
@@ -238,6 +244,8 @@ fn docx_queue_failures_replay_restart_and_failed_update_are_atomic() {
         .capture_inbox(&item(InboxKind::Binary, 22).capture)
         .unwrap();
     let r = ProcessInboxRequest {
+        limits: None,
+
         id: Uuid::new_v4(),
         items: vec![saved],
     };
@@ -443,6 +451,8 @@ fn rehashed_docx_processing_damage_refuses_reopen_without_restoring_backup() {
             .capture_inbox(&item(InboxKind::Binary, 22).capture)
             .unwrap();
         let r = ProcessInboxRequest {
+            limits: None,
+
             id: Uuid::new_v4(),
             items: vec![saved],
         };

@@ -95,6 +95,8 @@ fn binary_queue_admits_but_text_conversion_and_provenance_still_refuse() {
         .capture_inbox(&capture(copies.path(), b"UTF-8-looking body"))
         .unwrap();
     let request = ProcessInboxRequest {
+        limits: None,
+
         id: Uuid::new_v4(),
         items: vec![item.clone()],
     };
@@ -126,6 +128,7 @@ fn binary_queue_admits_but_text_conversion_and_provenance_still_refuse() {
         Err(InboxProcessOutcome::Cancelled)
     );
     let binding = InboxSourceBinding {
+        extraction: None,
         visual: None,
         original: item,
         batch_id: Uuid::new_v4(),

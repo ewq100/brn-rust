@@ -10,7 +10,7 @@ pub use brn_store::work::inbox_processing::{
     ProcessInboxRequest,
 };
 pub use brn_store::work::inbox_source::InboxSourceBinding;
-use brn_store::work::inbox_source::{DocxInlinePng, DocxSourceConversion};
+use brn_store::work::inbox_source::{ExtractionAsset, ExtractionBinding};
 pub use brn_store::work::inbox_visual::InboxSourceVisual;
 use serde::{Deserialize, Serialize};
 use sha2::{Digest, Sha256};
@@ -51,20 +51,30 @@ impl InboxSourceRequest {
                 "Inbox source response has no original binding",
             ));
         };
-        let path = match draft.changes.as_slice() {
-            [crate::proposals::DraftNoteChange::Create { path, .. }]
-                if binding.visual.is_none() =>
-            {
-                path
+        let path = if let Some(extraction) = &binding.extraction {
+            if draft.changes.len() != 1 + extraction.assets.len() {
+                return Err(WorkflowError::msg("missing extraction assets"));
             }
-            [
-                crate::proposals::DraftNoteChange::Create { path, .. },
-                crate::proposals::DraftNoteChange::CreateAsset { .. },
-            ] if binding.visual.is_some() => path,
-            _ => {
-                return Err(WorkflowError::msg(
-                    "Inbox Source response differs from its complete member set",
-                ));
+            match draft.changes.first() {
+                Some(crate::proposals::DraftNoteChange::Create { path, .. }) => path,
+                _ => return Err(WorkflowError::msg("Source Create missing")),
+            }
+        } else {
+            match draft.changes.as_slice() {
+                [crate::proposals::DraftNoteChange::Create { path, .. }]
+                    if binding.visual.is_none() =>
+                {
+                    path
+                }
+                [
+                    crate::proposals::DraftNoteChange::Create { path, .. },
+                    crate::proposals::DraftNoteChange::CreateAsset { .. },
+                ] if binding.visual.is_some() => path,
+                _ => {
+                    return Err(WorkflowError::msg(
+                        "Inbox Source response differs from its complete member set",
+                    ));
+                }
             }
         };
         if draft.id != self.proposal_id
@@ -93,6 +103,8 @@ pub struct InboxCandidateRequest {
 #[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
 #[serde(deny_unknown_fields)]
 pub struct InboxConversionPreview {
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub extraction: Option<brn_intake::Extraction>,
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub visual: Option<InboxVisualPreview>,
     pub request: InboxCandidateRequest,
@@ -131,24 +143,6 @@ impl InboxVisualPreview {
     }
 }
 
-fn visual_proof(image: &DocxInlinePng, converted: &str) -> InboxSourceVisual {
-    InboxSourceVisual {
-        part_name: image.part_name.clone(),
-        relationship_id: image.relationship_id.clone(),
-        asset_name: image.asset_name.clone(),
-        byte_len: image.byte_len,
-        sha256: image.sha256,
-        width: image.width,
-        height: image.height,
-        alt_text: image.alt_text.clone(),
-        title: image.title.clone(),
-        image_start: image.image_start,
-        image_end: image.image_end,
-        converted_byte_len: converted.len() as u64,
-        converted_sha256: digest(converted.as_bytes()),
-    }
-}
-
 impl InboxConversionPreview {
     /// Check a client response against the retained complete conversion receipt.
     /// This qualifies preview bytes, not source-wrapper size or knowledge approval.
@@ -180,6 +174,20 @@ impl InboxConversionPreview {
                 "Inbox preview differs from its complete conversion receipt",
             ));
         }
+        if let Some(extraction) = &self.extraction {
+            extraction.validate().map_err(WorkflowError::msg)?;
+            if self.format != InboxConversionFormat::MaintainedExtractionV1
+                || self.visual.is_some()
+                || extraction.markdown != self.markdown
+                || extraction.original_sha256 != self.original.capture.copy.sha256
+            {
+                return Err(WorkflowError::msg(
+                    "preview differs from immutable extraction",
+                ));
+            }
+        } else if self.format == InboxConversionFormat::MaintainedExtractionV1 {
+            return Err(WorkflowError::msg("missing extraction"));
+        }
         match (&self.visual, self.format) {
             (Some(visual), InboxConversionFormat::DocxInlinePngV1) => {
                 visual.validate(&self.original.capture.copy.sha256, &self.markdown)?;
@@ -193,6 +201,34 @@ impl InboxConversionPreview {
         }
         Ok(())
     }
+}
+
+struct Conversion {
+    format: InboxConversionFormat,
+    body: String,
+    extraction: Option<brn_intake::Extraction>,
+}
+fn extraction_binding(
+    snapshot: &brn_store::work::intake::IntakeSnapshot,
+    note_id: Uuid,
+) -> Result<ExtractionBinding> {
+    Ok(ExtractionBinding {
+        snapshot_id: snapshot.id,
+        snapshot_sha256: snapshot.digest()?,
+        assets: snapshot
+            .extraction
+            .assets
+            .iter()
+            .map(|asset| {
+                Ok(ExtractionAsset {
+                    name: brn_intake::asset_file_name_for_source(asset, &note_id.to_string())
+                        .map_err(WorkflowError::msg)?,
+                    byte_len: asset.bytes.len() as u64,
+                    sha256: asset.sha256,
+                })
+            })
+            .collect::<Result<Vec<_>>>()?,
+    })
 }
 
 fn digest(bytes: &[u8]) -> [u8; 32] {
@@ -209,39 +245,65 @@ impl App {
     fn convert_fresh_inbox_original(
         &self,
         item: &crate::inbox::InboxItem,
+        limits: Option<brn_intake::IntakeLimits>,
         cancel: &AtomicBool,
-    ) -> std::result::Result<DocxSourceConversion, InboxProcessOutcome> {
-        if item.capture.kind == InboxKind::Binary {
-            let Some(files) = &self.inbox.files else {
-                return Err(InboxProcessOutcome::Failed {
-                    code: "original_unavailable".into(),
-                });
+    ) -> std::result::Result<Conversion, InboxProcessOutcome> {
+        if item.capture.kind == InboxKind::Binary || item.capture.kind == InboxKind::Email {
+            let bytes = if item.capture.kind == InboxKind::Binary {
+                self.inbox
+                    .files
+                    .as_ref()
+                    .ok_or_else(|| InboxProcessOutcome::Failed {
+                        code: "original_unavailable".into(),
+                    })?
+                    .read_binary_bytes(item)
+                    .map_err(|_| InboxProcessOutcome::Failed {
+                        code: "original_changed".into(),
+                    })?
+                    .ok_or_else(|| InboxProcessOutcome::Failed {
+                        code: "original_missing".into(),
+                    })?
+            } else {
+                let InboxOriginal::Available { text } = self.inbox.original(item) else {
+                    return Err(InboxProcessOutcome::Failed {
+                        code: "original_unavailable".into(),
+                    });
+                };
+                text.into_bytes()
             };
-            return match files.read_binary_bytes(item) {
-                Ok(Some(bytes)) => {
-                    brn_store::work::inbox_source::convert_docx_source(&bytes, cancel)
-                }
-                Ok(None) => Err(InboxProcessOutcome::Failed {
-                    code: "original_missing".into(),
-                }),
-                Err(error) => Err(InboxProcessOutcome::Failed {
-                    code: if error.kind == ErrorKind::ContextStale {
-                        "original_changed"
+            let kind = if item.capture.kind == InboxKind::Email
+                || item
+                    .capture
+                    .original_name
+                    .as_ref()
+                    .is_some_and(|name| name.to_ascii_lowercase().ends_with(".eml"))
+            {
+                "eml"
+            } else {
+                "docx"
+            };
+            let extraction =
+                crate::intake_helper::extract(kind, bytes, limits, cancel).map_err(|reason| {
+                    if cancel.load(Ordering::Acquire) {
+                        InboxProcessOutcome::Cancelled
                     } else {
-                        "original_unavailable"
+                        InboxProcessOutcome::Failed {
+                            code: crate::intake_helper::refusal_code(&reason).into(),
+                        }
                     }
-                    .into(),
-                }),
-            };
+                })?;
+            return Ok(Conversion {
+                format: InboxConversionFormat::MaintainedExtractionV1,
+                body: extraction.markdown.clone(),
+                extraction: Some(extraction),
+            });
         }
         match self.inbox.original(item) {
             InboxOriginal::Available { text } => {
-                convert(item.capture.kind, &text, cancel).map(|(format, body)| {
-                    DocxSourceConversion {
-                        format,
-                        body,
-                        visual: None,
-                    }
+                convert(item.capture.kind, &text, cancel).map(|(format, body)| Conversion {
+                    format,
+                    body,
+                    extraction: None,
                 })
             }
             original => Err(InboxProcessOutcome::Failed {
@@ -263,17 +325,34 @@ impl App {
     ) -> Result<crate::proposals::DraftRequest> {
         request.validate()?;
         let preview = self.inbox_candidate(&request.candidate)?;
+        let source_body = preview
+            .extraction
+            .as_ref()
+            .map(|extraction| {
+                extraction
+                    .materialize_for_source(&request.note_id.to_string())
+                    .map(|value| value.markdown)
+            })
+            .transpose()
+            .map_err(WorkflowError::msg)?
+            .unwrap_or_else(|| preview.markdown.clone());
         let binding = InboxSourceBinding {
+            extraction: self
+                .store
+                .intake_snapshot_for(request.candidate.batch_id, request.candidate.index)?
+                .as_ref()
+                .map(|snapshot| extraction_binding(snapshot, request.note_id))
+                .transpose()?,
             visual: preview.visual.as_ref().map(|visual| visual.proof.clone()),
             batch_id: request.candidate.batch_id,
             index: request.candidate.index,
             original: preview.original,
             format: preview.format,
-            byte_len: preview.markdown.len() as u64,
-            sha256: digest(preview.markdown.as_bytes()),
+            byte_len: source_body.len() as u64,
+            sha256: digest(source_body.as_bytes()),
             note_id: request.note_id,
         };
-        let text = binding.markdown(&preview.markdown)?;
+        let text = binding.markdown(&source_body)?;
         let mut changes = vec![crate::proposals::DraftNoteChange::Create {
             path: request.path.clone(),
             text,
@@ -286,7 +365,19 @@ impl App {
                 bytes: visual.bytes,
             });
         }
+        if let (Some(extraction), Some(evidence)) = (&preview.extraction, &binding.extraction) {
+            for asset in &extraction.assets {
+                let name =
+                    brn_intake::asset_file_name_for_source(asset, &request.note_id.to_string())
+                        .map_err(WorkflowError::msg)?;
+                changes.push(crate::proposals::DraftNoteChange::CreateAsset {
+                    path: evidence.asset_path(&request.path, &name)?,
+                    bytes: asset.bytes.clone(),
+                });
+            }
+        }
         let draft = crate::proposals::DraftRequest {
+            intake: None,
             inbox_visual: None,
             inbox_knowledge: None,
             inbox_source: Some(Box::new(binding)),
@@ -331,45 +422,87 @@ impl App {
                 "Inbox source capture changed",
             ));
         }
-        let converted = if binding.original.capture.kind == InboxKind::Binary {
-            self.convert_fresh_inbox_original(&binding.original, &AtomicBool::new(false))
-                .map_err(|_| {
+        if let Some(evidence) = &binding.extraction {
+            let snapshot = self
+                .store
+                .intake_snapshot(evidence.snapshot_id)?
+                .ok_or_else(|| {
                     WorkflowError::typed(
                         ErrorKind::ContextStale,
-                        "Inbox source original is missing, changed, unavailable or cannot be reproduced",
+                        "retained extraction snapshot is missing",
                     )
-                })?
-        } else {
-            let InboxOriginal::Available { text } = self.inbox.original(&binding.original) else {
+                })?;
+            let source_body = snapshot
+                .extraction
+                .materialize_for_source(&binding.note_id.to_string())
+                .map_err(WorkflowError::msg)?
+                .markdown;
+            if snapshot.original != binding.original
+                || snapshot.digest()? != evidence.snapshot_sha256
+                || source_body.len() as u64 != binding.byte_len
+                || digest(source_body.as_bytes()) != binding.sha256
+                || extraction_binding(&snapshot, binding.note_id)? != *evidence
+            {
                 return Err(WorkflowError::typed(
                     ErrorKind::ContextStale,
-                    "Inbox source original is missing, changed or unavailable",
+                    "retained extraction changed",
                 ));
-            };
-            let (format, body) = convert(
-                binding.original.capture.kind,
-                &text,
-                &AtomicBool::new(false),
-            )
-            .map_err(|_| WorkflowError::msg("Inbox source conversion cannot be reproduced"))?;
-            DocxSourceConversion {
-                format,
-                body,
-                visual: None,
             }
+            // Fresh admission checks original physical identity; no converter is rerun.
+            if binding.original.capture.kind == InboxKind::Binary {
+                self.inbox
+                    .files
+                    .as_ref()
+                    .ok_or_else(|| WorkflowError::msg("original unavailable"))?
+                    .read_binary_bytes(&binding.original)
+                    .map_err(|_| {
+                        WorkflowError::typed(
+                            ErrorKind::ContextStale,
+                            "original changed or unavailable",
+                        )
+                    })?
+                    .ok_or_else(|| {
+                        WorkflowError::typed(ErrorKind::ContextStale, "original missing")
+                    })?;
+            } else if !matches!(
+                self.inbox.original(&binding.original),
+                InboxOriginal::Available { .. }
+            ) {
+                return Err(WorkflowError::typed(
+                    ErrorKind::ContextStale,
+                    "original changed or unavailable",
+                ));
+            }
+            return Ok(());
+        }
+        if matches!(
+            binding.format,
+            InboxConversionFormat::DocxTextV1 | InboxConversionFormat::DocxInlinePngV1
+        ) {
+            return Err(WorkflowError::typed(
+                ErrorKind::OperationConflict,
+                "Legacy DOCX work requires a new extraction and renewed review. Preserve uncertain applications and use explicit proof-based Restore; Finish is unavailable.",
+            ));
+        }
+        let InboxOriginal::Available { text } = self.inbox.original(&binding.original) else {
+            return Err(WorkflowError::typed(
+                ErrorKind::ContextStale,
+                "original unavailable",
+            ));
         };
-        if converted.format != binding.format
-            || converted.body.len() as u64 != binding.byte_len
-            || digest(converted.body.as_bytes()) != binding.sha256
-            || converted
-                .visual
-                .as_ref()
-                .map(|image| visual_proof(image, &converted.body))
-                != binding.visual
+        let (format, body) = convert(
+            binding.original.capture.kind,
+            &text,
+            &AtomicBool::new(false),
+        )
+        .map_err(|_| WorkflowError::msg("literal evidence cannot be reproduced"))?;
+        if format != binding.format
+            || body.len() as u64 != binding.byte_len
+            || digest(body.as_bytes()) != binding.sha256
         {
             return Err(WorkflowError::typed(
                 ErrorKind::ContextStale,
-                "Inbox source conversion proof changed",
+                "original evidence differs",
             ));
         }
         Ok(())
@@ -405,14 +538,35 @@ impl App {
         self.store.inbox_item(item.capture.id)?.ok_or_else(|| {
             WorkflowError::typed(ErrorKind::NotFound, "Inbox item does not exist")
         })?;
-        let outcome = match self.convert_fresh_inbox_original(item, cancel) {
-            Ok(converted) => InboxProcessOutcome::Converted {
-                format: converted.format,
-                byte_len: converted.body.len() as u64,
-                sha256: digest(converted.body.as_bytes()),
-            },
-            Err(outcome) => outcome,
-        };
+        let outcome =
+            match self.convert_fresh_inbox_original(item, batch.request.limits.clone(), cancel) {
+                Ok(converted) => {
+                    if let Some(extraction) = converted.extraction {
+                        if cancel.load(Ordering::Acquire) {
+                            return self.cancel_inbox_processing(id);
+                        }
+                        let snapshot = brn_store::work::intake::IntakeSnapshot {
+                            id: Uuid::new_v4(),
+                            batch_id: id,
+                            index,
+                            original: item.clone(),
+                            extraction,
+                        };
+                        self.inbox
+                            .files
+                            .as_ref()
+                            .ok_or_else(|| WorkflowError::msg("private intake files unavailable"))?
+                            .write_snapshot(&snapshot)?;
+                        self.store.save_intake_snapshot(&snapshot)?;
+                    }
+                    InboxProcessOutcome::Converted {
+                        format: converted.format,
+                        byte_len: converted.body.len() as u64,
+                        sha256: digest(converted.body.as_bytes()),
+                    }
+                }
+                Err(outcome) => outcome,
+            };
         let outcome = if cancel.load(Ordering::Acquire) {
             InboxProcessOutcome::Cancelled
         } else {
@@ -443,48 +597,64 @@ impl App {
             ));
         };
         let item = &batch.request.items[request.index];
-        let converted = if item.capture.kind == InboxKind::Binary {
-            // Candidate lookup retains its catalog prerequisite; unfinished
-            // approval can use the immutable binding without processing rows.
-            if self.store.inbox_item(item.capture.id)?.as_ref() != Some(item) {
+        let (format, markdown, extraction) = if matches!(
+            entry.outcome,
+            InboxProcessOutcome::Converted {
+                format: InboxConversionFormat::MaintainedExtractionV1,
+                ..
+            }
+        ) {
+            let snapshot = self
+                .store
+                .intake_snapshot_for(request.batch_id, request.index)?
+                .ok_or_else(|| {
+                    WorkflowError::msg(
+                        "retained extraction is missing; reprocess original for renewed review",
+                    )
+                })?;
+            if snapshot.original != *item {
                 return Err(WorkflowError::typed(
                     ErrorKind::ContextStale,
-                    "Inbox original capture differs from its conversion receipt",
+                    "snapshot original differs",
                 ));
             }
-            self.convert_fresh_inbox_original(item, &AtomicBool::new(false))
-                .map_err(|_| WorkflowError::typed(
-                    ErrorKind::ContextStale,
-                    "Inbox original is unavailable or changed; conversion preview cannot be qualified",
-                ))?
+            (
+                InboxConversionFormat::MaintainedExtractionV1,
+                snapshot.extraction.markdown.clone(),
+                Some(snapshot.extraction),
+            )
         } else {
+            if matches!(
+                entry.outcome,
+                InboxProcessOutcome::Converted {
+                    format: InboxConversionFormat::DocxTextV1
+                        | InboxConversionFormat::DocxInlinePngV1,
+                    ..
+                }
+            ) {
+                return Err(WorkflowError::typed(
+                    ErrorKind::OperationConflict,
+                    "Legacy preview requires new extraction and renewed review; original and old records remain retained",
+                ));
+            }
             let InboxOriginal::Available { text } = self.inbox_item(item.capture.id)?.original
             else {
                 return Err(WorkflowError::typed(
                     ErrorKind::ContextStale,
-                    "Inbox original is unavailable or changed; conversion preview cannot be qualified",
+                    "original unavailable",
                 ));
             };
             let (format, body) = convert(item.capture.kind, &text, &AtomicBool::new(false))
-                .map_err(|_| {
-                    WorkflowError::msg("retained Inbox conversion cannot be reproduced")
-                })?;
-            DocxSourceConversion {
-                format,
-                body,
-                visual: None,
-            }
+                .map_err(|_| WorkflowError::msg("literal conversion unavailable"))?;
+            (format, body, None)
         };
-        let visual = converted.visual.map(|image| InboxVisualPreview {
-            proof: visual_proof(&image, &converted.body),
-            bytes: image.bytes,
-        });
         let preview = InboxConversionPreview {
             request: request.clone(),
             original: item.clone(),
-            format: converted.format,
-            markdown: converted.body,
-            visual,
+            format,
+            markdown,
+            visual: None,
+            extraction,
             needs_semantic_review: true,
         };
         preview.validate_receipt(&batch).map_err(|_| {
@@ -527,6 +697,8 @@ mod tests {
         };
         let batch = InboxProcessBatch {
             request: ProcessInboxRequest {
+                limits: None,
+
                 id: Uuid::new_v4(),
                 items: vec![item.clone()],
             },
@@ -542,6 +714,7 @@ mod tests {
             }],
         };
         let preview = InboxConversionPreview {
+            extraction: None,
             visual: None,
             request: InboxCandidateRequest {
                 batch_id: batch.request.id,
@@ -554,6 +727,7 @@ mod tests {
         };
         preview.validate_receipt(&batch).unwrap();
         let binding = InboxSourceBinding {
+            extraction: None,
             visual: None,
             batch_id: batch.request.id,
             index: 0,

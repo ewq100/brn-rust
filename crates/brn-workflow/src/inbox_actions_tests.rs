@@ -55,6 +55,8 @@ fn capture_source(worker: &AppWorker, raw: &str) -> SourceFixture {
         panic!("capture response");
     };
     let process = ProcessInboxRequest {
+        limits: None,
+
         id: Uuid::new_v4(),
         items: vec![(*original).clone()],
     };
@@ -126,11 +128,12 @@ fn capture_source(worker: &AppWorker, raw: &str) -> SourceFixture {
 
 fn request(source: &SourceFixture) -> InboxActionRequest {
     InboxActionRequest {
+        intake: None,
         visual_asset: None,
         purpose: Default::default(),
         id: Uuid::new_v4(),
         conversation: None,
-        source: Box::new(source.source.clone()),
+        source: Some(Box::new(source.source.clone())),
         selection: Selection {
             provider: Provider::Chatgpt,
             model: "gpt-6-luna".into(),
@@ -365,7 +368,10 @@ fn inbox_action_worker_preserves_scope_group_complete_proof_and_exact_approval()
     let inspected = analysis(&worker, request.id);
     assert!(inspected.needs_semantic_review);
     assert_eq!(json!(inspected.turn), json!(Some(&turn)));
-    assert_eq!(inspected.job.capture.source, source.source.source);
+    assert_eq!(
+        inspected.job.capture.source,
+        Some(source.source.source.clone())
+    );
     assert_eq!(inspected.job.capture.source_text, source.source.text);
     assert_eq!(inspected.job.capture.effort, "high");
     assert_eq!(inspected.proposals.len(), 2);
@@ -595,10 +601,26 @@ fn inbox_action_exact_restart_replay_survives_source_loss_and_rejects_changed_ca
     assert_eq!(json!(analysis(&worker, request.id)), json!(before));
     assert_eq!(calls.load(Ordering::SeqCst), 1);
     let mut changed_source = replay.clone();
-    changed_source.source.text.push_str("Different capture\r\n");
-    changed_source.source.source.fingerprint.len = changed_source.source.text.len() as u64;
-    changed_source.source.source.fingerprint.sha256 =
-        Sha256::digest(changed_source.source.text.as_bytes()).into();
+    changed_source
+        .source
+        .as_mut()
+        .unwrap()
+        .text
+        .push_str("Different capture\r\n");
+    changed_source
+        .source
+        .as_mut()
+        .unwrap()
+        .source
+        .fingerprint
+        .len = changed_source.source.as_mut().unwrap().text.len() as u64;
+    changed_source
+        .source
+        .as_mut()
+        .unwrap()
+        .source
+        .fingerprint
+        .sha256 = Sha256::digest(changed_source.source.as_mut().unwrap().text.as_bytes()).into();
     let mut changed_selection = replay.clone();
     changed_selection.selection.model = "gpt-5.5".into();
     let mut changed_effort = replay.clone();
@@ -667,7 +689,10 @@ fn inbox_action_fresh_consequence_refuses_source_changed_during_the_turn() {
     let result: Value = serde_json::from_str(&turn.answer).unwrap();
     assert_eq!(result["error"], json!(AiErrorKind::IndexStale));
     let inspected = analysis(&worker, request.id);
-    assert_eq!(inspected.job.capture.source, source.source.source);
+    assert_eq!(
+        inspected.job.capture.source,
+        Some(source.source.source.clone())
+    );
     assert!(inspected.proposals.is_empty());
     assert!(inspected.needs_semantic_review);
     no_actions(&worker);
@@ -954,7 +979,10 @@ fn inbox_action_no_action_failed_and_cancelled_turns_keep_original_and_pending_s
         );
         let inspected = analysis(&worker, request.id);
         assert_eq!(json!(inspected.turn), json!(Some(&turn)));
-        assert_eq!(inspected.job.capture.source, source.source.source);
+        assert_eq!(
+            inspected.job.capture.source,
+            Some(source.source.source.clone())
+        );
         assert!(inspected.proposals.is_empty());
         assert!(inspected.needs_semantic_review);
         no_actions(&worker);

@@ -11,70 +11,38 @@ use serde::{Deserialize, Serialize};
 use std::sync::atomic::{AtomicBool, Ordering};
 use uuid::Uuid;
 
-mod docx;
+mod legacy_markup;
 
-/// Fully decoded PNG dimensions; bytes remain authoritative and unchanged.
+/// Complete maintained PNG decode facts, for historical saved-image validation.
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub struct PngImageFacts {
     pub width: u32,
     pub height: u32,
 }
 
-/// Pure bounded conversion, before Source construction or any effects.
-#[derive(Debug, Clone, PartialEq, Eq)]
-pub struct DocxSourceConversion {
-    pub format: InboxConversionFormat,
-    pub body: String,
-    pub visual: Option<DocxInlinePng>,
-}
-
-/// One validated image occurrence and its exact raw package part.
-#[derive(Debug, Clone, PartialEq, Eq)]
-pub struct DocxInlinePng {
-    pub part_name: String,
-    pub relationship_id: String,
-    pub asset_name: String,
-    pub byte_len: u64,
-    pub sha256: [u8; 32],
-    pub width: u32,
-    pub height: u32,
-    pub alt_text: Option<String>,
-    pub title: Option<String>,
-    pub image_start: usize,
-    pub image_end: usize,
-    pub bytes: Vec<u8>,
-}
-
-pub fn convert_docx_source(
-    bytes: &[u8],
-    cancel: &AtomicBool,
-) -> std::result::Result<DocxSourceConversion, InboxProcessOutcome> {
-    docx::convert_source(bytes, cancel)
-}
-
-/// The exact safe literal markup used by the converted occurrence.
+/// Exact historical literal markup, without any package/document interpretation.
 pub fn docx_inline_png_markdown(
     asset_name: &str,
     alt_text: Option<&str>,
     title: Option<&str>,
 ) -> Result<String> {
-    docx::image_markdown(asset_name, alt_text, title)
+    legacy_markup::image_markdown(asset_name, alt_text, title)
 }
-
 pub fn validate_png_image(
     bytes: &[u8],
     cancel: &AtomicBool,
 ) -> std::result::Result<PngImageFacts, InboxProcessOutcome> {
-    docx::validate_png(bytes, cancel)
-}
-
-/// Deterministic bounded DOCX conversion from complete bytes. Workflow owns
-/// fresh original observation and exact proposal authority; this performs no IO.
-pub fn convert_docx_original(
-    bytes: &[u8],
-    cancel: &AtomicBool,
-) -> std::result::Result<(InboxConversionFormat, String), InboxProcessOutcome> {
-    docx::convert(bytes, cancel)
+    if cancel.load(Ordering::Acquire) {
+        return Err(InboxProcessOutcome::Cancelled);
+    }
+    let (width, height) =
+        brn_intake::validate_png_image(bytes).map_err(|_| InboxProcessOutcome::Failed {
+            code: "png_invalid".into(),
+        })?;
+    if cancel.load(Ordering::Acquire) {
+        return Err(InboxProcessOutcome::Cancelled);
+    }
+    Ok(PngImageFacts { width, height })
 }
 
 /// The deterministic original conversion used by proposal admission and later
@@ -267,6 +235,8 @@ impl WorkStore {
 #[serde(deny_unknown_fields)]
 pub struct InboxSourceBinding {
     #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub extraction: Option<ExtractionBinding>,
+    #[serde(default, skip_serializing_if = "Option::is_none")]
     pub visual: Option<super::inbox_visual::InboxSourceVisual>,
     pub batch_id: Uuid,
     pub index: usize,
@@ -277,10 +247,56 @@ pub struct InboxSourceBinding {
     pub note_id: Uuid,
 }
 
+/// Compact immutable extraction receipt. Payloads remain in the checked snapshot.
+#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
+#[serde(deny_unknown_fields)]
+pub struct ExtractionBinding {
+    pub snapshot_id: Uuid,
+    pub snapshot_sha256: [u8; 32],
+    pub assets: Vec<ExtractionAsset>,
+}
+#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
+#[serde(deny_unknown_fields)]
+pub struct ExtractionAsset {
+    pub name: String,
+    pub byte_len: u64,
+    pub sha256: [u8; 32],
+}
+impl ExtractionBinding {
+    pub fn validate(&self) -> Result<()> {
+        if self.snapshot_id.is_nil() || self.assets.len() > 32 {
+            return Err(invalid("invalid extraction snapshot binding"));
+        }
+        let mut names = std::collections::HashSet::new();
+        for asset in &self.assets {
+            super::proposals::validate_asset_path(&asset.name)?;
+            if asset.name.contains('/')
+                || !names.insert(&asset.name)
+                || asset.byte_len > super::proposals::MAX_ASSET_BYTES as u64
+            {
+                return Err(invalid("invalid extraction asset binding"));
+            }
+        }
+        Ok(())
+    }
+    pub fn asset_path(&self, source_path: &str, name: &str) -> Result<String> {
+        super::proposals::validate_path(source_path)?;
+        if !self.assets.iter().any(|asset| asset.name == name) {
+            return Err(invalid("unbound extraction asset"));
+        }
+        let folder = source_path.rsplit_once('/').map(|(folder, _)| folder);
+        let path = folder.map_or_else(|| name.to_owned(), |folder| format!("{folder}/{name}"));
+        super::proposals::validate_asset_path(&path)?;
+        Ok(path)
+    }
+}
+
 /// Durable semantic provenance contains no machine-specific file paths/inodes.
 #[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
 #[serde(deny_unknown_fields)]
 pub struct InboxSourceProvenance {
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub extraction: Option<ExtractionBinding>,
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub visual: Option<super::inbox_visual::InboxSourceVisual>,
     pub item_id: Uuid,
@@ -312,7 +328,9 @@ pub fn read_provenance(text: &str) -> Result<Option<InboxSourceProvenance>> {
     if value.kind == InboxKind::Binary
         && (!matches!(
             value.format,
-            InboxConversionFormat::DocxTextV1 | InboxConversionFormat::DocxInlinePngV1
+            InboxConversionFormat::DocxTextV1
+                | InboxConversionFormat::DocxInlinePngV1
+                | InboxConversionFormat::MaintainedExtractionV1
         ) || !(22..=super::inbox::MAX_INBOX_BINARY_BYTES as u64)
             .contains(&value.original_byte_len))
     {
@@ -326,20 +344,33 @@ pub fn read_provenance(text: &str) -> Result<Option<InboxSourceProvenance>> {
         || !match value.kind {
             InboxKind::Binary => matches!(
                 value.format,
-                InboxConversionFormat::DocxTextV1 | InboxConversionFormat::DocxInlinePngV1
+                InboxConversionFormat::DocxTextV1
+                    | InboxConversionFormat::DocxInlinePngV1
+                    | InboxConversionFormat::MaintainedExtractionV1
             ),
             InboxKind::Markdown => {
                 value.format == InboxConversionFormat::VerbatimMarkdownV1
                     && value.original_byte_len <= MAX_NOTE_BYTES as u64
             }
             _ => {
-                value.format == InboxConversionFormat::LiteralTextV1
-                    && value.original_byte_len <= MAX_NOTE_BYTES as u64
+                matches!(
+                    value.format,
+                    InboxConversionFormat::LiteralTextV1
+                        | InboxConversionFormat::MaintainedExtractionV1
+                ) && value.original_byte_len <= MAX_NOTE_BYTES as u64
             }
         }
         || value.original_byte_len == 0 && value.original_sha256 != hash(&[])
     {
         return Err(invalid("Inbox provenance has invalid original metadata"));
+    }
+    if let Some(extraction) = &value.extraction {
+        extraction.validate()?;
+        if value.format != InboxConversionFormat::MaintainedExtractionV1 || value.visual.is_some() {
+            return Err(invalid("extraction provenance profile differs"));
+        }
+    } else if value.format == InboxConversionFormat::MaintainedExtractionV1 {
+        return Err(invalid("extraction provenance has no snapshot"));
     }
     match (&value.visual, value.format) {
         (Some(visual), InboxConversionFormat::DocxInlinePngV1) => {
@@ -361,10 +392,28 @@ pub fn read_provenance(text: &str) -> Result<Option<InboxSourceProvenance>> {
 impl InboxSourceBinding {
     pub fn validate(&self) -> Result<()> {
         self.original.validate()?;
+        if let Some(extraction) = &self.extraction {
+            extraction.validate()?;
+            if self.format != InboxConversionFormat::MaintainedExtractionV1
+                || self.visual.is_some()
+                || self.batch_id.is_nil()
+                || self.note_id.is_nil()
+                || self.index >= super::inbox_processing::MAX_PROCESS_BATCH
+                || self.byte_len > MAX_NOTE_BYTES as u64
+            {
+                return Err(invalid("invalid maintained extraction Source binding"));
+            }
+            return Ok(());
+        }
+        if self.format == InboxConversionFormat::MaintainedExtractionV1 {
+            return Err(invalid("maintained extraction requires a snapshot"));
+        }
         if self.original.capture.kind == InboxKind::Binary
             && (!matches!(
                 self.format,
-                InboxConversionFormat::DocxTextV1 | InboxConversionFormat::DocxInlinePngV1
+                InboxConversionFormat::DocxTextV1
+                    | InboxConversionFormat::DocxInlinePngV1
+                    | InboxConversionFormat::MaintainedExtractionV1
             ) || !(22..=super::inbox::MAX_INBOX_BINARY_BYTES as u64)
                 .contains(&self.original.capture.copy.byte_len)
                 || self.byte_len == 0 && self.sha256 != hash(&[]))
@@ -404,7 +453,9 @@ impl InboxSourceBinding {
             InboxKind::Binary
                 if matches!(
                     self.format,
-                    InboxConversionFormat::DocxTextV1 | InboxConversionFormat::DocxInlinePngV1
+                    InboxConversionFormat::DocxTextV1
+                        | InboxConversionFormat::DocxInlinePngV1
+                        | InboxConversionFormat::MaintainedExtractionV1
                 ) => {}
             super::inbox::InboxKind::Markdown
                 if self.format == InboxConversionFormat::VerbatimMarkdownV1
@@ -424,6 +475,7 @@ impl InboxSourceBinding {
     pub fn provenance(&self) -> InboxSourceProvenance {
         let capture = &self.original.capture;
         InboxSourceProvenance {
+            extraction: self.extraction.clone(),
             visual: self.visual.clone(),
             item_id: capture.id,
             kind: capture.kind,
@@ -488,6 +540,33 @@ impl InboxSourceBinding {
         Ok(())
     }
     pub fn validate_members(&self, changes: &[NoteChange]) -> Result<()> {
+        if let Some(extraction) = &self.extraction {
+            self.validate()?;
+            let Some(NoteChange::Create { path, text, .. }) = changes.first() else {
+                return Err(invalid("extraction Source requires a Create"));
+            };
+            self.validate_markdown(text)?;
+            if changes.len() != 1 + extraction.assets.len() {
+                return Err(invalid("extraction Source requires every bound asset"));
+            }
+            for (asset, change) in extraction.assets.iter().zip(&changes[1..]) {
+                let NoteChange::CreateAsset {
+                    path: asset_path,
+                    bytes,
+                    ..
+                } = change
+                else {
+                    return Err(invalid("extraction asset must be created exactly"));
+                };
+                if *asset_path != extraction.asset_path(path, &asset.name)?
+                    || bytes.len() as u64 != asset.byte_len
+                    || hash(bytes) != asset.sha256
+                {
+                    return Err(invalid("extraction asset differs from immutable evidence"));
+                }
+            }
+            return Ok(());
+        }
         let (path, text, asset) = match changes {
             [NoteChange::Create { path, text, .. }] if self.visual.is_none() => (path, text, None),
             [

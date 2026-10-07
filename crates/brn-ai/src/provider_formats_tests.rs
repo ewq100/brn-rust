@@ -3789,6 +3789,118 @@ mod action_proposal_tool_tests {
         }
     }
     #[tokio::test]
+    async fn private_image_collections_share_proposal_runtime_and_preserve_all_rig_routes() {
+        use base64::Engine as _;
+        struct Private(Arc<Proposals>);
+        impl ProposalTools for Private {
+            fn private_intake(&self) -> bool {
+                true
+            }
+            fn propose_actions(&self, args: ActionProposalArgs) -> AiResult<Value> {
+                self.0.propose_actions(args)
+            }
+        }
+        let png = include_bytes!("fixtures/capability.png").to_vec();
+        let encoded = base64::engine::general_purpose::STANDARD.encode(&png);
+        let images = vec![
+            VisualImage::png_evidence(png.clone()).unwrap(),
+            VisualImage::png_evidence(png).unwrap(),
+        ];
+        for (provider, model, responses) in [
+            (Provider::Chatgpt, "gpt-6-luna", true),
+            (Provider::Copilot, "gpt-5.5", false),
+            (Provider::Copilot, "gpt-5.3-codex", true),
+        ] {
+            let (_root, client, http) = client(
+                provider,
+                model,
+                vec![
+                    success(tool_sse(responses, &[("propose_actions", args())])),
+                    success(text_sse(responses, "Tentative private review ready")),
+                ],
+            )
+            .await;
+            let tools = Arc::new(Proposals::default());
+            let result = answer_with_proposals_and_images(
+                client,
+                "Inspect both selected images before Source approval",
+                &[],
+                ReasoningEffort::High,
+                tools.clone(),
+                Arc::new(Private(tools.clone())),
+                &images,
+                CancellationToken::new(),
+                Arc::new(|_| {}),
+            )
+            .await;
+            assert!(
+                matches!(result.terminal, AiTerminal::Completed),
+                "{result:?}"
+            );
+            assert_eq!(tools.0.load(Ordering::SeqCst), 1);
+            let bodies = http.bodies();
+            let preamble = if provider == Provider::Chatgpt {
+                bodies[0]["instructions"].as_str().unwrap().to_owned()
+            } else {
+                let messages = bodies[0][if responses { "input" } else { "messages" }]
+                    .as_array()
+                    .unwrap();
+                let system = messages
+                    .iter()
+                    .find(|message| message["role"] == "system")
+                    .unwrap();
+                system["content"]
+                    .as_str()
+                    .map(str::to_owned)
+                    .unwrap_or_else(|| {
+                        system["content"]
+                            .as_array()
+                            .unwrap()
+                            .iter()
+                            .filter_map(|part| part["text"].as_str())
+                            .collect::<String>()
+                    })
+            };
+            assert!(preamble.contains("Investigation precedes Source approval"));
+            let users = bodies[0][if responses { "input" } else { "messages" }]
+                .as_array()
+                .unwrap()
+                .iter()
+                .filter(|message| message["role"] == "user");
+            let parts = users
+                .flat_map(|message| message["content"].as_array().unwrap())
+                .collect::<Vec<_>>();
+            assert_eq!(parts.len(), 3);
+            for part in &parts[1..] {
+                let url = if responses {
+                    part["image_url"].as_str().unwrap()
+                } else {
+                    part["image_url"]["url"].as_str().unwrap()
+                };
+                assert_eq!(url, format!("data:image/png;base64,{encoded}"));
+            }
+            assert!(
+                bodies[0]["tools"]
+                    .as_array()
+                    .is_some_and(|tools| !tools.is_empty())
+            );
+            assert_eq!(
+                bodies[0][if responses {
+                    "reasoning"
+                } else {
+                    "reasoning_effort"
+                }],
+                if responses {
+                    json!({"effort":"high"})
+                } else {
+                    json!("high")
+                }
+            );
+            http.assert_consumed();
+        }
+    }
+
+    #[tokio::test]
     async fn registered_action_proposal_tool_is_ask_only_and_continues_exactly_on_all_rig_routes() {
         for (provider, model, responses) in [
             (Provider::Chatgpt, "gpt-6-luna", true),
@@ -4323,8 +4435,9 @@ mod knowledge_proposal_tool_tests {
                 json!({
                     "type":"object","additionalProperties":false,"properties":{
                         "quote":{"type":"string","minLength":1,"maxLength":16384},
+                        "source_id":{"type":["string","null"],"minLength":1,"maxLength":256},
                         "occurrence":{"type":["integer","null"],"minimum":1,"maximum":1048576}
-                },"required":if provider == Provider::Copilot && responses { json!(["occurrence","quote"]) } else { json!(["quote"]) }
+                },"required":if provider == Provider::Copilot && responses { json!(["occurrence","quote","source_id"]) } else { json!(["quote"]) }
                 })
             );
             assert_eq!(

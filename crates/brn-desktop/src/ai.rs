@@ -111,7 +111,15 @@ impl ActiveRequest {
     pub fn question_label(&self) -> String {
         match self {
             Self::Ask(r) => r.question.clone(),
-            Self::Inbox(r) => format!("Analyze saved Inbox Source: {}", r.source.source.path),
+            Self::Inbox(r) => format!(
+                "Investigate Inbox evidence: {}",
+                r.source.as_ref().map_or_else(
+                    || r.intake
+                        .as_ref()
+                        .map_or("unavailable", |i| i.source_path.as_str()),
+                    |s| s.source.path.as_str()
+                )
+            ),
         }
     }
     pub fn inbox(&self) -> Option<&InboxActionRequest> {
@@ -1015,6 +1023,22 @@ impl AiState {
             } else {
                 records.push(current.clone());
             }
+            let dependencies: Vec<_> = records
+                .iter()
+                .filter_map(crate::approval::intake_dependency)
+                .map(|binding| binding.source_proposal.clone())
+                .collect();
+            for stamp in dependencies {
+                if let Some(source) = self
+                    .proposals
+                    .iter()
+                    .find(|source| source.stamp() == stamp && source.state == ProposalState::Draft)
+                    && !records.iter().any(|r| r.draft.id == source.draft.id)
+                {
+                    records.push(source.clone());
+                }
+            }
+            records.sort_by_key(|record| record.draft.inbox_source.is_none());
             records
         } else {
             vec![current.clone()]
@@ -1040,6 +1064,9 @@ impl AiState {
             .iter()
             .any(|record| !self.approval_vault_ready(record))
             || !capture.records().iter().any(|record| record == current)
+                && capture
+                    .group_id()
+                    .is_none_or(|group| current.draft.group_id != Some(group))
             || capture.records().iter().any(|record| {
                 if record.draft.id == current.draft.id {
                     record != current
@@ -2797,7 +2824,8 @@ impl AiState {
             AppEvent::ProposalRewrite(_)
             | AppEvent::InboxActionAnalysis(_)
             | AppEvent::InboxVisualEvidence(_)
-            | AppEvent::InboxVisualDraft(_) => return commands,
+            | AppEvent::InboxVisualDraft(_)
+            | AppEvent::InboxIntakeBinding(_) => return commands,
             AppEvent::Rewrite(_) => unreachable!(),
             AppEvent::Chat(_)
             | AppEvent::Account(_)

@@ -352,6 +352,8 @@ mod files {
         let r = request(b"looks like text".to_vec());
         let item = app.capture_binary_inbox(&r).unwrap();
         let process = brn_store::work::inbox_processing::ProcessInboxRequest {
+            limits: None,
+
             id: Uuid::new_v4(),
             items: vec![item.clone()],
         };
@@ -360,7 +362,7 @@ mod files {
             .advance_inbox_processing(process.id, &std::sync::atomic::AtomicBool::new(false))
             .unwrap();
         assert!(
-            matches!(&failed.entries[0].outcome, crate::inbox_processing::InboxProcessOutcome::Failed { code } if code == "binary_unsupported")
+            matches!(&failed.entries[0].outcome, crate::inbox_processing::InboxProcessOutcome::Failed { code } if code == "intake_invalid")
         );
         assert_eq!(app.process_inbox(&process).unwrap(), failed);
         assert!(

@@ -75,6 +75,8 @@ impl Fixture {
             panic!("capture")
         };
         let processing = ProcessInboxRequest {
+            limits: None,
+
             id: Uuid::new_v4(),
             items: vec![(*item).clone()],
         };

@@ -71,10 +71,15 @@ exact title/body checks. Normal native application builds omit this test feature
 
 ```sh
 cargo fmt --all -- --check
+cargo build -p brn-intake --features helper --bin brn-intake-helper --locked
 cargo build --workspace --locked
 cargo clippy --workspace --all-targets --locked -- -D warnings
 cargo test --workspace --locked
 ```
+
+The intake helper must be built beside the CLI/desktop/test binaries before workflow
+conversion tests. It activates native restrictions before reading copied input;
+missing helper installation is a failed gate, never a skipped conversion check.
 
 Default workspace checks exclude optional native feature paths. Native builds and interactions require separate evidence. The scripts generally use offline Cargo; see [setup](setup.md).
 

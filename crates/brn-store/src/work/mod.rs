@@ -17,6 +17,7 @@ pub mod inbox_removal;
 pub mod inbox_review;
 pub mod inbox_source;
 pub mod inbox_visual;
+pub mod intake;
 pub mod proposal_apply;
 mod proposal_repair;
 pub mod proposal_rewrite;
@@ -87,6 +88,7 @@ const MIGRATIONS: &[&str] = &[
     inbox_processing::V13,
     inbox_actions::V14,
     inbox_original_operations::V15,
+    intake::V16,
 ];
 
 #[derive(Debug, Clone, PartialEq, Eq)]
@@ -164,6 +166,7 @@ impl WorkStore {
         inbox::check_all(&conn)?;
         inbox_actions::check_all(&conn)?;
         inbox_original_operations::check_all(&conn)?;
+        intake::check_all(&conn)?;
         inbox_processing::reconcile(&mut conn)?;
         chat::reconcile(&mut conn)?;
         proposal_rewrite::reconcile(&mut conn)?;
@@ -292,6 +295,15 @@ fn check(db: &Path) -> Result<Checked> {
             inbox_original_operations::check_legacy(&conn)
         };
         match result {
+            Err(crate::Error::Sql(e)) if is_corruption(&e) => return Ok(Checked::Corrupt),
+            Err(error) => return Ok(Checked::Invalid(error)),
+            Ok(()) => {}
+        }
+    }
+    if application == APPLICATION_ID && (16..=MIGRATIONS.len() as i64).contains(&version) {
+        // Private extraction manifests and bytes are authoritative history.
+        // Readable semantic damage must not be replaced by an older backup.
+        match intake::check_all(&conn) {
             Err(crate::Error::Sql(e)) if is_corruption(&e) => return Ok(Checked::Corrupt),
             Err(error) => return Ok(Checked::Invalid(error)),
             Ok(()) => {}

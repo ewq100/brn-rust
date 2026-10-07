@@ -1,7 +1,10 @@
 //! Retained Inbox presentation over typed AppWorker commands.
 use super::*;
 use brn_workflow::{
-    inbox::{CaptureInboxRequest, InboxAvailability, InboxItem, InboxKind, InboxOriginal},
+    inbox::{
+        CaptureBinaryInboxRequest, CaptureInboxRequest, InboxAvailability, InboxItem, InboxKind,
+        InboxOriginal, MAX_INBOX_BINARY_BYTES,
+    },
     inbox_processing::{
         InboxConversionPreview, InboxProcessOutcome, InboxSourceRequest, MAX_PROCESS_BATCH,
     },
@@ -33,6 +36,7 @@ pub(super) struct InboxPane {
     pub(super) scroll: ScrollHandle,
     selection_error: Option<String>,
     preview_snapshot: Option<InboxConversionPreview>,
+    original_preview: Option<super::intake_preview::OriginalPreview>,
 }
 impl InboxPane {
     pub(super) fn new(window: &mut Window, cx: &mut Context<Desktop>) -> Self {
@@ -76,6 +80,7 @@ impl InboxPane {
             scroll: ScrollHandle::new(),
             selection_error: None,
             preview_snapshot: None,
+            original_preview: None,
         }
     }
     fn capture_request(&self, cx: &App) -> CaptureInboxRequest {
@@ -93,7 +98,7 @@ fn kind_name(kind: InboxKind) -> &'static str {
     match kind {
         InboxKind::Text => "Text",
         InboxKind::Markdown => "Markdown",
-        InboxKind::Email => "Email copy",
+        InboxKind::Email => "Raw EML text",
         InboxKind::Teams => "Teams copy",
         InboxKind::Binary => "Binary original",
     }
@@ -116,7 +121,21 @@ fn outcome_text(outcome: &InboxProcessOutcome) -> String {
         } => {
             format!("Converted · {format:?} · {byte_len} bytes")
         }
-        InboxProcessOutcome::Failed { code } => format!("Failed · {code}"),
+        InboxProcessOutcome::Failed { code } => match code.as_str() {
+            "intake_unavailable" => {
+                "Extraction unavailable: build or install the intake helper".into()
+            }
+            "intake_timeout" => "Extraction stopped: configured time limit exceeded".into(),
+            "intake_quota" => {
+                "Extraction refused: configured resource quota exceeded; review the selected limits"
+                    .into()
+            }
+            "intake_protocol" => {
+                "Extraction refused: helper output failed integrity validation".into()
+            }
+            "intake_invalid" => "Extraction refused: malformed or unsupported document".into(),
+            _ => format!("Failed · {code}"),
+        },
         InboxProcessOutcome::Cancelled => "Cancelled".into(),
         InboxProcessOutcome::Interrupted => "Interrupted".into(),
     }
@@ -178,6 +197,77 @@ impl Desktop {
         let request = self.inbox.capture_request(cx);
         if let Some(command) = self.ai.as_mut().unwrap().capture_inbox(request) {
             self.simple_send(command, cx);
+        }
+        cx.notify();
+    }
+    fn choose_intake_file(&mut self, cx: &mut Context<Self>) {
+        if self.inbox_blocked() || self.choosing_file || self.ai.as_ref().unwrap().capture_pending()
+        {
+            return;
+        }
+        self.choosing_file = true;
+        let receiver = cx.prompt_for_paths(PathPromptOptions {
+            files: true,
+            directories: false,
+            multiple: false,
+            prompt: Some("Import an EML or DOCX original".into()),
+        });
+        let title = self.inbox.title.read(cx).value().to_string();
+        cx.spawn(async move |this, cx| {
+            let selected = receiver.await;
+            let path = match selected { Ok(Ok(Some(paths))) => paths.into_iter().next(), _ => None };
+            let request = if let Some(path) = path {
+                Some(cx.background_executor().spawn(async move {
+                    use std::io::Read;
+                    let extension = path.extension().and_then(|s| s.to_str()).unwrap_or("").to_ascii_lowercase();
+                    if !matches!(extension.as_str(), "eml" | "docx") { return Err("Choose an actual .eml or .docx file; other formats remain outside this intake profile.".to_string()); }
+                    let name = path.file_name().and_then(|s| s.to_str()).ok_or("Original filename is unavailable.")?.to_owned();
+                    let file = std::fs::File::open(&path).map_err(|e| format!("Cannot open selected original: {e}"))?;
+                    if !file.metadata().map_err(|e| e.to_string())?.is_file() { return Err("Choose a regular original file.".into()); }
+                    let mut bytes = Vec::new();
+                    file.take(MAX_INBOX_BINARY_BYTES as u64 + 1).read_to_end(&mut bytes).map_err(|e| format!("Cannot read selected original: {e}"))?;
+                    let request = CaptureBinaryInboxRequest { id: Uuid::new_v4(), title: if title.trim().is_empty() { name.clone() } else { title }, original_name: Some(name), bytes };
+                    request.validate().map_err(|e| e.message)?;
+                    Ok::<_, String>(request)
+                }).await)
+            } else { None };
+            let _ = this.update(cx, |this, cx| {
+                this.choosing_file = false;
+                if this.inbox_blocked() { cx.notify(); return; }
+                match request {
+                    Some(Ok(request)) => if let Some(command) = this.ai.as_mut().unwrap().capture_binary_inbox(request) { this.simple_send(command, cx); },
+                    Some(Err(error)) => this.ai.as_mut().unwrap().inbox_queue.capture_error = Some(error),
+                    None => (),
+                }
+                cx.notify();
+            });
+        }).detach();
+        cx.notify();
+    }
+    fn inspect_extraction_original(&mut self, source_id: &str, cx: &mut Context<Self>) {
+        if self.inbox_blocked() {
+            return;
+        }
+        let source = self
+            .ai
+            .as_ref()
+            .unwrap()
+            .inbox_queue
+            .preview
+            .as_ref()
+            .and_then(|p| p.extraction.as_ref())
+            .and_then(|e| e.sources.iter().find(|s| s.id == source_id));
+        let Some(source) = source else {
+            return;
+        };
+        let result =
+            super::intake_preview::OriginalPreview::open(&source.bytes, &source.media_type);
+        match result {
+            Ok(preview) => {
+                self.inbox.original_preview = Some(preview);
+                self.ai.as_mut().unwrap().notice = "System Quick Look is inspecting the exact retained original. Reflowed extraction is shown separately; close the preview when finished.".into();
+            }
+            Err(error) => self.ai.as_mut().unwrap().inbox_queue.error = Some(error),
         }
         cx.notify();
     }
@@ -269,7 +359,7 @@ impl Desktop {
             .flex().flex_col().flex_1().min_h(px(0.)).overflow_y_scroll().p_3().gap_2()
             .child("Inbox")
             .child(self.render_inbox_analysis(cx))
-            .child("Keep an exact UTF-8 text, Markdown, email or Teams copy. Originals stay retained. Conversion previews and Source proposals require review; knowledge changes only after exact approval.")
+            .child("Import an actual EML or DOCX, or keep a text/Markdown/Teams copy. Inspect original bytes, extracted wording, each image and gaps together. Investigation can precede Source approval; exact authoritative changes still require approval.")
             .child(Textarea::new(&self.inbox.title).disabled(blocked).aria_label("Retained exact Inbox capture title"));
         let mut kinds = div().flex().flex_wrap().gap_1();
         for kind in [
@@ -306,6 +396,12 @@ impl Desktop {
                     .flex()
                     .flex_wrap()
                     .gap_1()
+                    .child(
+                        Button::new("import-intake-file")
+                            .label("Import EML or DOCX file")
+                            .disabled(blocked || self.choosing_file || ai.capture_pending())
+                            .on_click(cx.listener(|this, _, _, cx| this.choose_intake_file(cx))),
+                    )
                     .child(
                         Button::new("capture-inbox-original")
                             .label("Capture exact original")
@@ -580,7 +676,7 @@ impl Desktop {
                 }
                 InboxOriginal::AvailableBinary { byte_len, .. } => {
                     content = content.child(div().id("inbox-binary-original").test_support().child(format!(
-                        "Binary original retained exactly · {byte_len} bytes. Processing attempts the bounded DOCX text profile; unsupported content fails explicitly. The original remains retained after Source approval."
+                        "Binary original retained exactly · {byte_len} bytes. EML and DOCX use the maintained extraction profile; unsupported content is explicit. The original remains retained after Source approval."
                     )));
                 }
                 InboxOriginal::Missing => {
@@ -674,6 +770,74 @@ impl Desktop {
                     "Copy full converted preview",
                     preview.markdown.clone(),
                 ));
+            if let Some(extraction) = &preview.extraction {
+                content = content.child(div().id("intake-extraction-summary").test_support().child(format!("Private extraction · {} sources · {} exact images · {} distinct occurrences · {} gaps", extraction.sources.len(), extraction.assets.len(), extraction.occurrences.len(), extraction.gaps.len())));
+                let limits = &extraction.limits;
+                content = content.child(format!("Selected limits · input {} bytes · expanded {} bytes · package/MIME parts {}/{} · MIME depth {} · decoded {} bytes · image pixels {}/{} total · output {} bytes · {} ms", limits.max_input_bytes, limits.max_expanded_bytes, limits.max_package_parts, limits.max_mime_parts, limits.max_mime_depth, limits.max_decoded_bytes, limits.max_image_pixels, limits.max_total_image_pixels, limits.max_output_bytes, limits.wall_time_ms));
+                if let Some(usage) = &extraction.consumed {
+                    content = content.child(div().id("intake-consumed-scope").test_support().child(format!("Consumed scope · input {} bytes · expanded {} bytes · package/MIME parts {}/{} · MIME depth {} · decoded {} bytes · unique image pixels {} · output {} bytes", usage.input_bytes, usage.expanded_bytes, usage.package_parts, usage.mime_parts, usage.mime_depth, usage.decoded_bytes, usage.image_pixels, usage.output_bytes)));
+                } else {
+                    content = content
+                        .child("Consumed scope unavailable for this historical/synthetic record.");
+                }
+                for (index, source) in extraction.sources.iter().enumerate() {
+                    let source_id = source.id.clone();
+                    let supported_preview = matches!(
+                        source.media_type.as_str(),
+                        "message/rfc822"
+                            | "application/vnd.openxmlformats-officedocument.wordprocessingml.document"
+                    );
+                    content = content.child(
+                        div()
+                            .id(format!("intake-source-{index}"))
+                            .test_support()
+                            .flex()
+                            .flex_col()
+                            .gap_1()
+                            .child(format!(
+                                "{} · {} · {} · {} bytes · parent {} · {}",
+                                source.id,
+                                source.name,
+                                source.status,
+                                source.bytes.len(),
+                                source.parent.as_deref().unwrap_or("original root"),
+                                source.locator
+                            ))
+                            .child(
+                                Button::new(format!("inspect-intake-original-{index}"))
+                                    .label("Inspect exact original with Quick Look")
+                                    .disabled(blocked || !supported_preview)
+                                    .on_click(cx.listener(move |this, _, _, cx| {
+                                        this.inspect_extraction_original(&source_id, cx)
+                                    })),
+                            ),
+                    );
+                }
+                for (index, image) in extraction.occurrences.iter().enumerate() {
+                    if let Some(asset) = extraction.assets.iter().find(|a| a.id == image.asset_id) {
+                        content =
+                            content.child(super::visual::intake_image_panel(index, asset, image));
+                    }
+                }
+                for (index, gap) in extraction.gaps.iter().enumerate() {
+                    content = content.child(
+                        div()
+                            .id(format!("intake-gap-{index}"))
+                            .test_support()
+                            .child(format!("Extraction gap: {gap}")),
+                    );
+                }
+                if self.inbox.original_preview.is_some() {
+                    content = content.child(
+                        Button::new("close-intake-original-preview")
+                            .label("Close original preview and remove private inspection copy")
+                            .on_click(cx.listener(|this, _, _, cx| {
+                                this.inbox.original_preview = None;
+                                cx.notify();
+                            })),
+                    );
+                }
+            }
             if let Some(visual) = &preview.visual {
                 content = content.child(super::visual::png_panel("inbox-preview-png", &visual.bytes, &visual.proof))
                     .child("Pending explicit visual interpretation. Exact Source and PNG approval is separate from interpretation approval.");

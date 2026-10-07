@@ -9,6 +9,7 @@ use crate::{
 pub(super) fn target(worker: &AppWorker, path: &str, history: bool) -> (Uuid, ProposalSource) {
     let id = Uuid::new_v4();
     let request = DraftRequest {
+        intake: None,
         inbox_visual: None,
         inbox_knowledge: None,
         inbox_source: None,
@@ -206,6 +207,7 @@ fn inbox_knowledge_links_refuse_pending_targets_and_duplicate_or_escaping_paths(
         let source = capture_source(&w, "Blue õ 🦀\r\n");
         let pending_id = Uuid::new_v4();
         let pending = DraftRequest {
+            intake: None,
             inbox_visual: None,
             inbox_knowledge: None,
             inbox_source: None,

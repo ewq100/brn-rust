@@ -109,9 +109,10 @@ impl Desktop {
 
     fn analysis_source_matches_input(&self, cx: &App) -> bool {
         let ai = self.ai.as_ref().unwrap();
-        ai.inbox_analysis.source.as_ref().is_some_and(|source| {
-            self.inbox.analysis_source_path.read(cx).value().as_ref() == source.source.path
-        })
+        ai.inbox_analysis.intake.is_some()
+            || ai.inbox_analysis.source.as_ref().is_some_and(|source| {
+                self.inbox.analysis_source_path.read(cx).value().as_ref() == source.source.path
+            })
     }
 
     fn inspect_analysis_source(&mut self, cx: &mut Context<Self>) {
@@ -200,8 +201,8 @@ impl Desktop {
             .flex()
             .flex_col()
             .gap_2()
-            .child("Analyze a saved Source")
-            .child("Inspect an approved Inbox Source before starting. BRN checks that its saved text is unchanged. Knowledge and Action drafts need separate review and exact approval; originals stay retained.")
+            .child("Investigate captured evidence or a saved Source")
+            .child("Investigation can start from an immutable private extraction before Source approval. Retain its Source proposal, then inspect the private binding below. Knowledge and Action drafts carry its exact Source prerequisite into review.")
             .child(Textarea::new(&self.inbox.analysis_source_path)
                 .disabled(blocked)
                 .aria_label("Saved Source path for analysis"))
@@ -211,6 +212,32 @@ impl Desktop {
                     || ai.inbox_analysis_source_loading()
                     || self.inbox.analysis_source_path.read(cx).value().is_empty())
                 .on_click(cx.listener(|this, _, _, cx| this.inspect_analysis_source(cx))));
+        if let Some(prepared) = &ai.inbox_queue.prepared {
+            let source_proposal_id = prepared.id;
+            panel = panel.child(
+                Button::new("inbox-analysis-inspect-private")
+                    .label("Inspect private extraction before Source approval")
+                    .disabled(
+                        blocked || ai.application_busy() || ai.inbox_analysis_source_loading(),
+                    )
+                    .on_click(cx.listener(move |this, _, _, cx| {
+                        if !this.inbox_blocked()
+                            && let Some(command) = this
+                                .ai
+                                .as_mut()
+                                .unwrap()
+                                .inspect_private_intake(source_proposal_id)
+                        {
+                            this.simple_send(command, cx);
+                        }
+                        cx.notify();
+                    })),
+            );
+        }
+        if let Some(intake) = &view.intake {
+            panel = panel.child(div().id("inbox-analysis-private-binding").test_support()
+                .child(format!("Private extraction {} · planned Source {} · proposal {} version {} · {} images / {} occurrences. Source approval is a prerequisite for applying dependent knowledge or Actions.", intake.snapshot_id, intake.source_path, intake.source_proposal.id, intake.source_proposal.version, intake.assets.len(), intake.occurrences.len())));
+        }
         if ai.inbox_analysis_source_loading() {
             panel = panel.child("Inspecting saved Source…");
         }
@@ -457,12 +484,12 @@ impl Desktop {
                 ))
                 .child(format!(
                     "Source captured for this analysis: {}",
-                    capture.source.path
+                    capture.source_path()
                 ))
                 .child(format!(
                     "Captured SHA-256: {} · {} bytes",
-                    fingerprint_hash(&capture.source.fingerprint.sha256),
-                    capture.source.fingerprint.len
+                    fingerprint_hash(&capture.source_sha256()),
+                    capture.source_text.len()
                 ))
                 .child(div().h(px(180.)).child(readonly(
                     &self.inbox.analysis_retained_source,
@@ -473,10 +500,17 @@ impl Desktop {
                     "Copy captured Source",
                     capture.source_text.clone(),
                 ));
-            panel = panel.child(super::visual::file_proof(
-                "Captured full Source proof",
-                &capture.source,
-            ));
+            if let Some(source) = &capture.source {
+                panel = panel.child(super::visual::file_proof(
+                    "Captured full Source proof",
+                    source,
+                ));
+            } else if let Some(intake) = &capture.intake {
+                panel = panel.child(format!(
+                    "Immutable private snapshot {} · Source prerequisite {} version {}",
+                    intake.snapshot_id, intake.source_proposal.id, intake.source_proposal.version
+                ));
+            }
             if let Some(asset) = &capture.visual_asset {
                 let proof = super::visual::file_proof("Captured full PNG asset proof", asset);
                 panel = panel.child(

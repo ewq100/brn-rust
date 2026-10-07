@@ -264,6 +264,7 @@ impl App {
         let text = note_provenance::write(&target.text, &citations)
             .map_err(|error| rejected(error.to_string()))?;
         let draft = DraftRequest {
+            intake: None,
             inbox_visual: None,
             inbox_knowledge: None,
             inbox_source: None,
@@ -342,7 +343,12 @@ impl App {
                     "New provenance quote does not match saved source evidence.",
                 ));
             }
-            if !draft.sources.contains(&capture.source) {
+            let private = crate::intake_dependencies::dependency(draft).is_some_and(|binding| {
+                binding.source_note_id == citation.note_id
+                    && binding.source_text_sha256 == citation.sha256
+                    && binding.source_path == capture.source.path
+            });
+            if !draft.sources.contains(&capture.source) && !private {
                 return Err(stale(
                     "New provenance needs its exact captured source binding.",
                 ));

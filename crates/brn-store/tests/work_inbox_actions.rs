@@ -52,6 +52,7 @@ fn original() -> InboxCapture {
 }
 fn capture() -> InboxActionCapture {
     let binding = InboxSourceBinding {
+        extraction: None,
         visual: None,
         batch_id: Uuid::new_v4(),
         index: 0,
@@ -66,11 +67,12 @@ fn capture() -> InboxActionCapture {
     };
     let source_text = binding.markdown("```text\nbody\n```\n").unwrap();
     InboxActionCapture {
+        intake: None,
         visual_asset: None,
         purpose: Default::default(),
         id: Uuid::new_v4(),
         conversation: None,
-        source: SourceVersion {
+        source: Some(SourceVersion {
             path: "Sources/exact.md".into(),
             fingerprint: FileFingerprint {
                 device: 1,
@@ -78,7 +80,7 @@ fn capture() -> InboxActionCapture {
                 len: source_text.len() as u64,
                 sha256: digest(source_text.as_bytes()),
             },
-        },
+        }),
         source_text,
         provider: "chatgpt".into(),
         model: "gpt-6-luna".into(),
@@ -86,12 +88,13 @@ fn capture() -> InboxActionCapture {
     }
 }
 fn rebind_text(capture: &mut InboxActionCapture) {
-    capture.source.fingerprint.len = capture.source_text.len() as u64;
-    capture.source.fingerprint.sha256 = digest(capture.source_text.as_bytes());
+    capture.source.as_mut().unwrap().fingerprint.len = capture.source_text.len() as u64;
+    capture.source.as_mut().unwrap().fingerprint.sha256 = digest(capture.source_text.as_bytes());
 }
 fn review(store: &mut WorkStore) -> ProposalStamp {
     store
         .create_proposal(&ProposalDraft {
+            intake: None,
             inbox_visual: None,
             inbox_knowledge: None,
             inbox_source: None,
@@ -136,10 +139,10 @@ fn complete_source_identity_provenance_selection_and_encoded_bounds_are_checked(
         match mode {
             0 => bad.id = Uuid::nil(),
             1 => bad.conversation = Some(Uuid::nil()),
-            2 => bad.source.path = "../escape.md".into(),
-            3 => bad.source.path = ".hidden.md".into(),
-            4 => bad.source.fingerprint.len += 1,
-            5 => bad.source.fingerprint.sha256[0] ^= 1,
+            2 => bad.source.as_mut().unwrap().path = "../escape.md".into(),
+            3 => bad.source.as_mut().unwrap().path = ".hidden.md".into(),
+            4 => bad.source.as_mut().unwrap().fingerprint.len += 1,
+            5 => bad.source.as_mut().unwrap().fingerprint.sha256[0] ^= 1,
             6 => {
                 bad.source_text = bad.source_text.replace(
                     &bad.note_id().unwrap().to_string(),
@@ -238,9 +241,9 @@ fn immutable_full_reservation_replay_preserves_time_and_refuses_changed_input() 
     for mode in 0..8 {
         let mut changed = capture.clone();
         match mode {
-            0 => changed.source.path = "Sources/renamed.md".into(),
-            1 => changed.source.fingerprint.inode += 1,
-            2 => changed.source.fingerprint.device += 1,
+            0 => changed.source.as_mut().unwrap().path = "Sources/renamed.md".into(),
+            1 => changed.source.as_mut().unwrap().fingerprint.inode += 1,
+            2 => changed.source.as_mut().unwrap().fingerprint.device += 1,
             3 => {
                 changed.source_text.push('õ');
                 rebind_text(&mut changed);
@@ -315,7 +318,7 @@ fn only_exact_bound_turn_can_use_the_reserved_namespace_and_replay_is_terminal()
         match mode {
             0 => wrong.question.push('x'),
             1 => wrong.created_at_ms += 1,
-            _ => wrong.capture.source.fingerprint.inode += 1,
+            _ => wrong.capture.source.as_mut().unwrap().fingerprint.inode += 1,
         }
         assert!(matches!(
             store.begin_inbox_action_turn(&wrong),
@@ -488,6 +491,8 @@ fn upgrade_v13(restored: bool) {
     let unfinished = store.unsaved_edit("unfinished.md").unwrap();
     let item = store.capture_inbox(&original()).unwrap();
     let process = ProcessInboxRequest {
+        limits: None,
+
         id: Uuid::new_v4(),
         items: vec![item.clone()],
     };
@@ -526,7 +531,7 @@ fn upgrade_v13(restored: bool) {
     let db = data.path().join("brn.sqlite");
     let raw = Connection::open(&db).unwrap();
     raw.execute_batch(
-        "DROP TABLE inbox_original_operations; DROP TABLE inbox_actions; PRAGMA user_version=13;",
+        "DROP TABLE intake_snapshots; DROP TABLE inbox_original_operations; DROP TABLE inbox_actions; PRAGMA user_version=13;",
     )
     .unwrap();
     let backup = data.path().join("backups/brn-9999999999999.sqlite");
@@ -560,7 +565,7 @@ fn upgrade_v13(restored: bool) {
     assert_eq!(
         raw.query_row("PRAGMA user_version", [], |r| r.get::<_, i64>(0))
             .unwrap(),
-        15
+        16
     );
     if let Some(bytes) = backup_bytes {
         assert_eq!(std::fs::read(backup).unwrap(), bytes);
@@ -636,7 +641,7 @@ fn readable_record_index_schema_and_bound_turn_damage_refuse_without_backup_or_r
                     .unwrap();
             }
             1 => {
-                job.capture.source.fingerprint.len += 1;
+                job.capture.source.as_mut().unwrap().fingerprint.len += 1;
                 write_job(&raw, &job);
             }
             2 => {
@@ -832,7 +837,7 @@ fn legacy_bytes(job: &InboxActionJob) -> Vec<u8> {
         capture: LegacyCapture {
             id: job.capture.id,
             conversation: job.capture.conversation,
-            source: &job.capture.source,
+            source: job.capture.source.as_ref().unwrap(),
             source_text: &job.capture.source_text,
             provider: &job.capture.provider,
             model: &job.capture.model,
@@ -902,7 +907,7 @@ fn legacy_action_bytes_and_question_survive_bound_chat_shutdown_and_restart() {
     assert_eq!(
         raw.query_row("PRAGMA user_version", [], |r| r.get::<_, i64>(0))
             .unwrap(),
-        15
+        16
     );
 }
 
@@ -1055,7 +1060,7 @@ fn knowledge_draft(capture: &InboxActionCapture) -> ProposalDraft {
     let start_byte = capture.source_text.find("body").unwrap();
     let citation = VaultCitation {
         note_id: capture.note_id().unwrap(),
-        sha256: capture.source.fingerprint.sha256,
+        sha256: capture.source.as_ref().unwrap().fingerprint.sha256,
         start_byte,
         end_byte: start_byte + 4,
         quote: "body".into(),
@@ -1069,8 +1074,11 @@ fn knowledge_draft(capture: &InboxActionCapture) -> ProposalDraft {
         inode: 1,
     };
     ProposalDraft {
+        intake: None,
         inbox_visual: None,
         inbox_knowledge: Some(Box::new(InboxKnowledgeBinding {
+            intake_citations: Vec::new(),
+            intake: None,
             analysis_id: capture.id,
             note_id,
             source: capture.source.clone(),
@@ -1092,7 +1100,7 @@ fn knowledge_draft(capture: &InboxActionCapture) -> ProposalDraft {
             parent,
             text,
         }],
-        sources: vec![capture.source.clone()],
+        sources: vec![capture.source.clone().unwrap()],
         action_changes: vec![],
     }
 }
@@ -1286,7 +1294,7 @@ fn knowledge_ordered_target_proofs_survive_review_replay_restart_and_checked_bac
             .unwrap()
             .query_row("PRAGMA user_version", [], |r| r.get::<_, i64>(0))
             .unwrap(),
-        15
+        16
     );
 }
 
@@ -1301,7 +1309,7 @@ fn knowledge_target_proof_bounds_and_malformed_lists_refuse_before_admission() {
         .unwrap();
     let mut draft = knowledge_draft(&capture);
     for i in 1..64 {
-        let mut target = capture.source.clone();
+        let mut target = capture.source.clone().unwrap();
         target.path = format!("targets/{i}.md");
         target.fingerprint.inode += i;
         draft.sources.push(target);
@@ -1331,7 +1339,7 @@ fn knowledge_target_proof_bounds_and_malformed_lists_refuse_before_admission() {
             9 => bad.sources[1].path = "targets/target.txt".into(),
             10 => bad.sources[1].fingerprint.len += 1,
             _ => {
-                let mut extra = capture.source.clone();
+                let mut extra = capture.source.clone().unwrap();
                 extra.path = "targets/65.md".into();
                 bad.sources.push(extra);
             }
@@ -1357,7 +1365,7 @@ fn knowledge_hash_valid_target_list_damage_refuses_read_and_startup_without_back
             .reserve_inbox_action(&capture, "Retain selected Source")
             .unwrap();
         let mut draft = knowledge_draft(&capture);
-        let mut target = capture.source.clone();
+        let mut target = capture.source.clone().unwrap();
         target.path = "targets/synthetic.md".into();
         target.fingerprint.inode += 1;
         draft.sources.push(target);
@@ -1460,6 +1468,7 @@ fn knowledge_create_refuses_mixed_members_or_changed_typed_binding_before_effect
             }
             5 => {
                 bad.inbox_source = Some(Box::new(InboxSourceBinding {
+                    extraction: None,
                     visual: None,
                     batch_id: Uuid::new_v4(),
                     index: 0,
@@ -1487,7 +1496,8 @@ fn knowledge_create_refuses_mixed_members_or_changed_typed_binding_before_effect
             10 => {
                 let binding = bad.inbox_knowledge.as_mut().unwrap();
                 let quote_len = binding.citations[0].quote.len();
-                binding.citations[0].start_byte = binding.source.fingerprint.len as usize;
+                binding.citations[0].start_byte =
+                    binding.source.as_ref().unwrap().fingerprint.len as usize;
                 binding.citations[0].end_byte = binding.citations[0].start_byte + quote_len;
             }
             11 => {
@@ -1506,9 +1516,9 @@ fn knowledge_create_refuses_mixed_members_or_changed_typed_binding_before_effect
             }
             13 => {
                 let binding = bad.inbox_knowledge.as_mut().unwrap();
-                binding.source.fingerprint.sha256[0] ^= 1;
-                binding.citations[0].sha256 = binding.source.fingerprint.sha256;
-                bad.sources = vec![binding.source.clone()];
+                binding.source.as_mut().unwrap().fingerprint.sha256[0] ^= 1;
+                binding.citations[0].sha256 = binding.source.as_ref().unwrap().fingerprint.sha256;
+                bad.sources = vec![binding.source.clone().unwrap()];
                 if let NoteChange::Create { text, .. } = &mut bad.changes[0] {
                     *text = note_provenance::write(text, &binding.citations).unwrap();
                 }
@@ -1563,7 +1573,7 @@ fn knowledge_proposal_reads_and_startup_refuse_changed_or_missing_retained_captu
                 write_job(&raw, &job);
             }
             2 => {
-                job.capture.source.path = "Sources/other.md".into();
+                job.capture.source.as_mut().unwrap().path = "Sources/other.md".into();
                 write_job(&raw, &job);
             }
             _ => {
@@ -1881,7 +1891,7 @@ fn supersession_binding_refuses_inexact_predecessors_shapes_sources_and_identiti
                     .as_mut()
                     .unwrap()
                     .source
-                    .path = capture.source.path.to_ascii_uppercase()
+                    .path = capture.source.as_ref().unwrap().path.to_ascii_uppercase()
             }
             4 => {
                 bad.inbox_knowledge
@@ -1988,7 +1998,7 @@ fn legacy_knowledge_binding_omits_supersedes_canonically_and_keeps_original_repl
     let original = serde_json::to_vec(&LegacyBinding {
         analysis_id: binding.analysis_id,
         note_id: binding.note_id,
-        source: &binding.source,
+        source: binding.source.as_ref().unwrap(),
         citations: &binding.citations,
     })
     .unwrap();
@@ -2138,6 +2148,7 @@ fn review_capture(store: &mut WorkStore) -> (InboxItem, InboxActionCapture) {
     let original = store.capture_inbox(&original()).unwrap();
     let mut capture = capture();
     let binding = InboxSourceBinding {
+        extraction: None,
         visual: None,
         batch_id: Uuid::new_v4(),
         index: 0,
@@ -2163,6 +2174,8 @@ fn original_review_is_complete_across_processing_analyses_manual_work_and_reject
     assert!(empty.analyses.is_empty() && empty.processing.is_empty());
     assert_eq!(empty.digest().unwrap(), empty_digest);
     let processing = ProcessInboxRequest {
+        limits: None,
+
         id: Uuid::new_v4(),
         items: vec![original.clone()],
     };
@@ -2173,7 +2186,7 @@ fn original_review_is_complete_across_processing_analyses_manual_work_and_reject
     // Another analysis of the same original with a different retained Source.
     let mut later = capture.clone();
     later.id = Uuid::new_v4();
-    later.source.path = "Sources/second.md".into();
+    later.source.as_mut().unwrap().path = "Sources/second.md".into();
     store
         .reserve_inbox_action(&later, "Inspect the second Source")
         .unwrap();

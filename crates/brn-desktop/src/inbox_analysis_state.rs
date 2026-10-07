@@ -3,7 +3,9 @@ use super::{ActiveRequest, ActiveTurn, AiState, Pending};
 use brn_workflow::{
     app_worker::{AppCommand, AppEvent},
     findings::{FindingOrigin, FindingRecord},
-    inbox_actions::{InboxActionAnalysis, InboxActionRequest, InboxAnalysisPurpose},
+    inbox_actions::{
+        InboxActionAnalysis, InboxActionRequest, InboxAnalysisPurpose, InboxIntakeBinding,
+    },
     proposals::ProposalSource,
 };
 use uuid::Uuid;
@@ -11,6 +13,11 @@ use uuid::Uuid;
 #[derive(Clone)]
 pub enum AnalysisPending {
     Visual(Box<super::visual_analysis_state::VisualPending>),
+    Intake {
+        view: u64,
+        generation: u64,
+        source_proposal_id: Uuid,
+    },
     Source {
         view: u64,
         generation: u64,
@@ -27,6 +34,7 @@ pub enum AnalysisPending {
 pub struct InboxAnalysisView {
     pub source_path: Option<String>,
     pub source: Option<ProposalSource>,
+    pub intake: Option<InboxIntakeBinding>,
     pub source_error: Option<String>,
     pub visual: Option<brn_workflow::inbox_actions::InboxVisualEvidence>,
     pub visual_error: Option<String>,
@@ -68,13 +76,17 @@ impl AiState {
             .as_ref()
             .filter(|request| request.id == id)
         {
-            return Some(&request.source.source.path);
+            return request
+                .source
+                .as_ref()
+                .map(|s| s.source.path.as_str())
+                .or_else(|| request.intake.as_ref().map(|i| i.source_path.as_str()));
         }
         self.inbox_analysis
             .record
             .as_ref()
             .filter(|record| record.job.capture.id == id)
-            .map(|record| record.job.capture.source.path.as_str())
+            .map(|record| record.job.capture.source_path())
     }
     pub(super) fn open_analysis_view(&mut self) {
         self.inbox_analysis.visible = true;
@@ -98,6 +110,7 @@ impl AiState {
         view.source_generation = view.source_generation.wrapping_add(1);
         view.source_path = Some(path.clone());
         view.source = None;
+        view.intake = None;
         view.source_error = None;
         Some(self.command(
             Pending::InboxAnalysis(AnalysisPending::Source {
@@ -108,9 +121,37 @@ impl AiState {
             AppCommand::ProposalEvidenceSource(path),
         ))
     }
+    pub fn inspect_private_intake(
+        &mut self,
+        source_proposal_id: Uuid,
+    ) -> Option<(Uuid, AppCommand)> {
+        if !self.ready
+            || !self.vault_bound
+            || !self.inbox_analysis.visible
+            || self.application_busy()
+            || source_proposal_id.is_nil()
+        {
+            return None;
+        }
+        self.invalidate_visual_analysis();
+        let view = &mut self.inbox_analysis;
+        view.source_generation = view.source_generation.wrapping_add(1);
+        view.source_path = None;
+        view.source = None;
+        view.intake = None;
+        view.source_error = None;
+        Some(self.command(
+            Pending::InboxAnalysis(AnalysisPending::Intake {
+                view: self.inbox_analysis.view,
+                generation: self.inbox_analysis.source_generation,
+                source_proposal_id,
+            }),
+            AppCommand::InboxIntakeBinding { source_proposal_id },
+        ))
+    }
     pub fn inbox_analysis_source_loading(&self) -> bool {
         self.pending.values().any(|pending| matches!(pending,
-            Pending::InboxAnalysis(AnalysisPending::Source { view, generation, .. })
+            Pending::InboxAnalysis(AnalysisPending::Source { view, generation, .. } | AnalysisPending::Intake { view, generation, .. })
                 if *view == self.inbox_analysis.view && *generation == self.inbox_analysis.source_generation))
     }
     pub fn can_analyze_inbox_source(&self) -> bool {
@@ -121,7 +162,7 @@ impl AiState {
                 .values()
                 .any(|pending| matches!(pending, Pending::Selection))
             && !self.inbox_analysis_source_loading()
-            && self.inbox_analysis.source.is_some()
+            && (self.inbox_analysis.source.is_some() ^ self.inbox_analysis.intake.is_some())
             && self.inbox_analysis.source_error.is_none()
     }
     pub fn analyze_inbox_source(&mut self) -> Option<(Uuid, AppCommand)> {
@@ -140,7 +181,8 @@ impl AiState {
             purpose,
             id: Uuid::new_v4(),
             conversation: self.conversation,
-            source: Box::new(self.inbox_analysis.source.clone()?),
+            source: self.inbox_analysis.source.clone().map(Box::new),
+            intake: self.inbox_analysis.intake.clone(),
             selection: self.selection.clone()?,
             effort: self.effort?,
             generation: self.generation,
@@ -217,6 +259,27 @@ impl AiState {
         let state = &mut self.inbox_analysis;
         match pending {
             AnalysisPending::Visual(_) => unreachable!(),
+            AnalysisPending::Intake {
+                view,
+                generation,
+                source_proposal_id,
+            } => {
+                if !state.visible || state.view != view || state.source_generation != generation {
+                    self.pending.remove(&id);
+                    return true;
+                }
+                match event {
+                    AppEvent::InboxIntakeBinding(binding)
+                        if binding.source_proposal.id == source_proposal_id
+                            && binding.validate().is_ok() =>
+                    {
+                        state.intake = Some((**binding).clone());
+                        state.source_error = None;
+                    }
+                    AppEvent::Failed(error) => state.source_error = Some(error.message.clone()),
+                    _ => return true,
+                }
+            }
             AnalysisPending::Source {
                 view,
                 generation,
@@ -323,8 +386,12 @@ fn analysis_matches(
     capture.purpose == request.purpose
         && capture.visual_asset == request.visual_asset
         && capture.conversation == request.conversation
-        && capture.source == request.source.source
-        && capture.source_text == request.source.text
+        && capture.source == request.source.as_ref().map(|s| s.source.clone())
+        && capture.intake == request.intake
+        && request
+            .source
+            .as_ref()
+            .is_none_or(|s| capture.source_text == s.text)
         && capture.provider == super::provider_key(request.selection.provider)
         && capture.model == request.selection.model
         && capture.effort == request.effort.as_str()

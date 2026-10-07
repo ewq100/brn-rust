@@ -13,16 +13,15 @@ use std::{
 };
 
 const DOCX: &[u8] = include_bytes!("fixtures/basic-text.docx");
-const BODY: &str = "First õ 日本語\n\nSecond preserved\n";
+const BODY: &str = "<!-- docx-story: body body -->\n\n<!-- docx-export:0 -->\nFirst õ 日本語\n\n<!-- docx-export:1 -->\nSecond preserved\n";
 
 #[test]
 fn docx_wide_numbered_lists_keep_parentage_in_the_actual_markdown_parser() {
     use markdown::mdast::Node;
-    let (_, body) = brn_store::work::inbox_source::convert_docx_original(
-        include_bytes!("fixtures/wide-lists.docx"),
-        &AtomicBool::new(false),
-    )
-    .unwrap();
+    // Saved legacy markup remains readable without linking the retired converter.
+    let payload: serde_json::Value =
+        serde_json::from_str(include_str!("fixtures/wide-lists.legacy.json")).unwrap();
+    let body = payload["body"].as_str().unwrap().to_owned();
     let tree = markdown::to_mdast(&body, &markdown::ParseOptions::default()).unwrap();
     let [Node::List(parents)] = tree.children().unwrap().as_slice() else {
         panic!("one ordered parent list: {tree:?}")
@@ -99,6 +98,8 @@ impl Fixture {
         let item = app.capture_binary_inbox(&capture).unwrap();
         capture.validate_receipt(&item).unwrap();
         let process = ProcessInboxRequest {
+            limits: None,
+
             id: Uuid::new_v4(),
             items: vec![item.clone()],
         };
@@ -113,7 +114,7 @@ impl Fixture {
         assert_eq!(
             done.entries[0].outcome,
             InboxProcessOutcome::Converted {
-                format: InboxConversionFormat::DocxTextV1,
+                format: InboxConversionFormat::MaintainedExtractionV1,
                 byte_len: BODY.len() as u64,
                 sha256: digest(BODY.as_bytes())
             }
@@ -190,7 +191,7 @@ fn docx_fresh_conversion_source_approval_preserves_complete_original() {
 }
 
 #[test]
-fn docx_candidate_and_unfinished_source_refuse_changed_missing_or_substituted_copy() {
+fn retained_docx_preview_survives_original_damage_but_unfinished_approval_refuses() {
     for damage in 0..5 {
         let f = Fixture::new();
         let mut app = f.app();
@@ -208,14 +209,14 @@ fn docx_candidate_and_unfinished_source_refuse_changed_missing_or_substituted_co
             _ => fs::set_permissions(&path, fs::Permissions::from_mode(0o644)).unwrap(),
         }
         let binding = draft.inbox_source.as_ref().unwrap();
-        assert_eq!(
+        // Historical evidence is immutable and remains inspectable; new effects
+        // still require the original's exact physical identity below.
+        assert!(
             app.inbox_candidate(&InboxCandidateRequest {
                 batch_id: binding.batch_id,
-                index: binding.index
+                index: binding.index,
             })
-            .unwrap_err()
-            .kind,
-            ErrorKind::ContextStale
+            .is_ok()
         );
         assert_eq!(
             app.approve_proposal(&ApprovalRequest {
@@ -247,14 +248,7 @@ fn docx_binary_byte_observation_refuses_midread_same_bytes_new_inode() {
             private_write(&path, DOCX);
         }));
     });
-    let binding = draft.inbox_source.as_ref().unwrap();
-    assert!(
-        app.inbox_candidate(&InboxCandidateRequest {
-            batch_id: binding.batch_id,
-            index: 0
-        })
-        .is_err()
-    );
+    assert!(app.create_proposal(&draft).is_err());
     assert_ne!(original(&item).metadata().unwrap().ino(), before);
     assert!(app.proposals(None).unwrap().is_empty());
     assert!(!f.vault.join("source.md").exists());
@@ -286,7 +280,7 @@ fn docx_forged_self_consistent_receipt_and_source_body_are_not_fresh_authority()
     };
     assert_eq!(
         app.inbox_candidate(&candidate).unwrap_err().kind,
-        ErrorKind::ContextStale
+        ErrorKind::OperationConflict
     );
     assert!(
         app.prepare_inbox_source(&InboxSourceRequest {
@@ -299,6 +293,7 @@ fn docx_forged_self_consistent_receipt_and_source_body_are_not_fresh_authority()
         .is_err()
     );
     let binding = InboxSourceBinding {
+        extraction: None,
         visual: None,
         batch_id: process.id,
         index: 0,
@@ -309,6 +304,7 @@ fn docx_forged_self_consistent_receipt_and_source_body_are_not_fresh_authority()
         note_id: Uuid::new_v4(),
     };
     let draft = DraftRequest {
+        intake: None,
         id: Uuid::new_v4(),
         group_id: None,
         session_id: None,
@@ -330,7 +326,7 @@ fn docx_forged_self_consistent_receipt_and_source_body_are_not_fresh_authority()
 }
 
 #[test]
-fn docx_unfinished_approval_rederives_without_disposable_processing_rows() {
+fn retained_extraction_approval_survives_disposable_processing_rows_without_reconversion() {
     let f = Fixture::new();
     let mut app = f.app();
     let (_, draft) = f.prepare(&mut app);
@@ -497,7 +493,7 @@ fn docx_malformed_actual_package_failure_is_durable_and_never_has_a_candidate() 
         .advance_inbox_processing(process.id, &AtomicBool::new(false))
         .unwrap();
     assert!(
-        matches!(&terminal.entries[0].outcome, InboxProcessOutcome::Failed { code } if code == "docx_invalid")
+        matches!(&terminal.entries[0].outcome, InboxProcessOutcome::Failed { code } if code == "intake_invalid")
     );
     assert!(
         app.inbox_candidate(&InboxCandidateRequest {
@@ -535,7 +531,7 @@ impl Fixture {
         assert!(matches!(
             terminal.entries[0].outcome,
             InboxProcessOutcome::Converted {
-                format: InboxConversionFormat::DocxInlinePngV1,
+                format: InboxConversionFormat::MaintainedExtractionV1,
                 ..
             }
         ));
@@ -547,26 +543,20 @@ impl Fixture {
         let preview = app.inbox_candidate(&candidate).unwrap();
         preview.validate_receipt(&terminal).unwrap();
         assert!(preview.needs_semantic_review);
-        let visual = preview.visual.as_ref().unwrap();
-        assert_eq!(visual.bytes, INLINE_PNG);
-        assert_eq!((visual.proof.width, visual.proof.height), (1, 1));
-        assert_eq!(visual.proof.byte_len, INLINE_PNG.len() as u64);
-        assert_eq!(visual.proof.sha256, digest(INLINE_PNG));
-        assert_eq!(visual.proof.part_name, "word/media/picture.png");
-        assert_eq!(visual.proof.relationship_id, "image1");
-        assert_eq!(visual.proof.alt_text.as_deref(), Some("A & [B] 日本語"));
-        assert_eq!(visual.proof.title.as_deref(), Some("T \"Q\" <tag>"));
-        let markup = format!(
-            r#"![A &amp; \[B\] 日本語]({} "T &quot;Q&quot; &lt;tag&gt;")"#,
-            visual.proof.asset_name
-        );
-        assert_eq!(
-            preview.markdown,
-            format!("First õ 日本語\n\nBefore õ{markup}After\n\nExact caption and last\n")
-        );
-        assert_eq!(
-            &preview.markdown[visual.proof.image_start..visual.proof.image_end],
-            markup
+        let extraction = preview.extraction.as_ref().unwrap();
+        assert_eq!(extraction.assets.len(), 1);
+        assert_eq!(extraction.occurrences.len(), 1);
+        let image_asset = &extraction.assets[0];
+        assert_eq!(image_asset.bytes, INLINE_PNG);
+        assert_eq!((image_asset.width, image_asset.height), (1, 1));
+        let occurrence = &extraction.occurrences[0];
+        assert!(occurrence.locator.contains("word/media/picture.png"));
+        assert!(preview.markdown[occurrence.start..occurrence.end].starts_with("!["));
+        assert!(
+            extraction
+                .gaps
+                .iter()
+                .any(|gap| gap.contains("titles unavailable"))
         );
         let request = InboxSourceRequest {
             candidate,
@@ -579,13 +569,20 @@ impl Fixture {
         request.validate_draft(&draft).unwrap();
         let binding = draft.inbox_source.as_ref().unwrap();
         assert_eq!(binding.original, item);
-        assert_eq!(binding.visual.as_ref(), Some(&visual.proof));
+        assert!(binding.visual.is_none());
+        assert!(binding.extraction.is_some());
         assert_eq!(binding.byte_len, preview.markdown.len() as u64);
         assert_eq!(binding.sha256, digest(preview.markdown.as_bytes()));
         let (text, asset, payload) = visual_members(&draft);
         assert_eq!(text, binding.markdown(&preview.markdown).unwrap());
         assert_eq!(payload, INLINE_PNG);
-        assert_eq!(asset, format!("sources/{}", visual.proof.asset_name));
+        assert_eq!(
+            asset,
+            format!(
+                "sources/{}",
+                brn_intake::asset_file_name(image_asset).unwrap()
+            )
+        );
         assert!(!self.vault.join(VISUAL_PATH).exists());
         assert!(!self.vault.join(asset).exists());
         assert_eq!(fs::read(original(&item)).unwrap(), bytes);
@@ -701,78 +698,54 @@ fn docx_visual_source_and_asset_require_whole_exact_approval_and_keep_original_p
 }
 
 #[test]
-fn docx_visual_self_consistent_forged_metadata_body_and_payload_are_not_original_authority() {
-    for forgery in 0..5 {
-        let f = Fixture::new();
-        let mut app = f.app();
-        let (item, mut draft) = f.prepare_visual(&mut app, VISUAL_DOCX);
-        let binding = draft.inbox_source.as_mut().unwrap();
-        let mut converted = brn_store::work::inbox_source::convert_docx_source(
-            VISUAL_DOCX,
-            &AtomicBool::new(false),
-        )
-        .unwrap()
-        .body;
-        let visual = binding.visual.as_mut().unwrap();
-        match forgery {
-            0 => visual.part_name = "word/media/other.png".into(),
-            1 => visual.relationship_id = "differentRelationship".into(),
-            2 => {
-                visual.sha256 = digest(ALTERNATE_PNG);
-                visual.byte_len = ALTERNATE_PNG.len() as u64;
-                let DraftNoteChange::CreateAsset { bytes, .. } = &mut draft.changes[1] else {
-                    panic!("asset");
-                };
-                *bytes = ALTERNATE_PNG.to_vec();
-            }
-            3 => {
-                converted = converted.replacen("First", "Invented", 1);
-                visual.image_start += 3;
-                visual.image_end += 3;
-            }
-            _ => {
-                visual.alt_text = Some("Forged & [B] 日本語".into());
-                converted = converted.replacen("A &amp;", "Forged &amp;", 1);
-                visual.image_end += 5;
-            }
-        }
-        binding.byte_len = converted.len() as u64;
-        binding.sha256 = digest(converted.as_bytes());
-        visual.converted_byte_len = binding.byte_len;
-        visual.converted_sha256 = binding.sha256;
-        let text = binding.markdown(&converted).unwrap();
-        let DraftNoteChange::Create {
-            text: candidate, ..
-        } = &mut draft.changes[0]
-        else {
-            panic!("Source");
-        };
-        *candidate = text;
-        draft.validate().unwrap(); // Pure complete hashes/shapes must not confer freshness.
-        assert_eq!(
-            app.create_proposal(&draft).unwrap_err().kind,
-            ErrorKind::ContextStale,
-            "{forgery}"
-        );
-        assert!(app.proposals(None).unwrap().is_empty());
-        f.assert_visual(&draft, false);
-        assert_eq!(fs::read(original(&item)).unwrap(), VISUAL_DOCX);
-    }
-    for alias in [
-        "sources/../image.png",
-        "other/image.png",
-        "sources/image.png",
-    ] {
+fn snapshot_source_self_consistent_forgery_is_not_retained_authority() {
+    for forgery in 0..4 {
         let f = Fixture::new();
         let mut app = f.app();
         let (_, mut draft) = f.prepare_visual(&mut app, VISUAL_DOCX);
-        let DraftNoteChange::CreateAsset { path, .. } = &mut draft.changes[1] else {
-            panic!("asset");
-        };
-        *path = alias.into();
-        assert!(draft.validate().is_err());
+        let binding = draft.inbox_source.as_mut().unwrap();
+        match forgery {
+            0 => binding.extraction.as_mut().unwrap().snapshot_id = Uuid::new_v4(),
+            1 => binding.extraction.as_mut().unwrap().snapshot_sha256 = [7; 32],
+            2 => {
+                binding.extraction.as_mut().unwrap().assets[0].sha256 = digest(ALTERNATE_PNG);
+                binding.extraction.as_mut().unwrap().assets[0].byte_len =
+                    ALTERNATE_PNG.len() as u64;
+                let DraftNoteChange::CreateAsset { bytes, .. } = &mut draft.changes[1] else {
+                    panic!("asset")
+                };
+                *bytes = ALTERNATE_PNG.to_vec();
+            }
+            _ => {
+                let snapshot = app
+                    .work_store()
+                    .intake_snapshot(binding.extraction.as_ref().unwrap().snapshot_id)
+                    .unwrap()
+                    .unwrap();
+                let body = snapshot.extraction.markdown.replace("First", "Invented");
+                binding.byte_len = body.len() as u64;
+                binding.sha256 = digest(body.as_bytes());
+                let text = binding.markdown(&body).unwrap();
+                let DraftNoteChange::Create { text: out, .. } = &mut draft.changes[0] else {
+                    panic!("source")
+                };
+                *out = text;
+            }
+        }
+        // Wrapper metadata is regenerated to make each forgery self-consistent.
+        if forgery != 3 {
+            let original = app
+                .work_store()
+                .intake_snapshot_for(binding.batch_id, binding.index)
+                .unwrap()
+                .unwrap();
+            let text = binding.markdown(&original.extraction.markdown).unwrap();
+            let DraftNoteChange::Create { text: out, .. } = &mut draft.changes[0] else {
+                panic!("source")
+            };
+            *out = text;
+        }
         assert!(app.create_proposal(&draft).is_err());
-        assert!(app.proposals(None).unwrap().is_empty());
         assert!(!f.vault.join(VISUAL_PATH).exists());
     }
 }

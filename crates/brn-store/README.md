@@ -23,7 +23,7 @@ recovery. Vault files own saved Markdown; disposable retrieval indexes live outs
 
 ## Database ownership and recovery
 
-WorkStore uses application ID `BRN2`, schema V15, and retains `brn.owner.lock`
+WorkStore uses application ID `BRN2`, schema V16, and retains `brn.owner.lock`
 for its lifetime. Current settings, text-only conversations and unfinished work
 are preserved by additive migrations. Earlier WorkStore V1 unsaved-edit rows
 remain available; matching text moves atomically into the generation-aware
@@ -480,15 +480,19 @@ through AppWorker. The fixed UUID.txt name for these four text kinds is independ
 of labels. Stage8 adds Binary metadata with a separate 16 MiB bound and UUID.bin;
 the four text bounds remain 1 MiB. Empty binary bytes are valid only with the empty
 digest. Existing canonical text JSON, SQL schema and receipt hashes are unchanged.
-No original binary payload enters SQLite. Binary process requests can retain
-`docx_text_v1` or `docx_inline_png_v1` receipts; Source bindings/provenance require
-the exact kind/format pair and complete converted-body proof. The latter retains
-one typed image manifest, complete raw PNG proof and exact document occurrence. The pure
-[DOCX converter](src/work/inbox_source/docx.rs) accepts complete supplied bytes
-and performs no filesystem, catalog or provider operation. Fresh observation and
-approval authority remain in Workflow. Other binary conversions are refused.
-Binary Source preservation and new/legacy Remove/Restore records still refuse;
-converted text never qualifies meaningful Office cleanup.
+V16 adds immutable schema-1 extraction snapshots containing exact original,
+attachment and asset bytes, decoded text, source parents, distinct occurrences,
+selected quotas and measured consumption. Canonical hashed records are included
+in SQLite backups and checked on read/startup. Store validates records and joins;
+format parsing belongs to `brn-intake`, never Store.
+
+New `maintained_extraction_v1` Source bindings retain the exact snapshot digest
+and every ordinary asset Create. Historical `docx_text_v1` and
+`docx_inline_png_v1` records remain readable through saved markup/proof readers;
+the bespoke DOCX converter and its package/XML grammar have been removed. Legacy
+unfinished drafts require renewed extraction/review; partial applications need
+explicit exact-proof Restore before renewed approval. Binary cleanup remains
+unsupported.
 
 Exact creation replay returns original metadata and received time; another payload
 under that UUID refuses. Explicitly separate copies retain separate identities

@@ -179,7 +179,7 @@ fn exact_capture_imports_each_outcome_and_supersession_without_fabricating_chat(
             assert_eq!(
                 raw.query_row("PRAGMA user_version", [], |r| r.get::<_, i64>(0))
                     .unwrap(),
-                15
+                16
             );
             drop(raw);
             drop(target);
@@ -212,9 +212,9 @@ fn capture_payload_and_every_quote_are_checked_before_import() {
         match mode {
             0 => bad.capture.id = Uuid::new_v4(),
             1 => bad.capture.purpose = InboxAnalysisPurpose::Actions,
-            2 => bad.capture.source.path = "Sources/another.md".into(),
-            3 => bad.capture.source.fingerprint.inode += 1,
-            4 => bad.capture.source.fingerprint.sha256[0] ^= 1,
+            2 => bad.capture.source.as_mut().unwrap().path = "Sources/another.md".into(),
+            3 => bad.capture.source.as_mut().unwrap().fingerprint.inode += 1,
+            4 => bad.capture.source.as_mut().unwrap().fingerprint.sha256[0] ^= 1,
             5 => bad.capture.source_text.push('x'),
             6 => {
                 bad.capture.source_text = bad.capture.source_text.replace("body", "Body");

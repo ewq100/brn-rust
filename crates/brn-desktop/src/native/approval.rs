@@ -4,7 +4,11 @@ use brn_workflow::{
     proposal_apply::{ApplyJournal, ApplyOutcome, RepairDirection},
     proposals::{CommentTarget, NoteChange, ProposalDraft, ProposalRecord},
 };
-use gpui_kit::{AnyElement, Div, TestSupportExt, base::Disableable, component::WindowExt};
+use gpui_kit::{
+    AnyElement, Div, TestSupportExt,
+    base::Disableable,
+    component::{WindowExt, checkbox::Checkbox},
+};
 use sha2::{Digest, Sha256};
 
 fn sha256(bytes: &[u8; 32]) -> String {
@@ -474,6 +478,13 @@ impl Desktop {
             return;
         };
         let desktop = cx.entity().downgrade();
+        let selected = std::rc::Rc::new(std::cell::RefCell::new(
+            capture
+                .records()
+                .iter()
+                .map(|r| r.draft.id)
+                .collect::<std::collections::HashSet<_>>(),
+        ));
         window.open_dialog(cx, move |dialog, _, cx| {
             let current = desktop.upgrade();
             let disabled = current
@@ -488,7 +499,15 @@ impl Desktop {
             } else {
                 content = content.child("Approve this exact full proposal? This applies the captured Markdown and Action changes. Temporary comments are deleted only after successful application.");
             }
-            for (record, request) in capture.records().iter().zip(capture.requests()) {
+            for (index, (record, request)) in capture.records().iter().zip(capture.requests()).enumerate() {
+                if capture.group_id().is_some() {
+                    let proposal_id = record.draft.id;
+                    let selected = selected.clone();
+                    let checked = selected.borrow().contains(&proposal_id);
+                    content = content.child(Checkbox::new(format!("approve-selected-{index}"))
+                        .label(format!("Include this exact proposal {}", record.draft.title)).checked(checked)
+                        .on_change(move |checked, _, _| { if *checked { selected.borrow_mut().insert(proposal_id); } else { selected.borrow_mut().remove(&proposal_id); } }));
+                }
                 content = content
                     .child(format!("Approval operation {}", request.operation_id))
                     .child(snapshot(record));
@@ -502,6 +521,7 @@ impl Desktop {
             }
             let desktop = desktop.clone();
             let capture = capture.clone();
+            let selected = selected.clone();
             // The toolkit scrolls the entire dialog body, including every snapshot.
             dialog
                 .title("Confirm exact approval")
@@ -509,7 +529,7 @@ impl Desktop {
                 .child(content)
                 .child(
                     Button::new("confirm-exact-proposal-approval")
-                        .label("Approve captured changes")
+                        .label("Approve selected captured changes")
                         .disabled(disabled)
                         .on_click(move |_, window, cx| {
                             let mut admitted = false;
@@ -519,7 +539,11 @@ impl Desktop {
                                     cx.notify();
                                     return;
                                 }
-                                let Some(command) = this.ai.as_mut().unwrap().confirm_approval(&capture) else {
+                                let selected_capture = if capture.group_id().is_some() { capture.select(&selected.borrow()) } else { Some(capture.clone()) };
+                                let Some(selected_capture) = selected_capture else {
+                                    this.ai.as_mut().unwrap().notice = "Select at least one exact proposal and include every pending Source prerequisite for selected knowledge or Actions.".into(); cx.notify(); return;
+                                };
+                                let Some(command) = this.ai.as_mut().unwrap().confirm_approval(&selected_capture) else {
                                     this.ai.as_mut().unwrap().notice = "Approval was not admitted. The captured review changed or is unavailable. Close this confirmation and inspect the acknowledged review before capturing again.".into();
                                     cx.notify();
                                     return;

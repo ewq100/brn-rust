@@ -17,6 +17,10 @@ pub struct ActionProposalArgs {
 
 /// Review-only capabilities, separate from read tools and authoritative writes.
 pub trait ProposalTools: Send + Sync {
+    /// The owning workflow binds private extraction and a pending Source.
+    fn private_intake(&self) -> bool {
+        false
+    }
     /// Return a whole bounded review receipt; approval remains a separate operation.
     fn propose_actions(&self, args: ActionProposalArgs) -> AiResult<Value>;
 
@@ -57,6 +61,9 @@ pub struct KnowledgeProposalArgs {
 #[serde(deny_unknown_fields)]
 pub struct KnowledgeQuoteArgs {
     pub quote: String,
+    /// Private extraction-local node; omitted for historical saved-Source calls.
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub source_id: Option<String>,
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub occurrence: Option<usize>,
 }
@@ -131,6 +138,15 @@ impl KnowledgeProposalArgs {
                 .quotes
                 .iter()
                 .any(|quote| !(1..=16 * 1024).contains(&quote.quote.len()))
+            || self.quotes.iter().any(|quote| {
+                quote.source_id.as_ref().is_some_and(|id| {
+                    id.is_empty()
+                        || id.len() > 256
+                        || !id
+                            .bytes()
+                            .all(|b| b.is_ascii_alphanumeric() || b"-_:.".contains(&b))
+                })
+            })
             || serde_json::to_vec(self).map_err(|_| rejected())?.len() > KNOWLEDGE_PROPOSAL_BYTES
         {
             return Err(rejected());
@@ -224,6 +240,9 @@ impl Tool for ProposeKnowledge {
     type Output = Value;
     type Error = AiError;
     fn description(&self) -> String {
+        if self.0.private_intake() {
+            return "Prepare one tentative Current knowledge review draft from private retained extraction before Source approval. Quote exact processed source text, optionally select source_id to disambiguate the extraction-local node, and select the global planned-Source body occurrence when needed. Rust binds immutable snapshot, source locator, exact bytes and planned Source prerequisite. Unsupported/unprocessed originals and generated gap/wrapper wording are not factual quotations. The planned Source path is not saved evidence and must not appear in source_paths. Supply additional saved context/relationship paths, complete candidate Markdown and optional separate Current supersedes. The exact planned Source must be approved and installed before this consequence can apply. These are proposals only; never claim knowledge writes or approval.".into();
+        }
         "Create one independent current Knowledge review draft from the explicitly selected approved Inbox Source. Supply complete candidate Markdown, a relative destination path, exact saved body quotations, and ordered additional source_paths. Each quote may specify an optional 1-based occurrence in the saved body; omit it only for unique wording. Workflow resolves exact byte ranges and assigns proposal and note UUIDs returned in the receipt. Do not include managed note identity in candidate Markdown. The selected Inbox Source is automatically the mandatory first proof; do not include it again. Stable brn://note/UUID relationships require exact named target evidence. Read tools default to Current; explicitly named extra Source or History paths are evidence, never truth or deletion approval. Optional supersedes names one saved Current knowledge path: workflow captures it as the second proof, adds a Previous version link and a protected History member to this same exact proposal. Do not repeat that path in source_paths or use a Source/History predecessor. Workflow captures complete saved proofs and adds exact saved citations. This tool never approves or writes knowledge. Retry only identical original input; changed intent creates a separate draft. Human review and separate exact approval are required.".into()
     }
     fn parameters(&self) -> Value {
@@ -236,6 +255,7 @@ impl Tool for ProposeKnowledge {
             "quotes":{"type":"array","minItems":1,"maxItems":32,"items":{
                 "type":"object","additionalProperties":false,"properties":{
                     "quote":{"type":"string","minLength":1,"maxLength":16384},
+                    "source_id":{"type":["string","null"],"minLength":1,"maxLength":256},
                     "occurrence":{"type":["integer","null"],"minimum":1,"maximum":1048576}
                 },"required":["quote"]
             }}
@@ -561,6 +581,7 @@ mod tests {
             path: "workflow checks the destination".into(),
             text: "\u{feff}Whole candidate 🦀\r\n".into(),
             quotes: vec![KnowledgeQuoteArgs {
+                source_id: None,
                 quote: "õ🦀\r\n".into(),
                 occurrence: None,
             }],
@@ -666,6 +687,7 @@ mod tests {
                 v.text = "\u{1}".repeat(1024 * 1024);
                 v.quotes = vec![
                     KnowledgeQuoteArgs {
+                        source_id: None,
                         quote: "\u{1}".repeat(16 * 1024),
                         occurrence: None
                     };
@@ -698,6 +720,7 @@ mod tests {
         maximum.text = "\u{1}".repeat(1024 * 1024);
         maximum.quotes = vec![
             KnowledgeQuoteArgs {
+                source_id: None,
                 quote: "x".repeat(16 * 1024),
                 occurrence: Some(1024 * 1024),
             };
@@ -732,7 +755,10 @@ mod tests {
             "quote":{"type":"string","minLength":1,"maxLength":16384},
             "occurrence":{"type":["integer","null"],"minimum":1,"maximum":1048576}
         },"required":["quote"]});
-        assert_eq!(knowledge["properties"]["quotes"]["items"], expected);
+        let mut knowledge_quote = expected.clone();
+        knowledge_quote["properties"]["source_id"] =
+            json!({"type":["string","null"],"minLength":1,"maxLength":256});
+        assert_eq!(knowledge["properties"]["quotes"]["items"], knowledge_quote);
         for side in ["source_quote", "other_quote"] {
             assert_eq!(conflict["properties"][side], expected);
         }

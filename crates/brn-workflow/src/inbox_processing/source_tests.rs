@@ -54,6 +54,8 @@ impl Fixture {
             .unwrap();
         let batch_id = Uuid::new_v4();
         app.process_inbox(&ProcessInboxRequest {
+            limits: None,
+
             id: batch_id,
             items: vec![item],
         })
@@ -164,7 +166,7 @@ fn missing_changed_forged_conversion_and_duplicate_identity_refuse_before_effect
     for missing in [false, true] {
         let f = Fixture::new();
         let mut app = f.app();
-        let draft = f.prepare(&mut app, InboxKind::Email, "exact email\r\nõ");
+        let draft = f.prepare(&mut app, InboxKind::Text, "exact email\r\nõ");
         let mut forged = draft.clone();
         let binding = forged.inbox_source.as_mut().unwrap();
         let forged_body = "```text\nforged completely different email\n```\n";
@@ -262,7 +264,7 @@ fn review_can_change_title_but_cannot_reinterpret_source_or_drop_binding() {
 fn completed_source_history_recovers_without_processing_rows_database_or_original() {
     let f = Fixture::new();
     let mut app = f.app();
-    let draft = f.prepare(&mut app, InboxKind::Email, "retained email\r\n");
+    let draft = f.prepare(&mut app, InboxKind::Text, "retained email\r\n");
     let proposal = app.create_proposal(&draft).unwrap();
     let approval = ApprovalRequest {
         operation_id: Uuid::new_v4(),
@@ -366,6 +368,8 @@ fn source_wrapper_refuses_oversize_without_truncating_or_writing() {
         .unwrap();
     let batch_id = Uuid::new_v4();
     app.process_inbox(&ProcessInboxRequest {
+        limits: None,
+
         id: batch_id,
         items: vec![item.clone()],
     })

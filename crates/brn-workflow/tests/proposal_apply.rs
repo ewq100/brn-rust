@@ -43,6 +43,7 @@ impl Fixture {
         let before = app.open_editor("replace.md").unwrap().record.baseline;
         let trash = app.open_editor("trash.md").unwrap().record.baseline;
         app.create_proposal(&DraftRequest {
+            intake: None,
             inbox_visual: None,
             inbox_knowledge: None,
             inbox_source: None,
@@ -186,6 +187,7 @@ fn captured_group_stops_on_refusal_and_never_approves_later_arrivals() {
     let group = Uuid::new_v4();
     let mut create = |path: &str| {
         app.create_proposal(&DraftRequest {
+            intake: None,
             inbox_visual: None,
             inbox_knowledge: None,
             inbox_source: None,
@@ -278,6 +280,7 @@ fn dirty_editor_opened_under_case_or_unicode_alias_refuses_approval() {
             .unwrap();
         let proposal = app
             .create_proposal(&DraftRequest {
+                intake: None,
                 inbox_visual: None,
                 inbox_knowledge: None,
                 inbox_source: None,

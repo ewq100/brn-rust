@@ -21,6 +21,7 @@ fn upgrade(restored: bool) {
     let action_id = Uuid::new_v4();
     let record = store
         .create_proposal(&ProposalDraft {
+            intake: None,
             inbox_visual: None,
             inbox_knowledge: None,
             inbox_source: None,
@@ -69,7 +70,7 @@ fn upgrade(restored: bool) {
     let db = dir.path().join("brn.sqlite");
     let conn = Connection::open(&db).unwrap();
     conn.execute_batch(
-        "DROP TABLE inbox_original_operations; DROP TABLE inbox_actions; DROP TABLE inbox_processing; DROP TABLE inbox_items; DROP TABLE action_completions; PRAGMA user_version=10;",
+        "DROP TABLE intake_snapshots; DROP TABLE inbox_original_operations; DROP TABLE inbox_actions; DROP TABLE inbox_processing; DROP TABLE inbox_items; DROP TABLE action_completions; PRAGMA user_version=10;",
     )
     .unwrap();
     let backup = dir.path().join("backups/brn-9999999999999.sqlite");
@@ -100,7 +101,7 @@ fn upgrade(restored: bool) {
     assert_eq!(
         conn.query_row("PRAGMA user_version", [], |r| r.get::<_, i64>(0))
             .unwrap(),
-        15
+        16
     );
     assert_eq!(
         conn.query_row("SELECT count(*) FROM action_completions", [], |r| r
