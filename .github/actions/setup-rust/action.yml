@@ -46,8 +46,9 @@ runs:
     - name: Restore Rust dependencies and build cache
       uses: Swatinem/rust-cache@6323deb102c322ba6fcbdcafc7e3dddab59af2b6 # v2.9.2
       with:
-        # rust-cache also keys by compiler/host, manifests, toolchain, and lockfiles.
-        key: ${{ runner.os }}-${{ runner.arch }}-${{ inputs.lane }}
+        # Include build profiles: the virtual workspace root is otherwise omitted.
+        # Keep rust-cache compiler/host/toolchain/lockfile keys as well.
+        key: ${{ runner.os }}-${{ runner.arch }}-${{ inputs.lane }}-${{ hashFiles('Cargo.toml') }}
         cache-bin: 'false'
         cache-on-failure: 'true'
     - name: Fetch locked dependencies for this runner

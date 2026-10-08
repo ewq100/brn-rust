@@ -55,7 +55,7 @@ journal JSON/base64; the main test thread merely waits for completion. Test-only
 `debug-assertions=true` and `overflow-checks=true`. This optimizes the generic
 byte loops across both the Store and workflow's envelope codecs, preserving
 their source, format, checks and full-size witnesses. Production/dev profile,
-lockfile, dependencies, runtime and CI commands stay unchanged. Compare the same
+lockfile, dependencies, runtime and CI test commands stay unchanged. Compare the same
 focused test first, then qualify the final test profile broadly and in hosted CI.
 The identical focused test with optimization level 1 passed in **51.84 seconds**
 (7.65 times faster, 86.9 percent less test execution time), after 66 seconds of
@@ -87,6 +87,23 @@ policy. Result: `e65cd510988568c8f0df3e0a9ac1bc7a5afe535e`; its tree is identica
 to checked source `255dcf1889e15e6236513ebe53292992a59e0fad`. Main push run
 [37790769005](https://github.com/ewq100/brn-rust/actions/runs/37790769005) is pending.
 PR88 will be brought onto that main before its final exact-head hosted gates.
+
+Hosted follow-up at `075b65a` found an additional cache defect before merge.
+The native workflow test step passed in 7m38s versus 16m36s historically, but UI
+spent 8m58s + 3m04s compiling test executables (tests passed in 5.18s, 0.34s and
+2.63s). The cache restored an old exact key and ended `Cache up-to-date`, so it
+did not save the new-profile artifacts. Add the root `Cargo.toml` hash to the
+existing platform/architecture/lane key using GitHub's built-in `hashFiles`.
+Reuse the action's existing compiler/toolchain/lockfile handling and cache save;
+no custom cache mechanism or test command/coverage change. This makes profile
+changes invalidate the primary key; the first refreshed build still pays its
+compilation cost. Recheck the cache correction independently and inspect the
+new exact-head hosted run before merge. Reuse the already verified unchanged
+Rust/profile tree and shipping executable evidence. A fresh read-only review
+confirmed the exact omission/save behavior against the pinned action source and
+found no actionable issue. New explicit key hashes also change fallback prefixes:
+first builds are cold, then dependency artifacts can save. Workspace test
+executables still rebuild under the existing policy; do not promise otherwise.
 
 ## Selected outcome and baseline
 

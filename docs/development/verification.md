@@ -81,6 +81,10 @@ The test profile uses optimization level 1 for repeated complete-record JSON and
 base64 processing while explicitly retaining debug assertions and overflow checks.
 The default/shipping development profile is unchanged. Full-size asset, crash,
 recovery and feature-lane assertions still run; this is not a reduced CI suite.
+The CI cache key includes the root Cargo manifest so profile changes cannot
+restore an old full-match key and prevent saving rebuilt dependency artifacts.
+The first new-key build is cold; workspace test executables still rebuild under
+the existing cache policy.
 
 ```sh
 cargo fmt --all -- --check
