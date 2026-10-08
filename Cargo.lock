@@ -715,6 +715,20 @@ dependencies = [
 ]
 
 [[package]]
+name = "betteroffice-pptx-parse"
+version = "0.3.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "45080f3d3381f53698af3412be1de2afc4a15ef17330b283e2dc65538a8961c2"
+dependencies = [
+ "base64 0.22.1",
+ "betteroffice-drawingml",
+ "betteroffice-opc",
+ "quick-xml",
+ "serde",
+ "thiserror 2.0.21",
+]
+
+[[package]]
 name = "bindgen"
 version = "0.72.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -923,6 +937,7 @@ dependencies = [
  "betteroffice-docx-edit",
  "betteroffice-docx-parse",
  "betteroffice-opc",
+ "betteroffice-pptx-parse",
  "html5ever",
  "image",
  "libc",

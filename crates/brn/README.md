@@ -1078,7 +1078,7 @@ confirmation controls remain separately pending.
 ## Maintained P2 intake and private investigation
 
 Build the sibling `brn-intake-helper` with its `helper` feature before processing
-EML/DOCX. `inbox candidate` shows decoded source nodes, attachment parents, every
+EML/DOCX/partial PPTX. `inbox candidate` shows decoded source nodes, attachment parents, every
 image occurrence, selected quotas, measured scope and specific gaps.
 `inbox export BATCH_UUID INDEX SOURCE_ID --output PATH` exclusively writes exact
 retained original/attachment bytes; existing output paths refuse.

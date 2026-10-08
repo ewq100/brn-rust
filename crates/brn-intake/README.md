@@ -41,7 +41,7 @@ separate from these local tests; there is no claimed hard RSS ceiling.
 
 Current job budgets are 16 MiB input; 64 MiB serialized output; 8 MiB Markdown and
 8 MiB aggregate source text; 32 MiB aggregate retained payloads; 512 aggregate
-DOCX members and 16 MiB actual expanded package bytes; 512 aggregate MIME parts,
+Office members and 16 MiB actual expanded package bytes; 512 aggregate MIME parts,
 32 MIME-container levels and 16 nested messages; 32 deduplicated image assets,
 2,048 distinct occurrences and source nodes, 16 MiB aggregate image bytes, 32 Mi
 pixels per image and 64 Mi pixels across unique assets. XML parsing uses upstream
@@ -56,7 +56,28 @@ occurrences. Missing/ambiguous associations produce gaps; there is no XML mapper
 picture-order matching, prefix repair, title scanner or automatic fallback.
 Picture titles remain explicitly unavailable; supplied upstream alt text survives.
 Charts, SmartArt, shape/layout fidelity and unknown containers remain visible gaps
-requiring original inspection. No PPTX conversion is included.
+requiring original inspection. PPTX uses the same helper through pinned BetterOffice PPTX 0.3.0. The bounded
+partial profile projects presentation-order authored text, nested groups, ordinary
+table cells, presenter-note body and complete embedded PNG/JPEG pictures. Slide
+and notes nodes retain exact package-part bytes; shape/cell descendants identify
+part/shape/element-path or row/cell locators. Hidden content is labelled. Source
+inventories must match typed model traversal/kind/ID, and image relationships must
+resolve uniquely to the same exact internal image part; ambiguous joins refuse.
+Consumed singleton relationship joins (root presentation, per-slide notes/layout
+and the selected layout's master) must also be unique under the maintained
+parser's actual selectors. Distinct relationship IDs do not justify selecting an
+arbitrary first notes page. Valid slide/master lists and image collections remain
+supported. Titles/descriptions come from the matching maintained source inventory, never a
+free title scan. Repeated pictures remain distinct occurrences of deduplicated
+asset bytes. Native charts/SmartArt, inherited master/layout content, unsupported
+media/drawings/inlines and missing/external images retain located gaps. No chart
+facts or visual/layout/crop/rotation equivalence are claimed, and originals remain
+retained. The PPTX parser receives explicit aggregate XML/text/event/depth,
+attribute/relationship/shape/paragraph/run/comment bounds in addition to shared
+OPC admission and the process deadline; no large upstream defaults are used. Native retained inspection supports both qualified PNG/JPEG
+assets. Existing model transport remains PNG-only: only explicitly selected PNG
+assets are consumed visually, and omitted visual scope remains visible. JPEG
+retention/inspection does not imply JPEG model consumption.
 
 Pinned mail-parser 0.11.8 decodes headers and actual text/HTML alternatives. HTML
 is preserved as inert quoted source, and html5ever tokenization identifies CID
@@ -71,7 +92,17 @@ not acquire HTML or remote-resource diagnostics. Actual HTML stays inert, and ac
 remote/non-CID or missing/ambiguous CID references retain their specific gaps. Root
 partial status is unchanged and does not imply an identifier is missing. Retained
 schema-1 snapshots keep their old caveats and bytes; reading never relabels them.
-Unsupported attachments remain exact unprocessed children. PNG uses maintained complete
+Supported DOCX/PPTX attachment conversion is isolated, then atomically merged
+into the email envelope. The local root maps onto the exact retained attachment;
+every child parent/source/occurrence ID and global Markdown interval is remapped.
+After successful typed parsing, the attachment node carries the validated package
+MIME type even when the email declared application/octet-stream; exact original
+EML bytes preserve that declaration.
+Two identical attachments keep separate descendant and quote identities. Decoded
+single-part attachments are also children, preserving raw email/headers separately.
+A conversion or aggregate merge refusal retains the exact attachment unprocessed
+without leaking partial child nodes/assets/ranges. Unsupported attachments remain
+exact unprocessed children. PNG uses maintained complete
 CRC/Adler/pixel/terminal-chunk decoding; animated PNG is unprocessed. JPEG uses the
 maintained image decoder. Other formats are retained with an explicit gap. The
 legacy-record PNG entry retains its 1 MiB/4,096-dimension/4,194,304-pixel budget.
@@ -79,7 +110,11 @@ legacy-record PNG entry retains its 1 MiB/4,096-dimension/4,194,304-pixel budget
 `cargo test --locked -p brn-intake --all-targets --features helper` covers retained
 public P1 single/plural mail, repeated exact images, unsupported XLSX, scope and
 ambiguity, malformed attachments, four hostile packages, prefix/visual omissions,
-aggregate member budgets, damaged/truncated/trailing PNG, real native restricted
+aggregate member budgets, Harbor and unrelated producer PPTX (order, groups,
+soft breaks/field display, cells, notes, hidden content, exact PNG/JPEG and located
+gaps), identical attachment attribution/materialized quotations, atomic quota
+refusal, duplicate shape/relationship identity, damaged/truncated/trailing PNG,
+real native restricted
 parsing, existing synthetic forbidden-file/live-loopback denial and cancellation
 of a real helper/child/grandchild group. `cargo clippy --locked -p brn-intake
 --all-targets --features helper -- -D warnings` checks the optional parser graph.

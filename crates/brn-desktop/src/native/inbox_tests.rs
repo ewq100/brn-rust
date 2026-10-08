@@ -796,3 +796,47 @@ fn guided_original_inspection_targets_selected_attachment_without_parent_fallbac
         inbox_guided::inspection_source(&snapshot.extraction, Some("stale-attachment")).is_none()
     );
 }
+
+#[test]
+fn guided_slide_inspection_reaches_only_its_exact_retained_presentation_parent() {
+    let (_owner, mut snapshot, _) =
+        crate::ai::inbox_analysis_state_tests::retained_analysis_fixture();
+    let root = snapshot.extraction.sources[0].clone();
+    let mut deck = root.clone();
+    deck.id = "presentation-parent".into();
+    deck.parent = Some(root.id.clone());
+    deck.media_type =
+        "application/vnd.openxmlformats-officedocument.presentationml.presentation".into();
+    let mut slide = deck.clone();
+    slide.id = "slide-part".into();
+    slide.parent = Some(deck.id.clone());
+    slide.media_type =
+        "application/vnd.openxmlformats-officedocument.presentationml.slide+xml".into();
+    let mut shape = slide.clone();
+    shape.id = "shape-part".into();
+    shape.parent = Some(slide.id.clone());
+    shape.media_type = "application/x-brn-pptx-extracted-shape".into();
+    shape.bytes.clear();
+    snapshot
+        .extraction
+        .sources
+        .extend([deck.clone(), slide.clone(), shape.clone()]);
+    assert_eq!(
+        inbox_guided::inspection_source(&snapshot.extraction, Some(&shape.id)),
+        Some(&deck)
+    );
+    assert_eq!(
+        inbox_guided::inspection_source(&snapshot.extraction, Some(&slide.id)),
+        Some(&deck)
+    );
+    assert_eq!(
+        inbox_guided::inspection_source(&snapshot.extraction, Some(&deck.id)),
+        Some(&deck)
+    );
+    // Broken/cyclic part ancestry must not fall back to the email or another deck.
+    let last = snapshot.extraction.sources.len() - 1;
+    snapshot.extraction.sources[last].parent = Some("missing-parent".into());
+    assert!(inbox_guided::inspection_source(&snapshot.extraction, Some(&shape.id)).is_none());
+    snapshot.extraction.sources[last].parent = Some(shape.id.clone());
+    assert!(inbox_guided::inspection_source(&snapshot.extraction, Some(&shape.id)).is_none());
+}

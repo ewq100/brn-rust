@@ -6,7 +6,7 @@ publish = false
 
 [features]
 default = []
-helper = ["dep:betteroffice-docx-edit", "dep:betteroffice-docx-parse", "dep:betteroffice-opc", "dep:mail-parser", "dep:zip", "dep:image", "dep:libc", "dep:html5ever"]
+helper = ["dep:betteroffice-docx-edit", "dep:betteroffice-docx-parse", "dep:betteroffice-pptx-parse", "dep:betteroffice-opc", "dep:mail-parser", "dep:zip", "dep:image", "dep:libc", "dep:html5ever"]
 
 [dependencies]
 serde = { version = "1", features = ["derive"] }
@@ -16,6 +16,7 @@ base64 = "0.22"
 png = "=0.18.1"
 betteroffice-docx-edit = { version = "=0.3.0", optional = true }
 betteroffice-docx-parse = { version = "=0.3.0", optional = true }
+betteroffice-pptx-parse = { version = "=0.3.0", optional = true }
 betteroffice-opc = { version = "=0.3.0", optional = true }
 mail-parser = { version = "=0.11.8", features = ["serde"], optional = true }
 zip = { version = "=8.6.0", default-features = false, features = ["deflate-flate2-zlib-rs"], optional = true }

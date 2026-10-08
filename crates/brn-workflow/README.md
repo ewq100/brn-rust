@@ -90,8 +90,10 @@ metadata-only format1 capture mirror remain unchanged.
 `InboxOriginal::AvailableBinary` reports only complete length/hash after a fresh
 stable private-file identity/byte observation. `InboxRead::validate_receipt`
 checks client DTO consistency; it does not establish fresh filesystem authority.
-Binary processing selects EML by its captured `.eml` name and otherwise DOCX;
-the Email text kind also invokes the maintained MIME helper. The owned helper is
+Binary processing selects EML by its captured `.eml` name, partial PPTX by `.pptx`,
+and otherwise retains the existing bounded DOCX validation attempt; names select a
+parser and do not establish package validity.
+The Email text kind also invokes the maintained MIME helper. The owned helper is
 restricted before stdin, uses empty environment and bounded pipes, and is joined
 on cancellation, timeout and failure. Complete output is validated before an
 immutable hashed extraction snapshot and private recovery mirror are published.
