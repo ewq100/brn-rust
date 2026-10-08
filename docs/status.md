@@ -1,5 +1,28 @@
 # Current development status
 
+## Owner priority: backend readiness, UX deferred — 2026-10-08
+
+The owner explicitly defers further UX tuning and wants to continue functional
+work once the underlying backend is qualified. Presentation polish is no longer
+a continuation gate. This does not grant full P2 acceptance or merge/release approval.
+
+New owner MacBook evidence at `986632601a260697252c2e7044780789d2dc688a`
+includes a clean-build manifest, two successful headless runs and twelve
+[hash-verified screenshots](ui/screenshots/2026-10-08/INDEX.md#guided-macbook-evidence--9866326).
+They show readable extraction/charts, Source draft and Applied review, and saved
+historical reading in restart-labelled captures. No AI usefulness is established.
+
+Final handoff-head CI at `1bfa8386a3a4832e49bc94e9e8e3f9d16e227965`
+has completed: docs, Ubuntu core and native UI passed; both Mac workflow lanes
+failed the paired P2 test waiting for `ApproveProposalGroup` after 10 seconds,
+and Windows failed compiling Unix authentication APIs. The focused unchanged
+native-workflow paired test passed locally again (single + plural, 19.10 seconds
+total), so the CI failure is unresolved rather than a proven broken approval or
+a proven harmless timeout. The [current backend handoff](work/active/architecture-reassessment/plan.md#backend-continuation-and-explicit-ux-deferral)
+owns the diagnostic and next functional scope. Defer cosmetic changes; first
+resolve grouped-approval qualification, then specify retained-evidence AI
+investigation, including already approved Sources, as the next bounded slice.
+
 
 ## Guided Inbox implementation checkpoint — 2026-10-08
 
@@ -12,12 +35,12 @@ The [fresh evidence and handoff](work/active/architecture-reassessment/plan.md#g
 records 1,629 default workspace passes, 326 final native desktop passes, five
 guided worker journeys, shipping builds, 52 fixture assertions and two packaged
 restarts. Native workflow/model boundaries passed 397 tests (15 ignored), and
-native retrieval passed 15 tests. Hosted CI must still confirm the final head;
-the implementation-source native UI job passed while other source checks were
-still running and Windows failed.
+native retrieval passed 15 tests. The completed hosted results and later owner
+evidence are recorded above; the failed Mac workflow gates remain unresolved.
 
 A fresh isolated local app and MacBook agent prompt are prepared. The execution
-Mac remains locked, so new native GUI usability and owner acceptance are pending.
+Mac remains locked; the owner subsequently supplied the new MacBook GUI evidence
+above and explicitly deferred further UX tuning. Full P2 acceptance remains pending.
 The guided image-preserving AI path requires a pending extracted Source; settled
 Sources and text-only copies show explicit limits. No AI trials, optional model
 downloads, account changes, merge or release occurred. Earlier owner MacBook

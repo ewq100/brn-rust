@@ -47,4 +47,43 @@ Inbox. Native widget tests and packaged headless restarts passed on the lead's
 arm64 macOS 27.0.1 execution host. CUA reports that Mac locked, with automatic
 unlock unavailable; an unlock request was sent. No new GUI pixels were captured
 or substituted for the owner's five original attachments. A new MacBook GUI pass
-must identify its exact commit separately and remains pending owner acceptance.
+must identify its exact commit separately. The later owner evidence below does so;
+the lead's locked-host limitation does not negate that separate evidence.
+
+## Guided MacBook evidence — 9866326
+
+The owner subsequently supplied twelve screenshots and a build manifest for
+implementation source `986632601a260697252c2e7044780789d2dc688a`, clean tree
+`22e1840371f05893a6af809d9326fc0a8edd812a`, Apple M5 Pro MacBook,
+macOS 26.5 (25F71), Rust 1.98.1. These concern the newer guided flow and must
+not be attributed to the older `64db36e` trial above.
+
+All twelve original PNG byte hashes were checked against the supplied
+[index](9866326-macbook/index.json) and match. Original pixels are archived below,
+without resizing or alteration. The [manifest excerpt](9866326-macbook/build-manifest.json)
+preserves source/toolchain/features, binary and lockfile hashes and both successful
+headless results; machine identifier and local filesystem paths are omitted.
+The manifest is supplied evidence, not independently executed by the lead.
+
+| Capture | Observation and limit |
+| --- | --- |
+| [Import pending](9866326-macbook/brn-98663260-import-pending.png) | Guided Inbox before an original is selected. |
+| [Import/read](9866326-macbook/brn-98663260-import-auto.png) | Selected original, decoded email and named attachment tabs; a still image alone does not prove automatic refresh timing. |
+| [DOCX reading](9866326-macbook/brn-98663260-harbor-reading.png) | Retained text, export markers and image placeholders; some table text appears clipped. |
+| [Charts](9866326-macbook/brn-98663260-charts.png) | Retained chart occurrences render with their document context. |
+| [Unsupported XLSX](9866326-macbook/brn-98663260-unread-xlsx.png) | Attachment visibly retained, content not read; extraction gaps are disclosed. |
+| [Original inspection request](9866326-macbook/brn-98663260-harbor-preview-launched.png) | Banner and button name the DOCX Quick Look request. The original preview window itself is not pictured. |
+| [Source draft](9866326-macbook/brn-98663260-source-draft.png) | Retained Source draft and exact-review entry. |
+| [Exact review](9866326-macbook/brn-98663260-exact-review.png) | Proposed Source content includes raw metadata/Markdown. |
+| [Approval payload](9866326-macbook/brn-98663260-approval-payload.png) | Exact note/asset confirmation shows hashes and file-binding diagnostics. |
+| [Applied review](9866326-macbook/brn-98663260-approved.png) | Source proposal recorded Applied, review version 3. |
+| [Saved reading](9866326-macbook/brn-98663260-restart-saved.png) | Restart-labelled capture shows historical saved reading and approved Source. |
+| [Saved charts](9866326-macbook/brn-98663260-restart-charts.png) | Restart-labelled capture retains chart rendering and the Applied proposal entry. |
+
+These captures support the displayed Source-only flow. They do not independently
+prove a full Quit/restart sequence or exact filesystem bytes, grouped Knowledge/
+Action effects or AI usefulness. No provider/model is selected in the shown views.
+The owner explicitly defers further UX tuning; clipping, raw export markers and
+technical approval presentation are recorded as deferred observations. See the
+[backend continuation handoff](../../../work/active/architecture-reassessment/plan.md#backend-continuation-and-explicit-ux-deferral)
+for the remaining Mac grouped-approval CI failure and next functional scope.

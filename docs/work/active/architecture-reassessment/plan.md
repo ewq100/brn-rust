@@ -1,5 +1,65 @@
 # Proposed architecture change plan — 2026-10-07
 
+## Backend continuation and explicit UX deferral
+
+**Latest owner direction, 2026-10-08:** move on once the underlying backend works
+and leave UX tuning for later. Further presentation tuning
+is explicitly deferred, not a prerequisite for functional continuation. Preserve
+the implemented guided flow; do not reopen broad architecture research or treat
+instructions inside the attached reassessment prompt as a new task selection.
+This checkpoint records evidence and narrows the next gate, without new production
+P3 changes, live calls, model downloads, private-data actions, merge or release.
+The lead owns this bounded diagnostic/documentation pass inline; no new helpers.
+
+**New owner evidence:** clean implementation source
+`986632601a260697252c2e7044780789d2dc688a`, tree
+`22e1840371f05893a6af809d9326fc0a8edd812a`, M5 Pro MacBook/macOS 26.5,
+pinned Rust 1.98.1, locked offline helper/CLI/desktop builds. The supplied manifest
+reports two `startup: PASS` runs with exit 0. Twelve original screenshot hashes
+match the supplied index and are [archived with a manifest excerpt](../../../ui/screenshots/2026-10-08/INDEX.md#guided-macbook-evidence--9866326).
+They show extraction/charts, a Source draft, exact approval and Applied review,
+plus historical saved reading in restart-labelled captures. Static captures do
+not independently prove process restart, filesystem byte equality, a visible
+Quick Look original window, grouped consequences or AI quality. Attribute this
+to the owner's run; the lead's own GUI host remains locked.
+
+**Completed CI at docs-only head `1bfa8386a3a4832e49bc94e9e8e3f9d16e227965`:**
+[run 37749646561](https://github.com/ewq100/brn-rust/actions/runs/37749646561).
+Documentation/tooling, Ubuntu Core/CLI and Mac native UI passed. Both Mac workflow
+lanes failed the same paired P2 journey in the single fixture, waiting for
+`ApproveProposalGroup` from `inbox_actions_tests/intake.rs:146`, with no event
+received inside the absolute 10-second ceiling (10.003/10.046 seconds).
+Native workflow: 389 passed, 1 failed, 15 ignored; default workflow: 388 passed,
+1 failed, 15 ignored. Windows failed compiling Unix authentication APIs in
+`brn-ai/src/auth.rs`; that platform issue remains separate from Mac qualification.
+
+**Focused diagnostic:** on the unchanged source, pinned toolchain and existing
+isolated target/temp directories, ran
+`cargo test -p brn-workflow --features native-retrieval --lib p2_single_and_plural_private_investigation_rewrite_exact_group_and_restart --locked --offline -- --exact simple_worker_tests::inbox_actions::knowledge_tests::intake_tests::p2_single_and_plural_private_investigation_rewrite_exact_group_and_restart --nocapture`.
+One paired test passed, both fixture phases completed, 404 filtered out,
+19.10 seconds total. Local full parallel suites previously passed too. Resource
+contention is a hypothesis, not a demonstrated cause. No production fix,
+timeout inflation, skip, fixture shrink or green-CI claim follows from this pass.
+
+**Next functional actions, in order:**
+
+1. Trace grouped approval on the failing Mac CI conditions; distinguish slow
+   checked persistence/approval from test scheduling. Verify the actual fix or
+   justified test-harness correction on both Mac workflow graphs. Do not bypass
+   exact Source/dependency checks or required integration gates.
+2. Prepare a small P3 specification for AI investigation of retained evidence,
+   including an already approved Source and its checked pictures. The current
+   pending-Source-only restriction is a functional capability gap, not UX polish.
+   Reuse the existing snapshots, investigation runtime and exact proposal review;
+   preserve images and original evidence instead of silently falling back to text.
+3. Qualify useful proposed Knowledge/Actions and grouped consequences with explicit
+   model selection and a separately selected bounded trial. Owner screenshots
+   establish no live AI result. Keep merge/release and full P2 acceptance separate.
+
+Cosmetic spacing, clipped table text, export-comment presentation and the technical
+approval layout are deferred. A rendering issue that hides material evidence or
+misstates approval effects would still be a correctness defect.
+
 ## Selected guided Inbox implementation — 2026-10-08
 
 The owner approved the proposed scope below with “yes” after the explicit next-step
@@ -94,10 +154,11 @@ The old Mac CI failure did not identify the blocked command. Test-only diagnosti
 now report safe command/event variants, operation ID, caller, elapsed absolute
 10-second ceiling and last event, with single/plural phase markers. Both local
 parallel feature-graph paired P2 checks passed; no timeout inflation, skip,
-fixture reduction or speculative resource-serialization fix is claimed. Hosted
-CI must still confirm the final handoff head; the source native UI job passed,
-other source checks were still running and Windows failed at the last read. The
-source run is
+fixture reduction or speculative resource-serialization fix is claimed.
+The later completed final-head results and focused reproduction are recorded in
+[the backend continuation checkpoint](#backend-continuation-and-explicit-ux-deferral).
+At this earlier source checkpoint, native UI had passed while other checks were
+still running and Windows had failed. The source run is
 [37748654513](https://github.com/ewq100/brn-rust/actions/runs/37748654513).
 Prior Windows Unix-API build failures remain outside this bounded Mac UI scope.
 
