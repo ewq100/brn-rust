@@ -1,5 +1,26 @@
 # Current development status
 
+## Owner MacBook verification and Inbox proposal — 2026-10-08
+
+The owner tested PR87 at exact commit
+`64db36ec42d42a9d005797d7c7b2950b187f07e9` on an Apple M5 Pro MacBook,
+macOS 26.5. Both locked builds, bundled-helper packaging, two headless startup/
+shutdown runs and actual GUI launch passed. The bundled helper parsed `plural.eml`
+into 8 source nodes, 1 image asset, 3 occurrences and 4 gaps. GUI conversion and
+chart display passed; both imported copies remained listed after full Quit/restart.
+These are owner-reported bounded local results, supported by five supplied
+[screenshots](ui/screenshots/2026-10-08/INDEX.md), not a rerun by the lead.
+
+The owner could not navigate Inbox without guidance: newly imported items required
+manual Refresh, and the long view mixes reading with technical and recovery controls.
+The [proposed Inbox scope](work/active/architecture-reassessment/plan.md#owner-macbook-verification-and-proposed-inbox-ui--2026-10-08)
+is **Import → Read email/attachments → Review proposed notes → Approve** using the
+existing evidence/proposal/application paths. It awaits owner scope approval;
+this update changes documentation only. Reopening retained extraction after restart,
+Source approval, grouped consequences and AI usefulness remain unverified by this
+owner run. No AI trials or optional model downloads occurred. P2 acceptance and
+merge/release approval are not granted; prior dated evidence remains historical.
+
 ## P2 selected implementation — 2026-10-07
 
 The owner selects the merged [P2 specification](work/active/architecture-reassessment/p2-conditional-spec.md)

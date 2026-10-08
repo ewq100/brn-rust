@@ -1,5 +1,119 @@
 # Proposed architecture change plan — 2026-10-07
 
+## Owner MacBook verification and proposed Inbox UI — 2026-10-08
+
+**Task boundary:** record the owner's verification and screenshot review, and
+present a simpler existing Inbox flow before implementation. This is a bounded
+native UI proposal, not selection of P3, another converter, a new approval system,
+full P2 acceptance or merge/release approval. The lead owns the documentation and
+proposal inline, with no additional helpers, provider calls or model downloads.
+Stop at the concrete proposed scope until the owner selects implementation.
+
+**Tested candidate and attribution:** [PR87](https://github.com/ewq100/brn-rust/pull/87),
+exact commit `64db36ec42d42a9d005797d7c7b2950b187f07e9`; Apple M5 Pro MacBook,
+macOS 26.5. The following is the owner's supplied local report, not a fresh lead
+execution on that machine. Five inline screenshots were reviewed directly;
+their names, provenance and capture-access limitation are recorded in the
+[dated index](../../../ui/screenshots/2026-10-08/INDEX.md).
+
+| Gate / observation | Owner result and precise limit |
+| --- | --- |
+| Local build and packaging | Both locked builds and packaging with the bundled helper passed. |
+| Headless lifecycle | Two startup/shutdown runs passed. |
+| Native launch and extraction | Actual GUI launch, completed conversion and chart rendering passed. The bundled helper produced 8 source nodes, 1 image asset, 3 occurrences and 4 gaps from `plural.eml`. Source nodes include MIME containers/alternatives; this is not eight attachments. |
+| GUI Quit/restart | Both imported copies remained listed after full Quit/restart. This proves the reported list persistence, not reopening retained extraction or completing proposal effects. |
+| Usability | Owner could not understand Inbox without step-by-step guidance. Import appeared to leave zero originals until manual Refresh; unrelated stages and technical controls competed for attention. Usable guided intake is not accepted. |
+| Still unverified in this run | Retained extraction reopened after restart; Source approval; grouped consequences; AI usefulness. |
+| Live/model activity | No AI trials or optional model downloads. Do not reset or infer the earlier campaign's unknown aggregate usage/allowance. |
+| Acceptance/integration | Bounded local verification only. Full P2 acceptance and merge approval were explicitly withheld. |
+
+**Screenshot review and code check:** the supplied views show a raw Markdown
+editor with upstream export comments and asset hashes, full quota/usage numbers,
+unnamed MIME containers with disabled preview buttons, repeated occurrence
+locators, conversion gaps, batch selection, cleanup/Restore and Source-path inputs
+in one long view. The full-window capture gives a large empty generic chat panel
+space while the intake content and next step remain crowded. The chart and
+conversion counts are visible; the screenshots do not establish later approvals,
+restart extraction retrieval or model usefulness.
+
+The manual-refresh report is consistent with the current state code:
+`inbox_state.rs::apply_inbox_event` handles a validated `InboxCaptured` event by
+updating `capture_result` and the notice, without refreshing/updating the inventory.
+`refresh_inbox` obtains a new page but also invalidates current selection/preview.
+The proposed fix must show/select the committed import without losing unrelated
+input or accepting a stale inventory reply. This is a code-supported explanation,
+not an additional runtime reproduction on the MacBook; no fix is made here.
+
+**Recommended layout:** a persistent Inbox item list plus one focused content area
+with readable stage labels and one primary next action. Opening Inbox uses the
+available work area; the generic chat composer is not permanently shown beside
+the reader. Evidence can remain open beside a selected proposal when useful.
+Back navigation and switching items preserve settled work and unfinished input;
+the stages describe progress rather than forcing a one-way wizard.
+
+| Stage | Primary view and action | Details available on demand |
+| --- | --- | --- |
+| Import | One **Import email or document** button. A successful retained capture immediately appears and is selected; local extraction starts with readable progress and Cancel. No mandatory checkbox/batch/Refresh sequence for one file. | **Paste text** retains existing text/Markdown/Teams entry. **Select multiple** exposes existing bounded batch processing. Retry appears for an actual failed operation. |
+| Read email/attachments | Decoded mail fields, readable body, named attachments and actual images in their qualified source/occurrence context. DOCX opens as reflowed readable text/tables/images. A visible summary says, for example, **forecast.xlsx retained, not read** and **Some document visuals/layout may be missing**. Primary action: **Propose notes and actions**. | **Open original** for supported exact retained originals; **Evidence details** for raw extraction, full gaps, MIME tree, IDs, hashes and selected/consumed limits. No invented attachment names or image associations. |
+| Review proposed notes | Separate cards for **Original email (Source)**, proposed knowledge (including any Current→History change), and related Action. Show complete proposed content, destination, reasons and clickable supporting evidence. Title/path suggestions are visible and editable before preparation; the owner need not type UUIDs or a path just to read. Comments/Rewrite/Reject use existing proposals. Primary action: **Review selected changes**. | Source-preservation prerequisites are shown in plain language. Exact raw/diff/asset inspection remains accessible. No broader split/retarget/regroup editor or new destination inference engine is included. |
+| Approve | A compact summary names every selected note, asset and Action, including required Source preservation, with complete before/after inspection available. **Approve selected changes** submits the exact displayed versions through existing group approval. Completion links to saved notes/Actions and shows what remains pending. | A conflict or partial application shows applied/stopped/remaining members and links to Activity/recovery. A changed version requires renewed review; the sequence is not presented as all-or-nothing. |
+
+Selecting **Propose notes and actions** is an explicit AI request using the configured
+provider/model/effort and existing budgets. Preparing/retaining the Source draft
+is orchestration of existing commands, not Source approval. If AI is unavailable,
+reading remains usable, **Connect AI to propose notes** explains the next step,
+and **Save as Source only** offers the existing offline Source-review path. No
+automatic sign-in, fallback, provider call or fabricated AI draft is introduced.
+
+**Progressive disclosure:** raw MIME nodes, hashes, locators, schema/version labels,
+quota counts and Markdown source move into Evidence details. Unprocessed attachments,
+missing meaningful visuals, failure reasons and blocked approval remain visible in
+ordinary language. A small status indicator exposes Cancel while extraction/AI is
+active; hitting a budget surfaces a relevant explanation and the detailed limits.
+Copy cleanup lives under the selected item's **Manage original** menu, with the
+existing eligibility checks and explicit confirmation. Repair controls appear
+when unfinished work requires attention and remain reachable through Activity;
+they are not a permanent bank of disabled buttons. Approval still retains originals.
+
+**Implementation scope if selected:** adapt desktop Inbox state/orchestration and
+native Inbox/analysis/review presentation, reusing the shared AppWorker commands,
+immutable extraction records, exact occurrence joins, images/original-preview
+facility, comments/Rewrite and group-approval machinery. Prefer the existing
+toolkit's maintained readable text/Markdown facilities where qualified (the pinned
+toolkit already provides `TextView::markdown`; its untrusted-content/image behavior
+still needs qualification). A narrow read-only workflow/Store lookup may be needed
+to expose a captured item's already-saved batch/snapshot references to the item list:
+the present reader accepts a known snapshot UUID, not an Inbox-item discovery query.
+Match the exact retained capture identity, keep separate imported copies distinct,
+and expose saved extraction versions without automatically reconverting or silently
+choosing a new approval baseline. This is discovery over existing records, not a
+new schema or evidence store. Display
+untrusted content inertly, block remote loads and arbitrary local-file links,
+and resolve image bytes only from the checked snapshot. No Word/DrawingML/HTML
+renderer, semantic mapper, converter/schema migration, second receipt ledger,
+general chat/tool overhaul, additional format, binary cleanup qualification or
+larger-context P3 work is part of this proposal. If readable mail requires data
+not exposed by the maintained result, identify the narrow prerequisite before
+expanding the boundary; do not recover it with another parser or guessed slicing.
+In particular, decoded email headers currently arrive as adapter-authored source
+text, not separate typed header fields. The bounded first reader renders that
+existing metadata and body safely; a conventional custom From/To/Date header would
+need an explicitly scoped maintained-adapter projection rather than parsing the
+rendered Markdown back into guessed fields.
+
+**Acceptance for a selected UI change:** import appears without manual Refresh;
+the owner can read the email, named DOCX, inline/repeated chart and unsupported
+XLSX warning and identify the next action without guidance. Required evidence and
+full proposed changes remain inspectable. Source-only offline review works;
+configured AI, comments/Rewrite, exact selected dependencies, conflicts and partial
+application retain current authority. Full Quit/restart reopens the same retained
+extraction and settled review without conversion/provider reexecution. Targeted
+state/widget checks cover successful capture, failed capture, late replies, item
+switching and input preservation; relevant native/shared checks and actual owner
+observation follow the repository verification guide. Real-model usefulness remains
+a separate bounded campaign gate. No product code or UI implementation is changed
+by this evidence/proposal record.
+
 ## Selected P2 implementation — 2026-10-07
 
 The owner now selects the accepted P2 specification and authorizes production code,
