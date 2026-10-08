@@ -47,7 +47,7 @@ capture tooling) by a separate reviewer agent. Findings and dispositions:
 
 | Check | Scope | Result |
 | --- | --- | --- |
-| `scripts/design-prototype-check.js` (Playwright, headless Chromium) | All routes; journeys A (draft → Rewrite → approve → complete), Inbox group approval and cleanup gating, supersession; empty/loading/error/offline states; light theme; keyboard focus ring; ⌘N; 900 pt viewport; console errors | 31/31 checks passed in 3 consecutive runs; no console errors. Round 3 added the directions page (12 options, 7 interactions): 50/50 in 2 runs |
+| `scripts/design-prototype-check.js` (Playwright, headless Chromium) | All routes; journeys A (draft → Rewrite → approve → complete), Inbox group approval and cleanup gating, supersession; empty/loading/error/offline states; light theme; keyboard focus ring; ⌘N; 900 pt viewport; console errors | 31/31 checks passed in 3 consecutive runs; no console errors. Round 3 added the directions page (13 options, 12 interactions): 57/57 in 3 runs |
 
 ## Handbook
 
@@ -84,8 +84,9 @@ Feedback: Dashboard, Inbox, Needs Review, the Review list and Decided are all
 open issues for the user; consolidate them. Improve Settings and the AI writing
 environment, with 3–4 options each. Prototyped as D24–D26 in
 `prototypes/directions.html` (four options per topic, trade-offs shown on each).
-Not implemented in the app; waiting for the owner's choices. Checked only in
-headless Chromium.
+Owner chose One queue (D24) and the ChatGPT-style modal (D25), and asked for
+margin comments with optional Changes and Sources toggles (D26, option 5).
+Not implemented in the app yet. Checked only in headless Chromium.
 
 ## Owner acceptance
 
@@ -96,6 +97,7 @@ headless Chromium.
 | D20–D21 (bottom composer, writing review) | Owner-directed; result pending your next look | 2026-10-08 |
 | D22 terminal chat direction | Owner chose Hybrid (D23) | 2026-10-08 |
 | D23 Hybrid chat as implemented | Pending your next look | — |
-| D24–D26 round 3 directions | Awaiting your choice | — |
+| D24 One queue, D25 ChatGPT-style Settings | Owner chose; not implemented | 2026-10-08 |
+| D26 combined writing (option 5) | Owner direction; prototype pending your look | 2026-10-08 |
 | Current-app restyle on this branch | *Pending review* | — |
 | Future designs and prototype | *Pending review* | — |

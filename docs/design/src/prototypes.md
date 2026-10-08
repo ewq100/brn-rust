@@ -41,7 +41,8 @@ with keys 1–4, or `?t=sidebar|settings|writing&v=a|b|c|d`. Each option shows
 its trade-offs under the bar. Try: the queue filter chips (sidebar 1), Settings
 tabs (settings 1–2), settings search (settings 4), hovering a highlight and
 selecting text to comment (writing 2), hovering an underlined source and
-*Keep*/*Discard* (writing 3).
+*Keep*/*Discard* (writing 3). *AI writing* opens on **5 · Combined** — the owner's
+pick: margin comments plus the *Changes* (C) and *Sources* (S) toggles.
 
 ## Verified behaviour
 

@@ -103,7 +103,7 @@ fs.mkdirSync(out, { recursive: true });
   // Round 3 directions (directions.html): every option renders; key interactions work
   const dir = 'file://' + path.resolve(__dirname, '../docs/design/src/prototypes/directions.html');
   await page.setViewportSize({ width: 1440, height: 860 });
-  for (const t of ['sidebar', 'settings', 'writing']) for (const v of ['a', 'b', 'c', 'd']) {
+  for (const t of ['sidebar', 'settings', 'writing']) for (const v of (t === 'writing' ? ['a', 'b', 'c', 'd', 'e'] : ['a', 'b', 'c', 'd'])) {
     await page.goto(`${dir}?t=${t}&v=${v}`); await page.waitForTimeout(80);
     ok(await page.isVisible(`section[data-topic=${t}][data-variant=${v}]`), `directions ${t} ${v} renders`);
     await shot(`directions-${t}-${v}`);
@@ -122,6 +122,18 @@ fs.mkdirSync(out, { recursive: true });
   await page.goto(`${dir}?t=writing&v=c`); await page.hover('.src.web');
   ok(await page.isVisible('text=varvikoda.ee/tarne'), 'directions: source mark explains origin');
   await page.click('#sugg [data-s=keep]'); ok(await page.isVisible('text=match batch numbers'), 'directions: keep inline suggestion');
+  // Combined writing option: comments always, Changes and Sources off until toggled
+  await page.goto(`${dir}?t=writing`); await page.waitForTimeout(80);
+  ok(await page.isVisible('section[data-topic=writing][data-variant=e]'), 'directions: writing opens on the combined option');
+  ok(await page.isHidden('#edoc del') && await page.isVisible('#ebody .ccard[data-c=e1]'), 'directions: combined starts with comments only');
+  await page.hover('#edoc .src.web'); ok(await page.isHidden('#edoc .src.web .tip'), 'directions: sources hidden until toggled');
+  await page.mouse.move(5, 300); await page.keyboard.press('s');
+  await page.hover('#edoc .src.web'); ok(await page.isVisible('#edoc .src.web .tip'), 'directions: S shows sources');
+  await shot('directions-writing-e-sources');
+  await page.click('#eShow'); ok(await page.isVisible('#edoc del') && (await page.getAttribute('#eChanges', 'aria-pressed')) === 'true', 'directions: show change turns on Changes');
+  const [mt, ct] = await page.evaluate(() => [document.querySelector('#edoc mark[data-c=e1]').getBoundingClientRect().top, document.querySelector('#ebody .ccard[data-c=e1]').getBoundingClientRect().top]);
+  ok(Math.abs(mt - ct) < 20, 'directions: comment card aligned with its highlight');
+  await shot('directions-writing-e-all');
   ok(errors.length === 0, 'no console/page errors ' + JSON.stringify(errors));
   await browser.close();
 })();

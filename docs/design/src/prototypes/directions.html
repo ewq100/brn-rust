@@ -237,6 +237,13 @@
   .ctabs button[aria-pressed="true"] { color: var(--brn-text); border-bottom-color: var(--brn-cyan); }
   .vstep { display: inline-flex; align-items: center; gap: 4px; font: 12px var(--brn-font-mono); }
   .vstep button { border: 1px solid var(--brn-line); background: none; padding: 0 6px; }
+  .tog { border: 1px solid var(--brn-line); background: none; padding: 2px 10px; font-size: 12.5px; color: var(--brn-muted); border-radius: 12px; }
+  .tog[aria-pressed="true"] { color: var(--brn-text); border-color: var(--brn-cyan); background: var(--brn-active); }
+  .tog kbd { font: 10.5px var(--brn-font-mono); color: var(--brn-muted); margin-left: 4px; }
+  .nochg del { display: none; } .nochg ins { background: none; border: 0; }
+  .nosrc .tip { display: none !important; } .nosrc .src { cursor: inherit; }
+  .flash { animation: flash 1.2s ease-out 2; }
+  @keyframes flash { 50% { background: color-mix(in srgb, var(--brn-green) 45%, transparent); } }
   .toast { position: fixed; bottom: 70px; left: 50%; transform: translateX(-50%); background: var(--brn-panel); border: 1px solid var(--brn-cyan); padding: 6px 14px; font-size: 12.5px; z-index: 10; }
 </style>
 </head>
@@ -249,7 +256,7 @@
   <span id="variants"></span>
   <span class="sep"></span>
   <button id="scheme" aria-pressed="false">Light</button>
-  <span class="muted" style="margin-left:auto">keys 1–4 · [ ] topic</span>
+  <span class="muted" style="margin-left:auto">keys 1–5 · [ ] topic</span>
 </div>
 <div class="explain" id="explain"></div>
 <div class="stage">
@@ -508,7 +515,7 @@
 <section data-topic="writing" data-variant="b" hidden>
   <div class="main">
     <div class="whead"><span class="badge purple">proposal</span><span class="title">How we buy paint</span><span class="id">create · processes/buying-paint.md · v3</span><span class="grow"></span><span class="muted">select text to comment · hover a highlight</span></div>
-    <div class="wbody" id="mbody"><div class="doc" data-select="comment" id="mdoc">
+    <div class="wbody mwrap" id="mbody"><div class="doc" data-select="comment" id="mdoc">
       <h3>How we buy paint</h3>
       <p>This process describes how Serna buys paint for client projects, from specification to delivery.</p>
       <h4>Steps</h4>
@@ -599,6 +606,37 @@
     </div>
   </div>
 </section>
+
+<!-- ============ WRITING E · Combined: margin comments + optional Changes and Sources ============ -->
+<section data-topic="writing" data-variant="e" hidden>
+  <div class="main">
+    <div class="whead"><span class="badge purple">proposal</span><span class="title">How we buy paint</span><span class="id">create · processes/buying-paint.md</span><span class="grow"></span>
+      <button class="tog" id="eChanges" aria-pressed="false" title="Show what the last Rewrite changed">± Changes since v2<kbd>C</kbd></button>
+      <button class="tog" id="eSources" aria-pressed="false" title="Show where each statement comes from">⋯ Sources<kbd>S</kbd></button>
+      <span class="vstep"><button aria-label="Previous version">‹</button>v3 of 3<button aria-label="Next version" disabled>›</button></span></div>
+    <div class="wbody mwrap" id="ebody"><div class="doc nochg nosrc" data-select="combined" id="edoc">
+      <div class="legend" id="eLegend" hidden style="margin-bottom:14px"><span class="vault">vault</span><span class="web">web</span><span class="brn">BRN's suggestion</span><span class="unk">unknown</span></div>
+      <h3>How we buy paint</h3>
+      <p>This process describes how Serna buys paint for client projects, from specification to delivery.</p>
+      <h4>Steps</h4>
+      <ol>
+        <li>The project lead confirms the final specification with the client <ins>in writing</ins>.</li>
+        <li>Orders under <mark data-c="e1"><span class="src vault" tabindex="0">€500<span class="tip"><b class="green">Vault</b> · policies/purchasing-2024.md §2<br><span class="amber">Possibly stale:</span> policy dated March 2024.</span></span> can be placed directly</mark> with Värvikoda; larger orders need <del>a manager's</del> <ins>Märt's</ins> approval.</li>
+        <li>Order at least <span class="src brn" tabindex="0">10 working days<span class="tip"><b class="purple">BRN's suggestion</b> · not found in the vault or on the web. Lead time plus a 3-day margin.</span></span> before painting starts; <span class="src web" tabindex="0">Värvikoda's lead time is 5–7 days<span class="tip"><b class="cyan">Web</b> · varvikoda.ee/tarne · read 8 Oct 10:30</span></span>.</li>
+        <li>On delivery, check batch numbers against the order and <mark data-c="e2" class="done">photograph the labels</mark>.<ins id="eReceipt"> Keep the receipt in the project folder.</ins></li>
+      </ol>
+      <h4>Open questions</h4>
+      <p><span class="src unk" tabindex="0">Who approves orders when Märt is away?<span class="tip"><b class="amber">Unknown</b> · nothing in the vault names a deputy. BRN asks instead of guessing.</span></span></p>
+    </div>
+    <aside class="margin" aria-label="Comments">
+      <div class="ccard" data-c="e1"><span class="who">You</span><span class="when">10:41</span><div>Is this still the limit? I think it's €1000 now.</div>
+        <div class="reply"><b>BRN</b> The vault says €500 (purchasing-2024.md). A finding flags it as possibly stale. Rewrite will keep €500 unless you confirm the new value.</div></div>
+      <div class="ccard done" data-c="e2"><span class="who">You</span><span class="when">10:38</span><div>Also keep the receipt in the project folder.</div>
+        <div class="reply"><b>BRN</b> Added in v3 · <button class="link" id="eShow">show change</button></div></div>
+    </aside></div>
+    <div class="decision"><span class="muted"><span class="amber">1 open</span> · 1 addressed · select text to comment</span><span class="grow"></span><button class="btn">Rewrite with 1 comment</button><button class="btn">Reject…</button><button class="btn primary">Approve v3…</button></div>
+  </div>
+</section>
 </div>
 
 <div class="selbar" id="selbar" hidden></div>
@@ -606,22 +644,23 @@
 const TOPICS = ['sidebar', 'settings', 'writing'];
 const META = {
   sidebar: {
-    a: ['One queue (recommended)', 'Dashboard, Inbox, Needs Review and the Review list become one <b>Needs you</b> page, grouped by what you must do: Due, Decide, Sort, Check.', 'One place, one number; the sidebar becomes chats only', 'A busy day gives one long list (the filters help)'],
+    a: ['One queue (owner pick)', 'Dashboard, Inbox, Needs Review and the Review list become one <b>Needs you</b> page, grouped by what you must do: Due, Decide, Sort, Check.', 'One place, one number; the sidebar becomes chats only', 'A busy day gives one long list (the filters help)'],
     b: ['Counts only', 'Keeps separate places but each is one row with a count. No item titles in the sidebar. Decided and Activity move to History.', 'Smallest change; still easy to scan', 'Still five places to check'],
     c: ['Threads', 'Codex-like: everything is a thread with a status dot. A proposal stays under the chat that made it; the Inbox and Findings are system threads.', 'Work stays with its context', 'Mixes chats and queue items; harder to see the totals'],
     d: ['Attention pill', 'The sidebar is chats only. Everything that needs you sits behind a <b>9 need you</b> pill in the header.', 'Most minimal and calm', 'Easy to ignore; no full-page overview'],
   },
   settings: {
-    a: ['ChatGPT-style modal (recommended)', 'A modal over the app with tabs on the left. Short pages: General, AI &amp; models, Accounts, Search, Data &amp; safety, About. Width +/− buttons removed (drag the edges instead).', 'Familiar from the GPT app; one decision per row', 'A modal hides the app while it is open'],
+    a: ['ChatGPT-style modal (owner pick)', 'A modal over the app with tabs on the left. Short pages: General, AI &amp; models, Accounts, Search, Data &amp; safety, About. Width +/− buttons removed (drag the edges instead).', 'Familiar from the GPT app; one decision per row', 'A modal hides the app while it is open'],
     b: ['Mac settings window', 'A separate macOS Settings window (⌘,) with toolbar icons and grouped rows.', 'Native Mac feel; the app stays visible', 'Another window to manage; GPUI has to draw the toolbar'],
     c: ['Status first', 'Health tiles first (AI, search, database, vault), each with its fix action, then preferences.', 'Answers “is everything OK?” and helps with troubleshooting', 'Status that rarely changes takes most of the page'],
     d: ['Searchable list', 'One flat list with a search box, VS Code-style. Type to filter.', 'Fast with the keyboard', 'Overkill for about 12 settings; could be added to A'],
   },
   writing: {
     a: ['Track changes', 'Word-style: see what the last Rewrite changed. Switch between Clean, Changes and v2; step through versions.', 'You can see exactly what the AI changed', 'Approval still covers the whole exact version, not single changes'],
-    b: ['Margin comments (recommended)', 'Google Docs-style comments in the right margin, lined up with their highlights. Hover links them. BRN replies under each comment. Select text to comment.', 'Clearest comment and Rewrite loop', 'Needs a wider window (narrow screens fall back to hover)'],
+    b: ['Margin comments', 'Google Docs-style comments in the right margin, lined up with their highlights. Hover links them. BRN replies under each comment. Select text to comment.', 'Clearest comment and Rewrite loop', 'Needs a wider window (narrow screens fall back to hover)'],
     c: ['Inline AI + sources', 'Dotted underlines show where text comes from: vault, web, BRN\'s suggestion or unknown. Select text for Comment, Rewrite, Shorter or Ask. Suggestions show inline with Keep or Discard.', 'Meets vision §6: provenance, BRN\'s own content and gaps are visible', 'Busier text; works best combined with B'],
     d: ['Draft canvas', 'ChatGPT Canvas-style: the document plus a side panel to talk to the draft, with Sources and Versions tabs.', 'Familiar; good for large rewrites', 'Repeats the chat; feedback is not tied to exact text'],
+    e: ['Combined (owner pick)', 'Margin comments (2) are always on. <b>± Changes</b> (1) and <b>⋯ Sources</b> (3) are optional toggles in the header (keys C and S). <i>show change</i> on an addressed comment turns on Changes and flashes the edit.', 'Calm by default; detail when you ask for it', 'Two more controls in the header'],
   },
 };
 let t = 'sidebar', v = 'a';
@@ -638,7 +677,8 @@ function show(nt, nv) {
   history.replaceState(null, '', `?t=${t}&v=${v}${document.documentElement.dataset.scheme === 'light' ? '&scheme=light' : ''}`);
   hideSel(); requestAnimationFrame(placeCards);
 }
-$$('[data-t]').forEach(b => b.onclick = () => show(b.dataset.t, 'a'));
+const FIRST = { writing: 'e' };
+$$('[data-t]').forEach(b => b.onclick = () => show(b.dataset.t, FIRST[b.dataset.t] || 'a'));
 $('#scheme').onclick = () => {
   const light = document.documentElement.dataset.scheme !== 'light';
   document.documentElement.dataset.scheme = light ? 'light' : 'dark';
@@ -648,7 +688,7 @@ document.addEventListener('keydown', e => {
   if (['INPUT', 'TEXTAREA', 'SELECT'].includes(document.activeElement.tagName)) return;
   const keys = Object.keys(META[t]);
   if (e.key >= '1' && e.key <= String(keys.length)) show(t, keys[+e.key - 1]);
-  if (e.key === ']' || e.key === '[') show(TOPICS[(TOPICS.indexOf(t) + (e.key === ']' ? 1 : 2)) % 3], 'a');
+  if (e.key === ']' || e.key === '[') { const nt = TOPICS[(TOPICS.indexOf(t) + (e.key === ']' ? 1 : 2)) % 3]; show(nt, FIRST[nt] || 'a'); }
   if (e.key === 'Escape') hideSel();
 });
 
@@ -680,18 +720,20 @@ $$('#tcview button').forEach(b => b.addEventListener('click', () => { $('#tcdoc'
 
 // writing B: margin cards aligned with highlights, linked hover
 function placeCards() {
-  const body = $('#mbody'); if (!body || body.offsetParent === null) return;
-  let floor = 12;
-  $$('#margin .ccard').forEach(card => {
-    const mark = $(`#mdoc mark[data-c="${card.dataset.c}"]`);
-    if (!mark) return;
-    const top = Math.max(floor, mark.getBoundingClientRect().top - body.getBoundingClientRect().top + body.scrollTop - 8);
-    card.style.top = top + 'px'; floor = top + card.offsetHeight + 8;
+  $$('.mwrap').forEach(body => {
+    if (body.offsetParent === null) return;
+    let floor = 12;
+    body.querySelectorAll('.margin .ccard').forEach(card => {
+      const mark = body.querySelector(`.doc mark[data-c="${card.dataset.c}"]`);
+      if (!mark) return;
+      const top = Math.max(floor, mark.getBoundingClientRect().top - body.getBoundingClientRect().top + body.scrollTop - 8);
+      card.style.top = top + 'px'; floor = top + card.offsetHeight + 8;
+    });
   });
 }
-function link(id, on) { $$(`[data-c="${id}"]`).forEach(x => x.classList.toggle('hot', on)); }
+function link(scope, id, on) { scope.querySelectorAll(`[data-c="${id}"]`).forEach(x => x.classList.toggle('hot', on)); }
 function wireMarks() {
-  $$('#mbody [data-c]').forEach(el => { el.onmouseenter = () => link(el.dataset.c, true); el.onmouseleave = () => link(el.dataset.c, false); });
+  $$('.mwrap [data-c]').forEach(el => { const w = el.closest('.mwrap'); el.onmouseenter = () => link(w, el.dataset.c, true); el.onmouseleave = () => link(w, el.dataset.c, false); });
 }
 window.addEventListener('resize', placeCards);
 
@@ -705,7 +747,7 @@ document.addEventListener('mouseup', e => {
     if (!doc || s.isCollapsed || !doc.contains(s.anchorNode)) return hideSel();
     range = s.getRangeAt(0).cloneRange();
     const r = range.getBoundingClientRect();
-    const acts = doc.dataset.select === 'ai' ? ['Comment', 'Rewrite', 'Shorter', 'Ask'] : ['Comment'];
+    const acts = { ai: ['Comment', 'Rewrite', 'Shorter', 'Ask'], combined: ['Comment', 'Ask'] }[doc.dataset.select] || ['Comment'];
     selbar.innerHTML = acts.map(a => `<button data-a="${a}">${a}</button>`).join('');
     selbar.hidden = false; selbar.style.left = Math.max(8, r.left) + 'px'; selbar.style.top = (r.top - 36) + 'px';
     selbar.querySelectorAll('button').forEach(b => b.onclick = () => act(b.dataset.a, doc));
@@ -719,10 +761,11 @@ function act(a, doc) {
   try {
     if (a === 'Comment') {
       const m = document.createElement('mark'); m.dataset.c = nextId; range.surroundContents(m);
-      if (doc.id === 'mdoc') {
+      const wrap = doc.closest('.mwrap');
+      if (wrap) {
         const c = document.createElement('div'); c.className = 'ccard'; c.dataset.c = nextId;
         c.innerHTML = '<span class="who">You</span><span class="when">now</span><div contenteditable="true" aria-label="Comment text">Write a comment…</div>';
-        $('#margin').append(c); wireMarks(); placeCards(); c.querySelector('[contenteditable]').focus();
+        wrap.querySelector('.margin').append(c); wireMarks(); placeCards(); c.querySelector('[contenteditable]').focus();
       } else toast('Comment added');
       nextId++;
     } else if (a === 'Ask') {
@@ -745,13 +788,27 @@ function wireSugg(s) {
   });
 }
 $$('.sugg').forEach(wireSugg);
+function setTog(btn, on) {
+  btn.setAttribute('aria-pressed', on);
+  const doc = $('#edoc');
+  if (btn.id === 'eChanges') doc.classList.toggle('nochg', !on);
+  else { doc.classList.toggle('nosrc', !on); $('#eLegend').hidden = !on; }
+  requestAnimationFrame(placeCards);
+}
+['eChanges', 'eSources'].forEach(id => $('#' + id).onclick = e => setTog(e.currentTarget, e.currentTarget.getAttribute('aria-pressed') !== 'true'));
+$('#eShow').onclick = () => { setTog($('#eChanges'), true); const r = $('#eReceipt'); r.classList.remove('flash'); void r.offsetWidth; r.classList.add('flash'); };
+document.addEventListener('keydown', e => {
+  if (t !== 'writing' || v !== 'e' || e.metaKey || e.ctrlKey || ['INPUT', 'TEXTAREA', 'SELECT'].includes(document.activeElement.tagName) || document.activeElement.isContentEditable) return;
+  if (e.key === 'c') $('#eChanges').click();
+  if (e.key === 's') $('#eSources').click();
+});
 $('#srcon').onchange = e => $('#cdoc').classList.toggle('nosrc', !e.target.checked);
 wireMarks();
 
 const qs = new URLSearchParams(location.search);
 if (qs.get('scheme') === 'light') { document.documentElement.dataset.scheme = 'light'; $('#scheme').setAttribute('aria-pressed', true); }
 const qt = TOPICS.includes(qs.get('t')) ? qs.get('t') : 'sidebar';
-show(qt, META[qt][qs.get('v')] ? qs.get('v') : 'a');
+show(qt, META[qt][qs.get('v')] ? qs.get('v') : (FIRST[qt] || 'a'));
 </script>
 </body>
 </html>
