@@ -77,70 +77,42 @@ requires exact final-candidate review, applicable local checks and actual requir
 CI. No weakening, bypass or rushed merge. Record failures and repair real defects.
 Known informational platform failures remain visible and separate.
 
-## Durable checkpoint — 8 October 21:29 UTC
+## Durable checkpoint — 8 October 21:57 UTC
 
-Main `bd6947511ac9f5e445078e831d61ac3f5533fe06` includes PR90–PR95. All four
-required candidate and post-merge checks plus documentation passed for each;
-merges were normal/protected and resulting trees verified. PR95 post-merge run
-37844389582 passed. No interactive or personal acceptance is claimed.
+Main deca5d5 includes PR90–PR96; all required candidate checks/docs passed.
+PR90–PR95 post-merge checks/docs passed; PR96 post-merge37848490327 pending.
+Session PR97 HEAD `babc01335869e619cc1e65036984f170eb25551d` merges PR96 with full session candidate a18806b.
+Complete independent session review clean, patch5a7c44038cd871ee95359a9a2217c504e52f8213033fe3fe82f123f8a6576142;
+merge-delta review clean c8e390ddeff6110f124bc51c5071a5642bdfc7c0b153b36af20bfc6bf5904e7e.
+Final local1724 default/17 existing ignores (reused unchanged Store461),423native
+workflow/models/15 existing ignores,547combined desktop/CLI, doctests, Clippy,
+shipping and52fixtures passed. Combined MIME helper tests/Clippy,29 affected
+Inbox processing/1 existing ignore, shipping,52fixtures/604links passed.
+Cargo released to PPTX helper in lead checkout. No other Cargo concurrently.
 
-Lead checkout `/Users/evokessler/repos/brn-p2-email-docx-intake`, branch
-`codex/p2-email-evidence-caveats`, code `f187d2fc0d133b4765d794d699fc79409c22a57f`.
-Final four-file MIME repair received independent review; valid P2 repeated physical
-field loss was reproduced red, fixed via pinned parser all-fields/list accessors,
-and reviewed clean at patch cbca566b5e77eaa333975187f67d8e2c32b58b60b519353b1169d3c98c70106f.
-Six focused/29 full helper tests, helper all-target Clippy, helper shipping build,
-52 fixtures and 605 Markdown links passed. Actual CLI import/process/Source Draft/
-reopen preserves all ordered/repeated thread identifiers across physical fields,
-neutral caveat and partial status, with no inference. Old snapshots are unchanged.
-Early helper test attempts exposed real within-field/physical-field loss; all logs
-are retained, final regressions restored/extended rather than weakened. Initial
-CLI harness looked for root status instead of source status; resumed from the
-retained candidate without re-import/reconversion and passed. No production fault
-was inferred from that harness failure.
+Immutable combined runtime `/Users/evokessler/repos/brn-overnight-artifacts-20261008/session-combined-runtime` and manifest retain exact three binaries;
+matching CLI SHA9ce0aae76f208f16db70f2e2ba48df3791e2b44bc61fc80db33bb7a0a827f421. Morning task now uses this build,
+including session V18; never reopen migrated state with old V17 binaries or move
+bound workspaces. Next: push current session/docs, inspect required final CI,
+normal protected merge and resulting-main verification. Current UI acceptance
+remains pending. No live inference needed for session/MIME mechanics.
 
-Immutable qualified runtime and manifest:
-`/Users/evokessler/repos/brn-overnight-artifacts-20261008/email-caveats-runtime`.
-CLI/desktop exact hashes/code reuse qualified PR95; helper SHA-256 79b4bc55... is
-built from final reviewed source. This runtime excludes pending session controls.
-Next: commit/push final receipts, open the email candidate, inspect required CI,
-merge normally when eligible and verify resulting main. New EML/Source Draft
-fixtures are retained in `/private/tmp/brn-overnight-20261008/email-evidence-caveats-case`.
+Lead `/Users/evokessler/repos/brn-p2-email-docx-intake`, branch
+codex/p5-pptx-partial-intake, accepted partial PPTX plan21e3631/checkpoint722e5b2.
+One helper owns intake/dependency/lock/tests and sole Cargo slot; lead owns
+workflow/native/shared docs. No recursive delegation, at most two active helpers.
+Continue selected bounded V1 outcome after session eligible integration.
 
-Session candidate `/Users/evokessler/repos/brn-p3-work-budgets`, branch
-`codex/p9-session-archive-restore`, code `a18806b02665b9d5c7151181caba537b5cce9a9e`.
-Complete 51-file candidate independently reviewed clean, final patch
-5a7c44038cd871ee95359a9a2217c504e52f8213033fe3fe82f123f8a6576142. Store 461 tests
-and Clippy passed; desktop ten new tests, 157 state/19 native compatibility and
-Clippy passed; new workflow three/CLI subprocess two plus affected Clippy passed.
-An exhaustive test diagnostic enum list needed six new variants; test-only fix
-passed and independently reviewed without weakening diagnostics. Automatic
-30-day archival, Delete and preferences remain separate.
-
-The sole local Cargo slot is now the lead's session final gate, session36559,
-log `/private/tmp/brn-overnight-20261008/session-final-gate.log`, target/budgets.
-It reuses final Store461 and runs remaining default workspace/doctests, native
-workflow/models, combined desktop/CLI, Clippy/shipping and fixtures. Do not run
-another Cargo while it remains active. Then preserve exact shipping build,
-push/PR/required CI/protected integration. Merge the email repair when it lands,
-qualify changed combined helper/workflow risk and final required CI; do not rush.
-Current helpers finished implementation; no recursive delegation. Keep at most
-two active helpers and the selected lead model/effort.
-
-Canonical campaign ledger `/private/tmp/brn-overnight-20261008/campaign-ledger.json`:
-eleven of sixteen used, five Luna/six Sol; five remain, at most three Luna/two Sol.
-Linden initial Sol failure/cause unknown and separately counted successful retry
-remain recorded. Four selected Sol consequences are Applied with Action-first
-fresh-process/restart/exact replay/no inference; Finding stays Open, comparison
-Drafts remain. Full Source/Current/original identities stayed unchanged. Harbor,
-North Quay, Cedar and Linden bound folders remain in place. Usage was account-wide
-46% consumed / 54% remaining, short-window/provider token/request/spend unknown.
-No reset, purchase, substitution or new inference for approval/replay/caveat repair.
-
-The [single morning task](morning-ui-acceptance.md) owns all expected UI checks,
-exact final build/data and launch prompt; update it as candidates integrate.
-Continue useful authorized small slices until 08:00 Tallinn; prioritize final
-qualification/integration/handoff from 07:30. No GUI/private-data/release action.
+Canonical ledger `/private/tmp/brn-overnight-20261008/campaign-ledger.json`:11/16,
+Luna5/Sol6; remaining5, maxLuna3/Sol2, exact Medium only,180seconds/eight rounds/
+nine responses and no automatic retry/substitution. Reserve before every call;
+failures count. No provider currently active. Retained Linden four Sol consequences
+Applied with Action-first restart/replay/no inference and unchanged evidence;
+Finding Open, comparisons Draft. Preserve all synthetic bound folders in place.
+Last account-wide weekly46% consumed/54% remaining, other telemetry unknown.
+No credentials/private data/GUI/ports/releases/reset/purchase or unrelated work.
+Continue to08:00Tallinn, final qualification/handoff from07:30; single morning
+acceptance task owns expected UI checks/build/data/prompt. No GUI observed.
 
 Earlier milestone entries below are historical receipts; this checkpoint and the
 local campaign ledger govern continuation.
