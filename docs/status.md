@@ -24,8 +24,11 @@ local qualification and all required CI; post-merge required checks/docs passed.
 Delete/preferences stay separate. The selected
 [partial attributed PPTX slice](work/active/overnight-continuation/pptx-partial-intake.md)
 is implemented and independently reviewed clean after two valid P2 fixes; final combined local gates and real retained CLI/model cases passed, required
-CI/integration pending. Automatic during-session internal checkpoints are selected
-and being implemented independently in the existing budget checkout.
+CI/integration pending. Automatic during-session internal checkpoints are implemented, independently
+reviewed and locally qualified in the budget checkout; required CI/integration
+are pending. An independent bounded Action-only replacement compensation slice
+is being implemented in the lead checkout, preserving exact before/after and
+refusing changed/completed work, creation and mixed file/Action Undo.
 
 The [overnight checkpoint](work/active/overnight-continuation/plan.md) owns exact
 branches, builds, verification and continuation. Fourteen of sixteen authorized live investigations are used, seven Luna/seven Sol,
