@@ -61,8 +61,17 @@ requiring original inspection. No PPTX conversion is included.
 Pinned mail-parser 0.11.8 decodes headers and actual text/HTML alternatives. HTML
 is preserved as inert quoted source, and html5ever tokenization identifies CID
 image references. CID targets resolve only in their nearest actual MIME related
-container; missing/ambiguous targets never borrow a sibling target. Unsupported
-attachments remain exact unprocessed children. PNG uses maintained complete
+container; missing/ambiguous targets never borrow a sibling target. Decoded headers
+are source claims: sender authenticity and thread relationships are not independently
+verified, including when Authentication-Results reports success. Present identifiers
+remain decoded values; In-Reply-To/References retain every parsed identifier across
+all physical matching fields and within each scalar/list field, in source order
+including repetitions. Unavailable fields stay unknown. Plain-text-only email does
+not acquire HTML or remote-resource diagnostics. Actual HTML stays inert, and actual
+remote/non-CID or missing/ambiguous CID references retain their specific gaps. Root
+partial status is unchanged and does not imply an identifier is missing. Retained
+schema-1 snapshots keep their old caveats and bytes; reading never relabels them.
+Unsupported attachments remain exact unprocessed children. PNG uses maintained complete
 CRC/Adler/pixel/terminal-chunk decoding; animated PNG is unprocessed. JPEG uses the
 maintained image decoder. Other formats are retained with an explicit gap. The
 legacy-record PNG entry retains its 1 MiB/4,096-dimension/4,194,304-pixel budget.
