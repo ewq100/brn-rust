@@ -14,6 +14,7 @@ fn parent() -> VaultIdentity {
 }
 fn draft(changes: Vec<NoteChange>) -> ProposalDraft {
     ProposalDraft {
+        intake: None,
         inbox_visual: None,
         inbox_knowledge: None,
         inbox_source: None,
@@ -669,6 +670,7 @@ fn valid_inbox_bindings_do_not_authorize_asset_shapes() {
         .unwrap();
     let (format, text) = convert_original(InboxKind::Text, "x", &AtomicBool::new(false)).unwrap();
     let source = InboxSourceBinding {
+        extraction: None,
         visual: None,
         batch_id: Uuid::new_v4(),
         index: 0,
@@ -682,12 +684,14 @@ fn valid_inbox_bindings_do_not_authorize_asset_shapes() {
         .validate_markdown(&source.markdown(&text).unwrap())
         .unwrap();
     let knowledge = InboxKnowledgeBinding {
+        intake_citations: Vec::new(),
+        intake: None,
         analysis_id: Uuid::new_v4(),
         note_id: Uuid::new_v4(),
-        source: SourceVersion {
+        source: Some(SourceVersion {
             path: "source.md".into(),
             fingerprint: proof(b"x", 3),
-        },
+        }),
         supersedes: None,
         citations: vec![brn_store::note_provenance::VaultCitation {
             note_id: Uuid::new_v4(),
@@ -710,7 +714,7 @@ fn valid_inbox_bindings_do_not_authorize_asset_shapes() {
         d.inbox_source = None;
         d.inbox_knowledge = Some(Box::new(knowledge.clone()));
         d.group_id = Some(knowledge.analysis_id);
-        d.sources = vec![knowledge.source.clone()];
+        d.sources = vec![knowledge.source.clone().unwrap()];
         assert!(store.create_proposal(&d).is_err());
         assert!(store.proposal(d.id).unwrap().is_none());
     }

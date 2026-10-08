@@ -56,6 +56,8 @@ fn evidence(store: &mut WorkStore, analysis: bool) -> InboxQualifiedRemovalEvide
         })
         .unwrap();
     let process = ProcessInboxRequest {
+        limits: None,
+
         id: Uuid::new_v4(),
         items: vec![original.clone()],
     };
@@ -74,6 +76,7 @@ fn evidence(store: &mut WorkStore, analysis: bool) -> InboxQualifiedRemovalEvide
         )
         .unwrap();
     let binding = InboxSourceBinding {
+        extraction: None,
         visual: None,
         batch_id: process.id,
         index: 0,
@@ -85,6 +88,7 @@ fn evidence(store: &mut WorkStore, analysis: bool) -> InboxQualifiedRemovalEvide
     };
     let text = binding.markdown(converted).unwrap();
     let draft = ProposalDraft {
+        intake: None,
         inbox_visual: None,
         inbox_knowledge: None,
         inbox_source: Some(Box::new(binding.clone())),
@@ -144,11 +148,12 @@ fn evidence(store: &mut WorkStore, analysis: bool) -> InboxQualifiedRemovalEvide
         let job = store
             .reserve_inbox_action(
                 &InboxActionCapture {
+                    intake: None,
                     visual_asset: None,
                     purpose: Default::default(),
                     id: Uuid::new_v4(),
                     conversation: None,
-                    source: source.clone(),
+                    source: Some(source.clone()),
                     source_text: text.clone(),
                     provider: "chatgpt".into(),
                     model: "gpt-6-luna".into(),
@@ -227,11 +232,12 @@ fn knowledge_evidence_with_status(
     let job = store
         .reserve_inbox_action(
             &InboxActionCapture {
+                intake: None,
                 visual_asset: None,
                 purpose: InboxAnalysisPurpose::KnowledgeAndActions,
                 id: Uuid::new_v4(),
                 conversation: None,
-                source: source.source.clone(),
+                source: Some(source.source.clone()),
                 source_text: source.text.clone(),
                 provider: "chatgpt".into(),
                 model: "gpt-6-luna".into(),
@@ -260,11 +266,14 @@ fn knowledge_evidence_with_status(
     };
     let text = brn_store::note_provenance::write(&format!("---\nbrn_id: {note_id}\nbrn_kind: knowledge\nbrn_state: current\n---\n# Interpreted knowledge\n"), std::slice::from_ref(&citation)).unwrap();
     let draft = ProposalDraft {
+        intake: None,
         inbox_visual: None,
         inbox_knowledge: Some(Box::new(InboxKnowledgeBinding {
+            intake_citations: Vec::new(),
+            intake: None,
             analysis_id: job.capture.id,
             note_id,
-            source: source.source.clone(),
+            source: Some(source.source.clone()),
             supersedes: None,
             citations: vec![citation],
         })),
@@ -511,7 +520,7 @@ fn fixed_legacy_v14_setting_migrates_and_restores_backup_without_rewriting_bytes
     drop(store);
     let db = dir.path().join("brn.sqlite");
     let raw = Connection::open(&db).unwrap();
-    raw.execute_batch("DROP TABLE inbox_original_operations; PRAGMA user_version=14;")
+    raw.execute_batch("DROP TABLE intake_snapshots; DROP TABLE inbox_original_operations; PRAGMA user_version=14;")
         .unwrap();
     assert_eq!(
         raw.query_row(
@@ -677,7 +686,7 @@ fn malformed_readable_v14_legacy_authority_refuses_before_migration_or_backup() 
     drop(store);
     let db = dir.path().join("brn.sqlite");
     let raw = Connection::open(&db).unwrap();
-    raw.execute_batch("DROP TABLE inbox_original_operations; PRAGMA user_version=14;")
+    raw.execute_batch("DROP TABLE intake_snapshots; DROP TABLE inbox_original_operations; PRAGMA user_version=14;")
         .unwrap();
     raw.execute(
         "UPDATE settings SET value='{}' WHERE key=?1",

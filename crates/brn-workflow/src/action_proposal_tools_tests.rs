@@ -247,6 +247,7 @@ fn seed(fixture: &Fixture) -> crate::actions::ActionRecord {
     let id = Uuid::new_v4();
     let draft = app
         .create_proposal(&crate::proposals::DraftRequest {
+            intake: None,
             inbox_visual: None,
             inbox_knowledge: None,
             inbox_source: None,

@@ -46,3 +46,16 @@ Chunk 06 adds `brn-store` independently of the desktop dependency graph. The roo
 ## Integrated workflow additions (2026-09-28)
 
 The first end-to-end flow now integrates the previously qualified UI, SQLite, provider and retrieval adapters into the root workspace. Native retrieval remains an explicit feature; the default workspace path uses keyword retrieval without loading ONNX/LanceDB. The root lockfile records the combined transitive graph, retaining FastEmbed 7.1.0, LanceDB 0.39.0, Arrow 58.4.0, ORT 2.0.0-rc.13, Tokio 1.53.1 and the UI/storage versions above. Development/test debug information is disabled to bound native build artifacts. No executable or model is bundled, and no distribution approval is inferred. See [integrated evidence](../work/completed/end-to-end-flow/evidence.md) for the observed runtime path and outstanding packaging limits.
+
+## Selected P2 intake dependencies — 2026-10-07
+
+The separate `brn-intake-helper` pins BetterOffice edit/parse/opc 0.3.0 and
+mail-parser 0.11.8 (`full_encoding`) for maintained structured/Markdown/package
+exports and MIME decoding. html5ever 0.27 tokenizes inert HTML CID references;
+image 0.25.10 decodes PNG/JPEG. The lightweight protocol uses png 0.18.1 for
+complete retained PNG validation. The larger export graph is an accepted P2
+tradeoff; the helper owns no collaboration lifecycle. Store's direct ZIP/XML/PNG
+implementation dependencies and bespoke DOCX interpreter are removed. See the
+[adapter contract](../../crates/brn-intake/README.md) for quotas, native containment
+and unqualified distribution/RSS limits. Historical dependency evidence above
+remains dated evidence rather than a complete current shipping manifest.

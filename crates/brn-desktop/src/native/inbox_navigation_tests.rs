@@ -21,6 +21,7 @@ fn source_request() -> DraftRequest {
         "sha256":<[u8;32]>::from(sha2::Sha256::digest(text.as_bytes())),
     })).unwrap();
     let request = DraftRequest {
+        intake: None,
         id: Uuid::new_v4(),
         group_id: None,
         session_id: None,

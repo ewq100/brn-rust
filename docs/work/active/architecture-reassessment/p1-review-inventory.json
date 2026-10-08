@@ -1,0 +1,446 @@
+{
+  "baseline": "3d59cdd4d6379b526fed19f6a339cfd2dce2dead",
+  "branch": "codex/p1-office-mime-evaluation",
+  "files": [
+    {
+      "path": "docs/status.md",
+      "bytes": 14623,
+      "sha256": "a71d8148ead3ddad59aaff526640c840b0e3688b3128ee41419cf3eee29f7260"
+    },
+    {
+      "path": "docs/work/active/README.md",
+      "bytes": 6436,
+      "sha256": "0259e2ea24362d4372d271797834c60be82822cc5da38567d9b02353e0b1a6e6"
+    },
+    {
+      "path": "docs/work/active/architecture-reassessment/p1-evidence.md",
+      "bytes": 9881,
+      "sha256": "ca01b829ece4be339e84ba2657dc288d7812ec013cc1db4b845b965ad1999f78"
+    },
+    {
+      "path": "docs/work/active/architecture-reassessment/p2-conditional-spec.md",
+      "bytes": 23724,
+      "sha256": "0e8decfbb1773d26bd646742e26c34d8e4a06e19d14a3667f064b23299e0fba5"
+    },
+    {
+      "path": "docs/work/active/architecture-reassessment/plan.md",
+      "bytes": 28411,
+      "sha256": "3ecc88000027157105e8c2f661ac1dc9bed933faa818fa90165c73e13570c7fb"
+    },
+    {
+      "path": "experiments/architecture-reassessment/p1-office-mime/.gitattributes",
+      "bytes": 50,
+      "sha256": "b4358e0cff31a94d856484ce2c9741d576315c3b29ccf9a6bce139bb45e0d2a2"
+    },
+    {
+      "path": "experiments/architecture-reassessment/p1-office-mime/Cargo.lock",
+      "bytes": 13257,
+      "sha256": "104310c91afcf6e87910305fde1e5976e121ae0bb5bd9528f8fa9acdfed5f4ad"
+    },
+    {
+      "path": "experiments/architecture-reassessment/p1-office-mime/Cargo.toml",
+      "bytes": 380,
+      "sha256": "61baf2c8523d9ed54649a849ce474bc9b0bcad766d442549a25b52953138fb09"
+    },
+    {
+      "path": "experiments/architecture-reassessment/p1-office-mime/README.md",
+      "bytes": 13255,
+      "sha256": "99d878790782f6769f5dbac9f48bc3eb0bdb3ae909b3df4648af31b60bc5b4b7"
+    },
+    {
+      "path": "experiments/architecture-reassessment/p1-office-mime/costs.py",
+      "bytes": 4191,
+      "sha256": "0a4139bc8201b46b9b6417dff4e5ef74ccd0e96dcc139cff23072fb14f485abc"
+    },
+    {
+      "path": "experiments/architecture-reassessment/p1-office-mime/evidence/adapted-docx-page-1.png",
+      "bytes": 110135,
+      "sha256": "7e583e7ce8303479c65736a282e162176d46176606a244a6c8bb100ccb55c578"
+    },
+    {
+      "path": "experiments/architecture-reassessment/p1-office-mime/evidence/adapted-docx-page-2.png",
+      "bytes": 36892,
+      "sha256": "cc68d2108d33ca4dc1e564f3a600c7cc8d9e1b6138c6ed05f46a6f22321b7491"
+    },
+    {
+      "path": "experiments/architecture-reassessment/p1-office-mime/evidence/adapted-docx.pdf",
+      "bytes": 26116,
+      "sha256": "02e5f2f3f3c8ce8c43d1974dc73174def646f70c076ac42f3c202debf33b2a08"
+    },
+    {
+      "path": "experiments/architecture-reassessment/p1-office-mime/evidence/adapted-pptx-page-1.png",
+      "bytes": 105268,
+      "sha256": "07cae58055dd20bd438a05a803a94299d0fa9fc98178ea5a64c4b6f161cb192a"
+    },
+    {
+      "path": "experiments/architecture-reassessment/p1-office-mime/evidence/adapted-pptx-page-2.png",
+      "bytes": 42975,
+      "sha256": "7ccb36a3fdac951a3304326d0f519df8eb4b2ecf1afdc3770a6133920e06ccae"
+    },
+    {
+      "path": "experiments/architecture-reassessment/p1-office-mime/evidence/adapted-pptx.pdf",
+      "bytes": 25846,
+      "sha256": "03ff132d3dacab2f657718132edfecb0b051772262d777aee8a1b412f9de0d7b"
+    },
+    {
+      "path": "experiments/architecture-reassessment/p1-office-mime/evidence/build-clean.log",
+      "bytes": 1954,
+      "sha256": "544625a39a534290f4a07febe675bb21047ad1eebd9c55ecedf475a2824a848a"
+    },
+    {
+      "path": "experiments/architecture-reassessment/p1-office-mime/evidence/build-warm.log",
+      "bytes": 62,
+      "sha256": "7a7bb64a28cdda9b91e6e27f41be455104d929b5d7ad6dd5beca75fc5a47f1f4"
+    },
+    {
+      "path": "experiments/architecture-reassessment/p1-office-mime/evidence/cancel.stdout.txt",
+      "bytes": 30,
+      "sha256": "c2f65bdcbf94c54115cb1131fa7beba096c1425b8d78ff0b6fa29fb1c7389a1c"
+    },
+    {
+      "path": "experiments/architecture-reassessment/p1-office-mime/evidence/costs.json",
+      "bytes": 5354,
+      "sha256": "d8064488311c03bfaf69b2fc7879045ada72cf278352cc352cabc76def3d9000"
+    },
+    {
+      "path": "experiments/architecture-reassessment/p1-office-mime/evidence/costs.stdout.txt",
+      "bytes": 2209,
+      "sha256": "1cd59a82bc6bfc9e3b31235356d3827b088131e2e34594eb11abc5a21680154a"
+    },
+    {
+      "path": "experiments/architecture-reassessment/p1-office-mime/evidence/failed-sandbox-launch/measurements.json",
+      "bytes": 4283,
+      "sha256": "c626186a6e045a328d72a557ffbb8b20c3f20983b5b8f84aedb8adb414f49ca7"
+    },
+    {
+      "path": "experiments/architecture-reassessment/p1-office-mime/evidence/failed-sandbox-launch/runner.stdout.txt",
+      "bytes": 4283,
+      "sha256": "c626186a6e045a328d72a557ffbb8b20c3f20983b5b8f84aedb8adb414f49ca7"
+    },
+    {
+      "path": "experiments/architecture-reassessment/p1-office-mime/evidence/failed-sandbox-launch/sandbox.sb",
+      "bytes": 578,
+      "sha256": "eee51dc817aa8d2d12efd5efcfbde3b2e31d69b204b44cf225a73c1740426e15"
+    },
+    {
+      "path": "experiments/architecture-reassessment/p1-office-mime/evidence/fixture-manifest.json",
+      "bytes": 1479,
+      "sha256": "a22b2ed73333e7b2c3dcaacf66dbb285f005e8b0c25a5eb9a0ecb2d44b74bc5c"
+    },
+    {
+      "path": "experiments/architecture-reassessment/p1-office-mime/evidence/harbor-docx/46a227162352ff616344ab5bc91350d1c1f2810bb099f873ab49979c3133df85.wire.json",
+      "bytes": 1145106,
+      "sha256": "b65f618802adcf33ba9e709ffd5369164bcc09ec7f390062ca719458f7f026ec"
+    },
+    {
+      "path": "experiments/architecture-reassessment/p1-office-mime/evidence/harbor-docx/f76dd37920a0fc5889b1d53a0c448f7ec6c619ed8200eef5d31621e36ca4d61d.png",
+      "bytes": 19936,
+      "sha256": "f76dd37920a0fc5889b1d53a0c448f7ec6c619ed8200eef5d31621e36ca4d61d"
+    },
+    {
+      "path": "experiments/architecture-reassessment/p1-office-mime/evidence/harbor-docx/result.json",
+      "bytes": 4751,
+      "sha256": "0f8c2848ed9c433e77a854c65a44f38ba26d7d8c50395c9c22bb1ca3af2112fa"
+    },
+    {
+      "path": "experiments/architecture-reassessment/p1-office-mime/evidence/harbor-docx/stdout.json",
+      "bytes": 3933,
+      "sha256": "51d0ffcca49dc611b8481ef1d5577eac4cac31427ecfd92beb4c4caaf4c3392d"
+    },
+    {
+      "path": "experiments/architecture-reassessment/p1-office-mime/evidence/harbor-pptx/8fa8c3d08fc157cd08d4a5cb17c48c54ca7b7723930b6d35c484f9b975455280.wire.json",
+      "bytes": 353197,
+      "sha256": "779d613d98232d3acd333158c8f324cf0842df7343c457f3430e2b94f2d10c3a"
+    },
+    {
+      "path": "experiments/architecture-reassessment/p1-office-mime/evidence/harbor-pptx/f76dd37920a0fc5889b1d53a0c448f7ec6c619ed8200eef5d31621e36ca4d61d.png",
+      "bytes": 19936,
+      "sha256": "f76dd37920a0fc5889b1d53a0c448f7ec6c619ed8200eef5d31621e36ca4d61d"
+    },
+    {
+      "path": "experiments/architecture-reassessment/p1-office-mime/evidence/harbor-pptx/result.json",
+      "bytes": 2434,
+      "sha256": "89e5be9b1647ad2b21feede5376b84a7fe165f57d7527303b90b000c87e96eee"
+    },
+    {
+      "path": "experiments/architecture-reassessment/p1-office-mime/evidence/harbor-pptx/stdout.json",
+      "bytes": 2037,
+      "sha256": "a63c4a16340dab199b39c91dbd471aefd2eb4b3e5cfeae93f358ad370edf351f"
+    },
+    {
+      "path": "experiments/architecture-reassessment/p1-office-mime/evidence/hostile-dtd-docx/result.json",
+      "bytes": 55,
+      "sha256": "f4c9fa96f07f8fc665b42813735cabbeddd7150ee37034542206310d8844c676"
+    },
+    {
+      "path": "experiments/architecture-reassessment/p1-office-mime/evidence/hostile-dtd-docx/stdout.json",
+      "bytes": 47,
+      "sha256": "baba7664f5a54694ffa07da0f68e140fb829ae7a44fd5ce4b0abe573ead9fd51"
+    },
+    {
+      "path": "experiments/architecture-reassessment/p1-office-mime/evidence/hostile-inflate-docx/result.json",
+      "bytes": 63,
+      "sha256": "3e505dab5d912e26e64eeeec05b4e08b8f7cc172fb8aaa0e9eb864e16bd9b580"
+    },
+    {
+      "path": "experiments/architecture-reassessment/p1-office-mime/evidence/hostile-inflate-docx/stdout.json",
+      "bytes": 55,
+      "sha256": "a789fe72acb74683cb65e33f5958376269701b27985070050ae2f6e16440a85d"
+    },
+    {
+      "path": "experiments/architecture-reassessment/p1-office-mime/evidence/hostile-members-docx/result.json",
+      "bytes": 59,
+      "sha256": "d4cacac6dfa6759648d92b17add9150b3856d46dfabfe0890a0393a5d7166348"
+    },
+    {
+      "path": "experiments/architecture-reassessment/p1-office-mime/evidence/hostile-members-docx/stdout.json",
+      "bytes": 51,
+      "sha256": "8f816e9c81dc4cb3062528b9d51056eabbb50fdf8b5ed7b72be06ef44e312831"
+    },
+    {
+      "path": "experiments/architecture-reassessment/p1-office-mime/evidence/hostile-path-docx/result.json",
+      "bytes": 60,
+      "sha256": "116f14e78b7e7962add2866743ac5e8c3b37c79d908df7b870f8d8c3fc8c54d5"
+    },
+    {
+      "path": "experiments/architecture-reassessment/p1-office-mime/evidence/hostile-path-docx/stdout.json",
+      "bytes": 52,
+      "sha256": "868bac61703b501467320354c7029054565c7b5e9ea65a0093a8b327acd021b3"
+    },
+    {
+      "path": "experiments/architecture-reassessment/p1-office-mime/evidence/interim-output.tar.gz",
+      "bytes": 617754,
+      "sha256": "98204710cd9cd23a519902af44007fba02cbdc0c173bada3ac0f3a790a6a149a"
+    },
+    {
+      "path": "experiments/architecture-reassessment/p1-office-mime/evidence/launch-measurements.json",
+      "bytes": 3520,
+      "sha256": "0f8e73c4e24721f3cfe6acfa4748dea91360a9e5d526c10ec4aadb5d42aedca5"
+    },
+    {
+      "path": "experiments/architecture-reassessment/p1-office-mime/evidence/measurements-concurrent-build.json",
+      "bytes": 5491,
+      "sha256": "6e9c68c69bd700d8ca91ae3ddb050fdad9b8a004d4e028aad6e5b56f1c2641aa"
+    },
+    {
+      "path": "experiments/architecture-reassessment/p1-office-mime/evidence/measurements.json",
+      "bytes": 5489,
+      "sha256": "9707f0fc096156b1fce5e85dc2e55d26333858d4171c458000af07dd863755c1"
+    },
+    {
+      "path": "experiments/architecture-reassessment/p1-office-mime/evidence/metadata.json",
+      "bytes": 247375,
+      "sha256": "c0735837718d8e23d4272eba44bf514a3586250d69bbe28121c97706de3a82c9"
+    },
+    {
+      "path": "experiments/architecture-reassessment/p1-office-mime/evidence/oracle.json",
+      "bytes": 536,
+      "sha256": "2de6dc7303c22bd3abca45106aeff98e5f67c41a787a02185c509d5193ed7b17"
+    },
+    {
+      "path": "experiments/architecture-reassessment/p1-office-mime/evidence/original-docx/harbor-page-1.png",
+      "bytes": 71337,
+      "sha256": "ae220a10893310469ae1ba45ed92690db72f5e2a33458fbf6826ea5bd4bb1c98"
+    },
+    {
+      "path": "experiments/architecture-reassessment/p1-office-mime/evidence/original-docx/harbor-page-2.png",
+      "bytes": 35526,
+      "sha256": "72f38fc0ca7aec5262723d0719f2d3bee7b212b38c9520dd4d313da53b204dee"
+    },
+    {
+      "path": "experiments/architecture-reassessment/p1-office-mime/evidence/original-docx/harbor.pdf",
+      "bytes": 45965,
+      "sha256": "e427f08b02d15bbb3d4c6beea8cc59d5677324b8645d20e0b18943af36854661"
+    },
+    {
+      "path": "experiments/architecture-reassessment/p1-office-mime/evidence/original-pptx/harbor-page-1.png",
+      "bytes": 42872,
+      "sha256": "77af4f9b5fa758c4f4ee329a44cfa3ad039fd8b1482e36260fafc7de0cd5b0bd"
+    },
+    {
+      "path": "experiments/architecture-reassessment/p1-office-mime/evidence/original-pptx/harbor-page-2.png",
+      "bytes": 32765,
+      "sha256": "00f3398409bb043584f59bb52582bcf53d6b6dd8e33225d298fd9ff4b50a6b39"
+    },
+    {
+      "path": "experiments/architecture-reassessment/p1-office-mime/evidence/original-pptx/harbor.pdf",
+      "bytes": 56219,
+      "sha256": "82f826f7da9ebf7201b5deacf69c0f18f3e98ce12a5ec4a6dae45bcef8bf13ec"
+    },
+    {
+      "path": "experiments/architecture-reassessment/p1-office-mime/evidence/plural-eml/46a227162352ff616344ab5bc91350d1c1f2810bb099f873ab49979c3133df85.original",
+      "bytes": 55345,
+      "sha256": "46a227162352ff616344ab5bc91350d1c1f2810bb099f873ab49979c3133df85"
+    },
+    {
+      "path": "experiments/architecture-reassessment/p1-office-mime/evidence/plural-eml/916dc333d40b37dce3b0a32e4b9ea6bea145fee8369271778ca7e71196d04704.original",
+      "bytes": 4879,
+      "sha256": "916dc333d40b37dce3b0a32e4b9ea6bea145fee8369271778ca7e71196d04704"
+    },
+    {
+      "path": "experiments/architecture-reassessment/p1-office-mime/evidence/plural-eml/f10516cc3db6eb065290c9e372aba0a80373f2a7bc9b8582e51562e719c48c14-attachment-1.wire.json",
+      "bytes": 1145106,
+      "sha256": "b65f618802adcf33ba9e709ffd5369164bcc09ec7f390062ca719458f7f026ec"
+    },
+    {
+      "path": "experiments/architecture-reassessment/p1-office-mime/evidence/plural-eml/f76dd37920a0fc5889b1d53a0c448f7ec6c619ed8200eef5d31621e36ca4d61d.original",
+      "bytes": 19936,
+      "sha256": "f76dd37920a0fc5889b1d53a0c448f7ec6c619ed8200eef5d31621e36ca4d61d"
+    },
+    {
+      "path": "experiments/architecture-reassessment/p1-office-mime/evidence/plural-eml/f76dd37920a0fc5889b1d53a0c448f7ec6c619ed8200eef5d31621e36ca4d61d.png",
+      "bytes": 19936,
+      "sha256": "f76dd37920a0fc5889b1d53a0c448f7ec6c619ed8200eef5d31621e36ca4d61d"
+    },
+    {
+      "path": "experiments/architecture-reassessment/p1-office-mime/evidence/plural-eml/result.json",
+      "bytes": 7540,
+      "sha256": "8939e718d875437fba5e27dc085c96e383bda09d0f013a8a0854aa9cdb9a5654"
+    },
+    {
+      "path": "experiments/architecture-reassessment/p1-office-mime/evidence/plural-eml/stdout.json",
+      "bytes": 5636,
+      "sha256": "f98c619af67a7229eade80fd1047c8bb3ef68381373daf8523c36113095abd8a"
+    },
+    {
+      "path": "experiments/architecture-reassessment/p1-office-mime/evidence/render.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "experiments/architecture-reassessment/p1-office-mime/evidence/restriction.stdout.txt",
+      "bytes": 548,
+      "sha256": "8bf90a8a8867c1fedb8f640d9ee282e13194019a2063ad32eacafeb3496646b4"
+    },
+    {
+      "path": "experiments/architecture-reassessment/p1-office-mime/evidence/runner.stdout.txt",
+      "bytes": 5489,
+      "sha256": "9707f0fc096156b1fce5e85dc2e55d26333858d4171c458000af07dd863755c1"
+    },
+    {
+      "path": "experiments/architecture-reassessment/p1-office-mime/evidence/sandbox.sb",
+      "bytes": 510,
+      "sha256": "ea43a90baf1b1d0e761005832d107045ee55e9585cad97226eff05939f54489b"
+    },
+    {
+      "path": "experiments/architecture-reassessment/p1-office-mime/evidence/single-eml/46a227162352ff616344ab5bc91350d1c1f2810bb099f873ab49979c3133df85.original",
+      "bytes": 55345,
+      "sha256": "46a227162352ff616344ab5bc91350d1c1f2810bb099f873ab49979c3133df85"
+    },
+    {
+      "path": "experiments/architecture-reassessment/p1-office-mime/evidence/single-eml/47f34537c79fb7ad86f4751f6b59d856af5819e4e5918b93775403fd4970dd82-attachment-1.wire.json",
+      "bytes": 1145106,
+      "sha256": "b65f618802adcf33ba9e709ffd5369164bcc09ec7f390062ca719458f7f026ec"
+    },
+    {
+      "path": "experiments/architecture-reassessment/p1-office-mime/evidence/single-eml/f76dd37920a0fc5889b1d53a0c448f7ec6c619ed8200eef5d31621e36ca4d61d.original",
+      "bytes": 19936,
+      "sha256": "f76dd37920a0fc5889b1d53a0c448f7ec6c619ed8200eef5d31621e36ca4d61d"
+    },
+    {
+      "path": "experiments/architecture-reassessment/p1-office-mime/evidence/single-eml/f76dd37920a0fc5889b1d53a0c448f7ec6c619ed8200eef5d31621e36ca4d61d.png",
+      "bytes": 19936,
+      "sha256": "f76dd37920a0fc5889b1d53a0c448f7ec6c619ed8200eef5d31621e36ca4d61d"
+    },
+    {
+      "path": "experiments/architecture-reassessment/p1-office-mime/evidence/single-eml/result.json",
+      "bytes": 7024,
+      "sha256": "a2a43fc714cf4eeb64f1ced1e4de464e75a3675caf256da74d1c8ee50daf9528"
+    },
+    {
+      "path": "experiments/architecture-reassessment/p1-office-mime/evidence/single-eml/stdout.json",
+      "bytes": 5221,
+      "sha256": "464d3b2889ac2e711fe4472c7b9260b99f9392a0da5dfeba5d3d600a4fbf2ee7"
+    },
+    {
+      "path": "experiments/architecture-reassessment/p1-office-mime/evidence/tree-features.txt",
+      "bytes": 18826,
+      "sha256": "e9cd804def09be1fed7617b37f36fd686eed32204d2a4eafca171cdc70350f06"
+    },
+    {
+      "path": "experiments/architecture-reassessment/p1-office-mime/evidence/tree-packages.txt",
+      "bytes": 2159,
+      "sha256": "cdd49bf37f47d197fdcbd795b2313d8ce3580cab38379787e4745152a63914d0"
+    },
+    {
+      "path": "experiments/architecture-reassessment/p1-office-mime/evidence/wall-timeout.stdout.txt",
+      "bytes": 30,
+      "sha256": "2c095c8931d42979edd155d818192d6eb734ed63b957235cf853573ce79cf364"
+    },
+    {
+      "path": "experiments/architecture-reassessment/p1-office-mime/fixtures.py",
+      "bytes": 5405,
+      "sha256": "2fbfd8c401266f2ec43a201b6d7e25b16ff6449873559f073d95a4dfeb9fee5d"
+    },
+    {
+      "path": "experiments/architecture-reassessment/p1-office-mime/fixtures/forecast.xlsx",
+      "bytes": 4879,
+      "sha256": "916dc333d40b37dce3b0a32e4b9ea6bea145fee8369271778ca7e71196d04704"
+    },
+    {
+      "path": "experiments/architecture-reassessment/p1-office-mime/fixtures/harbor.docx",
+      "bytes": 55345,
+      "sha256": "46a227162352ff616344ab5bc91350d1c1f2810bb099f873ab49979c3133df85"
+    },
+    {
+      "path": "experiments/architecture-reassessment/p1-office-mime/fixtures/harbor.pptx",
+      "bytes": 57468,
+      "sha256": "8fa8c3d08fc157cd08d4a5cb17c48c54ca7b7723930b6d35c484f9b975455280"
+    },
+    {
+      "path": "experiments/architecture-reassessment/p1-office-mime/fixtures/hostile-dtd.docx",
+      "bytes": 198,
+      "sha256": "c5da4fb9c60f4c9455f6216ddef345c059953f3879afbb849239a3d5b8fb967b"
+    },
+    {
+      "path": "experiments/architecture-reassessment/p1-office-mime/fixtures/hostile-inflate.docx",
+      "bytes": 17473,
+      "sha256": "c79196faaded8e6d6f9eeb2a2b733607ee1e7b49a7affc076a0bb9c1b033d019"
+    },
+    {
+      "path": "experiments/architecture-reassessment/p1-office-mime/fixtures/hostile-members.docx",
+      "bytes": 49563,
+      "sha256": "befb44dbb220473403906cbbf4485e5561f5714e9dd8a171647cd22b561c32f2"
+    },
+    {
+      "path": "experiments/architecture-reassessment/p1-office-mime/fixtures/hostile-path.docx",
+      "bytes": 120,
+      "sha256": "c85c4bad47aa98a3b763eade88307968da6ab18a42619d9a2d54007a841ecb74"
+    },
+    {
+      "path": "experiments/architecture-reassessment/p1-office-mime/fixtures/plural.eml",
+      "bytes": 111544,
+      "sha256": "f10516cc3db6eb065290c9e372aba0a80373f2a7bc9b8582e51562e719c48c14"
+    },
+    {
+      "path": "experiments/architecture-reassessment/p1-office-mime/fixtures/single.eml",
+      "bytes": 104626,
+      "sha256": "47f34537c79fb7ad86f4751f6b59d856af5819e4e5918b93775403fd4970dd82"
+    },
+    {
+      "path": "experiments/architecture-reassessment/p1-office-mime/fixtures/water-use.png",
+      "bytes": 19936,
+      "sha256": "f76dd37920a0fc5889b1d53a0c448f7ec6c619ed8200eef5d31621e36ca4d61d"
+    },
+    {
+      "path": "experiments/architecture-reassessment/p1-office-mime/oracle.py",
+      "bytes": 5167,
+      "sha256": "6b99386af76c41137c1b835763ecb10d372d9b0b6e69e6c7a2b1fe9fa1e1929c"
+    },
+    {
+      "path": "experiments/architecture-reassessment/p1-office-mime/render.py",
+      "bytes": 4285,
+      "sha256": "f1f8f29bd5e5fd1acc517dec0a505f1bbcec8e585ecc47f3087e12c81d3b01e1"
+    },
+    {
+      "path": "experiments/architecture-reassessment/p1-office-mime/runner.py",
+      "bytes": 6443,
+      "sha256": "6f320cf5ec40281db1e268fc36bd2dcac2465512c45c8a1f18624afade2675e7"
+    },
+    {
+      "path": "experiments/architecture-reassessment/p1-office-mime/src/main.rs",
+      "bytes": 16902,
+      "sha256": "6f8a1c2638b56da5b32cff955b0f6b81a7b9c071b629a90c53c0a022cda85fc7"
+    }
+  ]
+}

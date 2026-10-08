@@ -1,5 +1,159 @@
 # Current development status
 
+## Selected CI performance fix, merge and GUI/live qualification — 2026-10-08
+
+The owner selects fixing the long Mac CI path, merging the eligible PR87/PR88
+dependency stack in order, then continuing GUI and live-AI usefulness
+qualification. The [current continuation](work/active/retained-evidence-investigation/plan.md#owner-continuation-ci-performance-integration-and-live-qualification--2026-10-08)
+owns this later authority, profiling, verification and integration receipts.
+PR88 source `936dff4` passed all four required checks plus documentation in
+[run37783868867](https://github.com/ewq100/brn-rust/actions/runs/37783868867).
+PR87 is merged at `e65cd51`, with a tree identical to its checked head.
+The unchanged full-size recovery/Undo test passed in 51.84 seconds versus
+396.82 seconds locally with test optimization level 1; assertions and overflow
+checks remain enabled. Final hosted checks exposed an old exact cache key preventing new-profile
+artifacts from being saved; the key now includes the root Cargo manifest.
+Final PR88/cache gates and integration are underway.
+Main's four required checks and strict up-to-date policy remain enforced.
+Further UX tuning is deferred; Windows portability and optional model downloads
+remain separate. An isolated synthetic qualification workspace is prepared;
+the remote Mac is locked and both standard-route providers are disconnected.
+Unlock/sign-in are pending prerequisites, with zero live completions so far.
+
+## Selected retained-evidence investigation — 2026-10-08
+
+The owner selects moving to retained-evidence AI investigation, including already
+approved Sources, with UX tuning deferred. The [bounded first P3 slice](work/active/retained-evidence-investigation/plan.md)
+extends existing collection investigation and exact consequence review, preserving
+retained pictures and Source approval history. Baseline PR87 source `255dcf1`
+passed all four required CI checks plus documentation in
+[run37777829649](https://github.com/ewq100/brn-rust/actions/runs/37777829649).
+The Windows Unix-portability probe remains an informational failure and separate
+pending decision. This follow-up uses `codex/retained-evidence-investigation`,
+stacked on PR87; no merge/release, full P3, private data, live trial or optional
+model download is selected. The candidate supports Applied Sources with exact
+receipt binding, fresh evidence/identity checks and dependent-only approval. Four
+focused worker tests, 319 combined native/widget tests plus seven CLI tests,
+default all-target Clippy and independent review passed. Broader local and hosted
+gates remain pending in the selected plan/PR receipt; live usefulness and GUI
+observation for this new path remain unqualified.
+
+## CI repair selected and Mac cause diagnosed — 2026-10-08
+
+The owner authorizes CI repair and supervision of PR87. Hosted test-only timings
+show the failing three-member group completing all Applied approvals in 13.481
+seconds, after the harness's ten-second deadline. The focused correction gives
+validated groups ten seconds per sequential member with one absolute deadline;
+ordinary and invalid-request waits retain ten seconds. Production approval and
+recovery behavior, guards, fixtures and assertions are unchanged. Two focused
+group-related tests, native-workflow all-target Clippy and independent review
+passed. [The CI-repair checkpoint](work/active/architecture-reassessment/plan.md#selected-ci-repair-and-supervision--2026-10-08)
+records the exact hosted diagnosis and final-run gate. Corrected source `255dcf1`
+subsequently passed all four required checks plus documentation; PR87's receipt
+owns the final hosted results. Windows is informational under branch protection; its existing Unix-API
+build failure awaits the owner's port-versus-deferral decision. UX stays deferred.
+
+## Owner priority: backend readiness, UX deferred — 2026-10-08
+
+The owner explicitly defers further UX tuning and wants to continue functional
+work once the underlying backend is qualified. Presentation polish is no longer
+a continuation gate. This does not grant full P2 acceptance or merge/release approval.
+
+New owner MacBook evidence at `986632601a260697252c2e7044780789d2dc688a`
+includes a clean-build manifest, two successful headless runs and twelve
+[hash-verified screenshots](ui/screenshots/2026-10-08/INDEX.md#guided-macbook-evidence--9866326).
+They show readable extraction/charts, Source draft and Applied review, and saved
+historical reading in restart-labelled captures. No AI usefulness is established.
+
+Historical handoff-head CI before the selected CI repair, at `1bfa8386a3a4832e49bc94e9e8e3f9d16e227965`,
+has completed: docs, Ubuntu core and native UI passed; both Mac workflow lanes
+failed the paired P2 test waiting for `ApproveProposalGroup` after 10 seconds,
+and Windows failed compiling Unix authentication APIs. The focused unchanged
+native-workflow paired test passed locally again (single + plural, 19.10 seconds
+total), so the CI failure is unresolved rather than a proven broken approval or
+a proven harmless timeout. The [current backend handoff](work/active/architecture-reassessment/plan.md#backend-continuation-and-explicit-ux-deferral)
+owns the diagnostic and next functional scope. Defer cosmetic changes; first
+resolve grouped-approval qualification, then specify retained-evidence AI
+investigation, including already approved Sources, as the next bounded slice.
+
+
+## Guided Inbox implementation checkpoint — 2026-10-08
+
+The owner-approved follow-up is implemented on PR87 at source
+`986632601a260697252c2e7044780789d2dc688a`: import/select/local reading, safe
+readable evidence and named attachments, exact retained-version reopening,
+focused proposal cards and offline Source review, with technical/recovery tools
+secondary. Existing exact approval/group mechanisms remain authoritative.
+The [fresh evidence and handoff](work/active/architecture-reassessment/plan.md#guided-inbox-implementation-evidence-and-handoff)
+records 1,629 default workspace passes, 326 final native desktop passes, five
+guided worker journeys, shipping builds, 52 fixture assertions and two packaged
+restarts. Native workflow/model boundaries passed 397 tests (15 ignored), and
+native retrieval passed 15 tests. The completed hosted results and later owner
+evidence are recorded above; the failed Mac workflow gates remain unresolved.
+
+A fresh isolated local app and MacBook agent prompt are prepared. The execution
+Mac remains locked; the owner subsequently supplied the new MacBook GUI evidence
+above and explicitly deferred further UX tuning. Full P2 acceptance remains pending.
+The guided image-preserving AI path requires a pending extracted Source; settled
+Sources and text-only copies show explicit limits. No AI trials, optional model
+downloads, account changes, merge or release occurred. Earlier owner MacBook
+results below retain their exact older-commit attribution.
+
+## Owner MacBook verification and Inbox proposal — 2026-10-08
+
+The owner tested PR87 at exact commit
+`64db36ec42d42a9d005797d7c7b2950b187f07e9` on an Apple M5 Pro MacBook,
+macOS 26.5. Both locked builds, bundled-helper packaging, two headless startup/
+shutdown runs and actual GUI launch passed. The bundled helper parsed `plural.eml`
+into 8 source nodes, 1 image asset, 3 occurrences and 4 gaps. GUI conversion and
+chart display passed; both imported copies remained listed after full Quit/restart.
+These are owner-reported bounded local results, supported by five supplied
+[screenshots](ui/screenshots/2026-10-08/INDEX.md), not a rerun by the lead.
+
+The owner could not navigate Inbox without guidance: newly imported items required
+manual Refresh, and the long view mixes reading with technical and recovery controls.
+The [proposed Inbox scope](work/active/architecture-reassessment/plan.md#owner-macbook-verification-and-proposed-inbox-ui--2026-10-08)
+is **Import → Read email/attachments → Review proposed notes → Approve** using the
+existing evidence/proposal/application paths. The owner subsequently approved
+implementation with “yes”; the selected follow-up is in progress on PR87. Reopening retained extraction after restart,
+Source approval, grouped consequences and AI usefulness remain unverified by this
+owner run. No AI trials or optional model downloads occurred. P2 acceptance and
+merge/release approval are not granted; prior dated evidence remains historical.
+
+## P2 selected implementation — 2026-10-07
+
+The owner selects the merged [P2 specification](work/active/architecture-reassessment/p2-conditional-spec.md)
+and authorizes production implementation and an implementation PR. Earlier pause
+and finalization-only statements below are historical. Baseline PR86 merge
+`47f12c05dadcabd899f015f4d8e2b904f12d8557`; the
+[execution checkpoint](work/active/architecture-reassessment/plan.md#selected-p2-implementation--2026-10-07)
+tracks milestones, replacement/retirement and gates. No merge/release/P3/private
+vault operation is authorized. Maintained EML/DOCX extraction, immutable evidence,
+private investigation and exact grouped consequences are implemented in the task
+branch; the default workspace gate passed 1,613 tests plus 52 fixture assertions.
+Native feature checks passed 726 tests, shipping builds, two AppWorker restarts
+and a fresh 52-assertion fixture run. Actual BRN GUI review/restart is blocked by
+the locked Mac. The standard subscription route is
+disconnected, so live Sol/Luna usefulness and owner acceptance remain unverified.
+[Draft PR87](https://github.com/ewq100/brn-rust/pull/87) carries the implementation
+review handoff. Tested implementation source is `55ef38840bc08f2acf42a380a911cade9dbc7214`;
+subsequent handoff edits are documentation only. This is an implementation
+checkpoint, not a merge or P2 acceptance claim.
+
+## PR86 accepted specification and integration handoff — 2026-10-07
+
+The owner accepts the revised maintained-adapter [P2 specification and retirement inventory](work/active/architecture-reassessment/p2-conditional-spec.md), with unavailable separate picture titles allowed when exact mapping is unqualified, correct image/source/occurrence associations and honest omission reporting required, and no title-driven custom XML scanner. Retirement, unfinished-work recovery, higher-level API reuse and V1 scope decisions are preserved. Only PR86 finalization/merge after final-head checks and applicable policy is authorized now; P2 implementation remains unselected.
+
+The [canonical fresh-agent handoff](work/active/architecture-reassessment/plan.md#pr86-finalization-and-canonical-fresh-agent-handoff) owns accepted decisions, remaining integration/acceptance, known gaps and the existing bounded Sol/Luna authorization. [PR86's integration receipt](https://github.com/ewq100/brn-rust/pull/86) owns the final head, checks and merged baseline SHA. No further experiments, live-model calls, release or unrelated cleanup occur in finalization. Earlier status entries below are dated observations, superseded by this acceptance where they differ.
+
+## Selected P1 preparation — 2026-10-07
+
+**Later owner clarification:** maintained DOCX/MIME is the agreed direction, with no retained/rebuilt bespoke DOCX interpreter. The [updated P2 specification](work/active/architecture-reassessment/p2-conditional-spec.md) separates saved-record readers from conversion and requires retained originals, exact-proof recovery and renewed review for unfinished legacy work. A focused 0.3.0 API check demonstrates structured/Markdown/package reuse with a larger graph and explicit title/prefix gaps. Production adoption/implementation and merge remain unselected.
+
+Fresh remote main is `3d59cdd4d6379b526fed19f6a339cfd2dce2dead`, the confirmed PR85 merge. The owner has now selected the bounded Office/MIME adoption evaluation and authorized a conditional P2 specification, checks, independent review and one reviewable PR. The [P1 evidence and handoff](work/active/architecture-reassessment/p1-evidence.md) and [conditional P2 specification](work/active/architecture-reassessment/p2-conditional-spec.md) own this later pass. Production dependency adoption, implementation and merge remain pending owner selection; no live-model campaign or private-data operation is part of it. Existing worktrees and dirty work are preserved.
+
+P1 now demonstrates useful producer DOCX/PPTX/MIME extraction, exact parent/attachment/repeated-PNG associations, visible chart omissions, native helper restrictions and cancellation, with measured isolated costs. Recommend bounded BetterOffice DOCX 0.3.0 + mail-parser 0.11.8 adoption for P2, conditional on owner selection and production gates. The actual P2 replacement/retirement inventory and two acceptance stories are specified. Oracle, strict experiment Clippy/format, artifact/graph checks and independent Sol High review passed. Native/live product usefulness, hard RSS enforcement and full bundle/install/update qualification remain open; no production change, acceptance or merge is claimed.
+
 ## Current reassessment checkpoint — 2026-10-07
 
 Fetched main is `67818388112c400802097763b9eeed8aa87bb465` (PR83/H2), including H1 at f3cf699. The PR77 identity below is the Office feature checkpoint, not current HEAD. Open result/docs PRs inspected: PR84 H4 head0f3e277, PR80 H5 headbe59a7a, PR82 H1 integration head8018755. H1/H2 are implemented and merged; H1 owner acceptance remains pending. Prior test counts are historical; this reassessment does not add native/live/owner qualification.

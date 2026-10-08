@@ -17,7 +17,7 @@ impl Render for AnalysisProbe {
             } else if desktop.open_doc == Some(DocRef::Findings) {
                 desktop.render_findings(cx)
             } else {
-                desktop.render_inbox(cx)
+                desktop.render_inbox_advanced(cx)
             };
             div()
                 .id("analysis-test-pane")
@@ -294,7 +294,7 @@ fn complete_saved_source_widget_copy_and_explicit_start_preserve_proof_and_later
         window.click("inbox-analysis-start", cx);
         let ai = desktop.read(cx).ai.as_ref().unwrap();
         let request = ai.inbox_analysis.request.as_ref().unwrap();
-        assert_eq!(*request.source, source);
+        assert_eq!(**request.source.as_ref().unwrap(), source);
         assert_eq!(request.selection.model, "synthetic-luna");
         assert_eq!(request.effort, ReasoningEffort::Low);
         assert_eq!(
@@ -351,7 +351,8 @@ fn retained_source_and_unsaved_partial_are_distinct_copyable_and_readonly(
                         purpose: request.purpose,
                         id,
                         conversation: request.conversation,
-                        source: source.source.clone(),
+                        source: Some(source.source.clone()),
+                        intake: None,
                         source_text: source.text.clone(),
                         provider: "chatgpt".into(),
                         model: "synthetic-luna".into(),

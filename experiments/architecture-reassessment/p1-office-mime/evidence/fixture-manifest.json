@@ -1,0 +1,49 @@
+{
+  "producers": {
+    "python-docx": "1.2.0",
+    "python-pptx": "1.0.2",
+    "Pillow": "12.3.0"
+  },
+  "files": {
+    "forecast.xlsx": {
+      "bytes": 4879,
+      "sha256": "916dc333d40b37dce3b0a32e4b9ea6bea145fee8369271778ca7e71196d04704"
+    },
+    "harbor.docx": {
+      "bytes": 55345,
+      "sha256": "46a227162352ff616344ab5bc91350d1c1f2810bb099f873ab49979c3133df85"
+    },
+    "harbor.pptx": {
+      "bytes": 57468,
+      "sha256": "8fa8c3d08fc157cd08d4a5cb17c48c54ca7b7723930b6d35c484f9b975455280"
+    },
+    "hostile-dtd.docx": {
+      "bytes": 198,
+      "sha256": "c5da4fb9c60f4c9455f6216ddef345c059953f3879afbb849239a3d5b8fb967b"
+    },
+    "hostile-inflate.docx": {
+      "bytes": 17473,
+      "sha256": "c79196faaded8e6d6f9eeb2a2b733607ee1e7b49a7affc076a0bb9c1b033d019"
+    },
+    "hostile-members.docx": {
+      "bytes": 49563,
+      "sha256": "befb44dbb220473403906cbbf4485e5561f5714e9dd8a171647cd22b561c32f2"
+    },
+    "hostile-path.docx": {
+      "bytes": 120,
+      "sha256": "c85c4bad47aa98a3b763eade88307968da6ab18a42619d9a2d54007a841ecb74"
+    },
+    "plural.eml": {
+      "bytes": 111544,
+      "sha256": "f10516cc3db6eb065290c9e372aba0a80373f2a7bc9b8582e51562e719c48c14"
+    },
+    "single.eml": {
+      "bytes": 104626,
+      "sha256": "47f34537c79fb7ad86f4751f6b59d856af5819e4e5918b93775403fd4970dd82"
+    },
+    "water-use.png": {
+      "bytes": 19936,
+      "sha256": "f76dd37920a0fc5889b1d53a0c448f7ec6c619ed8200eef5d31621e36ca4d61d"
+    }
+  }
+}

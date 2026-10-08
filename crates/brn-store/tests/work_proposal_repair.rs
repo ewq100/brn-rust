@@ -26,6 +26,7 @@ fn draft() -> ProposalDraft {
         inode: 1,
     };
     ProposalDraft {
+        intake: None,
         inbox_visual: None,
         inbox_knowledge: None,
         inbox_source: None,

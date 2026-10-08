@@ -6,7 +6,7 @@ use brn_workflow::{
     app_worker::AppWorker,
     inbox::CaptureBinaryInboxRequest,
     inbox_actions::{InboxActionAnalysis, InboxAnalysisPurpose, InboxVisualEvidence},
-    inbox_processing::{InboxCandidateRequest, InboxSourceRequest, ProcessInboxRequest},
+    inbox_processing::InboxCandidateRequest,
     proposals::{DraftNoteChange, DraftRequest, ProposalSource},
 };
 use std::fs;
@@ -51,63 +51,57 @@ pub(crate) fn visual_fixture_with_preview() -> (
     else {
         panic!("capture")
     };
-    let request = ProcessInboxRequest {
-        id: Uuid::new_v4(),
-        items: vec![*item],
-    };
-    worker
-        .submit(request.id, AppCommand::ProcessInbox(request.clone()))
-        .unwrap();
-    loop {
-        let (id, event) = worker.recv_event_timeout(Duration::from_secs(10)).unwrap();
-        if id != request.id {
-            continue;
-        }
-        match event {
-            AppEvent::InboxProcessing(batch) if batch.pending_count() == 0 => break,
-            AppEvent::InboxProcessing(_) => {}
-            _ => panic!("unexpected processing reply"),
-        }
-    }
-    let AppEvent::InboxCandidate(preview) = reply(
-        &worker,
-        Uuid::new_v4(),
-        AppCommand::InboxCandidate(InboxCandidateRequest {
-            batch_id: request.id,
-            index: 0,
-        }),
-    ) else {
-        panic!("real conversion preview")
-    };
-    let AppEvent::InboxSourceDraft(draft) = reply(
-        &worker,
-        Uuid::new_v4(),
-        AppCommand::PrepareInboxSource(InboxSourceRequest {
-            candidate: InboxCandidateRequest {
-                batch_id: request.id,
-                index: 0,
-            },
-            proposal_id: Uuid::new_v4(),
-            note_id: Uuid::new_v4(),
-            path: "source.md".into(),
-            title: "Exact Source and PNG".into(),
-        }),
-    ) else {
-        panic!("source draft")
-    };
-    assert!(!owner.path().join("vault/source.md").exists());
-    let AppEvent::Proposal(record) =
-        reply(&worker, Uuid::new_v4(), AppCommand::CreateProposal(*draft))
-    else {
-        panic!("create")
-    };
-    let approval = ApprovalRequest {
-        operation_id: Uuid::new_v4(),
-        expected: record.stamp(),
-    };
-    assert!(
-        matches!(reply(&worker, approval.operation_id, AppCommand::ApproveProposal(approval)), AppEvent::ProposalApplied(receipt) if receipt.outcome == ApplyOutcome::Applied)
+    // Historical-record witness: seed a canonical previously saved Source and asset.
+    // New imports use maintained plural extraction and cannot produce this legacy profile.
+    let original = *item;
+    let png = include_bytes!("../../brn-workflow/src/inbox_processing/fixtures/inline.png");
+    let asset_name = format!(
+        "brn-inbox-image-{}-1.png",
+        brn_intake::hex(&original.capture.copy.sha256)
     );
+    let payload: serde_json::Value = serde_json::from_str(include_str!(
+        "../../brn-workflow/src/inbox_processing/fixtures/inline-png.legacy.json"
+    ))
+    .unwrap();
+    let body = payload["body"].as_str().unwrap().to_owned();
+    let mut metadata = payload["visual"].clone();
+    metadata.as_object_mut().unwrap().remove("bytes");
+    metadata["converted_byte_len"] = body.len().into();
+    metadata["converted_sha256"] = serde_json::json!(brn_intake::digest(body.as_bytes()));
+    let proof: brn_workflow::inbox_processing::InboxSourceVisual =
+        serde_json::from_value(metadata).unwrap();
+    let binding = brn_workflow::inbox_processing::InboxSourceBinding {
+        extraction: None,
+        visual: Some(proof.clone()),
+        batch_id: Uuid::new_v4(),
+        index: 0,
+        original: original.clone(),
+        format: brn_workflow::inbox_processing::InboxConversionFormat::DocxInlinePngV1,
+        byte_len: body.len() as u64,
+        sha256: brn_intake::digest(body.as_bytes()),
+        note_id: Uuid::new_v4(),
+    };
+    fs::write(
+        owner.path().join("vault/source.md"),
+        binding.markdown(&body).unwrap(),
+    )
+    .unwrap();
+    fs::write(owner.path().join("vault").join(&asset_name), png).unwrap();
+    let preview = brn_workflow::inbox_processing::InboxConversionPreview {
+        extraction: None,
+        visual: Some(brn_workflow::inbox_processing::InboxVisualPreview {
+            proof,
+            bytes: png.to_vec(),
+        }),
+        request: InboxCandidateRequest {
+            batch_id: binding.batch_id,
+            index: 0,
+        },
+        original,
+        format: binding.format,
+        markdown: body,
+        needs_semantic_review: true,
+    };
     let AppEvent::InboxVisualEvidence(evidence) = reply(
         &worker,
         Uuid::new_v4(),
@@ -123,7 +117,7 @@ pub(crate) fn visual_fixture_with_preview() -> (
         include_bytes!("../../brn-workflow/src/inbox_processing/fixtures/inline.png")
     );
     assert_eq!(preview.visual.as_ref().unwrap().bytes, evidence.bytes);
-    (owner, evidence, *preview)
+    (owner, evidence, preview)
 }
 fn reply(worker: &AppWorker, id: Uuid, command: AppCommand) -> AppEvent {
     worker.submit(id, command).unwrap();
@@ -195,8 +189,8 @@ pub(crate) fn annotation(record: &InboxActionAnalysis) -> DraftRequest {
             "uncertainty": "The 1 × 1 PNG cannot establish details."}
     })).unwrap();
     draft.changes = vec![DraftNoteChange::Replace {
-        path: capture.source.path.clone(),
-        expected: capture.source.fingerprint.clone(),
+        path: capture.source.as_ref().unwrap().path.clone(),
+        expected: capture.source.as_ref().unwrap().fingerprint.clone(),
         text: draft
             .inbox_visual
             .as_ref()
@@ -421,7 +415,16 @@ fn retained_visual_reply_requires_exact_purpose_asset_and_capture_before_prepara
                     .fingerprint
                     .inode += 1
             }
-            _ => forged.job.capture.source.fingerprint.inode += 1,
+            _ => {
+                forged
+                    .job
+                    .capture
+                    .source
+                    .as_mut()
+                    .unwrap()
+                    .fingerprint
+                    .inode += 1
+            }
         }
         assert!(
             state

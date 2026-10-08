@@ -519,6 +519,7 @@ impl Desktop {
                 }
             }
             EditorTransition::Inbox | EditorTransition::AnalyzeInboxSource(_) => {
+                self.inbox.guided_advanced = analysis_path.is_some();
                 self.clear_saved_link_panel();
                 self.clear_saved_sources();
                 let ai = self.ai.as_mut().unwrap();

@@ -60,11 +60,20 @@ impl DraftForm {
     /// Retain the complete workflow-prepared Source creation for exact review.
     pub fn from_inbox_source(request: DraftRequest) -> brn_workflow::Result<Self> {
         request.validate()?;
-        let [DraftNoteChange::Create { path, text }] = request.changes.as_slice() else {
+        let [DraftNoteChange::Create { path, text }, assets @ ..] = request.changes.as_slice()
+        else {
             return Err(brn_workflow::WorkflowError::msg(
                 "Prepared Inbox Source review needs exactly one new Source note.",
             ));
         };
+        if assets
+            .iter()
+            .any(|change| !matches!(change, DraftNoteChange::CreateAsset { .. }))
+        {
+            return Err(brn_workflow::WorkflowError::msg(
+                "Prepared Inbox Source review may only include its validated image assets.",
+            ));
+        }
         if request.inbox_source.is_none() {
             return Err(brn_workflow::WorkflowError::msg(
                 "Prepared Inbox Source review needs its complete original and conversion binding.",
@@ -326,6 +335,7 @@ impl DraftForm {
             },
         };
         let request = DraftRequest {
+            intake: None,
             inbox_visual: None,
             inbox_knowledge: None,
             inbox_source: None,

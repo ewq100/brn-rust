@@ -195,6 +195,7 @@ pub(super) fn read(conn: &Connection, item_id: Uuid) -> Result<InboxReviewManife
         if provenance.item_id == item_id {
             let capture = &manifest.original.capture;
             let expected = inbox_source::InboxSourceProvenance {
+                extraction: None,
                 visual: provenance.visual.clone(),
                 item_id,
                 kind: capture.kind,
@@ -212,7 +213,9 @@ pub(super) fn read(conn: &Connection, item_id: Uuid) -> Result<InboxReviewManife
             }
             groups.insert(id);
             source_ids.insert(job.capture.note_id()?);
-            source_paths.insert(job.capture.source.path.clone());
+            if let Some(source) = &job.capture.source {
+                source_paths.insert(source.path.clone());
+            }
             let analysis = InboxAnalysisReview {
                 job,
                 turn: chat::read_turn(conn, id)?.map(|(turn, _)| turn),

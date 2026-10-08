@@ -17,6 +17,270 @@ use brn_ai::{
 use serde_json::{Value, json};
 use sha2::{Digest, Sha256};
 use std::sync::atomic::AtomicUsize;
+use std::{panic::Location, time::Instant};
+
+// Match only enum variants: payloads can contain private evidence or credentials.
+macro_rules! variant_name {
+    ($value:expr, $kind:ident, [$($unit:ident),*], [$($tuple:ident),*], [$($fields:ident),*]) => {
+        match $value {
+            $($kind::$unit => stringify!($unit),)*
+            $($kind::$tuple(..) => stringify!($tuple),)*
+            $($kind::$fields { .. } => stringify!($fields),)*
+        }
+    };
+}
+
+fn command_name(command: &AppCommand) -> &'static str {
+    variant_name!(
+        command,
+        AppCommand,
+        [
+            Status,
+            Refresh,
+            Selection,
+            Effort,
+            Editors,
+            IdentityInventory,
+            ProposalApplies,
+            ProposalRecovery,
+            Conversations,
+            ModelPrompt
+        ],
+        [
+            BindVault,
+            Select,
+            SelectEffort,
+            Note,
+            OpenEditor,
+            ReloadEditor,
+            RecoverEditor,
+            SaveEditor,
+            ReconcileEditor,
+            ProposalSource,
+            ProposalEvidenceSource,
+            ProposalAsset,
+            NoteIdentity,
+            ResolveNoteIdentity,
+            EvidenceNote,
+            PrepareNoteIdentity,
+            NoteProvenance,
+            NoteLinks,
+            PrepareNoteLink,
+            Relationships,
+            CaptureFinding,
+            Actions,
+            ActionDashboard,
+            Action,
+            CompleteAction,
+            CaptureInbox,
+            CaptureBinaryInbox,
+            InboxItems,
+            InboxItem,
+            InboxReview,
+            PreviewInboxRemoval,
+            RemoveInboxOriginal,
+            RestoreInboxOriginal,
+            InboxOriginalRemoval,
+            InboxOriginalRestore,
+            InboxOriginalOperations,
+            ArchivedInboxAnalysis,
+            ProcessInbox,
+            InboxProcessing,
+            InboxCandidate,
+            InboxExtraction,
+            InboxRetainedExtractions,
+            PrepareInboxSource,
+            PrepareInboxVisualAnnotation,
+            InboxVisualEvidence,
+            CancelInboxProcessing,
+            Findings,
+            NoteConflicts,
+            Finding,
+            CloseFinding,
+            InspectFinding,
+            CaptureCitation,
+            PrepareNoteProvenance,
+            CreateProposal,
+            Proposal,
+            Proposals,
+            EditProposal,
+            RewriteProposal,
+            StartProposalRewrite,
+            ProposalRewrite,
+            AddProposalComment,
+            UpdateProposalComment,
+            RejectProposal,
+            ApproveProposal,
+            ReconcileProposal,
+            PreviewProposalUndo,
+            UndoProposal,
+            PreviewProposalRepair,
+            RepairProposal,
+            ApproveProposalGroup,
+            ProposalApply,
+            Activity,
+            Turns,
+            Turn,
+            Ask,
+            AnalyzeInboxActions,
+            InboxActionAnalysis,
+            CancelTurn,
+            CancelAccount,
+            CancelModelDownload
+        ],
+        [
+            TestPause,
+            Notes,
+            ScopedNotes,
+            ScopedNote,
+            RemoveProposalComment,
+            RecoverEdit,
+            Search,
+            ScopedSearch,
+            InboxIntakeBinding,
+            Account,
+            DownloadModel
+        ]
+    )
+}
+
+fn event_name(event: &AppEvent) -> &'static str {
+    variant_name!(
+        event,
+        AppEvent,
+        [
+            VaultBound,
+            SelectionSaved,
+            EffortSaved,
+            EditRecovered,
+            ModelInstalled,
+            ModelDownloadDeclined
+        ],
+        [
+            Status,
+            Selection,
+            Effort,
+            Refreshed,
+            Notes,
+            Note,
+            Editor,
+            EditorRecovered,
+            EditorSaved,
+            Editors,
+            ProposalSource,
+            ProposalAsset,
+            NoteIdentity,
+            IdentityInventory,
+            NoteIdentityResolved,
+            EvidenceNote,
+            NoteIdentityDraft,
+            NoteProvenance,
+            NoteLinks,
+            NoteLinkDraft,
+            Relationships,
+            Finding,
+            Action,
+            Actions,
+            ActionDashboard,
+            ActionCompleted,
+            InboxCaptured,
+            InboxItems,
+            InboxItem,
+            InboxReview,
+            InboxRemovalPreview,
+            InboxOriginalRemoved,
+            InboxOriginalRestored,
+            InboxProcessing,
+            InboxCandidate,
+            InboxExtraction,
+            InboxSourceDraft,
+            InboxVisualDraft,
+            InboxVisualEvidence,
+            InboxIntakeBinding,
+            InboxActionAnalysis,
+            Findings,
+            NoteConflicts,
+            FindingInspection,
+            CitationCaptured,
+            NoteProvenanceDraft,
+            Proposal,
+            ProposalRewrite,
+            Rewrite,
+            Proposals,
+            ProposalApplied,
+            ProposalUndoPreview,
+            ProposalRepairPreview,
+            ProposalRepaired,
+            ProposalGroupApplied,
+            ProposalApplies,
+            ProposalRecovery,
+            ProposalApply,
+            Activity,
+            Search,
+            Conversations,
+            Turns,
+            Turn,
+            Chat,
+            Account,
+            ModelPrompt,
+            ModelDownloaded,
+            Failed
+        ],
+        [
+            Ready,
+            Restored,
+            InboxOriginalRemoval,
+            InboxOriginalRestore,
+            InboxOriginalOperations,
+            ArchivedInboxAnalysis,
+            InboxRetainedExtractions,
+            Indexing,
+            TurnCancelRequested,
+            AccountCancelRequested,
+            ModelCancelRequested,
+            ModelDownload
+        ]
+    )
+}
+
+struct OperationWait {
+    operation: Uuid,
+    command: &'static str,
+    caller: &'static Location<'static>,
+    started: Instant,
+    ceiling: Duration,
+    last_event: Option<(&'static str, Uuid)>,
+}
+impl OperationWait {
+    #[track_caller]
+    fn new(operation: Uuid, command: &'static str) -> Self {
+        Self {
+            operation,
+            command,
+            caller: Location::caller(),
+            started: Instant::now(),
+            ceiling: Duration::from_secs(10),
+            last_event: None,
+        }
+    }
+
+    fn event(&mut self, worker: &AppWorker) -> (Uuid, AppEvent) {
+        let remaining = self.ceiling.saturating_sub(self.started.elapsed());
+        let received = if remaining.is_zero() {
+            Err(std::sync::mpsc::RecvTimeoutError::Timeout)
+        } else {
+            worker.recv_event_timeout(remaining)
+        };
+        let (id, event) = received.unwrap_or_else(|error| {
+            panic!(
+                "worker wait failed: command={} operation={} caller={} elapsed={:?} ceiling={:?} last_event={:?} receive={error:?}",
+                self.command, self.operation, self.caller, self.started.elapsed(), self.ceiling, self.last_event,
+            )
+        });
+        self.last_event = Some((event_name(&event), id));
+        (id, event)
+    }
+}
 
 struct SourceFixture {
     source: ProposalSource,
@@ -25,20 +289,32 @@ struct SourceFixture {
     raw: String,
 }
 
+#[track_caller]
 fn reply_at(worker: &AppWorker, operation: Uuid, command: AppCommand) -> AppEvent {
+    let mut wait = OperationWait::new(operation, command_name(&command));
+    if let AppCommand::ApproveProposalGroup(request) = &command
+        && request.validate().is_ok()
+    {
+        // A captured group executes its atomic approvals sequentially. Give
+        // each member the ordinary test allowance, retaining one absolute
+        // group deadline that unrelated events cannot extend.
+        wait.ceiling *= request.approvals.len() as u32;
+    }
     worker.submit(operation, command).unwrap();
     loop {
-        let (id, value) = event(worker);
+        let (id, value) = wait.event(worker);
         if id == operation {
             return value;
         }
     }
 }
 
+#[track_caller]
 fn reply(worker: &AppWorker, command: AppCommand) -> AppEvent {
     reply_at(worker, Uuid::new_v4(), command)
 }
 
+#[track_caller]
 fn capture_source(worker: &AppWorker, raw: &str) -> SourceFixture {
     let capture = CaptureInboxRequest {
         id: Uuid::new_v4(),
@@ -55,14 +331,17 @@ fn capture_source(worker: &AppWorker, raw: &str) -> SourceFixture {
         panic!("capture response");
     };
     let process = ProcessInboxRequest {
+        limits: None,
+
         id: Uuid::new_v4(),
         items: vec![(*original).clone()],
     };
+    let mut wait = OperationWait::new(process.id, "ProcessInbox");
     worker
         .submit(process.id, AppCommand::ProcessInbox(process.clone()))
         .unwrap();
     loop {
-        let (id, value) = event(worker);
+        let (id, value) = wait.event(worker);
         if id != process.id {
             continue;
         }
@@ -126,11 +405,12 @@ fn capture_source(worker: &AppWorker, raw: &str) -> SourceFixture {
 
 fn request(source: &SourceFixture) -> InboxActionRequest {
     InboxActionRequest {
+        intake: None,
         visual_asset: None,
         purpose: Default::default(),
         id: Uuid::new_v4(),
         conversation: None,
-        source: Box::new(source.source.clone()),
+        source: Some(Box::new(source.source.clone())),
         selection: Selection {
             provider: Provider::Chatgpt,
             model: "gpt-6-luna".into(),
@@ -202,12 +482,14 @@ fn tool_reply(result: brn_ai::AiResult<Value>) -> Value {
     }
 }
 
+#[track_caller]
 fn finish(
     worker: &AppWorker,
     request: &InboxActionRequest,
 ) -> std::result::Result<WorkTurn, WorkflowError> {
+    let mut wait = OperationWait::new(request.id, "AnalyzeInboxActions");
     loop {
-        let (outer, value) = event(worker);
+        let (outer, value) = wait.event(worker);
         if outer != request.id {
             continue;
         }
@@ -230,6 +512,7 @@ fn finish(
     }
 }
 
+#[track_caller]
 fn analyze(
     worker: &AppWorker,
     request: &InboxActionRequest,
@@ -365,7 +648,10 @@ fn inbox_action_worker_preserves_scope_group_complete_proof_and_exact_approval()
     let inspected = analysis(&worker, request.id);
     assert!(inspected.needs_semantic_review);
     assert_eq!(json!(inspected.turn), json!(Some(&turn)));
-    assert_eq!(inspected.job.capture.source, source.source.source);
+    assert_eq!(
+        inspected.job.capture.source,
+        Some(source.source.source.clone())
+    );
     assert_eq!(inspected.job.capture.source_text, source.source.text);
     assert_eq!(inspected.job.capture.effort, "high");
     assert_eq!(inspected.proposals.len(), 2);
@@ -595,10 +881,26 @@ fn inbox_action_exact_restart_replay_survives_source_loss_and_rejects_changed_ca
     assert_eq!(json!(analysis(&worker, request.id)), json!(before));
     assert_eq!(calls.load(Ordering::SeqCst), 1);
     let mut changed_source = replay.clone();
-    changed_source.source.text.push_str("Different capture\r\n");
-    changed_source.source.source.fingerprint.len = changed_source.source.text.len() as u64;
-    changed_source.source.source.fingerprint.sha256 =
-        Sha256::digest(changed_source.source.text.as_bytes()).into();
+    changed_source
+        .source
+        .as_mut()
+        .unwrap()
+        .text
+        .push_str("Different capture\r\n");
+    changed_source
+        .source
+        .as_mut()
+        .unwrap()
+        .source
+        .fingerprint
+        .len = changed_source.source.as_mut().unwrap().text.len() as u64;
+    changed_source
+        .source
+        .as_mut()
+        .unwrap()
+        .source
+        .fingerprint
+        .sha256 = Sha256::digest(changed_source.source.as_mut().unwrap().text.as_bytes()).into();
     let mut changed_selection = replay.clone();
     changed_selection.selection.model = "gpt-5.5".into();
     let mut changed_effort = replay.clone();
@@ -667,7 +969,10 @@ fn inbox_action_fresh_consequence_refuses_source_changed_during_the_turn() {
     let result: Value = serde_json::from_str(&turn.answer).unwrap();
     assert_eq!(result["error"], json!(AiErrorKind::IndexStale));
     let inspected = analysis(&worker, request.id);
-    assert_eq!(inspected.job.capture.source, source.source.source);
+    assert_eq!(
+        inspected.job.capture.source,
+        Some(source.source.source.clone())
+    );
     assert!(inspected.proposals.is_empty());
     assert!(inspected.needs_semantic_review);
     no_actions(&worker);
@@ -740,6 +1045,7 @@ fn inbox_action_creation_replay_keeps_newer_review_after_source_loss_on_the_boun
     let captured = analysis(&worker, request.id).job;
     let mut current_presentation = request.clone();
     current_presentation.generation += 17;
+    let mut replay_wait = OperationWait::new(request.id, "AnalyzeInboxActions");
     worker
         .submit(
             request.id,
@@ -747,7 +1053,7 @@ fn inbox_action_creation_replay_keeps_newer_review_after_source_loss_on_the_boun
         )
         .unwrap();
     loop {
-        let (outer, value) = event(&worker);
+        let (outer, value) = replay_wait.event(&worker);
         if outer != request.id {
             continue;
         }
@@ -954,7 +1260,10 @@ fn inbox_action_no_action_failed_and_cancelled_turns_keep_original_and_pending_s
         );
         let inspected = analysis(&worker, request.id);
         assert_eq!(json!(inspected.turn), json!(Some(&turn)));
-        assert_eq!(inspected.job.capture.source, source.source.source);
+        assert_eq!(
+            inspected.job.capture.source,
+            Some(source.source.source.clone())
+        );
         assert!(inspected.proposals.is_empty());
         assert!(inspected.needs_semantic_review);
         no_actions(&worker);

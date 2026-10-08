@@ -1,7 +1,10 @@
 //! Retained Inbox presentation over typed AppWorker commands.
 use super::*;
 use brn_workflow::{
-    inbox::{CaptureInboxRequest, InboxAvailability, InboxItem, InboxKind, InboxOriginal},
+    inbox::{
+        CaptureBinaryInboxRequest, CaptureInboxRequest, InboxAvailability, InboxItem, InboxKind,
+        InboxOriginal, MAX_INBOX_BINARY_BYTES,
+    },
     inbox_processing::{
         InboxConversionPreview, InboxProcessOutcome, InboxSourceRequest, MAX_PROCESS_BATCH,
     },
@@ -18,6 +21,7 @@ pub(super) struct InboxPane {
     pub(super) kind: InboxKind,
     pub(super) original: Entity<EditorState>,
     pub(super) preview: Entity<EditorState>,
+    pub(super) retained_extraction: Entity<EditorState>,
     pub(super) copy_source: Entity<EditorState>,
     pub(super) source_title: Entity<TextareaState>,
     pub(super) source_path: Entity<TextareaState>,
@@ -31,8 +35,28 @@ pub(super) struct InboxPane {
     pub(super) analysis_path_target: Option<String>,
     pub(super) checked: Vec<InboxItem>,
     pub(super) scroll: ScrollHandle,
+    pub(super) guided_list_scroll: ScrollHandle,
+    pub(super) guided_read_scroll: ScrollHandle,
+    pub(super) guided_defaults_for: Option<Uuid>,
+    pub(super) guided_source_inputs: std::collections::BTreeMap<Uuid, (String, String)>,
+    pub(super) guided_proposals: bool,
+    pub(super) guided_paste: bool,
+    pub(super) guided_evidence: bool,
+    pub(super) guided_manage: bool,
+    pub(super) guided_advanced: bool,
+    pub(super) guided_source_options: bool,
+    pub(super) guided_attachment: Option<String>,
     selection_error: Option<String>,
     preview_snapshot: Option<InboxConversionPreview>,
+    pub(super) original_preview: Option<super::intake_preview::OriginalPreview>,
+    /// One encoded image allocation and GPUI image identity per unique checked content.
+    pub(super) intake_images:
+        std::collections::BTreeMap<(String, [u8; 32]), std::sync::Arc<gpui_kit::Image>>,
+}
+fn new_readonly_editor(window: &mut Window, cx: &mut Context<EditorState>) -> EditorState {
+    let mut editor = EditorState::new(window, cx).default_value("");
+    editor.set_readonly(true, cx);
+    editor
 }
 impl InboxPane {
     pub(super) fn new(window: &mut Window, cx: &mut Context<Desktop>) -> Self {
@@ -44,9 +68,10 @@ impl InboxPane {
             }),
             body: cx.new(|cx| EditorState::new(window, cx).default_value("")),
             kind: InboxKind::Text,
-            original: cx.new(|cx| EditorState::new(window, cx).default_value("")),
-            preview: cx.new(|cx| EditorState::new(window, cx).default_value("")),
-            copy_source: cx.new(|cx| EditorState::new(window, cx).default_value("")),
+            original: cx.new(|cx| new_readonly_editor(window, cx)),
+            preview: cx.new(|cx| new_readonly_editor(window, cx)),
+            retained_extraction: cx.new(|cx| new_readonly_editor(window, cx)),
+            copy_source: cx.new(|cx| new_readonly_editor(window, cx)),
             source_title: cx.new(|cx| {
                 TextareaState::new(window, cx)
                     .placeholder("Source proposal title")
@@ -67,15 +92,28 @@ impl InboxPane {
                     .placeholder("Retained analysis UUID")
                     .auto_grow(1, 3)
             }),
-            analysis_source: cx.new(|cx| EditorState::new(window, cx).default_value("")),
-            analysis_retained_source: cx.new(|cx| EditorState::new(window, cx).default_value("")),
-            analysis_answer: cx.new(|cx| EditorState::new(window, cx).default_value("")),
-            visual_annotation: cx.new(|cx| EditorState::new(window, cx).default_value("")),
+            analysis_source: cx.new(|cx| new_readonly_editor(window, cx)),
+            analysis_retained_source: cx.new(|cx| new_readonly_editor(window, cx)),
+            analysis_answer: cx.new(|cx| new_readonly_editor(window, cx)),
+            visual_annotation: cx.new(|cx| new_readonly_editor(window, cx)),
             analysis_path_target: None,
             checked: Vec::new(),
             scroll: ScrollHandle::new(),
+            guided_list_scroll: ScrollHandle::new(),
+            guided_read_scroll: ScrollHandle::new(),
+            guided_defaults_for: None,
+            guided_source_inputs: Default::default(),
+            guided_proposals: false,
+            guided_paste: false,
+            guided_evidence: false,
+            guided_manage: false,
+            guided_advanced: false,
+            guided_source_options: false,
+            guided_attachment: None,
             selection_error: None,
             preview_snapshot: None,
+            original_preview: None,
+            intake_images: Default::default(),
         }
     }
     fn capture_request(&self, cx: &App) -> CaptureInboxRequest {
@@ -93,7 +131,7 @@ fn kind_name(kind: InboxKind) -> &'static str {
     match kind {
         InboxKind::Text => "Text",
         InboxKind::Markdown => "Markdown",
-        InboxKind::Email => "Email copy",
+        InboxKind::Email => "Raw EML text",
         InboxKind::Teams => "Teams copy",
         InboxKind::Binary => "Binary original",
     }
@@ -116,7 +154,21 @@ fn outcome_text(outcome: &InboxProcessOutcome) -> String {
         } => {
             format!("Converted · {format:?} · {byte_len} bytes")
         }
-        InboxProcessOutcome::Failed { code } => format!("Failed · {code}"),
+        InboxProcessOutcome::Failed { code } => match code.as_str() {
+            "intake_unavailable" => {
+                "Extraction unavailable: build or install the intake helper".into()
+            }
+            "intake_timeout" => "Extraction stopped: configured time limit exceeded".into(),
+            "intake_quota" => {
+                "Extraction refused: configured resource quota exceeded; review the selected limits"
+                    .into()
+            }
+            "intake_protocol" => {
+                "Extraction refused: helper output failed integrity validation".into()
+            }
+            "intake_invalid" => "Extraction refused: malformed or unsupported document".into(),
+            _ => format!("Failed · {code}"),
+        },
         InboxProcessOutcome::Cancelled => "Cancelled".into(),
         InboxProcessOutcome::Interrupted => "Interrupted".into(),
     }
@@ -162,6 +214,38 @@ impl Desktop {
         self.inbox.preview_snapshot = queue.preview.clone();
         self.sync_inbox_copy_widgets(window, cx);
         self.sync_inbox_analysis_widgets(window, cx);
+        self.sync_intake_image_cache();
+        self.sync_guided_inbox_defaults(window, cx);
+    }
+    fn sync_intake_image_cache(&mut self) {
+        let ai = self.ai.as_ref().unwrap();
+        let extractions = [
+            ai.inbox_queue
+                .preview
+                .as_ref()
+                .and_then(|preview| preview.extraction.as_ref()),
+            ai.inbox_analysis
+                .retained_extraction
+                .as_ref()
+                .map(|snapshot| &snapshot.extraction),
+        ];
+        let assets: std::collections::BTreeMap<_, _> = extractions
+            .into_iter()
+            .flatten()
+            .flat_map(|extraction| extraction.assets.iter())
+            .map(|asset| ((asset.media_type.clone(), asset.sha256), asset))
+            .collect();
+        self.inbox
+            .intake_images
+            .retain(|key, _| assets.contains_key(key));
+        for (key, asset) in assets {
+            if let std::collections::btree_map::Entry::Vacant(entry) =
+                self.inbox.intake_images.entry(key)
+                && let Some(image) = super::visual::intake_image(asset)
+            {
+                entry.insert(image);
+            }
+        }
     }
     pub(super) fn inbox_blocked(&self) -> bool {
         !self.ai.as_ref().unwrap().ready
@@ -171,13 +255,205 @@ impl Desktop {
             || self.closed
             || self.close_failed
     }
-    fn capture_inbox_input(&mut self, cx: &mut Context<Self>) {
+    pub(super) fn capture_inbox_input(&mut self, cx: &mut Context<Self>) {
         if self.inbox_blocked() {
             return;
         }
         let request = self.inbox.capture_request(cx);
-        if let Some(command) = self.ai.as_mut().unwrap().capture_inbox(request) {
+        if let Some(command) = self.ai.as_mut().unwrap().import_text_inbox(request) {
             self.simple_send(command, cx);
+        }
+        cx.notify();
+    }
+    pub(super) fn choose_intake_file(&mut self, cx: &mut Context<Self>) {
+        if self.inbox_blocked() || self.choosing_file || self.ai.as_ref().unwrap().capture_pending()
+        {
+            return;
+        }
+        self.choosing_file = true;
+        let receiver = cx.prompt_for_paths(PathPromptOptions {
+            files: true,
+            directories: false,
+            multiple: false,
+            prompt: Some("Import an EML or DOCX original".into()),
+        });
+        let title = self.inbox.title.read(cx).value().to_string();
+        cx.spawn(async move |this, cx| {
+            let selected = receiver.await;
+            let path = match selected { Ok(Ok(Some(paths))) => paths.into_iter().next(), _ => None };
+            let request = if let Some(path) = path {
+                Some(cx.background_executor().spawn(async move {
+                    use std::io::Read;
+                    let extension = path.extension().and_then(|s| s.to_str()).unwrap_or("").to_ascii_lowercase();
+                    if !matches!(extension.as_str(), "eml" | "docx") { return Err("Choose an actual .eml or .docx file; other formats remain outside this intake profile.".to_string()); }
+                    let name = path.file_name().and_then(|s| s.to_str()).ok_or("Original filename is unavailable.")?.to_owned();
+                    let file = std::fs::File::open(&path).map_err(|e| format!("Cannot open selected original: {e}"))?;
+                    if !file.metadata().map_err(|e| e.to_string())?.is_file() { return Err("Choose a regular original file.".into()); }
+                    let mut bytes = Vec::new();
+                    file.take(MAX_INBOX_BINARY_BYTES as u64 + 1).read_to_end(&mut bytes).map_err(|e| format!("Cannot read selected original: {e}"))?;
+                    let request = CaptureBinaryInboxRequest { id: Uuid::new_v4(), title: if title.trim().is_empty() { name.clone() } else { title }, original_name: Some(name), bytes };
+                    request.validate().map_err(|e| e.message)?;
+                    Ok::<_, String>(request)
+                }).await)
+            } else { None };
+            let _ = this.update(cx, |this, cx| {
+                this.choosing_file = false;
+                if this.inbox_blocked() { cx.notify(); return; }
+                match request {
+                    Some(Ok(request)) => if let Some(command) = this.ai.as_mut().unwrap().import_binary_inbox(request) { this.simple_send(command, cx); },
+                    Some(Err(error)) => this.ai.as_mut().unwrap().inbox_queue.capture_error = Some(error),
+                    None => (),
+                }
+                cx.notify();
+            });
+        }).detach();
+        cx.notify();
+    }
+    pub(super) fn render_intake_extraction(
+        &self,
+        extraction: &brn_intake::Extraction,
+        retained: bool,
+        blocked: bool,
+        cx: &mut Context<Self>,
+    ) -> AnyElement {
+        let mut panel = div()
+            .id(if retained {
+                "retained-extraction-collection"
+            } else {
+                "queue-extraction-collection"
+            })
+            .flex()
+            .flex_col()
+            .gap_2();
+        panel = panel.child(div().id("intake-extraction-summary").test_support().child(format!("Private extraction · {} sources · {} exact images · {} distinct occurrences · {} gaps", extraction.sources.len(), extraction.assets.len(), extraction.occurrences.len(), extraction.gaps.len())));
+        let limits = &extraction.limits;
+        panel = panel.child(format!("Selected limits · input {} bytes · expanded {} bytes · package/MIME parts {}/{} · MIME depth {} · decoded {} bytes · image pixels {}/{} total · output {} bytes · {} ms", limits.max_input_bytes, limits.max_expanded_bytes, limits.max_package_parts, limits.max_mime_parts, limits.max_mime_depth, limits.max_decoded_bytes, limits.max_image_pixels, limits.max_total_image_pixels, limits.max_output_bytes, limits.wall_time_ms));
+        if let Some(usage) = &extraction.consumed {
+            panel = panel.child(div().id("intake-consumed-scope").test_support().child(format!("Consumed scope · input {} bytes · expanded {} bytes · package/MIME parts {}/{} · MIME depth {} · decoded {} bytes · unique image pixels {} · output {} bytes", usage.input_bytes, usage.expanded_bytes, usage.package_parts, usage.mime_parts, usage.mime_depth, usage.decoded_bytes, usage.image_pixels, usage.output_bytes)));
+        } else {
+            panel = panel.child("Consumed scope unavailable for this historical/synthetic record.");
+        }
+        for (index, source) in extraction.sources.iter().enumerate() {
+            let source_id = source.id.clone();
+            let expected_digest = brn_intake::digest(&source.bytes);
+            let supported_preview = matches!(
+                source.media_type.as_str(),
+                "message/rfc822"
+                    | "application/vnd.openxmlformats-officedocument.wordprocessingml.document"
+            );
+            panel = panel.child(
+                div()
+                    .id(format!("intake-source-{index}"))
+                    .test_support()
+                    .flex()
+                    .flex_col()
+                    .gap_1()
+                    .child(format!(
+                        "{} · {} · {} · {} bytes · parent {} · {}",
+                        source.id,
+                        source.name,
+                        source.status,
+                        source.bytes.len(),
+                        source.parent.as_deref().unwrap_or("original root"),
+                        source.locator
+                    ))
+                    .child(
+                        Button::new(format!("inspect-intake-original-{index}"))
+                            .label("Inspect exact original with Quick Look")
+                            .disabled(blocked || !supported_preview)
+                            .on_click(cx.listener(move |this, _, _, cx| {
+                                this.inspect_extraction_original(
+                                    &source_id,
+                                    expected_digest,
+                                    retained,
+                                    cx,
+                                )
+                            })),
+                    ),
+            );
+        }
+        for (index, image) in extraction.occurrences.iter().enumerate() {
+            if let Some(asset) = extraction.assets.iter().find(|a| a.id == image.asset_id) {
+                panel = panel.child(super::visual::intake_image_panel(
+                    index,
+                    asset,
+                    image,
+                    self.inbox
+                        .intake_images
+                        .get(&(asset.media_type.clone(), asset.sha256))
+                        .cloned(),
+                ));
+            }
+        }
+        for (index, gap) in extraction.gaps.iter().enumerate() {
+            panel = panel.child(
+                div()
+                    .id(format!("intake-gap-{index}"))
+                    .test_support()
+                    .child(format!("Extraction gap: {gap}")),
+            );
+        }
+        if self.inbox.original_preview.is_some() {
+            panel = panel.child(
+                Button::new("close-intake-original-preview")
+                    .label("Close original preview and remove private inspection copy")
+                    .on_click(cx.listener(|this, _, _, cx| {
+                        this.inbox.original_preview = None;
+                        cx.notify();
+                    })),
+            );
+        }
+        panel.into_any_element()
+    }
+    pub(super) fn inspect_extraction_original(
+        &mut self,
+        source_id: &str,
+        expected_digest: [u8; 32],
+        retained: bool,
+        cx: &mut Context<Self>,
+    ) {
+        if self.inbox_blocked() {
+            return;
+        }
+        let ai = self.ai.as_ref().unwrap();
+        let extraction = if retained {
+            ai.inbox_analysis
+                .retained_extraction
+                .as_ref()
+                .filter(|_| ai.inbox_analysis_is_visible())
+                .map(|snapshot| &snapshot.extraction)
+        } else {
+            ai.inbox_queue
+                .preview
+                .as_ref()
+                .and_then(|preview| preview.extraction.as_ref())
+        };
+        let source = extraction.and_then(|extraction| {
+            extraction
+                .sources
+                .iter()
+                .find(|source| source.id == source_id)
+        });
+        let Some(source) =
+            source.filter(|source| brn_intake::digest(&source.bytes) == expected_digest)
+        else {
+            return;
+        };
+        let result =
+            super::intake_preview::OriginalPreview::open(&source.bytes, &source.media_type);
+        match result {
+            Ok(preview) => {
+                self.inbox.original_preview = Some(preview);
+                self.ai.as_mut().unwrap().notice = "System Quick Look is inspecting the exact retained original. Reflowed extraction is shown separately; close the preview when finished.".into();
+            }
+            Err(error) => {
+                let ai = self.ai.as_mut().unwrap();
+                if retained {
+                    ai.inbox_analysis.extraction_error = Some(error);
+                } else {
+                    ai.inbox_queue.error = Some(error);
+                }
+            }
         }
         cx.notify();
     }
@@ -261,27 +537,16 @@ impl Desktop {
         }
         cx.notify();
     }
-    #[inline(never)]
-    fn render_inbox_capture(&mut self, cx: &mut Context<Self>) -> AnyElement {
+    pub(super) fn render_inbox_advanced(&mut self, cx: &mut Context<Self>) -> AnyElement {
         let ai = self.ai.as_ref().unwrap();
         let queue = &ai.inbox_queue;
         let blocked = self.inbox_blocked();
-        use super::ui::{self, Tone};
-        let p = self.palette();
-        let mut capture = div()
-            .flex()
-            .flex_col()
-            .gap_2()
-            .child(ui::section_label("Add a copy to the Inbox", p).px_0())
-            .child(ui::hint(
-                "Paste text, Markdown, an email or a Teams thread. BRN keeps the exact original.",
-                p,
-            ))
-            .child(
-                Textarea::new(&self.inbox.title)
-                    .disabled(blocked)
-                    .aria_label("Retained exact Inbox capture title"),
-            );
+        let mut content = div().id("inbox-advanced-content").track_scroll(&self.inbox.scroll)
+            .flex().flex_col().flex_1().min_h(px(0.)).overflow_y_scroll().p_3().gap_2()
+            .child("Inbox")
+            .child(self.render_inbox_analysis(cx))
+            .child("Import an actual EML or DOCX, or keep a text/Markdown/Teams copy. Inspect original bytes, extracted wording, each image and gaps together. Investigation can precede Source approval; exact authoritative changes still require approval.")
+            .child(Textarea::new(&self.inbox.title).disabled(blocked).aria_label("Retained exact Inbox capture title"));
         let mut kinds = div().flex().flex_wrap().gap_1();
         for kind in [
             InboxKind::Text,
@@ -292,9 +557,6 @@ impl Desktop {
             kinds = kinds.child(
                 Button::new(format!("inbox-kind-{kind:?}"))
                     .label(kind_name(kind))
-                    .small()
-                    .when(self.inbox.kind == kind, |button| button.primary())
-                    .when(self.inbox.kind != kind, |button| button.ghost())
                     .selected(self.inbox.kind == kind)
                     .disabled(blocked)
                     .on_click(cx.listener(move |this, _, _, cx| {
@@ -305,7 +567,7 @@ impl Desktop {
                     })),
             );
         }
-        capture = capture
+        content = content
             .child(kinds)
             .child(
                 div().h(px(240.)).flex_shrink_0().child(
@@ -321,18 +583,20 @@ impl Desktop {
                     .flex_wrap()
                     .gap_1()
                     .child(
+                        Button::new("import-intake-file")
+                            .label("Import EML or DOCX file")
+                            .disabled(blocked || self.choosing_file || ai.capture_pending())
+                            .on_click(cx.listener(|this, _, _, cx| this.choose_intake_file(cx))),
+                    )
+                    .child(
                         Button::new("capture-inbox-original")
                             .label("Capture exact original")
-                            .primary()
-                            .small()
                             .disabled(blocked || ai.capture_pending())
                             .on_click(cx.listener(|this, _, _, cx| this.capture_inbox_input(cx))),
                     )
                     .child(
                         Button::new("retry-inbox-capture")
                             .label("Retry exact submitted capture")
-                            .ghost()
-                            .small()
                             .disabled(
                                 blocked || ai.capture_pending() || queue.capture_error.is_none(),
                             )
@@ -349,8 +613,6 @@ impl Desktop {
                     .child(
                         Button::new("copy-inbox-capture-text")
                             .label("Copy full capture text")
-                            .ghost()
-                            .small()
                             .on_click(cx.listener(|this, _, _, cx| {
                                 cx.write_to_clipboard(gpui_kit::ClipboardItem::new_string(
                                     this.inbox.body.read(cx).value().to_string(),
@@ -359,14 +621,12 @@ impl Desktop {
                     ),
             );
         if ai.capture_pending() {
-            capture = capture.child(ui::hint(
-                "Retaining the exact submitted capture. Later typing stays in this form.",
-                p,
-            ));
+            content = content
+                .child("Retaining the exact submitted capture. Later typing stays in this form.");
         }
         if let Some(item) = &queue.capture_result {
             let id = item.capture.id;
-            capture = capture
+            content = content
                 .child(format!(
                     "Captured {} · {} · {} bytes",
                     item.capture.title, id, item.capture.copy.byte_len
@@ -374,8 +634,6 @@ impl Desktop {
                 .child(
                     Button::new("inspect-captured-inbox-original")
                         .label("Inspect captured original")
-                        .ghost()
-                        .small()
                         .disabled(blocked || ai.inbox_loading())
                         .on_click(cx.listener(move |this, _, _, cx| {
                             if this.inbox_blocked() {
@@ -389,31 +647,16 @@ impl Desktop {
                 );
         }
         if let Some(error) = &queue.capture_error {
-            capture = capture.child(ui::callout(Tone::Danger, error.clone(), p));
+            content = content.child(error.clone());
         }
-        capture.into_any_element()
-    }
-    #[inline(never)]
-    fn render_inbox_queue(&mut self, cx: &mut Context<Self>) -> AnyElement {
-        let ai = self.ai.as_ref().unwrap();
-        let queue = &ai.inbox_queue;
-        let blocked = self.inbox_blocked();
-        use super::ui::{self, Tone};
-        let p = self.palette();
-        let mut content = div().flex().flex_col().gap_2();
-        content = content.child(
-            ui::toolbar()
-                .child(
-                    ui::section_label("Waiting · oldest first", p)
-                        .px_0()
-                        .flex_1()
-                        .min_w(px(0.)),
-                )
+        content = content.child("FIFO originals").child(
+            div()
+                .flex()
+                .flex_wrap()
+                .gap_1()
                 .child(
                     Button::new("refresh-inbox-inventory")
                         .label("Refresh first page")
-                        .ghost()
-                        .small()
                         .disabled(blocked || ai.inbox_loading())
                         .on_click(cx.listener(|this, _, _, cx| {
                             if this.inbox_blocked() {
@@ -428,8 +671,6 @@ impl Desktop {
                 .child(
                     Button::new("next-inbox-inventory")
                         .label("Next page")
-                        .ghost()
-                        .small()
                         .disabled(
                             blocked
                                 || ai.inbox_loading()
@@ -450,16 +691,14 @@ impl Desktop {
                 ),
         );
         if ai.inbox_loading() {
-            content = content.child(ui::hint("Loading current Inbox inventory or original…", p));
+            content = content.child("Loading current Inbox inventory or original…");
         }
         if let Some(page) = &queue.page {
-            if page.entries.is_empty() {
-                content = content.child(ui::empty_state(
-                    "The Inbox is empty",
-                    "Add a copy below. BRN keeps the exact original and proposes reviewable consequences.",
-                    p,
-                ));
-            }
+            content = content.child(format!(
+                "{} retained originals · {} on this page",
+                page.total_count,
+                page.entries.len()
+            ));
             for (index, entry) in page.entries.iter().enumerate() {
                 let item = entry.item.clone();
                 let inspect_id = item.capture.id;
@@ -469,28 +708,12 @@ impl Desktop {
                         .flex()
                         .flex_col()
                         .gap_1()
-                        .px(px(tokens::space::MD))
-                        .py(px(tokens::space::SM))
-                        .border_1()
-                        .border_color(super::theme::color(if checked { p.cyan } else { p.line }))
-                        .child(
-                            ui::toolbar()
-                                .child(ui::badge(kind_name(item.capture.kind), Tone::Neutral, p))
-                                .child(
-                                    div()
-                                        .flex_1()
-                                        .min_w(px(0.))
-                                        .font_weight(gpui_kit::FontWeight::MEDIUM)
-                                        .child(item.capture.title.clone()),
-                                ),
-                        )
-                        .child(ui::meta(
-                            format!(
-                                "received {} · {}",
-                                ui::utc_time(item.received_at_ms),
-                                availability_name(&entry.availability)
-                            ),
-                            p,
+                        .child(format!(
+                            "{} · {} · received {} · {}",
+                            item.capture.title,
+                            kind_name(item.capture.kind),
+                            super::ui::utc_time(item.received_at_ms),
+                            availability_name(&entry.availability)
                         ))
                         .child(
                             div()
@@ -515,8 +738,6 @@ impl Desktop {
                                 .child(
                                     Button::new(format!("inspect-inbox-original-{index}"))
                                         .label("Inspect full original")
-                                        .ghost()
-                                        .small()
                                         .disabled(blocked || ai.inbox_loading())
                                         .on_click(cx.listener(move |this, _, _, cx| {
                                             if this.inbox_blocked() {
@@ -534,10 +755,9 @@ impl Desktop {
                 );
             }
             for issue in &page.issues {
-                content = content.child(ui::callout(
-                    Tone::Attention,
-                    format!("Inbox issue {:?}: {}", issue.item_id, issue.message),
-                    p,
+                content = content.child(format!(
+                    "Inbox issue {:?}: {}",
+                    issue.item_id, issue.message
                 ));
             }
             if page.issues_truncated {
@@ -545,12 +765,9 @@ impl Desktop {
                     .child("Additional Inbox issues were reported beyond this page's issue limit.");
             }
         }
-        content = content.child(ui::hint(
-            format!(
-                "Check up to {MAX_PROCESS_BATCH} items, then process them · {} checked",
-                self.inbox.checked.len()
-            ),
-            p,
+        content = content.child(format!(
+            "{} exact original snapshots checked · choose 1–{MAX_PROCESS_BATCH}",
+            self.inbox.checked.len()
         ));
         for (index, item) in self.inbox.checked.iter().enumerate() {
             let id = item.capture.id;
@@ -566,8 +783,6 @@ impl Desktop {
                     .child(
                         Button::new(format!("remove-inbox-checked-{index}"))
                             .label("Remove from batch selection")
-                            .ghost()
-                            .small()
                             .disabled(blocked || ai.processing_pending())
                             .on_click(cx.listener(move |this, _, _, cx| {
                                 if this.inbox_blocked()
@@ -583,7 +798,7 @@ impl Desktop {
             );
         }
         if let Some(error) = &self.inbox.selection_error {
-            content = content.child(ui::callout(Tone::Danger, error.clone(), p));
+            content = content.child(error.clone());
         }
         content = content.child(
             div()
@@ -593,8 +808,6 @@ impl Desktop {
                 .child(
                     Button::new("process-checked-inbox")
                         .label("Process checked originals")
-                        .primary()
-                        .small()
                         .disabled(
                             blocked || ai.processing_pending() || self.inbox.checked.is_empty(),
                         )
@@ -603,8 +816,6 @@ impl Desktop {
                 .child(
                     Button::new("retry-inbox-processing")
                         .label("Retry exact submitted batch")
-                        .ghost()
-                        .small()
                         .disabled(blocked || !ai.can_retry_process())
                         .on_click(cx.listener(|this, _, _, cx| {
                             if this.inbox_blocked() {
@@ -619,8 +830,6 @@ impl Desktop {
                 .child(
                     Button::new("cancel-inbox-processing")
                         .label("Cancel remaining conversions")
-                        .ghost()
-                        .small()
                         .disabled(blocked || !ai.processing_pending())
                         .on_click(cx.listener(|this, _, _, cx| {
                             if this.inbox_blocked() {
@@ -634,12 +843,10 @@ impl Desktop {
                 ),
         );
         if let Some(read) = &queue.selected {
-            content = content
-                .child(ui::section_label("Inspected original", p).px_0())
-                .child(ui::meta(
-                    format!("{} · {}", read.item.capture.title, read.item.capture.id),
-                    p,
-                ));
+            content = content.child(format!(
+                "Inspected original: {} · {}",
+                read.item.capture.title, read.item.capture.id
+            ));
             match &read.original {
                 InboxOriginal::Available { text } => {
                     content = content
@@ -655,7 +862,7 @@ impl Desktop {
                 }
                 InboxOriginal::AvailableBinary { byte_len, .. } => {
                     content = content.child(div().id("inbox-binary-original").test_support().child(format!(
-                        "Binary original retained exactly · {byte_len} bytes. Processing attempts the bounded DOCX text profile; unsupported content fails explicitly. The original remains retained after Source approval."
+                        "Binary original retained exactly · {byte_len} bytes. EML and DOCX use the maintained extraction profile; unsupported content is explicit. The original remains retained after Source approval."
                     )));
                 }
                 InboxOriginal::Missing => {
@@ -678,20 +885,6 @@ impl Desktop {
                 }
             }
         }
-        let copy_view = &ai.inbox_copy;
-        let copy_relevant = queue.selected.is_some()
-            || ai.inbox_copy_loading()
-            || ai.inbox_copy_pending()
-            || copy_view.preview.is_some()
-            || copy_view.history.is_some()
-            || copy_view.removal.is_some()
-            || copy_view.operation.is_some()
-            || copy_view.receipt.is_some()
-            || copy_view.error.is_some()
-            || copy_view.message.is_some();
-        if copy_relevant {
-            content = content.child(self.render_inbox_copy(cx));
-        }
         if let Some(batch) = &queue.batch {
             content = content.child(format!(
                 "Batch {} · {} remaining conversions",
@@ -711,8 +904,6 @@ impl Desktop {
                     .child(
                         Button::new(format!("preview-inbox-conversion-{index}"))
                             .label("Inspect full converted preview")
-                            .ghost()
-                            .small()
                             .disabled(
                                 blocked
                                     || !matches!(
@@ -744,7 +935,7 @@ impl Desktop {
             }
         }
         if let Some(error) = &queue.error {
-            content = content.child(ui::callout(Tone::Danger, error.clone(), p));
+            content = content.child(error.clone());
         }
         if let Some(preview) = &queue.preview {
             content = content
@@ -764,29 +955,20 @@ impl Desktop {
                     "Copy full converted preview",
                     preview.markdown.clone(),
                 ));
+            if let Some(extraction) = &preview.extraction {
+                content =
+                    content.child(self.render_intake_extraction(extraction, false, blocked, cx));
+            }
             if let Some(visual) = &preview.visual {
                 content = content.child(super::visual::png_panel("inbox-preview-png", &visual.bytes, &visual.proof))
                     .child("Pending explicit visual interpretation. Exact Source and PNG approval is separate from interpretation approval.");
             }
             if preview.needs_semantic_review {
-                content = content.child(ui::callout(Tone::Attention, "The conversion still needs semantic review. Original wording and images remain evidence; approval does not complete interpretation.", p));
+                content = content.child("The conversion still needs semantic review. Original wording and images remain evidence; approval does not complete interpretation.");
             }
         }
-        let source_typed = !self.inbox.source_title.read(cx).value().is_empty()
-            || !self.inbox.source_path.read(cx).value().is_empty();
-        let source_relevant = queue.preview.is_some()
-            || queue.prepared.is_some()
-            || queue.source_error.is_some()
-            || ai.source_pending()
-            || source_typed;
-        if !source_relevant {
-            return content.into_any_element();
-        }
         content = content
-            .child(
-                ui::section_label("Prepare a Source proposal from the inspected conversion", p)
-                    .px_0(),
-            )
+            .child("Prepare a Source proposal from the inspected conversion")
             .child(
                 Textarea::new(&self.inbox.source_title)
                     .disabled(blocked)
@@ -800,8 +982,6 @@ impl Desktop {
             .child(
                 Button::new("prepare-inbox-source")
                     .label("Prepare Source review input")
-                    .outline()
-                    .small()
                     .disabled(
                         blocked
                             || !ai.vault_bound
@@ -822,8 +1002,6 @@ impl Desktop {
                 .child(
                     Button::new("open-inbox-source-form")
                         .label("Open retained Source proposal form")
-                        .ghost()
-                        .small()
                         .disabled(blocked)
                         .on_click(cx.listener(|this, _, _, cx| {
                             if !this.inbox_blocked() {
@@ -833,54 +1011,13 @@ impl Desktop {
                 );
         }
         if let Some(error) = &queue.source_error {
-            content = content.child(ui::callout(Tone::Danger, error.clone(), p));
+            content = content.child(error.clone());
         }
-        content.into_any_element()
-    }
-    pub(super) fn render_inbox(&mut self, cx: &mut Context<Self>) -> AnyElement {
-        use super::ui;
-        let p = self.palette();
-        let capture = self.render_inbox_capture(cx);
-        let content = self.render_inbox_queue(cx);
-        let analysis = self.render_inbox_analysis(cx);
-        let ai = self.ai.as_ref().unwrap();
-        let queue = &ai.inbox_queue;
-        let total = queue.page.as_ref().map(|page| page.total_count);
-        let body = div()
-            .id("inbox-content")
-            .track_scroll(&self.inbox.scroll)
-            .flex()
-            .flex_col()
-            .flex_1()
-            .min_h(px(0.))
-            .overflow_y_scroll()
-            .px(px(tokens::space::LG))
-            .py(px(tokens::space::MD))
-            .gap(px(tokens::space::LG))
-            .child(
-                ui::view_header(
-                    "Inbox",
-                    None,
-                    Some(match total {
-                        Some(total) => format!("{total} waiting"),
-                        None => "Copies you bring in, kept exactly".into(),
-                    }),
-                    p,
-                )
-                .mx(px(-tokens::space::LG))
-                .mt(px(-tokens::space::MD)),
-            )
-            .child(content)
-            .child(div().h(px(1.)).bg(super::theme::color(p.line)))
-            .child(capture)
-            .child(div().h(px(1.)).bg(super::theme::color(p.line)))
-            .child(analysis);
         div()
             .size_full()
             .flex()
             .flex_col()
-            .bg(super::theme::color(p.paper))
-            .child(body.test_support())
+            .child(content.test_support())
             .into_any_element()
     }
 }

@@ -1,0 +1,29 @@
+[package]
+name = "brn-intake"
+version = "0.1.0"
+edition = "2024"
+publish = false
+
+[features]
+default = []
+helper = ["dep:betteroffice-docx-edit", "dep:betteroffice-docx-parse", "dep:betteroffice-opc", "dep:mail-parser", "dep:zip", "dep:image", "dep:libc", "dep:html5ever"]
+
+[dependencies]
+serde = { version = "1", features = ["derive"] }
+serde_json = "1"
+sha2 = "0.10"
+base64 = "0.22"
+png = "=0.18.1"
+betteroffice-docx-edit = { version = "=0.3.0", optional = true }
+betteroffice-docx-parse = { version = "=0.3.0", optional = true }
+betteroffice-opc = { version = "=0.3.0", optional = true }
+mail-parser = { version = "=0.11.8", features = ["serde"], optional = true }
+zip = { version = "=8.6.0", default-features = false, features = ["deflate-flate2-zlib-rs"], optional = true }
+image = { version = "=0.25.10", default-features = false, features = ["png", "jpeg"], optional = true }
+libc = { version = "0.2", optional = true }
+html5ever = { version = "=0.27.0", optional = true }
+
+[[bin]]
+name = "brn-intake-helper"
+path = "src/bin/brn-intake-helper.rs"
+required-features = ["helper"]

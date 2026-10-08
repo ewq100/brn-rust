@@ -1,0 +1,10 @@
+{
+  "leaf_release_bytes": 7511728,
+  "leaf_strip_x_bytes": 6101560,
+  "p1_release_bytes": 5156192,
+  "p1_strip_x_bytes": 4297440,
+  "comparison": "isolated leaf probe vs full P1 helper (DOCX/PPTX/MIME/sandbox); not production application or same-functionality binary delta",
+  "clean_target_build_seconds": 58.9,
+  "build_rss": "unmeasured: time -l kern.clockrate sysctl denied after successful cargo build",
+  "facade_scope": "warm build and semantic equality checked before final parsed-package route added; no raster"
+}

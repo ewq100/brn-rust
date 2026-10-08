@@ -28,6 +28,14 @@ const PNG_SIGNATURE: &[u8] = b"\x89PNG\r\n\x1a\n";
 pub struct VisualImage(Vec<u8>);
 
 impl VisualImage {
+    /// Private extraction images share the helper's aggregate 16 MiB budget.
+    /// Complete decoding and evidence checks occur before this transport layer.
+    pub fn png_evidence(bytes: Vec<u8>) -> AiResult<Self> {
+        if bytes.len() > 16 * 1024 * 1024 || !bytes.starts_with(PNG_SIGNATURE) {
+            return Err(AiError::new(AiErrorKind::ToolRejected));
+        }
+        Ok(Self(bytes))
+    }
     pub fn png(bytes: Vec<u8>) -> AiResult<Self> {
         if bytes.len() > MAX_IMAGE_BYTES || !bytes.starts_with(PNG_SIGNATURE) {
             return Err(AiError::new(AiErrorKind::ToolRejected));
@@ -38,6 +46,28 @@ impl VisualImage {
     pub fn png_bytes(&self) -> &[u8] {
         &self.0
     }
+}
+
+pub(crate) fn evidence_message(prompt: &str, images: &[VisualImage]) -> AiResult<Message> {
+    if images.len() > 32
+        || images
+            .iter()
+            .try_fold(0usize, |total, image| {
+                total.checked_add(image.png_bytes().len())
+            })
+            .is_none_or(|total| total > 16 * 1024 * 1024)
+    {
+        return Err(AiError::new(AiErrorKind::ToolRejected));
+    }
+    let mut content = vec![UserContent::text(prompt)];
+    for image in images {
+        content.push(UserContent::image_base64(
+            base64::engine::general_purpose::STANDARD.encode(image.png_bytes()),
+            Some(ImageMediaType::PNG),
+            Some(ImageDetail::High),
+        ));
+    }
+    Ok(Message::User { content })
 }
 
 /// Uses the captured provider/model/effort and no tools or history. Completed
@@ -127,6 +157,19 @@ fn require_natural_finish(
 #[cfg(test)]
 mod tests {
     use super::*;
+
+    #[test]
+    fn private_transport_refuses_oversized_collection_before_model_admission() {
+        let image = VisualImage::png_evidence(PNG_SIGNATURE.to_vec()).unwrap();
+        assert!(evidence_message("exact private scope", &vec![image; 33]).is_err());
+        let mut bytes = vec![0; 9 * 1024 * 1024];
+        bytes[..PNG_SIGNATURE.len()].copy_from_slice(PNG_SIGNATURE);
+        let image = VisualImage::png_evidence(bytes).unwrap();
+        assert!(evidence_message("exact private scope", &[image.clone(), image]).is_err());
+        let mut oversized = vec![0; 16 * 1024 * 1024 + 1];
+        oversized[..PNG_SIGNATURE.len()].copy_from_slice(PNG_SIGNATURE);
+        assert!(VisualImage::png_evidence(oversized).is_err());
+    }
 
     #[test]
     fn png_transport_checks_only_exact_signature_and_encoded_byte_bound() {

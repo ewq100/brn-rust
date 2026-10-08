@@ -281,6 +281,7 @@ fn unresolved_application_fences_inventory_resolution_and_explicit_archived_read
     let source = app.proposal_source("a.md").unwrap();
     let record = app
         .create_proposal(&DraftRequest {
+            intake: None,
             inbox_visual: None,
             inbox_knowledge: None,
             inbox_source: None,

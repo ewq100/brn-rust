@@ -88,6 +88,7 @@ fn create_action(f: &Fixture, title: &str, state: ActionState, settle: bool) -> 
     let mut store = WorkStore::open(f.data.path()).unwrap().0;
     let proposal = store
         .create_proposal(&ProposalDraft {
+            intake: None,
             inbox_visual: None,
             inbox_knowledge: None,
             inbox_source: None,

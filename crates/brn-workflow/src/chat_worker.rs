@@ -144,7 +144,7 @@ enum Command {
     Ask(
         AskRequest,
         Option<Box<crate::inbox_actions::InboxActionJob>>,
-        Option<brn_ai::VisualImage>,
+        Vec<brn_ai::VisualImage>,
     ),
     Rewrite(RewriteRequest, CancellationToken),
     Account(Uuid, AccountCommand),
@@ -162,13 +162,13 @@ pub(crate) struct ChatHandle {
 }
 impl ChatHandle {
     pub(crate) fn ask(&self, request: AskRequest) -> Result<()> {
-        self.send(Command::Ask(request, None, None))
+        self.send(Command::Ask(request, None, vec![]))
     }
     pub(crate) fn ask_inbox(
         &self,
         request: AskRequest,
         job: crate::inbox_actions::InboxActionJob,
-        image: Option<brn_ai::VisualImage>,
+        images: Vec<brn_ai::VisualImage>,
     ) -> Result<()> {
         if request.id != job.capture.id
             || request.conversation != job.capture.conversation
@@ -179,15 +179,28 @@ impl ChatHandle {
         {
             return Err(conflict());
         }
-        match (job.capture.visual_asset.as_ref(), image.as_ref()) {
-            (Some(asset), Some(image))
-                if asset.fingerprint.len == image.png_bytes().len() as u64
-                    && asset.fingerprint.sha256
-                        == <[u8; 32]>::from(Sha256::digest(image.png_bytes())) => {}
-            (None, None) => {}
-            _ => return Err(conflict()),
+        if let Some(binding) = &job.capture.intake {
+            if binding.assets.len() != images.len()
+                || binding.assets.iter().zip(&images).any(|(id, image)| {
+                    *id != format!(
+                        "asset-{}",
+                        brn_intake::hex(&Sha256::digest(image.png_bytes()).into())
+                    )
+                })
+            {
+                return Err(conflict());
+            }
+        } else {
+            match (job.capture.visual_asset.as_ref(), images.as_slice()) {
+                (Some(asset), [image])
+                    if asset.fingerprint.len == image.png_bytes().len() as u64
+                        && asset.fingerprint.sha256
+                            == <[u8; 32]>::from(Sha256::digest(image.png_bytes())) => {}
+                (None, []) => {}
+                _ => return Err(conflict()),
+            }
         }
-        self.send(Command::Ask(request, Some(Box::new(job)), image))
+        self.send(Command::Ask(request, Some(Box::new(job)), images))
     }
     pub(crate) fn rewrite(&self, request: RewriteRequest, cancel: CancellationToken) -> Result<()> {
         self.send(Command::Rewrite(request, cancel))
@@ -466,7 +479,7 @@ async fn run(
                             emit(Output::Account(AccountEvent::Login { id, prompt }));
                         }
                     }
-                    Some(Command::Ask(request, inbox, image)) => {
+                    Some(Command::Ask(request, inbox, images)) => {
                         let validation = (|| -> Result<Option<WorkTurn>> {
                             if let Some(previous) = turn_ledger.get(&request.id) {
                                 let mut previous = previous.clone();
@@ -524,8 +537,9 @@ async fn run(
                                         *control.active.lock().expect("owned cancellation registry") = Some((request.id, cancel.clone()));
                                         active = Some(Active { provider: request.selection.provider, cancel: cancel.clone() });
                                         turn_ledger.insert(request.id, request.clone());
+                                        let legacy_visual = inbox.as_ref().is_some_and(|job| job.capture.purpose == crate::inbox_actions::InboxAnalysisPurpose::VisualInterpretation);
                                         let task = jobs.spawn(run_turn(
-                                            auth.clone(), request.clone(), history, image,
+                                            auth.clone(), request.clone(), history, images, legacy_visual,
                                             tools.as_ref().expect("preflight tools").clone(),
                                             match inbox {
                                                 Some(job) => proposals.bind_inbox(&request, &turn, cancel.clone(), Some(job)),
@@ -732,6 +746,9 @@ struct DrainedProposals {
     _drained: Arc<DrainSignal>,
 }
 impl brn_ai::ProposalTools for DrainedProposals {
+    fn private_intake(&self) -> bool {
+        self.proposals.private_intake()
+    }
     fn knowledge_enabled(&self) -> bool {
         self.proposals.knowledge_enabled()
     }
@@ -816,15 +833,20 @@ async fn run_turn(
     auth: Arc<Auth>,
     request: AskRequest,
     history: Vec<HistoryPair>,
-    image: Option<brn_ai::VisualImage>,
+    images: Vec<brn_ai::VisualImage>,
+    legacy_visual: bool,
     tools: Arc<dyn ReadTools>,
     proposals: Arc<dyn brn_ai::ProposalTools>,
     cancel: CancellationToken,
     emit: Emit,
     hooks: Hooks,
 ) -> JobResult {
-    if let Some(image) = image {
+    if legacy_visual {
         drop((history, tools, proposals));
+        let image = images
+            .into_iter()
+            .next()
+            .expect("validated legacy visual input");
         return run_visual_turn(auth, request, image, cancel, emit, hooks).await;
     }
     let (drained, wait) = oneshot::channel();
@@ -888,6 +910,7 @@ async fn run_turn(
                     auth,
                     &request,
                     history,
+                    &images,
                     tools,
                     proposals,
                     cancel.clone(),
@@ -902,6 +925,7 @@ async fn run_turn(
                 auth,
                 &request,
                 history,
+                &images,
                 tools,
                 proposals,
                 cancel.clone(),
@@ -1001,6 +1025,7 @@ async fn real_answer(
     auth: Arc<Auth>,
     request: &AskRequest,
     history: Vec<HistoryPair>,
+    images: &[brn_ai::VisualImage],
     tools: Arc<dyn ReadTools>,
     proposals: Arc<dyn brn_ai::ProposalTools>,
     cancel: CancellationToken,
@@ -1014,13 +1039,14 @@ async fn real_answer(
     };
     match auth.client(&request.selection, cancel.clone()).await {
         Ok(client) => {
-            brn_ai::answer_with_proposals(
+            brn_ai::answer_with_proposals_and_images(
                 client,
                 &request.question,
                 &history,
                 effort,
                 tools,
                 proposals,
+                images,
                 cancel,
                 emit,
             )

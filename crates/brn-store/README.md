@@ -23,7 +23,7 @@ recovery. Vault files own saved Markdown; disposable retrieval indexes live outs
 
 ## Database ownership and recovery
 
-WorkStore uses application ID `BRN2`, schema V15, and retains `brn.owner.lock`
+WorkStore uses application ID `BRN2`, schema V16, and retains `brn.owner.lock`
 for its lifetime. Current settings, text-only conversations and unfinished work
 are preserved by additive migrations. Earlier WorkStore V1 unsaved-edit rows
 remain available; matching text moves atomically into the generation-aware
@@ -429,7 +429,8 @@ defaults and current-evidence eligibility. No ranking or Action mutation occurs.
 ## Inbox source proposal binding
 
 Optional `inbox_source` on the existing ProposalDraft binds one source Create
-(and, for the inline PNG profile, its exact ordinary asset Create) to the complete
+(and every exact ordinary asset Create for maintained extraction, or the single
+asset in the historical inline PNG profile) to the complete
 retained Inbox snapshot and exact conversion/UUID. It is omitted for
 older records, preserving their JSON/checksums. Whole edits cannot change its body,
 identity, scope or portable original provenance; title/comments retain normal review.
@@ -447,6 +448,14 @@ fabricate a WorkTurn or rerun an already issued analysis. Store checks retained
 shape/bytes; Workflow qualifies fresh physical identity and filesystem effects.
 
 ## Original-copy Inbox catalog
+
+P2 analysis admissions can instead retain `InboxIntakeBinding` with the exact
+pending Source proposal stamp, snapshot digest, note UUID, selected images and
+occurrences. The saved Source proof is absent in that private profile; no unsaved
+SourceVersion is invented. Typed private knowledge citations retain exact node
+text ranges and locators in the immutable snapshot. Source-specific filenames are
+a mechanical materialization; ambiguous attachment text ownership refuses.
+
 
 V14 adds immutable [Inbox analysis admissions](src/work/inbox_actions.rs).
 Each UUID retains the complete explicit provider/model/effort, optional conversation,
@@ -480,15 +489,29 @@ through AppWorker. The fixed UUID.txt name for these four text kinds is independ
 of labels. Stage8 adds Binary metadata with a separate 16 MiB bound and UUID.bin;
 the four text bounds remain 1 MiB. Empty binary bytes are valid only with the empty
 digest. Existing canonical text JSON, SQL schema and receipt hashes are unchanged.
-No original binary payload enters SQLite. Binary process requests can retain
-`docx_text_v1` or `docx_inline_png_v1` receipts; Source bindings/provenance require
-the exact kind/format pair and complete converted-body proof. The latter retains
-one typed image manifest, complete raw PNG proof and exact document occurrence. The pure
-[DOCX converter](src/work/inbox_source/docx.rs) accepts complete supplied bytes
-and performs no filesystem, catalog or provider operation. Fresh observation and
-approval authority remain in Workflow. Other binary conversions are refused.
-Binary Source preservation and new/legacy Remove/Restore records still refuse;
-converted text never qualifies meaningful Office cleanup.
+V16 adds immutable schema-1 extraction snapshots containing exact original,
+attachment and asset bytes, decoded text, source parents, distinct occurrences,
+selected quotas and measured consumption. Canonical hashed records are included
+in SQLite backups and checked on read/startup. Store validates records and joins;
+format parsing belongs to `brn-intake`, never Store.
+
+Read-only `intake_snapshots_for_item(capture_id)` joins saved versions to the exact
+current catalog InboxItem in one transaction, without a schema migration. Metadata
+checks precede decoding: discovery refuses inventories above 4096 records/256 MiB
+encoded data, and results above 64 versions/64 MiB. Every scanned record must pass
+canonical row/hash validation, including unrelated records; corruption cannot be
+hidden by filtering unhashed JSON. Results sort by batch/slot/snapshot identity,
+not creation time or a preferred approval baseline. Missing original files do not
+prevent discovery; missing catalog proof does. Direct snapshot UUID reads retain
+their historical independence.
+
+New `maintained_extraction_v1` Source bindings retain the exact snapshot digest
+and every ordinary asset Create. Historical `docx_text_v1` and
+`docx_inline_png_v1` records remain readable through saved markup/proof readers;
+the bespoke DOCX converter and its package/XML grammar have been removed. Legacy
+unfinished drafts require renewed extraction/review; partial applications need
+explicit exact-proof Restore before renewed approval. Binary cleanup remains
+unsupported.
 
 Exact creation replay returns original metadata and received time; another payload
 under that UUID refuses. Explicitly separate copies retain separate identities
@@ -498,7 +521,8 @@ bounds, hashes, indexed bindings and exact owned table/index objects are checked
 on reads/startup and before SQLite quick_check. Readable semantic damage refuses
 without moving the main database aside or creating a startup backup; invalid
 backup candidates are skipped. Physical corruption retains ordinary restoration.
-SQLite backup preserves catalog metadata, not the separate original-copy files.
+SQLite backup preserves catalog metadata and any V16 snapshot payloads. It does
+not preserve the separate original-copy file identity or recreate missing files.
 
 This catalog is consumed by the Stage7 workflow capture boundary; processing,
 Source preparation/approval and Action analysis use their separate typed records

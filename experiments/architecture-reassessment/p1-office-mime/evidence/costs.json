@@ -1,0 +1,173 @@
+{
+  "host": "Apple Silicon aarch64-apple-darwin",
+  "toolchain": "rustc 1.98.1 (48a229cea 2026-09-01)",
+  "builds": [
+    {
+      "scope": "clean target, source/dependency cache present",
+      "wall_seconds": 35.805,
+      "child_peak_rss_bytes": 1684504576,
+      "exit": 0
+    },
+    {
+      "scope": "warm no-change build",
+      "wall_seconds": 0.095,
+      "child_peak_rss_bytes": 44695552,
+      "exit": 0
+    }
+  ],
+  "locked_registry_packages": 56,
+  "enabled_normal_registry_packages_arm64": 53,
+  "incremental_exact_name_version_pairs_vs_root_lock": [
+    [
+      "betteroffice-docx-parse",
+      "0.3.0"
+    ],
+    [
+      "betteroffice-drawingml",
+      "0.3.0"
+    ],
+    [
+      "betteroffice-opc",
+      "0.3.0"
+    ],
+    [
+      "betteroffice-pptx-parse",
+      "0.3.0"
+    ],
+    [
+      "hashify",
+      "0.2.9"
+    ],
+    [
+      "libc",
+      "0.2.190"
+    ],
+    [
+      "mail-parser",
+      "0.11.8"
+    ],
+    [
+      "ryu-js",
+      "1.0.3"
+    ],
+    [
+      "serde_json",
+      "1.0.145"
+    ],
+    [
+      "zopfli",
+      "0.8.3"
+    ]
+  ],
+  "new_package_names_vs_root_lock": [
+    "betteroffice-docx-parse",
+    "betteroffice-drawingml",
+    "betteroffice-opc",
+    "betteroffice-pptx-parse",
+    "hashify",
+    "mail-parser",
+    "ryu-js",
+    "zopfli"
+  ],
+  "enabled_source_archives_bytes": 6082560,
+  "incremental_source_archives_bytes": 2479002,
+  "versions": {
+    "betteroffice-docx-parse": {
+      "version": "0.3.0",
+      "checksum": "697674f35c2ff2eb311e892b015697412c8e1c7671126b74d58f9adcf4e795f3"
+    },
+    "betteroffice-drawingml": {
+      "version": "0.3.0",
+      "checksum": "c08e5d5536bd72e63472c3bad08a4c8fd859f6b6a0c94503204f3b0ab688ed8e"
+    },
+    "betteroffice-opc": {
+      "version": "0.3.0",
+      "checksum": "18653484735ca856523c32d3b8b59aaf3e2c9980aa00b8dddea71f82296d9689"
+    },
+    "betteroffice-pptx-parse": {
+      "version": "0.3.0",
+      "checksum": "45080f3d3381f53698af3412be1de2afc4a15ef17330b283e2dc65538a8961c2"
+    },
+    "mail-parser": {
+      "version": "0.11.8",
+      "checksum": "0b3a9080c1fb8190e232df37a10aa1b3d6b08be084e537069913f025e0ce86c5"
+    }
+  },
+  "licenses": {
+    "proc-macro2@1.0.107": "MIT OR Apache-2.0",
+    "syn@2.0.119": "MIT OR Apache-2.0",
+    "equivalent@1.0.2": "Apache-2.0 OR MIT",
+    "cfg-if@1.0.5": "MIT OR Apache-2.0",
+    "typed-path@0.12.3": "MIT OR Apache-2.0",
+    "ryu-js@1.0.3": "Apache-2.0 OR BSL-1.0",
+    "mail-parser@0.11.8": "Apache-2.0 OR MIT",
+    "flate2@1.1.10": "MIT OR Apache-2.0",
+    "zip@8.6.0": "MIT",
+    "betteroffice-opc@0.3.0": "Apache-2.0",
+    "zopfli@0.8.3": "Apache-2.0",
+    "encoding_rs@0.8.42": "(Apache-2.0 OR MIT) AND BSD-3-Clause",
+    "bumpalo@3.20.3": "MIT OR Apache-2.0",
+    "libc@0.2.190": "MIT OR Apache-2.0",
+    "wasm-bindgen@0.2.129": "MIT OR Apache-2.0",
+    "memchr@2.8.3": "Unlicense OR MIT",
+    "wasm-bindgen-shared@0.2.129": "MIT OR Apache-2.0",
+    "simdutf8@0.1.5": "MIT OR Apache-2.0",
+    "betteroffice-pptx-parse@0.3.0": "Apache-2.0",
+    "quick-xml@0.41.0": "MIT",
+    "wasm-bindgen-macro@0.2.129": "MIT OR Apache-2.0",
+    "zlib-rs@0.6.8": "Zlib",
+    "hashify@0.2.9": "Apache-2.0 OR MIT",
+    "serde@1.0.229": "MIT OR Apache-2.0",
+    "generic-array@0.14.7": "MIT",
+    "ryu@1.0.23": "Apache-2.0 OR BSL-1.0",
+    "thiserror@2.0.21": "MIT OR Apache-2.0",
+    "syn@3.0.6": "MIT OR Apache-2.0",
+    "crypto-common@0.1.7": "MIT OR Apache-2.0",
+    "wasm-bindgen-macro-support@0.2.129": "MIT OR Apache-2.0",
+    "multiversion_no_op@1.0.0": "Apache-2.0 OR MIT",
+    "sha2@0.10.9": "MIT OR Apache-2.0",
+    "once_cell@1.21.4": "MIT OR Apache-2.0",
+    "indexmap@2.14.2": "Apache-2.0 OR MIT",
+    "crc32fast@1.5.2": "MIT OR Apache-2.0",
+    "itoa@1.0.18": "MIT OR Apache-2.0",
+    "betteroffice-drawingml@0.3.0": "Apache-2.0",
+    "serde_core@1.0.229": "MIT OR Apache-2.0",
+    "cpufeatures@0.2.17": "MIT OR Apache-2.0",
+    "unicode-ident@1.0.26": "(MIT OR Apache-2.0) AND Unicode-3.0",
+    "betteroffice-docx-parse@0.3.0": "Apache-2.0",
+    "block-buffer@0.10.4": "MIT OR Apache-2.0",
+    "typenum@1.20.1": "MIT OR Apache-2.0",
+    "serde_json@1.0.145": "MIT OR Apache-2.0",
+    "log@0.4.34": "MIT OR Apache-2.0",
+    "base64@0.22.1": "MIT OR Apache-2.0",
+    "serde_derive@1.0.229": "MIT OR Apache-2.0",
+    "scopeguard@1.2.0": "MIT OR Apache-2.0",
+    "digest@0.10.7": "MIT OR Apache-2.0",
+    "simd-adler32@0.3.10": "MIT",
+    "hashbrown@0.17.1": "MIT OR Apache-2.0",
+    "quote@1.0.47": "MIT OR Apache-2.0",
+    "thiserror-impl@2.0.21": "MIT OR Apache-2.0"
+  },
+  "source_lines": {
+    "main.rs": 400,
+    "runner.py": 69,
+    "render.py": 62,
+    "oracle.py": 57,
+    "fixtures.py": 60
+  },
+  "helper_release_bytes": 5156192,
+  "helper_stripped_bytes": 4297440,
+  "helper_sha256": "b7c67dad57c15d201cdc9f4487e30fbb1826968e792eca8830522718ab35d556",
+  "stripped_empty_helper_bytes": 373040,
+  "stripped_helper_increment_bytes": 3924400,
+  "full_helper_tar_gz_bytes": 1881572,
+  "install_and_full_replacement_update_scope": "isolated helper binary only; no Python/models/runtime payload needed by native helper",
+  "unmeasured": [
+    "full BRN application bundle/link delta",
+    "signed/notarized distributable",
+    "clean-machine offline installation/upgrade/rollback",
+    "delta-update transfer size",
+    "lifetime maintenance cost",
+    "rendering service/package deployment"
+  ]
+}

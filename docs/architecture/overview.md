@@ -1,5 +1,7 @@
 # Architecture overview
 
+The later [selected P2 implementation](../work/active/architecture-reassessment/plan.md#selected-p2-implementation--2026-10-07) authorizes the maintained intake changes described here; earlier reassessment-only pause language below is historical for that slice. No merge/release or broader V1 implementation is selected.
+
 > Current authority (2026-10-07): the [owner amendment](../product/BRN_PRODUCT_VISION.md#owner-amendment--2026-10-07) supersedes freeze, mandatory roadmap ordering and mechanism-preservation instructions below for this authorized whole-system reassessment. Those descriptions record the previous target/current contracts; they cannot prohibit investigation or proposed replacement. Product outcomes remain binding. Production implementation is paused; new design/sequence choices remain PROPOSED pending acceptance.
 
 The 2026-10-03 reviewed target and 2026-10-04 client amendment describe the previous baseline; the 2026-10-07 owner amendment reopens mechanisms for reassessment. [Product vision](../product/BRN_PRODUCT_VISION.md)
@@ -11,7 +13,7 @@ not implementation authorization.
 ## Frozen target
 
 BRN is a headless-capable knowledge/application platform with multiple clients.
-The current V1 core has six crates: `brn-desktop` and `brn` consume
+The V1 application core has six crates: `brn-desktop` and `brn` consume
 `brn-workflow` / AppWorker, which coordinates `brn-store`, `brn-retrieval` and the
 thin `brn-ai` Rig adapter. Presentation and protocol adapters may be added when
 required around this stable core; they consume the shared application boundary
@@ -46,6 +48,15 @@ Crate count, internal ownership mechanisms, parser policies and roadmap order ar
 The [vault format](vault-format.md) records current Markdown fields, exact Source
 and citation encodings, stable links and the History/archive convention. Scope
 classification and provenance describe saved state and evidence, not semantic truth.
+
+P2 adds `brn-intake`: a lightweight immutable extraction protocol and a separate
+maintained MIME/DOCX helper executable. It owns format mechanics and native
+containment, with no second application runtime, renderer or authority ledger.
+WorkStore V16 persists exact extraction evidence; Workflow binds private analysis,
+Source prerequisites and ordinary multi-asset effects to existing proposals and
+recovery. The bespoke DOCX interpreter is retired; historical markup/proof readers
+remain. See the [adapter contract](../../crates/brn-intake/README.md) and the
+[selected P2 record](../work/active/architecture-reassessment/plan.md#selected-p2-implementation--2026-10-07).
 
 ## Semantic intelligence and deterministic authority
 

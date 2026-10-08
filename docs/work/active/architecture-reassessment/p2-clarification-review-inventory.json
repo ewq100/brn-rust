@@ -1,0 +1,141 @@
+{
+  "baseline": "bbe6ff4aaf1276254d7bc3d52bdc9458a46e1833",
+  "files": [
+    {
+      "path": "docs/status.md",
+      "sha256": "aee68452aec22b94485097c0b2fc7370c3a98adab6f244ae7aaef78825df2e7a"
+    },
+    {
+      "path": "docs/work/active/architecture-reassessment/p1-evidence.md",
+      "sha256": "ca12e46d1fa3ca010e0fa972415fb28e1e44af603b16c229928021e25ca808cc"
+    },
+    {
+      "path": "docs/work/active/architecture-reassessment/p2-conditional-spec.md",
+      "sha256": "b62b645e026b1b3bc1d052201df4ba263c0bbfb70ee95352fc3e8c5873e89ef0"
+    },
+    {
+      "path": "docs/work/active/architecture-reassessment/plan.md",
+      "sha256": "6ce8bf1ca358b8c557260ac8a921833dc4a4c3754da2c8e10d5f7b70a4c9108a"
+    },
+    {
+      "path": "experiments/architecture-reassessment/p2-api-check/.gitattributes",
+      "sha256": "54f5226ddd1d746342eeb9deaa6c2c8995422561e4266f6530a52788f08db0af"
+    },
+    {
+      "path": "experiments/architecture-reassessment/p2-api-check/Cargo.lock",
+      "sha256": "530d276abad86865eec73ee3686f5e4c1196c6a249f5dbf61f061bc34c81480c"
+    },
+    {
+      "path": "experiments/architecture-reassessment/p2-api-check/Cargo.toml",
+      "sha256": "dcf6c87a08f47298faa6252dea3d455166694971d43c2b13dd33ec9190def70d"
+    },
+    {
+      "path": "experiments/architecture-reassessment/p2-api-check/README.md",
+      "sha256": "4db8110d24f7aa4af8f90aebd16c66c6bd861738ffc42ea0fa85b6e519840b60"
+    },
+    {
+      "path": "experiments/architecture-reassessment/p2-api-check/costs.py",
+      "sha256": "8f16764964be5001132a4c109872179c56de5df684f4a1b731c8f7a1d71c9e5a"
+    },
+    {
+      "path": "experiments/architecture-reassessment/p2-api-check/features.docx",
+      "sha256": "04db9ac31374868d55d0ff579f23ad5bc558fb9fe9a2363305498817e335ea6d"
+    },
+    {
+      "path": "experiments/architecture-reassessment/p2-api-check/fixtures.py",
+      "sha256": "4a80324e70740bb021245cb29ccba9b51ce239a8f6094784a81d9f5defb7d5b1"
+    },
+    {
+      "path": "experiments/architecture-reassessment/p2-api-check/oracle.py",
+      "sha256": "5c13ab454957020a603d4bf65f04396e952e80b3a5811c6654876b23059d3453"
+    },
+    {
+      "path": "experiments/architecture-reassessment/p2-api-check/prefix-variation.docx",
+      "sha256": "7c2c8f4f4866db174495ad616d6995f002b63479d3ba3a22b182fb8151493709"
+    },
+    {
+      "path": "experiments/architecture-reassessment/p2-api-check/results/build-facade.log",
+      "sha256": "572cc52467434e626ee4e94cccf2fc26f3fcb889ef196260703307fa90dc7382"
+    },
+    {
+      "path": "experiments/architecture-reassessment/p2-api-check/results/build-leaf-final.log",
+      "sha256": "3469480fba15ac3c51852a9d23974fde850582ff87d79f1f8ae682fa941c67c7"
+    },
+    {
+      "path": "experiments/architecture-reassessment/p2-api-check/results/build-measurements.json",
+      "sha256": "fc8f2806f6adb7ba40cd45d2f90f1ee3c21fcebceeea0633164440aa264ea51f"
+    },
+    {
+      "path": "experiments/architecture-reassessment/p2-api-check/results/build.log",
+      "sha256": "b5c5793e0b797ba407f134a2046e372db89ba26775376e3f31784c4dacecca8d"
+    },
+    {
+      "path": "experiments/architecture-reassessment/p2-api-check/results/clippy.log",
+      "sha256": "d55e3bec08d06284305797016c2059f0c591bf7b5fb461e8fddcc38e139eabfe"
+    },
+    {
+      "path": "experiments/architecture-reassessment/p2-api-check/results/costs.json",
+      "sha256": "91df7bc191ff091fbd0da27a76c9cc1465614022ad940c8b5f5820689ba7a85c"
+    },
+    {
+      "path": "experiments/architecture-reassessment/p2-api-check/results/features/markdown.json",
+      "sha256": "ec7c39c5ecdd5d1bfe79a0d455f94e50a65b1c67c2bb90fb9bda50e5d1e42289"
+    },
+    {
+      "path": "experiments/architecture-reassessment/p2-api-check/results/features/package.json",
+      "sha256": "35728242c9a17482aaf4f5290c7e846acd1b5ded1b9cbf1c78468fa9988693f4"
+    },
+    {
+      "path": "experiments/architecture-reassessment/p2-api-check/results/features/structured.json",
+      "sha256": "142c0a8f768515c77eb23b7d6ace24a4dcef8d20b3262873e39d162b19db93ca"
+    },
+    {
+      "path": "experiments/architecture-reassessment/p2-api-check/results/guards.json",
+      "sha256": "e36ee0a17092da3c28ef3e1c5e3a978442705b1763a14cc3c21e1a0f896de8ab"
+    },
+    {
+      "path": "experiments/architecture-reassessment/p2-api-check/results/harbor/markdown.json",
+      "sha256": "a06c82204c657df63bcb64f08f0f3e8c84a951f357819058be6622584c81e43e"
+    },
+    {
+      "path": "experiments/architecture-reassessment/p2-api-check/results/harbor/package.json",
+      "sha256": "7b72dc89fb0d9e382731791dc593ecfdb5fa59923b9a064b7349d150f9d6b978"
+    },
+    {
+      "path": "experiments/architecture-reassessment/p2-api-check/results/harbor/structured.json",
+      "sha256": "596a657ca32a6eebd0a3fd7d82bc165390ddea4e33be1529ba6108c2153387ee"
+    },
+    {
+      "path": "experiments/architecture-reassessment/p2-api-check/results/metadata.json",
+      "sha256": "2728a2eb09925484b76255c62c784d54b7f57868498c3841f1176d45da5ff2c4"
+    },
+    {
+      "path": "experiments/architecture-reassessment/p2-api-check/results/oracle.json",
+      "sha256": "d554abc45bd44f174c2be4227826bbc4bf738d165d85581e1c79fa872e846ab4"
+    },
+    {
+      "path": "experiments/architecture-reassessment/p2-api-check/results/prefix-variation/markdown.json",
+      "sha256": "e8caff0728045a66c3fe39b96779355063d923490dfa78253c625776cdb1e399"
+    },
+    {
+      "path": "experiments/architecture-reassessment/p2-api-check/results/prefix-variation/package.json",
+      "sha256": "7b72dc89fb0d9e382731791dc593ecfdb5fa59923b9a064b7349d150f9d6b978"
+    },
+    {
+      "path": "experiments/architecture-reassessment/p2-api-check/results/prefix-variation/structured.json",
+      "sha256": "ab31041e5b914e1445c05a749d3b3043dc7e60127402cbd01503b4d70a4a1f83"
+    },
+    {
+      "path": "experiments/architecture-reassessment/p2-api-check/results/published-versions.json",
+      "sha256": "5e99c91b547176a32f2ccd2ccf6788775ddc2e947159b5167dfeec5188d95796"
+    },
+    {
+      "path": "experiments/architecture-reassessment/p2-api-check/results/tree-features.txt",
+      "sha256": "4af92d26e3311bc33a2bdb2c94875d5b96477ea34fb530750ccaf998c3dfd3e8"
+    },
+    {
+      "path": "experiments/architecture-reassessment/p2-api-check/src/main.rs",
+      "sha256": "36620ef2f73c5bb1864ab04b65c8a527b5b200498530a3117e59dc69dad3608f"
+    }
+  ]
+}

@@ -1,0 +1,163 @@
+{
+  "children": [
+    {
+      "bytes": 19936,
+      "cid": "water-evidence",
+      "extraction": {
+        "reason": "CID resource retained; no standalone-image import",
+        "status": "retained-inline"
+      },
+      "filename": "inline-water.png",
+      "mime_attachment_index": 0,
+      "node": "47f34537c79fb7ad86f4751f6b59d856af5819e4e5918b93775403fd4970dd82-attachment-0",
+      "parent": "47f34537c79fb7ad86f4751f6b59d856af5819e4e5918b93775403fd4970dd82",
+      "sha256": "f76dd37920a0fc5889b1d53a0c448f7ec6c619ed8200eef5d31621e36ca4d61d"
+    },
+    {
+      "bytes": 55345,
+      "cid": null,
+      "extraction": {
+        "charts_without_visual_preview": [],
+        "converter": "BetterOffice-docx-0.3.0",
+        "gaps": [
+          "Reflowed evidence view, not original pagination/layout. Charts, SmartArt, drawings, revisions and unrepresented story/container text are not qualified. Inspect retained original."
+        ],
+        "occurrences": [
+          {
+            "asset_part": "word/media/image1.png",
+            "asset_sha256": "f76dd37920a0fc5889b1d53a0c448f7ec6c619ed8200eef5d31621e36ca4d61d",
+            "description": "120 to 72 litres/day, a 40% reduction",
+            "name": "primary-chart",
+            "occurrence": 1,
+            "part": "word/document.xml",
+            "picture_id": "1",
+            "relationship": "rId11",
+            "source": "47f34537c79fb7ad86f4751f6b59d856af5819e4e5918b93775403fd4970dd82-attachment-1",
+            "title": "Water use before and after"
+          },
+          {
+            "asset_part": "word/media/image1.png",
+            "asset_sha256": "f76dd37920a0fc5889b1d53a0c448f7ec6c619ed8200eef5d31621e36ca4d61d",
+            "description": "120 to 72 litres/day, a 40% reduction",
+            "name": "repeated-chart",
+            "occurrence": 2,
+            "part": "word/document.xml",
+            "picture_id": "2",
+            "relationship": "rId11",
+            "source": "47f34537c79fb7ad86f4751f6b59d856af5819e4e5918b93775403fd4970dd82-attachment-1",
+            "title": "Same chart for operations handoff"
+          }
+        ],
+        "original_sha256": "46a227162352ff616344ab5bc91350d1c1f2810bb099f873ab49979c3133df85",
+        "source": "47f34537c79fb7ad86f4751f6b59d856af5819e4e5918b93775403fd4970dd82-attachment-1",
+        "status": "partial",
+        "text": [
+          "Harbor water-saving pilot",
+          "Decision: extend the pilot to Pier B on 15 October 2026. Owner: Mira. The chart is evidence, not decoration.",
+          "Site",
+          "Before",
+          "After",
+          "Pier A",
+          "120 L/day",
+          "72 L/day",
+          "Pier B",
+          "Pending",
+          "Pending",
+          "Water use before and after",
+          "Same chart for operations handoff",
+          "Internal synthetic briefing — review date 12 October 2026",
+          "Footer constraint: budget capped at EUR 4,000."
+        ],
+        "text_evidence": [
+          {
+            "source_ordinal": 0,
+            "text": "Harbor water-saving pilot",
+            "wire_pointer": "/document/package/document/content/0/content/0/content/0/text"
+          },
+          {
+            "source_ordinal": 1,
+            "text": "Decision: extend the pilot to Pier B on 15 October 2026. Owner: Mira. The chart is evidence, not decoration.",
+            "wire_pointer": "/document/package/document/content/1/content/0/content/0/text"
+          },
+          {
+            "source_ordinal": 2,
+            "text": "Site",
+            "wire_pointer": "/document/package/document/content/2/rows/0/cells/0/content/0/content/0/content/0/text"
+          },
+          {
+            "source_ordinal": 3,
+            "text": "Before",
+            "wire_pointer": "/document/package/document/content/2/rows/0/cells/1/content/0/content/0/content/0/text"
+          },
+          {
+            "source_ordinal": 4,
+            "text": "After",
+            "wire_pointer": "/document/package/document/content/2/rows/0/cells/2/content/0/content/0/content/0/text"
+          },
+          {
+            "source_ordinal": 5,
+            "text": "Pier A",
+            "wire_pointer": "/document/package/document/content/2/rows/1/cells/0/content/0/content/0/content/0/text"
+          },
+          {
+            "source_ordinal": 6,
+            "text": "120 L/day",
+            "wire_pointer": "/document/package/document/content/2/rows/1/cells/1/content/0/content/0/content/0/text"
+          },
+          {
+            "source_ordinal": 7,
+            "text": "72 L/day",
+            "wire_pointer": "/document/package/document/content/2/rows/1/cells/2/content/0/content/0/content/0/text"
+          },
+          {
+            "source_ordinal": 8,
+            "text": "Pier B",
+            "wire_pointer": "/document/package/document/content/2/rows/2/cells/0/content/0/content/0/content/0/text"
+          },
+          {
+            "source_ordinal": 9,
+            "text": "Pending",
+            "wire_pointer": "/document/package/document/content/2/rows/2/cells/1/content/0/content/0/content/0/text"
+          },
+          {
+            "source_ordinal": 10,
+            "text": "Pending",
+            "wire_pointer": "/document/package/document/content/2/rows/2/cells/2/content/0/content/0/content/0/text"
+          },
+          {
+            "source_ordinal": 11,
+            "text": "Water use before and after",
+            "wire_pointer": "/document/package/document/content/3/content/0/content/0/text"
+          },
+          {
+            "source_ordinal": 13,
+            "text": "Same chart for operations handoff",
+            "wire_pointer": "/document/package/document/content/5/content/0/content/0/text"
+          },
+          {
+            "source_ordinal": 0,
+            "text": "Internal synthetic briefing — review date 12 October 2026",
+            "wire_pointer": "/document/package/headerEntries/0/1/content/0/content/0/content/0/text"
+          },
+          {
+            "source_ordinal": 0,
+            "text": "Footer constraint: budget capped at EUR 4,000.",
+            "wire_pointer": "/document/package/footerEntries/0/1/content/0/content/0/content/0/text"
+          }
+        ]
+      },
+      "filename": "harbor.docx",
+      "mime_attachment_index": 1,
+      "node": "47f34537c79fb7ad86f4751f6b59d856af5819e4e5918b93775403fd4970dd82-attachment-1",
+      "parent": "47f34537c79fb7ad86f4751f6b59d856af5819e4e5918b93775403fd4970dd82",
+      "sha256": "46a227162352ff616344ab5bc91350d1c1f2810bb099f873ab49979c3133df85"
+    }
+  ],
+  "converter": "mail-parser-0.11.8/full_encoding",
+  "date_raw": " Tue, 06 Oct 2026 16:20:00 +0300\r\n",
+  "html": "<html><body><p>Water use fell 40%.</p><img src=\"cid:water-evidence\"><p>See attached decision.</p></body></html>\r\n",
+  "message_id": "harbor-single@example.test",
+  "source": "47f34537c79fb7ad86f4751f6b59d856af5819e4e5918b93775403fd4970dd82",
+  "subject": "Harbor pilot – review",
+  "text": "Please review the attached Harbor pilot. Extend to Pier B after inspection.\r\n"
+}

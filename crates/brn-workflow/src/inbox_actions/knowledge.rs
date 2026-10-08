@@ -84,15 +84,47 @@ impl App {
         }
         let source_id = job.capture.note_id()?;
         let mut citations = Vec::new();
+        let mut intake_citations = Vec::new();
+        let private_snapshot = job
+            .capture
+            .intake
+            .as_ref()
+            .map(|intake| {
+                self.store
+                    .intake_snapshot(intake.snapshot_id)?
+                    .ok_or_else(|| rejected("private extraction is unavailable"))
+            })
+            .transpose()?;
+        let body = note_identity::body_start(&job.capture.source_text)?;
         for selection in &args.quotes {
             let range = crate::quote_selection::resolve(
                 &job.capture.source_text,
                 &selection.quote,
                 selection.occurrence,
             )?;
+            if let Some(snapshot) = &private_snapshot {
+                intake_citations.push(
+                    brn_store::work::inbox_actions::IntakeCitation::resolve_for_source(
+                        snapshot,
+                        job.capture.note_id()?,
+                        range.start.checked_sub(body).ok_or_else(|| {
+                            rejected("private quote cannot cite wrapper metadata")
+                        })?,
+                        range.end.checked_sub(body).ok_or_else(|| {
+                            rejected("private quote cannot cite wrapper metadata")
+                        })?,
+                        selection.source_id.as_deref(),
+                    )
+                    .map_err(|error| rejected(&error.to_string()))?,
+                );
+            } else if selection.source_id.is_some() {
+                return Err(rejected(
+                    "source_id selects a private extraction node; saved Source quotations use body occurrences",
+                ));
+            }
             citations.push(note_provenance::VaultCitation {
                 note_id: source_id,
-                sha256: job.capture.source.fingerprint.sha256,
+                sha256: job.capture.source_sha256(),
                 start_byte: range.start,
                 end_byte: range.end,
                 quote: selection.quote.clone(),
@@ -160,7 +192,11 @@ impl App {
         }
         let sources = match existing {
             Some(existing) => {
-                if existing.draft.sources.first() != Some(&job.capture.source)
+                if job
+                    .capture
+                    .source
+                    .as_ref()
+                    .is_some_and(|source| existing.draft.sources.first() != Some(source))
                     || supersedes
                         .as_ref()
                         .is_some_and(|bound| existing.draft.sources.get(1) != Some(&bound.source))
@@ -168,7 +204,10 @@ impl App {
                         .draft
                         .sources
                         .iter()
-                        .skip(1 + usize::from(supersedes.is_some()))
+                        .skip(
+                            usize::from(job.capture.source.is_some())
+                                + usize::from(supersedes.is_some()),
+                        )
                         .map(|s| s.path.as_str()))
                 {
                     return Err(rejected("knowledge creation target paths changed"));
@@ -176,7 +215,7 @@ impl App {
                 existing.draft.sources
             }
             None => {
-                let mut sources = vec![job.capture.source.clone()];
+                let mut sources = job.capture.source.iter().cloned().collect::<Vec<_>>();
                 if let Some(bound) = &supersedes {
                     sources.push(bound.source.clone());
                 }
@@ -198,12 +237,15 @@ impl App {
             });
         }
         let request = DraftRequest {
+            intake: None,
             inbox_visual: None,
             inbox_knowledge: Some(Box::new(InboxKnowledgeBinding {
                 supersedes,
                 analysis_id: job.capture.id,
                 note_id,
                 source: job.capture.source.clone(),
+                intake: job.capture.intake.clone().map(Box::new),
+                intake_citations,
                 citations,
             })),
             inbox_source: None,
@@ -262,6 +304,7 @@ impl App {
         let source_id = job.capture.note_id()?;
         if job.capture.purpose != InboxAnalysisPurpose::KnowledgeAndActions
             || job.capture.source != binding.source
+            || job.capture.intake.as_ref() != binding.intake.as_deref()
             || binding.citations.iter().any(|c| {
                 c.note_id != source_id
                     || job.capture.source_text.get(c.start_byte..c.end_byte)
@@ -282,13 +325,18 @@ impl App {
             return Ok(());
         };
         let job = self.inbox_knowledge_capture(binding)?;
+        self.validate_intake_dependency(binding.intake.as_deref(), true)?;
         let files = self.editor.files.as_ref().ok_or_else(|| {
             WorkflowError::typed(ErrorKind::ContextStale, "knowledge files are unavailable")
         })?;
         let source = files
-            .observe(Path::new(&binding.source.path))
+            .observe(Path::new(job.capture.source_path()))
             .map_err(file_error)?;
-        if source.fingerprint != binding.source.fingerprint
+        if binding
+            .source
+            .as_ref()
+            .is_some_and(|bound| source.fingerprint != bound.fingerprint)
+            || source.fingerprint.sha256 != job.capture.source_sha256()
             || source.text != job.capture.source_text
         {
             return Err(WorkflowError::typed(
@@ -299,8 +347,8 @@ impl App {
         let inventory = self.inspect_identity_inventory()?;
         let source_identity = inventory.resolution(job.capture.note_id()?);
         if source_identity.outcome != IdentityOutcome::Unique
-            || source_identity.matches[0].path != binding.source.path
-            || source_identity.matches[0].sha256 != binding.source.fingerprint.sha256
+            || source_identity.matches[0].path != job.capture.source_path()
+            || source_identity.matches[0].sha256 != job.capture.source_sha256()
         {
             return Err(WorkflowError::typed(
                 ErrorKind::ContextStale,
@@ -338,6 +386,10 @@ impl App {
         }
         for id in link_ids {
             if id == binding.note_id
+                || binding
+                    .intake
+                    .as_ref()
+                    .is_some_and(|intake| intake.source_note_id == id)
                 || binding
                     .supersedes
                     .as_ref()
@@ -414,10 +466,12 @@ mod tests {
             text: "\u{feff}# Candidate 🦀\r\nExact bytes\r\n".into(),
             quotes: vec![
                 KnowledgeQuoteArgs {
+                    source_id: None,
                     quote: "First õ".into(),
                     occurrence: Some(1),
                 },
                 KnowledgeQuoteArgs {
+                    source_id: None,
                     quote: "Second 🦀".into(),
                     occurrence: None,
                 },
@@ -432,7 +486,7 @@ mod tests {
             assert_eq!(id.get_variant(), uuid::Variant::RFC4122);
         }
         let mut identities = vec![original];
-        for mode in 0..10 {
+        for mode in 0..11 {
             let mut changed = args.clone();
             match mode {
                 0 => changed.title.push(' '),
@@ -444,7 +498,8 @@ mod tests {
                 6 => changed.supersedes = Some("other.md".into()),
                 7 => changed.supersedes = None,
                 8 => changed.source_paths.swap(0, 1),
-                _ => changed.quotes.swap(0, 1),
+                9 => changed.quotes.swap(0, 1),
+                _ => changed.quotes[0].source_id = Some("source-docx".into()),
             }
             let new = knowledge_ids(analysis, &changed).unwrap();
             assert!(

@@ -64,6 +64,16 @@ impl Desktop {
                 .analysis_source
                 .update(cx, |editor, cx| editor.set_value(source, window, cx));
         }
+        let extraction = ai
+            .inbox_analysis
+            .retained_extraction
+            .as_ref()
+            .map_or("", |snapshot| snapshot.extraction.markdown.as_str());
+        if self.inbox.retained_extraction.read(cx).value().as_ref() != extraction {
+            self.inbox
+                .retained_extraction
+                .update(cx, |editor, cx| editor.set_value(extraction, window, cx));
+        }
         let retained_source = ai
             .inbox_analysis
             .record
@@ -109,9 +119,10 @@ impl Desktop {
 
     fn analysis_source_matches_input(&self, cx: &App) -> bool {
         let ai = self.ai.as_ref().unwrap();
-        ai.inbox_analysis.source.as_ref().is_some_and(|source| {
-            self.inbox.analysis_source_path.read(cx).value().as_ref() == source.source.path
-        })
+        ai.inbox_analysis.intake.is_some()
+            || ai.inbox_analysis.source.as_ref().is_some_and(|source| {
+                self.inbox.analysis_source_path.read(cx).value().as_ref() == source.source.path
+            })
     }
 
     fn inspect_analysis_source(&mut self, cx: &mut Context<Self>) {
@@ -202,8 +213,8 @@ impl Desktop {
             .flex()
             .flex_col()
             .gap_2()
-            .child(ui::section_label("Analyze an approved Source", p).px_0())
-            .child(ui::hint("BRN drafts knowledge and Action proposals from an approved Source. You review them before anything changes.", p))
+            .child(ui::section_label("Investigate captured evidence or a saved Source", p).px_0())
+            .child(ui::hint("Investigation can start from an immutable private extraction before Source approval. Retain its Source proposal, then inspect the private binding below. Knowledge and Action drafts carry its exact Source prerequisite into review.", p))
             .child(Textarea::new(&self.inbox.analysis_source_path)
                 .disabled(blocked)
                 .aria_label("Saved Source path for analysis"))
@@ -215,6 +226,32 @@ impl Desktop {
                     || ai.inbox_analysis_source_loading()
                     || self.inbox.analysis_source_path.read(cx).value().is_empty())
                 .on_click(cx.listener(|this, _, _, cx| this.inspect_analysis_source(cx))));
+        if let Some(prepared) = &ai.inbox_queue.prepared {
+            let source_proposal_id = prepared.id;
+            panel = panel.child(
+                Button::new("inbox-analysis-inspect-private")
+                    .label("Inspect private extraction before Source approval")
+                    .disabled(
+                        blocked || ai.application_busy() || ai.inbox_analysis_source_loading(),
+                    )
+                    .on_click(cx.listener(move |this, _, _, cx| {
+                        if !this.inbox_blocked()
+                            && let Some(command) = this
+                                .ai
+                                .as_mut()
+                                .unwrap()
+                                .inspect_private_intake(source_proposal_id)
+                        {
+                            this.simple_send(command, cx);
+                        }
+                        cx.notify();
+                    })),
+            );
+        }
+        if let Some(intake) = &view.intake {
+            panel = panel.child(div().id("inbox-analysis-private-binding").test_support()
+                .child(format!("Private extraction {} · planned Source {} · proposal {} version {} · {} images / {} occurrences. Source approval is a prerequisite for applying dependent knowledge or Actions.", intake.snapshot_id, intake.source_path, intake.source_proposal.id, intake.source_proposal.version, intake.assets.len(), intake.occurrences.len())));
+        }
         if ai.inbox_analysis_source_loading() {
             panel = panel.child("Inspecting saved Source…");
         }
@@ -466,6 +503,42 @@ impl Desktop {
                 turn.provider, turn.model, turn.effort.as_deref().unwrap_or("unavailable")))
                 .child("Copy this partial before closing or restarting. Further AI requests remain blocked until the workspace is reopened.");
         }
+        if ai.retained_extraction_binding().is_some() {
+            panel = panel.child(
+                Button::new("inbox-inspect-retained-extraction")
+                    .label("Inspect retained extraction")
+                    .disabled(blocked || ai.application_busy() || ai.retained_extraction_loading())
+                    .on_click(cx.listener(|this, _, _, cx| {
+                        if this.inbox_blocked() {
+                            return;
+                        }
+                        if let Some(command) =
+                            this.ai.as_mut().unwrap().inspect_retained_extraction()
+                        {
+                            this.simple_send(command, cx);
+                        }
+                        cx.notify();
+                    })),
+            );
+        }
+        if ai.retained_extraction_loading() {
+            panel = panel.child("Loading exact retained extraction…");
+        }
+        if let Some(error) = &view.extraction_error {
+            panel = panel.child(format!("Retained extraction: {error}"));
+        }
+        if let Some(snapshot) = &view.retained_extraction {
+            let checked_digest = ai
+                .retained_extraction_binding()
+                .filter(|(id, _)| *id == snapshot.id)
+                .map(|(_, digest)| fingerprint_hash(&digest))
+                .unwrap_or_else(|| "unavailable".into());
+            panel = panel.child(div().id("retained-intake-extraction").test_support()
+                .child(format!("Retained extraction {} · SHA-256 {} · original {}. Read-only historical evidence; original files and conversion are not required.", snapshot.id, checked_digest, snapshot.original.capture.title)))
+                .child(div().h(px(300.)).flex_shrink_0().child(readonly(&self.inbox.retained_extraction, "Complete retained extraction Markdown")))
+                .child(copy("copy-retained-extraction", "Copy full retained extraction", snapshot.extraction.markdown.clone()))
+                .child(self.render_intake_extraction(&snapshot.extraction, true, blocked, cx));
+        }
         if let Some(record) = &view.record {
             let capture = &record.job.capture;
             panel = panel
@@ -475,12 +548,12 @@ impl Desktop {
                 ))
                 .child(format!(
                     "Source captured for this analysis: {}",
-                    capture.source.path
+                    capture.source_path()
                 ))
                 .child(format!(
                     "Captured SHA-256: {} · {} bytes",
-                    fingerprint_hash(&capture.source.fingerprint.sha256),
-                    capture.source.fingerprint.len
+                    fingerprint_hash(&capture.source_sha256()),
+                    capture.source_text.len()
                 ))
                 .child(div().h(px(180.)).child(readonly(
                     &self.inbox.analysis_retained_source,
@@ -491,10 +564,17 @@ impl Desktop {
                     "Copy captured Source",
                     capture.source_text.clone(),
                 ));
-            panel = panel.child(super::visual::file_proof(
-                "Captured full Source proof",
-                &capture.source,
-            ));
+            if let Some(source) = &capture.source {
+                panel = panel.child(super::visual::file_proof(
+                    "Captured full Source proof",
+                    source,
+                ));
+            } else if let Some(intake) = &capture.intake {
+                panel = panel.child(format!(
+                    "Immutable private snapshot {} · Source prerequisite {} version {}",
+                    intake.snapshot_id, intake.source_proposal.id, intake.source_proposal.version
+                ));
+            }
             if let Some(asset) = &capture.visual_asset {
                 let proof = super::visual::file_proof("Captured full PNG asset proof", asset);
                 panel = panel.child(

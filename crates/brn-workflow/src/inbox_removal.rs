@@ -265,7 +265,7 @@ pub(crate) mod tests {
             let item = app
                 .capture_inbox(&CaptureInboxRequest {
                     id: Uuid::new_v4(),
-                    kind: InboxKind::Email,
+                    kind: InboxKind::Text,
                     title: "Synthetic copy õ".into(),
                     original_name: None,
                     text: "\u{feff}Exact body 日本語\r\n\u{0001}".into(),
@@ -287,6 +287,8 @@ pub(crate) mod tests {
             let batch = self
                 .app
                 .process_inbox(&ProcessInboxRequest {
+                    limits: None,
+
                     id: Uuid::new_v4(),
                     items: vec![item],
                 })
@@ -406,6 +408,8 @@ pub(crate) mod tests {
         let batch = f
             .app
             .process_inbox(&ProcessInboxRequest {
+                limits: None,
+
                 id: Uuid::new_v4(),
                 items: vec![item.clone()],
             })
@@ -449,6 +453,7 @@ pub(crate) mod tests {
             .unwrap()
             .saved;
         let draft = crate::proposals::DraftRequest {
+            intake: None,
             inbox_source: None,
             inbox_visual: None,
             inbox_knowledge: None,
@@ -506,11 +511,12 @@ pub(crate) mod tests {
             .saved;
         let good = f.app.preview_inbox_removal(f.item).unwrap();
         let capture = InboxActionCapture {
+            intake: None,
             visual_asset: None,
             purpose: Default::default(),
             id: Uuid::new_v4(),
             conversation: None,
-            source: source.source.clone(),
+            source: Some(source.source.clone()),
             source_text: source.text,
             provider: "chatgpt".into(),
             model: "gpt-6-luna".into(),
@@ -540,6 +546,7 @@ pub(crate) mod tests {
             good.digest
         );
         let draft = crate::proposals::DraftRequest {
+            intake: None,
             inbox_source: None,
             inbox_visual: None,
             inbox_knowledge: None,
@@ -864,6 +871,7 @@ pub(crate) mod tests {
             } else {
                 let source = good.evidence.source.as_ref().unwrap().saved.source.clone();
                 let draft = crate::proposals::DraftRequest {
+                    intake: None,
                     inbox_source: None,
                     inbox_visual: None,
                     inbox_knowledge: None,

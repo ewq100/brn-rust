@@ -52,7 +52,7 @@ impl Fixture {
         let item = app
             .capture_inbox(&CaptureInboxRequest {
                 id: Uuid::new_v4(),
-                kind: InboxKind::Email,
+                kind: InboxKind::Text,
                 title: "Synthetic original".into(),
                 original_name: None,
                 text,
@@ -60,6 +60,8 @@ impl Fixture {
             .unwrap();
         let batch = app
             .process_inbox(&ProcessInboxRequest {
+                limits: None,
+
                 id: Uuid::new_v4(),
                 items: vec![item.clone()],
             })

@@ -6,7 +6,7 @@ publish = false
 
 [features]
 default = []
-native-ui = ["dep:gpui-kit", "dep:sha2"]
+native-ui = ["dep:gpui-kit", "dep:sha2", "dep:tempfile", "dep:libc"]
 native-retrieval = ["native-ui", "brn-workflow/native-retrieval"]
 native-test-support = ["native-ui", "gpui-kit/test-support"]
 # Development-only design-handbook captures; never part of a shipping build.
@@ -16,10 +16,14 @@ native-capture = ["native-ui", "gpui-kit/test-support", "dep:brn-store"]
 gpui-kit = { version = "=0.6.6", optional = true }
 brn-workflow = { path = "../brn-workflow" }
 brn-store = { path = "../brn-store", optional = true }
+brn-intake = { path = "../brn-intake" }
+tempfile = { version = "3", optional = true }
+libc = { version = "0.2", optional = true }
 uuid = { version = "1", features = ["v4"] }
 serde = { version = "1", features = ["derive"] }
 serde_json = "1"
 sha2 = { version = "0.10", optional = true }
 
 [dev-dependencies]
+brn-store = { path = "../brn-store" }
 tempfile = "3"

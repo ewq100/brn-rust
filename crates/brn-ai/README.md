@@ -104,14 +104,20 @@ authentication. Provider-specific display metadata is stored only in `0600`
 files in the credential directory, never SQL.
 
 ChatGPT discovery authenticates with device flow disabled, then requests the
-subscription `/models` catalog with BRN's actual package version as
-`client_version`. It reuses pinned Rig 0.43's OpenAI Models wire encoding for the
+subscription `/models` catalog with an explicitly qualified Codex protocol
+compatibility version (`0.161.0`) as `client_version`, independently of BRN's
+crate release number. The backend gates model visibility on this compatibility
+value: BRN package version `0.1.0` returned zero entries during the 2026-10-08
+qualification; the qualified protocol value returned the current visible catalog,
+including `gpt-6-luna`. This is not a caller-identity override, model selection or
+entitlement guarantee. Changing the value requires catalog and pinned
+Responses/tool/image contract qualification. It reuses pinned Rig 0.43's OpenAI Models wire encoding for the
 URL and authorization, copying account and caller identity headers from the
 same authenticated Rig config because the modality encoder omits them. Requests
 use the existing Rig transport. A private decoder requires the Codex `models`
 envelope and each entry's `slug`, known `visibility` and integer `priority`; the generic Rig decoder
 expects the incompatible API `data`/`id` envelope. The catalog format follows
-OpenAI's [endpoint implementation](https://github.com/openai/codex/blob/afb436df8b70bb5bc57b86d9a3e829968988cd21/codex-rs/codex-api/src/endpoint/models.rs)
+OpenAI's [endpoint implementation](https://github.com/openai/codex/blob/rust-v0.161.0/codex-rs/codex-api/src/endpoint/models.rs)
 and [protocol](https://github.com/openai/codex/blob/afb436df8b70bb5bc57b86d9a3e829968988cd21/codex-rs/protocol/src/openai_models.rs).
 All identifiers and duplicates are validated before returning any options.
 Only `visibility: list` entries are shown, in ascending priority with ties
@@ -401,3 +407,14 @@ The facade enables only `agent`, `derive`, `reqwest`; TLS is enabled directly on
 This preserves the [spike's pinned dependency graph](../../experiments/rig-spike/FINDINGS.md).
 Offline tests do not qualify live authentication, native UI, server-side
 cancellation or billing behavior.
+
+## P2 private intake evidence
+
+The existing Rig proposal runtime also accepts a collection of exact retained PNG
+assets with explicit source/occurrence labels for private EML/DOCX investigation.
+JPEGs remain reviewable extraction assets but are not supplied through this PNG
+transport. Workflow binds proposals to the pending Source and validates quoted
+source-node ranges; the model cannot approve or create a saved Source version.
+The existing 50,000-byte captured Source bound remains; larger semantic-context
+work is outside P2. Synthetic tool tests verify authority and lifecycle, not live
+model usefulness.

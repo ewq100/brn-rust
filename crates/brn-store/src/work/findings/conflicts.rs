@@ -17,13 +17,21 @@ pub(super) fn validate_certificate_capture(
     let FindingOrigin::InboxConflict { source_quote, .. } = &draft.request.origin else {
         return Ok(());
     };
+    if capture.intake.is_some() {
+        return Err(invalid(
+            "private intake conflicts require renewed saved-source review",
+        ));
+    }
+    let selected = capture
+        .source
+        .as_ref()
+        .ok_or_else(|| invalid("conflict needs a saved Source"))?;
     let source = &draft.evidence[0];
     if capture.purpose != super::super::inbox_actions::InboxAnalysisPurpose::KnowledgeAndActions
-        || source.source != capture.source
+        || source.source != *selected
         || source.note_id != Some(capture.note_id()?)
         || crate::note_metadata::classify(&capture.source_text)?.history
-        || capture
-            .source
+        || selected
             .path
             .split('/')
             .next()

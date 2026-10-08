@@ -137,6 +137,7 @@ fn snapshot(root: &Path) -> Vec<VaultEntry> {
 
 fn draft(source: &SourceVersion, change: DraftNoteChange) -> DraftRequest {
     DraftRequest {
+        intake: None,
         inbox_visual: None,
         inbox_knowledge: None,
         inbox_source: None,

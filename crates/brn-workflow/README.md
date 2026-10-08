@@ -25,7 +25,16 @@ retrieval storage details.
 
 [Application](src/app.rs), [commands/events](src/app_worker.rs), [chat lane](src/chat_worker.rs), [editor](src/editor.rs), [Inbox boundary](src/inbox.rs), [proposal review](src/proposals.rs), [proposal application](src/proposal_apply.rs), [durable provenance](src/knowledge/provenance.rs), [activity](src/activity.rs), [file adapter](src/files/mod.rs).
 
-## Text/email Inbox boundary
+## Inbox evidence boundary
+
+`InboxRetainedExtractions(capture_id)` discovers checked immutable extraction
+versions for the exact retained Inbox catalog item. Equal-byte imports remain
+separate. Results follow `(batch_id, index, snapshot_id)` identity order, with no
+current/latest preference. The operation performs no conversion, original-file
+access, provider request or approval. Catalog absence, corruption or bounded-scan
+refusal is explicit; standalone `InboxExtraction(snapshot_id)` history remains
+independent of the catalog/queue. Discovery does not refresh approval proofs.
+
 
 `ProcessInbox`, `InboxProcessing`, `InboxCandidate` and `CancelInboxProcessing`
 extend the same headless boundary. One joined AppWorker lane advances one member
@@ -34,10 +43,12 @@ at most 16 members can be pending. WorkStore V13 keeps exact requests, states an
 conversion receipts. Restart interrupts unfinished members; replay never silently
 restarts work. New UUIDs explicitly retry retained originals.
 
-Markdown previews preserve exact bytes; other deliberate text copies use safe
-literal Markdown fences around the exact body. Oversized previews are flagged
-without truncation. Preview reads recheck the original and reproduce the exact
-receipt. Imported frontmatter remains pending text rather than managed metadata.
+Markdown previews preserve exact bytes; deliberate Text/Teams copies use safe
+literal Markdown fences around the exact body. Email uses maintained MIME extraction
+as described below. Oversized previews are flagged without truncation. Literal
+preview reads recheck originals; maintained previews read immutable retained
+snapshots even after original loss. Fresh effects require separately qualified
+original/evidence proofs. Imported frontmatter remains pending text rather than managed metadata.
 `InboxConversionPreview::validate_receipt` checks the complete batch/original/
 format/length/digest at this boundary. Clients need no hashing or conversion logic;
 a complete operational preview remains readable even if a later Source wrapper
@@ -47,7 +58,7 @@ whole Source draft for the existing exact approval/recovery boundary. Opt-in
 knowledge, Action and supersession review are described below.
 Conflict capture and explicitly confirmed text-copy Remove/Restore are described
 below. The bounded DOCX inline PNG/interpretation profile is described below;
-broader attachments and visual formats remain follow-on work.
+the maintained EML/DOCX profile below supports plural attachments and images.
 No original deletion, provider call or authoritative write occurs here.
 
 `CaptureInbox`, `InboxItem` and `InboxItems` are headless workflow commands for
@@ -73,24 +84,49 @@ explicit opaque originals up to 16 MiB, including empty and invalid UTF-8 bytes.
 `CaptureBinaryInboxRequest` binds UUID, labels and complete bytes; text capture
 rejects Binary. UUID.bin is derived from the typed receipt, while existing text
 kinds retain UUID.txt and their 1 MiB limit. Capture refuses either occupied suffix;
-recovery never substitutes one suffix for the other. Catalog schema V15 and the
+recovery never substitutes one suffix for the other. Catalog schema V16 and the
 metadata-only format1 capture mirror remain unchanged.
 
 `InboxOriginal::AvailableBinary` reports only complete length/hash after a fresh
 stable private-file identity/byte observation. `InboxRead::validate_receipt`
 checks client DTO consistency; it does not establish fresh filesystem authority.
-Binary processing attempts the bounded DOCX text/structure or single inline PNG
-profiles described in the [Stage8 plan](../../docs/work/active/office-inbox/plan.md#next-slice-bounded-docx-text-source).
-Workflow observes complete bytes through the held original-file boundary and
-rederives conversion for a fresh candidate, new Source draft and unfinished
-approval/application. A converted receipt is operational evidence, never fresh
-authority by itself. Historical terminal Source recovery stays self-contained.
-Unsupported or malformed packages fail durably; no generic ZIP ingestion,
-extraction or external relationship fetch occurs. Binary payloads are not
-rendered as text. Binary preservation and new/legacy Remove/Restore remain refused,
-including after exact Source approval.
+Binary processing selects EML by its captured `.eml` name and otherwise DOCX;
+the Email text kind also invokes the maintained MIME helper. The owned helper is
+restricted before stdin, uses empty environment and bounded pipes, and is joined
+on cancellation, timeout and failure. Complete output is validated before an
+immutable hashed extraction snapshot and private recovery mirror are published.
+Candidates and historical review read that snapshot without reconversion. Fresh
+Source approval still checks the exact original file, snapshot, body and every
+asset. Unsupported attachments remain retained and visibly unprocessed.
 
-`AnalyzeInboxActions` accepts one complete saved managed Inbox Source, an operation
+`InboxIntakeBinding` binds retained investigation to the exact pending or
+approved Draft stamp, snapshot digest, note identity and text. For an Applied
+Source, `intake_analysis_binding` requires exactly one successful journal matching
+the current Applied review stamp and full draft; it retains that journal's
+original approved Draft stamp rather than substituting the later Applied stamp.
+No latest-receipt selection or new Source proposal occurs. Rejected/applying/
+uncertain states and missing/ambiguous receipt matches refuse. `AnalyzeInboxActions`
+accepts either this binding or the historical saved Source profile. Private
+knowledge citations bind exact source-node text ranges; Actions retain the same
+prerequisite. No SourceVersion is fabricated for unsaved evidence. Related
+knowledge, History and Actions use existing proposals, comment/Rewrite and
+application journals. Group approval validates selected stamps and applies the
+Source prerequisite before dependent members. Individual dependent approval
+requires its exact Applied Source receipt for the current review version,
+current saved bytes/assets and fresh unique Source identity. The internal proof
+scan remains usable during admitted application while public Current tools stay
+fenced. Fresh creation, individual approval and group prerequisite validation
+open the checked file adapter after restart even for an Action with no file
+changes, before an editor or investigation has been opened. Saved turns replay without fresh inference. The model
+input names pending versus Applied Source authority explicitly; neither implies
+semantic completeness.
+
+Old DOCX drafts cannot approve or Finish through reconversion. Original bytes and
+saved records remain available; exact-proof Restore can undo partial effects,
+while absent/changed proof blocks recovery and preserves artifacts. Renewed
+extraction and review create new authority. Binary copy cleanup remains refused.
+
+The historical saved-Source profile of `AnalyzeInboxActions` accepts one complete managed Inbox Source, an operation
 UUID, optional conversation and explicit provider/model/effort. Full Source bytes
 including metadata must fit 50,000 bytes; no truncation occurs. New admission
 checks the fresh full file proof and unique UUID. WorkStore V14 retains the exact

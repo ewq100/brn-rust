@@ -62,10 +62,13 @@ mod inbox_analysis_tests;
 mod inbox_copy;
 #[cfg(all(test, target_os = "macos", feature = "native-test-support"))]
 mod inbox_copy_tests;
+mod inbox_guided;
 #[cfg(all(test, target_os = "macos", feature = "native-test-support"))]
 mod inbox_navigation_tests;
+mod inbox_reader;
 #[cfg(all(test, target_os = "macos", feature = "native-test-support"))]
 mod inbox_tests;
+mod intake_preview;
 #[cfg(all(test, target_os = "macos", feature = "native-test-support"))]
 mod login_tests;
 #[cfg(all(test, target_os = "macos", feature = "native-test-support"))]

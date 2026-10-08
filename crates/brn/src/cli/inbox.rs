@@ -41,6 +41,12 @@ pub enum InboxCommand {
     Process(PathBuf),
     Processing(Uuid),
     Candidate(InboxCandidateRequest),
+    Export {
+        candidate: InboxCandidateRequest,
+        source_id: String,
+        output: PathBuf,
+    },
+    IntakeBinding(Uuid),
     Source(PathBuf),
     Visual(String),
     VisualAnnotation(Uuid),
@@ -78,6 +84,8 @@ impl InboxCommand {
             Self::Process(_) => "inbox.process",
             Self::Processing(_) => "inbox.processing",
             Self::Candidate(_) => "inbox.candidate",
+            Self::Export { .. } => "inbox.export",
+            Self::IntakeBinding(_) => "inbox.intake-binding",
             Self::Source(_) => "inbox.source",
             Self::Visual(_) => "inbox.visual",
             Self::VisualAnnotation(_) => "inbox.visual-annotation",
@@ -98,7 +106,7 @@ pub(super) fn scan_command(
     let sub = sub_word(
         tokens,
         "inbox",
-        "add|add-binary|show|review|removal-preview|remove-original|restore-original|original-removal|original-restore|original-operations|archived-analysis|list|process|processing|candidate|source|visual|interpret-visual|visual-annotation|cancel|analyze-actions|action-analysis|analyze|analysis",
+        "add|add-binary|show|review|removal-preview|remove-original|restore-original|original-removal|original-restore|original-operations|archived-analysis|list|process|processing|candidate|export|intake-binding|source|visual|interpret-visual|visual-annotation|cancel|analyze-actions|action-analysis|analyze|analysis",
     )?;
     let (label, options): (_, &[(&str, bool)]) = match sub.as_str() {
         "add" => (
@@ -133,6 +141,8 @@ pub(super) fn scan_command(
         "process" => ("inbox.process", &[("file", true)]),
         "processing" => ("inbox.processing", &[]),
         "candidate" => ("inbox.candidate", &[]),
+        "export" => ("inbox.export", &[("output", true)]),
+        "intake-binding" => ("inbox.intake-binding", &[]),
         "source" => ("inbox.source", &[("file", true)]),
         "visual" => ("inbox.visual", &[]),
         "visual-annotation" => ("inbox.visual-annotation", &[]),
@@ -225,9 +235,19 @@ fn metadata(command: &InboxCommand) -> Result<(), CliError> {
         } if !(1..=3600).contains(timeout_seconds) => Err(usage(
             "analysis deadline must be between 1 and 3600 seconds",
         )),
-        InboxCommand::Candidate(r) if r.batch_id.is_nil() || r.index >= 8 => {
+        InboxCommand::Candidate(r) | InboxCommand::Export { candidate: r, .. }
+            if r.batch_id.is_nil() || r.index >= 8 =>
+        {
             Err(usage("Inbox candidate needs a UUID and index 0 to 7"))
         }
+        InboxCommand::IntakeBinding(id) if id.is_nil() => {
+            Err(usage("Source proposal UUID must not be nil"))
+        }
+        InboxCommand::Export {
+            source_id, output, ..
+        } if source_id.is_empty() || source_id.len() > 256 || output.as_os_str().is_empty() => Err(
+            usage("Export needs a source node ID and an explicit output path"),
+        ),
         InboxCommand::List(r) => r.validate().map_err(|e| usage(e.to_string())),
         _ => Ok(()),
     }
@@ -375,6 +395,23 @@ pub(super) fn parse_command(name: &str, s: &Scanned) -> Result<InboxCommand, Cli
                 }
             }
         }
+        "inbox.intake-binding" => {
+            expect_positionals(s, 1)?;
+            InboxCommand::IntakeBinding(positional_uuid(s, 0, "SOURCE_PROPOSAL_UUID")?)
+        }
+        "inbox.export" => {
+            expect_positionals(s, 3)?;
+            InboxCommand::Export {
+                candidate: InboxCandidateRequest {
+                    batch_id: positional_uuid(s, 0, "BATCH_UUID")?,
+                    index: s.positionals[1]
+                        .parse()
+                        .map_err(|_| usage("invalid candidate INDEX"))?,
+                },
+                source_id: s.positionals[2].clone(),
+                output: PathBuf::from(s.value("output").ok_or_else(|| usage("missing --output"))?),
+            }
+        }
         "inbox.candidate" => {
             expect_positionals(s, 2)?;
             InboxCommand::Candidate(InboxCandidateRequest {
@@ -458,7 +495,12 @@ pub(super) fn prepare(command: &InboxCommand) -> Result<AppCommand, CliFailure> 
             AppCommand::ProcessInbox(request)
         }
         InboxCommand::Processing(id) => AppCommand::InboxProcessing(*id),
-        InboxCommand::Candidate(r) => AppCommand::InboxCandidate(r.clone()),
+        InboxCommand::Candidate(r) | InboxCommand::Export { candidate: r, .. } => {
+            AppCommand::InboxCandidate(r.clone())
+        }
+        InboxCommand::IntakeBinding(source_proposal_id) => AppCommand::InboxIntakeBinding {
+            source_proposal_id: *source_proposal_id,
+        },
         InboxCommand::Source(file) => {
             let text = super::input::read_text_file(file, "Inbox source request")?;
             let request: InboxSourceRequest = serde_json::from_str(&text)
@@ -504,8 +546,71 @@ pub(super) fn prepare(command: &InboxCommand) -> Result<AppCommand, CliFailure> 
         }
     })
 }
+pub(super) fn output_for(
+    request: &InboxCommand,
+    command: &AppCommand,
+    event: AppEvent,
+) -> Result<Output, CliFailure> {
+    if let InboxCommand::Export {
+        candidate,
+        source_id,
+        output,
+    } = request
+    {
+        let AppEvent::InboxCandidate(preview) = event else {
+            return Err(CliError::Workflow("Unexpected extraction export reply".into()).into());
+        };
+        if preview.request != *candidate {
+            return Err(CliError::Workflow("Extraction export request changed".into()).into());
+        }
+        let extraction = preview.extraction.as_ref().ok_or_else(|| {
+            usage("This historical candidate has no retained extraction attachments")
+        })?;
+        extraction.validate().map_err(CliError::Workflow)?;
+        let source = extraction
+            .sources
+            .iter()
+            .find(|s| s.id == *source_id)
+            .ok_or_else(|| usage("Unknown source node ID; inspect inbox candidate first"))?;
+        use std::io::Write;
+        let mut options = std::fs::OpenOptions::new();
+        options.write(true).create_new(true);
+        #[cfg(unix)]
+        {
+            use std::os::unix::fs::OpenOptionsExt;
+            options.mode(0o600);
+        }
+        let mut file = options.open(output).map_err(|e| {
+            CliError::Workflow(format!(
+                "Cannot create exact export (existing paths are never overwritten): {e}"
+            ))
+        })?;
+        if let Err(error) = file.write_all(&source.bytes).and_then(|_| file.sync_all()) {
+            drop(file);
+            return Err(CliError::Workflow(format!(
+                "Exact original export failed; incomplete output retained at {}: {error}",
+                output.display()
+            ))
+            .into());
+        }
+        let data = serde_json::json!({"source_id":source.id,"output":output,"byte_len":source.bytes.len(),"media_type":source.media_type,"status":source.status});
+        return Ok(Output {
+            text: format!(
+                "Exported exact retained source {} ({} bytes, {}) to {}\n",
+                source.id,
+                source.bytes.len(),
+                source.media_type,
+                output.display()
+            ),
+            data,
+        });
+    }
+    output(command, event)
+}
+
 pub(super) fn output(command: &AppCommand, event: AppEvent) -> Result<Output, CliFailure> {
     let mut visual_dimensions = None;
+    let mut candidate_text = None;
     let data = match (command, event) {
         (AppCommand::CaptureInbox(r), AppEvent::InboxCaptured(item))
             if r.validate_receipt(&item).is_ok() =>
@@ -642,7 +747,53 @@ pub(super) fn output(command: &AppCommand, event: AppEvent) -> Result<Output, Cl
         (AppCommand::InboxCandidate(r), AppEvent::InboxCandidate(preview))
             if preview.request == *r =>
         {
+            let mut text = format!(
+                "Captured extraction: {} · {:?}\n\n{}\n",
+                preview.original.capture.title, preview.format, preview.markdown
+            );
+            if let Some(extraction) = &preview.extraction {
+                extraction.validate().map_err(CliError::Workflow)?;
+                writeln!(&mut text, "Selected limits: input {} bytes; expanded {} bytes; package/MIME parts {}/{}; depth {}; decoded {} bytes; pixels {}/{} total; output {} bytes; wall {} ms", extraction.limits.max_input_bytes, extraction.limits.max_expanded_bytes, extraction.limits.max_package_parts, extraction.limits.max_mime_parts, extraction.limits.max_mime_depth, extraction.limits.max_decoded_bytes, extraction.limits.max_image_pixels, extraction.limits.max_total_image_pixels, extraction.limits.max_output_bytes, extraction.limits.wall_time_ms).expect("String");
+                if let Some(usage) = &extraction.consumed {
+                    writeln!(&mut text, "Consumed: input {} bytes; expanded {} bytes; package/MIME parts {}/{}; depth {}; decoded {} bytes; unique pixels {}; output {} bytes", usage.input_bytes, usage.expanded_bytes, usage.package_parts, usage.mime_parts, usage.mime_depth, usage.decoded_bytes, usage.image_pixels, usage.output_bytes).expect("String");
+                }
+                writeln!(&mut text, "Sources (exact bytes retained):").expect("String");
+                for source in &extraction.sources {
+                    writeln!(
+                        &mut text,
+                        "{} · {} · {} · {} bytes · parent {} · {}",
+                        source.id,
+                        source.name,
+                        source.status,
+                        source.bytes.len(),
+                        source.parent.as_deref().unwrap_or("original root"),
+                        source.locator
+                    )
+                    .expect("String");
+                }
+                writeln!(&mut text, "\nExact images and distinct occurrences:").expect("String");
+                for occurrence in &extraction.occurrences {
+                    let asset = extraction
+                        .assets
+                        .iter()
+                        .find(|a| a.id == occurrence.asset_id)
+                        .expect("validated join");
+                    writeln!(&mut text, "{} · source {} · asset {} · {} × {} · {} bytes · text {}..{} · {} · alt {:?}", occurrence.id, occurrence.source_id, asset.id, asset.width, asset.height, asset.bytes.len(), occurrence.start, occurrence.end, occurrence.locator, occurrence.alt).expect("String");
+                }
+                writeln!(&mut text, "\nExtraction gaps:").expect("String");
+                for gap in &extraction.gaps {
+                    writeln!(&mut text, "- {gap}").expect("String");
+                }
+                text.push_str("\nInspect originals with: brn inbox export BATCH INDEX SOURCE_ID --output PATH. Complete protocol bytes are available with --json.\n");
+            }
+            candidate_text = Some(text);
             serde_json::json!(*preview)
+        }
+        (
+            AppCommand::InboxIntakeBinding { source_proposal_id },
+            AppEvent::InboxIntakeBinding(binding),
+        ) if binding.source_proposal.id == *source_proposal_id && binding.validate().is_ok() => {
+            serde_json::json!(*binding)
         }
         (AppCommand::PrepareInboxSource(r), AppEvent::InboxSourceDraft(draft))
             if r.validate_draft(&draft).is_ok() =>
@@ -682,6 +833,19 @@ pub(super) fn output(command: &AppCommand, event: AppEvent) -> Result<Output, Cl
             .into());
         }
     };
+    if let Some(text) = candidate_text {
+        let text: String = text
+            .chars()
+            .flat_map(|ch| {
+                if ch.is_control() && ch != '\n' && ch != '\t' {
+                    format!("\\u{:04x}", ch as u32).chars().collect::<Vec<_>>()
+                } else {
+                    vec![ch]
+                }
+            })
+            .collect();
+        return Ok(Output { text, data });
+    }
     if let Some((width, height)) = visual_dimensions {
         let digest: String = data["asset"]["fingerprint"]["sha256"]
             .as_array()
@@ -1355,13 +1519,15 @@ mod tests {
         std::fs::write(&original, exact).unwrap();
         let captured = crate::cli::execute(&invocation(InboxCommand::Add {
             id: Uuid::new_v4(),
-            kind: InboxKind::Email,
+            kind: InboxKind::Text,
             title: "Exact source".into(),
             original_name: Some("message.eml".into()),
             input: original.clone(),
         }))
         .unwrap();
         let process = ProcessInboxRequest {
+            limits: None,
+
             id: Uuid::new_v4(),
             items: vec![serde_json::from_value(captured.data.clone()).unwrap()],
         };
@@ -1628,7 +1794,8 @@ mod tests {
                 purpose,
                 id: Uuid::new_v4(),
                 conversation: None,
-                source: Box::new(source.clone()),
+                source: Some(Box::new(source.clone())),
+                intake: None,
                 selection: brn_workflow::Selection {
                     provider: brn_workflow::Provider::Chatgpt,
                     model: "gpt-6-luna".into(),
@@ -1641,7 +1808,8 @@ mod tests {
                 purpose,
                 id: request.id,
                 conversation: None,
-                source: source.source.clone(),
+                source: Some(source.source.clone()),
+                intake: None,
                 source_text: source.text.clone(),
                 provider: "chatgpt".into(),
                 model: request.selection.model.clone(),
@@ -1760,7 +1928,7 @@ mod tests {
         };
         let add = || InboxCommand::Add {
             id,
-            kind: InboxKind::Email,
+            kind: InboxKind::Text,
             title: "Email õ".into(),
             original_name: Some("../../label.eml".into()),
             input: input.clone(),
@@ -1790,6 +1958,8 @@ mod tests {
         assert_eq!(listed.data["entries"][0]["availability"], "available");
         assert_eq!(listed.data["issues"], serde_json::json!([]));
         let process = ProcessInboxRequest {
+            limits: None,
+
             id: Uuid::new_v4(),
             items: vec![serde_json::from_value(first.data.clone()).unwrap()],
         };

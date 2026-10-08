@@ -139,6 +139,47 @@ fn source_request(batch: &InboxProcessBatch) -> InboxSourceRequest {
 }
 
 #[test]
+fn successful_capture_updates_inventory_and_selection_without_manual_refresh() {
+    let fixture = Fixture::new();
+    let mut worker = fixture.worker();
+    let mut state = state();
+    let open = state.open_inbox().unwrap();
+    settle(&worker, &mut state, open);
+    state.draft = crate::draft::DraftForm::new(None);
+    state.draft.as_mut().unwrap().text = "Unfinished owner input õ".into();
+    let retained = state.draft.as_ref().unwrap().id;
+    let item = capture(
+        &worker,
+        &mut state,
+        request(InboxKind::Text, "Public imported body"),
+    );
+    while state.inbox_loading() {
+        let (id, event) = worker.recv_event_timeout(Duration::from_secs(10)).unwrap();
+        for (id, command) in state.apply(id, event) {
+            worker.submit(id, command).unwrap();
+        }
+    }
+    assert!(
+        state
+            .inbox_queue
+            .page
+            .as_ref()
+            .unwrap()
+            .entries
+            .iter()
+            .any(|entry| entry.item == item)
+    );
+    assert_eq!(state.inbox_queue.selected.as_ref().unwrap().item, item);
+    assert_eq!(state.draft.as_ref().unwrap().id, retained);
+    assert_eq!(
+        state.draft.as_ref().unwrap().text,
+        "Unfinished owner input õ"
+    );
+    fixture.unchanged();
+    worker.shutdown().unwrap();
+}
+
+#[test]
 fn actual_worker_capture_progress_preview_and_prepared_review_keep_exact_source() {
     let fixture = Fixture::new();
     let mut worker = fixture.worker();
@@ -484,7 +525,7 @@ fn binary_reads_verify_complete_proofs_and_queue_durable_unsupported_failure() {
     let batch = process(&worker, &mut state, vec![(*item).clone()]);
     assert!(matches!(
         &batch.entries[0].outcome,
-        InboxProcessOutcome::Failed { code } if code == "binary_unsupported"
+        InboxProcessOutcome::Failed { code } if code == "intake_invalid"
     ));
     assert!(state.preview_inbox_candidate(0).is_none());
     let poll = reply(
@@ -605,7 +646,7 @@ fn docx_worker_preview_binds_format_complete_bytes_and_exact_source_review() {
     assert!(matches!(
         batch.entries[0].outcome,
         InboxProcessOutcome::Converted {
-            format: InboxConversionFormat::DocxTextV1,
+            format: InboxConversionFormat::MaintainedExtractionV1,
             ..
         }
     ));
@@ -613,7 +654,11 @@ fn docx_worker_preview_binds_format_complete_bytes_and_exact_source_review() {
     let (id, AppEvent::InboxCandidate(preview)) = reply(&worker, command) else {
         panic!("DOCX preview")
     };
-    assert_eq!(preview.markdown, "First õ 日本語\n\nSecond preserved\n");
+    assert_eq!(
+        preview.markdown,
+        "<!-- docx-story: body body -->\n\n<!-- docx-export:0 -->\nFirst õ 日本語\n\n<!-- docx-export:1 -->\nSecond preserved\n"
+    );
+    assert!(preview.extraction.is_some());
     assert!(preview.needs_semantic_review);
     for alteration in 0..5 {
         let mut forged = preview.clone();
@@ -636,11 +681,11 @@ fn docx_worker_preview_binds_format_complete_bytes_and_exact_source_review() {
     source.validate_draft(&prepared).unwrap();
     assert_eq!(
         prepared.inbox_source.as_ref().unwrap().format,
-        InboxConversionFormat::DocxTextV1
+        InboxConversionFormat::MaintainedExtractionV1
     );
     assert!(
         matches!(&prepared.changes[0], DraftNoteChange::Create { text, .. }
-        if text.ends_with("First õ 日本語\n\nSecond preserved\n"))
+        if text.contains("First õ 日本語") && text.ends_with("Second preserved\n"))
     );
     assert!(state.draft.is_none());
     assert!(state.open_inbox_source_draft());
@@ -661,3 +706,69 @@ fn docx_worker_preview_binds_format_complete_bytes_and_exact_source_review() {
     );
     worker.shutdown().unwrap();
 }
+
+#[test]
+fn plural_mail_source_preparation_accepts_exact_source_materialization() {
+    use brn_workflow::inbox::CaptureBinaryInboxRequest;
+    let fixture = Fixture::new();
+    let mut worker = fixture.worker();
+    let request = CaptureBinaryInboxRequest {
+        id: Uuid::new_v4(),
+        title: "Plural public email".into(),
+        original_name: Some("plural.eml".into()),
+        bytes: include_bytes!(concat!(
+            env!("CARGO_MANIFEST_DIR"),
+            "/../../experiments/architecture-reassessment/p1-office-mime/fixtures/plural.eml"
+        ))
+        .to_vec(),
+    };
+    let (_, AppEvent::InboxCaptured(item)) = reply(
+        &worker,
+        (request.id, AppCommand::CaptureBinaryInbox(request.clone())),
+    ) else {
+        panic!("capture")
+    };
+    let mut state = state();
+    let open = state.open_inbox().unwrap();
+    settle(&worker, &mut state, open);
+    let batch = process(&worker, &mut state, vec![*item]);
+    let preview = state.preview_inbox_candidate(0).unwrap();
+    settle(&worker, &mut state, preview);
+    let extraction = state
+        .inbox_queue
+        .preview
+        .as_ref()
+        .unwrap()
+        .extraction
+        .as_ref()
+        .unwrap()
+        .clone();
+    assert!(extraction.occurrences.len() > 1);
+    let source = source_request(&batch);
+    let command = state.prepare_inbox_source(source.clone()).unwrap();
+    settle(&worker, &mut state, command);
+    let prepared = state
+        .inbox_queue
+        .prepared
+        .as_ref()
+        .expect("source-specific filenames must pass native response qualification")
+        .clone();
+    source.validate_draft(&prepared).unwrap();
+    let body = extraction
+        .materialize_for_source(&source.note_id.to_string())
+        .unwrap()
+        .markdown;
+    assert!(
+        matches!(&prepared.changes[0],DraftNoteChange::Create{text,..} if text.ends_with(&body))
+    );
+    assert_eq!(prepared.changes.len(), 1 + extraction.assets.len());
+    assert!(state.open_inbox_source_draft());
+    let command = state.create_draft().unwrap();
+    settle(&worker, &mut state, command);
+    assert_eq!(state.last_draft_request.as_ref(), Some(&prepared));
+    fixture.unchanged();
+    worker.shutdown().unwrap();
+}
+
+#[path = "inbox_guided_tests.rs"]
+mod guided_tests;

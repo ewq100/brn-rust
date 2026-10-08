@@ -1,5 +1,7 @@
 //! Real AppWorker/provider callbacks over approved synthetic Sources.
 use super::*;
+#[path = "intake.rs"]
+mod intake_tests;
 use crate::inbox_actions::InboxAnalysisPurpose;
 use brn_ai::{KnowledgeProposalArgs, KnowledgeQuoteArgs};
 use brn_store::{note_identity, note_provenance};
@@ -23,6 +25,7 @@ fn knowledge(_source: &SourceFixture) -> KnowledgeProposalArgs {
         source_paths: vec![],
         text: "# Color decision\r\n\r\nThe team chose Blue õ 🦀.\r\n".into(),
         quotes: vec![KnowledgeQuoteArgs {
+            source_id: None,
             quote: "Blue õ 🦀".into(),
             occurrence: None,
         }],
@@ -112,7 +115,7 @@ fn inbox_knowledge_mixed_reviews_preserve_exact_quotes_identity_current_and_sepa
     assert_eq!(record.draft.group_id, Some(r.id));
     assert_eq!(record.draft.session_id, Some(turn.conversation_id));
     let binding = record.draft.inbox_knowledge.as_ref().unwrap();
-    assert_eq!(binding.source, source.source.source);
+    assert_eq!(binding.source, Some(source.source.source.clone()));
     let note_id = binding.note_id;
     assert_ne!(note_id, record.draft.id);
     assert_ne!(note_id, source.note_id);

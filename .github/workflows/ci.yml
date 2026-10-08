@@ -65,6 +65,15 @@ jobs:
       - name: Check production provider retirement
         if: runner.os != 'Windows'
         run: python3 scripts/check-provider-retirement.py
+      - name: Qualify maintained intake helper on macOS
+        if: runner.os == 'macOS'
+        run: |
+          cargo build -p brn-intake --features helper --bin brn-intake-helper --locked --offline
+          cargo clippy -p brn-intake --features helper --all-targets --locked --offline -- -D warnings
+          cargo test -p brn-intake --features helper --all-targets --locked --offline
+      - name: Check production intake retirement
+        if: runner.os != 'Windows'
+        run: python3 scripts/check-intake-retirement.py
       - name: Build the default workspace
         id: workspace-build
         run: cargo build --workspace --locked --offline
@@ -117,6 +126,9 @@ jobs:
         with:
           lane: native-ui
           native: 'true'
+      - name: Build maintained intake helper on macOS
+        if: runner.os == 'macOS'
+        run: cargo build -p brn-intake --features helper --bin brn-intake-helper --locked --offline
       - name: Build the desktop with native UI
         run: cargo build -p brn-desktop --features native-ui --locked --offline
       - name: Lint native UI
@@ -182,6 +194,9 @@ jobs:
         with:
           lane: native-ui-native-retrieval
           native: 'true'
+      - name: Build maintained intake helper on macOS
+        if: runner.os == 'macOS'
+        run: cargo build -p brn-intake --features helper --bin brn-intake-helper --locked --offline
       - name: Test native retrieval without model assets
         run: cargo test -p brn-retrieval --features native --lib --test model_download --locked --offline
       - name: Test the native retrieval workflow

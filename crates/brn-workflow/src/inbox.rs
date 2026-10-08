@@ -299,6 +299,50 @@ fn bind(store: &mut WorkStore, root: &InboxRoot) -> Result<()> {
 }
 /// Startup recovers only exact known explicit-user captures. Namespace failures
 /// stay visible in Inbox and do not fence unrelated current vault knowledge.
+/// Restore immutable evidence before analysis/application companions that reference it.
+/// This never recovers/removes an original or asserts an approval endpoint.
+pub(crate) fn restore_intake_snapshot_mirrors(store: &mut WorkStore) -> Result<()> {
+    let raw = store.setting(ROOT_SETTING)?;
+    let bound = match raw
+        .as_deref()
+        .map(serde_json::from_str::<InboxRoot>)
+        .transpose()
+    {
+        Ok(bound) => bound,
+        Err(_) => return Ok(()),
+    };
+    if let (Some(raw), Some(bound)) = (&raw, &bound)
+        && serde_json::to_string(bound).ok().as_ref() != Some(raw)
+    {
+        return Ok(());
+    }
+    let files = match InboxFiles::open(store.data_dir(), bound.as_ref(), false) {
+        Ok(Some(files)) => files,
+        _ => return Ok(()),
+    };
+    // Inventory admission failures remain Inbox-local, as in capture recovery.
+    // Referenced snapshots are still required by contextual Store validation.
+    let names = match files.names() {
+        Ok(names) => names,
+        Err(_) => return Ok(()),
+    };
+    for name in names {
+        let Some(raw) = name
+            .strip_prefix(".brn-intake-")
+            .and_then(|name| name.strip_suffix(".snapshot"))
+        else {
+            continue;
+        };
+        let id = Uuid::parse_str(raw)
+            .map_err(|_| WorkflowError::msg("invalid extraction snapshot filename"))?;
+        if id.to_string() != raw {
+            return Err(WorkflowError::msg("noncanonical extraction filename"));
+        }
+        store.restore_intake_snapshot(&files.read_snapshot(id)?)?;
+    }
+    Ok(())
+}
+
 pub(crate) fn restore_inbox_captures(store: &mut WorkStore) -> Result<InboxState> {
     let mut state = InboxState::default();
     let raw = store.setting(ROOT_SETTING)?;
@@ -387,6 +431,28 @@ pub(crate) fn restore_inbox_captures(store: &mut WorkStore) -> Result<InboxState
         })();
         if let Err(e) = recovered {
             state.issue(Some(id), e.message);
+        }
+    }
+    for name in &names {
+        let Some(raw) = name
+            .strip_prefix(".brn-intake-")
+            .and_then(|name| name.strip_suffix(".snapshot"))
+        else {
+            continue;
+        };
+        let restored = (|| -> Result<()> {
+            let id = Uuid::parse_str(raw)
+                .map_err(|_| WorkflowError::msg("invalid retained snapshot filename"))?;
+            if id.to_string() != raw {
+                return Err(WorkflowError::msg("noncanonical snapshot filename"));
+            }
+            let snapshot = files.read_snapshot(id)?;
+            store.restore_intake_snapshot(&snapshot)?;
+            known.insert(name.clone());
+            Ok(())
+        })();
+        if let Err(error) = restored {
+            state.issue(None, error.message);
         }
     }
     let final_names = match files.names() {

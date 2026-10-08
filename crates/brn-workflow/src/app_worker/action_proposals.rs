@@ -68,6 +68,11 @@ pub(super) struct ActionProposal {
     inbox: Option<Box<crate::inbox_actions::InboxActionJob>>,
 }
 impl ProposalTools for BoundProposal {
+    fn private_intake(&self) -> bool {
+        self.inbox
+            .as_ref()
+            .is_some_and(|job| job.capture.intake.is_some())
+    }
     fn knowledge_enabled(&self) -> bool {
         self.inbox.as_ref().is_some_and(|job| {
             job.capture.purpose == crate::inbox_actions::InboxAnalysisPurpose::KnowledgeAndActions
@@ -248,7 +253,11 @@ impl ActionProposal {
                 .collect::<AiResult<Vec<_>>>()?
         };
         if let Some(job) = &self.inbox
-            && sources.first() != Some(&job.capture.source)
+            && job
+                .capture
+                .source
+                .as_ref()
+                .is_some_and(|source| sources.first() != Some(source))
         {
             return Err(rejected());
         }
@@ -316,6 +325,11 @@ impl ActionProposal {
             })
             .collect::<AiResult<Vec<_>>>()?;
         let request = DraftRequest {
+            intake: self
+                .inbox
+                .as_ref()
+                .and_then(|job| job.capture.intake.clone())
+                .map(Box::new),
             inbox_visual: None,
             inbox_knowledge: None,
             inbox_source: None,
@@ -394,8 +408,10 @@ fn source_paths(
     let mut paths = Vec::with_capacity(args.source_paths.len() + usize::from(inbox.is_some()));
     let mut seen = std::collections::HashSet::new();
     if let Some(job) = inbox {
-        paths.push(job.capture.source.path.clone());
-        seen.insert(job.capture.source.path.to_ascii_lowercase());
+        if let Some(source) = &job.capture.source {
+            paths.push(source.path.clone());
+        }
+        seen.insert(job.capture.source_path().to_ascii_lowercase());
     }
     for path in &args.source_paths {
         if !seen.insert(path.to_ascii_lowercase()) {

@@ -1,0 +1,48 @@
+[
+  {
+    "fixture": "hostile-path.docx",
+    "opc_16mib": {
+      "Err": "unsafe zip entry path: ../escape"
+    },
+    "structured": {
+      "Err": "container error: unsafe zip entry path: ../escape"
+    }
+  },
+  {
+    "fixture": "hostile-inflate.docx",
+    "opc_16mib": {
+      "Err": "inflated size exceeds 16777216 bytes"
+    },
+    "structured": {
+      "Err": "malformed XML in word/document.xml at byte 17825792: text outside the root element"
+    }
+  },
+  {
+    "fixture": "hostile-members.docx",
+    "opc_16mib": {
+      "Ok": 513
+    },
+    "structured": {
+      "Ok": {
+        "diagnostics": [
+          {
+            "anchor": null,
+            "code": "parse-warning",
+            "message": "No document.xml found in DOCX",
+            "severity": "warning"
+          }
+        ],
+        "stories": 1
+      }
+    }
+  },
+  {
+    "fixture": "hostile-dtd.docx",
+    "opc_16mib": {
+      "Ok": 1
+    },
+    "structured": {
+      "Err": "unsafe XML in word/document.xml: DTD/entity declarations are forbidden"
+    }
+  }
+]

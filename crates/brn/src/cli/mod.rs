@@ -160,6 +160,8 @@ Commands:
   brn inbox process --file REQUEST_JSON
   brn inbox processing UUID
   brn inbox candidate UUID INDEX
+  brn inbox export BATCH_UUID INDEX SOURCE_ID --output PATH
+  brn inbox intake-binding SOURCE_PROPOSAL_UUID
   brn inbox source --file REQUEST_JSON
   brn inbox visual SOURCE_PATH
   brn inbox interpret-visual --file REQUEST_JSON [--timeout-seconds N]

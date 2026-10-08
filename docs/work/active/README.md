@@ -4,7 +4,8 @@ New selected slices follow owner requirements and the current [target](../../arc
 
 | Task | State | Records |
 | --- | --- | --- |
-| Architecture reassessment | Owner-authorized requirements/research/review complete; proposed implementation remains unapproved. | [Report](../../audits/BRN_ARCHITECTURE_REASSESSMENT_2026-10-07.md), [ordered plan](architecture-reassessment/plan.md) |
+| Retained evidence investigation | Owner-selected first P3 slice: investigate exact retained text/images from Draft or approved Sources; independent exact consequence review, UX tuning deferred. Based on checked unmerged PR87; no merge/live-provider/Windows-port selection. | [Plan and evidence](retained-evidence-investigation/plan.md) |
+| Architecture reassessment | PR85 integrated. Revised P2 specification/maintained-adapter direction and converter retirement accepted; PR86 alone authorized for merge after final-head checks/policy. Production implementation remains unselected. | [Canonical handoff](architecture-reassessment/plan.md#pr86-finalization-and-canonical-fresh-agent-handoff), [report](../../audits/BRN_ARCHITECTURE_REASSESSMENT_2026-10-07.md), [P1 evidence](architecture-reassessment/p1-evidence.md), [accepted conditional P2](architecture-reassessment/p2-conditional-spec.md) |
 | V1 controlled handoff | Full V1 goal paused at owner request; PR77 product checkpoint integrated. Closeout records and explicitly selected follow-up tasks only. | [Handoff](v1-handoff.md) |
 | Independent V1 review corrections | Bounded corrections through PR73 are reviewed, automated verified and integrated; residual startup/backup cost and external qualification remain recorded. | [Correction plan](architecture-review-corrections/plan.md) |
 | Knowledge foundations | Stage 5 foundations integrated; native/live/model/owner qualification remains open. | [Plan](knowledge-foundations/plan.md) |
@@ -14,7 +15,7 @@ New selected slices follow owner requirements and the current [target](../../arc
 | UX/UI design handbook | Design baseline, handbook, prototype and reversible current-app restyle implemented and automated verified on `ux/design-handbook`; native, owner review and integration pending. | [Plan and handoff](ux-design-handbook/plan.md), [handbook](../../design/README.md) |
 | Office/binary Inbox | Stage8 bounded binary retention/assets/DOCX text and one inline PNG are integrated through PR77. Broader Office/URLs, binary cleanup and external qualification remain incomplete. | [Plan](office-inbox/plan.md) |
 
-Inspected current main is `6781838` (H1/H2 integrated); PR77 remains the Office feature checkpoint. The full V1 goal is confirmed
+Fresh inspected main for P1 is `3d59cdd` (PR85 merged; H1/H2 integrated); PR77 remains the Office feature checkpoint. The full V1 goal is confirmed
 paused at the owner's controlled-stop request. Continue only an explicitly selected
 owner-selected outcome from the [proposed plan](architecture-reassessment/plan.md); new architecture/sequence choices need acceptance, with external qualification pending.
 See [current status](../../status.md) and the [checkpoint](../../development/checkpoint.md)
