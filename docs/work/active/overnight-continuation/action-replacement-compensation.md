@@ -70,3 +70,22 @@ Store helper owns proposal_undo.rs/proposal_apply.rs private reuse and Store tes
 desktop helper owns approval.rs/Undo state/native wording/tests. Lead owns workflow
 preflight/reference/recovery, public worker/CLI tests and shared docs/integration.
 Neither helper may run Cargo until explicit grant after backup gate12095 releases.
+
+## Implemented candidate and focused evidence
+
+Productionf2ff215 is committed/pushed after one fresh independent complete review
+of all22 tracked files, clean at binary patch
+810237f8f73f6de6a14a7131e02965a7ab862089e75ff28de54937439c2a8a12.
+The patch hash was rechecked before committing. PPTX PR98 merged normally at
+4db30319662c97b272f3ba2e6877036d1906f8e0 with a tree exactly matching checked8b40385;
+this branch incorporates that resulting main without production changes.
+
+Passed:71 Store regressions plus final affected replay witness and strict Store
+Clippy;13 default/14 native Undo state/capture/rendering checks;6 native repair
+checks; native strict Clippy with/without test support; four workflow reference/
+graph/crash/old-DB mirror tests; one real-process CLI preview/confirm/restart/replay
+journey preserving later edits. Initial desktop failures demonstrated shared
+vault-only admission; narrow state/native predicates now permit only supported
+Action-only compensation while preserving file/scoped Trash/repair guards.
+No provider or interactive UI work occurred. Full final gates, required CI,
+integration and personal acceptance remain pending.

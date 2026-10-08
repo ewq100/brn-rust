@@ -2,7 +2,7 @@
 
 ## Overnight implementation and model qualification — 2026-10-08
 
-Current main is `441120ce7f6ee47de3e4fa0f784355e2fc0b3257`.
+Current main is `4db30319662c97b272f3ba2e6877036d1906f8e0`.
 [PR90](https://github.com/ewq100/brn-rust/pull/90) added exact evidence ranges and
 intake guidance; [PR91](https://github.com/ewq100/brn-rust/pull/91) added recorded
 work budgets/cancellation; [PR92](https://github.com/ewq100/brn-rust/pull/92) added
@@ -23,10 +23,11 @@ merged manual reversible session Archive/Restore after full independent review,
 local qualification and all required CI; post-merge required checks/docs passed. Automatic archival,
 Delete/preferences stay separate. The selected
 [partial attributed PPTX slice](work/active/overnight-continuation/pptx-partial-intake.md)
-is implemented and independently reviewed clean after two valid P2 fixes; final combined local gates and real retained CLI/model cases passed, required
-CI/integration pending. Automatic during-session internal checkpoints are implemented, independently
-reviewed and locally qualified in the budget checkout; required CI/integration
-are pending. An independent bounded Action-only replacement compensation slice
+merged as [PR98](https://github.com/ewq100/brn-rust/pull/98) after independent review,
+final local/CLI/live usefulness qualification and all required candidate CI;
+post-merge checks are active. Automatic during-session internal checkpoints are implemented, independently
+reviewed and locally qualified in the budget checkout, including PPTX main;
+[PR99](https://github.com/ewq100/brn-rust/pull/99) required CI/integration are pending. An independent bounded Action-only replacement compensation slice
 is being implemented in the lead checkout, preserving exact before/after and
 refusing changed/completed work, creation and mixed file/Action Undo.
 
