@@ -1155,6 +1155,14 @@ impl App {
         &mut self,
         request: &GroupApprovalRequest,
     ) -> Result<GroupApprovalResult> {
+        #[cfg(test)]
+        let group_started = std::time::Instant::now();
+        #[cfg(test)]
+        eprintln!(
+            "group approval {}: validating {} members",
+            request.group_id,
+            request.approvals.len()
+        );
         request.validate()?;
         let records = request
             .approvals
@@ -1207,6 +1215,15 @@ impl App {
             stopped: None,
         };
         for approval in &approvals {
+            #[cfg(test)]
+            let member_started = std::time::Instant::now();
+            #[cfg(test)]
+            eprintln!(
+                "group approval {}: begin member {} elapsed={:?}",
+                request.group_id,
+                approval.operation_id,
+                group_started.elapsed()
+            );
             match self.approve_proposal(approval) {
                 Ok(receipt) => {
                     let applied = receipt.outcome == ApplyOutcome::Applied;
@@ -1231,7 +1248,22 @@ impl App {
                     break;
                 }
             }
+            #[cfg(test)]
+            eprintln!(
+                "group approval {}: completed member {} member_elapsed={:?} group_elapsed={:?}",
+                request.group_id,
+                approval.operation_id,
+                member_started.elapsed(),
+                group_started.elapsed()
+            );
         }
+        #[cfg(test)]
+        eprintln!(
+            "group approval {}: finished receipts={} elapsed={:?}",
+            request.group_id,
+            result.receipts.len(),
+            group_started.elapsed()
+        );
         Ok(result)
     }
 }
