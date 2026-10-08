@@ -98,7 +98,7 @@ const NOTE_FACTS: &str = "Each note or passage labels the requested scope separa
 
 const RESOLUTION: &str = "When evidence conflicts, you may recommend a provisional preferred resolution. Explain the opposing claims, the sources' stated authority and applicability, your reasons, reasonable alternatives and what remains uncertain. A later timestamp, reported identity, copied recipient, source classification or preservation approval alone does not authorize a change. If evidence cannot support a preference, recommend clarification or a follow-up rather than inventing agreement. Keep recommendations tentative; only exact reviewed proposals and separate human approval may change durable knowledge or Actions.";
 
-const ACTIONS: &str = "You may propose Action review drafts using propose_actions. This never changes real Actions or Markdown. Separate exact human approval is required; do not claim proposed work is already approved or completed. Supply semantic after-fields with all14 fields and explicit nulls; Rust mints proposal and Create member identities. Replace uses checked_ref from fresh read_action; Rust loads complete checked baselines. Relationships may use existing UUIDs or 1-based member indices in the same ordered 1–20-member proposal. Retry only identical original input within the owned turn; changed intent creates a separate draft. Ordinary proposals bind explicitly supplied source paths. In Inbox analysis Workflow attaches the selected Source path and note identity, and source_paths supply additional evidence.";
+const ACTIONS: &str = "You may propose Action review drafts using propose_actions. This never changes real Actions or Markdown. Separate exact human approval is required; do not claim proposed work is already approved or completed. Missing execution authorization does not by itself rule out a useful review draft to seek clarification, prepare a response, or obtain an owner decision. Limit it to the supported follow-up, leave an unknown owner null, and state unresolved authority or conditions without implying assignment, acceptance, release, spending permission or completion. If no useful follow-up is supported, explain that and submit no Action draft; do not force a proposal count. Supply semantic after-fields with all14 fields and explicit nulls; Rust mints proposal and Create member identities. Replace uses checked_ref from fresh read_action; Rust loads complete checked baselines. Relationships may use existing UUIDs or 1-based member indices in the same ordered 1–20-member proposal. Retry only identical original input within the owned turn; changed intent creates a separate draft. Ordinary proposals bind explicitly supplied source paths. In Inbox analysis Workflow attaches the selected Source path and note identity, and source_paths supply additional evidence.";
 
 const KNOWLEDGE: &str = "You may use propose_knowledge to create one independent current Knowledge review draft from the explicitly selected approved Inbox Source. Supply complete candidate Markdown, a relative destination path, exact saved body quotations and ordered additional source_paths. Each quote may specify an optional 1-based occurrence in the saved body; omit it only for unique wording. Workflow resolves exact byte ranges and assigns proposal and note UUIDs returned in the receipt. Do not include managed note identity in candidate Markdown. The selected Inbox Source is automatically the mandatory first proof; do not include it again. Stable brn://note/UUID relationships require exact named target evidence. Read tools default to Current; explicitly named extra Source or History paths are evidence, never truth or deletion approval. Optional supersedes names one saved Current predecessor; workflow adds its exact protected History member and Previous version link to the same proposal. Do not repeat it in source_paths. If authority is unresolved, use report_conflict with two exact opposing saved body quotations as a tentative unresolved finding. Workflow assigns the finding UUID returned in the receipt; retry only identical original input, and changed input creates a separate finding draft. You may explain a provisional preferred resolution and its reasons in the summary; conflict reporting creates no knowledge effects, real Actions or deletion authority. Retry only identical Knowledge input; changed intent creates a separate draft. Workflow adds exact saved citations; the tool never approves or writes knowledge. Human review and separate exact approval remain required.";
 
@@ -122,13 +122,13 @@ mod tests {
             (AgentBehavior::Ask, 17583936950366296916_u64, false, false),
             (
                 AgentBehavior::ActionReview,
-                11062843960747545338_u64,
+                12027852339101076425_u64,
                 true,
                 false,
             ),
             (
                 AgentBehavior::InboxKnowledgeReview,
-                7765758527339372239_u64,
+                17441755392821198338_u64,
                 true,
                 true,
             ),
@@ -160,6 +160,12 @@ mod tests {
                 );
             }
             if actions {
+                assert!(
+                    prompt.contains("Missing execution authorization does not by itself rule out")
+                );
+                assert!(prompt.contains("leave an unknown owner null"));
+                assert!(prompt.contains("without implying assignment, acceptance, release, spending permission or completion"));
+                assert!(prompt.contains("submit no Action draft; do not force a proposal count"));
                 assert!(prompt.contains("Separate exact human approval is required"));
                 assert!(prompt.contains("This never changes real Actions or Markdown"));
                 assert!(prompt.contains("Rust mints proposal and Create member identities"));

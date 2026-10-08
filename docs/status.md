@@ -2,33 +2,39 @@
 
 ## Overnight implementation and model qualification — 2026-10-08
 
-Current fetched main is `409f68bedc112df550a5fcd6ebd884effff70101`.
-[PR90](https://github.com/ewq100/brn-rust/pull/90) merged scoped, hash-bound evidence
-ranges and intake guidance; its required postmerge checks passed.
-[PR91](https://github.com/ewq100/brn-rust/pull/91) merged visible recorded work
-budgets, cancellation and retained progress after all required candidate checks;
-postmerge run 37835432764 is in progress. Native workflow/models passed 412 tests
-with 15 existing ignores; desktop/CLI passed 525; shipping gates passed.
+Current main is `b4e3a59a201b3e719df91278426d44388576959f`.
+[PR90](https://github.com/ewq100/brn-rust/pull/90) added exact evidence ranges and
+intake guidance; [PR91](https://github.com/ewq100/brn-rust/pull/91) added recorded
+work budgets/cancellation; [PR92](https://github.com/ewq100/brn-rust/pull/92) added
+provisional conflict recommendations and qualified consequence/History recovery;
+[PR93](https://github.com/ewq100/brn-rust/pull/93) added explicit owner predecessor
+attachment with revised-version approval. All four required candidate and
+post-merge checks plus documentation passed for each. Known informational
+Windows/Linux failures remain visible; no protection bypass or platform port.
 
-The [overnight checkpoint](work/active/overnight-continuation/plan.md) owns current
-authority, implementation and verification. The owner added ten shared live trials
-at 20:00 UTC: six of sixteen used, three per existing Medium model condition.
-Paired first-slice Luna retained the formerly omitted budget/review date. The novel
-North Quay pair retained authorization uncertainty and deadlines; Sol also retained
-a reasoned conflict Finding. Neither selected supersession, so live History choice
-is unqualified. Results and limitations are in the [live evidence record](work/active/overnight-continuation/live-model-evidence.md).
+[PR94](https://github.com/ewq100/brn-rust/pull/94) enables exact Applied private-intake
+Finding lineage and merged after all required checks; [PR95](https://github.com/ewq100/brn-rust/pull/95) clarifies useful
+follow-up drafts under unresolved execution authority. Both are independently
+reviewed and locally qualified; PR94 post-merge checks and PR95 hosted integration
+are pending. The next selected
+independent V1 slice is manual reversible session Archive/Restore; automatic
+archival, Delete and preferences remain separate.
 
-P4 provisional-recommendation guidance and integrated synthetic conflict/History/
-Action/restart behavior are independently reviewed and locally qualified on
-`codex/p4-conflict-recommendations`, awaiting hosted integration. Next selected work
-is explicit owner predecessor attachment to a retained Knowledge draft, preserving
-exact proofs, original creation replay, comments and revised-version approval.
-Full P3/P4 and personal acceptance remain pending. The owner authorizes continued
-small V1 slices and normal protected integration until 08:00 Europe/Tallinn on
-9 October; earlier pause/prepare-only/stop-after-PR entries are dated history.
-All interactive checks remain pending in the [single morning task](work/active/overnight-continuation/morning-ui-acceptance.md).
-No overnight GUI testing, private-data operation, optional download or release is
-authorized. Other open research PRs and unrelated data remain untouched.
+The [overnight checkpoint](work/active/overnight-continuation/plan.md) owns exact
+branches, builds, verification and continuation. Eight of sixteen authorized live
+investigations are used, four per existing Medium model condition. Results include
+improved retention of original budget/review date, North Quay conflict uncertainty
+and Cedar near-limit ranged evidence; usefulness limitations and unknown telemetry
+remain explicit in the [live evidence record](work/active/overnight-continuation/live-model-evidence.md).
+Live History selection remains unqualified; retained outputs support approval
+without repeat inference. Full P3/P4 and personal acceptance remain pending.
+
+The owner authorizes small V1 slices and normal protected integration until
+08:00 Europe/Tallinn on 9 October. Earlier pause/prepare-only/stop-after-PR entries
+are dated history. All interactive checks remain pending in the
+[single morning task](work/active/overnight-continuation/morning-ui-acceptance.md).
+No overnight GUI testing, private-data operation, optional download or release;
+other research PRs and unrelated user data remain untouched.
 
 The entries below preserve dated implementation/evidence checkpoints; they do
 not override the current baseline or overnight authorization above.
