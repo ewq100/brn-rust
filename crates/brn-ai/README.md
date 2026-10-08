@@ -423,6 +423,13 @@ The existing 50,000-byte captured Source bound remains; larger semantic-context
 work is outside P2. Synthetic tool tests verify authority and lifecycle, not live
 model usefulness.
 
+For KnowledgeAndActions intake investigations, `report_conflict` may retain exact
+opposing saved body quotations only when the bound Source is already Applied.
+Workflow qualifies its historical installed proof and current prerequisite;
+pending intake conflicts stay in the answer. The existing Rig tool/schema and
+tentative Finding lifecycle are reused, without model approval authority or new
+private-intake cleanup support. Previously captured questions remain unchanged.
+
 ## Hash-bound long evidence reads
 
 `read_note` retains its50,000-byte UTF-8 prefix behavior. `read_note_range`

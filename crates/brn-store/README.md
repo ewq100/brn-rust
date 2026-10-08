@@ -319,6 +319,15 @@ evidence to the retained KnowledgeAndActions Inbox capture, including its full
 fingerprint, managed UUID and exact nonhistorical Source body slice. This check
 needs no running turn; Workflow qualifies the other saved note and callback
 authority. Duplicated intent and evidence count toward the retained byte bound.
+`inbox_conflict_source(analysis_id)` retains the saved capture proof or resolves
+an intake Source through exactly one historical Applied approval at its bound
+Draft stamp. The Source Create, complete text, snapshot/assets, vault and checked
+installed fingerprint must agree. Intake Finding reads use that historical
+receipt rather than current prerequisite eligibility, so later edits/loss/Undo
+do not erase retained evidence. Canonical capture/question and Finding encodings
+stay unchanged. Fresh filesystem qualification belongs to Workflow. Legacy
+private-intake cleanup certificates remain explicitly unsupported; no missing
+Finding or approval lineage is reconstructed from another recovery envelope.
 Strict nested JSON, bounded retained/encoded work, hashes and row/creation bindings
 are checked before use and at startup before reconciliation/backup.
 For supported branded V9+ databases, readable Findings are also validated before

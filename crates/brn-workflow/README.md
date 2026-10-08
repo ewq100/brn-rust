@@ -983,6 +983,17 @@ protect capture, original request hashes, startup/backup and history-only replay
 identical callback retries preserve later closure even after saved files vanish.
 Findings remain retained after failed/interrupted turns.
 
+An intake-bound investigation may capture a Finding once its exact Source
+prerequisite is Applied. The unchanged capture keeps `source: None` and its
+canonical omission, retaining its intake binding; Workflow obtains the historical Applied installed
+fingerprint from Store, rechecks current prerequisite/original/assets/identity,
+and requires full saved fingerprint and bytes to match. Equal-byte replacement
+at a new inode does not refresh authority. Pending intake is refused. Historical
+Finding reads, explicit closure and exact callback replay retain that proof after
+Source changes/loss/Undo; replay performs no inference or new capture. Existing
+Finding, capture/question and recovery formats stay unchanged. Private-intake
+original cleanup remains unsupported.
+
 `InboxActionAnalysis.findings` includes every retained conflict, including closed
 work. Existing Needs Review handles exact stamped Resolve/Dismiss; closure changes
 operational review state and conveys no knowledge correction or authoritative resolution. The
