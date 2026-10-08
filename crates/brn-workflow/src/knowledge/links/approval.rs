@@ -137,6 +137,12 @@ impl App {
             }
         }
         for &id in added {
+            if let Some(binding) =
+                crate::intake_dependencies::dependency(draft).filter(|b| b.source_note_id == id)
+            {
+                self.validate_intake_dependency(Some(binding), false)?;
+                continue;
+            }
             let mut matches = targets.iter().filter(|target| target.id == id);
             let Some(target) = matches.next() else {
                 return Err(rejected(

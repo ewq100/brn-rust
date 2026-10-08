@@ -34,6 +34,7 @@ fn creation_acknowledgement_keeps_asset_kind_path_payload_and_expected_proof() {
     use brn_workflow::proposals::{DraftNoteChange, DraftRequest};
     let record = fixture();
     let request = DraftRequest {
+        intake: None,
         id: record.draft.id,
         group_id: record.draft.group_id,
         session_id: record.draft.session_id,

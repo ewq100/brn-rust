@@ -9,3 +9,6 @@ excluded capture in the test evidence without retaining its sensitive pixels.
 
 - [2026-10-04](2026-10-04/INDEX.md): synthetic Current search and saved-note view.
 - [2026-10-05](2026-10-05/INDEX.md): native saved Inbox Source inspection.
+
+- [2026-10-07](2026-10-07/INDEX.md): public P2 Harbor original Quick Look preview and its limits.
+- [2026-10-08](2026-10-08/INDEX.md): owner MacBook P2 screenshot review, bounded verification and Inbox usability observations; original pixels remain in the conversation attachments.

@@ -99,6 +99,8 @@ fn prepared_inbox_source_uses_exact_proposal_approval_and_source_scope() {
     );
     let original = processing_capture(&worker, InboxKind::Markdown, &exact);
     let process = ProcessInboxRequest {
+        limits: None,
+
         id: Uuid::new_v4(),
         items: vec![original.clone()],
     };
@@ -216,6 +218,8 @@ fn storage_failure_during_admitted_step_emits_batch_error_and_retains_restart_wo
     let (owner, data, mut worker) = processing_fixture();
     let item = processing_capture(&worker, InboxKind::Text, "keep original");
     let request = ProcessInboxRequest {
+        limits: None,
+
         id: Uuid::new_v4(),
         items: vec![item.clone()],
     };
@@ -290,7 +294,7 @@ fn owned_batch_converts_exact_text_reports_missing_and_qualifies_restart_preview
     let markdown = processing_capture(&worker, InboxKind::Markdown, exact);
     let text = processing_capture(
         &worker,
-        InboxKind::Email,
+        InboxKind::Text,
         "\u{feff}From: x\r\n\r\n````\n~~~\nbody\0",
     );
     let missing = processing_capture(&worker, InboxKind::Teams, "retain catalog");
@@ -303,6 +307,8 @@ fn owned_batch_converts_exact_text_reports_missing_and_qualifies_restart_preview
     )
     .unwrap();
     let request = ProcessInboxRequest {
+        limits: None,
+
         id: Uuid::new_v4(),
         items: vec![markdown.clone(), text.clone(), missing],
     };
@@ -382,6 +388,8 @@ fn immediate_cancel_behind_blocked_lane_and_joined_quit_settle_admitted_jobs() {
         let (owner, data, mut worker) = processing_fixture();
         let item = processing_capture(&worker, InboxKind::Text, "retained\r\nõ");
         let request = ProcessInboxRequest {
+            limits: None,
+
             id: Uuid::new_v4(),
             items: vec![item.clone()],
         };
@@ -551,6 +559,8 @@ fn complete_original_review_uses_worker_and_reports_changed_copy_without_effects
     assert!(first.needs_semantic_review);
     assert_eq!(first.digest, first.manifest.digest().unwrap());
     let process = ProcessInboxRequest {
+        limits: None,
+
         id: Uuid::new_v4(),
         items: vec![original.clone()],
     };
@@ -622,6 +632,8 @@ fn binary_capture_correlates_uuid_and_non_docx_processing_fails_durably() {
             .is_none()
     );
     let process = ProcessInboxRequest {
+        limits: None,
+
         id: Uuid::new_v4(),
         items: vec![(*item).clone()],
     };
@@ -630,7 +642,7 @@ fn binary_capture_correlates_uuid_and_non_docx_processing_fails_durably() {
         .unwrap();
     let terminal = terminal_batch(&worker, process.id);
     assert!(
-        matches!(&terminal.entries[0].outcome, InboxProcessOutcome::Failed { code } if code == "binary_unsupported")
+        matches!(&terminal.entries[0].outcome, InboxProcessOutcome::Failed { code } if code == "intake_invalid")
     );
     assert_eq!(terminal.request, process);
     assert!(matches!(
@@ -787,6 +799,8 @@ fn docx_worker_uses_binary_capture_queue_exact_candidate_and_source_approval() {
     assert_eq!(id, capture.id);
     capture.validate_receipt(&item).unwrap();
     let process = ProcessInboxRequest {
+        limits: None,
+
         id: Uuid::new_v4(),
         items: vec![(*item).clone()],
     };
@@ -797,7 +811,7 @@ fn docx_worker_uses_binary_capture_queue_exact_candidate_and_source_approval() {
     assert!(matches!(
         batch.entries[0].outcome,
         InboxProcessOutcome::Converted {
-            format: crate::inbox_processing::InboxConversionFormat::DocxTextV1,
+            format: crate::inbox_processing::InboxConversionFormat::MaintainedExtractionV1,
             ..
         }
     ));
@@ -811,7 +825,8 @@ fn docx_worker_uses_binary_capture_queue_exact_candidate_and_source_approval() {
         panic!("exact candidate")
     };
     preview.validate_receipt(&batch).unwrap();
-    assert_eq!(preview.markdown, "First õ 日本語\n\nSecond preserved\n");
+    assert!(preview.markdown.contains("First õ 日本語"));
+    assert!(preview.markdown.contains("Second preserved"));
     let request = InboxSourceRequest {
         candidate,
         proposal_id: Uuid::new_v4(),

@@ -156,7 +156,58 @@ into this form. Failed, provisional or oversized answers cannot become truncated
 drafts. AI writing uses a real stored seed Draft, comments and owned Rewrite.
 GUI/IME/accessibility and owner acceptance are tracked separately.
 
-### Native text/email Inbox
+### Native EML/DOCX and text Inbox
+
+
+The guided Inbox uses the full document area, with a retained-item list and focused
+**Import → Read email/attachments → Review proposed notes → Approve** stages.
+A successful import appears and is selected without manual Refresh; reading starts
+locally, with cancellation available. The readable toolkit view keeps document
+links, HTML and image URLs inert. Only checked retained bytes supply images, joined
+to their exact source and occurrence. Named attachment reading and original
+inspection share that selection. Missing content and document fidelity gaps remain
+visible; raw Markdown, MIME nodes, hashes and quotas are under Evidence details.
+Paste, batch/analysis tools and original management remain secondary controls.
+Advanced tools occupy a separate view with Back, avoiding duplicate control IDs.
+
+Exact saved extractions can be discovered by retained capture ID after restart,
+including when the original is unavailable. One saved version opens as labelled
+historical evidence; multiple versions require a choice. Returning to an item can
+restore its previously explicit version, never silently choose the latest version.
+Sidebar presentation keeps imported/selected items visible beyond the FIFO page.
+Source title/path suggestions are visible and editable before creation; per-item
+input survives switching. Retained Source edits use the existing exact review.
+
+**Propose notes** explicitly retains a pending extracted Source and investigates
+its checked private binding using the acknowledged provider/model/effort. Changing
+the view or selection generation before admission prevents later automatic model
+submission. Reading, reopening and Source-only preparation call no provider.
+**Save as Source only** retains an offline review draft; approval remains a separate
+exact-review gesture, with original bytes retained. Related Source, Knowledge and
+Action cards open existing review, comments/Rewrite and selected group approval.
+The image-preserving guided AI path requires a pending extracted Source. Already
+settled Sources do not silently fall back to text-only analysis. Pasted text can
+be saved as Source and investigated through the existing saved-Source tools;
+these supported-state limits are explained before a guided AI request.
+
+P2 adds an explicit EML/DOCX file chooser over `CaptureBinaryInbox`, with retry
+bound to the same exact bytes. Extraction review shows decoded text, source/parent
+relationships, every repeated image occurrence, quotas/consumption and gaps.
+Owner-triggered original inspection uses Quick Look over exact retained bytes in
+an owned temporary preview; explicit Close, replacing the preview or quitting
+joins its process group. Navigation retains the owned preview until one of those
+actions.
+Unsupported XLSX attachments remain visible as retained/unprocessed.
+
+A prepared pending Source can be selected for private investigation before
+approval. The same owned Rig turn prepares grouped knowledge and related Action
+reviews; comments and Rewrite keep existing version guards. Group checkboxes
+select displayed stamps and require the matching pending Source prerequisite.
+Review exposes full proposed changes, recorded interpretation/reasons and retained
+evidence. Unselected members remain pending. No Source or Action is applied by
+inspection, extraction, model completion or Rewrite. The historical saved-Source
+analysis/inline-PNG annotation paths below remain available for old saved work.
+
 
 Inbox captures deliberate exact UTF-8 text, Markdown, email and Teams copies
 through AppWorker. Capture fields remain intact after acknowledgement, failure or

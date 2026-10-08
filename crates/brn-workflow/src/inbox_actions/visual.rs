@@ -78,6 +78,27 @@ impl InboxVisualEvidence {
 }
 
 impl App {
+    /// Checked selected private assets, deduplicated independently of occurrences.
+    pub(crate) fn inbox_analysis_images(
+        &self,
+        capture: &InboxActionCapture,
+    ) -> Result<Vec<brn_ai::VisualImage>> {
+        if let Some(binding) = &capture.intake {
+            let snapshot = self
+                .store
+                .intake_snapshot(binding.snapshot_id)?
+                .ok_or_else(|| stale("private extraction is unavailable"))?;
+            binding.validate_snapshot(&snapshot)?;
+            return binding.assets.iter().map(|id| {
+                let asset = snapshot.extraction.assets.iter().find(|asset| &asset.id == id).ok_or_else(|| stale("selected image is unavailable"))?;
+                if asset.media_type != "image/png" {
+                    return Err(rejected("selected image format is unavailable for this visual transport; select PNG assets and retain the visible omission"));
+                }
+                brn_ai::VisualImage::png_evidence(asset.bytes.clone()).map_err(|_| rejected("private image exceeds transport bounds"))
+            }).collect();
+        }
+        Ok(self.inbox_visual_image(capture)?.into_iter().collect())
+    }
     /// Observe a qualified saved Source and its one exact PNG without creating
     /// work, calling a provider or changing files. New analysis rechecks both.
     pub fn inbox_visual_evidence(&mut self, path: &str) -> Result<InboxVisualEvidence> {
@@ -192,7 +213,11 @@ impl App {
         let binding = InboxVisualAnnotationBinding {
             analysis_id,
             note_id: job.capture.note_id()?,
-            source: job.capture.source.clone(),
+            source: job
+                .capture
+                .source
+                .clone()
+                .ok_or_else(|| rejected("legacy visual annotation needs a saved Source"))?,
             source_text: job.capture.source_text.clone(),
             asset: job
                 .capture
@@ -214,6 +239,7 @@ impl App {
         bytes[6] = (bytes[6] & 0x0f) | 0x80;
         bytes[8] = (bytes[8] & 0x3f) | 0x80;
         let request = DraftRequest {
+            intake: None,
             inbox_visual: Some(Box::new(binding.clone())),
             inbox_knowledge: None,
             inbox_source: None,

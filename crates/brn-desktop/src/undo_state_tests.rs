@@ -33,6 +33,7 @@ fn mixed(fixture: &Fixture) -> (AppWorker, Mixed) {
         (
             Uuid::new_v4(),
             AppCommand::CreateProposal(DraftRequest {
+                intake: None,
                 inbox_visual: None,
                 inbox_knowledge: None,
         inbox_source: None,

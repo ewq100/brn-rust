@@ -401,3 +401,14 @@ The facade enables only `agent`, `derive`, `reqwest`; TLS is enabled directly on
 This preserves the [spike's pinned dependency graph](../../experiments/rig-spike/FINDINGS.md).
 Offline tests do not qualify live authentication, native UI, server-side
 cancellation or billing behavior.
+
+## P2 private intake evidence
+
+The existing Rig proposal runtime also accepts a collection of exact retained PNG
+assets with explicit source/occurrence labels for private EML/DOCX investigation.
+JPEGs remain reviewable extraction assets but are not supplied through this PNG
+transport. Workflow binds proposals to the pending Source and validates quoted
+source-node ranges; the model cannot approve or create a saved Source version.
+The existing 50,000-byte captured Source bound remains; larger semantic-context
+work is outside P2. Synthetic tool tests verify authority and lifecycle, not live
+model usefulness.

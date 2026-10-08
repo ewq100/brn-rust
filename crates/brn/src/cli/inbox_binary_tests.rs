@@ -230,6 +230,8 @@ fn binary_cli_retains_exact_bytes_and_durable_unsupported_failure() {
     )
     .is_err());
     let process = ProcessInboxRequest {
+        limits: None,
+
         id: Uuid::new_v4(),
         items: vec![item.clone()],
     };
@@ -245,7 +247,7 @@ fn binary_cli_retains_exact_bytes_and_durable_unsupported_failure() {
     assert!(matches!(
         &batch.entries[0].outcome,
         brn_workflow::inbox_processing::InboxProcessOutcome::Failed { code }
-            if code == "binary_unsupported"
+            if code == "intake_invalid"
     ));
     assert_eq!(
         crate::cli::execute(&invoke(InboxCommand::Processing(process.id)))
@@ -299,7 +301,7 @@ fn supported_docx_cli_keeps_exact_processing_preview_source_binding_and_original
     // This literal fixture is shared with the actual Workflow DOCX lifecycle tests.
     const DOCX: &[u8] =
         include_bytes!("../../../brn-workflow/src/inbox_processing/fixtures/basic-text.docx");
-    const BODY: &str = "First õ 日本語\n\nSecond preserved\n";
+    const BODY: &str = "<!-- docx-story: body body -->\n\n<!-- docx-export:0 -->\nFirst õ 日本語\n\n<!-- docx-export:1 -->\nSecond preserved\n";
     let _cancel = crate::tests::CancelTestGuard::with(false);
     let owner = tempfile::tempdir_in(std::env::temp_dir().canonicalize().unwrap()).unwrap();
     let data = owner.path().join("data");
@@ -342,6 +344,8 @@ fn supported_docx_cli_keeps_exact_processing_preview_source_binding_and_original
     assert_eq!(fs::read(&owned_copy).unwrap(), DOCX);
 
     let process = ProcessInboxRequest {
+        limits: None,
+
         id: Uuid::new_v4(),
         items: vec![item.clone()],
     };
@@ -356,14 +360,14 @@ fn supported_docx_cli_keeps_exact_processing_preview_source_binding_and_original
     assert!(matches!(
         batch.entries[0].outcome,
         InboxProcessOutcome::Converted {
-            format: InboxConversionFormat::DocxTextV1,
+            format: InboxConversionFormat::MaintainedExtractionV1,
             byte_len,
             ..
         } if byte_len == BODY.len() as u64
     ));
     assert_eq!(
         processed.data["entries"][0]["outcome"]["format"],
-        "docx_text_v1"
+        "maintained_extraction_v1"
     );
     // Each invocation restarts the real application boundary and reads durable work.
     assert_eq!(
@@ -389,7 +393,10 @@ fn supported_docx_cli_keeps_exact_processing_preview_source_binding_and_original
     preview.validate_receipt(&batch).unwrap();
     assert_eq!(preview.request, candidate);
     assert_eq!(preview.original, item);
-    assert_eq!(preview.format, InboxConversionFormat::DocxTextV1);
+    assert_eq!(
+        preview.format,
+        InboxConversionFormat::MaintainedExtractionV1
+    );
     assert_eq!(preview.markdown, BODY);
     assert!(preview.needs_semantic_review);
 
@@ -407,7 +414,10 @@ fn supported_docx_cli_keeps_exact_processing_preview_source_binding_and_original
     source.validate_draft(&draft).unwrap();
     let binding = draft.inbox_source.as_ref().unwrap();
     assert_eq!(binding.original, item);
-    assert_eq!(binding.format, InboxConversionFormat::DocxTextV1);
+    assert_eq!(
+        binding.format,
+        InboxConversionFormat::MaintainedExtractionV1
+    );
     assert_eq!(binding.batch_id, process.id);
     assert_eq!(binding.index, 0);
     assert_eq!(binding.byte_len, BODY.len() as u64);
@@ -425,7 +435,10 @@ fn supported_docx_cli_keeps_exact_processing_preview_source_binding_and_original
         .unwrap();
     assert_eq!(provenance.item_id, id);
     assert_eq!(provenance.kind, InboxKind::Binary);
-    assert_eq!(provenance.format, InboxConversionFormat::DocxTextV1);
+    assert_eq!(
+        provenance.format,
+        InboxConversionFormat::MaintainedExtractionV1
+    );
     assert_eq!(provenance.original_byte_len, DOCX.len() as u64);
     assert_eq!(provenance.original_sha256, item.capture.copy.sha256);
 
@@ -453,4 +466,127 @@ fn supported_docx_cli_keeps_exact_processing_preview_source_binding_and_original
     // Bound-vault startup refreshes its disposable index from the one saved note.
     // The retained original and prepared Source are not saved vault knowledge.
     assert!(!data.join("models").exists());
+}
+
+#[cfg(target_os = "macos")]
+#[test]
+fn maintained_plural_cli_review_exports_exact_children_and_mints_private_binding() {
+    use brn_workflow::inbox::{CaptureBinaryInboxRequest, InboxItem};
+    use brn_workflow::inbox_processing::{
+        InboxConversionPreview, InboxSourceRequest, ProcessInboxRequest,
+    };
+    use brn_workflow::proposals::{DraftRequest, ProposalRecord};
+    let _cancel = crate::tests::CancelTestGuard::with(false);
+    let owner = tempfile::tempdir_in(std::env::temp_dir().canonicalize().unwrap()).unwrap();
+    let data = owner.path().join("data");
+    let vault = owner.path().join("vault");
+    fs::create_dir(&data).unwrap();
+    fs::create_dir(&vault).unwrap();
+    let credentials = owner.path().join("credentials");
+    let bytes = include_bytes!(
+        "../../../../experiments/architecture-reassessment/p1-office-mime/fixtures/plural.eml"
+    );
+    let input = owner.path().join("plural.eml");
+    fs::write(&input, bytes).unwrap();
+    let invoke = |command| Invocation {
+        json: false,
+        data_dir: data.clone(),
+        vault: Some(vault.clone()),
+        credentials_dir: Some(credentials.clone()),
+        model_dir: None,
+        command: Command::Inbox(command),
+    };
+    let capture = CaptureBinaryInboxRequest {
+        id: Uuid::new_v4(),
+        title: "Plural Harbor evidence".into(),
+        original_name: Some("plural.eml".into()),
+        bytes: bytes.to_vec(),
+    };
+    let captured = crate::cli::execute(&invoke(InboxCommand::AddBinary {
+        id: capture.id,
+        title: capture.title.clone(),
+        original_name: capture.original_name.clone(),
+        input,
+    }))
+    .unwrap();
+    let original: InboxItem = serde_json::from_value(captured.data).unwrap();
+    capture.validate_receipt(&original).unwrap();
+    let process = ProcessInboxRequest {
+        limits: None,
+        id: Uuid::new_v4(),
+        items: vec![original],
+    };
+    let request_file = owner.path().join("process.json");
+    fs::write(&request_file, serde_json::to_vec(&process).unwrap()).unwrap();
+    crate::cli::execute(&invoke(InboxCommand::Process(request_file))).unwrap();
+    let candidate = InboxCandidateRequest {
+        batch_id: process.id,
+        index: 0,
+    };
+    let output = crate::cli::execute(&invoke(InboxCommand::Candidate(candidate.clone()))).unwrap();
+    assert!(output.text.contains("Mira <mira@example.test>"));
+    assert!(output.text.contains("Sources (exact bytes retained)"));
+    assert!(output.text.contains("distinct occurrences"));
+    assert!(output.text.contains("Extraction gaps"));
+    assert!(output.text.contains("Consumed:"));
+    assert!(!output.text.contains("{\"Address\""));
+    let preview: InboxConversionPreview = serde_json::from_value(output.data).unwrap();
+    let extraction = preview.extraction.unwrap();
+    assert_eq!(extraction.occurrences.len(), 3);
+    assert!(extraction.consumed.is_some());
+    for name in ["original.eml", "harbor.docx", "forecast.xlsx"] {
+        let source = extraction.sources.iter().find(|s| s.name == name).unwrap();
+        let path = owner.path().join(format!("exported-{name}"));
+        let export = || InboxCommand::Export {
+            candidate: candidate.clone(),
+            source_id: source.id.clone(),
+            output: path.clone(),
+        };
+        crate::cli::execute(&invoke(export())).unwrap();
+        assert_eq!(fs::read(&path).unwrap(), source.bytes);
+        assert!(crate::cli::execute(&invoke(export())).is_err());
+        assert_eq!(fs::read(&path).unwrap(), source.bytes);
+    }
+    let path = owner.path().join("unknown.bin");
+    assert!(crate::cli::execute(&invoke(InboxCommand::Export {
+        candidate: candidate.clone(),
+        source_id: "missing-source".into(),
+        output: path.clone()
+    }))
+    .is_err());
+    assert!(!path.exists());
+    let source = InboxSourceRequest {
+        candidate,
+        proposal_id: Uuid::new_v4(),
+        note_id: Uuid::new_v4(),
+        path: "source.md".into(),
+        title: "Preserve selected evidence".into(),
+    };
+    let source_file = owner.path().join("source.json");
+    fs::write(&source_file, serde_json::to_vec(&source).unwrap()).unwrap();
+    let draft: DraftRequest = serde_json::from_value(
+        crate::cli::execute(&invoke(InboxCommand::Source(source_file)))
+            .unwrap()
+            .data,
+    )
+    .unwrap();
+    let draft_file = owner.path().join("draft.json");
+    fs::write(&draft_file, serde_json::to_vec(&draft).unwrap()).unwrap();
+    let mut create = invoke(InboxCommand::Show(capture.id));
+    create.command = Command::Proposals(crate::cli::proposals::ProposalCommand::Create(draft_file));
+    let record: ProposalRecord =
+        serde_json::from_value(crate::cli::execute(&create).unwrap().data).unwrap();
+    let binding: brn_workflow::inbox_actions::InboxIntakeBinding = serde_json::from_value(
+        crate::cli::execute(&invoke(InboxCommand::IntakeBinding(record.draft.id)))
+            .unwrap()
+            .data,
+    )
+    .unwrap();
+    assert_eq!(binding.source_proposal, record.stamp());
+    assert_eq!(binding.occurrences.len(), 3);
+    assert!(
+        !vault.join("source.md").exists(),
+        "Investigation binding does not approve or install Source"
+    );
+    assert_eq!(fs::read_dir(&credentials).unwrap().count(), 0);
 }

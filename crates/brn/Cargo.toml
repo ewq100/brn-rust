@@ -15,5 +15,6 @@ uuid = { version = "1", features = ["v4", "serde"] }
 libc = "0.2"
 
 [dev-dependencies]
+brn-intake = { path = "../brn-intake", default-features = false }
 brn-store = { path = "../brn-store" }
 tempfile = "3"

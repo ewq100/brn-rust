@@ -22,11 +22,16 @@ CREATE INDEX inbox_processing_queue ON inbox_processing(pending,queued_at_ms,id)
 #[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
 #[serde(deny_unknown_fields)]
 pub struct ProcessInboxRequest {
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub limits: Option<brn_intake::IntakeLimits>,
     pub id: Uuid,
     pub items: Vec<InboxItem>,
 }
 impl ProcessInboxRequest {
     pub fn validate(&self) -> Result<()> {
+        if let Some(limits) = &self.limits {
+            limits.validate().map_err(crate::Error::Invalid)?;
+        }
         if self.id.is_nil() || !(1..=MAX_PROCESS_BATCH).contains(&self.items.len()) {
             return Err(invalid(
                 "Inbox processing needs a UUID and 1 to 8 exact items",
@@ -48,6 +53,7 @@ impl ProcessInboxRequest {
 pub enum InboxConversionFormat {
     VerbatimMarkdownV1,
     LiteralTextV1,
+    MaintainedExtractionV1,
     DocxTextV1,
     DocxInlinePngV1,
 }
@@ -118,26 +124,31 @@ impl InboxProcessBatch {
                     byte_len,
                     sha256,
                 } => {
-                    let exact_format = match item.capture.kind {
-                        super::inbox::InboxKind::Markdown => {
-                            *format == InboxConversionFormat::VerbatimMarkdownV1
-                                && *byte_len == item.capture.copy.byte_len
-                                && *sha256 == item.capture.copy.sha256
-                        }
-                        super::inbox::InboxKind::Binary => {
-                            matches!(
-                                format,
-                                InboxConversionFormat::DocxTextV1
-                                    | InboxConversionFormat::DocxInlinePngV1
-                            ) && (22..=super::inbox::MAX_INBOX_BINARY_BYTES as u64)
-                                .contains(&item.capture.copy.byte_len)
-                                && (*byte_len != 0 || *sha256 == hash(&[]))
-                        }
-                        _ => {
-                            *format == InboxConversionFormat::LiteralTextV1
-                                && *byte_len >= item.capture.copy.byte_len + 12
-                                && (item.capture.copy.byte_len != 0
-                                    || (*byte_len == 13 && *sha256 == hash(b"```text\n\n```\n")))
+                    let exact_format = if *format == InboxConversionFormat::MaintainedExtractionV1 {
+                        *byte_len != 0
+                    } else {
+                        match item.capture.kind {
+                            super::inbox::InboxKind::Markdown => {
+                                *format == InboxConversionFormat::VerbatimMarkdownV1
+                                    && *byte_len == item.capture.copy.byte_len
+                                    && *sha256 == item.capture.copy.sha256
+                            }
+                            super::inbox::InboxKind::Binary => {
+                                matches!(
+                                    format,
+                                    InboxConversionFormat::DocxTextV1
+                                        | InboxConversionFormat::DocxInlinePngV1
+                                ) && (22..=super::inbox::MAX_INBOX_BINARY_BYTES as u64)
+                                    .contains(&item.capture.copy.byte_len)
+                                    && (*byte_len != 0 || *sha256 == hash(&[]))
+                            }
+                            _ => {
+                                *format == InboxConversionFormat::LiteralTextV1
+                                    && *byte_len >= item.capture.copy.byte_len + 12
+                                    && (item.capture.copy.byte_len != 0
+                                        || (*byte_len == 13
+                                            && *sha256 == hash(b"```text\n\n```\n")))
+                            }
                         }
                     };
                     exact_format
@@ -153,6 +164,12 @@ impl InboxProcessBatch {
                             | "original_unavailable"
                             | "candidate_too_large"
                             | "binary_unsupported"
+                            | "intake_failed"
+                            | "intake_unavailable"
+                            | "intake_timeout"
+                            | "intake_quota"
+                            | "intake_protocol"
+                            | "intake_invalid"
                             | "docx_invalid"
                             | "docx_unsupported"
                             | "docx_limit"

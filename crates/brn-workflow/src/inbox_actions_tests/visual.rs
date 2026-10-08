@@ -16,7 +16,7 @@ const RESULT: &str = r#"{"description":"A tentative illustration õ. <script> [d
 fn visual_inspection_returns_actual_png_and_refuses_forged_or_lost_evidence() {
     let f = Fixture::new();
     let mut w = f.start(Hooks::default());
-    let (source, asset) = captured_visual(&w);
+    let (source, asset) = captured_visual(&w, &f);
     let AppEvent::InboxVisualEvidence(evidence) = reply(
         &w,
         AppCommand::InboxVisualEvidence(source.source.source.path.clone()),
@@ -67,7 +67,7 @@ fn visual_inspection_returns_actual_png_and_refuses_forged_or_lost_evidence() {
     w.shutdown().unwrap();
 }
 
-fn captured_visual(worker: &AppWorker) -> (SourceFixture, SourceVersion) {
+fn captured_visual(worker: &AppWorker, owner: &Fixture) -> (SourceFixture, SourceVersion) {
     let capture = CaptureBinaryInboxRequest {
         id: Uuid::new_v4(),
         title: "Synthetic visual document".into(),
@@ -82,80 +82,54 @@ fn captured_visual(worker: &AppWorker) -> (SourceFixture, SourceVersion) {
         panic!("capture")
     };
     capture.validate_receipt(&original).unwrap();
-    let process = ProcessInboxRequest {
-        id: Uuid::new_v4(),
-        items: vec![(*original).clone()],
+    // Read compatibility uses retained historical bytes, never the new converter.
+    let golden: Value = serde_json::from_str(include_str!(
+        "../inbox_processing/fixtures/inline-png.legacy.json"
+    ))
+    .unwrap();
+    let body = golden["body"].as_str().unwrap();
+    let mut visual = golden["visual"].clone();
+    visual.as_object_mut().unwrap().remove("bytes");
+    visual["converted_byte_len"] = (body.len() as u64).into();
+    visual["converted_sha256"] = serde_json::to_value(brn_intake::digest(body.as_bytes())).unwrap();
+    let proof: crate::inbox_processing::InboxSourceVisual = serde_json::from_value(visual).unwrap();
+    let note_id = Uuid::new_v4();
+    let binding = crate::inbox_processing::InboxSourceBinding {
+        extraction: None,
+        visual: Some(proof.clone()),
+        batch_id: Uuid::new_v4(),
+        index: 0,
+        original: (*original).clone(),
+        format: crate::inbox_processing::InboxConversionFormat::DocxInlinePngV1,
+        byte_len: body.len() as u64,
+        sha256: brn_intake::digest(body.as_bytes()),
+        note_id,
     };
-    worker
-        .submit(process.id, AppCommand::ProcessInbox(process.clone()))
+    let asset_path = proof
+        .asset_path("source.md", &original.capture.copy.sha256)
         .unwrap();
-    loop {
-        let (id, value) = event(worker);
-        if id != process.id {
-            continue;
-        }
-        match value {
-            AppEvent::InboxProcessing(batch) if batch.pending_count() == 0 => {
-                assert!(matches!(
-                    batch.entries[0].outcome,
-                    InboxProcessOutcome::Converted { .. }
-                ));
-                break;
-            }
-            AppEvent::InboxProcessing(_) => {}
-            _ => panic!("process"),
-        }
-    }
-    let request = InboxSourceRequest {
-        candidate: InboxCandidateRequest {
-            batch_id: process.id,
-            index: 0,
-        },
-        proposal_id: Uuid::new_v4(),
-        note_id: Uuid::new_v4(),
-        path: "source.md".into(),
-        title: "Literal visual Source".into(),
-    };
-    let AppEvent::InboxSourceDraft(draft) =
-        reply(worker, AppCommand::PrepareInboxSource(request.clone()))
-    else {
-        panic!("Source")
-    };
-    request.validate_draft(&draft).unwrap();
-    let asset_path = draft
-        .inbox_source
-        .as_ref()
-        .unwrap()
-        .visual
-        .as_ref()
-        .unwrap()
-        .asset_path(&request.path, &original.capture.copy.sha256)
-        .unwrap();
-    let AppEvent::Proposal(proposal) = reply(worker, AppCommand::CreateProposal(*draft)) else {
-        panic!("review")
-    };
-    let approval = ApprovalRequest {
-        operation_id: Uuid::new_v4(),
-        expected: proposal.stamp(),
-    };
-    assert!(
-        matches!(reply_at(worker, approval.operation_id, AppCommand::ApproveProposal(approval)),
-        AppEvent::ProposalApplied(r) if r.outcome == ApplyOutcome::Applied)
-    );
-    let AppEvent::ProposalSource(source) =
-        reply(worker, AppCommand::ProposalEvidenceSource(request.path))
-    else {
-        panic!("source proof")
+    fs::write(
+        owner.base.path().join("vault/source.md"),
+        binding.markdown(body).unwrap(),
+    )
+    .unwrap();
+    fs::write(owner.base.path().join("vault").join(&asset_path), PNG).unwrap();
+    let AppEvent::ProposalSource(source) = reply(
+        worker,
+        AppCommand::ProposalEvidenceSource("source.md".into()),
+    ) else {
+        panic!("source proof");
     };
     let AppEvent::ProposalAsset(asset) = reply(worker, AppCommand::ProposalAsset(asset_path))
     else {
-        panic!("asset proof")
+        panic!("asset proof");
     };
+
     (
         SourceFixture {
             raw: source.text.clone(),
             source: *source,
-            note_id: request.note_id,
+            note_id,
             original: *original,
         },
         SourceVersion {
@@ -224,7 +198,7 @@ fn visual_owned_worker_uses_real_image_and_requires_separate_exact_annotation_re
     let f = Fixture::new();
     let calls = Arc::new(AtomicUsize::new(0));
     let mut w = f.start(hooks(calls.clone(), completed()));
-    let (source, asset) = captured_visual(&w);
+    let (source, asset) = captured_visual(&w, &f);
     let r = visual_request(&source, &asset);
     let turn = analyze(&w, &r).unwrap();
     assert_eq!(turn.status, WorkTurnStatus::Completed);
@@ -337,7 +311,7 @@ fn visual_fresh_source_asset_and_identity_damage_refuse_before_provider_or_reser
         let f = Fixture::new();
         let calls = Arc::new(AtomicUsize::new(0));
         let mut w = f.start(hooks(calls.clone(), completed()));
-        let (source, asset) = captured_visual(&w);
+        let (source, asset) = captured_visual(&w, &f);
         let r = visual_request(&source, &asset);
         let path =
             f.base
@@ -374,7 +348,7 @@ fn visual_fresh_source_asset_and_identity_damage_refuse_before_provider_or_reser
 fn visual_purpose_and_asset_proof_are_exact_and_do_not_broaden_old_behaviors() {
     let f = Fixture::new();
     let mut w = f.start(Hooks::default());
-    let (source, asset) = captured_visual(&w);
+    let (source, asset) = captured_visual(&w, &f);
     let valid = visual_request(&source, &asset);
     valid.validate().unwrap();
     let mut wrong = valid.clone();
@@ -432,7 +406,7 @@ fn visual_failed_interrupted_or_malformed_output_cannot_prepare_a_durable_annota
         let f = Fixture::new();
         let calls = Arc::new(AtomicUsize::new(0));
         let mut w = f.start(hooks(calls, answer));
-        let (source, asset) = captured_visual(&w);
+        let (source, asset) = captured_visual(&w, &f);
         let r = visual_request(&source, &asset);
         let turn = analyze(&w, &r).unwrap();
         if turn.status != WorkTurnStatus::Completed {
@@ -461,7 +435,7 @@ fn visual_annotation_receipt_recovers_genuine_capture_without_chat_and_fences_pr
 {
     let f = Fixture::new();
     let mut w = f.start(hooks(Arc::new(AtomicUsize::new(0)), completed()));
-    let (source, asset) = captured_visual(&w);
+    let (source, asset) = captured_visual(&w, &f);
     let r = visual_request(&source, &asset);
     analyze(&w, &r).unwrap();
     let draft = prepared(&w, r.id);
@@ -540,7 +514,7 @@ fn visual_cancellation_drains_the_existing_owned_lane_without_annotation_or_part
         visual: Some(hook),
         ..Hooks::default()
     });
-    let (source, asset) = captured_visual(&w);
+    let (source, asset) = captured_visual(&w, &f);
     let r = visual_request(&source, &asset);
     w.submit(r.id, AppCommand::AnalyzeInboxActions(Box::new(r.clone())))
         .unwrap();
@@ -567,7 +541,7 @@ fn visual_cancellation_drains_the_existing_owned_lane_without_annotation_or_part
 fn visual_annotation_late_asset_substitution_refuses_before_installing_model_text() {
     let f = Fixture::new();
     let mut w = f.start(hooks(Arc::new(AtomicUsize::new(0)), completed()));
-    let (source, asset) = captured_visual(&w);
+    let (source, asset) = captured_visual(&w, &f);
     let r = visual_request(&source, &asset);
     analyze(&w, &r).unwrap();
     let draft = prepared(&w, r.id);
@@ -674,7 +648,7 @@ fn visual_annotation_crash_recovery_finish_and_restore_preserve_authority_and_un
     for direction in [RepairDirection::Finish, RepairDirection::Restore] {
         let f = Fixture::new();
         let mut w = f.start(hooks(Arc::new(AtomicUsize::new(0)), completed()));
-        let (source, asset) = captured_visual(&w);
+        let (source, asset) = captured_visual(&w, &f);
         let r = visual_request(&source, &asset);
         analyze(&w, &r).unwrap();
         let draft = prepared(&w, r.id);

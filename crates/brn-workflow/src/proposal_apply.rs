@@ -586,6 +586,7 @@ impl App {
         // checks every newly introduced durable citation, including review edits
         // and Rewrite output, before any Applying admission or filesystem effect.
         if undo.is_none() {
+            self.validate_intake_dependency(crate::intake_dependencies::dependency(draft), true)?;
             self.validate_inbox_knowledge(draft.inbox_knowledge.as_deref())?;
             self.validate_inbox_visual(draft.inbox_visual.as_deref())?;
             if let Some(bound) = draft
@@ -999,6 +1000,10 @@ impl App {
     }
 
     fn check_approved_actions(&self, journal: &ApplyJournal) -> Result<()> {
+        self.validate_intake_dependency(
+            crate::intake_dependencies::dependency(&journal.approved.draft),
+            true,
+        )?;
         self.check_inbox_knowledge_apply(journal)?;
         self.check_inbox_visual_apply(journal)?;
         self.validate_inbox_source(journal.approved.draft.inbox_source.as_deref())?;
@@ -1150,19 +1155,75 @@ impl App {
         &mut self,
         request: &GroupApprovalRequest,
     ) -> Result<GroupApprovalResult> {
+        #[cfg(test)]
+        let group_started = std::time::Instant::now();
+        #[cfg(test)]
+        eprintln!(
+            "group approval {}: validating {} members",
+            request.group_id,
+            request.approvals.len()
+        );
         request.validate()?;
-        for approval in &request.approvals {
-            if self.proposal(approval.expected.id)?.draft.group_id != Some(request.group_id) {
-                return Err(stale(
-                    "approval group contains duplicate or unbound members",
-                ));
+        let records = request
+            .approvals
+            .iter()
+            .map(|approval| {
+                self.proposal(approval.expected.id)
+                    .map(|record| (approval.clone(), record))
+            })
+            .collect::<Result<Vec<_>>>()?;
+        for (approval, record) in &records {
+            if record.stamp() != approval.expected && record.state == ProposalState::Draft {
+                return Err(stale("displayed group version changed"));
+            }
+            let is_selected_prerequisite = record
+                .draft
+                .inbox_source
+                .as_ref()
+                .is_some_and(|binding| binding.extraction.is_some())
+                && records.iter().any(|(_, dependent)| {
+                    dependent.draft.group_id == Some(request.group_id)
+                        && crate::intake_dependencies::dependency(&dependent.draft)
+                            .is_some_and(|binding| binding.source_proposal == approval.expected)
+                });
+            if record.draft.group_id != Some(request.group_id) && !is_selected_prerequisite {
+                return Err(stale("approval group contains unbound members"));
+            }
+            if let Some(binding) = crate::intake_dependencies::dependency(&record.draft) {
+                if let Some((selected, _)) = records
+                    .iter()
+                    .find(|(selected, _)| selected.expected.id == binding.source_proposal.id)
+                {
+                    if selected.expected != binding.source_proposal {
+                        return Err(stale("selected Source version differs from investigation"));
+                    }
+                    self.validate_intake_dependency(Some(binding), false)?;
+                } else {
+                    self.validate_intake_dependency(Some(binding), true)?;
+                }
             }
         }
+        // Existing atomic units retain independent receipts; prerequisites run first.
+        let mut records = records;
+        records.sort_by_key(|(_, record)| record.draft.inbox_source.is_none());
+        let approvals = records
+            .into_iter()
+            .map(|(approval, _)| approval)
+            .collect::<Vec<_>>();
         let mut result = GroupApprovalResult {
             receipts: Vec::new(),
             stopped: None,
         };
-        for approval in &request.approvals {
+        for approval in &approvals {
+            #[cfg(test)]
+            let member_started = std::time::Instant::now();
+            #[cfg(test)]
+            eprintln!(
+                "group approval {}: begin member {} elapsed={:?}",
+                request.group_id,
+                approval.operation_id,
+                group_started.elapsed()
+            );
             match self.approve_proposal(approval) {
                 Ok(receipt) => {
                     let applied = receipt.outcome == ApplyOutcome::Applied;
@@ -1187,7 +1248,22 @@ impl App {
                     break;
                 }
             }
+            #[cfg(test)]
+            eprintln!(
+                "group approval {}: completed member {} member_elapsed={:?} group_elapsed={:?}",
+                request.group_id,
+                approval.operation_id,
+                member_started.elapsed(),
+                group_started.elapsed()
+            );
         }
+        #[cfg(test)]
+        eprintln!(
+            "group approval {}: finished receipts={} elapsed={:?}",
+            request.group_id,
+            result.receipts.len(),
+            group_started.elapsed()
+        );
         Ok(result)
     }
 }
@@ -1288,6 +1364,7 @@ mod tests {
             let source = app.open_editor("source.md").unwrap().record.baseline;
             let draft = app
                 .create_proposal(&DraftRequest {
+                    intake: None,
                     inbox_visual: None,
                     inbox_knowledge: None,
                     inbox_source: None,
@@ -2007,3 +2084,6 @@ mod tests {
         }
     }
 }
+
+#[cfg(all(test, target_os = "macos"))]
+mod legacy_intake_tests;

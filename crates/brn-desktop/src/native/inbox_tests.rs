@@ -91,7 +91,7 @@ fn inventory(items: &[InboxItem]) -> InboxInventory {
         issues_truncated: false,
     }
 }
-struct InboxProbe(Entity<Desktop>);
+struct InboxProbe(Entity<Desktop>, bool);
 impl Render for InboxProbe {
     fn render(&mut self, _: &mut Window, cx: &mut Context<Self>) -> impl IntoElement {
         self.0.update(cx, |desktop, cx| {
@@ -100,7 +100,11 @@ impl Render for InboxProbe {
                 .size_full()
                 .flex()
                 .flex_col()
-                .child(desktop.render_inbox(cx))
+                .child(if self.1 {
+                    desktop.render_inbox_advanced(cx)
+                } else {
+                    desktop.render_inbox(cx)
+                })
                 .test_support()
         })
     }
@@ -109,6 +113,14 @@ fn open_pane(
     cx: &mut gpui_kit::TestAppContext,
     fixture: &Fixture,
     items: Vec<InboxItem>,
+) -> (gpui_kit::WindowHandle<Root>, Entity<Desktop>) {
+    open_pane_mode(cx, fixture, items, true)
+}
+fn open_pane_mode(
+    cx: &mut gpui_kit::TestAppContext,
+    fixture: &Fixture,
+    items: Vec<InboxItem>,
+    advanced: bool,
 ) -> (gpui_kit::WindowHandle<Root>, Entity<Desktop>) {
     cx.update(gpui_kit::component::init);
     let capture = std::rc::Rc::new(std::cell::RefCell::new(None));
@@ -141,7 +153,7 @@ fn open_pane(
                 desktop
             });
             *saved.borrow_mut() = Some(desktop.clone());
-            let probe = cx.new(|_| InboxProbe(desktop));
+            let probe = cx.new(|_| InboxProbe(desktop, advanced));
             Root::new(probe, window, cx)
         },
     );
@@ -300,6 +312,7 @@ fn native_inbox_original_and_preview_are_readonly_and_copy_complete_exact_bytes(
         ai.apply(process, AppEvent::InboxProcessing(Box::new(batch)));
         let (operation, AppCommand::InboxCandidate(request)) = ai.preview_inbox_candidate(0).unwrap() else { panic!("typed preview") };
         ai.apply(operation, AppEvent::InboxCandidate(Box::new(InboxConversionPreview {
+            extraction: None,
             visual: None,
             request, original: original.clone(), format: InboxConversionFormat::VerbatimMarkdownV1,
             markdown: EXACT.into(), needs_semantic_review: true,
@@ -490,4 +503,296 @@ fn native_binary_original_has_proof_view_and_batch_admission_without_text_copy(
         assert!(window.try_find("copy-inbox-original").is_none());
     });
     fixture.unchanged();
+}
+
+#[gpui_kit::test]
+fn native_plural_extraction_shows_repeated_images_sources_and_visible_gaps(
+    cx: &mut gpui_kit::TestAppContext,
+) {
+    let fixture = Fixture::new();
+    let original = originals(1).remove(0);
+    let image = include_bytes!(
+        "../../../../experiments/architecture-reassessment/p1-office-mime/fixtures/water-use.png"
+    )
+    .to_vec();
+    let sha256 = brn_intake::digest(&image);
+    let (width, height) = brn_intake::validate_png_image(&image).unwrap();
+    let asset = brn_intake::ImageAsset {
+        id: format!("asset-{}", brn_intake::hex(&sha256)),
+        sha256,
+        width,
+        height,
+        media_type: "image/png".into(),
+        bytes: image,
+    };
+    let link = format!("![image]({})", brn_intake::asset_file_name(&asset).unwrap());
+    let markdown = format!("First actual picture\n{link}\nRepeated actual picture\n{link}\n");
+    let first = markdown.find(&link).unwrap();
+    let second = markdown.rfind(&link).unwrap();
+    let extraction = brn_intake::Extraction {
+        limits: Default::default(),
+        consumed: None,
+        schema: 1,
+        converter: brn_intake::CONVERTER.into(),
+        original_sha256: original.capture.copy.sha256,
+        markdown: markdown.clone(),
+        sources: vec![
+            brn_intake::SourceNode {
+                id: "source-0".into(),
+                parent: None,
+                name: "synthetic retained original".into(),
+                media_type: "text/plain".into(),
+                locator: "original".into(),
+                status: "partial".into(),
+                bytes: EXACT.as_bytes().to_vec(),
+                text: markdown.clone(),
+            },
+            brn_intake::SourceNode {
+                id: "source-1".into(),
+                parent: Some("source-0".into()),
+                name: "forecast.xlsx".into(),
+                media_type: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
+                    .into(),
+                locator: "mime/part/2".into(),
+                status: "unprocessed".into(),
+                bytes: b"opaque synthetic XLSX".to_vec(),
+                text: String::new(),
+            },
+        ],
+        assets: vec![asset.clone()],
+        occurrences: vec![
+            brn_intake::ImageOccurrence {
+                id: "occurrence-0".into(),
+                source_id: "source-0".into(),
+                asset_id: asset.id.clone(),
+                locator: "document/image/1".into(),
+                alt: Some("120 to 72 litres/day".into()),
+                start: first,
+                end: first + link.len(),
+            },
+            brn_intake::ImageOccurrence {
+                id: "occurrence-1".into(),
+                source_id: "source-0".into(),
+                asset_id: asset.id.clone(),
+                locator: "document/image/2".into(),
+                alt: Some("Repeated operational evidence".into()),
+                start: second,
+                end: second + link.len(),
+            },
+        ],
+        gaps: vec![
+            "Unsupported XLSX remains retained and unprocessed.".into(),
+            "Native chart content unavailable; inspect original.".into(),
+        ],
+    };
+    extraction.validate().unwrap();
+    let (window, desktop) = open_pane(cx, &fixture, vec![original.clone()]);
+    let mut visual = VisualTestContext::from_window(window.into(), cx);
+    visual.update(|window, cx| {
+        desktop.update(cx, |desktop, cx| {
+            desktop.ai.as_mut().unwrap().inbox_queue.preview = Some(InboxConversionPreview {
+                extraction: Some(extraction.clone()),
+                visual: None,
+                request: brn_workflow::inbox_processing::InboxCandidateRequest {
+                    batch_id: Uuid::new_v4(),
+                    index: 0,
+                },
+                original: original.clone(),
+                format: InboxConversionFormat::MaintainedExtractionV1,
+                markdown: markdown.clone(),
+                needs_semantic_review: true,
+            });
+            desktop.sync_inbox_widgets(window, cx);
+            cx.notify();
+        })
+    });
+    visual.run_until_parked();
+    visual.update(|window, cx| {
+        window.render_frame(cx);
+        for id in [
+            "import-intake-file",
+            "intake-extraction-summary",
+            "intake-source-0",
+            "intake-source-1",
+            "intake-image-0",
+            "intake-image-1",
+            "intake-gap-0",
+            "intake-gap-1",
+        ] {
+            assert!(
+                window.try_find(id).is_some(),
+                "missing plural inspection widget {id}"
+            );
+        }
+        assert!(
+            window.try_find("inbox-preview-png").is_none(),
+            "New extraction is a collection, not the historical singleton."
+        );
+        assert_eq!(
+            desktop.read(cx).inbox.preview.read(cx).value().as_ref(),
+            markdown
+        );
+    });
+    fixture.unchanged();
+}
+
+#[gpui_kit::test]
+fn native_retained_analysis_reopens_plural_images_without_a_queue_preview(
+    cx: &mut gpui_kit::TestAppContext,
+) {
+    let (owner, snapshot, record) =
+        crate::ai::inbox_analysis_state_tests::retained_analysis_fixture();
+    let fixture = Fixture(owner);
+    assert!(!snapshot.original.capture.copy.directory.exists());
+    let (window, desktop) = open_pane(cx, &fixture, vec![]);
+    let mut visual = VisualTestContext::from_window(window.into(), cx);
+    visual.update(|window, cx| {
+        desktop.update(cx, |desktop, cx| {
+            desktop.inbox.body.update(cx, |editor, cx| editor.set_value(LATER, window, cx));
+            let ai = desktop.ai.as_mut().unwrap();
+            assert!(ai.inbox_queue.preview.is_none());
+            let (id, _) = ai.inspect_inbox_analysis(record.job.capture.id).unwrap();
+            ai.apply(id, AppEvent::InboxActionAnalysis(Box::new(record.clone())));
+            let (id, command) = ai.inspect_retained_extraction().unwrap();
+            assert!(matches!(command, AppCommand::InboxExtraction(requested) if requested == snapshot.id));
+            ai.apply(id, AppEvent::InboxExtraction(Box::new(snapshot.clone())));
+            desktop.sync_inbox_widgets(window, cx);
+            cx.notify();
+        });
+    });
+    visual.run_until_parked();
+    visual.update(|window, cx| {
+        window.render_frame(cx);
+        for id in [
+            "inbox-inspect-retained-extraction",
+            "retained-intake-extraction",
+            "intake-extraction-summary",
+            "intake-source-0",
+            "intake-image-0",
+            "intake-image-1",
+            "intake-gap-0",
+        ] {
+            assert!(
+                window.try_find(id).is_some(),
+                "missing reopened retained extraction widget {id}"
+            );
+        }
+        let desktop = desktop.read(cx);
+        assert!(desktop.ai.as_ref().unwrap().inbox_queue.preview.is_none());
+        assert_eq!(
+            desktop.inbox.retained_extraction.read(cx).value().as_ref(),
+            snapshot.extraction.markdown
+        );
+        assert_eq!(desktop.inbox.body.read(cx).value().as_ref(), LATER);
+        assert_eq!(
+            desktop.inbox.intake_images.len(),
+            1,
+            "two repeated occurrences share one checked image allocation"
+        );
+    });
+}
+
+#[gpui_kit::test]
+fn guided_sidebar_shows_twenty_sixth_import_and_preserves_per_item_source_input(
+    cx: &mut gpui_kit::TestAppContext,
+) {
+    let fixture = Fixture::new();
+    let all = originals(26);
+    let latest = all[25].clone();
+    let first = all[0].clone();
+    let (window, desktop) = open_pane_mode(cx, &fixture, all[..25].to_vec(), false);
+    let mut visual = VisualTestContext::from_window(window.into(), cx);
+    visual.update(|window, cx| {
+        desktop.update(cx, |desktop, cx| {
+            let ai = desktop.ai.as_mut().unwrap();
+            ai.inbox_queue.capture_result = Some(latest.clone());
+            ai.inbox_queue.guided.selected = Some(latest.capture.id);
+            ai.inbox_queue.guided.selected_item = Some(latest.clone());
+            ai.inbox_queue.selected = Some(InboxRead {
+                item: latest.clone(),
+                original: InboxOriginal::Available { text: EXACT.into() },
+            });
+            desktop.sync_inbox_widgets(window, cx);
+            desktop.inbox.source_path.update(cx, |input, cx| {
+                input.set_value("owner-chosen.md", window, cx)
+            });
+            cx.notify();
+        })
+    });
+    visual.run_until_parked();
+    visual.update(|window, cx| {
+        window.render_frame(cx);
+        let latest_id = format!("guided-item-{}", latest.capture.id);
+        assert!(
+            window
+                .find(gpui_kit::SharedString::from(latest_id))
+                .visible(),
+            "import must appear immediately, including beyond the FIFO page"
+        );
+        assert!(window.try_find("inbox-guided-content").is_some());
+        assert!(window.try_find("guided-import-file").is_some());
+        assert!(
+            window.try_find("intake-extraction-summary").is_none(),
+            "technical evidence is disclosed on demand"
+        );
+        desktop.update(cx, |desktop, cx| {
+            let ai = desktop.ai.as_mut().unwrap();
+            ai.inbox_queue.guided.selected = Some(first.capture.id);
+            ai.inbox_queue.selected = Some(InboxRead {
+                item: first.clone(),
+                original: InboxOriginal::Available { text: EXACT.into() },
+            });
+            desktop.sync_inbox_widgets(window, cx);
+            let ai = desktop.ai.as_mut().unwrap();
+            ai.inbox_queue.guided.selected = Some(latest.capture.id);
+            ai.inbox_queue.selected = Some(InboxRead {
+                item: latest.clone(),
+                original: InboxOriginal::Available { text: EXACT.into() },
+            });
+            desktop.sync_inbox_widgets(window, cx);
+            assert_eq!(
+                desktop.inbox.source_path.read(cx).value().as_ref(),
+                "owner-chosen.md"
+            );
+            desktop.inbox.guided_advanced = true;
+            cx.notify();
+        });
+    });
+    visual.run_until_parked();
+    visual.update(|window, cx| {
+        window.render_frame(cx);
+        assert!(window.try_find("guided-back-from-tools").is_some());
+        assert!(
+            window.try_find("inbox-guided-content").is_none(),
+            "advanced tools must not duplicate the guided controls"
+        );
+    });
+    fixture.unchanged();
+}
+
+#[test]
+fn guided_original_inspection_targets_selected_attachment_without_parent_fallback() {
+    let (_owner, mut snapshot, _) =
+        crate::ai::inbox_analysis_state_tests::retained_analysis_fixture();
+    let root = snapshot.extraction.sources[0].id.clone();
+    let mut attachment = snapshot.extraction.sources[0].clone();
+    attachment.id = "selected-docx".into();
+    attachment.parent = Some(root.clone());
+    attachment.name = "harbor.docx".into();
+    attachment.media_type =
+        "application/vnd.openxmlformats-officedocument.wordprocessingml.document".into();
+    snapshot.extraction.sources.push(attachment.clone());
+    assert_eq!(
+        inbox_guided::inspection_source(&snapshot.extraction, None)
+            .unwrap()
+            .id,
+        root
+    );
+    assert_eq!(
+        inbox_guided::inspection_source(&snapshot.extraction, Some(&attachment.id)),
+        Some(&attachment)
+    );
+    assert!(
+        inbox_guided::inspection_source(&snapshot.extraction, Some("stale-attachment")).is_none()
+    );
 }

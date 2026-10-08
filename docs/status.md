@@ -1,5 +1,106 @@
 # Current development status
 
+## CI repair selected and Mac cause diagnosed — 2026-10-08
+
+The owner authorizes CI repair and supervision of PR87. Hosted test-only timings
+show the failing three-member group completing all Applied approvals in 13.481
+seconds, after the harness's ten-second deadline. The focused correction gives
+validated groups ten seconds per sequential member with one absolute deadline;
+ordinary and invalid-request waits retain ten seconds. Production approval and
+recovery behavior, guards, fixtures and assertions are unchanged. Two focused
+group-related tests, native-workflow all-target Clippy and independent review
+passed. [The CI-repair checkpoint](work/active/architecture-reassessment/plan.md#selected-ci-repair-and-supervision--2026-10-08)
+records the exact hosted diagnosis and final-run gate. Final corrected CI remains
+pending. Windows is informational under branch protection; its existing Unix-API
+build failure awaits the owner's port-versus-deferral decision. UX stays deferred.
+
+## Owner priority: backend readiness, UX deferred — 2026-10-08
+
+The owner explicitly defers further UX tuning and wants to continue functional
+work once the underlying backend is qualified. Presentation polish is no longer
+a continuation gate. This does not grant full P2 acceptance or merge/release approval.
+
+New owner MacBook evidence at `986632601a260697252c2e7044780789d2dc688a`
+includes a clean-build manifest, two successful headless runs and twelve
+[hash-verified screenshots](ui/screenshots/2026-10-08/INDEX.md#guided-macbook-evidence--9866326).
+They show readable extraction/charts, Source draft and Applied review, and saved
+historical reading in restart-labelled captures. No AI usefulness is established.
+
+Final handoff-head CI at `1bfa8386a3a4832e49bc94e9e8e3f9d16e227965`
+has completed: docs, Ubuntu core and native UI passed; both Mac workflow lanes
+failed the paired P2 test waiting for `ApproveProposalGroup` after 10 seconds,
+and Windows failed compiling Unix authentication APIs. The focused unchanged
+native-workflow paired test passed locally again (single + plural, 19.10 seconds
+total), so the CI failure is unresolved rather than a proven broken approval or
+a proven harmless timeout. The [current backend handoff](work/active/architecture-reassessment/plan.md#backend-continuation-and-explicit-ux-deferral)
+owns the diagnostic and next functional scope. Defer cosmetic changes; first
+resolve grouped-approval qualification, then specify retained-evidence AI
+investigation, including already approved Sources, as the next bounded slice.
+
+
+## Guided Inbox implementation checkpoint — 2026-10-08
+
+The owner-approved follow-up is implemented on PR87 at source
+`986632601a260697252c2e7044780789d2dc688a`: import/select/local reading, safe
+readable evidence and named attachments, exact retained-version reopening,
+focused proposal cards and offline Source review, with technical/recovery tools
+secondary. Existing exact approval/group mechanisms remain authoritative.
+The [fresh evidence and handoff](work/active/architecture-reassessment/plan.md#guided-inbox-implementation-evidence-and-handoff)
+records 1,629 default workspace passes, 326 final native desktop passes, five
+guided worker journeys, shipping builds, 52 fixture assertions and two packaged
+restarts. Native workflow/model boundaries passed 397 tests (15 ignored), and
+native retrieval passed 15 tests. The completed hosted results and later owner
+evidence are recorded above; the failed Mac workflow gates remain unresolved.
+
+A fresh isolated local app and MacBook agent prompt are prepared. The execution
+Mac remains locked; the owner subsequently supplied the new MacBook GUI evidence
+above and explicitly deferred further UX tuning. Full P2 acceptance remains pending.
+The guided image-preserving AI path requires a pending extracted Source; settled
+Sources and text-only copies show explicit limits. No AI trials, optional model
+downloads, account changes, merge or release occurred. Earlier owner MacBook
+results below retain their exact older-commit attribution.
+
+## Owner MacBook verification and Inbox proposal — 2026-10-08
+
+The owner tested PR87 at exact commit
+`64db36ec42d42a9d005797d7c7b2950b187f07e9` on an Apple M5 Pro MacBook,
+macOS 26.5. Both locked builds, bundled-helper packaging, two headless startup/
+shutdown runs and actual GUI launch passed. The bundled helper parsed `plural.eml`
+into 8 source nodes, 1 image asset, 3 occurrences and 4 gaps. GUI conversion and
+chart display passed; both imported copies remained listed after full Quit/restart.
+These are owner-reported bounded local results, supported by five supplied
+[screenshots](ui/screenshots/2026-10-08/INDEX.md), not a rerun by the lead.
+
+The owner could not navigate Inbox without guidance: newly imported items required
+manual Refresh, and the long view mixes reading with technical and recovery controls.
+The [proposed Inbox scope](work/active/architecture-reassessment/plan.md#owner-macbook-verification-and-proposed-inbox-ui--2026-10-08)
+is **Import → Read email/attachments → Review proposed notes → Approve** using the
+existing evidence/proposal/application paths. The owner subsequently approved
+implementation with “yes”; the selected follow-up is in progress on PR87. Reopening retained extraction after restart,
+Source approval, grouped consequences and AI usefulness remain unverified by this
+owner run. No AI trials or optional model downloads occurred. P2 acceptance and
+merge/release approval are not granted; prior dated evidence remains historical.
+
+## P2 selected implementation — 2026-10-07
+
+The owner selects the merged [P2 specification](work/active/architecture-reassessment/p2-conditional-spec.md)
+and authorizes production implementation and an implementation PR. Earlier pause
+and finalization-only statements below are historical. Baseline PR86 merge
+`47f12c05dadcabd899f015f4d8e2b904f12d8557`; the
+[execution checkpoint](work/active/architecture-reassessment/plan.md#selected-p2-implementation--2026-10-07)
+tracks milestones, replacement/retirement and gates. No merge/release/P3/private
+vault operation is authorized. Maintained EML/DOCX extraction, immutable evidence,
+private investigation and exact grouped consequences are implemented in the task
+branch; the default workspace gate passed 1,613 tests plus 52 fixture assertions.
+Native feature checks passed 726 tests, shipping builds, two AppWorker restarts
+and a fresh 52-assertion fixture run. Actual BRN GUI review/restart is blocked by
+the locked Mac. The standard subscription route is
+disconnected, so live Sol/Luna usefulness and owner acceptance remain unverified.
+[Draft PR87](https://github.com/ewq100/brn-rust/pull/87) carries the implementation
+review handoff. Tested implementation source is `55ef38840bc08f2acf42a380a911cade9dbc7214`;
+subsequent handoff edits are documentation only. This is an implementation
+checkpoint, not a merge or P2 acceptance claim.
+
 ## PR86 accepted specification and integration handoff — 2026-10-07
 
 The owner accepts the revised maintained-adapter [P2 specification and retirement inventory](work/active/architecture-reassessment/p2-conditional-spec.md), with unavailable separate picture titles allowed when exact mapping is unqualified, correct image/source/occurrence associations and honest omission reporting required, and no title-driven custom XML scanner. Retirement, unfinished-work recovery, higher-level API reuse and V1 scope decisions are preserved. Only PR86 finalization/merge after final-head checks and applicable policy is authorized now; P2 implementation remains unselected.

@@ -441,3 +441,45 @@ fn group_rejects_skipped_members_unknown_stops_and_continuation_after_non_applie
     assert!(single.accepts_group(&result(vec![], Some(single.requests()[0].operation_id))));
     assert!(!single.accepts_group(&result(vec![], None)));
 }
+
+#[test]
+fn selected_group_preserves_exact_stamps_and_requires_selected_source_dependency() {
+    let id = Uuid::new_v4();
+    let source = record(Some(id));
+    let mut dependent = crate::review::action_tests::fixture();
+    dependent.draft.group_id = Some(id);
+    dependent.draft.vault = source.draft.vault.clone();
+    dependent.draft.changes.clear();
+    dependent.draft.intake = Some(Box::new(brn_workflow::inbox_actions::InboxIntakeBinding {
+        snapshot_id: Uuid::new_v4(),
+        snapshot_sha256: [7; 32],
+        source_proposal: source.stamp(),
+        source_path: "source.md".into(),
+        source_note_id: Uuid::new_v4(),
+        source_text_sha256: [9; 32],
+        assets: vec![],
+        occurrences: vec![],
+    }));
+    let other = record(Some(id));
+    let capture = ApprovalCapture::new(
+        vec![source.clone(), dependent.clone(), other.clone()],
+        Some(id),
+    )
+    .unwrap();
+    assert!(
+        capture
+            .select(&[dependent.draft.id].into_iter().collect())
+            .is_none()
+    );
+    let subset = capture
+        .select(&[source.draft.id, dependent.draft.id].into_iter().collect())
+        .unwrap();
+    assert_eq!(subset.records(), &[source, dependent]);
+    assert_eq!(subset.requests(), &capture.requests()[..2]);
+    assert!(capture.select(&HashSet::new()).is_none());
+    assert!(
+        capture
+            .select(&[Uuid::new_v4()].into_iter().collect())
+            .is_none()
+    );
+}

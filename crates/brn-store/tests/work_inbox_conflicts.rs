@@ -42,6 +42,7 @@ fn quote(text: &str, wording: &str) -> FindingQuote {
 fn capture() -> InboxActionCapture {
     let body = "```text\nBlue õ 🦀\n```\n";
     let binding = InboxSourceBinding {
+        extraction: None,
         visual: None,
         batch_id: Uuid::new_v4(),
         index: 0,
@@ -70,11 +71,12 @@ fn capture() -> InboxActionCapture {
     };
     let text = binding.markdown(body).unwrap();
     InboxActionCapture {
+        intake: None,
         visual_asset: None,
         purpose: InboxAnalysisPurpose::KnowledgeAndActions,
         id: Uuid::new_v4(),
         conversation: None,
-        source: proof("Sources/color.md", &text, 11),
+        source: Some(proof("Sources/color.md", &text, 11)),
         source_text: text,
         provider: "chatgpt".into(),
         model: "gpt-6-luna".into(),
@@ -112,7 +114,7 @@ fn draft(capture: &InboxActionCapture) -> FindingDraft {
         summary,
         evidence: vec![
             FindingEvidence {
-                source: capture.source.clone(),
+                source: capture.source.clone().unwrap(),
                 note_id: Some(capture.note_id().unwrap()),
                 quote: Some(source_quote),
             },
@@ -268,7 +270,9 @@ fn conflict_shape_and_complete_intent_refuse_atomically() {
             6 => bad.evidence[1].note_id = bad.evidence[0].note_id,
             7 => {
                 bad.evidence[1].source.path = bad.evidence[0].source.path.clone();
-                origin_mut(&mut bad).4.clone_from(&capture.source.path);
+                origin_mut(&mut bad)
+                    .4
+                    .clone_from(&capture.source.as_ref().unwrap().path);
             }
             8 => bad.evidence[0].quote = None,
             9 => bad.evidence[1].quote.as_mut().unwrap().quote = "Different".into(),
@@ -361,9 +365,9 @@ fn contextual_source_body_capture_proof_and_purpose_are_checked_without_a_turn()
                     captured
                         .source_text
                         .replacen("brn_state: current", "brn_state: history", 1);
-                captured.source = proof("Sources/history.md", &captured.source_text, 31);
+                captured.source = Some(proof("Sources/history.md", &captured.source_text, 31));
             }
-            _ => captured.source.path = "Archive/source.md".into(),
+            _ => captured.source.as_mut().unwrap().path = "Archive/source.md".into(),
         }
         reserve(&mut store, &captured);
         let bad = draft(&captured);
@@ -681,7 +685,7 @@ fn exact_case_paths_are_preserved_and_generic_findings_are_excluded_from_conflic
     let data = fixture();
     let (mut store, _) = WorkStore::open(data.path()).unwrap();
     let mut capture = capture();
-    capture.source.path = "Note.md".into();
+    capture.source.as_mut().unwrap().path = "Note.md".into();
     reserve(&mut store, &capture);
     let mut input = draft(&capture);
     input.evidence[1].source.path = "note.md".into();

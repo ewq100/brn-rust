@@ -1059,3 +1059,19 @@ Remove. `inbox archived-analysis ANALYSIS_UUID` exposes only genuinely retained
 legacy analysis evidence. New cleanup records do not archive analysis/chat graphs.
 JSON returns full records; terminal output escapes control characters. Native
 confirmation controls remain separately pending.
+
+## Maintained P2 intake and private investigation
+
+Build the sibling `brn-intake-helper` with its `helper` feature before processing
+EML/DOCX. `inbox candidate` shows decoded source nodes, attachment parents, every
+image occurrence, selected quotas, measured scope and specific gaps.
+`inbox export BATCH_UUID INDEX SOURCE_ID --output PATH` exclusively writes exact
+retained original/attachment bytes; existing output paths refuse.
+`inbox source` prepares the normal Source proposal with all exact assets, without
+applying it. `inbox intake-binding SOURCE_PROPOSAL_UUID` returns the typed pending
+prerequisite for `InboxActionRequest.intake`; omit `source` for that private mode.
+The same analyze/review/comment/Rewrite commands prepare related knowledge and
+Actions before Source approval. Select the displayed exact stamps, including its
+Source prerequisite, in `proposals approve-group`. Restart reads retained evidence
+and results without rerunning extraction or AI. Historical saved-Source analysis
+and legacy read/recovery retain their separate proof contracts.

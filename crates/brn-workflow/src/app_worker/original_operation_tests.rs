@@ -27,7 +27,7 @@ fn fixture() -> (
     let item = app
         .capture_inbox(&CaptureInboxRequest {
             id: Uuid::new_v4(),
-            kind: InboxKind::Email,
+            kind: InboxKind::Text,
             title: "Synthetic owner original".into(),
             original_name: None,
             text: "\u{feff}Complete õ 日本語\r\n".into(),
@@ -35,6 +35,8 @@ fn fixture() -> (
         .unwrap();
     let batch = app
         .process_inbox(&ProcessInboxRequest {
+            limits: None,
+
             id: Uuid::new_v4(),
             items: vec![item.clone()],
         })

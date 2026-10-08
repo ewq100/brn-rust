@@ -5,15 +5,26 @@ pub(crate) enum AgentBehavior {
     Ask,
     ActionReview,
     InboxKnowledgeReview,
+    PrivateIntakeActions,
+    PrivateIntakeKnowledge,
     Rewrite,
     VisualInterpretation,
 }
 impl AgentBehavior {
     pub(crate) fn actions(self) -> bool {
-        matches!(self, Self::ActionReview | Self::InboxKnowledgeReview)
+        matches!(
+            self,
+            Self::ActionReview
+                | Self::InboxKnowledgeReview
+                | Self::PrivateIntakeActions
+                | Self::PrivateIntakeKnowledge
+        )
     }
     pub(crate) fn knowledge(self) -> bool {
-        matches!(self, Self::InboxKnowledgeReview)
+        matches!(
+            self,
+            Self::InboxKnowledgeReview | Self::PrivateIntakeKnowledge
+        )
     }
     pub(crate) fn preamble(self) -> String {
         if self == Self::VisualInterpretation {
@@ -29,7 +40,18 @@ impl AgentBehavior {
         }
         if self.knowledge() {
             prompt.push(' ');
-            prompt.push_str(KNOWLEDGE);
+            prompt.push_str(if self == Self::PrivateIntakeKnowledge {
+                PRIVATE_KNOWLEDGE
+            } else {
+                KNOWLEDGE
+            });
+        }
+        if matches!(
+            self,
+            Self::PrivateIntakeActions | Self::PrivateIntakeKnowledge
+        ) {
+            prompt.push(' ');
+            prompt.push_str(PRIVATE_INTAKE);
         }
         prompt
     }
@@ -73,6 +95,9 @@ const NOTE_FACTS: &str = "Each note or passage labels the requested scope separa
 const ACTIONS: &str = "You may propose Action review drafts using propose_actions. This never changes real Actions or Markdown. Separate exact human approval is required; do not claim proposed work is already approved or completed. Supply semantic after-fields with all14 fields and explicit nulls; Rust mints proposal and Create member identities. Replace uses checked_ref from fresh read_action; Rust loads complete checked baselines. Relationships may use existing UUIDs or 1-based member indices in the same ordered 1–20-member proposal. Retry only identical original input within the owned turn; changed intent creates a separate draft. Ordinary proposals bind explicitly supplied source paths. In Inbox analysis Workflow attaches the selected Source path and note identity, and source_paths supply additional evidence.";
 
 const KNOWLEDGE: &str = "You may use propose_knowledge to create one independent current Knowledge review draft from the explicitly selected approved Inbox Source. Supply complete candidate Markdown, a relative destination path, exact saved body quotations and ordered additional source_paths. Each quote may specify an optional 1-based occurrence in the saved body; omit it only for unique wording. Workflow resolves exact byte ranges and assigns proposal and note UUIDs returned in the receipt. Do not include managed note identity in candidate Markdown. The selected Inbox Source is automatically the mandatory first proof; do not include it again. Stable brn://note/UUID relationships require exact named target evidence. Read tools default to Current; explicitly named extra Source or History paths are evidence, never truth or deletion approval. Optional supersedes names one saved Current predecessor; workflow adds its exact protected History member and Previous version link to the same proposal. Do not repeat it in source_paths. If authority is unresolved, use report_conflict with two exact opposing saved body quotations as a tentative unresolved finding. Workflow assigns the finding UUID returned in the receipt; retry only identical original input, and changed input creates a separate finding draft. Do not choose a winner; conflict reporting creates no knowledge effects, real Actions or deletion authority. Retry only identical Knowledge input; changed intent creates a separate draft. Workflow adds exact saved citations; the tool never approves or writes knowledge. Human review and separate exact approval remain required.";
+
+const PRIVATE_INTAKE: &str = "The selected input is private immutable extraction with a planned Source. Investigation precedes Source approval. Its planned path/identity are pending dependencies, never a saved note or Current truth. Only specifically included image assets were consumed visually; occurrences retain separate locators even when bytes are shared. Retained unsupported originals, extraction gaps and image exclusions must remain visible. Keep original/extracted wording separate from tentative interpretation. Source preservation and each dependent consequence require exact human approval; revisions invalidate stale results. Explain tentative conflicts and uncertainty in your answer; legacy report_conflict requires saved Source evidence.";
+const PRIVATE_KNOWLEDGE: &str = "You may use propose_knowledge for useful independent tentative Current knowledge candidates, and propose_actions for related Action candidates before Source approval. Quote only exact processed source text; optional source_id selects the extraction-local node and optional occurrence selects exact global planned-Source body wording. Rust verifies immutable snapshot/source locator/UTF-8 ranges. Never cite unsupported originals or generated metadata/gap labels as factual extraction. Rust mints proposal/note identities and attaches typed snapshot citations plus the exact planned Source prerequisite. Do not include managed metadata in candidate Markdown. Do not put the planned Source path in source_paths; name only additional saved context and exact stable-link targets. Optional supersedes names separate saved Current knowledge and retains its before proof/History. Retry identical input for replay; changed intent creates a new draft. Human review and exact Source installation are required before applying dependent knowledge or Actions.";
 
 #[cfg(test)]
 mod tests {

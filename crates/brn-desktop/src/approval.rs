@@ -38,7 +38,18 @@ impl ApprovalCapture {
         for record in &records {
             if record.state != ProposalState::Draft
                 || !proposal_ids.insert(record.draft.id)
-                || group_id.is_some_and(|id| record.draft.group_id != Some(id))
+                || group_id.is_some_and(|id| {
+                    record.draft.group_id != Some(id)
+                        && (!record
+                            .draft
+                            .inbox_source
+                            .as_ref()
+                            .is_some_and(|binding| binding.extraction.is_some())
+                            || !records
+                                .iter()
+                                .filter_map(intake_dependency)
+                                .any(|binding| binding.source_proposal == record.stamp()))
+                })
                 || record
                     .draft
                     .vault
@@ -83,6 +94,39 @@ impl ApprovalCapture {
         })
     }
 
+    pub fn select(&self, selected: &HashSet<Uuid>) -> Option<Self> {
+        if self.group_id.is_none() || selected.is_empty() {
+            return None;
+        }
+        let pairs: Vec<_> = self
+            .records
+            .iter()
+            .zip(&self.requests)
+            .filter(|(r, _)| selected.contains(&r.draft.id))
+            .collect();
+        if pairs.len() != selected.len() {
+            return None;
+        }
+        for (record, _) in &pairs {
+            if let Some(binding) = intake_dependency(record) {
+                let source_selected = pairs
+                    .iter()
+                    .any(|(source, _)| source.stamp() == binding.source_proposal);
+                let source_was_pending = self
+                    .records
+                    .iter()
+                    .any(|source| source.stamp() == binding.source_proposal);
+                if source_was_pending && !source_selected {
+                    return None;
+                }
+            }
+        }
+        Some(Self {
+            records: pairs.iter().map(|(r, _)| (*r).clone()).collect(),
+            requests: pairs.iter().map(|(_, r)| (*r).clone()).collect(),
+            group_id: self.group_id,
+        })
+    }
     pub fn records(&self) -> &[ProposalRecord] {
         &self.records
     }
@@ -284,3 +328,15 @@ mod tests;
 #[cfg(test)]
 #[path = "approval_operation_tests.rs"]
 mod operation_tests;
+
+pub(crate) fn intake_dependency(
+    record: &ProposalRecord,
+) -> Option<&brn_workflow::inbox_actions::InboxIntakeBinding> {
+    record.draft.intake.as_deref().or_else(|| {
+        record
+            .draft
+            .inbox_knowledge
+            .as_ref()
+            .and_then(|b| b.intake.as_deref())
+    })
+}

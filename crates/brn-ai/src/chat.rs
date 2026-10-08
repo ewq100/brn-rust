@@ -151,7 +151,18 @@ pub async fn answer_with_effort(
     cancel: CancellationToken,
     emit: Arc<dyn Fn(AiEvent) + Send + Sync>,
 ) -> AiAnswer {
-    answer_with_tools(client, question, history, effort, tools, None, cancel, emit).await
+    answer_with_tools(
+        client,
+        question,
+        history,
+        effort,
+        tools,
+        None,
+        cancel,
+        emit,
+        &[],
+    )
+    .await
 }
 
 #[allow(clippy::too_many_arguments)]
@@ -164,6 +175,7 @@ async fn answer_with_tools(
     proposals: Option<Arc<dyn crate::ProposalTools>>,
     cancel: CancellationToken,
     emit: Arc<dyn Fn(AiEvent) + Send + Sync>,
+    images: &[crate::VisualImage],
 ) -> AiAnswer {
     let selection = client.selection();
     let model = selection.model.clone();
@@ -174,7 +186,7 @@ async fn answer_with_tools(
     };
     match client.inner {
         OwnedClient::Chatgpt(client) => {
-            run_model(
+            run_model_images(
                 client.completion(model),
                 question,
                 history,
@@ -183,11 +195,12 @@ async fn answer_with_tools(
                 cancel,
                 emit,
                 mode,
+                images,
             )
             .await
         }
         OwnedClient::Copilot(client) => {
-            run_model(
+            run_model_images(
                 client.completion(model),
                 question,
                 history,
@@ -196,6 +209,7 @@ async fn answer_with_tools(
                 cancel,
                 emit,
                 mode,
+                images,
             )
             .await
         }
@@ -223,6 +237,35 @@ pub async fn answer_with_proposals(
         Some(proposals),
         cancel,
         emit,
+        &[],
+    )
+    .await
+}
+
+/// Private image collections use the same selected model, tools and proposal
+/// lane as text evidence; image interpretation does not create another runtime.
+#[allow(clippy::too_many_arguments)]
+pub async fn answer_with_proposals_and_images(
+    client: ProviderClient,
+    question: &str,
+    history: &[HistoryPair],
+    effort: ReasoningEffort,
+    tools: Arc<dyn ReadTools>,
+    proposals: Arc<dyn crate::ProposalTools>,
+    images: &[crate::VisualImage],
+    cancel: CancellationToken,
+    emit: Arc<dyn Fn(AiEvent) + Send + Sync>,
+) -> AiAnswer {
+    answer_with_tools(
+        client,
+        question,
+        history,
+        effort,
+        tools,
+        Some(proposals),
+        cancel,
+        emit,
+        images,
     )
     .await
 }
@@ -312,11 +355,52 @@ async fn run_model(
     emit: Arc<dyn Fn(AiEvent) + Send + Sync>,
     mode: RunMode,
 ) -> AiAnswer {
+    run_model_images(
+        model,
+        question,
+        history,
+        tools,
+        proposals,
+        cancel,
+        emit,
+        mode,
+        &[],
+    )
+    .await
+}
+
+#[allow(clippy::too_many_arguments)]
+async fn run_model_images(
+    model: impl Into<rig_core::DynModel<rig_core::operation::Completion>>,
+    question: &str,
+    history: &[HistoryPair],
+    tools: Arc<dyn ReadTools>,
+    proposals: Option<Arc<dyn crate::ProposalTools>>,
+    cancel: CancellationToken,
+    emit: Arc<dyn Fn(AiEvent) + Send + Sync>,
+    mode: RunMode,
+    images: &[crate::VisualImage],
+) -> AiAnswer {
+    let input = match crate::visual::evidence_message(question, images) {
+        Ok(input) => input,
+        Err(error) => {
+            return AiAnswer {
+                text: String::new(),
+                terminal: AiTerminal::Failed(error),
+            };
+        }
+    };
     let limited = Arc::new(AtomicBool::new(false));
     let behavior = if matches!(mode, RunMode::Rewrite { .. }) {
         crate::behavior::AgentBehavior::Rewrite
     } else if let Some(backend) = &proposals {
-        if backend.knowledge_enabled() {
+        if backend.private_intake() {
+            if backend.knowledge_enabled() {
+                crate::behavior::AgentBehavior::PrivateIntakeKnowledge
+            } else {
+                crate::behavior::AgentBehavior::PrivateIntakeActions
+            }
+        } else if backend.knowledge_enabled() {
             crate::behavior::AgentBehavior::InboxKnowledgeReview
         } else {
             crate::behavior::AgentBehavior::ActionReview
@@ -369,7 +453,7 @@ async fn run_model(
         })
         .collect::<Vec<_>>();
     let stream = agent
-        .prompt(question)
+        .prompt(input)
         .history(history)
         .max_turns(9)
         .max_invalid_tool_call_retries(0)

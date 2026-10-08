@@ -214,6 +214,7 @@ fn pending_authoritative_changes_fence_link_observation_before_any_effect() {
     let mut app = fixture.app();
     let source = app.proposal_source(SOURCE).unwrap();
     let draft = DraftRequest {
+        intake: None,
         inbox_visual: None,
         inbox_knowledge: None,
         inbox_source: None,

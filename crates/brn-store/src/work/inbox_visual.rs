@@ -224,7 +224,7 @@ impl InboxVisualAnnotationBinding {
         if job.capture.purpose != super::inbox_actions::InboxAnalysisPurpose::VisualInterpretation
             || job.capture.id != self.analysis_id
             || job.capture.note_id()? != self.note_id
-            || job.capture.source != self.source
+            || job.capture.source.as_ref() != Some(&self.source)
             || job.capture.source_text != self.source_text
             || job.capture.visual_asset.as_ref() != Some(&self.asset)
         {
@@ -374,6 +374,7 @@ mod tests {
         let before = "Exact before õ\n\n";
         let converted = format!("{before}{image}\n\nExact caption and after\n");
         let binding = InboxSourceBinding {
+            extraction: None,
             visual: Some(InboxSourceVisual {
                 part_name: "word/media/image1.png".into(),
                 relationship_id: "image1".into(),

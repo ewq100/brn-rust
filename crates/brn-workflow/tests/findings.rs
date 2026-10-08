@@ -375,6 +375,7 @@ fn evidence_fence_blocks_new_capture_and_fresh_inspection_but_retains_history_an
     let saved = app.proposal_source("current.md").unwrap();
     let proposal = app
         .create_proposal(&DraftRequest {
+            intake: None,
             inbox_visual: None,
             inbox_knowledge: None,
             inbox_source: None,

@@ -25,6 +25,7 @@ fn prepared_source() -> DraftRequest {
     }))
     .unwrap();
     DraftRequest {
+        intake: None,
         id: Uuid::parse_str("00000000-0000-4000-8000-000000000001").unwrap(),
         group_id: Some(Uuid::parse_str("00000000-0000-4000-8000-000000000002").unwrap()),
         session_id: Some(Uuid::parse_str("00000000-0000-4000-8000-000000000003").unwrap()),

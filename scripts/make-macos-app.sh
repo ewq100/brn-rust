@@ -4,7 +4,7 @@ set -euo pipefail
 
 usage() {
   cat <<'HELP'
-Usage: make-macos-app.sh --output ABSOLUTE.app --binary ABSOLUTE_BINARY [--data-dir ABSOLUTE_DIRECTORY] [--model-dir ABSOLUTE_DIRECTORY]
+Usage: make-macos-app.sh --output ABSOLUTE.app --binary ABSOLUTE_BINARY [--intake-helper ABSOLUTE_HELPER] [--data-dir ABSOLUTE_DIRECTORY] [--model-dir ABSOLUTE_DIRECTORY]
 
 Creates an unsigned local .app. The specified binary is copied into the bundle.
 Omitting --data-dir uses the desktop's BRN-simple default.
@@ -13,16 +13,17 @@ Startup failures are logged at ~/Library/Logs/BRN Usability Trial/startup.log
 HELP
 }
 
-output= binary= data_dir= model_dir=
+output= binary= intake_helper= data_dir= model_dir=
 while (($#)); do
   case "$1" in
     --help) usage; exit 0 ;;
-    --output|--binary|--data-dir|--model-dir)
+    --output|--binary|--intake-helper|--data-dir|--model-dir)
       key="$1"
       if (($# < 2)); then echo "$key needs a value" >&2; exit 2; fi
       case "$key" in
         --output) output="$2" ;;
         --binary) binary="$2" ;;
+        --intake-helper) intake_helper="$2" ;;
         --data-dir) data_dir="$2" ;;
         --model-dir) model_dir="$2" ;;
       esac
@@ -40,9 +41,18 @@ if [[ ! -f "$binary" || ! -x "$binary" ]]; then echo "Desktop binary is missing 
 if [[ -n "$data_dir" && ( "$data_dir" != /* || ! -d "$data_dir" || ! -w "$data_dir" ) ]]; then echo "Data directory is missing or not writable: $data_dir" >&2; exit 2; fi
 if [[ -n "$model_dir" && ( "$model_dir" != /* || ! -d "$model_dir" ) ]]; then echo "Model directory is missing: $model_dir" >&2; exit 2; fi
 
+if [[ -z "$intake_helper" && -x "$(dirname "$binary")/brn-intake-helper" ]]; then
+  intake_helper="$(dirname "$binary")/brn-intake-helper"
+fi
+if [[ -n "$intake_helper" && ( "$intake_helper" != /* || ! -f "$intake_helper" || ! -x "$intake_helper" ) ]]; then echo "Intake helper is missing or not executable" >&2; exit 2; fi
+
 mkdir -p "$output/Contents/MacOS" "$output/Contents/Resources/bin"
 cp "$binary" "$output/Contents/Resources/bin/brn-desktop"
 chmod +x "$output/Contents/Resources/bin/brn-desktop"
+if [[ -n "$intake_helper" ]]; then
+  cp "$intake_helper" "$output/Contents/Resources/bin/brn-intake-helper"
+  chmod +x "$output/Contents/Resources/bin/brn-intake-helper"
+fi
 cat > "$output/Contents/Info.plist" <<'PLIST'
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">

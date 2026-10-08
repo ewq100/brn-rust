@@ -1,0 +1,35 @@
+{
+  "commit": "986632601a260697252c2e7044780789d2dc688a",
+  "tree": "22e1840371f05893a6af809d9326fc0a8edd812a",
+  "clean": true,
+  "rust": "rustc 1.98.1 (48a229cea 2026-09-01)",
+  "features": {
+    "brn-intake-helper": "helper",
+    "brn": "native-retrieval",
+    "brn-desktop": "native-ui,native-retrieval"
+  },
+  "cargo_flags": [
+    "--locked",
+    "--offline"
+  ],
+  "binary_sha256": {
+    "brn-intake-helper": "31f2a3fa20b06f5d6bf6fd7e357ea725d4f7020e69bf24cf4422903a7b2d7f14",
+    "brn": "ebaa320821f41c52d681cbac6b0e90f2b20fd1ec96b86573997efa7ef4534861",
+    "brn-desktop": "1ca418e41527eb63f1ddab76bbd30d5ebbc35bcfe6d7aa29f1761f20f8134128"
+  },
+  "cargo_lock_sha256": "5a0cfdcc22d4c33b0d63cdb3496788d9817d74485c61520e209e6597e10b401f",
+  "platform": "macOS 26.5 (25F71), arm64, Apple M5 Pro, MacBook Pro",
+  "headless": [
+    {
+      "run": 1,
+      "exit": 0,
+      "stdout": "startup: PASS"
+    },
+    {
+      "run": 2,
+      "exit": 0,
+      "stdout": "startup: PASS"
+    }
+  ],
+  "provenance": "Owner-supplied manifest excerpt. Machine identifier and local paths omitted; original attachments retained in conversation. Not a lead execution."
+}

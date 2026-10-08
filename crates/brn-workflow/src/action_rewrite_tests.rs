@@ -40,6 +40,7 @@ fn action_review(
         .submit(
             query,
             AppCommand::CreateProposal(DraftRequest {
+                intake: None,
                 inbox_visual: None,
                 inbox_knowledge: None,
                 inbox_source: None,
@@ -87,6 +88,7 @@ fn action_review(
         .submit(
             query,
             AppCommand::CreateProposal(DraftRequest {
+                intake: None,
                 inbox_visual: None,
                 inbox_knowledge: None,
                 inbox_source: None,

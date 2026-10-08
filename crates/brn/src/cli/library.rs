@@ -404,7 +404,7 @@ fn execute(
             let event = lane.query(knowledge.expect("finding input prepared before startup"))?;
             super::findings::output(command, event)
         }
-        Command::Inbox(_) => {
+        Command::Inbox(command) => {
             let prepared = knowledge.expect("Inbox input prepared before startup");
             let event = match &prepared {
                 AppCommand::CaptureInbox(request) => {
@@ -473,6 +473,11 @@ fn execute(
                     }
                 }
                 AppCommand::InboxProcessing(id) => lane.query(AppCommand::InboxProcessing(*id))?,
+                AppCommand::InboxIntakeBinding { source_proposal_id } => {
+                    lane.query(AppCommand::InboxIntakeBinding {
+                        source_proposal_id: *source_proposal_id,
+                    })?
+                }
                 AppCommand::InboxCandidate(request) => {
                     lane.query(AppCommand::InboxCandidate(request.clone()))?
                 }
@@ -496,7 +501,7 @@ fn execute(
                 }
                 _ => unreachable!("prepared Inbox command"),
             };
-            super::inbox::output(&prepared, event)
+            super::inbox::output_for(command, &prepared, event)
         }
         Command::Actions(_) => {
             let prepared = knowledge.expect("Action input prepared before startup");

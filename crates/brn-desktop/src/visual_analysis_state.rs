@@ -101,7 +101,7 @@ impl AiState {
                     && view.analysis_id == Some(capture.id)
                     && view.visual.as_ref().is_some_and(|visual| {
                         visual.validate().is_ok()
-                            && capture.source == visual.source.source
+                            && capture.source.as_ref() == Some(&visual.source.source)
                             && capture.source_text == visual.source.text
                             && capture.visual_asset.as_ref() == Some(&visual.asset)
                     })
@@ -236,7 +236,7 @@ fn annotation_matches(
         && draft.group_id == Some(capture.id)
         && draft.session_id == Some(turn.conversation_id)
         && binding.analysis_id == capture.id
-        && binding.source == capture.source
+        && Some(&binding.source) == capture.source.as_ref()
         && binding.source_text == capture.source_text
         && capture.visual_asset.as_ref() == Some(&binding.asset)
         && answer.as_object().is_some_and(|answer| answer.len() == 2)

@@ -14,6 +14,7 @@ case "${1:-}" in
 esac
 if (($# > 1)); then exit 2; fi
 python3 scripts/check-provider-retirement.py
+python3 scripts/check-intake-retirement.py
 if [[ "${1:-}" == "--retirement-only" ]]; then exit 0; fi
 if [[ -z "${TMPDIR:-}" || "$TMPDIR" != /* || ! -d "$TMPDIR" ]]; then
   printf 'Set TMPDIR to an existing explicit synthetic fixture parent outside Git.\n' >&2
@@ -26,6 +27,7 @@ if [[ "$CARGO_TARGET_DIR" != /* ]]; then
 fi
 if [[ "${1:-}" != "--fixtures-only" ]]; then
   cargo +1.98.1 fmt --all -- --check
+  cargo +1.98.1 build -p brn-intake --features helper --bin brn-intake-helper --locked --offline
   cargo +1.98.1 build --workspace --locked --offline
   cargo +1.98.1 clippy --workspace --all-targets --locked --offline -- -D warnings
   cargo +1.98.1 test --workspace --locked --offline

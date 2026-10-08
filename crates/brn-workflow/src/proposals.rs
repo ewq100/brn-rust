@@ -74,6 +74,8 @@ impl DraftNoteChange {
 #[serde(deny_unknown_fields)]
 pub struct DraftRequest {
     #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub intake: Option<Box<brn_store::work::inbox_actions::InboxIntakeBinding>>,
+    #[serde(default, skip_serializing_if = "Option::is_none")]
     pub inbox_visual: Option<Box<brn_store::work::inbox_visual::InboxVisualAnnotationBinding>>,
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub inbox_knowledge: Option<Box<brn_store::work::inbox_actions::InboxKnowledgeBinding>>,
@@ -166,6 +168,20 @@ pub fn validate_asset_path(path: &str) -> Result<()> {
 impl DraftRequest {
     /// Syntactic preparation before either frontend admits operational work.
     pub fn validate(&self) -> Result<()> {
+        if let Some(intake) = &self.intake {
+            intake.validate()?;
+            if self.group_id.is_none()
+                || self.inbox_source.is_some()
+                || self.inbox_knowledge.is_some()
+                || self.inbox_visual.is_some()
+                || !self.changes.is_empty()
+                || self.action_changes.is_empty()
+            {
+                return Err(invalid(
+                    "private Action proposal requires its intake analysis dependency",
+                ));
+            }
+        }
         if let Some(binding) = &self.inbox_knowledge {
             let text = match (binding.supersedes.as_ref(), self.changes.as_slice()) {
                 (None, [DraftNoteChange::Create { text, .. }]) => text,
@@ -195,34 +211,63 @@ impl DraftRequest {
             binding.validate_text(text)?;
         }
         if let Some(binding) = &self.inbox_source {
-            let (path, text, asset) = match self.changes.as_slice() {
-                [DraftNoteChange::Create { path, text }] if binding.visual.is_none() => {
-                    (path, text, None)
+            if let Some(extraction) = &binding.extraction {
+                let Some(DraftNoteChange::Create { path, text }) = self.changes.first() else {
+                    return Err(invalid("extraction Source needs Create"));
+                };
+                binding.validate_markdown(text)?;
+                if self.changes.len() != 1 + extraction.assets.len()
+                    || self.inbox_visual.is_some()
+                    || !self.sources.is_empty()
+                    || !self.action_changes.is_empty()
+                {
+                    return Err(invalid("extraction Source member set differs"));
                 }
-                [
-                    DraftNoteChange::Create { path, text },
-                    DraftNoteChange::CreateAsset {
-                        path: asset_path,
+                for (asset, change) in extraction.assets.iter().zip(&self.changes[1..]) {
+                    let DraftNoteChange::CreateAsset {
+                        path: target,
                         bytes,
-                    },
-                ] if binding.visual.is_some() => (path, text, Some((asset_path, bytes))),
-                _ => {
+                    } = change
+                    else {
+                        return Err(invalid("extraction asset missing"));
+                    };
+                    if *target != extraction.asset_path(path, &asset.name)?
+                        || bytes.len() as u64 != asset.byte_len
+                        || <[u8; 32]>::from(Sha256::digest(bytes)) != asset.sha256
+                    {
+                        return Err(invalid("extraction asset differs"));
+                    }
+                }
+            } else {
+                let (path, text, asset) = match self.changes.as_slice() {
+                    [DraftNoteChange::Create { path, text }] if binding.visual.is_none() => {
+                        (path, text, None)
+                    }
+                    [
+                        DraftNoteChange::Create { path, text },
+                        DraftNoteChange::CreateAsset {
+                            path: asset_path,
+                            bytes,
+                        },
+                    ] if binding.visual.is_some() => (path, text, Some((asset_path, bytes))),
+                    _ => {
+                        return Err(invalid(
+                            "Inbox Source needs its exact Create and optional bound PNG Create",
+                        ));
+                    }
+                };
+                if self.inbox_visual.is_some()
+                    || !self.sources.is_empty()
+                    || !self.action_changes.is_empty()
+                {
                     return Err(invalid(
-                        "Inbox Source needs its exact Create and optional bound PNG Create",
+                        "Inbox source conversion is separate from semantic consequences",
                     ));
                 }
-            };
-            if self.inbox_visual.is_some()
-                || !self.sources.is_empty()
-                || !self.action_changes.is_empty()
-            {
-                return Err(invalid(
-                    "Inbox source conversion is separate from semantic consequences",
-                ));
-            }
-            binding.validate_markdown(text)?;
-            if let Some((asset_path, bytes)) = asset {
-                binding.validate_asset(path, asset_path, bytes)?;
+                binding.validate_markdown(text)?;
+                if let Some((asset_path, bytes)) = asset {
+                    binding.validate_asset(path, asset_path, bytes)?;
+                }
             }
         }
         if let Some(binding) = &self.inbox_visual {
@@ -486,12 +531,22 @@ impl App {
             draft.session_id = request.session_id;
             draft.title = request.title.clone();
             draft.sources = request.sources.clone();
+            draft.intake = request.intake.clone();
             draft.inbox_source = request.inbox_source.clone();
             draft.inbox_knowledge = request.inbox_knowledge.clone();
             draft.inbox_visual = request.inbox_visual.clone();
             return Ok(self.store.create_proposal(&draft)?);
         }
         self.require_current_evidence()?;
+        self.validate_intake_dependency(
+            request.intake.as_deref().or_else(|| {
+                request
+                    .inbox_knowledge
+                    .as_ref()
+                    .and_then(|b| b.intake.as_deref())
+            }),
+            false,
+        )?;
         self.validate_inbox_source(request.inbox_source.as_deref())?;
         self.validate_inbox_knowledge(request.inbox_knowledge.as_deref())?;
         self.validate_inbox_visual(request.inbox_visual.as_deref())?;
@@ -501,10 +556,21 @@ impl App {
                     batch_id: binding.batch_id,
                     index: binding.index,
                 })?;
+            let body = preview
+                .extraction
+                .as_ref()
+                .map(|extraction| {
+                    extraction
+                        .materialize_for_source(&binding.note_id.to_string())
+                        .map(|value| value.markdown)
+                })
+                .transpose()
+                .map_err(WorkflowError::msg)?
+                .unwrap_or_else(|| preview.markdown.clone());
             if preview.original != binding.original
                 || preview.format != binding.format
-                || preview.markdown.len() as u64 != binding.byte_len
-                || <[u8; 32]>::from(Sha256::digest(preview.markdown.as_bytes())) != binding.sha256
+                || body.len() as u64 != binding.byte_len
+                || <[u8; 32]>::from(Sha256::digest(body.as_bytes())) != binding.sha256
             {
                 return Err(invalid(
                     "Inbox source differs from its completed conversion receipt",
@@ -664,6 +730,7 @@ impl App {
             }
         }
         let draft = ProposalDraft {
+            intake: request.intake.clone(),
             inbox_knowledge: request.inbox_knowledge.clone(),
             inbox_visual: request.inbox_visual.clone(),
             inbox_source: request.inbox_source.clone(),

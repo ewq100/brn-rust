@@ -623,6 +623,98 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "ac07cdecf99051d9a5238b80f35af32cdeba5b336e55d957b318b50137e18da5"
 
 [[package]]
+name = "betteroffice-docx-edit"
+version = "0.3.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "c49ca49d189f8adca9bfa2ce610679ef5268f15a32a51835da11a2c849646ef8"
+dependencies = [
+ "betteroffice-docx-layout",
+ "betteroffice-docx-parse",
+ "betteroffice-ooxml-diff",
+ "betteroffice-opc",
+ "ryu-js",
+ "serde",
+ "serde_json",
+ "sha2 0.10.9",
+ "unicode-segmentation",
+ "yrs",
+]
+
+[[package]]
+name = "betteroffice-docx-layout"
+version = "0.3.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "e8891aa09dcfaf2e2339723e4f8981b38935253316c3646047bca2c73f69b1da"
+dependencies = [
+ "betteroffice-drawingml",
+ "betteroffice-ooxml-text",
+ "serde",
+ "serde_json",
+ "unicode-segmentation",
+ "wasm-bindgen",
+ "zmij",
+]
+
+[[package]]
+name = "betteroffice-docx-parse"
+version = "0.3.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "697674f35c2ff2eb311e892b015697412c8e1c7671126b74d58f9adcf4e795f3"
+dependencies = [
+ "base64 0.22.1",
+ "betteroffice-drawingml",
+ "betteroffice-opc",
+ "indexmap",
+ "quick-xml",
+ "ryu-js",
+ "serde",
+ "serde_json",
+ "sha2 0.10.9",
+ "thiserror 2.0.21",
+ "wasm-bindgen",
+]
+
+[[package]]
+name = "betteroffice-drawingml"
+version = "0.3.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "c08e5d5536bd72e63472c3bad08a4c8fd859f6b6a0c94503204f3b0ab688ed8e"
+dependencies = [
+ "indexmap",
+ "serde",
+]
+
+[[package]]
+name = "betteroffice-ooxml-diff"
+version = "0.3.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "649108cfc035e5a17c12922fdf483a53226f1cad715094cdcd8ea1ddaa4539f9"
+
+[[package]]
+name = "betteroffice-ooxml-text"
+version = "0.3.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "48f5ced24616c09a60966e7754042e299550eb00e0f79dcdfcfaeb0fcbcf1da5"
+dependencies = [
+ "rustybuzz",
+ "serde",
+ "serde_json",
+ "skrifa 0.44.0",
+ "unicode-bidi",
+ "unicode-linebreak",
+]
+
+[[package]]
+name = "betteroffice-opc"
+version = "0.3.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "18653484735ca856523c32d3b8b59aaf3e2c9980aa00b8dddea71f82296d9689"
+dependencies = [
+ "quick-xml",
+ "zip",
+]
+
+[[package]]
 name = "bindgen"
 version = "0.72.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -777,6 +869,7 @@ dependencies = [
 name = "brn"
 version = "0.0.0"
 dependencies = [
+ "brn-intake",
  "brn-store",
  "brn-workflow",
  "libc",
@@ -810,13 +903,35 @@ dependencies = [
 name = "brn-desktop"
 version = "0.1.0"
 dependencies = [
+ "brn-intake",
+ "brn-store",
  "brn-workflow",
  "gpui-kit",
+ "libc",
  "serde",
  "serde_json",
  "sha2 0.10.9",
  "tempfile",
  "uuid",
+]
+
+[[package]]
+name = "brn-intake"
+version = "0.1.0"
+dependencies = [
+ "base64 0.22.1",
+ "betteroffice-docx-edit",
+ "betteroffice-docx-parse",
+ "betteroffice-opc",
+ "html5ever",
+ "image",
+ "libc",
+ "mail-parser",
+ "png 0.18.1",
+ "serde",
+ "serde_json",
+ "sha2 0.10.9",
+ "zip",
 ]
 
 [[package]]
@@ -842,18 +957,13 @@ name = "brn-store"
 version = "0.1.0"
 dependencies = [
  "base64 0.22.1",
- "crc32fast",
- "flate2",
- "png 0.18.1",
- "quick-xml",
- "roxmltree 0.21.1",
+ "brn-intake",
  "rusqlite",
  "serde",
  "serde_json",
  "sha2 0.10.9",
  "tempfile",
  "uuid",
- "zip",
 ]
 
 [[package]]
@@ -862,6 +972,7 @@ version = "0.1.0"
 dependencies = [
  "block2 0.6.2",
  "brn-ai",
+ "brn-intake",
  "brn-retrieval",
  "brn-store",
  "chrono",
@@ -1599,6 +1710,20 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "8b1e3a325bc115f096c8b77bbf027a7c2592230e70be2d985be950d3d5e60ebe"
 dependencies = [
  "serde",
+]
+
+[[package]]
+name = "dashmap"
+version = "6.2.1"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "e6361d5c062261c78a176addb82d4c821ae42bed6089de0e12603cd25de2059c"
+dependencies = [
+ "cfg-if",
+ "crossbeam-utils",
+ "hashbrown 0.14.5",
+ "lock_api",
+ "once_cell",
+ "parking_lot_core",
 ]
 
 [[package]]
@@ -3352,6 +3477,18 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "ed5909b6e89a2db4456e54cd5f673791d7eca6732202bbf2a9cc504fe2f9b84a"
 
 [[package]]
+name = "hashify"
+version = "0.2.9"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "dd1246c0e5493286aeb2dde35b1f4eb9c4ce00e628641210a5e553fc001a1f26"
+dependencies = [
+ "indexmap",
+ "proc-macro2",
+ "quote",
+ "syn 2.0.119",
+]
+
+[[package]]
 name = "heapless"
 version = "0.9.3"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -4308,6 +4445,16 @@ name = "macro_rules_attribute-proc_macro"
 version = "0.2.3"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "fc04a4c58212d57930a24bf47d3fa87485264a3a054e9c10e042eb373573ad3c"
+
+[[package]]
+name = "mail-parser"
+version = "0.11.8"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "0b3a9080c1fb8190e232df37a10aa1b3d6b08be084e537069913f025e0ce86c5"
+dependencies = [
+ "hashify",
+ "serde",
+]
 
 [[package]]
 name = "malloc_buf"
@@ -5792,6 +5939,7 @@ version = "0.41.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "e660451e55124f798a69a5af3f49ccfbefbd41910eefd25caf2393e1f3473ec1"
 dependencies = [
+ "encoding_rs",
  "memchr",
 ]
 
@@ -6785,6 +6933,12 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "9774ba4a74de5f7b1c1451ed6cd5285a32eddb5cccb8cc655a4e50009e06477f"
 
 [[package]]
+name = "ryu-js"
+version = "1.0.3"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "04d056b875a9d2e6cb9a61d127afee9ac5999b9f87bcb32079d1318e505be714"
+
+[[package]]
 name = "safetensors"
 version = "0.8.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -7217,6 +7371,15 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "bdd58c3c93c3d278ca835519292445cb4b0d4dc59ccfdf7ceadaab3f8aeb4038"
 dependencies = [
  "version_check",
+]
+
+[[package]]
+name = "smallstr"
+version = "0.3.1"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "862077b1e764f04c251fe82a2ef562fd78d7cadaeb072ca7c2bcaf7217b1ff3b"
+dependencies = [
+ "smallvec",
 ]
 
 [[package]]
@@ -9837,6 +10000,24 @@ dependencies = [
  "quote",
  "syn 3.0.6",
  "synstructure",
+]
+
+[[package]]
+name = "yrs"
+version = "0.27.4"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "3987db9bdbe6f0f49c58ec3d0daf4750a70b40019c190f6c6708abfcdfe6bea0"
+dependencies = [
+ "arc-swap",
+ "async-lock",
+ "async-trait",
+ "dashmap",
+ "fastrand",
+ "serde",
+ "serde_json",
+ "smallstr",
+ "smallvec",
+ "thiserror 2.0.21",
 ]
 
 [[package]]

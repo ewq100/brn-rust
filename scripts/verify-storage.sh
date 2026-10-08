@@ -25,6 +25,7 @@ fi
 
 cd "$repo_root"
 cargo +1.98.1 fmt --all --check
+cargo +1.98.1 build -p brn-intake --features helper --bin brn-intake-helper --locked --offline
 cargo +1.98.1 build --workspace --locked --offline
 cargo +1.98.1 clippy --workspace --all-targets --locked --offline -- -D warnings
 cargo +1.98.1 test --workspace --locked --offline

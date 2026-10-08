@@ -75,6 +75,7 @@ impl Fixture {
         // Portable provenance describes synthetic input. Only the saved Source
         // is filesystem authority for this downstream knowledge qualification.
         let binding = InboxSourceBinding {
+            extraction: None,
             visual: None,
             batch_id: Uuid::new_v4(),
             index: 0,
@@ -105,11 +106,12 @@ impl Fixture {
         fs::write(vault.join(SOURCE_PATH), &source_text).unwrap();
         let source = app.proposal_source(SOURCE_PATH).unwrap();
         let capture = InboxActionCapture {
+            intake: None,
             visual_asset: None,
             purpose: InboxAnalysisPurpose::KnowledgeAndActions,
             id: Uuid::new_v4(),
             conversation: None,
-            source: source.source,
+            source: Some(source.source),
             source_text: source.text,
             provider: "chatgpt".into(),
             model: "gpt-6-luna".into(),
@@ -141,6 +143,7 @@ impl Fixture {
                 "\u{feff}# Reviewed interpretation\r\nBlue õ 🦀 was selected.\r\n\r\n[Context](brn://note/{target_id})\r\n"
             ),
             quotes: vec![KnowledgeQuoteArgs {
+                source_id: None,
                 quote: "Blue õ 🦀".into(),
                 occurrence: None,
             }],
