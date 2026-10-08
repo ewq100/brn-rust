@@ -136,3 +136,24 @@ remaining combined/Clippy/shipping/fixture gates continue in gate12095. No produ
 change since reviewed0723a69. Prior default418 unchanged unit successes/full-size
 recovery and corrected private-read focused pass are reused rather than rerunning
 unchanged full-size witnesses. Failed intermediate logs remain retained.
+
+## Final local gates — 08 October 22:42 UTC
+
+Final candidate sourcee6b8169 preserves reviewed production0723a69; only reviewed
+shutdown test adaptations and evidence documentation followed. All local gates
+passed. Default coverage1749 tests/17 existing ignores combines final integrations
+and corrected private-read pass with unchanged successful default unit/recovery
+and Store473 distinct coverage; intermediate failed assumptions remain logged.
+Native workflow/models427 passed/15 existing ignores; combined native desktop/CLI
+557 passed/zero ignores. All workspace doctests, strict default/combined all-target
+Clippy, shipping CLI/desktop/helper,52 fixture assertions,605links and diff checks
+passed. Full-size workflow recovery remained enabled (native131second gate).
+
+Immutable qualification runtime:
+`/Users/evokessler/repos/brn-overnight-artifacts-20261008/backup-runtime`, with
+build-manifest.json exact source/files/qualification. It excludes pending PPTX
+and Action compensation and must not replace the final combined morning runtime.
+Required CI/integration and interactive acceptance remain pending. Next: incorporate
+normally merged PPTX main, qualify affected merge seams, open backup PR, inspect
+required CI, merge normally and verify resulting main. Cargo released; Action Store
+helper now owns sole slot in the lead checkout. No new inference/live calls.
