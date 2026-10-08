@@ -379,6 +379,11 @@ fn full_repair_preview_is_read_only_and_finish_restore_receipts_are_correlated()
             direction == RepairDirection::Finish
         );
         worker.shutdown().unwrap();
+        let (notification, AppEvent::BackupStatus(backup)) = worker.try_event().unwrap() else {
+            panic!("joined shutdown reports its separate internal checkpoint");
+        };
+        assert!(notification.is_nil());
+        assert!(backup.latest_path.is_file() && backup.last_error.is_none());
         assert!(worker.try_event().is_none());
     }
 }

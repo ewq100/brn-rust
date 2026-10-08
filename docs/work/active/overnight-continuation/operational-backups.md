@@ -115,3 +115,13 @@ shipping/helper,52fixtures and links. Required CI/integration and all interactiv
 acceptance are pending. No new model calls;14/16 shared calls used. The consolidated
 morning task in the lead checkout owns expected backup controls and eventual
 matching final runtime; no GUI acceptance is claimed.
+
+Final gate exposed old successful-shutdown empty-event expectations in private
+Action reads and three worker integration witnesses. They now require exactly one
+separate nil BackupStatus with a usable file/no copy error and preserve every
+original correlation/privacy/receipt/replay assertion; the failed-startup empty
+lane remains unchanged. Private-read focused rerun passed. Independent read-only
+delta reviews are clean at66e5c9af61d71be7cbc42807df6256d7da0b483b4bf00d00941be9996599c981
+and447c86b5bfec1f294f0bd77fb825cb3c4eed74937d2a4499da7c09dd49bc247e.
+Unchanged418 workflow unit successes/full recovery are reused with the corrected
+one-test pass; remaining integration/doctest/native gates continue serially.

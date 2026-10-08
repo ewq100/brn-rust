@@ -248,6 +248,11 @@ fn full_undo_preview_is_read_only_and_correlates_each_reply() {
     assert_eq!(open(&worker, "replace.md").record, before);
     assert_eq!(open(&worker, "trash.md").record, trash);
     worker.shutdown().unwrap();
+    let (notification, AppEvent::BackupStatus(backup)) = worker.try_event().unwrap() else {
+        panic!("joined shutdown reports its separate internal checkpoint");
+    };
+    assert!(notification.is_nil());
+    assert!(backup.latest_path.is_file() && backup.last_error.is_none());
     assert!(worker.try_event().is_none());
 }
 

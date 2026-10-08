@@ -217,6 +217,11 @@ fn vaultless_full_review_and_joined_approval_survive_restart_without_reapplicati
     };
     assert_eq!(receipt.outcome, ApplyOutcome::Applied);
     assert_eq!(receipt.approved_version, reviewed.version);
+    let (notification, AppEvent::BackupStatus(backup)) = worker.try_event().unwrap() else {
+        panic!("joined shutdown reports its separate internal checkpoint");
+    };
+    assert!(notification.is_nil());
+    assert!(backup.latest_path.is_file() && backup.last_error.is_none());
     assert!(worker.try_event().is_none());
     drop(worker);
 
