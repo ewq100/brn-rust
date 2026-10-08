@@ -1,5 +1,10 @@
 use super::*;
-use brn_workflow::{ErrorKind, proposals::NoteChange};
+use brn_workflow::{
+    ErrorKind,
+    action_completion::CompleteActionRequest,
+    actions::{ActionData, ActionRecord, ActionState},
+    proposals::{ActionChange, NoteChange},
+};
 
 const ORIGINAL: &str = "\u{feff}Original õ🦀\r\n正文\nlast\r";
 const APPROVED: &str = "\u{feff}Approved 日本語 λ\r\n";
@@ -36,7 +41,7 @@ fn mixed(fixture: &Fixture) -> (AppWorker, Mixed) {
                 intake: None,
                 inbox_visual: None,
                 inbox_knowledge: None,
-        inbox_source: None,
+                inbox_source: None,
                 action_changes: Vec::new(),
                 id: Uuid::new_v4(),
                 group_id: None,
@@ -439,5 +444,336 @@ fn original_trash_member_two_restores_only_trash_and_keeps_unrelated_later_edit(
     };
     assert_eq!(replayed, receipt);
     assert_eq!(files(&fixture), later_files);
+    worker.shutdown().unwrap();
+}
+
+fn action(worker: &AppWorker, id: Uuid) -> ActionRecord {
+    let (_, AppEvent::Action(record)) = reply(worker, (Uuid::new_v4(), AppCommand::Action(id)))
+    else {
+        panic!("complete Action record");
+    };
+    *record
+}
+
+fn action_worker(fixture: &Fixture) -> AppWorker {
+    let worker = AppWorker::start(
+        fixture.0.path().join("data"),
+        AppConfig {
+            vault_root: None,
+            credentials_dir: Some(fixture.0.path().join("credentials")),
+            model_dir: None,
+        },
+    )
+    .unwrap();
+    assert!(matches!(
+        worker
+            .recv_event_timeout(Duration::from_secs(10))
+            .unwrap()
+            .1,
+        AppEvent::Ready {
+            vault_bound: false,
+            model_installed: false
+        }
+    ));
+    worker
+}
+
+fn action_replacement(
+    fixture: &Fixture,
+) -> (
+    AppWorker,
+    ApprovalRequest,
+    Vec<ActionRecord>,
+    Vec<ActionRecord>,
+) {
+    let worker = action_worker(fixture);
+    let data = ActionData {
+        title: "\u{feff}Previous 日本語 λ\r\n".into(),
+        description: "Full previous details 🧭\r\n".into(),
+        state: ActionState::Waiting,
+        owner: Some("Owner õ".into()),
+        related_person: None,
+        related_project: None,
+        sources: vec![],
+        thread: None,
+        due_on: Some("2028-02-29".into()),
+        follow_up_on: Some("2028-03-01".into()),
+        dependencies: vec![],
+        parent: None,
+        follows_up: None,
+        priority: Some(brn_workflow::actions::ActionPriority::High),
+    };
+    let ids = [Uuid::new_v4(), Uuid::new_v4()];
+    let draft = |title: &str, action_changes| DraftRequest {
+        id: Uuid::new_v4(),
+        group_id: None,
+        session_id: None,
+        title: title.into(),
+        changes: vec![],
+        action_changes,
+        sources: vec![],
+        intake: None,
+        inbox_visual: None,
+        inbox_knowledge: None,
+        inbox_source: None,
+    };
+    let (_, AppEvent::Proposal(created)) = reply(
+        &worker,
+        (
+            Uuid::new_v4(),
+            AppCommand::CreateProposal(draft(
+                "Original Actions",
+                ids.iter()
+                    .map(|id| ActionChange::Create {
+                        id: *id,
+                        data: data.clone(),
+                    })
+                    .collect(),
+            )),
+        ),
+    ) else {
+        panic!("Action creation review")
+    };
+    let (_, AppEvent::ProposalApplied(created_receipt)) = reply(
+        &worker,
+        (
+            Uuid::new_v4(),
+            AppCommand::ApproveProposal(ApprovalRequest {
+                operation_id: Uuid::new_v4(),
+                expected: created.stamp(),
+            }),
+        ),
+    ) else {
+        panic!("original Actions Applied")
+    };
+    assert_eq!(created_receipt.outcome, ApplyOutcome::Applied);
+    let originals: Vec<_> = ids.iter().map(|id| action(&worker, *id)).collect();
+    let (_, AppEvent::Proposal(replaced)) = reply(
+        &worker,
+        (
+            Uuid::new_v4(),
+            AppCommand::CreateProposal(draft(
+                "Approved incorrect details",
+                originals
+                    .iter()
+                    .enumerate()
+                    .map(|(index, before)| ActionChange::Replace {
+                        before: Box::new(before.clone()),
+                        data: ActionData {
+                            title: format!("Approved changed title {index} Ελληνικά\r\n"),
+                            description: "Complete changed description\r\n".into(),
+                            state: if index == 0 {
+                                ActionState::Open
+                            } else {
+                                ActionState::Waiting
+                            },
+                            owner: None,
+                            priority: Some(brn_workflow::actions::ActionPriority::Low),
+                            ..before.data.clone()
+                        },
+                    })
+                    .collect(),
+            )),
+        ),
+    ) else {
+        panic!("Action replacement review")
+    };
+    let source = ApprovalRequest {
+        operation_id: Uuid::new_v4(),
+        expected: replaced.stamp(),
+    };
+    let (_, AppEvent::ProposalApplied(receipt)) = reply(
+        &worker,
+        (Uuid::new_v4(), AppCommand::ApproveProposal(source.clone())),
+    ) else {
+        panic!("Action replacement Applied");
+    };
+    assert_eq!(receipt.outcome, ApplyOutcome::Applied);
+    let installed = ids.iter().map(|id| action(&worker, *id)).collect();
+    (worker, source, originals, installed)
+}
+
+#[test]
+fn action_only_full_capture_stale_preview_receipt_guards_and_compensation_preserve_history() {
+    let fixture = Fixture::new();
+    let (mut worker, source, originals, installed) = action_replacement(&fixture);
+    let mut state = ready();
+    state.vault_bound = false;
+    open(&worker, &mut state, source.expected.id);
+    let old_command = state.preview_undo(source.operation_id, None).unwrap();
+    let (old_id, old_event) = reply(&worker, old_command);
+    let command = state.preview_undo(source.operation_id, None).unwrap();
+    let (outer, AppEvent::ProposalUndoPreview(full)) = reply(&worker, command) else {
+        panic!("Action inverse preview")
+    };
+    assert!(state.apply(old_id, old_event).is_empty());
+    assert!(state.undo_preview.is_none());
+    let mut wrong = full.clone();
+    wrong.binding.operation_id = Uuid::new_v4();
+    state.apply(outer, AppEvent::ProposalUndoPreview(wrong));
+    assert!(state.pending.contains_key(&outer));
+    assert!(state.undo_preview.is_none());
+    state.apply(outer, AppEvent::ProposalUndoPreview(full.clone()));
+    let capture = state.undo_preview.as_ref().unwrap().clone();
+    assert_eq!(capture.preview(), &full);
+    assert!(full.draft.changes.is_empty() && full.binding.originals.is_empty());
+    assert_eq!(full.draft.action_changes.len(), 2);
+    for ((change, original), exact) in full
+        .draft
+        .action_changes
+        .iter()
+        .zip(&originals)
+        .zip(&installed)
+    {
+        assert!(
+            matches!(change, ActionChange::Replace { before, data } if before.as_ref() == exact && data == &original.data)
+        );
+        assert_eq!(action(&worker, exact.origin.id), *exact); // Preview has no effects.
+    }
+    assert!(state.last_undo_request.is_none());
+    let stale = capture.clone();
+    let newest = preview(&worker, &mut state, source.operation_id, None);
+    assert!(state.confirm_undo(&stale).is_none());
+    let command = state.confirm_undo(&newest).unwrap();
+    let outer = command.0;
+    assert_critical(&state);
+    let (_, AppEvent::ProposalApplied(receipt)) = reply(&worker, command) else {
+        panic!("Action compensation receipt")
+    };
+    assert_eq!(receipt.outcome, ApplyOutcome::Applied);
+    state.apply(Uuid::new_v4(), AppEvent::ProposalApplied(receipt.clone()));
+    for mismatch in 0..4 {
+        let mut wrong = receipt.clone();
+        match mismatch {
+            0 => wrong.operation_id = source.operation_id,
+            1 => wrong.proposal_id = source.expected.id,
+            2 => wrong.approved_version += 1,
+            _ => wrong.stamp.version = 2,
+        }
+        state.apply(outer, AppEvent::ProposalApplied(wrong));
+        assert!(state.pending.contains_key(&outer));
+        assert_critical(&state);
+    }
+    let commands = state.apply(outer, AppEvent::ProposalApplied(receipt.clone()));
+    drain_reads(&worker, &mut state, commands);
+    assert!(!state.application_busy());
+    assert_eq!(state.approval_receipts, vec![receipt.clone()]);
+    let restored: Vec<_> = originals
+        .iter()
+        .map(|original| action(&worker, original.origin.id))
+        .collect();
+    for ((restored, original), installed) in restored.iter().zip(&originals).zip(&installed) {
+        assert_eq!(restored.data, original.data);
+        assert_eq!(restored.origin, original.origin);
+        assert_eq!(restored.version, installed.version + 1);
+        assert!(restored.updated_at_ms >= installed.updated_at_ms);
+        assert_eq!(restored.completed_at_ms, original.completed_at_ms);
+    }
+    assert_eq!(
+        restored[0].waiting_since_ms,
+        Some(restored[0].updated_at_ms)
+    );
+    assert_eq!(restored[1].waiting_since_ms, installed[1].waiting_since_ms);
+    let journal = inspect(&worker, &mut state, newest.request().operation_id);
+    assert_eq!(journal.approved.draft, newest.preview().draft);
+    assert_eq!(journal.action_records, restored);
+    assert_eq!(journal.receipt, Some(receipt.clone()));
+    worker.shutdown().unwrap();
+    let mut worker = action_worker(&fixture);
+    for expected in &restored {
+        assert_eq!(action(&worker, expected.origin.id), *expected);
+    }
+    let (_, AppEvent::ProposalApplied(replay)) = reply(&worker, (Uuid::new_v4(), newest.command()))
+    else {
+        panic!("compensation replay")
+    };
+    assert_eq!(replay, receipt);
+    for expected in &restored {
+        assert_eq!(action(&worker, expected.origin.id), *expected);
+    }
+    worker.shutdown().unwrap();
+}
+
+#[test]
+fn action_completed_after_preview_refuses_compensation_and_retains_identified_request() {
+    let fixture = Fixture::new();
+    let (mut worker, source, _, installed) = action_replacement(&fixture);
+    let mut state = ready();
+    state.vault_bound = false;
+    open(&worker, &mut state, source.expected.id);
+    let capture = preview(&worker, &mut state, source.operation_id, None);
+    let completion = CompleteActionRequest {
+        operation_id: Uuid::new_v4(),
+        before: Box::new(installed[0].clone()),
+    };
+    assert!(matches!(
+        reply(
+            &worker,
+            (
+                completion.operation_id,
+                AppCommand::CompleteAction(completion)
+            )
+        )
+        .1,
+        AppEvent::ActionCompleted(_)
+    ));
+    let completed = action(&worker, installed[0].origin.id);
+    let command = state.confirm_undo(&capture).unwrap();
+    let (outer, AppEvent::Failed(error)) = reply(&worker, command) else {
+        panic!("completed Action refusal")
+    };
+    assert_eq!(error.kind, ErrorKind::ContextStale);
+    let commands = state.apply(outer, AppEvent::Failed(error));
+    drain_reads(&worker, &mut state, commands);
+    assert!(!state.application_busy());
+    assert!(state.operation_error.is_some());
+    assert_eq!(state.last_undo_request.as_ref(), Some(capture.request()));
+    assert!(state.approval_receipts.is_empty());
+    assert_eq!(action(&worker, completed.origin.id), completed);
+    assert_eq!(action(&worker, installed[1].origin.id), installed[1]);
+    worker.shutdown().unwrap();
+}
+
+#[test]
+fn vaultless_state_cannot_confirm_file_inverse_or_request_scoped_trash_or_repair() {
+    let fixture = Fixture::new();
+    let (mut worker, original) = mixed(&fixture);
+    let mut state = ready();
+    open(&worker, &mut state, original.source.expected.id);
+    let capture = preview(&worker, &mut state, original.source.operation_id, None);
+    state.vault_bound = false;
+    assert!(state.confirm_undo(&capture).is_none());
+    assert!(
+        state
+            .preview_undo(original.source.operation_id, Some(2))
+            .is_none()
+    );
+    assert!(
+        state
+            .preview_repair(original.source.operation_id, RepairDirection::Finish)
+            .is_none()
+    );
+    assert!(
+        state
+            .preview_repair(original.source.operation_id, RepairDirection::Restore)
+            .is_none()
+    );
+    // Even an exact file preview delivered to a whole-operation request cannot
+    // turn vaultless Action eligibility into permission to confirm file work.
+    let capture = preview(&worker, &mut state, original.source.operation_id, None);
+    assert!(state.confirm_undo(&capture).is_none());
+    let command = state
+        .preview_undo(original.source.operation_id, None)
+        .unwrap();
+    let outer = command.0;
+    let (_, AppEvent::ProposalUndoPreview(mut forged)) = reply(&worker, command) else {
+        panic!("full file preview")
+    };
+    forged.binding.trash_member = Some(2);
+    state.apply(outer, AppEvent::ProposalUndoPreview(forged));
+    assert!(state.undo_preview.is_none());
+    assert!(state.pending.contains_key(&outer));
+    assert!(state.last_undo_request.is_none());
+    assert!(!state.application_busy());
     worker.shutdown().unwrap();
 }

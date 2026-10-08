@@ -1120,3 +1120,11 @@ to stderr; JSON receipts/history include budget only where recorded. Old history
 has no budget field. `AI_TIME_LIMIT_REACHED` exits124 with the durable partial
 receipt, distinct from outer `TIMEOUT`, manual interruption and tool exhaustion.
 Replaying a failed/completed operation inspects retained work without inference.
+
+Action-only whole-operation Undo supports Applied all-Replace proposals. The
+existing `proposals undo-preview` displays complete installed records and prior
+candidate details; `proposals undo` compensates with a new revision after fresh
+exact-record/reference checks. It preserves immutable origin/history and refuses
+changed or Completed Actions. Creation and mixed file/Action Undo remain refused;
+scoped Trash does not select Actions. Replaying the same operation returns its
+receipt without overwriting later work. No provider request is involved.

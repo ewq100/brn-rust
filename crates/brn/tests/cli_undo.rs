@@ -212,6 +212,137 @@ fn malformed_undo_commands_refuse_before_workspace_admission() {
 }
 
 #[cfg(target_os = "macos")]
+#[test]
+fn action_compensation_cli_previews_complete_details_restarts_and_replays_without_overwriting_later_work(
+) {
+    use brn_workflow::{
+        actions::{ActionData, ActionRecord, ActionState},
+        proposals::{ActionChange, DraftRequest},
+    };
+    let f = Fixture::new();
+    let id = Uuid::new_v4();
+    let original = ActionData {
+        title: "Prior details õ\r\n".into(),
+        description: "Owner's exact 日本語\r\n".into(),
+        state: ActionState::Waiting,
+        owner: Some("Leena".into()),
+        related_person: None,
+        related_project: None,
+        sources: Vec::new(),
+        thread: None,
+        due_on: Some("2026-10-12".into()),
+        follow_up_on: Some("2026-10-13".into()),
+        dependencies: Vec::new(),
+        parent: None,
+        follows_up: None,
+        priority: None,
+    };
+    let approve = |change: ActionChange| {
+        let input = DraftRequest {
+            intake: None,
+            inbox_visual: None,
+            inbox_knowledge: None,
+            inbox_source: None,
+            id: Uuid::new_v4(),
+            group_id: None,
+            session_id: None,
+            title: "Review Action details".into(),
+            changes: Vec::new(),
+            sources: Vec::new(),
+            action_changes: vec![change],
+        };
+        fs::write(&f.input, serde_json::to_vec(&input).unwrap()).unwrap();
+        let review = ok(f.run(&["proposals", "create", "--file", f.input.to_str().unwrap()]));
+        let operation = Uuid::new_v4();
+        let receipt = ok(f.run(&[
+            "proposals",
+            "approve",
+            &input.id.to_string(),
+            "--review-version",
+            &review["version"].as_u64().unwrap().to_string(),
+            "--operation",
+            &operation.to_string(),
+        ]));
+        assert_eq!(receipt["outcome"], "applied");
+        operation
+    };
+    let show = || -> ActionRecord {
+        serde_json::from_value(ok(f.run(&["actions", "show", &id.to_string()]))).unwrap()
+    };
+    approve(ActionChange::Create {
+        id,
+        data: original.clone(),
+    });
+    let created = show();
+    let mut revised = original.clone();
+    revised.title = "Later approved details".into();
+    revised.state = ActionState::Open;
+    revised.due_on = Some("2026-10-15".into());
+    let source = approve(ActionChange::Replace {
+        before: Box::new(created.clone()),
+        data: revised,
+    });
+    let before = show();
+    let operation = Uuid::new_v4();
+    let preview = ok(f.run(&[
+        "proposals",
+        "undo-preview",
+        &source.to_string(),
+        "--operation",
+        &operation.to_string(),
+    ]));
+    assert_eq!(preview["draft"]["changes"], json!([]));
+    assert_eq!(
+        preview["draft"]["action_changes"][0]["before"],
+        serde_json::to_value(&before).unwrap()
+    );
+    assert_eq!(
+        preview["draft"]["action_changes"][0]["data"],
+        serde_json::to_value(&original).unwrap()
+    );
+    assert_eq!(show(), before, "preview must not compensate");
+    let receipt = ok(f.run(&[
+        "proposals",
+        "undo",
+        &source.to_string(),
+        "--operation",
+        &operation.to_string(),
+    ]));
+    assert_eq!(receipt["outcome"], "applied");
+    let restored = show();
+    assert_eq!(restored.data, original);
+    assert_eq!(restored.origin, created.origin);
+    assert_eq!(restored.version, before.version + 1);
+    assert_eq!(restored.waiting_since_ms, Some(restored.updated_at_ms));
+    let mut later = restored.data.clone();
+    later.description.push_str("Later owner work λ\r\n");
+    approve(ActionChange::Replace {
+        before: Box::new(restored),
+        data: later,
+    });
+    let current = show();
+    assert_eq!(
+        ok(f.run(&[
+            "proposals",
+            "undo",
+            &source.to_string(),
+            "--operation",
+            &operation.to_string()
+        ])),
+        receipt
+    );
+    assert_eq!(
+        show(),
+        current,
+        "replay cannot overwrite later approved details"
+    );
+    let (store, _) = brn_store::WorkStore::open(&f.data).unwrap();
+    assert!(store.setting("vault.root").unwrap().is_none());
+    assert!(store.conversations().unwrap().is_empty());
+    assert!(fs::read_dir(&f.vault).unwrap().next().is_none());
+}
+
+#[cfg(target_os = "macos")]
 struct Source {
     id: Uuid,
     operation: Uuid,

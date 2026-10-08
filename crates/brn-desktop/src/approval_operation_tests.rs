@@ -69,6 +69,83 @@ fn undo_receipt(capture: &UndoCapture, outcome: ApplyOutcome) -> ApplyReceipt {
     }
 }
 
+fn action_undo_fixture() -> (UndoRequest, UndoPreview) {
+    let (request, mut preview) = undo_fixture(None);
+    preview.draft.changes.clear();
+    preview.draft.vault = None;
+    preview.binding.originals.clear();
+    preview.draft.action_changes = crate::review::action_tests::fixture()
+        .draft
+        .action_changes
+        .into_iter()
+        .filter(|change| matches!(change, ActionChange::Replace { .. }))
+        .collect();
+    (request, preview)
+}
+
+#[test]
+fn action_only_undo_capture_keeps_complete_replace_and_refuses_unsupported_or_oversized_work() {
+    let (request, preview) = action_undo_fixture();
+    let capture = UndoCapture::new(request.clone(), preview.clone()).unwrap();
+    assert_eq!(capture.preview(), &preview);
+    assert!(
+        matches!(capture.command(), AppCommand::UndoProposal(submitted) if submitted == request)
+    );
+    assert!(capture.accepts_receipt(&undo_receipt(&capture, ApplyOutcome::Applied)));
+    let mut wrongs = vec![];
+    let mut wrong = preview.clone();
+    wrong.draft.action_changes.clear();
+    wrongs.push(wrong);
+    let mut wrong = preview.clone();
+    let change = &wrong.draft.action_changes[0];
+    wrong.draft.action_changes[0] = ActionChange::Create {
+        id: change.id(),
+        data: change.data().clone(),
+    };
+    wrongs.push(wrong);
+    let mut wrong = preview.clone();
+    let (_, files) = undo_fixture(None);
+    wrong.draft.changes = files.draft.changes;
+    wrong.binding.originals = files.binding.originals;
+    wrongs.push(wrong);
+    let mut wrong = preview.clone();
+    wrong.binding.originals.push(None);
+    wrongs.push(wrong);
+    let mut wrong = preview.clone();
+    wrong.binding.operation_id = Uuid::new_v4();
+    wrongs.push(wrong);
+    let mut wrong = preview.clone();
+    wrong.draft.id = Uuid::new_v4();
+    wrongs.push(wrong);
+    let mut wrong = preview.clone();
+    if let ActionChange::Replace { before, .. } = &mut wrong.draft.action_changes[0] {
+        before.data.state = brn_workflow::actions::ActionState::Completed;
+        before.completed_at_ms = Some(before.updated_at_ms);
+    }
+    wrongs.push(wrong);
+    let mut bounded = preview.clone();
+    bounded.draft.action_changes.resize(
+        MAX_PROPOSAL_CHANGES,
+        bounded.draft.action_changes[0].clone(),
+    );
+    assert!(UndoCapture::new(request.clone(), bounded.clone()).is_some());
+    bounded
+        .draft
+        .action_changes
+        .push(bounded.draft.action_changes[0].clone());
+    wrongs.push(bounded);
+    for wrong in wrongs {
+        assert!(UndoCapture::new(request.clone(), wrong).is_none());
+    }
+    let scoped = UndoRequest {
+        trash_member: Some(0),
+        ..request
+    };
+    let mut scoped_preview = preview;
+    scoped_preview.binding.trash_member = scoped.trash_member;
+    assert!(UndoCapture::new(scoped, scoped_preview).is_none());
+}
+
 fn repair_fixture() -> RepairPreview {
     let (request, preview) = undo_fixture(None);
     RepairPreview {

@@ -1,11 +1,14 @@
 //! Exact inverse derivation and atomic Undo admission. No filesystem effects.
 use super::{
-    WorkStore, now_ms,
+    WorkStore, actions, now_ms,
     proposal_apply::{
         self, ApplyJournal, ApplyMember, ApplyOutcome, ApprovalRequest, UndoBinding, UndoOriginal,
         UndoPreview, UndoRequest,
     },
-    proposals::{self, NoteChange, ProposalDraft, ProposalRecord, ProposalState, StoredProposal},
+    proposals::{
+        self, ActionChange, NoteChange, ProposalDraft, ProposalRecord, ProposalState,
+        StoredProposal,
+    },
 };
 use crate::{Error, Result, hash, invalid};
 use rusqlite::Connection;
@@ -47,14 +50,44 @@ fn replay(conn: &Connection, request: &UndoRequest) -> Result<Option<ApplyJourna
 fn derive(conn: &Connection, request: &UndoRequest) -> Result<UndoPreview> {
     let source = proposal_apply::read_journal(conn, request.target_operation_id)?
         .ok_or_else(|| Error::NotFound("Undo source operation is absent".into()))?;
-    if !source.approved.draft.action_changes.is_empty() {
-        return Err(invalid("Action-bearing Undo is not yet supported"));
-    }
     if source.receipt.as_ref().map(|receipt| receipt.outcome) != Some(ApplyOutcome::Applied) {
         return Err(Error::StateChanged(
             "Undo source must be a terminal Applied operation".into(),
         ));
     }
+    let action_changes = if source.approved.draft.action_changes.is_empty() {
+        Vec::new()
+    } else {
+        if !source.approved.draft.changes.is_empty()
+            || request.trash_member.is_some()
+            || !source
+                .approved
+                .draft
+                .action_changes
+                .iter()
+                .all(|change| matches!(change, ActionChange::Replace { .. }))
+        {
+            return Err(invalid(
+                "Action Undo requires an Action-only whole operation of replacements",
+            ));
+        }
+        source
+            .approved
+            .draft
+            .action_changes
+            .iter()
+            .zip(&source.action_records)
+            .map(|(change, installed)| {
+                let ActionChange::Replace { before, .. } = change else {
+                    unreachable!("checked all-Replace operation")
+                };
+                ActionChange::Replace {
+                    before: Box::new(installed.clone()),
+                    data: before.data.clone(),
+                }
+            })
+            .collect()
+    };
     let prepared = source
         .prepared
         .as_ref()
@@ -214,7 +247,7 @@ fn derive(conn: &Connection, request: &UndoRequest) -> Result<UndoPreview> {
         title,
         changes,
         sources: Vec::new(),
-        action_changes: Vec::new(),
+        action_changes,
     };
     let preview = UndoPreview {
         draft,
@@ -264,7 +297,15 @@ impl WorkStore {
             ));
         }
         proposal_apply::require_clear_apply_lane(&tx)?;
-        let now = now_ms();
+        actions::check_changes(&tx, &preview.draft.action_changes)?;
+        let now = preview
+            .draft
+            .action_changes
+            .iter()
+            .fold(now_ms(), |time, change| match change {
+                ActionChange::Replace { before, .. } => time.max(before.updated_at_ms),
+                ActionChange::Create { .. } => time,
+            });
         let approved = ProposalRecord {
             draft: preview.draft,
             version: 1,
@@ -303,6 +344,7 @@ impl WorkStore {
                 }
             })
             .collect();
+        let action_records = proposal_apply::action_records(&approved, now)?;
         let journal = ApplyJournal {
             request: ApprovalRequest {
                 operation_id: request.operation_id,
@@ -318,7 +360,7 @@ impl WorkStore {
             undo: Some(preview.binding),
             repair: None,
             started_at_ms: now,
-            action_records: Vec::new(),
+            action_records,
         };
         journal.validate()?;
         let mut record = approved;

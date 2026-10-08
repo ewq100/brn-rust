@@ -294,7 +294,8 @@ invalid cursors are rejected before authority reads; absent IDs return NotFound.
 Pages default to all states/25 entries, with optional state filtering and an
 exclusive immutable creation-time/UUID cursor. Editing an Action does not reorder
 it. Exact Action creation/replacement uses the proposal lifecycle below. Dashboard
-controls use this boundary; owned Action Rewrite uses the lifecycle below. Action-bearing Undo remains refused.
+controls use this boundary; owned Action Rewrite uses the lifecycle below.
+Owner Undo supports the Action-only all-Replace compensation contract below.
 
 [Dashboard](src/dashboard.rs) exposes `App::action_dashboard` and the correlated
 `ActionDashboard` command/event. Default Active is Open/Waiting/Blocked; explicit
@@ -507,15 +508,22 @@ and durable receipt protections. Assets have no text editor or AI tool. Rewrite
 receives ordered full proof summaries and null asset text slots; the saved
 capture still binds complete immutable bytes. This prerequisite adds no Office
 conversion, binary Source preservation or original-copy deletion authority.
-The existing Action-bearing Undo refusal remains; asset/Markdown-only whole
-Undo and scoped asset Trash restore use the existing inverse family.
+Mixed file/Action and Action creation Undo remain refused; asset/Markdown-only
+whole Undo and scoped asset Trash restore use the existing inverse family.
 `DraftRequest::action_changes` admits exact typed Action Create/Replace members,
 including mixed Markdown/Action drafts. Replace fixes the complete checked current
 record; edits cannot alter its baseline or immutable origin. The existing budget
 is 64 combined members and 8 MiB. Only file/source-free work may omit vault binding;
 Markdown/source work requires the exact vault. Completed Actions cannot be edited
 or reopened through these members. Owned Action Rewrite changes review only;
-Action Undo remains refused pending its inverse contract.
+Whole-operation Action-only all-Replace Undo restores prior reviewed details as
+a new revision, preserving immutable origin and completion history. Preview is
+historical; confirmation freshly checks exact installed records and reintroduced
+note references/dependency/parent graphs before admission. Changed or Completed
+Actions refuse. Waiting clocks follow ordinary replacement semantics. Vaultless
+compensation reuses exact CAS, terminal mirrors, interruption and recovery without
+assuming empty file proofs establish Applied. Creation and mixed file/Action Undo
+remain unsupported; exact operation replay preserves later work.
 
 Checked ordinary recovery supports already-typed Action snapshots without
 inventing a vault for file/source-free work. Bound and mixed snapshots keep exact

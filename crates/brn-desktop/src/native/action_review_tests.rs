@@ -75,6 +75,76 @@ fn assert_data(window: &gpui_kit::Window, scope: &str, data: &brn_workflow::acti
 }
 
 #[gpui_kit::test]
+fn action_undo_confirmation_renders_complete_frozen_before_candidate_and_origin(
+    cx: &mut gpui_kit::TestAppContext,
+) {
+    use brn_workflow::{
+        proposal_apply::{UndoBinding, UndoPreview, UndoRequest},
+        proposals::ActionChange,
+    };
+    let (_fixture, handle, desktop) = window(cx);
+    let mut visual = VisualTestContext::from_window(handle.into(), cx);
+    let request = UndoRequest {
+        operation_id: Uuid::new_v4(),
+        target_operation_id: Uuid::new_v4(),
+        trash_member: None,
+    };
+    let mut draft = crate::review::action_tests::fixture().draft;
+    draft.id = request.operation_id;
+    draft.changes.clear();
+    draft.sources.clear();
+    draft.vault = None;
+    draft
+        .action_changes
+        .retain(|change| matches!(change, ActionChange::Replace { .. }));
+    let capture = crate::approval::UndoCapture::new(
+        request.clone(),
+        UndoPreview {
+            draft: draft.clone(),
+            binding: UndoBinding {
+                operation_id: request.target_operation_id,
+                trash_member: None,
+                originals: vec![],
+            },
+        },
+    )
+    .unwrap();
+    draft.action_changes[0].data_mut().title = "Later uncaptured typing".into();
+    visual.update(|window, cx| {
+        desktop.update(cx, |this, cx| {
+            this.ai.as_mut().unwrap().vault_bound = false;
+            assert!(!this.operation_native_blocked(cx));
+            assert!(this.file_operation_native_blocked(cx));
+        });
+        let captured = capture.clone();
+        window.open_dialog(cx, move |dialog, _, _| {
+            dialog
+                .title("Review exact Undo / Trash restore")
+                .child(super::approval::undo_body(&captured))
+        });
+    });
+    visual.run_until_parked();
+    visual.update(|window, cx| {
+        window.render_frame(cx);
+        let ActionChange::Replace { before, data } = &capture.preview().draft.action_changes[0] else { panic!("Replace inverse") };
+        let modal = window.within("exact-undo-capture");
+        assert_eq!(modal.find("action-compensation-meaning").label(), Some("Restore previous Action details as a new revision, preserving origin and history. Changed or Completed Actions refuse confirmation."));
+        assert_eq!(modal.find("captured-action-0").label(), Some(format!("Replace UUID {}", before.origin.id).as_str()));
+        for (scope, data) in [("action-0-proposed", data), ("action-0-before", &before.data), ("action-0-origin", &before.origin.data)] {
+            let fields = ActionFields::from(data);
+            for (field, label) in LABELS.iter().enumerate() {
+                assert_eq!(modal.find(format!("{scope}-field-{field}")).label(), Some(format!("{label}: {}", fields.values[field]).as_str()));
+            }
+            assert_eq!(modal.find(format!("{scope}-state")).label(), Some(format!("State: {:?}", data.state).as_str()));
+            assert_eq!(modal.find(format!("{scope}-priority")).label(), Some(format!("Priority: {:?}", data.priority).as_str()));
+        }
+        assert_eq!(modal.find("action-0-metadata-0").label(), Some(format!("Full captured before Action {} · version {} · updated at {} ms", before.origin.id, before.version, before.updated_at_ms).as_str()));
+        assert_eq!(modal.find("action-0-metadata-1").label(), Some(format!("Waiting since: {:?} ms · completed at: {:?} ms", before.waiting_since_ms, before.completed_at_ms).as_str()));
+        assert_eq!(modal.find("action-0-metadata-2").label(), Some(format!("Immutable origin: {} · creating proposal {} version {} · created at {} ms", before.origin.id, before.origin.proposal.id, before.origin.proposal.version, before.origin.created_at_ms).as_str()));
+    });
+}
+
+#[gpui_kit::test]
 fn native_fields_preserve_incomplete_input_late_typing_and_all_ordered_members(
     cx: &mut gpui_kit::TestAppContext,
 ) {

@@ -631,6 +631,12 @@ impl App {
             self.validate_proposal_links(draft)?;
             self.validate_action_references(draft)?;
         }
+        if undo.is_some() && !draft.action_changes.is_empty() {
+            // Compensation introduces earlier references into today's graph.
+            // Historical file restoration cannot exempt those edges from fresh
+            // eligibility and cycle checks.
+            self.validate_action_references(draft)?;
+        }
         for source in &draft.sources {
             if self
                 .editor
@@ -646,9 +652,9 @@ impl App {
             }
         }
         if let Some(binding) = undo {
-            let files = self.editor.files.as_ref().expect("opened files");
             for (change, original) in draft.changes.iter().zip(&binding.originals) {
                 if let Some(original) = original {
+                    let files = self.editor.files.as_ref().expect("opened files");
                     let destination = Path::new(change.path());
                     let staging =
                         destination.with_file_name(format!(".brn-{}.stage", original.member_id));
