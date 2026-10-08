@@ -85,3 +85,33 @@ so helper may edit but cannot compile until explicitly granted. No private data,
 credentials, GUI/computer use, live inference, model download, reset, port, release,
 unrelated work or global configuration change. Reassess only a concrete integrity
 blocker or consequential unresolved product requirement, continue independent work.
+
+## Implementation and qualification checkpoint — 08 October 22:30 UTC
+
+Complete candidate implemented through Store, AppWorker, CLI and native Settings,
+committed/pushed as0723a698879b14edc831730897d8f296348c89cb.
+One fresh independent read-only review covered all tracked and untracked changes
+against main441120ce7f6ee47de3e4fa0f784355e2fc0b3257 and found no actionable
+production defect. Its Store README precision note was corrected and re-reviewed.
+Complete reviewed dirty-candidate hash:
+`1e9862c62bb948b7a37fa9cb500f6e7ca051d04d0325f69de2bec8c3ce9ef66e`.
+Binary diff hash90521a7640e1db0ea8e06305cc90d2b5ec9a19a438d36492f12efe3d88ed59c0;
+complete identity additionally covers the canonical four-untracked-file hash manifest.
+
+Passed: full Store472 tests plus final12 focused witnesses (including one later
+added primary editor refusal witness); Store strict Clippy; three new real worker
+witnesses; two CLI cancellation/correlation witnesses; two real-process CLI tests;
+four desktop state witnesses; full native desktop348 plus7 CLI tests; three native
+Clippy feature lanes and native shipping build. Representative64 complete chat
+turn snapshot74,928,128 bytes measured217ms including validation/sync/publication;
+individual SQLite steps have no hard wall-time guarantee. New exhaustive test
+variant names, a CLI reference comparison, required native traits and an existing
+shutdown-event expectation needed routine corrections; no guard/test weakening.
+
+Final broader gate is active, serial Cargo in target/budgets: fmt and workspace
+all-target default Clippy passed; full default tests excluding reused Store are
+running, then native workflow, combined desktop/CLI, strict combined Clippy,
+shipping/helper,52fixtures and links. Required CI/integration and all interactive
+acceptance are pending. No new model calls;14/16 shared calls used. The consolidated
+morning task in the lead checkout owns expected backup controls and eventual
+matching final runtime; no GUI acceptance is claimed.
