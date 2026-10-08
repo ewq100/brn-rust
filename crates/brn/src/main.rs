@@ -102,7 +102,11 @@ fn command_name(command: &cli::Command) -> &'static str {
         cli::Command::Status => "status",
         cli::Command::Search { .. } => "search",
         cli::Command::Ask { .. } => "ask",
-        cli::Command::ConversationsList => "conversations.list",
+        cli::Command::ConversationsList { .. } => "conversations.list",
+        cli::Command::ConversationsSetLifecycle { target, .. } => match target {
+            brn_workflow::conversations::ConversationState::Archived => "conversations.archive",
+            brn_workflow::conversations::ConversationState::Active => "conversations.restore",
+        },
         cli::Command::ConversationsShow { .. } => "conversations.show",
     }
 }

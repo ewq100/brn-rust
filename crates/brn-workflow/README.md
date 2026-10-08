@@ -772,6 +772,23 @@ Already-admitted recovery/save/reload/reconcile commands drain on shutdown.
 Stage 1 automated checks passed; native usability remains pending in
 [status](../../docs/status.md).
 
+## Reversible session organization
+
+`ConversationSummaries(filter)` exposes explicit Active/Archived/All history and
+checked lifecycle versions without changing canonical conversation or turn JSON.
+The compatibility `Conversations` query still returns all sessions. Archive/Restore
+uses `SetConversationLifecycle` with an operation UUID and exact expected stamp;
+its receipt separates the original transition from current lifecycle state.
+Replaying an old Archive after Restore never archives again. Creation/activity
+times, budgets, captured outcomes and evidence remain unchanged.
+
+The private chat lane serializes these critical mutations with actual AI admission
+and refuses new transitions while work is active or draining. Exact read-only
+operation replay remains available. Store transactions independently fence fresh
+Ask, Inbox reservation/turn and Rewrite admission; archived sessions require
+explicit Restore. Inspection, proposal approval and recovery remain available.
+Automatic inactivity archival, Delete and preferences are separate behavior.
+
 ## Owned application and chat lanes
 
 [`AppWorker`](src/app_worker.rs) is the frontend handle:

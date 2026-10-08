@@ -460,6 +460,9 @@ impl WorkStore {
         // Exact replay above never creates a conversation, samples the clock or
         // revalidates current source/auth state. Fresh reservations remain bound.
         capture.validate()?;
+        if let Some(id) = capture.conversation {
+            super::conversations::require_active(&tx, id)?;
+        }
         check_all(&tx)?;
         if chat::read_turn(&tx, capture.id)?.is_some()
             || super::proposal_rewrite::read_job(&tx, capture.id)?.is_some()
@@ -495,6 +498,9 @@ impl WorkStore {
         }
         super::run_budget::refuse_retained(&tx, capture.id)?;
         capture.validate()?;
+        if let Some(id) = capture.conversation {
+            super::conversations::require_active(&tx, id)?;
+        }
         check_all(&tx)?;
         if chat::read_turn(&tx, capture.id)?.is_some()
             || super::proposal_rewrite::read_job(&tx, capture.id)?.is_some()

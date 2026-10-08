@@ -230,7 +230,7 @@ fn legacy_inbox_replay_does_not_backfill_and_invalid_new_reservation_leaves_no_b
     // A V16 upgrade must retain canonical job bytes and hash without creating limits.
     Connection::open(data.path().join("brn.sqlite"))
         .unwrap()
-        .execute_batch("DROP TABLE ai_run_budgets; PRAGMA user_version=16;")
+        .execute_batch("DROP TABLE conversation_lifecycle_operations; DROP TABLE conversation_lifecycle; DROP TABLE ai_run_budgets; PRAGMA user_version=16;")
         .unwrap();
     let (store, _) = WorkStore::open(data.path()).unwrap();
     assert_eq!(store.run_budget(legacy.id).unwrap(), None);
@@ -684,7 +684,7 @@ fn upgrade_v13(restored: bool) {
     let db = data.path().join("brn.sqlite");
     let raw = Connection::open(&db).unwrap();
     raw.execute_batch(
-        "DROP TABLE ai_run_budgets; DROP TABLE intake_snapshots; DROP TABLE inbox_original_operations; DROP TABLE inbox_actions; PRAGMA user_version=13;",
+        "DROP TABLE conversation_lifecycle_operations; DROP TABLE conversation_lifecycle; DROP TABLE ai_run_budgets; DROP TABLE intake_snapshots; DROP TABLE inbox_original_operations; DROP TABLE inbox_actions; PRAGMA user_version=13;",
     )
     .unwrap();
     let backup = data.path().join("backups/brn-9999999999999.sqlite");
@@ -718,7 +718,7 @@ fn upgrade_v13(restored: bool) {
     assert_eq!(
         raw.query_row("PRAGMA user_version", [], |r| r.get::<_, i64>(0))
             .unwrap(),
-        17
+        18
     );
     if let Some(bytes) = backup_bytes {
         assert_eq!(std::fs::read(backup).unwrap(), bytes);
@@ -1060,7 +1060,7 @@ fn legacy_action_bytes_and_question_survive_bound_chat_shutdown_and_restart() {
     assert_eq!(
         raw.query_row("PRAGMA user_version", [], |r| r.get::<_, i64>(0))
             .unwrap(),
-        17
+        18
     );
 }
 
@@ -1447,7 +1447,7 @@ fn knowledge_ordered_target_proofs_survive_review_replay_restart_and_checked_bac
             .unwrap()
             .query_row("PRAGMA user_version", [], |r| r.get::<_, i64>(0))
             .unwrap(),
-        17
+        18
     );
 }
 
@@ -2934,4 +2934,107 @@ fn removal_snapshot_refuses_missing_known_applied_action_or_completion_authority
         missed.is_empty(),
         "Known durable authority disappeared silently: {missed:?}"
     );
+}
+
+#[test]
+fn session_archive_fences_new_inbox_reservations_and_reserved_turns_without_changing_capture() {
+    use brn_store::work::conversations::*;
+    for budgeted in [false, true] {
+        let data = fixture();
+        let (mut store, _) = WorkStore::open(data.path()).unwrap();
+        let turn = store
+            .begin_turn(Uuid::new_v4(), None, "owner chat", "chatgpt", "model")
+            .unwrap();
+        store
+            .finish_turn(turn.id, WorkTurnStatus::Completed, "retained", None)
+            .unwrap();
+        let mut capture = capture();
+        capture.conversation = Some(turn.conversation_id);
+        let original = serde_json::to_vec(&capture).unwrap();
+        let job = if budgeted {
+            store
+                .reserve_inbox_action_with_budget(&capture, "captured question", None)
+                .unwrap()
+                .0
+        } else {
+            store
+                .reserve_inbox_action(&capture, "captured question")
+                .unwrap()
+        };
+        let archive = ConversationLifecycleRequest {
+            operation_id: Uuid::new_v4(),
+            expected: store
+                .conversation_lifecycle(turn.conversation_id)
+                .unwrap()
+                .stamp,
+            target: ConversationState::Archived,
+        };
+        store.set_conversation_lifecycle(&archive).unwrap(); // reservation alone is not a live job
+        let replay = if budgeted {
+            store
+                .reserve_inbox_action_with_budget(&capture, "captured question", None)
+                .unwrap()
+                .0
+        } else {
+            store
+                .reserve_inbox_action(&capture, "captured question")
+                .unwrap()
+        };
+        assert_eq!(replay, job);
+        assert_eq!(serde_json::to_vec(&replay.capture).unwrap(), original);
+        let mut chat = store.chat_connection().unwrap();
+        assert!(matches!(
+            chat.begin_inbox_action_turn(&job),
+            Err(Error::StateChanged(_))
+        ));
+        assert!(store.turn(capture.id).unwrap().is_none());
+        let mut fresh = capture.clone();
+        fresh.id = Uuid::new_v4();
+        let result = if budgeted {
+            store
+                .reserve_inbox_action_with_budget(&fresh, "new question", None)
+                .map(|v| v.0)
+        } else {
+            store.reserve_inbox_action(&fresh, "new question")
+        };
+        assert!(matches!(result, Err(Error::StateChanged(_))));
+        assert!(store.inbox_action(fresh.id).unwrap().is_none());
+        assert!(store.run_budget(fresh.id).unwrap().is_none());
+        let restore = ConversationLifecycleRequest {
+            operation_id: Uuid::new_v4(),
+            expected: store
+                .conversation_lifecycle(turn.conversation_id)
+                .unwrap()
+                .stamp,
+            target: ConversationState::Active,
+        };
+        store.set_conversation_lifecycle(&restore).unwrap();
+        let admitted = chat.begin_inbox_action_turn(&job).unwrap();
+        let archive = ConversationLifecycleRequest {
+            operation_id: Uuid::new_v4(),
+            expected: store
+                .conversation_lifecycle(turn.conversation_id)
+                .unwrap()
+                .stamp,
+            target: ConversationState::Archived,
+        };
+        assert!(matches!(
+            store.set_conversation_lifecycle(&archive),
+            Err(Error::WorkspaceBusy(_))
+        ));
+        let terminal = chat
+            .finish_turn(
+                admitted.id,
+                WorkTurnStatus::Completed,
+                "retained Inbox result",
+                None,
+            )
+            .unwrap();
+        store.set_conversation_lifecycle(&archive).unwrap();
+        assert_eq!(
+            serde_json::to_vec(&chat.begin_inbox_action_turn(&job).unwrap()).unwrap(),
+            serde_json::to_vec(&terminal).unwrap()
+        );
+        assert_eq!(store.inbox_action(capture.id).unwrap(), Some(job));
+    }
 }

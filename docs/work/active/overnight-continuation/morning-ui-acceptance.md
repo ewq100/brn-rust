@@ -18,24 +18,22 @@ checks/docs; all required post-merge checks/docs passed in 37844389582.
 Refresh this receipt after subsequent changes and before cutoff; qualification is
 separate from personal acceptance.
 
-Checkout: `/Users/evokessler/repos/brn-p2-email-docx-intake`.
-Latest qualified candidate: `f187d2fc0d133b4765d794d699fc79409c22a57f` (email caveats/decoded identifiers,
-not yet merged). Previous merged main is `bd6947511ac9f5e445078e831d61ac3f5533fe06`;
-all PR90–PR95 required candidate/post-merge checks and documentation passed.
-Immutable shipping runtime: `/Users/evokessler/repos/brn-overnight-artifacts-20261008/email-caveats-runtime`.
-Desktop: `/Users/evokessler/repos/brn-overnight-artifacts-20261008/email-caveats-runtime/brn-desktop`,
-SHA-256 `f56022a3f1a251351346dccf91aebf64f3c539166ec6986682b0c5813edd6a4f`.
-Matching CLI: `/Users/evokessler/repos/brn-overnight-artifacts-20261008/email-caveats-runtime/brn`,
-SHA-256 `898ef3332766b545ff5f1907c46595adffda9e8a2053d2546a6250e9334f489d`.
-Helper: `/Users/evokessler/repos/brn-overnight-artifacts-20261008/email-caveats-runtime/brn-intake-helper`,
-SHA-256 `79b4bc5523dfcf338c0d4068dde8fc819f67aa0a515a0da5d7f1b483cdec5fa0`.
-Manifest: `/Users/evokessler/repos/brn-overnight-artifacts-20261008/email-caveats-runtime/build-manifest.json`.
-CLI/desktop binaries are identical to the qualified PR95 build; only the helper
-changed. This immutable runtime includes all PR90–PR95 behaviors and the locally
-qualified email repair; session Archive/Restore still awaits its final candidate
-qualification/integration and is absent from this runtime. Refresh the exact final
-combined build before cutoff; never use a historical executable after newer schema
-migration. Actual GUI acceptance remains pending.
+Checkout: `/Users/evokessler/repos/brn-p3-work-budgets`.
+Latest qualified combined candidate: `babc01335869e619cc1e65036984f170eb25551d` (session Archive/Restore plus merged
+PR96 MIME repair). Main is `deca5d5ea3f6decbfb6ae2288db3934d4de694c4`;
+PR90–PR95 required candidate/post-merge checks passed. PR96 required candidate
+checks/docs passed, post-merge pending; PR97 final required CI/integration pending.
+Immutable shipping runtime: `/Users/evokessler/repos/brn-overnight-artifacts-20261008/session-combined-runtime`.
+Desktop: `/Users/evokessler/repos/brn-overnight-artifacts-20261008/session-combined-runtime/brn-desktop`,
+SHA-256 `8bc7f4074a36e130a6fed4778de73d4ce5a34e78fe5ca5421b11fb2a28b75fd4`.
+Matching CLI: `/Users/evokessler/repos/brn-overnight-artifacts-20261008/session-combined-runtime/brn`,
+SHA-256 `9ce0aae76f208f16db70f2e2ba48df3791e2b44bc61fc80db33bb7a0a827f421`.
+Helper: `/Users/evokessler/repos/brn-overnight-artifacts-20261008/session-combined-runtime/brn-intake-helper`,
+SHA-256 `33e40e9ae7d797b72b9e1312fe97a3904285cc0223b30501169a744844727d04`.
+Manifest: `/Users/evokessler/repos/brn-overnight-artifacts-20261008/session-combined-runtime/build-manifest.json`.
+This runtime includes all PR90–PR96 behaviors and locally qualified session controls.
+Refresh final receipt before cutoff; never use a historical executable after newer
+schema migration. Do not relocate bound state/vault folders. GUI acceptance pending.
 
 Workspace A (email/DOCX/core journey):
 `/private/tmp/brn-retained-qualification-bi3q58kf/headless/{data,vault,results}`.
@@ -94,7 +92,7 @@ folder. Do not delete locks, reset or migrate data if busy; record the condition
 Launch Workspace A from the checkout (ordinary desktop flags):
 
 ```sh
-/Users/evokessler/repos/brn-overnight-artifacts-20261008/email-caveats-runtime/brn-desktop \
+/Users/evokessler/repos/brn-overnight-artifacts-20261008/session-combined-runtime/brn-desktop \
   --data-dir /private/tmp/brn-retained-qualification-bi3q58kf/headless/data \
   --vault /private/tmp/brn-retained-qualification-bi3q58kf/headless/vault
 ```
@@ -129,8 +127,8 @@ Allow 60–90 minutes for all workspaces/new controls. Essential path: steps 1�
 | 9. Review selected B proposals and their exact versions; approve only the intended consequences, restart and inspect | Current live Knowledge is a supplement, not a supersession. Two Actions remain distinct; due date/time and authorization boundary retained. Finding closure remains a separate explicit choice. Only approved effects persist | Approval requests/receipts, notes/Actions/Finding state, restart/replay; do not approve both model comparisons |
 | 10. Explicitly select the Current predecessor on a suitable Draft, review generated protected History and successor, then approve the revised version | No silent semantic rewrite; owner text/comments/citations remain. Old stamp refuses. Generated History is readonly, successor editable, and exact pair persists after restart | Exact predecessor proof, before/after, version change, comments, stale/error states and history links. Implemented, independently reviewed, final shipping and required candidate/post-merge CI passed; interactive acceptance pending |
 | 11. Quit B/C and open D; inspect saved private-intake analysis, both Sources, approved Current, Open Finding, two saved Knowledge notes and two Actions | Formal Finding retains exact Applied Source lineage and opposing director Source, tentative preference/reasons/alternatives. Capacity 26 versus18, four mobility-aid users, access restrictions, authority and 12 October noon +03:00 reply cut-off remain visible. All four selected consequences are already Applied; Finding remains Open | Source/stamp/proof IDs, saved note/Action UUIDs, separate Finding state, failed Sol run/error and comparison Draft; no new inference or duplicate approval |
-| 12. Once the session slice is qualified in this receipt, select a completed synthetic session, Archive, inspect Archived history, quit/reopen and Restore; inspect old operation replay if exposed | Same UUID, turns, budgets and creation/activity times; archived history readable, explicit Restore needed for new work; pending/stale controls preserve composer/editor/review buffers. Busy/draining Archive refuses without cancellation | Selected UUID, lifecycle versions/receipt, displayed filter/banner, preserved text and restart history. Session candidate implementation is pending final qualification/integration at this checkpoint |
-| 13. In E, inspect both retained plain-text EML variants and compare the older extraction in D | New extraction retains every decoded In-Reply-To/References value across scalar/list and physical fields in order, including repeats, and distinguishes header claims from authentication/thread proof; no generic false absence/HTML/remote claim. Actual HTML/remote/CID gaps remain specific. Old snapshots retain their original wording and partial status | Exact extraction IDs/build/helper hash and visible caveat; do not reconvert old evidence merely to change wording. Helper/local CLI qualification and independent review passed; required hosted CI/integration pending |
+| 12. Select a completed synthetic session, Archive, inspect Archived history, quit/reopen and Restore; inspect old operation replay if exposed | Same UUID, turns, budgets and creation/activity times; archived history readable, explicit Restore needed for new work; pending/stale controls preserve composer/editor/review buffers. Busy/draining Archive refuses without cancellation | Selected UUID, lifecycle versions/receipt, displayed filter/banner, preserved text and restart history. Session implementation, independent review and final local qualification passed; required final CI/integration pending |
+| 13. In E, inspect both retained plain-text EML variants and compare the older extraction in D | New extraction retains every decoded In-Reply-To/References value across scalar/list and physical fields in order, including repeats, and distinguishes header claims from authentication/thread proof; no generic false absence/HTML/remote claim. Actual HTML/remote/CID gaps remain specific. Old snapshots retain their original wording and partial status | Exact extraction IDs/build/helper hash and visible caveat; do not reconvert old evidence merely to change wording. Helper/local CLI qualification and independent review passed; all required candidate CI passed and PR96 merged; post-merge CI pending |
 
 ## Headless evidence already passed; interactive acceptance pending
 
@@ -169,3 +167,9 @@ Owner added ten shared trials; eleven of sixteen used at this checkpoint. Use th
 > vault. Report concrete defects and pending owner acceptance; mark unobserved
 > or unavailable checks pending. A new live cancellation trial requires an explicit
 > selected run and budget rather than being silently included.
+
+Session headless qualification: 1724 default tests (including reused unchanged
+Store461),17 existing ignores;423 native workflow/models with15 existing ignores;
+547 combined desktop/CLI; doctests, Clippy, shipping,52 fixtures. Combined MIME
+helper tests/Clippy,29 affected Inbox workflow tests, shipping and52 fixtures passed.
+Independent complete session and merge-delta reviews clean. GUI remains pending.

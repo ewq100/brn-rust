@@ -452,6 +452,41 @@ impl App {
         Ok(results)
     }
 
+    pub(crate) fn require_active_conversation(
+        &self,
+        id: uuid::Uuid,
+        allow_legacy: bool,
+    ) -> Result<()> {
+        match self.conversation_lifecycle(id) {
+            Ok(lifecycle)
+                if lifecycle.state == crate::conversations::ConversationState::Archived =>
+            {
+                Err(WorkflowError::typed(
+                    ErrorKind::ContextStale,
+                    "Restore this archived session before continuing.",
+                ))
+            }
+            Ok(_) => Ok(()),
+            Err(error) if allow_legacy && error.kind == ErrorKind::NotFound => Ok(()),
+            Err(error) => Err(error),
+        }
+    }
+    pub fn conversation_lifecycle(
+        &self,
+        id: uuid::Uuid,
+    ) -> Result<crate::conversations::ConversationLifecycle> {
+        self.store
+            .conversation_lifecycle(id)
+            .map_err(crate::conversations::store_error)
+    }
+    pub fn conversation_summaries(
+        &self,
+        filter: crate::conversations::ConversationFilter,
+    ) -> Result<Vec<crate::conversations::ConversationSummary>> {
+        self.store
+            .conversation_summaries(filter)
+            .map_err(crate::conversations::store_error)
+    }
     pub fn conversations(&self) -> Result<Vec<WorkConversation>> {
         Ok(self.store.conversations()?)
     }

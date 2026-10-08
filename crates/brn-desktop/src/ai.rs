@@ -61,6 +61,12 @@ mod link_preparation_state;
 #[path = "relationship_state.rs"]
 mod relationship_state;
 
+#[path = "session_state.rs"]
+pub(crate) mod session_state;
+#[cfg(test)]
+#[path = "session_state_tests.rs"]
+pub(crate) mod session_state_tests;
+
 #[path = "budget_state.rs"]
 pub(crate) mod budget_state;
 #[cfg(test)]
@@ -316,7 +322,7 @@ pub enum Pending {
         scope: KnowledgeScope,
         generation: u64,
     },
-    Conversations,
+    Session(session_state::SessionPending),
     RunBudget {
         turn: Uuid,
         generation: u64,
@@ -378,6 +384,7 @@ pub struct AiState {
     pub generation: u64,
     pub conversation: Option<Uuid>,
     pub conversations: Vec<WorkConversation>,
+    pub session_history: session_state::SessionHistory,
     pub turns: Vec<WorkTurn>,
     pub active: Option<ActiveTurn>,
     pub unsaved: Option<WorkTurn>,
@@ -1371,7 +1378,9 @@ impl AiState {
         ))
     }
     pub fn can_rewrite(&self) -> bool {
-        self.ready
+        self.session_allows_new_work()
+            && self.review_session_allows_new_work()
+            && self.ready
             && self.vault_bound
             && self.review_can_mutate()
             && self.active.is_none()
@@ -1647,7 +1656,8 @@ impl AiState {
         Some((id, AppCommand::ReloadEditor(request)))
     }
     pub fn can_ask(&self) -> bool {
-        self.ready
+        self.session_allows_new_work()
+            && self.ready
             && !self.application_busy()
             && self.vault_bound
             && self.selection.is_some()
@@ -1750,7 +1760,7 @@ impl AiState {
         Some(id)
     }
     pub fn navigate(&mut self, conversation: Option<Uuid>) -> Option<(Uuid, AppCommand)> {
-        if !self.ready {
+        if !self.ready || self.session_change_pending() {
             return None;
         }
         self.generation = self.generation.wrapping_add(1);
@@ -1768,6 +1778,9 @@ impl AiState {
     }
     pub fn apply(&mut self, id: Uuid, event: AppEvent) -> Vec<(Uuid, AppCommand)> {
         let mut commands = Vec::new();
+        if let Some(commands) = self.apply_session_event(id, &event) {
+            return commands;
+        }
         if let AppEvent::Rewrite(event) = event {
             let Some(active) = self.rewrite.as_ref() else {
                 return commands;
@@ -1903,8 +1916,10 @@ impl AiState {
                         } else {
                             "Turn finalized locally. Stop does not prove upstream cancellation or no billing."
                         }.into();
-                        commands
-                            .push(self.command(Pending::Conversations, AppCommand::Conversations));
+                        commands.push(self.refresh_session_summaries());
+                        if display {
+                            commands.extend(self.request_selected_lifecycle());
+                        }
                     }
                     ChatEvent::AlreadyRunning { turn, .. } => {
                         self.notice =
@@ -2339,12 +2354,12 @@ impl AiState {
                     (Pending::Selection, AppCommand::Selection),
                     (Pending::Effort, AppCommand::Effort),
                     (Pending::Proposals, AppCommand::Proposals(None)),
-                    (Pending::Conversations, AppCommand::Conversations),
                     (Pending::Prompt, AppCommand::ModelPrompt),
                     (Pending::Editors, AppCommand::Editors),
                 ] {
                     commands.push(self.command(pending, command));
                 }
+                commands.push(self.refresh_session_summaries());
                 for provider in [Provider::Chatgpt, Provider::Copilot] {
                     if let Some(c) = self.account(AccountCommand::Status(provider)) {
                         commands.push(c);
@@ -2429,6 +2444,7 @@ impl AiState {
                 }) if generation == self.review_generation && proposal == record.draft.id => {
                     self.review = Some(crate::review::ProposalReview::new(record));
                     self.review_error = None;
+                    commands.extend(self.request_review_lifecycle());
                 }
                 Some(Pending::KnowledgePredecessor { generation })
                     if generation == self.review_generation =>
@@ -2693,6 +2709,7 @@ impl AiState {
                     for turn in ids {
                         commands.push(self.request_run_budget(turn));
                     }
+                    commands.extend(self.request_selected_lifecycle());
                 }
             }
             AppEvent::RunBudget { id: turn, budget } => {
@@ -2954,7 +2971,10 @@ impl AiState {
             AppEvent::TurnCancelRequested { .. }
             | AppEvent::AccountCancelRequested { .. }
             | AppEvent::ModelCancelRequested { .. } => return commands,
-            AppEvent::ProposalRewrite(_)
+            AppEvent::ConversationSummaries { .. }
+            | AppEvent::ConversationLifecycle(_)
+            | AppEvent::ConversationLifecycleChanged(_)
+            | AppEvent::ProposalRewrite(_)
             | AppEvent::InboxActionAnalysis(_)
             | AppEvent::InboxVisualEvidence(_)
             | AppEvent::InboxVisualDraft(_)
@@ -3079,6 +3099,7 @@ mod tests {
             }),
         );
         assert_eq!(state.turns[0].effort.as_deref(), Some("high"));
+        super::session_state_tests::acknowledge_active(&mut state);
         assert_eq!(
             state.ask("next choice".into()).unwrap().effort,
             Some(ReasoningEffort::Low)
@@ -3110,7 +3131,7 @@ mod tests {
         assert_eq!(state.selection, selected);
     }
 
-    fn editor_view(path: &str, text: &str) -> EditorView {
+    pub(super) fn editor_view(path: &str, text: &str) -> EditorView {
         let mut view = EditorView {
             record: EditorRecord {
                 path: path.into(),
@@ -3462,6 +3483,7 @@ mod tests {
         let mut state = ready();
         let conversation = Uuid::new_v4();
         state.navigate(Some(conversation));
+        super::session_state_tests::acknowledge_active(&mut state);
         let request = state.ask("followup".into()).unwrap();
         let mut running = ending(&request, WorkTurnStatus::Running);
         running.conversation_id = conversation;
@@ -3498,6 +3520,7 @@ mod tests {
             let mut state = ready();
             let conversation = Uuid::new_v4();
             state.navigate(Some(conversation));
+            super::session_state_tests::acknowledge_active(&mut state);
             let request = state.ask("followup".into()).unwrap();
             state.navigate(Some(Uuid::new_v4()));
             assert!(state.display_active().is_none());
@@ -3573,6 +3596,7 @@ mod tests {
         let mut state = ready();
         let conversation = Uuid::new_v4();
         state.navigate(Some(conversation));
+        super::session_state_tests::acknowledge_active(&mut state);
         let request = state.ask("followup".into()).unwrap();
         state.navigate(Some(Uuid::new_v4()));
         let (history, _) = state.navigate(Some(conversation)).unwrap();
@@ -3599,6 +3623,7 @@ mod tests {
             let mut state = ready();
             let conversation = Uuid::new_v4();
             state.navigate(Some(conversation));
+            super::session_state_tests::acknowledge_active(&mut state);
             let request = state.ask("followup".into()).unwrap();
             state.navigate(destination);
             let mut terminal = ending(&request, WorkTurnStatus::Completed);
@@ -3687,6 +3712,7 @@ mod tests {
         );
         assert!(state.active.is_none());
         assert_eq!(state.turns[0].answer, "partial λ complete");
+        super::session_state_tests::acknowledge_active(&mut state);
         let followup = state.ask("followup".into()).unwrap();
         assert_eq!(followup.conversation, Some(conversation));
         assert_eq!(followup.selection, request.selection);
@@ -3788,6 +3814,7 @@ mod tests {
         assert!(state.turns.is_empty());
         assert_eq!(state.conversation, Some(selected));
         state.apply(history, AppEvent::Turns(vec![]));
+        super::session_state_tests::acknowledge_active(&mut state);
         assert_eq!(
             state.ask("selected followup".into()).unwrap().conversation,
             Some(selected)
@@ -3983,7 +4010,9 @@ mod tests {
                 | AppCommand::Selection
                 | AppCommand::Effort
                 | AppCommand::Proposals(None)
-                | AppCommand::Conversations
+                | AppCommand::ConversationSummaries(
+                    brn_workflow::conversations::ConversationFilter::Active
+                )
                 | AppCommand::ModelPrompt
                 | AppCommand::Editors
                 | AppCommand::Account {

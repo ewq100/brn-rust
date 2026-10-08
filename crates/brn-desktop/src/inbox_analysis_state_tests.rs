@@ -215,6 +215,7 @@ fn state() -> AiState {
         conversation: Some(Uuid::new_v4()),
         ..Default::default()
     };
+    super::session_state_tests::acknowledge_active(&mut state);
     state.open_inbox().unwrap();
     state
 }

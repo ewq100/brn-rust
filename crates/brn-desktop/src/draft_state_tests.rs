@@ -457,7 +457,13 @@ fn acknowledged_full_ai_answer_prefills_exact_session_and_failed_provisional_or_
     }
     let command = state.navigate(Some(completed.conversation_id)).unwrap();
     let (id, event) = reply(&worker, command);
-    state.apply(id, event);
+    let followups = state.apply(id, event);
+    for command in followups {
+        if matches!(&command.1, AppCommand::ConversationLifecycle(_)) {
+            let (id, event) = reply(&worker, command);
+            state.apply(id, event);
+        }
+    }
     let provisional = state
         .ask("Unsubmitted synthetic provisional request".into())
         .unwrap();

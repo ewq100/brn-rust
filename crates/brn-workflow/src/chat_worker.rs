@@ -157,6 +157,10 @@ pub(crate) type Emit = Arc<dyn Fn(Output) + Send + Sync>;
 
 enum Command {
     Tools(Option<Arc<dyn ReadTools>>, mpsc::Sender<Result<()>>),
+    ConversationLifecycle(
+        crate::conversations::ConversationLifecycleRequest,
+        mpsc::Sender<Result<crate::conversations::ConversationLifecycleResult>>,
+    ),
     Ask(
         AskRequest,
         Option<Box<crate::inbox_actions::InboxActionJob>>,
@@ -267,6 +271,21 @@ impl ChatHandle {
         let _admission = self.admission.lock().expect("owned admission fence");
         self.stopping.store(true, Ordering::Release);
         self.cancel_all();
+    }
+    /// Only AppWorker's already-admitted critical mutation path calls this.
+    /// Stop admission cancels AI, but must not discard an earlier lifecycle command.
+    pub(crate) fn set_conversation_lifecycle(
+        &self,
+        request: crate::conversations::ConversationLifecycleRequest,
+    ) -> Result<crate::conversations::ConversationLifecycleResult> {
+        let (tx, rx) = mpsc::channel();
+        {
+            let _admission = self.admission.lock().expect("owned admission fence");
+            self.tx
+                .send(Command::ConversationLifecycle(request, tx))
+                .map_err(|_| closed())?;
+        }
+        rx.recv().map_err(|_| closed())?
     }
     pub(crate) fn set_tools(&self, tools: Option<Arc<dyn ReadTools>>) -> Result<()> {
         let (tx, rx) = mpsc::channel();
@@ -488,6 +507,22 @@ async fn run(
                             tools = replacement;
                             Ok(())
                         };
+                        let _ = reply.send(result);
+                    }
+                    Some(Command::ConversationLifecycle(request, reply)) => {
+                        let result = (|| {
+                            request.validate().map_err(crate::conversations::store_error)?;
+                            if let Some(result) = store.conversation_lifecycle_replay(&request)
+                                .map_err(crate::conversations::store_error)? {
+                                return Ok(result);
+                            }
+                            if active.is_some() {
+                                return Err(WorkflowError::typed(ErrorKind::ToolsBusy,
+                                    "AI work is still active or draining; wait before changing session organization"));
+                            }
+                            store.set_conversation_lifecycle(&request)
+                                .map_err(crate::conversations::store_error)
+                        })();
                         let _ = reply.send(result);
                     }
                     Some(Command::Prompt(id, prompt)) => {

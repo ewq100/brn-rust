@@ -260,6 +260,7 @@ fn begin(
         return Err(conflict());
     }
     let capture = proposals::draft_at(&tx, spec.expected)?.record;
+    super::conversations::require_active_if_present(&tx, capture.draft.session_id)?;
     let job = RewriteJob {
         spec: spec.clone(),
         capture_sha256: hash(&encode(&capture)?),

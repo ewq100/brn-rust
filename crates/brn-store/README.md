@@ -23,7 +23,7 @@ recovery. Vault files own saved Markdown; disposable retrieval indexes live outs
 
 ## Database ownership and recovery
 
-WorkStore uses application ID `BRN2`, schema V17, and retains `brn.owner.lock`
+WorkStore uses application ID `BRN2`, schema V18, and retains `brn.owner.lock`
 for its lifetime. Current settings, text-only conversations and unfinished work
 are preserved by additive migrations. Earlier WorkStore V1 unsaved-edit rows
 remain available; matching text moves atomically into the generation-aware
@@ -711,3 +711,33 @@ A legacy-only archived analysis reservation with no actual WorkTurn refuses a
 new turn even when ordinary approval receipts are absent. Existing actual failed
 or completed turns retain exact replay precedence; genuine unissued reservations
 still start normally. The checked legacy-ID fence creates no turns or Sessions.
+
+## Manual session Archive/Restore
+
+V18 stores reversible session lifecycle separately from canonical
+`WorkConversation`, `WorkTurn`, AI capture/question and recovery-envelope JSON.
+Existing and newly created conversations start Active/version 1. Checked lifecycle
+rows cover every conversation; exact hashed receipts retain the complete ordered
+transition chain. Readable schema, metadata, identity, hash or chain damage refuses
+open rather than replacing main work with an older backup.
+
+`work::conversations` exposes strict state/filter/stamp/summary/request/receipt/result
+DTOs. WorkStore and attached ChatStore provide `conversation_lifecycle`,
+`conversation_summaries`, `set_conversation_lifecycle` and the read-only checked
+`conversation_lifecycle_replay`. Request, receipt and result validation is shared
+with workflow/client preflight and acknowledgement checks. One Immediate
+transaction validates replay before current eligibility, otherwise checks exact
+version/opposite state and target Running chat/Rewrite work, then commits metadata
+and receipt together. Same operation with changed input refuses. Old Archive replay
+after Restore returns its original receipt and current Active metadata without
+repeating the transition.
+
+Archive/Restore never changes chat timestamps, messages, budgets, proposals,
+Findings, Actions, captured evidence or vault files. Fresh Ask and Inbox turn
+admission checks Active in the existing transaction; fresh Inbox reservations also
+check a supplied session. Fresh Rewrite checks its captured proposal session when
+that conversation exists; legacy absent session IDs remain eligible. Exact saved
+replay and existing-work settlement stay available. A reservation without a turn
+alone does not prevent Archive. Workflow additionally keeps the owned AI lane
+fenced while jobs and tool leases drain. Automatic 30-day policy, Delete and
+preferences remain separate work.

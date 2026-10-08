@@ -316,6 +316,9 @@ pub fn run(i: &Invocation) -> Result<Output, CliFailure> {
         None
     };
     let knowledge = match &i.command {
+        Command::ConversationsSetLifecycle { target, file } => {
+            Some(super::conversations::prepare(*target, file)?)
+        }
         Command::Identity(command) => Some(super::identity::prepare(command)?),
         Command::Evidence(command) => Some(super::evidence::prepare(command)?),
         Command::Provenance(command) => Some(super::provenance::prepare(command)?),
@@ -722,12 +725,36 @@ fn execute(
             })).collect::<Vec<_>>(), "keyword_only": results.keyword_only}),
             ))
         }
-        Command::ConversationsList => {
-            let AppEvent::Conversations(conversations) = lane.query(AppCommand::Conversations)?
+        Command::ConversationsSetLifecycle { .. } => {
+            let prepared = knowledge.expect("lifecycle input prepared before startup");
+            let AppCommand::SetConversationLifecycle(request) = prepared else {
+                return Err(unexpected());
+            };
+            let operation = request.operation_id;
+            let AppEvent::ConversationLifecycleChanged(result) =
+                lane.query_with_id(operation, AppCommand::SetConversationLifecycle(request))?
             else {
                 return Err(unexpected());
             };
-            Ok(output(json!({"conversations": conversations})))
+            Ok(output(json!({"result": result})))
+        }
+        Command::ConversationsList { state } => {
+            let AppEvent::ConversationSummaries { filter, summaries } =
+                lane.query(AppCommand::ConversationSummaries(*state))?
+            else {
+                return Err(unexpected());
+            };
+            if filter != *state {
+                return Err(unexpected());
+            }
+            let conversations = summaries
+                .iter()
+                .map(|s| &s.conversation)
+                .collect::<Vec<_>>();
+            let lifecycles = summaries.iter().map(|s| &s.lifecycle).collect::<Vec<_>>();
+            Ok(output(
+                json!({"conversations": conversations, "lifecycles": lifecycles, "state": filter}),
+            ))
         }
         Command::ConversationsShow { session } => {
             let AppEvent::Turns(turns) = lane.query(AppCommand::Turns(*session))? else {
@@ -741,8 +768,13 @@ fn execute(
                 }
                 inspected.push(data);
             }
+            let AppEvent::ConversationLifecycle(lifecycle) =
+                lane.query(AppCommand::ConversationLifecycle(*session))?
+            else {
+                return Err(unexpected());
+            };
             Ok(output(
-                json!({"session_id": session, "historical": true, "turns": inspected}),
+                json!({"session_id": session, "historical": true, "turns": inspected, "lifecycle": lifecycle}),
             ))
         }
         Command::Ask {

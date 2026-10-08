@@ -28,7 +28,7 @@ fn times(conn: &Connection, conversation: Uuid, turn: Uuid) -> StoredTimes {
     (created, active, pairs)
 }
 fn downgrade_v7(conn: &Connection) {
-    conn.execute_batch("DROP TABLE ai_run_budgets; DROP TABLE intake_snapshots; DROP TABLE inbox_original_operations; DROP TABLE inbox_actions; DROP TABLE inbox_processing; DROP TABLE inbox_items; DROP TABLE action_completions; DROP TABLE actions; DROP TABLE findings; ALTER TABLE messages DROP COLUMN started_at_ms; ALTER TABLE messages DROP COLUMN finished_at_ms; ALTER TABLE conversations DROP COLUMN last_activity_at_ms; PRAGMA user_version=7;").unwrap();
+    conn.execute_batch("DROP TABLE conversation_lifecycle_operations; DROP TABLE conversation_lifecycle; DROP TABLE ai_run_budgets; DROP TABLE intake_snapshots; DROP TABLE inbox_original_operations; DROP TABLE inbox_actions; DROP TABLE inbox_processing; DROP TABLE inbox_items; DROP TABLE action_completions; DROP TABLE actions; DROP TABLE findings; ALTER TABLE messages DROP COLUMN started_at_ms; ALTER TABLE messages DROP COLUMN finished_at_ms; ALTER TABLE conversations DROP COLUMN last_activity_at_ms; PRAGMA user_version=7;").unwrap();
 }
 
 #[test]
@@ -353,7 +353,13 @@ fn malformed_empty_conversations_are_validated_at_startup() {
         let dir = fixture();
         drop(WorkStore::open(dir.path()).unwrap());
         let conn = raw(dir.path());
-        conn.execute("INSERT INTO conversations(id,title,created_at_ms,last_activity_at_ms) VALUES(?1,'empty',?2,?3)",params![Uuid::new_v4().to_string(),created,active]).unwrap();
+        let id = Uuid::new_v4().to_string();
+        conn.execute("INSERT INTO conversations(id,title,created_at_ms,last_activity_at_ms) VALUES(?1,'empty',?2,?3)",params![id,created,active]).unwrap();
+        conn.execute(
+            "INSERT INTO conversation_lifecycle VALUES(?1,1,'active')",
+            [id],
+        )
+        .unwrap();
         assert!(WorkStore::open(dir.path()).is_err(), "{created}/{active:?}");
     }
 }
