@@ -27,7 +27,8 @@ owner column. Add new decisions at the end; supersede rather than rewrite.
 | D19 | Keep the refined-terminal theme | Owner liked it (feedback 2026-10-07) | Liked; formal acceptance pending |
 | D20 | Composer always at the bottom | Owner direction, implemented | Owner feedback 2026-10-08 |
 | D21 | Writing review: compact header, prominent prose text, visible comment highlights with hover | Owner direction, implemented | Owner feedback 2026-10-08 |
-| D22 | Terminal-style chat: three directions prototyped, Hybrid recommended | Proposed, prototype | Owner choice pending |
+| D22 | Terminal-style chat: three directions prototyped, Hybrid recommended | Decided by D23 | Owner chose Hybrid 2026-10-08 |
+| D23 | Hybrid terminal chat | Owner direction, implemented (partial: no claim tags yet) | Owner choice 2026-10-08 |
 
 ## D1 Keep the refined-terminal identity, correct its typography
 
@@ -170,6 +171,17 @@ Owner request 2026-10-08. [Prototype](prototypes.md#terminal-style-chat-directio
 answers with claim chips — *recommended*: terminal feel without losing reading
 comfort for long answers), **3 · Command blocks** (each turn a block with
 actions; `/` command menu). Not implemented; waiting for the owner's choice.
+
+## D23 Hybrid terminal chat
+
+Owner chose the Hybrid direction (2026-10-08). Implemented: questions as a
+monospace `›` prompt line; a monospace trace line with left rule (live tool while
+streaming, recorded duration when finished — never invented steps); answers in
+the reading font at 15 pt; a monospace footer with the recorded provider · model ·
+effort and an inline *save as note…* link; the composer with a `›` prompt,
+monospace input and monospace model/thinking pickers. Not yet implemented
+because the workflow does not provide the data: inline claim tags
+(`vault`/`unknown`/`conflict`), per-step trace and token counts.
 
 ## Earlier design material reconciled
 

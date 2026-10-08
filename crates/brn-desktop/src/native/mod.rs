@@ -220,7 +220,7 @@ impl Desktop {
                 .line_number(false)
                 .folding(false)
                 .soft_wrap(true)
-                .placeholder("Ask about your notes, sources and Actions…")
+                .placeholder("Ask about your notes, sources and Actions")
                 .default_value("")
         });
         let note_editor = cx.new(|cx| {

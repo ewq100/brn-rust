@@ -2012,7 +2012,6 @@ impl Desktop {
     }
     pub(super) fn render_simple_chat(&mut self, cx: &mut Context<Self>) -> AnyElement {
         use super::ui::{self, Tone};
-        use gpui_kit::assets::IconName;
         let p = self.palette();
         let ai = self.ai.as_ref().unwrap();
         let blocked = self.closing.is_some() || self.closed || self.close_failed;
@@ -2039,9 +2038,15 @@ impl Desktop {
                 .inbox_analysis_path_for_turn(turn.id)
                 .map(|path| format!("Analyze saved Inbox Source: {path}"))
                 .unwrap_or_else(|| turn.question.clone());
-            let mut block = chat_exchange(
-                question,
-                turn.answer.clone(),
+            // Hybrid trace: only what was recorded (duration), never invented steps.
+            let trace = match (turn.started_at_ms, turn.finished_at_ms) {
+                (Some(start), Some(end)) if end >= start => {
+                    Some(format!("answered in {}", elapsed_label(end - start)))
+                }
+                _ => None,
+            };
+            let mut block = chat_exchange(question, trace, turn.answer.clone(), p);
+            let mut footer = chat_footer(
                 format!(
                     "{} · {} · {}",
                     turn.provider,
@@ -2062,12 +2067,10 @@ impl Desktop {
             }
             if turn.status == brn_workflow::WorkTurnStatus::Completed {
                 let id = turn.id;
-                block = block.child(
-                    ui::toolbar().child(
-                        Button::new(format!("review-completed-answer-{id}"))
-                            .icon(IconName::Plus)
-                            .label("Review as new note…")
-                            .ghost()
+                footer = footer.child(
+                    Button::new(format!("review-completed-answer-{id}"))
+                            .label("save as note…")
+                            .link()
                             .xsmall()
                             .tooltip("Prepare a note proposal from this answer. Nothing is saved until you approve it.")
                             .disabled(
@@ -2076,17 +2079,15 @@ impl Desktop {
                             .on_click(cx.listener(move |this, _, _, cx| {
                                 this.simple_leave(EditorTransition::Draft(Some(id)), cx)
                             })),
-                    ),
                 );
             }
-            column = column.child(block);
+            column = column.child(block.child(footer));
         }
         if let Some(turn) = &ai.unsaved {
             let partial = turn.answer.clone();
             column = column.child(
-                chat_exchange(
-                    turn.question.clone(),
-                    turn.answer.clone(),
+                chat_exchange(turn.question.clone(), None, turn.answer.clone(), p)
+                .child(chat_footer(
                     format!(
                         "{} · {} · {}",
                         turn.provider,
@@ -2099,7 +2100,7 @@ impl Desktop {
                         p,
                     )),
                     p,
-                )
+                ))
                 .child(ui::callout(
                     Tone::Danger,
                     "Copy this partial before closing/restarting. Further Ask is blocked until this unfinalized workspace is reopened.",
@@ -2116,33 +2117,39 @@ impl Desktop {
             );
         }
         if let Some(active) = ai.display_active() {
-            let mut block = chat_exchange(
-                active.request.question_label(),
-                active.partial.clone(),
-                format!(
-                    "{} · {} · {}",
-                    provider_name(active.request.selection().provider),
-                    active.request.selection().model,
-                    active
-                        .request
-                        .effort()
-                        .map(ReasoningEffort::as_str)
-                        .unwrap_or("effort unavailable"),
-                ),
-                Some(ui::badge(
-                    if active.stopping {
-                        "Stopping (not finalized)"
-                    } else {
-                        "Streaming (provisional)"
-                    },
-                    Tone::Ai,
+            let trace = Some(match &active.tool {
+                Some(tool) => format!("working · {tool}"),
+                None => "working…".to_owned(),
+            });
+            let answer = if active.partial.is_empty() {
+                "…".to_owned()
+            } else {
+                active.partial.clone()
+            };
+            let block = chat_exchange(active.request.question_label(), trace, answer, p).child(
+                chat_footer(
+                    format!(
+                        "{} · {} · {}",
+                        provider_name(active.request.selection().provider),
+                        active.request.selection().model,
+                        active
+                            .request
+                            .effort()
+                            .map(ReasoningEffort::as_str)
+                            .unwrap_or("effort unavailable"),
+                    ),
+                    Some(ui::badge(
+                        if active.stopping {
+                            "Stopping (not finalized)"
+                        } else {
+                            "Streaming (provisional)"
+                        },
+                        Tone::Ai,
+                        p,
+                    )),
                     p,
-                )),
-                p,
+                ),
             );
-            if let Some(tool) = &active.tool {
-                block = block.child(ui::meta(format!("Tool started: {tool}"), p));
-            }
             column = column.child(block);
         }
         if let Some(results) = &ai.search {
@@ -2307,11 +2314,12 @@ impl Desktop {
         let model_label = current
             .as_ref()
             .map(|selection| selection.model.clone())
-            .unwrap_or_else(|| "Choose model".into());
+            .unwrap_or_else(|| "model".into());
         let model_picker = {
             let desktop = desktop.clone();
             Button::new("composer-model")
                 .label(model_label)
+                .font_family(tokens::MONO_FONT)
                 .ghost()
                 .xsmall()
                 .dropdown_caret(true)
@@ -2363,11 +2371,12 @@ impl Desktop {
             let desktop = desktop.clone();
             Button::new("composer-effort")
                 .label(match effort {
-                    Some(ReasoningEffort::Low) => "Low thinking",
-                    Some(ReasoningEffort::Medium) => "Medium thinking",
-                    Some(ReasoningEffort::High) => "High thinking",
-                    None => "Choose thinking",
+                    Some(ReasoningEffort::Low) => "low",
+                    Some(ReasoningEffort::Medium) => "medium",
+                    Some(ReasoningEffort::High) => "high",
+                    None => "thinking",
                 })
+                .font_family(tokens::MONO_FONT)
                 .ghost()
                 .xsmall()
                 .dropdown_caret(true)
@@ -2444,55 +2453,102 @@ impl Desktop {
             .border_color(color(p.line))
             .bg(color(p.panel))
             .child(
-                Editor::new(&self.query)
-                    .h(px(64.))
-                    .bordered(false)
-                    .font_family(tokens::UI_FONT)
-                    .text_size(px(tokens::text::READING))
-                    .aria_label("Question about saved notes"),
+                div()
+                    .flex()
+                    .items_start()
+                    .gap(px(tokens::space::XS))
+                    .child(
+                        div()
+                            .pt(px(tokens::space::SM))
+                            .pl(px(tokens::space::XS))
+                            .font_family(tokens::MONO_FONT)
+                            .font_weight(gpui_kit::FontWeight::BOLD)
+                            .text_color(color(p.cyan))
+                            .child("›"),
+                    )
+                    .child(
+                        div().flex_1().min_w(px(0.)).child(
+                            Editor::new(&self.query)
+                                .h(px(56.))
+                                .bordered(false)
+                                .font_family(tokens::MONO_FONT)
+                                .text_size(px(tokens::text::READING - 0.5))
+                                .aria_label("Question about saved notes"),
+                        ),
+                    ),
             )
             .child(actions)
             .into_any_element()
     }
 }
 
-/// One question and its answer, with the answer's recorded provider/model/effort.
+/// Hybrid terminal exchange (decision D23): a monospace `›` prompt line, an
+/// optional monospace trace line, and the answer in the reading font.
 fn chat_exchange(
     question: String,
+    trace: Option<String>,
     answer: String,
+    p: crate::tokens::Palette,
+) -> gpui_kit::Div {
+    let mut block = div().flex().flex_col().gap(px(tokens::space::SM)).child(
+        div()
+            .flex()
+            .items_start()
+            .gap(px(tokens::space::SM))
+            .font_family(tokens::MONO_FONT)
+            .text_size(px(tokens::text::READING - 0.5))
+            .line_height(px(21.))
+            .child(
+                div()
+                    .flex_shrink_0()
+                    .font_weight(gpui_kit::FontWeight::BOLD)
+                    .text_color(color(p.cyan))
+                    .child("›"),
+            )
+            .child(div().flex_1().min_w(px(0.)).child(question)),
+    );
+    if let Some(trace) = trace {
+        block = block.child(
+            div()
+                .ml(px(4.))
+                .pl(px(tokens::space::SM + 2.))
+                .border_l_1()
+                .border_color(color(p.line))
+                .font_family(tokens::MONO_FONT)
+                .text_size(px(tokens::text::META))
+                .text_color(color(p.muted))
+                .child(trace),
+        );
+    }
+    block.child(
+        div()
+            .text_size(px(tokens::text::READING + 1.0))
+            .line_height(px(24.))
+            .child(answer),
+    )
+}
+
+/// Monospace footer under an answer: recorded provider · model · effort, an
+/// optional non-normal status, then small inline commands.
+fn chat_footer(
     provenance: String,
     status: Option<gpui_kit::Div>,
     p: crate::tokens::Palette,
 ) -> gpui_kit::Div {
     use super::ui;
-    div()
-        .flex()
-        .flex_col()
+    ui::toolbar()
         .gap(px(tokens::space::SM))
-        .child(
-            div().flex().justify_end().child(
-                div()
-                    .max_w(px(tokens::size::READING_MAX_WIDTH * 0.8))
-                    .px(px(tokens::space::MD))
-                    .py(px(tokens::space::SM))
-                    .bg(color(p.active))
-                    .text_size(px(tokens::text::READING))
-                    .line_height(px(21.))
-                    .child(question),
-            ),
-        )
-        .child(
-            div()
-                .text_size(px(tokens::text::READING))
-                .line_height(px(22.))
-                .child(answer),
-        )
-        .child(
-            ui::toolbar()
-                .gap(px(tokens::space::XS))
-                .child(ui::meta(provenance, p))
-                .children(status),
-        )
+        .child(ui::meta(provenance, p))
+        .children(status)
+}
+
+/// Compact elapsed time: `850 ms`, `41 s`, `3 min 5 s`.
+fn elapsed_label(ms: u64) -> String {
+    match ms {
+        0..1_000 => format!("{ms} ms"),
+        1_000..60_000 => format!("{} s", ms / 1_000),
+        _ => format!("{} min {} s", ms / 60_000, (ms % 60_000) / 1_000),
+    }
 }
 
 pub(super) fn account_settings(desktop: &Entity<Desktop>, cx: &App) -> AnyElement {

@@ -85,6 +85,7 @@ exercised by hand.
 | Design direction and decisions D1–D15 | *Pending review* | — |
 | D16–D18 (minimal layout, composer pickers, right-click comments) | Owner-directed; result pending your next look | 2026-10-07 |
 | D20–D21 (bottom composer, writing review) | Owner-directed; result pending your next look | 2026-10-08 |
-| D22 terminal chat direction | *Choice pending* | — |
+| D22 terminal chat direction | Owner chose Hybrid (D23) | 2026-10-08 |
+| D23 Hybrid chat as implemented | Pending your next look | — |
 | Current-app restyle on this branch | *Pending review* | — |
 | Future designs and prototype | *Pending review* | — |
