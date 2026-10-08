@@ -5263,6 +5263,70 @@ mod conflict_tool_tests {
         (Provider::Copilot, "gpt-5.5", false),
         (Provider::Copilot, "gpt-5.3-codex", true),
     ];
+
+    #[tokio::test]
+    async fn applied_intake_conflict_guidance_and_dispatch_use_the_existing_rig_routes() {
+        struct Private(Arc<Backend>);
+        impl ProposalTools for Private {
+            fn private_intake(&self) -> bool {
+                true
+            }
+            fn knowledge_enabled(&self) -> bool {
+                true
+            }
+            fn propose_actions(&self, args: ActionProposalArgs) -> AiResult<Value> {
+                self.0.propose_actions(args)
+            }
+            fn report_conflict(&self, args: ConflictArgs) -> AiResult<Value> {
+                self.0.report_conflict(args)
+            }
+        }
+        for (provider, model, responses) in ROUTES {
+            let (_root, client, http) = client(
+                provider,
+                model,
+                vec![
+                    success(tool_sse(responses, &[("report_conflict", conflict_args())])),
+                    success(text_sse(responses, "Tentative intake Finding retained")),
+                ],
+            )
+            .await;
+            let backend = Arc::new(Backend::new(true, Ok(receipt())));
+            let result = answer_with_proposals(
+                client,
+                "source_approval: applied; inspect retained evidence",
+                &[],
+                ReasoningEffort::Medium,
+                backend.clone(),
+                Arc::new(Private(backend.clone())),
+                CancellationToken::new(),
+                Arc::new(|_| {}),
+            )
+            .await;
+            assert!(
+                matches!(result.terminal, AiTerminal::Completed),
+                "{result:?}"
+            );
+            assert_eq!(backend.conflict_calls.load(Ordering::SeqCst), 1);
+            let bodies = http.bodies();
+            let prompt = preamble(&bodies[0], provider, responses);
+            assert!(prompt.contains("exact bound Source is already Applied"));
+            assert!(prompt.contains("Pending intake cannot supply saved Finding evidence"));
+            assert!(!prompt.contains("legacy report_conflict requires saved Source evidence"));
+            let tool = definition(&bodies[0], responses, "report_conflict").unwrap();
+            assert!(
+                tool["description"]
+                    .as_str()
+                    .unwrap()
+                    .contains("pending intake Source is not")
+            );
+            assert_eq!(
+                serde_json::from_str::<Value>(&replies(&bodies[1], responses)[0]).unwrap(),
+                receipt()
+            );
+            http.assert_consumed();
+        }
+    }
     fn conflict_args() -> Value {
         let source = "\u{feff}Friday õ\r\n";
         let other = "Monday 🦀\r\n";

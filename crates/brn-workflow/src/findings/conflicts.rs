@@ -64,9 +64,11 @@ impl App {
         if job.capture.purpose != crate::inbox_actions::InboxAnalysisPurpose::KnowledgeAndActions {
             return Err(rejected("This Inbox analysis does not admit conflicts"));
         }
-        let selected = job.capture.source.as_ref().ok_or_else(|| rejected("Private intake conflicts remain tentative until exact Source preservation; explain conflicts in the analysis"))?;
+        self.editor_files()?;
+        self.validate_intake_dependency(job.capture.intake.as_ref(), true)?;
+        let selected = self.store.inbox_conflict_source(analysis_id)?;
         let source = self.proposal_evidence_source(&selected.path)?;
-        if source.source != *selected || source.text != job.capture.source_text {
+        if source.source != selected || source.text != job.capture.source_text {
             return Err(stale(
                 "Selected Inbox Source changed before conflict capture",
             ));
