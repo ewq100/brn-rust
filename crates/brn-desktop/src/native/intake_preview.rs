@@ -13,7 +13,8 @@ impl OriginalPreview {
         let extension = match media_type {
             "application/vnd.openxmlformats-officedocument.wordprocessingml.document" => "docx",
             "message/rfc822" => "eml",
-            _ => return Err("Original preview supports retained DOCX/EML. Export other attachments for inspection.".into()),
+            "application/vnd.openxmlformats-officedocument.presentationml.presentation" => "pptx",
+            _ => return Err("Original preview supports retained DOCX/EML/PPTX. Export other attachments for inspection.".into()),
         };
         if bytes.is_empty() || bytes.len() > brn_intake::MAX_INPUT_BYTES {
             return Err("Original preview byte budget.".into());
