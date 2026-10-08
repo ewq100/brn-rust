@@ -100,6 +100,28 @@ fs.mkdirSync(out, { recursive: true });
   // narrow
   await page.setViewportSize({ width: 900, height: 700 }); await page.goto(file + '#review'); await page.waitForTimeout(150);
   await shot('proto-11-narrow-review');
+  // Round 3 directions (directions.html): every option renders; key interactions work
+  const dir = 'file://' + path.resolve(__dirname, '../docs/design/src/prototypes/directions.html');
+  await page.setViewportSize({ width: 1440, height: 860 });
+  for (const t of ['sidebar', 'settings', 'writing']) for (const v of ['a', 'b', 'c', 'd']) {
+    await page.goto(`${dir}?t=${t}&v=${v}`); await page.waitForTimeout(80);
+    ok(await page.isVisible(`section[data-topic=${t}][data-variant=${v}]`), `directions ${t} ${v} renders`);
+    await shot(`directions-${t}-${v}`);
+  }
+  await page.goto(`${dir}?t=sidebar&v=a`); await page.click('[data-f=decide]');
+  ok(await page.isHidden('text=Värvikoda invoice #2231'), 'directions: queue filter');
+  await page.goto(`${dir}?t=settings&v=a`); await page.click('[data-tab=accounts]');
+  ok(await page.isVisible('text=does not prove the service'), 'directions: settings tabs');
+  await page.goto(`${dir}?t=settings&v=d`); await page.fill('#setq', 'thinking');
+  ok((await page.$$eval('#slist .srow:not([hidden])', r => r.length)) === 1, 'directions: settings search');
+  await page.goto(`${dir}?t=writing&v=b`); await page.hover('mark[data-c="1"]');
+  ok(await page.$eval('.ccard[data-c="1"]', e => e.classList.contains('hot')), 'directions: hover links highlight and comment');
+  await page.evaluate(() => { const li = document.querySelectorAll('#mdoc li')[2]; const r = document.createRange(); r.setStart(li.firstChild, 9); r.setEnd(li.firstChild, 31); getSelection().removeAllRanges(); getSelection().addRange(r); li.dispatchEvent(new MouseEvent('mouseup', { bubbles: true })); });
+  await page.waitForTimeout(50); await page.click('#selbar [data-a=Comment]');
+  ok((await page.$$('#margin .ccard')).length === 3, 'directions: select text adds a margin comment');
+  await page.goto(`${dir}?t=writing&v=c`); await page.hover('.src.web');
+  ok(await page.isVisible('text=varvikoda.ee/tarne'), 'directions: source mark explains origin');
+  await page.click('#sugg [data-s=keep]'); ok(await page.isVisible('text=match batch numbers'), 'directions: keep inline suggestion');
   ok(errors.length === 0, 'no console/page errors ' + JSON.stringify(errors));
   await browser.close();
 })();

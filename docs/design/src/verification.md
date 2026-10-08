@@ -47,7 +47,7 @@ capture tooling) by a separate reviewer agent. Findings and dispositions:
 
 | Check | Scope | Result |
 | --- | --- | --- |
-| `scripts/design-prototype-check.js` (Playwright, headless Chromium) | All routes; journeys A (draft → Rewrite → approve → complete), Inbox group approval and cleanup gating, supersession; empty/loading/error/offline states; light theme; keyboard focus ring; ⌘N; 900 pt viewport; console errors | 31/31 checks passed in 3 consecutive runs; no console errors |
+| `scripts/design-prototype-check.js` (Playwright, headless Chromium) | All routes; journeys A (draft → Rewrite → approve → complete), Inbox group approval and cleanup gating, supersession; empty/loading/error/offline states; light theme; keyboard focus ring; ⌘N; 900 pt viewport; console errors | 31/31 checks passed in 3 consecutive runs; no console errors. Round 3 added the directions page (12 options, 7 interactions): 50/50 in 2 runs |
 
 ## Handbook
 
@@ -78,6 +78,15 @@ two anchored comments and adds a light-theme proposal screen. A re-entrant
 editor update found during capture was fixed. The hover popup itself was not
 exercised by hand.
 
+### Owner feedback round 3 (2026-10-08)
+
+Feedback: Dashboard, Inbox, Needs Review, the Review list and Decided are all
+open issues for the user; consolidate them. Improve Settings and the AI writing
+environment, with 3–4 options each. Prototyped as D24–D26 in
+`prototypes/directions.html` (four options per topic, trade-offs shown on each).
+Not implemented in the app; waiting for the owner's choices. Checked only in
+headless Chromium.
+
 ## Owner acceptance
 
 | Item | Decision | Date |
@@ -87,5 +96,6 @@ exercised by hand.
 | D20–D21 (bottom composer, writing review) | Owner-directed; result pending your next look | 2026-10-08 |
 | D22 terminal chat direction | Owner chose Hybrid (D23) | 2026-10-08 |
 | D23 Hybrid chat as implemented | Pending your next look | — |
+| D24–D26 round 3 directions | Awaiting your choice | — |
 | Current-app restyle on this branch | *Pending review* | — |
 | Future designs and prototype | *Pending review* | — |

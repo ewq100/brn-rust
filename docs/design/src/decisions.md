@@ -29,6 +29,9 @@ owner column. Add new decisions at the end; supersede rather than rewrite.
 | D21 | Writing review: compact header, prominent prose text, visible comment highlights with hover | Owner direction, implemented | Owner feedback 2026-10-08 |
 | D22 | Terminal-style chat: three directions prototyped, Hybrid recommended | Decided by D23 | Owner chose Hybrid 2026-10-08 |
 | D23 | Hybrid terminal chat | Owner direction, implemented (partial: no claim tags yet) | Owner choice 2026-10-08 |
+| D24 | Consolidate everything that needs the owner (Dashboard, Inbox, Needs Review, Review list) — four directions, *One queue* recommended | Proposed, prototype only | Awaiting choice |
+| D25 | Settings layout — four directions, *ChatGPT-style modal* recommended | Proposed, prototype only | Awaiting choice |
+| D26 | AI writing environment — four directions, *Margin comments* with *source marks* recommended | Proposed, prototype only | Awaiting choice |
 
 ## D1 Keep the refined-terminal identity, correct its typography
 
@@ -182,6 +185,47 @@ effort and an inline *save as note…* link; the composer with a `›` prompt,
 monospace input and monospace model/thinking pickers. Not yet implemented
 because the workflow does not provide the data: inline claim tags
 (`vault`/`unknown`/`conflict`), per-step trace and token counts.
+
+## D24 Consolidate what needs the owner
+
+Owner feedback 2026-10-08: Dashboard, Inbox, Needs Review, the Review list and
+Decided are all open issues for the user, and the sidebar shows too much.
+Prototyped in [round 3 directions](prototypes.md#round-3-directions-sidebar-settings-ai-writing):
+**1 · One queue** (*recommended*: one *Needs you* page grouped by what the owner
+must do — Due, Decide, Sort, Check — with filter chips; the sidebar keeps New
+chat, Search, Needs you, Chats, History and Settings; Decided and Activity move
+to History), **2 · Counts only** (separate places, one row and a count each),
+**3 · Threads** (Codex-like; a proposal stays under the chat that made it),
+**4 · Attention pill** (chats only; the queue sits behind a header pill).
+All options keep the existing Inbox, proposal and finding workflows; only the
+navigation changes.
+
+## D25 Settings layout
+
+The current Settings dialog mixes layout +/− buttons, the data path and account
+diagnostics in one scroll. Prototyped in [round 3 directions](prototypes.md#round-3-directions-sidebar-settings-ai-writing):
+**1 · ChatGPT-style modal** (*recommended*: tabs General, AI & models, Accounts,
+Search, Data & safety, About; one decision per row; width buttons replaced by
+dragging the sidebar edges plus *Reset layout*), **2 · Mac settings window**,
+**3 · Status first** (health tiles, then preferences), **4 · Searchable list**.
+Every option states that BRN never falls back to another model or account, and
+that "connected" means stored credentials, not live availability. Items marked
+*planned* (interface language, token display) need owner decisions first.
+
+## D26 AI writing environment
+
+Builds on D21. Prototyped in [round 3 directions](prototypes.md#round-3-directions-sidebar-settings-ai-writing):
+**1 · Track changes** (what the last Rewrite changed; Clean, Changes and previous-version views;
+version stepper), **2 · Margin comments** (*recommended*: comments in the right
+margin aligned with highlights, linked on hover, BRN's reply under each comment,
+open/addressed state, *Rewrite with N comments*), **3 · Inline AI + sources**
+(dotted source marks for vault, web, BRN's suggestion and unknown — vision §6
+items 4–7; select text for Comment, Rewrite, Shorter or Ask; inline Keep or
+Discard), **4 · Draft canvas** (document plus a draft conversation with Sources
+and Versions tabs). Recommended combination: 2 with the source marks from 3.
+Inline edits only change the draft; approval still covers the whole exact
+version. Source marks need claim-level provenance from the workflow, which
+does not exist yet (same gap as D23 claim tags).
 
 ## Earlier design material reconciled
 

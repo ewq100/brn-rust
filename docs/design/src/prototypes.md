@@ -33,6 +33,16 @@ or `?v=a|b|c`.
 | --- | --- | --- |
 | ![Pure terminal](images/prototype/terminal-a.jpg) | ![Hybrid](images/prototype/terminal-b.jpg) | ![Command blocks](images/prototype/terminal-c.jpg) |
 
+## Round 3 directions: sidebar, Settings, AI writing
+
+**[Open the round 3 directions](prototypes/directions.html)** — readiness:
+**Prototype** (decisions D24–D26). Switch topic with the bar or `[` `]`, options
+with keys 1–4, or `?t=sidebar|settings|writing&v=a|b|c|d`. Each option shows
+its trade-offs under the bar. Try: the queue filter chips (sidebar 1), Settings
+tabs (settings 1–2), settings search (settings 4), hovering a highlight and
+selecting text to comment (writing 2), hovering an underlined source and
+*Keep*/*Discard* (writing 3).
+
 ## Verified behaviour
 
 A Playwright script (headless Chromium 1243) exercises the journeys above,
