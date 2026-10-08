@@ -157,3 +157,24 @@ Required CI/integration and interactive acceptance remain pending. Next: incorpo
 normally merged PPTX main, qualify affected merge seams, open backup PR, inspect
 required CI, merge normally and verify resulting main. Cargo released; Action Store
 helper now owns sole slot in the lead checkout. No new inference/live calls.
+
+## PPTX main incorporated and affected seams qualified
+
+Merged PPTX main4db30319662c97b272f3ba2e6877036d1906f8e0 into this branch at
+d6ae95f3fb61bf8df52eb33c78770a666cb42c64 without conflicts. P7 production/tests
+remain byte-identical to reviewed9be2afe; PPTX code/tests/lock remain byte-identical
+to main. Independent complete merge-delta review clean at
+31b5f81aaa3b303c7474d4b29ccbb1466c5b4bf2d0ecfe710b6c0836d1f540a9.
+Final affected checks passed: helper build;3 PPTX workflow parents plus exercised
+isolated child;1 actual CLI restart/replay case;17 native inspection tests including
+both exact package/slide target witnesses; combined all-target Clippy, shipping,
+52fixtures, links and diff. An initial native filter matched0 tests and was corrected
+to inspection before claiming qualification. Reuse unchanged full P7/PPTX gates.
+
+Combined immutable runtime and exact manifest:
+`/Users/evokessler/repos/brn-overnight-artifacts-20261008/pptx-backup-runtime`, source
+d6ae95f3fb61bf8df52eb33c78770a666cb42c64. The single morning task now records this
+matching build and pending expected controls. Required CI/integration and all
+interactive acceptance remain pending; no new inference or GUI use. Open this
+independent qualified PR now and integrate normally when all required checks pass;
+incorporate any intervening main and requalify affected seams before merge.
