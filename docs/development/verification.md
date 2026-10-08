@@ -77,6 +77,11 @@ exact title/body checks. Normal native application builds omit this test feature
 
 ## Baseline Rust checks
 
+The test profile uses optimization level 1 for repeated complete-record JSON and
+base64 processing while explicitly retaining debug assertions and overflow checks.
+The default/shipping development profile is unchanged. Full-size asset, crash,
+recovery and feature-lane assertions still run; this is not a reduced CI suite.
+
 ```sh
 cargo fmt --all -- --check
 cargo build -p brn-intake --features helper --bin brn-intake-helper --locked

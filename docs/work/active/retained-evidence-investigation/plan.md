@@ -1,5 +1,93 @@
 # Retained evidence investigation: approved Sources
 
+## Owner continuation: CI performance, integration and live qualification — 2026-10-08
+
+The owner now selects fixing the long Mac CI run, merging the eligible dependency
+and follow-up in order, then continuing GUI and live-AI usefulness qualification.
+This supersedes the earlier no-merge/no-live gates for this bounded continuation.
+PR87 is the dependency at `255dcf1`; PR88 is the reviewed retained-evidence slice
+at `936dff4`. All four required checks plus documentation passed on both heads.
+Main protection requires those four contexts and an up-to-date branch, including
+administrators; preserve that policy. Windows remains a known informational
+Unix-portability failure, outside this performance correction.
+
+The lead owns the coupled fix/integration inline with the selected configuration;
+one fresh read-only reviewer checks the complete performance correction before
+integration. Reuse the existing linked checkout/target and runtime/fixtures.
+No additional implementation helper, dependency, store schema, recovery-format
+change, stress-test removal or workflow suppression is selected. Profile the
+existing complete 16 MiB recovery/Undo test, compare its unchanged assertions
+under the smallest supported test-build correction, then run affected checks
+and inspect exact-head CI before merging. Reassess if profiling contradicts the
+hypothesis or required checks fail; do not mask failures with retries/skips.
+
+After integration, verify actual main identity/checks and use an isolated
+synthetic GUI/data workspace. Exercise import/read, offline Source approval,
+Quit/restart, retained-evidence investigation, review/approval and another
+restart. Use existing product authentication only; never export credentials or
+upload private vault data. No optional model download, account switching, new
+paid account or release is selected. Begin usefulness qualification with one
+approved-Source `plural.eml` scenario on the already authorized Luna Medium
+condition if its actual route is available; the broader historical paired
+comparison is separate. Aggregate ceiling for this fresh qualification is one
+top-level investigation, at most nine model turns/eight tool rounds through the
+existing runtime, a 180-second CLI cancellation deadline, no retry/fallback and
+no additional effort conditions. Model token/spend telemetry is not currently
+exposed as an enforceable aggregate cap; record it as unknown rather than
+claiming a numerical token/cost limit or an unlimited campaign. Record
+unsupported/auth/locked-desktop conditions honestly; continue independent
+headless work without claiming GUI or usefulness qualification from builds.
+
+Initial profile of the unchanged maximum-asset test shows its active thread in
+repeated journal JSON/base64 encoding/decoding and unoptimized byte/slice loops;
+it is CPU-bound rather than waiting for a provider. SHA-256 is already separately
+optimized in the test profile. A five-second sampling record is retained locally
+at `/private/tmp/brn-ci-perf-sample.txt`; durable before/after measurements and the
+actual correction follow here and in PR88's receipt. Existing hosted run 37783868867
+records 27m core Mac (22m29s default tests), 22m45s combined/native (16m36s workflow
+step) and 4m34s UI. No assertion or feature coverage is being reduced.
+
+Fresh exact-name baseline on the same host/checkout/target passed one complete
+maximum-asset approval/recovery/Undo test in **396.82 seconds**, with 408 other
+entries filtered. It was sampled on the active CPU thread while processing exact
+journal JSON/base64; the main test thread merely waits for completion. Test-only
+`opt-level=1` is the single experimental correction, with explicit
+`debug-assertions=true` and `overflow-checks=true`. This optimizes the generic
+byte loops across both the Store and workflow's envelope codecs, preserving
+their source, format, checks and full-size witnesses. Production/dev profile,
+lockfile, dependencies, runtime and CI commands stay unchanged. Compare the same
+focused test first, then qualify the final test profile broadly and in hosted CI.
+The identical focused test with optimization level 1 passed in **51.84 seconds**
+(7.65 times faster, 86.9 percent less test execution time), after 66 seconds of
+one-time compilation. Verbose rustc commands confirm optimization level 1 and
+debug assertions on for the Store and workflow test executable. One fresh
+read-only reviewer found no actionable correctness/scope defect; the advisory
+stale checksum-only comment was corrected. Fresh default workspace tests passed 1,635 with 17 existing ignores; native
+workflow passed 401 with 15 existing ignores; native retrieval passed 15.
+Combined native desktop/widgets passed 319 tests plus seven CLI tests. Default
+workspace and combined native all-target Clippy passed with `-D warnings`;
+formatting, whitespace, 590 Markdown links and 18 tooling tests passed. All
+commands used the pinned locked/offline toolchain and one sequential Cargo target.
+Shipping builds at source `936dff4` remain relevant because runtime sources and
+the dev profile are unchanged; final hosted CI qualifies the new test profile.
+
+The synthetic GUI/live workspace is
+`/private/tmp/brn-retained-qualification-bi3q58kf` with separate data/vault/results
+directories. Local-only `ai status` through the standard protected
+`BRN-simple.credentials` route reports ChatGPT and Copilot disconnected, with no
+selected model/effort; no cache contents were printed/copied. GUI tooling reports
+the remote Mac locked and unable to unlock automatically. An owner unlock
+request is pending. Normal product sign-in and actual model discovery are live
+prerequisites; neither is inferred from Codex's own connected account. Continue
+the CI correction/integration while those prerequisites are unavailable.
+
+PR87 was merged with the ordinary permitted merge strategy after freshly
+confirming its exact head, all four required checks and strict protected-main
+policy. Result: `e65cd510988568c8f0df3e0a9ac1bc7a5afe535e`; its tree is identical
+to checked source `255dcf1889e15e6236513ebe53292992a59e0fad`. Main push run
+[37790769005](https://github.com/ewq100/brn-rust/actions/runs/37790769005) is pending.
+PR88 will be brought onto that main before its final exact-head hosted gates.
+
 ## Selected outcome and baseline
 
 On 2026-10-08 the owner selects moving to retained-evidence AI investigation,

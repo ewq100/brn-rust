@@ -9,9 +9,14 @@ resolver = "2"
 debug = 0
 [profile.test]
 debug = 0
+# Complete bounded recovery records exercise JSON/base64 byte loops repeatedly.
+# Optimize test executables while retaining development assertions and checks.
+opt-level = 1
+debug-assertions = true
+overflow-checks = true
 
 # Full asset recovery witnesses repeatedly verify complete bounded payloads.
-# Optimize only the pinned checksum crate in tests; keep all evidence checks.
+# Retain the higher pinned checksum optimization; keep all evidence checks.
 [profile.test.package.sha2]
 opt-level = 3
 

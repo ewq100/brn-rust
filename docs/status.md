@@ -1,5 +1,23 @@
 # Current development status
 
+## Selected CI performance fix, merge and GUI/live qualification — 2026-10-08
+
+The owner selects fixing the long Mac CI path, merging the eligible PR87/PR88
+dependency stack in order, then continuing GUI and live-AI usefulness
+qualification. The [current continuation](work/active/retained-evidence-investigation/plan.md#owner-continuation-ci-performance-integration-and-live-qualification--2026-10-08)
+owns this later authority, profiling, verification and integration receipts.
+PR88 source `936dff4` passed all four required checks plus documentation in
+[run37783868867](https://github.com/ewq100/brn-rust/actions/runs/37783868867).
+PR87 is merged at `e65cd51`, with a tree identical to its checked head.
+The unchanged full-size recovery/Undo test passed in 51.84 seconds versus
+396.82 seconds locally with test optimization level 1; assertions and overflow
+checks remain enabled. Final PR88/profile gates and integration are underway.
+Main's four required checks and strict up-to-date policy remain enforced.
+Further UX tuning is deferred; Windows portability and optional model downloads
+remain separate. An isolated synthetic qualification workspace is prepared;
+the remote Mac is locked and both standard-route providers are disconnected.
+Unlock/sign-in are pending prerequisites, with zero live completions so far.
+
 ## Selected retained-evidence investigation — 2026-10-08
 
 The owner selects moving to retained-evidence AI investigation, including already
