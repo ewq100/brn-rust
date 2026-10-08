@@ -506,6 +506,20 @@ precedes fresh-vault checks and returns existing edited review work; a conflicti
 initial payload cannot reuse its UUID. Review text/comments are operational work,
 never current vault evidence.
 
+`RenameProposalCreate(CreateRenameRequest)` changes one selected Draft Markdown
+Create destination within its existing folder. The strict request contains an
+exact stamp, member index and visible Markdown path (at most4096 UTF-8 bytes).
+Workflow coordinates new absence and the unchanged captured parent, checks
+aliases, retained editor conflicts and exact sources/intake, and preserves all
+owner text/comments/UUIDs/History/other members. Current same-path no-op precedes
+fresh evidence checks; stale stamps still refuse. Pending private Source permits
+preparation; approval still requires its exact Applied prerequisite. Bound Source,
+visual and asset/Replace retarget or cross-folder moves are separate behavior.
+Private earliest-path evidence reconstructs original creation requests before
+their immutable hash check, so replay returns the current revised review even
+after restart or evidence loss. Knowledge callback receipts report that current
+destination. No vault effect occurs before approval of the revised version.
+
 Ordinary asset members use additive `CreateAsset`, `ReplaceAsset` and `TrashAsset`
 variants in this same family. `ProposalAsset(path)` captures a complete fresh
 fingerprint for a visible contained current non-Markdown file; it returns no

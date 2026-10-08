@@ -77,16 +77,15 @@ requires exact final-candidate review, applicable local checks and actual requir
 CI. No weakening, bypass or rushed merge. Record failures and repair real defects.
 Known informational platform failures remain visible and separate.
 
-## Durable checkpoint — 08 October 23:21 UTC
+## Durable checkpoint — 08 October 23:28 UTC
 
 Continue authorized V1 work until 05:00 UTC / 08:00 Tallinn, final qualification
 from 04:30 UTC. All GUI/computer use stays deferred to [one morning task](morning-ui-acceptance.md).
 Preserve unrelated work/data and exact approval/provenance/recovery.
 
-Main `544696834d93cf56b82e76a857f2c44cdca7823b` includes normally protected
-PR90–99. Required candidate checks/docs passed for each. PR90–98 post-merge
-required checks/docs passed. PR99 post-main37857753049: Ubuntu core, native UI,
-combined Mac and docs passed; Mac core active. No bypass/port/suppression.
+Main `e1d6b0fab69c13ceceb09014d6c034ef2178882f` includes normally protected
+PR90–100. Required candidate checks/docs passed for each. PR90–98 post-merge
+required checks/docs passed. PR99 post-main37857753049: all four required checks/docs passed. No bypass/port/suppression.
 
 [Action compensation PR100](https://github.com/ewq100/brn-rust/pull/100), attached,
 head `8bf40d42202b4e93e8d41bb584b911baf9577ac9`, remains in lead checkout
@@ -97,9 +96,10 @@ backup integration delta reviewa21d5521 clean; exact hashes in slice plan.
 Serial final composition gate55052 PASSED and RELEASED Cargo: 1769 default /
 18 existing ignores, 434 native workflow/models / 16, 565 combined desktop/CLI,
 doctests, strict default/combined Clippy, shipping, 52 fixtures and links.
-Required candidate run37858092859: docs/Ubuntu core/native UI passed; remaining
-Mac core/combined active. PR body records final actual counts. Next: inspect all
-required checks, merge normally against exact head, verify resulting main/post CI.
+Required candidate run37858092859: all four required checks/docs passed. Normal
+merge completed at e1d6b0f, resulting tree exactly matching qualified8bf40d4.
+Post-main run37859299854: all four required checks/docs passed. PR body records final counts/merge identity.
+Action integration is verified; interactive acceptance remains pending.
 The original future rename plan remains untracked here and is excluded from PR100.
 
 Lead now implements [same-folder Create rename](create-destination-rename.md) in
@@ -116,12 +116,14 @@ visual, asset/Replace retarget and cross-folder/split/regroup remain separate.
 
 Exactly two bounded implementation helpers, no recursion: create_rename_store owns
 Store lineage/CAS/journals/recovery/tests; create_rename_desktop owns capture/state/
-native controls/tests. Lead owns workflow/CLI/tests/docs/integration. Store helper
-currently owns sole Cargo in target/budgets (session34960; new rename + affected
-apply/Undo/repair/Rewrite/assets/Knowledge/actions then strict Store Clippy).
-Desktop code/tests/rustfmt ready, no Cargo yet. Grant desktop after Store releases,
-then lead workflow/CLI qualification, one fresh complete independent review,
-final gates/required CI/protected integration. No new inference for mechanics.
+native controls/tests. Lead owns workflow/CLI/tests/docs/integration. Store200 + extra rename/race and strictClippy passed/released. Lead workflow2,
+integration3 andCLI2 passed; pending-Source preparation bug fixed/tested. Desktop
+now owns sole Cargo for default/native rename and strictClippy. Full original candidate1795default/18,436native/16,577combined andallshipping
+gates passed. Complete independent review found one valid Observe/navigation
+fence defect; narrow correction/regressions independently reviewed clean atf3e8a4f7.
+Corrected default11passed, desktophelper soleCargo16261 completesnative/Clippy.
+Lead next repeats affected completeDesktop/combined/shipping gates, commits/pushes
+reviewedcandidate andopensPR101; requiredCI/protectedmerge remainpending. No new inference for mechanics.
 
 Latest qualified immutable runtime:
 `/Users/evokessler/repos/brn-overnight-artifacts-20261008/action-backup-runtime`,
@@ -136,8 +138,8 @@ rerun. Bound case folders stay in place. Refresh final runtime/archive before cu
 Live ledger `/private/tmp/brn-overnight-20261008/campaign-ledger.json`:14/16 used,
 Luna7/Sol7; one remaining each exact Medium condition, no active provider. Reserve
 before calls; 180-second cancellation/eight rounds/nine responses, failures count,
-no automatic retry/substitution/reset/purchase. Last account-wide weekly usage57%
-used/43% remaining at23:05 UTC; short window/tokens/internal turns/spend unknown.
+no automatic retry/substitution/reset/purchase. Last account-wide weekly usage60%
+used/40% remaining at23:28 UTC; short window/tokens/internal turns/spend unknown.
 Retained outputs and [usefulness evidence](live-model-evidence.md) remain preserved.
 
 ## Selected first evidence slice

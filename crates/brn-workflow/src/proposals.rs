@@ -17,6 +17,9 @@ use sha2::{Digest, Sha256};
 use std::path::Path;
 use uuid::Uuid;
 
+mod create_rename;
+pub use create_rename::{CreateRenameRequest, validate_create_rename_transition};
+
 #[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
 #[serde(tag = "kind", rename_all = "snake_case", deny_unknown_fields)]
 pub enum DraftNoteChange {
@@ -491,6 +494,17 @@ impl App {
                 return Err(conflict());
             }
             let mut draft = existing.draft;
+            // Structural destination revisions retain their earliest creation
+            // paths privately. Reconstruct those before comparing original input;
+            // replay still returns the current review without fresh file checks.
+            for original in self.store.proposal_original_create_paths(request.id)? {
+                let Some(NoteChange::Create { path, .. }) =
+                    draft.changes.get_mut(original.change_index)
+                else {
+                    return Err(conflict());
+                };
+                *path = original.path;
+            }
             if owner_attached_predecessor {
                 // Reconstruct the original creation payload. The Store still
                 // checks its immutable creation hash before returning current work.

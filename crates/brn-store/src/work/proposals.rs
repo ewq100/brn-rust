@@ -19,7 +19,10 @@ pub const MAX_PROPOSAL_BYTES: usize = 8 * 1024 * 1024;
 pub const MAX_ASSET_BYTES: usize = 16 * 1024 * 1024;
 pub const MAX_ASSET_PROPOSAL_BYTES: usize = 32 * 1024 * 1024;
 pub mod asset_payload;
+mod create_rename;
 mod knowledge_predecessor;
+pub use create_rename::{OriginalCreatePath, validate_create_rename_transition};
+pub(super) use create_rename::{normalize_create_paths, validate_original_create_paths};
 pub use knowledge_predecessor::validate_knowledge_predecessor_transition;
 pub const MAX_PROPOSAL_COMMENTS: usize = 64;
 pub const MAX_COMMENT_BYTES: usize = 16 * 1024;
@@ -368,6 +371,8 @@ pub struct CommentRequest {
 #[serde(deny_unknown_fields)]
 pub(super) struct StoredProposal {
     pub(super) creation_sha256: [u8; 32],
+    #[serde(default, skip_serializing_if = "Vec::is_empty")]
+    pub(super) original_create_paths: Vec<OriginalCreatePath>,
     pub(super) record: ProposalRecord,
 }
 
@@ -823,6 +828,7 @@ pub(super) fn read_proposal(conn: &Connection, id: Uuid) -> Result<Option<Stored
             ));
         }
         validate_record(&stored.record)?;
+        validate_original_create_paths(&stored.record, &stored.original_create_paths)?;
         if let Some(binding) = &stored.record.draft.inbox_knowledge {
             super::inbox_actions::check_knowledge_binding(conn, binding)?;
         }
@@ -857,6 +863,7 @@ pub(super) fn check_all(conn: &Connection) -> Result<()> {
 
 pub(super) fn write_proposal(conn: &Connection, stored: &StoredProposal) -> Result<()> {
     validate_record(&stored.record)?;
+    validate_original_create_paths(&stored.record, &stored.original_create_paths)?;
     let bytes = encode(stored)?;
     if bytes.len() > MAX_STORED_BYTES {
         return Err(invalid("proposal exceeds its encoded size limit"));
@@ -1037,6 +1044,7 @@ impl WorkStore {
         let now = now_ms();
         let stored = StoredProposal {
             creation_sha256: hash(&encode(draft)?),
+            original_create_paths: Vec::new(),
             record: ProposalRecord {
                 draft: draft.clone(),
                 version: 1,

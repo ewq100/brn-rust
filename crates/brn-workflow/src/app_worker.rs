@@ -120,6 +120,7 @@ pub enum AppCommand {
     Proposals(Option<Uuid>),
     EditProposal(crate::proposals::ProposalEdit),
     AttachInboxKnowledgePredecessor(crate::proposals::KnowledgePredecessorRequest),
+    RenameProposalCreate(crate::proposals::CreateRenameRequest),
     RewriteProposal(crate::proposals::ProposalEdit),
     StartProposalRewrite(crate::proposal_rewrite::RewriteRequest),
     ProposalRewrite(Uuid),
@@ -1485,6 +1486,9 @@ fn dispatch(
             AppEvent::NoteProvenanceDraft(Box::new(app.prepare_note_provenance(&request)?))
         }
         AppCommand::CreateProposal(request) => AppEvent::Proposal(app.create_proposal(&request)?),
+        AppCommand::RenameProposalCreate(request) => {
+            AppEvent::Proposal(app.rename_proposal_create(&request)?)
+        }
         AppCommand::Proposal(proposal) => AppEvent::Proposal(app.proposal(proposal)?),
         AppCommand::Proposals(group) => AppEvent::Proposals(app.proposals(group)?),
         AppCommand::EditProposal(edit) => AppEvent::Proposal(app.edit_proposal(&edit)?),
@@ -1832,6 +1836,7 @@ fn critical_mutation_command(command: &AppCommand) -> bool {
             | AppCommand::CloseFinding(_)
             | AppCommand::EditProposal(_)
             | AppCommand::AttachInboxKnowledgePredecessor(_)
+            | AppCommand::RenameProposalCreate(_)
             | AppCommand::RewriteProposal(_)
             | AppCommand::AddProposalComment(_)
             | AppCommand::UpdateProposalComment(_)

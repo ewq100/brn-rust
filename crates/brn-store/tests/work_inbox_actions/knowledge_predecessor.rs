@@ -475,3 +475,45 @@ fn predecessor_attachment_respects_full_source_and_note_capacity_without_partial
     assert_eq!(row_bytes(&dir, draft.id), bytes);
     assert_eq!(store.proposal(draft.id).unwrap(), Some(before));
 }
+
+#[test]
+fn create_rename_preserves_supplemental_and_history_knowledge_binding() {
+    let (_dir, mut store, _captured, draft, history) = setup();
+    let first = store.create_proposal(&draft).unwrap();
+    let path = std::path::Path::new(first.draft.changes[0].path())
+        .with_file_name("owner-filename.md")
+        .to_str()
+        .unwrap()
+        .to_owned();
+    let renamed = store
+        .rename_proposal_create(first.stamp(), 0, &path)
+        .unwrap();
+    assert_eq!(renamed.draft.inbox_knowledge, first.draft.inbox_knowledge);
+    assert_eq!(renamed.draft.sources, first.draft.sources);
+    let paired = store
+        .attach_inbox_knowledge_predecessor(renamed.stamp(), &history)
+        .unwrap();
+    let other = std::path::Path::new(&path)
+        .with_file_name("owner-final.md")
+        .to_str()
+        .unwrap()
+        .to_owned();
+    let after = store
+        .rename_proposal_create(paired.stamp(), 0, &other)
+        .unwrap();
+    assert_eq!(after.draft.changes[1], paired.draft.changes[1]);
+    assert_eq!(after.draft.inbox_knowledge, paired.draft.inbox_knowledge);
+    assert_eq!(after.draft.sources, paired.draft.sources);
+    assert_eq!(
+        after.draft.changes[0].text(),
+        paired.draft.changes[0].text()
+    );
+    assert_eq!(store.create_proposal(&draft).unwrap(), after);
+    assert_eq!(
+        store.proposal_original_create_paths(draft.id).unwrap(),
+        vec![brn_store::work::proposals::OriginalCreatePath {
+            change_index: 0,
+            path: draft.changes[0].path().into(),
+        },]
+    );
+}

@@ -1153,3 +1153,34 @@ fn near_limit_replace_proof_widths_and_repeated_undo_cycles_complete_after_resto
         source = terminal;
     }
 }
+
+#[test]
+fn inverse_of_renamed_create_has_its_own_empty_creation_lineage() {
+    let (_dir, mut store) = fixture();
+    let initial = source_draft();
+    let review = store.create_proposal(&initial).unwrap();
+    let renamed = store
+        .rename_proposal_create(review.stamp(), 0, "notes/renamed.md")
+        .unwrap();
+    let source = apply_review(&mut store, &renamed);
+    assert_eq!(
+        source.original_create_paths,
+        vec![OriginalCreatePath {
+            change_index: 0,
+            path: "notes/new.md".into(),
+        }]
+    );
+    let inverse = store.begin_proposal_undo(&request(&source)).unwrap();
+    assert_eq!(inverse.approved.draft.changes[0].path(), "notes/renamed.md");
+    assert!(inverse.original_create_paths.is_empty());
+    assert!(
+        store
+            .proposal_original_create_paths(inverse.approved.draft.id)
+            .unwrap()
+            .is_empty()
+    );
+    assert_eq!(
+        store.create_proposal(&initial).unwrap().draft,
+        renamed.draft
+    );
+}

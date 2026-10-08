@@ -180,6 +180,18 @@ complete before/proposed History text and read-only History editing. Inspect the
 full pair before separate approval; restart and confirm the same revised review.
 Headless state/widget checks do not establish overnight GUI or owner acceptance.
 
+Each eligible Draft new-note member offers **Revise new-note destination** with
+its current target and a retained new path in the same folder. Acknowledge full
+owner text/comments first. The exact submitted review, member, path and generation
+bind the acknowledgement; pending revision fences typing and navigation. Failed
+or malformed replies retain the original review and path input for explicit retry.
+A same-path request keeps the exact version and timestamps. Knowledge/History
+pairs retain their generated read-only History member; bound Source, direct intake,
+visual, asset and Replace destinations have no rename control. This revises review
+work only; the revised full proposal still needs separate exact approval.
+Headless state/widget checks do not establish interactive usability; exercise
+rename, error/retry, restart and exact approval in the deferred morning journey.
+
 State editing offers Open/Waiting/Blocked; Completed work stays immutable. Full
 edits recover after 500 ms through the same AppWorker boundary;
 only acknowledgement establishes recoverability. Older replies preserve later

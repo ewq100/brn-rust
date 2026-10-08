@@ -78,6 +78,14 @@ impl KnowledgeProposal {
         let record = app.create_proposal(&request).map_err(safe)?;
         receipt.stamp = record.stamp();
         receipt.state = record.state;
+        let Some(crate::proposals::NoteChange::Create { path, .. }) = record.draft.changes.first()
+        else {
+            return Err(rejected());
+        };
+        receipt.path = path.clone();
+        if serde_json::to_vec(&receipt).map_err(|_| rejected())?.len() > brn_ai::READ_ACTION_BYTES {
+            return Err(rejected());
+        }
         serde_json::to_value(receipt).map_err(|_| AiError::new(AiErrorKind::Storage))
     }
 }

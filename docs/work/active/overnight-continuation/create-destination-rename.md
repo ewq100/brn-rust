@@ -114,3 +114,58 @@ before fresh evidence checks; stale stamp always refuses. Actual changed rename
 requires all retained evidence/target/editor validation. Recovery compares original
 normalized paths and directional lineage compatibility; equal-version lineage
 forks refuse and older settled operations never replace newer lineage.
+
+
+## Implemented candidate and focused qualification
+
+Action PR100 passed every required candidate check/docs in37858092859 and merged
+normally at e1d6b0fab69c13ceceb09014d6c034ef2178882f. Its tree exactly matches
+qualified8bf40d4. Resulting main was incorporated without production changes at
+7eccea2388b724adae9254f6be6caa46dcfc91d9. Backup PR99 required post-main checks/docs
+passed in37857753049; Action post-main37859299854 remains active.
+
+Store focused200 tests passed, plus strengthened new six-test binary and actual
+late-Rewrite rename race; strict all-target Store Clippy passed. Public full-record
+transition and host request, parent/absence/alias/editor/evidence preflight,
+original creation reconstruction, worker/CLI and current callback receipt are
+implemented. Workflow2 actual callback/private-intake tests,3 integration cases
+(including nine refusal modes), and2 actual CLI tests passed. These use synthetic
+hooks, not provider inference.
+
+Initial pending-private-Source witness failed with absent saved citation identity:
+preparation incorrectly reused ordinary approval's saved-source provenance check.
+Private Knowledge now uses its exact protected citation/extraction binding during
+rename preparation; ordinary saved evidence checks remain and fresh approval still
+requires the exact Applied Source. The witness passed after this narrow fix.
+An initial group-refusal test expected an in-loop stop; the existing group version
+preflight correctly returns ContextStale before admission, and the assertion now
+checks that refusal. No production behavior changed for that test correction.
+
+Desktop capture/native controls/tests are implemented, including exact raw Action
+field preservation and a rename-specific failure/navigation fence cleared by
+existing explicit Retry/Discard. Its focused default/native/Clippy checks are
+active under exclusive Cargo. One fresh complete independent read-only review is
+next, followed by final cross-crate/native/shipping gates and required CI.
+GUI acceptance remains pending in the single morning task. No rename PR yet.
+
+
+Complete independent review of38files at patch
+9927de423dde5b81b84940062a012921c75b512314de2f6113c5bd92dce66180
+found one valid native navigation defect: an ordinary Observe after rename refusal
+could adopt the unchanged review and clear its failure fence. The correction
+requires !create_rename_failed before observation adoption; changed observations
+remain explicit conflicts. A new state regression was observed red before the
+fix, then green. Four native observation/navigation cases cover refusal/malformed
+acknowledgement with same/changed observations and explicit Retry/Discard.
+Independent correction review clean at
+f3e8a4f78049a99fc8798cdca09313d3eb55949d12096fe1cbb74270e0b8ee18.
+No remaining actionable findings. Lead rechecked both exact hashes.
+
+The unchanged pre-correction tree passed full1795 default/18 existing ignores,
+436 native workflow/models/16,577 combined desktop/CLI, doctests, strict Clippy,
+shipping,52fixtures and links. Store/workflow/full-size recovery evidence remains
+applicable: the correction changes only one desktop observation predicate/tests.
+Corrected default11 tests passed; native/Clippy checks active. Lead repeats complete
+affected desktop/combined/shipping gates before integration, reusing unchanged
+Store/workflow coverage rather than repeating full-size crash witnesses.
+Action PR100 required post-main checks/docs passed in37859299854.

@@ -210,6 +210,9 @@ pub enum Pending {
     KnowledgePredecessor {
         generation: u64,
     },
+    CreateRename {
+        generation: u64,
+    },
     ReviewMutation {
         id: Uuid,
         generation: u64,
@@ -1267,6 +1270,7 @@ impl AiState {
             review.record.state == ProposalState::Draft
                 && review.observed.is_none()
                 && !review.predecessor_pending()
+                && !review.create_rename_pending()
         }) && !self
             .pending
             .values()
@@ -1327,6 +1331,32 @@ impl AiState {
         );
         self.notice = "Attaching selected Current predecessor; no knowledge changes occur before exact approval.".into();
         Some((id, AppCommand::AttachInboxKnowledgePredecessor(request)))
+    }
+    pub fn rename_proposal_create(
+        &mut self,
+        change_index: usize,
+        path: String,
+    ) -> Option<(Uuid, AppCommand)> {
+        if !self.ready
+            || !self.vault_bound
+            || !self.review_can_mutate()
+            || self.active.is_some()
+            || self.rewrite.is_some()
+        {
+            return None;
+        }
+        let (id, request) = self
+            .review
+            .as_mut()?
+            .prepare_create_rename(change_index, path)?;
+        self.pending.insert(
+            id,
+            Pending::CreateRename {
+                generation: self.review_generation,
+            },
+        );
+        self.notice = "Revising the selected new-note destination; no vault effect occurs before exact approval.".into();
+        Some((id, AppCommand::RenameProposalCreate(request)))
     }
     pub fn recover_review(&mut self) -> Option<(Uuid, AppCommand)> {
         let (id, edit) = self.review.as_mut()?.prepare_edit()?;
@@ -2491,6 +2521,21 @@ impl AiState {
                     self.review_error = None;
                     commands.extend(self.request_review_lifecycle());
                 }
+                Some(Pending::CreateRename { generation })
+                    if generation == self.review_generation =>
+                {
+                    if let Some(review) = &mut self.review {
+                        let unchanged = review.record == record;
+                        if review.acknowledge_create_rename(id, record) {
+                            self.notice = if unchanged {
+                                "Destination already current; the exact review is unchanged.".into()
+                            } else {
+                                "New-note destination acknowledged. Inspect the revised full proposal before exact approval.".into()
+                            };
+                        }
+                    }
+                    commands.push(self.command(Pending::Proposals, AppCommand::Proposals(None)));
+                }
                 Some(Pending::KnowledgePredecessor { generation })
                     if generation == self.review_generation =>
                 {
@@ -2815,9 +2860,10 @@ impl AiState {
                     self.run_budgets.insert(*turn, None);
                 }
                 let stale_read = match &pending {
-                    Some(Pending::KnowledgePredecessor { generation }) => {
-                        *generation != self.review_generation
-                    }
+                    Some(
+                        Pending::KnowledgePredecessor { generation }
+                        | Pending::CreateRename { generation },
+                    ) => *generation != self.review_generation,
                     Some(Pending::RunBudget { generation, .. }) => *generation != self.generation,
                     Some(Pending::Notes {
                         scope,
@@ -2952,6 +2998,11 @@ impl AiState {
                 }
                 if matches!(pending, Some(Pending::Effort | Pending::SelectEffort)) {
                     self.effort_error = Some(error.message.clone());
+                }
+                if matches!(pending, Some(Pending::CreateRename { generation }) if generation == self.review_generation)
+                    && let Some(review) = &mut self.review
+                {
+                    review.fail_create_rename(id, error.message.clone());
                 }
                 if matches!(pending, Some(Pending::KnowledgePredecessor { generation }) if generation == self.review_generation)
                     && let Some(review) = &mut self.review
