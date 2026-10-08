@@ -147,6 +147,25 @@ History also lists typed proposals. Full review shows every Markdown and Action
 member, exact captured before/proposed text or complete Action record, source
 versions and temporary comments. Action controls cover all 14 candidate fields;
 incomplete UUID/date typing remains visible and blocks approval until corrected.
+
+A clean, acknowledged supplemental Inbox Knowledge draft with one Create offers
+**Attach predecessor for full review** and a separate Current knowledge path.
+The owner selects the predecessor explicitly; attachment preserves successor
+wording, identity, comments and evidence without inference or a vault write.
+Typing and navigation wait for an exact validated structural acknowledgement.
+Review then shows the editable successor and generated read-only History member;
+separate exact approval creates the successor and makes that predecessor History.
+Already-attached predecessors cannot be changed or removed through this control.
+Conflicting local text or late observations remain available for explicit review
+and discard. Failed attachment retains the path and original review for retry.
+
+For deferred native acceptance, open a retained supplemental Inbox Knowledge
+draft, acknowledge owner edits/comments, enter a saved Current predecessor path,
+and attach it. Confirm pending typing/navigation guards, unchanged owner wording,
+complete before/proposed History text and read-only History editing. Inspect the
+full pair before separate approval; restart and confirm the same revised review.
+Headless state/widget checks do not establish overnight GUI or owner acceptance.
+
 State editing offers Open/Waiting/Blocked; Completed work stays immutable. Full
 edits recover after 500 ms through the same AppWorker boundary;
 only acknowledgement establishes recoverability. Older replies preserve later

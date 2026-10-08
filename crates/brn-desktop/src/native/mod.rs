@@ -161,6 +161,8 @@ struct Desktop {
     initial_action: action_draft::ActionInputs,
     review_editor: Entity<EditorState>,
     review_title: Entity<TextareaState>,
+    review_predecessor: Entity<TextareaState>,
+    review_predecessor_proposal: Option<Uuid>,
     review_comment: Entity<EditorState>,
     review_comment_draft: Option<(Uuid, Option<Uuid>)>,
     review_comment_pending: Option<(Uuid, Uuid, String)>,
@@ -218,6 +220,11 @@ impl Desktop {
                 .default_value("")
         });
         let review_title = cx.new(|cx| review_title_state(window, cx));
+        let review_predecessor = cx.new(|cx| {
+            TextareaState::new(window, cx)
+                .placeholder("Current knowledge path, e.g. policy.md")
+                .auto_grow(1, 2)
+        });
         let review_comment = cx.new(|cx| EditorState::new(window, cx).default_value(""));
         let draft_title = cx.new(|cx| review_title_state(window, cx));
         let draft_path = cx.new(|cx| draft::path_state(window, cx));
@@ -502,6 +509,8 @@ impl Desktop {
             initial_action: action_draft::ActionInputs::default(),
             review_editor,
             review_title,
+            review_predecessor,
+            review_predecessor_proposal: None,
             review_comment,
             review_comment_draft: None,
             review_comment_pending: None,

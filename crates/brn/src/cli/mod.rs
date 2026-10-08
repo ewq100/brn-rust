@@ -182,6 +182,7 @@ Commands:
   brn proposals list [--group UUID]
   brn proposals show PROPOSAL_ID
   brn proposals edit --file EDIT.json
+  brn proposals attach-predecessor --file REQUEST.json
   brn proposals rewrite --file REQUEST.json
   brn proposals rewrite-status JOB_UUID
   brn proposals rewrite-result --file EDIT.json

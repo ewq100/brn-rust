@@ -15,6 +15,13 @@ use brn_workflow::{
 use std::time::{Duration, Instant};
 use uuid::Uuid;
 
+#[path = "predecessor_review.rs"]
+mod predecessor;
+use predecessor::SubmittedPredecessor;
+#[cfg(test)]
+#[path = "predecessor_review_tests.rs"]
+pub(crate) mod predecessor_tests;
+
 struct SubmittedEdit {
     id: Uuid,
     edit: ProposalEdit,
@@ -33,6 +40,7 @@ pub struct ProposalReview {
     generation: u64,
     acknowledged_generation: u64,
     submitted: Option<SubmittedEdit>,
+    predecessor: Option<SubmittedPredecessor>,
     last_edit: Option<Instant>,
     failed: bool,
 }
@@ -53,6 +61,7 @@ impl ProposalReview {
             generation: 0,
             acknowledged_generation: 0,
             submitted: None,
+            predecessor: None,
             last_edit: None,
             failed: false,
         }
@@ -158,7 +167,7 @@ impl ProposalReview {
     }
 
     pub fn pending(&self) -> bool {
-        self.submitted.is_some()
+        self.submitted.is_some() || self.predecessor.is_some()
     }
 
     pub fn can_leave(&self) -> bool {
@@ -173,6 +182,9 @@ impl ProposalReview {
     }
 
     fn can_type(&self) -> Result<(), &'static str> {
+        if self.predecessor.is_some() {
+            return Err("Waiting for predecessor attachment acknowledgement");
+        }
         if self.record.state != ProposalState::Draft
             || self
                 .observed
@@ -209,6 +221,9 @@ impl ProposalReview {
         now: Instant,
     ) -> Result<(), &'static str> {
         self.can_type()?;
+        if self.history_member(index) {
+            return Err("Generated predecessor History is read only");
+        }
         let Some(Some(current)) = self.texts.get(index) else {
             return Err("This proposal member has no editable text");
         };
@@ -356,7 +371,7 @@ impl ProposalReview {
     }
 
     pub fn observe(&mut self, record: ProposalRecord) -> bool {
-        if !same_bindings(&self.record, &record)
+        if (!same_bindings(&self.record, &record) && !self.valid_predecessor_observation(&record))
             || record.version < self.record.version
             || self
                 .observed

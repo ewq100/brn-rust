@@ -19,6 +19,8 @@ pub const MAX_PROPOSAL_BYTES: usize = 8 * 1024 * 1024;
 pub const MAX_ASSET_BYTES: usize = 16 * 1024 * 1024;
 pub const MAX_ASSET_PROPOSAL_BYTES: usize = 32 * 1024 * 1024;
 pub mod asset_payload;
+mod knowledge_predecessor;
+pub use knowledge_predecessor::validate_knowledge_predecessor_transition;
 pub const MAX_PROPOSAL_COMMENTS: usize = 64;
 pub const MAX_COMMENT_BYTES: usize = 16 * 1024;
 

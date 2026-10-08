@@ -38,6 +38,8 @@ mod conflict_tests;
 mod link_tests;
 #[path = "p4_conflict.rs"]
 mod p4_conflict_tests;
+#[path = "predecessor.rs"]
+mod predecessor_tests;
 #[path = "supersession_replay.rs"]
 mod supersession_replay_tests;
 #[path = "supersession.rs"]

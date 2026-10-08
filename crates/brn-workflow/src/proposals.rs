@@ -98,6 +98,33 @@ pub struct ProposalSource {
     pub text: String,
 }
 
+/// Explicit owner selection; the host captures the complete Current predecessor.
+#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
+#[serde(deny_unknown_fields)]
+pub struct KnowledgePredecessorRequest {
+    pub expected: ProposalStamp,
+    pub predecessor_path: String,
+}
+
+impl KnowledgePredecessorRequest {
+    pub fn validate(&self) -> Result<()> {
+        if self.expected.id.is_nil() || self.expected.version == 0 {
+            return Err(invalid(
+                "predecessor attachment needs an exact review stamp",
+            ));
+        }
+        path_check(&self.predecessor_path)
+    }
+}
+
+/// Pure exact structural acknowledgement shared by native and headless review.
+pub fn validate_knowledge_predecessor_transition(
+    before: &ProposalRecord,
+    after: &ProposalRecord,
+) -> Result<()> {
+    Ok(brn_store::work::proposals::validate_knowledge_predecessor_transition(before, after)?)
+}
+
 /// Fresh complete byte proof for an ordinary asset, without exposing its payload.
 #[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
 #[serde(deny_unknown_fields)]
@@ -446,12 +473,29 @@ impl App {
                     "proposal UUID has another creation payload",
                 )
             };
-            if request.changes.len() != existing.draft.changes.len()
+            let owner_attached_predecessor =
+                request.inbox_knowledge.as_ref().is_some_and(|binding| {
+                    binding.supersedes.is_none()
+                        && existing
+                            .draft
+                            .inbox_knowledge
+                            .as_ref()
+                            .is_some_and(|current| current.supersedes.is_some())
+                        && request.changes.len() == 1
+                        && existing.draft.changes.len() == 2
+                });
+            if (!owner_attached_predecessor
+                && request.changes.len() != existing.draft.changes.len())
                 || request.action_changes.len() != existing.draft.action_changes.len()
             {
                 return Err(conflict());
             }
             let mut draft = existing.draft;
+            if owner_attached_predecessor {
+                // Reconstruct the original creation payload. The Store still
+                // checks its immutable creation hash before returning current work.
+                draft.changes.truncate(1);
+            }
             for (input, bound) in request.changes.iter().zip(&mut draft.changes) {
                 match (input, bound) {
                     (
