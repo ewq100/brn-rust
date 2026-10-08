@@ -225,15 +225,25 @@ pub fn run() {
         c.shot("02-chat-conversation-dark");
     }
 
-    c.click("open-dashboard");
+    c.click("open-queue");
+    c.settle(|d| {
+        let ai = d.ai.as_ref().unwrap();
+        d.open_doc == Some(DocRef::Queue)
+            && ai.dashboard.page.is_some()
+            && ai.inbox_queue.page.is_some()
+            && ai.finding_queue.page.is_some()
+    });
+    c.shot("14-needs-you-dark");
+
+    c.act(|this, _, cx| this.simple_leave(simple::EditorTransition::Dashboard, cx));
     c.settle(|d| d.open_doc == Some(DocRef::Dashboard));
     c.shot("03-dashboard-dark");
 
-    c.click("open-inbox");
+    c.act(|this, _, cx| this.simple_leave(simple::EditorTransition::Inbox, cx));
     c.settle(|d| d.open_doc == Some(DocRef::Inbox));
     c.shot("04-inbox-dark");
 
-    c.click("open-findings");
+    c.act(|this, _, cx| this.simple_leave(simple::EditorTransition::Findings, cx));
     c.settle(|d| d.open_doc == Some(DocRef::Findings));
     c.shot("05-needs-review-dark");
 
@@ -256,6 +266,11 @@ pub fn run() {
         c.act(move |this, _, cx| this.simple_leave(simple::EditorTransition::Review(id), cx));
         c.settle(|d| d.open_doc == Some(DocRef::Proposal(id)));
         c.shot("07-proposal-review-dark");
+        c.act(|this, _, cx| this.toggle_focus(cx));
+        c.settle(|_| false);
+        c.shot("18-proposal-margin-focus-dark");
+        c.act(|this, _, cx| this.toggle_focus(cx));
+        c.settle(|_| false);
     }
 
     c.act(|this, _, cx| this.simple_note("projects/serna.md".into(), cx));
@@ -285,10 +300,33 @@ pub fn run() {
     c.act(|this, window, cx| this.open_settings(window, cx));
     c.settle(|_| false);
     c.shot("10-settings-dark");
+    for (tab, name) in [
+        (shell::settings::SettingsTab::Ai, "16-settings-ai-dark"),
+        (
+            shell::settings::SettingsTab::Accounts,
+            "17-settings-accounts-dark",
+        ),
+    ] {
+        c.act(move |this, _, cx| {
+            this.settings_tab = tab;
+            cx.notify();
+        });
+        c.settle(|_| false);
+        c.shot(name);
+    }
     drop(c);
 
     let mut light = Capture::open(&data, &vault, Appearance::Light, 1280., 820.);
-    light.click("open-dashboard");
+    light.click("open-queue");
+    light.settle(|d| {
+        let ai = d.ai.as_ref().unwrap();
+        d.open_doc == Some(DocRef::Queue)
+            && ai.dashboard.page.is_some()
+            && ai.inbox_queue.page.is_some()
+            && ai.finding_queue.page.is_some()
+    });
+    light.shot("15-needs-you-light");
+    light.act(|this, _, cx| this.simple_leave(simple::EditorTransition::Dashboard, cx));
     light.settle(|d| d.open_doc == Some(DocRef::Dashboard));
     light.shot("11-dashboard-light");
     let proposal = light.cx.update(|cx| {
@@ -311,7 +349,7 @@ pub fn run() {
     drop(light);
 
     let mut narrow = Capture::open(&data, &vault, Appearance::Dark, 720., 760.);
-    narrow.click("open-inbox");
+    narrow.act(|this, _, cx| this.simple_leave(simple::EditorTransition::Inbox, cx));
     narrow.settle(|d| d.open_doc == Some(DocRef::Inbox));
     narrow.shot("12-narrow-inbox-dark");
 }

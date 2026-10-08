@@ -14,6 +14,8 @@ mod draft;
 mod layout;
 #[cfg_attr(not(feature = "native-ui"), allow(dead_code))]
 mod review;
+#[cfg(feature = "native-ui")]
+mod text_diff;
 #[cfg_attr(not(feature = "native-ui"), allow(dead_code))]
 mod tokens;
 

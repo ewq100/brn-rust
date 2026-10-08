@@ -106,7 +106,7 @@ fn dashboard_navigation_is_visible_and_preserves_unresolved_initial_input(
     visual.run_until_parked();
     visual.update(|window, cx| {
         window.render_frame(cx);
-        assert!(window.find("open-dashboard").visible());
+        assert!(window.find("open-queue").visible());
         desktop.update(cx, |this, cx| {
             this.ai.as_mut().unwrap().vault_bound = true;
             assert!(this.ai.as_mut().unwrap().begin_draft(None));
@@ -116,7 +116,7 @@ fn dashboard_navigation_is_visible_and_preserves_unresolved_initial_input(
                 editor.set_value("Unacknowledged input λ", window, cx)
             });
         });
-        window.click("open-dashboard", cx);
+        window.click("open-queue", cx);
         assert_eq!(desktop.read(cx).open_doc, Some(DocRef::Draft));
         assert!(desktop.read(cx).ai.as_ref().unwrap().draft.is_some());
         assert!(desktop.read(cx).simple_transition.is_none());
@@ -398,8 +398,14 @@ fn synchronous_submission_refusal_retains_copyable_exact_request_and_retry_after
 fn new_action_navigation_is_available_without_a_vault_or_provider(
     cx: &mut gpui_kit::TestAppContext,
 ) {
-    let (_fixture, handle, desktop) = window(cx, false);
+    let (_fixture, handle, desktop) = window(cx, true);
     let mut visual = VisualTestContext::from_window(handle.into(), cx);
+    visual.run_until_parked();
+    visual.update(|window, cx| {
+        window.render_frame(cx);
+        window.click("open-queue", cx);
+        assert_eq!(desktop.read(cx).open_doc, Some(DocRef::Queue));
+    });
     visual.run_until_parked();
     visual.update(|window, cx| {
         window.render_frame(cx);
@@ -413,5 +419,48 @@ fn new_action_navigation_is_available_without_a_vault_or_provider(
         assert!(form.submitted.is_none());
         assert!(!this.ai.as_ref().unwrap().vault_bound);
         assert!(this.ai.as_ref().unwrap().selection.is_none());
+    });
+}
+
+#[gpui_kit::test]
+fn needs_you_queue_loads_every_section_and_filters_without_leaving(
+    cx: &mut gpui_kit::TestAppContext,
+) {
+    let (_fixture, handle, desktop) = window(cx, true);
+    let mut visual = VisualTestContext::from_window(handle.into(), cx);
+    visual.run_until_parked();
+    visual.update(|window, cx| {
+        window.render_frame(cx);
+        window.click("open-queue", cx);
+        let this = desktop.read(cx);
+        assert_eq!(this.open_doc, Some(DocRef::Queue));
+        let ai = this.ai.as_ref().unwrap();
+        assert!(ai.dashboard.visible && ai.inbox_queue.visible && ai.finding_queue.visible);
+    });
+    visual.run_until_parked();
+    visual.update(|window, cx| {
+        window.render_frame(cx);
+        for id in [
+            "open-dashboard",
+            "new-action-form",
+            "open-inbox",
+            "open-findings",
+        ] {
+            assert!(window.find(id).visible(), "{id}");
+        }
+        window.click("queue-filter-decide", cx);
+        window.render_frame(cx);
+        assert!(window.find("new-action-form").visible());
+        assert!(window.try_find("open-inbox").is_none());
+        assert!(window.try_find("open-dashboard").is_none());
+        window.click("queue-filter-all", cx);
+        window.render_frame(cx);
+        assert!(window.find("open-inbox").visible());
+        assert_eq!(desktop.read(cx).open_doc, Some(DocRef::Queue));
+        window.click("open-inbox", cx);
+        let this = desktop.read(cx);
+        assert_eq!(this.open_doc, Some(DocRef::Inbox));
+        let ai = this.ai.as_ref().unwrap();
+        assert!(!ai.dashboard.visible && !ai.finding_queue.visible && ai.inbox_queue.visible);
     });
 }

@@ -23,6 +23,7 @@ pub(super) enum EditorTransition {
     Evidence { path: String, scope: KnowledgeScope },
     Review(Uuid),
     Activity,
+    Queue,
     Dashboard,
     Findings,
     Finding { analysis: Uuid, id: Uuid },
@@ -417,15 +418,20 @@ impl Desktop {
                 | EditorTransition::Finding { .. }
                 | EditorTransition::Draft(_)
                 | EditorTransition::ActionDraft(_)
+                | EditorTransition::Queue
         ) {
             self.ai.as_mut().unwrap().close_findings();
         }
-        if !matches!(&transition, EditorTransition::Dashboard) {
+        if !matches!(
+            &transition,
+            EditorTransition::Dashboard | EditorTransition::Queue
+        ) {
             self.ai.as_mut().unwrap().close_dashboard();
         }
         if !matches!(
             &transition,
-            EditorTransition::Inbox
+            EditorTransition::Queue
+                | EditorTransition::Inbox
                 | EditorTransition::AnalyzeInboxSource(_)
                 | EditorTransition::InboxSourceDraft
                 | EditorTransition::Draft(_)
@@ -482,6 +488,20 @@ impl Desktop {
                 if let Some(command) = ai.open_dashboard() {
                     self.simple_send(command, cx);
                 }
+            }
+            EditorTransition::Queue => {
+                self.clear_saved_link_panel();
+                self.clear_saved_sources();
+                let ai = self.ai.as_mut().unwrap();
+                ai.note_generation = ai.note_generation.wrapping_add(1);
+                ai.review_generation = ai.review_generation.wrapping_add(1);
+                ai.editor = None;
+                ai.evidence = None;
+                ai.review = None;
+                self.simple_note_path = None;
+                self.open_doc = Some(DocRef::Queue);
+                self.centre_tab = CentreTab::Document;
+                self.open_queue_pages(cx);
             }
             EditorTransition::Activity => {
                 self.clear_saved_link_panel();
@@ -1157,59 +1177,14 @@ impl Desktop {
     pub(super) fn render_simple_history(&mut self, cx: &mut Context<Self>) -> AnyElement {
         use super::ui::{self, Tone};
         use gpui_kit::assets::IconName;
+        self.refresh_attention();
         let p = self.palette();
+        let attention = self.attention_signal();
         let ai = self.ai.as_ref().unwrap();
-        let blocked = self.closing.is_some() || self.closed || self.close_failed;
         let now_ms = std::time::SystemTime::now()
             .duration_since(std::time::UNIX_EPOCH)
             .map(|time| u64::try_from(time.as_millis()).unwrap_or(u64::MAX))
             .unwrap_or(0);
-        let dashboard_signal = ai.dashboard.page.as_ref().and_then(|page| {
-            let counts = &page.counts;
-            if counts.overdue > 0 {
-                Some((format!("{} overdue", counts.overdue), Tone::Danger))
-            } else if counts.follow_up > 0 {
-                Some((format!("{} follow-up", counts.follow_up), Tone::Attention))
-            } else {
-                let unfinished = counts.open + counts.waiting + counts.blocked;
-                (unfinished > 0).then(|| (unfinished.to_string(), Tone::Neutral))
-            }
-        });
-        let inbox_signal = ai
-            .inbox_queue
-            .page
-            .as_ref()
-            .filter(|page| page.total_count > 0)
-            .map(|page| (page.total_count.to_string(), Tone::Attention));
-        let findings_signal = ai
-            .finding_queue
-            .page
-            .as_ref()
-            .filter(|page| page.open_count > 0)
-            .map(|page| (page.open_count.to_string(), Tone::Attention));
-        let awaiting: Vec<_> = ai
-            .proposals
-            .iter()
-            .filter(|record| {
-                !matches!(
-                    record.state,
-                    brn_workflow::proposals::ProposalState::Applied
-                        | brn_workflow::proposals::ProposalState::Rejected
-                )
-            })
-            .collect();
-        let decided: Vec<_> = ai
-            .proposals
-            .iter()
-            .filter(|record| {
-                matches!(
-                    record.state,
-                    brn_workflow::proposals::ProposalState::Applied
-                        | brn_workflow::proposals::ProposalState::Rejected
-                )
-            })
-            .collect();
-
         let mut list = div()
             .id("history-rail-list")
             .track_scroll(&self.history_scroll)
@@ -1236,168 +1211,31 @@ impl Desktop {
             .child(div().h(px(tokens::space::SM)))
             .child(
                 ui::nav_row(
-                    "open-dashboard",
-                    IconName::LayoutDashboard,
-                    "Dashboard",
-                    dashboard_signal,
+                    "open-queue",
+                    IconName::Inbox,
+                    "Needs you",
+                    attention,
                     p,
                 )
-                .selected(self.open_doc == Some(DocRef::Dashboard))
+                .tooltip("Actions due, proposals to decide, Inbox items to sort and findings to check")
+                .selected(matches!(
+                    self.open_doc,
+                    Some(
+                        DocRef::Queue
+                            | DocRef::Dashboard
+                            | DocRef::Inbox
+                            | DocRef::Findings
+                            | DocRef::Proposal(_)
+                            | DocRef::Draft
+                    )
+                ))
                 .disabled(!ai.ready)
                 .on_click(cx.listener(|this, _, window, cx| {
                     if !window.has_active_dialog(cx) {
-                        this.simple_leave(EditorTransition::Dashboard, cx);
+                        this.simple_leave(EditorTransition::Queue, cx);
                     }
                 })),
-            )
-            .child(
-                ui::nav_row("open-inbox", IconName::Inbox, "Inbox", inbox_signal, p)
-                    .selected(self.open_doc == Some(DocRef::Inbox))
-                    .disabled(!ai.ready || blocked)
-                    .on_click(cx.listener(|this, _, window, cx| {
-                        if !window.has_active_dialog(cx) {
-                            this.simple_leave(EditorTransition::Inbox, cx);
-                        }
-                    })),
-            )
-            .child(
-                ui::nav_row(
-                    "open-findings",
-                    IconName::Bell,
-                    "Needs Review",
-                    findings_signal,
-                    p,
-                )
-                .selected(self.open_doc == Some(DocRef::Findings))
-                .disabled(!ai.ready)
-                .on_click(
-                    cx.listener(|this, _, _, cx| this.simple_leave(EditorTransition::Findings, cx)),
-                ),
-            )
-            .child(
-                ui::nav_row(
-                    "open-activity",
-                    IconName::GalleryVerticalEnd,
-                    "Activity",
-                    None,
-                    p,
-                )
-                .selected(self.open_doc == Some(DocRef::Activity))
-                .disabled(!ai.ready)
-                .on_click(
-                    cx.listener(|this, _, _, cx| this.simple_leave(EditorTransition::Activity, cx)),
-                ),
             );
-        list = list.child(
-            div()
-                .flex()
-                .items_center()
-                .child(ui::section_label("Review", p).flex_1())
-                .child(
-                    div().pt(px(tokens::space::SM)).child(
-                        Button::new("refresh-proposal-list")
-                            .icon(IconName::RotateCw)
-                            .ghost()
-                            .xsmall()
-                            .tooltip("Refresh proposals")
-                            .disabled(!ai.ready)
-                            .on_click(cx.listener(|this, _, _, cx| {
-                                this.simple_command(
-                                    Pending::Proposals,
-                                    AppCommand::Proposals(None),
-                                    cx,
-                                )
-                            })),
-                    ),
-                ),
-        );
-        let proposal_row = |record: &brn_workflow::proposals::ProposalRecord| {
-            let id = record.draft.id;
-            let (label, tone) = proposal_state_badge(record.state);
-            // Drafts are the normal waiting state; only unusual states earn a badge.
-            let badge = (record.state != brn_workflow::proposals::ProposalState::Draft
-                && record.state != brn_workflow::proposals::ProposalState::Applied)
-                .then(|| ui::badge(label, tone, p).into_any_element());
-            ui::list_row(
-                format!("proposal-{id}"),
-                compact_title(&record.draft.title),
-                None,
-                badge,
-                p,
-            )
-            .selected(self.open_doc == Some(DocRef::Proposal(id)))
-            .on_click(cx.listener(move |this, _, _, cx| {
-                this.simple_leave(EditorTransition::Review(id), cx)
-            }))
-        };
-        for record in &awaiting {
-            list = list.child(proposal_row(record));
-        }
-        list = list.child(
-            ui::toolbar()
-                .px_1()
-                .pt_1()
-                .child(
-                    Button::new("new-proposal-form")
-                        .icon(IconName::Plus)
-                        .label("Proposal")
-                        .ghost()
-                        .small()
-                        .tooltip("Draft a new note proposal for review")
-                        .selected(
-                            self.open_doc == Some(DocRef::Draft)
-                                && ai.draft.as_ref().is_some_and(|form| form.action.is_none()),
-                        )
-                        .disabled(!ai.ready || !ai.vault_bound || ai.application_busy() || blocked)
-                        .on_click(cx.listener(|this, _, _, cx| {
-                            this.simple_leave(EditorTransition::Draft(None), cx)
-                        })),
-                )
-                .child(
-                    Button::new("new-action-form")
-                        .icon(IconName::Plus)
-                        .label("Action")
-                        .ghost()
-                        .small()
-                        .tooltip("Draft a new Action for review")
-                        .selected(
-                            self.open_doc == Some(DocRef::Draft)
-                                && ai.draft.as_ref().is_some_and(|form| form.action.is_some()),
-                        )
-                        .disabled(!ai.ready || ai.application_busy() || blocked)
-                        .on_click(cx.listener(|this, _, window, cx| {
-                            if !window.has_active_dialog(cx) {
-                                this.simple_leave(EditorTransition::ActionDraft(None), cx);
-                            }
-                        })),
-                ),
-        );
-        if !decided.is_empty() {
-            let open = self.show_decided;
-            list = list.child(
-                div().pt_2().child(
-                    Button::new("toggle-decided")
-                        .icon(if open {
-                            IconName::ChevronDown
-                        } else {
-                            IconName::ChevronRight
-                        })
-                        .label(format!("Decided ({})", decided.len()))
-                        .ghost()
-                        .xsmall()
-                        .tooltip("Approved and rejected proposals. Activity has the full history.")
-                        .on_click(cx.listener(|this, _, _, cx| {
-                            this.show_decided = !this.show_decided;
-                            cx.notify();
-                        })),
-                ),
-            );
-            if open {
-                for record in &decided {
-                    list = list.child(proposal_row(record));
-                }
-            }
-        }
         list = list.child(ui::section_label("Chats", p));
         for conversation in &ai.conversations {
             let id = conversation.id;
@@ -1433,6 +1271,21 @@ impl Desktop {
                     .border_t_1()
                     .border_color(color(p.line))
                     .p_2()
+                    .child(
+                        ui::nav_row(
+                            "open-activity",
+                            IconName::GalleryVerticalEnd,
+                            "History",
+                            None,
+                            p,
+                        )
+                        .tooltip("Decided proposals and approved changes")
+                        .selected(self.open_doc == Some(DocRef::Activity))
+                        .disabled(!ai.ready)
+                        .on_click(cx.listener(|this, _, _, cx| {
+                            this.simple_leave(EditorTransition::Activity, cx)
+                        })),
+                    )
                     .child(
                         ui::nav_row(
                             "settings-footer",
@@ -2552,164 +2405,121 @@ fn elapsed_label(ms: u64) -> String {
     }
 }
 
-pub(super) fn account_settings(desktop: &Entity<Desktop>, cx: &App) -> AnyElement {
+fn settings_busy(this: &Desktop) -> bool {
+    !this.ai.as_ref().unwrap().ready || this.closing.is_some() || this.closed || this.close_failed
+}
+
+/// Settings › AI & models: provider, model and default thinking (D25).
+pub(super) fn ai_settings(desktop: &Entity<Desktop>, cx: &App) -> AnyElement {
+    use super::ui::{self, Tone};
     let this = desktop.read(cx);
+    let p = this.palette();
     let ai = this.ai.as_ref().unwrap();
-    let mut body =
-        div().flex().flex_col().gap_2().child(
-            "Connected means locally persisted credentials, not proof of live availability.",
-        );
+    let mut providers = ui::toolbar().gap(px(2.));
     for provider in [Provider::Chatgpt, Provider::Copilot] {
+        let choose = desktop.downgrade();
+        let selected = ai.provider == Some(provider);
+        providers = providers.child(
+            Button::new(format!("provider-{}", slot(provider)))
+                .label(provider_name(provider))
+                .small()
+                .when(selected, |b| b.primary())
+                .when(!selected, |b| b.ghost())
+                .selected(selected)
+                .disabled(!ai.ready)
+                .on_click(move |_, _, cx| {
+                    let _ = choose.update(cx, |this, cx| {
+                        this.ai.as_mut().unwrap().provider = Some(provider);
+                        cx.notify();
+                    });
+                }),
+        );
+    }
+    let mut body = div().flex().flex_col().child(ui::setting_row(
+        "Provider",
+        Some("Which account answers new requests".into()),
+        providers,
+        p,
+    ));
+    if let Some(provider) = ai.provider {
         let row = &ai.accounts[slot(provider)];
-        let busy = ai.account_busy(provider)
-            || !ai.ready
-            || this.closing.is_some()
-            || this.closed
-            || this.close_failed;
-        let connected = row.status.as_ref().is_some_and(|status| status.connected);
-        let label = row
-            .status
-            .as_ref()
-            .map_or("Status unknown".into(), |status| {
-                if status.connected {
-                    format!(
-                        "Connected · {}",
-                        status.name.as_deref().unwrap_or("account name unavailable")
-                    )
-                } else {
-                    "Disconnected / reconnect needed".into()
-                }
-            });
-        let target = desktop.downgrade();
-        let disconnect = target.clone();
-        let status = target.clone();
-        let models = target.clone();
-        let choose = target.clone();
-        body = body.child(format!("{} · {label}", provider_name(provider)));
-        if let Some(error) = &row.error {
-            body = body.child(format!(
-                "{error} · explicit Connect to retry; no automatic retry."
+        let mut models = div()
+            .flex()
+            .flex_col()
+            .gap(px(2.))
+            .py(px(tokens::space::SM));
+        if row.models.is_empty() {
+            models = models.child(ui::hint(
+                "No models found yet. Use Find models under Accounts after connecting.",
+                p,
             ));
         }
-        body = body.child(
-            div()
-                .flex()
-                .flex_wrap()
-                .gap_1()
-                .child(
-                    Button::new(format!("connect-{}", slot(provider)))
-                        .label(if connected { "Reconnect" } else { "Connect" })
-                        .disabled(busy || ai.login.is_some())
-                        .on_click(move |_, window, cx| {
-                            let _ = target.update(cx, |this, cx| {
-                                this.simple_account(AccountCommand::Connect(provider), window, cx)
-                            });
-                        }),
+        for (index, model) in row.models.iter().enumerate() {
+            let target = desktop.downgrade();
+            let selection = Selection {
+                provider,
+                model: model.id.clone(),
+            };
+            let selected = ai.selection.as_ref() == Some(&selection);
+            let badge = if model.live_qualified {
+                ui::badge("qualified", Tone::Success, p)
+            } else {
+                ui::badge("not live-qualified", Tone::Neutral, p)
+            };
+            models = models.child(
+                ui::list_row(
+                    format!("model-{}-{index}", slot(provider)),
+                    model.id.clone(),
+                    None,
+                    Some(badge.into_any_element()),
+                    p,
                 )
-                .child(
-                    Button::new(format!("disconnect-{}", slot(provider)))
-                        .label("Disconnect")
-                        .disabled(busy || !connected)
-                        .on_click(move |_, window, cx| {
-                            let _ = disconnect.update(cx, |this, cx| {
-                                this.simple_account(
-                                    AccountCommand::Disconnect(provider),
-                                    window,
-                                    cx,
-                                )
-                            });
-                        }),
-                )
-                .child(
-                    Button::new(format!("status-{}", slot(provider)))
-                        .label("Status")
-                        .disabled(busy)
-                        .on_click(move |_, window, cx| {
-                            let _ = status.update(cx, |this, cx| {
-                                this.simple_account(AccountCommand::Status(provider), window, cx)
-                            });
-                        }),
-                )
-                .child(
-                    Button::new(format!("models-{}", slot(provider)))
-                        .label("Discover models")
-                        .disabled(busy)
-                        .on_click(move |_, window, cx| {
-                            let _ = models.update(cx, |this, cx| {
-                                this.simple_account(AccountCommand::Models(provider), window, cx)
-                            });
-                        }),
-                )
-                .child(
-                    Button::new(format!("provider-{}", slot(provider)))
-                        .label("Select provider")
-                        .selected(ai.provider == Some(provider))
-                        .disabled(!ai.ready)
-                        .on_click(move |_, _, cx| {
-                            let _ = choose.update(cx, |this, cx| {
-                                this.ai.as_mut().unwrap().provider = Some(provider);
-                                cx.notify();
-                            });
-                        }),
-                ),
-        );
-        if ai.provider == Some(provider) {
-            for (index, model) in row.models.iter().enumerate() {
-                let target = desktop.downgrade();
-                let selection = Selection {
-                    provider,
-                    model: model.id.clone(),
-                };
-                body = body.child(
-                    Button::new(format!("model-{}-{index}", slot(provider)))
-                        .label(format!(
-                            "{} · {}",
-                            model.id,
-                            if model.live_qualified {
-                                "qualified"
-                            } else {
-                                "not live-qualified"
-                            }
-                        ))
-                        .selected(ai.selection.as_ref() == Some(&selection))
-                        .disabled(!ai.ready)
-                        .on_click(move |_, _, cx| {
-                            let _ = target.update(cx, |this, cx| {
-                                this.simple_command(
-                                    Pending::Select,
-                                    AppCommand::Select(selection.clone()),
-                                    cx,
-                                )
-                            });
-                        }),
-                );
-            }
+                .selected(selected)
+                .disabled(!ai.ready)
+                .on_click(move |_, _, cx| {
+                    let _ = target.update(cx, |this, cx| {
+                        this.simple_command(
+                            Pending::Select,
+                            AppCommand::Select(selection.clone()),
+                            cx,
+                        )
+                    });
+                }),
+            );
         }
+        body = body
+            .child(ui::section_label("Default model", p).px_0())
+            .child(models);
     }
     if let Some(error) = &ai.selection_error {
-        body = body.child(format!(
-            "Selection unavailable: {error}. Account/history diagnostics remain available."
+        body = body.child(ui::callout(
+            Tone::Danger,
+            format!(
+                "Selection unavailable: {error}. Account/history diagnostics remain available."
+            ),
+            p,
         ));
     }
-    body = body.child("Reasoning effort for new Ask and Rewrite requests");
-    let effort_busy = !ai.ready
-        || this.closed
-        || this.closing.is_some()
-        || this.close_failed
+    let effort_busy = settings_busy(this)
         || ai
             .pending
             .values()
             .any(|pending| matches!(pending, Pending::Effort | Pending::SelectEffort));
+    let mut efforts = ui::toolbar().gap(px(2.));
     for effort in [
         ReasoningEffort::Low,
         ReasoningEffort::Medium,
         ReasoningEffort::High,
     ] {
         let target = desktop.downgrade();
-        body = body.child(
+        let selected = ai.effort == Some(effort);
+        efforts = efforts.child(
             Button::new(format!("reasoning-effort-{}", effort.as_str()))
                 .label(effort.as_str())
-                .selected(ai.effort == Some(effort))
+                .small()
+                .when(selected, |b| b.primary())
+                .when(!selected, |b| b.ghost())
+                .selected(selected)
                 .disabled(effort_busy)
                 .on_click(move |_, _, cx| {
                     let _ = target.update(cx, |this, cx| {
@@ -2722,26 +2532,215 @@ pub(super) fn account_settings(desktop: &Entity<Desktop>, cx: &App) -> AnyElemen
                 }),
         );
     }
-    if let Some(error) = &ai.effort_error {
-        body = body.child(format!("Reasoning effort unavailable: {error}"));
-    } else if ai.effort.is_none() {
-        body = body.child("Choose low, medium or high before asking AI.");
+    let effort_note = match (&ai.effort_error, ai.effort) {
+        (Some(error), _) => Some(format!("Unavailable: {error}")),
+        (None, None) => Some("Choose low, medium or high before asking AI.".into()),
+        _ => {
+            Some("For new Ask and Rewrite requests. The composer can change it per request.".into())
+        }
+    };
+    body.child(ui::setting_row("Default thinking", effort_note, efforts, p))
+        .child(div().pt(px(tokens::space::MD)).child(ui::callout(
+            Tone::Info,
+            "No automatic fallback: if the chosen model or account is unavailable, BRN stops and tells you. ChatGPT chat is conditionally qualified; a quota reset alone does not prove availability.",
+            p,
+        )))
+        .into_any_element()
+}
+
+/// Settings › Accounts: connection state and explicit account commands.
+pub(super) fn accounts_settings(desktop: &Entity<Desktop>, cx: &App) -> AnyElement {
+    use super::ui::{self, Tone};
+    let this = desktop.read(cx);
+    let p = this.palette();
+    let ai = this.ai.as_ref().unwrap();
+    let mut body = div().flex().flex_col();
+    for provider in [Provider::Chatgpt, Provider::Copilot] {
+        let row = &ai.accounts[slot(provider)];
+        let busy = ai.account_busy(provider) || settings_busy(this);
+        let connected = row.status.as_ref().is_some_and(|status| status.connected);
+        let (state, tone, detail) = match &row.status {
+            None => ("status unknown", Tone::Neutral, None),
+            Some(status) if status.connected => (
+                "connected",
+                Tone::Success,
+                Some(
+                    status
+                        .name
+                        .clone()
+                        .unwrap_or_else(|| "account name unavailable".into()),
+                ),
+            ),
+            Some(_) => ("reconnect needed", Tone::Attention, None),
+        };
+        let target = desktop.downgrade();
+        let disconnect = target.clone();
+        let status = target.clone();
+        let models = target.clone();
+        let title = div()
+            .flex()
+            .items_center()
+            .gap(px(tokens::space::SM))
+            .child(provider_name(provider))
+            .child(ui::badge(state, tone, p));
+        let controls = ui::toolbar()
+            .gap(px(tokens::space::XS))
+            .child(
+                Button::new(format!("connect-{}", slot(provider)))
+                    .label(if connected { "Reconnect" } else { "Connect" })
+                    .small()
+                    .when(!connected, |b| b.primary())
+                    .when(connected, |b| b.outline())
+                    .disabled(busy || ai.login.is_some())
+                    .on_click(move |_, window, cx| {
+                        let _ = target.update(cx, |this, cx| {
+                            this.simple_account(AccountCommand::Connect(provider), window, cx)
+                        });
+                    }),
+            )
+            .child(
+                Button::new(format!("disconnect-{}", slot(provider)))
+                    .label("Disconnect")
+                    .small()
+                    .ghost()
+                    .disabled(busy || !connected)
+                    .on_click(move |_, window, cx| {
+                        let _ = disconnect.update(cx, |this, cx| {
+                            this.simple_account(AccountCommand::Disconnect(provider), window, cx)
+                        });
+                    }),
+            )
+            .child(
+                Button::new(format!("status-{}", slot(provider)))
+                    .label("Check status")
+                    .small()
+                    .ghost()
+                    .disabled(busy)
+                    .on_click(move |_, window, cx| {
+                        let _ = status.update(cx, |this, cx| {
+                            this.simple_account(AccountCommand::Status(provider), window, cx)
+                        });
+                    }),
+            )
+            .child(
+                Button::new(format!("models-{}", slot(provider)))
+                    .label("Find models")
+                    .small()
+                    .ghost()
+                    .disabled(busy)
+                    .on_click(move |_, window, cx| {
+                        let _ = models.update(cx, |this, cx| {
+                            this.simple_account(AccountCommand::Models(provider), window, cx)
+                        });
+                    }),
+            );
+        let mut block = div()
+            .flex()
+            .flex_col()
+            .gap(px(tokens::space::SM))
+            .py(px(tokens::space::MD))
+            .border_b_1()
+            .border_color(color(p.line))
+            .child(title);
+        if let Some(detail) = detail {
+            block = block.child(ui::meta(detail, p));
+        }
+        if let Some(error) = &row.error {
+            block = block.child(ui::callout(
+                Tone::Danger,
+                format!("{error} · Connect again to retry; BRN does not retry on its own."),
+                p,
+            ));
+        }
+        body = body.child(block.child(controls));
     }
+    body.child(
+        ui::hint(
+            "Connected means credentials are stored on this Mac. It does not prove the service is reachable right now.",
+            p,
+        )
+        .pt(px(tokens::space::MD)),
+    )
+    .into_any_element()
+}
+
+/// Settings › Search: the optional local search model.
+pub(super) fn search_settings(desktop: &Entity<Desktop>, cx: &App) -> AnyElement {
+    use super::ui;
+    let this = desktop.read(cx);
+    let p = this.palette();
+    let ai = this.ai.as_ref().unwrap();
     let target = desktop.downgrade();
     let cancel = target.clone();
-    body.child("ChatGPT chat is conditionally qualified: quota reset alone does not prove availability. No automatic model/provider fallback.")
-        .child(ai.model_state.clone())
-        .children(ai.download_progress.map(|(received, total)| div().child(format!("Download: {received}/{total} bytes"))))
-        .child(Button::new("download-model").label("Download local search model…").disabled(!cfg!(feature = "native-retrieval") || !ai.ready || ai.download.is_some() || this.closed || this.closing.is_some() || this.close_failed)
-            .on_click(move |_, window, cx| { let _ = target.update(cx, |this, cx| this.open_model_consent(window, cx)); }))
-        .child(Button::new("cancel-download").label("Cancel Download").disabled(ai.download.is_none())
-            .on_click(move |_, _, cx| { let _ = cancel.update(cx, |this, cx| {
-                if let Some(id) = this.ai.as_ref().unwrap().download {
-                    this.ai.as_mut().unwrap().download_stopping = true;
-                    this.ai.as_mut().unwrap().model_state = "Cancelling download; awaiting local join".into();
-                    this.simple_send((Uuid::new_v4(), AppCommand::CancelModelDownload(id)), cx);
-                }
-            }); })).into_any_element()
+    let mut controls = ui::toolbar().gap(px(tokens::space::XS)).child(
+        Button::new("download-model")
+            .label("Download…")
+            .small()
+            .outline()
+            .disabled(
+                !cfg!(feature = "native-retrieval")
+                    || !ai.ready
+                    || ai.download.is_some()
+                    || this.closed
+                    || this.closing.is_some()
+                    || this.close_failed,
+            )
+            .on_click(move |_, window, cx| {
+                let _ = target.update(cx, |this, cx| this.open_model_consent(window, cx));
+            }),
+    );
+    if ai.download.is_some() {
+        controls = controls.child(
+            Button::new("cancel-download")
+                .label("Cancel download")
+                .small()
+                .ghost()
+                .on_click(move |_, _, cx| {
+                    let _ = cancel.update(cx, |this, cx| {
+                        if let Some(id) = this.ai.as_ref().unwrap().download {
+                            this.ai.as_mut().unwrap().download_stopping = true;
+                            this.ai.as_mut().unwrap().model_state =
+                                "Cancelling download; awaiting local join".into();
+                            this.simple_send(
+                                (Uuid::new_v4(), AppCommand::CancelModelDownload(id)),
+                                cx,
+                            );
+                        }
+                    });
+                }),
+        );
+    }
+    let mut body = div()
+        .flex()
+        .flex_col()
+        .child(ui::setting_row(
+            "Keyword search",
+            Some("Always on. Rebuilt from the vault when needed.".into()),
+            ui::badge("built in", ui::Tone::Success, p),
+            p,
+        ))
+        .child(ui::setting_row(
+            "Local search model",
+            Some(ai.model_state.clone()),
+            controls,
+            p,
+        ));
+    if let Some((received, total)) = ai.download_progress {
+        body = body.child(
+            ui::meta(format!("Download: {received}/{total} bytes"), p).pt(px(tokens::space::SM)),
+        );
+    }
+    body.into_any_element()
+}
+
+/// Vault folder shown in Settings › Data.
+pub(super) fn vault_location(this: &Desktop) -> Option<String> {
+    this.ai
+        .as_ref()
+        .unwrap()
+        .vault_root
+        .as_deref()
+        .map(home_relative)
 }
 
 pub(super) fn proposal_state_badge(

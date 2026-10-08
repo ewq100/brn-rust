@@ -86,7 +86,13 @@ environment, with 3–4 options each. Prototyped as D24–D26 in
 `prototypes/directions.html` (four options per topic, trade-offs shown on each).
 Owner chose One queue (D24) and the ChatGPT-style modal (D25), and asked for
 margin comments with optional Changes and Sources toggles (D26, option 5).
-Not implemented in the app yet. Checked only in headless Chromium.
+Implemented afterwards on the design branch (merged with main `32c2538`): Needs
+you, History, tabbed Settings, margin comments and *± Changes since vN*. Native
+tests 328 + 7 pass (new: queue loading/filters, margin comment reveal and seen-
+version changes, four word-diff unit tests); Clippy is clean for the default,
+`native-ui`, full native and `native-capture` feature sets. Real-view captures
+14–18 were inspected. Hover, right-click, keyboard use and VoiceOver were not
+exercised by hand.
 
 ## Owner acceptance
 
@@ -97,7 +103,7 @@ Not implemented in the app yet. Checked only in headless Chromium.
 | D20–D21 (bottom composer, writing review) | Owner-directed; result pending your next look | 2026-10-08 |
 | D22 terminal chat direction | Owner chose Hybrid (D23) | 2026-10-08 |
 | D23 Hybrid chat as implemented | Pending your next look | — |
-| D24 One queue, D25 ChatGPT-style Settings | Owner chose; not implemented | 2026-10-08 |
-| D26 combined writing (option 5) | Owner direction; prototype pending your look | 2026-10-08 |
+| D24 One queue, D25 tabbed Settings | Owner chose; implemented, pending your look | 2026-10-08 |
+| D26 margin comments + Changes | Owner direction; implemented without Sources, pending your look | 2026-10-08 |
 | Current-app restyle on this branch | *Pending review* | — |
 | Future designs and prototype | *Pending review* | — |

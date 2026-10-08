@@ -145,3 +145,109 @@ fn anchored_comments_are_highlighted_and_hoverable_in_the_proposal_text(
         assert!(desktop.read(cx).comment_decorations.is_some());
     });
 }
+
+#[gpui_kit::test]
+fn margin_comments_reveal_their_text_and_changes_compare_seen_versions(
+    cx: &mut gpui_kit::TestAppContext,
+) {
+    use brn_workflow::proposals::{CommentTarget, NoteChange, ReviewComment, TextAnchor};
+    let fixture = tempfile::tempdir_in(std::env::temp_dir().canonicalize().unwrap()).unwrap();
+    let data = fixture.path().join("data");
+    std::fs::create_dir(&data).unwrap();
+    cx.update(|cx| {
+        gpui_kit::component::init(cx);
+        cx.set_reduce_motion(true);
+    });
+    let mut record = crate::review::tests::fixture();
+    let text = record.draft.changes[0].text().unwrap().to_owned();
+    let quote = "repeat λ";
+    let start = text.find(quote).unwrap();
+    let comment = uuid::Uuid::new_v4();
+    record.comments.push(ReviewComment {
+        id: comment,
+        text: "Say this once.".into(),
+        target: CommentTarget::Text(TextAnchor {
+            change_index: 0,
+            start,
+            end: start + quote.len(),
+            quote: quote.into(),
+        }),
+    });
+    let mut newer = record.clone();
+    newer.version += 1;
+    newer.comments.clear();
+    if let NoteChange::Create { text, .. } | NoteChange::Replace { text, .. } =
+        &mut newer.draft.changes[0]
+    {
+        text.push_str(" Added later.");
+    }
+    let id = record.draft.id;
+    let saved = std::rc::Rc::new(std::cell::RefCell::new(None));
+    let capture = saved.clone();
+    let handle = cx.open_window(size(px(1600.), px(900.)), move |window, cx| {
+        let desktop = cx.new(|cx| {
+            let mut this = Desktop::new(
+                data,
+                brn_workflow::app::AppConfig {
+                    vault_root: None,
+                    credentials_dir: None,
+                    model_dir: None,
+                },
+                (LayoutState::default(), Loaded::Missing),
+                window,
+                cx,
+            );
+            this.app_worker.take().unwrap().shutdown().unwrap();
+            let ai = this.ai.as_mut().unwrap();
+            ai.ready = true;
+            ai.vault_bound = true;
+            ai.review = Some(ProposalReview::new(record));
+            this.open_doc = Some(DocRef::Proposal(id));
+            this.centre_tab = CentreTab::Document;
+            this.review_member = 0;
+            this.sync_review_widgets(window, cx);
+            this
+        });
+        *capture.borrow_mut() = Some(desktop.clone());
+        desktop_root(desktop, window, cx)
+    });
+    let desktop = saved.borrow().clone().unwrap();
+    let mut visual = VisualTestContext::from_window(handle.into(), cx);
+    visual.run_until_parked();
+    visual.update(|window, cx| {
+        window.render_frame(cx);
+        assert!(
+            window.find("review-margin").visible(),
+            "wide pane shows the margin"
+        );
+        assert!(window.find("review-toggle-changes").visible());
+        window.click(format!("show-comment-{comment}"), cx);
+        let editor = desktop.read(cx).review_editor.read(cx);
+        assert_eq!(editor.selected_range(), start..start + quote.len());
+        // A newer version arrives in this session.
+        desktop.update(cx, |this, cx| {
+            this.ai.as_mut().unwrap().review = Some(ProposalReview::new(newer));
+            this.sync_review_widgets(window, cx);
+            cx.notify();
+        });
+    });
+    visual.run_until_parked();
+    visual.update(|window, cx| {
+        window.render_frame(cx);
+        window.click("review-toggle-changes", cx);
+    });
+    visual.run_until_parked();
+    visual.update(|window, cx| {
+        window.render_frame(cx);
+        assert!(desktop.read(cx).show_changes);
+        assert!(window.find("show-change-0").visible());
+        let editor = desktop.read(cx).review_editor.read(cx);
+        let len = editor.value().len();
+        let entry = editor
+            .diagnostics()
+            .unwrap()
+            .for_offset(len - 3)
+            .expect("added text is marked");
+        assert!(entry.diagnostic.message.contains("Added since v"));
+    });
+}

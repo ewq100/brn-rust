@@ -656,6 +656,50 @@ impl Desktop {
         if let Some(error) = &ai.activity_error {
             body = body.child(ui::callout(Tone::Danger, error.clone(), p));
         }
+        let decided: Vec<_> = ai
+            .proposals
+            .iter()
+            .filter(|record| !super::queue::awaiting(record))
+            .collect();
+        if !decided.is_empty() {
+            let open = self.show_decided;
+            body = body.child(
+                ui::toolbar().child(
+                    Button::new("toggle-decided")
+                        .icon(if open {
+                            gpui_kit::assets::IconName::ChevronDown
+                        } else {
+                            gpui_kit::assets::IconName::ChevronRight
+                        })
+                        .label(format!("Decided proposals ({})", decided.len()))
+                        .ghost()
+                        .small()
+                        .tooltip("Approved and rejected proposals")
+                        .on_click(cx.listener(|this, _, _, cx| {
+                            this.show_decided = !this.show_decided;
+                            cx.notify();
+                        })),
+                ),
+            );
+            if open {
+                for record in decided {
+                    let id = record.draft.id;
+                    let (label, tone) = super::simple::proposal_state_badge(record.state);
+                    body = body.child(
+                        ui::list_row(
+                            format!("proposal-{id}"),
+                            compact_title(&record.draft.title),
+                            None,
+                            Some(ui::badge(label, tone, p).into_any_element()),
+                            p,
+                        )
+                        .on_click(cx.listener(move |this, _, _, cx| {
+                            this.simple_leave(super::simple::EditorTransition::Review(id), cx)
+                        })),
+                    );
+                }
+            }
+        }
         body = body.child(ui::section_label("Approved changes", p).px_0());
         if let Some(page) = &ai.activity {
             if page.entries.is_empty() {
@@ -864,9 +908,9 @@ impl Desktop {
             .flex_col()
             .bg(theme::color(p.paper))
             .child(ui::view_header(
-                "Activity",
+                "History",
                 None,
-                Some("Approved durable changes, Undo and interrupted-operation recovery".into()),
+                Some("Decided proposals, approved changes, Undo and recovery".into()),
                 p,
             ))
             .child(body)

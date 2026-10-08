@@ -34,6 +34,16 @@ presenting future functionality as working, merging, releases and live calls.
 See the handbook's [verification record](../../../design/src/verification.md)
 for commands, scopes and results, and its native validation handoff.
 
+## Round 3 implementation (2026-10-08 evening)
+
+Owner choices D24 (One queue), D25 (ChatGPT-style Settings) and D26 (margin
+comments + optional Changes/Sources) were built after merging main `32c2538`:
+`native/queue.rs`, sidebar and History changes in `simple.rs`/`approval.rs`, the
+tabbed `shell/settings.rs`, margin and Changes in `review.rs`, and the word diff
+in `src/text_diff.rs`. Sources marks are not built (no claim provenance). Changes
+compare only versions displayed in the current session because the workflow
+stores no earlier proposal text. Evidence: handbook verification, round 3.
+
 ## Next action
 
 Owner reviews the handbook, the prototype and the running app (three tasks in

@@ -73,6 +73,7 @@ mod intake_preview;
 mod login_tests;
 #[cfg(all(test, target_os = "macos", feature = "native-test-support"))]
 mod provenance_tests;
+mod queue;
 #[cfg(all(test, target_os = "macos", feature = "native-test-support"))]
 mod relationship_tests;
 mod relationships;
@@ -95,6 +96,7 @@ enum DocRef {
     Findings,
     Inbox,
     Draft,
+    Queue,
 }
 
 #[derive(Clone, Copy, Debug, PartialEq, Eq)]
@@ -199,6 +201,10 @@ struct Desktop {
     divider_focus: [FocusHandle; 3],
     focus_composer: bool,
     show_decided: bool,
+    queue_filter: queue::QueueFilter,
+    settings_tab: shell::settings::SettingsTab,
+    queue_scroll: ScrollHandle,
+    attention: queue::Attention,
     /// Owner-opened recovery/advanced tools in note and proposal views.
     show_tools: bool,
     /// Last window height, for sizing the proposal text editor.
@@ -206,6 +212,10 @@ struct Desktop {
     /// Signature of the comment marks last pushed into the proposal editor.
     comment_marks: Option<u64>,
     comment_decorations: Option<gpui_kit::component::input::TextDecorationCollection>,
+    /// Proposal texts seen in this session, for "Changes since vN" (D26).
+    review_seen: std::collections::HashMap<(Uuid, usize), review::SeenText>,
+    show_changes: bool,
+    changes_cache: Option<(u64, review::Changes)>,
     message: String,
     _subscriptions: Vec<Subscription>,
     _poll_task: Task<()>,
@@ -562,10 +572,17 @@ impl Desktop {
             ],
             focus_composer: false,
             show_decided: false,
+            queue_filter: queue::QueueFilter::All,
+            settings_tab: shell::settings::SettingsTab::General,
+            queue_scroll: ScrollHandle::new(),
+            attention: queue::Attention::default(),
             show_tools: false,
             viewport_h: 800.,
             comment_marks: None,
             comment_decorations: None,
+            review_seen: Default::default(),
+            show_changes: false,
+            changes_cache: None,
             message: "Opening workspace…".into(),
             _subscriptions: vec![
                 query_subscription,

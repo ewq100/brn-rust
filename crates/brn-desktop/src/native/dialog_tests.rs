@@ -60,6 +60,13 @@ fn settings_is_visible_and_rebuilds_from_current_account_state(cx: &mut gpui_kit
             "Settings opened but its dialog content was not rendered"
         );
         assert!(window.find("settings-body").visible());
+        assert!(window.find("appearance-system").visible());
+        window.click("settings-tab-ai", cx);
+    });
+    visual.run_until_parked();
+    visual.update(|window, cx| {
+        window.render_frame(cx);
+        assert!(window.find("reasoning-effort-low").visible());
         assert!(window.try_find("model-0-0").is_none());
         desktop.update(cx, |desktop, cx| {
             let ai = desktop.ai.as_mut().unwrap();
@@ -122,7 +129,7 @@ fn modal_blocks_background_and_exposes_its_content_until_closed(cx: &mut gpui_ki
         window.render_frame(cx);
         assert!(window.find("synthetic-review-modal").visible());
         assert!(desktop.read(cx).open_doc.is_none());
-        window.click("open-findings", cx);
+        window.click("open-queue", cx);
         assert!(desktop.read(cx).open_doc.is_none());
         assert!(window.try_find("settings-body").is_none());
         window.close_dialog(cx);
@@ -131,8 +138,8 @@ fn modal_blocks_background_and_exposes_its_content_until_closed(cx: &mut gpui_ki
     visual.update(|window, cx| {
         window.render_frame(cx);
         assert!(window.try_find("synthetic-review-modal").is_none());
-        window.click("open-findings", cx);
-        assert_eq!(desktop.read(cx).open_doc, Some(DocRef::Findings));
+        window.click("open-queue", cx);
+        assert_eq!(desktop.read(cx).open_doc, Some(DocRef::Queue));
         window.click("settings-footer", cx);
     });
     visual.run_until_parked();

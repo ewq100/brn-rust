@@ -18,6 +18,7 @@ themed by [`theme.rs`](../../../crates/brn-desktop/src/native/theme.rs).
 | `toolbar` | `ui::toolbar()` | A wrapping row of buttons at natural width | Vertical stacks of buttons | Implemented |
 | `nav_row` | `ui::nav_row(id, icon, label, trailing, p)` | Navigator destinations with optional count/shortcut | Lists of records | Implemented |
 | `list_row` | `ui::list_row(id, title, detail, trailing, p)` | Selectable records: chats, notes, proposals, Actions, search hits | Commands | Implemented |
+| `setting_row` | `ui::setting_row(label, detail, control, p)` | One Settings decision: label and explanation left, control right | Lists of records | Implemented |
 | Button tiers | `ui::primary`, `ui::secondary`, `ui::quiet`, or `Button` + `.primary()/.outline()/.ghost()/.danger()` | See below | — | Implemented |
 | Count tile | inline in [`dashboard.rs`](../../../crates/brn-desktop/src/native/dashboard.rs) | Dashboard counts; tone only when non-zero | General statistics | Implemented (candidate for `ui`) |
 | Decision bar | inline in [`review.rs`](../../../crates/brn-desktop/src/native/review.rs) | Persistent bottom bar for a proposal decision | Non-binding actions | Implemented (candidate for `ui`) |

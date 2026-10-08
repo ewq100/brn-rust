@@ -296,6 +296,39 @@ pub fn list_row(
         .child(row)
 }
 
+/// One setting: label and optional explanation on the left, its control on the right.
+pub fn setting_row(
+    label: impl Into<SharedString>,
+    detail: Option<String>,
+    control: impl IntoElement,
+    p: Palette,
+) -> Div {
+    let mut text_col = div()
+        .flex()
+        .flex_col()
+        .flex_1()
+        .min_w(px(0.))
+        .gap(px(2.))
+        .child(
+            div()
+                .text_size(px(text::BODY))
+                .text_color(color(p.text))
+                .child(label.into()),
+        );
+    if let Some(detail) = detail {
+        text_col = text_col.child(hint(detail, p));
+    }
+    div()
+        .flex()
+        .items_center()
+        .gap(px(space::LG))
+        .py(px(space::MD))
+        .border_b_1()
+        .border_color(color(p.line))
+        .child(text_col)
+        .child(div().flex_shrink_0().child(control))
+}
+
 /// Small secondary command, for toolbars and row actions.
 pub fn quiet(id: impl Into<ElementId>, label: impl Into<SharedString>) -> Button {
     Button::new(id).ghost().small().label(label)

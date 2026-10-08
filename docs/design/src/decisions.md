@@ -29,9 +29,9 @@ owner column. Add new decisions at the end; supersede rather than rewrite.
 | D21 | Writing review: compact header, prominent prose text, visible comment highlights with hover | Owner direction, implemented | Owner feedback 2026-10-08 |
 | D22 | Terminal-style chat: three directions prototyped, Hybrid recommended | Decided by D23 | Owner chose Hybrid 2026-10-08 |
 | D23 | Hybrid terminal chat | Owner direction, implemented (partial: no claim tags yet) | Owner choice 2026-10-08 |
-| D24 | Consolidate everything that needs the owner (Dashboard, Inbox, Needs Review, Review list) — *One queue* | Owner choice, prototype only; not implemented | Owner chose One queue 2026-10-08 |
-| D25 | Settings layout — *ChatGPT-style modal* | Owner choice, prototype only; not implemented | Owner chose ChatGPT-style modal 2026-10-08 |
-| D26 | AI writing environment — margin comments with optional Changes and Sources toggles (option 5) | Owner direction, prototype only; not implemented | Owner asked for the combination 2026-10-08 |
+| D24 | Consolidate everything that needs the owner (Dashboard, Inbox, Needs Review, Review list) — *One queue* | Owner choice, implemented | Owner chose One queue 2026-10-08 |
+| D25 | Settings layout — *ChatGPT-style modal* | Owner choice, implemented (tabbed dialog) | Owner chose ChatGPT-style modal 2026-10-08 |
+| D26 | AI writing environment — margin comments with optional Changes and Sources toggles (option 5) | Owner direction, implemented except Sources (no provenance data) | Owner asked for the combination 2026-10-08 |
 
 ## D1 Keep the refined-terminal identity, correct its typography
 
@@ -198,7 +198,10 @@ to History), **2 · Counts only** (separate places, one row and a count each),
 **3 · Threads** (Codex-like; a proposal stays under the chat that made it),
 **4 · Attention pill** (chats only; the queue sits behind a header pill).
 All options keep the existing Inbox, proposal and finding workflows; only the
-navigation changes. **Owner chose 1 · One queue (2026-10-08).**
+navigation changes. **Owner chose 1 · One queue (2026-10-08).** Implemented on
+the design branch: see [Needs you](screens-current.md#needs-you-d24-owner-choice-2026-10-08).
+The sidebar count includes Due, Sort and Check only after their pages have
+loaded once in the session; proposals are always counted.
 
 ## D25 Settings layout
 
@@ -211,7 +214,9 @@ dragging the sidebar edges plus *Reset layout*), **2 · Mac settings window**,
 Every option states that BRN never falls back to another model or account, and
 that "connected" means stored credentials, not live availability. Items marked
 *planned* (interface language, token display) need owner decisions first.
-**Owner chose 1 · ChatGPT-style modal (2026-10-08).**
+**Owner chose 1 · ChatGPT-style modal (2026-10-08).** Implemented as a tabbed
+Settings dialog; *Show times in* and interface language were left out because
+the app has no such settings yet.
 
 ## D26 AI writing environment
 
@@ -229,7 +234,10 @@ and Sources (3) as optional toggles — prototyped as **5 · Combined**. Comment
 are always visible; *± Changes since vN* (key C) and *⋯ Sources* (key S) are
 off by default; *show change* on an addressed comment turns on Changes and
 flashes the edit. Inline edits only change the draft; approval still covers the whole exact
-version. Source marks need claim-level provenance from the workflow, which
+version. Implemented: margin comments (pane ≥ 600 pt) and *± Changes since vN*
+against the previous version displayed in this session — the workflow keeps no
+earlier version text, so persisted history would need a WorkStore addition.
+Not implemented: Sources marks (no claim-level provenance yet). Source marks need claim-level provenance from the workflow, which
 does not exist yet (same gap as D23 claim tags).
 
 ## Earlier design material reconciled

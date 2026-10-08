@@ -4,7 +4,7 @@ mod centre;
 pub(super) mod divider;
 mod header;
 mod history_rail;
-mod settings;
+pub(in crate::native) mod settings;
 mod vault_rail;
 
 use super::theme::{self, color};
@@ -12,10 +12,6 @@ use super::*;
 use crate::layout::{Appearance, CentreMode, Rail, RailDisplay};
 use crate::tokens::{self, Palette};
 use gpui_kit::{AnyElement, MouseButton, component::Selectable};
-
-fn section_label(text: &str, p: Palette) -> impl IntoElement {
-    super::ui::section_label(text.to_owned(), p).px_0()
-}
 
 impl Desktop {
     pub(super) fn palette(&self) -> Palette {

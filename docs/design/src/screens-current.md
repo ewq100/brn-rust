@@ -30,6 +30,22 @@ provider · model · effort in monospace and a status badge. *Review as new note
 is a quiet row action instead of a full-width button. Provenance chips are not
 implemented yet ([future](screens-future.md)).
 
+## Needs you (D24, owner choice 2026-10-08)
+
+![Needs you, dark](images/current/14-needs-you-dark.jpg)
+
+![Needs you, light](images/current/15-needs-you-light.jpg)
+
+One sidebar entry replaces Dashboard, Inbox, Needs Review and the proposal list.
+Its count adds proposals waiting for a decision (always live) to the last known
+Due, Sort and Check counts; those pages load when *Needs you* opens and the
+sidebar keeps their last counts afterwards. The page groups rows by what the
+owner must do — **Due** (overdue or follow-up Actions), **Decide** (proposals,
+plus *+ Proposal* and *+ Action*), **Sort** (Inbox), **Check** (open findings) —
+with filter chips. Rows open the existing views unchanged; *All Actions*, *Open
+Inbox* and *Open Needs Review* keep their former element ids. Decided proposals
+moved to **History** (the Activity view) behind *Decided proposals (N)*.
+
 ## Dashboard (light and dark)
 
 | Before | After |
@@ -73,6 +89,21 @@ Compact one-row header; the proposed text fills the pane in the reading font;
 the two seeded comments show as amber highlights (hover shows each comment);
 the decision bar states the consequence and holds Reject and Approve.
 
+### Margin comments and Changes (D26)
+
+![Margin comments in Focus](images/current/18-proposal-margin-focus-dark.jpg)
+
+When the document pane is at least 600 pt wide (for example in Focus, ⇧⌘⏎),
+comments move to a 260 pt right margin: comment text, the quoted anchor, and
+*Show* (selects the text), *Edit…* and *Remove*; *Reattach to selection…* appears
+only when the anchored text changed. Narrower panes keep comments below the text
+with a hint to widen. **± Changes since vN** compares the editor text with the
+previous version displayed in this session: added or rewritten text is tinted
+green with a hover note, and the margin lists each change with *Show*. Earlier
+versions are not stored by the workflow, so the toggle stays disabled until a
+newer version arrives while the app is open. **Sources** marks are not built:
+they need claim-level provenance the workflow does not record.
+
 ## Needs Review, Activity, note and evidence
 
 | Needs Review | Activity |
@@ -87,9 +118,17 @@ Notes show *Current · editable* (green); evidence shows *Source · read only*
 (cyan) or *History · read only*. *Save to Markdown* is primary; recovery tools
 are quiet; *Save a copy* is its own labelled group.
 
-## Settings
+## Settings (D25)
 
-![Settings](images/current/10-settings-dark.jpg)
+| General | AI & models | Accounts |
+| --- | --- | --- |
+| ![Settings General](images/current/10-settings-dark.jpg) | ![Settings AI](images/current/16-settings-ai-dark.jpg) | ![Settings Accounts](images/current/17-settings-accounts-dark.jpg) |
+
+A tabbed window (General, AI & models, Accounts, Search, Data & safety, About)
+with one decision per row. The rail-width +/− buttons are gone (drag the edges;
+*Reset layout* remains). Provider, model and default thinking keep their
+existing commands and ids; the no-fallback rule and the meaning of
+"connected" are stated where they apply.
 
 ## Known limitations of the current implementation
 

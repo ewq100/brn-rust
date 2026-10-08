@@ -92,6 +92,7 @@ impl Desktop {
             Some(DocRef::Findings) => self.render_findings(cx),
             Some(DocRef::Inbox) => self.render_inbox(cx),
             Some(DocRef::Draft) => self.render_draft(cx),
+            Some(DocRef::Queue) => self.render_queue(cx),
             _ => self.render_simple_document(cx),
         }
     }

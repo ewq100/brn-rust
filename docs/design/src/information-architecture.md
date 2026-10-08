@@ -25,12 +25,13 @@ opens on demand.
   sidebar is hidden.
 - **Sidebar (left)** — *where work lives*, in order:
   1. **New chat** (⌘N).
-  2. **Dashboard** (future *Today*), **Inbox**, **Needs Review**, **Activity**
-     — each with a count only when it is already known.
-  3. **Review** — proposals awaiting a decision (no badge for ordinary drafts);
-     *Proposal* / *Action* create commands; *Decided (n)* collapsed.
-  4. **Chats** — titles only; last activity is in the tooltip.
-  5. **Settings** (⌘,) pinned to the bottom.
+  2. **Needs you** (D24) — one count for everything waiting for the owner. It
+     opens a queue grouped as Due (Actions), Decide (proposals, with *+ Proposal*
+     / *+ Action*), Sort (Inbox) and Check (Needs Review findings); each group
+     links to its full view (Dashboard, Inbox, Needs Review).
+  3. **Chats** — titles only; last activity is in the tooltip.
+  4. **History** (Activity plus decided proposals) and **Settings** (⌘,) pinned
+     to the bottom.
 - **Centre** — chat is always present, as a centred reading column. With no
   conversation the greeting and composer sit together in the middle. Opening a
   surface or note shows it in the **document pane** beside the chat. Narrow

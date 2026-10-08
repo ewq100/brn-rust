@@ -10,6 +10,18 @@ use gpui_kit::{
     component::{Selectable, WindowExt, input::Textarea},
 };
 
+/// Last and previous text of one proposal member seen in this session. Earlier
+/// versions are not stored by the workflow, so "Changes" only covers versions the
+/// app has displayed since it started.
+pub(super) struct SeenText {
+    version: u64,
+    text: String,
+    previous: Option<(u64, String)>,
+}
+
+/// Previous version number and the changes from it to the editor text.
+pub(super) type Changes = Option<(u64, Vec<crate::text_diff::Change>)>;
+
 #[cfg(test)]
 #[path = "review_tests.rs"]
 mod tests;
@@ -203,7 +215,16 @@ impl Desktop {
     }
 
     pub(super) fn render_proposal_review(&mut self, cx: &mut Context<Self>) -> AnyElement {
-        self.sync_comment_marks(cx);
+        self.track_review_versions();
+        let changes = self.review_changes(cx);
+        self.sync_comment_marks(&changes, cx);
+        let previous = self.review_previous_version();
+        let editor_text = self.review_editor.read(cx).value().to_string();
+        let wide = match self.resolved.mode {
+            crate::layout::CentreMode::Split => self.resolved.doc_w,
+            _ => self.resolved.centre_w,
+        } >= 600.;
+        let mut margin: Option<gpui_kit::Div> = None;
         let p = self.palette();
         let ai = self.ai.as_ref().unwrap();
         let leaving = self.simple_transition.is_some()
@@ -346,75 +367,173 @@ impl Desktop {
                     p,
                 ));
             }
-            body = body
-                .child(ui::section_label("Comments", p).px_0())
-                .child(ui::hint(
-                    "Select text and right-click to comment. Hover a highlight to read it.",
-                    p,
-                ));
+            let mut notes = div()
+                .flex()
+                .flex_col()
+                .gap_2()
+                .child(
+                    ui::section_label(format!("Comments ({})", review.record.comments.len()), p)
+                        .px_0(),
+                )
+                .child(ui::hint("Select text and right-click to comment.", p));
             for comment in &review.record.comments {
+                let shown = match &comment.target {
+                    CommentTarget::Text(anchor)
+                        if anchor.change_index == self.review_member
+                            && editor_text.get(anchor.start..anchor.end)
+                                == Some(anchor.quote.as_str()) =>
+                    {
+                        Some(anchor.start..anchor.end)
+                    }
+                    _ => None,
+                };
                 let id = comment.id;
+                let member = |index: usize| {
+                    if several {
+                        format!(" · member {}", index + 1)
+                    } else {
+                        String::new()
+                    }
+                };
                 let label = match &comment.target {
                     CommentTarget::Proposal => "Whole proposal".to_owned(),
-                    CommentTarget::Text(anchor) => format!(
-                        "Selected text in member {}: {}",
-                        anchor.change_index + 1,
-                        anchor.quote
-                    ),
-                    CommentTarget::Unresolved(anchor) => format!(
-                        "Unresolved previous selection in member {}: {}",
-                        anchor.change_index + 1,
-                        anchor.quote
+                    CommentTarget::Text(anchor)
+                        if shown.is_some() || anchor.change_index != self.review_member =>
+                    {
+                        format!(
+                            "“{}”{}",
+                            compact_title(&anchor.quote),
+                            member(anchor.change_index)
+                        )
+                    }
+                    CommentTarget::Text(anchor) | CommentTarget::Unresolved(anchor) => format!(
+                        "Text changed — was “{}”{}",
+                        compact_title(&anchor.quote),
+                        member(anchor.change_index)
                     ),
                 };
-                body = body
-                    .child(ui::callout(
-                        Tone::Attention,
+                let reattach = selected_text
+                    && shown.is_none()
+                    && !matches!(comment.target, CommentTarget::Proposal);
+                notes = notes.child(ui::callout(
+                    Tone::Attention,
+                    div()
+                        .flex()
+                        .flex_col()
+                        .gap_1()
+                        .child(comment.text.clone())
+                        .child(ui::meta(label, p))
+                        .child(
+                            ui::toolbar()
+                                .gap(px(2.))
+                                .when_some(shown, |row, range| {
+                                    row.child(
+                                        ui::quiet(format!("show-comment-{id}"), "Show")
+                                            .xsmall()
+                                            .tooltip("Select this text in the editor")
+                                            .on_click(cx.listener(move |this, _, window, cx| {
+                                                this.reveal_review_range(range.clone(), window, cx)
+                                            })),
+                                    )
+                                })
+                                .child(
+                                    ui::quiet(format!("edit-comment-{id}"), "Edit…")
+                                        .xsmall()
+                                        .disabled(!can_mutate)
+                                        .on_click(cx.listener(move |this, _, window, cx| {
+                                            this.review_comment_dialog(false, Some(id), window, cx)
+                                        })),
+                                )
+                                .when(reattach, |row| {
+                                    row.child(
+                                        ui::quiet(
+                                            format!("reattach-comment-{id}"),
+                                            "Reattach to selection…",
+                                        )
+                                        .xsmall()
+                                        .disabled(!can_mutate)
+                                        .on_click(
+                                            cx.listener(move |this, _, window, cx| {
+                                                this.review_comment_dialog(
+                                                    true,
+                                                    Some(id),
+                                                    window,
+                                                    cx,
+                                                )
+                                            }),
+                                        ),
+                                    )
+                                })
+                                .child(
+                                    ui::quiet(format!("delete-comment-{id}"), "Remove")
+                                        .xsmall()
+                                        .disabled(!can_mutate)
+                                        .on_click(cx.listener(move |this, _, _, cx| {
+                                            if let Some(command) =
+                                                this.ai.as_mut().unwrap().remove_review_comment(id)
+                                            {
+                                                this.simple_send(command, cx);
+                                            }
+                                        })),
+                                ),
+                        ),
+                    p,
+                ));
+            }
+            if let Some((version, list)) = &changes {
+                notes = notes.child(
+                    ui::section_label(format!("Changes since v{version} ({})", list.len()), p)
+                        .px_0(),
+                );
+                if list.is_empty() {
+                    notes = notes.child(ui::hint("This text did not change.", p));
+                }
+                for (index, change) in list.iter().enumerate() {
+                    let added = editor_text.get(change.new.clone()).unwrap_or_default();
+                    let (label, tone, detail) = if change.removed() {
+                        ("removed", Tone::Danger, change.old.trim().to_owned())
+                    } else if change.added() {
+                        ("added", Tone::Success, added.trim().to_owned())
+                    } else {
+                        (
+                            "changed",
+                            Tone::Attention,
+                            format!("{} → {}", change.old.trim(), added.trim()),
+                        )
+                    };
+                    let range = change.new.clone();
+                    notes = notes.child(
                         div()
                             .flex()
                             .flex_col()
                             .gap_1()
-                            .child(ui::meta(label, p))
-                            .child(comment.text.clone()),
-                        p,
-                    ))
-                    .child(
-                        ui::toolbar()
+                            .p(px(tokens::space::SM))
+                            .border_1()
+                            .border_color(super::theme::color(p.line))
                             .child(
-                                Button::new(format!("edit-comment-{id}"))
-                                    .label("Edit comment…")
-                                    .ghost()
-                                    .small()
-                                    .disabled(!can_mutate)
-                                    .on_click(cx.listener(move |this, _, window, cx| {
-                                        this.review_comment_dialog(false, Some(id), window, cx)
-                                    })),
-                            )
-                            .when(selected_text, |row| {
-                                row.child(
-                                    Button::new(format!("reattach-comment-{id}"))
-                                        .label("Reattach to selected text…")
-                                        .disabled(!can_mutate)
+                                ui::toolbar().child(ui::badge(label, tone, p)).child(
+                                    ui::quiet(format!("show-change-{index}"), "Show in text")
+                                        .xsmall()
                                         .on_click(cx.listener(move |this, _, window, cx| {
-                                            this.review_comment_dialog(true, Some(id), window, cx)
+                                            this.reveal_review_range(range.clone(), window, cx)
                                         })),
-                                )
-                            })
+                                ),
+                            )
                             .child(
-                                Button::new(format!("delete-comment-{id}"))
-                                    .label("Remove comment")
-                                    .ghost()
-                                    .small()
-                                    .disabled(!can_mutate)
-                                    .on_click(cx.listener(move |this, _, _, cx| {
-                                        if let Some(command) =
-                                            this.ai.as_mut().unwrap().remove_review_comment(id)
-                                        {
-                                            this.simple_send(command, cx);
-                                        }
-                                    })),
+                                div()
+                                    .text_size(px(tokens::text::BODY))
+                                    .child(compact_title(&detail)),
                             ),
                     );
+                }
+            }
+            if wide {
+                margin = Some(notes);
+            } else {
+                body = body.child(notes).child(ui::hint(
+                    "Widen the document (Focus, ⇧⌘⏎) to show comments beside the text.",
+                    p,
+                ));
             }
             body = body.child(
                 ui::toolbar()
@@ -749,6 +868,27 @@ impl Desktop {
                             .child(ui::meta(identity, p)),
                     )
                     .child(
+                        Button::new("review-toggle-changes")
+                            .label(match previous {
+                                Some(version) => format!("± Changes since v{version}"),
+                                None => "± Changes".into(),
+                            })
+                            .small()
+                            .when(self.show_changes, |b| b.outline())
+                            .when(!self.show_changes, |b| b.ghost())
+                            .selected(self.show_changes)
+                            .disabled(previous.is_none())
+                            .tooltip(if previous.is_some() {
+                                "Highlight what changed since the previous version you saw"
+                            } else {
+                                "Shows changes once a newer version arrives in this session"
+                            })
+                            .on_click(cx.listener(|this, _, _, cx| {
+                                this.show_changes = !this.show_changes;
+                                cx.notify();
+                            })),
+                    )
+                    .child(
                         ui::quiet("close-proposal-review", "Close")
                             .on_click(cx.listener(|this, _, _, cx| this.close_document(cx))),
                     )
@@ -774,7 +914,26 @@ impl Desktop {
                 }
             }))
             .child(header)
-            .child(body);
+            .child(div().flex().flex_1().min_h(px(0.)).child(body).when_some(
+                margin,
+                |row, notes| {
+                    row.child(
+                        div()
+                            .id("review-margin")
+                            .test_support()
+                            .w(px(260.))
+                            .flex_shrink_0()
+                            .h_full()
+                            .overflow_y_scroll()
+                            .border_l_1()
+                            .border_color(super::theme::color(p.line))
+                            .bg(super::theme::color(p.panel))
+                            .px(px(tokens::space::MD))
+                            .py(px(tokens::space::SM))
+                            .child(notes),
+                    )
+                },
+            ));
         if let Some(decision) = decision {
             pane = pane.child(
                 decision
@@ -790,11 +949,83 @@ impl Desktop {
 }
 
 impl Desktop {
+    /// Records each displayed proposal version so a later version can be compared.
+    fn track_review_versions(&mut self) {
+        let Some(review) = self.ai.as_ref().unwrap().review.as_ref() else {
+            return;
+        };
+        let (id, version) = (review.record.draft.id, review.record.version);
+        for (index, change) in review.record.draft.changes.iter().enumerate() {
+            let Some(text) = change.text() else {
+                continue;
+            };
+            let seen = self
+                .review_seen
+                .entry((id, index))
+                .or_insert_with(|| SeenText {
+                    version,
+                    text: text.to_owned(),
+                    previous: None,
+                });
+            if seen.version != version {
+                let last = std::mem::replace(&mut seen.text, text.to_owned());
+                seen.previous = Some((seen.version, last));
+                seen.version = version;
+            }
+        }
+    }
+
+    fn review_seen_previous(&self) -> Option<&(u64, String)> {
+        let review = self.ai.as_ref().unwrap().review.as_ref()?;
+        self.review_seen
+            .get(&(review.record.draft.id, self.review_member))?
+            .previous
+            .as_ref()
+    }
+
+    fn review_previous_version(&self) -> Option<u64> {
+        self.review_seen_previous().map(|(version, _)| *version)
+    }
+
+    /// Changes from the previous seen version to the current editor text, cached
+    /// so large proposals are compared once per change rather than every frame.
+    fn review_changes(&mut self, cx: &mut Context<Self>) -> Changes {
+        use std::hash::{Hash, Hasher};
+        if !self.show_changes {
+            return None;
+        }
+        let (version, previous) = self.review_seen_previous()?.clone();
+        let text = self.review_editor.read(cx).value().to_string();
+        let mut hasher = std::collections::hash_map::DefaultHasher::new();
+        (version, &previous, &text).hash(&mut hasher);
+        let key = hasher.finish();
+        if let Some((cached, changes)) = &self.changes_cache
+            && *cached == key
+        {
+            return changes.clone();
+        }
+        let changes = crate::text_diff::diff(&previous, &text).map(|list| (version, list));
+        self.changes_cache = Some((key, changes.clone()));
+        changes
+    }
+
+    fn reveal_review_range(
+        &mut self,
+        range: std::ops::Range<usize>,
+        window: &mut Window,
+        cx: &mut Context<Self>,
+    ) {
+        self.review_editor.update(cx, |editor, cx| {
+            editor.set_selected_range(range, cx);
+            editor.focus(window, cx);
+        });
+    }
+
     /// Shows text comments in the proposed-text editor: a tinted highlight on each
     /// exactly anchored range, and the comment text when the pointer hovers it.
     /// Anchors whose saved quote no longer matches the editor text are not shown
     /// in the text (never re-anchored by guessing); they stay in the comment list.
-    fn sync_comment_marks(&mut self, cx: &mut Context<Self>) {
+    fn sync_comment_marks(&mut self, changes: &Changes, cx: &mut Context<Self>) {
         use gpui_kit::base::input::{Diagnostic, DiagnosticSeverity, RopeExt, TextDecoration};
         use std::hash::{Hash, Hasher};
         let ai = self.ai.as_ref().unwrap();
@@ -821,37 +1052,59 @@ impl Desktop {
             })
             .unwrap_or_default();
         let p = self.palette();
+        // Added or rewritten text since the previous seen version, with what it replaced.
+        let edits: Vec<(std::ops::Range<usize>, String)> = changes
+            .iter()
+            .flat_map(|(version, list)| {
+                list.iter()
+                    .filter(|change| !change.new.is_empty() && change.new.end <= text.len())
+                    .map(move |change| {
+                        let note = if change.added() {
+                            format!("**Added since v{version}**")
+                        } else {
+                            format!("**Changed since v{version}** · was: {}", change.old.trim())
+                        };
+                        (change.new.clone(), note)
+                    })
+            })
+            .collect();
         let mut hasher = std::collections::hash_map::DefaultHasher::new();
-        (&text, &marks, p.amber).hash(&mut hasher);
+        (&text, &marks, &edits, p.amber, p.green).hash(&mut hasher);
         let signature = hasher.finish();
         if self.comment_marks == Some(signature) {
             return;
         }
         self.comment_marks = Some(signature);
         let tint = super::theme::color(p.amber).opacity(0.30);
-        let decorations: Vec<TextDecoration> = marks
+        let added = super::theme::color(p.green).opacity(0.22);
+        let style = |color| gpui_kit::HighlightStyle {
+            background_color: Some(color),
+            ..Default::default()
+        };
+        let decorations: Vec<TextDecoration> = edits
             .iter()
-            .map(|(range, _)| {
-                TextDecoration::new(
-                    range.clone(),
-                    gpui_kit::HighlightStyle {
-                        background_color: Some(tint),
-                        ..Default::default()
-                    },
-                )
-            })
+            .map(|(range, _)| TextDecoration::new(range.clone(), style(added)))
+            .chain(
+                marks
+                    .iter()
+                    .map(|(range, _)| TextDecoration::new(range.clone(), style(tint))),
+            )
             .collect();
         let existing = self.comment_decorations.clone();
         let created = self.review_editor.update(cx, |editor, cx| {
             let rope = editor.text().clone();
             if let Some(set) = editor.diagnostics_mut() {
                 set.reset(&rope);
-                for (range, comment) in &marks {
+                let notes = marks
+                    .iter()
+                    .map(|(range, comment)| (range, format!("**Comment:** {comment}")))
+                    .chain(edits.iter().map(|(range, note)| (range, note.clone())));
+                for (range, note) in notes {
                     set.push(
                         Diagnostic::new(
                             rope.offset_to_position(range.start)
                                 ..rope.offset_to_position(range.end),
-                            format!("**Comment:** {comment}"),
+                            note,
                         )
                         .with_severity(DiagnosticSeverity::Hint),
                     );

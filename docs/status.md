@@ -1,5 +1,18 @@
 # Current development status
 
+## Owner-reopened UX work on the design branch — 2026-10-08 (evening)
+
+Later the same day the owner chose round-3 directions and asked to build them on
+`ux/design-handbook` after updating from main (merged `32c2538`, keeping main's
+guided Inbox). Implemented: one *Needs you* queue replacing the separate
+Dashboard/Inbox/Needs Review/proposal sidebar entries, decided proposals in
+*History*, a tabbed Settings dialog, and margin comments with *Changes since vN*
+in proposal review. Presentation only; workflow, approval and element ids are
+unchanged. Automated checks pass (328 + 7 native tests, Clippy, captures); native
+interaction and owner acceptance are pending; not merged. This applies only to
+the design branch and does not change the backend priority recorded below.
+Record: [UX design handbook](work/active/ux-design-handbook/plan.md).
+
 ## Selected CI performance fix, merge and GUI/live qualification — 2026-10-08
 
 The owner selects fixing the long Mac CI path, merging the eligible PR87/PR88
