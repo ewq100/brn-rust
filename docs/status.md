@@ -1,5 +1,28 @@
 # Current development status
 
+
+## Guided Inbox implementation checkpoint — 2026-10-08
+
+The owner-approved follow-up is implemented on PR87 at source
+`986632601a260697252c2e7044780789d2dc688a`: import/select/local reading, safe
+readable evidence and named attachments, exact retained-version reopening,
+focused proposal cards and offline Source review, with technical/recovery tools
+secondary. Existing exact approval/group mechanisms remain authoritative.
+The [fresh evidence and handoff](work/active/architecture-reassessment/plan.md#guided-inbox-implementation-evidence-and-handoff)
+records 1,629 default workspace passes, 326 final native desktop passes, five
+guided worker journeys, shipping builds, 52 fixture assertions and two packaged
+restarts. Native workflow/model boundaries passed 397 tests (15 ignored), and
+native retrieval passed 15 tests. Hosted CI must still confirm the final head;
+the implementation-source native UI job passed while other source checks were
+still running and Windows failed.
+
+A fresh isolated local app and MacBook agent prompt are prepared. The execution
+Mac remains locked, so new native GUI usability and owner acceptance are pending.
+The guided image-preserving AI path requires a pending extracted Source; settled
+Sources and text-only copies show explicit limits. No AI trials, optional model
+downloads, account changes, merge or release occurred. Earlier owner MacBook
+results below retain their exact older-commit attribution.
+
 ## Owner MacBook verification and Inbox proposal — 2026-10-08
 
 The owner tested PR87 at exact commit
@@ -15,8 +38,8 @@ The owner could not navigate Inbox without guidance: newly imported items requir
 manual Refresh, and the long view mixes reading with technical and recovery controls.
 The [proposed Inbox scope](work/active/architecture-reassessment/plan.md#owner-macbook-verification-and-proposed-inbox-ui--2026-10-08)
 is **Import → Read email/attachments → Review proposed notes → Approve** using the
-existing evidence/proposal/application paths. It awaits owner scope approval;
-this update changes documentation only. Reopening retained extraction after restart,
+existing evidence/proposal/application paths. The owner subsequently approved
+implementation with “yes”; the selected follow-up is in progress on PR87. Reopening retained extraction after restart,
 Source approval, grouped consequences and AI usefulness remain unverified by this
 owner run. No AI trials or optional model downloads occurred. P2 acceptance and
 merge/release approval are not granted; prior dated evidence remains historical.

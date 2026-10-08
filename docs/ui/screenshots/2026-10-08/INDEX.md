@@ -38,3 +38,13 @@ prove that restart occurred, reopen extraction, approve Source/grouped consequen
 or establish AI usefulness. No AI trials or optional model downloads were reported.
 
 See the [P2 evidence and proposed UI scope](../../../work/active/architecture-reassessment/plan.md#owner-macbook-verification-and-proposed-inbox-ui--2026-10-08).
+
+
+## Guided follow-up capture status
+
+Source `986632601a260697252c2e7044780789d2dc688a` implements the approved guided
+Inbox. Native widget tests and packaged headless restarts passed on the lead's
+arm64 macOS 27.0.1 execution host. CUA reports that Mac locked, with automatic
+unlock unavailable; an unlock request was sent. No new GUI pixels were captured
+or substituted for the owner's five original attachments. A new MacBook GUI pass
+must identify its exact commit separately and remains pending owner acceptance.

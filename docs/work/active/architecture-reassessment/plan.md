@@ -1,5 +1,115 @@
 # Proposed architecture change plan — 2026-10-07
 
+## Selected guided Inbox implementation — 2026-10-08
+
+The owner approved the proposed scope below with “yes” after the explicit next-step
+question. Implement it on PR87 from clean head `69cab825d0f49ac56042c4e1a951ea3863854106`;
+no new merge/release, private-data, model-download or AI-trial selection is implied.
+The lead owns desktop state/native orchestration, integration and documentation.
+Two bounded helpers cover exact saved-extraction discovery and safe readable
+presentation; CI investigation is read-only before a focused diagnostic/fix.
+Maximum two active helpers plus lead; independent review replaces a completed helper.
+Reuse the existing helper, snapshots, AppWorker, proposals and approval/recovery.
+Stop/reassess only a material data/authority/renderer prerequisite outside this scope.
+
+Execution checkpoints:
+
+- Reproduce import-list staleness; add automatic inventory/selection and bounded
+  extraction orchestration with late-reply/input guards.
+- Reopen exact retained versions from the item list; render readable, inert email/
+  document text and checked images with material gaps visible.
+- Replace the default long technical view with focused stages and explicit Source/
+  AI actions, proposal review and existing exact approval; disclose details/tools.
+- Diagnose Mac CI timeouts, run relevant shared/native/shipping checks, obtain
+  independent review, rebuild a fresh local candidate and update PR87 handoff.
+
+Implementation source is `986632601a260697252c2e7044780789d2dc688a`, pushed to
+[PR87](https://github.com/ewq100/brn-rust/pull/87). The fresh evidence below is a
+local implementation checkpoint; owner usability/P2 acceptance and merge remain
+pending. Prior dated P2 and owner MacBook evidence below retains its attribution.
+
+### Guided Inbox implementation evidence and handoff
+
+The default Inbox now occupies the available document area, with retained originals
+and focused reading/proposed-note tabs. Import acknowledgement refreshes inventory,
+selects the exact import and starts local extraction. A newly imported/selected
+item appears at the top of the sidebar even beyond the FIFO page. Back navigation
+reads the exact retained item independently of the current inventory page; an
+explicitly chosen saved extraction version can be restored without reconversion.
+One saved version is labelled historical evidence; multiple versions require a
+choice and are never sorted/selected as a latest approval baseline.
+
+The maintained toolkit reader renders decoded adapter text and tables, with named
+attachment selection, exact occurrence images and ordinary-language omission
+warnings. Markdown/HTML image URLs and all link opening are inert. Actual images
+come only from the validated extraction cache. Original inspection names/opens
+the selected supported attachment, with no parent-email fallback for a stale node.
+Raw Markdown/MIME/limits/hashes live under Evidence details. Paste, copy management
+and batch/analysis controls remain secondary; advanced tools use a separate view
+with Back. Evidence EditorStates are readonly at creation, including while hidden;
+programmatic synchronization remains supported. Source title/path inputs survive
+item switching; retained Source edits use its exact review rather than ignored
+preparation inputs.
+
+An explicit **Propose notes** gesture can retain a pending extracted Source, load
+its private binding and submit one existing investigation with the frozen
+provider/model/effort/generation. Late navigation or changed selection prevents
+that later submission. **Save as Source only** retains the review draft offline.
+Neither reading nor draft preparation approves changes. Source, Knowledge and
+Action cards use the existing exact review, comments/Rewrite and group approval;
+originals remain retained. No new approval ledger, converter, schema, dependency,
+provider route, larger-context behavior or binary cleanup was introduced.
+
+**Supported-state limits:** the guided image-preserving investigation requires a
+pending extracted Source. Already approved/rejected/uncertain Sources do not
+silently fall back to text-only investigation. Plain-text/Markdown copies can be
+saved as Source and use the existing saved-Source tools. The UI explains these
+limits before submission. To qualify AI after an offline Source-only approval,
+use a distinct public-fixture import and investigate before approving its Source;
+this handoff authorizes no new trial call, account change or optional model download.
+
+Fresh checks on the lead's arm64 Mac, macOS 27.0.1, pinned Rust 1.98.1, all offline:
+
+| Check | Result and limit |
+| --- | --- |
+| Default workspace `cargo test --workspace --locked --offline` | 1,629 passed, 17 ignored. Ran before the final desktop navigation/render repairs; unchanged Store/workflow passed here, and subsequent desktop changes were covered by the final full native suite and focused journeys below. |
+| Default and native Clippy | Workspace `--all-targets -D warnings` and desktop native-ui, combined native-retrieval, and combined native-test-support variants passed. |
+| Final desktop native suite | `cargo test -p brn-desktop --features native-ui,native-retrieval,native-test-support --locked --offline`: 319 unit/widget + 7 CLI tests passed. Includes hostile visible resource/link tests and genuine toolkit widgets; this is not an unlocked GUI usability observation. |
+| Guided real-worker journeys | Five focused tests passed, also included in the native suite: public plural EML import/read, offline Source draft/approval/restart; exact saved version choice; stale/misbound replies and retry; frozen explicit AI admission intercepted before execution; 26th import/back navigation. No live provider command was executed. |
+| Native workflow/retrieval | `cargo test -p brn-workflow --features native-retrieval --lib --test models --locked --offline`: 390 unit + 7 model-boundary tests passed, 15 ignored; native retrieval lib/model-download tests: 15 passed. No optional model assets downloaded. |
+| Helper and shipping builds | Helper 22 tests passed; locked offline default workspace, native-retrieval CLI and native-ui/native-retrieval desktop builds passed. |
+| Fixtures / launcher / tooling | 52 end-to-end assertions, macOS launcher checks, 18 tooling tests and current Markdown-link check passed. |
+| Packaged lifecycle | Fresh bundle with the exact tested desktop/helper hashes and isolated empty data/vault: two bundled-binary startup/shutdown runs passed. |
+| Independent review | Read-only review found no remaining actionable defect after page/attachment/resource/intent and routing/readonly fixes. Reviewer ran no Cargo or live checks. |
+| Native GUI / AI / models | CUA reports execution Mac locked and automatic unlock unavailable; one unlock request sent. No new GUI screenshots/acceptance, provider trial or optional model download. |
+
+Native widget checks first exposed an advanced-renderer stack overflow; separating
+the small mode dispatcher from the large guided frame resolved it without larger
+stacks or timeouts. The next check exposed unpainted evidence input remaining
+editable; initializing readonly state fixed it. Original management tests now
+explicitly open the shipping secondary controls; detailed legacy tests exercise
+the separate advanced renderer, while new tests cover the default guided view.
+
+The old Mac CI failure did not identify the blocked command. Test-only diagnostics
+now report safe command/event variants, operation ID, caller, elapsed absolute
+10-second ceiling and last event, with single/plural phase markers. Both local
+parallel feature-graph paired P2 checks passed; no timeout inflation, skip,
+fixture reduction or speculative resource-serialization fix is claimed. Hosted
+CI must still confirm the final handoff head; the source native UI job passed,
+other source checks were still running and Windows failed at the last read. The
+source run is
+[37748654513](https://github.com/ewq100/brn-rust/actions/runs/37748654513).
+Prior Windows Unix-API build failures remain outside this bounded Mac UI scope.
+
+Fresh isolated setup: `BRN-local-builds/P2-guided-9866326-20261008-111609/BRN Guided Inbox.app`
+on the execution host, with `README.txt`, `MACBOOK_AGENT_PROMPT.txt`, public
+`Fixtures`, hashes in `build-manifest.json` and retained verification logs.
+The MacBook prompt pins this exact source commit, builds the helper/CLI/desktop
+sequentially, binds new data/vault/log paths and specifies the offline GUI/restart
+scenario. No old workspace/account is copied. The owner's next acceptance pass
+should report this new commit separately from the older `64db36e` MacBook results;
+full P2 acceptance, AI usefulness, release and merge remain ungranted.
+
 ## Owner MacBook verification and proposed Inbox UI — 2026-10-08
 
 **Task boundary:** record the owner's verification and screenshot review, and
