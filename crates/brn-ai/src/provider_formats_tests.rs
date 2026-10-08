@@ -4061,6 +4061,112 @@ mod action_proposal_tool_tests {
         }
     }
     #[tokio::test]
+    async fn clarification_followup_and_abstention_preserve_optional_owner_on_all_rig_routes() {
+        // Synthetic responses qualify instruction transport and tool contracts,
+        // not a stochastic model's decision to propose or abstain.
+        struct Followups {
+            expected: Option<Value>,
+            calls: AtomicUsize,
+        }
+        impl ReadTools for Followups {
+            fn search_notes(&self, _: &str, _: usize) -> AiResult<ToolSearch> {
+                panic!("unexpected read")
+            }
+            fn read_note(&self, _: &str) -> AiResult<ToolNote> {
+                panic!("unexpected read")
+            }
+            fn list_notes(&self, _: Option<&str>, _: Option<&str>) -> AiResult<NotePage> {
+                panic!("unexpected read")
+            }
+        }
+        impl ProposalTools for Followups {
+            fn propose_actions(&self, input: ActionProposalArgs) -> AiResult<Value> {
+                assert_eq!(Some(serde_json::to_value(input).unwrap()), self.expected);
+                self.calls.fetch_add(1, Ordering::SeqCst);
+                Ok(json!({"state":"draft","approval":"separate exact review required"}))
+            }
+        }
+        for (provider, model, responses) in [
+            (Provider::Chatgpt, "gpt-6-luna", true),
+            (Provider::Copilot, "gpt-5.5", false),
+            (Provider::Copilot, "gpt-5.3-codex", true),
+        ] {
+            for (question, followup) in [
+                (
+                    "A supplier asks which delivery window is acceptable. No responder is assigned.",
+                    Some(
+                        "Prepare an owner decision on the delivery window; no acceptance or assignment is established.",
+                    ),
+                ),
+                (
+                    "A visitor requests entry to a restricted room. No access authorization is evidenced.",
+                    Some(
+                        "Clarify the access request with an authorized owner; do not grant access or imply authorization.",
+                    ),
+                ),
+                (
+                    "An informational notice says the archive index was refreshed; no reply or unresolved work is indicated.",
+                    None,
+                ),
+            ] {
+                let candidate = followup.map(|description| json!({"title":"Review a supported clarification follow-up","source_paths":[],"action_changes":[{"kind":"create","data":{
+                    "title":"Seek owner clarification","description":description,"state":"open","owner":null,
+                    "related_person":null,"related_project":null,"sources":[],"thread":null,"due_on":null,"follow_up_on":null,
+                    "dependencies":[],"parent":null,"follows_up":null,"priority":null
+                }}]}));
+                let mut replies = Vec::new();
+                if let Some(input) = &candidate {
+                    replies.push(success(tool_sse(
+                        responses,
+                        &[("propose_actions", input.clone())],
+                    )));
+                }
+                replies.push(success(text_sse(
+                    responses,
+                    if candidate.is_some() {
+                        "Unassigned review draft only; approval and authority remain unresolved."
+                    } else {
+                        "No useful follow-up is supported; no draft submitted."
+                    },
+                )));
+                let (_root, client, http) = client(provider, model, replies).await;
+                let tools = Arc::new(Followups {
+                    expected: candidate.clone(),
+                    calls: AtomicUsize::new(0),
+                });
+                let answer = answer_with_proposals(
+                    client,
+                    question,
+                    &[],
+                    ReasoningEffort::Medium,
+                    tools.clone(),
+                    tools.clone(),
+                    CancellationToken::new(),
+                    Arc::new(|_| {}),
+                )
+                .await;
+                assert!(matches!(answer.terminal, AiTerminal::Completed));
+                assert_eq!(
+                    tools.calls.load(Ordering::SeqCst),
+                    usize::from(candidate.is_some())
+                );
+                http.assert_consumed();
+                let bodies = http.bodies();
+                assert_eq!(bodies.len(), if candidate.is_some() { 2 } else { 1 });
+                let instruction = preamble(&bodies[0], provider, responses);
+                for guard in [
+                    "Missing execution authorization does not by itself rule out",
+                    "leave an unknown owner null",
+                    "without implying assignment, acceptance, release, spending permission or completion",
+                    "submit no Action draft; do not force a proposal count",
+                    "Separate exact human approval is required",
+                ] {
+                    assert!(instruction.contains(guard), "missing guidance: {guard}");
+                }
+            }
+        }
+    }
+    #[tokio::test]
     async fn private_image_collections_share_proposal_runtime_and_preserve_all_rig_routes() {
         use base64::Engine as _;
         struct Private(Arc<Proposals>);

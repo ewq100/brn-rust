@@ -443,3 +443,12 @@ quotations from rendered/paraphrased text. A rejected quotation may be corrected
 within the existing budget; this grants no fuzzy matching, approval or semantic
 completeness authority. Shared image placements remain distinct from image bytes.
 Live usefulness and interactive acceptance are separate qualification gates.
+
+
+Shared Action guidance explicitly separates review preparation from execution
+authority. A useful supported clarification/response/owner-decision draft may have
+an unknown owner (`null`) and unresolved conditions; it implies no assignment,
+acceptance, release, spending permission or completion. Informational evidence
+with no useful follow-up may produce no Action draft. No count or semantic answer
+is forced. Real-Rig synthetic route tests qualify delivery and the nullable-owner/
+abstention contract; actual model usefulness needs separate bounded live evidence.
