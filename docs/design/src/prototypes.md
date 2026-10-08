@@ -5,7 +5,7 @@
 production app; build native behaviour in the desktop crate and verify it there.
 
 The file is self-contained HTML (`docs/design/src/prototypes/brn-prototype.html`)
-and loads `../generated/tokens.css`, generated from the app's `tokens.rs`, so its
+embeds its styles, generated from the app's `tokens.rs`, so its
 colours and type match production. Open it directly in a browser or from the
 built handbook.
 

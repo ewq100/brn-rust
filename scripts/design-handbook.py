@@ -31,6 +31,9 @@ GENERATED = BOOK / "src/generated"
 TOKENS_MD = GENERATED / "tokens.md"
 TOKENS_CSS = GENERATED / "tokens.css"
 LOCAL_MDBOOK = ROOT / "target/design-tools/bin/mdbook"
+PROTOTYPES = BOOK / "src/prototypes"
+BEGIN = "/* BEGIN GENERATED TOKENS (scripts/design-handbook.py) */"
+END = "/* END GENERATED TOKENS */"
 
 ROLES = {
     "background": "Outer window and divider background",
@@ -157,9 +160,22 @@ def render_md(tokens: dict) -> str:
     return "\n".join(out) + "\n"
 
 
+def embed(html: str, css: str) -> str:
+    """Inline the token CSS so prototypes work from file:// in every browser
+    (Safari blocks stylesheets outside the opened file's folder)."""
+    start, end = html.find(BEGIN), html.find(END)
+    if start < 0 or end < start:
+        raise SystemExit("prototype is missing the generated-token markers")
+    return html[: start + len(BEGIN)] + "\n" + css + html[end:]
+
+
 def generated() -> dict[Path, str]:
     tokens = parse(TOKENS_RS.read_text(encoding="utf-8"))
-    return {TOKENS_CSS: render_css(tokens), TOKENS_MD: render_md(tokens)}
+    css = render_css(tokens)
+    files = {TOKENS_CSS: css, TOKENS_MD: render_md(tokens)}
+    for page in sorted(PROTOTYPES.glob("*.html")):
+        files[page] = embed(page.read_text(encoding="utf-8"), css)
+    return files
 
 
 def write_tokens() -> None:
