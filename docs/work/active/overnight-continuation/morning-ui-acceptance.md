@@ -36,6 +36,15 @@ included. Refresh final receipt before cutoff; never use historical executable
 once newer schema migrated state. Bound state/vault folders must stay in place.
 Actual GUI/personal acceptance remains pending.
 
+A separate durable evidence copy is under
+`/Users/evokessler/repos/brn-overnight-artifacts-20261008/qualification-evidence`,
+with a SHA-256 archive manifest. It contains synthetic inputs, retained model
+outputs, review/approval receipts, scripts, logs and historical executables.
+Bound `data`/`vault` folders and credentials are excluded and remain in their
+recorded locations. Use the final runtime above for acceptance; historical
+executables are evidence and must not reopen state migrated by a newer schema.
+Running gate logs may be partial until the final refresh.
+
 Workspace A (email/DOCX/core journey):
 `/private/tmp/brn-retained-qualification-bi3q58kf/headless/{data,vault,results}`.
 Fixture: `experiments/architecture-reassessment/p1-office-mime/fixtures/plural.eml`.
@@ -152,7 +161,7 @@ Allow 75â€“105 minutes for all workspaces/new controls. Essential path: steps 1â
 | 12. Select a completed synthetic session, Archive, inspect Archived history, quit/reopen and Restore; inspect old operation replay if exposed | Same UUID, turns, budgets and creation/activity times; archived history readable, explicit Restore needed for new work; pending/stale controls preserve composer/editor/review buffers. Busy/draining Archive refuses without cancellation | Selected UUID, lifecycle versions/receipt, displayed filter/banner, preserved text and restart history. Session implementation, independent review and final local qualification passed; required candidate/post-merge CI passed and PR97 merged |
 | 13. In E, inspect both retained plain-text EML variants and compare the older extraction in D | New extraction retains every decoded In-Reply-To/References value across scalar/list and physical fields in order, including repeats, and distinguishes header claims from authentication/thread proof; no generic false absence/HTML/remote claim. Actual HTML/remote/CID gaps remain specific. Old snapshots retain their original wording and partial status | Exact extraction IDs/build/helper hash and visible caveat; do not reconvert old evidence merely to change wording. Helper/local CLI qualification and independent review passed; all required candidate/post-merge CI passed and PR96 merged |
 | 14. Once final PPTX qualification/build is recorded, open the retained Harbor and unrelated Quay presentations and repeated email attachments, inspect slide/notes/table/image evidence, exact Source/assets approval and restart | Presentation order and hidden labels are explicit; notes distinct from slide text; repeated picture occurrences retain parents/shared bytes; chart/SmartArt/layout gaps remain visible without invented facts. Reopen without conversion/inference | Final fixture/candidate/snapshot/Source IDs and asset hashes, slide/notes locators, partial gaps and approval receipts. PPTX implemented/reviewed clean;41 intake,1729default including reused Store461,426native workflow/models,549desktopCLI,Clippy/shipping/fixtures passed. Required CI/integration pending. Do not mark observed |
-| 15. Once final backup build is recorded, inspect Settings backup status, change a disposable draft/comment, checkpoint, refresh and restart; inspect warning fixture only if recorded | Last known usable copy/path/time or unknown startup time is distinct from failure/retention warning. Automatic changed-state copies and final joined shutdown preserve complete state. A backup warning never turns a committed approval/Save/chat into failed/retryable work, and owner buffers remain | Exact checkpoint path/status, retained changed draft/comments/session/budget/Actions/Findings and warning. Backup implementation/qualification pending; no destructive Restore or private data test |
+| 15. Once final backup build is recorded, inspect Settings backup status, change a disposable draft/comment, checkpoint, refresh and restart; inspect warning fixture only if recorded | Last known usable copy/path/time or unknown startup time is distinct from failure/retention warning. Automatic changed-state copies and final joined shutdown preserve complete state. A backup warning never turns a committed approval/Save/chat into failed/retryable work, and owner buffers remain | Exact checkpoint path/status, retained changed draft/comments/session/budget/Actions/Findings and warning. Backup implementation and independent review passed; focused Store/worker/CLI/native checks passed, final broader qualification/CI/integration pending. No destructive Restore or private data test |
 
 ## Headless evidence already passed; interactive acceptance pending
 
@@ -166,13 +175,13 @@ P4: AI 145 passed/one existing ignore; integrated scenario and historical replay
 context guards 3; native AI/workflow Clippy, shipping CLI/desktop, 52 fixtures and
 602 links passed. Independent review found no remaining actionable finding. P4 required candidate and post-merge CI passed; it merged. Predecessor attachment targeted Store 7, workflow 7, desktop/widget 7, CLI parser 1 and subprocess 2 passed; affected Clippy and independent full-candidate review passed. Final default1694/17existing ignores with doctests and52fixtures passed. Native workflow/models418/15ignores, desktop/CLI535, final Clippy/shipping builds/52fixtures/603links passed. PR93 merged normally; required candidate and post-merge CI passed.
 
-PR94 final Store 450, AI 146/one ignore and native workflow/models 420/15 ignores, combined Clippy/shipping/52 fixtures/603 links passed; required candidate and post-merge CI passed and merged. PR95 final combined AI 147/one ignore and AI Clippy/shipping passed; required candidate CI passed and merged; post-merge pending. Both complete implementations received independent read-only reviews with no actionable findings. Their new interactive states remain pending and must be included once the combined final build lands.
+PR94 final Store 450, AI 146/one ignore and native workflow/models 420/15 ignores, combined Clippy/shipping/52 fixtures/603 links passed; required candidate and post-merge CI passed and merged. PR95 final combined AI 147/one ignore and AI Clippy/shipping passed; required candidate CI passed and merged; post-merge passed. Both complete implementations received independent read-only reviews with no actionable findings. Their new interactive states remain pending and must be included once the combined final build lands.
 
-Eleven live CLI investigations attempted: five Luna, six Sol, including one generic failed Sol run and a separately counted manual retry. Linden completed Applied-private-intake Finding and four exact consequences; Action-first approval/restart/replay passed without inference and full evidence identities stayed unchanged. Cedar Sol used range calls and retained tail evidence/review consequences; Luna found facts through search but submitted no drafts. North Quay Luna retained one Action/one
+Fourteen live CLI investigations attempted: seven Luna, seven Sol, including one generic failed Sol run and a separately counted manual retry. Linden completed Applied-private-intake Finding and four exact consequences; Action-first approval/restart/replay passed without inference and full evidence identities stayed unchanged. Cedar Sol used range calls and retained tail evidence/review consequences; Luna found facts through search but submitted no drafts. North Quay Luna retained one Action/one
 Knowledge without a formal Finding; Sol retained two Actions/one Knowledge and a
 reasoned Finding. Neither chose History: live History selection is unqualified;
 deterministic supersession/History/recovery mechanics were exercised separately.
-Owner added ten shared trials; eleven of sixteen used at this checkpoint. Use the canonical ledger for later totals.
+Owner added ten shared trials; fourteen of sixteen used, leaving at most one per existing Medium condition. The North Quay owner-comment Rewrite is retained Draft/version4 with the owner note unchanged. The PPTX pair retained five drafts and did not invent chart capacity; missing-year clarity remains a Luna limitation. Use the canonical ledger for later totals.
 **No interactive native result or personal acceptance has been established.**
 
 ## Ready-to-paste morning agent prompt
@@ -186,7 +195,9 @@ Owner added ten shared trials; eleven of sixteen used at this checkpoint. Use th
 > outputs; do not repeat inference for review/approval. Exercise native approval,
 > full quit/restart, reading, saved notes, Actions/dashboard, recorded budget/error
 > states, conflict review, Applied-private-intake Findings, qualified predecessor/
-> revision and session Archive/Restore, and newly qualified email caveat wording.
+> owner-comment revision, session Archive/Restore, accurate email caveats and
+> retained PPTX slides/notes/tables/image occurrences/original inspection. Include
+> backup Settings/status/checkpoint checks once the recorded final build contains them.
 > Preserve failures, drafts and exact evidence; do not reset data or touch my real
 > vault. Report concrete defects and pending owner acceptance; mark unobserved
 > or unavailable checks pending. A new live cancellation trial requires an explicit

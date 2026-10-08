@@ -77,7 +77,20 @@ requires exact final-candidate review, applicable local checks and actual requir
 CI. No weakening, bypass or rushed merge. Record failures and repair real defects.
 Known informational platform failures remain visible and separate.
 
-## Durable checkpoint — 08 October 22:36 UTC
+## Durable checkpoint — 08 October 22:30 UTC
+
+
+Lead now continues on `codex/p7-action-replacement-compensation`, based on pushed
+PPTX PR98 candidate8b403853bd5acab24a0efccca1cb08e120deae96; PR98 remains unchanged
+remotely and its CI continues. The selected [Action compensation plan](action-replacement-compensation.md)
+fixes an independent all-Replace Action-only slice; no creation deletion/mixed Undo
+semantics are added. Two bounded helpers own Store inverse and desktop capture;
+lead owns workflow/CLI/recovery/shared docs/integration. Neither helper has Cargo:
+backup final gate12095 retains the sole slot in the budget checkout. Backup code
+is pushed through e6b8169; complete independent review and test-delta reviews are
+clean, default integration/doctests passed, native/final gates active. Existing
+workflow unit success is reused (418 unchanged plus corrected private-read pass).
+No additional inference;14/16 used. Do not rerun campaigns or relocate state.
 
 Main `441120ce7f6ee47de3e4fa0f784355e2fc0b3257` includes normally protected
 PR90–PR97. Every required candidate and post-merge check plus documentation
@@ -103,9 +116,11 @@ Immutable final runtime and manifest:
 `/Users/evokessler/repos/brn-overnight-artifacts-20261008/pptx-runtime`.
 Exact hashes and launch instructions are in the [morning task](morning-ui-acceptance.md).
 This build includes SessionV18/PPTX and excludes pending backups. PPTX is pushed
-at 8456f7407d67eb5e5f7b472f09f70fa7f73ece5d in [PR98](https://github.com/ewq100/brn-rust/pull/98), attached to this chat. Required
-CI run37852945826 is active; docs passed, Windows failed (raw cause inspection
-pending completion). Next: inspect actual required CI, merge normally when
+at 8b403853bd5acab24a0efccca1cb08e120deae96 in [PR98](https://github.com/ewq100/brn-rust/pull/98), attached to this chat. Required
+CI run37853345027 is pending after documentation checkpoint. Previous code-identical
+run37852945826 was cancelled automatically after the newer head; docs passed,
+Windows failed with inspected unchanged
+Unix MetadataExt/nlink errors. Next: inspect actual required CI, merge normally when
 eligible and verify resulting main. Actual CLI workspace F is
 `/private/tmp/brn-overnight-20261008/pptx-retained-case`: Harbor/twins Sources
 remain Draft; Quay Source/two assets are Applied with exact replay and unchanged
@@ -132,16 +147,27 @@ Independent P7 plan55a29a1 is selected in
 `/Users/evokessler/repos/brn-p3-work-budgets`, branch`codex/p7-operational-backups`
 on main441120c. `operational-backups.md` fixes Store API, checked private-temp
 publication, pre-copy dirty token, cadence, separate warning, shutdown and client
-contracts. Store helper owns backup/mod/private editor checks and sole Cargo
-slot in target/budgets. Focused10 tests passed;73,781,248-byte copy measured205ms.
-Full Store/Clippy runs are underway; strict unit-variant serde and unchanged
-settings writes were corrected. Desktop helper owns state/Settings/tests, code
-written/direct rustfmt passed, waiting for Cargo. Lead owns workflow/CLI/shared
-docs; declared API, cadence, commands and final-checkpoint warning wiring are
-written, behavioral tests/compile/integration pending. No concurrent Cargo or
-recursive delegation; at most two active helpers. After Store release, grant
-Desktop the slot, then qualify lead behavior, obtain complete independent review,
-run final gates, inspect required CI and integrate normally.
+contracts. Store helper completed 472 full tests and 12 final focused tests,
+all-target Clippy and direct formatting/diff checks; final added primary-damage
+witness and style cleanup are covered by the focused rerun. Representative
+74,928,128-byte snapshot of 64 complete chat turns measured 217 ms including
+validation/sync/publication, not a hard per-step latency guarantee. Store Cargo
+was released. Desktop helper completed and released Cargo; four
+backup state witnesses and the full native suite (348 unit/widget plus 7 CLI)
+passed after adding required native traits and adapting the existing joined-
+shutdown witness to the separate status notification. All three Clippy lanes and
+shipping native build passed. Lead now owns the sole Cargo slot in target/budgets.
+Lead owns workflow/CLI/shared docs. API, cadence, manual commands, final-checkpoint
+warning wiring and behavioral tests are written; workflow/CLI focused checks passed after desktop release. All three worker
+witnesses passed, including final chat settlement; two cancellation/correlation
+and two real-process CLI tests passed. A notification filter was corrected to check cancellation
+before draining backup updates. Independent complete review is clean at complete dirty-candidate hash
+1e9862c62bb948b7a37fa9cb500f6e7ca051d04d0325f69de2bec8c3ce9ef66e. Production
+committed/pushed as0723a698879b14edc831730897d8f296348c89cb. Broader final gate
+12707 is active (fmt/default all-target Clippy passed, default tests running). No concurrent Cargo, recursive delegation or additional live calls.
+Next: finish final gates, integrate normally after required CI and verify main.
+A bounded read-only helper inspects readiness for Action Replace compensation/Undo;
+no next production slice is selected yet, no recursive helpers or concurrent Cargo.
 
 The single morning task owns all expected interactive steps, final build/data
 and launch prompt, including PPTX and pending backups. Continue useful small V1
