@@ -81,16 +81,26 @@ impl App {
                 .ok_or_else(|| stale("Source approval journal missing"))?;
             if journal.approved.stamp() == binding.source_proposal
                 && journal.approved.draft == proposal.draft
-                && journal
-                    .receipt
-                    .as_ref()
-                    .is_some_and(|r| r.outcome == ApplyOutcome::Applied)
+                && journal.receipt.as_ref().is_some_and(|r| {
+                    r.outcome == ApplyOutcome::Applied && r.stamp == proposal.stamp()
+                })
             {
                 exact_receipt = true;
             }
         }
         if !exact_receipt {
             return Err(stale("Source prerequisite has no exact Applied receipt"));
+        }
+        // This check also runs inside admitted approval/recovery, while public
+        // Current reads remain fenced. Reuse the internal fresh proof scan.
+        let resolution = self
+            .inspect_identity_inventory()?
+            .resolution(binding.source_note_id);
+        if resolution.outcome != crate::knowledge::IdentityOutcome::Unique
+            || resolution.matches.len() != 1
+            || resolution.matches[0].path != binding.source_path
+        {
+            return Err(stale("Applied Source identity is ambiguous or unavailable"));
         }
         self.validate_inbox_source(Some(source_binding))?;
         let files = self

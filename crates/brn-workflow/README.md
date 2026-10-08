@@ -99,15 +99,26 @@ Candidates and historical review read that snapshot without reconversion. Fresh
 Source approval still checks the exact original file, snapshot, body and every
 asset. Unsupported attachments remain retained and visibly unprocessed.
 
-`InboxIntakeBinding` binds private investigation to the exact pending Source
-proposal stamp, snapshot digest, note identity and text. `AnalyzeInboxActions`
+`InboxIntakeBinding` binds retained investigation to the exact pending or
+approved Draft stamp, snapshot digest, note identity and text. For an Applied
+Source, `intake_analysis_binding` requires exactly one successful journal matching
+the current Applied review stamp and full draft; it retains that journal's
+original approved Draft stamp rather than substituting the later Applied stamp.
+No latest-receipt selection or new Source proposal occurs. Rejected/applying/
+uncertain states and missing/ambiguous receipt matches refuse. `AnalyzeInboxActions`
 accepts either this binding or the historical saved Source profile. Private
 knowledge citations bind exact source-node text ranges; Actions retain the same
 prerequisite. No SourceVersion is fabricated for unsaved evidence. Related
 knowledge, History and Actions use existing proposals, comment/Rewrite and
 application journals. Group approval validates selected stamps and applies the
 Source prerequisite before dependent members. Individual dependent approval
-requires its exact Applied Source receipt and current saved bytes.
+requires its exact Applied Source receipt for the current review version,
+current saved bytes/assets and fresh unique Source identity. The internal proof
+scan remains usable during admitted application while public Current tools stay
+fenced. Admission opens the checked file adapter after restart even when no
+editor has been opened. Saved turns replay without fresh inference. The model
+input names pending versus Applied Source authority explicitly; neither implies
+semantic completeness.
 
 Old DOCX drafts cannot approve or Finish through reconversion. Original bytes and
 saved records remain available; exact-proof Restore can undo partial effects,

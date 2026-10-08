@@ -154,7 +154,21 @@ impl App {
                                     "private extraction is unavailable",
                                 )
                             })?;
-                    crate::ai_behavior::TaskInput::Intake(&capture, &snapshot).prompt()?
+                    let source =
+                        self.store
+                            .proposal(intake.source_proposal.id)?
+                            .ok_or_else(|| {
+                                WorkflowError::typed(
+                                    ErrorKind::ContextStale,
+                                    "bound Source is unavailable",
+                                )
+                            })?;
+                    crate::ai_behavior::TaskInput::Intake(
+                        &capture,
+                        &snapshot,
+                        source.state == crate::proposals::ProposalState::Applied,
+                    )
+                    .prompt()?
                 } else {
                     crate::ai_behavior::TaskInput::Inbox(&capture).prompt()?
                 }
@@ -179,6 +193,9 @@ impl App {
     ) -> Result<()> {
         capture.validate()?;
         if let Some(intake) = &capture.intake {
+            // A retained approved Source can be investigated immediately after
+            // restart, before any editor or proposal-preparation view opened.
+            self.editor_files()?;
             self.validate_intake_dependency(Some(intake), false)?;
             let snapshot = self
                 .store
@@ -222,18 +239,50 @@ impl App {
         Ok(())
     }
 
-    /// Mint the private analysis binding from a checked retained Source draft.
+    /// Mint a retained collection binding from a Draft or exact Applied Source.
     /// Callers may explicitly select a smaller image/occurrence collection later.
     pub fn intake_analysis_binding(&self, source_proposal_id: Uuid) -> Result<InboxIntakeBinding> {
         let source = self.store.proposal(source_proposal_id)?.ok_or_else(|| {
             WorkflowError::typed(ErrorKind::NotFound, "Source proposal is unavailable")
         })?;
-        if source.state != crate::proposals::ProposalState::Draft {
-            return Err(WorkflowError::typed(
-                ErrorKind::OperationConflict,
-                "private analysis preparation needs a pending Source proposal",
-            ));
-        }
+        let source_stamp = match source.state {
+            crate::proposals::ProposalState::Draft => source.stamp(),
+            crate::proposals::ProposalState::Applied => {
+                let mut approved_stamp = None;
+                for id in self.store.proposal_apply_ids()? {
+                    let journal = self.store.proposal_apply(id)?.ok_or_else(|| {
+                        WorkflowError::typed(
+                            ErrorKind::ContextStale,
+                            "listed Source approval is unavailable",
+                        )
+                    })?;
+                    if journal.approved.draft == source.draft
+                        && journal.receipt.as_ref().is_some_and(|receipt| {
+                            receipt.outcome == crate::proposal_apply::ApplyOutcome::Applied
+                                && receipt.stamp == source.stamp()
+                        })
+                        && approved_stamp.replace(journal.approved.stamp()).is_some()
+                    {
+                        return Err(WorkflowError::typed(
+                            ErrorKind::ContextStale,
+                            "Source approval receipt is ambiguous",
+                        ));
+                    }
+                }
+                approved_stamp.ok_or_else(|| {
+                    WorkflowError::typed(
+                        ErrorKind::ContextStale,
+                        "Source has no exact current Applied receipt",
+                    )
+                })?
+            }
+            _ => {
+                return Err(WorkflowError::typed(
+                    ErrorKind::OperationConflict,
+                    "retained investigation needs a Draft or exact Applied Source",
+                ));
+            }
+        };
         let extraction = source
             .draft
             .inbox_source
@@ -273,7 +322,7 @@ impl App {
         let binding = InboxIntakeBinding {
             snapshot_id: snapshot.id,
             snapshot_sha256: snapshot.digest()?,
-            source_proposal: source.stamp(),
+            source_proposal: source_stamp,
             source_path: change.path().to_owned(),
             source_note_id: brn_store::note_identity::read(text)?.ok_or_else(|| {
                 WorkflowError::typed(

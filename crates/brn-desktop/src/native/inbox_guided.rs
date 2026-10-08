@@ -549,9 +549,9 @@ impl Desktop {
         let retained_extraction = preview.is_some_and(|preview| preview.extraction.is_some());
         let ai_ready = ai.selection.is_some() && ai.effort.is_some();
         let existing_source = ai.guided_source_record().is_some();
-        let source_unusable = ai
-            .guided_source_record()
-            .is_some_and(|record| record.state != ProposalState::Draft);
+        let source_unusable = ai.guided_source_record().is_some_and(|record| {
+            !matches!(record.state, ProposalState::Draft | ProposalState::Applied)
+        });
         let ambiguous_source = preview.is_some_and(|preview| {
             ai.guided_related_proposals()
                 .iter()
@@ -648,7 +648,7 @@ impl Desktop {
             .guided_source_record()
             .is_some_and(|record| record.state == ProposalState::Applied)
         {
-            focus = focus.child("This Source is already approved. Investigation of retained email and pictures needs a pending Source draft; use Propose notes before Source approval.");
+            focus = focus.child("This Source is already approved. Propose notes investigates its retained email and pictures and prepares new proposals for review.");
         }
         if ambiguous_source {
             focus = focus.child("More than one Source review matches this reading. Open the existing Source cards and resolve the exact review before proposing further changes.");

@@ -430,8 +430,12 @@ impl AiState {
             .filter(|source| source.draft.id == source_id)?;
         let binding = source.draft.inbox_source.as_ref()?;
         let item = binding.original.capture.id;
-        if source.state != brn_workflow::proposals::ProposalState::Draft {
-            self.inbox_queue.guided.error = Some("This Source is already settled. Investigation of its retained email and pictures needs a pending Source draft.".into());
+        if !matches!(
+            source.state,
+            brn_workflow::proposals::ProposalState::Draft
+                | brn_workflow::proposals::ProposalState::Applied
+        ) {
+            self.inbox_queue.guided.error = Some("Retained investigation needs a pending or approved Source. Resolve this Source's review or recovery state first.".into());
             return None;
         }
         let intent = SourceIntent {
