@@ -48,6 +48,7 @@ impl Desktop {
     pub(super) fn open_queue_pages(&mut self, cx: &mut Context<Self>) {
         let ai = self.ai.as_mut().unwrap();
         ai.dashboard.filter = DashboardFilter::Active;
+        ai.finding_queue.state = Some(brn_workflow::findings::FindingState::Open);
         let commands = [ai.open_dashboard(), ai.open_inbox(), ai.open_findings()];
         for command in commands.into_iter().flatten() {
             self.simple_send(command, cx);
@@ -57,7 +58,13 @@ impl Desktop {
     pub(super) fn refresh_attention(&mut self) {
         let ai = self.ai.as_ref().unwrap();
         if let Some(page) = &ai.dashboard.page {
-            self.attention.due = Some(page.counts.overdue + page.counts.follow_up);
+            // An Action can be both overdue and due for follow-up; count it once.
+            let due = page
+                .entries
+                .iter()
+                .filter(|entry| entry.overdue || entry.follow_up)
+                .count() as u64;
+            self.attention.due = Some(due);
             self.attention.overdue = Some(page.counts.overdue);
         }
         if let Some(page) = &ai.inbox_queue.page {
@@ -194,11 +201,26 @@ impl Desktop {
                         })),
                 ),
             ));
+            // The page holds the newest active Actions; the counts cover them all.
+            let missing = ai.dashboard.page.as_ref().is_some_and(|page| {
+                let overdue = due_entries.iter().filter(|entry| entry.overdue).count() as u64;
+                let follow = due_entries.iter().filter(|entry| entry.follow_up).count() as u64;
+                page.counts.overdue > overdue || page.counts.follow_up > follow
+            });
             if ai.dashboard.page.is_none() {
                 body = body.child(ui::hint("Loading Actions…", p).py(px(tokens::space::SM)));
-            } else if due_entries.is_empty() {
+            } else if due_entries.is_empty() && !missing {
                 body = body.child(
                     ui::hint("Nothing overdue or due for follow-up.", p).py(px(tokens::space::SM)),
+                );
+            }
+            if missing {
+                body = body.child(
+                    ui::hint(
+                        "More overdue or follow-up Actions are older than this list. Open All Actions to see them.",
+                        p,
+                    )
+                    .py(px(tokens::space::SM)),
                 );
             }
             for entry in due_entries {

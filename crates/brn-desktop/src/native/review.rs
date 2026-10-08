@@ -412,9 +412,7 @@ impl Desktop {
                         member(anchor.change_index)
                     ),
                 };
-                let reattach = selected_text
-                    && shown.is_none()
-                    && !matches!(comment.target, CommentTarget::Proposal);
+                let reattach = selected_text;
                 notes = notes.child(ui::callout(
                     Tone::Attention,
                     div()
@@ -446,22 +444,17 @@ impl Desktop {
                                 )
                                 .when(reattach, |row| {
                                     row.child(
-                                        ui::quiet(
-                                            format!("reattach-comment-{id}"),
-                                            "Reattach to selection…",
-                                        )
-                                        .xsmall()
-                                        .disabled(!can_mutate)
-                                        .on_click(
-                                            cx.listener(move |this, _, window, cx| {
+                                        ui::quiet(format!("reattach-comment-{id}"), "Reattach…")
+                                            .xsmall()
+                                            .disabled(!can_mutate)
+                                            .on_click(cx.listener(move |this, _, window, cx| {
                                                 this.review_comment_dialog(
                                                     true,
                                                     Some(id),
                                                     window,
                                                     cx,
                                                 )
-                                            }),
-                                        ),
+                                            })),
                                     )
                                 })
                                 .child(

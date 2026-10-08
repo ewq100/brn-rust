@@ -431,11 +431,25 @@ fn needs_you_queue_loads_every_section_and_filters_without_leaving(
     visual.run_until_parked();
     visual.update(|window, cx| {
         window.render_frame(cx);
+        // A filter left on Needs Review or the Dashboard must not hide queue items.
+        desktop.update(cx, |this, _| {
+            let ai = this.ai.as_mut().unwrap();
+            ai.finding_queue.state = Some(brn_workflow::findings::FindingState::Resolved);
+            ai.dashboard.filter = brn_workflow::dashboard::DashboardFilter::Completed;
+        });
         window.click("open-queue", cx);
         let this = desktop.read(cx);
         assert_eq!(this.open_doc, Some(DocRef::Queue));
         let ai = this.ai.as_ref().unwrap();
         assert!(ai.dashboard.visible && ai.inbox_queue.visible && ai.finding_queue.visible);
+        assert_eq!(
+            ai.finding_queue.state,
+            Some(brn_workflow::findings::FindingState::Open)
+        );
+        assert_eq!(
+            ai.dashboard.filter,
+            brn_workflow::dashboard::DashboardFilter::Active
+        );
     });
     visual.run_until_parked();
     visual.update(|window, cx| {

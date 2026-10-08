@@ -44,7 +44,11 @@ owner must do — **Due** (overdue or follow-up Actions), **Decide** (proposals,
 plus *+ Proposal* and *+ Action*), **Sort** (Inbox), **Check** (open findings) —
 with filter chips. Rows open the existing views unchanged; *All Actions*, *Open
 Inbox* and *Open Needs Review* keep their former element ids. Decided proposals
-moved to **History** (the Activity view) behind *Decided proposals (N)*.
+moved to **History** (the Activity view) behind *Decided proposals (N)*. Opening
+*Needs you* resets the Actions filter to Active and findings to Open. Due rows
+come from the newest active Actions page; when the store counts show more
+overdue or follow-up Actions than that page holds, a hint points to *All
+Actions*, and an Action that is both overdue and due for follow-up counts once.
 
 ## Dashboard (light and dark)
 
@@ -95,8 +99,8 @@ the decision bar states the consequence and holds Reject and Approve.
 
 When the document pane is at least 600 pt wide (for example in Focus, ⇧⌘⏎),
 comments move to a 260 pt right margin: comment text, the quoted anchor, and
-*Show* (selects the text), *Edit…* and *Remove*; *Reattach to selection…* appears
-only when the anchored text changed. Narrower panes keep comments below the text
+*Show* (selects the text), *Edit…*, *Reattach…* (moves the comment to the
+selected text) and *Remove*. Narrower panes keep comments below the text
 with a hint to widen. **± Changes since vN** compares the editor text with the
 previous version displayed in this session: added or rewritten text is tinted
 green with a hover note, and the margin lists each change with *Show*. Earlier
