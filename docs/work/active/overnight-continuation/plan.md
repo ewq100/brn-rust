@@ -46,9 +46,9 @@ product limits. Preserve outputs and reuse them for approval/replay.
 Local receipts: `/private/tmp/brn-overnight-20261008`; script
 `paired-baseline.py` uses the same already-approved synthetic `plural.eml`
 Source/binding and exact executable for both models, without application between
-runs. Current ledger: eleven investigations started, five Luna/six Sol, including one
-failed Sol attempt and a separately counted manual retry. Five remain authorized,
-at most three Luna/two Sol. Do not spend them to repeat approval/replay or answer questions
+runs. Current ledger: fourteen investigations started, seven Luna/seven Sol, including one
+failed Sol attempt and a separately counted manual retry. Two remain authorized,
+at most one Luna/one Sol. Do not spend them to repeat approval/replay or answer questions
 that retained evidence and deterministic tests can resolve. Baseline, first-slice
 and North Quay pairs are retained in the local ledger. Every CLI call retains
 the 180-second deadline/nine responses/eight tool rounds and no automatic retry.
@@ -77,7 +77,7 @@ requires exact final-candidate review, applicable local checks and actual requir
 CI. No weakening, bypass or rushed merge. Record failures and repair real defects.
 Known informational platform failures remain visible and separate.
 
-## Durable checkpoint — 08 October 22:18 UTC
+## Durable checkpoint — 08 October 22:36 UTC
 
 Main `441120ce7f6ee47de3e4fa0f784355e2fc0b3257` includes normally protected
 PR90–PR97. Every required candidate and post-merge check plus documentation
@@ -102,9 +102,11 @@ Gate1915 exited0. No Cargo remains active in this checkout.
 Immutable final runtime and manifest:
 `/Users/evokessler/repos/brn-overnight-artifacts-20261008/pptx-runtime`.
 Exact hashes and launch instructions are in the [morning task](morning-ui-acceptance.md).
-This build includes SessionV18/PPTX and excludes pending backups. Next: finish
-current documentation push, open PPTX PR, inspect actual required CI, merge
-normally when eligible and verify resulting main. Actual CLI workspace F is
+This build includes SessionV18/PPTX and excludes pending backups. PPTX is pushed
+at 8456f7407d67eb5e5f7b472f09f70fa7f73ece5d in [PR98](https://github.com/ewq100/brn-rust/pull/98), attached to this chat. Required
+CI run37852945826 is active; docs passed, Windows failed (raw cause inspection
+pending completion). Next: inspect actual required CI, merge normally when
+eligible and verify resulting main. Actual CLI workspace F is
 `/private/tmp/brn-overnight-20261008/pptx-retained-case`: Harbor/twins Sources
 remain Draft; Quay Source/two assets are Applied with exact replay and unchanged
 Original/installed identities. A harness used unsupported approve --file; it was
