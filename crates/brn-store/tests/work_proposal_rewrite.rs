@@ -577,7 +577,7 @@ fn noop_completion_preserves_version_and_exact_anchor_and_replays_without_captur
 #[test]
 fn late_results_after_comments_edits_rejection_application_or_missing_review_settle_stale() {
     for race in [
-        "comment", "edit", "reject", "applying", "applied", "missing",
+        "comment", "edit", "rename", "reject", "applying", "applied", "missing",
     ] {
         let mut f = Fixture::new();
         let record = f.review();
@@ -600,6 +600,11 @@ fn late_results_after_comments_edits_rejection_application_or_missing_review_set
                 let mut newer = edit(&record);
                 newer.texts[0] = Some("later user typing".into());
                 f.store.edit_proposal(&newer).unwrap();
+            }
+            "rename" => {
+                f.store
+                    .rename_proposal_create(record.stamp(), 0, "renamed.md")
+                    .unwrap();
             }
             "reject" => {
                 f.store.reject_proposal(record.stamp()).unwrap();

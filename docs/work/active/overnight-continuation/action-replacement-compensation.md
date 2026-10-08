@@ -116,3 +116,11 @@ b8abe1f233acb85707e304e9334ce8540ef733600a9536b3852381856bbadead;
 backup integration delta from 1f7f31d has SHA-256
 a21d55217454d9c277c6941e38303106a89c46c17352ce5cb1313bfa1c87a304.
 Lead rechecked both hashes; only reporting documentation changed afterward.
+
+
+Final composed candidate8bf40d4 passed 1769 default / 18 existing ignores,
+434 native workflow/models / 16, 565 combined desktop/CLI, doctests, strict Clippy,
+shipping,52 fixtures and links. PR100 is attached; required run37858092859 active.
+Immutable action-backup-runtime includes this behavior. WorkspaceG retains ready
+native compensation and completed/changed refusal scenarios without inference;
+all actual GUI observation remains pending in the single morning task.

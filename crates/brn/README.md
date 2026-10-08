@@ -80,6 +80,7 @@ brn proposals asset PATH
   brn proposals show PROPOSAL_ID
   brn proposals edit --file EDIT.json
   brn proposals attach-predecessor --file REQUEST.json
+  brn proposals rename-create --file REQUEST.json
   brn proposals rewrite --file REQUEST.json
   brn proposals rewrite-status JOB_UUID
   brn proposals rewrite-result --file EDIT.json
@@ -478,6 +479,22 @@ History replacement. No note changes until exact approval of that revised versio
 old stamps refuse. Existing predecessor context is never silently refreshed.
 Changing/removing an already attached predecessor is separate work. Original
 proposal creation/replay still binds its unchanged original payload hash.
+
+Correct a proposed new note's filename within the same folder with
+`brn proposals rename-create --file REQUEST.json`:
+
+```json
+{"expected":{"id":"11111111-1111-4111-8111-111111111111","version":3},"change_index":0,"path":"notes/corrected.md"}
+```
+
+The selected member must be a Markdown Create. Exact text, identity, comments,
+evidence, parent and all other members remain unchanged. A changed filename
+returns a new review version requiring approval; the current same-path request
+returns the exact unchanged review. Stale/unsafe/occupied/aliased/cross-folder
+requests refuse. Bound Source/visual destinations and asset/Replace retarget are
+unsupported. Original creation replay returns the current renamed review without
+inference or file writes, including after approval/restart. No file is renamed or
+created during preparation.
 
 Ordinary assets use `create_asset`, `replace_asset` or `trash_asset`, visible
 non-Markdown paths and canonical padded base64 for the new payload fields.

@@ -11,7 +11,8 @@ use brn_workflow::{
     },
     proposal_rewrite::RewriteRequest,
     proposals::{
-        CommentRequest, DraftRequest, KnowledgePredecessorRequest, ProposalEdit, ProposalStamp,
+        CommentRequest, CreateRenameRequest, DraftRequest, KnowledgePredecessorRequest,
+        ProposalEdit, ProposalStamp,
     },
 };
 use serde::de::DeserializeOwned;
@@ -28,6 +29,7 @@ pub enum ProposalCommand {
     Show(Uuid),
     Edit(PathBuf),
     AttachPredecessor(PathBuf),
+    RenameCreate(PathBuf),
     Rewrite(PathBuf),
     RewriteStatus(Uuid),
     RewriteResult(PathBuf),
@@ -59,6 +61,7 @@ impl ProposalCommand {
             Self::Show(_) => "proposals.show",
             Self::Edit(_) => "proposals.edit",
             Self::AttachPredecessor(_) => "proposals.attach-predecessor",
+            Self::RenameCreate(_) => "proposals.rename-create",
             Self::Rewrite(_) => "proposals.rewrite",
             Self::RewriteStatus(_) => "proposals.rewrite-status",
             Self::RewriteResult(_) => "proposals.rewrite-result",
@@ -87,7 +90,7 @@ pub(super) fn scan_command(
     let sub = sub_word(
         tokens,
         "proposals",
-        "source|asset|create|list|show|edit|attach-predecessor|rewrite|rewrite-status|rewrite-result|comment|comment-update|comment-remove|reject|approve|reconcile|approve-group|applies|undo-preview|undo|restore-trash|repair-preview|repair",
+        "source|asset|create|list|show|edit|attach-predecessor|rename-create|rewrite|rewrite-status|rewrite-result|comment|comment-update|comment-remove|reject|approve|reconcile|approve-group|applies|undo-preview|undo|restore-trash|repair-preview|repair",
     )?;
     let (label, options): (_, &[(&str, bool)]) = match sub.as_str() {
         "source" => ("proposals.source", &[]),
@@ -97,6 +100,7 @@ pub(super) fn scan_command(
         "show" => ("proposals.show", &[]),
         "edit" => ("proposals.edit", &[("file", true)]),
         "attach-predecessor" => ("proposals.attach-predecessor", &[("file", true)]),
+        "rename-create" => ("proposals.rename-create", &[("file", true)]),
         "rewrite" => ("proposals.rewrite", &[("file", true)]),
         "rewrite-status" => ("proposals.rewrite-status", &[]),
         "rewrite-result" => ("proposals.rewrite-result", &[("file", true)]),
@@ -184,6 +188,7 @@ pub(super) fn parse_command(name: &str, s: &Scanned) -> Result<ProposalCommand, 
         "proposals.show" => Ok(ProposalCommand::Show(id()?)),
         "proposals.edit" => Ok(ProposalCommand::Edit(file()?)),
         "proposals.attach-predecessor" => Ok(ProposalCommand::AttachPredecessor(file()?)),
+        "proposals.rename-create" => Ok(ProposalCommand::RenameCreate(file()?)),
         "proposals.rewrite" => Ok(ProposalCommand::Rewrite(file()?)),
         "proposals.rewrite-status" => {
             let id = Uuid::parse_str(required_positional(s, "JOB_UUID")?)
@@ -323,6 +328,13 @@ fn prepare_input(command: &ProposalCommand) -> Result<(Uuid, AppCommand), CliFai
                 .validate()
                 .map_err(super::error::classify_workflow)?;
             AppCommand::AttachInboxKnowledgePredecessor(request)
+        }
+        ProposalCommand::RenameCreate(file) => {
+            let request: CreateRenameRequest = input(file)?;
+            request
+                .validate()
+                .map_err(super::error::classify_workflow)?;
+            AppCommand::RenameProposalCreate(request)
         }
         ProposalCommand::Rewrite(file) => {
             let request: RewriteRequest = input(file)?;

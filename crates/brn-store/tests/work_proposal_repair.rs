@@ -986,3 +986,59 @@ fn maximum_repair_history_near_core_limit_still_completes_and_recovers() {
         Some(ApplyOutcome::Applied)
     );
 }
+
+#[test]
+fn repair_preview_binds_nonempty_original_create_paths() {
+    let (_dir, mut store) = fixture();
+    let initial = draft();
+    let review = store.create_proposal(&initial).unwrap();
+    let renamed = store
+        .rename_proposal_create(review.stamp(), 0, "renamed.md")
+        .unwrap();
+    let journal = store
+        .begin_proposal_apply(&ApprovalRequest {
+            operation_id: Uuid::new_v4(),
+            expected: renamed.stamp(),
+        })
+        .unwrap();
+    let proofs: Vec<_> = journal
+        .approved
+        .draft
+        .changes
+        .iter()
+        .enumerate()
+        .map(|(index, change)| {
+            if let Some(bytes) = change.candidate_bytes() {
+                fingerprint(std::str::from_utf8(bytes).unwrap(), 100 + index as u64)
+            } else {
+                change.before().unwrap().clone()
+            }
+        })
+        .collect();
+    let journal = store
+        .record_proposal_prepared(journal.request.operation_id, &proofs)
+        .unwrap();
+    let observations: Vec<_> = journal
+        .approved
+        .draft
+        .changes
+        .iter()
+        .zip(&proofs)
+        .map(|(change, prepared)| ApplyMemberProof {
+            destination: change.before().cloned(),
+            staging: if matches!(change, NoteChange::Trash { .. }) {
+                None
+            } else {
+                Some(prepared.clone())
+            },
+        })
+        .collect();
+    let preview = journal.repair_preview(&observations).unwrap();
+    let mut fork = journal.clone();
+    fork.original_create_paths[0].path = "different-original.md".into();
+    fork.validate().unwrap();
+    assert_ne!(
+        fork.repair_preview(&observations).unwrap().expected,
+        preview.expected
+    );
+}

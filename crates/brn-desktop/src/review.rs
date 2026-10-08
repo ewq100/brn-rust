@@ -18,6 +18,12 @@ use uuid::Uuid;
 #[path = "predecessor_review.rs"]
 mod predecessor;
 use predecessor::SubmittedPredecessor;
+#[path = "create_rename_review.rs"]
+mod create_rename;
+use create_rename::SubmittedCreateRename;
+#[cfg(test)]
+#[path = "create_rename_review_tests.rs"]
+pub(crate) mod create_rename_tests;
 #[cfg(test)]
 #[path = "predecessor_review_tests.rs"]
 pub(crate) mod predecessor_tests;
@@ -41,6 +47,8 @@ pub struct ProposalReview {
     acknowledged_generation: u64,
     submitted: Option<SubmittedEdit>,
     predecessor: Option<SubmittedPredecessor>,
+    create_rename: Option<SubmittedCreateRename>,
+    create_rename_failed: bool,
     last_edit: Option<Instant>,
     failed: bool,
 }
@@ -62,6 +70,8 @@ impl ProposalReview {
             acknowledged_generation: 0,
             submitted: None,
             predecessor: None,
+            create_rename: None,
+            create_rename_failed: false,
             last_edit: None,
             failed: false,
         }
@@ -167,11 +177,11 @@ impl ProposalReview {
     }
 
     pub fn pending(&self) -> bool {
-        self.submitted.is_some() || self.predecessor.is_some()
+        self.submitted.is_some() || self.predecessor.is_some() || self.create_rename.is_some()
     }
 
     pub fn can_leave(&self) -> bool {
-        !self.pending() && !self.dirty()
+        !self.pending() && !self.dirty() && !self.create_rename_failed
     }
 
     pub fn can_mutate(&self) -> bool {
@@ -182,6 +192,9 @@ impl ProposalReview {
     }
 
     fn can_type(&self) -> Result<(), &'static str> {
+        if self.create_rename.is_some() {
+            return Err("Waiting for new-note destination acknowledgement");
+        }
         if self.predecessor.is_some() {
             return Err("Waiting for predecessor attachment acknowledgement");
         }
@@ -366,12 +379,15 @@ impl ProposalReview {
             return false;
         }
         self.failed = false;
+        self.create_rename_failed = false;
         self.error = None;
         true
     }
 
     pub fn observe(&mut self, record: ProposalRecord) -> bool {
-        if (!same_bindings(&self.record, &record) && !self.valid_predecessor_observation(&record))
+        if (!same_bindings(&self.record, &record)
+            && !self.valid_predecessor_observation(&record)
+            && !self.valid_create_rename_observation(&record))
             || record.version < self.record.version
             || self
                 .observed
@@ -380,7 +396,9 @@ impl ProposalReview {
         {
             return false;
         }
-        if !self.dirty() && !self.pending() {
+        // A read-only observation cannot resolve a retained destination failure
+        // or release navigation queued behind it. Retry/discard stays explicit.
+        if !self.dirty() && !self.pending() && !self.create_rename_failed {
             self.adopt(record);
         } else if record.version != self.record.version
             || record.state != self.record.state
@@ -412,6 +430,7 @@ impl ProposalReview {
         self.observed = None;
         self.error = None;
         self.failed = false;
+        self.create_rename_failed = false;
         self.last_edit = None;
     }
 }

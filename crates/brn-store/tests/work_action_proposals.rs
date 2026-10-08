@@ -437,6 +437,7 @@ fn unbound_action_only_and_mixed_apply_refuse_admission_or_recovery() {
             request,
             approved: record.clone(),
             creation_sha256: digest(&serde_json::to_vec(&draft).unwrap()),
+            original_create_paths: Vec::new(),
             members,
             prepared: None,
             receipt: None,

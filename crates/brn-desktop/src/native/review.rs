@@ -19,6 +19,10 @@ mod tests;
 mod predecessor_tests;
 
 #[cfg(all(test, target_os = "macos", feature = "native-test-support"))]
+#[path = "create_rename_tests.rs"]
+mod create_rename_tests;
+
+#[cfg(all(test, target_os = "macos", feature = "native-test-support"))]
 #[path = "asset_review_tests.rs"]
 mod asset_tests;
 
@@ -64,6 +68,32 @@ impl Desktop {
             self.review_predecessor
                 .update(cx, |input, cx| input.set_value("", window, cx));
             self.review_predecessor_proposal = Some(proposal);
+        }
+        if self.review_create_paths_proposal != Some(proposal) {
+            self.review_create_paths.clear();
+            self.review_create_path_subscriptions.clear();
+            self.review_create_paths_proposal = Some(proposal);
+        }
+        for change in review
+            .record
+            .draft
+            .changes
+            .iter()
+            .skip(self.review_create_paths.len())
+        {
+            let value = change.path().to_owned();
+            let input = cx.new(|cx| {
+                TextareaState::new(window, cx)
+                    .placeholder("Vault-relative filename in this same folder")
+                    .default_value(value)
+                    .auto_grow(1, 2)
+            });
+            self.review_create_path_subscriptions.push(cx.subscribe_in(
+                &input,
+                window,
+                |_, _, _: &InputEvent, _, cx| cx.notify(),
+            ));
+            self.review_create_paths.push(input);
         }
         self.review_member = self
             .review_member
@@ -282,6 +312,9 @@ impl Desktop {
             if review.predecessor_pending() {
                 body = body.child("Attaching predecessor; typing and navigation wait for the exact revised review acknowledgement.");
             }
+            if review.create_rename_pending() {
+                body = body.child("Revising destination; typing and navigation wait for the exact full review acknowledgement.");
+            }
             for (index, change) in review.record.draft.changes.iter().enumerate() {
                 let kind = match change {
                     NoteChange::Create { .. } => "Create",
@@ -295,13 +328,63 @@ impl Desktop {
                     Button::new(format!("review-member-{index}"))
                         .label(format!("{kind} · {}", change.path()))
                         .selected(index == self.review_member)
-                        .disabled(leaving || review.predecessor_pending())
+                        .disabled(
+                            leaving
+                                || review.predecessor_pending()
+                                || review.create_rename_pending(),
+                        )
                         .on_click(cx.listener(move |this, _, window, cx| {
-                            this.review_member = index;
-                            this.sync_review_widgets(window, cx);
+                            if this
+                                .ai
+                                .as_ref()
+                                .unwrap()
+                                .review
+                                .as_ref()
+                                .is_some_and(|review| {
+                                    !review.predecessor_pending() && !review.create_rename_pending()
+                                })
+                            {
+                                this.review_member = index;
+                                this.sync_review_widgets(window, cx);
+                            }
                             cx.notify();
                         })),
                 );
+                if review.create_rename_eligible(index)
+                    && let Some(input) = self.review_create_paths.get(index)
+                {
+                    let enabled = can_mutate
+                        && ai.ready
+                        && ai.vault_bound
+                        && ai.active.is_none()
+                        && ai.rewrite.is_none()
+                        && self.review_comment_pending.is_none()
+                        && !(self.review_comment_draft.is_some()
+                            && !self.review_comment.read(cx).value().is_empty());
+                    body = body.child(div().id(format!("create-rename-controls-{index}")).test_support().flex().flex_col().gap_2()
+                        .child(format!("Current target: {}", change.path()))
+                        .child(format!("New target: {}", input.read(cx).value()))
+                        .child("Rename this new-note destination within its current folder. This revises the review; it has no vault effect before separate exact approval.")
+                        .child(Textarea::new(input).disabled(!enabled).aria_label(format!("New destination for member {}", index + 1)))
+                        .child(Button::new(format!("rename-create-{index}")).label("Revise new-note destination")
+                            .disabled(!enabled)
+                            .on_click(cx.listener(move |this, _, _, cx| {
+                                if this.simple_transition.is_none() && this.closing.is_none()
+                                    && !this.closed && !this.close_failed
+                                    && this.review_comment_pending.is_none()
+                                    && !(this.review_comment_draft.is_some() && !this.review_comment.read(cx).value().is_empty())
+                                {
+                                    let path = this.review_create_paths[index].read(cx).value().to_string();
+                                    if let Some(command) = this.ai.as_mut().unwrap().rename_proposal_create(index, path) {
+                                        this.simple_send(command, cx);
+                                    }
+                                }
+                                cx.notify();
+                            }))));
+                    if review.dirty() {
+                        body = body.child("Acknowledge the full owner text and comments first, then revise the destination.");
+                    }
+                }
             }
             if let Some(change) = review.record.draft.changes.get(self.review_member) {
                 match change {

@@ -352,6 +352,7 @@ impl WorkStore {
             },
             approved: approved.clone(),
             creation_sha256,
+            original_create_paths: Vec::new(),
             members,
             prepared: None,
             receipt: None,
@@ -370,6 +371,7 @@ impl WorkStore {
             &tx,
             &StoredProposal {
                 creation_sha256,
+                original_create_paths: Vec::new(),
                 record,
             },
         )?;

@@ -192,6 +192,8 @@ pub struct ApplyJournal {
     pub request: ApprovalRequest,
     pub approved: ProposalRecord,
     pub creation_sha256: [u8; 32],
+    #[serde(default, skip_serializing_if = "Vec::is_empty")]
+    pub original_create_paths: Vec<proposals::OriginalCreatePath>,
     pub members: Vec<ApplyMember>,
     pub prepared: Option<Vec<FileFingerprint>>,
     pub receipt: Option<ApplyReceipt>,
@@ -300,6 +302,10 @@ pub(super) fn action_records(
 /// 4 KiB covers those and the StoredProposal wrapper. Existing journal allowances
 /// separately reserve all prepared/terminal/Undo/64-repair proof metadata.
 pub(super) fn reserve_asset_review(record: &ProposalRecord) -> Result<()> {
+    reserve_asset_review_with_extra(record, 0)
+}
+
+pub(super) fn reserve_asset_review_with_extra(record: &ProposalRecord, extra: usize) -> Result<()> {
     if !record.draft.changes.iter().any(NoteChange::is_asset) {
         return Ok(());
     }
@@ -307,7 +313,7 @@ pub(super) fn reserve_asset_review(record: &ProposalRecord) -> Result<()> {
     let records = action_records(record, i64::MAX as u64)?;
     let payload = encode(&(record, records))?;
     let reserve = proposals::MAX_PROPOSAL_CHANGES * 1024 + 4096;
-    if payload.len() > proposals::MAX_STORED_BYTES - reserve {
+    if payload.len().saturating_add(extra) > proposals::MAX_STORED_BYTES - reserve {
         return Err(invalid(
             "asset review exceeds encoded recovery settlement budget",
         ));
@@ -321,6 +327,7 @@ impl ApplyJournal {
     pub fn validate(&self) -> Result<()> {
         proposals::nonnil(self.request.operation_id)?;
         proposals::validate_record(&self.approved)?;
+        proposals::validate_original_create_paths(&self.approved, &self.original_create_paths)?;
         if self.action_records.len() != self.approved.draft.action_changes.len()
             || self.action_records != action_records(&self.approved, self.started_at_ms)?
         {
@@ -429,6 +436,12 @@ impl ApplyJournal {
             self.started_at_ms,
         );
         let metadata = encode(&metadata)?;
+        let lineage_bytes = if self.original_create_paths.is_empty() {
+            0
+        } else {
+            encode(&self.original_create_paths)?.len()
+        };
+        let metadata_len = metadata.len().saturating_add(lineage_bytes);
         let bounded = if self.undo.is_some()
             || self.repair.is_some()
             || self.approved.draft.changes.iter().any(NoteChange::is_asset)
@@ -455,10 +468,10 @@ impl ApplyJournal {
                 false,
                 0_u64,
             ))?;
-            base.len() <= MAX_METADATA_BYTES - 1024
-                && metadata.len() <= base.len() + MAX_UNDO_CORE_BYTES
+            base.len().saturating_add(lineage_bytes) <= MAX_METADATA_BYTES - 1024
+                && metadata_len <= base.len() + lineage_bytes + MAX_UNDO_CORE_BYTES
         } else {
-            metadata.len() <= MAX_METADATA_BYTES - 1024
+            metadata_len <= MAX_METADATA_BYTES - 1024
         };
         if !bounded {
             return Err(invalid(
@@ -731,6 +744,49 @@ pub(super) fn read_journal(conn: &Connection, id: Uuid) -> Result<Option<ApplyJo
                 "stored approval journal differs from its original creation binding",
             ));
         }
+        if !proposal.original_create_paths.is_empty() || !journal.original_create_paths.is_empty() {
+            let lineage_matches = match proposal.record.version.cmp(&journal.approved.version) {
+                std::cmp::Ordering::Less => proposal
+                    .original_create_paths
+                    .iter()
+                    .all(|entry| journal.original_create_paths.contains(entry)),
+                std::cmp::Ordering::Equal => {
+                    proposal.original_create_paths == journal.original_create_paths
+                }
+                std::cmp::Ordering::Greater => journal
+                    .original_create_paths
+                    .iter()
+                    .all(|entry| proposal.original_create_paths.contains(entry)),
+            };
+            let create_paths =
+                |draft: &proposals::ProposalDraft, originals: &[proposals::OriginalCreatePath]| {
+                    draft
+                        .changes
+                        .iter()
+                        .enumerate()
+                        .filter_map(|(index, change)| {
+                            if let NoteChange::Create { path, .. } = change {
+                                let original = originals
+                                    .binary_search_by_key(&index, |entry| entry.change_index)
+                                    .ok()
+                                    .map(|position| &originals[position].path)
+                                    .unwrap_or(path);
+                                Some((index, original.clone()))
+                            } else {
+                                None
+                            }
+                        })
+                        .collect::<Vec<_>>()
+                };
+            if !lineage_matches
+                || create_paths(&proposal.record.draft, &proposal.original_create_paths)
+                    != create_paths(&journal.approved.draft, &journal.original_create_paths)
+            {
+                return Err(invalid(
+                    "stored approval journal has incompatible Create rename lineage",
+                ));
+            }
+        }
         if proposal.record.state == ProposalState::Applied && !journal.approved.comments.is_empty()
         {
             return Err(invalid(
@@ -808,6 +864,7 @@ pub(super) fn current_unresolved(
         }
     };
     if stored.creation_sha256 != journal.creation_sha256
+        || stored.original_create_paths != journal.original_create_paths
         || stored.record.draft != journal.approved.draft
         || stored.record.comments != journal.approved.comments
         || stored.record.created_at_ms != journal.approved.created_at_ms
@@ -843,6 +900,7 @@ pub(super) fn same_approval(left: &ApplyJournal, right: &ApplyJournal) -> bool {
     right_review.comments.clear();
     left.request == right.request
         && left.creation_sha256 == right.creation_sha256
+        && left.original_create_paths == right.original_create_paths
         && left_review == right_review
         && left.started_at_ms == right.started_at_ms
         && left.members == right.members
@@ -954,8 +1012,12 @@ struct ImmutableReviewBindings {
     actions: Vec<(Uuid, Option<Box<ActionRecord>>)>,
 }
 
-fn immutable_review_bindings(record: &ProposalRecord) -> ImmutableReviewBindings {
+fn immutable_review_bindings(
+    record: &ProposalRecord,
+    original_create_paths: &[proposals::OriginalCreatePath],
+) -> ImmutableReviewBindings {
     let mut draft = record.draft.clone();
+    proposals::normalize_create_paths(&mut draft, original_create_paths);
     draft.title.clear();
     for change in &mut draft.changes {
         match change {
@@ -1010,12 +1072,37 @@ fn restored_review(
         return Ok(Some(target));
     };
     if current.creation_sha256 != journal.creation_sha256
-        || immutable_review_bindings(&current.record)
-            != immutable_review_bindings(&journal.approved)
+        || immutable_review_bindings(&current.record, &current.original_create_paths)
+            != immutable_review_bindings(&journal.approved, &journal.original_create_paths)
         || current.record.created_at_ms != journal.approved.created_at_ms
     {
         return Err(Error::OperationConflict(
             "recovery snapshot has incompatible original review bindings".into(),
+        ));
+    }
+    // Rename lineage grows only during Draft revisions. Exact admitted/equal
+    // revisions retain it verbatim; historical settled journals may be a prefix
+    // of newer review lineage, but cannot erase or invent an earlier original.
+    let earlier_is_subset = |earlier: &[proposals::OriginalCreatePath],
+                             later: &[proposals::OriginalCreatePath]| {
+        earlier.iter().all(|entry| later.contains(entry))
+    };
+    let compatible_lineage = if current.record.version < journal.approved.version {
+        earlier_is_subset(
+            &current.original_create_paths,
+            &journal.original_create_paths,
+        )
+    } else if current.record.version > target.version && settled(journal) {
+        earlier_is_subset(
+            &journal.original_create_paths,
+            &current.original_create_paths,
+        )
+    } else {
+        current.original_create_paths == journal.original_create_paths
+    };
+    if !compatible_lineage {
+        return Err(Error::OperationConflict(
+            "recovery snapshot has incompatible Create rename lineage".into(),
         ));
     }
     if current.record.version > target.version {
@@ -1081,6 +1168,7 @@ fn restored_review(
 
 pub(super) fn insert_review(conn: &Connection, stored: &proposals::StoredProposal) -> Result<()> {
     proposals::validate_record(&stored.record)?;
+    proposals::validate_original_create_paths(&stored.record, &stored.original_create_paths)?;
     let bytes = encode(stored)?;
     if bytes.len() > proposals::MAX_STORED_BYTES {
         return Err(invalid("restored review exceeds its encoded size limit"));
@@ -1216,6 +1304,7 @@ impl WorkStore {
                 &tx,
                 &proposals::StoredProposal {
                     creation_sha256: effective.creation_sha256,
+                    original_create_paths: effective.original_create_paths.clone(),
                     record: next_review
                         .clone()
                         .ok_or_else(|| invalid("missing restored review"))?,
@@ -1244,6 +1333,7 @@ impl WorkStore {
                 &tx,
                 &proposals::StoredProposal {
                     creation_sha256: effective.creation_sha256,
+                    original_create_paths: effective.original_create_paths.clone(),
                     record,
                 },
             )?;
@@ -1280,6 +1370,7 @@ impl WorkStore {
             request: request.clone(),
             approved: stored.record.clone(),
             creation_sha256: stored.creation_sha256,
+            original_create_paths: stored.original_create_paths.clone(),
             members: stored
                 .record
                 .draft

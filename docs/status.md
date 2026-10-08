@@ -2,7 +2,7 @@
 
 ## Overnight implementation and model qualification — 2026-10-08
 
-Current main is `544696834d93cf56b82e76a857f2c44cdca7823b`.
+Current main is `e1d6b0fab69c13ceceb09014d6c034ef2178882f`.
 [PR90](https://github.com/ewq100/brn-rust/pull/90) added exact evidence ranges and
 intake guidance; [PR91](https://github.com/ewq100/brn-rust/pull/91) added recorded
 work budgets/cancellation; [PR92](https://github.com/ewq100/brn-rust/pull/92) added
@@ -28,11 +28,12 @@ final local/CLI/live usefulness qualification and all required candidate CI;
 all required post-merge checks and docs passed. Automatic during-session internal
 checkpoints merged as [PR99](https://github.com/ewq100/brn-rust/pull/99) after
 independent review, full local qualification and all required candidate checks;
-resulting-main checks are active. An independently reviewed Action-only replacement
-compensation candidate is undergoing final composition checks with backups,
+all required resulting-main checks passed. Action-only replacement compensation
+merged as [PR100](https://github.com/ewq100/brn-rust/pull/100) after independent review,
+final local composition qualification and all required candidate checks,
 preserving exact before/after and refusing changed/completed work, creation and
-mixed file/Action Undo. Same-folder new-note destination rename is the next
-selected bounded P3 slice; production implementation has not started.
+mixed file/Action Undo. PR100 required resulting-main checks and docs passed. Same-folder new-note destination rename is the next
+selected bounded P3 slice; implementation is underway with private original-path replay evidence and native/CLI review.
 
 The [overnight checkpoint](work/active/overnight-continuation/plan.md) owns exact
 branches, builds, verification and continuation. Fourteen of sixteen authorized live investigations are used, seven Luna/seven Sol,

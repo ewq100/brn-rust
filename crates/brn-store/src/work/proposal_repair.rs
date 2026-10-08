@@ -67,7 +67,7 @@ fn stamp(
     observations: &[ApplyMemberProof],
     prior_ids: &[Uuid],
 ) -> Result<[u8; 32]> {
-    Ok(hash(&proposal_apply::encode(&(
+    let base = proposal_apply::encode(&(
         &journal.approved.draft,
         &journal.request,
         journal.creation_sha256,
@@ -76,7 +76,16 @@ fn stamp(
         &journal.undo,
         prior_ids,
         observations,
-    ))?))
+    ))?;
+    if journal.original_create_paths.is_empty() {
+        // Preserve the exact historical preview binding when no rename exists.
+        Ok(hash(&base))
+    } else {
+        Ok(hash(&proposal_apply::encode(&(
+            hash(&base),
+            &journal.original_create_paths,
+        ))?))
+    }
 }
 
 fn validate_request(request: &RepairRequest) -> Result<()> {

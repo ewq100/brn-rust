@@ -112,6 +112,15 @@ artifact removal.
 V4 stores typed Markdown Create/Replace/Trash drafts, exact before-text and file,
 parent, vault and source bindings. Creation UUIDs bind the initial payload;
 identical creation replay returns current review work without replacing edits.
+`rename_proposal_create` revises one exact Draft Markdown Create filename within
+its captured folder, preserving text, parent, comments and every other member.
+The current same-path request is an exact no-op; changed paths advance the review
+version once. Private sorted original-path evidence retains the earliest name
+through repeated renames, approval and mirror recovery. Its encoded budget is
+64 KiB within unchanged record/journal limits; empty historical fields stay omitted.
+Recovery compares normalized original paths and directional lineage, refusing
+equal-version forks while preserving newer review work. Public review records
+remain unchanged; the workflow owns fresh filesystem/evidence qualification.
 Records and that binding are checked by hashes, row identity and bounded domain
 validation. Each proposal supports 1–64 changes, 1 MiB per note, 8 MiB aggregate
 review text and at most 64 comments of 16 KiB each.
