@@ -117,6 +117,7 @@ pub enum AppCommand {
     Proposal(Uuid),
     Proposals(Option<Uuid>),
     EditProposal(crate::proposals::ProposalEdit),
+    AttachInboxKnowledgePredecessor(crate::proposals::KnowledgePredecessorRequest),
     RewriteProposal(crate::proposals::ProposalEdit),
     StartProposalRewrite(crate::proposal_rewrite::RewriteRequest),
     ProposalRewrite(Uuid),
@@ -1440,6 +1441,9 @@ fn dispatch(
         AppCommand::Proposal(proposal) => AppEvent::Proposal(app.proposal(proposal)?),
         AppCommand::Proposals(group) => AppEvent::Proposals(app.proposals(group)?),
         AppCommand::EditProposal(edit) => AppEvent::Proposal(app.edit_proposal(&edit)?),
+        AppCommand::AttachInboxKnowledgePredecessor(request) => {
+            AppEvent::Proposal(app.attach_inbox_knowledge_predecessor(&request)?)
+        }
         AppCommand::RewriteProposal(edit) => AppEvent::Proposal(app.rewrite_proposal(&edit)?),
         AppCommand::ProposalRewrite(operation) => {
             AppEvent::ProposalRewrite(app.work_store().proposal_rewrite(operation)?)
@@ -1758,6 +1762,7 @@ fn critical_mutation_command(command: &AppCommand) -> bool {
             | AppCommand::CaptureFinding(_)
             | AppCommand::CloseFinding(_)
             | AppCommand::EditProposal(_)
+            | AppCommand::AttachInboxKnowledgePredecessor(_)
             | AppCommand::RewriteProposal(_)
             | AppCommand::AddProposalComment(_)
             | AppCommand::UpdateProposalComment(_)

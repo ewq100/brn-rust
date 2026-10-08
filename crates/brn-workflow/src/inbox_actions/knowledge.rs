@@ -151,15 +151,6 @@ impl App {
                 })
             }
             (Some(path), None) => Some(self.proposal_source(path)?),
-            (None, Some(record))
-                if record
-                    .draft
-                    .inbox_knowledge
-                    .as_ref()
-                    .is_some_and(|binding| binding.supersedes.is_some()) =>
-            {
-                return Err(rejected("knowledge creation predecessor changed"));
-            }
             (None, _) => None,
         };
         let supersedes = predecessor
@@ -192,27 +183,55 @@ impl App {
         }
         let sources = match existing {
             Some(existing) => {
-                if job
-                    .capture
-                    .source
-                    .as_ref()
-                    .is_some_and(|source| existing.draft.sources.first() != Some(source))
-                    || supersedes
-                        .as_ref()
-                        .is_some_and(|bound| existing.draft.sources.get(1) != Some(&bound.source))
-                    || !args.source_paths.iter().map(String::as_str).eq(existing
+                if args.supersedes.is_none()
+                    && existing
                         .draft
-                        .sources
-                        .iter()
-                        .skip(
-                            usize::from(job.capture.source.is_some())
-                                + usize::from(supersedes.is_some()),
-                        )
-                        .map(|s| s.path.as_str()))
+                        .inbox_knowledge
+                        .as_ref()
+                        .is_some_and(|binding| binding.supersedes.is_some())
                 {
-                    return Err(rejected("knowledge creation target paths changed"));
+                    // An owner may have attached a predecessor after this exact
+                    // model callback created its supplemental draft. Reconstruct
+                    // original proof order only from retained proofs. The
+                    // immutable creation hash below remains the final authority.
+                    let mut original = job.capture.source.iter().cloned().collect::<Vec<_>>();
+                    for path in &args.source_paths {
+                        original.push(
+                            existing
+                                .draft
+                                .sources
+                                .iter()
+                                .find(|source| &source.path == path)
+                                .cloned()
+                                .ok_or_else(|| {
+                                    rejected("knowledge creation context is unavailable")
+                                })?,
+                        );
+                    }
+                    original
+                } else {
+                    if job
+                        .capture
+                        .source
+                        .as_ref()
+                        .is_some_and(|source| existing.draft.sources.first() != Some(source))
+                        || supersedes.as_ref().is_some_and(|bound| {
+                            existing.draft.sources.get(1) != Some(&bound.source)
+                        })
+                        || !args.source_paths.iter().map(String::as_str).eq(existing
+                            .draft
+                            .sources
+                            .iter()
+                            .skip(
+                                usize::from(job.capture.source.is_some())
+                                    + usize::from(supersedes.is_some()),
+                            )
+                            .map(|s| s.path.as_str()))
+                    {
+                        return Err(rejected("knowledge creation target paths changed"));
+                    }
+                    existing.draft.sources
                 }
-                existing.draft.sources
             }
             None => {
                 let mut sources = job.capture.source.iter().cloned().collect::<Vec<_>>();

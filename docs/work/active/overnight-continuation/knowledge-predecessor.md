@@ -21,7 +21,7 @@ not a generic mutable proposal engine or a model-owned authority operation.
 
 Strict request `KnowledgePredecessorRequest { expected: ProposalStamp,
 predecessor_path: String }`; AppCommand::AttachInboxKnowledgePredecessor returns
-the complete existing Proposal event. CLI `proposal attach-predecessor` takes
+the complete existing Proposal event. CLI `proposals attach-predecessor` takes
 that JSON request. Native review exposes a separate Current predecessor path and
 clearly explains that approval makes that note History. Require acknowledged,
 clean review before dispatch, fence local typing/navigation while pending and

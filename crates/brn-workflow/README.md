@@ -1122,3 +1122,24 @@ already Applied. Existing supersedes creates a new Current successor and protect
 predecessor History with a Previous version link. If another selected proposal also
 binds that predecessor's original proof, approve it before supersession; submitted
 group order is significant. Stale proofs refuse rather than silently rebasing.
+
+
+### Owner attachment of a Knowledge predecessor
+
+`AttachInboxKnowledgePredecessor` accepts an exact `ProposalStamp` and a saved
+Current predecessor path for one supplemental Draft Inbox Knowledge Create.
+Workflow captures the complete predecessor, preserves every existing proof,
+identity, owner text prefix, comment and citation, and adds the existing protected
+History Replace/Previous-version link with one version advance. Already-retained
+context is promoted only on exact proof equality. Shared approval target/editor
+guards refuse stale parents, occupied destinations and unfinished editor work;
+the stable footer must remain readable Markdown. Pending private intake remains
+a preparation prerequisite; applying still requires its exact Applied Source.
+
+Original model creation replay reconstructs the original single-Create payload
+and original proof order from retained proofs, then checks the unchanged Store
+creation hash. It returns the current reviewed record before fresh file access,
+including after attachment, subsequent edits and restart/Source loss. Existing
+same-shape replay and complete-pair ApplyJournal/recovery formats are unchanged.
+The operation does not decide semantic replacement, alter original captures or
+close Findings. Only the revised reviewed version can admit effects.

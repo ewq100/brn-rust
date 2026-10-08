@@ -10,8 +10,9 @@ Merged range/guidance: PR90, `4f5b95e1c7b92f9efec54ea7f34f9097987cfdb6`.
 Merged budgets: PR91, `409f68bedc112df550a5fcd6ebd884effff70101`.
 Latest qualified P4 runtime source: `2abe6d3c3b47f1bc5fba56bb04e5ae09c257f38a`;
 checkout commit `33ddac7aaf2f9f50801faceae83d80c9f78967e3` has the identical tree.
-P4 final integrated commit and any subsequent slice: pending; update this receipt
-before cutoff. Do not confuse implementation/qualification with personal acceptance.
+P4 merged at `bb66a1b884106fd18b08d2fa4864aff0537811bc` (PR92); required
+candidate checks passed, postmerge running. Final predecessor commit/build is
+pending; update this receipt before cutoff. Do not confuse implementation/qualification with personal acceptance.
 
 Checkout: `/Users/evokessler/repos/brn-p2-email-docx-intake`.
 Shipping desktop: `/Users/evokessler/repos/brn-p2-email-docx-intake/target/intake-ui/debug/brn-desktop`,
@@ -80,7 +81,7 @@ Allow 45–60 minutes. Essential path: steps 1–5 and 8–9, about 15–20 minu
 | 7. Inspect Settings, saved budgets/history and error states; optionally select a separate disposable synthetic live cancellation trial | Defaults 8 rounds/300 seconds; presets 4/8/16/32 and 60/180/300/600. Ask/Inbox summary reflects selection. Active choice frozen, progress shows completed responses/admitted rounds. Stop/timeout/tool-limit causes distinguishable, retained drafts/ordinary partials remain; strict visual JSON stays completion-only. Legacy history budget unavailable | Selected/frozen values, progress, stopping/final cause, saved IDs, restart history. Without a fresh trial, active cancellation observation remains pending |
 | 8. Quit A, launch B; read both Sources and approved Current, then saved Sol answer/Finding/proposals | Carrier cancellation risks the target but does not authorize a new commitment. Copied Kaia is not authorization. Exact opposing quotes, reasons, alternatives, unknown price/availability and reply timezone visible | Source/Current IDs, Finding state/proofs, displayed reasons and uncertainty; any misleading authority |
 | 9. Review selected B proposals and their exact versions; approve only the intended consequences, restart and inspect | Current live Knowledge is a supplement, not a supersession. Two Actions remain distinct; due date/time and authorization boundary retained. Finding closure remains a separate explicit choice. Only approved effects persist | Approval requests/receipts, notes/Actions/Finding state, restart/replay; do not approve both model comparisons |
-| 10. If a later predecessor-attachment slice is recorded as qualified here, explicitly select the Current predecessor on a suitable Draft, review generated protected History and successor, then approve the revised version | No silent semantic rewrite; owner text/comments/citations remain. Old stamp refuses. Generated History is readonly, successor editable, and exact pair persists after restart | Exact predecessor proof, before/after, version change, comments, stale/error states and history links. This feature is currently not implemented; keep pending until its receipt is added |
+| 10. If a later predecessor-attachment slice is recorded as qualified here, explicitly select the Current predecessor on a suitable Draft, review generated protected History and successor, then approve the revised version | No silent semantic rewrite; owner text/comments/citations remain. Old stamp refuses. Generated History is readonly, successor editable, and exact pair persists after restart | Exact predecessor proof, before/after, version change, comments, stale/error states and history links. Implemented with targeted headless checks and independent review passed; final shipping/CI receipt pending, interactive acceptance still pending |
 
 ## Headless evidence already passed; interactive acceptance pending
 
@@ -89,10 +90,10 @@ exact replay preserved Source/assets with no duplicate effects or inference.
 PR91 local: Store 439 plus 26 final affected tests, workflow timeout/replay/drain 7,
 real-Rig limits 2, CLI Ask 9; full default 1670 passed/17 existing ignores, doctests;
 final native workflow/models 412 passed/15 ignores; desktop/CLI 525 passed; shipping
-Clippy/builds and 52 fixtures passed. Required candidate CI passed; postmerge running.
+Clippy/builds and 52 fixtures passed. Required candidate and postmerge CI passed.
 P4: AI 145 passed/one existing ignore; integrated scenario and historical replay 2;
 context guards 3; native AI/workflow Clippy, shipping CLI/desktop, 52 fixtures and
-602 links passed. Independent review found no remaining actionable finding.
+602 links passed. Independent review found no remaining actionable finding. P4 required candidate CI passed and it merged; postmerge checks running. Predecessor attachment targeted Store 7, workflow 7, desktop/widget 7, CLI parser 1 and subprocess 2 passed; affected Clippy and independent full-candidate review passed. Final broad/shipping/CI checks pending.
 
 Six live CLI investigations completed. North Quay Luna retained one Action/one
 Knowledge without a formal Finding; Sol retained two Actions/one Knowledge and a

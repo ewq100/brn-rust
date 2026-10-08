@@ -134,6 +134,179 @@ fn invalid_typed_inputs_and_incomplete_approval_fail_before_workspace_open() {
 }
 
 #[test]
+fn invalid_predecessor_requests_refuse_before_workspace_open() {
+    let expected = json!({"id": Uuid::new_v4(), "version": 1});
+    for input in [
+        json!({"expected": expected, "predecessor_path":"../outside.md"}),
+        json!({"expected": expected, "predecessor_path":".hidden.md"}),
+        json!({"expected": expected, "predecessor_path":"archive/old.md"}),
+        json!({"expected":{"id":Uuid::nil(),"version":1},"predecessor_path":"old.md"}),
+        json!({"expected":{"id":Uuid::new_v4(),"version":0},"predecessor_path":"old.md"}),
+        json!({"expected": expected, "predecessor_path":"old.md", "refresh_evidence":true}),
+    ] {
+        let f = Fixture::new();
+        f.input(&input);
+        let result = f.write("attach-predecessor");
+        assert_ne!(result.0, 0, "{}", result.1);
+        assert_eq!(fs::read_dir(&f.data).unwrap().count(), 0);
+        assert_eq!(fs::read_dir(&f.vault).unwrap().count(), 0);
+    }
+}
+
+#[cfg(target_os = "macos")]
+#[test]
+fn predecessor_cli_roundtrip_preserves_review_replays_creation_and_applies_revised_pair() {
+    use brn_store::{
+        note_identity, note_provenance,
+        work::{
+            inbox::{InboxCapture, InboxCopy, InboxItem, InboxKind},
+            inbox_actions::{InboxActionCapture, InboxAnalysisPurpose},
+            inbox_processing::InboxConversionFormat,
+            inbox_source::InboxSourceBinding,
+        },
+        WorkStore,
+    };
+    let f = Fixture::new();
+    let source_id = Uuid::new_v4();
+    let predecessor_id = Uuid::new_v4();
+    let note_id = Uuid::new_v4();
+    let analysis_id = Uuid::new_v4();
+    let body = "Blue õ was selected.\r\n";
+    // Seed a clearly synthetic saved Source/capture; every reviewed operation
+    // and effect below uses a new ordinary CLI process, with no provider work.
+    let source_binding = InboxSourceBinding {
+        extraction: None,
+        visual: None,
+        batch_id: Uuid::new_v4(),
+        index: 0,
+        original: InboxItem {
+            capture: InboxCapture {
+                id: Uuid::new_v4(),
+                kind: InboxKind::Markdown,
+                title: "Synthetic CLI predecessor evidence".into(),
+                original_name: Some("synthetic.md".into()),
+                copy: InboxCopy {
+                    directory: f._owner.path().join("synthetic-copy"),
+                    directory_device: 1,
+                    directory_inode: 2,
+                    file_device: 1,
+                    file_inode: 3,
+                    byte_len: body.len() as u64,
+                    sha256: brn_intake::digest(body.as_bytes()),
+                },
+            },
+            received_at_ms: 1,
+        },
+        format: InboxConversionFormat::VerbatimMarkdownV1,
+        byte_len: body.len() as u64,
+        sha256: brn_intake::digest(body.as_bytes()),
+        note_id: source_id,
+    };
+    let source_text = source_binding.markdown(body).unwrap();
+    let predecessor_text =
+        note_identity::assign("Approved prior choice\r\n", predecessor_id).unwrap();
+    fs::write(f.vault.join("source.md"), &source_text).unwrap();
+    fs::write(f.vault.join("previous.md"), &predecessor_text).unwrap();
+    let proof = ok(f.run(&[
+        "proposals",
+        "source",
+        "source.md",
+        "--vault",
+        f.vault.to_str().unwrap(),
+    ]));
+    let (mut store, _) = WorkStore::open(&f.data).unwrap();
+    let job = store
+        .reserve_inbox_action(
+            &InboxActionCapture {
+                intake: None,
+                visual_asset: None,
+                purpose: InboxAnalysisPurpose::KnowledgeAndActions,
+                id: analysis_id,
+                conversation: None,
+                source: Some(serde_json::from_value(proof["source"].clone()).unwrap()),
+                source_text: source_text.clone(),
+                provider: "chatgpt".into(),
+                model: "gpt-6-luna".into(),
+                effort: "medium".into(),
+            },
+            "Synthetic retained interpretation; no inference",
+        )
+        .unwrap();
+    drop(store);
+    let quote = "Blue õ";
+    let start = source_text.find(quote).unwrap();
+    let citation = note_provenance::VaultCitation {
+        note_id: source_id,
+        sha256: brn_intake::digest(source_text.as_bytes()),
+        start_byte: start,
+        end_byte: start + quote.len(),
+        quote: quote.into(),
+    };
+    let text = note_provenance::write(
+        &note_identity::assign("Owner-reviewed Blue õ choice\r\n", note_id).unwrap(),
+        std::slice::from_ref(&citation),
+    )
+    .unwrap();
+    let proposal_id = Uuid::new_v4();
+    let creation = json!({"id":proposal_id,"group_id":analysis_id,"session_id":null,
+        "title":"Synthetic supplemental review","changes":[{"kind":"create","path":"choice.md","text":text}],"sources":[proof["source"].clone()],
+        "inbox_knowledge":{"analysis_id":job.capture.id,"note_id":note_id,"source":proof["source"].clone(),"citations":[citation]}});
+    f.input(&creation);
+    let original = ok(f.write("create"));
+    f.input(&json!({"expected":{"id":proposal_id,"version":1},"comment":{"id":Uuid::new_v4(),"text":"Preserve owner wording","target":{"kind":"proposal"}}}));
+    let commented = ok(f.write("comment"));
+    f.input(&json!({"expected":{"id":proposal_id,"version":2},"predecessor_path":"previous.md"}));
+    let attached = ok(f.write("attach-predecessor"));
+    assert_eq!(attached["version"], 3);
+    assert_eq!(attached["comments"], commented["comments"]);
+    assert_eq!(attached["draft"]["changes"].as_array().unwrap().len(), 2);
+    assert!(attached["draft"]["changes"][0]["text"]
+        .as_str()
+        .unwrap()
+        .starts_with(&text));
+    assert_eq!(
+        fs::read(f.vault.join("previous.md")).unwrap(),
+        predecessor_text.as_bytes()
+    );
+    assert!(!f.vault.join("choice.md").exists());
+    f.input(&creation);
+    assert_eq!(ok(f.write("create")), attached);
+    let stale = f.run(&[
+        "proposals",
+        "approve",
+        &proposal_id.to_string(),
+        "--review-version",
+        original["version"].to_string().as_str(),
+        "--operation",
+        &Uuid::new_v4().to_string(),
+    ]);
+    assert_eq!(stale.1["error"]["code"], "CONTEXT_STALE");
+    let operation = Uuid::new_v4();
+    let args = [
+        "proposals",
+        "approve",
+        &proposal_id.to_string(),
+        "--review-version",
+        "3",
+        "--operation",
+        &operation.to_string(),
+    ];
+    let applied = ok(f.run(&args));
+    assert_eq!(applied["outcome"], "applied");
+    assert_eq!(ok(f.run(&args)), applied);
+    assert_eq!(
+        fs::read(f.vault.join("previous.md")).unwrap(),
+        brn_store::note_metadata::to_history(&predecessor_text)
+            .unwrap()
+            .as_bytes()
+    );
+    assert_eq!(
+        fs::read(f.vault.join("source.md")).unwrap(),
+        source_text.as_bytes()
+    );
+}
+
+#[test]
 fn asset_paths_and_noncanonical_payloads_refuse_before_workspace_open() {
     for path in [
         "../escape.bin",

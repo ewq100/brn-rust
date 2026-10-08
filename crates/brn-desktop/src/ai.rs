@@ -198,6 +198,9 @@ pub enum Pending {
         generation: u64,
     },
     ReviewEdit,
+    KnowledgePredecessor {
+        generation: u64,
+    },
     ReviewMutation {
         id: Uuid,
         generation: u64,
@@ -1249,7 +1252,9 @@ impl AiState {
             return false;
         }
         self.review.as_ref().is_some_and(|review| {
-            review.record.state == ProposalState::Draft && review.observed.is_none()
+            review.record.state == ProposalState::Draft
+                && review.observed.is_none()
+                && !review.predecessor_pending()
         }) && !self
             .pending
             .values()
@@ -1291,6 +1296,25 @@ impl AiState {
             },
             AppCommand::Proposal(id),
         ))
+    }
+    pub fn attach_knowledge_predecessor(&mut self, path: String) -> Option<(Uuid, AppCommand)> {
+        if !self.ready
+            || !self.vault_bound
+            || !self.review_can_mutate()
+            || self.active.is_some()
+            || self.rewrite.is_some()
+        {
+            return None;
+        }
+        let (id, request) = self.review.as_mut()?.prepare_predecessor(path)?;
+        self.pending.insert(
+            id,
+            Pending::KnowledgePredecessor {
+                generation: self.review_generation,
+            },
+        );
+        self.notice = "Attaching selected Current predecessor; no knowledge changes occur before exact approval.".into();
+        Some((id, AppCommand::AttachInboxKnowledgePredecessor(request)))
     }
     pub fn recover_review(&mut self) -> Option<(Uuid, AppCommand)> {
         let (id, edit) = self.review.as_mut()?.prepare_edit()?;
@@ -2406,6 +2430,16 @@ impl AiState {
                     self.review = Some(crate::review::ProposalReview::new(record));
                     self.review_error = None;
                 }
+                Some(Pending::KnowledgePredecessor { generation })
+                    if generation == self.review_generation =>
+                {
+                    if let Some(review) = &mut self.review
+                        && review.acknowledge_predecessor(id, record)
+                    {
+                        self.notice = "Predecessor attached. Review the full successor and protected History member before exact approval.".into();
+                    }
+                    commands.push(self.command(Pending::Proposals, AppCommand::Proposals(None)));
+                }
                 Some(Pending::ReviewEdit) => {
                     if let Some(review) = &mut self.review {
                         review.acknowledge_edit(id, record);
@@ -2719,6 +2753,9 @@ impl AiState {
                     self.run_budgets.insert(*turn, None);
                 }
                 let stale_read = match &pending {
+                    Some(Pending::KnowledgePredecessor { generation }) => {
+                        *generation != self.review_generation
+                    }
                     Some(Pending::RunBudget { generation, .. }) => *generation != self.generation,
                     Some(Pending::Notes {
                         scope,
@@ -2853,6 +2890,11 @@ impl AiState {
                 }
                 if matches!(pending, Some(Pending::Effort | Pending::SelectEffort)) {
                     self.effort_error = Some(error.message.clone());
+                }
+                if matches!(pending, Some(Pending::KnowledgePredecessor { generation }) if generation == self.review_generation)
+                    && let Some(review) = &mut self.review
+                {
+                    review.fail_predecessor(id, error.message.clone());
                 }
                 if matches!(pending, Some(Pending::ReviewEdit))
                     && let Some(review) = &mut self.review
