@@ -35,8 +35,9 @@ The earlier headless approved Source is reusable and unowned between commands.
 
 ## Campaign ledger
 
-Whole-night ceiling: six top-level BRN investigations including failures/retries,
-three per exact model/effort; Luna Medium first, Sol Medium paired when useful.
+Owner amended the allowance at 20:00 UTC: ten additional shared investigations.
+Whole-night ceiling: sixteen top-level BRN investigations including failures/retries,
+allocated at most eight per existing exact model/effort; Luna Medium first, Sol Medium paired when useful.
 Every call: 180-second cancellation, at most nine model turns/eight tool rounds;
 no hidden retries/fallback or other effort condition. Token/internal-turn/spend
 telemetry is unknown where unavailable. These are campaign limits, not permanent
@@ -45,11 +46,12 @@ product limits. Preserve outputs and reuse them for approval/replay.
 Local receipts: `/private/tmp/brn-overnight-20261008`; script
 `paired-baseline.py` uses the same already-approved synthetic `plural.eml`
 Source/binding and exact executable for both models, without application between
-runs. Current ledger: four investigations completed, two per condition. Baseline and
-first-slice pair are recorded in [live evidence](live-model-evidence.md). Two
-remain, at most one per condition; no new call until a concrete later improvement
-or different synthetic scenario justifies it. Every CLI call has the180-second
-cancellation deadline/nine turns/eight tool rounds and no automatic retry.
+runs. Current ledger: six investigations completed, three per condition. Ten remain
+authorized after the owner's amendment, allocated at most five additional per
+existing condition. Do not spend them to repeat approval/replay or answer questions
+that retained evidence and deterministic tests can resolve. Baseline, first-slice
+and North Quay pairs are retained in the local ledger. Every CLI call retains
+the 180-second deadline/nine responses/eight tool rounds and no automatic retry.
 Source/asset proofs remained unchanged; retained outputs serve approval/replay.
 
 ## Work selection and routing
@@ -75,12 +77,37 @@ requires exact final-candidate review, applicable local checks and actual requir
 CI. No weakening, bypass or rushed merge. Record failures and repair real defects.
 Known informational platform failures remain visible and separate.
 
-## Durable checkpoint
+## Durable checkpoint — 8 October 20:00 UTC
 
-Next: qualify/review the implemented hash-bound range and generic intake guidance
-slice, rebuild the minimum shipping CLI, then spend remaining live trials only
-on concrete improvement/novel-scenario questions. No overnight GUI result
-is claimed. Morning acceptance remains pending. No overnight candidate is merged.
+Active checkout `/Users/evokessler/repos/brn-p2-email-docx-intake`, branch
+`codex/p4-conflict-recommendations`, clean HEAD `33ddac7aaf2f9f50801faceae83d80c9f78967e3`.
+PR90 merged at `4f5b95e1c7b92f9efec54ea7f34f9097987cfdb6`; required postmerge
+checks passed. PR91 merged normally at `409f68bedc112df550a5fcd6ebd884effff70101`;
+all four required candidate checks passed. Postmerge run 37835432764 is running.
+Budget local final workflow/models: 412 passed, 15 existing ignores; desktop/CLI:
+525 passed; shipping Clippy/builds and 52 fixture assertions passed.
+
+P4 code `f72ccac` independently reviewed with no actionable findings; incorporating
+qualified budget/main yields the same tree as runtime `2abe6d3`. AI: 145 passed,
+one existing ignore; new integrated/replay tests: 2 passed; context guards: 3 passed;
+AI/workflow native Clippy, shipping desktop/CLI, 52 fixtures and 602 links passed.
+Receipt `/private/tmp/brn-overnight-20261008/p4-build-manifest.json`. P4 is not yet
+pushed as a PR. Next: update retained results and morning task, open/qualify/integrate
+P4 normally; then select the bounded owner predecessor-attachment P3 slice after
+checking exact creation replay and native review transition seams.
+
+Six live investigations completed, three per condition; owner's latest message
+adds ten shared calls (sixteen total), conservatively allocated five further per
+existing condition. North Quay Luna retained one Action and one Knowledge, no
+Finding (16.765s, five responses/four tool rounds). Sol retained two Actions, one
+Knowledge and a reasoned Finding (83.348s, seven responses/six rounds). Both kept
+shipment dates/authorization uncertainty; neither chose supersession. Live History
+selection is unqualified; deterministic History mechanics passed. New North Quay
+proposals remain Draft for owner revision/approval without inference. GUI acceptance
+remains pending in the single morning task. No Cargo or provider process is active.
+
+Earlier milestone entries below are historical receipts; this checkpoint and the
+local campaign ledger govern continuation.
 
 ## Selected first evidence slice
 

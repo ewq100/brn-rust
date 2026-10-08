@@ -2,32 +2,33 @@
 
 ## Overnight implementation and model qualification — 2026-10-08
 
-Current fetched main is `4f5b95e1c7b92f9efec54ea7f34f9097987cfdb6`:
-[PR87](https://github.com/ewq100/brn-rust/pull/87),
-[PR88](https://github.com/ewq100/brn-rust/pull/88) and
-[PR89](https://github.com/ewq100/brn-rust/pull/89) are merged. PR89's final receipt
-records passing required macOS/shared checks and documentation before/after
-integration. The owner authorizes continued V1 implementation and normal
-protected integration until 08:00 Europe/Tallinn on 9 October; earlier pause,
-prepare-only and stop-after-PR summaries below are dated history.
+Current fetched main is `409f68bedc112df550a5fcd6ebd884effff70101`.
+[PR90](https://github.com/ewq100/brn-rust/pull/90) merged scoped, hash-bound evidence
+ranges and intake guidance; its required postmerge checks passed.
+[PR91](https://github.com/ewq100/brn-rust/pull/91) merged visible recorded work
+budgets, cancellation and retained progress after all required candidate checks;
+postmerge run 37835432764 is in progress. Native workflow/models passed 412 tests
+with 15 existing ignores; desktop/CLI passed 525; shipping gates passed.
+
 The [overnight checkpoint](work/active/overnight-continuation/plan.md) owns current
-progress and the shared six-investigation allowance. Fresh ordinary BRN CLI
-status confirms ChatGPT connected; discovery includes exact Luna/Sol IDs.
-Paired Medium baseline completed on retained synthetic evidence and PR89's
-qualified shipping CLI: Luna retained one Action with a refused Knowledge quote;
-Sol retained two Knowledge drafts and one Action with budget/review details.
-The first range/guidance candidate passed focused workflow/lifecycle and143 AI
-tests (one existing ignore); independent review found no actionable defect.
-[PR90](https://github.com/ewq100/brn-rust/pull/90) merged after independent review,
-full relevant local gates and all four required CI checks. Fresh-process Action-first
-approval/replay passed without inference or duplicate effects. Four live calls used;
-one per model remains. Paired first-slice Luna retained the previously omitted
-budget/review date; usefulness remains variable. Visible per-run budgets are being
-integrated in `codex/p3-work-budgets`; final qualification/review pending.
-Full P2/P3 and personal acceptance remain pending.
-All interactive checks are deferred to the [single morning UI task](work/active/overnight-continuation/morning-ui-acceptance.md).
-No overnight GUI testing, private-data operation, optional model download or
-release is authorized. Other open research PRs remain untouched.
+authority, implementation and verification. The owner added ten shared live trials
+at 20:00 UTC: six of sixteen used, three per existing Medium model condition.
+Paired first-slice Luna retained the formerly omitted budget/review date. The novel
+North Quay pair retained authorization uncertainty and deadlines; Sol also retained
+a reasoned conflict Finding. Neither selected supersession, so live History choice
+is unqualified. Results and limitations are in the [live evidence record](work/active/overnight-continuation/live-model-evidence.md).
+
+P4 provisional-recommendation guidance and integrated synthetic conflict/History/
+Action/restart behavior are independently reviewed and locally qualified on
+`codex/p4-conflict-recommendations`, awaiting hosted integration. Next selected work
+is explicit owner predecessor attachment to a retained Knowledge draft, preserving
+exact proofs, original creation replay, comments and revised-version approval.
+Full P3/P4 and personal acceptance remain pending. The owner authorizes continued
+small V1 slices and normal protected integration until 08:00 Europe/Tallinn on
+9 October; earlier pause/prepare-only/stop-after-PR entries are dated history.
+All interactive checks remain pending in the [single morning task](work/active/overnight-continuation/morning-ui-acceptance.md).
+No overnight GUI testing, private-data operation, optional download or release is
+authorized. Other open research PRs and unrelated data remain untouched.
 
 The entries below preserve dated implementation/evidence checkpoints; they do
 not override the current baseline or overnight authorization above.
