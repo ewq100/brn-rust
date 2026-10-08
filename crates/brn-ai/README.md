@@ -219,7 +219,7 @@ and provenance are evidence, never semantic truth. No eager conflict lookup occu
   observations. Whole encoded replies ≤1 MiB are returned intact or refused. Legacy
   read backends safely refuse. Ask instructions require looking up conflicts for
   relevant saved notes before claiming current facts, disclosing unresolved/stale
-  evidence and choosing no winner. Incomplete pages/errors never mean no conflict.
+  evidence while allowing provisional recommendations with reasons and uncertainty. Incomplete pages/errors never mean no conflict.
   The same facts DTO adds `conflicts: {status: "known", open_count: N}`, bound to
   the existing exact managed `note_id` and full `SourceVersion`. The retained open
   count covers all pages, including findings with stale evidence; original fields,
@@ -313,8 +313,9 @@ returns it in the receipt and owns path/body/proof validation. Identical intent
 retries return the same finding; changed intent creates a separate draft.
 Caller-supplied finding IDs are rejected. Workflow
 persists only a tentative unresolved finding with two opposing saved
-quotations. The adapter gives no winner, knowledge effects, real Actions or
-deletion authority; exact proposals still govern knowledge and real Actions.
+quotations. Its summary may contain a provisional preferred resolution, reasons,
+alternatives and uncertainty. The adapter grants no knowledge effects, real Actions
+or deletion authority; exact proposals and human approval still govern those.
 Ordinary Ask and Rewrite never receive this report capability; legacy proposal
 backends reject it. Dispatch uses the existing blocking lane and shared round
 budget. Synthetic real Rig routes qualify availability, strict schema/arguments,

@@ -1,0 +1,12 @@
+From: Kaia <kaia@release.synthetic.invalid>
+To: Operations <ops@north-quay.synthetic.invalid>
+Date: Mon, 5 Oct 2026 10:00:00 +0300
+Message-ID: <approved-release-20261005@synthetic.invalid>
+Subject: North Quay sensor shipment target
+MIME-Version: 1.0
+Content-Type: text/plain; charset=utf-8
+
+Synthetic acceptance fixture.
+The approved target is to ship 100 sensor units on 19 October 2026.
+Only release coordinator Kaia may authorize a change to that commitment.
+Operations should arrange a carrier consistent with the approved target.

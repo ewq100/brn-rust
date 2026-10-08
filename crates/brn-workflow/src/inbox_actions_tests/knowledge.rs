@@ -36,6 +36,8 @@ fn knowledge(_source: &SourceFixture) -> KnowledgeProposalArgs {
 mod conflict_tests;
 #[path = "knowledge_links.rs"]
 mod link_tests;
+#[path = "p4_conflict.rs"]
+mod p4_conflict_tests;
 #[path = "supersession_replay.rs"]
 mod supersession_replay_tests;
 #[path = "supersession.rs"]

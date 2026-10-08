@@ -984,7 +984,7 @@ Findings remain retained after failed/interrupted turns.
 
 `InboxActionAnalysis.findings` includes every retained conflict, including closed
 work. Existing Needs Review handles exact stamped Resolve/Dismiss; closure changes
-operational review state and conveys no knowledge correction or winner. The
+operational review state and conveys no knowledge correction or authoritative resolution. The
 shared20-consequence admission cap includes Action/knowledge proposals and
 conflicts; original creation replay remains available at capacity.
 
@@ -1104,3 +1104,20 @@ text/drafts; a late successful operation cannot replace expiry. Already-ready
 completion wins a simultaneous deadline. Manual Stop and tool-limit exhaustion
 retain their distinct causes. Legacy strict visual JSON remains completion-only.
 No local terminal guarantees upstream cancellation or absence of billing.
+
+### Conflict recommendations and selected consequence review
+
+Saved-Source Inbox Knowledge investigations may recommend a provisional preferred
+resolution with opposing evidence, reasons, alternatives and uncertainty. Reported
+identity, copied recipients, timestamps and preservation approval alone do not
+authorize knowledge changes. Findings retain exact opposing quotes/proofs; summaries
+and answers may explain a preference. Only exact displayed proposal approvals make
+selected Current/History or Action consequences durable. Finding closure is a
+separate explicit review operation and never applies knowledge changes.
+
+For the bounded conflict journey use an explicitly captured saved Source. Legacy
+report_conflict does not accept intake-only capture, including one whose Source is
+already Applied. Existing supersedes creates a new Current successor and protected
+predecessor History with a Previous version link. If another selected proposal also
+binds that predecessor's original proof, approve it before supersession; submitted
+group order is significant. Stale proofs refuse rather than silently rebasing.

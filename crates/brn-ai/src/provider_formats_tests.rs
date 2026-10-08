@@ -5367,10 +5367,19 @@ mod conflict_tool_tests {
                 assert_eq!(quote["properties"]["quote"]["maxLength"], 16 * 1024);
             }
             let prompt = preamble(&bodies[0], provider, responses);
+            assert!(!prompt.contains("Do not choose a winner"));
+            assert!(!prompt.contains("do not choose a winner"));
+            assert!(prompt.contains("reasonable alternatives and what remains uncertain"));
+            assert!(
+                tool["description"]
+                    .as_str()
+                    .unwrap()
+                    .contains("alternatives and uncertainty")
+            );
             for text in [
                 "two exact opposing saved body quotations",
                 "tentative unresolved finding",
-                "Do not choose a winner",
+                "provisional preferred resolution",
                 "no knowledge effects, real Actions or deletion authority",
             ] {
                 assert!(prompt.contains(text), "{prompt}");
@@ -5618,7 +5627,7 @@ mod conflict_tool_tests {
                 for text in [
                     "relevant saved notes before claiming current facts",
                     "unresolved conflicts and stale evidence",
-                    "do not choose a winner",
+                    "separate a recommendation from an approved resolution",
                     "Incomplete pages or failed lookup never mean no conflict",
                     "uninspected conflicts are not zero",
                     "Even known zero cannot establish consistency",

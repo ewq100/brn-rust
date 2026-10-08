@@ -344,3 +344,24 @@ usefulness. No hardcoded fixture answers or extra inference for approval/replay.
 Inputs prepared at `/private/tmp/brn-overnight-20261008/north-quay-inputs`, zero
 calls spent; preserve repo fixture copies with the scenario. Morning interactive
 checks remain in the same consolidated task; actual GUI acceptance stays pending.
+
+### Current checkpoint — P4 review passed; PR91 awaits CI
+
+Budget head `8382201ea89e80e27baa34f4041e9e84dbea5aa4` passed final native
+Clippy, shipping builds and 52 fixture assertions. Build receipt:
+`/private/tmp/brn-overnight-20261008/budget-build-manifest.json`.
+Combined native desktop/CLI passed 525 tests; native workflow/models passed
+412 with 15 existing ignores. The independently validated Settings probe fix
+is test-only. Required PR91 run `37833444188` has docs, Ubuntu core and native
+UI passed; Mac core and combined retrieval are running. No budget merge yet.
+
+P4 complete staged snapshot SHA-256
+`e2d978f8ad52e146e16275a1a2bb22c12b7a7510e8a1bafccdf2ff3e8ae91cbc`
+received one independent read-only review with no actionable findings. Full AI
+passed 145 with one existing ignore; P4 integrated MIME/review/restart and old
+question replay passed 2; task-context guards passed 3. Synthetic hooks prove
+mechanics, not model usefulness. Commit this candidate, incorporate the final
+budget test/docs delta, build the P4 CLI and prepare the isolated synthetic case.
+Then use the remaining one Luna/one Sol Medium investigation, each explicitly
+8 tool rounds/nine model responses/180 seconds, with the shared campaign ledger
+written before invocation. No new call has been spent. All GUI checks stay pending.

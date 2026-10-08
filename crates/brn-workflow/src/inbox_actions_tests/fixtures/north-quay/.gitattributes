@@ -1,0 +1,2 @@
+# Preserve canonical MIME CRLF bytes and retain the normal whitespace checks.
+*.eml -text whitespace=blank-at-eol,blank-at-eof,space-before-tab,cr-at-eol
