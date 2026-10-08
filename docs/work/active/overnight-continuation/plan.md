@@ -35,8 +35,9 @@ The earlier headless approved Source is reusable and unowned between commands.
 
 ## Campaign ledger
 
-Whole-night ceiling: six top-level BRN investigations including failures/retries,
-three per exact model/effort; Luna Medium first, Sol Medium paired when useful.
+Owner amended the allowance at 20:00 UTC: ten additional shared investigations.
+Whole-night ceiling: sixteen top-level BRN investigations including failures/retries,
+allocated at most eight per existing exact model/effort; Luna Medium first, Sol Medium paired when useful.
 Every call: 180-second cancellation, at most nine model turns/eight tool rounds;
 no hidden retries/fallback or other effort condition. Token/internal-turn/spend
 telemetry is unknown where unavailable. These are campaign limits, not permanent
@@ -45,11 +46,12 @@ product limits. Preserve outputs and reuse them for approval/replay.
 Local receipts: `/private/tmp/brn-overnight-20261008`; script
 `paired-baseline.py` uses the same already-approved synthetic `plural.eml`
 Source/binding and exact executable for both models, without application between
-runs. Current ledger: four investigations completed, two per condition. Baseline and
-first-slice pair are recorded in [live evidence](live-model-evidence.md). Two
-remain, at most one per condition; no new call until a concrete later improvement
-or different synthetic scenario justifies it. Every CLI call has the180-second
-cancellation deadline/nine turns/eight tool rounds and no automatic retry.
+runs. Current ledger: six investigations completed, three per condition. Ten remain
+authorized after the owner's amendment, allocated at most five additional per
+existing condition. Do not spend them to repeat approval/replay or answer questions
+that retained evidence and deterministic tests can resolve. Baseline, first-slice
+and North Quay pairs are retained in the local ledger. Every CLI call retains
+the 180-second deadline/nine responses/eight tool rounds and no automatic retry.
 Source/asset proofs remained unchanged; retained outputs serve approval/replay.
 
 ## Work selection and routing
@@ -75,12 +77,37 @@ requires exact final-candidate review, applicable local checks and actual requir
 CI. No weakening, bypass or rushed merge. Record failures and repair real defects.
 Known informational platform failures remain visible and separate.
 
-## Durable checkpoint
+## Durable checkpoint — 8 October 20:00 UTC
 
-Next: qualify/review the implemented hash-bound range and generic intake guidance
-slice, rebuild the minimum shipping CLI, then spend remaining live trials only
-on concrete improvement/novel-scenario questions. No overnight GUI result
-is claimed. Morning acceptance remains pending. No overnight candidate is merged.
+Active checkout `/Users/evokessler/repos/brn-p2-email-docx-intake`, branch
+`codex/p4-conflict-recommendations`, clean HEAD `33ddac7aaf2f9f50801faceae83d80c9f78967e3`.
+PR90 merged at `4f5b95e1c7b92f9efec54ea7f34f9097987cfdb6`; required postmerge
+checks passed. PR91 merged normally at `409f68bedc112df550a5fcd6ebd884effff70101`;
+all four required candidate checks passed. Postmerge run 37835432764 is running.
+Budget local final workflow/models: 412 passed, 15 existing ignores; desktop/CLI:
+525 passed; shipping Clippy/builds and 52 fixture assertions passed.
+
+P4 code `f72ccac` independently reviewed with no actionable findings; incorporating
+qualified budget/main yields the same tree as runtime `2abe6d3`. AI: 145 passed,
+one existing ignore; new integrated/replay tests: 2 passed; context guards: 3 passed;
+AI/workflow native Clippy, shipping desktop/CLI, 52 fixtures and 602 links passed.
+Receipt `/private/tmp/brn-overnight-20261008/p4-build-manifest.json`. P4 is not yet
+pushed as a PR. Next: update retained results and morning task, open/qualify/integrate
+P4 normally; then select the bounded owner predecessor-attachment P3 slice after
+checking exact creation replay and native review transition seams.
+
+Six live investigations completed, three per condition; owner's latest message
+adds ten shared calls (sixteen total), conservatively allocated five further per
+existing condition. North Quay Luna retained one Action and one Knowledge, no
+Finding (16.765s, five responses/four tool rounds). Sol retained two Actions, one
+Knowledge and a reasoned Finding (83.348s, seven responses/six rounds). Both kept
+shipment dates/authorization uncertainty; neither chose supersession. Live History
+selection is unqualified; deterministic History mechanics passed. New North Quay
+proposals remain Draft for owner revision/approval without inference. GUI acceptance
+remains pending in the single morning task. No Cargo or provider process is active.
+
+Earlier milestone entries below are historical receipts; this checkpoint and the
+local campaign ledger govern continuation.
 
 ## Selected first evidence slice
 
@@ -324,3 +351,64 @@ P4 work is now isolated in the reused clean parent checkout on
 MIME/conflict/review/restart witness being qualified. Two live calls remain unused.
 The budget target is idle while the P4 helper runs its two targeted tests in
 `target/intake-ui`; after it releases Cargo, finish budget Clippy/shipping and CI.
+
+## Selected P4 slice: recommend and review conflicting shipment evidence
+
+Baseline is budget candidatee391be5, stacked on mergedPR90. Reuse the clean
+first-slice checkout `/Users/evokessler/repos/brn-p2-email-docx-intake` on new
+branch `codex/p4-conflict-recommendations`; budget checkout/target stay dedicated
+to PR91 native/hosted qualification. No meaningful budget changes are made here.
+
+Outcome: saved-Source Inbox investigation may recommend a provisional resolution
+with evidence, reasons, alternatives and uncertainty, then prepare exact Current/
+History and follow-up Action drafts. Freshness/classification/Finding counts never
+make that recommendation authoritative. Explicit displayed-version approval still
+applies each selected consequence. Private-intake conflict capture, broad semantic
+Finding deduplication and general schedulers stay separate pending work.
+
+Reuse/adapt/build: reuse existing Finding exact quotes/proofs, host-minted IDs,
+Inbox supersedes Current successor + protected predecessor History, Action and
+ordered group approval/restart/replay. Adapt coherent behavior/context/read/report
+guidance that currently bans all preferences. No new runtime/dependency/schema/
+semantic truth rule. Read Source/History explicitly; Current defaults remain.
+
+Acceptance: synthetic North Quay original approval and conflicting courier EML
+remain inspectable; copied Kaia is not authorization, newer carrier information
+is not release authority. Capture exact opposing Finding proofs; recommend a
+qualified preference/alternatives and prepare new Current + protected History
+and follow-up Action. Before approval no authoritative effects; reject alternative,
+owner-edit preferred draft, refuse obsolete stamp, apply selected exact versions
+in Action-before-supersession order if predecessor proof is shared. Restart retains
+current/history/links/Action and replays without inference/effects. Stale Source or
+predecessor refuses affected approval. Finding closure remains explicit/separate.
+
+Checks: coherent real Rig/task input guidance, one integrated synthetic MIME/
+conflict/supersession/Action/restart witness, affected existing freshness/recovery
+coverage, independent final read-only review, applicable native/headless/required
+CI. Only then spend the remaining one Luna/one Sol Medium call on identical novel
+synthetic inputs,8rounds/nine turns/180seconds; keep all outputs and compare actual
+usefulness. No hardcoded fixture answers or extra inference for approval/replay.
+Inputs prepared at `/private/tmp/brn-overnight-20261008/north-quay-inputs`, zero
+calls spent; preserve repo fixture copies with the scenario. Morning interactive
+checks remain in the same consolidated task; actual GUI acceptance stays pending.
+
+### Current checkpoint — P4 review passed; PR91 awaits CI
+
+Budget head `8382201ea89e80e27baa34f4041e9e84dbea5aa4` passed final native
+Clippy, shipping builds and 52 fixture assertions. Build receipt:
+`/private/tmp/brn-overnight-20261008/budget-build-manifest.json`.
+Combined native desktop/CLI passed 525 tests; native workflow/models passed
+412 with 15 existing ignores. The independently validated Settings probe fix
+is test-only. Required PR91 run `37833444188` has docs, Ubuntu core and native
+UI passed; Mac core and combined retrieval are running. No budget merge yet.
+
+P4 complete staged snapshot SHA-256
+`e2d978f8ad52e146e16275a1a2bb22c12b7a7510e8a1bafccdf2ff3e8ae91cbc`
+received one independent read-only review with no actionable findings. Full AI
+passed 145 with one existing ignore; P4 integrated MIME/review/restart and old
+question replay passed 2; task-context guards passed 3. Synthetic hooks prove
+mechanics, not model usefulness. Commit this candidate, incorporate the final
+budget test/docs delta, build the P4 CLI and prepare the isolated synthetic case.
+Then use the remaining one Luna/one Sol Medium investigation, each explicitly
+8 tool rounds/nine model responses/180 seconds, with the shared campaign ledger
+written before invocation. No new call has been spent. All GUI checks stay pending.

@@ -16,7 +16,7 @@ pub fn capped_text(text: &str) -> (&str, bool) {
 }
 
 /// Retained conflict knowledge for the exact saved-note proof in this result.
-/// Unknown is never zero; a checked lookup can report a count without a winner.
+/// Unknown is never zero; a checked lookup reports a count without granting resolution authority.
 #[derive(Clone, Debug, Default, PartialEq, Eq, Serialize, Deserialize)]
 #[serde(tag = "status", rename_all = "snake_case", deny_unknown_fields)]
 pub enum ConflictKnowledge {
@@ -322,7 +322,7 @@ impl Tool for ReadConflicts {
     type Output = Value;
     type Error = AiError;
     fn description(&self) -> String {
-        "Look up unresolved conflicts for a relevant saved note before claiming current facts. Path selects a saved note; omitted scope means Current. Source, History and All explicitly select evidence. Limit defaults to 10 (1–100); pass the opaque next_cursor unchanged for another page. Results retain exact note_id/source proof and facts with known open_count across pages, including stale findings. Known zero proves no retained open findings, never consistency or a winner. Whole replies over 1 MiB are refused, never clipped. Incomplete pages or failed lookup never mean no conflict. Disclose unresolved or stale evidence and do not choose a winner.".into()
+        "Look up unresolved conflicts for a relevant saved note before claiming current facts. Path selects a saved note; omitted scope means Current. Source, History and All explicitly select evidence. Limit defaults to 10 (1–100); pass the opaque next_cursor unchanged for another page. Results retain exact note_id/source proof and facts with known open_count across pages, including stale findings. Known zero proves no retained open findings, never consistency or an authoritative resolution. Whole replies over 1 MiB are refused, never clipped. Incomplete pages or failed lookup never mean no conflict. Disclose unresolved or stale evidence. You may recommend a provisional preferred resolution with reasons, alternatives and uncertainty; a recommendation never applies knowledge or Action changes. Select Source or History explicitly for original or historical paths.".into()
     }
     fn parameters(&self) -> Value {
         json!({"type":"object","additionalProperties":false,"properties":{

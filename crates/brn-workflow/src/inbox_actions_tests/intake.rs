@@ -24,7 +24,7 @@ fn intake(
     intake_at(worker, bytes, name, "harbor-source.md")
 }
 #[track_caller]
-fn intake_at(
+pub(super) fn intake_at(
     worker: &AppWorker,
     bytes: &[u8],
     name: &str,
