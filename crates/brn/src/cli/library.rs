@@ -141,8 +141,15 @@ impl<W: EventLane> Lane<W> {
         job: Job,
         signal: impl Fn() -> bool,
     ) -> Result<(Uuid, AppEvent), CliFailure> {
+        let mut received = None;
         loop {
-            let queued = self.worker.try_event();
+            let mut queued = received.take().or_else(|| self.worker.try_event());
+            if let Some((id, AppEvent::BackupStatus(status))) = &queued {
+                if id.is_nil() {
+                    report_backup_warning(status);
+                    queued = None;
+                }
+            }
             // Confirmed terminal success wins; progress cannot starve cancellation.
             if queued
                 .as_ref()
@@ -174,7 +181,8 @@ impl<W: EventLane> Lane<W> {
                 return Ok(event);
             }
             if let Some(event) = self.worker.try_event() {
-                return Ok(event);
+                received = Some(event);
+                continue;
             }
             if self.joined {
                 if let Some(error) = self.shutdown_error.clone() {
@@ -183,7 +191,7 @@ impl<W: EventLane> Lane<W> {
                 return Err(self.stop_error().into());
             }
             match self.worker.recv_event_timeout(Duration::from_millis(20)) {
-                Ok(event) => return Ok(event),
+                Ok(event) => received = Some(event),
                 Err(std::sync::mpsc::RecvTimeoutError::Timeout) => {}
                 Err(std::sync::mpsc::RecvTimeoutError::Disconnected) => {
                     return Err(CliError::Workflow(
@@ -236,6 +244,15 @@ impl<W: EventLane> Lane<W> {
             self.shutdown_error = self.worker.shutdown().err();
             self.joined = true;
         }
+        // The joined lane publishes final backup status separately from its
+        // operation endings. A backup warning cannot relabel committed work.
+        while let Some((id, event)) = self.worker.try_event() {
+            if let AppEvent::BackupStatus(status) = event {
+                if id.is_nil() {
+                    report_backup_warning(&status);
+                }
+            }
+        }
         if let Some(error) = self.shutdown_error.take() {
             let mut failure = result
                 .err()
@@ -248,6 +265,22 @@ impl<W: EventLane> Lane<W> {
             return Err(failure);
         }
         result
+    }
+}
+
+fn report_backup_warning(status: &brn_workflow::backups::BackupStatus) {
+    for warning in [
+        status.last_error.as_ref(),
+        status.retention_warning.as_ref(),
+    ]
+    .into_iter()
+    .flatten()
+    {
+        let _ = writeln!(
+            std::io::stderr(),
+            "backup warning: {warning}; committed work remains saved; last checkpoint: {}",
+            status.latest_path.display()
+        );
     }
 }
 
@@ -403,6 +436,23 @@ fn execute(
     knowledge: Option<AppCommand>,
 ) -> Result<Output, CliFailure> {
     match &i.command {
+        Command::BackupStatus | Command::CheckpointBackup => {
+            let command = if matches!(i.command, Command::CheckpointBackup) {
+                AppCommand::CheckpointBackup
+            } else {
+                AppCommand::BackupStatus
+            };
+            let AppEvent::BackupStatus(status) = lane.query(command)? else {
+                return Err(CliError::Workflow("unexpected backup response".into()).into());
+            };
+            if matches!(i.command, Command::CheckpointBackup) && status.last_error.is_some() {
+                return Err(CliFailure { error: CliError::Workflow("internal checkpoint did not finish; previous backups and committed work remain retained".into()), context: Some(json!({"backup_status": status})) });
+            }
+            Ok(Output {
+                text: format!("Last internal checkpoint: {}", status.latest_path.display()),
+                data: json!(status),
+            })
+        }
         Command::Findings(command) => {
             let event = lane.query(knowledge.expect("finding input prepared before startup"))?;
             super::findings::output(command, event)
@@ -1588,6 +1638,7 @@ mod tests {
         ending: Option<(Uuid, AppEvent)>,
         cancelled: Cell<bool>,
         cancelled_turn: Cell<Option<Uuid>>,
+        events_at_cancel: Cell<Option<usize>>,
         joined: bool,
         failure: Option<WorkflowError>,
         query_replies: bool,
@@ -1664,6 +1715,7 @@ mod tests {
                     | AppCommand::CancelModelDownload(_)
             ) {
                 self.cancelled.set(true);
+                self.events_at_cancel.set(Some(self.events.borrow().len()));
             }
             if let AppCommand::CancelTurn(id) = command {
                 self.cancelled_turn.set(Some(id));
@@ -1694,6 +1746,7 @@ mod tests {
                 ending: Some((op, ending)),
                 cancelled: Cell::new(false),
                 cancelled_turn: Cell::new(None),
+                events_at_cancel: Cell::new(None),
                 joined: false,
                 failure: None,
                 query_replies: false,
@@ -2413,5 +2466,57 @@ mod tests {
         assert_eq!(failure.error.code(), "AI_STORAGE_ERROR");
         assert_eq!(failure.error.exit_code(), 1);
         assert_eq!(failure.context.unwrap()["recorded_status"], "failed");
+    }
+    fn backup_warning() -> AppEvent {
+        AppEvent::BackupStatus(brn_workflow::backups::BackupStatus {
+            latest_path: "/synthetic/last-good.sqlite".into(),
+            completed_at_ms: Some(1),
+            retention_warning: None,
+            last_error: Some("synthetic copy unavailable".into()),
+        })
+    }
+
+    #[test]
+    fn backup_warning_does_not_starve_cancellation_or_relabel_committed_success() {
+        let op = Uuid::new_v4();
+        let mut lane = lane(
+            op,
+            AppEvent::Chat(ChatEvent::Finished {
+                id: op,
+                generation: 0,
+                turn: turn(op, WorkTurnStatus::Interrupted),
+            }),
+        );
+        lane.worker
+            .events
+            .borrow_mut()
+            .extend((0..2).map(|_| (Uuid::nil(), backup_warning())));
+        // The deadline must trigger after the first notification, while the
+        // remaining notification is still queued, rather than draining it first.
+        let (_, event) = lane.next_observing(Job::Ask(op), || false).unwrap();
+        assert!(matches!(event, AppEvent::Chat(ChatEvent::Finished { .. })));
+        assert!(lane.worker.cancelled.get() && lane.worker.joined);
+        assert_eq!(lane.stopped, Some(true));
+        assert_eq!(lane.worker.events_at_cancel.get(), Some(1));
+        // Separately, final warning after a confirmed committed mutation leaves
+        // that operation successful and joins normally.
+        lane.worker.ending = Some((Uuid::nil(), backup_warning()));
+        lane.joined = false;
+        assert_eq!(lane.finish(Ok(42)).unwrap(), 42);
+    }
+
+    #[test]
+    fn backup_status_updates_are_filtered_but_manual_replies_keep_exact_correlation() {
+        let op = Uuid::new_v4();
+        let mut lane = lane(op, AppEvent::SelectionSaved);
+        lane.worker.ending = None;
+        lane.deadline = Instant::now() + Duration::from_secs(10);
+        lane.worker
+            .events
+            .borrow_mut()
+            .extend([(Uuid::nil(), backup_warning()), (op, backup_warning())]);
+        let (actual, event) = lane.next_observing(Job::Local, || false).unwrap();
+        assert_eq!(actual, op);
+        assert!(matches!(event, AppEvent::BackupStatus(_)));
     }
 }

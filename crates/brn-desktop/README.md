@@ -538,8 +538,12 @@ Narrow windows collapse rails and use Document/Chat tabs; Focus hides the rails.
 Closing a document waits for its latest buffer recovery acknowledgement. Later
 edits survive older Save and recovery acknowledgements. Settings uses the toolkit
 modal host for appearance,
-rail widths and layout reset. Layout preferences are stored separately from the
-authoritative workflow data.
+rail widths and layout reset. It also shows the last usable internal-state backup,
+copy time (unknown for the startup copy), retention warnings and backup failures.
+**Back up current state** checks for changed state; **Refresh backup status** reads
+the current status. Backup responses preserve editor, composer and proposal input,
+and report failures separately from the operation that committed the work.
+Layout preferences are stored separately from the authoritative workflow data.
 
 The three dividers support pointer dragging and keyboard resizing: Tab among
 chrome controls to focus, then ←/→ for 8 pt or ⇧←/→ for 32 pt. Grabs preserve

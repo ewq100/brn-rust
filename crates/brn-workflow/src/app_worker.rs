@@ -21,7 +21,7 @@ use std::{
         mpsc,
     },
     thread::{self, JoinHandle},
-    time::Duration,
+    time::{Duration, Instant},
 };
 use uuid::Uuid;
 
@@ -43,6 +43,8 @@ pub enum AppCommand {
     },
     BindVault(PathBuf),
     Status,
+    BackupStatus,
+    CheckpointBackup,
     Refresh,
     Selection,
     Select(Selection),
@@ -193,6 +195,7 @@ pub enum AppEvent {
     },
     VaultBound,
     Status(AppStatus),
+    BackupStatus(crate::backups::BackupStatus),
     Selection(Option<Selection>),
     SelectionSaved,
     Effort(Option<ReasoningEffort>),
@@ -368,6 +371,8 @@ struct Hooks {
     install: Option<super::simple_worker_tests::InstallHook>,
     #[cfg(test)]
     load: Option<super::simple_worker_tests::LoadHook>,
+    #[cfg(test)]
+    backup_interval: Option<Duration>,
 }
 
 impl AppWorker {
@@ -439,6 +444,17 @@ impl AppWorker {
             || matches!(&command, AppCommand::RestoreInboxOriginal(request) if request.operation_id != id)
         {
             return Err(chat_worker::conflict());
+        }
+        if id.is_nil()
+            && matches!(
+                &command,
+                AppCommand::BackupStatus | AppCommand::CheckpointBackup
+            )
+        {
+            return Err(WorkflowError::typed(
+                ErrorKind::ToolRejected,
+                "backup request UUID must be nonzero",
+            ));
         }
         // These commands never wait behind a scan, model load, stream or device login.
         match command {
@@ -866,10 +882,24 @@ fn app_lane(
     let mut final_error: Option<WorkflowError> = None;
     #[cfg(test)]
     let mut idle_barriers: Vec<mpsc::Sender<()>> = Vec::new();
+    #[cfg(test)]
+    let backup_interval = hooks
+        .backup_interval
+        .unwrap_or(crate::backups::AUTOMATIC_INTERVAL);
+    #[cfg(not(test))]
+    let backup_interval = crate::backups::AUTOMATIC_INTERVAL;
+    let mut backups = crate::backups::BackupCadence::new(Instant::now(), backup_interval);
     // Fallible application work must reach the same joined drain as normal Quit.
     let lane_result = (|| -> Result<()> {
         let mut indexing = indexing_job(&app, startup)?;
         loop {
+            if !stopping.load(Ordering::Acquire) && backups.due(Instant::now()) {
+                let before = app.backup_status();
+                let status = app.checkpoint_backup();
+                if status != before {
+                    let _ = emit.send((Uuid::nil(), AppEvent::BackupStatus(status)));
+                }
+            }
             // One bounded batch only when commands are not queued.
             let message = match rx.try_recv() {
                 Ok(message) => message,
@@ -925,9 +955,10 @@ fn app_lane(
                     for barrier in idle_barriers.drain(..) {
                         let _ = barrier.send(());
                     }
-                    match rx.recv() {
+                    match rx.recv_timeout(backups.wait(Instant::now())) {
                         Ok(message) => message,
-                        Err(_) => break,
+                        Err(mpsc::RecvTimeoutError::Timeout) => continue,
+                        Err(mpsc::RecvTimeoutError::Disconnected) => break,
                     }
                 }
             };
@@ -1196,6 +1227,9 @@ fn app_lane(
         .queued_inbox
         .clear();
     drop(chat);
+    // Attached chat and admitted application writes have now settled. A checkpoint
+    // warning cannot convert committed work or normal Quit into a failed mutation.
+    let _ = emit.send((Uuid::nil(), AppEvent::BackupStatus(app.checkpoint_backup())));
     drop(app);
     final_error.map_or(Ok(()), Err)
 }
@@ -1217,6 +1251,8 @@ fn dispatch(
     indexing: &mut Option<Uuid>,
 ) -> Result<()> {
     let event = match command {
+        AppCommand::BackupStatus => AppEvent::BackupStatus(app.backup_status()),
+        AppCommand::CheckpointBackup => AppEvent::BackupStatus(app.checkpoint_backup()),
         #[cfg(test)]
         AppCommand::TestPause { entered, release } => {
             entered.send(()).expect("test observer");
@@ -1762,6 +1798,7 @@ pub(crate) fn start_test(
             chat,
             install,
             load,
+            ..Hooks::default()
         },
     )
 }
@@ -1776,7 +1813,8 @@ pub(crate) fn wait_test_idle(worker: &AppWorker) {
 fn critical_mutation_command(command: &AppCommand) -> bool {
     matches!(
         command,
-        AppCommand::ReloadEditor(_)
+        AppCommand::CheckpointBackup
+            | AppCommand::ReloadEditor(_)
             | AppCommand::RecoverEditor(_)
             | AppCommand::SaveEditor(_)
             | AppCommand::CompleteAction(_)
@@ -2209,3 +2247,6 @@ mod editor_shutdown_tests {
         );
     }
 }
+
+#[cfg(test)]
+mod backup_tests;

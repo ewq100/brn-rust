@@ -25,6 +25,17 @@ retrieval storage details.
 
 [Application](src/app.rs), [commands/events](src/app_worker.rs), [chat lane](src/chat_worker.rs), [editor](src/editor.rs), [Inbox boundary](src/inbox.rs), [proposal review](src/proposals.rs), [proposal application](src/proposal_apply.rs), [durable provenance](src/knowledge/provenance.rs), [activity](src/activity.rs), [file adapter](src/files/mod.rs).
 
+`BackupStatus` and `CheckpointBackup` return the typed [internal checkpoint status](src/backups.rs)
+through AppWorker. Manual requests require a nonzero UUID; automatic status events
+use nil and never acknowledge an unrelated request. The owned lane checks due
+work between commands and on an idle wake, with at most one automatic attempt
+per minute and no catch-up loop. Only changed internal state is copied. After
+admitted mutations and attached chat work settle at shutdown, a final checkpoint
+captures later writes. Copy failures remain separate status/warnings, preserving
+the original operation result and owner buffers. There is no provider request,
+new scheduler, schema or automatic rollback. Copies retain the existing five-newest
+policy; vault files and external retained artifacts remain separate recovery inputs.
+
 ## Inbox evidence boundary
 
 `InboxRetainedExtractions(capture_id)` discovers checked immutable extraction

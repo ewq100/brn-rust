@@ -31,6 +31,8 @@ authority. See the [client boundary](../../docs/architecture/overview.md#client-
 ## Commands
 
 ```text
+brn backups status
+brn backups checkpoint
 brn activity list [--limit N] [--before OPERATION_UUID]
 brn findings capture --file REQUEST.json
 brn findings list [--state open|resolved|dismissed|all] [--limit N] [--before UUID]
@@ -125,6 +127,18 @@ Credential paths are absolute, current-user-owned, protected and outside Git,
 operational storage and the vault. The default is the sibling
 `<data-directory-name>.credentials`; workflow saves its non-secret location.
 Startup never discovers accounts or models.
+
+`backups status` reports the last usable internal SQLite checkpoint and any
+separate copy or retention warning. `backups checkpoint` requests a local copy
+only when internal state changed; it does not call a model. Automatic attempts
+occur about once a minute while open and after joined shutdown. Five newest
+copies are retained, so their time coverage depends on write frequency. These
+copies contain internal work, not an independent copy of the Markdown vault or
+retained external artifacts. Startup copy time is reported as unknown; completed
+operational copies include their time. A failed explicit checkpoint returns an
+error with `backup_status` context; automatic/final copy warnings go to stderr
+without changing a committed operation's success. There is no destructive Restore
+command in this slice.
 
 `inbox add` is the explicit user intake boundary for bounded UTF-8 text copies.
 The CLI reads the supplied input file before opening the application, then sends
