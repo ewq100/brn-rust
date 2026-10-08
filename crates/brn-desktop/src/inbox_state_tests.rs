@@ -139,6 +139,47 @@ fn source_request(batch: &InboxProcessBatch) -> InboxSourceRequest {
 }
 
 #[test]
+fn successful_capture_updates_inventory_and_selection_without_manual_refresh() {
+    let fixture = Fixture::new();
+    let mut worker = fixture.worker();
+    let mut state = state();
+    let open = state.open_inbox().unwrap();
+    settle(&worker, &mut state, open);
+    state.draft = crate::draft::DraftForm::new(None);
+    state.draft.as_mut().unwrap().text = "Unfinished owner input õ".into();
+    let retained = state.draft.as_ref().unwrap().id;
+    let item = capture(
+        &worker,
+        &mut state,
+        request(InboxKind::Text, "Public imported body"),
+    );
+    while state.inbox_loading() {
+        let (id, event) = worker.recv_event_timeout(Duration::from_secs(10)).unwrap();
+        for (id, command) in state.apply(id, event) {
+            worker.submit(id, command).unwrap();
+        }
+    }
+    assert!(
+        state
+            .inbox_queue
+            .page
+            .as_ref()
+            .unwrap()
+            .entries
+            .iter()
+            .any(|entry| entry.item == item)
+    );
+    assert_eq!(state.inbox_queue.selected.as_ref().unwrap().item, item);
+    assert_eq!(state.draft.as_ref().unwrap().id, retained);
+    assert_eq!(
+        state.draft.as_ref().unwrap().text,
+        "Unfinished owner input õ"
+    );
+    fixture.unchanged();
+    worker.shutdown().unwrap();
+}
+
+#[test]
 fn actual_worker_capture_progress_preview_and_prepared_review_keep_exact_source() {
     let fixture = Fixture::new();
     let mut worker = fixture.worker();
@@ -728,3 +769,6 @@ fn plural_mail_source_preparation_accepts_exact_source_materialization() {
     fixture.unchanged();
     worker.shutdown().unwrap();
 }
+
+#[path = "inbox_guided_tests.rs"]
+mod guided_tests;

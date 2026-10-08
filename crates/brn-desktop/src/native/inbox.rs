@@ -35,12 +35,28 @@ pub(super) struct InboxPane {
     pub(super) analysis_path_target: Option<String>,
     pub(super) checked: Vec<InboxItem>,
     pub(super) scroll: ScrollHandle,
+    pub(super) guided_list_scroll: ScrollHandle,
+    pub(super) guided_read_scroll: ScrollHandle,
+    pub(super) guided_defaults_for: Option<Uuid>,
+    pub(super) guided_source_inputs: std::collections::BTreeMap<Uuid, (String, String)>,
+    pub(super) guided_proposals: bool,
+    pub(super) guided_paste: bool,
+    pub(super) guided_evidence: bool,
+    pub(super) guided_manage: bool,
+    pub(super) guided_advanced: bool,
+    pub(super) guided_source_options: bool,
+    pub(super) guided_attachment: Option<String>,
     selection_error: Option<String>,
     preview_snapshot: Option<InboxConversionPreview>,
-    original_preview: Option<super::intake_preview::OriginalPreview>,
+    pub(super) original_preview: Option<super::intake_preview::OriginalPreview>,
     /// One encoded image allocation and GPUI image identity per unique checked content.
     pub(super) intake_images:
         std::collections::BTreeMap<(String, [u8; 32]), std::sync::Arc<gpui_kit::Image>>,
+}
+fn new_readonly_editor(window: &mut Window, cx: &mut Context<EditorState>) -> EditorState {
+    let mut editor = EditorState::new(window, cx).default_value("");
+    editor.set_readonly(true, cx);
+    editor
 }
 impl InboxPane {
     pub(super) fn new(window: &mut Window, cx: &mut Context<Desktop>) -> Self {
@@ -52,10 +68,10 @@ impl InboxPane {
             }),
             body: cx.new(|cx| EditorState::new(window, cx).default_value("")),
             kind: InboxKind::Text,
-            original: cx.new(|cx| EditorState::new(window, cx).default_value("")),
-            preview: cx.new(|cx| EditorState::new(window, cx).default_value("")),
-            retained_extraction: cx.new(|cx| EditorState::new(window, cx).default_value("")),
-            copy_source: cx.new(|cx| EditorState::new(window, cx).default_value("")),
+            original: cx.new(|cx| new_readonly_editor(window, cx)),
+            preview: cx.new(|cx| new_readonly_editor(window, cx)),
+            retained_extraction: cx.new(|cx| new_readonly_editor(window, cx)),
+            copy_source: cx.new(|cx| new_readonly_editor(window, cx)),
             source_title: cx.new(|cx| {
                 TextareaState::new(window, cx)
                     .placeholder("Source proposal title")
@@ -76,13 +92,24 @@ impl InboxPane {
                     .placeholder("Retained analysis UUID")
                     .auto_grow(1, 3)
             }),
-            analysis_source: cx.new(|cx| EditorState::new(window, cx).default_value("")),
-            analysis_retained_source: cx.new(|cx| EditorState::new(window, cx).default_value("")),
-            analysis_answer: cx.new(|cx| EditorState::new(window, cx).default_value("")),
-            visual_annotation: cx.new(|cx| EditorState::new(window, cx).default_value("")),
+            analysis_source: cx.new(|cx| new_readonly_editor(window, cx)),
+            analysis_retained_source: cx.new(|cx| new_readonly_editor(window, cx)),
+            analysis_answer: cx.new(|cx| new_readonly_editor(window, cx)),
+            visual_annotation: cx.new(|cx| new_readonly_editor(window, cx)),
             analysis_path_target: None,
             checked: Vec::new(),
             scroll: ScrollHandle::new(),
+            guided_list_scroll: ScrollHandle::new(),
+            guided_read_scroll: ScrollHandle::new(),
+            guided_defaults_for: None,
+            guided_source_inputs: Default::default(),
+            guided_proposals: false,
+            guided_paste: false,
+            guided_evidence: false,
+            guided_manage: false,
+            guided_advanced: false,
+            guided_source_options: false,
+            guided_attachment: None,
             selection_error: None,
             preview_snapshot: None,
             original_preview: None,
@@ -188,6 +215,7 @@ impl Desktop {
         self.sync_inbox_copy_widgets(window, cx);
         self.sync_inbox_analysis_widgets(window, cx);
         self.sync_intake_image_cache();
+        self.sync_guided_inbox_defaults(window, cx);
     }
     fn sync_intake_image_cache(&mut self) {
         let ai = self.ai.as_ref().unwrap();
@@ -227,17 +255,17 @@ impl Desktop {
             || self.closed
             || self.close_failed
     }
-    fn capture_inbox_input(&mut self, cx: &mut Context<Self>) {
+    pub(super) fn capture_inbox_input(&mut self, cx: &mut Context<Self>) {
         if self.inbox_blocked() {
             return;
         }
         let request = self.inbox.capture_request(cx);
-        if let Some(command) = self.ai.as_mut().unwrap().capture_inbox(request) {
+        if let Some(command) = self.ai.as_mut().unwrap().import_text_inbox(request) {
             self.simple_send(command, cx);
         }
         cx.notify();
     }
-    fn choose_intake_file(&mut self, cx: &mut Context<Self>) {
+    pub(super) fn choose_intake_file(&mut self, cx: &mut Context<Self>) {
         if self.inbox_blocked() || self.choosing_file || self.ai.as_ref().unwrap().capture_pending()
         {
             return;
@@ -272,7 +300,7 @@ impl Desktop {
                 this.choosing_file = false;
                 if this.inbox_blocked() { cx.notify(); return; }
                 match request {
-                    Some(Ok(request)) => if let Some(command) = this.ai.as_mut().unwrap().capture_binary_inbox(request) { this.simple_send(command, cx); },
+                    Some(Ok(request)) => if let Some(command) = this.ai.as_mut().unwrap().import_binary_inbox(request) { this.simple_send(command, cx); },
                     Some(Err(error)) => this.ai.as_mut().unwrap().inbox_queue.capture_error = Some(error),
                     None => (),
                 }
@@ -377,7 +405,7 @@ impl Desktop {
         }
         panel.into_any_element()
     }
-    fn inspect_extraction_original(
+    pub(super) fn inspect_extraction_original(
         &mut self,
         source_id: &str,
         expected_digest: [u8; 32],
@@ -509,11 +537,11 @@ impl Desktop {
         }
         cx.notify();
     }
-    pub(super) fn render_inbox(&mut self, cx: &mut Context<Self>) -> AnyElement {
+    pub(super) fn render_inbox_advanced(&mut self, cx: &mut Context<Self>) -> AnyElement {
         let ai = self.ai.as_ref().unwrap();
         let queue = &ai.inbox_queue;
         let blocked = self.inbox_blocked();
-        let mut content = div().id("inbox-content").track_scroll(&self.inbox.scroll)
+        let mut content = div().id("inbox-advanced-content").track_scroll(&self.inbox.scroll)
             .flex().flex_col().flex_1().min_h(px(0.)).overflow_y_scroll().p_3().gap_2()
             .child("Inbox")
             .child(self.render_inbox_analysis(cx))
@@ -857,7 +885,6 @@ impl Desktop {
                 }
             }
         }
-        content = content.child(self.render_inbox_copy(cx));
         if let Some(batch) = &queue.batch {
             content = content.child(format!(
                 "Batch {} · {} remaining conversions",

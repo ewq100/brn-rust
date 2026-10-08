@@ -14,6 +14,10 @@ use brn_workflow::{
 };
 use uuid::Uuid;
 
+#[path = "inbox_guided_state.rs"]
+mod guided;
+pub use guided::{GuidedInbox, GuidedPending};
+
 #[derive(Clone, PartialEq, Eq)]
 pub struct InboxViewCapture {
     view: u64,
@@ -60,6 +64,7 @@ pub enum InboxPending {
 }
 #[derive(Default)]
 pub struct InboxQueue {
+    pub guided: GuidedInbox,
     pub visible: bool,
     pub page: Option<InboxInventory>,
     pub selected: Option<InboxRead>,
@@ -81,6 +86,8 @@ pub struct InboxQueue {
     last_binary_capture: Option<CaptureBinaryInboxRequest>,
     last_process: Option<ProcessInboxRequest>,
     process_failed: bool,
+    capture_view: Option<(Uuid, InboxViewCapture)>,
+    followups: Vec<(Uuid, AppCommand)>,
 }
 
 impl AiState {
@@ -95,6 +102,7 @@ impl AiState {
         self.refresh_inbox()
     }
     pub fn close_inbox(&mut self) {
+        self.invalidate_guided_inbox();
         self.inbox_queue.visible = false;
         self.invalidate_inbox_copy();
         self.close_analysis_view();
@@ -175,6 +183,10 @@ impl AiState {
             return None;
         }
         self.inbox_queue.last_capture = Some(request.clone());
+        self.inbox_queue.capture_view = self
+            .inbox_queue
+            .visible
+            .then(|| (request.id, self.inbox_view_capture()));
         self.inbox_queue.last_binary_capture = None;
         self.inbox_queue.capture_error = None;
         let id = request.id;
@@ -202,6 +214,10 @@ impl AiState {
             return None;
         }
         self.inbox_queue.last_binary_capture = Some(request.clone());
+        self.inbox_queue.capture_view = self
+            .inbox_queue
+            .visible
+            .then(|| (request.id, self.inbox_view_capture()));
         self.inbox_queue.last_capture = None;
         self.inbox_queue.capture_error = None;
         let id = request.id;
@@ -246,6 +262,7 @@ impl AiState {
         self.inbox_queue.process_failed = false;
         self.inbox_queue.error = None;
         self.inbox_queue.preview = None;
+        self.inbox_queue.guided.snapshot_id = None;
         self.inbox_queue.preview_generation = self.inbox_queue.preview_generation.wrapping_add(1);
         self.inbox_queue.source_generation = self.inbox_queue.source_generation.wrapping_add(1);
         let id = request.id;
@@ -404,6 +421,7 @@ impl AiState {
             .iter()
             .map(|read| &read.item)
             .chain(self.inbox_queue.capture_result.iter())
+            .chain(self.inbox_queue.guided.selected_item.iter())
             .chain(
                 self.inbox_queue
                     .page
@@ -413,6 +431,32 @@ impl AiState {
             .find(|item| item.capture.id == id)
     }
     fn inbox_conversion(&self, index: usize) -> Option<ConversionCapture> {
+        if let Some(snapshot_id) = self.inbox_queue.guided.snapshot_id
+            && let Some(snapshot) = self
+                .inbox_queue
+                .guided
+                .snapshots
+                .iter()
+                .find(|snapshot| snapshot.id == snapshot_id)
+            && let Some(preview) = self.inbox_queue.preview.as_ref().filter(|preview| {
+                preview.request.index == index
+                    && preview.request.batch_id == snapshot.batch_id
+                    && preview.request.index == snapshot.index
+                    && preview.original == snapshot.original
+                    && preview.extraction.as_ref() == Some(&snapshot.extraction)
+                    && preview.markdown == snapshot.extraction.markdown
+            })
+        {
+            return Some(ConversionCapture {
+                request: preview.request.clone(),
+                original: preview.original.clone(),
+                format: preview.format,
+                byte_len: preview.markdown.len() as u64,
+                sha256: brn_intake::digest(preview.markdown.as_bytes()),
+                visual: None,
+                extraction: preview.extraction.clone(),
+            });
+        }
         let batch = self.inbox_queue.batch.as_ref()?;
         batch.validate().ok()?;
         let InboxProcessOutcome::Converted {
@@ -492,6 +536,11 @@ impl AiState {
             {
                 self.inbox_queue.page = Some((**page).clone());
                 self.inbox_queue.error = None;
+                if self.inbox_queue.selected_id.is_none()
+                    && let Some(item) = self.inbox_queue.guided.selected
+                    && let Some(command) = self.select_guided_inbox(item) {
+                        self.inbox_queue.followups.push(command);
+                    }
             }
             (
                 InboxPending::Read {
@@ -508,6 +557,7 @@ impl AiState {
             {
                 self.inbox_queue.selected = Some((**read).clone());
                 self.inbox_queue.error = None;
+                self.guided_original_ready();
             }
             (InboxPending::Capture(request), AppEvent::InboxCaptured(item))
                 if request.id == id && request.validate_receipt(item).is_ok() =>
@@ -515,6 +565,7 @@ impl AiState {
                 self.inbox_queue.capture_result = Some((**item).clone());
                 self.inbox_queue.capture_error = None;
                 self.notice = "Exact original retained in Inbox. Prepare and review its source before approval.".into();
+                self.present_captured_inbox(id);
             }
             (
                 InboxPending::Process(request) | InboxPending::Cancel(request),
@@ -535,6 +586,7 @@ impl AiState {
                 {
                     self.pending.remove(&request.id);
                 }
+                if complete { self.guided_conversion_ready(request.id); }
             }
             (
                 InboxPending::Preview {
@@ -564,18 +616,21 @@ impl AiState {
             {
                 self.inbox_queue.prepared = Some((**draft).clone());
                 self.inbox_queue.source_error = None;
+                self.guided_source_ready();
             }
             (InboxPending::CaptureBinary(request), AppEvent::InboxCaptured(item))
                 if request.id == id && request.validate_receipt(item).is_ok() => {
                 self.inbox_queue.capture_result = Some((**item).clone());
                 self.inbox_queue.capture_error = None;
                 self.notice = "Exact EML/DOCX file retained in Inbox. Inspect extraction and originals before approval.".into();
+                self.present_captured_inbox(id);
             }
             (InboxPending::Capture(_) | InboxPending::CaptureBinary(_), AppEvent::Failed(error)) => {
                 self.inbox_queue.capture_error = Some(error.message.clone())
             }
             (InboxPending::Source { .. }, AppEvent::Failed(error)) => {
-                self.inbox_queue.source_error = Some(error.message.clone())
+                self.inbox_queue.source_error = Some(error.message.clone());
+                self.inbox_queue.guided.source_intent = None;
             }
             (InboxPending::Process(_), AppEvent::Failed(error)) => {
                 self.inbox_queue.error = Some(error.message.clone());
@@ -588,6 +643,37 @@ impl AiState {
             self.pending.remove(&id);
         }
         true
+    }
+
+    fn present_captured_inbox(&mut self, id: Uuid) {
+        let current = self
+            .inbox_queue
+            .capture_view
+            .as_ref()
+            .is_some_and(|(capture, view)| *capture == id && self.inbox_view_current(view));
+        if !current {
+            return;
+        }
+        self.inbox_queue.capture_view = None;
+        if let Some(command) = self.refresh_inbox() {
+            self.inbox_queue.followups.push(command);
+        }
+        let guided = self.inbox_queue.guided.automatic_capture == Some(id);
+        let selected = if guided {
+            self.select_guided_inbox(id)
+        } else {
+            self.select_inbox(id)
+        };
+        if guided {
+            self.inbox_queue.guided.automatic_capture = Some(id);
+        }
+        if let Some(command) = selected {
+            self.inbox_queue.followups.push(command);
+        }
+    }
+
+    pub(super) fn take_inbox_followups(&mut self) -> Vec<(Uuid, AppCommand)> {
+        std::mem::take(&mut self.inbox_queue.followups)
     }
 }
 

@@ -17,7 +17,7 @@ impl Render for AnalysisProbe {
             } else if desktop.open_doc == Some(DocRef::Findings) {
                 desktop.render_findings(cx)
             } else {
-                desktop.render_inbox(cx)
+                desktop.render_inbox_advanced(cx)
             };
             div()
                 .id("analysis-test-pane")

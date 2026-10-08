@@ -15,6 +15,10 @@ impl Desktop {
             .min_w(px(0.))
             .min_h(px(0.))
             .h_full();
+        // Inbox is one reading/review workspace; give it the whole centre region.
+        if self.open_doc == Some(DocRef::Inbox) {
+            return centre.child(self.render_inbox(cx));
+        }
         match resolved.mode {
             CentreMode::ChatOnly => centre.child(self.render_chat(cx)),
             CentreMode::Split => centre.child(

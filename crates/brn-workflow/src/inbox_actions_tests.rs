@@ -17,6 +17,268 @@ use brn_ai::{
 use serde_json::{Value, json};
 use sha2::{Digest, Sha256};
 use std::sync::atomic::AtomicUsize;
+use std::{panic::Location, time::Instant};
+
+// Match only enum variants: payloads can contain private evidence or credentials.
+macro_rules! variant_name {
+    ($value:expr, $kind:ident, [$($unit:ident),*], [$($tuple:ident),*], [$($fields:ident),*]) => {
+        match $value {
+            $($kind::$unit => stringify!($unit),)*
+            $($kind::$tuple(..) => stringify!($tuple),)*
+            $($kind::$fields { .. } => stringify!($fields),)*
+        }
+    };
+}
+
+fn command_name(command: &AppCommand) -> &'static str {
+    variant_name!(
+        command,
+        AppCommand,
+        [
+            Status,
+            Refresh,
+            Selection,
+            Effort,
+            Editors,
+            IdentityInventory,
+            ProposalApplies,
+            ProposalRecovery,
+            Conversations,
+            ModelPrompt
+        ],
+        [
+            BindVault,
+            Select,
+            SelectEffort,
+            Note,
+            OpenEditor,
+            ReloadEditor,
+            RecoverEditor,
+            SaveEditor,
+            ReconcileEditor,
+            ProposalSource,
+            ProposalEvidenceSource,
+            ProposalAsset,
+            NoteIdentity,
+            ResolveNoteIdentity,
+            EvidenceNote,
+            PrepareNoteIdentity,
+            NoteProvenance,
+            NoteLinks,
+            PrepareNoteLink,
+            Relationships,
+            CaptureFinding,
+            Actions,
+            ActionDashboard,
+            Action,
+            CompleteAction,
+            CaptureInbox,
+            CaptureBinaryInbox,
+            InboxItems,
+            InboxItem,
+            InboxReview,
+            PreviewInboxRemoval,
+            RemoveInboxOriginal,
+            RestoreInboxOriginal,
+            InboxOriginalRemoval,
+            InboxOriginalRestore,
+            InboxOriginalOperations,
+            ArchivedInboxAnalysis,
+            ProcessInbox,
+            InboxProcessing,
+            InboxCandidate,
+            InboxExtraction,
+            InboxRetainedExtractions,
+            PrepareInboxSource,
+            PrepareInboxVisualAnnotation,
+            InboxVisualEvidence,
+            CancelInboxProcessing,
+            Findings,
+            NoteConflicts,
+            Finding,
+            CloseFinding,
+            InspectFinding,
+            CaptureCitation,
+            PrepareNoteProvenance,
+            CreateProposal,
+            Proposal,
+            Proposals,
+            EditProposal,
+            RewriteProposal,
+            StartProposalRewrite,
+            ProposalRewrite,
+            AddProposalComment,
+            UpdateProposalComment,
+            RejectProposal,
+            ApproveProposal,
+            ReconcileProposal,
+            PreviewProposalUndo,
+            UndoProposal,
+            PreviewProposalRepair,
+            RepairProposal,
+            ApproveProposalGroup,
+            ProposalApply,
+            Activity,
+            Turns,
+            Turn,
+            Ask,
+            AnalyzeInboxActions,
+            InboxActionAnalysis,
+            CancelTurn,
+            CancelAccount,
+            CancelModelDownload
+        ],
+        [
+            TestPause,
+            Notes,
+            ScopedNotes,
+            ScopedNote,
+            RemoveProposalComment,
+            RecoverEdit,
+            Search,
+            ScopedSearch,
+            InboxIntakeBinding,
+            Account,
+            DownloadModel
+        ]
+    )
+}
+
+fn event_name(event: &AppEvent) -> &'static str {
+    variant_name!(
+        event,
+        AppEvent,
+        [
+            VaultBound,
+            SelectionSaved,
+            EffortSaved,
+            EditRecovered,
+            ModelInstalled,
+            ModelDownloadDeclined
+        ],
+        [
+            Status,
+            Selection,
+            Effort,
+            Refreshed,
+            Notes,
+            Note,
+            Editor,
+            EditorRecovered,
+            EditorSaved,
+            Editors,
+            ProposalSource,
+            ProposalAsset,
+            NoteIdentity,
+            IdentityInventory,
+            NoteIdentityResolved,
+            EvidenceNote,
+            NoteIdentityDraft,
+            NoteProvenance,
+            NoteLinks,
+            NoteLinkDraft,
+            Relationships,
+            Finding,
+            Action,
+            Actions,
+            ActionDashboard,
+            ActionCompleted,
+            InboxCaptured,
+            InboxItems,
+            InboxItem,
+            InboxReview,
+            InboxRemovalPreview,
+            InboxOriginalRemoved,
+            InboxOriginalRestored,
+            InboxProcessing,
+            InboxCandidate,
+            InboxExtraction,
+            InboxSourceDraft,
+            InboxVisualDraft,
+            InboxVisualEvidence,
+            InboxIntakeBinding,
+            InboxActionAnalysis,
+            Findings,
+            NoteConflicts,
+            FindingInspection,
+            CitationCaptured,
+            NoteProvenanceDraft,
+            Proposal,
+            ProposalRewrite,
+            Rewrite,
+            Proposals,
+            ProposalApplied,
+            ProposalUndoPreview,
+            ProposalRepairPreview,
+            ProposalRepaired,
+            ProposalGroupApplied,
+            ProposalApplies,
+            ProposalRecovery,
+            ProposalApply,
+            Activity,
+            Search,
+            Conversations,
+            Turns,
+            Turn,
+            Chat,
+            Account,
+            ModelPrompt,
+            ModelDownloaded,
+            Failed
+        ],
+        [
+            Ready,
+            Restored,
+            InboxOriginalRemoval,
+            InboxOriginalRestore,
+            InboxOriginalOperations,
+            ArchivedInboxAnalysis,
+            InboxRetainedExtractions,
+            Indexing,
+            TurnCancelRequested,
+            AccountCancelRequested,
+            ModelCancelRequested,
+            ModelDownload
+        ]
+    )
+}
+
+struct OperationWait {
+    operation: Uuid,
+    command: &'static str,
+    caller: &'static Location<'static>,
+    started: Instant,
+    last_event: Option<(&'static str, Uuid)>,
+}
+impl OperationWait {
+    #[track_caller]
+    fn new(operation: Uuid, command: &'static str) -> Self {
+        Self {
+            operation,
+            command,
+            caller: Location::caller(),
+            started: Instant::now(),
+            last_event: None,
+        }
+    }
+
+    fn event(&mut self, worker: &AppWorker) -> (Uuid, AppEvent) {
+        let remaining = Duration::from_secs(10).saturating_sub(self.started.elapsed());
+        let received = if remaining.is_zero() {
+            Err(std::sync::mpsc::RecvTimeoutError::Timeout)
+        } else {
+            worker.recv_event_timeout(remaining)
+        };
+        let (id, event) = received.unwrap_or_else(|error| {
+            panic!(
+                "worker wait failed: command={} operation={} caller={} elapsed={:?} ceiling=10s last_event={:?} receive={error:?}",
+                self.command, self.operation, self.caller, self.started.elapsed(), self.last_event,
+            )
+        });
+        self.last_event = Some((event_name(&event), id));
+        (id, event)
+    }
+}
 
 struct SourceFixture {
     source: ProposalSource,
@@ -25,20 +287,24 @@ struct SourceFixture {
     raw: String,
 }
 
+#[track_caller]
 fn reply_at(worker: &AppWorker, operation: Uuid, command: AppCommand) -> AppEvent {
+    let mut wait = OperationWait::new(operation, command_name(&command));
     worker.submit(operation, command).unwrap();
     loop {
-        let (id, value) = event(worker);
+        let (id, value) = wait.event(worker);
         if id == operation {
             return value;
         }
     }
 }
 
+#[track_caller]
 fn reply(worker: &AppWorker, command: AppCommand) -> AppEvent {
     reply_at(worker, Uuid::new_v4(), command)
 }
 
+#[track_caller]
 fn capture_source(worker: &AppWorker, raw: &str) -> SourceFixture {
     let capture = CaptureInboxRequest {
         id: Uuid::new_v4(),
@@ -60,11 +326,12 @@ fn capture_source(worker: &AppWorker, raw: &str) -> SourceFixture {
         id: Uuid::new_v4(),
         items: vec![(*original).clone()],
     };
+    let mut wait = OperationWait::new(process.id, "ProcessInbox");
     worker
         .submit(process.id, AppCommand::ProcessInbox(process.clone()))
         .unwrap();
     loop {
-        let (id, value) = event(worker);
+        let (id, value) = wait.event(worker);
         if id != process.id {
             continue;
         }
@@ -205,12 +472,14 @@ fn tool_reply(result: brn_ai::AiResult<Value>) -> Value {
     }
 }
 
+#[track_caller]
 fn finish(
     worker: &AppWorker,
     request: &InboxActionRequest,
 ) -> std::result::Result<WorkTurn, WorkflowError> {
+    let mut wait = OperationWait::new(request.id, "AnalyzeInboxActions");
     loop {
-        let (outer, value) = event(worker);
+        let (outer, value) = wait.event(worker);
         if outer != request.id {
             continue;
         }
@@ -233,6 +502,7 @@ fn finish(
     }
 }
 
+#[track_caller]
 fn analyze(
     worker: &AppWorker,
     request: &InboxActionRequest,
@@ -765,6 +1035,7 @@ fn inbox_action_creation_replay_keeps_newer_review_after_source_loss_on_the_boun
     let captured = analysis(&worker, request.id).job;
     let mut current_presentation = request.clone();
     current_presentation.generation += 17;
+    let mut replay_wait = OperationWait::new(request.id, "AnalyzeInboxActions");
     worker
         .submit(
             request.id,
@@ -772,7 +1043,7 @@ fn inbox_action_creation_replay_keeps_newer_review_after_source_loss_on_the_boun
         )
         .unwrap();
     loop {
-        let (outer, value) = event(&worker);
+        let (outer, value) = replay_wait.event(&worker);
         if outer != request.id {
             continue;
         }

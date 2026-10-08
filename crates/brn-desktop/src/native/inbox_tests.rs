@@ -91,7 +91,7 @@ fn inventory(items: &[InboxItem]) -> InboxInventory {
         issues_truncated: false,
     }
 }
-struct InboxProbe(Entity<Desktop>);
+struct InboxProbe(Entity<Desktop>, bool);
 impl Render for InboxProbe {
     fn render(&mut self, _: &mut Window, cx: &mut Context<Self>) -> impl IntoElement {
         self.0.update(cx, |desktop, cx| {
@@ -100,7 +100,11 @@ impl Render for InboxProbe {
                 .size_full()
                 .flex()
                 .flex_col()
-                .child(desktop.render_inbox(cx))
+                .child(if self.1 {
+                    desktop.render_inbox_advanced(cx)
+                } else {
+                    desktop.render_inbox(cx)
+                })
                 .test_support()
         })
     }
@@ -109,6 +113,14 @@ fn open_pane(
     cx: &mut gpui_kit::TestAppContext,
     fixture: &Fixture,
     items: Vec<InboxItem>,
+) -> (gpui_kit::WindowHandle<Root>, Entity<Desktop>) {
+    open_pane_mode(cx, fixture, items, true)
+}
+fn open_pane_mode(
+    cx: &mut gpui_kit::TestAppContext,
+    fixture: &Fixture,
+    items: Vec<InboxItem>,
+    advanced: bool,
 ) -> (gpui_kit::WindowHandle<Root>, Entity<Desktop>) {
     cx.update(gpui_kit::component::init);
     let capture = std::rc::Rc::new(std::cell::RefCell::new(None));
@@ -141,7 +153,7 @@ fn open_pane(
                 desktop
             });
             *saved.borrow_mut() = Some(desktop.clone());
-            let probe = cx.new(|_| InboxProbe(desktop));
+            let probe = cx.new(|_| InboxProbe(desktop, advanced));
             Root::new(probe, window, cx)
         },
     );
@@ -678,4 +690,109 @@ fn native_retained_analysis_reopens_plural_images_without_a_queue_preview(
             "two repeated occurrences share one checked image allocation"
         );
     });
+}
+
+#[gpui_kit::test]
+fn guided_sidebar_shows_twenty_sixth_import_and_preserves_per_item_source_input(
+    cx: &mut gpui_kit::TestAppContext,
+) {
+    let fixture = Fixture::new();
+    let all = originals(26);
+    let latest = all[25].clone();
+    let first = all[0].clone();
+    let (window, desktop) = open_pane_mode(cx, &fixture, all[..25].to_vec(), false);
+    let mut visual = VisualTestContext::from_window(window.into(), cx);
+    visual.update(|window, cx| {
+        desktop.update(cx, |desktop, cx| {
+            let ai = desktop.ai.as_mut().unwrap();
+            ai.inbox_queue.capture_result = Some(latest.clone());
+            ai.inbox_queue.guided.selected = Some(latest.capture.id);
+            ai.inbox_queue.guided.selected_item = Some(latest.clone());
+            ai.inbox_queue.selected = Some(InboxRead {
+                item: latest.clone(),
+                original: InboxOriginal::Available { text: EXACT.into() },
+            });
+            desktop.sync_inbox_widgets(window, cx);
+            desktop.inbox.source_path.update(cx, |input, cx| {
+                input.set_value("owner-chosen.md", window, cx)
+            });
+            cx.notify();
+        })
+    });
+    visual.run_until_parked();
+    visual.update(|window, cx| {
+        window.render_frame(cx);
+        let latest_id = format!("guided-item-{}", latest.capture.id);
+        assert!(
+            window
+                .find(gpui_kit::SharedString::from(latest_id))
+                .visible(),
+            "import must appear immediately, including beyond the FIFO page"
+        );
+        assert!(window.try_find("inbox-guided-content").is_some());
+        assert!(window.try_find("guided-import-file").is_some());
+        assert!(
+            window.try_find("intake-extraction-summary").is_none(),
+            "technical evidence is disclosed on demand"
+        );
+        desktop.update(cx, |desktop, cx| {
+            let ai = desktop.ai.as_mut().unwrap();
+            ai.inbox_queue.guided.selected = Some(first.capture.id);
+            ai.inbox_queue.selected = Some(InboxRead {
+                item: first.clone(),
+                original: InboxOriginal::Available { text: EXACT.into() },
+            });
+            desktop.sync_inbox_widgets(window, cx);
+            let ai = desktop.ai.as_mut().unwrap();
+            ai.inbox_queue.guided.selected = Some(latest.capture.id);
+            ai.inbox_queue.selected = Some(InboxRead {
+                item: latest.clone(),
+                original: InboxOriginal::Available { text: EXACT.into() },
+            });
+            desktop.sync_inbox_widgets(window, cx);
+            assert_eq!(
+                desktop.inbox.source_path.read(cx).value().as_ref(),
+                "owner-chosen.md"
+            );
+            desktop.inbox.guided_advanced = true;
+            cx.notify();
+        });
+    });
+    visual.run_until_parked();
+    visual.update(|window, cx| {
+        window.render_frame(cx);
+        assert!(window.try_find("guided-back-from-tools").is_some());
+        assert!(
+            window.try_find("inbox-guided-content").is_none(),
+            "advanced tools must not duplicate the guided controls"
+        );
+    });
+    fixture.unchanged();
+}
+
+#[test]
+fn guided_original_inspection_targets_selected_attachment_without_parent_fallback() {
+    let (_owner, mut snapshot, _) =
+        crate::ai::inbox_analysis_state_tests::retained_analysis_fixture();
+    let root = snapshot.extraction.sources[0].id.clone();
+    let mut attachment = snapshot.extraction.sources[0].clone();
+    attachment.id = "selected-docx".into();
+    attachment.parent = Some(root.clone());
+    attachment.name = "harbor.docx".into();
+    attachment.media_type =
+        "application/vnd.openxmlformats-officedocument.wordprocessingml.document".into();
+    snapshot.extraction.sources.push(attachment.clone());
+    assert_eq!(
+        inbox_guided::inspection_source(&snapshot.extraction, None)
+            .unwrap()
+            .id,
+        root
+    );
+    assert_eq!(
+        inbox_guided::inspection_source(&snapshot.extraction, Some(&attachment.id)),
+        Some(&attachment)
+    );
+    assert!(
+        inbox_guided::inspection_source(&snapshot.extraction, Some("stale-attachment")).is_none()
+    );
 }

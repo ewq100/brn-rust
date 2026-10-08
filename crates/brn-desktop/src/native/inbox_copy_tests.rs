@@ -258,6 +258,8 @@ fn open(
                 };
                 commands.extend(ai.apply(id, event));
             }
+            // Exercise the shipping secondary original-management tools explicitly.
+            desktop.inbox.guided_manage = true;
             desktop.open_doc = Some(DocRef::Inbox);
             desktop.centre_tab = CentreTab::Document;
             desktop.sync_inbox_widgets(window, cx);
@@ -278,7 +280,7 @@ fn scroll_to(visual: &mut VisualTestContext, target: &'static str) {
     use gpui_kit::{InputEvent as _, MouseMoveEvent, ScrollDelta, ScrollWheelEvent};
     visual.update(|window, cx| {
         window.render_frame(cx);
-        let pane = window.find("inbox-content");
+        let pane = window.find("guided-inbox-focus");
         let target = window.find(target);
         let position = pane.bounds().origin + point(px(3.), px(3.));
         let dy = pane.bounds().origin.y + px(20.) - target.bounds().origin.y;

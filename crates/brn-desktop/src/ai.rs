@@ -162,6 +162,7 @@ pub enum Pending {
     InboxCopy(Box<inbox_copy_state::CopyPending>),
     InboxAnalysis(inbox_analysis_state::AnalysisPending),
     Inbox(Box<inbox_state::InboxPending>),
+    InboxGuided(Box<inbox_state::GuidedPending>),
     Dashboard(dashboard_state::DashboardQuery),
     ActionComplete(Box<dashboard_state::CompletionCapture>),
     Status,
@@ -1918,10 +1919,15 @@ impl AiState {
         if let Some(commands) = self.received_inbox_copy(id, &event) {
             return commands;
         }
+        if let Some(commands) = self.received_guided_inbox(id, &event) {
+            return commands;
+        }
         if self.apply_inbox_event(id, &event) {
+            commands.extend(self.take_inbox_followups());
             return commands;
         }
         if self.received_inbox_analysis(id, &event) {
+            commands.extend(self.guided_analysis_ready(id, &event));
             return commands;
         }
         if self.received_link_preparation(id, &event) {
@@ -2826,6 +2832,7 @@ impl AiState {
             | AppEvent::InboxVisualEvidence(_)
             | AppEvent::InboxVisualDraft(_)
             | AppEvent::InboxExtraction(_)
+            | AppEvent::InboxRetainedExtractions { .. }
             | AppEvent::InboxIntakeBinding(_) => return commands,
             AppEvent::Rewrite(_) => unreachable!(),
             AppEvent::Chat(_)

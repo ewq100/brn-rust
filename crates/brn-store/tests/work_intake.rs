@@ -171,6 +171,276 @@ fn backups(data: &Path) -> Vec<(String, Vec<u8>)> {
 }
 
 #[test]
+fn discovery_keeps_duplicate_imports_distinct_and_returns_all_versions_in_stable_order() {
+    let data = fixture();
+    let (mut store, _) = WorkStore::open(data.path()).unwrap();
+    let first = store.restore_inbox(&item()).unwrap();
+    let mut duplicate = first.clone();
+    duplicate.capture.id = Uuid::new_v4();
+    let duplicate = store.restore_inbox(&duplicate).unwrap();
+    assert_eq!(first.capture.copy.sha256, duplicate.capture.copy.sha256);
+    assert!(
+        store
+            .intake_snapshots_for_item(first.capture.id)
+            .unwrap()
+            .is_empty()
+    );
+    let mut versions = Vec::new();
+    for (batch, index) in [(20, 0), (10, 1), (10, 0)] {
+        let mut extraction = extraction();
+        extraction.converter = format!("retired-synthetic-converter/{batch}/{index}");
+        let snapshot = IntakeSnapshot {
+            id: Uuid::new_v4(),
+            batch_id: Uuid::from_u128(batch),
+            index,
+            original: first.clone(),
+            extraction,
+        };
+        store.restore_intake_snapshot(&snapshot).unwrap();
+        versions.push(snapshot);
+    }
+    let other = IntakeSnapshot {
+        id: Uuid::new_v4(),
+        batch_id: Uuid::new_v4(),
+        index: 0,
+        original: duplicate.clone(),
+        extraction: extraction(),
+    };
+    store.restore_intake_snapshot(&other).unwrap();
+    versions.sort_by_key(|snapshot| (snapshot.batch_id, snapshot.index, snapshot.id));
+    assert_eq!(
+        store.intake_snapshots_for_item(first.capture.id).unwrap(),
+        versions
+    );
+    assert_eq!(
+        store
+            .intake_snapshots_for_item(duplicate.capture.id)
+            .unwrap(),
+        vec![other.clone()]
+    );
+    assert!(matches!(
+        store.intake_snapshots_for_item(Uuid::nil()),
+        Err(Error::Invalid(_))
+    ));
+    assert!(matches!(
+        store.intake_snapshots_for_item(Uuid::new_v4()),
+        Err(Error::NotFound(_))
+    ));
+    // Discovery needs catalog identity, but no operational batch or filesystem.
+    assert!(!first.capture.copy.directory.exists());
+    raw(data.path())
+        .execute("DELETE FROM inbox_processing", [])
+        .unwrap();
+    drop(store);
+    let (store, _) = WorkStore::open(data.path()).unwrap();
+    assert_eq!(
+        store.intake_snapshots_for_item(first.capture.id).unwrap(),
+        versions
+    );
+    assert_eq!(
+        store
+            .intake_snapshots_for_item(duplicate.capture.id)
+            .unwrap(),
+        vec![other]
+    );
+    raw(data.path())
+        .execute("DELETE FROM inbox_items", [])
+        .unwrap();
+    assert!(matches!(
+        store.intake_snapshots_for_item(first.capture.id),
+        Err(Error::NotFound(_))
+    ));
+    assert_eq!(
+        store.intake_snapshot(versions[0].id).unwrap(),
+        Some(versions[0].clone())
+    );
+}
+
+#[test]
+fn discovery_requires_the_complete_exact_capture_and_checks_unrelated_rows() {
+    for mismatch in 0..3 {
+        let data = fixture();
+        let (mut store, _) = WorkStore::open(data.path()).unwrap();
+        let original = store.restore_inbox(&item()).unwrap();
+        let mut snapshot = IntakeSnapshot {
+            id: Uuid::new_v4(),
+            batch_id: Uuid::new_v4(),
+            index: 0,
+            original: original.clone(),
+            extraction: extraction(),
+        };
+        match mismatch {
+            0 => snapshot.original.received_at_ms += 1,
+            1 => snapshot.original.capture.title.push_str(" altered"),
+            _ => snapshot.original.capture.copy.file_inode += 1,
+        }
+        store.restore_intake_snapshot(&snapshot).unwrap();
+        assert!(
+            store
+                .intake_snapshots_for_item(original.capture.id)
+                .is_err()
+        );
+        assert_eq!(store.intake_snapshot(snapshot.id).unwrap(), Some(snapshot));
+    }
+    let data = fixture();
+    let (mut store, _) = WorkStore::open(data.path()).unwrap();
+    let selected = store.restore_inbox(&item()).unwrap();
+    let unrelated = admitted(&mut store);
+    store.save_intake_snapshot(&unrelated).unwrap();
+    let conn = raw(data.path());
+    conn.execute(
+        "UPDATE intake_snapshots SET record_sha256=?1",
+        [[0u8; 32].as_slice()],
+    )
+    .unwrap();
+    let before = record(&conn);
+    assert!(
+        store
+            .intake_snapshots_for_item(selected.capture.id)
+            .is_err()
+    );
+    assert_eq!(record(&conn), before);
+    assert_eq!(
+        conn.query_row("SELECT record_sha256 FROM intake_snapshots", [], |r| r
+            .get::<_, Vec<u8>>(0))
+            .unwrap(),
+        [0u8; 32]
+    );
+}
+
+#[test]
+fn discovery_refuses_version_and_inventory_quotas_without_partial_results_or_decode() {
+    use brn_store::work::intake::{MAX_DISCOVERY_SCAN_ROWS, MAX_DISCOVERY_VERSIONS};
+    let data = fixture();
+    let (mut store, _) = WorkStore::open(data.path()).unwrap();
+    let original = store.restore_inbox(&item()).unwrap();
+    for version in 0..MAX_DISCOVERY_VERSIONS {
+        store
+            .restore_intake_snapshot(&IntakeSnapshot {
+                id: Uuid::new_v4(),
+                batch_id: Uuid::from_u128(version as u128 + 1),
+                index: 0,
+                original: original.clone(),
+                extraction: extraction(),
+            })
+            .unwrap();
+    }
+    assert_eq!(
+        store
+            .intake_snapshots_for_item(original.capture.id)
+            .unwrap()
+            .len(),
+        MAX_DISCOVERY_VERSIONS
+    );
+    store
+        .restore_intake_snapshot(&IntakeSnapshot {
+            id: Uuid::new_v4(),
+            batch_id: Uuid::new_v4(),
+            index: 0,
+            original: original.clone(),
+            extraction: extraction(),
+        })
+        .unwrap();
+    assert!(
+        matches!(store.intake_snapshots_for_item(original.capture.id), Err(Error::Invalid(reason)) if reason.contains("result quota"))
+    );
+    let mut conn = raw(data.path());
+    let tx = conn.transaction().unwrap();
+    tx.execute("DELETE FROM intake_snapshots", []).unwrap();
+    for row in 1..=MAX_DISCOVERY_SCAN_ROWS + 1 {
+        // These deliberately malformed records must not be decoded before the
+        // metadata-only inventory scan refuses its row quota.
+        let id = Uuid::from_u128(row as u128).to_string();
+        tx.execute(
+            "INSERT INTO intake_snapshots VALUES(?1,?1,0,?2,?3)",
+            params![id, b"{".as_slice(), [0u8; 32].as_slice()],
+        )
+        .unwrap();
+    }
+    tx.commit().unwrap();
+    assert!(
+        matches!(store.intake_snapshots_for_item(original.capture.id), Err(Error::Invalid(reason)) if reason.contains("scan row quota"))
+    );
+    assert_eq!(
+        conn.query_row("SELECT count(*) FROM intake_snapshots", [], |r| r
+            .get::<_, i64>(0))
+            .unwrap(),
+        (MAX_DISCOVERY_SCAN_ROWS + 1) as i64
+    );
+}
+
+#[test]
+fn discovery_refuses_malformed_row_types_and_bounded_metadata_without_rewriting_records() {
+    use rusqlite::types::Value;
+    type StoredRow = (Value, Value, Value, Value);
+    for damage in 0..5 {
+        let data = fixture();
+        let (mut store, _) = WorkStore::open(data.path()).unwrap();
+        let snapshot = admitted(&mut store);
+        store.save_intake_snapshot(&snapshot).unwrap();
+        let conn = raw(data.path());
+        match damage {
+            0 => {
+                let text = serde_json::to_string(&snapshot).unwrap();
+                conn.execute("UPDATE intake_snapshots SET record_json=?1", [text])
+                    .unwrap();
+            }
+            1 => {
+                conn.execute(
+                    "UPDATE intake_snapshots SET id=?1",
+                    [Uuid::from_u128(0xab).to_string().to_uppercase()],
+                )
+                .unwrap();
+            }
+            2 => {
+                conn.execute(
+                    "UPDATE intake_snapshots SET id=?1",
+                    ["x".repeat(128 * 1024)],
+                )
+                .unwrap();
+            }
+            3 => {
+                conn.execute(
+                    "UPDATE intake_snapshots SET batch_id=?1",
+                    ["x".repeat(128 * 1024)],
+                )
+                .unwrap();
+            }
+            _ => {
+                conn.pragma_update(None, "ignore_check_constraints", true)
+                    .unwrap();
+                conn.execute(
+                    "UPDATE intake_snapshots SET record_sha256=zeroblob(131072)",
+                    [],
+                )
+                .unwrap();
+            }
+        }
+        let before: StoredRow = conn
+            .query_row(
+                "SELECT id,batch_id,record_json,record_sha256 FROM intake_snapshots",
+                [],
+                |r| Ok((r.get(0)?, r.get(1)?, r.get(2)?, r.get(3)?)),
+            )
+            .unwrap();
+        assert!(
+            store
+                .intake_snapshots_for_item(snapshot.original.capture.id)
+                .is_err(),
+            "damage {damage}"
+        );
+        let after: StoredRow = conn
+            .query_row(
+                "SELECT id,batch_id,record_json,record_sha256 FROM intake_snapshots",
+                [],
+                |r| Ok((r.get(0)?, r.get(1)?, r.get(2)?, r.get(3)?)),
+            )
+            .unwrap();
+        assert_eq!(before, after);
+    }
+}
+
+#[test]
 fn exact_manifest_and_opaque_bytes_replay_restart_and_backup_without_queue_or_files() {
     let data = fixture();
     let (mut store, _) = WorkStore::open(data.path()).unwrap();
@@ -375,6 +645,12 @@ fn readable_hash_record_and_row_damage_refuse_without_replacing_main_or_backups(
             "read damage {damage}"
         );
         assert!(
+            store
+                .intake_snapshots_for_item(snapshot.original.capture.id)
+                .is_err(),
+            "discovery damage {damage}"
+        );
+        assert!(
             store.save_intake_snapshot(&snapshot).is_err(),
             "replay damage {damage}"
         );
@@ -419,6 +695,7 @@ fn unexpected_schema_objects_refuse_reads_and_startup_before_backup() {
             store.intake_snapshot(Uuid::new_v4()).is_err(),
             "accepted {sql}"
         );
+        assert!(store.intake_snapshots_for_item(Uuid::new_v4()).is_err());
         drop(store);
         conn.execute_batch("PRAGMA wal_checkpoint(TRUNCATE)")
             .unwrap();

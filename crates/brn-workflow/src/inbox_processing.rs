@@ -590,6 +590,14 @@ impl App {
         Ok(snapshot)
     }
 
+    /// Read every saved extraction version for one exact retained capture.
+    /// This checks stored evidence without opening originals or running a helper.
+    /// Discovery quotas refuse oversized inventories/results instead of silently
+    /// selecting a version. A missing catalog item requires a snapshot UUID read.
+    pub fn retained_intakes_for_item(&self, item_id: Uuid) -> Result<Vec<IntakeSnapshot>> {
+        Ok(self.store.intake_snapshots_for_item(item_id)?)
+    }
+
     /// Reproduce only from fresh exact original proof; missing/changed originals
     /// never fall back to an obsolete or guessed preview.
     pub fn inbox_candidate(
@@ -827,5 +835,7 @@ mod tests {
 
 #[cfg(all(test, target_os = "macos"))]
 mod docx_tests;
+#[cfg(all(test, target_os = "macos"))]
+mod retained_tests;
 #[cfg(all(test, target_os = "macos"))]
 mod source_tests;

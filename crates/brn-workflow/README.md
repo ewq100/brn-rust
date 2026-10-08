@@ -27,6 +27,15 @@ retrieval storage details.
 
 ## Inbox evidence boundary
 
+`InboxRetainedExtractions(capture_id)` discovers checked immutable extraction
+versions for the exact retained Inbox catalog item. Equal-byte imports remain
+separate. Results follow `(batch_id, index, snapshot_id)` identity order, with no
+current/latest preference. The operation performs no conversion, original-file
+access, provider request or approval. Catalog absence, corruption or bounded-scan
+refusal is explicit; standalone `InboxExtraction(snapshot_id)` history remains
+independent of the catalog/queue. Discovery does not refresh approval proofs.
+
+
 `ProcessInbox`, `InboxProcessing`, `InboxCandidate` and `CancelInboxProcessing`
 extend the same headless boundary. One joined AppWorker lane advances one member
 at a time between commands. Admission binds 1–8 complete retained Inbox snapshots;

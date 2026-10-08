@@ -495,6 +495,16 @@ selected quotas and measured consumption. Canonical hashed records are included
 in SQLite backups and checked on read/startup. Store validates records and joins;
 format parsing belongs to `brn-intake`, never Store.
 
+Read-only `intake_snapshots_for_item(capture_id)` joins saved versions to the exact
+current catalog InboxItem in one transaction, without a schema migration. Metadata
+checks precede decoding: discovery refuses inventories above 4096 records/256 MiB
+encoded data, and results above 64 versions/64 MiB. Every scanned record must pass
+canonical row/hash validation, including unrelated records; corruption cannot be
+hidden by filtering unhashed JSON. Results sort by batch/slot/snapshot identity,
+not creation time or a preferred approval baseline. Missing original files do not
+prevent discovery; missing catalog proof does. Direct snapshot UUID reads retain
+their historical independence.
+
 New `maintained_extraction_v1` Source bindings retain the exact snapshot digest
 and every ordinary asset Create. Historical `docx_text_v1` and
 `docx_inline_png_v1` records remain readable through saved markup/proof readers;

@@ -10,6 +10,7 @@ use crate::{
 };
 use brn_store::note_metadata;
 
+#[track_caller]
 fn intake(
     worker: &AppWorker,
     bytes: &[u8],
@@ -20,6 +21,7 @@ fn intake(
 ) {
     intake_at(worker, bytes, name, "harbor-source.md")
 }
+#[track_caller]
 fn intake_at(
     worker: &AppWorker,
     bytes: &[u8],
@@ -45,11 +47,12 @@ fn intake_at(
         id: Uuid::new_v4(),
         items: vec![*original],
     };
+    let mut wait = OperationWait::new(process.id, "ProcessInbox");
     worker
         .submit(process.id, AppCommand::ProcessInbox(process.clone()))
         .unwrap();
     loop {
-        let (id, value) = event(worker);
+        let (id, value) = wait.event(worker);
         if id == process.id
             && let AppEvent::InboxProcessing(batch) = value
             && batch.pending_count() == 0
@@ -94,6 +97,7 @@ fn intake_at(
 #[test]
 fn p2_single_and_plural_private_investigation_rewrite_exact_group_and_restart() {
     for (bytes,plural) in [(include_bytes!("../../../../experiments/architecture-reassessment/p1-office-mime/fixtures/single.eml").as_slice(),false),(include_bytes!("../../../../experiments/architecture-reassessment/p1-office-mime/fixtures/plural.eml").as_slice(),true)] {
+        eprintln!("P2 paired fixture phase={}",if plural {"plural"} else {"single"});
         let f=Fixture::new();
         let previous_id=Uuid::new_v4();
         let previous=note_identity::assign("# Harbor pilot\n\nExtension decision pending.\n",previous_id).unwrap();
@@ -132,8 +136,9 @@ fn p2_single_and_plural_private_investigation_rewrite_exact_group_and_restart() 
         let comment=CommentRequest{expected:knowledge.stamp(),comment:ReviewComment{id:Uuid::new_v4(),text:"Retain the inspection prerequisite and EUR 4,000 budget cap.".into(),target:CommentTarget::Proposal}};
         let AppEvent::Proposal(commented)=reply(&worker,AppCommand::AddProposalComment(comment)) else {panic!("comment")};
         let rewrite=RewriteRequest{id:Uuid::new_v4(),expected:commented.stamp(),selection:request.selection.clone(),effort:crate::ReasoningEffort::Medium,generation:714};
+        let mut rewrite_wait=OperationWait::new(rewrite.id,"StartProposalRewrite");
         worker.submit(rewrite.id,AppCommand::StartProposalRewrite(rewrite.clone())).unwrap();
-        loop {let (id,value)=event(&worker);if id!=rewrite.id {continue;}match value {AppEvent::Rewrite(RewriteEvent::Finished{job,..})=>{assert_eq!(job.status,RewriteStatus::Completed,"{job:?}");break;},AppEvent::Failed(error)=>panic!("rewrite {error:?}"),_=>{}}}
+        loop {let (id,value)=rewrite_wait.event(&worker);if id!=rewrite.id {continue;}match value {AppEvent::Rewrite(RewriteEvent::Finished{job,..})=>{assert_eq!(job.status,RewriteStatus::Completed,"{job:?}");break;},AppEvent::Failed(error)=>panic!("rewrite {error:?}"),_=>{}}}
         let AppEvent::Proposal(revised)=reply(&worker,AppCommand::Proposal(knowledge.draft.id)) else {panic!("revised")};
         assert!(revised.draft.changes[0].text().unwrap().contains("after inspection, within the EUR 4,000 cap"));
         let stale=ApprovalRequest{operation_id:Uuid::new_v4(),expected:knowledge.stamp()};assert!(matches!(reply_at(&worker,stale.operation_id,AppCommand::ApproveProposal(stale)),AppEvent::Failed(_)));
