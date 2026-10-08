@@ -21,6 +21,33 @@ retrieval for ranking/fusion and are not client identifiers. Domain scope and
 relationship DTOs retain their current meaning; adapters must not depend on
 retrieval storage details.
 
+## Derived citation evidence review
+
+`CitationReview` pages saved Current consumers whose durable citations have a
+Changed, Absent, Ambiguous or Incomplete observation. Source, History and
+case-insensitive top-level archive consumers are excluded; cited targets include
+all evidence scopes. Matched and empty citations do not produce rows. Incomplete
+means unknown inspection coverage, never absent evidence or false knowledge.
+Malformed managed consumer metadata is reported in coverage; at most 32 sorted
+diagnostics are displayed with full count and an explicit truncation flag.
+
+The default page inspects 25 eligible consumers (accepted range 1–100), in path
+order. Sparse or empty result pages advance after the last inspected consumer.
+The cursor binds a deterministic read-only `VaultRecord` root/device/inode and
+fresh inventory/metadata digest; it survives restart and disposable index loss,
+contains no process epoch and grants no write authority. A changed observation
+requires Refresh. Paging bounds resolution/output; the inherited complete identity
+scan remains O(vault). Whole consumer/source hashes and provenance are reobserved
+before return, with current-evidence fences and root checks at both boundaries.
+These fresh observations do not constitute an atomic filesystem snapshot.
+
+`CitationReviewDetail` binds the requested path and complete saved consumer SHA256
+to exact text and existing `NoteProvenance`. Complete serialized pages/details have
+a 4 MiB budget; oversized responses refuse whole and never truncate quotations or
+source proof lists. Both request validators, page `validate_for` and detail
+`validate_for` are pure shared client checks. Discovery and detail are read-only;
+they create no Finding, proposal, scheduler or inference request.
+
 ## Interfaces and source
 
 [Application](src/app.rs), [commands/events](src/app_worker.rs), [chat lane](src/chat_worker.rs), [editor](src/editor.rs), [Inbox boundary](src/inbox.rs), [proposal review](src/proposals.rs), [proposal application](src/proposal_apply.rs), [durable provenance](src/knowledge/provenance.rs), [activity](src/activity.rs), [file adapter](src/files/mod.rs).

@@ -38,6 +38,9 @@ mod action_review;
 #[cfg(all(test, target_os = "macos", feature = "native-test-support"))]
 mod action_review_tests;
 mod approval;
+mod citation_review;
+#[cfg(all(test, target_os = "macos", feature = "native-test-support"))]
+mod citation_review_tests;
 mod dashboard;
 #[cfg(all(test, target_os = "macos", feature = "native-test-support"))]
 mod dashboard_tests;
@@ -157,6 +160,7 @@ struct Desktop {
     document_scroll: ScrollHandle,
     saved_links: relationships::SavedLinksPane,
     relationships: relationships::RelationshipsPane,
+    citation_review: citation_review::CitationReviewPane,
     findings: findings::FindingsPane,
     inbox: inbox::InboxPane,
     dashboard: dashboard::DashboardPane,
@@ -508,6 +512,7 @@ impl Desktop {
             document_scroll: ScrollHandle::new(),
             saved_links: relationships::SavedLinksPane::new(window, cx),
             relationships: relationships::RelationshipsPane::new(window, cx),
+            citation_review: citation_review::CitationReviewPane::new(window, cx),
             findings: findings::FindingsPane::new(window, cx),
             inbox: inbox::InboxPane::new(window, cx),
             dashboard: dashboard::DashboardPane::new(window, cx),

@@ -48,7 +48,7 @@ impl AiTools {
         fence.1 = blocked;
     }
 
-    fn check_current_epoch(&self, epoch: u64) -> AiResult<()> {
+    pub(crate) fn check_current_epoch(&self, epoch: u64) -> AiResult<()> {
         let fence = self.current_fence.lock().map_err(|_| stale())?;
         if fence.1 || fence.0 != epoch {
             return Err(stale());
@@ -56,7 +56,7 @@ impl AiTools {
         Ok(())
     }
 
-    fn check_root(&self) -> AiResult<u64> {
+    pub(crate) fn check_root(&self) -> AiResult<u64> {
         let epoch = {
             let fence = self.current_fence.lock().map_err(|_| stale())?;
             if fence.1 {

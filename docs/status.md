@@ -2,7 +2,7 @@
 
 ## Overnight implementation and model qualification — 2026-10-08
 
-Current main is `e1d6b0fab69c13ceceb09014d6c034ef2178882f`.
+Current main is `6a63173fb6e33b4ba239ad6aade23bde976ee051`.
 [PR90](https://github.com/ewq100/brn-rust/pull/90) added exact evidence ranges and
 intake guidance; [PR91](https://github.com/ewq100/brn-rust/pull/91) added recorded
 work budgets/cancellation; [PR92](https://github.com/ewq100/brn-rust/pull/92) added
@@ -32,8 +32,14 @@ all required resulting-main checks passed. Action-only replacement compensation
 merged as [PR100](https://github.com/ewq100/brn-rust/pull/100) after independent review,
 final local composition qualification and all required candidate checks,
 preserving exact before/after and refusing changed/completed work, creation and
-mixed file/Action Undo. PR100 required resulting-main checks and docs passed. Same-folder new-note destination rename is the next
-selected bounded P3 slice; implementation is underway with private original-path replay evidence and native/CLI review.
+mixed file/Action Undo. PR100 required resulting-main checks and docs passed. Same-folder new-note destination rename is independently reviewed and locally
+qualified and normally merged in [PR101](https://github.com/ewq100/brn-rust/pull/101)
+after all required candidate checks/docs passed; resulting tree matches the
+qualified candidate and post-main checks are pending. The next selected ready P4 slice
+is [read-only citation evidence review](work/active/overnight-continuation/citation-evidence-review.md):
+Current consumer discovery with exact saved-source details and honest coverage.
+Backend focused tests/Clippy passed; native/CLI qualification and complete review
+are underway. No semantic Findings or authoritative edits occur automatically.
 
 The [overnight checkpoint](work/active/overnight-continuation/plan.md) owns exact
 branches, builds, verification and continuation. Fourteen of sixteen authorized live investigations are used, seven Luna/seven Sol,

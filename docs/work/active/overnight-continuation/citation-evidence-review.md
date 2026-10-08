@@ -109,3 +109,22 @@ shipping, actual required CI, normal protected merge and post-main verification.
 All interactive expectations go into the single morning task, never a separate
 UI checklist. Reassess only a concrete integrity blocker or consequential owner
 choice; preserve recoverable work and continue elsewhere when needed.
+
+## Implementation checkpoint — 08 October 23:58 UTC
+
+Implemented shared backend, strict DTO/whole-reply validation, shared provenance
+resolution, read-only native Needs Review mode and owner CLI. Backend10 new tests
+plus10 existing provenance tests and strict workflow Clippy passed. Desktop5 state
+tests,8 native state/headless widgets and4 existing Findings widget regressions
+passed; strict default/native desktop Clippy passed. Confirmed vault rebind/root
+change invalidates derived proofs; ordinary same-root status retains the view.
+Real-process CLI3 tests passed: typed preflight, nonblocking FIFO refusal, sparse
+paging across restart, exact detail/index loss, stale source/consumer and no effects.
+Full final gates, complete independent review and candidate CI remain pending.
+
+Zero-inference WorkspaceI citation-review-case is preserved with four explicitly
+approved synthetic citation consumers, changed/absent/ambiguous/moved evidence,
+31 healthy prefix notes for sparse native pagination and malformed coverage.
+Preparation used qualified runtime182; new-candidate CLI qualification pending.
+All interactive acceptance remains in the single morning task. PR101 normally
+merged6a63173 with identical qualified tree; post-main37861908706 pending.

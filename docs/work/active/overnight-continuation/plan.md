@@ -77,11 +77,11 @@ requires exact final-candidate review, applicable local checks and actual requir
 CI. No weakening, bypass or rushed merge. Record failures and repair real defects.
 Known informational platform failures remain visible and separate.
 
-## Durable checkpoint — 08 October 23:55 UTC
+## Durable checkpoint — 08 October 23:58 UTC
 
 Continue authorized V1 work until 05:00 UTC / 08:00 Tallinn; final qualification
 from04:30 UTC. All GUI/computer use deferred to [one morning task](morning-ui-acceptance.md).
-Main e1d6b0fab69c13ceceb09014d6c034ef2178882f includes PR90–100, each required
+Main6a63173fb6e33b4ba239ad6aade23bde976ee051 includes PR90–101; PR90–100 each required
 candidate and post-main checks/docs passed. No protection bypass or platform port.
 
 [Create rename PR101](https://github.com/ewq100/brn-rust/pull/101), attached,
@@ -94,19 +94,17 @@ ignores,436 native workflow/models/16,585 combined desktop/CLI, doctests, strict
 Clippy, shipping,52fixtures and links. Unchanged Store/workflow/full-size witnesses
 reused after the one Desktop correction. Original combined count580 (older577
 was a reporting typo). Required run37860893873: UbuntuCore/NativeUI/docs passed;
-MacCore/NativeCombined active. Windows raw log inspected: same informational Unix
-filesystem API errors. Merge normally exact182 when required checks pass; verify
-resulting main and incorporate into citation branch. Do not restart CI for reports.
+all four required checks/docs passed. Normal protected merge6a63173; exact resulting tree matches182. Required post-main37861908706 checks pending. Windows raw log inspected: same informational Unix
+filesystem API errors. Verify required post-main checks. Resulting main incorporated into citation branch with no functional delta. Do not restart CI for reports.
 
 Lead checkout `/Users/evokessler/repos/brn-p2-email-docx-intake`, branch
-codex/p4-citation-evidence-review, HEAD09625d537a3cc73b0a8af3fea06baeac3d1a9cb0,
+codex/p4-citation-evidence-review, HEADa994ad9be2a499aa88aabf1ef6808a9066e3f755 (before candidate commit),
 based on182. Selected [read-only citation evidence review](citation-evidence-review.md)
-plan2182deb and fixed interfaces09625d5. Backend/native code currently task-owned
-dirty. Lead owns CLI/tests/docs/cases/integration. Two helpers, no recursion:
-citation_review_workflow owns backend/resolver/AppWorker/tests and currently sole
-Cargo(target/intake-ui, CARGO_INCREMENTAL=0, TMPDIR=/private/tmp/brn-p2-fixtures,
-pinned1.98.1/DYLD). citation_review_desktop owns native/state/tests, awaiting slot.
-No concurrent Cargo. Backend focus/Clippy underway; Desktop then lead CLI gates.
+plan2182deb and fixed interfaces09625d5. Backend/native/CLI implementation complete, task-owned candidate ready for
+commit and independent complete review. Lead owns CLI/tests/docs/cases/integration. Two helpers, no recursion:
+citation_review_workflow owns backend/resolver/AppWorker/tests,10 new/10 existing provenance tests plus strictClippy passed/released. citation_review_desktop5state/8native+widgets/4Findings regressions and strict desktop Clippy passed/released. Lead currently sole Cargo(target/intake-ui, CARGO_INCREMENTAL=0, TMPDIR=/private/tmp/brn-p2-fixtures,
+pinned1.98.1/DYLD). citation_review_desktop owns native/state/tests.
+No concurrent Cargo. CLI3 real-process tests passed; final full gate next. Both implementation helpers done. Read-only web_research_readiness helper investigates smallest ready P6 slice, no Cargo/provider/edits. Complete independent reviewer to be assigned to frozen commit.
 Fresh independent complete review/final qualification/CI/integration still pending.
 Reuse IdentityInventory, durable provenance, Current metadata and NeedsReview;
 no automatic Finding/effect/inference. Incomplete means unknown coverage, not truth.

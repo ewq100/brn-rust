@@ -409,7 +409,7 @@ const TITLE_LINES: usize = 50;
 
 /// The first nonempty level-1 Markdown heading in the first 50 saved lines,
 /// outside supported leading frontmatter, or the file name without `.md`.
-fn title(text: &str, path: &str) -> String {
+pub(crate) fn title(text: &str, path: &str) -> String {
     heading_title(text).map_or_else(
         || {
             let name = path.rsplit('/').next().unwrap_or(path);

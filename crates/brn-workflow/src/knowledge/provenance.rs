@@ -156,20 +156,34 @@ impl App {
     /// quotes stay available even when their sources changed or disappeared.
     pub fn note_provenance(&self, path: &str) -> Result<NoteProvenance> {
         let note = self.evidence_note(path)?;
+        let inventory = if note_provenance::read(&note.text)
+            .map_err(|error| rejected(error.to_string()))?
+            .is_empty()
+        {
+            IdentityInventory {
+                notes: Vec::new(),
+                issues: Vec::new(),
+                duplicates: Vec::new(),
+            }
+        } else {
+            self.identity_inventory()?
+        };
+        self.provenance_from_saved(path, &note, &inventory)
+    }
+
+    /// Resolves complete saved citations using one shared fresh identity universe.
+    pub(crate) fn provenance_from_saved(
+        &self,
+        path: &str,
+        note: &vault::NoteText,
+        inventory: &IdentityInventory,
+    ) -> Result<NoteProvenance> {
         let citations =
             note_provenance::read(&note.text).map_err(|error| rejected(error.to_string()))?;
-        let inventory = if citations.is_empty() {
-            None
-        } else {
-            Some(self.identity_inventory()?)
-        };
         let root = self.require_vault()?;
         let mut resolved = Vec::with_capacity(citations.len());
         for citation in citations {
-            let resolution = inventory
-                .as_ref()
-                .expect("citations inspected")
-                .resolution(citation.note_id);
+            let resolution = inventory.resolution(citation.note_id);
             let mut issues = resolution.issues;
             let outcome = match resolution.outcome {
                 IdentityOutcome::Absent => CitationOutcome::Absent,

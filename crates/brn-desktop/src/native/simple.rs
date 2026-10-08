@@ -103,7 +103,7 @@ pub(super) fn provenance_copy_button(index: usize, quote: &str) -> Button {
             cx.write_to_clipboard(gpui_kit::ClipboardItem::new_string(quote.clone()));
         })
 }
-fn citation_status(outcome: CitationOutcome) -> &'static str {
+pub(super) fn citation_status(outcome: CitationOutcome) -> &'static str {
     match outcome {
         CitationOutcome::Matched => "Matched · exact saved source",
         CitationOutcome::Changed => "Changed · source differs from the cited version",
@@ -203,6 +203,7 @@ impl Desktop {
         self.sync_provenance_widgets(window, cx);
         self.sync_relationship_widgets(window, cx);
         self.sync_finding_widgets(window, cx);
+        self.sync_citation_review_widgets(window, cx);
         self.sync_inbox_widgets(window, cx);
         self.sync_dashboard_widgets(window, cx);
         if self

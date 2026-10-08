@@ -11,6 +11,8 @@ use std::collections::BTreeMap;
 use uuid::Uuid;
 
 pub use brn_store::note_identity;
+mod citation_review;
+pub use citation_review::*;
 mod provenance;
 pub use provenance::*;
 mod links;
