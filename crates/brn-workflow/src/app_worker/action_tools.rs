@@ -440,8 +440,16 @@ mod tests {
         let events = std::iter::from_fn(|| worker.try_event()).collect::<Vec<_>>();
         assert_eq!(
             events.len(),
-            2,
-            "Private replies must produce no frontend events"
+            3,
+            "Only the two command endings and separate shutdown checkpoint may be public"
+        );
+        assert_eq!(
+            events
+                .iter()
+                .filter(|(id, event)| matches!(event,
+            AppEvent::BackupStatus(status) if id.is_nil() && status.last_error.is_none()))
+                .count(),
+            1
         );
         assert!(
             events
