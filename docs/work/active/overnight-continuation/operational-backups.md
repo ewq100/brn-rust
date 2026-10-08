@@ -137,7 +137,7 @@ change since reviewed0723a69. Prior default418 unchanged unit successes/full-siz
 recovery and corrected private-read focused pass are reused rather than rerunning
 unchanged full-size witnesses. Failed intermediate logs remain retained.
 
-## Final local gates — 08 October 22:42 UTC
+## Final local gates — 08 October 22:40 UTC
 
 Final candidate sourcee6b8169 preserves reviewed production0723a69; only reviewed
 shutdown test adaptations and evidence documentation followed. All local gates
