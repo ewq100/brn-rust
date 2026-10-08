@@ -2,6 +2,21 @@
 
 This guide applies throughout this repository. Follow the user's current task and authorization; historical plans and evidence do not authorize new account actions, live calls, merges, releases or data migration.
 
+## Current overnight continuation — 2026-10-08
+
+The owner resumes remaining agreed V1 implementation and normal protected
+integration until 08:00 Europe/Tallinn on 9 October 2026. The
+[overnight plan](docs/work/active/overnight-continuation/plan.md) owns scope,
+shared live-test ledger and continuation; the
+[single morning UI task](docs/work/active/overnight-continuation/morning-ui-acceptance.md)
+owns deferred interactive qualification/personal acceptance. This express task
+supersedes the historical production pause, PR85-only stop and narrower
+no-merge/no-live statements below. It does not override protection, exact
+approval/provenance/recovery, unrelated work/data or exclusions. No computer
+use, interactive desktop/browser testing or unlock attempts overnight. Only
+synthetic/public evidence and ordinary product CLI/API; no private data,
+credential inspection, paid fallback, optional model download or release.
+
 ## Development method
 
 Use the [development workflow](docs/development/workflow.md) as BRN's default method, from the next authorized outcome through review, acceptance and integration.

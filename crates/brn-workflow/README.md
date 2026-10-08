@@ -1071,3 +1071,15 @@ computes causal heads once and visits checked SQL records to repair missing mirr
 Startup only acknowledges exact already-performed moves; untouched intents remain
 pending, and any head fences capture-stage installation. Unknown/conflicting files
 remain retained. Native/live/owner qualification is separate from automated tests.
+
+## Exact portions of long saved evidence
+
+`AiTools` implements `ReadTools::read_note_range` through the existing complete
+1MiB vault evidence reader. It validates the requested full SHA-256 before
+returning exact UTF-8 bytes, scoped complete-note facts and total length; changed
+content anywhere refuses rather than substituting a newer baseline. Current
+evidence fences and blocking-read drain leases are preserved through both
+application and chat wrappers. This is a checked content snapshot, not a new
+persisted store or transactional filesystem snapshot. Metadata-invalid raw access
+is not added by this slice. The existing Ask/native chat can use the range tool;
+no direct filesystem access is granted to external agents.

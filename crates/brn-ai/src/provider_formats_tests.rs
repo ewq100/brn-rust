@@ -1716,6 +1716,249 @@ async fn run(
     (answer, events)
 }
 
+mod ranged_read_tools_tests {
+    use super::*;
+
+    const ROUTES: [(Provider, &str, bool); 3] = [
+        (Provider::Chatgpt, "gpt-5.5", true),
+        (Provider::Copilot, "gpt-5.5", false),
+        (Provider::Copilot, "gpt-5.3-codex", true),
+    ];
+    const TEXT: &str = "\u{feff}õ 日本語 🦀\r\n";
+
+    #[derive(Default)]
+    struct Ranges {
+        calls: Mutex<Vec<NoteRangeRequest>>,
+        corrupt: usize,
+    }
+    impl ReadTools for Ranges {
+        fn search_notes(&self, _: &str, _: usize) -> AiResult<ToolSearch> {
+            panic!("unexpected search")
+        }
+        fn read_note(&self, _: &str) -> AiResult<ToolNote> {
+            panic!("unexpected prefix read")
+        }
+        fn list_notes(&self, _: Option<&str>, _: Option<&str>) -> AiResult<NotePage> {
+            panic!("unexpected list")
+        }
+        fn read_note_range(&self, request: &NoteRangeRequest) -> AiResult<ToolNoteRange> {
+            self.calls.lock().unwrap().push(request.clone());
+            let mut result = ToolNoteRange {
+                path: request.path.clone(),
+                start_byte: request.start_byte,
+                end_byte: request.end_byte,
+                total_bytes: 1_048_576,
+                text: TEXT.into(),
+                facts: fixture_facts(),
+            };
+            match self.corrupt {
+                1 => result.path = "wrong.md".into(),
+                2 => result.start_byte += 1,
+                3 => result.end_byte += 1,
+                4 => result.total_bytes = 0,
+                5 => result.text.push('x'),
+                6 => result.facts.sha256 = [0; 32],
+                _ => {}
+            }
+            Ok(result)
+        }
+    }
+    fn args() -> Value {
+        json!({"path":"archive/資料.MD","scope":"source","expected_sha256":fixture_facts().sha256,
+            "start_byte":1_000_000,"end_byte":1_000_000 + TEXT.len()})
+    }
+    fn replies(body: &Value, responses: bool) -> Vec<String> {
+        body[if responses { "input" } else { "messages" }]
+            .as_array()
+            .unwrap()
+            .iter()
+            .filter(|message| {
+                message["type"] == "function_call_output" || message["role"] == "tool"
+            })
+            .map(|message| {
+                let value = &message[if responses { "output" } else { "content" }];
+                value
+                    .as_str()
+                    .or_else(|| value[0]["text"].as_str())
+                    .unwrap()
+                    .to_owned()
+            })
+            .collect()
+    }
+
+    #[tokio::test]
+    async fn range_tool_advertisement_dispatch_and_exact_output_use_all_real_rig_routes() {
+        for (provider, model, responses) in ROUTES {
+            for scope in [None, Some("source"), Some("history"), Some("all")] {
+                let mut args = args();
+                if let Some(scope) = scope {
+                    args["scope"] = json!(scope);
+                } else {
+                    args.as_object_mut().unwrap().remove("scope");
+                }
+                let expected: NoteRangeRequest = serde_json::from_value(args.clone()).unwrap();
+                let (_root, client, http) = client(
+                    provider,
+                    model,
+                    vec![
+                        success(tool_sse(responses, &[("read_note_range", args)])),
+                        success(text_sse(responses, "exact final")),
+                    ],
+                )
+                .await;
+                let backend = Arc::new(Ranges::default());
+                let (answer, events) = run(client, backend.clone(), CancellationToken::new()).await;
+                assert!(
+                    matches!(answer.terminal, AiTerminal::Completed),
+                    "{answer:?}"
+                );
+                assert_eq!(*backend.calls.lock().unwrap(), vec![expected.clone()]);
+                assert!(events.iter().any(|event| matches!(event, AiEvent::ToolStarted { name } if name == "read_note_range")));
+                let bodies = http.bodies();
+                let tool = bodies[0]["tools"]
+                    .as_array()
+                    .unwrap()
+                    .iter()
+                    .map(|tool| if responses { tool } else { &tool["function"] })
+                    .find(|tool| tool["name"] == "read_note_range")
+                    .unwrap();
+                assert_eq!(tool["parameters"]["additionalProperties"], false);
+                assert_eq!(
+                    tool["parameters"]["properties"]["expected_sha256"]["minItems"],
+                    32
+                );
+                assert_eq!(
+                    tool["parameters"]["properties"]["expected_sha256"]["maxItems"],
+                    32
+                );
+                for required in ["path", "expected_sha256", "start_byte", "end_byte"] {
+                    assert!(
+                        tool["parameters"]["required"]
+                            .as_array()
+                            .unwrap()
+                            .contains(&json!(required))
+                    );
+                }
+                let outputs = replies(&bodies[1], responses);
+                assert_eq!(outputs.len(), 1);
+                assert_eq!(
+                    serde_json::from_str::<Value>(&outputs[0]).unwrap(),
+                    json!({
+                        "scope":scope.unwrap_or("current"), "path":expected.path,
+                        "start_byte":expected.start_byte,"end_byte":expected.end_byte,"total_bytes":1_048_576,
+                        "text":TEXT,"facts":fixture_facts()
+                    })
+                );
+                http.assert_consumed();
+            }
+        }
+    }
+
+    #[tokio::test]
+    async fn range_tool_rejects_inconsistent_backend_output_in_all_real_rig_routes() {
+        for (provider, model, responses) in ROUTES {
+            for corrupt in 1..=6 {
+                let (_root, client, http) = client(
+                    provider,
+                    model,
+                    vec![
+                        success(tool_sse(responses, &[("read_note_range", args())])),
+                        success(text_sse(responses, "safe continuation")),
+                    ],
+                )
+                .await;
+                let backend = Arc::new(Ranges {
+                    corrupt,
+                    ..Ranges::default()
+                });
+                let (answer, _) = run(client, backend.clone(), CancellationToken::new()).await;
+                assert!(
+                    matches!(answer.terminal, AiTerminal::Completed),
+                    "{answer:?}"
+                );
+                assert_eq!(backend.calls.lock().unwrap().len(), 1);
+                assert_eq!(
+                    replies(&http.bodies()[1], responses),
+                    vec!["the tool failed"]
+                );
+                http.assert_consumed();
+            }
+        }
+    }
+
+    #[tokio::test]
+    async fn range_tool_refuses_invalid_arguments_without_backend_dispatch() {
+        let mut invalid = Vec::new();
+        for (key, value) in [
+            ("start_byte", json!(-1)),
+            ("start_byte", json!(1.5)),
+            ("end_byte", json!(0)),
+            ("end_byte", json!(1_050_001)),
+            ("expected_sha256", json!([1, 2])),
+            ("expected_sha256", json!("invented")),
+            ("expected_sha256", json!(([256; 32]))),
+            ("scope", json!("raw")),
+            ("path", json!("")),
+            ("unknown", json!(true)),
+        ] {
+            let mut args = args();
+            args[key] = value;
+            invalid.push(args);
+        }
+        let mut missing_hash = args();
+        missing_hash
+            .as_object_mut()
+            .unwrap()
+            .remove("expected_sha256");
+        invalid.push(missing_hash);
+        for (provider, model, responses) in ROUTES {
+            for args in &invalid {
+                let (_root, client, http) = client(
+                    provider,
+                    model,
+                    vec![
+                        success(tool_sse(responses, &[("read_note_range", args.clone())])),
+                        success(text_sse(responses, "safe continuation")),
+                    ],
+                )
+                .await;
+                let backend = Arc::new(Ranges::default());
+                let (answer, _) = run(client, backend.clone(), CancellationToken::new()).await;
+                assert!(
+                    matches!(answer.terminal, AiTerminal::Completed),
+                    "{answer:?}"
+                );
+                assert!(backend.calls.lock().unwrap().is_empty());
+                let outputs = replies(&http.bodies()[1], responses);
+                assert_eq!(outputs.len(), 1);
+                assert!(
+                    outputs[0] == "the tool failed"
+                        || outputs[0].starts_with("failed to parse tool arguments: ")
+                );
+                http.assert_consumed();
+            }
+            let (_root, client, http) = client(
+                provider,
+                model,
+                vec![
+                    success(tool_sse(responses, &[("read_note_range", args())])),
+                    success(text_sse(responses, "unavailable")),
+                ],
+            )
+            .await;
+            let legacy = Arc::new(Notes::default());
+            let (answer, _) = run(client, legacy.clone(), CancellationToken::new()).await;
+            assert!(matches!(answer.terminal, AiTerminal::Completed));
+            assert_eq!(legacy.calls.load(Ordering::SeqCst), 0);
+            assert_eq!(
+                replies(&http.bodies()[1], responses),
+                vec!["the tool failed"]
+            );
+            http.assert_consumed();
+        }
+    }
+}
+
 mod scoped_read_tools_tests {
     use super::*;
     use rig::tool::Tool;
@@ -2298,6 +2541,7 @@ async fn actual_subscription_formats_continue_tools_and_text_only_history() {
                     "read_action",
                     "read_conflicts",
                     "read_note",
+                    "read_note_range",
                     "search_notes"
                 ]
             );
@@ -3889,7 +4133,11 @@ mod action_proposal_tool_tests {
                             .collect::<String>()
                     })
             };
-            assert!(preamble.contains("Investigation precedes Source approval"));
+            assert!(preamble.contains(
+                "source_approval field says whether that Source is pending or already Applied"
+            ));
+            assert!(preamble.contains("do not duplicate or reapprove it"));
+            assert!(!preamble.contains("Investigation precedes Source approval"));
             let users = bodies[0][if responses { "input" } else { "messages" }]
                 .as_array()
                 .unwrap()
@@ -4379,6 +4627,7 @@ mod knowledge_proposal_tool_tests {
         let mut expected = vec![
             "search_notes",
             "read_note",
+            "read_note_range",
             "list_notes",
             "read_action",
             "list_actions",

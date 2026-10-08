@@ -4,7 +4,7 @@
 
 Thin, fixed ChatGPT/Copilot subscription authentication and streamed
 chat over Rig **0.43.0**. Contains account/selection DTOs, safe errors, checked
-credential storage, owned clients, six read tools and one separate review-proposal capability. It does not contain
+credential storage, owned clients, seven read tools and one separate review-proposal capability. It does not contain
 workers, SQL, selection persistence or frontend state.
 
 `answer_with_effort` freezes an explicit low/medium/high choice with the selected
@@ -418,3 +418,24 @@ source-node ranges; the model cannot approve or create a saved Source version.
 The existing 50,000-byte captured Source bound remains; larger semantic-context
 work is outside P2. Synthetic tool tests verify authority and lifecycle, not live
 model usefulness.
+
+## Hash-bound long evidence reads
+
+`read_note` retains its50,000-byte UTF-8 prefix behavior. `read_note_range`
+reads an exact zero-based half-open UTF-8 byte interval of up to50,000 bytes from
+a supported saved note. Copy `expected_sha256` from fresh read/search/list facts;
+never silently refresh that proof. Empty intervals return `total_bytes` for
+length discovery. Offsets include BOM/frontmatter/CRLF; invalid boundaries,
+reversed/oversized/out-of-file spans and stale whole-file hashes refuse without
+clipping. A changed byte outside the interval still makes the proof stale.
+Scope defaults Current; explicit Source/History/All preserve their existing
+eligibility and complete-note facts. The adapter refuses inconsistent backend
+results and legacy backends refuse unsupported range reads. The existing eight
+tool-round budget, frozen selection and joined blocking-read lifecycle apply.
+
+Retained intake guidance distinguishes pending/Applied Sources, inventories
+material details across processed headers/footers/tables, and separates exact
+quotations from rendered/paraphrased text. A rejected quotation may be corrected
+within the existing budget; this grants no fuzzy matching, approval or semantic
+completeness authority. Shared image placements remain distinct from image bytes.
+Live usefulness and interactive acceptance are separate qualification gates.
