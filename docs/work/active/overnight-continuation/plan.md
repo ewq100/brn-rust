@@ -304,3 +304,43 @@ Full default gate passed1670tests/17existingignores, doctests, all-target Clippy
 workspace/helper builds and52fixture assertions before the order correction;
 unchanged checks are reused, affected/native checks follow against final code.
 CLI9 and newworkflow7 passed. Final combined native/shipping/CI pending.
+
+## Selected P4 slice: recommend and review conflicting shipment evidence
+
+Baseline is budget candidatee391be5, stacked on mergedPR90. Reuse the clean
+first-slice checkout `/Users/evokessler/repos/brn-p2-email-docx-intake` on new
+branch `codex/p4-conflict-recommendations`; budget checkout/target stay dedicated
+to PR91 native/hosted qualification. No meaningful budget changes are made here.
+
+Outcome: saved-Source Inbox investigation may recommend a provisional resolution
+with evidence, reasons, alternatives and uncertainty, then prepare exact Current/
+History and follow-up Action drafts. Freshness/classification/Finding counts never
+make that recommendation authoritative. Explicit displayed-version approval still
+applies each selected consequence. Private-intake conflict capture, broad semantic
+Finding deduplication and general schedulers stay separate pending work.
+
+Reuse/adapt/build: reuse existing Finding exact quotes/proofs, host-minted IDs,
+Inbox supersedes Current successor + protected predecessor History, Action and
+ordered group approval/restart/replay. Adapt coherent behavior/context/read/report
+guidance that currently bans all preferences. No new runtime/dependency/schema/
+semantic truth rule. Read Source/History explicitly; Current defaults remain.
+
+Acceptance: synthetic North Quay original approval and conflicting courier EML
+remain inspectable; copied Kaia is not authorization, newer carrier information
+is not release authority. Capture exact opposing Finding proofs; recommend a
+qualified preference/alternatives and prepare new Current + protected History
+and follow-up Action. Before approval no authoritative effects; reject alternative,
+owner-edit preferred draft, refuse obsolete stamp, apply selected exact versions
+in Action-before-supersession order if predecessor proof is shared. Restart retains
+current/history/links/Action and replays without inference/effects. Stale Source or
+predecessor refuses affected approval. Finding closure remains explicit/separate.
+
+Checks: coherent real Rig/task input guidance, one integrated synthetic MIME/
+conflict/supersession/Action/restart witness, affected existing freshness/recovery
+coverage, independent final read-only review, applicable native/headless/required
+CI. Only then spend the remaining one Luna/one Sol Medium call on identical novel
+synthetic inputs,8rounds/nine turns/180seconds; keep all outputs and compare actual
+usefulness. No hardcoded fixture answers or extra inference for approval/replay.
+Inputs prepared at `/private/tmp/brn-overnight-20261008/north-quay-inputs`, zero
+calls spent; preserve repo fixture copies with the scenario. Morning interactive
+checks remain in the same consolidated task; actual GUI acceptance stays pending.
