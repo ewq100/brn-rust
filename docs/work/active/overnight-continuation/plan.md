@@ -77,70 +77,56 @@ requires exact final-candidate review, applicable local checks and actual requir
 CI. No weakening, bypass or rushed merge. Record failures and repair real defects.
 Known informational platform failures remain visible and separate.
 
-## Durable checkpoint — 08 October 23:28 UTC
+## Durable checkpoint — 08 October 23:55 UTC
 
-Continue authorized V1 work until 05:00 UTC / 08:00 Tallinn, final qualification
-from 04:30 UTC. All GUI/computer use stays deferred to [one morning task](morning-ui-acceptance.md).
-Preserve unrelated work/data and exact approval/provenance/recovery.
+Continue authorized V1 work until 05:00 UTC / 08:00 Tallinn; final qualification
+from04:30 UTC. All GUI/computer use deferred to [one morning task](morning-ui-acceptance.md).
+Main e1d6b0fab69c13ceceb09014d6c034ef2178882f includes PR90–100, each required
+candidate and post-main checks/docs passed. No protection bypass or platform port.
 
-Main `e1d6b0fab69c13ceceb09014d6c034ef2178882f` includes normally protected
-PR90–100. Required candidate checks/docs passed for each. PR90–98 post-merge
-required checks/docs passed. PR99 post-main37857753049: all four required checks/docs passed. No bypass/port/suppression.
+[Create rename PR101](https://github.com/ewq100/brn-rust/pull/101), attached,
+head182cb8e1247f288b045957128070dd88bb5882ab remains frozen in
+`/Users/evokessler/repos/brn-p3-work-budgets`, branch codex/p3-create-destination-rename.
+Complete independent review found one native Observe/navigation fence defect;
+correction and regressions independently reviewed clean atf3e8a4f7 (exact hashes
+in slice plan). Final local gates passed/released:1796 default coverage/18 existing
+ignores,436 native workflow/models/16,585 combined desktop/CLI, doctests, strict
+Clippy, shipping,52fixtures and links. Unchanged Store/workflow/full-size witnesses
+reused after the one Desktop correction. Original combined count580 (older577
+was a reporting typo). Required run37860893873: UbuntuCore/NativeUI/docs passed;
+MacCore/NativeCombined active. Windows raw log inspected: same informational Unix
+filesystem API errors. Merge normally exact182 when required checks pass; verify
+resulting main and incorporate into citation branch. Do not restart CI for reports.
 
-[Action compensation PR100](https://github.com/ewq100/brn-rust/pull/100), attached,
-head `8bf40d42202b4e93e8d41bb584b911baf9577ac9`, remains in lead checkout
-`/Users/evokessler/repos/brn-p2-email-docx-intake` on
-`codex/p7-action-replacement-compensation`. Complete production review810237f8,
-final test-only reviewb410e9d3, fresh complete composition reviewb8abe1f2 and
-backup integration delta reviewa21d5521 clean; exact hashes in slice plan.
-Serial final composition gate55052 PASSED and RELEASED Cargo: 1769 default /
-18 existing ignores, 434 native workflow/models / 16, 565 combined desktop/CLI,
-doctests, strict default/combined Clippy, shipping, 52 fixtures and links.
-Required candidate run37858092859: all four required checks/docs passed. Normal
-merge completed at e1d6b0f, resulting tree exactly matching qualified8bf40d4.
-Post-main run37859299854: all four required checks/docs passed. PR body records final counts/merge identity.
-Action integration is verified; interactive acceptance remains pending.
-The original future rename plan remains untracked here and is excluded from PR100.
+Lead checkout `/Users/evokessler/repos/brn-p2-email-docx-intake`, branch
+codex/p4-citation-evidence-review, HEAD09625d537a3cc73b0a8af3fea06baeac3d1a9cb0,
+based on182. Selected [read-only citation evidence review](citation-evidence-review.md)
+plan2182deb and fixed interfaces09625d5. Backend/native code currently task-owned
+dirty. Lead owns CLI/tests/docs/cases/integration. Two helpers, no recursion:
+citation_review_workflow owns backend/resolver/AppWorker/tests and currently sole
+Cargo(target/intake-ui, CARGO_INCREMENTAL=0, TMPDIR=/private/tmp/brn-p2-fixtures,
+pinned1.98.1/DYLD). citation_review_desktop owns native/state/tests, awaiting slot.
+No concurrent Cargo. Backend focus/Clippy underway; Desktop then lead CLI gates.
+Fresh independent complete review/final qualification/CI/integration still pending.
+Reuse IdentityInventory, durable provenance, Current metadata and NeedsReview;
+no automatic Finding/effect/inference. Incomplete means unknown coverage, not truth.
 
-Lead now implements [same-folder Create rename](create-destination-rename.md) in
-reused checkout `/Users/evokessler/repos/brn-p3-work-budgets`, branch
-`codex/p3-create-destination-rename`, plan9f1d66e, baseline8bf40d4. Task-owned
-Store/desktop/workflow/CLI code/tests dirty; no rename production commit/PR yet.
-Fixed public request/worker/CLI and private earliest-original-path lineage are
-implemented. Lineage is sorted/unique, <=64 KiB encoded, default/omit-empty; public
-ProposalRecord unchanged. Recovery normalizes original paths with directional
-lineage compatibility, exact equal-version binding and no newer-lineage clobber.
-Original creation replay/callback returns the current reviewed path. Pending Source
-permits preparation; fresh exact approval still needs Applied Source. Bound Source,
-visual, asset/Replace retarget and cross-folder/split/regroup remain separate.
-
-Exactly two bounded implementation helpers, no recursion: create_rename_store owns
-Store lineage/CAS/journals/recovery/tests; create_rename_desktop owns capture/state/
-native controls/tests. Lead owns workflow/CLI/tests/docs/integration. Store200 + extra rename/race and strictClippy passed/released. Lead workflow2,
-integration3 andCLI2 passed; pending-Source preparation bug fixed/tested. Desktop
-now owns sole Cargo for default/native rename and strictClippy. Full original candidate1795default/18,436native/16,577combined andallshipping
-gates passed. Complete independent review found one valid Observe/navigation
-fence defect; narrow correction/regressions independently reviewed clean atf3e8a4f7.
-Corrected default11passed, desktophelper soleCargo16261 completesnative/Clippy.
-Lead next repeats affected completeDesktop/combined/shipping gates, commits/pushes
-reviewedcandidate andopensPR101; requiredCI/protectedmerge remainpending. No new inference for mechanics.
-
-Latest qualified immutable runtime:
-`/Users/evokessler/repos/brn-overnight-artifacts-20261008/action-backup-runtime`,
-source8bf40d4, includes SessionV18/PPTX/backups/Action compensation. Matching binary
-hashes/manifest are in morning task; GUI acceptance pending. Synthetic WorkspaceG
-`/private/tmp/brn-overnight-20261008/action-compensation-case` retains one ready
-un-compensated Action replacement plus completed/changed refusal cases, exact
-receipts and original/current records. Prepared with zero inference; actual fresh
-confirm refusals passed for both ineligible cases. Guarded prepare script must not
-rerun. Bound case folders stay in place. Refresh final runtime/archive before cutoff.
+Latest qualified immutable runtime create-rename-runtime under
+`/Users/evokessler/repos/brn-overnight-artifacts-20261008`, source182; hashes in
+morning task. WorkspaceH create-rename-case ready: pending owner-edited/commented
+Draft28284703-6122-43ad-bffa-e10b937b3483 v3; occupied refusal996b839f-9aeb-4787-b6de-fb7ee331b26a;
+Applied/replayedc7d3967a-04df-4465-b6b6-677c7ac7fa6a. Prepared zero inference,
+exact evidence retained. WorkspaceG Action compensation remains ready. Never rerun
+guarded preparation or relocate bound state/vault folders. Refresh final runtime
+and qualification archive after meaningful milestones and before cutoff.
 
 Live ledger `/private/tmp/brn-overnight-20261008/campaign-ledger.json`:14/16 used,
-Luna7/Sol7; one remaining each exact Medium condition, no active provider. Reserve
-before calls; 180-second cancellation/eight rounds/nine responses, failures count,
-no automatic retry/substitution/reset/purchase. Last account-wide weekly usage60%
-used/40% remaining at23:28 UTC; short window/tokens/internal turns/spend unknown.
-Retained outputs and [usefulness evidence](live-model-evidence.md) remain preserved.
+Luna7/Sol7, one each exact Medium condition remains, no active provider. Reserve
+before calls;180second deadline/eight rounds/nine responses; failures count/no
+substitution/retry/reset/purchase. Last weekly usage60%used/40%remaining23:28UTC;
+short window/tokens/internal turns/spend unknown. Retained outputs answer mechanics.
+Autoarchive readiness parked: Restore/Rewrite activity-clock decisions unresolved;
+no naive expiry implementation. Continue other ready work after citation slice.
 
 ## Selected first evidence slice
 
