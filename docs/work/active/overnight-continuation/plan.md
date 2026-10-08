@@ -91,8 +91,9 @@ CLI SHA-256 898ef333... . No interactive acceptance occurred.
 Lead checkout `/Users/evokessler/repos/brn-p2-email-docx-intake` is now branch
 `codex/p2-email-evidence-caveats`, starting at merged bd69475. The selected
 [small MIME caveat repair](email-evidence-caveats.md) addresses a demonstrated
-unconditional wording ambiguity, without parser/schema/snapshot/completeness
-changes. Plan and this checkpoint are being committed before bounded helper
+unconditional wording ambiguity and demonstrated multi-value thread identifier
+loss in the existing mail-parser adapter, without new parser/schema/snapshot/
+completeness changes. Plan and this checkpoint are being committed before bounded helper
 implementation. Next: helper owns only intake code/tests/README; lead integrates,
 qualifies, independently reviews and inspects required CI. No new live call is
 needed for deterministic wording. Keep immutable historical snapshots unchanged.
