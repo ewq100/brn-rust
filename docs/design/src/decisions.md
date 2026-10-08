@@ -25,6 +25,9 @@ owner column. Add new decisions at the end; supersede rather than rewrite.
 | D17 | Model and thinking-effort pickers in the composer | Owner direction, implemented | Owner feedback 2026-10-07 |
 | D18 | Select text and right-click to comment in proposals | Owner direction, implemented | Owner feedback 2026-10-07 |
 | D19 | Keep the refined-terminal theme | Owner liked it (feedback 2026-10-07) | Liked; formal acceptance pending |
+| D20 | Composer always at the bottom | Owner direction, implemented | Owner feedback 2026-10-08 |
+| D21 | Writing review: compact header, prominent prose text, visible comment highlights with hover | Owner direction, implemented | Owner feedback 2026-10-08 |
+| D22 | Terminal-style chat: three directions prototyped, Hybrid recommended | Proposed, prototype | Owner choice pending |
 
 ## D1 Keep the refined-terminal identity, correct its typography
 
@@ -137,6 +140,36 @@ and discovering models stay in Settings (linked from the model menu).
 Owner feedback: commenting should work by selecting text and right-clicking.
 The proposed-text editor's right-click menu offers *Comment on selection…*,
 *Copy* and *Select All*; the existing exact-selection comment flow is reused.
+
+## D20 Composer always at the bottom
+
+Owner feedback 2026-10-08, with a Codex desktop reference: the message box
+belongs at the bottom from the start, not in the middle. An empty chat centres
+only the greeting.
+
+## D21 Writing review
+
+Owner feedback 2026-10-08: highlighting was hard to see; the proposed text should
+be more prominent; the upper part should be more compact; comments should be
+visible in the text and readable on hover, like Word. Implemented:
+- One compact header row: state badge, editable title, and a single identity
+  line (`Create · path · vN`); the trust callout moved into the decision bar
+  sentence; member chips only when a proposal has several members.
+- The proposed text is the main element: it fills the pane, uses the reading
+  font at 15 pt, with no line numbers or folding gutter.
+- Every exactly anchored text comment is shown as an amber highlight; hovering
+  it shows the comment (the editor's hover popup). Anchors whose quote no longer
+  matches are not drawn (never guessed) and remain in the comment list below.
+- Text selection uses a clearly visible cyan tint in both themes.
+
+## D22 Terminal-style chat directions
+
+Owner request 2026-10-08. [Prototype](prototypes.md#terminal-style-chat-directions):
+**1 · Pure terminal** (all monospace, `❯` prompts, tool lines, `:commands`),
+**2 · Hybrid** (prompt and metadata in mono, collapsible trace, proportional
+answers with claim chips — *recommended*: terminal feel without losing reading
+comfort for long answers), **3 · Command blocks** (each turn a block with
+actions; `/` command menu). Not implemented; waiting for the owner's choice.
 
 ## Earlier design material reconciled
 

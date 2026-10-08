@@ -1,0 +1,173 @@
+<!doctype html>
+<!--
+  PROTOTYPE — terminal-style chat directions for BRN. Not the production app.
+  Owner request 2026-10-08: "consider making the chat experience more terminal
+  like; propose some prototypes". Three structurally different variants, same
+  fictional conversation. Switch with the bar, keys 1/2/3, or ?v=a|b|c.
+  Colours and type come from ../generated/tokens.css (generated from tokens.rs).
+-->
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>PROTOTYPE · BRN terminal chat directions</title>
+<link rel="stylesheet" href="../generated/tokens.css">
+<style>
+  * { box-sizing: border-box; }
+  html, body { margin: 0; height: 100%; }
+  body { background: var(--brn-background); color: var(--brn-text); font: 13px/1.5 var(--brn-font-ui); display: flex; flex-direction: column; }
+  .bar { display: flex; gap: 10px; align-items: center; height: 32px; padding: 0 12px; flex: none; background: repeating-linear-gradient(45deg, color-mix(in srgb, var(--brn-amber) 22%, transparent) 0 10px, transparent 10px 20px); border-bottom: 1px solid var(--brn-amber); font-size: 12px; }
+  .bar strong { color: var(--brn-amber); font-family: var(--brn-font-mono); }
+  .bar button { font: inherit; color: var(--brn-text); background: var(--brn-panel); border: 1px solid var(--brn-line); padding: 2px 10px; cursor: pointer; }
+  .bar button[aria-pressed="true"] { background: var(--brn-cyan); color: var(--brn-background); border-color: var(--brn-cyan); }
+  .bar .note { color: var(--brn-muted); margin-left: auto; }
+  .stage { flex: 1; min-height: 0; display: flex; }
+  .side { width: 220px; flex: none; background: var(--brn-panel); border-right: 1px solid var(--brn-line); padding: 10px 8px; font-size: 13px; }
+  .side div { padding: 5px 8px; } .side .sel { background: var(--brn-active); }
+  .side .lab { color: var(--brn-muted); font-size: 11px; font-weight: 600; letter-spacing: .03em; margin-top: 12px; }
+  .chat { flex: 1; min-width: 0; display: flex; flex-direction: column; background: var(--brn-paper); }
+  .log { flex: 1; min-height: 0; overflow: auto; padding: 20px 28px; }
+  .col { max-width: 820px; margin: 0 auto; }
+  .mono { font-family: var(--brn-font-mono); }
+  .muted { color: var(--brn-muted); }
+  .cyan { color: var(--brn-cyan); } .amber { color: var(--brn-amber); } .purple { color: var(--brn-purple); } .green { color: var(--brn-green); } .red { color: var(--brn-red); }
+  .composer { flex: none; padding: 0 28px 14px; }
+  .composer .box { max-width: 820px; margin: 0 auto; border: 1px solid var(--brn-line); background: var(--brn-panel); }
+  textarea { width: 100%; resize: none; background: transparent; border: 0; color: var(--brn-text); outline: none; }
+  textarea:focus-visible { outline: 2px solid var(--brn-cyan); outline-offset: -2px; }
+  .picker { font: inherit; color: var(--brn-text); background: transparent; border: 0; }
+  .send { background: var(--brn-cyan); color: var(--brn-background); border: 0; padding: 2px 10px; cursor: pointer; font: inherit; font-weight: 600; }
+  .chip { font: 10.5px var(--brn-font-mono); padding: 0 4px; border: 1px solid; margin-left: 2px; }
+  .c-vault { color: var(--brn-green); border-color: color-mix(in srgb, var(--brn-green) 50%, transparent); }
+  .c-conf { color: var(--brn-red); border-color: color-mix(in srgb, var(--brn-red) 50%, transparent); }
+  .c-unk { color: var(--brn-amber); border-color: color-mix(in srgb, var(--brn-amber) 50%, transparent); }
+  [hidden] { display: none !important; }
+
+  /* A · Pure terminal: one monospace stream, prompt line, no bubbles */
+  .va .log { font: 13px/1.6 var(--brn-font-mono); }
+  .va .turn { margin-bottom: 18px; }
+  .va .prompt::before { content: "❯ "; color: var(--brn-cyan); font-weight: 700; }
+  .va .tool { color: var(--brn-muted); }
+  .va .tool::before { content: "  ⎿ "; color: var(--brn-line); }
+  .va .ans { color: var(--brn-text); white-space: pre-wrap; margin-top: 4px; }
+  .va .foot { color: var(--brn-muted); font-size: 11.5px; }
+  .va .composer .box { display: flex; align-items: flex-start; gap: 8px; padding: 10px 12px; font-family: var(--brn-font-mono); }
+  .va .composer .box::before { content: "❯"; color: var(--brn-cyan); font-weight: 700; line-height: 1.6; }
+  .va textarea { font: 13px/1.6 var(--brn-font-mono); height: 22px; }
+  .va .status { max-width: 820px; margin: 4px auto 0; font: 11.5px var(--brn-font-mono); color: var(--brn-muted); display: flex; gap: 14px; }
+
+  /* B · Hybrid: terminal chrome (prompt, mono metadata, tool lines) + proportional reading text */
+  .vb .turn { margin-bottom: 22px; }
+  .vb .q { font: 14px/1.5 var(--brn-font-mono); }
+  .vb .q::before { content: "› "; color: var(--brn-cyan); font-weight: 700; }
+  .vb .trace { font: 12px/1.6 var(--brn-font-mono); color: var(--brn-muted); border-left: 1px solid var(--brn-line); margin: 6px 0 6px 4px; padding-left: 10px; }
+  .vb .trace summary { cursor: pointer; list-style: none; }
+  .vb .trace summary::before { content: "▸ "; } .vb .trace[open] summary::before { content: "▾ "; }
+  .vb .ans { font: 15px/1.65 var(--brn-font-ui); }
+  .vb .foot { font: 11.5px var(--brn-font-mono); color: var(--brn-muted); margin-top: 6px; }
+  .vb .composer .box { padding: 8px 12px; }
+  .vb textarea { font: 14px/1.5 var(--brn-font-mono); height: 48px; }
+  .vb .row { display: flex; align-items: center; gap: 10px; font: 12px var(--brn-font-mono); color: var(--brn-muted); }
+
+  /* C · Command palette: blocks like a modern terminal (Warp-style), slash commands */
+  .vc .block { border: 1px solid var(--brn-line); background: var(--brn-panel); margin-bottom: 14px; }
+  .vc .bhead { display: flex; gap: 10px; align-items: center; padding: 6px 12px; border-bottom: 1px solid var(--brn-line); font: 12px var(--brn-font-mono); color: var(--brn-muted); }
+  .vc .bhead .cmd { color: var(--brn-text); font-weight: 600; }
+  .vc .bhead .cmd::before { content: "$ "; color: var(--brn-cyan); }
+  .vc .bbody { padding: 10px 12px; font: 14px/1.6 var(--brn-font-ui); background: var(--brn-paper); }
+  .vc .bact { display: flex; gap: 8px; padding: 6px 12px; border-top: 1px solid var(--brn-line); font: 12px var(--brn-font-mono); }
+  .vc .bact button { font: inherit; background: none; color: var(--brn-cyan); border: 0; cursor: pointer; padding: 0; }
+  .vc .composer .box { padding: 8px 12px; position: relative; }
+  .vc textarea { font: 14px/1.5 var(--brn-font-mono); height: 26px; }
+  .vc .menu { position: absolute; bottom: 100%; left: -1px; right: -1px; background: var(--brn-panel); border: 1px solid var(--brn-line); font: 12.5px var(--brn-font-mono); }
+  .vc .menu div { padding: 4px 12px; display: flex; gap: 12px; } .vc .menu div:first-child { background: var(--brn-active); }
+  .vc .menu b { color: var(--brn-cyan); font-weight: 600; min-width: 90px; }
+  .vc .row { display: flex; align-items: center; gap: 10px; font: 12px var(--brn-font-mono); color: var(--brn-muted); }
+</style>
+</head>
+<body>
+<div class="bar" role="note">
+  <strong>PROTOTYPE</strong><span>Terminal-style chat directions · fictional data</span>
+  <button data-v="a">1 · Pure terminal</button>
+  <button data-v="b">2 · Hybrid (recommended)</button>
+  <button data-v="c">3 · Command blocks</button>
+  <span class="note" id="note"></span>
+</div>
+<div class="stage">
+  <div class="side">
+    <div>＋ New chat</div><div>Dashboard</div><div>Inbox <span class="amber">3</span></div><div>Needs Review</div>
+    <div class="lab">CHATS</div><div class="sel">Reply to Anna about Serna</div><div>How we buy paint</div>
+  </div>
+
+  <!-- A -->
+  <section class="chat va" data-variant="a">
+    <div class="log"><div class="col">
+      <div class="turn"><div class="prompt">are there any open actions for serna?</div>
+        <div class="tool">searched vault · 3 actions · 2 sources · 12s</div>
+        <div class="ans">3 unfinished:
+  <span class="red">!</span> Reply to Anna's three questions   <span class="red">overdue</span> · due 6 Oct
+  <span class="amber">…</span> Final paint spec from Anna       <span class="amber">waiting</span> · follow up today
+  <span class="muted">⊘</span> Place paint order (Värvikoda)    <span class="muted">blocked by spec</span> · due 10 Oct</div>
+        <div class="foot">gpt-6.1-sol · medium · 9k tok   [vault] projects/serna.md  people/anna-tamm.md</div></div>
+      <div class="turn"><div class="prompt">write an answer to anna</div>
+        <div class="tool">read thread "Serna paint spec" · checked 8 sources</div>
+        <div class="tool">web: värvikoda lead times</div>
+        <div class="tool"><span class="purple">drafted proposal #reply-anna v1</span></div>
+        <div class="ans">Drafted a reply. Not established: <span class="amber">window-frame product line</span>. Conflict: <span class="red">colour</span> (approved dark red vs newer "blue").
+Nothing changed. Open with  <span class="cyan">:open reply-anna</span>   approve with  <span class="cyan">:approve</span></div>
+        <div class="foot">gpt-6.1-sol · medium · 31k / 40k tok · 41s</div></div>
+    </div></div>
+    <div class="composer"><div class="box"><textarea aria-label="Message" placeholder="ask, or :command"></textarea></div>
+      <div class="status"><span class="cyan">gpt-6.1-sol</span><span>medium ▾</span><span>scope: current</span><span>budget 40k</span><span style="margin-left:auto">⏎ send · ⌘. stop</span></div></div>
+  </section>
+
+  <!-- B -->
+  <section class="chat vb" data-variant="b" hidden>
+    <div class="log"><div class="col">
+      <div class="turn"><div class="q">Are there any open actions for Serna?</div>
+        <details class="trace"><summary>searched vault · 3 actions · 2 sources · 12s</summary>search_vault "serna open actions" → 3 hits<br>read projects/serna.md<br>read people/anna-tamm.md</details>
+        <div class="ans">Three Serna Actions are unfinished. The most urgent is replying to Anna's three questions — due yesterday<span class="chip c-vault">vault</span>. You are waiting for her final specification, which blocks the paint order<span class="chip c-vault">vault</span>.</div>
+        <div class="foot">gpt-6.1-sol · medium · 9k tok</div></div>
+      <div class="turn"><div class="q">Write an answer to Anna.</div>
+        <details class="trace" open><summary>8 steps · 41s · 31k / 40k tok</summary>read thread "Serna paint spec"<br>checked 8 sources<br>web: värvikoda lead times<br><span class="purple">drafted proposal · Reply to Anna · v1</span></details>
+        <div class="ans">I drafted a reply as a proposal. I could not establish the window-frame product line<span class="chip c-unk">unknown</span>, and the colour is disputed<span class="chip c-conf">conflict</span>. Nothing in the vault changed.</div>
+        <div class="foot">gpt-6.1-sol · medium · <span class="cyan">open proposal ↗</span></div></div>
+    </div></div>
+    <div class="composer"><div class="box"><textarea aria-label="Message" placeholder="› Ask about your notes, sources and Actions"></textarea>
+      <div class="row"><select class="picker" aria-label="Model"><option>gpt-6.1-sol</option><option>gpt-6-luna</option></select><select class="picker" aria-label="Thinking"><option>low</option><option selected>medium</option><option>high</option></select><span>scope current</span><span style="margin-left:auto">⏎ send</span><button class="send" aria-label="Ask">↑</button></div></div></div>
+  </section>
+
+  <!-- C -->
+  <section class="chat vc" data-variant="c" hidden>
+    <div class="log"><div class="col">
+      <div class="block"><div class="bhead"><span class="cmd">actions --project serna --open</span><span style="margin-left:auto">12s · 9k tok</span></div>
+        <div class="bbody">Three unfinished: <b>Reply to Anna</b> <span class="red">overdue</span> · <b>Final spec from Anna</b> <span class="amber">waiting</span> · <b>Place paint order</b> <span class="muted">blocked</span><span class="chip c-vault">vault</span></div>
+        <div class="bact"><button>open dashboard</button><button>draft reply</button><button>copy</button></div></div>
+      <div class="block"><div class="bhead"><span class="cmd">draft reply --to anna</span><span class="purple">proposal v1</span><span style="margin-left:auto">41s · 31k / 40k tok</span></div>
+        <div class="bbody">Reply drafted. Unknown: window-frame product line<span class="chip c-unk">unknown</span>. Disputed: colour<span class="chip c-conf">conflict</span>. Nothing changed.</div>
+        <div class="bact"><button>open proposal</button><button>rewrite</button><button>approve…</button></div></div>
+    </div></div>
+    <div class="composer"><div class="box">
+      <div class="menu" id="menuC"><div><b>/draft</b>write something as a proposal</div><div><b>/actions</b>list or filter Actions</div><div><b>/inbox</b>process waiting items</div><div><b>/search</b>search notes (no AI)</div><div><b>/model</b>switch model or thinking</div></div>
+      <textarea aria-label="Message">/</textarea>
+      <div class="row"><span class="cyan">gpt-6.1-sol</span><span>medium</span><span style="margin-left:auto">/ for commands · ⏎ send</span></div></div></div>
+  </section>
+</div>
+<script>
+const notes = {
+  a: 'Everything monospace; prompts and tool lines like a CLI. Densest; least readable for long answers.',
+  b: 'Terminal chrome (prompt, mono metadata, collapsible trace) with proportional answers. Keeps reading comfort.',
+  c: 'Each turn is a command block with actions; "/" opens commands. Most structured; heavier visually.',
+};
+function show(v) {
+  document.querySelectorAll('[data-variant]').forEach(s => s.hidden = s.dataset.variant !== v);
+  document.querySelectorAll('[data-v]').forEach(b => b.setAttribute('aria-pressed', b.dataset.v === v));
+  document.getElementById('note').textContent = notes[v];
+  history.replaceState(null, '', '?v=' + v);
+}
+document.querySelectorAll('[data-v]').forEach(b => b.onclick = () => show(b.dataset.v));
+document.addEventListener('keydown', e => { if (document.activeElement.tagName === 'TEXTAREA') return; const v = { 1: 'a', 2: 'b', 3: 'c' }[e.key]; if (v) show(v); });
+show(new URLSearchParams(location.search).get('v') || 'b');
+</script>
+</body>
+</html>

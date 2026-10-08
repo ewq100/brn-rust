@@ -65,6 +65,14 @@ labelled sections (Title, Changes with kind badges, before/proposed text, source
 versions, Comments and Rewrite, Review state); and a **pinned decision bar**
 naming the exact version, with *Reject* and the primary *Review exact approval…*.
 
+### Writing review (light), after owner feedback 2026-10-08
+
+![Proposal review, light](images/current/13-proposal-review-light.jpg)
+
+Compact one-row header; the proposed text fills the pane in the reading font;
+the two seeded comments show as amber highlights (hover shows each comment);
+the decision bar states the consequence and holds Reject and Approve.
+
 ## Needs Review, Activity, note and evidence
 
 | Needs Review | Activity |

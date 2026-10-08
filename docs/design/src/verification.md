@@ -68,11 +68,23 @@ right-click *Comment on selection…* action on a real selection and checks that
 the exact-selection comment dialog opens. Native right-click by hand remains to
 be tried.
 
+### Owner feedback round 2 (2026-10-08)
+
+Feedback: composer at the bottom; propose terminal-style chat; writing review
+needs work (hard-to-see highlighting, more prominent text, compact top, Word-like
+comment highlights with hover). Implemented as D20–D21; D22 prototyped. Native
+tests 302 + 7 pass (new: highlight/hover marks test). The capture tour now seeds
+two anchored comments and adds a light-theme proposal screen. A re-entrant
+editor update found during capture was fixed. The hover popup itself was not
+exercised by hand.
+
 ## Owner acceptance
 
 | Item | Decision | Date |
 | --- | --- | --- |
 | Design direction and decisions D1–D15 | *Pending review* | — |
 | D16–D18 (minimal layout, composer pickers, right-click comments) | Owner-directed; result pending your next look | 2026-10-07 |
+| D20–D21 (bottom composer, writing review) | Owner-directed; result pending your next look | 2026-10-08 |
+| D22 terminal chat direction | *Choice pending* | — |
 | Current-app restyle on this branch | *Pending review* | — |
 | Future designs and prototype | *Pending review* | — |

@@ -23,6 +23,16 @@ built handbook.
 Use the bar at the top (or `?state=` and `?scheme=` in the URL) to switch:
 *Empty*, *Loading*, *Error*, *AI unavailable*, and *Light* theme.
 
+## Terminal-style chat directions
+
+**[Open the terminal chat prototype](prototypes/terminal-chat.html)** —
+readiness: **Prototype** (decision D22). Switch variants with the bar, keys 1–3
+or `?v=a|b|c`.
+
+| 1 · Pure terminal | 2 · Hybrid (recommended) | 3 · Command blocks |
+| --- | --- | --- |
+| ![Pure terminal](images/prototype/terminal-a.jpg) | ![Hybrid](images/prototype/terminal-b.jpg) | ![Command blocks](images/prototype/terminal-c.jpg) |
+
 ## Verified behaviour
 
 A Playwright script (headless Chromium 1243) exercises the journeys above,

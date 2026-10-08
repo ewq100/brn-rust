@@ -47,7 +47,9 @@ stated in words (“has not been decided”). See the [prototype](prototypes.md)
 
 Drafts are private and persisted, but never masquerade as current knowledge.
 Comments are temporary review notes, deleted after successful approval. Select
-text in the proposed text and right-click → *Comment on selection…* (D18). Rewrite
+text in the proposed text and right-click → *Comment on selection…* (D18). Each
+exactly anchored comment is highlighted in the text and shown on hover (D21);
+anchors that no longer match are listed below the text, never re-placed. Rewrite
 runs on the selected model with a visible phase (“Rewriting · knowledge
 unchanged”), can be stopped, and replaces the whole draft as a new version.
 
