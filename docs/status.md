@@ -20,15 +20,15 @@ post-merge checks passed; PR95 post-merge checks passed.
 and complete ordered decoded identifiers; all required candidate/post-merge checks
 and docs passed. Old snapshots unchanged. [PR97](https://github.com/ewq100/brn-rust/pull/97)
 merged manual reversible session Archive/Restore after full independent review,
-local qualification and all required CI; post-merge pending. Automatic archival,
+local qualification and all required CI; post-merge required checks/docs passed. Automatic archival,
 Delete/preferences stay separate. The selected
 [partial attributed PPTX slice](work/active/overnight-continuation/pptx-partial-intake.md)
-is implemented and independently reviewed clean after two valid P2 fixes; focused
-intake/workflow/CLI/native checks and real retained CLI cases passed, final combined
-gates/CI/integration pending.
+is implemented and independently reviewed clean after two valid P2 fixes; final combined local gates and real retained CLI/model cases passed, required
+CI/integration pending. Automatic during-session internal checkpoints are selected
+and being implemented independently in the existing budget checkout.
 
 The [overnight checkpoint](work/active/overnight-continuation/plan.md) owns exact
-branches, builds, verification and continuation. Twelve of sixteen authorized live investigations are used, six Luna/six Sol,
+branches, builds, verification and continuation. Fourteen of sixteen authorized live investigations are used, seven Luna/seven Sol,
 including one failed attempt and its separately counted manual retry. Results include
 improved retention of original budget/review date, North Quay conflict uncertainty
 Cedar near-limit ranged evidence and useful Linden Applied-private-intake Findings; usefulness limitations and unknown telemetry

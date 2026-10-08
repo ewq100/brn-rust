@@ -269,3 +269,37 @@ repeat inference. Evidence and scripts:
 `north-quay-live-rewrite.py`, `finish-north-quay-rewrite-receipt.py` and canonical
 campaign ledger. Do not rerun the guarded live script. Twelve of sixteen used,
 Luna6/Sol6; remaining four, at most two per existing Medium condition.
+
+
+## Partial PPTX usefulness — 8 October22:11UTC
+
+Counted calls13/14 use exact Medium conditions and identical pending Harbor
+presentation Source/snapshot/selected PNG, no approval between conditions.
+Luna dc900dc6-a0e3-4db4-9292-d4f2527fff4e completed14.729seconds,3responses/
+2rounds, one Knowledge and one Action. Sol21e2f8cf-06b0-45b7-aa0e-3c070ce08929
+completed78.463seconds,6responses/5rounds, one Knowledge and two Actions.
+No Findings: pending Source is not eligible Applied-source conflict authority.
+All proposals remain Draft and exact Source prerequisite remains unchanged.
+
+Both retained valve-inspection prerequisite, presenter-note12October booking
+request distinct from installation deadline, unassigned/unknown acceptance,
+PNG120→72litres/day/40%less/synthetic6October2026 footer, and two distinct
+placements sharing one image. Both kept native slide2 capacity chart facts unknown;
+no omitted chart slot values were invented. Sol explicitly retained missing booking
+year, identified source/occurrence locators and proposed inspecting the original.
+Luna called the booking date a "request/review date" in one passage and did not
+explicitly flag its missing year; usefulness is qualified accordingly. Sol's very
+long answer/knowledge needs personal review for practicality. Neither result
+establishes model ranking, prompt causality, complete ingestion or owner acceptance.
+
+Qualified immutable CLI1d2dc5d... and corrected helper7f058c35..., reviewed PPTX
+code3055ed7, were used; this pre-Session CLI must not reopen state after schema18
+migration. Full combined final runtime is recorded separately for morning use.
+Each request has recorded8rounds/180seconds, Rig9responses/invalid retries0;
+external180second SIGINT/drain deadline not reached. Provider HTTP requests,
+tokens/internal reasoning/spend unknown. Last pre-pair account-wide weekly52%
+consumed/48%remaining, not BRN per-run attribution. No retry/fallback/login/reset.
+All Source/Original/assets and approved Quay files retained identical physical
+proofs. Receipts:
+`/private/tmp/brn-overnight-20261008/pptx-retained-case/receipts/paired-private-investigation`.
+Fourteen of sixteen used, Luna7/Sol7; two remain, at most one per condition.
