@@ -733,17 +733,29 @@ fn execute(
             let AppEvent::Turns(turns) = lane.query(AppCommand::Turns(*session))? else {
                 return Err(unexpected());
             };
+            let mut inspected = Vec::with_capacity(turns.len());
+            for turn in &turns {
+                let mut data = turn_json(turn);
+                if let Some(budget) = run_budget(lane, turn.id)? {
+                    data["budget"] = json!(budget);
+                }
+                inspected.push(data);
+            }
             Ok(output(
-                json!({"session_id": session, "historical": true, "turns": turns.iter().map(turn_json).collect::<Vec<_>>()}),
+                json!({"session_id": session, "historical": true, "turns": inspected}),
             ))
         }
         Command::Ask {
-            question, session, ..
-        } => ask(
+            question,
+            session,
+            budget,
+            ..
+        } => ask_with_budget(
             lane,
             question,
             *session,
             ask_id.expect("ask operation allocated before startup"),
+            *budget,
         ),
         Command::Ai(command) => account(i, lane, command),
         Command::ModelDownload { .. } => download(i, lane),
@@ -773,16 +785,42 @@ fn context(
         "provider_outcome": if turn.is_some_and(|t| t.status == WorkTurnStatus::Completed) { "completed" } else { "unknown" }})
 }
 
+fn run_budget<W: EventLane>(
+    lane: &mut Lane<W>,
+    op: Uuid,
+) -> Result<Option<brn_workflow::WorkBudget>, CliFailure> {
+    match lane.query(AppCommand::RunBudget(op))? {
+        AppEvent::RunBudget { id, budget } if id == op => Ok(budget),
+        _ => Err(unexpected()),
+    }
+}
+
+#[cfg(test)]
 fn ask<W: EventLane>(
     lane: &mut Lane<W>,
     question: &str,
     session: Option<Uuid>,
     op: Uuid,
 ) -> Result<Output, CliFailure> {
+    ask_with_budget(lane, question, session, op, None)
+}
+
+fn ask_with_budget<W: EventLane>(
+    lane: &mut Lane<W>,
+    question: &str,
+    session: Option<Uuid>,
+    op: Uuid,
+    budget: Option<brn_workflow::WorkBudget>,
+) -> Result<Output, CliFailure> {
     let result = (|| {
         // Replay uses its frozen recorded payload without current choice queries.
         let AppEvent::Turn(recorded) = lane.query(AppCommand::Turn(op))? else {
             return Err(unexpected());
+        };
+        let recorded_budget = if recorded.is_some() {
+            run_budget(lane, op)?
+        } else {
+            None
         };
         let selection = if let Some(turn) = &recorded {
             Selection {
@@ -821,6 +859,7 @@ fn ask<W: EventLane>(
             .submit(
                 op,
                 AppCommand::Ask(AskRequest {
+                    budget,
                     id: op,
                     conversation: session,
                     question: question.into(),
@@ -830,7 +869,21 @@ fn ask<W: EventLane>(
                 }),
             )
             .map_err(|error| lane.command_error(error))?;
-        wait_ask(lane, op, session)
+        let mut result = wait_ask(lane, op, session);
+        if let Some(budget) = recorded_budget {
+            match &mut result {
+                Ok(output) => output.data["budget"] = json!(budget),
+                Err(failure) => {
+                    if let Some(context) = failure.context.as_mut() {
+                        context["budget"] = json!(budget);
+                        if context.get("receipt").is_some() {
+                            context["receipt"]["budget"] = json!(budget);
+                        }
+                    }
+                }
+            }
+        }
+        result
     })();
     result.map_err(|mut failure: CliFailure| {
         if failure.context.is_none() {
@@ -865,6 +918,8 @@ fn wait_ask_generation_checked<W: EventLane>(
     visual: Option<&brn_workflow::inbox_actions::InboxActionRequest>,
 ) -> Result<Output, CliFailure> {
     let mut partial = String::new();
+    let mut captured_budget = None;
+    let mut budget_stopping = false;
     loop {
         let (id, event) = lane.next(Job::Ask(op)).map_err(|mut failure| {
             if failure.context.is_none() {
@@ -879,11 +934,41 @@ fn wait_ask_generation_checked<W: EventLane>(
             AppEvent::Failed(error) => return Err(lane.command_error(error).into()),
             AppEvent::Chat(event) if event.id() == op && event.generation() == generation => {
                 match event {
+                    ChatEvent::BudgetProgress {
+                        budget,
+                        model_turns,
+                        tool_rounds,
+                        ..
+                    } => {
+                        if budget_stopping {
+                            continue;
+                        }
+                        captured_budget = Some(budget);
+                        let _ = writeln!(
+                            std::io::stderr(),
+                            "\nwork budget: {tool_rounds}/{} tool rounds; {model_turns} completed model turns; {} second limit",
+                            budget.max_tool_rounds,
+                            budget.timeout_seconds
+                        );
+                    }
+                    ChatEvent::BudgetStopping { .. } => {
+                        budget_stopping = true;
+                        let _ = writeln!(
+                            std::io::stderr(),
+                            "\ntime limit reached; stopping and finalizing"
+                        );
+                    }
                     ChatEvent::Text { text, .. } => {
+                        if budget_stopping {
+                            continue;
+                        }
                         partial.push_str(&text);
                         let _ = write!(std::io::stderr(), "{text}");
                     }
                     ChatEvent::ToolStarted { name, .. } => {
+                        if budget_stopping {
+                            continue;
+                        }
                         let _ = writeln!(std::io::stderr(), "\ntool: {name}");
                     }
                     ChatEvent::Finished { turn, .. } | ChatEvent::AlreadyRunning { turn, .. } => {
@@ -904,9 +989,13 @@ fn wait_ask_generation_checked<W: EventLane>(
                             }
                         }
                         if turn.status == WorkTurnStatus::Completed {
+                            let mut data = turn_json(&turn);
+                            if let Some(budget) = captured_budget {
+                                data["budget"] = json!(budget);
+                            }
                             return Ok(Output {
                                 text: format!("{}\n", turn.answer),
-                                data: turn_json(&turn),
+                                data,
                             });
                         }
                         let error = if matches!(
@@ -923,9 +1012,14 @@ fn wait_ask_generation_checked<W: EventLane>(
                         } else {
                             recorded_error(&turn)
                         };
+                        let mut details = context(op, session, Some(&turn), Some(&turn.answer));
+                        if let Some(budget) = captured_budget {
+                            details["budget"] = json!(budget);
+                            details["receipt"]["budget"] = json!(budget);
+                        }
                         return Err(CliFailure {
                             error,
-                            context: Some(context(op, session, Some(&turn), Some(&turn.answer))),
+                            context: Some(details),
                         });
                     }
                     ChatEvent::Rejected { error, .. } => {
@@ -1482,6 +1576,13 @@ mod tests {
             }
             if self.query_replies {
                 match &command {
+                    AppCommand::RunBudget(run_id) => self.events.borrow_mut().push_back((
+                        id,
+                        AppEvent::RunBudget {
+                            id: *run_id,
+                            budget: None,
+                        },
+                    )),
                     AppCommand::Turn(_) => self
                         .events
                         .borrow_mut()

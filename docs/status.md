@@ -2,7 +2,7 @@
 
 ## Overnight implementation and model qualification — 2026-10-08
 
-Current fetched main is `32c2538688723acff6f86e5af6594958f8fce26e`:
+Current fetched main is `4f5b95e1c7b92f9efec54ea7f34f9097987cfdb6`:
 [PR87](https://github.com/ewq100/brn-rust/pull/87),
 [PR88](https://github.com/ewq100/brn-rust/pull/88) and
 [PR89](https://github.com/ewq100/brn-rust/pull/89) are merged. PR89's final receipt
@@ -18,8 +18,13 @@ qualified shipping CLI: Luna retained one Action with a refused Knowledge quote;
 Sol retained two Knowledge drafts and one Action with budget/review details.
 The first range/guidance candidate passed focused workflow/lifecycle and143 AI
 tests (one existing ignore); independent review found no actionable defect.
-Broader gates and integration remain pending. Full P2/P3 and personal acceptance
-remain pending.
+[PR90](https://github.com/ewq100/brn-rust/pull/90) merged after independent review,
+full relevant local gates and all four required CI checks. Fresh-process Action-first
+approval/replay passed without inference or duplicate effects. Four live calls used;
+one per model remains. Paired first-slice Luna retained the previously omitted
+budget/review date; usefulness remains variable. Visible per-run budgets are being
+integrated in `codex/p3-work-budgets`; final qualification/review pending.
+Full P2/P3 and personal acceptance remain pending.
 All interactive checks are deferred to the [single morning UI task](work/active/overnight-continuation/morning-ui-acceptance.md).
 No overnight GUI testing, private-data operation, optional model download or
 release is authorized. Other open research PRs remain untouched.

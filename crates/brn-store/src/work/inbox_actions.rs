@@ -456,6 +456,7 @@ impl WorkStore {
             tx.commit()?;
             return Ok(job);
         }
+        super::run_budget::refuse_retained(&tx, capture.id)?;
         // Exact replay above never creates a conversation, samples the clock or
         // revalidates current source/auth state. Fresh reservations remain bound.
         capture.validate()?;
@@ -473,6 +474,45 @@ impl WorkStore {
         insert_capture(&tx, &job)?;
         tx.commit()?;
         Ok(job)
+    }
+
+    pub fn reserve_inbox_action_with_budget(
+        &mut self,
+        capture: &InboxActionCapture,
+        question: &str,
+        requested: Option<super::WorkBudget>,
+    ) -> Result<(InboxActionJob, Option<super::WorkBudget>)> {
+        let tx = self
+            .conn
+            .transaction_with_behavior(TransactionBehavior::Immediate)?;
+        let budget = super::run_budget::resolve(&tx, capture.id, requested)?;
+        if let Some(job) = read(&tx, capture.id)? {
+            if job.capture != *capture || job.question != question {
+                return Err(conflict());
+            }
+            tx.commit()?;
+            return Ok((job, budget));
+        }
+        super::run_budget::refuse_retained(&tx, capture.id)?;
+        capture.validate()?;
+        check_all(&tx)?;
+        if chat::read_turn(&tx, capture.id)?.is_some()
+            || super::proposal_rewrite::read_job(&tx, capture.id)?.is_some()
+            || super::inbox_original_operations::has_archived_analysis(&tx, capture.id)?
+        {
+            return Err(conflict());
+        }
+        let job = InboxActionJob {
+            capture: capture.clone(),
+            question: question.into(),
+            created_at_ms: now_ms(),
+        };
+        insert_capture(&tx, &job)?;
+        if let Some(budget) = budget {
+            super::run_budget::insert(&tx, capture.id, budget)?;
+        }
+        tx.commit()?;
+        Ok((job, budget))
     }
 
     pub fn inbox_action(&self, id: Uuid) -> Result<Option<InboxActionJob>> {

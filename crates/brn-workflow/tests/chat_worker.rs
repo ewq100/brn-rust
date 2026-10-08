@@ -41,6 +41,7 @@ fn terminal_replay_precedes_unavailable_vault_and_current_selection_validation()
     .unwrap();
     assert!(matches!(next(&worker).1, AppEvent::Ready { .. }));
     let request = AskRequest {
+        budget: None,
         id,
         conversation: Some(turn.conversation_id),
         question: "earlier".into(),
@@ -83,6 +84,7 @@ fn unbound_new_ask_is_refused_without_insertion_and_outer_uuid_must_match() {
     assert!(matches!(next(&worker).1, AppEvent::Ready { .. }));
     let id = Uuid::new_v4();
     let request = AskRequest {
+        budget: None,
         id,
         conversation: None,
         question: "new".into(),
@@ -128,6 +130,7 @@ fn unknown_conversation_fails_before_insertion_even_without_a_vault_or_account()
         .submit(
             id,
             AppCommand::Ask(AskRequest {
+                budget: None,
                 id,
                 conversation: Some(Uuid::new_v4()),
                 question: "unknown conversation".into(),

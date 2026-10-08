@@ -497,6 +497,14 @@ fn hex(bytes: &[u8]) -> String {
 #[test]
 fn fixed_legacy_v14_setting_migrates_and_restores_backup_without_rewriting_bytes() {
     let r = golden();
+    let analysis_ids: Vec<_> = r
+        .evidence
+        .snapshot
+        .review
+        .analyses
+        .iter()
+        .map(|analysis| analysis.job.capture.id)
+        .collect();
     let id = r.request.operation_id;
     let original = r.evidence.snapshot.review.original.clone();
     let dir = fixture();
@@ -507,6 +515,14 @@ fn fixed_legacy_v14_setting_migrates_and_restores_backup_without_rewriting_bytes
             &[id],
         )
         .unwrap();
+    for &analysis in &analysis_ids {
+        assert_eq!(store.run_budget(analysis).unwrap(), None);
+        assert_eq!(store.resolve_run_budget(analysis, None).unwrap(), None);
+        assert!(matches!(
+            store.resolve_run_budget(analysis, Some(brn_store::work::WorkBudget::default())),
+            Err(Error::OperationConflict(_))
+        ));
+    }
     assert!(
         store
             .set_setting(&format!("{ORIGINAL_OPERATION_PREFIX}{id}"), "x")
@@ -520,7 +536,7 @@ fn fixed_legacy_v14_setting_migrates_and_restores_backup_without_rewriting_bytes
     drop(store);
     let db = dir.path().join("brn.sqlite");
     let raw = Connection::open(&db).unwrap();
-    raw.execute_batch("DROP TABLE intake_snapshots; DROP TABLE inbox_original_operations; PRAGMA user_version=14;")
+    raw.execute_batch("DROP TABLE ai_run_budgets; DROP TABLE intake_snapshots; DROP TABLE inbox_original_operations; PRAGMA user_version=14;")
         .unwrap();
     assert_eq!(
         raw.query_row(
@@ -555,6 +571,10 @@ fn fixed_legacy_v14_setting_migrates_and_restores_backup_without_rewriting_bytes
     std::fs::write(&db, b"synthetic physical corruption").unwrap();
     let (store, report) = WorkStore::open(dir.path()).unwrap();
     assert!(report.restored_from.is_some());
+    for &analysis in &analysis_ids {
+        assert_eq!(store.run_budget(analysis).unwrap(), None);
+        assert_eq!(store.resolve_run_budget(analysis, None).unwrap(), None);
+    }
     assert_eq!(
         store
             .setting(&format!("{ORIGINAL_OPERATION_PREFIX}{id}"))
@@ -686,7 +706,7 @@ fn malformed_readable_v14_legacy_authority_refuses_before_migration_or_backup() 
     drop(store);
     let db = dir.path().join("brn.sqlite");
     let raw = Connection::open(&db).unwrap();
-    raw.execute_batch("DROP TABLE intake_snapshots; DROP TABLE inbox_original_operations; PRAGMA user_version=14;")
+    raw.execute_batch("DROP TABLE ai_run_budgets; DROP TABLE intake_snapshots; DROP TABLE inbox_original_operations; PRAGMA user_version=14;")
         .unwrap();
     raw.execute(
         "UPDATE settings SET value='{}' WHERE key=?1",
@@ -733,6 +753,23 @@ fn historical_legacy_only_recovery_cannot_reopen_provider_turn_after_restart() {
     let (mut store, _) = WorkStore::open(dir.path()).unwrap();
     assert!(store.conversations().unwrap().is_empty());
     assert!(store.turn(job.capture.id).unwrap().is_none());
+    assert_eq!(store.run_budget(job.capture.id).unwrap(), None);
+    assert_eq!(
+        store.resolve_run_budget(job.capture.id, None).unwrap(),
+        None
+    );
+    assert!(matches!(
+        store.begin_turn_with_effort_and_budget(
+            job.capture.id,
+            job.capture.conversation,
+            &job.question,
+            &job.capture.provider,
+            &job.capture.model,
+            Some(&job.capture.effort),
+            None,
+        ),
+        Err(Error::OperationConflict(_) | Error::StateChanged(_))
+    ));
     assert!(matches!(
         store.begin_inbox_action_turn(&job),
         Err(Error::StateChanged(_))

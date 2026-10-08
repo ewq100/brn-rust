@@ -1083,3 +1083,24 @@ application and chat wrappers. This is a checked content snapshot, not a new
 persisted store or transactional filesystem snapshot. Metadata-invalid raw access
 is not added by this slice. The existing Ask/native chat can use the range tool;
 no direct filesystem access is granted to external agents.
+
+### Per-investigation budgets
+
+AskRequest and InboxActionRequest accept optional strict WorkBudget
+`{max_tool_rounds, timeout_seconds}` (1..32/1..3600). Fresh omitted default is
+8/300; existing UUID omission resolves recorded metadata. Admission records the
+budget atomically in the work DB, separately from canonical turn/capture/recovery
+bytes. Changed explicit budget conflicts; historical absence stays unavailable.
+Historical unfinished reservations cannot silently acquire a budget/restart.
+AppCommand::RunBudget queries metadata separately; InboxActionAnalysis includes
+it in the inspection wrapper. Rewrite keeps its separate existing contract.
+
+BudgetProgress reports the frozen budget/completed model responses/admitted tool
+rounds, first0/0 after cancellation registration. The owned deadline begins at
+durable turn admission before authentication; expiry fences the shared proposal
+token, emits BudgetStopping, awaits operation and retained blocking read leases,
+then persists failed/time_limit_reached. It retains ordinary semantic partial
+text/drafts; a late successful operation cannot replace expiry. Already-ready
+completion wins a simultaneous deadline. Manual Stop and tool-limit exhaustion
+retain their distinct causes. Legacy strict visual JSON remains completion-only.
+No local terminal guarantees upstream cancellation or absence of billing.

@@ -722,7 +722,7 @@ fn v15_migration_adds_snapshot_storage_without_rewriting_old_canonical_records()
         .query_row("SELECT record_json FROM inbox_items", [], |r| r.get(0))
         .unwrap();
     conn.execute_batch(
-        "DROP TABLE intake_snapshots; PRAGMA user_version=15; PRAGMA wal_checkpoint(TRUNCATE);",
+        "DROP TABLE ai_run_budgets; DROP TABLE intake_snapshots; PRAGMA user_version=15; PRAGMA wal_checkpoint(TRUNCATE);",
     )
     .unwrap();
     drop(conn);
@@ -742,7 +742,7 @@ fn v15_migration_adds_snapshot_storage_without_rewriting_old_canonical_records()
         raw(data.path())
             .query_row("PRAGMA user_version", [], |r| r.get::<_, i64>(0))
             .unwrap(),
-        16
+        17
     );
     let snapshot = admitted(&mut store);
     assert_eq!(store.save_intake_snapshot(&snapshot).unwrap(), snapshot);

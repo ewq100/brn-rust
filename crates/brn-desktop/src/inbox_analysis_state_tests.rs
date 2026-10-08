@@ -275,6 +275,7 @@ pub(crate) fn symbolic_analysis(request: &InboxActionRequest) -> InboxActionAnal
         finished_at_ms: Some(2),
     };
     InboxActionAnalysis {
+        budget: request.budget,
         job,
         turn: Some(turn),
         proposals: vec![],
@@ -1162,6 +1163,7 @@ fn late_retained_extraction_cannot_replace_newer_analysis_or_closed_view() {
     let (fixture, snapshot, analysis_id) = seed_retained_analysis();
     let (store, _) = brn_store::work::WorkStore::open(&fixture.base.path().join("data")).unwrap();
     let record = InboxActionAnalysis {
+        budget: None,
         job: store.inbox_action(analysis_id).unwrap().unwrap(),
         turn: None,
         proposals: vec![],
@@ -1191,6 +1193,7 @@ fn admitted_new_source_analysis_clears_other_retained_extraction_but_refusal_pre
     worker_b.shutdown().unwrap();
     let (store, _) = brn_store::work::WorkStore::open(&fixture_a.base.path().join("data")).unwrap();
     let record_a = InboxActionAnalysis {
+        budget: None,
         job: store.inbox_action(analysis_a).unwrap().unwrap(),
         turn: None,
         proposals: vec![],

@@ -91,6 +91,157 @@ fn rebind_text(capture: &mut InboxActionCapture) {
     capture.source.as_mut().unwrap().fingerprint.len = capture.source_text.len() as u64;
     capture.source.as_mut().unwrap().fingerprint.sha256 = digest(capture.source_text.as_bytes());
 }
+
+#[test]
+fn budgeted_inbox_reservation_preserves_capture_bytes_and_freezes_metadata_atomically() {
+    use brn_store::work::WorkBudget;
+    let data = fixture();
+    let (mut store, _) = WorkStore::open(data.path()).unwrap();
+    let capture = capture();
+    let capture_bytes = serde_json::to_vec(&capture).unwrap();
+    let budget = WorkBudget {
+        max_tool_rounds: 16,
+        timeout_seconds: 180,
+    };
+    assert_eq!(
+        store.resolve_run_budget(capture.id, None).unwrap(),
+        Some(WorkBudget::default())
+    );
+    assert_eq!(store.run_budget(capture.id).unwrap(), None);
+    let (job, chosen) = store
+        .reserve_inbox_action_with_budget(&capture, "Exact question", Some(budget))
+        .unwrap();
+    assert_eq!(chosen, Some(budget));
+    let bytes = serde_json::to_vec(&job).unwrap();
+    assert_eq!(serde_json::to_vec(&job.capture).unwrap(), capture_bytes);
+    assert!(
+        !serde_json::to_value(&job)
+            .unwrap()
+            .as_object()
+            .unwrap()
+            .contains_key("budget")
+    );
+    let raw = Connection::open(data.path().join("brn.sqlite")).unwrap();
+    let row = raw
+        .query_row(
+            "SELECT record_json,record_sha256 FROM inbox_actions WHERE id=?1",
+            [capture.id.to_string()],
+            |r| Ok((r.get::<_, Vec<u8>>(0)?, r.get::<_, Vec<u8>>(1)?)),
+        )
+        .unwrap();
+    assert_eq!(row, (bytes.clone(), digest(&bytes).to_vec()));
+    for requested in [None, Some(budget)] {
+        let (replay, recorded) = store
+            .reserve_inbox_action_with_budget(&capture, "Exact question", requested)
+            .unwrap();
+        assert_eq!(serde_json::to_vec(&replay).unwrap(), bytes);
+        assert_eq!(recorded, Some(budget));
+    }
+    assert!(matches!(
+        store.reserve_inbox_action_with_budget(
+            &capture,
+            "Exact question",
+            Some(WorkBudget::default())
+        ),
+        Err(Error::OperationConflict(_))
+    ));
+    assert!(
+        store
+            .reserve_inbox_action_with_budget(&capture, "Changed question", None)
+            .is_err()
+    );
+    assert_eq!(store.run_budget(capture.id).unwrap(), Some(budget));
+    let mut chat = store.chat_connection().unwrap();
+    chat.begin_inbox_action_turn(&job).unwrap();
+    assert_eq!(chat.run_budget(capture.id).unwrap(), Some(budget));
+    drop(chat);
+    drop(raw);
+    drop(store);
+    let (store, _) = WorkStore::open(data.path()).unwrap();
+    assert_eq!(store.run_budget(capture.id).unwrap(), Some(budget));
+    assert_eq!(
+        serde_json::to_vec(&store.inbox_action(capture.id).unwrap().unwrap()).unwrap(),
+        bytes
+    );
+}
+
+#[test]
+fn legacy_inbox_replay_does_not_backfill_and_invalid_new_reservation_leaves_no_budget() {
+    use brn_store::work::WorkBudget;
+    let data = fixture();
+    let (mut store, _) = WorkStore::open(data.path()).unwrap();
+    let legacy = capture();
+    let old = store.reserve_inbox_action(&legacy, "Old question").unwrap();
+    let bytes = serde_json::to_vec(&old).unwrap();
+    let (replay, budget) = store
+        .reserve_inbox_action_with_budget(&legacy, "Old question", None)
+        .unwrap();
+    assert_eq!(budget, None);
+    assert_eq!(serde_json::to_vec(&replay).unwrap(), bytes);
+    assert!(matches!(
+        store.reserve_inbox_action_with_budget(
+            &legacy,
+            "Old question",
+            Some(WorkBudget::default())
+        ),
+        Err(Error::OperationConflict(_))
+    ));
+    let fresh = capture();
+    assert!(
+        store
+            .reserve_inbox_action_with_budget(
+                &fresh,
+                "New question",
+                Some(WorkBudget {
+                    max_tool_rounds: 0,
+                    timeout_seconds: 300
+                })
+            )
+            .is_err()
+    );
+    assert!(store.inbox_action(fresh.id).unwrap().is_none());
+    assert_eq!(store.run_budget(fresh.id).unwrap(), None);
+    let mut invalid = capture();
+    invalid.source_text.push('x');
+    assert!(
+        store
+            .reserve_inbox_action_with_budget(&invalid, "New question", None)
+            .is_err()
+    );
+    assert!(store.inbox_action(invalid.id).unwrap().is_none());
+    assert_eq!(store.run_budget(invalid.id).unwrap(), None);
+    let raw = Connection::open(data.path().join("brn.sqlite")).unwrap();
+    assert_eq!(
+        raw.query_row("SELECT count(*) FROM ai_run_budgets", [], |r| r
+            .get::<_, i64>(0))
+            .unwrap(),
+        0
+    );
+    assert_eq!(
+        raw.query_row("SELECT count(*) FROM inbox_actions", [], |r| r
+            .get::<_, i64>(0))
+            .unwrap(),
+        1
+    );
+    drop(raw);
+    drop(store);
+    // A V16 upgrade must retain canonical job bytes and hash without creating limits.
+    Connection::open(data.path().join("brn.sqlite"))
+        .unwrap()
+        .execute_batch("DROP TABLE ai_run_budgets; PRAGMA user_version=16;")
+        .unwrap();
+    let (store, _) = WorkStore::open(data.path()).unwrap();
+    assert_eq!(store.run_budget(legacy.id).unwrap(), None);
+    let raw = Connection::open(data.path().join("brn.sqlite")).unwrap();
+    let row = raw
+        .query_row(
+            "SELECT record_json,record_sha256 FROM inbox_actions WHERE id=?1",
+            [legacy.id.to_string()],
+            |r| Ok((r.get::<_, Vec<u8>>(0)?, r.get::<_, Vec<u8>>(1)?)),
+        )
+        .unwrap();
+    assert_eq!(row, (bytes.clone(), digest(&bytes).to_vec()));
+}
 fn review(store: &mut WorkStore) -> ProposalStamp {
     store
         .create_proposal(&ProposalDraft {
@@ -531,7 +682,7 @@ fn upgrade_v13(restored: bool) {
     let db = data.path().join("brn.sqlite");
     let raw = Connection::open(&db).unwrap();
     raw.execute_batch(
-        "DROP TABLE intake_snapshots; DROP TABLE inbox_original_operations; DROP TABLE inbox_actions; PRAGMA user_version=13;",
+        "DROP TABLE ai_run_budgets; DROP TABLE intake_snapshots; DROP TABLE inbox_original_operations; DROP TABLE inbox_actions; PRAGMA user_version=13;",
     )
     .unwrap();
     let backup = data.path().join("backups/brn-9999999999999.sqlite");
@@ -565,7 +716,7 @@ fn upgrade_v13(restored: bool) {
     assert_eq!(
         raw.query_row("PRAGMA user_version", [], |r| r.get::<_, i64>(0))
             .unwrap(),
-        16
+        17
     );
     if let Some(bytes) = backup_bytes {
         assert_eq!(std::fs::read(backup).unwrap(), bytes);
@@ -907,7 +1058,7 @@ fn legacy_action_bytes_and_question_survive_bound_chat_shutdown_and_restart() {
     assert_eq!(
         raw.query_row("PRAGMA user_version", [], |r| r.get::<_, i64>(0))
             .unwrap(),
-        16
+        17
     );
 }
 
@@ -1294,7 +1445,7 @@ fn knowledge_ordered_target_proofs_survive_review_replay_restart_and_checked_bac
             .unwrap()
             .query_row("PRAGMA user_version", [], |r| r.get::<_, i64>(0))
             .unwrap(),
-        16
+        17
     );
 }
 

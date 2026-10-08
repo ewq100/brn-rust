@@ -121,7 +121,7 @@ fn p2_single_and_plural_private_investigation_rewrite_exact_group_and_restart() 
         assert_eq!(pictures.len(),2);assert_ne!(pictures[0].id,pictures[1].id);assert_ne!(pictures[0].locator,pictures[1].locator);assert_eq!(pictures[0].asset_id,pictures[1].asset_id);
         if plural {assert!(extraction.sources.iter().any(|s|s.name=="forecast.xlsx"&&s.status=="unprocessed"&&s.text.is_empty()&&!s.bytes.is_empty()));assert!(extraction.occurrences.iter().any(|o|o.source_id!=docx.id));}
         let AppEvent::InboxIntakeBinding(binding)=reply(&worker,AppCommand::InboxIntakeBinding{source_proposal_id:source.draft.id}) else {panic!("private binder")};
-        let request=InboxActionRequest{intake:Some(*binding),source:None,visual_asset:None,purpose:InboxAnalysisPurpose::KnowledgeAndActions,id:Uuid::new_v4(),conversation:None,selection:Selection{provider:Provider::Chatgpt,model:"gpt-6-luna".into()},effort:crate::ReasoningEffort::Medium,generation:713};
+        let request=InboxActionRequest{budget:None,intake:Some(*binding),source:None,visual_asset:None,purpose:InboxAnalysisPurpose::KnowledgeAndActions,id:Uuid::new_v4(),conversation:None,selection:Selection{provider:Provider::Chatgpt,model:"gpt-6-luna".into()},effort:crate::ReasoningEffort::Medium,generation:713};
         let knowledge:KnowledgeProposalArgs=serde_json::from_value(json!({"supersedes":"pilot.md","title":"Harbor extension proposal","path":"harbor-current.md","source_paths":[],"text":"# Harbor pilot\n\nExtension is proposed. The document records Pier B on 15 October 2026, owned by Mira. Interpreting the retained chart: 120 to 72 L/day is a 40% reduction.\n","quotes":[{"quote":"Decision: extend the pilot to Pier B on 15 October 2026. Owner: Mira.","source_id":docx.id}]})).unwrap();
         let mut action=args();action.title="Arrange Harbor inspection".into();let data=candidate_data_mut(&mut action);data.title="Arrange inspection with Mira".into();data.description="Confirm the inspection prerequisite before extending the Harbor pilot.".into();data.owner=Some("Mira".into());data.state=ActionCandidateState::Open;data.due_on=None;data.follow_up_on=None;
         *script.lock().unwrap()=vec![Step::Knowledge(knowledge),Step::Action(action)];
@@ -185,6 +185,7 @@ fn private_action_refuses_changed_original_or_applied_image() {
             panic!("binding")
         };
         let request = InboxActionRequest {
+            budget: None,
             intake: Some(*binding),
             source: None,
             visual_asset: None,

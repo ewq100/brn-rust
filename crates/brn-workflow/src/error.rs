@@ -17,6 +17,7 @@ pub enum ErrorKind {
     Network,
     InvalidToolUse,
     ToolLimitReached,
+    TimeLimitReached,
     AiStorage,
     AiIndexStale,
     ModelDownloadFailed,
@@ -146,6 +147,7 @@ impl From<brn_ai::AiError> for WorkflowError {
             AiErrorKind::Network => ErrorKind::Network,
             AiErrorKind::InvalidToolUse => ErrorKind::InvalidToolUse,
             AiErrorKind::ToolLimitReached => ErrorKind::ToolLimitReached,
+            AiErrorKind::TimeLimitReached => ErrorKind::TimeLimitReached,
             AiErrorKind::Storage => ErrorKind::AiStorage,
             AiErrorKind::Other => ErrorKind::Other,
         };

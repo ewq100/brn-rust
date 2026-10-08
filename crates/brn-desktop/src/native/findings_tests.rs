@@ -367,12 +367,15 @@ fn refused_draft_navigation_keeps_findings_visible_and_usable(cx: &mut gpui_kit:
                         model: "synthetic-model".into(),
                     },
                     effort: Some(brn_workflow::ReasoningEffort::Low),
+                    budget: None,
                     generation: 1,
                 }
                 .into(),
                 partial: String::new(),
                 tool: None,
                 stopping: false,
+                budget_progress: None,
+                time_limit_reached: false,
             });
             assert!(!ai.application_busy());
             desktop.simple_leave(simple::EditorTransition::Draft(None), cx);

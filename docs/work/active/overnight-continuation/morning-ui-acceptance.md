@@ -6,16 +6,19 @@ owner unlocks the Mac and is available. Headless checks never establish GUI acce
 
 ## Build and synthetic data
 
-Current baseline: `32c2538688723acff6f86e5af6594958f8fce26e` (PR89).
+Integrated range/guidance commit: `4f5b95e1c7b92f9efec54ea7f34f9097987cfdb6` (PR90).
 First slice runtime: `ed0cf1df217890f15a972ea07bc9d174b05fd3b6`.
 Immutable first-slice CLI: `/private/tmp/brn-overnight-20261008/range-guidance-brn`,
 SHA-256 `412c183785d6f5521f572576dfe127bac645bb997eb70f3e73ab24e41a82378d`.
 Final integrated commit/build manifest: pending final qualification.
 Checkout `/Users/evokessler/repos/brn-p2-email-docx-intake`.
 Shipping CLI `target/intake-ui/debug/brn`, SHA-256
-`6f746bef7c9c1ea4e385de14e28574becb4d001adaa5eeb60275276ed3d8824e`.
-Shipping desktop `target/intake-ui/debug/brn-desktop`; verify final manifest
-before use. Synthetic retained evidence/proposals:
+`412c183785d6f5521f572576dfe127bac645bb997eb70f3e73ab24e41a82378d`.
+Shipping desktop `target/intake-ui/debug/brn-desktop`, SHA-256
+`1109da17d02a6ac7e2f213367bfa2e7c6da6e48b5b7bd17ca63161db2d6d28fd`.
+First-slice manifest `/private/tmp/brn-overnight-20261008/first-slice-build-manifest.json`.
+Budget candidate is being qualified separately in `/Users/evokessler/repos/brn-p3-work-budgets`;
+replace launch/build receipt with that final qualified build before its checks. Synthetic retained evidence/proposals:
 `/private/tmp/brn-retained-qualification-bi3q58kf/headless/{data,vault,results}`.
 New campaign receipts: `/private/tmp/brn-overnight-20261008`.
 Fixture `experiments/architecture-reassessment/p1-office-mime/fixtures/plural.eml`.
@@ -49,8 +52,21 @@ Allow 25–40 minutes; essential path is steps 1–5 (10–15 minutes).
 | 3. Review retained Sol group `fa13347c-5349-41a9-94eb-28f6c749c9c6` (two Knowledge/three Actions), exact before/after and evidence; submit native approval | Repaired native submission applies only displayed selected versions with existing Source prerequisite, no duplicate Source | Selected group/order/versions, confirmation and terminal receipt/error; retain failed drafts. Backend Action-first is already proven headlessly; record actual native order. Avoid approving every comparison group as distinct work |
 | 4. Quit/reopen and inspect saved notes, Action and dashboard | Approved results persist with citations, dates/owner and open status; no invented completion | Saved note, provenance, Action UUID/state/dashboard; discrepancies |
 | 5. Reopen completed group and repeat inspection/replay where available | No duplicate effects or new inference; Source/asset unchanged | Effect counts, replay receipt, hashes from headless comparison |
-| 6. Inspect the saved long-evidence investigation when available and its range/proof/error state; exercise Stop on a disposable local conversion | Expected range output reaches tail beyond the old prefix and retains scoped full-byte proof; changed proofs refuse. Stop settles local work without loss. Do not initiate extra provider inference merely to inspect saved outputs; any fresh live cancellation trial requires separate morning selection. Comment/revision/configurable budgets remain pending until recorded as implemented | Capture shown range/proof/version/progress/error; mark absent slices not implemented |
+| 6. Inspect the saved long-evidence investigation when available and its range/proof/error state; exercise Stop on a disposable local conversion | Expected range output reaches tail beyond the old prefix and retains scoped full-byte proof; changed proofs refuse. Stop settles local work without loss. Do not initiate extra provider inference merely to inspect saved outputs; any fresh live cancellation trial requires separate morning selection. Comment/revision remain pending until recorded as implemented; budget candidate checks below await final qualification | Capture shown range/proof/version/progress/error; mark absent slices not implemented |
 | 7. Review conflicting synthetic sources and proposed resolution/history/Action if P4 qualifies | Both evidence/authority/uncertainty visible; only approved consequences apply and persist after restart | Sources, reasons, exact changes/history and Action; unimplemented scenario remains pending |
+
+## Budget candidate checks — final qualification pending
+
+Allow another10–15minutes; inspect saved results without fresh inference. A fresh
+live cancellation/timeout run requires a separate morning selection; overnight
+campaign allowance is not silently extended.
+
+| User action | Expected result | Evidence / failure record |
+| --- | --- | --- |
+| Settings: inspect defaults/presets; choose16rounds/180seconds; inspect Ask/Inbox summaries | Defaults8/300; presets4/8/16/32 and60/180/300/600; Rewrite explicitly separate | Selected values/summary and build receipt |
+| During a separately selected synthetic investigation, inspect progress and reopen Settings | Frozen provider/model/effort/budget;0/0 admission, completed model turns/admitted tool rounds; controls disabled until settled | Captured ceilings/progress; any cross-conversation or stale event |
+| Exercise Stop; on selected timeout trial inspect draining and final cause | Stop usable during drain; time_limit_reached differs from manual stop/tool_limit_reached; semantic partials/drafts retained without automatic approval | Exact cause, partial/draft IDs and final receipt. Legacy strict visual JSON has no unsuccessful partial output |
+| Change future presets, quit/reopen, inspect Ask history/Inbox analysis | Original budget and reason persist; prebudget history says unavailable | Before/after budget/reason and any lost work |
 
 ## Already checked headlessly / still pending
 
@@ -60,7 +76,7 @@ CLI baseline and first-slice comparison completed (four investigations total).
 Fresh-process Action-first approval/replay preserved Source/assets with no duplicate
 effects or inference. Default workspace/doctests and52fixture assertions passed;
 range transport/filesystem/drain/application tests and143AI tests passed (one
-existing ignore). Native final checks remain in progress. No overnight native
+existing ignore). Native first-slice local checks passed402workflow/models and326desktop/widget/CLI tests, combined/default Clippy/builds and52fixture assertions. Required PR90 CI passed and PR90 merged; all required postmerge checks passed. No overnight native
 interactive result or personal product acceptance is established.
 Final check counts/commit/PR receipts will be recorded here before cutoff.
 

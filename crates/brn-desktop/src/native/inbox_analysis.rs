@@ -293,6 +293,7 @@ impl Desktop {
             .map_or("not acknowledged", ReasoningEffort::as_str);
         panel = panel
             .child(format!("Selected for a new analysis: {selection} · effort: {effort}. Change these in Settings."))
+            .child(format!("{} · Change investigation limits in Settings.", ai.selected_budget_label()))
             .child(Button::new("inbox-analysis-start")
                 .label("Analyze knowledge + Actions")
                 .disabled(blocked || !ai.can_analyze_inbox_source()
@@ -465,12 +466,9 @@ impl Desktop {
                     .effort()
                     .map(ReasoningEffort::as_str)
                     .unwrap_or("unavailable"),
-                if active.stopping {
-                    "Stopping (not finalized)"
-                } else {
-                    "Streaming (provisional)"
-                }
+                active.status_label()
             ));
+            panel = panel.child(active.budget_label());
             if let Some(tool) = &active.tool {
                 panel = panel.child(format!("Tool started: {tool}"));
             }
@@ -523,6 +521,7 @@ impl Desktop {
         }
         if let Some(record) = &view.record {
             let capture = &record.job.capture;
+            panel = panel.child(crate::ai::budget_state::budget_label(record.budget));
             panel = panel
                 .child(format!(
                     "Retained analysis: {} · {:?} · {} / {} · effort: {}",

@@ -28,6 +28,9 @@ use uuid::Uuid;
 #[path = "proposal_rewrite_tests.rs"]
 mod rewrite;
 
+#[path = "work_budget_tests.rs"]
+mod budgets;
+
 type AnswerFuture = Pin<Box<dyn Future<Output = AiAnswer> + Send>>;
 pub(crate) type AnswerHook = Arc<
     dyn Fn(
@@ -108,6 +111,7 @@ impl Fixture {
     }
     fn request(&self) -> AskRequest {
         AskRequest {
+            budget: None,
             id: Uuid::new_v4(),
             conversation: None,
             question: "explicit question".into(),
@@ -121,7 +125,17 @@ impl Fixture {
     }
 }
 fn event(worker: &AppWorker) -> (Uuid, AppEvent) {
-    worker.recv_event_timeout(Duration::from_secs(10)).unwrap()
+    let deadline = std::time::Instant::now() + Duration::from_secs(10);
+    loop {
+        let event = worker
+            .recv_event_timeout(deadline.saturating_duration_since(std::time::Instant::now()))
+            .unwrap();
+        // Existing behavioral witnesses predate the separate budget observation.
+        // Budget-specific tests consume raw events and check their exact values.
+        if !matches!(event.1, AppEvent::Chat(ChatEvent::BudgetProgress { .. })) {
+            return event;
+        }
+    }
 }
 fn terminal(worker: &AppWorker, id: Uuid) -> WorkTurn {
     loop {

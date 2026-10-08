@@ -32,6 +32,7 @@ impl std::fmt::Display for AiError {
             }
             AiErrorKind::InvalidToolUse => "The model requested an invalid tool.",
             AiErrorKind::ToolLimitReached => "The tool round limit was reached.",
+            AiErrorKind::TimeLimitReached => "The work time limit was reached.",
             AiErrorKind::UnsafeCredentials => {
                 "Credential storage is unsafe. Check its ownership and permissions."
             }

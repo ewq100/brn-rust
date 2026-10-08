@@ -1075,3 +1075,18 @@ Actions before Source approval. Select the displayed exact stamps, including its
 Source prerequisite, in `proposals approve-group`. Restart reads retained evidence
 and results without rerunning extraction or AI. Historical saved-Source analysis
 and legacy read/recovery retain their separate proof contracts.
+
+### Configurable investigation budgets
+
+`brn ask QUESTION --max-tool-rounds N --work-timeout-seconds N` captures a
+validated1..32 tool-round/1..3600second work budget. With neither flag, a new run
+uses8/300 and replay resolves its retained choice. Supplying either flag fills the
+other with the fresh default; replay with a different explicit budget conflicts.
+Inbox analysis JSON accepts optional `budget` with both fields; unknown fields
+or invalid bounds refuse before reservation/provider work. Rewrite is separate.
+Existing `--timeout-seconds` is the CLI outer cancellation deadline, independently
+of the owned work deadline; whichever stops first applies. Budget progress goes
+to stderr; JSON receipts/history include budget only where recorded. Old history
+has no budget field. `AI_TIME_LIMIT_REACHED` exits124 with the durable partial
+receipt, distinct from outer `TIMEOUT`, manual interruption and tool exhaustion.
+Replaying a failed/completed operation inspects retained work without inference.

@@ -241,3 +241,66 @@ Hosted run37828089206 exact head6190395: docs passed, required gates running.
 Windows informational failure is unchanged `brn-store/src/lib.rs` Unix MetadataExt/
 nlink compilation; this PR does not modify that file/crate source. No portability
 work or gate bypass follows. PR90 is attached to this chat and remains unmerged.
+
+## Current checkpoint — PR90 merged; budgets in integration
+
+PR90 merged normally at `4f5b95e1c7b92f9efec54ea7f34f9097987cfdb6`
+on 8 October19:08UTC after all four required checks and documentation passed
+on exact head6190395 (run37828089206). Fetched main has the identical tree;
+postmerge run37829733834 is in progress. Informational Unix-only Windows failures
+remain unchanged; no protection bypass or port occurred. Prior pending statements
+above describe earlier milestones and are superseded by this checkpoint.
+
+Active checkout `/Users/evokessler/repos/brn-p3-work-budgets`, branch
+`codex/p3-work-budgets`, committed spec8f212d5 plus task-owned uncommitted budget
+implementation. Store helper completed439 passing Store tests and26 final affected
+Rewrite/budget tests, all-target Clippy. New AI configured-round tests passed2,
+covering1/10 rounds across real Rig routes, parallel calls and invalid limits.
+Workflow/CLI/desktop integration tests, independent final review and full gates
+remain pending. Fixed a discovered admission/Stop race by registering cancellation
+before initial progress. Ordinary Ask/semantic Inbox preserve partial text/drafts;
+legacy strict visual JSON retains its completion-only output contract.
+
+Next: qualify timeout/cancellation/drain/replay and native state, validate final
+candidate independently, commit/push/required CI and integrate when eligible.
+Two nightly live calls remain (one per condition); none used for budget mechanics.
+Interactive and personal acceptance stay pending in the single morning task.
+
+### Integration/review milestone
+
+PR90 postmerge run37829733834 is complete: all four required contexts and
+documentation passed on merged4f5b95e. Overall red is informational Windows Unix
+APIs, Linux native UI unused macOS process imports, and Linux native installer
+ExclusiveInstallUnavailable witnesses. Implicated Linux paths are unchanged from
+PR89 baseline32c2538; no platform work/failure suppression was performed.
+
+Budget independent review of complete67-file staged candidate
+SHA-256 `acce4fbec9c8eab8cc3ed5c82efda22327ff69c6c0c8f154bd839e836c5f063c`
+found one valid P2 ordering defect: BudgetStopping publication preceded shared-token
+cancellation. Lead is adding an exact emitter-boundary regression, then moving
+cancellation first and refreshing review/affected checks. No other actionable
+finding. Three old integration-test request literals needed optional budget fields
+before the full gate compiled. CLI Ask subprocess suite passed9 including3new;
+workflow new7 passed; default integrated gate is running. No budget PR/merge yet.
+
+Next ready outcome after budgets: bounded P4 saved-Source Inbox conflict and
+recommendation demonstration. Existing supersession prepares new Current plus
+protected predecessor History and follow-up Action; broad structural P3 changes
+are not its prerequisite. Coherent guidance still bans recommendations and is a
+demonstrated gap. Use explicit saved-Source route (private-intake conflict capture
+is not supported) and exact Action-before-supersession order where both bind the
+predecessor. One combined deterministic scenario and novel North Quay shipping
+pair can use the remaining one call/model only after that candidate is ready.
+
+### Budget final-candidate checkpoint
+
+Valid/fixed independent P2: cancellation now precedes BudgetStopping publication.
+The exact shared-token emitter-boundary regression failed old ordering, then all3
+boundary/ready-completion/manual-Stop tests passed after correction. Independent
+review refreshed complete staged SHA-256
+`fdcfc57db3960299b3bcea76c4a77909af151267b831e3d18323c0bb70c52e95`
+and confirmed no remaining actionable finding; subsequent update is this receipt.
+Full default gate passed1670tests/17existingignores, doctests, all-target Clippy,
+workspace/helper builds and52fixture assertions before the order correction;
+unchanged checks are reused, affected/native checks follow against final code.
+CLI9 and newworkflow7 passed. Final combined native/shipping/CI pending.

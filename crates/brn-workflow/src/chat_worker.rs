@@ -27,6 +27,8 @@ use uuid::Uuid;
 
 #[derive(Clone, Debug, PartialEq, Eq)]
 pub struct AskRequest {
+    /// Optional requested limits; fresh omission defaults, replay resolves retained metadata.
+    pub budget: Option<crate::WorkBudget>,
     pub id: Uuid,
     pub conversation: Option<Uuid>,
     pub question: String,
@@ -37,6 +39,16 @@ pub struct AskRequest {
 
 #[derive(Clone, Debug)]
 pub enum ChatEvent {
+    /// Frozen limits and completed-model/admitted-tool-round counters, initially zero.
+    BudgetProgress {
+        id: Uuid,
+        generation: u64,
+        budget: crate::WorkBudget,
+        model_turns: u16,
+        tool_rounds: u16,
+    },
+    /// Shared capabilities are fenced; local operation/read leases are still draining.
+    BudgetStopping { id: Uuid, generation: u64 },
     Text {
         id: Uuid,
         generation: u64,
@@ -73,7 +85,9 @@ pub enum ChatEvent {
 impl ChatEvent {
     pub fn id(&self) -> Uuid {
         match self {
-            Self::Text { id, .. }
+            Self::BudgetProgress { id, .. }
+            | Self::BudgetStopping { id, .. }
+            | Self::Text { id, .. }
             | Self::ToolStarted { id, .. }
             | Self::Finished { id, .. }
             | Self::AlreadyRunning { id, .. }
@@ -83,7 +97,9 @@ impl ChatEvent {
     }
     pub fn generation(&self) -> u64 {
         match self {
-            Self::Text { generation, .. }
+            Self::BudgetProgress { generation, .. }
+            | Self::BudgetStopping { generation, .. }
+            | Self::Text { generation, .. }
             | Self::ToolStarted { generation, .. }
             | Self::Finished { generation, .. }
             | Self::AlreadyRunning { generation, .. }
@@ -479,8 +495,9 @@ async fn run(
                             emit(Output::Account(AccountEvent::Login { id, prompt }));
                         }
                     }
-                    Some(Command::Ask(request, inbox, images)) => {
+                    Some(Command::Ask(mut request, inbox, images)) => {
                         let validation = (|| -> Result<Option<WorkTurn>> {
+                            request.budget = store.resolve_run_budget(request.id, request.budget)?;
                             if let Some(previous) = turn_ledger.get(&request.id) {
                                 let mut previous = previous.clone();
                                 if inbox.is_some() { previous.generation = request.generation; }
@@ -489,6 +506,9 @@ async fn run(
                             if let Some(turn) = store.turn(request.id)? {
                                 check_replay(&request, &turn)?;
                                 return Ok(Some(turn));
+                            }
+                            if request.budget.is_none() {
+                                return Err(conflict()); // Historical unfinished work needs a fresh run UUID.
                             }
                             if request.effort.is_none() {
                                 return Err(WorkflowError::typed(ErrorKind::SelectionRequired,
@@ -523,19 +543,24 @@ async fn run(
                                     None => Vec::new(),
                                 };
                                 let admission = match inbox.as_deref() {
-                                    Some(job) => store.begin_inbox_action_turn(job),
-                                    None => store.begin_turn_with_effort(
+                                    Some(job) => store.begin_inbox_action_turn(job).map(|turn| (turn, request.budget)),
+                                    None => store.begin_turn_with_effort_and_budget(
                                         request.id, request.conversation, &request.question,
                                         provider_name(request.selection.provider), &request.selection.model,
-                                        request.effort.map(ReasoningEffort::as_str),
+                                        request.effort.map(ReasoningEffort::as_str), request.budget,
                                     ),
                                 };
                                 match admission {
                                     Err(error) => emit(Output::Chat(rejected(&request, error.into()))),
-                                    Ok(turn) => {
+                                    Ok((turn, budget)) => {
+                                        request.budget = budget;
+                                        let admitted = tokio::time::Instant::now();
                                         let cancel = CancellationToken::new();
                                         *control.active.lock().expect("owned cancellation registry") = Some((request.id, cancel.clone()));
                                         active = Some(Active { provider: request.selection.provider, cancel: cancel.clone() });
+                                        if let Some(budget) = budget {
+                                            emit(Output::Chat(ChatEvent::BudgetProgress { id: request.id, generation: request.generation, budget, model_turns: 0, tool_rounds: 0 }));
+                                        }
                                         turn_ledger.insert(request.id, request.clone());
                                         let legacy_visual = inbox.as_ref().is_some_and(|job| job.capture.purpose == crate::inbox_actions::InboxAnalysisPurpose::VisualInterpretation);
                                         let task = jobs.spawn(run_turn(
@@ -545,7 +570,7 @@ async fn run(
                                                 Some(job) => proposals.bind_inbox(&request, &turn, cancel.clone(), Some(job)),
                                                 None => proposals.bind(&request, &turn, cancel.clone()),
                                             },
-                                            cancel, emit.clone(), hooks.clone(),
+                                            cancel, emit.clone(), hooks.clone(), admitted,
                                         ));
                                         task_ids.insert(task.id(), (request.id, Some(RequestJob::Ask(request.clone())), request.selection.provider));
                                     }
@@ -715,6 +740,7 @@ fn terminal(terminal: &AiTerminal) -> (WorkTurnStatus, Option<&'static str>) {
                 AiErrorKind::ModelRefused => "model_refused",
                 AiErrorKind::InvalidToolUse => "invalid_tool_use",
                 AiErrorKind::ToolLimitReached => "tool_limit_reached",
+                AiErrorKind::TimeLimitReached => "time_limit_reached",
                 AiErrorKind::UnsafeCredentials => "unsafe_credentials",
                 AiErrorKind::ToolRejected => "tool_rejected",
                 AiErrorKind::QuoteNotFound => "quote_not_found",
@@ -846,6 +872,7 @@ async fn run_turn(
     cancel: CancellationToken,
     emit: Emit,
     hooks: Hooks,
+    admitted: tokio::time::Instant,
 ) -> JobResult {
     if legacy_visual {
         drop((history, tools, proposals));
@@ -853,7 +880,7 @@ async fn run_turn(
             .into_iter()
             .next()
             .expect("validated legacy visual input");
-        return run_visual_turn(auth, request, image, cancel, emit, hooks).await;
+        return run_visual_turn(auth, request, image, cancel, emit, hooks, admitted).await;
     }
     let (drained, wait) = oneshot::channel();
     let lease = Arc::new(DrainSignal(Some(drained)));
@@ -868,9 +895,10 @@ async fn run_turn(
     let request_events = request.clone();
     let partial = Arc::new(Mutex::new(String::new()));
     let partial_events = partial.clone();
+    let event_emit = emit.clone();
     let events: Arc<dyn Fn(AiEvent) + Send + Sync> = Arc::new(move |event| {
         let (id, generation) = (request_events.id, request_events.generation);
-        emit(Output::Chat(match event {
+        let event = match event {
             AiEvent::Text(text) => {
                 partial_events
                     .lock()
@@ -887,7 +915,30 @@ async fn run_turn(
                 generation,
                 name,
             },
-        }));
+            AiEvent::BudgetProgress {
+                model_turns,
+                tool_rounds,
+                max_tool_rounds,
+            } => {
+                let Some(budget) = request_events.budget else {
+                    return;
+                };
+                if max_tool_rounds != budget.max_tool_rounds
+                    || tool_rounds > max_tool_rounds
+                    || model_turns > max_tool_rounds + 1
+                {
+                    return;
+                }
+                ChatEvent::BudgetProgress {
+                    id,
+                    generation,
+                    budget,
+                    model_turns,
+                    tool_rounds,
+                }
+            }
+        };
+        event_emit(Output::Chat(event));
     });
     #[cfg(test)]
     let fake = hooks.answer;
@@ -940,13 +991,8 @@ async fn run_turn(
             .await
         }
     };
-    let mut answer = std::panic::AssertUnwindSafe(operation)
-        .catch_unwind()
-        .await
-        .unwrap_or_else(|_| AiAnswer {
-            text: partial.lock().expect("turn-owned partial text").clone(),
-            terminal: AiTerminal::Failed(AiError::new(AiErrorKind::Other)),
-        });
+    let mut answer =
+        settle_run_budget(operation, &request, &cancel, &emit, partial, admitted).await;
     let _ = wait.await;
     if cancel.is_cancelled()
         && matches!(
@@ -962,6 +1008,44 @@ async fn run_turn(
     JobResult::Turn(request, answer)
 }
 
+/// Expiry cancels the same capability token, then joins the operation. A blocking
+/// lease may delay finalization; it never permits a late proposal or success.
+async fn settle_run_budget(
+    operation: impl std::future::Future<Output = AiAnswer>,
+    request: &AskRequest,
+    cancel: &CancellationToken,
+    emit: &Emit,
+    partial: Arc<Mutex<String>>,
+    admitted: tokio::time::Instant,
+) -> AiAnswer {
+    let operation = std::panic::AssertUnwindSafe(operation).catch_unwind();
+    tokio::pin!(operation);
+    let answer = if let Some(budget) = request.budget {
+        let deadline = admitted + std::time::Duration::from_secs(u64::from(budget.timeout_seconds));
+        tokio::select! {
+            biased;
+            answer = &mut operation => answer,
+            _ = tokio::time::sleep_until(deadline) => {
+                if cancel.is_cancelled() { operation.await }
+                else {
+                    let text = partial.lock().expect("turn-owned partial text").clone();
+                    // Fence late callbacks before clients can observe the stopping boundary.
+                    cancel.cancel();
+                    emit(Output::Chat(ChatEvent::BudgetStopping { id: request.id, generation: request.generation }));
+                    let _ = operation.await;
+                    return AiAnswer { text, terminal: AiTerminal::Failed(AiError::new(AiErrorKind::TimeLimitReached)) };
+                }
+            }
+        }
+    } else {
+        operation.await
+    };
+    answer.unwrap_or_else(|_| AiAnswer {
+        text: partial.lock().expect("turn-owned partial text").clone(),
+        terminal: AiTerminal::Failed(AiError::new(AiErrorKind::Other)),
+    })
+}
+
 async fn run_visual_turn(
     auth: Arc<Auth>,
     request: AskRequest,
@@ -969,11 +1053,13 @@ async fn run_visual_turn(
     cancel: CancellationToken,
     emit: Emit,
     hooks: Hooks,
+    admitted: tokio::time::Instant,
 ) -> JobResult {
     let request_events = request.clone();
+    let event_emit = emit.clone();
     let events: Arc<dyn Fn(AiEvent) + Send + Sync> = Arc::new(move |event| {
         if let AiEvent::Text(text) = event {
-            emit(Output::Chat(ChatEvent::Text {
+            event_emit(Output::Chat(ChatEvent::Text {
                 id: request_events.id,
                 generation: request_events.generation,
                 text,
@@ -1011,14 +1097,24 @@ async fn run_visual_turn(
             },
         }
     };
-    let mut answer = std::panic::AssertUnwindSafe(operation)
-        .catch_unwind()
-        .await
-        .unwrap_or_else(|_| AiAnswer {
-            text: String::new(),
-            terminal: AiTerminal::Failed(AiError::new(AiErrorKind::Other)),
-        });
-    if cancel.is_cancelled() {
+    let mut answer = settle_run_budget(
+        operation,
+        &request,
+        &cancel,
+        &emit,
+        Arc::new(Mutex::new(String::new())),
+        admitted,
+    )
+    .await;
+    if cancel.is_cancelled()
+        && !matches!(
+            answer.terminal,
+            AiTerminal::Failed(AiError {
+                kind: AiErrorKind::TimeLimitReached,
+                ..
+            })
+        )
+    {
         answer.terminal = AiTerminal::Interrupted;
     }
     if !matches!(answer.terminal, AiTerminal::Completed) {
@@ -1045,7 +1141,7 @@ async fn real_answer(
     };
     match auth.client(&request.selection, cancel.clone()).await {
         Ok(client) => {
-            brn_ai::answer_with_proposals_and_images(
+            brn_ai::answer_with_proposals_and_images_with_limit(
                 client,
                 &request.question,
                 &history,
@@ -1053,6 +1149,7 @@ async fn real_answer(
                 tools,
                 proposals,
                 images,
+                request.budget.map_or(8, |budget| budget.max_tool_rounds),
                 cancel,
                 emit,
             )
@@ -1292,5 +1389,148 @@ mod ranged_read_drain_tests {
             AiErrorKind::IndexStale
         );
         drain.await.unwrap();
+    }
+}
+
+#[cfg(test)]
+mod budget_expiry_boundary_tests {
+    use super::*;
+
+    #[tokio::test]
+    async fn stopping_is_published_only_after_shared_capability_token_is_cancelled() {
+        let cancel = CancellationToken::new();
+        let capability_token = cancel.clone();
+        let saw_stopping = Arc::new(AtomicBool::new(false));
+        let observed = saw_stopping.clone();
+        let emit: Emit = Arc::new(move |event| {
+            if matches!(event, Output::Chat(ChatEvent::BudgetStopping { .. })) {
+                // Proposal admission uses this exact shared cancellation token.
+                // Check synchronously at publication, before the emitter returns.
+                assert!(
+                    capability_token.is_cancelled(),
+                    "stopping exposed an unfenced capability"
+                );
+                observed.store(true, Ordering::Release);
+            }
+        });
+        let request = AskRequest {
+            budget: Some(crate::WorkBudget {
+                max_tool_rounds: 1,
+                timeout_seconds: 1,
+            }),
+            id: Uuid::new_v4(),
+            conversation: None,
+            question: "synthetic".into(),
+            selection: Selection {
+                provider: Provider::Chatgpt,
+                model: "synthetic".into(),
+            },
+            effort: Some(ReasoningEffort::Medium),
+            generation: 1,
+        };
+        let operation_cancel = cancel.clone();
+        let operation = async move {
+            operation_cancel.cancelled().await;
+            AiAnswer {
+                text: "late completion".into(),
+                terminal: AiTerminal::Completed,
+            }
+        };
+        let result = settle_run_budget(
+            operation,
+            &request,
+            &cancel,
+            &emit,
+            Arc::new(Mutex::new("partial".into())),
+            tokio::time::Instant::now() - std::time::Duration::from_secs(2),
+        )
+        .await;
+        assert!(saw_stopping.load(Ordering::Acquire));
+        assert_eq!(result.text, "partial");
+        assert!(matches!(
+            result.terminal,
+            AiTerminal::Failed(AiError {
+                kind: AiErrorKind::TimeLimitReached,
+                ..
+            })
+        ));
+    }
+
+    #[tokio::test]
+    async fn already_ready_completion_wins_an_elapsed_deadline() {
+        let cancel = CancellationToken::new();
+        let emit: Emit = Arc::new(|_| panic!("completed work must not announce timeout"));
+        let request = AskRequest {
+            budget: Some(crate::WorkBudget {
+                max_tool_rounds: 1,
+                timeout_seconds: 1,
+            }),
+            id: Uuid::new_v4(),
+            conversation: None,
+            question: "synthetic".into(),
+            selection: Selection {
+                provider: Provider::Chatgpt,
+                model: "synthetic".into(),
+            },
+            effort: Some(ReasoningEffort::Medium),
+            generation: 1,
+        };
+        let result = settle_run_budget(
+            async {
+                AiAnswer {
+                    text: "confirmed".into(),
+                    terminal: AiTerminal::Completed,
+                }
+            },
+            &request,
+            &cancel,
+            &emit,
+            Arc::new(Mutex::new(String::new())),
+            tokio::time::Instant::now() - std::time::Duration::from_secs(2),
+        )
+        .await;
+        assert!(matches!(result.terminal, AiTerminal::Completed));
+        assert_eq!(result.text, "confirmed");
+        assert!(!cancel.is_cancelled());
+    }
+
+    #[tokio::test]
+    async fn prior_manual_stop_keeps_its_cause_when_deadline_passes_while_settling() {
+        let cancel = CancellationToken::new();
+        cancel.cancel();
+        let emit: Emit = Arc::new(|_| panic!("manual stop must not announce time exhaustion"));
+        let request = AskRequest {
+            budget: Some(crate::WorkBudget {
+                max_tool_rounds: 1,
+                timeout_seconds: 1,
+            }),
+            id: Uuid::new_v4(),
+            conversation: None,
+            question: "synthetic".into(),
+            selection: Selection {
+                provider: Provider::Chatgpt,
+                model: "synthetic".into(),
+            },
+            effort: Some(ReasoningEffort::Medium),
+            generation: 1,
+        };
+        let operation = async {
+            tokio::time::sleep(std::time::Duration::from_millis(1)).await;
+            AiAnswer {
+                text: "manual partial".into(),
+                terminal: AiTerminal::Interrupted,
+            }
+        };
+        let result = settle_run_budget(
+            operation,
+            &request,
+            &cancel,
+            &emit,
+            Arc::new(Mutex::new(String::new())),
+            tokio::time::Instant::now() - std::time::Duration::from_secs(2),
+        )
+        .await;
+        assert!(matches!(result.terminal, AiTerminal::Interrupted));
+        assert_eq!(result.text, "manual partial");
     }
 }

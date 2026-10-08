@@ -582,12 +582,7 @@ impl Desktop {
         if self.closing.is_some() {
             "Closing · waiting for local finalization".into()
         } else if let Some(active) = &ai.active {
-            if active.stopping {
-                "Stopping · finalization pending"
-            } else {
-                "Answering · provisional"
-            }
-            .into()
+            active.status_label().into()
         } else if let Some(active) = &ai.rewrite {
             if active.stopping {
                 "Stopping Rewrite · finalization pending"

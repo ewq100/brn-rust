@@ -147,3 +147,81 @@ fn modal_blocks_background_and_exposes_its_content_until_closed(cx: &mut gpui_ki
         0
     );
 }
+
+/// Headless composition exposes the same functional Settings budget controls.
+struct BudgetSettingsProbe(Entity<Desktop>);
+impl Render for BudgetSettingsProbe {
+    fn render(&mut self, _: &mut Window, cx: &mut Context<Self>) -> impl IntoElement {
+        div()
+            .size_full()
+            .child(super::simple::account_settings(&self.0, cx))
+            .test_support()
+    }
+}
+
+#[gpui_kit::test]
+fn investigation_budget_presets_capture_and_freeze_in_real_settings_widgets(
+    cx: &mut gpui_kit::TestAppContext,
+) {
+    let (_fixture, _root, desktop) = fixture_window(cx);
+    desktop.update(cx, |desktop, cx| {
+        let ai = desktop.ai.as_mut().unwrap();
+        ai.vault_bound = true;
+        ai.selection = Some(brn_workflow::Selection {
+            provider: brn_workflow::Provider::Copilot,
+            model: "synthetic-budget-model".into(),
+        });
+        ai.effort = Some(brn_workflow::ReasoningEffort::Medium);
+        ai.pending.clear();
+        cx.notify();
+    });
+    let target = desktop.clone();
+    let window = cx.open_window(size(px(1100.), px(1800.)), move |_, cx| {
+        cx.new(|_| BudgetSettingsProbe(target))
+    });
+    let mut visual = VisualTestContext::from_window(window.into(), cx);
+    visual.run_until_parked();
+    visual.update(|window, cx| {
+        window.render_frame(cx);
+        window.click("work-budget-rounds-16", cx);
+        window.click("work-budget-seconds-180", cx);
+    });
+    visual.run_until_parked();
+    visual.update(|window, cx| {
+        window.render_frame(cx);
+        desktop.update(cx, |desktop, cx| {
+            let ai = desktop.ai.as_mut().unwrap();
+            assert_eq!(
+                ai.work_budget,
+                brn_workflow::WorkBudget {
+                    max_tool_rounds: 16,
+                    timeout_seconds: 180
+                }
+            );
+            let request = ai.ask("Exact widget question õ".into()).unwrap();
+            assert_eq!(request.budget, Some(ai.work_budget));
+            assert_eq!(request.selection.model, "synthetic-budget-model");
+            cx.notify();
+        });
+    });
+    visual.run_until_parked();
+    visual.update(|window, cx| {
+        window.render_frame(cx);
+        window.click("work-budget-rounds-32", cx);
+        window.click("work-budget-seconds-60", cx);
+        desktop.update(cx, |desktop, _| {
+            let ai = desktop.ai.as_ref().unwrap();
+            assert_eq!(
+                ai.work_budget,
+                brn_workflow::WorkBudget {
+                    max_tool_rounds: 16,
+                    timeout_seconds: 180
+                }
+            );
+            assert_eq!(
+                ai.active.as_ref().unwrap().request.budget(),
+                Some(ai.work_budget)
+            );
+        });
+    });
+}

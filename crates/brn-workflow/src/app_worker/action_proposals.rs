@@ -604,6 +604,7 @@ mod tests {
         .unwrap();
         assert!(matches!(event(&worker).1, AppEvent::Ready { .. }));
         let request = AskRequest {
+            budget: None,
             id: Uuid::new_v4(),
             conversation: None,
             question: "Synthetic proposal".into(),

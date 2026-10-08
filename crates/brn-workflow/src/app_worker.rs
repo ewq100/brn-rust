@@ -157,6 +157,7 @@ pub enum AppCommand {
     Conversations,
     Turns(Uuid),
     Turn(Uuid),
+    RunBudget(Uuid),
     Ask(AskRequest),
     AnalyzeInboxActions(Box<crate::inbox_actions::InboxActionRequest>),
     InboxIntakeBinding {
@@ -273,6 +274,10 @@ pub enum AppEvent {
     Conversations(Vec<WorkConversation>),
     Turns(Vec<WorkTurn>),
     Turn(Option<WorkTurn>),
+    RunBudget {
+        id: Uuid,
+        budget: Option<crate::WorkBudget>,
+    },
     Indexing {
         embedded: usize,
         total: usize,
@@ -645,11 +650,12 @@ fn admit_ask(
     chat: &chat_worker::ChatHandle,
     emit: &mpsc::Sender<(Uuid, AppEvent)>,
     id: Uuid,
-    request: AskRequest,
+    mut request: AskRequest,
     ask_ledger: &mut HashMap<Uuid, AskRequest>,
     inbox: Option<crate::inbox_actions::InboxActionCapture>,
 ) {
     let result = (|| {
+        request.budget = app.work_store().resolve_run_budget(id, request.budget)?;
         if let Some(previous) = ask_ledger.get(&id) {
             let mut previous = previous.clone();
             if inbox.is_some() {
@@ -679,6 +685,9 @@ fn admit_ask(
             ask_ledger.insert(id, request.clone());
             return Ok(Some(chat_worker::replay(&request, turn)));
         }
+        if request.budget.is_none() {
+            return Err(chat_worker::conflict());
+        }
         if request.effort.is_none() {
             return Err(WorkflowError::typed(
                 ErrorKind::SelectionRequired,
@@ -697,9 +706,12 @@ fn admit_ask(
             }
             app.validate_inbox_action_source(&capture)?;
             let images = app.inbox_analysis_images(&capture)?;
-            let job = app
-                .work_store_mut()
-                .reserve_inbox_action(&capture, &request.question)?;
+            let (job, budget) = app.work_store_mut().reserve_inbox_action_with_budget(
+                &capture,
+                &request.question,
+                request.budget,
+            )?;
+            request.budget = budget;
             ask_ledger.insert(id, request.clone());
             chat.ask_inbox(request.clone(), job, images)?;
         } else {
@@ -1590,6 +1602,10 @@ fn dispatch(
         AppCommand::Conversations => AppEvent::Conversations(app.conversations()?),
         AppCommand::Turns(conversation) => AppEvent::Turns(app.turns(conversation)?),
         AppCommand::Turn(turn) => AppEvent::Turn(app.work_store().turn(turn)?),
+        AppCommand::RunBudget(id) => AppEvent::RunBudget {
+            id,
+            budget: app.work_store().run_budget(id)?,
+        },
         AppCommand::Ask(request) => {
             admit_ask(app, chat, emit, id, request, ask_ledger, None);
             return Ok(());

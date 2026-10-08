@@ -2,7 +2,7 @@
 #![cfg_attr(not(feature = "native-ui"), allow(dead_code))]
 use brn_workflow::{
     AccountStatus, LoginPrompt, ModelOption, NoteEntry, Provider, ReasoningEffort, Selection,
-    WorkConversation, WorkTurn, WorkTurnStatus,
+    WorkBudget, WorkConversation, WorkTurn, WorkTurnStatus,
     activity::{ActivityPage, ActivityRequest},
     app_worker::{AppCommand, AppEvent},
     chat_worker::{AccountCommand, AccountEvent, AccountReply, AskRequest, ChatEvent},
@@ -61,11 +61,19 @@ mod link_preparation_state;
 #[path = "relationship_state.rs"]
 mod relationship_state;
 
+#[path = "budget_state.rs"]
+pub(crate) mod budget_state;
+#[cfg(test)]
+#[path = "budget_state_tests.rs"]
+mod budget_state_tests;
+
 pub struct ActiveTurn {
     pub request: ActiveRequest,
     pub partial: String,
     pub tool: Option<String>,
     pub stopping: bool,
+    pub budget_progress: Option<(u16, u16)>,
+    pub time_limit_reached: bool,
 }
 /// Client capture/correlation only. Inbox's domain prompt remains in workflow.
 pub enum ActiveRequest {
@@ -106,6 +114,12 @@ impl ActiveRequest {
         match self {
             Self::Ask(r) => r.effort,
             Self::Inbox(r) => Some(r.effort),
+        }
+    }
+    pub fn budget(&self) -> Option<WorkBudget> {
+        match self {
+            Self::Ask(r) => r.budget,
+            Self::Inbox(r) => r.budget,
         }
     }
     pub fn question_label(&self) -> String {
@@ -300,6 +314,10 @@ pub enum Pending {
         generation: u64,
     },
     Conversations,
+    RunBudget {
+        turn: Uuid,
+        generation: u64,
+    },
     Turns {
         generation: u64,
     },
@@ -317,6 +335,8 @@ pub struct AiState {
     pub selection_error: Option<String>,
     pub effort: Option<ReasoningEffort>,
     pub effort_error: Option<String>,
+    pub work_budget: WorkBudget,
+    pub run_budgets: HashMap<Uuid, Option<WorkBudget>>,
     pub proposals: Vec<ProposalRecord>,
     pub review: Option<crate::review::ProposalReview>,
     pub review_generation: u64,
@@ -1628,6 +1648,7 @@ impl AiState {
             question,
             selection: self.selection.clone()?,
             effort: self.effort,
+            budget: Some(self.work_budget),
             generation: self.generation,
         };
         self.active = Some(ActiveTurn {
@@ -1635,6 +1656,8 @@ impl AiState {
             partial: String::new(),
             tool: None,
             stopping: false,
+            budget_progress: None,
+            time_limit_reached: false,
         });
         self.notice = "Answer requested; provisional until local finalization.".into();
         Some(request)
@@ -1709,6 +1732,7 @@ impl AiState {
         self.generation = self.generation.wrapping_add(1);
         self.conversation = conversation;
         self.turns.clear();
+        self.run_budgets.clear();
         conversation.map(|id| {
             self.command(
                 Pending::Turns {
@@ -1801,20 +1825,60 @@ impl AiState {
                 let display = self.display_active().is_some();
                 let analysis = active.request.inbox().map(|request| request.id);
                 match event {
+                    ChatEvent::BudgetProgress {
+                        budget,
+                        model_turns,
+                        tool_rounds,
+                        ..
+                    } => {
+                        let active = self.active.as_mut().unwrap();
+                        let monotonic = active.budget_progress.is_none_or(|(models, rounds)| {
+                            model_turns >= models && tool_rounds >= rounds
+                        });
+                        if active.request.budget() == Some(budget)
+                            && !active.time_limit_reached
+                            && model_turns <= budget.max_tool_rounds + 1
+                            && tool_rounds <= budget.max_tool_rounds
+                            && monotonic
+                        {
+                            active.budget_progress = Some((model_turns, tool_rounds));
+                        }
+                        return self.stop_controls();
+                    }
+                    ChatEvent::BudgetStopping { .. } => {
+                        let active = self.active.as_mut().unwrap();
+                        active.stopping = true;
+                        active.time_limit_reached = true;
+                        self.notice = "Time limit reached; stopping and finalizing".into();
+                        return self.stop_controls();
+                    }
                     ChatEvent::Text { text, .. } => {
-                        self.active.as_mut().unwrap().partial.push_str(&text);
+                        let active = self.active.as_mut().unwrap();
+                        if !active.time_limit_reached {
+                            active.partial.push_str(&text);
+                        }
                         return self.stop_controls();
                     }
                     ChatEvent::ToolStarted { name, .. } => {
-                        self.active.as_mut().unwrap().tool = Some(name);
+                        let active = self.active.as_mut().unwrap();
+                        if !active.time_limit_reached {
+                            active.tool = Some(name);
+                        }
                         return self.stop_controls();
                     }
                     ChatEvent::Finished { turn, .. } => {
+                        let timed_out = turn.error_code.as_deref() == Some("time_limit_reached");
                         if display {
                             self.conversation = Some(turn.conversation_id);
+                            let turn_id = turn.id;
                             self.upsert_turn(turn);
+                            commands.push(self.request_run_budget(turn_id));
                         }
-                        self.notice = "Turn finalized locally. Stop does not prove upstream cancellation or no billing.".into();
+                        self.notice = if timed_out {
+                            "Time limit reached; turn finalized locally."
+                        } else {
+                            "Turn finalized locally. Stop does not prove upstream cancellation or no billing."
+                        }.into();
                         commands
                             .push(self.command(Pending::Conversations, AppCommand::Conversations));
                     }
@@ -1822,7 +1886,9 @@ impl AiState {
                         self.notice =
                             "This turn is already recorded Running; it was not resubmitted.".into();
                         if display {
+                            let turn_id = turn.id;
                             self.upsert_turn(turn);
+                            commands.push(self.request_run_budget(turn_id));
                         }
                     }
                     ChatEvent::Rejected { error, .. } => {
@@ -2589,6 +2655,18 @@ impl AiState {
                     for turn in terminal {
                         self.upsert_turn(turn);
                     }
+                    let ids: Vec<_> = self.turns.iter().map(|turn| turn.id).collect();
+                    for turn in ids {
+                        commands.push(self.request_run_budget(turn));
+                    }
+                }
+            }
+            AppEvent::RunBudget { id: turn, budget } => {
+                if matches!(pending, Some(Pending::RunBudget { turn: expected, generation })
+                    if expected == turn && generation == self.generation)
+                    && self.turns.iter().any(|value| value.id == turn)
+                {
+                    self.run_budgets.insert(turn, budget);
                 }
             }
             AppEvent::Turn(_) | AppEvent::EditRecovered => {}
@@ -2634,7 +2712,14 @@ impl AiState {
                 }
             }
             AppEvent::Failed(error) => {
+                if let Some(Pending::RunBudget { turn, generation }) = &pending
+                    && *generation == self.generation
+                    && self.turns.iter().any(|value| value.id == *turn)
+                {
+                    self.run_budgets.insert(*turn, None);
+                }
                 let stale_read = match &pending {
+                    Some(Pending::RunBudget { generation, .. }) => *generation != self.generation,
                     Some(Pending::Notes {
                         scope,
                         generation,
@@ -3788,6 +3873,7 @@ mod tests {
             question: "q".into(),
             selection: selection(),
             effort: None,
+            budget: None,
             generation: 0,
         };
         state.apply(

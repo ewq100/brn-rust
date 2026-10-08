@@ -23,7 +23,7 @@ recovery. Vault files own saved Markdown; disposable retrieval indexes live outs
 
 ## Database ownership and recovery
 
-WorkStore uses application ID `BRN2`, schema V16, and retains `brn.owner.lock`
+WorkStore uses application ID `BRN2`, schema V17, and retains `brn.owner.lock`
 for its lifetime. Current settings, text-only conversations and unfinished work
 are preserved by additive migrations. Earlier WorkStore V1 unsaved-edit rows
 remain available; matching text moves atomically into the generation-aware
@@ -41,6 +41,30 @@ its database/sidecar markers before opening SQLite, under the owner lock.
 Advisory classification also detects current database/sidecar/backup markers and
 mixed folders, including dangling symlinks. Existing legacy folders, backups and
 vaults remain untouched.
+
+## Immutable AI work budgets
+
+[WorkBudget](src/work/run_budget.rs) stores per-run tool-round and time ceilings
+in the same database, independently of canonical chat, Inbox captures and approval
+or recovery envelopes. Its closed JSON requires `max_tool_rounds` (1–32) and
+`timeout_seconds` (1–3600); fresh omitted choices resolve to 8 rounds / 300 seconds.
+Store validates and records limits; the application owns execution and cancellation.
+
+WorkStore and ChatStore expose read-only `run_budget` and `resolve_run_budget`.
+Recorded choices survive omitted or identical retries; changed explicit choices
+conflict. Historical turns, reservations and imported archives without metadata
+return unavailable limits and reject explicit replacement limits. Resolution never
+creates a row. Atomic `begin_turn_with_effort_and_budget` and
+`reserve_inbox_action_with_budget` commit a fresh run and its limits together.
+Legacy admission APIs retain their prior unbudgeted behavior.
+
+V17 is additive and does not rewrite old canonical bytes or hashes. The checked
+side table has no evidence foreign keys; rows remain operational history after
+evidence cleanup and prevent reusing a retired run UUID. Database backups retain
+them. Imported recovery envelopes do not invent missing limits or authorize new
+inference. Readable schema, UUID or bound damage refuses startup before a new
+backup or an older-database restore. Chat's persisted safe failure categories
+include `time_limit_reached`.
 
 ## Exact editor work and Save journals
 

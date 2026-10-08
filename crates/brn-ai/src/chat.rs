@@ -15,7 +15,7 @@ use rig::message::AssistantContent;
 use rig::streaming::{Item, StreamEvent};
 use std::sync::{
     Arc, Mutex,
-    atomic::{AtomicBool, Ordering},
+    atomic::{AtomicBool, AtomicU16, Ordering},
 };
 use tokio_util::sync::CancellationToken;
 
@@ -45,6 +45,8 @@ enum RunMode {
     AnswerWithEffort {
         responses: bool,
         effort: ReasoningEffort,
+        max_tool_rounds: u16,
+        progress: bool,
     },
     Rewrite {
         responses: bool,
@@ -61,7 +63,15 @@ pub struct HistoryPair {
 #[derive(Clone, Debug)]
 pub enum AiEvent {
     Text(String),
-    ToolStarted { name: String },
+    ToolStarted {
+        name: String,
+    },
+    /// Completed model responses and admitted tool rounds, never individual tools.
+    BudgetProgress {
+        model_turns: u16,
+        tool_rounds: u16,
+        max_tool_rounds: u16,
+    },
 }
 
 #[derive(Clone, Debug)]
@@ -80,6 +90,9 @@ pub struct AiAnswer {
 struct RoundHook {
     rounds: Mutex<ToolRounds>,
     limited: Arc<AtomicBool>,
+    model_turns: AtomicU16,
+    limit: u16,
+    progress: Option<Arc<dyn Fn(AiEvent) + Send + Sync>>,
 }
 
 impl AgentHook for RoundHook {
@@ -92,13 +105,20 @@ impl AgentHook for RoundHook {
             .content
             .iter()
             .any(|c| matches!(c, AssistantContent::ToolCall(_)));
-        if self
-            .rounds
-            .lock()
-            .expect("run-owned budget")
-            .admit(contains_tools)
-            .is_err()
-        {
+        let (refused, used) = {
+            let mut rounds = self.rounds.lock().expect("run-owned budget");
+            (rounds.admit(contains_tools).is_err(), rounds.used())
+        };
+        // Rig bounds this hook to at most 33 completed responses per run.
+        let completed = self.model_turns.fetch_add(1, Ordering::SeqCst) + 1;
+        if let Some(emit) = &self.progress {
+            emit(AiEvent::BudgetProgress {
+                model_turns: completed,
+                tool_rounds: used,
+                max_tool_rounds: self.limit,
+            });
+        }
+        if refused {
             self.limited.store(true, Ordering::SeqCst);
             return ModelTurnAction::Stop("tool-round budget exhausted".into());
         }
@@ -162,6 +182,8 @@ pub async fn answer_with_effort(
         cancel,
         emit,
         &[],
+        8,
+        false,
     )
     .await
 }
@@ -177,13 +199,23 @@ async fn answer_with_tools(
     cancel: CancellationToken,
     emit: Arc<dyn Fn(AiEvent) + Send + Sync>,
     images: &[crate::VisualImage],
+    max_tool_rounds: u16,
+    progress: bool,
 ) -> AiAnswer {
+    if !(1..=32).contains(&max_tool_rounds) {
+        return AiAnswer {
+            text: String::new(),
+            terminal: AiTerminal::Failed(AiError::new(AiErrorKind::ToolRejected)),
+        };
+    }
     let selection = client.selection();
     let model = selection.model.clone();
     let mode = RunMode::AnswerWithEffort {
         responses: selection.provider == Provider::Chatgpt
             || rig::providers::copilot::wire::routes_through_responses(&model),
         effort,
+        max_tool_rounds,
+        progress,
     };
     match client.inner {
         OwnedClient::Chatgpt(client) => {
@@ -239,6 +271,8 @@ pub async fn answer_with_proposals(
         cancel,
         emit,
         &[],
+        8,
+        false,
     )
     .await
 }
@@ -267,6 +301,39 @@ pub async fn answer_with_proposals_and_images(
         cancel,
         emit,
         images,
+        8,
+        false,
+    )
+    .await
+}
+
+/// Investigation through the same Rig lane with a captured tool-round ceiling.
+/// Workflow owns time limits, durable metadata and the shared cancellation token.
+#[allow(clippy::too_many_arguments)]
+pub async fn answer_with_proposals_and_images_with_limit(
+    client: ProviderClient,
+    question: &str,
+    history: &[HistoryPair],
+    effort: ReasoningEffort,
+    tools: Arc<dyn ReadTools>,
+    proposals: Arc<dyn crate::ProposalTools>,
+    images: &[crate::VisualImage],
+    max_tool_rounds: u16,
+    cancel: CancellationToken,
+    emit: Arc<dyn Fn(AiEvent) + Send + Sync>,
+) -> AiAnswer {
+    answer_with_tools(
+        client,
+        question,
+        history,
+        effort,
+        tools,
+        Some(proposals),
+        cancel,
+        emit,
+        images,
+        max_tool_rounds,
+        true,
     )
     .await
 }
@@ -410,6 +477,23 @@ async fn run_model_images(
         crate::behavior::AgentBehavior::Ask
     };
     let preamble = behavior.preamble();
+    let (max_tool_rounds, progress) = match mode {
+        RunMode::AnswerWithEffort {
+            max_tool_rounds,
+            progress,
+            ..
+        } => (max_tool_rounds, progress),
+        _ => (8, false),
+    };
+    let rounds = match ToolRounds::new(max_tool_rounds) {
+        Ok(rounds) => rounds,
+        Err(error) => {
+            return AiAnswer {
+                text: String::new(),
+                terminal: AiTerminal::Failed(error),
+            };
+        }
+    };
     let mut builder = rig::AgentBuilder::new(model)
         .preamble(&preamble)
         .tool(SearchNotes(tools.clone()))
@@ -420,8 +504,11 @@ async fn run_model_images(
         .tool(ListActions(tools.clone()))
         .tool(ReadConflicts(tools))
         .add_hook(RoundHook {
-            rounds: Mutex::new(ToolRounds::default()),
+            rounds: Mutex::new(rounds),
             limited: limited.clone(),
+            model_turns: AtomicU16::new(0),
+            limit: max_tool_rounds,
+            progress: progress.then(|| emit.clone()),
         });
     if behavior.actions()
         && let Some(proposals) = proposals
@@ -433,7 +520,9 @@ async fn run_model_images(
         }
         builder = builder.tool(crate::proposal_tools::ProposeActions(proposals));
     }
-    if let RunMode::AnswerWithEffort { responses, effort }
+    if let RunMode::AnswerWithEffort {
+        responses, effort, ..
+    }
     | RunMode::Rewrite { responses, effort } = mode
     {
         builder = builder.additional_params(if responses {
@@ -457,7 +546,7 @@ async fn run_model_images(
     let stream = agent
         .prompt(input)
         .history(history)
-        .max_turns(9)
+        .max_turns(usize::from(max_tool_rounds) + 1)
         .max_invalid_tool_call_retries(0)
         .tool_concurrency(2)
         .stream();

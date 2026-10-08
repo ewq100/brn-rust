@@ -24,6 +24,7 @@ impl CliError {
                 ErrorKind::ModelRefused => "AI_MODEL_REFUSED",
                 ErrorKind::InvalidToolUse => "AI_INVALID_TOOL_USE",
                 ErrorKind::ToolLimitReached => "AI_TOOL_LIMIT_REACHED",
+                ErrorKind::TimeLimitReached => "AI_TIME_LIMIT_REACHED",
                 ErrorKind::UnsafeCredentials => "AI_UNSAFE_CREDENTIALS",
                 ErrorKind::AiStorage => "AI_STORAGE_ERROR",
                 ErrorKind::AiIndexStale => "AI_INDEX_STALE",
@@ -68,7 +69,7 @@ impl CliError {
     pub fn exit_code(&self) -> u8 {
         match self {
             Self::Usage(_) => 2,
-            Self::Timeout(_) => 124,
+            Self::Timeout(_) | Self::Typed(ErrorKind::TimeLimitReached, _) => 124,
             Self::Interrupted(_) | Self::Typed(ErrorKind::Cancelled, _) => 130,
             _ => 1,
         }

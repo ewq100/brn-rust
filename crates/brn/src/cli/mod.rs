@@ -69,6 +69,7 @@ pub enum Command {
         scope: KnowledgeScope,
     },
     Ask {
+        budget: Option<brn_workflow::WorkBudget>,
         question: String,
         session: Option<Uuid>,
         operation: Option<Uuid>,
@@ -215,6 +216,9 @@ Commands:
   brn status
   brn search QUERY [--profile keyword|semantic|hybrid] [--limit N] [--scope current|source|history|all]
   brn ask QUESTION [--session UUID] [--operation UUID] [--timeout-seconds N]
+      [--max-tool-rounds 1..32] [--work-timeout-seconds 1..3600]
+      Work defaults: 8 tool rounds/300 seconds; either flag fills the other default.
+      Outer --timeout-seconds is separate.
   brn conversations list
   brn conversations show SESSION_ID
 
@@ -494,6 +498,12 @@ pub(super) fn validate_library(command: &Command) -> Result<(), CliError> {
         .map_err(|error| usage(error.to_string()))
     };
     match command {
+        Command::Ask {
+            budget: Some(budget),
+            ..
+        } => budget
+            .validate()
+            .map_err(|_| usage("work budget must be 1..32 tool rounds and 1..3600 seconds"))?,
         Command::NotesList {
             folder,
             cursor,
@@ -519,6 +529,29 @@ pub(super) fn validate_library(command: &Command) -> Result<(), CliError> {
         _ => {}
     }
     Ok(())
+}
+
+fn parse_work_budget(scanned: &Scanned) -> Result<Option<brn_workflow::WorkBudget>, CliError> {
+    let rounds = scanned.value("max-tool-rounds");
+    let seconds = scanned.value("work-timeout-seconds");
+    if rounds.is_none() && seconds.is_none() {
+        return Ok(None);
+    }
+    let mut budget = brn_workflow::WorkBudget::default();
+    if let Some(raw) = rounds {
+        budget.max_tool_rounds = raw
+            .parse()
+            .map_err(|_| usage("max-tool-rounds must be 1..32"))?;
+    }
+    if let Some(raw) = seconds {
+        budget.timeout_seconds = raw
+            .parse()
+            .map_err(|_| usage("work-timeout-seconds must be 1..3600"))?;
+    }
+    budget
+        .validate()
+        .map_err(|_| usage("work budget must be 1..32 tool rounds and 1..3600 seconds"))?;
+    Ok(Some(budget))
 }
 
 fn parse_timeout(raw: &str) -> Result<u64, CliError> {
@@ -630,6 +663,8 @@ fn parse_inner(
                     ("session", true),
                     ("operation", true),
                     ("timeout-seconds", true),
+                    ("max-tool-rounds", true),
+                    ("work-timeout-seconds", true),
                 ],
             )?
         }
@@ -721,6 +756,7 @@ fn parse_inner(
         "ask" => {
             expect_positionals(&scanned, 1)?;
             Command::Ask {
+                budget: parse_work_budget(&scanned)?,
                 question: required_positional(&scanned, "ask QUESTION")?.to_owned(),
                 session: scanned.uuid("session")?,
                 operation: scanned.uuid("operation")?,
