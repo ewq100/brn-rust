@@ -314,3 +314,43 @@ fn source_materialization_refuses_ambiguous_text_correspondence() {
             .contains("ambiguous")
     );
 }
+
+#[test]
+fn retained_old_email_caveat_and_partial_snapshot_remain_exact_and_readable() {
+    // This synthetic historical snapshot is independent of the current helper.
+    // Reading it must neither rerun conversion nor replace its old diagnostic.
+    const OLD_GAP: &str = "source-0: authentication and absent message/thread identifiers remain unknown; HTML is inert quoted source, remote resources unavailable";
+    let bytes = b"Message-ID: <historical@archive.example.test>\r\nContent-Type: text/plain\r\n\r\nExact retained wording.\r\n".to_vec();
+    let text = "\nMessage-ID\n\n```\nhistorical@archive.example.test\n```\n\nActual plain-text body\n\n```\nExact retained wording.\r\n```\n".to_owned();
+    let historical = Extraction {
+        limits: Default::default(),
+        consumed: None,
+        schema: 1,
+        converter: "brn-intake-v1/betteroffice-0.3.0/mail-parser-0.11.8".into(),
+        original_sha256: digest(&bytes),
+        markdown: text.clone(),
+        sources: vec![SourceNode {
+            id: "source-0".into(),
+            parent: None,
+            name: "original.eml".into(),
+            media_type: "message/rfc822".into(),
+            locator: "original".into(),
+            status: "partial".into(),
+            bytes,
+            text,
+        }],
+        assets: vec![],
+        occurrences: vec![],
+        gaps: vec![OLD_GAP.into()],
+    };
+    let stored_bytes = serde_json::to_vec(&historical).unwrap();
+    let stored_hash = digest(&stored_bytes);
+    let decoded: Extraction = serde_json::from_slice(&stored_bytes).unwrap();
+    decoded.validate().unwrap();
+    assert_eq!(decoded, historical);
+    assert_eq!(decoded.gaps, vec![OLD_GAP]);
+    assert_eq!(decoded.sources[0].status, "partial");
+    let read_back = serde_json::to_vec(&decoded).unwrap();
+    assert_eq!(read_back, stored_bytes);
+    assert_eq!(digest(&read_back), stored_hash);
+}
