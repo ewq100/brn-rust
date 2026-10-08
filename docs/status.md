@@ -32,7 +32,7 @@ resulting-main checks are active. An independently reviewed Action-only replacem
 compensation candidate is undergoing final composition checks with backups,
 preserving exact before/after and refusing changed/completed work, creation and
 mixed file/Action Undo. Same-folder new-note destination rename is the next
-selected bounded P3 slice; production implementation has not started.
+selected bounded P3 slice; implementation is underway with private original-path replay evidence and native/CLI review.
 
 The [overnight checkpoint](work/active/overnight-continuation/plan.md) owns exact
 branches, builds, verification and continuation. Fourteen of sixteen authorized live investigations are used, seven Luna/seven Sol,
