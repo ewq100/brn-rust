@@ -245,7 +245,7 @@ fn legacy_turn_replay_and_v16_upgrade_never_invent_a_budget() {
     let before = serde_json::to_vec(&turn).unwrap();
     drop(store);
     raw(data.path())
-        .execute_batch("DROP TABLE ai_run_budgets; PRAGMA user_version=16;")
+        .execute_batch("DROP TABLE conversation_lifecycle_operations; DROP TABLE conversation_lifecycle; DROP TABLE ai_run_budgets; PRAGMA user_version=16;")
         .unwrap();
     let (store, _) = WorkStore::open(data.path()).unwrap();
     let mut chat = store.chat_connection().unwrap();
@@ -355,6 +355,8 @@ fn retained_metadata_is_inspectable_but_cannot_recreate_a_deleted_run() {
         .unwrap();
     let conn = raw(data.path());
     conn.execute("DELETE FROM messages WHERE turn_id=?1", [id.to_string()])
+        .unwrap();
+    conn.execute("DELETE FROM conversation_lifecycle", [])
         .unwrap();
     conn.execute("DELETE FROM conversations", []).unwrap();
     assert_eq!(

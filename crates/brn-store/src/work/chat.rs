@@ -496,6 +496,7 @@ fn begin_in_transaction(
     validate_selection(provider, model)?;
     validate_effort(effort)?;
     let (conversation_id, started_at_ms) = if let Some(c) = conversation {
+        super::conversations::require_active(tx, c)?;
         let known = require_conversation(tx, c)?;
         (c, capture_time(clock_floor(tx, c, &known)?)?)
     } else {
@@ -505,6 +506,7 @@ fn begin_in_transaction(
             "INSERT INTO conversations(id, title, created_at_ms,last_activity_at_ms) VALUES (?1, '', ?2,?2)",
             params![c.to_string(), sql_timestamp(created)?],
         )?;
+        super::conversations::insert_active(tx, c)?;
         (c, created)
     };
     let sequence: i64 = tx.query_row(
@@ -694,29 +696,9 @@ impl WorkStore {
 
     pub fn conversations(&self) -> Result<Vec<WorkConversation>> {
         let tx = self.conn.unchecked_transaction()?;
-        let rows = {
-            let mut statement =
-                tx.prepare("SELECT id, title FROM conversations ORDER BY created_at_ms, id")?;
-            statement
-                .query_map([], |r| Ok((r.get::<_, String>(0)?, r.get::<_, String>(1)?)))?
-                .collect::<rusqlite::Result<Vec<_>>>()?
-        };
-        let conversations = rows
-            .into_iter()
-            .map(|(id, title)| {
-                let id = parse_id(id)?;
-                let timestamps = require_conversation(&tx, id)?;
-                Ok(WorkConversation {
-                    id,
-                    title,
-                    turns: turns(&tx, id)?.len(),
-                    created_at_ms: timestamps.created,
-                    last_activity_at_ms: timestamps.last_activity,
-                })
-            })
-            .collect::<Result<_>>()?;
+        let values = conversations(&tx)?;
         tx.commit()?;
-        Ok(conversations)
+        Ok(values)
     }
 
     pub fn turns(&self, conversation: Uuid) -> Result<Vec<WorkTurn>> {
@@ -763,4 +745,29 @@ impl WorkStore {
     ) -> Result<WorkTurn> {
         finish_turn(&mut self.conn, id, status, answer, error_code)
     }
+}
+
+pub(super) fn conversations(conn: &Connection) -> Result<Vec<WorkConversation>> {
+    let rows = {
+        let mut statement =
+            conn.prepare("SELECT id, title FROM conversations ORDER BY created_at_ms, id")?;
+        statement
+            .query_map([], |r| Ok((r.get::<_, String>(0)?, r.get::<_, String>(1)?)))?
+            .collect::<rusqlite::Result<Vec<_>>>()?
+    };
+    let conversations = rows
+        .into_iter()
+        .map(|(id, title)| {
+            let id = parse_id(id)?;
+            let timestamps = require_conversation(conn, id)?;
+            Ok(WorkConversation {
+                id,
+                title,
+                turns: turns(conn, id)?.len(),
+                created_at_ms: timestamps.created,
+                last_activity_at_ms: timestamps.last_activity,
+            })
+        })
+        .collect::<Result<_>>()?;
+    Ok(conversations)
 }

@@ -2,7 +2,7 @@
 
 ## Overnight implementation and model qualification — 2026-10-08
 
-Current main is `deca5d5ea3f6decbfb6ae2288db3934d4de694c4`.
+Current main is `441120ce7f6ee47de3e4fa0f784355e2fc0b3257`.
 [PR90](https://github.com/ewq100/brn-rust/pull/90) added exact evidence ranges and
 intake guidance; [PR91](https://github.com/ewq100/brn-rust/pull/91) added recorded
 work budgets/cancellation; [PR92](https://github.com/ewq100/brn-rust/pull/92) added
@@ -16,15 +16,16 @@ Windows/Linux failures remain visible; no protection bypass or platform port.
 Finding lineage and merged after all required checks; [PR95](https://github.com/ewq100/brn-rust/pull/95) clarifies useful
 follow-up drafts under unresolved execution authority. Both merged after independent review and required candidate checks. PR94
 post-merge checks passed; PR95 post-merge checks passed.
-[PR96](https://github.com/ewq100/brn-rust/pull/96) merged the accurate MIME caveat
-and complete ordered decoded thread identifiers after independent review and all
-required candidate checks; post-merge checks pending, old snapshots unchanged.
-Manual reversible session Archive/Restore is independently reviewed and locally
-qualified in [PR97](https://github.com/ewq100/brn-rust/pull/97), with final combined
-MIME/shipping qualification and required CI pending. Automatic archival, Delete
-and preferences stay separate. The next selected slice is
-[partial attributed PPTX intake](work/active/overnight-continuation/pptx-partial-intake.md),
-using the evaluated maintained parser; implementation is underway.
+[PR96](https://github.com/ewq100/brn-rust/pull/96) merged accurate MIME caveats
+and complete ordered decoded identifiers; all required candidate/post-merge checks
+and docs passed. Old snapshots unchanged. [PR97](https://github.com/ewq100/brn-rust/pull/97)
+merged manual reversible session Archive/Restore after full independent review,
+local qualification and all required CI; post-merge pending. Automatic archival,
+Delete/preferences stay separate. The selected
+[partial attributed PPTX slice](work/active/overnight-continuation/pptx-partial-intake.md)
+is implemented and independently reviewed clean after two valid P2 fixes; focused
+intake/workflow/CLI/native checks and real retained CLI cases passed, final combined
+gates/CI/integration pending.
 
 The [overnight checkpoint](work/active/overnight-continuation/plan.md) owns exact
 branches, builds, verification and continuation. Twelve of sixteen authorized live investigations are used, six Luna/six Sol,

@@ -43,6 +43,7 @@ fn window(
             ai.ready = true;
             ai.vault_bound = true;
             ai.review = Some(ProposalReview::new(record.clone()));
+            crate::ai::session_state_tests::acknowledge_legacy_review(ai);
             this.open_doc = Some(DocRef::Proposal(record.draft.id));
             this.centre_tab = CentreTab::Document;
             this.sync_review_widgets(window, cx);

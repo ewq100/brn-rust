@@ -77,64 +77,65 @@ requires exact final-candidate review, applicable local checks and actual requir
 CI. No weakening, bypass or rushed merge. Record failures and repair real defects.
 Known informational platform failures remain visible and separate.
 
-## Durable checkpoint — 8 October 21:52 UTC
+## Durable checkpoint — 8 October22:03UTC
 
-Main deca5d5ea3f6decbfb6ae2288db3934d4de694c4 includes normal protected PR90–96,
-all required candidate checks/docs passed. PR90–95 post-merge required checks/docs
-passed; PR96 post-merge37848490327 has three required checks/docs passed and Mac
-core pending. Known Windows/Linux informational failures remain visible/unchanged.
-
-Session PR97 final head8b405825b9cad595c2431b982f71e1f50fd4b653 includes reviewed
-session code a18806b and merged PR96 at babc013. Complete independent review
-patch5a7c44038cd871ee95359a9a2217c504e52f8213033fe3fe82f123f8a6576142;
-merge-delta review clean c8e390ddeff6110f124bc51c5071a5642bdfc7c0b153b36af20bfc6bf5904e7e.
-Final locals1724default/17 existing ignores (including reused unchanged Store461),
-423native workflow/models/15 existing ignores,547combined desktop/CLI, doctests,
-Clippy/shipping/52fixtures passed. Combined MIME helper all tests/Clippy,
-29affected Inbox processing/1existing ignore,shipping/52fixtures passed.
-Immutable qualified final combined runtime:
+Main441120ce7f6ee47de3e4fa0f784355e2fc0b3257 includes normal protected PR90–97.
+PR90–96 required candidate/post-merge checks/docs all passed. PR97 all required
+candidate checks/docs passed37849061646; merge tree equals8b40582, post-merge
+pending. Actual Windows log remains unchanged Unix MetadataExt/nlink limitation.
+Session code a18806b and merged MIME combined babc013 passed full independent
+review/final1724default/17existing ignores,423native/15,547desktopCLI,doctests,
+Clippy/shipping/52fixtures. Exact combined runtime/manifest remains in
 `/Users/evokessler/repos/brn-overnight-artifacts-20261008/session-combined-runtime`.
-CLI SHA9ce0aae76f208f16db70f2e2ba48df3791e2b44bc61fc80db33bb7a0a827f421;
-build source babc01335869e619cc1e65036984f170eb25551d, exact manifest present.
-No local Cargo remains in session checkout. Required final CI37849061646 has
-Ubuntu/core,Mac native UI/docs passed, Mac core/combined pending. Next: inspect
-actual final checks, protected merge exact head when eligible, verify main.
+No GUI or personal acceptance. No active Cargo in session checkout.
 
-Lead checkout `/Users/evokessler/repos/brn-p2-email-docx-intake`, branch
-codex/p5-pptx-partial-intake, accepted [PPTX plan](pptx-partial-intake.md)21e3631.
-Task-owned adapter/native/workflow/CLI tests/docs dirty. One helper pptx_readiness
-owns intake/dependency/lock/tests and sole Cargo slot; eight PPTX tests and first
-full intake suite passed, final omission/process/README/Clippy/build ongoing.
-Root lock adds exactly one cached checksum-validated package0.3.0, no download.
-A single-part root attachment attribution failure was reproduced and fixed for
-PPTX and DOCX, retained red/green logs. Range helper owns only workflow PPTX tests
-and cfg module declaration; three parent/one ignored child written, waiting for
-Cargo. Lead owns native/CLI/shared docs. No concurrent Cargo, recursive delegation
-or more than two active helpers. After intake release grant range slot, then lead
-qualifies CLI/native/shipping/actual retained case and complete independent review.
+Lead `/Users/evokessler/repos/brn-p2-email-docx-intake`, branch
+codex/p5-pptx-partial-intake, code3055ed7; merging main441120c now. Three docs
+conflicts retain newer lead checkpoint/UI/campaign/PPTX records, updated with
+actual Session merge. Production merge is automatic. Final independent PPTX
+review clean at full binary patch2b12fbbc60e82f92f6552d902569107bcab08ea9afc27bae6c428b4311b1e8bc,
+after two reproduced/fixed P2 defects: canonical validated type for generic-MIME
+attachments; refuse ambiguous consumed root/notes/layout/master singleton joins.
+Final intake41tests,Clippy/helperbuild;workflow3parents+actualisolatedchild,
+CLI1focused,native2inspectionpolicy checks and native workflowClippy passed.
+Helper SHA7f058c359a092559cda55b07c3880b44e637257818ad60c725da8b1d99a9f8e5.
+All helpers currently done, no Cargo active. Next: finish merge, verify PPTX
+production files unchanged, run final default/native/shipping/fixtures with reused
+unchanged Store461, preserve exact combined runtime, required CI and integration.
 
-Shared canonical ledger `/private/tmp/brn-overnight-20261008/campaign-ledger.json`:
-12/16 used, Luna6/Sol6; four remain, max two per exact Medium condition. Every new
-call reserved before invocation,180second cancellation/eight rounds/nine responses,
-failures/retries count, no automatic retry/substitution. No provider active.
-Counted owner-comment Rewrite bf69c221-b62f-4437-9128-9a21f959bdc3 completed
-in11.318seconds; North Quay knowledge f1700e6e-1051-8a95-997a-e60075d74312 now
-Draft/version4. Open-decision-first revision preserves owner note/comments,
-protected frontmatter and all evidence/full physical identities. Initial receipt
-harness queried nonexistent change.id after success; finished from saved outputs
-with correct protected identity checks, no new inference. Receipts under North
-Quay owner-comment-rewrite. Sol comparisons remain Draft, no duplicate approvals.
-Linden four selected Sol consequences already Applied with Action-first restart/
-exact replay/no inference and unchanged evidence; Finding Open. Preserve Harbor,
-North Quay,Cedar,Linden,E bound folders in place; never rerun campaigns or relocate
-state/vaults. Last account-wide weekly50% consumed/50%remaining; short-window,
-provider HTTP/token/internal-turn/spend unknown. No reset/purchase/account change.
+Actual CLI retained PPTX workspace
+`/private/tmp/brn-overnight-20261008/pptx-retained-case`: Harbor and twin Sources
+Draft; Quay Source/two exact assets Applied with restart/exact replay and unchanged
+Original/installed identities. One twin declares generic MIME. Zero inference.
+Initial harness used unsupported approve --file; resumed existing Draft using
+explicit UUID/review-version/operation, no re-import/reconversion/reset/inference.
+Ready IDs/proofs all retained. Immutable CLI/helper used for this qualification
+`/Users/evokessler/repos/brn-overnight-artifacts-20261008/pptx-candidate-cli`, CLI
+SHA1d2dc5d... excludes Session schema18; never use it after newer schema migration.
 
-The [single morning task](morning-ui-acceptance.md) owns final build/data/prompt
-and all expected interactive checks, now including retained revision/session/MIME
-and pending PPTX. No GUI observed or personal acceptance. Continue small useful
-V1 slices to08:00Tallinn; from07:30final qualification/integration/handoff.
-No GUI/private data/credentials/model download/port/release/unrelated operation.
+Ledger `/private/tmp/brn-overnight-20261008/campaign-ledger.json`:12/16 used,
+Luna6/Sol6, four remain max2each, exact Medium only. Reserve first,180seconds/
+eight rounds/nine responses, failures/retries count, no automatic retry/substitution.
+No provider active. Owner-comment Rewrite bf69c221... completed11.318seconds;
+North Quay Luna knowledge f1700e6e... Draft/version4 preserves owner note/comments,
+frontmatter and all Source/Original identities; initial post-run harness error
+finished from saved outputs without inference. Linden four selected Sol effects
+Applied with Action-first replay, Finding Open; comparisons Draft. Preserve all
+bound synthetic folders in place; do not rerun campaigns or relocate state/vaults.
+Last account-wide weekly50% consumed/50%remaining, other telemetry unknown.
+
+P7 readiness inspection found automatic changed-state online checkpoints through
+existing AppWorker/SQLite ready independently; no implementation selected yet.
+Reuse pinned Backup::step and own total_changes + same-conn data_version for attached
+ChatStore; atomic checked temp publication/prune, pre-copy dirty token, separate
+backup warnings never convert committed mutations into failed/retryable operations.
+Small fixed spec required before code. Existing five newest retention remains,
+more frequent backups shorten its time window; destructive Restore stays excluded.
+
+[Single morning task](morning-ui-acceptance.md) owns all expected UI controls,
+exact final build/data/launch prompt; final PPTX build refresh pending. Continue
+small useful V1 slices to08:00Tallinn, final gates/handoff from07:30. No GUI/private
+data/credentials/model downloads/ports/releases/account changes/unrelated work.
 
 Earlier milestone entries below are historical receipts; this checkpoint and the
 local campaign ledger govern continuation.

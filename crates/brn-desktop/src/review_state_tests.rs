@@ -336,6 +336,7 @@ fn failed_old_refresh_cannot_poison_the_newer_review() {
 fn action_rewrite_full_refresh_preserves_later_invalid_raw_fields_and_immutable_capture() {
     let record = crate::review::action_tests::fixture();
     let mut state = ready(); state.review = Some(crate::review::ProposalReview::new(record.clone()));
+    crate::ai::session_state_tests::acknowledge_legacy_review(&mut state);
     state.vault_bound = false; assert!(state.start_rewrite().is_none()); state.vault_bound = true;
     let (id,AppCommand::StartProposalRewrite(request)) = state.start_rewrite().unwrap() else { panic!("Action Rewrite") };
     assert_eq!(request.expected,record.stamp());
@@ -365,6 +366,7 @@ fn actual_canonical_rewrite_job_keys_are_accepted_but_each_misbound_reply_stays_
     for provider in [Provider::Chatgpt,Provider::Copilot] {
         let mut state = ready(); state.selection.as_mut().unwrap().provider = provider;
         state.review = Some(crate::review::ProposalReview::new(crate::review::action_tests::fixture()));
+        crate::ai::session_state_tests::acknowledge_legacy_review(&mut state);
         let (id,AppCommand::StartProposalRewrite(request)) = state.start_rewrite().unwrap() else { panic!("Rewrite") };
         let actual = job(&request,RewriteStatus::Running);
         for case in 0..6 {

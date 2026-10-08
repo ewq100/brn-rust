@@ -123,6 +123,9 @@ fn command_name(command: &AppCommand) -> &'static str {
             ApproveProposalGroup,
             ProposalApply,
             Activity,
+            ConversationSummaries,
+            ConversationLifecycle,
+            SetConversationLifecycle,
             Turns,
             Turn,
             RunBudget,
@@ -223,6 +226,8 @@ fn event_name(event: &AppEvent) -> &'static str {
             Activity,
             Search,
             Conversations,
+            ConversationLifecycle,
+            ConversationLifecycleChanged,
             Turns,
             Turn,
             Chat,
@@ -232,6 +237,7 @@ fn event_name(event: &AppEvent) -> &'static str {
             Failed
         ],
         [
+            ConversationSummaries,
             Ready,
             Restored,
             InboxOriginalRemoval,

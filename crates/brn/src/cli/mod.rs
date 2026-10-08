@@ -4,6 +4,7 @@
 pub mod actions;
 pub mod activity;
 pub mod ai;
+mod conversations;
 pub mod editor;
 pub mod error;
 pub mod evidence;
@@ -75,7 +76,13 @@ pub enum Command {
         operation: Option<Uuid>,
         timeout_seconds: u64,
     },
-    ConversationsList,
+    ConversationsList {
+        state: brn_workflow::conversations::ConversationFilter,
+    },
+    ConversationsSetLifecycle {
+        target: brn_workflow::conversations::ConversationState,
+        file: PathBuf,
+    },
     ConversationsShow {
         session: Uuid,
     },
@@ -220,8 +227,10 @@ Commands:
       [--max-tool-rounds 1..32] [--work-timeout-seconds 1..3600]
       Work defaults: 8 tool rounds/300 seconds; either flag fills the other default.
       Outer --timeout-seconds is separate.
-  brn conversations list
+  brn conversations list [--state active|archived|all]
   brn conversations show SESSION_ID
+  brn conversations archive --file REQUEST.json
+  brn conversations restore --file REQUEST.json
 
 Exit codes: 0 success; 1 operational failure; 2 usage error; 124 deadline;
 130 interrupted. A completed operation whose stdout result cannot be
@@ -670,15 +679,23 @@ fn parse_inner(
             )?
         }
         "conversations" => {
-            let sub = sub_word(&mut tokens, "conversations", "list|show")?;
+            let sub = sub_word(&mut tokens, "conversations", "list|show|archive|restore")?;
             match sub.as_str() {
                 "list" => {
                     *command = Some("conversations.list");
-                    scan(&mut tokens, g, &[])?
+                    scan(&mut tokens, g, &[("state", true)])?
                 }
                 "show" => {
                     *command = Some("conversations.show");
                     scan(&mut tokens, g, &[])?
+                }
+                "archive" | "restore" => {
+                    *command = Some(if sub == "archive" {
+                        "conversations.archive"
+                    } else {
+                        "conversations.restore"
+                    });
+                    scan(&mut tokens, g, &[("file", true)])?
                 }
                 other => return Err(usage(format!("unknown conversations subcommand: {other}"))),
             }
@@ -771,12 +788,29 @@ fn parse_inner(
         "conversations" => match command.unwrap() {
             "conversations.list" => {
                 expect_positionals(&scanned, 0)?;
-                Command::ConversationsList
+                Command::ConversationsList {
+                    state: conversations::filter(scanned.value("state"))?,
+                }
             }
             "conversations.show" => {
                 expect_positionals(&scanned, 1)?;
                 Command::ConversationsShow {
                     session: positional_uuid(&scanned, 0, "SESSION_ID")?,
+                }
+            }
+            "conversations.archive" | "conversations.restore" => {
+                expect_positionals(&scanned, 0)?;
+                Command::ConversationsSetLifecycle {
+                    target: if *command == Some("conversations.archive") {
+                        brn_workflow::conversations::ConversationState::Archived
+                    } else {
+                        brn_workflow::conversations::ConversationState::Active
+                    },
+                    file: PathBuf::from(
+                        scanned
+                            .value("file")
+                            .ok_or_else(|| usage("missing --file"))?,
+                    ),
                 }
             }
             _ => unreachable!(),

@@ -5,6 +5,7 @@ pub mod action_completion;
 pub mod actions;
 mod backup;
 pub mod chat;
+pub mod conversations;
 pub mod editor;
 mod edits;
 pub mod findings;
@@ -92,6 +93,7 @@ const MIGRATIONS: &[&str] = &[
     inbox_original_operations::V15,
     intake::V16,
     run_budget::V17,
+    conversations::V18,
 ];
 
 #[derive(Debug, Clone, PartialEq, Eq)]
@@ -171,6 +173,7 @@ impl WorkStore {
         inbox_original_operations::check_all(&conn)?;
         intake::check_all(&conn)?;
         run_budget::check_all(&conn)?;
+        conversations::check_all(&conn)?;
         inbox_processing::reconcile(&mut conn)?;
         chat::reconcile(&mut conn)?;
         proposal_rewrite::reconcile(&mut conn)?;
@@ -299,6 +302,13 @@ fn check(db: &Path) -> Result<Checked> {
             inbox_original_operations::check_legacy(&conn)
         };
         match result {
+            Err(crate::Error::Sql(e)) if is_corruption(&e) => return Ok(Checked::Corrupt),
+            Err(error) => return Ok(Checked::Invalid(error)),
+            Ok(()) => {}
+        }
+    }
+    if application == APPLICATION_ID && (18..=MIGRATIONS.len() as i64).contains(&version) {
+        match conversations::check_all(&conn) {
             Err(crate::Error::Sql(e)) if is_corruption(&e) => return Ok(Checked::Corrupt),
             Err(error) => return Ok(Checked::Invalid(error)),
             Ok(()) => {}
