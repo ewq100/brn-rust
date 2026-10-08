@@ -2,7 +2,7 @@
 
 ## Overnight implementation and model qualification — 2026-10-08
 
-Current main is `b4e3a59a201b3e719df91278426d44388576959f`.
+Current main is `bd6947511ac9f5e445078e831d61ac3f5533fe06`.
 [PR90](https://github.com/ewq100/brn-rust/pull/90) added exact evidence ranges and
 intake guidance; [PR91](https://github.com/ewq100/brn-rust/pull/91) added recorded
 work budgets/cancellation; [PR92](https://github.com/ewq100/brn-rust/pull/92) added
@@ -14,17 +14,18 @@ Windows/Linux failures remain visible; no protection bypass or platform port.
 
 [PR94](https://github.com/ewq100/brn-rust/pull/94) enables exact Applied private-intake
 Finding lineage and merged after all required checks; [PR95](https://github.com/ewq100/brn-rust/pull/95) clarifies useful
-follow-up drafts under unresolved execution authority. Both are independently
-reviewed and locally qualified; PR94 post-merge checks and PR95 hosted integration
-are pending. The next selected
-independent V1 slice is manual reversible session Archive/Restore; automatic
-archival, Delete and preferences remain separate.
+follow-up drafts under unresolved execution authority. Both merged after independent review and required candidate checks. PR94
+post-merge checks passed; PR95 post-merge checks are pending. Manual reversible session Archive/Restore is implemented in the separate session
+candidate, with Store and new desktop checks passed; workflow/CLI/full review and
+final gates are pending. Automatic archival, Delete and preferences stay separate.
+A narrow deterministic MIME caveat repair is selected for demonstrated misleading
+identifier/HTML scope wording; old snapshots and partial status remain unchanged.
 
 The [overnight checkpoint](work/active/overnight-continuation/plan.md) owns exact
-branches, builds, verification and continuation. Eight of sixteen authorized live
-investigations are used, four per existing Medium model condition. Results include
+branches, builds, verification and continuation. Eleven of sixteen authorized live investigations are used, five Luna/six Sol,
+including one failed attempt and its separately counted manual retry. Results include
 improved retention of original budget/review date, North Quay conflict uncertainty
-and Cedar near-limit ranged evidence; usefulness limitations and unknown telemetry
+Cedar near-limit ranged evidence and useful Linden Applied-private-intake Findings; usefulness limitations and unknown telemetry
 remain explicit in the [live evidence record](work/active/overnight-continuation/live-model-evidence.md).
 Live History selection remains unqualified; retained outputs support approval
 without repeat inference. Full P3/P4 and personal acceptance remain pending.

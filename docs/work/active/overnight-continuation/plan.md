@@ -46,9 +46,9 @@ product limits. Preserve outputs and reuse them for approval/replay.
 Local receipts: `/private/tmp/brn-overnight-20261008`; script
 `paired-baseline.py` uses the same already-approved synthetic `plural.eml`
 Source/binding and exact executable for both models, without application between
-runs. Current ledger: eight investigations completed, four per condition. Eight remain
-authorized after the owner's amendment, allocated at most four additional per
-existing condition. Do not spend them to repeat approval/replay or answer questions
+runs. Current ledger: eleven investigations started, five Luna/six Sol, including one
+failed Sol attempt and a separately counted manual retry. Five remain authorized,
+at most three Luna/two Sol. Do not spend them to repeat approval/replay or answer questions
 that retained evidence and deterministic tests can resolve. Baseline, first-slice
 and North Quay pairs are retained in the local ledger. Every CLI call retains
 the 180-second deadline/nine responses/eight tool rounds and no automatic retry.
@@ -77,79 +77,67 @@ requires exact final-candidate review, applicable local checks and actual requir
 CI. No weakening, bypass or rushed merge. Record failures and repair real defects.
 Known informational platform failures remain visible and separate.
 
-## Durable checkpoint — 8 October 20:51 UTC
+## Durable checkpoint — 8 October 21:09 UTC
 
-Lead checkout `/Users/evokessler/repos/brn-p2-email-docx-intake`, branch
-`codex/p4-clarification-action-guidance`, HEAD `b61c33d`. PR95 contains generic
-clarification-draft guidance; its complete three-file implementation received one
-independent read-only review with no actionable findings. Precombine AI library passed
-146 tests with one existing ignore, all-target AI Clippy, shipping CLI/desktop,
-52 fixture assertions and 603 Markdown links passed. The original candidate hosted run was 37841332007; a fresh final run follows
-the integrated main/doc update. Immutable CLI and exact build hashes are recorded in
-`/private/tmp/brn-overnight-20261008/clarification-action-build-manifest.json`.
-Final combined AI passed 147 tests with one existing ignore; AI Clippy and shipping
-CLI/desktop passed. Combined immutable CLI/hash manifest is
-`/private/tmp/brn-overnight-20261008/clarification-action-combined-build-manifest.json`.
-No local Cargo or live provider process is active.
+Main `bd6947511ac9f5e445078e831d61ac3f5533fe06` includes PR90–PR95, all merged
+normally after exact candidate independent review and all four required checks
+plus documentation. PR90–PR94 required post-merge checks/docs passed. PR95
+post-merge run 37844389582 is pending; its merge tree equals final df2844a.
+Final combined AI 147 passed / one existing ignore, AI Clippy and shipping builds
+passed. Code build source b61c33d is retained in
+`/private/tmp/brn-overnight-20261008/clarification-action-combined-build-manifest.json`;
+CLI SHA-256 898ef333... . No interactive acceptance occurred.
 
-PR90–PR93 merged normally; all four required candidate and post-merge checks and
-documentation passed. PR93 merged at `9f02a28e170388dc41fbb6ad2ccd7fd98bed1e44`,
-identical tree to reviewed/qualified head df0cd6c, post-merge run 37840470419.
-It adds explicit exact predecessor attachment, preserving owner wording/comments,
-Source identity, original callback replay and revised-version approval. Full
-qualification: default 1694 passed / 17 existing ignores plus doctests;
-native workflow/models 418 passed / 15 existing ignores; desktop/CLI 535 passed;
-Clippy, shipping builds, 52 fixtures and 603 links passed. Interactive acceptance
-remains pending; no GUI observation occurred.
+Lead checkout `/Users/evokessler/repos/brn-p2-email-docx-intake` is now branch
+`codex/p2-email-evidence-caveats`, starting at merged bd69475. The selected
+[small MIME caveat repair](email-evidence-caveats.md) addresses a demonstrated
+unconditional wording ambiguity, without parser/schema/snapshot/completeness
+changes. Plan and this checkpoint are being committed before bounded helper
+implementation. Next: helper owns only intake code/tests/README; lead integrates,
+qualifies, independently reviews and inspects required CI. No new live call is
+needed for deterministic wording. Keep immutable historical snapshots unchanged.
 
-Separate checkout `/Users/evokessler/repos/brn-p3-work-budgets`, branch
-`codex/p4-applied-intake-findings`, HEAD `5dd60ee`, PR94. Exact historical Applied
-private-intake Source Finding lineage is complete and independently reviewed
-with no actionable findings (patch SHA-256 2406602caecea0e81037903988071fe9e463d61b7abedb8db80d7bb25f49bc29).
-Final Store 450 passed; AI 146 passed / one existing ignore; native workflow/models
-420 passed / 15 existing ignores, including the full-size recovery witness.
-Combined all-target native Clippy, shipping CLI/desktop/helper, 52 fixtures and
-603 links passed. Qualification and build receipts are in
-`/private/tmp/brn-overnight-20261008/applied-intake-final-qualification.json` and
-`applied-intake-build-manifest.json`. All required candidate checks/docs passed in 37841111480. PR94 merged normally
-at `b4e3a59a201b3e719df91278426d44388576959f` with identical tree; required
-post-merge run 37842586660 is in progress.
-Existing cleanup certificates still refuse private-intake Findings; no format or
-cleanup guarantee was silently relaxed. No local Cargo is active there.
+Session candidate checkout `/Users/evokessler/repos/brn-p3-work-budgets`, branch
+`codex/p9-session-archive-restore`, committed plan c8ebfcc on merged b4e3a59, has
+complete task-owned uncommitted Store/workflow/CLI/desktop implementation and tests.
+`docs/work/active/overnight-continuation/session-archive-restore.md`
+fixes API/metadata/admission/replay/native behavior. Automatic 30-day archival,
+Delete and preferences remain separate. Store full 461 tests / no failures or
+ignores and all-target Clippy passed, including migration/restart/backup/race/
+checked receipt corruption/SQLite-full rollback. Desktop helper owns the sole
+Cargo slot: seven new state and three real headless widget tests passed after
+local harness/import fixes; affected presentation/history/budget/rewrite/native
+compatibility and Clippy are running. Lead workflow/CLI tests are written but not
+yet compiled. After slot release, merge current main into the candidate, run lead
+behavioral tests, obtain one full independent read-only review, final applicable
+local gates, required CI/integration and resulting-main verification. No concurrent
+Cargo across checkouts. No helper Git integration, no recursive spawning.
 
-PR95 now contains merged PR94; the three shared files auto-merged cleanly.
-Next: complete combined AI/Clippy/shipping checks and final independent delta
-review, commit/push final records, inspect required CI, then integrate PR95 normally. Preserve every existing candidate and independent review.
-Then reserve a concrete paired private-intake/usefulness trial against retained
-North Quay evidence in the shared ledger; approval and replay use retained outputs.
+Linden new Applied-private-intake case used three counted attempts: Luna completed
+in 15.675 seconds with one unassigned Action (five responses/four rounds); initial
+Sol failed other after 11.748 seconds/three rounds, underlying cause unknown; a
+separately counted manual fresh-UUID Sol retry completed in 112.466 seconds,
+nine responses/eight rounds, with two Knowledge, two Actions and one Open exact
+Finding. These are synthetic usefulness observations, not model ranking/prompt
+causality or owner acceptance. Four Sol proposals passed fresh-process Action-first
+approval, restart and exact group/completed-analysis replay; no duplicate effects,
+new inference or changed full Source/Current/original identity. Finding stays Open;
+Luna comparison remains Draft. All requests/outputs/input/proofs/approval receipts
+are under `/private/tmp/brn-overnight-20261008/linden-applied-intake`.
 
-Selected next independent V1 outcome: manual reversible session Archive/Restore.
-Product Vision section 19.3 already requires it; this small slice excludes automatic
-30-day archival, Delete and preferences. A bounded read-only helper is examining
-atomic admission/drain fencing, exact lifecycle revisions, native state and CLI
-contracts before the lead writes the smallest sufficient implementation plan.
-Reuse existing Store transactions, owner lock, AppWorker and history widgets;
-no new dependency or interpreter. Keep selected lead model/effort; at most two
-active helpers and one Cargo process. Stop/reassess only for a concrete integrity
-or unresolved product requirement; continue independent authorized work otherwise.
+Current shared ledger `/private/tmp/brn-overnight-20261008/campaign-ledger.json`:
+eleven of sixteen used, five Luna/six Sol; five remain, at most three Luna/two Sol.
+Only existing exact Medium conditions, 180-second cancellation/eight tool rounds/
+nine responses, no automatic retry/substitution. Reserve before any new invocation;
+failures count. Account-wide weekly usage 46% consumed / 54% remaining; short window
+and provider request/token/internal-reasoning/spend unknown. No reset/purchase.
+Use retained outputs/deterministic tests for approval/replay. Preserve all Harbor,
+North Quay, Cedar and Linden bound data/vaults in place; do not rerun campaigns.
 
-Eight of sixteen live calls used, four per exact Medium condition; eight remain.
-Cedar near-limit Current is 949,665 bytes, appendix [948370,949665). Luna
-(14.612 seconds, four responses/three rounds) retained all controls via search,
-disclosed truncated read, made no range call and prepared no drafts. Sol
-(92.339 seconds, seven responses/six rounds) used range twice and retained exact
-pressure quote [948628,948733), one unassigned Action, one supplementary Knowledge
-and one tentative Finding. Evidence/original/vault proofs stayed unchanged; all
-new drafts remain unapproved and Findings open. These observations do not establish
-model superiority or prompt causality. Account-wide weekly usage was 43% consumed /
-57% remaining after that pair; short-window, provider request/token/spend unknown.
-
-Canonical ledger: `/private/tmp/brn-overnight-20261008/campaign-ledger.json`.
-Cedar requests/outputs/input/runtime/usage/proofs are under `cedar-long-evidence`;
-original North Quay and Harbor workspaces remain retained in place. Do not rerun
-completed campaign scripts, move bound state/vaults or spend inference on approval
-or replay. The single morning UI task retains expected steps, builds and data;
-actual interactive and personal acceptance remain pending.
+The [single morning UI task](morning-ui-acceptance.md) owns all expected controls,
+exact builds/data and the launch prompt. Headless evidence is separate from pending
+interactive/personal acceptance. Continue small useful authorized slices until the
+08:00 Tallinn cutoff; from 07:30 prioritize final gates/integration/handoff.
 
 Earlier milestone entries below are historical receipts; this checkpoint and the
 local campaign ledger govern continuation.
