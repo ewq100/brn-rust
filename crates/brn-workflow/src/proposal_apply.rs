@@ -530,6 +530,16 @@ impl App {
         draft: &ProposalDraft,
         undo: Option<&UndoBinding>,
     ) -> Result<()> {
+        self.preflight_proposal_targets(draft, undo)?;
+        self.preflight_proposal_evidence(draft, undo)
+    }
+
+    /// Shared exact target/editor guards for review restructuring and approval.
+    pub(crate) fn preflight_proposal_targets(
+        &mut self,
+        draft: &ProposalDraft,
+        undo: Option<&UndoBinding>,
+    ) -> Result<()> {
         // An Action can have no file changes/vault binding while depending on
         // exact retained Source bytes. Fresh approval must acquire their adapter
         // even when no editor or investigation has run in this process.
@@ -588,6 +598,14 @@ impl App {
         if !draft.changes.is_empty() {
             check_targets(self.editor.files.as_ref().expect("opened files"), draft)?;
         }
+        Ok(())
+    }
+
+    fn preflight_proposal_evidence(
+        &mut self,
+        draft: &ProposalDraft,
+        undo: Option<&UndoBinding>,
+    ) -> Result<()> {
         // Exact Undo restores retained historical bytes. Fresh normal approval
         // checks every newly introduced durable citation, including review edits
         // and Rewrite output, before any Applying admission or filesystem effect.

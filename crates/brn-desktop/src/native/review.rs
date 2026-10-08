@@ -15,6 +15,10 @@ use gpui_kit::{
 mod tests;
 
 #[cfg(all(test, target_os = "macos", feature = "native-test-support"))]
+#[path = "predecessor_tests.rs"]
+mod predecessor_tests;
+
+#[cfg(all(test, target_os = "macos", feature = "native-test-support"))]
 #[path = "asset_review_tests.rs"]
 mod asset_tests;
 
@@ -55,6 +59,12 @@ impl Desktop {
         let Some(review) = &self.ai.as_ref().unwrap().review else {
             return;
         };
+        let proposal = review.record.draft.id;
+        if self.review_predecessor_proposal != Some(proposal) {
+            self.review_predecessor
+                .update(cx, |input, cx| input.set_value("", window, cx));
+            self.review_predecessor_proposal = Some(proposal);
+        }
         self.review_member = self
             .review_member
             .min(review.record.draft.changes.len().saturating_sub(1));
@@ -239,6 +249,39 @@ impl Desktop {
             if let Some(observed) = &review.observed {
                 body = body.child(format!("Current review is version {} / {:?}. Local text is retained; copy or explicitly discard it before continuing.", observed.version, observed.state));
             }
+            if review.predecessor_eligible() {
+                let can_attach = can_mutate
+                    && review.can_attach_predecessor()
+                    && ai.active.is_none()
+                    && ai.rewrite.is_none()
+                    && self.review_comment_pending.is_none()
+                    && !(self.review_comment_draft.is_some()
+                        && !self.review_comment.read(cx).value().is_empty());
+                body = body.child(div().id("knowledge-predecessor-controls").test_support().flex().flex_col().gap_2()
+                    .child("Attach one saved Current knowledge predecessor. Exact approval of this revised proposal creates the successor and makes the selected predecessor History. Your successor wording is preserved; attachment does not decide semantic replacement.")
+                    .child(Textarea::new(&self.review_predecessor).disabled(!can_attach).aria_label("Current knowledge predecessor path"))
+                    .child(Button::new("attach-knowledge-predecessor").label("Attach predecessor for full review")
+                        .disabled(!can_attach)
+                        .on_click(cx.listener(|this, _, _, cx| {
+                            if this.simple_transition.is_none() && this.closing.is_none()
+                                && !this.closed && !this.close_failed
+                                && this.review_comment_pending.is_none()
+                                && !(this.review_comment_draft.is_some() && !this.review_comment.read(cx).value().is_empty())
+                            {
+                                let path = this.review_predecessor.read(cx).value().to_string();
+                                if let Some(command) = this.ai.as_mut().unwrap().attach_knowledge_predecessor(path) {
+                                    this.simple_send(command, cx);
+                                }
+                            }
+                            cx.notify();
+                        }))));
+                if !review.can_attach_predecessor() {
+                    body = body.child("Predecessor attachment requires a clean, acknowledged review. Flush or resolve retained local text first.");
+                }
+            }
+            if review.predecessor_pending() {
+                body = body.child("Attaching predecessor; typing and navigation wait for the exact revised review acknowledgement.");
+            }
             for (index, change) in review.record.draft.changes.iter().enumerate() {
                 let kind = match change {
                     NoteChange::Create { .. } => "Create",
@@ -252,7 +295,7 @@ impl Desktop {
                     Button::new(format!("review-member-{index}"))
                         .label(format!("{kind} · {}", change.path()))
                         .selected(index == self.review_member)
-                        .disabled(leaving)
+                        .disabled(leaving || review.predecessor_pending())
                         .on_click(cx.listener(move |this, _, window, cx| {
                             this.review_member = index;
                             this.sync_review_widgets(window, cx);
@@ -285,6 +328,9 @@ impl Desktop {
                     }
                 }
                 if change.text().is_some() {
+                    if review.history_member(self.review_member) {
+                        body = body.child("Generated predecessor History · read only. Exact approval changes this captured Current note to History.");
+                    }
                     body = body.child("Full proposed text").child(
                         div()
                             .id("review-text-editor")
@@ -293,7 +339,7 @@ impl Desktop {
                             .child(
                                 Editor::new(&self.review_editor)
                                     .h_full()
-                                    .readonly(review.record.draft.inbox_source.is_some())
+                                    .readonly(review.member_readonly(self.review_member))
                                     .disabled(!editable)
                                     .aria_label("Full proposed Markdown member"),
                             ),

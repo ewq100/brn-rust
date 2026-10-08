@@ -107,6 +107,7 @@ fn command_name(command: &AppCommand) -> &'static str {
             Proposal,
             Proposals,
             EditProposal,
+            AttachInboxKnowledgePredecessor,
             RewriteProposal,
             StartProposalRewrite,
             ProposalRewrite,

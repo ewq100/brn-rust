@@ -604,6 +604,17 @@ retained turn replays and an unissued reservation can begin normally.
 
 
 Inbox supersession uses exactly one Current Create and one History Replace.
+`attach_inbox_knowledge_predecessor` permits one explicit owner revision of an
+unapproved supplemental Inbox Knowledge draft into that existing pair. It
+accepts only a Draft with no predecessor; changing/removing an existing
+predecessor is not supported. It
+preserves the original creation hash, destination/parent, note identity, owner
+text prefix, comments, citations and Source/intake bindings; exact captured
+context can be promoted without refreshing its proof. The entire revision and
+one version advance commit atomically. `validate_knowledge_predecessor_transition`
+checks the same complete preserved-record transition without I/O for client
+acknowledgements. Workflow owns fresh capture, identity and readable-link checks;
+approval and recovery continue using the existing pair and journal formats.
 `InboxSupersedesBinding` retains the predecessor UUID/full SourceVersion;
 `validate_history` binds its complete before_text and permits only
 `note_metadata::to_history` output. The pure helper changes only brn_state,

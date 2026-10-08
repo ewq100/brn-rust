@@ -77,34 +77,58 @@ requires exact final-candidate review, applicable local checks and actual requir
 CI. No weakening, bypass or rushed merge. Record failures and repair real defects.
 Known informational platform failures remain visible and separate.
 
-## Durable checkpoint — 8 October 20:00 UTC
+## Durable checkpoint — 8 October 20:18 UTC
 
-Active checkout `/Users/evokessler/repos/brn-p2-email-docx-intake`, branch
-`codex/p4-conflict-recommendations`, clean HEAD `33ddac7aaf2f9f50801faceae83d80c9f78967e3`.
-PR90 merged at `4f5b95e1c7b92f9efec54ea7f34f9097987cfdb6`; required postmerge
-checks passed. PR91 merged normally at `409f68bedc112df550a5fcd6ebd884effff70101`;
-all four required candidate checks passed. Postmerge run 37835432764 is running.
-Budget local final workflow/models: 412 passed, 15 existing ignores; desktop/CLI:
-525 passed; shipping Clippy/builds and 52 fixture assertions passed.
+Lead checkout `/Users/evokessler/repos/brn-p2-email-docx-intake`, branch
+`codex/p3-knowledge-predecessor`, plan `b89e746`; complete code is staged and
+independently reviewed. Final reviewed complete patch SHA-256
+`ad73a13d32c12eccf32e4faded728a1f9c3178834ee018aac5d198637b6d8c17`
+includes the successful CLI subprocess witness; subsequent difference only orders
+test module declarations for cargo fmt. No actionable independent finding.
 
-P4 code `f72ccac` independently reviewed with no actionable findings; incorporating
-qualified budget/main yields the same tree as runtime `2abe6d3`. AI: 145 passed,
-one existing ignore; new integrated/replay tests: 2 passed; context guards: 3 passed;
-AI/workflow native Clippy, shipping desktop/CLI, 52 fixtures and 602 links passed.
-Receipt `/private/tmp/brn-overnight-20261008/p4-build-manifest.json`. P4 is not yet
-pushed as a PR. Next: update retained results and morning task, open/qualify/integrate
-P4 normally; then select the bounded owner predecessor-attachment P3 slice after
-checking exact creation replay and native review transition seams.
+PR90 range/guidance and PR91 budgets merged normally; all required candidate and
+postmerge checks passed. PR91 merged main `409f68b`, postmerge run 37835432764.
+[PR92](https://github.com/ewq100/brn-rust/pull/92) candidate `354fd35` passed all
+four required checks and docs in run 37836604194, then merged normally at
+`bb66a1b884106fd18b08d2fa4864aff0537811bc` (20:16:12 UTC). Its merged tree equals
+the qualified candidate. Required postmerge run 37838175674 is in progress.
+Known informational Windows/Linux failures remain visible; no protection bypass.
 
-Six live investigations completed, three per condition; owner's latest message
-adds ten shared calls (sixteen total), conservatively allocated five further per
-existing condition. North Quay Luna retained one Action and one Knowledge, no
-Finding (16.765s, five responses/four tool rounds). Sol retained two Actions, one
-Knowledge and a reasoned Finding (83.348s, seven responses/six rounds). Both kept
-shipment dates/authorization uncertainty; neither chose supersession. Live History
-selection is unqualified; deterministic History mechanics passed. New North Quay
-proposals remain Draft for owner revision/approval without inference. GUI acceptance
-remains pending in the single morning task. No Cargo or provider process is active.
+Selected [predecessor slice](knowledge-predecessor.md) implements explicit
+None→Some owner attachment, exact context promotion, protected History, preserved
+comments/text/creation hash, original callback replay, strict CLI and dedicated
+native structural acknowledgement/typing-navigation fences. Store seven tests and
+all-target Clippy passed. Workflow predecessor filter seven passed, including four
+new integrated/private-intake/refusal/revised-crash-recovery witnesses. Desktop
+seven state/widget tests and native all-target Clippy passed. CLI parser unit and
+two subprocess tests passed, including successful attachment/replay/obsolete-stamp
+refusal/revised approval/effect replay. Workflow/CLI native all-target Clippy passed.
+Full default gate is running in target/intake-ui, lead Cargo slot; first attempt
+stopped solely on test-module formatting, corrected without behavior change.
+Next: finish default/native/shipping gates, record receipt, commit/push PR and
+integrate normally when required CI passes. Interactive acceptance remains pending.
+
+Next independent Applied-intake Finding slice (spec in the budget checkout at the same active-folder path) is
+selected in the separate clean reused budget checkout
+`/Users/evokessler/repos/brn-p3-work-budgets`, branch
+`codex/p4-applied-intake-findings`, baseline/spec `acae2b1` on merged PR92.
+Bounded helper owns its Store/workflow/guidance implementation; no Cargo until
+lead grants a slot, no recursive helpers/live/GUI/Git integration. It derives exact
+saved Source proof from a historical Applied journal, preserves capture/question,
+keeps historical Findings readable after loss/Undo and leaves private cleanup
+unsupported. This does not depend on predecessor attachment.
+
+Six live investigations completed, three per condition; owner adds ten shared
+calls (sixteen total), allocated five further per existing condition. North Quay
+Luna retained one Action/one Knowledge, no Finding; Sol retained two Actions/one
+Knowledge and a reasoned Finding. Both kept dates/authority uncertainty; neither
+selected supersession. Live History choice unqualified; deterministic mechanics
+passed. All new North Quay proposals still Draft. Approve one intended supplement
+group, restart/replay with retained output, without forcing semantic replacement.
+A novel near-limit long-evidence pair may use additional calls for a concrete
+range/usefulness question after preparation/qualification; no call started yet.
+The canonical local ledger governs every invocation. All GUI checks remain in
+the single morning task; no interactive observation has been claimed.
 
 Earlier milestone entries below are historical receipts; this checkpoint and the
 local campaign ledger govern continuation.

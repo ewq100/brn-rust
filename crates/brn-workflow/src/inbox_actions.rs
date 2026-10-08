@@ -14,6 +14,7 @@ pub use brn_store::work::inbox_actions::{
 use serde::{Deserialize, Serialize};
 use uuid::Uuid;
 mod knowledge;
+mod predecessor;
 mod visual;
 pub(crate) use knowledge::validate_supersession_link;
 pub use visual::InboxVisualEvidence;

@@ -26,6 +26,8 @@ use uuid::Uuid;
 
 #[path = "work_inbox_actions/knowledge_capture_recovery.rs"]
 mod knowledge_capture_recovery;
+#[path = "work_inbox_actions/knowledge_predecessor.rs"]
+mod knowledge_predecessor;
 
 fn digest(bytes: &[u8]) -> [u8; 32] {
     Sha256::digest(bytes).into()

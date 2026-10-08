@@ -688,6 +688,53 @@ fn supersession_prepared_predecessor_change_refuses_before_installation() {
     f.assert_source_and_credentials();
 }
 
+#[test]
+fn owner_attached_predecessor_revised_approval_recovers_existing_pair_and_replays() {
+    let (mut f, mut app) = Fixture::new();
+    let original = app.proposal(f.approval.expected.id).unwrap();
+    let revised = app
+        .attach_inbox_knowledge_predecessor(&crate::proposals::KnowledgePredecessorRequest {
+            expected: original.stamp(),
+            predecessor_path: TARGET_PATH.into(),
+        })
+        .unwrap();
+    assert_eq!(revised.version, original.version + 1);
+    f.approval.expected = revised.stamp();
+    f.approved_text = revised.draft.changes[0].text().unwrap().into();
+    drop(app);
+    f.crash_member("synced", 0);
+    let mut app = f.app();
+    let preview = app
+        .preview_proposal_repair(f.approval.operation_id)
+        .unwrap();
+    assert_eq!(
+        preview.phases,
+        vec![ApplyMemberPhase::Applied, ApplyMemberPhase::Before]
+    );
+    let repair = RepairRequest {
+        id: Uuid::new_v4(),
+        operation_id: f.approval.operation_id,
+        expected: preview.expected,
+        direction: RepairDirection::Finish,
+    };
+    let receipt = app.repair_proposal(&repair).unwrap();
+    assert_eq!(receipt.outcome, Some(ApplyOutcome::Applied));
+    f.assert_exact_installed_knowledge();
+    let history = brn_store::note_metadata::to_history(&f.predecessor_text).unwrap();
+    assert_eq!(
+        fs::read(f.vault.join(TARGET_PATH)).unwrap(),
+        history.as_bytes()
+    );
+    drop(app);
+    let mut app = f.app();
+    assert_eq!(app.repair_proposal(&repair).unwrap(), receipt);
+    assert_eq!(
+        app.proposal(f.approval.expected.id).unwrap().state,
+        crate::proposals::ProposalState::Applied
+    );
+    f.assert_exact_installed_knowledge();
+}
+
 impl Fixture {
     fn copy_approval_family(&self, label: &str) -> PathBuf {
         let fresh = self.base.path().join(label);

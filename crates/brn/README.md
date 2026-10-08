@@ -62,6 +62,7 @@ brn proposals asset PATH
   brn proposals list [--group UUID]
   brn proposals show PROPOSAL_ID
   brn proposals edit --file EDIT.json
+  brn proposals attach-predecessor --file REQUEST.json
   brn proposals rewrite --file REQUEST.json
   brn proposals rewrite-status JOB_UUID
   brn proposals rewrite-result --file EDIT.json
@@ -434,6 +435,20 @@ conversation. Drafts keep exact bytes and never write a vault file.
 {"id":"11111111-1111-4111-8111-111111111111","group_id":null,"session_id":null,
  "title":"Review a note","changes":[{"kind":"create","path":"new.md","text":"Draft text"}],"sources":[]}
 ```
+
+For a supplemental Draft Inbox Knowledge Create, explicitly attach one saved
+Current predecessor with `brn proposals attach-predecessor --file REQUEST.json`:
+
+```json
+{"expected":{"id":"11111111-1111-4111-8111-111111111111","version":3},"predecessor_path":"previous.md"}
+```
+
+The host preserves owner wording/comments/citations and captures the exact Current
+predecessor, returning a new review version containing the successor and protected
+History replacement. No note changes until exact approval of that revised version;
+old stamps refuse. Existing predecessor context is never silently refreshed.
+Changing/removing an already attached predecessor is separate work. Original
+proposal creation/replay still binds its unchanged original payload hash.
 
 Ordinary assets use `create_asset`, `replace_asset` or `trash_asset`, visible
 non-Markdown paths and canonical padded base64 for the new payload fields.

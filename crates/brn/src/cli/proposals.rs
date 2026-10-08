@@ -10,7 +10,9 @@ use brn_workflow::{
         GroupApprovalRequest, RepairRequest, UndoRequest,
     },
     proposal_rewrite::RewriteRequest,
-    proposals::{CommentRequest, DraftRequest, ProposalEdit, ProposalStamp},
+    proposals::{
+        CommentRequest, DraftRequest, KnowledgePredecessorRequest, ProposalEdit, ProposalStamp,
+    },
 };
 use serde::de::DeserializeOwned;
 use std::{
@@ -25,6 +27,7 @@ pub enum ProposalCommand {
     List(Option<Uuid>),
     Show(Uuid),
     Edit(PathBuf),
+    AttachPredecessor(PathBuf),
     Rewrite(PathBuf),
     RewriteStatus(Uuid),
     RewriteResult(PathBuf),
@@ -55,6 +58,7 @@ impl ProposalCommand {
             Self::List(_) => "proposals.list",
             Self::Show(_) => "proposals.show",
             Self::Edit(_) => "proposals.edit",
+            Self::AttachPredecessor(_) => "proposals.attach-predecessor",
             Self::Rewrite(_) => "proposals.rewrite",
             Self::RewriteStatus(_) => "proposals.rewrite-status",
             Self::RewriteResult(_) => "proposals.rewrite-result",
@@ -83,7 +87,7 @@ pub(super) fn scan_command(
     let sub = sub_word(
         tokens,
         "proposals",
-        "source|asset|create|list|show|edit|rewrite|rewrite-status|rewrite-result|comment|comment-update|comment-remove|reject|approve|reconcile|approve-group|applies|undo-preview|undo|restore-trash|repair-preview|repair",
+        "source|asset|create|list|show|edit|attach-predecessor|rewrite|rewrite-status|rewrite-result|comment|comment-update|comment-remove|reject|approve|reconcile|approve-group|applies|undo-preview|undo|restore-trash|repair-preview|repair",
     )?;
     let (label, options): (_, &[(&str, bool)]) = match sub.as_str() {
         "source" => ("proposals.source", &[]),
@@ -92,6 +96,7 @@ pub(super) fn scan_command(
         "list" => ("proposals.list", &[("group", true)]),
         "show" => ("proposals.show", &[]),
         "edit" => ("proposals.edit", &[("file", true)]),
+        "attach-predecessor" => ("proposals.attach-predecessor", &[("file", true)]),
         "rewrite" => ("proposals.rewrite", &[("file", true)]),
         "rewrite-status" => ("proposals.rewrite-status", &[]),
         "rewrite-result" => ("proposals.rewrite-result", &[("file", true)]),
@@ -178,6 +183,7 @@ pub(super) fn parse_command(name: &str, s: &Scanned) -> Result<ProposalCommand, 
         "proposals.list" => Ok(ProposalCommand::List(s.uuid("group")?)),
         "proposals.show" => Ok(ProposalCommand::Show(id()?)),
         "proposals.edit" => Ok(ProposalCommand::Edit(file()?)),
+        "proposals.attach-predecessor" => Ok(ProposalCommand::AttachPredecessor(file()?)),
         "proposals.rewrite" => Ok(ProposalCommand::Rewrite(file()?)),
         "proposals.rewrite-status" => {
             let id = Uuid::parse_str(required_positional(s, "JOB_UUID")?)
@@ -311,6 +317,13 @@ fn prepare_input(command: &ProposalCommand) -> Result<(Uuid, AppCommand), CliFai
         ProposalCommand::List(group) => AppCommand::Proposals(*group),
         ProposalCommand::Show(id) => AppCommand::Proposal(*id),
         ProposalCommand::Edit(file) => AppCommand::EditProposal(input::<ProposalEdit>(file)?),
+        ProposalCommand::AttachPredecessor(file) => {
+            let request: KnowledgePredecessorRequest = input(file)?;
+            request
+                .validate()
+                .map_err(super::error::classify_workflow)?;
+            AppCommand::AttachInboxKnowledgePredecessor(request)
+        }
         ProposalCommand::Rewrite(file) => {
             let request: RewriteRequest = input(file)?;
             request
@@ -439,6 +452,42 @@ mod tests {
         assert_eq!(id, request.id);
         assert!(
             matches!(command, AppCommand::StartProposalRewrite(submitted) if submitted == request)
+        );
+    }
+
+    #[test]
+    fn predecessor_submission_parses_strict_owner_request_and_preserves_stamp() {
+        let directory = tempfile::tempdir().unwrap();
+        let path = directory.path().join("predecessor.json");
+        let request = KnowledgePredecessorRequest {
+            expected: ProposalStamp {
+                id: Uuid::new_v4(),
+                version: 7,
+            },
+            predecessor_path: "project/previous.md".into(),
+        };
+        std::fs::write(&path, serde_json::to_vec(&request).unwrap()).unwrap();
+        let args = [
+            "proposals",
+            "attach-predecessor",
+            "--file",
+            path.to_str().unwrap(),
+            "--data-dir",
+            directory.path().to_str().unwrap(),
+        ]
+        .map(str::to_owned);
+        let crate::cli::Outcome::Run(invocation) =
+            crate::cli::parse(&args).unwrap_or_else(|error| panic!("{}", error.error.message()))
+        else {
+            panic!("owner invocation")
+        };
+        let crate::cli::Command::Proposals(command) = invocation.command else {
+            panic!("proposal route")
+        };
+        assert_eq!(command.name(), "proposals.attach-predecessor");
+        let (_, command) = prepare_input(&command).unwrap();
+        assert!(
+            matches!(command, AppCommand::AttachInboxKnowledgePredecessor(actual) if actual == request)
         );
     }
 
