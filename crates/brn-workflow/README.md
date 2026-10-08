@@ -115,8 +115,9 @@ Source prerequisite before dependent members. Individual dependent approval
 requires its exact Applied Source receipt for the current review version,
 current saved bytes/assets and fresh unique Source identity. The internal proof
 scan remains usable during admitted application while public Current tools stay
-fenced. Admission opens the checked file adapter after restart even when no
-editor has been opened. Saved turns replay without fresh inference. The model
+fenced. Fresh creation, individual approval and group prerequisite validation
+open the checked file adapter after restart even for an Action with no file
+changes, before an editor or investigation has been opened. Saved turns replay without fresh inference. The model
 input names pending versus Applied Source authority explicitly; neither implies
 semantic completeness.
 

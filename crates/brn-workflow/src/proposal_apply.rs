@@ -530,6 +530,12 @@ impl App {
         draft: &ProposalDraft,
         undo: Option<&UndoBinding>,
     ) -> Result<()> {
+        // An Action can have no file changes/vault binding while depending on
+        // exact retained Source bytes. Fresh approval must acquire their adapter
+        // even when no editor or investigation has run in this process.
+        if undo.is_none() && crate::intake_dependencies::dependency(draft).is_some() {
+            self.editor_files()?;
+        }
         if draft.vault.is_some() {
             self.editor_files()?;
             let bound: VaultRecord = serde_json::from_str(
@@ -1190,6 +1196,9 @@ impl App {
                 return Err(stale("approval group contains unbound members"));
             }
             if let Some(binding) = crate::intake_dependencies::dependency(&record.draft) {
+                // Group dependency checks precede individual preflight and may
+                // start with a vault-free Action immediately after restart.
+                self.editor_files()?;
                 if let Some((selected, _)) = records
                     .iter()
                     .find(|(selected, _)| selected.expected.id == binding.source_proposal.id)
