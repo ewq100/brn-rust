@@ -43,6 +43,12 @@ Fixed strict workflow DTOs, reexported from `knowledge`:
 - `CitationReviewDetail { path: String, title: String, note_id: Option<Uuid>,
   sha256: [u8;32], text: String, provenance: NoteProvenance }`.
 
+Pure methods: both request DTOs expose `validate()`, the returned page exposes
+`validate_for(&CitationReviewRequest)`, and detail exposes
+`validate_for(&CitationReviewDetailRequest)`. Check bounds/order/non-Matched issue
+indices, honest coverage/counts, continuation progress/root/digest, and exact detail
+path/text hash/provenance path. These are shared by CLI/native preflight and tests.
+
 App methods `citation_review(&mut self, request)` and
 `citation_review_detail(&self, request)`; AppWorker commands `CitationReview` and
 `CitationReviewDetail`, same-named boxed reply events. Detail returns complete
