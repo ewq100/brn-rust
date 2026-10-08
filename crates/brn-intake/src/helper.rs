@@ -721,20 +721,21 @@ fn email(
             .filter(|s| !s.is_empty())
             .unwrap_or_else(|| "unknown".into())
     };
-    let ids = |value: &mail_parser::HeaderValue<'_>| {
-        value
-            .as_text()
-            .map(str::to_owned)
-            .or_else(|| {
-                value.as_text_list().map(|ids| {
-                    ids.iter()
-                        .map(|id| id.as_ref())
-                        .collect::<Vec<_>>()
-                        .join(" ")
-                })
-            })
-            .filter(|s| !s.is_empty())
-            .unwrap_or_else(|| "unknown".into())
+    let ids = |name| {
+        // The convenience getters select only the last physical header, and
+        // as_text() selects only the last TextList item. Preserve both orders.
+        let decoded = message
+            .header_values(name)
+            .filter_map(|value| value.as_text_list())
+            .flatten()
+            .map(|id| id.as_ref())
+            .collect::<Vec<_>>()
+            .join(" ");
+        if decoded.is_empty() {
+            "unknown".into()
+        } else {
+            decoded
+        }
     };
     for (label, value) in [
         ("From", addresses(message.from())),
@@ -752,8 +753,8 @@ fn email(
             "Message-ID",
             message.message_id().unwrap_or("unknown").to_owned(),
         ),
-        ("In-Reply-To", ids(message.in_reply_to())),
-        ("References", ids(message.references())),
+        ("In-Reply-To", ids(mail_parser::HeaderName::InReplyTo)),
+        ("References", ids(mail_parser::HeaderName::References)),
     ] {
         metadata.push_str(&fence(label, &value));
     }
@@ -766,7 +767,7 @@ fn email(
     gap(
         extraction,
         format!(
-            "{}: authentication and absent message/thread identifiers remain unknown; HTML is inert quoted source, remote resources unavailable",
+            "{}: decoded email headers are source claims; sender authenticity and thread relationships have not been independently verified",
             extraction.sources[source].id
         ),
     )?;

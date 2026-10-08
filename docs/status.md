@@ -15,11 +15,12 @@ Windows/Linux failures remain visible; no protection bypass or platform port.
 [PR94](https://github.com/ewq100/brn-rust/pull/94) enables exact Applied private-intake
 Finding lineage and merged after all required checks; [PR95](https://github.com/ewq100/brn-rust/pull/95) clarifies useful
 follow-up drafts under unresolved execution authority. Both merged after independent review and required candidate checks. PR94
-post-merge checks passed; PR95 post-merge checks are pending. Manual reversible session Archive/Restore is implemented in the separate session
+post-merge checks passed; PR95 post-merge checks passed. Manual reversible session Archive/Restore is implemented in the separate session
 candidate, with Store and new desktop checks passed; workflow/CLI/full review and
 final gates are pending. Automatic archival, Delete and preferences stay separate.
-A narrow deterministic MIME caveat repair is selected for demonstrated misleading
-identifier/HTML scope wording; old snapshots and partial status remain unchanged.
+The MIME caveat and complete decoded-thread-identifier repair is implemented,
+independently reviewed and locally qualified, awaiting hosted integration; old
+snapshots and partial status remain unchanged.
 
 The [overnight checkpoint](work/active/overnight-continuation/plan.md) owns exact
 branches, builds, verification and continuation. Eleven of sixteen authorized live investigations are used, five Luna/six Sol,
