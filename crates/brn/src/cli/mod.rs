@@ -63,6 +63,8 @@ pub enum Command {
         scope: KnowledgeScope,
     },
     Status,
+    BackupStatus,
+    CheckpointBackup,
     Search {
         query: String,
         profile: Option<SearchMode>,
@@ -135,6 +137,8 @@ Global options (accepted before or after the command):
   --version          Show the version without opening storage
 
 Commands:
+  brn backups status
+  brn backups checkpoint
   brn activity list [--limit N] [--before OPERATION_UUID]
   brn identity show PATH
   brn identity prepare PATH --note-id UUID --proposal UUID --title TITLE
@@ -652,6 +656,15 @@ fn parse_inner(
                 other => return Err(usage(format!("unknown notes subcommand: {other}"))),
             }
         }
+        "backups" => {
+            let sub = sub_word(&mut tokens, "backups", "status|checkpoint")?;
+            *command = Some(match sub.as_str() {
+                "status" => "backups.status",
+                "checkpoint" => "backups.checkpoint",
+                _ => return Err(usage("unknown backups subcommand")),
+            });
+            scan(&mut tokens, g, &[])?
+        }
         "status" => {
             *command = Some("status");
             scan(&mut tokens, g, &[])?
@@ -747,6 +760,14 @@ fn parse_inner(
             }
             _ => unreachable!(),
         },
+        "backups" => {
+            expect_positionals(&scanned, 0)?;
+            if *command == Some("backups.status") {
+                Command::BackupStatus
+            } else {
+                Command::CheckpointBackup
+            }
+        }
         "status" => {
             expect_positionals(&scanned, 0)?;
             Command::Status

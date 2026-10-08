@@ -323,6 +323,59 @@ fn read_completed(conn: &Connection, id: Uuid) -> Result<Option<([u8; 32], Compl
     .transpose()
 }
 
+/// Validate internal editor recovery without observing or installing vault files.
+pub(super) fn check_all(conn: &Connection) -> Result<()> {
+    for path in super::backup::keys(conn, "editors", "path")? {
+        read_editor(conn, &path)?.ok_or_else(|| invalid("listed editor is missing"))?;
+    }
+    for id in super::backup::keys(conn, "editor_saves", "operation_id")? {
+        let uuid = crate::parse_id(id.clone())?;
+        if uuid.to_string() != id {
+            return Err(invalid("noncanonical save UUID"));
+        }
+        let intent = read_save(conn, uuid)?.ok_or_else(|| invalid("listed save is missing"))?;
+        let installed: Option<(Vec<u8>, Vec<u8>)> = conn.query_row(
+            "SELECT installed_json,installed_sha256 FROM editor_saves WHERE operation_id=?1 AND installed_json IS NOT NULL",
+            [&id], |row| Ok((row.get(0)?, row.get(1)?)),
+        ).optional()?;
+        let installed: Option<FileFingerprint> = installed
+            .map(|(bytes, digest)| decode(bytes, digest))
+            .transpose()?;
+        if let Some(proof) = installed {
+            validate_fingerprint(&proof, &intent.request.edit.text)?;
+            if intent.receipt.as_ref().map(|receipt| receipt.outcome) != Some(SaveOutcome::Applied)
+                || intent
+                    .prepared
+                    .as_ref()
+                    .map(|prepared| &prepared.fingerprint)
+                    != Some(&proof)
+            {
+                return Err(invalid("save installation proof differs from its journal"));
+            }
+        } else if intent.receipt.as_ref().map(|receipt| receipt.outcome)
+            == Some(SaveOutcome::Applied)
+        {
+            return Err(invalid("applied save lacks installation proof"));
+        }
+    }
+    for id in super::backup::keys(conn, "editor_completed", "operation_id")? {
+        let uuid = crate::parse_id(id.clone())?;
+        if uuid.to_string() != id {
+            return Err(invalid("noncanonical completed save UUID"));
+        }
+        read_completed(conn, uuid)?.ok_or_else(|| invalid("listed completed save is missing"))?;
+    }
+    let mut previous = conn.prepare("SELECT path,pair_json,pair_sha256 FROM editor_previous")?;
+    let mut rows = previous.query([])?;
+    while let Some(row) = rows.next()? {
+        validate_path(&row.get::<_, String>(0)?)?;
+        let pair: (String, String) = decode(row.get(1)?, row.get(2)?)?;
+        validate_text(&pair.0)?;
+        validate_text(&pair.1)?;
+    }
+    Ok(())
+}
+
 impl WorkStore {
     pub fn editor(&self, path: &str) -> Result<Option<EditorRecord>> {
         read_editor(&self.conn, path)

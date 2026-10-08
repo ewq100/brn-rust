@@ -100,6 +100,8 @@ fn command_name(command: &cli::Command) -> &'static str {
         cli::Command::NotesList { .. } => "notes.list",
         cli::Command::NotePath { .. } => "notes.show",
         cli::Command::Status => "status",
+        cli::Command::BackupStatus => "backups.status",
+        cli::Command::CheckpointBackup => "backups.checkpoint",
         cli::Command::Search { .. } => "search",
         cli::Command::Ask { .. } => "ask",
         cli::Command::ConversationsList { .. } => "conversations.list",

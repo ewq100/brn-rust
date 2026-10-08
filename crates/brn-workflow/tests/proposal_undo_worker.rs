@@ -248,6 +248,11 @@ fn full_undo_preview_is_read_only_and_correlates_each_reply() {
     assert_eq!(open(&worker, "replace.md").record, before);
     assert_eq!(open(&worker, "trash.md").record, trash);
     worker.shutdown().unwrap();
+    let (notification, AppEvent::BackupStatus(backup)) = worker.try_event().unwrap() else {
+        panic!("joined shutdown reports its separate internal checkpoint");
+    };
+    assert!(notification.is_nil());
+    assert!(backup.latest_path.is_file() && backup.last_error.is_none());
     assert!(worker.try_event().is_none());
 }
 
@@ -281,6 +286,7 @@ fn admitted_undo_and_later_old_stamp_recovery_drain_before_restart_and_replay() 
 
     let mut undone: Option<ApplyReceipt> = None;
     let mut recovered: Option<EditorRecord> = None;
+    let mut checkpoint_seen = false;
     while let Some((id, event)) = worker.try_event() {
         match event {
             AppEvent::ProposalApplied(receipt) if id == request.operation_id => {
@@ -289,10 +295,22 @@ fn admitted_undo_and_later_old_stamp_recovery_drain_before_restart_and_replay() 
             AppEvent::EditorRecovered(record) if id == recovery_id => {
                 assert!(recovered.replace(record).is_none());
             }
+            AppEvent::BackupStatus(status) if id.is_nil() => {
+                assert!(
+                    !checkpoint_seen,
+                    "duplicate shutdown checkpoint notification"
+                );
+                assert!(status.latest_path.is_file() && status.last_error.is_none());
+                checkpoint_seen = true;
+            }
             AppEvent::Failed(error) => panic!("admitted command {id} failed: {error}"),
             _ => panic!("unexpected drained reply for {id}"),
         }
     }
+    assert!(
+        checkpoint_seen,
+        "joined shutdown must report its checkpoint"
+    );
     let undone = undone.expect("admitted Undo must finish before shutdown returns");
     assert_eq!(undone.operation_id, request.operation_id);
     assert_eq!(undone.proposal_id, reviewed.draft.id);

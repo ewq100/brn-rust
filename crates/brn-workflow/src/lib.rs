@@ -6,6 +6,7 @@ mod ai_behavior;
 pub mod ai_tools;
 pub mod app;
 pub mod app_worker;
+pub mod backups;
 pub mod chat_worker;
 pub mod conversations;
 pub mod dashboard;

@@ -4,7 +4,7 @@ mod centre;
 pub(super) mod divider;
 mod header;
 mod history_rail;
-mod settings;
+pub(in crate::native) mod settings;
 mod vault_rail;
 
 use super::theme::{self, color};
