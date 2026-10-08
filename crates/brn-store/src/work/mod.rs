@@ -36,6 +36,7 @@ use std::{
     time::{Duration, Instant, SystemTime, UNIX_EPOCH},
 };
 
+pub use backup::BackupCheckpointOutcome;
 pub use chat::{WorkConversation, WorkTurn, WorkTurnStatus};
 pub use editor::{
     EditRequest, EditStamp, EditorRecord, SaveIntent, SaveOutcome, SaveReceipt, SaveRequest,
@@ -104,11 +105,14 @@ pub struct OpenReport {
     pub restored_from: Option<PathBuf>,
     /// The backup made by this open.
     pub backup: PathBuf,
+    /// The copy is usable, but older copies could not all be pruned.
+    pub retention_warning: Option<String>,
 }
 
 pub struct WorkStore {
     conn: Connection,
     dir: PathBuf,
+    checkpoint_baseline: backup::ChangeToken,
     _owner_lock: Arc<File>,
 }
 
@@ -165,6 +169,7 @@ impl WorkStore {
         };
         configure(&conn)?;
         migrate(&mut conn)?;
+        editor::check_all(&conn)?;
         actions::check_all(&conn)?;
         action_completion::check_all(&conn)?;
         findings::check_all(&conn)?;
@@ -177,20 +182,28 @@ impl WorkStore {
         inbox_processing::reconcile(&mut conn)?;
         chat::reconcile(&mut conn)?;
         proposal_rewrite::reconcile(&mut conn)?;
-        let backup = backup::create(data_dir, &conn)?;
-        backup::prune(data_dir)?;
+        let created = backup::create(data_dir, &conn)?;
+        let checkpoint_baseline = backup::change_token(&conn)?;
         Ok((
             Self {
                 conn,
                 dir: data_dir.to_path_buf(),
+                checkpoint_baseline,
                 _owner_lock: Arc::new(lock),
             },
             OpenReport {
                 corrupt_moved_to,
                 restored_from,
-                backup,
+                backup: created.path,
+                retention_warning: created.retention_warning,
             },
         ))
+    }
+
+    /// Copies changed internal work without changing the outcome of its writes.
+    /// Reads and exact replays remain unchanged; attached ChatStore commits count.
+    pub fn checkpoint_if_changed(&mut self) -> Result<BackupCheckpointOutcome> {
+        backup::checkpoint_if_changed(self)
     }
 
     pub fn data_dir(&self) -> &Path {
@@ -210,7 +223,8 @@ impl WorkStore {
         inbox_original_operations::guard_setting(key)?;
         self.conn.execute(
             "INSERT INTO settings(key, value) VALUES (?1, ?2)
-             ON CONFLICT(key) DO UPDATE SET value = excluded.value",
+             ON CONFLICT(key) DO UPDATE SET value = excluded.value
+             WHERE settings.value IS NOT excluded.value",
             params![key, value],
         )?;
         Ok(())
@@ -272,13 +286,19 @@ fn header_identity(db: &Path) -> Result<HeaderCheck> {
 
 /// Checks header identity before opening an existing database with SQLite.
 fn check(db: &Path) -> Result<Checked> {
+    check_with_flags(
+        db,
+        OpenFlags::SQLITE_OPEN_READ_WRITE | OpenFlags::SQLITE_OPEN_NO_MUTEX,
+    )
+}
+
+fn check_with_flags(db: &Path, flags: OpenFlags) -> Result<Checked> {
     match header_identity(db)? {
         HeaderCheck::Continue => {}
         HeaderCheck::Corrupt => return Ok(Checked::Corrupt),
         HeaderCheck::Foreign(reason) => return Ok(Checked::Foreign(reason)),
     }
     // An unbranded foreign WAL database may still be checkpointed when refused.
-    let flags = OpenFlags::SQLITE_OPEN_READ_WRITE | OpenFlags::SQLITE_OPEN_NO_MUTEX;
     let conn = match Connection::open_with_flags(db, flags) {
         Ok(conn) => conn,
         Err(e) if is_corruption(&e) => return Ok(Checked::Corrupt),

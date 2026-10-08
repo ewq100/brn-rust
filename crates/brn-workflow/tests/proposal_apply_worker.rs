@@ -152,6 +152,7 @@ fn admitted_approval_later_old_stamp_recovery_and_reconciliation_drain_before_re
     let mut applied = None;
     let mut recovered: Option<EditorRecord> = None;
     let mut reconciled = None;
+    let mut checkpoint_seen = false;
     while let Some((id, event)) = worker.try_event() {
         match event {
             AppEvent::ProposalApplied(receipt) if id == approval.operation_id => {
@@ -163,10 +164,22 @@ fn admitted_approval_later_old_stamp_recovery_and_reconciliation_drain_before_re
             AppEvent::ProposalApplied(receipt) if id == reconciliation => {
                 assert!(reconciled.replace(receipt).is_none());
             }
+            AppEvent::BackupStatus(status) if id.is_nil() => {
+                assert!(
+                    !checkpoint_seen,
+                    "duplicate shutdown checkpoint notification"
+                );
+                assert!(status.latest_path.is_file() && status.last_error.is_none());
+                checkpoint_seen = true;
+            }
             AppEvent::Failed(error) => panic!("admitted command {id} failed: {error}"),
             _ => panic!("unexpected drained event for {id}"),
         }
     }
+    assert!(
+        checkpoint_seen,
+        "joined shutdown must report its checkpoint"
+    );
     let applied = applied.expect("approval must drain and acknowledge its exact receipt");
     assert_eq!(applied.operation_id, approval.operation_id);
     assert_eq!(applied.proposal_id, proposal_id);

@@ -532,6 +532,15 @@ fn admitted_full_creation_drains_before_restart_and_replay_keeps_one_operational
         panic!("creation drains and returns its record");
     };
     assert_eq!(actual, id);
+    let (notification, AppEvent::BackupStatus(backup)) = worker.try_event().unwrap() else {
+        panic!("joined shutdown reports its separate checkpoint status");
+    };
+    assert!(notification.is_nil());
+    assert!(backup.latest_path.is_file());
+    assert!(backup.last_error.is_none());
+    state.apply(notification, AppEvent::BackupStatus(backup));
+    assert!(state.pending.contains_key(&id));
+    assert!(state.draft.as_ref().unwrap().pending);
     assert!(worker.try_event().is_none());
     let followups = state.apply(id, AppEvent::Proposal(created.clone()));
     assert!(!state.application_busy());

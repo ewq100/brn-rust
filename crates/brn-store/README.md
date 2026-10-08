@@ -36,6 +36,20 @@ corrupt originals are moved aside. Foreign and newer databases remain refused.
 Database and lock paths must be regular single-link files. A held lock produces
 typed WorkspaceBusy; other lock I/O failures return immediately.
 
+`checkpoint_if_changed` reuses the checked database and online SQLite backup.
+Same-connection change counters detect both owner writes and attached ChatStore
+commits. Reads and exact no-write replay do not create copies; the pre-copy token
+becomes the baseline only after successful publication, so later commits remain
+eligible. A private exclusive temporary copy is stepped with a bounded deadline,
+closed, completely validated read-only, synchronized and atomically published
+without overwriting another destination. Only then are older copies pruned.
+Copy failure preserves prior backups; prune failure returns a valid copy with a
+separate retention warning. Individual SQLite steps have no hard wall-time bound.
+Startup uses the same publication safeguards. Existing domain semantic-refusal
+checks remain in force; invalid editor records caught by the added reader checks
+also refuse startup. Unusable backup candidates are skipped without modifying
+their bytes.
+
 The retired `brn.sqlite3` database is never opened or migrated. WorkStore refuses
 its database/sidecar markers before opening SQLite, under the owner lock.
 Advisory classification also detects current database/sidecar/backup markers and

@@ -226,3 +226,183 @@ fn investigation_budget_presets_capture_and_freeze_in_real_settings_widgets(
         });
     });
 }
+
+struct BackupSettingsProbe(Entity<Desktop>);
+impl Render for BackupSettingsProbe {
+    fn render(&mut self, _: &mut Window, cx: &mut Context<Self>) -> impl IntoElement {
+        div()
+            .id("backup-settings-probe")
+            .size_full()
+            .child(super::shell::settings::backup_settings(&self.0, cx))
+            .test_support()
+    }
+}
+
+#[gpui_kit::test]
+fn backup_settings_controls_preserve_composer_and_render_failures_separately(
+    cx: &mut gpui_kit::TestAppContext,
+) {
+    use brn_workflow::{app_worker::AppEvent, backups::BackupStatus};
+    let (_fixture, _root, desktop) = fixture_window(cx);
+    let copy = BackupStatus {
+        latest_path: "/synthetic/last-usable.sqlite".into(),
+        completed_at_ms: None,
+        retention_warning: Some("Synthetic pruning refusal".into()),
+        last_error: Some("Synthetic checkpoint failure".into()),
+    };
+    desktop.update(cx, |desktop, cx| {
+        let ai = desktop.ai.as_mut().unwrap();
+        ai.pending.clear();
+        ai.apply(Uuid::nil(), AppEvent::BackupStatus(copy.clone()));
+        ai.notice = "Retained general operation error".into();
+        cx.notify();
+    });
+    let target = desktop.clone();
+    let handle = cx.open_window(size(px(700.), px(600.)), move |_, _| {
+        BackupSettingsProbe(target)
+    });
+    let mut visual = VisualTestContext::from_window(handle.into(), cx);
+    visual.run_until_parked();
+    visual.update(|window, cx| {
+        window.render_frame(cx);
+        assert!(window.find("backup-settings").visible());
+        assert!(
+            window
+                .find("backup-copy-time")
+                .label()
+                .unwrap()
+                .contains("Copy time unknown")
+        );
+        assert!(
+            window
+                .find("backup-path")
+                .label()
+                .unwrap()
+                .contains("last-usable.sqlite")
+        );
+        assert!(
+            window
+                .find("backup-retention-warning")
+                .label()
+                .unwrap()
+                .contains("Synthetic pruning refusal")
+        );
+        assert!(
+            window
+                .find("backup-error")
+                .label()
+                .unwrap()
+                .contains("Synthetic checkpoint failure")
+        );
+        desktop.update(cx, |desktop, cx| {
+            desktop.query.update(cx, |query, cx| {
+                query.set_value("Retained composer õ\r\n", window, cx)
+            });
+        });
+        window.click("checkpoint-backup", cx);
+    });
+    visual.run_until_parked();
+    visual.update(|window, cx| {
+        window.render_frame(cx);
+        // The deliberately absent worker exercises real command submission failure.
+        assert!(
+            window
+                .find("backup-request-error")
+                .label()
+                .unwrap()
+                .contains("Application lane is closing")
+        );
+        desktop.update(cx, |desktop, cx| {
+            let ai = desktop.ai.as_mut().unwrap();
+            assert_eq!(ai.backup_status.as_ref(), Some(&copy));
+            assert_eq!(ai.notice, "Retained general operation error");
+            assert_eq!(
+                desktop.query.read(cx).value().to_string(),
+                "Retained composer õ\r\n"
+            );
+            let (id, _) = ai.request_backup(false).unwrap();
+            ai.apply(Uuid::nil(), AppEvent::BackupStatus(copy.clone()));
+            assert!(ai.pending.contains_key(&id));
+            cx.notify();
+        });
+    });
+    visual.run_until_parked();
+    visual.update(|window, cx| {
+        window.render_frame(cx);
+        assert!(window.find("backup-pending").visible());
+        window.click("checkpoint-backup", cx);
+        window.click("refresh-backup-status", cx);
+        desktop.update(cx, |desktop, cx| {
+            let ai = desktop.ai.as_mut().unwrap();
+            assert!(
+                ai.backup_pending(),
+                "Disabled controls submitted another request"
+            );
+            assert!(ai.backup_request_error.is_none());
+            let id = *ai
+                .pending
+                .iter()
+                .find(|(_, pending)| matches!(pending, crate::ai::Pending::BackupStatus))
+                .unwrap()
+                .0;
+            ai.apply(id, AppEvent::BackupStatus(copy.clone()));
+            cx.notify();
+        });
+    });
+    visual.run_until_parked();
+    visual.update(|window, cx| {
+        window.render_frame(cx);
+        assert!(window.try_find("backup-pending").is_none());
+        window.click("refresh-backup-status", cx);
+    });
+    visual.run_until_parked();
+    visual.update(|window, cx| {
+        window.render_frame(cx);
+        assert!(
+            window
+                .find("backup-request-error")
+                .label()
+                .unwrap()
+                .contains("Application lane is closing")
+        );
+        assert_eq!(
+            desktop.read(cx).ai.as_ref().unwrap().backup_status.as_ref(),
+            Some(&copy)
+        );
+        desktop.update(cx, |desktop, cx| {
+            let ai = desktop.ai.as_mut().unwrap();
+            let (id, _) = ai.request_backup(false).unwrap();
+            ai.apply(
+                id,
+                AppEvent::BackupStatus(BackupStatus {
+                    latest_path: "/synthetic/new.sqlite".into(),
+                    completed_at_ms: Some(1),
+                    retention_warning: None,
+                    last_error: None,
+                }),
+            );
+            cx.notify();
+        });
+    });
+    visual.run_until_parked();
+    visual.update(|window, cx| {
+        window.render_frame(cx);
+        assert!(
+            window
+                .find("backup-path")
+                .label()
+                .unwrap()
+                .contains("new.sqlite")
+        );
+        assert!(
+            window
+                .find("backup-copy-time")
+                .label()
+                .unwrap()
+                .contains("days ago")
+        );
+        assert!(window.try_find("backup-error").is_none());
+        assert!(window.try_find("backup-retention-warning").is_none());
+        assert!(window.try_find("backup-request-error").is_none());
+    });
+}

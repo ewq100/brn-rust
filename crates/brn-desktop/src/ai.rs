@@ -5,6 +5,7 @@ use brn_workflow::{
     WorkBudget, WorkConversation, WorkTurn, WorkTurnStatus,
     activity::{ActivityPage, ActivityRequest},
     app_worker::{AppCommand, AppEvent},
+    backups::BackupStatus,
     chat_worker::{AccountCommand, AccountEvent, AccountReply, AskRequest, ChatEvent},
     editor::{
         EditRequest, EditStamp, EditorRecord, EditorView, ReloadRequest, SaveOutcome, SaveReceipt,
@@ -179,6 +180,8 @@ pub struct AccountRow {
 }
 #[derive(Clone)]
 pub enum Pending {
+    BackupStatus,
+    CheckpointBackup,
     InboxCopy(Box<inbox_copy_state::CopyPending>),
     InboxAnalysis(inbox_analysis_state::AnalysisPending),
     Inbox(Box<inbox_state::InboxPending>),
@@ -392,6 +395,8 @@ pub struct AiState {
     pub cancelled_login: Option<Uuid>,
     pub accounts: [AccountRow; 2],
     pub pending: HashMap<Uuid, Pending>,
+    pub backup_status: Option<BackupStatus>,
+    pub backup_request_error: Option<String>,
     pub knowledge_scope: KnowledgeScope,
     pub notes_generation: u64,
     pub notes: Vec<NoteEntry>,
@@ -1583,6 +1588,22 @@ impl AiState {
             AppCommand::NoteProvenance(path),
         ))
     }
+    pub fn backup_pending(&self) -> bool {
+        self.pending
+            .values()
+            .any(|pending| matches!(pending, Pending::BackupStatus | Pending::CheckpointBackup))
+    }
+    pub fn request_backup(&mut self, checkpoint: bool) -> Option<(Uuid, AppCommand)> {
+        if !self.ready || self.backup_pending() {
+            return None;
+        }
+        self.backup_request_error = None;
+        Some(if checkpoint {
+            self.command(Pending::CheckpointBackup, AppCommand::CheckpointBackup)
+        } else {
+            self.command(Pending::BackupStatus, AppCommand::BackupStatus)
+        })
+    }
     pub fn command(&mut self, pending: Pending, command: AppCommand) -> (Uuid, AppCommand) {
         let id = Uuid::new_v4();
         self.pending.insert(id, pending);
@@ -1778,6 +1799,29 @@ impl AiState {
     }
     pub fn apply(&mut self, id: Uuid, event: AppEvent) -> Vec<(Uuid, AppCommand)> {
         let mut commands = Vec::new();
+        // Backup notifications are independent of the operation whose commit made
+        // state dirty. Never let them settle that operation or replace its buffers.
+        let backup_request = matches!(
+            self.pending.get(&id),
+            Some(Pending::BackupStatus | Pending::CheckpointBackup)
+        );
+        if let AppEvent::BackupStatus(status) = event {
+            if id.is_nil() || backup_request {
+                self.backup_status = Some(status);
+                if backup_request {
+                    self.backup_request_error = None;
+                    self.pending.remove(&id);
+                }
+            }
+            return commands;
+        }
+        if backup_request {
+            if let AppEvent::Failed(error) = event {
+                self.backup_request_error = Some(error.message);
+                self.pending.remove(&id);
+            }
+            return commands;
+        }
         if let Some(commands) = self.apply_session_event(id, &event) {
             return commands;
         }
@@ -2351,6 +2395,7 @@ impl AiState {
                 .into();
                 for (pending, command) in [
                     (Pending::Status, AppCommand::Status),
+                    (Pending::BackupStatus, AppCommand::BackupStatus),
                     (Pending::Selection, AppCommand::Selection),
                     (Pending::Effort, AppCommand::Effort),
                     (Pending::Proposals, AppCommand::Proposals(None)),
@@ -2981,7 +3026,7 @@ impl AiState {
             | AppEvent::InboxExtraction(_)
             | AppEvent::InboxRetainedExtractions { .. }
             | AppEvent::InboxIntakeBinding(_) => return commands,
-            AppEvent::Rewrite(_) => unreachable!(),
+            AppEvent::Rewrite(_) | AppEvent::BackupStatus(_) => unreachable!(),
             AppEvent::Chat(_)
             | AppEvent::Account(_)
             | AppEvent::InboxCaptured(_)
@@ -3029,6 +3074,9 @@ mod tests {
     }
     mod relationship_state {
         include!("relationship_state_tests.rs");
+    }
+    mod backups {
+        include!("backup_state_tests.rs");
     }
     mod session_timestamps {
         include!("session_timestamp_tests.rs");
@@ -4007,6 +4055,7 @@ mod tests {
         assert!(commands.iter().all(|(_, command)| matches!(
             command,
             AppCommand::Status
+                | AppCommand::BackupStatus
                 | AppCommand::Selection
                 | AppCommand::Effort
                 | AppCommand::Proposals(None)

@@ -39,6 +39,8 @@ fn command_name(command: &AppCommand) -> &'static str {
         AppCommand,
         [
             Status,
+            BackupStatus,
+            CheckpointBackup,
             Refresh,
             Selection,
             Effort,
@@ -166,6 +168,7 @@ fn event_name(event: &AppEvent) -> &'static str {
         ],
         [
             Status,
+            BackupStatus,
             Selection,
             Effort,
             Refreshed,
