@@ -153,6 +153,7 @@ struct BudgetSettingsProbe(Entity<Desktop>);
 impl Render for BudgetSettingsProbe {
     fn render(&mut self, _: &mut Window, cx: &mut Context<Self>) -> impl IntoElement {
         div()
+            .id("budget-settings-probe")
             .size_full()
             .child(super::simple::account_settings(&self.0, cx))
             .test_support()
@@ -176,8 +177,8 @@ fn investigation_budget_presets_capture_and_freeze_in_real_settings_widgets(
         cx.notify();
     });
     let target = desktop.clone();
-    let window = cx.open_window(size(px(1100.), px(1800.)), move |_, cx| {
-        cx.new(|_| BudgetSettingsProbe(target))
+    let window = cx.open_window(size(px(1100.), px(1800.)), move |_, _| {
+        BudgetSettingsProbe(target)
     });
     let mut visual = VisualTestContext::from_window(window.into(), cx);
     visual.run_until_parked();

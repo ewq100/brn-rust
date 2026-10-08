@@ -304,3 +304,23 @@ Full default gate passed1670tests/17existingignores, doctests, all-target Clippy
 workspace/helper builds and52fixture assertions before the order correction;
 unchanged checks are reused, affected/native checks follow against final code.
 CLI9 and newworkflow7 passed. Final combined native/shipping/CI pending.
+
+### PR91 native state milestone — 19:37UTC
+
+Budget code candidatee391be5 is pushed as
+[PR91](https://github.com/ewq100/brn-rust/pull/91), attached to this chat.
+Final native workflow/models passed412 with15existingignores. Desktop test
+compilation exposed two setup defects in the new headless Settings probe:
+open_window needs a Render value, and test_support needs an ElementId. Both are
+fixed only in dialog_tests.rs; targeted real widget test passed, then combined
+native desktop/CLI passed525 with no failures/ignores. Existing block0.1.6 future
+compiler warning remains informational. Final native Clippy/shipping/fixtures
+pending; current hosted run37832395421 will be superseded by the test fix push.
+Independent read-only validation of the test-only delta requested. No interactive
+UI acceptance is established. Morning task must use the eventual final build.
+
+P4 work is now isolated in the reused clean parent checkout on
+`codex/p4-conflict-recommendations`, spec6fc5d40, with guidance and a combined
+MIME/conflict/review/restart witness being qualified. Two live calls remain unused.
+The budget target is idle while the P4 helper runs its two targeted tests in
+`target/intake-ui`; after it releases Cargo, finish budget Clippy/shipping and CI.
