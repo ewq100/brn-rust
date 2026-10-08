@@ -77,7 +77,7 @@ requires exact final-candidate review, applicable local checks and actual requir
 CI. No weakening, bypass or rushed merge. Record failures and repair real defects.
 Known informational platform failures remain visible and separate.
 
-## Durable checkpoint — 8 October 21:57 UTC
+## Durable checkpoint — 8 October 21:45 UTC
 
 Main deca5d5 includes PR90–PR96; all required candidate checks/docs passed.
 PR90–PR95 post-merge checks/docs passed; PR96 post-merge37848490327 pending.
