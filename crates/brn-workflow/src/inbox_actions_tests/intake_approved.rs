@@ -1,6 +1,8 @@
 //! Retained collection investigation after offline Source approval and restart.
 use super::*;
 use crate::app::App;
+#[path = "intake_conflicts.rs"]
+mod conflict_tests;
 
 fn approve_source(
     worker: &AppWorker,

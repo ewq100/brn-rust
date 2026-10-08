@@ -209,7 +209,12 @@ impl App {
             }
         }
         self.require_current_evidence()?;
-        if matches!(draft.request.origin, FindingOrigin::InboxConflict { .. }) {
+        if let FindingOrigin::InboxConflict { analysis_id, .. } = &draft.request.origin {
+            let job = self
+                .store
+                .inbox_action(*analysis_id)?
+                .ok_or_else(|| rejected("Conflict needs a retained Inbox analysis"))?;
+            self.validate_intake_dependency(job.capture.intake.as_ref(), true)?;
             // Bound the entire future receipt before retention, including the
             // widest supported replay stamp/timestamps and terminal state.
             let maximum = FindingRecord {

@@ -13,6 +13,8 @@ use rusqlite::{Connection, params};
 use sha2::{Digest, Sha256};
 use std::path::Path;
 use uuid::Uuid;
+#[path = "work_intake/applied_conflicts.rs"]
+mod applied_conflicts;
 
 const ORIGINAL: &[u8] =
     b"From: synthetic@example.test\r\nSubject: exact bytes\r\n\r\nBody \xff\x00";
