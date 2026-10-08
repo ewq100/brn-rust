@@ -97,9 +97,13 @@ ignores;426 native workflow/models/16 ignores;549 desktop/CLI; doctests, strict
 Clippy, shipping and52fixtures. All four required candidate checks and docs passed
 in37853345027. PR98 merged normally at4db3031; resulting tree exactlyequals checked
 8b40385. Post-merge run37855704574 is active (Ubuntu core/native UI/docs passed;
-other required Mac checks pending at last observation). Actual Windows logs show
-unchanged MetadataExt/nlink failure; informational Linux/Windows post logs need
-capture/classification. Oldrun37852945826 automaticallycancelled afterdochead.
+other required Mac checks pending at last observation). All five supplemental
+post-failure logs were captured: Windows core/UI MetadataExt/nlink and combined
+Unix filesystem APIs; Linux combined three ExclusiveInstallUnavailable assertions;
+Linux UI unused Command/Stdio plus PR97-added acknowledge_legacy_review test helper
+unused on non-macOS. Those are nonrequired for Mac; the helper diagnostic was
+introduced by Session work, so do not label every diagnostic pre-existing. PPTX
+changes neither failing import nor helper. No port or warning suppression. Oldrun37852945826 automaticallycancelled afterdochead.
 
 Lead checkout `/Users/evokessler/repos/brn-p2-email-docx-intake` now uses
 `codex/p7-action-replacement-compensation`, committed plan7a1bc305f7fb3aa8088f5c4d98256638f33886e5
@@ -114,10 +118,15 @@ Lead's four workflow reference/cycle/crash/mirror tests and real CLI journey pas
 One fresh complete independent review is clean at patch
 810237f8f73f6de6a14a7131e02965a7ab862089e75ff28de54937439c2a8a12, rechecked before
 committing productionf2ff215. Resulting PPTX main incorporated without tree changes
-at12aa4b644f6fc5e4f793a6e067b822ec94f96509. Final gate11272 owns sole Cargo in
-`target/intake-ui`; fmt/default all-target Clippy passed, full default workspace
-(including changed Store) running, then native/combined/shipping/fixtures. No
-active helpers now. Next: finish gates, then incorporate eligible backup main,
+at12aa4b644f6fc5e4f793a6e067b822ec94f96509. Full default gate11272 passed changed Store/all prior packages and421 workflow
+unit cases/full recovery; one old mixed-Undo diagnostic expectation was corrected
+and independently reviewed, focused rerun passed. Resume gate8195 owns sole Cargo
+in `target/intake-ui`: remaining integrations/doctests/native/combined/shipping/fixtures.
+Production unchanged; reuse unchanged successes. A read-only helper now inspects the smallest coherent owner Create-destination
+retarget slice under P3. Smallest ready scope is same-folder Create-note destination rename, with
+compact original-path evidence preserved through journal recovery/creation replay;
+Source/asset/cross-folder/Replace/split/regroup stay separate. Plan preparation
+is next; no retarget production edits yet. Next: finish gates, then incorporate eligible backup main,
 qualify merge seams, open Action PR and integrate after actual required CI.
 
 Operational backup checkout `/Users/evokessler/repos/brn-p3-work-budgets`, branch

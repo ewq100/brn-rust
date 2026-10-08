@@ -89,3 +89,13 @@ vault-only admission; narrow state/native predicates now permit only supported
 Action-only compensation while preserving file/scoped Trash/repair guards.
 No provider or interactive UI work occurred. Full final gates, required CI,
 integration and personal acceptance remain pending.
+
+Full default gate passed all changed Store tests and other packages, then found
+one existing mixed asset/Action witness expecting the old blanket diagnostic.
+Both mixed Undo operations still correctly refuse with no admission or effects;
+only the two expected strings changed to the precise supported-domain refusal.
+Independent test-only delta review clean at
+b410e9d3d1741764c145f8e6985ff423eb3d77f6ff9830395be953f71c9a1305.
+Focused witness passed; unchanged421 workflow unit successes/full-size recovery
+are reused with this corrected pass. Remaining integration/doctest/native/combined
+and shipping gates continue serially in8195; production unchanged sincef2ff215.
