@@ -119,7 +119,7 @@ That account reading is not attributable BRN usage or per-investigation spend.
 
 Six of the original six calls were completed. At 20:00 UTC the owner explicitly
 added ten shared investigations: sixteen maximum for the night, conservatively
-allocated at most eight per existing model/Medium condition. Ten currently remain.
+allocated at most eight per existing model/Medium condition. Ten remained at that historical milestone.
 All original per-run limits and data/account boundaries continue. Live calls require
 a concrete question that retained output or deterministic tests cannot answer;
 approval/replay always reuses retained output. The local campaign ledger is canonical.
@@ -162,10 +162,76 @@ A small generic clarification about supported follow-up under missing execution
 authority is selected separately, preserving legitimate abstention and no forced
 Action count. This pair does not prove prompt causality or Sol superiority.
 
-Eight of sixteen calls used, four per exact Medium condition; eight remain.
+At the Cedar milestone, eight of sixteen calls were used, four per exact Medium condition; eight remained.
 All runs retained 180seconds/eight tool rounds/nine responses, no retry/fallback.
 Account-wide weekly usage read42% before the pair and43% after; short window was
 unavailable. Those readings include unrelated Codex work and do not establish
 per-run tokens or spend. Provider HTTP requests/internal reasoning/tokens/spend
 remain unknown. No reset or purchase occurred. No new inference is needed for
 approval, edits, restart or replay of retained work.
+
+
+## Linden exact Applied-private-intake qualification
+
+A fresh unrelated synthetic case used actual EML import/process/Source approval
+and an owner-authored Current with four exact citations, with zero preparation
+inference. Exact manifest and immutable lineage:
+`/private/tmp/brn-overnight-20261008/linden-applied-intake/ready.json` and
+`intake-binding.json`. Applied Source proposal
+`f99a1c73-e4c2-49c3-8243-e9b2f601c1e7` retains approved Draft version 1 while its
+current Applied record is version 3; no recapture, Source duplicate or refreshed
+approval was invented. Runtime `b61c33ddd818fe6484145b37bcb7660606a29953`, immutable
+CLI `clarification-action-combined-brn` SHA-256
+`898ef3332766b545ff5f1907c46595adffda9e8a2053d2546a6250e9334f489d`.
+
+Approved plan: one accessible 26-person rehearsal, including four mobility-aid
+users, East Studio on 19 October 18:00–20:00 +03:00; only Mira may change the plan.
+Facilities reports electrical-water-ingress isolation 17:00–22:00, offers an
+unreserved 18-person stair-only West Loft with smoke prohibition, and requests a
+response 12 October noon +03:00. Copied Mira has not authorized changes. Other
+accessible rooms, costs and dates remain unchecked. Facilities' building remit
+and director plan authority are distinct. No Finding/Action/model draft existed
+before Luna. Sources/Current stayed identical between runs; later runs could read
+any earlier retained context, so this is not an isolated model-ranking experiment.
+
+| Model / attempt | Analysis | Seconds | Responses / rounds | Actual result |
+| --- | --- | --- | --- | --- |
+| Luna Medium | `b9faa8fd-9b08-4c19-9361-6ff47ae3a5b4` | 15.675 | 5 / 4 | One unassigned clarification Action, all material capacity/access/authority/deadline facts retained; no Knowledge/Finding, explicitly conservative about partial extraction. |
+| Sol Medium, initial | `67a328c1-6c0b-4667-83ed-6430baca1d1c` | 11.748 | 3 / 3 | Failed with recorded other / generic operation-did-not-complete error; no answer, draft or Finding. Provider outcome/cause unknown; retained diagnostics cannot distinguish the underlying cause. |
+| Sol Medium, separately counted manual retry | `a25aac84-74c8-40e7-b4c2-2d054df0b807` | 112.466 | 9 / 8 | Two Knowledge drafts, two independent unassigned Actions and one open exact two-sided Finding, with reasoned tentative preference and alternatives. Completed at the configured ceiling; no automatic retry. |
+
+The retry was a fresh UUID reserved in the shared ledger, not replay of failed
+work. It establishes useful synthetic Applied-private-intake capture, not prompt
+causality, universal completeness, model superiority or personal acceptance.
+Both completed models distinguished response cut-off from rehearsal/execution,
+capacity and access from artistic approval, a conditional offer from booking, and
+unknown owners/costs/availability from assignments or spending authority. No model
+selected supersession; these candidates supplement the plan, so live History
+selection remains unqualified.
+
+Sol Finding `7dfdff0d-9749-86c4-bb9a-dc82a9809e56` binds exact saved facilities
+Source versus the director Source, retains authority/reasons/alternatives and
+stays Open. The four Sol proposals were deliberately reviewed and approved with
+Actions first using a fresh process for each command: four Applied receipts,
+restart inspection, identical group replay, unchanged notes/Actions/apply records.
+Exact completed analysis replay emitted no tool or budget-progress event. Complete
+Source/Current/original device/inode/length/hash proofs remained unchanged.
+No inference was used for approval/replay. Knowledge proposals `5fcf4c33-0cec-81db-b9e3-4642123b1735`
+and `9ff36a5d-cf90-82c9-b6ec-10a429ff86c5`, Actions
+`f3a1c3e4-dceb-8790-a9d2-36535268f69a` and
+`6d66cb36-d687-8cda-a3d8-158be870a416`; use receipts as canonical identities.
+Luna's comparison Action remains Draft. Approval/replay/proof summaries are in the
+Linden folder; all requests, outputs and saved jobs are under its `receipts`.
+
+One demonstrated evidence-wording ambiguity: the helper's unconditional gap
+mentions absent identifiers/HTML on this plain-text email despite retained
+Message-ID/In-Reply-To/References. Sol disclosed that inconsistency. A narrow
+[deterministic caveat repair](email-evidence-caveats.md) is selected separately;
+old snapshots remain immutable and partial status is not promoted to complete.
+
+Current campaign total: eleven of sixteen used, five Luna and six Sol; five
+remain (at most three Luna/two Sol). Every attempt retained 180-second cancellation,
+eight tool rounds/nine responses and no account/provider/model substitution.
+Account-wide weekly usage was 46% used / 54% remaining before and after these
+three attempts; this includes other Codex work. Short window and provider HTTP
+requests/tokens/internal reasoning/spend are unknown. No reset/purchase occurred.
