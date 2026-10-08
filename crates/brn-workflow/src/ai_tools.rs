@@ -5,8 +5,8 @@ use crate::library::{
 };
 use crate::vault::{self, EvidencePath, VaultPath};
 use brn_ai::{
-    AiError, AiErrorKind, AiResult, ConflictKnowledge, NoteEntry, NoteFacts, NotePage, Passage,
-    ReadScope, ReadTools, ToolNote, ToolSearch,
+    AiError, AiErrorKind, AiResult, ConflictKnowledge, NoteEntry, NoteFacts, NotePage,
+    NoteRangeRequest, Passage, ReadScope, ReadTools, ToolNote, ToolNoteRange, ToolSearch,
 };
 use brn_retrieval::note_index::{IndexedNote, NoteIndexReader};
 use std::{
@@ -276,6 +276,32 @@ impl ReadTools for AiTools {
             path: path.to_owned(),
             text: text.to_owned(),
             truncated,
+            facts,
+        })
+    }
+
+    fn read_note_range(&self, request: &NoteRangeRequest) -> AiResult<ToolNoteRange> {
+        request.validate()?;
+        let scope = knowledge_scope(request.scope);
+        let parsed = read_path(&request.path, scope)?;
+        let epoch = self.check_root()?;
+        let note = vault::read_evidence(&self.root, &parsed).map_err(|_| stale())?;
+        if note.sha256 != request.expected_sha256 {
+            return Err(stale());
+        }
+        let facts =
+            checked_facts(&note.text, &request.path, scope, note.sha256).map_err(|_| rejected())?;
+        let text = note
+            .text
+            .get(request.start_byte..request.end_byte)
+            .ok_or_else(rejected)?;
+        self.check_current_epoch(epoch)?;
+        Ok(ToolNoteRange {
+            path: request.path.clone(),
+            start_byte: request.start_byte,
+            end_byte: request.end_byte,
+            total_bytes: note.text.len(),
+            text: text.to_owned(),
             facts,
         })
     }

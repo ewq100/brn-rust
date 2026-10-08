@@ -1,5 +1,32 @@
 # Current development status
 
+## Overnight implementation and model qualification — 2026-10-08
+
+Current fetched main is `32c2538688723acff6f86e5af6594958f8fce26e`:
+[PR87](https://github.com/ewq100/brn-rust/pull/87),
+[PR88](https://github.com/ewq100/brn-rust/pull/88) and
+[PR89](https://github.com/ewq100/brn-rust/pull/89) are merged. PR89's final receipt
+records passing required macOS/shared checks and documentation before/after
+integration. The owner authorizes continued V1 implementation and normal
+protected integration until 08:00 Europe/Tallinn on 9 October; earlier pause,
+prepare-only and stop-after-PR summaries below are dated history.
+The [overnight checkpoint](work/active/overnight-continuation/plan.md) owns current
+progress and the shared six-investigation allowance. Fresh ordinary BRN CLI
+status confirms ChatGPT connected; discovery includes exact Luna/Sol IDs.
+Paired Medium baseline completed on retained synthetic evidence and PR89's
+qualified shipping CLI: Luna retained one Action with a refused Knowledge quote;
+Sol retained two Knowledge drafts and one Action with budget/review details.
+The first range/guidance candidate passed focused workflow/lifecycle and143 AI
+tests (one existing ignore); independent review found no actionable defect.
+Broader gates and integration remain pending. Full P2/P3 and personal acceptance
+remain pending.
+All interactive checks are deferred to the [single morning UI task](work/active/overnight-continuation/morning-ui-acceptance.md).
+No overnight GUI testing, private-data operation, optional model download or
+release is authorized. Other open research PRs remain untouched.
+
+The entries below preserve dated implementation/evidence checkpoints; they do
+not override the current baseline or overnight authorization above.
+
 ## Selected CI performance fix, merge and GUI/live qualification — 2026-10-08
 
 The owner selects fixing the long Mac CI path, merging the eligible PR87/PR88

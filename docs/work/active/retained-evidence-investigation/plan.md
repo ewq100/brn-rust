@@ -1,5 +1,16 @@
 # Retained evidence investigation: approved Sources
 
+## Overnight continuation — current authority, 2026-10-08
+
+The owner resumes remaining V1 implementation, bounded live-model qualification
+and protected integration until 08:00 Europe/Tallinn on 9 October. The
+[overnight plan](../overnight-continuation/plan.md) owns current scope, baseline,
+campaign ledger and checkpoint; the [single morning UI task](../overnight-continuation/morning-ui-acceptance.md)
+owns all deferred interactive checks. PR87/88/89 are merged; main is `32c2538`.
+Historical pause/no-merge/no-live or pending-integration descriptions below
+remain dated evidence and are superseded for this expressly authorized work.
+No computer use or GUI qualification occurs overnight.
+
 ## Owner continuation: repair restarted consequence approval — 2026-10-08
 
 The corrected catalog enabled actual GUI selection of `gpt-6-luna` / Medium.

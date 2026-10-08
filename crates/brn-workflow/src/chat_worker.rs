@@ -769,6 +769,12 @@ impl brn_ai::ProposalTools for DrainedProposals {
     }
 }
 impl ReadTools for DrainedTools {
+    fn read_note_range(
+        &self,
+        request: &brn_ai::NoteRangeRequest,
+    ) -> brn_ai::AiResult<brn_ai::ToolNoteRange> {
+        self.tools.read_note_range(request)
+    }
     fn read_conflicts(
         &self,
         path: &str,
@@ -1206,4 +1212,85 @@ async fn real_account(
         AccountCommand::Disconnect(_) => unreachable!("disconnect is fenced in the dispatch loop"),
     }
     .unwrap_or_else(AccountReply::Failed)
+}
+
+#[cfg(test)]
+mod ranged_read_drain_tests {
+    use super::*;
+
+    struct BlockingRange {
+        started: Mutex<Option<oneshot::Sender<brn_ai::NoteRangeRequest>>>,
+        release: Mutex<mpsc::Receiver<()>>,
+    }
+    impl ReadTools for BlockingRange {
+        fn search_notes(&self, _: &str, _: usize) -> brn_ai::AiResult<brn_ai::ToolSearch> {
+            panic!("unexpected")
+        }
+        fn read_note(&self, _: &str) -> brn_ai::AiResult<brn_ai::ToolNote> {
+            panic!("unexpected")
+        }
+        fn list_notes(
+            &self,
+            _: Option<&str>,
+            _: Option<&str>,
+        ) -> brn_ai::AiResult<brn_ai::NotePage> {
+            panic!("unexpected")
+        }
+        fn read_note_range(
+            &self,
+            request: &brn_ai::NoteRangeRequest,
+        ) -> brn_ai::AiResult<brn_ai::ToolNoteRange> {
+            self.started
+                .lock()
+                .unwrap()
+                .take()
+                .unwrap()
+                .send(request.clone())
+                .unwrap();
+            self.release
+                .lock()
+                .unwrap()
+                .recv_timeout(std::time::Duration::from_secs(10))
+                .unwrap();
+            Err(AiError::new(AiErrorKind::IndexStale))
+        }
+    }
+
+    #[tokio::test]
+    async fn ranged_blocking_read_keeps_drain_lease_after_turn_handle_is_dropped() {
+        let (started, start) = oneshot::channel();
+        let (release, wait) = mpsc::channel();
+        let (drained, mut drain) = oneshot::channel();
+        let tools: Arc<dyn ReadTools> = Arc::new(DrainedTools {
+            tools: Arc::new(BlockingRange {
+                started: Mutex::new(Some(started)),
+                release: Mutex::new(wait),
+            }),
+            _drained: Arc::new(DrainSignal(Some(drained))),
+        });
+        let request = brn_ai::NoteRangeRequest {
+            path: "source.md".into(),
+            scope: brn_ai::ReadScope::Source,
+            expected_sha256: [17; 32],
+            start_byte: 50_000,
+            end_byte: 50_004,
+        };
+        let expected = request.clone();
+        let blocking_tools = tools.clone();
+        let read = tokio::task::spawn_blocking(move || blocking_tools.read_note_range(&request));
+        assert_eq!(start.await.unwrap(), expected);
+        // Cancelling a turn drops its runtime handle, but cannot cancel a running
+        // spawn_blocking read. Its retained Arc must continue fencing lifecycle work.
+        drop(tools);
+        assert!(matches!(
+            drain.try_recv(),
+            Err(oneshot::error::TryRecvError::Empty)
+        ));
+        release.send(()).unwrap();
+        assert_eq!(
+            read.await.unwrap().unwrap_err().kind,
+            AiErrorKind::IndexStale
+        );
+        drain.await.unwrap();
+    }
 }

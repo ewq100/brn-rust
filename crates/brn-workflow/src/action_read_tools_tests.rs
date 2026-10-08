@@ -156,6 +156,18 @@ fn action_tools_read_exact_approved_records_and_pages_without_knowledge_mutation
                     for path in expected {
                         let read = tools.read_note_scoped(path, scope).unwrap();
                         assert!(!read.truncated);
+                        let range = tools
+                            .read_note_range(&brn_ai::NoteRangeRequest {
+                                path: path.into(),
+                                scope,
+                                expected_sha256: read.facts.sha256,
+                                start_byte: 0,
+                                end_byte: read.text.len(),
+                            })
+                            .unwrap();
+                        assert_eq!(range.text, read.text);
+                        assert_eq!(range.facts, read.facts);
+                        assert_eq!(range.total_bytes, read.text.len());
                         if path == "a.md" {
                             assert_eq!(read.text, "current");
                         } else {

@@ -215,6 +215,12 @@ struct ApplicationReads {
     actions: ActionReads,
 }
 impl ReadTools for ApplicationReads {
+    fn read_note_range(
+        &self,
+        request: &brn_ai::NoteRangeRequest,
+    ) -> AiResult<brn_ai::ToolNoteRange> {
+        self.notes.read_note_range(request)
+    }
     fn search_notes(&self, query: &str, limit: usize) -> AiResult<ToolSearch> {
         self.notes.search_notes(query, limit)
     }

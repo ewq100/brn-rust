@@ -102,6 +102,26 @@ fn approved_retained_source_investigation_preserves_images_and_approves_only_new
         assert_eq!(evidence["image_occurrences"].as_array().unwrap().len(), 3);
         assert_eq!(evidence["source_nodes"].as_array().unwrap().len(), 8);
         assert_eq!(evidence["assets"][0]["included_in_visual_input"], true);
+        // The selected model receives exact complete nodes, including easily
+        // missed header/footer constraints, before it chooses review content.
+        let docx = evidence["source_nodes"]
+            .as_array()
+            .unwrap()
+            .iter()
+            .find(|node| node["name"] == "harbor.docx")
+            .unwrap();
+        let text = docx["extracted_text"].as_str().unwrap();
+        assert!(text.contains("review date 12 October 2026"));
+        assert!(text.contains("budget capped at EUR 4,000"));
+        assert!(ask.question.contains("headers, footers and tables"));
+        assert!(
+            ask.question
+                .contains("short contiguous exact extracted quote wording")
+        );
+        assert!(
+            ask.question
+                .contains("correct the quotation within the existing work budget")
+        );
         script(ask, history, read, tools, cancel, emit)
     });
     let mut worker = f.start(Hooks {

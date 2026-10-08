@@ -63,6 +63,43 @@ pub struct ToolNote {
     pub facts: NoteFacts,
 }
 
+/// Exact half-open UTF-8 byte interval bound to a complete saved-note hash.
+#[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
+#[serde(deny_unknown_fields)]
+pub struct NoteRangeRequest {
+    pub path: String,
+    #[serde(default)]
+    pub scope: ReadScope,
+    pub expected_sha256: [u8; 32],
+    pub start_byte: usize,
+    pub end_byte: usize,
+}
+
+impl NoteRangeRequest {
+    pub fn validate(&self) -> AiResult<()> {
+        if !(1..=512).contains(&self.path.len())
+            || self
+                .end_byte
+                .checked_sub(self.start_byte)
+                .is_none_or(|len| len > READ_NOTE_BYTES)
+        {
+            return Err(rejected());
+        }
+        Ok(())
+    }
+}
+
+#[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
+#[serde(deny_unknown_fields)]
+pub struct ToolNoteRange {
+    pub path: String,
+    pub start_byte: usize,
+    pub end_byte: usize,
+    pub total_bytes: usize,
+    pub text: String,
+    pub facts: NoteFacts,
+}
+
 #[derive(Clone, Debug, Serialize, Deserialize)]
 pub struct NoteEntry {
     pub path: String,
@@ -90,6 +127,12 @@ pub trait ReadTools: Send + Sync {
     fn search_notes(&self, query: &str, limit: usize) -> AiResult<ToolSearch>;
     fn read_note(&self, path: &str) -> AiResult<ToolNote>;
     fn list_notes(&self, folder: Option<&str>, cursor: Option<&str>) -> AiResult<NotePage>;
+
+    /// Read an exact interval from the supplied full saved-note content proof.
+    /// Legacy implementations refuse rather than returning a capped prefix.
+    fn read_note_range(&self, _request: &NoteRangeRequest) -> AiResult<ToolNoteRange> {
+        Err(rejected())
+    }
 
     /// Read a complete approved Action through the application boundary.
     fn read_action(&self, _id: &str) -> AiResult<Value> {
@@ -221,6 +264,12 @@ pub(crate) struct ScopedNote {
     result: ToolNote,
 }
 #[derive(Serialize)]
+pub(crate) struct ScopedNoteRange {
+    scope: ReadScope,
+    #[serde(flatten)]
+    result: ToolNoteRange,
+}
+#[derive(Serialize)]
 pub(crate) struct ScopedPage {
     scope: ReadScope,
     #[serde(flatten)]
@@ -229,6 +278,7 @@ pub(crate) struct ScopedPage {
 
 pub(crate) struct SearchNotes(pub Arc<dyn ReadTools>);
 pub(crate) struct ReadNote(pub Arc<dyn ReadTools>);
+pub(crate) struct ReadNoteRange(pub Arc<dyn ReadTools>);
 pub(crate) struct ListNotes(pub Arc<dyn ReadTools>);
 pub(crate) struct ReadAction(pub Arc<dyn ReadTools>);
 pub(crate) struct ListActions(pub Arc<dyn ReadTools>);
@@ -448,6 +498,55 @@ impl Tool for ReadNote {
             Ok(ScopedNote {
                 scope: args.scope,
                 result: note,
+            })
+        })
+        .await
+        .map_err(|_| AiError::new(AiErrorKind::Other))?
+    }
+}
+
+impl Tool for ReadNoteRange {
+    const NAME: &'static str = "read_note_range";
+    type Args = NoteRangeRequest;
+    type Output = ScopedNoteRange;
+    type Error = AiError;
+
+    fn description(&self) -> String {
+        "Read an exact saved-note interval using expected_sha256 copied from fresh note/search/list facts. Offsets are zero-based half-open UTF-8 bytes of the complete saved file, including BOM, frontmatter and CRLF. Both offsets must be character boundaries; at most 50000 bytes per interval, with no clipping or normalization. Empty intervals (including 0..0) return total_bytes for discovering the length. A changed full-note hash refuses the read even when the requested interval is unchanged. Omitted scope means Current; Source/History/All select explicit evidence. Facts describe the complete checked bytes; unknown conflicts never mean zero. This checked content snapshot grants no approval or mutation authority.".into()
+    }
+
+    fn parameters(&self) -> Value {
+        json!({"type":"object","additionalProperties":false,"properties":{
+            "path":{"type":"string","minLength":1,"maxLength":512},
+            "scope":{"type":"string","enum":["current","source","history","all"]},
+            "expected_sha256":{"type":"array","minItems":32,"maxItems":32,
+                "items":{"type":"integer","minimum":0,"maximum":255}},
+            "start_byte":{"type":"integer","minimum":0},
+            "end_byte":{"type":"integer","minimum":0}
+        },"required":["path","expected_sha256","start_byte","end_byte"]})
+    }
+
+    async fn call(
+        &self,
+        _: &mut ToolContext,
+        request: NoteRangeRequest,
+    ) -> AiResult<ScopedNoteRange> {
+        request.validate()?;
+        let tools = self.0.clone();
+        tokio::task::spawn_blocking(move || {
+            let result = tools.read_note_range(&request)?;
+            if result.path != request.path
+                || result.start_byte != request.start_byte
+                || result.end_byte != request.end_byte
+                || result.end_byte > result.total_bytes
+                || result.text.len() != request.end_byte - request.start_byte
+                || result.facts.sha256 != request.expected_sha256
+            {
+                return Err(rejected());
+            }
+            Ok(ScopedNoteRange {
+                scope: request.scope,
+                result,
             })
         })
         .await
