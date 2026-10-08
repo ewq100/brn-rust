@@ -133,8 +133,9 @@ checks the fresh full file proof and unique UUID. WorkStore V14 retains the exac
 capture and generated question; the existing owned Ask turn holds execution
 status, cancellation and restart interruption. No second queue/lifecycle exists.
 Exact replay precedes fresh Source/choice/account checks, never repeats a retained
-turn, and treats presentation generation as transient. An admitted record without
-a turn permits explicit retry after fresh validation; ordinary Ask/Rewrite cannot
+turn, and treats presentation generation as transient. An admitted record with a retained budget and no
+turn permits explicit retry after fresh validation; historical missing-budget
+reservations require a fresh run UUID; ordinary Ask/Rewrite cannot
 adopt its UUID. `InboxActionAnalysis` returns capture, optional turn and grouped
 review records, always with semantic review still required.
 
@@ -169,8 +170,8 @@ Shutdown. Fatal application-loop errors close admission and refuse queued replie
 before joining chat, preventing retained-read deadlock; discovery settlement stays
 joined. Existing DrainedTools retains blocking calls through Stop/disconnect/
 model changes/quit. The wrapper retains the existing note Arc and all six scoped/
-unscoped note methods. Rig uses spawn_blocking, two concurrent tools, eight tool
-rounds and zero invalid-tool retries. AI remains vault-bound and explicitly selected.
+unscoped note methods. Rig uses spawn_blocking, two concurrent tools, the captured investigation
+round limit (default8) and zero invalid-tool retries. AI remains vault-bound and explicitly selected.
 No real Action mutation, Complete, approval, Save, account or generic dispatch
 tool is exposed. Ask receives the separate review capability below.
 
