@@ -1,5 +1,63 @@
 # Proposed architecture change plan — 2026-10-07
 
+## Selected CI repair and supervision — 2026-10-08
+
+The owner asks to “Babysit the CI and fix it.” This selects focused CI diagnosis,
+corrections, relevant offline checks, push and supervision of PR87 through a final
+result. UX remains deferred; no merge, release, private data or live model action.
+Baseline is clean `43ae39f7a325e2eafdc776dc001a362b45f955e3` on
+`codex/p2-email-docx-intake`. The lead owns fixes and integration inline; obtain
+one bounded read-only independent review of a meaningful final correction.
+Stop/reassess a material product/platform change rather than weaken evidence,
+credential safety or exact approval to make a check pass.
+
+**Diagnosed Mac cause and focused correction:** diagnostic native job
+[113304619387](https://github.com/ewq100/brn-rust/actions/runs/37775332268/job/113304619387)
+on `a3fc8b21e82d5482e069522dc0baae3b34d07e26` shows all three approvals
+succeeding: validation 0.607 seconds; members 1.005, 8.025 and 3.843 seconds;
+three Applied receipts at 13.481 seconds. The test had panicked at 10.147 seconds
+while the third approval was running, then worker shutdown drained it successfully.
+The workflow finished 389 passed, 1 failed, 15 ignored (986.80 seconds total).
+This establishes an aggregate test-budget mismatch, not a stuck or failed member.
+
+The correction gives a validated captured group the existing ten-second test
+allowance per sequential atomic approval (30 seconds for this three-member case).
+It retains one absolute deadline across unrelated events; invalid groups and
+all ordinary operations keep ten seconds. Domain validation bounds membership
+to 1–64 before the duration multiplication. No production timeout, approval,
+dependency guard, fixture, receipt assertion or test selection changes.
+Two native-workflow group-related tests passed (403 filtered, 19.59 seconds);
+native-workflow all-target Clippy passed after the correction. One fresh read-only
+independent reviewer found no actionable code defects and confirmed the hosted
+trace satisfies its diagnosis condition. The lead retains the selected model;
+reviewer configuration inherits it, with one active reviewer maximum and no
+delegated implementation. The diagnostic run's still-running Mac core job may
+be superseded by the fix push; final qualification requires a new exact-head
+run on both Mac workflow graphs.
+
+Run 37764888681 completed with docs, Ubuntu and native UI green; both Mac workflow
+jobs repeated the single-fixture `ApproveProposalGroup` timeout. A focused run
+with new test-only member timings passed in 19.35 seconds total: three-member
+groups took 5.37 seconds (single) and 5.68 seconds (plural) on the lead host.
+Diagnostic source `a3fc8b21e82d5482e069522dc0baae3b34d07e26` is pushed so hosted
+failure output can distinguish group validation and individual approval time.
+It changes no production behavior, timeout, fixtures or test selection.
+A two-test resource-contention probe ran the paired journey alongside the
+existing maximum-size asset recovery test: both passed, 403 filtered out,
+396.22 seconds total. Group times were 5.57/5.92 seconds. Native-workflow
+all-target Clippy passed. A separate background-QoS probe failed earlier during
+`AnalyzeInboxActions` at 10.197 seconds (15.08 seconds total); it demonstrates
+CPU-sensitive wall-clock waits but does not reproduce the hosted approval phase.
+A ten-minute thread follow-up preserves CI supervision across interruptions and
+stays quiet on unchanged results; stop it once this selected repair completes.
+
+Windows failed in both `brn-store` and `brn-ai` on Unix filesystem APIs; inspection
+also finds Unix-only CLI/vault paths. Current authentication docs explicitly
+support Unix. Windows is not in the configured required-check contexts (Ubuntu
+core, Mac core, Mac native UI and Mac native retrieval are required), but its
+failed lane remains visible. A pending owner question distinguishes a Windows
+port from explicit Windows deferral; do not infer that answer from elapsed time.
+
 ## Backend continuation and explicit UX deferral
 
 **Latest owner direction, 2026-10-08:** move on once the underlying backend works

@@ -1,5 +1,19 @@
 # Current development status
 
+## CI repair selected and Mac cause diagnosed — 2026-10-08
+
+The owner authorizes CI repair and supervision of PR87. Hosted test-only timings
+show the failing three-member group completing all Applied approvals in 13.481
+seconds, after the harness's ten-second deadline. The focused correction gives
+validated groups ten seconds per sequential member with one absolute deadline;
+ordinary and invalid-request waits retain ten seconds. Production approval and
+recovery behavior, guards, fixtures and assertions are unchanged. Two focused
+group-related tests, native-workflow all-target Clippy and independent review
+passed. [The CI-repair checkpoint](work/active/architecture-reassessment/plan.md#selected-ci-repair-and-supervision--2026-10-08)
+records the exact hosted diagnosis and final-run gate. Final corrected CI remains
+pending. Windows is informational under branch protection; its existing Unix-API
+build failure awaits the owner's port-versus-deferral decision. UX stays deferred.
+
 ## Owner priority: backend readiness, UX deferred — 2026-10-08
 
 The owner explicitly defers further UX tuning and wants to continue functional

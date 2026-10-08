@@ -30,6 +30,14 @@ across different trees. If a task-owned cache was transferred, clean its BRN
 packages before verifying another tree; preserve dependency caches and record the
 failed attempt separately. A zero-test filtered run is not behavioral evidence.
 
+Inbox Action worker-test waits use one absolute ten-second allowance per ordinary
+operation. A validated captured approval group executes members sequentially and
+receives that allowance per member (three members: thirty seconds); unrelated
+events never restart its deadline. Invalid groups keep ten seconds. This is a
+test-harness budget, not a product approval deadline or permission to skip slow
+tests. Test-only group timings report UUIDs/counts/durations without evidence
+payloads, distinguishing a slow completed group from a stuck or failed approval.
+
 Credential fixtures require an explicit current-user-owned parent outside Git;
 create a private synthetic parent such as `/private/tmp/brn-fixtures`, then set
 `TMPDIR` to that existing canonical directory. Do not use original data or

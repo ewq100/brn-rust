@@ -248,6 +248,7 @@ struct OperationWait {
     command: &'static str,
     caller: &'static Location<'static>,
     started: Instant,
+    ceiling: Duration,
     last_event: Option<(&'static str, Uuid)>,
 }
 impl OperationWait {
@@ -258,12 +259,13 @@ impl OperationWait {
             command,
             caller: Location::caller(),
             started: Instant::now(),
+            ceiling: Duration::from_secs(10),
             last_event: None,
         }
     }
 
     fn event(&mut self, worker: &AppWorker) -> (Uuid, AppEvent) {
-        let remaining = Duration::from_secs(10).saturating_sub(self.started.elapsed());
+        let remaining = self.ceiling.saturating_sub(self.started.elapsed());
         let received = if remaining.is_zero() {
             Err(std::sync::mpsc::RecvTimeoutError::Timeout)
         } else {
@@ -271,8 +273,8 @@ impl OperationWait {
         };
         let (id, event) = received.unwrap_or_else(|error| {
             panic!(
-                "worker wait failed: command={} operation={} caller={} elapsed={:?} ceiling=10s last_event={:?} receive={error:?}",
-                self.command, self.operation, self.caller, self.started.elapsed(), self.last_event,
+                "worker wait failed: command={} operation={} caller={} elapsed={:?} ceiling={:?} last_event={:?} receive={error:?}",
+                self.command, self.operation, self.caller, self.started.elapsed(), self.ceiling, self.last_event,
             )
         });
         self.last_event = Some((event_name(&event), id));
@@ -290,6 +292,14 @@ struct SourceFixture {
 #[track_caller]
 fn reply_at(worker: &AppWorker, operation: Uuid, command: AppCommand) -> AppEvent {
     let mut wait = OperationWait::new(operation, command_name(&command));
+    if let AppCommand::ApproveProposalGroup(request) = &command
+        && request.validate().is_ok()
+    {
+        // A captured group executes its atomic approvals sequentially. Give
+        // each member the ordinary test allowance, retaining one absolute
+        // group deadline that unrelated events cannot extend.
+        wait.ceiling *= request.approvals.len() as u32;
+    }
     worker.submit(operation, command).unwrap();
     loop {
         let (id, value) = wait.event(worker);
