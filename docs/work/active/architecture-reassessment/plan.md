@@ -1,5 +1,14 @@
 # Proposed architecture change plan — 2026-10-07
 
+## Selected retained-evidence continuation — 2026-10-08
+
+The owner selects retained-evidence AI investigation including already approved
+Sources, after PR87 correction source `255dcf1` passed the four required CI checks
+plus documentation in run37777829649. This selects the [bounded first P3 slice](../retained-evidence-investigation/plan.md),
+not all broader P3 work. Its plan owns implementation/evidence and the stacked
+follow-up to unmerged PR87. UX remains deferred; Windows portability remains
+separate. No merge, release, private data, new model asset or live trial is implied.
+
 ## Selected CI repair and supervision — 2026-10-08
 
 The owner asks to “Babysit the CI and fix it.” This selects focused CI diagnosis,

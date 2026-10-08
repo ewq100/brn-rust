@@ -124,6 +124,10 @@ fn guided_import_read_offline_source_approval_and_restart_preserve_evidence() {
     worker.shutdown().unwrap();
     let mut worker = fixture.worker();
     let mut reopened = super::state();
+    // The fixture consumes Ready before creating AiState; mirror the real
+    // startup's proposal inventory request before opening retained reading.
+    let command = reopened.command(Pending::Proposals, AppCommand::Proposals(None));
+    send(&worker, &mut reopened, command);
     let command = reopened.open_inbox().unwrap();
     send(&worker, &mut reopened, command);
     let command = reopened.select_guided_inbox(request.id).unwrap();
@@ -137,6 +141,52 @@ fn guided_import_read_offline_source_approval_and_restart_preserve_evidence() {
         reopened.inbox_queue.batch.is_none(),
         "reopen must not reconvert"
     );
+    assert_eq!(
+        fs::read(fixture.0.path().join("vault/harbor-source.md")).unwrap(),
+        source_bytes
+    );
+    assert_eq!(
+        reopened.guided_source_record().unwrap().state,
+        ProposalState::Applied
+    );
+    reopened.selection = Some(brn_workflow::Selection {
+        provider: brn_workflow::Provider::Chatgpt,
+        model: "gpt-6-luna".into(),
+    });
+    reopened.effort = Some(brn_workflow::ReasoningEffort::Medium);
+    let command = reopened
+        .begin_guided_investigation(source.proposal_id)
+        .unwrap();
+    let (id, event) = reply(&worker, command);
+    reopened.generation += 1;
+    assert!(
+        reopened.apply(id, event).is_empty(),
+        "changed generation must also fence approved-Source investigation"
+    );
+    let command = reopened
+        .begin_guided_investigation(source.proposal_id)
+        .unwrap();
+    let (id, event) = reply(&worker, command);
+    let AppEvent::InboxIntakeBinding(ref held_binding) = event else {
+        panic!("retained collection binding");
+    };
+    let duplicate = AppEvent::InboxIntakeBinding(held_binding.clone());
+    let submitted = reopened.apply(id, event);
+    assert_eq!(submitted.len(), 1);
+    let AppCommand::AnalyzeInboxActions(investigation) = &submitted[0].1 else {
+        panic!("one explicit investigation");
+    };
+    let binding = investigation.intake.as_ref().unwrap();
+    assert_eq!(binding.source_proposal.id, source.proposal_id);
+    assert_eq!(binding.assets.len(), 1);
+    assert_eq!(binding.occurrences.len(), 3);
+    assert_eq!(investigation.selection, reopened.selection.clone().unwrap());
+    assert_eq!(investigation.effort, reopened.effort.unwrap());
+    assert!(
+        reopened.apply(id, duplicate).is_empty(),
+        "a duplicate binding reply must not submit another investigation"
+    );
+    // Intercept the provider command: this state test makes no live/model call.
     assert_eq!(
         fs::read(fixture.0.path().join("vault/harbor-source.md")).unwrap(),
         source_bytes

@@ -9,6 +9,8 @@ use crate::{
     proposals::{CommentRequest, CommentTarget, ReviewComment},
 };
 use brn_store::note_metadata;
+#[path = "intake_approved.rs"]
+mod approved_tests;
 
 #[track_caller]
 fn intake(

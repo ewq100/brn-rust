@@ -185,8 +185,14 @@ submission. Reading, reopening and Source-only preparation call no provider.
 **Save as Source only** retains an offline review draft; approval remains a separate
 exact-review gesture, with original bytes retained. Related Source, Knowledge and
 Action cards open existing review, comments/Rewrite and selected group approval.
-The image-preserving guided AI path requires a pending extracted Source. Already
-settled Sources do not silently fall back to text-only analysis. Pasted text can
+The image-preserving guided AI path accepts a pending or exactly Applied
+extracted Source. After offline Source-only approval/restart, Propose notes
+reuses the retained extraction and pictures to prepare new Knowledge/Action
+review without creating or approving another Source. Its binding retains the
+approved Draft stamp from the receipt for the current Applied review version;
+new admission and effects recheck original, Source bytes/assets and unique
+identity. Rejected, applying or uncertain Sources require review/recovery first.
+Sources never silently fall back to text-only analysis. Pasted text can
 be saved as Source and investigated through the existing saved-Source tools;
 these supported-state limits are explained before a guided AI request.
 

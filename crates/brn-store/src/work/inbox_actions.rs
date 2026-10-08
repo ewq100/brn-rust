@@ -149,8 +149,9 @@ impl InboxActionCapture {
     }
 }
 
-/// Pending evidence explicitly names an immutable extraction and planned Source;
-/// no filesystem fingerprint is invented for an uninstalled note.
+/// Retained evidence names an immutable extraction and exact Source Draft stamp,
+/// either pending or identified by its current Applied receipt. No filesystem
+/// fingerprint is invented for an uninstalled note.
 #[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
 #[serde(deny_unknown_fields)]
 pub struct InboxIntakeBinding {

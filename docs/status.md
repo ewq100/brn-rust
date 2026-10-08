@@ -1,5 +1,23 @@
 # Current development status
 
+## Selected retained-evidence investigation — 2026-10-08
+
+The owner selects moving to retained-evidence AI investigation, including already
+approved Sources, with UX tuning deferred. The [bounded first P3 slice](work/active/retained-evidence-investigation/plan.md)
+extends existing collection investigation and exact consequence review, preserving
+retained pictures and Source approval history. Baseline PR87 source `255dcf1`
+passed all four required CI checks plus documentation in
+[run37777829649](https://github.com/ewq100/brn-rust/actions/runs/37777829649).
+The Windows Unix-portability probe remains an informational failure and separate
+pending decision. This follow-up uses `codex/retained-evidence-investigation`,
+stacked on PR87; no merge/release, full P3, private data, live trial or optional
+model download is selected. The candidate supports Applied Sources with exact
+receipt binding, fresh evidence/identity checks and dependent-only approval. Four
+focused worker tests, 319 combined native/widget tests plus seven CLI tests,
+default all-target Clippy and independent review passed. Broader local and hosted
+gates remain pending in the selected plan/PR receipt; live usefulness and GUI
+observation for this new path remain unqualified.
+
 ## CI repair selected and Mac cause diagnosed — 2026-10-08
 
 The owner authorizes CI repair and supervision of PR87. Hosted test-only timings
@@ -10,8 +28,9 @@ ordinary and invalid-request waits retain ten seconds. Production approval and
 recovery behavior, guards, fixtures and assertions are unchanged. Two focused
 group-related tests, native-workflow all-target Clippy and independent review
 passed. [The CI-repair checkpoint](work/active/architecture-reassessment/plan.md#selected-ci-repair-and-supervision--2026-10-08)
-records the exact hosted diagnosis and final-run gate. Final corrected CI remains
-pending. Windows is informational under branch protection; its existing Unix-API
+records the exact hosted diagnosis and final-run gate. Corrected source `255dcf1`
+subsequently passed all four required checks plus documentation; PR87's receipt
+owns the final hosted results. Windows is informational under branch protection; its existing Unix-API
 build failure awaits the owner's port-versus-deferral decision. UX stays deferred.
 
 ## Owner priority: backend readiness, UX deferred — 2026-10-08
@@ -26,7 +45,7 @@ includes a clean-build manifest, two successful headless runs and twelve
 They show readable extraction/charts, Source draft and Applied review, and saved
 historical reading in restart-labelled captures. No AI usefulness is established.
 
-Final handoff-head CI at `1bfa8386a3a4832e49bc94e9e8e3f9d16e227965`
+Historical handoff-head CI before the selected CI repair, at `1bfa8386a3a4832e49bc94e9e8e3f9d16e227965`,
 has completed: docs, Ubuntu core and native UI passed; both Mac workflow lanes
 failed the paired P2 test waiting for `ApproveProposalGroup` after 10 seconds,
 and Windows failed compiling Unix authentication APIs. The focused unchanged
