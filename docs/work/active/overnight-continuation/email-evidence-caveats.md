@@ -14,7 +14,9 @@ loss: pinned mail-parser 0.11.8 HeaderValue::as_text returns only the final elem
 of a TextList. BRN tries it before as_text_list, dropping earlier decoded IDs.
 Select the smallest adapter correction using the existing list accessor (which
 also handles scalar Text), preserving every decoded In-Reply-To/References value
-in source order. Restore the two-value regression and qualify unrelated ordered
+in source order across scalar/list and repeated physical fields, including folding
+and repetitions. The all-fields accessor is required; last-field getters also lose
+earlier parsed values. Restore the two-value regression and qualify unrelated ordered
 multi-ID cases; a single-value fixture must not hide this valid-input defect.
 
 Replace only the unconditional gap with: "decoded email headers are source

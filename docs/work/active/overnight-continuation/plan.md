@@ -77,68 +77,70 @@ requires exact final-candidate review, applicable local checks and actual requir
 CI. No weakening, bypass or rushed merge. Record failures and repair real defects.
 Known informational platform failures remain visible and separate.
 
-## Durable checkpoint — 8 October 21:09 UTC
+## Durable checkpoint — 8 October 21:29 UTC
 
-Main `bd6947511ac9f5e445078e831d61ac3f5533fe06` includes PR90–PR95, all merged
-normally after exact candidate independent review and all four required checks
-plus documentation. PR90–PR94 required post-merge checks/docs passed. PR95
-post-merge run 37844389582 is pending; its merge tree equals final df2844a.
-Final combined AI 147 passed / one existing ignore, AI Clippy and shipping builds
-passed. Code build source b61c33d is retained in
-`/private/tmp/brn-overnight-20261008/clarification-action-combined-build-manifest.json`;
-CLI SHA-256 898ef333... . No interactive acceptance occurred.
+Main `bd6947511ac9f5e445078e831d61ac3f5533fe06` includes PR90–PR95. All four
+required candidate and post-merge checks plus documentation passed for each;
+merges were normal/protected and resulting trees verified. PR95 post-merge run
+37844389582 passed. No interactive or personal acceptance is claimed.
 
-Lead checkout `/Users/evokessler/repos/brn-p2-email-docx-intake` is now branch
-`codex/p2-email-evidence-caveats`, starting at merged bd69475. The selected
-[small MIME caveat repair](email-evidence-caveats.md) addresses a demonstrated
-unconditional wording ambiguity and demonstrated multi-value thread identifier
-loss in the existing mail-parser adapter, without new parser/schema/snapshot/
-completeness changes. Plan and this checkpoint are being committed before bounded helper
-implementation. Next: helper owns only intake code/tests/README; lead integrates,
-qualifies, independently reviews and inspects required CI. No new live call is
-needed for deterministic wording. Keep immutable historical snapshots unchanged.
+Lead checkout `/Users/evokessler/repos/brn-p2-email-docx-intake`, branch
+`codex/p2-email-evidence-caveats`, code `f187d2fc0d133b4765d794d699fc79409c22a57f`.
+Final four-file MIME repair received independent review; valid P2 repeated physical
+field loss was reproduced red, fixed via pinned parser all-fields/list accessors,
+and reviewed clean at patch cbca566b5e77eaa333975187f67d8e2c32b58b60b519353b1169d3c98c70106f.
+Six focused/29 full helper tests, helper all-target Clippy, helper shipping build,
+52 fixtures and 605 Markdown links passed. Actual CLI import/process/Source Draft/
+reopen preserves all ordered/repeated thread identifiers across physical fields,
+neutral caveat and partial status, with no inference. Old snapshots are unchanged.
+Early helper test attempts exposed real within-field/physical-field loss; all logs
+are retained, final regressions restored/extended rather than weakened. Initial
+CLI harness looked for root status instead of source status; resumed from the
+retained candidate without re-import/reconversion and passed. No production fault
+was inferred from that harness failure.
 
-Session candidate checkout `/Users/evokessler/repos/brn-p3-work-budgets`, branch
-`codex/p9-session-archive-restore`, committed plan c8ebfcc on merged b4e3a59, has
-complete task-owned uncommitted Store/workflow/CLI/desktop implementation and tests.
-`docs/work/active/overnight-continuation/session-archive-restore.md`
-fixes API/metadata/admission/replay/native behavior. Automatic 30-day archival,
-Delete and preferences remain separate. Store full 461 tests / no failures or
-ignores and all-target Clippy passed, including migration/restart/backup/race/
-checked receipt corruption/SQLite-full rollback. Desktop helper owns the sole
-Cargo slot: seven new state and three real headless widget tests passed after
-local harness/import fixes; affected presentation/history/budget/rewrite/native
-compatibility and Clippy are running. Lead workflow/CLI tests are written but not
-yet compiled. After slot release, merge current main into the candidate, run lead
-behavioral tests, obtain one full independent read-only review, final applicable
-local gates, required CI/integration and resulting-main verification. No concurrent
-Cargo across checkouts. No helper Git integration, no recursive spawning.
+Immutable qualified runtime and manifest:
+`/Users/evokessler/repos/brn-overnight-artifacts-20261008/email-caveats-runtime`.
+CLI/desktop exact hashes/code reuse qualified PR95; helper SHA-256 79b4bc55... is
+built from final reviewed source. This runtime excludes pending session controls.
+Next: commit/push final receipts, open the email candidate, inspect required CI,
+merge normally when eligible and verify resulting main. New EML/Source Draft
+fixtures are retained in `/private/tmp/brn-overnight-20261008/email-evidence-caveats-case`.
 
-Linden new Applied-private-intake case used three counted attempts: Luna completed
-in 15.675 seconds with one unassigned Action (five responses/four rounds); initial
-Sol failed other after 11.748 seconds/three rounds, underlying cause unknown; a
-separately counted manual fresh-UUID Sol retry completed in 112.466 seconds,
-nine responses/eight rounds, with two Knowledge, two Actions and one Open exact
-Finding. These are synthetic usefulness observations, not model ranking/prompt
-causality or owner acceptance. Four Sol proposals passed fresh-process Action-first
-approval, restart and exact group/completed-analysis replay; no duplicate effects,
-new inference or changed full Source/Current/original identity. Finding stays Open;
-Luna comparison remains Draft. All requests/outputs/input/proofs/approval receipts
-are under `/private/tmp/brn-overnight-20261008/linden-applied-intake`.
+Session candidate `/Users/evokessler/repos/brn-p3-work-budgets`, branch
+`codex/p9-session-archive-restore`, code `a18806b02665b9d5c7151181caba537b5cce9a9e`.
+Complete 51-file candidate independently reviewed clean, final patch
+5a7c44038cd871ee95359a9a2217c504e52f8213033fe3fe82f123f8a6576142. Store 461 tests
+and Clippy passed; desktop ten new tests, 157 state/19 native compatibility and
+Clippy passed; new workflow three/CLI subprocess two plus affected Clippy passed.
+An exhaustive test diagnostic enum list needed six new variants; test-only fix
+passed and independently reviewed without weakening diagnostics. Automatic
+30-day archival, Delete and preferences remain separate.
 
-Current shared ledger `/private/tmp/brn-overnight-20261008/campaign-ledger.json`:
+The sole local Cargo slot is now the lead's session final gate, session36559,
+log `/private/tmp/brn-overnight-20261008/session-final-gate.log`, target/budgets.
+It reuses final Store461 and runs remaining default workspace/doctests, native
+workflow/models, combined desktop/CLI, Clippy/shipping and fixtures. Do not run
+another Cargo while it remains active. Then preserve exact shipping build,
+push/PR/required CI/protected integration. Merge the email repair when it lands,
+qualify changed combined helper/workflow risk and final required CI; do not rush.
+Current helpers finished implementation; no recursive delegation. Keep at most
+two active helpers and the selected lead model/effort.
+
+Canonical campaign ledger `/private/tmp/brn-overnight-20261008/campaign-ledger.json`:
 eleven of sixteen used, five Luna/six Sol; five remain, at most three Luna/two Sol.
-Only existing exact Medium conditions, 180-second cancellation/eight tool rounds/
-nine responses, no automatic retry/substitution. Reserve before any new invocation;
-failures count. Account-wide weekly usage 46% consumed / 54% remaining; short window
-and provider request/token/internal-reasoning/spend unknown. No reset/purchase.
-Use retained outputs/deterministic tests for approval/replay. Preserve all Harbor,
-North Quay, Cedar and Linden bound data/vaults in place; do not rerun campaigns.
+Linden initial Sol failure/cause unknown and separately counted successful retry
+remain recorded. Four selected Sol consequences are Applied with Action-first
+fresh-process/restart/exact replay/no inference; Finding stays Open, comparison
+Drafts remain. Full Source/Current/original identities stayed unchanged. Harbor,
+North Quay, Cedar and Linden bound folders remain in place. Usage was account-wide
+46% consumed / 54% remaining, short-window/provider token/request/spend unknown.
+No reset, purchase, substitution or new inference for approval/replay/caveat repair.
 
-The [single morning UI task](morning-ui-acceptance.md) owns all expected controls,
-exact builds/data and the launch prompt. Headless evidence is separate from pending
-interactive/personal acceptance. Continue small useful authorized slices until the
-08:00 Tallinn cutoff; from 07:30 prioritize final gates/integration/handoff.
+The [single morning task](morning-ui-acceptance.md) owns all expected UI checks,
+exact final build/data and launch prompt; update it as candidates integrate.
+Continue useful authorized small slices until 08:00 Tallinn; prioritize final
+qualification/integration/handoff from 07:30. No GUI/private-data/release action.
 
 Earlier milestone entries below are historical receipts; this checkpoint and the
 local campaign ledger govern continuation.
