@@ -2,7 +2,7 @@
 
 ## Overnight implementation and model qualification — 2026-10-08
 
-Current main is `bd6947511ac9f5e445078e831d61ac3f5533fe06`.
+Current main is `deca5d5ea3f6decbfb6ae2288db3934d4de694c4`.
 [PR90](https://github.com/ewq100/brn-rust/pull/90) added exact evidence ranges and
 intake guidance; [PR91](https://github.com/ewq100/brn-rust/pull/91) added recorded
 work budgets/cancellation; [PR92](https://github.com/ewq100/brn-rust/pull/92) added
@@ -15,12 +15,16 @@ Windows/Linux failures remain visible; no protection bypass or platform port.
 [PR94](https://github.com/ewq100/brn-rust/pull/94) enables exact Applied private-intake
 Finding lineage and merged after all required checks; [PR95](https://github.com/ewq100/brn-rust/pull/95) clarifies useful
 follow-up drafts under unresolved execution authority. Both merged after independent review and required candidate checks. PR94
-post-merge checks passed; PR95 post-merge checks passed. Manual reversible session Archive/Restore is implemented in the separate session
-candidate, with Store and new desktop checks passed; workflow/CLI/full review and
-final gates are pending. Automatic archival, Delete and preferences stay separate.
-The MIME caveat and complete decoded-thread-identifier repair is implemented,
-independently reviewed and locally qualified, awaiting hosted integration; old
-snapshots and partial status remain unchanged.
+post-merge checks passed; PR95 post-merge checks passed.
+[PR96](https://github.com/ewq100/brn-rust/pull/96) merged the accurate MIME caveat
+and complete ordered decoded thread identifiers after independent review and all
+required candidate checks; post-merge checks pending, old snapshots unchanged.
+Manual reversible session Archive/Restore is independently reviewed and locally
+qualified in [PR97](https://github.com/ewq100/brn-rust/pull/97), with final combined
+MIME/shipping qualification and required CI pending. Automatic archival, Delete
+and preferences stay separate. The next selected slice is
+[partial attributed PPTX intake](work/active/overnight-continuation/pptx-partial-intake.md),
+using the evaluated maintained parser; implementation is underway.
 
 The [overnight checkpoint](work/active/overnight-continuation/plan.md) owns exact
 branches, builds, verification and continuation. Eleven of sixteen authorized live investigations are used, five Luna/six Sol,
