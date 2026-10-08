@@ -14,6 +14,13 @@ use std::sync::Arc;
 use tokio::sync::Mutex;
 use tokio_util::sync::CancellationToken;
 
+// The subscription catalog gates models by Codex protocol compatibility, not
+// BRN's independent crate release number. Keep this explicit and qualify changes
+// against the catalog and our pinned Rig Responses/tool/image transport tests.
+// Reference: openai/codex rust-v0.161.0, codex-api/src/endpoint/models.rs.
+// This does not change the authenticated account or the Rig caller identity.
+const SUBSCRIPTION_CATALOG_COMPATIBILITY_VERSION: &str = "0.161.0";
+
 pub struct Auth {
     dir: PathBuf,
     chatgpt: Mutex<()>,
@@ -442,8 +449,7 @@ impl Auth {
         };
         parts.uri = format!(
             "{}{separator}client_version={}",
-            parts.uri,
-            env!("CARGO_PKG_VERSION")
+            parts.uri, SUBSCRIPTION_CATALOG_COMPATIBILITY_VERSION
         )
         .parse()
         .map_err(|_| AiError::new(AiErrorKind::Other))?;

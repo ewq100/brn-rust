@@ -1,5 +1,58 @@
 # Retained evidence investigation: approved Sources
 
+## Owner continuation: repair empty ChatGPT discovery — 2026-10-08
+
+After normal product sign-in and the offline GUI qualification recorded in PR88,
+the owner selects continuing until model discovery works and the bounded live
+qualification can proceed. Baseline is merged main `90d20909de8794dbe574322dfc68e2b5a5363047`;
+reuse its clean linked checkout/target on `codex/fix-chatgpt-model-discovery`.
+Both GUI and ordinary CLI discovery return zero selectable models. A temporary
+metadata-only diagnostic confirms zero models before filtering; no credential,
+header, token or raw provider body is printed or copied. Determine whether the
+request route/version causes the empty server catalog, then add a focused failing
+transport witness, correct the smallest boundary and verify existing AI/auth tests,
+shipping builds and actual GUI discovery. Preserve pinned Rig, ordinary product
+authentication, explicit model choice and no-fallback authority. No optional
+asset download, private data, account switching, UX work or release.
+
+The selected lead retains its current configuration and owns the coupled repair;
+one fresh read-only reviewer will independently check a meaningful final candidate.
+At most one reviewer is active. Reassess after contradictory evidence rather than
+stacking speculative fixes. Discovery diagnostics are limited to six additional
+metadata requests, each with a 30-second deadline, and zero completion probes.
+The existing single Luna Medium investigation / nine model turns / eight tool
+rounds / 180-second cancellation deadline remains the only live usefulness trial.
+No inferred IDs, route fallback, hidden retry or extra effort condition is allowed.
+Token/spend telemetry remains unknown. Record exact gates and final observations
+in the repair PR and existing qualification receipt.
+
+Diagnosis: the same normal account/transport returned zero raw models at BRN
+version `0.1.0`, one hidden model at protocol `0.99.0`, and ten raw/seven visible
+models (including exact `gpt-6-luna`) at published Codex protocol `0.161.0`.
+Omitting the version failed; the newer public SIWC endpoint refused this existing
+Rig Codex OAuth route and is not adopted. No new sign-in, route fallback or
+credential export was used. The root cause is coupling the catalog compatibility
+query to BRN's independent package version. Reuse Rig's authenticated Models
+wire and transport; change only that query value to an explicit qualified
+protocol constant, preserving account/caller headers and strict validation,
+visibility/order, cancellation and safe error policy. Temporary metadata diagnostics
+are removed from the candidate. A focused synthetic-transport regression failed
+against the old request URL before the correction (one failed, 140 filtered).
+The first test build exposed a HeaderValue assertion API mistake; corrected the
+test before observing that meaningful failure. Broader AI tests and live final
+candidate qualification follow; no inference has started.
+
+Final local correction checks: `cargo test -p brn-ai --lib --locked --offline`
+passed 140 with one existing ignore (including the new regression, auth/catalog
+failures/cancellation and exact Luna Responses/tool/image contracts). AI all-target
+Clippy with `-D warnings`, Cargo formatting, whitespace and 590 local Markdown
+links passed. Fresh shipping combined native desktop and native CLI builds passed
+without test support. Final ordinary CLI discovery returned the seven visible
+models including `gpt-6-luna`, with no diagnostics compiled in. Only the isolated
+qualification bundle was updated; its previous main executable is retained locally.
+Independent review, hosted gates, actual GUI model discovery/selection and bounded
+live usefulness/consequence review remain pending at this candidate checkpoint.
+
 ## Owner continuation: CI performance, integration and live qualification — 2026-10-08
 
 The owner now selects fixing the long Mac CI run, merging the eligible dependency
