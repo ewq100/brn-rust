@@ -45,12 +45,12 @@ product limits. Preserve outputs and reuse them for approval/replay.
 Local receipts: `/private/tmp/brn-overnight-20261008`; script
 `paired-baseline.py` uses the same already-approved synthetic `plural.eml`
 Source/binding and exact executable for both models, without application between
-runs. Current ledger: Luna Medium baseline completed (23.809 seconds); Sol Medium
-baseline completed (92.432 seconds). Two investigations used; four remain,
-at most two additional per condition. Capture terminal result before more inference.
-The Luna baseline noticed EUR4,000 but omitted the 12 October review in its answer;
-one Action draft retained, Knowledge quote was refused. Source/asset proofs
-are checked unchanged after each run. Detailed assessment and cause remain pending.
+runs. Current ledger: four investigations completed, two per condition. Baseline and
+first-slice pair are recorded in [live evidence](live-model-evidence.md). Two
+remain, at most one per condition; no new call until a concrete later improvement
+or different synthetic scenario justifies it. Every CLI call has the180-second
+cancellation deadline/nine turns/eight tool rounds and no automatic retry.
+Source/asset proofs remained unchanged; retained outputs serve approval/replay.
 
 ## Work selection and routing
 
@@ -140,3 +140,23 @@ against baseline32c2538 and found no actionable defect. Advisory stale running
 baseline summary is refreshed; final morning build/gate fields await qualification.
 No separate design approval gate was introduced. Broader checks/hosted CI remain
 pending; native GUI and personal acceptance explicitly deferred.
+
+## Live/mechanics milestone
+
+[Paired first-slice receipts](live-model-evidence.md#paired-first-slice-observation)
+are complete: four of six nightly calls used, two per condition, both under their
+fixed campaign ceilings. One call per condition remains for a different synthetic
+case after concrete improvements. Luna now retained budget/review date in accepted
+Knowledge quotations; Sol retained five distinct review drafts. Source conflict
+lookup scope remains a disclosed Luna limitation. Normal BRN catalog exposes IDs,
+not per-model effort metadata; Medium was actually exercised successfully on
+both models. Higher efforts are client options, not newly qualified provider
+capabilities. Account usage read-only snapshot showed34% of the weekly core
+bucket used; this is account-wide, not per-run token/spend telemetry. No reset
+credit was consumed.
+
+Fresh-process Action-first approval/reopening/replay of the retained Luna drafts
+passed without inference or duplicate effects. Source/asset hashes unchanged.
+Sol's first-slice five-draft group remains available for morning native review.
+The full default offline gate, doctests and52fixture assertions passed; native
+workflow/desktop/build checks are still running.
