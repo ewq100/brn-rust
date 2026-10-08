@@ -6018,3 +6018,142 @@ mod conflict_tool_tests {
 
 #[path = "provider_stderr_tests.rs"]
 mod provider_stderr_tests;
+
+#[cfg(test)]
+mod investigation_budget_tests {
+    use super::*;
+
+    struct NoProposals;
+    impl ProposalTools for NoProposals {
+        fn propose_actions(&self, _: ActionProposalArgs) -> AiResult<Value> {
+            panic!("read-only budget fixture must not propose")
+        }
+    }
+
+    #[tokio::test]
+    async fn configured_rounds_refuse_before_dispatch_and_parallel_tools_count_once() {
+        for (provider, model, responses) in [
+            (Provider::Chatgpt, "gpt-6-luna", true),
+            (Provider::Copilot, "gpt-5.5", false),
+            (Provider::Copilot, "gpt-5.3-codex", true),
+        ] {
+            for limit in [1, 10] {
+                let replies = (0..=limit)
+                    .map(|_| {
+                        success(tool_sse(
+                            responses,
+                            &[
+                                ("read_note", json!({"path":"a.md"})),
+                                ("read_note", json!({"path":"b.md"})),
+                            ],
+                        ))
+                    })
+                    .collect();
+                let (_root, client, http) = client(provider, model, replies).await;
+                let notes = Arc::new(Notes::default());
+                let events = Arc::new(Mutex::new(Vec::new()));
+                let captured = events.clone();
+                let result = answer_with_proposals_and_images_with_limit(
+                    client,
+                    "Inspect saved context",
+                    &[],
+                    ReasoningEffort::Medium,
+                    notes.clone(),
+                    Arc::new(NoProposals),
+                    &[],
+                    limit,
+                    CancellationToken::new(),
+                    Arc::new(move |event| captured.lock().unwrap().push(event)),
+                )
+                .await;
+                assert!(
+                    matches!(
+                        result.terminal,
+                        AiTerminal::Failed(AiError {
+                            kind: AiErrorKind::ToolLimitReached,
+                            ..
+                        })
+                    ),
+                    "{result:?}"
+                );
+                assert_eq!(notes.calls.load(Ordering::SeqCst), usize::from(limit) * 2);
+                assert_eq!(http.bodies().len(), usize::from(limit) + 1);
+                http.assert_consumed();
+                let events = events.lock().unwrap();
+                let progress = events
+                    .iter()
+                    .filter_map(|event| match event {
+                        AiEvent::BudgetProgress {
+                            model_turns,
+                            tool_rounds,
+                            max_tool_rounds,
+                        } => Some((*model_turns, *tool_rounds, *max_tool_rounds)),
+                        _ => None,
+                    })
+                    .collect::<Vec<_>>();
+                assert_eq!(progress.len(), usize::from(limit) + 1);
+                assert_eq!(progress.last(), Some(&(limit + 1, limit, limit)));
+                assert!(progress.iter().take(usize::from(limit)).enumerate().all(
+                    |(index, &(turns, rounds, cap))| usize::from(turns) == index + 1
+                        && turns == rounds
+                        && cap == limit
+                ));
+            }
+        }
+    }
+
+    #[tokio::test]
+    async fn final_answer_at_budget_and_invalid_limits_do_not_add_calls() {
+        for limit in [1, 10] {
+            let replies = (0..limit)
+                .map(|_| success(tool_sse(true, &[("read_note", json!({"path":"a.md"}))])))
+                .chain(std::iter::once(success(text_sse(true, "Retained result"))))
+                .collect();
+            let (_root, client, http) = client(Provider::Chatgpt, "gpt-6-luna", replies).await;
+            let notes = Arc::new(Notes::default());
+            let result = answer_with_proposals_and_images_with_limit(
+                client,
+                "Inspect context",
+                &[],
+                ReasoningEffort::Medium,
+                notes.clone(),
+                Arc::new(NoProposals),
+                &[],
+                limit,
+                CancellationToken::new(),
+                Arc::new(|_| {}),
+            )
+            .await;
+            assert!(matches!(result.terminal, AiTerminal::Completed));
+            assert_eq!(result.text, "Retained result");
+            assert_eq!(notes.calls.load(Ordering::SeqCst), usize::from(limit));
+            http.assert_consumed();
+        }
+        for limit in [0, 33, u16::MAX] {
+            let (_root, client, http) = client(Provider::Chatgpt, "gpt-6-luna", vec![]).await;
+            let notes = Arc::new(Notes::default());
+            let result = answer_with_proposals_and_images_with_limit(
+                client,
+                "Inspect context",
+                &[],
+                ReasoningEffort::Medium,
+                notes.clone(),
+                Arc::new(NoProposals),
+                &[],
+                limit,
+                CancellationToken::new(),
+                Arc::new(|_| {}),
+            )
+            .await;
+            assert!(matches!(
+                result.terminal,
+                AiTerminal::Failed(AiError {
+                    kind: AiErrorKind::ToolRejected,
+                    ..
+                })
+            ));
+            assert_eq!(notes.calls.load(Ordering::SeqCst), 0);
+            assert!(http.bodies().is_empty());
+        }
+    }
+}

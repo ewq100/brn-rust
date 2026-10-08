@@ -582,6 +582,7 @@ mod tests {
             .submit(
                 id,
                 AppCommand::Ask(AskRequest {
+                    budget: None,
                     id,
                     conversation: None,
                     question: "synthetic reads".into(),
@@ -692,6 +693,7 @@ mod tests {
             .submit(
                 turn_id,
                 AppCommand::Ask(AskRequest {
+                    budget: None,
                     id: turn_id,
                     conversation: None,
                     question: "synthetic error".into(),

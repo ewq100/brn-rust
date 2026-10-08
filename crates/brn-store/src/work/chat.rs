@@ -1,4 +1,4 @@
-use super::WorkStore;
+use super::{WorkBudget, WorkStore, run_budget};
 use crate::{Error, Result, invalid, parse_id};
 use rusqlite::{Connection, OpenFlags, OptionalExtension, TransactionBehavior, params};
 use serde::{Deserialize, Serialize};
@@ -72,6 +72,29 @@ impl ChatStore {
         error_code: Option<&str>,
     ) -> Result<WorkTurn> {
         finish_turn(&mut self.conn, id, status, answer, error_code)
+    }
+
+    #[allow(clippy::too_many_arguments)]
+    pub fn begin_turn_with_effort_and_budget(
+        &mut self,
+        id: Uuid,
+        conversation: Option<Uuid>,
+        question: &str,
+        provider: &str,
+        model: &str,
+        effort: Option<&str>,
+        requested: Option<WorkBudget>,
+    ) -> Result<(WorkTurn, Option<WorkBudget>)> {
+        begin_turn_with_budget(
+            &mut self.conn,
+            id,
+            conversation,
+            question,
+            provider,
+            model,
+            effort,
+            requested,
+        )
     }
 }
 
@@ -159,6 +182,7 @@ pub(super) fn validate_error(code: Option<&str>) -> Result<()> {
                 | "model_refused"
                 | "invalid_tool_use"
                 | "tool_limit_reached"
+                | "time_limit_reached"
                 | "unsafe_credentials"
                 | "tool_rejected"
                 | "quote_not_found"
@@ -366,9 +390,50 @@ pub(super) fn begin_turn(
     if super::inbox_actions::reserved(&tx, id)?.is_some() {
         return Err(conflict());
     }
+    if read_turn(&tx, id)?.is_none() {
+        run_budget::refuse_retained(&tx, id)?;
+        if super::inbox_original_operations::has_archived_analysis(&tx, id)? {
+            return Err(Error::StateChanged(
+                "historical AI run needs a fresh UUID".into(),
+            ));
+        }
+    }
     let turn = begin_in_transaction(&tx, id, conversation, question, provider, model, effort)?;
     tx.commit()?;
     Ok(turn)
+}
+
+#[allow(clippy::too_many_arguments)]
+fn begin_turn_with_budget(
+    conn: &mut Connection,
+    id: Uuid,
+    conversation: Option<Uuid>,
+    question: &str,
+    provider: &str,
+    model: &str,
+    effort: Option<&str>,
+    requested: Option<WorkBudget>,
+) -> Result<(WorkTurn, Option<WorkBudget>)> {
+    let tx = conn.transaction_with_behavior(TransactionBehavior::Immediate)?;
+    if super::inbox_actions::reserved(&tx, id)?.is_some() {
+        return Err(conflict());
+    }
+    let existing = read_turn(&tx, id)?.is_some();
+    let budget = run_budget::resolve(&tx, id, requested)?;
+    if !existing {
+        run_budget::refuse_retained(&tx, id)?;
+        if budget.is_none() {
+            return Err(Error::StateChanged(
+                "historical AI run needs a fresh UUID".into(),
+            ));
+        }
+    }
+    let turn = begin_in_transaction(&tx, id, conversation, question, provider, model, effort)?;
+    if !existing && let Some(budget) = budget {
+        run_budget::insert(&tx, id, budget)?;
+    }
+    tx.commit()?;
+    Ok((turn, budget))
 }
 
 pub(super) fn begin_inbox_action_turn(
@@ -586,6 +651,29 @@ pub(super) fn reconcile(conn: &mut Connection) -> Result<()> {
 }
 
 impl WorkStore {
+    #[allow(clippy::too_many_arguments)]
+    pub fn begin_turn_with_effort_and_budget(
+        &mut self,
+        id: Uuid,
+        conversation: Option<Uuid>,
+        question: &str,
+        provider: &str,
+        model: &str,
+        effort: Option<&str>,
+        requested: Option<WorkBudget>,
+    ) -> Result<(WorkTurn, Option<WorkBudget>)> {
+        begin_turn_with_budget(
+            &mut self.conn,
+            id,
+            conversation,
+            question,
+            provider,
+            model,
+            effort,
+            requested,
+        )
+    }
+
     pub fn chat_connection(&self) -> Result<ChatStore> {
         let db = self.dir.join(super::DB_NAME);
         crate::check_regular_single_link(&db)?;

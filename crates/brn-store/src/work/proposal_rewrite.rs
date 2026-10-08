@@ -247,6 +247,7 @@ fn begin(
         return Ok((job, None));
     }
     spec.validate()?;
+    super::run_budget::refuse_retained(&tx, spec.id)?;
     if super::inbox_actions::reserved(&tx, spec.id)?.is_some() {
         return Err(conflict());
     }

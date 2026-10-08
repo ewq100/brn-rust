@@ -24,6 +24,8 @@ pub const MAX_INBOX_ACTION_PROPOSALS: usize = 20;
 #[serde(deny_unknown_fields)]
 pub struct InboxActionRequest {
     #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub budget: Option<crate::WorkBudget>,
+    #[serde(default, skip_serializing_if = "Option::is_none")]
     pub visual_asset: Option<SourceVersion>,
     #[serde(default)]
     pub purpose: InboxAnalysisPurpose,
@@ -39,6 +41,9 @@ pub struct InboxActionRequest {
 }
 impl InboxActionRequest {
     pub fn validate(&self) -> Result<()> {
+        if let Some(budget) = self.budget {
+            budget.validate()?;
+        }
         match (&self.source, &self.intake) {
             (Some(source), None) => {
                 source.validate()?;
@@ -89,6 +94,8 @@ impl InboxActionRequest {
 #[derive(Debug, Clone, Serialize, Deserialize)]
 #[serde(deny_unknown_fields)]
 pub struct InboxActionAnalysis {
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub budget: Option<crate::WorkBudget>,
     pub job: InboxActionJob,
     pub turn: Option<WorkTurn>,
     pub proposals: Vec<ProposalRecord>,
@@ -176,6 +183,7 @@ impl App {
         };
         Ok((
             AskRequest {
+                budget: request.budget,
                 id: request.id,
                 conversation: request.conversation,
                 question,
@@ -350,6 +358,7 @@ impl App {
             WorkflowError::typed(ErrorKind::NotFound, "Inbox Action analysis does not exist")
         })?;
         Ok(InboxActionAnalysis {
+            budget: self.store.run_budget(id)?,
             job,
             turn: self.store.turn(id)?,
             proposals: self.proposals(Some(id))?,

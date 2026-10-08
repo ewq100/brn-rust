@@ -23,6 +23,7 @@ mod proposal_repair;
 pub mod proposal_rewrite;
 mod proposal_undo;
 pub mod proposals;
+pub mod run_budget;
 
 use crate::{Result, acquire_owner_lock, check_regular_single_link, invalid};
 use rusqlite::{Connection, OpenFlags, OptionalExtension, params};
@@ -39,6 +40,7 @@ pub use editor::{
     EditRequest, EditStamp, EditorRecord, SaveIntent, SaveOutcome, SaveReceipt, SaveRequest,
 };
 pub use edits::UnsavedEdit;
+pub use run_budget::WorkBudget;
 
 /// Largest note, unsaved edit or proposal text, in bytes.
 pub const MAX_NOTE_BYTES: usize = 1024 * 1024;
@@ -89,6 +91,7 @@ const MIGRATIONS: &[&str] = &[
     inbox_actions::V14,
     inbox_original_operations::V15,
     intake::V16,
+    run_budget::V17,
 ];
 
 #[derive(Debug, Clone, PartialEq, Eq)]
@@ -167,6 +170,7 @@ impl WorkStore {
         inbox_actions::check_all(&conn)?;
         inbox_original_operations::check_all(&conn)?;
         intake::check_all(&conn)?;
+        run_budget::check_all(&conn)?;
         inbox_processing::reconcile(&mut conn)?;
         chat::reconcile(&mut conn)?;
         proposal_rewrite::reconcile(&mut conn)?;
@@ -295,6 +299,13 @@ fn check(db: &Path) -> Result<Checked> {
             inbox_original_operations::check_legacy(&conn)
         };
         match result {
+            Err(crate::Error::Sql(e)) if is_corruption(&e) => return Ok(Checked::Corrupt),
+            Err(error) => return Ok(Checked::Invalid(error)),
+            Ok(()) => {}
+        }
+    }
+    if application == APPLICATION_ID && (17..=MIGRATIONS.len() as i64).contains(&version) {
+        match run_budget::check_all(&conn) {
             Err(crate::Error::Sql(e)) if is_corruption(&e) => return Ok(Checked::Corrupt),
             Err(error) => return Ok(Checked::Invalid(error)),
             Ok(()) => {}

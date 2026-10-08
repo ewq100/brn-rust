@@ -248,6 +248,7 @@ impl AiState {
             intake: self.inbox_analysis.intake.clone(),
             selection: self.selection.clone()?,
             effort: self.effort?,
+            budget: Some(self.work_budget),
             generation: self.generation,
         };
         if let Err(error) = request.validate() {
@@ -268,6 +269,8 @@ impl AiState {
             partial: String::new(),
             tool: None,
             stopping: false,
+            budget_progress: None,
+            time_limit_reached: false,
         });
         self.notice = "Source analysis requested. Drafts require separate review and exact approval; originals stay retained.".into();
         Some((
@@ -479,7 +482,10 @@ fn analysis_matches(
     let Some(request) = request.filter(|request| request.id == id) else {
         return true;
     };
-    capture.purpose == request.purpose
+    request
+        .budget
+        .is_none_or(|budget| record.budget == Some(budget))
+        && capture.purpose == request.purpose
         && capture.visual_asset == request.visual_asset
         && capture.conversation == request.conversation
         && capture.source == request.source.as_ref().map(|s| s.source.clone())

@@ -189,17 +189,36 @@ pub trait ReadTools: Send + Sync {
     }
 }
 
-#[derive(Default)]
 pub(crate) struct ToolRounds {
     used: usize,
+    limit: usize,
+}
+
+impl Default for ToolRounds {
+    fn default() -> Self {
+        Self { used: 0, limit: 8 }
+    }
 }
 
 impl ToolRounds {
+    pub(crate) fn new(limit: u16) -> AiResult<Self> {
+        if !(1..=32).contains(&limit) {
+            return Err(rejected());
+        }
+        Ok(Self {
+            used: 0,
+            limit: usize::from(limit),
+        })
+    }
+    pub(crate) fn used(&self) -> u16 {
+        self.used as u16
+    }
+
     pub(crate) fn admit(&mut self, contains_tools: bool) -> AiResult<()> {
         if !contains_tools {
             return Ok(());
         }
-        if self.used == 8 {
+        if self.used == self.limit {
             return Err(AiError::new(AiErrorKind::ToolLimitReached));
         }
         self.used += 1;

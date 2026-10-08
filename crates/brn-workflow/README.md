@@ -133,8 +133,9 @@ checks the fresh full file proof and unique UUID. WorkStore V14 retains the exac
 capture and generated question; the existing owned Ask turn holds execution
 status, cancellation and restart interruption. No second queue/lifecycle exists.
 Exact replay precedes fresh Source/choice/account checks, never repeats a retained
-turn, and treats presentation generation as transient. An admitted record without
-a turn permits explicit retry after fresh validation; ordinary Ask/Rewrite cannot
+turn, and treats presentation generation as transient. An admitted record with a retained budget and no
+turn permits explicit retry after fresh validation; historical missing-budget
+reservations require a fresh run UUID; ordinary Ask/Rewrite cannot
 adopt its UUID. `InboxActionAnalysis` returns capture, optional turn and grouped
 review records, always with semantic review still required.
 
@@ -169,8 +170,8 @@ Shutdown. Fatal application-loop errors close admission and refuse queued replie
 before joining chat, preventing retained-read deadlock; discovery settlement stays
 joined. Existing DrainedTools retains blocking calls through Stop/disconnect/
 model changes/quit. The wrapper retains the existing note Arc and all six scoped/
-unscoped note methods. Rig uses spawn_blocking, two concurrent tools, eight tool
-rounds and zero invalid-tool retries. AI remains vault-bound and explicitly selected.
+unscoped note methods. Rig uses spawn_blocking, two concurrent tools, the captured investigation
+round limit (default8) and zero invalid-tool retries. AI remains vault-bound and explicitly selected.
 No real Action mutation, Complete, approval, Save, account or generic dispatch
 tool is exposed. Ask receives the separate review capability below.
 
@@ -1083,3 +1084,24 @@ application and chat wrappers. This is a checked content snapshot, not a new
 persisted store or transactional filesystem snapshot. Metadata-invalid raw access
 is not added by this slice. The existing Ask/native chat can use the range tool;
 no direct filesystem access is granted to external agents.
+
+### Per-investigation budgets
+
+AskRequest and InboxActionRequest accept optional strict WorkBudget
+`{max_tool_rounds, timeout_seconds}` (1..32/1..3600). Fresh omitted default is
+8/300; existing UUID omission resolves recorded metadata. Admission records the
+budget atomically in the work DB, separately from canonical turn/capture/recovery
+bytes. Changed explicit budget conflicts; historical absence stays unavailable.
+Historical unfinished reservations cannot silently acquire a budget/restart.
+AppCommand::RunBudget queries metadata separately; InboxActionAnalysis includes
+it in the inspection wrapper. Rewrite keeps its separate existing contract.
+
+BudgetProgress reports the frozen budget/completed model responses/admitted tool
+rounds, first0/0 after cancellation registration. The owned deadline begins at
+durable turn admission before authentication; expiry fences the shared proposal
+token, emits BudgetStopping, awaits operation and retained blocking read leases,
+then persists failed/time_limit_reached. It retains ordinary semantic partial
+text/drafts; a late successful operation cannot replace expiry. Already-ready
+completion wins a simultaneous deadline. Manual Stop and tool-limit exhaustion
+retain their distinct causes. Legacy strict visual JSON remains completion-only.
+No local terminal guarantees upstream cancellation or absence of billing.

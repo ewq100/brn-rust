@@ -37,6 +37,7 @@ fn binding(
 
 fn request(binding: crate::inbox_actions::InboxIntakeBinding) -> InboxActionRequest {
     InboxActionRequest {
+        budget: None,
         intake: Some(binding),
         source: None,
         visual_asset: None,

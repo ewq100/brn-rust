@@ -1,6 +1,6 @@
 # brn-desktop
 
-> Requirements/qualification context (2026-10-07): this README describes implemented behavior, not mandatory limits or acceptance of the proposed replacement. The [owner amendment](../../docs/product/BRN_PRODUCT_VISION.md#owner-amendment--2026-10-07), [reassessment](../../docs/audits/BRN_ARCHITECTURE_REASSESSMENT_2026-10-07.md) and [proposed plan](../../docs/work/active/architecture-reassessment/plan.md) reopen mechanisms. Email enum/literal text is not real EML ingestion; broader conversion, AI draft freedom/budgets and practical reviewability remain gaps. No production behavior changed in this documentation task.
+> Requirements/qualification context (2026-10-07): this README describes implemented behavior, not mandatory limits or acceptance of the proposed replacement. The [owner amendment](../../docs/product/BRN_PRODUCT_VISION.md#owner-amendment--2026-10-07), [reassessment](../../docs/audits/BRN_ARCHITECTURE_REASSESSMENT_2026-10-07.md) and [proposed plan](../../docs/work/active/architecture-reassessment/plan.md) reopen mechanisms. Email enum/literal text is not real EML ingestion; broader conversion, AI draft freedom and practical reviewability remain gaps. No production behavior changed in this documentation task.
 
 Desktop entry point, GPUI views and transient interaction state. All operations go through AppWorker. The headless startup check opens and joins the same current workflow without GPUI.
 
@@ -99,6 +99,31 @@ the exact current code. A stale or dismissed prompt cannot open a URL or copy.
 Code expiry/reconnect are explicit retry states, never automatic login.
 ChatGPT live chat remains conditionally qualified; a quota reset alone does not
 establish availability.
+
+Settings provides labelled investigation budget presets beside the provider/model
+and effort selection: 4/8/16/32 tool rounds and 60/180/300/600 seconds. New Ask
+and Inbox investigations default to 8 rounds and 300 seconds, display the choice
+before submission and capture it with the request. Budget controls are disabled
+while an investigation is active. Rewrite remains outside these investigation
+controls. The shared workflow enforces the captured ceiling.
+
+Active investigations show completed model turns and admitted tool rounds with
+the frozen ceiling; a parallel tool batch counts as one round. Time expiry shows
+“Time limit reached; stopping and finalizing” until settlement. Global Stop
+remains available while work drains. Final history and retained Inbox analyses
+show the recorded ceiling and terminal reason; older records show budget
+unavailable, without substituting the current settings.
+
+For deferred native acceptance, use a fresh synthetic workspace and acknowledged
+provider/model/effort. Choose 4 rounds/60 seconds in Settings, start Ask or Propose
+notes, and confirm the visible captured ceiling and disabled budget controls.
+Observe progress and use Stop; keep the partial answer and pending review drafts.
+Inspect a retained run after restart and confirm its original budget, then inspect
+older history and confirm unavailable limits. Time expiry must remain visibly
+stopping until local finalization and retain its distinct terminal reason.
+Headless state/widget checks cover capture, frozen controls, progress, late-event
+correlation and historical availability; they do not establish interactive
+usability or owner acceptance. Overnight GUI qualification remains deferred.
 
 Each Ask freezes provider, model and effort. Changing Settings affects new
 requests; active and historical turns retain their recorded choice. Older history

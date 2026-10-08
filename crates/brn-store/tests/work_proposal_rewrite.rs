@@ -20,6 +20,60 @@ fn digest(bytes: &[u8]) -> [u8; 32] {
     Sha256::digest(bytes).into()
 }
 
+#[test]
+fn retired_budget_uuid_cannot_be_reused_for_fresh_rewrite_but_existing_replay_stays_exact() {
+    let mut f = Fixture::new();
+    let record = f.review();
+    let retired = Uuid::new_v4();
+    f.store
+        .begin_turn_with_effort_and_budget(
+            retired,
+            None,
+            "retired run",
+            "chatgpt",
+            "model",
+            Some("low"),
+            None,
+        )
+        .unwrap();
+    let raw = Connection::open(f.data().join("brn.sqlite")).unwrap();
+    raw.execute(
+        "DELETE FROM messages WHERE turn_id=?1",
+        [retired.to_string()],
+    )
+    .unwrap();
+    let mut request = spec(&record);
+    request.id = retired;
+    assert!(matches!(
+        f.store.begin_proposal_rewrite(&request),
+        Err(Error::StateChanged(_))
+    ));
+    assert!(f.store.proposal_rewrite(retired).unwrap().is_none());
+    assert_eq!(
+        f.store.proposal(record.draft.id).unwrap(),
+        Some(record.clone())
+    );
+    assert_eq!(
+        f.store.run_budget(retired).unwrap(),
+        Some(brn_store::work::WorkBudget::default())
+    );
+
+    request.id = Uuid::new_v4();
+    let (job, capture) = f.store.begin_proposal_rewrite(&request).unwrap();
+    assert_eq!(capture, Some(record));
+    let canonical = serde_json::to_vec(&job).unwrap();
+    // Existing exact replay remains ahead of the retained metadata fence.
+    raw.execute(
+        "INSERT INTO ai_run_budgets VALUES(?1,8,300)",
+        [request.id.to_string()],
+    )
+    .unwrap();
+    let (replay, capture) = f.store.begin_proposal_rewrite(&request).unwrap();
+    assert!(capture.is_none());
+    assert_eq!(serde_json::to_vec(&replay).unwrap(), canonical);
+    f.unchanged_vault();
+}
+
 fn fingerprint(text: &str, inode: u64) -> FileFingerprint {
     FileFingerprint {
         device: 1,
@@ -1100,7 +1154,7 @@ fn additive_v5_migration_and_backup_restore_preserve_work_and_terminal_rewrite()
     let _base = f.base;
     drop(f.store);
     let conn = raw(&data);
-    conn.execute_batch("DROP TABLE intake_snapshots; DROP TABLE inbox_original_operations; DROP TABLE inbox_actions; DROP TABLE inbox_processing; DROP TABLE inbox_items; DROP TABLE action_completions; DROP TABLE actions; DROP TABLE findings; ALTER TABLE messages DROP COLUMN started_at_ms; ALTER TABLE messages DROP COLUMN finished_at_ms; ALTER TABLE conversations DROP COLUMN last_activity_at_ms; ALTER TABLE messages DROP COLUMN effort; DROP TABLE proposal_rewrites; PRAGMA user_version=5;")
+    conn.execute_batch("DROP TABLE ai_run_budgets; DROP TABLE intake_snapshots; DROP TABLE inbox_original_operations; DROP TABLE inbox_actions; DROP TABLE inbox_processing; DROP TABLE inbox_items; DROP TABLE action_completions; DROP TABLE actions; DROP TABLE findings; ALTER TABLE messages DROP COLUMN started_at_ms; ALTER TABLE messages DROP COLUMN finished_at_ms; ALTER TABLE conversations DROP COLUMN last_activity_at_ms; ALTER TABLE messages DROP COLUMN effort; DROP TABLE proposal_rewrites; PRAGMA user_version=5;")
         .unwrap();
     drop(conn);
     let (mut store, _) = WorkStore::open(&data).unwrap();
@@ -1133,6 +1187,6 @@ fn additive_v5_migration_and_backup_restore_preserve_work_and_terminal_rewrite()
         raw(&data)
             .query_row("PRAGMA user_version", [], |r| r.get::<_, u32>(0))
             .unwrap(),
-        16
+        17
     );
 }

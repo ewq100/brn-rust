@@ -548,6 +548,10 @@ impl Desktop {
         let ready = preview.is_some();
         let retained_extraction = preview.is_some_and(|preview| preview.extraction.is_some());
         let ai_ready = ai.selection.is_some() && ai.effort.is_some();
+        focus = focus.child(format!(
+            "{} · New investigation limits; change in Settings.",
+            ai.selected_budget_label()
+        ));
         let existing_source = ai.guided_source_record().is_some();
         let source_unusable = ai.guided_source_record().is_some_and(|record| {
             !matches!(record.state, ProposalState::Draft | ProposalState::Applied)
@@ -687,15 +691,12 @@ impl Desktop {
         });
         if let Some(active) = current_active {
             focus = focus
-                .child(if active.stopping {
-                    "Stopping investigation · local finalization pending"
-                } else {
-                    "Investigation running · suggestions require separate review"
-                })
+                .child(active.status_label())
+                .child(active.budget_label())
                 .child(
                     Button::new("guided-stop-investigation")
                         .label("Stop investigation")
-                        .disabled(blocked || active.stopping)
+                        .disabled(blocked)
                         .on_click(cx.listener(|this, _, _, cx| this.cancel_running(cx))),
                 );
         }
@@ -727,6 +728,15 @@ impl Desktop {
                 )
             });
         if current_analysis {
+            if let Some(record) = &ai.inbox_analysis.record {
+                focus = focus.child(crate::ai::budget_state::budget_label(record.budget));
+                if let Some(turn) = &record.turn {
+                    focus = focus.child(format!("Investigation: {}", crate::ai::turn_label(turn)));
+                    if let Some(code) = &turn.error_code {
+                        focus = focus.child(format!("Final reason: {code}"));
+                    }
+                }
+            }
             for error in [&ai.inbox_analysis.source_error, &ai.inbox_analysis.error]
                 .into_iter()
                 .flatten()

@@ -160,3 +160,167 @@ passed without inference or duplicate effects. Source/asset hashes unchanged.
 Sol's first-slice five-draft group remains available for morning native review.
 The full default offline gate, doctests and52fixture assertions passed; native
 workflow/desktop/build checks are still running.
+
+## Selected next slice: visible per-run investigation budgets
+
+Parent candidate [PR90](https://github.com/ewq100/brn-rust/pull/90), head6190395,
+contains the range/guidance slice; protected CI and final native local gates
+are pending. New isolated worktree `/Users/evokessler/repos/brn-p3-work-budgets`,
+branch `codex/p3-work-budgets`, starts at6190395 with its own target. The parent
+checkout/target remains dedicated to PR90 verification.
+
+Outcome: before Ask or Inbox investigation the owner can see and configure
+tool-round and time ceilings; active/history show the frozen choice and terminal
+cause. Stop, time expiry and tool-round exhaustion settle through the existing
+cancellation/drain lane and retain drafts/partial work. Rewrite remains a named
+separate follow-up, not implicitly covered by investigation controls.
+
+Reuse/adapt Rig0.43.0 max_turns/hooks, existing shared cancellation tokens,
+blocking leases, WorkStore transactions and native selection controls. No new
+runtime/dependency. Define canonical WorkBudget in Store: max_tool_rounds1..32,
+timeout_seconds1..3600; fresh omitted default8/300, model turns derived as
+rounds+1. Native controls may use clearly labelled bounded presets. CLI Ask
+exposes `--max-tool-rounds` and `--work-timeout-seconds`; Inbox accepts optional
+strict budget JSON. Existing `--timeout-seconds` remains outer command deadline.
+Night campaign explicitly remains8rounds/180seconds/nine turns regardless product
+defaults; two calls remain, no new call authorized merely to qualify budget mechanics.
+
+Persist effective budget atomically at ordinary admission/Inbox reservation in
+an additive same-DB run-UUID table; preserve canonical WorkTurn/Inbox captures,
+questions, approval/recovery envelopes and old SHA-256. Query budget separately
+for inspection rather than silently expanding authoritative capture payloads.
+Historical absence is unavailable, never backfilled. Existing UUID + omitted
+budget resolves the retained value; explicit changed budget conflicts. Unknown
+historical unfinished reservations must not acquire invented limits or silently
+restart inference. Fresh admission records the effective value before provider work.
+Deadline covers owned authentication/inference, cancels the same proposal-capability
+token, awaits settlement/drain, preserves partial text/drafts, and rejects late
+completion after expiry wins. Already-confirmed completion can win a later cancel.
+Expose fixed time_limit_reached distinct from manual interruption/tool exhaustion.
+Progress counts admitted tool rounds, not each parallel tool; keep zero hidden
+invalid-tool retries and frozen model/account/effort.
+
+Acceptance/checks: defaults/bounds/unknown fields before provider/reservation;
+configured rounds below/above8 and parallel tools; stalled auth/model/tool timeout,
+proposal fencing, late reply/drain and manual Stop; exact restart/replay and
+changed-budget refusal; old DB/capture/envelope byte compatibility; matching
+CLI/native frozen controls/progress/history and outer deadline distinction.
+Independent final review and applicable Store/workflow/AI/native/CLI gates required.
+One lead owns integration; max two active bounded implementation helpers, no
+recursive spawning. Store and desktop work will have fixed interfaces/ownership.
+Interactive qualification stays in the single morning task.
+
+### Budget slice fixed interfaces and recovery finding
+
+Store owns Copy/Clone/Eq WorkBudget and `run_budget`/`resolve_run_budget` reads
+on WorkStore/ChatStore. Atomic budgeted admission/reservation methods return
+`(WorkTurn, Option<WorkBudget>)` and `(InboxActionJob, Option<WorkBudget>)` while
+legacy API/capture bytes remain compatible. Historical recovered envelopes lack
+budgets and show unavailable. Same-DB backups retain rows. A retained budget row
+without a turn/reservation is an execution UUID tombstone: both new and legacy
+admission must refuse recreation rather than restarting inference.
+
+Workflow reexports WorkBudget; Ask/Inbox request fields are optional.
+`ChatEvent::BudgetProgress {id,generation,budget,model_turns,tool_rounds}` counts
+completed responses/admitted rounds (zero at admission); `BudgetStopping` marks
+time expiry while cancellation/drain settles. `AppCommand::RunBudget(Uuid)` /
+`AppEvent::RunBudget {id,budget}` exposes selected historical metadata separately
+from canonical WorkTurn. InboxActionAnalysis wrapper gains optional budget, not
+its archived capture. AI receives validated max_tool_rounds through a new
+compatibility-preserving entrypoint; legacy/rewrite functions keep their behavior.
+Store helper owns Store module/tests; desktop helper owns desktop state/native/tests;
+lead owns AI/workflow/CLI/shared docs and integration, no overlapping file edits.
+
+Parent PR90 final local gates passed:1643 default tests,17 existing ignores;
+402native workflow/models,15 existing ignores;326 combined native desktop/widget/CLI
+tests; default/combined Clippy, shipping builds, final52fixture assertions and
+601Markdown links. Parent build manifest `/private/tmp/brn-overnight-20261008/first-slice-build-manifest.json`.
+CLI SHA-256 unchanged from the paired first-slice run; desktop SHA-256
+`1109da17d02a6ac7e2f213367bfa2e7c6da6e48b5b7bd17ca63161db2d6d28fd`.
+Hosted run37828089206 exact head6190395: docs passed, required gates running.
+Windows informational failure is unchanged `brn-store/src/lib.rs` Unix MetadataExt/
+nlink compilation; this PR does not modify that file/crate source. No portability
+work or gate bypass follows. PR90 is attached to this chat and remains unmerged.
+
+## Current checkpoint — PR90 merged; budgets in integration
+
+PR90 merged normally at `4f5b95e1c7b92f9efec54ea7f34f9097987cfdb6`
+on 8 October19:08UTC after all four required checks and documentation passed
+on exact head6190395 (run37828089206). Fetched main has the identical tree;
+postmerge run37829733834 is in progress. Informational Unix-only Windows failures
+remain unchanged; no protection bypass or port occurred. Prior pending statements
+above describe earlier milestones and are superseded by this checkpoint.
+
+Active checkout `/Users/evokessler/repos/brn-p3-work-budgets`, branch
+`codex/p3-work-budgets`, committed spec8f212d5 plus task-owned uncommitted budget
+implementation. Store helper completed439 passing Store tests and26 final affected
+Rewrite/budget tests, all-target Clippy. New AI configured-round tests passed2,
+covering1/10 rounds across real Rig routes, parallel calls and invalid limits.
+Workflow/CLI/desktop integration tests, independent final review and full gates
+remain pending. Fixed a discovered admission/Stop race by registering cancellation
+before initial progress. Ordinary Ask/semantic Inbox preserve partial text/drafts;
+legacy strict visual JSON retains its completion-only output contract.
+
+Next: qualify timeout/cancellation/drain/replay and native state, validate final
+candidate independently, commit/push/required CI and integrate when eligible.
+Two nightly live calls remain (one per condition); none used for budget mechanics.
+Interactive and personal acceptance stay pending in the single morning task.
+
+### Integration/review milestone
+
+PR90 postmerge run37829733834 is complete: all four required contexts and
+documentation passed on merged4f5b95e. Overall red is informational Windows Unix
+APIs, Linux native UI unused macOS process imports, and Linux native installer
+ExclusiveInstallUnavailable witnesses. Implicated Linux paths are unchanged from
+PR89 baseline32c2538; no platform work/failure suppression was performed.
+
+Budget independent review of complete67-file staged candidate
+SHA-256 `acce4fbec9c8eab8cc3ed5c82efda22327ff69c6c0c8f154bd839e836c5f063c`
+found one valid P2 ordering defect: BudgetStopping publication preceded shared-token
+cancellation. Lead is adding an exact emitter-boundary regression, then moving
+cancellation first and refreshing review/affected checks. No other actionable
+finding. Three old integration-test request literals needed optional budget fields
+before the full gate compiled. CLI Ask subprocess suite passed9 including3new;
+workflow new7 passed; default integrated gate is running. No budget PR/merge yet.
+
+Next ready outcome after budgets: bounded P4 saved-Source Inbox conflict and
+recommendation demonstration. Existing supersession prepares new Current plus
+protected predecessor History and follow-up Action; broad structural P3 changes
+are not its prerequisite. Coherent guidance still bans recommendations and is a
+demonstrated gap. Use explicit saved-Source route (private-intake conflict capture
+is not supported) and exact Action-before-supersession order where both bind the
+predecessor. One combined deterministic scenario and novel North Quay shipping
+pair can use the remaining one call/model only after that candidate is ready.
+
+### Budget final-candidate checkpoint
+
+Valid/fixed independent P2: cancellation now precedes BudgetStopping publication.
+The exact shared-token emitter-boundary regression failed old ordering, then all3
+boundary/ready-completion/manual-Stop tests passed after correction. Independent
+review refreshed complete staged SHA-256
+`fdcfc57db3960299b3bcea76c4a77909af151267b831e3d18323c0bb70c52e95`
+and confirmed no remaining actionable finding; subsequent update is this receipt.
+Full default gate passed1670tests/17existingignores, doctests, all-target Clippy,
+workspace/helper builds and52fixture assertions before the order correction;
+unchanged checks are reused, affected/native checks follow against final code.
+CLI9 and newworkflow7 passed. Final combined native/shipping/CI pending.
+
+### PR91 native state milestone — 19:37UTC
+
+Budget code candidatee391be5 is pushed as
+[PR91](https://github.com/ewq100/brn-rust/pull/91), attached to this chat.
+Final native workflow/models passed412 with15existingignores. Desktop test
+compilation exposed two setup defects in the new headless Settings probe:
+open_window needs a Render value, and test_support needs an ElementId. Both are
+fixed only in dialog_tests.rs; targeted real widget test passed, then combined
+native desktop/CLI passed525 with no failures/ignores. Existing block0.1.6 future
+compiler warning remains informational. Final native Clippy/shipping/fixtures
+pending; current hosted run37832395421 will be superseded by the test fix push.
+Independent read-only validation of the test-only delta requested. No interactive
+UI acceptance is established. Morning task must use the eventual final build.
+
+P4 work is now isolated in the reused clean parent checkout on
+`codex/p4-conflict-recommendations`, spec6fc5d40, with guidance and a combined
+MIME/conflict/review/restart witness being qualified. Two live calls remain unused.
+The budget target is idle while the P4 helper runs its two targeted tests in
+`target/intake-ui`; after it releases Cargo, finish budget Clippy/shipping and CI.

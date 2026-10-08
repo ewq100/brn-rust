@@ -335,10 +335,13 @@ History is limited to the last 20 earlier `HistoryPair` values, converted to
 text-only user/assistant messages. Empty assistant text is omitted on the wire
 while its question is retained. Earlier tools, results, reasoning and provider
 response IDs are not restored. A run-owned model-finished hook counts each
-tool-containing response once, including parallel calls. Exactly eight such
-rounds are allowed; a ninth tool round is stopped **before dispatch**.
-`max_turns(9)` leaves room for eight tool rounds plus a ninth final answer;
-invalid-tool retries are explicitly zero. A run-owned atomic flag classifies
+tool-containing response once, including parallel calls. Compatibility entrypoints
+allow eight rounds and a ninth final answer. Investigation entrypoint
+`answer_with_proposals_and_images_with_limit` accepts validated1..32 rounds;
+Rig max_turns is rounds+1 and an excess tool round stops **before dispatch**.
+Invalid-tool retries are explicitly zero. Investigation `BudgetProgress` reports
+completed model responses and admitted tool rounds, including a refused final
+response in the model count; parallel calls consume one round. A run-owned atomic flag classifies
 `ToolLimitReached`, independently of Rig's stop-reason wording.
 
 For `answer`, `AiEvent::Text` appends/emits each fragment exactly once;

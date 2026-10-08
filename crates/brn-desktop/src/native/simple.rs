@@ -1800,6 +1800,7 @@ impl Desktop {
                             .map(|path| format!("Analyze saved Inbox Source: {path}"))
                             .unwrap_or_else(|| turn.question.clone()),
                     )
+                    .child(ai.recorded_budget_label(turn.id))
                     .child(turn.answer.clone()),
             );
             if turn.status == brn_workflow::WorkTurnStatus::Completed {
@@ -1850,12 +1851,9 @@ impl Desktop {
                         .effort()
                         .map(ReasoningEffort::as_str)
                         .unwrap_or("unavailable"),
-                    if active.stopping {
-                        "Stopping (not finalized)"
-                    } else {
-                        "Streaming (provisional)"
-                    }
+                    active.status_label()
                 ))
+                .child(active.budget_label())
                 .child(active.request.question_label())
                 .child(active.partial.clone());
             if let Some(tool) = &active.tool {
@@ -1914,6 +1912,10 @@ impl Desktop {
                                 format!("{} / {}", provider_name(s.provider), s.model)
                             }),
                     )
+                    .child(format!(
+                        "{} · Change investigation limits in Settings.",
+                        ai.selected_budget_label()
+                    ))
                     .child(
                         div()
                             .flex()
@@ -2121,6 +2123,47 @@ pub(super) fn account_settings(desktop: &Entity<Desktop>, cx: &App) -> AnyElemen
     } else if ai.effort.is_none() {
         body = body.child("Choose low, medium or high before asking AI.");
     }
+    body = body
+        .child(
+            "Investigation limits for new Ask and Inbox requests (Rewrite has separate controls)",
+        )
+        .child(ai.selected_budget_label())
+        .child("Tool-round presets: 4 / 8 / 16 / 32. Time presets: 60 / 180 / 300 / 600 seconds.");
+    let budget_busy =
+        !ai.can_select_work_budget() || this.closed || this.closing.is_some() || this.close_failed;
+    let mut rounds = div().flex().flex_wrap().gap_1();
+    for value in [4u16, 8, 16, 32] {
+        let target = desktop.downgrade();
+        rounds = rounds.child(
+            Button::new(format!("work-budget-rounds-{value}"))
+                .label(format!("{value} tool rounds"))
+                .selected(ai.work_budget.max_tool_rounds == value)
+                .disabled(budget_busy)
+                .on_click(move |_, _, cx| {
+                    let _ = target.update(cx, |this, cx| {
+                        this.ai.as_mut().unwrap().select_work_rounds(value);
+                        cx.notify();
+                    });
+                }),
+        );
+    }
+    let mut seconds = div().flex().flex_wrap().gap_1();
+    for value in [60u32, 180, 300, 600] {
+        let target = desktop.downgrade();
+        seconds = seconds.child(
+            Button::new(format!("work-budget-seconds-{value}"))
+                .label(format!("{value} seconds"))
+                .selected(ai.work_budget.timeout_seconds == value)
+                .disabled(budget_busy)
+                .on_click(move |_, _, cx| {
+                    let _ = target.update(cx, |this, cx| {
+                        this.ai.as_mut().unwrap().select_work_seconds(value);
+                        cx.notify();
+                    });
+                }),
+        );
+    }
+    body = body.child(rounds).child(seconds);
     let target = desktop.downgrade();
     let cancel = target.clone();
     body.child("ChatGPT chat is conditionally qualified: quota reset alone does not prove availability. No automatic model/provider fallback.")

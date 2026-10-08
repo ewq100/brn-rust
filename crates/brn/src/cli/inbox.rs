@@ -1790,6 +1790,7 @@ mod tests {
             InboxAnalysisPurpose::KnowledgeAndActions,
         ] {
             let request = InboxActionRequest {
+                budget: None,
                 visual_asset: None,
                 purpose,
                 id: Uuid::new_v4(),

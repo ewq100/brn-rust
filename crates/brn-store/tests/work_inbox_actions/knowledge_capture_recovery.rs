@@ -176,10 +176,15 @@ fn exact_capture_imports_each_outcome_and_supersession_without_fabricating_chat(
                     job.created_at_ms as i64
                 )
             );
+            assert_eq!(target.run_budget(job.capture.id).unwrap(), None);
+            assert_eq!(
+                target.resolve_run_budget(job.capture.id, None).unwrap(),
+                None
+            );
             assert_eq!(
                 raw.query_row("PRAGMA user_version", [], |r| r.get::<_, i64>(0))
                     .unwrap(),
-                16
+                17
             );
             drop(raw);
             drop(target);

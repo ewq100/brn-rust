@@ -251,3 +251,149 @@ fn fresh_ask_without_explicit_effort_refuses_before_turn_or_credential_admission
         0
     );
 }
+
+#[test]
+fn invalid_work_budgets_refuse_before_workspace_creation() {
+    let owner = tempfile::tempdir().unwrap();
+    for (index, args) in [
+        vec!["ask", "q", "--max-tool-rounds", "0"],
+        vec!["ask", "q", "--max-tool-rounds", "33"],
+        vec!["ask", "q", "--work-timeout-seconds", "0"],
+        vec!["ask", "q", "--work-timeout-seconds", "3601"],
+        vec![
+            "ask",
+            "q",
+            "--max-tool-rounds",
+            "1",
+            "--max-tool-rounds",
+            "2",
+        ],
+    ]
+    .into_iter()
+    .enumerate()
+    {
+        let data = owner.path().join(format!("unopened-{index}"));
+        let (output, value) = run(&data, &args);
+        assert_eq!(output.status.code(), Some(2), "{value}");
+        assert!(!data.exists());
+    }
+}
+
+#[test]
+fn configured_budget_survives_failure_restart_and_omitted_replay() {
+    let fixture = Fixture::new();
+    let mut app = fixture.app();
+    app.select(Selection {
+        provider: Provider::Chatgpt,
+        model: "synthetic-no-auth".into(),
+    })
+    .unwrap();
+    app.work_store_mut()
+        .set_setting("ai.effort", "medium")
+        .unwrap();
+    drop(app);
+    let op = Uuid::new_v4();
+    let (output, value) = run(
+        &fixture.data,
+        &[
+            "ask",
+            "q",
+            "--operation",
+            &op.to_string(),
+            "--max-tool-rounds",
+            "2",
+        ],
+    );
+    assert_eq!(output.status.code(), Some(1), "{value}");
+    assert_eq!(value["error"]["code"], "AI_RECONNECT_NEEDED");
+    // Supplying one flag fills the other with the documented fresh default.
+    let budget = serde_json::json!({"max_tool_rounds": 2, "timeout_seconds": 300});
+    assert_eq!(value["error"]["context"]["budget"], budget);
+    assert_eq!(value["error"]["context"]["receipt"]["budget"], budget);
+    let (output, replay) = run(&fixture.data, &["ask", "q", "--operation", &op.to_string()]);
+    assert_eq!(output.status.code(), Some(1));
+    assert_eq!(
+        replay["error"]["context"]["receipt"],
+        value["error"]["context"]["receipt"]
+    );
+    let (output, conflict) = run(
+        &fixture.data,
+        &[
+            "ask",
+            "q",
+            "--operation",
+            &op.to_string(),
+            "--max-tool-rounds",
+            "3",
+        ],
+    );
+    assert_eq!(output.status.code(), Some(1));
+    assert_eq!(conflict["error"]["code"], "OPERATION_CONFLICT");
+    let app = fixture.app();
+    assert_eq!(
+        serde_json::to_value(app.work_store().run_budget(op).unwrap()).unwrap(),
+        budget
+    );
+    assert_eq!(
+        std::fs::read_dir(app.auth().credentials_dir())
+            .unwrap()
+            .count(),
+        0
+    );
+}
+
+#[test]
+fn recorded_time_limit_and_history_keep_budget_without_provider_or_vault() {
+    let fixture = Fixture::new();
+    let mut app = fixture.app();
+    let op = Uuid::new_v4();
+    let budget = brn_workflow::WorkBudget {
+        max_tool_rounds: 4,
+        timeout_seconds: 60,
+    };
+    let (turn, _) = app
+        .work_store_mut()
+        .begin_turn_with_effort_and_budget(
+            op,
+            None,
+            "bounded synthetic",
+            "chatgpt",
+            "former-model",
+            Some("medium"),
+            Some(budget),
+        )
+        .unwrap();
+    app.work_store_mut()
+        .finish_turn(
+            op,
+            WorkTurnStatus::Failed,
+            "retained partial",
+            Some("time_limit_reached"),
+        )
+        .unwrap();
+    drop(app);
+    std::fs::remove_dir_all(&fixture.vault).unwrap();
+    let (output, value) = run(
+        &fixture.data,
+        &["ask", "bounded synthetic", "--operation", &op.to_string()],
+    );
+    assert_eq!(output.status.code(), Some(124), "{value}");
+    assert_eq!(value["error"]["code"], "AI_TIME_LIMIT_REACHED");
+    assert_eq!(
+        value["error"]["context"]["receipt"]["answer"],
+        "retained partial"
+    );
+    assert_eq!(
+        value["error"]["context"]["budget"],
+        serde_json::json!(budget)
+    );
+    let (output, history) = run(
+        &fixture.data,
+        &["conversations", "show", &turn.conversation_id.to_string()],
+    );
+    assert!(output.status.success(), "{history}");
+    assert_eq!(
+        history["data"]["turns"][0]["budget"],
+        serde_json::json!(budget)
+    );
+}

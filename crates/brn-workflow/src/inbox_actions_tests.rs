@@ -19,6 +19,9 @@ use sha2::{Digest, Sha256};
 use std::sync::atomic::AtomicUsize;
 use std::{panic::Location, time::Instant};
 
+#[path = "inbox_actions_tests/budgets.rs"]
+mod budgets;
+
 // Match only enum variants: payloads can contain private evidence or credentials.
 macro_rules! variant_name {
     ($value:expr, $kind:ident, [$($unit:ident),*], [$($tuple:ident),*], [$($fields:ident),*]) => {
@@ -121,6 +124,7 @@ fn command_name(command: &AppCommand) -> &'static str {
             Activity,
             Turns,
             Turn,
+            RunBudget,
             Ask,
             AnalyzeInboxActions,
             InboxActionAnalysis,
@@ -238,7 +242,8 @@ fn event_name(event: &AppEvent) -> &'static str {
             TurnCancelRequested,
             AccountCancelRequested,
             ModelCancelRequested,
-            ModelDownload
+            ModelDownload,
+            RunBudget
         ]
     )
 }
@@ -405,6 +410,7 @@ fn capture_source(worker: &AppWorker, raw: &str) -> SourceFixture {
 
 fn request(source: &SourceFixture) -> InboxActionRequest {
     InboxActionRequest {
+        budget: None,
         intake: None,
         visual_asset: None,
         purpose: Default::default(),
@@ -912,6 +918,7 @@ fn inbox_action_exact_restart_replay_survives_source_loss_and_rejects_changed_ca
         );
     }
     let reserved = AskRequest {
+        budget: None,
         id: replay.id,
         conversation: replay.conversation,
         question: before.job.question.clone(),

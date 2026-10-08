@@ -260,6 +260,7 @@ mod saved {
         }
         fn request(&self, evidence: &InboxVisualEvidence) -> InboxActionRequest {
             InboxActionRequest {
+                budget: None,
                 id: Uuid::new_v4(),
                 conversation: None,
                 source: Some(evidence.source.clone()),
