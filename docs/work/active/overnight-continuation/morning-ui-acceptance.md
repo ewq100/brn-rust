@@ -18,22 +18,23 @@ checks/docs; all required post-merge checks/docs passed in 37844389582.
 Refresh this receipt after subsequent changes and before cutoff; qualification is
 separate from personal acceptance.
 
-Checkout: `/Users/evokessler/repos/brn-p3-work-budgets`.
-Latest qualified combined candidate: `babc01335869e619cc1e65036984f170eb25551d` (session Archive/Restore plus merged
-PR96 MIME repair). Main is `deca5d5ea3f6decbfb6ae2288db3934d4de694c4`;
-PR90–PR95 required candidate/post-merge checks passed. PR96 required candidate
-checks/docs passed, post-merge pending; PR97 final required CI/integration pending.
-Immutable shipping runtime: `/Users/evokessler/repos/brn-overnight-artifacts-20261008/session-combined-runtime`.
-Desktop: `/Users/evokessler/repos/brn-overnight-artifacts-20261008/session-combined-runtime/brn-desktop`,
-SHA-256 `8bc7f4074a36e130a6fed4778de73d4ce5a34e78fe5ca5421b11fb2a28b75fd4`.
-Matching CLI: `/Users/evokessler/repos/brn-overnight-artifacts-20261008/session-combined-runtime/brn`,
-SHA-256 `9ce0aae76f208f16db70f2e2ba48df3791e2b44bc61fc80db33bb7a0a827f421`.
-Helper: `/Users/evokessler/repos/brn-overnight-artifacts-20261008/session-combined-runtime/brn-intake-helper`,
-SHA-256 `33e40e9ae7d797b72b9e1312fe97a3904285cc0223b30501169a744844727d04`.
-Manifest: `/Users/evokessler/repos/brn-overnight-artifacts-20261008/session-combined-runtime/build-manifest.json`.
-This runtime includes all PR90–PR96 behaviors and locally qualified session controls.
-Refresh final receipt before cutoff; never use a historical executable after newer
-schema migration. Do not relocate bound state/vault folders. GUI acceptance pending.
+Checkout: `/Users/evokessler/repos/brn-p2-email-docx-intake`.
+Latest qualified combined candidate: `754e6260e44c9377f8b1311fdb8376a2831386e0` (PPTX plus
+merged PR90–PR97). Main441120ce7f6ee47de3e4fa0f784355e2fc0b3257 includes PR97;
+all required candidate/post-merge checks/docs passed through PR97
+(post-merge37850968507). PPTX required CI/integration pending; backups underway.
+Immutable shipping runtime: `/Users/evokessler/repos/brn-overnight-artifacts-20261008/pptx-runtime`.
+Desktop: `/Users/evokessler/repos/brn-overnight-artifacts-20261008/pptx-runtime/brn-desktop`,
+SHA-256 `8ba958a1213abe85ad2a4103c587ec3697060a32eeecbe4958604107ee8fc461`.
+Matching CLI: `/Users/evokessler/repos/brn-overnight-artifacts-20261008/pptx-runtime/brn`,
+SHA-256 `612269d1ff831b621ab3f1590390f617eaba5ed932b46ae9d13d8b6219d72227`.
+Helper: `/Users/evokessler/repos/brn-overnight-artifacts-20261008/pptx-runtime/brn-intake-helper`,
+SHA-256 `7f058c359a092559cda55b07c3880b44e637257818ad60c725da8b1d99a9f8e5`.
+Manifest: `/Users/evokessler/repos/brn-overnight-artifacts-20261008/pptx-runtime/build-manifest.json`.
+This runtime includes sessions V18 and locally qualified PPTX. Backups are not yet
+included. Refresh final receipt before cutoff; never use historical executable
+once newer schema migrated state. Bound state/vault folders must stay in place.
+Actual GUI/personal acceptance remains pending.
 
 Workspace A (email/DOCX/core journey):
 `/private/tmp/brn-retained-qualification-bi3q58kf/headless/{data,vault,results}`.
@@ -85,6 +86,27 @@ Source Drafts `a555a6ad-654d-4ed2-9f58-4fd49ae2db0b` and
 retained originals/decoded IDs/caveats without re-import, conversion or inference.
 Compare with the older immutable Linden extraction wording in D; do not rewrite it.
 
+North Quay retained owner-comment revision: Luna knowledge proposal
+`f1700e6e-1051-8a95-997a-e60075d74312` is now Draft/version4, after owner edit,
+comment and one live Rewrite. Exact before version3/after version4/job receipts are
+`/private/tmp/brn-overnight-20261008/north-quay-case/receipts/owner-comment-rewrite`.
+Inspect that comparison without requesting another Rewrite or approving duplicate
+comparison work. Sol North Quay proposals remain Draft for native approval.
+
+Workspace F (partial PPTX, zero inference preparation):
+`/private/tmp/brn-overnight-20261008/pptx-retained-case/{data,vault,inputs,receipts}`.
+Harbor Source5eeb31f3-7837-4674-b889-4c77cf0d8f13 and twins Source
+313bd19e-107d-4d16-9fc4-5cd8334b6f97 remain Draft. Quay Source
+bbbfcd8f-5215-4890-afea-ac4415be5e51 and its two assets are already Applied,
+with exact replay and Original identities preserved. `ready.json` has all exact
+IDs/proofs/receipt paths. Harbor chart facts are absent; inspect the original.
+Quay notes are distinct, hidden slide order retained; twin canonical/generic MIME
+attachments preserve separate children and six occurrences sharing two assets.
+PPTX final combined local gates/build passed; required hosted CI/integration pending.
+Paired saved investigations13/14 retained under receipts/paired-private-investigation;
+all model proposals remain Draft. Approve only a selected group with exact Source
+prerequisite; do not approve both comparisons or ask for repeat inference.
+
 ## Preparation and launch after unlock
 
 Confirm final commit/build hashes and that no process owns the selected synthetic
@@ -92,7 +114,7 @@ folder. Do not delete locks, reset or migrate data if busy; record the condition
 Launch Workspace A from the checkout (ordinary desktop flags):
 
 ```sh
-/Users/evokessler/repos/brn-overnight-artifacts-20261008/session-combined-runtime/brn-desktop \
+/Users/evokessler/repos/brn-overnight-artifacts-20261008/pptx-runtime/brn-desktop \
   --data-dir /private/tmp/brn-retained-qualification-bi3q58kf/headless/data \
   --vault /private/tmp/brn-retained-qualification-bi3q58kf/headless/vault
 ```
@@ -112,7 +134,7 @@ than passed whenever a control/result cannot be exercised.
 
 ## One ordered journey
 
-Allow 60–90 minutes for all workspaces/new controls. Essential path: steps 1–5 and 8–9, about 20–25 minutes.
+Allow 75–105 minutes for all workspaces/new controls. Essential path: steps 1–5 and 8–9, about 20–25 minutes.
 
 | Step / user action | Expected result | Evidence / failure record |
 | --- | --- | --- |
@@ -127,8 +149,10 @@ Allow 60–90 minutes for all workspaces/new controls. Essential path: steps 1�
 | 9. Review selected B proposals and their exact versions; approve only the intended consequences, restart and inspect | Current live Knowledge is a supplement, not a supersession. Two Actions remain distinct; due date/time and authorization boundary retained. Finding closure remains a separate explicit choice. Only approved effects persist | Approval requests/receipts, notes/Actions/Finding state, restart/replay; do not approve both model comparisons |
 | 10. Explicitly select the Current predecessor on a suitable Draft, review generated protected History and successor, then approve the revised version | No silent semantic rewrite; owner text/comments/citations remain. Old stamp refuses. Generated History is readonly, successor editable, and exact pair persists after restart | Exact predecessor proof, before/after, version change, comments, stale/error states and history links. Implemented, independently reviewed, final shipping and required candidate/post-merge CI passed; interactive acceptance pending |
 | 11. Quit B/C and open D; inspect saved private-intake analysis, both Sources, approved Current, Open Finding, two saved Knowledge notes and two Actions | Formal Finding retains exact Applied Source lineage and opposing director Source, tentative preference/reasons/alternatives. Capacity 26 versus18, four mobility-aid users, access restrictions, authority and 12 October noon +03:00 reply cut-off remain visible. All four selected consequences are already Applied; Finding remains Open | Source/stamp/proof IDs, saved note/Action UUIDs, separate Finding state, failed Sol run/error and comparison Draft; no new inference or duplicate approval |
-| 12. Select a completed synthetic session, Archive, inspect Archived history, quit/reopen and Restore; inspect old operation replay if exposed | Same UUID, turns, budgets and creation/activity times; archived history readable, explicit Restore needed for new work; pending/stale controls preserve composer/editor/review buffers. Busy/draining Archive refuses without cancellation | Selected UUID, lifecycle versions/receipt, displayed filter/banner, preserved text and restart history. Session implementation, independent review and final local qualification passed; required final CI/integration pending |
-| 13. In E, inspect both retained plain-text EML variants and compare the older extraction in D | New extraction retains every decoded In-Reply-To/References value across scalar/list and physical fields in order, including repeats, and distinguishes header claims from authentication/thread proof; no generic false absence/HTML/remote claim. Actual HTML/remote/CID gaps remain specific. Old snapshots retain their original wording and partial status | Exact extraction IDs/build/helper hash and visible caveat; do not reconvert old evidence merely to change wording. Helper/local CLI qualification and independent review passed; all required candidate CI passed and PR96 merged; post-merge CI pending |
+| 12. Select a completed synthetic session, Archive, inspect Archived history, quit/reopen and Restore; inspect old operation replay if exposed | Same UUID, turns, budgets and creation/activity times; archived history readable, explicit Restore needed for new work; pending/stale controls preserve composer/editor/review buffers. Busy/draining Archive refuses without cancellation | Selected UUID, lifecycle versions/receipt, displayed filter/banner, preserved text and restart history. Session implementation, independent review and final local qualification passed; required candidate/post-merge CI passed and PR97 merged |
+| 13. In E, inspect both retained plain-text EML variants and compare the older extraction in D | New extraction retains every decoded In-Reply-To/References value across scalar/list and physical fields in order, including repeats, and distinguishes header claims from authentication/thread proof; no generic false absence/HTML/remote claim. Actual HTML/remote/CID gaps remain specific. Old snapshots retain their original wording and partial status | Exact extraction IDs/build/helper hash and visible caveat; do not reconvert old evidence merely to change wording. Helper/local CLI qualification and independent review passed; all required candidate/post-merge CI passed and PR96 merged |
+| 14. Once final PPTX qualification/build is recorded, open the retained Harbor and unrelated Quay presentations and repeated email attachments, inspect slide/notes/table/image evidence, exact Source/assets approval and restart | Presentation order and hidden labels are explicit; notes distinct from slide text; repeated picture occurrences retain parents/shared bytes; chart/SmartArt/layout gaps remain visible without invented facts. Reopen without conversion/inference | Final fixture/candidate/snapshot/Source IDs and asset hashes, slide/notes locators, partial gaps and approval receipts. PPTX implemented/reviewed clean;41 intake,1729default including reused Store461,426native workflow/models,549desktopCLI,Clippy/shipping/fixtures passed. Required CI/integration pending. Do not mark observed |
+| 15. Once final backup build is recorded, inspect Settings backup status, change a disposable draft/comment, checkpoint, refresh and restart; inspect warning fixture only if recorded | Last known usable copy/path/time or unknown startup time is distinct from failure/retention warning. Automatic changed-state copies and final joined shutdown preserve complete state. A backup warning never turns a committed approval/Save/chat into failed/retryable work, and owner buffers remain | Exact checkpoint path/status, retained changed draft/comments/session/budget/Actions/Findings and warning. Backup implementation/qualification pending; no destructive Restore or private data test |
 
 ## Headless evidence already passed; interactive acceptance pending
 

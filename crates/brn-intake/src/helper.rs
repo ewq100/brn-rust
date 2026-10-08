@@ -10,6 +10,8 @@ use std::{collections::BTreeMap, io::Cursor};
 
 const MAX_PACKAGE_BYTES: usize = 16 * 1024 * 1024;
 
+mod pptx;
+
 #[derive(Default)]
 struct Budget {
     expanded_bytes: usize,
@@ -28,14 +30,20 @@ pub fn extract(request: HelperRequest) -> Result<Extraction, String> {
             limits,
             ..Budget::default()
         },
+        0,
     )
 }
-fn extract_with_budget(request: HelperRequest, budget: &mut Budget) -> Result<Extraction, String> {
+fn extract_with_budget(
+    request: HelperRequest,
+    budget: &mut Budget,
+    source_base: usize,
+) -> Result<Extraction, String> {
     if request.bytes.is_empty() || request.bytes.len() > budget.limits.max_input_bytes {
         return Err("input budget or empty input".into());
     }
     let media = match request.kind.as_str() {
         "docx" => "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
+        "pptx" => "application/vnd.openxmlformats-officedocument.presentationml.presentation",
         "eml" => "message/rfc822",
         _ => return Err("unsupported intake kind".into()),
     };
@@ -47,7 +55,7 @@ fn extract_with_budget(request: HelperRequest, budget: &mut Budget) -> Result<Ex
         original_sha256: digest(&request.bytes),
         markdown: String::new(),
         sources: vec![SourceNode {
-            id: "source-0".into(),
+            id: format!("source-{source_base}"),
             parent: None,
             name: format!("original.{}", request.kind),
             media_type: media.into(),
@@ -62,6 +70,8 @@ fn extract_with_budget(request: HelperRequest, budget: &mut Budget) -> Result<Ex
     };
     if request.kind == "docx" {
         docx(&request.bytes, 0, &mut extraction, budget)?;
+    } else if request.kind == "pptx" {
+        pptx::extract(&request.bytes, 0, &mut extraction, budget)?;
     } else {
         let message = MessageParser::default()
             .parse(&request.bytes)
@@ -156,8 +166,14 @@ fn node(
         return Err("retained MIME source budget".into());
     }
     let index = extraction.sources.len();
+    let base = extraction.sources[0]
+        .id
+        .strip_prefix("source-")
+        .and_then(|base| base.parse::<usize>().ok())
+        .ok_or("invalid generated source namespace")?;
+    let ordinal = base.checked_add(index).ok_or("source ordinal overflow")?;
     extraction.sources.push(SourceNode {
-        id: format!("source-{index}"),
+        id: format!("source-{ordinal}"),
         parent: Some(extraction.sources[parent].id.clone()),
         name,
         media_type,
@@ -365,16 +381,11 @@ fn picture_blocks(
     }
     Ok(())
 }
-fn docx(
-    bytes: &[u8],
-    source: usize,
-    extraction: &mut Extraction,
-    budget: &mut Budget,
-) -> Result<(), String> {
-    let archive =
-        zip::ZipArchive::new(Cursor::new(bytes)).map_err(|e| format!("DOCX ZIP admission: {e}"))?;
+fn admit_package(bytes: &[u8], budget: &mut Budget) -> Result<BTreeMap<String, Vec<u8>>, String> {
+    let archive = zip::ZipArchive::new(Cursor::new(bytes))
+        .map_err(|e| format!("Office ZIP admission: {e}"))?;
     if archive.len().saturating_add(budget.package_parts) > budget.limits.max_package_parts {
-        return Err("DOCX package member budget".into());
+        return Err("Office package member budget".into());
     }
     let parts: BTreeMap<String, Vec<u8>> = ooxml_opc::unzip_parts_with_limits(
         bytes,
@@ -383,11 +394,21 @@ fn docx(
             .max_expanded_bytes
             .saturating_sub(budget.expanded_bytes) as u64,
     )
-    .map_err(|e| format!("DOCX package admission: {e}"))?
+    .map_err(|e| format!("Office package admission: {e}"))?
     .into_iter()
     .collect();
     budget.package_parts += archive.len();
     budget.expanded_bytes += parts.values().map(Vec::len).sum::<usize>();
+    Ok(parts)
+}
+
+fn docx(
+    bytes: &[u8],
+    source: usize,
+    extraction: &mut Extraction,
+    budget: &mut Budget,
+) -> Result<(), String> {
+    let parts = admit_package(bytes, budget)?;
     let limits = docx_parse::ParseLimits {
         max_xml_bytes: MAX_PACKAGE_BYTES,
         max_xml_events: 200_000,
@@ -836,6 +857,78 @@ fn email(
     }
     Ok(())
 }
+/// Map the local root onto the already-retained attachment and retain every
+/// descendant. Work on a bounded candidate so even a late aggregate refusal is atomic.
+fn merge_attachment(
+    extraction: &mut Extraction,
+    attachment: usize,
+    local: Extraction,
+) -> Result<(), String> {
+    local.validate()?;
+    if local.sources[0].bytes != extraction.sources[attachment].bytes {
+        return Err("attachment extraction differs from retained original".into());
+    }
+    let mut candidate = extraction.clone();
+    let base = append(&mut candidate, &local.markdown)?;
+    candidate.sources[attachment].text = local.sources[0].text.clone();
+    candidate.sources[attachment].status = local.sources[0].status.clone();
+    // The MIME declaration may be generic. Successful typed parsing establishes
+    // the retained package kind; exact declared headers stay in the original EML.
+    candidate.sources[attachment].media_type = local.sources[0].media_type.clone();
+    let mut sources = BTreeMap::from([(local.sources[0].id.clone(), attachment)]);
+    for source in local.sources.iter().skip(1) {
+        let parent = source
+            .parent
+            .as_ref()
+            .and_then(|id| sources.get(id))
+            .copied()
+            .ok_or("attachment source parent unavailable")?;
+        let index = node(
+            &mut candidate,
+            parent,
+            source.name.clone(),
+            source.media_type.clone(),
+            source.locator.clone(),
+            &source.status,
+            &source.bytes,
+        )?;
+        candidate.sources[index].text = source.text.clone();
+        sources.insert(source.id.clone(), index);
+    }
+    for asset in local.assets {
+        add_asset(&mut candidate, asset)?;
+    }
+    for image in local.occurrences {
+        let source = *sources
+            .get(&image.source_id)
+            .ok_or("attachment image source unavailable")?;
+        occurrence(
+            &mut candidate,
+            source,
+            image.asset_id,
+            image.locator,
+            image.alt,
+            base + image.start,
+            base + image.end,
+        )?;
+    }
+    for message in local.gaps {
+        let remapped = sources
+            .iter()
+            .find_map(|(old, index)| {
+                message
+                    .strip_prefix(old)
+                    .filter(|rest| rest.starts_with([' ', ':', '·']))
+                    .map(|rest| format!("{}{rest}", candidate.sources[*index].id))
+            })
+            .unwrap_or_else(|| format!("{}: {message}", candidate.sources[attachment].id));
+        gap(&mut candidate, remapped)?;
+    }
+    candidate.validate()?;
+    *extraction = candidate;
+    Ok(())
+}
+
 struct MimeContext<'m, 'b> {
     message: &'m Message<'b>,
     source: usize,
@@ -865,7 +958,15 @@ impl MimeContext<'_, '_> {
             .get(part_id as usize)
             .ok_or("invalid MIME part reference")?;
         let media_type = media(part);
-        let index = if part_id == 0 {
+        // A single-part attachment is still a child of the email evidence.
+        // The email root retains raw EML/headers, not decoded document bytes.
+        let body_root = part_id == 0
+            && part.attachment_name().is_none()
+            && !matches!(
+                part.body,
+                PartType::Binary(_) | PartType::InlineBinary(_) | PartType::Message(_)
+            );
+        let index = if body_root {
             self.source
         } else {
             node(
@@ -937,61 +1038,50 @@ impl MimeContext<'_, '_> {
                 }
             }
             _ => {
-                let is_docx = media_type.eq_ignore_ascii_case(
+                let office_kind = if media_type.eq_ignore_ascii_case(
                     "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
                 ) || part
                     .attachment_name()
-                    .is_some_and(|name| name.to_ascii_lowercase().ends_with(".docx"));
-                if is_docx {
+                    .is_some_and(|name| name.to_ascii_lowercase().ends_with(".docx"))
+                {
+                    Some("docx")
+                } else if media_type.eq_ignore_ascii_case(
+                    "application/vnd.openxmlformats-officedocument.presentationml.presentation",
+                ) || part
+                    .attachment_name()
+                    .is_some_and(|name| name.to_ascii_lowercase().ends_with(".pptx"))
+                {
+                    Some("pptx")
+                } else {
+                    None
+                };
+                if let Some(kind) = office_kind {
                     append(
                         extraction,
                         &fence(
-                            "DOCX attachment",
-                            part.attachment_name().unwrap_or("unnamed.docx"),
+                            &format!("{} attachment", kind.to_ascii_uppercase()),
+                            part.attachment_name().unwrap_or("unnamed attachment"),
                         ),
                     )?;
-                    // A failed attachment stays retained and visibly unprocessed. Build it in an
-                    // isolated local envelope so refusal cannot leak half-bound assets/ranges.
+                    // Conversion and merge are isolated: a refusal cannot leak child
+                    // sources, assets or ranges into the retained parent envelope.
                     let local_request = HelperRequest {
                         limits: Some(budget.limits.clone()),
-                        kind: "docx".into(),
+                        kind: kind.into(),
                         bytes: part.contents().to_vec(),
                     };
-                    match extract_with_budget(local_request, budget) {
-                        Ok(local) => {
-                            let base = append(extraction, &local.markdown)?;
-                            extraction.sources[index].text = local.markdown;
-                            for asset in local.assets {
-                                add_asset(extraction, asset)?;
-                            }
-                            for image in local.occurrences {
-                                occurrence(
-                                    extraction,
-                                    index,
-                                    image.asset_id,
-                                    image.locator,
-                                    image.alt,
-                                    base + image.start,
-                                    base + image.end,
-                                )?;
-                            }
-                            for message in local.gaps {
-                                gap(
-                                    extraction,
-                                    format!("{}: {message}", extraction.sources[index].id),
-                                )?;
-                            }
-                        }
-                        Err(error) => {
-                            extraction.sources[index].status = "unprocessed".into();
-                            gap(
-                                extraction,
-                                format!(
-                                    "{}: DOCX unprocessed: {error}",
-                                    extraction.sources[index].id
-                                ),
-                            )?;
-                        }
+                    let converted = extract_with_budget(local_request, budget, index)
+                        .and_then(|local| merge_attachment(extraction, index, local));
+                    if let Err(error) = converted {
+                        extraction.sources[index].status = "unprocessed".into();
+                        gap(
+                            extraction,
+                            format!(
+                                "{}: {} unprocessed: {error}",
+                                extraction.sources[index].id,
+                                kind.to_ascii_uppercase()
+                            ),
+                        )?;
                     }
                 } else {
                     extraction.sources[index].status = if part.content_id().is_some() {

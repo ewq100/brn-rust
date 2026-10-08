@@ -6,37 +6,45 @@ use std::{
 };
 #[test]
 fn constrained_process_parses_public_payload_after_native_activation() {
-    let mut process = Command::new(env!("CARGO_BIN_EXE_brn-intake-helper"))
-        .env_clear()
-        .stdin(Stdio::piped())
-        .stdout(Stdio::piped())
-        .stderr(Stdio::piped())
-        .spawn()
-        .unwrap();
-    let request = HelperRequest {
-        limits: None,
-        kind: "eml".into(),
-        bytes: include_bytes!(
-            "../../../experiments/architecture-reassessment/p1-office-mime/fixtures/plural.eml"
-        )
-        .to_vec(),
-    };
-    process
-        .stdin
-        .take()
-        .unwrap()
-        .write_all(&serde_json::to_vec(&request).unwrap())
-        .unwrap();
-    let output = process.wait_with_output().unwrap();
-    assert!(
-        output.status.success(),
-        "{} {}",
-        String::from_utf8_lossy(&output.stdout),
-        String::from_utf8_lossy(&output.stderr)
-    );
-    let extraction: Extraction = serde_json::from_slice(&output.stdout).unwrap();
-    extraction.validate().unwrap();
-    assert_eq!(extraction.occurrences.len(), 3);
+    for (kind, bytes) in [
+        (
+            "eml",
+            include_bytes!(
+                "../../../experiments/architecture-reassessment/p1-office-mime/fixtures/plural.eml"
+            )
+            .as_slice(),
+        ),
+        ("pptx", include_bytes!("fixtures/quay.pptx").as_slice()),
+    ] {
+        let mut process = Command::new(env!("CARGO_BIN_EXE_brn-intake-helper"))
+            .env_clear()
+            .stdin(Stdio::piped())
+            .stdout(Stdio::piped())
+            .stderr(Stdio::piped())
+            .spawn()
+            .unwrap();
+        let request = HelperRequest {
+            limits: None,
+            kind: kind.into(),
+            bytes: bytes.to_vec(),
+        };
+        process
+            .stdin
+            .take()
+            .unwrap()
+            .write_all(&serde_json::to_vec(&request).unwrap())
+            .unwrap();
+        let output = process.wait_with_output().unwrap();
+        assert!(
+            output.status.success(),
+            "{} {}",
+            String::from_utf8_lossy(&output.stdout),
+            String::from_utf8_lossy(&output.stderr)
+        );
+        let extraction: Extraction = serde_json::from_slice(&output.stdout).unwrap();
+        extraction.validate().unwrap();
+        assert_eq!(extraction.occurrences.len(), 3);
+    }
 }
 #[test]
 fn native_restriction_denies_existing_synthetic_secret_and_live_loopback() {

@@ -2,7 +2,7 @@
 
 ## Overnight implementation and model qualification — 2026-10-08
 
-Current main is `deca5d5ea3f6decbfb6ae2288db3934d4de694c4`.
+Current main is `441120ce7f6ee47de3e4fa0f784355e2fc0b3257`.
 [PR90](https://github.com/ewq100/brn-rust/pull/90) added exact evidence ranges and
 intake guidance; [PR91](https://github.com/ewq100/brn-rust/pull/91) added recorded
 work budgets/cancellation; [PR92](https://github.com/ewq100/brn-rust/pull/92) added
@@ -15,16 +15,20 @@ Windows/Linux failures remain visible; no protection bypass or platform port.
 [PR94](https://github.com/ewq100/brn-rust/pull/94) enables exact Applied private-intake
 Finding lineage and merged after all required checks; [PR95](https://github.com/ewq100/brn-rust/pull/95) clarifies useful
 follow-up drafts under unresolved execution authority. Both merged after independent review and required candidate checks. PR94
-post-merge checks passed; PR95 post-merge checks passed. PR96 merged accurate
-MIME caveats and complete ordered decoded identifiers after independent review
-and all required candidate checks; post-merge pending. Old snapshots unchanged.
-Manual reversible session Archive/Restore in PR97 passed full independent review,
-final local gates and combined MIME/shipping qualification; required final CI and
-integration pending. Automatic archival, Delete and preferences stay separate.
-The next bounded partial PPTX slice is underway in the lead checkout.
+post-merge checks passed; PR95 post-merge checks passed.
+[PR96](https://github.com/ewq100/brn-rust/pull/96) merged accurate MIME caveats
+and complete ordered decoded identifiers; all required candidate/post-merge checks
+and docs passed. Old snapshots unchanged. [PR97](https://github.com/ewq100/brn-rust/pull/97)
+merged manual reversible session Archive/Restore after full independent review,
+local qualification and all required CI; post-merge required checks/docs passed. Automatic archival,
+Delete/preferences stay separate. The selected
+[partial attributed PPTX slice](work/active/overnight-continuation/pptx-partial-intake.md)
+is implemented and independently reviewed clean after two valid P2 fixes; final combined local gates and real retained CLI/model cases passed, required
+CI/integration pending. Automatic during-session internal checkpoints are selected
+and being implemented independently in the existing budget checkout.
 
 The [overnight checkpoint](work/active/overnight-continuation/plan.md) owns exact
-branches, builds, verification and continuation. Eleven of sixteen authorized live investigations are used, five Luna/six Sol,
+branches, builds, verification and continuation. Fourteen of sixteen authorized live investigations are used, seven Luna/seven Sol,
 including one failed attempt and its separately counted manual retry. Results include
 improved retention of original budget/review date, North Quay conflict uncertainty
 Cedar near-limit ranged evidence and useful Linden Applied-private-intake Findings; usefulness limitations and unknown telemetry

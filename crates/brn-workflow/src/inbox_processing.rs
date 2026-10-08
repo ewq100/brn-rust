@@ -281,7 +281,16 @@ impl App {
                     .is_some_and(|name| name.to_ascii_lowercase().ends_with(".eml"))
             {
                 "eml"
+            } else if item
+                .capture
+                .original_name
+                .as_ref()
+                .is_some_and(|name| name.to_ascii_lowercase().ends_with(".pptx"))
+            {
+                "pptx"
             } else {
+                // Preserve legacy DOCX byte validation for imported arbitrary names.
+                // The name selects a parser; it never establishes package validity.
                 "docx"
             };
             let extraction =
@@ -835,6 +844,8 @@ mod tests {
 
 #[cfg(all(test, target_os = "macos"))]
 mod docx_tests;
+#[cfg(all(test, target_os = "macos"))]
+mod pptx_tests;
 #[cfg(all(test, target_os = "macos"))]
 mod retained_tests;
 #[cfg(all(test, target_os = "macos"))]

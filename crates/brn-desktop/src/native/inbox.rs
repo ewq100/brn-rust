@@ -275,7 +275,7 @@ impl Desktop {
             files: true,
             directories: false,
             multiple: false,
-            prompt: Some("Import an EML or DOCX original".into()),
+            prompt: Some("Import an EML, DOCX or PPTX original".into()),
         });
         let title = self.inbox.title.read(cx).value().to_string();
         cx.spawn(async move |this, cx| {
@@ -285,7 +285,7 @@ impl Desktop {
                 Some(cx.background_executor().spawn(async move {
                     use std::io::Read;
                     let extension = path.extension().and_then(|s| s.to_str()).unwrap_or("").to_ascii_lowercase();
-                    if !matches!(extension.as_str(), "eml" | "docx") { return Err("Choose an actual .eml or .docx file; other formats remain outside this intake profile.".to_string()); }
+                    if !matches!(extension.as_str(), "eml" | "docx" | "pptx") { return Err("Choose an actual .eml, .docx or .pptx file; other formats remain outside this intake profile.".to_string()); }
                     let name = path.file_name().and_then(|s| s.to_str()).ok_or("Original filename is unavailable.")?.to_owned();
                     let file = std::fs::File::open(&path).map_err(|e| format!("Cannot open selected original: {e}"))?;
                     if !file.metadata().map_err(|e| e.to_string())?.is_file() { return Err("Choose a regular original file.".into()); }
@@ -340,6 +340,7 @@ impl Desktop {
                 source.media_type.as_str(),
                 "message/rfc822"
                     | "application/vnd.openxmlformats-officedocument.wordprocessingml.document"
+                    | "application/vnd.openxmlformats-officedocument.presentationml.presentation"
             );
             panel = panel.child(
                 div()
@@ -545,7 +546,7 @@ impl Desktop {
             .flex().flex_col().flex_1().min_h(px(0.)).overflow_y_scroll().p_3().gap_2()
             .child("Inbox")
             .child(self.render_inbox_analysis(cx))
-            .child("Import an actual EML or DOCX, or keep a text/Markdown/Teams copy. Inspect original bytes, extracted wording, each image and gaps together. Investigation can precede Source approval; exact authoritative changes still require approval.")
+            .child("Import an actual EML, DOCX or PPTX, or keep a text/Markdown/Teams copy. Inspect original bytes, extracted wording, each image and gaps together. Investigation can precede Source approval; exact authoritative changes still require approval.")
             .child(Textarea::new(&self.inbox.title).disabled(blocked).aria_label("Retained exact Inbox capture title"));
         let mut kinds = div().flex().flex_wrap().gap_1();
         for kind in [
@@ -584,7 +585,7 @@ impl Desktop {
                     .gap_1()
                     .child(
                         Button::new("import-intake-file")
-                            .label("Import EML or DOCX file")
+                            .label("Import EML, DOCX or PPTX file")
                             .disabled(blocked || self.choosing_file || ai.capture_pending())
                             .on_click(cx.listener(|this, _, _, cx| this.choose_intake_file(cx))),
                     )
@@ -862,7 +863,7 @@ impl Desktop {
                 }
                 InboxOriginal::AvailableBinary { byte_len, .. } => {
                     content = content.child(div().id("inbox-binary-original").test_support().child(format!(
-                        "Binary original retained exactly · {byte_len} bytes. EML and DOCX use the maintained extraction profile; unsupported content is explicit. The original remains retained after Source approval."
+                        "Binary original retained exactly · {byte_len} bytes. EML, DOCX and partial PPTX use the maintained extraction profile; unsupported content is explicit. The original remains retained after Source approval."
                     )));
                 }
                 InboxOriginal::Missing => {

@@ -15,13 +15,36 @@ pub(super) fn inspection_source<'a>(
     extraction: &'a brn_intake::Extraction,
     selected: Option<&str>,
 ) -> Option<&'a brn_intake::SourceNode> {
-    match selected {
-        Some(id) => extraction.sources.iter().find(|source| source.id == id),
-        None => extraction
+    let Some(id) = selected else {
+        return extraction
             .sources
             .iter()
-            .find(|source| source.parent.is_none()),
+            .find(|source| source.parent.is_none());
+    };
+    let mut source = extraction.sources.iter().find(|source| source.id == id)?;
+    if !matches!(
+        source.media_type.as_str(),
+        "application/vnd.openxmlformats-officedocument.presentationml.slide+xml"
+            | "application/vnd.openxmlformats-officedocument.presentationml.notesSlide+xml"
+            | "application/x-brn-pptx-extracted-shape"
+    ) {
+        return Some(source);
     }
+    // A slide/shape/notes part is evidence inside an exact retained package.
+    // Follow explicit parent IDs, never infer an original from names or titles.
+    for _ in 0..extraction.sources.len() {
+        let parent = source.parent.as_ref()?;
+        source = extraction
+            .sources
+            .iter()
+            .find(|candidate| &candidate.id == parent)?;
+        if source.media_type
+            == "application/vnd.openxmlformats-officedocument.presentationml.presentation"
+        {
+            return Some(source);
+        }
+    }
+    None
 }
 fn status(state: ProposalState) -> &'static str {
     match state {
@@ -818,7 +841,7 @@ impl Desktop {
                     let id = original.id.clone();
                     let hash = brn_intake::digest(&original.bytes);
                     focus = focus.child(Button::new("guided-inspect-original").label(format!("Inspect {} with Quick Look", original.name))
-                        .disabled(blocked || !matches!(original.media_type.as_str(), "message/rfc822" | "application/vnd.openxmlformats-officedocument.wordprocessingml.document"))
+                        .disabled(blocked || !matches!(original.media_type.as_str(), "message/rfc822" | "application/vnd.openxmlformats-officedocument.wordprocessingml.document" | "application/vnd.openxmlformats-officedocument.presentationml.presentation"))
                         .on_click(cx.listener(move |this, _, _, cx| this.inspect_extraction_original(&id, hash, false, cx))));
                 }
             } else {
@@ -957,7 +980,7 @@ impl Desktop {
                     .child(div().text_xl().child("Inbox"))
                     .child(
                         Button::new("guided-import-file")
-                            .label("Import EML or DOCX")
+                            .label("Import EML, DOCX or PPTX")
                             .disabled(blocked || self.choosing_file || ai.capture_pending())
                             .on_click(cx.listener(|this, _, _, cx| this.choose_intake_file(cx))),
                     )

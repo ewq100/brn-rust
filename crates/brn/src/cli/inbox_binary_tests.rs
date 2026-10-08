@@ -590,3 +590,107 @@ fn maintained_plural_cli_review_exports_exact_children_and_mints_private_binding
     );
     assert_eq!(fs::read_dir(&credentials).unwrap().count(), 0);
 }
+
+#[cfg(target_os = "macos")]
+#[test]
+fn pptx_cli_reopens_attributed_notes_assets_and_exact_source_draft_without_reprocessing() {
+    use brn_workflow::{
+        inbox::InboxItem,
+        inbox_processing::{InboxConversionPreview, InboxProcessBatch, InboxProcessOutcome},
+        proposals::{DraftNoteChange, DraftRequest},
+    };
+    const PPTX: &[u8] = include_bytes!("../../../brn-intake/tests/fixtures/quay.pptx");
+    let _cancel = crate::tests::CancelTestGuard::with(false);
+    let owner = tempfile::tempdir_in(std::env::temp_dir().canonicalize().unwrap()).unwrap();
+    let data = owner.path().join("data");
+    let vault = owner.path().join("vault");
+    fs::create_dir(&data).unwrap();
+    fs::create_dir(&vault).unwrap();
+    let input = owner.path().join("quay.PPTX");
+    fs::write(&input, PPTX).unwrap();
+    let invoke = |command| Invocation {
+        json: true,
+        data_dir: data.clone(),
+        vault: Some(vault.clone()),
+        credentials_dir: Some(owner.path().join("credentials")),
+        model_dir: None,
+        command: Command::Inbox(command),
+    };
+    let captured = crate::cli::execute(&invoke(InboxCommand::AddBinary {
+        id: Uuid::new_v4(),
+        title: "Attributed presentation".into(),
+        original_name: Some("quay.PPTX".into()),
+        input,
+    }))
+    .unwrap();
+    let item: InboxItem = serde_json::from_value(captured.data).unwrap();
+    let request = ProcessInboxRequest {
+        id: Uuid::new_v4(),
+        items: vec![item.clone()],
+        limits: None,
+    };
+    let process_file = owner.path().join("process.json");
+    fs::write(&process_file, serde_json::to_vec(&request).unwrap()).unwrap();
+    let processed =
+        crate::cli::execute(&invoke(InboxCommand::Process(process_file.clone()))).unwrap();
+    let batch: InboxProcessBatch = serde_json::from_value(processed.data.clone()).unwrap();
+    assert!(matches!(
+        batch.entries[0].outcome,
+        InboxProcessOutcome::Converted { .. }
+    ));
+    let candidate = InboxCandidateRequest {
+        batch_id: request.id,
+        index: 0,
+    };
+    let preview: InboxConversionPreview = serde_json::from_value(
+        crate::cli::execute(&invoke(InboxCommand::Candidate(candidate.clone())))
+            .unwrap()
+            .data,
+    )
+    .unwrap();
+    preview.validate_receipt(&batch).unwrap();
+    let extraction = preview.extraction.as_ref().unwrap();
+    assert_eq!(extraction.occurrences.len(), 3);
+    assert_eq!(extraction.assets.len(), 2);
+    assert!(extraction.sources.iter().any(|s| s
+        .text
+        .contains("Notes only: Leena must confirm the crane by 14 October.")));
+    let source = InboxSourceRequest {
+        candidate: candidate.clone(),
+        proposal_id: Uuid::new_v4(),
+        note_id: Uuid::new_v4(),
+        path: "quay-source.md".into(),
+        title: "Partial presentation Source".into(),
+    };
+    let source_file = owner.path().join("source.json");
+    fs::write(&source_file, serde_json::to_vec(&source).unwrap()).unwrap();
+    let prepared = crate::cli::execute(&invoke(InboxCommand::Source(source_file))).unwrap();
+    let draft: DraftRequest = serde_json::from_value(prepared.data).unwrap();
+    source.validate_draft(&draft).unwrap();
+    assert_eq!(
+        draft
+            .changes
+            .iter()
+            .filter(|c| matches!(c, DraftNoteChange::CreateAsset { .. }))
+            .count(),
+        2
+    );
+    assert!(!vault.join("quay-source.md").exists());
+    assert_eq!(
+        crate::cli::execute(&invoke(InboxCommand::Process(process_file)))
+            .unwrap()
+            .data,
+        processed.data
+    );
+    let reopened: InboxConversionPreview = serde_json::from_value(
+        crate::cli::execute(&invoke(InboxCommand::Candidate(candidate)))
+            .unwrap()
+            .data,
+    )
+    .unwrap();
+    assert_eq!(reopened, preview);
+    assert_eq!(
+        fs::read(item.capture.copy.directory.join(item.capture.copy_name())).unwrap(),
+        PPTX
+    );
+}
