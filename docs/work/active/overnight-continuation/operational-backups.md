@@ -125,3 +125,14 @@ delta reviews are clean at66e5c9af61d71be7cbc42807df6256d7da0b483b4bf00d00941be9
 and447c86b5bfec1f294f0bd77fb825cb3c4eed74937d2a4499da7c09dd49bc247e.
 Unchanged418 workflow unit successes/full recovery are reused with the corrected
 one-test pass; remaining integration/doctest/native gates continue serially.
+
+The same successful-shutdown witnesses also drain command endings through
+exhaustive matches. Each now accepts exactly one successful nil checkpoint status
+and still rejects duplicates, nonnil backup replies, failed/unknown events; every
+original command/result/recovery assertion remains. Independent test-delta review
+clean atadb479f911736d96a20d2f9ee0ca74d4f2ad9f6a7157a5aecb15e1c1e9e33f2b.
+Final integration tests and all workspace doctests passed; native workflow and
+remaining combined/Clippy/shipping/fixture gates continue in gate12095. No production
+change since reviewed0723a69. Prior default418 unchanged unit successes/full-size
+recovery and corrected private-read focused pass are reused rather than rerunning
+unchanged full-size witnesses. Failed intermediate logs remain retained.

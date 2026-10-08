@@ -416,6 +416,7 @@ fn admitted_repair_and_queued_old_stamp_typing_drain_restart_and_replay_without_
         worker.shutdown().unwrap();
         let mut repaired = None;
         let mut recovered: Option<EditorRecord> = None;
+        let mut checkpoint_seen = false;
         while let Some((id, event)) = worker.try_event() {
             match event {
                 AppEvent::ProposalRepaired(receipt) if id == request.id => {
@@ -424,10 +425,22 @@ fn admitted_repair_and_queued_old_stamp_typing_drain_restart_and_replay_without_
                 AppEvent::EditorRecovered(record) if id == recovery_id => {
                     assert!(recovered.replace(record).is_none());
                 }
+                AppEvent::BackupStatus(status) if id.is_nil() => {
+                    assert!(
+                        !checkpoint_seen,
+                        "duplicate shutdown checkpoint notification"
+                    );
+                    assert!(status.latest_path.is_file() && status.last_error.is_none());
+                    checkpoint_seen = true;
+                }
                 AppEvent::Failed(error) => panic!("admitted command {id} failed: {error}"),
                 _ => panic!("unexpected drained reply for {id}"),
             }
         }
+        assert!(
+            checkpoint_seen,
+            "joined shutdown must report its checkpoint"
+        );
         let repaired = repaired.expect("admitted repair must drain before shutdown returns");
         assert_eq!(repaired.id, request.id);
         assert_eq!(repaired.operation_id, request.operation_id);
