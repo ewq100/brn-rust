@@ -73,6 +73,9 @@ mod relationships;
 mod review;
 #[cfg(all(test, target_os = "macos", feature = "native-test-support"))]
 mod scope_tests;
+mod session_history;
+#[cfg(all(test, target_os = "macos", feature = "native-test-support"))]
+mod session_history_tests;
 mod shell;
 mod simple;
 mod theme;

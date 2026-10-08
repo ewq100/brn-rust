@@ -1,5 +1,20 @@
 # brn
 
+Session history supports `conversations list --state active|archived|all` (default
+Active) and `conversations show UUID`, with lifecycle metadata alongside unchanged
+conversation/turn fields. `conversations archive --file REQUEST.json` and
+`conversations restore --file REQUEST.json` require a strict exact request:
+
+```json
+{"operation_id":"11111111-1111-4111-8111-111111111111","expected":{"id":"22222222-2222-4222-8222-222222222222","version":1},"target":"archived"}
+```
+
+Use the inspected session UUID/version and a fresh operation UUID; Restore uses
+target `active`. Malformed input is rejected before opening application state.
+Archive preserves all history/outcomes and requires explicit Restore for new AI
+work. Exact replay returns the recorded transition and current state, so replaying
+an older Archive cannot override a later Restore. No inference is needed.
+
 > Requirements/qualification context (2026-10-07): this README describes implemented behavior, not mandatory limits or acceptance of the proposed replacement. The [owner amendment](../../docs/product/BRN_PRODUCT_VISION.md#owner-amendment--2026-10-07), [reassessment](../../docs/audits/BRN_ARCHITECTURE_REASSESSMENT_2026-10-07.md) and [proposed plan](../../docs/work/active/architecture-reassessment/plan.md) reopen mechanisms. Email enum/literal text is not real EML ingestion; broader conversion, AI draft freedom/budgets and practical reviewability remain gaps. No production behavior changed in this documentation task.
 
 Owner-operated CLI over [brn-workflow](../brn-workflow/README.md). Every command

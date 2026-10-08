@@ -31,6 +31,9 @@ mod rewrite;
 #[path = "work_budget_tests.rs"]
 mod budgets;
 
+#[path = "conversation_lifecycle_tests.rs"]
+mod lifecycle;
+
 type AnswerFuture = Pin<Box<dyn Future<Output = AiAnswer> + Send>>;
 pub(crate) type AnswerHook = Arc<
     dyn Fn(

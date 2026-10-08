@@ -536,7 +536,7 @@ fn fixed_legacy_v14_setting_migrates_and_restores_backup_without_rewriting_bytes
     drop(store);
     let db = dir.path().join("brn.sqlite");
     let raw = Connection::open(&db).unwrap();
-    raw.execute_batch("DROP TABLE ai_run_budgets; DROP TABLE intake_snapshots; DROP TABLE inbox_original_operations; PRAGMA user_version=14;")
+    raw.execute_batch("DROP TABLE conversation_lifecycle_operations; DROP TABLE conversation_lifecycle; DROP TABLE ai_run_budgets; DROP TABLE intake_snapshots; DROP TABLE inbox_original_operations; PRAGMA user_version=14;")
         .unwrap();
     assert_eq!(
         raw.query_row(
@@ -706,7 +706,7 @@ fn malformed_readable_v14_legacy_authority_refuses_before_migration_or_backup() 
     drop(store);
     let db = dir.path().join("brn.sqlite");
     let raw = Connection::open(&db).unwrap();
-    raw.execute_batch("DROP TABLE ai_run_budgets; DROP TABLE intake_snapshots; DROP TABLE inbox_original_operations; PRAGMA user_version=14;")
+    raw.execute_batch("DROP TABLE conversation_lifecycle_operations; DROP TABLE conversation_lifecycle; DROP TABLE ai_run_budgets; DROP TABLE intake_snapshots; DROP TABLE inbox_original_operations; PRAGMA user_version=14;")
         .unwrap();
     raw.execute(
         "UPDATE settings SET value='{}' WHERE key=?1",

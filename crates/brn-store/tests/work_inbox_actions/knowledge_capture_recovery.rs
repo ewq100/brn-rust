@@ -184,7 +184,7 @@ fn exact_capture_imports_each_outcome_and_supersession_without_fabricating_chat(
             assert_eq!(
                 raw.query_row("PRAGMA user_version", [], |r| r.get::<_, i64>(0))
                     .unwrap(),
-                17
+                18
             );
             drop(raw);
             drop(target);

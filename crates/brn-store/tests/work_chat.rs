@@ -424,7 +424,7 @@ fn v1_upgrade_and_restored_v1_backup_preserve_work() {
         let version: i64 = raw(dir.path())
             .query_row("PRAGMA user_version", [], |r| r.get(0))
             .unwrap();
-        assert_eq!(version, 17);
+        assert_eq!(version, 18);
     }
 }
 

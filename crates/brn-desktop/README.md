@@ -27,8 +27,22 @@ or a valid current selection.
 Session labels show last-activity age from recorded chat activity. Historical
 unknown activity and a timestamp ahead of the current clock have distinct labels;
 opening history or restarting does not make a session newly active. Turn timing
-is available through the shared workflow/CLI. Archive/Restore/Delete remain later
-session lifecycle work.
+is available through the shared workflow/CLI. The history rail defaults to Active
+and offers explicit Active/Archived filters and Archive/Restore for the selected
+session. Archived history remains readable, including recorded budgets, and shows
+“Archived — restore to continue”; new Ask, Inbox investigations and Rewrite require
+Restore. Archive changes organization without deleting history or consequences.
+Delete and automatic archival remain separate work.
+
+Archive/Restore captures the selected session’s exact lifecycle version and one
+operation UUID. Session navigation, New chat and filters freeze while it is pending;
+correlated acknowledgements keep the selected history, filter, composer, editor,
+review and partial/error buffers intact. Old list generations and unrelated or
+older lifecycle replies cannot overwrite newer metadata. Failures remain visible
+with Refresh history available; no new session or inference is started automatically.
+Bound proposal Rewrite also reads its own session lifecycle, while absent legacy
+session identities retain existing eligibility. Headless state/widget tests do not
+establish interactive usability; the morning acceptance journey remains deferred.
 
 After 500 ms without an edit, recovery submits the latest exact buffer to
 WorkStore; only its acknowledgement establishes recoverability. Note-switch,

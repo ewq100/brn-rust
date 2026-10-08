@@ -1063,6 +1063,11 @@ fn startup_checks_every_bounded_hash_schema_identity_and_status_before_interrupt
                     [conversation.to_string()],
                 )
                 .unwrap();
+                conn.execute(
+                    "INSERT INTO conversation_lifecycle VALUES(?1,1,'active')",
+                    [conversation.to_string()],
+                )
+                .unwrap();
                 conn.execute("INSERT INTO messages(turn_id,conversation_id,sequence,role,text,provider,model,status) VALUES(?1,?2,1,'user','x','chatgpt','gpt-5.5','completed'),(?1,?2,1,'assistant','y','chatgpt','gpt-5.5','completed')", params![second.id.to_string(), conversation.to_string()]).unwrap();
             }
             _ => mutate_job(
@@ -1154,7 +1159,7 @@ fn additive_v5_migration_and_backup_restore_preserve_work_and_terminal_rewrite()
     let _base = f.base;
     drop(f.store);
     let conn = raw(&data);
-    conn.execute_batch("DROP TABLE ai_run_budgets; DROP TABLE intake_snapshots; DROP TABLE inbox_original_operations; DROP TABLE inbox_actions; DROP TABLE inbox_processing; DROP TABLE inbox_items; DROP TABLE action_completions; DROP TABLE actions; DROP TABLE findings; ALTER TABLE messages DROP COLUMN started_at_ms; ALTER TABLE messages DROP COLUMN finished_at_ms; ALTER TABLE conversations DROP COLUMN last_activity_at_ms; ALTER TABLE messages DROP COLUMN effort; DROP TABLE proposal_rewrites; PRAGMA user_version=5;")
+    conn.execute_batch("DROP TABLE conversation_lifecycle_operations; DROP TABLE conversation_lifecycle; DROP TABLE ai_run_budgets; DROP TABLE intake_snapshots; DROP TABLE inbox_original_operations; DROP TABLE inbox_actions; DROP TABLE inbox_processing; DROP TABLE inbox_items; DROP TABLE action_completions; DROP TABLE actions; DROP TABLE findings; ALTER TABLE messages DROP COLUMN started_at_ms; ALTER TABLE messages DROP COLUMN finished_at_ms; ALTER TABLE conversations DROP COLUMN last_activity_at_ms; ALTER TABLE messages DROP COLUMN effort; DROP TABLE proposal_rewrites; PRAGMA user_version=5;")
         .unwrap();
     drop(conn);
     let (mut store, _) = WorkStore::open(&data).unwrap();
@@ -1187,6 +1192,6 @@ fn additive_v5_migration_and_backup_restore_preserve_work_and_terminal_rewrite()
         raw(&data)
             .query_row("PRAGMA user_version", [], |r| r.get::<_, u32>(0))
             .unwrap(),
-        17
+        18
     );
 }

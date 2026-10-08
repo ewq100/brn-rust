@@ -302,6 +302,13 @@ impl Desktop {
         }
     }
     pub(super) fn simple_history(&mut self, conversation: Option<Uuid>, cx: &mut Context<Self>) {
+        if self
+            .ai
+            .as_ref()
+            .is_none_or(|ai| !ai.ready || ai.session_change_pending())
+        {
+            return;
+        }
         self.centre_tab = CentreTab::Chat;
         if let Some(command) = self.ai.as_mut().unwrap().navigate(conversation) {
             self.simple_send(command, cx);
@@ -1156,6 +1163,7 @@ impl Desktop {
     }
     pub(super) fn render_simple_history(&mut self, cx: &mut Context<Self>) -> AnyElement {
         let p = self.palette();
+        let controls = self.render_session_controls(cx);
         let ai = self.ai.as_ref().unwrap();
         let now_ms = std::time::SystemTime::now()
             .duration_since(std::time::UNIX_EPOCH)
@@ -1171,13 +1179,15 @@ impl Desktop {
             .overflow_y_scroll()
             .gap_1()
             .p_2()
+            .child(controls)
             .child(
                 Button::new("new-session")
                     .label("+ New chat")
-                    .disabled(!ai.ready)
+                    .disabled(!ai.ready || ai.session_change_pending())
                     .on_click(cx.listener(|this, _, _, cx| this.simple_history(None, cx))),
             );
-        for conversation in &ai.conversations {
+        for summary in &ai.session_history.summaries {
+            let conversation = &summary.conversation;
             let id = conversation.id;
             list =
                 list.child(
@@ -1193,6 +1203,7 @@ impl Desktop {
                                     conversation.turns
                                 ))
                                 .selected(ai.conversation == Some(id))
+                                .disabled(!ai.ready || ai.session_change_pending())
                                 .on_click(cx.listener(move |this, _, _, cx| {
                                     this.simple_history(Some(id), cx)
                                 })),
@@ -1777,6 +1788,17 @@ impl Desktop {
             .overflow_y_scroll()
             .gap_3()
             .p_3();
+        if ai.selected_session_lifecycle().is_some_and(|value| {
+            value.state == brn_workflow::conversations::ConversationState::Archived
+        }) {
+            body = body.child(
+                div()
+                    .id("archived-chat-banner")
+                    .aria_label("Archived — restore to continue")
+                    .child("Archived — restore to continue")
+                    .test_support(),
+            );
+        }
         if ai.turns.is_empty() {
             body = body.child("Select a provider, model and reasoning effort in Settings, then ask about saved notes. AI has read-only tools.");
         }

@@ -156,6 +156,9 @@ pub enum AppCommand {
         limit: usize,
     },
     Conversations,
+    ConversationSummaries(crate::conversations::ConversationFilter),
+    ConversationLifecycle(Uuid),
+    SetConversationLifecycle(crate::conversations::ConversationLifecycleRequest),
     Turns(Uuid),
     Turn(Uuid),
     RunBudget(Uuid),
@@ -273,6 +276,12 @@ pub enum AppEvent {
     Activity(crate::activity::ActivityPage),
     Search(SearchResults),
     Conversations(Vec<WorkConversation>),
+    ConversationSummaries {
+        filter: crate::conversations::ConversationFilter,
+        summaries: Vec<crate::conversations::ConversationSummary>,
+    },
+    ConversationLifecycle(crate::conversations::ConversationLifecycle),
+    ConversationLifecycleChanged(crate::conversations::ConversationLifecycleResult),
     Turns(Vec<WorkTurn>),
     Turn(Option<WorkTurn>),
     RunBudget {
@@ -422,6 +431,7 @@ impl AppWorker {
             || matches!(&command, AppCommand::AnalyzeInboxActions(request) if request.id != id)
             || matches!(&command, AppCommand::StartProposalRewrite(request) if request.id != id)
             || matches!(&command, AppCommand::Account { id: operation, .. } if *operation != id)
+            || matches!(&command, AppCommand::SetConversationLifecycle(request) if request.operation_id != id)
             || matches!(&command, AppCommand::SaveEditor(request) if request.operation_id != id)
             || matches!(&command, AppCommand::CompleteAction(request) if request.operation_id != id)
             || matches!(&command, AppCommand::ProcessInbox(request) if request.id != id)
@@ -696,6 +706,7 @@ fn admit_ask(
             ));
         }
         if let Some(conversation) = request.conversation {
+            app.require_active_conversation(conversation, false)?;
             app.turns(conversation)?;
         }
         app.refresh()?;
@@ -1477,6 +1488,9 @@ fn dispatch(
                         "proposal review changed before Rewrite",
                     ));
                 }
+                if let Some(session) = record.draft.session_id {
+                    app.require_active_conversation(session, true)?;
+                }
                 app.refresh()?;
                 // Source-free Action review has no file binding. The refresh
                 // and tools admission still require the current AI vault, while
@@ -1604,6 +1618,22 @@ fn dispatch(
             limit,
         } => AppEvent::Search(app.search_scoped(&query, mode, limit, scope)?),
         AppCommand::Conversations => AppEvent::Conversations(app.conversations()?),
+        AppCommand::ConversationSummaries(filter) => AppEvent::ConversationSummaries {
+            filter,
+            summaries: app.conversation_summaries(filter)?,
+        },
+        AppCommand::ConversationLifecycle(id) => {
+            AppEvent::ConversationLifecycle(app.conversation_lifecycle(id)?)
+        }
+        AppCommand::SetConversationLifecycle(request) => {
+            if request.operation_id != id {
+                return Err(chat_worker::conflict());
+            }
+            request
+                .validate()
+                .map_err(crate::conversations::store_error)?;
+            AppEvent::ConversationLifecycleChanged(chat.set_conversation_lifecycle(request)?)
+        }
         AppCommand::Turns(conversation) => AppEvent::Turns(app.turns(conversation)?),
         AppCommand::Turn(turn) => AppEvent::Turn(app.work_store().turn(turn)?),
         AppCommand::RunBudget(id) => AppEvent::RunBudget {
@@ -1750,6 +1780,7 @@ fn critical_mutation_command(command: &AppCommand) -> bool {
             | AppCommand::RecoverEditor(_)
             | AppCommand::SaveEditor(_)
             | AppCommand::CompleteAction(_)
+            | AppCommand::SetConversationLifecycle(_)
             | AppCommand::CaptureInbox(_)
             | AppCommand::CaptureBinaryInbox(_)
             | AppCommand::RemoveInboxOriginal(_)
