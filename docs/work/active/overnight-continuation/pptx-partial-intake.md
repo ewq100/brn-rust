@@ -41,9 +41,11 @@ identity and offsets. Two attachments sharing bytes remain distinct sources.
 Failed conversion retains the attachment unprocessed with no half-bound nodes,
 assets or occurrence ranges. Existing DOCX and MIME behavior stays compatible.
 
-Workflow routes explicit EML/DOCX/PPTX names; unknown binary formats refuse with
-a clear unsupported-format outcome. Native file chooser/help accepts these three
-formats. All clients retain the existing workflow and Source approval path.
+Workflow routes explicit EML/PPTX names and preserves the existing bounded DOCX
+byte-validation attempt for other binary names. Existing valid DOCX fixtures
+intentionally use arbitrary labels; removing that compatibility would be unrelated
+behavior change. Names select parsers, never establish package validity. Unsupported
+bytes still refuse recoverably. Native file chooser/help accepts these three formats. All clients retain the existing workflow and Source approval path.
 
 ## Acceptance and verification
 

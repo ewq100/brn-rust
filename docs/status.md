@@ -27,7 +27,7 @@ and preferences stay separate. The next selected slice is
 using the evaluated maintained parser; implementation is underway.
 
 The [overnight checkpoint](work/active/overnight-continuation/plan.md) owns exact
-branches, builds, verification and continuation. Eleven of sixteen authorized live investigations are used, five Luna/six Sol,
+branches, builds, verification and continuation. Twelve of sixteen authorized live investigations are used, six Luna/six Sol,
 including one failed attempt and its separately counted manual retry. Results include
 improved retention of original budget/review date, North Quay conflict uncertainty
 Cedar near-limit ranged evidence and useful Linden Applied-private-intake Findings; usefulness limitations and unknown telemetry

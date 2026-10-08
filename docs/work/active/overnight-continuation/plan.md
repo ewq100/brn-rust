@@ -77,66 +77,64 @@ requires exact final-candidate review, applicable local checks and actual requir
 CI. No weakening, bypass or rushed merge. Record failures and repair real defects.
 Known informational platform failures remain visible and separate.
 
-## Durable checkpoint — 8 October 21:48 UTC
+## Durable checkpoint — 8 October 21:52 UTC
 
-Main `deca5d5ea3f6decbfb6ae2288db3934d4de694c4` includes normal protected
-PR90–PR96. PR90–PR95 required candidate/post-merge checks and docs passed.
-PR96 all four required candidate checks/docs passed in 37847169062; post-merge
-verification is pending. Its informational Windows failure is the unchanged Unix
-MetadataExt/nlink compilation limitation, inspected in actual logs. No GUI or
-personal acceptance is claimed.
+Main deca5d5ea3f6decbfb6ae2288db3934d4de694c4 includes normal protected PR90–96,
+all required candidate checks/docs passed. PR90–95 post-merge required checks/docs
+passed; PR96 post-merge37848490327 has three required checks/docs passed and Mac
+core pending. Known Windows/Linux informational failures remain visible/unchanged.
 
-Lead checkout `/Users/evokessler/repos/brn-p2-email-docx-intake` is now branch
-`codex/p5-pptx-partial-intake`, accepted plan commit `21e3631`. The selected
-[partial PPTX slice](pptx-partial-intake.md) uses evaluated exact BetterOffice
-0.3.0 typed inventory/model, existing restricted helper and schema-1 approval/
-recovery. One helper owns intake/dependency/lock/tests; lead owns workflow/native/
-shared docs. Helper may edit but has no Cargo until the session combined gate
-releases the sole slot. Charts/SmartArt/rendered layout and automatic cleanup
-remain separate; unknown evidence stays explicit. No recursive delegation.
+Session PR97 final head8b405825b9cad595c2431b982f71e1f50fd4b653 includes reviewed
+session code a18806b and merged PR96 at babc013. Complete independent review
+patch5a7c44038cd871ee95359a9a2217c504e52f8213033fe3fe82f123f8a6576142;
+merge-delta review clean c8e390ddeff6110f124bc51c5071a5642bdfc7c0b153b36af20bfc6bf5904e7e.
+Final locals1724default/17 existing ignores (including reused unchanged Store461),
+423native workflow/models/15 existing ignores,547combined desktop/CLI, doctests,
+Clippy/shipping/52fixtures passed. Combined MIME helper all tests/Clippy,
+29affected Inbox processing/1existing ignore,shipping/52fixtures passed.
+Immutable qualified final combined runtime:
+`/Users/evokessler/repos/brn-overnight-artifacts-20261008/session-combined-runtime`.
+CLI SHA9ce0aae76f208f16db70f2e2ba48df3791e2b44bc61fc80db33bb7a0a827f421;
+build source babc01335869e619cc1e65036984f170eb25551d, exact manifest present.
+No local Cargo remains in session checkout. Required final CI37849061646 has
+Ubuntu/core,Mac native UI/docs passed, Mac core/combined pending. Next: inspect
+actual final checks, protected merge exact head when eligible, verify main.
 
-Session [PR97](https://github.com/ewq100/brn-rust/pull/97), branch
-`codex/p9-session-archive-restore` in `/Users/evokessler/repos/brn-p3-work-budgets`,
-code `a18806b02665b9d5c7151181caba537b5cce9a9e`, complete independent review
-patch 5a7c44038cd871ee95359a9a2217c504e52f8213033fe3fe82f123f8a6576142.
-Final local gate passed: default 1263 plus reused unchanged Store461 =1724 tests,
-17 existing ignores; native workflow/models423 with15 existing ignores;
-combined desktop/CLI547; doctests, default/combined Clippy, shipping builds,
-52 fixtures and605 links. Exact session runtime/manifest is retained at
-`/Users/evokessler/repos/brn-overnight-artifacts-20261008/session-runtime`.
+Lead checkout `/Users/evokessler/repos/brn-p2-email-docx-intake`, branch
+codex/p5-pptx-partial-intake, accepted [PPTX plan](pptx-partial-intake.md)21e3631.
+Task-owned adapter/native/workflow/CLI tests/docs dirty. One helper pptx_readiness
+owns intake/dependency/lock/tests and sole Cargo slot; eight PPTX tests and first
+full intake suite passed, final omission/process/README/Clippy/build ongoing.
+Root lock adds exactly one cached checksum-validated package0.3.0, no download.
+A single-part root attachment attribution failure was reproduced and fixed for
+PPTX and DOCX, retained red/green logs. Range helper owns only workflow PPTX tests
+and cfg module declaration; three parent/one ignored child written, waiting for
+Cargo. Lead owns native/CLI/shared docs. No concurrent Cargo, recursive delegation
+or more than two active helpers. After intake release grant range slot, then lead
+qualifies CLI/native/shipping/actual retained case and complete independent review.
 
-Session HEAD `babc013` merges PR96 main; only latest MIME repair/docs were added,
-with current incoming docs replacing stale checkpoint copies at conflicts. A
-read-only independent merge-delta review is underway. Sole Cargo session12163
-runs `/private/tmp/brn-overnight-20261008/session-combined-gate.sh`, log same
-prefix `.log`: final helper tests/Clippy, affected Inbox processing, shipping and
-fixtures/docs. After passing, update current receipts and push final PR97 head;
-inspect actual required CI, merge normally and verify resulting main. Do not run
-another Cargo meanwhile. Automatic archival, Delete/preferences remain separate.
+Shared canonical ledger `/private/tmp/brn-overnight-20261008/campaign-ledger.json`:
+12/16 used, Luna6/Sol6; four remain, max two per exact Medium condition. Every new
+call reserved before invocation,180second cancellation/eight rounds/nine responses,
+failures/retries count, no automatic retry/substitution. No provider active.
+Counted owner-comment Rewrite bf69c221-b62f-4437-9128-9a21f959bdc3 completed
+in11.318seconds; North Quay knowledge f1700e6e-1051-8a95-997a-e60075d74312 now
+Draft/version4. Open-decision-first revision preserves owner note/comments,
+protected frontmatter and all evidence/full physical identities. Initial receipt
+harness queried nonexistent change.id after success; finished from saved outputs
+with correct protected identity checks, no new inference. Receipts under North
+Quay owner-comment-rewrite. Sol comparisons remain Draft, no duplicate approvals.
+Linden four selected Sol consequences already Applied with Action-first restart/
+exact replay/no inference and unchanged evidence; Finding Open. Preserve Harbor,
+North Quay,Cedar,Linden,E bound folders in place; never rerun campaigns or relocate
+state/vaults. Last account-wide weekly50% consumed/50%remaining; short-window,
+provider HTTP/token/internal-turn/spend unknown. No reset/purchase/account change.
 
-PR96 independent MIME review patch cbca566b5e77eaa333975187f67d8e2c32b58b60b519353b1169d3c98c70106f
-is clean after reproduced/fixed repeated-physical-field loss. Six focused/29 full
-helper tests, Clippy/build, actual retained CLI variants, compatibility and52
-fixtures passed. Old snapshots unchanged. Immutable email runtime helper SHA
-79b4bc55... and workspace E retained without inference. This runtime excludes
-session controls; session-runtime initially excludes MIME repair, pending combined
-manifest. Use only the eventual final matching build for morning acceptance.
-
-Shared ledger `/private/tmp/brn-overnight-20261008/campaign-ledger.json`: eleven
-of sixteen used, five Luna/six Sol; five remain, at most three Luna/two Sol. Every
-new call must reserve first, 180-second cancellation/eight rounds/nine responses,
-no automatic retry/substitution. No provider active. Linden failed Sol/cause unknown
-and separately counted retry remain recorded; four selected Sol consequences
-passed Action-first fresh-process approval/restart/exact replay with unchanged
-Source/Current/original identity and no inference. Finding Open, comparison Drafts.
-Harbor/North Quay/Cedar/Linden bound folders stay in place; do not rerun campaigns
-or relocate state/vaults. Last usage46% weekly consumed/54% remaining, short-window
-and provider request/token/internal-reasoning/spend unknown. No reset/purchase.
-
-The [single morning task](morning-ui-acceptance.md) owns expected controls, final
-commit/build/data and launch prompt. Continue useful authorized slices until08:00
-Tallinn; from07:30 prioritize final verification/integration/handoff. Interactive
-acceptance stays pending. No GUI/private-data/credential/release/port operation.
+The [single morning task](morning-ui-acceptance.md) owns final build/data/prompt
+and all expected interactive checks, now including retained revision/session/MIME
+and pending PPTX. No GUI observed or personal acceptance. Continue small useful
+V1 slices to08:00Tallinn; from07:30final qualification/integration/handoff.
+No GUI/private data/credentials/model download/port/release/unrelated operation.
 
 Earlier milestone entries below are historical receipts; this checkpoint and the
 local campaign ledger govern continuation.

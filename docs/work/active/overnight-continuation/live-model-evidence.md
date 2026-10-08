@@ -235,3 +235,37 @@ eight tool rounds/nine responses and no account/provider/model substitution.
 Account-wide weekly usage was 46% used / 54% remaining before and after these
 three attempts; this includes other Codex work. Short window and provider HTTP
 requests/tokens/internal reasoning/spend are unknown. No reset/purchase occurred.
+
+
+## Owner-comment revision — 8 October 21:47 UTC
+
+Counted investigation12: exact gpt-6-luna Medium, Rewrite UUID
+`bf69c221-b62f-4437-9128-9a21f959bdc3`, retained North Quay knowledge proposal
+`f1700e6e-1051-8a95-997a-e60075d74312`. Qualified CLI898ef333... from code
+b61c33d; model discovery/authentication confirmed existing account, no login or
+substitution. Owner edit appended an explicit review note, then a proposal comment
+requested open-decision-first concise sections with separate reply/collection dates,
+authority and uncertainty. Before version3, successful after version4, still Draft.
+
+Completed in11.318seconds; campaign180-second SIGINT cancellation/drain guard not
+needed. Pinned Rewrite runtime has eight tool rounds/nine responses, zero invalid
+retries; observed Rewrite response/round counts and provider HTTP requests/tokens/
+internal reasoning/spend are unavailable. No automatic retry. Account-wide weekly
+usage before was50% consumed/50% remaining; not BRN per-run attribution.
+
+Useful bounded synthetic revision: open decision first;19October approved target
+and Kaia-only authority preserved;16October16:00+03 response cut-off clearly
+separate from22October13:00+03 collection offer; unreserved status/unknown
+alternatives retained. Owner note preserved verbatim. Exact protected frontmatter,
+proposal/note/group/session IDs, Source proofs, comments, creation time and all
+Source/Original/asset physical identities unchanged. No approval or authoritative
+effect. Personal usefulness and native before/after presentation remain pending.
+
+Initial post-run receipt harness incorrectly queried nonexistent change.id after
+successful model completion. Finished from saved job/before/after receipts,
+checking actual protected brn_id/provenance and all non-text change fields; no
+repeat inference. Evidence and scripts:
+`/private/tmp/brn-overnight-20261008/north-quay-case/receipts/owner-comment-rewrite`,
+`north-quay-live-rewrite.py`, `finish-north-quay-rewrite-receipt.py` and canonical
+campaign ledger. Do not rerun the guarded live script. Twelve of sixteen used,
+Luna6/Sol6; remaining four, at most two per existing Medium condition.
