@@ -198,6 +198,11 @@ struct Desktop {
     show_decided: bool,
     /// Owner-opened recovery/advanced tools in note and proposal views.
     show_tools: bool,
+    /// Last window height, for sizing the proposal text editor.
+    viewport_h: f32,
+    /// Signature of the comment marks last pushed into the proposal editor.
+    comment_marks: Option<u64>,
+    comment_decorations: Option<gpui_kit::component::input::TextDecorationCollection>,
     message: String,
     _subscriptions: Vec<Subscription>,
     _poll_task: Task<()>,
@@ -229,6 +234,9 @@ impl Desktop {
         let review_editor = cx.new(|cx| {
             EditorState::new(window, cx)
                 .language("markdown")
+                .line_number(false)
+                .folding(false)
+                .soft_wrap(true)
                 .default_value("")
         });
         let review_title = cx.new(|cx| review_title_state(window, cx));
@@ -552,6 +560,9 @@ impl Desktop {
             focus_composer: false,
             show_decided: false,
             show_tools: false,
+            viewport_h: 800.,
+            comment_marks: None,
+            comment_decorations: None,
             message: "Opening workspace…".into(),
             _subscriptions: vec![
                 query_subscription,

@@ -203,6 +203,7 @@ impl Desktop {
     }
 
     pub(super) fn render_proposal_review(&mut self, cx: &mut Context<Self>) -> AnyElement {
+        self.sync_comment_marks(cx);
         let p = self.palette();
         let ai = self.ai.as_ref().unwrap();
         let leaving = self.simple_transition.is_some()
@@ -232,27 +233,15 @@ impl Desktop {
                 .changes
                 .get(self.review_member)
                 .is_some_and(|change| change.text().is_some());
-            body = body
-                .child(ui::callout(
-                    Tone::Info,
-                    "Nothing in the vault changes until you approve this exact version.",
-                    p,
-                ))
-                .child(ui::section_label("Title", p).px_0())
-                .child(
-                    Textarea::new(&self.review_title)
-                        .disabled(!editable)
-                        .aria_label("Full proposal title"),
-                );
+            let _ = editable;
             if let Some(error) = &review.error {
                 body = body.child(ui::callout(Tone::Danger, error.clone(), p));
             }
             if let Some(observed) = &review.observed {
                 body = body.child(ui::callout(Tone::Attention, format!("Current review is version {} / {:?}. Local text is retained; copy or explicitly discard it before continuing.", observed.version, observed.state), p));
             }
-            if !review.record.draft.changes.is_empty() {
-                body = body.child(ui::section_label("Changes", p).px_0());
-            }
+            let several = review.record.draft.changes.len() > 1;
+            let mut members = ui::toolbar().gap(px(tokens::space::XS));
             for (index, change) in review.record.draft.changes.iter().enumerate() {
                 let kind = match change {
                     NoteChange::Create { .. } => "Create",
@@ -262,22 +251,23 @@ impl Desktop {
                     NoteChange::ReplaceAsset { .. } => "Replace asset",
                     NoteChange::TrashAsset { .. } => "Trash asset",
                 };
-                body = body.child(
-                    ui::list_row(
-                        format!("review-member-{index}"),
-                        change.path().to_owned(),
-                        None,
-                        Some(ui::badge(kind, member_tone(kind), p).into_any_element()),
-                        p,
-                    )
-                    .selected(index == self.review_member)
-                    .disabled(leaving)
-                    .on_click(cx.listener(move |this, _, window, cx| {
-                        this.review_member = index;
-                        this.sync_review_widgets(window, cx);
-                        cx.notify();
-                    })),
+                members = members.child(
+                    Button::new(format!("review-member-{index}"))
+                        .label(format!("{kind} · {}", change.path()))
+                        .small()
+                        .when(index == self.review_member, |button| button.outline())
+                        .when(index != self.review_member, |button| button.ghost())
+                        .selected(index == self.review_member)
+                        .disabled(leaving)
+                        .on_click(cx.listener(move |this, _, window, cx| {
+                            this.review_member = index;
+                            this.sync_review_widgets(window, cx);
+                            cx.notify();
+                        })),
                 );
+            }
+            if several {
+                body = body.child(members);
             }
             if let Some(change) = review.record.draft.changes.get(self.review_member) {
                 match change {
@@ -286,11 +276,11 @@ impl Desktop {
                     NoteChange::Replace { before_text, .. }
                     | NoteChange::Trash { before_text, .. } => {
                         body = body
-                            .child(ui::section_label("Full captured before text", p).px_0())
+                            .child(ui::section_label("Current text being replaced", p).px_0())
                             .child(
                                 div()
                                     .id("review-before")
-                                    .max_h(px(220.))
+                                    .max_h(px(160.))
                                     .overflow_y_scroll()
                                     .child(before_text.clone()),
                             );
@@ -305,36 +295,34 @@ impl Desktop {
                     }
                 }
                 if change.text().is_some() {
-                    body = body
-                        .child(ui::section_label("Full proposed text", p).px_0())
-                        .child(
-                            div()
-                                .id("review-text-editor")
-                                .test_support()
-                                .h(px(320.))
-                                .child(
-                                    Editor::new(&self.review_editor)
-                                        .context_menu(|menu, _, _| {
-                                            menu.menu(
-                                                "Comment on selection…",
-                                                Box::new(CommentOnSelection),
-                                            )
-                                            .separator()
-                                            .menu(
-                                                "Copy",
-                                                Box::new(gpui_kit::component::input::Copy),
-                                            )
-                                            .menu(
-                                                "Select All",
-                                                Box::new(gpui_kit::component::input::SelectAll),
-                                            )
-                                        })
-                                        .h_full()
-                                        .readonly(review.record.draft.inbox_source.is_some())
-                                        .disabled(!editable)
-                                        .aria_label("Full proposed Markdown member"),
-                                ),
-                        );
+                    let editor_h = (self.viewport_h - 230.).max(320.);
+                    body = body.child(
+                        div()
+                            .id("review-text-editor")
+                            .test_support()
+                            .h(px(editor_h))
+                            .child(
+                                Editor::new(&self.review_editor)
+                                    .context_menu(|menu, _, _| {
+                                        menu.menu(
+                                            "Comment on selection…",
+                                            Box::new(CommentOnSelection),
+                                        )
+                                        .separator()
+                                        .menu("Copy", Box::new(gpui_kit::component::input::Copy))
+                                        .menu(
+                                            "Select All",
+                                            Box::new(gpui_kit::component::input::SelectAll),
+                                        )
+                                    })
+                                    .h_full()
+                                    .font_family(tokens::UI_FONT)
+                                    .text_size(px(tokens::text::READING + 1.0))
+                                    .readonly(review.record.draft.inbox_source.is_some())
+                                    .disabled(!editable)
+                                    .aria_label("Full proposed Markdown member"),
+                            ),
+                    );
                 } else if !change.is_asset() {
                     body =
                         body.child("Proposed: move this exact original note to recoverable Trash");
@@ -361,7 +349,7 @@ impl Desktop {
             body = body
                 .child(ui::section_label("Comments", p).px_0())
                 .child(ui::hint(
-                    "Select text and right-click to comment. Rewrite uses your comments.",
+                    "Select text and right-click to comment. Hover a highlight to read it.",
                     p,
                 ));
             for comment in &review.record.comments {
@@ -558,7 +546,10 @@ impl Desktop {
                     .flex_col()
                     .gap_1()
                     .child(ui::hint(
-                        format!("You will approve exactly version {}.", review.record.version),
+                        format!(
+                            "Nothing in your vault changes until you approve version {}.",
+                            review.record.version
+                        ),
                         p,
                     ))
                     .child(
@@ -708,16 +699,64 @@ impl Desktop {
                     .unwrap_or("Opening full proposal review…".into()),
             );
         }
-        let (title, kind, identity) = match &ai.review {
+        let header = match &ai.review {
             Some(review) => {
                 let (label, tone) = super::simple::proposal_state_badge(review.record.state);
-                (
-                    review.record.draft.title.clone(),
-                    Some((format!("Proposal · {label}"), tone)),
-                    Some(format!("version {}", review.record.version)),
-                )
+                let editable = ai.review_editable() && !leaving;
+                let identity = match review.record.draft.changes.get(self.review_member) {
+                    Some(change) if review.record.draft.changes.len() == 1 => {
+                        let kind = match change {
+                            NoteChange::Create { .. } => "Create",
+                            NoteChange::Replace { .. } => "Replace",
+                            NoteChange::Trash { .. } => "Trash",
+                            NoteChange::CreateAsset { .. } => "Create asset",
+                            NoteChange::ReplaceAsset { .. } => "Replace asset",
+                            NoteChange::TrashAsset { .. } => "Trash asset",
+                        };
+                        format!("{kind} · {} · v{}", change.path(), review.record.version)
+                    }
+                    _ => format!(
+                        "{} changes · v{}",
+                        review.record.draft.changes.len()
+                            + review.record.draft.action_changes.len(),
+                        review.record.version
+                    ),
+                };
+                div()
+                    .flex()
+                    .flex_shrink_0()
+                    .items_center()
+                    .gap(px(tokens::space::SM))
+                    .px(px(tokens::space::LG))
+                    .py(px(tokens::space::SM))
+                    .border_b_1()
+                    .border_color(super::theme::color(p.line))
+                    .child(ui::badge(label, tone, p))
+                    .child(
+                        div()
+                            .flex()
+                            .flex_col()
+                            .flex_1()
+                            .min_w(px(0.))
+                            .child(
+                                Textarea::new(&self.review_title)
+                                    .appearance(false)
+                                    .text_size(px(tokens::text::TITLE))
+                                    .font_weight(gpui_kit::FontWeight::SEMIBOLD)
+                                    .disabled(!editable)
+                                    .aria_label("Full proposal title"),
+                            )
+                            .child(ui::meta(identity, p)),
+                    )
+                    .child(
+                        ui::quiet("close-proposal-review", "Close")
+                            .on_click(cx.listener(|this, _, _, cx| this.close_document(cx))),
+                    )
             }
-            None => ("Full proposal review".to_owned(), None, None),
+            None => ui::view_header("Proposal", None, None, p).child(
+                ui::quiet("close-proposal-review", "Close")
+                    .on_click(cx.listener(|this, _, _, cx| this.close_document(cx))),
+            ),
         };
         let mut pane = div()
             .size_full()
@@ -734,18 +773,7 @@ impl Desktop {
                     this.review_comment_dialog(true, None, window, cx);
                 }
             }))
-            .child(
-                ui::view_header(
-                    title,
-                    kind.as_ref().map(|(label, tone)| (label.as_str(), *tone)),
-                    identity,
-                    p,
-                )
-                .child(
-                    ui::quiet("close-proposal-review", "Close")
-                        .on_click(cx.listener(|this, _, _, cx| this.close_document(cx))),
-                ),
-            )
+            .child(header)
             .child(body);
         if let Some(decision) = decision {
             pane = pane.child(
@@ -761,13 +789,85 @@ impl Desktop {
     }
 }
 
-fn member_tone(kind: &str) -> super::ui::Tone {
-    use super::ui::Tone;
-    if kind.starts_with("Trash") {
-        Tone::Danger
-    } else if kind.starts_with("Replace") {
-        Tone::Attention
-    } else {
-        Tone::Info
+impl Desktop {
+    /// Shows text comments in the proposed-text editor: a tinted highlight on each
+    /// exactly anchored range, and the comment text when the pointer hovers it.
+    /// Anchors whose saved quote no longer matches the editor text are not shown
+    /// in the text (never re-anchored by guessing); they stay in the comment list.
+    fn sync_comment_marks(&mut self, cx: &mut Context<Self>) {
+        use gpui_kit::base::input::{Diagnostic, DiagnosticSeverity, RopeExt, TextDecoration};
+        use std::hash::{Hash, Hasher};
+        let ai = self.ai.as_ref().unwrap();
+        let text = self.review_editor.read(cx).value().to_string();
+        let marks: Vec<(std::ops::Range<usize>, String)> = ai
+            .review
+            .as_ref()
+            .map(|review| {
+                review
+                    .record
+                    .comments
+                    .iter()
+                    .filter_map(|comment| match &comment.target {
+                        CommentTarget::Text(anchor)
+                            if anchor.change_index == self.review_member
+                                && text.get(anchor.start..anchor.end)
+                                    == Some(anchor.quote.as_str()) =>
+                        {
+                            Some((anchor.start..anchor.end, comment.text.clone()))
+                        }
+                        _ => None,
+                    })
+                    .collect()
+            })
+            .unwrap_or_default();
+        let p = self.palette();
+        let mut hasher = std::collections::hash_map::DefaultHasher::new();
+        (&text, &marks, p.amber).hash(&mut hasher);
+        let signature = hasher.finish();
+        if self.comment_marks == Some(signature) {
+            return;
+        }
+        self.comment_marks = Some(signature);
+        let tint = super::theme::color(p.amber).opacity(0.30);
+        let decorations: Vec<TextDecoration> = marks
+            .iter()
+            .map(|(range, _)| {
+                TextDecoration::new(
+                    range.clone(),
+                    gpui_kit::HighlightStyle {
+                        background_color: Some(tint),
+                        ..Default::default()
+                    },
+                )
+            })
+            .collect();
+        let existing = self.comment_decorations.clone();
+        let created = self.review_editor.update(cx, |editor, cx| {
+            let rope = editor.text().clone();
+            if let Some(set) = editor.diagnostics_mut() {
+                set.reset(&rope);
+                for (range, comment) in &marks {
+                    set.push(
+                        Diagnostic::new(
+                            rope.offset_to_position(range.start)
+                                ..rope.offset_to_position(range.end),
+                            format!("**Comment:** {comment}"),
+                        )
+                        .with_severity(DiagnosticSeverity::Hint),
+                    );
+                }
+            }
+            cx.notify();
+            existing
+                .is_none()
+                .then(|| editor.create_decorations_collection(decorations.clone(), cx))
+        });
+        // The collection updates the editor itself, so set it outside that update.
+        if let Some(collection) = &self.comment_decorations {
+            collection.set(decorations, cx);
+        }
+        if created.is_some() {
+            self.comment_decorations = created;
+        }
     }
 }

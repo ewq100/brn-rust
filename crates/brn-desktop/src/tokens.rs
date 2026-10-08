@@ -143,7 +143,8 @@ pub fn theme_config_json(scheme: Scheme) -> serde_json::Value {
             "link": hex(p.cyan),
             "link.hover": hex(p.cyan),
             "link.active": hex(p.cyan),
-            "selection.background": hex(p.active),
+            // Clearly visible text selection in both schemes.
+            "selection.background": format!("{}66", hex(p.cyan)),
             "primary.background": hex(p.cyan),
             "primary.foreground": hex(p.background),
             "primary.hover.background": hex(p.cyan),

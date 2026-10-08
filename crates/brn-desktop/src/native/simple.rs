@@ -2194,58 +2194,43 @@ impl Desktop {
         }
         let composer = self.render_composer(cx);
         let mut pane = div().size_full().flex().flex_col().bg(color(p.paper));
-        if empty {
-            // Empty chat: greeting and composer centred together, like a fresh desktop chat.
+        // Composer is always at the bottom; an empty chat centres only the greeting.
+        let transcript = if empty {
             let welcome = self.render_chat_welcome(cx);
-            pane = pane.child(
-                div()
-                    .id("chat-transcript")
-                    .flex_1()
-                    .min_h(px(0.))
-                    .flex()
-                    .flex_col()
-                    .justify_center()
-                    .px(px(tokens::space::XL))
-                    .child(
-                        div()
-                            .flex()
-                            .flex_col()
-                            .w_full()
-                            .max_w(px(tokens::size::READING_MAX_WIDTH))
-                            .mx_auto()
-                            .gap(px(tokens::space::LG))
-                            .child(welcome)
-                            .child(composer),
-                    ),
-            );
+            div()
+                .id("chat-transcript")
+                .flex_1()
+                .min_h(px(0.))
+                .flex()
+                .flex_col()
+                .justify_center()
+                .px(px(tokens::space::XL))
+                .child(welcome)
         } else {
-            pane = pane
+            div()
+                .id("chat-transcript")
+                .track_scroll(&self.chat_scroll)
+                .vertical_scrollbar(&self.chat_scroll)
+                .flex_1()
+                .min_h(px(0.))
+                .overflow_y_scroll()
+                .px(px(tokens::space::XL))
+                .py(px(tokens::space::LG))
+                .child(column)
+        };
+        pane = pane.child(transcript).child(
+            div()
+                .flex_shrink_0()
+                .px(px(tokens::space::XL))
+                .pb(px(tokens::space::MD))
                 .child(
                     div()
-                        .id("chat-transcript")
-                        .track_scroll(&self.chat_scroll)
-                        .vertical_scrollbar(&self.chat_scroll)
-                        .flex_1()
-                        .min_h(px(0.))
-                        .overflow_y_scroll()
-                        .px(px(tokens::space::XL))
-                        .py(px(tokens::space::LG))
-                        .child(column),
-                )
-                .child(
-                    div()
-                        .flex_shrink_0()
-                        .px(px(tokens::space::XL))
-                        .pb(px(tokens::space::MD))
-                        .child(
-                            div()
-                                .w_full()
-                                .max_w(px(tokens::size::READING_MAX_WIDTH))
-                                .mx_auto()
-                                .child(composer),
-                        ),
-                );
-        }
+                        .w_full()
+                        .max_w(px(tokens::size::READING_MAX_WIDTH))
+                        .mx_auto()
+                        .child(composer),
+                ),
+        );
         pane.into_any_element()
     }
 

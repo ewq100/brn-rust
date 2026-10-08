@@ -276,12 +276,27 @@ def main() -> None:
 
     # Pending proposals awaiting review.
     group = str(uuid.uuid4())
+    paint = str(uuid.uuid4())
     cli.propose("process-draft.json", {
-        "id": str(uuid.uuid4()), "group_id": None, "session_id": None,
+        "id": paint, "group_id": None, "session_id": None,
         "title": "New process: How we buy paint",
         "changes": [{"kind": "create", "path": "processes/buying-paint.md", "text": PAINT_PROCESS}],
         "sources": [],
     })
+    for index, (quote, note) in enumerate([
+        ("team lead approves", "Check with finance: is 5 000 EUR still the limit?"),
+        ("Finance places the order", "Märt usually places paint orders, not finance."),
+    ]):
+        start = PAINT_PROCESS.encode("utf-8").index(quote.encode("utf-8"))
+        version = find_key(cli.run("proposals", "show", paint), "version")
+        cli.run("proposals", "comment", "--file", cli.file(f"comment-{index}.json", {
+            "expected": {"id": paint, "version": version},
+            "comment": {"id": str(uuid.uuid4()), "text": note, "target": {
+                "kind": "text",
+                "anchor": {"change_index": 0, "start": start,
+                           "end": start + len(quote.encode("utf-8")), "quote": quote},
+            }},
+        }))
     cli.propose("serna-followup-action.json", {
         "id": str(uuid.uuid4()), "group_id": group, "session_id": None,
         "title": "Create action: Ask Märt whether the 10 Oct order deadline can move",

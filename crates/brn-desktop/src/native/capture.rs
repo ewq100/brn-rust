@@ -287,6 +287,23 @@ pub fn run() {
     light.click("open-dashboard");
     light.settle(|d| d.open_doc == Some(DocRef::Dashboard));
     light.shot("11-dashboard-light");
+    let proposal = light.cx.update(|cx| {
+        light
+            .desktop
+            .read(cx)
+            .ai
+            .as_ref()
+            .unwrap()
+            .proposals
+            .iter()
+            .find(|proposal| proposal.draft.title.contains("buy paint"))
+            .map(|proposal| proposal.draft.id)
+    });
+    if let Some(id) = proposal {
+        light.act(move |this, _, cx| this.simple_leave(simple::EditorTransition::Review(id), cx));
+        light.settle(|d| d.open_doc == Some(DocRef::Proposal(id)));
+        light.shot("13-proposal-review-light");
+    }
     drop(light);
 
     let mut narrow = Capture::open(&data, &vault, Appearance::Dark, 720., 760.);

@@ -93,6 +93,7 @@ impl Desktop {
             handle.focus(window, cx);
         }
         let width = f32::from(window.viewport_size().width);
+        self.viewport_h = f32::from(window.viewport_size().height);
         self.resolved = self.layout.resolve(width, self.open_doc.is_some());
         let resolved = self.resolved;
         let p = self.palette();
