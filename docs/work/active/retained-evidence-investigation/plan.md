@@ -1,5 +1,109 @@
 # Retained evidence investigation: approved Sources
 
+## Owner continuation: repair restarted consequence approval — 2026-10-08
+
+The corrected catalog enabled actual GUI selection of `gpt-6-luna` / Medium.
+One bounded ordinary CLI investigation of the GUI-approved synthetic Source
+completed in 23.802 seconds, producing two knowledge drafts and one Action draft,
+without duplicating or changing the Source. Native GUI restart loaded all three
+drafts. Exact group approval then failed with `Source files unavailable` before
+any new journal, Action or file effect; the retained Source and PNG hashes match
+their pre-investigation baselines. This is a backend qualification defect, not
+successful consequence approval. No further inference is authorized or needed.
+
+Trace the fresh-approval path and reuse the existing checked `editor_files`
+adapter acquisition before retained dependency validation. Preserve exact
+Source receipt, identity, original, snapshot and image checks, completed replay
+and recovery semantics. Add a failing restart / Action-first group witness and
+verify individual Action approval still rejects changed evidence after restart.
+Then rebuild the shipping app/CLI, review independently, exercise the retained
+drafts without another provider call, and integrate after the actual required
+checks pass. UX tuning remains deferred.
+
+Live receipt: analysis/group `68e9530d-bdc7-4b95-bc37-519095d92039`, session
+`08e72b71-e9fb-42de-b4d3-373c8440a0af`, exact model `gpt-6-luna`, Medium,
+started `2026-10-08T17:38:03.480592Z`. One top-level request completed without
+retry/fallback under the 180-second deadline; configured ceilings remain nine
+model turns/eight tool rounds. Actual model-turn/token/spend telemetry is unknown.
+The isolated GUI Source is `inbox-plural-eml-7a679072.md`, note
+`c462afc2-3fb8-405d-ab11-2f617d72a5b2`, Applied proposal
+`ff52c8a9-1bdb-4e98-80dc-8a38b25c0e66`, retained snapshot
+`646dbe3c-6605-4b62-95e6-c2c269e3e42b`. Source SHA-256 is
+`28282e8d2d3480e0a890ac4dc7a5ebdb0f66603e27597818d546ae5d6f36fe6e`;
+the 19,936-byte PNG remains
+`f76dd37920a0fc5889b1d53a0c448f7ec6c619ed8200eef5d31621e36ca4d61d`.
+
+| Live consequence | Proposal | Observation |
+| --- | --- | --- |
+| Pier A reported water-use reduction | `48edfc0a-1d68-85f1-8683-47b83cf32305` | Grounded DOCX quote; 120 to 72 litres/day / 40%; Pier B still Pending |
+| Pier B extension decision and inspection condition | `63bd5ba3-24f1-8f04-9ac0-e12145677b88` | Grounded DOCX 15 October/Mira and email inspection condition; no claimed completion |
+| Inspect Pier B before extending pilot | `fe133139-bbbb-8d0b-adb0-bd900f0821a2` | Open Action, owner Mira; due/follow-up dates unset rather than inferred |
+
+All three retain the exact Applied Source prerequisite. The trial was useful but
+incomplete: it omitted the EUR 4,000 budget and 12 October review date. Its answer
+also used unclear wording about another retained image despite one shared PNG
+and three occurrences. The unread spreadsheet caveat was preserved. This is one
+bounded synthetic usefulness observation, not full P2/P3 acceptance, a model
+comparison or proof of complete interpretation. Quick Look remains unqualified.
+
+The discovery-only commit `df569724f43ec7760a8623cb29e48c36c68b7405` passed
+all four actual required contexts plus documentation in run `37817799081`.
+The existing informational Windows portability failure remains visible. New
+approval changes require their own final-candidate verification and hosted gates.
+
+## Owner continuation: repair empty ChatGPT discovery — 2026-10-08
+
+After normal product sign-in and the offline GUI qualification recorded in PR88,
+the owner selects continuing until model discovery works and the bounded live
+qualification can proceed. Baseline is merged main `90d20909de8794dbe574322dfc68e2b5a5363047`;
+reuse its clean linked checkout/target on `codex/fix-chatgpt-model-discovery`.
+Both GUI and ordinary CLI discovery return zero selectable models. A temporary
+metadata-only diagnostic confirms zero models before filtering; no credential,
+header, token or raw provider body is printed or copied. Determine whether the
+request route/version causes the empty server catalog, then add a focused failing
+transport witness, correct the smallest boundary and verify existing AI/auth tests,
+shipping builds and actual GUI discovery. Preserve pinned Rig, ordinary product
+authentication, explicit model choice and no-fallback authority. No optional
+asset download, private data, account switching, UX work or release.
+
+The selected lead retains its current configuration and owns the coupled repair;
+one fresh read-only reviewer will independently check a meaningful final candidate.
+At most one reviewer is active. Reassess after contradictory evidence rather than
+stacking speculative fixes. Discovery diagnostics are limited to six additional
+metadata requests, each with a 30-second deadline, and zero completion probes.
+The existing single Luna Medium investigation / nine model turns / eight tool
+rounds / 180-second cancellation deadline remains the only live usefulness trial.
+No inferred IDs, route fallback, hidden retry or extra effort condition is allowed.
+Token/spend telemetry remains unknown. Record exact gates and final observations
+in the repair PR and existing qualification receipt.
+
+Diagnosis: the same normal account/transport returned zero raw models at BRN
+version `0.1.0`, one hidden model at protocol `0.99.0`, and ten raw/seven visible
+models (including exact `gpt-6-luna`) at published Codex protocol `0.161.0`.
+Omitting the version failed; the newer public SIWC endpoint refused this existing
+Rig Codex OAuth route and is not adopted. No new sign-in, route fallback or
+credential export was used. The root cause is coupling the catalog compatibility
+query to BRN's independent package version. Reuse Rig's authenticated Models
+wire and transport; change only that query value to an explicit qualified
+protocol constant, preserving account/caller headers and strict validation,
+visibility/order, cancellation and safe error policy. Temporary metadata diagnostics
+are removed from the candidate. A focused synthetic-transport regression failed
+against the old request URL before the correction (one failed, 140 filtered).
+The first test build exposed a HeaderValue assertion API mistake; corrected the
+test before observing that meaningful failure. Broader AI tests and live final
+candidate qualification follow; no inference has started.
+
+Final local correction checks: `cargo test -p brn-ai --lib --locked --offline`
+passed 140 with one existing ignore (including the new regression, auth/catalog
+failures/cancellation and exact Luna Responses/tool/image contracts). AI all-target
+Clippy with `-D warnings`, Cargo formatting, whitespace and 590 local Markdown
+links passed. Fresh shipping combined native desktop and native CLI builds passed
+without test support. Final ordinary CLI discovery returned the seven visible
+models including `gpt-6-luna`, with no diagnostics compiled in. Only the isolated
+qualification bundle was updated; its previous main executable is retained locally.
+Independent review, hosted gates, actual GUI model discovery/selection and bounded
+live usefulness/consequence review remain pending at this candidate checkpoint.
+
 ## Owner continuation: CI performance, integration and live qualification — 2026-10-08
 
 The owner now selects fixing the long Mac CI run, merging the eligible dependency

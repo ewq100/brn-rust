@@ -538,6 +538,14 @@ impl App {
             return Ok(self.store.create_proposal(&draft)?);
         }
         self.require_current_evidence()?;
+        if request.intake.is_some()
+            || request
+                .inbox_knowledge
+                .as_ref()
+                .is_some_and(|b| b.intake.is_some())
+        {
+            self.editor_files()?;
+        }
         self.validate_intake_dependency(
             request.intake.as_deref().or_else(|| {
                 request

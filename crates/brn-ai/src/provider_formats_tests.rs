@@ -3299,10 +3299,7 @@ mod subscription_catalog_tests {
     use base64::Engine;
 
     fn catalog_url() -> String {
-        format!(
-            "https://chatgpt.com/backend-api/codex/models?client_version={}",
-            env!("CARGO_PKG_VERSION")
-        )
+        "https://chatgpt.com/backend-api/codex/models?client_version=0.161.0".into()
     }
 
     fn auth(reply: MockHttpResponse, expired: bool) -> (tempfile::TempDir, Auth, ScriptHttp) {
@@ -3334,6 +3331,37 @@ mod subscription_catalog_tests {
         .unwrap();
         std::fs::set_permissions(path, std::fs::Permissions::from_mode(0o600)).unwrap();
         (root, auth, http)
+    }
+
+    #[tokio::test]
+    async fn subscription_catalog_uses_protocol_compatibility_instead_of_brn_package_version() {
+        let (_root, auth, http) = auth(
+            MockHttpResponse::success(
+                json!({"models":[
+                    {"slug":"gpt-6-luna","visibility":"list","priority":0}
+                ]})
+                .to_string(),
+            ),
+            false,
+        );
+        let models = auth
+            .models(Provider::Chatgpt, CancellationToken::new())
+            .await
+            .unwrap();
+        assert_eq!(models.len(), 1);
+        assert_eq!(models[0].id, "gpt-6-luna");
+        assert!(!models[0].live_qualified);
+        let requests = http.unary.requests();
+        assert_eq!(requests.len(), 1);
+        assert_eq!(requests[0].uri, catalog_url());
+        assert_eq!(requests[0].headers["originator"], "rig");
+        assert!(
+            requests[0].headers["user-agent"]
+                .to_str()
+                .unwrap()
+                .starts_with("rig/0.43.0 ")
+        );
+        http.assert_consumed();
     }
 
     #[tokio::test]
