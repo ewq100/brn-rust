@@ -201,6 +201,10 @@ pub fn run() {
         panic!("set BRN_CAPTURE_DATA and BRN_CAPTURE_VAULT");
     };
     seed_conversation(&data);
+    // Seed-only mode prepares a demo workspace for hands-on review.
+    if std::env::var_os("BRN_CAPTURE_SEED_ONLY").is_some() {
+        return;
+    }
 
     let mut c = Capture::open(&data, &vault, Appearance::Dark, 1280., 820.);
     c.shot("01-home-empty-chat-dark");

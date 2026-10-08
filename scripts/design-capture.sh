@@ -7,6 +7,10 @@
 # Captures are visual evidence only; they do not establish native interaction.
 #
 # Usage: scripts/design-capture.sh OUTPUT_DIR [PREFIX]
+# Seed-only (hands-on review): build with --features native-capture, then run
+#   BRN_DESIGN_CAPTURE=1 BRN_CAPTURE_SEED_ONLY=1 BRN_CAPTURE_DATA=DATA \
+#   BRN_CAPTURE_VAULT=VAULT BRN_CAPTURE_OUT=/tmp target/debug/brn-desktop
+# on a workspace from scripts/design-demo-workspace.py to add example chat turns.
 set -euo pipefail
 
 repo_root="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
