@@ -180,6 +180,28 @@ fn draft_body(draft: &ProposalDraft) -> Div {
     body
 }
 
+/// The same complete frozen inverse appears in the native Undo confirmation.
+pub(super) fn undo_body(capture: &crate::approval::UndoCapture) -> AnyElement {
+    let mut body = div()
+        .id("exact-undo-capture")
+        .test_support()
+        .flex()
+        .flex_col()
+        .gap_2();
+    if !capture.preview().draft.action_changes.is_empty() {
+        let meaning = "Restore previous Action details as a new revision, preserving origin and history. Changed or Completed Actions refuse confirmation.";
+        body = body.child(
+            div()
+                .id("action-compensation-meaning")
+                .test_support()
+                .aria_label(meaning)
+                .child(meaning),
+        );
+    }
+    body.child(draft_body(&capture.preview().draft))
+        .into_any_element()
+}
+
 fn review_comments(record: &ProposalRecord) -> Div {
     let mut body = div()
         .flex()
@@ -267,15 +289,15 @@ impl Desktop {
             || self.ai.as_ref().is_none_or(|ai| ai.application_busy())
     }
 
-    fn operation_native_blocked(&self, cx: &App) -> bool {
+    pub(super) fn operation_native_blocked(&self, cx: &App) -> bool {
         self.approval_native_blocked(cx)
             || self.ai.as_ref().is_none_or(|ai| {
-                !ai.ready
-                    || !ai.vault_bound
-                    || !ai.review_can_leave()
-                    || ai.active.is_some()
-                    || ai.rewrite.is_some()
+                !ai.ready || !ai.review_can_leave() || ai.active.is_some() || ai.rewrite.is_some()
             })
+    }
+
+    pub(super) fn file_operation_native_blocked(&self, cx: &App) -> bool {
+        self.operation_native_blocked(cx) || self.ai.as_ref().is_none_or(|ai| !ai.vault_bound)
     }
 
     fn open_undo_dialog(
@@ -303,7 +325,7 @@ impl Desktop {
             let mut body = div().flex().flex_col().gap_2()
                 .child(format!("Source operation {operation}"))
                 .child(trash_member.map(|index| format!("Restore original Trash member {}", index + 1)).unwrap_or_else(|| "Undo the complete recorded operation".into()))
-                .child("This historical inverse does not establish current eligibility. Confirmation may refuse changed destinations or retained originals.");
+                .child("This historical inverse does not establish current eligibility. Confirmation may refuse changed Actions, destinations or retained originals.");
             if let Some(current) = desktop.upgrade() {
                 let this = current.read(cx);
                 let ai = this.ai.as_ref().unwrap();
@@ -317,7 +339,7 @@ impl Desktop {
                 }) {
                     let request = capture.request();
                     body = body.child(format!("Captured Undo operation {}", request.operation_id))
-                        .child(draft_body(&capture.preview().draft));
+                        .child(undo_body(capture));
                     for (index, original) in capture.preview().binding.originals.iter().enumerate() {
                         if let Some(original) = original {
                             body = body.child(format!("Retained original for inverse member {} · member {} · {} bytes · SHA-256 {}", index + 1, original.member_id, original.fingerprint.len, sha256(&original.fingerprint.sha256)));
@@ -326,8 +348,8 @@ impl Desktop {
                     let desktop = desktop.clone();
                     let capture = capture.clone();
                     body = body.child(Button::new("confirm-captured-undo")
-                        .label(if trash_member.is_some() { "Confirm captured Trash restore" } else { "Confirm captured Undo" })
-                        .disabled(this.operation_native_blocked(cx))
+                        .label(if trash_member.is_some() { "Confirm captured Trash restore" } else if !capture.preview().draft.action_changes.is_empty() { "Confirm previous Action details as new revision" } else { "Confirm captured Undo" })
+                        .disabled(this.operation_native_blocked(cx) || (!ai.vault_bound && !capture.preview().draft.changes.is_empty()))
                         .on_click(move |_, window, cx| {
                             let mut admitted = false;
                             let _ = desktop.update(cx, |this, cx| {
@@ -363,7 +385,7 @@ impl Desktop {
         window: &mut Window,
         cx: &mut Context<Self>,
     ) {
-        if self.operation_native_blocked(cx) || window.has_active_dialog(cx) {
+        if self.file_operation_native_blocked(cx) || window.has_active_dialog(cx) {
             return;
         }
         let Some(preview) = self
@@ -425,7 +447,7 @@ impl Desktop {
                     let capture = capture.clone();
                     body = body.child(Button::new("confirm-captured-repair")
                         .label(format!("Confirm captured {name} repair"))
-                        .disabled(this.operation_native_blocked(cx) || journal.is_none())
+                        .disabled(this.file_operation_native_blocked(cx) || journal.is_none())
                         .on_click(move |_, window, cx| {
                             let mut admitted = false;
                             let _ = desktop.update(cx, |this, cx| {
@@ -433,7 +455,7 @@ impl Desktop {
                                 let current = generation == ai.operation_generation
                                     && snapshot_generation == ai.snapshot_generation
                                     && ai.application_snapshot.as_ref().is_some_and(|journal| journal.request.operation_id == operation && journal.approved.draft == capture.preview().approved);
-                                if this.operation_native_blocked(cx) || !current {
+                                if this.file_operation_native_blocked(cx) || !current {
                                     this.ai.as_mut().unwrap().notice = "Repair was not admitted. Settle current work and review the matching recorded operation again.".into();
                                     cx.notify();
                                     return;
@@ -598,10 +620,10 @@ impl Desktop {
                                 let desktop = desktop.clone();
                                 body = body.child(Button::new(format!("preview-trash-restore-{operation}-{index}"))
                                     .label(format!("Review original Trash member {} restore…", index + 1))
-                                    .disabled(this.operation_native_blocked(cx))
+                                    .disabled(this.file_operation_native_blocked(cx))
                                     .on_click(move |_, window, cx| {
                                         let _ = desktop.update(cx, |this, cx| {
-                                            if !this.operation_native_blocked(cx) {
+                                            if !this.file_operation_native_blocked(cx) {
                                                 window.close_dialog(cx);
                                                 this.open_undo_dialog(operation, Some(index), window, cx);
                                             }
@@ -819,7 +841,7 @@ impl Desktop {
                     .child(
                         Button::new(format!("preview-finish-repair-{operation}"))
                             .label("Review Finish repair…")
-                            .disabled(operation_blocked)
+                            .disabled(operation_blocked || !ai.vault_bound)
                             .on_click(cx.listener(move |this, _, window, cx| {
                                 this.open_repair_dialog(operation, RepairDirection::Finish, window, cx);
                             })),
@@ -827,7 +849,7 @@ impl Desktop {
                     .child(
                         Button::new(format!("preview-restore-repair-{operation}"))
                             .label("Review Restore repair…")
-                            .disabled(operation_blocked)
+                            .disabled(operation_blocked || !ai.vault_bound)
                             .on_click(cx.listener(move |this, _, window, cx| {
                                 this.open_repair_dialog(operation, RepairDirection::Restore, window, cx);
                             })),

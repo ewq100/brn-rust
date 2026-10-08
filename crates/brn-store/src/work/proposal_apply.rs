@@ -237,7 +237,10 @@ fn bounded_fingerprint(change: &NoteChange, proof: &FileFingerprint) -> Result<(
     Ok(())
 }
 
-fn action_records(approved: &ProposalRecord, started_at_ms: u64) -> Result<Vec<ActionRecord>> {
+pub(super) fn action_records(
+    approved: &ProposalRecord,
+    started_at_ms: u64,
+) -> Result<Vec<ActionRecord>> {
     approved
         .draft
         .action_changes
@@ -483,8 +486,19 @@ impl ApplyJournal {
         let Some(binding) = &self.undo else {
             return Ok(());
         };
-        if !self.action_records.is_empty() {
-            return Err(invalid("Action-bearing Undo is not yet supported"));
+        if !self.approved.draft.action_changes.is_empty()
+            && (!self.approved.draft.changes.is_empty()
+                || binding.trash_member.is_some()
+                || !self
+                    .approved
+                    .draft
+                    .action_changes
+                    .iter()
+                    .all(|change| matches!(change, ActionChange::Replace { .. })))
+        {
+            return Err(invalid(
+                "Action Undo requires an Action-only whole operation of replacements",
+            ));
         }
         proposals::nonnil(binding.operation_id)?;
         if binding.operation_id == self.request.operation_id

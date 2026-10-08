@@ -8,8 +8,8 @@ use brn_workflow::{
         validate_approval_request, validate_undo_request,
     },
     proposals::{
-        MAX_PROPOSAL_CHANGES, NoteChange, ProposalEdit, ProposalRecord, ProposalStamp,
-        ProposalState, validate_review_edit,
+        ActionChange, MAX_PROPOSAL_CHANGES, NoteChange, ProposalEdit, ProposalRecord,
+        ProposalStamp, ProposalState, validate_review_edit,
     },
 };
 use std::collections::HashSet;
@@ -206,13 +206,27 @@ pub struct UndoCapture {
 impl UndoCapture {
     pub fn new(request: UndoRequest, preview: UndoPreview) -> Option<Self> {
         validate_undo_request(&request).ok()?;
+        let members = preview
+            .draft
+            .changes
+            .len()
+            .checked_add(preview.draft.action_changes.len())?;
         if preview.draft.id != request.operation_id
             || preview.binding.operation_id != request.target_operation_id
             || preview.binding.trash_member != request.trash_member
             || preview.draft.group_id.is_some()
-            || preview.draft.changes.is_empty()
-            || preview.draft.changes.len() > MAX_PROPOSAL_CHANGES
+            || members == 0
+            || members > MAX_PROPOSAL_CHANGES
             || preview.binding.originals.len() != preview.draft.changes.len()
+        {
+            return None;
+        }
+        if !preview.draft.action_changes.is_empty()
+            && (!preview.draft.changes.is_empty()
+                || request.trash_member.is_some()
+                || preview.draft.action_changes.iter().any(|change| {
+                    !matches!(change, ActionChange::Replace { .. }) || change.validate().is_err()
+                }))
         {
             return None;
         }

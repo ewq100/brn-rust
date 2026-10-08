@@ -118,6 +118,104 @@ fn replace(app: &App, id: Uuid) -> ActionChange {
         before: Box::new(before),
     }
 }
+
+#[cfg(target_os = "macos")]
+fn approve_change(app: &mut App, change: ActionChange) -> ApprovalRequest {
+    let review = app.store.create_proposal(&draft(vec![change])).unwrap();
+    let request = ApprovalRequest {
+        operation_id: Uuid::new_v4(),
+        expected: review.stamp(),
+    };
+    app.approve_proposal(&request).unwrap();
+    request
+}
+
+#[cfg(target_os = "macos")]
+#[test]
+fn action_compensation_refuses_reintroduced_dependency_and_parent_cycles_before_admission() {
+    for hierarchy in [false, true] {
+        let f = Fixture::new();
+        let mut app = f.app(false);
+        let (a, b) = (Uuid::new_v4(), Uuid::new_v4());
+        let mut first = create(a);
+        if hierarchy {
+            first.data_mut().parent = Some(b);
+        } else {
+            first.data_mut().dependencies.push(b);
+        }
+        seed(&mut app, vec![first, create(b)]);
+        let mut remove_edge = replace(&app, a);
+        remove_edge.data_mut().parent = None;
+        remove_edge.data_mut().dependencies.clear();
+        let source = approve_change(&mut app, remove_edge);
+        let mut other = replace(&app, b);
+        if hierarchy {
+            other.data_mut().parent = Some(a);
+        } else {
+            other.data_mut().dependencies.push(a);
+        }
+        approve_change(&mut app, other);
+        let before = (app.action(a).unwrap(), app.action(b).unwrap());
+        let request = crate::proposal_apply::UndoRequest {
+            operation_id: Uuid::new_v4(),
+            target_operation_id: source.operation_id,
+            trash_member: None,
+        };
+        assert_eq!(
+            app.preview_proposal_undo(&request)
+                .unwrap()
+                .draft
+                .action_changes
+                .len(),
+            1
+        );
+        let error = app.undo_proposal(&request).unwrap_err();
+        assert_eq!(error.kind, ErrorKind::ToolRejected);
+        assert!(error.message.contains("cycle"), "{error}");
+        assert!(
+            app.store
+                .proposal_apply(request.operation_id)
+                .unwrap()
+                .is_none()
+        );
+        assert!(app.store.proposal(request.operation_id).unwrap().is_none());
+        assert_eq!((app.action(a).unwrap(), app.action(b).unwrap()), before);
+        f.quiet(&app);
+    }
+}
+
+#[cfg(target_os = "macos")]
+#[test]
+fn action_compensation_freshly_checks_reintroduced_missing_note_reference() {
+    let f = Fixture::new();
+    let source_id = Uuid::new_v4();
+    f.note("source.md", source_id, "brn_kind: source\n");
+    let mut app = f.app(true);
+    let id = Uuid::new_v4();
+    let mut initial = create(id);
+    initial.data_mut().sources.push(source_id);
+    seed(&mut app, vec![initial]);
+    let mut remove_reference = replace(&app, id);
+    remove_reference.data_mut().sources.clear();
+    let source = approve_change(&mut app, remove_reference);
+    let before = app.action(id).unwrap();
+    fs::remove_file(f.vault.join("source.md")).unwrap();
+    let request = crate::proposal_apply::UndoRequest {
+        operation_id: Uuid::new_v4(),
+        target_operation_id: source.operation_id,
+        trash_member: None,
+    };
+    assert!(app.undo_proposal(&request).is_err());
+    assert!(
+        app.store
+            .proposal_apply(request.operation_id)
+            .unwrap()
+            .is_none()
+    );
+    assert_eq!(app.action(id).unwrap(), before);
+    assert!(!f.vault.join("source.md").exists());
+    f.quiet(&app);
+}
 #[cfg(target_os = "macos")]
 fn note_change(app: &mut App, path: &str, text: Option<String>) -> NoteChange {
     let files = app.editor_files().unwrap();

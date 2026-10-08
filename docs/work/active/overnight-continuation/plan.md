@@ -77,80 +77,72 @@ requires exact final-candidate review, applicable local checks and actual requir
 CI. No weakening, bypass or rushed merge. Record failures and repair real defects.
 Known informational platform failures remain visible and separate.
 
-## Durable checkpoint — 08 October 22:36 UTC
+## Durable checkpoint — 08 October 23:10 UTC
 
-Main `441120ce7f6ee47de3e4fa0f784355e2fc0b3257` includes normally protected
-PR90–PR97. Every required candidate and post-merge check plus documentation
-passed. PR97 runs: candidate37849061646, post-merge37850968507. Inspected Windows
-failures remain the existing Unix MetadataExt/nlink limitation; Linux limitations
-are unchanged. No protection bypass, port, GUI observation or personal acceptance.
+Continue authorized V1 slices until 05:00 UTC / 08:00 Tallinn; final qualification
+from 04:30 UTC. No overnight GUI/computer use; interactive acceptance remains in
+[one morning task](morning-ui-acceptance.md). Preserve unrelated work and data.
+
+Main `544696834d93cf56b82e76a857f2c44cdca7823b` includes normally protected
+PR90–99. PR90–98 required candidate/post-merge checks and docs passed. Backup
+[PR99](https://github.com/ewq100/brn-rust/pull/99) passed all four required checks
+and docs in 37856237694, then merged normally at 23:08 UTC. Resulting-main run
+37857753049 is active; post-merge verification pending. Supplemental Windows
+candidate errors remain Unix filesystem APIs, confirmed from raw log. No bypass,
+suppression or portability work. Prior known supplemental Linux limitations,
+including PR97-added non-Mac test-helper warning, remain accurately attributed.
 
 Lead checkout `/Users/evokessler/repos/brn-p2-email-docx-intake`, branch
-`codex/p5-pptx-partial-intake`: production3055ed7, final combined source
-`754e6260e44c9377f8b1311fdb8376a2831386e0`. Session main merged automatically in
-production; all PPTX code/tests remain byte-identical to reviewed3055ed7. Three
-document conflicts retained newer lead records. Final independent complete review
-is clean at binary patch2b12fbbc60e82f92f6552d902569107bcab08ea9afc27bae6c428b4311b1e8bc,
-after two reproduced/fixed P2 defects: generic MIME package identity and ambiguous
-consumed singleton relationships. Final local checks passed:41 helper tests;
-1268 remaining default tests plus reused unchanged Store461 =1729,18 existing/
-isolated-child ignores;426 native workflow/models,16 ignores;549 desktop/CLI;
-doctests, default/combined Clippy, shipping builds and52 fixture assertions.
-Full-size recovery remained enabled (workflow parent runs110.17/113.03seconds).
-Gate1915 exited0. No Cargo remains active in this checkout.
+`codex/p7-action-replacement-compensation`, has committed composed candidate
+`e0282e26d1c939a50d7b2281ae868589f2f80a59`. Action production `f2ff215`
+received complete independent clean review at patch 810237f8; the two corrected
+mixed-Undo diagnostic expectations received clean review b410e9d3 and focused
+pass. Before backup composition, default coverage 1745 passed / 18 existing
+ignores (1561 unchanged successes + corrected unit witness + 183 integrations),
+430 native workflow/models / 16 ignores, 555 combined desktop/CLI, doctests,
+strict Clippy, shipping, 52 fixtures and links passed. No repeated inference.
 
-Immutable final runtime and manifest:
-`/Users/evokessler/repos/brn-overnight-artifacts-20261008/pptx-runtime`.
-Exact hashes and launch instructions are in the [morning task](morning-ui-acceptance.md).
-This build includes SessionV18/PPTX and excludes pending backups. PPTX is pushed
-at 8456f7407d67eb5e5f7b472f09f70fa7f73ece5d in [PR98](https://github.com/ewq100/brn-rust/pull/98), attached to this chat. Required
-CI run37852945826 is active; docs passed, Windows failed (raw cause inspection
-pending completion). Next: inspect actual required CI, merge normally when
-eligible and verify resulting main. Actual CLI workspace F is
-`/private/tmp/brn-overnight-20261008/pptx-retained-case`: Harbor/twins Sources
-remain Draft; Quay Source/two assets are Applied with exact replay and unchanged
-Original/installed identities. A harness used unsupported approve --file; it was
-resumed from the existing Draft using documented flags, without repeat import,
-conversion, inference or reset. All IDs/proofs are retained in ready.json.
+Backup main was incorporated automatically into production; only morning-task
+wording conflicted, retaining the more current compensation qualification row.
+Fresh independent composition review is clean (complete Action diff b8abe1f2;
+composition delta a21d5521, exact hashes in the slice plan). Serial gate55052 owns sole Cargo
+in `target/intake-ui`: format/default Clippy passed; full default, native/combined,
+shipping and fixtures active. Next: inspect final results/review, record exact
+runtime, push/open/attach Action PR, inspect required CI and merge normally when
+eligible, then verify resulting main. No Action PR yet.
 
-Canonical ledger `/private/tmp/brn-overnight-20261008/campaign-ledger.json`:
-14/16 used, Luna7/Sol7; two remain, at most one per exact Medium condition. No
-provider active. Calls13/14 completed in14.729seconds (3responses/2rounds,2drafts)
-and78.463seconds (6/5,3drafts). Both retained prerequisite, notes booking target,
-PNG figures/footer/repeated placements and unknown native-chart capacity. Sol
-flags the missing year and is verbose; Luna's "review date" wording/missing-year
-limitation remains recorded. All comparison drafts and Source are unchanged.
-North Quay owner-comment revision is Draft/version4 with owner note/comments/
-bindings preserved; Linden's four selected Sol effects are Applied, Finding Open.
-Preserve every bound synthetic folder in place; never rerun guarded campaigns,
-move state/vaults or use pre-Session CLI1d2dc5d after V18 migration. Last account
-usage:52% weekly consumed/48% remaining, account-wide; other telemetry unknown.
-Reserve every new call first,180-second cancellation/eight tool rounds/nine
-responses, failures count; no automatic retry/substitution/reset/purchase.
+The backup checkout `/Users/evokessler/repos/brn-p3-work-budgets` remains clean at
+pushed PR99 head `f12c41348726e0dad5ee1d4f0fb03fab59879e3a`; target idle.
+Backup complete review 1e9862c6 and PPTX composition review 31b5f81a clean.
+Qualified 1749 default / 17 existing ignores, 427 native / 15, 557 combined,
+doctests/Clippy/shipping/52 fixtures. Representative complete 74,928,128-byte
+checkpoint took 217 ms; not a hard bound for an individual SQLite step.
 
-Independent P7 plan55a29a1 is selected in
-`/Users/evokessler/repos/brn-p3-work-budgets`, branch`codex/p7-operational-backups`
-on main441120c. `operational-backups.md` fixes Store API, checked private-temp
-publication, pre-copy dirty token, cadence, separate warning, shutdown and client
-contracts. Store helper owns backup/mod/private editor checks and sole Cargo
-slot in target/budgets. Focused10 tests passed;73,781,248-byte copy measured205ms.
-Full Store/Clippy runs are underway; strict unit-variant serde and unchanged
-settings writes were corrected. Desktop helper owns state/Settings/tests, code
-written/direct rustfmt passed, waiting for Cargo. Lead owns workflow/CLI/shared
-docs; declared API, cadence, commands and final-checkpoint warning wiring are
-written, behavioral tests/compile/integration pending. No concurrent Cargo or
-recursive delegation; at most two active helpers. After Store release, grant
-Desktop the slot, then qualify lead behavior, obtain complete independent review,
-run final gates, inspect required CI and integrate normally.
+Next selected P3 slice is same-folder new-note destination rename, prepared in
+untracked `create-destination-rename.md`; no production edits yet. Exclude that
+future plan from Action PR. After Action candidate is pushed, switch a new branch,
+commit the plan, fix Store/native helper ownership and implement workflow/CLI.
+Preserve earliest original Create paths through approval journals/recovery so
+original request replay returns the current revised review. Cross-folder, Source,
+asset, Replace, split/regroup remain separate. At most two helpers, no recursion,
+one Cargo across checkouts; selected lead model/effort unchanged.
 
-The single morning task owns all expected interactive steps, final build/data
-and launch prompt, including PPTX and pending backups. Continue useful small V1
-slices until08:00 Tallinn; prioritize final qualification/handoff from07:30.
-No private data/credentials/model downloads/releases/unrelated work. Preserve
-owner buffers, exact approval/provenance, source identity, history and recovery.
+Immutable runtime `brn-overnight-artifacts-20261008/pptx-backup-runtime` includes
+SessionV18/PPTX/backups, excludes compensation. Morning task records exact hashes,
+synthetic folders, expectations and prompt; refresh with final qualified combined
+build before cutoff. Qualification archive preserves inputs, outputs, receipts,
+logs/scripts/historical binaries, excluding bound state/vaults and credentials;
+refresh after milestones. Never move bound synthetic folders or reopen migrated
+state with old executables.
 
-Earlier milestone entries below are historical receipts; this checkpoint and the
-local campaign ledger govern continuation.
+Canonical live ledger `/private/tmp/brn-overnight-20261008/campaign-ledger.json`:
+14/16 used, Luna 7 / Sol 7, at most one remaining per exact Medium condition.
+No provider active. Reserve before every call; 180-second cancellation, eight
+rounds/nine responses, failures count, no automatic retries/substitution. Latest
+account-wide weekly usage 57% used / 43% remaining at 23:05 UTC; short window,
+BRN token/internal-turn/spend telemetry unknown. No reset or purchase. Retained
+model usefulness and limitations are in [live evidence](live-model-evidence.md).
+Do not spend calls on approval/replay/deterministic mechanics or rerun campaigns.
 
 ## Selected first evidence slice
 

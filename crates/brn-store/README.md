@@ -169,7 +169,8 @@ and cannot alter their bytes or proofs. Admission reserves whole encoded journal
 growth, terminal proofs, Action snapshots and bounded repair history before effects.
 Existing encoded proposal/journal/64 MiB receipt bounds remain unchanged; inverse
 lineage is compact, without recursively embedding earlier payload snapshots.
-Existing Action-bearing Undo remains explicitly refused.
+Action creation and mixed file/Action Undo remain refused; Action-only Replace
+compensation is described below.
 
 V5 adds a narrow application journal. An exact review stamp and operation UUID
 freeze the full Draft snapshot and original creation binding, allocate sibling
@@ -396,7 +397,7 @@ temporary comments, rejection, exact stamp and replay lifecycle covers these
 members, with one combined64-member/8MiB budget. Completed work cannot be changed
 or reopened through these members. Empty additions stay omitted from historical
 Markdown serialization. Shared workflow creation/application uses these typed
-members; owned AI Action Rewrite and Action-bearing Undo remain refused.
+members; the Action compensation contract below governs owner Undo.
 Creation/replacement remains proposal-only. Identified completion has the separate
 narrow storage contract below; it does not create, edit or reopen Actions.
 
@@ -415,9 +416,23 @@ Recovery imports already-real Replace baselines before Applied after-state in
 the same transaction. Immutable origins and equal-version records must match;
 newer work wins and completed work cannot be reopened. A known before-state fork
 refuses even when its revision precedes the imported after-state. Imports do not
-repeat filesystem effects. Action-bearing Undo explicitly refuses until its
-inverse contract qualifies. Workflow owns ordinary mirrors, interruption and
+repeat filesystem effects. Action-only all-Replace compensation uses the same
+exact journal/recovery records; creation and mixed file/Action Undo remain refused.
+Workflow owns ordinary mirrors, interruption and
 mixed Finish/Restore; this storage contract does not establish the dashboard.
+
+Whole-operation Undo of an Applied Action-only all-Replace operation derives each
+inverse from its exact installed after-record and original reviewed before.data.
+It restores details as a new monotonic revision with unchanged origin. Preview is
+historical and has no effects; admission and settlement perform full-record CAS.
+Missing, changed, newer, forked or Completed baselines refuse. Existing Waiting
+replacement clocks apply: remaining Waiting preserves its clock, re-entry starts
+at compensation time. Captured clocks cannot precede any exact baseline. Original
+source-journal loss does not require replaying effects when a complete terminal
+compensation mirror supplies the exact baseline/origin/after-state. Replaying the
+same operation returns its receipt and preserves later edits or completion.
+Existing combined bounds still apply; oversized inverse refuses whole. Scoped
+Trash and Action creation/mixed-file compensation remain unsupported.
 
 ## Dependencies and verification
 

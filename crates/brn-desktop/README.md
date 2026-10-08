@@ -197,6 +197,14 @@ inspection/reconciliation reports actual pending/uncertain outcomes without
 repeating installation. Failed application refreshes journals because an error
 can follow recorded file effects. Activity exposes full historical Undo review;
 an Applied snapshot exposes each original Trash member's exact restoration.
+Action-only operations containing only Replace members offer complete before/
+previous-detail review. Confirmation restores previous details as a new revision,
+preserving immutable origin and history; changed or Completed Actions refuse.
+Action-only compensation works without a vault; file confirmation, scoped Trash
+restore and repair still require a bound vault.
+Action creation and mixed file/Action Undo remain unsupported. Scoped Trash
+restore remains a file operation. Preview never applies work, and stale previews
+or mismatched receipts cannot acknowledge confirmation.
 Interrupted operations offer separate full Finish/Restore review with captured
 observations, retained comments and explicit direction. These requests are frozen
 through confirmation; workflow can refuse later changed files. Errors retain
@@ -367,7 +375,9 @@ the unlocked Mac. Save safe actual captures in the
 supports full Action-only/mixed suggestions with a bound AI vault and explicit
 provider/model/effort. All fields remain editable/copyable; later incomplete raw
 typing stays a conflict until explicitly resolved. Rewrite suggestions require
-ordinary exact approval to affect real Actions. Action Undo follows later.
+ordinary exact approval to affect real Actions. Action-only all-Replace Undo uses
+the same captured review and restores prior details as a new revision; native
+interactive acceptance remains deferred to the morning journey.
 
 ### New Action and related follow-up proposals
 

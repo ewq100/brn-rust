@@ -946,8 +946,6 @@ fn mixed_action_cas_drift_never_claims_partial_success_and_restore_preserves_com
 #[ignore = "subprocess entry point for exact crash qualification"]
 fn action_execution_crash_child() {
     let base = PathBuf::from(std::env::var("BRN_ACTION_EXECUTION_BASE").unwrap());
-    let request: ApprovalRequest =
-        serde_json::from_slice(&fs::read(base.join("request.json")).unwrap()).unwrap();
     let mut app = App::open(
         &base.join("data"),
         AppConfig {
@@ -963,8 +961,182 @@ fn action_execution_crash_child() {
         .map(|value| value.parse().unwrap())
         .unwrap_or(0);
     APPLY_CHECKPOINT.with(|point| *point.borrow_mut() = Some((step, member)));
-    let _ = app.approve_proposal(&request);
+    let bytes = fs::read(base.join("request.json")).unwrap();
+    if std::env::var("BRN_ACTION_EXECUTION_UNDO").as_deref() == Ok("1") {
+        let request: UndoRequest = serde_json::from_slice(&bytes).unwrap();
+        let _ = app.undo_proposal(&request);
+    } else {
+        let request: ApprovalRequest = serde_json::from_slice(&bytes).unwrap();
+        let _ = app.approve_proposal(&request);
+    }
     panic!("Requested crash checkpoint was not reached");
+}
+
+fn prepare_action_compensation(
+    f: &Fixture,
+) -> (
+    UndoRequest,
+    crate::actions::ActionRecord,
+    ActionData,
+    Vec<u8>,
+) {
+    let mut app = f.app();
+    let old_database = fs::read(&app.open_report().backup).unwrap();
+    let id = Uuid::new_v4();
+    let prior = data("Prior reviewed details õ\r\n", ActionState::Waiting);
+    let review = app
+        .create_proposal(&action_input(ActionChange::Create {
+            id,
+            data: prior.clone(),
+        }))
+        .unwrap();
+    app.approve_proposal(&ApprovalRequest {
+        operation_id: Uuid::new_v4(),
+        expected: review.stamp(),
+    })
+    .unwrap();
+    let original = app.action(id).unwrap();
+    let review = app
+        .create_proposal(&action_input(ActionChange::Replace {
+            before: Box::new(original),
+            data: data("Later details 日本語\r\n", ActionState::Open),
+        }))
+        .unwrap();
+    let source = ApprovalRequest {
+        operation_id: Uuid::new_v4(),
+        expected: review.stamp(),
+    };
+    app.approve_proposal(&source).unwrap();
+    let before = app.action(id).unwrap();
+    assert_eq!(before.version, 2);
+    f.assert_vaultless(&app);
+    (
+        UndoRequest {
+            operation_id: Uuid::new_v4(),
+            target_operation_id: source.operation_id,
+            trash_member: None,
+        },
+        before,
+        prior,
+        old_database,
+    )
+}
+
+#[test]
+fn action_compensation_crashes_need_terminal_authority_and_preserve_exact_baseline() {
+    for step in [
+        "intent",
+        "mirror-intent",
+        "prepared-db",
+        "prepared",
+        "verified",
+        "completion",
+        "receipt",
+    ] {
+        let f = Fixture::new();
+        let (request, before, prior, _) = prepare_action_compensation(&f);
+        fs::write(
+            f._base.path().join("request.json"),
+            serde_json::to_vec(&request).unwrap(),
+        )
+        .unwrap();
+        let child = std::process::Command::new(std::env::current_exe().unwrap())
+            .args([
+                "--exact",
+                "proposal_apply::action_recovery_tests::action_execution_crash_child",
+                "--ignored",
+                "--test-threads=1",
+            ])
+            .env("BRN_ACTION_EXECUTION_BASE", f._base.path())
+            .env("BRN_ACTION_EXECUTION_STEP", step)
+            .env("BRN_ACTION_EXECUTION_UNDO", "1")
+            .output()
+            .unwrap();
+        assert_eq!(
+            child.status.code(),
+            Some(86),
+            "{step}: {}",
+            String::from_utf8_lossy(&child.stderr)
+        );
+        let mut reopened = f.app();
+        let receipt = reopened.reconcile_proposal(request.operation_id).unwrap();
+        let applied = matches!(step, "completion" | "receipt");
+        assert_eq!(
+            receipt.outcome,
+            if applied {
+                ApplyOutcome::Applied
+            } else {
+                ApplyOutcome::NotApplied
+            },
+            "{step}"
+        );
+        assert_eq!(reopened.undo_proposal(&request).unwrap(), receipt);
+        let current = reopened.action(before.origin.id).unwrap();
+        if applied {
+            assert_eq!(current.version, before.version + 1);
+            assert_eq!(current.data, prior);
+            assert_eq!(current.origin, before.origin);
+            assert_eq!(current.waiting_since_ms, Some(current.updated_at_ms));
+        } else {
+            assert_eq!(
+                current, before,
+                "empty file proofs cannot apply compensation"
+            );
+        }
+        f.assert_vaultless(&reopened);
+    }
+}
+
+#[test]
+fn action_compensation_terminal_mirror_recovers_without_source_journal_or_new_effects() {
+    let f = Fixture::new();
+    let (request, before, prior, old_database) = prepare_action_compensation(&f);
+    let expected;
+    let receipt;
+    let terminal;
+    {
+        let mut app = f.app();
+        receipt = app.undo_proposal(&request).unwrap();
+        expected = app.action(before.origin.id).unwrap();
+        assert_eq!(expected.data, prior);
+        assert_eq!(expected.version, 3);
+        let records = ApplyRecoveryFiles::open(&f.data).unwrap();
+        terminal = records
+            .read(request.operation_id)
+            .unwrap()
+            .unwrap()
+            .proof
+            .relative;
+    }
+    for restore_backup in [false, true] {
+        let fresh = Fixture::new();
+        if restore_backup {
+            fs::create_dir(fresh.data.join("backups")).unwrap();
+            fs::write(
+                fresh.data.join("backups/brn-0000000000001.sqlite"),
+                &old_database,
+            )
+            .unwrap();
+            fs::write(fresh.data.join("brn.sqlite"), b"synthetic physical damage").unwrap();
+        }
+        // Only the compensation mirror is retained. Its exact baseline and
+        // origin must suffice without the earlier creation/replacement journals.
+        fs::copy(f.data.join(&terminal), fresh.data.join(&terminal)).unwrap();
+        let mut app = fresh.app();
+        assert!(
+            app.proposal_apply(request.target_operation_id)
+                .unwrap()
+                .is_none()
+        );
+        assert_eq!(app.action(before.origin.id).unwrap(), expected);
+        assert_eq!(app.undo_proposal(&request).unwrap(), receipt);
+        assert_eq!(app.action(before.origin.id).unwrap(), expected);
+        fresh.assert_vaultless(&app);
+        drop(app);
+        let mut app = fresh.app();
+        assert_eq!(app.undo_proposal(&request).unwrap(), receipt);
+        assert_eq!(app.action(before.origin.id).unwrap(), expected);
+    }
 }
 
 #[test]

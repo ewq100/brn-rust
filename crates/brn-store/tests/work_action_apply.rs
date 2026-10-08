@@ -2,9 +2,10 @@ use brn_store::{
     Error, WorkStore,
     files::{FileFingerprint, VaultIdentity, VaultRecord},
     work::{
+        action_completion::CompleteActionRequest,
         actions::{ActionData, ActionRecord, ActionState},
         proposal_apply::{
-            ApplyJournal, ApplyMemberProof, ApplyOutcome, ApprovalRequest, UndoRequest,
+            ApplyJournal, ApplyMemberProof, ApplyOutcome, ApprovalRequest, UndoBinding, UndoRequest,
         },
         proposals::{
             ActionChange, CommentRequest, CommentTarget, NoteChange, ProposalDraft, ProposalEdit,
@@ -762,6 +763,16 @@ fn exact_snapshot_bindings_order_and_action_undo_are_strict() {
         assert!(store.begin_proposal_undo(&request).is_err());
         assert_eq!(store.proposal(request.operation_id).unwrap(), None);
         assert_eq!(store.proposal_apply(request.operation_id).unwrap(), None);
+        let mut unsupported_journal = target;
+        unsupported_journal.request.operation_id = unsupported_journal.approved.draft.id;
+        unsupported_journal.receipt.as_mut().unwrap().operation_id =
+            unsupported_journal.request.operation_id;
+        unsupported_journal.undo = Some(UndoBinding {
+            operation_id: Uuid::new_v4(),
+            trash_member: None,
+            originals: vec![None; unsupported_journal.members.len()],
+        });
+        assert!(unsupported_journal.validate().is_err());
     }
 }
 
@@ -977,5 +988,490 @@ fn same_revision_action_race_refuses_but_terminal_replay_preserves_later_complet
             store.action(first.origin.id).unwrap(),
             Some(completed.clone())
         );
+    }
+}
+
+fn undo_request(source: &ApplyJournal) -> UndoRequest {
+    UndoRequest {
+        operation_id: Uuid::new_v4(),
+        target_operation_id: source.request.operation_id,
+        trash_member: None,
+    }
+}
+
+#[test]
+fn action_replacement_undo_previews_complete_data_and_compensates_at_a_new_revision() {
+    let (dir, mut store) = fixture();
+    let (first, _) = create(&mut store, ActionState::Waiting);
+    let (second, _) = create(&mut store, ActionState::Blocked);
+    let mut first_candidate = first.data.clone();
+    first_candidate.state = ActionState::Open;
+    first_candidate.title = "Incorrect approved title".into();
+    first_candidate.owner = None;
+    let mut second_candidate = second.data.clone();
+    second_candidate.description = "Incorrect approved description\r\n".into();
+    second_candidate.due_on = None;
+    let record = review(
+        &mut store,
+        &draft(vec![
+            ActionChange::Replace {
+                before: Box::new(first.clone()),
+                data: first_candidate,
+            },
+            ActionChange::Replace {
+                before: Box::new(second.clone()),
+                data: second_candidate,
+            },
+        ]),
+    );
+    let admitted = admit(&mut store, &record);
+    let source = finish(&mut store, &admitted);
+    let request = undo_request(&source);
+    let source_review = store.proposal(record.draft.id).unwrap();
+    let preview = store.preview_proposal_undo(&request).unwrap();
+    assert!(preview.draft.changes.is_empty());
+    assert!(preview.binding.originals.is_empty());
+    assert_eq!(preview.binding.operation_id, source.request.operation_id);
+    assert_eq!(
+        preview.draft.action_changes,
+        vec![
+            ActionChange::Replace {
+                before: Box::new(source.action_records[0].clone()),
+                data: first.data.clone(),
+            },
+            ActionChange::Replace {
+                before: Box::new(source.action_records[1].clone()),
+                data: second.data.clone(),
+            },
+        ]
+    );
+    assert_eq!(store.proposal(request.operation_id).unwrap(), None);
+    assert_eq!(store.proposal_apply(request.operation_id).unwrap(), None);
+    assert_eq!(store.proposal(record.draft.id).unwrap(), source_review);
+    for installed in &source.action_records {
+        assert_eq!(
+            store.action(installed.origin.id).unwrap(),
+            Some(installed.clone())
+        );
+    }
+    let admitted = store.begin_proposal_undo(&request).unwrap();
+    assert_eq!(admitted.approved.draft, preview.draft);
+    assert_eq!(admitted.undo, Some(preview.binding));
+    for installed in &source.action_records {
+        assert_eq!(
+            store.action(installed.origin.id).unwrap(),
+            Some(installed.clone())
+        );
+    }
+    let terminal = finish(&mut store, &admitted);
+    for (index, original) in [&first, &second].into_iter().enumerate() {
+        let restored = &terminal.action_records[index];
+        assert_eq!(restored.origin, original.origin);
+        assert_eq!(restored.data, original.data);
+        assert_eq!(restored.version, source.action_records[index].version + 1);
+        assert!(restored.updated_at_ms >= source.action_records[index].updated_at_ms);
+        assert_eq!(restored.completed_at_ms, None);
+        assert_eq!(
+            store.action(original.origin.id).unwrap(),
+            Some(restored.clone())
+        );
+    }
+    assert_eq!(
+        terminal.action_records[0].waiting_since_ms,
+        Some(terminal.started_at_ms)
+    );
+    assert_eq!(terminal.action_records[1].waiting_since_ms, None);
+    drop(store);
+    let (mut store, _) = WorkStore::open(dir.path()).unwrap();
+    assert_eq!(
+        store.proposal_apply(request.operation_id).unwrap(),
+        Some(terminal.clone())
+    );
+    let (later, _) = replace(
+        &mut store,
+        &terminal.action_records[0],
+        ActionState::Blocked,
+    );
+    assert_eq!(store.begin_proposal_undo(&request).unwrap(), terminal);
+    assert_eq!(
+        store
+            .finish_proposal_apply(request.operation_id, ApplyOutcome::Applied, Some(&[]))
+            .unwrap(),
+        *terminal.receipt.as_ref().unwrap()
+    );
+    assert_eq!(store.action(first.origin.id).unwrap(), Some(later.clone()));
+    let completed = store
+        .complete_action_with(
+            &CompleteActionRequest {
+                operation_id: Uuid::new_v4(),
+                before: Box::new(later),
+            },
+            terminal.started_at_ms + 1,
+            |_| Ok(()),
+        )
+        .unwrap();
+    assert_eq!(store.begin_proposal_undo(&request).unwrap(), terminal);
+    assert_eq!(
+        store
+            .finish_proposal_apply(request.operation_id, ApplyOutcome::Applied, Some(&[]))
+            .unwrap(),
+        *terminal.receipt.as_ref().unwrap()
+    );
+    assert_eq!(
+        store.action(first.origin.id).unwrap(),
+        Some(completed.after.clone())
+    );
+    assert_eq!(
+        store.preview_proposal_undo(&request).unwrap().draft,
+        terminal.approved.draft
+    );
+    for changed in [
+        UndoRequest {
+            target_operation_id: Uuid::new_v4(),
+            ..request.clone()
+        },
+        UndoRequest {
+            trash_member: Some(0),
+            ..request.clone()
+        },
+    ] {
+        assert!(matches!(
+            store.preview_proposal_undo(&changed),
+            Err(Error::OperationConflict(_))
+        ));
+        assert!(matches!(
+            store.begin_proposal_undo(&changed),
+            Err(Error::OperationConflict(_))
+        ));
+    }
+    assert_eq!(
+        store.action(first.origin.id).unwrap(),
+        Some(completed.after)
+    );
+}
+
+#[test]
+fn action_compensation_requires_every_exact_live_record_at_admission_and_settlement() {
+    for mutation in 0..5 {
+        let (dir, mut store) = fixture();
+        let (first, _) = create(&mut store, ActionState::Waiting);
+        let (second, _) = create(&mut store, ActionState::Open);
+        let record = review(
+            &mut store,
+            &draft(vec![
+                ActionChange::Replace {
+                    before: Box::new(first.clone()),
+                    data: data(ActionState::Blocked),
+                },
+                ActionChange::Replace {
+                    before: Box::new(second.clone()),
+                    data: data(ActionState::Waiting),
+                },
+            ]),
+        );
+        let admitted = admit(&mut store, &record);
+        let source = finish(&mut store, &admitted);
+        let request = undo_request(&source);
+        let preview = store.preview_proposal_undo(&request).unwrap();
+        let mut changed = source.action_records[1].clone();
+        match mutation {
+            0 => {
+                raw(dir.path())
+                    .execute(
+                        "DELETE FROM actions WHERE id=?1",
+                        [second.origin.id.to_string()],
+                    )
+                    .unwrap();
+            }
+            1 => {
+                put(dir.path(), &second);
+            }
+            2 => {
+                changed.version += 1;
+                put(dir.path(), &changed);
+            }
+            3 => {
+                changed.data.description.push_str("equal-version fork");
+                put(dir.path(), &changed);
+            }
+            4 => {
+                store
+                    .complete_action_with(
+                        &CompleteActionRequest {
+                            operation_id: Uuid::new_v4(),
+                            before: Box::new(changed),
+                        },
+                        0,
+                        |_| Ok(()),
+                    )
+                    .unwrap();
+            }
+            _ => unreachable!(),
+        }
+        // Historical review remains available; confirmation freshly compares every full record.
+        assert_eq!(store.preview_proposal_undo(&request).unwrap(), preview);
+        let raced = store.action(second.origin.id).unwrap();
+        assert!(matches!(
+            store.begin_proposal_undo(&request),
+            Err(Error::StateChanged(_))
+        ));
+        assert_eq!(store.proposal(request.operation_id).unwrap(), None);
+        assert_eq!(store.proposal_apply(request.operation_id).unwrap(), None);
+        assert_eq!(
+            store.action(first.origin.id).unwrap(),
+            Some(source.action_records[0].clone())
+        );
+        assert_eq!(store.action(second.origin.id).unwrap(), raced);
+    }
+    let (dir, mut store) = fixture();
+    let (first, _) = create(&mut store, ActionState::Open);
+    let (_, source) = replace(&mut store, &first, ActionState::Waiting);
+    let request = undo_request(&source);
+    let admitted = store.begin_proposal_undo(&request).unwrap();
+    let admitted = prepared(&mut store, &admitted);
+    let mut changed = source.action_records[0].clone();
+    changed
+        .data
+        .description
+        .push_str("changed after compensation admission");
+    put(dir.path(), &changed);
+    assert!(matches!(
+        store.finish_proposal_apply(request.operation_id, ApplyOutcome::Applied, Some(&[])),
+        Err(Error::StateChanged(_))
+    ));
+    assert_eq!(
+        store.proposal_apply(request.operation_id).unwrap(),
+        Some(admitted)
+    );
+    assert_eq!(store.action(first.origin.id).unwrap(), Some(changed));
+}
+
+#[test]
+fn action_compensation_clamps_future_clocks_and_keeps_unchanged_waiting_start() {
+    let (dir, mut store) = fixture();
+    let (mut first, _) = create(&mut store, ActionState::Waiting);
+    first.version += 1;
+    first.updated_at_ms += 1_000_000_000;
+    put(dir.path(), &first);
+    let (installed, source) = replace(&mut store, &first, ActionState::Waiting);
+    let request = undo_request(&source);
+    let admitted = store.begin_proposal_undo(&request).unwrap();
+    assert!(admitted.started_at_ms >= installed.updated_at_ms);
+    assert_eq!(admitted.approved.created_at_ms, admitted.started_at_ms);
+    assert_eq!(admitted.approved.updated_at_ms, admitted.started_at_ms);
+    assert_eq!(
+        admitted.action_records[0].waiting_since_ms,
+        installed.waiting_since_ms
+    );
+    let terminal = finish(&mut store, &admitted);
+    assert_eq!(terminal.action_records[0].data, first.data);
+    assert_eq!(
+        terminal.action_records[0].waiting_since_ms,
+        first.waiting_since_ms
+    );
+    assert_eq!(terminal.action_records[0].version, installed.version + 1);
+}
+
+#[test]
+fn action_compensation_admission_is_atomic_and_no_effect_refusal_leaves_actions_unchanged() {
+    let (dir, mut store) = fixture();
+    let (first, _) = create(&mut store, ActionState::Open);
+    let (installed, source) = replace(&mut store, &first, ActionState::Blocked);
+    let request = undo_request(&source);
+    raw(dir.path()).execute_batch("CREATE TRIGGER fail_compensation BEFORE INSERT ON proposal_applies BEGIN SELECT RAISE(ABORT, 'synthetic admission failure'); END;").unwrap();
+    assert!(store.begin_proposal_undo(&request).is_err());
+    assert_eq!(store.proposal(request.operation_id).unwrap(), None);
+    assert_eq!(store.proposal_apply(request.operation_id).unwrap(), None);
+    assert_eq!(
+        store.action(first.origin.id).unwrap(),
+        Some(installed.clone())
+    );
+    raw(dir.path())
+        .execute_batch("DROP TRIGGER fail_compensation;")
+        .unwrap();
+    let admitted = store.begin_proposal_undo(&request).unwrap();
+    let refused = store
+        .refuse_proposal_before_effects(request.operation_id, None)
+        .unwrap();
+    assert_eq!(refused.outcome, ApplyOutcome::NotApplied);
+    assert_eq!(store.action(first.origin.id).unwrap(), Some(installed));
+    assert_eq!(
+        store.proposal(request.operation_id).unwrap().unwrap().state,
+        ProposalState::Draft
+    );
+    assert!(
+        store
+            .proposal_apply(request.operation_id)
+            .unwrap()
+            .unwrap()
+            .no_effects
+    );
+    assert_eq!(
+        store.begin_proposal_undo(&request).unwrap().receipt,
+        Some(refused)
+    );
+    assert_eq!(
+        store.preview_proposal_undo(&request).unwrap().draft,
+        admitted.approved.draft
+    );
+}
+
+#[test]
+fn action_compensation_recovery_is_complete_without_the_source_journal() {
+    let (_, mut source_store) = fixture();
+    let (first, _) = create(&mut source_store, ActionState::Waiting);
+    let (_, source) = replace(&mut source_store, &first, ActionState::Blocked);
+    let request = undo_request(&source);
+    let admitted = source_store.begin_proposal_undo(&request).unwrap();
+    let terminal = finish(&mut source_store, &admitted);
+    let (dir, mut restored) = fixture();
+    restored.restore_proposal_apply(&terminal).unwrap();
+    assert_eq!(
+        restored
+            .proposal_apply(source.request.operation_id)
+            .unwrap(),
+        None
+    );
+    assert_eq!(
+        restored.action(first.origin.id).unwrap(),
+        Some(terminal.action_records[0].clone())
+    );
+    assert_eq!(restored.begin_proposal_undo(&request).unwrap(), terminal);
+    drop(restored);
+    let (restored, _) = WorkStore::open(dir.path()).unwrap();
+    assert_eq!(
+        restored.proposal_apply(request.operation_id).unwrap(),
+        Some(terminal.clone())
+    );
+    assert_eq!(
+        restored.action(first.origin.id).unwrap(),
+        Some(terminal.action_records[0].clone())
+    );
+    for mutation in 0..4 {
+        let mut bad = terminal.clone();
+        match mutation {
+            0 => bad.undo.as_mut().unwrap().trash_member = Some(0),
+            1 => bad.action_records[0].version -= 1,
+            2 => bad.action_records[0].origin.proposal.id = Uuid::new_v4(),
+            3 => bad.action_records[0].data.description.push('x'),
+            _ => unreachable!(),
+        }
+        assert!(bad.validate().is_err());
+    }
+}
+
+#[test]
+fn action_undo_refuses_scoped_and_mixed_replacements_without_admission() {
+    let (_, mut store) = fixture();
+    let (first, _) = create(&mut store, ActionState::Open);
+    let (mut installed, replacement) = replace(&mut store, &first, ActionState::Blocked);
+    let mut scoped = undo_request(&replacement);
+    scoped.trash_member = Some(0);
+    assert!(store.preview_proposal_undo(&scoped).is_err());
+    assert!(store.begin_proposal_undo(&scoped).is_err());
+    assert_eq!(store.proposal(scoped.operation_id).unwrap(), None);
+    assert_eq!(store.proposal_apply(scoped.operation_id).unwrap(), None);
+    for mixed_file in [false, true] {
+        let mut draft = draft(vec![ActionChange::Replace {
+            before: Box::new(installed.clone()),
+            data: data(ActionState::Waiting),
+        }]);
+        if mixed_file {
+            with_note(
+                &mut draft,
+                "Mixed file replacement compensation remains unsupported".into(),
+            );
+        } else {
+            draft.action_changes.push(ActionChange::Create {
+                id: Uuid::new_v4(),
+                data: data(ActionState::Open),
+            });
+        }
+        let record = review(&mut store, &draft);
+        let admitted = admit(&mut store, &record);
+        let source = finish(&mut store, &admitted);
+        let request = undo_request(&source);
+        assert!(store.preview_proposal_undo(&request).is_err());
+        assert!(store.begin_proposal_undo(&request).is_err());
+        assert_eq!(store.proposal(request.operation_id).unwrap(), None);
+        assert_eq!(store.proposal_apply(request.operation_id).unwrap(), None);
+        installed = source.action_records[0].clone();
+    }
+}
+
+#[test]
+fn oversized_action_compensation_refuses_the_whole_inverse_without_truncation() {
+    let (dir, mut store) = fixture();
+    let mut full_data = data(ActionState::Open);
+    full_data.description = "x".repeat(64 * 1024);
+    let initial = review(
+        &mut store,
+        &draft(
+            (0..43)
+                .map(|_| ActionChange::Create {
+                    id: Uuid::new_v4(),
+                    data: full_data.clone(),
+                })
+                .collect(),
+        ),
+    );
+    let admitted = admit(&mut store, &initial);
+    let created = finish(&mut store, &admitted);
+    let mut replacements = draft(
+        created
+            .action_records
+            .iter()
+            .map(|record| {
+                let mut before = record.clone();
+                // Crossing a decimal revision boundary adds bytes to every inverse baseline.
+                before.version = 9;
+                put(dir.path(), &before);
+                ActionChange::Replace {
+                    before: Box::new(before),
+                    data: full_data.clone(),
+                }
+            })
+            .collect(),
+    );
+    let encoded_size = replacements.title.len()
+        + replacements
+            .action_changes
+            .iter()
+            .map(|change| serde_json::to_vec(change).unwrap().len())
+            .sum::<usize>();
+    let mut excess = encoded_size
+        .checked_sub(brn_store::work::proposals::MAX_PROPOSAL_BYTES)
+        .unwrap();
+    assert!(excess > 0);
+    for change in replacements.action_changes.iter_mut().rev() {
+        let description = &mut change.data_mut().description;
+        let trim = description.len().min(excess);
+        description.truncate(description.len() - trim);
+        excess -= trim;
+        if excess == 0 {
+            break;
+        }
+    }
+    assert_eq!(excess, 0);
+    assert_eq!(
+        replacements.title.len()
+            + replacements
+                .action_changes
+                .iter()
+                .map(|change| serde_json::to_vec(change).unwrap().len())
+                .sum::<usize>(),
+        brn_store::work::proposals::MAX_PROPOSAL_BYTES
+    );
+    let record = store.create_proposal(&replacements).unwrap();
+    let admitted = admit(&mut store, &record);
+    let source = finish(&mut store, &admitted);
+    let request = undo_request(&source);
+    assert!(store.preview_proposal_undo(&request).is_err());
+    assert!(store.begin_proposal_undo(&request).is_err());
+    assert_eq!(store.proposal(request.operation_id).unwrap(), None);
+    assert_eq!(store.proposal_apply(request.operation_id).unwrap(), None);
+    for installed in source.action_records {
+        assert_eq!(installed.version, 10);
+        assert_eq!(store.action(installed.origin.id).unwrap(), Some(installed));
     }
 }

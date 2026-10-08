@@ -638,11 +638,11 @@ fn mixed_asset_and_action_approval_preserves_existing_undo_refusal_without_effec
     };
     assert_eq!(
         app.preview_proposal_undo(&undo).unwrap_err().message,
-        "Action-bearing Undo is not yet supported"
+        "Action Undo requires an Action-only whole operation of replacements"
     );
     assert_eq!(
         app.undo_proposal(&undo).unwrap_err().message,
-        "Action-bearing Undo is not yet supported"
+        "Action Undo requires an Action-only whole operation of replacements"
     );
     assert!(app.proposal_apply(undo.operation_id).unwrap().is_none());
     f.assert_applied();

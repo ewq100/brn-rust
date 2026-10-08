@@ -915,18 +915,14 @@ impl AiState {
         ))
     }
     fn can_confirm_operation(&self) -> bool {
-        self.ready
-            && self.vault_bound
-            && self.review_can_leave()
-            && self.active.is_none()
-            && self.rewrite.is_none()
+        self.ready && self.review_can_leave() && self.active.is_none() && self.rewrite.is_none()
     }
     pub fn preview_undo(
         &mut self,
         target_operation: Uuid,
         trash_member: Option<usize>,
     ) -> Option<(Uuid, AppCommand)> {
-        if !self.can_confirm_operation() {
+        if !self.can_confirm_operation() || (trash_member.is_some() && !self.vault_bound) {
             return None;
         }
         let request = UndoRequest {
@@ -952,7 +948,7 @@ impl AiState {
         operation: Uuid,
         direction: RepairDirection,
     ) -> Option<(Uuid, AppCommand)> {
-        if !self.can_confirm_operation() || operation.is_nil() {
+        if !self.can_confirm_operation() || !self.vault_bound || operation.is_nil() {
             return None;
         }
         self.operation_generation = self.operation_generation.checked_add(1)?;
@@ -972,7 +968,10 @@ impl AiState {
         &mut self,
         capture: &crate::approval::UndoCapture,
     ) -> Option<(Uuid, AppCommand)> {
-        if !self.can_confirm_operation() || self.undo_preview.as_ref() != Some(capture) {
+        if !self.can_confirm_operation()
+            || (!self.vault_bound && !capture.preview().draft.changes.is_empty())
+            || self.undo_preview.as_ref() != Some(capture)
+        {
             return None;
         }
         let request = capture.request().clone();
@@ -1001,6 +1000,7 @@ impl AiState {
         capture: &crate::approval::RepairCapture,
     ) -> Option<(Uuid, AppCommand)> {
         if !self.can_confirm_operation()
+            || !self.vault_bound
             || self.repair_preview.as_ref() != Some(capture)
             || !self.application_snapshot.as_ref().is_some_and(|journal| {
                 journal.request.operation_id == capture.preview().operation_id
