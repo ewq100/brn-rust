@@ -46,8 +46,8 @@ product limits. Preserve outputs and reuse them for approval/replay.
 Local receipts: `/private/tmp/brn-overnight-20261008`; script
 `paired-baseline.py` uses the same already-approved synthetic `plural.eml`
 Source/binding and exact executable for both models, without application between
-runs. Current ledger: six investigations completed, three per condition. Ten remain
-authorized after the owner's amendment, allocated at most five additional per
+runs. Current ledger: eight investigations completed, four per condition. Eight remain
+authorized after the owner's amendment, allocated at most four additional per
 existing condition. Do not spend them to repeat approval/replay or answer questions
 that retained evidence and deterministic tests can resolve. Baseline, first-slice
 and North Quay pairs are retained in the local ledger. Every CLI call retains
@@ -77,62 +77,79 @@ requires exact final-candidate review, applicable local checks and actual requir
 CI. No weakening, bypass or rushed merge. Record failures and repair real defects.
 Known informational platform failures remain visible and separate.
 
-## Durable checkpoint — 8 October 20:34 UTC
+## Durable checkpoint — 8 October 20:51 UTC
 
-Lead checkout `/Users/evokessler/repos/brn-p2-email-docx-intake`, current branch
-`codex/p4-clarification-action-guidance`, accepted spec `6280e1a`; no guidance
-implementation yet. Pending docs record Cedar results/final predecessor gates.
-Next: commit this checkpoint, implement the [bounded shared ACTIONS clarification](clarification-action-guidance.md),
-qualify real-Rig delivery/nullable-owner/separate-approval/legitimate abstention,
-independently review and integrate. No fixture answers or forced Action count.
+Lead checkout `/Users/evokessler/repos/brn-p2-email-docx-intake`, branch
+`codex/p4-clarification-action-guidance`, HEAD `b61c33d`. PR95 contains generic
+clarification-draft guidance; its complete three-file implementation received one
+independent read-only review with no actionable findings. Precombine AI library passed
+146 tests with one existing ignore, all-target AI Clippy, shipping CLI/desktop,
+52 fixture assertions and 603 Markdown links passed. The original candidate hosted run was 37841332007; a fresh final run follows
+the integrated main/doc update. Immutable CLI and exact build hashes are recorded in
+`/private/tmp/brn-overnight-20261008/clarification-action-build-manifest.json`.
+Final combined AI passed 147 tests with one existing ignore; AI Clippy and shipping
+CLI/desktop passed. Combined immutable CLI/hash manifest is
+`/private/tmp/brn-overnight-20261008/clarification-action-combined-build-manifest.json`.
+No local Cargo or live provider process is active.
 
-PR90 and PR91 merged normally and all required postmerge checks passed.
-PR92 merged `bb66a1b884106fd18b08d2fa4864aff0537811bc`; all required candidate
-and postmerge checks/docs passed (postmerge37838175674). PR93 predecessor candidate
-`df0cd6ca00a6e0a272c5652aa8973bdc564db211` passed all four required CI checks in
-run37838500702 and docs. Normal protected merge dispatched; verify returned merge
-commit/tree and resulting main. Complete committed independent review was clean.
-Full default1694passed/17existingignored, doctests and52fixtures passed. Final
-native workflow/models418passed/15existingignored, combineddesktop/CLI535passed,
-native all-target Clippy, shipping builds,52fixtures and603links passed.
-Build manifest `/private/tmp/brn-overnight-20261008/knowledge-predecessor-build-manifest.json`;
-immutable CLI `knowledge-predecessor-brn` SHAee8b4206..., desktop SHA cc58b16b....
-No local Cargo active in the lead checkout. Interactive acceptance remains pending.
+PR90–PR93 merged normally; all four required candidate and post-merge checks and
+documentation passed. PR93 merged at `9f02a28e170388dc41fbb6ad2ccd7fd98bed1e44`,
+identical tree to reviewed/qualified head df0cd6c, post-merge run 37840470419.
+It adds explicit exact predecessor attachment, preserving owner wording/comments,
+Source identity, original callback replay and revised-version approval. Full
+qualification: default 1694 passed / 17 existing ignores plus doctests;
+native workflow/models 418 passed / 15 existing ignores; desktop/CLI 535 passed;
+Clippy, shipping builds, 52 fixtures and 603 links passed. Interactive acceptance
+remains pending; no GUI observation occurred.
 
-Separate budget checkout `/Users/evokessler/repos/brn-p3-work-budgets`, branch
-`codex/p4-applied-intake-findings`, spec aca... `acae2b1` on mergedPR92.
-Applied-intake code complete/staged, new Store3/workflow2/AI1all-route tests passed.
-Current Cargo slot belongs to its implementation helper, running directly affected
-compatibility tests then Store/workflow/AI Clippy. New workflow harness failures
-were Restored-before-Ready handling and enum-safe diagnostics, fixed without
-production changes and preserved in logs. Full15-file staged patch SHA
-`2406602caecea0e81037903988071fe9e463d61b7abedb8db80d7bb25f49bc29` independently
-reviewing now. Do not duplicate either helper's assignment or run concurrent Cargo.
-It preserves exact historical Applied Source proof, canonical capture/question,
-historical Finding read/replay/loss/Undo/backup and existing private cleanup refusal.
-Next after review/compatibility: validate findings, final affected/native/shipping
-checks, commit/push PR, normal required CI/integration and paired private-route live
-qualification using retained North Quay evidence, before approving its supplements.
+Separate checkout `/Users/evokessler/repos/brn-p3-work-budgets`, branch
+`codex/p4-applied-intake-findings`, HEAD `5dd60ee`, PR94. Exact historical Applied
+private-intake Source Finding lineage is complete and independently reviewed
+with no actionable findings (patch SHA-256 2406602caecea0e81037903988071fe9e463d61b7abedb8db80d7bb25f49bc29).
+Final Store 450 passed; AI 146 passed / one existing ignore; native workflow/models
+420 passed / 15 existing ignores, including the full-size recovery witness.
+Combined all-target native Clippy, shipping CLI/desktop/helper, 52 fixtures and
+603 links passed. Qualification and build receipts are in
+`/private/tmp/brn-overnight-20261008/applied-intake-final-qualification.json` and
+`applied-intake-build-manifest.json`. All required candidate checks/docs passed in 37841111480. PR94 merged normally
+at `b4e3a59a201b3e719df91278426d44388576959f` with identical tree; required
+post-merge run 37842586660 is in progress.
+Existing cleanup certificates still refuse private-intake Findings; no format or
+cleanup guarantee was silently relaxed. No local Cargo is active there.
+
+PR95 now contains merged PR94; the three shared files auto-merged cleanly.
+Next: complete combined AI/Clippy/shipping checks and final independent delta
+review, commit/push final records, inspect required CI, then integrate PR95 normally. Preserve every existing candidate and independent review.
+Then reserve a concrete paired private-intake/usefulness trial against retained
+North Quay evidence in the shared ledger; approval and replay use retained outputs.
+
+Selected next independent V1 outcome: manual reversible session Archive/Restore.
+Product Vision section 19.3 already requires it; this small slice excludes automatic
+30-day archival, Delete and preferences. A bounded read-only helper is examining
+atomic admission/drain fencing, exact lifecycle revisions, native state and CLI
+contracts before the lead writes the smallest sufficient implementation plan.
+Reuse existing Store transactions, owner lock, AppWorker and history widgets;
+no new dependency or interpreter. Keep selected lead model/effort; at most two
+active helpers and one Cargo process. Stop/reassess only for a concrete integrity
+or unresolved product requirement; continue independent authorized work otherwise.
 
 Eight of sixteen live calls used, four per exact Medium condition; eight remain.
-The new Cedar near-limit Current is949,665bytes, appendix948370..949665. Luna
-(14.612s,4responses/3rounds) retained all controls via search, disclosed truncated
-read, no range call or drafts. Sol(92.339s,7responses/6rounds) used range twice,
-retained exact tail pressure quote948628..948733, one Action/unsetowner, one
-supplementary Knowledge and one tentative Finding. Source/Current/original/vault
-proofs unchanged; all new drafts remain unapproved and Findings open. This is
-observed usefulness/range evidence, not proof of superiority or prompt causality.
-Generic instruction clarification is justified separately by Luna's stated
-conflation of preparing a follow-up draft with execution authorization; existing
-schema already permits nullable owners. Keep legitimate abstention.
+Cedar near-limit Current is 949,665 bytes, appendix [948370,949665). Luna
+(14.612 seconds, four responses/three rounds) retained all controls via search,
+disclosed truncated read, made no range call and prepared no drafts. Sol
+(92.339 seconds, seven responses/six rounds) used range twice and retained exact
+pressure quote [948628,948733), one unassigned Action, one supplementary Knowledge
+and one tentative Finding. Evidence/original/vault proofs stayed unchanged; all
+new drafts remain unapproved and Findings open. These observations do not establish
+model superiority or prompt causality. Account-wide weekly usage was 43% consumed /
+57% remaining after that pair; short-window, provider request/token/spend unknown.
 
-Canonical campaign ledger remains `/private/tmp/brn-overnight-20261008/campaign-ledger.json`.
+Canonical ledger: `/private/tmp/brn-overnight-20261008/campaign-ledger.json`.
 Cedar requests/outputs/input/runtime/usage/proofs are under `cedar-long-evidence`;
-original North Quay and Harbor retained workspaces remain untouched. Do not rerun
-completed scripts or spend inference on review/approval/replay. Account-wide weekly
-usage43%consumed/57%remaining after the pair; shortwindow/token/spend unavailable.
-No paid fallback/reset/account change. One consolidated morning task records all
-expected UI steps/builds/data; actual interactive acceptance remains pending.
+original North Quay and Harbor workspaces remain retained in place. Do not rerun
+completed campaign scripts, move bound state/vaults or spend inference on approval
+or replay. The single morning UI task retains expected steps, builds and data;
+actual interactive and personal acceptance remain pending.
 
 Earlier milestone entries below are historical receipts; this checkpoint and the
 local campaign ledger govern continuation.
