@@ -8,20 +8,22 @@ unlocks the Mac and is available. Headless tests do not establish GUI acceptance
 
 Merged range/guidance: PR90, `4f5b95e1c7b92f9efec54ea7f34f9097987cfdb6`.
 Merged budgets: PR91, `409f68bedc112df550a5fcd6ebd884effff70101`.
-Latest qualified P4 runtime source: `2abe6d3c3b47f1bc5fba56bb04e5ae09c257f38a`;
+Previous qualified P4 runtime source: `2abe6d3c3b47f1bc5fba56bb04e5ae09c257f38a`;
 checkout commit `33ddac7aaf2f9f50801faceae83d80c9f78967e3` has the identical tree.
 P4 merged at `bb66a1b884106fd18b08d2fa4864aff0537811bc` (PR92); required
 candidate checks passed, postmerge running. Final predecessor commit/build is
 pending; update this receipt before cutoff. Do not confuse implementation/qualification with personal acceptance.
 
 Checkout: `/Users/evokessler/repos/brn-p2-email-docx-intake`.
+Latest qualified predecessor runtime source: `df0cd6ca00a6e0a272c5652aa8973bdc564db211`
+(PR93, required Mac core CI still running; final integration pending).
 Shipping desktop: `/Users/evokessler/repos/brn-p2-email-docx-intake/target/intake-ui/debug/brn-desktop`,
-SHA-256 `561232d6aacbf5eb0fcdd017d9486406e0c4605a672ce0a0f6a5d02db8e9e434`.
-Immutable matching CLI: `/private/tmp/brn-overnight-20261008/p4-conflict-brn`,
-SHA-256 `888e9e752cf113f0b69cf07456b980e532437dd87699ff2f459a008d1870ad49`.
-Build manifest: `/private/tmp/brn-overnight-20261008/p4-build-manifest.json`.
-Helper is beside the binaries; manifest records its hash. Recheck hashes before
-launch because the target executable may be replaced by a later qualified build.
+SHA-256 `cc58b16ba81de680263ed6e0b9b9669b41a1054185149201585c424fd6354221`.
+Immutable matching CLI: `/private/tmp/brn-overnight-20261008/knowledge-predecessor-brn`,
+SHA-256 `ee8b42060f04244505a810f94b99631fc380120cd8a7f0b94f5786698fb24a25`.
+Manifest: `/private/tmp/brn-overnight-20261008/knowledge-predecessor-build-manifest.json`.
+Helper hash remains `8a7dae346aac826c2178c1e7666f1db6e52effa5288836a1fabb4a9ebc4bde71`.
+Recheck final hashes before launch because subsequent builds may replace targets.
 
 Workspace A (email/DOCX/core journey):
 `/private/tmp/brn-retained-qualification-bi3q58kf/headless/{data,vault,results}`.
@@ -40,6 +42,18 @@ retains open Finding `1b34da31-3b0b-89b2-8ab7-74dc1544ec9a`, Knowledge
 at this checkpoint; later approval receipts must update this task. Luna comparison
 is also Draft and should remain an unused comparison. All campaign/runtime/output
 receipts are under `/private/tmp/brn-overnight-20261008`.
+
+Workspace C (long evidence):
+`/private/tmp/brn-overnight-20261008/cedar-long-evidence/{data,vault,receipts}`.
+Current `cedar-commissioning-record.md` is949,665bytes; final appendix starts948,370.
+Sol analysis `0d2685b8-38c2-4cc9-a2ae-29ff6a9b9075` retains tail evidence, open
+Finding `3145a4eb-cf18-833c-8be2-872b52fb6572`, Knowledge
+`d544797c-04e7-8acc-bf07-337cfed7488b` and Action proposal
+`9b5a1fb2-d5b3-8e29-b4b1-536ef686bf64` (still Draft). Its exact opposing pressure
+quote is at bytes948,628..948,733. Do not choose the commissioning-control record
+as a predecessor merely to exercise History: the retained Knowledge supplements
+those controls. Any attachment needs a semantically appropriate earlier review
+and an explicit owner decision after exact before/after inspection.
 
 ## Preparation and launch after unlock
 
@@ -77,7 +91,7 @@ Allow 45–60 minutes. Essential path: steps 1–5 and 8–9, about 15–20 minu
 | 3. Review retained Sol group, exact before/after and citations; submit native approval for selected displayed versions | Repaired native submission applies only the selected current versions using the existing Source prerequisite; no duplicate Source | Selected order/versions, confirmation and receipts/error. Action-first works headlessly; record actual native behavior |
 | 4. Fully quit/reopen; inspect saved notes, Actions and dashboard | Approved effects persist with citations, dates, unassigned owners where uncertain and open state | Note/Action UUIDs, status, dashboard discrepancies |
 | 5. Reopen completed group and replay where exposed | No duplicate effects/new inference; Source and asset unchanged | Effect counts/replay receipt; compare retained headless hashes |
-| 6. Inspect longer-evidence/range capability through retained output where available | Tail ranges retain complete-byte proof, exact offsets and scope; stale proof refuses. If no retained long-reading output is available, mark the interactive tool-use portion pending, not passed | Range/proof/result/error and selection. Deterministic near-1MiB range tests already passed |
+| 6. In C, open long Current, inspect its final appendix, saved Sol answer and exact Finding evidence | Tail ranges retain complete-byte proof, exact offsets and scope; stale proof refuses. Saved Sol investigation observed two range calls and captured an exact tail quote. Individual range replies are not retained; direct interactive agent-tool exercise remains pending without a separately selected fresh trial | Range/proof/result/error and selection. Deterministic near-1MiB range tests already passed |
 | 7. Inspect Settings, saved budgets/history and error states; optionally select a separate disposable synthetic live cancellation trial | Defaults 8 rounds/300 seconds; presets 4/8/16/32 and 60/180/300/600. Ask/Inbox summary reflects selection. Active choice frozen, progress shows completed responses/admitted rounds. Stop/timeout/tool-limit causes distinguishable, retained drafts/ordinary partials remain; strict visual JSON stays completion-only. Legacy history budget unavailable | Selected/frozen values, progress, stopping/final cause, saved IDs, restart history. Without a fresh trial, active cancellation observation remains pending |
 | 8. Quit A, launch B; read both Sources and approved Current, then saved Sol answer/Finding/proposals | Carrier cancellation risks the target but does not authorize a new commitment. Copied Kaia is not authorization. Exact opposing quotes, reasons, alternatives, unknown price/availability and reply timezone visible | Source/Current IDs, Finding state/proofs, displayed reasons and uncertainty; any misleading authority |
 | 9. Review selected B proposals and their exact versions; approve only the intended consequences, restart and inspect | Current live Knowledge is a supplement, not a supersession. Two Actions remain distinct; due date/time and authorization boundary retained. Finding closure remains a separate explicit choice. Only approved effects persist | Approval requests/receipts, notes/Actions/Finding state, restart/replay; do not approve both model comparisons |
@@ -93,13 +107,13 @@ final native workflow/models 412 passed/15 ignores; desktop/CLI 525 passed; ship
 Clippy/builds and 52 fixtures passed. Required candidate and postmerge CI passed.
 P4: AI 145 passed/one existing ignore; integrated scenario and historical replay 2;
 context guards 3; native AI/workflow Clippy, shipping CLI/desktop, 52 fixtures and
-602 links passed. Independent review found no remaining actionable finding. P4 required candidate CI passed and it merged; postmerge checks running. Predecessor attachment targeted Store 7, workflow 7, desktop/widget 7, CLI parser 1 and subprocess 2 passed; affected Clippy and independent full-candidate review passed. Final broad/shipping/CI checks pending.
+602 links passed. Independent review found no remaining actionable finding. P4 required candidate CI passed and it merged; postmerge checks running. Predecessor attachment targeted Store 7, workflow 7, desktop/widget 7, CLI parser 1 and subprocess 2 passed; affected Clippy and independent full-candidate review passed. Final default1694/17existing ignores with doctests and52fixtures passed. Native workflow/models418/15ignores, desktop/CLI535, final Clippy/shipping builds/52fixtures/603links passed. PR93 required CI/integration pending.
 
-Six live CLI investigations completed. North Quay Luna retained one Action/one
+Eight live CLI investigations completed, four per model. Cedar Sol used range calls and retained tail evidence/review consequences; Luna found facts through search but submitted no drafts. North Quay Luna retained one Action/one
 Knowledge without a formal Finding; Sol retained two Actions/one Knowledge and a
 reasoned Finding. Neither chose History: live History selection is unqualified;
 deterministic supersession/History/recovery mechanics were exercised separately.
-Owner added ten more shared trials; use the canonical ledger for later totals.
+Owner added ten shared trials; eight of sixteen used at this checkpoint. Use the canonical ledger for later totals.
 **No interactive native result or personal acceptance has been established.**
 
 ## Ready-to-paste morning agent prompt

@@ -77,58 +77,62 @@ requires exact final-candidate review, applicable local checks and actual requir
 CI. No weakening, bypass or rushed merge. Record failures and repair real defects.
 Known informational platform failures remain visible and separate.
 
-## Durable checkpoint — 8 October 20:18 UTC
+## Durable checkpoint — 8 October 20:34 UTC
 
-Lead checkout `/Users/evokessler/repos/brn-p2-email-docx-intake`, branch
-`codex/p3-knowledge-predecessor`, plan `b89e746`; complete code is staged and
-independently reviewed. Final reviewed complete patch SHA-256
-`ad73a13d32c12eccf32e4faded728a1f9c3178834ee018aac5d198637b6d8c17`
-includes the successful CLI subprocess witness; subsequent difference only orders
-test module declarations for cargo fmt. No actionable independent finding.
+Lead checkout `/Users/evokessler/repos/brn-p2-email-docx-intake`, current branch
+`codex/p4-clarification-action-guidance`, accepted spec `6280e1a`; no guidance
+implementation yet. Pending docs record Cedar results/final predecessor gates.
+Next: commit this checkpoint, implement the [bounded shared ACTIONS clarification](clarification-action-guidance.md),
+qualify real-Rig delivery/nullable-owner/separate-approval/legitimate abstention,
+independently review and integrate. No fixture answers or forced Action count.
 
-PR90 range/guidance and PR91 budgets merged normally; all required candidate and
-postmerge checks passed. PR91 merged main `409f68b`, postmerge run 37835432764.
-[PR92](https://github.com/ewq100/brn-rust/pull/92) candidate `354fd35` passed all
-four required checks and docs in run 37836604194, then merged normally at
-`bb66a1b884106fd18b08d2fa4864aff0537811bc` (20:16:12 UTC). Its merged tree equals
-the qualified candidate. Required postmerge run 37838175674 is in progress.
-Known informational Windows/Linux failures remain visible; no protection bypass.
+PR90 and PR91 merged normally and all required postmerge checks passed.
+PR92 merged `bb66a1b884106fd18b08d2fa4864aff0537811bc`; all required candidate
+and postmerge checks/docs passed (postmerge37838175674). PR93 predecessor candidate
+`df0cd6ca00a6e0a272c5652aa8973bdc564db211` passed all four required CI checks in
+run37838500702 and docs. Normal protected merge dispatched; verify returned merge
+commit/tree and resulting main. Complete committed independent review was clean.
+Full default1694passed/17existingignored, doctests and52fixtures passed. Final
+native workflow/models418passed/15existingignored, combineddesktop/CLI535passed,
+native all-target Clippy, shipping builds,52fixtures and603links passed.
+Build manifest `/private/tmp/brn-overnight-20261008/knowledge-predecessor-build-manifest.json`;
+immutable CLI `knowledge-predecessor-brn` SHAee8b4206..., desktop SHA cc58b16b....
+No local Cargo active in the lead checkout. Interactive acceptance remains pending.
 
-Selected [predecessor slice](knowledge-predecessor.md) implements explicit
-None→Some owner attachment, exact context promotion, protected History, preserved
-comments/text/creation hash, original callback replay, strict CLI and dedicated
-native structural acknowledgement/typing-navigation fences. Store seven tests and
-all-target Clippy passed. Workflow predecessor filter seven passed, including four
-new integrated/private-intake/refusal/revised-crash-recovery witnesses. Desktop
-seven state/widget tests and native all-target Clippy passed. CLI parser unit and
-two subprocess tests passed, including successful attachment/replay/obsolete-stamp
-refusal/revised approval/effect replay. Workflow/CLI native all-target Clippy passed.
-Full default gate is running in target/intake-ui, lead Cargo slot; first attempt
-stopped solely on test-module formatting, corrected without behavior change.
-Next: finish default/native/shipping gates, record receipt, commit/push PR and
-integrate normally when required CI passes. Interactive acceptance remains pending.
+Separate budget checkout `/Users/evokessler/repos/brn-p3-work-budgets`, branch
+`codex/p4-applied-intake-findings`, spec aca... `acae2b1` on mergedPR92.
+Applied-intake code complete/staged, new Store3/workflow2/AI1all-route tests passed.
+Current Cargo slot belongs to its implementation helper, running directly affected
+compatibility tests then Store/workflow/AI Clippy. New workflow harness failures
+were Restored-before-Ready handling and enum-safe diagnostics, fixed without
+production changes and preserved in logs. Full15-file staged patch SHA
+`2406602caecea0e81037903988071fe9e463d61b7abedb8db80d7bb25f49bc29` independently
+reviewing now. Do not duplicate either helper's assignment or run concurrent Cargo.
+It preserves exact historical Applied Source proof, canonical capture/question,
+historical Finding read/replay/loss/Undo/backup and existing private cleanup refusal.
+Next after review/compatibility: validate findings, final affected/native/shipping
+checks, commit/push PR, normal required CI/integration and paired private-route live
+qualification using retained North Quay evidence, before approving its supplements.
 
-Next independent Applied-intake Finding slice (spec in the budget checkout at the same active-folder path) is
-selected in the separate clean reused budget checkout
-`/Users/evokessler/repos/brn-p3-work-budgets`, branch
-`codex/p4-applied-intake-findings`, baseline/spec `acae2b1` on merged PR92.
-Bounded helper owns its Store/workflow/guidance implementation; no Cargo until
-lead grants a slot, no recursive helpers/live/GUI/Git integration. It derives exact
-saved Source proof from a historical Applied journal, preserves capture/question,
-keeps historical Findings readable after loss/Undo and leaves private cleanup
-unsupported. This does not depend on predecessor attachment.
+Eight of sixteen live calls used, four per exact Medium condition; eight remain.
+The new Cedar near-limit Current is949,665bytes, appendix948370..949665. Luna
+(14.612s,4responses/3rounds) retained all controls via search, disclosed truncated
+read, no range call or drafts. Sol(92.339s,7responses/6rounds) used range twice,
+retained exact tail pressure quote948628..948733, one Action/unsetowner, one
+supplementary Knowledge and one tentative Finding. Source/Current/original/vault
+proofs unchanged; all new drafts remain unapproved and Findings open. This is
+observed usefulness/range evidence, not proof of superiority or prompt causality.
+Generic instruction clarification is justified separately by Luna's stated
+conflation of preparing a follow-up draft with execution authorization; existing
+schema already permits nullable owners. Keep legitimate abstention.
 
-Six live investigations completed, three per condition; owner adds ten shared
-calls (sixteen total), allocated five further per existing condition. North Quay
-Luna retained one Action/one Knowledge, no Finding; Sol retained two Actions/one
-Knowledge and a reasoned Finding. Both kept dates/authority uncertainty; neither
-selected supersession. Live History choice unqualified; deterministic mechanics
-passed. All new North Quay proposals still Draft. Approve one intended supplement
-group, restart/replay with retained output, without forcing semantic replacement.
-A novel near-limit long-evidence pair may use additional calls for a concrete
-range/usefulness question after preparation/qualification; no call started yet.
-The canonical local ledger governs every invocation. All GUI checks remain in
-the single morning task; no interactive observation has been claimed.
+Canonical campaign ledger remains `/private/tmp/brn-overnight-20261008/campaign-ledger.json`.
+Cedar requests/outputs/input/runtime/usage/proofs are under `cedar-long-evidence`;
+original North Quay and Harbor retained workspaces remain untouched. Do not rerun
+completed scripts or spend inference on review/approval/replay. Account-wide weekly
+usage43%consumed/57%remaining after the pair; shortwindow/token/spend unavailable.
+No paid fallback/reset/account change. One consolidated morning task records all
+expected UI steps/builds/data; actual interactive acceptance remains pending.
 
 Earlier milestone entries below are historical receipts; this checkpoint and the
 local campaign ledger govern continuation.
