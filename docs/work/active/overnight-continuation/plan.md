@@ -77,98 +77,72 @@ requires exact final-candidate review, applicable local checks and actual requir
 CI. No weakening, bypass or rushed merge. Record failures and repair real defects.
 Known informational platform failures remain visible and separate.
 
-## Durable checkpoint — 08 October 22:55 UTC
+## Durable checkpoint — 08 October 23:10 UTC
 
-Objective: continue authorized small complete V1 slices until 08:00 Tallinn
-(05:00 UTC), final verification/handoff from07:30 Tallinn. No overnight computer,
-browser or GUI use; every interactive check remains pending in the single
-[morning task](morning-ui-acceptance.md). Preserve all unrelated work/data.
+Continue authorized V1 slices until 05:00 UTC / 08:00 Tallinn; final qualification
+from 04:30 UTC. No overnight GUI/computer use; interactive acceptance remains in
+[one morning task](morning-ui-acceptance.md). Preserve unrelated work and data.
 
-Main4db30319662c97b272f3ba2e6877036d1906f8e0 includes normally protected PR90–98.
-Every required candidate/post-merge check and docs passed. PR97 runs37849061646/
-37850968507; its PR body now records those actual results. Known informational
-Windows/Linux limitations remain visible; no bypass or port.
+Main `544696834d93cf56b82e76a857f2c44cdca7823b` includes normally protected
+PR90–99. PR90–98 required candidate/post-merge checks and docs passed. Backup
+[PR99](https://github.com/ewq100/brn-rust/pull/99) passed all four required checks
+and docs in 37856237694, then merged normally at 23:08 UTC. Resulting-main run
+37857753049 is active; post-merge verification pending. Supplemental Windows
+candidate errors remain Unix filesystem APIs, confirmed from raw log. No bypass,
+suppression or portability work. Prior known supplemental Linux limitations,
+including PR97-added non-Mac test-helper warning, remain accurately attributed.
 
-PPTX [PR98](https://github.com/ewq100/brn-rust/pull/98) remains at pushed
-8b403853bd5acab24a0efccca1cb08e120deae96, independent production review clean at
-patch2b12fbbc60e82f92f6552d902569107bcab08ea9afc27bae6c428b4311b1e8bc.
-Final local gates passed:41 helper tests;1729 integrated default/18 existing
-ignores;426 native workflow/models/16 ignores;549 desktop/CLI; doctests, strict
-Clippy, shipping and52fixtures. All four required candidate checks and docs passed
-in37853345027. PR98 merged normally at4db3031; resulting tree exactlyequals checked
-8b40385. Post-merge run37855704574 is active (Ubuntu core/native UI/docs passed;
-other required Mac checks pending at last observation). All five supplemental
-post-failure logs were captured: Windows core/UI MetadataExt/nlink and combined
-Unix filesystem APIs; Linux combined three ExclusiveInstallUnavailable assertions;
-Linux UI unused Command/Stdio plus PR97-added acknowledge_legacy_review test helper
-unused on non-macOS. Those are nonrequired for Mac; the helper diagnostic was
-introduced by Session work, so do not label every diagnostic pre-existing. PPTX
-changes neither failing import nor helper. No port or warning suppression. Oldrun37852945826 automaticallycancelled afterdochead.
+Lead checkout `/Users/evokessler/repos/brn-p2-email-docx-intake`, branch
+`codex/p7-action-replacement-compensation`, has committed composed candidate
+`e0282e26d1c939a50d7b2281ae868589f2f80a59`. Action production `f2ff215`
+received complete independent clean review at patch 810237f8; the two corrected
+mixed-Undo diagnostic expectations received clean review b410e9d3 and focused
+pass. Before backup composition, default coverage 1745 passed / 18 existing
+ignores (1561 unchanged successes + corrected unit witness + 183 integrations),
+430 native workflow/models / 16 ignores, 555 combined desktop/CLI, doctests,
+strict Clippy, shipping, 52 fixtures and links passed. No repeated inference.
 
-Lead checkout `/Users/evokessler/repos/brn-p2-email-docx-intake` now uses
-`codex/p7-action-replacement-compensation`, committed plan7a1bc305f7fb3aa8088f5c4d98256638f33886e5
-plus task-owned dirty implementation. The [selected compensation plan](action-replacement-compensation.md)
-restores prior details for Applied Action-only all-Replace work as a new revision
-with exact CAS/origin/history/reference guards. Creation/mixed Undo stays refused.
-Store helper completed71 regressions plus final affected replay and strict
-Store Clippy. Desktop helper completed13 default/14 native Undo checks,6 native
-repair checks and strict native Clippy with/without test support. Vault-only
-admission defects were corrected with exact file/scoped/repair guards preserved.
-Lead's four workflow reference/cycle/crash/mirror tests and real CLI journey passed.
-One fresh complete independent review is clean at patch
-810237f8f73f6de6a14a7131e02965a7ab862089e75ff28de54937439c2a8a12, rechecked before
-committing productionf2ff215. Resulting PPTX main incorporated without tree changes
-at12aa4b644f6fc5e4f793a6e067b822ec94f96509. Full default gate11272 passed changed Store/all prior packages and421 workflow
-unit cases/full recovery; one old mixed-Undo diagnostic expectation was corrected
-and independently reviewed, focused rerun passed. Resume gate8195 owns sole Cargo
-in `target/intake-ui`: remaining integrations/doctests/native/combined/shipping/fixtures.
-Production unchanged; reuse unchanged successes. A read-only helper now inspects the smallest coherent owner Create-destination
-retarget slice under P3. Smallest ready scope is same-folder Create-note destination rename, with
-compact original-path evidence preserved through journal recovery/creation replay;
-Source/asset/cross-folder/Replace/split/regroup stay separate. Plan preparation
-is next; no retarget production edits yet. Next: finish gates, then incorporate eligible backup main,
-qualify merge seams, open Action PR and integrate after actual required CI.
+Backup main was incorporated automatically into production; only morning-task
+wording conflicted, retaining the more current compensation qualification row.
+Fresh independent composition review is clean (complete Action diff b8abe1f2;
+composition delta a21d5521, exact hashes in the slice plan). Serial gate55052 owns sole Cargo
+in `target/intake-ui`: format/default Clippy passed; full default, native/combined,
+shipping and fixtures active. Next: inspect final results/review, record exact
+runtime, push/open/attach Action PR, inspect required CI and merge normally when
+eligible, then verify resulting main. No Action PR yet.
 
-Operational backup checkout `/Users/evokessler/repos/brn-p3-work-budgets`, branch
-`codex/p7-operational-backups`, pushedf12c41348726e0dad5ee1d4f0fb03fab59879e3a in
-[PR99](https://github.com/ewq100/brn-rust/pull/99), attached. Required run37856237694
-active, docs passed. Complete independent P7 review clean at1e9862c6; reviewed
-shutdown test deltas preserve every original assertion and require exactly one
-separate successful checkpoint event. All local gates passed:1749 default coverage/
-17 existing ignores;427 native workflow/models/15 ignores;557 combined desktop/CLI;
-doctests, strict Clippy, shipping,52fixtures/links. Representative64 complete chat
-turns yielded74,928,128-byte copy in217ms including validation/sync/publication,
-not a hard step latency bound. Main4db3031 incorporated automatically atd6ae95f3;
-P7 code/tests identical to reviewed9be2afe, PPTX code/tests/lock identical to main.
-Independent complete merge-delta review clean31b5f81aaa3b303c7474d4b29ccbb1466c5b4bf2d0ecfe710b6c0836d1f540a9.
-Affected helper/workflow/CLI,17 native inspection checks, strict combined Clippy,
-shipping/52fixtures/links passed; native filter initiallymatched0 then corrected.
-Next: inspect actual required CI, merge normally when eligible, verify resulting
-main/post checks. No Cargo in this checkout; do not push routine docs to PR99 head.
+The backup checkout `/Users/evokessler/repos/brn-p3-work-budgets` remains clean at
+pushed PR99 head `f12c41348726e0dad5ee1d4f0fb03fab59879e3a`; target idle.
+Backup complete review 1e9862c6 and PPTX composition review 31b5f81a clean.
+Qualified 1749 default / 17 existing ignores, 427 native / 15, 557 combined,
+doctests/Clippy/shipping/52 fixtures. Representative complete 74,928,128-byte
+checkpoint took 217 ms; not a hard bound for an individual SQLite step.
 
-Immutable runtimes/manifests are under
-`/Users/evokessler/repos/brn-overnight-artifacts-20261008`:
-`pptx-backup-runtime` sourced6ae95f3 includes SessionV18/PPTX/backups, excluding
-pending compensation. The single morning task records exact hashes, data paths,
-ordered expectations and prompt. Replace with a final combined qualified build
-before cutoff. `pptx-runtime` and `backup-runtime` are historical qualification
-builds. `qualification-evidence` preserves703 synthetic receipt/input/output/script/
-log/historical executable files (971MB at first archive), excluding bound
-state/vaults and credentials. Refresh logs at final milestones; do not use old
-executables on newer-schema state.
+Next selected P3 slice is same-folder new-note destination rename, prepared in
+untracked `create-destination-rename.md`; no production edits yet. Exclude that
+future plan from Action PR. After Action candidate is pushed, switch a new branch,
+commit the plan, fix Store/native helper ownership and implement workflow/CLI.
+Preserve earliest original Create paths through approval journals/recovery so
+original request replay returns the current revised review. Cross-folder, Source,
+asset, Replace, split/regroup remain separate. At most two helpers, no recursion,
+one Cargo across checkouts; selected lead model/effort unchanged.
 
-Canonical ledger `/private/tmp/brn-overnight-20261008/campaign-ledger.json`:
-14/16 used, Luna7/Sol7, at most one remaining per exact Medium condition. No provider
-active; no inference for approval/replay or deterministic mechanics. Last account
-usage52% weekly used/48% remaining, account-wide; other telemetry unknown. Reserve
-before every call,180second cancellation/eight rounds/nine responses, failures
-count, no retries/substitution/reset/purchase. The live evidence record retains
-all results/limitations: original budget/date repaired, Cedar range usefulness,
-Linden four selected effects Applied, North Quay owner-comment Draft/version4,
-PPTX pair five Draft consequences with missing-year clarity limitation. All saved
-comparison drafts/evidence remain preserved. WorkspaceF Quay Source/two assets
-Applied; Harbor/twins Sources Draft. Do not rerun guarded campaigns, move/reset
-bound synthetic folders or use pre-Session CLI1d2dc5d after V18 migration.
+Immutable runtime `brn-overnight-artifacts-20261008/pptx-backup-runtime` includes
+SessionV18/PPTX/backups, excludes compensation. Morning task records exact hashes,
+synthetic folders, expectations and prompt; refresh with final qualified combined
+build before cutoff. Qualification archive preserves inputs, outputs, receipts,
+logs/scripts/historical binaries, excluding bound state/vaults and credentials;
+refresh after milestones. Never move bound synthetic folders or reopen migrated
+state with old executables.
+
+Canonical live ledger `/private/tmp/brn-overnight-20261008/campaign-ledger.json`:
+14/16 used, Luna 7 / Sol 7, at most one remaining per exact Medium condition.
+No provider active. Reserve before every call; 180-second cancellation, eight
+rounds/nine responses, failures count, no automatic retries/substitution. Latest
+account-wide weekly usage 57% used / 43% remaining at 23:05 UTC; short window,
+BRN token/internal-turn/spend telemetry unknown. No reset or purchase. Retained
+model usefulness and limitations are in [live evidence](live-model-evidence.md).
+Do not spend calls on approval/replay/deterministic mechanics or rerun campaigns.
 
 ## Selected first evidence slice
 
