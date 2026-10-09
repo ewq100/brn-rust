@@ -23,6 +23,13 @@ pub struct ProfileContextView {
     pub intent: Option<Uuid>,
     generation: u64,
 }
+#[cfg(feature = "native-ui")]
+impl ProfileContextView {
+    /// Presentation callbacks bind to an observation intent, including same-page refreshes.
+    pub(crate) fn generation(&self) -> u64 {
+        self.generation
+    }
+}
 impl AiState {
     pub fn clear_profile_context(&mut self) {
         self.profile_context.generation = self.profile_context.generation.wrapping_add(1);

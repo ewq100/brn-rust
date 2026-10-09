@@ -658,6 +658,18 @@ controls and honest totals. Relationships label incoming/outgoing direction,
 Current/Source/History endpoints and explicit-link/inferred-provenance origin;
 every complete quote and byte/hash proof is inspectable and exactly copyable.
 
+**Graph** shows the Current profile center and distinct exact neighbors on the
+displayed direct relationship page. The fixed fan scrolls in both directions;
+every directed edge has a separate labelled button, including opposite directions
+and multiple origins between the same notes. Solid arrows mean explicit Markdown
+links; dashed arrows mean inferred provenance candidates. Edge selection uses the
+same full proof reader and exact Copy controls. Neighbor buttons use the existing
+supporting-note guards; the center reveals its retained exact identity. Full paths,
+UUIDs and hashes remain available in accessible labels and complete context details.
+Counts show page offset, displayed edges and total relationships. Observation
+coverage does not imply the whole graph is displayed. Refresh and paging replace
+the observation and reject callbacks bound to old generations, profiles or edges.
+
 Displayed Actions' explicit Source and thread UUIDs show their saved identity
 resolution and observed scope. Only Unique classified reference matches offer
 supporting navigation. Missing, ambiguous, incomplete and unknown classifications,

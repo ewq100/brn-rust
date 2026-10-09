@@ -179,3 +179,19 @@ seeded History fixture establishes classification only, not supersession history
 All actual GUI/IME/accessibility/personal acceptance remains pending exclusively
 in morning step22. Required final-head CI, normal merge and resulting-main
 verification remain pending; this record does not claim integration.
+
+
+## Required Ubuntu fixture correction — 02:33 UTC
+
+Final19ca790 CI run37874474333 required Ubuntu failed the new pure CLI validation
+test while constructing its reply via App::proposal_source, which uses the
+macOS-only Markdown Save capability. This is a test setup defect, not an
+informational failure. Replace only that setup with a complete typed zero-edge
+ProfileContext and full text SHA-256 using existing brn-intake::digest. Every valid
+reply, wrong-event, wrong-lens, malformed-total and invalid-request preflight
+assertion remains unchanged; no platform cfg/ignore, assertion weakening or new
+dependency. Focused context1, full CLI binary78 and strict CLI all-target Clippy
+passed locally. Production/shipping behavior is unchanged and earlier relevant
+qualification remains valid. Revised actual required Ubuntu and all final-head
+checks must pass before protected integration; no bypass. Actual Windows log
+113639779794 retains the same four known UnixAPI errors, informational Mac scope.

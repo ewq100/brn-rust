@@ -18,30 +18,31 @@ checks/docs; all required post-merge checks/docs passed in 37844389582.
 Refresh this receipt after subsequent changes and before cutoff; qualification is
 separate from personal acceptance.
 
-Checkout/current authoritative morning task: `/Users/evokessler/repos/brn-p2-email-docx-intake`.
-Latest qualified combined build source: `0ed717d308365977ed0c46277aed2b6c07af9424`
-(P8 Person/Project context, behavior commit `45aff613b01cad6932c9c3e87bb581039b65da4c`;
-complete independent review and correction refresh clean; all eleven corrected
-local gates passed; [PR106](https://github.com/ewq100/brn-rust/pull/106) required CI
-and normal integration pending). Current main remains
-`56b6a02b13a90ddf880a88695cafa6909f8bfc7a`; PR90–PR105 all four required candidate
-and post-main checks plus documentation passed.
+Checkout/current authoritative morning task: `/Users/evokessler/repos/brn-p3-work-budgets`.
+Latest locally qualified combined build source: `e763adde1a8faa9d365c42795e71ee3b6b8adbd4`
+(P8 current-page graph, composed with corrected profile parent19ca790; complete
+independent Graph review clean and all nine final local gates passed). P8 required
+Ubuntu test-fixture failure was corrected in test-onlya356ea3; focused1/fullCLI78/
+strictCLI passed and independent refresh is clean. Revised PR106 required CI and
+normal parent integration remain pending; Graph integration depends on that parent.
+Current main remains `56b6a02b13a90ddf880a88695cafa6909f8bfc7a`;
+PR90–PR105 all four required candidate/post-main checks plus docs passed.
 Immutable shipping runtime:
-`/Users/evokessler/repos/brn-overnight-artifacts-20261008/profile-context-runtime`.
-Desktop: `/Users/evokessler/repos/brn-overnight-artifacts-20261008/profile-context-runtime/brn-desktop`,
-SHA-256 `67ebc25334733b3b131d3c26f64d8540f4d8d0601c6421286603405d6d381f3e`.
-CLI: `/Users/evokessler/repos/brn-overnight-artifacts-20261008/profile-context-runtime/brn`,
-SHA-256 `28ed910b7a03910e50eb86dbf1dec242aa37bf2ce7f5dd9896fe674c38ed2bc4`.
-Helper: `/Users/evokessler/repos/brn-overnight-artifacts-20261008/profile-context-runtime/brn-intake-helper`,
+`/Users/evokessler/repos/brn-overnight-artifacts-20261008/profile-graph-runtime`.
+Desktop: `/Users/evokessler/repos/brn-overnight-artifacts-20261008/profile-graph-runtime/brn-desktop`,
+SHA-256 `90297ef6fc7e362055557d4f65037d825d4174882562f121fed9120223f63518`.
+CLI: `/Users/evokessler/repos/brn-overnight-artifacts-20261008/profile-graph-runtime/brn`,
+SHA-256 `a63c8d72761f3ba85445b18fe01146e8d86efb5fc5de137061637a7cbe4cfa9b`.
+Helper: `/Users/evokessler/repos/brn-overnight-artifacts-20261008/profile-graph-runtime/brn-intake-helper`,
 SHA-256 `7f058c359a092559cda55b07c3880b44e637257818ad60c725da8b1d99a9f8e5`.
-Manifest `build-manifest.json` records exact source/tree, binary hashes, initial
-failure, corrected gates and relevant reused evidence. This includes SessionV18,
-partial PPTX, automatic backups, Action compensation, filename revision, citation
-review, raw saved evidence, captured approval ordering, actual sent-evidence
-completion and explicit Person/Project context. P7/P8 add no schema migration.
-This build does not contain the separately prepared graph slice. Refresh final
-commit/CI receipt at cutoff. Never use historical executables on newer schema
-state; bound folders remain in place. Actual GUI/personal acceptance remains pending.
+Manifest `build-manifest.json` records exact source/tree, binary hashes and local
+qualification/dependency state. Latera356 changes only pure CLI test setup/docs;
+shipping production is unchanged, and the composed pure fixture passes. This build
+includes all earlier changes through explicit Person/Project context and its
+functional displayed-page graph. It does not contain the separately prepared
+Dashboard Action editing slice. No P7/P8 schema migration. Refresh final commit/CI
+receipt at cutoff. Bound folders remain in place; never use old executables on
+newer schema state. Actual GUI/IME/accessibility/personal acceptance stays pending.
 
 A separate durable evidence copy is under
 `/Users/evokessler/repos/brn-overnight-artifacts-20261008/qualification-evidence`,
@@ -223,8 +224,9 @@ The initial fixture preparation refused missing exact target bindings without
 creating Actions; continuation captured the versions and preserved both approved
 Sources. All final read queries, fresh-process restart/index-loss reconstruction,
 exact unchanged Markdown/operational records and zero inference passed. Never
-rerun either preparer, reset or relocate the bound folders. The graph slice can
-reuse this retained case after its own qualified build is recorded.
+rerun either preparer, reset or relocate the bound folders. Graph reuses this retained case and the latest locally qualified graph runtime.
+`graph-runtime-context-parity.json` records six exact context replies and unchanged
+vault hashes using that shipping CLI. This establishes domain parity, not GUI observation.
 
 ## Preparation and launch after unlock
 
@@ -233,7 +235,7 @@ folder. Do not delete locks, reset or migrate data if busy; record the condition
 Launch Workspace A from the checkout (ordinary desktop flags):
 
 ```sh
-/Users/evokessler/repos/brn-overnight-artifacts-20261008/profile-context-runtime/brn-desktop \
+/Users/evokessler/repos/brn-overnight-artifacts-20261008/profile-graph-runtime/brn-desktop \
   --data-dir /private/tmp/brn-retained-qualification-bi3q58kf/headless/data \
   --vault /private/tmp/brn-retained-qualification-bi3q58kf/headless/vault
 ```
@@ -254,7 +256,7 @@ than passed whenever a control/result cannot be exercised.
 
 ## One ordered journey
 
-Allow 160–225 minutes for all workspaces/new controls. Essential path: steps1–5,8–9,21 and the first lens/proof/restart checks in22, about50–65minutes. Active live cancellation remains pending without fresh authorization.
+Allow 175–245 minutes for all workspaces/new controls. Essential path: steps1–5,8–9,21 and the first lens/proof/restart checks in22, and one graph edge/proof/restart from23, about55–75minutes. Active live cancellation remains pending without fresh authorization.
 
 | Step / user action | Expected result | Evidence / failure record |
 | --- | --- | --- |
@@ -280,6 +282,7 @@ Allow 160–225 minutes for all workspaces/new controls. Essential path: steps1�
 | 20. Quit J, open K, review the exact group, move Gamma earlier twice; deselect/reselect Beta without moving to observe immediate selection, then deselect Beta again. Inspect exact Gamma/Alpha numbered snapshots and operation IDs, confirm only those two and restart. In F before its pending group approval, inspect pinned Source-first controls | Captured order becomes Gamma, Alpha, Beta; selection follows identity and every record/stamp/comment/operation remains paired. Only gamma.md and alpha.md are created with exact text; their comments clear after application. Beta stays Draft/version2 with its comment; pending Sources run first and cannot cross or move. Stale review or busy work refuses while retaining owner work | Record ordered titles/IDs/versions/operation pairs, standalone checkbox states, submitted/returned receipt order, exact files, retained Beta/comment and restart. Complete11file review + clean6file correction refresh passed; final292Desktop/607combined andClippy/shipping/52fixtures passed. PR104 merged c1a97ef after all required candidate and post-main checks/docs passed; actual UI acceptance pending |
 | 21. Quit K, open L, compare planned Monday reply with retained actual Tuesday Text original. Approve only the retained Source Draft/version2, verify native Action remains Waiting, then select it in Dashboard, enter actual-sent-native.md and Read saved sent Source. Inspect complete Source/proof; open and cancel ordinary Complete to verify isolation. Re-read saved Source if needed, open Confirm actual sent Source and complete Action, inspect exact complete Source and Action before final confirmation, then restart | Draft and Source approval alone do not complete. Read/prepare has no effects. Final separate owner confirmation binds the actual Tuesday Source UUID/approval/full fingerprint to one exact Action; thread/origin/content retained, Source appended once, Waiting cleared. Source/original/planned bytes stay exact; restart shows same Completed record/time. Stale changed/missing/ambiguous evidence refuses, retained Source/attempt survives error, no automatic retry/inference or external sending | Record Source/Action UUIDs, source version/comment, complete copied text/binding/Action JSON, ordinary isolation, final operation/receipt/time/thread/source list and restart hashes. Headless same journey/refusal/replay already passed; original complete review found P2 malformed preview acceptance, regression reproduced and correction independently reviewed clean. All corrected local gates passed; required PR105candidate checks/docs passed and normal merge completed; all required post-main checks/docs passed. Actual native acceptance pending |
 | 22. Quit L, open M, select saved z-project.md and scroll to Project context. Inspect full profile and exact Action details, Completed/Blocked, then independently page Actions and relationships. Select Source/History/incoming/opposite-direction edges and each origin/proof; copy full quote/details. Inspect missing Source reference. Select Person context on the same project, then on b-person.md; inspect isolated.md. Attempt supporting navigation with unsaved editor/comment/review work, cancel/resolve through the existing guard, Refresh and fully restart | Project lens has30Actions and34relationships, with25+5 and25+9 independent pages. Person lens on project has0Actions, person note has3; isolated has0/0. Exact saved bytes, scope labels, full quotes and origin/direction remain visible. Absent reference is honest. Query lenses do not persist a type or infer membership. Supporting navigation preserves owner buffers; late/malformed replies do not replace the current view. Restart reconstructs the same context without inference or operational effects; controls and original Source/Links/Close remain reachable at480px | Record lens/profile UUID/hash, totals/offsets, full copied profile/Action/context/proofs, exact supporting paths/scopes, Absent result, guarded buffer and restart observations. Complete independent31file review and clean9file correction refresh; original identity defect and480px regression reproduced and fixed without weakening witnesses. All11corrected local gates passed:523defaultCLI/Desktop,8nativecontext,632combined,strictworkspaceClippy/shipping/52fixtures/links. Actual shippingCLI synthetic30/34paging/lenses/restart/indexloss/unchangedrecords passed. Required CI/integration pending; actual GUI acceptance pending |
+| 23. In M, reopen z-project.md → Project context → Graph. Inspect Current center and mixed Current/Source/History neighbors, direction arrows, explicit versus inferred origins and page summary. Select each overlapping/opposite edge using separate edge controls and copy its complete quote/proof; select supporting node through the existing owner-work guard. Scroll both axes at480px to reach the last displayed node and last edge. Change relationship page, Refresh, switch lens/note, inspect isolated center and restart | Only the displayed direct page is graphed:25of34edges first,9next; center plus deduplicated neighbors, with every separate edge/origin retained. Complete coverage never claims whole-graph display. Exact saved paths/UUIDs/hashes and scopes remain inspectable; no inferred membership or Source/History promotion. Each edge selects its own full proof; supporting navigation preserves buffers. Old page/loading/selection controls are inert after replacement; isolated note still shows its Current center | Record graph/page totals, exact node/edge/origin/direction/scope labels, full copied proof and guarded navigation, last-node/edge reach, loading/error/Refresh and restart. Complete eight-file independent review clean;2pure+7realheadless graph tests and composed641combined/strictworkspaceClippy/shipping/52fixtures/links passed. Six shippingCLI context replies equal retained M with unchanged vault/no inference. Parent/final hosted integration pending; actual graph rendering/usability/IME/accessibility acceptance pending |
 
 ## Headless evidence already passed; interactive acceptance pending
 
@@ -314,7 +317,7 @@ Owner added ten shared trials; all sixteen are used, including the final paired 
 ## Ready-to-paste morning agent prompt
 
 > Read `docs/work/active/overnight-continuation/morning-ui-acceptance.md` and the
-> latest overnight checkpoint in `/Users/evokessler/repos/brn-p2-email-docx-intake`.
+> latest overnight checkpoint in `/Users/evokessler/repos/brn-p3-work-budgets`.
 > The Mac is unlocked and I am available. Verify final commit/build hashes and
 > use only the recorded synthetic workspaces. Execute this single ordered UI
 > journey, essential path first if time is limited. Record actual observations
@@ -334,7 +337,9 @@ Owner added ten shared trials; all sixteen are used, including the final paired 
 > in L using retained actual Text Source and exact separate confirmation. Include
 > M explicit Person/Project lenses, independent paging, exact cross-scope proofs,
 > missing references, full copy, unsaved-work guards,480px reach and restart.
-> Use only the recorded qualified build; later graph work needs its own receipt.
+> Include M current-page Graph, separate directed/origin edge proofs, scoped node
+> navigation/owner-work guards, page/Refresh invalidation, isolated center,480px
+> scrolling and restart. Use only the recorded qualified build and CI receipt.
 > Preserve failures, drafts and exact evidence; do not reset data or touch my real
 > vault. Report concrete defects and pending owner acceptance; mark unobserved
 > or unavailable checks pending. A new live cancellation trial requires separate
