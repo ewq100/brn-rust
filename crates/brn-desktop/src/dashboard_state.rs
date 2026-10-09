@@ -6,11 +6,52 @@ use brn_workflow::{
         ActionCompletion, CompleteActionRequest, PrepareSentCompletionRequest,
         SentCompletionPreview,
     },
-    actions::ActionState,
+    actions::{ActionRecord, ActionState},
     app_worker::{AppCommand, AppEvent},
     dashboard::{DashboardEntry, DashboardFilter, DashboardPage, DashboardRequest},
 };
 use uuid::Uuid;
+
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub enum LinkedActionRole {
+    Dependency,
+    Parent,
+    FollowsUp,
+}
+impl LinkedActionRole {
+    pub fn label(self) -> &'static str {
+        match self {
+            Self::Dependency => "Dependency",
+            Self::Parent => "Parent",
+            Self::FollowsUp => "Follows up",
+        }
+    }
+    fn contains(self, source: &ActionRecord, target: Uuid) -> bool {
+        match self {
+            Self::Dependency => source.data.dependencies.contains(&target),
+            Self::Parent => source.data.parent == Some(target),
+            Self::FollowsUp => source.data.follows_up == Some(target),
+        }
+    }
+}
+#[derive(Clone)]
+pub struct LinkedActionCapture {
+    pub source: Box<ActionRecord>,
+    pub target: Uuid,
+    pub role: LinkedActionRole,
+    view: u64,
+    page: u64,
+    selection: u64,
+    generation: u64,
+    session_navigation: u64,
+    session_generation: u64,
+}
+pub struct LinkedActionDetail {
+    pub capture: LinkedActionCapture,
+    pub record: Option<ActionRecord>,
+    pub error: Option<WorkflowError>,
+    pub intent: Option<Uuid>,
+}
 
 #[derive(Clone)]
 pub struct DashboardQuery {
@@ -56,6 +97,8 @@ pub struct DashboardView {
     pub page: Option<DashboardPage>,
     pub selected: Option<DashboardEntry>,
     pub error: Option<String>,
+    pub linked: Option<LinkedActionDetail>,
+    linked_generation: u64,
     /// Transient input/outcomes retained across view navigation. Durable recovery
     /// remains in the application, not in this presentation list.
     pub attempts: Vec<CompletionAttempt>,
@@ -68,6 +111,128 @@ pub struct DashboardView {
     selection: u64,
 }
 impl AiState {
+    pub fn clear_linked_action(&mut self) {
+        self.dashboard.linked_generation = self.dashboard.linked_generation.wrapping_add(1);
+        self.dashboard.linked = None;
+    }
+    pub fn linked_action_capture_current(&self, capture: &LinkedActionCapture) -> bool {
+        self.ready
+            && self.dashboard.visible
+            && !self.dashboard_loading()
+            && !self.application_busy()
+            && self.active.is_none()
+            && self.rewrite.is_none()
+            && !self.session_change_pending()
+            && self.dashboard.view == capture.view
+            && self.dashboard.page_generation == capture.page
+            && self.dashboard.selection == capture.selection
+            && self.dashboard.linked_generation == capture.generation
+            && self.generation == capture.session_navigation
+            && self.session_history.list_generation == capture.session_generation
+            && self
+                .dashboard
+                .selected
+                .as_ref()
+                .is_some_and(|entry| entry.action == *capture.source)
+            && !capture.target.is_nil()
+            && capture.source.validate().is_ok()
+            && capture.role.contains(&capture.source, capture.target)
+    }
+    pub fn capture_linked_action(
+        &self,
+        role: LinkedActionRole,
+        target: Uuid,
+    ) -> Option<LinkedActionCapture> {
+        let capture = LinkedActionCapture {
+            source: Box::new(self.dashboard.selected.as_ref()?.action.clone()),
+            target,
+            role,
+            view: self.dashboard.view,
+            page: self.dashboard.page_generation,
+            selection: self.dashboard.selection,
+            generation: self.dashboard.linked_generation,
+            session_navigation: self.generation,
+            session_generation: self.session_history.list_generation,
+        };
+        self.linked_action_capture_current(&capture)
+            .then_some(capture)
+    }
+    pub fn linked_action_loading(&self) -> bool {
+        self.dashboard.linked.as_ref().is_some_and(|detail| {
+            self.linked_action_capture_current(&detail.capture)
+                && detail.intent.is_some_and(|id| {
+                    matches!(self.pending.get(&id), Some(Pending::LinkedAction(_)))
+                })
+        })
+    }
+    pub fn inspect_linked_action(
+        &mut self,
+        capture: &LinkedActionCapture,
+    ) -> Option<(Uuid, AppCommand)> {
+        if !self.linked_action_capture_current(capture) || self.linked_action_loading() {
+            return None;
+        }
+        self.clear_linked_action();
+        let mut capture = capture.clone();
+        capture.generation = self.dashboard.linked_generation;
+        let command = self.command(
+            Pending::LinkedAction(Box::new(capture.clone())),
+            AppCommand::Action(capture.target),
+        );
+        self.dashboard.linked = Some(LinkedActionDetail {
+            capture,
+            record: None,
+            error: None,
+            intent: Some(command.0),
+        });
+        Some(command)
+    }
+    pub fn retry_linked_action(&mut self) -> Option<(Uuid, AppCommand)> {
+        let detail = self.dashboard.linked.as_ref()?;
+        if detail.error.is_none() || detail.intent.is_some() {
+            return None;
+        }
+        self.inspect_linked_action(&detail.capture.clone())
+    }
+    /// Consume typed linked reads before generic event settlement. Malformed or
+    /// unrelated replies never settle this intent or another owner operation.
+    pub(super) fn apply_linked_action_event(&mut self, id: Uuid, event: &AppEvent) -> bool {
+        if self
+            .dashboard
+            .linked
+            .as_ref()
+            .is_some_and(|detail| !self.linked_action_capture_current(&detail.capture))
+        {
+            self.clear_linked_action();
+        }
+        let Some(Pending::LinkedAction(capture)) = self.pending.get(&id).cloned() else {
+            return matches!(event, AppEvent::Action(_));
+        };
+        if !self.linked_action_capture_current(&capture)
+            || self
+                .dashboard
+                .linked
+                .as_ref()
+                .is_none_or(|detail| detail.intent != Some(id))
+        {
+            self.pending.remove(&id);
+            return true;
+        }
+        let detail = self.dashboard.linked.as_mut().unwrap();
+        match event {
+            AppEvent::Action(record)
+                if record.origin.id == capture.target && record.validate().is_ok() =>
+            {
+                detail.record = Some((**record).clone());
+                detail.error = None;
+            }
+            AppEvent::Failed(error) => detail.error = Some(error.clone()),
+            _ => return true,
+        }
+        detail.intent = None;
+        self.pending.remove(&id);
+        true
+    }
     pub fn open_dashboard(&mut self) -> Option<(Uuid, AppCommand)> {
         if !self.ready {
             return None;
@@ -77,6 +242,7 @@ impl AiState {
         self.refresh_dashboard(self.dashboard.filter, false)
     }
     pub fn close_dashboard(&mut self) {
+        self.clear_linked_action();
         self.dashboard.visible = false;
         self.dashboard.view = self.dashboard.view.wrapping_add(1);
         self.dashboard.page = None;
@@ -116,6 +282,7 @@ impl AiState {
             }
         };
         request.validate().ok()?;
+        self.clear_linked_action();
         let view = &mut self.dashboard;
         view.filter = filter;
         view.page_generation = view.page_generation.wrapping_add(1);
@@ -151,6 +318,7 @@ impl AiState {
             return false;
         };
         self.dashboard.selection = self.dashboard.selection.wrapping_add(1);
+        self.clear_linked_action();
         self.dashboard.selected = Some(entry);
         true
     }
@@ -262,6 +430,7 @@ impl AiState {
             .find(|attempt| attempt.request == capture.request)?;
         attempt.error = None;
         let command = AppCommand::CompleteAction(capture.request.clone());
+        self.clear_linked_action();
         self.clear_profile_context();
         self.pending
             .insert(operation, Pending::ActionComplete(Box::new(capture)));

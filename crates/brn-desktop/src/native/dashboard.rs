@@ -1,5 +1,6 @@
 //! Native Dashboard views over checked workflow observations and explicit commands.
 use super::*;
+use crate::ai::dashboard_state::{LinkedActionCapture, LinkedActionRole};
 use brn_workflow::dashboard::DashboardFilter;
 use gpui_kit::{
     AnyElement, TestSupportExt,
@@ -13,6 +14,7 @@ pub(super) struct DashboardPane {
     pub attempt: Option<Uuid>,
     pub sent_path: Entity<TextareaState>,
     pub sent_source: Entity<EditorState>,
+    pub linked_action: Entity<EditorState>,
     _subscription: Subscription,
 }
 impl DashboardPane {
@@ -41,6 +43,7 @@ impl DashboardPane {
         Self {
             sent_path,
             sent_source: cx.new(|cx| EditorState::new(window, cx).default_value("")),
+            linked_action: cx.new(|cx| EditorState::new(window, cx).default_value("")),
             _subscription: subscription,
             proof: cx.new(|cx| EditorState::new(window, cx).default_value("")),
             scroll: ScrollHandle::new(),
@@ -101,6 +104,20 @@ fn copy(id: String, label: &str, text: String) -> Button {
 impl Desktop {
     pub(super) fn sync_dashboard_widgets(&mut self, window: &mut Window, cx: &mut Context<Self>) {
         let ai = self.ai.as_ref().unwrap();
+        let linked = ai
+            .dashboard
+            .linked
+            .as_ref()
+            .filter(|detail| ai.linked_action_capture_current(&detail.capture))
+            .and_then(|detail| detail.record.as_ref())
+            .map_or_else(String::new, |record| {
+                serde_json::to_string_pretty(record).expect("checked linked Action JSON")
+            });
+        if self.dashboard.linked_action.read(cx).value().as_ref() != linked {
+            self.dashboard
+                .linked_action
+                .update(cx, |editor, cx| editor.set_value(linked, window, cx));
+        }
         let source = ai
             .dashboard
             .sent_preview
@@ -131,6 +148,21 @@ impl Desktop {
             || self.closing.is_some()
             || self.closed
             || self.close_failed
+    }
+    fn inspect_linked_action(
+        &mut self,
+        capture: &LinkedActionCapture,
+        window: &mut Window,
+        cx: &mut Context<Self>,
+    ) {
+        if self.dashboard_blocked() || window.has_active_dialog(cx) {
+            return;
+        }
+        if let Some(command) = self.ai.as_mut().unwrap().inspect_linked_action(capture) {
+            self.simple_send(command, cx);
+            self.sync_dashboard_widgets(window, cx);
+            cx.notify();
+        }
     }
     fn dashboard_page(
         &mut self,
@@ -376,6 +408,145 @@ impl Desktop {
                         })),
                 );
             }
+        }
+        if let Some(entry) = &state.selected {
+            content = content.child("Inspect explicitly linked work · read only");
+            for (role, target) in entry
+                .action
+                .data
+                .dependencies
+                .iter()
+                .copied()
+                .map(|id| (LinkedActionRole::Dependency, id))
+                .chain(
+                    entry
+                        .action
+                        .data
+                        .parent
+                        .map(|id| (LinkedActionRole::Parent, id)),
+                )
+                .chain(
+                    entry
+                        .action
+                        .data
+                        .follows_up
+                        .map(|id| (LinkedActionRole::FollowsUp, id)),
+                )
+            {
+                let capture = ai.capture_linked_action(role, target);
+                content = content.child(
+                    Button::new(format!("linked-action-{role:?}-{target}"))
+                        .label(format!("Inspect {} Action {target}", role.label()))
+                        .disabled(blocked || ai.linked_action_loading() || capture.is_none())
+                        .on_click(cx.listener(move |this, _, window, cx| {
+                            if let Some(capture) = &capture {
+                                this.inspect_linked_action(capture, window, cx);
+                            }
+                        })),
+                );
+            }
+        }
+        if let Some(detail) = state
+            .linked
+            .as_ref()
+            .filter(|detail| ai.linked_action_capture_current(&detail.capture))
+        {
+            let capture = detail.capture.clone();
+            let retry_capture = capture.clone();
+            content = content.child(format!("Source Action {} · version {} · explicit {} → {}", capture.source.origin.id, capture.source.version, capture.role.label(), capture.target))
+                .child("Fresh linked Action observation; source dependency observations and counts are from the earlier Dashboard read. No automatic unblocking.");
+            if detail.intent.is_some() {
+                content = content.child("Reading linked Action…");
+            }
+            if let Some(error) = &detail.error {
+                content = content
+                    .child(format!(
+                        "Linked Action {}: {:?} · {}. Read again explicitly to retry.",
+                        capture.target, error.kind, error.message
+                    ))
+                    .child(
+                        Button::new("retry-linked-action")
+                            .label("Retry linked Action read")
+                            .disabled(blocked)
+                            .on_click(cx.listener(move |this, _, window, cx| {
+                                if this.dashboard_blocked()
+                                    || window.has_active_dialog(cx)
+                                    || !this
+                                        .ai
+                                        .as_ref()
+                                        .unwrap()
+                                        .linked_action_capture_current(&retry_capture)
+                                {
+                                    return;
+                                }
+                                if let Some(command) =
+                                    this.ai.as_mut().unwrap().retry_linked_action()
+                                {
+                                    this.simple_send(command, cx);
+                                    this.sync_dashboard_widgets(window, cx);
+                                    cx.notify();
+                                }
+                            })),
+                    );
+            }
+            if let Some(record) = &detail.record {
+                let record = record.clone();
+                let copy_capture = capture.clone();
+                content = content
+                    .child(format!(
+                        "Current linked Action · {:?} · version {}",
+                        record.data.state, record.version
+                    ))
+                    .child(
+                        div().h(px(240.)).flex_shrink_0().child(
+                            Editor::new(&self.dashboard.linked_action)
+                                .h_full()
+                                .readonly(true)
+                                .aria_label("Complete linked Action record"),
+                        ),
+                    )
+                    .child(
+                        Button::new("copy-linked-action")
+                            .label("Copy complete linked Action")
+                            .disabled(blocked)
+                            .on_click(cx.listener(move |this, _, window, cx| {
+                                if this.dashboard_blocked() || window.has_active_dialog(cx) {
+                                    return;
+                                }
+                                let ai = this.ai.as_ref().unwrap();
+                                if ai.linked_action_capture_current(&copy_capture)
+                                    && ai.dashboard.linked.as_ref().is_some_and(|detail| {
+                                        detail.record.as_ref() == Some(&record)
+                                    })
+                                {
+                                    cx.write_to_clipboard(gpui_kit::ClipboardItem::new_string(
+                                        serde_json::to_string_pretty(&record)
+                                            .expect("checked linked Action JSON"),
+                                    ));
+                                }
+                            })),
+                    );
+            }
+            content = content.child(
+                Button::new("close-linked-action")
+                    .label("Close linked Action details")
+                    .disabled(blocked)
+                    .on_click(cx.listener(move |this, _, window, cx| {
+                        if this.dashboard_blocked()
+                            || window.has_active_dialog(cx)
+                            || !this
+                                .ai
+                                .as_ref()
+                                .unwrap()
+                                .linked_action_capture_current(&capture)
+                        {
+                            return;
+                        }
+                        this.ai.as_mut().unwrap().clear_linked_action();
+                        this.sync_dashboard_widgets(window, cx);
+                        cx.notify();
+                    })),
+            );
         }
         if state.selected.is_some() {
             content = content.child(

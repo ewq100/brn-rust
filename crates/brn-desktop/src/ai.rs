@@ -197,6 +197,7 @@ pub enum Pending {
     Inbox(Box<inbox_state::InboxPending>),
     InboxGuided(Box<inbox_state::GuidedPending>),
     Dashboard(dashboard_state::DashboardQuery),
+    LinkedAction(Box<dashboard_state::LinkedActionCapture>),
     ActionComplete(Box<dashboard_state::CompletionCapture>),
     PrepareSentCompletion(Box<dashboard_state::SentPreparationCapture>),
     Status,
@@ -1264,6 +1265,7 @@ impl AiState {
         self.clear_links();
         self.clear_relationships();
         self.clear_profile_context();
+        self.clear_linked_action();
         let mut commands = vec![self.command(Pending::Proposals, AppCommand::Proposals(None))];
         if generation == self.review_generation
             && self
@@ -1537,6 +1539,7 @@ impl AiState {
         self.knowledge_scope = scope;
         self.clear_relationships();
         self.clear_profile_context();
+        self.clear_linked_action();
         self.composer_changed();
         self.refresh_notes()
     }
@@ -1599,6 +1602,7 @@ impl AiState {
         self.clear_provenance();
         self.clear_links();
         self.clear_profile_context();
+        self.clear_linked_action();
         self.note_generation = self.note_generation.wrapping_add(1);
         self.editor = None;
         self.note_error = None;
@@ -1692,6 +1696,10 @@ impl AiState {
                 | Pending::EditorReconcile
         ) {
             self.clear_profile_context();
+            self.clear_linked_action();
+        }
+        if matches!(pending, Pending::DraftCreate { .. }) {
+            self.clear_linked_action();
         }
         let id = Uuid::new_v4();
         self.pending.insert(id, pending);
@@ -1701,6 +1709,7 @@ impl AiState {
         self.clear_provenance();
         self.clear_links();
         self.clear_profile_context();
+        self.clear_linked_action();
         self.note_generation = self.note_generation.wrapping_add(1);
         self.editor = None;
         self.evidence = None;
@@ -1716,6 +1725,7 @@ impl AiState {
     pub fn refresh_editor(&mut self) -> Option<(Uuid, AppCommand)> {
         let path = self.editor.as_ref()?.view.record.path.clone();
         self.clear_profile_context();
+        self.clear_linked_action();
         Some(self.command(
             Pending::Editor {
                 generation: self.note_generation,
@@ -1741,6 +1751,7 @@ impl AiState {
         let id = Uuid::new_v4();
         let edit = editor.begin(id, destination.clone())?;
         self.clear_profile_context();
+        self.clear_linked_action();
         self.pending.insert(id, Pending::EditorSave);
         Some((
             id,
@@ -1765,6 +1776,7 @@ impl AiState {
         editor.begin(id, None)?;
         editor.pending.as_mut()?.reload_text = Some(reviewed);
         self.clear_profile_context();
+        self.clear_linked_action();
         self.pending.insert(id, Pending::EditorReload);
         Some((id, AppCommand::ReloadEditor(request)))
     }
@@ -1877,6 +1889,7 @@ impl AiState {
             return None;
         }
         self.generation = self.generation.wrapping_add(1);
+        self.clear_linked_action();
         self.conversation = conversation;
         self.turns.clear();
         self.run_budgets.clear();
@@ -1917,6 +1930,9 @@ impl AiState {
                 self.backup_request_error = Some(error.message);
                 self.pending.remove(&id);
             }
+            return commands;
+        }
+        if self.apply_linked_action_event(id, &event) {
             return commands;
         }
         if self.apply_profile_context_event(id, &event) {
@@ -2487,6 +2503,7 @@ impl AiState {
                 vault_bound,
                 model_installed,
             } => {
+                self.clear_linked_action();
                 self.ready = true;
                 self.vault_bound = vault_bound;
                 self.model_installed = model_installed;
@@ -2523,10 +2540,14 @@ impl AiState {
                 }
                 .into();
             }
-            AppEvent::Restored { backup } => self.restored = Some(backup),
+            AppEvent::Restored { backup } => {
+                self.clear_linked_action();
+                self.restored = Some(backup);
+            }
             AppEvent::Status(status) => {
                 if self.vault_root != status.vault_root {
                     self.clear_profile_context();
+                    self.clear_linked_action();
                     self.invalidate_citation_review();
                 }
                 self.vault_root = status.vault_root;
@@ -2555,6 +2576,7 @@ impl AiState {
             }
             AppEvent::VaultBound => {
                 self.clear_profile_context();
+                self.clear_linked_action();
                 self.invalidate_citation_review();
                 self.vault_bound = true;
                 commands.push(self.command(Pending::Status, AppCommand::Status));
@@ -2563,6 +2585,7 @@ impl AiState {
             AppEvent::Refreshed(report) => {
                 self.clear_relationships();
                 self.clear_profile_context();
+                self.clear_linked_action();
                 self.refresh = Some(report);
                 if let Some(command) = self.refresh_notes() {
                     commands.push(command);
@@ -2806,6 +2829,7 @@ impl AiState {
                         self.clear_links();
                         self.clear_relationships();
                         self.clear_profile_context();
+                        self.clear_linked_action();
                     }
                     if let Some(editor) = &mut self.editor {
                         if matches!(pending, Some(Pending::EditorReload)) {
@@ -2839,6 +2863,7 @@ impl AiState {
                         self.clear_links();
                         self.clear_relationships();
                         self.clear_profile_context();
+                        self.clear_linked_action();
                     }
                     if let Some(editor) = &mut self.editor {
                         if matches!(pending, Some(Pending::EditorReconcile)) {

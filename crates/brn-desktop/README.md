@@ -723,3 +723,21 @@ Guarded navigation carries that captured baseline through pending editor recover
 or retained review comments. Approval, restart and Activity compensation use the
 existing replacement lifecycle. Headless behavioral/widget qualification and
 interactive owner acceptance remain distinct.
+
+
+### Read-only linked Action inspection
+
+The selected Dashboard Action exposes each explicit dependency, parent and
+follow-up UUID as an **Inspect** control. The existing checked Action reader can
+read linked work outside the current page/filter, including Completed sources
+and targets. Details identify the complete source baseline, relationship role
+and exact target UUID, with a read-only full record and **Copy complete linked
+Action**. The target is a fresh observation; earlier Dashboard dependency states
+and counts remain unchanged and do not imply automatic unblocking.
+
+Missing work shows an explicit error and owner-triggered retry. Close, Refresh,
+selection, page/view changes and application or session lifecycle changes
+invalidate old callbacks and replies. Inspection preserves the selected source
+and owner inputs and creates no proposal or completion. Headless state, real
+worker/restart and native widget tests cover these mechanics; interactive
+usability and owner acceptance remain in the morning acceptance task.
