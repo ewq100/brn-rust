@@ -26,12 +26,14 @@ Full affected default1182passed/17existingignores (Workflow650,CLI219,Desktop313
 combinedDesktop438passed; all8root workspace/build/fixture gates passed after the
 mechanical lint/CLIformatter corrections. Unchanged backend/native/full-size evidence
 was reused; unchanged full-size asset recovery also passed again in the default gate.
-PR90–110 required candidate AND post-main checks/docs passed. Activity PR110
-merged normally at `c2dbf5e42a42cbad11657d19f6c60a5d87cf01e2` after all required
-candidate checks/docs passed; exact qualified tree `8093e6f000d38a3f4fdbc628120d9f8fbcf791e7`
-verified. All required post-main checks/docs passed in37881829445. Current main is that Activity merge.
-The later 5,000-note campaign passed with this exact runtime; only qualification
-scripts/tests/records changed afterward. Refresh final integration receipt at cutoff.
+PR90–111 required candidate checks/docs passed, and all required resulting-main
+checks/docs passed through PR110. Scale PR111 merged normally at04:25:11UTC;
+final main is `33edae13f74584d7062483447e00ceb334d58a7f`, tree
+`9d31083b092f234bb0c918130cf7d676b49194ed`, exactly matching qualified a74d95d.
+Final post-main37883790450 is pending; refresh this receipt before cutoff. The
+saved executable remains sourceb873: product crates/Cargo/vendor are identical to
+resulting main, and the later qualification adds only scripts/tests/records.
+The actual 5,000-note campaign passed with this exact runtime. No new build needed.
 Immutable shipping runtime:
 `/Users/evokessler/repos/brn-overnight-artifacts-20261008/activity-action-runtime`.
 Desktop: `/Users/evokessler/repos/brn-overnight-artifacts-20261008/activity-action-runtime/brn-desktop`,

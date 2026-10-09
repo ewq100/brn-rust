@@ -77,109 +77,79 @@ requires exact final-candidate review, applicable local checks and actual requir
 CI. No weakening, bypass or rushed merge. Record failures and repair real defects.
 Known informational platform failures remain visible and separate.
 
-## Durable checkpoint — 09 October 04:15 UTC
+## Durable checkpoint — 09 October 04:28 UTC
 
-Continue through05UTC/08Tallinn; finalqualification04:30. AUTHORITATIVE lead andONE
-morningtask /Users/evokessler/repos/brn-p3-work-budgets codex/overnight-final-record. Stablequalificationbranchcodex/user-scale-cli-qualification
-finala74d95d88864963f7335697f84f437003848c4f6 remainsunmodifiedforCI.
-Scaleprobe freezee66fec8c564a2d75658e29a91486a80d138e0f2d ONLY511linescript;
-complete7fileindependentreview41059022cc6ebab0e2b28ab8dd2a63aae46b9ae2bfa92b2b3c110d6ce574d182
-foundONEP2 spawn→registration cancellationwindow. RootVALIDATEDred deterministic
-stubtraceSIGINT beforeactiveassignment: no kill/reap; loguser-scale-spawn-boundary-red.
-VALIDP2FIXED8c4524c2f3846c40bc1f0c8b6723cb972d0809f0, ONLYscript+ONE
-scripts/tests/test_user_scale_cli.py. FreshindependentcorrectionCLEANe6132973869da0028963dd16bfb5da94adb7d65d8716315d4a57f688c76be2c5
-owned2patch89a74054...; productionCampaign.interrupt deferssignalsduringfullPopen/
-registration thenkill/reap/raise, no childmaskblocking; finallyalsoownsreturnedlocal.
-RootredwitnessGREENandregression1test/7subcases(all3signalsbothboundaries+actual
-shortPythonchild)PASS. No product/runtime/BRNmodelcalls.
-Reviewed scale campaign COMPLETE/PASS: session15301 exited0,83freshCLI processes,
-80.9568seconds,5,000Currentnotes/50folders/4,745,663bytes. Both25-page inventories/
-UUID/fullSHA,3anchors exactrangequote/fullreads before-restart-afterrebuild, retained
-Draft/TextInboxoriginal/5kphysicalproofs/emptyActionsConversationscredentialsmodels
-passed unchanged. No inference/account/models/GUI. Case/result.json and all83command
-receipts retained; DO NOT rerun/reset/reprepare/relocate. Timing1.452cold/0.613restart/
-1.424rebuild, page1.098median1.113max, noSLA/nativeUIclaim. CargoFREE.
-All19Python+syntax/help/73files623links/diffPASS. Final5docs/resultindependentreview
-CLEAN4797c611995aa469dca2850406962e635731fc9132db0313fb8162b116609aef at
-a74; reviewerverifiedall83receipthashes/envelopes,5000physicalfullhashes/twoinventories/
-9anchorreads/typedguards/index/runtimehashes/roundedmetrics. No newBRNexecution.
-PR111https://github.com/ewq100/brn-rust/pull/111 attached/ready, finala74, actualCI
-37882759360docsPASS,4requiredproductjobs pending. Parent110all4post/docsPASS.
-Prospectivecurrent110main+111a74 EXACTqualifiedtree9d31083b092f234bb0c918130cf7d676b49194ed.
-NEXT inspect111actualrequiredCI, normalprotectedmergewheneligible, exactmain/postCI;
-no codefreebranchmerge/redundantCargo. Finalrecordbranchnowowns factualupdates without
-restarting111CI; safelycommit/pushreportatcutoff, no unqualifiedmerge. Allhelpersidle,
-CargoFREE, no provider/GUI. No further productdevelopment needed in this slice.
+Objective: finish owner-authorized BRN overnight work by05UTC/08Tallinn, with
+qualification/integration/report priority from04:30. Product work PR90–110 and
+scale qualification PR111 are normally merged. Full V1 and actual UI acceptance
+are incomplete; no GUI/computer/browser/screenshot/accessibility/unlock/interactive
+launch occurred overnight. Lead retains selected model/effort; no Astra.
 
-Frozen locallyqualified b873f273832f881f03b483c079c94fd06a1a6d51 afterhelper9a3e8ab:
-[Activityinventory](activity-action-inventory.md) fixed Applied-only orderedbodyfree
-historicalActionUUID/title/Created-Replaced, existingUndo/fullapproval/paging. No
-currentlookup/schema/deps/newquery/provider. Complete13-file independent reviewCLEAN
-04f5da0... and mechanical2-testparity/CLIformatter correctionrefreshCLEAN4dde81f00...
-owned8patcha90d5f6...; reports/freeze hashes retained. Meaningfulred→green, focused5,
-fullaffecteddefault1182/17existingignores (Workflow650CLI219Desktop313), fullcombined
-Desktop438PASS. Full-size assetrecovery/Undo unchangedpassedagain. Correctedportable2+
-all4Activityintegrations/strictaffectedbothPASS; all8rootfmt/workspacestrictboth/
-shippinghelper52fixtureslinksPASS. Rootverifiedexactunchangedproduction/hashreuse.
-Initialnative/Clippy/editionfmtfailuresrecorded; originalfmtlogoverwrittenbyrerun,
-labelledtool-observation/Gitdelta preserved. No testweakening. CargoFREE.
+Authoritative checkout and ONE morning task:
+/Users/evokessler/repos/brn-p3-work-budgets, branchcodex/overnight-final-record.
+Stable qualification branchcodex/user-scale-cli-qualification finala74d95d88864963f7335697f84f437003848c4f6
+is untouched forCI. Current main `33edae13f74584d7062483447e00ceb334d58a7f`, exact qualified tree `9d31083b092f234bb0c918130cf7d676b49194ed`.
+PR111normalmerge04:25:11 after all4required candidate37882759360/docs and parent
+Activity110post37881829445/docs passed. PR90–111 allrequiredcandidate/docsPASS;
+PR90–110 allrequiredpost-main/docsPASS. FINALPOSTMAIN37883790450 pending.
+Next action: inspect those actual4required/docs, preserve informational failures,
+verify unchanged resultingmain, update finalreport/morningreceipt/record, safely
+commit/push finalhandoff and disableheartbeat at05UTC. No more productdevelopment.
+No protection bypass, shortened witnesses or unqualified merge. Helpersidle/CargoFREE.
 
-Immutable latest activity-action-runtime sourceb873 treee9ba581c1a32555c3678835072f1b957d44e7077; CLI
-e7ddbdc2ce0107bf8341db982049988ed8c81b609dc18c8bd632270019b9bff0,Desktop
-6d62c507de452b6d9403b4e91e03862389d06b602d47c2e2358368a4b05d6cca,helper7f058c35.
-ActualshippingCLIreusedN withoutreprepare:4approvals/5Actionmembers/Create-Replace-
-Undo/order/historicaltitle/bodyfree/fullpage=2rowpaging/reopen/unchangedActions-
-proposals-conversations/vaultbytes/noInferencePASS. ONE morningtasknowA–P27ordered
-steps,220–305minfullincludingoptionalP/75–105essential, latestmatchingruntime. AllactualGUI/IME/
-accessibility/personalacceptancepending. Neverreset/reprepare/relocateboundstate or
-usehistoricalbinaryonnewerschema. Sources/originals/ownerbuffers/recovery preserved.
+Latest immutable runtime remains activity-action-runtime, compiledsource
+b873f273832f881f03b483c079c94fd06a1a6d51, treee9ba581c1a32555c3678835072f1b957d44e7077.
+Root proved productcrates/Cargo/vendor identical tofinalmain. CLIe7ddbdc2ce0107bf8341db982049988ed8c81b609dc18c8bd632270019b9bff0,
+Desktop6d62c507de452b6d9403b4e91e03862389d06b602d47c2e2358368a4b05d6cca,
+helper7f058c35. Runtime/header contains all product changes; qualification later
+changed onlyscripts/tests/records. Morning taskA–P27orderedsteps,220–305minincluding
+optionalP/75–105essential, exactlaunch/fixtures/proofs/failureevidence andoneconcise
+pasteprompt. All actualGUI/IME/accessibility/nativeperformance/owneracceptance pending.
+Use retainedoutputs; neverreprepare/reset/relocateboundstate/oldbinaryafternewerschema.
 
-Activityfinal5docs279395d56ab744d1a1d0138ca069fa92294c4d39 pushed/independently
-CLEAN698a59eb78a2aa4d73079a3f5d2b763fd904d7f95deba096c3b1041120904569;
-PR110https://github.com/ewq100/brn-rust/pull/110 attached/ready, actualrequiredCI
-37880800850ALL4required/docsPASS. Activity110NORMALMERGED
-c2dbf5e42a42cbad11657d19f6c60a5d87cf01e2 at04:00:04, exactqualifiedtree
-8093e6f000d38a3f4fdbc628120d9f8fbcf791e7 verified. Postmain37881829445all4required/docsPASS. Reviewfoundcountundercount valid:threevault_evidenceintegration
-tests hadbeenoverwrittenbyfollowingzeroentrydoctest inhelperparser. Correct1182/17
-Workflow650CLI219Desktop313; rootverifiedrawalltestresults, correctionreceipt retained
-withoutrewritingimmutableoriginalmanifest. Rootfirstassumeddoctests,caught/fixedreason
-inchildrecord4d0bec3 afterf5b9bc6; no test/productionchange. WaitLinked
-postall4/docs beforeActivitynormalprotectedmerge, exactmain/prospectivetree+postCI.
-No rushedmerge. No codefreebranchmerge/redundanttests: latestLinkedmain+preformat
-Activity9a3 treeb7c179... exactlyqualified9a3; reprovefinalb873 beforeintegration.
-PR90–110 ALL4requiredcandidate ANDpostmain/docsPASS. Action108 normallymerged
-e204e626858a90ffcd7eaf1f8e3cf8fc642de33d03:26:38, exactqualifiedtree951f75c...
-post37879299989all4/docsPASS. Linked109normallymerged
-e1df48576e2bc9d345156224cdacfc41bad75f22 at03:40:27, exactqualified6fb5tree
-3dad850c9e14e5b2419ebe172a20d3c47d6c8028 verified; allrequiredpost-main/docsPASS37880350055.
-CompleteLinked10+4docsreviewsCLEAN,7focused/313default437combined+8rootgatesPASS;
-priorlinked-runtime27de/WorkspaceOretained. KnownactualActionpostWindows4UnixAPI/
-LinuxUIoldCommandStdio+PR97unusedlegacyreviewhelper/Linuxcombinedsame3unsupported
-ExclusiveInstall failures inspected; no newdiag/ports/suppression. Overallred≠required
-failure. P8/Graph/Action/Linkedallscope/reviews/initialfailures/qualifiedruntimes retained.
+Scale campaign fullyreviewed beforeexecution: initialcomplete7file review foundP2
+spawn→registration cancellationgap, rootredwitness reproduced, fixed8c4524c with
+deferredsignal→registeredchild→kill/reap/error andlocalfinallycleanup. No blocked
+childsignals. CorrectionreviewCLEANe6132973..., rootgreenand1test7boundarysubcases
+includingrealshortchildPASS. Actual campaign15301EXIT0:83freshCLI processes,
+80.9568sec,5000Currentnotes/50folders/4,745,663B,2x25pages allUUID/fullSHA,
+3anchors exactkeywordrangequote/fullreads before/restart/afterownedindexrebuild,
+Draft/TextInboxoriginal/5000physicalproofs/emptyActions-convos-creds-models unchanged.
+Case/private/tmp/brn-overnight-20261008/user-scale-case/result.json and83commands
+retained. DONOTrerun/reset/reprepare. Limits60sprocess600saggregate; no model/inference.
+Final5docs/resultreviewCLEAN4797c611... independentlyverifiedall83receipt/envelope/
+physical/proof/runtimehashes. All19Pythontooling/syntaxhelp/diff/73files623linksPASS.
+Timings are fixtureCLIobservations only, noSLA/semantic/nativeGUI/generalHistoryclaim.
 
-Rootowns integration/shareddocs/runtime/fixtures/CI. NextselectedREADYqualification
-[5000CurrentCLI](user-scale-cli-qualification.md) plance88a5f usesVision44/existing
-shippingreaders, no productchange/newSLA. Helpernext_v1_readiness implementsONLYscript+focusedcancellationtestforvalidatedP2;
-no Cargo/BRNfixtureexecution/provider/GUI/spawn. New
-owneduser-scale-case,60sperprocess600stotal stop-preserve,2x25pages5000UUID/hash,
-3uniquetokens/fullreads/restarts/disposableownedindexrebuild,typedDraft/Inboxoriginal
-preservation,emptycredentials/models. Rootexecution15301passedaftercleanfreshcorrectionreview; inspectretainedresultonly.
-Revieweraction_edit_review finishedcomplete+mechanical+5docsActivityreviewsCLEAN,
-available freshscaleprobe review. Donotrepeataudit/parkedchoices. Atmost2activehelpers/no recursion/oneCargo;
-selectedmodel/effort unchanged/noAstra. Campaign16/16USED Luna8Sol8; owner10extra
-alreadycounted, no live/retry/newconditions/substitution/reset. Accountweekly78%used/
-22%remaining03:26 ordinarytrue, accountwideNOTnightspend;shortwindow/tokens/internal/
-spendunknown. Archive2743files1,062,569,591B04:13, needsmilestone/cutoffrefresh.
-Synthetic/publicONLY; noGUI/computer/browser/screenshots/accessibility/unlock/
-interactivelaunch/privatevault/email/docs/credentialcontents/accountswitch/purchase/
-paidfallback/modeldownload/release/signing/ports/globalconfig/unrelatedmerge. Preserve
-primary18f3891+DSStore/researchPR80/82/84/userdata/approval/provenance/CurrentHistory/
-originalretention/recovery/owneredits. Parkedretry8f8fc2eunqualifiedpushed/noPR/Rig
-Responsesmismatch;crossfolder/splitregroup/web/autoarchive/PDF/SessionDelete/rename.
-Don'tstopatonePR; continueusefulreadywork; finalqual04:30 andsafecommit/pushunfinished/
-exactmorningreport05UTC. HeartbeatcurrentHERE, disableatcutoff/cancel/runtime-limit/
-allusefulblocked;noarchivechat. [Interimreport](morning-report.md) needsfinalrefresh.
+Activityfullaffecteddefault1182/17existingignores (Workflow650CLI219Desktop313),
+combinedDesktop438 andall8rootfmt/workspacestrictboth/shippinghelper52fixtureslinksPASS.
+Full-size assetrecovery/Undo unchangedranagain/passed. Complete13+mechanical+5docs
+reviewsCLEAN. Originalmanifestunderreports1179/647 because3vault_evidenceintegrations
+were overwritten byfollowingzero-entry doctests inparser; originalkept+erratumJSON,
+childrecords/PRbodycorrected. Rootinitialdoctestcauseguesscaught/corrected. No weakening.
+RetainedN actualshipping4approvals/5Actionmembers/order/Undo/bodyfree/paging/reopen/
+unchangedrecords/bytes/noInference passed. Relevant unchangedbackend/native/fullsize
+checks reused. All earlier slices' detailed scope/review/failure/CI records retained.
+
+Canonical BRNlivecampaign16/16USED Luna8/Sol8; owner's10extraalreadycounted. NO
+more livecalls/retries/effortconditions/substitution/reset. Existingauth/catalog were
+confirmed beforequalification; no login needed. Accountwide03:55 ordinarytrue80%used/
+20%remainingweekly, NOTnightspend; shortwindow/HTTP/tokens/internalreasoning/spendunknown.
+Archive2743files1,062,569,591B04:13, refreshfinalCI/reportmilestone andcutoff. Only
+synthetic/publicdata; no privatevault/email/docs/credentialcontents/accountswitch/
+purchase/paidfallback/modeldownload/release/sign/ports/globalconfig/unrelatedmerge.
+Preserveprimary18f3891+DSStore/researchPR80/82/84/userdata/ownerbuffers/approval/
+provenance/CurrentHistory/originalretention/recovery. InformationalWindowssame4UnixAPI,
+Linuxunsupported3nativeinstalls andunusedCommandStdio/PR97-addedlegacyreviewhelper
+remainvisible; allactualrelevantlogs inspected. No broadport or globalCIgreenclaim.
+
+Parked: retry8f8fc2eunqualifiedpushed/noPR/RigResponsesinvaliddrop; crossfolder link/
+asset semantics,split/regroupownership,webcapture/hostedbudgets,autoarchiveclock/grace,
+PDF/layout,SessionDeletecapturewarnings/retention/rename. No architectureauditrepeat.
+[Morningreport](morning-report.md) and[UItask](morning-ui-acceptance.md) owndeliverables.
+Finalrecordbranch factualhandoff is safelypushed separately fromproductintegration.
+At05UTC no newdevelopment/live, exactselfcontainedreport+pauseheartbeat; disablealso
+owner cancellation/account-runtime-limit/allusefulauthorizedblocked. Noarchivechat.
 
 ## Selected first evidence slice
 

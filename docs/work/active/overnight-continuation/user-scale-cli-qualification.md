@@ -112,3 +112,15 @@ No product code, dependencies or runtime changed; existing product qualification
 and exact shipping runtime were reused. All-candidate Python tooling/links checks,
 final documentation review and required hosted CI/protected integration remain gates.
 Optional native scale observation is solely morning Workspace P / step27.
+
+
+## Protected integration — 04:28 UTC
+
+[PR111](https://github.com/ewq100/brn-rust/pull/111) finala74d95d88864963f7335697f84f437003848c4f6
+passed all4required candidate checks/docs in37882759360, after all required parent
+Activity110 post-main/docs passed. Final five-document/result review is clean;
+SHA4797c611995aa469dca2850406962e635731fc9132db0313fb8162b116609aef.
+Normal protected merge `33edae13f74584d7062483447e00ceb334d58a7f` at04:25:11UTC yielded exact qualified tree
+`9d31083b092f234bb0c918130cf7d676b49194ed`. Product source equals saved b873 runtime; no additional build/inference.
+Post-main37883790450 pending. Factual final handoff updates are safely retained on
+codex/overnight-final-record without restarting the candidate's CI.

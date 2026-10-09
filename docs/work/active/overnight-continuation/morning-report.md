@@ -1,9 +1,10 @@
 # Overnight BRN report — interim 04:23 UTC, 9 October 2026
 
-Product work through PR110 is merged and technically qualified. The latest scale
-qualification PR111 awaits its final required Mac core check. Interactive GUI,
-IME/accessibility and owner acceptance remain pending; no interactive UI was tested
-overnight. The [checkpoint](plan.md) owns the exact current continuation.
+Product work through PR110 and scale qualification PR111 are merged. All required
+candidate checks/docs passed for PR90–111; all required resulting-main checks/docs
+passed through PR110. PR111's final post-main run37883790450 is pending.
+Interactive GUI, IME/accessibility and owner acceptance remain pending; no interactive
+UI was tested overnight. The [checkpoint](plan.md) owns the current continuation.
 
 ## What you can now do
 
@@ -27,9 +28,9 @@ Native usability and personal usefulness still need the morning acceptance journ
 
 Every PR below merged normally after independent review, applicable final local
 checks and all four required candidate checks plus documentation. All required
-resulting-main checks/docs have passed for PR90–110. Main is currently
-`c2dbf5e42a42cbad11657d19f6c60a5d87cf01e2`; its tree
-`8093e6f000d38a3f4fdbc628120d9f8fbcf791e7` exactly matches qualified PR110.
+resulting-main checks/docs have passed for PR90–110. Main is now
+`33edae13f74584d7062483447e00ceb334d58a7f`; its tree
+`9d31083b092f234bb0c918130cf7d676b49194ed` exactly matches qualified PR111.
 
 | PR | Available behavior |
 | --- | --- |
@@ -55,9 +56,11 @@ resulting-main checks/docs have passed for PR90–110. Main is currently
 | [PR109](https://github.com/ewq100/brn-rust/pull/109) | Inspect explicit dependency, parent and follows-up Actions, including Completed work outside the current filter |
 | [PR110](https://github.com/ewq100/brn-rust/pull/110) | Identify every affected Action by historical approved UUID/title/kind in Activity, preserving full inspection and Undo |
 
-[PR111](https://github.com/ewq100/brn-rust/pull/111) adds the reviewed 5,000-note
-qualification probe, cancellation regression and records. Its actual campaign is
-verified, but integration is pending required CI. It changes no BRN product source,
+[PR111](https://github.com/ewq100/brn-rust/pull/111) merged normally at04:25:11UTC
+after all required candidate checks/docs and parent post-main proof passed. It adds
+the reviewed 5,000-note probe, cancellation regression and records; resulting main
+exactly matches the qualified candidate. Final post-main37883790450 is pending.
+It changes no BRN product source,
 dependencies, schema, CI job count or runtime. Final head:
 `a74d95d88864963f7335697f84f437003848c4f6`.
 
@@ -77,7 +80,10 @@ without dropping assertions or adding platform skips. A test-count parser omitte
 three passing vault-evidence integrations; the correct Workflow650/total1182 counts
 are in a separate erratum, preserving the original immutable manifest. Informational
 Windows Unix-API errors and Linux native install/unused-helper failures were inspected
-and remain visible. An overall red workflow is not described as fully green.
+and remain visible. The Linux unused `acknowledge_legacy_review` diagnostic was
+introduced by PR97; the other listed Unix-API/unsupported-install failures predate
+these slices. They are informational for the current Mac delivery scope and were
+neither suppressed nor ported. An overall red workflow is not described as fully green.
 
 The full live allowance is used: **16 BRN investigations**, eight exact
 `gpt-6-luna` Medium and eight exact `gpt-6.1-sol` Medium. Fifteen completed; one

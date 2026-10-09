@@ -2,7 +2,7 @@
 
 ## Overnight implementation and model qualification — 2026-10-08
 
-Current main is `c2dbf5e42a42cbad11657d19f6c60a5d87cf01e2` (Activity PR110).
+Current main is `33edae13f74584d7062483447e00ceb334d58a7f` (scale qualification PR111).
 PR90–108 required candidate and post-main checks/docs passed. Linked109 required
 candidate checks/docs passed and merged normally with exact qualified tree;
 allrequiredpost-main/docsPASS37880350055. The selected
@@ -16,7 +16,8 @@ Full1182affecteddefault/17existingignores,438combined and all8root gates/shippin
 records matching latest runtime and27ordered steps, including optional scale observation;
 all actual UI acceptance pending. The selected [5,000-note CLI qualification](work/active/overnight-continuation/user-scale-cli-qualification.md) passed83fresh processes
 in80.957seconds with exact inventories/search/restart/index rebuild and unchanged
-retained work. Its scripts/records await final hosted qualification/integration;
+retained work. Its reviewed scripts/records merged normally as [PR111](https://github.com/ewq100/brn-rust/pull/111) after all required candidate checks/docs passed;
+resulting tree verified, final post-main37883790450 pending;
 product source/runtime is unchanged.
 [PR90](https://github.com/ewq100/brn-rust/pull/90) added exact evidence ranges and
 intake guidance; [PR91](https://github.com/ewq100/brn-rust/pull/91) added recorded
